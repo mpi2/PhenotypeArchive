@@ -1,0 +1,111 @@
+                      EBI Phenotype Archive Release Notes
+
+Introduction
+------------
+The EBI Phenotype Archive is an open source project to store, analyse and 
+present genotype associated phenotypes information on the web.
+This project is funded by the NIH KOMP2 grant and supported by the IMPC 
+consortium.
+
+The web application runs in a Java servlet container such as Tomcat.
+
+See https://github.com/mpi2/PhenotypeArchive for more information.
+
+Getting Started
+---------------
+You need a Java 1.6 VM or later installed and a servlet container.
+
+================== Release 0.1.3 ==================
+
+Status
+------
+Also Known as the Toronto release.
+This is the first release of the PhenotypeArchive in GitHub.
+It contains several improvements and bug fixing based on user feedback.
+
+Detailed Change List
+--------------------
+
+New features
+ 1.  faceted search on phenotype images (procedures, anatomy, phenotypes, genes)
+ 2.  consistent view of data across the site using the jquery data table
+ 3.  filtering of phenotype terms on the MP and gene page
+ 4.  data export in CSV and Excel format
+ 5.  annotation view of the image result 
+ 6.  genotype information association to images
+ 7.  provenance associated to images
+ 8.  links to legacy data in the phenotype association panel of the gene page 
+ 9.  ES Cell and Allele panel on the gene page
+ 10. Work in progress notice for images
+ 11. IMPC style reproduced (menu, orange bar)
+ 12. syntax correction: procedures instead of protocols, using plural instead of 
+     singular
+ 13. link to pre-QC data added when relevant   
+ 14. see the total number of results per facet by default on search page
+ 15. Phenotype Archive distributed in GitHub
+
+Bug fixes
+ 1. image metada properly displayed
+ 2. correct zygosity stored and displayed
+
+Changes in runtime behavior
+ 1. Java 7
+ 2. Tomcat 7
+ 
+Other Changes
+ 1. Anatomy facet removed (will reintroduced it later)
+ 2. Phenotype calls grouped by genotype (gender collapsed) 
+ 
+================== Release 0.1.2 ==================
+
+Status
+------
+Also known as alpha release.
+This release was presented to biologists.
+
+Detailed Change List
+--------------------
+
+New features
+ 1. a MP (Mouse Phenotype) page based on a SLIM of MP
+ 2. Restful interfaces to the back-end
+ 3. image display plug-ins
+ 4. infinite scroll of images
+ 5. responsive design using Twitter Bootstrap 
+ 6. image facet organized by experiments and by anatomy categories
+ 7. other genotypes curated from the litterature (from MGI) in the 
+    "associated gene variant table" of an MP page
+ 8. grid result page on the phenotype facet
+
+Bug fixes
+ 1. see the same number of allele on the allele table as EuroPhenome
+ 2. display a picture as a MP default representation at its best resolution
+ 3. Ensembl compara links correspond to the same assembly used on IMPC website
+
+Other changes
+ 1. bottom of gene result grid simplified
+ 2. download gene list removed
+ 3. number of second-tier categories in the phenotype facet reduced
+ 4. search bar resized
+ 5. explanation or error page in case of technical error
+ 6. 5 first images per category for phenotype images or expression section 
+    on the gene details page
+ 7. auto-suggest box stiched to the search bar when resizing the screen
+ 8. "no image available-no metadata" suppressed
+ 
+================== Release 0.1.0 ==================
+
+Status
+------
+This is the first release of the PhenotypeArchive at EMBL-EBI.
+
+
+Detailed Change List
+--------------------
+
+New Features
+ 1. Introducing the CHANGES file
+
+Other changes
+ 1. URLs for MP and gene details pages have been refactored
+ 
