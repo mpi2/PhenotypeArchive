@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -21,7 +21,7 @@ package uk.ac.ebi.phenotype.pojo;
  * It is composed of an accession and an external database identifier.
  * 
  * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
- * @version $Revision: 941 $
+ * @version $Revision: 1291 $
  *  @since February 2012
  */
 
