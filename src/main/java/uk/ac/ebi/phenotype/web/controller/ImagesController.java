@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -55,7 +55,7 @@ public class ImagesController {
 			@RequestParam(required = false, defaultValue = "0", value = "start") int start,
 			@RequestParam(required = false, defaultValue = "48", value = "length") int length,
 			@RequestParam(required = false, defaultValue = "*:*", value = "q") String qIn,
-			@RequestParam(required = false, defaultValue = "", value = "mpid") String mpId,
+			@RequestParam(required = false, defaultValue = "", value = "phenotype_id") String mpId,
 			@RequestParam(required = false, defaultValue = "", value = "gene_id") String geneId,
 			@RequestParam(required = false, defaultValue = "", value = "fq") String []filterField,
 			@RequestParam(required = false, defaultValue = "", value = "facet.field") String facetField,
@@ -113,7 +113,7 @@ public class ImagesController {
 		
 		imageDocs = imagesSolrDao.getFilteredDocsForQuery(q,
 				filterList, qf,defType,  start, length);
-
+		if(imageDocs!=null){
 		model.addAttribute("images", imageDocs.getResults());
 		System.out.println("image count="+imageDocs.getResults().getNumFound());
 		model.addAttribute("imageCount", imageDocs.getResults().getNumFound());
@@ -126,6 +126,9 @@ public class ImagesController {
 		model.addAttribute("start", start);
 		model.addAttribute("length", length);
 		model.addAttribute("defType", defType);
+		}else{
+			model.addAttribute("solrImagesError", "");
+		}
 	}
 
 	private String humanizeStrings(String[] filterField, String queryTerms) {
