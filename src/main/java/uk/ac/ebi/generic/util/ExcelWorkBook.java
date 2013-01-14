@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package uk.ac.ebi.generic.util;
 
-import org.apache.poi.xssf.usermodel.*;
-import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.io.FileOutputStream;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.PrintSetup;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 
 /**
 * Creating spreadsheet using Apache POI.
@@ -33,16 +30,9 @@ import java.io.FileOutputStream;
 public class ExcelWorkBook {
 
 	Workbook wb = null;
-	private String[] titles = null;
-	private Object[][] tableData = null;
-	private String sheetTitle = null;
 	
 	public ExcelWorkBook(String[] titles, Object[][] tableData, String sheetTitle) throws Exception {
         
-		this.titles = titles;
-		this.tableData = tableData;	
-		this.sheetTitle = sheetTitle;
-		
 		// create new workbook
 		this.wb = new HSSFWorkbook();
 
