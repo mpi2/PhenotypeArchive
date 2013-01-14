@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -67,8 +67,24 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 	}
 
 	@Transactional(readOnly = false)
+	public int deleteAllTimeSeriesObservationsByOrganisationAndDatasource(Organisation organisation, Datasource datasource) {
+		Query query = getCurrentSession().getNamedQuery("deleteAllTimeSeriesObservationsByOrganisationAndDatasource")
+				.setInteger("organisationID", organisation.getId())
+				.setInteger("dbID", datasource.getId());
+		return query.executeUpdate();
+	}
+	
+	@Transactional(readOnly = false)
 	public int deleteAllCategoricalObservationsByOrganisationAndDatasource(Organisation organisation, Datasource datasource) {
 		Query query = getCurrentSession().getNamedQuery("deleteAllCategoricalObservationsByOrganisationAndDatasource")
+				.setInteger("organisationID", organisation.getId())
+				.setInteger("dbID", datasource.getId());
+		return query.executeUpdate();
+	}
+	
+	@Transactional(readOnly = false)
+	public int deleteAllUnidimensionalObservationsByOrganisationAndDatasource(Organisation organisation, Datasource datasource) {
+		Query query = getCurrentSession().getNamedQuery("deleteAllUnidimensionalObservationsByOrganisationAndDatasource")
 				.setInteger("organisationID", organisation.getId())
 				.setInteger("dbID", datasource.getId());
 		return query.executeUpdate();
