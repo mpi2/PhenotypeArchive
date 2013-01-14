@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -46,14 +46,12 @@ public class DatasourceDAOImpl extends HibernateDAOImpl implements
 	}
 
 	@Transactional(readOnly = true)
-	@SuppressWarnings("unchecked")
 	public Datasource getDatasourceByName(String name) {
 		return (Datasource) getCurrentSession().createQuery("from Datasource as d where d.name= ?").setString(0, name).uniqueResult();
 		
 	}
 
 	@Transactional(readOnly = true)
-	@SuppressWarnings("unchecked")
 	public Datasource getDatasourceByShortName(String shortName) {
 		return (Datasource) getCurrentSession().createQuery("from Datasource as d where d.shortName= ?").setString(0, shortName).uniqueResult();
 		
