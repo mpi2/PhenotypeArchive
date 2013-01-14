@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -47,7 +47,6 @@ public class OrganisationDAOImpl extends HibernateDAOImpl implements Organisatio
 	}
 
 	@Transactional(readOnly = true)
-	@SuppressWarnings("unchecked")
 	public Organisation getOrganisationByName(String name) {
 		return (Organisation) getCurrentSession().createQuery("from Organisation as o where o.name= ?").setString(0, name).uniqueResult();
 	}
