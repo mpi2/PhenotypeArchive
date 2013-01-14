@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -47,7 +47,6 @@ public class ProjectDAOImpl extends HibernateDAOImpl implements ProjectDAO {
 	}
 
 	@Transactional(readOnly = true)
-	@SuppressWarnings("unchecked")
 	public Project getProjectByName(String name) {
 		return (Project) getCurrentSession().createQuery("from Project as p where p.name= ?").setString(0, name).uniqueResult();
 	}
