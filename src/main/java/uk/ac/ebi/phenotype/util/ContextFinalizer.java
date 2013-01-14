@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -15,19 +15,41 @@
  */
 package uk.ac.ebi.phenotype.util;
 
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Enumeration;
 import java.util.Set;
+import java.util.logging.Level;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.apache.log4j.Logger;
+
 public class ContextFinalizer implements ServletContextListener {
+
+	private Logger LOG = Logger.getLogger(this.getClass().getCanonicalName());
 
 	public void contextInitialized(ServletContextEvent sce) {
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
 
-		// Try to kill the TOMCAT abandoned connection clean up thread
+		
+        // This manually deregisters JDBC driver, which prevents Tomcat 7 from complaining about memory leaks wrto this class
+        Enumeration<Driver> drivers = DriverManager.getDrivers();
+        while (drivers.hasMoreElements()) {
+            Driver driver = drivers.nextElement();
+            try {
+                DriverManager.deregisterDriver(driver);
+                LOG.info(String.format("deregistering jdbc driver: %s", driver));
+            } catch (SQLException e) {
+                LOG.warn(String.format("Error deregistering driver %s", driver), e);
+            }
+        }
+
+        // Try to kill the TOMCAT abandoned connection clean up thread
 		// to prevent it from holding the whole context in memory causing
 		// a leak
 
