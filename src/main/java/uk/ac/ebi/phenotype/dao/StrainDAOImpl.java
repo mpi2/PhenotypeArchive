@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -28,7 +28,6 @@ import java.util.List;
 import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
 
-import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.Strain;
 
 
@@ -47,13 +46,11 @@ StrainDAO {
 	}
 
 	@Transactional(readOnly = true)
-	@SuppressWarnings("unchecked")
 	public Strain getStrainByName(String name) {
 		return (Strain) getCurrentSession().createQuery("from Strain as s where s.name= ?").setString(0, name).uniqueResult();
 	}
 
 	@Transactional(readOnly = true)
-	@SuppressWarnings("unchecked")
 	public Strain getStrainBySynonym(String name) {
 		// select mother from Cat as mother, Cat as kit
 		//where kit in elements(foo.kittens)
