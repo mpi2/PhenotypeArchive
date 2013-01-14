@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -22,6 +22,8 @@ package uk.ac.ebi.phenotype.pojo;
  * @since February 2012
  * 
  */
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
@@ -36,8 +38,11 @@ public class TimeSeriesObservation extends Observation {
 	private float dataPoint;
 	
 	@Column(name = "time_point")
-	private float timePoint;
+	private Date timePoint;
 
+	@Column(name = "discrete_point")
+	private float DiscretePoint;
+	
 	/**
 	 * @return the dataPoint
 	 */
@@ -55,15 +60,29 @@ public class TimeSeriesObservation extends Observation {
 	/**
 	 * @return the timePoint
 	 */
-	public float getTimePoint() {
+	public Date getTimePoint() {
 		return timePoint;
 	}
 
 	/**
 	 * @param timePoint the timePoint to set
 	 */
-	public void setTimePoint(float timePoint) {
+	public void setTimePoint(Date timePoint) {
 		this.timePoint = timePoint;
+	}
+
+	/**
+	 * @return the discretePoint
+	 */
+	public float getDiscretePoint() {
+		return DiscretePoint;
+	}
+
+	/**
+	 * @param discretePoint the discretePoint to set
+	 */
+	public void setDiscretePoint(float discretePoint) {
+		DiscretePoint = discretePoint;
 	}
 	
 	
