@@ -1,0 +1,157 @@
+/*
+Add custom css overrides here
+  This file gets included as the last CSS import, so anything defined here 
+  should override behavior defined previously
+*/
+@media all and (max-width: 767px) {
+	#bannerSearch, #bannerSearch input{display:block; width:100%; margin:0;}	
+	#logoImage {float:none; width:auto;}	
+	div.mpi2-grid{margin:0; display:block;clear: both;}
+}
+@media all and (max-width: 979px) {div#spacer{width:250px;}}
+
+/* LOGO COLOR: CF8206 */
+/* a{color:#1B70F8;} */
+@-o-viewport { width: device-width; }
+#logoText {display: none;}	
+.navbar{margin-bottom:7px;}
+body {margin-top:0; padding-top:1em;}
+div#spacer{width:140px;}
+#logo{text-align:center;padding: 2px;}
+#logoImage {margin: 0;padding:5px;}
+#logo h1{margin:0;padding:0;font-size:170%;font-style:italic;font-weight:500; color:#989898;}
+.container {padding: 7px;}
+.mpi2-grid .pagination a, .mpi2-grid .pagination span{float:none;}
+.mpi2-grid .footer{display:none;}
+img { -ms-interpolation-mode: bicubic; }
+/* img#logoImage{width:70px;height:91px;margin-left:15px;} */
+.centered-text {text-align:center}
+
+ div.topic {
+	margin: 0 0 7px 0;		
+	color: #27408B;
+    font-size: 26px;
+    font-weight: bold;
+}
+
+h4.caption {
+	text-align: left;
+	font-size: 20px;
+	font-weight: bold;
+	color: #27408B;
+	padding-bottom: 7px; 
+}
+
+table th {
+text-align: left;	
+font-weight:bold;
+color:#01617a;
+border-bottom:3px solid #d57c24;
+border-top: none !important;
+}
+table caption {
+	text-align: left;
+	font-size: 20px;<script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>
+	font-weight: bold;
+	color: #27408B;
+	padding-bottom: 10px; 
+}
+table td {
+	border-bottom: 1px solid #CDC8B1; 
+    text-align: left;
+    padding: 5px;
+}
+table tr:first-child td {
+ 	border-top: none;
+}
+table tr:last-child td{
+	border-bottom: none;
+}
+
+.toggleIcon {
+ 
+   margin:10px;
+background-image: url('../img/down-arrow.png');
+background-repeat:no-repeat;
+
+}
+
+.divOpen{   
+   margin:10px;
+background-image: url('../img/up-arrow.png');
+background-repeat:no-repeat;
+}
+
+div.gridTitle {
+	font-size: 125%;
+	font-weight: bold;
+	margin-bottom: 20px;
+}
+div.gridSubTitle {
+	color: gray;
+	font-weight: bold;
+	margin-bottom: 20px;
+} 
+div.fileIcons {
+	padding: 0 10px 10px 15px;	
+}
+button.fileIcon, button.gridDump {
+	width: auto;
+	height: 20px;	
+	background-repeat:no-repeat;
+	background-position: 90% 50%;
+	background-color: white; 
+	border: 1px solid #CDC8B1;
+	margin-left: 10px;
+	/*padding: 0 25px 2px 7px;*/
+	/*line-height: 8px;*/	
+	width: 50px;
+	padding-right: 20px;
+	font-size: 11px;
+}
+button[class^=tsv_] {
+	background-image: url('../img/textfile.gif');	
+}
+button[class^=xls_] {
+	background-image: url('../img/excel14x14.png');
+}
+/*button[class^=tsv_], button[class^=excel_]{
+	background-repeat: no-repeat;
+	background-position: 90% 50%;
+	width: 50px;
+	padding-right: 20px;
+	font-size: 11px;
+} */
+
+/* Data table styles */
+table.table thead .sorting,
+table.table thead .sorting_asc,
+table.table thead .sorting_desc,
+table.table thead .sorting_asc_disabled,
+table.table thead .sorting_desc_disabled {cursor: pointer;*cursor: hand;}
+table.table thead .sorting { background: url('../img/sort_both.png') no-repeat center right; }
+table.table thead .sorting_asc { background: url('../img/sort_asc.png') no-repeat center right; }
+table.table thead .sorting_desc { background: url('../img/sort_desc.png') no-repeat center right; }
+table.table thead .sorting_asc_disabled { background: url('../img/sort_asc_disabled.png') no-repeat center right; }
+table.table thead .sorting_desc_disabled { background: url('../img/sort_desc_disabled.png') no-repeat center right;}
+div.dataTables_length label {float: left; text-align: left;}
+div.dataTables_length select {width: 75px;}
+div.dataTables_filter label {float: right;}
+div.dataTables_info {padding-top: 8px;}
+div.dataTables_paginate {float: right;margin: 0;}
+table {margin-bottom: 6px !important;/* clear: both; */}
+.pagination-small {height: 26px;}
+.pagination-small ul li a {padding: 0 10px;line-height: 24px;}
+
+/* we want our collapsible headings to be capitilized*/
+.accordion-heading .accordion-toggle {
+ text-transform: capitalize;
+}
+
+.accordion-heading .accordion-toggle i {
+ padding-right:5px;
+}
+div#noSupport {
+	border: 1px solid gray;
+	padding: 30px;	
+}
