@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import uk.ac.ebi.phenotype.util.SolrIndex;
+import uk.ac.ebi.generic.util.SolrIndex;
 
 
 @Controller
@@ -110,15 +110,13 @@ public class DataTableController implements BeanFactoryAware {
 			String query = "";				
 			String mode = jParams.getString("mode");
 			String solrParamStr = jParams.getString("params");
+
 			boolean showImgView = false;
-			try {
+			if(jParams.containsKey("showImgView")) {
 				showImgView = jParams.getBoolean("showImgView");
 			}
-			catch (Exception e){
-				 //e.printStackTrace();
-			}
+			
 			Map config = (Map) bf.getBean("globalConfiguration");
-
 			SolrIndex solrIndex = new SolrIndex(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView, request, config);			
 			String jsonStr = solrIndex.fetchDataTableJson(contextPath);
 			
