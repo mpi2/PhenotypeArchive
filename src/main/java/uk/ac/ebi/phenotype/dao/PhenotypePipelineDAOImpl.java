@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -25,16 +25,12 @@ package uk.ac.ebi.phenotype.dao;
 
 import java.util.List;
 
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.Procedure;
-import uk.ac.ebi.phenotype.pojo.Project;
-import uk.ac.ebi.phenotype.pojo.Strain;
 
 
 
@@ -51,19 +47,16 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<Pipeline> getAllPhenotypePipelines() {
-		Session session = getCurrentSession();
 		List<Pipeline> pipelines = getCurrentSession().createQuery("from Pipeline").list();
 		return pipelines;
 	}
 
 	@Transactional(readOnly = true)
-	@SuppressWarnings("unchecked")
 	public Pipeline getPhenotypePipelineByStableId(String stableId) {
 		return (Pipeline) getCurrentSession().createQuery("from Pipeline as p where p.stableId = ?").setString(0, stableId).uniqueResult();
 	}
 
 	@Transactional(readOnly = true)
-	@SuppressWarnings("unchecked")
 	public Pipeline getPhenotypePipelineByStableIdAndVersion(String stableId, int majorVersion, int minorVersion) {
 		return (Pipeline) getCurrentSession().createQuery("from Pipeline as p where p.stableId = ? and p.majorVersion = ? and p.minorVersion = ?")
 				.setString(0, stableId)
@@ -74,7 +67,6 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	
 	
 	@Transactional(readOnly = true)
-	@SuppressWarnings("unchecked")
 	public Procedure getProcedureByStableIdAndVersion(String stableId, int majorVersion, int minorVersion) {
 		return (Procedure) getCurrentSession().createQuery("from Procedure as p where p.stableId = ? and p.majorVersion = ? and p.minorVersion = ?")
 				.setString(0, stableId)
@@ -84,7 +76,6 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	}
 	
 	@Transactional(readOnly = true)
-	@SuppressWarnings("unchecked")
 	public Parameter getParameterByStableIdAndVersion(String stableId, int majorVersion, int minorVersion) {
 		return (Parameter) getCurrentSession().createQuery("from Parameter as p where p.stableId = ? and p.majorVersion = ? and p.minorVersion = ?")
 				.setString(0, stableId)
