@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:tx="http://www.springframework.org/schema/tx" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		">
+
+	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:appConfig.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<context:annotation-config />
+
+	<!-- Drives transactions using Hibernate APIs when requested -->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<!-- Translates Hibernate exceptions to Spring Data Access Exceptions -->
+	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+
+	<jee:jndi-lookup id="komp2DataSource" jndi-name="java:comp/env/jdbc/komp2DataSource" expected-type="javax.sql.DataSource" />
+	<jee:jndi-lookup id="ontodbDataSource" jndi-name="java:comp/env/jdbc/ontodbDataSource" expected-type="javax.sql.DataSource" />
+
+	<!-- Weaves in transactional advice around @Transactional methods -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<!-- The biological model manager service that can load models from the 
+		database -->
+	<bean id="biologicalModelDAO" class="uk.ac.ebi.phenotype.dao.BiologicalModelDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<bean id="phenotypeCallSummaryDAO" class="uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<!-- The phenotype pipeline manager service that can load pipeline information 
+		from the database -->
+	<bean id="phenotypePipelineDAO" class="uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<!-- The account manager service that can load accounts from the database -->
+	<bean id="alleleDAO" class="uk.ac.ebi.phenotype.dao.AlleleDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<!-- The account manager service that can load accounts from the database -->
+	<bean id="genomicFeatureDAO" class="uk.ac.ebi.phenotype.dao.GenomicFeatureDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<!-- The account manager service that can load accounts from the database -->
+	<bean id="ontologyTermDAO" class="uk.ac.ebi.phenotype.dao.OntologyTermDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<!-- The account manager service that can load accounts from the database -->
+	<bean id="sequenceRegionDAO" class="uk.ac.ebi.phenotype.dao.SequenceRegionDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<!-- The account manager service that can load accounts from the database -->
+	<bean id="coordinateSystemDAO" class="uk.ac.ebi.phenotype.dao.CoordinateSystemDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<!-- The account manager service that can load accounts from the database -->
+	<bean id="strainDAO" class="uk.ac.ebi.phenotype.dao.StrainDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<!-- The account manager service that can load accounts from the database -->
+	<bean id="datasourceDAO" class="uk.ac.ebi.phenotype.dao.DatasourceDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<!-- The account manager service that can load accounts from the database -->
+	<bean id="labcodeDAO" class="uk.ac.ebi.phenotype.dao.LabcodeDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<!-- The account manager service that can load accounts from the database -->
+	<bean id="projectDAO" class="uk.ac.ebi.phenotype.dao.ProjectDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<!-- The account manager service that can load accounts from the database -->
+	<bean id="organisationDAO" class="uk.ac.ebi.phenotype.dao.OrganisationDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<!-- Spring annotated objects -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource" ref="komp2DataSource" />
+		<property name="annotatedClasses">
+			<list>
+
+				<!-- phenotype archive objects -->
+				<value>uk.ac.ebi.phenotype.pojo.Experiment</value>
+				<value>uk.ac.ebi.phenotype.pojo.Observation</value>
+				<value>uk.ac.ebi.phenotype.pojo.CategoricalObservation</value>
+				<value>uk.ac.ebi.phenotype.pojo.MetaDataObservation</value>
+				<value>uk.ac.ebi.phenotype.pojo.UnidimensionalObservation</value>
+				<value>uk.ac.ebi.phenotype.pojo.TimeSeriesObservation</value>
+				<value>uk.ac.ebi.phenotype.pojo.BiologicalModel</value>
+				<value>uk.ac.ebi.phenotype.pojo.BiologicalSample</value>
+				<value>uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary</value>
+				<value>uk.ac.ebi.phenotype.pojo.Parameter</value>
+				<value>uk.ac.ebi.phenotype.pojo.Procedure</value>
+				<value>uk.ac.ebi.phenotype.pojo.Pipeline</value>
+				<value>uk.ac.ebi.phenotype.pojo.Allele</value>
+				<value>uk.ac.ebi.phenotype.pojo.GenomicFeature</value>
+				<value>uk.ac.ebi.phenotype.pojo.OntologyTerm</value>
+				<value>uk.ac.ebi.phenotype.pojo.SequenceRegion</value>
+				<value>uk.ac.ebi.phenotype.pojo.CoordinateSystem</value>
+				<value>uk.ac.ebi.phenotype.pojo.Strain</value>
+				<value>uk.ac.ebi.phenotype.pojo.Datasource</value>
+				<value>uk.ac.ebi.phenotype.pojo.Labcode</value>
+				<value>uk.ac.ebi.phenotype.pojo.Project</value>
+				<value>uk.ac.ebi.phenotype.pojo.Organisation</value>
+				<value>uk.ac.ebi.phenotype.pojo.LiveSample</value>
+
+				<!-- imaging objects -->
+				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaImageRecord</value>
+				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaImageTag</value>
+				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaImageTagType</value>
+				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaExperimentDict</value>
+				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaMouseImageVw</value>
+				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaQcDict</value>
+				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaPublishedDict</value>
+				<value>uk.ac.ebi.phenotype.imaging.persistence.AnnOntologyDict</value>
+				<value>uk.ac.ebi.phenotype.imaging.persistence.AnnAnnotation</value>
+				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaImportContext</value>
+				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaSubcontext</value>
+				<value>uk.ac.ebi.phenotype.imaging.persistence.HigherLevelAnnotation</value>
+				<value>uk.ac.ebi.phenotype.imaging.persistence.LowerToHigherLevelAnnotation</value>
+				<value>uk.ac.ebi.phenotype.imaging.persistence.MtsMouseAlleleMv</value>
+				<value>uk.ac.ebi.phenotype.imaging.persistence.MtsMouseAllele</value>
+				<value>uk.ac.ebi.phenotype.imaging.persistence.MtsGenotypeDict</value>
+				<value>uk.ac.ebi.phenotype.imaging.persistence.AlleleMpi</value>
+				<value>uk.ac.ebi.phenotype.imaging.persistence.MtsMouseAllele</value>
+				<value>uk.ac.ebi.phenotype.imaging.persistence.MtsGenotypeDict</value>
+			
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+				<prop key="hibernate.show_sql">false</prop>
+				<prop key="hibernate.connection.useUnicode">true</prop>
+				<prop key="hibernate.connection.charSet">UTF8</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="imagingSourceManager" class="uk.ac.ebi.phenotype.imaging.springrest.images.dao.HibernateImagesDao">
+		<constructor-arg ref="sessionFactory" />
+		<constructor-arg ref="imagesSolrDao" />
+	</bean>
+
+	<!-- 
+		If deploying without maven, the imagesSolrUrl variable is replaced
+		by Spring's PropertyPlaceholder configuration.
+		
+		If deploying with maven, the maven filter replaces the imagesSolrUrl
+		variable with the default value specified in the pom.xml file.
+		
+		If deploying using a profile (e.g. mvn tomcat:deploy -Palpha) the 
+		imagesSolrUrl variable is replaced with the appropriate value from
+		the profile in the pom.xml file.  
+	  -->
+	<bean id="imagesSolrDao" class="uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrJ">
+		<constructor-arg name="solrBaseUrl" value="${imagesSolrUrl}" />
+	</bean>
+
+	<bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">
+		<property name="targetMapClass">
+			<value>java.util.HashMap</value>
+		</property>
+		<property name="sourceMap">
+			<map>
+				<entry key="drupalBaseUrl" value="${drupalBaseUrl}" />
+				<entry key="imagesSolrUrl" value="${imagesSolrUrl}" />
+				<entry key="solrUrl" value="${solrUrl}" />
+				<entry key="geneSolrUrl" value="${geneSolrUrl}" />
+			</map>
+		</property>
+	</bean>
+</beans>
