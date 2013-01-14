@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -18,11 +18,17 @@ package uk.ac.ebi.phenotype.util;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 
+/**
+ * Provides an SSL certification implementation that claims all certificates
+ * are valid -- without actually checking them (!).
+ * 
+ * This is required because, for instance, 
+ * dev.mousephenotype.org has an invalid SSL cert
+ * 
+ */
 public class CustomizedHostNameVerifier implements HostnameVerifier {
-
 	@Override
 	public boolean verify(String hostname, SSLSession session) {
 		return true;
 	}
-
 }
