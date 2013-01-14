@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -62,6 +62,7 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements
 		return (OntologyTerm) getCurrentSession().createQuery("from OntologyTerm as o where o.name= ? and o.id.databaseId = ?").setString(0, name).setInteger(1, databaseId).uniqueResult();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	public HashMap<String, OntologyTerm> getAllTerms(int databaseId) {
 		HashMap<String, OntologyTerm> map = new HashMap<String, OntologyTerm>();
@@ -79,6 +80,7 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements
 		return (OntologyTerm) getCurrentSession().createQuery("from OntologyTerm as ot where ot.id.accession = ? and ot.id.databaseId = ?").setString(0, accession).setInteger(1, databaseId).uniqueResult();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<OntologyTerm> getAllOntologyTermsByDatabaseId(int databaseId) {
 		return getCurrentSession().createQuery("from OntologyTerm as ot where ot.id.databaseId = ?").setInteger(0, databaseId).list();
