@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.CompositeFormat;
@@ -29,10 +30,14 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
@@ -44,12 +49,13 @@ import javax.servlet.http.*;
 import uk.ac.ebi.generic.util.*;
 
 @Controller
-public class FileExportController extends HttpServlet {
+public class FileExportController extends HttpServlet implements BeanFactoryAware {
 	
+	private BeanFactory bf;
 	private PhenotypeCallSummaryDAO phenotypeCallSummaryDAO;
 	private String dataString = null;	
 	private Workbook wb = null;
-	private String csvDelimiter = ",";
+	private String tsvDelimiter = "\t";
 	
 	
 	private String patternStr = "(.+_\\d+_\\d+_\\d+)_\\d+";
@@ -62,30 +68,43 @@ public class FileExportController extends HttpServlet {
 	}
 
 	/**
-	 * <p>Export table as CSV or Excel file.</p>
+	 * <p>Export table as TSV or Excel file.</p>
 	 * @param model
 	 * @return
 	 */	
+	
 	@RequestMapping(value="/export", method=RequestMethod.GET)	
-	public String exportTableAsExcelCsv(		
-			@RequestParam(value="externalDbId", required=true) int extDbId,
-			@RequestParam(value="format", required=true) String format,
-			@RequestParam(value="panel", required=true) String panelName,
+	public String exportTableAsExcelTsv(		
+			@RequestParam(value="externalDbId", required=true) Integer extDbId,
+			@RequestParam(value="rowStart", required=false) Integer rowStart,
+			@RequestParam(value="fileType", required=true) String fileType,
 			@RequestParam(value="fileName", required=true) String fileName,
+			@RequestParam(value="panel", required=false) String panelName,			
 			@RequestParam(value="mpId", required=false) String mpId,
 			@RequestParam(value="mpTerm", required=false) String mpTerm,			
 			@RequestParam(value="mgiGeneId", required=false) String mgiGeneId,
-			@RequestParam(value="geneSymbol", required=false) String geneSymbol,
+			@RequestParam(value="geneSymbol", required=false) String geneSymbol,			
+			@RequestParam(value="solrCoreName", required=false) String solrCoreName,
+			@RequestParam(value="params", required=false) String solrParams,
+			@RequestParam(value="gridFields", required=false) String gridFields,		
+			@RequestParam(value="showImgView", required=false) boolean showImgView,	
+			@RequestParam(value="dumpMode", required=false) String dumpMode,
 			
 			HttpSession session, 
 			HttpServletRequest request, 
 			HttpServletResponse response,
 			Model model
 			) throws Exception{	
-					
-			System.out.println(mgiGeneId + " : " + geneSymbol);
+						
+			//String contextPath = (String) request.getAttribute("baseUrl");
+			Map config = (Map) bf.getBean("globalConfiguration");
+			panelName = panelName == null ? "" : panelName; 
+			String contextPath = (String) request.getAttribute("baseUrl");	
+			String serverName = (String) request.getServerName();
+			int serverPort = request.getServerPort();
+			
 			// Excel
-			if ( format.equals("excel") ){				
+			if ( fileType.equals("xls") ){				
 				
 				response.setContentType("application/vnd.ms-excel");					
 				response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls" );
@@ -99,19 +118,39 @@ public class FileExportController extends HttpServlet {
 				else if ( panelName.equals("phenoAssoc")){
 					Wb = new ExcelWorkBook(fetchPhenoAssocTitles(), fetchPhenoAssocData(mgiGeneId, extDbId), sheetName);					
 				}
+				else if ( !solrCoreName.isEmpty() ){					
+					if (dumpMode.equals("all")){
+						rowStart = 0;
+					}
+					SolrIndex solrIndex = new SolrIndex(fileType, solrCoreName, solrParams, rowStart, 
+							showImgView, dumpMode, gridFields, request, config, contextPath, serverName, serverPort);
+					
+					List<String> rows = solrIndex.composeDataTableExportRows(solrCoreName);
+					String[] titles = rows.get(0).split("\t");
+					
+					Wb = new ExcelWorkBook(titles, solrIndex.composeXlsTableData(rows), sheetName);
+				}
 				
 				this.wb = Wb.fetchWorkBook();
 			}
-			else if ( format.equals("csv") ){				
-				response.setContentType("text/csv; charset=utf-8");
-				//response.setHeader("Content-Disposition","attachment;filename=gene_variants_of_" + mpTerm);		 
-				response.setHeader("Content-Disposition","attachment;filename=" + fileName + ".csv");
+			else if ( fileType.equals("tsv") ){				
+				response.setContentType("text/tsv; charset=utf-8");					 
+				response.setHeader("Content-Disposition","attachment;filename=" + fileName + ".tsv");
 				
 				if ( panelName.equals("geneVariants") ){
-					this.dataString = composeGeneVariantsCsvString(mpId, extDbId);
+					this.dataString = composeGeneVariantsTsvString(mpId, extDbId);
 				}
 				else if ( panelName.equals("phenoAssoc") ){				
-					this.dataString = composePhenoAssocCsvString(mgiGeneId, extDbId);
+					this.dataString = composePhenoAssocTsvString(mgiGeneId, extDbId);
+				}
+				else if ( !solrCoreName.isEmpty() ){
+					//System.out.println(solrCoreName + " *** " + solrParams + " *** " + rowStart + " *** " + showImgView + " *** " + dumpMode);
+					if (dumpMode.equals("all")){
+						rowStart = 0;
+					}
+					SolrIndex solrIndex = new SolrIndex(fileType, solrCoreName, solrParams, rowStart, 
+							showImgView, dumpMode, gridFields, request, config, contextPath, serverName, serverPort);
+					this.dataString = StringUtils.join(solrIndex.composeDataTableExportRows(solrCoreName), "\n");					
 				}
 			}
 			
@@ -120,23 +159,24 @@ public class FileExportController extends HttpServlet {
 			
 			try {				
 				
-				if ( format.equals("csv") ){
+				if ( fileType.equals("tsv") ){
 					ServletOutputStream output = response.getOutputStream();
-					StringBuffer sb = new StringBuffer();																		
+					StringBuffer sb = new StringBuffer();						
 					sb.append(dataString);					
 		 
 					InputStream in = new ByteArrayInputStream(sb.toString().getBytes("UTF-8"));
 		 
 					byte[] outputByte = new byte[4096];
-					//copy binary contect to output stream
+					//copy binary content to output stream
 					while(in.read(outputByte, 0, 4096) != -1) {
 						output.write(outputByte, 0, 4096);
 					}
-					in.close();
+					
+					in.close();					
 					output.flush();
 					output.close();
 				}
-				else if ( format.equals("excel") ) {	
+				else if ( fileType.equals("xls") ) {	
 					ServletOutputStream output = response.getOutputStream();
 					try {
 						wb.write(output);
@@ -149,9 +189,9 @@ public class FileExportController extends HttpServlet {
 			catch(Exception e){
 				System.out.println("Error: " + e.getMessage());
 			}
-			return null;			
+			return null;		
 	}
-			
+	
 	private String[] fetchGeneVariantsTitles(){		
 		String[] titles = {"Gene", "Allele Symbol", "Zygosity", "Sex", "Procedure", "Data"};		
 		return titles;
@@ -198,10 +238,10 @@ public class FileExportController extends HttpServlet {
 		return tableData;
 	}	
 	
-	private String composeGeneVariantsCsvString(String mpId, int extDbId){	
+	private String composeGeneVariantsTsvString(String mpId, int extDbId){	
 		
 		List<String> rows = new ArrayList<String>();		
-		rows.add(StringUtils.join(fetchGeneVariantsTitles(), csvDelimiter)); //"Gene, Allele Symbol, Zygosity, Sex, Procedure");
+		rows.add(StringUtils.join(fetchGeneVariantsTitles(), tsvDelimiter)); //"Gene, Allele Symbol, Zygosity, Sex, Procedure");
 				
 		
 		List<PhenotypeCallSummary> summaries = phenotypeCallSummaryDAO.getPhenotypeCallByMPAccession(mpId, extDbId);
@@ -220,7 +260,7 @@ public class FileExportController extends HttpServlet {
 				// compose legacy data link
 				data.add(composeLegacyDataLink(p));	
 				
-				rows.add(StringUtils.join(data, csvDelimiter));
+				rows.add(StringUtils.join(data, tsvDelimiter));
 			}
 		}
 		
@@ -237,6 +277,7 @@ public class FileExportController extends HttpServlet {
 		
 		if (matcher.find()) {
 			String params = "&l=" + extId + "&x=" + sex + "&p=" + procedure_sid + "&pid_" + matcher.group(1) + "=on";
+			//linkParam = "<a href='" + europhenomeBaseUrl + params + "'>Europhenome</a>";
 			linkParam = europhenomeBaseUrl + params;
 						       
 		} 
@@ -247,10 +288,10 @@ public class FileExportController extends HttpServlet {
 		return linkParam;
 	}
 	
-	private String composePhenoAssocCsvString(String mgiGeneId, int extDbId){	
+	private String composePhenoAssocTsvString(String mgiGeneId, int extDbId){	
 	
 		List<String> rows = new ArrayList<String>();		
-		rows.add(StringUtils.join(fetchPhenoAssocTitles(), csvDelimiter)); //"Phenotype, Allele, Zygosity, Sex");
+		rows.add(StringUtils.join(fetchPhenoAssocTitles(), tsvDelimiter)); //"Phenotype, Allele, Zygosity, Sex");
 				
 		List<PhenotypeCallSummary> summaries = phenotypeCallSummaryDAO.getPhenotypeCallByAccession(mgiGeneId, extDbId);
 		for(PhenotypeCallSummary p : summaries) {							
@@ -263,9 +304,13 @@ public class FileExportController extends HttpServlet {
 			// compose legacy data link
 			data.add(composeLegacyDataLink(p));
 			
-			rows.add(StringUtils.join(data, csvDelimiter));
+			rows.add(StringUtils.join(data, tsvDelimiter));
 		}		
 		return StringUtils.join(rows, "\n");
 	}
 	
+	@Override
+	public void setBeanFactory(BeanFactory arg0) throws BeansException {
+		this.bf=arg0;		
+	}	
 }
