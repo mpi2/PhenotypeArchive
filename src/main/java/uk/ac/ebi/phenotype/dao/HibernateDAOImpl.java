@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -52,8 +52,8 @@ public class HibernateDAOImpl implements HibernateDAO {
 	 * This is deprecated and should be replaced!
 	 * @return
 	 */
+	@SuppressWarnings("deprecation")
 	public Connection getConnection() {
-		@SuppressWarnings("deprecation")
 		Session session = SessionFactoryUtils.doGetSession(sessionFactory, false);
 		Connection connection = session.connection(); 
 		return connection;
@@ -79,6 +79,7 @@ public class HibernateDAOImpl implements HibernateDAO {
 		this.sessionFactory = sessionFactory;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public Collection executeNativeQuery(String sql) throws SQLException {
 		
 		LinkedList<Object> results = new LinkedList<Object>();
