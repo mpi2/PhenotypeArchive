@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -27,6 +27,9 @@ package uk.ac.ebi.phenotype.pojo;
  * @see PipelineEntry
  */
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.AttributeOverride;
@@ -99,21 +102,21 @@ public class Parameter extends PipelineEntry {
 		@AttributeOverride(name="description", 
 		   column=@Column(name="description"))
 		})
-	private Set<ParameterOption> options;
+	private List<ParameterOption> options;
 	
 	@ElementCollection
 	   @CollectionTable(name="phenotype_parameter_increment", joinColumns=@JoinColumn(name="parameter_id"))
 	@AttributeOverrides({
 		@AttributeOverride(name="value", 
-		   column=@Column(name="value")),
+		   column=@Column(name="increment_value")),
 		@AttributeOverride(name="dataType", 
-		   column=@Column(name="datatype")),
+		   column=@Column(name="increment_datatype")),
 		@AttributeOverride(name="unit", 
-		   column=@Column(name="unit")),
+		   column=@Column(name="increment_unit")),
 		@AttributeOverride(name="minimum", 
-		   column=@Column(name="minimum"))			   
+		   column=@Column(name="increment_minimum"))			   
 		})
-	private Set<ParameterIncrement> increment;
+	private List<ParameterIncrement> increments;
 	
 	public Parameter() {
 		super();
@@ -305,31 +308,51 @@ public class Parameter extends PipelineEntry {
 	}
 
 	/**
+	 * @param increment add an increment to set
+	 */
+	public void addOption(ParameterOption option) {
+		if (options == null) {
+			options = new ArrayList<ParameterOption>();
+		}
+		this.options.add(option);
+	}
+	
+	/**
 	 * @return the options
 	 */
-	public Set<ParameterOption> getOptions() {
+	public List<ParameterOption> getOptions() {
 		return options;
 	}
 
 	/**
 	 * @param options the options to set
 	 */
-	public void setOptions(Set<ParameterOption> options) {
+	public void setOptions(List<ParameterOption> options) {
 		this.options = options;
 	}
 
 	/**
+	 * @param increment add an increment to set
+	 */
+	public void addIncrement(ParameterIncrement increment) {
+		if (increments == null) {
+			increments = new ArrayList<ParameterIncrement>();
+		}
+		this.increments.add(increment);
+	}
+	
+	/**
 	 * @return the increment
 	 */
-	public Set<ParameterIncrement> getIncrement() {
-		return increment;
+	public List<ParameterIncrement> getIncrement() {
+		return increments;
 	}
 
 	/**
 	 * @param increment the increment to set
 	 */
-	public void setIncrement(Set<ParameterIncrement> increment) {
-		this.increment = increment;
+	public void setIncrement(List<ParameterIncrement> increments) {
+		this.increments = increments;
 	}
 
 }
