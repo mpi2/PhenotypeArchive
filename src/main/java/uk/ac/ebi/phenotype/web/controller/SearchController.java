@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -30,18 +30,14 @@ public class SearchController {
 	 */
 	@RequestMapping("/index.html")
 	public String rootForward() {
-		return "redirect:/searchAndFacet";
+		return "redirect:/search";
 	}
 
 	/**
-	 * <p>
-	 * Simply takes us to the generic search/data faceting page.
-	 * </p>
+	 * Controller for the search page
 	 * 
-	 * @param model
-	 * @return
 	 */
-	@RequestMapping("/searchAndFacet")
+	@RequestMapping("/search")
 	public String loadAutosuggestSearchFacetPage(
 			@RequestParam(value = "queryString", required = false) String queryString,
 			@RequestParam(value = "type", required = false) String type,
@@ -53,6 +49,6 @@ public class SearchController {
 		model.addAttribute("queryType", type);
 		model.addAttribute("queryGeneFound", geneFound);
 
-		return "searchAndFacet";
+		return "search";
 	}
 }
