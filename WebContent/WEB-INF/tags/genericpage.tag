@@ -38,13 +38,13 @@
 <title><jsp:invoke fragment="title"></jsp:invoke> | International Mouse Phenotyping Consortium</title>
 
 <link type='text/css' rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css' />
-<link type='text/css' rel='stylesheet' href="${baseUrl}/css/pheno.css"  />
+<link type='text/css' rel='stylesheet' href='${baseUrl}/css/pheno.css'  />
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/searchAndFacet.css' />	
-<link type='text/css' rel='stylesheet' href="${baseUrl}/css/bootstrap.css"  />
-<link type='text/css' rel='stylesheet' href="${baseUrl}/css/bootstrap-responsive.css"  />
+<link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap.min.css'  />
+<link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap-responsive.min.css'  />
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/vendor/DataTables-1.9.4/jquery.dataTables.css' media='all' />
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/vendor/DataTables-1.9.4/customDataTable.css' media='all' />
-<link type='text/css' rel='stylesheet' href="${baseUrl}/css/custom.css"  />
+<link type='text/css' rel='stylesheet' href='${baseUrl}/css/custom.css'  />
 
 <style>
 
@@ -191,8 +191,9 @@ try {
 					<span class="row nav input-append" style="padding: 20px 15px 5px 15px;">
 						
 						<input id="userInput" type="text" class="span4" value='${queryStringPlaceholder}' />
-						<button id="acSearch" type="submit" class="btn"><i class="icon-search"></i> Search</button>						
+						<button id="acSearch" type="submit" class="btn"><i class="icon-search"></i> Search</button>
 						<div id="bannerSearch"></div>
+						<a href="#examples" data-toggle="modal" style="color:#333333;font-size:12px;text-decoration: underline;text-shadow:none;text-transform:none;font-weight:normal;">View example searches</a>
 					</span>
 				</div>
 			</div>
@@ -201,6 +202,36 @@ try {
 
 		<div class="container">
 		<jsp:doBody />
+		</div>
+
+		<div id="examples" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h3>Example Searches</h3>
+			</div>
+
+			<div class="modal-body">
+				<p>Sample queries for several fields are shown. Click the desired <a onclick="return false;">query</a> to execute any of the samples. 
+				<span class="text-success">Note that queries are focused on Relationships, leaving modifier terms to be applied as filters.</span></p>
+	
+				<div>
+					<h4>Gene query examples</h4>
+					<p><a class="example" href="javascript:void(0)">pax6</a> - looking for gene Pax6</p>
+					<p><a class="example" href="javascript:void(0)">*rik</a> - looking for all Riken genes</p>
+					<p><a class="example" href="javascript:void(0)">fbox*</a> - looking for fbox genes</p>
+				</div>
+			
+				<div>
+					<h4>Phenotype query examples</h4>
+					<p><a class="example" href="javascript:void(0)">abnormal skin morphology</a> - looking for a specific phenotype</p>
+					<p><a class="example" href="javascript:void(0)">ear</a> - find all ear related phenotypes</p>
+				</div>
+			
+				<div>
+					<h4>Procedure query Example</h4>
+					<p><a class="example" href="javascript:void(0)">grip strength</a> - looking for a specific procedure</p>
+				</div>
+			</div>
 		</div>
 
 		<div class="row-fluid" id='logoFooter'>
@@ -217,7 +248,7 @@ try {
 		</div>
 	</div><!-- /container -->
 
-	<script type='text/javascript' src="${baseUrl}/js/bootstrap/bootstrap.js"></script>	
+	<script type='text/javascript' src="${baseUrl}/js/bootstrap/bootstrap.min.js"></script>	
 	<script type='text/javascript' src="${baseUrl}/js/utils/searchAndFacetConfig.js"></script>	
 	<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/jquery.dataTables.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/core.filter.js'></script>
@@ -226,13 +257,28 @@ try {
 	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/autocompleteWidget.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/sideBarFacetWidget.js'></script>  
 	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>
-	<script type='text/javascript' src='${baseUrl}/js/respond.min.js'></script>
+	<script type='text/javascript' src='${baseUrl}/js/vendor/respond.min.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/vendor/jquery.corner.mini.js'></script>
 
  	<script>
 	$(document).ready(function() {
-		$.fn.ieCheck();	// delivers message to legacy IE users
-		
+		// wire up the example queries
+		$("a.example").click(function(){
+			$('input#userInput').attr("value",$(this).text());
+			$('#examples').modal('hide');
+			var form = "<form id='hiddenSrch' action='" + baseUrl + "/search' method='post'>"
+            + "<input type='text' name='queryString' value='" + $(this).text() + "'>"
+			+ "<input type='text' name='type' value='gene'>"
+			+ "<input type='text' name='geneFound' value='1'>"			                                
+            + "</form>";                     
+			window.jQuery('div#bannerSearch').append(form);
+			window.jQuery('form#hiddenSrch').hide().submit();
+		});
+
+		// Message to IE users
+		$.fn.ieCheck();
+
+		// Display the logout and phenoDCC menu items if appropriate
 		$.ajax({
 		  	type: "GET",
 		  	cache: false,
