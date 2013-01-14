@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -41,7 +41,6 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.phenotype.bean.GenomicFeatureBean;
 import uk.ac.ebi.phenotype.pojo.DatasourceEntityId;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
-import uk.ac.ebi.phenotype.pojo.Synonym;
 
 
 
@@ -72,6 +71,7 @@ public class GenomicFeatureDAOImpl extends HibernateDAOImpl implements
 		return (GenomicFeature) getCurrentSession().createQuery("from GenomicFeature as g where g.biotype.name= ?").setString(0, biotype).uniqueResult();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	public Map<String, GenomicFeature> getGenomicFeaturesByBiotypeAndNoSubtype(String biotype) {
 		HashMap<String, GenomicFeature> map = new HashMap<String, GenomicFeature>();
@@ -99,7 +99,6 @@ public class GenomicFeatureDAOImpl extends HibernateDAOImpl implements
 	}
 
 	@Transactional(readOnly = true)
-	@SuppressWarnings("unchecked")
 	public List<GenomicFeatureBean> getAllGenomicFeatureBeans() {
 		
 		Criteria crit = getCurrentSession().createCriteria(GenomicFeature.class);
