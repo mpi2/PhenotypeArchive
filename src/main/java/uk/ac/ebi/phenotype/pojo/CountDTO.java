@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -56,10 +56,15 @@ import javax.persistence.NamedNativeQuery;
 			name = "deleteBiologicalModels",
 			query = "DELETE biological_model FROM biological_model WHERE biological_model.db_id = :dbID",
 			resultClass = CountDTO.class
+	),
+	@NamedNativeQuery(
+			name = "deleteAllTimeSeriesObservationsByOrganisationAndDatasource",
+			query = "DELETE observation, time_series_observation FROM observation INNER JOIN time_series_observation INNER JOIN experiment_observation INNER JOIN experiment WHERE observation.id = time_series_observation.id AND observation.id = experiment_observation.observation_id AND experiment_observation.experiment_id = experiment.id AND experiment.organisation_id = :organisationID AND experiment.db_id = :dbID",
+			resultClass = CountDTO.class
 	),	
 	@NamedNativeQuery(
 			name = "deleteAllUnidimensionalObservationsByOrganisationAndDatasource",
-			query = "DELETE observation, unidimensional_observation FROM experiment INNER JOIN experiment_observation INNER JOIN observation INNER JOIN unidimensional_observation WHERE experiment.id = experiment_observation.experiment_id AND experiment_observation.observation_id = observation_id AND unidimensional_observation.id = observation.id AND experiment.organisation_id = :organisationID AND experiment.db_id = :dbID",
+			query = "DELETE observation, unidimensional_observation FROM observation INNER JOIN unidimensional_observation INNER JOIN experiment_observation INNER JOIN experiment WHERE observation.id = unidimensional_observation.id AND observation.id = experiment_observation.observation_id AND experiment_observation.experiment_id = experiment.id AND experiment.organisation_id = :organisationID AND experiment.db_id = :dbID",
 			resultClass = CountDTO.class
 	),
 	@NamedNativeQuery(
