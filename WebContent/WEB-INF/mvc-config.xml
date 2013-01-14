@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+                        http://www.springframework.org/schema/mvc     http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd">
+
+	<bean id="propertyPlaceholderConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:appConfig.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- The configuration for your 'PhenotypeArchive' Dispatcher Servlet. This 
+		example uses component scanning to automatically pick up controllers. It 
+		allow us to use @Autowire, @Required and @Qualifier annotations. - Dependencies 
+		of controllers are wired using @Autowired support. - The URI scheme is controller 
+		using @RequestMapping annotations -->
+
+	<mvc:resources mapping="/css/**" location="/resources/css/" />
+	<mvc:resources mapping="/js/**" location="/resources/js/" />
+	<mvc:resources mapping="/img/**" location="/resources/img/" />
+
+	<context:component-scan base-package="uk.ac.ebi.phenotype.web.controller" />
+
+	<!-- <mvc:annotation-driven/> use this if you don't need extra converters -->
+	<mvc:annotation-driven>
+		<mvc:message-converters register-defaults="true">
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+				<property name="supportedMediaTypes" value="text/plain;charset=UTF-8" />
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+
+	<mvc:interceptors>
+		<!-- An interceptor which keeps a hibernate session open to allow lazy 
+			loading of form backing objects -->
+		<bean
+			class="org.springframework.orm.hibernate3.support.OpenSessionInViewInterceptor">
+			<property name="sessionFactory" ref="sessionFactory" />
+		</bean>
+		<!--  add the deployment path to all pages -->
+		<bean class="uk.ac.ebi.phenotype.web.util.DeploymentInterceptor">
+<!-- 			<property name="deploymentPath" value="${deploymentPath}" /> -->
+		</bean>
+	</mvc:interceptors>
+
+	<!-- if you would not have used component scanning you would have had to 
+		wire up the controller yourself: <bean class="uk.ac.ebi.phenotype.web.controller.LabcodeController"> 
+		<constructor-arg ref="labcodeDAO"/> </bean> -->
+
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/views/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+</beans>
