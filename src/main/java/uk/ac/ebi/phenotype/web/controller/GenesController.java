@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -27,6 +27,8 @@ import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -37,15 +39,16 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.util.SolrIndex;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
 import uk.ac.ebi.phenotype.web.util.DrupalHttpProxy;
 
@@ -53,6 +56,7 @@ import uk.ac.ebi.phenotype.web.util.DrupalHttpProxy;
 @Controller
 public class GenesController implements BeanFactoryAware {
 
+	private final Logger log = LoggerFactory.getLogger(GenesController.class);
 	private BeanFactory bf;
 
 	@Autowired
@@ -63,25 +67,36 @@ public class GenesController implements BeanFactoryAware {
 
 	@Autowired
 	private PhenotypeCallSummaryDAO phenoDAO;
-	
-	String drupalBaseUrl;
-	
-	@RequestMapping("/geneDetails")
-	public String geneDetails(@RequestParam("gene_id") String acc, Model model, HttpServletRequest request) {
+
+	/**
+	 * Runs when the request missing an accession ID. This redirects to the
+	 * search page which defaults to showing all genes in the list
+	 */
+	@RequestMapping("/genes")
+	public String rootForward() {
+		return "redirect:/search";
+	}
+
+	@RequestMapping("/genes/{acc}")
+	public String genes(
+			@PathVariable String acc, 
+			Model model,
+			HttpServletRequest request,
+			RedirectAttributes attributes) {
+
+		// Get the global application configuration
+		@SuppressWarnings("unchecked")
+		Map<String,String> config = (Map<String,String>) bf.getBean("globalConfiguration");
 
 		getExperimentalImages(acc, model);
-
-		// add expression info here as well
 		getExpressionImages(acc, model);
 		
-		List<PhenotypeCallSummary> phenotypeList = phenoDAO.getPhenotypeCallByAccession(acc, 3);
-
-		Map<PhenotypeRow,PhenotypeRow> phenotypes = new HashMap<PhenotypeRow,PhenotypeRow>(); 
-
 		// This block collapses phenotype rows
-		// phenotype term, allele, zygosity, and sex 
+		// phenotype term, allele, zygosity, and sex
 		// sex is collapsed into a single column
-		for (final PhenotypeCallSummary pcs : phenotypeList) {
+		List<PhenotypeCallSummary> phenotypeList = phenoDAO.getPhenotypeCallByAccession(acc, 3);
+		Map<PhenotypeRow,PhenotypeRow> phenotypes = new HashMap<PhenotypeRow,PhenotypeRow>(); 
+		for (PhenotypeCallSummary pcs : phenotypeList) {
 
 			// Use a tree set to maintain an alphabetical order
 			Set<String> sex = new TreeSet<String>();
@@ -103,18 +118,20 @@ public class GenesController implements BeanFactoryAware {
 			}
 			phenotypes.put(pr, pr);
 		}
-
 		model.addAttribute("phenotypes", new ArrayList<PhenotypeRow>(phenotypes.keySet()));
+
 		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
 		model.addAttribute("gene", gene);
 		model.addAttribute("request", request);
+		model.addAttribute("acc", acc);
+
 		// crappy code to shoehorn the QC panel
 		DrupalHttpProxy proxy = new DrupalHttpProxy(request);
 		// uncomment if you want to test locally
-		//proxy.setDebugSession("SSESSfbfcc940c73e911682a51bb9f1c59a76=baZqFdKRZNUb4YfinhPVrgOh7yytLaH5rIquy562MVQ");
+		//proxy.setDebugSession("SSESSfbfcc940c73e911682a51bb9f1c59a76=y1tfAywDbKYLw_ROFZX6ysb0H9V3yKk7M9E2rfigei0");
 		URL url;
 		try {
-			drupalBaseUrl = (String) request.getAttribute("drupalBaseUrl");
+			String drupalBaseUrl = (String) request.getAttribute("drupalBaseUrl");
 			url = new URL(drupalBaseUrl + "/phenotypes/" + acc);
 			String drupalContent = proxy.getContent(url);
 			model.addAttribute("bPreQC", new Boolean(drupalContent.contains("qc?")));
@@ -132,29 +149,45 @@ public class GenesController implements BeanFactoryAware {
 				int endIndex = sub1.indexOf("'");
 				String sub2 = sub1.substring(0, endIndex);
 				model.addAttribute("sangerLegacyLink", sub2);
+			}
+			model.addAttribute("bEurophenomeLegacy", new Boolean(drupalContent.contains("europhenome")));
+			if (drupalContent.contains("europhenome")) {
+				// http://www.europhenome.org/databrowser/viewer.jsp?set=true&m=true&l=10035
+				int beginIndex = drupalContent.indexOf("http://www.europhenome.org");
+				String sub1 = drupalContent.substring(beginIndex);
+				int endIndex = sub1.indexOf("'");
+				String sub2 = sub1.substring(0, endIndex);
+				model.addAttribute("europhenomeLegacyLink", sub2);
 			}			
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.debug(e.getLocalizedMessage());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.debug(e.getLocalizedMessage());
 		}
 			
 		// ES Cell and IKMC Allele check (Gautier)
 		
-		Map config = (Map) bf.getBean("globalConfiguration");
 		String solrCoreName = "allele";
 		String mode = "ikmcAlleleGrid";
-		SolrIndex solrIndex = new SolrIndex("allele_name:"+gene.getSymbol(), solrCoreName, mode, config);
-		model.addAttribute("countIKMCAlleles", solrIndex.fetchNumFound());
-		System.out.println("CHECK IKMC allele found : " + solrIndex.fetchNumFound());
-		
-		return "geneDetails";
+		int countIKMCAlleles = 0;
+		if (gene != null) {
+			SolrIndex solrIndex = new SolrIndex("allele_name:"+gene.getSymbol(), solrCoreName, mode, config);
+			countIKMCAlleles = solrIndex.fetchNumFound();
+		} else {
+			attributes.addFlashAttribute("message", "Gene <b>" + acc + "</b> was not found. Please search for your gene of interest.");
+			return "redirect:/search";
+		}
+		model.addAttribute("countIKMCAlleles", countIKMCAlleles);
+		log.debug("CHECK IKMC allele found : " + countIKMCAlleles);
+
+		return "genes";
 	}
 
 	private void getExpressionImages(String acc, Model model) {
+		log.info("hi there: 1");
 		QueryResponse solrExpressionR = imagesSolrDao.getExpressionFacetForGeneAccession(acc);
+		log.info("hi there: 2");
+		log.info("solrEpressionR: "+solrExpressionR);
 		List<FacetField> expressionfacets = solrExpressionR.getFacetFields();
 		Map<String, SolrDocumentList> facetToDocs = new HashMap<String, SolrDocumentList>();
 
@@ -177,6 +210,7 @@ public class GenesController implements BeanFactoryAware {
 
 	private void getExperimentalImages(String acc, Model model) {
 		QueryResponse solrR = imagesSolrDao.getExperimentalFacetForGeneAccession(acc);
+		
 		List<FacetField> facets = solrR.getFacetFields();
 		Map<String, SolrDocumentList> facetToDocs = new HashMap<String, SolrDocumentList>();
 		List<Count> filteredCounts=new ArrayList<Count>();
@@ -206,10 +240,14 @@ public class GenesController implements BeanFactoryAware {
 			}
 		}
 	}
-	
+
+	/**
+	 * required for implementing BeanFactoryAware
+	 * 
+	 * @see org.springframework.beans.factory.BeanFactoryAware#setBeanFactory(org.springframework.beans.factory.BeanFactory)
+	 */
 	@Override
 	public void setBeanFactory(BeanFactory arg0) throws BeansException {
 		this.bf=arg0;
-		
 	}
 }
