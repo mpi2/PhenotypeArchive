@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -47,14 +47,12 @@ public class AlleleDAOImpl extends HibernateDAOImpl implements AlleleDAO {
 	}
 
 	@Transactional(readOnly = true)
-	@SuppressWarnings("unchecked")
 	public Allele getAlleleByAccession(String accession) {
 		return (Allele) getCurrentSession().createQuery("from Allele as a where a.id.accession = ?").setString(0, accession).uniqueResult();
 		
 	}
 
 	@Transactional(readOnly = true)
-	@SuppressWarnings("unchecked")
 	public Allele getAlleleBySymbol(String symbol) {
 		return (Allele) getCurrentSession().createQuery("from Allele as a where a.symbol = ?").setString(0, symbol).uniqueResult();
 		
