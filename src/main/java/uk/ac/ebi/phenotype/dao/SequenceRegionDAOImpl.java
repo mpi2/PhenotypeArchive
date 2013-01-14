@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2012 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -55,6 +55,7 @@ public class SequenceRegionDAOImpl extends HibernateDAOImpl implements
 		return (SequenceRegion) getCurrentSession().createQuery("from SequenceRegion as region where region.name= ?").setString(0, name).uniqueResult();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	public HashMap<String, SequenceRegion> getSequenceRegionsMap() {
 		HashMap<String, SequenceRegion> map = new HashMap<String, SequenceRegion>();
