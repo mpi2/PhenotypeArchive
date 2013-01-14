@@ -1,0 +1,4 @@
+<Context>
+<ResourceLink name="jdbc/komp2DataSource" global="jdbc/komp2DataSource" type="javax.sql.DataSource" />
+<ResourceLink name="jdbc/ontodbDataSource" global="jdbc/ontodbDataSource" type="javax.sql.DataSource" />
+</Context>
