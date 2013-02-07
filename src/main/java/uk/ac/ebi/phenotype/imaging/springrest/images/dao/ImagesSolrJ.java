@@ -20,11 +20,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -41,8 +46,23 @@ public class ImagesSolrJ implements ImagesSolrDao {
 	public static SolrServer server = null;
 	
 	public ImagesSolrJ(String solrBaseUrl) throws MalformedURLException {
-		server = new CommonsHttpSolrServer(solrBaseUrl);
+		
+		// Use system proxy if set
+		if (System.getProperty("http.proxyHost") != null && System.getProperty("http.proxyPort") != null) {
+
+			String PROXY_HOST = System.getProperty("http.proxyHost");
+			Integer PROXY_PORT = Integer.parseInt(System.getProperty("http.proxyPort"));
+			HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT, "http");
+			DefaultHttpClient client = new DefaultHttpClient();
+			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+			server = new HttpSolrServer(solrBaseUrl, client);
+
+			logger.debug("Proxy Settings: " + System.getProperty("http.proxyHost") + " on port: " + System.getProperty("http.proxyPort"));
+		} else {
+			server = new HttpSolrServer(solrBaseUrl);
+		}
 	}
+
 
 	/*
 	 * (non-Javadoc)
