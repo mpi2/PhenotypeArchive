@@ -31,7 +31,7 @@ import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.LiveSample;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 
-public interface BiologicalModelDAO {
+public interface BiologicalModelDAO extends HibernateDAO {
 
 	public void saveBiologicalSample(BiologicalSample sample);
 	public void saveLiveSample(LiveSample sample);
@@ -39,6 +39,7 @@ public interface BiologicalModelDAO {
 	public void deleteAllBiologicalSamplesByDatasource(Datasource datasource);
 	
 	public List<BiologicalModel> getAllBiologicalModelsByDatasourceId(int databaseId);
+	public List<BiologicalModel> getAllBiologicalModelsByAccession(String accession);
 	
 	public BiologicalModel getBiologicalModelById(int modelId);
 	
