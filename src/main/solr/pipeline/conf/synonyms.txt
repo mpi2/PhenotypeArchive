@@ -25,7 +25,9 @@ Television, Televisions, TV, TVs
 #after us won't split it into two words.
 
 # Synonym mappings can be used for spelling correction too
-pixima => pixma
+#pixima => pixma
+#a\,a => b\,b
 
-a\,a => b\,b
+xray,x-ray,X-ray
+x-ray,xray
 
