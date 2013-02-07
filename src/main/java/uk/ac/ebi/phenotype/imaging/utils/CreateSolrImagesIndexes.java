@@ -240,9 +240,6 @@ public class CreateSolrImagesIndexes {
 
 		if (tag.getTagValue() != null && !tag.getTagValue().equals("NULL")
 				&& !tag.getTagValue().equals("null")) {
-			if (tag.getTagName().equalsIgnoreCase(("comment"))) {
-				// System.out.println("illegal char="+tag.getTagValue());
-			}
 			createField(out, "tagName", tag.getTagName());
 			createField(out, "tagValue", tag.getTagValue());
 		}
