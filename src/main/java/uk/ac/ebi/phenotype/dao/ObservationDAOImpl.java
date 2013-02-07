@@ -22,19 +22,28 @@ package uk.ac.ebi.phenotype.dao;
  * @since May 2012
  */
 
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import uk.ac.ebi.phenotype.pojo.BiologicalSample;
+import uk.ac.ebi.phenotype.pojo.CategoricalObservation;
 import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.Experiment;
+import uk.ac.ebi.phenotype.pojo.MetaDataObservation;
 import uk.ac.ebi.phenotype.pojo.Observation;
+import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Organisation;
+import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.TimeSeriesObservation;
+import uk.ac.ebi.phenotype.pojo.UnidimensionalObservation;
 
 public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationDAO {
 
+	
 	/**
 	 * Creates a new Hibernate project data access manager.
 	 * @param sessionFactory the Hibernate session factory
@@ -94,6 +103,121 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 	public void saveObservation(Observation observation) {
 		getCurrentSession().saveOrUpdate(observation);
 		
+	}
+	
+	@Transactional(readOnly = false)
+	public Observation createSimpleObservation(
+			ObservationType observationType, 
+			String simpleValue, 
+			Parameter parameter, 
+			BiologicalSample sample, 
+			int populationId,
+			Datasource datasource,
+			Experiment experiment) {
+		return createObservation(observationType, simpleValue, null, null, parameter, sample, populationId, datasource, experiment);
+	}
+	
+	@Transactional(readOnly = false)
+	public Observation createObservation(
+			ObservationType observationType, 
+			String firstDimensionValue, 
+			String secondDimensionValue,
+			String secondDimensionUnit,
+			Parameter parameter, 
+			BiologicalSample sample, 
+			int populationId,
+			Datasource datasource,
+			Experiment experiment) {
+		
+		Observation obs = null;
+		
+		if (observationType == ObservationType.time_series) {
+
+			logger.debug("Series :" + secondDimensionValue + "\t" + firstDimensionValue);
+			
+			TimeSeriesObservation seriesObservation = new TimeSeriesObservation();
+			
+			if (firstDimensionValue == null || firstDimensionValue.equals("null") || firstDimensionValue.equals("")) {
+				seriesObservation.setMissingFlag(true);
+			} else {
+				seriesObservation.setDataPoint(Float.parseFloat(firstDimensionValue));
+			}
+			
+			Date dateOfExperiment = (experiment != null) ? experiment.getDateOfExperiment() : null;
+			seriesObservation.setTimePoint(secondDimensionValue, dateOfExperiment, secondDimensionUnit);
+			seriesObservation.setDatasource(datasource);
+			seriesObservation.setExperiment(experiment);
+			seriesObservation.setParameter(parameter);
+			seriesObservation.setSample(sample);
+			seriesObservation.setType(observationType);
+
+			obs = seriesObservation;
+			
+		} else if (observationType == ObservationType.metadata) {
+			
+			logger.debug("Metadata: " + firstDimensionValue);
+			MetaDataObservation metaDataObservation = new MetaDataObservation();
+			metaDataObservation.setKey(secondDimensionValue);
+			metaDataObservation.setValue(firstDimensionValue);
+			metaDataObservation.setDatasource(datasource);
+			metaDataObservation.setExperiment(experiment);
+			metaDataObservation.setParameter(parameter);
+			metaDataObservation.setSample(sample);
+			metaDataObservation.setType(observationType);
+			// we do our best for missing flag
+			if (firstDimensionValue.equals("null")) {
+				metaDataObservation.setMissingFlag(true);
+			}
+			
+			obs = metaDataObservation;	
+			
+		} else if (observationType == ObservationType.categorical) {
+	
+			 /* Categorical information */
+			 
+			logger.debug("Categorical: " + firstDimensionValue);
+			CategoricalObservation categoricalObservation = new CategoricalObservation();
+			categoricalObservation.setCategory(firstDimensionValue);
+			categoricalObservation.setDatasource(datasource);
+			categoricalObservation.setExperiment(experiment);
+			categoricalObservation.setParameter(parameter);
+			categoricalObservation.setSample(sample);
+			categoricalObservation.setType(observationType);
+			// we do our best for missing flag
+			if (firstDimensionValue.equals("null")) {
+				categoricalObservation.setMissingFlag(true);
+			}
+			
+			obs = categoricalObservation;
+
+		} else if (observationType == ObservationType.unidimensional) {
+
+			 /* Unidimensional information */								 
+
+			logger.debug("Unidimensional :" + firstDimensionValue);
+			UnidimensionalObservation unidimensionalObservation = new UnidimensionalObservation();
+			
+			// parse the floating point value
+			try {
+				unidimensionalObservation.setDataPoint(Float.parseFloat(firstDimensionValue));
+			} catch (NumberFormatException ex) {
+				// can be "null" can be "/" and many others!
+				logger.info(ex.getMessage());
+				unidimensionalObservation.setMissingFlag(true);
+			}
+
+			unidimensionalObservation.setDatasource(datasource);
+			unidimensionalObservation.setExperiment(experiment);
+			unidimensionalObservation.setParameter(parameter);
+			unidimensionalObservation.setSample(sample);
+			unidimensionalObservation.setType(observationType);
+
+			obs = unidimensionalObservation;
+		}
+		
+		obs.setPopulationId(populationId);
+		
+		return obs;
 	}
 
 }
