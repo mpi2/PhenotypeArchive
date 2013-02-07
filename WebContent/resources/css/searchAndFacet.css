@@ -10,9 +10,6 @@ input#userInput {
 	font-size: 10px;
 	color: gray;
 }
-table input#userInput {
-	margin-left: 0; /* the front page inputbox */
-}
 
 ul.ui-autocomplete {    
 	font-size: 12px;
@@ -33,6 +30,12 @@ ul.ui-autocomplete li a {
 	float: left !important;
 	text-align: left !important;
 	display: block !important;
+}
+
+div#userKeyword {
+	margin-bottom: 15px;
+	padding-left: 300px;
+	color: #D57C24;
 }
 
 /* left panel */
@@ -132,6 +135,7 @@ span#imgViewSwitcher {
 	font-size: 10px;
 	color: gray;
 	float: right;
+	margin-right: 10px;
 	padding-right: 10px;
 	cursor: pointer;
 }
@@ -238,31 +242,35 @@ table#imagesGrid td img {
 /* end of image facet table */
 
 /* table tool */
-div#tableTool {font-size: 12px;}
+div#tableTool {
+	font-size: 12px;
+	position: absolute;
+	top: -127px;
+	right: 10px;
+}
 div#saveTable {
+	position: relative;
+	top: 100px;
 	float: right;
 	margin-right: 10px;
 	cursor: pointer;	
 	padding: 1px 5px;
-	z-index: 9999;
-	
+	z-index: 99;	
 	background-color: #F4F4F4;
+	width: 105px;
 }
 div#toolBox {
-	position: absolute;
-	top: -127px;
+	position: relative;
+	top: -30px;
 	right: 10px;	
-	height: auto;
-	width: auto;
-	
+	height: 123px;
+	width: 192px;	
 	display: none;
-	maring-right: 10px;
-	padding: 15px;
-	
+	padding: 15px;	
 	background-color: #F4F4F4;
 }
 div#toolBox span {
-	display: block;	
+	display: block;
 }
 div#saveSep {
 	margin: 10px;
@@ -276,3 +284,7 @@ div#exportSpinner {
 	color: #CC6600;
 }
 /* end of table tool */
+
+div.dataTables_wrapper {
+	margin-top: 50px !important;
+}
