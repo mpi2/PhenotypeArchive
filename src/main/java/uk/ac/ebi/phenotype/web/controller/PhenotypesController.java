@@ -26,20 +26,30 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.generic.util.SolrIndex;
+import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
+import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
+import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
+import uk.ac.ebi.phenotype.pojo.GenomicFeature;
+import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 
 @Controller
 public class PhenotypesController implements BeanFactoryAware {
 
-	private final Logger log = LoggerFactory.getLogger(GenesController.class);
+	private final Logger log = LoggerFactory.getLogger(PhenotypesController.class);
 
 	private BeanFactory bf;
+
+	@Autowired
+	private OntologyTermDAO ontoTermDao;
 	
 	@Autowired
 	private ImagesSolrDao imagesSolrDao;
@@ -58,12 +68,19 @@ public class PhenotypesController implements BeanFactoryAware {
 	public String loadMpPage(
 			@PathVariable String phenotype_id, 
 			Model model,
-			RedirectAttributes attributes) {
+			RedirectAttributes attributes) throws OntologyTermNotFoundException {
 		
 		// Get the global application configuration
 		@SuppressWarnings("unchecked")
 		Map<String,String> config = (Map<String,String>) bf.getBean("globalConfiguration");
 
+		OntologyTerm phenotypeTerm = ontoTermDao.getOntologyTermByAccessionAndDatabaseId(phenotype_id, 5);
+		if (phenotypeTerm == null) {
+			throw new OntologyTermNotFoundException("", phenotype_id);
+		}
+		
+		
+		model.addAttribute("phenotypeTerm", phenotypeTerm);
 		model.addAttribute("phenotype_id", phenotype_id);
 
 		// Query the images for this phenotype
@@ -80,8 +97,9 @@ public class PhenotypesController implements BeanFactoryAware {
 		log.info("CHECK numFound : " + solrIndex.fetchNumFound());
 
 		if ( solrIndex.fetchNumFound() == 0 ){
-			attributes.addFlashAttribute("message", "Phenotype <b>" + phenotype_id + "</b> was not found. Please search for your phenotype of interest.");
-			return "redirect:/search";
+			throw new OntologyTermNotFoundException("Phenotype <b>" + phenotype_id + "</b> was not found", phenotype_id);
+			//attributes.addFlashAttribute();
+			//return "redirect:/search";
 		}
 
 		return "phenotypes";
@@ -97,4 +115,14 @@ public class PhenotypesController implements BeanFactoryAware {
 	public void setBeanFactory(BeanFactory arg0) throws BeansException {
 		this.bf=arg0;
 	}
+	
+	@ExceptionHandler(OntologyTermNotFoundException.class)
+	public ModelAndView handleGenomicFeatureNotFoundException(OntologyTermNotFoundException exception) {
+        ModelAndView mv = new ModelAndView("identifierError");
+        mv.addObject("errorMessage",exception.getMessage());
+        mv.addObject("acc",exception.getAcc());
+        mv.addObject("type","mouse phenotype");
+        mv.addObject("exampleURI", "/phenotypes/MP:0000585");
+        return mv;
+    } 
 }
