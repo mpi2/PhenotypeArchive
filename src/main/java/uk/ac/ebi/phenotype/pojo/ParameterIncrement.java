@@ -23,15 +23,39 @@ package uk.ac.ebi.phenotype.pojo;
  * @since February 2012
  */
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
-@Embeddable
+@Entity
+@Table(name = "phenotype_parameter_increment")
 public class ParameterIncrement {
 
+	/**
+	 * MySQL auto increment
+	 * GenerationType.AUTO won't work
+	 */
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(name = "id")
+	private Integer id;
+	
+	@Column(name = "increment_value")
 	private String value;
+	
+	@Column(name = "increment_datatype")	
 	private String dataType;
+	
+	@Column(name = "increment_unit")	
 	private String unit;
+	
+	@Column(name = "increment_minimum")
 	private String minimum;
+	
 	/**
 	 * 
 	 */
