@@ -1,13 +1,16 @@
 <%@tag description="Overall Page template" pageEncoding="UTF-8" import="java.util.Properties"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%
-	Properties prop = new Properties();
-	prop.load(  application.getResourceAsStream("/META-INF/MANIFEST.MF"));
-	String version = prop.getProperty("Implementation-Version");
-	if (version == null) {
-		version = "<span class='label label-important'>development</span>";
+Properties prop = new Properties();
+prop.load(  application.getResourceAsStream("/META-INF/MANIFEST.MF"));
+String version = prop.getProperty("Implementation-Version");
+if (version == null) {
+	version = "<span class='label label-important'>development</span>";
+	if (request.getRequestURL().toString().toLowerCase().contains("beta")) {
+		version = "<span class='label label-important'>BETA</span>";
 	}
-	getJspContext().setAttribute("version", version);
+}
+jspContext.setAttribute("version", version);
 %>
 <%@attribute name="header" fragment="true"%>
 <%@attribute name="footer" fragment="true"%>
