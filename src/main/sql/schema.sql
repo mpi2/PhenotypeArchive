@@ -23,6 +23,7 @@ SET collation_connection = utf8_general_ci;
 --
 -- Drop all the tables if they exist
 --
+DROP TABLE IF EXISTS meta_info;
 DROP TABLE IF EXISTS allele;
 DROP TABLE IF EXISTS biological_model;
 DROP TABLE IF EXISTS biological_model_allele;
@@ -49,9 +50,12 @@ DROP TABLE IF EXISTS organisation;
 DROP TABLE IF EXISTS participant;
 DROP TABLE IF EXISTS phenotype_annotation_type;
 DROP TABLE IF EXISTS phenotype_call_summary;
-DROP TABLE IF EXISTS phenotype_increment_annotation;
+DROP TABLE IF EXISTS phenotype_annotation;
 DROP TABLE IF EXISTS phenotype_parameter;
-DROP TABLE IF EXISTS phenotype_parameter_annotation;
+DROP TABLE IF EXISTS phenotype_parameter_lnk_ontology_annotation;
+DROP TABLE IF EXISTS phenotype_parameter_lnk_increment;
+DROP TABLE IF EXISTS phenotype_parameter_lnk_option;
+DROP TABLE IF EXISTS phenotype_parameter_ontology_annotation;
 DROP TABLE IF EXISTS phenotype_parameter_increment;
 DROP TABLE IF EXISTS phenotype_parameter_option;
 DROP TABLE IF EXISTS phenotype_pipeline;
@@ -67,7 +71,25 @@ DROP TABLE IF EXISTS text_observation;
 DROP TABLE IF EXISTS time_series_observation;
 DROP TABLE IF EXISTS unidimensional_observation;
 
+/**
+ * Contains meta information about the database like
+ * the version of the code that can run safely on the data
+ * the mouse assembly version of the data
+ * the different phenodeviant calls made for this version
+ * the version of the database schema
+ */
+CREATE TABLE meta_info (
+	id                          INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	property_key                VARCHAR(255) NOT NULL DEFAULT '',
+	property_value              VARCHAR(255) NOT NULL DEFAULT '',
+	description                 TEXT,
 
+    PRIMARY KEY (id),
+    UNIQUE KEY key_idx (property_key),
+    KEY value_idx (property_value)
+
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+    
 /**
 @table project
 @desc This table stores information about each phenotyping project
@@ -356,7 +378,7 @@ CREATE TABLE biological_model_sample (
 CREATE TABLE biological_sample (
 
     id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    external_id               VARCHAR(30),
+    external_id               VARCHAR(100), 
     db_id                     INT(10),
     sample_type_acc           VARCHAR(20) NOT NULL,
     sample_type_db_id         INT(10) NOT NULL,            
@@ -396,8 +418,8 @@ CREATE TABLE live_sample (
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;	
     
 /**
- * One sample can reference another sample
- * Example: organ to whole organism as a part_of relationship
+ * One sample can refer to another sample
+ * Example one: organ to whole organism as a part_of relationship
  */
 CREATE TABLE biological_sample_relationship (
 
@@ -462,6 +484,7 @@ CREATE TABLE observation (
     db_id                      INT(10) UNSIGNED NOT NULL,
 	biological_sample_id       INT(10) UNSIGNED NOT NULL,
 	parameter_id               INT(10) UNSIGNED NOT NULL,
+	population_id              INT(10) UNSIGNED NOT NULL,
 	observation_type           enum('categorical', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text'),
 	missing                    TINYINT(1) DEFAULT 0,
 
@@ -730,7 +753,7 @@ CREATE TABLE phenotype_parameter (
     required                  TINYINT(1) DEFAULT 0,
     metadata                  TINYINT(1) DEFAULT 0,
     important                 TINYINT(1) DEFAULT 0,
-    derived                   TEXT,
+    derived                   TINYINT(1) DEFAULT 0,
     annotate                  TINYINT(1) DEFAULT 0,
     increment                 TINYINT(1) DEFAULT 0,
     options                   TINYINT(1) DEFAULT 0,
@@ -743,18 +766,35 @@ CREATE TABLE phenotype_parameter (
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+CREATE TABLE phenotype_parameter_lnk_option (
+
+    parameter_id              INT(10) UNSIGNED NOT NULL,
+	option_id                 INT(10) UNSIGNED NOT NULL,
+	
+    KEY parameter_idx (parameter_id),
+    KEY option_idx (option_id)
+
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+    
 CREATE TABLE phenotype_parameter_option (
 
     id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     name                      VARCHAR(200) NOT NULL,
-    description               VARCHAR(200),
-    parameter_id              INT(10) UNSIGNED NOT NULL,
-    
-    PRIMARY KEY (id),
-    KEY parameter_option_idx (parameter_id)
+    description               VARCHAR(200),    
+
+    PRIMARY KEY (id)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+CREATE TABLE phenotype_parameter_lnk_increment (
+
+    parameter_id              INT(10) UNSIGNED NOT NULL,
+	increment_id              INT(10) UNSIGNED NOT NULL,
+	
+    KEY parameter_idx (parameter_id),
+    KEY increment_idx (increment_id)
+
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE phenotype_parameter_increment (
 
@@ -763,40 +803,42 @@ CREATE TABLE phenotype_parameter_increment (
     increment_datatype        VARCHAR(20) NOT NULL,
     increment_unit            VARCHAR(40) NOT NULL,
     increment_minimum         VARCHAR(20) NOT NULL,
-    parameter_id              INT(10) UNSIGNED NOT NULL,
     
-    PRIMARY KEY (id),
-    KEY parameter_option_idx (parameter_id)
+    PRIMARY KEY (id)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 -- truncate table phenotype_parameter; truncate table phenotype_pipeline; truncate table phenotype_procedure; truncate table phenotype_pipeline_procedure; truncate table phenotype_procedure_meta_data; truncate table phenotype_parameter_option; truncate table phenotype_parameter_increment;
 
-
-
-
-
-
-CREATE TABLE phenotype_parameter_annotation (
+CREATE TABLE phenotype_parameter_lnk_ontology_annotation (
 
     annotation_id             INT(10) UNSIGNED NOT NULL,
-    parameter_id              INT(10) UNSIGNED NOT NULL
+    parameter_id              INT(10) UNSIGNED NOT NULL,
+
+    KEY parameter_idx (parameter_id),
+    KEY annotation_idx (annotation_id)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
-CREATE TABLE phenotype_increment_annotation (
+/*
+ * We compute the significance of the occurence of some observation
+ * by comparison with WT/control animals.
+ * 
+ */
+CREATE TABLE phenotype_parameter_ontology_annotation (
 
-    annotation_id             INT(10) UNSIGNED NOT NULL,
-    increment_id              INT(10) UNSIGNED NOT NULL
+    id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    event_type                enum('abnormal', 'abnormal_specific', 'increased', 'decreased', 'inferred', 'trait'),
+    option_id                 INT(10) UNSIGNED,
+    ontology_acc              VARCHAR(20),
+    ontology_db_id            INT(10),
+    
+    PRIMARY KEY (id),
+    KEY ontology_idx (ontology_acc, ontology_db_id),
+    KEY option_idx (option_id)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
-CREATE TABLE phenotype_annotation_type (
-
-    annotation_id             INT(10) UNSIGNED NOT NULL,
-    increment_id              INT(10) UNSIGNED NOT NULL
-    
-) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
 /*
