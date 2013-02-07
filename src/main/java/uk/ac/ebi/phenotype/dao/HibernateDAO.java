@@ -36,6 +36,8 @@ public interface HibernateDAO {
 
 	public Session getSession();
 	
+	public void flushAndClearSession();
+	
 	@SuppressWarnings("rawtypes")
 	public Collection executeNativeQuery(String sql) throws SQLException;
 	
