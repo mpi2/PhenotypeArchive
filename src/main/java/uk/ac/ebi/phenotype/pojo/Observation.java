@@ -64,6 +64,10 @@ public class Observation extends SourcedEntry {
 	@Column(name = "missing")
 	private boolean missingFlag;
 
+	@Column(name = "population_id")
+	private int populationId;
+	
+	
 	/**
 	 * bi-directional
 	 */
@@ -143,5 +147,21 @@ public class Observation extends SourcedEntry {
 	public void setExperiment(Experiment experiment) {
 		this.experiment = experiment;
 	}
+
+	/**
+	 * @return the populationId
+	 */
+	public int getPopulationId() {
+		return populationId;
+	}
+
+	/**
+	 * @param populationId the populationId to set
+	 */
+	public void setPopulationId(int populationId) {
+		this.populationId = populationId;
+	}
+	
+	
 	
 }
