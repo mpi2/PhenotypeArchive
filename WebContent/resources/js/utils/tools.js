@@ -76,6 +76,144 @@
     	}
     	return aStr.join("&");
     }
+        
+    $.fn.parseUrlString = function(sUrl){
+    	
+    	var params = {};
+    	var parts = decodeURI(sUrl).replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+    	       params[key] = value; //.replace(/"/g,'');
+    	});
+    	return params;
+    }
+    
+    $.fn.checkHashStrForSkippingReload = function(url){
+    	var hashParams = $.fn.parseHashString(decodeURI(url));
+    	var coreName = hashParams.coreName;    	
+    	var str1, str2;
+    	    	
+    	if ( $('div#mpi2-search table.dataTable').size() == 1 
+    			&& coreName != $('div#mpi2-search table.dataTable').attr('id').replace('Grid','') ){
+    		str1 = true;
+			str2 = false;		
+    	}
+    	else {
+	    	if ( coreName == 'gene' ){
+	    		if ( hashParams.fq == undefined && $('div.gridSubTitle').size() == 0 ){    			
+	    			str1 = str2 = true;	
+	    			//console.log('1');
+	    		}
+	    		else if ( hashParams.fq == undefined && $('div.gridSubTitle').size() == 1 ){
+	    			str1 = false;
+	    			str2 = true;
+	    			//console.log('2');
+	    		}
+	    		else if ( hashParams.fq != undefined && $('div.gridSubTitle').size() == 0 ){
+	    			str1 = true;
+	    			str2 = false;
+	    			//console.log('3');
+	    		}
+	    		else {
+	    			str1 = hashParams.fq.replace('marker_type_str:','').replace(/"/g, '');
+	    			str2 = $('div.gridSubTitle').text().replace('Subtype: ', '');
+	    		}
+	    	}
+	    	else if ( coreName == 'mp' ){
+	    		if ( hashParams.fq == 'ontology_subset:*' && $('div.gridSubTitle').size() == 0 ){
+	    			str1 = str2 = true;    			
+	    		}
+	    		else if ( hashParams.fq == 'ontology_subset:*' && $('div.gridSubTitle').size() != 0 ){	    			
+	    			str1 = false;
+	    			str2 = true;    			
+	    		}
+	    		else if ( hashParams.fq.match(/ontology_subset:\* AND top_level_mp_term:"(.+)"/) && $('div.gridSubTitle').size() == 0 ){
+	    			str1 = true;
+	    			str2 = false; 
+	    		}
+	    		else {
+	    			var m = hashParams.fq.match(/ontology_subset:\* AND top_level_mp_term:"(.+)"/);    		
+	    			str1 = m[1].replace(' phenotype','');
+	    			str2 = $('div.gridSubTitle').text().replace('Top level term: ', '');
+	    		}
+	    	} 
+	    	else if ( coreName == 'pipeline' ){
+	    		if ( hashParams.fq.match(/pipeline_stable_id/) && $('div.gridSubTitle').size() == 0 ){	    	
+	    			str1 = str2 = true;  
+	    		}
+	    		else if (hashParams.fq.match(/pipeline_stable_id/) && $('div.gridSubTitle').size() == 1 ){
+	    			str1 = false;
+	    			str2 = true;   
+	    		}
+	    		else if ( hashParams.fq.match(/procedure_stable_id/) && $('div.gridSubTitle').size() == 0 ){
+	    			str1 = true;
+	    			str2 = false; 
+	    		}
+	    		else {    		
+	    			str1 = hashParams.fq.replace('procedure_stable_id:','');    		
+	    			str2 = $('table#pipeline td.highlight').siblings('td').find('a').attr('rel');
+	    		}	    		
+	    	} 
+	    	else if (coreName == 'images' ){	    		
+	    		if ( hashParams.fq == 'annotationTermId:M* OR expName:* OR symbol:* OR higherLevelMaTermName:* OR higherLevelMpTermName:*' && $('div.gridSubTitle').size() == 0 ){	    		
+	    			str1 = str2 = true;  
+	    		}
+	    		else if (hashParams.fq == 'annotationTermId:M* OR expName:* OR symbol:* OR higherLevelMaTermName:* OR higherLevelMpTermName:*' && $('div.gridSubTitle').size() == 1 ){
+	    			str1 = false;
+	    			str2 = true;   
+	    		}
+	    		else if ( hashParams.fq && $('div.gridSubTitle').size() == 0 ){
+	    			str1 = true;
+	    			str2 = false; 
+	    		}
+	    		else {
+	    			str1 = hashParams.fq;   
+	    			str2 = $('table#imgFacet td.highlight').siblings('td').find('a').attr('class');
+	    		}	    		
+	    	}
+    	}    
+    	return str1 == str2;
+    }    
+    
+    //function _parseHashString(sHash){
+    $.fn.parseHashString = function(sHash){
+    	var hashParams = {};
+    	var aKV = decodeURI(sHash).split("&");    	    	
+    	var m;
+    	for( var i=0; i<aKV.length; i++){
+    		//console.log('check: '+ aKV[i]);
+    		if ( aKV[i].indexOf('core=') == 0 ){    			
+    			m = aKV[i].match(/core=(.+)/);
+    			hashParams.coreName = m[1];
+    		}
+    		else if ( aKV[i].indexOf('gridSubTitle=') == 0 ){    			
+    			m = aKV[i].match(/gridSubTitle=(.+)/); 
+    			hashParams.gridSubTitle = m[1];
+    		}
+    		else if ( aKV[i].indexOf('q=') == 0 ){    			
+    			m = aKV[i].match(/q=(.+)/);    			
+    			if ( m === null ){
+    				m = [];
+    				m[1] = '*';    		
+    			}    			
+    			hashParams.q = m[1];
+    		}
+    		else if ( aKV[i].indexOf('fq=') == 0 ){    	
+    			//console.log('checking fq: '+ aKV[i]);
+    			
+    			if ( aKV[i] == 'fq=annotationTermId:M* OR expName:* OR symbol:* OR higherLevelMaTermName:* OR higherLevelMpTermName:*' 
+    				|| aKV[i] == 'fq=annotationTermId:M* OR expName:* OR symbol:*' 
+    				|| aKV[i].match(/fq=expName.+|fq=higherLevel.+|fq=subtype.+/) 
+    				|| aKV[i].match(/fq=ontology_subset:\* AND top_level_mp_term.+/)
+    				|| aKV[i].match(/fq=ontology_subset:.+/)
+    				|| aKV[i].match(/marker_type_str.+/)
+    				|| aKV[i].match(/pipeline_stable_id.+/)
+    				|| aKV[i].match(/procedure_stable_id.+/)
+    				){
+    				hashParams.fq = aKV[i].replace('fq=','');    				
+    			}    			
+    		}
+    	}
+    	return hashParams;
+    }
     
     $.fn.fetchEmptyTable = function(theadStr, colNum, id){
     	
@@ -90,7 +228,7 @@
     	return table;
     },	   	 
     $.fn.invokeDataTable = function(oInfos){   	   	
-    	
+    	    	
     	var oDtable = $('table#' + oInfos.mode).dataTable({
     		"bSort" : false,
     		"bProcessing": true,
@@ -118,140 +256,162 @@
     				}	    
     			)		
     		},
-    		"fnDrawCallback": function( oSettings ) {    		      
-    		      $('a.interest').click(function(){
-    		    	  var mgiId = $(this).attr('id');
-    		    	  var label = $(this).text();
-    		    	  var regBtn = $(this);
-    		    	  $.ajax({
-                          url: '/toggleflagfromjs/' + mgiId,                       
-                          success: function (response) {
-                        	  function endsWith(str, suffix) {
-                        		    return str.indexOf(suffix, str.length - suffix.length) !== -1;
-                        		}         if(response === 'null') {
-                                  window.alert('Null error trying to register interest');
-                              } 
-                              else {  
-                          
-                                  if( label == 'Register interest' ) {
-                                      regBtn.text('Unregister interest');
-                                  } 
-                                  else {
-                                	  regBtn.text('Register interest');
-                                  }                               
-                              }                         
-                          },
-                          error: function () {
-                              window.alert('AJAX error trying to register interest');                     
-                          }
-                      });
-                      return false;    		    	  
-    		      });
+    		"fnDrawCallback": function( oSettings ) {  // when dataTable is loaded
+    			
+    			// ie fix, as this style in CSS is not working for IE8 
+    			if ( $('table#geneGrid').size() == 1 ){
+    				$('table#geneGrid th:nth-child(1)').width('45%');
+    			}    			  			
+    			
+    			$('a.interest').click(function(){
+    				var mgiId = $(this).attr('id');
+    				var label = $(this).text();
+    				var regBtn = $(this);
+    				$.ajax({
+    					url: '/toggleflagfromjs/' + mgiId,                       
+    					success: function (response) {
+    						function endsWith(str, suffix) {
+    							return str.indexOf(suffix, str.length - suffix.length) !== -1;
+                        	}
+    						if(response === 'null') {
+    							window.alert('Null error trying to register interest');
+    						} 
+    						else {                          
+    							if( label == 'Register interest' ) {
+    								regBtn.text('Unregister interest');
+    							} 
+    							else {
+    								regBtn.text('Register interest');
+    							}                               
+    						}                         
+                        },
+                        error: function () {
+                        	window.alert('AJAX error trying to register interest');                     
+                        }
+                    });
+    				return false;    		    	  
+    			});
+    			
+    			initDataTableDumpControl(oInfos);
     		},
     		"sAjaxSource": oInfos.dataTablePath
-    	}); 
-    	    	
+    	});     	    
     	
-    	 //console.log(window.location.hash.substring(1)); // string after '#'
-    	 
     	/*var oTableTools = new TableTools( oDtable, {
 	        "sSwfPath": "/phenotype-archive/js/vendor/DataTables-1.9.4/extras/TableTools/media/swf/copy_csv_xls_pdf.swf",
 	        "aButtons": [
 	        			"copy"	
 	        ]
-    	});*/    
-    	    	
-    	var saveTool = $("<div id='saveTable'></div>").html("Download data <img src='/phenotype-archive/img/floppy.png' />").corner("4px");    	
-    	var toolBox = fetchSaveTableGui();
-    	$('div.dataTables_processing').siblings('div#tableTool').append(saveTool, toolBox); 
-    	$('div#saveTable').click(function(){
-        		if ( $('div#toolBox').is(":visible")){
-        			$('div#toolBox').hide();
-        		}
-        		else {
-        			$('div#toolBox').show();
-        			
-        	    	var solrCoreName = oInfos.solrCoreName;
-        	    	var iActivePage = $('div.dataTables_paginate li.active a').text();
-        	    	
-        	    	var iRowStart = iActivePage == 1 ? 0 : iActivePage*10-10;
-        	    	var showImgView = $('div.gridTitle div#imgView').attr('rel') == 'imageView' ? true : false;  		
-        	    	
-        	    	initGridExporter({				
-        					externalDbId: 5,				
-        					rowStart: iRowStart,
-        					solrCoreName: solrCoreName,        				
-        					params: oInfos.params,
-        					showImgView: showImgView,
-        					gridFields: MPI2.searchAndFacetConfig.facetParams[solrCoreName].gridFields,
-        					fileName: solrCoreName + '_table_dump'	
-        			});        			
-        		}        		
-    	});	    	
+    	});*/      
     }
+        
+    function initDataTableDumpControl(oInfos){
     
-    function initGridExporter(conf){
+    	$('div#saveTable').remove();
+    	$('div#toolBox').remove();
+    
+    	var saveTool = $("<div id='saveTable'></div>").html("Download data <img src='"+baseUrl+"/img/floppy.png' />").corner("4px");    	
+    	var toolBox = fetchSaveTableGui();
     	
-    	$('button.gridDump').click(function(){
-    		
-    		var classString = $(this).attr('class');    		
-    		var fileType = $(this).text(); 
-    		var dumpMode = $(this).attr('class').indexOf('all') != -1 ? 'all' : 'page';
-    		var url = baseUrl + '/export';	    		
-    		var sInputs = '';
-    		var aParams = [];
-    		for ( var k in conf ){
-    			aParams.push(k + "=" + conf[k]); 
-    			sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";	    			
-    		}
-    		sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
-    		sInputs += "<input type='text' name='dumpMode' value='" + dumpMode + "'>";
-    		
-    		var form = "<form action='"+ url + "' method=get>" + sInputs + "</form>";
-    		
-    		if (dumpMode == 'all'){ 
-    			var paramStr = conf['params'] + "&start=" + conf['rowStart'] + "&rows=0";    			
-    			var url1;
-    			if ( conf['solrCoreName'] == 'gene' ){
-    				//url1 = MPI2.searchAndFacetConfig.solrBaseURL_bytemark + "gene/search?";
-    				url1 = MPI2.searchAndFacetConfig.solrBaseURL_ebi + "gene/search?";
-    			}
-    			else {
-    				url1 = MPI2.searchAndFacetConfig.solrBaseURL_ebi + conf['solrCoreName'] + "/select?";
-    				paramStr += "&wt=json";
-    			}
-    			    		
-    			$.ajax({            	    
-	    			url: url1,
-	        	    data: paramStr,
-	        	    dataType: 'jsonp',
-	        	    jsonp: 'json.wrf',
-	        	    timeout: 5000,
-	        	    success: function (json){ 
-						// prewarn users if dataset is big
-						if ( json.response.numFound > 3000 ){							
-							//console.log(json.response.numFound);
-							if ( confirm("Download big dataset would take a while, would you like to proceed?") ){
-								_doDataExport(url, form);
-							}
-						}
-						else {
-							_doDataExport(url, form);
-						}
-	        	    },
-	        	    error: function (jqXHR, textStatus, errorThrown) {        	             	        
-	        	        $('div#facetBrowser').html('Error fetching data ...');
-	        	    }            	
-    			});
+    	$('div.dataTables_processing').siblings('div#tableTool').append(saveTool, toolBox); 
+    	    	
+    	$('div#saveTable').click(function(){
+    			
+        	if ( $('div#toolBox').is(":visible")){
+    			$('div#toolBox').hide();
     		}
     		else {
-    			_doDataExport(url, form);
-    		}
+    			$('div#toolBox').show();        			       			
+    			
+    			// browser-specific position fix
+    			if ($.browser.msie  && parseInt($.browser.version, 10) === 8) {
+    				$('div#toolBox').css({'top': '-30px', 'left': '97px'});
+    			}
+    	    	var solrCoreName = oInfos.solrCoreName;
+    	    	var iActivePage = $('div.dataTables_paginate li.active a').text();
+    	    	
+    	    	var iRowStart = iActivePage == 1 ? 0 : iActivePage*10-10;
+    	    	//console.log('start: '+ iRowStart);
+    	    	var showImgView = $('div.gridTitle div#imgView').attr('rel') == 'imageView' ? true : false;  
+    	    	
+    	    	$('button.gridDump').unbind('click');
+    	    	$('button.gridDump').click(function(){        	    		
+    	    		initGridExporter($(this), {        	    							
+    					externalDbId: 5,				
+    					rowStart: iRowStart,
+    					solrCoreName: solrCoreName,        				
+    					params: oInfos.params,
+    					showImgView: showImgView,
+    					gridFields: MPI2.searchAndFacetConfig.facetParams[solrCoreName+'Facet'].gridFields,
+    					fileName: solrCoreName + '_table_dump'	
+    	    		});   
+    	    	}).corner('6px'); 
+    		}        		
+    	});
+    }
+    
+    function initGridExporter(thisButt, conf){
     		
-    		$('div#toolBox').hide();
-    	}).corner('6px'); 	
+		var classString = thisButt.attr('class');    		
+		var fileType = thisButt.text(); 
+		var dumpMode = thisButt.attr('class').indexOf('all') != -1 ? 'all' : 'page';    
+		
+		var url = baseUrl + '/export';	    		
+		var sInputs = '';
+		var aParams = [];
+		for ( var k in conf ){
+			aParams.push(k + "=" + conf[k]); 
+			sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";	    			
+		}
+		sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
+		sInputs += "<input type='text' name='dumpMode' value='" + dumpMode + "'>";
+		
+		var form = "<form action='"+ url + "' method=get>" + sInputs + "</form>";
+		
+		
+		if (dumpMode == 'all'){ 
+			var paramStr = conf['params'] + "&start=" + conf['rowStart'] + "&rows=0";    			
+			var url1;
+			if ( conf['solrCoreName'] == 'gene' ){	    				
+				url1 = MPI2.searchAndFacetConfig.solrBaseURL_ebi + "gene/search?";
+			}
+			else {
+				url1 = MPI2.searchAndFacetConfig.solrBaseURL_ebi + conf['solrCoreName'] + "/select?";
+				paramStr += "&wt=json";
+			}
+			    		
+			$.ajax({            	    
+    			url: url1,
+        	    data: paramStr,
+        	    dataType: 'jsonp',
+        	    jsonp: 'json.wrf',
+        	    timeout: 5000,
+        	    success: function (json){ 
+					// prewarn users if dataset is big
+					if ( json.response.numFound > 3000 ){							
+						//console.log(json.response.numFound);
+						if ( confirm("Download big dataset would take a while, would you like to proceed?") ){
+							_doDataExport(url, form);
+						}
+					}
+					else {
+						_doDataExport(url, form);
+					}
+        	    },
+        	    error: function (jqXHR, textStatus, errorThrown) {        	             	        
+        	        $('div#facetBrowser').html('Error fetching data ...');
+        	    }            	
+			});
+		}
+		else {
+			_doDataExport(url, form);
+		}
+
+		$('div#toolBox').hide();
     }
 
+    // NOTE that IE8 prevents from download if over https.
+    // see http://support.microsoft.com/kb/2549423
     function _doDataExport(url, form){
     	$.ajax({
 			type: 'GET',
@@ -259,8 +419,7 @@
 			cache: false,
 			data: $(form).serialize(),
 			beforeSend:function(){				
-				$('div#exportSpinner').html(MPI2.searchAndFacetConfig.spinnerExport);
-			
+				$('div#exportSpinner').html(MPI2.searchAndFacetConfig.spinnerExport);			
 			},
 			success:function(data){    				
 				$(form).appendTo('body').submit().remove();
@@ -273,7 +432,7 @@
     }
     
     function fetchSaveTableGui(){
-    
+    	
     	var div = $("<div id='toolBox'></div>").corner("4px");
     	div.append($("<div class='dataName'></div>").html("Current paginated entries in table"));    	
     	div.append($.fn.loadFileExporterUI({
@@ -295,7 +454,7 @@
 		}));
 		return div;
     }
-    
+       
 	$.fn.initDataTable = function(jqObj, customConfig){
 	
 		// extend dataTable with naturalSort function
@@ -405,7 +564,7 @@
  				}
  			);    			
  		}
- 		//console.log(rowToggler);
+ 	
  		return rowToggler;
 	}
 	
@@ -536,8 +695,7 @@ $.fn.dataTableExt.oApi.fnSearchHighlighting = function(oSettings) {
             // Only try to highlight if the cell is not empty or null
             if (aData[j]) {
                 // If there is a search string try to match
-                if ((typeof sSregex !== 'undefined') && (sSregex)) {
-                	//console.log(aData[j]);
+                if ((typeof sSregex !== 'undefined') && (sSregex)) {                	
                     this.innerHTML = aData[j].replace( regex, function(matched) {
                         return "<span class='hit'>"+matched+"</span>";
                     });
