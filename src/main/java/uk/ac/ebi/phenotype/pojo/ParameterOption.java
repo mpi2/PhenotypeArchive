@@ -20,16 +20,35 @@ package uk.ac.ebi.phenotype.pojo;
  * A concrete representation of phenotype parameter option.
  * 
  * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
- * @version $Revision: 1291 $
+ * @version $Revision: 1376 $
  *  @since February 2012
  */
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
-@Embeddable
+@Entity
+@Table(name = "phenotype_parameter_option")
 public class ParameterOption {
 	
+	/**
+	 * MySQL auto increment
+	 * GenerationType.AUTO won't work
+	 */
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(name = "id")
+	private Integer id;
+	
+	@Column(name = "name")
 	private String name;
+	
+	@Column(name = "description")	
 	private String description;
 	
 	/**
