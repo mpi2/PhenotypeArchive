@@ -64,7 +64,7 @@ public class BiologicalSample implements Serializable{
 	private Integer id;
 	
 	@Column(name = "external_id")
-	String stableId;
+	private String stableId;
 	
 	@JsonIgnore
 	@OneToOne
@@ -72,7 +72,7 @@ public class BiologicalSample implements Serializable{
 	private Datasource datasource;
 
 	@Column(name = "sample_group")
-	String group;
+	private String group;
 	
 	@OneToOne
 	@JoinColumns({
