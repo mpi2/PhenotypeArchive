@@ -148,8 +148,7 @@ jQuery(document).ready(function() {
 						// This browser cannot support the interactive browser
 
 						var dontUseIEString='<div class="alert alert-info">For a more interactive and informative gene image please use a newish browser e.g. <a href="http://www.mozilla.com/firefox/">Firefox</a> 3.6+, <a href="http://www.google.com/chrome">Google Chrome</a>, and <a href="http://www.apple.com/safari/">Safari</a> 5 or newer</div>';
-						var gbrowseRootUrl=getProxyUri('http://gbrowse.informatics.jax.org/cgi-bin/gbrowse_img/thumbs_current');
-						var gbrowseimage='<a href="http://gbrowse.informatics.jax.org/cgi-bin/gbrowse/mouse_current?start='+start+';stop='+stop+';ref='+chromosome+'"><img border="0" src="'+gbrowseRootUrl+'?abs=1;options=Everything;width=200;name='+chromosome+':'+start+'..'+stop+'"></a>';
+						var gbrowseimage='<a href="http://gbrowse.informatics.jax.org/cgi-bin/gb2/gbrowse/mousebuild38/?start='+start+';stop='+stop+';ref='+chromosome+'"><img border="0" src="http://gbrowse.informatics.jax.org/cgi-bin/gb2/gbrowse_img/mousebuild38/?t=MGI_Genome_Features;name='+chromosome+':'+start+'..'+stop+';width=400"></a>';
 						$('#svgHolder').html(dontUseIEString+gbrowseimage);
 						forceWidth: jQuery('div.row-fluid').width() * 0.6575;
 
