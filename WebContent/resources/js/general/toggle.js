@@ -22,4 +22,33 @@ $('.accordion').on('show hide', function(e){
     $(e.target).siblings('.accordion-heading').find('.accordion-toggle i').toggleClass('icon-chevron-down icon-chevron-right', 0);
 });
 
+$('a.interest').click(function(){
+	var mgiId = $(this).attr('id');
+	var label = $(this).text();
+	var regBtn = $(this);
+	$.ajax({
+		url: '/toggleflagfromjs/' + mgiId,                       
+		success: function (response) {
+			function endsWith(str, suffix) {
+				return str.indexOf(suffix, str.length - suffix.length) !== -1;
+        	}
+			if(response === 'null') {
+				window.alert('Null error trying to register interest');
+			} 
+			else {                          
+				if( label == 'Register interest' ) {
+					regBtn.text('Unregister interest');
+				} 
+				else {
+					regBtn.text('Register interest');
+				}                               
+			}                         
+        },
+        error: function () {
+        	window.alert('AJAX error trying to register interest');                     
+        }
+    });
+	return false;    		    	  
+});
+
 });
