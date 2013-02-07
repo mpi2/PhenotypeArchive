@@ -15,14 +15,16 @@
  */
 package uk.ac.ebi.phenotype.web.controller;
 
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class SearchController {
-
+	
 	/**
 	 * redirect calls to the base url to the search page
 	 * 
@@ -37,18 +39,20 @@ public class SearchController {
 	 * Controller for the search page
 	 * 
 	 */
-	@RequestMapping("/search")
-	public String loadAutosuggestSearchFacetPage(
-			@RequestParam(value = "queryString", required = false) String queryString,
-			@RequestParam(value = "type", required = false) String type,
-			@RequestParam(value = "geneFound", required = false) String geneFound,
-			Model model) {
 
-		System.out.println(queryString);
-		model.addAttribute("queryString", queryString);
-		model.addAttribute("queryType", type);
-		model.addAttribute("queryGeneFound", geneFound);
+	//@RequestMapping("/search")	
+	@RequestMapping(value="/search", method=RequestMethod.GET)
+	public String loadAutosuggestSearchFacetPage(
+			@RequestParam(value = "q", required = false) String q,
+			@RequestParam(value = "core", required = false) String core,
+			@RequestParam(value = "fq", required = false) String fq,
+			HttpServletRequest request, 
+			Model model) {
+				
+		model.addAttribute("q", q);
+		model.addAttribute("core", core);
+		model.addAttribute("fq", fq);
 
 		return "search";
-	}
+	}	
 }
