@@ -30,6 +30,7 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
@@ -41,6 +42,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class HibernateDAOImpl implements HibernateDAO {
+	
+	protected Logger logger = Logger.getLogger(HibernateDAOImpl.class);
 	
 	/**
 	 * The session factory used to query the database
@@ -105,6 +108,11 @@ public class HibernateDAOImpl implements HibernateDAO {
 		return sessionFactory.getCurrentSession();
 	}	
 
+	public void flushAndClearSession() {
+		getCurrentSession().flush();
+		getCurrentSession().clear();
+	}
+	
 	protected void finalize() {
 		
 		getCurrentSession().flush();
