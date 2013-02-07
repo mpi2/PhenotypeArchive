@@ -17,11 +17,16 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,9 +36,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
 import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
+import uk.ac.ebi.phenotype.pojo.GenomicFeature;
+import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 
 @Controller
 public class ImagesController {
+
+	private final Logger log = LoggerFactory.getLogger(ImagesController.class);
+
+	// Initialize the translation map of solr field names -> English names
+	private HashMap<String,String> solrFieldToEnglish = new HashMap<String,String>() {
+		private static final long serialVersionUID = 1L;
+		{
+			put("expName", "Procedure");
+			put("higherLevelMaTermName", "Anatomy");
+			put("higherLevelMpTermName", "Phenotype group");
+			put("annotationTermId", "Annotation term");
+			put("subtype", "Type");
+			put("accession", "Accession");
+		}};
 
 	@Autowired
 	private ImagesSolrDao imagesSolrDao;
@@ -61,13 +82,106 @@ public class ImagesController {
 			@RequestParam(required = false, defaultValue = "", value = "facet.field") String facetField,
 			@RequestParam(required = false, defaultValue = "", value = "qf") String qf,
 			@RequestParam(required = false, defaultValue = "", value = "defType") String defType,
+			HttpServletRequest request,
 			Model model) {
 
-		handleImagesRequest(start, length, qIn, mpId, geneId, filterField, qf,
-				defType, model);
+		handleImagesRequest(start, length, qIn, mpId, geneId, filterField, qf, defType, model);
 		
+		model.addAttribute("breadcrumbText", getBreadcrumbs(request, qIn, mpId, geneId, filterField));
 
-		return "imageResults";
+		return "images";
+	}	
+	
+	/**
+	 * Returns an HTML string representation of the "last mile" breadcrumb
+	 * 
+	 * 
+	 * @param request
+	 *            the request object 			
+	 * @param qIn
+	 *            query term passed in to the controller
+	 * @param mpId
+	 *            MP id passed in to the controller
+	 * @param geneId
+	 *            Gene (usually MGI) ID passed in to the controller
+	 * @param filterField
+	 *            Array of filter query parameters passed in to the controller
+	 * 
+	 * @return a raw HTML string containing the pieces of the query assembled
+	 *         into a breadcrumb fragment
+	 */
+	private String getBreadcrumbs(HttpServletRequest request, String qIn, String mpId, String geneId, String[] filterField) {
+
+		String baseUrl = (String) request.getAttribute("baseUrl");
+
+		ArrayList<String> breadcrumbs = new ArrayList<String>();
+
+		if (!qIn.equals("") && !qIn.contains(":") && !qIn.equals("*")) {
+			breadcrumbs.add("Search term: " + qIn);
+		}
+
+		if (!geneId.equals("")) {
+			// 3 is the MGI database ID
+			GenomicFeature gf = gfDAO.getGenomicFeatureByAccessionAndDbId(geneId, 3);
+			String value = gf.getSymbol();
+			String geneBc = "<a href='"+baseUrl+"/genes/"+geneId+"'>"+ gf.getSymbol() + "</a>";
+			breadcrumbs.add("Gene: " + geneBc);
+		}
+
+		if (!mpId.equals("")) {
+			// 5 is the Mammalian Phenotype database ID
+			OntologyTerm mpTerm = otDAO.getOntologyTermByAccessionAndDatabaseId(mpId, 5);
+			String value = mpTerm.getName();
+			String mpBc = "<a href='"+baseUrl+"/phenotypes/"+mpId+"'>"+ value + "</a>";
+			breadcrumbs.add("Phenotype: " + mpBc);
+		}
+
+		if (!qIn.equals("") && !qIn.equals("*:*") && !qIn.equals("*") && qIn.contains(":")) {
+			String[] parts = qIn.split(":");
+			String key = solrFieldToEnglish.get(parts[0]);
+			String value = parts[1].replaceAll("%20", " ").replaceAll("\"", "");
+			breadcrumbs.add(key + ": " + value);
+		}
+
+		if (!filterField.equals("")) {
+			for (String field : filterField) {
+
+				String formatted = field.replaceAll("%20", " ").replaceAll("\"", "");
+
+				ArrayList<String> orFields = new ArrayList<String>();
+
+				for (String f : formatted.split(" OR ")) {
+					String[] parts = f.split(":");
+					String key = solrFieldToEnglish.get(parts[0]);
+					if (key == null) {
+						log.error("Cannot find " + parts[0] + " in translation map. Add the mapping in ImagesController static constructor");
+						key = parts[0]; // default the key to the solr field name (ugly!)
+					}
+
+					String value = parts[1];
+					
+					if (key.equals("Anatomy")) {
+						value = "<a href='"+baseUrl+"/search#q=*&core=images&fq=higherLevelMaTermName:\""+value+"\"'>"+ value + "</a>";
+						orFields.add(key + ": " + value);
+					} else {
+						orFields.add(key + ": " + value);
+					}
+				}
+
+				String bCrumb = org.apache.commons.lang.StringUtils.join(orFields, " OR ");
+				
+				// Surround the clauses joined with OR by parens
+				if (orFields.size() > 1) { bCrumb = "(" + bCrumb + ")"; }
+				breadcrumbs.add(bCrumb);
+			}
+		}
+		
+		// Encase all the breadcrumb pieces in boxes 
+		for (int i = 0; i<breadcrumbs.size(); i++) {
+			breadcrumbs.set(i, "<span>"+breadcrumbs.get(i)+"</span>");
+		}
+
+		return org.apache.commons.lang.StringUtils.join(breadcrumbs, " AND ");
 	}
 
 	private void handleImagesRequest(int start, int length, String qIn,
@@ -101,6 +215,7 @@ public class ImagesController {
 
 		if(!qIn.equals("*:*")) {
 			queryTerms = q.replaceAll("expName:", "").replaceAll("\"", "");
+			q = q + " AND " + qIn;
 		}
 
 		if(filterField.length>0) {
