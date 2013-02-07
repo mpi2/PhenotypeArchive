@@ -16,10 +16,9 @@
 package uk.ac.ebi.generic.util;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,25 +30,23 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-//import com.csvreader.CsvReader;
-
 import uk.ac.ebi.phenotype.web.util.DrupalHttpProxy;
+import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 public class SolrIndex  {
 	
-	private Logger LOG = Logger.getLogger(this.getClass().getCanonicalName());
+	private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
 	private DrupalHttpProxy drupalProxy;
-	private String drupalBaseUrl = "";
 	private String loggedIn = null;
-	private ArrayList<String> interestingGenes = null;
+	private List<String> interestingGenes = null;
 
 	private String baseUrl = "";
-	private String geneSolrBaseUrl = "";
+	private String drupalBaseUrl = "";
+	private String mediaBaseUrl = "";
 	private String qryStr;
 	private String solrCoreName;
 	private String gridSolrParams;
@@ -66,7 +63,7 @@ public class SolrIndex  {
 
 		this.drupalBaseUrl = config.get("drupalBaseUrl");
 		this.baseUrl = config.get("solrUrl");
-		this.geneSolrBaseUrl = config.get("geneSolrUrl");
+		this.mediaBaseUrl = config.get("mediaBaseUrl");
 
 		this.qryStr = qryStr;
 		this.solrCoreName = solrCoreName;
@@ -75,7 +72,7 @@ public class SolrIndex  {
 		try {
 			this.json = processQueryforJson(composeSolrUrl());
 		} catch (MalformedURLException me) {
-			// me.printStackTrace();
+			log.error(me.getLocalizedMessage());
 		}
 	}
 	
@@ -86,7 +83,7 @@ public class SolrIndex  {
 
 		this.drupalBaseUrl = config.get("drupalBaseUrl");
 		this.baseUrl = config.get("solrUrl");
-		this.geneSolrBaseUrl = config.get("geneSolrUrl");
+		this.mediaBaseUrl = config.get("mediaBaseUrl");
 
 		this.qryStr = qryStr;
 		this.solrCoreName = solrCoreName;
@@ -101,7 +98,7 @@ public class SolrIndex  {
 		try {
 			this.json = processQueryforJson(composeSolrUrl());
 		} catch (MalformedURLException me) {
-			// me.printStackTrace();
+			log.error(me.getLocalizedMessage());
 		}
 	}
 	
@@ -111,16 +108,17 @@ public class SolrIndex  {
 			Map<String, String> config, String contextPath, String serverName, int serverPort) {
 
 		this.drupalBaseUrl = config.get("drupalBaseUrl");
-		this.baseUrl = config.get("solrUrl");
-		this.geneSolrBaseUrl = config.get("geneSolrUrl");
+		this.baseUrl = config.get("solrUrl");		
+		this.mediaBaseUrl = config.get("mediaBaseUrl");
+		
 		this.contextPath = contextPath;	
 		this.serverName = serverName;	
 		this.serverPort = serverPort;	
 		this.solrCoreName = solrCoreName;	
 		this.gridSolrParams = gridSolrParams;
 		this.mode = dumpMode;
-		this.iDisplayStart = iDisplayStart;
-		this.iDisplayLength = dumpMode.equals("all") ? 150000 : 10; 
+		this.iDisplayStart = rowStart;
+		this.iDisplayLength = dumpMode.equals("all") ? 500000 : 10; 
 		this.showImgView = showImgView;
 		
 		if ( solrCoreName.equals("gene") ) {
@@ -135,29 +133,27 @@ public class SolrIndex  {
 			this.json = fetchJsonforDataTableExport(composeSolrUrl(), solrCoreName);					
 		} 
 		catch (MalformedURLException me) {
-			// me.printStackTrace();
+			log.error(me.getLocalizedMessage());
 		}
 	}
 	
 	public JSONObject fetchJsonforDataTableExport(String urlString, String solrCoreName) throws MalformedURLException {
 	
-		URLConnection urlConn = null;
-		InputStreamReader inStream = null;			
-		String csvString = null; 
+		System.out.println("TRYING TO GET CONTENT FROM: "+urlString);
 		JSONObject j = null;
 		
 		try {
-			URL url = new URL(urlString.replaceAll(" ", "%20"));
-			urlConn = url.openConnection();			
-			inStream = new InputStreamReader(urlConn.getInputStream());
-						
-			j = (JSONObject) JSONSerializer.toJSON(IOUtils.toString(inStream));		
+			// Use the http(s) proxy
+			String content = drupalProxy.getContent(new URL(urlString));
+			log.info("GOT CONTENT FROM: "+urlString);
+			j = (JSONObject) JSONSerializer.toJSON(content);		
 		} 
 		catch (MalformedURLException e) {
-			LOG.info("Please check the URL:" + e.toString());
-		} 
-		catch (IOException e1) {
-			LOG.info("Can't read from the Internet: " + e1.toString());
+			log.info("Please check the URL:" + e.toString());
+		} catch (IOException e1) {
+			log.info("Can't read from the Internet: " + e1.toString());
+		} catch (URISyntaxException e) {
+			log.info("Please check the URL:" + e.toString());
 		}	
 		return j;	
 	}
@@ -228,8 +224,8 @@ public class SolrIndex  {
 			for (int i=0; i<docs.size(); i++) {			
 				List<String> data = new ArrayList<String>();
 				JSONObject doc = docs.getJSONObject(i);
-				
-				String[] fields = {"annotationTermName", "annotationTermId", "expName", "symbol"};
+								
+				String[] fields = {"annotationTermName", "annotationTermId", "expName", "symbol_gene"};
 				for( String fld : fields ){
 					if(doc.has(fld)) {
 						List<String> lists = new ArrayList<String>();
@@ -244,7 +240,7 @@ public class SolrIndex  {
 					}				
 				}
 				
-				data.add("http://" + baseName + "/media/images/" + doc.getString("largeThumbnailFilePath"));
+				data.add(mediaBaseUrl + "/" + doc.getString("largeThumbnailFilePath"));
 				/*data.add(doc.getString("procedure_name"));
 				data.add(doc.getString("pipeline_name"));*/
 				rowData.add(StringUtils.join(data, "\t"));
@@ -255,7 +251,7 @@ public class SolrIndex  {
 			// annotation view: images group by annotationTerm per row
 			rowData.add("Annotation_type\tAnnotation_name\tRelated_image_count\tUrl_to_images"); // column names	
 			JSONObject facetFields = this.json.getJSONObject("facet_counts").getJSONObject("facet_fields");
-			
+						
 			JSONArray sumFacets = mergeFacets(facetFields);
 						
 			int numFacets = sumFacets.size();		
@@ -263,7 +259,7 @@ public class SolrIndex  {
 			int remainder = (numFacets/2) % iDisplayLength;
 			int start = iDisplayStart*2;  // 2 elements(name, count), hence multiply by 2
 	        int end =  iDisplayStart == quotient*iDisplayLength ? (iDisplayStart+remainder)*2 : (iDisplayStart+iDisplayLength)*2;  
-			
+				        
 			for (int i=start; i<end; i=i+2){
 				List<String> data = new ArrayList<String>();
 				// array element is an alternate of facetField and facetCount	
@@ -271,7 +267,7 @@ public class SolrIndex  {
 				String[] names = sumFacets.get(i).toString().split("_");
 				if (names.length == 2 ){  // only want facet value of xxx_yyy
 					String annotName = names[0];
-					HashMap hm = renderFacetField(names); //MA:xxx, MP:xxx, MGI:xxx, exp					
+					HashMap<String, String> hm = renderFacetField(names); //MA:xxx, MP:xxx, MGI:xxx, exp					
 									
 					data.add(hm.get("label").toString());
 					data.add(annotName);
@@ -360,7 +356,7 @@ public class SolrIndex  {
 				data.add("NA");
 			}
 						
-			data.add(deriveGeneStatus(doc));	
+			data.add( SolrGeneResponseUtil.deriveGeneStatus(doc));	
 			rowData.add(StringUtils.join(data, "\t"));
 		}		
 		
@@ -371,6 +367,7 @@ public class SolrIndex  {
 		
 		String qryMode = this.solrCoreName.equals("gene") ? "/search?" : "/select?";
 		String url = this.baseUrl + "/" + this.solrCoreName + qryMode;
+		
 		//LOG.debug("GRID PARAMS:" + gridSolrParams);
 		
 		if (mode.equals("mpPage")) {
@@ -423,24 +420,33 @@ public class SolrIndex  {
 	}
 	
 	private JSONObject processQueryforJson(String urlString) throws MalformedURLException {
-		URLConnection urlConn = null;
-		InputStreamReader inStream = null;
-		JSONObject j = null;
 
-		LOG.debug("SOLR qryStr: " + this.qryStr);
-		
-		try {
-			URL url = new URL(urlString.replaceAll(" ", "%20"));
-			urlConn = url.openConnection();
-			inStream = new InputStreamReader(urlConn.getInputStream());
-			j = (JSONObject) JSONSerializer.toJSON(IOUtils.toString(inStream));
-			//LOG.debug("CHECK json string: " + j.toString());
-		} catch (MalformedURLException e) {
-			LOG.info("Please check the URL:" + e.toString());
-		} catch (IOException e1) {
-			LOG.info("Can't read from the Internet: " + e1.toString());
+		log.debug("SOLR qryStr: " + this.qryStr);
+		log.error("GETTING CONTENT FROM: "+urlString);
+
+		String content = "";
+		//System.out.println(urlString);
+		//System.out.println(drupalProxy);
+		if (drupalProxy != null) {
+			try {
+				content = drupalProxy.getContent(new URL(urlString));
+			} catch (IOException e) {
+				log.error(e.getLocalizedMessage());
+			} catch (URISyntaxException e) {
+				log.error(e.getLocalizedMessage());
+			}
+		} else {
+			HttpProxy proxy = new HttpProxy();
+			try {
+				content = proxy.getContent(new URL(urlString));
+			} catch (IOException e) {
+				log.error(e.getLocalizedMessage());
+			} catch (URISyntaxException e) {
+				log.error(e.getLocalizedMessage());
+			}
 		}
-		return j;
+
+		return (JSONObject) JSONSerializer.toJSON(content);
 	}
 
 	public String fetchDataTableJson(String contextPath) {
@@ -469,7 +475,7 @@ public class SolrIndex  {
 		JSONArray docs = this.json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = this.json.getJSONObject("response").getInt("numFound");
 		
-		LOG.debug("TOTA L GENEs: " + totalDocs);
+		log.debug("TOTA L GENEs: " + totalDocs);
 		
 		int quotient = (totalDocs)/iDisplayLength -((totalDocs)%iDisplayLength) / iDisplayLength;
 		int remainder = (totalDocs) % iDisplayLength;
@@ -491,7 +497,7 @@ public class SolrIndex  {
 			String geneInfo = concateGeneInfo(doc);
 			rowData.add(geneInfo);
 
-			String geneStatus = deriveGeneStatus(doc);
+			String geneStatus = SolrGeneResponseUtil.deriveGeneStatus(doc);
 			rowData.add(geneStatus);
 
 			// register of interest
@@ -586,7 +592,8 @@ public class SolrIndex  {
 		String markerSymbol = "<span class='gSymbol'>" + doc.getString("marker_symbol") + "</span>";		
 		String mgiId = doc.getString("mgi_accession_id");
 		String geneUrl = contextPath + "/genes/" + mgiId;		
-		String markerSymbolLink = "<a href='" + geneUrl + "' target='_blank'>" + markerSymbol + "</a>";			
+		//String markerSymbolLink = "<a href='" + geneUrl + "' target='_blank'>" + markerSymbol + "</a>";
+		String markerSymbolLink = "<a href='" + geneUrl + "'>" + markerSymbol + "</a>";
 				
 		String[] fields = {"marker_synonym","marker_name"};			
 		for( int i=0; i<fields.length; i++){		
@@ -637,84 +644,12 @@ public class SolrIndex  {
 	}
 	
 	
-	private String deriveGeneStatus(JSONObject doc) {
-				
-		// order of status: latest to oldest (IMPORTANT for deriving correct status)
-		// returns the latest status (6 statuses available)		
-		
-		//Phenotype Data Available
-		try {
-			if ( doc.getJSONArray("imits_report_phenotyping_complete_date").size() > 0) {	           
-				return "Phenotype Data Available";
-			}
-		} 
-		catch (Exception e) {		   		
-			//e.printStackTrace();
-		}
-		
-		//Mice Produced
-		try {
-			if ( doc.getJSONArray("imits_report_genotype_confirmed_date").size() > 0) {	           
-				return "Mice Produced";
-			}
-		} 
-		catch (Exception e) {		  			
-		    //e.printStackTrace();
-		}
-		
-		//Assigned for Mouse Production and Phenotyping
-		try {			
-			boolean nonAssignedStatuses = false;
-			boolean assignedStatuses = false;
-					
-			if ( doc.getJSONArray("imits_report_mi_plan_status").size() > 0 ){
-				JSONArray plans = doc.getJSONArray("imits_report_mi_plan_status");
-				for(Object p : plans){
-					if ( p.toString().equals("Inactive") || p.toString().equals("Withdrawn") ){
-						nonAssignedStatuses = true;
-					}
-					else {
-						assignedStatuses = true;
-					}
-				}
-				if ( !nonAssignedStatuses && assignedStatuses ) {
-					return "Assigned for Mouse Production and Phenotyping";
-		        }				
-			}
-		} 
-		catch (Exception e) {		 			
-		    //e.printStackTrace();
-		}
-				
-		//ES Cells Produced
-		try {
-			if ( doc.getJSONArray("escell").size() > 0 ){
-				return "ES Cells Produced";
-			}
-		} 
-		catch (Exception e) {		   			
-		    //e.printStackTrace();
-		}
-		
-		//Assigned for ES Cell Production
-		try {
-			if ( doc.getJSONArray("ikmc_project").size() > 0 ){
-				return "Assigned for ES Cell Production";
-			}
-		} 
-		catch (Exception e) {		   			
-		    //e.printStackTrace();
-		}		
-		
-		// gets the oldest/initial status if none of the above applies
-		return "Not Assigned for ES Cell Production";
-	}
+	
 	
 	public String parseJsonforProtocolDataTable(){
 		
 		JSONArray docs = this.json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = this.json.getJSONObject("response").getInt("numFound");
-		int numDocs = docs.size();				
 		
 		int quotient = (totalDocs)/iDisplayLength -((totalDocs)%iDisplayLength) / iDisplayLength;
 		int remainder = (totalDocs) % iDisplayLength;
@@ -739,7 +674,7 @@ public class SolrIndex  {
 			
 			String procedure = doc.getString("procedure_name");
 			String procedure_stable_key = doc.getString("procedure_stable_key");			
-			String procedureLink = "<a target='_blank' href='" + impressBaseUrl + procedure_stable_key + "'>" + procedure + "</a>";			
+			String procedureLink = "<a href='" + impressBaseUrl + procedure_stable_key + "'>" + procedure + "</a>";			
 			rowData.add(procedureLink);				
 			
 			String pipeline = doc.getString("pipeline_name");
@@ -757,7 +692,6 @@ public class SolrIndex  {
 		
 		JSONArray docs = this.json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = this.json.getJSONObject("response").getInt("numFound");
-		int numDocs = docs.size();
 				
 		int quotient = (totalDocs)/iDisplayLength -((totalDocs)%iDisplayLength) / iDisplayLength;
 		int remainder = (totalDocs) % iDisplayLength;
@@ -777,7 +711,7 @@ public class SolrIndex  {
 			JSONObject doc = docs.getJSONObject(i);
 			String mpId = doc.getString("mp_id");
 			String mpTerm = doc.getString("mp_term");
-			String mpLink = "<a target='_blank' href='" + baseUrl + mpId + "'>" + mpTerm + "</a>";			
+			String mpLink = "<a href='" + baseUrl + mpId + "'>" + mpTerm + "</a>";			
 			rowData.add(mpLink);
 			
 			// some MP do not have definition
@@ -800,7 +734,7 @@ public class SolrIndex  {
 		
 		String baseUrl = contextPath + "/images?" + gridSolrParams;
 		
-		if ( showImgView ){
+		if ( showImgView ){			
 			// image view: one image per row
 			JSONArray docs = this.json.getJSONObject("response").getJSONArray("docs");
 			int totalDocs = this.json.getJSONObject("response").getInt("numFound");
@@ -816,7 +750,7 @@ public class SolrIndex  {
 			j.put("iTotalRecords", totalDocs);
 			j.put("iTotalDisplayRecords", totalDocs);
 			
-			final String imgBaseUrl = contextPath + "/media/images/"; 
+			final String imgBaseUrl = mediaBaseUrl + "/"; 
 			
 			for (int i=start; i<end; i++){
 				
@@ -826,41 +760,44 @@ public class SolrIndex  {
 				
 				String largeThumbNailPath = imgBaseUrl + doc.getString("largeThumbnailFilePath");
 				String img = "<img src='" +  imgBaseUrl + doc.getString("smallThumbnailFilePath") + "'/>";
-				String imgLink = "<a target='_blank' href='" + largeThumbNailPath +"'>" + img + "</a>";
+				String imgLink = "<a href='" + largeThumbNailPath +"'>" + img + "</a>";
 				
 				try {
 					ArrayList<String> mp = new ArrayList<String>();
 					ArrayList<String> ma = new ArrayList<String>();
 					ArrayList<String> exp = new ArrayList<String>();					
 					
-					JSONArray termIds = doc.getJSONArray("annotationTermId");
-					JSONArray termNames = doc.getJSONArray("annotationTermName");								
-					JSONArray expNames = doc.getJSONArray("expName");						
-					
 					int counter = 0;
-					for( Object s : termIds ){				
-						if ( s.toString().contains("MA")){
-							LOG.debug(i + " - MA: " + termNames.get(counter).toString());
-							String acc = termIds.get(counter).toString();
-							String name = termNames.get(counter).toString();
-							//ma.add("<a href='/maid' target='_blank'>" + name + "</a>");
-							ma.add(name);
+					
+					if (doc.has("annotationTermId")) {
+						JSONArray termIds   = doc.getJSONArray("annotationTermId");
+						JSONArray termNames = doc.getJSONArray("annotationTermName");
+						for( Object s : termIds ){				
+							if ( s.toString().contains("MA")){
+								log.debug(i + " - MA: " + termNames.get(counter).toString());
+								String name = termNames.get(counter).toString();
+								//ma.add("<a href='/maid' target='_blank'>" + name + "</a>");
+								ma.add(name);
+							}
+							else if ( s.toString().contains("MP") ){
+								log.debug(i+ " - MP: " + termNames.get(counter).toString());
+								log.debug(i+ " - MP: " + termIds.get(counter).toString());
+								String mpid = termIds.get(counter).toString();							
+								String name = termNames.get(counter).toString();							
+								String url = contextPath + "/phenotypes/" + mpid;
+								mp.add("<a href='" + url + "'>" + name + "</a>");
+							}
+							counter++;
 						}
-						else if ( s.toString().contains("MP") ){
-							LOG.debug(i+ " - MP: " + termNames.get(counter).toString());
-							LOG.debug(i+ " - MP: " + termIds.get(counter).toString());
-							String mpid = termIds.get(counter).toString();							
-							String name = termNames.get(counter).toString();							
-							String url = contextPath + "/phenotypes/" + mpid;
-							mp.add("<a href='" + url + "' target='_blank'>" + name + "</a>");
-						}
-						counter++;
-					}
-														
-					for( Object s : expNames ){
-						LOG.debug(i + " - expTERM: " + s.toString());
-						exp.add(s.toString());
-					}
+					}	
+					
+					if (doc.has("expName")) {
+						JSONArray expNames  = doc.getJSONArray("expName");
+						for( Object s : expNames ){
+							log.debug(i + " - expTERM: " + s.toString());
+							exp.add(s.toString());
+						}						
+					}					
 					
 					if ( mp.size() > 0){
 						annots += "<span class='imgAnnots'><span class='annotType'>MP</span>: " + StringUtils.join(mp, ", ") + "</span>";
@@ -921,14 +858,15 @@ public class SolrIndex  {
 				String[] names = sumFacets.get(i).toString().split("_");
 				
 				if (names.length == 2 ){  // only want facet value of xxx_yyy
-					HashMap hm = renderFacetField(names); //MA:xxx, MP:xxx, MGI:xxx, exp				
+					HashMap<String, String> hm = renderFacetField(names); //MA:xxx, MP:xxx, MGI:xxx, exp				
 					String displayAnnotName = "<span class='annotType'>" + hm.get("label").toString() + "</span>: " + hm.get("link").toString();
 					String facetField = hm.get("field").toString();
 							
 					String imgCount = sumFacets.get(i+1).toString();	
-					String unit = Integer.parseInt(imgCount) > 1 ? "images" : "image";						
-					String imgSubSetLink = "<a target='_blank' href='" + baseUrl+ "&fq=" + facetField + ":\"" + names[0] + "\"" + "'>" + imgCount + " " + unit+ "</a>";
-									
+					String unit = Integer.parseInt(imgCount) > 1 ? "images" : "image";	
+										
+					String imgSubSetLink = "<a href='" + baseUrl+ "&fq=" + facetField + ":\"" + names[0] + "\"" + "'>" + imgCount + " " + unit+ "</a>";
+										
 					rowData.add(displayAnnotName + " (" + imgSubSetLink + ")"); 
 					rowData.add(fetchImagePathByAnnotName(facetField, names[0], contextPath));
 					
@@ -940,18 +878,17 @@ public class SolrIndex  {
 		}
 	}
 	
-	private HashMap renderFacetField(String[] names){				
+	private HashMap<String, String> renderFacetField(String[] names){				
 			
-		HashMap hm = new HashMap(); // key: display label, value: facetField
+		HashMap<String, String> hm = new HashMap<String, String>(); // key: display label, value: facetField
 		String name = names[0];
 		String id = names[1];	
 		
-		String facetField = null;
 		if ( id.startsWith("MP:")){	
 			String url = contextPath + "/phenotypes/" + id;
 			hm.put("label", "MP");
 			hm.put("field", "annotationTermName");
-			hm.put("link", "<a href='" + url + "' target='_blank'>"+ name + "</a>");			
+			hm.put("link", "<a href='" + url + "'>"+ name + "</a>");			
 		}
 		else if ( id.startsWith("MA:")){	
 			hm.put("label", "MA");
@@ -967,7 +904,7 @@ public class SolrIndex  {
 			String url = contextPath + "/genes/" + id;
 			hm.put("label", "Gene");
 			hm.put("field", "symbol");
-			hm.put("link", "<a href='" + url + "' target='_blank'>"+ name + "</a>");
+			hm.put("link", "<a href='" + url + "'>"+ name + "</a>");
 		}	
 		return hm;
 	}
@@ -986,15 +923,17 @@ public class SolrIndex  {
 	}
 
 	private ArrayList<String> fetchImgGeneAnnotations(JSONObject doc) {
+		
 		ArrayList<String> gene = new ArrayList<String>();		
 		
 		try {
-			JSONArray geneSymbols = doc.getJSONArray("symbol_gene");
-			
-			for (Object s : geneSymbols) {
-				String[] names = s.toString().split("_");				
-				String url = contextPath + "/genes/" + names[1];
-				gene.add("<a target='_blank' href='" + url +"'>" + names[0] + "</a>");				
+			if (doc.has("symbol_gene")) {
+				JSONArray geneSymbols = doc.getJSONArray("symbol_gene");				
+				for (Object s : geneSymbols) {
+					String[] names = s.toString().split("_");				
+					String url = contextPath + "/genes/" + names[1];
+					gene.add("<a href='" + url +"'>" + names[0] + "</a>");				
+				}
 			}
 		} 
 		catch (Exception e) {
@@ -1013,7 +952,7 @@ public class SolrIndex  {
 		
 		thumbnailUrl += params;
 
-		final String imgBaseUrl = contextPath + "/media/images/";
+		final String imgBaseUrl = mediaBaseUrl + "/";
 
 		List<String> imgPath = new ArrayList<String>();
 
@@ -1027,7 +966,7 @@ public class SolrIndex  {
 				JSONObject doc = docs.getJSONObject(i);
 				String largeThumbNailPath = imgBaseUrl + doc.getString("largeThumbnailFilePath");
 				String img = "<img src='" + imgBaseUrl + doc.getString("smallThumbnailFilePath") + "'/>";
-				String link = "<a target='_blank' href='" + largeThumbNailPath + "'>" + img + "</a>";
+				String link = "<a href='" + largeThumbNailPath + "'>" + img + "</a>";
 				imgPath.add(link);
 			}
 		} catch (MalformedURLException me) {
