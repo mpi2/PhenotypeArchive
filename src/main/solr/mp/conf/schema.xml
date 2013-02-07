@@ -475,7 +475,8 @@
 	<!-- to be used for autosuggest -->    
     <fieldType name="text_ngram" class="solr.TextField">
         <analyzer type="index">
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/> 
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/> 
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/> 
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25" side="front"/>
@@ -483,6 +484,7 @@
         </analyzer>
         <analyzer type="query"> 
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/> 
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/> 
         </analyzer>
