@@ -454,7 +454,7 @@
 	    				TSV: 'tsv_geneVariants',
 	    				XLS: 'xls_geneVariants'	    			 					
 	    			},
-	    			class: 'fileIcon'
+	    			'class': 'fileIcon'
 	    		}));	    		
 	    		
 	    		self.element.append(pBlk);	
