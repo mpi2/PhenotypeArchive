@@ -24,10 +24,13 @@ package uk.ac.ebi.phenotype.dao;
 
 import java.util.List;
 
+import uk.ac.ebi.phenotype.pojo.BiologicalSample;
 import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.Experiment;
 import uk.ac.ebi.phenotype.pojo.Observation;
+import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Organisation;
+import uk.ac.ebi.phenotype.pojo.Parameter;
 
 public interface ObservationDAO {
 
@@ -35,6 +38,26 @@ public interface ObservationDAO {
 	
 	public void saveExperiment(Experiment experiment);
 	public void saveObservation(Observation observation);
+	
+	public Observation createSimpleObservation(
+			ObservationType observationType, 
+			String simpleValue,
+			Parameter parameter, 
+			BiologicalSample sample,
+			int populationId,
+			Datasource datasource,
+			Experiment experiment);
+	
+	public Observation createObservation(
+			ObservationType observationType, 
+			String firstDimensionValue, 
+			String secondDimensionValue,
+			String secondDimensionUnit,
+			Parameter parameter, 
+			BiologicalSample sample, 
+			int populationId,
+			Datasource datasource,
+			Experiment experiment);
 	
 	public int deleteAllExperimentsByOrganisationAndDatasource(Organisation organisation, Datasource datasource);
 	public int deleteAllCategoricalObservationsByOrganisationAndDatasource(Organisation organisation, Datasource datasource);
