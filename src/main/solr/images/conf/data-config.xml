@@ -2,13 +2,12 @@
 
 	<dataSource name="komp2ds" jndiName="java:comp/env/jdbc/komp2DataSource" />
 	<dataSource name="ontods" jndiName="java:comp/env/jdbc/ontodbDataSource" />
-
-
+       
 	<document name="komp2_indexing">
 		<!-- IMPC images (filter out the mouse necropsy images) -->
 
 		<entity dataSource="komp2ds" name="ima_image_record"
-			query="select  IMA_IMAGE_RECORD.ID, FOREIGN_TABLE_NAME, FOREIGN_KEY_ID, ORIGINAL_FILE_NAME, CREATOR_ID, CREATED_DATE, EDITED_BY, EDIT_DATE, CHECK_NUMBER, FULL_RESOLUTION_FILE_PATH, SMALL_THUMBNAIL_FILE_PATH, LARGE_THUMBNAIL_FILE_PATH, SUBCONTEXT_ID, QC_STATUS_ID, PUBLISHED_STATUS_ID, organisation as org,  IMA_EXPERIMENT_DICT .ID from IMA_IMAGE_RECORD, IMA_SUBCONTEXT, IMA_EXPERIMENT_DICT WHERE IMA_IMAGE_RECORD.subcontext_id=IMA_SUBCONTEXT.id AND IMA_SUBCONTEXT.experiment_dict_id=IMA_EXPERIMENT_DICT.id AND IMA_EXPERIMENT_DICT.name!='Mouse Necropsy' ">
+			query="select  IMA_IMAGE_RECORD.ID, FOREIGN_TABLE_NAME, FOREIGN_KEY_ID, ORIGINAL_FILE_NAME, CREATOR_ID, CREATED_DATE, EDITED_BY, EDIT_DATE, CHECK_NUMBER, FULL_RESOLUTION_FILE_PATH, SMALL_THUMBNAIL_FILE_PATH, LARGE_THUMBNAIL_FILE_PATH, SUBCONTEXT_ID, QC_STATUS_ID, PUBLISHED_STATUS_ID, organisation as org,  IMA_EXPERIMENT_DICT .ID from IMA_IMAGE_RECORD, IMA_SUBCONTEXT, IMA_EXPERIMENT_DICT WHERE IMA_IMAGE_RECORD.subcontext_id=IMA_SUBCONTEXT.id AND IMA_SUBCONTEXT.experiment_dict_id=IMA_EXPERIMENT_DICT.id AND IMA_EXPERIMENT_DICT.name!='Mouse Necropsy'  ">
 			<!-- select ima_image_record.id, foreign_table_name, foreign_key_id, original_file_name, 
 				full_resolution_file_path, small_thumbnail_file_path, large_thumbnail_file_path 
 				from ima_image_record, ima_subcontext, ima_experiment_dict WHERE ima_image_record.subcontext_id=ima_subcontext.id 
@@ -30,6 +29,39 @@
 			<entity dataSource="komp2ds" name="organisation2"
 				query="select name from `organisation` where id=${ima_image_record.org}">
 				<field column="name" name="institute" />
+			</entity>
+			
+			<entity dataSource="komp2ds" name="imaDcfImageView"
+				query="SELECT DCF_ID, NAME, PROCEDURE_ID, EXPERIMENT_ID, MOUSE_ID FROM `IMA_DCF_IMAGE_VW` dcf, IMA_IMAGE_RECORD ir, PHN_STD_OPERATING_PROCEDURE stdOp WHERE dcf.id=ir.id and dcf.dcf_id=stdOp.id and ir.id=${ima_image_record.ID}">
+				<field column="DCF_ID" name="dcfId" />
+				<!-- <field column="MOUSE_ID" name="dcfMouseId" /> -->
+				<field column="EXPERIMENT_ID" name="dcfExpId" />
+				<field column="NAME"  name="sangerProcedureName"/>
+				<field column="PROCEDURE_ID"  name="sangerProcedureId"/>
+									
+									
+								<!-- 	<entity dataSource="komp2ds" name="xrayData"
+											query="SELECT * FROM PHN_XRAY_MV WHERE MOUSE_ID=${imaDcfImageView.MOUSE_ID}">
+												<field column="STRAIN" name="strain" />
+												<field column="CORE_STRAIN" name="coreStrain" />
+												<field column="FULL_STRAIN" name="fullStrain" />
+												<field column="COLONY_NAME" name="colonyName" />
+												<field column="PIPELINE" name="pipeline" />
+												<field column="SHAPE_OF_RIBS" name="shapeOfRibs" />
+									</entity>
+									<entity dataSource="komp2ds" name="xrayDataV2"
+											query="SELECT * FROM PHN_XRAY_V2_MV WHERE MOUSE_ID=${imaDcfImageView.MOUSE_ID}">
+												<field column="STRAIN" name="strain" />
+												<field column="CORE_STRAIN" name="coreStrain" />
+												<field column="FULL_STRAIN" name="fullStrain" />
+												<field column="COLONY_NAME" name="colonyName" />
+												<field column="PIPELINE" name="pipeline" />
+												<field column="SKULL_SHAPE" name="skullShape" />
+												
+												
+									</entity>
+				 -->
+				
 			</entity>
 
 			<!-- Mouse -->
@@ -75,6 +107,7 @@
 						query="select * from `allele` where symbol='${mts_mouse_allele_mv.ALLELE}'">
 						<!-- Get gene associated information from our sanger tables (we also get it from our main mpi2 db at the moment as well- this sanger tables are temporary for demo purposes??? -->
 						<field column="symbol" name="sangerSymbol" />
+						<!-- <field column="acc" name="accession" /> -->
 						<field column="acc" name="accession" />
 						<!-- @NotFound(action = NotFoundAction.IGNORE) @OneToOne @JoinColumn(name 
 							= "allele", referencedColumnName = "symbol", insertable = false, updatable 
@@ -86,13 +119,16 @@
 							<field column="name" name="geneName" />
 						<!-- 	@JoinColumn(name = "subtype_acc"),
 	@JoinColumn(name = "subtype_db_id"), -->
-							<entity dataSource="komp2ds" name="subtype2"
-								query="select name,  concat('${genomic_feature2.symbol}_', '${genomic_feature2.acc}') as symbol_gene from `ontology_term` where acc='${genomic_feature2.subtype_acc}' and db_id=${genomic_feature2.subtype_db_id}">
-								<field column="name" name="subtype" />  
-							</entity>
+											<entity dataSource="komp2ds" name="notnull"
+												query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
+																<entity dataSource="komp2ds" name="subtype2"
+																query="select  name,  concat('${genomic_feature2.symbol}_', '${genomic_feature2.acc}') as symbol_gene from `ontology_term` where acc='${genomic_feature2.subtype_acc}' and db_id=${genomic_feature2.subtype_db_id}">
+																<field column="name" name="subtype" />  
+																</entity>
+										</entity>
 							<field column="symbol_gene" name="symbol_gene" /> 
 							
-								<entity dataSource="komp2ds" name="subtype2"
+							<entity dataSource="komp2ds" name="synonym"
 								query="select * from synonym where acc='${genomic_feature2.acc}' ">
 							<field column="symbol" name="geneSynonyms" />
 							</entity>
