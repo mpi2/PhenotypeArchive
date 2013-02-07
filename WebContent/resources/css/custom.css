@@ -3,12 +3,45 @@ Add custom css overrides here
   This file gets included as the last CSS import, so anything defined here 
   should override behavior defined previously
 */
+#examplesearches {
+	color:white;
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size:12px;
+	text-decoration: underline;
+	text-shadow:none;
+	text-transform:none;
+	font-weight:normal;	
+}
+#searchBlock {padding-top:20px;}
+#userInput{width:464px;}
+
+body span p.ikmcbreadcrumb {
+	white-space:normal;padding-top:31px;color:#333333;font-size:14px;text-shadow:none;text-transform:none;font-weight:normal;
+}
+body span p.ikmcbreadcrumb span {
+	white-space:nowrap;border:solid 1px #ccc;padding:3px 2px 1px 2px;
+}
+@media all and (max-width: 1200px) {
+	#userInput{width:356px;}
+}
+@media all and (max-width: 979px) {
+	div#spacer{width:250px;}
+	#userInput{width:496px;}
+	#logoImage{width:80%;}
+	#examplesearches {color:#333333;}
+	span#searchBlock {width:600px;}
+}
 @media all and (max-width: 767px) {
 	#bannerSearch, #bannerSearch input{display:block; width:100%; margin:0;}	
 	#logoImage {float:none; width:auto;}	
 	div.mpi2-grid{margin:0; display:block;clear: both;}
+	body span p.ikmcbreadcrumb {padding-top:0px;margin-bottom:0px;}
+	body span p.ikmcbreadcrumb span { white-space:nowrap;border:solid 1px #ccc;padding:1px 2px 1px 2px;margin-bottom:0px; }
+	#userInput{width:252px;}
+	#examplesearches {color:#333333; float:none; padding-left:236px;}
+	div#userKeyword{padding:0px;}
+	span#searchBlock {padding-top:0px;}
 }
-@media all and (max-width: 979px) {div#spacer{width:250px;}}
 
 /* LOGO COLOR: CF8206 */
 /* a{color:#1B70F8;} */
@@ -93,7 +126,8 @@ div.gridSubTitle {
 	margin-bottom: 20px;
 } 
 div.fileIcons {
-	padding: 0 10px 10px 15px;	
+	padding: 0 10px 10px 15px;
+	float: right;
 }
 button.fileIcon, button.gridDump {
 	width: auto;
@@ -154,4 +188,10 @@ table {margin-bottom: 6px !important;/* clear: both; */}
 div#noSupport {
 	border: 1px solid gray;
 	padding: 30px;	
+}
+
+/*override bootstrap css here so our info labels match the Gene Status color currently */
+.label-info, .badge-info{
+background-color: #2f96b4;
+opacity : .65;
 }
