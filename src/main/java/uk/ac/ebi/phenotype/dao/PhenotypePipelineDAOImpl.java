@@ -29,6 +29,9 @@ import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.ParameterIncrement;
+import uk.ac.ebi.phenotype.pojo.ParameterOntologyAnnotation;
+import uk.ac.ebi.phenotype.pojo.ParameterOption;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.Procedure;
 
@@ -110,5 +113,25 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	public void saveParameter(Parameter parameter) {
 		getCurrentSession().saveOrUpdate(parameter);
 	}
+
+	@Transactional(readOnly = false)
+	public void saveParameterOption(ParameterOption parameterOption) {
+		getCurrentSession().saveOrUpdate(parameterOption);
+		
+	}
+
+	@Transactional(readOnly = false)
+	public void saveParameterIncrement(ParameterIncrement parameterIncrement) {
+		getCurrentSession().saveOrUpdate(parameterIncrement);
+		
+	}
+
+	@Transactional(readOnly = false)
+	public void saveParameterOntologyAnnotation(
+			ParameterOntologyAnnotation parameterOntologyAnnotation) {
+		getCurrentSession().saveOrUpdate(parameterOntologyAnnotation);
+		
+	}
+	
 	
 }
