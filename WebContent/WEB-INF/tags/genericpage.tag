@@ -1,5 +1,7 @@
 <%@tag description="Overall Page template" pageEncoding="UTF-8" import="java.util.Properties"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
+
 <%
 	/*
 	This block sets the version number to be displayed in the footer
@@ -11,12 +13,16 @@
 	String version = prop.getProperty("Implementation-Version");
 	if (version == null) {
 		version = "<span class='label label-important'>development</span>";
+		if (request.getRequestURL().toString().toLowerCase().contains("beta")) {
+			version = "<span class='label label-important'>BETA</span>";
+		}
 	}
-	getJspContext().setAttribute("version", version);
+	jspContext.setAttribute("version", version);
 %>
 <%@attribute name="header" fragment="true"%>
 <%@attribute name="footer" fragment="true"%>
 <%@attribute name="title" fragment="true"%>
+<%@attribute name="breadcrumb" fragment="true"%>
 <% // the baseUrl variable is set from the DeploymentInterceptor class %>
 
 <c:set var="domain">${pageContext.request.serverName}</c:set>
@@ -81,7 +87,6 @@ background-repeat: repeat-x;
 .dropdown-menu > .active > a > [class*=" icon-"] {
   background-image: url("${baseUrl}/img/glyphicons-halflings-white.png");
 }
-
 </style>
 
 <!-- Le fav and touch icons -->
@@ -93,7 +98,9 @@ background-repeat: repeat-x;
 
 <script>
 var baseUrl='${baseUrl}';
+var solrUrl='${solrUrl}';
 var drupalBaseUrl = "${drupalBaseUrl}";
+var mediaBaseUrl = "${mediaBaseUrl}";
 
 <%-- 
 Some browsers do not provide a console object see:
@@ -134,10 +141,10 @@ try {
 
 			<div class="navbar">
 				<div class="row">
-			<a href="/" id="logo" class="pull-left">
-			<img id="logoImage" src="${baseUrl}/img/logo.png" alt="International Mouse Phenotyping Consortium"/>
-			</a>
-					<ul id="menus" class="nav" role="navigation" style="padding-bottom:0;"><!-- generic page -->
+					<a href="/" id="logo" class="span2">
+					<img id="logoImage" src="${baseUrl}/img/logo.png" alt="International Mouse Phenotyping Consortium"/>
+					</a>
+					<ul id="menus" class="nav span10" role="navigation" style="padding-bottom:0;"><!-- generic page -->
 						<li><a tabindex="-1" href="/">Home</a></li>
 						<li class="dropdown">
 							<a id="drop1" data-target="#" href="/background" class="dropdown-toggle" data-toggle="dropdown">About IMPC<b class="caret"></b></a>
@@ -188,13 +195,18 @@ try {
 						</li>
 					</ul>
 
-					<span class="row nav input-append" style="padding: 20px 15px 5px 15px;">
+					<span id="searchBlock" class="row nav input-append span6">
 						
-						<input id="userInput" type="text" class="span4" value='${queryStringPlaceholder}' />
+						<div style="width:100%">
+						<input id="userInput" type="text" value='${queryStringPlaceholder}' />
 						<button id="acSearch" type="submit" class="btn"><i class="icon-search"></i> Search</button>
+						</div>
 						<div id="bannerSearch"></div>
-						<a href="#examples" data-toggle="modal" style="color:#333333;font-size:12px;text-decoration: underline;text-shadow:none;text-transform:none;font-weight:normal;">View example searches</a>
-					</span>
+						<a href="#examples" data-toggle="modal" id="examplesearches" class="pull-right" >View example searches</a>
+						<p class="ikmcbreadcrumb">
+						<a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invoke fragment="breadcrumb" /><%-- breadcrumbs here --%>
+						</p>
+ 					</span>
 				</div>
 			</div>
 
@@ -211,25 +223,25 @@ try {
 			</div>
 
 			<div class="modal-body">
-				<p>Sample queries for several fields are shown. Click the desired <a onclick="return false;">query</a> to execute any of the samples. 
+				<p>Sample queries for several fields are shown. Click the desired query to execute any of the samples. 
 				<span class="text-success">Note that queries are focused on Relationships, leaving modifier terms to be applied as filters.</span></p>
 	
 				<div>
 					<h4>Gene query examples</h4>
-					<p><a class="example" href="javascript:void(0)">pax6</a> - looking for gene Pax6</p>
-					<p><a class="example" href="javascript:void(0)">*rik</a> - looking for all Riken genes</p>
-					<p><a class="example" href="javascript:void(0)">fbox*</a> - looking for fbox genes</p>
+					<p><a class="example" href="${baseUrl}/search#q=akt2&core=gene">Akt2</a> - looking for a specific gene, Akt2</p>
+					<p><a class="example" href="${baseUrl}/search#q=*rik&core=gene">*rik</a> - looking for all Riken genes</p>
+					<p><a class="example" href="${baseUrl}/search#q=hox*&core=gene">hox*</a> - looking for all hox genes</p>
 				</div>
 			
 				<div>
 					<h4>Phenotype query examples</h4>
-					<p><a class="example" href="javascript:void(0)">abnormal skin morphology</a> - looking for a specific phenotype</p>
-					<p><a class="example" href="javascript:void(0)">ear</a> - find all ear related phenotypes</p>
+					<p><a class="example" href="${baseUrl}/search#q=abnormal skin morphology&core=mp&fq=ontology_subset:*">abnormal skin morphology</a> - looking for a specific phenotype</p>
+					<p><a class="example" href="${baseUrl}/search#q=ear&core=mp&fq=ontology_subset:*">ear</a> - find all ear related phenotypes</p>
 				</div>
 			
 				<div>
 					<h4>Procedure query Example</h4>
-					<p><a class="example" href="javascript:void(0)">grip strength</a> - looking for a specific procedure</p>
+					<p><a class="example" href="${baseUrl}/search#fq=pipeline_stable_id:IMPC_001&q=grip strength&core=pipeline">grip strength</a> - looking for a specific procedure</p>
 				</div>
 			</div>
 		</div>
@@ -241,19 +253,23 @@ try {
 					style="width: 1222px; height: 50px;">
 				<jsp:invoke fragment="footer" />
 				<small class="muted">
-				Version: <c:out value="${version}" escapeXml="false"/> • <a href="${baseUrl}/NOTICE.txt">License</a> • <a href="${baseUrl}/CHANGES.txt">Changelog</a>  
+				Version: <c:out value="${version}" escapeXml="false"/> • <a href="http://raw.github.com/mpi2/PhenotypeArchive/master/LICENSE">License</a> • <a href="http://raw.github.com/mpi2/PhenotypeArchive/master/CHANGES">Changelog</a>  
 				</small>
 			</div>
 
 		</div>
 	</div><!-- /container -->
 
-	<script type='text/javascript' src="${baseUrl}/js/bootstrap/bootstrap.min.js"></script>	
-	<script type='text/javascript' src="${baseUrl}/js/utils/searchAndFacetConfig.js"></script>	
+	
+	<script type='text/javascript' src='${baseUrl}/js/vendor/jquery.ba-bbq.min.js'></script>	
+	<script type='text/javascript' src='${baseUrl}/js/bootstrap/bootstrap.min.js'></script>	
+	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js'></script>
+		
 	<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/jquery.dataTables.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/core.filter.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/TableTools.min.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>
+	
 	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/autocompleteWidget.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/sideBarFacetWidget.js'></script>  
 	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>
@@ -263,16 +279,11 @@ try {
  	<script>
 	$(document).ready(function() {
 		// wire up the example queries
-		$("a.example").click(function(){
-			$('input#userInput').attr("value",$(this).text());
+   		$("a.example").click(function(){
+			//$('input#userInput').attr("value",$(this).text());
 			$('#examples').modal('hide');
-			var form = "<form id='hiddenSrch' action='" + baseUrl + "/search' method='post'>"
-            + "<input type='text' name='queryString' value='" + $(this).text() + "'>"
-			+ "<input type='text' name='type' value='gene'>"
-			+ "<input type='text' name='geneFound' value='1'>"			                                
-            + "</form>";                     
-			window.jQuery('div#bannerSearch').append(form);
-			window.jQuery('form#hiddenSrch').hide().submit();
+			document.location.href = $(this).attr('href');
+			document.location.reload();
 		});
 
 		// Message to IE users
@@ -283,7 +294,7 @@ try {
 		  	type: "GET",
 		  	cache: false,
 		 	dataType: 'html',		  	
-		 	url: "${baseUrl}/menudisplay",
+		 	url: "${drupalBaseUrl}/menudisplay",
 		 	success: function(data) {				
 		   		var items = [];
 		    	if (data.indexOf("Logout") !=-1) {
