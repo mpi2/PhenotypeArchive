@@ -13,6 +13,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
 		">
 
+	<!-- Define the global parameters used when deploying without maven -->
 	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
 			<list>
@@ -31,14 +32,14 @@
 	<!-- Translates Hibernate exceptions to Spring Data Access Exceptions -->
 	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
 
+	<!--  Get the datasources from the JNDI container -->
 	<jee:jndi-lookup id="komp2DataSource" jndi-name="java:comp/env/jdbc/komp2DataSource" expected-type="javax.sql.DataSource" />
 	<jee:jndi-lookup id="ontodbDataSource" jndi-name="java:comp/env/jdbc/ontodbDataSource" expected-type="javax.sql.DataSource" />
 
 	<!-- Weaves in transactional advice around @Transactional methods -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
-	<!-- The biological model manager service that can load models from the 
-		database -->
+	<!-- The biological model manager service that can load models from the database -->
 	<bean id="biologicalModelDAO" class="uk.ac.ebi.phenotype.dao.BiologicalModelDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
@@ -47,60 +48,57 @@
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 
-	<!-- The phenotype pipeline manager service that can load pipeline information 
-		from the database -->
+	<!-- The phenotype pipeline manager service that can load pipeline information from the database -->
 	<bean id="phenotypePipelineDAO" class="uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 
-	<!-- The account manager service that can load accounts from the database -->
 	<bean id="alleleDAO" class="uk.ac.ebi.phenotype.dao.AlleleDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 
-	<!-- The account manager service that can load accounts from the database -->
 	<bean id="genomicFeatureDAO" class="uk.ac.ebi.phenotype.dao.GenomicFeatureDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 
-	<!-- The account manager service that can load accounts from the database -->
 	<bean id="ontologyTermDAO" class="uk.ac.ebi.phenotype.dao.OntologyTermDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 
-	<!-- The account manager service that can load accounts from the database -->
 	<bean id="sequenceRegionDAO" class="uk.ac.ebi.phenotype.dao.SequenceRegionDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 
-	<!-- The account manager service that can load accounts from the database -->
 	<bean id="coordinateSystemDAO" class="uk.ac.ebi.phenotype.dao.CoordinateSystemDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 
-	<!-- The account manager service that can load accounts from the database -->
 	<bean id="strainDAO" class="uk.ac.ebi.phenotype.dao.StrainDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 
-	<!-- The account manager service that can load accounts from the database -->
 	<bean id="datasourceDAO" class="uk.ac.ebi.phenotype.dao.DatasourceDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 
-	<!-- The account manager service that can load accounts from the database -->
 	<bean id="labcodeDAO" class="uk.ac.ebi.phenotype.dao.LabcodeDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 
-	<!-- The account manager service that can load accounts from the database -->
 	<bean id="projectDAO" class="uk.ac.ebi.phenotype.dao.ProjectDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 
-	<!-- The account manager service that can load accounts from the database -->
 	<bean id="organisationDAO" class="uk.ac.ebi.phenotype.dao.OrganisationDAOImpl">
 		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<bean id="categoricalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.CategoricalStatisticsDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+	
+	<bean id="geneBiomartDao" class="uk.ac.ebi.phenotype.dao.GeneBiomartDao">		
+		<constructor-arg name="solrBaseUrl" value="${solrUrl}" />
 	</bean>
 
 	<!-- Spring annotated objects -->
@@ -109,8 +107,6 @@
 		<property name="dataSource" ref="komp2DataSource" />
 		<property name="annotatedClasses">
 			<list>
-
-				<!-- phenotype archive objects -->
 				<value>uk.ac.ebi.phenotype.pojo.Experiment</value>
 				<value>uk.ac.ebi.phenotype.pojo.Observation</value>
 				<value>uk.ac.ebi.phenotype.pojo.CategoricalObservation</value>
@@ -121,6 +117,9 @@
 				<value>uk.ac.ebi.phenotype.pojo.BiologicalSample</value>
 				<value>uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary</value>
 				<value>uk.ac.ebi.phenotype.pojo.Parameter</value>
+				<value>uk.ac.ebi.phenotype.pojo.ParameterOption</value>
+				<value>uk.ac.ebi.phenotype.pojo.ParameterIncrement</value>
+				<value>uk.ac.ebi.phenotype.pojo.ParameterOntologyAnnotation</value>
 				<value>uk.ac.ebi.phenotype.pojo.Procedure</value>
 				<value>uk.ac.ebi.phenotype.pojo.Pipeline</value>
 				<value>uk.ac.ebi.phenotype.pojo.Allele</value>
@@ -134,8 +133,9 @@
 				<value>uk.ac.ebi.phenotype.pojo.Project</value>
 				<value>uk.ac.ebi.phenotype.pojo.Organisation</value>
 				<value>uk.ac.ebi.phenotype.pojo.LiveSample</value>
-
-				<!-- imaging objects -->
+				<value>uk.ac.ebi.phenotype.pojo.CategoricalControlView</value>
+				<value>uk.ac.ebi.phenotype.pojo.CategoricalMutantView</value>
+				<value>uk.ac.ebi.phenotype.pojo.CategoricalResult</value>
 				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaImageRecord</value>
 				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaImageTag</value>
 				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaImageTagType</value>
@@ -155,7 +155,6 @@
 				<value>uk.ac.ebi.phenotype.imaging.persistence.AlleleMpi</value>
 				<value>uk.ac.ebi.phenotype.imaging.persistence.MtsMouseAllele</value>
 				<value>uk.ac.ebi.phenotype.imaging.persistence.MtsGenotypeDict</value>
-			
 			</list>
 		</property>
 		<property name="hibernateProperties">
@@ -172,22 +171,22 @@
 		<constructor-arg ref="sessionFactory" />
 		<constructor-arg ref="imagesSolrDao" />
 	</bean>
-
+	
 	<!-- 
 		If deploying without maven, the imagesSolrUrl variable is replaced
 		by Spring's PropertyPlaceholder configuration.
 		
 		If deploying with maven, the maven filter replaces the imagesSolrUrl
-		variable with the default value specified in the pom.xml file.
+		variable with the value specified in the pom.xml file.
 		
-		If deploying using a profile (e.g. mvn tomcat:deploy -Palpha) the 
+		If deploying using a profile (e.g. mvn tomcat:deploy -Pexternal_beta) the 
 		imagesSolrUrl variable is replaced with the appropriate value from
 		the profile in the pom.xml file.  
 	  -->
 	<bean id="imagesSolrDao" class="uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrJ">
 		<constructor-arg name="solrBaseUrl" value="${imagesSolrUrl}" />
 	</bean>
-
+	
 	<bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">
 		<property name="targetMapClass">
 			<value>java.util.HashMap</value>
@@ -197,7 +196,7 @@
 				<entry key="drupalBaseUrl" value="${drupalBaseUrl}" />
 				<entry key="imagesSolrUrl" value="${imagesSolrUrl}" />
 				<entry key="solrUrl" value="${solrUrl}" />
-				<entry key="geneSolrUrl" value="${geneSolrUrl}" />
+				<entry key="mediaBaseUrl" value="${mediaBaseUrl}" />
 			</map>
 		</property>
 	</bean>
