@@ -26,6 +26,9 @@ package uk.ac.ebi.phenotype.dao;
 import java.util.List;
 
 import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.ParameterIncrement;
+import uk.ac.ebi.phenotype.pojo.ParameterOntologyAnnotation;
+import uk.ac.ebi.phenotype.pojo.ParameterOption;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.Procedure;
 
@@ -74,5 +77,8 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	public void savePipeline(Pipeline pipeline);
 	public void saveProcedure(Procedure procedure);
 	public void saveParameter(Parameter parameter);
+	public void saveParameterOption(ParameterOption parameterOption);
+	public void saveParameterIncrement(ParameterIncrement parameterIncrement);
+	public void saveParameterOntologyAnnotation(ParameterOntologyAnnotation parameterOntologyAnnotation);
 	
 }
