@@ -22,6 +22,7 @@ package uk.ac.ebi.phenotype.pojo;
  * @since February 2012
  * 
  */
+import java.text.DateFormat;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -34,6 +35,7 @@ import javax.persistence.Table;
 @Table(name = "time_series_observation")
 public class TimeSeriesObservation extends Observation {
 
+	
 	@Column(name = "data_point")
 	private float dataPoint;
 	
@@ -85,5 +87,49 @@ public class TimeSeriesObservation extends Observation {
 		DiscretePoint = discretePoint;
 	}
 	
-	
+	/** 
+	 * Set a time point according to a date and a unit
+	 * Need some revision
+	 * @param timePoint
+	 * @param experimentDate
+	 * @param unit
+	 * @since January 2013
+	 */
+	public void setTimePoint(String timePoint, Date experimentDate, String unit) {
+		
+		Date date = null;
+		DateFormat inputDateFormatter = null;
+		System.out.println("setTimePoint: " + timePoint + "   "  + unit);
+		
+		try {
+
+			if (unit.equals("minutes") || unit.equals("number") || unit.equals("Time in hours relative to lights out")) {
+				float value = Float.parseFloat(timePoint);
+				this.setDiscretePoint(value);
+				//inputDateFormatter = new SimpleDateFormat("m");
+				//date = inputDateFormatter.parse(timePoint);
+
+			} else { //if (unit.equals("Time in hours relative to lights out")) {
+				// experimental code!!!
+				// check if it's relative to hours or absolute
+				try {
+					float value = Float.parseFloat(timePoint);
+					// right so convert to an hour
+					String rawHours = timePoint.substring(0, timePoint.indexOf("."));
+					String rawMinutes = timePoint.substring(timePoint.indexOf(".")+1);
+					System.out.println(rawHours + "::::" + rawMinutes);
+					int hours = Integer.parseInt(rawHours);
+					float minutes = Float.parseFloat(rawMinutes) * 0.6f;
+					System.out.println(hours + "::::" + minutes);
+					
+				} catch (NumberFormatException ex) {
+
+				}					
+			}
+
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
