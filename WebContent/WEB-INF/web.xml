@@ -12,7 +12,7 @@
 	</error-page>
 	<error-page>
 		<error-code>404</error-code>
-		<location>/WEB-INF/views/fileNotFound.jsp</location>
+		<location>/WEB-INF/views/404.jsp</location>
 	</error-page>
 	<error-page>
 		<error-code>500</error-code>
@@ -120,25 +120,6 @@
 		<url-pattern>/proxy/*</url-pattern>
 	</servlet-mapping>
 
-	<!-- Proxy for images (uncomment for local development) -->
-<!-- 
-	<servlet>
-		<servlet-name>ProxyServlet</servlet-name>
-		<servlet-class>org.mitre.dsmiley.httpproxy.ProxyServlet</servlet-class>
-		<init-param>
-			<param-name>targetUri</param-name>
-			<param-value>http://wwwdev.ebi.ac.uk/mi/alpha/phenotype-archive/media/images</param-value>
-		</init-param>
-		<init-param>
-			<param-name>log</param-name>
-			<param-value>false</param-value>
-		</init-param>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>ProxyServlet</servlet-name>
-		<url-pattern>/media/images/*</url-pattern>
-	</servlet-mapping>
--->
 <!--  
 	<servlet>
 		<servlet-name>GBrowseProxyServlet</servlet-name>
