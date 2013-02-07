@@ -816,7 +816,7 @@
   </requestHandler>
 
 <!-- EBI replication setup -->
- <requestHandler name="/replication" class="solr.ReplicationHandlerWithProxy" >
+ <requestHandler name="/replication" class="solr.ReplicationHandler" >
     <lst name="master">
 
         <str name="enable">${enable.master:true}</str>
