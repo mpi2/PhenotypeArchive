@@ -101,7 +101,7 @@ public class FileExportController extends HttpServlet implements BeanFactoryAwar
 			panelName = panelName == null ? "" : panelName; 
 			String contextPath = (String) request.getAttribute("baseUrl");	
 			String serverName = (String) request.getServerName();
-			int serverPort = request.getServerPort();
+			int serverPort = request.getServerPort();				
 			
 			// Excel
 			if ( fileType.equals("xls") ){				
@@ -122,6 +122,7 @@ public class FileExportController extends HttpServlet implements BeanFactoryAwar
 					if (dumpMode.equals("all")){
 						rowStart = 0;
 					}
+										
 					SolrIndex solrIndex = new SolrIndex(fileType, solrCoreName, solrParams, rowStart, 
 							showImgView, dumpMode, gridFields, request, config, contextPath, serverName, serverPort);
 					
