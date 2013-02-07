@@ -86,6 +86,13 @@ public class BiologicalModel extends SourcedEntry {
 		this.biologicalSamples = biologicalSamples;
 	}
 
+	public void addBiologicalSample(BiologicalSample biologicalSample) {
+		if (biologicalSamples == null) {
+			biologicalSamples = new LinkedList<BiologicalSample>();
+		}
+		biologicalSamples.add(biologicalSample);
+	}
+	
 	/**
 	 * @return the allelicComposition
 	 */
