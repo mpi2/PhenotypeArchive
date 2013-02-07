@@ -78,6 +78,15 @@ public class BiologicalModelDAOImpl extends HibernateDAOImpl implements Biologic
 		return getCurrentSession().createQuery("from BiologicalModel as m inner join m.datasource as d where d.id = ?").setInteger(0, databaseId).list();
 		
 	}
+	
+	@Transactional(readOnly = true)
+	@SuppressWarnings("unchecked")
+	public List<BiologicalModel> getAllBiologicalModelsByAccession(String accession) {
+		return getCurrentSession()
+			.createQuery("from BiologicalModel as m join m.genomicFeatures as gf where gf.id.accession = ?")
+			.setString(0, accession)
+			.list();
+	}
 
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
