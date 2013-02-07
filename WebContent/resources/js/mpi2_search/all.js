@@ -16,7 +16,7 @@
  * Allele section of gene details page is using this widget.
  * 
  */
-// Timestamp: 2012-11-20-16:56:09
+// Timestamp: 2012-12-21-14:29:12
 (function ($) {
     'use strict';
 
@@ -928,7 +928,7 @@
 
         _mpTermLinkRenderer: function(grid, doc){
 
-                var baseUrl = document.URL.replace('search','') + '?mpid=';
+                var baseUrl = document.URL.replace('searchAndFacet','') + '?mpid=';
                 var link = $('<a></a>').attr({'target':'_blank', 'href':baseUrl + doc.solrDoc.mp_id}).text(doc.solrDoc.mp_term);
                 return $('<span></span>').html(link);
         },
@@ -960,6 +960,10 @@
     'use strict';
 
     $.widget("MPI2.mpi2GenePageAlleleGrid", $.MPI2.mpi2SolrGrid, {
+
+        options: {
+            shouldHideCreKnockIns: true
+        },
 
         _tableType: function () { return 'Alleles'; },
 
@@ -1078,16 +1082,17 @@
         beforeRender: function (docs, continueRenderingFunc) {
             var self = this;
 
-            if (self._shouldHideRedundantData === true) {
-                self._hideRedundantData(docs);
-            }
+            self._hideData(docs, {
+                shouldHideRedundantData: self._shouldHideRedundantData,
+                shouldHideCreKnockIns: self.options.shouldHideCreKnockIns
+            });
 
             self._sortDocs(docs);
 
             continueRenderingFunc.call(self);
         },
 
-        _hideRedundantData: function (docs) {
+        _hideData: function (docs, options) {
             var self = this;
 
             var alleleIdsOfMice = [];
@@ -1108,11 +1113,24 @@
             });
 
             $.each(docs, function (idx, doc) {
-                var solrDoc = doc.solrDoc;
-                if (solrDoc.product_type !== 'ES Cell' ||
-                    solrDoc.allele_type !== 'Targeted Non Conditional' ||
-                    alleleIdsOfMice.indexOf(solrDoc.allele_id) !== -1 ||
-                    strainsWithConditionalReadyEsCells[solrDoc.strain] !== true) {
+                var solrDoc = doc.solrDoc, keepDoc = true;
+
+                if (options.shouldHideRedundantData === true) {
+                    if (solrDoc.product_type === 'ES Cell' &&
+                        solrDoc.allele_type === 'Targeted Non Conditional' &&
+                        alleleIdsOfMice.indexOf(solrDoc.allele_id) === -1 &&
+                        strainsWithConditionalReadyEsCells[solrDoc.strain] === true) {
+                        keepDoc = false;
+                    }
+                }
+
+                if (options.shouldHideCreKnockIns === true) {
+                    if (solrDoc.allele_type === 'Cre Knock In') {
+                        keepDoc = false;
+                    }
+                }
+
+                if (keepDoc === true) {
                     docsToKeep.push(doc);
                 }
             });
