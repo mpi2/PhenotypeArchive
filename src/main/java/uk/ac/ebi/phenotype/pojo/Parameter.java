@@ -42,18 +42,19 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "phenotype_parameter")
 public class Parameter extends PipelineEntry {
-	
+
 	@Column(name = "unit")
 	private String unit;	
 
 	@Column(name = "datatype")
 	private String datatype;	
-	
+
 	@Column(name = "formula")
 	private String formula;
 
@@ -62,7 +63,7 @@ public class Parameter extends PipelineEntry {
 
 	@Column(name = "sequence")
 	private int sequence;
-	
+
 	@Column(name = "required")
 	private boolean requiredFlag;
 
@@ -80,44 +81,48 @@ public class Parameter extends PipelineEntry {
 
 	@Column(name = "options")
 	private boolean optionsFlag;
-	
+
 	@Column(name = "media")
 	private boolean mediaFlag;
-	
+
 	/**
 	 * bi-directional
 	 */
 	@ManyToOne( cascade = {CascadeType.PERSIST, CascadeType.MERGE} )
-    @JoinTable(name="phenotype_procedure_parameter",
-        joinColumns = @JoinColumn(name="parameter_id"),
-        inverseJoinColumns = @JoinColumn(name="procedure_id")
-    )
-    private Procedure procedure;
-	
-	@ElementCollection
-	   @CollectionTable(name="phenotype_parameter_option", joinColumns=@JoinColumn(name="parameter_id"))
-	   @AttributeOverrides({
-		@AttributeOverride(name="name", 
-						   column=@Column(name="name")),
-		@AttributeOverride(name="description", 
-		   column=@Column(name="description"))
-		})
+	@JoinTable(name="phenotype_procedure_parameter",
+	joinColumns = @JoinColumn(name="parameter_id"),
+	inverseJoinColumns = @JoinColumn(name="procedure_id")
+			)
+	private Procedure procedure;
+
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinTable(
+			name="phenotype_parameter_lnk_option",
+			joinColumns = @JoinColumn( name="parameter_id"),
+			inverseJoinColumns = @JoinColumn( name="option_id")
+			)
 	private List<ParameterOption> options;
-	
-	@ElementCollection
-	   @CollectionTable(name="phenotype_parameter_increment", joinColumns=@JoinColumn(name="parameter_id"))
-	@AttributeOverrides({
-		@AttributeOverride(name="value", 
-		   column=@Column(name="increment_value")),
-		@AttributeOverride(name="dataType", 
-		   column=@Column(name="increment_datatype")),
-		@AttributeOverride(name="unit", 
-		   column=@Column(name="increment_unit")),
-		@AttributeOverride(name="minimum", 
-		   column=@Column(name="increment_minimum"))			   
-		})
+
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinTable(
+			name="phenotype_parameter_lnk_increment",
+			joinColumns = @JoinColumn( name="parameter_id"),
+			inverseJoinColumns = @JoinColumn( name="increment_id")
+			)
 	private List<ParameterIncrement> increments;
-	
+
+	/**
+	 * Annotation (like MP terms) can be associated to parameter 
+	 * under certain conditions. The rules are defined in this table
+	 */
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinTable(
+			name="phenotype_parameter_lnk_ontology_annotation",
+			joinColumns = @JoinColumn( name="parameter_id"),
+			inverseJoinColumns = @JoinColumn( name="annotation_id")
+			)
+	private List<ParameterOntologyAnnotation> annotations;
+
 	public Parameter() {
 		super();
 	}
@@ -316,7 +321,7 @@ public class Parameter extends PipelineEntry {
 		}
 		this.options.add(option);
 	}
-	
+
 	/**
 	 * @return the options
 	 */
@@ -340,7 +345,7 @@ public class Parameter extends PipelineEntry {
 		}
 		this.increments.add(increment);
 	}
-	
+
 	/**
 	 * @return the increment
 	 */
@@ -354,5 +359,55 @@ public class Parameter extends PipelineEntry {
 	public void setIncrement(List<ParameterIncrement> increments) {
 		this.increments = increments;
 	}
+
+	/**
+	 * @param increment add an increment to set
+	 */
+	public void addAnnotation(ParameterOntologyAnnotation annotation) {
+		if (annotations == null) {
+			annotations = new ArrayList<ParameterOntologyAnnotation>();
+		}
+		this.annotations.add(annotation);
+	}
+
+	/**
+	 * @return the annotations
+	 */
+	public List<ParameterOntologyAnnotation> getAnnotations() {
+		return annotations;
+	}
+
+
+	/**
+	 * @param annotations the annotations to set
+	 */
+	public void setAnnotations(List<ParameterOntologyAnnotation> annotations) {
+		this.annotations = annotations;
+	}
+
+	/**
+	 * Check what unit is stored for this parameter
+	 * Needs revision
+	 * @return a string representing a unit
+	 */
+	public String checkParameterUnit() {
+		String unit = null;
+		if (isIncrementFlag()) {
+			List<ParameterIncrement> increments = getIncrement();
+			
+			for (ParameterIncrement increment: increments) {
+				// one is not enough
+				if (increment.getValue().length() > 0 || increments.size() == 1) {
+					unit = increment.getUnit();
+					break;
+				}
+			}
+		}
+		return unit;
+	}
+
+
+
+
 
 }
