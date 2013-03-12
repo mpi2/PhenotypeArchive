@@ -43,6 +43,11 @@ import javax.persistence.NamedNativeQuery;
 			resultClass = CountDTO.class
 	),
 	@NamedNativeQuery(
+			name = "deleteLiveSamplesWithoutModels",
+			query = "DELETE biological_sample, live_sample FROM biological_model INNER JOIN biological_sample INNER JOIN live_sample WHERE biological_sample.id = live_sample.id AND biological_sample.db_id = :dbID",
+			resultClass = CountDTO.class
+	),
+	@NamedNativeQuery(
 			name = "deleteBiologicalSamples",
 			query = "DELETE biological_model_sample, biological_sample FROM biological_model INNER JOIN biological_model_sample INNER JOIN biological_sample WHERE biological_model.id = biological_model_sample.biological_model_id AND biological_model_sample.biological_sample_id=biological_sample.id AND biological_model.db_id = :dbID",
 			resultClass = CountDTO.class
@@ -59,24 +64,97 @@ import javax.persistence.NamedNativeQuery;
 	),
 	@NamedNativeQuery(
 			name = "deleteAllTimeSeriesObservationsByOrganisationAndDatasource",
-			query = "DELETE observation, time_series_observation FROM observation INNER JOIN time_series_observation INNER JOIN experiment_observation INNER JOIN experiment WHERE observation.id = time_series_observation.id AND observation.id = experiment_observation.observation_id AND experiment_observation.experiment_id = experiment.id AND experiment.organisation_id = :organisationID AND experiment.db_id = :dbID",
+			query = "DELETE observation, time_series_observation, experiment_observation FROM observation INNER JOIN time_series_observation INNER JOIN experiment_observation INNER JOIN experiment WHERE observation.id = time_series_observation.id AND observation.id = experiment_observation.observation_id AND experiment_observation.experiment_id = experiment.id AND experiment.organisation_id = :organisationID AND experiment.db_id = :dbID",
 			resultClass = CountDTO.class
 	),	
 	@NamedNativeQuery(
 			name = "deleteAllUnidimensionalObservationsByOrganisationAndDatasource",
-			query = "DELETE observation, unidimensional_observation FROM observation INNER JOIN unidimensional_observation INNER JOIN experiment_observation INNER JOIN experiment WHERE observation.id = unidimensional_observation.id AND observation.id = experiment_observation.observation_id AND experiment_observation.experiment_id = experiment.id AND experiment.organisation_id = :organisationID AND experiment.db_id = :dbID",
+			query = "DELETE observation, unidimensional_observation, experiment_observation FROM observation INNER JOIN unidimensional_observation INNER JOIN experiment_observation INNER JOIN experiment WHERE observation.id = unidimensional_observation.id AND observation.id = experiment_observation.observation_id AND experiment_observation.experiment_id = experiment.id AND experiment.organisation_id = :organisationID AND experiment.db_id = :dbID",
 			resultClass = CountDTO.class
 	),
 	@NamedNativeQuery(
 			name = "deleteAllCategoricalObservationsByOrganisationAndDatasource",
-			query = "DELETE observation, categorical_observation FROM observation INNER JOIN categorical_observation INNER JOIN experiment_observation INNER JOIN experiment WHERE observation.id = categorical_observation.id AND observation.id = experiment_observation.observation_id AND experiment_observation.experiment_id = experiment.id AND experiment.organisation_id = :organisationID AND experiment.db_id = :dbID",
+			query = "DELETE observation, categorical_observation, experiment_observation FROM observation INNER JOIN categorical_observation INNER JOIN experiment_observation INNER JOIN experiment WHERE observation.id = categorical_observation.id AND observation.id = experiment_observation.observation_id AND experiment_observation.experiment_id = experiment.id AND experiment.organisation_id = :organisationID AND experiment.db_id = :dbID",
 			resultClass = CountDTO.class
 	),
+	@NamedNativeQuery(
+			name = "deleteAllMetadataObservationsByOrganisationAndDatasource",
+			query = "DELETE observation, metadata_observation, experiment_observation FROM observation INNER JOIN metadata_observation INNER JOIN experiment_observation INNER JOIN experiment WHERE observation.id = metadata_observation.id AND observation.id = experiment_observation.observation_id AND experiment_observation.experiment_id = experiment.id AND experiment.organisation_id = :organisationID AND experiment.db_id = :dbID",
+			resultClass = CountDTO.class
+	),	
+	
+	@NamedNativeQuery(
+			name = "deleteAllTimeSeriesObservationsByDatasource",
+			query = "DELETE observation, time_series_observation, experiment_observation FROM observation INNER JOIN time_series_observation INNER JOIN experiment_observation INNER JOIN experiment WHERE observation.id = time_series_observation.id AND observation.id = experiment_observation.observation_id AND experiment_observation.experiment_id = experiment.id AND experiment.db_id = :dbID",
+			resultClass = CountDTO.class
+	),	
+	
+	@NamedNativeQuery(
+			name = "deleteAllUnidimensionalObservationsByDatasource",
+			query = "DELETE observation, unidimensional_observation, experiment_observation FROM observation INNER JOIN unidimensional_observation INNER JOIN experiment_observation INNER JOIN experiment WHERE observation.id = unidimensional_observation.id AND observation.id = experiment_observation.observation_id AND experiment_observation.experiment_id = experiment.id AND experiment.db_id = :dbID",
+			resultClass = CountDTO.class
+	),
+	
+	@NamedNativeQuery(
+			name = "deleteAllCategoricalObservationsByDatasource",
+			query = "DELETE observation, categorical_observation, experiment_observation FROM observation INNER JOIN categorical_observation INNER JOIN experiment_observation INNER JOIN experiment WHERE observation.id = categorical_observation.id AND observation.id = experiment_observation.observation_id AND experiment_observation.experiment_id = experiment.id AND experiment.db_id = :dbID",
+			resultClass = CountDTO.class
+	),
+	@NamedNativeQuery(
+			name = "deleteAllMetadataObservationsByDatasource",
+			query = "DELETE observation, metadata_observation, experiment_observation FROM observation INNER JOIN metadata_observation INNER JOIN experiment_observation INNER JOIN experiment WHERE observation.id = metadata_observation.id AND observation.id = experiment_observation.observation_id AND experiment_observation.experiment_id = experiment.id AND experiment.db_id = :dbID",
+			resultClass = CountDTO.class
+	),		
+
+	
+	@NamedNativeQuery(
+			name = "deleteAllTimeSeriesObservationsWithoutExperimentByDatasource",
+			query = "DELETE observation, time_series_observation FROM observation INNER JOIN time_series_observation WHERE observation.id = time_series_observation.id AND observation.db_id = :dbID",
+			resultClass = CountDTO.class
+	),	
+	
+	@NamedNativeQuery(
+			name = "deleteAllUnidimensionalObservationsWithoutExperimentByDatasource",
+			query = "DELETE observation, unidimensional_observation FROM observation INNER JOIN unidimensional_observation WHERE observation.id = unidimensional_observation.id AND observation.db_id = :dbID",
+			resultClass = CountDTO.class
+	),
+	
+	@NamedNativeQuery(
+			name = "deleteAllCategoricalObservationsWithoutExperimentByDatasource",
+			query = "DELETE observation, categorical_observation FROM observation INNER JOIN categorical_observation WHERE observation.id = categorical_observation.id AND observation.db_id = :dbID",
+			resultClass = CountDTO.class
+	),
+
+	@NamedNativeQuery(
+			name = "deleteAllMetadataObservationsWithoutExperimentByDatasource",
+			query = "DELETE observation, metadata_observation FROM observation INNER JOIN metadata_observation WHERE observation.id = metadata_observation.id AND observation.db_id = :dbID",
+			resultClass = CountDTO.class
+	),
+
+	@NamedNativeQuery(
+			name = "deleteAllPipelinesByDatasource",
+			query = "DELETE phenotype_pipeline, phenotype_pipeline_procedure, phenotype_procedure, phenotype_procedure_parameter, phenotype_parameter FROM phenotype_pipeline INNER JOIN phenotype_pipeline_procedure INNER JOIN phenotype_procedure INNER JOIN phenotype_procedure_parameter INNER JOIN phenotype_parameter WHERE phenotype_pipeline.id = phenotype_pipeline_procedure.pipeline_id AND phenotype_pipeline_procedure.procedure_id = phenotype_procedure.id AND phenotype_procedure.id = phenotype_procedure_parameter.procedure_id AND phenotype_procedure_parameter.parameter_id = phenotype_parameter.id AND phenotype_pipeline.db_id = :dbID",
+			resultClass = CountDTO.class
+	),
+	
 	@NamedNativeQuery(
 			name = "deleteExperimentByOrganisationAndDatasource",
 			query = "DELETE FROM experiment WHERE experiment.organisation_id = :organisationID AND experiment.db_id = :dbID",
 			resultClass = CountDTO.class
-	)
+	),
+
+	@NamedNativeQuery(
+			name = "deleteExperimentByDatasource",
+			query = "DELETE FROM experiment WHERE experiment.db_id = :dbID",
+			resultClass = CountDTO.class
+	),
+	
+	@NamedNativeQuery(
+			name = "deleteAllExperimentWithoutObservationByDatasource",
+			query = "DELETE experiment, experiment_observation FROM experiment_observation INNER JOIN experiment WHERE experiment_observation.experiment_id = experiment.id AND experiment.db_id = :dbID",
+			resultClass = CountDTO.class
+	),	
+	
 })
 public class CountDTO {
 	@Id
