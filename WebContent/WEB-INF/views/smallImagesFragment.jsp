@@ -38,7 +38,7 @@
 				<div class="span3">
 					<div class="thumbnail">
 						<!-- image ID: ${image.id} -->
-						<a href="${baseUrl}/media/images/${image.fullResolutionFilePath}"><img src="${baseUrl}/media/images/${image.smallThumbnailFilePath}"  onerror="imgError(this);" /></a>
+						<a href="${mediaBaseUrl}/${image.fullResolutionFilePath}"><img src="${mediaBaseUrl}/${image.smallThumbnailFilePath}"  onerror="imgError(this);" /></a>
 						<div class="caption">
 		       				<c:if test="${not empty image.genotype}">${image.genotype}<br /></c:if>
 							<c:forEach var="annTermName" items="${image.annotationTermName}" varStatus="annStatus">
