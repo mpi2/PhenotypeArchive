@@ -146,7 +146,9 @@ span.annotType {
 	font-weight: bold;	
 }
 
-table#gFacet td.geneSubtypeCount, 
+table#gFacet td.geneSubtypeCount,
+table#gFacet td.geneStatusCount,
+table#gFacet td.geneSubfacetCount,
 /*table#pipeline td[class^=procedure],*/ 
 table#pipeline td a.paramCount,
 table#mpFacet td.mpTopLevelCount,
