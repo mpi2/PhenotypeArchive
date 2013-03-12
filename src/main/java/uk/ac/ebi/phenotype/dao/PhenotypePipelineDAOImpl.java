@@ -25,9 +25,11 @@ package uk.ac.ebi.phenotype.dao;
 
 import java.util.List;
 
+import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.ParameterIncrement;
 import uk.ac.ebi.phenotype.pojo.ParameterOntologyAnnotation;
@@ -133,5 +135,11 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 		
 	}
 	
-	
+	@Transactional(readOnly = false)
+	public void deleteAllPipelinesByDatasource(Datasource datasource) {
+		
+		Query query = getCurrentSession().getNamedQuery("deleteAllPipelinesByDatasource")
+				.setInteger("dbID", datasource.getId());
+		query.executeUpdate();
+	}
 }
