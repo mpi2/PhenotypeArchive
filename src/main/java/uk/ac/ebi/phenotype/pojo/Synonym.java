@@ -49,5 +49,13 @@ public class Synonym {
 	public void setSymbol(String symbol) {
 		this.symbol = symbol;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Synonym [id=" + id + ", symbol=" + symbol + "]";
+	}
 	
 }
