@@ -23,7 +23,6 @@ SET collation_connection = utf8_general_ci;
 --
 -- Drop all the tables if they exist
 --
-DROP TABLE IF EXISTS meta_info;
 DROP TABLE IF EXISTS allele;
 DROP TABLE IF EXISTS biological_model;
 DROP TABLE IF EXISTS biological_model_allele;
@@ -71,25 +70,7 @@ DROP TABLE IF EXISTS text_observation;
 DROP TABLE IF EXISTS time_series_observation;
 DROP TABLE IF EXISTS unidimensional_observation;
 
-/**
- * Contains meta information about the database like
- * the version of the code that can run safely on the data
- * the mouse assembly version of the data
- * the different phenodeviant calls made for this version
- * the version of the database schema
- */
-CREATE TABLE meta_info (
-	id                          INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-	property_key                VARCHAR(255) NOT NULL DEFAULT '',
-	property_value              VARCHAR(255) NOT NULL DEFAULT '',
-	description                 TEXT,
 
-    PRIMARY KEY (id),
-    UNIQUE KEY key_idx (property_key),
-    KEY value_idx (property_value)
-
-) COLLATE=utf8_general_ci ENGINE=MyISAM;
-    
 /**
 @table project
 @desc This table stores information about each phenotyping project
