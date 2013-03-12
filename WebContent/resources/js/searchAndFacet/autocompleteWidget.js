@@ -33,33 +33,31 @@
 			},
 			loadWaiting: "<img src='img/loading_small.gif' />",
 			grouppingId : 'mgi_accession_id',
-			searchFields: ["marker_symbol", "mgi_accession_id_key", "marker_name", "synonym", "marker_synonym", "allele_synonym"],
+			geneSearchFields: ["marker_symbol", "mgi_accession_id", "marker_name", "marker_synonym"],
 			commonQryParams: {					
 	    			'qf': 'auto_suggest',
 	    			'defType': 'edismax',
-	    			'wt': 'json',
-	    			'start': 0,
+	    			'wt': 'json',	    		
 	    			'rows': 4 // limit display in AC dropdown list for performance & practicality	    				    		
 	    	},	
 	    	queryParams_gene: {							
-	    			'group':'on',					
-	    			'group.field':'mgi_accession_id', 
-	    			'sort': 'marker_symbol desc',
-	    			'hl': 'on',
-	    			'hl.field': 'marker_name,synonym',
-	    			'fq': 'marker_type_str:* -marker_type_str:"heritable phenotypic marker"', 
-	    			'fl':"marker_name,synonym,marker_symbol,mgi_accession_id,mp_id,mp_term,mp_term_synonym,allele"},			
+	    			//'group':'on',					
+	    			//'group.field':'mgi_accession_id', 
+	    			//'sort': 'marker_symbol desc',
+	    			//'hl': 'on',
+	    			//'hl.field': 'marker_name, marker_synonym',
+	    			'fq': 'marker_type:* -marker_type:"heritable phenotypic marker"',	    			
+	    			'fl':"marker_name,marker_synonym,marker_symbol,mgi_accession_id"},
 			srcLabel : { // what appears to the user in the AC dropdown list, ie, how a term is prefixed for a particular solr field
 					marker_symbol     : 'Gene Symbol',
 					marker_name       : 'Gene Name',
-					marker_synonym    : 'Gene Synonym',
-					synonym           : 'Gene Synonym',
+					marker_synonym    : 'Gene Synonym',					
 					mgi_accession_id  : 'MGI ID', 
 					mp_id             : 'MP ID',
 					mp_term           : 'MP Term', 
 					mp_term_synonym   : 'MP Term Synonym',
 					ma_id             : 'MA ID',
-					ma_term           : 'MA Term', 
+			 		ma_term           : 'MA Term', 
 					ma_term_synonym   : 'MA Term Synonym',
 					allele            : 'Allele Symbol',
 					procedure_name    : 'Procedure Name',
@@ -83,21 +81,22 @@
             delay: 300,  
             doneSourceCall: 0,           
 			facets: ['geneFacet', 'phenotypeFacet', 'tissueFacet', 'pipelineFacet', 'imageFacet'],			
-            acList: [], 			  		       
+            acList: [],            	  		       
 			select: function(event, ui) {				
 				//console.log(ui.item.value);   
 				var thisWidget = $(this).data().mpi2AutoComplete; // this widget
 				thisWidget.options.mouseSelected = 1;
 				
 				thisWidget._inputValMappingForCallBack(ui.item.value);
-			},
+			},			
 			close: function(event, ui){  // close dropdown list
 	 			//nothing to do for now
-	 		},	
-			focus: function(event, ui){ // when mouseover a term in dropdown list				
-				//nothing to do for now		
-				// change input val when hover on a term on list
-				//$(this).data().mpi2AutoComplete.element.val(ui.item.value);
+	 		},
+			focus: function(event, ui){ // when mouseover a term in dropdown list
+				// display item under cursor when moving mouse 
+				var self = $(this).data().mpi2AutoComplete;
+				self.term = self.options.srchKeyWord; // ensures user input from last query is replaced by the latest 
+				self.element.val(ui.item.value);
 			}			
         },
         
@@ -165,12 +164,7 @@
 						fq: self.options.facetTypeParams[self.options.searchMode].fq });
 				}				
 			}
-			
-			for( var i=0; i<facetDivs.length; i++ ){
-				$('div#' + facetDivs[i] + ' span.facetCount').text('');
-				$('div#' + facetDivs[i] + ' div.facetCatList').html('');	
-			} 
-			
+						
 			window.location.hash = 'q=' + solrQStr + "&core=" + self.options.searchMode 
 		                     + '&fq=' + self.options.facetTypeParams[self.options.searchMode].fq;			
 					
@@ -215,23 +209,23 @@
             self.element.val(self._showSearchMsg());                    
             self._addHitEnterBeforeDropDownListOpensEvent(); 
             	
-            //self.element.bind('keyup', function(e) {
-            self.element.keypress(function(e) { 
-           
-            	//console.log('key up..');	
+            self.element.bind('keyup', function(e) {
+            //self.element.keypress(function(e) { 
+            	// remembers what user has just typed
+            	self.options.srchKeyWord = self.element.val();
             	
             	// when input text becomes empty string (ie, due to deletion)
-            	if ( self.element.val() == '' ){
+            	/*if ( self.element.val() == '' ){
             		            		
             		for( var i=0; i<facetDivs.length; i++ ){
             			$('div#' + facetDivs[i] + ' span.facetCount').text(''); 					 
 						$('div#' + facetDivs[i] + ' div.facetCatList').html('');
 					}           			
-            	}           	           	
-            	            	
+            	} */ 
+            	            	            	
             	if ( e.which == 13) {  // catches IE     	
-            		self.close();                    
-            		             
+            		self.close();   	
+            		
             		$('div#facetBrowser').html(MPI2.searchAndFacetConfig.spinner);
             		
             		// need to distinguish between enter on the input box and enter on the drop down list
@@ -274,14 +268,15 @@
 
             // refresh facet counts and facet tables
             self.element.click(function(){
-            	self.term = undefined; 		
-            	            	
-				/*for( var i=0; i<facetDivs.length; i++ ){
-					$('div#' + facetDivs[i] + ' span.facetCount').text('');
-					$('div#' + facetDivs[i] + ' div.facetCatList').html('');	
-				} */           	
-            });      
-           
+            	self.term = undefined;            	      	
+            }); 
+            
+            self.element.mouseover(function(){            	
+            	// display what user has just typed
+            	// self.options.srchKeyWord is to override last search (which is default)
+            	self.term = self.options.srchKeyWord;
+            });
+            
             $.ui.autocomplete.prototype._create.apply(this);			
         },   
 
@@ -342,100 +337,96 @@
 					var fld = aFields[f];
 					var val = docs[d][fld];
 					//console.log('field: ' + fld + ' for ' + val);
-										
-					if ( (fld == 'mp_term_synonym' || fld == 'ma_term_synonym' 
-						  || fld == 'annotationTermName' || fld == 'symbol' ) && val ){
-						var aVals = docs[d][fld];
-												
-						for ( var v=0; v<aVals.length; v++ ){							
-							var thisVal = aVals[v];
-							
-							if ( fld == 'mp_term_synonym'  ){
-								MPI2.AutoComplete.mapping[thisVal.toLowerCase()] = docs[d]['mp_id'];
+					
+					if ( fld != 'annotationTermName' && fld != 'expName' && fld != 'symbol' ){
+						
+						if ( (fld == 'mp_term_synonym' || fld == 'ma_term_synonym' 
+							  || fld == 'annotationTermName' || fld == 'symbol' ) && val ){
+							var aVals = docs[d][fld];
+													
+							for ( var v=0; v<aVals.length; v++ ){							
+								var thisVal = aVals[v];
+								
+								if ( fld == 'mp_term_synonym'  ){
+									MPI2.AutoComplete.mapping[thisVal.toLowerCase()] = docs[d]['mp_id'];
+								}
+								
+								if ( thisVal.toLowerCase().indexOf(sQuery) != -1 || sQuery.indexOf('*') != -1 ){
+									list.push(self.options.srcLabel[fld] + ' : ' + thisVal);
+								}	
+							}						
+						}								
+						else if ( val ){
+							//console.log(typeof val + ' -- '+  val.toString());
+							if ( typeof val == 'object' ){
+								val = val.toString();
+							} 
+							if ( fld == 'mp_term'  ){
+								MPI2.AutoComplete.mapping[val.toLowerCase()] = docs[d]['mp_id'];
 							}
-							
-							if ( thisVal.toLowerCase().indexOf(sQuery) != -1 || sQuery.indexOf('*') != -1 ){
-								list.push(self.options.srcLabel[fld] + ' : ' + thisVal);
-							}	
-						}						
-					}								
-					else if ( val ){
-						//console.log(typeof val + ' -- '+  val.toString());
-						if ( typeof val == 'object' ){
-							val = val.toString();
-						} 
-						if ( fld == 'mp_term'  ){
-							MPI2.AutoComplete.mapping[val.toLowerCase()] = docs[d]['mp_id'];
-						}
-						if ( val.toLowerCase().indexOf(sQuery) != -1 || sQuery.indexOf('*') != -1 ){				
-							list.push(self.options.srcLabel[fld] + ' : ' + val);
-						}
-					}				
+							if ( val.toLowerCase().indexOf(sQuery) != -1 || sQuery.indexOf('*') != -1 ){				
+								list.push(self.options.srcLabel[fld] + ' : ' + val);
+							}
+						}	
+					}
 				}
 			}
 					
 			self.options.acList = self.options.acList.concat(self._getUnique(list));	
 		},
 		
-		_parseGeneGroupedJson: function (json, query) {
-			var self = this;              
-			//console.log('query: '+ query);				
+		_parseGeneGroupedJson: function (json, sQuery, sDataType, sDivId, aFields) {
+		
+			var self = this;
 			
-           	var g = json.grouped[self.options.grouppingId]; 
-           	var maxRow = json.responseHeader.params.rows;
-           	var matchesFound = g.matches;
-			//console.log('FOUND: gene found: '+ matchesFound);
-           	self.options.geneFound = matchesFound;   
-
-           //	$('div#geneFacet span.facetCount').text(matchesFound);
-			$('div#geneFacet .facetCatList').html(''); 
-
-           	var groups   = g.groups;
-           	var aFields  = self.options.searchFields;	
-           	var srcLabel = self.options.srcLabel;
-           	var list     = [];
-           	           	
-           	for ( var i=0; i<groups.length; i++){
-        		//var geneId = groups[i].groupValue;
-        		        		
-        		var docs = groups[i].doclist.docs;
-        		for ( var d=0; d<docs.length; d++ ){	
-        			for ( var f=0; f<aFields.length; f++ ){
-        				if ( docs[d][aFields[f]] ){	
-							var geneId = docs[d][self.options.grouppingId];			
-        					var fld = aFields[f];
-        					var val = docs[d][fld];		
-        					//console.log('field: '+ fld + ' -- val: ' + val + ' : ' + typeof val);
-        					// marker_synonym, mp_id, mp_term, mp_term_synonym are all multivalued
-        					if ( fld == 'marker_name' || fld == 'marker_synonym' || fld == 'synonym' || fld == 'allele_synonym' ){//} || fld == 'mp_id' || fld == 'mp_term' || fld == 'mp_term_s ynonym' ){
-        						var aVals = docs[d][fld];
-        						for ( var v=0; v<aVals.length; v++ ){						
-        							var thisVal = aVals[v];
-        							
-									//alert(thisVal + ': '+ typeof thisVal);
-        							// only want indexed terms that have string match to query keyword
+			var matchesFound = json.response.numFound;
+			//console.log('FOUND: ' + sDataType + ' found: ' + matchesFound);			
+						
+			self.options[sDataType + 'Found'] = matchesFound;
+		
+			//$('div#' + sDivId + ' span.facetCount').text(matchesFound);
+			$('div#' + sDivId + ' .facetCatList').html(''); 
 									
-        							if ( thisVal.toLowerCase().indexOf(query) != -1 || query.indexOf('*') != -1 ){    							
-        								
-        								if (fld == 'marker_name' || fld == 'synonym' || fld == 'marker_synonym' || fld == 'allele_synonym'){
-        									MPI2.AutoComplete.mapping[thisVal.toLowerCase()] = geneId;        									
-        								} 
-        								list.push(srcLabel[fld] + " : " +  thisVal);
-        							}							
-        						}
-        					}
-        					else {        						
-        						if ( val.toLowerCase().indexOf(query) != -1 || query.indexOf('*') != -1 ){        						
-									//console.log(fld + ' : ' + val + ' id: ' + geneId);
-        							MPI2.AutoComplete.mapping[val.toLowerCase()] = geneId;        										
-        							list.push(srcLabel[fld] + " : " +  val);
-        						}	
-        					}
-        				}
-        			}		
-        		}
-        	}   	
-           	
+			var list = [];
+			var docs = json.response.docs;
+			
+			for ( var d=0; d<docs.length; d++ ){	
+				for( var f=0; f<aFields.length; f++){
+					var fld = aFields[f];
+					var val = docs[d][fld];
+					//console.log('0: field: ' + fld + ' for ' + val);
+					var geneId = docs[d]['mgi_accession_id'];	
+					if ( fld == 'marker_name' || fld == 'marker_synonym' ){//} || fld == 'mp_id' || fld == 'mp_term' || fld == 'mp_term_s ynonym' ){
+						var aVals = docs[d][fld];
+						if ( aVals ){
+							for ( var v=0; v<aVals.length; v++ ){						
+								var thisVal = aVals[v];
+								
+								//alert(thisVal + ': '+ typeof thisVal);
+								// only want indexed terms that have string match to query keyword
+								
+								if ( thisVal.toLowerCase().indexOf(sQuery) != -1 || sQuery.indexOf('*') != -1 ){    							
+									
+									if ( fld == 'marker_name' || fld == 'marker_synonym' ){
+										
+										MPI2.AutoComplete.mapping[thisVal.toLowerCase()] = geneId;        									
+									} 
+									list.push(self.options.srcLabel[fld] + " : " +  thisVal);
+								}							
+							}
+						}
+					}
+					else {        						
+						if ( val.toLowerCase().indexOf(sQuery) != -1 || sQuery.indexOf('*') != -1 ){        						
+							//console.log('2: '+ fld + ' : ' + val + ' id: ' + geneId);
+							MPI2.AutoComplete.mapping[val.toLowerCase()] = geneId;        										
+							list.push(self.options.srcLabel[fld] + " : " +  val);
+						}	
+					}
+				}
+				
+			}
+			
            	self.options.acList = self._getUnique(list);             			
         },	
         
@@ -496,21 +487,26 @@
         		q = '*:*'; // when user types *              
         	}	        		
         				
- 	    	self.options.queryParams_gene.q = q; 	    	 	
-
-    	
+ 	    	self.options.queryParams_gene.q = q; 
+ 	    	
  	    	var homepage = location.href.match(/org\/$/);
  	    	if (homepage !== null ){
  	    		//   alert('home page');
  	    		self.options.homePage = true;                        
  	    	}
 
- 	    	if ( location.href.indexOf('/search?') == -1 ) {
- 	    		
+ 	    	
+ 	    	if ( location.href.indexOf('/search?') == -1 ) { 	    	
+ 	    		var queryParams = $.extend({},
+ 	    			self.options.commonQryParams,
+ 	    			MPI2.searchAndFacetConfig.facetParams.geneFacet.params, 
+ 	    			{'q': q}); 
+ 	    		 	    		 	    		
  	    		// facet types are done sequencially; starting from gene
+ 	    		
 	        	$.ajax({            	    
-	        			url: self.options.solrBaseURL_bytemark + 'gene/search',
-	            	    data: self.options.queryParams_gene,
+	        			url: self.options.solrBaseURL_bytemark + 'gene/select',
+	            	    data: queryParams,
 	            	    dataType: 'jsonp',
 	            	    jsonp: 'json.wrf',
 	            	    timeout: 5000,
@@ -544,8 +540,7 @@
             var g = json.grouped[self.options.grouppingId];
 
             if (g.matches == 1){
-                    self._parseGeneGroupedJson(json, query);
-                    console.log(MPI2.AutoComplete.mapping);
+                    self._parseGeneGroupedJson(json, query);                    
                     return MPI2.AutoComplete.mapping[query.toLowerCase()];
             }
     	},
@@ -613,12 +608,12 @@
     		};
     		
     		// if users do not search with wildcard, we need to search by exact match
-    		if (queryParams.q.indexOf(" ") != -1 ){
+    		/*if (queryParams.q.indexOf(" ") != -1 ){
 	    		queryParams.qf = 'auto_suggest';	    		
 	    	}  
 	    	else if ( queryParams.q.indexOf('*') == -1 ){	    	
 	    		queryParams.qf = 'text_search';	    		
-	    	} 
+	    	}*/
     		
     		$.ajax({
         	    url: self.options.solrBaseURL_ebi + 'images/select',
@@ -665,7 +660,8 @@
         	    	$('div#pipelineFacet span.facetCount').html(self.options.loadWaiting);
         	    	$('div#imagesFacet span.facetCount').html(self.options.loadWaiting);
         	    	
-        	    	self._parseGeneGroupedJson(geneSolrResponse, q);  
+        	    	//self._parseGeneGroupedJson(geneSolrResponse, q);  
+        	    	self._parseGeneGroupedJson(geneSolrResponse, q, 'gene', 'geneFacet', self.options.geneSearchFields);
         	    	self._parseJson(sopSolrResponse, q, 'pipeline', 'pipelineFacet', ['parameter_name', 'procedure_name']);
         	    	self._parseJson(mpSolrResponse, q, 'mp', 'mpFacet', ['mp_id', 'mp_term', 'mp_term_synonym']);
         	    	self._parseJson(imgSolrResponse, q, 'images', 'imagesFacet', ['annotationTermName', 'expName', 'symbol']);        	    	
@@ -754,7 +750,7 @@
         		//else {    			
         			//console.log('fq check: ' + MPI2.searchAndFacetConfig.facetParams[self.options.searchMode+'Facet'].fq);
         			window.location.hash = 'q=' + self.term + '&core=' + self.options.searchMode 
-        			+ '&fq=' + MPI2.searchAndFacetConfig.facetParams[self.options.searchMode+'Facet'].fq;
+        			+ '&fq=' + MPI2.searchAndFacetConfig.facetParams[self.options.searchMode+'Facet'].fq;        			
         		//}
     		} 		
     		   		    
@@ -777,7 +773,7 @@
     				coreName = hashParams.coreName;    			
     			}
     			params = MPI2.searchAndFacetConfig.facetParams[coreName+'Facet'].params;
-    		
+    			    			
     			self.term = hashParams.q;
     			params.q = self.term;
     			params.core = coreName;
@@ -790,10 +786,11 @@
     			//console.log('TEST: '+ hashParams.fq);
     		}    		
     	        	
-    		if ( !self.options.homePage ){	
+    		if ( !self.options.homePage ){   			
     			// when loadSideBar is done, dataTable will be loaded based on search result    		
     			self._trigger("loadSideBar", null, {    						
-    			        q: self.term, core: self.options.searchMode, fq: self.options.fq							   
+    			        q: self.term, core: self.options.searchMode, fq: self.options.fq,
+    			        qf: MPI2.searchAndFacetConfig.facetParams[self.options.searchMode+'Facet'].qf
     			});				
     		}
     		
