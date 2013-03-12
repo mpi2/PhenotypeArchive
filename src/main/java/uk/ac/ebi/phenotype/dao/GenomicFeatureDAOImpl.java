@@ -141,15 +141,20 @@ public class GenomicFeatureDAOImpl extends HibernateDAOImpl implements
 		String hqlSynonymDelete = "TRUNCATE synonym";
 		session.createSQLQuery( hqlSynonymDelete ).executeUpdate();
 
+		String hqlXrefDelete = "TRUNCATE xref";
+		session.createSQLQuery( hqlXrefDelete ).executeUpdate();
+		
 		String hqlDelete = "delete GenomicFeature";
 		int deletedEntities = session.createQuery( hqlDelete ).executeUpdate();
+		
 		tx.commit();
 		session.close();
+		
 		return deletedEntities;
 	}
 	
 	@Transactional(readOnly = false)
-	public int batchInsertion(Collection<GenomicFeature> genomicFeatures) {
+	public int batchInsertion(Collection<GenomicFeature> genomicFeatures, int batchSize) {
 		
 		int c = 0;
 		
@@ -161,7 +166,7 @@ public class GenomicFeatureDAOImpl extends HibernateDAOImpl implements
 				System.out.println("No biotype for " + feature.getId().getAccession());
 			}
 		    session.save(feature);
-		    if ( c % 20 == 0 ) { //20, same as the JDBC batch size
+		    if ( c % batchSize == 0 ) { //20, same as the JDBC batch size
 		        //flush a batch of inserts and release memory:
 		        session.flush();
 		        session.clear();
@@ -171,6 +176,16 @@ public class GenomicFeatureDAOImpl extends HibernateDAOImpl implements
 		tx.commit();
 		session.close();
 		return c;
+	}
+
+	@Override
+	public GenomicFeature getGenomicFeatureBySymbolOrSynonym(String symbol) {
+		// TODO Auto-generated method stub
+		Object result = getCurrentSession().createQuery("from GenomicFeature as g where g.symbol= ?").setString(0, symbol).uniqueResult();
+		if (result == null) {
+			result = getCurrentSession().createQuery("from GenomicFeature as g inner join g.synonyms s where s.symbol = ?").setString(0, symbol).uniqueResult();
+		}
+		return (GenomicFeature) result;
 	}
 	
 }
