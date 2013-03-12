@@ -26,10 +26,16 @@ package uk.ac.ebi.phenotype.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.springframework.transaction.annotation.Transactional;
 
+import uk.ac.ebi.phenotype.pojo.Datasource;
+import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
+import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements PhenotypeCallSummaryDAO {
 
@@ -83,4 +89,42 @@ public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements Phe
 		}
 		return summaries;
 	}	
+
+	@Transactional(readOnly = false)
+	public int deletePhenotypeCallSummariesByDatasource(Datasource datasource) {
+
+		Session session = sessionFactory.openSession();
+		Transaction tx = session.beginTransaction();
+
+		// execute the delete query
+		String hqlDelete = "delete PhenotypeCallSummary as c where c.datasource.id = ?";
+		int deletedEntities = session.createQuery(hqlDelete)
+			.setInteger(0, datasource.getId())
+			.executeUpdate();
+		tx.commit();
+		session.close();
+		return deletedEntities;
+	}
+
+	@Override
+	public int deletePhenotypeCallSummariesByDatasourceParameterSexZygosity(
+			Datasource datasource, Parameter parameter, SexType sex,
+			ZygosityType zygosity) {
+		Session session = sessionFactory.openSession();
+		Transaction tx = session.beginTransaction();
+
+		// execute the delete query
+		String hqlDelete = "delete PhenotypeCallSummary as c where c.datasource.id = ? AND c.sex = ? AND c.zygosity = ? and parameter = ?";
+		int deletedEntities = session.createQuery(hqlDelete)
+			.setInteger(0, datasource.getId())
+			.setString(1, sex.name())
+			.setString(2, zygosity.name())
+			.setInteger(3, parameter.getId())
+			.executeUpdate();
+		tx.commit();
+		session.close();
+		return deletedEntities;
+		
+	}
+
 }
