@@ -57,17 +57,24 @@ public class BiologicalModelDAOImpl extends HibernateDAOImpl implements Biologic
 	}
 	
 	@Transactional(readOnly = false)
-	public void deleteAllLiveSamplesByDatasource(Datasource datasource) {
+	public int  deleteAllLiveSamplesByDatasource(Datasource datasource) {
 		Query query = getCurrentSession().getNamedQuery("deleteLiveSamples")
 				.setInteger("dbID", datasource.getId());
-		query.executeUpdate();
+		return query.executeUpdate();
 	}
 	
 	@Transactional(readOnly = false)
-	public void deleteAllBiologicalSamplesByDatasource(Datasource datasource) {
+	public int  deleteAllLiveSamplesWithoutModelsByDatasource(Datasource datasource) {
+		Query query = getCurrentSession().getNamedQuery("deleteLiveSamplesWithoutModels")
+				.setInteger("dbID", datasource.getId());
+		return query.executeUpdate();
+	}
+	
+	@Transactional(readOnly = false)
+	public int deleteAllBiologicalSamplesByDatasource(Datasource datasource) {
 		Query query = getCurrentSession().getNamedQuery("deleteBiologicalSamples")
 				.setInteger("dbID", datasource.getId());
-		query.executeUpdate();
+		return query.executeUpdate();
 	}
 	
 	@Transactional(readOnly = true)
@@ -114,7 +121,7 @@ public class BiologicalModelDAOImpl extends HibernateDAOImpl implements Biologic
 	}
 	
 	@Transactional(readOnly = false)
-	public void deleteAllBiologicalModelsByDatasource(Datasource datasource) {
+	public int deleteAllBiologicalModelsByDatasource(Datasource datasource) {
 		// the following code is not efficient
 		//String hql = "delete BiologicalModel as ls where ls.datasource.id = :id";
 		//getCurrentSession().createQuery(hql).setInteger("id", datasource.getId()).executeUpdate();
@@ -127,6 +134,7 @@ public class BiologicalModelDAOImpl extends HibernateDAOImpl implements Biologic
 		// needs to be replaced by native SQL queries
 		query = getCurrentSession().getNamedQuery("deleteBiologicalModels")
 				.setInteger("dbID", datasource.getId());
-		query.executeUpdate();
+		int count = query.executeUpdate();
+		return count;
 	}
 }
