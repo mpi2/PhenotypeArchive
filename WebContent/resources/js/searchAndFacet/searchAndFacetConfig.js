@@ -19,12 +19,16 @@
  * Author: Chao-Kung Chen
  * 
  */
- 
-MPI2 = {};
+
+
+if(typeof(window.MPI2) === 'undefined') {
+    window.MPI2 = {};
+}
 MPI2.buttCount = 0;
 	
 MPI2.searchAndFacetConfig = {};
 var config = MPI2.searchAndFacetConfig;
+
 
 // on drupal side this is not available
 if ( typeof solrUrl == 'undefined' ){
@@ -33,12 +37,13 @@ if ( typeof solrUrl == 'undefined' ){
 		solrUrl = '/mi/impc/beta/solr';
 	}
 	else if ( /^dev/.test(domain) ){	
-		solrUrl = '/mi/impc/dev/solr';
+		solrUrl = '/mi/impc/dev/solr';	
 	}
 	else {
-		solrUrl = '/mi/impc/solr';
+		solrUrl = '/mi/impc/solr';			
 	}
 }
+
 if ( typeof baseUrl == 'undefined' ){
 	baseUrl = '/phenotype-archive';
 }
@@ -48,6 +53,13 @@ config.restfulPrefix = {
 		'gene' : 'genes',
 		'mp'   : 'phenotypes'
 };
+
+config.geneStatuses = ['Phenotype Data Available',
+               'Mice Produced',
+               'Assigned for Mouse Production and Phenotyping',
+               'ES Cells Produced',
+               'Assigned for ES Cell Production',
+               'Not Assigned for ES Cell Production'];
 
 //config.solrBaseURL_bytemark = 'http://dev.mousephenotype.org/bytemark/solr/';
 config.solrBaseURL_bytemark = solrUrl + '/';
@@ -66,7 +78,7 @@ var trailingPathDataTable = '/dataTable';
 
 config.pathname = typeof baseUrl == 'undefined' ? path + trailingPath : baseUrl + trailingPath;
 config.dataTablePath = typeof baseUrl == 'undefined' ? path + trailingPathDataTable : baseUrl + trailingPathDataTable;
-		
+
 config.facetParams = {	
 	 geneFacet:      {
 		 type: 'genes',			
@@ -75,8 +87,10 @@ config.facetParams = {
 		 tableHeader: "<thead><th>Gene</th><th>Latest Status</th><th>Register for Updates</th></thead>",
 		 fq: undefined,
 		 gridName: 'geneGrid',
-		 gridFields: 'marker_symbol,synonym,marker_name', // should include status soon
-		 params: {'sort': "marker_symbol asc"}	 
+		 gridFields: 'marker_symbol,marker_synonym,marker_name,status', 
+		 params: {fq:'marker_type:* -marker_type:"heritable phenotypic marker"',			      
+			      qf:"marker_symbol^100.0 marker_name^10.0 allele^10 marker_synonym mgi_accession_id auto_suggest",
+			      bq:'marker_type:"protein coding gene"^100'}	 
 	 },	
 	 pipelineFacet: {		
 		 type: 'procedures',		 
