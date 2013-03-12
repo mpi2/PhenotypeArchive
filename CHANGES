@@ -15,6 +15,68 @@ Getting Started
 ---------------
 You need a Java 1.6 VM or later installed and a servlet container.
 
+================== Release 0.1.5 ==================
+
+Status
+------
+25 February 2013 release.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  Menu at the top of the dynamic pages pulled from Drupal (JSON stream)
+ 2.  Database genomic features updated to GRCm38 from JAX MGI
+ 3.  IKMC 38 alleles DAS track visible in genomic browser
+ 4.  GRCm38 gene models DAS track visible in genomic browser
+ 5.  Statistical page template built for categorical data
+ 
+Bug fixes
+ 1.  Remove locked genotype information associated to MGP pictures
+ 2.  Auto-suggest: fix a bug that shows the previous search in the search box
+ 
+Other Changes
+ 1.  Testing SOLR result ordering by relevance for the gene facet
+ 2.  Remove 'image annotations' from auto-suggest results
+ 
+================== Release 0.1.4 ==================
+
+Status
+------
+February 2013 release.
+Contains bug fixes and implementation of features suggested by users.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  Breadcrumbs on gene, phenotype and bio-imaging gallery pages
+ 2.  Bio-imaging gallery displays meaningful explanation of the query
+ 3.  Gene status on gene details page
+ 4.  Register interest/Unregister interest in a gene on a gene details page
+ 5.  Auto-suggest: clicking on auto-suggest redirect to relevant page
+ 6.  Resource oriented URLs: enable JSON/XML responses
+ 7.  Search URL changed (was searchAndFacet) to /search
+ 8.  Examples for search provided under the search box
+ 9.  Faceted search on sub terms (e.g. nervous, cardiovascular system)
+ 10. 404 page layout changed
+ 11. Invalid gene identifier on gene page redirect to error page
+ 12. Invalid phenotype identifier on phenotype page redirect to error page
+ 13. identifierError.jsp added to report invalid identifier (gene, phenotype)
+ 
+Bug fixes
+ 1.  Auto-suggest box fix on Drupal page
+ 2.  Image index: account for genes with no subtype association
+ 3.  Gene page: blank page with invalid identifier redirected to error page
+ 
+Other Changes
+ 1.  SOLR 3.6.3 in production
+ 2.  Upgraded MGI gbrowse view using gbrowse 2 on the mouse assembly 38
+ 
+Known bugs
+ 1.  TSV/MS Excel download does not work on IE8 over HTTPS
+
+
 ================== Release 0.1.3 ==================
 
 Status
