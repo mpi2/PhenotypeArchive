@@ -25,7 +25,11 @@ package uk.ac.ebi.phenotype.dao;
 
 import java.util.List;
 
+import uk.ac.ebi.phenotype.pojo.Datasource;
+import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
+import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 public interface PhenotypeCallSummaryDAO {
 
@@ -49,4 +53,16 @@ public interface PhenotypeCallSummaryDAO {
 	 * @return a list of matching phenotype calls
 	 */
 	public List<PhenotypeCallSummary> getPhenotypeCallByMPAccession(String accId, int dbId);
+
+	/**
+	 * Delete all Phenotype call summaries by project
+	 * 
+	 * @param project
+	 * @return the count of rows deleted
+	 */
+	public int deletePhenotypeCallSummariesByDatasource(Datasource datasource);
+
+	public int deletePhenotypeCallSummariesByDatasourceParameterSexZygosity(
+			Datasource datasource, Parameter parameter, SexType sex,
+			ZygosityType zygosity);
 }
