@@ -44,23 +44,23 @@
     <fieldType name="tlong" class="solr.TrieLongField" precisionStep="8" positionIncrementGap="0"/>
     <fieldType name="tdouble" class="solr.TrieDoubleField" precisionStep="8" positionIncrementGap="0"/>
 
-    <!-- to be used for autosuggest -->    
-
-    <fieldType name="text_ngram" class="solr.TextField" >
+    <!-- for autosuggest --> 
+    <fieldType name="text_ngram" class="solr.TextField">
         <analyzer type="index">
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>        
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/> 
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25" side="front"/>
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25" side="back"/>
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25" side="front"/>       
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false" />
         </analyzer>
-
         <analyzer type="query"> 
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.KStemFilterFactory"/> 
         <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/> 
+        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>   
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false" />      
         </analyzer>
-    </fieldType>  
+    </fieldType>
     
     <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">        
