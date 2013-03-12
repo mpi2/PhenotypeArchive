@@ -34,17 +34,15 @@
     	_create: function(){
     		// execute only once 	
     		var self = this;  
-    		self.options.solrParams.q = self.options.phenotype_id;    		
-    		//console.log(self.options.solrParams);
-    		//console.log(self.options.phenotype_id);    		
+    		self.options.solrParams.q = self.options.phenotype_id;   
+    		  		
     		$.ajax({	
-	    		'url': self.options.solrBaseURL + 'mp/select',
+	    		'url': solrUrl + '/mp/select',
+	    		//'url': 'http://172.22.70.95:8983/solr/mp/select',
 	    		'data': self.options.solrParams,	    		
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',	    	
-	    		'success': function(json) {	    			
-	    			//console.log('mp test');
-	    			//console.log(json); 
+	    		'success': function(json) {	
 	    			self._composeMpPage(json);	    			
 	    		} 		
 	    	});	
@@ -252,7 +250,7 @@
 	    				}	    				
 	    			}
 	    		}
-	    	}obj[key]
+	    	}
 	    	//leftBlk.append(table);	    	
 			//self.element.append(ovBlock);
 			$('div#ovLeft').html(table);
@@ -269,7 +267,7 @@
 	    	var pBlk = $('<div></div>').attr({'class':'row-fluid dataset'});
 	    	var caption = "<h4 class='caption'>" + sectionFields[field].caption + "</h4>";	    	
 	    	var inner = $('<div></div>').attr({'class':'container span12'});
-	    	var regex = /(.+_\d*_\d*_\d*)_\d*/; // for parsing impress parameter stable id: only want first 3 digit sets
+	    	//var regex = /(.+_\d*_\d*_\d*)_\d*/; // for parsing impress parameter stable id: only want first 3 digit sets
 	    	
 	    	inner.append(caption);
 	    	
@@ -326,17 +324,25 @@
 	    						
 	    						// overwrite value of some cols
 	    						if ( obj[key].baseUrl ){
-	    							//console.log('**key: ' + key);
-	    							if ( obj[key].display == 'Allele Symbol' 
-	    								&& oDoc[obj[key].acc][r].indexOf('MGI:') == -1 ){
-	    								// do nothing for non-MGI allele id for now
-	    							}	
+	    							
+	    							if ( obj[key].display == 'Allele Symbol' ){ 
+	    								if ( typeof oDoc[obj[key].acc] !== 'undefined' && typeof oDoc[obj[key].acc][r] !== 'undefined' ){
+	    									if ( oDoc[obj[key].acc][r].indexOf('MGI:') == -1 ){
+	    										// do nothing for non-MGI allele id for now (eg. EUROCRAP...)	    										
+	    									}
+	    									else {
+	    										url = obj[key].baseUrl + oDoc[obj[key].acc][r];	    								
+	    										oColVal.val = "<a href='" + url + "'>" + value + "</a>";
+	    									}
+	    								} 
+	    							}	    							
 	    							else if ( obj[key].display == 'Data' ){
-	    								
+	    							
 	    								var external_id = oDoc[key][r];
 	    								var procedure_sid = oDoc['procedure_stable_id'][r]; 
-	    								var match = regex.exec(oDoc['parameter_stable_id'][r]);
-	    								var parameter_sid = match[1];	
+	    								//var match = regex.exec(oDoc['parameter_stable_id'][r]);
+	    								//var parameter_sid = match[1];	
+	    								var parameter_sid = oDoc['parameter_stable_id'][r];
 	    								
 	    								var sex = $.fn.upperCaseFirstLetter(oDoc['sex'][r]);	    								
 	    								//"&x=" + sex +
@@ -426,7 +432,12 @@
 	    				if ( i == 4 ){
 	    					var aLink = $(aColVals[i]);	    					
 	    					var sexParam = sThisSex == 'bothSex' ? "&x=Both-Split" : "&x=" + $.fn.upperCaseFirstLetter(sThisSex);
-	    					tds += "<td><a href='" + aLink.attr('href') + sexParam + parermterIds + "'>Europhenome</a></td>";
+	    					if (parermterIds){
+	    						tds += "<td><a href='" + aLink.attr('href') + sexParam + parermterIds + "'>Europhenome</a></td>";
+	    					}
+	    					else {
+	    						tds += "<td><a href='" + aLink.attr('href') + sexParam + "'>Europhenome</a></td>";
+	    					}	
 	    				}
 	    			}
 	    			TRS += "<tr>" + tds + "</tr>"; 
