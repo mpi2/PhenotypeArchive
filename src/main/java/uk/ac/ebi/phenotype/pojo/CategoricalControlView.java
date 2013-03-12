@@ -19,6 +19,8 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -60,12 +62,14 @@ public class CategoricalControlView implements Serializable {
 	@Column(name = "population_id")
 	private Integer populationId;
 
+	@Enumerated(EnumType.STRING)
 	@Column(name = "sex")
-	private String sex;
+	private SexType sex;
 
+	@Enumerated(EnumType.STRING)
 	@Column(name = "zygosity")
-	private String zygosity;
-	
+	private ZygosityType zygosity;
+
 	@Column(name = "category")
 	private String category;
 
@@ -140,30 +144,44 @@ public class CategoricalControlView implements Serializable {
 	}
 
 	/**
+	 * @return the populationId
+	 */
+	public Integer getPopulationId() {
+		return populationId;
+	}
+
+	/**
+	 * @param populationId the populationId to set
+	 */
+	public void setPopulationId(Integer populationId) {
+		this.populationId = populationId;
+	}
+
+	/**
 	 * @return the sex
 	 */
-	public String getSex() {
+	public SexType getSex() {
 		return sex;
 	}
 
 	/**
 	 * @param sex the sex to set
 	 */
-	public void setSex(String sex) {
+	public void setSex(SexType sex) {
 		this.sex = sex;
 	}
 
 	/**
 	 * @return the zygosity
 	 */
-	public String getZygosity() {
+	public ZygosityType getZygosity() {
 		return zygosity;
 	}
 
 	/**
 	 * @param zygosity the zygosity to set
 	 */
-	public void setZygosity(String zygosity) {
+	public void setZygosity(ZygosityType zygosity) {
 		this.zygosity = zygosity;
 	}
 
@@ -179,20 +197,6 @@ public class CategoricalControlView implements Serializable {
 	 */
 	public void setCategory(String category) {
 		this.category = category;
-	}
-
-	/**
-	 * @return the populationId
-	 */
-	public Integer getPopulationId() {
-		return populationId;
-	}
-
-	/**
-	 * @param populationId the populationId to set
-	 */
-	public void setPopulationId(Integer populationId) {
-		this.populationId = populationId;
 	}
 
 	/* (non-Javadoc)
@@ -269,21 +273,12 @@ public class CategoricalControlView implements Serializable {
 				return false;
 		} else if (!populationId.equals(other.populationId))
 			return false;
-		if (sex == null) {
-			if (other.sex != null)
-				return false;
-		} else if (!sex.equals(other.sex))
+		if (sex != other.sex)
 			return false;
-		if (zygosity == null) {
-			if (other.zygosity != null)
-				return false;
-		} else if (!zygosity.equals(other.zygosity))
+		if (zygosity != other.zygosity)
 			return false;
 		return true;
 	}
-
-	
-
 
 }
 
