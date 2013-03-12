@@ -716,6 +716,13 @@
        queries across multiple shards
     -->
 
+    <requestHandler name="/dataimport" 
+        class="org.apache.solr.handler.dataimport.DataImportHandler">
+        <lst name="defaults">
+            <str name="config">data-config.xml</str>
+        </lst>
+    </requestHandler>
+
   <requestHandler name="/select" class="solr.SearchHandler">
      <lst name="defaults">
        <str name="echoParams">explicit</str>
@@ -814,72 +821,6 @@
      <str name="echoHandler">true</str>
     </lst>
   </requestHandler>
-
-<!-- EBI replication setup -->
- <requestHandler name="/replication" class="solr.ReplicationHandler" >
-    <lst name="master">
-
-        <str name="enable">${enable.master:true}</str>
-
-        <!--Replicate on 'optimize'. Other values can be 'commit', 'startup'.
-            It is possible to have multiple entries of this config string-->
-
-        <!--<str name="replicateAfter">optimize</str>-->
-
-        <str name="replicateAfter">commit</str>
-        <str name="replicateAfter">startup</str>
-        <str name="replicateAfter">optimize</str>
-
-        <!--Create a backup after 'optimize'. Other values can be 'commit', 'startup'.
-            It is possible to have multiple entries of this config string.
-            Note that this is just for backup, replication does not require this. -->
-
-        <!-- <str name="backupAfter">optimize</str> -->
-
-        <!--Specify the number of backup copies to keep. The default value for this parameter is MAX_VALUE. -->
-
-        <!-- <int name="numberToKeep">2</int> -->
-
-        <!--If configuration files need to be replicated give the names here, separated by comma -->
-
-        <str name="confFiles">schema.xml,stopwords.txt,elevate.xml</str>
-        <!--<str name="confFiles">schema.xml,stopwords.txt,elevate.xml</str>-->
-
-       <!--The default value of reservation is 10 secs. Normally , you should not need to specify this -->
-
-        <str name="commitReserveDuration">00:00:10</str>
-    </lst>
-
-    <lst name="slave">
-
-        <str name="enable">${enable.slave:true}</str>
-
-        <str name="masterUrl">http://ikmc.vm.bytemark.co.uk:8983/solr/allele/replication</str>
-
-        <!--Interval in which the slave should poll master .Format is HH:mm:ss . If this is absent slave does not poll automatically.
-         But a fetchindex can be triggered from the admin or the http API -->
-        <str name="pollInterval">00:02:00</str>
-        <!-- THE FOLLOWING PARAMETERS ARE USUALLY NOT REQUIRED-->
-     	
-        <!--to use compression while transferring the index files. The possible values are internal|external
-         if the value is 'external' make sure that your master Solr has the settings to honour the accept-encoding header.
-         see here for details http://wiki.apache.org/solr/SolrHttpCompression
-         If it is 'internal' everything will be taken care of automatically.
-         USE THIS ONLY IF YOUR BANDWIDTH IS LOW . THIS CAN ACTUALLY SLOWDOWN REPLICATION IN A LAN-->
-        <str name="compression">internal</str>
-        <!--The following values are used when the slave connects to the master to download the index files.
-         Default values implicitly set as 5000ms and 10000ms respectively. The user DOES NOT need to specify
-         these unless the bandwidth is extremely low or if there is an extremely high latency-->
-        <str name="httpConnTimeout">5000</str>
-        <str name="httpReadTimeout">10000</str>
-
-        <!-- If HTTP Basic authentication is enabled on the master, then the slave can be configured with the following -->
-        <str name="httpBasicAuthUser">username</str>
-        <str name="httpBasicAuthPassword">password</str>
-
-     </lst>
-  </requestHandler>
-<!-- end of EBI replication setup -->
 
 
   <!-- Solr Replication
@@ -1202,3 +1143,4 @@
   </admin>
 
 </config>
+
