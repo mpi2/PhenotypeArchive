@@ -23,11 +23,11 @@ body span p.ikmcbreadcrumb span {
 }
 @media all and (max-width: 1200px) {
 	#userInput{width:356px;}
+	#examplesearches {color:#333333;}
 }
 @media all and (max-width: 979px) {
 	div#spacer{width:250px;}
 	#userInput{width:496px;}
-	#logoImage{width:80%;}
 	#examplesearches {color:#333333;}
 	span#searchBlock {width:600px;}
 }
@@ -41,6 +41,7 @@ body span p.ikmcbreadcrumb span {
 	#examplesearches {color:#333333; float:none; padding-left:236px;}
 	div#userKeyword{padding:0px;}
 	span#searchBlock {padding-top:0px;}
+	#logoImage{width:84px;}
 }
 
 /* LOGO COLOR: CF8206 */
@@ -51,9 +52,6 @@ body span p.ikmcbreadcrumb span {
 body {margin-top:0; padding-top:1em;}
 div#spacer{width:140px;}
 #logo{text-align:center;padding: 2px;}
-#logoImage {margin: 0;padding:5px;}
-#logo h1{margin:0;padding:0;font-size:170%;font-style:italic;font-weight:500; color:#989898;}
-.container {padding: 7px;}
 .mpi2-grid .pagination a, .mpi2-grid .pagination span{float:none;}
 .mpi2-grid .footer{display:none;}
 img { -ms-interpolation-mode: bicubic; }
@@ -194,4 +192,132 @@ div#noSupport {
 .label-info, .badge-info{
 background-color: #2f96b4;
 opacity : .65;
+}
+
+
+
+
+
+
+/* from andy */
+
+body {
+    margin-top: 0px;
+    padding-top: 0;
+	font-family: Arial,Helvetica,sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    color: rgb(51, 51, 51);
+}
+
+#logoImage {
+    margin: 0px;
+    /*background-color: #fff;*/
+    padding: 10px 12px;
+    position: relative;
+    top: -2px;
+    left: -35px;
+}
+
+.navbar .nav {
+    position: relative;
+    left: 0px;
+    display: block;
+    float: left;
+    margin: 14px 10px -15px -12px;
+}
+
+
+/* for vertical text on tables for procedures stats */
+
+/* td, th
+{
+    border: 1px solid black;
+    white-space: nowrap;
+    vertical-align:  bottom;
+} */
+
+/* #title2 th
+{
+    width: 15px;
+    height: 500px;
+    transform: rotate(-90deg);
+    vertical-align:  bottom;
+} */
+
+    .containerVert
+    {
+        /* float your elements or inline-block them to display side by side */
+        float: left;
+        /* these are height and width dimensions of your header */
+        height: 300px;
+        width: 1.5em;
+        /* set to hidden so when there's too much vertical text it will be clipped. */
+        overflow: hidden;
+        
+        /* these are not relevant and are here to better see the elements */
+       background: #eee;
+        margin-right: 1px;
+    }
+        .containerVert  .vert
+        {
+            /* line height should be equal to header width so text will be middle aligned */
+            line-height: 1.5em;
+            /* setting background may yield better results in IE text clear type rendering */
+            background: #eee;
+            
+            
+            /* this will prevent it from wrapping too much text */
+            white-space: nowrap;
+            /* so it stays off the edge */
+            padding-left: 3px;
+ 
+            /* IE specific rotation code */
+            writing-mode: tb-rl;
+            filter: flipv fliph;
+            
+            /* CSS3 specific totation code */
+            /* translate should have the same negative dimension as head height */
+            transform: rotate(270deg) translate(-21em,0);
+            transform-origin: 0 0;
+            -moz-transform: rotate(270deg) translate(-21em,0);
+            -moz-transform-origin: 0 0;
+            -webkit-transform: rotate(270deg) translate(-21em,0);/*change the - number to move text down cell */
+            -webkit-transform-origin: 0 0;
+              }
+
+
+.button .btn .impcPStatus{
+width:100%;	
+} 
+/* override the bootstrap image style for Allele images */ 
+/* need a hack for IE */
+body div#allele_tracker_panel_results  table {
+	width:100%;
+}
+body div#allele_tracker_panel_results  a {
+	max-width: 400px;
+	width:auto;
+	height:auto;
+}
+body div#allele_tracker_panel_results  a img {
+	max-width:400px;
+	width:100%;
+	height:auto;
+-ms-interpolation-mode: bicubic;
+}
+
+.dataset {
+	border: 1px solid #6998CB;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	-o-border-radius: 5px;
+	/* padding: 7px 7px 0; */
+	margin-bottom: 7px;
+	padding: 7px;
+}
+
+#drawableCanvas{
+    width: 700px;
 }
