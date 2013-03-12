@@ -30,17 +30,17 @@ public enum PhenotypeAnnotationType {
 
 	public static final PhenotypeAnnotationType find(String type) {
 		String lcType = type.toLowerCase();
-		if (type.equals("abnormal")) {
+		if (lcType.equals("abnormal")) {
 			return PhenotypeAnnotationType.abnormal;
-		} else if (type.equals("abnormal_specific")) {
+		} else if (lcType.equals("abnormal_specific")) {
 			return PhenotypeAnnotationType.abnormal_specific;
-		} else if (type.equals("increased")) {
+		} else if (lcType.equals("increased")) {
 			return PhenotypeAnnotationType.increased;
-		} else if (type.equals("decreased")) {
+		} else if (lcType.equals("decreased")) {
 			return PhenotypeAnnotationType.decreased;
-		} else if (type.equals("inferred")) {
+		} else if (lcType.equals("inferred")) {
 			return PhenotypeAnnotationType.inferred;
-		} else if (type.equals("trait")) {
+		} else if (lcType.equals("trait")) {
 			return PhenotypeAnnotationType.trait;
 		}
 		return PhenotypeAnnotationType.abnormal;
