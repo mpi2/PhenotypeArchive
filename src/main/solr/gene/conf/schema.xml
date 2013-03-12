@@ -16,10 +16,10 @@
  limitations under the License.
 -->
 
-<!--
+<!--  
  This is the Solr schema file. This file should be named "schema.xml" and
  should be in the conf directory under the solr home
- (i.e. ./solr/conf/schema.xml by default)
+ (i.e. ./solr/conf/schema.xml by default) 
  or located where the classloader for the Solr webapp can find it.
 
  This example schema is the recommended starting point for users.
@@ -45,14 +45,16 @@
     that avoids logging every request
 -->
 
-<schema name="mpi2-gene" version="1.2">
+<schema name="example" version="1.4">
   <!-- attribute "name" is the name of this schema and is only used for display purposes.
        Applications should change this to reflect the nature of the search collection.
-       version="1.2" is Solr's version number for the schema syntax and semantics.  It should
+       version="1.4" is Solr's version number for the schema syntax and semantics.  It should
        not normally be changed by applications.
        1.0: multiValued attribute did not exist, all fields are multiValued by nature
-       1.1: multiValued attribute introduced, false by default
+       1.1: multiValued attribute introduced, false by default 
        1.2: omitTermFreqAndPositions attribute introduced, true by default except for text fields.
+       1.3: removed optional field compress feature
+       1.4: default auto-phrase (QueryParser feature) to off
      -->
 
   <types>
@@ -64,11 +66,7 @@
        org.apache.solr.analysis package.
     -->
 
-    <!-- The StrField type is not analyzed, but indexed/stored verbatim.
-       - StrField and TextField support an optional compressThreshold which
-       limits compression (if enabled in the derived fields) to values which
-       exceed a certain size (in characters).
-    -->
+    <!-- The StrField type is not analyzed, but indexed/stored verbatim. -->
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
 
     <!-- boolean type: "true" or "false" -->
@@ -77,8 +75,10 @@
     <fieldtype name="binary" class="solr.BinaryField"/>
 
     <!-- The optional sortMissingLast and sortMissingFirst attributes are
-         currently supported on types that are sorted internally as strings.
-	       This includes "string","boolean","sint","slong","sfloat","sdouble","pdate"
+         currently supported on types that are sorted internally as strings
+         and on numeric types.
+	       This includes "string","boolean", and, as of 3.5 (and 4.x),
+	       int, float, long, date, double, including the "Trie" variants.
        - If sortMissingLast="true", then a sort on this field will cause documents
          without the field to come after documents with the field,
          regardless of the requested sort order (asc or desc).
@@ -88,7 +88,7 @@
        - If sortMissingLast="false" and sortMissingFirst="false" (the default),
          then default lucene sorting will be used which places docs without the
          field first in an ascending sort and last in a descending sort.
-    -->
+    -->    
 
     <!--
       Default numeric field types. For faster range queries, consider the tint/tfloat/tlong/tdouble types.
@@ -115,7 +115,7 @@
 
     <!-- The format for this date field is of the form 1995-12-31T23:59:59Z, and
          is a more restricted form of the canonical representation of dateTime
-         http://www.w3.org/TR/xmlschema-2/#dateTime
+         http://www.w3.org/TR/xmlschema-2/#dateTime    
          The trailing "Z" designates UTC time and is mandatory.
          Optional fractional seconds are allowed: 1995-12-31T23:59:59.999Z
          All other components are mandatory.
@@ -130,7 +130,7 @@
                NOW/DAY+6MONTHS+3DAYS
                   ... 6 months and 3 days in the future from the start of
                       the current day
-
+                      
          Consult the DateField javadocs for more information.
 
          Note: For faster range queries, consider the tdate type
@@ -139,6 +139,7 @@
 
     <!-- A Trie based date field for faster date range queries and date faceting. -->
     <fieldType name="tdate" class="solr.TrieDateField" omitNorms="true" precisionStep="6" positionIncrementGap="0"/>
+
 
     <!--
       Note:
@@ -155,10 +156,11 @@
     <fieldType name="pdouble" class="solr.DoubleField" omitNorms="true"/>
     <fieldType name="pdate" class="solr.DateField" sortMissingLast="true" omitNorms="true"/>
 
+
     <!--
       Note:
-      These should only be used for compatibility with existing indexes (created with older Solr versions)
-      or if "sortMissingFirst" or "sortMissingLast" functionality is needed. Use Trie based fields instead.
+      These should only be used for compatibility with existing indexes (created with older Solr versions).
+      Use Trie based fields instead. As of Solr 3.5 and 4.x, Trie based fields support sortMissingFirst/Last
 
       Numeric field types that manipulate the value into
       a string value that isn't human-readable in its internal form,
@@ -170,13 +172,14 @@
     <fieldType name="sfloat" class="solr.SortableFloatField" sortMissingLast="true" omitNorms="true"/>
     <fieldType name="sdouble" class="solr.SortableDoubleField" sortMissingLast="true" omitNorms="true"/>
 
+
     <!-- The "RandomSortField" is not used to store or search any
          data.  You can declare fields of this type it in your schema
-         to generate pseudo-random orderings of your docs for sorting
-         purposes.  The ordering is generated based on the field name
+         to generate pseudo-random orderings of your docs for sorting 
+         purposes.  The ordering is generated based on the field name 
          and the version of the index, As long as the index version
          remains unchanged, and the same field name is reused,
-         the ordering of the docs will be consistent.
+         the ordering of the docs will be consistent.  
          If you want different psuedo-random orderings of documents,
          for the same version of the index, use a dynamicField and
          change the name
@@ -208,15 +211,16 @@
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
       </analyzer>
     </fieldType>
+    
 
-    <!-- A text field that uses WordDelimiterFilter to enable splitting and matching of
-        words on case-change, alpha numeric boundaries, and non-alphanumeric chars,
-        so that a query of "wifi" or "wi fi" could match a document containing "Wi-Fi".
-        Synonyms and stopwords are customized by external files, and stemming is enabled.
-        -->
-    <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
+    <!-- A text field with defaults appropriate for English: it
+         tokenizes with StandardTokenizer, removes English stop words
+         (stopwords_en.txt), down cases, protects words from protwords.txt, and
+         finally applies Porter's stemming.  The query time analyzer
+         also applies synonyms from synonyms.txt. -->
+    <fieldType name="text_en" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <tokenizer class="solr.StandardTokenizerFactory"/>
         <!-- in this example, we will only use synonyms at query time
         <filter class="solr.SynonymFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
         -->
@@ -226,92 +230,122 @@
         -->
         <filter class="solr.StopFilterFactory"
                 ignoreCase="true"
-                words="stopwords.txt"
+                words="stopwords_en.txt"
+                enablePositionIncrements="true"
+                />
+        <filter class="solr.LowerCaseFilterFactory"/>
+	<filter class="solr.EnglishPossessiveFilterFactory"/>
+        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
+	<!-- Optionally you may want to use this less aggressive stemmer instead of PorterStemFilterFactory:
+        <filter class="solr.EnglishMinimalStemFilterFactory"/>
+	-->
+        <filter class="solr.PorterStemFilterFactory"/>
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+        <filter class="solr.StopFilterFactory"
+                ignoreCase="true"
+                words="stopwords_en.txt"
+                enablePositionIncrements="true"
+                />
+        <filter class="solr.LowerCaseFilterFactory"/>
+	<filter class="solr.EnglishPossessiveFilterFactory"/>
+        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
+	<!-- Optionally you may want to use this less aggressive stemmer instead of PorterStemFilterFactory:
+        <filter class="solr.EnglishMinimalStemFilterFactory"/>
+	-->
+        <filter class="solr.PorterStemFilterFactory"/>
+      </analyzer>
+    </fieldType>
+
+    <!-- A text field with defaults appropriate for English, plus
+	 aggressive word-splitting and autophrase features enabled.
+	 This field is just like text_en, except it adds
+	 WordDelimiterFilter to enable splitting and matching of
+	 words on case-change, alpha numeric boundaries, and
+	 non-alphanumeric chars.  This means certain compound word
+	 cases will work, for example query "wi fi" will match
+	 document "WiFi" or "wi-fi".  However, other cases will still
+	 not match, for example if the query is "wifi" and the
+	 document is "wi fi" or if the query is "wi-fi" and the
+	 document is "wifi".
+        -->
+    <fieldType name="text_en_splitting" class="solr.TextField" positionIncrementGap="100" autoGeneratePhraseQueries="true">
+      <analyzer type="index">
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <!-- in this example, we will only use synonyms at query time
+        <filter class="solr.SynonymFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
+        -->
+        <!-- Case insensitive stop word removal.
+
+
+          add enablePositionIncrements=true in both the index and query
+          analyzers to leave a 'gap' for more accurate phrase queries.
+        -->
+        <filter class="solr.StopFilterFactory"
+                ignoreCase="true"
+                words="stopwords_en.txt"
                 enablePositionIncrements="true"
                 />
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
         <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.SnowballPorterFilterFactory" language="English" protected="protwords.txt"/>
+        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
+        <filter class="solr.PorterStemFilterFactory"/>
       </analyzer>
       <analyzer type="query">
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
         <filter class="solr.StopFilterFactory"
                 ignoreCase="true"
-                words="stopwords.txt"
+                words="stopwords_en.txt"
                 enablePositionIncrements="true"
                 />
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
         <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.SnowballPorterFilterFactory" language="English" protected="protwords.txt"/>
+        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
+        <filter class="solr.PorterStemFilterFactory"/>
       </analyzer>
     </fieldType>
 
     <!-- Less flexible matching, but less false matches.  Probably not ideal for product names,
          but may be good for SKUs.  Can insert dashes in the wrong place and still match. -->
-    <fieldType name="textTight" class="solr.TextField" positionIncrementGap="100" >
+    <fieldType name="text_en_splitting_tight" class="solr.TextField" positionIncrementGap="100" autoGeneratePhraseQueries="true">
       <analyzer>
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false"/>
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords_en.txt"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="0" generateNumberParts="0" catenateWords="1" catenateNumbers="1" catenateAll="0"/>
         <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.SnowballPorterFilterFactory" language="English" protected="protwords.txt"/>
+        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
+        <filter class="solr.EnglishMinimalStemFilterFactory"/>
         <!-- this filter can remove any duplicate tokens that appear at the same position - sometimes
              possible with WordDelimiterFilter in conjuncton with stemming. -->
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
     </fieldType>
 
-    <!-- A general unstemmed text field - good if one does not know the language of the field -->
-    <fieldType name="textgen" class="solr.TextField" positionIncrementGap="100">
+    <!-- Just like text_general except it reverses the characters of
+	 each token, to enable more efficient leading wildcard queries. -->
+    <fieldType name="text_general_rev" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <tokenizer class="solr.StandardTokenizerFactory"/>
         <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="0"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
-      </analyzer>
-      <analyzer type="query">
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
-        <filter class="solr.StopFilterFactory"
-                ignoreCase="true"
-                words="stopwords.txt"
-                enablePositionIncrements="true"
-                />
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="0"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
-      </analyzer>
-    </fieldType>
-
-    <!-- A general unstemmed text field that indexes tokens normally and also
-         reversed (via ReversedWildcardFilterFactory), to enable more efficient
-	 leading wildcard queries. -->
-    <fieldType name="text_rev" class="solr.TextField" positionIncrementGap="100">
-      <analyzer type="index">
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="0"/>
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.ReversedWildcardFilterFactory" withOriginal="true"
            maxPosAsterisk="3" maxPosQuestion="2" maxFractionAsterisk="0.33"/>
       </analyzer>
       <analyzer type="query">
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <tokenizer class="solr.StandardTokenizerFactory"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
-        <filter class="solr.StopFilterFactory"
-                ignoreCase="true"
-                words="stopwords.txt"
-                enablePositionIncrements="true"
-                />
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="0"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
         <filter class="solr.LowerCaseFilterFactory"/>
       </analyzer>
     </fieldType>
 
     <!-- charFilter + WhitespaceTokenizer  -->
     <!--
-    <fieldType name="textCharNorm" class="solr.TextField" positionIncrementGap="100" >
+    <fieldType name="text_char_norm" class="solr.TextField" positionIncrementGap="100" >
       <analyzer>
         <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
@@ -337,13 +371,13 @@
         <filter class="solr.TrimFilterFactory" />
         <!-- The PatternReplaceFilter gives you the flexibility to use
              Java Regular expression to replace any sequence of characters
-             matching a pattern with an arbitrary replacement string,
+             matching a pattern with an arbitrary replacement string, 
              which may include back references to portions of the original
              string matched by the pattern.
-
+             
              See the Java Regular Expression documentation for more
              information on pattern and replacement string syntax.
-
+             
              http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/package-summary.html
           -->
         <filter class="solr.PatternReplaceFilterFactory"
@@ -351,7 +385,7 @@
         />
       </analyzer>
     </fieldType>
-
+    
     <fieldtype name="phonetic" stored="false" indexed="true" class="solr.TextField" >
       <analyzer>
         <tokenizer class="solr.StandardTokenizerFactory"/>
@@ -365,7 +399,7 @@
         <!--
         The DelimitedPayloadTokenFilter can put payloads on tokens... for example,
         a token of "foo|1.4"  would be indexed as "foo" with a payload of 1.4f
-        Attributes of the DelimitedPayloadTokenFilterFactory :
+        Attributes of the DelimitedPayloadTokenFilterFactory : 
          "delimiter" - a one character delimiter. Default is | (pipe)
 	 "encoder" - how to encode the following value into a playload
 	    float -> org.apache.lucene.analysis.payloads.FloatEncoder,
@@ -385,345 +419,133 @@
       </analyzer>
     </fieldType>
 
-    <fieldType name="text_substr" class="solr.TextField">
-        <analyzer type="index">
-            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-            <filter class="solr.LowerCaseFilterFactory"/>
-            <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
-            <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25" side="front"/>
-            <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25" side="back"/>
-        </analyzer>
-        <analyzer type="query">
-            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-            <filter class="solr.LowerCaseFilterFactory"/>
-            <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
-        </analyzer>
+    <fieldType name="text_path" class="solr.TextField" positionIncrementGap="100">
+      <analyzer>
+        <tokenizer class="solr.PathHierarchyTokenizerFactory"/>
+      </analyzer>
     </fieldType>
 
     <!-- since fields of this type are by default not stored or indexed,
-         any data added to them will be ignored outright.  -->
+         any data added to them will be ignored outright.  --> 
     <fieldtype name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField" />
+
+    <!-- This point type indexes the coordinates as separate fields (subFields)
+      If subFieldType is defined, it references a type, and a dynamic field
+      definition is created matching *___<typename>.  Alternately, if 
+      subFieldSuffix is defined, that is used to create the subFields.
+      Example: if subFieldType="double", then the coordinates would be
+        indexed in fields myloc_0___double,myloc_1___double.
+      Example: if subFieldSuffix="_d" then the coordinates would be indexed
+        in fields myloc_0_d,myloc_1_d
+      The subFields are an implementation detail of the fieldType, and end
+      users normally should not need to know about them.
+     -->
+    <fieldType name="point" class="solr.PointType" dimension="2" subFieldSuffix="_d"/>
+
+    <!-- A specialized field for geospatial search. If indexed, this fieldType must not be multivalued. -->
+    <fieldType name="location" class="solr.LatLonType" subFieldSuffix="_coordinate"/>
+
+   <!--
+    A Geohash is a compact representation of a latitude longitude pair in a single field.
+    See http://wiki.apache.org/solr/SpatialSearch
+   -->
+    <fieldtype name="geohash" class="solr.GeoHashField"/>
+
+	<!-- to be used for autosuggest -->    
+    <fieldType name="text_ngram" class="solr.TextField">
+        <analyzer type="index">
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>         
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25" side="front"/>        
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false" />
+        </analyzer>
+        <analyzer type="query"> 
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <!--<filter class="solr.KStemFilterFactory"/> -->
+        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/> 
+        </analyzer>
+    </fieldType>    
+
+    <!-- A general text field that has reasonable, generic
+         cross-language defaults: it tokenizes with StandardTokenizer,
+	 removes stop words from case-insensitive "stopwords.txt"
+	 (empty by default), and down cases.  At query time only, it
+	 also applies synonyms. -->
+    <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
+      <analyzer type="index">
+        <!--<tokenizer class="solr.StandardTokenizerFactory"/>-->
+
+        <!-- use KeywordTokenizerFactory so that no work splitting on punctuation, hyphen. Ie, does not split the input at all -->
+        <tokenizer class="solr.KeywordTokenizerFactory" /> 
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
+        <!-- in this example, we will only use synonyms at query time
+        <filter class="solr.SynonymFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
+
+        -->
+        <filter class="solr.LowerCaseFilterFactory"/>
+	<filter class="solr.RemoveDuplicatesTokenFilterFactory"/> <!-- added -->
+      </analyzer>
+      <analyzer type="query">
+        <!--<tokenizer class="solr.StandardTokenizerFactory"/>-->
+
+        <!-- use KeywordTokenizerFactory so that no work splitting on punctuation, hyphen. Ie, does not split the input at all -->
+        <tokenizer class="solr.KeywordTokenizerFactory" /> 
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+	<filter class="solr.RemoveDuplicatesTokenFilterFactory"/> <!-- added -->
+      </analyzer>
+    </fieldType>
 
  </types>
 
- <fields>
-   <!-- Valid attributes for fields:
-     name: mandatory - the name for the field
-     type: mandatory - the name of a previously defined type from the
-       <types> section
-     indexed: true if this field should be indexed (searchable or sortable)
-     stored: true if this field should be retrievable
-     compressed: [false] if this field should be stored using gzip compression
-       (this will only apply if the field type is compressable; among
-       the standard field types, only TextField and StrField are)
-     multiValued: true if this field may contain multiple values per document
-     omitNorms: (expert) set to true to omit the norms associated with
-       this field (this disables length normalization and index-time
-       boosting for the field, and saves some memory).  Only full-text
-       fields or fields that need an index-time boost need norms.
-     termVectors: [false] set to true to store the term vector for a
-       given field.
-       When using MoreLikeThis, fields used for similarity should be
-       stored for best performance.
-     termPositions: Store position information with the term vector.
-       This will increase storage costs.
-     termOffsets: Store offset information with the term vector. This
-       will increase storage costs.
-     default: a value that should be used if no value is specified
-       when adding a document.
-   -->
 
-     <field name="ignore_me" type="ignored" multiValued="true" />
-     <field name="mgi_accession_id_key" type="string" indexed="true" stored="true" required="true" />
-     <field name="mgi_accession_id" type="text_substr" indexed="true" stored="true" />
-     <field name="MGI" type="textTight" indexed="true" />
-     <field name="mgi" type="textTight" indexed="true" />
-     <field name="secondary_mgi_accession_id" type="textTight" indexed="true" stored="true" multiValued="true" />
-     <field name="marker_symbol" type="text_substr" indexed="true" stored="true" />
-     <field name="marker_symbol_str" type="string" indexed="true" />
-     <field name="symbol" type="text" indexed="true" />
-     <field name="marker_name" type="text_substr" indexed="true" stored="true" multiValued="true" />
-     <field name="marker_type" type="text" indexed="true" stored="true" />
-     <field name="marker_type_str" type="string" indexed="true" stored="true" />
-     <field name="synonym" type="text_substr" indexed="true" stored="true" multiValued="true" />
-     <field name="marker_synonym" type="text_substr" indexed="true" stored="true" multiValued="true" />
-     <field name="chromosome" type="text" indexed="true" stored="true" />
-     <field name="coord_start" type="tint" indexed="true" />
-     <field name="coord_end" type="tint" indexed="true" />
-     <field name="strand" type="string" indexed="true" />
-     <field name="ensembl_gene_id" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="ensembl_peptide_id" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="ensembl_transcript_id" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="ensembl_exon_id" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="vega_gene_id" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="ncbi_gene_id" type="tint" indexed="true" stored="true" multiValued="true" />
-     <field name="ccds_id" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="omim_gene_disorder" type="text" stored="true" multiValued="true" />
-     <field name="omim_id" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="omim_desc" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="ikmc_project" type="textTight" indexed="true" multiValued="true" />
-     <field name="ikmc_project_id" type="textTight" indexed="true" stored="true" multiValued="true" />
-     <field name="product_status" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="product_status_str" type="string" indexed="true" stored="true" multiValued="true" />
-     <field name="ikmc_project_product_status" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="ikmc_project_product_status_str" type="string" indexed="true" stored="true" multiValued="true" />
-     <field name="ikmc_targ_rep_allele_id" type="text" stored="true" multiValued="true" />
-     <field name="targeting_design" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="intermediate_vector" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="targeting_vector" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="allele" type="text_substr" indexed="true" stored="true" multiValued="true" />
-     <field name="escell" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="colony_prefix" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="microinjection_centre" type="textTight" indexed="true" multiValued="true" />
-     <field name="microinjection_status" type="string" indexed="true" multiValued="true" />
-     <field name="imits_phenotype_status" type="string" indexed="true" multiValued="true" />
-     <field name="imits_phenotype_colony_name" type="string" indexed="true" multiValued="true" />
-     <field name="imits_phenotype_allele_type" type="string" indexed="true" multiValued="true" />
-     <field name="imits_phenotype_is_active" type="string" indexed="true" multiValued="true" />
-     <field name="imits_phenotype_rederivation_started" type="string" indexed="true" multiValued="true" />
-     <field name="imits_phenotype_rederivation_complete" type="string" indexed="true" multiValued="true" />
-     <field name="imits_phenotype_number_of_cre_matings_started" type="string" indexed="true" multiValued="true" />
-     <field name="imits_phenotype_number_of_cre_matings_successful" type="string" indexed="true" multiValued="true" />
-     <field name="imits_phenotype_started" type="string" indexed="true" multiValued="true" />
-     <field name="imits_phenotype_complete" type="string" indexed="true" multiValued="true" />
-     <field name="imits_report_allele_symbol" type="string" indexed="true" multiValued="true" />
-     <field name="imits_report_ikmc_project_id" type="string" indexed="true" multiValued="true" />
-     <field name="imits_report_distinct_genotype_confirmed_es_cells" type="string" indexed="true" multiValued="true" />
-     <field name="imits_report_mutation_sub_type" type="string" indexed="true" multiValued="true" />
-     <field name="imits_report_overall_status" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="imits_report_mi_plan_status" type="string" indexed="true" multiValued="true" />
-     <field name="imits_report_mi_attempt_status" type="string" indexed="true" multiValued="true" />
-     <field name="imits_report_phenotype_attempt_status" type="string" indexed="true" multiValued="true" />
-     <field name="imits_report_assigned_date" type="string" indexed="true" multiValued="true" />
-     <field name="imits_report_assigned_es_cell_qc_in_progress_date" type="string" indexed="true" multiValued="true" />
-     <field name="imits_report_micro_injection_in_progress_date" type="string" indexed="true" multiValued="true" />
-     <field name="imits_report_chimeras_obtained_date" type="string" indexed="true" multiValued="true" />
-     <field name="imits_report_genotype_confirmed_date" type="string" indexed="true" multiValued="true" />
-     <field name="imits_report_micro_injection_aborted_date" type="string" indexed="true" multiValued="true" />
-     <field name="imits_report_genetic_background" type="string" indexed="true" multiValued="true" />
-     <field name="microinjection_centre_status" type="string" indexed="true" multiValued="true" />
-     <field name="phenotype" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="expression" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="sanger_phenotype" type="text" indexed="true" multiValued="true" />
-     <field name="sanger_expression" type="text" indexed="true" multiValued="true" />
-     <field name="interpro" type="text" stored="true" multiValued="true" />
-     <field name="interpro_id" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="interpro_desc" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="emma_id" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="EM" type="textTight" indexed="true" multiValued="true" />
-     <field name="em" type="textTight" indexed="true" multiValued="true" />
-     <field name="pubmed_id" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="PMID" type="textTight" indexed="true" multiValued="true" />
-     <field name="pmid" type="textTight" indexed="true" multiValued="true" />
-     <field name="dna_library" type="string" indexed="true" multiValued="true" />
-     <field name="MA" type="textTight" indexed="true" multiValued="true" />
-     <field name="ma" type="textTight" indexed="true" multiValued="true" />
-     <field name="ma_id" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="ma_term" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="ma_ontology" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="MP" type="textTight" indexed="true" multiValued="true" />
-     <field name="mp" type="textTight" indexed="true" multiValued="true" />
-     <field name="mp_id" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="mp_term" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="mp_ontology" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="GO" type="textTight" indexed="true" multiValued="true" />
-     <field name="go" type="textTight" indexed="true" multiValued="true" />
-     <field name="go_id" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="go_term" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="go_ontology" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="EMAP" type="textTight" indexed="true" multiValued="true" />
-     <field name="emap" type="textTight" indexed="true" multiValued="true" />
-     <field name="emap_id" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="emap_term" type="text" indexed="true" stored="true" multiValued="true" />
-     <field name="emap_ontology" type="text" indexed="true" stored="true" multiValued="true" />
-   <field name="datasets_with_data" type="string" indexed="true" stored="false" multiValued="true" />
-
-   <!-- general catchall field, containing all other searchable text fields (implemented
-        via copyField further on in this schema  -->
-   <field name="text" type="text" indexed="true" stored="false" multiValued="true"/>
-
-   <!-- catchall text field that indexes tokens both normally and in reverse for efficient
-        leading wildcard queries. -->
-   <field name="text_rev" type="text_rev" indexed="true" stored="false" multiValued="true"/>
-
-   <!-- The following will create a "timestamp" field using
-        a default value of "NOW" to indicate when each document was indexed.
-     -->
-   <field name="timestamp" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
-
-   <field name="auto_suggest" type="text_substr" indexed="true" stored="true" multiValued="true" />
-
-   <!-- Dynamic field definitions.  If a field name is not found, dynamicFields
-        will be used if the name matches any of the patterns.
-        RESTRICTION: the glob-like pattern in the name attribute must have
-        a "*" only at the start or the end.
-        EXAMPLE:  name="*_i" will match any field ending in _i (like myid_i, z_i)
-        Longer patterns will be matched first.  if equal size patterns
-        both match, the first appearing in the schema will be used.  -->
-   <dynamicField name="*_i"  type="int"    indexed="true"  stored="true"/>
-   <dynamicField name="*_s"  type="string"  indexed="true"  stored="true"/>
-   <dynamicField name="*_l"  type="long"   indexed="true"  stored="true"/>
-   <dynamicField name="*_t"  type="text"    indexed="true"  stored="true"/>
-   <dynamicField name="*_b"  type="boolean" indexed="true"  stored="true"/>
-   <dynamicField name="*_f"  type="float"  indexed="true"  stored="true"/>
-   <dynamicField name="*_d"  type="double" indexed="true"  stored="true"/>
-   <dynamicField name="*_dt" type="date"    indexed="true"  stored="true"/>
-
-   <!-- some trie-coded dynamic fields for faster range queries -->
-   <dynamicField name="*_ti" type="tint"    indexed="true"  stored="true"/>
-   <dynamicField name="*_tl" type="tlong"   indexed="true"  stored="true"/>
-   <dynamicField name="*_tf" type="tfloat"  indexed="true"  stored="true"/>
-   <dynamicField name="*_td" type="tdouble" indexed="true"  stored="true"/>
-   <dynamicField name="*_tdt" type="tdate"  indexed="true"  stored="true"/>
-
-   <dynamicField name="*_pi"  type="pint"    indexed="true"  stored="true"/>
-
-   <dynamicField name="ignored_*" type="ignored" multiValued="true"/>
-   <dynamicField name="attr_*" type="textgen" indexed="true" stored="true" multiValued="true"/>
-
-   <dynamicField name="random_*" type="random" />
-
-   <!-- uncomment the following to ignore any fields that don't already match an existing
-        field name or dynamic field, rather than reporting them as an error.
-        alternately, change the type="ignored" to some other type e.g. "text" if you want
-        unknown fields indexed and/or stored by default -->
-   <dynamicField name="*" type="ignored" multiValued="true" />
-
+ <fields>  
+             
+    <field name="mgi_accession_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+    <field name="marker_symbol" type="text_general" indexed="true" stored="true" required="true" multiValued="false" />
+    <field name="marker_name" type="text_general" indexed="true" stored="true" required="false" />    
+    <field name="marker_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="marker_type" type="string" indexed="true" stored="true" multiValued="false" />  
+    <field name="imits_report_phenotyping_complete_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+    <field name="imits_report_genotype_confirmed_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+    <field name="imits_report_mi_plan_status" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="escell" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
+    <field name="ikmc_project" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
+    <field name="status" type="string" indexed="true" stored="true" required="true" multiValued="false" />  
+    <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
+    <field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
  </fields>
 
- <!-- Field to use to determine and enforce document uniqueness.
+ <!-- Field to use to determine and enforce document uniqueness. 
       Unless this field is marked with required="false", it will be a required field
    -->
- <uniqueKey>mgi_accession_id_key</uniqueKey>
+ <uniqueKey>mgi_accession_id</uniqueKey>
+
+ <!-- field for the QueryParser to use when an explicit fieldname is absent -->
+ <defaultSearchField>text</defaultSearchField>
 
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
- <solrQueryParser defaultOperator="AND"/>
+ <solrQueryParser defaultOperator="OR"/>
 
   <!-- copyField commands copy one field to another at the time a document
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
+  
+  <copyField source="*" dest="text"/>  
+  <copyField source="mgi_accession_id" dest="auto_suggest"/> 
+  <copyField source="marker_symbol" dest="auto_suggest"/> 
+  <copyField source="marker_name" dest="auto_suggest"/> 
+  <copyField source="marker_synonym" dest="auto_suggest"/>
 
-  <copyField source="mgi_accession_id_key" dest="mgi_accession_id" />
-  <copyField source="mgi_accession_id_key" dest="MGI" />
-  <copyField source="mgi_accession_id_key" dest="mgi" />
-  <copyField source="secondary_mgi_accession_id" dest="mgi_accession_id" />
-  <copyField source="secondary_mgi_accession_id" dest="MGI" />
-  <copyField source="secondary_mgi_accession_id" dest="mgi" />
-  <copyField source="marker_symbol" dest="marker_symbol_str" />
-  <copyField source="marker_symbol" dest="symbol" />
-  <copyField source="marker_type" dest="marker_type_str" />
-  <copyField source="product_status" dest="product_status_str" />
-  <copyField source="ikmc_project_product_status" dest="ikmc_project_product_status_str" />
-  <copyField source="ma_id" dest="MA" />
-  <copyField source="ma_id" dest="ma" />
-  <copyField source="mp_id" dest="MP" />
-  <copyField source="mp_id" dest="mp" />
-  <copyField source="go_id" dest="GO" />
-  <copyField source="go_term" dest="GO" />
-  <copyField source="go_id" dest="go" />
-  <copyField source="go_term" dest="go" />
-  <copyField source="emap_id" dest="EMAP" />
-  <copyField source="emap_id" dest="emap" />
-  <copyField source="emma_id" dest="EM" />
-  <copyField source="emma_id" dest="em" />
-  <copyField source="pubmed_id" dest="PMID" />
-  <copyField source="pubmed_id" dest="pmid" />
-  <copyField source="sanger_phenotype" dest="phenotype" />
-  <copyField source="sanger_expression" dest="expression" />
-  <copyField source="synonym" dest="marker_synonym" />
-  <copyField source="mgi_accession_id_key" dest="text" />
-  <copyField source="mgi_accession_id_key" dest="text_rev" />
-  <copyField source="secondary_mgi_accession_id" dest="text" />
-  <copyField source="secondary_mgi_accession_id" dest="text_rev" />
-  <copyField source="ensembl_gene_id" dest="text" />
-  <copyField source="ensembl_gene_id" dest="text_rev" />
-  <copyField source="ensembl_peptide_id" dest="text" />
-  <copyField source="ensembl_peptide_id" dest="text_rev" />
-  <copyField source="ensembl_transcript_id" dest="text" />
-  <copyField source="ensembl_transcript_id" dest="text_rev" />
-  <copyField source="vega_gene_id" dest="text" />
-  <copyField source="vega_gene_id" dest="text_rev" />
-  <copyField source="ncbi_gene_id" dest="text" />
-  <copyField source="ncbi_gene_id" dest="text_rev" />
-  <copyField source="ccds_id" dest="text" />
-  <copyField source="ccds_id" dest="text_rev" />
-  <copyField source="omim_id" dest="text" />
-  <copyField source="omim_id" dest="text_rev" />
-  <copyField source="omim_desc" dest="text" />
-  <copyField source="omim_desc" dest="text_rev" />
-  <copyField source="product_status" dest="text" />
-  <copyField source="product_status" dest="text_rev" />
-  <copyField source="ikmc_project_product_status" dest="text" />
-  <copyField source="ikmc_project_product_status" dest="text_rev" />
-  <copyField source="ikmc_project_id" dest="text" />
-  <copyField source="ikmc_project_id" dest="text_rev" />
-  <copyField source="targeting_design" dest="text" />
-  <copyField source="targeting_design" dest="text_rev" />
-  <copyField source="intermediate_vector" dest="text" />
-  <copyField source="intermediate_vector" dest="text_rev" />
-  <copyField source="targeting_vector" dest="text" />
-  <copyField source="targeting_vector" dest="text_rev" />
-  <copyField source="escell" dest="text" />
-  <copyField source="escell" dest="text_rev" />
-  <copyField source="colony_prefix" dest="text" />
-  <copyField source="colony_prefix" dest="text_rev" />
-  <copyField source="sanger_phenotype" dest="text" />
-  <copyField source="sanger_phenotype" dest="text_rev" />
-  <copyField source="phenotype" dest="text" />
-  <copyField source="phenotype" dest="text_rev" />
-  <copyField source="sanger_expression" dest="text" />
-  <copyField source="sanger_expression" dest="text_rev" />
-  <copyField source="expression" dest="text" />
-  <copyField source="expression" dest="text_rev" />
-  <copyField source="interpro_id" dest="text" />
-  <copyField source="interpro_id" dest="text_rev" />
-  <copyField source="interpro_desc" dest="text" />
-  <copyField source="interpro_desc" dest="text_rev" />
-  <copyField source="emma_id" dest="text" />
-  <copyField source="emma_id" dest="text_rev" />
-  <copyField source="pubmed_id" dest="text" />
-  <copyField source="pubmed_id" dest="text_rev" />
-  <copyField source="ma_id" dest="text" />
-  <copyField source="ma_id" dest="text_rev" />
-  <copyField source="ma_term" dest="text" />
-  <copyField source="ma_term" dest="text_rev" />
-  <copyField source="mp_id" dest="text" />
-  <copyField source="mp_id" dest="text_rev" />
-  <copyField source="mp_term" dest="text" />
-  <copyField source="mp_term" dest="text_rev" />
-  <copyField source="go_id" dest="text" />
-  <copyField source="go_id" dest="text_rev" />
-  <copyField source="go_term" dest="text" />
-  <copyField source="go_term" dest="text_rev" />
-  <copyField source="emap_id" dest="text" />
-  <copyField source="emap_id" dest="text_rev" />
-  <copyField source="emap_term" dest="text" />
-  <copyField source="emap_term" dest="text_rev" />
-  <copyField source="imits_report_overall_status" dest="text" />
-  <copyField source="imits_report_overall_status" dest="text_rev" />
-  <copyField source="marker_symbol" dest="text" />
-  <copyField source="marker_symbol" dest="text_rev" />
-  <copyField source="marker_name" dest="text" />
-  <copyField source="marker_name" dest="text_rev" />
-  <copyField source="marker_synonym" dest="text" />
-  <copyField source="marker_synonym" dest="text_rev" />
-  <copyField source="allele" dest="text" />
-  <copyField source="allele" dest="text_rev" />
-  <copyField source="allele" dest="auto_suggest" />
-  <copyField source="mgi_accession_id" dest="auto_suggest" />
-  <copyField source="marker_symbol" dest="auto_suggest" />
-  <copyField source="marker_name" dest="auto_suggest" />
-  <copyField source="synonym" dest="auto_suggest" />
-
-   <!-- Above, multiple source fields are copied to the [text] field.
-	  Another way to map multiple source fields to the same
-	  destination field is to use the dynamic field syntax.
-	  copyField also supports a maxChars to copy setting.  -->
-
+ 	
    <!-- <copyField source="*_t" dest="text" maxChars="3000"/> -->
 
    <!-- copy name to alphaNameSort, a field designed for sorting by name -->
    <!-- <copyField source="name" dest="alphaNameSort"/> -->
+ 
 
  <!-- Similarity is the scoring routine for each document vs. a query.
       A custom similarity may be specified here, but the default is fine
@@ -738,5 +560,6 @@
    <str name="paramkey">param value</str>
  </similarity>
  -->
+
 
 </schema>
