@@ -62,7 +62,7 @@ public class SolrIndex  {
 	public SolrIndex(String qryStr, String solrCoreName, String mode, Map<String, String> config) {
 
 		this.drupalBaseUrl = config.get("drupalBaseUrl");
-		this.baseUrl = config.get("solrUrl");
+		this.baseUrl = config.get("internalSolrUrl");
 		this.mediaBaseUrl = config.get("mediaBaseUrl");
 
 		this.qryStr = qryStr;
@@ -82,7 +82,7 @@ public class SolrIndex  {
 			boolean showImgView, HttpServletRequest request, Map<String, String> config) {
 
 		this.drupalBaseUrl = config.get("drupalBaseUrl");
-		this.baseUrl = config.get("solrUrl");
+		this.baseUrl = config.get("internalSolrUrl");
 		this.mediaBaseUrl = config.get("mediaBaseUrl");
 
 		this.qryStr = qryStr;
@@ -92,7 +92,7 @@ public class SolrIndex  {
 		this.iDisplayStart = iDisplayStart;
 		this.iDisplayLength = iDisplayLength;
 		this.showImgView = showImgView;
-
+		
 		this.drupalProxy = new DrupalHttpProxy(request);
 
 		try {
@@ -108,7 +108,7 @@ public class SolrIndex  {
 			Map<String, String> config, String contextPath, String serverName, int serverPort) {
 
 		this.drupalBaseUrl = config.get("drupalBaseUrl");
-		this.baseUrl = config.get("solrUrl");		
+		this.baseUrl = config.get("internalSolrUrl");		
 		this.mediaBaseUrl = config.get("mediaBaseUrl");
 		
 		this.contextPath = contextPath;	
@@ -330,7 +330,7 @@ public class SolrIndex  {
 		//System.out.println("CHECK json string: " + this.json.toString());
 				
 		JSONArray docs = this.json.getJSONObject("response").getJSONArray("docs");		
-		
+				
 		//System.out.println("num genes found: " + docs.size());
 		List<String> rowData = new ArrayList<String>();
 		rowData.add("Marker symbol\tMaker name\tSynonym\tLatest status"); // column names		
@@ -342,11 +342,13 @@ public class SolrIndex  {
 			data.add(doc.getString("marker_symbol"));
 			
 			// Sanger problem, they should have use string for marker_name and not array
-			data.add(doc.getJSONArray("marker_name").getString(0));
+			//data.add(doc.getJSONArray("marker_name").getString(0));
+			// now corrected using httpdatasource in dataImportHandler
+			data.add(doc.getString("marker_name"));
 			
-			if(doc.has("synonym")) {
+			if(doc.has("marker_synonym")) {
 				List<String> synData = new ArrayList<String>();
-				JSONArray syn = doc.getJSONArray("synonym");
+				JSONArray syn = doc.getJSONArray("marker_synonym");
 				for(int s=0; s<syn.size();s++) {					
 					synData.add(syn.getString(s));
 				}
@@ -356,7 +358,8 @@ public class SolrIndex  {
 				data.add("NA");
 			}
 						
-			data.add( SolrGeneResponseUtil.deriveGeneStatus(doc));	
+			//data.add( SolrGeneResponseUtil.deriveGeneStatus(doc));	
+			data.add(doc.getString("status"));
 			rowData.add(StringUtils.join(data, "\t"));
 		}		
 		
@@ -365,11 +368,12 @@ public class SolrIndex  {
 	
 	private String composeSolrUrl() {
 		
-		String qryMode = this.solrCoreName.equals("gene") ? "/search?" : "/select?";
-		String url = this.baseUrl + "/" + this.solrCoreName + qryMode;
+		//String qryMode = this.solrCoreName.equals("gene") ? "/search?" : "/select?";
+		//String url = this.baseUrl + "/" + this.solrCoreName + qryMode;
+		String url = this.baseUrl + "/" + this.solrCoreName + "/select?";
 		
 		//LOG.debug("GRID PARAMS:" + gridSolrParams);
-		
+	
 		if (mode.equals("mpPage")) {
 			url += "q=" + this.qryStr;
 			url += "&start=0&rows=0&wt=json&qf=auto_suggest&defType=edismax";
@@ -377,8 +381,8 @@ public class SolrIndex  {
 		else if (mode.equals("geneGrid")) {			
 			url += gridSolrParams				
 				+ "&start=" + iDisplayStart
-				+ "&rows=" + iDisplayLength
-				+ "&hl=on&hl.field=marker_synonym,marker_name";
+				+ "&rows=" + iDisplayLength;
+				//+ "&hl=on&hl.field=marker_synonym,marker_name";
 			System.out.println("GENE PARAMS: " + url);
 		}
 		else if (mode.equals("pipelineGrid")){
@@ -445,7 +449,7 @@ public class SolrIndex  {
 				log.error(e.getLocalizedMessage());
 			}
 		}
-
+		//System.out.println("JSON: " + (JSONObject) JSONSerializer.toJSON(content));
 		return (JSONObject) JSONSerializer.toJSON(content);
 	}
 
@@ -474,8 +478,8 @@ public class SolrIndex  {
 		qryStr = this.json.getJSONObject("responseHeader").getJSONObject("params").getString("q");
 		JSONArray docs = this.json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = this.json.getJSONObject("response").getInt("numFound");
-		
-		log.debug("TOTA L GENEs: " + totalDocs);
+				
+		log.debug("TOTAL GENEs: " + totalDocs);
 		
 		int quotient = (totalDocs)/iDisplayLength -((totalDocs)%iDisplayLength) / iDisplayLength;
 		int remainder = (totalDocs) % iDisplayLength;
@@ -493,13 +497,14 @@ public class SolrIndex  {
 			List<String> rowData = new ArrayList<String>();
 
 			JSONObject doc = docs.getJSONObject(i);
-
+					
 			String geneInfo = concateGeneInfo(doc);
 			rowData.add(geneInfo);
 
-			String geneStatus = SolrGeneResponseUtil.deriveGeneStatus(doc);
+			//String geneStatus = SolrGeneResponseUtil.deriveGeneStatus(doc);
+			String geneStatus = doc.getString("status");
 			rowData.add(geneStatus);
-
+			
 			// register of interest
 			if (loggedIn()) {
 				if (alreadyInterested(doc.getString("mgi_accession_id"))) {
@@ -507,13 +512,14 @@ public class SolrIndex  {
 				} else {
 					rowData.add("<a id='"+doc.getString("mgi_accession_id")+"' href='' class='btn primary interest'>Register interest</a>");
 				}
-			} else {
+			} else {				
 				rowData.add("<a href='/user/register' class='btn primary'>Login to register interest</a>");
 			}
-
-			j.getJSONArray("aaData").add(rowData);
+			//System.out.println("TEST: " + rowData);
+			j.getJSONArray("aaData").add(rowData);			
 		}
 		
+		//System.out.println("json: " + j.toString());
 		return j.toString();	
 	}
 	
@@ -600,9 +606,13 @@ public class SolrIndex  {
 			try {				
 				//"highlighting":{"MGI:97489":{"marker_symbol":["<em>Pax</em>5"],"synonym":["<em>Pax</em>-5"]},
 				
-				String field = fields[i];
+				String field = fields[i];				
 				List<String> info = new ArrayList<String>();
-				if ( doc.getJSONArray(field).size() > 0) {
+				
+				if ( field.equals("marker_name") ){
+					info.add(doc.getString(field));
+				}
+				else if ( doc.getJSONArray(field).size() > 0) {					
 					JSONArray data = doc.getJSONArray(field);
 					
 					//use SOLR highlighted string if available
@@ -614,7 +624,7 @@ public class SolrIndex  {
 							info.add(d.toString());
 						}
 					}					
-				}
+				}				
 				geneInfo.add("<span class='gNameSyn'>" + field.replace("marker_", " ") + "</span>: " + StringUtils.join(info, ", "));
 			} 
 			catch (Exception e) {		   		
