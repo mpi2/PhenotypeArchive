@@ -4,6 +4,9 @@
 
 <t:genericpage>
 	<jsp:attribute name="title">Gene details for ${gene.name}</jsp:attribute>
+	
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#sort=marker_symbol asc&q=*:*&core=gene">Genes</a> <c:if test="${not empty gene.subtype.name }">&raquo; <a href='${baseUrl}/search#fq=marker_type_str:"${gene.subtype.name}"&q=*:*&core=gene'>${gene.subtype.name}</a></c:if> &raquo; ${gene.symbol}</jsp:attribute>
+	
 	<jsp:attribute name="header">
 
 	<script type="text/javascript">var gene_id = '${acc}';</script>
@@ -94,78 +97,116 @@
     </jsp:attribute>
 
 	<jsp:body>
-        
-		<div class='topic'>Gene: ${gene.symbol}</div>
-		<div class="row-fluid dataset">
-			<div class="container span4">
+		<div class='topic'>Gene: ${gene.symbol}  &nbsp;&nbsp;
+			<c:choose>
+			<c:when test="${registerButtonAnchor!=''}"><a href='${registerButtonAnchor}'  id='${registerButtonId}'  class='btn primary'>${registerInterestButtonString}</a></c:when>
+			<c:otherwise><a  id='${registerButtonId}'  class='btn primary interest'>${registerInterestButtonString}</a></c:otherwise>
+			</c:choose>
+		</div>
+<div class="row-fluid dataset">
+		<div class="row-fluid">
+				<div class="container span6">
 				<table>				  
 					<tbody>
+					
 						<tr class="odd">
 							<td>Gene name:</td>
 							<td class="gene-data" id="gene_name">${gene.name}</td>
 						</tr>
+						
 						<tr class="even">
-							<td>Gene Type:</td>
-							<td class="gene-data" id="marker_type">${gene.subtype.name}</td>
-						</tr>
-						<tr class="odd">
 							<td>Synonyms:</td>
 							<td class="gene-data" id="synonyms">
-								<c:forEach var="synonym" items="${gene.synonyms}" varStatus="loop">${synonym.symbol}<c:if test="${!loop.last}"><br /></c:if></c:forEach>
+						
+							
+								<c:forEach var="synonym" items="${gene.synonyms}" varStatus="loop">${synonym.symbol}<c:if test="${!loop.last}"><br /></c:if>
+								<c:if test="${loop.count==2 && fn:length(gene.synonyms)>2}"><a  data-toggle="collapse" data-target="#other_synonyms" href="#">+...</a><div id="other_synonyms" class="collapse"></c:if>
+								
+								<c:if test="${loop.last && fn:length(gene.synonyms) >2}"></div></c:if>
+								
+								</c:forEach>
  							</td>
 						</tr>
-						<tr class="even">
-							<td>Gene&nbsp;Location:</td>
-							<td class="gene-data" id="geneLocation1">
-								Chr<span id='chr'>${gene.sequenceRegion.name}</span>:<span id='geneStart'>${gene.start}</span>-<span id='geneEnd'>${gene.end}</span></td>
-						</tr>
 						<tr class="odd">
-							<td>Ensembl Links:</td>
-							<td class="gene-data" id="ensembl_links">
-								<a href="http://may2012.archive.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.id.accession}">Gene&nbsp;View</a>
-								<a href="http://may2012.archive.ensembl.org/Mus_musculus/Location/View?g=${gene.id.accession};contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=labels">Location&nbsp;View</a>      
-								<a href="http://may2012.archive.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=410;db=core;g=${gene.id.accession}">Compara&nbsp;View</a>
-					       </td>
-						</tr>
-						<tr class="even">
 							<td>MGI Id:</td>
 							<td class="gene-data" id="mgi_id"><a href="http://www.informatics.jax.org/marker/${gene.id.accession}">${gene.id.accession}</a></td>
 						</tr>
 					</tbody>
 				</table>
-				<button type="button" data-toggle="collapse" data-target="#other_ids">Show/Hide Other Identifiers</button>
-				<div id="other_ids" class="collapse">
-					<table>
-						<tbody>
-							<tr class="odd">
-								<td>Vega Id:</td>
-								<td id="vega_gene_id">&nbsp;</td>
-							</tr>
-							<tr class="even">
-								<td>NCBI Id:</td>
-								<td id="ncbi_gene_id">&nbsp;</td>
-							</tr>
-							<tr class="odd">
-								<td>CCDS Id:</td>
-								<td id="ccds_id">&nbsp;</td>
-							</tr>
-						</tbody>
-					</table>
 				</div>
-			</div>
-			<div class="container span8">
-			<span id="genomicBrowserInfo">
-			<span class="label label-info" rel="tooltip"  title="This browser is clickable please experiment by clicking. Click on features to get more info, click on zoom bar etc. To reset click on 'lightning button'">Info: This is an interactive genomic browser </span>
-				<a href="http://www.biodalliance.org/"><i class="icon-question-sign" rel="tooltip" title="More information on using this browser"></i></a></span>
-				<div id="svgHolder">
-				<!--<c:if test="${fn:contains(header['User-Agent'],'MSIE')}">
-				<div class="alert alert-info">For a more interactive and informative gene image please use a newish browser e.g. <a href="http://www.mozilla.com/firefox/">Firefox</a> 3.6+, <a href="http://www.google.com/chrome">Google Chrome</a>, and <a href="http://www.apple.com/safari/">Safari</a> 5 or newer</div>
-				<img src="http://gbrowse.informatics.jax.org/cgi-bin/gbrowse_img/thumbs_current/?abs=1;options=Everything;width=200;name=${gene.sequenceRegion.name}:${gene.start}..${gene.end}" alt="gbrowse image should be here">
-				</c:if>-->		
-			</div>
+				
+				<div class="container span6">
+				<table>				  
+					<tbody>
+					<tr class="odd">
+							<td>Status:</td>
+						<td><button type="button" class="btn btn-info" disabled>${geneStatus}</button></td></tr>
+						<tr class="even">
+							<td>Ensembl Links:</td>
+							<td class="gene-data" id="ensembl_links">
+								<a href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.id.accession}">Gene&nbsp;View</a>
+								<a href="http://www.ensembl.org/Mus_musculus/Location/View?g=${gene.id.accession};contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=labels">Location&nbsp;View</a>      
+								<a href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=601;db=core;g=${gene.id.accession}">Compara&nbsp;View</a>
+					       </td>
+						</tr>
+					</tbody>
+				</table>
 				</div>
 		</div>
-		<!--/row-->
+		<div class="row-fluid">
+				<div class="container span12">
+				<button type="button" data-toggle="collapse" data-target="#other_ids" id="showGBrowser">Show/Hide Genome Browser</button>
+
+				<div id="other_ids" class="collapse">
+			
+				<div class="container span6" id="geneLocation1">
+								Gene&nbsp;Location: Chr<span id='chr'>${gene.sequenceRegion.name}</span>:<span id='geneStart'>${gene.start}</span>-<span id='geneEnd'>${gene.end}</span>
+								</div> 
+				<div class="container span6" >
+							Gene Type:
+							${gene.subtype.name}
+						</div>
+				<span id="genomicBrowserInfo">
+					<span class="label label-info" rel="tooltip"  title="This browser is clickable please experiment by clicking. Click on features to get more info, click on zoom bar etc. To reset click on 'lightning button'" disabled>This is an interactive genomic browser </span>
+					<a href="http://www.biodalliance.org/"><i class="icon-question-sign" rel="tooltip" title="More information on using this browser"></i></a>
+				</span>
+				<div class="container span12"  id="svgHolder"></div>
+				
+				
+				<table>
+						<tbody>
+							<c:if test="${not empty vegaIds}">
+							<tr>
+								<td>Vega Ids:</td>
+								<td><c:forEach var="id" items="${vegaIds}" varStatus="loop"><a href="http://vega.sanger.ac.uk/Mus_musculus/geneview?gene=${id}&db=core">${id}</a><c:if test="${!loop.last}"><br /></c:if></c:forEach></td>
+							</tr>
+							</c:if>
+							<c:if test="${not empty ncbiIds}">
+							<tr>
+								<td>NCBI Id:</td>
+								<td><c:forEach var="id" items="${ncbiIds}" varStatus="loop"><a href="http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=${id}">${id}</a><c:if test="${!loop.last}"><br /></c:if></c:forEach></td>
+							</tr>
+							</c:if>
+							<c:if test="${not empty ccdsIds}">
+							<tr>
+								<td>CCDS Id:</td>
+								<td><c:forEach var="id" items="${ccdsIds}" varStatus="loop"><a href="http://www.ncbi.nlm.nih.gov/CCDS/CcdsBrowse.cgi?REQUEST=CCDS&DATA=${id}">${id}</a><c:if test="${!loop.last}"><br /></c:if></c:forEach></td>
+							</tr>
+							</c:if>
+						</tbody>
+					</table>
+				
+			</div>
+			
+			
+				</div>
+		
+			</div>
+		
+			
+			
+</div>
+<!--/row-->
 
 		<div class="row-fluid dataset">
 			<div class="row-fluid">
@@ -177,12 +218,12 @@
 			<div class="row-fluid">		
 				<c:if test="${bPreQC}">
 				<div class="container span6">
-					<a href='${qcLink}'><img src="/sites/dev.mousephenotype.org/files/images/phenodcc.png" alt="Click here to access preliminary data" style="border-style: none"/>&nbsp;Pre QC data from PhenoDCC Available</a>
+					<a href='${qcLink}'><img src="${drupalBaseUrl}/sites/dev.mousephenotype.org/files/images/phenodcc.png" alt="Click here to access preliminary data" style="border-style: none"/>&nbsp;Pre QC data from PhenoDCC Available</a>
 				</div>		
 				</c:if>
 				<c:if test="${bSangerLegacy}">
 				<div class="container span6">
-					<a href='${sangerLegacyLink}'><img src="/sites/dev.mousephenotype.org/files/sangerLogo.png" alt="Click here to access Sanger phenotype data" style="border-style: none"/>&nbsp;Legacy data from Sanger Institute Mouse Resources Portal</a>
+					<a href='${sangerLegacyLink}'><img src="${drupalBaseUrl}/sites/dev.mousephenotype.org/files/sangerLogo.png" alt="Click here to access Sanger phenotype data" style="border-style: none"/>&nbsp;Legacy data from Sanger Institute Mouse Resources Portal</a>
 				</div>		
 				</c:if>
 			</div>
@@ -190,7 +231,7 @@
 			<c:if test="${bEurophenomeLegacy}">
 				<div class="row-fluid">
 				<div class="container span6">
-					<a href='${europhenomeLegacyLink}'><img src="/sites/dev.mousephenotype.org/files/europhenomeLogo.png" alt="Click here to access Europhenome phenotype data" style="border-style: none"/>&nbsp;Legacy data from Europhenome</a>
+					<a href='${europhenomeLegacyLink}'><img src="${drupalBaseUrl}/sites/dev.mousephenotype.org/files/europhenomeLogo.png" alt="Click here to access Europhenome phenotype data" style="border-style: none"/>&nbsp;Legacy data from Europhenome</a>
 				</div>		
 			</div>
 			</c:if>
@@ -200,12 +241,14 @@
 					<c:if test="${not empty phenotypes}">
 					<table id="phenotypes" class="table table-striped">
 					<thead>
-						<th>Phenotype</th>
-						<th>Allele</th>
-						<th>Zygosity</th>
-						<th>Sex</th>
-						<th>Data</th>
-						<%-- <th>Strain</th> --%>
+						<tr>
+							<th>Phenotype</th>
+							<th>Allele</th>
+							<th>Zygosity</th>
+							<th>Sex</th>
+							<th>Data</th>
+							<%-- <th>Strain</th> --%>
+						</tr>
 					</thead>
 					<c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
 					<c:set var="europhenome_gender" value="Both-Split"/>
@@ -218,7 +261,7 @@
 						<c:forEach var="sex" items="${phenotype.sexes}"><c:set var="count" value="${count + 1}" scope="page"/><c:if test="${sex == 'female'}"><c:set var="europhenome_gender" value="Female"/><img style="cursor:help;color:#D6247D;" rel="tooltip" data-placement="top" title="Female" alt="Female" src="${baseUrl}/img/icon-female.png" /></c:if><c:if test="${sex == 'male'}"><c:set var="europhenome_gender" value="Male"/><img style="cursor:help;color:#247DD6;margin-left:<c:if test="${count != 2}">16</c:if><c:if test="${count == 2}">4</c:if>px;" rel="tooltip" data-placement="top" title="Male" alt="Male" src="${baseUrl}/img/icon-male.png" /></c:if></c:forEach>
 						<c:if test="${count == 2}"><c:set var="europhenome_gender" value="Both-Split"/></c:if>
 					</td>
-					<td><a href="http://www.europhenome.org/databrowser/viewer.jsp?set=true&m=true&l=${phenotype.projectId}&zygosity=${phenotype.zygosity}&x=${europhenome_gender}&p=${phenotype.procedureId}&pid_${phenotype.parameterId}=on&compareLines=View+Data">Europhenome</a></td>
+					<td><a href="http://www.europhenome.org/databrowser/viewer.jsp?set=true&m=true&l=${phenotype.projectId}&zygosity=${phenotype.rawZygosity}&x=${europhenome_gender}&p=${phenotype.procedureId}&pid_${phenotype.parameterId}=on&compareLines=View+Data">Europhenome</a></td>
 					<%-- <td>${phenotype.strain.name}</td> --%>
 					</tr>
 					</c:forEach>
@@ -314,11 +357,9 @@
 							<ul>
 								<c:forEach var="doc" items="${facetToDocs[entry.name]}">
 								<li class="span2">
-									<a href="${baseUrl}/media/images/${doc.fullResolutionFilePath}">
-									<img src="${baseUrl}/media/images/${doc.smallThumbnailFilePath}" /></a>
+									<a href="${mediaBaseUrl}/${doc.fullResolutionFilePath}">
+									<img src="${mediaBaseUrl}/${doc.smallThumbnailFilePath}" /></a>
 									<c:forEach var="maTerm" items="${doc.annotationTermName}" varStatus="status">${maTerm}<br/></c:forEach>
-<%-- 									<c:forEach var="liveSampleGroup" items="${doc.liveSampleGroup}" varStatus="liveSampleGroupStatus"><c:if test="${not empty doc.liveSampleGroup}">${liveSampleGroup}<br /></c:if> --%>
-<%-- 						</c:forEach> --%>
 									<c:if test="${not empty doc.genotype}">${doc.genotype}<br/></c:if>
 									<c:if test="${not empty doc.gender}">${doc.gender}<br/></c:if>
 										<c:if test="${not empty doc.institute}"><c:forEach var="org" items="${doc.institute}">${ org}<br /></c:forEach></c:if> 
@@ -348,8 +389,6 @@
 			<div class="container span12">
 				<!-- thumbnail scroller markup begin -->
 				<div id="expressionInfo">
-<%-- 				${solrDoc} --%>
-				
 				
 <div class="accordion" id="accordion2">
    <c:forEach var="entry" items="${expressionFacets}" varStatus="status">
@@ -365,13 +404,8 @@
 							<ul>
       		 	<c:forEach var="doc" items="${expFacetToDocs[entry.name]}">
 				<li class="span2">
-					<a href="${baseUrl}/media/images/${doc.fullResolutionFilePath}">
-							<img src="${baseUrl}/media/images/${doc.smallThumbnailFilePath}" /></a>
-							
-<%-- 								 Id:${doc.id}<br/>  --%>
-<%-- 								<c:forEach var="liveSampleGroup" items="${doc.liveSampleGroup}" varStatus="liveSampleGroupStatus"><c:if test="${not empty doc.liveSampleGroup}">${liveSampleGroup}<br /></c:if> --%>
-<%-- 						</c:forEach> --%>
-
+					<a href="${mediaBaseUrl}/${doc.fullResolutionFilePath}">
+							<img src="${mediaBaseUrl}/${doc.smallThumbnailFilePath}" /></a>
 								<c:forEach var="maTerm" items="${doc.annotationTermName}" varStatus="status">${maTerm}<br/></c:forEach>
 								<c:if test="${not empty doc.genotype}">${doc.genotype}<br/></c:if>
 								<c:if test="${not empty doc.genotype}">${doc.gender}<br/></c:if>
@@ -406,7 +440,7 @@
 
 				<!-- END OF ALLELE TRACKER PANEL -->
 				<script type="text/javascript">
-					var mgiAccession = getParameterByName('gene_id');
+					var mgiAccession = gene_id;
 					//jQuery('#allele_tracker_panel_results')
 							//.load("proxy?url=https://beta.mousephenotype.org/i-dcc/martsearch/impc_search?mgi_accession_id="+ mgiAccession);
 					
