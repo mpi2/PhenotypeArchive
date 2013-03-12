@@ -19,7 +19,7 @@
  */
 $(document).ready(function(){
 	'use strict';	
-
+	
 	$('span.facetCount').text(''); // default when page loads
 
 	var pathname = MPI2.searchAndFacetConfig.pathname;
