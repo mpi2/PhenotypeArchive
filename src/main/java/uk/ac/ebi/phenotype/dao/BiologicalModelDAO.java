@@ -35,8 +35,9 @@ public interface BiologicalModelDAO extends HibernateDAO {
 
 	public void saveBiologicalSample(BiologicalSample sample);
 	public void saveLiveSample(LiveSample sample);
-	public void deleteAllLiveSamplesByDatasource(Datasource datasource);
-	public void deleteAllBiologicalSamplesByDatasource(Datasource datasource);
+	public int deleteAllLiveSamplesByDatasource(Datasource datasource);
+	public int  deleteAllLiveSamplesWithoutModelsByDatasource(Datasource datasource);
+	public int deleteAllBiologicalSamplesByDatasource(Datasource datasource);
 	
 	public List<BiologicalModel> getAllBiologicalModelsByDatasourceId(int databaseId);
 	public List<BiologicalModel> getAllBiologicalModelsByAccession(String accession);
@@ -45,7 +46,7 @@ public interface BiologicalModelDAO extends HibernateDAO {
 	
 	public void saveBiologicalModel(BiologicalModel model);
 	
-	public void deleteAllBiologicalModelsByDatasource(Datasource datasource);
+	public int deleteAllBiologicalModelsByDatasource(Datasource datasource);
 	
 	public List<LiveSample> getAllLiveSampleByOrganisationAndDatasource(Organisation organisation, Datasource datasource);
 }
