@@ -91,14 +91,34 @@
 
 	<bean id="organisationDAO" class="uk.ac.ebi.phenotype.dao.OrganisationDAOImpl">
 		<constructor-arg ref="sessionFactory" />
-	</bean>
-
+	</bean>	
+	
 	<bean id="categoricalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.CategoricalStatisticsDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 	
+	<bean id="categoricalChartAndTableProvider" class="uk.ac.ebi.phenotype.stats.categorical.CategoricalChartAndTableProvider">
+		<constructor-arg ref="categoricalStatisticsDAO" />
+	</bean>
+	
+	<bean id="unidimensionalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+	
+	<bean id="continousChartAndTableProvider" class="uk.ac.ebi.phenotype.stats.continuous.ContinousChartAndTableProvider">
+		<constructor-arg ref="unidimensionalStatisticsDAO" />
+	</bean>
+	
+	<bean id="timeSeriesStatisticsDAO" class="uk.ac.ebi.phenotype.dao.TimeSeriesStatisticsDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+	
+	<bean id="timeSeriesChartAndTableProvider" class="uk.ac.ebi.phenotype.stats.timeseries.TimeSeriesChartAndTableProvider">
+		<constructor-arg ref="timeSeriesStatisticsDAO" />
+	</bean>
+	
 	<bean id="geneBiomartDao" class="uk.ac.ebi.phenotype.dao.GeneBiomartDao">		
-		<constructor-arg name="solrBaseUrl" value="${solrUrl}" />
+		<constructor-arg name="solrBaseUrl" value="${internalSolrUrl}" />
 	</bean>
 
 	<!-- Spring annotated objects -->
@@ -136,6 +156,10 @@
 				<value>uk.ac.ebi.phenotype.pojo.CategoricalControlView</value>
 				<value>uk.ac.ebi.phenotype.pojo.CategoricalMutantView</value>
 				<value>uk.ac.ebi.phenotype.pojo.CategoricalResult</value>
+				<value>uk.ac.ebi.phenotype.pojo.UnidimensionalControlView</value>
+				<value>uk.ac.ebi.phenotype.pojo.UnidimensionalMutantView</value>
+				<value>uk.ac.ebi.phenotype.pojo.TimeSeriesControlView</value>
+				<value>uk.ac.ebi.phenotype.pojo.TimeSeriesMutantView</value>
 				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaImageRecord</value>
 				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaImageTag</value>
 				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaImageTagType</value>
@@ -193,9 +217,11 @@
 		</property>
 		<property name="sourceMap">
 			<map>
+				<entry key="baseUrl" value="${baseUrl}" />
 				<entry key="drupalBaseUrl" value="${drupalBaseUrl}" />
 				<entry key="imagesSolrUrl" value="${imagesSolrUrl}" />
 				<entry key="solrUrl" value="${solrUrl}" />
+				<entry key="internalSolrUrl" value="${internalSolrUrl}" />
 				<entry key="mediaBaseUrl" value="${mediaBaseUrl}" />
 			</map>
 		</property>
