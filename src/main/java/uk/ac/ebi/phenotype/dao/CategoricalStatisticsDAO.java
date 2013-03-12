@@ -15,12 +15,18 @@
  */
 package uk.ac.ebi.phenotype.dao;
 
+import java.sql.SQLException;
 import java.util.List;
+
+import org.hibernate.HibernateException;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
+import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.ParameterOption;
+import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
@@ -34,12 +40,26 @@ public interface CategoricalStatisticsDAO {
 	public BiologicalModel getControlBiologicalModelByPopulation(Integer populationId);
 	public BiologicalModel getMutantBiologicalModelByPopulation(Integer populationId);
 
+	public List<BiologicalModel> getBiologicalModelsByParameterAndGene(Parameter parameter, String accessionId);
+	
+	public List<BiologicalModel> getBiologicalModelsByParameter(Parameter parameter) ;
+
+	public Double getpValueByParameterAndBiologicalModelAndSexAndZygosity(Parameter parameter, BiologicalModel biologicalModel, SexType sex, ZygosityType zygosity);
+	public Double getMaxEffectSizeByParameterAndBiologicalModelAndSexAndZygosity(Parameter parameter, BiologicalModel biologicalModel, SexType sex, ZygosityType zygosity);
+	
 	public Organisation getOrganisationByPopulation(Integer populationId);
 	public List<Integer> getPopulationIdsByParameter(Parameter parameter);
+	public List<Integer> getPopulationIdsByParameterAndMutantBiologicalModel(Parameter parameter, BiologicalModel biologicalModel);
 
 	public void saveCategoricalResult(CategoricalResult result);
+	public void saveAnnotationAssociation(PhenotypeCallSummary pcs);
 
 	public SexType getSexByPopulation(Integer populationId);
-	public ZygosityType getZygosityByPopulation(Integer populationId);
+	public List<ZygosityType> getZygositiesByPopulation(Integer populationId);
+
+	public void deleteCategoricalResultByParameter(Parameter parameter) throws HibernateException, SQLException;
+
+	public Integer getPopulationIdByColonySexParameter(String colonyId, SexType sex, Parameter parameter);
+
 
 }
