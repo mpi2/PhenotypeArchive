@@ -25,6 +25,7 @@ package uk.ac.ebi.phenotype.dao;
 
 import java.util.List;
 
+import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.ParameterIncrement;
 import uk.ac.ebi.phenotype.pojo.ParameterOntologyAnnotation;
@@ -80,5 +81,12 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	public void saveParameterOption(ParameterOption parameterOption);
 	public void saveParameterIncrement(ParameterIncrement parameterIncrement);
 	public void saveParameterOntologyAnnotation(ParameterOntologyAnnotation parameterOntologyAnnotation);
+	
+	/**
+	 * Delete phenotype pipelines from a specific datasource;
+	 * Status: experimental
+	 * @param datasource
+	 */
+	public void deleteAllPipelinesByDatasource(Datasource datasource);
 	
 }
