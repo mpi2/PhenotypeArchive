@@ -390,8 +390,8 @@
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
             <filter class="solr.LowerCaseFilterFactory"/>
             <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
-            <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25" side="front"/>
-            <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25" side="back"/>
+            <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25" side="front"/>  
+            <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false" />         
         </analyzer>
         <analyzer type="query">
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
@@ -424,7 +424,11 @@
      <field name="allele_id" type="int" indexed="true" stored="true" multiValued="false" required="true" />
  </fields>
 
+ <!--<uniqueKey>id</uniqueKey>-->
+
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
- <solrQueryParser defaultOperator="AND"/>
+ <solrQueryParser defaultOperator="OR"/>
+ 
+
 
 </schema>
