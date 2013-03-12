@@ -32,6 +32,7 @@ public class PhenotypeRow {
 	private Allele allele;
 	private Set<String> sexes;
 	private ZygosityType zygosity;
+	private String rawZygosity;
 	private int projectId;
 	private String procedureId;
 	private String parameterId;
@@ -59,6 +60,20 @@ public class PhenotypeRow {
 	}
 	public void setZygosity(ZygosityType zygosityType) {
 		this.zygosity = zygosityType;
+	}
+		
+	/**
+	 * @return the rawZygosity
+	 */
+	public String getRawZygosity() {
+		return rawZygosity;
+	}
+	
+	/**
+	 * @param rawZygosity the rawZygosity to set
+	 */
+	public void setRawZygosity(String rawZygosity) {
+		this.rawZygosity = rawZygosity;
 	}
 	
 	/**
