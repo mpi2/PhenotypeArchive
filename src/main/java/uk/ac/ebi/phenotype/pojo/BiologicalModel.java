@@ -43,6 +43,17 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 @Table(name = "biological_model")
 public class BiologicalModel extends SourcedEntry {
 	
+	@Column(name = "id", insertable=false, updatable=false)
+	Integer id;
+	
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
 	@Column(name = "allelic_composition")
 	String allelicComposition;
 	
@@ -143,6 +154,17 @@ public class BiologicalModel extends SourcedEntry {
 			this.genomicFeatures = new LinkedList<GenomicFeature>();
 		}
 		this.genomicFeatures.add(genomicFeature);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "BiologicalModel [id="+id+ "allelicComposition=" + allelicComposition
+				+ ", geneticBackground=" + geneticBackground
+				+ ", biologicalSamples=" + biologicalSamples
+				+ ", genomicFeatures=" + genomicFeatures + "]";
 	}
 		
 }
