@@ -20,7 +20,7 @@ package uk.ac.ebi.phenotype.pojo;
  * A concrete representation of phenotype parameter option.
  * 
  * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
- * @version $Revision: 1376 $
+ * @version $Revision: 1861 $
  *  @since February 2012
  */
 
@@ -50,7 +50,20 @@ public class ParameterOption {
 	
 	@Column(name = "description")	
 	private String description;
-	
+
+	/**
+	 * @return the id
+	 */
+	public Integer getId() {
+		return id;
+	}
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
 	/**
 	 * 
 	 */
@@ -80,6 +93,14 @@ public class ParameterOption {
 	 */
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ParameterOption [id=" + id + ", name=" + name
+				+ ", description=" + description + "]";
 	}
 	
 	
