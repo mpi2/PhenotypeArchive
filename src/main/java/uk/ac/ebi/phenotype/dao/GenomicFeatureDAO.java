@@ -46,8 +46,10 @@ public interface GenomicFeatureDAO extends HibernateDAO {
 	
 	public GenomicFeature getGenomicFeatureBySymbol(String symbol);
 	
+	public GenomicFeature getGenomicFeatureBySymbolOrSynonym(String symbol);
+	
 	public int deleteAllGenomicFeatures();
-	public int batchInsertion(Collection<GenomicFeature> genomicFeatures);
+	public int batchInsertion(Collection<GenomicFeature> genomicFeatures, int batchSize);
 	
 	/**
 	 * Find a coordinate system by its name.
