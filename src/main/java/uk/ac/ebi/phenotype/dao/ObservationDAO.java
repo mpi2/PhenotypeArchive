@@ -63,4 +63,19 @@ public interface ObservationDAO {
 	public int deleteAllCategoricalObservationsByOrganisationAndDatasource(Organisation organisation, Datasource datasource);
 	public int deleteAllTimeSeriesObservationsByOrganisationAndDatasource(Organisation organisation, Datasource datasource);
 	public int deleteAllUnidimensionalObservationsByOrganisationAndDatasource(Organisation organisation, Datasource datasource);
+	public int deleteAllMetadataObservationsByOrganisationAndDatasource(Organisation organisation, Datasource datasource);
+	
+	public int deleteAllExperimentsByDatasource(Datasource datasource);
+	public int deleteAllCategoricalObservationsByDatasource(Datasource datasource);
+	public int deleteAllTimeSeriesObservationsByDatasource(Datasource datasource);
+	public int deleteAllUnidimensionalObservationsByDatasource(Datasource datasource);
+	public int deleteAllMetadataObservationsByDatasource(Datasource datasource);
+	
+	public int deleteAllCategoricalObservationsWithoutExperimentByDatasource(Datasource datasource);
+	public int deleteAllTimeSeriesObservationsWithoutExperimentByDatasource(Datasource datasource);
+	public int deleteAllUnidimensionalObservationsWithoutExperimentByDatasource(Datasource datasource);
+	public int deleteAllMetadataObservationsWithoutExperimentByDatasource(Datasource datasource);
+	
+	public int deleteAllExperimentsWithoutObservationByDatasource(Datasource datasource);
+	
 }
