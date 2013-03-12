@@ -1,23 +1,34 @@
-<%@tag description="Overall Page template" pageEncoding="UTF-8" import="java.util.Properties"%>
+<%@tag description="Overall Page template" pageEncoding="UTF-8" import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf.json.JSONArray"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <%
 	/*
 	This block sets the version number to be displayed in the footer
 	by reading it from the Implemtation-Version in the manifest.  That
-	gets set whenever the version number is incremented in the POM.
+	gets set by Maven whenever the app is deployed and the version number 
+	is the same as in the POM.  Overridden for DEV,BETA, and local (non-maven) 
+	deployments.
 	*/
 	Properties prop = new Properties();
 	prop.load(  application.getResourceAsStream("/META-INF/MANIFEST.MF"));
 	String version = prop.getProperty("Implementation-Version");
-	if (version == null) {
+	if (request.getRequestURL().toString().toLowerCase().contains("beta")) {
+		version = "<span class='label label-important'>BETA</span>";
+	}
+	if (request.getRequestURL().toString().toLowerCase().contains("dev") || version == null) {
 		version = "<span class='label label-important'>development</span>";
-		if (request.getRequestURL().toString().toLowerCase().contains("beta")) {
-			version = "<span class='label label-important'>BETA</span>";
-		}
 	}
 	jspContext.setAttribute("version", version);
+
+	/*
+	Get the menu JSON array from drupal, fallsback to a default menu when drupal
+	cannot be contacted
+	*/
+	DrupalHttpProxy proxy = new DrupalHttpProxy(request);
+	jspContext.setAttribute("menu", proxy.getDrupalMenu((String)request.getAttribute("drupalBaseUrl")));
+	
 %>
 <%@attribute name="header" fragment="true"%>
 <%@attribute name="footer" fragment="true"%>
@@ -44,7 +55,6 @@
 <title><jsp:invoke fragment="title"></jsp:invoke> | International Mouse Phenotyping Consortium</title>
 
 <link type='text/css' rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css' />
-<link type='text/css' rel='stylesheet' href='${baseUrl}/css/pheno.css'  />
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/searchAndFacet.css' />	
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap.min.css'  />
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap-responsive.min.css'  />
@@ -58,8 +68,8 @@ body {
 background-image: url('https://www.mousephenotype.org/sites/all/themes/impc_zen/images/bannerBG.jpg');
 background-repeat: repeat-x;
 }
-#menus {font-size:85%;}
-.navbar .nav  li  a {padding:5px 10px; color:#131313;}
+#menus {font-size:88%;}
+.navbar .nav  li  a {padding:5px 10px; font-size:13px; color:#555555;}
 
 /*
    changed base path for servlet to /.  Must serve images from the resource
@@ -136,92 +146,61 @@ try {
 </head>
 <body>
 	<div class="container" style="padding-top:0;">
-
 		<div class="navbar" style="margin:0; padding:0;text-transform:uppercase;font-weight:bold;">
-
-			<div class="navbar">
-				<div class="row">
-					<a href="/" id="logo" class="span2">
-					<img id="logoImage" src="${baseUrl}/img/logo.png" alt="International Mouse Phenotyping Consortium"/>
-					</a>
-					<ul id="menus" class="nav span10" role="navigation" style="padding-bottom:0;"><!-- generic page -->
-						<li><a tabindex="-1" href="/">Home</a></li>
-						<li class="dropdown">
-							<a id="drop1" data-target="#" href="/background" class="dropdown-toggle" data-toggle="dropdown">About IMPC<b class="caret"></b></a>
-							<ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
-								<li><a href="/background">About IMPC</a></li>
-								<li><a href="/background/impc-goals">IMPC Goals</a></li>
-								<li class="dropdown-submenu">
-									<a href="/impc-steering-committee" data-target="#" tabindex="-1">Members</a>
-									<ul class="dropdown-menu">
-										<li><a href="/members/impc-global-and-still-expanding-research-initiative">Locations</a></li>
-									</ul>
-								</li>
-								<li><a href="/impc-secretariat">Secretariat</a></li>
-								<li class="dropdown-submenu">
-									<a href="/impc-work-groups" data-target="#">Working Groups</a>
-									<ul class="dropdown-menu">
-										<li><a href="/workgroups/impc-it-work-group">IT Work Group</a></li>
-										<li><a href="/workgroups/impc-phenotyping-work-group">Phenotyping Work Group</a></li>
-										<li><a href="/impc-industry-liaison-work-group">Industry Work Group</a></li>
-									</ul>
-								</li>
-								<li><a tabindex="-1" href="/links">Links</a></li>
-							</ul>
-						</li>
-						<li class="dropdown"><a href="${baseUrl}/search" role="button">Search Genes and Protocols</a></li>
-
-						<li class="dropdown">
-							<a href="/news" data-target="#" id="drop2" role="button" class="dropdown-toggle" data-toggle="dropdown">News and Events<b class="caret"></b></a>
-							<ul class="dropdown-menu" role="menu" aria-labelledby="drop2">
-								<li><a href="/news">News and Events</a></li>
-								<li><a href="/telephone-calendar/month">Teleconference and Events Calandar</a></li>
-							</ul>
-						</li>
-						<li class="dropdown"><a href="/contact/Beta%20Website%20Feedback" role="button" data-target="#" id="drop2" class="dropdown-toggle" data-toggle="dropdown">Send Us Feedback</a>
-							<ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-								<li><a href="/contact/Beta%20Website%20Feedback">Send Us Feedback</a></li>
-								<li><a href="/send-us-feedback/newsletters">Teleconference and Events Calandar</a></li>
-							</ul>
-						</li>
-
-						<li class="dropdown">
-							<a data-target="#" id="drop3" role="button" class="dropdown-toggle" data-toggle="dropdown">My IMPC<b class="caret"></b></a>
-							<ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-								<li><a href="/user/login">Login</a></li>
-								<li><a href="http://mousephenotype.org/imits">Access IMITS</a></li>
-								<li><a href="/user/register">Register</a></li>
-							</ul>
-						</li>
-					</ul>
-
-					<span id="searchBlock" class="row nav input-append span6">
-						
-						<div style="width:100%">
-						<input id="userInput" type="text" value='${queryStringPlaceholder}' />
-						<button id="acSearch" type="submit" class="btn"><i class="icon-search"></i> Search</button>
-						</div>
-						<div id="bannerSearch"></div>
-						<a href="#examples" data-toggle="modal" id="examplesearches" class="pull-right" >View example searches</a>
-						<p class="ikmcbreadcrumb">
+			<div class="row">
+				<a href="${drupalBaseUrl}/" id="logo" class="span2"><img id="logoImage" src="${baseUrl}/img/IMPC<c:if test='${not fn:contains(drupalBaseUrl,"www")}'>Beta</c:if>logo.png" alt="International Mouse Phenotyping Consortium"/></a>
+				<ul id="menus" class="nav span10">
+					<c:forEach var="menuitem" items="${menu}" varStatus="loop">
+					<c:if test="${menuitem.below != null}">
+					<li class="dropdown">
+						<a id="drop${loop.count}" data-target="#" class="dropdown-toggle" data-toggle="dropdown" href="${drupalBaseUrl}/${menuitem.href}">${menuitem.title} <b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li><a class="dropdown-submenu" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li>
+							<c:forEach var="submenuitem" items="${menuitem.below}">
+							<c:if test="${submenuitem.below != null}">
+							<li class="dropdown-submenu">
+								<a data-target="#" href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${submenuitem.href}">${submenuitem.title}</a>
+								<ul class="dropdown-menu">
+								<c:forEach var="subsubmenuitem" items="${submenuitem.below}">
+									<li><a href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${subsubmenuitem.href}">${subsubmenuitem.title}</a></li>
+								</c:forEach>
+								</ul>
+							</li>
+							</c:if>
+							<c:if test="${submenuitem.below == null}">
+							<li><a href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${submenuitem.href}">${submenuitem.title}</a></li>
+							</c:if>
+							</c:forEach>
+						</ul>
+					</li>
+					</c:if>
+					<c:if test="${menuitem.below == null}">
+					<li><a href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${fn:replace(menuitem.href,'<front>','')}">${menuitem.title}</a></li>
+					</c:if>
+					</c:forEach>
+				</ul>
+				<span id="searchBlock" class="row nav input-append span6">
+					<input id="userInput" type="text" />
+					<button id="acSearch" type="submit" class="btn"><i class="icon-search"></i> Search</button>
+					<div id="bannerSearch"></div>
+					<a href="#examples" data-toggle="modal" id="examplesearches" class="pull-right" >View example searches</a>
+					<p class="ikmcbreadcrumb">
 						<a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invoke fragment="breadcrumb" /><%-- breadcrumbs here --%>
-						</p>
- 					</span>
-				</div>
+					</p>
+				</span>
 			</div>
-
 		</div>
-
+	
 		<div class="container">
 		<jsp:doBody />
 		</div>
-
+	
 		<div id="examples" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 				<h3>Example Searches</h3>
 			</div>
-
+	
 			<div class="modal-body">
 				<p>Sample queries for several fields are shown. Click the desired query to execute any of the samples. 
 				<span class="text-success">Note that queries are focused on Relationships, leaving modifier terms to be applied as filters.</span></p>
@@ -245,7 +224,7 @@ try {
 				</div>
 			</div>
 		</div>
-
+	
 		<div class="row-fluid" id='logoFooter'>
 			<div class="span12 centered-text">
 				<img alt="" class="footerLogos"
@@ -253,10 +232,10 @@ try {
 					style="width: 1222px; height: 50px;">
 				<jsp:invoke fragment="footer" />
 				<small class="muted">
-				Version: <c:out value="${version}" escapeXml="false"/> • <a href="${baseUrl}/NOTICE.txt">License</a> • <a href="${baseUrl}/CHANGES.txt">Changelog</a>  
+				Version: <c:out value="${version}" escapeXml="false"/> • <a href="http://raw.github.com/mpi2/PhenotypeArchive/master/LICENSE">License</a> • <a href="http://raw.github.com/mpi2/PhenotypeArchive/master/CHANGES">Changelog</a>  
 				</small>
 			</div>
-
+	
 		</div>
 	</div><!-- /container -->
 
@@ -280,7 +259,6 @@ try {
 	$(document).ready(function() {
 		// wire up the example queries
    		$("a.example").click(function(){
-			//$('input#userInput').attr("value",$(this).text());
 			$('#examples').modal('hide');
 			document.location.href = $(this).attr('href');
 			document.location.reload();
@@ -288,22 +266,6 @@ try {
 
 		// Message to IE users
 		$.fn.ieCheck();
-
-		// Display the logout and phenoDCC menu items if appropriate
-		$.ajax({
-		  	type: "GET",
-		  	cache: false,
-		 	dataType: 'html',		  	
-		 	url: "${drupalBaseUrl}/menudisplay",
-		 	success: function(data) {				
-		   		var items = [];
-		    	if (data.indexOf("Logout") !=-1) {
-					items.push('<li class="dropdown"><a href="/user/logout?current=menudisplay" role="button">Logout</a></li>');
-		            items.push('<li class="dropdown"><a href="/phenodcc" role="button">PhenoDCC</a></li>');				 
-				 	$('#menus').append(items);
-		    	}		    	 
-		  	}
-		});
 	});	
 	</script>
 </body>
