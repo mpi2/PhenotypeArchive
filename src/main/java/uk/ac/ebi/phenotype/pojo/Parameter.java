@@ -39,11 +39,15 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 @Entity
 @Table(name = "phenotype_parameter")
@@ -96,6 +100,7 @@ public class Parameter extends PipelineEntry {
 	private Procedure procedure;
 
 	@OneToMany(cascade = CascadeType.ALL)
+	@Fetch(FetchMode.SELECT)
 	@JoinTable(
 			name="phenotype_parameter_lnk_option",
 			joinColumns = @JoinColumn( name="parameter_id"),
@@ -386,28 +391,50 @@ public class Parameter extends PipelineEntry {
 	}
 
 	/**
-	 * Check what unit is stored for this parameter
-	 * Needs revision
+	 * Check what units are stored for each of this parameter
+	 * dimension.
 	 * @return a string representing a unit
 	 */
-	public String checkParameterUnit() {
-		String unit = null;
+	
+	/**
+	 * Check what units are stored for each of this parameter dimension.
+	 * @return an array of units, dimension by dimension
+	 */
+	public String[] checkParameterUnits() {
+		
+		String[] units = null;
+		
 		if (isIncrementFlag()) {
-			List<ParameterIncrement> increments = getIncrement();
-			
+			units = new String[2];
 			for (ParameterIncrement increment: increments) {
 				// one is not enough
 				if (increment.getValue().length() > 0 || increments.size() == 1) {
-					unit = increment.getUnit();
+					units[0] = increment.getUnit();
 					break;
 				}
 			}
+			units[1] = unit;
+			
+		} else {
+			units = new String[1];
+			units[0] = unit;
 		}
-		return unit;
+		
+		return units;
 	}
-
-
-
-
+	
+	/**
+	 * Check what unit is stored for this parameter for this dimension (1,2, etc.)
+	 * @param dimension the parameter dimension (starting from 1)
+	 * @return the data dimension unit
+	 */
+	public String checkParameterUnit(int dimension) {
+		String cunit = null;
+		String[] units = checkParameterUnits();
+		if (dimension <= units.length) {
+			return units[dimension-1];
+		}
+		return cunit;
+	}
 
 }
