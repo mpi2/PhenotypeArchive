@@ -91,6 +91,9 @@ public class CategoricalResult implements Serializable {
 	@Column(name = "p_value")
 	private double pValue;
 
+	@Column(name = "max_effect")
+	private double maxEffect;
+
 	/**
 	 * @return the controlBiologicalModel
 	 */
@@ -256,6 +259,20 @@ public class CategoricalResult implements Serializable {
 		this.pValue = pValue2;
 	}
 
+	/**
+	 * @return the maxEffect
+	 */
+	public double getMaxEffect() {
+		return maxEffect;
+	}
+
+	/**
+	 * @param maxEffect the maxEffect to set
+	 */
+	public void setMaxEffect(double maxEffect) {
+		this.maxEffect = maxEffect;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -285,9 +302,12 @@ public class CategoricalResult implements Serializable {
 				* result
 				+ ((experimentalZygosity == null) ? 0 : experimentalZygosity
 						.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(maxEffect);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result
 				+ ((organisation == null) ? 0 : organisation.hashCode());
-		long temp;
 		temp = Double.doubleToLongBits(pValue);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result
@@ -336,6 +356,14 @@ public class CategoricalResult implements Serializable {
 			return false;
 		if (experimentalZygosity != other.experimentalZygosity)
 			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (Double.doubleToLongBits(maxEffect) != Double
+				.doubleToLongBits(other.maxEffect))
+			return false;
 		if (organisation == null) {
 			if (other.organisation != null)
 				return false;
@@ -351,6 +379,5 @@ public class CategoricalResult implements Serializable {
 			return false;
 		return true;
 	}
-
 	
 }
