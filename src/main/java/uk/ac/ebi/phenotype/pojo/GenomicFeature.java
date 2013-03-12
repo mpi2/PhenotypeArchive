@@ -40,6 +40,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -51,26 +52,26 @@ public class GenomicFeature {
 
 	@EmbeddedId
 	@AttributeOverrides({
-	@AttributeOverride(name="accession", 
-					   column=@Column(name="acc")),
-	@AttributeOverride(name="databaseId", 
-	   column=@Column(name="db_id"))
+		@AttributeOverride(name="accession", 
+				column=@Column(name="acc")),
+				@AttributeOverride(name="databaseId", 
+				column=@Column(name="db_id"))
 	})
 	DatasourceEntityId id;
-	
+
 	@Column(name = "symbol")
 	private String symbol;
-	
+
 	@Column(name = "name")
 	private String name;
-	
+
 	// element collections are merged/removed with their parents
-		@ElementCollection(fetch=FetchType.EAGER)//JW made eager for the indexing of images and rest service - will this cause problems elsewhere?
-		@Fetch(value = FetchMode.SELECT)   
-		@CollectionTable(name="synonym", 
-		   					joinColumns= {@JoinColumn(name="acc"),@JoinColumn(name="db_id"),}
-		   )
-		private List<Synonym> synonyms;
+	@ElementCollection(fetch=FetchType.EAGER)//JW made eager for the indexing of images and rest service - will this cause problems elsewhere?
+	@Fetch(value = FetchMode.SELECT)   
+	@CollectionTable(name="synonym", 
+	joinColumns= {@JoinColumn(name="acc"),@JoinColumn(name="db_id")}
+			)
+	private List<Synonym> synonyms;
 
 	/*@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER)
 	@JoinTable(name="synonym",
@@ -79,42 +80,50 @@ public class GenomicFeature {
 	)
 	private Set<Synonym> synonyms;*/
 
-	
+	@ElementCollection(fetch=FetchType.EAGER)//JW made eager for the indexing of images and rest service - will this cause problems elsewhere?
+	@Fetch(value = FetchMode.SELECT)   
+	@CollectionTable(name="xref", 
+	joinColumns= {@JoinColumn(name="acc"),@JoinColumn(name="db_id")})
+	@AttributeOverrides({
+		@AttributeOverride(name="xrefAccession", column=@Column(name="xref_acc")),
+		@AttributeOverride(name="xrefDatabaseId", column=@Column(name="xref_db_id"))})
+	private List<Xref> xrefs;
+
 	@OneToOne
 	@JoinColumns({
-	@JoinColumn(name = "biotype_acc"),
-	@JoinColumn(name = "biotype_db_id"),
+		@JoinColumn(name = "biotype_acc"),
+		@JoinColumn(name = "biotype_db_id"),
 	})
 	private OntologyTerm biotype;
-	
+
 	@OneToOne
 	@JoinColumns({
-	@JoinColumn(name = "subtype_acc"),
-	@JoinColumn(name = "subtype_db_id"),
+		@JoinColumn(name = "subtype_acc"),
+		@JoinColumn(name = "subtype_db_id"),
 	})
 	private OntologyTerm subtype;
-	
+
 	@JsonIgnore
 	@OneToOne(optional = true, fetch = FetchType.LAZY)
 	@JoinColumn(name = "seq_region_id")
 	private SequenceRegion sequenceRegion;
-	
+
 	@Column(name = "seq_region_start")
 	private int start;
-	
+
 	@Column(name = "seq_region_end")
 	private int end;
-	
+
 	@Column(name = "seq_region_strand")
 	private int strand;
-	
+
 	@Column(name = "cm_position")
 	private String cMposition;
-	
+
 	public GenomicFeature() {
 		super();
 	}
-	
+
 
 	/**
 	 * @return the id
@@ -186,6 +195,28 @@ public class GenomicFeature {
 		this.synonyms.add(synonym);
 	}
 	
+	/**
+	 * @return the xrefs
+	 */
+	public List<Xref> getXrefs() {
+		return xrefs;
+	}
+
+
+	/**
+	 * @param xrefs the xrefs to set
+	 */
+	public void setXrefs(List<Xref> xrefs) {
+		this.xrefs = xrefs;
+	}
+
+
+	public void addXref(Xref xref) {
+		if (xrefs == null) {
+			xrefs = new LinkedList<Xref>();
+		}
+		this.xrefs.add(xref);
+	}
 	
 	/**
 	 * @return the biotype
@@ -301,10 +332,9 @@ public class GenomicFeature {
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder("Accession:" + id.getAccession() + " Symbol:" + symbol + " Name: " + name + "\n");
-		for (Synonym s: synonyms) {
-			builder.append("\t" + s.getSymbol() + "\n");
-		}
+		builder.append(StringUtils.join(synonyms, ","));
+		builder.append("\n");
 		return builder.toString();
 	}
-	
+
 }
