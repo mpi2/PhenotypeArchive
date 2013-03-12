@@ -64,6 +64,6 @@
 	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/autocompleteWidget.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/sideBarFacetWidget.js'></script>  
 	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>
-	<script type='text/javascript' src='${baseUrl}/js/css3-mediaqueries.js'></script>
+	<script type='text/javascript' src='${baseUrl}/js/vendor/respond.min.js'></script>
 </body>
 </html>
