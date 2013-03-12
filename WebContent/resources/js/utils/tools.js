@@ -113,8 +113,17 @@
 	    			//console.log('3');
 	    		}
 	    		else {
-	    			str1 = hashParams.fq.replace('marker_type_str:','').replace(/"/g, '');
-	    			str2 = $('div.gridSubTitle').text().replace('Subtype: ', '');
+	    			var fq, label;	    			
+	    			if ( hashParams.fq.indexOf('status:') == 0 ){
+	    				fq = 'status:';
+	    				label = 'Status: ';
+	    			}
+	    			else {
+	    				fq = 'marker_type:';
+	    				label = 'Marker type: ';
+	    			}
+	    			str1 = hashParams.fq.replace(fq,'').replace(/"/g, '');
+	    			str2 = $('div.gridSubTitle').text().replace(label, '');	    		
 	    		}
 	    	}
 	    	else if ( coreName == 'mp' ){
@@ -204,7 +213,8 @@
     				|| aKV[i].match(/fq=expName.+|fq=higherLevel.+|fq=subtype.+/) 
     				|| aKV[i].match(/fq=ontology_subset:\* AND top_level_mp_term.+/)
     				|| aKV[i].match(/fq=ontology_subset:.+/)
-    				|| aKV[i].match(/marker_type_str.+/)
+    				|| aKV[i].match(/marker_type.+/)
+    				|| aKV[i].match(/status.+/)
     				|| aKV[i].match(/pipeline_stable_id.+/)
     				|| aKV[i].match(/procedure_stable_id.+/)
     				){
@@ -234,28 +244,8 @@
     		"bProcessing": true,
     		"bServerSide": true,	    		
     		//"sDom": "<'row-fluid'<'span6'><'span6'>>t<'row-fluid'<'span6'i><'span6'p>>",
-    		"sDom": "<'row-fluid'<'#exportSpinner'><'#tableTool'>r>t<'row-fluid'<'span6'i><'span6'p>>",
-    		/*"oTableTools": {
-    			"sSwfPath": "/phenotype-archive/js/vendor/DataTables-1.9.4/extras/TableTools/media/swf/copy_csv_xls_pdf.swf",
-    			"aButtons": [
-    				"copy",    				
-    				//"print",
-    				{
-    					"sExtends":    "collection",    				
-    					"sButtonText": 'Save <span class="caret" />',
-    					"aButtons":    [ "csv", "xls", "pdf" ]
-    				}
-    			]
-    		},*/
-			"sPaginationType": "bootstrap",
-    		"fnServerParams": function ( aoData ) {
-    			aoData.push(	    			 
-    			    {"name": "solrParams",
-    				 //"value": oInfos.params// + oInfos.facetParams
-    				 "value": JSON.stringify(oInfos, null, 2)// + oInfos.facetParams
-    				}	    
-    			)		
-    		},
+    		"sDom": "<'row-fluid'<'#exportSpinner'><'#tableTool'>r>t<'row-fluid'<'span6'i><'span6'p>>",    		
+			"sPaginationType": "bootstrap",    		
     		"fnDrawCallback": function( oSettings ) {  // when dataTable is loaded
     			
     			// ie fix, as this style in CSS is not working for IE8 
@@ -294,7 +284,41 @@
     			
     			initDataTableDumpControl(oInfos);
     		},
-    		"sAjaxSource": oInfos.dataTablePath
+    		"sAjaxSource": oInfos.dataTablePath,    		
+    		"fnServerParams": function ( aoData ) {
+    			aoData.push(	    			 
+    			    {"name": "solrParams",
+    				 //"value": oInfos.params// + oInfos.facetParams
+    				 "value": JSON.stringify(oInfos, null, 2)
+    				}	    
+    			)		
+    		}
+    		/*"fnServerData": function ( sSource, aoData, fnCallback, oSettings) {
+    			// Add some extra data to the sender     			
+    			aoData.push(	    			 
+        			    {"name": "solrParams",
+        				 //"value": oInfos.params// + oInfos.facetParams
+        				 "value": JSON.stringify(oInfos, null, 2)
+        				}	    
+        		);	
+    			oSettings.jqXHR = $.ajax( {
+    	               // "url": "http://ves-ebi-d0.ebi.ac.uk:8080/phenotype-archive-dev/dataTable",
+    	                "data": aoData,
+    	                "success": fnCallback,
+    	                "success": function(json){
+    	                	fnCallback(json);
+    	                },
+    	                "dataType": "jsonp",
+    	                "cache": false
+    			} );
+    			    			
+    			$.getJSON( sSource, aoData, function (json) { 
+    				//Do whatever additional processing you want on the callback, then tell DataTables 
+    				console.log('CHK');
+    				fnCallback(json);
+    			} );
+    			
+    		}  */		
     	});     	    
     	
     	/*var oTableTools = new TableTools( oDtable, {
@@ -372,13 +396,9 @@
 		if (dumpMode == 'all'){ 
 			var paramStr = conf['params'] + "&start=" + conf['rowStart'] + "&rows=0";    			
 			var url1;
-			if ( conf['solrCoreName'] == 'gene' ){	    				
-				url1 = MPI2.searchAndFacetConfig.solrBaseURL_ebi + "gene/search?";
-			}
-			else {
-				url1 = MPI2.searchAndFacetConfig.solrBaseURL_ebi + conf['solrCoreName'] + "/select?";
-				paramStr += "&wt=json";
-			}
+			
+			url1 = MPI2.searchAndFacetConfig.solrBaseURL_ebi + conf['solrCoreName'] + "/select?";
+			paramStr += "&wt=json";			
 			    		
 			$.ajax({            	    
     			url: url1,
