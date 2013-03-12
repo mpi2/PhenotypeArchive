@@ -42,23 +42,24 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.view.RedirectView;
 
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
+import uk.ac.ebi.phenotype.dao.DatasourceDAO;
 import uk.ac.ebi.phenotype.dao.GeneDao;
 import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
+import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
+import uk.ac.ebi.phenotype.pojo.Xref;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
@@ -70,6 +71,9 @@ public class GenesController implements BeanFactoryAware {
 	private BeanFactory bf;
 
 	RegisterInterestDrupalSolr registerInterest;
+
+	@Autowired
+	private DatasourceDAO datasourceDao;
 	
 	@Autowired
 	private GeneDao geneBiomart;
@@ -98,6 +102,11 @@ public class GenesController implements BeanFactoryAware {
 			Model model,
 			HttpServletRequest request,
 			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException {
+
+		Datasource ensembl = datasourceDao.getDatasourceByShortName("Ensembl");
+		Datasource vega = datasourceDao.getDatasourceByShortName("VEGA");
+		Datasource ncbi = datasourceDao.getDatasourceByShortName("EntrezGene");
+		Datasource ccds = datasourceDao.getDatasourceByShortName("cCDS");
 
 		// Get the global application configuration
 		@SuppressWarnings("unchecked")
@@ -144,12 +153,18 @@ public class GenesController implements BeanFactoryAware {
 			pr.setAllele(pcs.getAllele());
 			pr.setSexes(sex);
 			pr.setPhenotypeTerm(pcs.getPhenotypeTerm());
+			// zygosity representation depends on source of information
+			String rawZygosity = (pcs.getDatasource().getShortName().equals("EuroPhenome")) ? 
+					// this should be the fix but EuroPhenome is buggy
+					//Utilities.getZygosity(pcs.getZygosity()) : pcs.getZygosity().toString();
+					"All" : pcs.getZygosity().toString();
+			pr.setRawZygosity(rawZygosity);
 			pr.setZygosity(pcs.getZygosity());
 			pr.setProjectId(pcs.getExternalId());
 			pr.setProcedureId(pcs.getProcedure().getStableId());
 			String parameterId = pcs.getParameter().getStableId();
-			pr.setParameterId(parameterId.substring(0, parameterId.length()-4));
-
+			//pr.setParameterId(parameterId.substring(0, parameterId.length()-4));
+			pr.setParameterId(parameterId);
 			if(phenotypes.containsKey(pr)) {
 				pr = phenotypes.get(pr);
 				pr.getSexes().add(pcs.getSex().toString());
@@ -201,7 +216,30 @@ public class GenesController implements BeanFactoryAware {
 		} catch (IOException e) {
 			log.debug(e.getLocalizedMessage());
 		}
-			
+
+		List<String> ensemblIds = new ArrayList<String>();
+		List<String> vegaIds = new ArrayList<String>();
+		List<String> ncbiIds = new ArrayList<String>();
+		List<String> ccdsIds = new ArrayList<String>();
+
+		List<Xref> xrefs = gene.getXrefs();
+		for(Xref xref:xrefs) {
+			if (xref.getXrefDatabaseId() == ensembl.getId()) {
+				ensemblIds.add(xref.getXrefAccession());
+			} else if (xref.getXrefDatabaseId() == vega.getId()) {
+				vegaIds.add(xref.getXrefAccession());
+			} else if (xref.getXrefDatabaseId() == ncbi.getId()) {
+				ncbiIds.add(xref.getXrefAccession());
+			} else if (xref.getXrefDatabaseId() == ccds.getId()) {
+				ccdsIds.add(xref.getXrefAccession());
+			}
+		}
+
+		model.addAttribute("ensemblIds", ensemblIds);
+		model.addAttribute("vegaIds", vegaIds);
+		model.addAttribute("ncbiIds", ncbiIds);
+		model.addAttribute("ccdsIds", ccdsIds);
+
 		// ES Cell and IKMC Allele check (Gautier)
 		
 		String solrCoreName = "allele";
