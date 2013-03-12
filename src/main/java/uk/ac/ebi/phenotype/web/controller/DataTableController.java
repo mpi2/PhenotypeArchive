@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
@@ -26,12 +27,15 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import uk.ac.ebi.generic.util.SolrIndex;
 
@@ -78,14 +82,13 @@ public class DataTableController implements BeanFactoryAware {
 	 */
 
 	@RequestMapping(value = "/dataTable", method = RequestMethod.GET)
-	public @ResponseBody
-	String dataTableJson(
+	public ResponseEntity<String> dataTableJson(
 			@RequestParam(value = "iDisplayStart", required = false) int iDisplayStart,
 			@RequestParam(value = "iDisplayLength", required = false) int iDisplayLength,
 			@RequestParam(value = "solrParams", required = false) String solrParams,
-			HttpServletRequest request, Model model) {
-
-		log.debug("CHK: " + solrParams);
+			HttpServletRequest request,HttpServletResponse response, Model model) {
+		
+		log.debug("controller CHK: " + solrParams);
 
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(solrParams);
 		log.debug("solr: " + jParams.getString("params"));
@@ -108,7 +111,9 @@ public class DataTableController implements BeanFactoryAware {
 				config);
 		String jsonStr = solrIndex.fetchDataTableJson(contextPath);
 
-		return jsonStr;
+		HttpHeaders responseHeaders = new HttpHeaders();
+		responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+		return new ResponseEntity<String>(jsonStr, responseHeaders, HttpStatus.CREATED);
 	}
 
 	@Override
