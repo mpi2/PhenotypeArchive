@@ -100,6 +100,85 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 	}
 	
 	@Transactional(readOnly = false)
+	public int deleteAllMetadataObservationsByOrganisationAndDatasource(Organisation organisation, Datasource datasource) {
+		Query query = getCurrentSession().getNamedQuery("deleteAllMetadataObservationsByOrganisationAndDatasource")
+				.setInteger("organisationID", organisation.getId())
+				.setInteger("dbID", datasource.getId());
+		return query.executeUpdate();
+	}
+	
+	@Transactional(readOnly = false)
+	public int deleteAllExperimentsByDatasource(Datasource datasource) {
+		Query query = getCurrentSession().getNamedQuery("deleteExperimentByDatasource")
+				.setInteger("dbID", datasource.getId());
+		return query.executeUpdate();
+	}
+
+	@Transactional(readOnly = false)
+	public int deleteAllExperimentsWithoutObservationByDatasource(Datasource datasource) {
+		Query query = getCurrentSession().getNamedQuery("deleteAllExperimentWithoutObservationByDatasource")
+				.setInteger("dbID", datasource.getId());
+		return query.executeUpdate();
+	}
+	
+	
+	@Transactional(readOnly = false)
+	public int deleteAllTimeSeriesObservationsByDatasource(Datasource datasource) {
+		Query query = getCurrentSession().getNamedQuery("deleteAllTimeSeriesObservationsByDatasource")
+				.setInteger("dbID", datasource.getId());
+		return query.executeUpdate();
+	}
+	
+	@Transactional(readOnly = false)
+	public int deleteAllCategoricalObservationsByDatasource(Datasource datasource) {
+		Query query = getCurrentSession().getNamedQuery("deleteAllCategoricalObservationsByDatasource")
+				.setInteger("dbID", datasource.getId());
+		return query.executeUpdate();
+	}
+	
+	@Transactional(readOnly = false)
+	public int deleteAllUnidimensionalObservationsByDatasource(Datasource datasource) {
+		Query query = getCurrentSession().getNamedQuery("deleteAllUnidimensionalObservationsByDatasource")
+				.setInteger("dbID", datasource.getId());
+		return query.executeUpdate();
+	}
+	
+	@Transactional(readOnly = false)
+	public int deleteAllMetadataObservationsByDatasource(Datasource datasource) {
+		Query query = getCurrentSession().getNamedQuery("deleteAllMetadataObservationsByDatasource")
+				.setInteger("dbID", datasource.getId());
+		return query.executeUpdate();
+	}
+	
+	@Transactional(readOnly = false)
+	public int deleteAllMetadataObservationsWithoutExperimentByDatasource(Datasource datasource) {
+		Query query = getCurrentSession().getNamedQuery("deleteAllMetadataObservationsWithoutExperimentByDatasource")
+				.setInteger("dbID", datasource.getId());
+		return query.executeUpdate();
+	}
+	
+	@Transactional(readOnly = false)
+	public int deleteAllTimeSeriesObservationsWithoutExperimentByDatasource(Datasource datasource) {
+		Query query = getCurrentSession().getNamedQuery("deleteAllTimeSeriesObservationsWithoutExperimentByDatasource")
+				.setInteger("dbID", datasource.getId());
+		return query.executeUpdate();
+	}
+	
+	@Transactional(readOnly = false)
+	public int deleteAllCategoricalObservationsWithoutExperimentByDatasource(Datasource datasource) {
+		Query query = getCurrentSession().getNamedQuery("deleteAllCategoricalObservationsWithoutExperimentByDatasource")
+				.setInteger("dbID", datasource.getId());
+		return query.executeUpdate();
+	}
+	
+	@Transactional(readOnly = false)
+	public int deleteAllUnidimensionalObservationsWithoutExperimentByDatasource(Datasource datasource) {
+		Query query = getCurrentSession().getNamedQuery("deleteAllUnidimensionalObservationsWithoutExperimentByDatasource")
+				.setInteger("dbID", datasource.getId());
+		return query.executeUpdate();
+	}
+		
+	@Transactional(readOnly = false)
 	public void saveObservation(Observation observation) {
 		getCurrentSession().saveOrUpdate(observation);
 		
