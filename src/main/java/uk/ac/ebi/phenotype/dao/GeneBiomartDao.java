@@ -48,7 +48,8 @@ public class GeneBiomartDao implements GeneDao{
 			System.err
 					.println("Error, Only expecting 1 document from an accession/gene request");
 		}
-		String geneStatus = SolrGeneResponseUtil.deriveGeneStatus(docs.getJSONObject(0));
+		//String geneStatus = SolrGeneResponseUtil.deriveGeneStatus(docs.getJSONObject(0));
+		String geneStatus=docs.getJSONObject(0).getString("status");
 		log.debug("gene status=" + geneStatus);
 		return geneStatus;
 	}
@@ -92,8 +93,8 @@ public class GeneBiomartDao implements GeneDao{
 	 * @return
 	 */
 	private String composeSolrUrlForSingleGene(String accession) {
-		String url = this.solrBaseUrl + "/" + "gene" + "/search?"
-				+ "q=mgi_accession_id:" + accession;
+		String url = this.solrBaseUrl + "/" + "gene" + "/select?"
+				+ "q=mgi_accession_id:" + accession.replace(":", "\\:")+"&wt=json";
 		// url should be something like this
 		// http://dev.mousephenotype.org/bytemark/solr/gene/search?q=mgi_accession_id:MGI:2441870
 		System.out.println("url for geneDao=" + url);
