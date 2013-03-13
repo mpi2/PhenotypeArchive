@@ -72,6 +72,26 @@ public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements Phe
 		}
 		return summaries;
 	}	
+	
+	
+	
+	@Transactional(readOnly = true)
+	@SuppressWarnings("unchecked")
+	public List<PhenotypeCallSummary> getPhenotypeCallByAccession(String accId) {
+		List<PhenotypeCallSummary> results = getCurrentSession().createQuery("from PhenotypeCallSummary as pheno where pheno.gene.id.accession = ?")
+				.setString(0, accId)
+				.list();
+		
+		// Filter out those results that don't have MP terms associated
+		List<PhenotypeCallSummary> summaries = new ArrayList<PhenotypeCallSummary>();
+		for(PhenotypeCallSummary p : results) {
+			if (p.getPhenotypeTerm() != null) {				
+				summaries.add(p);
+			}
+		}
+		return summaries;
+	}	
+	
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<PhenotypeCallSummary> getPhenotypeCallByMPAccession(String accId, int dbId) {
