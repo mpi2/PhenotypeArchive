@@ -42,9 +42,12 @@ public interface PhenotypeCallSummaryDAO {
 	/**
 	 * Find all phenotype call summaries by accession id
 	 * @param accId the accession ID associated to the call
+	 * @param dbId designates the type of gene id e.g. MGI
 	 * @return a list of matching phenotype calls
 	 */
 	public List<PhenotypeCallSummary> getPhenotypeCallByAccession(String accId, int dbId);
+	
+	public List<PhenotypeCallSummary> getPhenotypeCallByAccession(String accId);
 
 	/**
 	 * Find all phenotype call summaries by MP accession id and external_db_id
