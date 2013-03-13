@@ -15,6 +15,40 @@ Getting Started
 ---------------
 You need a Java 1.6 VM or later installed and a servlet container.
 
+================== Release 0.1.6 ==================
+
+Status
+------
+07 March 2013 release.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  MGI marker cross-references served from back-end
+ 2.  SOLR urls in js and jsp configured in Maven 
+ 3.  Procedure parameter units retrieved dimension by dimension
+ 4.  Categorical data charts implemented (bar plots)
+ 5.  Unidimensional data charts implemented (box plots, scatter plots)
+ 6.  Time-series data graphs implemented (first pass)
+ 7.  Mean and standard deviation for continuous data computed on the fly
+ 8.  IMPC gene status facet implemented and visible on search interface
+ 
+Bug fixes
+ 1.  IKMC allele picture displayed correctly in Internet Explorer
+ 2.  Fix link to Europhenome for zygosity on gene page
+ 
+Other Changes
+ 1.  IKMC js code updated from mpi2 GitHub repository 
+ 2.  SOLR: gene and allele core created with DataImportHandler
+ 3.  SOLR: select method used across all facets
+ 4.  SOLR: gene status incorporated in gene core
+
+Known bugs
+ 1.  Auto-suggest box can remain empty
+ 2.  Auto-suggest box does not link to correct phenotype page
+ 3.  Display of facets and breadcrumb can be messy on Nexus 7 and iPad
+
 ================== Release 0.1.5 ==================
 
 Status
