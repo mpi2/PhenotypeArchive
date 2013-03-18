@@ -70,6 +70,8 @@ import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.TimeSeriesControlView;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.stats.PipelineProcedureData;
+import uk.ac.ebi.phenotype.stats.PipelineProcedureTablesCreator;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalChartAndTableProvider;
 import uk.ac.ebi.phenotype.stats.continuous.ContinousChartAndTableProvider;
 import uk.ac.ebi.phenotype.stats.timeseries.TimeSeriesChartAndTableProvider;
@@ -154,31 +156,17 @@ public class StatsController implements BeanFactoryAware {
 		
 		if(paramIds.isEmpty() && genderList.isEmpty() && zyList.isEmpty() && biologicalModelsParams.isEmpty()){
 			System.out.println("Gene Accession without any web params");
-			List<PhenotypeCallSummary> allPhenotypeSummaries = phenotypeCallSummaryDAO.getPhenotypeCallByAccession(acc);
+			//a method here to get a general page for Gene and all procedures associated
+			List<PhenotypeCallSummary> allPhenotypeSummariesForGene = phenotypeCallSummaryDAO.getPhenotypeCallByAccession(acc);
 			//a method here to get a general page for Gene and all procedures associated
 			List<Pipeline> pipelines = pipelineDAO.getAllPhenotypePipelines();
-			for(Pipeline pipe : pipelines){
-				
-				//if(pipe.getName().equals("EUMODIC Pipeline 1")|| pipe.getName().equals("EUMODIC Pipeline 1")  || pipe.getName().equals("IMPC Pipeline")){
-					//we are only looking at these two at the mo
-				for(Procedure proc: pipe.getProcedures()){
-					for(Parameter param: proc.getParameters()){
-						
-						for(PhenotypeCallSummary summary: allPhenotypeSummaries){
-						//use the phenotype call summary object to get the relevant results?
-							//System.out.println("summaryId="+summary.getParameter().getId());
-							if(summary.getParameter().getId().intValue()==param.getId().intValue()){
-								System.out.println("param ids the same");
-								
-								System.out.println("gene="+gene.getId().getAccession()+" pipe name:"+pipe.getName()+ " proc name="+proc.getName()+"proc id= "+proc.getId()+" param= "+param.getName()+ " id="+param.getId());
-							}
-							
-						}
-					}
-				}
-				//}
-			}
-			model.addAttribute("allPipelines", pipelines);
+			PipelineProcedureTablesCreator creator=new PipelineProcedureTablesCreator();
+			List<PipelineProcedureData> dataForTables=creator.createArraysForTables(pipelines, allPhenotypeSummariesForGene, gene);
+//			for(PipelineProcedureData dataForATable: dataForTables){
+//				dataForATable.getTableData();
+//			}
+			model.addAttribute("pipelineProcedureData", dataForTables);
+			model.addAttribute("allPipelines", pipelines);//limit pipelines to two for testing
 			return "procedures";
 		}
 		
