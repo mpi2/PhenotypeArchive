@@ -60,7 +60,7 @@
 
 <t:genericpage>
 
-	<jsp:attribute name="title">IMPC Generic search And Data Facets</jsp:attribute>
+	<jsp:attribute name="title">IMPC Search</jsp:attribute>
 
 	<jsp:attribute name="header">
 	<style>
@@ -76,7 +76,7 @@
 
 	<jsp:attribute name="footer">	
 	
-	${redirectedJavascript}
+	<!-- ${redirectedJavascript} -->
 	
 	<!-- hash state for back button -->
 	<script type="text/javascript">
@@ -86,12 +86,15 @@
 				// In jQuery 1.4, use e.getState( "url" );				
 				var url = $.param.fragment();				
 				//console.log('hash change URL: '+ '/search#' + url);
+				var hashParams = $.fn.parseHashString(window.location.hash.substring(1));
 								
-				// reload wanted url				
-				if ( (url != '' && !$.fn.checkHashStrForSkippingReload(url)) 
-						|| ( url == '' && /search$/.test(document.location.href) ) ){					
-					document.location.reload();	
-				}				
+				if ( $('div#userKeyword span').text() != hashParams.q ){				
+					document.location.reload();
+				}
+				else {
+					// update dataTable and facet display					
+					$.fn.updateFacetAndDataTableDisplay(hashParams);					
+				}							
 			});	
 			
 		});
