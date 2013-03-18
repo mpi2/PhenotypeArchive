@@ -5,7 +5,7 @@
 <t:genericpage>
 	<jsp:attribute name="title">Gene details for ${gene.name}</jsp:attribute>
 	
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#sort=marker_symbol asc&q=*:*&core=gene">Genes</a> <c:if test="${not empty gene.subtype.name }">&raquo; <a href='${baseUrl}/search#fq=marker_type_str:"${gene.subtype.name}"&q=*:*&core=gene'>${gene.subtype.name}</a></c:if> &raquo; ${gene.symbol}</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#sort=marker_symbol asc&q=*:*&core=gene">Genes</a> <c:if test="${not empty gene.subtype.name }">&raquo; <a href='${baseUrl}/search#fq=marker_type:"${gene.subtype.name}"&q=*:*&core=gene'>${gene.subtype.name}</a></c:if> &raquo; ${gene.symbol}</jsp:attribute>
 	
 	<jsp:attribute name="header">
 
