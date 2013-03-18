@@ -61,7 +61,6 @@
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/vendor/DataTables-1.9.4/jquery.dataTables.css' media='all' />
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/vendor/DataTables-1.9.4/customDataTable.css' media='all' />
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/custom.css'  />
-
 <style>
 
 body {
@@ -248,10 +247,14 @@ try {
 	<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/core.filter.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/TableTools.min.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>
-	
-	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/autocompleteWidget.js'></script>
-	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/sideBarFacetWidget.js'></script>  
-	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>
+		
+	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/geneFacetWidget.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/mpFacetWidget.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>	
+
 	<script type='text/javascript' src='${baseUrl}/js/vendor/respond.min.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/vendor/jquery.corner.mini.js'></script>
 
