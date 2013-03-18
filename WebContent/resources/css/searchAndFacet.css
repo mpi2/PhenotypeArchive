@@ -290,3 +290,6 @@ div#exportSpinner {
 div.dataTables_wrapper {
 	margin-top: 50px !important;
 }
+span.hiddenId {
+	display: none;
+}
