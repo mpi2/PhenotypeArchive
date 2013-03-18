@@ -22,14 +22,42 @@ $(document).ready(function(){
 	
 	$('span.facetCount').text(''); // default when page loads
 
-	var pathname = MPI2.searchAndFacetConfig.pathname;
+	//var pathname = MPI2.searchAndFacetConfig.pathname;
 	
-	//console.log('start at primer js href: ' + window.location.href);
-	//console.log('start at primer js hash: ' + window.location.hash);
-		
+	$('input#userInput').val('');  // clears input when pages loads
+	
+	// default search when search page loads
+	if ( /search$/.exec(location.href) ){
+		// do default gene search by * when search page loads
+		$.fn.fetchSolrFacetCount('*:*');
+	}
+	else if ( location.href.indexOf('/search#') != -1 ){		
+		// load page based on url hash parameters		
+		var hashParams = $.fn.parseHashString(window.location.hash.substring(1));		
+		$.fn.fetchSolrFacetCount(hashParams.q);
+	}
+	
+	// search via ENTER
+	$('input#userInput').keyup(function (e) {		
+	    if (e.keyCode == 13) { // user hits enter
+	    	var input = $('input#userInput').val();	      
+	    	input = input == '' ? '*:*' : input;
+	    	$.fn.setHashUrl(input);	    	  	
+	    }
+	}).click(function(){
+		$(this).val(''); // clears input 
+	});
+	
+	// search via button click
+	$('button#acSearch').click(function(){
+		var input = $('input#userInput').val();
+		input = input == '' ? '*:*' : input;
+		$.fn.setHashUrl(input);			
+	});
+			
 	// auto-complete is always created
 	// load total facetCount of all data types by default when searchAndFacet page loads
-	window.jQuery('input#userInput').mpi2AutoComplete({
+	/*window.jQuery('input#userInput').mpi2AutoComplete({
 		
 			solrBaseURL_bytemark: MPI2.searchAndFacetConfig.solrBaseURL_bytemark,			
 			solrBaseURL_ebi: MPI2.searchAndFacetConfig.solrBaseURL_ebi,
@@ -59,7 +87,7 @@ $(document).ready(function(){
 		}).click(function(){
 				window.jQuery(this).val('');
 				//$('span.facetCount').text('');			
-	}); 
+	}); */
 	
 	// dynamically readjusted position of autosuggest dropdown list due to elastic design of page
 	window.jQuery(window).resize(function(){
