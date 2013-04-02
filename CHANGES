@@ -1,0 +1,235 @@
+                      EBI Phenotype Archive Release Notes
+
+Introduction
+------------
+The EBI Phenotype Archive is an open source project to store, analyse and 
+present genotype associated phenotypes information on the web.
+This project is funded by the NIH KOMP2 grant and supported by the IMPC 
+consortium.
+
+The web application runs in a Java servlet container such as Tomcat.
+
+See https://github.com/mpi2/PhenotypeArchive for more information.
+
+Getting Started
+---------------
+You need a Java 1.6 VM or later installed and a servlet container.
+
+================== Release 0.1.7 ==================
+
+Status
+------
+21 March 2013 release.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  Pipelines/Procedures view by week of data
+ 2.  Procedures view has procedures with significant calls from PhenotypeCallSummary table highlighted in red and linked to chart pages (charts come back for data if in database).
+ 3.  New layout at the top of Gene Details page including dropdown for GenomeViewer
+ 4. Tables at bottom of categorical data transformed as per Terry's suggestions.
+ 5. Added export and print functionality to graphs
+ 6. style changes to graph headers
+  
+Bug fixes
+ 1. SOLR: Gene controller - Catch error when allele core fails
+ 
+Other Changes
+ 1. highcharts.org label removed from graphs.
+ 2. Highcharts license obtained.
+
+Known bugs
+ 
+
+
+================== Release 0.1.6 ==================
+
+Status
+------
+07 March 2013 release.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  MGI marker cross-references served from back-end
+ 2.  SOLR urls in js and jsp configured in Maven 
+ 3.  Procedure parameter units retrieved dimension by dimension
+ 4.  Categorical data charts implemented (bar plots)
+ 5.  Unidimensional data charts implemented (box plots, scatter plots)
+ 6.  Time-series data graphs implemented (first pass)
+ 7.  Mean and standard deviation for continuous data computed on the fly
+ 8.  IMPC gene status facet implemented and visible on search interface
+ 
+Bug fixes
+ 1.  IKMC allele picture displayed correctly in Internet Explorer
+ 2.  Fix link to Europhenome for zygosity on gene page
+ 
+Other Changes
+ 1.  IKMC js code updated from mpi2 GitHub repository 
+ 2.  SOLR: gene and allele core created with DataImportHandler
+ 3.  SOLR: select method used across all facets
+ 4.  SOLR: gene status incorporated in gene core
+
+Known bugs
+ 1.  Auto-suggest box can remain empty
+ 2.  Auto-suggest box does not link to correct phenotype page
+ 3.  Display of facets and breadcrumb can be messy on Nexus 7 and iPad
+
+================== Release 0.1.5 ==================
+
+Status
+------
+25 February 2013 release.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  Menu at the top of the dynamic pages pulled from Drupal (JSON stream)
+ 2.  Database genomic features updated to GRCm38 from JAX MGI
+ 3.  IKMC 38 alleles DAS track visible in genomic browser
+ 4.  GRCm38 gene models DAS track visible in genomic browser
+ 5.  Statistical page template built for categorical data
+ 
+Bug fixes
+ 1.  Remove locked genotype information associated to MGP pictures
+ 2.  Auto-suggest: fix a bug that shows the previous search in the search box
+ 
+Other Changes
+ 1.  Testing SOLR result ordering by relevance for the gene facet
+ 2.  Remove 'image annotations' from auto-suggest results
+ 
+================== Release 0.1.4 ==================
+
+Status
+------
+February 2013 release.
+Contains bug fixes and implementation of features suggested by users.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  Breadcrumbs on gene, phenotype and bio-imaging gallery pages
+ 2.  Bio-imaging gallery displays meaningful explanation of the query
+ 3.  Gene status on gene details page
+ 4.  Register interest/Unregister interest in a gene on a gene details page
+ 5.  Auto-suggest: clicking on auto-suggest redirect to relevant page
+ 6.  Resource oriented URLs: enable JSON/XML responses
+ 7.  Search URL changed (was searchAndFacet) to /search
+ 8.  Examples for search provided under the search box
+ 9.  Faceted search on sub terms (e.g. nervous, cardiovascular system)
+ 10. 404 page layout changed
+ 11. Invalid gene identifier on gene page redirect to error page
+ 12. Invalid phenotype identifier on phenotype page redirect to error page
+ 13. identifierError.jsp added to report invalid identifier (gene, phenotype)
+ 
+Bug fixes
+ 1.  Auto-suggest box fix on Drupal page
+ 2.  Image index: account for genes with no subtype association
+ 3.  Gene page: blank page with invalid identifier redirected to error page
+ 
+Other Changes
+ 1.  SOLR 3.6.3 in production
+ 2.  Upgraded MGI gbrowse view using gbrowse 2 on the mouse assembly 38
+ 
+Known bugs
+ 1.  TSV/MS Excel download does not work on IE8 over HTTPS
+
+
+================== Release 0.1.3 ==================
+
+Status
+------
+Also Known as the Toronto release.
+This is the first release of the PhenotypeArchive in GitHub.
+It contains several improvements and bug fixing based on user feedback.
+
+Detailed Change List
+--------------------
+
+New features
+ 1.  faceted search on phenotype images (procedures, anatomy, phenotypes, genes)
+ 2.  consistent view of data across the site using the jquery data table
+ 3.  filtering of phenotype terms on the MP and gene page
+ 4.  data export in CSV and Excel format
+ 5.  annotation view of the image result 
+ 6.  genotype information association to images
+ 7.  provenance associated to images
+ 8.  links to legacy data in the phenotype association panel of the gene page 
+ 9.  ES Cell and Allele panel on the gene page
+ 10. Work in progress notice for images
+ 11. IMPC style reproduced (menu, orange bar)
+ 12. syntax correction: procedures instead of protocols, using plural instead of 
+     singular
+ 13. link to pre-QC data added when relevant   
+ 14. see the total number of results per facet by default on search page
+ 15. Phenotype Archive distributed in GitHub
+
+Bug fixes
+ 1. image metada properly displayed
+ 2. correct zygosity stored and displayed
+
+Changes in runtime behavior
+ 1. Java 7
+ 2. Tomcat 7
+ 
+Other Changes
+ 1. Anatomy facet removed (will reintroduced it later)
+ 2. Phenotype calls grouped by genotype (gender collapsed) 
+ 
+================== Release 0.1.2 ==================
+
+Status
+------
+Also known as alpha release.
+This release was presented to biologists.
+
+Detailed Change List
+--------------------
+
+New features
+ 1. a MP (Mouse Phenotype) page based on a SLIM of MP
+ 2. Restful interfaces to the back-end
+ 3. image display plug-ins
+ 4. infinite scroll of images
+ 5. responsive design using Twitter Bootstrap 
+ 6. image facet organized by experiments and by anatomy categories
+ 7. other genotypes curated from the litterature (from MGI) in the 
+    "associated gene variant table" of an MP page
+ 8. grid result page on the phenotype facet
+
+Bug fixes
+ 1. see the same number of allele on the allele table as EuroPhenome
+ 2. display a picture as a MP default representation at its best resolution
+ 3. Ensembl compara links correspond to the same assembly used on IMPC website
+
+Other changes
+ 1. bottom of gene result grid simplified
+ 2. download gene list removed
+ 3. number of second-tier categories in the phenotype facet reduced
+ 4. search bar resized
+ 5. explanation or error page in case of technical error
+ 6. 5 first images per category for phenotype images or expression section 
+    on the gene details page
+ 7. auto-suggest box stiched to the search bar when resizing the screen
+ 8. "no image available-no metadata" suppressed
+ 
+================== Release 0.1.0 ==================
+
+Status
+------
+This is the first release of the PhenotypeArchive at EMBL-EBI.
+
+
+Detailed Change List
+--------------------
+
+New Features
+ 1. Introducing the CHANGES file
+
+Other changes
+ 1. URLs for MP and gene details pages have been refactored
+ 
