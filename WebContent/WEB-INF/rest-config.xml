@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+                        http://www.springframework.org/schema/mvc     http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd">
+
+	<!-- The configuration for your 'rest' Dispatcher Servlet. -->
+	<context:component-scan base-package="uk.ac.ebi.phenotype.rest.controller" />
+
+	<!--To enable @RequestMapping process on type level and method level -->
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
+
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<property name="messageConverters">
+			<list>
+				<ref bean="marshallingConverter" />
+				<ref bean="atomConverter" />
+				<ref bean="jsonConverter" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="marshallingConverter"
+		class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter">
+		<constructor-arg ref="jaxbMarshaller" />
+		<property name="supportedMediaTypes" value="application/xml" />
+	</bean>
+
+	<bean id="atomConverter"
+		class="org.springframework.http.converter.feed.AtomFeedHttpMessageConverter">
+		<property name="supportedMediaTypes" value="application/atom+xml" />
+	</bean>
+
+	<bean id="jsonConverter"
+		class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+		<property name="supportedMediaTypes" value="application/json" />
+	</bean>
+
+	<!-- Client -->
+	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+		<property name="messageConverters">
+			<list>
+				<ref bean="marshallingConverter" />
+				<ref bean="atomConverter" />
+				<ref bean="jsonConverter" />
+			</list>
+		</property>
+	</bean>
+
+	<!--Use JAXB OXM marshaller to marshall/unmarshall following class -->
+	<bean id="jaxbMarshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+		<property name="classesToBeBound">
+			<list>
+				<value>uk.ac.ebi.phenotype.bean.GenomicFeatureBean</value>
+				<value>uk.ac.ebi.phenotype.pojo.GenomicFeature</value>
+				<value>uk.ac.ebi.phenotype.bean.ListContainer</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- Jackson configuration -->
+	<bean id="jacksonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper" />
+	<bean id="jacksonSerializationConfig" class="org.codehaus.jackson.map.SerializationConfig"
+		factory-bean="jacksonObjectMapper" factory-method="getSerializationConfig" />
+	<bean
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject" ref="jacksonSerializationConfig" />
+		<property name="targetMethod" value="setSerializationInclusion" />
+		<property name="arguments">
+			<list>
+				<value type="org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion">NON_DEFAULT</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="genomicFeatures"
+		class="org.springframework.web.servlet.view.xml.MarshallingView">
+		<constructor-arg ref="jaxbMarshaller" />
+	</bean>
+
+	<mvc:interceptors>
+		<!-- An interceptor which keeps a hibernate session open to allow lazy 
+			loading of form backing objects -->
+		<bean
+			class="org.springframework.orm.hibernate3.support.OpenSessionInViewInterceptor">
+			<property name="sessionFactory" ref="sessionFactory" />
+		</bean>
+	</mvc:interceptors>
+
+	
+
+	<!-- A useful capability of Spring MVC is to resolve views based on the Accept header within the client's request. 
+		 With a web service, it is most common that a consumer would expect to receive XML in the response, 
+		 however this is not always the case. If the web service is consumed within the context of an outside HTML view, 
+		 or if the consumer is simply accessing the web service from a web browser, it is more appropriate to return HTML 
+		 in the response. -->
+	<bean
+		class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		
+        <property name="order" value="1" />
+        <property name="ignoreAcceptHeader" value="true" />
+        <property name="mediaTypes">
+            <map>
+                <entry key="xml"  value="application/xml"/>
+                <entry key="json" value="application/json"/>
+                <entry key="html" value="text/html" />
+            </map>
+        </property>		
+		
+		<property name="defaultViews">
+            <list>
+                <bean class="org.springframework.web.servlet.view.xml.MarshallingView">
+                    <property name="marshaller" ref="jaxbMarshaller"/>
+                </bean>
+                <bean
+                    class="org.springframework.web.servlet.view.json.MappingJacksonJsonView">
+                    <property name="objectMapper" ref="jacksonObjectMapper"/>
+                </bean>
+            </list>
+        </property>
+        
+        <!-- 
+        <property name="viewResolvers">
+			<list>
+				<bean class="org.springframework.web.servlet.view.BeanNameViewResolver" />
+				<bean id="viewResolver"
+					class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+					<property name="viewClass"
+						value="org.springframework.web.servlet.view.JstlView" />
+					<property name="prefix" value="/WEB-INF/restviews/" />
+					<property name="suffix" value=".jsp" />
+					<property name="order"  value="3"/>
+				</bean>
+			</list>
+		</property>
+		 -->
+	</bean>
+	
+	<!-- >bean id="viewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver" 
+		/ -->
+	<bean class="org.springframework.web.servlet.view.BeanNameViewResolver">
+        <property name="order" value="2"/>
+    </bean> 
+    	
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    	<property name="prefix" value="/WEB-INF/restful/" />
+		<property name="suffix" value=".jsp" />
+		<property name="order"  value="3"/>
+	</bean>
+
+	<bean id="genomicFeatureController"
+		class="uk.ac.ebi.phenotype.rest.controller.GenomicFeatureController">
+		<property name="genomicFeatureDAO" ref="genomicFeatureDAO" />
+		<property name="jaxb2Mashaller" ref="jaxbMarshaller" />
+	</bean>
+</beans>	
