@@ -1,15 +1,21 @@
 package uk.ac.ebi.phenotype.dao;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
+import uk.ac.ebi.phenotype.pojo.CategoricalGroupKey;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
@@ -18,24 +24,127 @@ import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
+
 public class CategoricalStatisticsDAOImpl extends HibernateDAOImpl implements CategoricalStatisticsDAO {
 
 	public CategoricalStatisticsDAOImpl(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
-	
+
+	/**
+	 * Get the list of categories that are appropriate for this parameter
+	 */
 	@Transactional(readOnly = true)
 	public List<String> getCategories(Parameter parameter) {
-
-		// Get the list of categories that are appropriate for this parameter
-
 		List<ParameterOption> options = parameter.getOptions();
 		List<String> categories = new ArrayList<String>();
+
 		for (ParameterOption option : options ){
 			categories.add(option.getName());
 		}
+
 		return categories;
 	}
+
+	
+	@Transactional(readOnly = true)
+	public Set<Parameter> getAllCategoricalParametersForProcessing() {
+
+		Set<Parameter> parameters = new HashSet<Parameter>();
+		
+		try {
+			Statement stmt = getConnection().createStatement();
+			ResultSet resultSet = stmt.executeQuery("select distinct parameter_id from stats_mv_control_categorical_values");
+
+			while(resultSet.next()){
+				parameters.add(getParameterById(resultSet.getInt("parameter_id")));
+			}
+			stmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return parameters;
+	}
+
+	@Transactional(readOnly = true)
+	public Parameter getParameterById(Integer parameterId) {
+		return (Parameter) getCurrentSession()
+				.createQuery("SELECT p FROM Parameter p WHERE p.id=?")
+				.setInteger(0, parameterId)
+				.uniqueResult();
+	}
+
+	@Transactional(readOnly = true)
+	public Map<Integer, Integer> getOrganisationsByParameter(Parameter parameter) {
+
+		Map<Integer, Integer> data = new HashMap<Integer, Integer>();
+		
+		try {
+			Statement stmt = getConnection().createStatement();
+			ResultSet resultSet = stmt.executeQuery("select distinct population_id, organisation_id from stats_mv_control_categorical_values where parameter_id = "+parameter.getId());
+
+			while(resultSet.next()){
+				data.put(resultSet.getInt("population_id"), resultSet.getInt("organisation_id"));
+			}
+			stmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return data;
+	}
+
+	
+	@Transactional(readOnly = true)
+	public List<CategoricalGroupKey> getControlCategoricalDataByParameter(Parameter parameter){
+
+		List<CategoricalGroupKey> data = new ArrayList<CategoricalGroupKey>();
+		
+		try {
+			Statement stmt = getConnection().createStatement();
+			ResultSet resultSet = stmt.executeQuery("select * from stats_mv_control_categorical_values where parameter_id = "+parameter.getId());
+			
+			while(resultSet.next()){
+				CategoricalGroupKey result = new CategoricalGroupKey();
+				result.setCategory(resultSet.getString("category"));
+				result.setParameter(parameter);
+				result.setPopulationId(resultSet.getInt("population_id"));
+				result.setSex(SexType.valueOf(resultSet.getString("sex")));
+				result.setZygosity(null); // Disregard zygostiy for control groups
+				data.add(result);
+			}
+			stmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return data;
+	}
+	
+	@Transactional(readOnly = true)
+	public List<CategoricalGroupKey> getMutantCategoricalDataByParameter(Parameter parameter){
+
+		List<CategoricalGroupKey> data = new ArrayList<CategoricalGroupKey>();
+		
+		try {
+			Statement stmt = getConnection().createStatement();
+			ResultSet resultSet = stmt.executeQuery("select * from stats_mv_experimental_categorical_values where parameter_id = "+parameter.getId());
+			
+			while(resultSet.next()){
+				CategoricalGroupKey result = new CategoricalGroupKey();
+				result.setCategory(resultSet.getString("category"));
+				result.setParameter(parameter);
+				result.setPopulationId(resultSet.getInt("population_id"));
+				result.setSex(SexType.valueOf(resultSet.getString("sex")));
+				result.setZygosity(ZygosityType.valueOf(resultSet.getString("zygosity")));
+				data.add(result);
+			}
+			stmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return data;
+	}
+	
 
 	@Transactional(readOnly = true)
 	public Long hasEnoughData(SexType sex, ZygosityType zygosity, Parameter parameter, Integer populationId){
@@ -129,19 +238,25 @@ public class CategoricalStatisticsDAOImpl extends HibernateDAOImpl implements Ca
 				.list();
 	}
 
+	
 	public Double getpValueByParameterAndBiologicalModelAndSexAndZygosity(Parameter parameter, BiologicalModel biologicalModel, SexType sex, ZygosityType zygosity) {
-		return (Double) getCurrentSession().createQuery("SELECT DISTINCT populationId FROM CategoricalMutantView WHERE parameter=? AND biologicalModel=?")
+		return (Double) getCurrentSession().createQuery("SELECT pValue FROM CategoricalResult WHERE parameter=? AND biologicalModel=? AND sex=? AND zygosity=?")
 				.setLong(0, parameter.getId())
 				.setInteger(1, biologicalModel.getId())
+				.setString(2, sex.name())
+				.setString(3, zygosity.name())
 				.uniqueResult();
 	}
 
 	public Double getMaxEffectSizeByParameterAndBiologicalModelAndSexAndZygosity(Parameter parameter, BiologicalModel biologicalModel, SexType sex, ZygosityType zygosity) {
-		return (Double) getCurrentSession().createQuery("SELECT DISTINCT populationId FROM CategoricalMutantView WHERE parameter=? AND biologicalModel=?")
+		return (Double) getCurrentSession().createQuery("SELECT maxEffect FROM CategoricalResult WHERE parameter=? AND biologicalModel=? AND sex=? AND zygosity=?")
 				.setLong(0, parameter.getId())
 				.setInteger(1, biologicalModel.getId())
+				.setString(2, sex.name())
+				.setString(3, zygosity.name())
 				.uniqueResult();
 	}
+
 
 	
 	@SuppressWarnings("unchecked")
@@ -185,10 +300,9 @@ public class CategoricalStatisticsDAOImpl extends HibernateDAOImpl implements Ca
 		return zygosity;
 	}
 
-
 	@Transactional(readOnly = false)
 	public void deleteCategoricalResultByParameter(Parameter parameter) throws HibernateException, SQLException {
-		Statement stmt = getCurrentSession().connection().createStatement();
+		Statement stmt = getConnection().createStatement();
 		stmt.executeUpdate("DELETE FROM stats_categorical_results WHERE parameter_id="+parameter.getId());
 		stmt.close();
 	}
