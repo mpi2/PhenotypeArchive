@@ -20,6 +20,7 @@ This project includes software developed by:
  Twitter (http://twitter.github.com/)
  Ramon van Belzen (http://www.ramoonus.nl/webdesign/wordpress/respondjs/)
  Mattias Jiderhamn (http://java.jiderhamn.se/)
+ Highsoft (http://www.highsoft.com/)
  
 This project includes:
 
@@ -29,6 +30,7 @@ This project includes:
  Twitter Bootstrap distributed under the Apache License, Version 2.0
  Dalliance distributed under a BSD-style license
  Mattias Jiderhamn's classloader-leak-prevention listener distributed under the Apache License, Version 2.0
+ Highcharts (check terms and conditions from Highsoft)
  Spring Framework distributed under the Apache License, Version 2.0
  Hibernate distributed under the LGPL v2.1
  Apache Solr under the Apache License, Version 2.0
