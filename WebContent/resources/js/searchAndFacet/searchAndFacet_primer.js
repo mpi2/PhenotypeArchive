@@ -41,8 +41,8 @@ $(document).ready(function(){
 	$('input#userInput').keyup(function (e) {		
 	    if (e.keyCode == 13) { // user hits enter
 	    	var input = $('input#userInput').val();	      
-	    	input = input == '' ? '*:*' : input;
-	    	$.fn.setHashUrl(input);	    	  	
+	    	input = input == '' ? '*:*' : input;	    	    	
+	    	document.location.href = baseUrl + '/search#q=' + input;
 	    }
 	}).click(function(){
 		$(this).val(''); // clears input 
@@ -51,8 +51,8 @@ $(document).ready(function(){
 	// search via button click
 	$('button#acSearch').click(function(){
 		var input = $('input#userInput').val();
-		input = input == '' ? '*:*' : input;
-		$.fn.setHashUrl(input);			
+		input = input == '' ? '*:*' : input;			
+		document.location.href = baseUrl + '/search#q=' + input;
 	});
 			
 	// auto-complete is always created
