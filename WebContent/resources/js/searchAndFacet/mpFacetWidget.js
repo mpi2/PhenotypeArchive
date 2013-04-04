@@ -123,8 +123,7 @@
 			var self = this;
 			
 			self._initFacet();			
-			$.fn.openFacet(self.options.data.core); 
-			console.log('done mp facet')
+			$.fn.openFacet(self.options.data.core);			
 	    },
 	    
 	    _initFacet: function(){
@@ -190,17 +189,11 @@
     		    		
     		// reload sidebar for hash state   		
 	    	if ( self.options.data.fq != 'ontology_subset:*' ){
-	    		console.log('MP filtered');
-	    		console.log(self.options.data.fq);
-	    		var fqText = self.options.data.fq.replace('ontology_subset:* AND top_level_mp_term:', '').replace(/"/g, '');
-	    		console.log(fqText);
-	    		//var obj = self.element.find('div.facetCatList').find("table#" + facetDivId + " a[rel='" + sTermName + "']");	    		
-	    		//$.fn.fetchFilteredDataTable(obj, facetDivId, self.options.data.fq);
-	    		console.log($('a[rel="' + fqText + '"]'));
+	    		//console.log('MP filtered');	    		
+	    		var fqText = self.options.data.fq.replace('ontology_subset:* AND top_level_mp_term:', '').replace(/"/g, '');	    	
 	    		$.fn.fetchFilteredDataTable($('a[rel="' + fqText + '"]'), 'mpFacet', self.options.data.q);	
 	    	}
-	    	else {//if ( self.options.data.core == 'mp' && self.options.data.fq && self.options.data.fq == 'ontology_subset:*' ){
-	    		console.log('MP UNfiltered');
+	    	else {//if ( self.options.data.core == 'mp' && self.options.data.fq && self.options.data.fq == 'ontology_subset:*' ){	    		
 	    		var solrSrchParams = $.extend({}, MPI2.searchAndFacetConfig.facetParams['mpFacet'].filterParams, MPI2.searchAndFacetConfig.commonSolrParams);						
     			solrSrchParams.q = self.options.data.q;	
 	    		$.fn.invokeFacetDataTable(solrSrchParams, 'mpFacet', MPI2.searchAndFacetConfig.facetParams['mpFacet'].gridName, self.options.data.q);	    		
@@ -210,7 +203,7 @@
     		// fetch and expand children of top level MP term
     		/*$('table#'+ ontology + 'Facet td.'+ontology+'TopLevel').click(function(){  
     			
-    			var parent = $(this).parent();
+    			var parent = $(thiconsole.log('make '+ core);		s).parent();
     			var children = $('tr[class^=' + $(this).parent().attr('id') +']');
     			
     			if ( parent.hasClass(ontology + 'TopExpanded') ){
@@ -231,7 +224,7 @@
     					solrSrchParams.fl = ontology+ '_id,'+ ontology + '_term,'+'ontology_subset';    					
     					solrSrchParams.sort = ontology + '_term asc';
     					solrSrchParams.solrBaseURL = solrBaseUrl;                  
-    					
+    					console.log('make '+ core);		
     					var solrSrchParamsStr = $.fn.stringifyJsonAsUrlParams(solrSrchParams);    					
     				
     					if ( ontology == 'ma' ){
