@@ -38,6 +38,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 @Entity
 @Table(name = "biological_model")
@@ -76,12 +78,43 @@ public class BiologicalModel extends SourcedEntry {
 	 * the genomic feature otherwise
 	 */
 	@OneToMany(cascade = CascadeType.ALL, fetch= FetchType.EAGER )
+	@Fetch(FetchMode.SELECT)
 	@JoinTable(
 			name="biological_model_genomic_feature",
 		    joinColumns = @JoinColumn( name="biological_model_id"),
             inverseJoinColumns = {@JoinColumn(name = "gf_acc"), @JoinColumn(name = "gf_db_id")}
     )
 	private List<GenomicFeature> genomicFeatures;	
+	
+	/**
+	 * Unidirectional with join table
+	 * Transitive persistence with cascading
+	 * We detach the association but we keep 
+	 * the allele otherwise
+	 */
+	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
+	@Fetch(FetchMode.SELECT)
+	@JoinTable(
+			name="biological_model_allele",
+		    joinColumns = @JoinColumn( name="biological_model_id"),
+            inverseJoinColumns = {@JoinColumn(name = "allele_acc"), @JoinColumn(name = "allele_db_id")}
+    )
+	private List<Allele> alleles;	
+	
+	/**
+	 * Unidirectional with join table
+	 * Transitive persistence with cascading
+	 * We detach the association but we keep 
+	 * the strain otherwise
+	 */
+	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
+	@Fetch(FetchMode.SELECT)
+	@JoinTable(
+			name="biological_model_strain",
+		    joinColumns = @JoinColumn( name="biological_model_id"),
+            inverseJoinColumns = {@JoinColumn(name = "strain_acc"), @JoinColumn(name = "strain_db_id")}
+    )
+	private List<Strain> strains;	
 	
 	/**
 	 * @return the biologicalSamples
@@ -155,7 +188,55 @@ public class BiologicalModel extends SourcedEntry {
 		}
 		this.genomicFeatures.add(genomicFeature);
 	}
+	
+	/**
+	 * @return the alleles
+	 */
+	public List<Allele> getAlleles() {
+		return alleles;
+	}
 
+	/**
+	 * @param alleles the alleles to set
+	 */
+	public void setAlleles(List<Allele> alleles) {
+		this.alleles = alleles;
+	}
+	
+	/**
+	 * @param allele the allele to add to the collection
+	 */
+	public void addAllele(Allele allele) {
+		if (alleles == null) {
+			this.alleles = new LinkedList<Allele>();
+		}
+		this.alleles.add(allele);
+	}	
+
+	/**
+	 * @return the strains
+	 */
+	public List<Strain> getStrains() {
+		return strains;
+	}
+
+	/**
+	 * @param strains the strains to set
+	 */
+	public void setStrains(List<Strain> strains) {
+		this.strains = strains;
+	}
+
+	/**
+	 * @param strain the strain to add to the collection
+	 */
+	public void addStrain(Strain strain) {
+		if (strains == null) {
+			this.strains = new LinkedList<Strain>();
+		}
+		this.strains.add(strain);
+	}		
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -166,5 +247,20 @@ public class BiologicalModel extends SourcedEntry {
 				+ ", biologicalSamples=" + biologicalSamples
 				+ ", genomicFeatures=" + genomicFeatures + "]";
 	}
+	/**
+	 * get an html representation (with superscript elements)  of the first allele in this biological model - used in stats graphs in stats.jsp - may cause issues if more than one allele for biological model
+	 * @return
+	 */
+	public String getHtmlSymbol(){
 		
+		String allele=this.getAlleles().get(0).getSymbol();
+		if(allele.contains("<") && allele.contains(">")){
+		String array[]=allele.split("<");
+		String beforeSup=array[0];
+		String sup=array[1].replace(">", "");
+		return beforeSup+"<sup>"+sup+"</sup>";
+		}else{
+			return allele;
+		}
+	}
 }
