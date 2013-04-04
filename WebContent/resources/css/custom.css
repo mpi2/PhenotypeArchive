@@ -321,3 +321,7 @@ body div#allele_tracker_panel_results  a img {
 #drawableCanvas{
     width: 700px;
 }
+
+.graphGenBackground{
+	 font-size: 0.8em;
+}
