@@ -2,12 +2,16 @@ package uk.ac.ebi.generic.util;
 
 import java.util.Collections;
 import java.util.List;
+
+import org.apache.log4j.Logger;
 /**
  * Basic Stats Calculator for Box Plots
  * @author jwarren
  *
  */
 public class BasicStats {
+
+private static final Logger logger = Logger.getLogger(BasicStats.class);
 
 	private List<Float> listOfFloats;
 
@@ -53,9 +57,9 @@ public class BasicStats {
 	public Float lowerQuartile(){
 		if(this.median==null)this.median=median();
 		List<Float> lowerNumbers=listOfFloats.subList(0, this.middle);
-		System.out.println(lowerNumbers);
+		logger.debug(lowerNumbers);
 		Float lowerQ = this.median(lowerNumbers);
-		System.out.println("lowerQ="+lowerQ);
+		logger.debug("lowerQ="+lowerQ);
 		return lowerQ;
 		
 	}
@@ -63,9 +67,9 @@ public class BasicStats {
 	public Float upperQuartile(){
 		if(this.median==null)this.median=median();
 		List<Float> lowerNumbers=listOfFloats.subList(this.middle+1, listOfFloats.size());
-		System.out.println(lowerNumbers);
+		logger.debug(lowerNumbers);
 		Float upperQ = this.median(lowerNumbers);
-		System.out.println("upperQ="+upperQ);
+		logger.debug("upperQ="+upperQ);
 		return upperQ;
 	}
 	
@@ -75,7 +79,7 @@ public class BasicStats {
 	 */
 	public Float getSmallest(){
 		Float smallest=this.listOfFloats.get(0);
-		System.out.println("smallest="+smallest);
+		logger.debug("smallest="+smallest);
 		return smallest;
 		
 	}
@@ -85,7 +89,7 @@ public class BasicStats {
 	 */
 	public Float getLargest(){
 		Float largest=this.listOfFloats.get(listOfFloats.size()-1);
-		System.out.println("largest="+largest);
+		logger.debug("largest="+largest);
 		return largest;
 	}
 	
@@ -107,7 +111,7 @@ public class BasicStats {
 	            for(Float a :listOfFloats)
 	                temp += (mean-a)*(mean-a);
 	                float variance = temp/listOfFloats.size();
-	                System.out.println("variance="+variance);
+	                logger.debug("variance="+variance);
 	                return variance;
 	        }
 
@@ -120,7 +124,7 @@ public class BasicStats {
 //	        	double d = 3.0;
 //	        	float f = (float) d;
 	        	Float stdDev = Float.valueOf((float)Math. sqrt(getVariance()));
-	        	System.out.println("stdDev="+stdDev);
+	        	logger.debug("stdDev="+stdDev);
 	            return (Float.valueOf((float)Math. sqrt(getVariance())));
 	        }
 
