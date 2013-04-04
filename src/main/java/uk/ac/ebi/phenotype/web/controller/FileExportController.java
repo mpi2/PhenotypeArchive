@@ -57,8 +57,8 @@ public class FileExportController extends HttpServlet implements BeanFactoryAwar
 	private Workbook wb = null;
 	private String tsvDelimiter = "\t";
 	
-	
-	private String patternStr = "(.+_\\d+_\\d+_\\d+)_\\d+";
+	//eg ESLIM_001_001_115
+	private String patternStr = "(.+_\\d+_\\d+_\\d+)";
 	private Pattern pattern = Pattern.compile(patternStr);
 	private String europhenomeBaseUrl = "http://www.europhenome.org/databrowser/viewer.jsp?set=true&m=true&zygosity=All&compareLines=View+Data";
 	
@@ -89,13 +89,12 @@ public class FileExportController extends HttpServlet implements BeanFactoryAwar
 			@RequestParam(value="gridFields", required=false) String gridFields,		
 			@RequestParam(value="showImgView", required=false) boolean showImgView,	
 			@RequestParam(value="dumpMode", required=false) String dumpMode,
-			
 			HttpSession session, 
 			HttpServletRequest request, 
 			HttpServletResponse response,
 			Model model
 			) throws Exception{	
-						
+					
 			//String contextPath = (String) request.getAttribute("baseUrl");
 			Map config = (Map) bf.getBean("globalConfiguration");
 			panelName = panelName == null ? "" : panelName; 
@@ -222,11 +221,13 @@ public class FileExportController extends HttpServlet implements BeanFactoryAwar
 		List<PhenotypeCallSummary> summaries = phenotypeCallSummaryDAO.getPhenotypeCallByMPAccession(mpId, extDbId);			
 		int rowNum = summaries.size();
 		String[][] tableData = new String[rowNum][6];	
-				
+		
 		int i=0;		
 		for(PhenotypeCallSummary p : summaries){
+			
 			// only want phenotypes that link to a gene
-			if ( p.getGene() != null ){
+			if ( p.getGene() != null && p.getStrain() != null ){
+			
 				tableData[i][0] = p.getGene().getSymbol();
 				tableData[i][1] = p.getAllele().getSymbol();
 				tableData[i][2] = p.getZygosity().name();
@@ -242,14 +243,13 @@ public class FileExportController extends HttpServlet implements BeanFactoryAwar
 	private String composeGeneVariantsTsvString(String mpId, int extDbId){	
 		
 		List<String> rows = new ArrayList<String>();		
-		rows.add(StringUtils.join(fetchGeneVariantsTitles(), tsvDelimiter)); //"Gene, Allele Symbol, Zygosity, Sex, Procedure");
-				
+		rows.add(StringUtils.join(fetchGeneVariantsTitles(), tsvDelimiter)); //"Gene, Allele Symbol, Zygosity, Sex, Procedure, Data");		
 		
 		List<PhenotypeCallSummary> summaries = phenotypeCallSummaryDAO.getPhenotypeCallByMPAccession(mpId, extDbId);
 		for(PhenotypeCallSummary p : summaries) {
-						
+				
 			// only want phenotypes that link to a gene
-			if ( p.getGene() != null ){
+			if ( p.getGene() != null && p.getStrain() != null ){
 				//System.out.println("gene symbol" + p.getGene().getSymbol());				
 				List<String> data = new ArrayList<String>();			
 				data.add(p.getGene().getSymbol());
@@ -271,7 +271,9 @@ public class FileExportController extends HttpServlet implements BeanFactoryAwar
 	private String composeLegacyDataLink(PhenotypeCallSummary p){
 		String linkParam = null;
 		String extId = p.getExternalId() + "";
-		String sex = p.getSex().name();				
+		String sex = p.getSex().name();		
+	
+		String pipeline_sid = p.getPipeline().getStableId();		
 		String procedure_sid = p.getProcedure().getStableId();
 		String parameter_sid = p.getParameter().getStableId();
 		Matcher matcher = this.pattern.matcher(parameter_sid);
@@ -282,10 +284,10 @@ public class FileExportController extends HttpServlet implements BeanFactoryAwar
 			linkParam = europhenomeBaseUrl + params;
 						       
 		} 
-		else {
-			System.out.println("NO MATCH");
-			linkParam = "failed to find link to legacyData";
-		}
+		else {			
+			linkParam = "failed to find link to legacy Data";
+		}		
+	
 		return linkParam;
 	}
 	
