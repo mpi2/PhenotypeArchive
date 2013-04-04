@@ -114,6 +114,11 @@ public class BiologicalModelDAOImpl extends HibernateDAOImpl implements Biologic
 		return (BiologicalModel) getCurrentSession().createQuery("from BiologicalModel as m where m.id = ?").setInteger(0, modelId).uniqueResult();
 	}
 
+	@Transactional(readOnly = true)
+	public BiologicalSample getBiologicalSampleById(int sampleId) {
+		return (BiologicalSample) getCurrentSession().createQuery("from BiologicalSample as s where s.id = ?").setInteger(0, sampleId).uniqueResult();
+	}
+
 	@Transactional(readOnly = false)
 	public void saveBiologicalModel(BiologicalModel model) {
 		getCurrentSession().saveOrUpdate(model);
