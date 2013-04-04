@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
@@ -13,6 +14,7 @@ import java.util.List;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
@@ -46,14 +48,19 @@ public class TimeSeriesStatisticsDAOImpl extends HibernateDAOImpl implements Tim
 
 	@Transactional(readOnly = true)
 	public List<DiscreteTimePoint> countControl(SexType sex, Parameter parameter, Integer populationId){
-		Connection connection = this.getSession().connection();
+		logger.debug("calling control query");
+		Connection connection = getConnection();
 		 List<DiscreteTimePoint> timeData=new ArrayList<DiscreteTimePoint>();
 		try {
-			Statement stmt = connection.createStatement();
-			ResultSet resultSet = stmt.executeQuery("select * from stats_mv_control_time_series_values where sex='"+sex.name()+"' and  population_id="+populationId+" order by discrete_point");
 			
+			String sql="select * from stats_mv_control_time_series_values where sex=? and  population_id=? order by discrete_point";
+			PreparedStatement stmt = connection.prepareStatement(sql);
+			stmt.setString(1, sex.name());
+			stmt.setInt(2, populationId);
+			logger.debug("sql="+ sql);
+			ResultSet resultSet = stmt.executeQuery();
+			logger.debug("got control Result");
 			while(resultSet.next()){
-				
 				Float time=resultSet.getFloat("discrete_point");
 				Float data=resultSet.getFloat("data_point");
 				//System.out.println(time+" "+data);
@@ -72,15 +79,19 @@ public class TimeSeriesStatisticsDAOImpl extends HibernateDAOImpl implements Tim
 
 	@Transactional(readOnly = true)
 	public  List<DiscreteTimePoint> countMutant(SexType sex, ZygosityType zygosity, Parameter parameter,  Integer populationId){
+		logger.debug("calling mutant query");
 		
-		
-		Connection connection = this.getSession().connection();
+		Connection connection = this.getConnection();
 		
 		 List<DiscreteTimePoint> timeData=new ArrayList<DiscreteTimePoint>();
 		try {
-			Statement stmt = connection.createStatement();
-			ResultSet resultSet = stmt.executeQuery("select * from stats_mv_experimental_time_series_values  WHERE sex='"+sex.name()+"' AND zygosity='"+zygosity.name()+"' AND parameter_id=" + parameter.getId() +" AND population_id="+populationId+ " order by discrete_point");
-			
+			PreparedStatement stmt = connection.prepareStatement("select * from stats_mv_experimental_time_series_values  WHERE sex=? AND zygosity=? AND parameter_id=? AND population_id=? order by discrete_point");
+			stmt.setString(1, sex.name());
+			stmt.setString(2,  zygosity.name());
+			stmt.setInt(3,  parameter.getId());
+			stmt.setInt(4,  populationId);
+			ResultSet resultSet = stmt.executeQuery();
+			logger.debug("got mutant Result");
 			while(resultSet.next()){
 				Float time=resultSet.getFloat("discrete_point");
 				Float data=resultSet.getFloat("data_point");
@@ -197,20 +208,6 @@ public class TimeSeriesStatisticsDAOImpl extends HibernateDAOImpl implements Tim
 			.setInteger(0, populationId)
 			.list();
 		return zygosity;
-	}
-
-
-	@Transactional(readOnly = false)
-	public void deleteCategoricalResultByParameter(Parameter parameter) throws HibernateException, SQLException {
-		Statement stmt = getCurrentSession().connection().createStatement();
-		stmt.executeUpdate("DELETE FROM stats_categorical_results WHERE parameter_id="+parameter.getId());
-		stmt.close();
-	}
-
-	@Transactional(readOnly = false)
-	public void saveCategoricalResult(CategoricalResult result) {
-		getCurrentSession().saveOrUpdate(result);
-		getCurrentSession().flush();
 	}
 
 }
