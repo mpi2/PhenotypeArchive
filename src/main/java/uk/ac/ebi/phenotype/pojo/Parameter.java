@@ -99,7 +99,7 @@ public class Parameter extends PipelineEntry {
 			)
 	private Procedure procedure;
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
 	@Fetch(FetchMode.SELECT)
 	@JoinTable(
 			name="phenotype_parameter_lnk_option",
@@ -120,7 +120,8 @@ public class Parameter extends PipelineEntry {
 	 * Annotation (like MP terms) can be associated to parameter 
 	 * under certain conditions. The rules are defined in this table
 	 */
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
+	@Fetch(FetchMode.SELECT)
 	@JoinTable(
 			name="phenotype_parameter_lnk_ontology_annotation",
 			joinColumns = @JoinColumn( name="parameter_id"),
