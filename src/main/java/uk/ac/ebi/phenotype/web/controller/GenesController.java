@@ -23,6 +23,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +31,7 @@ import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.WordUtils;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -153,7 +155,9 @@ public class GenesController implements BeanFactoryAware {
 			pr.setSexes(sex);
 			pr.setPhenotypeTerm(pcs.getPhenotypeTerm());
 			// zygosity representation depends on source of information
-			String rawZygosity = (pcs.getDatasource().getShortName().equals("EuroPhenome")) ? 
+			String dataSourceName=pcs.getDatasource().getName();//we need to know what the data source is so we can generate appropriate link on the page
+			pr.setDataSourceName(dataSourceName);
+			String rawZygosity = (dataSourceName.equals("EuroPhenome")) ? 
 					// this should be the fix but EuroPhenome is buggy
 					//Utilities.getZygosity(pcs.getZygosity()) : pcs.getZygosity().toString();
 					"All" : pcs.getZygosity().toString();
@@ -168,6 +172,8 @@ public class GenesController implements BeanFactoryAware {
 				pr = phenotypes.get(pr);
 				pr.getSexes().add(pcs.getSex().toString());
 			}
+			
+			pr=this.generatePhenotypeLink(pr);	//must be done prior to directly before addition as uses info already set above	
 			phenotypes.put(pr, pr);
 		}
 		model.addAttribute("phenotypes", new ArrayList<PhenotypeRow>(phenotypes.keySet()));
@@ -257,6 +263,28 @@ public class GenesController implements BeanFactoryAware {
 		return "genes";
 	}
 
+	
+	private PhenotypeRow generatePhenotypeLink(PhenotypeRow pr) {
+		String linkUrl="";
+		if(pr.getDataSourceName().equals("EuroPhenome")){
+			String sex="";
+			if(pr.getSexes().size()==2){
+				sex="Both-Split";
+			}else{
+				Iterator<String> iter = pr.getSexes().iterator();
+				String first = (String) iter.next();
+				sex=WordUtils.capitalize(first);
+			}
+		linkUrl="http://www.europhenome.org/databrowser/viewer.jsp?set=true&m=true&l="+pr.getProjectId()+"&zygosity="+pr.getRawZygosity()+"&x="+sex+"&p="+pr.getProcedureId()+"&pid_"+pr.getParameterId()+"=on&compareLines=View+Data";
+		pr.setLinkToOriginalDataProvider(linkUrl);
+		}
+		if(pr.getDataSourceName().equals("WTSI Mouse Genetics Project")){
+			linkUrl="http://www.sanger.ac.uk/mouseportal/search?query="+pr.getAllele().getGene().getSymbol();
+			pr.setLinkToOriginalDataProvider(linkUrl);
+		}
+		return pr;
+	}
+	
 	/**
 	 * Get the first 5 wholemount expression images if available
 	 *  
