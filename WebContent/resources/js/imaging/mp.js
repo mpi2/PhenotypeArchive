@@ -29,6 +29,9 @@ jQuery(document).ready(	function() {
 					            title: {
 					                text: 'Charts Coming Soon!'
 					            },
+					            credits: {
+					                enabled: false
+					              },					            
 					            subtitle: {
 					                text: 'Mouse Data'
 					            },
