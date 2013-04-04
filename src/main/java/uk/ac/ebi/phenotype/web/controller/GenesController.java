@@ -23,6 +23,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +31,7 @@ import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.WordUtils;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -128,11 +130,10 @@ public class GenesController implements BeanFactoryAware {
 		}
 		
 		model.addAttribute("geneStatus", geneStatus);
-		System.out.println("geneStatus="+geneStatus);
+		log.info("geneStatus="+geneStatus);
 		
 		//code for assessing if the person is logged in and if so have they registered interest in this gene or not?
-		registerInterest=new RegisterInterestDrupalSolr( config, request);
-		//boolean  alreadyInterested=registerInterest.alreadyInterested(acc);
+		registerInterest = new RegisterInterestDrupalSolr( config, request);
 		this.registerInterestState(acc, model);
 
 		getExperimentalImages(acc, model);
@@ -154,7 +155,9 @@ public class GenesController implements BeanFactoryAware {
 			pr.setSexes(sex);
 			pr.setPhenotypeTerm(pcs.getPhenotypeTerm());
 			// zygosity representation depends on source of information
-			String rawZygosity = (pcs.getDatasource().getShortName().equals("EuroPhenome")) ? 
+			String dataSourceName=pcs.getDatasource().getName();//we need to know what the data source is so we can generate appropriate link on the page
+			pr.setDataSourceName(dataSourceName);
+			String rawZygosity = (dataSourceName.equals("EuroPhenome")) ? 
 					// this should be the fix but EuroPhenome is buggy
 					//Utilities.getZygosity(pcs.getZygosity()) : pcs.getZygosity().toString();
 					"All" : pcs.getZygosity().toString();
@@ -169,6 +172,8 @@ public class GenesController implements BeanFactoryAware {
 				pr = phenotypes.get(pr);
 				pr.getSexes().add(pcs.getSex().toString());
 			}
+			
+			pr=this.generatePhenotypeLink(pr);	//must be done prior to directly before addition as uses info already set above	
 			phenotypes.put(pr, pr);
 		}
 		model.addAttribute("phenotypes", new ArrayList<PhenotypeRow>(phenotypes.keySet()));
@@ -212,9 +217,9 @@ public class GenesController implements BeanFactoryAware {
 				model.addAttribute("europhenomeLegacyLink", sub2);
 			}			
 		} catch (MalformedURLException e) {
-			log.debug(e.getLocalizedMessage());
+			log.error(e.getLocalizedMessage());
 		} catch (IOException e) {
-			log.debug(e.getLocalizedMessage());
+			log.error(e.getLocalizedMessage());
 		}
 
 		List<String> ensemblIds = new ArrayList<String>();
@@ -245,32 +250,62 @@ public class GenesController implements BeanFactoryAware {
 		String solrCoreName = "allele";
 		String mode = "ikmcAlleleGrid";
 		int countIKMCAlleles = 0;
-		if (gene != null) {
+		try {
 			SolrIndex solrIndex = new SolrIndex("allele_name:"+gene.getSymbol(), solrCoreName, mode, config);
 			countIKMCAlleles = solrIndex.fetchNumFound();
-		} else {
-			attributes.addFlashAttribute("message", "Gene <b>" + acc + "</b> was not found. Please search for your gene of interest.");
-			return "redirect:/search";
+		} catch (net.sf.json.JSONException ex) {
+			log.error(ex.getLocalizedMessage());
 		}
+
 		model.addAttribute("countIKMCAlleles", countIKMCAlleles);
 		log.debug("CHECK IKMC allele found : " + countIKMCAlleles);
 
 		return "genes";
 	}
 
+	private PhenotypeRow generatePhenotypeLink(PhenotypeRow pr) {
+		String linkUrl="";
+		if(pr.getDataSourceName().equals("EuroPhenome")){
+			String sex="";
+			if(pr.getSexes().size()==2){
+				sex="Both-Split";
+			}else{
+				Iterator<String> iter = pr.getSexes().iterator();
+				String first = (String) iter.next();
+				sex=WordUtils.capitalize(first);
+			}
+		linkUrl="http://www.europhenome.org/databrowser/viewer.jsp?set=true&m=true&l="+pr.getProjectId()+"&zygosity="+pr.getRawZygosity()+"&x="+sex+"&p="+pr.getProcedureId()+"&pid_"+pr.getParameterId()+"=on&compareLines=View+Data";
+		pr.setLinkToOriginalDataProvider(linkUrl);
+		}
+		if(pr.getDataSourceName().equals("WTSI Mouse Genetics Project")){
+			linkUrl="http://www.sanger.ac.uk/mouseportal/search?query="+pr.getAllele().getGene().getSymbol();
+			pr.setLinkToOriginalDataProvider(linkUrl);
+		}
+		return pr;
+	}
+
+	/**
+	 * Get the first 5 wholemount expression images if available
+	 *  
+	 * @param acc the gene to get the images for
+	 * @param model the model to add the images to
+	 */
 	private void getExpressionImages(String acc, Model model) {
-		log.info("hi there: 1");
+
 		QueryResponse solrExpressionR = imagesSolrDao.getExpressionFacetForGeneAccession(acc);
 		if(solrExpressionR==null){
-			System.err.println("no response from solr data source for acc="+acc);
+			log.error("no response from solr data source for acc="+acc);
 			return;
 		}
-		log.info("hi there: 2");
-		log.info("solrEpressionR: "+solrExpressionR);
+
 		List<FacetField> expressionfacets = solrExpressionR.getFacetFields();
+		if (expressionfacets == null) {
+			log.error("no expression facets from solr data source for acc="+acc);
+			return;
+		}
+
 		Map<String, SolrDocumentList> facetToDocs = new HashMap<String, SolrDocumentList>();
 
-		if (expressionfacets != null) {
 		for (FacetField facet : expressionfacets) {
 			if (facet.getValueCount() != 0) {
 				for (Count value : facet.getValues()) {
@@ -280,46 +315,59 @@ public class GenesController implements BeanFactoryAware {
 					}
 				}
 			}
-
 			model.addAttribute("expressionFacets", expressionfacets.get(0).getValues());
 			model.addAttribute("expFacetToDocs", facetToDocs);
 		}
-		}
 	}
 
+	/**
+	 * Get the first 5 images for aall but the wholemount expression images
+	 * if available
+	 *  
+	 * @param acc the gene to get the images for
+	 * @param model the model to add the images to
+	 */
 	private void getExperimentalImages(String acc, Model model) {
+
 		QueryResponse solrR = imagesSolrDao.getExperimentalFacetForGeneAccession(acc);
 		if(solrR==null){
-			System.err.println("no response from solr data source for acc="+acc);
+			log.error("no response from solr data source for acc="+acc);
 			return;
 		}
+
 		List<FacetField> facets = solrR.getFacetFields();
+		if(facets==null){
+			log.error("no facets from solr data source for acc="+acc);
+			return;
+		}
+
 		Map<String, SolrDocumentList> facetToDocs = new HashMap<String, SolrDocumentList>();
 		List<Count> filteredCounts=new ArrayList<Count>();
 		
-		if (facets != null) {
-			for (FacetField facet : facets) {
-				if (facet.getValueCount() != 0) {
-					//get rid of wholemount expression facet
-					for(Count count: facets.get(0).getValues()){
-						if(!count.getName().equals("Wholemount Expression")){
-							filteredCounts.add(count);
-						}
+		for (FacetField facet : facets) {
+			if (facet.getValueCount() != 0) {
+				
+				//get rid of wholemount expression facet
+				for(Count count: facets.get(0).getValues()){
+					if(!count.getName().equals("Wholemount Expression")){
+						filteredCounts.add(count);
 					}
-					for (Count count : facet.getValues()) {
-						if(!count.getName().equals("Wholemount Expression")){
+				}
+
+				for (Count count : facet.getValues()) {
+					if(!count.getName().equals("Wholemount Expression")){
+
 						// get 5 images if available for this experiment type
 						QueryResponse response = imagesSolrDao.getDocsForGeneWithFacetField(acc, "expName", count.getName(),"", 0, 6);
 						if(response != null) {
 							facetToDocs.put(count.getName(), response.getResults());
 						}
 					}
-					}
 				}
-
-				model.addAttribute("solrFacets", filteredCounts);
-				model.addAttribute("facetToDocs", facetToDocs);
 			}
+
+			model.addAttribute("solrFacets", filteredCounts);
+			model.addAttribute("facetToDocs", facetToDocs);
 		}
 	}
 
@@ -333,40 +381,39 @@ public class GenesController implements BeanFactoryAware {
 		this.bf=arg0;
 	}
 	
-	
+
+	/**
+	 * Add to the model the registered/unregistered interest labels
+	 * 
+	 * @param acc
+	 * @param model
+	 */
 	private void registerInterestState(String acc, Model model){
-		String registerInterestButtonString="";
-		String registerButtonAnchor="";
+		String registerInterestButtonString="Login to register interest";
+		String registerButtonAnchor="/user/register";
 		String id=acc;
+
 		if (registerInterest.loggedIn()) {
 			if (registerInterest.alreadyInterested(acc)) {
-				//System.out.println("<a id='"+acc+"' href='' class='btn primary interest'>Unregister interest</a>");
 				registerInterestButtonString= "Unregister interest";
-				id=acc;
 			} else {
-				//System.out.println("<a id='"+acc+"' href='' class='btn primary interest'>Register interest</a>");
 				registerInterestButtonString= "Register interest";
-				id=acc;
 			}
-		} else {
-			//System.out.println("<a href='/user/register' class='btn primary'>Login to register interest</a>");
-			registerInterestButtonString= "Login to register interest";
-			registerButtonAnchor="/user/register";
-			
 		}
-		
-		
-		model.addAttribute("registerInterestButtonString", registerInterestButtonString);
-		
-		model.addAttribute("registerButtonAnchor", registerButtonAnchor);
-		
-	
-			model.addAttribute("registerButtonId",id);
-	
-		
 
+		model.addAttribute("registerInterestButtonString", registerInterestButtonString);
+		model.addAttribute("registerButtonAnchor", registerButtonAnchor);
+		model.addAttribute("registerButtonId",id);
 	}
+
 	
+	/**
+	 * Error handler for gene not found
+	 * 
+	 * @param exception
+	 * @return redirect to error page
+	 * 
+	 */
 	@ExceptionHandler(GenomicFeatureNotFoundException.class)
 	public ModelAndView handleGenomicFeatureNotFoundException(GenomicFeatureNotFoundException exception) {
         ModelAndView mv = new ModelAndView("identifierError");
@@ -376,7 +423,11 @@ public class GenesController implements BeanFactoryAware {
         mv.addObject("exampleURI", "/genes/MGI:104874");
         return mv;
     } 
-	
+
+
+	/**
+	 * Display an identifier error page
+	 */
 	@RequestMapping("/identifierError")
 	public String identifierError(
 			@PathVariable String acc, 
@@ -385,22 +436,5 @@ public class GenesController implements BeanFactoryAware {
 			RedirectAttributes attributes) {
 		return "identifierError";
 	}
-	
-/*	@ExceptionHandler(GenomicFeatureNotFoundException.class)
-	public RedirectView handleGenomicFeatureNotFoundException(GenomicFeatureNotFoundException ex, HttpServletRequest request) throws IOException
-	{
-		RedirectView redirectView = new RedirectView("identifierError");
-		redirectView.addStaticAttribute("errorMessage", ex.getMessage());
-		return redirectView;
-	}
-
-	@RequestMapping(value = "/identifierError")
-	public String errorRedirectPage(HttpServletRequest request, Model model, @RequestParam("errorMessage") String errorMessage)
-	{
-		model.addAttribute("errorMessage", errorMessage);
-		return "identifierError";
-	}
-*/
-	
 	
 }
