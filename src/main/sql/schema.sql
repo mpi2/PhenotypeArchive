@@ -27,6 +27,7 @@ DROP TABLE IF EXISTS meta_info;
 DROP TABLE IF EXISTS allele;
 DROP TABLE IF EXISTS biological_model;
 DROP TABLE IF EXISTS biological_model_allele;
+DROP TABLE IF EXISTS biological_model_strain;
 DROP TABLE IF EXISTS biological_model_genomic_feature;
 DROP TABLE IF EXISTS biological_model_phenotype;
 DROP TABLE IF EXISTS biological_model_sample;
@@ -344,6 +345,17 @@ CREATE TABLE biological_model_allele (
     
     KEY biological_model_idx (biological_model_id),
     KEY allele_idx (allele_acc, allele_db_id)
+    
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+CREATE TABLE biological_model_strain (
+
+    biological_model_id       INT(10) UNSIGNED NOT NULL,
+    strain_acc                VARCHAR(20) NOT NULL,
+    strain_db_id              INT(10) NOT NULL,
+    
+    KEY biological_model_idx (biological_model_id),
+    KEY strain_idx (strain_acc, strain_db_id)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
