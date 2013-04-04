@@ -35,66 +35,7 @@
 	<jsp:body>
         
 		<div class='topic'>Gene: ${gene.symbol}</div>
-		<!-- <div class="row-fluid dataset">
-			<div class="container span6">
-			<div id="chart0"
-					style="min-width: 400px; height: 400px; margin: 0 auto"></div>
-					</div>
-					<div class="container span6">
-						<div id="chart1"
-					style="min-width: 400px; height: 400px; margin: 0 auto"></div>
-					</div>
-		</div> -->
 
-
-			
-		<!--/row-->
-    <table>
-    <tr id="title">
-        <th>&nbsp;</th>
-        <th>
-            <div class="containerVert">
-                <div class="head">
-                    <div class="vert">Column 1</div>
-                </div>
-            </div>
-        </th>
-        <th>
-            <div class="containerVert">
-                <div class="head">
-                    <div class="vert">Col 2</div>
-                </div>
-            </div>
-        </th>
-        <th>
-            <div class="containerVert">
-                <div class="head">
-                    <div class="vert">Column Two</div>
-                </div>
-            </div>
-        </th>
-    </tr>
-    <tr>
-        <td>Row 1</td>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-    </tr>
-    
-    <tr>
-        <td>Row 2</td>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-    </tr>
-    
-    <tr>
-        <td>Row 3</td>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-    </tr>
-</table>
 		<div class="row-fluid dataset">
 		<table>
 			<c:forEach var="pipeline" items="${allPipelines}" varStatus="pipelineCount">
