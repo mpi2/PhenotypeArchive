@@ -18,14 +18,11 @@
 	</script>
 
 	<!--    extra header stuff goes here such as extra page specific javascript -->
-	<script src="${baseUrl}/js/mpi2_search/all.js"></script>
 	<!-- highcharts -->
-	<%-- <script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js'></script>	 --%>	
-	 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<!-- <script src="http://code.highcharts.com/modules/exporting.js"></script> do we need the export js as in jsfiddle demo? -->
-<script type='text/javascript' src='${baseUrl}/js/charts/highchartsBeta.js'></script>
-<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more-rambera.js'></script>
-	<!-- <script src="http://github.highcharts.com/rambera/highcharts-more.js"></script> -->
+<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js'></script>
+ <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js'></script> 
+<script src="${baseUrl}/js/charts/exporting.js"></script>
+	
 
 	
 
@@ -54,6 +51,10 @@
  <%-- ${loop.count  % 2} --%>
 	<c:if test = "${timeLoop.count  % 2!=0}">
 		<div class="row-fluid dataset">  
+		<c:set var="allele" value="${timeSeriesMutantBiologicalModels[timeLoop.index].htmlSymbol}"></c:set>
+		 <div class="row-fluid "><div class="container span12"><h4><!--  style="background-color:lightgrey;"  -->Allele -  ${allele} <span class="graphGenBackground">background -  ${timeSeriesMutantBiologicalModels[timeLoop.index].geneticBackground}</span></h4></div>
+ 		</div>
+ 		<div class="row-fluid">
  	</c:if>
   				 <div class="container span6">
 								<div id="timeChart${timeLoop.count}"
@@ -69,91 +70,15 @@
 </c:forEach>
 
 
-<!--  <script type="text/javascript">
- $(function () {
-    var chart;
-    $(document).ready(function() {
-        chart = new Highcharts.Chart({
-            chart: {
-                renderTo: 'timeChart1',
-                type: 'spline',
-                marginRight: 130,
-                marginBottom: 25
-            },
-            title: {
-                text: 'Monthly Average Temperature',
-                x: -20 //center
-            },
-            subtitle: {
-                text: 'Source: WorldClimate.com',
-                x: -20
-            },
-           xAxis: {
-        	   title: {
-                   text: 'Time (minutes)'
-               }
-            }, 
-            yAxis: {
-                title: {
-                    text: 'Temperature (°C)'
-                },
-                plotLines: [{
-                    value: 0,
-                    width: 1,
-                    color: '#808080'
-                }]
-            },
-            tooltip: {
-                formatter: function() {
-                        return '<b>'+ this.series.name +'</b><br/>'+
-                        this.x +': '+ this.y +'°C';
-                }
-            },
-            legend: {
-                layout: 'vertical',
-                align: 'right',
-                verticalAlign: 'top',
-                x: -10,
-                y: 100,
-                borderWidth: 0
-            },
-            series: [{
-                name: 'Control',
-                data: [[0.0 ,6.6337337], [15.0 ,15.491567], [30.0 ,12.379637], [60.0 ,9.204818], [120.0 ,5.955421]]
-            }, {
-                name: 'Mutant',
-                data: [[0.0 ,6.7124996], [15.0 ,15.637501], [30.0 ,13.55], [60.0 ,8.724998], [120.0 ,5.7812495]]
-            },
-            {
-                name: 'Confidence',
-                type: 'errorbar',
-                color: 'black',
-                data: [
-                    [0,7.5, 15],
-                    [15, 7.5, 8.5],
-                    [30, 30, 40]
-                ]
-            }]
-        });
-    });
-    
-});
-
-</script> -->
- 
- 
-
-
-
-
-
-
-
 
 <c:forEach var="categoricalBarChart" items="${categoricalBarCharts}" varStatus="loop">
  <%-- ${loop.count  % 2} --%>
 <c:if test = "${loop.count  % 2!=0}">
 		<div class="row-fluid dataset">  
+		<c:set var="catAllele" value=" ${categoricalMutantBModel[loop.index].htmlSymbol}"></c:set>
+		 <div class="row-fluid"><div class="container span12"><h4>Allele -  ${catAllele} <span class="graphGenBackground">background -  ${categoricalMutantBModel[loop.index].geneticBackground}</span></h4></div>
+ 		</div>
+ 		<div class="row-fluid">
  </c:if>
   				 <div class="container span6">
 								<div id="categoricalBarChart${loop.count}"
@@ -162,9 +87,9 @@
 								
 									<c:set var="table" scope="page" value="${tables[loop.index]}"/>
 										<table id="table${loop.count}" class="table table-bordered table-hover table-striped">
-										<thead><tr><th></th> <!-- empty header at left end -->
-										<c:forEach var="xAxisCat" items="${table.xAxisCategories}" varStatus="xCatCount">
-										<th>${xAxisCat}</th>
+										<thead><tr>
+										<c:forEach var="colHeader" items="${table.columnHeaders}" varStatus="xCatCount">
+										<th>${colHeader}</th>
 										</c:forEach>
 										<%-- <th>${tables[loop.count-1].xAxisCategories[1]}</th><th>${tables[loop.count-1].xAxisCategories[2]}</th> --%>
 										</tr></thead>
@@ -172,11 +97,13 @@
 										
 										
 										
-												<c:forEach var="seriesList" items="${table.seriesDataForCategoricalType}" varStatus="seriesListCount">
+												<c:forEach var="rowHeader" items="${table.rowHeaders}" varStatus="rowCount">
 												<tr>
-												<td>${table.categories[seriesListCount.index]}</td>
-														<c:forEach var="seriesItem" items="${seriesList}" varStatus="seriesItemCount">
-														<td>${seriesItem}</td>
+												<td>${rowHeader}</td>
+														<c:forEach var="cellRow" items="${table.cellData[rowCount.index]}" varStatus="cellCount">
+																<c:forEach var="cell" items="${cellRow}" varStatus="columnCount">
+																		<td>${cell}</td>
+																</c:forEach>
 														</c:forEach>
 												</tr>
 												</c:forEach>
@@ -213,6 +140,10 @@
  <%-- ${loop.count  % 2} --%>
 <c:if test = "${uniDimensionalLoop.count  % 2!=0}">
 		<div class="row-fluid dataset">  
+		<c:set var="uniAllele" value=" ${unidimensionalMutantBiologicalModels[uniDimensionalLoop.index].htmlSymbol}"></c:set>
+		 <div class="row-fluid"><div class="container span12"><h4>Allele -  ${uniAllele} <span class="graphGenBackground">background -  ${unidimensionalMutantBiologicalModels[uniDimensionalLoop.index].geneticBackground}</span></h4></div>
+ 		</div>
+ 		<div class="row-fluid">
  </c:if>
 		
  
@@ -220,7 +151,36 @@
 								<div id="chart${uniDimensionalLoop.count}"
 									style="min-width: 400px; height: 400px; margin: 0 auto">
 								</div>
-								
+								<c:set var="table" scope="page" value="${continuousTables[uniDimensionalLoop.index]}"/>
+										<table id="continuousTable${uniDimensionalLoop.count}" class="table table-bordered table-hover table-striped">
+										<thead><tr>
+										<c:forEach var="colHeader" items="${table.columnHeaders}" varStatus="xCatCount">
+										<th>${colHeader}</th>
+										</c:forEach>
+										<%-- <th>${tables[loop.count-1].xAxisCategories[1]}</th><th>${tables[loop.count-1].xAxisCategories[2]}</th> --%>
+										</tr></thead>
+										<tbody>
+										
+										
+										
+												<c:forEach var="rowHeader" items="${table.rowHeaders}" varStatus="rowCount">
+												<tr>
+												<td>${rowHeader}</td>
+														<c:forEach var="cellRow" items="${table.cellData[rowCount.index]}" varStatus="cellCount">
+																<c:forEach var="cell" items="${cellRow}" varStatus="columnCount">
+																		<td>${cell}</td>
+																</c:forEach>
+														</c:forEach>
+												</tr>
+												</c:forEach>
+									
+										
+										<%-- <td>${tables[loop.count-1].seriesDataForCategoricalType[0][0]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[0][1]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[0][2]}</td>
+										 </tr>--%>
+										<%-- <tr><td>${tables[loop.count-1].categories[1]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[1][0]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[1][1]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[1][2]}</td>
+										 </tr>--%>
+										</tbody>
+										</table>
 								
 								
 			
