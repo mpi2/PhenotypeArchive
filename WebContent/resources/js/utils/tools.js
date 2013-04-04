@@ -22,8 +22,7 @@
  */
 (function($){	
 	
-	$.fn.setHashUrl = function(q, core){
-		console.log('set url');
+	$.fn.setHashUrl = function(q, core){		
 		var hashParams = {};
 		hashParams.q = q;
 		hashParams.core = core;
@@ -132,17 +131,17 @@
 	 	   		
 	 	   		$('span#imgViewSwitcher').click(function(){		 	   			
 	 	   			if (oVal.imgViewSwitcherDisplay == 'Annotation View'){
-	 	   				oVal.imgViewSwitcherDisplay = 'Image View';
+	 	   				oVal.imgViewSwitcherDisplay = 'Image View';	 	   				
 	 	   				oVal.showImgView = false;		 	   				
 	 	   			}
 	 	   			else {
 	 	   				oVal.imgViewSwitcherDisplay = 'Annotation View';		 	   				
-	 	   				oVal.showImgView = true;
+	 	   				oVal.showImgView = true;	 	   				
 	 	   			}		 	   			
 	 	   			
 	 	   			oVal.forceReloadImageDataTable = true;
 	 	   					 	   			
-	 	   			if ( !oVal.showImgView ){
+	 	   			if ( !oVal.showImgView ){	 	   				
 	 	   				delete(oSolrSrchParams['fq']); // remove default as specific fq will be added later depending on data type		 	   			
 	 	   			}
 	 	   			
@@ -157,7 +156,7 @@
 	}
 	
 	$.fn.fetchFilteredDataTable = function(obj, facetDivId, q){  
-		var self = this;	    	
+			
     	var topLevelName;			
 		var oSolrSrchParams = {}
 		var displayedTopLevelName;
@@ -255,9 +254,8 @@
  	   		
  	   		// img view switcher control
  	   		$('span#imgViewSwitcher').click(function(){	 	   		
- 	   			oVal.showImgView = oVal.showImgView ? false : true;	 	   			   			
- 	   			//self._fetchFilteredDataTable(obj, facetDivId);
- 	   			$.fn.fetchFilteredDataTable(obj, facetDivId);
+ 	   			oVal.showImgView = oVal.showImgView ? false : true;	 
+ 	   			$.fn.fetchFilteredDataTable(obj, facetDivId, q);
  	   		});	    	
     	}
     		    	
@@ -362,15 +360,17 @@
     	var core = hashParams.coreName;
     	var facetDivId = core + 'Facet';
     	var caller = $('div#' + facetDivId);
-           	
-    	if ( typeof core === 'undefined' ){
+    	MPI2.searchAndFacetConfig.backButton = 1;	
+    	if ( typeof core === 'undefined' ){    	
     		$('div#geneFacet').find('span.facetCount').click(); // default
     	}
     	else if ( core == 'gene' ){
+    		//console.log('back UNfiltered');
     		if ( typeof hashParams.fq === 'undefined' ){    		
-    			caller.find('span.facetCount').click();    			  		
+    			caller.find('span.facetCount').click();
     		}
-    		else {    			 			
+    		else {   
+    			//console.log('back filtered');
     			var aKV = hashParams.fq.split(':');
     			var sClass = aKV[0];
     			var sRel = aKV[1].replace(/"/g,'');	    		
