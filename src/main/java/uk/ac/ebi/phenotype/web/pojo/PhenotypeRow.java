@@ -36,7 +36,21 @@ public class PhenotypeRow {
 	private int projectId;
 	private String procedureId;
 	private String parameterId;
-
+	private String dataSourceName;//to hold the name of the origin of the data e.g. Europhenome or WTSI Mouse Genetics Project
+	private String linkToOriginalDataProvider;
+	
+	public String getLinkToOriginalDataProvider() {
+		return linkToOriginalDataProvider;
+	}
+	public void setLinkToOriginalDataProvider(String linkToOriginalDataProvider) {
+		this.linkToOriginalDataProvider = linkToOriginalDataProvider;
+	}
+	public String getDataSourceName() {
+		return dataSourceName;
+	}
+	public void setDataSourceName(String dataSourceName) {
+		this.dataSourceName = dataSourceName;
+	}
 	public OntologyTerm getPhenotypeTerm() {
 		return phenotypeTerm;
 	}
