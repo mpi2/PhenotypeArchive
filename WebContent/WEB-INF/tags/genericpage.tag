@@ -56,6 +56,8 @@
 <title><jsp:invoke fragment="title"></jsp:invoke> | International Mouse Phenotyping Consortium</title>
 
 <link type='text/css' rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css' />
+<link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap.min.css'  />
+<link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap-responsive.min.css'  />
 <link rel="stylesheet" type="text/css" href="${baseUrl}/css/style.min.css"/>
 <style>
 
@@ -239,7 +241,11 @@ try {
 		</div>
 	</div><!-- /container -->
 	
+	<script type="text/javascript" src='${baseUrl}/js/vendor/jquery.ba-bbq.min.js' ></script>
+	<script type="text/javascript" src='${baseUrl}/js/bootstrap/bootstrap.min.js' ></script>
 	<script type="text/javascript" src='${baseUrl}/js/script.min.js' ></script>
+	<script type='text/javascript' src='${baseUrl}/js/vendor/respond.min.js'></script>
+	<script type='text/javascript' src='${baseUrl}/js/vendor/jquery.corner.mini.js'></script>
 	
 	<compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">
  	<script>
