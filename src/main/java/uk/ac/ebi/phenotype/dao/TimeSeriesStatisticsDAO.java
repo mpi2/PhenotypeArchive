@@ -31,11 +31,11 @@ public interface TimeSeriesStatisticsDAO {
 	public List<Integer> getPopulationIdsByParameter(Parameter parameter);
 	public List<Integer> getPopulationIdsByParameterAndMutantBiologicalModel(Parameter parameter, BiologicalModel biologicalModel);
 
-	public void saveCategoricalResult(CategoricalResult result);
+	//public void saveCategoricalResult(CategoricalResult result);
 
 	public SexType getSexByPopulation(Integer populationId);
 	public List<ZygosityType> getZygositiesByPopulation(Integer populationId);
 
-	public void deleteCategoricalResultByParameter(Parameter parameter) throws HibernateException, SQLException;
+	//public void deleteCategoricalResultByParameter(Parameter parameter) throws HibernateException, SQLException;
 	
 }
