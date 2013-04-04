@@ -78,18 +78,19 @@ public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements Phe
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<PhenotypeCallSummary> getPhenotypeCallByAccession(String accId) {
-		List<PhenotypeCallSummary> results = getCurrentSession().createQuery("from PhenotypeCallSummary as pheno where pheno.gene.id.accession = ?")
+		List<PhenotypeCallSummary> results = getCurrentSession().createQuery("from PhenotypeCallSummary as pheno where pheno.gene.id.accession = ? and pheno.datasource !=22")
 				.setString(0, accId)
 				.list();
 		
 		// Filter out those results that don't have MP terms associated
-		List<PhenotypeCallSummary> summaries = new ArrayList<PhenotypeCallSummary>();
-		for(PhenotypeCallSummary p : results) {
-			if (p.getPhenotypeTerm() != null) {				
-				summaries.add(p);
-			}
-		}
-		return summaries;
+//		List<PhenotypeCallSummary> summaries = new ArrayList<PhenotypeCallSummary>();
+//		for(PhenotypeCallSummary p : results) {
+//			if (p.getPhenotypeTerm() != null) {				
+//				summaries.add(p);
+//			}
+//		}
+//		return summaries;
+		return results;
 	}	
 	
 	@Transactional(readOnly = true)
