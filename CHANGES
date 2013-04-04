@@ -15,6 +15,34 @@ Getting Started
 ---------------
 You need a Java 1.6 VM or later installed and a servlet container.
 
+================== Release 0.1.7 ==================
+
+Status
+------
+21 March 2013 release.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  Pipelines/Procedures view by week of data
+ 2.  Procedures view has procedures with significant calls from PhenotypeCallSummary table highlighted in red and linked to chart pages (charts come back for data if in database).
+ 3.  New layout at the top of Gene Details page including dropdown for GenomeViewer
+ 4. Tables at bottom of categorical data transformed as per Terry's suggestions.
+ 5. Added export and print functionality to graphs
+ 6. style changes to graph headers
+  
+Bug fixes
+ 1. SOLR: Gene controller - Catch error when allele core fails
+ 
+Other Changes
+ 1. highcharts.org label removed from graphs.
+ 2. Highcharts license obtained.
+
+Known bugs
+ 
+
+
 ================== Release 0.1.6 ==================
 
 Status
