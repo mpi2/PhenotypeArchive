@@ -41,4 +41,11 @@ public interface OrganisationDAO {
 	 * @return the organisation
 	 */
 	public Organisation getOrganisationByName(String name);
+
+	/**
+	 * Find an organisation by its id.
+	 * @param id the organisation internal id
+	 * @return the organisation
+	 */
+	public Organisation getOrganisationById(Integer id);
 }
