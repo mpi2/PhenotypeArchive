@@ -82,10 +82,10 @@ public class CategoricalResult implements Serializable {
 	@JoinColumn(name = "parameter_id")
 	private Parameter parameter;
 
-	@Column(name = "category_a")
+	@Column(name = "category_a", length=200)
 	private String categoryA;
 
-	@Column(name = "category_b")
+	@Column(name = "category_b", length=200)
 	private String categoryB;
 
 	@Column(name = "p_value")
