@@ -235,7 +235,7 @@
   	    	}
   	    	
   	    	// reload sidebar for hash state	    	
-  	    	if ( self.options.data.core == 'images' && self.options.data.fq.match(/annotationTermId.+/)){
+  	    	if ( self.options.data.fq.match(/annotationTermId.+/)){
   	    		//console.log('UNfiltered images fq: ' + self.options.data.fq);
       			var solrSrchParams = $.extend({}, 
       					MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams, 
@@ -251,9 +251,10 @@
       			// load dataTable							
       			$.fn.invokeFacetDataTable(solrSrchParams, facetDivId, MPI2.searchAndFacetConfig.facetParams[facetDivId].gridName, true); 
       		}
-  	    	else if ( self.options.data.core == 'images' && self.options.data.fq.match(/expName.+|higherLevel.+|subtype.+/) ){	    
+  	    	else if ( self.options.data.fq.match(/expName.+|higherLevel.+|subtype.+/) ){
+  	    		// imageView
   	    		//console.log('filtered images fq: ' + self.options.data.fq);
-  	    		var obj = $('div#imagesFacet div.facetCatList').find("table#imgFacet a[class='" + self.options.data.fq + "']");  	    	
+  	    		var obj = $('div#imagesFacet div.facetCatList').find("table#imgFacet a[class='" + self.options.data.fq + "']");
   	    		$.fn.fetchFilteredDataTable(obj, 'imagesFacet', self.options.data.q);
   	    	}       		
   	    	
