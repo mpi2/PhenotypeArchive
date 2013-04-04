@@ -18,22 +18,17 @@
  * 
  */
 
-(function($){
-	$.fn.setHashUrl = function(q){
-		document.location.href = baseUrl + '/search#q=' + q;		
-	}
+(function($){	
 	
 	$.fn.fetchSolrFacetCount = function(q){		
-		console.log(baseUrl + ' searching for '+ q);
+		
 		$('div#userKeyword').html('Search keyword: <span>' + q + '</span>');	
 		
 		var oFacets = {};
 		oFacets.count = {};		
 		
-		MPI2.searchAndFacetConfig.facetParams.geneFacet.srchParams.q = q;
-		//var hashParams = $.fn.parseHashString(window.location.hash.substring(1));
-		//console.log(hashParams);
-			
+		MPI2.searchAndFacetConfig.facetParams.geneFacet.srchParams.q = q;			
+		
 	 	// facet types are done sequencially; starting from gene	 		
 	    $.ajax({            	    
 	    		url: solrUrl + '/gene/select',	       	
@@ -41,10 +36,10 @@
 	       	    dataType: 'jsonp',
 	       	    jsonp: 'json.wrf',
 	       	    timeout: 5000,
-	       	    success: function (geneResponse) {		       	    	
+	       	    success: function (geneResponse) {	       	    	
 	       	    	$('div#geneFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
 	       	    	oFacets.count.gene = geneResponse.response.numFound;
-	       	    	$('div#geneFacet span.facetCount').html(oFacets.count.gene);
+	       	    	$('div#geneFacet span.facetCount').html(oFacets.count.gene);	       	    	
 	       	    	_doMPAutoSuggest(geneResponse, q, oFacets);	            	    
 	       	    },
 	       	    error: function (jqXHR, textStatus, errorThrown) {	       	                	        
@@ -77,7 +72,7 @@
 	}   	
 	
 	function _doPipelineAutoSuggest(geneResponse, mpResponse, q, oFacets){
-		
+		oFacets
 		MPI2.searchAndFacetConfig.facetParams.pipelineFacet.srchParams.q = q;	
 		
 		$.ajax({
@@ -133,8 +128,8 @@
     	    success: function (imagesResponse) {  
     	    	$('div#imagesFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.images = imagesResponse.response.numFound;
-    	    	$('div#imagesFacet span.facetCount').html(oFacets.count.images);
-    	    	    	    	
+    	    	$('div#imagesFacet span.facetCount').html(oFacets.count.images);    	        
+    	    
     	    	/* now check which core needs to be displayed by default in the order of 
     	    	 * gene -> mp -> pipeline -> images
     	    	 * ie, fetch facet full result for that facet and display only facet count for the rest of the facets 
@@ -155,19 +150,23 @@
     	        	// remove all previous facet results before loading new facet results
     	        	$('div.facetCatList').html('');	    
     	        	var widgetName = coreName+'Facet';
-    	        		    	        	
+    	        						
     	        	window.jQuery('div#' + coreName + 'Facet')[widgetName]({
-    					data: {q: q, core: coreName, 
+    					data: {	q: q, 
+    							core: coreName, 
     							fq: hashParams.fq ? hashParams.fq : MPI2.searchAndFacetConfig.facetParams[widgetName].fq,
     							qf: MPI2.searchAndFacetConfig.facetParams[widgetName].qf    							
     							},
     			        geneGridElem: 'div#mpi2-search'			                                      
-    				});	
+    				});
     	        	
     	        	// load none-zero facet results on demand    	        	
     	        	var aCores = MPI2.searchAndFacetConfig.cores;
-    	        	delete aCores[coreName];
-    	        	for ( var i=0; i<aCores.length; i++){
+    	        	//delete active core, no need to invoke again    	        	
+    	        	var index = aCores.indexOf(coreName);
+    	        	aCores.splice(index, 1);
+    	        
+    	        	for ( var i=0; i< aCores.length; i++){
     	        		var core = aCores[i];
     	        		if ( oFacets.count[core] != 0 ){    	        	
     	        			_prepareCores(core, q);
@@ -182,9 +181,10 @@
 	}
 		
 	function _prepareCores(core, q, count){
+		
 		var widgetName = core + 'Facet';		
 		window.jQuery('div#' + core + 'Facet').click(function(){
-					
+				
 			var $this = window.jQuery(this);
 			
 			// check widget has not been created			
@@ -193,12 +193,11 @@
 				var hashParams = {};
 				hashParams.q = q;
 				hashParams.core = core;
-				hashParams.fq = MPI2.searchAndFacetConfig.facetParams[core + 'Facet'].fq;
-				window.location.hash = $.fn.stringifyJsonAsUrlParams(hashParams);				
+				hashParams.fq = MPI2.searchAndFacetConfig.facetParams[core + 'Facet'].fq;				
+				window.location.hash = $.fn.stringifyJsonAsUrlParams(hashParams);						
 				
 				if ( $this.find('.facetCatList').html() == '' && $this.find('span.facetCount').text() != '0' ){
 					
-					console.log('make '+ core);					
 					$this[widgetName]({  
 						data: {q: q, core: core, 
 							fq: MPI2.searchAndFacetConfig.facetParams[core + 'Facet'].fq,
@@ -213,6 +212,7 @@
 	
 	function _setSearchMode(oCounts){
 				
+		
 		// priority order of facet to be opened based on search result
 		if ( oCounts.gene != 0 ){			
 			return 'gene';
