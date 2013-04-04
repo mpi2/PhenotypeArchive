@@ -35,14 +35,13 @@
     		// execute only once 	
     		var self = this;  
     		self.options.solrParams.q = self.options.phenotype_id;   
-    		  		
+    		
     		$.ajax({	
-	    		'url': solrUrl + '/mp/select',
-	    		//'url': 'http://172.22.70.95:8983/solr/mp/select',
+	    		'url': solrUrl + '/mp/select',	    		
 	    		'data': self.options.solrParams,	    		
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',	    	
-	    		'success': function(json) {	
+	    		'success': function(json) {	    			
 	    			self._composeMpPage(json);	    			
 	    		} 		
 	    	});	
@@ -378,7 +377,7 @@
 						rowValsSex[aConcatColVals.join("___")].sex = [];
 	    			}	    			
 					rowValsSex[aConcatColVals.join("___")].sex.push(sSexColVals);					
-					
+					//console.log(oDoc.marker_symbol[r] + ' *** ' + aConcatColVals.join("___") + ' >> sex: ' + sSexColVals);
 	    			//trs += "<tr>" + tds + "</tr>";	    			
 	    		}	    
 	    		
@@ -500,7 +499,7 @@
 	    		self._initFileExporter({
 					mpId: oDoc.mp_id,
 					mpTerm: oDoc.mp_term,
-					externalDbId: 5,
+					externalDbId: 5,  //mp_db_id in phenotype_call_summary table
 					panel: 'geneVariants',
 					fileName: 'gene_variants_of_MP-' + oDoc.mp_term.replace(/ /g, '_')	
 				});	    		    		
