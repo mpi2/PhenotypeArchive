@@ -59,7 +59,7 @@ import uk.ac.ebi.phenotype.dao.TimeSeriesStatisticsDAO;
 import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.pojo.CategoricalTableObject;
+import uk.ac.ebi.phenotype.pojo.TableObject;
 import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
@@ -142,7 +142,7 @@ public class StatsController implements BeanFactoryAware {
 //		timeSeriesChartAndTableProvider=new TimeSeriesChartAndTableProvider(timeSeriesStatisticsDAO);
 //		continousChartAndTableProvider=new ContinousChartAndTableProvider(unidimensionalStatisticsDAO);
 		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
-		System.out.println(gene);
+		log.info(gene.toString());
 		if (gene == null) {
 			throw new GenomicFeatureNotFoundException("Gene " + acc
 					+ " can't be found.", acc);
@@ -155,7 +155,7 @@ public class StatsController implements BeanFactoryAware {
 		List<String> biologicalModelsParams=getParamsAsList(biologicalModelsParam);
 		
 		if(paramIds.isEmpty() && genderList.isEmpty() && zyList.isEmpty() && biologicalModelsParams.isEmpty()){
-			System.out.println("Gene Accession without any web params");
+			log.info("Gene Accession without any web params");
 			//a method here to get a general page for Gene and all procedures associated
 			List<PhenotypeCallSummary> allPhenotypeSummariesForGene = phenotypeCallSummaryDAO.getPhenotypeCallByAccession(acc);
 			//a method here to get a general page for Gene and all procedures associated
@@ -166,27 +166,32 @@ public class StatsController implements BeanFactoryAware {
 //				dataForATable.getTableData();
 //			}
 			model.addAttribute("pipelineProcedureData", dataForTables);
-			model.addAttribute("allPipelines", pipelines);//limit pipelines to two for testing
+			//model.addAttribute("allPipelines", pipelines);//limit pipelines to two for testing
 			return "procedures";
 		}
 		
 		
 
 		// MGI:105313 male het param 655
-		// System.out.println("acc=" + acc);
+		// log.info("acc=" + acc);
 		List<JSONObject> charts = new ArrayList<JSONObject>();
 		List<String> continuouscharts = new ArrayList<String>();
 		List<String> continuousBarCharts = new ArrayList<String>();
 		List<String> timeSeriesCharts = new ArrayList<String>();
 		List<String> categoricalBarCharts=new ArrayList<String>();
-		List<CategoricalTableObject> tables=new ArrayList<CategoricalTableObject>();
+		List<TableObject> categoricalTables=new ArrayList<TableObject>();
+		List<TableObject> continuousTables=new ArrayList<TableObject>();
+		List<TableObject> timeSeriesTables=new ArrayList<TableObject>();
+		List<BiologicalModel> categoricalMutantBiologicalModels=new ArrayList<BiologicalModel>();
+		List<BiologicalModel> unidimensionalMutantBiologicalModels=new ArrayList<BiologicalModel>();
+		List<BiologicalModel> timeSeriesMutantBiologicalModels=new ArrayList<BiologicalModel>();
 		// param 655
 		// female homzygote
 		// population id=4640 or 4047 - male, het.
 		
 		
 		
-		int chartNumber = 1;
+	
 		for (String parameterId : paramIds) {
 			
 			Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion(parameterId, 1, 0);
@@ -201,28 +206,31 @@ public class StatsController implements BeanFactoryAware {
 				yUnits=parameterUnits[1];
 			}
 			ObservationType observationTypeForParam=Utilities.checkType(parameter);
-			System.out.println("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
+			log.info("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
 			
 			if(observationTypeForParam.equals(ObservationType.time_series)){
 				//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
-				timeSeriesChartAndTableProvider.doTimeSeriesData(parameter, acc , model, genderList, zyList, timeSeriesCharts, biologicalModelsParams);
+				timeSeriesChartAndTableProvider.doTimeSeriesData(timeSeriesMutantBiologicalModels, parameter, acc , model, genderList, zyList, timeSeriesCharts, biologicalModelsParams, timeSeriesTables);
 			}
 			
 			if(observationTypeForParam.equals(ObservationType.unidimensional)){
 				//http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
-				continousChartAndTableProvider.doContinuousData(parameter, acc , model, genderList, zyList, continuouscharts, continuousBarCharts);
+				continousChartAndTableProvider.doContinuousData(unidimensionalMutantBiologicalModels, parameter, acc , model, genderList, zyList, continuouscharts, continuousBarCharts, continuousTables);
 			}
 			if(observationTypeForParam.equals(ObservationType.categorical)){
 				//https://dev.mousephenotype.org/mi/impc/dev/phenotype-archive/stats/genes/MGI:1346872?parameterId=ESLIM_001_001_004
-				categoricalChartAndTableProvider.doCategoricalData(categoricalBarCharts, parameter, acc, model, genderList, zyList,
-				biologicalModelsParams, charts, tables, 
+				categoricalChartAndTableProvider.doCategoricalData(categoricalMutantBiologicalModels, categoricalBarCharts, parameter, acc, model, genderList, zyList,
+				biologicalModelsParams, charts, categoricalTables, 
 				parameterId);
 			}
 		}// end of parameterId iterations
 
-		model.addAttribute("timeSeriesCharts", timeSeriesCharts);
+		model.addAttribute("unidimensionalMutantBiologicalModels", unidimensionalMutantBiologicalModels );
+		model.addAttribute("timeSeriesMutantBiologicalModels", timeSeriesMutantBiologicalModels );
+		
+		model.addAttribute("categoricalMutantBModel", categoricalMutantBiologicalModels );
 		model.addAttribute("categoricalBarCharts", categoricalBarCharts);
-		model.addAttribute("tables", tables);
+		model.addAttribute("tables", categoricalTables);
 		return "stats";
 	}
 
