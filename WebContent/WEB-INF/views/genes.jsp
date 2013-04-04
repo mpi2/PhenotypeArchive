@@ -6,23 +6,29 @@
 	<jsp:attribute name="title">Gene details for ${gene.name}</jsp:attribute>
 	
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#sort=marker_symbol asc&q=*:*&core=gene">Genes</a> <c:if test="${not empty gene.subtype.name }">&raquo; <a href='${baseUrl}/search#fq=marker_type:"${gene.subtype.name}"&q=*:*&core=gene'>${gene.subtype.name}</a></c:if> &raquo; ${gene.symbol}</jsp:attribute>
-	
-	<jsp:attribute name="header">
 
-	<script type="text/javascript">var gene_id = '${acc}';</script>
+	<jsp:attribute name="footer">
 
-	<!--    extra header stuff goes here such as extra page specific javascript -->
-	<script src="${baseUrl}/js/imaging/properties.js"></script>
-	<script src="${baseUrl}/js/imaging/genomicB.js"></script>
-	<script src="${baseUrl}/js/imaging/mp.js"></script>
-	<!-- jquery ui custom build (for animation easing) -->
-	<script src="${baseUrl}/js/imaging/jquery-ui-1.8.13.custom.min.js"></script>
-	<script src="${baseUrl}/js/imaging/imageUtils.js"></script>
-	<script src="${baseUrl}/js/general/toggle.js"></script>
-	<script src="${baseUrl}/js/mpi2_search/all.js"></script>
 	<!--[if !IE]><!-->
 	<script type="text/javascript" src="${baseUrl}/js/genomic-browser/dalliance-all.js"></script>
 	<!--<![endif]-->
+
+
+	</jsp:attribute>
+	
+
+	<jsp:attribute name="header">
+
+
+	<script type="text/javascript">var gene_id = '${acc}';</script>
+
+	<script src="${baseUrl}/js/imaging/properties.js"></script>
+	<script src="${baseUrl}/js/imaging/genomicB.js"></script>
+	<script src="${baseUrl}/js/imaging/mp.js"></script>
+	<script src="${baseUrl}/js/imaging/imageUtils.js"></script>
+	<script src="${baseUrl}/js/general/toggle.js"></script>
+	<script src="${baseUrl}/js/mpi2_search/all.js"></script>
+
 
 <style>
 
@@ -97,13 +103,15 @@
     </jsp:attribute>
 
 	<jsp:body>
-		<div class='topic'>Gene: ${gene.symbol}  &nbsp;&nbsp;
-			<c:choose>
-			<c:when test="${registerButtonAnchor!=''}"><a href='${registerButtonAnchor}'  id='${registerButtonId}'  class='btn primary'>${registerInterestButtonString}</a></c:when>
-			<c:otherwise><a  id='${registerButtonId}'  class='btn primary interest'>${registerInterestButtonString}</a></c:otherwise>
-			</c:choose>
-		</div>
-<div class="row-fluid dataset">
+
+	<div class='topic'>Gene: ${gene.symbol}  &nbsp;&nbsp;
+		<c:choose>
+		<c:when test="${registerButtonAnchor!=''}"><a href='${registerButtonAnchor}'  id='${registerButtonId}'  class='btn primary'>${registerInterestButtonString}</a></c:when>
+		<c:otherwise><a  id='${registerButtonId}'  class='btn primary interest'>${registerInterestButtonString}</a></c:otherwise>
+		</c:choose>
+	</div>
+
+	<div class="row-fluid dataset">
 		<div class="row-fluid">
 				<div class="container span6">
 				<table>				  
@@ -127,10 +135,12 @@
 								</c:forEach>
  							</td>
 						</tr>
+
 						<tr class="odd">
 							<td>MGI Id:</td>
 							<td class="gene-data" id="mgi_id"><a href="http://www.informatics.jax.org/marker/${gene.id.accession}">${gene.id.accession}</a></td>
 						</tr>
+
 					</tbody>
 				</table>
 				</div>
@@ -153,26 +163,21 @@
 				</table>
 				</div>
 		</div>
+
 		<div class="row-fluid">
 				<div class="container span12">
 				<button type="button" data-toggle="collapse" data-target="#other_ids" id="showGBrowser">Show/Hide Genome Browser</button>
 
 				<div id="other_ids" class="collapse">
 			
-				<div class="container span6" id="geneLocation1">
-								Gene&nbsp;Location: Chr<span id='chr'>${gene.sequenceRegion.name}</span>:<span id='geneStart'>${gene.start}</span>-<span id='geneEnd'>${gene.end}</span>
-								</div> 
-				<div class="container span6" >
-							Gene Type:
-							${gene.subtype.name}
-						</div>
+				<div class="container span6" id="geneLocation1">Gene&nbsp;Location: Chr<span id='chr'>${gene.sequenceRegion.name}</span>:<span id='geneStart'>${gene.start}</span>-<span id='geneEnd'>${gene.end}</span></div>
+				<div class="container span6" >Gene Type: ${gene.subtype.name}</div>
 				<span id="genomicBrowserInfo">
 					<span class="label label-info" rel="tooltip"  title="This browser is clickable please experiment by clicking. Click on features to get more info, click on zoom bar etc. To reset click on 'lightning button'" disabled>This is an interactive genomic browser </span>
 					<a href="http://www.biodalliance.org/"><i class="icon-question-sign" rel="tooltip" title="More information on using this browser"></i></a>
 				</span>
 				<div class="container span12"  id="svgHolder"></div>
-				
-				
+
 				<table>
 						<tbody>
 							<c:if test="${not empty vegaIds}">
@@ -195,18 +200,12 @@
 							</c:if>
 						</tbody>
 					</table>
-				
-			</div>
-			
-			
 				</div>
-		
 			</div>
-		
-			
-			
-</div>
-<!--/row-->
+		</div>
+	</div>
+	<!--/row-->
+
 
 		<div class="row-fluid dataset">
 			<div class="row-fluid">
@@ -261,7 +260,16 @@
 						<c:forEach var="sex" items="${phenotype.sexes}"><c:set var="count" value="${count + 1}" scope="page"/><c:if test="${sex == 'female'}"><c:set var="europhenome_gender" value="Female"/><img style="cursor:help;color:#D6247D;" rel="tooltip" data-placement="top" title="Female" alt="Female" src="${baseUrl}/img/icon-female.png" /></c:if><c:if test="${sex == 'male'}"><c:set var="europhenome_gender" value="Male"/><img style="cursor:help;color:#247DD6;margin-left:<c:if test="${count != 2}">16</c:if><c:if test="${count == 2}">4</c:if>px;" rel="tooltip" data-placement="top" title="Male" alt="Male" src="${baseUrl}/img/icon-male.png" /></c:if></c:forEach>
 						<c:if test="${count == 2}"><c:set var="europhenome_gender" value="Both-Split"/></c:if>
 					</td>
-					<td><a href="http://www.europhenome.org/databrowser/viewer.jsp?set=true&m=true&l=${phenotype.projectId}&zygosity=${phenotype.rawZygosity}&x=${europhenome_gender}&p=${phenotype.procedureId}&pid_${phenotype.parameterId}=on&compareLines=View+Data">Europhenome</a></td>
+					<td>
+					<c:choose>
+					<c:when test="${phenotype.linkToOriginalDataProvider eq ''}">
+						${phenotype.dataSourceName}
+					</c:when>
+					<c:otherwise>
+					<a href="${phenotype.linkToOriginalDataProvider }">${phenotype.dataSourceName}</a>
+					</c:otherwise>
+					</c:choose>
+					</td>
 					<%-- <td>${phenotype.strain.name}</td> --%>
 					</tr>
 					</c:forEach>
