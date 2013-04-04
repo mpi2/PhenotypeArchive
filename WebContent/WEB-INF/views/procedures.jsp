@@ -61,14 +61,23 @@
 														
 														
 														<c:choose>
-														<c:when  test="${rowStatus.last}">
-														<c:set var="iconString" value='<i class="icon-forward"></i>'/>
-														<c:if test="${cellData.dataString eq 'unassigned week'}"><c:set var="iconString" value=""/></c:if>
-														<c:if test="${cellData.dataString!=''}"><button class="span12 btn tn_mini btn-warning" style="color:blue" title="${cellData.dataString}">${cellData.dataString} ${iconString}</button></c:if>
-														</c:when>
-														<c:otherwise>
-														<c:if test="${cellData.dataString!=''}"><button class="span12 btn btn_mini btn-info" title="${cellData.dataString}">${shortString}</button></c:if>
-														</c:otherwise>
+															<c:when  test="${rowStatus.last}">
+															<c:set var="iconString" value='<i class="icon-forward"></i>'/>
+															<c:if test="${cellData.dataString eq 'unassigned week'}"><c:set var="iconString" value=""/></c:if>
+															<button class="span12 btn tn_mini btn-warning" style="color:blue" title="${cellData.dataString}">${cellData.dataString} ${iconString}</button>
+															</c:when>
+															<c:otherwise>
+																	<c:choose>
+																	<c:when test="${cellData.parameterId !=''}"><a href="${baseUrl}/stats/genes/${acc}?parameterId=${cellData.parameterId}"><button class="span12 btn btn_mini btn-danger" title="${cellData.dataString}">${shortString}</button></a>
+																	</c:when>
+																	<c:otherwise>
+																	<c:if test="${cellData.dataString!=''}">
+																	<button class="span12 btn btn_mini btn-info" title="${cellData.dataString}" disabled>${shortString}</button>
+																	</c:if>
+																	</c:otherwise>
+																	
+																	</c:choose>
+															</c:otherwise>
 														</c:choose>	
 														</td>
 														</c:if>
