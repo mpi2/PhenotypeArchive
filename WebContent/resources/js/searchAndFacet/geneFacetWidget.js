@@ -33,20 +33,18 @@
 		
 			caller.find('div.facetCat').click(function(){
 				if ( caller.find('span.facetCount').text() != '0' ){
-					console.log('facet click');
+					
+					//console.log('facet click');
 					var gridName = MPI2.searchAndFacetConfig.facetParams[facetDivId].gridName;
 					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
 					
 					caller.parent().find('div.facetCat').removeClass('facetCatUp');					
 					
-					if ( caller.find('.facetCatList').is(':visible') ){						
-						
+					if ( caller.find('.facetCatList').is(':visible') ){									
 						caller.parent().find('div.facetCatList').hide(); // collapse all other facets					
-						caller.find('.facetCatList').hide(); // hide itself		
-						
+						caller.find('.facetCatList').hide(); // hide itself								
 					}
-					else {
-						
+					else {						
 						caller.parent().find('div.facetCatList').hide(); // collapse all other facets 
 						caller.find('.facetCatList').show(); // show itself					
 						$(this).addClass('facetCatUp');						
@@ -98,12 +96,11 @@
 				}
 			});				
 										
-			// click on SUM facetCount to fetch results in grid
-			//$('span.facetCount').click(function(){								
+			// click on SUM facetCount to fetch results in grid										
 			caller.find('span.facetCount').click(function(event){
 				
 				if ( $(this).text() != '0' ){ 
-					console.log('facet count click');
+					//console.log('facet count click');
 					var gridName = MPI2.searchAndFacetConfig.facetParams[facetDivId].gridName;
 					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
 					var solrSrchParams = {}
@@ -123,6 +120,7 @@
 					hashParams.core = solrCoreName;
 					hashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
 					
+					
 					// hash state stuff				   
 					window.location.hash = $.fn.stringifyJsonAsUrlParams(hashParams);// + "&core=" + solrCoreName;
 						
@@ -130,6 +128,7 @@
 					$.fn.invokeFacetDataTable(solrSrchParams, facetDivId, gridName);
 				}	
 			});	
+			
     	},
     	    	
     	_applyFacetTopLevelFilter: function(facetDivId){
@@ -153,7 +152,7 @@
 		_initFacet: function(){
 	    	var self = this;
 	    	MPI2.searchAndFacetConfig.commonSolrParams.rows = 10;
-	    	
+	    
 	    	//var queryParams = $.extend({},{		
 	    	var queryParams = $.extend({}, { 
 				'rows': 0,
@@ -165,10 +164,10 @@
 	    		'q': self.options.data.q},
 	    		MPI2.searchAndFacetConfig.commonSolrParams,
 	    		MPI2.searchAndFacetConfig.facetParams.geneFacet.filterParams
-	    	);
+	    	);    	   	
 	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams) + '&facet.field=status';
-	    	
+	    	    	
 	    	$.ajax({ 				 					
 	    		'url': solrUrl + '/gene/select',
 	    		'data': queryParamStr, 
@@ -186,7 +185,7 @@
 	    	var numFound = json.response.numFound;
 	    	
 	    	// update this if facet is loaded by redirected page, which does not use autocomplete
-	    	$('div#geneFacet span.facetCount').attr({title: 'total number of unique genes'}).text(numFound);
+	    	//$('div#geneFacet span.facetCount').attr({title: 'total number of unique genes'}).text(numFound);
 	    	
 	    	/*-------------------------------------------------------*/
 	    	/* ------ displaying sidebar and update dataTable ------ */
@@ -194,7 +193,7 @@
 	    	
 	    	if (numFound > 0){
 	    		
-	    		var trs = "<tr class='facetSubCat'><td colspan=2>Status</td></tr>";
+	    		var trs = "<tr class='facetSubCat'><td colspan=2>IMPC Status</td></tr>";
 	    		var status_facets = json.facet_counts['facet_fields']['status'];
 	    		var status_count = {};
 	    		for ( var i=0; i<status_facets.length; i+=2 ){		    			
@@ -240,29 +239,21 @@
 	    	
 	    	/*------------------------------------------------------------------*/
 	    	/* ------ load sidebar for hash state when widget is created ------ */
-	    	/*------------------------------------------------------------------*/
+	    	/*------------------------------------------------------------------*/	    			    	
 	    	
-	    	//console.log('hash str: ' + window.location.hash);
-	    	//console.log(self.options.data.fq);
-	    	//console.log(typeof self.options.data.fq);
-	    	
-	    	//if ( self.options.data.core == 'gene' && self.options.data.fq != undefined  ){
-	    	if ( self.options.data.fq != undefined  ){	    		
+	    	if ( self.options.data.fq != undefined ){	    		
 	    		//console.log('fq: '+ self.options.data.fq);
 	    		var subFacet = self.options.data.fq.replace(/\w+:/, '').replace(/"/g,'');
 	    		//console.log('gene filtered: '+ subFacet);
-	    		var obj = $('div#geneFacet div.facetCatList').find("table#gFacet td[rel='" + subFacet + "']").find('a');	    		    			    		
-	    		
+	    		var obj = $('div#geneFacet div.facetCatList').find("table#gFacet td[rel='" + subFacet + "']").find('a');
 	    		$.fn.fetchFilteredDataTable(obj, 'geneFacet', self.options.data.q);
-	    	}
-	    	//else if ( self.options.data.core == 'gene' && self.options.data.fq == undefined ){
+	    	}	    
 	    	else if ( self.options.data.fq == undefined ){ 
 	    		//console.log('gene UNfiltered');
 	    		var solrSrchParams = $.extend({}, MPI2.searchAndFacetConfig.commonSolrParams, MPI2.searchAndFacetConfig.facetParams['geneFacet'].filterParams);
 	    		//var hashParams = $.fn.parseHashString(window.location.hash.substring(1));
 	    		//solrSrchParams.q = hashParams.q;
-    			solrSrchParams.q = self.options.data.q;	
-    			
+    			solrSrchParams.q = self.options.data.q;	    			
     			$.fn.invokeFacetDataTable(solrSrchParams, 'geneFacet', MPI2.searchAndFacetConfig.facetParams['geneFacet'].gridName);  
 	    	}
 	    },
@@ -280,7 +271,7 @@
 		_reloadDataTableForHashUrl: function(){
 			var self = this;
 			var hashParams = $.fn.parseHashString(window.location.hash.substring(1));
-    		console.log('check fq: '+ hashParams.fq);
+    	
     		if ( typeof hashParams.fq !== 'undefined' ){    			
     			var aKV = hashParams.fq.split(':');
     			var sClass = aKV[0];
