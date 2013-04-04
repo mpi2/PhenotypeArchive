@@ -26,7 +26,7 @@ package uk.ac.ebi.phenotype.dao;
 import java.util.List;
 
 
-public interface OntodbDAO {
+public interface OntodbDAO extends HibernateDAO {
 
 	/**
 	 * Get all cell terms
