@@ -223,6 +223,7 @@
 				<entry key="solrUrl" value="${solrUrl}" />
 				<entry key="internalSolrUrl" value="${internalSolrUrl}" />
 				<entry key="mediaBaseUrl" value="${mediaBaseUrl}" />
+				<entry key="googleAnalytics" value="${googleAnalytics}" />
 			</map>
 		</property>
 	</bean>
