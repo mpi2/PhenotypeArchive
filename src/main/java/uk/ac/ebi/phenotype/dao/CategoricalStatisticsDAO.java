@@ -17,15 +17,18 @@ package uk.ac.ebi.phenotype.dao;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.hibernate.HibernateException;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
+import uk.ac.ebi.phenotype.pojo.CategoricalControlView;
+import uk.ac.ebi.phenotype.pojo.CategoricalGroupKey;
+import uk.ac.ebi.phenotype.pojo.CategoricalMutantView;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
-import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.ParameterOption;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
@@ -61,5 +64,11 @@ public interface CategoricalStatisticsDAO {
 
 	public Integer getPopulationIdByColonySexParameter(String colonyId, SexType sex, Parameter parameter);
 
+	public List<CategoricalGroupKey> getControlCategoricalDataByParameter(Parameter parameter);
+	public List<CategoricalGroupKey> getMutantCategoricalDataByParameter(Parameter parameter);
+
+	public Map<Integer, Integer> getOrganisationsByParameter(Parameter parameter);
+	public Set<Parameter> getAllCategoricalParametersForProcessing();
+	
 
 }
