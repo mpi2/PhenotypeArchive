@@ -258,9 +258,17 @@
 					<td style="font-family:Verdana;font-weight:bold;">
 						<c:set var="count" value="0" scope="page" />
 						<c:forEach var="sex" items="${phenotype.sexes}"><c:set var="count" value="${count + 1}" scope="page"/><c:if test="${sex == 'female'}"><c:set var="europhenome_gender" value="Female"/><img style="cursor:help;color:#D6247D;" rel="tooltip" data-placement="top" title="Female" alt="Female" src="${baseUrl}/img/icon-female.png" /></c:if><c:if test="${sex == 'male'}"><c:set var="europhenome_gender" value="Male"/><img style="cursor:help;color:#247DD6;margin-left:<c:if test="${count != 2}">16</c:if><c:if test="${count == 2}">4</c:if>px;" rel="tooltip" data-placement="top" title="Male" alt="Male" src="${baseUrl}/img/icon-male.png" /></c:if></c:forEach>
-						<c:if test="${count == 2}"><c:set var="europhenome_gender" value="Both-Split"/></c:if>
 					</td>
-					<td><a href="http://www.europhenome.org/databrowser/viewer.jsp?set=true&m=true&l=${phenotype.projectId}&zygosity=${phenotype.rawZygosity}&x=${europhenome_gender}&p=${phenotype.procedureId}&pid_${phenotype.parameterId}=on&compareLines=View+Data">Europhenome</a></td>
+					<td>
+					<c:choose>
+					<c:when test="${phenotype.linkToOriginalDataProvider eq ''}">
+						${phenotype.dataSourceName}
+					</c:when>
+					<c:otherwise>
+					<a href="${phenotype.linkToOriginalDataProvider }">${phenotype.dataSourceName}</a>
+					</c:otherwise>
+					</c:choose>
+					</td>
 					<%-- <td>${phenotype.strain.name}</td> --%>
 					</tr>
 					</c:forEach>
