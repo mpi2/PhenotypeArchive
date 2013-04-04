@@ -55,10 +55,11 @@
 <title><jsp:invoke fragment="title"></jsp:invoke> | International Mouse Phenotyping Consortium</title>
 
 <link type='text/css' rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css' />
-<!--replaceCSS
-<link type='text/css' rel='stylesheet' href='${baseUrl}/css/searchAndFacet.css' />	
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap.min.css'  />
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap-responsive.min.css'  />
+<!--replaceCSS
+<link type='text/css' rel='stylesheet' href='${baseUrl}/css/searchAndFacet.css' />	
+
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/vendor/DataTables-1.9.4/jquery.dataTables.css' media='all' />
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/vendor/DataTables-1.9.4/customDataTable.css' media='all' />
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/custom.css'  />
@@ -244,10 +245,11 @@ try {
 		</div>
 	</div><!-- /container -->
 	
-	<!--replaceJS
+	<script type="text/javascript" src='${baseUrl}/js/vendor/jquery.ba-bbq.min.js' ></script>
+	<script type="text/javascript" src='${baseUrl}/js/bootstrap/bootstrap.min.js' ></script>
 	
-	<script type='text/javascript' src='${baseUrl}/js/vendor/jquery.ba-bbq.min.js'></script>	
-	<script type='text/javascript' src='${baseUrl}/js/bootstrap/bootstrap.min.js'></script>	
+	<!--replaceJS
+		
 	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js'></script>
 		
 	<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/jquery.dataTables.js'></script>
@@ -261,12 +263,12 @@ try {
     <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js'></script>
     <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script>
     <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>	
+	
+	replaceJSEnd-->
 
 	<script type='text/javascript' src='${baseUrl}/js/vendor/respond.min.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/vendor/jquery.corner.mini.js'></script>
 	
-	replaceJSEnd-->
-
  	<script>
 	$(document).ready(function() {
 		// wire up the example queries
