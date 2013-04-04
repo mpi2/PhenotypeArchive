@@ -43,6 +43,7 @@ public interface BiologicalModelDAO extends HibernateDAO {
 	public List<BiologicalModel> getAllBiologicalModelsByAccession(String accession);
 	
 	public BiologicalModel getBiologicalModelById(int modelId);
+	public BiologicalSample getBiologicalSampleById(int sampleId);
 	
 	public void saveBiologicalModel(BiologicalModel model);
 	
