@@ -512,6 +512,7 @@
     <field name="imits_report_phenotyping_complete_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
     <field name="imits_report_genotype_confirmed_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
     <field name="imits_report_mi_plan_status" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="imits_consortium" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="escell" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
     <field name="ikmc_project" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
     <field name="status" type="string" indexed="true" stored="true" required="true" multiValued="false" />  
