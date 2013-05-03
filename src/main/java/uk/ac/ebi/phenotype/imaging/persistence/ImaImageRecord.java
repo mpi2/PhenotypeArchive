@@ -16,20 +16,26 @@
 package uk.ac.ebi.phenotype.imaging.persistence;
 
 import java.io.Serializable;
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.codehaus.jackson.annotate.JsonManagedReference;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
-
-import uk.ac.ebi.phenotype.pojo.Organisation;
-
-
-
 import java.util.Date;
 import java.util.List;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
+
+import org.codehaus.jackson.annotate.JsonManagedReference;
+
+import uk.ac.ebi.phenotype.pojo.Organisation;
 
 
 /**
@@ -47,21 +53,18 @@ public class ImaImageRecord implements Serializable {
 	private String downloadFilePath;
 	private Date editDate;
 	private String editedBy;
-	//private int foreignKeyId;
-	private ImaMouseImageVw imaMouseImageVw;
+
 	private String foreignTableName;
 	private String fullResolutionFilePath;
 	private String largeThumbnailFilePath;
 	private String originalFileName;
-	//private int publishedStatusId;
 	private ImaPublishedDict imaPublishedDict;
 	private ImaQcDict imaQcDict;
 	private String smallThumbnailFilePath;
-	//private int subcontextId;
 	private ImaSubcontext imaSubcontext;
 	private Organisation organisation;
 	
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=false, fetch=FetchType.LAZY)
     @JoinColumn(name="organisation",referencedColumnName="ID")
 	public Organisation getOrganisation() {
 		return organisation;
@@ -148,33 +151,6 @@ public class ImaImageRecord implements Serializable {
 
 	public void setEditedBy(String editedBy) {
 		this.editedBy = editedBy;
-	}
-
-
-//	@Column(name="FOREIGN_KEY_ID")
-//	public int getForeignKeyId() {
-//		return this.foreignKeyId;
-//	}
-//
-//	public void setForeignKeyId(int foreignKeyId) {
-//		this.foreignKeyId = foreignKeyId;
-//	}
-	
-	//not found added to get around this error:
-//	INFO : org.hibernate.event.internal.DefaultLoadEventListener - HHH000327: Error performing load command : org.hibernate.ObjectNotFoundException: No row with the given identifier exists: [uk.ac.ebi.mpi2.imaging.persistence.ImaMouseImageVw#1491]
-//			Exception in thread "main" org.hibernate.ObjectNotFoundException: No row with the given identifier exists: [uk.ac.ebi.mpi2.imaging.persistence.ImaMouseImageVw#1491]
-//				at org.hibernate.internal.SessionFactoryImpl$1$1.handleEntityNotFound(SessionFactoryImpl.java:247)
-//				at org.hibernate.event.internal.DefaultLoadEventListener.load(DefaultLoadEventListener.java:210)
-//				at org.hibernate.event.internal.DefaultLoadEventListener.proxyOrLoad(DefaultLoadEventListener.java:251)
-	 @NotFound(action=NotFoundAction.IGNORE)
-	@ManyToOne
-	@JoinColumn(name="FOREIGN_KEY_ID", referencedColumnName="ID" )
-	public ImaMouseImageVw getImaMouseImageVw() {
-		return this.imaMouseImageVw;
-	}
-
-	public void setImaMouseImageVw(ImaMouseImageVw imaMouseImageVw) {
-		this.imaMouseImageVw = imaMouseImageVw;
 	}
 
 
