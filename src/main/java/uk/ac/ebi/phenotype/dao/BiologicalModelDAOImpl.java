@@ -95,6 +95,14 @@ public class BiologicalModelDAOImpl extends HibernateDAOImpl implements Biologic
 			.list();
 	}
 
+
+	@Transactional(readOnly = true)
+	@SuppressWarnings("unchecked")	
+	public List<LiveSample> getAllLiveSamplesByDatasourceId(int databaseId) {
+		return getCurrentSession().createQuery("from LiveSample as l inner join l.datasource as d where d.id = ?").setInteger(0, databaseId).list();
+	}
+	
+	
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<LiveSample> getAllLiveSampleByOrganisationAndDatasource(Organisation organisation, Datasource datasource) {
