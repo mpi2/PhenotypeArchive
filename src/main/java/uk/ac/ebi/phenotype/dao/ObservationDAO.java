@@ -32,7 +32,7 @@ import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 
-public interface ObservationDAO {
+public interface ObservationDAO extends HibernateDAO {
 
 	public List<Observation> getObservationsBySampleIdAndParameterStableId(int sampleId, String parameterStableId);
 	
