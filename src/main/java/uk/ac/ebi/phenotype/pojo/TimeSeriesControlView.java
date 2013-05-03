@@ -16,7 +16,6 @@
 package uk.ac.ebi.phenotype.pojo;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -216,6 +215,8 @@ public class TimeSeriesControlView implements Serializable {
 		result = prime * result
 				+ ((dataPoint == null) ? 0 : dataPoint.hashCode());
 		result = prime * result
+				+ ((discretePoint == null) ? 0 : discretePoint.hashCode());
+		result = prime * result
 				+ ((organisation == null) ? 0 : organisation.hashCode());
 		result = prime * result
 				+ ((parameter == null) ? 0 : parameter.hashCode());
@@ -223,73 +224,95 @@ public class TimeSeriesControlView implements Serializable {
 				+ ((populationId == null) ? 0 : populationId.hashCode());
 		result = prime * result + ((sex == null) ? 0 : sex.hashCode());
 		result = prime * result
-				+ ((discretePoint == null) ? 0 : discretePoint.hashCode());
-		result = prime * result
 				+ ((zygosity == null) ? 0 : zygosity.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		TimeSeriesControlView other = (TimeSeriesControlView) obj;
 		if (biologicalModel == null) {
-			if (other.biologicalModel != null)
+			if (other.biologicalModel != null) {
 				return false;
-		} else if (!biologicalModel.equals(other.biologicalModel))
+			}
+		} else if (!biologicalModel.equals(other.biologicalModel)) {
 			return false;
+		}
 		if (biologicalSample == null) {
-			if (other.biologicalSample != null)
+			if (other.biologicalSample != null) {
 				return false;
-		} else if (!biologicalSample.equals(other.biologicalSample))
+			}
+		} else if (!biologicalSample.equals(other.biologicalSample)) {
 			return false;
+		}
 		if (colony == null) {
-			if (other.colony != null)
+			if (other.colony != null) {
 				return false;
-		} else if (!colony.equals(other.colony))
+			}
+		} else if (!colony.equals(other.colony)) {
 			return false;
+		}
 		if (dataPoint == null) {
-			if (other.dataPoint != null)
+			if (other.dataPoint != null) {
 				return false;
-		} else if (!dataPoint.equals(other.dataPoint))
+			}
+		} else if (!dataPoint.equals(other.dataPoint)) {
 			return false;
-		if (organisation == null) {
-			if (other.organisation != null)
-				return false;
-		} else if (!organisation.equals(other.organisation))
-			return false;
-		if (parameter == null) {
-			if (other.parameter != null)
-				return false;
-		} else if (!parameter.equals(other.parameter))
-			return false;
-		if (populationId == null) {
-			if (other.populationId != null)
-				return false;
-		} else if (!populationId.equals(other.populationId))
-			return false;
-		if (sex == null) {
-			if (other.sex != null)
-				return false;
-		} else if (!sex.equals(other.sex))
-			return false;
+		}
 		if (discretePoint == null) {
-			if (other.discretePoint != null)
+			if (other.discretePoint != null) {
 				return false;
-		} else if (!discretePoint.equals(other.discretePoint))
+			}
+		} else if (!discretePoint.equals(other.discretePoint)) {
 			return false;
+		}
+		if (organisation == null) {
+			if (other.organisation != null) {
+				return false;
+			}
+		} else if (!organisation.equals(other.organisation)) {
+			return false;
+		}
+		if (parameter == null) {
+			if (other.parameter != null) {
+				return false;
+			}
+		} else if (!parameter.equals(other.parameter)) {
+			return false;
+		}
+		if (populationId == null) {
+			if (other.populationId != null) {
+				return false;
+			}
+		} else if (!populationId.equals(other.populationId)) {
+			return false;
+		}
+		if (sex == null) {
+			if (other.sex != null) {
+				return false;
+			}
+		} else if (!sex.equals(other.sex)) {
+			return false;
+		}
 		if (zygosity == null) {
-			if (other.zygosity != null)
+			if (other.zygosity != null) {
 				return false;
-		} else if (!zygosity.equals(other.zygosity))
+			}
+		} else if (!zygosity.equals(other.zygosity)) {
 			return false;
+		}
 		return true;
 	}
+
 
 	
 
