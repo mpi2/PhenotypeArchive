@@ -50,7 +50,7 @@
 		 <div class="row-fluid ">
 		 		<div class="container span6"><h4><!--  style="background-color:lightgrey;"  -->Allele -  <t:formatAllele>${timeSeriesMutantBiologicalModels[timeLoop.index].alleles[0].symbol}</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${timeSeriesMutantBiologicalModels[timeLoop.index].geneticBackground}</span></h4>
 		 		</div>
-		 		 <c:if test="${fn:length(timeSeriesMutantBiologicalModels) > (timeLoop.index+1)}">
+		 		 <c:if test="${fn:length(timeSeriesCharts) > (timeLoop.index+1)}">
 		 		 <div class="container span6"><h4><!--  style="background-color:lightgrey;"  -->Allele -  <t:formatAllele>${timeSeriesMutantBiologicalModels[timeLoop.index+1].alleles[0].symbol}</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${timeSeriesMutantBiologicalModels[timeLoop.index+1].geneticBackground}</span></h4>
 		 		</div>
 		 		</c:if>
@@ -83,7 +83,7 @@
 		 		<div class="container span6">
 		 				<h4>Allele -  <t:formatAllele>${categoricalMutantBModel[loop.index].alleles[0].symbol}</t:formatAllele> <span class="graphGenBackground"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${categoricalMutantBModel[loop.index].geneticBackground}</span></h4>
 		 		</div>
-		 		<c:if test="${fn:length(categoricalMutantBModel) > (loop.index+1)}">
+		 		<c:if test="${fn:length(categoricalBarCharts) > (loop.index+1)}">
 		 		<div class="container span6">
 		 				<h4>Allele -  <t:formatAllele>${categoricalMutantBModel[loop.index+1].alleles[0].symbol}</t:formatAllele> <span class="graphGenBackground"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${categoricalMutantBModel[loop.index+1].geneticBackground}</span></h4>
 		 		</div>
@@ -97,6 +97,7 @@
 								</div>
 								
 									<c:set var="table" scope="page" value="${tables[loop.index]}"/>
+									
 										<table id="table${loop.count}" class="table table-bordered  table-striped table-condensed">
 										<thead><tr>
 										<c:forEach var="colHeader" items="${table.columnHeaders}" varStatus="xCatCount">
@@ -121,6 +122,7 @@
 			
 										</tbody>
 										</table>
+										
    								<script type="text/javascript">
    
    								${categoricalBarChart}
@@ -152,7 +154,7 @@
 		 <div class="row-fluid">
 		 		<div class="container span6"><h4>Allele -  <t:formatAllele>${unidimensionalMutantBiologicalModels[uniDimensionalLoop.index].alleles[0].symbol}</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${unidimensionalMutantBiologicalModels[uniDimensionalLoop.index].geneticBackground}</span></h4>
 				 </div>
-				 <c:if test="${fn:length(unidimensionalMutantBiologicalModels) > (uniDimensionalLoop.index+1)}">
+				 <c:if test="${fn:length(continuousCharts) > (uniDimensionalLoop.index+1)}">
 				 <div class="container span6"><h4>Allele -  <t:formatAllele>${unidimensionalMutantBiologicalModels[uniDimensionalLoop.index+1].alleles[0].symbol}</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${unidimensionalMutantBiologicalModels[uniDimensionalLoop.index+1].geneticBackground}</span></h4>
 				 </div>
 				 </c:if>
