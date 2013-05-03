@@ -62,22 +62,22 @@ public class SolrUtils {
 	/**
 	 * Method to handle spaces within queries for solr requests via solrj
 	 * 
-	 * @param geneId
+	 * @param id
 	 */
-	public static String processQuery(String geneId) {
+	public static String processQuery(String id) {
 
-		String processedGeneId = geneId;
+		String processedId = id;
 
-		// Quote the MGI ID if it hasn't been already
-		if (processedGeneId.contains(":") && !processedGeneId.contains("\\")) {
-			processedGeneId = processedGeneId.replace(":", "\\:");
+		// Quote the ID if it hasn't been already
+		if (processedId.contains(":") && !processedId.contains("\\")) {
+			processedId = processedId.replace(":", "\\:");
 		}
 
 		// put quotes around any query that contains spaces
-		if (processedGeneId.contains(" ")) {
-			processedGeneId = "\"" + processedGeneId + "\"";
+		if (processedId.contains(" ")) {
+			processedId = "\"" + processedId + "\"";
 		}
 
-		return processedGeneId;
+		return processedId;
 	}
 }
