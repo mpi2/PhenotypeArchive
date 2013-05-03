@@ -1,31 +1,24 @@
 package uk.ac.ebi.phenotype.dao;
 
 import java.sql.Connection;
-import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.PreparedStatement;
-import java.sql.Timestamp;
 import java.util.ArrayList;
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.ParameterOption;
 import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.TimeSeriesControlView;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
-public class TimeSeriesStatisticsDAOImpl extends HibernateDAOImpl implements TimeSeriesStatisticsDAO {
+public class TimeSeriesStatisticsDAOImpl extends StatisticsDAOImpl implements TimeSeriesStatisticsDAO {
 
 	public TimeSeriesStatisticsDAOImpl(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
@@ -45,16 +38,17 @@ public class TimeSeriesStatisticsDAOImpl extends HibernateDAOImpl implements Tim
 	}
 
 	
-
-	@Transactional(readOnly = true)
-	public List<DiscreteTimePoint> countControl(SexType sex, Parameter parameter, Integer populationId){
-		logger.debug("calling control query");
+	
+	@Override
+	public List<DiscreteTimePoint> getControlStats(SexType sex,
+			Parameter parameter, Integer populationId) {
+		logger.debug("calling control query for stats");
 		Connection connection = getConnection();
 		 List<DiscreteTimePoint> timeData=new ArrayList<DiscreteTimePoint>();
-		try {
+		 String sql="select discrete_point, AVG(data_point) as mean, STDDEV(data_point) as std_deviation from stats_mv_control_time_series_values where sex=? and  population_id=? group  by discrete_point";
 			
-			String sql="select * from stats_mv_control_time_series_values where sex=? and  population_id=? order by discrete_point";
-			PreparedStatement stmt = connection.prepareStatement(sql);
+		try (PreparedStatement stmt = connection.prepareStatement(sql)){
+			
 			stmt.setString(1, sex.name());
 			stmt.setInt(2, populationId);
 			logger.debug("sql="+ sql);
@@ -62,10 +56,10 @@ public class TimeSeriesStatisticsDAOImpl extends HibernateDAOImpl implements Tim
 			logger.debug("got control Result");
 			while(resultSet.next()){
 				Float time=resultSet.getFloat("discrete_point");
-				Float data=resultSet.getFloat("data_point");
+				Float mean=resultSet.getFloat("mean");
+				Float stdDev=resultSet.getFloat("std_deviation");
 				//System.out.println(time+" "+data);
-				DiscreteTimePoint pt=new DiscreteTimePoint(time,data);
-				pt.setData(data);
+				DiscreteTimePoint pt=new DiscreteTimePoint(time,mean, stdDev);
 				timeData.add(pt);
 			}
 			
@@ -77,15 +71,16 @@ public class TimeSeriesStatisticsDAOImpl extends HibernateDAOImpl implements Tim
 		return timeData;
 	}
 
-	@Transactional(readOnly = true)
-	public  List<DiscreteTimePoint> countMutant(SexType sex, ZygosityType zygosity, Parameter parameter,  Integer populationId){
-		logger.debug("calling mutant query");
+	@Override
+	public List<DiscreteTimePoint> getMutantStats(SexType sex,
+			ZygosityType zygosity, Parameter parameter, Integer populationId) {
+logger.debug("calling mutant query");
 		
 		Connection connection = this.getConnection();
 		
 		 List<DiscreteTimePoint> timeData=new ArrayList<DiscreteTimePoint>();
-		try {
-			PreparedStatement stmt = connection.prepareStatement("select * from stats_mv_experimental_time_series_values  WHERE sex=? AND zygosity=? AND parameter_id=? AND population_id=? order by discrete_point");
+		 String sql="select  discrete_point, AVG(data_point) as mean, STDDEV(data_point) as std_deviation from stats_mv_experimental_time_series_values  WHERE sex=? AND zygosity=? AND parameter_id=? AND population_id=? group  by discrete_point";
+		try (PreparedStatement stmt = connection.prepareStatement(sql)){
 			stmt.setString(1, sex.name());
 			stmt.setString(2,  zygosity.name());
 			stmt.setInt(3,  parameter.getId());
@@ -94,9 +89,10 @@ public class TimeSeriesStatisticsDAOImpl extends HibernateDAOImpl implements Tim
 			logger.debug("got mutant Result");
 			while(resultSet.next()){
 				Float time=resultSet.getFloat("discrete_point");
-				Float data=resultSet.getFloat("data_point");
+				Float mean=resultSet.getFloat("mean");
+				Float stdDev=resultSet.getFloat("std_deviation");
 				//System.out.println(time+" "+data);
-				DiscreteTimePoint pt=new DiscreteTimePoint(time, data);
+				DiscreteTimePoint pt=new DiscreteTimePoint(time,mean, stdDev);
 				timeData.add(pt);
 			}
 			
@@ -208,6 +204,27 @@ public class TimeSeriesStatisticsDAOImpl extends HibernateDAOImpl implements Tim
 			.setInteger(0, populationId)
 			.list();
 		return zygosity;
+	}
+	
+	@Override
+	public List<Map<String, String>> getListOfUniqueParametersAndGenes(
+			int start, int length) throws SQLException {
+		String query;
+
+		List<Map<String,String>> resultsList=new ArrayList<Map<String,String>>();
+		query = "SELECT DISTINCT vw.biological_model_id, vw.parameter_id, bgf.gf_acc FROM stats_mv_experimental_time_series_values vw, biological_model_genomic_feature bgf where bgf.biological_model_id=vw.biological_model_id limit "+start+" , " +length;
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+	      
+		    ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				Map<String,String> row=new HashMap<String,String>();
+				row.put("accession", resultSet.getString("gf_acc"));
+				row.put("parameter_id", Integer.toString(resultSet.getInt("parameter_id")));
+				resultsList.add(row);
+			}
+		}
+		return resultsList;
 	}
 
 }
