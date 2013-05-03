@@ -96,12 +96,11 @@ background-repeat: repeat-x;
 }
 </style>
 
-<!-- Le fav and touch icons -->
-<link rel="shortcut icon" href="../assets/ico/favicon.ico">
-<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../ico/apple-touch-icon-144-precomposed.png">
-<link rel="apple-touch-icon-precomposed" sizes="114x114" href="../ico/apple-touch-icon-114-precomposed.png">
-<link rel="apple-touch-icon-precomposed" sizes="72x72" href="../ico/apple-touch-icon-72-precomposed.png">
-<link rel="apple-touch-icon-precomposed" href="../ico/apple-touch-icon-57-precomposed.png">
+<%-- 
+Short circuit favicon requests 
+See: http://stackoverflow.com/questions/1321878/how-to-prevent-favicon-ico-requests
+--%>
+<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 
 <script type="text/javascript">
 var _gaq = _gaq || [];_gaq.push(["_setAccount", "${googleAnalytics}"]);_gaq.push(["_trackPageview"]);(function() {var ga = document.createElement("script");ga.type = "text/javascript";ga.async = true;ga.src = "${drupalBaseUrl}/sites/mousephenotype.org/files/googleanalytics/ga.js?mjafjk";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(ga, s);})();
