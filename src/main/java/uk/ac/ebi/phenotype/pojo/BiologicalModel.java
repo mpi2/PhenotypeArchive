@@ -62,8 +62,12 @@ public class BiologicalModel extends SourcedEntry {
 	@Column(name = "genetic_background")
 	String geneticBackground;
 
+	@Column(name = "zygosity")
+	private String zygosity;
+	
 	@JsonIgnore
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, fetch= FetchType.LAZY)
+	@Fetch(FetchMode.SELECT)
     @JoinTable(
             name="biological_model_sample",
             joinColumns = @JoinColumn( name="biological_model_id"),
@@ -164,7 +168,21 @@ public class BiologicalModel extends SourcedEntry {
 	public void setGeneticBackground(String geneticBackground) {
 		this.geneticBackground = geneticBackground;
 	}
-		
+	
+	/**
+	 * @return the zygosity
+	 */
+	public String getZygosity() {
+		return zygosity;
+	}
+
+	/**
+	 * @param zygosity the zygosity to set
+	 */
+	public void setZygosity(String zygosity) {
+		this.zygosity = zygosity;
+	}
+
 	/**
 	 * @return the genomicFeatures
 	 */
@@ -247,20 +265,5 @@ public class BiologicalModel extends SourcedEntry {
 				+ ", biologicalSamples=" + biologicalSamples
 				+ ", genomicFeatures=" + genomicFeatures + "]";
 	}
-	/**
-	 * get an html representation (with superscript elements)  of the first allele in this biological model - used in stats graphs in stats.jsp - may cause issues if more than one allele for biological model
-	 * @return
-	 */
-	public String getHtmlSymbol(){
-		
-		String allele=this.getAlleles().get(0).getSymbol();
-		if(allele.contains("<") && allele.contains(">")){
-		String array[]=allele.split("<");
-		String beforeSup=array[0];
-		String sup=array[1].replace(">", "");
-		return beforeSup+"<sup>"+sup+"</sup>";
-		}else{
-			return allele;
-		}
-	}
+	
 }
