@@ -57,6 +57,9 @@ public class Observation extends SourcedEntry {
 	@JoinColumn(name = "parameter_id")
 	private Parameter parameter;
 	
+	@Column(name = "parameter_stable_id")	
+	private String parameterStableId;
+	
 	@Enumerated(EnumType.STRING)
 	@Column(name = "observation_type")
 	private ObservationType type;
