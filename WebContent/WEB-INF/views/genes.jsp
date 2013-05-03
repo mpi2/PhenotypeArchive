@@ -216,9 +216,9 @@
 
 	<c:if test="${phenotypeStarted}">
 	<div class="row-fluid dataset">
-		<div class="row-fluid container span12 clearfix" style="float:none;">
+		<div class="row-fluid container clearfix" style="float:none;">
 			<h4 class="caption">PreQC phenotype heatmap</h4>
-			<table class="table span12">
+			<table class="table">
 			<tr><th>Allele</th><th>Genetic Background</th><th>Phenotyping Center</tr>
 			<c:forEach items="${allColonyStatus}" var="colonyStatus">
 				<c:if test="${colonyStatus.phenotypeStarted == 1}">
