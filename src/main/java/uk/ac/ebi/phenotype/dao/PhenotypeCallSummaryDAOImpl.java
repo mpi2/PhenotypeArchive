@@ -47,7 +47,7 @@ public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements Phe
 		this.sessionFactory = sessionFactory;
 	}
 	
-
+	
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<PhenotypeCallSummary> getAllPhenotypeCallSummaries() {
@@ -58,7 +58,7 @@ public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements Phe
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<PhenotypeCallSummary> getPhenotypeCallByAccession(String accId, int dbId) {
-		List<PhenotypeCallSummary> results = getCurrentSession().createQuery("from PhenotypeCallSummary as pheno where pheno.gene.id.accession = ? and pheno.gene.id.databaseId = ?")
+		List<PhenotypeCallSummary> results = getCurrentSession().createQuery("from PhenotypeCallSummary as pheno where pheno.gene.id.accession = ? and pheno.gene.id.databaseId = ? and pheno.datasource is not null")
 				.setString(0, accId)
 				.setInteger(1, dbId)
 				.list();
@@ -96,7 +96,7 @@ public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements Phe
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<PhenotypeCallSummary> getPhenotypeCallByMPAccession(String accId, int dbId) {
-		List<PhenotypeCallSummary> results = getCurrentSession().createQuery("from PhenotypeCallSummary as pheno where pheno.phenotypeTerm.id.accession = ? and pheno.phenotypeTerm.id.databaseId = ? ")
+		List<PhenotypeCallSummary> results = getCurrentSession().createQuery("SELECT DISTINCT pheno from PhenotypeCallSummary as pheno where pheno.phenotypeTerm.id.accession = ? and pheno.phenotypeTerm.id.databaseId = ? ")
 				.setString(0, accId)
 				.setInteger(1, dbId)
 				.list();
