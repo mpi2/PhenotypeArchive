@@ -37,10 +37,10 @@ public abstract class UnidimensionalView implements Serializable {
 
 	private static final long serialVersionUID = -6296688722173548764L;
 
-	abstract public String getType();
+	abstract public String whatAmI();
 
 	public boolean isMutant(){ 
-		return getType().equals("mutant");
+		return whatAmI().equals("mutant");
 	}
 	
 	@Id
@@ -179,54 +179,74 @@ public abstract class UnidimensionalView implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
-		UnidimensionalControlView other = (UnidimensionalControlView) obj;
+		}
+		UnidimensionalView other = (UnidimensionalView) obj;
 		if (biologicalModel == null) {
-			if (other.biologicalModel != null)
+			if (other.biologicalModel != null) {
 				return false;
-		} else if (!biologicalModel.equals(other.biologicalModel))
+			}
+		} else if (!biologicalModel.equals(other.biologicalModel)) {
 			return false;
+		}
 		if (biologicalSample == null) {
-			if (other.biologicalSample != null)
+			if (other.biologicalSample != null) {
 				return false;
-		} else if (!biologicalSample.equals(other.biologicalSample))
+			}
+		} else if (!biologicalSample.equals(other.biologicalSample)) {
 			return false;
+		}
 		if (colony == null) {
-			if (other.colony != null)
+			if (other.colony != null) {
 				return false;
-		} else if (!colony.equals(other.colony))
+			}
+		} else if (!colony.equals(other.colony)) {
 			return false;
+		}
 		if (dataPoint == null) {
-			if (other.dataPoint != null)
+			if (other.dataPoint != null) {
 				return false;
-		} else if (!dataPoint.equals(other.dataPoint))
+			}
+		} else if (!dataPoint.equals(other.dataPoint)) {
 			return false;
+		}
 		if (organisation == null) {
-			if (other.organisation != null)
+			if (other.organisation != null) {
 				return false;
-		} else if (!organisation.equals(other.organisation))
+			}
+		} else if (!organisation.equals(other.organisation)) {
 			return false;
+		}
 		if (parameter == null) {
-			if (other.parameter != null)
+			if (other.parameter != null) {
 				return false;
-		} else if (!parameter.equals(other.parameter))
+			}
+		} else if (!parameter.equals(other.parameter)) {
 			return false;
+		}
 		if (populationId == null) {
-			if (other.populationId != null)
+			if (other.populationId != null) {
 				return false;
-		} else if (!populationId.equals(other.populationId))
+			}
+		} else if (!populationId.equals(other.populationId)) {
 			return false;
-		if (sex != other.sex)
+		}
+		if (sex != other.sex) {
 			return false;
-		if (zygosity != other.zygosity)
+		}
+		if (zygosity != other.zygosity) {
 			return false;
+		}
 		return true;
 	}
+
 
 }
 
