@@ -30,7 +30,7 @@ This project includes:
  Twitter Bootstrap distributed under the Apache License, Version 2.0
  Dalliance distributed under a BSD-style license
  Mattias Jiderhamn's classloader-leak-prevention listener distributed under the Apache License, Version 2.0
- Highcharts (check terms and conditions from Highsoft)
+ Highcharts (check terms and conditions from Highsoft for distribution)
  Spring Framework distributed under the Apache License, Version 2.0
  Hibernate distributed under the LGPL v2.1
  Apache Solr under the Apache License, Version 2.0
@@ -47,4 +47,6 @@ This project includes:
  Apache Commons pool distributed under the Apache License, Version 2.0
  Apache Commons net distributed under the Apache License, Version 2.0
  Apache Commons logging distributed under the Apache License, Version 2.0
+ Apache Commons Math distributed under the Apache License, Version 2.0
+ 
  
