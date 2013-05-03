@@ -18,12 +18,15 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +46,13 @@ import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 public class ImagesController {
 
 	private final Logger log = LoggerFactory.getLogger(ImagesController.class);
+
+	// Initialize the translation map of solr field names -> English names
+	private Set<String> doNotShowFields = new HashSet<String>() {
+		private static final long serialVersionUID = 1L;
+		{
+			add("!expName");
+		}};
 
 	// Initialize the translation map of solr field names -> English names
 	private HashMap<String,String> solrFieldToEnglish = new HashMap<String,String>() {
@@ -83,7 +93,7 @@ public class ImagesController {
 			@RequestParam(required = false, defaultValue = "", value = "qf") String qf,
 			@RequestParam(required = false, defaultValue = "", value = "defType") String defType,
 			HttpServletRequest request,
-			Model model) {
+			Model model) throws SolrServerException {
 
 		handleImagesRequest(start, length, qIn, mpId, geneId, filterField, qf, defType, model);
 		
@@ -152,41 +162,40 @@ public class ImagesController {
 
 				for (String f : formatted.split(" OR ")) {
 					String[] parts = f.split(":");
-					String key = solrFieldToEnglish.get(parts[0]);
-					if (key == null) {
-						log.error("Cannot find " + parts[0] + " in translation map. Add the mapping in ImagesController static constructor");
-						key = parts[0]; // default the key to the solr field name (ugly!)
-					}
-
-					String value = parts[1];
-					
-					if (key.equals("Anatomy")) {
-						value = "<a href='"+baseUrl+"/search#q=*&core=images&fq=higherLevelMaTermName:\""+value+"\"'>"+ value + "</a>";
-						orFields.add(key + ": " + value);
-					} else {
-						orFields.add(key + ": " + value);
+					if( ! doNotShowFields.contains(parts[0])) {
+						String key = solrFieldToEnglish.get(parts[0]);
+						if (key == null) {
+							log.error("Cannot find " + parts[0] + " in translation map. Add the mapping in ImagesController static constructor");
+							key = parts[0]; // default the key to the solr field name (ugly!)
+						}
+	
+						String value = parts[1];
+						
+						if (key.equals("Anatomy")) {
+							value = "<a href='"+baseUrl+"/search#q=*&core=images&fq=higherLevelMaTermName:\""+value+"\"'>"+ value + "</a>";
+							orFields.add(key + ": " + value);
+						} else {
+							orFields.add(key + ": " + value);
+						}
 					}
 				}
-
 				String bCrumb = org.apache.commons.lang.StringUtils.join(orFields, " OR ");
 				
 				// Surround the clauses joined with OR by parens
 				if (orFields.size() > 1) { bCrumb = "(" + bCrumb + ")"; }
-				breadcrumbs.add(bCrumb);
+
+				if ( ! bCrumb.trim().equals("")) {
+					breadcrumbs.add(bCrumb);
+				}
 			}
 		}
 		
-		// Encase all the breadcrumb pieces in boxes 
-		for (int i = 0; i<breadcrumbs.size(); i++) {
-			breadcrumbs.set(i, "<span>"+breadcrumbs.get(i)+"</span>");
-		}
-
 		return org.apache.commons.lang.StringUtils.join(breadcrumbs, " AND ");
 	}
 
 	private void handleImagesRequest(int start, int length, String qIn,
 			String mpId, String geneId, String[] filterField, String qf,
-			String defType, Model model) {
+			String defType, Model model) throws SolrServerException {
 		String q = qIn;
 		String queryTerms = ""; //used for a human readable String of the query for display on the results page
 		QueryResponse imageDocs = null;
@@ -270,7 +279,7 @@ public class ImagesController {
 			@RequestParam(required = false, defaultValue = "", value = "facet.field") String facetField,
 			@RequestParam(required = false, defaultValue = "", value = "qf") String qf,
 			@RequestParam(required = false, defaultValue = "", value = "defType") String defType,
-			Model model) {
+			Model model) throws SolrServerException {
 		
 		//currently this is pretty much the same logic as the/ images handler/response but with short default length so we could just have a param in the images request that says - get me small images?
 		//then return the smallImagesFragment view...
