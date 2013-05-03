@@ -42,6 +42,9 @@ public interface BiologicalModelDAO extends HibernateDAO {
 	public List<BiologicalModel> getAllBiologicalModelsByDatasourceId(int databaseId);
 	public List<BiologicalModel> getAllBiologicalModelsByAccession(String accession);
 	
+	public List<LiveSample> getAllLiveSamplesByDatasourceId(int databaseId);
+	
+	
 	public BiologicalModel getBiologicalModelById(int modelId);
 	public BiologicalSample getBiologicalSampleById(int sampleId);
 	
