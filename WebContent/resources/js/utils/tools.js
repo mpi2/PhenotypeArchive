@@ -186,22 +186,41 @@
     	}	
     	else if (facetDivId == 'geneFacet') {
     		topLevelName = obj.attr('rel'); 
+    		var topLevelNameOri = topLevelName;
     		
     		$('table#gFacet td').removeClass('highlight');
     		
     		obj.parent().siblings('td.geneSubfacet').addClass('highlight');
 							
-			// Gene subtype filter
-			var subFacetName = obj.attr('class') == 'subtype' ? 'marker_type' : 'status';			
-			var subFacetFilter = subFacetName + ':"'  + topLevelName + '"';			
+			// Gene subtype filter					
+			var subFacetName = obj.attr('class');
+			
+			if (topLevelName == '1' && subFacetName.indexOf('phenotype_started') != -1){
+				topLevelName = 'Started';
+			}
+			else if ( topLevelName == '1' && subFacetName.indexOf('phenotype_complete') != -1){    			
+    			topLevelName = 'Complete';
+    		}
+			
+			var subFacetFilter = subFacetName + ':"'  + topLevelNameOri + '"';
+									
 			MPI2.searchAndFacetConfig.facetParams[facetDivId].subFacet_filter_params = subFacetFilter;
-							
+			//MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams.fq += ' ' + subFacetFilter;		
+			
 			oSolrSrchParams = $.extend({}, MPI2.searchAndFacetConfig.commonSolrParams, 
 					MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams);				
 			oSolrSrchParams.fq = subFacetFilter;
-							
-			var label = $.fn.upperCaseFirstLetter(subFacetName).replace('_', ' ');				
-			displayedTopLevelName = $('<div></div>').attr({'class':'gridSubTitle'}).html(label + ': ' + topLevelName); 
+						
+			var label = $.fn.upperCaseFirstLetter(subFacetName).replace(/_/g, ' '); 
+			
+			if ( label.indexOf('Imits phenotype') != -1 ){
+				label = 'Phenotyping status';
+				topLevelName = topLevelName.replace('Phenotype ','');
+			}
+			else if ( label == 'Status' ){
+				label = 'Mouse production status';
+			}
+			displayedTopLevelName = $('<div></div>').attr({'class':'gridSubTitle'}).html(label + ': ' + topLevelName);			
     	}
     	else if (facetDivId == 'pipelineFacet'){
     		topLevelName = obj.parent().siblings('td[class^=procedure]').text(); 
@@ -261,7 +280,7 @@
     		    	
     	oVal.topLevelName = topLevelName;
 		oSolrSrchParams.q = q;			
-			
+		
 		var oInfos = {};
 		oInfos.solrCoreName = oVal.solrCoreName;
 		oInfos.mode = oVal.gridName;
@@ -270,9 +289,12 @@
 		if (facetDivId == 'imagesFacet'){
 			oInfos.params = imgParamStr; 				
 			oInfos.showImgView = oVal.showImgView; 				
-		}
+		}		
 		else {
 			oInfos.params = $.fn.stringifyJsonAsUrlParams(oSolrSrchParams);
+			if (facetDivId == 'geneFacet'){
+				oInfos.params += '&fq=' + MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams.fq;				
+			}
 			$('div#mpi2-search').html(''); 				
 			$('div#mpi2-search').append(gridTitle, displayedTopLevelName, dTable); 				
 		}			
@@ -286,6 +308,8 @@
 		var hashParamStr = $.fn.stringifyJsonAsUrlParams(hashParams);			
 			
 		window.location.hash = hashParamStr;
+		
+		//console.log($.fn.stringifyJsonAsUrlParams(oSolrSrchParams));
 		
 		$.fn.invokeDataTable(oInfos);			
     }
@@ -369,9 +393,8 @@
     		if ( typeof hashParams.fq === 'undefined' ){    		
     			caller.find('span.facetCount').click();
     		}
-    		else {   
-    			//console.log('back filtered');
-    			var aKV = hashParams.fq.split(':');
+    		else {   			
+    			var aKV = hashParams.fq.split(':');    		
     			var sClass = aKV[0];
     			var sRel = aKV[1].replace(/"/g,'');	    		
     			$.fn.fetchFilteredDataTable($('a[rel="' + sRel + '"]'), 'geneFacet', hashParams.q);    			
@@ -409,12 +432,16 @@
     		caller.find('div.facetCat').click();
     	}  
     }
-    
-    $.fn.refactorGridSubTitle = function(){
+ 	
+	
+    /*$.fn.refactorGridSubTitle = function(){
     	
     	var str = $('div.gridSubTitle').text();
     	
-    	if ( /^Marker type/.exec(str) ){ // gene core
+    	if (/^Imits_phe/.exec(str) ){ // gene core
+    		console.log('refactor');
+    	}
+    	else if ( /^Marker type/.exec(str) ){ // gene core
     		return 'marker_type:"' + str.replace('Marker type: ','') + '"';
     	}
     	else if ( /^Status/.exec(str) ){ // gene core
@@ -454,117 +481,24 @@
     		   hashParams.fq == 'ontology_subset:*'  ||
     		   hashParams.fq == 'pipeline_stable_id:IMPC_001' ||
     		   hashParams.fq == 'annotationTermId:M* OR expName:* OR symbol:* OR higherLevelMaTermName:* OR higherLevelMpTermName:*' ) &&
-    		   $.fn.refactorGridSubTitle() == '' ){
-    		console.log('top level same')
+    		   $.fn.refactorGridSubTitle() == '' ){    	
     		return true;
     	}
-    	else if ( hashParams.fq != $.fn.refactorGridSubTitle() ){
-    		console.log('diff');
+    	else if ( hashParams.fq != $.fn.refactorGridSubTitle() ){    	
     		return false;
     	}
-    	else {
-    		console.log('same');
+    	else {    		
     		return true;
     	}
-    	
-    	/*if ( $('div#mpi2-search table.dataTable').size() == 1 
-    			&& coreName != $('div#mpi2-search table.dataTable').attr('id').replace('Grid','') ){
-    		str1 = true;
-			str2 = false;		
-    	}
-    	else {
-	    	if ( coreName == 'gene' ){
-	    		if ( hashParams.fq == undefined && $('div.gridSubTitle').size() == 0 ){    			
-	    			str1 = str2 = true;	
-	    			//console.log('1');
-	    		}
-	    		else if ( hashParams.fq == undefined && $('div.gridSubTitle').size() == 1 ){
-	    			str1 = false;
-	    			str2 = true;
-	    			//console.log('2');
-	    		}
-	    		else if ( hashParams.fq != undefined && $('div.gridSubTitle').size() == 0 ){
-	    			str1 = true;
-	    			str2 = false;
-	    			//console.log('3');
-	    		}
-	    		else {
-	    			var fq, label;	    			
-	    			if ( hashParams.fq.indexOf('status:') == 0 ){
-	    				fq = 'status:';
-	    				label = 'Status: ';
-	    			}
-	    			else {
-	    				fq = 'marker_type:';
-	    				label = 'Marker type: ';
-	    			}
-	    			str1 = hashParams.fq.replace(fq,'').replace(/"/g, '');
-	    			str2 = $('div.gridSubTitle').text().replace(label, '');	    		
-	    		}
-	    	}
-	    	else if ( coreName == 'mp' ){
-	    		if ( hashParams.fq == 'ontology_subset:*' && $('div.gridSubTitle').size() == 0 ){
-	    			str1 = str2 = true;    			
-	    		}
-	    		else if ( hashParams.fq == 'ontology_subset:*' && $('div.gridSubTitle').size() != 0 ){	    			
-	    			str1 = false;
-	    			str2 = true;    			
-	    		}
-	    		else if ( hashParams.fq.match(/ontology_subset:\* AND top_level_mp_term:"(.+)"/) && $('div.gridSubTitle').size() == 0 ){
-	    			str1 = true;
-	    			str2 = false; 
-	    		}
-	    		else {
-	    			var m = hashParams.fq.match(/ontology_subset:\* AND top_level_mp_term:"(.+)"/);    		
-	    			str1 = m[1].replace(' phenotype','');
-	    			str2 = $('div.gridSubTitle').text().replace('Top level term: ', '');
-	    		}
-	    	} 
-	    	else if ( coreName == 'pipeline' ){
-	    		if ( hashParams.fq.match(/pipeline_stable_id/) && $('div.gridSubTitle').size() == 0 ){	    	
-	    			str1 = str2 = true;  
-	    		}
-	    		else if (hashParams.fq.match(/pipeline_stable_id/) && $('div.gridSubTitle').size() == 1 ){
-	    			str1 = false;
-	    			str2 = true;   
-	    		}
-	    		else if ( hashParams.fq.match(/procedure_stable_id/) && $('div.gridSubTitle').size() == 0 ){
-	    			str1 = true;
-	    			str2 = false; 
-	    		}
-	    		else {    		
-	    			str1 = hashParams.fq.replace('procedure_stable_id:','');    		
-	    			str2 = $('table#pipeline td.highlight').siblings('td').find('a').attr('rel');
-	    		}	    		
-	    	} 
-	    	else if (coreName == 'images' ){	    		
-	    		if ( hashParams.fq == 'annotationTermId:M* OR expName:* OR symbol:* OR higherLevelMaTermName:* OR higherLevelMpTermName:*' && $('div.gridSubTitle').size() == 0 ){	    		
-	    			str1 = str2 = true;  
-	    		}
-	    		else if (hashParams.fq == 'annotationTermId:M* OR expName:* OR symbol:* OR higherLevelMaTermName:* OR higherLevelMpTermName:*' && $('div.gridSubTitle').size() == 1 ){
-	    			str1 = false;
-	    			str2 = true;   
-	    		}
-	    		else if ( hashParams.fq && $('div.gridSubTitle').size() == 0 ){
-	    			str1 = true;
-	    			str2 = false; 
-	    		}
-	    		else {
-	    			str1 = hashParams.fq;   
-	    			str2 = $('table#imgFacet td.highlight').siblings('td').find('a').attr('class');
-	    		}	    		
-	    	}
-    	}    
-    	return str1 == str2;*/
-    }    
-    
-    //function _parseHashString(sHash){
+    } */   
+        
     $.fn.parseHashString = function(sHash){
+    	
     	var hashParams = {};
     	var aKV = decodeURI(sHash).split("&");    	    	
     	var m;
     	for( var i=0; i<aKV.length; i++){
-    		//console.log('check: '+ aKV[i]);
+    	
     		if ( aKV[i].indexOf('core=') == 0 ){    			
     			m = aKV[i].match(/core=(.+)/);
     			hashParams.coreName = m[1];
@@ -581,14 +515,14 @@
     			}    			
     			hashParams.q = m[1];
     		}
-    		else if ( aKV[i].indexOf('fq=') == 0 ){    	
-    			//console.log('checking fq: '+ aKV[i]);
+    		else if ( aKV[i].indexOf('fq=') == 0 ){  
     			
     			if ( aKV[i] == 'fq=' + MPI2.searchAndFacetConfig.facetParams.imagesFacet.fq
     				|| aKV[i] == 'fq=annotationTermId:M* OR expName:* OR symbol:*' 
     				|| aKV[i].match(/fq=expName.+|fq=higherLevel.+|fq=subtype.+/) 
     				|| aKV[i].match(/fq=ontology_subset:\* AND top_level_mp_term.+/)
     				|| aKV[i].match(/fq=ontology_subset:.+/)
+    				|| aKV[i].match(/imits_phenotype.+/)
     				|| aKV[i].match(/marker_type.+/)
     				|| aKV[i].match(/status.+/)
     				|| aKV[i].match(/pipeline_stable_id.+/)
@@ -598,6 +532,7 @@
     			}    			
     		}
     	}
+    	 
     	return hashParams;
     }
     
@@ -614,7 +549,7 @@
     	return table;
     },	   	 
     $.fn.invokeDataTable = function(oInfos){   	   	
-    	    	
+    	
     	var oDtable = $('table#' + oInfos.mode).dataTable({
     		"bSort" : false,
     		"bProcessing": true,
@@ -674,7 +609,7 @@
     			aoData.push(	    			 
         			    {"name": "solrParams",
         				 //"value": oInfos.params// + oInfos.facetParams
-        				 "value": JSON.stringify(oInfos, null, 2)
+        				 "vMPI.dataTableLoadedalue": JSON.stringify(oInfos, null, 2)
         				}	    
         		);	
     			oSettings.jqXHR = $.ajax( {
@@ -710,7 +645,7 @@
     	$('div#saveTable').remove();
     	$('div#toolBox').remove();
     
-    	var saveTool = $("<div id='saveTable'></div>").html("Download data <img src='"+baseUrl+"/img/floppy.png' />").corner("4px");    	
+    	var saveTool = $("<div id='saveTable'></div>").html("Export table <img src='"+baseUrl+"/img/floppy.png' />").corner("4px");    	
     	var toolBox = fetchSaveTableGui();
     	
     	$('div.dataTables_processing').siblings('div#tableTool').append(saveTool, toolBox); 
@@ -725,7 +660,7 @@
     			
     			// browser-specific position fix
     			if ($.browser.msie  && parseInt($.browser.version, 10) === 8) {
-    				$('div#toolBox').css({'top': '-30px', 'left': '97px'});
+    				$('div#toolBox').css({'top': '-30px', 'left': '65px'});
     			}
     	    	var solrCoreName = oInfos.solrCoreName;
     	    	var iActivePage = $('div.dataTables_paginate li.active a').text();
@@ -832,7 +767,7 @@
     	var div = $("<div id='toolBox'></div>").corner("4px");
     	div.append($("<div class='dataName'></div>").html("Current paginated entries in table"));    	
     	div.append($.fn.loadFileExporterUI({
-			label: 'Save as:',
+			label: 'Export as:',
 			formatSelector: {
 				TSV: 'tsv_grid',
 				XLS: 'xls_grid'	    			 					
@@ -841,7 +776,7 @@
 		}));
 		div.append($("<div class='dataName'></div>").html("All entries in table")); 
 		div.append($.fn.loadFileExporterUI({
-			label: 'Save as:',
+			label: 'Export as:',
 			formatSelector: {
 				TSV: 'tsv_all',
 				XLS: 'xls_all'	    			 					
@@ -1032,7 +967,8 @@
 				}
 			);
 		});
-	}			
+	}
+	
 	$.fn.komp2_updatePosition = function(event){
 		return this.each(function(){
 			$('div#tooltip').css({
