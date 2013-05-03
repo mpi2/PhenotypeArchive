@@ -28,16 +28,10 @@ package uk.ac.ebi.phenotype.pojo;
  */
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -438,4 +432,133 @@ public class Parameter extends PipelineEntry {
 		return cunit;
 	}
 
+
+
+
+	@Override
+	public String toString() {
+		return "Parameter [stableId=" + stableId + ", stableKey=" + stableKey
+				+ "]";
+	}
+
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + (annotateFlag ? 1231 : 1237);
+		result = prime * result
+				+ ((annotations == null) ? 0 : annotations.hashCode());
+		result = prime * result
+				+ ((datatype == null) ? 0 : datatype.hashCode());
+		result = prime * result + (derivedFlag ? 1231 : 1237);
+		result = prime * result + ((formula == null) ? 0 : formula.hashCode());
+		result = prime * result + (importantFlag ? 1231 : 1237);
+		result = prime * result + (incrementFlag ? 1231 : 1237);
+		result = prime * result
+				+ ((increments == null) ? 0 : increments.hashCode());
+		result = prime * result + (mediaFlag ? 1231 : 1237);
+		result = prime * result + (metaDataFlag ? 1231 : 1237);
+		result = prime * result + ((options == null) ? 0 : options.hashCode());
+		result = prime * result + (optionsFlag ? 1231 : 1237);
+		result = prime * result
+				+ ((procedure == null) ? 0 : procedure.hashCode());
+		result = prime * result + (requiredFlag ? 1231 : 1237);
+		result = prime * result + sequence;
+		result = prime * result + ((unit == null) ? 0 : unit.hashCode());
+		return result;
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Parameter other = (Parameter) obj;
+		if (annotateFlag != other.annotateFlag) {
+			return false;
+		}
+		if (annotations == null) {
+			if (other.annotations != null) {
+				return false;
+			}
+		} else if (!annotations.equals(other.annotations)) {
+			return false;
+		}
+		if (datatype == null) {
+			if (other.datatype != null) {
+				return false;
+			}
+		} else if (!datatype.equals(other.datatype)) {
+			return false;
+		}
+		if (derivedFlag != other.derivedFlag) {
+			return false;
+		}
+		if (formula == null) {
+			if (other.formula != null) {
+				return false;
+			}
+		} else if (!formula.equals(other.formula)) {
+			return false;
+		}
+		if (importantFlag != other.importantFlag) {
+			return false;
+		}
+		if (incrementFlag != other.incrementFlag) {
+			return false;
+		}
+		if (increments == null) {
+			if (other.increments != null) {
+				return false;
+			}
+		} else if (!increments.equals(other.increments)) {
+			return false;
+		}
+		if (mediaFlag != other.mediaFlag) {
+			return false;
+		}
+		if (metaDataFlag != other.metaDataFlag) {
+			return false;
+		}
+		if (options == null) {
+			if (other.options != null) {
+				return false;
+			}
+		} else if (!options.equals(other.options)) {
+			return false;
+		}
+		if (optionsFlag != other.optionsFlag) {
+			return false;
+		}
+		if (procedure == null) {
+			if (other.procedure != null) {
+				return false;
+			}
+		} else if (!procedure.equals(other.procedure)) {
+			return false;
+		}
+		if (requiredFlag != other.requiredFlag) {
+			return false;
+		}
+		if (sequence != other.sequence) {
+			return false;
+		}
+		if (unit == null) {
+			if (other.unit != null) {
+				return false;
+			}
+		} else if (!unit.equals(other.unit)) {
+			return false;
+		}
+		return true;
+	}
+	
 }
