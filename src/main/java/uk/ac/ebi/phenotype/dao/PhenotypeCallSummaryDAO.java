@@ -30,6 +30,7 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
 
 public interface PhenotypeCallSummaryDAO {
 
