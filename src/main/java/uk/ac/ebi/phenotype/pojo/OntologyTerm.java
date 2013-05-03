@@ -24,6 +24,7 @@ package uk.ac.ebi.phenotype.pojo;
  * @see Synonym
  */
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -37,16 +38,19 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 @Entity
 @Table(name = "ontology_term")
 public class OntologyTerm {
 
 	@EmbeddedId
 	@AttributeOverrides({
-	@AttributeOverride(name="accession", 
-					   column=@Column(name="acc")),
-	@AttributeOverride(name="databaseId", 
-	   column=@Column(name="db_id"))
+		@AttributeOverride(name="accession", column=@Column(name="acc")),
+		@AttributeOverride(name="databaseId", column=@Column(name="db_id"))
 	})
 	DatasourceEntityId id;
 	
@@ -57,10 +61,16 @@ public class OntologyTerm {
 	private String name;	
 	
 	@ElementCollection
-	   @CollectionTable(name="synonym", 
-	   					joinColumns= {@JoinColumn(name="acc"),@JoinColumn(name="db_id"),}
-	   )
-	private List<Synonym> synonyms;
+	@CollectionTable(
+		name="synonym", 
+		joinColumns= {
+			@JoinColumn(name="acc"),
+			@JoinColumn(name="db_id"),
+		}
+	)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	@Fetch(FetchMode.SELECT)
+	private List<Synonym> synonyms = new ArrayList<Synonym>();
 	
 	public OntologyTerm() {
 		super();
@@ -126,6 +136,7 @@ public class OntologyTerm {
 		if (this.synonyms == null) {
 			this.synonyms = new LinkedList<Synonym>();
 		}
+		synonyms.add(synonym);
 	}
 
 	/* (non-Javadoc)
