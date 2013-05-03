@@ -33,7 +33,7 @@ $(document).ready(function(){
 	}
 	else if ( location.href.indexOf('/search#') != -1 ){		
 		// load page based on url hash parameters		
-		var hashParams = $.fn.parseHashString(window.location.hash.substring(1));		
+		var hashParams = $.fn.parseHashString(window.location.hash.substring(1));	
 		$.fn.fetchSolrFacetCount(hashParams.q);
 	}
 	
