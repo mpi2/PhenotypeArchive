@@ -96,7 +96,7 @@ public class GenomicFeature {
 	})
 	private OntologyTerm biotype;
 
-	@OneToOne
+	@OneToOne(fetch=FetchType.EAGER)
 	@JoinColumns({
 		@JoinColumn(name = "subtype_acc"),
 		@JoinColumn(name = "subtype_db_id"),
