@@ -1,0 +1,327 @@
+/*
+Add custom css overrides here
+  This file gets included as the last CSS import, so anything defined here 
+  should override behavior defined previously
+*/
+#examplesearches {
+	color:white;
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size:12px;
+	text-decoration: underline;
+	text-shadow:none;
+	text-transform:none;
+	font-weight:normal;	
+}
+#searchBlock {padding-top:20px;}
+#userInput{width:464px;}
+
+body span p.ikmcbreadcrumb {
+	white-space:normal;padding-top:31px;color:#333333;font-size:14px;text-shadow:none;text-transform:none;font-weight:normal;
+}
+body span p.ikmcbreadcrumb span {
+	white-space:nowrap;border:solid 1px #ccc;padding:3px 2px 1px 2px;
+}
+@media all and (max-width: 1200px) {
+	#userInput{width:356px;}
+	#examplesearches {color:#333333;}
+}
+@media all and (max-width: 979px) {
+	div#spacer{width:250px;}
+	#userInput{width:496px;}
+	#examplesearches {color:#333333;}
+	span#searchBlock {width:600px;}
+}
+@media all and (max-width: 767px) {
+	#bannerSearch, #bannerSearch input{display:block; width:100%; margin:0;}	
+	#logoImage {float:none; width:auto;}	
+	div.mpi2-grid{margin:0; display:block;clear: both;}
+	body span p.ikmcbreadcrumb {padding-top:0px;margin-bottom:0px;}
+	body span p.ikmcbreadcrumb span { white-space:nowrap;border:solid 1px #ccc;padding:1px 2px 1px 2px;margin-bottom:0px; }
+	#userInput{width:252px;}
+	#examplesearches {color:#333333; float:none; padding-left:236px;}
+	div#userKeyword{padding:0px;}
+	span#searchBlock {padding-top:0px;}
+	#logoImage{width:84px;}
+}
+
+/* LOGO COLOR: CF8206 */
+/* a{color:#1B70F8;} */
+@-o-viewport { width: device-width; }
+#logoText {display: none;}	
+.navbar{margin-bottom:7px;}
+body {margin-top:0; padding-top:1em;}
+div#spacer{width:140px;}
+#logo{text-align:center;padding: 2px;}
+.mpi2-grid .pagination a, .mpi2-grid .pagination span{float:none;}
+.mpi2-grid .footer{display:none;}
+img { -ms-interpolation-mode: bicubic; }
+/* img#logoImage{width:70px;height:91px;margin-left:15px;} */
+.centered-text {text-align:center}
+
+ div.topic {
+	margin: 0 0 7px 0;		
+	color: #27408B;
+    font-size: 26px;
+    font-weight: bold;
+}
+
+h4.caption {
+	text-align: left;
+	font-size: 20px;
+	font-weight: bold;
+	color: #27408B;
+	padding-bottom: 7px; 
+}
+
+table th {
+text-align: left;	
+font-weight:bold;
+color:#01617a;
+border-bottom:3px solid #d57c24;
+border-top: none !important;
+}
+table caption {
+	text-align: left;
+	font-size: 20px;<script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>
+	font-weight: bold;
+	color: #27408B;
+	padding-bottom: 10px; 
+}
+table td {
+	border-bottom: 1px solid #CDC8B1; 
+    text-align: left;
+    padding: 5px;
+}
+table tr:first-child td {
+ 	border-top: none;
+}
+table tr:last-child td{
+	border-bottom: none;
+}
+
+.toggleIcon {
+ 
+   margin:10px;
+background-image: url('../img/down-arrow.png');
+background-repeat:no-repeat;
+
+}
+
+.divOpen{   
+   margin:10px;
+background-image: url('../img/up-arrow.png');
+background-repeat:no-repeat;
+}
+
+div.gridTitle {
+	font-size: 125%;
+	font-weight: bold;
+	margin-bottom: 20px;
+}
+div.gridSubTitle {
+	color: gray;
+	font-weight: bold;
+	margin-bottom: 20px;
+} 
+div.fileIcons {
+	padding: 0 10px 10px 15px;
+	float: right;
+}
+button.fileIcon, button.gridDump {
+	width: auto;
+	height: 20px;	
+	background-repeat:no-repeat;
+	background-position: 90% 50%;
+	background-color: white; 
+	border: 1px solid #CDC8B1;
+	margin-left: 10px;
+	/*padding: 0 25px 2px 7px;*/
+	/*line-height: 8px;*/	
+	width: 50px;
+	padding-right: 20px;
+	font-size: 11px;
+}
+button[class^=tsv_] {
+	background-image: url('../img/textfile.gif');	
+}
+button[class^=xls_] {
+	background-image: url('../img/excel14x14.png');
+}
+/*button[class^=tsv_], button[class^=excel_]{
+	background-repeat: no-repeat;
+	background-position: 90% 50%;
+	width: 50px;
+	padding-right: 20px;
+	font-size: 11px;
+} */
+
+/* Data table styles */
+table.table thead .sorting,
+table.table thead .sorting_asc,
+table.table thead .sorting_desc,
+table.table thead .sorting_asc_disabled,
+table.table thead .sorting_desc_disabled {cursor: pointer;*cursor: hand;}
+table.table thead .sorting { background: url('../img/sort_both.png') no-repeat center right; }
+table.table thead .sorting_asc { background: url('../img/sort_asc.png') no-repeat center right; }
+table.table thead .sorting_desc { background: url('../img/sort_desc.png') no-repeat center right; }
+table.table thead .sorting_asc_disabled { background: url('../img/sort_asc_disabled.png') no-repeat center right; }
+table.table thead .sorting_desc_disabled { background: url('../img/sort_desc_disabled.png') no-repeat center right;}
+div.dataTables_length label {float: left; text-align: left;}
+div.dataTables_length select {width: 75px;}
+div.dataTables_filter label {float: right;}
+div.dataTables_info {padding-top: 8px;}
+div.dataTables_paginate {float: right;margin: 0;}
+table {margin-bottom: 6px !important;/* clear: both; */}
+.pagination-small {height: 26px;}
+.pagination-small ul li a {padding: 0 10px;line-height: 24px;}
+
+/* we want our collapsible headings to be capitilized*/
+.accordion-heading .accordion-toggle {
+ text-transform: capitalize;
+}
+
+.accordion-heading .accordion-toggle i {
+ padding-right:5px;
+}
+div#noSupport {
+	border: 1px solid gray;
+	padding: 30px;	
+}
+
+/*override bootstrap css here so our info labels match the Gene Status color currently */
+.label-info, .badge-info{
+background-color: #2f96b4;
+opacity : .65;
+}
+
+
+
+
+
+
+/* from andy */
+
+body {
+    margin-top: 0px;
+    padding-top: 0;
+	font-family: Arial,Helvetica,sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    color: rgb(51, 51, 51);
+}
+
+#logoImage {
+    margin: 0px;
+    /*background-color: #fff;*/
+    padding: 10px 12px;
+    position: relative;
+    top: -2px;
+    left: -35px;
+}
+
+.navbar .nav {
+    position: relative;
+    left: 0px;
+    display: block;
+    float: left;
+    margin: 14px 10px -15px -12px;
+}
+
+
+/* for vertical text on tables for procedures stats */
+
+/* td, th
+{
+    border: 1px solid black;
+    white-space: nowrap;
+    vertical-align:  bottom;
+} */
+
+/* #title2 th
+{
+    width: 15px;
+    height: 500px;
+    transform: rotate(-90deg);
+    vertical-align:  bottom;
+} */
+
+    .containerVert
+    {
+        /* float your elements or inline-block them to display side by side */
+        float: left;
+        /* these are height and width dimensions of your header */
+        height: 300px;
+        width: 1.5em;
+        /* set to hidden so when there's too much vertical text it will be clipped. */
+        overflow: hidden;
+        
+        /* these are not relevant and are here to better see the elements */
+       background: #eee;
+        margin-right: 1px;
+    }
+        .containerVert  .vert
+        {
+            /* line height should be equal to header width so text will be middle aligned */
+            line-height: 1.5em;
+            /* setting background may yield better results in IE text clear type rendering */
+            background: #eee;
+            
+            
+            /* this will prevent it from wrapping too much text */
+            white-space: nowrap;
+            /* so it stays off the edge */
+            padding-left: 3px;
+ 
+            /* IE specific rotation code */
+            writing-mode: tb-rl;
+            filter: flipv fliph;
+            
+            /* CSS3 specific totation code */
+            /* translate should have the same negative dimension as head height */
+            transform: rotate(270deg) translate(-21em,0);
+            transform-origin: 0 0;
+            -moz-transform: rotate(270deg) translate(-21em,0);
+            -moz-transform-origin: 0 0;
+            -webkit-transform: rotate(270deg) translate(-21em,0);/*change the - number to move text down cell */
+            -webkit-transform-origin: 0 0;
+              }
+
+
+.button .btn .impcPStatus{
+width:100%;	
+} 
+/* override the bootstrap image style for Allele images */ 
+/* need a hack for IE */
+body div#allele_tracker_panel_results  table {
+	width:100%;
+}
+body div#allele_tracker_panel_results  a {
+	max-width: 400px;
+	width:auto;
+	height:auto;
+}
+body div#allele_tracker_panel_results  a img {
+	max-width:400px;
+	width:100%;
+	height:auto;
+-ms-interpolation-mode: bicubic;
+}
+
+.dataset {
+	border: 1px solid #6998CB;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	-o-border-radius: 5px;
+	/* padding: 7px 7px 0; */
+	margin-bottom: 7px;
+	padding: 7px;
+}
+
+#drawableCanvas{
+    width: 700px;
+}
+
+.graphGenBackground{
+	 font-size: 0.8em;
+}
