@@ -43,7 +43,11 @@ Charts new features
  
 Bug fixes
  1.  HTTPProxy fix for no proxy addresses
-
+ 2.  EUCOMMTOOLsCre (imits consortium) filter removed to display genes
+     with no production status
+ 3.  Extra title displayed on graphs for one gender removed
+ 4.  shifted table under Pre-QC panel in IE fixed
+ 5.  Explore panel on the phenotype page display issue fixed
  
 ================== Release 0.1.8 ==================
 
