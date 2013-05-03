@@ -1,0 +1,21 @@
+@charset "utf-8";
+
+img {display: block;
+ margin-left: auto;
+    margin-right: auto}
+/*.grid .imageNText :first-child{margin-left:10px;}*/
+/*.grid .imageNText .imageNText  img{ border:none;}*/
+/*.table .td {border:5px solid #ddd;}*/
+table
+{
+	display: block;
+ margin-left: auto;
+    margin-right: auto;
+border-collapse:collapse;
+border:5px solid #ddd; margin:6px 10px 6px 0; background:#fff; -moz-border-radius:3px; -webkit-border-radius:3px; border-radius:3px;
+}
+table, th, td
+{
+border:1px solid #ddd;
+font-family:"Arial", Times, serif; font-size:0.95em;
+}
