@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
+import uk.ac.ebi.phenotype.pojo.Synonym;
 
 public class OntologyTermDAOImpl extends HibernateDAOImpl implements
 		OntologyTermDAO {
@@ -112,7 +113,12 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements
 		
 		for (OntologyTerm term: ontologyTerms) {
 			
+		  /*  for (Synonym synonym: term.getSynonyms()) {
+		    	session.saveOrUpdate(synonym);
+		    }
+		    */
 		    session.save(term);
+		    
 		    if ( c % 20 == 0 ) { //20, same as the JDBC batch size
 		        //flush a batch of inserts and release memory:
 		        session.flush();
@@ -120,6 +126,7 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements
 		    }
 		    c++;
 		}
+		
 		tx.commit();
 		session.close();
 		return c;
