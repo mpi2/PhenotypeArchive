@@ -27,6 +27,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -34,6 +35,8 @@ import javax.persistence.JoinColumns;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
@@ -100,11 +103,15 @@ public class PhenotypeCallSummary {
 	@JoinColumn(name = "pipeline_id")
 	private Pipeline pipeline;
 
-	@OneToOne
+	@OneToOne(fetch=FetchType.EAGER)
+	@Fetch(FetchMode.SELECT)
+	@NotFound(action=NotFoundAction.IGNORE)
 	@JoinColumn(name = "procedure_id")
 	private Procedure procedure;
 	
-	@OneToOne
+	@OneToOne(fetch=FetchType.EAGER)
+	@Fetch(FetchMode.SELECT)
+	@NotFound(action=NotFoundAction.IGNORE)
 	@JoinColumn(name = "parameter_id")
 	private Parameter parameter;
 
