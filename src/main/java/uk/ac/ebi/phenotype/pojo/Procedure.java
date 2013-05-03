@@ -48,7 +48,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "phenotype_procedure")
-public class Procedure extends PipelineEntry {
+public class Procedure extends PipelineEntry implements Comparable {
 	
 	@Column(name = "is_mandatory")
 	boolean isMandatory;
@@ -173,6 +173,14 @@ public class Procedure extends PipelineEntry {
 	 */
 	public void setPipeline(Pipeline pipeline) {
 		this.pipeline = pipeline;
+	}
+
+
+
+	public int compareTo(Object o) {
+		if (!o.getClass().equals(this.getClass())) return 0;
+		Procedure p = (Procedure) o;
+		return this.pipeline.getName().compareTo(p.getPipeline().getName());
 	}
 
 	
