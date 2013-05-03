@@ -33,6 +33,7 @@ import net.sf.json.JSONSerializer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import uk.ac.ebi.phenotype.data.imits.ColonyStatus;
 import uk.ac.ebi.phenotype.web.util.DrupalHttpProxy;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
@@ -41,6 +42,7 @@ public class SolrIndex  {
 	private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
 	private DrupalHttpProxy drupalProxy;
+	private RegisterInterestDrupalSolr regInterest;
 	private String loggedIn = null;
 	private List<String> interestingGenes = null;
 
@@ -59,7 +61,11 @@ public class SolrIndex  {
 	private String serverName;
 	private int serverPort;
 	
-	public SolrIndex(String qryStr, String solrCoreName, String mode, Map<String, String> config) {
+	public SolrIndex( Map<String, String> config){
+		this.baseUrl = config.get("internalSolrUrl");
+	}
+	
+	public SolrIndex(String qryStr, String solrCoreName, String mode, Map<String, String> config) throws IOException, URISyntaxException {
 
 		this.drupalBaseUrl = config.get("drupalBaseUrl");
 		this.baseUrl = config.get("internalSolrUrl");
@@ -69,17 +75,15 @@ public class SolrIndex  {
 		this.solrCoreName = solrCoreName;
 		this.mode = mode;
 
-		try {
+		
 			this.json = processQueryforJson(composeSolrUrl());
-		} catch (MalformedURLException me) {
-			log.error(me.getLocalizedMessage());
-		}
+		
 	}
 	
 	// populating jQuery dataTable on the server-side
 	public SolrIndex(String qryStr, String solrCoreName, String gridSolrParams,
 			String mode, int iDisplayStart, int iDisplayLength,
-			boolean showImgView, HttpServletRequest request, Map<String, String> config) {
+			boolean showImgView, HttpServletRequest request, Map<String, String> config) throws IOException, URISyntaxException {
 
 		this.drupalBaseUrl = config.get("drupalBaseUrl");
 		this.baseUrl = config.get("internalSolrUrl");
@@ -94,12 +98,9 @@ public class SolrIndex  {
 		this.showImgView = showImgView;
 		
 		this.drupalProxy = new DrupalHttpProxy(request);
-
-		try {
-			this.json = processQueryforJson(composeSolrUrl());
-		} catch (MalformedURLException me) {
-			log.error(me.getLocalizedMessage());
-		}
+		this.regInterest = new RegisterInterestDrupalSolr(config, request);
+		this.json = processQueryforJson(composeSolrUrl());
+		
 	}
 	
 	// handling saving jQuery dataTable data to external files 
@@ -128,6 +129,8 @@ public class SolrIndex  {
 		this.gridSolrParams = gridSolrParams + "&rows=" + iDisplayLength + "&start=" + rowStart + "&fl=" + gridFields;
 		
 		this.drupalProxy = new DrupalHttpProxy(request);
+		this.regInterest = new RegisterInterestDrupalSolr(config, request);
+
 
 		try {						
 			this.json = fetchJsonforDataTableExport(composeSolrUrl(), solrCoreName);					
@@ -333,7 +336,7 @@ public class SolrIndex  {
 				
 		//System.out.println("num genes found: " + docs.size());
 		List<String> rowData = new ArrayList<String>();
-		rowData.add("Marker symbol\tMaker name\tSynonym\tLatest status"); // column names		
+		rowData.add("Marker symbol\tMaker name\tSynonym\tMouse production status\tPhenotyping status"); // column names		
 		
 		for (int i=0; i<docs.size(); i++) {			
 			List<String> data = new ArrayList<String>();
@@ -358,9 +361,14 @@ public class SolrIndex  {
 				data.add("NA");
 			}
 						
-			//data.add( SolrGeneResponseUtil.deriveGeneStatus(doc));	
-			data.add(doc.getString("status"));
-			rowData.add(StringUtils.join(data, "\t"));
+			// mouse production status
+			data.add(doc.getString("status"));			
+			
+			// phenotyping status
+			data.add(deriveLatestPhenotypingStatus(doc));
+			
+			// put together as tab delimited
+			rowData.add(StringUtils.join(data, "\t"));			
 		}		
 		
 		return rowData;		
@@ -423,37 +431,28 @@ public class SolrIndex  {
 		return url;
 	}
 	
-	private JSONObject processQueryforJson(String urlString) throws MalformedURLException {
+	private JSONObject processQueryforJson(String urlString) throws IOException, URISyntaxException {
 
 		log.debug("SOLR qryStr: " + this.qryStr);
-		log.error("GETTING CONTENT FROM: "+urlString);
+		log.debug("GETTING CONTENT FROM: "+urlString);
 
 		String content = "";
-		//System.out.println(urlString);
-		//System.out.println(drupalProxy);
+
 		if (drupalProxy != null) {
-			try {
+		
 				content = drupalProxy.getContent(new URL(urlString));
-			} catch (IOException e) {
-				log.error(e.getLocalizedMessage());
-			} catch (URISyntaxException e) {
-				log.error(e.getLocalizedMessage());
-			}
+			
 		} else {
 			HttpProxy proxy = new HttpProxy();
-			try {
+			
 				content = proxy.getContent(new URL(urlString));
-			} catch (IOException e) {
-				log.error(e.getLocalizedMessage());
-			} catch (URISyntaxException e) {
-				log.error(e.getLocalizedMessage());
-			}
+			
 		}
-		//System.out.println("JSON: " + (JSONObject) JSONSerializer.toJSON(content));
+
 		return (JSONObject) JSONSerializer.toJSON(content);
 	}
 
-	public String fetchDataTableJson(String contextPath) {
+	public String fetchDataTableJson(String contextPath) throws IOException, URISyntaxException {
 		this.contextPath = contextPath;
 
 		String jsonStr = null;
@@ -497,17 +496,20 @@ public class SolrIndex  {
 			List<String> rowData = new ArrayList<String>();
 
 			JSONObject doc = docs.getJSONObject(i);
-					
+						
 			String geneInfo = concateGeneInfo(doc);
 			rowData.add(geneInfo);
 
-			//String geneStatus = SolrGeneResponseUtil.deriveGeneStatus(doc);
+			// mouse production status
 			String geneStatus = doc.getString("status");
 			rowData.add(geneStatus);
 			
+			// phenotyping status			
+			rowData.add(deriveLatestPhenotypingStatus(doc));			
+			
 			// register of interest
-			if (loggedIn()) {
-				if (alreadyInterested(doc.getString("mgi_accession_id"))) {
+			if (regInterest.loggedIn()) {
+				if (regInterest.alreadyInterested(doc.getString("mgi_accession_id"))) {
 					rowData.add("<a id='"+doc.getString("mgi_accession_id")+"' href='' class='btn primary interest'>Unregister interest</a>");
 				} else {
 					rowData.add("<a id='"+doc.getString("mgi_accession_id")+"' href='' class='btn primary interest'>Register interest</a>");
@@ -523,73 +525,59 @@ public class SolrIndex  {
 		return j.toString();	
 	}
 	
-	/**
-	 * is this user logged in
-	 * 
-	 * This checks an external URL on the drupal instance to see if the
-	 * user is logged in.  It abuses the toggleflagfromjs exposed URL
-	 * and relies on the different error messages being returned when the
-	 * user is not logged in.
-	 * 
-	 * TODO: not optimal. should use a single sign on (not drupal)
-	 * 
-	 * @return true if the user is logged in, false if not
-	 */
-	private boolean loggedIn() {
-		if (this.loggedIn == null) {
-			try {
-				URL url = new URL(drupalBaseUrl + "/roles");
-				String content = drupalProxy.getContent(url);
-				if (content.contains("authenticated user")) {
-					this.loggedIn = "true";
-				} else {
-					this.loggedIn = "false";
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				this.loggedIn = "false";
+	private String deriveLatestPhenotypingStatus(JSONObject doc){	
+		
+		// order of status: latest to oldest (IMPORTANT for deriving correct status)
+		// returns the latest status (Complete or Started or Phenotype Attempt Registered)		
+		
+		//Phenotyping complete
+		try {
+			if ( doc.getJSONArray("imits_phenotype_complete").size() > 0) {
+				JSONArray complete = doc.getJSONArray("imits_phenotype_complete");
+				for(Object c : complete){
+					if ( c.toString().equals("1") ){
+						return "Complete";
+					}					
+				}				
 			}
+		} 
+		catch (Exception e) {		   		
+			//e.printStackTrace();
 		}
-
-		return this.loggedIn == "true" ? true : false;
-	}
-
-	/**
-	 * is this user interested in the passed in gene
-	 * 
-	 * the user can have a set of genes that they are interested in.  this 
-	 * method checks an external URL to get the JSON list of MGI IDs that the
-	 * user has already expressed interest in and returns a true/false for
-	 * the gene indicated in the geneid parameter
-	 *  
-	 * @param geneid the gene id to check
-	 * 
-	 * @return true if the user has expressed interest in the gene, false
-	 * if not
-	 */
-	private boolean alreadyInterested(String geneid) {
-		if (this.interestingGenes == null) {
-
-			this.interestingGenes = new ArrayList<String>();
-
-			try {
-				URL url = new URL(drupalBaseUrl + "/genesofinterest");
-				String content = drupalProxy.getContent(url);
-				JSONObject j = (JSONObject) JSONSerializer.toJSON(content);
-				if(j.has("MGIGeneid")) {
-					JSONArray ar = j.getJSONArray("MGIGeneid");
-					for(int i = 0; i<ar.size();i++) {
-						interestingGenes.add(ar.getString(i));
-					}
+		
+		//Phenotyping started
+		try {
+			if ( doc.getJSONArray("imits_phenotype_started").size() > 0) {	 
+				JSONArray started = doc.getJSONArray("imits_phenotype_started");
+				for(Object s : started){
+					if ( s.toString().equals("1") ){
+						return "Started";
+					}					
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
+		} 
+		catch (Exception e) {		  			
+		    //e.printStackTrace();
 		}
-
-		return interestingGenes.contains(geneid);
+		
+		//Phenotype Attempt Registered
+		try {	
+			if ( doc.getJSONArray("imits_phenotype_status").size() > 0 ){
+				JSONArray statuses = doc.getJSONArray("imits_phenotype_status");
+				for(Object s : statuses){
+					if ( s.toString().equals("Phenotype Attempt Registered") ){
+						return "Attempt Registered";
+					}					
+				}							
+			}
+		} 
+		catch (Exception e) {		 			
+		    //e.printStackTrace();
+		}	
+		
+		// if all the above fails: no phenotyping data yet
+		return "Not Applicable";
 	}
-
 
 	private String concateGeneInfo(JSONObject doc){
 				
@@ -740,7 +728,7 @@ public class SolrIndex  {
 		return j.toString();	
 	}
 
-	public String parseJsonforImageDataTable(){
+	public String parseJsonforImageDataTable() throws IOException, URISyntaxException{
 		
 		String baseUrl = contextPath + "/images?" + gridSolrParams;
 		
@@ -952,7 +940,7 @@ public class SolrIndex  {
 		return gene;
 	}
 	
-	private String fetchImagePathByAnnotName(String facetField, String annotName, String contextPath){
+	private String fetchImagePathByAnnotName(String facetField, String annotName, String contextPath) throws IOException, URISyntaxException{
 	
 		//annotName = annotName.replace(" ","%20");
 		final int maxNum = 4; // max num of images to display in grid column 
@@ -966,7 +954,7 @@ public class SolrIndex  {
 
 		List<String> imgPath = new ArrayList<String>();
 
-		try {
+	
 			JSONObject thumbnailJson = processQueryforJson(thumbnailUrl);
 			JSONArray docs = thumbnailJson.getJSONObject("response").getJSONArray("docs");
 
@@ -979,10 +967,6 @@ public class SolrIndex  {
 				String link = "<a href='" + largeThumbNailPath + "'>" + img + "</a>";
 				imgPath.add(link);
 			}
-		} catch (MalformedURLException me) {
-			// me.printStackTrace();
-		}
-
 		return StringUtils.join(imgPath, "");
 	}
 
@@ -991,5 +975,101 @@ public class SolrIndex  {
 		return response.getInt("numFound");
 	}
 
+	
+	public String getGeneStatus(String accession) throws IOException, URISyntaxException {
+
+		// The proxy must have access to the current request because it will
+		// send the DRUPAL cookie along
+		String url = this.baseUrl + "/" + "gene" + "/select?"
+				+ "q=mgi_accession_id:" + accession.replace(":", "\\:")
+				+ "&wt=json";
+		log.info("url for geneDao=" + url);
+		JSONObject jsonObject = processQueryforJson(url);
+		JSONArray docs = jsonObject.getJSONObject("response").getJSONArray(
+				"docs");
+		if (docs.size() > 1) {
+			log.error("Error, Only expecting 1 document from an accession/gene request");
+		}
+		String geneStatus = docs.getJSONObject(0).getString("status");
+		log.debug("gene status=" + geneStatus);
+		return geneStatus;
+	}
+	
+	/**
+	 * This method returns a list of phenotype status for every allele in IMPC
+	 * @param accession
+	 * @return
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	public List<ColonyStatus> getGeneColonyStatus(String accession) throws IOException, URISyntaxException {
+
+		// The proxy must have access to the current request because it will
+		// send the DRUPAL cookie along
+		String url = this.baseUrl + "/" + "gene" + "/select?"
+				+ "q=mgi_accession_id:" + accession.replace(":", "\\:")
+				+ "&wt=json";
+		log.info("url for geneDao=" + url);
+		JSONObject jsonObject = processQueryforJson(url);
+		JSONArray docs = jsonObject.getJSONObject("response").getJSONArray(
+				"docs");
+		if (docs.size() > 1) {
+			log.error("Error, Only expecting 1 document from an accession/gene request");
+		}
+		
+		// TODO
+		// query the allele core provided by vivek
+		// find the one with allele_name = 'GeneSymbol<sup>tm1a' 
+		// and product_type = "Mouse"
+		// and mgi_accession_id accession
+		// e.g. Cib2<sup>tm1a(EUCOMM)Wtsi</sup>"
+		// this will be the reference to retrieve the other alleles
+		
+		String tm1aAlleleName = "";
+		
+		// Multiple alleles / multiple colonies
+		
+		JSONArray colonies = docs.getJSONObject(0).getJSONArray("colony_prefix");
+		JSONArray phenotypeColonies = docs.getJSONObject(0).getJSONArray("imits_phenotype_colony_name");
+		JSONArray phenotypeAlleleTypes = docs.getJSONObject(0).getJSONArray("imits_phenotype_allele_type");
+		JSONArray phenotypeStarted = docs.getJSONObject(0).getJSONArray("imits_phenotype_started");
+		JSONArray phenotypeCompleted = docs.getJSONObject(0).getJSONArray("imits_phenotype_complete");
+		JSONArray phenotypeStatus = docs.getJSONObject(0).getJSONArray("imits_phenotype_status");
+		
+		List<ColonyStatus> results = new ArrayList<ColonyStatus>();
+		log.debug("Gene " + accession + " contains " + phenotypeColonies.size() + " phenotyped colonies");
+		for (int cursor = 0; cursor < phenotypeColonies.size(); cursor++) {
+			String currentPhenotypeStatus = (phenotypeStatus.size() >= (cursor+1)) ? phenotypeStatus.getString(cursor) : "";
+			int phenotypeStartedValue = (phenotypeStarted.size() >= (cursor+1)) ? phenotypeStarted.getInt(cursor) : 0;
+			int phenotypeCompletedValue = (phenotypeCompleted.size() >= (cursor+1)) ? phenotypeCompleted.getInt(cursor) : 0;
+			String alleleType = (phenotypeAlleleTypes.size() >= (cursor+1)) ? phenotypeAlleleTypes.getString(cursor) : "";
+			log.debug(phenotypeColonies.getString(cursor) + " " + currentPhenotypeStatus);
+			// TODO add production status
+			ColonyStatus current = new ColonyStatus(phenotypeColonies.getString(cursor), currentPhenotypeStatus, "", alleleType, phenotypeStartedValue, phenotypeCompletedValue);
+			
+			// change theallele type
+			String currentAlleleName =  tm1aAlleleName.replace("tm1a", "tm1"+alleleType);
+			// retrieve it from the allele core
+			// allele_name = currentAlleleName
+			// and product_type = "Mouse"
+			// and mgi_accession_id accession
+			// and get the strain name for this allele
+			// check the colony because multiple colonies could have been derived
+			String backgroundStrain = "";
+			current.setAlleleName(currentAlleleName);
+			current.setBackgroundStrain(backgroundStrain);
+			
+			results.add(current);
+		}
+		
+		return results;
+	}
+
+	public JSONObject getMpData(String phenotype_id) throws IOException, URISyntaxException {
+		String url = this.baseUrl + "/mp/select?";
+		url += "q=" + phenotype_id + "&wt=json&qf=auto_suggest&defType=edismax";
+		return processQueryforJson(url);
+
+	}
 	
 }	
