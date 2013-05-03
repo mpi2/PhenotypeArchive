@@ -32,11 +32,20 @@ import javax.persistence.Table;
 public class UnidimensionalMutantView extends UnidimensionalView implements Serializable {
 
 	private static final long serialVersionUID = 4505038269190999331L;
-	private final String type = "mutant";
 	
 	@Override
-	public String getType() {
-		return type;
+	public String whatAmI() {
+		return "mutant";
+	}
+
+	@Override
+	public String toString() {
+		return "UnidimensionalMutantView [biologicalModel=" + biologicalModel
+				+ ", biologicalSample=" + biologicalSample + ", organisation="
+				+ organisation + ", parameter=" + parameter + ", sex=" + sex
+				+ ", zygosity=" + zygosity + ", colony=" + colony
+				+ ", populationId=" + populationId + ", dataPoint=" + dataPoint
+				+ "]";
 	}
 
 }
