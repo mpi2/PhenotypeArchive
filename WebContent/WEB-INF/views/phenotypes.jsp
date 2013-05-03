@@ -195,7 +195,7 @@
 	</div>
 	</c:if>
 
-	<c:if test="${not empty siblings and not empty go}">
+	<c:if test="${not empty siblings or not empty go}">
 	<div class="row-fluid dataset">	
 		<h4 class="caption">Explore</h4>
 		<div class="container">
