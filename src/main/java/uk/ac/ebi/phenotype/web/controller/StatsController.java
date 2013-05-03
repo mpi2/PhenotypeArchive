@@ -15,24 +15,17 @@
  */
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.WordUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,41 +35,35 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import uk.ac.ebi.generic.util.BasicStats;
 import uk.ac.ebi.phenotype.dao.BiologicalModelDAO;
 import uk.ac.ebi.phenotype.dao.CategoricalStatisticsDAO;
 import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
-import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAOImpl;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.TimeSeriesStatisticsDAO;
 import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
+import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.pojo.TableObject;
-import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
-import uk.ac.ebi.phenotype.pojo.Procedure;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.TimeSeriesControlView;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.pojo.TableObject;
+import uk.ac.ebi.phenotype.pojo.UnidimensionalRecordDTO;
 import uk.ac.ebi.phenotype.stats.PipelineProcedureData;
 import uk.ac.ebi.phenotype.stats.PipelineProcedureTablesCreator;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalChartAndTableProvider;
 import uk.ac.ebi.phenotype.stats.continuous.ContinousChartAndTableProvider;
 import uk.ac.ebi.phenotype.stats.timeseries.TimeSeriesChartAndTableProvider;
-import uk.ac.ebi.phenotype.stats.timeseries.TimeSeriesStats;
-import uk.ac.ebi.phenotype.data.impress.Utilities;
 
 @Controller
 public class StatsController implements BeanFactoryAware {
@@ -128,25 +115,21 @@ public class StatsController implements BeanFactoryAware {
 			@RequestParam(required = false, value = "gender") String[] gender,
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
 			@RequestParam(required = false, value = "model") String[] biologicalModelsParam,
-			@RequestParam(required = false, defaultValue="false", value = "categorical") String categorical,
-			@PathVariable String acc, Model model, HttpServletRequest request,
-			RedirectAttributes attributes)
+			@PathVariable String acc, Model model)
 			throws GenomicFeatureNotFoundException {
 
+		boolean statsError=false;
 		// Get the global application configuration
 		@SuppressWarnings("unchecked")
 		Map<String, String> config = (Map<String, String>) bf
 				.getBean("globalConfiguration");
-
-//		categoricalChartAndTableProvider=new CategoricalChartAndTableProvider(categoricalStatsDao);
-//		timeSeriesChartAndTableProvider=new TimeSeriesChartAndTableProvider(timeSeriesStatisticsDAO);
-//		continousChartAndTableProvider=new ContinousChartAndTableProvider(unidimensionalStatisticsDAO);
 		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
-		log.info(gene.toString());
 		if (gene == null) {
 			throw new GenomicFeatureNotFoundException("Gene " + acc
 					+ " can't be found.", acc);
 		}
+		//
+		log.info(gene.toString());
 		model.addAttribute("gene", gene);
 
 		List<String> paramIds = getParamsAsList(parameterIds);
@@ -191,7 +174,7 @@ public class StatsController implements BeanFactoryAware {
 		
 		
 		
-	
+			
 		for (String parameterId : paramIds) {
 			
 			Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion(parameterId, 1, 0);
@@ -208,6 +191,10 @@ public class StatsController implements BeanFactoryAware {
 			ObservationType observationTypeForParam=Utilities.checkType(parameter);
 			log.info("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
 			
+			//ESLIM_003_001_003 id=962 calorimetry data for time series graph new MGI:1926153
+			//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1926153?parameterId=ESLIM_003_001_003
+			try{
+			
 			if(observationTypeForParam.equals(ObservationType.time_series)){
 				//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
 				timeSeriesChartAndTableProvider.doTimeSeriesData(timeSeriesMutantBiologicalModels, parameter, acc , model, genderList, zyList, timeSeriesCharts, biologicalModelsParams, timeSeriesTables);
@@ -215,13 +202,21 @@ public class StatsController implements BeanFactoryAware {
 			
 			if(observationTypeForParam.equals(ObservationType.unidimensional)){
 				//http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
-				continousChartAndTableProvider.doContinuousData(unidimensionalMutantBiologicalModels, parameter, acc , model, genderList, zyList, continuouscharts, continuousBarCharts, continuousTables);
+				
+					continousChartAndTableProvider.doContinuousData(unidimensionalMutantBiologicalModels, parameter, acc , model, genderList, zyList, continuouscharts, continuousBarCharts, continuousTables);
+				
 			}
 			if(observationTypeForParam.equals(ObservationType.categorical)){
 				//https://dev.mousephenotype.org/mi/impc/dev/phenotype-archive/stats/genes/MGI:1346872?parameterId=ESLIM_001_001_004
-				categoricalChartAndTableProvider.doCategoricalData(categoricalMutantBiologicalModels, categoricalBarCharts, parameter, acc, model, genderList, zyList,
-				biologicalModelsParams, charts, categoricalTables, 
-				parameterId);
+			
+					categoricalChartAndTableProvider.doCategoricalData(categoricalMutantBiologicalModels, categoricalBarCharts, parameter, acc, model, genderList, zyList,
+					biologicalModelsParams, charts, categoricalTables, 
+					parameterId);
+			
+			}
+			} catch (SQLException e) {
+				e.printStackTrace();
+				statsError=true;
 			}
 		}// end of parameterId iterations
 
@@ -231,21 +226,93 @@ public class StatsController implements BeanFactoryAware {
 		model.addAttribute("categoricalMutantBModel", categoricalMutantBiologicalModels );
 		model.addAttribute("categoricalBarCharts", categoricalBarCharts);
 		model.addAttribute("tables", categoricalTables);
+		model.addAttribute("statsError", statsError );
 		return "stats";
 	}
-
-
 	
+	
+	/**
+	 * For Testing not for users-  view the parameters and genes as links to stats pages for timeseries data
+	 * @param start default 0 if not specified
+	 * @param length default 100 if not specified
+	 * @param model
+	 * @return
+	 * @throws GenomicFeatureNotFoundException
+	 */
+	@RequestMapping("/stats/statslinks")
+	public String statsLinksView(
+			@RequestParam(required = false, value = "start") Integer start,
+			@RequestParam(required = false, value = "length") Integer length,
+			@RequestParam(required = false, value = "observationType") String observationType,
+			 Model model)
+			throws GenomicFeatureNotFoundException {
+		System.out.println("calling stats links");
+		ObservationType oType=null;
+		for(ObservationType type: ObservationType.values()){
+			System.out.println(type.name());
+			if(type.name().equalsIgnoreCase(observationType)){
+				oType=type;
+			}
+		}
+		System.out.println("calling observation type="+oType);
+		getLinksForStats(start, length, model, oType);
+		
+		return "statsLinksList";
+	}
+
+	/**
+	 * for testing - not for users
+	 * @param start
+	 * @param length
+	 * @param model
+	 * @param type
+	 */
+	private void getLinksForStats(Integer start, Integer length, Model model, ObservationType type) {
+		if(start==null)start=0;
+		if(length==null)length=100;
+		try {
+			System.out.println(start+" end="+length);
+			List<Map<String, String>> list=null;
+			if(type==ObservationType.time_series){
+			  list = timeSeriesStatisticsDAO.getListOfUniqueParametersAndGenes(start, length);
+			}
+			if(type==ObservationType.unidimensional){
+				  list = unidimensionalStatisticsDAO.getListOfUniqueParametersAndGenes(start, length);
+				}
+			if(type==ObservationType.categorical){
+				  list = categoricalStatsDao.getListOfUniqueParametersAndGenes(start, length);
+				}
+			 List<Map<String, String>> listWithStableId=new ArrayList<Map<String, String>>();
+			 for(Map<String, String> row :list){
+				 Map<String,String> map=new HashMap<String,String>();
+				String parameterId=row.get("parameter_id");
+				String accession=row.get("accession");
+				 System.out.println(accession+" parameter="+parameterId);
+				 Parameter parameter=pipelineDAO.getParameterById(Integer.valueOf(parameterId));
+				 map.put("paramStableId",parameter.getStableId());
+				 map.put("accession",accession);
+				 listWithStableId.add(map);
+			 }
+			 
+			 model.addAttribute("statsLinks", listWithStableId);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	
 	private List<String> getParamsAsList(String[] parameterIds) {
 		List<String> paramIds = null;
 		if (parameterIds == null) {
-			 paramIds=Collections.EMPTY_LIST;
+			 paramIds=Collections.emptyList();
 		}else{
 			paramIds = Arrays.asList(parameterIds); 
 		}
 		return paramIds;
 	}
+	
+	
 
 
 
@@ -259,11 +326,16 @@ public class StatsController implements BeanFactoryAware {
 		this.bf = arg0;
 	}
 
-	@RequestMapping("/statsOld/genes/{acc}")
-	public String genesStats2(Model model, HttpServletRequest request,
-			RedirectAttributes attributes) {
-		return "statsOld";
-	}
 	
+	
+	@ExceptionHandler(GenomicFeatureNotFoundException.class)
+	public ModelAndView handleGenomicFeatureNotFoundException(GenomicFeatureNotFoundException exception) {
+        ModelAndView mv = new ModelAndView("identifierError");
+        mv.addObject("errorMessage",exception.getMessage());
+        mv.addObject("acc",exception.getAcc());
+        mv.addObject("type","MGI gene");
+        mv.addObject("exampleURI", "/stats/genes/MGI:104874");
+        return mv;
+    } 
 
 }
