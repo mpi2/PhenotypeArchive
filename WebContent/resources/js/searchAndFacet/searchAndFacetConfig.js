@@ -105,12 +105,12 @@ config.facetParams = {
 		qf: "marker_symbol^100.0 marker_name^10.0 allele^10 marker_synonym mgi_accession_id auto_suggest",
 		gridName: 'geneGrid',
 		gridFields: 'marker_symbol,marker_synonym,marker_name,status', 
-		filterParams: {fq:'marker_type:* -marker_type:"heritable phenotypic marker" -imits_consortium:EUCOMMToolsCre',		 
+		filterParams: {fq:'marker_type:* -marker_type:"heritable phenotypic marker"',		 
 			      qf:"marker_symbol^100.0 marker_name^10.0 marker_synonym mgi_accession_id auto_suggest",			     
 			      bq:'marker_type:"protein coding gene"^100'},
 		srchParams: $.extend({},				
 				 	commonSolrParams,	 	
-					{fq:'marker_type:* -marker_type:"heritable phenotypic marker" -imits_consortium:EUCOMMToolsCre'}),
+					{fq:'marker_type:* -marker_type:"heritable phenotypic marker"'}),
 		subFacet_filter_params: '' // set by widget on the fly			
 	 },	
 	 pipelineFacet: {		
