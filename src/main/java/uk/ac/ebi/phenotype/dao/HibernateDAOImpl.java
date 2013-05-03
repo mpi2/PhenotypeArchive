@@ -31,10 +31,14 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.transaction.annotation.Transactional;
+
+import uk.ac.ebi.phenotype.pojo.Datasource;
+import uk.ac.ebi.phenotype.pojo.Organisation;
 
 /*
 * Implementation of the HibernateDAO interface
@@ -99,6 +103,14 @@ public class HibernateDAOImpl implements HibernateDAO {
 		
 		return results;
 	}
+	
+	@Transactional(readOnly = true)
+	public int optimizeTable(String tableName) {
+		Query query = getCurrentSession().createSQLQuery(
+				"optimize table " + tableName);
+		return query.executeUpdate();
+	}
+	
 	
 	/**
 	 * Returns the session associated with the ongoing reward transaction.
