@@ -22,6 +22,8 @@
 		</property>
 	</bean>
 
+	<context:component-scan base-package="uk.ac.ebi.generic.util">
+	</context:component-scan>
 	<context:annotation-config />
 
 	<!-- Drives transactions using Hibernate APIs when requested -->
@@ -116,10 +118,6 @@
 	<bean id="timeSeriesChartAndTableProvider" class="uk.ac.ebi.phenotype.stats.timeseries.TimeSeriesChartAndTableProvider">
 		<constructor-arg ref="timeSeriesStatisticsDAO" />
 	</bean>
-	
-	<bean id="geneBiomartDao" class="uk.ac.ebi.phenotype.dao.GeneBiomartDao">		
-		<constructor-arg name="solrBaseUrl" value="${internalSolrUrl}" />
-	</bean>
 
 	<!-- Spring annotated objects -->
 	<bean id="sessionFactory"
@@ -164,7 +162,6 @@
 				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaImageTag</value>
 				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaImageTagType</value>
 				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaExperimentDict</value>
-				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaMouseImageVw</value>
 				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaQcDict</value>
 				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaPublishedDict</value>
 				<value>uk.ac.ebi.phenotype.imaging.persistence.AnnOntologyDict</value>
@@ -172,7 +169,6 @@
 				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaImportContext</value>
 				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaSubcontext</value>
 				<value>uk.ac.ebi.phenotype.imaging.persistence.HigherLevelAnnotation</value>
-				<value>uk.ac.ebi.phenotype.imaging.persistence.LowerToHigherLevelAnnotation</value>
 				<value>uk.ac.ebi.phenotype.imaging.persistence.MtsMouseAlleleMv</value>
 				<value>uk.ac.ebi.phenotype.imaging.persistence.MtsMouseAllele</value>
 				<value>uk.ac.ebi.phenotype.imaging.persistence.MtsGenotypeDict</value>
@@ -197,18 +193,18 @@
 	</bean>
 	
 	<!-- 
-		If deploying without maven, the imagesSolrUrl variable is replaced
+		If deploying without maven, the solrUrl variable is replaced
 		by Spring's PropertyPlaceholder configuration.
 		
-		If deploying with maven, the maven filter replaces the imagesSolrUrl
+		If deploying with maven, the maven filter replaces the solrUrl
 		variable with the value specified in the pom.xml file.
 		
 		If deploying using a profile (e.g. mvn tomcat:deploy -Pexternal_beta) the 
-		imagesSolrUrl variable is replaced with the appropriate value from
+		solrUrl variable is replaced with the appropriate value from
 		the profile in the pom.xml file.  
 	  -->
 	<bean id="imagesSolrDao" class="uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrJ">
-		<constructor-arg name="solrBaseUrl" value="${imagesSolrUrl}" />
+		<constructor-arg name="solrBaseUrl" value="${solrUrl}/images" />
 	</bean>
 	
 	<bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">
@@ -216,14 +212,14 @@
 			<value>java.util.HashMap</value>
 		</property>
 		<property name="sourceMap">
-			<map>
+			<map key-type="java.lang.String" value-type="java.lang.String">
 				<entry key="baseUrl" value="${baseUrl}" />
 				<entry key="drupalBaseUrl" value="${drupalBaseUrl}" />
-				<entry key="imagesSolrUrl" value="${imagesSolrUrl}" />
 				<entry key="solrUrl" value="${solrUrl}" />
 				<entry key="internalSolrUrl" value="${internalSolrUrl}" />
 				<entry key="mediaBaseUrl" value="${mediaBaseUrl}" />
 				<entry key="googleAnalytics" value="${googleAnalytics}" />
+				<entry key="liveSite" value="${liveSite}" />
 			</map>
 		</property>
 	</bean>
