@@ -60,7 +60,9 @@ public interface GenomicFeatureDAO extends HibernateDAO {
 	
 	public GenomicFeature getGenomicFeatureByBiotype(String biotype);
 	
-	Map<String, GenomicFeature> getGenomicFeaturesByBiotypeAndNoSubtype(String biotype);
+	public Map<String, GenomicFeature> getGenomicFeaturesByBiotype(String biotype);
+	
+	public Map<String, GenomicFeature> getGenomicFeaturesByBiotypeAndNoSubtype(String biotype);
 	
 	/**
 	 * Save a genomic feature representation
