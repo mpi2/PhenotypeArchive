@@ -1,82 +1,44 @@
 <dataConfig>
-    <script type='text/javascript'><![CDATA[
-        function calculateStatus(row)    {
-            //-------- DO NOT ALTER THE ORDER OF the if STATEMENTS -------
-          
-            // rules to derive status are modified from Sanger code
 
-            // Phenotype Data Available
-            if ( row.get('imits_report_phenotyping_complete_date') && row.get('imits_report_phenotyping_complete_date').toString().split(',').length > 0 ){               
-                row.put('status', 'Phenotype Data Available');
-                return row;    
-            }                    
 
-            // Mice Produced
-            if ( row.get('imits_report_genotype_confirmed_date') && row.get('imits_report_genotype_confirmed_date').toString().split(',').length > 0 ){              
-                row.put('status', 'Mice Produced');
-                return row; 
-            }
+	<!-- This pulls out only the essential fields from the Sanger gene core 
+		that are needed for the EBI gene core to support autosuggest on the IMPC 
+		search page -->
+	
+	<dataSource name="sanger" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000" />
+	<document name="docs">
+		<entity 
+			dataSource="sanger" 
+			name="doc" 
+			stream="true" 
+			url="search?q=*&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status&amp;rows=50000&amp;wt=normal" 
+			processor="XPathEntityProcessor" 
+			forEach="/response/result/doc/"
+			readTimeout="10000" 
+			connectionTimeout="10000">
 
-            // Assigned for Mouse Production and Phenotyping
-            if ( row.get('imits_report_mi_plan_status') && row.get('imits_report_mi_plan_status').toString().split(',').length > 0 ){
-                var planStatuses = row.get('imits_report_mi_plan_status').toString().split(',');
-                
-                var nonAssignedStatuses = [];
-                var assignedStatuses = [];
+			<field column="mgi_accession_id" xpath="/response/result/doc/str[@name='MGI']" />
+			<field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />
+			<field column="marker_name" xpath="/response/result/doc/arr[@name='marker_name']/str" />
+			<field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
+			<field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />
+			<field column="imits_report_phenotyping_complete_date" xpath="/response/result/doc/arr[@name='imits_report_phenotyping_complete_date']/str" />
+			<field column="imits_report_genotype_confirmed_date" xpath="/response/result/doc/arr[@name='imits_report_genotype_confirmed_date']/str" />
+			<field column="imits_report_mi_plan_status" xpath="/response/result/doc/arr[@name='imits_mi_plan_status']/str" />
+			<field column="escell" xpath="/response/result/doc/arr[@name='escell']/str" />
+			<field column="ikmc_project" splitBy="," xpath="/response/result/doc/arr[@name='ikmc_project']/str" />
+			<field column="imits_consortium" xpath="/response/result/doc/str[@name='imits_consortium']" />
+			<field column="status" xpath="/response/result/doc/str[@name='latest_project_status']" />
 
-                for( var i=0; i<planStatuses.length; i++ ){
-                    var planStatus = planStatuses[i];
-                    if (planStatus == '[Inactive]' || planStatus == '[Withdrawn]') {
-                        nonAssignedStatuses.push(planStatus);                       
-                    } 
-                    else {
-                        assignedStatuses.push(planStatus);                    
-                    }
-                }
-
-                if ( nonAssignedStatuses.length == 0 && assignedStatuses.length > 0 ) {
-                    row.put('status', 'Assigned for Mouse Production and Phenotyping');
-                    return row;
-                }                
-            }
-
-            // ES Cells Produced
-            if ( row.get('escell') && row.get('escell').toString().split(',').length > 0   ){               
-                row.put('status', 'ES Cells Produced');               
-                return row;
-            } 
-
-            // Assigned for ES Cell Production
-            if ( row.get('ikmc_project') && row.get('ikmc_project').toString().split(',').length > 0 ){                                                  
-                row.put('status', 'Assigned for ES Cell Production');
-                return row;                
-            }
-           
-            // gets the oldest/initial status if none of the above applies
-            row.put('status', 'Not Assigned for ES Cell Production');
-            return row; 
-        }
-    ]]></script>
-
-        <!-- This pulls out only the essential fields from the Sanger gene core that are needed for the EBI gene core to support autosuggest on the IMPC search page -->
-        <!-- The gene status is calculated on the fly using DataimportHandler script transformer -->
-        <dataSource name="sanger" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene/" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
-        <document name="docs">
-                <entity dataSource="sanger" name="doc" stream="true" url="search?q=*&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,ikmc_project&amp;rows=50000&amp;wt=normal"
-                processor="XPathEntityProcessor" forEach="/response/result/doc/"
-                transformer="script:calculateStatus"   readTimeout="10000" connectionTimeout="10000"  >
-                      
-                        <field column="mgi_accession_id" xpath="/response/result/doc/str[@name='MGI']" />
-                        <field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />
-                        <field column="marker_name" xpath="/response/result/doc/arr[@name='marker_name']/str" />
-                        <field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
-                        <field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />                      
-                        <field column="imits_report_phenotyping_complete_date" xpath="/response/result/doc/arr[@name='imits_report_phenotyping_complete_date']/str" />
-                        <field column="imits_report_genotype_confirmed_date" xpath="/response/result/doc/arr[@name='imits_report_genotype_confirmed_date']/str" />
-                        <field column="imits_report_mi_plan_status" xpath="/response/result/doc/arr[@name='imits_report_mi_plan_status']/str" />
-                        <field column="escell" xpath="/response/result/doc/arr[@name='escell']/str" />
-                        <field column="ikmc_project" splitBy="," xpath="/response/result/doc/arr[@name='ikmc_project']/str" />                      
-                        <field column="status" name="status" />
-                </entity>
-        </document>       
+			<field column="imits_phenotype_started" xpath="/response/result/doc/arr[@name='imits_phenotype_started']/str" />
+			<field column="imits_phenotype_complete" xpath="/response/result/doc/arr[@name='imits_phenotype_complete']/str" />
+			<field column="colony_prefix" xpath="/response/result/doc/arr[@name='colony_prefix']/str" />
+			<field column="imits_phenotype_colony_name" xpath="/response/result/doc/arr[@name='imits_phenotype_colony_name']/str" />
+			<field column="imits_phenotype_allele_type" xpath="/response/result/doc/arr[@name='imits_phenotype_allele_type']/str" />
+			<field column="imits_phenotype_status" xpath="/response/result/doc/arr[@name='imits_phenotype_status']/str" />
+			<field column="imits_phenotype_is_active" xpath="/response/result/doc/arr[@name='imits_phenotype_is_active']/str" />
+			
+		</entity>
+	</document>
 </dataConfig>
+
