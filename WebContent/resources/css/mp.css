@@ -1,0 +1,117 @@
+span.txtCollapse {
+	font-size: 10px;
+}
+div#mpName {
+	font-size: 16px;
+	font-weight: bold;
+	color: #36648B;
+	margin-bottom: 10px;
+}
+div#overviewBlk{
+	margin:0 auto;
+}
+div#ovWrapper {
+	height: auto;
+	padding: 15px;
+	border: 1px solid #53868B;
+	display: table; /*so that its height will be same as its child */  
+	width: 100%;	
+}
+div#ovRight{
+    text-align: center;
+}
+
+div#ovRight img{
+     width: 340px;
+}
+table.mpTable {	
+	width: 100%;
+	border-collapse: collapse;
+}
+table.mpTable caption {
+	text-align: left;
+	font-size: 20px;
+	font-weight: bold;
+	color: #27408B;
+	padding-bottom: 10px; 
+}
+th.header {
+	background-color: #D6D6D6 !important;
+}
+table.mpTable td {
+	border-bottom: 1px solid #CDC8B1; 
+    text-align: left;
+}
+ table.mpTable tr:first-child td {
+ 	border-top: none;
+ }
+table.mpTable tr:last-child td{
+	border-bottom: none;
+}
+
+table.mpTable td.infoType {
+	font-weight: bold;
+	font-size: 12px; 
+	background-color: #F7F7F7;
+	padding: 10px 5px;	
+    line-height: 10px;
+    padding-left: 30px;
+}	
+table#mpOverviewTable td.graph {
+	width: 60%;
+	min-height: 50px;	
+	height: auto;
+	border: 1px solid gray;
+}
+ul.itemBox {
+	margin: 0;
+	padding-left: 13px;	
+}
+li {
+	list-style: none;	
+}
+li.listItem {
+	list-style-position: outside;
+	list-style-type: square;	
+}
+li.singleton {
+	margin-left: -13px;
+}
+li.longList {
+	display: none;
+}
+button.listToggle {
+	padding: 1px 7px 2px 25px;
+	margin-top: 10px;
+	border: 1px solid #CDC8B1;	
+	text-align: center;
+	vertical-align: center;
+	margin-top: 5px;	
+	background-color: #E3E3E3;
+	background-image: url('../img/plus.gif');
+    background-repeat: no-repeat;
+    background-position: 10% 50%; /*x,y*/
+    outline: none;
+    font-size: 11px;
+}
+button.showLess {
+	background-image: url('../img/minus.gif');
+}
+button::-moz-focus-inner {
+  border: 0;
+}
+span.expandText, span.collapseText {
+	cursor: pointer;
+}
+div#pheno2geno {
+	padding: 0 0 10px 15px;
+	float: left;	
+}
+span.gender img {
+	margin-right: 3px;
+}
+
+/* end of mpParamsTable */
+
+
+
