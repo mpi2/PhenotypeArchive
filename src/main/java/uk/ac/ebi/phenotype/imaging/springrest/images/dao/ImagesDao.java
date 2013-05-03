@@ -15,11 +15,9 @@
  */
 package uk.ac.ebi.phenotype.imaging.springrest.images.dao;
 
-import java.util.List;
-
 import uk.ac.ebi.phenotype.imaging.persistence.ImaImageRecord;
-import uk.ac.ebi.phenotype.imaging.springrest.images.Image;
 import uk.ac.ebi.phenotype.imaging.springrest.images.Images;
+
 /**
  * Images dao interface used by currently hibernate and our images restful web service
  * @author jwarren
@@ -27,11 +25,10 @@ import uk.ac.ebi.phenotype.imaging.springrest.images.Images;
  */
 public interface ImagesDao {
 	
-	public Images getAllImages(int start,int length, String search);
+	public Images getAllImages(int start,int length, String search) throws Exception;
 
 	public ImaImageRecord getImageWithId(int id);
 	
 	public long getTotalNumberOfImages();
 
-	public ImaImageRecord queryDatabaseById(String id);
 }
