@@ -32,11 +32,10 @@ import javax.persistence.Table;
 public class UnidimensionalControlView extends UnidimensionalView implements Serializable {
 
 	private static final long serialVersionUID = -2302911113942593680L;
-	private final String type = "control";
 
 	@Override
-	public String getType() {
-		return type;
+	public String whatAmI() {
+		return "control";
 	}
 
 
