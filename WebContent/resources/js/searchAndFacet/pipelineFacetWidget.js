@@ -116,7 +116,8 @@
 					// hash state stuff				   
 					window.location.hash = $.fn.stringifyJsonAsUrlParams(hashParams);// + "&core=" + solrCoreName;
 					
-					// dataTable code	
+					// dataTable code
+					
 					$.fn.invokeFacetDataTable(solrSrchParams, facetDivId, gridName);				
 				}				
 			});	
@@ -136,7 +137,7 @@
 	    	var aProcedure_names = [];	    	
 	    	  	
 	    	var queryParams = $.extend({}, {	    		  		
-	    		'fq': 'pipeline_stable_id=IMPC_001',				
+	    		'fq': 'pipeline_stable_id:IMPC_001',				
 				'rows': 500000,
 				'facet': 'on',								
 				'facet.mincount': 1,
