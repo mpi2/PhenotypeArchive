@@ -25,7 +25,7 @@ if(typeof(window.MPI2) === 'undefined') {
     window.MPI2 = {};
 }
 MPI2.buttCount = 0;
-	
+
 MPI2.searchAndFacetConfig = {};
 var config = MPI2.searchAndFacetConfig;
 
@@ -61,6 +61,12 @@ config.geneStatuses = ['Phenotype Data Available',
                'Assigned for ES Cell Production',
                'Not Assigned for ES Cell Production'];
 
+config.phenotypingStatuses = {'Complete':{'fq':'imits_phenotype_complete','val':1}, 
+                              'Started':{'fq':'imits_phenotype_started','val':1}, 
+                              'Attempt Registered':{'fq':'imits_phenotype_status', 'val':'Phenotype Attempt Registered'}};
+
+
+                            
 //config.solrBaseURL_bytemark = 'http://dev.mousephenotype.org/bytemark/solr/';
 config.solrBaseURL_bytemark = solrUrl + '/';
 config.solrBaseURL_ebi = solrUrl + '/';
@@ -89,21 +95,22 @@ var commonSolrParams = {
 config.commonSolrParams = commonSolrParams;
 
 config.facetParams = {	
-	 geneFacet:      {
-		 type: 'genes',			
-		 solrCoreName: 'gene',			 
-		 tableCols: 3, 
-		 tableHeader: "<thead><th>Gene</th><th>Latest Status</th><th>Register for Updates</th></thead>",
-		 fq: undefined,
-		 qf: "marker_symbol^100.0 marker_name^10.0 allele^10 marker_synonym mgi_accession_id auto_suggest",
-		 gridName: 'geneGrid',
-		 gridFields: 'marker_symbol,marker_synonym,marker_name,status', 
-		 filterParams: {fq:'marker_type:* -marker_type:"heritable phenotypic marker"',		 
+	geneFacet:      {
+		type: 'genes',			
+		solrCoreName: 'gene',			 
+		tableCols: 3, 
+	
+		tableHeader: "<thead><th>Gene</th><th>Mouse Production Status</th><th>Phenotyping Status</th><th>Register for Updates</th></thead>",
+		fq: undefined,
+		qf: "marker_symbol^100.0 marker_name^10.0 allele^10 marker_synonym mgi_accession_id auto_suggest",
+		gridName: 'geneGrid',
+		gridFields: 'marker_symbol,marker_synonym,marker_name,status', 
+		filterParams: {fq:'marker_type:* -marker_type:"heritable phenotypic marker" -imits_consortium:EUCOMMToolsCre',		 
 			      qf:"marker_symbol^100.0 marker_name^10.0 marker_synonym mgi_accession_id auto_suggest",			     
 			      bq:'marker_type:"protein coding gene"^100'},
-		 srchParams: $.extend({},				
+		srchParams: $.extend({},				
 				 	commonSolrParams,	 	
-					{fq:'marker_type:* -marker_type:"heritable phenotypic marker"'}),
+					{fq:'marker_type:* -marker_type:"heritable phenotypic marker" -imits_consortium:EUCOMMToolsCre'}),
 		subFacet_filter_params: '' // set by widget on the fly			
 	 },	
 	 pipelineFacet: {		
@@ -120,7 +127,7 @@ config.facetParams = {
 		 filterParams:{'fq': 'pipeline_stable_id:IMPC_001'},
 		 srchParams: $.extend({},
 					commonSolrParams,    				
-					{'fq': 'pipeline_stable_id=IMPC_001'})
+					{'fq': 'pipeline_stable_id:IMPC_001'})
 	 },	
 	 mpFacet: {	
 		 type: 'phenotypes',
