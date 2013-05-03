@@ -34,6 +34,8 @@ import org.hibernate.Session;
 
 public interface HibernateDAO {
 
+	public int optimizeTable(String tableName);
+	
 	public Session getSession();
 	
 	public void flushAndClearSession();
