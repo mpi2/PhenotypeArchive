@@ -330,7 +330,7 @@ CREATE TABLE biological_model (
     db_id                     INT(10) NOT NULL, 
     allelic_composition       VARCHAR(200) NOT NULL,
     genetic_background        VARCHAR(200) NOT NULL,
-    
+    zygosity                  ENUM('homozygote', 'heterozygote', 'hemizygote') DEFAULT NULL,
     PRIMARY KEY (id),
     KEY allelic_composition_idx (allelic_composition),
     KEY genetic_background_idx (genetic_background)
@@ -416,6 +416,7 @@ CREATE TABLE biological_sample (
     organisation_id           INT(10) UNSIGNED NOT NULL,
 
     PRIMARY KEY (id),
+    KEY external_id_idx(external_id),
     KEY external_db_idx(db_id),
 	KEY group_idx (sample_group),
 	KEY sample_type_idx (sample_type_acc, sample_type_db_id),
