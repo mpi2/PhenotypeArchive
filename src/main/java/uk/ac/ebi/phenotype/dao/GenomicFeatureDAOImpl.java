@@ -73,6 +73,17 @@ public class GenomicFeatureDAOImpl extends HibernateDAOImpl implements
 
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
+	public Map<String, GenomicFeature> getGenomicFeaturesByBiotype(String biotype) {
+		HashMap<String, GenomicFeature> map = new HashMap<String, GenomicFeature>();
+		List<GenomicFeature> result = getCurrentSession().createQuery("from GenomicFeature as g where g.biotype.name= ?").setString(0, biotype).list();
+		for (GenomicFeature t: result) {
+			map.put(t.getId().getAccession(), t);
+		}
+		return map;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Transactional(readOnly = true)
 	public Map<String, GenomicFeature> getGenomicFeaturesByBiotypeAndNoSubtype(String biotype) {
 		HashMap<String, GenomicFeature> map = new HashMap<String, GenomicFeature>();
 		List<GenomicFeature> result = getCurrentSession().createQuery("from GenomicFeature as g where g.biotype.name= ? and g.subtype = null").setString(0, biotype).list();
