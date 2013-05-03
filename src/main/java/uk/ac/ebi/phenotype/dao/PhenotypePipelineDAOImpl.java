@@ -23,13 +23,21 @@ package uk.ac.ebi.phenotype.dao;
  * @since May 2012
  */
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.Datasource;
+import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.ParameterIncrement;
 import uk.ac.ebi.phenotype.pojo.ParameterOntologyAnnotation;
@@ -40,6 +48,8 @@ import uk.ac.ebi.phenotype.pojo.Procedure;
 
 
 public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements PhenotypePipelineDAO {
+
+	private Logger log = LoggerFactory.getLogger(this.getClass());
 
 	/**
 	 * Creates a new Hibernate pipeline data access manager.
@@ -142,4 +152,74 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 				.setInteger("dbID", datasource.getId());
 		query.executeUpdate();
 	}
+	
+	/**
+	 * Helper method to fetch the actual parameter pojo when provided a 
+	 * database id.
+	 */
+	@Transactional(readOnly = true)
+	public Parameter getParameterById(Integer parameterId) {
+		return (Parameter) getCurrentSession()
+				.createQuery("SELECT p FROM Parameter p WHERE p.id=?")
+				.setInteger(0, parameterId)
+				.uniqueResult();
+	}
+
+	/**
+	 * getProcedureByOntologyTerm returns the sorted set of procedures
+	 * associated to a passed in ontology term 
+	 * 
+	 */
+	@SuppressWarnings("unchecked")
+	public Set<Procedure> getProceduresByOntologyTerm(OntologyTerm term) {
+		if (term == null) return null;
+		return (Set<Procedure>) new HashSet<Procedure>(getCurrentSession()
+				.createQuery("SELECT proc FROM Procedure proc INNER JOIN proc.parameters as param INNER JOIN param.annotations as annotations WHERE annotations.ontologyTerm.id.databaseId=? AND annotations.ontologyTerm.id.accession=?")
+				.setInteger(0, term.getId().getDatabaseId())
+				.setString(1, term.getId().getAccession())
+				.list());
+	}
+
+	/**
+	 * Return all categorical parameters for which we have data loaded
+	 * 
+	 * @exception SQLException When a database error occurrs
+	 */
+	@Transactional(readOnly = true)
+	public Set<Parameter> getAllCategoricalParametersForProcessing() throws SQLException {
+		Set<Parameter> parameters = new HashSet<Parameter>();
+
+		String query = "SELECT DISTINCT o.parameter_id FROM observation o JOIN biological_sample bs ON o.biological_sample_id = bs.id WHERE o.observation_type = 'categorical' AND bs.sample_group = 'control'";
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+		    ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				parameters.add(getParameterById(resultSet.getInt("parameter_id")));
+			}
+		}
+
+		return parameters;
+	}
+
+	/**
+	 * Return all unidimensional parameters for which we have data loaded
+	 * 
+	 * @exception SQLException When a database error occurrs
+	 */
+	@Transactional(readOnly = true)
+	public Set<Parameter> getAllUnidimensionalParametersForProcessing() throws SQLException {
+		Set<Parameter> parameters = new HashSet<Parameter>();
+
+		String query = "SELECT DISTINCT o.parameter_id FROM observation o JOIN biological_sample bs ON o.biological_sample_id = bs.id WHERE o.observation_type = 'unidimensional' AND bs.sample_group = 'control'";
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+		    ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				parameters.add(getParameterById(resultSet.getInt("parameter_id")));
+			}
+		}
+
+		return parameters;
+	}
+
 }
