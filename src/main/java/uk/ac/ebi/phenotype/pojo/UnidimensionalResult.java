@@ -4,11 +4,8 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
 /**
@@ -18,26 +15,17 @@ import javax.persistence.Table;
  * 
  */
 @Entity
-@Table(name = "stats_categorical_results")
-public class UnidimensionalResult implements Serializable {
+@Table(name = "stats_unidimensional_results")
+public class UnidimensionalResult extends StatisticalResult implements Serializable {
 
 	private static final long serialVersionUID = -6887634216189711657L;
 
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name = "id")
-	private Integer id;
+	@Column(name = "colony_id")
+	private String colonyId;
 
-	@Column(name = "population_id")
-	private Integer populationId;
-
-	@OneToOne
-	@JoinColumn(name = "organisation_id")
-	private Organisation organisation;
-	
-	@OneToOne
-	@JoinColumn(name = "parameter_id")
-	private Parameter parameter;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "experimental_zygosity")
+	private ZygosityType experimentalZygosity;
 
 	@Column(name = "mixed_model")
 	private String mixedModel;
@@ -52,81 +40,98 @@ public class UnidimensionalResult implements Serializable {
 	private Boolean varianceSignificance;
 
 	@Column(name = "null_test_significance")
-	private double nullTestSignificance;
+	private Double nullTestSignificance;
 
 	@Column(name = "genotype_parameter_estimate")
-	private double genotypeParameterEstimate;
+	private Double genotypeParameterEstimate;
 
 	@Column(name = "genotype_stderr_estimate")
-	private double genotypeStandardErrorEstimate;
+	private Double genotypeStandardErrorEstimate;
 
 	@Column(name = "genotype_effect_pvalue")
-	private double genotypeEffectPValue;
+	private Double genotypeEffectPValue;
 
 	@Column(name = "gender_parameter_estimate")
-	private double genderParameterEstimate;
+	private Double genderParameterEstimate;
 
 	@Column(name = "gender_stderr_estimate")
-	private double genderStandardErrorEstimate;
+	private Double genderStandardErrorEstimate;
 
 	@Column(name = "gender_effect_pvalue")
-	private double genderEffectPValue;
-
-	@Column(name = "interaction_parameter_estimate")
-	private double interactionParameterEstimate;
-
-	@Column(name = "interaction_stderr_estimate")
-	private double interactionStandardErrorEstimate;
-
-	@Column(name = "interaction_effect_pvalue")
-	private double interactionEffectPValue;
+	private Double genderEffectPValue;
 
 	@Column(name = "weight_parameter_estimate")
-	private double weightParameterEstimate;
+	private Double weightParameterEstimate;
 
 	@Column(name = "weight_stderr_estimate")
-	private double weightStandardErrorEstimate;
+	private Double weightStandardErrorEstimate;
 
 	@Column(name = "weight_effect_pvalue")
-	private double weightEffectPValue;
+	private Double weightEffectPValue;
 
 	@Column(name = "gp1_genotype")
 	private String gp1Genotype;
 
 	@Column(name = "gp1_residuals_normality_test")
-	private double gp1ResidualsNormalityTest;
+	private Double gp1ResidualsNormalityTest;
 
 	@Column(name = "gp2_genotype")
 	private String gp2Genotype;
 
 	@Column(name = "gp2_residuals_normality_test")
-	private double gp2ResidualsNormalityTest;
+	private Double gp2ResidualsNormalityTest;
 
 	@Column(name = "blups_test")
-	private double blupsTest;
+	private Double blupsTest;
 
 	@Column(name = "rotated_residuals_normality_test")
-	private double rotatedResidualsNormalityTest;
+	private Double rotatedResidualsNormalityTest;
 
 	@Column(name = "intercept_estimate")
-	private double interceptEstimate;
+	private Double interceptEstimate;
 
-	@Column(name = "intercept_estimate_stderr")
-	private double interceptEstimateStandardError;
-	
+	@Column(name = "intercept_stderr_estimate")
+	private Double interceptEstimateStandardError;
+
+	@Column(name = "interaction_significance")
+	private Boolean interactionSignificance;
+
+	@Column(name = "interaction_effect_pvalue")
+	private Double interactionEffectPValue;
+
+	@Column(name = "gender_female_ko_estimate")
+	private Double genderFemaleKoEstimate;
+
+	@Column(name = "gender_female_ko_stderr_estimate")
+	private Double genderFemaleKoStandardErrorEstimate;
+
+	@Column(name = "gender_female_ko_pvalue")
+	private Double genderFemaleKoPValue;
+
+	@Column(name = "gender_male_ko_estimate")
+	private Double genderMaleKoEstimate;
+
+	@Column(name = "gender_male_ko_stderr_estimate")
+	private Double genderMaleKoStandardErrorEstimate;
+
+	@Column(name = "gender_male_ko_pvalue")
+	private Double genderMaleKoPValue;
+
+
 	/**
 	 * pValue is reported by the mixed model code as the nullTestSignificance
 	 * Rather than store pValue twice, just alias the getter/setter
+	 * 
 	 * @return
 	 */
-	public double getpValue() {
+	public Double getpValue() {
 		return nullTestSignificance;
 	}
 
-	public void setpValue(double pValue) {
+	public void setpValue(Double pValue) {
 		this.nullTestSignificance = pValue;
 	}
-	
+
 	public Integer getId() {
 		return id;
 	}
@@ -135,12 +140,20 @@ public class UnidimensionalResult implements Serializable {
 		this.id = id;
 	}
 
-	public Integer getPopulationId() {
-		return populationId;
+	public String getColonyId() {
+		return colonyId;
 	}
 
-	public void setPopulationId(Integer populationId) {
-		this.populationId = populationId;
+	public void setColonyId(String colonyId) {
+		this.colonyId = colonyId;
+	}
+
+	public ZygosityType getExperimentalZygosity() {
+		return experimentalZygosity;
+	}
+
+	public void setExperimentalZygosity(ZygosityType experimentalZygosity) {
+		this.experimentalZygosity = experimentalZygosity;
 	}
 
 	public Organisation getOrganisation() {
@@ -191,109 +204,84 @@ public class UnidimensionalResult implements Serializable {
 		this.varianceSignificance = varianceSignificance;
 	}
 
-	public double getNullTestSignificance() {
+	public Double getNullTestSignificance() {
 		return nullTestSignificance;
 	}
 
-	public void setNullTestSignificance(double nullTestSignificance) {
+	public void setNullTestSignificance(Double nullTestSignificance) {
 		this.nullTestSignificance = nullTestSignificance;
 	}
 
-	public double getGenotypeParameterEstimate() {
+	public Double getGenotypeParameterEstimate() {
 		return genotypeParameterEstimate;
 	}
 
-	public void setGenotypeParameterEstimate(double genotypeParameterEstimate) {
+	public void setGenotypeParameterEstimate(Double genotypeParameterEstimate) {
 		this.genotypeParameterEstimate = genotypeParameterEstimate;
 	}
 
-	public double getGenotypeStandardErrorEstimate() {
+	public Double getGenotypeStandardErrorEstimate() {
 		return genotypeStandardErrorEstimate;
 	}
 
 	public void setGenotypeStandardErrorEstimate(
-			double genotypeStandardErrorEstimate) {
+			Double genotypeStandardErrorEstimate) {
 		this.genotypeStandardErrorEstimate = genotypeStandardErrorEstimate;
 	}
 
-	public double getGenotypeEffectPValue() {
+	public Double getGenotypeEffectPValue() {
 		return genotypeEffectPValue;
 	}
 
-	public void setGenotypeEffectPValue(double genotypeEffectPValue) {
+	public void setGenotypeEffectPValue(Double genotypeEffectPValue) {
 		this.genotypeEffectPValue = genotypeEffectPValue;
 	}
 
-	public double getGenderParameterEstimate() {
+	public Double getGenderParameterEstimate() {
 		return genderParameterEstimate;
 	}
 
-	public void setGenderParameterEstimate(double genderParameterEstimate) {
+	public void setGenderParameterEstimate(Double genderParameterEstimate) {
 		this.genderParameterEstimate = genderParameterEstimate;
 	}
 
-	public double getGenderStandardErrorEstimate() {
+	public Double getGenderStandardErrorEstimate() {
 		return genderStandardErrorEstimate;
 	}
 
-	public void setGenderStandardErrorEstimate(double genderStandardErrorEstimate) {
+	public void setGenderStandardErrorEstimate(Double genderStandardErrorEstimate) {
 		this.genderStandardErrorEstimate = genderStandardErrorEstimate;
 	}
 
-	public double getGenderEffectPValue() {
+	public Double getGenderEffectPValue() {
 		return genderEffectPValue;
 	}
 
-	public void setGenderEffectPValue(double genderEffectPValue) {
+	public void setGenderEffectPValue(Double genderEffectPValue) {
 		this.genderEffectPValue = genderEffectPValue;
 	}
 
-	public double getInteractionParameterEstimate() {
-		return interactionParameterEstimate;
-	}
-
-	public void setInteractionParameterEstimate(double interactionParameterEstimate) {
-		this.interactionParameterEstimate = interactionParameterEstimate;
-	}
-
-	public double getInteractionStandardErrorEstimate() {
-		return interactionStandardErrorEstimate;
-	}
-
-	public void setInteractionStandardErrorEstimate(
-			double interactionStandardErrorEstimate) {
-		this.interactionStandardErrorEstimate = interactionStandardErrorEstimate;
-	}
-
-	public double getInteractionEffectPValue() {
-		return interactionEffectPValue;
-	}
-
-	public void setInteractionEffectPValue(double interactionEffectPValue) {
-		this.interactionEffectPValue = interactionEffectPValue;
-	}
-
-	public double getWeightParameterEstimate() {
+	public Double getWeightParameterEstimate() {
 		return weightParameterEstimate;
 	}
 
-	public void setWeightParameterEstimate(double weightParameterEstimate) {
+	public void setWeightParameterEstimate(Double weightParameterEstimate) {
 		this.weightParameterEstimate = weightParameterEstimate;
 	}
 
-	public double getWeightStandardErrorEstimate() {
+	public Double getWeightStandardErrorEstimate() {
 		return weightStandardErrorEstimate;
 	}
 
-	public void setWeightStandardErrorEstimate(double weightStandardErrorEstimate) {
+	public void setWeightStandardErrorEstimate(Double weightStandardErrorEstimate) {
 		this.weightStandardErrorEstimate = weightStandardErrorEstimate;
 	}
 
-	public double getWeightEffectPValue() {
+	public Double getWeightEffectPValue() {
 		return weightEffectPValue;
 	}
 
-	public void setWeightEffectPValue(double weightEffectPValue) {
+	public void setWeightEffectPValue(Double weightEffectPValue) {
 		this.weightEffectPValue = weightEffectPValue;
 	}
 
@@ -305,11 +293,11 @@ public class UnidimensionalResult implements Serializable {
 		this.gp1Genotype = gp1Genotype;
 	}
 
-	public double getGp1ResidualsNormalityTest() {
+	public Double getGp1ResidualsNormalityTest() {
 		return gp1ResidualsNormalityTest;
 	}
 
-	public void setGp1ResidualsNormalityTest(double gp1ResidualsNormalityTest) {
+	public void setGp1ResidualsNormalityTest(Double gp1ResidualsNormalityTest) {
 		this.gp1ResidualsNormalityTest = gp1ResidualsNormalityTest;
 	}
 
@@ -321,50 +309,112 @@ public class UnidimensionalResult implements Serializable {
 		this.gp2Genotype = gp2Genotype;
 	}
 
-	public double getGp2ResidualsNormalityTest() {
+	public Double getGp2ResidualsNormalityTest() {
 		return gp2ResidualsNormalityTest;
 	}
 
-	public void setGp2ResidualsNormalityTest(double gp2ResidualsNormalityTest) {
+	public void setGp2ResidualsNormalityTest(Double gp2ResidualsNormalityTest) {
 		this.gp2ResidualsNormalityTest = gp2ResidualsNormalityTest;
 	}
 
-	public double getBlupsTest() {
+	public Double getBlupsTest() {
 		return blupsTest;
 	}
 
-	public void setBlupsTest(double blupsTest) {
+	public void setBlupsTest(Double blupsTest) {
 		this.blupsTest = blupsTest;
 	}
 
-	public double getRotatedResidualsNormalityTest() {
+	public Double getRotatedResidualsNormalityTest() {
 		return rotatedResidualsNormalityTest;
 	}
 
 	public void setRotatedResidualsNormalityTest(
-			double rotatedResidualsNormalityTest) {
+			Double rotatedResidualsNormalityTest) {
 		this.rotatedResidualsNormalityTest = rotatedResidualsNormalityTest;
 	}
 
-	public double getInterceptEstimate() {
+	public Double getInterceptEstimate() {
 		return interceptEstimate;
 	}
 
-	public void setInterceptEstimate(double interceptEstimate) {
+	public void setInterceptEstimate(Double interceptEstimate) {
 		this.interceptEstimate = interceptEstimate;
 	}
 
-	public double getInterceptEstimateStandardError() {
+	public Double getInterceptEstimateStandardError() {
 		return interceptEstimateStandardError;
 	}
 
 	public void setInterceptEstimateStandardError(
-			double interceptEstimateStandardError) {
+			Double interceptEstimateStandardError) {
 		this.interceptEstimateStandardError = interceptEstimateStandardError;
 	}
 
-	public static long getSerialversionuid() {
-		return serialVersionUID;
+	public Boolean getInteractionSignificance() {
+		return interactionSignificance;
+	}
+
+	public void setInteractionSignificance(Boolean interactionSignificance) {
+		this.interactionSignificance = interactionSignificance;
+	}
+
+	public Double getInteractionEffectPValue() {
+		return interactionEffectPValue;
+	}
+
+	public void setInteractionEffectPValue(Double interactionEffectPValue) {
+		this.interactionEffectPValue = interactionEffectPValue;
+	}
+
+	public Double getGenderFemaleKoEstimate() {
+		return genderFemaleKoEstimate;
+	}
+
+	public void setGenderFemaleKoEstimate(Double genderFemaleKoEstimate) {
+		this.genderFemaleKoEstimate = genderFemaleKoEstimate;
+	}
+
+	public Double getGenderFemaleKoStandardErrorEstimate() {
+		return genderFemaleKoStandardErrorEstimate;
+	}
+
+	public void setGenderFemaleKoStandardErrorEstimate(
+			Double genderFemaleKoStandardErrorEstimate) {
+		this.genderFemaleKoStandardErrorEstimate = genderFemaleKoStandardErrorEstimate;
+	}
+
+	public Double getGenderFemaleKoPValue() {
+		return genderFemaleKoPValue;
+	}
+
+	public void setGenderFemaleKoPValue(Double genderFemaleKoPValue) {
+		this.genderFemaleKoPValue = genderFemaleKoPValue;
+	}
+
+	public Double getGenderMaleKoEstimate() {
+		return genderMaleKoEstimate;
+	}
+
+	public void setGenderMaleKoEstimate(Double genderMaleKoEstimate) {
+		this.genderMaleKoEstimate = genderMaleKoEstimate;
+	}
+
+	public Double getGenderMaleKoStandardErrorEstimate() {
+		return genderMaleKoStandardErrorEstimate;
+	}
+
+	public void setGenderMaleKoStandardErrorEstimate(
+			Double genderMaleKoStandardErrorEstimate) {
+		this.genderMaleKoStandardErrorEstimate = genderMaleKoStandardErrorEstimate;
+	}
+
+	public Double getGenderMaleKoPValue() {
+		return genderMaleKoPValue;
+	}
+
+	public void setGenderMaleKoPValue(Double genderMaleKoPValue) {
+		this.genderMaleKoPValue = genderMaleKoPValue;
 	}
 
 	@Override
@@ -375,210 +425,440 @@ public class UnidimensionalResult implements Serializable {
 				* result
 				+ ((batchSignificance == null) ? 0 : batchSignificance
 						.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(blupsTest);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result
+				+ ((blupsTest == null) ? 0 : blupsTest.hashCode());
+		result = prime * result
+				+ ((colonyId == null) ? 0 : colonyId.hashCode());
+		result = prime
+				* result
+				+ ((controlBiologicalModel == null) ? 0
+						: controlBiologicalModel.hashCode());
 		result = prime
 				* result
 				+ ((dependantVariable == null) ? 0 : dependantVariable
 						.hashCode());
-		temp = Double.doubleToLongBits(genderEffectPValue);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(genderParameterEstimate);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(genderStandardErrorEstimate);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(genotypeEffectPValue);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(genotypeParameterEstimate);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(genotypeStandardErrorEstimate);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime
+				* result
+				+ ((experimentalZygosity == null) ? 0 : experimentalZygosity
+						.hashCode());
+		result = prime
+				* result
+				+ ((genderEffectPValue == null) ? 0 : genderEffectPValue
+						.hashCode());
+		result = prime
+				* result
+				+ ((genderFemaleKoEstimate == null) ? 0
+						: genderFemaleKoEstimate.hashCode());
+		result = prime
+				* result
+				+ ((genderFemaleKoPValue == null) ? 0 : genderFemaleKoPValue
+						.hashCode());
+		result = prime
+				* result
+				+ ((genderFemaleKoStandardErrorEstimate == null) ? 0
+						: genderFemaleKoStandardErrorEstimate.hashCode());
+		result = prime
+				* result
+				+ ((genderMaleKoEstimate == null) ? 0 : genderMaleKoEstimate
+						.hashCode());
+		result = prime
+				* result
+				+ ((genderMaleKoPValue == null) ? 0 : genderMaleKoPValue
+						.hashCode());
+		result = prime
+				* result
+				+ ((genderMaleKoStandardErrorEstimate == null) ? 0
+						: genderMaleKoStandardErrorEstimate.hashCode());
+		result = prime
+				* result
+				+ ((genderParameterEstimate == null) ? 0
+						: genderParameterEstimate.hashCode());
+		result = prime
+				* result
+				+ ((genderStandardErrorEstimate == null) ? 0
+						: genderStandardErrorEstimate.hashCode());
+		result = prime
+				* result
+				+ ((genotypeEffectPValue == null) ? 0 : genotypeEffectPValue
+						.hashCode());
+		result = prime
+				* result
+				+ ((genotypeParameterEstimate == null) ? 0
+						: genotypeParameterEstimate.hashCode());
+		result = prime
+				* result
+				+ ((genotypeStandardErrorEstimate == null) ? 0
+						: genotypeStandardErrorEstimate.hashCode());
 		result = prime * result
 				+ ((gp1Genotype == null) ? 0 : gp1Genotype.hashCode());
-		temp = Double.doubleToLongBits(gp1ResidualsNormalityTest);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime
+				* result
+				+ ((gp1ResidualsNormalityTest == null) ? 0
+						: gp1ResidualsNormalityTest.hashCode());
 		result = prime * result
 				+ ((gp2Genotype == null) ? 0 : gp2Genotype.hashCode());
-		temp = Double.doubleToLongBits(gp2ResidualsNormalityTest);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime
+				* result
+				+ ((gp2ResidualsNormalityTest == null) ? 0
+						: gp2ResidualsNormalityTest.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		temp = Double.doubleToLongBits(interactionEffectPValue);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(interactionParameterEstimate);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(interactionStandardErrorEstimate);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(interceptEstimate);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(interceptEstimateStandardError);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime
+				* result
+				+ ((interactionEffectPValue == null) ? 0
+						: interactionEffectPValue.hashCode());
+		result = prime
+				* result
+				+ ((interactionSignificance == null) ? 0
+						: interactionSignificance.hashCode());
+		result = prime
+				* result
+				+ ((interceptEstimate == null) ? 0 : interceptEstimate
+						.hashCode());
+		result = prime
+				* result
+				+ ((interceptEstimateStandardError == null) ? 0
+						: interceptEstimateStandardError.hashCode());
 		result = prime * result
 				+ ((mixedModel == null) ? 0 : mixedModel.hashCode());
-		temp = Double.doubleToLongBits(nullTestSignificance);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime
+				* result
+				+ ((experimentalBiologicalModel == null) ? 0 : experimentalBiologicalModel
+						.hashCode());
+		result = prime
+				* result
+				+ ((nullTestSignificance == null) ? 0 : nullTestSignificance
+						.hashCode());
 		result = prime * result
 				+ ((organisation == null) ? 0 : organisation.hashCode());
 		result = prime * result
 				+ ((parameter == null) ? 0 : parameter.hashCode());
-		result = prime * result
-				+ ((populationId == null) ? 0 : populationId.hashCode());
-		temp = Double.doubleToLongBits(rotatedResidualsNormalityTest);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime
+				* result
+				+ ((rotatedResidualsNormalityTest == null) ? 0
+						: rotatedResidualsNormalityTest.hashCode());
 		result = prime
 				* result
 				+ ((varianceSignificance == null) ? 0 : varianceSignificance
 						.hashCode());
-		temp = Double.doubleToLongBits(weightEffectPValue);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(weightParameterEstimate);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(weightStandardErrorEstimate);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime
+				* result
+				+ ((weightEffectPValue == null) ? 0 : weightEffectPValue
+						.hashCode());
+		result = prime
+				* result
+				+ ((weightParameterEstimate == null) ? 0
+						: weightParameterEstimate.hashCode());
+		result = prime
+				* result
+				+ ((weightStandardErrorEstimate == null) ? 0
+						: weightStandardErrorEstimate.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		UnidimensionalResult other = (UnidimensionalResult) obj;
 		if (batchSignificance == null) {
-			if (other.batchSignificance != null)
+			if (other.batchSignificance != null) {
 				return false;
-		} else if (!batchSignificance.equals(other.batchSignificance))
+			}
+		} else if (!batchSignificance.equals(other.batchSignificance)) {
 			return false;
-		if (Double.doubleToLongBits(blupsTest) != Double
-				.doubleToLongBits(other.blupsTest))
+		}
+		if (blupsTest == null) {
+			if (other.blupsTest != null) {
+				return false;
+			}
+		} else if (!blupsTest.equals(other.blupsTest)) {
 			return false;
+		}
+		if (colonyId == null) {
+			if (other.colonyId != null) {
+				return false;
+			}
+		} else if (!colonyId.equals(other.colonyId)) {
+			return false;
+		}
+		if (controlBiologicalModel == null) {
+			if (other.controlBiologicalModel != null) {
+				return false;
+			}
+		} else if (!controlBiologicalModel.equals(other.controlBiologicalModel)) {
+			return false;
+		}
 		if (dependantVariable == null) {
-			if (other.dependantVariable != null)
+			if (other.dependantVariable != null) {
 				return false;
-		} else if (!dependantVariable.equals(other.dependantVariable))
+			}
+		} else if (!dependantVariable.equals(other.dependantVariable)) {
 			return false;
-		if (Double.doubleToLongBits(genderEffectPValue) != Double
-				.doubleToLongBits(other.genderEffectPValue))
+		}
+		if (experimentalZygosity != other.experimentalZygosity) {
 			return false;
-		if (Double.doubleToLongBits(genderParameterEstimate) != Double
-				.doubleToLongBits(other.genderParameterEstimate))
+		}
+		if (genderEffectPValue == null) {
+			if (other.genderEffectPValue != null) {
+				return false;
+			}
+		} else if (!genderEffectPValue.equals(other.genderEffectPValue)) {
 			return false;
-		if (Double.doubleToLongBits(genderStandardErrorEstimate) != Double
-				.doubleToLongBits(other.genderStandardErrorEstimate))
+		}
+		if (genderFemaleKoEstimate == null) {
+			if (other.genderFemaleKoEstimate != null) {
+				return false;
+			}
+		} else if (!genderFemaleKoEstimate.equals(other.genderFemaleKoEstimate)) {
 			return false;
-		if (Double.doubleToLongBits(genotypeEffectPValue) != Double
-				.doubleToLongBits(other.genotypeEffectPValue))
+		}
+		if (genderFemaleKoPValue == null) {
+			if (other.genderFemaleKoPValue != null) {
+				return false;
+			}
+		} else if (!genderFemaleKoPValue.equals(other.genderFemaleKoPValue)) {
 			return false;
-		if (Double.doubleToLongBits(genotypeParameterEstimate) != Double
-				.doubleToLongBits(other.genotypeParameterEstimate))
+		}
+		if (genderFemaleKoStandardErrorEstimate == null) {
+			if (other.genderFemaleKoStandardErrorEstimate != null) {
+				return false;
+			}
+		} else if (!genderFemaleKoStandardErrorEstimate
+				.equals(other.genderFemaleKoStandardErrorEstimate)) {
 			return false;
-		if (Double.doubleToLongBits(genotypeStandardErrorEstimate) != Double
-				.doubleToLongBits(other.genotypeStandardErrorEstimate))
+		}
+		if (genderMaleKoEstimate == null) {
+			if (other.genderMaleKoEstimate != null) {
+				return false;
+			}
+		} else if (!genderMaleKoEstimate.equals(other.genderMaleKoEstimate)) {
 			return false;
+		}
+		if (genderMaleKoPValue == null) {
+			if (other.genderMaleKoPValue != null) {
+				return false;
+			}
+		} else if (!genderMaleKoPValue.equals(other.genderMaleKoPValue)) {
+			return false;
+		}
+		if (genderMaleKoStandardErrorEstimate == null) {
+			if (other.genderMaleKoStandardErrorEstimate != null) {
+				return false;
+			}
+		} else if (!genderMaleKoStandardErrorEstimate
+				.equals(other.genderMaleKoStandardErrorEstimate)) {
+			return false;
+		}
+		if (genderParameterEstimate == null) {
+			if (other.genderParameterEstimate != null) {
+				return false;
+			}
+		} else if (!genderParameterEstimate
+				.equals(other.genderParameterEstimate)) {
+			return false;
+		}
+		if (genderStandardErrorEstimate == null) {
+			if (other.genderStandardErrorEstimate != null) {
+				return false;
+			}
+		} else if (!genderStandardErrorEstimate
+				.equals(other.genderStandardErrorEstimate)) {
+			return false;
+		}
+		if (genotypeEffectPValue == null) {
+			if (other.genotypeEffectPValue != null) {
+				return false;
+			}
+		} else if (!genotypeEffectPValue.equals(other.genotypeEffectPValue)) {
+			return false;
+		}
+		if (genotypeParameterEstimate == null) {
+			if (other.genotypeParameterEstimate != null) {
+				return false;
+			}
+		} else if (!genotypeParameterEstimate
+				.equals(other.genotypeParameterEstimate)) {
+			return false;
+		}
+		if (genotypeStandardErrorEstimate == null) {
+			if (other.genotypeStandardErrorEstimate != null) {
+				return false;
+			}
+		} else if (!genotypeStandardErrorEstimate
+				.equals(other.genotypeStandardErrorEstimate)) {
+			return false;
+		}
 		if (gp1Genotype == null) {
-			if (other.gp1Genotype != null)
+			if (other.gp1Genotype != null) {
 				return false;
-		} else if (!gp1Genotype.equals(other.gp1Genotype))
+			}
+		} else if (!gp1Genotype.equals(other.gp1Genotype)) {
 			return false;
-		if (Double.doubleToLongBits(gp1ResidualsNormalityTest) != Double
-				.doubleToLongBits(other.gp1ResidualsNormalityTest))
+		}
+		if (gp1ResidualsNormalityTest == null) {
+			if (other.gp1ResidualsNormalityTest != null) {
+				return false;
+			}
+		} else if (!gp1ResidualsNormalityTest
+				.equals(other.gp1ResidualsNormalityTest)) {
 			return false;
+		}
 		if (gp2Genotype == null) {
-			if (other.gp2Genotype != null)
+			if (other.gp2Genotype != null) {
 				return false;
-		} else if (!gp2Genotype.equals(other.gp2Genotype))
+			}
+		} else if (!gp2Genotype.equals(other.gp2Genotype)) {
 			return false;
-		if (Double.doubleToLongBits(gp2ResidualsNormalityTest) != Double
-				.doubleToLongBits(other.gp2ResidualsNormalityTest))
+		}
+		if (gp2ResidualsNormalityTest == null) {
+			if (other.gp2ResidualsNormalityTest != null) {
+				return false;
+			}
+		} else if (!gp2ResidualsNormalityTest
+				.equals(other.gp2ResidualsNormalityTest)) {
 			return false;
+		}
 		if (id == null) {
-			if (other.id != null)
+			if (other.id != null) {
 				return false;
-		} else if (!id.equals(other.id))
+			}
+		} else if (!id.equals(other.id)) {
 			return false;
-		if (Double.doubleToLongBits(interactionEffectPValue) != Double
-				.doubleToLongBits(other.interactionEffectPValue))
+		}
+		if (interactionEffectPValue == null) {
+			if (other.interactionEffectPValue != null) {
+				return false;
+			}
+		} else if (!interactionEffectPValue
+				.equals(other.interactionEffectPValue)) {
 			return false;
-		if (Double.doubleToLongBits(interactionParameterEstimate) != Double
-				.doubleToLongBits(other.interactionParameterEstimate))
+		}
+		if (interactionSignificance == null) {
+			if (other.interactionSignificance != null) {
+				return false;
+			}
+		} else if (!interactionSignificance
+				.equals(other.interactionSignificance)) {
 			return false;
-		if (Double.doubleToLongBits(interactionStandardErrorEstimate) != Double
-				.doubleToLongBits(other.interactionStandardErrorEstimate))
+		}
+		if (interceptEstimate == null) {
+			if (other.interceptEstimate != null) {
+				return false;
+			}
+		} else if (!interceptEstimate.equals(other.interceptEstimate)) {
 			return false;
-		if (Double.doubleToLongBits(interceptEstimate) != Double
-				.doubleToLongBits(other.interceptEstimate))
+		}
+		if (interceptEstimateStandardError == null) {
+			if (other.interceptEstimateStandardError != null) {
+				return false;
+			}
+		} else if (!interceptEstimateStandardError
+				.equals(other.interceptEstimateStandardError)) {
 			return false;
-		if (Double.doubleToLongBits(interceptEstimateStandardError) != Double
-				.doubleToLongBits(other.interceptEstimateStandardError))
-			return false;
+		}
 		if (mixedModel == null) {
-			if (other.mixedModel != null)
+			if (other.mixedModel != null) {
 				return false;
-		} else if (!mixedModel.equals(other.mixedModel))
+			}
+		} else if (!mixedModel.equals(other.mixedModel)) {
 			return false;
-		if (Double.doubleToLongBits(nullTestSignificance) != Double
-				.doubleToLongBits(other.nullTestSignificance))
+		}
+		if (experimentalBiologicalModel == null) {
+			if (other.experimentalBiologicalModel != null) {
+				return false;
+			}
+		} else if (!experimentalBiologicalModel.equals(other.experimentalBiologicalModel)) {
 			return false;
+		}
+		if (nullTestSignificance == null) {
+			if (other.nullTestSignificance != null) {
+				return false;
+			}
+		} else if (!nullTestSignificance.equals(other.nullTestSignificance)) {
+			return false;
+		}
 		if (organisation == null) {
-			if (other.organisation != null)
+			if (other.organisation != null) {
 				return false;
-		} else if (!organisation.equals(other.organisation))
+			}
+		} else if (!organisation.equals(other.organisation)) {
 			return false;
+		}
 		if (parameter == null) {
-			if (other.parameter != null)
+			if (other.parameter != null) {
 				return false;
-		} else if (!parameter.equals(other.parameter))
+			}
+		} else if (!parameter.equals(other.parameter)) {
 			return false;
-		if (populationId == null) {
-			if (other.populationId != null)
+		}
+		if (rotatedResidualsNormalityTest == null) {
+			if (other.rotatedResidualsNormalityTest != null) {
 				return false;
-		} else if (!populationId.equals(other.populationId))
+			}
+		} else if (!rotatedResidualsNormalityTest
+				.equals(other.rotatedResidualsNormalityTest)) {
 			return false;
-		if (Double.doubleToLongBits(rotatedResidualsNormalityTest) != Double
-				.doubleToLongBits(other.rotatedResidualsNormalityTest))
-			return false;
+		}
 		if (varianceSignificance == null) {
-			if (other.varianceSignificance != null)
+			if (other.varianceSignificance != null) {
 				return false;
-		} else if (!varianceSignificance.equals(other.varianceSignificance))
+			}
+		} else if (!varianceSignificance.equals(other.varianceSignificance)) {
 			return false;
-		if (Double.doubleToLongBits(weightEffectPValue) != Double
-				.doubleToLongBits(other.weightEffectPValue))
+		}
+		if (weightEffectPValue == null) {
+			if (other.weightEffectPValue != null) {
+				return false;
+			}
+		} else if (!weightEffectPValue.equals(other.weightEffectPValue)) {
 			return false;
-		if (Double.doubleToLongBits(weightParameterEstimate) != Double
-				.doubleToLongBits(other.weightParameterEstimate))
+		}
+		if (weightParameterEstimate == null) {
+			if (other.weightParameterEstimate != null) {
+				return false;
+			}
+		} else if (!weightParameterEstimate
+				.equals(other.weightParameterEstimate)) {
 			return false;
-		if (Double.doubleToLongBits(weightStandardErrorEstimate) != Double
-				.doubleToLongBits(other.weightStandardErrorEstimate))
+		}
+		if (weightStandardErrorEstimate == null) {
+			if (other.weightStandardErrorEstimate != null) {
+				return false;
+			}
+		} else if (!weightStandardErrorEstimate
+				.equals(other.weightStandardErrorEstimate)) {
 			return false;
+		}
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "UnidimensionalResult [id=" + id + ", populationId="
-				+ populationId + ", organisation=" + organisation
-				+ ", parameter=" + parameter + ", mixedModel=" + mixedModel
-				+ ", dependantVariable=" + dependantVariable
-				+ ", batchSignificance=" + batchSignificance
-				+ ", varianceSignificance=" + varianceSignificance
-				+ ", nullTestSignificance=" + nullTestSignificance
-				+ ", genotypeParameterEstimate=" + genotypeParameterEstimate
+		return "UnidimensionalResult [colonyId=" + colonyId
+				+ ", controlBiologicalModelId=" + controlBiologicalModel.getId()
+				+ ", mutantBiologicalModelId=" + experimentalBiologicalModel.getId()
+				+ ", experimentalZygosity=" + experimentalZygosity
+				+ ", organisation=" + organisation.getName() + ", parameter=" + parameter.getStableId()
+				+ ", mixedModel=" + mixedModel + ", dependantVariable="
+				+ dependantVariable + ", batchSignificance="
+				+ batchSignificance + ", varianceSignificance="
+				+ varianceSignificance + ", nullTestSignificance="
+				+ nullTestSignificance + ", genotypeParameterEstimate="
+				+ genotypeParameterEstimate
 				+ ", genotypeStandardErrorEstimate="
 				+ genotypeStandardErrorEstimate + ", genotypeEffectPValue="
 				+ genotypeEffectPValue + ", genderParameterEstimate="
 				+ genderParameterEstimate + ", genderStandardErrorEstimate="
 				+ genderStandardErrorEstimate + ", genderEffectPValue="
-				+ genderEffectPValue + ", interactionParameterEstimate="
-				+ interactionParameterEstimate
-				+ ", interactionStandardErrorEstimate="
-				+ interactionStandardErrorEstimate
-				+ ", interactionEffectPValue=" + interactionEffectPValue
-				+ ", weightParameterEstimate=" + weightParameterEstimate
-				+ ", weightStandardErrorEstimate="
+				+ genderEffectPValue + ", weightParameterEstimate="
+				+ weightParameterEstimate + ", weightStandardErrorEstimate="
 				+ weightStandardErrorEstimate + ", weightEffectPValue="
 				+ weightEffectPValue + ", gp1Genotype=" + gp1Genotype
 				+ ", gp1ResidualsNormalityTest=" + gp1ResidualsNormalityTest
@@ -588,8 +868,19 @@ public class UnidimensionalResult implements Serializable {
 				+ ", rotatedResidualsNormalityTest="
 				+ rotatedResidualsNormalityTest + ", interceptEstimate="
 				+ interceptEstimate + ", interceptEstimateStandardError="
-				+ interceptEstimateStandardError + "]";
+				+ interceptEstimateStandardError + ", interactionSignificance="
+				+ interactionSignificance + ", interactionEffectPValue="
+				+ interactionEffectPValue + ", genderFemaleKoEstimate="
+				+ genderFemaleKoEstimate
+				+ ", genderFemaleKoStandardErrorEstimate="
+				+ genderFemaleKoStandardErrorEstimate
+				+ ", genderFemaleKoPValue=" + genderFemaleKoPValue
+				+ ", genderMaleKoEstimate=" + genderMaleKoEstimate
+				+ ", genderMaleKoStandardErrorEstimate="
+				+ genderMaleKoStandardErrorEstimate + ", genderMaleKoPValue="
+				+ genderMaleKoPValue + "]";
 	}
+
 
 
 }
