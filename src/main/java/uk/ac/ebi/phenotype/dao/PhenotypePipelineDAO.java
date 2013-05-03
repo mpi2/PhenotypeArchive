@@ -23,9 +23,12 @@ package uk.ac.ebi.phenotype.dao;
  * @since May 2012
  */
 
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 
 import uk.ac.ebi.phenotype.pojo.Datasource;
+import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.ParameterIncrement;
 import uk.ac.ebi.phenotype.pojo.ParameterOntologyAnnotation;
@@ -73,7 +76,9 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	 */
 	public Parameter getParameterByStableIdAndVersion(String stableId, int majorVersion, int minorVersion);
 	
-	public List<Parameter> getProcedureMetaDataParametersByStableIdAndVersion(String stableId, int majorVersion, int minorVersion);		
+	public List<Parameter> getProcedureMetaDataParametersByStableIdAndVersion(String stableId, int majorVersion, int minorVersion);
+	
+	public Set<Procedure> getProceduresByOntologyTerm(OntologyTerm term);
 	
 	public void savePipeline(Pipeline pipeline);
 	public void saveProcedure(Procedure procedure);
@@ -88,5 +93,9 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	 * @param datasource
 	 */
 	public void deleteAllPipelinesByDatasource(Datasource datasource);
+
+	public Parameter getParameterById(Integer parameterId);
+	public Set<Parameter> getAllCategoricalParametersForProcessing() throws SQLException;
+	public Set<Parameter> getAllUnidimensionalParametersForProcessing() throws SQLException;
 	
 }
