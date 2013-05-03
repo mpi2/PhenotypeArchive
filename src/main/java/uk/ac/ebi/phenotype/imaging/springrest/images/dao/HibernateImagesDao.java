@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.imaging.springrest.images.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.solr.client.solrj.SolrServerException;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,70 +44,56 @@ public class HibernateImagesDao implements ImagesDao {
 		
 	}
 
-	
 	@Transactional(readOnly = true)
-	public Images getAllImages(int start,int length, String search) {
-		Images images=new Images();
-		//default for start and length if not specified is set in the controller
-		System.out.println("search="+search+" start="+start+" length="+length);
-		if(!search.equals("")&& (!search.equals(""))){
-			images= getImagesFromSearch(start, length, search);
-		}else{
-		images= queryDatabaseByRows(start, length);
+	public Images getAllImages(int start, int length, String search) throws Exception {
+		Images images = new Images();
+
+		if ( ! search.equals("")) {
+			images = getImagesFromSearch(start, length, search);
+		} else {
+			images = queryDatabaseByRows(start, length);
 		}
+
 		images.setStart(start);
 		images.setLength(length);
+
 		return images;
 	}
 
 
-	private Images getImagesFromSearch(int start, int length, String search) {
-		//if a search query param is present we search solr or the database
-		List<ImaImageRecord> list=new ArrayList<ImaImageRecord>();
-		Images images=new Images();
-			
-			List<String> ids = imagesSolrDao.getIdsForKeywordsSearch(search, start, length);
-			for(String id:ids){
-				ImaImageRecord record=queryDatabaseById(id);
-				list.add(record);
-			}
-			//set the data about how many images there are which we can get from solr
-			images.setTotal(imagesSolrDao.getNumberFound());
-			images.setImages(list);
-		return images;
-	}
+	private Images getImagesFromSearch(int start, int length, String search) throws SolrServerException {
+		List<ImaImageRecord> list = new ArrayList<ImaImageRecord>();
+		Images images = new Images();
 
-
-	public ImaImageRecord queryDatabaseById(String id) {
-
-		String basicQuery="from ImaImageRecord where   id="+id;
-		Query q=sessionFactory.getCurrentSession().createQuery(basicQuery);		
-		ImaImageRecord record=(ImaImageRecord) q.uniqueResult();
-		return record;
-	}
-	
-	
-	private Images queryDatabaseByRows(int start, int length) {
-		Images images=new Images();
-		String basicQuery="from ImaImageRecord where published_status_id=1";
-		if(sessionFactory.isClosed()){
-			sessionFactory.openSession();
+		List<String> ids = imagesSolrDao.getIdsForKeywordsSearch(search, start, length);
+		for (String id : ids) {
+			ImaImageRecord record = getImageWithId(Integer.valueOf(id));
+			list.add(record);
 		}
-		Query q=sessionFactory.getCurrentSession().createQuery(basicQuery);
-		
-		//if length is 0 then just output all the results
-		if(length!=0){
-		q.setFirstResult(start);
-		q.setMaxResults(length);
-		}
-		List<ImaImageRecord> list=q.list();
-//		for(ImaImageRecord item:list){
-//			System.out.println(".");
-//		}
-		images.setTotal(0);//set total to 0 here as we don't get the total size info - though we could through a count(*)
+
+		//set the data about how many images there are which we can get from solr
+		images.setTotal(imagesSolrDao.getNumberFound());
 		images.setImages(list);
+
+		return images;
+	}
+
+
+	private Images queryDatabaseByRows(int start, int length) {
+		Images images = new Images();
+		Query q=sessionFactory.getCurrentSession().createQuery("from ImaImageRecord where published_status_id=1");
 		
-		//System.out.println("==============================list size="+list.size());
+		// Set offset and limit if provided
+		if (length != 0) {
+			q.setFirstResult(start);
+			q.setMaxResults(length);
+		}
+
+		// set total to 0 here as we don't get the total size 
+		// info - though we could through a count(*)
+		images.setTotal(0);
+		images.setImages(q.list());
+
 		return images;
 	}
 	
@@ -114,20 +101,18 @@ public class HibernateImagesDao implements ImagesDao {
 
 	@Transactional(readOnly = true)
 	public ImaImageRecord getImageWithId(int id) {
-		Query q=sessionFactory.getCurrentSession().createQuery("from ImaImageRecord where published_status_id=1 and  id="+id);
-		ImaImageRecord image=(ImaImageRecord) q.uniqueResult();
-		
-		return image;
+		return (ImaImageRecord) sessionFactory.getCurrentSession()
+			.createQuery("FROM ImaImageRecord WHERE published_status_id=1 AND id=?")
+			.setInteger(0, id)
+			.uniqueResult();
 	}
 
 
 	@Override
 	@Transactional(readOnly = true)
 	public long getTotalNumberOfImages() {
-		//select count(*) from IMA_IMAGE_RECORD;
-		String numberQuery="select count(*) from ImaImageRecord where published_status_id=1";
-		Query q=sessionFactory.getCurrentSession().createQuery(numberQuery);		
-		long records=(Long) q.uniqueResult();
-		return records;
+		return (Long) sessionFactory.getCurrentSession()
+			.createQuery("select count(*) from ImaImageRecord where published_status_id=1")
+			.uniqueResult();
 	}
 }
