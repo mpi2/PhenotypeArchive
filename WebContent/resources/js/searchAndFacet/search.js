@@ -38,7 +38,7 @@
 	       	    timeout: 5000,
 	       	    success: function (geneResponse) {	       	    	
 	       	    	$('div#geneFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
-	       	    	oFacets.count.gene = geneResponse.response.numFound;
+	       	    	oFacets.count.gene = geneResponse.response.numFound;	       	    	
 	       	    	$('div#geneFacet span.facetCount').html(oFacets.count.gene);	       	    	
 	       	    	_doMPAutoSuggest(geneResponse, q, oFacets);	            	    
 	       	    },
@@ -72,7 +72,7 @@
 	}   	
 	
 	function _doPipelineAutoSuggest(geneResponse, mpResponse, q, oFacets){
-		oFacets
+		
 		MPI2.searchAndFacetConfig.facetParams.pipelineFacet.srchParams.q = q;	
 		
 		$.ajax({
@@ -82,9 +82,11 @@
     	    jsonp: 'json.wrf',
     	    timeout: 5000,
     	    success: function (pipelineResponse) {
+    	    	
     	    	$('div#pipelineFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.pipeline = pipelineResponse.response.numFound;
     	    	$('div#pipelineFacet span.facetCount').html(oFacets.count.pipeline);
+    	    	
     	    	_doTissueAutoSuggest(geneResponse, mpResponse, pipelineResponse, q, oFacets); 
     	    },
 			error: function (jqXHR, textStatus, errorThrown) {			        	        
@@ -149,8 +151,7 @@
     	    	else {	
     	        	// remove all previous facet results before loading new facet results
     	        	$('div.facetCatList').html('');	    
-    	        	var widgetName = coreName+'Facet';
-    	        						
+    	        	var widgetName = coreName+'Facet';    	        				
     	        	window.jQuery('div#' + coreName + 'Facet')[widgetName]({
     					data: {	q: q, 
     							core: coreName, 
@@ -162,8 +163,14 @@
     	        	
     	        	// load none-zero facet results on demand    	        	
     	        	var aCores = MPI2.searchAndFacetConfig.cores;
-    	        	//delete active core, no need to invoke again    	        	
-    	        	var index = aCores.indexOf(coreName);
+    	        	//delete active core, no need to invoke again  
+    	        	
+    	        	var index;// = aCores.indexOf(coreName);
+    	        	for ( var i=0; i< aCores.length; i++){
+    	        		if (aCores[i] == coreName ){
+    	        			index = i;
+    	        		}
+    	        	}
     	        	aCores.splice(index, 1);
     	        
     	        	for ( var i=0; i< aCores.length; i++){
