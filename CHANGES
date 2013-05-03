@@ -13,7 +13,77 @@ See https://github.com/mpi2/PhenotypeArchive for more information.
 
 Getting Started
 ---------------
-You need a Java 1.6 VM or later installed and a servlet container.
+You need a Java 1.7 VM or later installed and a servlet container.
+
+================== Release 0.1.9 ==================
+
+Status
+------
+2 May 2013 release.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  Pre-QC panel to display phenotyping in progress
+ 2.  ColonyStatus object to store production and phenotyping status
+ 3.  gene SOLR index updated to present phenotyping status information
+ 4.  gene subtype facet collapsed
+ 5.  phenotyping status facet added to the search facets
+ 6.  phenotyping status column added to the gene search result table
+ 7.  phenotyping status added on the gene page
+ 8.  phenotyping page refactored to use server side data
+ 9.  links to graph added to phenotype page for legacy data
+ 10. add PhenotypeStatusDAO to fetch phenotyping status from the iMits BioMart
+ 11. add 'liveSite' variable to add/remove features depending on live/beta
+ 
+Charts new features
+ 1.  p-value and effect size on categorical data
+ 2.  Categorical statistics and charts classes refactored
+ 
+Bug fixes
+ 1.  HTTPProxy fix for no proxy addresses
+
+ 
+================== Release 0.1.8 ==================
+
+Status
+------
+11 April 2013 release.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  Back-end runtime exceptions propagated to the controller layer
+ 2.  Errors handled for biomart, solr and gene status
+ 3.  Search returns error message in ajax call which gets populated into table 
+     of results
+ 4.  Charts error handling added (for SQLException) 
+ 5.  Links added for WTSI phenotypes on gene page not just EuroPhenome
+ 6.  Commons math package replacing BasicStats
+ 7.  Native SQL database statements to retrieve parameter data
+ 8.  Native SQL for stddev and mean functions used for unidimensional data stats
+     retrieval
+ 9.  Added status parameter for IMPC status SOLR core
+ 10. New database tables to capture the result of mixed model processing
+ 11. Add methods for collecting unidimensional data records for processing
+ 12. Lazy load biosamples from biomodels
+ 13. Include equality operations on stat classes
+ 14. Consolidate parameter DAO methods for statistical analysis
+
+Charts new features
+ 1.  Allele (e.g. tm1a) added to titles
+ 2.  Lines instead of curves for time series
+ 3.  y Axis scaled and min set to 0
+ 4.  Tables removed show highlighted rows on hover
+ 5.  Allele changed to gene in headers
+ 
+Bug fixes
+ 1.  HTTPProxy fix for no proxy addresses
+ 2.  Blank search/gene page
+ 3.  Phenotype calls with no allele on gene page
+ 4.  Remove unused SOLR cores (mgi, dasikmcalleles)
 
 ================== Release 0.1.7 ==================
 
@@ -26,22 +96,26 @@ Detailed Change list
 
 New features
  1.  Pipelines/Procedures view by week of data
- 2.  Procedures view has procedures with significant calls from PhenotypeCallSummary table highlighted in red and linked to chart pages (charts come back for data if in database).
- 3.  New layout at the top of Gene Details page including dropdown for GenomeViewer
- 4. Tables at bottom of categorical data transformed as per Terry's suggestions.
- 5. Added export and print functionality to graphs
- 6. style changes to graph headers
+ 2.  Procedures view has procedures with significant calls highlighted in red 
+     and linked to chart pages (charts come back for data if in database).
+ 3.  New layout at the top of Gene Details page to reduce top panel
+ 4.  Tables at bottom of categorical data transformed as per Terry's suggestions.
+ 5.  Export and print functionality to graphs added
+ 6.  Style changes to graph headers
+ 7.  css/js minified
+ 8.  Gene status subfacet renamed to 'IMPC status'
+ 9.  Gene status subfacet shown before gene type subfacet
+ 10. Facet search speed improved
   
 Bug fixes
  1. SOLR: Gene controller - Catch error when allele core fails
  
 Other Changes
- 1. highcharts.org label removed from graphs.
- 2. Highcharts license obtained.
-
-Known bugs
+ 1.  Highcharts.org label removed from graphs
+ 2.  Highcharts license obtained
+ 3.  Auto-suggest disabled
  
-
+Known bugs
 
 ================== Release 0.1.6 ==================
 
