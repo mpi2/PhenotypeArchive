@@ -17,32 +17,55 @@ package uk.ac.ebi.phenotype.imaging.springrest.images.dao;
 
 import java.util.List;
 
-
-import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
+
 /**
- * Interface for images data access from solr (probably not need an interface to this as it's solr specific...)
+ * Interface for images data access from solr (probably not need an interface to
+ * this as it's solr specific...)
+ * 
  * @author jwarren
- *
+ * 
  */
 public interface ImagesSolrDao {
 
 	public abstract long getNumberFound();
 
-	public abstract List<String> getIdsForKeywordsSearch(String query,
-			int start, int length);
-	
-	public abstract QueryResponse getExperimentalFacetForGeneAccession(String geneId);
+	public abstract List<String> getIdsForKeywordsSearch(
+			String query,
+			int start, 
+			int length) throws SolrServerException;
 
-	public QueryResponse getExpressionFacetForGeneAccession(String geneId);
-	public QueryResponse getDocsForGeneWithFacetField(String query, String facetName, String facetValue, String filterQuery, int start, int length);
+	public abstract QueryResponse getExperimentalFacetForGeneAccession(
+			String geneId)
+			throws SolrServerException;
 
+	public QueryResponse getExpressionFacetForGeneAccession(
+			String geneId)
+			throws SolrServerException;
 
-	public QueryResponse getFilteredDocsForQuery(String query, List<String> filterField,String qf, String defType,
-			int start, int length);
-	
-	public QueryResponse getDocsForMpTerm(String mpId, int start, int length);
+	public QueryResponse getDocsForGeneWithFacetField(
+			String query,
+			String facetName, 
+			String facetValue, 
+			String filterQuery, 
+			int start,
+			int length) 
+			throws SolrServerException;
+
+	public QueryResponse getFilteredDocsForQuery(
+			String query,
+			List<String> filterField, 
+			String qf, 
+			String defType, 
+			int start,
+			int length) 
+			throws SolrServerException;
+
+	public QueryResponse getDocsForMpTerm(
+			String mpId, 
+			int start, 
+			int length)
+			throws SolrServerException;
 
 }
