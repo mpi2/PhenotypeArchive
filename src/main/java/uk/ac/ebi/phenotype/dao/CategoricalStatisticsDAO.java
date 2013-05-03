@@ -18,44 +18,39 @@ package uk.ac.ebi.phenotype.dao;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.hibernate.HibernateException;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.pojo.CategoricalControlView;
 import uk.ac.ebi.phenotype.pojo.CategoricalGroupKey;
-import uk.ac.ebi.phenotype.pojo.CategoricalMutantView;
-import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
-public interface CategoricalStatisticsDAO {
+public interface CategoricalStatisticsDAO extends StatisticsDAO {
 
 	public List<String> getCategories(Parameter parameter);
 
-	public Long countControl(SexType sex, Parameter parameter, String category, Integer populationId);
-	public Long countMutant(SexType sex, ZygosityType zygosity, Parameter parameter, String category, Integer populationId);
+	public Long countControl(SexType sex, Parameter parameter, String category, Integer populationId) throws SQLException;
+	public Long countMutant(SexType sex, ZygosityType zygosity, Parameter parameter, String category, Integer populationId) throws SQLException;
 	
 	public BiologicalModel getControlBiologicalModelByPopulation(Integer populationId);
 	public BiologicalModel getMutantBiologicalModelByPopulation(Integer populationId);
 
-	public List<BiologicalModel> getBiologicalModelsByParameterAndGene(Parameter parameter, String accessionId);
+	public List<BiologicalModel> getMutantBiologicalModelsByParameterAndGene(Parameter parameter, String accessionId);
 	
 	public List<BiologicalModel> getBiologicalModelsByParameter(Parameter parameter) ;
 
-	public Double getpValueByParameterAndBiologicalModelAndSexAndZygosity(Parameter parameter, BiologicalModel biologicalModel, SexType sex, ZygosityType zygosity);
-	public Double getMaxEffectSizeByParameterAndBiologicalModelAndSexAndZygosity(Parameter parameter, BiologicalModel biologicalModel, SexType sex, ZygosityType zygosity);
+	public Double getpValueByParameterAndControlBiologicalModelAndSexAndZygosity(Parameter parameter, BiologicalModel biologicalModel, SexType sex, ZygosityType zygosity);
+	
+	public Double getpValueByParameterAndMutantBiologicalModelAndSexAndZygosity(Parameter parameter, BiologicalModel biologicalModel, SexType sex, ZygosityType zygosity);
+	
+	public Double getMaxEffectSizeByParameterAndMutantBiologicalModelAndSexAndZygosity(Parameter parameter, BiologicalModel biologicalModel, SexType sex, ZygosityType zygosity);
 	
 	public Organisation getOrganisationByPopulation(Integer populationId);
 	public List<Integer> getPopulationIdsByParameter(Parameter parameter);
 	public List<Integer> getPopulationIdsByParameterAndMutantBiologicalModel(Parameter parameter, BiologicalModel biologicalModel);
-
-	public void saveCategoricalResult(CategoricalResult result);
-	public void saveAnnotationAssociation(PhenotypeCallSummary pcs);
 
 	public SexType getSexByPopulation(Integer populationId);
 	public List<ZygosityType> getZygositiesByPopulation(Integer populationId);
@@ -68,7 +63,8 @@ public interface CategoricalStatisticsDAO {
 	public List<CategoricalGroupKey> getMutantCategoricalDataByParameter(Parameter parameter);
 
 	public Map<Integer, Integer> getOrganisationsByParameter(Parameter parameter);
-	public Set<Parameter> getAllCategoricalParametersForProcessing();
+	
+	public  List<Map<String,String>>  getListOfUniqueParametersAndGenes(int start, int length) throws SQLException;
 	
 
 }
