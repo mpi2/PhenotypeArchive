@@ -15,6 +15,8 @@
  */
 package uk.ac.ebi.phenotype.web.controller;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +26,7 @@ import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -33,11 +36,17 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.ClassUtils;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 import uk.ac.ebi.generic.util.SolrIndex;
+import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
+
+
 
 @Controller
 public class DataTableController implements BeanFactoryAware {
@@ -79,6 +88,8 @@ public class DataTableController implements BeanFactoryAware {
 	 *            sSortDir_0=asc
 	 * @return
 	 * @return
+	 * @throws URISyntaxException 
+	 * @throws IOException 
 	 */
 
 	@RequestMapping(value = "/dataTable", method = RequestMethod.GET)
@@ -86,7 +97,7 @@ public class DataTableController implements BeanFactoryAware {
 			@RequestParam(value = "iDisplayStart", required = false) int iDisplayStart,
 			@RequestParam(value = "iDisplayLength", required = false) int iDisplayLength,
 			@RequestParam(value = "solrParams", required = false) String solrParams,
-			HttpServletRequest request,HttpServletResponse response, Model model) {
+			HttpServletRequest request,HttpServletResponse response, Model model) throws IOException, URISyntaxException  {
 		
 		log.debug("controller CHK: " + solrParams);
 
@@ -106,14 +117,26 @@ public class DataTableController implements BeanFactoryAware {
 		}
 
 		Map config = (Map) bf.getBean("globalConfiguration");
-		SolrIndex solrIndex = new SolrIndex(query, solrCoreName, solrParamStr,
-				mode, iDisplayStart, iDisplayLength, showImgView, request,
-				config);
-		String jsonStr = solrIndex.fetchDataTableJson(contextPath);
+		SolrIndex solrIndex = null;
+		
+		solrIndex = new SolrIndex(query, solrCoreName, solrParamStr,
+					mode, iDisplayStart, iDisplayLength, showImgView, request,
+					config);
+	
+		String jsonStr=null;
+		
+		jsonStr = solrIndex.fetchDataTableJson(contextPath);
+		
+		return new ResponseEntity<String>(jsonStr.toString(), createResponseHeaders(), HttpStatus.CREATED);
+	}
 
-		HttpHeaders responseHeaders = new HttpHeaders();
-		responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<String>(jsonStr, responseHeaders, HttpStatus.CREATED);
+	
+	@ExceptionHandler(Exception.class)
+	private ResponseEntity<String> getSolrErrorResponse(Exception e) {
+		String bootstrap="<div class=\"alert\"><strong>Warning!</strong>  Error: Search functionality is currently unavailable</div>";
+		String errorJSON="{'aaData':[[' "+bootstrap+"','  ', ' ']], 'iTotalRecords':1,'iTotalDisplayRecords':1}";
+		JSONObject errorJson = (JSONObject) JSONSerializer.toJSON(errorJSON);
+		return new ResponseEntity<String>(errorJson.toString(), createResponseHeaders(), HttpStatus.CREATED);
 	}
 
 	@Override
@@ -121,4 +144,11 @@ public class DataTableController implements BeanFactoryAware {
 		this.bf = arg0;
 
 	}
+	
+	private HttpHeaders createResponseHeaders(){
+		HttpHeaders responseHeaders = new HttpHeaders();
+		responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+		return responseHeaders;
+	}
+	
 }
