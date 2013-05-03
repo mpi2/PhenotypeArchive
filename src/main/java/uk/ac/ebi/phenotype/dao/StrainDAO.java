@@ -27,7 +27,7 @@ import java.util.List;
 
 import uk.ac.ebi.phenotype.pojo.Strain;
 
-public interface StrainDAO {
+public interface StrainDAO extends HibernateDAO {
 
 	public List<Strain> getAllStrains();
 
