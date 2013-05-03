@@ -5,7 +5,7 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
 	version="2.4">
 	
-	<!-- custom FILE NOT FOUND error page -->
+	<!-- custom error pages -->
 	<error-page>
 		<error-code>403</error-code>
 		<location>/browsingError.html</location>
@@ -17,6 +17,10 @@
 	<error-page>
 		<error-code>500</error-code>
 		<location>/serverError.html</location>
+	</error-page>
+	<error-page>
+		<exception-type>java.lang.Exception</exception-type>
+		<location>/WEB-INF/views/uncaughtException.jsp</location>
 	</error-page>
 
 	<context-param>
