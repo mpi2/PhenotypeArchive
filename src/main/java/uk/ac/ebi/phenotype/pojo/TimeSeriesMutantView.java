@@ -222,9 +222,6 @@ public class TimeSeriesMutantView implements Serializable {
 		this.category = category;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -238,6 +235,8 @@ public class TimeSeriesMutantView implements Serializable {
 				+ ((category == null) ? 0 : category.hashCode());
 		result = prime * result + ((colony == null) ? 0 : colony.hashCode());
 		result = prime * result
+				+ ((dataPoint == null) ? 0 : dataPoint.hashCode());
+		result = prime * result
 				+ ((organisation == null) ? 0 : organisation.hashCode());
 		result = prime * result
 				+ ((parameter == null) ? 0 : parameter.hashCode());
@@ -245,63 +244,97 @@ public class TimeSeriesMutantView implements Serializable {
 				+ ((populationId == null) ? 0 : populationId.hashCode());
 		result = prime * result + ((sex == null) ? 0 : sex.hashCode());
 		result = prime * result
+				+ ((timePoint == null) ? 0 : timePoint.hashCode());
+		result = prime * result
 				+ ((zygosity == null) ? 0 : zygosity.hashCode());
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		TimeSeriesMutantView other = (TimeSeriesMutantView) obj;
 		if (biologicalModel == null) {
-			if (other.biologicalModel != null)
+			if (other.biologicalModel != null) {
 				return false;
-		} else if (!biologicalModel.equals(other.biologicalModel))
+			}
+		} else if (!biologicalModel.equals(other.biologicalModel)) {
 			return false;
+		}
 		if (biologicalSample == null) {
-			if (other.biologicalSample != null)
+			if (other.biologicalSample != null) {
 				return false;
-		} else if (!biologicalSample.equals(other.biologicalSample))
+			}
+		} else if (!biologicalSample.equals(other.biologicalSample)) {
 			return false;
+		}
 		if (category == null) {
-			if (other.category != null)
+			if (other.category != null) {
 				return false;
-		} else if (!category.equals(other.category))
+			}
+		} else if (!category.equals(other.category)) {
 			return false;
+		}
 		if (colony == null) {
-			if (other.colony != null)
+			if (other.colony != null) {
 				return false;
-		} else if (!colony.equals(other.colony))
+			}
+		} else if (!colony.equals(other.colony)) {
 			return false;
+		}
+		if (dataPoint == null) {
+			if (other.dataPoint != null) {
+				return false;
+			}
+		} else if (!dataPoint.equals(other.dataPoint)) {
+			return false;
+		}
 		if (organisation == null) {
-			if (other.organisation != null)
+			if (other.organisation != null) {
 				return false;
-		} else if (!organisation.equals(other.organisation))
+			}
+		} else if (!organisation.equals(other.organisation)) {
 			return false;
+		}
 		if (parameter == null) {
-			if (other.parameter != null)
+			if (other.parameter != null) {
 				return false;
-		} else if (!parameter.equals(other.parameter))
+			}
+		} else if (!parameter.equals(other.parameter)) {
 			return false;
+		}
 		if (populationId == null) {
-			if (other.populationId != null)
+			if (other.populationId != null) {
 				return false;
-		} else if (!populationId.equals(other.populationId))
+			}
+		} else if (!populationId.equals(other.populationId)) {
 			return false;
-		if (sex != other.sex)
+		}
+		if (sex != other.sex) {
 			return false;
-		if (zygosity != other.zygosity)
+		}
+		if (timePoint == null) {
+			if (other.timePoint != null) {
+				return false;
+			}
+		} else if (!timePoint.equals(other.timePoint)) {
 			return false;
+		}
+		if (zygosity != other.zygosity) {
+			return false;
+		}
 		return true;
 	}
+
+	
 
 }
 
