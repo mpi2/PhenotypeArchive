@@ -1,18 +1,21 @@
 package uk.ac.ebi.phenotype.dao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,38 +23,32 @@ import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.UnidimensionalControlView;
-import uk.ac.ebi.phenotype.pojo.UnidimensionalMutantView;
-import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
-import uk.ac.ebi.phenotype.pojo.UnidimensionalView;
+import uk.ac.ebi.phenotype.pojo.UnidimensionalRecordDTO;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 @Component
-public class UnidimensionalStatisticsDAOImpl extends HibernateDAOImpl implements UnidimensionalStatisticsDAO {
+public class UnidimensionalStatisticsDAOImpl extends StatisticsDAOImpl implements UnidimensionalStatisticsDAO {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private BiologicalModelDAO bmDAO;
-	
 	public UnidimensionalStatisticsDAOImpl(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
 
-	// TODO: rename method to reflect what it's doing
+
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
-	public List<Float> countControl(SexType sex, Parameter parameter, Integer populationId){
+	public List<Float> getControlDataPointsForPopulation(Integer populationId){
 		return (List<Float>) getCurrentSession()
 			.createQuery("SELECT c.dataPoint FROM UnidimensionalControlView c WHERE c.populationId=?")
 			.setInteger(0, populationId)
 			.list();
 	}
 
-	// TODO: rename method to reflect what it's doing
+
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
-	public List<Float> countMutant(SexType sex, ZygosityType zygosity, Parameter parameter,  Integer populationId){
+	public List<Float> getMutantDataPoints(SexType sex, ZygosityType zygosity, Parameter parameter,  Integer populationId){
 		return (List<Float>) getCurrentSession()
 			.createQuery("SELECT c.dataPoint FROM UnidimensionalMutantView c WHERE c.sex=? AND c.zygosity=? AND c.parameter=?  AND c.populationId=?")
 			.setString(0, sex.name())
@@ -138,110 +135,227 @@ public class UnidimensionalStatisticsDAOImpl extends HibernateDAOImpl implements
 	}
 
 
+
+	/**
+	 * Return the organisation associated to this colony
+	 * @param colony The colony id
+	 */
+	@Transactional(readOnly = true)
+	public List<Organisation> getOrganisationsByColonyAndParameter(String colony, Parameter parameter) {
+		@SuppressWarnings("unchecked")
+		List<Organisation> organisations = (List<Organisation>) getCurrentSession().createQuery("SELECT DISTINCT c.organisation FROM UnidimensionalMutantView c WHERE c.colony=? and c.parameter=?")
+				.setString(0, colony)
+				.setInteger(1, parameter.getId())
+				.list();
+		return organisations;
+	}
+		
+
+	/** 
+	 * Delete all unidimensional result records for the supplied
+	 * parameter.
+	 * 
+	 * @throws SQLException if there's an error accessing the database
+	 */
 	@Transactional(readOnly = false)
-	public void deleteUnidimensionalResultByParameter(Parameter parameter) throws HibernateException, SQLException {
-		Statement stmt = getConnection().createStatement();
-		stmt.executeUpdate("DELETE FROM stats_unidimensional_results WHERE parameter_id="+parameter.getId());
-		stmt.close();
+	public void deleteUnidimensionalResultByParameter(Parameter parameter) 
+		throws SQLException {
+
+		Statement statement = getConnection().createStatement();
+
+		String query = "DELETE FROM stats_unidimensional_results"
+				+ " WHERE parameter_id=" 
+				+ parameter.getId();
+
+		try {
+			statement.executeUpdate(query);
+		} finally {
+			statement.close();
+	        if (statement != null) {
+	        	try { 
+	        		statement.close(); 
+	        	} catch (SQLException e) {
+	        		log.error(e.getLocalizedMessage());
+	        	}
+	        }
+		}
 	}
 
-	@Transactional(readOnly = false)
-	public void saveUnidimensionalResult(UnidimensionalResult result) {
-		getCurrentSession().saveOrUpdate(result);
-		getCurrentSession().flush();
+	/** 
+	 * Return all zygosities for this colony id organisation and parameter.
+	 * 
+	 * @throws SQLException if there's an error accessing the database
+	 */
+	public Set<ZygosityType> getZygosities(Parameter parameter, Organisation organisation, String colonyId) throws SQLException {
+		Connection connection = null;
+	    PreparedStatement statement = null;
+	    ResultSet resultSet = null;
+		Set<ZygosityType> zygosities = new HashSet<ZygosityType>();
+
+		String query = "SELECT DISTINCT zygosity"
+				+ " FROM biological_sample bs" 
+				+ " JOIN observation o ON o.biological_sample_id = bs.id"
+				+ " JOIN live_sample ls ON ls.id = bs.id"
+				+ " WHERE o.observation_type = 'unidimensional'"
+				+ " AND bs.sample_group = 'experimental'"
+				+ " AND bs.organisation_id=?"
+				+ " AND o.parameter_id=?" 
+				+ " AND ls.colony_id=?";
+
+		try {
+	        connection = getConnection();
+	        statement = connection.prepareStatement(query);
+	        statement.setInt(1, organisation.getId());
+	        statement.setInt(2, parameter.getId());
+	        statement.setString(3, colonyId);
+	        resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				zygosities.add(ZygosityType.valueOf(resultSet.getString("zygosity")));
+			}
+		} finally {
+			if (resultSet != null) try { resultSet.close(); } catch (SQLException e) {log.error(e.getLocalizedMessage());}
+	        if (statement != null) try { statement.close(); } catch (SQLException e) {log.error(e.getLocalizedMessage());}
+	        if (connection != null) try { connection.close(); } catch (SQLException e) {log.error(e.getLocalizedMessage());}
+		}
+		
+		return zygosities;
 	}
 
+	public Set<Integer> getPopulationIds(Parameter parameter, Organisation organisation, String colonyId, ZygosityType zygosity) throws SQLException {
+	    Set<Integer> populationIds = new HashSet<Integer>();
+
+		String query = "SELECT DISTINCT o.population_id"
+			+ " FROM biological_sample bs"
+			+ " JOIN observation o ON o.biological_sample_id = bs.id"
+			+ " JOIN live_sample ls ON ls.id = bs.id"
+			+ " WHERE o.observation_type = 'unidimensional'"
+			+ " AND bs.sample_group = 'experimental'"
+			+ " AND bs.organisation_id=?"
+			+ " AND o.parameter_id=?"
+			+ " AND ls.colony_id=?"
+			+ " AND ls.zygosity=?";
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)){
+	        statement.setInt(1, organisation.getId());
+	        statement.setInt(2, parameter.getId());
+	        statement.setString(3, colonyId);
+	        statement.setString(4, zygosity.name());
+		    ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				populationIds.add(resultSet.getInt("population_id"));
+			}
+		}
+
+		return populationIds; 
+	}
+
+
+	public Set<String> getColoniesByParameter(Parameter parameter) throws SQLException {
+	    Set<String> colonies = new HashSet<String>();
+
+		String query = "SELECT DISTINCT colony_id"
+		+ " FROM stats_mv_experimental_unidimensional_values"
+		+ " WHERE parameter_id=?";
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)){
+	        statement.setInt(1, parameter.getId());
+		    ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				colonies.add(resultSet.getString("colony_id"));
+			}
+		}
+
+		return colonies; 
+	}
+
+	
 	/**
 	 * Get all records for a specific colony and organization for a parameter.
 	 * 
 	 * This will return all mutant and control records.
+	 * @throws SQLException 
 	 * 
 	 */
 	@Override
-	public Set<UnidimensionalView> getUnidimensionalData(Parameter parameter, Organisation organization, String colonyId) {
-		
-		Set<UnidimensionalView> results = new HashSet<UnidimensionalView>();
-		Set<Integer> populationIds = new HashSet<Integer>();
+	public Set<UnidimensionalRecordDTO> getUnidimensionalData(Parameter parameter, Organisation organisation, String colonyId, ZygosityType zygosity) throws SQLException {
+		Set<UnidimensionalRecordDTO> resultsDTO = new HashSet<UnidimensionalRecordDTO>();
 
-		Statement stmt;
-		ResultSet rs;
+		String query;
 
-		try {
+		query = "SELECT DISTINCT biological_model_id, biological_sample_id, zygosity, sex, data_point "
+				+ " FROM stats_mv_experimental_unidimensional_values"
+				+ " WHERE organisation_id=?"
+				+ " AND parameter_id=?"
+				+ " AND colony_id=?"
+				+ " AND zygosity=?";
 
-//TODO: Use the prepared statement style
-//			String query = "SELECT * FROM stats_mv_experimental_unidimensional_values WHERE parameter_id=? AND colony_id=?";
-//			List<?> r = (getSessionFactory().getCurrentSession().createSQLQuery(query))
-//				.setInteger(0, parameter.getId())
-//				.setString(1, colonyId)
-//				.list();
-
-			String query;
-			
-			// Get all the population IDs for this colony
-			stmt = getConnection().createStatement();
-//			query = "SELECT DISTINCT population_id FROM stats_mv_experimental_unidimensional_values WHERE organisation_id = "+organization.getId()+" AND parameter_id=" + parameter.getId() + " AND colony_id='"+colonyId+"'";
-			query = "SELECT DISTINCT o.population_id FROM biological_sample bs JOIN observation o ON o.biological_sample_id = bs.id JOIN live_sample ls ON ls.id = bs.id  WHERE o.observation_type = 'unidimensional' AND bs.sample_group = 'experimental' AND bs.organisation_id="+organization.getId()+" AND o.parameter_id="+parameter.getId()+" AND ls.colony_id='"+colonyId+"'";
-			System.out.println(query);
-			rs = stmt.executeQuery(query);
-			
-			while(rs.next()){
-				// Collect all population ids for getting the control group
-				// of records later
-				populationIds.add(rs.getInt("population_id"));
+		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+	        statement.setInt(1, organisation.getId());
+	        statement.setInt(2, parameter.getId());
+	        statement.setString(3, colonyId);
+	        statement.setString(4, zygosity.name());
+		    ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				UnidimensionalRecordDTO urdto = new UnidimensionalRecordDTO();
+				urdto.setIsMutant(true);
+				urdto.setColony(colonyId);
+				urdto.setGender(resultSet.getString("sex"));
+				urdto.setGenotype(colonyId);
+				urdto.setMutant_model_id(resultSet.getInt("biological_model_id"));
+				urdto.setMutantZygosity(ZygosityType.valueOf(resultSet.getString("zygosity")));
+				urdto.setOrganisation(organisation);
+				urdto.setParameter(parameter);
+				urdto.setValue(resultSet.getString("data_point"));
+				resultsDTO.add(urdto);
 			}
-
-			stmt = getConnection().createStatement();
-			query = "SELECT DISTINCT biological_model_id, biological_sample_id, zygosity, sex, data_point FROM stats_mv_experimental_unidimensional_values WHERE organisation_id = "+organization.getId()+" AND parameter_id=" + parameter.getId() + " AND colony_id='"+colonyId+"'";
-			System.out.println(query);
-			rs = stmt.executeQuery(query);
-			
-			while(rs.next()){
-
-
-				UnidimensionalMutantView uv = new UnidimensionalMutantView();
-				uv.setColony(colonyId);
-				uv.setOrganisation(organization);
-				uv.setParameter(parameter);
-				uv.setBiologicalModel(bmDAO.getBiologicalModelById(rs.getInt("biological_model_id")));
-				uv.setBiologicalSample(bmDAO.getBiologicalSampleById(rs.getInt("biological_sample_id")));
-				uv.setDataPoint(rs.getFloat("data_point"));
-				uv.setSex(SexType.valueOf(rs.getString("sex")));
-				uv.setZygosity(ZygosityType.valueOf(rs.getString("zygosity")));
-	
-				results.add(uv);
-			}
-			stmt.close();
-
-			stmt = getConnection().createStatement();
-			query = "SELECT biological_model_id, biological_sample_id, sex, data_point FROM stats_mv_control_unidimensional_values WHERE population_id IN ("+StringUtils.join(populationIds, ", ")+")";
-			System.out.println(query);
-			rs = stmt.executeQuery(query);
-
-			while(rs.next()){
-				
-				// For controls we don't need population ID or zygosity
-				
-				UnidimensionalControlView uv = new UnidimensionalControlView();
-				uv.setBiologicalModel(bmDAO.getBiologicalModelById(rs.getInt("biological_model_id")));
-				uv.setBiologicalSample(bmDAO.getBiologicalSampleById(rs.getInt("biological_sample_id")));
-				uv.setDataPoint(rs.getFloat("data_point"));
-				uv.setSex(SexType.valueOf(rs.getString("sex")));
-				
-				//Prepare for mixed model (all controls are expected to be labled with genotype "+/+" in the R code)
-				uv.setColony("+/+");
-				
-				uv.setOrganisation(organization);
-				uv.setParameter(parameter);
-	
-				results.add(uv);
-			}
-			stmt.close();
-		} catch (SQLException e) {
-			log.error(e.getLocalizedMessage());
 		}
 
-		return results;
+		Set<Integer> populationIds = getPopulationIds(parameter, organisation, colonyId, zygosity);
+		query = "SELECT DISTINCT biological_model_id, biological_sample_id, sex, data_point"
+				+ " FROM stats_mv_control_unidimensional_values"
+				+ " WHERE population_id IN ("+StringUtils.join(populationIds, ", ")+")";
+		try (PreparedStatement statement = getConnection().prepareStatement(query)){
+		    ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				UnidimensionalRecordDTO urdto = new UnidimensionalRecordDTO();
+				urdto.setIsMutant(false);
+				urdto.setColony("+/+");
+				urdto.setGender(resultSet.getString("sex"));
+				urdto.setGenotype(colonyId);
+				urdto.setControl_model_id(resultSet.getInt("biological_model_id"));
+				urdto.setOrganisation(organisation);
+				urdto.setParameter(parameter);
+				urdto.setValue(resultSet.getString("data_point"));
+				resultsDTO.add(urdto);
+			}
+		}
+
+		return resultsDTO;
 	}
+	
+	
+	public List<Map<String,String>> getListOfUniqueParametersAndGenes(int start, int length) throws SQLException{
+		String query;
+
+		List<Map<String,String>> resultsList=new ArrayList<Map<String,String>>();
+		query = "SELECT DISTINCT vw.biological_model_id, vw.parameter_id, bgf.gf_acc FROM stats_mv_experimental_unidimensional_values vw, biological_model_genomic_feature bgf where bgf.biological_model_id=vw.biological_model_id limit "+start+" , " +length;
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+	      
+		    ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				Map<String,String> row=new HashMap<String,String>();
+				row.put("accession", resultSet.getString("gf_acc"));
+				row.put("parameter_id", Integer.toString(resultSet.getInt("parameter_id")));
+				resultsList.add(row);
+			}
+		}
+
+		
+
+		return resultsList;
+	}
+
 
 
 }
