@@ -20,12 +20,11 @@ package uk.ac.ebi.phenotype.pojo;
  * A concrete representation of phenotype parameter option.
  * 
  * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
- * @version $Revision: 1861 $
+ * @version $Revision: 2227 $
  *  @since February 2012
  */
 
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
