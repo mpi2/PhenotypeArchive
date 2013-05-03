@@ -34,16 +34,12 @@
 	<jsp:body>
         
 		<div class='topic'>Gene: ${gene.symbol}</div>
-		<!-- <div class="row-fluid dataset">
-			<div class="container span6">
-			<div id="chart0"
-					style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+		<c:if test="${statsError}">
+					<div class="alert alert-error">
+							  				<strong>Error:</strong> A stats error occured - results on this page maybe incorrect.
 					</div>
-					<div class="container span6">
-						<div id="chart1"
-					style="min-width: 400px; height: 400px; margin: 0 auto"></div>
-					</div>
-		</div> -->
+		</c:if>
+	
 
 <!-- time series charts here-->
 
@@ -51,8 +47,13 @@
  <%-- ${loop.count  % 2} --%>
 	<c:if test = "${timeLoop.count  % 2!=0}">
 		<div class="row-fluid dataset">  
-		<c:set var="allele" value="${timeSeriesMutantBiologicalModels[timeLoop.index].htmlSymbol}"></c:set>
-		 <div class="row-fluid "><div class="container span12"><h4><!--  style="background-color:lightgrey;"  -->Allele -  ${allele} <span class="graphGenBackground">background -  ${timeSeriesMutantBiologicalModels[timeLoop.index].geneticBackground}</span></h4></div>
+		 <div class="row-fluid ">
+		 		<div class="container span6"><h4><!--  style="background-color:lightgrey;"  -->Allele -  <t:formatAllele>${timeSeriesMutantBiologicalModels[timeLoop.index].alleles[0].symbol}</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${timeSeriesMutantBiologicalModels[timeLoop.index].geneticBackground}</span></h4>
+		 		</div>
+		 		 <c:if test="${fn:length(timeSeriesMutantBiologicalModels) > (timeLoop.index+1)}">
+		 		 <div class="container span6"><h4><!--  style="background-color:lightgrey;"  -->Allele -  <t:formatAllele>${timeSeriesMutantBiologicalModels[timeLoop.index+1].alleles[0].symbol}</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${timeSeriesMutantBiologicalModels[timeLoop.index+1].geneticBackground}</span></h4>
+		 		</div>
+		 		</c:if>
  		</div>
  		<div class="row-fluid">
  	</c:if>
@@ -64,19 +65,29 @@
 								${timeChart}
 								</script>
 					</div>
-<c:if test = "${timeLoop.count % 2==0}">
+<c:if test = "${(timeLoop.count % 2==0) || timeLoop.count eq fn:length(timeSeriesCharts)}">
+		 </div>
 		 </div>
 </c:if>
 </c:forEach>
 
 
 
+<c:if test = "${not empty categoricalBarCharts}"><div class="row-fluid dataset">
+</c:if>
 <c:forEach var="categoricalBarChart" items="${categoricalBarCharts}" varStatus="loop">
  <%-- ${loop.count  % 2} --%>
 <c:if test = "${loop.count  % 2!=0}">
-		<div class="row-fluid dataset">  
-		<c:set var="catAllele" value=" ${categoricalMutantBModel[loop.index].htmlSymbol}"></c:set>
-		 <div class="row-fluid"><div class="container span12"><h4>Allele -  ${catAllele} <span class="graphGenBackground">background -  ${categoricalMutantBModel[loop.index].geneticBackground}</span></h4></div>
+<!-- <div class="row-fluid dataset">   -->
+		 <div class="row-fluid">
+		 		<div class="container span6">
+		 				<h4>Allele -  <t:formatAllele>${categoricalMutantBModel[loop.index].alleles[0].symbol}</t:formatAllele> <span class="graphGenBackground"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${categoricalMutantBModel[loop.index].geneticBackground}</span></h4>
+		 		</div>
+		 		<c:if test="${fn:length(categoricalMutantBModel) > (loop.index+1)}">
+		 		<div class="container span6">
+		 				<h4>Allele -  <t:formatAllele>${categoricalMutantBModel[loop.index+1].alleles[0].symbol}</t:formatAllele> <span class="graphGenBackground"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${categoricalMutantBModel[loop.index+1].geneticBackground}</span></h4>
+		 		</div>
+		 		</c:if> 
  		</div>
  		<div class="row-fluid">
  </c:if>
@@ -86,7 +97,7 @@
 								</div>
 								
 									<c:set var="table" scope="page" value="${tables[loop.index]}"/>
-										<table id="table${loop.count}" class="table table-bordered table-hover table-striped">
+										<table id="table${loop.count}" class="table table-bordered  table-striped table-condensed">
 										<thead><tr>
 										<c:forEach var="colHeader" items="${table.columnHeaders}" varStatus="xCatCount">
 										<th>${colHeader}</th>
@@ -107,12 +118,7 @@
 														</c:forEach>
 												</tr>
 												</c:forEach>
-									
-										
-										<%-- <td>${tables[loop.count-1].seriesDataForCategoricalType[0][0]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[0][1]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[0][2]}</td>
-										 </tr>--%>
-										<%-- <tr><td>${tables[loop.count-1].categories[1]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[1][0]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[1][1]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[1][2]}</td>
-										 </tr>--%>
+			
 										</tbody>
 										</table>
    								<script type="text/javascript">
@@ -123,43 +129,51 @@
 								</script>
 								
 				</div>
-<c:if test = "${loop.count % 2==0}">
+<c:if test = "${(loop.count % 2==0) || (loop.count eq fn:length(categoricalBarCharts))} ">
 </div>
+<!-- </div> -->
 </c:if>
  </c:forEach>
-
+<c:if test = "${not empty categoricalBarCharts}">
+</div>
+</c:if>
 			
 				
 			
 	
-		</div>
+		
 		<!--/end of categoriacl charts-->
 		
-
+ 
 <c:forEach var="continuousChart" items="${continuousCharts}" varStatus="uniDimensionalLoop">
  <%-- ${loop.count  % 2} --%>
 <c:if test = "${uniDimensionalLoop.count  % 2!=0}">
-		<div class="row-fluid dataset">  
-		<c:set var="uniAllele" value=" ${unidimensionalMutantBiologicalModels[uniDimensionalLoop.index].htmlSymbol}"></c:set>
-		 <div class="row-fluid"><div class="container span12"><h4>Allele -  ${uniAllele} <span class="graphGenBackground">background -  ${unidimensionalMutantBiologicalModels[uniDimensionalLoop.index].geneticBackground}</span></h4></div>
+ <div class="row-fluid dataset"> 
+		 <div class="row-fluid">
+		 		<div class="container span6"><h4>Allele -  <t:formatAllele>${unidimensionalMutantBiologicalModels[uniDimensionalLoop.index].alleles[0].symbol}</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${unidimensionalMutantBiologicalModels[uniDimensionalLoop.index].geneticBackground}</span></h4>
+				 </div>
+				 <c:if test="${fn:length(unidimensionalMutantBiologicalModels) > (uniDimensionalLoop.index+1)}">
+				 <div class="container span6"><h4>Allele -  <t:formatAllele>${unidimensionalMutantBiologicalModels[uniDimensionalLoop.index+1].alleles[0].symbol}</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${unidimensionalMutantBiologicalModels[uniDimensionalLoop.index+1].geneticBackground}</span></h4>
+				 </div>
+				 </c:if>
  		</div>
  		<div class="row-fluid">
  </c:if>
 		
  
-  				 <div class="container span6">
-								<div id="chart${uniDimensionalLoop.count}"
+  		<div class="container span6">
+				<div id="chart${uniDimensionalLoop.count}"
 									style="min-width: 400px; height: 400px; margin: 0 auto">
-								</div>
-								<c:set var="table" scope="page" value="${continuousTables[uniDimensionalLoop.index]}"/>
-										<table id="continuousTable${uniDimensionalLoop.count}" class="table table-bordered table-hover table-striped">
-										<thead><tr>
-										<c:forEach var="colHeader" items="${table.columnHeaders}" varStatus="xCatCount">
-										<th>${colHeader}</th>
-										</c:forEach>
-										<%-- <th>${tables[loop.count-1].xAxisCategories[1]}</th><th>${tables[loop.count-1].xAxisCategories[2]}</th> --%>
-										</tr></thead>
-										<tbody>
+				</div>
+		<c:set var="table" scope="page" value="${continuousTables[uniDimensionalLoop.index]}"/>
+		<table id="continuousTable${uniDimensionalLoop.count}" class="table table-bordered  table-striped table-condensed">
+		<thead><tr>
+		<c:forEach var="colHeader" items="${table.columnHeaders}" varStatus="xCatCount">
+		<th>${colHeader}</th>
+		</c:forEach>
+		<%-- <th>${tables[loop.count-1].xAxisCategories[1]}</th><th>${tables[loop.count-1].xAxisCategories[2]}</th> --%>
+		</tr></thead>
+		<tbody>
 										
 										
 										
@@ -188,93 +202,27 @@
    
    								$(function () {
    								    $('#chart${uniDimensionalLoop.count}').highcharts(${continuousChart});
-   								    /* {
-
-   									    chart: {
-   									        type: 'boxplot'
-   									    },
-   									    
-   									    title: {
-   									        text: 'Continuous Data Example'
-   									    },
-   									    
-   									    legend: {
-   									        enabled: false
-   									    },
-   									
-   									    xAxis: {
-   									        categories: ['WT', 'WT', 'HOM', 'HOM'],
-   									        title: {
-   									            text: 'Experiment No.'
-   									        }
-   									    },
-   									    
-   									    yAxis: {
-   									        title: {
-   									            text: 'mmol/l'
-   									        },
-   									        plotLines: [{
-   									            value: 932,
-   									            color: 'red',
-   									            width: 1,
-   									            label: {
-   									                text: 'Theoretical mean: 932',
-   									                align: 'center',
-   									                style: {
-   									                    color: 'gray'
-   									                }
-   									            }
-   									        }]  
-   									    },
-   									
-   									    series: [{
-   									        name: 'Observations',
-   									        data: [
-   									          
-   									            [733, 853, 939, 980, 1080],
-   									            [],
-   									            [724, 802, 806, 871, 950],
-   									            []
-   									        ],
-   									        tooltip: {
-   									            headerFormat: '<em>Experiment No {point.key}</em><br/>'
-   									        }
-   									    }, {
-   									        name: 'Outlier',
-   									        color: Highcharts.getOptions().colors[0],
-   									        type: 'scatter',
-   									        data: [ // x, y positions where 0 is the first category
-   									            [1, 644],
-   									            [3, 718],
-   									            [3, 951],
-   									            [3, 969]
-   									        ],
-   									        marker: {
-   									            fillColor: 'white',
-   									            lineWidth: 1,
-   									            lineColor: Highcharts.getOptions().colors[0]
-   									        },
-   									        tooltip: {
-   									            pointFormat: 'Observation: {point.y}'
-   									        }
-   									    }]
-   									
-   									});
-   								} 
-   								);*/	
-   								
 								</script>
 								
-				</div>
+		</div><!-- end of span6  individual chart holder -->
 
  
 
 			
 				
 			
-	<c:if test = "${uniDimensionalLoop.count % 2==0}">
+	<%-- length= ${fn:length(continuousCharts ) } loopcount= ${uniDimensionalLoop.count} --%>
+	<c:if test = "${(uniDimensionalLoop.count  % 2==0) || (fn:length(continuousCharts )==uniDimensionalLoop.count )}">
+	<!-- ending tables now -->
+</div>
 </div>
 </c:if>
+<%-- <c:if test = "${uniDimensionalLoop.count  == fn:length(continuousCharts)}">
+</div>
+</div>
+</c:if> --%>
+
+	
 		</c:forEach>
 		<!--/row-->
 
@@ -298,7 +246,7 @@
    								
 								</script>
 			</div>
-	<c:if test = "${barloop.count % 2==0}">
+	<c:if test = "${ (barloop.count % 2==0)|| (fn:length(continuousBarCharts )==barloop.count )}">
 	</div>
 	</c:if>
 </c:forEach>
