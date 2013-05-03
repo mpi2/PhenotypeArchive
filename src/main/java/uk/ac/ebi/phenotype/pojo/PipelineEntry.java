@@ -135,4 +135,78 @@ public class PipelineEntry extends SourcedEntry {
 	public String toString() {
 		return stableId + ": " +  name;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result
+				+ ((description == null) ? 0 : description.hashCode());
+		result = prime * result
+				+ ((majorVersion == null) ? 0 : majorVersion.hashCode());
+		result = prime * result
+				+ ((minorVersion == null) ? 0 : minorVersion.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result
+				+ ((stableId == null) ? 0 : stableId.hashCode());
+		result = prime * result + stableKey;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		PipelineEntry other = (PipelineEntry) obj;
+		if (description == null) {
+			if (other.description != null) {
+				return false;
+			}
+		} else if (!description.equals(other.description)) {
+			return false;
+		}
+		if (majorVersion == null) {
+			if (other.majorVersion != null) {
+				return false;
+			}
+		} else if (!majorVersion.equals(other.majorVersion)) {
+			return false;
+		}
+		if (minorVersion == null) {
+			if (other.minorVersion != null) {
+				return false;
+			}
+		} else if (!minorVersion.equals(other.minorVersion)) {
+			return false;
+		}
+		if (name == null) {
+			if (other.name != null) {
+				return false;
+			}
+		} else if (!name.equals(other.name)) {
+			return false;
+		}
+		if (stableId == null) {
+			if (other.stableId != null) {
+				return false;
+			}
+		} else if (!stableId.equals(other.stableId)) {
+			return false;
+		}
+		if (stableKey != other.stableKey) {
+			return false;
+		}
+		return true;
+	}
+
+	
+	
+	
 }
