@@ -5,13 +5,15 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sun.xml.bind.api.impl.NameConverter.Standard;
+
 
 public class DiscreteTimePoint implements Comparable{
 	
 	private List<Float> errorPair;//if this is the mean of a set we can store the error bars data and other data such as Standard Deviation etc?
 	
 	public List<Float> getErrorPair() {
-		return errorPair;
+		return this.errorPair;
 	}
 	public void setErrorPair(List<Float> errorPair) {
 		this.errorPair = errorPair;
@@ -20,7 +22,15 @@ public class DiscreteTimePoint implements Comparable{
 		this.discreteTime=discreteTime;
 		this.data=discreteDataPoint;
 	}
+	public DiscreteTimePoint(Float discreteTime, Float discreteDataPoint, Float standardDeviation){
+		this(discreteTime, discreteDataPoint);
+		this.stdDeviation=standardDeviation;
+		errorPair=new ArrayList<Float>();
+		errorPair.add(this.data-this.stdDeviation);
+		errorPair.add(this.data+this.stdDeviation);
+	}
 	
+
 private Float discreteTime;
  public Float getDiscreteTime() {
 	return discreteTime;
@@ -36,10 +46,17 @@ public void setData(Float data) {
 	this.data = data;
 }
 private Float data;
+private Float stdDeviation;
  
+public Float getStdDeviation() {
+	return stdDeviation;
+}
+
 public String toString(){
 	//String myString = DateFormat.getDateInstance(DateFormat.FULL).format(date);
-	return "["+discreteTime+" ,"+ data+"]";
+	String stdDev="No std dev specified";
+	if(stdDeviation!=null)stdDev=stdDeviation.toString();
+	return "["+discreteTime+" ,"+ data+stdDev+"]";
 	
 }
 
@@ -53,6 +70,5 @@ public int compareTo(Object arg0) {
 	}
 
 }
-
 
 }
