@@ -87,7 +87,7 @@
 				var url = $.param.fragment();				
 				//console.log('hash change URL: '+ '/search#' + url);
 				var hashParams = $.fn.parseHashString(window.location.hash.substring(1));
-								
+							
 				if ( $('div#userKeyword span').text() != hashParams.q ){				
 					document.location.reload();
 				}
