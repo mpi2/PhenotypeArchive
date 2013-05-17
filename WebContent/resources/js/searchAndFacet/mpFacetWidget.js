@@ -54,6 +54,7 @@
 									MPI2.searchAndFacetConfig.commonSolrParams, 
 									MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams);						
 						
+						solrSrchParams.facetCount = $(this).text();
 						solrSrchParams.q = self.options.data.q;									
 						
 						var hashParams = $.fn.parseHashString(window.location.hash.substring(1));
@@ -111,9 +112,17 @@
 					
 					// hash state stuff				   
 					window.location.hash = $.fn.stringifyJsonAsUrlParams(hashParams);// + "&core=" + solrCoreName;
+															
+					// only invoke dataTable when there is hash change in url
+					// otherwise we are at same page, so no action taken
+					if (MPI2.setHashChange == 1){						
+						MPI2.setHashChange = 0;
+						//$.fn.updateFacetAndDataTableDisplay($.fn.stringifyJsonAsUrlParams(hashParams));	
+						// invoke dataTable	via hash state with the 4th param
+						// ie, it does not invoke dataTable directly but through hash change							
+						$.fn.invokeFacetDataTable(solrSrchParams, facetDivId, gridName);							
+					}	
 					
-					// dataTable code	
-					$.fn.invokeFacetDataTable(solrSrchParams, facetDivId, gridName);				
 				}				
 			});	
     	},
@@ -160,7 +169,7 @@
 	        			var tr = $('<tr></tr>').attr({'rel':aTopLevelCount[i], 'id':'topLevelMpTr'+i});  
 	        			// remove trailing ' phenotype' in MP term
 	        			
-	    	    		var td1 = $('<td></td>').attr({'class': 'mpTopLevel'}).text(aTopLevelCount[i].replace(' phenotype', ''));	    	    		   	    		
+	    	    		var td1 = $('<td></td>').attr({'class': 'mpTopLevel', 'rel': aTopLevelCount[i+1]}).text(aTopLevelCount[i].replace(' phenotype', ''));	    	    		   	    		
 	    	    		
 	    	    		var a = $('<a></a>').attr({'rel':aTopLevelCount[i]}).text(aTopLevelCount[i+1]);
 	    	    		var td2 = $('<td></td>').attr({'class': 'mpTopLevelCount'}).append(a);
@@ -184,7 +193,7 @@
     		$('div#'+facetDivId+ ' .facetCatList').html(table);
     		
     		$('table#'+ ontology + 'Facet td a').click(function(){      			
-    			$.fn.fetchFilteredDataTable($(this), facetDivId, self.options.data.q);    			
+    			$.fn.fetchFilteredDataTable($(this), facetDivId, self.options.data.q,'facetFilter');    			
     		});  
     		    		
     		// reload sidebar for hash state   		
