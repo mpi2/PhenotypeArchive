@@ -26,18 +26,19 @@ package uk.ac.ebi.phenotype.dao;
 import java.util.List;
 
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.Strain;
 
 
 
-public class StrainDAOImpl extends HibernateDAOImpl implements
-StrainDAO {
+@Service
+public class StrainDAOImpl extends HibernateDAOImpl implements StrainDAO {
 
-	public StrainDAOImpl(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
+	@Autowired
+	private SessionFactory sessionFactory;
 
 	@Override
 	@SuppressWarnings("unchecked")
