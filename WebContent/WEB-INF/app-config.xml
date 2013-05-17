@@ -22,8 +22,8 @@
 		</property>
 	</bean>
 
-	<context:component-scan base-package="uk.ac.ebi.generic.util">
-	</context:component-scan>
+	<context:component-scan base-package="uk.ac.ebi" />
+	
 	<context:annotation-config />
 
 	<!-- Drives transactions using Hibernate APIs when requested -->
@@ -41,142 +41,11 @@
 	<!-- Weaves in transactional advice around @Transactional methods -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
-	<!-- The biological model manager service that can load models from the database -->
-	<bean id="biologicalModelDAO" class="uk.ac.ebi.phenotype.dao.BiologicalModelDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-
-	<bean id="phenotypeCallSummaryDAO" class="uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-
-	<!-- The phenotype pipeline manager service that can load pipeline information from the database -->
-	<bean id="phenotypePipelineDAO" class="uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-
-	<bean id="alleleDAO" class="uk.ac.ebi.phenotype.dao.AlleleDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-
-	<bean id="genomicFeatureDAO" class="uk.ac.ebi.phenotype.dao.GenomicFeatureDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-
-	<bean id="ontologyTermDAO" class="uk.ac.ebi.phenotype.dao.OntologyTermDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-
-	<bean id="sequenceRegionDAO" class="uk.ac.ebi.phenotype.dao.SequenceRegionDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-
-	<bean id="coordinateSystemDAO" class="uk.ac.ebi.phenotype.dao.CoordinateSystemDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-
-	<bean id="strainDAO" class="uk.ac.ebi.phenotype.dao.StrainDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-
-	<bean id="datasourceDAO" class="uk.ac.ebi.phenotype.dao.DatasourceDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-
-	<bean id="labcodeDAO" class="uk.ac.ebi.phenotype.dao.LabcodeDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-
-	<bean id="projectDAO" class="uk.ac.ebi.phenotype.dao.ProjectDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-
-	<bean id="organisationDAO" class="uk.ac.ebi.phenotype.dao.OrganisationDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>	
-	
-	<bean id="categoricalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.CategoricalStatisticsDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-	
-	<bean id="categoricalChartAndTableProvider" class="uk.ac.ebi.phenotype.stats.categorical.CategoricalChartAndTableProvider">
-		<constructor-arg ref="categoricalStatisticsDAO" />
-	</bean>
-	
-	<bean id="unidimensionalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-	
-	<bean id="continousChartAndTableProvider" class="uk.ac.ebi.phenotype.stats.continuous.ContinousChartAndTableProvider">
-		<constructor-arg ref="unidimensionalStatisticsDAO" />
-	</bean>
-	
-	<bean id="timeSeriesStatisticsDAO" class="uk.ac.ebi.phenotype.dao.TimeSeriesStatisticsDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-	
-	<bean id="timeSeriesChartAndTableProvider" class="uk.ac.ebi.phenotype.stats.timeseries.TimeSeriesChartAndTableProvider">
-		<constructor-arg ref="timeSeriesStatisticsDAO" />
-	</bean>
-
 	<!-- Spring annotated objects -->
 	<bean id="sessionFactory"
 		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
 		<property name="dataSource" ref="komp2DataSource" />
-		<property name="annotatedClasses">
-			<list>
-				<value>uk.ac.ebi.phenotype.pojo.Experiment</value>
-				<value>uk.ac.ebi.phenotype.pojo.Observation</value>
-				<value>uk.ac.ebi.phenotype.pojo.CategoricalObservation</value>
-				<value>uk.ac.ebi.phenotype.pojo.MetaDataObservation</value>
-				<value>uk.ac.ebi.phenotype.pojo.UnidimensionalObservation</value>
-				<value>uk.ac.ebi.phenotype.pojo.TimeSeriesObservation</value>
-				<value>uk.ac.ebi.phenotype.pojo.BiologicalModel</value>
-				<value>uk.ac.ebi.phenotype.pojo.BiologicalSample</value>
-				<value>uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary</value>
-				<value>uk.ac.ebi.phenotype.pojo.Parameter</value>
-				<value>uk.ac.ebi.phenotype.pojo.ParameterOption</value>
-				<value>uk.ac.ebi.phenotype.pojo.ParameterIncrement</value>
-				<value>uk.ac.ebi.phenotype.pojo.ParameterOntologyAnnotation</value>
-				<value>uk.ac.ebi.phenotype.pojo.Procedure</value>
-				<value>uk.ac.ebi.phenotype.pojo.Pipeline</value>
-				<value>uk.ac.ebi.phenotype.pojo.Allele</value>
-				<value>uk.ac.ebi.phenotype.pojo.GenomicFeature</value>
-				<value>uk.ac.ebi.phenotype.pojo.OntologyTerm</value>
-				<value>uk.ac.ebi.phenotype.pojo.SequenceRegion</value>
-				<value>uk.ac.ebi.phenotype.pojo.CoordinateSystem</value>
-				<value>uk.ac.ebi.phenotype.pojo.Strain</value>
-				<value>uk.ac.ebi.phenotype.pojo.Datasource</value>
-				<value>uk.ac.ebi.phenotype.pojo.Labcode</value>
-				<value>uk.ac.ebi.phenotype.pojo.Project</value>
-				<value>uk.ac.ebi.phenotype.pojo.Organisation</value>
-				<value>uk.ac.ebi.phenotype.pojo.LiveSample</value>
-				<value>uk.ac.ebi.phenotype.pojo.CategoricalControlView</value>
-				<value>uk.ac.ebi.phenotype.pojo.CategoricalMutantView</value>
-				<value>uk.ac.ebi.phenotype.pojo.CategoricalResult</value>
-				<value>uk.ac.ebi.phenotype.pojo.UnidimensionalControlView</value>
-				<value>uk.ac.ebi.phenotype.pojo.UnidimensionalMutantView</value>
-				<value>uk.ac.ebi.phenotype.pojo.TimeSeriesControlView</value>
-				<value>uk.ac.ebi.phenotype.pojo.TimeSeriesMutantView</value>
-				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaImageRecord</value>
-				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaImageTag</value>
-				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaImageTagType</value>
-				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaExperimentDict</value>
-				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaQcDict</value>
-				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaPublishedDict</value>
-				<value>uk.ac.ebi.phenotype.imaging.persistence.AnnOntologyDict</value>
-				<value>uk.ac.ebi.phenotype.imaging.persistence.AnnAnnotation</value>
-				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaImportContext</value>
-				<value>uk.ac.ebi.phenotype.imaging.persistence.ImaSubcontext</value>
-				<value>uk.ac.ebi.phenotype.imaging.persistence.HigherLevelAnnotation</value>
-				<value>uk.ac.ebi.phenotype.imaging.persistence.MtsMouseAlleleMv</value>
-				<value>uk.ac.ebi.phenotype.imaging.persistence.MtsMouseAllele</value>
-				<value>uk.ac.ebi.phenotype.imaging.persistence.MtsGenotypeDict</value>
-				<value>uk.ac.ebi.phenotype.imaging.persistence.AlleleMpi</value>
-				<value>uk.ac.ebi.phenotype.imaging.persistence.MtsMouseAllele</value>
-				<value>uk.ac.ebi.phenotype.imaging.persistence.MtsGenotypeDict</value>
-			</list>
-		</property>
+		<property name="packagesToScan" value="uk.ac.ebi.phenotype"/>
 		<property name="hibernateProperties">
 			<props>
 				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
