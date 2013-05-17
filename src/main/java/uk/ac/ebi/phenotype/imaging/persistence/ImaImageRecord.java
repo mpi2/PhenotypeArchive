@@ -33,7 +33,12 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonManagedReference;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 import uk.ac.ebi.phenotype.pojo.Organisation;
 
@@ -63,8 +68,10 @@ public class ImaImageRecord implements Serializable {
 	private String smallThumbnailFilePath;
 	private ImaSubcontext imaSubcontext;
 	private Organisation organisation;
-	
-	@ManyToOne(optional=false, fetch=FetchType.LAZY)
+
+	@ManyToOne(optional=false, fetch=FetchType.EAGER)
+	@Fetch(FetchMode.SELECT)
+	@NotFound(action=NotFoundAction.IGNORE)
     @JoinColumn(name="organisation",referencedColumnName="ID")
 	public Organisation getOrganisation() {
 		return organisation;
