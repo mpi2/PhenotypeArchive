@@ -20,17 +20,17 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import net.sf.json.JSONException;
 
-import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
@@ -39,10 +39,11 @@ import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -69,10 +70,9 @@ import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
 
 
 @Controller
-public class GenesController implements BeanFactoryAware {
+public class GenesController {
 
 	private final Logger log = LoggerFactory.getLogger(GenesController.class);
-	private BeanFactory bf;
 
 	RegisterInterestDrupalSolr registerInterest;
 
@@ -88,6 +88,13 @@ public class GenesController implements BeanFactoryAware {
 	@Autowired
 	private PhenotypeCallSummaryDAO phenoDAO;
 
+	@Autowired
+	SolrIndex solrIndex;
+
+	@Resource(name="globalConfiguration")
+	private Map<String, String> config;
+
+
 	/**
 	 * Runs when the request missing an accession ID. This redirects to the
 	 * search page which defaults to showing all genes in the list
@@ -97,6 +104,32 @@ public class GenesController implements BeanFactoryAware {
 		return "redirect:/search";
 	}
 
+	/**
+	 * Prints out the request object
+	 */
+	@RequestMapping("/genes/print-request")
+	public ResponseEntity<String> printRequest(HttpServletRequest request) {
+
+		Enumeration<String> s = request.getHeaderNames();
+
+		while (s.hasMoreElements()) {
+			String header = (String) s.nextElement();
+			Enumeration<String> headers = request.getHeaders(header);
+
+			while (headers.hasMoreElements()) {				
+				String actualHeader = (String) headers.nextElement();
+				System.out.println("Header: " + header + ", Value: " +actualHeader);
+			}
+		}
+
+		HttpHeaders resp = new HttpHeaders();
+		resp.setContentType(MediaType.APPLICATION_JSON);
+
+		return  new ResponseEntity<String>(request.toString(), resp, HttpStatus.CREATED);
+	}
+
+	
+
 	@RequestMapping("/genes/{acc}")
 	public String genes(
 			@PathVariable String acc,
@@ -104,15 +137,6 @@ public class GenesController implements BeanFactoryAware {
 			Model model,
 			HttpServletRequest request,
 			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException {
-
-		Datasource ensembl = datasourceDao.getDatasourceByShortName("Ensembl");
-		Datasource vega = datasourceDao.getDatasourceByShortName("VEGA");
-		Datasource ncbi = datasourceDao.getDatasourceByShortName("EntrezGene");
-		Datasource ccds = datasourceDao.getDatasourceByShortName("cCDS");
-
-		// Get the global application configuration
-		@SuppressWarnings("unchecked")
-		Map<String,String> config = (Map<String,String>) bf.getBean("globalConfiguration");
 
 		// see if the gene exists first:
 		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
@@ -128,7 +152,6 @@ public class GenesController implements BeanFactoryAware {
 		
 		try {
 			
-			SolrIndex solrIndex=new SolrIndex(config);
 			geneStatus = solrIndex.getGeneStatus(acc);
 			model.addAttribute("geneStatus", geneStatus);//if gene status is null then the jsp declares a warning message at status div
 
@@ -318,6 +341,11 @@ public class GenesController implements BeanFactoryAware {
 //			log.error(e.getLocalizedMessage());
 //		}
 
+		Datasource ensembl = datasourceDao.getDatasourceByShortName("Ensembl");
+		Datasource vega = datasourceDao.getDatasourceByShortName("VEGA");
+		Datasource ncbi = datasourceDao.getDatasourceByShortName("EntrezGene");
+		Datasource ccds = datasourceDao.getDatasourceByShortName("cCDS");
+
 		List<String> ensemblIds = new ArrayList<String>();
 		List<String> vegaIds = new ArrayList<String>();
 		List<String> ncbiIds = new ArrayList<String>();
@@ -349,8 +377,7 @@ public class GenesController implements BeanFactoryAware {
 		boolean ikmcError = false;
 		
 		try {
-			SolrIndex solrIndex = new SolrIndex("allele_name:"+gene.getSymbol(), solrCoreName, mode, config);
-			countIKMCAlleles = solrIndex.fetchNumFound();
+			countIKMCAlleles = solrIndex.getNumFound("allele_name:"+gene.getSymbol(), solrCoreName, mode, "");
 		}catch (Exception e) {
 			model.addAttribute("countIKMCAllelesError", Boolean.TRUE);
 			e.printStackTrace();
@@ -450,16 +477,6 @@ public class GenesController implements BeanFactoryAware {
 			model.addAttribute("solrFacets", filteredCounts);
 			model.addAttribute("facetToDocs", facetToDocs);
 		}
-	}
-
-	/**
-	 * required for implementing BeanFactoryAware
-	 * 
-	 * @see org.springframework.beans.factory.BeanFactoryAware#setBeanFactory(org.springframework.beans.factory.BeanFactory)
-	 */
-	@Override
-	public void setBeanFactory(BeanFactory arg0) throws BeansException {
-		this.bf=arg0;
 	}
 	
 
