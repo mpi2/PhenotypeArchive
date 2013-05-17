@@ -154,7 +154,6 @@
 
 	<bean id="genomicFeatureController"
 		class="uk.ac.ebi.phenotype.rest.controller.GenomicFeatureController">
-		<property name="genomicFeatureDAO" ref="genomicFeatureDAO" />
 		<property name="jaxb2Mashaller" ref="jaxbMarshaller" />
 	</bean>
 </beans>	
