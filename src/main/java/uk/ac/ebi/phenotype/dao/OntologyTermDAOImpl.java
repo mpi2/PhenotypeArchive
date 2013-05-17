@@ -30,22 +30,19 @@ import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Synonym;
 
-public class OntologyTermDAOImpl extends HibernateDAOImpl implements
-		OntologyTermDAO {
+@Service
+public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTermDAO {
 
-	/**
-	 * Creates a new Hibernate ontology term data access manager.
-	 * @param sessionFactory the Hibernate session factory
-	 */
-	public OntologyTermDAOImpl(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
+	@Autowired
+	private SessionFactory sessionFactory;
 	
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
