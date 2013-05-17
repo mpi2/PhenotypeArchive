@@ -26,19 +26,17 @@ package uk.ac.ebi.phenotype.dao;
 import java.util.List;
 
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.Allele;
 
+@Service
 public class AlleleDAOImpl extends HibernateDAOImpl implements AlleleDAO {
 
-	/**
-	 * Creates a new Hibernate allele data access manager.
-	 * @param sessionFactory the Hibernate session factory
-	 */
-	public AlleleDAOImpl(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
+	@Autowired
+	SessionFactory sessionFactory;
 	
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
