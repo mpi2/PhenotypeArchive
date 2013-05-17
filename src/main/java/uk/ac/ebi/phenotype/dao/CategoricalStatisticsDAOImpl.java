@@ -12,6 +12,8 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
@@ -22,13 +24,13 @@ import uk.ac.ebi.phenotype.pojo.ParameterOption;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
+@Service
 public class CategoricalStatisticsDAOImpl extends StatisticsDAOImpl implements CategoricalStatisticsDAO {
 
 	private static final Logger log = Logger.getLogger(CategoricalStatisticsDAOImpl.class);
 
-	public CategoricalStatisticsDAOImpl(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
+	@Autowired
+	SessionFactory sessionFactory;
 
 	/**
 	 * Get the list of categories that are appropriate for this parameter
