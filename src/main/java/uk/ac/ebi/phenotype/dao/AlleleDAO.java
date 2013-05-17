@@ -27,7 +27,7 @@ import java.util.List;
 
 import uk.ac.ebi.phenotype.pojo.Allele;
 
-public interface AlleleDAO {
+public interface AlleleDAO extends HibernateDAO {
 
 	public List<Allele> getAllAlleles();
 	
