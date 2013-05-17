@@ -23,6 +23,7 @@ package uk.ac.ebi.phenotype.dao;
  * @since May 2012
  */
 
+import java.sql.SQLException;
 import java.util.List;
 
 import uk.ac.ebi.phenotype.pojo.Datasource;
@@ -32,7 +33,7 @@ import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
 
-public interface PhenotypeCallSummaryDAO {
+public interface PhenotypeCallSummaryDAO extends HibernateDAO {
 
 	/**
 	 * Get all phenotype call summaries
@@ -63,10 +64,13 @@ public interface PhenotypeCallSummaryDAO {
 	 * 
 	 * @param project
 	 * @return the count of rows deleted
+	 * @throws SQLException 
 	 */
-	public int deletePhenotypeCallSummariesByDatasource(Datasource datasource);
+	public void deletePhenotypeCallSummariesByDatasource(Datasource datasource) throws SQLException;
 
 	public int deletePhenotypeCallSummariesByDatasourceParameterSexZygosity(
 			Datasource datasource, Parameter parameter, SexType sex,
 			ZygosityType zygosity);
+
+	public void deleteCategoricalResults() throws SQLException;
 }
