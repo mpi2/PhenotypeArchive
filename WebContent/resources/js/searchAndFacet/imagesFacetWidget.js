@@ -53,6 +53,7 @@
 									MPI2.searchAndFacetConfig.commonSolrParams, 
 									MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams);						
 						
+						solrSrchParams.facetCount = $(this).text();
 						solrSrchParams.q = self.options.data.q;									
 						
 						var hashParams = $.fn.parseHashString(window.location.hash.substring(1));
@@ -100,6 +101,7 @@
 							MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams, 
 							MPI2.searchAndFacetConfig.commonSolrParams);					
 				
+					solrSrchParams.facetCount = $(this).text();
 					solrSrchParams.q = self.options.data.q;											
 									
 					hashParams.q = self.options.data.q;
@@ -108,9 +110,16 @@
 					
 					// hash state stuff				   
 					window.location.hash = $.fn.stringifyJsonAsUrlParams(hashParams);// + "&core=" + solrCoreName;
-					
-					// dataTable code	
-					$.fn.invokeFacetDataTable(solrSrchParams, facetDivId, gridName, self.options.data.q);	
+															
+					// only invoke dataTable when there is hash change in url
+					// otherwise we are at same page, so no action taken
+					if (MPI2.setHashChange == 1){						
+						MPI2.setHashChange = 0;
+						//$.fn.updateFacetAndDataTableDisplay($.fn.stringifyJsonAsUrlParams(hashParams));	
+						// invoke dataTable	via hash state with the 4th param
+						// ie, it does not invoke dataTable directly but through hash change							
+						$.fn.invokeFacetDataTable(solrSrchParams, facetDivId, gridName, self.options.data.q);							
+					}	
 				}	
 			});	
     	},
@@ -175,7 +184,7 @@
   	    					//console.log(fieldName + ' : '+ facetCount);
   	    					
   	    					var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i});
-  	    					var td1 = $('<td></td>').attr({'class': 'imgExperiment'}).text(fieldName);
+  	    					var td1 = $('<td></td>').attr({'class': 'imgExperiment', 'rel': facetCount}).text(fieldName);
   	    				
   	    					var imgBaseUrl = baseUrl + "/images?";
   	    					
@@ -230,7 +239,7 @@
   	    		table.find('td a').click(function(){	    			
   	    			// invoke filtered toplevel in dataTable
   	    			MPI2.searchAndFacetConfig.facetParams[facetDivId].showImgView = true; // default  	    			
-  	    			$.fn.fetchFilteredDataTable($(this), facetDivId, self.options.data.q);
+  	    			$.fn.fetchFilteredDataTable($(this), facetDivId, self.options.data.q, 'facetFilter');
   	    		});	
   	    	}
   	    	
