@@ -27,7 +27,7 @@ import java.util.List;
 
 import uk.ac.ebi.phenotype.pojo.Project;
 
-public interface ProjectDAO {
+public interface ProjectDAO extends HibernateDAO {
 
 	/**
 	 * Get all projects in the system
