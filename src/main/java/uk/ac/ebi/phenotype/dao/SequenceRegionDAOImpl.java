@@ -27,22 +27,20 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.SequenceRegion;
 
 
 
+@Service
 public class SequenceRegionDAOImpl extends HibernateDAOImpl implements
 		SequenceRegionDAO {
 
-	/**
-	 * Creates a new Hibernate sequence region data access manager.
-	 * @param sessionFactory the Hibernate session factory
-	 */
-	public SequenceRegionDAOImpl(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
+	@Autowired
+	private SessionFactory sessionFactory;
 	
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
