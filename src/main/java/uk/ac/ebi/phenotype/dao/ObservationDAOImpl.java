@@ -27,6 +27,8 @@ import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalSample;
@@ -41,16 +43,11 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.TimeSeriesObservation;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalObservation;
 
+@Service
 public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationDAO {
-
 	
-	/**
-	 * Creates a new Hibernate project data access manager.
-	 * @param sessionFactory the Hibernate session factory
-	 */
-	public ObservationDAOImpl(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
+	@Autowired
+	SessionFactory sessionFactory;
 	
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
