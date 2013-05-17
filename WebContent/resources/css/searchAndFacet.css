@@ -305,3 +305,6 @@ div#exportSpinner {
 span.hiddenId {
 	display: none;
 }
+div.gridSubTitle {
+	padding-bottom: 20px;
+}
