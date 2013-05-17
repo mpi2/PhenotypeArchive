@@ -16,7 +16,8 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
@@ -26,15 +27,13 @@ import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalRecordDTO;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
-@Component
+@Service
 public class UnidimensionalStatisticsDAOImpl extends StatisticsDAOImpl implements UnidimensionalStatisticsDAO {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
-	public UnidimensionalStatisticsDAOImpl(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
-
+	@Autowired
+	private SessionFactory sessionFactory;
 
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
@@ -60,30 +59,27 @@ public class UnidimensionalStatisticsDAOImpl extends StatisticsDAOImpl implement
 
 	@Transactional(readOnly = true)
 	public BiologicalModel getControlBiologicalModelByPopulation(Integer populationId) {
-		BiologicalModel bm = (BiologicalModel) getCurrentSession().createQuery("SELECT bs.biologicalModel FROM Observation o inner join o.sample as bs inner join bs.biologicalModel bm WHERE o.populationId=? AND bs.group='control'")
+		return (BiologicalModel) getCurrentSession().createQuery("SELECT bs.biologicalModel FROM Observation o inner join o.sample as bs inner join bs.biologicalModel bm WHERE o.populationId=? AND bs.group='control'")
 			.setInteger(0, populationId)
 			.list()
 			.get(0);
-		return bm;
 	}
 
 	@Transactional(readOnly = true)
 	public BiologicalModel getMutantBiologicalModelByPopulation(Integer populationId) {
-		BiologicalModel bm = (BiologicalModel) getCurrentSession().createQuery("SELECT bs.biologicalModel FROM Observation o inner join o.sample as bs inner join bs.biologicalModel bm WHERE o.populationId=? AND bs.group='experimental'")
+		return (BiologicalModel) getCurrentSession().createQuery("SELECT bs.biologicalModel FROM Observation o inner join o.sample as bs inner join bs.biologicalModel bm WHERE o.populationId=? AND bs.group='experimental'")
 			.setInteger(0, populationId)
 			.list()
 			.get(0);
-		return bm;
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	public List<BiologicalModel> getBiologicalModelsByParameterAndGene(Parameter parameter, String accessionId) {
-		List<BiologicalModel> bms = (List<BiologicalModel>) getCurrentSession().createQuery("SELECT DISTINCT c.biologicalModel FROM UnidimensionalMutantView c inner join c.biologicalModel as bm join bm.genomicFeatures as gf WHERE gf.id.accession=? AND c.parameter=?")
+		return (List<BiologicalModel>) getCurrentSession().createQuery("SELECT DISTINCT c.biologicalModel FROM UnidimensionalMutantView c inner join c.biologicalModel as bm join bm.genomicFeatures as gf WHERE gf.id.accession=? AND c.parameter=?")
 			.setString(0, accessionId)
 			.setInteger(1, parameter.getId())
 			.list();
-		return bms;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -98,16 +94,16 @@ public class UnidimensionalStatisticsDAOImpl extends StatisticsDAOImpl implement
 	@Transactional(readOnly = true)
 	public List<Integer> getPopulationIdsByParameterAndMutantBiologicalModel(Parameter parameter, BiologicalModel biologicalModel) {
 		return (List<Integer>) getCurrentSession().createQuery("SELECT DISTINCT populationId FROM UnidimensionalMutantView WHERE parameter=? AND biologicalModel=?")
-				.setLong(0, parameter.getId())
-				.setInteger(1, biologicalModel.getId())
-				.list();
+			.setLong(0, parameter.getId())
+			.setInteger(1, biologicalModel.getId())
+			.list();
 	}
 
 	public Double getpValueByParameterAndBiologicalModel(Parameter parameter, BiologicalModel biologicalModel) {
 		return (Double) getCurrentSession().createQuery("SELECT DISTINCT populationId FROM UnidimensionalMutantView WHERE parameter=? AND biologicalModel=?")
-				.setLong(0, parameter.getId())
-				.setInteger(1, biologicalModel.getId())
-				.uniqueResult();
+			.setLong(0, parameter.getId())
+			.setInteger(1, biologicalModel.getId())
+			.uniqueResult();
 	}
 
 
@@ -117,8 +113,8 @@ public class UnidimensionalStatisticsDAOImpl extends StatisticsDAOImpl implement
 	@Transactional(readOnly = true)
 	public SexType getSexByPopulation(Integer populationId) {
 		SexType sex = (SexType) getCurrentSession().createQuery("SELECT DISTINCT c.sex FROM UnidimensionalMutantView c WHERE c.populationId=?")
-				.setInteger(0, populationId)
-				.uniqueResult();
+			.setInteger(0, populationId)
+			.uniqueResult();
 		return sex;
 	}
 
@@ -140,14 +136,13 @@ public class UnidimensionalStatisticsDAOImpl extends StatisticsDAOImpl implement
 	 * Return the organisation associated to this colony
 	 * @param colony The colony id
 	 */
+	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	public List<Organisation> getOrganisationsByColonyAndParameter(String colony, Parameter parameter) {
-		@SuppressWarnings("unchecked")
-		List<Organisation> organisations = (List<Organisation>) getCurrentSession().createQuery("SELECT DISTINCT c.organisation FROM UnidimensionalMutantView c WHERE c.colony=? and c.parameter=?")
-				.setString(0, colony)
-				.setInteger(1, parameter.getId())
-				.list();
-		return organisations;
+		return (List<Organisation>) getCurrentSession().createQuery("SELECT DISTINCT c.organisation FROM UnidimensionalMutantView c WHERE c.colony=? and c.parameter=?")
+			.setString(0, colony)
+			.setInteger(1, parameter.getId())
+			.list();
 	}
 		
 
@@ -158,26 +153,14 @@ public class UnidimensionalStatisticsDAOImpl extends StatisticsDAOImpl implement
 	 * @throws SQLException if there's an error accessing the database
 	 */
 	@Transactional(readOnly = false)
-	public void deleteUnidimensionalResultByParameter(Parameter parameter) 
-		throws SQLException {
-
-		Statement statement = getConnection().createStatement();
+	public void deleteUnidimensionalResultByParameter(Parameter parameter) throws SQLException {
 
 		String query = "DELETE FROM stats_unidimensional_results"
 				+ " WHERE parameter_id=" 
 				+ parameter.getId();
 
-		try {
+		try(Statement statement = getConnection().createStatement()) {
 			statement.executeUpdate(query);
-		} finally {
-			statement.close();
-	        if (statement != null) {
-	        	try { 
-	        		statement.close(); 
-	        	} catch (SQLException e) {
-	        		log.error(e.getLocalizedMessage());
-	        	}
-	        }
 		}
 	}
 
@@ -350,12 +333,8 @@ public class UnidimensionalStatisticsDAOImpl extends StatisticsDAOImpl implement
 				resultsList.add(row);
 			}
 		}
-
 		
-
 		return resultsList;
 	}
-
-
 
 }
