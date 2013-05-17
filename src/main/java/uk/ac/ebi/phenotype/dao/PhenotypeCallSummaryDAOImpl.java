@@ -23,12 +23,16 @@ package uk.ac.ebi.phenotype.dao;
  * @since May 2012
  */
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.Datasource;
@@ -37,16 +41,11 @@ import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
+@Service
 public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements PhenotypeCallSummaryDAO {
 
-	/**
-	 * Creates a new Hibernate pipeline data access manager.
-	 * @param sessionFactory the Hibernate session factory
-	 */
-	public PhenotypeCallSummaryDAOImpl(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
-	
+	@Autowired
+	private SessionFactory sessionFactory;
 	
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
@@ -112,19 +111,38 @@ public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements Phe
 	}	
 
 	@Transactional(readOnly = false)
-	public int deletePhenotypeCallSummariesByDatasource(Datasource datasource) {
+	public void deletePhenotypeCallSummariesByDatasource(Datasource datasource) throws SQLException {
 
-		Session session = sessionFactory.openSession();
-		Transaction tx = session.beginTransaction();
+//		Session session = sessionFactory.openSession();
+//		Transaction tx = session.beginTransaction();
+//
+//		// execute the delete query
+//		String hqlDelete = "delete PhenotypeCallSummary as c where c.datasource.id = ?";
+//		int deletedEntities = session.createQuery(hqlDelete)
+//			.setInteger(0, datasource.getId())
+//			.executeUpdate();
+//		tx.commit();
+//		session.close();
+//		return deletedEntities;
+		
+		
+		String sql = "DELETE from phenotype_call_summary WHERE external_db_id=?";
 
-		// execute the delete query
-		String hqlDelete = "delete PhenotypeCallSummary as c where c.datasource.id = ?";
-		int deletedEntities = session.createQuery(hqlDelete)
-			.setInteger(0, datasource.getId())
-			.executeUpdate();
-		tx.commit();
-		session.close();
-		return deletedEntities;
+		try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
+			stmt.setInt(1, datasource.getId());
+			stmt.executeUpdate();
+		} 
+		
+	}
+
+	@Transactional(readOnly = false)
+	public void deleteCategoricalResults() throws SQLException {
+
+		String query = "TRUNCATE TABLE stats_categorical_results";
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+			statement.executeUpdate();
+		}
 	}
 
 	@Override
