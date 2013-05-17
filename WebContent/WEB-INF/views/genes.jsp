@@ -10,7 +10,7 @@
 	<jsp:attribute name="footer">
 
 	<c:if test="${phenotypeStarted && !isLive}">
-	<script type="text/javascript" src="${drupalBaseUrl}/heatmap/js/heatmap.1.1.js"></script>
+	<script type="text/javascript" src="${drupalBaseUrl}/heatmap/js/heatmap.1.2.js"></script>
 	<!--[if IE 8]>
         <script type="text/javascript">
         dcc.ie8 = true;
@@ -90,13 +90,13 @@
 
 	<c:if test="${phenotypeStarted && !isLive}">
         <!--[if !IE]><!-->
-        <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.1.css">
+        <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.2.css">
         <!--<![endif]-->
         <!--[if IE 8]>
-        <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmapIE8.1.1.css">
+        <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmapIE8.1.2.css">
         <![endif]-->
         <!--[if gte IE 9]>
-        <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.1.css">
+        <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.2.css">
         <![endif]-->
 	</c:if>
         
@@ -177,8 +177,8 @@
 
 		<div class="row-fluid">
 			<div class="container span12">
-				<button type="button" data-toggle="collapse" data-target="#other_ids" id="showGBrowser">Show/Hide Genome Browser</button>
-				<div id="other_ids" class="collapse">
+				<button type="button" id="showGBrowser">Show/Hide Genome Browser</button>
+				<div id="gBrowserDiv" >
 					<div class="container span6" id="geneLocation1">Gene&nbsp;Location: Chr<span id='chr'>${gene.sequenceRegion.name}</span>:<span id='geneStart'>${gene.start}</span>-<span id='geneEnd'>${gene.end}</span></div>
 					<div class="container span6" >Gene Type: ${gene.subtype.name}</div>
 					<span id="genomicBrowserInfo">
@@ -217,7 +217,7 @@
 	<c:if test="${phenotypeStarted}">
 	<div class="row-fluid dataset">
 		<div class="row-fluid container clearfix" style="float:none;">
-			<h4 class="caption">PreQC phenotype heatmap</h4>
+			<h4 class="caption">Preliminary phenotype heatmap</h4>
 			<table class="table">
 			<tr><th>Allele</th><th>Genetic Background</th><th>Phenotyping Center</tr>
 			<c:forEach items="${allColonyStatus}" var="colonyStatus">
