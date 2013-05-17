@@ -36,7 +36,8 @@ import uk.ac.ebi.phenotype.imaging.springrest.images.Images;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesDao;
 
 
-@Controller
+@Controller("restfulImagesController")
+@RequestMapping("/rest")
 public class ImagesController {
 	
 	private ImagesDao imagesDao;
@@ -104,7 +105,8 @@ public class ImagesController {
 	@ExceptionHandler(Exception.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	@ResponseBody
-	public String handleException(GenomicFeatureNotFoundException exception, HttpServletResponse response) throws IOException {
+	public String handleException(Exception e, HttpServletResponse response) throws IOException {
+		e.printStackTrace();
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		response.setContentType("text/plain");
 		return "Not found";
