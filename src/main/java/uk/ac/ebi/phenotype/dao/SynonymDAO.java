@@ -29,7 +29,7 @@ import uk.ac.ebi.phenotype.pojo.Synonym;
 
 
 
-public interface SynonymDAO {
+public interface SynonymDAO extends HibernateDAO {
 
 	/**
 	 * Get all synonyms in the database
