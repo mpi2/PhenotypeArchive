@@ -36,6 +36,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.bean.GenomicFeatureBean;
@@ -44,16 +46,11 @@ import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 
 
 
-public class GenomicFeatureDAOImpl extends HibernateDAOImpl implements
-		GenomicFeatureDAO {
+@Service
+public class GenomicFeatureDAOImpl extends HibernateDAOImpl implements GenomicFeatureDAO {
 
-	/**
-	 * Creates a new Hibernate GenomicFeature data access manager.
-	 * @param sessionFactory the Hibernate session factory
-	 */
-	public GenomicFeatureDAOImpl(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
+	@Autowired
+	SessionFactory sessionFactory;
 	
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
