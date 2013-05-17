@@ -27,7 +27,7 @@ import java.util.List;
 
 import uk.ac.ebi.phenotype.pojo.Organisation;
 
-public interface OrganisationDAO {
+public interface OrganisationDAO extends HibernateDAO {
 
 	/**
 	 * Get all organisations
