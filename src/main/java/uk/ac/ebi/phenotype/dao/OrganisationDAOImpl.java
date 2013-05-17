@@ -26,19 +26,17 @@ package uk.ac.ebi.phenotype.dao;
 import java.util.List;
 
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.Organisation;
 
+@Service
 public class OrganisationDAOImpl extends HibernateDAOImpl implements OrganisationDAO {
 
-	/**
-	 * Creates a new Hibernate organisation data access manager.
-	 * @param sessionFactory the Hibernate session factory
-	 */
-	public OrganisationDAOImpl(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
+	@Autowired
+	private SessionFactory sessionFactory;
 
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
