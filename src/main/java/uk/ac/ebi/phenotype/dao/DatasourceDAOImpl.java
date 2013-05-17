@@ -26,18 +26,17 @@ package uk.ac.ebi.phenotype.dao;
 import java.util.List;
 
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.Datasource;
 
+@Service
+public class DatasourceDAOImpl extends HibernateDAOImpl implements DatasourceDAO {
 
-
-public class DatasourceDAOImpl extends HibernateDAOImpl implements
-		DatasourceDAO {
-
-	public DatasourceDAOImpl(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
+	@Autowired
+	SessionFactory sessionFactory;
 	
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
