@@ -29,7 +29,7 @@ import uk.ac.ebi.phenotype.pojo.Datasource;
 
 
 
-public interface DatasourceDAO {
+public interface DatasourceDAO extends HibernateDAO {
 
 	public List<Datasource> getAllDatasources();
 	
