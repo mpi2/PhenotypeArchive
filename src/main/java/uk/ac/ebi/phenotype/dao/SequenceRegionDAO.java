@@ -30,7 +30,7 @@ import uk.ac.ebi.phenotype.pojo.SequenceRegion;
 
 
 
-public interface SequenceRegionDAO {
+public interface SequenceRegionDAO extends HibernateDAO {
 
 	/**
 	 * Get all sequence region
