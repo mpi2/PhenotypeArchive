@@ -28,6 +28,8 @@ import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
@@ -36,15 +38,11 @@ import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.LiveSample;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 
+@Service
 public class BiologicalModelDAOImpl extends HibernateDAOImpl implements BiologicalModelDAO {
 
-	/**
-	 * Creates a new Hibernate project data access manager.
-	 * @param sessionFactory the Hibernate session factory
-	 */
-	public BiologicalModelDAOImpl(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
+	@Autowired
+	SessionFactory sessionFactory;
 	
 	@Transactional(readOnly = false)
 	public void saveBiologicalSample(BiologicalSample sample) {
