@@ -71,6 +71,8 @@ public class PhenotypesController {
 	@Autowired
 	private PhenotypeCallSummaryDAO phenoDAO;
 
+	@Autowired
+	private SolrIndex solrIndex;
 	
 	@Autowired
 	private PhenotypePipelineDAO pipelineDao;
@@ -117,7 +119,7 @@ public class PhenotypesController {
 
 		try {
 
-			JSONObject mpData = new SolrIndex(config)
+			JSONObject mpData = solrIndex
 				.getMpData(phenotype_id)
 				.getJSONObject("response")
 				.getJSONArray("docs")
@@ -226,17 +228,12 @@ public class PhenotypesController {
 		}
 		model.addAttribute("phenotypes", new ArrayList<PhenotypeRow>(phenotypes.keySet()));
 
-		/**
-		 * 
-		 */
-
 		model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
 
 		return "phenotypes";
 	}	
 
 
-	
 	
 	@ExceptionHandler(OntologyTermNotFoundException.class)
 	public ModelAndView handleGenomicFeatureNotFoundException(OntologyTermNotFoundException exception) {
