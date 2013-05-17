@@ -34,11 +34,9 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.transaction.annotation.Transactional;
-
-import uk.ac.ebi.phenotype.pojo.Datasource;
-import uk.ac.ebi.phenotype.pojo.Organisation;
 
 /*
 * Implementation of the HibernateDAO interface
@@ -52,6 +50,7 @@ public class HibernateDAOImpl implements HibernateDAO {
 	/**
 	 * The session factory used to query the database
 	 */
+	@Autowired
 	protected SessionFactory sessionFactory;
 	
 	/**
