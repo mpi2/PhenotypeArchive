@@ -29,7 +29,7 @@ import uk.ac.ebi.phenotype.pojo.CoordinateSystem;
 
 
 
-public interface CoordinateSystemDAO {
+public interface CoordinateSystemDAO extends HibernateDAO {
 
 	/**
 	 * Get all coordinate systems
