@@ -31,7 +31,7 @@ import uk.ac.ebi.phenotype.pojo.Labcode;
 /**
  * Manages access to lacode information.
  */
-public interface LabcodeDAO {
+public interface LabcodeDAO extends HibernateDAO {
 
 	/**
 	 * Get all accounts in the system
