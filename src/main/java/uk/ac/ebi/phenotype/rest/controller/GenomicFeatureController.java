@@ -48,19 +48,8 @@ import uk.ac.ebi.phenotype.rest.util.AtomUtil;
 @Controller
 public class GenomicFeatureController {
 
+	@Autowired
 	private GenomicFeatureDAO genomicFeatureDAO;
-	
-	public void setGenomicFeatureDAO(GenomicFeatureDAO dao) {
-		this.genomicFeatureDAO = dao;
-	}
-	
-	/**
-	 * Creates a new GenomicFeatureController with a given genomicFeature manager.
-	 */
-	@Autowired 
-	public GenomicFeatureController(GenomicFeatureDAO genomicFeatureDAO) {
-		this.genomicFeatureDAO = genomicFeatureDAO;
-	}
 	
 	private Jaxb2Marshaller jaxb2Mashaller;
     
