@@ -30,7 +30,7 @@ import java.util.List;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 
 
-public interface OntologyTermDAO {
+public interface OntologyTermDAO extends HibernateDAO {
 
 	public List<OntologyTerm> getAllOntologyTerms();
 	
