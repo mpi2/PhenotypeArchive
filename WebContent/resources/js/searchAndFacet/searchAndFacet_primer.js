@@ -40,9 +40,13 @@ $(document).ready(function(){
 	// search via ENTER
 	$('input#userInput').keyup(function (e) {		
 	    if (e.keyCode == 13) { // user hits enter
-	    	var input = $('input#userInput').val();	      
-	    	input = input == '' ? '*:*' : input;	    	    	
-	    	document.location.href = baseUrl + '/search#q=' + input;
+	    	var input = $('input#userInput').val();
+	    	if (input == ''){
+	    		document.location.href = baseUrl + '/search';
+	    	}
+	    	else {
+	    		document.location.href = baseUrl + '/search#q=' + input;
+	    	}
 	    }
 	}).click(function(){
 		$(this).val(''); // clears input 
@@ -51,43 +55,14 @@ $(document).ready(function(){
 	// search via button click
 	$('button#acSearch').click(function(){
 		var input = $('input#userInput').val();
-		input = input == '' ? '*:*' : input;			
-		document.location.href = baseUrl + '/search#q=' + input;
-	});
-			
-	// auto-complete is always created
-	// load total facetCount of all data types by default when searchAndFacet page loads
-	/*window.jQuery('input#userInput').mpi2AutoComplete({
-		
-			solrBaseURL_bytemark: MPI2.searchAndFacetConfig.solrBaseURL_bytemark,			
-			solrBaseURL_ebi: MPI2.searchAndFacetConfig.solrBaseURL_ebi,
-			search_pathname: pathname,			        
-			
-			loadSideBar: function(event, data){					
-				//console.log('loadSideBar: q: '+ data.q + ' core: ' + data.core + ' fq: ' + data.fq);
-				// calls left side bar widget	
-						
-				window.jQuery('div#leftSideBar').mpi2LeftSideBar({  
-					data: data, // key q: query string
-			        geneGridElem: 'div#mpi2-search'			                                      
-				});				
-			},
-			redirectedSearch: function(event, data){				
-				// Make a hidden form on your page, and submit it here.
-					
-			    var form = "<form id='hiddenSrch' action='" + pathname + "' method='get'>"				
-			    		 + "<input type='text' name='core' value='" + data.core + "'>"
-			             + "<input type='text' name='fq' value=" + encodeURI(data.fq) + ">"			                                
-			             + "<input type='text' name='q' value='" + data.q + "'>"
-			             + "</form>";                     
+		if (input == ''){
+    		document.location.href = baseUrl + '/search';
+    	}
+    	else {
+    		document.location.href = baseUrl + '/search#q=' + input;
+    	}		
+	});		
 
-			    window.jQuery('div#bannerSearch').append(form);
-			    window.jQuery('form#hiddenSrch').hide().submit();			    
-		   } 
-		}).click(function(){
-				window.jQuery(this).val('');
-				//$('span.facetCount').text('');			
-	}); */
 	
 	// dynamically readjusted position of autosuggest dropdown list due to elastic design of page
 	window.jQuery(window).resize(function(){
