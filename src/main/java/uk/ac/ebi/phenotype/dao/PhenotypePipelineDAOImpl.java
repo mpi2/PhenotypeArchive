@@ -34,6 +34,8 @@ import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.Datasource;
@@ -47,17 +49,13 @@ import uk.ac.ebi.phenotype.pojo.Procedure;
 
 
 
+@Service
 public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements PhenotypePipelineDAO {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
-	/**
-	 * Creates a new Hibernate pipeline data access manager.
-	 * @param sessionFactory the Hibernate session factory
-	 */
-	public PhenotypePipelineDAOImpl(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
+	@Autowired
+	private SessionFactory sessionFactory;
 	
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
