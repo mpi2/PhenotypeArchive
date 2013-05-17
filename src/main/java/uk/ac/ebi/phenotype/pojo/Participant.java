@@ -23,6 +23,8 @@ package uk.ac.ebi.phenotype.pojo;
  * @since February 2012
  */
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -32,7 +34,9 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "participant")
-public class Participant {
+public class Participant implements Serializable {
+
+	private static final long serialVersionUID = -4536814035935260098L;
 
 	@Id
 	@OneToOne
