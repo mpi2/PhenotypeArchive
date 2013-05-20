@@ -19,7 +19,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -129,14 +128,14 @@ public class FileExportController {
 					length = parseMaxRow(solrParams); // this is the facetCount				
 				}
 									
-				JSONObject json = solrIndex.getDataTableExportRows(fileType, solrCoreName, solrParams, rowStart, showImgView, gridFields, request, length);
+				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
 				List<String> rows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);
 
 			// Remove the title row (row 0) from the list and assign it to
 			// the string array for the spreadsheet
 			String[] titles = rows.remove(0).split("\t");
 				
-				Wb = new ExcelWorkBook(titles, solrIndex.composeXlsTableData(rows), sheetName);
+				Wb = new ExcelWorkBook(titles, composeXlsTableData(rows), sheetName);
 			}
 			
 			wb = Wb.fetchWorkBook();
@@ -158,7 +157,7 @@ public class FileExportController {
 					length = 50000;
 				}
 
-				JSONObject json = solrIndex.getDataTableExportRows(fileType, solrCoreName, solrParams, rowStart, showImgView, gridFields, request, length);
+				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
 				dataString = StringUtils.join(composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request), "\n");
 
 			}
@@ -211,7 +210,28 @@ public class FileExportController {
 			}
 		}		
 		return facetCount;
-	}	
+	}
+
+	public String[][] composeXlsTableData(List<String> rows) {
+
+		int rowNum = rows.size();// - 1; // omit title row
+		int colNum = (rows.size() > 0) ? rows.get(0).split("\t").length : 0;
+		
+		String[][] tableData = new String[rowNum][colNum];
+		
+		// add one to omit title row
+		for( int i=0; i<rowNum; i++ ){
+
+			String[] colVals = rows.get(i).split("\t");
+
+			for (int j=0; j<colVals.length; j++) {				
+				tableData[i][j] = colVals[j];
+			}
+		}
+		return tableData;
+	}
+	
+
 	public List<String> composeDataTableExportRows(String solrCoreName, JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request){
 		List<String> rows = null;
 
@@ -302,7 +322,7 @@ public class FileExportController {
 				String[] names = sumFacets.get(i).toString().split("_");
 				if (names.length == 2 ){  // only want facet value of xxx_yyy
 					String annotName = names[0];
-					HashMap<String, String> hm = solrIndex.renderFacetField(names, request); //MA:xxx, MP:xxx, MGI:xxx, exp					
+					Map<String, String> hm = solrIndex.renderFacetField(names, request.getParameter("baseUrl")); //MA:xxx, MP:xxx, MGI:xxx, exp					
 									
 					data.add(hm.get("label").toString());
 					data.add(annotName);
