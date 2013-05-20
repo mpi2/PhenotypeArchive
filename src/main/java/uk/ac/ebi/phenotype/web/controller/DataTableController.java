@@ -18,7 +18,6 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -413,7 +412,7 @@ public class DataTableController {
 
 					List<String> rowData = new ArrayList<String>();
 
-					HashMap<String, String> hm = solrIndex.renderFacetField(names, request); //MA:xxx, MP:xxx, MGI:xxx, exp				
+					Map<String, String> hm = solrIndex.renderFacetField(names, request.getParameter("baseUrl")); //MA:xxx, MP:xxx, MGI:xxx, exp				
 					String displayAnnotName = "<span class='annotType'>" + hm.get("label").toString() + "</span>: " + hm.get("link").toString();
 					String facetField = hm.get("field").toString();
 
