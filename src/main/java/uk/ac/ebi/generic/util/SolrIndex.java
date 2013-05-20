@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -39,101 +38,126 @@ import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 @Service
 public class SolrIndex {
-	
+
 	private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
-	
+
+
 	/**
-	 * Return the number of documents found for a specifed solr query on a
-	 * specified core
-	 * @param query the query
-	 * @param core which solr core to query
-	 * @param mode which configuration mode to operate in
-	 * @param solrParams the default solr params to also restricy the query
+	 * Return the number of documents found for a specified solr query on a
+	 * specified core.
+	 * 
+	 * @param query
+	 *            the query
+	 * @param core
+	 *            which solr core to query
+	 * @param mode
+	 *            which configuration mode to operate in
+	 * @param solrParams
+	 *            the default solr parameters to also restrict the query
 	 * @return integer count of the number of matching documents
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public Integer getNumFound(String query, String core, String mode, String solrParams) throws IOException, URISyntaxException {
+	public Integer getNumFound(String query, String core, String mode,
+			String solrParams) 
+			throws IOException, URISyntaxException {
 		JSONObject json = getResults(composeSolrUrl(core, mode, query, solrParams, 0, 0, false));
-		JSONObject response = json.getJSONObject("response");
-		return response.getInt("numFound");
+		return json.getJSONObject("response").getInt("numFound");
 	}
 
+
 	/**
-	 * Gets the json string representation for the query 
-	 * @param query the query for which documents
-	 * @param core the solr core to query
-	 * @param gridSolrParams the default solr parameters to append to the query
-	 * @param mode the configuration mode to operate in
-	 * @param iDisplayStart where to start the offset 
-	 * @param iDisplayLength how many documents to return
-	 * @param showImgView is this query showing the annotation view of the images (true/false) 
+	 * Gets the json string representation for the query.
+	 * 
+	 * @param query
+	 *            the query for which documents
+	 * @param core
+	 *            the solr core to query
+	 * @param gridSolrParams
+	 *            the default solr parameters to append to the query
+	 * @param mode
+	 *            the configuration mode to operate in
+	 * @param start
+	 *            where to start the offset
+	 * @param length
+	 *            how many documents to return
+	 * @param showImgView
+	 *            is this query showing the annotation view of the images
+	 *            (true/false)
 	 * @return
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
 	public JSONObject getDataTableJson(String query, String core,
-			String gridSolrParams, String mode, int iDisplayStart,
-			int iDisplayLength, boolean showImgView)
-			throws IOException, URISyntaxException {
+			String gridSolrParams, String mode, int start,
+			int length, boolean showImgView) throws IOException,
+			URISyntaxException {
 
 		if (gridSolrParams.equals("")) {
 			gridSolrParams = "qf=auto_suggest&defType=edismax&wt=json&q=*:*";
 		}
 
-		return getResults(composeSolrUrl(core, mode, query, gridSolrParams, iDisplayStart, iDisplayLength, showImgView));
+		return getResults(composeSolrUrl(core, mode, query, gridSolrParams, start, length, showImgView));
 
 	}
 
-	// populating jQuery dataTable on the server-side
-	// handling saving jQuery dataTable data to external files
-	public JSONObject getDataTableExportRows(String fileType, String core,
-			String gridSolrParams, int rowStart, boolean showImgView,
-			String gridFields, HttpServletRequest request, Integer iDisplayLength)
-			throws IOException, URISyntaxException {
+
+	/**
+	 * Get rows for saving to an external file.
+	 * 
+	 * @param core
+	 *            the solr core to query
+	 * @param gridSolrParams
+	 *            the default parameters to use in the query
+	 * @param start
+	 *            where to start the query
+	 * @param gridFields
+	 *            the default solr parameters to append to the query
+	 * @param length
+	 *            how many documents to return
+	 * @return json representation of the results of the solr query
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	public JSONObject getDataTableExportRows(String core,
+			String gridSolrParams, String gridFields,
+			int start, int length) throws IOException, URISyntaxException {
 
 		if (core.equals("gene")) {
 			gridFields += ",imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,ikmc_project";
 		}
 
-		String newgridSolrParams = gridSolrParams + "&rows=" + iDisplayLength + "&start=" + rowStart + "&fl=" + gridFields;		
+		String newgridSolrParams = gridSolrParams + "&rows=" + length + "&start=" + start + "&fl=" + gridFields;
 
-		String url = composeSolrUrl(core, "", "", newgridSolrParams, rowStart, iDisplayLength, false);
-		System.out.println(url);
-		return fetchJsonforDataTableExport(url, core);
-	}
+		String url = composeSolrUrl(core, "", "", newgridSolrParams, start, length, false);
+		log.debug("Export data URL: " + url);
+		return getResults(url);
+	}	
 
-	public JSONObject fetchJsonforDataTableExport(String urlString, String solrCoreName) throws IOException, URISyntaxException {
-	
-		JSONObject j = getResults(urlString);
 
-		return j;	
-	}
-	
-	public String[][] composeXlsTableData(List<String> rows) {
-
-		int rowNum = rows.size();// - 1; // omit title row
-		int colNum = (rows.size() > 0) ? rows.get(0).split("\t").length : 0;
-		
-		String[][] tableData = new String[rowNum][colNum];
-		
-		// add one to omit title row
-		for( int i=0; i<rowNum; i++ ){
-
-			String[] colVals = rows.get(i).split("\t");
-
-			for (int j=0; j<colVals.length; j++) {				
-				tableData[i][j] = colVals[j];
-			}
-		}
-		return tableData;
-	}
-	
-
-	
+	/**
+	 * Prepare a url for querying the solr indexes based on the passed in
+	 * arguments.
+	 * 
+	 * @param core
+	 *            which solr core to query
+	 * @param mode
+	 *            which configuration mode to operate in
+	 * @param query
+	 *            what to query
+	 * @param gridSolrParams
+	 *            default parameters to add to the solr query
+	 * @param iDisplayStart
+	 *            starting point of the query
+	 * @param iDisplayLength
+	 *            length of the query
+	 * @param showImgView
+	 *            which image mode to operate in
+	 * @return the constructed url including all parameters
+	 */
 	private String composeSolrUrl(String core, String mode, String query, String gridSolrParams, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView) {
 		String internalSolrUrl = config.get("internalSolrUrl");
 
@@ -188,70 +212,77 @@ public class SolrIndex {
 	}
 	
 
-	
-	
+	/**
+	 * Get the latest phenotyping status for a document.
+	 * 
+	 * @param doc
+	 *            represents a gene with imits status fields
+	 * @return the latest status (Complete or Started or Phenotype Attempt
+	 *         Registered) as appropriate for this gene
+	 */
 	public String deriveLatestPhenotypingStatus(JSONObject doc){	
 		
 		// order of status: latest to oldest (IMPORTANT for deriving correct status)
-		// returns the latest status (Complete or Started or Phenotype Attempt Registered)		
 		
-		//Phenotyping complete
 		try {
-			if ( doc.getJSONArray("imits_phenotype_complete").size() > 0) {
+			// Phenotyping complete
+			if (doc.containsKey("imits_phenotype_complete")) {
 				JSONArray complete = doc.getJSONArray("imits_phenotype_complete");
-				for(Object c : complete){
-					if ( c.toString().equals("1") ){
+				for (Object c : complete) {
+					if (c.toString().equals("1")) {
 						return "Complete";
-					}					
-				}				
-			}
-		} 
-		catch (Exception e) {		   		
-			//e.printStackTrace();
-		}
-		
-		//Phenotyping started
-		try {
-			if ( doc.getJSONArray("imits_phenotype_started").size() > 0) {	 
-				JSONArray started = doc.getJSONArray("imits_phenotype_started");
-				for(Object s : started){
-					if ( s.toString().equals("1") ){
-						return "Started";
-					}					
+					}
 				}
 			}
-		} 
-		catch (Exception e) {		  			
-		    //e.printStackTrace();
-		}
-		
-		//Phenotype Attempt Registered
-		try {	
-			if ( doc.getJSONArray("imits_phenotype_status").size() > 0 ){
-				JSONArray statuses = doc.getJSONArray("imits_phenotype_status");
-				for(Object s : statuses){
-					if ( s.toString().equals("Phenotype Attempt Registered") ){
-						return "Attempt Registered";
-					}					
-				}							
+
+			// Phenotyping started
+			if (doc.containsKey("imits_phenotype_started")) {
+				JSONArray started = doc.getJSONArray("imits_phenotype_started");
+				for (Object s : started) {
+					if (s.toString().equals("1")) {
+						return "Started";
+					}
+				}
 			}
-		} 
-		catch (Exception e) {		 			
-		    //e.printStackTrace();
-		}	
+
+			// Phenotype Attempt Registered
+			if (doc.containsKey("imits_phenotype_status")) {
+				JSONArray statuses = doc.getJSONArray("imits_phenotype_status");
+				for (Object s : statuses) {
+					if (s.toString().equals("Phenotype Attempt Registered")) {
+						return "Attempt Registered";
+					}
+				}
+			}
+		} catch (Exception e) {
+			log.error("Error getting phenotyping status");
+			log.error(e.getLocalizedMessage());
+		}
 		
 		// if all the above fails: no phenotyping data yet
 		return "Not Applicable";
 	}
 
-	public HashMap<String, String> renderFacetField(String[] names, HttpServletRequest request){				
-			
-		HashMap<String, String> hm = new HashMap<String, String>(); // key: display label, value: facetField
+
+	/**
+	 * Generates a map of label, field, link representing a facet field
+	 * 
+	 * @param names
+	 *            an array of strings representing the facet ID and the name of
+	 *            the facet
+	 * @param baseUrl
+	 *            the base url of the generated links
+	 * @return a map represneting the facet, facet label and link
+	 */
+	public Map<String, String> renderFacetField(String[] names, String baseUrl){				
+
+		// key: display label, value: facetField
+		Map<String, String> hm = new HashMap<String, String>();
 		String name = names[0];
 		String id = names[1];	
 		
 		if ( id.startsWith("MP:")){	
-			String url = request.getAttribute("baseUrl") + "/phenotypes/" + id;
+			String url = baseUrl + "/phenotypes/" + id;
 			hm.put("label", "MP");
 			hm.put("field", "annotationTermName");
 			hm.put("link", "<a href='" + url + "'>"+ name + "</a>");			
@@ -267,34 +298,51 @@ public class SolrIndex {
 			hm.put("link", name);
 		}
 		else if (id.startsWith("MGI:")){
-			String url = request.getAttribute("baseUrl") + "/genes/" + id;
+			String url = baseUrl + "/genes/" + id;
 			hm.put("label", "Gene");
 			hm.put("field", "symbol");
 			hm.put("link", "<a href='" + url + "'>"+ name + "</a>");
 		}	
 		return hm;
 	}
-	
-	public JSONArray mergeFacets(JSONObject facetFields){
+
+
+	/**
+	 * Merge all the facets together based on whether they include an underscore
+	 * because underscore facet names means that the solr field name represents
+	 * a facet and it's identifier, which are the ones we are concerned with.
+	 * 
+	 * Each facet is formatted as an array where, starting at the zeroth
+	 * element, it alternates between facet name and count for that facet
+	 * 
+	 * @param facetFields
+	 *            the json representation of all the facets as arrays
+	 * @return a json array which combined all the passed in facets filtered for
+	 *         inclusion of underscore
+	 */
+	public JSONArray mergeFacets(JSONObject facetFields) {
 
 		JSONArray fields = new JSONArray();
-		
-		List<String> facetNames = new ArrayList<String>() {{
-			add("symbol_gene");
-			add("expName_exp");
-			add("mpTermName");
-			add("maTermName");
-		}};
 
-		for (String facet : facetNames){
+		// Initialize a list on creation using an inner anonymous class
+		List<String> facetNames = new ArrayList<String>() {
+			private static final long serialVersionUID = 1L;
+			{
+				add("symbol_gene");
+				add("expName_exp");
+				add("mpTermName");
+				add("maTermName");
+			}
+		};
+		for (String facet : facetNames) {
+
 			JSONArray arr = facetFields.getJSONArray(facet);
-
-			for (int i=0; i < arr.size(); i=i+2) {
+			for (int i = 0; i < arr.size(); i = i + 2) {
 				// We only want facet fields that contain an underscore
 				// as it contains ID info we want
 				if (((String) arr.get(i)).contains("_")) {
 					fields.add(arr.get(i));
-					fields.add(arr.get(i + 1));					
+					fields.add(arr.get(i + 1));
 				}
 			}
 		}
@@ -302,29 +350,33 @@ public class SolrIndex {
 		return fields;
 	}
 
+
 	/**
 	 * Get the IMPC status for a gene identified by accession id.
 	 * 
-	 * @param accession the MGI id of the gene in question
+	 * @param accession
+	 *            the MGI id of the gene in question
 	 * @return the status
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
 	public String getGeneStatus(String accession) throws IOException, URISyntaxException {
-		String url = config.get("internalSolrUrl") + 
-			"/gene/select?wt=json&q=mgi_accession_id:" + 
-			accession.replace(":", "\\:");
+
+		String url = config.get("internalSolrUrl")
+				+ "/gene/select?wt=json&q=mgi_accession_id:"
+				+ accession.replace(":", "\\:");
 
 		log.info("url for geneDao=" + url);
 
-		JSONObject jsonObject = getResults(url);
-		JSONArray docs = jsonObject.getJSONObject("response").getJSONArray("docs");
+		JSONObject json = getResults(url);
+		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
 		if (docs.size() > 1) {
 			log.error("Error, Only expecting 1 document from an accession/gene request");
 		}
 
 		String geneStatus = docs.getJSONObject(0).getString("status");
+
 		log.debug("gene status=" + geneStatus);
 
 		return geneStatus;
@@ -334,34 +386,38 @@ public class SolrIndex {
 	/**
 	 * Get the results of a query from the provided url.
 	 * 
-	 * @param url the URL from which to get the content
+	 * @param url
+	 *            the URL from which to get the content
 	 * @return a JSONObject representing the result of the query
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
 	public JSONObject getResults(String url) throws IOException, URISyntaxException {
-		String content = "";
 
-		log.debug("GETTING CONTENT FROM: "+url);
+		log.debug("GETTING CONTENT FROM: " + url);
 
 		HttpProxy proxy = new HttpProxy();
-		content = proxy.getContent(new URL(url));
+		String content = proxy.getContent(new URL(url));
 
 		return (JSONObject) JSONSerializer.toJSON(content);
 	}
 
+
 	/**
-	 * Get the results of a query from the provided url.
+	 * Get the results of a query from the provided url using a proxy that
+	 * includes the drupal session cookie.
 	 * 
-	 * @param url the URL from which to get the content
+	 * @param url
+	 *            the URL from which to get the content
 	 * @return a JSONObject representing the result of the query
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public JSONObject getResults(DrupalHttpProxy drupalProxy, String url) throws IOException, URISyntaxException {
+	public JSONObject getResults(DrupalHttpProxy drupalProxy, String url)
+			throws IOException, URISyntaxException {
 		String content = "";
 
-		log.debug("GETTING CONTENT FROM: "+url);
+		log.debug("GETTING CONTENT FROM: " + url);
 
 		if (drupalProxy != null) {
 			content = drupalProxy.getContent(new URL(url));
@@ -372,24 +428,27 @@ public class SolrIndex {
 		return (JSONObject) JSONSerializer.toJSON(content);
 	}
 
+
 	/**
-	 * This method returns a list of phenotype status for every allele in IMPC
+	 * Returns a list of phenotype status for every allele in IMPC
+	 * 
 	 * @param accession
-	 * @return
+	 *            the gene accession id to get the phenotype statuses for
+	 * @return a list of colony status objects
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
 	public List<ColonyStatus> getGeneColonyStatus(String accession) throws IOException, URISyntaxException {
 
-		// The proxy must have access to the current request because it will
-		// send the DRUPAL cookie along
 		String url = config.get("internalSolrUrl") + "/" + "gene" + "/select?"
 				+ "q=mgi_accession_id:" + accession.replace(":", "\\:")
 				+ "&wt=json";
+
 		log.info("url for geneDao=" + url);
-		JSONObject jsonObject = getResults(url);
-		JSONArray docs = jsonObject.getJSONObject("response").getJSONArray(
-				"docs");
+
+		JSONObject json = getResults(url);
+		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
+
 		if (docs.size() > 1) {
 			log.error("Error, Only expecting 1 document from an accession/gene request");
 		}
@@ -442,12 +501,23 @@ public class SolrIndex {
 		return results;
 	}
 
-	public JSONObject getMpData(String phenotype_id) throws IOException, URISyntaxException {
-		System.out.println(this.config);
-		String url = config.get("internalSolrUrl") + "/mp/select?";
-		url += "q=" + phenotype_id + "&wt=json&qf=auto_suggest&defType=edismax";
-		return getResults(url);
 
+	/**
+	 * Get the MP solr document associated to a specific MP term. The document
+	 * contains the relations to MA terms and sibling MP terms
+	 * 
+	 * @param phenotype_id
+	 *            the MP term in question
+	 * @return a (json) solr document with the results of doing a solr query on
+	 *         the mp index for the mp term in question
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	public JSONObject getMpData(String phenotype_id) throws IOException, URISyntaxException {
+		String url = config.get("internalSolrUrl")
+				+ "/mp/select?wt=json&qf=auto_suggest&defType=edismax&q="
+				+ phenotype_id;
+		return getResults(url);
 	}
 	
 }	
