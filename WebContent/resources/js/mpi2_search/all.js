@@ -1,22 +1,4 @@
-/**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License.  
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * 
- * Allele section of gene details page is using this widget.
- * 
- */
-// Timestamp: 2012-12-21-14:29:12
+// Timestamp: 2013-05-18-10:58:47
 (function ($) {
     'use strict';
 
@@ -981,6 +963,7 @@
             $.MPI2.mpi2SolrGrid.prototype._create.call(self);
 
             self._shouldHideRedundantData = true;
+            self._shouldHideGeneData = true;
 
             self.container.addClass('allele');
             self.lastSearchContainer.hide();
@@ -1084,7 +1067,8 @@
 
             self._hideData(docs, {
                 shouldHideRedundantData: self._shouldHideRedundantData,
-                shouldHideCreKnockIns: self.options.shouldHideCreKnockIns
+                shouldHideCreKnockIns: self.options.shouldHideCreKnockIns,
+                shouldHideGeneData: self._shouldHideGeneData
             });
 
             self._sortDocs(docs);
@@ -1126,6 +1110,12 @@
 
                 if (options.shouldHideCreKnockIns === true) {
                     if (solrDoc.allele_type === 'Cre Knock In') {
+                        keepDoc = false;
+                    }
+                }
+
+                if(options.shouldHideGeneData === true) {
+                    if (solrDoc.type === 'gene') {
                         keepDoc = false;
                     }
                 }
