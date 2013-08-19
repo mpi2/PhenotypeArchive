@@ -12,25 +12,29 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.openqa.selenium.net.EphemeralPortRangeDetector;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.CategoricalGroupKey;
+import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.ParameterOption;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
-@Service
 public class CategoricalStatisticsDAOImpl extends StatisticsDAOImpl implements CategoricalStatisticsDAO {
 
 	private static final Logger log = Logger.getLogger(CategoricalStatisticsDAOImpl.class);
 
-	@Autowired
-	SessionFactory sessionFactory;
+	/**
+	 * Creates a new Hibernate project data access manager.
+	 * @param sessionFactory the Hibernate session factory
+	 */
+	public CategoricalStatisticsDAOImpl(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
 
 	/**
 	 * Get the list of categories that are appropriate for this parameter
@@ -55,13 +59,10 @@ public class CategoricalStatisticsDAOImpl extends StatisticsDAOImpl implements C
 
 		try {
 			Statement stmt = getConnection().createStatement();
-			ResultSet resultSet = stmt
-					.executeQuery("select distinct population_id, organisation_id from stats_mv_control_categorical_values where parameter_id = "
-							+ parameter.getId());
+			ResultSet resultSet = stmt.executeQuery("select distinct id, organisation_id from population where parameter_id = "+ parameter.getId());
 
 			while (resultSet.next()) {
-				data.put(resultSet.getInt("population_id"),
-						resultSet.getInt("organisation_id"));
+				data.put(resultSet.getInt("id"),resultSet.getInt("organisation_id"));
 			}
 			stmt.close();
 		} catch (SQLException e) {
@@ -71,31 +72,32 @@ public class CategoricalStatisticsDAOImpl extends StatisticsDAOImpl implements C
 	}
 
 	@Transactional(readOnly = true)
-	public List<CategoricalGroupKey> getControlCategoricalDataByParameter(
-			Parameter parameter) {
-
+	public List<CategoricalGroupKey> getControlCategoricalDataByParameter(Parameter parameter) throws SQLException {
 		List<CategoricalGroupKey> data = new ArrayList<CategoricalGroupKey>();
 
-		try {
-			Statement stmt = getConnection().createStatement();
-			ResultSet resultSet = stmt
-					.executeQuery("select * from stats_mv_control_categorical_values where parameter_id = "
-							+ parameter.getId());
+		String query = "SELECT co.category, pop.id as population_id, ls.sex FROM observation o"
+			+ " INNER JOIN observation_population op ON o.id=op.observation_id"
+			+ " INNER JOIN biological_sample bs ON o.biological_sample_id=bs.id"
+			+ " INNER JOIN live_sample ls ON ls.id=bs.id"
+			+ " INNER JOIN categorical_observation co ON o.id=co.id"
+			+ " INNER JOIN population pop FORCE INDEX (parameter_idx) ON pop.id=op.population_id"
+			+ " WHERE bs.sample_group='control'"
+			+ " AND pop.parameter_id=?";
 
+		try (PreparedStatement statement = getConnection().prepareStatement(query)){
+	        statement.setInt(1, parameter.getId());
+		    ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
 				CategoricalGroupKey result = new CategoricalGroupKey();
 				result.setCategory(resultSet.getString("category"));
 				result.setParameter(parameter);
 				result.setPopulationId(resultSet.getInt("population_id"));
 				result.setSex(SexType.valueOf(resultSet.getString("sex")));
-				result.setZygosity(null); // Disregard zygostiy for control
-											// groups
+				result.setZygosity(null); // Disregard zygosity for control groups
 				data.add(result);
 			}
-			stmt.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
+
 		return data;
 	}
 
@@ -143,12 +145,12 @@ public class CategoricalStatisticsDAOImpl extends StatisticsDAOImpl implements C
 		log.debug(sex.name() + " " + parameter.getStableId() + " " + category + populationId);
 
 		Long count = null;
-		String sql = "SELECT count(*)  from stats_mv_control_categorical_values  WHERE sex=? AND category=? AND population_id=?";
+		String sql = "SELECT count(*) FROM observation_population op INNER JOIN observation o ON o.id=op.observation_id INNER JOIN population pop ON pop.id=op.population_id WHERE op.population_id=? AND category=? AND pop.sex=?";
 
 		try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
-			stmt.setString(1, sex.name());
+			stmt.setInt(1, populationId.intValue());
 			stmt.setString(2, category);
-			stmt.setInt(3, populationId.intValue());
+			stmt.setString(3, sex.name());
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
 				count = rs.getLong(1);
@@ -184,13 +186,42 @@ public class CategoricalStatisticsDAOImpl extends StatisticsDAOImpl implements C
 		return count;
 	}
 
-	public Integer getPopulationIdByColonySexParameter(String colonyId, SexType sex, Parameter parameter) {
-		Integer populationId = (Integer) getCurrentSession()
-				.createQuery(
-						"SELECT distinct populationId FROM CategoricalMutantView c WHERE c.colony = ? AND c.sex = ? AND c.parameter = ?")
-				.setString(0, colonyId).setString(1, sex.name())
-				.setInteger(2, parameter.getId()).uniqueResult();
+	public Integer getPopulationIdByColonyParameterZygositySex(String colonyId, Parameter parameter, ZygosityType zygosity,SexType sex) throws SQLException {
+
+		Integer populationId = 0;
+		
+		String sql = "SELECT DISTINCT pop.id"
+				+ " FROM population pop FORCE INDEX (PRIMARY)"
+				+ " INNER JOIN observation_population op ON pop.id=op.population_id"
+				+ " INNER JOIN observation o ON op.observation_id=o.id"
+				+ " INNER JOIN live_sample ls ON o.biological_sample_id=ls.id"
+				+ " WHERE ls.colony_id=?"
+				+ " AND pop.zygosity=?"
+				+ " AND pop.sex=?"
+				+ " AND pop.parameter_id=?";
+
+		try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
+			stmt.setString(1, colonyId);
+			stmt.setString(2, zygosity.name());
+			stmt.setString(3, sex.name());
+			stmt.setInt(4, parameter.getId());
+
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				populationId = rs.getInt(1);
+			} else {
+				log.error("error: could not get the population id");
+			}
+		} 
+
 		return populationId;
+
+//		Integer populationId = (Integer) getCurrentSession()
+//				.createQuery(
+//						"SELECT distinct population.id FROM CategoricalMutantView c WHERE c.colony = ? AND c.sex = ? AND c.parameter = ?")
+//				.setString(0, colonyId).setString(1, sex.name())
+//				.setInteger(2, parameter.getId()).uniqueResult();
+//		return populationId;
 	}
 
 	@Transactional(readOnly = true)
@@ -342,8 +373,8 @@ public class CategoricalStatisticsDAOImpl extends StatisticsDAOImpl implements C
 		String query;
 
 		List<Map<String,String>> resultsList=new ArrayList<Map<String,String>>();
-		query = "SELECT DISTINCT vw.biological_model_id, vw.parameter_id, bgf.gf_acc FROM stats_mv_experimental_categorical_values vw, biological_model_genomic_feature bgf where bgf.biological_model_id=vw.biological_model_id limit "+start+" , " +length;
-
+		query = "SELECT DISTINCT vw.biological_model_id, vw.parameter_id, bgf.gf_acc, stats.p_value FROM stats_mv_experimental_categorical_values vw, biological_model_genomic_feature bgf,  stats_categorical_results stats where bgf.biological_model_id=vw.biological_model_id and bgf.biological_model_id=stats.experimental_id and vw.biological_model_id=stats.experimental_id and stats.parameter_id=vw.parameter_id  and stats.p_value < 0.05 limit "+start+" , " +length;
+System.out.println("statslink query="+query);
 		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
 	      
 		    ResultSet resultSet = statement.executeQuery();
@@ -351,6 +382,7 @@ public class CategoricalStatisticsDAOImpl extends StatisticsDAOImpl implements C
 				Map<String,String> row=new HashMap<String,String>();
 				row.put("accession", resultSet.getString("gf_acc"));
 				row.put("parameter_id", Integer.toString(resultSet.getInt("parameter_id")));
+				System.out.println("p value from statlinks = "+resultSet.getDouble("p_value"));
 				resultsList.add(row);
 			}
 		}
@@ -362,4 +394,39 @@ public class CategoricalStatisticsDAOImpl extends StatisticsDAOImpl implements C
 
 
 
+	@Transactional(readOnly = true)
+	public List<CategoricalResult> getCategoricalResultByParameter(
+			Parameter parameter, int mutantBiologicalModel_id, SexType experimentalSex) {
+
+		List<CategoricalResult> data=new ArrayList<CategoricalResult>();
+String query="select * from stats_categorical_results where parameter_id = "+ parameter.getId() +" and experimental_id="+mutantBiologicalModel_id+" and experimental_sex='"+experimentalSex.name()+ "'";
+System.out.println("query for categorical results="+query);
+		try {
+			Statement stmt = getConnection().createStatement();
+			ResultSet resultSet = stmt
+					.executeQuery(query);
+			
+			while (resultSet.next()) {	
+				CategoricalResult csr = new CategoricalResult();
+				csr.setCategoryA(resultSet.getString("category_a"));
+				csr.setCategoryB(resultSet.getString("category_b"));
+				//csr.setControlBiologicalModel(cStatsDAO.getControlBiologicalModelByPopulation(populationId));
+				csr.setControlZygosity(ZygosityType.valueOf(resultSet.getString("control_zygosity")));
+				csr.setControlSex(SexType.valueOf(resultSet.getString("control_sex")));
+				//csr.setExperimentalBiologicalModel(cStatsDAO.getMutantBiologicalModelByPopulation(populationId));
+				csr.setExperimentalZygosity(ZygosityType.valueOf(resultSet.getString("experimental_zygosity")));
+				csr.setExperimentalSex(SexType.valueOf(resultSet.getString("experimental_sex")));
+				csr.setParameter(parameter);
+				//csr.setOrganisation(ccc.getOrganisationByPopulation(populationId));
+				System.out.println("resultset pvalue="+resultSet.getDouble("p_value"));
+				csr.setpValue(resultSet.getDouble("p_value"));
+				csr.setMaxEffect(resultSet.getDouble("max_effect"));
+				data.add(csr);
+			}
+			stmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return data;
+	}
 }
