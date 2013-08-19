@@ -29,79 +29,88 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.sun.syndication.feed.atom.Feed;
-
-import uk.ac.ebi.phenotype.bean.GenomicFeatureBean;
 import uk.ac.ebi.phenotype.bean.ListContainer;
 import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.rest.util.AtomUtil;
+
+import com.sun.syndication.feed.atom.Feed;
 
 @Controller
 public class GenomicFeatureController {
 
 	@Autowired
 	private GenomicFeatureDAO genomicFeatureDAO;
-	
-	private Jaxb2Marshaller jaxb2Mashaller;
-    
-    public void setJaxb2Mashaller(Jaxb2Marshaller jaxb2Mashaller) {
-            this.jaxb2Mashaller = jaxb2Mashaller;
-    }
 
-    private static final String XML_VIEW_NAME = "genomicFeatures";
+	private Jaxb2Marshaller jaxb2Mashaller;
+
+	public void setJaxb2Mashaller(Jaxb2Marshaller jaxb2Mashaller) {
+		this.jaxb2Mashaller = jaxb2Mashaller;
+	}
+
+	private static final String XML_VIEW_NAME = "genomicFeatures";
 
 	/**
-	 * <p>Provide a model with an genomicFeature for the genomicFeature detail page.</p>
+	 * <p>
+	 * Provide a model with an genomicFeature for the genomicFeature detail
+	 * page.
+	 * </p>
 	 * 
-	 * @param id the id of the genomicFeature
-	 * @param model the "implicit" model created by Spring MVC
+	 * @param id
+	 *            the id of the genomicFeature
+	 * @param model
+	 *            the "implicit" model created by Spring MVC
 	 */
-	@RequestMapping(method=RequestMethod.GET, value="/genomicFeature/{acc}")
+	@RequestMapping(method = RequestMethod.GET, value = "/genomicFeature/{acc}")
 	public ModelAndView getGenomicFeature(@PathVariable String acc) {
 		GenomicFeature gf = genomicFeatureDAO.getGenomicFeatureByAccessionAndDbId(acc, 3);
 		return new ModelAndView(XML_VIEW_NAME, "object", gf);
 	}
-	
+
 	/**
-	 * <p>Provide a model with a list of all genomicFeatures for the genomicFeature List page.</p>
+	 * <p>
+	 * Provide a model with a list of all genomicFeatures for the genomicFeature
+	 * List page.
+	 * </p>
 	 * 
-	 * @param model the "implicit" model created by Spring MVC
+	 * @param model
+	 *            the "implicit" model created by Spring MVC
 	 */
-	@RequestMapping(method=RequestMethod.GET, value="/genomicFeatures")
+	@RequestMapping(method = RequestMethod.GET, value = "/genomicFeatures")
 	public ModelAndView getGenomicFeatures() {
-		List<GenomicFeatureBean> gfs = genomicFeatureDAO.getAllGenomicFeatureBeans();
-		ListContainer<GenomicFeatureBean> list = new ListContainer<GenomicFeatureBean>(gfs);
+		List<GenomicFeature> gfs = genomicFeatureDAO.getAllGenomicFeatures();
+		ListContainer<GenomicFeature> list = new ListContainer<GenomicFeature>(gfs);
 		return new ModelAndView(XML_VIEW_NAME, "genomicFeatures", list);
 	}
-	
-    ////////////////////////// @ResponseBody ////////////////////////
-    
-    @RequestMapping(method=RequestMethod.GET, value="/genfeat/{acc}", headers="Accept=application/xml, application/json")
-    public @ResponseBody GenomicFeature getGenFeat(@PathVariable String acc) {
-    	GenomicFeature gf = genomicFeatureDAO.getGenomicFeatureByAccessionAndDbId(acc, 3);
-        return gf;
-    }
-    
-    @RequestMapping(method=RequestMethod.GET, value="/genfeats", headers="Accept=application/xml, application/json")
-    public @ResponseBody ListContainer<GenomicFeatureBean> getAllGenFeat() {
-    	List<GenomicFeatureBean> gfs = genomicFeatureDAO.getAllGenomicFeatureBeans();
-		ListContainer<GenomicFeatureBean> list = new ListContainer<GenomicFeatureBean>(gfs);
-            return list;
-    }
-    
-    @RequestMapping(method=RequestMethod.GET, value="/genfeats", headers="Accept=application/atom+xml")
-    public @ResponseBody Feed getGenFeatFeed() {
-    	List<GenomicFeatureBean> gfs = genomicFeatureDAO.getAllGenomicFeatureBeans();
-            return AtomUtil.genomicFeatureFeed(gfs, jaxb2Mashaller);
-    }
-    
+
+	// //////////////////////// @ResponseBody ////////////////////////
+
+	@RequestMapping(method = RequestMethod.GET, value = "/genfeat/{acc}", headers = "Accept=application/xml, application/json")
+	public @ResponseBody
+	GenomicFeature getGenFeat(@PathVariable String acc) {
+		GenomicFeature gf = genomicFeatureDAO.getGenomicFeatureByAccessionAndDbId(acc, 3);
+		return gf;
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/genfeats", headers = "Accept=application/xml, application/json")
+	public @ResponseBody
+	ListContainer<GenomicFeature> getAllGenFeat() {
+		List<GenomicFeature> gfs = genomicFeatureDAO.getAllGenomicFeatures();
+		ListContainer<GenomicFeature> list = new ListContainer<GenomicFeature>(gfs);
+		return list;
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/genfeats", headers = "Accept=application/atom+xml")
+	public @ResponseBody
+	Feed getGenFeatFeed() {
+		List<GenomicFeature> gfs = genomicFeatureDAO.getAllGenomicFeatures();
+		return AtomUtil.genomicFeatureFeed(gfs, jaxb2Mashaller);
+	}
+
 }
