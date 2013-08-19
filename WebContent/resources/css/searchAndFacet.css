@@ -306,5 +306,13 @@ span.hiddenId {
 	display: none;
 }
 div.gridSubTitle {
-	padding-bottom: 20px;
+	display: inline;	
+}
+div.gridTitle, div#resultMsg, strong.lead {
+	color: gray !important;
+	font-weight: bold !important;
+	font-size: 13px !important;
+}
+div.dataTables_wrapper {
+	margin-top: 30px;
 }
