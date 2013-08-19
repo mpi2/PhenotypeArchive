@@ -164,6 +164,14 @@ public class Observation extends SourcedEntry {
 	public void setPopulationId(int populationId) {
 		this.populationId = populationId;
 	}
+
+	public String getParameterStableId() {
+		return parameterStableId;
+	}
+
+	public void setParameterStableId(String parameterStableId) {
+		this.parameterStableId = parameterStableId;
+	}
 	
 	
 	
