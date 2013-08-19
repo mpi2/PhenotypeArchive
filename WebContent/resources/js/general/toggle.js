@@ -17,12 +17,7 @@
  * 
  */
 jQuery(document).ready(	function() {
-	
-	$('#showGBrowser').click(function() {
-	    $('#gBrowserDiv').children().toggle();
-	});
-	 $('#gBrowserDiv').children().toggle().hide();//collapse the dalliance div on page load
-	
+		
 $('.accordion').on('show hide', function(e){
     $(e.target).siblings('.accordion-heading').find('.accordion-toggle i').toggleClass('icon-chevron-down icon-chevron-right', 0);
 });
