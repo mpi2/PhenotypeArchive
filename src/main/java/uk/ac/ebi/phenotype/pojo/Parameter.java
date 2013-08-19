@@ -123,6 +123,19 @@ public class Parameter extends PipelineEntry {
 			)
 	private List<ParameterOntologyAnnotation> annotations;
 
+	/**
+	 * Entity-Quality annotations (like MA / PATO terms) can be associated to parameter 
+	 * under certain conditions. The rules are defined in this table
+	 */
+	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
+	@Fetch(FetchMode.SELECT)
+	@JoinTable(
+			name="phenotype_parameter_lnk_eq_annotation",
+			joinColumns = @JoinColumn( name="parameter_id"),
+			inverseJoinColumns = @JoinColumn( name="annotation_id")
+			)
+	private List<ParameterEntityQualityAnnotation> eqAnnotations;	
+	
 	public Parameter() {
 		super();
 	}
@@ -385,6 +398,31 @@ public class Parameter extends PipelineEntry {
 		this.annotations = annotations;
 	}
 
+	/**
+	 * @param increment add an increment to set
+	 */
+	public void addEqAnnotation(ParameterEntityQualityAnnotation eqAnnotation) {
+		if (eqAnnotations == null) {
+			eqAnnotations = new ArrayList<ParameterEntityQualityAnnotation>();
+		}
+		this.eqAnnotations.add(eqAnnotation);
+	}
+
+	/**
+	 * @return the EqAnnotations
+	 */
+	public List<ParameterEntityQualityAnnotation> getEqAnnotations() {
+		return eqAnnotations;
+	}
+
+
+	/**
+	 * @param EqAnnotations the EqAnnotations to set
+	 */
+	public void setEqAnnotations(List<ParameterEntityQualityAnnotation> eqAnnotations) {
+		this.eqAnnotations = eqAnnotations;
+	}
+	
 	/**
 	 * Check what units are stored for each of this parameter
 	 * dimension.
