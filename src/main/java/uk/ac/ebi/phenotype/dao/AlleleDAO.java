@@ -26,6 +26,7 @@ package uk.ac.ebi.phenotype.dao;
 import java.util.List;
 
 import uk.ac.ebi.phenotype.pojo.Allele;
+import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 
 public interface AlleleDAO extends HibernateDAO {
 
@@ -33,6 +34,8 @@ public interface AlleleDAO extends HibernateDAO {
 	
 	public Allele getAlleleByAccession(String accession);
 	
+	public Allele getAlleleBySymbolAndGene(String symbol, GenomicFeature gene);
+
 	public Allele getAlleleBySymbol(String symbol);
 	
 	public List<Allele> getAlleleByGeneSymbol(String geneSymbol);
