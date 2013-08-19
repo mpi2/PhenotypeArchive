@@ -68,6 +68,10 @@ public class PhenotypeCallSummary {
 	@JoinColumn(name = "project_id")
 	private Project project;	
 	
+	@OneToOne
+	@JoinColumn(name = "organisation_id")
+	private Organisation organisation;	
+	
 	@NotFound(action=NotFoundAction.IGNORE) // phenotype_call_summary.gf_acc maybe null
 	@OneToOne
 	@JoinColumns({
@@ -83,6 +87,12 @@ public class PhenotypeCallSummary {
 	@JoinColumn(name = "mp_db_id"),
 	})
 	private OntologyTerm phenotypeTerm;
+	
+	@Column(name = "p_value")
+	private float pValue = 0;
+
+	@Column(name = "effect_size")
+	private float effectSize = 0;
 	
 	@NotFound(action=NotFoundAction.IGNORE)
 	@OneToOne
@@ -174,6 +184,20 @@ public class PhenotypeCallSummary {
 	 */
 	public void setProject(Project project) {
 		this.project = project;
+	}	
+	
+	/**
+	 * @return the organisation
+	 */
+	public Organisation getOrganisation() {
+		return organisation;
+	}
+
+	/**
+	 * @param organisation the organisation to set
+	 */
+	public void setOrganisation(Organisation organisation) {
+		this.organisation = organisation;
 	}
 
 	/**
@@ -300,6 +324,34 @@ public class PhenotypeCallSummary {
 	 */
 	public void setZygosity(ZygosityType zygosity) {
 		this.zygosity = zygosity;
+	}
+
+	/**
+	 * @return the pValue
+	 */
+	public float getpValue() {
+		return pValue;
+	}
+
+	/**
+	 * @param pValue the pValue to set
+	 */
+	public void setpValue(float pValue) {
+		this.pValue = pValue;
+	}
+
+	/**
+	 * @return the effectSize
+	 */
+	public float getEffectSize() {
+		return effectSize;
+	}
+
+	/**
+	 * @param effectSize the effectSize to set
+	 */
+	public void setEffectSize(float effectSize) {
+		this.effectSize = effectSize;
 	}
 
 
