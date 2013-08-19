@@ -25,32 +25,27 @@ package uk.ac.ebi.phenotype.dao;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.Criteria;
-import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.criterion.ProjectionList;
-import org.hibernate.criterion.Projections;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import uk.ac.ebi.phenotype.bean.GenomicFeatureBean;
-import uk.ac.ebi.phenotype.pojo.DatasourceEntityId;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 
 
+public class GenomicFeatureDAOImpl extends HibernateDAOImpl implements
+		GenomicFeatureDAO {
 
-@Service
-public class GenomicFeatureDAOImpl extends HibernateDAOImpl implements GenomicFeatureDAO {
-
-	@Autowired
-	SessionFactory sessionFactory;
+	/**
+	 * Creates a new Hibernate GenomicFeature data access manager.
+	 * @param sessionFactory the Hibernate session factory
+	 */
+	public GenomicFeatureDAOImpl(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
 	
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
@@ -106,29 +101,6 @@ public class GenomicFeatureDAOImpl extends HibernateDAOImpl implements GenomicFe
 		return (GenomicFeature) getCurrentSession().createQuery("from GenomicFeature as g where g.symbol= ?").setString(0, symbol).uniqueResult();
 	}
 
-	@Transactional(readOnly = true)
-	public List<GenomicFeatureBean> getAllGenomicFeatureBeans() {
-		
-		Criteria crit = getCurrentSession().createCriteria(GenomicFeature.class);
-		  ProjectionList proList = Projections.projectionList();
-		  proList.add(Projections.property("id"));
-		  proList.add(Projections.property("symbol"));
-		  proList.add(Projections.property("name"));
-		  crit.setProjection(proList);
-		  crit.setMaxResults(10);
-		  ScrollableResults r = crit.scroll();
-		  List<GenomicFeatureBean> l = new LinkedList<GenomicFeatureBean>();
-		  while (r.next()) {
-			  Object[] a = r.get();
-			  GenomicFeatureBean b = new GenomicFeatureBean();
-			  b.setAccession(((DatasourceEntityId)a[0]).getAccession());
-			  b.setSymbol((String)a[1]);
-			  b.setName((String)a[2]);
-			  l.add(b);
-		  }
-		return l;
-		
-	}
 
 	@Transactional(readOnly = false)
 	public void saveGenomicFeature(GenomicFeature feature) {
