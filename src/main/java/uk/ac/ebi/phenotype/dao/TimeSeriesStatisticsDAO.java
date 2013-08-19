@@ -32,4 +32,6 @@ public interface TimeSeriesStatisticsDAO extends StatisticsDAO {
 	public List<ZygosityType> getZygositiesByPopulation(Integer populationId);
 	
 	public  List<Map<String,String>>  getListOfUniqueParametersAndGenes(int start, int length) throws SQLException;
+	
+	public Map<String, Float> getMinAndMaxForParameter(String paramStableId) throws SQLException;
 }
