@@ -23,6 +23,7 @@ import org.hibernate.HibernateException;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.CategoricalGroupKey;
+import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
@@ -57,14 +58,16 @@ public interface CategoricalStatisticsDAO extends StatisticsDAO {
 
 	public void deleteCategoricalResultByParameter(Parameter parameter) throws HibernateException, SQLException;
 
-	public Integer getPopulationIdByColonySexParameter(String colonyId, SexType sex, Parameter parameter);
+	public Integer getPopulationIdByColonyParameterZygositySex(String colonyId, Parameter parameter, ZygosityType zygosity,SexType sex) throws SQLException;
 
-	public List<CategoricalGroupKey> getControlCategoricalDataByParameter(Parameter parameter);
+	public List<CategoricalGroupKey> getControlCategoricalDataByParameter(Parameter parameter) throws SQLException;
 	public List<CategoricalGroupKey> getMutantCategoricalDataByParameter(Parameter parameter);
 
-	public Map<Integer, Integer> getOrganisationsByParameter(Parameter parameter);
+	public Map<Integer, Integer> getOrganisationsByParameter(Parameter parameter) throws SQLException;
 	
 	public  List<Map<String,String>>  getListOfUniqueParametersAndGenes(int start, int length) throws SQLException;
+
+	public List<CategoricalResult> getCategoricalResultByParameter(Parameter parameter, int i, SexType sexType);
 	
 
 }
