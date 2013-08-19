@@ -23,7 +23,7 @@
 	</bean>
 
 	<context:component-scan base-package="uk.ac.ebi" />
-	
+
 	<context:annotation-config />
 
 	<!-- Drives transactions using Hibernate APIs when requested -->
@@ -36,10 +36,76 @@
 
 	<!--  Get the datasources from the JNDI container -->
 	<jee:jndi-lookup id="komp2DataSource" jndi-name="java:comp/env/jdbc/komp2DataSource" expected-type="javax.sql.DataSource" />
-	<jee:jndi-lookup id="ontodbDataSource" jndi-name="java:comp/env/jdbc/ontodbDataSource" expected-type="javax.sql.DataSource" />
 
 	<!-- Weaves in transactional advice around @Transactional methods -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<bean id="biologicalModelDAO" class="uk.ac.ebi.phenotype.dao.BiologicalModelDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<bean id="phenotypeCallSummaryDAO" class="uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+	
+	 <bean id="phenotypeCallSummaryDAOSolr" class="uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolrImpl">
+	</bean>
+
+	<bean id="phenotypePipelineDAO" class="uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<bean id="alleleDAO" class="uk.ac.ebi.phenotype.dao.AlleleDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<bean id="genomicFeatureDAO" class="uk.ac.ebi.phenotype.dao.GenomicFeatureDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<bean id="ontologyTermDAO" class="uk.ac.ebi.phenotype.dao.OntologyTermDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<bean id="sequenceRegionDAO" class="uk.ac.ebi.phenotype.dao.SequenceRegionDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<bean id="coordinateSystemDAO" class="uk.ac.ebi.phenotype.dao.CoordinateSystemDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<bean id="strainDAO" class="uk.ac.ebi.phenotype.dao.StrainDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<bean id="datasourceDAO" class="uk.ac.ebi.phenotype.dao.DatasourceDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<bean id="labcodeDAO" class="uk.ac.ebi.phenotype.dao.LabcodeDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<bean id="projectDAO" class="uk.ac.ebi.phenotype.dao.ProjectDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
+	<bean id="organisationDAO" class="uk.ac.ebi.phenotype.dao.OrganisationDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>	
+	
+	<bean id="categoricalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.CategoricalStatisticsDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+	
+	<bean id="unidimensionalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+	
+	<bean id="timeSeriesStatisticsDAO" class="uk.ac.ebi.phenotype.dao.TimeSeriesStatisticsDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
 
 	<!-- Spring annotated objects -->
 	<bean id="sessionFactory"
