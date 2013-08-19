@@ -26,10 +26,10 @@ package uk.ac.ebi.phenotype.dao;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
@@ -38,11 +38,15 @@ import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.LiveSample;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 
-@Service
 public class BiologicalModelDAOImpl extends HibernateDAOImpl implements BiologicalModelDAO {
 
-	@Autowired
-	SessionFactory sessionFactory;
+	/**
+	 * Creates a new Hibernate project data access manager.
+	 * @param sessionFactory the Hibernate session factory
+	 */
+	public BiologicalModelDAOImpl(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
 	
 	@Transactional(readOnly = false)
 	public void saveBiologicalSample(BiologicalSample sample) {
@@ -76,11 +80,9 @@ public class BiologicalModelDAOImpl extends HibernateDAOImpl implements Biologic
 	}
 	
 	@Transactional(readOnly = true)
-	@SuppressWarnings("unchecked")
-	public List<BiologicalModel> getAllBiologicalModelsByDatasourceId(
-			int databaseId) {
+	public List<BiologicalModel> getAllBiologicalModelsByDatasourceId(int databaseId) {
 
-		return getCurrentSession().createQuery("from BiologicalModel as m inner join m.datasource as d where d.id = ?").setInteger(0, databaseId).list();
+		return (List<BiologicalModel>) getCurrentSession().createQuery("select distinct m from BiologicalModel as m inner join m.datasource as d where d.id = ?").setInteger(0, databaseId).list();
 		
 	}
 	
@@ -148,4 +150,14 @@ public class BiologicalModelDAOImpl extends HibernateDAOImpl implements Biologic
 		int count = query.executeUpdate();
 		return count;
 	}
+
+	@Transactional(readOnly = false)
+	public void deleteAllBiologicalModelsAndRelatedDataByDatasourceOrganisation(Datasource ds, Organisation o) {
+		Query query = getCurrentSession().getNamedQuery("deleteBiologicalModelAndRelatedData")
+				.setInteger("dbID", ds.getId())
+				.setInteger("orgID", o.getId());
+		query.executeUpdate();
+		getCurrentSession().flush();
+	}
+
 }
