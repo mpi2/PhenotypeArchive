@@ -99,7 +99,7 @@ public class TimeSeriesObservation extends Observation {
 		
 		Date date = null;
 		DateFormat inputDateFormatter = null;
-		System.out.println("setTimePoint: " + timePoint + "   "  + unit);
+//		System.out.println("setTimePoint: " + timePoint + "   "  + unit);
 		
 		try {
 
@@ -117,10 +117,10 @@ public class TimeSeriesObservation extends Observation {
 					// right so convert to an hour
 					String rawHours = timePoint.substring(0, timePoint.indexOf("."));
 					String rawMinutes = timePoint.substring(timePoint.indexOf(".")+1);
-					System.out.println(rawHours + "::::" + rawMinutes);
+//					System.out.println(rawHours + "::::" + rawMinutes);
 					int hours = Integer.parseInt(rawHours);
 					float minutes = Float.parseFloat(rawMinutes) * 0.6f;
-					System.out.println(hours + "::::" + minutes);
+//					System.out.println(hours + "::::" + minutes);
 					
 				} catch (NumberFormatException ex) {
 
@@ -129,7 +129,7 @@ public class TimeSeriesObservation extends Observation {
 
 		} catch (NumberFormatException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 }
