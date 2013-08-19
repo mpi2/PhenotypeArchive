@@ -53,7 +53,6 @@ function getProxyUri(originalUrl) {
 
 // Document onload functions 
 jQuery(document).ready(function() {
-
 	// See here for this solution to detecting IE. 
 	// http://stackoverflow.com/questions/4169160/javascript-ie-detection-why-not-use-simple-conditional-comments
 	function supportsSvg(){
@@ -68,7 +67,6 @@ jQuery(document).ready(function() {
 	var chromosome = $('#chr').html();
 	var start = parseInt($('#geneStart').html());
 	var stop = parseInt($('#geneEnd').html());
-
 	if(!supportsSvg()){
 
 		// This browser cannot support the interactive browser
@@ -86,11 +84,12 @@ jQuery(document).ready(function() {
 					
 		// Display the interactive browser
 
-		new Browser({
+		var b =	new Browser({
 			chr:        chromosome,
 			viewStart:  start-1000,
 			viewEnd:    stop+1000,
 			noPersist: true,
+			zoomMax: 280,
 			coordSystem: {
 				speciesName: 'Mouse',
 				taxon: 10090,
@@ -125,10 +124,115 @@ jQuery(document).ready(function() {
 				Ensembl: 'http://www.ensembl.org/Mus_musculus/Location/View?r=${chr}:${start}-${end}',
 				UCSC: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&position=chr${chr}:${start}-${end}'
 			},
-			forceWidth: jQuery('div.row-fluid').width() * 0.98
+			forceWidth: jQuery('div.row-fluid').width() * 0.98,
+			 disableDefaultFeaturePopup: true
 
 		}); //new Browser({
 
+		//override the default popups here from feature-popup.js and having set the browser init option to disableDefaultFeaturePopup: true
+		b.addFeatureListener(function(ev, feature, group) {
+
+			//  var log = document.getElementById('clickLog');
+			 // var msg = makeElement('p', miniJSONify(hit));
+			  //console.log("click handler works!"+ miniJSONify(feature));
+
+			    if (!feature) feature = {};
+			   if (!group) group = {};
+			    group = {};
+			    b.removeAllPopups();
+
+			    var table = makeElement('table', null, {className: 'table table-striped table-condensed'});
+			    table.style.width = '100%';
+			    table.style.margin = '0px';
+
+			    var name = pick(group.type, feature.type);
+			  //  var fid = pick(group.label, feature.label, group.id, feature.id);
+			    //mpi2 specific
+			    var fid = pick(feature.label,group.label, group.id, feature.id);
+			    
+			    if (fid && fid.indexOf('__dazzle') != 0) {
+			        name = name + ': ' + fid;
+			    }
+
+			    var idx = 0;
+			    if (feature.method) {
+			        var row = makeElement('tr', [
+			            makeElement('th', 'Method'),
+			            makeElement('td', feature.method)
+			        ]);
+			        row.style.backgroundColor = b.tierBackgroundColors[idx % b.tierBackgroundColors.length];
+			        table.appendChild(row);
+			        ++idx;
+			    }
+			    {
+			        var loc;
+			        if (group.segment) {
+			            loc = group;
+			        } else {
+			            loc = feature;
+			        }
+			        var row = makeElement('tr', [
+			            makeElement('th', 'Location'),
+			            makeElement('td', loc.segment + ':' + loc.min + '-' + loc.max)
+			        ]);
+			        row.style.backgroundColor = b.tierBackgroundColors[idx % b.tierBackgroundColors.length];
+			        table.appendChild(row);
+			        ++idx;
+			    }
+			    if (feature.score !== undefined && feature.score !== null && feature.score != '-') {
+			        var row = makeElement('tr', [
+			            makeElement('th', 'Score'),
+			            makeElement('td', '' + feature.score)
+			        ]);
+			        row.style.backgroundColor = b.tierBackgroundColors[idx % b.tierBackgroundColors.length];
+			        table.appendChild(row);
+			        ++idx;
+			    }
+			    {
+			        var links = maybeConcat(group.links, feature.links);
+			        if (links && links.length > 0) {
+			            var row = makeElement('tr', [
+			                makeElement('th', 'Links'),
+			                makeElement('td', links.map(function(l) {
+			                	
+			                	 if(l.desc=='Cassette Image'){
+			                         // console.debug(l.desc);
+			                		 //mpi2 speicifc
+			                      return makeElement('div',makeElement('a', makeElement('img', l.desc, {width:320, src: l.uri}), {href:l.uri, target: '_new'}));//'<img src="http://www.knockoutmouse.org/targ_rep/alleles/37256/allele-image" alt="some_text"/>');
+			                      }
+			                    return makeElement('div', makeElement('a', l.desc, {href: l.uri, target: '_new'}));
+			                }))
+			            ]);
+			            row.style.backgroundColor = b.tierBackgroundColors[idx % b.tierBackgroundColors.length];
+			            table.appendChild(row);
+			            ++idx;
+			        }
+			    }
+			    {
+			        var notes = maybeConcat(group.notes, feature.notes);
+			        for (var ni = 0; ni < notes.length; ++ni) {
+			            var k = 'Note';
+			            var v = notes[ni];
+			            var m = v.match(TAGVAL_NOTE_RE);
+			            if (m) {
+			                k = m[1];
+			                v = m[2];
+			            }
+
+			            var row = makeElement('tr', [
+			                makeElement('th', k),
+			                makeElement('td', v)
+			            ]);
+			            row.style.backgroundColor = b.tierBackgroundColors[idx % b.tierBackgroundColors.length];
+			            table.appendChild(row);
+			            ++idx;
+			        }
+			    }
+
+			    b.popit(ev, name, table, {width: 400});
+			});
+		
+		
 	} //if(!supportsSvg()){...}else{
 
 }); //jQuery(function($) { 
