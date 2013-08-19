@@ -53,4 +53,5 @@ public interface BiologicalModelDAO extends HibernateDAO {
 	public int deleteAllBiologicalModelsByDatasource(Datasource datasource);
 	
 	public List<LiveSample> getAllLiveSampleByOrganisationAndDatasource(Organisation organisation, Datasource datasource);
+	public void deleteAllBiologicalModelsAndRelatedDataByDatasourceOrganisation(Datasource ds, Organisation o);
 }
