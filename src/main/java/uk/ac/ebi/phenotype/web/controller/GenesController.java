@@ -37,9 +37,11 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -57,7 +59,6 @@ import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.dao.DatasourceDAO;
 import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
-import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.data.imits.ColonyStatus;
 import uk.ac.ebi.phenotype.data.imits.PhenotypeStatusDAO;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
@@ -66,6 +67,8 @@ import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.Xref;
+import uk.ac.ebi.phenotype.util.PhenotypeCallSummaryDAOReadOnly;
+import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
 
 
@@ -86,10 +89,14 @@ public class GenesController {
 	private ImagesSolrDao imagesSolrDao;
 
 	@Autowired
-	private PhenotypeCallSummaryDAO phenoDAO;
+	private PhenotypeCallSummaryDAOReadOnly phenoDAO;
 
 	@Autowired
 	SolrIndex solrIndex;
+	
+	@Autowired
+	@Qualifier("solr")
+	PhenotypeStatusDAO psDao;
 
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
@@ -136,8 +143,16 @@ public class GenesController {
 			@RequestParam(value="heatmap", required=false, defaultValue="false") Boolean showHeatmap,
 			Model model,
 			HttpServletRequest request,
-			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException {
+			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
 
+		processGeneRequest(acc, model, request);
+
+		return "genes";
+	}
+
+	private void processGeneRequest(String acc, Model model,
+			HttpServletRequest request) throws GenomicFeatureNotFoundException,
+			URISyntaxException, IOException {
 		// see if the gene exists first:
 		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
 		if (gene == null) {
@@ -147,7 +162,6 @@ public class GenesController {
 		/**
 		 * PRODUCTION STATUS (SOLR)
 		 */
-		
 		String geneStatus = null;
 		
 		try {
@@ -178,12 +192,13 @@ public class GenesController {
 			 * TODO this should be done allele by allele
 			 */
 			
-			PhenotypeStatusDAO psDao = new PhenotypeStatusDAO();
+			//PhenotypeStatusDAO psDao = new SolrPhenotypeStatusDAOImpl();
 			//allColonyStatus = solrIndex.getGeneColonyStatus(acc);
 			allColonyStatus = psDao.getColonyStatus(gene);
 			
 			/** check whether the phenotype has started */
 			for (ColonyStatus st: allColonyStatus) {
+				//System.out.println("allcolony status="+st.getAlleleName()+" "+st.getAlleleType()+" "+st.getBackgroundStrain()+" "+st.getPhenotypeCenter()+" "+st.getPhenotypeStatus()+" "+st.getProductionStatus());
 				if (st.getPhenotypeStarted() == 1 && st.getPhenotypeCompleted() == 0) {
 					phenotypeStarted = true;
 				}
@@ -208,6 +223,27 @@ public class GenesController {
 			model.addAttribute("phenotypeStatus", phenotypeStatus);
 		}
 		
+		List<Map<String,String>> constructs=new ArrayList<Map<String,String>>();
+		Map<String, List<Map<String, String>>> providers=null;
+		//http://ikmc.vm.bytemark.co.uk:8983/solr/allele/search?json.wrf=jQuery181021836050949059427_1369411113212&bq=product_type%3A%22ES+Cell%22%5E100+type%3Ami_attempt%5E10&q=mgi_accession_id%3AMGI%3A104874&start=0&rows=100&hl=true&wt=json&_=1369411113318
+		//introduce a method here to get the table data for the constructs available and buy button.
+		try {
+			constructs=solrIndex.getProductionInfo(acc);
+			//look at the constructs to find the order urls then store them in a map with the full alleleName as the key
+			try {
+				providers=this.getProviders(constructs);
+				model.addAttribute("providers",providers);
+			} catch (org.json.JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		model.addAttribute("constructs", constructs);
+		
 
 		
 		//code for assessing if the person is logged in and if so have they registered interest in this gene or not?
@@ -223,123 +259,11 @@ public class GenesController {
 			model.addAttribute("imageErrors","Something is wrong Images are not being returned when normally they would");
 		}
 		
-		// This block collapses phenotype rows
-		// phenotype term, allele, zygosity, and sex
-		// sex is collapsed into a single column
-		List<PhenotypeCallSummary> phenotypeList = new ArrayList<PhenotypeCallSummary>();
-		try {
-			phenotypeList = phenoDAO.getPhenotypeCallByAccession(acc, 3);
-		} catch (HibernateException e) {
-			log.error("ERROR GETTING PHENOTYPE LIST");
-			e.printStackTrace();
-			phenotypeList = new ArrayList<PhenotypeCallSummary>();
-		}
-		
-		// This is a map because we need to support lookups
-		Map<PhenotypeRow,PhenotypeRow> phenotypes = new HashMap<PhenotypeRow,PhenotypeRow>(); 
-		
-		for (PhenotypeCallSummary pcs : phenotypeList) {
-
-			// Use a tree set to maintain an alphabetical order (Female, Male)
-			List<String> sex = new ArrayList<String>();
-			sex.add(pcs.getSex().toString());
-
-			PhenotypeRow pr = new PhenotypeRow();
-			pr.setAllele(pcs.getAllele());
-			pr.setSexes(sex);
-			pr.setPhenotypeTerm(pcs.getPhenotypeTerm());
-
-			// zygosity representation depends on source of information
-			// we need to know what the data source is so we can generate appropriate link on the page
-			Datasource ds = pcs.getDatasource();
-			String dataSourceName = "";
-
-			// Defend in case the datasource is not loaded
-			if (ds != null) {
-				dataSourceName = ds.getName();
-			}
-			pr.setDataSourceName(dataSourceName);
-
-			// this should be the fix but EuroPhenome is buggy
-			String rawZygosity = (dataSourceName.equals("EuroPhenome")) ? 
-					//Utilities.getZygosity(pcs.getZygosity()) : pcs.getZygosity().toString();
-					"All" : pcs.getZygosity().toString();
-			pr.setRawZygosity(rawZygosity);
-			pr.setZygosity(pcs.getZygosity());
-			pr.setProjectId(pcs.getExternalId());
-
-			// DO not include these for the gene datatable
-			pr.setProcedure(pcs.getProcedure());
-			pr.setParameter(pcs.getParameter());
-
-			if(phenotypes.containsKey(pr)) {
-				pr = phenotypes.get(pr);
-				TreeSet<String> sexes = new TreeSet<String>();
-				for (String s : pr.getSexes()) { sexes.add(s); }
-				sexes.add(pcs.getSex().toString());
-				pr.setSexes(new ArrayList<String>(sexes));
-			}
-
-			phenotypes.put(pr, pr);
-		}
-		model.addAttribute("phenotypes", new ArrayList<PhenotypeRow>(phenotypes.keySet()));
+		processPhenotypes(acc, model, "");
 
 		model.addAttribute("gene", gene);
 		model.addAttribute("request", request);
 		model.addAttribute("acc", acc);
-
-		/*
-		 * FETCH Data in progress
-		 */
-		
-		// crappy code to shoehorn the QC panel
-		// uncomment if you want to test locally
-		//proxy.setDebugSession("SSESSfbfcc940c73e911682a51bb9f1c59a76=y1tfAywDbKYLw_ROFZX6ysb0H9V3yKk7M9E2rfigei0");
-
-// COMMENTED 2013-04-26 (since we are not showing the panel anyway		
-//		URL url;
-//		try {
-//
-//			DrupalHttpProxy proxy = new DrupalHttpProxy(request);
-//			String drupalBaseUrl = (String) request.getAttribute("drupalBaseUrl");
-//			url = new URL(drupalBaseUrl + "/phenotypes/" + acc);
-//			String content = proxy.getContent(url);
-//			
-//			/* we know phenotype has started */
-//			
-//			if (phenotypeStarted) {
-//				
-//				model.addAttribute("bPreQC", new Boolean(content.contains("qc?")));
-//				if (content.contains("qc?")) {
-//					int beginIndex = content.indexOf("/qc?");
-//					String sub1 = content.substring(beginIndex);
-//					int endIndex = sub1.indexOf("'");
-//					String sub2 = sub1.substring(0, endIndex);
-//					model.addAttribute("qcLink", sub2);
-//				}
-//			}
-//			model.addAttribute("bSangerLegacy", new Boolean(content.contains("sanger")));
-//			if (content.contains("sanger")) {
-//				int beginIndex = content.indexOf("http://www.sanger");
-//				String sub1 = content.substring(beginIndex);
-//				int endIndex = sub1.indexOf("'");
-//				String sub2 = sub1.substring(0, endIndex);
-//				model.addAttribute("sangerLegacyLink", sub2);
-//			}
-//			model.addAttribute("bEurophenomeLegacy", new Boolean(content.contains("europhenome")));
-//			if (content.contains("europhenome")) {
-//				// http://www.europhenome.org/databrowser/viewer.jsp?set=true&m=true&l=10035
-//				int beginIndex = content.indexOf("http://www.europhenome.org");
-//				String sub1 = content.substring(beginIndex);
-//				int endIndex = sub1.indexOf("'");
-//				String sub2 = sub1.substring(0, endIndex);
-//				model.addAttribute("europhenomeLegacyLink", sub2);
-//			}			
-//		} catch (MalformedURLException e) {
-//			log.error(e.getLocalizedMessage());
-//		} catch (IOException e) {
-//			log.error(e.getLocalizedMessage());
-//		}
 
 		Datasource ensembl = datasourceDao.getDatasourceByShortName("Ensembl");
 		Datasource vega = datasourceDao.getDatasourceByShortName("VEGA");
@@ -384,11 +308,184 @@ public class GenesController {
 		}
 		model.addAttribute("countIKMCAlleles", countIKMCAlleles);
 		log.debug("CHECK IKMC allele found : " + countIKMCAlleles);
+	}
 
-		return "genes";
+	/**
+	 * @throws IOException 
+	 */
+	@RequestMapping("/genesPhenoFrag/{acc}")
+	public String genesPhenoFrag(
+			@PathVariable String acc,
+			Model model,
+			HttpServletRequest request,
+			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
+		//just pass on any query string after the ? to the solr requesting object for now
+		String queryString=request.getQueryString();
+		processPhenotypes(acc, model, queryString);
+
+		return "PhenoFrag";
+	}
+	
+	
+	private void processPhenotypes(String acc, Model model, String queryString) throws IOException, URISyntaxException {
+		//facet field example for project name and higher level mp term with gene as query : http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=marker_accession_id:MGI:98373&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet.field=project_name&facet.field=top_level_mp_term_name&facet=true		//top_level_mp_term_name
+		if(queryString==null){
+			queryString="";
+		}
+		// This block collapses phenotype rows
+		// phenotype term, allele, zygosity, and sex
+		// sex is collapsed into a single column
+		List<PhenotypeCallSummary> phenotypeList = new ArrayList<PhenotypeCallSummary>();
+		PhenotypeFacetResult phenoResult=null;
+		try {
+
+				
+					phenoResult = phenoDAO.getPhenotypeCallByGeneAccessionAndFilter(acc, queryString);
+			
+		
+			phenotypeList=phenoResult.getPhenotypeCallSummaries();
+		} catch (HibernateException e) {
+			log.error("ERROR GETTING PHENOTYPE LIST");
+			e.printStackTrace();
+			phenotypeList = new ArrayList<PhenotypeCallSummary>();
+		}
+		
+		Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
+	
+		model.addAttribute("phenoFacets", phenoFacets);
+		
+		// This is a map because we need to support lookups
+		Map<PhenotypeRow,PhenotypeRow> phenotypes = new HashMap<PhenotypeRow,PhenotypeRow>(); 
+		
+		for (PhenotypeCallSummary pcs : phenotypeList) {
+
+			// Use a tree set to maintain an alphabetical order (Female, Male)
+			List<String> sex = new ArrayList<String>();
+			sex.add(pcs.getSex().toString());
+
+			PhenotypeRow pr = new PhenotypeRow();
+			pr.setAllele(pcs.getAllele());
+			pr.setSexes(sex);
+			pr.setPhenotypeTerm(pcs.getPhenotypeTerm());
+
+			// zygosity representation depends on source of information
+			// we need to know what the data source is so we can generate appropriate link on the page
+			Datasource ds = pcs.getDatasource();
+			String dataSourceName = "";
+
+			// Defend in case the datasource is not loaded
+			if (ds != null) {
+				dataSourceName = ds.getName();
+			}
+			pr.setDataSourceName(dataSourceName);
+
+			// this should be the fix but EuroPhenome is buggy
+			String rawZygosity = (dataSourceName.equals("EuroPhenome")) ? 
+					//Utilities.getZygosity(pcs.getZygosity()) : pcs.getZygosity().toString();
+					"All" : pcs.getZygosity().toString();
+			pr.setRawZygosity(rawZygosity);
+			pr.setZygosity(pcs.getZygosity());
+			pr.setProjectId(pcs.getExternalId());
+
+			// DO not include these for the gene datatable
+			pr.setProcedure(pcs.getProcedure());
+			pr.setParameter(pcs.getParameter());
+			
+
+			if(phenotypes.containsKey(pr)) {
+				pr = phenotypes.get(pr);
+				TreeSet<String> sexes = new TreeSet<String>();
+				for (String s : pr.getSexes()) { sexes.add(s); }
+				sexes.add(pcs.getSex().toString());
+				pr.setSexes(new ArrayList<String>(sexes));
+			}
+
+			phenotypes.put(pr, pr);
+		}
+		model.addAttribute("phenotypes", new ArrayList<PhenotypeRow>(phenotypes.keySet()));
+	}
+	
+	/**
+	 * keeping old version for user testing?
+	 * @param acc
+	 * @param showHeatmap
+	 * @param model
+	 * @param request
+	 * @param attributes
+	 * @return
+	 * @throws KeyManagementException
+	 * @throws NoSuchAlgorithmException
+	 * @throws URISyntaxException
+	 * @throws GenomicFeatureNotFoundException
+	 * @throws IOException 
+	 */
+	@RequestMapping("/genes2/{acc}")
+	public String genes2(
+			@PathVariable String acc,
+			@RequestParam(value="heatmap", required=false, defaultValue="false") Boolean showHeatmap,
+			Model model,
+			HttpServletRequest request,
+			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
+
+			processGeneRequest(acc, model, request);
+
+		return "genes2";
+	}
+	
+	/**
+	 * keeping old version for user testing?
+	 * @param acc
+	 * @param showHeatmap
+	 * @param model
+	 * @param request
+	 * @param attributes
+	 * @return
+	 * @throws KeyManagementException
+	 * @throws NoSuchAlgorithmException
+	 * @throws URISyntaxException
+	 * @throws GenomicFeatureNotFoundException
+	 * @throws IOException 
+	 */
+	@RequestMapping("/genes3/{acc}")
+	public String genes3(
+			@PathVariable String acc,
+			@RequestParam(value="heatmap", required=false, defaultValue="false") Boolean showHeatmap,
+			Model model,
+			HttpServletRequest request,
+			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
+
+			processGeneRequest(acc, model, request);
+
+		return "genes3";
 	}
 
 
+
+	private Map<String, List<Map<String, String>>> getProviders(
+			List<Map<String, String>> constructs) throws org.json.JSONException {
+		
+		Map<String, List<Map<String, String>>> nameToProvider=new HashMap<String,List< Map<String, String>>>(); 
+		for(Map<String, String> construct: constructs){
+			List<Map<String,String>> listOfProvidersForAllele=new ArrayList<Map<String,String>>();
+			String alleleName=construct.get("alleleName");
+			String providers=construct.get("providers");
+			String orderFromUrls=construct.get("orderFromUrls");
+			//providers are a json array so lets get the data out and put it in our java structure
+			JSONArray providerArray=new JSONArray(providers);
+			JSONArray urlArray=new JSONArray(orderFromUrls);
+			//only seen single ones of these so far???
+			for(int i=0; i<providerArray.length(); i++){
+				String provider=providerArray.getString(i);
+				String url=urlArray.getString(i);
+				Map<String, String> providerAndUrl=new HashMap<String, String>();
+				providerAndUrl.put("provider", provider);
+				providerAndUrl.put("url", url);
+				listOfProvidersForAllele.add(providerAndUrl);
+				nameToProvider.put(alleleName, listOfProvidersForAllele);
+			}
+		}
+		return nameToProvider;
+	}
 
 	/**
 	 * Get the first 5 wholemount expression images if available
@@ -486,24 +583,29 @@ public class GenesController {
 	 * @param acc
 	 * @param model
 	 */
-	private void registerInterestState(String acc, Model model){
-		String registerInterestButtonString="Login to register interest";
-		String registerButtonAnchor="/user/register";
-		String id=acc;
+	private void registerInterestState(String acc, Model model) {
+		String registerInterestButtonString = "";
+		String registerButtonAnchor = "";
+		String id = acc;
 
 		if (registerInterest.loggedIn()) {
 			if (registerInterest.alreadyInterested(acc)) {
-				registerInterestButtonString= "Unregister interest";
+				registerInterestButtonString = "Unregister interest";
+				id = acc;
 			} else {
-				registerInterestButtonString= "Register interest";
+				registerInterestButtonString = "Register interest";
+				id = acc;
 			}
+		} else {
+			registerInterestButtonString = "Login to register interest";
+			registerButtonAnchor = "/user/register";
+
 		}
 
 		model.addAttribute("registerInterestButtonString", registerInterestButtonString);
 		model.addAttribute("registerButtonAnchor", registerButtonAnchor);
-		model.addAttribute("registerButtonId",id);
+		model.addAttribute("registerButtonId", id);
 	}
-
 	
 	/**
 	 * Error handler for gene not found
