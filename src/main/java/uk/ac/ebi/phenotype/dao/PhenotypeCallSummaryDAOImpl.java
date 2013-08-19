@@ -31,8 +31,6 @@ import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.Datasource;
@@ -41,11 +39,15 @@ import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
-@Service
 public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements PhenotypeCallSummaryDAO {
 
-	@Autowired
-	private SessionFactory sessionFactory;
+	/**
+	 * Creates a new Hibernate pipeline data access manager.
+	 * @param sessionFactory the Hibernate session factory
+	 */
+	public PhenotypeCallSummaryDAOImpl(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
 	
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
@@ -95,7 +97,7 @@ public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements Phe
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<PhenotypeCallSummary> getPhenotypeCallByMPAccession(String accId, int dbId) {
-		List<PhenotypeCallSummary> results = getCurrentSession().createQuery("SELECT DISTINCT pheno from PhenotypeCallSummary as pheno where pheno.phenotypeTerm.id.accession = ? and pheno.phenotypeTerm.id.databaseId = ? ")
+		List<PhenotypeCallSummary> results = getCurrentSession().createQuery("select distinct pheno from PhenotypeCallSummary as pheno where pheno.phenotypeTerm.id.accession = ? and pheno.phenotypeTerm.id.databaseId = ? ")
 				.setString(0, accId)
 				.setInteger(1, dbId)
 				.list();
@@ -111,34 +113,54 @@ public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements Phe
 	}	
 
 	@Transactional(readOnly = false)
-	public void deletePhenotypeCallSummariesByDatasource(Datasource datasource) throws SQLException {
+	public void deletePhenotypeCallSummariesByDatasource(Datasource datasource, Parameter parameter) throws SQLException {
 
-//		Session session = sessionFactory.openSession();
-//		Transaction tx = session.beginTransaction();
-//
-//		// execute the delete query
-//		String hqlDelete = "delete PhenotypeCallSummary as c where c.datasource.id = ?";
-//		int deletedEntities = session.createQuery(hqlDelete)
-//			.setInteger(0, datasource.getId())
-//			.executeUpdate();
-//		tx.commit();
-//		session.close();
-//		return deletedEntities;
-		
-		
-		String sql = "DELETE from phenotype_call_summary WHERE external_db_id=?";
+		String sql = "DELETE FROM phenotype_call_summary WHERE external_db_id=? AND parameter_id=?";
 
-		try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
-			stmt.setInt(1, datasource.getId());
-			stmt.executeUpdate();
+		try (PreparedStatement statement = getConnection().prepareStatement(sql)) {
+			statement.setInt(1, datasource.getId());
+			statement.setInt(2, parameter.getId());
+			statement.executeUpdate();
 		} 
 		
+	}
+
+	@Transactional(readOnly = false)
+	public void deleteCategoricalResultsByParameter(Parameter parameter) throws SQLException {
+
+		String query = "DELETE FROM stats_categorical_results WHERE parameter_id=?";
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+			statement.setInt(1, parameter.getId());
+			statement.executeUpdate();
+		}
+	}
+
+	@Transactional(readOnly = false)
+	public void deleteUnidimensionalResultsByParameter(Parameter parameter) throws SQLException {
+
+		String query = "DELETE FROM stats_unidimensional_results WHERE parameter_id=?";
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+			statement.setInt(1, parameter.getId());
+			statement.executeUpdate();
+		}
 	}
 
 	@Transactional(readOnly = false)
 	public void deleteCategoricalResults() throws SQLException {
 
 		String query = "TRUNCATE TABLE stats_categorical_results";
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+			statement.executeUpdate();
+		}
+	}
+
+	@Transactional(readOnly = false)
+	public void deleteUnidimensionalResults() throws SQLException {
+
+		String query = "TRUNCATE TABLE stats_unidimensional_results";
 
 		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
 			statement.executeUpdate();
@@ -153,7 +175,7 @@ public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements Phe
 		Transaction tx = session.beginTransaction();
 
 		// execute the delete query
-		String hqlDelete = "delete PhenotypeCallSummary as c where c.datasource.id = ? AND c.sex = ? AND c.zygosity = ? and parameter = ?";
+		String hqlDelete = "delete PhenotypeCallSummary as c where c.datasource.id = ? and c.sex = ? and c.zygosity = ? and parameter = ?";
 		int deletedEntities = session.createQuery(hqlDelete)
 			.setInteger(0, datasource.getId())
 			.setString(1, sex.name())
