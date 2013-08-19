@@ -1,4 +1,4 @@
-// Timestamp: 2013-05-18-10:58:47
+// Timestamp: 2013-07-30-14:42:29
 (function ($) {
     'use strict';
 
@@ -334,6 +334,14 @@
 
     MPI2.Search.AlleleDoc = function (solrDoc, entireSolrResponse) {
         this.solrDoc = solrDoc;
+
+        if(!solrDoc.allele_type) {
+            this.solrDoc.allele_type = '';
+        }
+
+        if(!solrDoc.allele_name) {
+            this.solrDoc.allele_name = '';
+        }
     };
 
     MPI2.Search.AlleleDoc.defaultSolrURL = MPI2.Search.config.defaultSolrURLs.allele;
@@ -1016,10 +1024,13 @@
                     name: 'allele-map',
                     title: 'Allele Map',
                     cellRenderer: function (doc) {
-                        var url = doc.solrDoc.allele_image_url;
+                        var url = doc.solrDoc.simple_allele_image_url;
+                        if (url) {
                         return $('<a href="' + url + '" target="_blank">' +
                                  '<img width="400" src="' + url + '" alt="allele image" />' +
                                  '</a>');
+                        }
+                        return '';
                     }
                 },
                 {
@@ -1093,6 +1104,14 @@
 
                 if (solrDoc.product_type === 'ES Cell' && solrDoc.allele_type === 'Conditional Ready') {
                     strainsWithConditionalReadyEsCells[solrDoc.strain] = true;
+                }
+
+                if (solrDoc.allele_type === 'Conditional Ready') {
+                    solrDoc.allele_type = 'Knockout First, Reporter-tagged insertion with conditional potential';
+                }
+
+                if (solrDoc.allele_type === 'Deletion') {
+                    solrDoc.allele_type = 'Reporter-Tagged Deletion';
                 }
             });
 
