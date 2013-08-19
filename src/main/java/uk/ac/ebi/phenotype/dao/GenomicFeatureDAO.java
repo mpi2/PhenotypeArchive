@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import uk.ac.ebi.phenotype.bean.GenomicFeatureBean;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 
 public interface GenomicFeatureDAO extends HibernateDAO {
@@ -38,8 +37,6 @@ public interface GenomicFeatureDAO extends HibernateDAO {
 	 */
 	public List<GenomicFeature> getAllGenomicFeatures();
 	
-	public List<GenomicFeatureBean> getAllGenomicFeatureBeans();
-
 	public GenomicFeature getGenomicFeatureByAccession(String accession);
 	
 	public GenomicFeature getGenomicFeatureByAccessionAndDbId(String accession, int dbId);
