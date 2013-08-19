@@ -243,7 +243,10 @@
   	    		});	
   	    	}
   	    	
-  	    	// reload sidebar for hash state	    	
+  	    	/*------------------------------------------------------------------------------------*/
+	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
+	    	/*------------------------------------------------------------------------------------*/    		    
+  	    	 	
   	    	if ( self.options.data.fq.match(/annotationTermId.+/)){
   	    		//console.log('UNfiltered images fq: ' + self.options.data.fq);
       			var solrSrchParams = $.extend({}, 
@@ -251,7 +254,8 @@
       					MPI2.searchAndFacetConfig.commonSolrParams);
       			
       			solrSrchParams.q = self.options.data.q;
-  			
+      			solrSrchParams.coreName = 'images'; // to work out breadkCrumb facet display
+      			solrSrchParams.facetCount = self.options.data.facetCount;
       			// for images, qf is either auto_suggest or text_search depending on query string
       			if ( solrSrchParams.q.indexOf('*') == -1 ){					
       				solrSrchParams.qf = 'text_search';
