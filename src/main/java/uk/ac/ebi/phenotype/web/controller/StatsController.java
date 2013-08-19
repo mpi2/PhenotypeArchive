@@ -22,9 +22,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -40,7 +37,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.phenotype.dao.BiologicalModelDAO;
 import uk.ac.ebi.phenotype.dao.CategoricalStatisticsDAO;
@@ -57,13 +53,16 @@ import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
-import uk.ac.ebi.phenotype.pojo.TableObject;
-import uk.ac.ebi.phenotype.pojo.UnidimensionalRecordDTO;
+import uk.ac.ebi.phenotype.stats.ChartData;
+import uk.ac.ebi.phenotype.stats.ChartType;
 import uk.ac.ebi.phenotype.stats.PipelineProcedureData;
 import uk.ac.ebi.phenotype.stats.PipelineProcedureTablesCreator;
+import uk.ac.ebi.phenotype.stats.TableObject;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalChartAndTableProvider;
-import uk.ac.ebi.phenotype.stats.continuous.ContinousChartAndTableProvider;
+import uk.ac.ebi.phenotype.stats.categorical.CategoricalResultAndCharts;
 import uk.ac.ebi.phenotype.stats.timeseries.TimeSeriesChartAndTableProvider;
+import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalChartAndTableProvider;
+import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalDataSet;
 
 @Controller
 public class StatsController implements BeanFactoryAware {
@@ -96,9 +95,10 @@ public class StatsController implements BeanFactoryAware {
 	@Autowired
 	private TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider;
 	@Autowired
-	private ContinousChartAndTableProvider continousChartAndTableProvider;
+	private UnidimensionalChartAndTableProvider continousChartAndTableProvider;
 	@Autowired
 	private PhenotypeCallSummaryDAO phenotypeCallSummaryDAO;
+	
 		
 	/**
 	 * Runs when the request missing an accession ID. This redirects to the
@@ -158,16 +158,13 @@ public class StatsController implements BeanFactoryAware {
 		// MGI:105313 male het param 655
 		// log.info("acc=" + acc);
 		List<JSONObject> charts = new ArrayList<JSONObject>();
-		List<String> continuouscharts = new ArrayList<String>();
-		List<String> continuousBarCharts = new ArrayList<String>();
-		List<String> timeSeriesCharts = new ArrayList<String>();
-		List<String> categoricalBarCharts=new ArrayList<String>();
+		List<UnidimensionalDataSet> allUnidimensionalChartsAndTables=new ArrayList<UnidimensionalDataSet>();
+		List<CategoricalResultAndCharts> allCategoricalResultAndCharts=new ArrayList<CategoricalResultAndCharts>();
 		List<TableObject> categoricalTables=new ArrayList<TableObject>();
-		List<TableObject> continuousTables=new ArrayList<TableObject>();
-		List<TableObject> timeSeriesTables=new ArrayList<TableObject>();
 		List<BiologicalModel> categoricalMutantBiologicalModels=new ArrayList<BiologicalModel>();
 		List<BiologicalModel> unidimensionalMutantBiologicalModels=new ArrayList<BiologicalModel>();
 		List<BiologicalModel> timeSeriesMutantBiologicalModels=new ArrayList<BiologicalModel>();
+		List<ChartData> timeSeriesChartsAndTables=new ArrayList<ChartData>();
 		// param 655
 		// female homzygote
 		// population id=4640 or 4047 - male, het.
@@ -197,21 +194,23 @@ public class StatsController implements BeanFactoryAware {
 			
 			if(observationTypeForParam.equals(ObservationType.time_series)){
 				//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
-				timeSeriesChartAndTableProvider.doTimeSeriesData(timeSeriesMutantBiologicalModels, parameter, acc , model, genderList, zyList, timeSeriesCharts, biologicalModelsParams, timeSeriesTables);
+				List<ChartData> timeSeriesForParam=timeSeriesChartAndTableProvider.doTimeSeriesData(timeSeriesMutantBiologicalModels, parameter, acc , model, genderList, zyList, timeSeriesChartsAndTables.size()+1, biologicalModelsParams);
+				timeSeriesChartsAndTables.addAll(timeSeriesForParam);
 			}
 			
 			if(observationTypeForParam.equals(ObservationType.unidimensional)){
 				//http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
 				
-					continousChartAndTableProvider.doContinuousData(unidimensionalMutantBiologicalModels, parameter, acc , model, genderList, zyList, continuouscharts, continuousBarCharts, continuousTables);
-				
+					UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doContinuousData(unidimensionalMutantBiologicalModels, parameter, acc , model, genderList, zyList, ChartType.UnidimensionalBoxPlot);
+				allUnidimensionalChartsAndTables.add(unidimensionalChartNTables);
 			}
 			if(observationTypeForParam.equals(ObservationType.categorical)){
 				//https://dev.mousephenotype.org/mi/impc/dev/phenotype-archive/stats/genes/MGI:1346872?parameterId=ESLIM_001_001_004
 			
-					categoricalChartAndTableProvider.doCategoricalData(categoricalMutantBiologicalModels, categoricalBarCharts, parameter, acc, model, genderList, zyList,
+					CategoricalResultAndCharts categoricalResultAndCharts=categoricalChartAndTableProvider.doCategoricalData(categoricalMutantBiologicalModels,  parameter, acc, model, genderList, zyList,
 					biologicalModelsParams, charts, categoricalTables, 
 					parameterId);
+					allCategoricalResultAndCharts.add(categoricalResultAndCharts);
 			
 			}
 			} catch (SQLException e) {
@@ -221,13 +220,83 @@ public class StatsController implements BeanFactoryAware {
 		}// end of parameterId iterations
 
 		model.addAttribute("unidimensionalMutantBiologicalModels", unidimensionalMutantBiologicalModels );
+		model.addAttribute("allUnidimensionalChartsAndTables", allUnidimensionalChartsAndTables);
 		model.addAttribute("timeSeriesMutantBiologicalModels", timeSeriesMutantBiologicalModels );
-		
+		model.addAttribute("timeSeriesChartsAndTables", timeSeriesChartsAndTables);
 		model.addAttribute("categoricalMutantBModel", categoricalMutantBiologicalModels );
-		model.addAttribute("categoricalBarCharts", categoricalBarCharts);
-		model.addAttribute("tables", categoricalTables);
+		model.addAttribute("allCategoricalResultAndCharts", allCategoricalResultAndCharts);
 		model.addAttribute("statsError", statsError );
 		return "stats";
+	}
+	
+	@RequestMapping("/stats/scatter/genes/{acc}")
+	public String genesScatter(
+			@RequestParam(required = false, /*defaultValue = "ESLIM_001_001_007",*/ value = "parameterId") String[] parameterIds,
+			@RequestParam(required = false,  value = "gender") String[] gender,
+			@RequestParam(required = false, value = "zygosity") String[] zygosity,
+			@RequestParam(required = false, value = "model") String[] biologicalModelsParam,
+			@PathVariable String acc, Model model)
+			throws GenomicFeatureNotFoundException {
+
+		boolean statsError=false;
+		// Get the global application configuration
+		@SuppressWarnings("unchecked")
+		Map<String, String> config = (Map<String, String>) bf
+				.getBean("globalConfiguration");
+		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
+		if (gene == null) {
+			throw new GenomicFeatureNotFoundException("Gene " + acc
+					+ " can't be found.", acc);
+		}
+		//
+		log.info(gene.toString());
+		model.addAttribute("gene", gene);
+
+		List<String> paramIds = getParamsAsList(parameterIds);
+		List<String> genderList = getParamsAsList(gender);
+		List<String> zyList=getParamsAsList(zygosity);
+		
+		List<UnidimensionalDataSet> allUnidimensionalChartsAndTables=new ArrayList<UnidimensionalDataSet>();
+		
+		List<BiologicalModel> unidimensionalMutantBiologicalModels=new ArrayList<BiologicalModel>();
+		
+		for (String parameterId : paramIds) {
+			
+			Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion(parameterId, 1, 0);
+			String[] parameterUnits=parameter.checkParameterUnits();
+			String xUnits="";
+			String yUnits="";
+			
+			if(parameterUnits.length>0){
+			 xUnits=parameterUnits[0];
+			}
+			if(parameterUnits.length>1){
+				yUnits=parameterUnits[1];
+			}
+			ObservationType observationTypeForParam=Utilities.checkType(parameter);
+			log.info("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
+			
+			//ESLIM_003_001_003 id=962 calorimetry data for time series graph new MGI:1926153
+			//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1926153?parameterId=ESLIM_003_001_003
+			try{
+			
+			if(observationTypeForParam.equals(ObservationType.unidimensional)){
+				//http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
+				
+					UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doContinuousData(unidimensionalMutantBiologicalModels, parameter, acc , model, genderList, zyList, ChartType.UnidimensionalScatter);
+				allUnidimensionalChartsAndTables.add(unidimensionalChartNTables);
+			}
+			
+			} catch (SQLException e) {
+				e.printStackTrace();
+				statsError=true;
+			}
+		}// end of parameterId iterations
+
+		model.addAttribute("unidimensionalMutantBiologicalModels", unidimensionalMutantBiologicalModels );
+		model.addAttribute("allUnidimensionalChartsAndTables", allUnidimensionalChartsAndTables);
+		model.addAttribute("statsError", statsError );
+		return "scatter";
 	}
 	
 	
@@ -244,6 +313,7 @@ public class StatsController implements BeanFactoryAware {
 			@RequestParam(required = false, value = "start") Integer start,
 			@RequestParam(required = false, value = "length") Integer length,
 			@RequestParam(required = false, value = "observationType") String observationType,
+			 @RequestParam(required = false, /*defaultValue = "ESLIM_001_001_007",*/ value = "parameterId") String[] parameterIds,
 			 Model model)
 			throws GenomicFeatureNotFoundException {
 		System.out.println("calling stats links");
@@ -255,7 +325,8 @@ public class StatsController implements BeanFactoryAware {
 			}
 		}
 		System.out.println("calling observation type="+oType);
-		getLinksForStats(start, length, model, oType);
+		List<String> paramIds = getParamsAsList(parameterIds);
+		getLinksForStats(start, length, model, oType, paramIds);
 		
 		return "statsLinksList";
 	}
@@ -267,9 +338,10 @@ public class StatsController implements BeanFactoryAware {
 	 * @param model
 	 * @param type
 	 */
-	private void getLinksForStats(Integer start, Integer length, Model model, ObservationType type) {
+	private void getLinksForStats(Integer start, Integer length, Model model, ObservationType type, List<String>parameterIds) {
 		if(start==null)start=0;
 		if(length==null)length=100;
+		
 		try {
 			System.out.println(start+" end="+length);
 			List<Map<String, String>> list=null;
@@ -277,6 +349,12 @@ public class StatsController implements BeanFactoryAware {
 			  list = timeSeriesStatisticsDAO.getListOfUniqueParametersAndGenes(start, length);
 			}
 			if(type==ObservationType.unidimensional){
+				if(parameterIds.size()>0){
+					for(String paramId: parameterIds){
+						List<Map<String, String>>tempList=unidimensionalStatisticsDAO.getListOfUniqueParametersAndGenes(start, length, paramId);
+						list.addAll(tempList);
+					}
+				}
 				  list = unidimensionalStatisticsDAO.getListOfUniqueParametersAndGenes(start, length);
 				}
 			if(type==ObservationType.categorical){
