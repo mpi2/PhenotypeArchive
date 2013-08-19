@@ -1,41 +1,3 @@
-//utility class for mouse projects to get informaiton from the sanger solr instance
-
-
-//get chromsome, start and stop for an mgi accession
-function getLocationForMgi(mgiAccession) {
-    var url=convertToHttps('http://www.sanger.ac.uk/mouseportal/solr/select?q=MGI:105369&wt=json');
-    //console.debug(url);
-    this.doCrossDomainRequest(url, function(responseXML) {
-            if (!responseXML) {
-                return callback([]);
-            }
-
-                var entryPoints = new Array();
-                
-                var segs = responseXML.getElementsByTagName('SEGMENT');
-                for (var i = 0; i < segs.length; ++i) {
-                    var seg = segs[i];
-                    var segId = seg.getAttribute('id');
-                    
-                    var segSize = seg.getAttribute('size');
-                    var segMin, segMax;
-                    if (segSize) {
-                        segMin = 1; segMax = segSize;
-                    } else {
-                        segMin = seg.getAttribute('start');
-                        segMax = seg.getAttribute('stop');
-                    }
-                    var segDesc = null;
-                    if (seg.firstChild) {
-                        segDesc = seg.firstChild.nodeValue;
-                    }
-                    entryPoints.push(new DASSegment(segId, segMin, segMax, segDesc));
-                }          
-               callback(entryPoints);
-    });		
-    
-}
-
 DASSource.prototype.doCrossDomainRequest = function(url, handler) {
     return doCrossDomainRequest(url, handler, this.credentials);
 }/* -*- mode: javascript; c-basic-offset: 4; indent-tabs-mode: nil -*- */
@@ -1751,6 +1713,7 @@ Browser.prototype.featurePopup = function(ev, feature, group){
 
     var name = pick(group.type, feature.type);
     //console.log('name='+name);
+    //mpi2 edit here 
     var fid = pick(feature.label,group.label, group.id, feature.id);
     //console.log('featureId='+feature.id);
     if (fid && fid.indexOf('__dazzle') != 0) {
@@ -1801,6 +1764,7 @@ Browser.prototype.featurePopup = function(ev, feature, group){
                 makeElement('th', 'Links'),
                 makeElement('td', links.map(function(l) {
                     //<img src="url" alt="some_text"/>
+                	//mpi2 specific
                 if(l.desc=='Cassette Image'){
                    // console.debug(l.desc);
                 return makeElement('div',makeElement('a', makeElement('img', l.desc, {width:320, src: l.uri}), {href:l.uri, target: '_new'}));//'<img src="http://www.knockoutmouse.org/targ_rep/alleles/37256/allele-image" alt="some_text"/>');
