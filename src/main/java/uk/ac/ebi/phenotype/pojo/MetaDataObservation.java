@@ -36,25 +36,8 @@ import javax.persistence.Table;
 @Table(name = "metadata_observation")
 public class MetaDataObservation extends Observation {
 
-	@Column(name = "property_key")
-	private String key;
-	
 	@Column(name = "property_value")
 	private String value;
-
-	/**
-	 * @return the key
-	 */
-	public String getKey() {
-		return key;
-	}
-
-	/**
-	 * @param key the key to set
-	 */
-	public void setKey(String key) {
-		this.key = key;
-	}
 
 	/**
 	 * @return the value
