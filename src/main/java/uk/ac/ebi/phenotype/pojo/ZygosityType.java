@@ -26,5 +26,9 @@ package uk.ac.ebi.phenotype.pojo;
 public enum ZygosityType {
 	homozygote,
 	heterozygote,
-	hemizygote
+	hemizygote;
+	
+	public String getName(){
+		return this.toString();
+	}
 }
