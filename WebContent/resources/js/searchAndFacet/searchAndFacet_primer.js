@@ -27,7 +27,7 @@ $(document).ready(function(){
 	$('input#userInput').val('');  // clears input when pages loads
 	
 	// default search when search page loads
-	if ( /search$/.exec(location.href) ){
+	if ( /search\/?$/.exec(location.href) ){
 		// do default gene search by * when search page loads
 		$.fn.fetchSolrFacetCount('*:*');
 	}
@@ -40,7 +40,9 @@ $(document).ready(function(){
 	// search via ENTER
 	$('input#userInput').keyup(function (e) {		
 	    if (e.keyCode == 13) { // user hits enter
+	    	
 	    	var input = $('input#userInput').val();
+	    	console.log('user input search: ' + input);
 	    	if (input == ''){
 	    		document.location.href = baseUrl + '/search';
 	    	}
@@ -54,12 +56,15 @@ $(document).ready(function(){
 	
 	// search via button click
 	$('button#acSearch').click(function(){
+		
 		var input = $('input#userInput').val();
+		console.log('button search ' + input);
 		if (input == ''){
     		document.location.href = baseUrl + '/search';
     	}
     	else {
-    		document.location.href = baseUrl + '/search#q=' + input;
+    		//document.location.href = baseUrl + '/search#q=' + input;
+    		window.location.hash = 'q=' + input;	
     	}		
 	});		
 
