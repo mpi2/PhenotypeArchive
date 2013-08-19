@@ -104,7 +104,7 @@
 	<field name="id"      type="string"   indexed="true"  stored="true"  multiValued="false" required="true"/>
 	<field name="mouseId"    type="string"   indexed="true"  stored="true"  multiValued="false" /> 
 	<field name="gender"    type="string"   indexed="true"  stored="true"  multiValued="false" /> 
-	<field name="colonyName"   type="string"   indexed="true"  stored="true"  multiValued="false" /> 
+	<!-- <field name="colonyName"   type="string"   indexed="true"  stored="true"  multiValued="false" /> now got colony_id is that useful or not -->
 	<field name="genotype"   type="string"   indexed="true"  stored="true"  multiValued="false" />
 	<field name="tagName"   type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="tagValue"   type="string"   indexed="true"  stored="true"  multiValued="true" />
@@ -116,7 +116,7 @@
 	<field name="annotationTermName"   type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="name"   type="string"   indexed="true"  stored="true"  multiValued="false" /> 
 	<field name="accession"   type="string"   indexed="true"  stored="true"  multiValued="true" />
-	<field name="expName"   type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="expName"   type="string"   indexed="true"  stored="true"  multiValued="false" />
 	<field name="expDescription"   type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="liveSampleGroup"   type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="fullResolutionFilePath" type="string"   indexed="false"  stored="true"/>
@@ -124,7 +124,7 @@
 	<field name="originalFileName" type="string"   indexed="false"  stored="true"/>
 	<field name="smallThumbnailFilePath" type="string"   indexed="true"  stored="true"/>
 	<field name="higherLevelMaTermId"  type="string"   indexed="true"  stored="true"  multiValued="true" />
-	<field name="ageInWeeks"  type="int"   indexed="true"  stored="true"  multiValued="false" />
+	<field name="ageInWeeks"  type="string"   indexed="true"  stored="true"  multiValued="false" />
 	<field name="higherLevelMaTermName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="higherLevelMpTermId"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="higherLevelMpTermName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
@@ -139,25 +139,16 @@
 	<field name="maTermName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="mpTermId"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="mpTermName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
-	<field name="expName_exp"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="expName_exp"  type="string"   indexed="true"  stored="true"  multiValued="false" />
 	<field name="symbol_gene"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="topLevel"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="liveSampleId"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="biological_model_id"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="dcfId"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
-	<!-- <field name="dcfMouseId"      type="string"   indexed="true"  stored="true"  multiValued="false"/> -->
 	<field name="dcfExpId"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
 	<field name="sangerProcedureName"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
 	<field name="sangerProcedureId"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
-	<!-- <field name="strain"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
-	<field name="coreStrain"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
-	<field name="fullStrain"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
-	<field name="pipeline"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
-	<field name="shapeOfRibs"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
-	<field name="skullShape"      type="string"   indexed="true"  stored="true"  multiValued="false"/> -->
-	
-	
-												
+
 	<field name="text"   type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
 	<field name="text_search" type="text_general" indexed="true" stored="false" multiValued="true"/>        
@@ -167,7 +158,6 @@
 <copyField source="*" dest="text"/>
 <copyField source="*" dest="text_search"/>
 
- <!-- field to use to determine and enforce document uniqueness. -->
 
  <!-- selected fields needes for generic search -->
 <copyField source="tagValue" dest="auto_suggest" /> 
@@ -180,17 +170,7 @@
 <copyField source="geneSynonyms" dest="auto_suggest" />
 <copyField source="subtype" dest="auto_suggest" />
 
-<copyField source="tagValue" dest="text_search" /> 
-<copyField source="expName" dest="text_search" />
-<copyField source="annotationTermName" dest="text_search" />
-<copyField source="higherLevelMaTermName" dest="text_search" />
-<copyField source="higherLevelMpTermName" dest="text_search" />
-<copyField source="symbol" dest="text_search" />
-<copyField source="geneName" dest="text_search" />
-<copyField source="geneSynonyms" dest="text_search" />
-<copyField source="subtype" dest="text_search" />
-
-
+ <!-- field to use to determine and enforce document uniqueness. -->
  <uniqueKey>id</uniqueKey>
 
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
