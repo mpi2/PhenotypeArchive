@@ -34,7 +34,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,9 +49,10 @@ public class HibernateDAOImpl implements HibernateDAO {
 	/**
 	 * The session factory used to query the database
 	 */
-	@Autowired
 	protected SessionFactory sessionFactory;
-	
+
+
+
 	/**
 	 * Method to get a connection from the session factory
 	 * This is deprecated and should be replaced!
