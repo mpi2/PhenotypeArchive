@@ -142,7 +142,7 @@ public class DataTableController {
 			jsonStr = parseJsonforGeneDataTable(request, json, query);
 		} 
 		else if (mode.equals("pipelineGrid")) {
-			jsonStr = parseJsonforProtocolDataTable(json);
+			jsonStr = parseJsonforProtocolDataTable(json, request);
 		} 
 		else if (mode.equals("imagesGrid")) {
 			jsonStr = parseJsonforImageDataTable(json, start, length, solrParams, showImgView, request);
@@ -200,7 +200,7 @@ public class DataTableController {
 		
 		return j.toString();	
 	}
-	public String parseJsonforProtocolDataTable(JSONObject json){
+	public String parseJsonforProtocolDataTable(JSONObject json, HttpServletRequest request){
 		
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
@@ -211,7 +211,7 @@ public class DataTableController {
 		j.put("iTotalRecords", totalDocs);
 		j.put("iTotalDisplayRecords", totalDocs);
 		
-		String impressBaseUrl = "http://beta.mousephenotype.org/impress/impress/displaySOP/";
+		String impressBaseUrl = request.getAttribute("drupalBaseUrl") + "/impress/impress/displaySOP/";
 		
 		for (int i=0; i<docs.size(); i++){
 			List<String> rowData = new ArrayList<String>();
@@ -412,7 +412,7 @@ public class DataTableController {
 
 					List<String> rowData = new ArrayList<String>();
 
-					Map<String, String> hm = solrIndex.renderFacetField(names, request.getParameter("baseUrl")); //MA:xxx, MP:xxx, MGI:xxx, exp				
+					Map<String, String> hm = solrIndex.renderFacetField(names, (String)request.getAttribute("baseUrl")); //MA:xxx, MP:xxx, MGI:xxx, exp				
 					String displayAnnotName = "<span class='annotType'>" + hm.get("label").toString() + "</span>: " + hm.get("link").toString();
 					String facetField = hm.get("field").toString();
 
