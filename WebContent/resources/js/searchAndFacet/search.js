@@ -22,7 +22,7 @@
 	
 	$.fn.fetchSolrFacetCount = function(q){		
 		
-		$('div#userKeyword').html('Search keyword: <span>' + q + '</span>');	
+		//$('div#userKeyword').html('Search keyword: <span>' + q + '</span>');	
 		
 		var oFacets = {};
 		oFacets.count = {};		
@@ -143,7 +143,7 @@
     	    	
     	    	if ( ! coreName ){
     	    		// nothing found
-    	    		$('div#userKeyword').html('Search keyword: ' + q + ' - Found nothing in the database');
+    	    		$('div#userKeyword').html('Search keyword: ' + q + ' has returned no entry in the database');    	    	
     	    		$('div#mpi2-search').html('');
     	    		$('div.facetCatList').html('');
     	    		$('div.facetCat').removeClass('facetCatUp');	    	    		
@@ -156,7 +156,8 @@
     					data: {	q: q, 
     							core: coreName, 
     							fq: hashParams.fq ? hashParams.fq : MPI2.searchAndFacetConfig.facetParams[widgetName].fq,
-    							qf: MPI2.searchAndFacetConfig.facetParams[widgetName].qf    							
+    							qf: MPI2.searchAndFacetConfig.facetParams[widgetName].qf,
+    							facetCount: oFacets.count[coreName]
     							},
     			        geneGridElem: 'div#mpi2-search'			                                      
     				});
@@ -176,7 +177,7 @@
     	        	for ( var i=0; i< aCores.length; i++){
     	        		var core = aCores[i];
     	        		if ( oFacets.count[core] != 0 ){    	        	
-    	        			_prepareCores(core, q);
+    	        			_prepareCores(core, q, oFacets);
     	        		}
     	        	}    	        		        	
     	    	}    	    	
@@ -187,7 +188,7 @@
 		});
 	}
 		
-	function _prepareCores(core, q, count){
+	function _prepareCores(core, q, oFacets){
 		
 		var widgetName = core + 'Facet';		
 		window.jQuery('div#' + core + 'Facet').click(function(){
@@ -208,7 +209,8 @@
 					$this[widgetName]({  
 						data: {q: q, core: core, 
 							fq: MPI2.searchAndFacetConfig.facetParams[core + 'Facet'].fq,
-							qf: MPI2.searchAndFacetConfig.facetParams[core + 'Facet'].qf
+							qf: MPI2.searchAndFacetConfig.facetParams[core + 'Facet'].qf,
+							facetCount: oFacets.count[core]
 							},
 							geneGridElem: 'div#mpi2-search'			                                      
 					});
