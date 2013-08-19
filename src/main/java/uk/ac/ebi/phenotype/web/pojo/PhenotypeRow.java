@@ -34,7 +34,7 @@ import uk.ac.ebi.phenotype.pojo.ZygosityType;
  * Represents a single row in a phenotype table
  * 
  */
-public class PhenotypeRow {
+public class PhenotypeRow implements Comparable<PhenotypeRow>{
 	
 	private final Logger log = LoggerFactory.getLogger(PhenotypeRow.class);
 
@@ -246,6 +246,15 @@ public class PhenotypeRow {
 				+ ", projectId=" + projectId + ", procedure=" + procedure
 				+ ", parameter=" + parameter + ", dataSourceName="
 				+ dataSourceName + "]";
+	}
+
+	@Override
+	public int compareTo(PhenotypeRow o) {
+		if(o.allele==null || this.allele==null){
+			return -1;
+		}
+		return this.allele.getSymbol().compareTo(o.allele.getSymbol());
+		
 	}
 
 	
