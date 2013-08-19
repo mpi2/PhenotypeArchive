@@ -26,19 +26,21 @@ package uk.ac.ebi.phenotype.dao;
 import java.util.List;
 
 import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import uk.ac.ebi.phenotype.pojo.Allele;
 import uk.ac.ebi.phenotype.pojo.Strain;
 
 
-
-@Service
 public class StrainDAOImpl extends HibernateDAOImpl implements StrainDAO {
 
-	@Autowired
-	private SessionFactory sessionFactory;
+	/**
+	 * Creates a new Hibernate sequence region data access manager.
+	 * @param sessionFactory the Hibernate session factory
+	 */
+	public StrainDAOImpl(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -50,6 +52,12 @@ public class StrainDAOImpl extends HibernateDAOImpl implements StrainDAO {
 	public Strain getStrainByName(String name) {
 		return (Strain) getCurrentSession().createQuery("from Strain as s where s.name= ?").setString(0, name).uniqueResult();
 	}
+	
+	@Transactional(readOnly = true)
+	public Strain getStrainByAcc(String acc) {
+		return (Strain) getCurrentSession().createQuery("from Strain as s where s.id.accession= ?").setString(0, acc).uniqueResult();
+	}
+
 
 	@Transactional(readOnly = true)
 	public Strain getStrainBySynonym(String name) {
@@ -61,7 +69,12 @@ public class StrainDAOImpl extends HibernateDAOImpl implements StrainDAO {
 
 	@Transactional(readOnly = false)
 	public void saveStrain(Strain strain) {
-		getCurrentSession().saveOrUpdate(strain);
+		try {
+			getCurrentSession().merge(strain);
+		} catch (Exception e) {
+			e.printStackTrace();
+			getCurrentSession().saveOrUpdate(strain);
+		}
 
 	}
 
