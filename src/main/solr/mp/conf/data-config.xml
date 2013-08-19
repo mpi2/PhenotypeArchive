@@ -1,7 +1,23 @@
 <dataConfig>
 
-	<dataSource name="ds1" jndiName="java:comp/env/jdbc/komp2DataSource" />
-	<dataSource name="ds2" jndiName="java:comp/env/jdbc/ontodbDataSource" />
+	<!--<dataSource name="ds1" jndiName="java:comp/env/jdbc/komp2DataSource" />
+	<dataSource name="ds2" jndiName="java:comp/env/jdbc/ontodbDataSource" />-->
+<dataSource name="ontods" jndiName="java:comp/env/jdbc/ontodbDataSource" />-->
+
+        <dataSource 
+		name="ds1"
+		type="JdbcDataSource"
+   		driver="com.mysql.jdbc.Driver"
+  		url="jdbc:mysql://localhost/komp2?autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull"
+   		user="root" 
+   		password="a"/>
+	<dataSource 
+		name="ds2"
+		type="JdbcDataSource"
+   		driver="com.mysql.jdbc.Driver"
+  		url="jdbc:mysql://localhost/ontodb_komp2"
+   		user="root" 
+   		password="a"/>
 
 	<document name="komp2_indexing">
 		<!-- test MP:0000180 for multipe node_id being linked to this term -->
