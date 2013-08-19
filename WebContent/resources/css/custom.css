@@ -170,7 +170,7 @@ div.dataTables_length label {float: left; text-align: left;}
 div.dataTables_length select {width: 75px;}
 div.dataTables_filter label {float: right;}
 div.dataTables_info {padding-top: 8px;}
-div.dataTables_paginate {float: right;margin: 0;}
+div.dataTables_paginate {float: right;margin: 0; visibility:hidden;}
 table {margin-bottom: 6px !important;/* clear: both; */}
 .pagination-small {height: 26px;}
 .pagination-small ul li a {padding: 0 10px;line-height: 24px;}
@@ -325,3 +325,23 @@ body div#allele_tracker_panel_results  a img {
 .graphGenBackground{
 	 font-size: 0.8em;
 }
+/* stye so that filter dropdowns have tick boxes next to them and not block ie. above like bootstrap specifies for labels */
+.ui-dropdownchecklist-text{
+	display: inline;/* background-color: #2f96b4; */
+	/* background-color: white; */
+	color: black;
+	margin: 4px;
+	font-size: 14px;
+	}
+/*make the checkboxes have a reasonable spacing around them*/
+.ui-dropdownchecklist-item input[type=checkbox] {
+	margin: 4px 4px 4px;
+	}
+
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default{
+	background: white;
+}
+	
+ .ui-state-hover {
+	background-color: #d57c24;
+} 
