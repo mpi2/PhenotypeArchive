@@ -45,6 +45,8 @@ DROP TABLE IF EXISTS live_sample;
 DROP TABLE IF EXISTS metadata_observation;
 DROP TABLE IF EXISTS multidimensional_observation;
 DROP TABLE IF EXISTS observation;
+DROP TABLE IF EXISTS observation_population;
+DROP TABLE IF EXISTS population;
 DROP TABLE IF EXISTS ontology_relationship;
 DROP TABLE IF EXISTS ontology_term;
 DROP TABLE IF EXISTS organisation;
@@ -98,7 +100,7 @@ CREATE TABLE meta_info (
 We made this table generic enough to store legacy project data
 */
 CREATE TABLE project (
-	id                          INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	id                          INT(10) UNSIGNED NOT NULL,
 	name                        VARCHAR(255) NOT NULL DEFAULT '',
 	fullname                    VARCHAR(255) NOT NULL DEFAULT '',
 	description                 TEXT,
@@ -152,7 +154,7 @@ CREATE TABLE ilar (
 -- this table holds all the external/ASTD database names 
 CREATE TABLE external_db (
 
-    id                          INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    id                          INT(10) UNSIGNED NOT NULL,
     name                        VARCHAR(100) NOT NULL,
     short_name                  VARCHAR(40) NOT NULL,
     version                     VARCHAR(15) NOT NULL DEFAULT '',
@@ -429,7 +431,7 @@ CREATE TABLE biological_sample (
  * An animal sample is a type of sample
  * The discriminative value is on the sample type
  */
-drop table live_sample;
+
 CREATE TABLE live_sample (
 
     id                        INT(10) UNSIGNED NOT NULL,
@@ -476,7 +478,7 @@ CREATE TABLE experiment (
     db_id                      INT(10) UNSIGNED NOT NULL,
     external_id                VARCHAR(50),
     date_of_experiment         TIMESTAMP,
-    organisation_id             INT(10) UNSIGNED NOT NULL,  
+    organisation_id            INT(10) UNSIGNED NOT NULL,  
     
     PRIMARY KEY(id),
     KEY external_db_idx(db_id),
@@ -515,6 +517,7 @@ CREATE TABLE observation (
     db_id                      INT(10) UNSIGNED NOT NULL,
 	biological_sample_id       INT(10) UNSIGNED NOT NULL,
 	parameter_id               INT(10) UNSIGNED NOT NULL,
+	parameter_stable_id        varchar(30) NOT NULL,
 	population_id              INT(10) UNSIGNED NOT NULL,
 	observation_type           enum('categorical', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text'),
 	missing                    TINYINT(1) DEFAULT 0,
@@ -522,9 +525,51 @@ CREATE TABLE observation (
 	PRIMARY KEY(id),
 	KEY biological_sample_idx(biological_sample_id),
 	KEY parameter_idx(parameter_id),
+	KEY parameter_stable_idx(parameter_stable_id),
 	KEY population_idx(population_id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+
+/**
+ * observation_population
+ * An observation is a experimental parameter measurement (data point, image 
+ * record, etc.) 
+ * of a phenotype of a given control/experimental biological sample.
+ * id: primary surrogate key for this table
+ * population_id: grouping index for collection observations together
+ * observation_id: the observation belonging to this population
+ */
+CREATE TABLE observation_population (
+
+    id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	observation_id             INT(10) UNSIGNED NOT NULL,
+	population_id              INT(10) UNSIGNED NOT NULL,
+
+	PRIMARY KEY(id),
+	KEY population_observation_idx(population_id, observation_id)
+
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+CREATE TABLE population (
+
+    id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    parameter_id               INT(10) UNSIGNED NOT NULL,
+    organisation_id            INT(10) UNSIGNED NOT NULL,
+    acc                        VARCHAR(20) NOT NULL,
+    db_id                      INT(10) NOT NULL,
+    zygosity                   ENUM('homozygote', 'heterozygote', 'hemizygote'),
+    sex                        ENUM('female', 'hermaphrodite', 'male'),
+    control_batches            INT(10) UNSIGNED NOT NULL DEFAULT 0,
+    experimental_batches       INT(10) UNSIGNED NOT NULL DEFAULT 0,
+    concurrent_controls        TINYINT(1) DEFAULT 0,
+
+    PRIMARY KEY(id),
+    KEY parameter_idx(parameter_id),
+    KEY genomic_feature_idx (acc, db_id)
+
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
 
 /**
  * text_observation
@@ -626,16 +671,14 @@ CREATE TABLE time_series_observation (
  * metadata_observation
  * Some experimental settings can change from one experiment to another.
  * This table stores the meta information associated to the observation
- * as key/value property pair
+ * as value property
  */
 CREATE TABLE metadata_observation (
 
 	id                        INT(10) UNSIGNED NOT NULL,
-	property_key              VARCHAR(100) NOT NULL,
 	property_value            VARCHAR(100) NOT NULL,
 	
 	PRIMARY KEY(id),
-	KEY property_key_idx(property_key),
 	KEY property_value_idx(property_value)
 	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
@@ -670,7 +713,7 @@ CREATE TABLE phenotype_pipeline (
     description               VARCHAR(200),
     major_version             INT(10) NOT NULL DEFAULT 1,
     minor_version             INT(10) NOT NULL DEFAULT 0,
-
+    stable_key                INT(10) DEFAULT 0,
     PRIMARY KEY (id)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
@@ -715,11 +758,11 @@ CREATE TABLE phenotype_procedure (
     stable_id                 VARCHAR(40) NOT NULL,
     db_id                     INT(10) NOT NULL,
     name                      VARCHAR(200) NOT NULL,
-    description               VARCHAR(200),
+    description               TEXT,
     major_version             INT(10) NOT NULL DEFAULT 1,
     minor_version             INT(10) NOT NULL DEFAULT 0,
     is_mandatory              TINYINT(1) DEFAULT 0,
-    
+
     PRIMARY KEY (id)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
@@ -791,7 +834,8 @@ CREATE TABLE phenotype_parameter (
     sequence                  INT(10) UNSIGNED NOT NULL,
     media                     TINYINT(1) DEFAULT 0,
     data_analysis             TINYINT(1) DEFAULT 0,
-    
+    stable_key                INT(10) DEFAULT 0,
+ 
     PRIMARY KEY (id),
     KEY parameter_stable_id_idx (stable_id)
     
@@ -871,6 +915,38 @@ CREATE TABLE phenotype_parameter_ontology_annotation (
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
+CREATE TABLE phenotype_parameter_lnk_eq_annotation (
+
+    annotation_id             INT(10) UNSIGNED NOT NULL,
+    parameter_id              INT(10) UNSIGNED NOT NULL,
+
+    KEY parameter_idx (parameter_id),
+    KEY annotation_idx (annotation_id)
+    
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+/*
+ * We compute the significance of the occurence of some observation
+ * by comparison with WT/control animals.
+ * 
+ */
+CREATE TABLE phenotype_parameter_eq_annotation (
+
+    id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    event_type                enum('abnormal', 'abnormal_specific', 'increased', 'decreased', 'inferred', 'trait'),
+    option_id                 INT(10) UNSIGNED,
+    sex                       ENUM('female', 'hermaphrodite', 'male'), 
+    ontology_acc              VARCHAR(20),
+    ontology_db_id            INT(10),
+    quality_acc               VARCHAR(20),
+    quality_db_id             INT(10),
+    
+    PRIMARY KEY (id),
+    KEY ontology_idx (ontology_acc, ontology_db_id),
+    KEY quality_idx (quality_acc, quality_db_id),
+    KEY option_idx (option_id)
+    
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /*
  * Phenodeviant result summary
@@ -882,6 +958,7 @@ CREATE TABLE phenotype_call_summary (
     external_id               VARCHAR(20) NULL,
     external_db_id            INT(10),
     project_id                INT(10) UNSIGNED NOT NULL,
+    organisation_id           INT(10) UNSIGNED NOT NULL,
     gf_acc                    VARCHAR(20),
     gf_db_id                  INT(10),
     strain_acc                VARCHAR(20),
@@ -896,6 +973,9 @@ CREATE TABLE phenotype_call_summary (
 
     mp_acc                    VARCHAR(20) NOT NULL,
     mp_db_id                  INT(10) NOT NULL,
+    
+    p_value                   FLOAT NULL DEFAULT 1,
+    effect_size               FLOAT NULL DEFAULT 0,
 
     PRIMARY KEY (id),
     KEY parameter_call_idx (parameter_id),
