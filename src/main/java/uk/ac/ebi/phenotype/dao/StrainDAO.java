@@ -25,6 +25,7 @@ package uk.ac.ebi.phenotype.dao;
 
 import java.util.List;
 
+import uk.ac.ebi.phenotype.pojo.Allele;
 import uk.ac.ebi.phenotype.pojo.Strain;
 
 public interface StrainDAO extends HibernateDAO {
@@ -50,4 +51,6 @@ public interface StrainDAO extends HibernateDAO {
 	 * @param strain the strain to save
 	 */
 	public void saveStrain(Strain strain);
+
+	public Strain getStrainByAcc(String strain);
 }
