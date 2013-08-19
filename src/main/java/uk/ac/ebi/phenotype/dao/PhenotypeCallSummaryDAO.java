@@ -31,7 +31,6 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
-import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
 
 public interface PhenotypeCallSummaryDAO extends HibernateDAO {
 
@@ -61,16 +60,19 @@ public interface PhenotypeCallSummaryDAO extends HibernateDAO {
 
 	/**
 	 * Delete all Phenotype call summaries by project
+	 * @param parameter 
 	 * 
 	 * @param project
 	 * @return the count of rows deleted
 	 * @throws SQLException 
 	 */
-	public void deletePhenotypeCallSummariesByDatasource(Datasource datasource) throws SQLException;
+	public void deletePhenotypeCallSummariesByDatasource(Datasource datasource, Parameter parameter) throws SQLException;
 
-	public int deletePhenotypeCallSummariesByDatasourceParameterSexZygosity(
-			Datasource datasource, Parameter parameter, SexType sex,
-			ZygosityType zygosity);
+	public int deletePhenotypeCallSummariesByDatasourceParameterSexZygosity(Datasource datasource, Parameter parameter, SexType sex, ZygosityType zygosity);
+
+	public void deleteCategoricalResultsByParameter(Parameter parameter) throws SQLException;
+	public void deleteUnidimensionalResultsByParameter(Parameter parameter) throws SQLException;
 
 	public void deleteCategoricalResults() throws SQLException;
+	public void deleteUnidimensionalResults() throws SQLException;
 }
