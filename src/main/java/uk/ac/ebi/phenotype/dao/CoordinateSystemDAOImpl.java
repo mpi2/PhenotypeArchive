@@ -26,18 +26,20 @@ package uk.ac.ebi.phenotype.dao;
 import java.util.List;
 
 import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.CoordinateSystem;
 
-@Service
 public class CoordinateSystemDAOImpl extends HibernateDAOImpl implements CoordinateSystemDAO {
 
-	@Autowired
-	SessionFactory sessionFactory;
-	
+	/**
+	 * Creates a new Hibernate coordinate system data access manager.
+	 * @param sessionFactory the Hibernate session factory
+	 */
+	public CoordinateSystemDAOImpl(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
+		
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<CoordinateSystem> getAllCoordinateSystems() {
