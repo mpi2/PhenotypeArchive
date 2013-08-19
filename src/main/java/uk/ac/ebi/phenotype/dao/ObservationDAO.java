@@ -22,6 +22,7 @@ package uk.ac.ebi.phenotype.dao;
  * @since May 2012
  */
 
+import java.sql.SQLException;
 import java.util.List;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalSample;
@@ -31,6 +32,8 @@ import uk.ac.ebi.phenotype.pojo.Observation;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 public interface ObservationDAO extends HibernateDAO {
 
@@ -77,5 +80,25 @@ public interface ObservationDAO extends HibernateDAO {
 	public int deleteAllMetadataObservationsWithoutExperimentByDatasource(Datasource datasource);
 	
 	public int deleteAllExperimentsWithoutObservationByDatasource(Datasource datasource);
+
+	public List<Parameter> getAllParametersWithObservations();
+	public List<Integer> getAllParameterIdsWithObservationsByOrganisation(Organisation organisation) throws SQLException;
+	public List<Integer> getAllCategoricalParameterIdsWithObservationsByOrganisation(Organisation organisation) throws SQLException;
+
+	public List<Observation> getAllObservationsByParameter(Parameter parameter);
+
+	public List<String> getAllGeneAccessionIdsByParameterOrganisationStrainZygositySex(Parameter parameter, Organisation organisation, String strain, ZygosityType zygosity, SexType sex) throws SQLException;
+
+	public List<Integer> getAllObservationIdsByParameterGeneAccZygosityOrganisationStrainSex(Parameter parameter, String geneAcc, ZygosityType zygosity, Organisation organisation, String strain, SexType sex) throws SQLException;
+	
+	public Observation getObservationById(Integer obsId);
+
+	public List<Organisation> getAllOrganisationsWithObservations();
+	
+	public List<String> getAllStrainsByParameterOrganistion(Parameter parameter, Organisation organisation) throws SQLException;
+
+	public List<Integer> getAllUnidimensionalParameterIdsWithObservationsByOrganisation(Organisation organisation) throws SQLException;
+
+	public List<String> getAllGeneAccessionIdsByParameterOrganisationStrainZygosity(Parameter parameter, Organisation organisation, String strain, ZygosityType zygosity) throws SQLException;
 	
 }
