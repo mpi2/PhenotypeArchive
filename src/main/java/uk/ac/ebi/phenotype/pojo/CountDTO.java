@@ -58,6 +58,21 @@ import javax.persistence.NamedNativeQuery;
 			resultClass = CountDTO.class
 	),	
 	@NamedNativeQuery(
+			name = "deleteBiologicalModelAndRelatedData",
+			query = "DELETE bm, bms, bs, ls, bmstrain, bmgf, bma, bmp"
+				+ " FROM biological_model bm"
+				+ " LEFT OUTER JOIN biological_model_genomic_feature bmgf ON bm.id=bmgf.biological_model_id"
+				+ " LEFT OUTER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bm.id"
+				+ " LEFT OUTER JOIN biological_model_allele bma ON bma.biological_model_id=bm.id"
+				+ " LEFT OUTER JOIN biological_model_sample bms ON bms.biological_model_id=bm.id"
+				+ " LEFT OUTER JOIN biological_model_phenotype bmp ON bmp.biological_model_id=bm.id"
+				+ " LEFT OUTER JOIN biological_sample bs ON bs.id=bms.biological_sample_id"
+				+ " LEFT OUTER JOIN live_sample ls ON ls.id=bs.id"
+				+ " WHERE bm.db_id=:dbID"
+				+ " AND bs.organisation_id=:orgID",
+			resultClass = CountDTO.class
+	),	
+	@NamedNativeQuery(
 			name = "deleteBiologicalModels",
 			query = "DELETE biological_model FROM biological_model WHERE biological_model.db_id = :dbID",
 			resultClass = CountDTO.class
