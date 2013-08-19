@@ -16,8 +16,6 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
@@ -25,15 +23,21 @@ import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalRecordDTO;
+import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.stats.MouseDataPoint;
 
-@Service
 public class UnidimensionalStatisticsDAOImpl extends StatisticsDAOImpl implements UnidimensionalStatisticsDAO {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private SessionFactory sessionFactory;
+	/**
+	 * Creates a new Hibernate sequence region data access manager.
+	 * @param sessionFactory the Hibernate session factory
+	 */
+	public UnidimensionalStatisticsDAOImpl(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
 
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
@@ -55,6 +59,58 @@ public class UnidimensionalStatisticsDAOImpl extends StatisticsDAOImpl implement
 			.setLong(2, parameter.getId())
 			.setInteger(3, populationId)
 			.list();
+		
+		
+	}
+	
+	@Transactional(readOnly = true)
+	public List<MouseDataPoint> getMutantDataPointsWithMouseName(SexType sex, ZygosityType zygosity, Parameter parameter,  Integer populationId){
+		
+	    PreparedStatement statement = null;
+	    ResultSet resultSet = null;
+		List<MouseDataPoint> mouseDataPoints = new ArrayList<MouseDataPoint>();
+
+		String query = "SELECT * FROM komp2.stats_mv_experimental_unidimensional_values vw, biological_sample bs where vw.sex=? AND vw.zygosity=? AND vw.parameter_id=?  AND vw.population_id=? and vw.biological_sample_id=bs.id";
+
+		try (Connection connection = getConnection()) {
+	        statement = connection.prepareStatement(query);
+	        statement.setString(1, sex.name());
+	        statement.setString(2, zygosity.getName());
+	        statement.setInt(3, parameter.getId());
+	        statement.setInt(4, populationId);
+	        resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				mouseDataPoints.add(new MouseDataPoint(resultSet.getString("external_id"), resultSet.getFloat("data_point")));
+			}
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		//SELECT * FROM komp2.stats_mv_experimental_unidimensional_values vw, biological_sample bs where vw.sex='male' AND vw.zygosity='heterozygote' AND vw.parameter_id=1268  AND vw.population_id=301919 and vw.biological_sample_id=bs.id;
+	return mouseDataPoints;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Transactional(readOnly = true)
+	public List<MouseDataPoint> getControlDataPointsWithMouseName(Integer populationId){
+		
+	    PreparedStatement statement = null;
+	    ResultSet resultSet = null;
+		List<MouseDataPoint> mouseDataPoints = new ArrayList<MouseDataPoint>();
+
+		String query = "SELECT * FROM komp2.stats_mv_control_unidimensional_values vw, biological_sample bs where  vw.population_id=? and vw.biological_sample_id=bs.id";
+
+		try (Connection connection = getConnection()) {
+			 statement = connection.prepareStatement(query);
+	        statement.setInt(1, populationId);
+	        resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				mouseDataPoints.add(new MouseDataPoint(resultSet.getString("external_id"), resultSet.getFloat("data_point")));
+			}
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		//SELECT * FROM komp2.stats_mv_experimental_unidimensional_values vw, biological_sample bs where vw.sex='male' AND vw.zygosity='heterozygote' AND vw.parameter_id=1268  AND vw.population_id=301919 and vw.biological_sample_id=bs.id;
+	return mouseDataPoints;
 	}
 
 	@Transactional(readOnly = true)
@@ -99,11 +155,14 @@ public class UnidimensionalStatisticsDAOImpl extends StatisticsDAOImpl implement
 			.list();
 	}
 
-	public Double getpValueByParameterAndBiologicalModel(Parameter parameter, BiologicalModel biologicalModel) {
-		return (Double) getCurrentSession().createQuery("SELECT DISTINCT populationId FROM UnidimensionalMutantView WHERE parameter=? AND biologicalModel=?")
-			.setLong(0, parameter.getId())
-			.setInteger(1, biologicalModel.getId())
-			.uniqueResult();
+	public List<UnidimensionalResult> getUnidimensionalResultByParameterAndBiologicalModel(Parameter parameter, BiologicalModel controlBiologicalModel, BiologicalModel mutantBiologicalModel) {
+		return (List<UnidimensionalResult>) getCurrentSession().createQuery("from UnidimensionalResult u  WHERE parameter=? and control_id=? and experimental_id=?")
+			.setInteger(0, parameter.getId())
+			.setInteger(1, controlBiologicalModel.getId())
+			.setInteger(2, mutantBiologicalModel.getId())
+			.list();
+		
+		//select p from AnalysisPolicy p where exists elements(p.nodeIds)
 	}
 
 
@@ -112,10 +171,9 @@ public class UnidimensionalStatisticsDAOImpl extends StatisticsDAOImpl implement
 	 */
 	@Transactional(readOnly = true)
 	public SexType getSexByPopulation(Integer populationId) {
-		SexType sex = (SexType) getCurrentSession().createQuery("SELECT DISTINCT c.sex FROM UnidimensionalMutantView c WHERE c.populationId=?")
+		return (SexType) getCurrentSession().createQuery("SELECT DISTINCT c.sex FROM UnidimensionalMutantView c WHERE c.populationId=?")
 			.setInteger(0, populationId)
 			.uniqueResult();
-		return sex;
 	}
 
 	/**
@@ -124,10 +182,9 @@ public class UnidimensionalStatisticsDAOImpl extends StatisticsDAOImpl implement
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	public List<ZygosityType> getZygositiesByPopulation(Integer populationId) {
-		List<ZygosityType> zygosity = (List<ZygosityType>) getCurrentSession().createQuery("SELECT DISTINCT c.zygosity FROM UnidimensionalMutantView c WHERE c.populationId=?")
+		return (List<ZygosityType>) getCurrentSession().createQuery("SELECT DISTINCT c.zygosity FROM UnidimensionalMutantView c WHERE c.populationId=?")
 			.setInteger(0, populationId)
 			.list();
-		return zygosity;
 	}
 
 
@@ -284,7 +341,7 @@ public class UnidimensionalStatisticsDAOImpl extends StatisticsDAOImpl implement
 				urdto.setColony(colonyId);
 				urdto.setGender(resultSet.getString("sex"));
 				urdto.setGenotype(colonyId);
-				urdto.setMutant_model_id(resultSet.getInt("biological_model_id"));
+				urdto.setMutantModelId(resultSet.getInt("biological_model_id"));
 				urdto.setMutantZygosity(ZygosityType.valueOf(resultSet.getString("zygosity")));
 				urdto.setOrganisation(organisation);
 				urdto.setParameter(parameter);
@@ -305,7 +362,7 @@ public class UnidimensionalStatisticsDAOImpl extends StatisticsDAOImpl implement
 				urdto.setColony("+/+");
 				urdto.setGender(resultSet.getString("sex"));
 				urdto.setGenotype(colonyId);
-				urdto.setControl_model_id(resultSet.getInt("biological_model_id"));
+				urdto.setControlModelId(resultSet.getInt("biological_model_id"));
 				urdto.setOrganisation(organisation);
 				urdto.setParameter(parameter);
 				urdto.setValue(resultSet.getString("data_point"));
@@ -335,6 +392,48 @@ public class UnidimensionalStatisticsDAOImpl extends StatisticsDAOImpl implement
 		}
 		
 		return resultsList;
+	}
+	
+	public List<Map<String,String>> getListOfUniqueParametersAndGenes(int start, int length, String parameterId) throws SQLException{
+		String query;
+
+		List<Map<String,String>> resultsList=new ArrayList<Map<String,String>>();
+		query = "SELECT DISTINCT vw.biological_model_id, vw.parameter_id, bgf.gf_acc FROM stats_mv_experimental_unidimensional_values vw, biological_model_genomic_feature bgf where bgf.biological_model_id=vw.biological_model_id and vw.parameter_id='"+parameterId+"' limit "+start+" , " +length;
+System.out.println(query);
+		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+	      
+		    ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				Map<String,String> row=new HashMap<String,String>();
+				row.put("accession", resultSet.getString("gf_acc"));
+				row.put("parameter_id", Integer.toString(resultSet.getInt("parameter_id")));
+				resultsList.add(row);
+			}
+		}
+		
+		return resultsList;
+	}
+
+	// select min(uo.data_point), max(uo.data_point) from
+	// unidimensional_observation uo join observation o on uo.id = o.id where
+	// o.parameter_stable_id = 'M-G-P_025_001_022';
+	public Map<String, Float> getMinAndMaxForParameter(String paramStableId) throws SQLException {
+		Map<String, Float> resultsMap = new HashMap<String, Float>();
+
+		String query = "SELECT MIN(uo.data_point), MAX(uo.data_point) FROM unidimensional_observation uo JOIN observation o ON uo.id = o.id WHERE o.parameter_stable_id = '"
+				+ paramStableId + "'";
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+
+			ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				resultsMap.put("min", resultSet.getFloat(1));
+				resultsMap.put("max", resultSet.getFloat(2));
+
+			}
+		}
+
+		return resultsMap;
 	}
 
 }
