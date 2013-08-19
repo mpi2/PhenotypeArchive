@@ -40,6 +40,8 @@ public interface OntologyTermDAO extends HibernateDAO {
 	
 	public OntologyTerm getOntologyTermByNameAndDatabaseId(String name, int databaseId);
 	
+	public OntologyTerm getOntologyTermByAccession(String accession);
+	
 	public OntologyTerm getOntologyTermByAccessionAndDatabaseId(String accession, int databaseId);
 	
 	public HashMap<String, OntologyTerm> getAllTerms(int databaseId);
