@@ -25,6 +25,7 @@ This project includes software developed by:
 This project includes:
 
  jQuery, jQueryUI, and the jQuery Form Plugin distributed under the MIT license
+Dropdown Check List (DDCL)  Plugin distributed under the MIT license
  DataTables distributed under a BSD-style license
  Ramon van Belzen's respondjs distributed under the MIT license
  Twitter Bootstrap distributed under the Apache License, Version 2.0
