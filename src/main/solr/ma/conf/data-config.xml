@@ -1,44 +1,108 @@
 <dataConfig>
 
-	<dataSource jndiName="java:comp/env/jdbc/ontodbDataSource" />
+	<!--<dataSource name="ds1" jndiName="java:comp/env/jdbc/ontodbDataSource" />-->
+    
+   <dataSource 
+		name="ds1"
+		type="JdbcDataSource"
+   		driver="com.mysql.jdbc.Driver"
+  		url="jdbc:mysql://localhost/komp2?autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull"
+   		user="root" 
+   		password="a"/>
+	<dataSource 
+		name="ontodb"
+		type="JdbcDataSource"
+   		driver="com.mysql.jdbc.Driver"
+  		url="jdbc:mysql://localhost/ontodb_komp2"
+   		user="root" 
+   		password="a"/>
+
+    <dataSource name="images_core" type="HttpDataSource" baseUrl="https://www.mousephenotype.org/mi/solr/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 
 	<document name="komp2_indexing">	
 		<!-- test MP:0000180 for multipe node_id being linked to this term -->
 		<!-- IMPC pipeline -->							
-		<entity name="ma_term_infos" query="select term_id, name, definition from ma_term_infos">				
+        <!-- MA term has no definition -->
+		<!-- selected MA top levels: 'MA:0000009','MA:0000020','MA:0002450','MA:0000010', 'MA:0002506','MA:0002431','MA:0000012','MA:0002411','MA:0000007','MA:0002711','MA:0000014','MA:0002418','MA:0000016','MA:0000325','MA:0000326','MA:0000327','MA:0000004' -->
+        <entity dataSource="ontodb" name="ma_term_infos" query="select term_id, name from ma_term_infos where term_id != 'MA:0000001'" >			
 			<field column="term_id" name="ma_id" />
-            <field column="name" name="ma_term" />
-            <field column="definition" name="ma_definition" />
-			<entity name="ma_node2term" query="select node_id from ma_node2term where term_id='${ma_term_infos.term_id}'" >				
-				<entity name="ma_node_top_level" query="select node_id, top_level_node_id from ma_node_top_level where node_id=${ma_node2term.node_id}" >
-					<entity name="ma_node2term" query="select term_id from ma_node2term where node_id=${ma_node_top_level.top_level_node_id}" >
-						<entity name="ma_dbxrefs" query="select xref_id from ma_dbxrefs where term_id='${ma_node2term.term_id}'" >
-							<field column="xref_id" name="xref_id" />
-						</entity>						
-                        <entity name="ma_term_infos" query="select term_id, name, definition from ma_term_infos where term_id='${ma_node2term.term_id}'" >
+            <field column="name" name="ma_term" /> 
+
+            <!-- subset of this MA term: parsed from obo file -->
+			<entity dataSource="ontodb" name="ma_term_subsets"
+				query="select subset from ma_term_subsets where term_id='${ma_term_infos.term_id}'">
+				<field column="subset" name= "ontology_subset" />
+			</entity>
+
+            <!-- MA term name synonym -->
+			<entity dataSource="ontodb" name="ma_synonyms" query="select syn_name from ma_synonyms where term_id = '${ma_term_infos.term_id}'" >				
+				<field column="syn_name" name="ma_term_synonym" />
+            </entity>
+
+            <!-- MA to MP mapping based on MP to MA bridg file prepared by Terry with MP slim -->
+            <entity dataSource="ontodb" name="mp_mappings" query="select term_id from mp_mappings where mapped_term_id = '${ma_term_infos.term_id}'" >	 
+                <field column="term_id" name="ma_2_mp_mapping" /> 
+            </entity>
+
+            <!-- images being annotated to an anatomy term -->
+            <entity dataSource="images_core" name="doc" stream="true" url="q=${ma_term_infos.term_id}&amp;qf=maTermId&amp;defType=edismax&amp;fl=id&amp;rows=5000&amp;wt=normal"
+                processor="XPathEntityProcessor" forEach="/response/result/doc/"
+                readTimeout="10000" connectionTimeout="10000"  >  
+                <field column="image_id" xpath="/response/result/doc/str[@name='id']" />                                 
+            </entity>  
+
+             <!-- top level term and/or top level term from part_of relationship of a given anatomy term id -->
+			<entity  dataSource="ontodb" name="ma_node2term" onError="continue" 
+                query="select node_id from ma_node2term where term_id='${ma_term_infos.term_id}'" >				
+				<entity  dataSource="ontodb" name="ma_node_top_level" onError="continue" 
+                    query="select top_level_node_id from ma_node_top_level where node_id=${ma_node2term.node_id}" >
+					<entity  dataSource="ontodb" name="ma_node2term" onError="continue"
+                        query="select term_id from ma_node2term where node_id=${ma_node_top_level.top_level_node_id}" >					
+                        <entity  dataSource="ontodb" name="ma_term_infos" 
+                            query="select term_id, name from ma_term_infos where term_id='${ma_node2term.term_id}'" >
 							<field column="term_id" name="top_level_ma_id" />
-           					<field column="name" name="top_level_ma_term" />
-            				<field column="definition" name="top_level_ma_definition" />
+           					<field column="name" name="top_level_ma_term" />            				
 						</entity>
 					</entity>
-					<!-- continue with null value for top_level_id from part_of relationship -->
-					<entity name="ma_node_top_level_part_of"  onError="continue" query="select top_level_node_id from ma_node_top_level_part_of where node_id=${ma_node_top_level.node_id}" >
-						<entity name="ma_node2term" query="select term_id from ma_node2term where node_id=${ma_node_top_level_part_of.top_level_node_id}" >
-							<entity name="ma_dbxrefs" query="select xref_id from ma_dbxrefs where term_id='${ma_node2term.term_id}'" >
-								<field column="xref_id" name="xref_id_part_of" />
-							</entity>						
-                        	<entity name="ma_term_infos" query="select term_id, name, definition from ma_term_infos where term_id='${ma_node2term.term_id}'" >
+					<!-- continue with null value for top_level_id from part_of relationship 
+					<entity  dataSource="ontodb" name="ma_node_top_level_part_of"  onError="continue" 
+                        query="select top_level_node_id from ma_node_top_level_part_of where node_id=${ma_node_top_level.node_id}" >
+						<entity  dataSource="ontodb" name="ma_node2term" onError="continue"
+                            query="select term_id from ma_node2term where node_id=${ma_node_top_level_part_of.top_level_node_id}" >				
+                        	<entity  dataSource="ontodb" name="ma_term_infos" onError="continue"
+                                query="select term_id, name from ma_term_infos where term_id='${ma_node2term.term_id}'" >
 								<field column="term_id" name="top_level_ma_id_part_of" />
-           						<field column="name" name="top_level_ma_term_part_of" />
-            					<field column="definition" name="top_level_ma_definition_part_of" />
+           						<field column="name" name="top_level_ma_term_part_of" />            					
+							</entity>
+						</entity>
+					</entity>-->
+				</entity>			
+			</entity>
+
+            <!-- child MA term(s) of this MA term -->
+            <entity dataSource="ontodb" name="ma_node2term"
+				query="select node_id from ma_node2term where term_id='${ma_term_infos.term_id}'">
+				<entity dataSource="ontodb" name="ma_parent_children" onError="continue"
+					query="select parent_node_id, child_node_id from ma_parent_children where child_node_id=${ma_node2term.node_id}">
+					<entity dataSource="ontodb" name="ma_parent_children"
+						query="select child_node_id from ma_parent_children where parent_node_id=${ma_parent_children.parent_node_id}">
+						<entity dataSource="ontodb" name="ma_node2term"
+							query="select term_id from ma_node2term where node_id=${ma_parent_children.child_node_id}">							
+							<entity dataSource="ontodb" name="child_ma_term_infos"
+								query="select term_id, name from ma_term_infos where term_id='${ma_node2term.term_id}'">
+								<field column="term_id" name="child_ma_id" />
+								<field column="name" name="child_ma_term" />	
+                                <!-- child MA term name synonym -->
+			                    <entity dataSource="ontodb" name="child_ma_synonyms" query="select concat(syn_name,'__','${child_ma_term_infos.term_id}') as syn_name_id from ma_synonyms where term_id = '${child_ma_term_infos.term_id}'">				
+				                    <field column="syn_name_id" name="child_ma_term_synonym" />
+                                </entity>								
 							</entity>
 						</entity>
 					</entity>
-				</entity>			
+				</entity>
 			</entity>
-			<entity name="ma_synonyms" query="select syn_name from ma_synonyms where term_id = '${ma_term_infos.term_id}'">				
-				<field column="syn_name" name="ma_term_synonym" />
-            </entity>
+
+            <!-- higher level backtrace of this MA term -->
 		</entity>	
 	</document>
 
