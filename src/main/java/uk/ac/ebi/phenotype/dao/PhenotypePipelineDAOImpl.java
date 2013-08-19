@@ -26,6 +26,7 @@ package uk.ac.ebi.phenotype.dao;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,8 +35,6 @@ import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.Datasource;
@@ -49,14 +48,18 @@ import uk.ac.ebi.phenotype.pojo.Procedure;
 
 
 
-@Service
 public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements PhenotypePipelineDAO {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private SessionFactory sessionFactory;
-	
+	/**
+	 * Creates a new Hibernate pipeline data access manager.
+	 * @param sessionFactory the Hibernate session factory
+	 */
+	public PhenotypePipelineDAOImpl(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
+		
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<Pipeline> getAllPhenotypePipelines() {
@@ -71,11 +74,12 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 
 	@Transactional(readOnly = true)
 	public Pipeline getPhenotypePipelineByStableIdAndVersion(String stableId, int majorVersion, int minorVersion) {
-		return (Pipeline) getCurrentSession().createQuery("from Pipeline as p where p.stableId = ? and p.majorVersion = ? and p.minorVersion = ?")
+		Object o = getCurrentSession().createQuery("from Pipeline as p where p.stableId = ? and p.majorVersion = ? and p.minorVersion = ?")
 				.setString(0, stableId)
 				.setInteger(1, majorVersion)
 				.setInteger(2, minorVersion)
 				.uniqueResult();
+		return (o == null) ? null : (Pipeline) o;
 	}
 	
 	
@@ -183,11 +187,12 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	 * 
 	 * @exception SQLException When a database error occurrs
 	 */
+	//TODO: REMOVE THIS METHOD AFTER REFACTOR
 	@Transactional(readOnly = true)
 	public Set<Parameter> getAllCategoricalParametersForProcessing() throws SQLException {
 		Set<Parameter> parameters = new HashSet<Parameter>();
 
-		String query = "SELECT DISTINCT o.parameter_id FROM observation o JOIN biological_sample bs ON o.biological_sample_id = bs.id WHERE o.observation_type = 'categorical' AND bs.sample_group = 'control'";
+		String query = "SELECT DISTINCT o.parameter_id FROM observation o JOIN biological_sample bs ON o.biological_sample_id = bs.id WHERE o.observation_type = 'categorical' AND bs.sample_group = 'experimental'";
 
 		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
 		    ResultSet resultSet = statement.executeQuery();
@@ -198,7 +203,37 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 
 		return parameters;
 	}
+	//TODO: REMOVE THIS METHOD AFTER REFACTOR
 
+
+	
+	/**
+	 * Return all categories for a parameter
+	 * 
+	 * @exception SQLException When a database error occurrs
+	 */
+	@Transactional(readOnly = true)
+	public List<String> getCategoriesByParameterId(Integer id) throws SQLException {
+		List<String> categories = new ArrayList<String>();
+
+		String query = "SELECT DISTINCT ppo.name"
+			+ " FROM phenotype_parameter pp"
+			+ " INNER JOIN phenotype_parameter_lnk_option pplo ON pp.id=pplo.parameter_id"
+			+ " INNER JOIN phenotype_parameter_option ppo ON pplo.option_id=ppo.id"
+			+ " WHERE pp.id=?";
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+			statement.setInt(1, id);
+		    ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				categories.add(resultSet.getString("name"));
+			}
+		}
+
+		return categories;
+	}
+
+	
 	/**
 	 * Return all unidimensional parameters for which we have data loaded
 	 * 
@@ -208,7 +243,7 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	public Set<Parameter> getAllUnidimensionalParametersForProcessing() throws SQLException {
 		Set<Parameter> parameters = new HashSet<Parameter>();
 
-		String query = "SELECT DISTINCT o.parameter_id FROM observation o JOIN biological_sample bs ON o.biological_sample_id = bs.id WHERE o.observation_type = 'unidimensional' AND bs.sample_group = 'control'";
+		String query = "SELECT DISTINCT o.parameter_id FROM observation o JOIN biological_sample bs ON o.biological_sample_id = bs.id WHERE o.observation_type = 'unidimensional' AND bs.sample_group = 'experimental'";
 
 		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
 		    ResultSet resultSet = statement.executeQuery();
