@@ -309,20 +309,54 @@
 	    		//console.log('gene UNfiltered');
 	    		var solrSrchParams = $.extend({}, MPI2.searchAndFacetConfig.commonSolrParams, MPI2.searchAndFacetConfig.facetParams['geneFacet'].filterParams);	    		
     			solrSrchParams.q = self.options.data.q; 
-    			solrSrchParams.facetCount = $('div#geneFacet span.facetCount').text();    			
+    			
+    			solrSrchParams.coreName = 'gene'; // to work out breadkCrumb facet display    			
+    			solrSrchParams.facetCount = self.options.data.facetCount;    			
     			$.fn.invokeFacetDataTable(solrSrchParams, 'geneFacet', MPI2.searchAndFacetConfig.facetParams['geneFacet'].gridName);  
 	    	}
 	    },
 
 		_applyGeneGridResultFilterByMarkerSubFacet: function(obj){
 			var self = this;
-
 			// subFacet result trigger	
-			obj.live('click', function(){
+			obj.live('click', function(){			
+			//	obj.click(function(){	
 				// invoke dataTable	via hash state with the 4th param
-				// ie, it does not invoke dataTable directly but through hash change
+				// ie, it does not invoke dataTable directly but through hash change				
 				$.fn.fetchFilteredDataTable($(this), 'geneFacet', self.options.data.q, 'facetFilter');
+				
 			});
+
+			/*function singleClick(e) {
+			    // do something, "this" will be the DOM element
+				console.log('single')
+				// invoke dataTable	via hash state with the 4th param
+				// ie, it does not invoke dataTable directly but through hash change				
+				$.fn.fetchFilteredDataTable($(this), 'geneFacet', self.options.data.q, 'facetFilter');
+			}
+
+			function doubleClick(e) {
+			    // do something, "this" will be the DOM element
+				console.log('double')
+				$.fn.fetchFilteredDataTable($(this), 'geneFacet', self.options.data.q, 'facetFilter');
+			}
+
+			obj.live('click', function(e){
+			    var that = this;
+			    setTimeout(function() {
+			        var dblclick = parseInt($(that).data('double'), 10);
+			        if (dblclick > 0) {
+			            $(that).data('double', dblclick-1);
+			        } else {
+			            singleClick.call(that, e);
+			        }
+			    }, 300);
+			}).dblclick(function(e) {
+			    $(this).data('double', 2);
+			    doubleClick.call(this, e);
+			});
+			*/
+			
 		},
    
 		_reloadDataTableForHashUrl: function(){
