@@ -32,22 +32,14 @@ var config = MPI2.searchAndFacetConfig;
 
 // on drupal side this is not available
 if ( typeof solrUrl == 'undefined' ){
-	var domain = document.domain;
-	if ( /^beta/.test(domain) ){		
-		solrUrl = '/mi/impc/beta/solr';
-	}
-	else if ( /^dev/.test(domain) ){	
-		solrUrl = '/mi/impc/dev/solr';	
-	}
-	else {
-		solrUrl = '/mi/impc/solr';			
-	}
+	solrUrl = '/data/solr';
 }
 
 if ( typeof baseUrl == 'undefined' ){
-	baseUrl = '/phenotype-archive';
+	baseUrl = '/data';
 }
 
+config.lastParams = false;
 config.cores = ['gene', 'mp', 'pipeline', 'images'];
 config.restfulPrefix = {
 		'gene' : 'genes',
@@ -98,8 +90,7 @@ config.facetParams = {
 	geneFacet:      {
 		type: 'genes',			
 		solrCoreName: 'gene',			 
-		tableCols: 3, 
-	
+		tableCols: 3, 	
 		tableHeader: "<thead><th>Gene</th><th>Mouse Production Status</th><th>Phenotyping Status</th><th>Register for Updates</th></thead>",
 		fq: undefined,
 		qf: "marker_symbol^100.0 marker_name^10.0 allele^10 marker_synonym mgi_accession_id auto_suggest",
@@ -111,7 +102,8 @@ config.facetParams = {
 		srchParams: $.extend({},				
 				 	commonSolrParams,	 	
 					{fq:'marker_type:* -marker_type:"heritable phenotypic marker"'}),
-		subFacet_filter_params: '' // set by widget on the fly			
+		subFacet_filter_params: '', // set by widget on the fly
+		breadCrumbLabel: 'Genes'		
 	 },	
 	 pipelineFacet: {		
 		 type: 'procedures',		 
@@ -125,9 +117,10 @@ config.facetParams = {
 		 gridFields: 'parameter_name,procedure_name,pipeline_name',
 		 gridName: 'pipelineGrid',	
 		 filterParams:{'fq': 'pipeline_stable_id:IMPC_001'},
+		 breadCrumbLabel: 'Procedures',		 
 		 srchParams: $.extend({},
 					commonSolrParams,    				
-					{'fq': 'pipeline_stable_id:IMPC_001'})
+					{'fq': 'pipeline_stable_id:IMPC_001'})					
 	 },	
 	 mpFacet: {	
 		 type: 'phenotypes',
@@ -142,6 +135,7 @@ config.facetParams = {
 		 gridName: 'mpGrid',
 		 topLevelName: '',
 		 ontology: 'mp',
+		 breadCrumbLabel: 'Phenotypes',		
 		 filterParams: {'fq': "ontology_subset:*", 'fl': 'mp_id,mp_term,mp_definition,top_level_mp_term'},
 		 srchParams: $.extend({},				
 					commonSolrParams,	 	
@@ -179,6 +173,7 @@ config.facetParams = {
 		 imgViewSwitcherDisplay: 'Annotation View',
 		 forceReloadImageDataTable: false,
 		 showImgView: true,
+		 breadCrumbLabel: 'Images',
 		 filterParams: {//'fl' : 'annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath',
 			 	  'fq' : "annotationTermId:M* OR expName:* OR symbol:* OR higherLevelMaTermName:* OR higherLevelMpTermName:*"},	
 	 	 srchParams: $.extend({},
