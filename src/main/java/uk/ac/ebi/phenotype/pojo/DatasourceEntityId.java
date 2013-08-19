@@ -21,7 +21,7 @@ package uk.ac.ebi.phenotype.pojo;
  * It is composed of an accession and an external database identifier.
  * 
  * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
- * @version $Revision: 1291 $
+ * @version $Revision: 2966 $
  *  @since February 2012
  */
 
@@ -96,5 +96,13 @@ public class DatasourceEntityId implements Serializable{
 		hsCode = 19 * hsCode+ accession.hashCode();
 		return hsCode;
 	}
+
+	@Override
+	public String toString() {
+		return "DatasourceEntityId [accession=" + accession + ", databaseId="
+				+ databaseId + "]";
+	}
+	
+	
 
 }
