@@ -330,11 +330,102 @@ public class GenomicFeature {
 	}
 
 
+	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder("Accession:" + id.getAccession() + " Symbol:" + symbol + " Name: " + name + "\n");
-		builder.append(StringUtils.join(synonyms, ","));
-		builder.append("\n");
-		return builder.toString();
+		return "GenomicFeature [id=" + id + ", symbol=" + symbol + ", name="
+				+ name + "]";
 	}
 
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((biotype == null) ? 0 : biotype.hashCode());
+		result = prime * result
+				+ ((cMposition == null) ? 0 : cMposition.hashCode());
+		result = prime * result + end;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result
+				+ ((sequenceRegion == null) ? 0 : sequenceRegion.hashCode());
+		result = prime * result + start;
+		result = prime * result + strand;
+		result = prime * result + ((subtype == null) ? 0 : subtype.hashCode());
+		result = prime * result + ((symbol == null) ? 0 : symbol.hashCode());
+		result = prime * result
+				+ ((synonyms == null) ? 0 : synonyms.hashCode());
+		result = prime * result + ((xrefs == null) ? 0 : xrefs.hashCode());
+		return result;
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		GenomicFeature other = (GenomicFeature) obj;
+		if (biotype == null) {
+			if (other.biotype != null)
+				return false;
+		} else if (!biotype.equals(other.biotype))
+			return false;
+		if (cMposition == null) {
+			if (other.cMposition != null)
+				return false;
+		} else if (!cMposition.equals(other.cMposition))
+			return false;
+		if (end != other.end)
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (sequenceRegion == null) {
+			if (other.sequenceRegion != null)
+				return false;
+		} else if (!sequenceRegion.equals(other.sequenceRegion))
+			return false;
+		if (start != other.start)
+			return false;
+		if (strand != other.strand)
+			return false;
+		if (subtype == null) {
+			if (other.subtype != null)
+				return false;
+		} else if (!subtype.equals(other.subtype))
+			return false;
+		if (symbol == null) {
+			if (other.symbol != null)
+				return false;
+		} else if (!symbol.equals(other.symbol))
+			return false;
+		if (synonyms == null) {
+			if (other.synonyms != null)
+				return false;
+		} else if (!synonyms.equals(other.synonyms))
+			return false;
+		if (xrefs == null) {
+			if (other.xrefs != null)
+				return false;
+		} else if (!xrefs.equals(other.xrefs))
+			return false;
+		return true;
+	}
+
+
+	
+
+
+	
 }
