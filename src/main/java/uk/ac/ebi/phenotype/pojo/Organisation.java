@@ -23,6 +23,7 @@ package uk.ac.ebi.phenotype.pojo;
  * @since February 2012
  */
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,7 +37,8 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "organisation")
-public class Organisation {
+public class Organisation implements Serializable {
+	private static final long serialVersionUID = -817284662277765357L;
 
 	@Id
 	@Column(name = "id")
@@ -135,8 +137,6 @@ public class Organisation {
 				+ ((fullname == null) ? 0 : fullname.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result
-				+ ((projects == null) ? 0 : projects.hashCode());
 		return result;
 	}
 
@@ -168,11 +168,6 @@ public class Organisation {
 			if (other.name != null)
 				return false;
 		} else if (!name.equals(other.name))
-			return false;
-		if (projects == null) {
-			if (other.projects != null)
-				return false;
-		} else if (!projects.equals(other.projects))
 			return false;
 		return true;
 	}
