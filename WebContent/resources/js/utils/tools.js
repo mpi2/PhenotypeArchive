@@ -30,6 +30,33 @@
 		window.location.hash = $.fn.stringifyJsonAsUrlParams(hashParams);
 	}
 	
+	$.fn.updateBreadCrumb = function(coreName){
+		var hashParams = $.fn.parseHashString(window.location.hash.substring(1));
+		
+		var breadcrumbBox = $('p.ikmcbreadcrumb');		
+		var baseLinks = "<a href=" + drupalBaseUrl + ">Home</a> &raquo; <a href=" + baseUrl + "/search>Search</a> &raquo; ";
+		
+		if ( coreName && ! hashParams.coreName ){			
+			hashParams.coreName = coreName;
+			hashParams.fq = 'undefined';
+		}	
+		else if ( !coreName && !hashParams.q){		
+			hashParams.q = "*:*";
+			hashParams.coreName = 'gene';
+			hashParams.fq = 'undefined';
+		}		
+		baseLinks += fetchFacetLink(hashParams);			
+		breadcrumbBox.html(baseLinks);
+	}
+		
+	function fetchFacetLink(hashParams){	
+		var coreName = hashParams.coreName;
+		var fq = MPI2.searchAndFacetConfig.facetParams[coreName+'Facet'].fq; // default for whole dataset of a facet
+		var breadCrumbLabel = MPI2.searchAndFacetConfig.facetParams[coreName+'Facet'].breadCrumbLabel;		
+		var url = encodeURI(baseUrl + "/search#q=*:*" + "&core=" + hashParams.coreName + "&fq=" + fq);
+		return "<a href=" + url + ">" + breadCrumbLabel + "</a>";		
+	}
+	
 	$.fn.openFacet = function(core){	    	
 	    	
     	$('div.facetCatList').hide();
@@ -55,8 +82,8 @@
 	}	
 	
 	$.fn.invokeFacetDataTable = function(oSolrSrchParams, facetDivId, gridName, hashState){
-		
-    	var self = this;
+	
+    	var self = this;    	
     	var oVal = MPI2.searchAndFacetConfig.facetParams[facetDivId];
     	if ( hashState && facetDivId == 'imagesFacet' ){
     		oVal.forceReloadImageDataTable = true;
@@ -86,7 +113,9 @@
 	 		oInfos.solrCoreName = oVal.solrCoreName;
 	 		oInfos.mode = oVal.gridName;		 			
 	 		oInfos.dataTablePath = MPI2.searchAndFacetConfig.dataTablePath;	 		
-	 		
+	 			 	
+	 		var facetLabel = MPI2.searchAndFacetConfig.facetParams[oVal.solrCoreName+'Facet'].breadCrumbLabel.toLowerCase();
+	 			 		
 	 	   	var dTable = $('<table></table>').attr({'id':oInfos.mode});	    		    	
 	 	   	var thead = oVal.tableHeader;
 	 	   	var tds = '';
@@ -96,10 +125,16 @@
 	 	   	var tbody = $('<tbody><tr>' + tds + '</tr></tbody>');
 	 	   	dTable.append(thead, tbody);
 	 	    	
-	 	   	var title = $.fn.upperCaseFirstLetter(oVal.type);	 	   
-	 	   	var gridTitle = $('<div></div>').attr({'class':'gridTitle'}).html(title);
+	 	   	//var title = $.fn.upperCaseFirstLetter(oVal.type);	 	   
+	 	   	//var gridTitle = $('<div></div>').attr({'class':'gridTitle'}).html(title);
+	 	   	var facetCount = oSolrSrchParams.facetCount;	 	   	
+	 	   	var gridTitle = $('<div></div>').attr({'class':'gridTitle'});
+	 	   	var searchKW = " search keyword: " + oSolrSrchParams.q;
 	 	   	
 	 	   	$('div#mpi2-search').html('');	
+	 	   	
+	 	   	// update breadcrumb	 	   	
+	 	   	$.fn.updateBreadCrumb(oSolrSrchParams.coreName);
 	 	   	
 	 	   	if (facetDivId == 'imagesFacet'){		 	   		
 				
@@ -126,6 +161,14 @@
 	 	   		if (facetDivId !== 'imagesFacet' && !hashState ){
 	 	   			$.fn.invokeDataTable(oInfos);	
 	 	   		}
+	 	   		
+	 	   		var unit = facetCount > 1 ? 'images' : 'image';
+	 	   		var imgParams = "/images?q=*:*&q.option=AND&qf=auto_suggest&defType=edismax&wt=json";
+	 			var imgUrl = encodeURI(baseUrl + imgParams);
+	 	   		var imgUrlLink = "<a href=" + imgUrl + ">" + facetCount + " " + unit + "</a>";
+	 	   		
+	 	   		gridTitle.append(imgUrlLink + " for " + searchKW);
+	 	   		
 	 	   		$('div#mpi2-search').append(gridTitle, dTable);
 	 	   		
 	 	   		oInfos.showImgView = oVal.showImgView;		 	   		
@@ -150,15 +193,18 @@
 	 	   			$.fn.invokeFacetDataTable(oSolrSrchParams, facetDivId, gridName);
 	 	   		})
 	 	   	}
-	 	   	else {	 	   		
+	 	   	else {	 	 
+	 	   		var unit = facetCount > 1 ? facetLabel : facetLabel.replace(/s$/,'');
+	 	   		gridTitle.html(facetCount + ' ' + unit + " for " + searchKW);
 	 	   		$('div#mpi2-search').append(gridTitle, dTable);	 
 	 	   		$.fn.invokeDataTable(oInfos);
+	 	   		
 		  	}
  	    } 	    	
 	}
-	
-	$.fn.fetchFilteredDataTable = function(obj, facetDivId, q, facetFilter){
 		
+	$.fn.fetchFilteredDataTable = function(obj, facetDivId, q, facetFilter){
+		  
 		var facetCount;	
     	var topLevelName;			
 		var oSolrSrchParams = {}
@@ -170,7 +216,11 @@
                  oVal.tableCols, oVal.gridName); // skeleton to fill data from server			  	
 		
 		var title = $.fn.upperCaseFirstLetter(oVal.type);	    	
-		var gridTitle = $('<div></div>').attr({'class':'gridTitle'}).html(title);			
+		//var gridTitle = $('<div></div>').attr({'class':'gridTitle'}).html(title);		
+		var gridTitle = $('<div></div>').attr({'class':'gridTitle'}).html("");	
+		var searchKw = " AND search keyword: " + q; 
+		var resultMsg = $('<div></div>').attr('id', 'resultMsg');
+		
 		
 		// highlight only currently selected top level 
     	var ontology = oVal.ontology;
@@ -251,11 +301,14 @@
 			facetCount = obj.parent().siblings('td.imgExperiment').attr('rel');			
 						
 			imgParamStr = oInfos.params + '&facetCount=' + facetCount;								
-			
-			var imgCountInfo = "<a href='" + oInfos.fullLink + "'> (view all " + oInfos.imgCount + " images)</a>";
+			var unit = facetCount > 1 ? 'images' : 'image';
+			var imgCountInfo = "<a href='" + oInfos.fullLink + "'>" + oInfos.imgCount + " " + unit + "</a>";
 			var title = "<span class='imgTitle'>" + oInfos.imgType + ': ' + topLevelName + "</span>";
-			displayedTopLevelName = $('<div></div>').attr({'class':'gridSubTitle'}).html(title + imgCountInfo);	
-    		
+			
+			displayedTopLevelName = $('<div></div>').attr({'class':'gridSubTitle'}).html(imgCountInfo + ' for ' + title + searchKw);	
+			resultMsg.append(displayedTopLevelName);
+			
+			
 			// toggles two types of views for images: annotation view, image view	 	   		
  	   		var viewLabel, imgViewSwitcherDisplay, viewMode;
  	   		if ( oVal.showImgView ){
@@ -270,22 +323,19 @@
  	   			viewMode = 'annotView';
  	   		}
  	   		
- 	   		gridTitle.append($('<div></div>').attr({'id':'imgView', 'rel':viewMode}).html("<span id='imgViewSubTitle'>" 
- 	   				+ viewLabel 
+ 	   		gridTitle.append($('<div></div>').attr({'id':'imgView', 'rel':viewMode}).html("<span id='imgViewSubTitle'>" 	   		
+ 	   				+ viewLabel
  	   				+ "</span><span id='imgViewSwitcher'>" 
- 	   				+ imgViewSwitcherDisplay + "</span>"));
- 	   		
- 	   		$('div#mpi2-search').html('');
+ 	   				+ imgViewSwitcherDisplay + "</span>")); 	   		   		
  	   		 	   		
- 	   		$('div#mpi2-search').append(gridTitle, displayedTopLevelName, dTable);
- 	   		
  	   		// img view switcher control
- 	   		$('span#imgViewSwitcher').click(function(){	 	   		
+ 	   		$('span#imgViewSwitcher').click(function(){	 
+ 	   			console.log('switcher click');
  	   			oVal.showImgView = oVal.showImgView ? false : true;	 
- 	   			$.fn.fetchFilteredDataTable(obj, facetDivId, q);
+ 	   			$.fn.fetchFilteredDataTable(obj, facetDivId, q, 'imgSwitcher');
  	   		});	    	
     	}
-    		    	
+    	   	
     	oVal.topLevelName = topLevelName;
 		oSolrSrchParams.q = q;			
 		oSolrSrchParams.facetCount = facetCount;
@@ -296,18 +346,23 @@
 		//oInfos.dataTablePath = baseUrl + '/dataTable';
 		oInfos.dataTablePath = MPI2.searchAndFacetConfig.dataTablePath;
 		
+		var facetLabel = MPI2.searchAndFacetConfig.facetParams[facetDivId].breadCrumbLabel.toLowerCase(); 		
+		
 		if (facetDivId == 'imagesFacet'){
 			oInfos.params = imgParamStr; 				
 			oInfos.showImgView = oVal.showImgView;			
-		}		
+		}			
 		else {
 			oInfos.params = $.fn.stringifyJsonAsUrlParams(oSolrSrchParams);
 			if (facetDivId == 'geneFacet'){
 				oInfos.params += '&fq=' + MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams.fq;				
 			}
-			$('div#mpi2-search').html(''); 				
-			$('div#mpi2-search').append(gridTitle, displayedTopLevelName, dTable); 				
-		}			
+			
+			var unit = facetCount > 1 ? facetLabel : facetLabel.replace(/s$/,'');
+			var resultCount = "<span>" + facetCount + " " + unit + " for </span>";
+			resultMsg.append(resultCount, displayedTopLevelName, searchKw);			
+		}
+		
 		
 		// hash state stuff	
 		var hashParams = {};
@@ -316,15 +371,30 @@
 		hashParams.fq   = oSolrSrchParams.fq;
 		//var hashParamStr = $.fn.stringifyJsonAsUrlParams(oSolrSrchParams) + "&core=" + oVal.solrCoreName;
 		var hashParamStr = $.fn.stringifyJsonAsUrlParams(hashParams);			
-			
-		// update url params
-		window.location.hash = hashParamStr;				
-		//console.log($.fn.stringifyJsonAsUrlParams(oSolrSrchParams));
+				
+		if ( (hashParamStr == MPI2.searchAndFacetConfig.lastParams && facetFilter == 'imgSwitcher') || 
+				(hashParamStr != MPI2.searchAndFacetConfig.lastParams)){
+			$('div#mpi2-search').html('');
+			if (facetDivId != 'imagesFacet' ){				
+				$('div#mpi2-search').append(resultMsg, dTable);				 
+			}
+			else {			  		 	   		 	   		
+	 	   		$('div#mpi2-search').append(gridTitle, resultMsg, dTable);
+	 	   		$('span#imgViewSwitcher').click(function(){	 	   		
+	 	   			oVal.showImgView = oVal.showImgView ? false : true;	 
+	 	   			$.fn.fetchFilteredDataTable(obj, facetDivId, q, 'imgSwitcher');
+	 	   		});	  
+			}
 		
-		// skip for facet filter clicks, as when clicked, the hash state changes which will trigger invokeDataTable()
-		if ( !facetFilter ){
-			$.fn.invokeDataTable(oInfos);
-		}
+			// update url params
+			window.location.hash = hashParamStr;				
+			//console.log($.fn.stringifyJsonAsUrlParams(oSolrSrchParams));	
+			MPI2.searchAndFacetConfig.lastParams = hashParamStr;
+						
+			$.fn.updateBreadCrumb();
+			
+			$.fn.invokeDataTable(oInfos);		
+		}		
     }
 	
 	$.fn.ieCheck = function(){
@@ -399,8 +469,13 @@
     	var caller = $('div#' + facetDivId);
     	MPI2.searchAndFacetConfig.backButton = 1;
     	
-    	if ( typeof core === 'undefined' ){    		
-    		$('div#geneFacet').find('span.facetCount').click(); // default    		
+    	if ( typeof core === 'undefined' ){
+    		if ( hashParams.q != '*' && hashParams.q != '*:*' && hashParams.q != '' ){    		
+    			document.location.reload();    		
+    		}
+    		else {
+    			$('div#geneFacet').find('span.facetCount').click(); // default
+    		}
     	}
     	else if ( core == 'gene' ){    		
     		if ( typeof hashParams.fq === 'undefined' ){    			
@@ -703,7 +778,7 @@
     }
     
     function initGridExporter(thisButt, conf){
-    	console.log(conf);	
+    	
 		var classString = thisButt.attr('class');    		
 		var fileType = thisButt.text(); 
 		var dumpMode = thisButt.attr('class').indexOf('all') != -1 ? 'all' : 'page';    
@@ -822,64 +897,61 @@
 		    return naturalSort(a,b) * -1;
 		};*/
 				
-		var params = {					
-				 	//"bDeferRender": true,	
-				 	//"sPaginationType": "full_numbers",
-					"sDom": "<'row-fluid'<'#foundEntries'><'span6'f>r>t<'row-fluid'<'#tableShowAllLess'><'span6'p>>",
-					"sPaginationType": "bootstrap",
-				 	"bProcessing": true,
-				 	"bSortClasses": false,	
-				 	"oLanguage": {
-				 		"sSearch": "Filter data in table:"
-				 	}				 	
-				 	//"aLengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],				 
-				 	//"aLengthMenu": [[1, 2, -1], [1, 2, "All"] ],
-				 	//"iDisplayLength" : -1,
-				 	//"aaSorting": [[0, "asc"], [1, "asc"]],
-	    			// aoColumns should match all column in table	   		     
+		var params = {	
+//				"sDom": "<'row-fluid'<'#foundEntries'><'span6'f>r>t<'row-fluid'<'#tableShowAllLess'><'span6'p>>",
+//				 "bPaginate":true,
+					"bLengthChange": false,
+					"bSort": true,
+					"bInfo": false,
+					"bAutoWidth": false ,
+	    		"iDisplayLength": 10000 , // 10 rows as default 
+	    		"bRetrieve": true,
+	    		/* "bDestroy": true, */
+	    		"bFilter":false,
+    		"sPaginationType": "bootstrap",
 				};
-				
+//				console.log('calling tools datababe ini');
 		var oTbl = jqObj.dataTable($.extend({}, params, customConfig)).fnSearchHighlighting();
 		return oTbl;
-	}		
-    $.fn.dataTableshowAllShowLess = function(oDataTbl, aDataTblCols, display){
-    	    	
-    	var rowFound = oDataTbl.fnSettings().aoData.length;
-    	$('div#foundEntries').html("Total entries found: " + rowFound).addClass('span6');    	
-    	
-		$('div.dataTables_paginate').hide();
-		    		
-		$('div.dataTables_filter input').keyup(function(){
-						
-			if ( !$(this).val() ){								
-				$('div.dataTables_paginate').hide();							
-			}
-			else {
-				// use pagination as soon as users use filter
-				$('div.dataTables_paginate').show();
-			}
-		});	
-				
-		var display = ( display == 'Show fewer entries' || !display ) ? 'Show all entries' : 'Show fewer entries';  		
-			
-		// show all/less toggle only appears when we have > 10 rows in table
-		if ( rowFound > 10 ){			
-			$('div#tableShowAllLess').html("<span>" + display + "</span>").addClass('span6')
-			$.fn.reloadDataTable(oDataTbl, aDataTblCols, display);
-		}
-    }
-    
-    $.fn.reloadDataTable = function(oDataTbl, aDataTblCols, display){
-		$('div#tableShowAllLess').click(function(){    			
-			
-			oDataTbl.fnSettings()._iDisplayLength = display == 'Show all entries' ? -1 : 10;			
-			var selector = oDataTbl.selector;			
-			
-			display = display == 'Show all entries' ? 'Show fewer entries' : 'Show all entries';
-			$(this).find('span').text(display);
-			$(selector).dataTable().fnDraw();			
-		});
-    }   	    
+	};		
+//    $.fn.dataTableshowAllShowLess = function(oDataTbl, aDataTblCols, display){
+//    	    	
+//    	var rowFound = oDataTbl.fnSettings().aoData.length;
+//    	$('div#foundEntries').html("Total entries found: " + rowFound).addClass('span6');    	
+//    	
+//		$('div.dataTables_paginate').hide();
+//		    		
+//		$('div.dataTables_filter input').keyup(function(){
+//						
+//			if ( !$(this).val() ){								
+//				$('div.dataTables_paginate').hide();							
+//			}
+//			else {
+//				// use pagination as soon as users use filter
+//				$('div.dataTables_paginate').show();
+//			}
+//		});	
+//				
+//		var display = ( display == 'Show fewer entries' || !display ) ? 'Show all entries' : 'Show fewer entries';  		
+//			
+//		// show all/less toggle only appears when we have > 10 rows in table
+//		if ( rowFound > 10 ){			
+//			$('div#tableShowAllLess').html("<span>" + display + "</span>").addClass('span6')
+//			$.fn.reloadDataTable(oDataTbl, aDataTblCols, display);
+//		}
+//    }
+//    
+//    $.fn.reloadDataTable = function(oDataTbl, aDataTblCols, display){
+//		$('div#tableShowAllLess').click(function(){    			
+//			
+//			oDataTbl.fnSettings()._iDisplayLength = display == 'Show all entries' ? -1 : 10;			
+//			var selector = oDataTbl.selector;			
+//			
+//			display = display == 'Show all entries' ? 'Show fewer entries' : 'Show all entries';
+//			$(this).find('span').text(display);
+//			$(selector).dataTable().fnDraw();			
+//		});
+//    } ; 	    
 	
 	function naturalSort (a, b) {
         // setup temp-scope variables for comparison evauluation
@@ -1015,6 +1087,11 @@
 //HIGHLIGHT FCT
 $.fn.dataTableExt.oApi.fnSearchHighlighting = function(oSettings) {
     // Initialize regex cache
+	if (oSettings == null){
+		//console.log('oSettings is null or undefined');
+		//was failing if null so added this - but presumably this is needed on the search pages still?
+	}else{
+
     oSettings.oPreviousSearch.oSearchCaches = {};
       
     oSettings.oApi._fnCallbackReg( oSettings, 'aoRowCallback', function( nRow, aData, iDisplayIndex, iDisplayIndexFull) {
@@ -1067,6 +1144,8 @@ $.fn.dataTableExt.oApi.fnSearchHighlighting = function(oSettings) {
         return nRow;
     }, 'row-highlight');
     return this;
+    
+	}
 };
 
 
