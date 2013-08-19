@@ -10,7 +10,7 @@
 	<jsp:attribute name="footer">
 
 	<c:if test="${phenotypeStarted && !isLive}">
-	<script type="text/javascript" src="${drupalBaseUrl}/heatmap/js/heatmap.1.2.js"></script>
+	<script type="text/javascript" src="${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js"></script>
 	<!--[if IE 8]>
         <script type="text/javascript">
         dcc.ie8 = true;
@@ -52,7 +52,7 @@
 	</c:if>
 
 	<!--[if !IE]><!-->
-	<script type="text/javascript" src="${baseUrl}/js/genomic-browser/dalliance-all.js"></script>
+	<script type="text/javascript" src="${baseUrl}/js/genomic-browser/dalliance-compiled.js"></script>
 	<!--<![endif]-->
 	<script src="${baseUrl}/js/imaging/genomicB.js"></script>
 	</jsp:attribute>
@@ -60,8 +60,11 @@
 
 	<jsp:attribute name="header">
 	<script type="text/javascript">var gene_id = '${acc}';</script>
+	<%-- <link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.standalone.css"/> --%>
+<link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css"/>
+<link rel="stylesheet" type="text/css" href="${baseUrl}/css/custom.css"/>
 	<script src="${baseUrl}/js/general/toggle.js"></script>
-
+<!-- <script src="http://dropdown-check-list.googlecode.com/svn/trunk/doc/jquery-ui-1.8.13.custom.min.js"></script> -->
 	<style>
 	/* Force allele table to not be like tables anymore for responsive layout */
 	@media only screen and (max-width: 800px) {
@@ -90,13 +93,13 @@
 
 	<c:if test="${phenotypeStarted && !isLive}">
         <!--[if !IE]><!-->
-        <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.2.css">
+        <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css">
         <!--<![endif]-->
         <!--[if IE 8]>
         <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmapIE8.1.2.css">
         <![endif]-->
         <!--[if gte IE 9]>
-        <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.2.css">
+        <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css">
         <![endif]-->
 	</c:if>
         
@@ -104,7 +107,7 @@
 
 	<jsp:body>
 
-	<div class='topic'>Gene: ${gene.symbol}  &nbsp;&nbsp;
+		<div class='topic'>Gene: ${gene.symbol}  &nbsp;&nbsp;
 		<c:choose>
 		<c:when test="${registerButtonAnchor!=''}"><a href='${registerButtonAnchor}'  id='${registerButtonId}'  class='btn primary'>${registerInterestButtonString}</a></c:when>
 		<c:otherwise><a  id='${registerButtonId}'  class='btn primary interest'>${registerInterestButtonString}</a></c:otherwise>
@@ -113,6 +116,9 @@
 
 	<div class="row-fluid dataset">
 		<div class="row-fluid">
+			
+			<div class="container span12">
+						<div class="row-fluid">
 			<div class="container span6">
 				<table>				  
 					<tbody>
@@ -174,12 +180,27 @@
 				</table>
 			</div>
 		</div>
+				
+			</div>
+			
+			
+		</div>
+
 
 		<div class="row-fluid">
 			<div class="container span12">
-				<button type="button" id="showGBrowser">Show/Hide Genome Browser</button>
-				<div id="gBrowserDiv" >
-					<div class="container span6" id="geneLocation1">Gene&nbsp;Location: Chr<span id='chr'>${gene.sequenceRegion.name}</span>:<span id='geneStart'>${gene.start}</span>-<span id='geneEnd'>${gene.end}</span></div>
+			<div class="accordion" id="accordionMoreGeneInfoAccord">
+					<div class="accordion-group">
+						<div class="accordion-heading">
+							<a class="accordion-toggle" data-toggle="collapse" data-target="#accordionMoreGeneInfo">
+								Show More Gene Information<i class="icon-chevron-<c:if test="${status.count ==1}">down</c:if><c:if test="${status.count!=1}">right</c:if> pull-left"></i>
+							</a>
+						</div>
+						<%-- <div id="accordionMoreGeneInfo" class="accordion-body collapse<c:if test="${status.count ==1}"> in</c:if>"> --%>
+						<div id="accordionMoreGeneInfo" class="accordion-body collapse <c:if test="${status.count ==1}"> in</c:if>">
+							<div class="accordion-inner">
+						
+							<div class="container span6" id="geneLocation1">Gene&nbsp;Location: Chr<span id='chr'>${gene.sequenceRegion.name}</span>:<span id='geneStart'>${gene.start}</span>-<span id='geneEnd'>${gene.end}</span></div>
 					<div class="container span6" >Gene Type: ${gene.subtype.name}</div>
 					<span id="genomicBrowserInfo">
 						<span class="label label-info" rel="tooltip"  title="This browser is clickable please experiment by clicking. Click on features to get more info, click on zoom bar etc. To reset click on 'lightning button'" disabled>This is an interactive genomic browser </span>
@@ -208,34 +229,30 @@
 							</c:if>
 						</tbody>
 					</table>
+								
+								
+							</div>
+						</div>
+					</div>
 				</div>
+
 			</div>
 		</div>
-	</div>
-	<!--/row-->
+	</div><!--/row-->
 
 	<c:if test="${phenotypeStarted}">
 	<div class="row-fluid dataset">
 		<div class="row-fluid container clearfix" style="float:none;">
-			<h4 class="caption">Preliminary phenotype heatmap</h4>
-			<table class="table">
-			<tr><th>Allele</th><th>Genetic Background</th><th>Phenotyping Center</tr>
-			<c:forEach items="${allColonyStatus}" var="colonyStatus">
-				<c:if test="${colonyStatus.phenotypeStarted == 1}">
-				<tr><td>${colonyStatus.alleleName}</td><td>${colonyStatus.backgroundStrain}</td><td>${colonyStatus.phenotypeCenter}</td></tr>
-				</c:if>
-			</c:forEach>	
-			</table>					   
+			<h4 class="caption">Preliminary phenotype heatmap -
+				<c:forEach items="${allColonyStatus}" var="colonyStatus">
+						<c:if test="${colonyStatus.phenotypeStarted == 1}">
+							${colonyStatus.alleleName}<%-- </td><td>${colonyStatus.backgroundStrain}</td><td>${colonyStatus.phenotypeCenter}</td></tr> --%>
+						</c:if>
+				</c:forEach>	
+			</h4>
 		</div>
 		<div class="row-fluid">
-			<c:choose>
-    		<c:when test="${isLive}">
-    		<div class="alert alert-success"><b><a href="http://beta.mousephenotype.org/mi/impc/beta/phenotype-archive/genes/${acc}">Phenotype data available on beta!</a></b></div>
-    		</c:when>
-    		<c:otherwise>
        		<div class="phenodcc-heatmap" id="phenodcc-heatmap"></div>
-    		</c:otherwise>
-			</c:choose>
 		</div>
 	</div>
 	</c:if>
@@ -247,35 +264,33 @@
 		<div class="row-fluid">
 			<div class="container span12">
 				<h4 class="caption">Phenotype Associations from EuroPhenome and WTSI Mouse Genetics Project</h4>
-			</div>
-		</div>
-		
-<%--
-		<div class="row-fluid">		
-			<c:if test="${bPreQC}">
-			<div class="container span6">
-				<a href='${qcLink}'><img src="${drupalBaseUrl}/sites/dev.mousephenotype.org/files/images/phenodcc.png" alt="Click here to access preliminary data" style="border-style: none"/>&nbsp;Pre QC data from PhenoDCC Available</a>
-			</div>		
-			</c:if>
-			<c:if test="${bSangerLegacy}">
-			<div class="container span6">
-				<a href='${sangerLegacyLink}'><img src="${drupalBaseUrl}/sites/dev.mousephenotype.org/files/sangerLogo.png" alt="Click here to access Sanger phenotype data" style="border-style: none"/>&nbsp;Legacy data from Sanger Institute Mouse Resources Portal</a>
-			</div>		
-			</c:if>
-		</div>
-		
-		<c:if test="${bEurophenomeLegacy}">
-			<div class="row-fluid">
-				<div class="container span6">
-					<a href='${europhenomeLegacyLink}'><img src="${drupalBaseUrl}/sites/dev.mousephenotype.org/files/europhenomeLogo.png" alt="Click here to access Europhenome phenotype data" style="border-style: none"/>&nbsp;Legacy data from Europhenome</a>
-				</div>		
-			</div>
-		</c:if>
- --%>
- 						
-		<div class="row-fluid">	
+				<div class="row-fluid" id="phenotypesDiv">	
 			<div class="container span12">
+			<!--  style="display: none;" --><div id="filterParams" >
+			<c:forEach var="filterParameters" items="${paramValues.fq}">
+			${filterParameters}
+			</c:forEach>
+			</div> 
 				<c:if test="${not empty phenotypes}">
+				<form id="target" action="destination.html">
+  <!-- <input type="text" value="Hello there" /> -->
+					<c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
+					<%-- 	${phenoFacet.key}
+					${phenoFacet.value} --%>
+							<select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
+				
+						<option>All</option>
+				<c:forEach var="facet" items="${phenoFacet.value}">
+				<option>${facet.key}</option>
+				</c:forEach>
+				</select> 
+				</c:forEach>
+				<!-- <input type="text" id="myInputTextField"> -->
+				<input type="submit" class='btn primary' value="Filter" />
+				</form>
+				<jsp:include page="PhenoFrag.jsp"></jsp:include>
+				<div id="exportIconsDiv"></div>
+				<%-- <div id="phenotypesTableDiv">
 				<table id="phenotypes" class="table table-striped">
 					<thead>
 						<tr>
@@ -284,7 +299,8 @@
 							<th>Zygosity</th>
 							<th>Sex</th>
 							<th>Data</th>
-							<%-- <th>Strain</th> --%>
+							<th>Graph</th>
+							<th>Strain</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -308,36 +324,54 @@
 						</c:otherwise>
 						</c:choose>
 						</td>
+						
+						<td style="text-align:center"><c:if test="${phenotype.dataSourceName eq 'EuroPhenome' }"><a href="${baseUrl}/stats/genes/${gene.id.accession}?parameterId=${phenotype.parameter.stableId}<c:if test="${fn:length(phenotype.sexes) eq 1}">&gender=${phenotype.sexes[0]}</c:if>&zygosity=${phenotype.zygosity}"><img src="${baseUrl}/img/icon_stats.png" alt="Graph" /></a></c:if></td>
 						</tr>
 						</c:forEach>
 					</tbody>
 				</table>
-				<script>
+				</div> --%>
+				</c:if>
+				<c:if test="${empty phenotypes}">
+					<div class="alert alert-info">You'll see EuroPhenome phenotype data when available. You'll find links to the Wellcome Trust Sanger Institute mouse portal when appropriate.</div>
+				</c:if>
+			</div>
+		</div>
+			</div>
+		</div>
+		
+			<script>
 					$(document).ready(function(){						
 						
+						
+						
+						/* var oDataTable = $('table#phenotypes').dataTable();
+						oDataTable.fnDestroy();  */
 						// use jquery DataTable for table searching/sorting/pagination
-						var aDataTblCols = [0,1,2,3,4];
+						var aDataTblCols = [0,1,2,3,4,5];
 						var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
-							//"aaSorting": [[0, "asc"], [1, "asc"]],   			     
-							"aoColumns": [
-								{ "sType": "html", "mRender":function( data, type, full ) {
-							        return (type === "filter") ? $(data).text() : data;
-							    }},
-								{ "sType": "html", "mRender":function( data, type, full ) {
-							        return (type === "filter") ? $(data).text() : data;
-							    }},
-							    { "sType": "string"},
-								{ "sType": "alt-string", "bSearchable" : false },
-								{ "sType": "string" }
+			  						"aoColumns": [
+			  							{ "sType": "html", "mRender":function( data, type, full ) {
+			  						        return (type === "filter") ? $(data).text() : data;
+			  						    }},
+			  							{ "sType": "html", "mRender":function( data, type, full ) {
+			  						        return (type === "filter") ? $(data).text() : data;
+			  						    }},
+			  						    { "sType": "string"},
+			  							{ "sType": "alt-string", "bSearchable" : false },
+			  						   /*  { "sType": "string"}, */
+			  						    { "sType": "html"}
+			  						    , { "sType": "string", "bSortable" : false }
 
-							],
-			   	    		"iDisplayLength": 10   // 10 rows as default 
-						});
-
+			  						],
+			  						"bDestroy": true,
+			  						"bFilter":false
+			  					});
+						
 						$('[rel=tooltip]').tooltip();
 													    		
-			    		$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
-			    		$('div#phenotypes_wrapper').append($.fn.loadFileExporterUI({
+			    		//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
+			    		$('div#exportIconsDiv').append($.fn.loadFileExporterUI({
 			    			label: 'Export table as:',
 			    			formatSelector: {
 			    				TSV: 'tsv_phenoAssoc',
@@ -371,17 +405,124 @@
 			    	    	}).corner('6px');	 
 			    	    }  
 			    		
-			    		
+			    		//http://stackoverflow.com/questions/5990386/datatables-search-box-outside-datatable
+			    		//to move the input text or reassign the div that does it and hide the other one??
+			    		//put filtering in another text field than the default so we can position it with the other controls like dropdown ajax filters for project etc
+						/* $('#myInputTextField').keypress(function(){
+							oDataTable.fnFilter( $(this).val() );
+						}); */
+					
+						
+						
+						
+						
+					
+			    		//stuff for dropdown tick boxes here
+			    		$("#resource_fullname").dropdownchecklist( { firstItemChecksAll: true, emptyText: "Projects: All", icon: {}, minWidth: 150 } );
+			    		$("#top_level_mp_term_name").dropdownchecklist( { firstItemChecksAll: true, emptyText: "Top Level MP: All", icon: {} , minWidth: 150} );
+			    		// $("select[multiple]").bsmSelect();
+			    		//if filter parameters are already set then we need to set them as selected in the dropdowns
+			    		var previousParams=$("#filterParams").html();
+			    		//alert('previous='+previousParams);
+$('#target').submit(function() {
+			  var rootUrl=window.location.href;
+			    			 // alert(rootUrl);
+			    			  var newUrl=rootUrl.replace("genes", "genesPhenoFrag");
+			    			// alert( $("option:selected").parent().attr("id"));
+			    			 var output ='?';
+			    			//http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=marker_accession_id:MGI:98373&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet=true&facet.field=project_name&facet.field=top_level_mp_term_name&fq=top_level_mp_term_name:(%22vision/eye%20phenotype%22%20OR%20%22craniofacial%20phenotype%22)
+			    			var array1=$("#resource_fullname").val() || [];
+			    			if(array1.length==1){//if only one entry for this parameter then don't use brackets and or
+			    				 output+='&fq=resource_fullname:"'+array1[0]+'"';
+			    			} 
+							if(array1.length>1)	{
+			    				output+='&fq=resource_fullname:(';//note " before and after value for solr handle spaces
+			    			 		for(var i=0; i<array1.length; i++){
+			    						 
+			    							 //if(i==0)output+=' " ';
+			    						 output+='"'+array1[i]+'"';
+			    						 if(i<array1.length-1){
+			    							 output+=' OR ';
+			    						 }else{
+			    							 output+=')';
+			    						 }
+			    						 //console.log('logging='+array1[i]);
+			    			 }
+			    		}
+			    			 var output2 ='';//='"'+ ($("#top_level_mp_term_name").val() || []).join('"&fq=top_level_mp_term_name:"')+'"';
+			    			 var array2=$("#top_level_mp_term_name").val() || [];
+			    				if(array2.length==1){//if only one entry for this parameter then don't use brackets and or
+				    				 output+='&fq=top_level_mp_term_name:"'+array2[0]+'"';
+				    			}
+			    				if(array2.length>1){
+				    				output+='&fq=top_level_mp_term_name:(';//note " before and after value for solr handle spaces
+			    			 			for(var i=0; i<array2.length; i++){
+			    			 				 output+='"'+array2[i]+'"';
+				    						 if(i<array2.length-1){
+				    							 output+=' OR ';
+				    						 }else{
+				    							 output+=')';
+				    						 }
+			    			 		}
+			    			 }
+			    			 newUrl+=output+output2;
+			    			 //alert(newUrl);
+			    			  $.ajax({
+			    				  url: newUrl,
+			    				  cache: false
+			    				}).done(function( html ) {
+			    				  $("#phenotypes_wrapper").html(html);//phenotypes wrapper div has been created by the original datatable so we need to replace this div with the new table and content
+			    				  var aDataTblCols = [0,1,2,3,4,5];
+									var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
+						  						"aoColumns": [
+						  							{ "sType": "html", "mRender":function( data, type, full ) {
+						  						        return (type === "filter") ? $(data).text() : data;
+						  						    }},
+						  							{ "sType": "html", "mRender":function( data, type, full ) {
+						  						        return (type === "filter") ? $(data).text() : data;
+						  						    }},
+						  						    { "sType": "string"},
+						  							{ "sType": "alt-string", "bSearchable" : false },
+						  						   /*  { "sType": "string"}, */
+						  						    { "sType": "html"}
+						  						    , { "sType": "string", "bSortable" : false }
+
+						  						],
+						  						"bDestroy": true,
+						  						"bFilter":false
+						  					});
+			    				  	//alert('calling new table in genes.jsp');
+									//$oDataTable.fnDraw(); 
+			    				});
+			    			  return false;
+			    			});
 					});
 				</script>
-				</c:if>
-				<c:if test="${empty phenotypes}">
-					<div class="alert alert-info">You'll see EuroPhenome phenotype data when available. You'll find links to the Wellcome Trust Sanger Institute mouse portal when appropriate.</div>
-				</c:if>
-			</div>
+		
+<%--
+		<div class="row-fluid">		
+			<c:if test="${bPreQC}">
+			<div class="container span6">
+				<a href='${qcLink}'><img src="${drupalBaseUrl}/sites/dev.mousephenotype.org/files/images/phenodcc.png" alt="Click here to access preliminary data" style="border-style: none"/>&nbsp;Pre QC data from PhenoDCC Available</a>
+			</div>		
+			</c:if>
+			<c:if test="${bSangerLegacy}">
+			<div class="container span6">
+				<a href='${sangerLegacyLink}'><img src="${drupalBaseUrl}/sites/dev.mousephenotype.org/files/sangerLogo.png" alt="Click here to access Sanger phenotype data" style="border-style: none"/>&nbsp;Legacy data from Sanger Institute Mouse Resources Portal</a>
+			</div>		
+			</c:if>
 		</div>
-	</div>
-	<!-- /row -->
+		
+		<c:if test="${bEurophenomeLegacy}">
+			<div class="row-fluid">
+				<div class="container span6">
+					<a href='${europhenomeLegacyLink}'><img src="${drupalBaseUrl}/sites/dev.mousephenotype.org/files/europhenomeLogo.png" alt="Click here to access Europhenome phenotype data" style="border-style: none"/>&nbsp;Legacy data from Europhenome</a>
+				</div>		
+			</div>
+		</c:if>
+ --%>
+
+		</div>
 
 	<!-- row -->
 	<c:if test="${not empty imageErrors}">
