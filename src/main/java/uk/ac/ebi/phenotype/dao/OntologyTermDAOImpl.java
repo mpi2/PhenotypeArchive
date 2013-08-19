@@ -30,19 +30,20 @@ import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
-import uk.ac.ebi.phenotype.pojo.Synonym;
 
-@Service
 public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTermDAO {
 
-	@Autowired
-	private SessionFactory sessionFactory;
+	/**
+	 * Creates a new Hibernate ontology term data access manager.
+	 * @param sessionFactory the Hibernate session factory
+	 */
+	public OntologyTermDAOImpl(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
 	
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
@@ -71,6 +72,10 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTer
 		return map;
 	}
 	
+	@Override
+	public OntologyTerm getOntologyTermByAccession(String accession) {
+		return (OntologyTerm) getCurrentSession().createQuery("from OntologyTerm as ot where ot.id.accession = ?").setString(0, accession).uniqueResult();
+	}
 	
 	@Override
 	public OntologyTerm getOntologyTermByAccessionAndDatabaseId(
