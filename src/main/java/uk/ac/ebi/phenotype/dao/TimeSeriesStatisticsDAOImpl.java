@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
@@ -19,11 +17,15 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
-@Service
 public class TimeSeriesStatisticsDAOImpl extends StatisticsDAOImpl implements TimeSeriesStatisticsDAO {
 
-	@Autowired
-	private SessionFactory sessionFactory;
+	/**
+	 * Creates a new Hibernate sequence region data access manager.
+	 * @param sessionFactory the Hibernate session factory
+	 */
+	public TimeSeriesStatisticsDAOImpl(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
 
 	@Transactional(readOnly = true)
 	public Long hasEnoughData(SexType sex, ZygosityType zygosity, Parameter parameter, Integer populationId){
@@ -211,5 +213,24 @@ public class TimeSeriesStatisticsDAOImpl extends StatisticsDAOImpl implements Ti
 		}
 		return resultsList;
 	}
+	
+	//select min(uo.data_point), max(uo.data_point) from time_series_observation uo join observation o on uo.id = o.id where o.parameter_stable_id = 'ESLIM_009_001_001';
+	public Map<String, Float> getMinAndMaxForParameter(String paramStableId) throws SQLException{
+		String query;
 
+		Map<String,Float> resultsMap=new HashMap<String,Float>();
+		query = "select min(uo.data_point), max(uo.data_point) from time_series_observation uo join observation o on uo.id = o.id where o.parameter_stable_id = '"+paramStableId+"'";
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+	      
+		    ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				resultsMap.put("min", resultSet.getFloat(1));
+				resultsMap.put("max", resultSet.getFloat(2));
+				
+			}
+		}
+		
+		return resultsMap;
+	}
 }
