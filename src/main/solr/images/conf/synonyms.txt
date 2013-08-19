@@ -18,7 +18,7 @@
 #fooaaa,baraaa,bazaaa
 
 xray,x-ray,X-ray
-
+x-ray,xray
 
 
 # Some synonym groups specific to this example
