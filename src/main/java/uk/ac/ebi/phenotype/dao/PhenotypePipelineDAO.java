@@ -97,5 +97,5 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	public Parameter getParameterById(Integer parameterId);
 	public Set<Parameter> getAllCategoricalParametersForProcessing() throws SQLException;
 	public Set<Parameter> getAllUnidimensionalParametersForProcessing() throws SQLException;
-	
+	public List<String> getCategoriesByParameterId(Integer id) throws SQLException;
 }
