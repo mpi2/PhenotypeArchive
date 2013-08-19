@@ -17,6 +17,8 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,6 +36,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,12 +54,15 @@ import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
 import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.Procedure;
+import uk.ac.ebi.phenotype.util.PhenotypeCallSummaryDAOReadOnly;
+import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
 
 @Controller
@@ -68,8 +74,10 @@ public class PhenotypesController {
 	@Autowired
 	private OntologyTermDAO ontoTermDao;
 	
+//	@Autowired
+//	private PhenotypeCallSummaryDAO phenoDAO;
 	@Autowired
-	private PhenotypeCallSummaryDAO phenoDAO;
+	private PhenotypeCallSummaryDAOReadOnly phenoDAO;
 
 	@Autowired
 	private SolrIndex solrIndex;
@@ -168,13 +176,31 @@ public class PhenotypesController {
 		System.out.println(response);
 		model.addAttribute("numberFound", response.getResults().getNumFound());
 		model.addAttribute("images", response.getResults());
+		//get a string, image map instead?
+		Map<String,JSONObject> exampleImagesMap=getExampleImages(phenotype_id);
+		model.addAttribute("exampleImages",exampleImagesMap);
 
+		processPhenotypes(phenotype_id, "", model);
+
+		model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
+
+		return "phenotypes";
+	}
+
+
+
+	private void processPhenotypes(String phenotype_id, String filter, Model model) throws IOException, URISyntaxException {
 		// This block collapses phenotype rows
 		// phenotype term, allele, zygosity, and sex
 		// sex is collapsed into a single column
 		List<PhenotypeCallSummary> phenotypeList = new ArrayList<PhenotypeCallSummary>();
 		try {
-			phenotypeList = phenoDAO.getPhenotypeCallByMPAccession(phenotype_id, 5);
+			PhenotypeFacetResult phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(phenotype_id, filter);
+			phenotypeList=phenoResult.getPhenotypeCallSummaries();
+			
+			Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
+			
+			model.addAttribute("phenoFacets", phenoFacets);
 		} catch (HibernateException e) {
 			log.error("ERROR GETTING PHENOTYPE LIST");
 			e.printStackTrace();
@@ -222,15 +248,21 @@ public class PhenotypesController {
 				pr.setSexes(new ArrayList<String>(sexes));
 			}
 			
-			if(pr.getParameter() != null && pr.getProcedure()!= null) {				
+			if(pr.getParameter() != null && pr.getProcedure()!= null) {		
+				//if(pr.getGene().getSymbol().equals("Dll1")){
 				phenotypes.put(pr, pr);
+				//}
 			}
 		}
+		
+		List <PhenotypeRow> list=new ArrayList<PhenotypeRow>(phenotypes.keySet());
+		Collections.sort(list);
+		//Map names=new 
+		for(PhenotypeRow pr: list){
+			if(pr.getGene().getSymbol().equals("Dll1"))System.out.println("phenotype row="+pr);
+		}
 		model.addAttribute("phenotypes", new ArrayList<PhenotypeRow>(phenotypes.keySet()));
-
-		model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
-
-		return "phenotypes";
+		
 	}	
 
 
@@ -255,4 +287,75 @@ public class PhenotypesController {
         mv.addObject("exampleURI", "/phenotypes/MP:0000585");
         return mv;
     } 
+	
+	@RequestMapping("/geneVariantsWithPhenotypeTable/{acc}")
+	public String geneVariantsWithPhenotypeTable(
+			@PathVariable String acc,
+			Model model,
+			HttpServletRequest request,
+			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
+		//just pass on any query string after the ? to the solr requesting object for now
+		String queryString=request.getQueryString();
+		System.out.println("calling geneVariantsWithPhenotype");
+		processPhenotypes(acc, queryString, model);
+
+		return "geneVariantsWithPhenotypeTable";
+	}
+	
+	/**
+	 * Get control and experimental example images for the top of the MP page
+	 * @param accession MP Accession
+	 * @return map containing control and experimental images with those as keys
+	 * @throws SolrServerException 
+	 * @throws URISyntaxException 
+	 * @throws IOException 
+	 */
+	private Map<String, JSONObject> getExampleImages(String accession) throws SolrServerException, IOException, URISyntaxException{
+		
+		if(accession.equals("MP:0001304")) {
+			//cataracts examlple images
+			//map.put("control", "https://dev.mousephenotype.org/data/media/images/1253/M01211663_00032438_download_tn_small.jpg");
+			//255874
+			Map<String, JSONObject> map= solrIndex.getExampleImages(255874, 76516);
+					//getImageDoc(255874, solrDocumentList);
+			return map;
+			//map.put("experimental", "https://www.mousephenotype.org/data/media/images/550/M00226962_00007295_download_tn_small.jpg");
+			//76516	
+			
+		}else 
+		if(accession.equals("MP:0001139")) {
+			//abnormal vagina
+			//map.put("control", "https://dev.mousephenotype.org/data/media/images/0/WebUpload842_tn_small.jpg");
+			//275206
+			//map.put("experimental", "https://www.mousephenotype.org/data/media/images/905/M00880970_00027885_download_full.jpg");
+			//160584
+			Map<String, JSONObject> map= solrIndex.getExampleImages(275206, 160584);
+			//getImageDoc(255874, solrDocumentList);
+	return map;
+				
+		}else if(accession.equals("MP:0010098") || accession.equals("MP:0005103")) {
+			//abnormal retinal blood vessel pattern
+			//MP: abnormal retinal pigmentation
+			//map.put("control", "https://dev.mousephenotype.org/data/media/images/0/M01356510_00034871_download_tn_small.jpg");
+			//267671
+			//map.put("experimental", "https://www.mousephenotype.org/data/media/images/0/M01418062__download_tn_small.jpg");
+			//273416
+			Map<String, JSONObject> map= solrIndex.getExampleImages(267671, 273416);
+			//getImageDoc(255874, solrDocumentList);
+	return map;
+		}else if(accession.equals("MP:0000585") ) {
+			//MP: Kinked tail
+			//map.put("control", "https://dev.mousephenotype.org/data/media/images/0/WebUpload498_tn_small.jpg");
+			//262634
+			//map.put("experimental", "https://dev.mousephenotype.org/data/media/images/899/M00512959_00019280_download_tn_small.jpg");
+			//159255
+			Map<String, JSONObject> map= solrIndex.getExampleImages(262634, 159255);
+			//getImageDoc(255874, solrDocumentList);
+	return map;
+		}
+//if no rule for this return empty map
+	return Collections.emptyMap();
+	}
+	
+	
 }
