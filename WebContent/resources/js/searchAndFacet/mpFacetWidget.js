@@ -104,6 +104,7 @@
 						
 					MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams.fq = "ontology_subset:*";
 					
+					solrSrchParams.facetCount = $(this).text();
 					solrSrchParams.q = self.options.data.q;											
 									
 					hashParams.q = self.options.data.q;
@@ -112,11 +113,12 @@
 					
 					// hash state stuff				   
 					window.location.hash = $.fn.stringifyJsonAsUrlParams(hashParams);// + "&core=" + solrCoreName;
-															
+						
+					
 					// only invoke dataTable when there is hash change in url
 					// otherwise we are at same page, so no action taken
 					if (MPI2.setHashChange == 1){						
-						MPI2.setHashChange = 0;
+						MPI2.setHashChange = 0;						
 						//$.fn.updateFacetAndDataTableDisplay($.fn.stringifyJsonAsUrlParams(hashParams));	
 						// invoke dataTable	via hash state with the 4th param
 						// ie, it does not invoke dataTable directly but through hash change							
@@ -195,8 +197,11 @@
     		$('table#'+ ontology + 'Facet td a').click(function(){      			
     			$.fn.fetchFilteredDataTable($(this), facetDivId, self.options.data.q,'facetFilter');    			
     		});  
+    		   
+    		/*------------------------------------------------------------------------------------*/
+	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
+	    	/*------------------------------------------------------------------------------------*/	
     		    		
-    		// reload sidebar for hash state   		
 	    	if ( self.options.data.fq != 'ontology_subset:*' ){
 	    		//console.log('MP filtered');	    		
 	    		var fqText = self.options.data.fq.replace('ontology_subset:* AND top_level_mp_term:', '').replace(/"/g, '');	    	
@@ -204,7 +209,9 @@
 	    	}
 	    	else {//if ( self.options.data.core == 'mp' && self.options.data.fq && self.options.data.fq == 'ontology_subset:*' ){	    		
 	    		var solrSrchParams = $.extend({}, MPI2.searchAndFacetConfig.facetParams['mpFacet'].filterParams, MPI2.searchAndFacetConfig.commonSolrParams);						
-    			solrSrchParams.q = self.options.data.q;	
+    			solrSrchParams.q = self.options.data.q;
+    			solrSrchParams.coreName = 'mp'; // to work out breadkCrumb facet display
+    			solrSrchParams.facetCount = self.options.data.facetCount;
 	    		$.fn.invokeFacetDataTable(solrSrchParams, 'mpFacet', MPI2.searchAndFacetConfig.facetParams['mpFacet'].gridName, self.options.data.q);	    		
 	    	}
     		
