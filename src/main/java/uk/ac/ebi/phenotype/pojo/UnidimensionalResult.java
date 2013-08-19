@@ -8,6 +8,8 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
+import uk.ac.ebi.phenotype.stats.SignificantType;
+
 /**
  * 
  * A representation of the outcome of a statistical test done using a control
@@ -18,6 +20,8 @@ import javax.persistence.Table;
 @Table(name = "stats_unidimensional_results")
 public class UnidimensionalResult extends StatisticalResult implements Serializable {
 
+	private static final float PHENOTYPE_THRESHOLD = 0.05f;
+	
 	private static final long serialVersionUID = -6887634216189711657L;
 
 	@Column(name = "colony_id")
@@ -881,6 +885,42 @@ public class UnidimensionalResult extends StatisticalResult implements Serializa
 				+ genderMaleKoPValue + "]";
 	}
 
+	/**
+	 * return the correct classification enum for this unidimensional result.
+	 * 
+	 * @return SignificantType classification of the type of significance found
+	 * 			for the result of the mixed model calculation on this data
+	 */
+	public SignificantType getSignificanceClassification() {
 
+		if (getNullTestSignificance()==null) {
+			return null;
+		} else if (getNullTestSignificance()>PHENOTYPE_THRESHOLD) {
+			return SignificantType.none;
+		} else {
+	
+			if (!getInteractionSignificance()) {
+				return SignificantType.both_equally;
+			} else if (getGenderFemaleKoPValue()>=PHENOTYPE_THRESHOLD && getGenderMaleKoPValue()>=PHENOTYPE_THRESHOLD) {
+				return SignificantType.cannot_classify;
+			} else if (getGenderFemaleKoPValue()<PHENOTYPE_THRESHOLD && getGenderMaleKoPValue()>=PHENOTYPE_THRESHOLD) {
+				return SignificantType.female_only;
+			} else if (getGenderFemaleKoPValue()>=PHENOTYPE_THRESHOLD && getGenderMaleKoPValue()<PHENOTYPE_THRESHOLD) {
+				return SignificantType.male_only;
+			} else if ((getGenderFemaleKoEstimate()>0 && getGenderMaleKoEstimate()>0) || (getGenderFemaleKoEstimate()<0 && getGenderMaleKoEstimate()<0)) {
+
+				if (Math.abs(getGenderFemaleKoEstimate()) > Math.abs(getGenderMaleKoEstimate())) {
+					return SignificantType.female_greater;
+				} else {
+					return SignificantType.male_greater;
+				}
+
+			} else {
+				return SignificantType.different_directions;
+			}
+		
+		}
+
+	}
 
 }
