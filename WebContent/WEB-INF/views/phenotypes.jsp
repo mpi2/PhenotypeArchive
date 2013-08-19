@@ -9,9 +9,15 @@
 
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&core=mp&fq=ontology_subset:*">Phenotypes</a> &raquo; ${phenotype.name}</jsp:attribute>
 
+<jsp:attribute name="header">
+<link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css"/>
+<link rel="stylesheet" type="text/css" href="${baseUrl}/css/custom.css"/>
+</jsp:attribute>
     <jsp:attribute name="footer">
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js'></script>
 		<script type='text/javascript' src='${baseUrl}/js/imaging/mp.js'></script>
+		<script src="${baseUrl}/js/general/toggle.js"></script>
+		
     </jsp:attribute>
 
     <jsp:body>
@@ -73,65 +79,65 @@
 			
 			<%-- There must not be any spaces --%>
 			<div class="container span5" id="ovRight">
-				<c:if test="${not empty images}"><img src="${mediaBaseUrl}/${images[0].largeThumbnailFilePath}"/></c:if>
+			<c:choose>
+    				<c:when test="${not empty exampleImages}">
+      				<div class="row-fluid">
+      								<div class="container span6">
+      										<img src="${mediaBaseUrl}/${exampleImages.control.smallThumbnailFilePath}"/>
+      										Control
+      								</div>
+      								<div class="container span6">
+      											<img src="${mediaBaseUrl}/${exampleImages.experimental.smallThumbnailFilePath}"/>
+      											<c:forEach var="sangerSymbol" items="${exampleImages.experimental.sangerSymbol}" varStatus="symbolStatus">
+												<c:if test="${not empty exampleImages.experimental.sangerSymbol}"><t:formatAllele>${sangerSymbol}</t:formatAllele><br /></c:if>
+												</c:forEach>
+      								</div>
+      						</div>
+    				</c:when>
+    				<c:otherwise>
+      				 <c:if test="${not empty images}"><img src="${mediaBaseUrl}/${images[0].largeThumbnailFilePath}"/></c:if>
+    				</c:otherwise>
+			</c:choose>
+	
 			</div>
 		</div>
 	</div>
 
-	<c:if test="${not empty phenotypes}">
-	<div class="row-fluid dataset">	
-		<h4 class="caption">Gene variants with this phenotype</h4>
-		<div class="container">
-			<table id="phenotypes" class="table table-striped">
-				<thead>
-					<tr>
-						<th>Gene</th>
-						<th>Allele</th>
-						<th>Zygosity</th>
-						<th>Sex</th>
-						<th>Procedure/Parameter</th>
-						<th>Source</th>
-						<c:if test="${not isLive}">
-						<th>Graph</th>
-						</c:if>
-					</tr>
-				</thead>
-				<tbody>
-					<c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
-					<c:set var="europhenome_gender" value="Both-Split"/>
-					<tr>
-					<td><a href="${baseUrl}/genes/${phenotype.gene.id.accession}">${phenotype.gene.symbol}</a></td>
-					<td><c:choose><c:when test="${fn:contains(phenotype.allele.id.accession, 'MGI')}"><a href="http://www.informatics.jax.org/accession/${phenotype.allele.id.accession}"><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></a></c:when><c:otherwise><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></c:otherwise></c:choose></td>
-					<td>${phenotype.zygosity}</td>
-					<td style="font-family:Verdana;font-weight:bold;">
-						<c:set var="count" value="0" scope="page" />
-						<c:forEach var="sex" items="${phenotype.sexes}"><c:set var="count" value="${count + 1}" scope="page"/><c:if test="${sex == 'female'}"><c:set var="europhenome_gender" value="Female"/><img style="cursor:help;color:#D6247D;" rel="tooltip" data-placement="top" title="Female" alt="Female" src="${baseUrl}/img/icon-female.png" /></c:if><c:if test="${sex == 'male'}"><c:set var="europhenome_gender" value="Male"/><img style="cursor:help;color:#247DD6;margin-left:<c:if test="${count != 2}">16</c:if><c:if test="${count == 2}">4</c:if>px;" rel="tooltip" data-placement="top" title="Male" alt="Male" src="${baseUrl}/img/icon-male.png" /></c:if></c:forEach>
-					</td>
-					<td>${phenotype.procedure.name} ${phenotype.parameter.name}</td>
-					<td>
-					<c:choose>
-					<c:when test="${phenotype.phenotypeLink eq ''}">
-						${phenotype.dataSourceName}
-					</c:when>
-					<c:otherwise>
-					<a href="${phenotype.phenotypeLink }">${phenotype.dataSourceName}</a>
-					</c:otherwise>
-					</c:choose>
-					</td>
-					<c:if test="${not isLive}">
-					<td style="text-align:center"><c:if test="${phenotype.dataSourceName eq 'EuroPhenome' }"><a href="${baseUrl}/stats/genes/${phenotype.gene.id.accession}?parameterId=${phenotype.parameter.stableId}<c:if test="${fn:length(phenotype.sexes) eq 1}">&gender=${phenotype.sexes[0]}</c:if>&zygosity=${phenotype.zygosity}"><img src="${baseUrl}/img/icon_stats.png" alt="Graph" /></a></c:if></td>
-					</c:if>
-					</tr>
-					</c:forEach>
-				</tbody>
-			</table>
-			<script>
-				$(document).ready(function(){						
-					
+
+	
+<div class="row-fluid dataset">
+	<div class="row-fluid">
+		<div class="container span12">
+			<h4 class="caption">Gene variants with this phenotype</h4>
+			<div class="row-fluid" id="phenotypesDiv">	
+				<div class="container span12">
+				<c:forEach var="filterParameters" items="${paramValues.fq}">
+			${filterParameters}
+			</c:forEach>
+					<c:if test="${not empty phenotypes}">
+						<form id="target" action="www.google.com">
+								<c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
+										<select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
+											<option>All</option>
+											<c:forEach var="facet" items="${phenoFacet.value}">
+												<option>${facet.key}</option>
+											</c:forEach>
+										</select> 
+								</c:forEach>
+								<input type="submit" class='btn primary' value="Filter" />
+						</form>
+						<jsp:include page="geneVariantsWithPhenotypeTable.jsp"></jsp:include>
+<div id="exportIconsDiv"></div>
+				</div>
+				<script>
+					$(document).ready(function(){						
+						
+						
+						//var oDataTable = $('table#phenotypes').dataTable();
+						//oDataTable.fnDestroy();//clean up the previous datatable from the calling page
 					// use jquery DataTable for table searching/sorting/pagination
-					var aDataTblCols = [0,1,2,3,4,5<c:if test="${not isLive}">,6</c:if>];
+					var aDataTblCols = [0,1,2,3,4,5,6];
 					var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
-						//"aaSorting": [[0, "asc"], [1, "asc"]],   			     
 						"aoColumns": [
 							{ "sType": "html", "mRender":function( data, type, full ) {
 						        return (type === "filter") ? $(data).text() : data;
@@ -143,25 +149,26 @@
 							{ "sType": "alt-string", "bSearchable" : false },
 						    { "sType": "string"},
 						    { "sType": "html"}
-							<c:if test="${not isLive}">
 						    , { "sType": "string", "bSortable" : false }
-							</c:if>
 
 						],
-		   	    		"iDisplayLength": 10   // 10 rows as default 
+						"bDestroy": true,
+						"bFilter":false,
+		   	    		"iDisplayLength": 10000   // 10 rows as default 
 					});
 
 					$('[rel=tooltip]').tooltip();
+					//$("#phenotypes_filter").hide();
 												    		
-		    		$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
-		    		$('div#phenotypes_wrapper').append($.fn.loadFileExporterUI({
+		    		//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
+		    		$('div#exportIconsDiv').append($.fn.loadFileExporterUI({
 		    			label: 'Export table as:',
 		    			formatSelector: {
 		    				TSV: 'tsv_phenoAssoc',
 		    				XLS: 'xls_phenoAssoc'	    			 					
 		    			},
 		    			class: 'fileIcon'
-		    		}));
+		    		})); 
 		    		
 		    		initFileExporter({
 						mpId: '${phenotype.id.accession}',
@@ -189,11 +196,108 @@
 		    	    }  
 		    		
 		    		
-				});
-			</script>
-		</div>
-	</div>
+				
+						
+						
+						
+						
+						
+						
+						
+					
+			    		//stuff for dropdown tick boxes here
+			    		$("#resource_fullname").dropdownchecklist( { firstItemChecksAll: true, emptyText: "Projects: All", icon: {}, minWidth: 150 } );
+			    		$("#procedure_name").dropdownchecklist( { firstItemChecksAll: true, emptyText: "Procedure: All", icon: {} , minWidth: 150} );
+			    		// $("select[multiple]").bsmSelect();
+			    		//if filter parameters are already set then we need to set them as selected in the dropdowns
+			    		var previousParams=$("#filterParams").html();
+			    		//alert('previous='+previousParams);
+				$('#target').submit(function() {
+			  var rootUrl=window.location.href;
+			    			 // alert(rootUrl);
+			    			  var newUrl=rootUrl.replace("phenotypes", "geneVariantsWithPhenotypeTable");//change the new url to point to the fragment view in the controller
+			    			// alert( $("option:selected").parent().attr("id"));
+			    			 var output ='?';
+			    			//http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=marker_accession_id:MGI:98373&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet=true&facet.field=project_name&facet.field=top_level_mp_term_name&fq=top_level_mp_term_name:(%22vision/eye%20phenotype%22%20OR%20%22craniofacial%20phenotype%22)
+			    			var array1=$("#resource_fullname").val() || [];
+			    			if(array1.length==1){//if only one entry for this parameter then don't use brackets and or
+			    				 output+='&fq=resource_fullname:"'+array1[0]+'"';
+			    			} 
+							if(array1.length>1)	{
+			    				output+='&fq=resource_fullname:(';//note " before and after value for solr handle spaces
+			    			 		for(var i=0; i<array1.length; i++){
+			    						 
+			    							 //if(i==0)output+=' " ';
+			    						 output+='"'+array1[i]+'"';
+			    						 if(i<array1.length-1){
+			    							 output+=' OR ';
+			    						 }else{
+			    							 output+=')';
+			    						 }
+			    						 //console.log('logging='+array1[i]);
+			    			 }
+			    		}
+			    			 var output2 ='';//='"'+ ($("#top_level_mp_term_name").val() || []).join('"&fq=top_level_mp_term_name:"')+'"';
+			    			 var array2=$("#procedure_name").val() || [];
+			    				if(array2.length==1){//if only one entry for this parameter then don't use brackets and or
+				    				 output+='&fq=procedure_name:"'+array2[0]+'"';
+				    			}
+			    				if(array2.length>1){
+				    				output+='&fq=procedure_name:(';//note " before and after value for solr handle spaces
+			    			 			for(var i=0; i<array2.length; i++){
+			    			 				 output+='"'+array2[i]+'"';
+				    						 if(i<array2.length-1){
+				    							 output+=' OR ';
+				    						 }else{
+				    							 output+=')';
+				    						 }
+			    			 		}
+			    			 }
+			    			 newUrl+=output+output2;
+			    			 //alert(newUrl);
+			    			  $.ajax({
+			    				  url: newUrl,
+			    				  cache: false
+			    				}).done(function( html ) {
+			    				  $("#phenotypes_wrapper").html(html);
+			    				  
+			    				  
+			    				// use jquery DataTable for table searching/sorting/pagination
+			  					var aDataTblCols = [0,1,2,3,4,5,6];
+			  					var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
+			  						"aoColumns": [
+			  							{ "sType": "html", "mRender":function( data, type, full ) {
+			  						        return (type === "filter") ? $(data).text() : data;
+			  						    }},
+			  							{ "sType": "html", "mRender":function( data, type, full ) {
+			  						        return (type === "filter") ? $(data).text() : data;
+			  						    }},
+			  						    { "sType": "string"},
+			  							{ "sType": "alt-string", "bSearchable" : false },
+			  						    { "sType": "string"},
+			  						    { "sType": "html"}
+			  						    , { "sType": "string", "bSortable" : false }
+
+			  						],
+			  						"bDestroy": true,
+			  						"bFilter":false,
+			  		   	    		"iDisplayLength": 10000   // 10 rows as default 
+			  					});			  
+			    				});
+			    			  return false;
+			    			});
+					});
+				</script>
+	
 	</c:if>
+	<c:if test="${empty phenotypes}">
+					<div class="alert alert-info">You'll see EuroPhenome phenotype data when available. You'll find links to the Wellcome Trust Sanger Institute mouse portal when appropriate.</div>
+				</c:if>
+				</div>
+			</div>
+	</div>
+</div>
+
 
 	<c:if test="${not empty siblings or not empty go}">
 	<div class="row-fluid dataset">	
