@@ -41,13 +41,13 @@ public class AtomUtil {
                 marshallerProperties.put("com.sun.xml.bind.xmlDeclaration", Boolean.FALSE);
         }
         
-        public static Feed genomicFeatureFeed(List<GenomicFeatureBean> genomicFeatures, Jaxb2Marshaller marshaller) {
+        public static Feed genomicFeatureFeed(List<GenomicFeature> gfs, Jaxb2Marshaller marshaller) {
                 Feed feed = new Feed();
                 feed.setFeedType("atom_1.0");
                 feed.setTitle("GenomicFeature Atom Feed");
                 
                 List<Entry> entries = new ArrayList<Entry>();
-                for(GenomicFeatureBean e : genomicFeatures) {
+                for(GenomicFeature e : gfs) {
                         StreamResult result = new StreamResult(new ByteArrayOutputStream());
                         
                         marshaller.setMarshallerProperties(marshallerProperties);
@@ -55,7 +55,7 @@ public class AtomUtil {
                         String xml = result.getOutputStream().toString();
                         
                         Entry entry = new Entry();
-                        entry.setId(e.getAccession());
+                        entry.setId(e.getId().getAccession());
                         entry.setTitle(e.getName());
                         Content content = new Content();
                         content.setType(Content.XML);
