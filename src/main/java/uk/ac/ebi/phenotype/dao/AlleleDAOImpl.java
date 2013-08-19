@@ -26,18 +26,21 @@ package uk.ac.ebi.phenotype.dao;
 import java.util.List;
 
 import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.Allele;
+import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 
-@Service
 public class AlleleDAOImpl extends HibernateDAOImpl implements AlleleDAO {
 
-	@Autowired
-	SessionFactory sessionFactory;
-	
+	/**
+	 * Creates a new Hibernate project data access manager.
+	 * @param sessionFactory the Hibernate session factory
+	 */
+	public AlleleDAOImpl(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}	
+
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<Allele> getAllAlleles() {
@@ -47,6 +50,16 @@ public class AlleleDAOImpl extends HibernateDAOImpl implements AlleleDAO {
 	@Transactional(readOnly = true)
 	public Allele getAlleleByAccession(String accession) {
 		return (Allele) getCurrentSession().createQuery("from Allele as a where a.id.accession = ?").setString(0, accession).uniqueResult();
+		
+	}
+
+
+	@Transactional(readOnly = true)
+	public Allele getAlleleBySymbolAndGene(String symbol, GenomicFeature gene) {
+		return (Allele) getCurrentSession().createQuery("from Allele as a where a.symbol = ? and a.gene.id.accession=?")
+				.setString(0, symbol)
+				.setString(1, gene.getId().getAccession())
+				.uniqueResult();
 		
 	}
 
