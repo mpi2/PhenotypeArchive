@@ -22,7 +22,7 @@ package uk.ac.ebi.phenotype.pojo;
  * Not exhaustive list: ontologies, MGI markers, EuroPhenome legacy data, etc.
  * 
  * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
- * @version $Revision: 2227 $
+ * @version $Revision: 2843 $
  *  @since February 2012
  */
 
@@ -54,7 +54,7 @@ public class Datasource {
 	@Column(name = "version_date")
 	private Date releaseDate;
 	
-	protected Datasource() {
+	public Datasource() {
 		super();
 	}
 
