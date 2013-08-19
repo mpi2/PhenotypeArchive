@@ -31,14 +31,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-@Service
 public class OntodbDAOImpl extends HibernateDAOImpl implements OntodbDAO {
 
-	@Autowired
-	private SessionFactory sessionFactory;
+	/**
+	 * Creates a new Hibernate ontology db data access manager.
+	 * @param sessionFactory the Hibernate session factory
+	 */
+	public OntodbDAOImpl(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
 	
 	@Override
 	public List<String> getAllCellTerms() {
