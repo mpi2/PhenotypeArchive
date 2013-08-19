@@ -1,20 +1,64 @@
-                      EBI Phenotype Archive Release Notes
+                      EMBL-EBI Phenotype Archive Release Notes
 
 Introduction
 ------------
-The EBI Phenotype Archive is an open source project to store, analyse and 
+The EMBL-EBI Phenotype Archive is an open source project to store, analyse and 
 present genotype associated phenotypes information on the web.
-This project is funded by the NIH KOMP2 grant and supported by the IMPC 
+This project is currently funded by the NIH KOMP2 grant and supported by the IMPC 
 consortium.
 
 The web application runs in a Java servlet container such as Tomcat.
 
-See https://github.com/mpi2/PhenotypeArchive for more information.
+See our wiki at https://github.com/mpi2/PhenotypeArchive/wiki for more information.
 
 Getting Started
 ---------------
 You need a Java 1.7 VM or later installed and a servlet container.
 
+================== Release 0.2.2 ==================
+
+Status
+------
+22 July 2013 release.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  Reverted Production/Phenotype status on top of gene page
+ 2.  Production/Phenotype status queried from Solr Allele core
+ 3.  Preliminary heatmap view based on phenotype status (from Allele core)
+ 3.  Filters on gene page to select high-level MP terms and program
+ 4.  Filters on phenotype page to select SOP parameters
+
+Known bugs
+ 1.  No export data from data tables on gene/phenotype page
+ 
+================== Release 0.2.1 ==================
+
+Status
+------
+12 July 2013 release.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  Phenotype call summary objects returns p-value and effect size
+ 2.  RESTful interface to phenotype call summary added
+ 3.  Default value for p-value in the phenotype call summary table set to 1
+ 4.  Scatter plots introduced to display underlying data
+ 
+Data changes
+ 1.  EuroPhenome MP calls p-value and effect size stored
+   
+Bug fixes
+ 1.  Download all results with correct phenotype status
+ 
+Other Changes
+ 1.  Wiki page create on github space
+ 2.  RESTful APIs documentation added to the phenotype archive Wiki
+ 
 ================== Release 0.2.0 ==================
 
 Status
@@ -42,6 +86,7 @@ Bug fixes
  1.  Dalliance pop-up location issue fixed
  2.  Download all results from the search page actually works now
  3.  Image count discrepancy on the result grid fixed
+ 4.  Fixes to suppress gene doc display
  
 ================== Release 0.1.9 ==================
 
