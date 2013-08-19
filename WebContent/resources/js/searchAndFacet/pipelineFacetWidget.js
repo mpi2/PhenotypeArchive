@@ -270,11 +270,16 @@
 	        			$.fn.fetchFilteredDataTable($(this), 'pipelineFacet', self.options.data.q, 'facetFilter');	 
 	        		});
 	        		
-	        		// reload sidebar for hash state	        		
+	        		/*------------------------------------------------------------------------------------*/
+	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
+	    	    	/*------------------------------------------------------------------------------------*/	
+	        		        		
 	        		if ( self.options.data.fq.match(/pipeline_stable_id.+/) ){
 	        			//console.log('1 pipeline UNfiltered');
 	        			var solrSrchParams = $.extend({}, MPI2.searchAndFacetConfig.facetParams['pipelineFacet'].filterParams, MPI2.searchAndFacetConfig.commonSolrParams);						
 	        			solrSrchParams.q = self.options.data.q;	
+	        			solrSrchParams.coreName = 'pipeline';  // to work out breadkCrumb facet display
+	        			solrSrchParams.facetCount = self.options.data.facetCount;
 	    	    		$.fn.invokeFacetDataTable(solrSrchParams, 'pipelineFacet', MPI2.searchAndFacetConfig.facetParams['pipelineFacet'].gridName, self.options.data.q);        					    	    	
 	        		}
 	        		else {
