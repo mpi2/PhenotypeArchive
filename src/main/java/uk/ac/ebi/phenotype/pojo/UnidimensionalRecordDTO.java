@@ -15,6 +15,16 @@ public class UnidimensionalRecordDTO {
 	private String zygosity;
 	private String gender;
 	private String value;
+	private String experimentDate;
+	
+	public String getExperimentDate() {
+		return experimentDate;
+	}
+	public void setExperimentDate(String experimentDate) {
+		this.experimentDate = experimentDate;
+	}
+	
+	
 	public Boolean isMutant() {
 		return mutant;
 	}
@@ -24,13 +34,13 @@ public class UnidimensionalRecordDTO {
 	public Integer getControlModelId() {
 		return controlModelId;
 	}
-	public void setControl_model_id(Integer controlModelId) {
+	public void setControlModelId(Integer controlModelId) {
 		this.controlModelId = controlModelId;
 	}
 	public Integer getMutantModelId() {
 		return mutantModelId;
 	}
-	public void setMutant_model_id(Integer mutantModelId) {
+	public void setMutantModelId(Integer mutantModelId) {
 		this.mutantModelId = mutantModelId;
 	}
 	public ZygosityType getMutantZygosity() {
