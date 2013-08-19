@@ -127,14 +127,13 @@ public class FileExportController {
 					rowStart = 0;
 					length = parseMaxRow(solrParams); // this is the facetCount				
 				}
-									
+													
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
 				List<String> rows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);
 
-			// Remove the title row (row 0) from the list and assign it to
-			// the string array for the spreadsheet
-			String[] titles = rows.remove(0).split("\t");
-				
+				// Remove the title row (row 0) from the list and assign it to
+				// the string array for the spreadsheet
+				String[] titles = rows.remove(0).split("\t");				
 				Wb = new ExcelWorkBook(titles, composeXlsTableData(rows), sheetName);
 			}
 			
@@ -206,7 +205,7 @@ public class FileExportController {
 		for ( String str : paramsList ){			
 			if ( str.startsWith("facetCount=") ){
 				String[] vals = str.split("=");
-				facetCount = Integer.parseInt(vals[1]);
+				facetCount = Integer.parseInt(vals[1]);				
 			}
 		}		
 		return facetCount;
@@ -235,7 +234,7 @@ public class FileExportController {
 	public List<String> composeDataTableExportRows(String solrCoreName, JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request){
 		List<String> rows = null;
 
-		if (solrCoreName.equals("gene") ){
+		if (solrCoreName.equals("gene") ){			
 			rows = composeGeneDataTableRows(json);
 		}
 		else if ( solrCoreName.equals("mp") ){			
@@ -406,7 +405,7 @@ public class FileExportController {
 				data.add(StringUtils.join(synData, "|")); // use | as a multiValue separator in CSV output
 			}
 			else {
-				data.add("NA");
+				//data.add("NA");
 			}
 						
 			// mouse production status
