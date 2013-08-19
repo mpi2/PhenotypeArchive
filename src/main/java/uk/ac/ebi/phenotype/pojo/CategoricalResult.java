@@ -165,6 +165,7 @@ public class CategoricalResult extends StatisticalResult implements Serializable
 	 *            the pValue to set
 	 */
 	public void setpValue(double pValue2) {
+		System.out.println("setting p value in CatResult  object="+pValue2);
 		this.pValue = pValue2;
 	}
 
