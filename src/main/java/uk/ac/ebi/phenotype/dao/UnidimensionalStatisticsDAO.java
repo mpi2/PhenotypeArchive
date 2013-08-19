@@ -12,7 +12,9 @@ import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalRecordDTO;
+import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.stats.MouseDataPoint;
 
 public interface UnidimensionalStatisticsDAO extends StatisticsDAO {
 
@@ -25,8 +27,6 @@ public interface UnidimensionalStatisticsDAO extends StatisticsDAO {
 	public BiologicalModel getControlBiologicalModelByPopulation(Integer populationId);
 
 	public BiologicalModel getMutantBiologicalModelByPopulation(Integer populationId);
-
-	public Double getpValueByParameterAndBiologicalModel(Parameter parameter, BiologicalModel biologicalModel);
 
 	public List<Integer> getPopulationIdsByParameterAndMutantBiologicalModel(Parameter parameter, BiologicalModel biologicalModel);
 
@@ -47,5 +47,16 @@ public interface UnidimensionalStatisticsDAO extends StatisticsDAO {
 	public List<Organisation> getOrganisationsByColonyAndParameter(String colony, Parameter parameter);
 
 	public  List<Map<String,String>>  getListOfUniqueParametersAndGenes(int start, int length) throws SQLException;
+	
+	public List<Map<String,String>> getListOfUniqueParametersAndGenes(int start, int length, String parameterId)throws SQLException;
+	
+	public Map<String, Float> getMinAndMaxForParameter(String paramStableId) throws SQLException;
+
+	public List<UnidimensionalResult> getUnidimensionalResultByParameterAndBiologicalModel(
+			Parameter parameter, BiologicalModel controlBiologicalModel,
+			BiologicalModel biologicalModel);
+	
+	public List<MouseDataPoint> getMutantDataPointsWithMouseName(SexType sex, ZygosityType zygosity, Parameter parameter,  Integer populationId);
+	public List<MouseDataPoint> getControlDataPointsWithMouseName(Integer populationId);
 
 }
