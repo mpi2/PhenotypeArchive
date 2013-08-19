@@ -30,11 +30,17 @@
   -->
   <cores adminPath="/admin/cores" >
     <core name="allele" instanceDir="allele" />
-    <core name="dasikmcallelesm38" instanceDir="dasikmcallelesm38" />
-    <core name="gene" instanceDir="gene" /> 
+    <core name="gene" instanceDir="gene" />
+    <core name="mp" instanceDir="mp" />
+    <core name="ma" instanceDir="ma" />
+    <core name="pipeline" instanceDir="pipeline" />
+    <core name="images" instanceDir="images" />
+    <!--<core name="dasikmcalleles" instanceDir="dasikmcalleles" />
+    <core name="dasikmcallelesm38" instanceDir="dasikmcallelesm38" /> 
     <core name="images" instanceDir="images" />   
     <core name="ma" instanceDir="ma" />
-    <core name="mp" instanceDir="mp" />
-    <core name="pipeline" instanceDir="pipeline" />
+    <core name="pipeline" instanceDir="pipeline" />--> 
+    <core name="genotype-phenotype" instanceDir="genotype-phenotype" />
+    <core name="experiment" instanceDir="experiment" />
   </cores>
 </solr>
