@@ -1,4 +1,9 @@
+#ignore the whole test dir for the moment
+src/test/
+
 *.class
+*.DS_Store
+*.project
 
 # Package Files #
 *.jar
