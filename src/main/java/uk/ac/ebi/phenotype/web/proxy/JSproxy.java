@@ -52,20 +52,23 @@ public class JSproxy extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		String queryString=request.getQueryString();
-		//System.out.println("queryString="+queryString);
-		String urlString=request.getParameter("url");
-		response.setHeader("Content-Type", "application/xml");
+		String queryString=request.getParameter("segment");
+		System.out.println(queryString);
+		String relativePath=request.getPathInfo();
+		System.out.println("queryString="+relativePath);
+		
+		//response.setHeader("Content-Type", "application/xml");
 //		response.setContentType("text/xml");
-		urlString=urlString.replace(" ","+");
+		//urlString=urlString.replace(" ","+");
 		//%3A :
 		//something wierd going on with the front ends so I have to do a replace so search works
 		//urlString=urlString.replace("%3A",":");
-		logger.debug("urlString after spaces removed="+urlString);
-//		if(!urlString.startsWith("http://beta.mousephenotype.org")&& !urlString.startsWith("http://localhost:8000/dasregistry/") && !urlString.startsWith("http://localhost:8000/regrest/") && !urlString.startsWith("http://dasregistry.sandbox.sanger.ac.uk/")){
-//			logger.warn("dissallowed url for proxy.php");
-//			return;
-//		}
+		//logger.debug("urlString after spaces removed="+urlString);
+	if(!relativePath.startsWith("/das/mouse_current/")){
+		logger.warn("dissallowed url for proxy.php");
+		return;
+	}
+	String urlString=relativePath.replace("/das/mouse_current/","http://gbrowse.informatics.jax.org/cgi-bin/das/mouse_current|Hearing_ear/");
 		URLConnection connection = new URL(urlString).openConnection();
 		
 		//String contentEncoding = connection.getHeaderField("Content-Encoding");//should be"Content-Encoding","ISO-8859-1")
@@ -78,7 +81,7 @@ public class JSproxy extends HttpServlet {
 		    try {
 		        reader = new BufferedReader(new InputStreamReader( connection.getInputStream(), "ISO-8859-1"));
 		        for (String line; (line = reader.readLine()) != null;) {
-		        	logger.debug("line through proxy="+line);
+		        	System.out.println("line through proxy="+line);
 		            writer.println(line);
 		        	//System.out.println("changed "+line);
 		        }
