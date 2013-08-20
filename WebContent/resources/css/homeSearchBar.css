@@ -1,0 +1,38 @@
+input#userInput {
+    color: gray;
+    font-size: 10px;
+    margin-left: 100px;
+    width: 450px !important;
+}
+table input#userInput {
+    margin-left: 0;
+}
+button#acSearch {
+    background: none repeat scroll 0 0 transparent;
+    border: medium none;
+    cursor: pointer;
+}
+button#acSearch img {
+    height: 20px;
+    vertical-align: middle;
+}
+ul.ui-autocomplete {
+    font-size: 12px;
+    height: auto;
+    margin-bottom: 0;
+    max-height: 300px;
+    min-width: 250px;
+    overflow: auto;
+    padding: 10px 15px;
+    width: auto;
+    z-index: 9999;
+}
+ul.ui-autocomplete li {
+    border-bottom: 1px dashed #D1D1D1;
+    display: block !important;
+}
+ul.ui-autocomplete li a {
+    display: block !important;
+    float: left !important;
+    text-align: left !important;
+}

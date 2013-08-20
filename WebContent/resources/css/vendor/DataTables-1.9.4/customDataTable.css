@@ -1,0 +1,103 @@
+@CHARSET "UTF-8";
+
+table.dataTable th {
+	border-bottom: 3px solid #d57c24 !important;
+}
+table.dataTable td {
+	background-color: white !important;
+}
+div.dataTables_info, div.dataTables_paginate {
+	margin: 25px 0 0 10px !important; 	
+}
+div.dataTables_paginate {
+	margin: 25px 10px 0 0; 	
+}
+span.hit {
+	color: #d57c24;	
+}
+div#tableShowAllLess span {
+	cursor: pointer;
+	padding: 3px 5px;
+	border: 1px solid gray;
+	font-size: 11px;
+	background-color: #F4F4F4;
+	border: 1px solid #CDC8B1;
+}
+div#foundEntries, div#tableShowAllLess {
+	padding-left: 10px;	
+}
+div#mpi2-search table.dataTable th {
+	cursor: text !important; /* still need to do this even though dataTable is told not to sort by bSort: false */ 
+}
+
+/*
+TableTools styles: posted as fix for bootstrap buttons from datatables.net
+https://github.com/DataTables/Plugins/commit/9556be3b19c5c46e393b7ebaae7f402c03d992cb
+See http://datatables.net/forums/discussion/11885/problem-with-the-tabletools-using-twitter-bootstrap/p1
+*/
+.table tbody tr.active td,
+.table tbody tr.active th {
+background-color: #08C;
+color: white;
+}
+
+.table tbody tr.active:hover td,
+.table tbody tr.active:hover th {
+background-color: #0075b0 !important;
+}
+
+.table-striped tbody tr.active:nth-child(odd) td,
+.table-striped tbody tr.active:nth-child(odd) th {
+background-color: #017ebc;
+}
+
+table.DTTT_selectable tbody tr {
+cursor: pointer;
+*cursor: hand;
+}
+
+div.DTTT .btn {
+color: #333 !important;
+font-size: 12px;
+}
+
+div.DTTT .btn:hover {
+text-decoration: none !important;
+}
+
+
+ul.DTTT_dropdown.dropdown-menu a {
+color: #333 !important; /* needed only when demo_page.css is included */
+}
+
+ul.DTTT_dropdown.dropdown-menu li {
+position: relative;
+}
+
+ul.DTTT_dropdown.dropdown-menu li:hover a {
+background-color: #0088cc;
+color: white !important;
+}
+
+/* TableTools information display */
+div.DTTT_print_info.modal {
+height: 150px;
+margin-top: -75px;
+text-align: center;
+}
+
+div.DTTT_print_info h6 {
+font-weight: normal;
+font-size: 28px;
+line-height: 28px;
+margin: 1em;
+}
+
+div.DTTT_print_info p {
+font-size: 14px;
+line-height: 20px;
+}
+
+
+
+

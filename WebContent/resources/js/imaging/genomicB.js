@@ -130,6 +130,17 @@ jQuery(document).ready(function() {
 		}); //new Browser({
 
 		//override the default popups here from feature-popup.js and having set the browser init option to disableDefaultFeaturePopup: true
+		
+//		 b.addFeatureInfoPlugin(
+//		         function(feature, featureInfo) {
+//		            if (feature.type == 'construct') {
+//		               featureInfo.setTitle('Blurdibloop');
+//		               featureInfo.addPanel(
+//		                   'Construct',
+//		                   makeElement('img', {src: 'http://mousephenotype.org/images/' + feature.id})
+//		                );
+//		             }
+//		          });
 		b.addFeatureListener(function(ev, feature, group) {
 
 			//  var log = document.getElementById('clickLog');

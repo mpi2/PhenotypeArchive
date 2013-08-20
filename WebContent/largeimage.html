@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>Images IMPC</title>
+		<!-- thumbnail scroller stylesheet -->
+		<link href="css/imagemain.css" rel="stylesheet" />
+		<link href="css/largeimage.css" rel="stylesheet" />
+		<!-- jquery -->
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+		<!-- jquery ui custom build (for animation easing) -->
+		<script src="js/imaging/jquery-ui-1.8.13.custom.min.js"></script>
+		<script src="js/imaging/largeimage.js"></script>
+		<script src="js/imaging/imagehelper.js"></script>
+		<script src="js/imaging/jquery.thumbnailScroller.js"></script>
+		<script src="js/imaging/imagedrawing.js"></script>
+
+	</head>
+	<body>
+	<div id="pagination">
+	</div>
+		<!-- thumbnail scroller markup begin -->
+		<div id="tS3" class="jThumbnailScroller" style="top:30px; height:600px;">
+			<div class="jTscrollerContainer">
+				<div class="jTscroller">
+
+				</div>
+			</div>
+			<!--<a href="#" class="jTscrollerPrevButton"></a>
+			<a href="#" class="jTscrollerNextButton"></a>-->
+		</div>
+		<div id="largeImageContainer">
+			<!--<img src="http://localhost/images/0/M00108642_00003587_download_tn_large.jpg" />-->
+		</div>
+		<div id="imageDataContainer">
+			<!--<img src="http://localhost/images/0/M00108642_00003587_download_tn_large.jpg" />-->
+		</div>
+		<canvas id="drawableCanvas" width="800" height="600">Fallback content, in case the browser does not support Canvas.</canvas>
+		
+		<img id="largeImage" src="http://localhost/images/524/M00042124_00002713_download_tn_large.jpg" style="visibility:hidden;" width="0" height="0"/>
+		<!-- thumbnail scroller markup end -->
+			</body>
+</html>
