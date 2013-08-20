@@ -6,6 +6,7 @@ import java.net.URL;
 
 import org.apache.log4j.Logger;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
@@ -31,4 +32,16 @@ private static final Logger log = Logger.getLogger(JSONRestUtil.class);
 
 		return (JSONObject) JSONSerializer.toJSON(content);
 	}
+	
+	public static int getNumberFoundFromJsonResponse(JSONObject response) {
+		int numberFound = (int) response.getJSONObject("response").getInt("numFound");
+		return numberFound;
+	}
+	
+	public static JSONArray getDocArray(JSONObject jsonResponse) {
+		JSONArray docs = jsonResponse.getJSONObject(
+				"response").getJSONArray("docs");
+		return docs;
+	}
+	
 }

@@ -1,7 +1,8 @@
 #ignore the whole test dir for the moment and the target dir
 src/test/
 target/
-
+*.appConfig.properties
+*.svn
 *.class
 *.DS_Store
 *.project
