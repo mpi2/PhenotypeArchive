@@ -179,7 +179,7 @@ public class PhenotypeCallSummarySolrImpl implements
 		String solrUrl= config.get("internalSolrUrl");//"http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
 		String url = solrUrl+"/"+core+"/select/?q=mp_term_id:\""
 				+ phenotype_id
-				+ "\"&rows=1000000&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet=true&facet.field=resource_fullname&facet.field=procedure_name";
+				+ "\"&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=resource_fullname&facet.field=procedure_name";
 		//if (!filterString.equals("")) {
 			if (queryString.startsWith("&")) {
 				url += queryString;
