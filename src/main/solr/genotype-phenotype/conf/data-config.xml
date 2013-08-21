@@ -1,0 +1,67 @@
+<dataConfig>
+
+	<dataSource name="ds1" jndiName="java:comp/env/jdbc/komp2DataSource" />
+	<dataSource name="ds2" jndiName="java:comp/env/jdbc/ontodbDataSource" /> 
+	<document name="komp2_indexing">
+		<!-- Phenotype call summary -->
+		<entity dataSource="ds1" name="phenotype_call" query ="select s.id as doc_id, s.parameter_id as parameter_id, s.procedure_id as procedure_id, s.pipeline_id as pipeline_id, s.gf_acc as marker_accession_id, gf.symbol as marker_symbol, s.allele_acc as allele_accession_id, al.name as allele_name, al.symbol as allele_symbol, s.strain_acc as strain_accession_id, st.name as strain_name, s.sex as sex, s.zygosity as zygosity, p.name as project_name, p.fullname as project_fullname, s.mp_acc as mp_term_id, ot.name as mp_term_name, s.p_value as p_value, s.effect_size as effect_size, db.name as resource_fullname, db.short_name as resource_name from phenotype_call_summary s join project p on s.project_id = p.id join ontology_term ot on ot.acc = s.mp_acc join genomic_feature gf on s.gf_acc = gf.acc left outer join strain st on s.strain_acc = st.acc left outer join allele al on s.allele_acc = al.acc left outer join external_db db on s.external_db_id = db.id">
+			<field column="doc_id" name="doc_id" />
+			<field column="sex" name="sex" />
+			<field column="zygosity" name="zygosity" />
+			<field column="project_name"  name="project_name" />
+			<field column="project_fullname"  name="project_fullname" />
+			<field column="mp_term_id" name="mp_term_id" />
+			<field column="mp_term_name" name="mp_term_name" />
+			<field column="p_value" name="p_value" />
+			<field column="effect_size" name="effect_size" />
+			<field column="marker_accession_id" name="marker_accession_id" />
+			<field column="marker_symbol" name="marker_symbol" />
+			<field column="allele_accession_id" name="allele_accession_id" />
+			<field column="allele_name" name="allele_name" />
+			<field column="allele_symbol" name="allele_symbol" />
+			<field column="strain_accession_id" name="strain_accession_id" />
+			<field column="strain_name" name="strain_name" />
+			<field column="resource_fullname" name="resource_fullname" />
+			<field column="resource_name" name="resource_name" />
+			<field column="external_id" name="external_id" />
+			
+			<!-- top level MP term of this MP term -->
+			<entity dataSource="ds2" name="mp_node2term"
+				query="select node_id from mp_node2term where term_id='${phenotype_call.mp_term_id}'">
+				<entity dataSource="ds2" name="mp_node_top_level"
+					query="select top_level_node_id from mp_node_top_level where node_id=${mp_node2term.node_id}">
+					<entity dataSource="ds2" name="mp_node2term"
+						query="select term_id from mp_node2term where node_id=${mp_node_top_level.top_level_node_id}">
+						<entity dataSource="ds2" name="mp_term_infos"
+							query="select term_id, name, definition from mp_term_infos where term_id='${mp_node2term.term_id}' and term_id != 'MP:0000001'">
+
+							<!-- do not want to include the root term -->
+							<field column="term_id" name="top_level_mp_term_id" />
+							<field column="name" name="top_level_mp_term_name" />
+							<field column="definition" name="top_level_mp_term_definition" />
+						</entity>
+					</entity>
+				</entity>
+			</entity>
+								
+			<!-- Link to phenotype parameter -->
+			<entity dataSource="ds1" name="phenotype_parameter" query="select stable_id, name from phenotype_parameter where id=${phenotype_call.parameter_id}">
+				<field column="stable_id" name="parameter_stable_id" />
+            	<field column="name" name="parameter_name" />
+            	<field column="stable_key" name="parameter_stable_key" />
+            	<!-- Link to phenotype procedure -->
+				<entity dataSource="ds1" name="phenotype_procedure" query="select id, stable_id, name, stable_key from phenotype_procedure where id=${phenotype_call.procedure_id}">
+					<field column="stable_id" name="procedure_stable_id" />
+					<field column="name" name="procedure_name" />
+					<field column="stable_key" name="procedure_stable_key" />
+					<entity dataSource="ds1" name="phenotype_pipeline" query="select stable_id, name, stable_key from phenotype_pipeline where id=${phenotype_call.pipeline_id}">
+						<field column="stable_id" name="pipeline_stable_id" />
+						<field column="name" name="pipeline_name" />
+						<field column="stable_key" name="pipeline_stable_key" />
+					</entity>
+				</entity>
+			</entity>
+		</entity>
+	</document>
+	
+</dataConfig>
