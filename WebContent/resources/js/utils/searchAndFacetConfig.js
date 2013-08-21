@@ -19,59 +19,172 @@
  * Author: Chao-Kung Chen
  * 
  */
-$(document).ready(function(){ 
-	
-	MPI2.searchAndFacetConfig = {};
-	var config = MPI2.searchAndFacetConfig;
-	
-	config.solrBaseURL_bytemark = drupalBaseUrl + '/bytemark/solr/';	
-	config.solrBaseURL_ebi = drupalBaseUrl + '/mi/solr/';
-	
-	config.spinner = "<img src='img/loading_small.gif' /> Processing search ...";
-	config.spinnerExport = "<img src='img/loading_small.gif' /> Processing data for export, please do not interrupt ... ";
-	config.endOfSearch = "Search result";
-	config.facetParams = {	
-		 gene:      {
-			 type: 'genes',
-			 solrCoreName: 'gene', 
-			 tableCols: 3, 
-			 tableHeader: "<thead><th>Gene</th><th>Latest Status</th><th>Register for Updates</th></thead>",
-			 gridName: 'geneGrid',
-			 gridFields: 'marker_symbol,synonym,marker_name' // should include status soon
-		 },
-		 pipeline: {
-			 type: 'procedures',
-			 solrCoreName: 'pipeline', 
-			 tableCols: 3, 
-			 tableHeader: '<thead><th>Parameter</th><th>Procedure</th><th>Pipeline</th></thead>', 
-			 fq: "pipeline_stable_id:IMPC_001", 
-			 qf: 'auto_suggest', 
-			 defType: 'edismax',
-			 wt: 'json',
-			 gridFields: 'parameter_name,procedure_name,pipeline_name'
-		 },
-		 mp: {
-			 type: 'phenotypes',
-			 solrCoreName: 'mp', 
-			 tableCols: 2, 
-			 tableHeader: '<thead><th>Phenotype</th><th>Definition</thead>', 
-			 fq: "ontology_subset:*", 
-			 qf: 'auto_suggest', 
-			 defType: 'edismax',
-			 wt: 'json',
-			 gridFields: 'mp_term,mp_definition,mp_id,top_level_mp_term'
-		 },
-		 images:     {
-			 type: 'images',
-			 solrCoreName: 'images', 
-			 tableCols: 2, 
-			 tableHeader: '<thead><th>Name</th><th>Example Images</th></thead>', 
-			 fq: "annotationTermId:M*", 
-			 qf: 'auto_suggest', 
-			 defType: 'edismax',
-			 wt: 'json',
-			 gridFields: 'annotationTermId,annotationTermName,expName,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath'
-		 }					
-	}; 
-});
 
+
+if(typeof(window.MPI2) === 'undefined') {
+    window.MPI2 = {};
+}
+MPI2.buttCount = 0;
+
+MPI2.searchAndFacetConfig = {};
+var config = MPI2.searchAndFacetConfig;
+
+
+// on drupal side this is not available
+if ( typeof solrUrl == 'undefined' ){
+	solrUrl = '/data/solr';
+}
+
+if ( typeof baseUrl == 'undefined' ){
+	baseUrl = '/data';
+}
+
+config.lastParams = false;
+config.cores = ['gene', 'mp', 'ma', 'pipeline', 'images'];
+config.restfulPrefix = {
+		'gene' : 'genes',
+		'mp'   : 'phenotypes',
+		'ma'   : 'anatomy'
+};
+
+config.geneStatuses = ['Phenotype Data Available',
+               'Mice Produced',
+               'Assigned for Mouse Production and Phenotyping',
+               'ES Cells Produced',
+               'Assigned for ES Cell Production',
+               'Not Assigned for ES Cell Production'];
+
+config.phenotypingStatuses = {'Complete':{'fq':'imits_phenotype_complete','val':1}, 
+                              'Started':{'fq':'imits_phenotype_started','val':1}, 
+                              'Attempt Registered':{'fq':'imits_phenotype_status', 'val':'Phenotype Attempt Registered'}};
+
+
+                            
+//config.solrBaseURL_bytemark = 'http://dev.mousephenotype.org/bytemark/solr/';
+config.solrBaseURL_bytemark = solrUrl + '/';
+config.solrBaseURL_ebi = solrUrl + '/';
+
+config.searchSpin = "<img src='img/loading_small.gif' />";
+config.spinner = "<img src='img/loading_small.gif' /> Processing search ...";
+config.spinnerExport = "<img src='img/loading_small.gif' /> Processing data for export, please do not interrupt ... ";
+config.endOfSearch = "Search result";
+
+// custom 404 page does not know about baseUrl
+var path = window.location.pathname.replace(/^\//,"");
+path = '/' + path.substring(0, path.indexOf('/'));
+//var trailingPath = '/searchAndFacet';
+var trailingPath = '/search';
+var trailingPathDataTable = '/dataTable';
+
+config.pathname = typeof baseUrl == 'undefined' ? path + trailingPath : baseUrl + trailingPath;
+config.dataTablePath = typeof baseUrl == 'undefined' ? path + trailingPathDataTable : baseUrl + trailingPathDataTable;
+
+var commonSolrParams = {					
+		'qf': 'auto_suggest',
+		'defType': 'edismax',
+		'wt': 'json',
+		'rows': 0
+};
+config.commonSolrParams = commonSolrParams;
+
+config.facetParams = {	
+	geneFacet:      {
+		type: 'genes',			
+		solrCoreName: 'gene',			 
+		tableCols: 3, 	
+		tableHeader: "<thead><th>Gene</th><th>Mouse Production Status</th><th>Phenotyping Status</th><th>Register for Updates</th></thead>",
+		fq: undefined,
+		qf: "marker_symbol^100.0 marker_name^10.0 allele^10 marker_synonym mgi_accession_id auto_suggest",
+		gridName: 'geneGrid',
+		gridFields: 'marker_symbol,marker_synonym,marker_name,status', 
+		filterParams: {fq:'marker_type:* -marker_type:"heritable phenotypic marker"',		 
+			      qf:"marker_symbol^100.0 marker_name^10.0 marker_synonym mgi_accession_id auto_suggest",			     
+			      bq:'marker_type:"protein coding gene"^100'},
+		srchParams: $.extend({},				
+				 	commonSolrParams,	 	
+					{fq:'marker_type:* -marker_type:"heritable phenotypic marker"'}),
+		subFacet_filter_params: '', // set by widget on the fly
+		breadCrumbLabel: 'Genes'		
+	 },	
+	 pipelineFacet: {		
+		 type: 'procedures',		 
+		 solrCoreName: 'pipeline',			
+		 tableCols: 3, 
+		 tableHeader: '<thead><th>Parameter</th><th>Procedure</th><th>Pipeline</th></thead>', 
+		 fq: "pipeline_stable_id:IMPC_001", 
+		 qf: 'auto_suggest', 
+		 defType: 'edismax',
+		 wt: 'json',
+		 gridFields: 'parameter_name,procedure_name,pipeline_name',
+		 gridName: 'pipelineGrid',	
+		 filterParams:{'fq': 'pipeline_stable_id:IMPC_001'},
+		 breadCrumbLabel: 'Procedures',		 
+		 srchParams: $.extend({},
+					commonSolrParams,    				
+					{'fq': 'pipeline_stable_id:IMPC_001'})					
+	 },	
+	 mpFacet: {	
+		 type: 'phenotypes',
+		 solrCoreName: 'mp', 
+		 tableCols: 2, 
+		 tableHeader: '<thead><th>Phenotype</th><th>Definition</thead>', 
+		 fq: "ontology_subset:*", 
+		 qf: 'auto_suggest', 
+		 defType: 'edismax',
+		 wt: 'json',
+		 gridFields: 'mp_term,mp_definition,mp_id,top_level_mp_term',
+		 gridName: 'mpGrid',
+		 topLevelName: '',
+		 ontology: 'mp',
+		 breadCrumbLabel: 'Phenotypes',		
+		 filterParams: {'fq': "ontology_subset:*", 'fl': 'mp_id,mp_term,mp_definition,top_level_mp_term'},
+		 srchParams: $.extend({},				
+					commonSolrParams,	 	
+					{fq: 'ontology_subset:*'})
+	 },	
+	 maFacet: {	
+		 selectedTopLevels: [
+		         	    	'"MA:0000009"', '"MA:0000020"',	'"MA:0002450"',	'"MA:0000010"',	'"MA:0002506"',
+		        	    	'"MA:0002431"',	'"MA:0000012"',	'"MA:0002411"',	'"MA:0002711"',	'"MA:0000014"',
+		        	    	'"MA:0000007"',	'"MA:0002418"',	'"MA:0000016"',	'"MA:0000325"',	'"MA:0000326"',
+		        	    	'"MA:0000327"',	'"MA:0000004"'],
+		 type: 'tissues',
+		 solrCoreName: 'ma', 
+		 tableCols: '', 
+		 tableHeader: '<thead><th></th><th></thead>', 
+		 fq: "ontology_subset:IMPC_Terms", 
+		 qf: 'auto_suggest', 
+		 defType: 'edismax',
+		 wt: 'json',
+		 gridFields: '',
+		 gridName: 'maGrid',
+		 topLevelName: '',
+		 ontology: 'ma',
+		 breadCrumbLabel: 'Anatomy',	
+		 filterParams: {},
+		 srchParams: $.extend({},
+					commonSolrParams)		
+	 },	
+	 imagesFacet: {		
+		 type: 'images',
+		 solrCoreName: 'images', 
+		 tableCols: 2, 
+		 tableHeader: '<thead><th>Name</th><th>Example Images</th></thead>', 
+		 fq: 'annotationTermId:M* OR expName:* OR symbol:* OR higherLevelMaTermName:* OR higherLevelMpTermName:*',			 
+		 qf: 'auto_suggest', 
+		 defType: 'edismax',
+		 wt: 'json',
+		 gridFields: 'annotationTermId,annotationTermName,expName,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath',
+		 gridName: 'imagesGrid',
+		 topLevelName: '',
+		 imgViewSwitcherDisplay: 'Annotation View',
+		 forceReloadImageDataTable: false,
+		 showImgView: true,
+		 breadCrumbLabel: 'Images',
+		 filterParams: {//'fl' : 'annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath',
+			 	  'fq' : "annotationTermId:M* OR expName:* OR symbol:* OR higherLevelMaTermName:* OR higherLevelMpTermName:*"},	
+	 	 srchParams: $.extend({},
+				commonSolrParams,				
+				{'fl' : 'higherLevelMaTermName,higherLevelMpTermName,annotationTermId,annotationTermName,expName,symbol'})			
+	 }
+}; 
