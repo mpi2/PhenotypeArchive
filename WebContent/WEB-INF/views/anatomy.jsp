@@ -89,7 +89,9 @@
 									<c:forEach var="maTerm" items="${doc.annotationTermName}" varStatus="loop">
 										${maTerm}<c:if test="${!loop.last}"><br /></c:if>
 									</c:forEach>
-									<c:if test="${not empty doc.genotype}"><br />${doc.genotype}</c:if>
+									<c:forEach var="sangerSymbol" items="${doc.sangerSymbol}" varStatus="symbolStatus">
+						<c:if test="${not empty doc.sangerSymbol}"><t:formatAllele>${sangerSymbol}</t:formatAllele></c:if>
+							</c:forEach>
 									<c:if test="${not empty doc.genotype}"><br />${doc.gender}</c:if>
 									<c:if test="${not empty doc.institute}"><c:forEach var="org" items="${doc.institute}"><br />${ org}</c:forEach></c:if> 
 									</li>
@@ -124,8 +126,9 @@
 									<c:forEach var="maTerm" items="${doc.annotationTermName}" varStatus="loop">
 										${maTerm}<c:if test="${!loop.last}"><br /></c:if>
 									</c:forEach>
-									<c:if test="${not empty doc.genotype}"><br />${doc.genotype}</c:if>
-									<c:if test="${not empty doc.genotype}"><br />${doc.gender}</c:if>
+									<c:forEach var="sangerSymbol" items="${doc.sangerSymbol}" varStatus="symbolStatus">
+						<c:if test="${not empty doc.sangerSymbol}"><t:formatAllele>${sangerSymbol}</t:formatAllele></c:if>
+							</c:forEach>
 									<c:if test="${not empty doc.institute}"><c:forEach var="org" items="${doc.institute}"><br />${ org}</c:forEach></c:if> 
 									</li>
 								</c:forEach>
