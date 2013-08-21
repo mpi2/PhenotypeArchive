@@ -24,6 +24,33 @@ public class Anatomy {
 	
 	private Collection<String> topLevelTerms=new ArrayList<String>();
 	private Collection<String> topLevelIds=new ArrayList<String>();
+	private Collection<String> childTerms=new ArrayList<String>();
+	private Collection<String> mpTerms=new ArrayList<String>();
+	public Collection<String> getMpTerms() {
+		return mpTerms;
+	}
+
+	public void setMpTerms(Collection<String> mpTerms) {
+		this.mpTerms = mpTerms;
+	}
+
+	public Collection<String> getChildTerms() {
+		return childTerms;
+	}
+
+	public void setChildTerms(Collection<String> childTerms) {
+		this.childTerms = childTerms;
+	}
+
+	public Collection<String> getChildIds() {
+		return childIds;
+	}
+
+	public void setChildIds(Collection<String> childIds) {
+		this.childIds = childIds;
+	}
+
+	private Collection<String> childIds=new ArrayList<String>();
 	
 	public Collection<String> getTopLevelTerms() {
 		return topLevelTerms;
