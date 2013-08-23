@@ -39,10 +39,15 @@ public class JSONMAUtils {
 			childIdStrings=getDistinct(childIdStrings);
 			ma.setChildIds(childIdStrings);
 		}
-		if(maJson.containsKey("ma_2_mp_mapping")) {
-			Collection<String> mpTerms=JSONArray.toCollection(maJson.getJSONArray("ma_2_mp_mapping") , String.class);
-			mpTerms=getDistinct(mpTerms);
-			ma.setMpTerms(mpTerms);
+		if(maJson.containsKey("ma_2_mp_id")) {
+			Collection<String> mpIds=JSONArray.toCollection(maJson.getJSONArray("ma_2_mp_id") , String.class);
+			mpIds=getDistinct(mpIds);
+			ma.setMpIds(mpIds);
+		}
+		if(maJson.containsKey("ma_2_mp_name")) {
+			Collection<String> mpIds=JSONArray.toCollection(maJson.getJSONArray("ma_2_mp_name") , String.class);
+			mpIds=getDistinct(mpIds);
+			ma.setMpTerms(mpIds);
 		}
 		return ma;
 	}

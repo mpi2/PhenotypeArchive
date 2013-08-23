@@ -674,6 +674,9 @@ public class SolrIndex {
 		if (docs.size() > 1) {
 			log.error("Error, Only expecting 1 document from an accession/gene request");
 		}
+		if(docs.size()<1) {//if nothing returned return an empty json object
+			return new JSONObject();
+		}
 
 		JSONObject imageInfo = docs.getJSONObject(0);
 		return imageInfo;
