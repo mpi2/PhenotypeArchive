@@ -1,4 +1,4 @@
-#ignore the whole test dir for the moment and the target dir
+#ignore the target dir
 target/
 *.appConfig.properties
 *.svn
@@ -10,3 +10,4 @@ target/
 *.jar
 *.war
 *.ear
+
