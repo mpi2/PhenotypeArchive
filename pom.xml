@@ -690,6 +690,7 @@
 								<!-- <jsSourceFile>utils/tools.js</jsSourceFile> -->
 								<jsSourceFile>searchAndFacet/geneFacetWidget.js</jsSourceFile>
 								<jsSourceFile>searchAndFacet/mpFacetWidget.js</jsSourceFile>
+								<jsSourceFile>searchAndFacet/maFacetWidget.js</jsSourceFile>
 								<jsSourceFile>searchAndFacet/pipelineFacetWidget.js</jsSourceFile>
 								<jsSourceFile>searchAndFacet/imagesFacetWidget.js</jsSourceFile>
 								<jsSourceFile>searchAndFacet/search.js</jsSourceFile>
