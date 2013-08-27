@@ -2,7 +2,6 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
-<%@ taglib uri="http://htmlcompressor.googlecode.com/taglib/compressor" prefix="compress" %>
 
 <%
 	/*
@@ -58,7 +57,15 @@
 <link type='text/css' rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css' />
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap.min.css'  />
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap-responsive.min.css'  />
-<link rel="stylesheet" type="text/css" href="${baseUrl}/css/style.min.css"/>
+
+<!--replaceCSS -->
+<link type='text/css' rel='stylesheet' href='${baseUrl}/css/searchAndFacet.css' />	
+
+<link type='text/css' rel='stylesheet' href='${baseUrl}/css/vendor/DataTables-1.9.4/jquery.dataTables.css' media='all' />
+<link type='text/css' rel='stylesheet' href='${baseUrl}/css/vendor/DataTables-1.9.4/customDataTable.css' media='all' />
+<link type='text/css' rel='stylesheet' href='${baseUrl}/css/custom.css'  />
+<!-- replaceCSSEnd-->
+
 <style>
 
 body {
@@ -68,10 +75,10 @@ background-repeat: repeat-x;
 #menus {font-size:88%;}
 .navbar .nav  li  a {padding:5px 10px; font-size:13px; color:#555555;}
 
-<%--
+/*
    changed base path for servlet to /.  Must serve images from the resource
    mapping defined in mvc-config.xml
---%>
+*/
 [class^="icon-"],
 [class*=" icon-"] {
   background-image: url("${baseUrl}/img/glyphicons-halflings.png");
@@ -96,11 +103,12 @@ background-repeat: repeat-x;
 }
 </style>
 
-<%-- 
-Short circuit favicon requests 
-See: http://stackoverflow.com/questions/1321878/how-to-prevent-favicon-ico-requests
---%>
-<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+<!-- Le fav and touch icons -->
+<link rel="shortcut icon" href="../assets/ico/favicon.ico">
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../ico/apple-touch-icon-144-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="../ico/apple-touch-icon-114-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="../ico/apple-touch-icon-72-precomposed.png">
+<link rel="apple-touch-icon-precomposed" href="../ico/apple-touch-icon-57-precomposed.png">
 
 <script type="text/javascript">
 var _gaq = _gaq || [];_gaq.push(["_setAccount", "${googleAnalytics}"]);_gaq.push(["_trackPageview"]);(function() {var ga = document.createElement("script");ga.type = "text/javascript";ga.async = true;ga.src = "${drupalBaseUrl}/sites/mousephenotype.org/files/googleanalytics/ga.js?mjafjk";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(ga, s);})();
@@ -119,7 +127,7 @@ http://digitalize.ca/2010/04/javascript-tip-save-me-from-console-log-errors/
 --%>
 //In case we forget to take out console statements. IE becomes very unhappy when we forget. Let's not make IE unhappy
 try {
-	console.log(" ");
+	console.log("Testing the console.log protection");
 } catch(err) {
 	var console = {};
 	console.log = console.error = console.info = console.debug = console.warn = console.trace = console.dir = console.dirxml = console.group = console.groupEnd = console.time = console.timeEnd = console.assert = console.profile = function() {};
@@ -142,7 +150,6 @@ try {
 <script>window.jQuery || document.write('<script src="${baseUrl}/js/vendor/jquery-1.7.2.min.js"><\/script><script src="${baseUrl}/js/vendor/jquery-ui-1.8.18.min.js"><\/script><link type="text/css" rel="stylesheet" href="${baseUrl}/css/vendor/jquery-ui-1.8.18.css" />');</script>
 
 <jsp:invoke fragment="header" />
-
 
 </head>
 <body>
@@ -176,7 +183,7 @@ try {
 					</li>
 					</c:if>
 					<c:if test="${menuitem.below == null}">
-					<li><a href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li>
+					<li><a href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${fn:replace(menuitem.href,'<front>','')}">${menuitem.title}</a></li>
 					</c:if>
 					</c:forEach>
 				</ul>
@@ -228,8 +235,8 @@ try {
 	
 		<div class="row-fluid" id='logoFooter'>
 			<div class="span12 centered-text">
-				<img alt="IMPC member logos" class="footerLogos"
-					src="${drupalBaseUrl}/sites/all/themes/impc_zen/images/footerLogos.jpg"
+				<img alt="" class="footerLogos"
+					src="https://beta.mousephenotype.org/sites/all/themes/impc_zen/images/footerLogos.jpg"
 					style="width: 1222px; height: 50px;">
 				<jsp:invoke fragment="footer" />
 				<small class="muted">
@@ -242,13 +249,29 @@ try {
 	
 	<script type="text/javascript" src='${baseUrl}/js/vendor/jquery.ba-bbq.min.js' ></script>
 	<script type="text/javascript" src='${baseUrl}/js/bootstrap/bootstrap.min.js' ></script>
-	<script type="text/javascript" src='${baseUrl}/js/script.min.js' ></script>
-	<script src="${baseUrl}/js/utils/tools.js"></script>
+	
+	<!--replaceJS -->
+		
+	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js'></script>
+		
+	<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/jquery.dataTables.js'></script>
+	<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/core.filter.js'></script>
+	<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/TableTools.min.js'></script>
+	<script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>
+		
+	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/geneFacetWidget.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/mpFacetWidget.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/maFacetWidget.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>	
+	
+	<!-- replaceJSEnd-->
+
 	<script type='text/javascript' src='${baseUrl}/js/vendor/respond.min.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/vendor/jquery.corner.mini.js'></script>
-	<script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist-1.4-min.js'></script>
 	
-	<compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">
  	<script>
 	$(document).ready(function() {
 		// wire up the example queries
@@ -262,6 +285,5 @@ try {
 		$.fn.ieCheck();
 	});	
 	</script>
-	</compress:html>
 </body>
 </html>
