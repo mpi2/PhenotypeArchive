@@ -43,8 +43,6 @@
 						<c:forEach var="sangerSymbol" items="${image.sangerSymbol}" varStatus="symbolStatus">
 						<c:if test="${not empty image.sangerSymbol}"><t:formatAllele>${sangerSymbol}</t:formatAllele><br /></c:if>
 							</c:forEach>
-						
-		       				<c:if test="${not empty image.genotype}">${image.genotype}<br /></c:if>
 							<c:if test="${not empty image.gender}">${image.gender}<br /></c:if>
 							<c:forEach var="annTermName" items="${image.annotationTermName}" varStatus="annStatus">
 							<c:if test="${not empty image.annotationTermName}">${annTermName}<br /></c:if>

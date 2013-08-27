@@ -237,7 +237,6 @@ public class ImagesSolrJ implements ImagesSolrDao {
 		solrQuery.setQuery(query);
 		solrQuery.setStart(start);
 		solrQuery.setRows(length);
-
 		return server.query(solrQuery);
 	}
 

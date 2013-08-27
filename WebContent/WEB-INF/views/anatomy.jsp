@@ -32,16 +32,16 @@
 							<a href="${anatomy.mgiLinkString}">${anatomy.accession}</a>
 						</td>
 					</tr>
-						<tr>
+						<%-- <tr>
 						<td>Definition:</td>
 						<td>${anatomy.description}</td>
-					</tr>
+					</tr> --%>
 					<tr>
-						<td>Top Level Terms:</td>
+						<td>Child Terms:</td>
 						<td></td>
-						<c:forEach items="${anatomy.topLevelTerms}" var="topTerm" varStatus="topStatus">
+						<c:forEach items="${anatomy.childTerms}" var="childTerm" varStatus="childStatus">
 						<tr>
-						<td><a href="http://www.informatics.jax.org/searches/AMA.cgi?id=${anatomy.topLevelIds[topStatus.index]}">${anatomy.topLevelIds[topStatus.index]}</a></td><td>${topTerm}</td>
+						<td><a href="http://www.informatics.jax.org/searches/AMA.cgi?id=${anatomy.childIds[childStatus.index]}">${anatomy.childIds[childStatus.index]}</a></td><td>${childTerm}</td>
 						</tr>
 						</c:forEach>
 					</tr>
@@ -61,7 +61,8 @@
       				</div>
     				</c:when>
     				<c:otherwise>
-      				 <c:if test="${not empty images}"><img src="${mediaBaseUrl}/${images[0].largeThumbnailFilePath}"/>Random MA related image</c:if>
+      				 <c:if test="${not empty expressionImages}"><img src="${mediaBaseUrl}/${expressionImages[0].smallThumbnailFilePath}"/>Random MA related image</c:if>
+      				  <c:if test="${(empty expressionImages) && (not empty images)}"><img src="${mediaBaseUrl}/${images[0].smallThumbnailFilePath}"/>Random MA related image</c:if>
     				</c:otherwise>
 			</c:choose>
 	
@@ -89,7 +90,9 @@
 									<c:forEach var="maTerm" items="${doc.annotationTermName}" varStatus="loop">
 										${maTerm}<c:if test="${!loop.last}"><br /></c:if>
 									</c:forEach>
-									<c:if test="${not empty doc.genotype}"><br />${doc.genotype}</c:if>
+									<c:forEach var="sangerSymbol" items="${doc.sangerSymbol}" varStatus="symbolStatus">
+						<c:if test="${not empty doc.sangerSymbol}"><t:formatAllele>${sangerSymbol}</t:formatAllele></c:if>
+							</c:forEach>
 									<c:if test="${not empty doc.genotype}"><br />${doc.gender}</c:if>
 									<c:if test="${not empty doc.institute}"><c:forEach var="org" items="${doc.institute}"><br />${ org}</c:forEach></c:if> 
 									</li>
@@ -124,8 +127,9 @@
 									<c:forEach var="maTerm" items="${doc.annotationTermName}" varStatus="loop">
 										${maTerm}<c:if test="${!loop.last}"><br /></c:if>
 									</c:forEach>
-									<c:if test="${not empty doc.genotype}"><br />${doc.genotype}</c:if>
-									<c:if test="${not empty doc.genotype}"><br />${doc.gender}</c:if>
+									<c:forEach var="sangerSymbol" items="${doc.sangerSymbol}" varStatus="symbolStatus">
+						<c:if test="${not empty doc.sangerSymbol}"><t:formatAllele>${sangerSymbol}</t:formatAllele></c:if>
+							</c:forEach>
 									<c:if test="${not empty doc.institute}"><c:forEach var="org" items="${doc.institute}"><br />${ org}</c:forEach></c:if> 
 									</li>
 								</c:forEach>
@@ -145,7 +149,20 @@
 			<div class="row-fluid">
 				<div class="container span12">
 				<h4 class="caption">Associated Phenotypes</h4>
-				
+				<c:if test="${not empty anatomy.mpTerms}">
+				<table class="table table-striped">
+				<tbody>
+					<tr>
+						<%-- <td>MP Terms:</td> --%>
+						<c:forEach items="${anatomy.mpTerms}" var="mpTerm" varStatus="mpStatus">
+						<tr>
+						<td><a href="${baseUrl}/phenotypes/${mpTerm}">${mpTerm}</a></td><%-- <td>${mpTerm}</td> --%>
+						</tr>
+						</c:forEach>
+					</tr>
+					</tbody>
+					</table>
+					</c:if>
 				</div>
 		</div>
 		
