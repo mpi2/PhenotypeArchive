@@ -40,10 +40,11 @@ if ( typeof baseUrl == 'undefined' ){
 }
 
 config.lastParams = false;
-config.cores = ['gene', 'mp', 'pipeline', 'images'];
+config.cores = ['gene', 'mp', 'ma', 'pipeline', 'images'];
 config.restfulPrefix = {
 		'gene' : 'genes',
-		'mp'   : 'phenotypes'
+		'mp'   : 'phenotypes',
+		'ma'   : 'anatomy'
 };
 
 config.geneStatuses = ['Phenotype Data Available',
@@ -126,7 +127,7 @@ config.facetParams = {
 		 type: 'phenotypes',
 		 solrCoreName: 'mp', 
 		 tableCols: 2, 
-		 tableHeader: '<thead><th>Phenotype</th><th>Definition</thead>', 
+		 tableHeader: '<thead><th>Phenotype</th><th>Definition</th></thead>', 
 		 fq: "ontology_subset:*", 
 		 qf: 'auto_suggest', 
 		 defType: 'edismax',
@@ -141,12 +142,12 @@ config.facetParams = {
 					commonSolrParams,	 	
 					{fq: 'ontology_subset:*'})
 	 },	
-	 maFacet: {	
+	 maFacet: {			    	
 		 type: 'tissues',
 		 solrCoreName: 'ma', 
-		 tableCols: '', 
-		 tableHeader: '<thead><th></th><th></thead>', 
-		 fq: '', 
+		 tableCols: 1, 
+		 tableHeader: '<thead><th>Anatomy</th></thead>', 
+		 fq: "ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*", 
 		 qf: 'auto_suggest', 
 		 defType: 'edismax',
 		 wt: 'json',
@@ -154,7 +155,8 @@ config.facetParams = {
 		 gridName: 'maGrid',
 		 topLevelName: '',
 		 ontology: 'ma',
-		 filterParams: {},
+		 breadCrumbLabel: 'Anatomy',		 
+		 filterParams: {'fq': "ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*", 'fl': 'ma_id,ma_term,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'},
 		 srchParams: $.extend({},
 					commonSolrParams)		
 	 },	

@@ -189,6 +189,10 @@ public class SolrIndex {
 			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
 					+ iDisplayStart + "&rows=" + iDisplayLength;
 			System.out.println("MP PARAMS: " + url);
+		} else if (mode.equals("maGrid")) {
+			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
+					+ iDisplayStart + "&rows=" + iDisplayLength;
+			System.out.println("MA PARAMS: " + url);
 		} else if (mode.equals("ikmcAlleleGrid")) {
 			url += "q=" + query;
 			url += "&start=0&rows=0&wt=json&defType=edismax";
@@ -281,6 +285,7 @@ public class SolrIndex {
 			hm.put("field", "annotationTermName");
 			hm.put("link", "<a href='" + url + "'>" + name + "</a>");
 		} else if (id.startsWith("MA:")) {
+			String url = baseUrl + "/anatomy/" + id;
 			hm.put("label", "MA");
 			hm.put("field", "annotationTermName");
 			hm.put("link", name);
@@ -422,9 +427,9 @@ public class SolrIndex {
 	 */
 	public JSONObject getResults(String url) throws IOException,
 			URISyntaxException {
-
+		
 		log.debug("GETTING CONTENT FROM: " + url);
-
+		
 		HttpProxy proxy = new HttpProxy();
 		String content = proxy.getContent(new URL(url));
 
