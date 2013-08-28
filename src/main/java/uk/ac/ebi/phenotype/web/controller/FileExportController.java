@@ -240,6 +240,9 @@ public class FileExportController {
 		else if ( solrCoreName.equals("mp") ){			
 			rows = composeMpDataTableRows(json);
 		}
+		else if ( solrCoreName.equals("ma") ){			
+			rows = composeMaDataTableRows(json);
+		}
 		else if ( solrCoreName.equals("pipeline") ){
 			rows = composeProcedureDataTableRows(json);
 		}
@@ -378,6 +381,43 @@ public class FileExportController {
 		return rowData;
 	}
 	
+	private List<String> composeMaDataTableRows(JSONObject json){
+		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");	
+		
+		List<String> rowData = new ArrayList<String>();
+		rowData.add("MA_term\tMA_id"); // column names	
+		
+		for (int i=0; i<docs.size(); i++) {			
+			List<String> data = new ArrayList<String>();
+			JSONObject doc = docs.getJSONObject(i);
+			
+			data.add(doc.getString("ma_term"));
+			data.add(doc.getString("ma_id"));				
+				
+			// will have these cols coming later
+			/*if(doc.has("mp_definition")) {				
+				data.add(doc.getString("mp_definition"));					
+			}
+			else {
+				data.add("NA");
+			}
+			
+			if(doc.has("top_level_mp_term")) {
+				List<String> tops = new ArrayList<String>();
+				JSONArray top = doc.getJSONArray("top_level_mp_term");
+				for(int t=0; t<top.size();t++) {					
+					tops.add(top.getString(t));
+				}
+				data.add(StringUtils.join(tops, "|")); 			
+			}
+			else {
+				data.add("NA");
+			}*/
+			
+			rowData.add(StringUtils.join(data, "\t"));
+		}
+		return rowData;
+	}
 	private List<String> composeGeneDataTableRows(JSONObject json){
 				
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");		
