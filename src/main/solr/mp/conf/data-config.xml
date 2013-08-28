@@ -1,23 +1,8 @@
 <dataConfig>
 
-	<!--<dataSource name="ds1" jndiName="java:comp/env/jdbc/komp2DataSource" />
-	<dataSource name="ds2" jndiName="java:comp/env/jdbc/ontodbDataSource" />-->
-<dataSource name="ontods" jndiName="java:comp/env/jdbc/ontodbDataSource" />-->
-
-        <dataSource 
-		name="ds1"
-		type="JdbcDataSource"
-   		driver="com.mysql.jdbc.Driver"
-  		url="jdbc:mysql://localhost/komp2?autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull"
-   		user="root" 
-   		password="a"/>
-	<dataSource 
-		name="ds2"
-		type="JdbcDataSource"
-   		driver="com.mysql.jdbc.Driver"
-  		url="jdbc:mysql://localhost/ontodb_komp2"
-   		user="root" 
-   		password="a"/>
+	<dataSource name="ds1" jndiName="java:comp/env/jdbc/komp2DataSource" />
+	<dataSource name="ds2" jndiName="java:comp/env/jdbc/ontodbDataSource" />
+    
 
 	<document name="komp2_indexing">
 		<!-- test MP:0000180 for multipe node_id being linked to this term -->
@@ -75,7 +60,7 @@
 				</entity>
 			</entity>
 
-			<!-- sibling MP term of this MP term -->
+			<!-- child MP term of this MP term -->
 			<entity dataSource="ds2" name="mp_node2term"
 				query="select node_id from mp_node2term where term_id='${mp_term_infos.term_id}'">
 				<entity dataSource="ds2" name="mp_parent_children" onError="continue"
@@ -90,9 +75,9 @@
 								query="select count(*) from phenotype_call_summary where mp_acc='${mp_node2term.term_id}'">
 								<entity dataSource="ds2" name="mp_term_infos"
 									query="select term_id, name, definition from mp_term_infos where term_id='${mp_node2term.term_id}'">
-									<field column="term_id" name="sibling_mp_id" />
-									<field column="name" name="sibling_mp_term" />
-									<field column="definition" name="sibling_mp_definition" />
+									<field column="term_id" name="child_mp_id" />
+									<field column="name" name="child_mp_term" />
+									<field column="definition" name="child_mp_definition" />
 								</entity>
 							</entity>
 						</entity>
