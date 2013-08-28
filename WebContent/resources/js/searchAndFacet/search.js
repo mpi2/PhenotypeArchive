@@ -96,8 +96,9 @@
 	}	
 	
 	function _doTissueAutoSuggest(geneResponse, mpResponse, pipelineResponse, q, oFacets){
-		
-		MPI2.searchAndFacetConfig.facetParams.maFacet.srchParams.q = q;		
+		MPI2.searchAndFacetConfig.facetParams.maFacet.srchParams.q = q;	
+		MPI2.searchAndFacetConfig.facetParams.maFacet.srchParams.sort = 'ma_term asc';
+		MPI2.searchAndFacetConfig.facetParams.maFacet.srchParams.fq = MPI2.searchAndFacetConfig.facetParams.maFacet.filterParams.fq;
 		
 		$.ajax({
     	    url: solrUrl + '/ma/select',
@@ -105,11 +106,14 @@
     	    dataType: 'jsonp',
     	    jsonp: 'json.wrf',
     	    timeout: 10000,
-    	    success: function (maResponse) {
-    	    	//$('div#maFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
-    	    	//oFacets.count.ma = mpResponse.response.numFound;
-    	    	//$('div#maFacet span.facetCount').html(oFacets.count.ma); 
-    	    	_doImageAutosuggest(geneResponse, mpResponse, pipelineResponse, maResponse, q, oFacets); 
+    	    success: function (maResponse) {    	    	   	    	    		    	   	    	
+    			
+    	    	$('div#maFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
+    	    	oFacets.count.ma = maResponse.response.numFound;
+    	    	$('div#maFacet span.facetCount').html(oFacets.count.ma);
+    	    	
+    	    	_doImageAutosuggest(geneResponse, mpResponse, pipelineResponse, maResponse, q, oFacets);
+    	    	
     	    },
 			error: function (jqXHR, textStatus, errorThrown) {			       	        
 				$('div#facetBrowser').html('Error fetching data ...');
@@ -133,7 +137,7 @@
     	    	$('div#imagesFacet span.facetCount').html(oFacets.count.images);    	        
     	    
     	    	/* now check which core needs to be displayed by default in the order of 
-    	    	 * gene -> mp -> pipeline -> images
+    	    	 * gene -> mp -> ma -> pipeline -> images
     	    	 * ie, fetch facet full result for that facet and display only facet count for the rest of the facets 
     	    	 * Other facet results will be fetched on demand */
     	    	var hashParams = $.fn.parseHashString(window.location.hash.substring(1));
@@ -148,7 +152,8 @@
     	    		$('div.facetCatList').html('');
     	    		$('div.facetCat').removeClass('facetCatUp');	    	    		
     	    	}
-    	    	else {	
+    	    	else {
+    	    		
     	        	// remove all previous facet results before loading new facet results
     	        	$('div.facetCatList').html('');	    
     	        	var widgetName = coreName+'Facet';    	        				
@@ -172,7 +177,7 @@
     	        			index = i;
     	        		}
     	        	}
-    	        	aCores.splice(index, 1);
+    	        	aCores.splice(index, 1); // remove core that has the index result already in dataTable  
     	        
     	        	for ( var i=0; i< aCores.length; i++){
     	        		var core = aCores[i];
@@ -190,7 +195,8 @@
 		
 	function _prepareCores(core, q, oFacets){
 		
-		var widgetName = core + 'Facet';		
+		var widgetName = core + 'Facet';
+		
 		window.jQuery('div#' + core + 'Facet').click(function(){
 				
 			var $this = window.jQuery(this);
@@ -204,8 +210,7 @@
 				hashParams.fq = MPI2.searchAndFacetConfig.facetParams[core + 'Facet'].fq;				
 				window.location.hash = $.fn.stringifyJsonAsUrlParams(hashParams);						
 				
-				if ( $this.find('.facetCatList').html() == '' && $this.find('span.facetCount').text() != '0' ){
-					
+				if ( $this.find('.facetCatList').html() == '' && $this.find('span.facetCount').text() != '0' ){					
 					$this[widgetName]({  
 						data: {q: q, core: core, 
 							fq: MPI2.searchAndFacetConfig.facetParams[core + 'Facet'].fq,
@@ -213,7 +218,7 @@
 							facetCount: oFacets.count[core]
 							},
 							geneGridElem: 'div#mpi2-search'			                                      
-					});
+					});					
 				}
 			}		
 		});
@@ -228,7 +233,10 @@
 		}			
 		else if ( oCounts.mp != 0){				
 			return 'mp';			
-		}    		
+		}  
+		else if ( oCounts.ma != 0){				
+			return 'ma';			
+		} 
 		else if ( oCounts.pipeline != 0 ){    			
 			return 'pipeline';						
 		}	
