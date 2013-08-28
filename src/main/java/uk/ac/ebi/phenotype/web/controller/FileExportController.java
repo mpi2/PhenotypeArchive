@@ -200,7 +200,7 @@ public class FileExportController {
 		return null;		
 	}
 	private int parseMaxRow(String solrParams){		
-		String[] paramsList = solrParams.split("&");
+		String[] paramsList = solrParams.split("&"); 
 		int facetCount = 0;
 		for ( String str : paramsList ){			
 			if ( str.startsWith("facetCount=") ){
