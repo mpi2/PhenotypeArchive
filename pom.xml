@@ -687,7 +687,7 @@
 								<jsSourceFile>vendor/DataTables-1.9.4/jquery.dataTables.js</jsSourceFile>
 								<jsSourceFile>vendor/DataTables-1.9.4/core.filter.js</jsSourceFile>
 								<jsSourceFile>vendor/DataTables-1.9.4/TableTools.min.js</jsSourceFile>
-								<!-- <jsSourceFile>utils/tools.js</jsSourceFile> -->
+								<jsSourceFile>utils/tools.js</jsSourceFile>
 								<jsSourceFile>searchAndFacet/geneFacetWidget.js</jsSourceFile>
 								<jsSourceFile>searchAndFacet/mpFacetWidget.js</jsSourceFile>
 								<jsSourceFile>searchAndFacet/maFacetWidget.js</jsSourceFile>
