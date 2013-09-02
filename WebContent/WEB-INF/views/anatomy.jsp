@@ -83,7 +83,7 @@
 						</div>
 						<div id="expression" class="accordion-body collapse in">
 							<div class="accordion-inner">
-								<a href="${baseUrl}/images?annotationTermId=${anatomy.accession}">[show all  ${numberExpressionImagesFound} images]</a>
+								<a href='${baseUrl}/images?anatomy_id=${anatomy.accession}&fq=expName:Wholemount Expression'>[show all  ${numberExpressionImagesFound} images]</a>
 		    					<ul>
 		    					<c:forEach var="doc" items="${expressionImages}">
 									<li class="span2"><a href="${mediaBaseUrl}/${doc.fullResolutionFilePath}"><img src="${mediaBaseUrl}/${doc.smallThumbnailFilePath}" /></a>
@@ -94,42 +94,6 @@
 						<c:if test="${not empty doc.sangerSymbol}"><t:formatAllele>${sangerSymbol}</t:formatAllele></c:if>
 							</c:forEach>
 									<c:if test="${not empty doc.genotype}"><br />${doc.gender}</c:if>
-									<c:if test="${not empty doc.institute}"><c:forEach var="org" items="${doc.institute}"><br />${ org}</c:forEach></c:if> 
-									</li>
-								</c:forEach>
-								</ul>
-							</div>
-						</div>
-					<!--  end of accordion -->
-					</div>
-				</div>
-			</div>
-		</div>	
-	</div>
-	</c:if><!-- end of images lacz expression priority and xray maybe -->
-	
-	<c:if test="${not empty images && fn:length(images) !=0}">
-	<div class="row-fluid dataset">
-		<h4 class="caption">Other MA Associated Images</h4>
-			<div class="row-fluid">
-			<div class="container span12">
-				<div class="accordion" id="accordion2">
-					<div class="accordion-group">
-						<div class="accordion-heading">
-							<a class="accordion-toggle" data-toggle="collapse" data-target="#pheno">Anatomy Associated Images <i class="icon-chevron-down  pull-left" ></i></a>
-						</div>
-						<div id="pheno" class="accordion-body collapse in">
-							<div class="accordion-inner">
-								<a href="${baseUrl}/images?annotationTermId=${anatomy.accession}">[show all  ${numberFound} images]</a>
-		    					<ul>
-		    					<c:forEach var="doc" items="${images}">
-									<li class="span2"><a href="${mediaBaseUrl}/${doc.fullResolutionFilePath}"><img src="${mediaBaseUrl}/${doc.smallThumbnailFilePath}" /></a>
-									<c:forEach var="maTerm" items="${doc.annotationTermName}" varStatus="loop">
-										${maTerm}<c:if test="${!loop.last}"><br /></c:if>
-									</c:forEach>
-									<c:forEach var="sangerSymbol" items="${doc.sangerSymbol}" varStatus="symbolStatus">
-						<c:if test="${not empty doc.sangerSymbol}"><t:formatAllele>${sangerSymbol}</t:formatAllele></c:if>
-							</c:forEach>
 									<c:if test="${not empty doc.institute}"><c:forEach var="org" items="${doc.institute}"><br />${ org}</c:forEach></c:if> 
 									</li>
 								</c:forEach>
