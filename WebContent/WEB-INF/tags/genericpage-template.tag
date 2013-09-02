@@ -259,6 +259,7 @@ try {
 		
 	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/geneFacetWidget.js'></script>
     <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/mpFacetWidget.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/maFacetWidget.js'></script>
     <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js'></script>
     <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js'></script>
     <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script>

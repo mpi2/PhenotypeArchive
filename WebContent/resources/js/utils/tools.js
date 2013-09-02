@@ -71,6 +71,10 @@
     		$('div#mpFacet div.facetCatList').show();		
     		$('div#mpFacet div.facetCat').addClass('facetCatUp'); 
     	}
+    	else if (core == 'ma'){
+    		$('div#maFacet div.facetCatList').show();		
+    		$('div#maFacet div.facetCat').addClass('facetCatUp'); 
+    	}
     	else if (core == 'pipeline'){
     		$('div#pipelineFacet div.facetCatList').show();	
     		$('div#pipelineFacet div.facetCat').addClass('facetCatUp'); 
@@ -129,7 +133,8 @@
 	 	   	//var gridTitle = $('<div></div>').attr({'class':'gridTitle'}).html(title);
 	 	   	var facetCount = oSolrSrchParams.facetCount;	 	   	
 	 	   	var gridTitle = $('<div></div>').attr({'class':'gridTitle'});
-	 	   	var searchKW = " search keyword: " + oSolrSrchParams.q;
+	 	   	var searchKW = " search keyword: " 
+	 	   		+ (oSolrSrchParams.q == '*:*' && facetDivId == 'maFacet' ? "IMPC MA slim terms" : oSolrSrchParams.q); 
 	 	   	
 	 	   	$('div#mpi2-search').html('');	
 	 	   	
@@ -195,6 +200,16 @@
 	 	   	}
 	 	   	else {	 	 
 	 	   		var unit = facetCount > 1 ? facetLabel : facetLabel.replace(/s$/,'');
+	 	   		
+	 	   		if ( facetDivId == 'maFacet' ){	 			
+	 	   		
+	 	   			if ( oSolrSrchParams.topLevelName != undefined ){		 	   			 	   			
+		 	   			unit += ' terms for Top level term: ' + oSolrSrchParams.topLevelName;
+	 	   			}
+	 	   			else {
+	 	   				unit += ' terms';
+	 	   			}
+	 	   		}
 	 	   		gridTitle.html(facetCount + ' ' + unit + " for " + searchKW);
 	 	   		$('div#mpi2-search').append(gridTitle, dTable);	 
 	 	   		$.fn.invokeDataTable(oInfos);
@@ -204,7 +219,7 @@
 	}
 		
 	$.fn.fetchFilteredDataTable = function(obj, facetDivId, q, facetFilter){
-		  
+		
 		var facetCount;	
     	var topLevelName;			
 		var oSolrSrchParams = {}
@@ -217,15 +232,24 @@
 		
 		var title = $.fn.upperCaseFirstLetter(oVal.type);	    	
 		//var gridTitle = $('<div></div>').attr({'class':'gridTitle'}).html(title);		
-		var gridTitle = $('<div></div>').attr({'class':'gridTitle'}).html("");	
-		var searchKw = " AND search keyword: " + q; 
+		var gridTitle = $('<div></div>').attr({'class':'gridTitle'}).html("");
+		
+		var searchKw = " AND search keyword: "; 
+		if ( facetDivId == 'maFacet' && q == '*:*' ){
+			searchKw += "IMPC MA slim terms";
+		}
+		else {
+			searchKw += q;
+		}
+		
 		var resultMsg = $('<div></div>').attr('id', 'resultMsg');
 		
 		
 		// highlight only currently selected top level 
     	var ontology = oVal.ontology;
     	if ( ontology ){
-    		topLevelName = obj.attr('rel'); 
+    		topLevelName = obj.attr('rel');   	
+    	
     		$('div#'+ facetDivId + ' table td.' + ontology + 'TopLevel').removeClass('highlight');
     		obj.parent().siblings('td.'+ ontology + 'TopLevel').addClass('highlight');
     		facetCount = obj.parent().siblings('td.'+ ontology + 'TopLevel').attr('rel');
@@ -236,12 +260,18 @@
 				oSolrSrchParams.fq = "ontology_subset:* AND top_level_mp_term:\"" + topLevelName + "\"";				
 				displayedTopLevelName = $('<div></div>').attr({'class':'gridSubTitle'}).html('Top level term: ' + topLevelName.replace(' phenotype', '')); 	
 			} 
+    		else if ( ontology == 'ma' ){
+    			oSolrSrchParams = $.extend({}, oVal.filterParams, MPI2.searchAndFacetConfig.commonSolrParams);
+				oSolrSrchParams.fq = "ontology_subset:IMPC_Terms AND selected_top_level_ma_term:\"" + topLevelName + "\"";				
+				//oSolrSrchParams.rows = 5000;
+				displayedTopLevelName = $('<div></div>').attr({'class':'gridSubTitle'}).html('Top level term: ' + topLevelName);				
+			} 
     	}	
     	else if (facetDivId == 'geneFacet') {
     		topLevelName = obj.attr('rel'); 
     		var topLevelNameOri = topLevelName;
     		
-    		$('table#gFacet td').removeClass('highlight');
+    		$('tablehashParamStr#gFacet td').removeClass('highlight');
     		
     		obj.parent().siblings('td.geneSubfacet').addClass('highlight');
 			facetCount = obj.parent().siblings('td.geneSubfacet').attr('rel');
@@ -285,7 +315,7 @@
 			var proc_stable_id = obj.attr('rel');
 			var hiddenSid = "<span class='hiddenId'>" + proc_stable_id + "</span>";
             oSolrSrchParams = $.extend({}, oVal, MPI2.searchAndFacetConfig.commonSolrParams); 
-            oSolrSrchParams.fq = 'procedure_stable_id:' + proc_stable_id;	 
+            oSolrSrchParams.fq = 'procedure_stable_id:' + proc_stable_id;
                           			
             displayedTopLevelName = $('<div></div>').attr({'class':'gridSubTitle'}).html('Procedure: ' + topLevelName + hiddenSid); 	
     	}
@@ -359,11 +389,13 @@
 			}
 			
 			var unit = facetCount > 1 ? facetLabel : facetLabel.replace(/s$/,'');
+			if ( facetDivId == 'maFacet' ){
+				unit += ' terms';				
+			}
 			var resultCount = "<span>" + facetCount + " " + unit + " for </span>";
 			resultMsg.append(resultCount, displayedTopLevelName, searchKw);			
 		}
-		
-		
+				
 		// hash state stuff	
 		var hashParams = {};
 		hashParams.q    = oSolrSrchParams.q;
@@ -391,8 +423,7 @@
 			//console.log($.fn.stringifyJsonAsUrlParams(oSolrSrchParams));	
 			MPI2.searchAndFacetConfig.lastParams = hashParamStr;
 						
-			$.fn.updateBreadCrumb();
-			
+			$.fn.updateBreadCrumb();			
 			$.fn.invokeDataTable(oInfos);		
 		}		
     }
@@ -495,8 +526,18 @@
     			caller.find('span.facetCount').click();    			
     		}
     		else {    		
-    			var fqText = hashParams.fq.replace('ontology_subset:* AND top_level_mp_term:', '').replace(/"/g,'');
+    			var fqText = hashParams.fq.replace('ontology_subset:* AND top_level_mp_term:', '').replace(/"/g,'');    			
 				$.fn.fetchFilteredDataTable($('a[rel="' + fqText + '"]'), 'mpFacet', hashParams.q);				
+    		}
+    	}
+    	else if ( core == 'ma' ){    		
+    		if ( hashParams.fq == "ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*" ){ 
+    			MPI2.setHashChange = 1;  
+    			caller.find('span.facetCount').click();    			
+    		}
+    		else {
+    			var fqText = hashParams.fq.replace('ontology_subset:IMPC_Terms AND selected_top_level_ma_term:', '').replace(/"/g,'');    			
+				$.fn.fetchFilteredDataTable($('a[rel="' + fqText + '"]'), 'maFacet', hashParams.q);				
     		}
     	}
     	else if ( core == 'pipeline' ){
@@ -571,7 +612,7 @@
     	
     	if ( ( hashParams.fq == 'undefined' ||
     		   hashParams.fq == 'ontology_subset:*'  ||
-    		   hashParams.fq == 'pipeline_stable_id:IMPC_001' ||
+    		|| aKV[i].match(/fq=ontology_subset:\* AND top_level_mp_term.+/)   hashParams.fq == 'pipeline_stable_id:IMPC_001' ||
     		   hashParams.fq == 'annotationTermId:M* OR expName:* OR symbol:* OR higherLevelMaTermName:* OR higherLevelMpTermName:*' ) &&
     		   $.fn.refactorGridSubTitle() == '' ){    	
     		return true;
@@ -613,6 +654,7 @@
     				|| aKV[i] == 'fq=annotationTermId:M* OR expName:* OR symbol:*' 
     				|| aKV[i].match(/fq=expName.+|fq=higherLevel.+|fq=subtype.+/) 
     				|| aKV[i].match(/fq=ontology_subset:\* AND top_level_mp_term.+/)
+    				|| aKV[i].match(/fq=ontology_subset:IMPC_Terms AND selected_top_level_ma_term.+/)
     				|| aKV[i].match(/fq=ontology_subset:.+/)
     				|| aKV[i].match(/imits_phenotype.+/)
     				|| aKV[i].match(/marker_type.+/)
@@ -688,7 +730,7 @@
     			initDataTableDumpControl(oInfos);
     		},
     		"sAjaxSource": oInfos.dataTablePath,    		
-    		"fnServerParams": function ( aoData ) {
+    		"fnServerParams": function ( aoData ) {    			
     			aoData.push(	    			 
     			    {"name": "solrParams",
     				 //"value": oInfos.params// + oInfos.facetParams
@@ -995,6 +1037,17 @@
  		}
  	
  		return rowToggler;
+	}
+	
+	$.fn.inArray = function(item, list) {
+	    var length = list.length;
+	    for(var i=0; i<length; i++) {
+	        if(list[i] == item) {	        	
+	        	return true;
+	        }
+	    }
+	    console.log('compare: '+ item + ' --- ' + list[i]);
+	    return false;
 	}
 	
 	// get unique element from array

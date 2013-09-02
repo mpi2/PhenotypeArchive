@@ -152,6 +152,7 @@ table#gFacet td.geneSubfacetCount,
 /*table#pipeline td[class^=procedure],*/ 
 table#pipeline td a.paramCount,
 table#mpFacet td.mpTopLevelCount,
+table#maFacet td.maTopLevelCount,
 table#imgFacet td.imgExperimentCount
 /*table#mpFacet td.mpTopLevel*/ 
 /*table#maFacet td.maTopLevelCount, table#maFacet td.maTopLevel */{

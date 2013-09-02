@@ -132,7 +132,7 @@ config.facetParams = {
 		 qf: 'auto_suggest', 
 		 defType: 'edismax',
 		 wt: 'json',
-		 gridFields: 'ma_term,ma_id',
+		 gridFields: 'mp_term,mp_definition,mp_id,top_level_mp_term',
 		 gridName: 'mpGrid',
 		 topLevelName: '',
 		 ontology: 'mp',

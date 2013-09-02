@@ -1,0 +1,102 @@
+<dataConfig>
+
+	<script>
+	<![CDATA[
+		function getData(row) {
+			if (row.get('observation_type') == 'categorical') {
+				row.put('category', row.get('category'));
+
+			} else if (row.get('observation_type') == 'unidimensional') {
+				row.put('dataPoint', row.get('unidimensional_data_point'));
+
+			} else if (row.get('observation_type') == 'multidimensional') {
+				row.put('dataPoint', row.get('multidimensional_data_point'));
+				row.put('orderIndex', row.get('order_index'));
+				row.put('dimension', row.get('dimension'));
+
+			} else if (row.get('observation_type') == 'time_series') {
+				row.put('dataPoint', row.get('time_series_data_point'));
+				row.put('timePoint', row.get('time_point'));
+				row.put('discretePoint', row.get('discrete_point'));
+
+			} else if (row.get('observation_type') == 'metadata') {
+				row.put('value', row.get('value'));
+
+			}
+			
+			return row;
+		}
+	]]>
+	</script>
+
+	<dataSource name="komp2ds" jndiName="java:comp/env/jdbc/komp2DataSource" batchSize="-1" readOnly="true" />
+
+
+	<document name="komp2_indexing">
+
+		<!-- For all observations (data points) -->
+		<entity dataSource="komp2ds" transformer="script:getData" name="observation" query="
+			SELECT strain.strain_acc, pipe.name as pipeline_name, pipe.id as pipeline_id, pipe.stable_id as pipeline_stable_id, proc.id as procedure_id, proc.stable_id as procedure_stable_id, param.stable_id as parameter_stable_id,bs.organisation_id, org.name, bs.sample_group, gf.acc as acc, ls.sex as gender, ls.colony_id, ls.zygosity, gf.symbol as symbol, bms.biological_model_id as bmid, ls.date_of_birth as birthdate, ls.colony_id, e.date_of_experiment, e.external_id, e.id as experiment_id, o.*, co.category as category, uo.data_point as unidimensional_data_point, mo.data_point as multidimensional_data_point, mo.order_index, mo.dimension, tso.data_point as time_series_data_point, tso.time_point, tso.discrete_point, mdo.property_value as value
+			FROM observation o
+			LEFT OUTER JOIN categorical_observation co ON o.id=co.id
+			LEFT OUTER JOIN unidimensional_observation uo ON o.id=uo.id
+			LEFT OUTER JOIN multidimensional_observation mo ON o.id=mo.id
+			LEFT OUTER JOIN time_series_observation tso ON o.id=tso.id
+			LEFT OUTER JOIN metadata_observation mdo ON o.id=mdo.id
+			INNER JOIN biological_sample bs ON bs.id=o.biological_sample_id
+			INNER JOIN organisation org ON bs.organisation_id=org.id
+			INNER JOIN live_sample ls ON bs.id=ls.id
+			INNER JOIN biological_model_sample bms ON bs.id=bms.biological_sample_id
+			INNER JOIN biological_model_strain strain ON strain.biological_model_id=bms.biological_model_id
+			LEFT OUTER JOIN biological_model_genomic_feature bmgf ON bmgf.biological_model_id=bms.biological_model_id
+			LEFT OUTER JOIN genomic_feature gf ON gf.acc=bmgf.gf_acc
+			INNER JOIN phenotype_parameter param ON param.id=o.parameter_id
+			INNER JOIN phenotype_procedure_parameter procparam ON procparam.parameter_id=param.id
+			INNER JOIN phenotype_procedure proc ON proc.id=procparam.procedure_id
+			INNER JOIN phenotype_pipeline_procedure pipeproc ON pipeproc.procedure_id=proc.id
+			INNER JOIN phenotype_pipeline pipe ON pipe.id=pipeproc.pipeline_id
+			INNER JOIN experiment_observation eo ON eo.observation_id=o.id
+			INNER JOIN experiment e on eo.experiment_id=e.id
+			">
+
+			<field column="id" name="id" />
+			<field column="observation_type" name ="observationType" />
+			<field column="biological_sample_id" name ="biologicalSampleId" />
+			<field column="parameter_id" name ="parameterId" />
+
+			<field column="value" name ="value" />
+			<field column="category" name ="category" />
+			<field column="dataPoint" name ="dataPoint" />
+			<field column="orderIndex" name ="orderIndex" />
+			<field column="dimension" name ="dimension" />
+			<field column="timePoint" name ="timePoint" />
+			<field column="discretePoint" name ="discretePoint" />
+
+			<field column="bmid" name="biologicalModelId" />
+			<field column="acc" name="geneAccession" />
+			<field column="symbol" name="geneSymbol" />
+			<field column="sample_group" name="biologicalSampleGroup" />
+			<field column="zygosity" name="zygosity" />
+			<field column="birthdate" name="dateOfBirth" />
+			<field column="gender" name="gender" />
+			<field column="colony_id" name="colonyId" />
+			<field column="strain_acc" name="strain" />
+			<field column="organisation_id" name ="organisationId" />
+			<field column="name" name ="organisation" />
+
+			<field column="pipeline_name" name ="pipelineName" />
+			<field column="pipeline_id" name ="pipelineId" />
+			<field column="pipeline_stable_id" name ="pipelineStableId" />
+			<field column="procedure_id" name ="procedureId" />
+			<field column="procedure_stable_id" name ="procedureStableId" />
+			<field column="parameter_stable_id" name ="parameterStableId" />
+
+			<field column="experiment_id" name ="experimentId" />
+			<field column="external_id" name ="experimentSourceId" />
+			<field column="date_of_experiment" name ="dateOfExperiment" />
+
+		</entity>
+
+	</document>
+
+</dataConfig>

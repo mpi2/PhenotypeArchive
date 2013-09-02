@@ -1,0 +1,112 @@
+<?xml version="1.0" ?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<schema name="gene core" version="1.1">
+  <types>
+   <fieldtype name="string"  class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
+   <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
+   <fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+<fieldType name="float" class="solr.TrieFloatField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+   <fieldType name="tdate" class="solr.TrieDateField" omitNorms="true" precisionStep="6" positionIncrementGap="0"/>
+    <!-- A general text field that has reasonable, generic
+         cross-language defaults: it tokenizes with StandardTokenizer,
+	 removes stop words from case-insensitive "stopwords.txt"
+	 (empty by default), and down cases.  At query time only, it
+	 also applies synonyms. -->
+   
+
+  </types>
+
+  <fields>  
+    <field name="_version_" type="long" indexed="true" stored="true"/> 
+   <field name="id"           type="int"   indexed="true"  stored="true"  multiValued="false" required="true"/>
+	
+		<field name="organisation"   type="string"    indexed="true"  stored="true"  multiValued="false" />
+		<field name="organisationId" type="int"    indexed="true"  stored="true"  multiValued="false" />
+
+		<field name="geneAccession"  type="string"   indexed="true"  stored="true"  multiValued="false" /> 
+		<field name="geneSymbol"     type="string"   indexed="true"  stored="true"  multiValued="false" /> 
+		<field name="zygosity"       type="string"   indexed="true"  stored="true"  multiValued="false" /> 
+		<field name="gender"         type="string"   indexed="true"  stored="true"  multiValued="false" /> 
+		<field name="biologicalModelId"  type="int"    indexed="true"  stored="true"  multiValued="false" /> 
+		<field name="biologicalSampleId" type="int"    indexed="true"  stored="true"  multiValued="false" />
+		<field name="biologicalSampleGroup" type="string"    indexed="true"  stored="true"  multiValued="false" />
+		<field name="strain"                type="string"    indexed="true"  stored="true"  multiValued="false" />
+	
+		<field name="pipelineName"       type="string" indexed="true"  stored="true"  multiValued="false" /> 
+		<field name="pipelineId"         type="int"    indexed="true"  stored="true"  multiValued="false" /> 
+		<field name="pipelineStableId"   type="string" indexed="true"  stored="true"  multiValued="false" /> 
+		<field name="procedureId"        type="int"    indexed="true"  stored="true"  multiValued="false" /> 
+		<field name="procedureStableId"  type="string" indexed="true"  stored="true"  multiValued="false" /> 
+		<field name="parameterId"        type="int"    indexed="true"  stored="true"  multiValued="false" /> 
+		<field name="parameterStableId"  type="string" indexed="true"  stored="true"  multiValued="false" /> 
+	
+		<field name="experimentId"       type="int"    indexed="true"  stored="true"  multiValued="false" /> 
+		<field name="experimentSourceId" type="string" indexed="true"  stored="true"  multiValued="false" /> 
+		<field name="observationType"    type="string" indexed="true"  stored="true"  multiValued="false" /> 
+		<field name="colonyId"           type="string" indexed="true"  stored="true"  multiValued="false" />
+		<field name="dateOfBirth"        type="tdate"  indexed="true"  stored="true"  multiValued="false" />
+		<field name="dateOfExperiment"   type="tdate"  indexed="true"  stored="true"  multiValued="false" />
+		<field name="populationId"       type="int"    indexed="true"  stored="true"  multiValued="false" />
+	
+		<!-- unidimensional/multidimensional/time series -->
+		<field name="dataPoint"      type="float"   indexed="true"  stored="true"  multiValued="false" />
+	
+		<!-- multidimensional -->
+		<field name="orderIndex"     type="int"      indexed="true"  stored="true"  multiValued="false" /> 
+		<field name="dimension"      type="string"   indexed="true"  stored="true"  multiValued="false" /> 
+	 <field name="ma_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+    <field name="ma_term" type="string" indexed="true" stored="true" required="true" multiValued="false" />	   
+  	<field name="ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="ma_2_mp_mapping" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="symbol_gene" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="child_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="child_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />							
+    <field name="image_id" type="int" indexed="true" stored="true" required="false" multiValued="true" />
+
+  	<field name="top_level_ma_id" type="string" indexed="false" stored="true" required="false" multiValued="true" />
+    <field name="top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />   
+
+	<field name="top_level_ma_id_part_of" type="string" indexed="false" stored="true" required="false" multiValued="true" />
+    <field name="top_level_ma_term_part_of" type="string" indexed="true" stored="true" required="false" multiValued="true" /> 
+
+   
+   	
+		<!-- time series -->
+		<field name="timePoint"      type="string"   indexed="true"  stored="true"  multiValued="false" /> 
+		<field name="discretePoint"  type="float"    indexed="true"  stored="true"  multiValued="false" /> 
+	
+		<!-- categorical -->
+		<field name="category"       type="string"   indexed="true"  stored="true"  multiValued="false" /> 
+
+		<!-- metadata -->
+		<field name="value"          type="string"   indexed="true"  stored="true"  multiValued="false" />
+ </fields>
+
+    <uniqueKey>id</uniqueKey>
+
+ <!-- field for the QueryParser to use when an explicit fieldname is absent -->
+ <defaultSearchField>id</defaultSearchField>
+
+ <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
+ <solrQueryParser defaultOperator="OR"/>
+ 
+
+</schema>
+
