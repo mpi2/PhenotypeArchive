@@ -146,6 +146,30 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 	}
 
 
+	public List<String> getAllStrainsByParameterIdOrganistion(Integer parameterId, Organisation organisation) throws SQLException {
+		List<String> strains = new ArrayList<String>();
+
+		String query = "SELECT DISTINCT strain_acc" 
+		+ " FROM observation obs"
+		+ " INNER JOIN biological_sample bs ON obs.biological_sample_id=bs.id"
+		+ " INNER JOIN biological_model_sample bms ON bms.biological_sample_id=bs.id"
+		+ " INNER JOIN biological_model bm ON bms.biological_model_id=bm.id"
+		+ " INNER JOIN biological_model_strain strain ON strain.biological_model_id=bm.id"
+		+ " WHERE parameter_id=?"
+		+ " AND bs.organisation_id=?";
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)){
+	        statement.setInt(1, parameterId);
+	        statement.setInt(2, organisation.getId());
+		    ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				strains.add(resultSet.getString("strain_acc"));
+			}
+		}
+
+		return strains;
+	}
+
 	public List<String> getAllStrainsByParameterOrganistion(Parameter parameter, Organisation organisation) throws SQLException {
 		List<String> strains = new ArrayList<String>();
 
