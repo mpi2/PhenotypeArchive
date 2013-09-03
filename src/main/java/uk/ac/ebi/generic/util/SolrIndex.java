@@ -135,7 +135,7 @@ public class SolrIndex {
 
 		String url = composeSolrUrl(core, "", "", newgridSolrParams, start,
 				length, false);
-
+		
 		log.debug("Export data URL: " + url);
 		return getResults(url);
 	}

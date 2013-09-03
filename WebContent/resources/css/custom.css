@@ -170,7 +170,8 @@ div.dataTables_length label {float: left; text-align: left;}
 div.dataTables_length select {width: 75px;}
 div.dataTables_filter label {float: right;}
 div.dataTables_info {padding-top: 8px;}
-div.dataTables_paginate {float: right;margin: 0; visibility:hidden;}
+div.dataTables_paginate {float: right;margin: 0;}
+div#phenotypesDiv div.dataTables_paginate {display: none !important;}
 table {margin-bottom: 6px !important;/* clear: both; */}
 .pagination-small {height: 26px;}
 .pagination-small ul li a {padding: 0 10px;line-height: 24px;}

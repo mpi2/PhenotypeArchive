@@ -36,15 +36,7 @@
 						<td>Definition:</td>
 						<td>${anatomy.description}</td>
 					</tr> --%>
-					<tr>
-						<td>Child Terms:</td>
-						<td></td>
-						<c:forEach items="${anatomy.childTerms}" var="childTerm" varStatus="childStatus">
-						<tr>
-						<td><a href="http://www.informatics.jax.org/searches/AMA.cgi?id=${anatomy.childIds[childStatus.index]}">${anatomy.childIds[childStatus.index]}</a></td><td>${childTerm}</td>
-						</tr>
-						</c:forEach>
-					</tr>
+					
 					</c:if>
 				</tbody>
 			</table>
@@ -56,6 +48,12 @@
       								<div class="container span6">
       										<img src="${mediaBaseUrl}/${exampleImages.control.smallThumbnailFilePath}"/>
       										Control
+      								</div>
+      								<div class="container span6">
+      										<img src="${mediaBaseUrl}/${exampleImages.experimental.smallThumbnailFilePath}"/>
+      										<c:forEach var="sangerSymbol" items="${exampleImages.experimental.sangerSymbol}" varStatus="symbolStatus">
+												<c:if test="${not empty exampleImages.experimental.sangerSymbol}"><t:formatAllele>${sangerSymbol}</t:formatAllele><br /></c:if>
+												</c:forEach>
       								</div>
 
       				</div>
@@ -83,7 +81,7 @@
 						</div>
 						<div id="expression" class="accordion-body collapse in">
 							<div class="accordion-inner">
-								<a href="${baseUrl}/images?annotationTermId=${anatomy.accession}">[show all  ${numberExpressionImagesFound} images]</a>
+								<a href='${baseUrl}/images?anatomy_id=${anatomy.accession}&fq=expName:Wholemount Expression'>[show all  ${numberExpressionImagesFound} images]</a>
 		    					<ul>
 		    					<c:forEach var="doc" items="${expressionImages}">
 									<li class="span2"><a href="${mediaBaseUrl}/${doc.fullResolutionFilePath}"><img src="${mediaBaseUrl}/${doc.smallThumbnailFilePath}" /></a>
@@ -94,42 +92,6 @@
 						<c:if test="${not empty doc.sangerSymbol}"><t:formatAllele>${sangerSymbol}</t:formatAllele></c:if>
 							</c:forEach>
 									<c:if test="${not empty doc.genotype}"><br />${doc.gender}</c:if>
-									<c:if test="${not empty doc.institute}"><c:forEach var="org" items="${doc.institute}"><br />${ org}</c:forEach></c:if> 
-									</li>
-								</c:forEach>
-								</ul>
-							</div>
-						</div>
-					<!--  end of accordion -->
-					</div>
-				</div>
-			</div>
-		</div>	
-	</div>
-	</c:if><!-- end of images lacz expression priority and xray maybe -->
-	
-	<c:if test="${not empty images && fn:length(images) !=0}">
-	<div class="row-fluid dataset">
-		<h4 class="caption">Other MA Associated Images</h4>
-			<div class="row-fluid">
-			<div class="container span12">
-				<div class="accordion" id="accordion2">
-					<div class="accordion-group">
-						<div class="accordion-heading">
-							<a class="accordion-toggle" data-toggle="collapse" data-target="#pheno">Anatomy Associated Images <i class="icon-chevron-down  pull-left" ></i></a>
-						</div>
-						<div id="pheno" class="accordion-body collapse in">
-							<div class="accordion-inner">
-								<a href="${baseUrl}/images?annotationTermId=${anatomy.accession}">[show all  ${numberFound} images]</a>
-		    					<ul>
-		    					<c:forEach var="doc" items="${images}">
-									<li class="span2"><a href="${mediaBaseUrl}/${doc.fullResolutionFilePath}"><img src="${mediaBaseUrl}/${doc.smallThumbnailFilePath}" /></a>
-									<c:forEach var="maTerm" items="${doc.annotationTermName}" varStatus="loop">
-										${maTerm}<c:if test="${!loop.last}"><br /></c:if>
-									</c:forEach>
-									<c:forEach var="sangerSymbol" items="${doc.sangerSymbol}" varStatus="symbolStatus">
-						<c:if test="${not empty doc.sangerSymbol}"><t:formatAllele>${sangerSymbol}</t:formatAllele></c:if>
-							</c:forEach>
 									<c:if test="${not empty doc.institute}"><c:forEach var="org" items="${doc.institute}"><br />${ org}</c:forEach></c:if> 
 									</li>
 								</c:forEach>
@@ -156,7 +118,7 @@
 						<%-- <td>MP Terms:</td> --%>
 						<c:forEach items="${anatomy.mpTerms}" var="mpTerm" varStatus="mpStatus">
 						<tr>
-						<td><a href="${baseUrl}/phenotypes/${mpTerm}">${mpTerm}</a></td><%-- <td>${mpTerm}</td> --%>
+						<td><a href="${baseUrl}/phenotypes/${anatomy.mpIds[mpStatus.index]}">${mpTerm}</a></td><%-- <td>${mpTerm}</td> --%>
 						</tr>
 						</c:forEach>
 					</tr>
@@ -173,7 +135,20 @@
 		<div class="row-fluid">
 				<div class="container span12">
 				<h4 class="caption">Explore</h4>
-				
+				<table class="table table-striped">
+				<tbody>
+				<tr>
+						<td>Child Terms:</td>
+						<td></td>
+						<c:forEach items="${anatomy.childTerms}" var="childTerm" varStatus="childStatus">
+						<tr>
+						<td><a href="${baseUrl}/anatomy/${anatomy.childIds[childStatus.index]}">${anatomy.childIds[childStatus.index]}</a></td><td>${childTerm}</td>
+						</tr>
+						</c:forEach>
+					</tr>
+					</tbody>
+					</table>
+					
 				</div>
 		</div>
 		

@@ -2,12 +2,12 @@
 
 	<dataSource name="komp2ds" jndiName="java:comp/env/jdbc/komp2DataSource" />
 	<dataSource name="ontods" jndiName="java:comp/env/jdbc/ontodbDataSource" />
-       
-<document name="komp2_indexing">
+
+	<document name="komp2_indexing">
 
 		<!-- IMPC images (filter out the mouse necropsy images) -->
 		<entity dataSource="komp2ds" name="ima_image_record"
-			query="SELECT IMA_IMAGE_RECORD.ID, FOREIGN_TABLE_NAME, FOREIGN_KEY_ID, ORIGINAL_FILE_NAME, CREATOR_ID, CREATED_DATE, EDITED_BY, EDIT_DATE, CHECK_NUMBER, FULL_RESOLUTION_FILE_PATH, SMALL_THUMBNAIL_FILE_PATH, LARGE_THUMBNAIL_FILE_PATH, SUBCONTEXT_ID, QC_STATUS_ID, PUBLISHED_STATUS_ID, o.name as institute, IMA_EXPERIMENT_DICT.ID as experiment_dict_id FROM IMA_IMAGE_RECORD, IMA_SUBCONTEXT, IMA_EXPERIMENT_DICT, organisation o  WHERE IMA_IMAGE_RECORD.organisation=o.id AND IMA_IMAGE_RECORD.subcontext_id=IMA_SUBCONTEXT.id AND IMA_SUBCONTEXT.experiment_dict_id=IMA_EXPERIMENT_DICT.id AND IMA_EXPERIMENT_DICT.name!='Mouse Necropsy'">
+			query="SELECT IMA_IMAGE_RECORD.ID, FOREIGN_TABLE_NAME, FOREIGN_KEY_ID, ORIGINAL_FILE_NAME, CREATOR_ID, CREATED_DATE, EDITED_BY, EDIT_DATE, CHECK_NUMBER, FULL_RESOLUTION_FILE_PATH, SMALL_THUMBNAIL_FILE_PATH, LARGE_THUMBNAIL_FILE_PATH, SUBCONTEXT_ID, QC_STATUS_ID, PUBLISHED_STATUS_ID, o.name as institute, IMA_EXPERIMENT_DICT.ID as experiment_dict_id FROM IMA_IMAGE_RECORD, IMA_SUBCONTEXT, IMA_EXPERIMENT_DICT, organisation o  WHERE IMA_IMAGE_RECORD.organisation=o.id AND IMA_IMAGE_RECORD.subcontext_id=IMA_SUBCONTEXT.id AND IMA_SUBCONTEXT.experiment_dict_id=IMA_EXPERIMENT_DICT.id AND IMA_EXPERIMENT_DICT.name!='Mouse Necropsy' ">
 
 			<field column="id" name="id" />
 			<field column="FULL_RESOLUTION_FILE_PATH" name="fullResolutionFilePath" />
@@ -24,13 +24,24 @@
 				<field column="PROCEDURE_ID" name="sangerProcedureId" />
 			</entity>
 
+
+
 			<!-- Mouse -->
+			
+			<!-- new table -->
+			<!-- IMPC_MOUSE_ALLELE_MV -->
+			<entity dataSource="komp2ds" name="mouse" query="select * from IMPC_MOUSE_ALLELE_MV where MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}">
+			<field column="MOUSE_ID" name="mouseId" />
+			<!-- <field column="COLONY_NAME" name="colonyName" />
+			<field column="AGE_IN_WEEKS" name="ageInWeeks" /> -->
+			
+			<!-- </entity>
 			<entity dataSource="komp2ds" name="mouse" query="select * from ima_mouse_image_vw where id=${ima_image_record.FOREIGN_KEY_ID}">
-				<field column="ID" name="mouseId" />
-				<field column="COLONY_NAME" name="colonyName" />
+				<field column="ID" name="mouseId" /> -->
+				<!-- <field column="COLONY_NAME" name="colonyName" />-->
 				<field column="AGE_IN_WEEKS" name="ageInWeeks" />
 
-				<entity dataSource="komp2ds" name="mts_mouse_allele_mv" query="select * from `mts_mouse_allele_mv` where MOUSE_ID=${mouse.ID}">
+				<!-- <entity dataSource="komp2ds" name="mts_mouse_allele_mv" query="select * from `mts_mouse_allele_mv` where MOUSE_ID=${mouse.MOUSE_ID}"> -->
 <!-- 
 					<entity dataSource="komp2ds" name="MtsMouseAllele" query="select * from `MTS_MOUSE_ALLELE` where MOUSE_ID=${mts_mouse_allele_mv.MOUSE_ID}">
 						<entity dataSource="komp2ds" name="mtsGenotypeDict" query="select * from `MTS_GENOTYPE_DICT` where ID=${MtsMouseAllele.GENOTYPE_DICT_ID}">
@@ -39,7 +50,7 @@
 					</entity>
  -->
 
-					<entity dataSource="komp2ds" name="alleleMpi" query="select * from `allele` where symbol='${mts_mouse_allele_mv.ALLELE}'">
+					<entity dataSource="komp2ds" name="alleleMpi" query="select * from `allele` where symbol='${mouse.ALLELE}'">
 						<!-- Get gene associated information from our sanger tables (we also 
 							get it from our main mpi2 db at the moment as well- this sanger tables are 
 							temporary for demo purposes??? -->
@@ -62,18 +73,18 @@
 							</entity>
 						</entity>
 					</entity>
-				</entity>
+				<!-- </entity> -->
 			</entity>
 
 			<!-- Live sample -->
-			<entity dataSource="komp2ds" name="live_sample" query="select * from ima_mouse_image_vw, biological_sample WHERE ima_mouse_image_vw.id=biological_sample.external_id AND ima_mouse_image_vw.ID=${ima_image_record.FOREIGN_KEY_ID}">
+			<!-- <entity dataSource="komp2ds" name="live_sample" query="select * from ima_mouse_image_vw, biological_sample WHERE ima_mouse_image_vw.id=biological_sample.external_id AND ima_mouse_image_vw.ID=${ima_image_record.FOREIGN_KEY_ID}">
 				<field column="sample_group" name="liveSampleGroup" />
 				<field column="ID" name="liveSampleId" />
 
 				<entity dataSource="komp2ds" name="biological_model" query="select * from biological_model_sample bms, biological_model bm where bms.biological_sample_id=${live_sample.ID} and bm.id=bms.biological_model_id">
 					<field column="biological_model_id" name="biological_model_id" />
 
-					<entity dataSource="komp2ds" name="genomicFeature" query="select * from biological_model_genomic_feature bmg, genomic_feature gf where bmg.gf_acc=gf.acc and bmg.gf_db_id=gf.db_id and biological_model_id=${biological_model.biological_model_id}"><!-- example biolog model id=181122 -->
+					<entity dataSource="komp2ds" name="genomicFeature" query="select * from biological_model_genomic_feature bmg, genomic_feature gf where bmg.gf_acc=gf.acc and bmg.gf_db_id=gf.db_id and biological_model_id=${biological_model.biological_model_id}">example biolog model id=181122
 						<field column="acc" name="accession" />
 						<field column="symbol" name="symbol" />
 						<field column="symbol_gene" name="symbol_gene" />
@@ -88,7 +99,7 @@
 						</entity>
 					</entity>
 				</entity>
-			</entity>
+			</entity> -->
 
 			<entity dataSource="komp2ds" name="experiment" query="select IMA_EXPERIMENT_DICT.NAME, IMA_EXPERIMENT_DICT.DESCRIPTION, concat(IMA_EXPERIMENT_DICT.NAME,'_exp') as expName_exp FROM IMA_EXPERIMENT_DICT, IMA_SUBCONTEXT, IMA_IMAGE_RECORD where IMA_SUBCONTEXT.ID=IMA_IMAGE_RECORD.SUBCONTEXT_ID and IMA_EXPERIMENT_DICT.ID=IMA_SUBCONTEXT.EXPERIMENT_DICT_ID AND IMA_IMAGE_RECORD.ID=${ima_image_record.ID}">
 				<field column="NAME" name="expName" />
@@ -136,7 +147,4 @@
 			</entity>
 		</entity>
 	</document>
-
-	
-
 </dataConfig>
