@@ -84,16 +84,7 @@
 								<a href='${baseUrl}/images?anatomy_id=${anatomy.accession}&fq=expName:Wholemount Expression'>[show all  ${numberExpressionImagesFound} images]</a>
 		    					<ul>
 		    					<c:forEach var="doc" items="${expressionImages}">
-									<li class="span2"><a href="${mediaBaseUrl}/${doc.fullResolutionFilePath}"><img src="${mediaBaseUrl}/${doc.smallThumbnailFilePath}" /></a>
-									<c:forEach var="maTerm" items="${doc.annotationTermName}" varStatus="loop">
-										${maTerm}<c:if test="${!loop.last}"><br /></c:if>
-									</c:forEach>
-									<c:forEach var="sangerSymbol" items="${doc.sangerSymbol}" varStatus="symbolStatus">
-						<c:if test="${not empty doc.sangerSymbol}"><t:formatAllele>${sangerSymbol}</t:formatAllele></c:if>
-							</c:forEach>
-									<c:if test="${not empty doc.genotype}"><br />${doc.gender}</c:if>
-									<c:if test="${not empty doc.institute}"><c:forEach var="org" items="${doc.institute}"><br />${ org}</c:forEach></c:if> 
-									</li>
+									<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
 								</c:forEach>
 								</ul>
 							</div>

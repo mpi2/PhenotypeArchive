@@ -34,33 +34,11 @@
 			<div class="row">
 				<c:forEach var="image" items="${images}" varStatus="status">
 				<%-- ${image } --%>
-				<div class="span3">
-					<div class="thumbnail">
-						<!-- image ID: ${image.id} -->
-						<a href="${mediaBaseUrl}/${image.fullResolutionFilePath}"><img src="${mediaBaseUrl}/${image.smallThumbnailFilePath}"  onerror="imgError(this);" /></a>
-						<div class="caption">
-		
-						<c:forEach var="sangerSymbol" items="${image.sangerSymbol}" varStatus="symbolStatus">
-						<c:if test="${not empty image.sangerSymbol}"><t:formatAllele>${sangerSymbol}</t:formatAllele><br /></c:if>
-							</c:forEach>
-							<c:if test="${not empty image.gender}">${image.gender}<br /></c:if>
-							<c:forEach var="annTermName" items="${image.annotationTermName}" varStatus="annStatus">
-							<c:if test="${not empty image.annotationTermName}">${annTermName}<br /></c:if>
-							</c:forEach>
-							<c:if test="${not empty image.organisation}"><c:forEach var="org" items="${image.organisation}">${org}<br /></c:forEach></c:if> 
-							<!-- show the control and headline tags -->
-							<c:if test="${not empty image.tagName}">
-							<%-- <c:forEach var="name" items="${image.tagName}"> --%>
-							<c:forEach var="name" items="${image.tagName}" varStatus="tagStatus">
-      								<c:if test="${name=='Population Cohort'}" >
-          									${name} :  ${image.tagValue[tagStatus.index]}<br />  
-      								</c:if>   
-							</c:forEach>
-							</c:if> 
-							
-						</div>
-					</div>
+                                <div class="span3">
+				<div class="thumbnail">
+					<t:imgdisplay img="${image}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
 				</div>
+                                </div>
 			<c:if test="${status.count % 4 eq 0}"></div><div class="row"></c:if>
 				</c:forEach>
 			</div>

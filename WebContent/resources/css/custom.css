@@ -346,3 +346,7 @@ body div#allele_tracker_panel_results  a img {
  .ui-state-hover {
 	background-color: #d57c24;
 } 
+
+.caption {
+    text-align:center;
+}

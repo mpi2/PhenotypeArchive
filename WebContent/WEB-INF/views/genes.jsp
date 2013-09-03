@@ -551,14 +551,17 @@ $('#target').submit(function() {
 							<a href="${baseUrl}/images?gene_id=${acc}&fq=expName:${entry.name}">[show all ${entry.count} images]</a>
 								<ul>
 									<c:forEach var="doc" items="${facetToDocs[entry.name]}">
-									<li class="span2">
+									<%-- <li class="span2">
 										<a href="${mediaBaseUrl}/${doc.fullResolutionFilePath}">
 										<img src="${mediaBaseUrl}/${doc.smallThumbnailFilePath}" /></a>
 										<c:forEach var="maTerm" items="${doc.annotationTermName}" varStatus="status">${maTerm}<br/></c:forEach>
 										<c:if test="${not empty doc.genotype}">${doc.genotype}<br/></c:if>
 										<c:if test="${not empty doc.gender}">${doc.gender}<br/></c:if>
 										<c:if test="${not empty doc.institute}"><c:forEach var="org" items="${doc.institute}">${org}<br /></c:forEach></c:if> 
-									</li>
+									</li> --%>
+                                                                        <li class="span2">
+									<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
+                                                                        </li>
 									</c:forEach>
 								</ul>
 							</div>
@@ -597,13 +600,9 @@ $('#target').submit(function() {
 							 			<a href='${baseUrl}/images?gene_id=${acc}&q=expName:"Wholemount Expression"&fq=higherLevelMaTermName:"${entry.name}"'>[show all  ${entry.count} images]</a>
 										<ul>
 										<c:forEach var="doc" items="${expFacetToDocs[entry.name]}">
-											<li class="span2">
-												<a href="${mediaBaseUrl}/${doc.fullResolutionFilePath}"><img src="${mediaBaseUrl}/${doc.smallThumbnailFilePath}" /></a>
-												<c:forEach var="maTerm" items="${doc.annotationTermName}" varStatus="status">${maTerm}<br/></c:forEach>
-												<c:if test="${not empty doc.genotype}">${doc.genotype}<br/></c:if>
-												<c:if test="${not empty doc.genotype}">${doc.gender}<br/></c:if>
-												<c:if test="${not empty doc.institute}"><c:forEach var="org" items="${doc.institute}">${ org}<br /></c:forEach></c:if> 
-											</li>
+                                                                                    <li class="span2">
+											<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
+                                                                                    </li>
     	  								</c:forEach>
 										</ul>
 									</div>
