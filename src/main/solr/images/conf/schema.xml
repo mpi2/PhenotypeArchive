@@ -140,6 +140,7 @@
 	<field name="dcfExpId"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
 	<field name="sangerProcedureName"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
 	<field name="sangerProcedureId"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
+        <field name="allele"   type="string"   indexed="true"  stored="true"  multiValued="false" />
 	<!-- <field name="strain"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
 	<field name="coreStrain"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
 	<field name="fullStrain"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
