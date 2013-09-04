@@ -1,5 +1,5 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-
+<%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%-- <jsp:doBody var="theBody"/>
 
 <%
@@ -22,6 +22,7 @@ allele = allele.replaceAll("##", "</sup>");
         <img src="${mediaBaseUrl}/${img.smallThumbnailFilePath}" /></a>
         <div class="caption">
     <c:forEach var="maTerm" items="${img.annotationTermName}" varStatus="status">${maTerm}<br/></c:forEach>
+    <c:if test="${not empty img.genotypeString}"><t:formatAllele>${img.genotypeString}</t:formatAllele><br/></c:if>
     <c:if test="${not empty img.genotype}">${img.genotype}<br/></c:if>
     <c:if test="${not empty img.gender}">${img.gender}<br/></c:if>
     <c:if test="${not empty img.institute}"><c:forEach var="org" items="${img.institute}">${org}<br /></c:forEach></c:if> 

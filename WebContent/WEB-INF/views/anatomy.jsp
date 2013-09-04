@@ -83,9 +83,13 @@
 							<div class="accordion-inner">
 								<a href='${baseUrl}/images?anatomy_id=${anatomy.accession}&fq=expName:Wholemount Expression'>[show all  ${numberExpressionImagesFound} images]</a>
 		    					<ul>
+                                                            
 		    					<c:forEach var="doc" items="${expressionImages}">
+                                                            <li class="span2">
 									<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
-								</c:forEach>
+                                                            </li>
+                                                        </c:forEach>
+                                                        
 								</ul>
 							</div>
 						</div>
