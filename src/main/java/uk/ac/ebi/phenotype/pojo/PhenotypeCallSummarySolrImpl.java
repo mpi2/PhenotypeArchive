@@ -36,9 +36,9 @@ public class PhenotypeCallSummarySolrImpl implements
 			String accId, String queryString) throws IOException, URISyntaxException {
 
 		String solrUrl= config.get("internalSolrUrl");//"http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
-		String url =solrUrl+"/"+core+ "/select/?q=marker_accession_id:"
+		String url =solrUrl+"/"+core+ "/select/?q=marker_accession_id:\""
 				+ accId
-				+ "&rows=10000000&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet=true&facet.field=resource_fullname&facet.field=top_level_mp_term_name";
+				+ "\"&rows=10000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=resource_fullname&facet.field=top_level_mp_term_name";
 			if (queryString.startsWith("&")) {
 				url += queryString;
 			} else {// add an ampersand parameter splitter if not one as we need
@@ -177,9 +177,9 @@ public class PhenotypeCallSummarySolrImpl implements
 			String phenotype_id, String queryString) throws IOException, URISyntaxException {
 		// http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=mp_term_id:MP:0010025&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet=true&facet.field=resource_fullname&facet.field=top_level_mp_term_name&
 		String solrUrl= config.get("internalSolrUrl");//"http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
-		String url = solrUrl+"/"+core+"/select/?q=mp_term_id:"
+		String url = solrUrl+"/"+core+"/select/?q=mp_term_id:\""
 				+ phenotype_id
-				+ "&rows=1000000&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet=true&facet.field=resource_fullname&facet.field=procedure_name";
+				+ "\"&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=resource_fullname&facet.field=procedure_name";
 		//if (!filterString.equals("")) {
 			if (queryString.startsWith("&")) {
 				url += queryString;

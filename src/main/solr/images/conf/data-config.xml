@@ -1,23 +1,7 @@
 <dataConfig>
 
-	<!--<dataSource name="komp2ds" jndiName="java:comp/env/jdbc/komp2DataSource" />
-	<dataSource name="ontods" jndiName="java:comp/env/jdbc/ontodbDataSource" />-->
-
-  <dataSource 
-		name="komp2ds"
-		type="JdbcDataSource"
-   		driver="com.mysql.jdbc.Driver"
-  		url="jdbc:mysql://localhost/komp2?autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull"
-   		user="root" 
-   		password="a"/>
-	<dataSource 
-		name="ontods"
-		type="JdbcDataSource"
-   		driver="com.mysql.jdbc.Driver"
-  		url="jdbc:mysql://localhost/ontodb_komp2"
-   		user="root" 
-   		password="a"/>
-
+	<dataSource name="komp2ds" jndiName="java:comp/env/jdbc/komp2DataSource" />
+	<dataSource name="ontods" jndiName="java:comp/env/jdbc/ontodbDataSource" />
 
 	<document name="komp2_indexing">
 
@@ -56,7 +40,7 @@
 				<field column="ID" name="mouseId" /> -->
 				<!-- <field column="COLONY_NAME" name="colonyName" />-->
 				<field column="AGE_IN_WEEKS" name="ageInWeeks" />
-
+				<field column="ALLELE" name="genotypeString" />
 				<!-- <entity dataSource="komp2ds" name="mts_mouse_allele_mv" query="select * from `mts_mouse_allele_mv` where MOUSE_ID=${mouse.MOUSE_ID}"> -->
 <!-- 
 					<entity dataSource="komp2ds" name="MtsMouseAllele" query="select * from `MTS_MOUSE_ALLELE` where MOUSE_ID=${mts_mouse_allele_mv.MOUSE_ID}">

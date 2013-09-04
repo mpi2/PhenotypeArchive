@@ -65,10 +65,10 @@
 				<div><div class='facetCat'>Phenotypes</div><span class='facetCount countDisplay'></span></div>
 				<div class='facetCatList'></div>
 			</div>
-			<!-- <div id='tissueFace//var url = $.bbq.getState( "url" );t'>				
-				<div><div class='facetCat'>Tissues</div><span class='facetCount'></span></div>				
+			<div id='maFacet'>
+				<div><div class='facetCat'>Anatomy</div><span class='facetCount countDisplay'></span></div>
 				<div class='facetCatList'></div>
-			</div>-->
+			</div>
 			<div id='pipelineFacet'>
 				<div><div class='facetCat'>Procedures</div><span class='facetCount countDisplay'></span></div>
 				<div class='facetCatList'></div>

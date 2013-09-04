@@ -18,6 +18,8 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -45,8 +47,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
-
-
 
 @Controller
 public class DataTableController {
@@ -150,7 +150,10 @@ public class DataTableController {
 		else if (mode.equals("mpGrid")) {
 			jsonStr = parseJsonforMpDataTable(json, request);
 		}
-
+		else if (mode.equals("maGrid")) {
+			jsonStr = parseJsonforMaDataTable(json, request);
+		}
+		
 		return jsonStr;
 	}
 
@@ -273,7 +276,46 @@ public class DataTableController {
 		
 		return j.toString();	
 	}
+	
+	public String parseJsonforMaDataTable(JSONObject json, HttpServletRequest request){
+		
+		String baseUrl = request.getAttribute("baseUrl") + "/anatomy/";
+		
+		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
+		int totalDocs = json.getJSONObject("response").getInt("numFound");
+				
+        JSONObject j = new JSONObject();
+		j.put("aaData", new Object[0]);
+		
+		j.put("iTotalRecords", totalDocs);
+		j.put("iTotalDisplayRecords", totalDocs);
+		
+		for (int i=0; i<docs.size(); i++){
+			List<String> rowData = new ArrayList<String>();
 
+			// array element is an alternate of facetField and facetCount			
+			JSONObject doc = docs.getJSONObject(i);
+			String maId = doc.getString("ma_id");
+			String maTerm = doc.getString("ma_term");
+			String maLink = "<a href='" + baseUrl + maId + "'>" + maTerm + "</a>";			
+			rowData.add(maLink);
+			
+			// some MP do not have definition
+			/*String mpDef = "not applicable";
+			try {
+				maDef = doc.getString("ma_definition");
+			} 
+			catch (Exception e) {			 			
+			    //e.printStackTrace();
+			}
+			rowData.add(mpDef);*/	
+			
+			j.getJSONArray("aaData").add(rowData);
+		} 
+		
+		return j.toString();	
+	}
+	
 	public String parseJsonforImageDataTable(JSONObject json, int start, int length, String solrParams, boolean showImgView, HttpServletRequest request) throws IOException, URISyntaxException{
 				
 		String fqStr = "";

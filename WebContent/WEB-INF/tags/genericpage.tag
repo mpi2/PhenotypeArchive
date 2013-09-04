@@ -243,7 +243,6 @@ try {
 	<script type="text/javascript" src='${baseUrl}/js/vendor/jquery.ba-bbq.min.js' ></script>
 	<script type="text/javascript" src='${baseUrl}/js/bootstrap/bootstrap.min.js' ></script>
 	<script type="text/javascript" src='${baseUrl}/js/script.min.js' ></script>
-	<script src="${baseUrl}/js/utils/tools.js"></script>
 	<script type='text/javascript' src='${baseUrl}/js/vendor/respond.min.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/vendor/jquery.corner.mini.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist-1.4-min.js'></script>

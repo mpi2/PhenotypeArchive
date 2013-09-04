@@ -254,7 +254,7 @@
     					$.ajax({    					
     						'url': solrBaseUrl + '?' + solrSrchParamsStr,    											
     						'dataType': 'jsonp',
-    						'jsonp': 'json.wrf',
+    						'jsonp': 'json.wrfhttp://localhost:8983/solr/ma/select?q=*%3A*&wt=json&indent=true',
     						'success': function(json) {    							
     							if (json.response.numFound > 10 ){    							
     								self._display_subTerms_in_tabs(json, topLevelOntoTerm, thisTable, ontology);

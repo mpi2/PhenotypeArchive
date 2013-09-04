@@ -29,17 +29,13 @@
     If 'null' (or absent), cores will not be manageable via request handler
   -->
   <cores adminPath="/admin/cores" >
+    <core name="human2mouse_symbol" instanceDir="human2mouse_symbol" />
     <core name="allele" instanceDir="allele" />
     <core name="gene" instanceDir="gene" />
+    <core name="images" instanceDir="images" />
     <core name="mp" instanceDir="mp" />
     <core name="ma" instanceDir="ma" />
     <core name="pipeline" instanceDir="pipeline" />
-    <core name="images" instanceDir="images" />
-    <!--<core name="dasikmcalleles" instanceDir="dasikmcalleles" />
-    <core name="dasikmcallelesm38" instanceDir="dasikmcallelesm38" /> 
-    <core name="images" instanceDir="images" />   
-    <core name="ma" instanceDir="ma" />
-    <core name="pipeline" instanceDir="pipeline" />--> 
     <core name="genotype-phenotype" instanceDir="genotype-phenotype" />
     <core name="experiment" instanceDir="experiment" />
   </cores>

@@ -92,12 +92,13 @@ public class ImagesController {
 			@RequestParam(required = false, defaultValue = "", value = "facet.field") String facetField,
 			@RequestParam(required = false, defaultValue = "", value = "qf") String qf,
 			@RequestParam(required = false, defaultValue = "", value = "defType") String defType,
+			@RequestParam(required = false, defaultValue = "", value = "anatomy_id") String maId,
 			HttpServletRequest request,
 			Model model) throws SolrServerException {
 
-		handleImagesRequest(start, length, qIn, mpId, geneId, filterField, qf, defType, model);
+		handleImagesRequest(start, length, qIn, mpId, geneId, filterField, qf, defType,maId, model);
 		
-		model.addAttribute("breadcrumbText", getBreadcrumbs(request, qIn, mpId, geneId, filterField));
+		model.addAttribute("breadcrumbText", getBreadcrumbs(request, qIn, mpId, geneId, filterField, maId));
 
 		return "images";
 	}	
@@ -120,7 +121,7 @@ public class ImagesController {
 	 * @return a raw HTML string containing the pieces of the query assembled
 	 *         into a breadcrumb fragment
 	 */
-	private String getBreadcrumbs(HttpServletRequest request, String qIn, String mpId, String geneId, String[] filterField) {
+	private String getBreadcrumbs(HttpServletRequest request, String qIn, String mpId, String geneId, String[] filterField, String maId) {
 
 		String baseUrl = (String) request.getAttribute("baseUrl");
 
@@ -144,6 +145,14 @@ public class ImagesController {
 			String value = mpTerm.getName();
 			String mpBc = "<a href='"+baseUrl+"/phenotypes/"+mpId+"'>"+ value + "</a>";
 			breadcrumbs.add("Phenotype: " + mpBc);
+		}
+		
+		if (!maId.equals("")) {
+			// 5 is the Mammalian Phenotype database ID
+			OntologyTerm maTerm = otDAO.getOntologyTermByAccession(maId);
+			String value = maTerm.getName();
+			String mpBc = "<a href='"+baseUrl+"/phenotypes/"+maId+"'>"+ value + "</a>";
+			breadcrumbs.add("Anatomy: " + mpBc);
 		}
 
 		if (!qIn.equals("") && !qIn.equals("*:*") && !qIn.equals("*") && qIn.contains(":")) {
@@ -193,10 +202,10 @@ public class ImagesController {
 		return org.apache.commons.lang.StringUtils.join(breadcrumbs, " AND ");
 	}
 
-	private void handleImagesRequest(int start, int length, String qIn,
+	private void handleImagesRequest(int start, int length, String q,
 			String mpId, String geneId, String[] filterField, String qf,
-			String defType, Model model) throws SolrServerException {
-		String q = qIn;
+			String defType,String maId, Model model) throws SolrServerException {
+		
 		String queryTerms = ""; //used for a human readable String of the query for display on the results page
 		QueryResponse imageDocs = null;
 		String filterQueries="";
@@ -217,14 +226,21 @@ public class ImagesController {
 			q = "annotationTermId:" + mpId.replace("MP:", "MP\\:");
 			queryTerms = otDAO.getOntologyTermByAccessionAndDatabaseId(mpId, 5).getName();
 		}
+		
+		if (!maId.equals("")) {
+			queryTerms = maId;
+			q = "annotationTermId:" + maId.replace("MA:", "MA\\:");
+			queryTerms = otDAO.getOntologyTermByAccession(maId).getName();
+			System.out.println("query term set to:"+queryTerms);
+		}
 
-		if (mpId.equals("") && geneId.equals("")) {
+		if (mpId.equals("") && geneId.equals("") && maId.equals("")) {
 			queryTerms = "";
 		}
 
-		if(!qIn.equals("*:*")) {
-			queryTerms = q.replaceAll("expName:", "").replaceAll("\"", "");
-			q = q + " AND " + qIn;
+		if(!q.equals("*:*")) {
+			queryTerms +=" "+ q.replaceAll("expName:", "").replaceAll("\"", "");
+			//q = q + " AND " + qIn;
 		}
 
 		if(filterField.length>0) {
@@ -265,29 +281,6 @@ public class ImagesController {
 		}
 		queryTerms += ": " + StringUtils.join(terms, ", ");
 		return queryTerms;
-	}
-
-	
-	@RequestMapping("/smallImagesFragment")
-	public String smallImagesFragment(
-			@RequestParam(required = false, defaultValue = "0", value = "start") int start,
-			@RequestParam(required = false, defaultValue = "4", value = "length") int length,
-			@RequestParam(required = false, defaultValue = "*:*", value = "q") String qIn,
-			@RequestParam(required = false, defaultValue = "", value = "mpid") String mpId,
-			@RequestParam(required = false, defaultValue = "", value = "gene_id") String geneId,
-			@RequestParam(required = false, defaultValue = "", value = "fq") String []filterField,
-			@RequestParam(required = false, defaultValue = "", value = "facet.field") String facetField,
-			@RequestParam(required = false, defaultValue = "", value = "qf") String qf,
-			@RequestParam(required = false, defaultValue = "", value = "defType") String defType,
-			Model model) throws SolrServerException {
-		
-		//currently this is pretty much the same logic as the/ images handler/response but with short default length so we could just have a param in the images request that says - get me small images?
-		//then return the smallImagesFragment view...
-		handleImagesRequest(start, length, qIn, mpId, geneId, filterField, qf,
-				defType, model);
-		
-		return "smallImagesFragment";
-
 	}
 
 }

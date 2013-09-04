@@ -120,16 +120,6 @@ public class AnatomyController {
 
 		model.addAttribute("exampleImages", exampleImagesMap);
 
-		//get general ma related images
-		JSONObject maAssociatedImagesResponse = JSONImageUtils
-				.getAnatomyAssociatedImagesNotExpression(anatomy_id, config);
-		int numberImagesFound = JSONRestUtil
-				.getNumberFoundFromJsonResponse(maAssociatedImagesResponse);
-		JSONArray imageDocs = maAssociatedImagesResponse.getJSONObject(
-				"response").getJSONArray("docs");
-		model.addAttribute("numberFound", numberImagesFound);
-		//a short term hack below to get the term for the MA accession in the url from the image search results - should come from our new anatomy index when ready
-		model.addAttribute("images", imageDocs);
 		//get expression only images
 		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils
 				.getAnatomyAssociatedExpressionImages(anatomy_id, config);
@@ -139,6 +129,7 @@ public class AnatomyController {
 				"response").getJSONArray("docs");
 		model.addAttribute("numberExpressionImagesFound", numberExpressionImagesFound);
 		model.addAttribute("expressionImages", expressionImageDocs);
+		
 		return "anatomy";
 	}
 

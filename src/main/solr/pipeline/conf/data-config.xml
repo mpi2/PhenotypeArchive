@@ -1,20 +1,7 @@
 <dataConfig>
 
-	<!--<dataSource name="ds1" jndiName="java:comp/env/jdbc/komp2DataSource" />-->
-    <dataSource 
-		name="ds1"
-		type="JdbcDataSource"
-   		driver="com.mysql.jdbc.Driver"
-  		url="jdbc:mysql://localhost/komp2?autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull"
-   		user="root" 
-   		password="a"/>
-	<dataSource 
-		name="ds2"
-		type="JdbcDataSource"
-   		driver="com.mysql.jdbc.Driver"
-  		url="jdbc:mysql://localhost/ontodb_komp2"
-   		user="root" 
-   		password="a"/>
+	<dataSource name="ds1" jndiName="java:comp/env/jdbc/komp2DataSource" />
+
 	<document name="komp2_indexing">
 
 		<!-- IMPC pipeline -->
@@ -22,24 +9,30 @@
 			<field column="stable_id" name="parameter_stable_id" />
             <field column="name" name="parameter_name" />
             <field column="stable_key" name="parameter_stable_key" />
+
 			<entity dataSource="ds1" name="phenotype_procedure_parameter" query="select procedure_id, parameter_id from phenotype_procedure_parameter where parameter_id=${phenotype_parameter.id}">
+
 				<entity dataSource="ds1" name="phenotype_procedure" query="select id, stable_id, name, stable_key from phenotype_procedure where id=${phenotype_procedure_parameter.procedure_id}">
 					<field column="stable_id" name="procedure_stable_id" />
 					<field column="name" name="procedure_name" />
 					<field column="stable_key" name="procedure_stable_key" />
-					<entity dataSource="ds1" name="phenotype_parameter" query="select concat('${phenotype_procedure.name}', '___', name) as proc_param_name, concat('${phenotype_procedure.stable_id}', '___', stable_id) as proc_param_stable_id, stable_id, name, stable_key from phenotype_parameter where id=${phenotype_procedure_parameter.parameter_id}">
+
+                    <entity dataSource="ds1" name="phenotype_parameter2" query="select concat('${phenotype_procedure.name}', '___', name) as proc_param_name, concat('${phenotype_procedure.stable_id}', '___', stable_id) as proc_param_stable_id, stable_id, name, stable_key from phenotype_parameter where id=${phenotype_procedure_parameter.parameter_id}">
 						<field column="proc_param_stable_id" name="proc_param_stable_id" />
 						<field column="proc_param_name" name="proc_param_name" />
 					</entity>
-					<entity dataSource="ds1" name="phenotype_pipeline_procedure" query="select pipeline_id from phenotype_pipeline_procedure where procedure_id=${phenotype_procedure.id}">
-						<entity dataSource="phenotype_pipeline" query="select stable_id, name, stable_key from phenotype_pipeline where id=${phenotype_pipeline_procedure.pipeline_id}">
+				    <entity dataSource="ds1" name="phenotype_pipeline_procedure" query="select pipeline_id from phenotype_pipeline_procedure where procedure_id=${phenotype_procedure.id}">
+						<entity dataSource="ds1" name="phenotype_pipeline" query="select stable_id, name, stable_key from phenotype_pipeline where id=${phenotype_pipeline_procedure.pipeline_id}">
 							<field column="stable_id" name="pipeline_stable_id" />
 							<field column="name" name="pipeline_name" />
 							<field column="stable_key" name="pipeline_stable_key" />
 						</entity>
 					</entity>
+
 				</entity>
+
 			</entity>
+
 		</entity>
 	</document>
 </dataConfig>
