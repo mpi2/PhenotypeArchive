@@ -416,30 +416,6 @@ CREATE TABLE `ima_image_record_annotation_vw` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `ima_mouse_image_vw`
---
-
-DROP TABLE IF EXISTS `ima_mouse_image_vw`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `ima_mouse_image_vw` (
-  `ID` int(11) NOT NULL,
-  `NAME` varchar(4000) DEFAULT NULL,
-  `BARCODE` varchar(400) DEFAULT NULL,
-  `AGE_IN_WEEKS` int(11) DEFAULT NULL,
-  `GENDER_ID` int(11) DEFAULT NULL,
-  `GENDER` varchar(100) DEFAULT NULL,
-  `GENOTYPE` varchar(200) DEFAULT NULL,
-  `COLONY_ID` int(11) DEFAULT NULL,
-  `COLONY_NAME` varchar(200) DEFAULT NULL,
-  `COLONY_PREFIX` varchar(1000) DEFAULT NULL,
-  `CAGE_ID` int(11) DEFAULT NULL,
-  `CAGE_BARCODE` varchar(200) DEFAULT NULL,
-  `LITTER_ID` int(11) DEFAULT NULL,
-  `LITTER_NAME` varchar(200) DEFAULT NULL,
-  PRIMARY KEY (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
