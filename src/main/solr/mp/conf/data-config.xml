@@ -1,54 +1,55 @@
 <dataConfig>
 
 	<dataSource name="ds1" jndiName="java:comp/env/jdbc/komp2DataSource" />
-	<dataSource name="onto" jndiName="java:comp/env/jdbc/ontodbDataSource" />
-    
+	<dataSource name="ds2" jndiName="java:comp/env/jdbc/ontodbDataSource" />
+ 
+
 
 	<document name="komp2_indexing">
 		<!-- test MP:0000180 for multipe node_id being linked to this term -->
 		<!-- term infos: ID, name, definition -->
-		<entity dataSource="onto" name="mp_term_infos"
+		<entity dataSource="ds2" name="mp_term_infos"
 			query="select term_id, name, definition from mp_term_infos where term_id != 'MP:0000001'">
 			<field column="term_id" name="mp_id" />
 			<field column="name" name="mp_term" />
 			<field column="definition" name="mp_definition" />
 
 			<!-- subset of this MP term: parsed from obo file -->
-			<entity dataSource="onto" name="mp_term_subsets"
+			<entity dataSource="ds2" name="mp_term_subsets"
 				query="select subset from mp_term_subsets where term_id='${mp_term_infos.term_id}'">
 				<field column="subset" name="ontology_subset" />
 			</entity>
 
 			<!-- synonym of this MP term -->
-			<entity dataSource="onto" name="mp_synonyms"
+			<entity dataSource="ds2" name="mp_synonyms"
 				query="select syn_name from mp_synonyms where term_id = '${mp_term_infos.term_id}'">
 				<field column="syn_name" name="mp_term_synonym" />
 			</entity>
 
 			<!-- GO association of MP term -->
-			<entity dataSource="onto" name="mp_dbxrefs"
+			<entity dataSource="ds2" name="mp_dbxrefs"
 				query="select xref_id from mp_dbxrefs where term_id='${mp_term_infos.term_id}' and xref_id like 'GO:%'">
 				<field column="xref_id" name="go_id" />
 			</entity>
 
 			<!-- MP-MA relationship; MA term has no definition -->
-			<entity dataSource="onto" name="mp_mappings" onError="continue"
+			<entity dataSource="ds2" name="mp_mappings" onError="continue"
 				query="select mapped_term_id from mp_mappings where term_id='${mp_term_infos.term_id}' and ontology='MA'">
 				<field column="mapped_term_id" name="ma_id" />
-				<entity dataSource="onto" name="ma_term_infos"
+				<entity dataSource="ds2" name="ma_term_infos"
 					query="select name from ma_term_infos where term_id='${mp_mappings.mapped_term_id}'">
 					<field column="name" name="ma_term" />
 				</entity>
 			</entity>
 
 			<!-- top level MP term of this MP term -->
-			<entity dataSource="onto" name="mp_node2term"
+			<entity dataSource="ds2" name="mp_node2term"
 				query="select node_id from mp_node2term where term_id='${mp_term_infos.term_id}'">
-				<entity dataSource="onto" name="mp_node_top_level"
+				<entity dataSource="ds2" name="mp_node_top_level"
 					query="select top_level_node_id from mp_node_top_level where node_id=${mp_node2term.node_id}">
-					<entity dataSource="onto" name="mp_node2term"
+					<entity dataSource="ds2" name="mp_node2term"
 						query="select term_id from mp_node2term where node_id=${mp_node_top_level.top_level_node_id}">
-						<entity dataSource="onto" name="mp_term_infos"
+						<entity dataSource="ds2" name="mp_term_infos2"
 							query="select term_id, name, definition from mp_term_infos where term_id='${mp_node2term.term_id}' and term_id != 'MP:0000001'">
 
 							<!-- do not want to include the root term -->
@@ -61,19 +62,19 @@
 			</entity>
 
 			<!-- child MP term of this MP term -->
-			<entity dataSource="onto" name="mp_node2term"
+			<entity dataSource="ds2" name="mp_node2term"
 				query="select node_id from mp_node2term where term_id='${mp_term_infos.term_id}'">
-				<entity dataSource="onto" name="mp_parent_children" onError="continue"
+				<entity dataSource="ds2" name="mp_parent_children" onError="continue"
 					query="select parent_node_id, child_node_id from mp_parent_children where child_node_id=${mp_node2term.node_id}">
-					<entity dataSource="onto" name="mp_parent_children"
+					<entity dataSource="ds2" name="mp_parent_children"
 						query="select child_node_id from mp_parent_children where parent_node_id=${mp_parent_children.parent_node_id}">
-						<entity dataSource="onto" name="mp_node2term"
+						<entity dataSource="ds2" name="mp_node2term"
 							query="select term_id from mp_node2term where node_id=${mp_parent_children.child_node_id}">
 
 							<!-- only index child term that has mp annotation -->
 							<entity dataSource="ds1" onError="continue" name="phenotype_call_summary"
 								query="select count(*) from phenotype_call_summary where mp_acc='${mp_node2term.term_id}'">
-								<entity dataSource="onto" name="mp_term_infos"
+								<entity dataSource="ds2" name="mp_term_infos3"
 									query="select term_id, name, definition from mp_term_infos where term_id='${mp_node2term.term_id}'">
 									<field column="term_id" name="child_mp_id" />
 									<field column="name" name="child_mp_term" />
@@ -86,59 +87,66 @@
 			</entity>
 
 			<!-- whether this MP has annotated phenotype images -->
-			<entity dataSource="onto" onError="continue" name="mp_with_pheno_image"
+			<entity dataSource="ds2" onError="continue" name="mp_with_pheno_image"
 				query="select term_id from mp_with_pheno_image where term_id='${mp_term_infos.term_id}'">
 				<field column="term_id" name="mp_with_pheno_image" />
 			</entity>
 
 			<!-- MGI genes annotated to this MP term which has pipeline/procedure and allele/strain infos -->
 			<entity dataSource="ds1" name="phenotype_call_summary"
-				query="select 
-					ppipe.stable_key as pipeline_stable_key, ppipe.name as pipeline_name, ppipe.stable_id as pipeline_stable_id, 
-					pproc.stable_key as procedure_stable_key, pproc.name as procedure_name, pproc.stable_id as procedure_stable_id, 
-					pparam.stable_key as parameter_stable_key, pparam.name as parameter_name, pparam.stable_id as parameter_stable_id, 
-					strain.name as strain_name, allele.symbol as allele_symbol, gf.acc as gene_acc, gf.symbol as gene_symbol, 
-					pcs.external_id, pcs.gf_acc, pcs.procedure_id, pcs.parameter_id, pcs.pipeline_id, pcs.allele_acc, pcs.strain_acc, pcs.sex, pcs.zygosity 
-					from phenotype_call_summary pcs
-					LEFT OUTER JOIN genomic_feature gf ON gf.acc=pcs.gf_acc
-					LEFT OUTER JOIN allele ON allele.acc=pcs.allele_acc
-					LEFT OUTER JOIN strain ON allele.acc=pcs.allele_acc
-					LEFT OUTER JOIN phenotype_pipeline ppipe ON allele.acc=pcs.allele_acc
-					LEFT OUTER JOIN phenotype_procedure pproc ON allele.acc=pcs.allele_acc
-					LEFT OUTER JOIN phenotype_parameter pparam ON pparam.id=pcs.parameter_id
-					where pcs.mp_acc='${mp_term_infos.term_id}' 
-					and pcs.gf_db_id=3 
-					and pcs.gf_acc like 'MGI:%' 
-					and pcs.allele_acc is not null 
-					and pcs.strain_acc is not null">
+				query="select external_id, gf_acc, procedure_id, parameter_id, pipeline_id, allele_acc, strain_acc, sex, zygosity from phenotype_call_summary where mp_acc='${mp_term_infos.term_id}' and gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null">
 				<field column="external_id" name="external_id" />
 				<field column="sex" name="sex" />
 				<field column="zygosity" name="zygosity" />
-				<field column="allele_acc" name="allele_id" />
-				<field column="strain_acc" name="strain_id" />
 
-				<field column="gene_symbol" name="marker_symbol" />
-				<field column="gene_acc" name="mgi_accession_id" />
+				<entity dataSource="ds1" name="genomic_feature"
+					query="select acc, symbol from genomic_feature where acc='${phenotype_call_summary.gf_acc}'">
+					<field column="symbol" name="marker_symbol" />
+					<field column="acc" name="mgi_accession_id" />
+				</entity>
 
-				<field column="allele_symbol" name="allele_symbol" />
+				<!-- allele: currently NOT restricted to MGI alleles, ie, allele_db_id not restricted to 3 -->
+				<!-- index will be problematic if phenotype_call_summary.allele_acc and phenotype_call_summary.gf_acc do not have an entry in komp2.allele table -->
+				<entity dataSource="ds1" name="allele"
+					query="select symbol, acc from allele where acc='${phenotype_call_summary.allele_acc}' and gf_acc='${phenotype_call_summary.gf_acc}'">
+					<field column="symbol" name="allele_symbol" />
+					<field column="acc" name="allele_id" />
+				</entity>
 
-				<field column="strain_name" name="strain_name" />
+				<!-- strain -->
+				<entity dataSource="ds1" name="strain"
+					query="select name, acc from strain where acc='${phenotype_call_summary.strain_acc}' and db_id=3">
+					<field column="name" name="strain_name" />
+					<field column="acc" name="strain_id" />
+				</entity>
 
-				<field column="pipeline_stable_id" name="pipeline_stable_id" />
-				<field column="pipeline_name" name="pipeline_name" />
-				<field column="pipeline_stable_key" name="pipeline_stable_key" />
+				<!-- pipeline -->
+				<entity dataSource="ds1" name="phenotype_pipeline"
+					query="select stable_id, name, stable_key from phenotype_pipeline where id=${phenotype_call_summary.pipeline_id}">
+					<field column="stable_id" name="pipeline_stable_id" />
+					<field column="name" name="pipeline_name" />
+					<field column="stable_key" name="pipeline_stable_key" />
+				</entity>
 
-				<field column="procedure_name" name="procedure_name" />
-				<field column="procedure_stable_id" name="procedure_stable_id" />
-				<field column="procedure_stable_key" name="procedure_stable_key" />
+				<!-- procedure of pipeline -->
+				<entity dataSource="ds1" name="phenotype_procedure"
+					query="select distinct name, stable_id, stable_key from phenotype_procedure where id = ${phenotype_call_summary.procedure_id}">
+					<field column="name" name="procedure_name" />
+					<field column="stable_id" name="procedure_stable_id" />
+					<field column="stable_key" name="procedure_stable_key" />
+				</entity>
 
-				<field column="parameter_name" name="parameter_name" />
-				<field column="parameter_stable_id" name="parameter_stable_id" />
-				<field column="parameter_stable_key" name="parameter_stable_key" />
+				<!-- parameter of pipeline -->
+				<entity dataSource="ds1" name="phenotype_parameter"
+					query="select name, stable_id, stable_key from phenotype_parameter where id=${phenotype_call_summary.parameter_id}">
+					<field column="name" name="parameter_name" />
+					<field column="stable_id" name="parameter_stable_id" />
+					<field column="stable_key" name="parameter_stable_key" />
+				</entity>
+
 			</entity>
-
-						
 		</entity>
 	</document>
 
 </dataConfig>
+
