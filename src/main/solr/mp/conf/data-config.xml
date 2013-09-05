@@ -102,10 +102,10 @@
 					from phenotype_call_summary pcs
 					LEFT OUTER JOIN genomic_feature gf ON gf.acc=pcs.gf_acc
 					LEFT OUTER JOIN allele ON allele.acc=pcs.allele_acc
-					LEFT OUTER JOIN strain ON strain.acc=pcs.strain_acc
-					INNER JOIN phenotype_pipeline ppipe ON ppipe.id=pcs.pipeline_id
-					INNER JOIN phenotype_procedure pproc ON pproc.id=pcs.procedure_id
-					INNER JOIN phenotype_parameter pparam ON pparam.id=pcs.parameter_id
+					LEFT OUTER JOIN strain ON allele.acc=pcs.allele_acc
+					LEFT OUTER JOIN phenotype_pipeline ppipe ON allele.acc=pcs.allele_acc
+					LEFT OUTER JOIN phenotype_procedure pproc ON allele.acc=pcs.allele_acc
+					LEFT OUTER JOIN phenotype_parameter pparam ON pparam.id=pcs.parameter_id
 					where pcs.mp_acc='${mp_term_infos.term_id}' 
 					and pcs.gf_db_id=3 
 					and pcs.gf_acc like 'MGI:%' 
