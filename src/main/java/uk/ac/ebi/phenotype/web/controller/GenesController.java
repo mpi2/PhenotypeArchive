@@ -344,7 +344,7 @@ public class GenesController {
 			
 		
 			phenotypeList=phenoResult.getPhenotypeCallSummaries();
-		} catch (HibernateException e) {
+		} catch (HibernateException|JSONException e) {
 			log.error("ERROR GETTING PHENOTYPE LIST");
 			e.printStackTrace();
 			phenotypeList = new ArrayList<PhenotypeCallSummary>();
