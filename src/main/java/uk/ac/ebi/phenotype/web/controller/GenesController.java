@@ -339,20 +339,18 @@ public class GenesController {
 		PhenotypeFacetResult phenoResult=null;
 		try {
 
-				
-					phenoResult = phenoDAO.getPhenotypeCallByGeneAccessionAndFilter(acc, queryString);
-			
-		
+			phenoResult = phenoDAO.getPhenotypeCallByGeneAccessionAndFilter(acc, queryString);
 			phenotypeList=phenoResult.getPhenotypeCallSummaries();
+
+			Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
+			model.addAttribute("phenoFacets", phenoFacets);
+
 		} catch (HibernateException|JSONException e) {
 			log.error("ERROR GETTING PHENOTYPE LIST");
 			e.printStackTrace();
 			phenotypeList = new ArrayList<PhenotypeCallSummary>();
 		}
 		
-		Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
-	
-		model.addAttribute("phenoFacets", phenoFacets);
 		
 		// This is a map because we need to support lookups
 		Map<PhenotypeRow,PhenotypeRow> phenotypes = new HashMap<PhenotypeRow,PhenotypeRow>(); 
