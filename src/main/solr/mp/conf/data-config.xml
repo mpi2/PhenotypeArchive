@@ -1,54 +1,54 @@
 <dataConfig>
 
 	<dataSource name="ds1" jndiName="java:comp/env/jdbc/komp2DataSource" />
-	<dataSource name="ds2" jndiName="java:comp/env/jdbc/ontodbDataSource" />
+	<dataSource name="onto" jndiName="java:comp/env/jdbc/ontodbDataSource" />
     
 
 	<document name="komp2_indexing">
 		<!-- test MP:0000180 for multipe node_id being linked to this term -->
 		<!-- term infos: ID, name, definition -->
-		<entity dataSource="ds2" name="mp_term_infos"
+		<entity dataSource="onto" name="mp_term_infos"
 			query="select term_id, name, definition from mp_term_infos where term_id != 'MP:0000001'">
 			<field column="term_id" name="mp_id" />
 			<field column="name" name="mp_term" />
 			<field column="definition" name="mp_definition" />
 
 			<!-- subset of this MP term: parsed from obo file -->
-			<entity dataSource="ds2" name="mp_term_subsets"
+			<entity dataSource="onto" name="mp_term_subsets"
 				query="select subset from mp_term_subsets where term_id='${mp_term_infos.term_id}'">
 				<field column="subset" name="ontology_subset" />
 			</entity>
 
 			<!-- synonym of this MP term -->
-			<entity dataSource="ds2" name="mp_synonyms"
+			<entity dataSource="onto" name="mp_synonyms"
 				query="select syn_name from mp_synonyms where term_id = '${mp_term_infos.term_id}'">
 				<field column="syn_name" name="mp_term_synonym" />
 			</entity>
 
 			<!-- GO association of MP term -->
-			<entity dataSource="ds2" name="mp_dbxrefs"
+			<entity dataSource="onto" name="mp_dbxrefs"
 				query="select xref_id from mp_dbxrefs where term_id='${mp_term_infos.term_id}' and xref_id like 'GO:%'">
 				<field column="xref_id" name="go_id" />
 			</entity>
 
 			<!-- MP-MA relationship; MA term has no definition -->
-			<entity dataSource="ds2" name="mp_mappings" onError="continue"
+			<entity dataSource="onto" name="mp_mappings" onError="continue"
 				query="select mapped_term_id from mp_mappings where term_id='${mp_term_infos.term_id}' and ontology='MA'">
 				<field column="mapped_term_id" name="ma_id" />
-				<entity dataSource="ds2" name="ma_term_infos"
+				<entity dataSource="onto" name="ma_term_infos"
 					query="select name from ma_term_infos where term_id='${mp_mappings.mapped_term_id}'">
 					<field column="name" name="ma_term" />
 				</entity>
 			</entity>
 
 			<!-- top level MP term of this MP term -->
-			<entity dataSource="ds2" name="mp_node2term"
+			<entity dataSource="onto" name="mp_node2term"
 				query="select node_id from mp_node2term where term_id='${mp_term_infos.term_id}'">
-				<entity dataSource="ds2" name="mp_node_top_level"
+				<entity dataSource="onto" name="mp_node_top_level"
 					query="select top_level_node_id from mp_node_top_level where node_id=${mp_node2term.node_id}">
-					<entity dataSource="ds2" name="mp_node2term"
+					<entity dataSource="onto" name="mp_node2term"
 						query="select term_id from mp_node2term where node_id=${mp_node_top_level.top_level_node_id}">
-						<entity dataSource="ds2" name="mp_term_infos"
+						<entity dataSource="onto" name="mp_term_infos"
 							query="select term_id, name, definition from mp_term_infos where term_id='${mp_node2term.term_id}' and term_id != 'MP:0000001'">
 
 							<!-- do not want to include the root term -->
@@ -61,19 +61,19 @@
 			</entity>
 
 			<!-- child MP term of this MP term -->
-			<entity dataSource="ds2" name="mp_node2term"
+			<entity dataSource="onto" name="mp_node2term"
 				query="select node_id from mp_node2term where term_id='${mp_term_infos.term_id}'">
-				<entity dataSource="ds2" name="mp_parent_children" onError="continue"
+				<entity dataSource="onto" name="mp_parent_children" onError="continue"
 					query="select parent_node_id, child_node_id from mp_parent_children where child_node_id=${mp_node2term.node_id}">
-					<entity dataSource="ds2" name="mp_parent_children"
+					<entity dataSource="onto" name="mp_parent_children"
 						query="select child_node_id from mp_parent_children where parent_node_id=${mp_parent_children.parent_node_id}">
-						<entity dataSource="ds2" name="mp_node2term"
+						<entity dataSource="onto" name="mp_node2term"
 							query="select term_id from mp_node2term where node_id=${mp_parent_children.child_node_id}">
 
 							<!-- only index child term that has mp annotation -->
 							<entity dataSource="ds1" onError="continue" name="phenotype_call_summary"
 								query="select count(*) from phenotype_call_summary where mp_acc='${mp_node2term.term_id}'">
-								<entity dataSource="ds2" name="mp_term_infos"
+								<entity dataSource="onto" name="mp_term_infos"
 									query="select term_id, name, definition from mp_term_infos where term_id='${mp_node2term.term_id}'">
 									<field column="term_id" name="child_mp_id" />
 									<field column="name" name="child_mp_term" />
@@ -86,7 +86,7 @@
 			</entity>
 
 			<!-- whether this MP has annotated phenotype images -->
-			<entity dataSource="ds2" onError="continue" name="mp_with_pheno_image"
+			<entity dataSource="onto" onError="continue" name="mp_with_pheno_image"
 				query="select term_id from mp_with_pheno_image where term_id='${mp_term_infos.term_id}'">
 				<field column="term_id" name="mp_with_pheno_image" />
 			</entity>
