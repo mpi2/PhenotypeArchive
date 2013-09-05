@@ -91,6 +91,52 @@
 				<field column="term_id" name="mp_with_pheno_image" />
 			</entity>
 
+			<!-- MGI genes annotated to this MP term which has pipeline/procedure and allele/strain infos -->
+			<entity dataSource="ds1" name="phenotype_call_summary"
+				query="select 
+					ppipe.stable_key as pipeline_stable_key, ppipe.name as pipeline_name, ppipe.stable_id as pipeline_stable_id, 
+					pproc.stable_key as procedure_stable_key, pproc.name as procedure_name, pproc.stable_id as procedure_stable_id, 
+					pparam.stable_key as parameter_stable_key, pparam.name as parameter_name, pparam.stable_id as parameter_stable_id, 
+					strain.name as strain_name, allele.symbol as allele_symbol, gf.acc as gene_acc, gf.symbol as gene_symbol, 
+					pcs.external_id, pcs.gf_acc, pcs.procedure_id, pcs.parameter_id, pcs.pipeline_id, pcs.allele_acc, pcs.strain_acc, pcs.sex, pcs.zygosity 
+					from phenotype_call_summary pcs
+					LEFT OUTER JOIN genomic_feature gf ON gf.acc=pcs.gf_acc
+					LEFT OUTER JOIN allele ON allele.acc=pcs.allele_acc
+					LEFT OUTER JOIN strain ON strain.acc=pcs.strain_acc
+					INNER JOIN phenotype_pipeline ppipe ON ppipe.id=pcs.pipeline_id
+					INNER JOIN phenotype_procedure pproc ON pproc.id=pcs.procedure_id
+					INNER JOIN phenotype_parameter pparam ON pparam.id=pcs.parameter_id
+					where pcs.mp_acc='${mp_term_infos.term_id}' 
+					and pcs.gf_db_id=3 
+					and pcs.gf_acc like 'MGI:%' 
+					and pcs.allele_acc is not null 
+					and pcs.strain_acc is not null">
+				<field column="external_id" name="external_id" />
+				<field column="sex" name="sex" />
+				<field column="zygosity" name="zygosity" />
+				<field column="allele_acc" name="allele_id" />
+				<field column="strain_acc" name="strain_id" />
+
+				<field column="gene_symbol" name="marker_symbol" />
+				<field column="gene_acc" name="mgi_accession_id" />
+
+				<field column="allele_symbol" name="allele_symbol" />
+
+				<field column="strain_name" name="strain_name" />
+
+				<field column="pipeline_stable_id" name="pipeline_stable_id" />
+				<field column="pipeline_name" name="pipeline_name" />
+				<field column="pipeline_stable_key" name="pipeline_stable_key" />
+
+				<field column="procedure_name" name="procedure_name" />
+				<field column="procedure_stable_id" name="procedure_stable_id" />
+				<field column="procedure_stable_key" name="procedure_stable_key" />
+
+				<field column="parameter_name" name="parameter_name" />
+				<field column="parameter_stable_id" name="parameter_stable_id" />
+				<field column="parameter_stable_key" name="parameter_stable_key" />
+			</entity>
+
 						
 		</entity>
 	</document>
