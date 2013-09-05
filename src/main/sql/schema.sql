@@ -811,6 +811,7 @@ CREATE TABLE phenotype_procedure_parameter (
 
 
 -- because of IMPReSS we have a different length for stable_id
+-- description for parameter is TEXT
 
 CREATE TABLE phenotype_parameter (
 
@@ -818,7 +819,7 @@ CREATE TABLE phenotype_parameter (
     stable_id                 VARCHAR(30) NOT NULL,
     db_id                     INT(10) NOT NULL,
     name                      VARCHAR(200) NOT NULL,
-    description               VARCHAR(200),
+    description               TEXT,
     major_version             INT(10) NOT NULL DEFAULT 1,
     minor_version             INT(10) NOT NULL DEFAULT 0,
     unit                      VARCHAR(20) NOT NULL,

@@ -405,63 +405,7 @@ public class GenesController {
 		model.addAttribute("phenotypes", new ArrayList<PhenotypeRow>(phenotypes.keySet()));
 	}
 	
-	/**
-	 * keeping old version for user testing?
-	 * @param acc
-	 * @param showHeatmap
-	 * @param model
-	 * @param request
-	 * @param attributes
-	 * @return
-	 * @throws KeyManagementException
-	 * @throws NoSuchAlgorithmException
-	 * @throws URISyntaxException
-	 * @throws GenomicFeatureNotFoundException
-	 * @throws IOException 
-	 */
-	@RequestMapping("/genes2/{acc}")
-	public String genes2(
-			@PathVariable String acc,
-			@RequestParam(value="heatmap", required=false, defaultValue="false") Boolean showHeatmap,
-			Model model,
-			HttpServletRequest request,
-			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
-
-			processGeneRequest(acc, model, request);
-
-		return "genes2";
-	}
-	
-	/**
-	 * keeping old version for user testing?
-	 * @param acc
-	 * @param showHeatmap
-	 * @param model
-	 * @param request
-	 * @param attributes
-	 * @return
-	 * @throws KeyManagementException
-	 * @throws NoSuchAlgorithmException
-	 * @throws URISyntaxException
-	 * @throws GenomicFeatureNotFoundException
-	 * @throws IOException 
-	 */
-	@RequestMapping("/genes3/{acc}")
-	public String genes3(
-			@PathVariable String acc,
-			@RequestParam(value="heatmap", required=false, defaultValue="false") Boolean showHeatmap,
-			Model model,
-			HttpServletRequest request,
-			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
-
-			processGeneRequest(acc, model, request);
-
-		return "genes3";
-	}
-
-
-
-	private Map<String, List<Map<String, String>>> getProviders(
+        private Map<String, List<Map<String, String>>> getProviders(
 			List<Map<String, String>> constructs) throws org.json.JSONException {
 		
 		Map<String, List<Map<String, String>>> nameToProvider=new HashMap<String,List< Map<String, String>>>(); 
