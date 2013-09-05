@@ -37,6 +37,6 @@
     <core name="ma" instanceDir="ma" />
     <core name="pipeline" instanceDir="pipeline" />
     <core name="genotype-phenotype" instanceDir="genotype-phenotype" />
-    <core name="experiment" instanceDir="experiment" />-->
+    <core name="experiment" instanceDir="experiment" />
   </cores>
 </solr>
