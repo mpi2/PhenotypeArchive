@@ -243,13 +243,17 @@
 	<c:if test="${phenotypeStarted}">
 	<div class="row-fluid dataset">
 		<div class="row-fluid container clearfix" style="float:none;">
-			<h4 class="caption">Preliminary phenotype heatmap -
+			<h4 class="caption">Pre-QC phenotype heatmap -
 				<c:forEach items="${allColonyStatus}" var="colonyStatus">
 						<c:if test="${colonyStatus.phenotypeStarted == 1}">
 							${colonyStatus.alleleName}<%-- </td><td>${colonyStatus.backgroundStrain}</td><td>${colonyStatus.phenotypeCenter}</td></tr> --%>
 						</c:if>
 				</c:forEach>	
 			</h4>
+			<div class="alert alert-block">
+			<h4>Caution!</h4>
+			This is the results of a preliminary statistical analysis. Data are still in the process of being quality controlled and results may change.
+			</div>
 		</div>
 		<div class="row-fluid">
        		<div class="phenodcc-heatmap" id="phenodcc-heatmap"></div>
