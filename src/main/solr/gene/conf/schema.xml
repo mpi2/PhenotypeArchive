@@ -112,7 +112,8 @@
   <copyField source="marker_symbol" dest="auto_suggest"/> 
   <copyField source="marker_name" dest="auto_suggest"/> 
   <copyField source="marker_synonym" dest="auto_suggest"/>
-
+  <copyField source="human_gene_symbol" dest="auto_suggest"/>
+  
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
  <solrQueryParser defaultOperator="OR"/>
 
