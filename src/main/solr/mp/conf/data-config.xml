@@ -2,7 +2,8 @@
 
 	<dataSource name="ds1" jndiName="java:comp/env/jdbc/komp2DataSource" />
 	<dataSource name="ds2" jndiName="java:comp/env/jdbc/ontodbDataSource" />
-    
+ 
+
 
 	<document name="komp2_indexing">
 		<!-- test MP:0000180 for multipe node_id being linked to this term -->
@@ -48,7 +49,7 @@
 					query="select top_level_node_id from mp_node_top_level where node_id=${mp_node2term.node_id}">
 					<entity dataSource="ds2" name="mp_node2term"
 						query="select term_id from mp_node2term where node_id=${mp_node_top_level.top_level_node_id}">
-						<entity dataSource="ds2" name="mp_term_infos"
+						<entity dataSource="ds2" name="mp_term_infos2"
 							query="select term_id, name, definition from mp_term_infos where term_id='${mp_node2term.term_id}' and term_id != 'MP:0000001'">
 
 							<!-- do not want to include the root term -->
@@ -73,7 +74,7 @@
 							<!-- only index child term that has mp annotation -->
 							<entity dataSource="ds1" onError="continue" name="phenotype_call_summary"
 								query="select count(*) from phenotype_call_summary where mp_acc='${mp_node2term.term_id}'">
-								<entity dataSource="ds2" name="mp_term_infos"
+								<entity dataSource="ds2" name="mp_term_infos3"
 									query="select term_id, name, definition from mp_term_infos where term_id='${mp_node2term.term_id}'">
 									<field column="term_id" name="child_mp_id" />
 									<field column="name" name="child_mp_term" />
@@ -97,6 +98,7 @@
 				<field column="external_id" name="external_id" />
 				<field column="sex" name="sex" />
 				<field column="zygosity" name="zygosity" />
+
 				<entity dataSource="ds1" name="genomic_feature"
 					query="select acc, symbol from genomic_feature where acc='${phenotype_call_summary.gf_acc}'">
 					<field column="symbol" name="marker_symbol" />
@@ -141,8 +143,10 @@
 					<field column="stable_id" name="parameter_stable_id" />
 					<field column="stable_key" name="parameter_stable_key" />
 				</entity>
+
 			</entity>
 		</entity>
 	</document>
 
 </dataConfig>
+

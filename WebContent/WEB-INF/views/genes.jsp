@@ -290,7 +290,9 @@
 				</select> 
 				</c:forEach>
 				<!-- <input type="text" id="myInputTextField"> -->
+				<c:if test="${not empty phenoFacet}">
 				<input type="submit" class='btn primary' value="Filter" />
+				</c:if>
 				</form>
 				<jsp:include page="PhenoFrag.jsp"></jsp:include>
 				<div id="exportIconsDiv"></div>

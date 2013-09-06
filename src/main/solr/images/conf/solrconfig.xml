@@ -19,7 +19,7 @@
 <!--
  This is a stripped down config file used for a simple example...  
  It is *not* a good example to work from. 
--->
+--> 
 <config>
   <luceneMatchVersion>4.4</luceneMatchVersion>
   <!--  The DirectoryFactory to use for indexes.
@@ -27,7 +27,7 @@
         solr.RAMDirectoryFactory is memory based, not persistent, and doesn't work with replication. -->
   <directoryFactory name="DirectoryFactory" class="${solr.directoryFactory:solr.StandardDirectoryFactory}"/>
 
-  <dataDir>${solr.core0.data.dir:}</dataDir>
+  <!--<dataDir>${solr.core0.data.dir:}</dataDir>-->
 
   <!-- To enable dynamic schema REST APIs, use the following for <schemaFactory>:
   
@@ -51,12 +51,12 @@
   -->
   <schemaFactory class="ClassicIndexSchemaFactory"/>
 
-  <updateHandler class="solr.DirectUpdateHandler2">
+ <!-- <updateHandler class="solr.DirectUpdateHandler2">
     <updateLog>
       <str name="dir">${solr.core0.data.dir:}</str>
     </updateLog>
   </updateHandler>
-
+-->
   <!-- realtime get handler, guaranteed to return the latest stored fields 
     of any document, without the need to commit or open a new searcher. The current 
     implementation relies on the updateLog feature being enabled. -->

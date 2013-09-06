@@ -78,6 +78,7 @@
     <field name="marker_name" type="text_general" indexed="true" stored="true" required="false" />    
     <field name="marker_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="marker_type" type="string" indexed="true" stored="true" multiValued="false" />  
+    <field name="human_gene_symbol" type="string" indexed="true" stored="true" required="false" multiValued="false" />  
     <field name="imits_report_phenotyping_complete_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
     <field name="imits_report_genotype_confirmed_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
     <field name="imits_report_mi_plan_status" type="string" indexed="true" stored="true" required="false" multiValued="true" />
@@ -111,7 +112,9 @@
   <copyField source="marker_symbol" dest="auto_suggest"/> 
   <copyField source="marker_name" dest="auto_suggest"/> 
   <copyField source="marker_synonym" dest="auto_suggest"/>
-
+  <copyField source="human_gene_symbol" dest="auto_suggest"/>
+  
+  
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
  <solrQueryParser defaultOperator="OR"/>
 

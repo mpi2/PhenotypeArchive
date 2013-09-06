@@ -70,24 +70,7 @@
 		<!-- multidimensional -->
 		<field name="orderIndex"     type="int"      indexed="true"  stored="true"  multiValued="false" /> 
 		<field name="dimension"      type="string"   indexed="true"  stored="true"  multiValued="false" /> 
-	 <field name="ma_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="ma_term" type="string" indexed="true" stored="true" required="true" multiValued="false" />	   
-  	<field name="ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="ma_2_mp_mapping" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="symbol_gene" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="child_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="child_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />							
-    <field name="image_id" type="int" indexed="true" stored="true" required="false" multiValued="true" />
-
-  	<field name="top_level_ma_id" type="string" indexed="false" stored="true" required="false" multiValued="true" />
-    <field name="top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />   
-
-	<field name="top_level_ma_id_part_of" type="string" indexed="false" stored="true" required="false" multiValued="true" />
-    <field name="top_level_ma_term_part_of" type="string" indexed="true" stored="true" required="false" multiValued="true" /> 
-
-   
-   	
+	   	
 		<!-- time series -->
 		<field name="timePoint"      type="string"   indexed="true"  stored="true"  multiValued="false" /> 
 		<field name="discretePoint"  type="float"    indexed="true"  stored="true"  multiValued="false" /> 

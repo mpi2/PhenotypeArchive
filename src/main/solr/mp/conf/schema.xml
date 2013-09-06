@@ -89,10 +89,18 @@
 
   </types>
 
+<!--earcher Searcher@2edd7aed main{StandardDirectoryReader(segments_2:1372769438017 _0(3.6.3):C954)}
+55968 [http-bio-8090-exec-1] INFO  org.apache.solr.handler.dataimport.config.DIHConfiguration  – The field :child_mp_id present in DataConfig does not have a counterpart in Solr Schema
+55972 [http-bio-8090-exec-1] INFO  org.apache.solr.handler.dataimport.config.DIHConfiguration  – The field :child_mp_definition present in DataConfig does not have a counterpart in Solr Schema
+55972 [http-bio-8090-exec-1] INFO  org.apache.solr.handler.dataimport.config.DIHConfiguration  – The field :child_mp_term present in DataConfig does not have a counterpart in Solr Schema-->
+
   <fields>  
     <field name="_version_" type="long" indexed="true" stored="true"/> 
     <field name="mp_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="mp_term" type="string" indexed="true" stored="true" required="true" multiValued="false" />	
+    <field name="mp_term" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+    <field name="child_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="child_mp_definition" type="string" indexed="true" stored="true" required="false" multiValued="false" />	
+    <field name="child_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />		
     <field name="mp_definition" type="string" indexed="false" stored="true" required="false" multiValued="false" />	
     <field name="mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
