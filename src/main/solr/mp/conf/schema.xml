@@ -98,9 +98,9 @@
     <field name="_version_" type="long" indexed="true" stored="true"/> 
     <field name="mp_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="mp_term" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="child_mp_term" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="child_mp_definition" type="string" indexed="true" stored="true" required="true" multiValued="false" />	
-    <field name="child_mp_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />		
+    <field name="child_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="child_mp_definition" type="string" indexed="true" stored="true" required="false" multiValued="false" />	
+    <field name="child_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />		
     <field name="mp_definition" type="string" indexed="false" stored="true" required="false" multiValued="false" />	
     <field name="mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
