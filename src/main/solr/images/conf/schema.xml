@@ -115,7 +115,7 @@
 	<field name="originalFileName" type="string"   indexed="false"  stored="true"/>
 	<field name="smallThumbnailFilePath" type="string"   indexed="true"  stored="true"/>
 	<field name="higherLevelMaTermId"  type="string"   indexed="true"  stored="true"  multiValued="true" />
-	<field name="ageInWeeks"  type="int"   indexed="true"  stored="true"  multiValued="false" />
+	<field name="ageInWeeks"  type="string"   indexed="true"  stored="true"  multiValued="false" />
 	<field name="higherLevelMaTermName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="higherLevelMpTermId"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="higherLevelMpTermName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
