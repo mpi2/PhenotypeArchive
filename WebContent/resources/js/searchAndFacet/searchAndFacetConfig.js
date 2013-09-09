@@ -32,8 +32,7 @@ var config = MPI2.searchAndFacetConfig;
 
 // on drupal side this is not available
 if ( typeof solrUrl == 'undefined' ){
-	solrUrl = '/data/solr';
-	solrUrl = 'http://localhost:8983/solr'
+	solrUrl = '/data/solr';	
 }
 
 if ( typeof baseUrl == 'undefined' ){
