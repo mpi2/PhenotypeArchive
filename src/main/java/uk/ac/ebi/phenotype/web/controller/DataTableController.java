@@ -536,7 +536,7 @@ public class DataTableController {
 		//String markerSymbolLink = "<a href='" + geneUrl + "' target='_blank'>" + markerSymbol + "</a>";
 		String markerSymbolLink = "<a href='" + geneUrl + "'>" + markerSymbol + "</a>";
 				
-		String[] fields = {"marker_synonym","marker_name"};			
+		String[] fields = {"marker_synonym","marker_name", "human_gene_symbol"};			
 		for( int i=0; i<fields.length; i++){		
 			try {				
 				//"highlighting":{"MGI:97489":{"marker_symbol":["<em>Pax</em>5"],"synonym":["<em>Pax</em>-5"]},
@@ -545,6 +545,9 @@ public class DataTableController {
 				List<String> info = new ArrayList<String>();
 				
 				if ( field.equals("marker_name") ){
+					info.add(doc.getString(field));
+				}
+				else if ( field.equals("human_gene_symbol") ){
 					info.add(doc.getString(field));
 				}
 				else if ( doc.getJSONArray(field).size() > 0) {					
@@ -557,8 +560,10 @@ public class DataTableController {
 							info.add(d.toString());
 						}
 					}					
-				}				
-				geneInfo.add("<span class='gNameSyn'>" + field.replace("marker_", " ") + "</span>: " + StringUtils.join(info, ", "));
+				}
+				
+				field = field == "human_gene_symbol" ? "human symbol" : field.replace("marker_", " ");
+				geneInfo.add("<span class='gNameSyn'>" + field + "</span>: " + StringUtils.join(info, ", "));
 			} 
 			catch (Exception e) {		   		
 			    //e.printStackTrace();

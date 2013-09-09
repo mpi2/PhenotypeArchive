@@ -33,6 +33,7 @@ var config = MPI2.searchAndFacetConfig;
 // on drupal side this is not available
 if ( typeof solrUrl == 'undefined' ){
 	solrUrl = '/data/solr';
+	solrUrl = 'http://localhost:8983/solr'
 }
 
 if ( typeof baseUrl == 'undefined' ){
@@ -94,11 +95,11 @@ config.facetParams = {
 		tableCols: 3, 	
 		tableHeader: "<thead><th>Gene</th><th>Mouse Production Status</th><th>Phenotyping Status</th><th>Register for Updates</th></thead>",
 		fq: undefined,
-		qf: "marker_symbol^100.0 marker_name^10.0 allele^10 marker_synonym mgi_accession_id auto_suggest",
+		qf: "marker_symbol^100.0 human_gene_symbol^90.0 marker_name^10.0 allele^10 marker_synonym mgi_accession_id auto_suggest",
 		gridName: 'geneGrid',
-		gridFields: 'marker_symbol,marker_synonym,marker_name,status', 
+		gridFields: 'marker_symbol,marker_synonym,marker_name,status,human_gene_symbol', 
 		filterParams: {fq:'marker_type:* -marker_type:"heritable phenotypic marker"',		 
-			      qf:"marker_symbol^100.0 marker_name^10.0 marker_synonym mgi_accession_id auto_suggest",			     
+			      qf:"marker_symbol^100.0 human_gene_symbol^90.0 marker_name^10.0 marker_synonym mgi_accession_id auto_suggest",			     
 			      bq:'marker_type:"protein coding gene"^100'},
 		srchParams: $.extend({},				
 				 	commonSolrParams,	 	
