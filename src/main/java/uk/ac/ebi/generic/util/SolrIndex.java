@@ -126,7 +126,7 @@ public class SolrIndex {
 			String gridSolrParams, String gridFields, int start, int length)
 			throws IOException, URISyntaxException {
 
-		if (core.equals("gene")) {
+		if (core.equals("gene")) {			
 			gridFields += ",imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,ikmc_project,imits_phenotype_started,imits_phenotype_complete,imits_phenotype_status";
 		}
 
@@ -601,7 +601,7 @@ public class SolrIndex {
 		JSONObject jsonObject = getResults(url);
 		int numberFound = Integer.parseInt(jsonObject.getJSONObject("response")
 				.getString("numFound"));
-		System.out.println(numberFound);
+		
 		JSONArray docs = jsonObject.getJSONObject("response").getJSONArray(
 				"docs");
 
