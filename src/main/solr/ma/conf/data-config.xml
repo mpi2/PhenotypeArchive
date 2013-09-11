@@ -7,10 +7,9 @@
 		<!-- test MP:0000180 for multipe node_id being linked to this term -->
 		<!-- IMPC pipeline -->							
         <!-- MA term has no definition -->
-		<!-- selected MA top levels: 'MA:0000009','MA:0000020','MA:0002450','MA:0000010', 'MA:0002506','MA:0002431','MA:0000012','MA:0002411','MA:0000007','MA:0002711','MA:0000014','MA:0002418','MA:0000016','MA:0000325','MA:0000326','MA:0000327','MA:0000004' -->
+		<!-- selected MA top levels is from komp2.higher_level_annotation table -->
         <entity dataSource="ontodb" name="ma_term_infos" query="select term_id, name from ma_term_infos where term_id != 'MA:0000001'" >			
-        <!--<entity dataSource="ontodb" name="ma_term_infos" query="select term_id, name from ma_term_infos where term_id in ('MA:0000009','MA:0000020','MA:0002450','MA:0000010', 'MA:0002506','MA:0002431','MA:0000012','MA:0002411','MA:0000007','MA:0002711','MA:0000014','MA:0002418','MA:0000016','MA:0000325','MA:0000326','MA:0000327','MA:0000004')" >-->
-			<field column="term_id" name="ma_id" />
+       		<field column="term_id" name="ma_id" />
             <field column="name" name="ma_term" /> 
 
             <!-- subset of this MA term: parsed from obo file -->
@@ -27,12 +26,10 @@
             <!-- MA to MP mapping based on MP to MA bridg file prepared by Terry with MP slim -->
             <entity dataSource="ontodb" name="mp_mappings" query="select term_id from mp_mappings where mapped_term_id = '${ma_term_infos.term_id}'" >	 
                 <field column="term_id" name="ma_2_mp_id" /> 
-		<entity dataSource="ontodb" name="mp_mappings2" query="select name from mp_term_infos where term_id = '${mp_mappings.term_id}'">
-			<field column="name" name="ma_2_mp_name" />
-		</entity>
-
+				<entity dataSource="ontodb" name="mp_mappings2" query="select name from mp_term_infos where term_id = '${mp_mappings.term_id}'">
+					<field column="name" name="ma_2_mp_name" />
+				</entity>
             </entity>
-
  			
             <entity dataSource="ontodb" name="ma_node2term"
             	query="select node_id from ma_node2term where term_id='${ma_term_infos.term_id}'">
