@@ -22,13 +22,14 @@
   persistent: Save changes made via the API to this file
   sharedLib: path to a lib directory that will be shared across all cores
 -->
-<solr persistent="false" sharedLib="../commonLibs">
+<solr>
 
+  <str name="sharedLib">../commonLibs</str>
   <!--
   adminPath: RequestHandler path to manage cores. 
     If 'null' (or absent), cores will not be manageable via request handler
   -->
-  <cores adminPath="/admin/cores" >
+<!--   <cores adminPath="/admin/cores" >
     <core name="human2mouse_symbol" instanceDir="human2mouse_symbol" />
     <core name="allele" instanceDir="allele" />
     <core name="gene" instanceDir="gene" />
@@ -39,4 +40,5 @@
     <core name="genotype-phenotype" instanceDir="genotype-phenotype" />
     <core name="experiment" instanceDir="experiment" />
   </cores>
-</solr>
+ -->
+ </solr>
