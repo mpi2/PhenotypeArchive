@@ -9,7 +9,7 @@
 
 	<jsp:attribute name="footer">
 
-	<c:if test="${phenotypeStarted && !isLive}">
+	<c:if test="${phenotypeStarted}">
 	<script type="text/javascript" src="${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js"></script>
 	<!--[if IE 8]>
         <script type="text/javascript">
