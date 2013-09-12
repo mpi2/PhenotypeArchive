@@ -58,13 +58,14 @@ $(document).ready(function(){
 	$('button#acSearch').click(function(){
 		
 		var input = $('input#userInput').val();
-		console.log('button search ' + input);
+		console.log('button search in search and facet= ' + input);
 		if (input == ''){
     		document.location.href = baseUrl + '/search';
     	}
     	else {
-    		//document.location.href = baseUrl + '/search#q=' + input;
-    		window.location.hash = 'q=' + input;	
+    		document.location.href = baseUrl + '/search#q=' + input;
+    		//window.location.hash = 'q=' + input;	
+    		
     	}		
 	});		
 
