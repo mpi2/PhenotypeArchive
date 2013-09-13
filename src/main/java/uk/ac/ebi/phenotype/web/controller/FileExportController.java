@@ -423,7 +423,7 @@ public class FileExportController {
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");		
 				
 		List<String> rowData = new ArrayList<String>();
-		rowData.add("Marker symbol\tHuman symbo\tMaker name\tSynonym\tMouse production status\tPhenotyping status"); // column names		
+		rowData.add("Marker symbol\tHuman ortholog\tMaker name\tSynonym\tMouse production status\tPhenotyping status"); // column names		
 		
 		for (int i=0; i<docs.size(); i++) {			
 			List<String> data = new ArrayList<String>();

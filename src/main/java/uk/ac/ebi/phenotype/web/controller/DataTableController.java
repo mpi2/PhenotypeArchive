@@ -562,7 +562,7 @@ public class DataTableController {
 					}					
 				}
 				
-				field = field == "human_gene_symbol" ? "human symbol" : field.replace("marker_", " ");
+				field = field == "human_gene_symbol" ? "human ortholog" : field.replace("marker_", " ");
 				geneInfo.add("<span class='gNameSyn'>" + field + "</span>: " + StringUtils.join(info, ", "));
 			} 
 			catch (Exception e) {		   		
