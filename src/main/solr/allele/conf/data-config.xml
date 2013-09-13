@@ -8,7 +8,7 @@
                 processor="XPathEntityProcessor" forEach="/response/result/doc/"
                   readTimeout="10000" connectionTimeout="10000"  >                      
                        
-                        <field column="id" xpath="/response/result/doc/int[@name='id']" />
+                      <field column="id" xpath="/response/result/doc/int[@name='id']" />
                         <field column="type" xpath="/response/result/doc/str[@name='type']" />
                         <field column="product_type" xpath="/response/result/doc/str[@name='product_type']" />                   
                         <field column="mgi_accession_id" xpath="/response/result/doc/str[@name='mgi_accession_id']" />
@@ -19,8 +19,12 @@
                         <field column="genbank_file_url" xpath="/response/result/doc/str[@name='genbank_file_url']" />
                         <field column="order_from_url" xpath="/response/result/doc/str[@name='order_from_url']" />
                         <field column="order_from_name" xpath="/response/result/doc/str[@name='order_from_name']" />
+                        <field column="order_from_urls" xpath="/response/result/doc/arr[@name='order_from_urls']" />
+                        <field column="order_from_names" xpath="/response/result/doc/arr[@name='order_from_names']" />
                         <field column="allele_id" xpath="/response/result/doc/int[@name='allele_id']" />
-                   
+                        <field column="best_status_pa_cre_ex_not_required" xpath="/response/result/doc/str[@name='best_status_pa_cre_ex_not_required']" />
+                        <field column="best_status_pa_cre_ex_required" xpath="/response/result/doc/str[@name='best_status_pa_cre_ex_required']" />
+                        <field column="current_pa_status" xpath="/response/result/doc/str[@name='current_pa_status']" />
                 </entity>
         </document>       
 </dataConfig>
