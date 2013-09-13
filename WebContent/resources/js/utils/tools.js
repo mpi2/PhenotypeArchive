@@ -271,7 +271,7 @@
     		topLevelName = obj.attr('rel'); 
     		var topLevelNameOri = topLevelName;
     		
-    		$('tablehashParamStr#gFacet td').removeClass('highlight');
+    		$('table#gFacet td').removeClass('highlight');
     		
     		obj.parent().siblings('td.geneSubfacet').addClass('highlight');
 			facetCount = obj.parent().siblings('td.geneSubfacet').attr('rel');
