@@ -15,11 +15,59 @@ Getting Started
 ---------------
 You need a Java 1.7 VM or later installed and a servlet container.
 
+================== Release 0.2.5 ==================
+
+Status
+------
+13 September 2013 release.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  Anatomy facet based on MA ontology
+ 2.  Anatomy page prototype
+ 3.  Headline image from Sanger MGP on top of phenotype page
+ 4.  RESTful interface to serve experimental data (legacy data from EuroPhenome)
+ 5.  Anatomy search with sensory category (eye, ear, etc.)
+ 6.  Search by human orthologs (but not paralogs)
+ 
+Other Changes
+ 1.  Reduce font size of captions under images
+ 2.  Fix highlighted links in Gene facet when clicking on each subfacet in turn
+ 3.  Change text for preliminary data (pre_QC data)
+ 4.  Links on phenotype page from MGI MA ontology terms to anatomical terms
+ 5.  Fix error redirection when clicking on graph link from phenotype page
+ 6.  Fix links from page to image gallery, phenotypes
+ 
+================== Release 0.2.4 ==================
+
+Status
+------
+30 August 2013 release.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  Anatomy facet based on MA ontology
+ 2.  Anatomy page prototype
+ 
+ Known bugs
+ 1.  All links on gene facet are highlighted
+ 2.  Clicking on graph link from phenotype page redirect to error page
+ 
 ================== Release 0.2.3 ==================
 
 Status
 ------
 19 August 2013 release.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  Use canvas version of Dalliance genome browser
 
 ================== Release 0.2.2 ==================
 
