@@ -13,7 +13,7 @@
     <!-- url="ftp://ftp.informatics.jax.org/pub/reports/HMD_HumanPhenotype.rpt" -->
 	<!-- URLDataSource does not supporting proxy for now -->
 		
-   	<dataSource name="mgi_symbol_mapping" encoding="UTF-8" type="URLDataSource"/>
+   	<dataSource name="mgi_symbol_mapping" encoding="UTF-8" type="FileDataSource"/>
 
     <document name="docs">
     	<entity name="symbol_mapping"
