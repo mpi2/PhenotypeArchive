@@ -11,3 +11,5 @@ target/
 *.war
 *.ear
 
+/.settings
+/.classpath
