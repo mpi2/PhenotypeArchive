@@ -1,7 +1,7 @@
 <dataConfig>
 
 	<dataSource name="ontodb" jndiName="java:comp/env/jdbc/ontodbDataSource" />
-	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_ci/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 
 	<document name="komp2_indexing">	
 		<!-- test MP:0000180 for multipe node_id being linked to this term -->
