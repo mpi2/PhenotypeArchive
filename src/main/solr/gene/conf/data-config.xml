@@ -1,13 +1,16 @@
 <dataConfig>
 	
     <script type='text/javascript'><![CDATA[
-		function fetch_human_symbol(row)    {            	
-        	if ( row.get('human_gene_symbol') ){               
-        		row.put('human_gene_symbol', row.get('human_gene_symbol').toString().replace("[","").replace("]",""));  
-        	} 
-        	return row; 
-        }
-    	]]>
+		function fetch_human_symbol(row) {            	
+        			
+			if ( row.get('mouse2human_symbol') ){				
+				aList = row.get('mouse2human_symbol').toString().split('___');			
+				row.put('human_gene_symbol', aList[1]);  						
+		    	}              
+			
+           		return row; 
+       	 	}
+    		]]>
     </script>
 
 	<!-- This pulls out only the essential fields from the Sanger gene core that are needed for the EBI gene core to support autosuggest on the IMPC search page -->
@@ -29,11 +32,15 @@
 
 			<!-- mouse to human gene symbol mapping: multiple human name can be mapped to one mouse symbol -->
 			<entity dataSource="human2mouse_symbol_core" name="symbol_mapping" stream="true" 
-				url="q=${doc.marker_symbol}&amp;fl=human_gene_symbol"				
+				url="q=${doc.marker_symbol}*&amp;wt=normal&amp;fl=mouse2human_symbol"				
 				processor="XPathEntityProcessor" forEach="/response/result/doc/"
-                transformer="script:fetch_human_symbol" readTimeout="10000" connectionTimeout="10000"  >			 
+                transformer="script:fetch_human_symbol" readTimeout="10000" connectionTimeout="10000"  >				 
 
-				<field column="human_gene_symbol" xpath="/response/result/doc/str[@name='human_gene_symbol']" /> 				                  
+				<!--  add this field so that we have a key/value pair for script transformer 
+				      to work on row.get('mouse2human_symbol') -->
+				<field column="mouse2human_symbol" xpath="/response/result/doc/str[@name='mouse2human_symbol']" />
+				<field column="human_gene_symbol" name="human_gene_symbol" />
+ 				                 
 			</entity> 				
                  
             <field column="imits_report_phenotyping_complete_date" xpath="/response/result/doc/arr[@name='imits_report_phenotyping_complete_date']/str" />
