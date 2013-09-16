@@ -1,54 +1,33 @@
-<dataConfig>    
-        
-        <dataSource name="mgi_symbol_mapping" encoding="UTF-8" type="FileDataSource"/>
 
-        <document name="docs">
-
-                <entity name="symbol_mapping"
-                        dataSource="mgi_symbol_mapping"
-                        processor="LineEntityProcessor"                                                                 
-                        url="/nfs/web-hx/webadmin/tomcat/bases/mouseinformatics/solr_home_phenotypes_test/datafiles/HMD_HumanPhenotype.rpt"
-                        transformer="RegexTransformer"                  
-                        >
-
-                        <field column="rawLine"
-                                regex="^(.*)\t.*\t(.*)\t.*\t.*\t.*{0,}$"
-                                groupNames="col1,col2"
-                        />
-
-                        <field column="human_gene_symbol" splitBy="\t" sourceColName="col1"/>
-                        <field column="mouse_gene_symbol" splitBy="\t" sourceColName="col2"/>
-                </entity>
-
-        </document>   
-    
-</dataConfig>
-
-<!--
-This is better, but not working due to URLDataSource not supporting proxy for now
 <dataConfig>
-     	<dataSource name="mgi_symbol_mapping" encoding="UTF-8" type="URLDataSource"/>
+	<script type='text/javascript'><![CDATA[ 
+	function concat_symbols(row) {
+            var rawLine = row.get("rawLine")
+	    aList = rawLine.toString().split("\t");
+	    row.put('mouse2human_symbol', aList[3] + '___' + aList[0]);  
+           
+            return row;
+        }	
+    ]]></script>
+    
+    <!-- url="ftp://ftp.informatics.jax.org/pub/reports/HMD_HumanPhenotype.rpt" -->
+	<!-- URLDataSource does not supporting proxy for now -->
+		
+   	<dataSource name="mgi_symbol_mapping" encoding="UTF-8" type="URLDataSource"/>
 
-        <document name="docs">
-
-                <entity name="symbol_mapping"
+    <document name="docs">
+    	<entity name="symbol_mapping"
 			dataSource="mgi_symbol_mapping"
 			processor="LineEntityProcessor"			
-			url="ftp://ftp.informatics.jax.org/pub/reports/HMD_HumanPhenotype.rpt"			
-			transformer="RegexTransformer" 			
+			url="/nfs/web-hx/webadmin/tomcat/bases/mouseinformatics/solr_home_phenotypes_test/datafiles/HMD_HumanPhenotype.rpt"                       	
+			transformer="script:concat_symbols"				
 			>
+  			
+			<field column="mouse2human_symbol" name="mouse2human_symbol"/>
 
-			<field column="rawLine"
-                 		regex="^(.*)\t.*\t(.*)\t.*\t.*\t.*{0,}$"
-                	 	groupNames="col1,col2"
-          		/>
-
-  			<field column="human_gene_symbol" splitBy="\t" sourceColName="col1"/>
-			<field column="mouse_gene_symbol" splitBy="\t" sourceColName="col2"/>
 		</entity>
 
-        </document>   
+	</document>   
     
 </dataConfig>
 
--->
