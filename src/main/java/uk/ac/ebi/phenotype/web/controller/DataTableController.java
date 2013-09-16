@@ -547,8 +547,11 @@ public class DataTableController {
 				if ( field.equals("marker_name") ){
 					info.add(doc.getString(field));
 				}
-				else if ( field.equals("human_gene_symbol") ){
-					info.add(doc.getString(field));
+				else if ( field.equals("human_gene_symbol") ){					
+					JSONArray data = doc.getJSONArray(field);					
+					for( Object h : data ){							
+						info.add(h.toString());
+					}							
 				}
 				else if ( doc.getJSONArray(field).size() > 0) {					
 					JSONArray data = doc.getJSONArray(field);

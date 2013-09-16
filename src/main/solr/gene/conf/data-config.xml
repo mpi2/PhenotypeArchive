@@ -1,41 +1,50 @@
 <dataConfig>
-    
+	
+    <script type='text/javascript'><![CDATA[
+		function fetch_human_symbol(row)    {            	
+        	if ( row.get('human_gene_symbol') ){               
+        		row.put('human_gene_symbol', row.get('human_gene_symbol').toString().replace("[","").replace("]",""));  
+        	} 
+        	return row; 
+        }
+    	]]>
+    </script>
 
-        <!-- This pulls out only the essential fields from the Sanger gene core that are needed for the EBI gene core to support autosuggest on the IMPC search page -->
-        <!-- The gene status is calculated on the fly using DataimportHandler script transformer -->
-        <dataSource name="sanger" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+	<!-- This pulls out only the essential fields from the Sanger gene core that are needed for the EBI gene core to support autosuggest on the IMPC search page -->
+    <!-- The gene status is calculated on the fly using DataimportHandler script transformer -->
+    <dataSource name="sanger" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 
 	<dataSource name="human2mouse_symbol_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/human2mouse_symbol/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 
-        <document name="docs">
-                <entity dataSource="sanger" name="doc" stream="true" url="search?q=*&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status,imits_phenotype_is_active&amp;rows=50000&amp;wt=normal"
+	<document name="docs">
+    	<entity dataSource="sanger" name="doc" stream="true" url="search?q=*&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status,imits_phenotype_is_active&amp;rows=50000&amp;wt=normal"
                 processor="XPathEntityProcessor" forEach="/response/result/doc/"
                 readTimeout="10000" connectionTimeout="10000"  >
                       
-                        <field column="mgi_accession_id" xpath="/response/result/doc/str[@name='MGI']" />
-                        <field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />
-                        <field column="marker_name" xpath="/response/result/doc/arr[@name='marker_name']/str" />
-                        <field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
-                        <field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />     
+	        <field column="mgi_accession_id" xpath="/response/result/doc/str[@name='MGI']" />
+	        <field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />
+	        <field column="marker_name" xpath="/response/result/doc/arr[@name='marker_name']/str" />
+	        <field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
+	        <field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />     
 
-			<!-- mouse to human gene symbol mapping -->
+			<!-- mouse to human gene symbol mapping: multiple human name can be mapped to one mouse symbol -->
 			<entity dataSource="human2mouse_symbol_core" name="symbol_mapping" stream="true" 
-				url="q=${doc.marker_symbol}&amp;qf=mouse_gene_symbol&amp;defType=edismax&amp;wt=normal"
+				url="q=${doc.marker_symbol}&amp;fl=human_gene_symbol&amp;debug=on"				
 				processor="XPathEntityProcessor" forEach="/response/result/doc/"
-				readTimeout="10000" connectionTimeout="10000"  onError="continue"  >  
+                transformer="script:fetch_human_symbol" readTimeout="10000" connectionTimeout="10000"  >			 
 
-				<field column="human_gene_symbol" xpath="/response/result/doc/str[@name='human_gene_symbol']" />                                 
+				<field column="human_gene_symbol" xpath="/response/result/doc/str[@name='human_gene_symbol']" /> 				                  
 			</entity> 				
                  
-                        <field column="imits_report_phenotyping_complete_date" xpath="/response/result/doc/arr[@name='imits_report_phenotyping_complete_date']/str" />
-                        <field column="imits_report_genotype_confirmed_date" xpath="/response/result/doc/arr[@name='imits_report_genotype_confirmed_date']/str" />
-                        <field column="imits_report_mi_plan_status" xpath="/response/result/doc/arr[@name='imits_report_mi_plan_status']/str" />
-                        <field column="escell" xpath="/response/result/doc/arr[@name='escell']/str" />
-                        <field column="ikmc_project" splitBy="," xpath="/response/result/doc/arr[@name='ikmc_project']/str" />  
-                        <field column="imits_consortium" xpath="/response/result/doc/str[@name='imits_consortium']" />                                   
-                        <field column="status" xpath="/response/result/doc/str[@name='latest_project_status']" />
-                        <field column="imits_phenotype_started" xpath="/response/result/doc/arr[@name='imits_phenotype_started']/str" />
-                        
+            <field column="imits_report_phenotyping_complete_date" xpath="/response/result/doc/arr[@name='imits_report_phenotyping_complete_date']/str" />
+            <field column="imits_report_genotype_confirmed_date" xpath="/response/result/doc/arr[@name='imits_report_genotype_confirmed_date']/str" />
+            <field column="imits_report_mi_plan_status" xpath="/response/result/doc/arr[@name='imits_report_mi_plan_status']/str" />
+            <field column="escell" xpath="/response/result/doc/arr[@name='escell']/str" />
+            <field column="ikmc_project" splitBy="," xpath="/response/result/doc/arr[@name='ikmc_project']/str" />  
+            <field column="imits_consortium" xpath="/response/result/doc/str[@name='imits_consortium']" />                                   
+            <field column="status" xpath="/response/result/doc/str[@name='latest_project_status']" />
+            <field column="imits_phenotype_started" xpath="/response/result/doc/arr[@name='imits_phenotype_started']/str" />
+            
 			<field column="imits_phenotype_complete" xpath="/response/result/doc/arr[@name='imits_phenotype_complete']/str" />
 			<field column="colony_prefix" xpath="/response/result/doc/arr[@name='colony_prefix']/str" />
 			<field column="imits_phenotype_colony_name" xpath="/response/result/doc/arr[@name='imits_phenotype_colony_name']/str" />
@@ -43,7 +52,8 @@
 			<field column="imits_phenotype_status" xpath="/response/result/doc/arr[@name='imits_phenotype_status']/str" />
 			<field column="imits_phenotype_is_active" xpath="/response/result/doc/arr[@name='imits_phenotype_is_active']/str" />
 			
-                </entity>
-        </document>       
+		</entity>
+		
+	</document>       
 </dataConfig>
 

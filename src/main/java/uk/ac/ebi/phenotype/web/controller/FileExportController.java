@@ -432,7 +432,12 @@ public class FileExportController {
 			data.add(doc.getString("marker_symbol"));
 			
 			if(doc.has("human_gene_symbol")) {				
-				data.add(doc.getString("human_gene_symbol"));
+				List<String> hsynData = new ArrayList<String>();
+				JSONArray hs = doc.getJSONArray("human_gene_symbol");
+				for(int s=0; s<hs.size();s++) {					
+					hsynData.add(hs.getString(s));
+				}
+				data.add(StringUtils.join(hsynData, "|")); // use | as a multiValue separator in CSV output
 			}
 			else {
 				data.add("NA");				
