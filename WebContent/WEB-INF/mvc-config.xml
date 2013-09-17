@@ -24,7 +24,8 @@
 	<mvc:resources mapping="/css/**" location="/resources/css/" />
 	<mvc:resources mapping="/js/**" location="/resources/js/" />
 	<mvc:resources mapping="/img/**" location="/resources/img/" />
-
+    <mvc:resources mapping="/documentation/**" location="/resources/documentation/" />
+    
 	<context:component-scan base-package="uk.ac.ebi.phenotype.web.controller" />
 
 	<!-- <mvc:annotation-driven/> use this if you don't need extra converters -->
