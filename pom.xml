@@ -686,6 +686,7 @@
 							<cssFinalFile>style.css</cssFinalFile>
 							<jsSourceDir>js</jsSourceDir>
 							<jsSourceFiles>
+								<jsSourceFile>documentationConfig.js'></jsSourceFile>
 								<jsSourceFile>searchAndFacet/searchAndFacetConfig.js</jsSourceFile>
 								<jsSourceFile>vendor/DataTables-1.9.4/jquery.dataTables.js</jsSourceFile>
 								<jsSourceFile>vendor/DataTables-1.9.4/core.filter.js</jsSourceFile>
