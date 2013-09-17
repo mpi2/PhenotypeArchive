@@ -141,6 +141,7 @@ try {
 <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js'></script>
 <script>window.jQuery || document.write('<script src="${baseUrl}/js/vendor/jquery-1.7.2.min.js"><\/script><script src="${baseUrl}/js/vendor/jquery-ui-1.8.18.min.js"><\/script><link type="text/css" rel="stylesheet" href="${baseUrl}/css/vendor/jquery-ui-1.8.18.css" />');</script>
 
+
 <jsp:invoke fragment="header" />
 
 
@@ -245,6 +246,7 @@ try {
 	<script type="text/javascript" src='${baseUrl}/js/script.min.js' ></script>
 	<script type='text/javascript' src='${baseUrl}/js/vendor/respond.min.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/vendor/jquery.corner.mini.js'></script>
+	<script type='text/javascript' src='${baseUrl}/js/vendor/jquery.qtip-1.0.0-rc3.min.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist-1.4-min.js'></script>
 	
 	<compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">
