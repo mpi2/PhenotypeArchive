@@ -23,9 +23,12 @@
     <jsp:body>
 
 	<div class='topic'>Phenotype: ${phenotype.name}</div>
-
+				  
 	<div class="row-fluid dataset">
-		<div class="row-fluid">
+		<div class='documentation'><a href='' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>		    
+		<div class="row-fluid">	
+				<div class="container span12">
+						<div class="row-fluid">
 			<div class="container span6">
 			<table class="table table-striped">
 				<tbody>
@@ -102,13 +105,14 @@
 			</div>
 		</div>
 	</div>
-
-
+	</div>
+</div>
 	
 <div class="row-fluid dataset">
-	<div class="row-fluid">
-		<div class="container span12">
-			<h4 class="caption">Gene variants with this phenotype</h4>
+    <div class='documentation'><a href='' class='relatedMpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
+    <h4 class="caption">Gene variants with this phenotype</h4>
+	<div class="row-fluid">	    	
+		<div class="container span12">			
 			<div class="row-fluid" id="phenotypesDiv">	
 				<div class="container span12">
 				<c:forEach var="filterParameters" items="${paramValues.fq}">
@@ -132,6 +136,7 @@
 				<script>
 					$(document).ready(function(){						
 						
+						$.fn.qTip('mp');	// bubble popup for brief panel documentation	
 						
 						//var oDataTable = $('table#phenotypes').dataTable();
 						//oDataTable.fnDestroy();//clean up the previous datatable from the calling page
@@ -194,16 +199,6 @@
 		    	    		$("<form action='"+ url + "' method=get>" + sInputs + "</form>").appendTo('body').submit().remove();    		
 		    	    	}).corner('6px');	 
 		    	    }  
-		    		
-		    		
-				
-						
-						
-						
-						
-						
-						
-						
 					
 			    		//stuff for dropdown tick boxes here
 			    		$("#resource_fullname").dropdownchecklist( { firstItemChecksAll: true, emptyText: "Projects: All", icon: {}, minWidth: 150 } );
@@ -300,8 +295,12 @@
 
 
 	<c:if test="${not empty siblings or not empty go}">
-	<div class="row-fluid dataset">	
-		<h4 class="caption">Explore</h4>
+	
+	<div class="row-fluid dataset">
+	    <div class='documentation'><a href='' class='relatedMpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
+	    <h4 class="caption">Explore</h4>
+		<div class="row-fluid">
+			<div class="container span12">		
 		<div class="container">
 			<table class="table table-striped">
 				<tbody>
@@ -333,10 +332,13 @@
 			</table>
 		</div>
 	</div>
+	</div>
+	</div>
 	</c:if>
 	
 	<c:if test="${not empty images && fn:length(images) !=0}">
 	<div class="row-fluid dataset">
+		<div class='documentation'><a href='' class='imagePanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
 		<h4 class="caption">Images</h4>
 			<div class="row-fluid">
 			<div class="container span12">

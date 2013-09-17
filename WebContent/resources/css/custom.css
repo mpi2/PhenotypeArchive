@@ -3,6 +3,11 @@ Add custom css overrides here
   This file gets included as the last CSS import, so anything defined here 
   should override behavior defined previously
 */
+
+div.documentation a {
+	float: right;
+	margin-right: 15px;	
+}
 #examplesearches {
 	color:white;
 	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
