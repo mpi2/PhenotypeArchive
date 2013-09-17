@@ -72,10 +72,8 @@
   </types>
 
   <fields>  
-    <field name="_version_" type="long" indexed="true" stored="true"/>             
-    <field name="human_gene_symbol" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="mouse_gene_symbol" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-
+    <field name="_version_" type="long" indexed="true" stored="true"/>                 
+    <field name="mouse2human_symbol" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
     <field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
  </fields>
@@ -83,7 +81,7 @@
  <!-- Field to use to determine and enforce document uniqueness. 
       Unless this field is marked with required="false", it will be a required field
    -->
- <uniqueKey>human_gene_symbol</uniqueKey>
+ <uniqueKey>mouse2human_symbol</uniqueKey>
 
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
  <defaultSearchField>text</defaultSearchField>
@@ -94,4 +92,3 @@
  <solrQueryParser defaultOperator="OR"/>
 
 </schema>
-
