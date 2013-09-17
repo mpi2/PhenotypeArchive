@@ -94,7 +94,8 @@ public interface ObservationDAO extends HibernateDAO {
 	public Observation getObservationById(Integer obsId);
 
 	public List<Organisation> getAllOrganisationsWithObservations();
-	
+	public List<Integer> getAllOrganisationIdsWithObservations() throws SQLException;
+
 	public List<String> getAllStrainsByParameterOrganistion(Parameter parameter, Organisation organisation) throws SQLException;
 	public List<String> getAllStrainsByParameterIdOrganistion(Integer parameterId, Organisation organisation) throws SQLException;
 

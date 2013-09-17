@@ -59,6 +59,26 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 	}
 
 	@Transactional(readOnly = true)
+	public List<Integer> getAllOrganisationIdsWithObservations() throws SQLException {
+	    List<Integer> ids = new ArrayList<Integer>();
+
+		String query = "SELECT DISTINCT o.id"
+				+ " FROM organisation o"
+				+ " INNER JOIN biological_sample bs ON bs.organisation_id=o.id"
+				+ " INNER JOIN observation ob ON ob.biological_sample_id=bs.id";
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)){
+		    ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				
+				ids.add(resultSet.getInt("id"));
+			}
+		}
+
+		return ids; 			
+	}
+
+	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<Organisation> getAllOrganisationsWithObservations() {
 		return getCurrentSession().createQuery("select distinct org from Observation as o inner join o.sample as s inner join s.organisation org").list();
