@@ -77,7 +77,7 @@
 <c:forEach var="categoricalResultAndCharts" items="${allCategoricalResultAndCharts}" varStatus="maleAndFemaleLoop">
 	<div class="row-fluid dataset">
 	<c:if test="${fn:length(categoricalResultAndCharts.maleAndFemale)==0}">
-	No data for this zygosity and gender for this parameter and gene
+	No Categorical data for this zygosity and gender for this parameter and gene
 	</c:if>
 	<c:if test="${fn:length(categoricalResultAndCharts.maleAndFemale)>0}">
  		<div class="row-fluid">
@@ -195,7 +195,7 @@
  <c:forEach var="unidimensionalData" items="${allUnidimensionalChartsAndTables}" varStatus="unidimensionalDataLoop">
  <div class="row-fluid dataset"> 
  <c:if test="${fn:length(unidimensionalData.statsObjects)==0}">
-		No data for this zygosity and gender for this parameter and gene
+		No unidimensional data for this zygosity and gender for this parameter and gene
 		</c:if>
 		<c:if test="${fn:length(unidimensionalData.statsObjects)>0}">
 		 <div class="row-fluid">

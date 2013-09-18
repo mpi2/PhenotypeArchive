@@ -15,6 +15,8 @@
  */
 package uk.ac.ebi.phenotype.web.controller;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +24,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import net.sf.json.JSONArray;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -38,6 +42,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.dao.BiologicalModelDAO;
 import uk.ac.ebi.phenotype.dao.CategoricalStatisticsDAO;
 import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
@@ -55,6 +60,7 @@ import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ChartType;
+import uk.ac.ebi.phenotype.stats.JSONGraphUtils;
 import uk.ac.ebi.phenotype.stats.PipelineProcedureData;
 import uk.ac.ebi.phenotype.stats.PipelineProcedureTablesCreator;
 import uk.ac.ebi.phenotype.stats.TableObject;
@@ -116,7 +122,7 @@ public class StatsController implements BeanFactoryAware {
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
 			@RequestParam(required = false, value = "model") String[] biologicalModelsParam,
 			@PathVariable String acc, Model model)
-			throws GenomicFeatureNotFoundException {
+			throws GenomicFeatureNotFoundException, IOException, URISyntaxException {
 
 		boolean statsError=false;
 		// Get the global application configuration
@@ -128,6 +134,9 @@ public class StatsController implements BeanFactoryAware {
 			throw new GenomicFeatureNotFoundException("Gene " + acc
 					+ " can't be found.", acc);
 		}
+		
+		
+			 
 		//
 		log.info(gene.toString());
 		model.addAttribute("gene", gene);
@@ -173,6 +182,15 @@ public class StatsController implements BeanFactoryAware {
 		
 			
 		for (String parameterId : paramIds) {
+			 ObservationType observationTypeForParam=null;
+			//make a solr request for each param?
+			 //get all the experimental data for this param and gene
+			 net.sf.json.JSONObject expResult=JSONGraphUtils.getExperimentalData(parameterId, acc, config);
+			 JSONArray resultsArray=JSONRestUtil.getDocArray(expResult);
+			 for(int i=0; i<resultsArray.size(); i++){
+				 net.sf.json.JSONObject exp=resultsArray.getJSONObject(i);
+				 observationTypeForParam=ObservationType.valueOf(exp.getString("observationType"));
+			 }
 			
 			Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion(parameterId, 1, 0);
 			String[] parameterUnits=parameter.checkParameterUnits();
@@ -185,7 +203,7 @@ public class StatsController implements BeanFactoryAware {
 			if(parameterUnits.length>1){
 				yUnits=parameterUnits[1];
 			}
-			ObservationType observationTypeForParam=Utilities.checkType(parameter);
+			//ObservationType observationTypeForParam=Utilities.checkType(parameter);
 			log.info("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
 			
 			//ESLIM_003_001_003 id=962 calorimetry data for time series graph new MGI:1926153
@@ -200,8 +218,8 @@ public class StatsController implements BeanFactoryAware {
 			
 			if(observationTypeForParam.equals(ObservationType.unidimensional)){
 				//http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
-				
-					UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doContinuousData(unidimensionalMutantBiologicalModels, parameter, acc , model, genderList, zyList, ChartType.UnidimensionalBoxPlot);
+				log.info("calling chart creation for unidimensional data");
+					UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(bmDAO, config, expResult, unidimensionalMutantBiologicalModels, parameter, acc , model, genderList, zyList, ChartType.UnidimensionalBoxPlot);
 				allUnidimensionalChartsAndTables.add(unidimensionalChartNTables);
 			}
 			if(observationTypeForParam.equals(ObservationType.categorical)){
@@ -236,7 +254,7 @@ public class StatsController implements BeanFactoryAware {
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
 			@RequestParam(required = false, value = "model") String[] biologicalModelsParam,
 			@PathVariable String acc, Model model)
-			throws GenomicFeatureNotFoundException {
+			throws GenomicFeatureNotFoundException, IOException, URISyntaxException {
 
 		boolean statsError=false;
 		// Get the global application configuration
@@ -261,7 +279,13 @@ public class StatsController implements BeanFactoryAware {
 		List<BiologicalModel> unidimensionalMutantBiologicalModels=new ArrayList<BiologicalModel>();
 		
 		for (String parameterId : paramIds) {
-			
+			ObservationType observationTypeForParam=null;
+			 net.sf.json.JSONObject expResult=JSONGraphUtils.getExperimentalData(parameterId, acc, config);
+			 JSONArray resultsArray=JSONRestUtil.getDocArray(expResult);
+			 for(int i=0; i<resultsArray.size(); i++){
+				 net.sf.json.JSONObject exp=resultsArray.getJSONObject(i);
+				 observationTypeForParam = ObservationType.valueOf(exp.getString("observationType"));
+			 }
 			Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion(parameterId, 1, 0);
 			String[] parameterUnits=parameter.checkParameterUnits();
 			String xUnits="";
@@ -273,7 +297,7 @@ public class StatsController implements BeanFactoryAware {
 			if(parameterUnits.length>1){
 				yUnits=parameterUnits[1];
 			}
-			ObservationType observationTypeForParam=Utilities.checkType(parameter);
+			
 			log.info("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
 			
 			//ESLIM_003_001_003 id=962 calorimetry data for time series graph new MGI:1926153
@@ -283,7 +307,7 @@ public class StatsController implements BeanFactoryAware {
 			if(observationTypeForParam.equals(ObservationType.unidimensional)){
 				//http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
 				
-					UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doContinuousData(unidimensionalMutantBiologicalModels, parameter, acc , model, genderList, zyList, ChartType.UnidimensionalScatter);
+				UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(bmDAO, config, expResult, unidimensionalMutantBiologicalModels, parameter, acc , model, genderList, zyList, ChartType.UnidimensionalScatter);
 				allUnidimensionalChartsAndTables.add(unidimensionalChartNTables);
 			}
 			
@@ -307,6 +331,9 @@ public class StatsController implements BeanFactoryAware {
 	 * @param model
 	 * @return
 	 * @throws GenomicFeatureNotFoundException
+	 * @throws URISyntaxException 
+	 * @throws IOException 
+	 * @throws SQLException 
 	 */
 	@RequestMapping("/stats/statslinks")
 	public String statsLinksView(
@@ -315,8 +342,9 @@ public class StatsController implements BeanFactoryAware {
 			@RequestParam(required = false, value = "observationType") String observationType,
 			 @RequestParam(required = false, /*defaultValue = "ESLIM_001_001_007",*/ value = "parameterId") String[] parameterIds,
 			 Model model)
-			throws GenomicFeatureNotFoundException {
+			throws GenomicFeatureNotFoundException, IOException, URISyntaxException, SQLException {
 		System.out.println("calling stats links");
+		//equivalent url from solr service http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment/select?q=observationType:unidimensional&wt=json&indent=true&start=0&rows=10
 		ObservationType oType=null;
 		for(ObservationType type: ObservationType.values()){
 			System.out.println(type.name());
@@ -326,7 +354,9 @@ public class StatsController implements BeanFactoryAware {
 		}
 		System.out.println("calling observation type="+oType);
 		List<String> paramIds = getParamsAsList(parameterIds);
-		getLinksForStats(start, length, model, oType, paramIds);
+	
+			getLinksForStats(start, length, model, oType, paramIds);
+		
 		
 		return "statsLinksList";
 	}
@@ -337,49 +367,75 @@ public class StatsController implements BeanFactoryAware {
 	 * @param length
 	 * @param model
 	 * @param type
+	 * @throws URISyntaxException 
+	 * @throws IOException 
+	 * @throws SQLException 
 	 */
-	private void getLinksForStats(Integer start, Integer length, Model model, ObservationType type, List<String>parameterIds) {
+	private void getLinksForStats(Integer start, Integer length, Model model, ObservationType type, List<String>parameterIds) throws IOException, URISyntaxException, SQLException {
 		if(start==null)start=0;
 		if(length==null)length=100;
-		
-		try {
-			System.out.println(start+" end="+length);
-			List<Map<String, String>> list=null;
-			if(type==ObservationType.time_series){
-			  list = timeSeriesStatisticsDAO.getListOfUniqueParametersAndGenes(start, length);
-			}
-			if(type==ObservationType.unidimensional){
-				if(parameterIds.size()>0){
-					for(String paramId: parameterIds){
-						List<Map<String, String>>tempList=unidimensionalStatisticsDAO.getListOfUniqueParametersAndGenes(start, length, paramId);
-						list.addAll(tempList);
+		@SuppressWarnings("unchecked")
+//		Map<String, String> config = (Map<String, String>) bf
+//				.getBean("globalConfiguration");
+//		String url=config.get("internalSolrUrl")+"/experiment/select?q=observationType:"+type+"&wt=json&indent=true&start="+start+"&rows="+length;
+//		net.sf.json.JSONObject result = JSONRestUtil.getResults(url);
+//		System.out.println(result.toString());
+//		JSONArray resultsArray=JSONRestUtil.getDocArray(result);
+//	
+//			System.out.println(start+" end="+length);
+//			 List<Map<String, String>> listWithStableId=new ArrayList<Map<String, String>>();
+//			 for(int i=0; i<resultsArray.size(); i++){
+//				 Map<String,String> map=new HashMap<String,String>();
+//				net.sf.json.JSONObject exp=resultsArray.getJSONObject(i);
+//				String statbleParamId=exp.getString("parameterStableId");
+//				int internalParamId=exp.getInt("parameterId");
+//				String accession=exp.getString("geneAccession");
+//				 System.out.println(accession+" parameter="+statbleParamId);
+//				// Parameter parameter=pipelineDAO.getParameterById(Integer.valueOf(parameterId));
+//				 map.put("paramStableId", statbleParamId);
+//				 map.put("accession",accession);
+//				 listWithStableId.add(map);
+//			 }
+			 
+				List<Map<String, String>> list=null;
+				if(type==ObservationType.time_series){
+				  list = timeSeriesStatisticsDAO.getListOfUniqueParametersAndGenes(start, length);
+				}
+				if(type==ObservationType.unidimensional){
+					if(parameterIds.size()>0){
+						for(String paramId: parameterIds){
+							List<Map<String, String>>tempList=unidimensionalStatisticsDAO.getListOfUniqueParametersAndGenes(start, length, paramId);
+							list.addAll(tempList);
+						}
 					}
-				}
-				  list = unidimensionalStatisticsDAO.getListOfUniqueParametersAndGenes(start, length);
-				}
-			if(type==ObservationType.categorical){
-				  list = categoricalStatsDao.getListOfUniqueParametersAndGenes(start, length);
-				}
-			 List<Map<String, String>> listWithStableId=new ArrayList<Map<String, String>>();
-			 for(Map<String, String> row :list){
-				 Map<String,String> map=new HashMap<String,String>();
-				String parameterId=row.get("parameter_id");
-				String accession=row.get("accession");
-				 System.out.println(accession+" parameter="+parameterId);
-				 Parameter parameter=pipelineDAO.getParameterById(Integer.valueOf(parameterId));
-				 map.put("paramStableId",parameter.getStableId());
-				 map.put("accession",accession);
-				 listWithStableId.add(map);
-			 }
+					  list = unidimensionalStatisticsDAO.getListOfUniqueParametersAndGenes(start, length);
+					}
+				if(type==ObservationType.categorical){
+					  list = categoricalStatsDao.getListOfUniqueParametersAndGenes(start, length);
+					}
+				
+				 List<Map<String, String>> listWithStableId=new ArrayList<Map<String, String>>();
+				 for(Map<String, String> row :list){
+					 Map<String,String> map=new HashMap<String,String>();
+					String parameterId=row.get("parameter_id");
+					String accession=row.get("accession");
+					 System.out.println(accession+" parameter="+parameterId);
+					 Parameter parameter=pipelineDAO.getParameterById(Integer.valueOf(parameterId));
+					 map.put("paramStableId",parameter.getStableId());
+					 map.put("accession",accession);
+					 listWithStableId.add(map);
+				 }
+
 			 
 			 model.addAttribute("statsLinks", listWithStableId);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 	}
 
-	
+	/**
+	 * Convenience method that just changes an array [] to a more modern LIst (I hate arrays! :) )
+	 * @param parameterIds
+	 * @return
+	 */
 	private List<String> getParamsAsList(String[] parameterIds) {
 		List<String> paramIds = null;
 		if (parameterIds == null) {
