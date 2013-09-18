@@ -24,7 +24,7 @@ public class JSONGraphUtils {
 	 * @throws URISyntaxException
 	 */
 	public static net.sf.json.JSONObject getExperimentalData(String parameterId, String accession, Map<String, String> config) throws IOException, URISyntaxException{
-	 String url=config.get("internalSolrUrl")+"/experiment/select?q=parameterStableId:"+parameterId+" AND (geneAccession:\""+accession+"\" AND biologicalSampleGroup:experimental)&wt=json&indent=true&rows=1000000&facet=on&facet.field=organisation&facet.field=strain&facet.field=biologicalModelId&facet.field=gender&facet.field=zygosity";
+	 String url=config.get("internalSolrUrl")+"/experiment/select?q=parameterStableId:"+parameterId+" AND (geneAccession:\""+accession+"\" AND biologicalSampleGroup:experimental)&wt=json&indent=true&rows=1000000&facet=on&facet.field=organisation&facet.field=strain&facet.field=biologicalModelId&facet.field=gender&facet.field=zygosity&facet.field=category";
 	System.out.println("experimental data url="+url);	
 	 net.sf.json.JSONObject result = JSONRestUtil.getResults(url);
 		return result;

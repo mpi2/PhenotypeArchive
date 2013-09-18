@@ -247,11 +247,12 @@ BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(biologicalModelI
 							 for(int i=0; i<controlDocs.size();i++) {
 								 net.sf.json.JSONObject ctrlDoc = controlDocs.getJSONObject(i);
 								 //get the attributes of this data point
-								 SexType docSexType=SexType.valueOf(ctrlDoc.getString("gender"));
+								 //We don't want to split controls by gender on Unidimensional data
+								// SexType docSexType=SexType.valueOf(ctrlDoc.getString("gender"));
 								// ZygosityType zygosityType=ZygosityType.valueOf(ctrlDoc.getString("zygosity"));
 								String docStrain= ctrlDoc.getString("strain");
 								 Long dataPoint=ctrlDoc.getLong("dataPoint");
-								 if(docSexType.equals(sexType) && docStrain.equals(strain)){
+								 if(docStrain.equals(strain)){
 								controlCounts.add(new Float(dataPoint));
 								controlMouseDataPoints.add(new MouseDataPoint("Need MouseIds from Solr",new Float(dataPoint)));
 								System.out.println("adding control point="+dataPoint);
@@ -282,22 +283,12 @@ BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(biologicalModelI
 									 ZygosityType zygosityType=ZygosityType.valueOf(doc.getString("zygosity"));
 									String docStrain= doc.getString("strain");
 									 Long dataPoint=doc.getLong("dataPoint");
-									 if(zygosityType.equals(zType) && docSexType.equals(sexType) && docStrain.equals(strain)){
-									mutantCounts.add(new Float(dataPoint));
-									System.out.println("adding mutant point="+dataPoint);
-									mutantMouseDataPoints.add(new MouseDataPoint("uknown", new Float(dataPoint)));
-									 }
-									 
-									
-									
-									mouseDataPointsSet.add(mutantMouseDataPoints);
-//										for (MouseDataPoint mPoint : mutantMouseDataPoints) {
-//											mutantCounts.add(mPoint.getDataPoint());
-//										}
-										
-									 
-									 
-									 
+									 		if(zygosityType.equals(zType) && docSexType.equals(sexType) && docStrain.equals(strain)){
+									 			mutantCounts.add(new Float(dataPoint));
+									 			System.out.println("adding mutant point="+dataPoint);
+									 			mutantMouseDataPoints.add(new MouseDataPoint("uknown", new Float(dataPoint)));
+									 		}
+									 		mouseDataPointsSet.add(mutantMouseDataPoints);
 									 }
 									 observations2DList.add(mutantCounts);
 									 //List<Float> mutantCounts =

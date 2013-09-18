@@ -295,7 +295,7 @@
 				</select> 
 				</c:forEach>
 				<!-- <input type="text" id="myInputTextField"> -->
-				<c:if test="${not empty phenoFacet}">
+				<c:if test="${not empty phenoFacets}">
 				<input type="submit" class='btn primary' value="Filter" />
 				</c:if>
 				</form>

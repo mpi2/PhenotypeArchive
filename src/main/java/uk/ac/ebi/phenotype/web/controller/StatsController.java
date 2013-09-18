@@ -116,7 +116,7 @@ public class StatsController implements BeanFactoryAware {
 	}
 
 	@RequestMapping("/stats/genes/{acc}")
-	public String genesStats(
+	public String generateProcedureView(
 			@RequestParam(required = false, /*defaultValue = "ESLIM_001_001_007",*/ value = "parameterId") String[] parameterIds,
 			@RequestParam(required = false, value = "gender") String[] gender,
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
@@ -146,19 +146,9 @@ public class StatsController implements BeanFactoryAware {
 		List<String> zyList=getParamsAsList(zygosity);
 		List<String> biologicalModelsParams=getParamsAsList(biologicalModelsParam);
 		
+		//if no parameter Ids or gender or zygosity or bm specified then create a procedure view by default 
 		if(paramIds.isEmpty() && genderList.isEmpty() && zyList.isEmpty() && biologicalModelsParams.isEmpty()){
-			log.info("Gene Accession without any web params");
-			//a method here to get a general page for Gene and all procedures associated
-			List<PhenotypeCallSummary> allPhenotypeSummariesForGene = phenotypeCallSummaryDAO.getPhenotypeCallByAccession(acc);
-			//a method here to get a general page for Gene and all procedures associated
-			List<Pipeline> pipelines = pipelineDAO.getAllPhenotypePipelines();
-			PipelineProcedureTablesCreator creator=new PipelineProcedureTablesCreator();
-			List<PipelineProcedureData> dataForTables=creator.createArraysForTables(pipelines, allPhenotypeSummariesForGene, gene);
-//			for(PipelineProcedureData dataForATable: dataForTables){
-//				dataForATable.getTableData();
-//			}
-			model.addAttribute("pipelineProcedureData", dataForTables);
-			//model.addAttribute("allPipelines", pipelines);//limit pipelines to two for testing
+			generateProcedureView(acc, model, gene);
 			return "procedures";
 		}
 		
@@ -225,7 +215,7 @@ public class StatsController implements BeanFactoryAware {
 			if(observationTypeForParam.equals(ObservationType.categorical)){
 				//https://dev.mousephenotype.org/mi/impc/dev/phenotype-archive/stats/genes/MGI:1346872?parameterId=ESLIM_001_001_004
 			
-					CategoricalResultAndCharts categoricalResultAndCharts=categoricalChartAndTableProvider.doCategoricalData(categoricalMutantBiologicalModels,  parameter, acc, model, genderList, zyList,
+					CategoricalResultAndCharts categoricalResultAndCharts=categoricalChartAndTableProvider.doCategoricalData(bmDAO, config, expResult, categoricalMutantBiologicalModels,  parameter, acc, model, genderList, zyList,
 					biologicalModelsParams, charts, categoricalTables, 
 					parameterId);
 					allCategoricalResultAndCharts.add(categoricalResultAndCharts);
@@ -245,6 +235,22 @@ public class StatsController implements BeanFactoryAware {
 		model.addAttribute("allCategoricalResultAndCharts", allCategoricalResultAndCharts);
 		model.addAttribute("statsError", statsError );
 		return "stats";
+	}
+
+	private void generateProcedureView(String acc, Model model,
+			GenomicFeature gene) {
+		log.info("Gene Accession without any web params");
+		//a method here to get a general page for Gene and all procedures associated
+		List<PhenotypeCallSummary> allPhenotypeSummariesForGene = phenotypeCallSummaryDAO.getPhenotypeCallByAccession(acc);
+		//a method here to get a general page for Gene and all procedures associated
+		List<Pipeline> pipelines = pipelineDAO.getAllPhenotypePipelines();
+		PipelineProcedureTablesCreator creator=new PipelineProcedureTablesCreator();
+		List<PipelineProcedureData> dataForTables=creator.createArraysForTables(pipelines, allPhenotypeSummariesForGene, gene);
+//			for(PipelineProcedureData dataForATable: dataForTables){
+//				dataForATable.getTableData();
+//			}
+		model.addAttribute("pipelineProcedureData", dataForTables);
+		//model.addAttribute("allPipelines", pipelines);//limit pipelines to two for testing
 	}
 	
 	@RequestMapping("/stats/scatter/genes/{acc}")

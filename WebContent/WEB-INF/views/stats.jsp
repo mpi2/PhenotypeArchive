@@ -248,7 +248,15 @@
 												<td>${statsObject.zygosity}</td>
 												</c:when>
 												</c:choose>
+												<c:choose>
+												<c:when test="${statsObject.line =='Control' }">
+												<td>Mixed</td>
+												</c:when>
+												<c:when test="${statsObject.line !='Control' }">
 												<td>${statsObject.sexType}</td>
+												</c:when>
+												</c:choose>
+												
 												<td>${statsObject.mean}</td>
 												<td>${statsObject.sd}</td>
 												<td>${statsObject.sampleSize}</td>
