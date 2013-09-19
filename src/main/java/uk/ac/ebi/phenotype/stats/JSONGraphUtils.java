@@ -27,6 +27,7 @@ public class JSONGraphUtils {
 	 String url=config.get("internalSolrUrl")+"/experiment/select?q=parameterStableId:"+parameterId+" AND (geneAccession:\""+accession+"\" AND biologicalSampleGroup:experimental)&wt=json&indent=true&rows=1000000&facet=on&facet.field=organisation&facet.field=strain&facet.field=biologicalModelId&facet.field=gender&facet.field=zygosity&facet.field=category";
 	System.out.println("experimental data url="+url);	
 	 net.sf.json.JSONObject result = JSONRestUtil.getResults(url);
+	 System.out.println("got json result");
 		return result;
 	}
 	
@@ -62,6 +63,7 @@ public class JSONGraphUtils {
 		String url=config.get("internalSolrUrl")+"/experiment/select?q=parameterStableId:"+parameterId+" AND strain:\""+strain+"\" AND organisation:\""+organisation+"\" AND biologicalSampleGroup:control&wt=json&indent=true&rows=10000&facet=on&facet.field=strain&facet.field=biologicalModelId";
 		System.out.println("ControlData url="+url);
 		net.sf.json.JSONObject result = JSONRestUtil.getResults(url);
+		System.out.println("got control json result");
 //		net.sf.json.JSONObject facetCounts = result.getJSONObject("facet_counts");
 //		net.sf.json.JSONObject facetFields = facetCounts.getJSONObject("facet_fields");
 		//System.out.println("facetFields in getDataForOrganisations="+facetFields);

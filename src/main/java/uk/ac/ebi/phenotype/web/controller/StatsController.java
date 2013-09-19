@@ -177,8 +177,8 @@ public class StatsController implements BeanFactoryAware {
 			 //get all the experimental data for this param and gene
 			 net.sf.json.JSONObject expResult=JSONGraphUtils.getExperimentalData(parameterId, acc, config);
 			 JSONArray resultsArray=JSONRestUtil.getDocArray(expResult);
-			 for(int i=0; i<resultsArray.size(); i++){
-				 net.sf.json.JSONObject exp=resultsArray.getJSONObject(i);
+			 if(resultsArray.size()>0) {
+				 net.sf.json.JSONObject exp=resultsArray.getJSONObject(0);
 				 observationTypeForParam=ObservationType.valueOf(exp.getString("observationType"));
 			 }
 			
@@ -202,7 +202,7 @@ public class StatsController implements BeanFactoryAware {
 			
 			if(observationTypeForParam.equals(ObservationType.time_series)){
 				//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
-				List<ChartData> timeSeriesForParam=timeSeriesChartAndTableProvider.doTimeSeriesData(timeSeriesMutantBiologicalModels, parameter, acc , model, genderList, zyList, timeSeriesChartsAndTables.size()+1, biologicalModelsParams);
+				List<ChartData> timeSeriesForParam=timeSeriesChartAndTableProvider.doTimeSeriesData(bmDAO, config, expResult, timeSeriesMutantBiologicalModels, parameter, acc , model, genderList, zyList, timeSeriesChartsAndTables.size()+1, biologicalModelsParams);
 				timeSeriesChartsAndTables.addAll(timeSeriesForParam);
 			}
 			
