@@ -1,3 +1,5 @@
+#ignore any files beginning with a .
+.*
 #ignore the target dir
 target/
 *.appConfig.properties

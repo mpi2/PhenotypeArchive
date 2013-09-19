@@ -194,14 +194,12 @@ public class CategoricalChartAndTableProvider {
 						if(genderList.isEmpty()||genderList.contains(sexType.name())){
 							
 							List<CategoricalResult> statsResults=categoricalStatsDao.getCategoricalResultByParameter(parameter, expBiologicalModel.getId(), sexType);
-							
+							System.out.println("statsResults size="+statsResults.size()+ "statsResults="+statsResults);
 							categoricalResults.addAll(statsResults);
 							//categoricalResultAndCharts.setStatsResults(statsResults);
 							CategoricalChartDataObject chartData=new CategoricalChartDataObject();//make a new chart object for each sex
 							chartData.setSexType(sexType);
 							List<String> xAxisCategories = this.getXAxisCategories(zygosities, zyList);
-							List<List<Long>> seriesDataForCategoricalType = new ArrayList<List<Long>>();
-				
 							//do control first as requires no zygocity
 							CategoricalSet controlSet=new CategoricalSet();
 							controlSet.setName("Control");
@@ -260,26 +258,21 @@ public class CategoricalChartAndTableProvider {
 													 }
 								
 										CategoricalDataObject expCatData=new CategoricalDataObject();
-										
-										
-										
-										
-										
 										expCatData.setName(zType.name());
 										expCatData.setCategory(category);
 										expCatData.setCount(mutantCount);
 										//logger.warn("getting pvalue for sex="+sexType+"  zyg="+ zType+" param="+ parameter+" category="+ category+"popId="+ popId);
-										List<Double> pValue = categoricalStatsDao.getpValueByParameterAndMutantBiologicalModelAndSexAndZygosity(parameter, expBiologicalModel, sexType, zType);
-										List<Double> maxEffect=categoricalStatsDao.getMaxEffectSizeByParameterAndMutantBiologicalModelAndSexAndZygosity(parameter, expBiologicalModel,  sexType, zType);
-										System.out.println("pValue="+pValue);
-										System.out.println("maxEffect");
-										if(pValue.size()>0 && maxEffect.size()>0){
-											//TODO get multiple p values when necessary
-											System.err.println("ERROR WE NEED to change the code to handle multiple p values and max effect!!!!!!!!");
-										expCatData.setpValue(pValue.get(0));
-										expCatData.setMaxEffect(maxEffect.get(0));
-										logger.warn("pValue="+pValue+" maxEffect="+maxEffect);
-										}
+//										List<Double> pValue = categoricalStatsDao.getpValueByParameterAndMutantBiologicalModelAndSexAndZygosity(parameter, expBiologicalModel, sexType, zType);
+//										List<Double> maxEffect=categoricalStatsDao.getMaxEffectSizeByParameterAndMutantBiologicalModelAndSexAndZygosity(parameter, expBiologicalModel,  sexType, zType);
+//										System.out.println("pValue="+pValue);
+//										System.out.println("maxEffect");
+//										if(pValue.size()>0 && maxEffect.size()>0){
+//											//TODO get multiple p values when necessary
+//											System.err.println("ERROR WE NEED to change the code to handle multiple p values and max effect!!!!!!!!");
+//										expCatData.setpValue(pValue.get(0));
+//										expCatData.setMaxEffect(maxEffect.get(0));
+//										logger.warn("pValue="+pValue+" maxEffect="+maxEffect);
+//										}
 										zTypeSet.add(expCatData);
 									
 								
@@ -445,160 +438,6 @@ public class CategoricalChartAndTableProvider {
 			}
 		}
 	}
-	
-	
-	/**
-	 * 
-	 * @param model
-	 *            mvc model from spring
-	 * @param sex
-	 *            SexType
-	 * @param title
-	 *            main title for the graph
-	 * @param xAxisCategories
-	 *            e.g. Control, Homozygote, Heterozygote
-	 * @param categoricalDataTypesTitles
-	 *            e.g. Abnormal, Normal
-	 * @param seriesDataForCategoricalType
-	 *            e.g.
-	 * @return
-	 */
-	private String  createCategoricalHighChart(List<String> categoricalBarCharts, SexType sex, String title,
-			List<String> xAxisCategories,
-			List<String> categoricalDataTypesTitles,
-			List<List<Long>> seriesDataForCategoricalType) {
-		int size=categoricalBarCharts.size()+1;//to know which div to render to not 0 index as using loop count in jsp
-		JSONArray seriesArray = new JSONArray();
-		JSONArray xAxisCategoriesArray = new JSONArray();
-		try {
-			
-			logger.debug("call to highchart" + " sex=" + sex + " title="
-					+ title + " xAxisCategories=" + xAxisCategories
-					+ "  categoricalDataTypesTitles="
-					+ categoricalDataTypesTitles
-					+ " seriesDataForCategoricalType="
-					+ seriesDataForCategoricalType);
-			// "{ chart: { renderTo: 'female', type: 'column' }, title: { text: '' }, xAxis: { categories: [] }, yAxis: { min: 0, title: { text: '' } },  plotOptions: { column: { stacking: 'percent' } }, series: [ { name: 'Abnormal Femur', color: '#AA4643', data: [2, 2, 3] },{ name: 'Normal', color: '#4572A7', data: [5, 3, 4] }] }"
-			String colorNormal = "#4572A7";
-			String colorAbnormal = "#AA4643";
-			String color = "";
-			
-			for (String xAxisCategory : xAxisCategories) {
-				xAxisCategoriesArray.put(xAxisCategory);
-			}
-			
-			int i = 0;
-			for (List<Long> data : seriesDataForCategoricalType) {
-				JSONObject dataset1 = new JSONObject();// e.g. normal
-				dataset1.put("name", categoricalDataTypesTitles.get(i));
-				if (i == 0) {
-					color = colorNormal;
-				} else {
-					color = colorAbnormal;
-				}
-				//dataset1.put("color", color);
-				JSONArray dataset = new JSONArray();
-
-				for (Long singleValue : data) {
-					dataset.put(singleValue);
-				}
-				dataset1.put("data", dataset);
-				seriesArray.put(dataset1);
-				i++;
-			}
-
-			
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		// logger.debug("model="+model);
-		String toolTipFunction="	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ Math.round(this.percentage) +'%)';   }    }";
-		String javascript=	"$(function () {  var chart"+size+"; $(document).ready(function() { chart"+size+" = new Highcharts.Chart({ tooltip : "+toolTipFunction + ", chart: { renderTo: 'categoricalBarChart"+size+"', type: 'column' }, title: { text: '"+WordUtils.capitalize(title)+"' }, credits: { enabled: false }, subtitle: { text: '"+WordUtils.capitalize(sex.name())+"', x: -20 }, xAxis: { categories: "+xAxisCategoriesArray+"}, yAxis: { min: 0, title: { text: 'Percent Occurrance' } ,  labels: {       formatter: function() { return this.value +'%';   }  }},  plotOptions: { column: { stacking: 'percent' } }, series: "+seriesArray+" });   });});";
-//logger.debug(javascript);
-		categoricalBarCharts.add(javascript);
-		return javascript;
-	}
-	
-	private TableObject creatCategoricalDataTable(SexType sexType, String title,
-			List<String> xAxisCategories, List<String> categories,
-			List<List<Long>> seriesDataForCategoricalType) {
-		TableObject tableObject=new TableObject();
-		tableObject.setSexType(sexType.name());
-		tableObject.setTitle(title);
-		//logger.debug("xAxisCategories="+xAxisCategories);
-		List<String> columnHeaders=new ArrayList<String>(categories);
-		columnHeaders.add(0, ""); // add empty header to the new 
-		columnHeaders.remove("imageOnly");
-		//headers list not to the categories object list
-		tableObject.setColumnHeaders(columnHeaders);
-	//	logger.debug("categories="+categories);
-		tableObject.setRowHeaders(xAxisCategories);
-		
-		//logger.debug("seriesData="+seriesDataForCategoricalType);
-		for(List<Long> colData:seriesDataForCategoricalType){
-			//logger.debug("coldata size="+colData.size());
-			List<String> col=new ArrayList<String>();
-			for(Long dataCell:colData){
-				col.add(dataCell.toString());
-			}
-			tableObject.addColumn(col);
-		}
-		//tableObject.setCellData(cellData));
-		return tableObject;
-		
-	}
-	
-//	private TableObject creatCategoricalDataTableFromObjects(CategoricalChartDataObject chartData, SexType sexType, String title,
-//			List<String> xAxisCategories, List<String> categories,
-//			List<List<Long>> seriesDataForCategoricalType) {
-//		TableObject tableObject=new TableObject();
-//		tableObject.setSexType(sexType.name());
-//		tableObject.setTitle(title);
-//		System.out.println("xAxisCategories="+xAxisCategories);
-//		List<String> columnHeaders=new ArrayList<String>(categories);
-//		columnHeaders.add(0, ""); // add empty header to the new 
-//		columnHeaders.remove("imageOnly");
-//		columnHeaders.add("p Value");
-//		columnHeaders.add("Effect Size");
-//		//headers list not to the categories object list
-//		tableObject.setColumnHeaders(columnHeaders);
-//	//	logger.debug("categories="+categories);
-//		tableObject.setRowHeaders(xAxisCategories);
-//		 List<List<String>> cellData=new ArrayList<List<String>>();
-//		for(CategoricalSet set:chartData.getCategoricalSets()){
-//			List <String>listForSet=new ArrayList<String>();//list for control then hom or het
-//			List<CategoricalDataObject> catObjects = set.getCatObjects();
-//			for(CategoricalDataObject dataObject: catObjects){
-//				String name=dataObject.getName();
-//				Long count = dataObject.getCount();
-//				listForSet.add(count.toString());
-//				
-//			}
-//			CategoricalDataObject lastCatObject = catObjects.get(catObjects.size()-1);//get the last result for the set which should be experimental and contain the pvalue and max effect values for the set if not control set
-//			if((lastCatObject.getpValue()!=null) && (lastCatObject.getMaxEffect()!=null)){
-//				listForSet.add(lastCatObject.getpValue().toString());
-//				listForSet.add(lastCatObject.getMaxEffect().toString());
-//			}else{
-//				listForSet.add(" ");
-//				listForSet.add(" ");
-//			}
-//			cellData.add(listForSet);
-//		}
-//		tableObject.setCellData(cellData);
-//		//logger.debug("seriesData="+seriesDataForCategoricalType);
-////		for(List<Long> colData:seriesDataForCategoricalType){
-////			//logger.debug("coldata size="+colData.size());
-////			List<String> col=new ArrayList<String>();
-////			for(Long dataCell:colData){
-////				col.add(dataCell.toString());
-////			}
-////			tableObject.addColumn(col);
-////		}
-//		//tableObject.setCellData(cellData));
-//		return tableObject;
-//		
-//	}
 	
 	private List<String> getXAxisCategories(List<ZygosityType> zygosities, List<String> zygosityParams) {
 		List<String> xAxisCat = new ArrayList<String>();
