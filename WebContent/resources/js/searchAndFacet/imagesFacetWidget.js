@@ -183,7 +183,7 @@
   	    					var displayName = displayLabel[facetName];
   	    					//console.log(fieldName + ' : '+ facetCount);
   	    					
-  	    					var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i});
+  	    					var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i, 'class':'subFacet'});
   	    					var td1 = $('<td></td>').attr({'class': 'imgExperiment', 'rel': facetCount}).text(fieldName);
   	    				
   	    					var imgBaseUrl = baseUrl + "/images?";
@@ -214,11 +214,15 @@
   		    	    		if ( i == 0 ){
   	    						var catTr = $('<tr></tr>').attr({'class':'facetSubCat'});
   	    						var catLabel = displayLabel[facetName];
-  	    						var catTd = $('<td></td>').attr({'colspan':2}).text(catLabel);
+  	    						var catTd = $('<td></td>').attr({'colspan':3}).text(catLabel);
   	    						catTr.append(catTd);
   	    						table.append(catTr); 
-  	    					}		    	    				    	    		
-  		    	    		table.append(tr.append(td1, td2));		    	    		
+  	    					}	
+  		    	    		
+  		    	    		var coreField = 'images|'+ facetName + '|' + fieldName;	
+  		        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField}); 		    	    			    		
+  		    	    		
+  		    	    		table.append(tr.append(chkbox, td1, td2));		    	    		
   	    				}
   	    			}	    				    	    	
   	    			self._displayImageFacet(json, 'images', 'imagesFacet', table);			
@@ -240,6 +244,10 @@
   	    			// invoke filtered toplevel in dataTable
   	    			MPI2.searchAndFacetConfig.facetParams[facetDivId].showImgView = true; // default  	    			
   	    			$.fn.fetchFilteredDataTable($(this), facetDivId, self.options.data.q, 'facetFilter');
+  	    		});	
+  	    		
+  	    		table.find('input').click(function(){	    			
+  	    			$.fn.composeFacetFilterControl($(this));
   	    		});	
   	    	}
   	    	

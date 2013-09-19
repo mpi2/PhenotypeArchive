@@ -35,8 +35,17 @@
 				var hashParams = $.fn.parseHashString(window.location.hash.substring(1));
 				
 				$.fn.updateFacetAndDataTableDisplay(hashParams);
-			});	
+			});
 			
+			$('div#filterToggle').click(function(){	
+				var ul = $('ul#facetFilter');	
+				if ( ul.is(":visible") ){				
+					ul.show();					
+				}
+				else {				
+					ul.hide();				
+				}
+			});
 		});
 	</script>
 	<!-- end of hash state stuff -->	
@@ -44,6 +53,17 @@
 	</jsp:attribute>
 
     <jsp:body>
+       <!-- search filter display -->
+       	<div id='filterToggle'>Show facet filters</div>
+       		
+	   	<ul id='facetFilter'> 
+	   		<li class='has-sub gene'>Genes</li>
+	   		<li class='has-sub mp'>Phenotypes</li>
+			<li class='has-sub ma'>Anatomy</li>	 
+			<li class='has-sub pipeline'>Procedures</li>
+			<li class='has-sub images'>Images</li>
+		</ul>
+       	
        <!--  facet skeleton on left sidebar -->
 		<div id="wrapper">
 		    <div id="userKeyword" class='rounded-corners'></div>	

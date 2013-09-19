@@ -169,13 +169,16 @@
 	    	    	// selected top level MA terms
 	    	    	for ( var i=0;  i<aTopLevelCount.length; i+=2 ){	    		
 	    	    		
-	        			var tr = $('<tr></tr>').attr({'rel':aTopLevelCount[i], 'id':'topLevelMaTr'+i});        		
+	        			var tr = $('<tr></tr>').attr({'rel':aTopLevelCount[i], 'id':'topLevelMaTr'+i}); 
+	        			
+	        			var coreField = 'ma|selected_top_level_ma|' + aTopLevelCount[i];	
+	        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});
 	        			
 	    	    		var td1 = $('<td></td>').attr({'class': 'maTopLevel', 'rel': aTopLevelCount[i+1]}).text(aTopLevelCount[i]);	    	    		   	    		
 	    	    		
 	    	    		var a = $('<a></a>').attr({'rel':aTopLevelCount[i]}).text(aTopLevelCount[i+1]);
 	    	    		var td2 = $('<td></td>').attr({'class': 'maTopLevelCount'}).append(a);
-	    	    		table.append(tr.append(td1, td2)); 	        			
+	    	    		table.append(tr.append(chkbox, td1, td2)); 	        			
 	    	    	}    	
 	    	    	
 	    			self._displayOntologyFacet(json, 'maFacet', table);	    			    			
@@ -196,7 +199,11 @@
     		
     		$('table#'+ ontology + 'Facet td a').click(function(){
     			$.fn.fetchFilteredDataTable($(this), facetDivId, self.options.data.q,'facetFilter');    			
-    		});  	   
+    		});  
+    		    		
+    		$('table#'+ ontology + 'Facet input').click(function(){				
+				$.fn.composeFacetFilterControl($(this));					
+			});
     		   
     		/*------------------------------------------------------------------------------------*/
 	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */

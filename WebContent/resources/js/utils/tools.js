@@ -20,8 +20,103 @@
  * 
  * Author: Chao-Kung Chen
  */
-(function($){	
-
+(function($){		
+	
+	$.fn.composeFacetFilterControl = function(oChkbox){
+		do_ParentFilterDisplay(oChkbox);		
+	}
+	
+	function do_ParentFilterDisplay(oChkbox) {
+		var labels = oChkbox.attr('rel').split("|");
+		var facet = labels[0];
+		var field = labels[1];
+		var value = labels[2];
+		var thisLi = $('div#facetFilter ul li.' + facet);
+		
+		//console.log($('div#facetFilter ul li').size());				
+		if ( oChkbox.is(':checked') ){
+			
+			// remove already highlighted subfacet which is unchecked			
+			$('div#'+facet+'Facet td.highlight').each(function(){
+				if ( ! $(this).parent().find('input').is(':checked') ){
+					$(this).removeClass('highlight');
+				}
+			});
+			
+			// add filter				
+			console.log(field);		
+			var display = MPI2.searchAndFacetConfig.facetFilterLabel[field];
+			if (field == 'imits_phenotype_started' && value == 1 ){
+				value = 'started';
+			}
+			var a = $('<a></a>').attr({'rel':oChkbox.attr('rel')}).text(display + ' : ' + value);
+			var del = $('<img>').attr('src', baseUrl + '/img/scissors-15x15.png');
+			
+			var filter = $('<li></li>').append(del, a);
+			add_uncheck_js(a, del, filter, oChkbox);
+			
+			if ( thisLi.find('ul').size() == 0 ){			
+				var ul = $('<ul></ul>').html(filter);
+				thisLi.append(ul);								
+			}
+			else {
+				thisLi.find('ul').append(filter);						
+			}
+			MPI2.facetFilter = $('div#facetFilter ul');	
+			
+			//thisLi.show();
+			//removeParentFilter(thisLi,facet);
+		}
+		else {
+			var relTxt = oChkbox.attr('rel');			
+			thisLi.find('ul li').each(function(){
+				if ( $(this).find('a').attr('rel') == oChkbox.attr('rel') ){
+					$(this).remove();
+					oChkbox.parent().find('td.highlight').removeClass('highlight');
+				}
+			});			
+			if ( thisLi.find('li').size() == 0 ){
+				thisLi.find('ul').remove();
+				thisLi.hide();
+			}			
+		}
+		var ul = $('div#facetFilter ul');
+		$('span#srchFilter').toggle( 
+			function(){				
+				ul.show();
+				$('li.has-sub').each(function(){
+					if ( $(this).find('ul').size() == 0  ){
+						$(this).hide();
+					}
+					else {
+						$(this).show();
+					}
+				});
+			},
+			function() {				
+				ul.hide();				
+			}
+		);
+	}
+	
+	function removeParentFilter(thisLi, facet){		
+		thisLi.click(function(){
+			console.log('parent li click');
+			/*$('div#'+facet+'Facet').find('input').attr('checked', false);
+			$(this).find('ul').remove();
+			$(this).hide();*/			
+		});
+	}
+	
+	function add_uncheck_js(oLia, del, filter, oChkbox) {
+		del.click(function(){	
+			oChkbox.attr("checked", false);			
+			oChkbox.parent().find('td.highlight').removeClass('highlight');
+			filter.remove();
+			$.fn.composeFacetFilterControl(oChkbox);
+		});
+	}
+	
 	$.fn.qTip = function(pageName){
 		// pageName: gene | mp | ma
 		$('div.documentation a').each(function(){

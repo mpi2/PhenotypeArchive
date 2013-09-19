@@ -170,12 +170,15 @@
 	    	    		
 	        			var tr = $('<tr></tr>').attr({'rel':aTopLevelCount[i], 'id':'topLevelMpTr'+i});  
 	        			// remove trailing ' phenotype' in MP term
-	        			
+	        				        			
+						var coreField = 'mp|top_level_mp|' + aTopLevelCount[i].replace(' phenotype', '');						
+						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});
+	        				        			
 	    	    		var td1 = $('<td></td>').attr({'class': 'mpTopLevel', 'rel': aTopLevelCount[i+1]}).text(aTopLevelCount[i].replace(' phenotype', ''));	    	    		   	    		
 	    	    		
 	    	    		var a = $('<a></a>').attr({'rel':aTopLevelCount[i]}).text(aTopLevelCount[i+1]);
 	    	    		var td2 = $('<td></td>').attr({'class': 'mpTopLevelCount'}).append(a);
-	    	    		table.append(tr.append(td1, td2)); 
+	    	    		table.append(tr.append(chkbox, td1, td2)); 
 	        			
 	    	    	}    	
 	    	    	
@@ -198,6 +201,10 @@
     			$.fn.fetchFilteredDataTable($(this), facetDivId, self.options.data.q,'facetFilter');    			
     		});  
     		   
+    		$('table#'+ ontology + 'Facet input').click(function(){				
+				$.fn.composeFacetFilterControl($(this));					
+			});
+    		
     		/*------------------------------------------------------------------------------------*/
 	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
 	    	/*------------------------------------------------------------------------------------*/	
@@ -256,7 +263,9 @@
     						'dataType': 'jsonp',
     						'jsonp': 'json.wrfhttp://localhost:8983/solr/ma/select?q=*%3A*&wt=json&indent=true',
     						'success': function(json) {    							
-    							if (json.response.numFound > 10 ){    							
+    					var facet = labels[0];
+		var field = labels[1];
+				if (json.response.numFound > 10 ){    							
     								self._display_subTerms_in_tabs(json, topLevelOntoTerm, thisTable, ontology);
     							}
     							else {

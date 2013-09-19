@@ -24,6 +24,7 @@
 if(typeof(window.MPI2) === 'undefined') {
     window.MPI2 = {};
 }
+MPI2.facetFilter = false;
 MPI2.buttCount = 0;
 
 MPI2.searchAndFacetConfig = {};
@@ -54,11 +55,25 @@ config.geneStatuses = ['Phenotype Data Available',
                'Assigned for ES Cell Production',
                'Not Assigned for ES Cell Production'];
 
-config.phenotypingStatuses = {'Complete':{'fq':'imits_phenotype_complete','val':1}, 
-                              'Started':{'fq':'imits_phenotype_started','val':1}, 
-                              'Attempt Registered':{'fq':'imits_phenotype_status', 'val':'Phenotype Attempt Registered'}};
+config.phenotypingStatuses = {
+	'Complete':{'fq':'imits_phenotype_complete','val':1}, 
+    'Started':{'fq':'imits_phenotype_started','val':1}, 
+    'Attempt Registered':{'fq':'imits_phenotype_status', 'val':'Phenotype Attempt Registered'}};
 
-
+config.facetFilterLabel = {
+	'imits_phenotype_complete' : 'phenotyping status',
+	'imits_phenotype_started'  : 'phenotyping status',
+	'imits_phenotype_status'   : 'phenotyping status',
+	'status'                   : 'mouse production status',
+	'marker_type'              : 'subtype',
+	'top_level_mp'             : 'top level MP term',
+	'selected_top_level_ma'    : 'IMPC Terms',
+	'procedure'                : 'procedrue',
+	'higherLevelMaTermName'    : 'anatomy',
+	'higherLevelMpTermName'    : 'Phenotype',
+	'expName'                  : 'procedure',
+	'subtype'                  : 'gene subtype'
+};
                             
 //config.solrBaseURL_bytemark = 'http://dev.mousephenotype.org/bytemark/solr/';
 config.solrBaseURL_bytemark = solrUrl + '/';

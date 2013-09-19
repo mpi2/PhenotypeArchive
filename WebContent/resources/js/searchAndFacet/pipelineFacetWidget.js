@@ -180,7 +180,7 @@
 	    			
 	    			var table = $("<table id='pipeline' class='facetTable'></table>");
 	        		var trCat = $('<tr></tr>').attr({'class':'facetSubCat'});
-	        		table.append(trCat.append( $('<td></td>').attr({'colspan':2}).text('IMPC')));
+	        		table.append(trCat.append( $('<td></td>').attr({'colspan':3}).text('IMPC')));
 	    			
 	    			for ( var f=0; f<facets.length; f+=2 ){       			
 	        			
@@ -188,11 +188,15 @@
 	        			var paramCount = facets[f+1];
 	        				        			
 	        			var pClass = 'procedure'+f;
-	        			var tr = $('<tr></tr>');
+	        			var tr = $('<tr></tr>').attr({'class':'subFacet'});
+	        			
+	        			var coreField = 'pipeline|procedure|' + procedure_name;	
+	        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});	        			
+	        			
 	        			var td1 = $('<td></td>').attr({'class': pClass, 'rel':paramCount});	        			
 	        			var td2 = $('<td></td>');	        			        			
 	        			var a = $('<a></a>').attr({'class':'paramCount', 'rel': procedureName2IdKey[procedure_name].stable_id}).text(paramCount);
-	        			table.append(tr.append(td1.text(procedure_name), td2.append(a)));
+	        			table.append(tr.append(chkbox, td1.text(procedure_name), td2.append(a)));
 	        		}	     
 	    			
 	    			/*
@@ -269,6 +273,12 @@
 	        		$('table#pipeline td a.paramCount').click(function(){	        			
 	        			$.fn.fetchFilteredDataTable($(this), 'pipelineFacet', self.options.data.q, 'facetFilter');	 
 	        		});
+	        		
+	        		$('table#pipeline input').click(function(){	        			
+	        			$.fn.composeFacetFilterControl($(this));
+	        		});
+	        		
+	        		
 	        		
 	        		/*------------------------------------------------------------------------------------*/
 	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */

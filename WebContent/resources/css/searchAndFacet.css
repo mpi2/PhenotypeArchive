@@ -1,8 +1,9 @@
 /*-------- autosuggest -------*/
   
  /* 2 columns: 1 fixed (L), 1 liquid (R) */
-/*div#wrapper{float:left;width:100%;}
-div#content{margin-left:270px}
+div#wrapper{clear: both;}
+
+/*div#content{margin-left:270px}
 div#leftSideBar{float:left;width:230px;margin-left:-100%; border: 1px solid gray; padding: 10px;}*/
 /* end of 2 columns style */
 
@@ -102,7 +103,7 @@ table.facetTable td {
     text-align: left;
     padding: 0;
 }
-table.facetTable td:nth-child(2){
+table.facetTable td:nth-child(3){
 	text-align: right !important;
 }
 table#geneGrid th:nth-child(1) {
@@ -158,6 +159,11 @@ table#imgFacet td.imgExperimentCount
 /*table#maFacet td.maTopLevelCount, table#maFacet td.maTopLevel */{
 	cursor: pointer;	
 }
+
+tr.subFacet td:nth-child(2) {
+	padding-left: 5px !important;	
+}
+
 table#gFacet tr.geneSubTypeTrCap {
 	cursor: pointer;
 }
@@ -182,9 +188,7 @@ table#pipeline tr[class$=_param] {
 	color: gray;
 	cursor: text !important;
 }
-table.facetTable tr[class$=_sub] td:nth-child(1) {
-	padding-left: 15px;
-}
+
 img#maFacetInfo, img#mpFacetInfo {
 	float: right;	
 	margin: 0px 80px 10px 10px;		
@@ -317,3 +321,47 @@ div.gridTitle, div#resultMsg, strong.lead {
 div.dataTables_wrapper {
 	margin-top: 30px;
 }
+
+/* ----- start of  facet filter ----- */
+div#filterToggle {
+	
+}
+
+ul#facetFilter {
+  width: auto;	
+  margin: -23px 0 0 150px;
+  padding: 3px 6px;
+  background: none;
+  border-radius: 1em;
+  font: normal 1em Arial, Helvetica, sans-serif;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+ul#facetFilter ul {
+  /*z-index: 9999;	
+  display: none;*/
+  margin: 0 0 5px 20px;
+  padding: 2px 5px;
+  width: auto;
+  /*position: absolute;
+  top: 20px;
+  left: 0;*/
+  /*background: #F4F4F4;*/ /*url(overlay.png) repeat-x 0 0;*/
+  /*border: solid 1px #b4b4b4;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;*/ 
+}
+#facetFilter li.has-sub {
+	list-style: none;
+}
+ul#facetFilter li ul li {	
+	list-style: none;
+	/*margin-left: 20px;*/	
+}
+
+
+
+/* ----- end of  facet filter ----- */
+
