@@ -1,5 +1,10 @@
 #ignore any files beginning with a .
 .*
+#exclude the built style and js files
+script.min.js
+style.min.js
+style.css
+style.min.css
 #ignore the target dir
 target/
 *.appConfig.properties
@@ -15,3 +20,6 @@ target/
 
 /.settings
 /.classpath
+
+#ignore netbeans config file
+nb-configuration.xml
