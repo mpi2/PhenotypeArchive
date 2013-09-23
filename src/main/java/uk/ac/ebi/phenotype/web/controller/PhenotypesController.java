@@ -32,6 +32,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.solr.client.solrj.SolrServerException;
@@ -201,7 +202,7 @@ public class PhenotypesController {
 			Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
 			
 			model.addAttribute("phenoFacets", phenoFacets);
-		} catch (HibernateException e) {
+		} catch (JSONException|HibernateException e) {
 			log.error("ERROR GETTING PHENOTYPE LIST");
 			e.printStackTrace();
 			phenotypeList = new ArrayList<PhenotypeCallSummary>();
