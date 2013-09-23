@@ -46,9 +46,9 @@
 								
 			<!-- Link to phenotype parameter -->
 			<entity dataSource="ds1" name="phenotype_parameter" query="select stable_id as parameter_stable_id, name as parameter_name, stable_key as parameter_stable_key from phenotype_parameter where id=${phenotype_call.parameter_id}">
-				<field column="stable_id" name="parameter_stable_id" />
-            	<field column="name" name="parameter_name" />
-            	<field column="stable_key" name="parameter_stable_key" />
+				<field column="parameter_stable_id" name="parameter_stable_id" />
+            	<field column="parameter_name" name="parameter_name" />
+            	<field column="parameter_stable_key" name="parameter_stable_key" />
             	<!-- Link to phenotype procedure -->
 				<entity dataSource="ds1" name="phenotype_procedure" query="select id, stable_id as procedure_stable_id, name as procedure_name, stable_key as procedure_stable_key from phenotype_procedure where id=${phenotype_call.procedure_id}">
 					<field column="procedure_stable_id" name="procedure_stable_id" />
