@@ -115,8 +115,8 @@
 	</div>
 
 	<div class="row-fluid dataset">
-		<div class="row-fluid">
-			
+		<div class='documentation'><a href='' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
+		<div class="row-fluid">			
 			<div class="container span12">
 						<div class="row-fluid">
 			<div class="container span6">
@@ -188,6 +188,7 @@
 
 
 		<div class="row-fluid">
+		    
 			<div class="container span12">
 			<div class="accordion" id="accordionMoreGeneInfoAccord">
 					<div class="accordion-group">
@@ -242,14 +243,16 @@
 
 	<c:if test="${phenotypeStarted}">
 	<div class="row-fluid dataset">
-		<div class="row-fluid container clearfix" style="float:none;">
-			<h4 class="caption">Pre-QC phenotype heatmap -
+	    <div class='documentation'><a href='' class='preQcPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
+	    <h4 class="caption">Pre-QC phenotype heatmap -
 				<c:forEach items="${allColonyStatus}" var="colonyStatus">
 						<c:if test="${colonyStatus.phenotypeStarted == 1}">
 							${colonyStatus.alleleName}<%-- </td><td>${colonyStatus.backgroundStrain}</td><td>${colonyStatus.phenotypeCenter}</td></tr> --%>
 						</c:if>
 				</c:forEach>	
 			</h4>
+		<div class="row-fluid container clearfix" style="float:none;">
+			
 			<div class="alert alert-block">
 			<h4>Caution!</h4>
 			This is the results of a preliminary statistical analysis. Data are still in the process of being quality controlled and results may change.
@@ -265,9 +268,11 @@
 
 	<!--row-->
 	<div class="row-fluid dataset">
+	    <div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
+	    <h4 class="caption">Phenotype Associations from EuroPhenome and WTSI Mouse Genetics Project</h4>
 		<div class="row-fluid">
 			<div class="container span12">
-				<h4 class="caption">Phenotype Associations from EuroPhenome and WTSI Mouse Genetics Project</h4>
+				
 				<div class="row-fluid" id="phenotypesDiv">	
 			<div class="container span12">
 			<!--  style="display: none;" --><div id="filterParams" >
@@ -290,7 +295,7 @@
 				</select> 
 				</c:forEach>
 				<!-- <input type="text" id="myInputTextField"> -->
-				<c:if test="${not empty phenoFacet}">
+				<c:if test="${not empty phenoFacets}">
 				<input type="submit" class='btn primary' value="Filter" />
 				</c:if>
 				</form>
@@ -349,7 +354,7 @@
 			<script>
 					$(document).ready(function(){						
 						
-						
+						$.fn.qTip('gene');	// bubble popup for brief panel documentation					
 						
 						/* var oDataTable = $('table#phenotypes').dataTable();
 						oDataTable.fnDestroy();  */
@@ -418,11 +423,6 @@
 							oDataTable.fnFilter( $(this).val() );
 						}); */
 					
-						
-						
-						
-						
-					
 			    		//stuff for dropdown tick boxes here
 			    		$("#resource_fullname").dropdownchecklist( { firstItemChecksAll: true, emptyText: "Projects: All", icon: {}, minWidth: 150 } );
 			    		$("#top_level_mp_term_name").dropdownchecklist( { firstItemChecksAll: true, emptyText: "Top Level MP: All", icon: {} , minWidth: 150} );
@@ -430,8 +430,8 @@
 			    		//if filter parameters are already set then we need to set them as selected in the dropdowns
 			    		var previousParams=$("#filterParams").html();
 			    		//alert('previous='+previousParams);
-$('#target').submit(function() {
-			  var rootUrl=window.location.href;
+						$('#target').submit(function() {
+			  					var rootUrl=window.location.href;
 			    			 // alert(rootUrl);
 			    			  var newUrl=rootUrl.replace("genes", "genesPhenoFrag");
 			    			// alert( $("option:selected").parent().attr("id"));
@@ -541,9 +541,10 @@ $('#target').submit(function() {
 	<!-- row -->
 	<c:if test="${not empty solrFacets}">
 	<div class="row-fluid dataset">
-		<div class="row-fluid">
-			<div class="container span12">
-				<h4 class="caption">Phenotype Associated Images  <a href='${baseUrl}/images?gene_id=${acc}&fq=!expName:"Wholemount%20Expression"'><small>Show All Images</small></a></h4><div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>
+	    <div class='documentation'><a href='' class='imagePanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
+	    <h4 class="caption">Phenotype Associated Images  <a href='${baseUrl}/images?gene_id=${acc}&fq=!expName:"Wholemount%20Expression"'><small>Show All Images</small></a></h4><div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	
+		<div class="row-fluid">         	
+			<div class="container span12">				
 				<div class="accordion" id="accordion1">
 					<c:forEach var="entry" items="${solrFacets}" varStatus="status">
 					<div class="accordion-group">
@@ -585,9 +586,10 @@ $('#target').submit(function() {
 			
 	<c:if test="${not empty expressionFacets}">
 	<div class="row-fluid dataset">
-		<div class="row-fluid">
-			<div class="container span12">
-				<h4 class="caption">Expression</h4><div id="showAllExpression"></div>
+		<div class='documentation'><a href='' class='expressionPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
+		<h4 class="caption">Expression</h4><div id="showAllExpression"></div>
+		<div class="row-fluid">			
+			<div class="container span12">				
 			</div>
 			<div class="row-fluid">
 				<div class="container span12">
@@ -625,8 +627,11 @@ $('#target').submit(function() {
 	<!--/row-->
 
 	<div class="row-fluid dataset">
-		<div class="container span12">
-			<h4 class="caption">ES Cell and Mouse Alleles</h4>
+	<div class='documentation'><a href='' class='allelePanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
+	<h4 class="caption">ES Cell and Mouse Alleles</h4>	
+	    <div class="row-fluid"> 
+			<div class="container span12">
+			
 			<div id="allele_tracker_panel_results">&nbsp;</div>
 			<c:choose>
 				<c:when test="${countIKMCAllelesError}">
@@ -646,6 +651,7 @@ $('#target').submit(function() {
 				</c:otherwise>
 			</c:choose>
 		</div>
+	</div>
 	</div>
 
     </jsp:body>

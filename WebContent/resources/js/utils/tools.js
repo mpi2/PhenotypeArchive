@@ -21,6 +21,51 @@
  * Author: Chao-Kung Chen
  */
 (function($){	
+
+	$.fn.qTip = function(pageName){
+		// pageName: gene | mp | ma
+		$('div.documentation a').each(function(){
+			
+			var key = $(this).attr('class');
+			$(this).attr('href', MDOC[pageName][key+'DocUrl']);
+			
+			$(this).qtip({
+			 	content: MDOC[pageName][key],
+			   	style: { 
+			   		delay: 1,
+			    	width: 200,
+			      	padding: 5,
+			      	background: '#CCCCCC',
+			      	color: 'black',
+			      	textAlign: 'center',
+			      	border: {
+			        	width: 1,
+			         	radius: 5,
+			         	color: '#CCCCCC'
+			   	  	},
+			    	tip: 'bottomMiddle', //'bottomLeft',
+			    	name: 'dark' // Inherit the rest of the attributes from the preset dark style
+			   	},				 
+				show: {		            
+		               event: 'mouseover',
+					   delay: 0
+		        },
+		        hide: {		        		
+			           event: 'mouseout' 
+		        },							
+				position: {
+			    	corner: {
+			        	target: 'topLeft',
+			        	tooltip: 'middleRight'
+			        },
+			    	adjust: {
+			        	x: 105,
+			        	y: -55
+			        }
+			    }	   
+			});			
+		});
+	}
 	
 	$.fn.setHashUrl = function(q, core){		
 		var hashParams = {};

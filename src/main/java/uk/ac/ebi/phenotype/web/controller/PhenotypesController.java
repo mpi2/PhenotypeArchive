@@ -59,9 +59,11 @@ import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
 import uk.ac.ebi.phenotype.pojo.Datasource;
+import uk.ac.ebi.phenotype.pojo.DatasourceEntityId;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.Procedure;
+import uk.ac.ebi.phenotype.pojo.Synonym;
 import uk.ac.ebi.phenotype.util.PhenotypeCallSummaryDAOReadOnly;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
@@ -112,16 +114,20 @@ public class PhenotypesController {
 			HttpServletRequest request,
 			RedirectAttributes attributes) throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException {
 		
-		OntologyTerm phenotype = ontoTermDao.getOntologyTermByAccessionAndDatabaseId(phenotype_id, 5);
-		if (phenotype == null) {
-			throw new OntologyTermNotFoundException("", phenotype_id);
-		}
+//		OntologyTerm phenotype = ontoTermDao.getOntologyTermByAccessionAndDatabaseId(phenotype_id, 5);
+//		System.out.println("phenotype="+phenotype.getSynonyms());
+//		if (phenotype == null) {
+//			throw new OntologyTermNotFoundException("", phenotype_id);
+//		}
 		
-		TreeSet<Procedure> procedures = new TreeSet<Procedure>(pipelineDao.getProceduresByOntologyTerm(phenotype));
 
-		model.addAttribute("phenotype", phenotype);
-		model.addAttribute("procedures", procedures);
-
+		OntologyTerm oTerm=new OntologyTerm();
+		DatasourceEntityId dId=new DatasourceEntityId();
+		dId.setAccession(phenotype_id);
+		dId.setDatabaseId(5);
+		oTerm.setId(dId);
+		
+		
 		Set<OntologyTerm> anatomyTerms = new HashSet<OntologyTerm>();
 		Set<OntologyTerm> mpSiblings = new HashSet<OntologyTerm>();
 		Set<OntologyTerm> goTerms = new HashSet<OntologyTerm>();
@@ -135,6 +141,26 @@ public class PhenotypesController {
 				.getJSONObject(0);
 
 			JSONArray terms;
+			
+			if (mpData.containsKey("mp_term")) {
+				String term = mpData.getString("mp_term");
+				oTerm.setName(term);
+			}
+			
+			if (mpData.containsKey("mp_definition")) {
+				String definition = mpData.getString("mp_definition");
+				oTerm.setDescription(definition);
+			}
+			
+			if (mpData.containsKey("mp_term_synonym")) {
+				JSONArray syonymsArray = mpData.getJSONArray("mp_term_synonym");
+				for(Object syn:syonymsArray) {
+					String synm = (String) syn;
+					Synonym synonym=new Synonym();
+					synonym.setSymbol(synm);
+					oTerm.addSynonym(synonym);
+				}
+			}
 			
 			if (mpData.containsKey("ma_id")) {
 				terms = mpData.getJSONArray("ma_id");
@@ -184,6 +210,15 @@ public class PhenotypesController {
 		processPhenotypes(phenotype_id, "", model);
 
 		model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
+		
+		
+		
+	
+		
+		TreeSet<Procedure> procedures = new TreeSet<Procedure>(pipelineDao.getProceduresByOntologyTerm(oTerm));
+
+		model.addAttribute("phenotype", oTerm);
+		model.addAttribute("procedures", procedures);
 
 		return "phenotypes";
 	}

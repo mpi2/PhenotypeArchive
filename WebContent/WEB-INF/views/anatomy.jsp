@@ -19,9 +19,12 @@
     <jsp:body>
 
 	<div class='topic'>Anatomy Term: ${anatomy.term}</div>
-
+	
 	<div class="row-fluid dataset">
+		<div class='documentation'><a href='' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
 		<div class="row-fluid">
+			<div class="container span12">
+						<div class="row-fluid">
 			<div class="container span6">
 			<table class="table table-striped">
 				<tbody>
@@ -67,10 +70,12 @@
 			</div>
 		</div>
 	</div>
-	
+		</div>
+	</div>
 	
 		<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
 	<div class="row-fluid dataset">
+		<div class='documentation'><a href='' class='expressionPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
 		<h4 class="caption">Expression Images</h4>
 			<div class="row-fluid">
 			<div class="container span12">
@@ -103,9 +108,10 @@
 	
 	
 		<div class="row-fluid dataset">
+			<div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
+			<h4 class="caption">Associated Phenotypes</h4>
 			<div class="row-fluid">
-				<div class="container span12">
-				<h4 class="caption">Associated Phenotypes</h4>
+				<div class="container span12">				
 				<c:if test="${not empty anatomy.mpTerms}">
 				<table class="table table-striped">
 				<tbody>
@@ -127,9 +133,10 @@
 	
 	
 	<div class="row-fluid dataset">
-		<div class="row-fluid">
-				<div class="container span12">
+	<div class='documentation'><a href='' class='relatedMaPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
 				<h4 class="caption">Explore</h4>
+		<div class="row-fluid">				
+				<div class="container span12">				
 				<table class="table table-striped">
 				<tbody>
 				<tr>
@@ -149,7 +156,13 @@
 		
 	</div><!-- end of images lacz expression priority and xray maybe -->
 	
-
+	<script>
+		$(document).ready(function(){						
+					
+			$.fn.qTip('ma');	// bubble popup for brief panel documentation					
+		});				
+	</script>
+	
 </jsp:body>
 	
 

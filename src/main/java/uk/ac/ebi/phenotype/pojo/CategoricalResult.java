@@ -308,5 +308,13 @@ public class CategoricalResult extends StatisticalResult implements Serializable
 	}
 
 	
+	public String toString() {
+		return "CategoricalResult="+"catA="+categoryA+
+				" catB="+categoryB+" controlSex="+controlSex+
+				" controlZyg="+controlZygosity+" experimentalZyg="+
+				experimentalZygosity+"  experimentalSex="+experimentalSex+
+				" pValue="+pValue+"  maxEffect="+maxEffect; 
+	}
+	
 	
 }

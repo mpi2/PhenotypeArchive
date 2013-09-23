@@ -564,7 +564,7 @@ public class GenesController {
         mv.addObject("type","MGI gene");
         mv.addObject("exampleURI", "/genes/MGI:104874");
         return mv;
-    } 
+    }
 
 
 	/**
