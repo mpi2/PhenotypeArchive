@@ -9,19 +9,20 @@ import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 public class ExperimentDTO {
 
-	Integer experimentId;
-	String geneMarker;
-	String parameterStableId;
-	String strain;
-	String organisation;
+	private Integer experimentId;
+	private String geneMarker;
+	private String parameterStableId;
+	private String strain;
+	private String organisation;
 
-	StatisticalResult result;
+	private StatisticalResult result;
 
-	ZygosityType zygosity;
-	List<SexType> sexes;
+	private ZygosityType zygosity;
+	private List<SexType> sexes;
 
-	Set<ObservationDTO> controls;
-	Set<ObservationDTO> mutants;
+	private Set<ObservationDTO> controls;
+	private Set<ObservationDTO> mutants;
+
 	/**
 	 * @return the experimentId
 	 */
