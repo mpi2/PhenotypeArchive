@@ -25,11 +25,25 @@ public class ObservationService {
 		solr = new HttpSolrServer(solrURL);
 	}
 
-	
+
+	/**
+	 * 
+	 * construct a query to get all the unidimensional observations for a given
+	 * combination of parameter, gene, zygosity, organisation and strain
+	 *   
+	 * ex solr query: parameterId:1116%20AND%20geneAccession:MGI\:1923523%20AND%20zygosity:homozygote%20AND%20organisationId:9%20AND%20colonyId:HEPD0550_6_G09%20AND%20gender:female
+	 * 
+	 * @param parameterId
+	 * @param gene
+	 * @param zygosity
+	 * @param organisationId
+	 * @param strain
+	 * @return
+	 * @throws SolrServerException
+	 */
 	public List<ObservationDTO> getUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrain(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain) throws SolrServerException {
 		List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
 
-		//parameterId:1116%20AND%20geneAccession:MGI\:1923523%20AND%20zygosity:homozygote%20AND%20organisationId:9%20AND%20colonyId:HEPD0550_6_G09%20AND%20gender:female
 		SolrQuery query = new SolrQuery()
 	    	.setQuery("((geneAccession:"+gene.replace(":", "\\:") + " AND zygosity:"+zygosity+") OR biologicalSampleGroup:control) ")
 	    	.addFilterQuery("parameterId:"+parameterId)
@@ -44,18 +58,32 @@ public class ObservationService {
 		return resultsDTO;
 	}
 
-	
-	public List<ObservationDTO> getCategoricalObservationsByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain, String gender) throws SolrServerException {
+	/**
+	 * 
+	 * construct a query to get all the categortical observations for a given
+	 * combination of parameter, gene, zygosity, organisation and strain
+	 *   
+	 * ex solr query: parameterId:1116%20AND%20geneAccession:MGI\:1923523%20AND%20zygosity:homozygote%20AND%20organisationId:9%20AND%20colonyId:HEPD0550_6_G09%20AND%20gender:female
+	 * 
+	 * @param parameterId
+	 * @param gene
+	 * @param zygosity
+	 * @param organisationId
+	 * @param strain
+	 * @param sex
+	 * @return
+	 * @throws SolrServerException
+	 */
+	public List<ObservationDTO> getCategoricalObservationsByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain, String sex) throws SolrServerException {
 
 		List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
-		
-//parameterId:1116%20AND%20geneAccession:MGI\:1923523%20AND%20zygosity:homozygote%20AND%20organisationId:9%20AND%20colonyId:HEPD0550_6_G09%20AND%20gender:female
+
 		SolrQuery query = new SolrQuery()
 	    	.setQuery("((geneAccession:"+gene.replace(":", "\\:") + " AND zygosity:"+zygosity+") OR biologicalSampleGroup:control) ")
 	    	.addFilterQuery("parameterId:"+parameterId)
 	    	.addFilterQuery("organisationId:"+organisationId)
 	    	.addFilterQuery("strain:"+strain.replace(":", "\\:"))
-	    	.addFilterQuery("gender:"+gender)
+	    	.addFilterQuery("gender:"+sex)
 	    	;
 	    query.setStart(0).setRows(10000);    
 
@@ -64,6 +92,7 @@ public class ObservationService {
 
 		return resultsDTO;
 	}
+
 	
 	/**
 	 * Method to return all the experiments for a given combination of parameter and gene organised into
