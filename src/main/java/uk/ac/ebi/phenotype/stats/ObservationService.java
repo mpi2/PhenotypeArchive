@@ -1,15 +1,14 @@
 package uk.ac.ebi.phenotype.stats;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
 
 public class ObservationService {
 
@@ -64,5 +63,17 @@ public class ObservationService {
 	    resultsDTO = response.getBeans(ObservationDTO.class);
 
 		return resultsDTO;
+	}
+	
+	/**
+	 * Method to return all the experiments for a given combination of parameter and gene organised into
+	 * discrete experiments by strain, origanisation, etc.
+	 * 
+	 * @param parameterId
+	 * @param geneAccession
+	 * @return set of experiment DTOs
+	 */
+	Set<ExperimentDTO> getExpermentDTO(Integer parameterId, String geneAccession) {
+		return new HashSet<ExperimentDTO>();
 	}
 }
