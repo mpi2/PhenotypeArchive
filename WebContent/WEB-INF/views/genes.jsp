@@ -193,7 +193,7 @@
 		</div>
 
 <!--  ilinca   -->
-<!-- div class="row-fluid dataset">
+<div class="row-fluid dataset">
         <div class="row-fluid">
             <div class="container span12">
                 <h4 class="caption">Phenotype summary </h4>
@@ -245,7 +245,7 @@
                 </div>
             </div>
         </div>
-</div-->
+</div>
 <!--  end ilinca -->
 
 
