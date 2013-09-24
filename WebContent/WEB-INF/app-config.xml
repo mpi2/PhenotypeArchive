@@ -48,6 +48,9 @@
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 	
+	<bean id="phenSummary" class="uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAOImpl" init-method="instantiateSolrServer">
+	</bean>
+	
 	 <bean id="phenotypeCallSummaryDAOSolr" class="uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolrImpl">
 	</bean>
 
