@@ -1,6 +1,5 @@
 package uk.ac.ebi.phenotype.stats;
 
-import java.util.List;
 import java.util.Set;
 
 import uk.ac.ebi.phenotype.pojo.SexType;
@@ -9,13 +8,13 @@ import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 public class ExperimentDTO {
 	
-	private Integer experimentId;
+	private String experimentId;
 	private String parameterStableId;
 	private String organisation;
 	private String strain;
 	private String geneMarker;
 	private ZygosityType zygosity;
-	private List<SexType> sexes;
+	private Set<SexType> sexes;
 	private StatisticalResult result;
 	
 	private Set<ObservationDTO> mutants;
@@ -23,13 +22,13 @@ public class ExperimentDTO {
 	/**
 	 * @return the experimentId
 	 */
-	public Integer getExperimentId() {
+	public String getExperimentId() {
 		return experimentId;
 	}
 	/**
 	 * @param experimentId the experimentId to set
 	 */
-	public void setExperimentId(Integer experimentId) {
+	public void setExperimentId(String experimentId) {
 		this.experimentId = experimentId;
 	}
 	/**
@@ -95,14 +94,14 @@ public class ExperimentDTO {
 	/**
 	 * @return the sexes
 	 */
-	public List<SexType> getSexes() {
+	public Set<SexType> getSexes() {
 		return sexes;
 	}
 	/**
-	 * @param sexes the sexes to set
+	 * @param treeSet the sexes to set
 	 */
-	public void setSexes(List<SexType> sexes) {
-		this.sexes = sexes;
+	public void setSexes(Set<SexType> treeSet) {
+		this.sexes = treeSet;
 	}
 	/**
 	 * @return the result
@@ -140,9 +139,8 @@ public class ExperimentDTO {
 	public void setControls(Set<ObservationDTO> controls) {
 		this.controls = controls;
 	}
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
+
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -168,9 +166,8 @@ public class ExperimentDTO {
 				+ ((zygosity == null) ? 0 : zygosity.hashCode());
 		return result;
 	}
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
+
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -251,17 +248,16 @@ public class ExperimentDTO {
 		}
 		return true;
 	}
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
+
+
 	@Override
 	public String toString() {
 		return "ExperimentDTO [experimentId=" + experimentId
 				+ ", parameterStableId=" + parameterStableId
 				+ ", organisation=" + organisation + ", strain=" + strain
 				+ ", geneMarker=" + geneMarker + ", zygosity=" + zygosity
-				+ ", sexes=" + sexes + ", result=" + result + ", mutants="
-				+ mutants + ", controls=" + controls + "]";
+				+ ", sexes=" + sexes + ", result=" + result + ", Nummutants="
+				+ mutants.size() + ", Numcontrols=" + controls.size() + "]";
 	}
 
 	

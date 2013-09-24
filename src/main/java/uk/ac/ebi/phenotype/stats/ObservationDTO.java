@@ -11,7 +11,7 @@ public class ObservationDTO {
 	private Integer id;
 
 	@Field
-	private Integer pipelineName;
+	private String pipelineName;
 
 	@Field
 	private String pipelineStableId;
@@ -158,14 +158,14 @@ public class ObservationDTO {
 	/**
 	 * @return the pipelineName
 	 */
-	public Integer getPipelineName() {
+	public String getPipelineName() {
 		return pipelineName;
 	}
 
 	/**
 	 * @param pipelineName the pipelineName to set
 	 */
-	public void setPipelineName(Integer pipelineName) {
+	public void setPipelineName(String pipelineName) {
 		this.pipelineName = pipelineName;
 	}
 
