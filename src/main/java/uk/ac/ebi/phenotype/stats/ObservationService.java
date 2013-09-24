@@ -5,12 +5,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
+
+import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 public class ObservationService {
 
@@ -27,6 +30,26 @@ public class ObservationService {
 		solr = new HttpSolrServer(solrURL);
 	}
 
+
+	private List<ObservationDTO> getControls(Integer parameterId,
+			String geneAccession, String strain,
+			Integer organisationId) throws SolrServerException {
+		List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
+
+		SolrQuery query = new SolrQuery()
+	    	.setQuery("*:*")
+	    	.addFilterQuery("biologicalSampleGroup:control")
+	    	.addFilterQuery("parameterId:"+parameterId)
+	    	.addFilterQuery("organisationId:"+organisationId)
+	    	.addFilterQuery("strain:"+strain.replace(":", "\\:"))
+	    	;
+	    query.setStart(0).setRows(10000);
+	
+	    QueryResponse response = solr.query(query);
+	    resultsDTO = response.getBeans(ObservationDTO.class);
+
+		return resultsDTO;
+	}
 
 	/**
 	 * 
@@ -105,8 +128,7 @@ public class ObservationService {
 	 * @return set of experiment DTOs
 	 * @throws SolrServerException 
 	 */
-	Set<ExperimentDTO> getExpermentDTO(Integer parameterId, String geneAccession) throws SolrServerException {
-		Set<ExperimentDTO> experiments = new HashSet<ExperimentDTO>();
+	List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession) throws SolrServerException {
 
 		List<ObservationDTO> results = new ArrayList<ObservationDTO>();
 		SolrQuery query = new SolrQuery()
@@ -118,19 +140,32 @@ public class ObservationService {
 	    results = solr.query(query).getBeans(ObservationDTO.class);
 
 	    // 
-	    Map<Integer, ExperimentDTO> experimentsMap = new HashMap<Integer, ExperimentDTO>();
+	    Map<String, ExperimentDTO> experimentsMap = new HashMap<String, ExperimentDTO>();
 
 	    for (ObservationDTO observation : results) {
 	    	// collect all the strains, organisations, sexes, and zygosities 
 	    	// combinations of the mutants to get the controls later
 
+	    	// Experiment ID is a combination of 
+	    	// - organisation
+	    	// - strain
+	    	// - parameter
+	    	// - gene
+	    	// - zygosity
 	    	ExperimentDTO experiment;
+	    	
+	    	String experimentKey = observation.getOrganisation()
+	    			+ observation.getStrain()
+	    			+ observation.getParameterStableId()
+	    			+ observation.getGeneAccession()
+	    			+ observation.getZygosity();
 
-	    	if (experimentsMap.containsKey(observation.getExperimentId())) {
-	    		experiment = experimentsMap.get(observation.getExperimentId());
+	    	if (experimentsMap.containsKey(experimentKey)) {
+	    		experiment = experimentsMap.get(experimentKey);
 	    	} else {
 	    		experiment = new ExperimentDTO();
-	    		experiment.setExperimentId(observation.getExperimentId());
+	    		experiment.setExperimentId(experimentKey);
+	    		experiment.setMutants(new HashSet<ObservationDTO>());
 	    	}
 
 	    	if (experiment.getGeneMarker() == null) {
@@ -149,8 +184,32 @@ public class ObservationService {
 	    		experiment.setStrain(observation.getStrain());
 	    	}
 
-	    }
+	    	if (experiment.getZygosity() == null) {
+	    		experiment.setZygosity(ZygosityType.valueOf(observation.getZygosity()));
+	    	}
 
-		return experiments;
+	    	if (experiment.getSexes() == null) {
+	    		//Tree set to keep "female" before "male"
+	    		experiment.setSexes(new TreeSet<SexType>());
+	    		experiment.getSexes().add(SexType.valueOf(observation.getSex()));
+	    	} else {
+	    		experiment.getSexes().add(SexType.valueOf(observation.getSex()));    		
+	    	}
+	    	
+	    	//TODO: set the stat result
+	    	
+	    	experiment.getMutants().add(observation);
+
+	    	if (experiment.getControls() == null) {
+	    		experiment.setControls(new HashSet<ObservationDTO>());
+	    		List<ObservationDTO> controls = getControls(observation.getParameterId(), observation.getGeneAccession(), observation.getStrain(), observation.getOrganisationId() );
+	    		experiment.getControls().addAll(controls);
+	    	}
+
+
+	    }
+	    
+		return new ArrayList<ExperimentDTO>(experimentsMap.values());	
 	}
+
 }
