@@ -32,11 +32,11 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
 import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
-import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
@@ -236,7 +235,7 @@ public class PhenotypesController {
 			Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
 			
 			model.addAttribute("phenoFacets", phenoFacets);
-		} catch (HibernateException e) {
+		} catch (HibernateException|JSONException e) {
 			log.error("ERROR GETTING PHENOTYPE LIST");
 			e.printStackTrace();
 			phenotypeList = new ArrayList<PhenotypeCallSummary>();
