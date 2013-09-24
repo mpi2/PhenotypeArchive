@@ -11,7 +11,7 @@ public class ObservationDTO {
 	private Integer id;
 
 	@Field
-	private Integer pipelineName;
+	private String pipelineName;
 
 	@Field
 	private String pipelineStableId;
