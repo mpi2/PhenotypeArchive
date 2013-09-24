@@ -189,66 +189,7 @@
 				
 			</div>
 			
-			
 		</div>
-
-<!--  ilinca   -->
-<div class="row-fluid dataset">
-        <div class="row-fluid">
-            <div class="container span12">
-                <h4 class="caption">Phenotype summary </h4>
-                <div class="row-fluid" id="phenotypesSummary">
-                
-                <p>Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models.</p>
-                
-                <c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0}">
-                    <p> <b>Both sexes</b> have the following phenotypic abnormalities</p>
-                        <ul>
-                            <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
-                                    <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()} (${summaryObj.getId()})</a>. Evidence from
-                                    <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop">
-                                    ${evidence}
-                                        <c:if test="${!loop.last}">,&nbsp;</c:if>
-                                    </c:forEach>  
-                                    &nbsp;&nbsp;&nbsp; (${summaryObj.getNumberOfEntries()})</li>    
-                            </c:forEach>
-                        </ul>
-                </c:if>
-                
-                <c:if test="${phenotypeSummaryObjects.getFemalePhenotypes().size() > 0}">
-                <p> Following phenotypic abnormalities occured in <b>females</b> only</p>
-                    <ul>
-                        <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getFemalePhenotypes()}">
-                                <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()} (${summaryObj.getId()})</a>. Evidence from
-                                    <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop">
-                                    ${evidence}
-                                        <c:if test="${!loop.last}">,&nbsp;</c:if>
-                                    </c:forEach>
-                                     &nbsp;&nbsp;&nbsp; (${summaryObj.getNumberOfEntries()})</li>                
-                        </c:forEach>
-                    </ul>
-                </c:if>
-                
-                <c:if test="${phenotypeSummaryObjects.getMalePhenotypes().size() > 0}">
-                <p> Following phenotypic abnormalities occured in <b>males</b> only</p>
-                    <ul>
-                        <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getMalePhenotypes()}">
-                                <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()} (${summaryObj.getId()})</a>. Evidence from                     
-                                <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop">
-                                    ${evidence}
-                                    <c:if test="${!loop.last}">,&nbsp;</c:if>
-                                </c:forEach>
-                                &nbsp;&nbsp;&nbsp;   (${summaryObj.getNumberOfEntries()})</li>    
-                        </c:forEach>
-                    </ul>
-                </c:if>
-                </div>
-            </div>
-        </div>
-</div>
-<!--  end ilinca -->
-
-
 		<div class="row-fluid">
 		    
 			<div class="container span12">
@@ -326,6 +267,63 @@
 	</div>
 	</c:if>
 	<!--/row-->
+
+
+<!--  ilinca -->
+<div class="row-fluid dataset">
+        <div class="row-fluid">
+            <div class="container span12">
+                <h4 class="caption">Phenotype summary </h4>
+                <div class="row-fluid" id="phenotypesSummary">
+                
+                <p>Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models.</p>
+                
+                <c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0}">
+                    <p> <b>Both sexes</b> have the following phenotypic abnormalities</p>
+                        <ul>
+                            <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
+                                    <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()} (${summaryObj.getId()})</a>. Evidence from
+                                    <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop">
+                                    ${evidence}
+                                        <c:if test="${!loop.last}">,&nbsp;</c:if>
+                                    </c:forEach>  
+                                    &nbsp;&nbsp;&nbsp; (${summaryObj.getNumberOfEntries()})</li>    
+                            </c:forEach>
+                        </ul>
+                </c:if>
+                
+                <c:if test="${phenotypeSummaryObjects.getFemalePhenotypes().size() > 0}">
+                <p> Following phenotypic abnormalities occured in <b>females</b> only</p>
+                    <ul>
+                        <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getFemalePhenotypes()}">
+                                <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()} (${summaryObj.getId()})</a>. Evidence from
+                                    <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop">
+                                    ${evidence}
+                                        <c:if test="${!loop.last}">,&nbsp;</c:if>
+                                    </c:forEach>
+                                     &nbsp;&nbsp;&nbsp; (${summaryObj.getNumberOfEntries()})</li>                
+                        </c:forEach>
+                    </ul>
+                </c:if>
+                
+                <c:if test="${phenotypeSummaryObjects.getMalePhenotypes().size() > 0}">
+                <p> Following phenotypic abnormalities occured in <b>males</b> only</p>
+                    <ul>
+                        <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getMalePhenotypes()}">
+                                <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()} (${summaryObj.getId()})</a>. Evidence from                     
+                                <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop">
+                                    ${evidence}
+                                    <c:if test="${!loop.last}">,&nbsp;</c:if>
+                                </c:forEach>
+                                &nbsp;&nbsp;&nbsp;   (${summaryObj.getNumberOfEntries()})</li>    
+                        </c:forEach>
+                    </ul>
+                </c:if>
+                </div>
+            </div>
+        </div>
+</div>
+<!--  end ilinca -->
 
 
 	<!--row-->
@@ -421,7 +419,7 @@
 						/* var oDataTable = $('table#phenotypes').dataTable();
 						oDataTable.fnDestroy();  */
 						// use jquery DataTable for table searching/sorting/pagination
-						var aDataTblCols = [0,1,2,3,4,5,6];
+						var aDataTblCols = [0,1,2,3,4,5];
 						var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
 			  						"aoColumns": [
 			  							{ "sType": "html", "mRender":function( data, type, full ) {
@@ -430,7 +428,6 @@
 			  							{ "sType": "html", "mRender":function( data, type, full ) {
 			  						        return (type === "filter") ? $(data).text() : data;
 			  						    }},
-			  						    { "sType": "string"},
 			  						    { "sType": "string"},
 			  							{ "sType": "alt-string", "bSearchable" : false },
 			  						   /*  { "sType": "string"}, */
