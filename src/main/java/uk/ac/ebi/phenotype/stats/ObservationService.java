@@ -31,9 +31,8 @@ public class ObservationService {
 	}
 
 
-	private List<ObservationDTO> getControls(Integer parameterId,
-			String geneAccession, String strain,
-			Integer organisationId) throws SolrServerException {
+	protected List<ObservationDTO> getControls(Integer parameterId,
+			String strain, Integer organisationId) throws SolrServerException {
 		List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
 
 		SolrQuery query = new SolrQuery()
@@ -128,13 +127,13 @@ public class ObservationService {
 	 * @return set of experiment DTOs
 	 * @throws SolrServerException 
 	 */
-	List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession) throws SolrServerException {
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession) throws SolrServerException {
 
 		List<ObservationDTO> results = new ArrayList<ObservationDTO>();
 		SolrQuery query = new SolrQuery()
 	    	.setQuery("geneAccession:"+geneAccession.replace(":", "\\:"))
 	    	.addFilterQuery("parameterId:"+parameterId)
-	    	.addFilterQuery("biologicalSampleGroup:experiment")
+	    	.addFilterQuery("biologicalSampleGroup:experimental")
 	    	.setStart(0)
 	    	.setRows(10000);
 	    results = solr.query(query).getBeans(ObservationDTO.class);
@@ -143,6 +142,7 @@ public class ObservationService {
 	    Map<String, ExperimentDTO> experimentsMap = new HashMap<String, ExperimentDTO>();
 
 	    for (ObservationDTO observation : results) {
+
 	    	// collect all the strains, organisations, sexes, and zygosities 
 	    	// combinations of the mutants to get the controls later
 
@@ -193,7 +193,7 @@ public class ObservationService {
 	    		experiment.setSexes(new TreeSet<SexType>());
 	    		experiment.getSexes().add(SexType.valueOf(observation.getSex()));
 	    	} else {
-	    		experiment.getSexes().add(SexType.valueOf(observation.getSex()));    		
+	    		experiment.getSexes().add(SexType.valueOf(observation.getSex()));
 	    	}
 	    	
 	    	//TODO: set the stat result
@@ -202,10 +202,11 @@ public class ObservationService {
 
 	    	if (experiment.getControls() == null) {
 	    		experiment.setControls(new HashSet<ObservationDTO>());
-	    		List<ObservationDTO> controls = getControls(observation.getParameterId(), observation.getGeneAccession(), observation.getStrain(), observation.getOrganisationId() );
+	    		List<ObservationDTO> controls = getControls(observation.getParameterId(), observation.getStrain(), observation.getOrganisationId() );
 	    		experiment.getControls().addAll(controls);
 	    	}
 
+	    	experimentsMap.put(experimentKey, experiment);
 
 	    }
 	    
