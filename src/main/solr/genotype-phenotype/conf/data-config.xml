@@ -45,19 +45,19 @@
 			</entity>
 								
 			<!-- Link to phenotype parameter -->
-			<entity dataSource="ds1" name="phenotype_parameter" query="select stable_id as parameter_stable_id, name as parameter_name, stable_key as parameter_stable_key from phenotype_parameter where id=${phenotype_call.parameter_id}">
-				<field column="parameter_stable_id" name="parameter_stable_id" />
-            	<field column="parameter_name" name="parameter_name" />
-            	<field column="parameter_stable_key" name="parameter_stable_key" />
+			<entity dataSource="ds1" name="phenotype_parameter" query="select stable_id, name from phenotype_parameter where id=${phenotype_call.parameter_id}">
+				<field column="stable_id" name="parameter_stable_id" />
+            	<field column="name" name="parameter_name" />
+            	<field column="stable_key" name="parameter_stable_key" />
             	<!-- Link to phenotype procedure -->
-				<entity dataSource="ds1" name="phenotype_procedure" query="select id, stable_id as procedure_stable_id, name as procedure_name, stable_key as procedure_stable_key from phenotype_procedure where id=${phenotype_call.procedure_id}">
-					<field column="procedure_stable_id" name="procedure_stable_id" />
-					<field column="procedure_name" name="procedure_name" />
-					<field column="procedure_stable_key" name="procedure_stable_key" />
-					<entity dataSource="ds1" name="phenotype_pipeline" query="select stable_id as pipeline_stable_id, name as pipeline_name, stable_key as pipeline_stable_key from phenotype_pipeline where id=${phenotype_call.pipeline_id}">
-						<field column="pipeline_stable_id" name="pipeline_stable_id" />
-						<field column="pipeline_name" name="pipeline_name" />
-						<field column="pipeline_stable_key" name="pipeline_stable_key" />
+				<entity dataSource="ds1" name="phenotype_procedure" query="select id, stable_id, name, stable_key from phenotype_procedure where id=${phenotype_call.procedure_id}">
+					<field column="stable_id" name="procedure_stable_id" />
+					<field column="name" name="procedure_name" />
+					<field column="stable_key" name="procedure_stable_key" />
+					<entity dataSource="ds1" name="phenotype_pipeline" query="select stable_id, name, stable_key from phenotype_pipeline where id=${phenotype_call.pipeline_id}">
+						<field column="stable_id" name="pipeline_stable_id" />
+						<field column="name" name="pipeline_name" />
+						<field column="stable_key" name="pipeline_stable_key" />
 					</entity>
 				</entity>
 			</entity>

@@ -176,6 +176,12 @@
 								<a href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=601;db=core;g=${gene.id.accession}">Compara&nbsp;View</a>
 					       </td>
 						</tr>
+						<tr class="odd">
+							<td>ENU Link:</td>
+							<td class="gene-data" id="enu_links">
+								<a href="https://databases.apf.edu.au/mutations/snpRow/list?mgiAccessionId=${gene.id.accession}">ENU</a>
+							 </td>
+						</tr>
 					</tbody>
 				</table>
 			</div>
@@ -430,7 +436,8 @@
 			    		//if filter parameters are already set then we need to set them as selected in the dropdowns
 			    		var previousParams=$("#filterParams").html();
 			    		//alert('previous='+previousParams);
-						$('#target').submit(function() {
+			    		
+			    		function refreshGenesPhenoFrag() {
 			  					var rootUrl=window.location.href;
 			    			 // alert(rootUrl);
 			    			  var newUrl=rootUrl.replace("genes", "genesPhenoFrag");
@@ -501,7 +508,9 @@
 									//$oDataTable.fnDraw(); 
 			    				});
 			    			  return false;
-			    			});
+			    			}
+			    		
+						$('#target').submit(refreshGenesPhenoFrag);
 					});
 				</script>
 		

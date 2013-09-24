@@ -385,8 +385,11 @@ public class GenesController {
 			pr.setRawZygosity(rawZygosity);
 			pr.setZygosity(pcs.getZygosity());
 			pr.setProjectId(pcs.getExternalId());
+
+			// DO not include these for the gene datatable
 			pr.setProcedure(pcs.getProcedure());
 			pr.setParameter(pcs.getParameter());
+			
 
 			if(phenotypes.containsKey(pr)) {
 				pr = phenotypes.get(pr);
@@ -398,14 +401,7 @@ public class GenesController {
 
 			phenotypes.put(pr, pr);
 		}
-		for (PhenotypeRow pr : phenotypes.keySet()) {
-			System.out.println(pr);
-		}
-
-		ArrayList<PhenotypeRow> l = new ArrayList<PhenotypeRow>(phenotypes.keySet());
-		Collections.sort(l); // sort in alpha order by MP term name
-
-		model.addAttribute("phenotypes", l);
+		model.addAttribute("phenotypes", new ArrayList<PhenotypeRow>(phenotypes.keySet()));
 	}
 	
         private Map<String, List<Map<String, String>>> getProviders(

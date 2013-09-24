@@ -208,26 +208,21 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 		} else if (!dataSourceName.equals(other.dataSourceName)) {
 			return false;
 		}
-		if (parameter == null) {
-			if (other.parameter != null) {
+		if (gene != null) {
+			if (parameter == null) {
+				if (other.parameter != null) {
+					return false;
+				}
+			} else if (!parameter.equals(other.parameter)) {
 				return false;
 			}
-		} else if (!parameter.equals(other.parameter)) {
-			return false;
-		}
-		if (procedure == null) {
-			if (other.procedure != null) {
+			if (procedure == null) {
+				if (other.procedure != null) {
+					return false;
+				}
+			} else if (!procedure.equals(other.procedure)) {
 				return false;
-			}
-		} else if (!procedure.equals(other.procedure)) {
-			return false;
-		}	
-		if (gene == null) {
-			if (other.gene != null) {
-				return false;
-			}
-		} else if (!gene.equals(other.gene)) {
-			return false;
+			}	
 		}
 		if (phenotypeTerm == null) {
 			if (other.phenotypeTerm != null) {
@@ -239,7 +234,6 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 		if (zygosity != other.zygosity) {
 			return false;
 		}
-		System.out.println("SAME:\n "+this+"\n "+other);
 		return true;
 	}
 
@@ -256,10 +250,10 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 
 	@Override
 	public int compareTo(PhenotypeRow o) {
-		if(o.phenotypeTerm==null || this.phenotypeTerm==null){
+		if(o.allele==null || this.allele==null){
 			return -1;
 		}
-		return this.phenotypeTerm.getName().compareTo(o.phenotypeTerm.getName());
+		return this.allele.getSymbol().compareTo(o.allele.getSymbol());
 		
 	}
 
