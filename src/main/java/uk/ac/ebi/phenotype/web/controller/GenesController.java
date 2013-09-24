@@ -55,6 +55,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.dao.DatasourceDAO;
@@ -384,11 +386,8 @@ public class GenesController {
 			pr.setRawZygosity(rawZygosity);
 			pr.setZygosity(pcs.getZygosity());
 			pr.setProjectId(pcs.getExternalId());
-
-			// DO not include these for the gene datatable
 			pr.setProcedure(pcs.getProcedure());
 			pr.setParameter(pcs.getParameter());
-			
 
 			if(phenotypes.containsKey(pr)) {
 				pr = phenotypes.get(pr);
@@ -400,7 +399,14 @@ public class GenesController {
 
 			phenotypes.put(pr, pr);
 		}
-		model.addAttribute("phenotypes", new ArrayList<PhenotypeRow>(phenotypes.keySet()));
+		for (PhenotypeRow pr : phenotypes.keySet()) {
+			System.out.println(pr);
+		}
+
+		ArrayList<PhenotypeRow> l = new ArrayList<PhenotypeRow>(phenotypes.keySet());
+		Collections.sort(l); // sort in alpha order by MP term name
+
+		model.addAttribute("phenotypes", l);
 	}
 	
         private Map<String, List<Map<String, String>>> getProviders(
