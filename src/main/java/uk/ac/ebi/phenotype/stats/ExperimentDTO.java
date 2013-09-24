@@ -10,16 +10,16 @@ import uk.ac.ebi.phenotype.pojo.ZygosityType;
 public class ExperimentDTO {
 	
 	private Integer experimentId;
-	private String parameter;
+	private String parameterStableId;
 	private String organisation;
 	private String strain;
+	private String geneMarker;
 	private ZygosityType zygosity;
 	private List<SexType> sexes;
 	private StatisticalResult result;
 	
 	private Set<ObservationDTO> mutants;
 	private Set<ObservationDTO> controls;
-
 	/**
 	 * @return the experimentId
 	 */
@@ -33,16 +33,16 @@ public class ExperimentDTO {
 		this.experimentId = experimentId;
 	}
 	/**
-	 * @return the parameter
+	 * @return the parameterStableId
 	 */
-	public String getParameter() {
-		return parameter;
+	public String getParameterStableId() {
+		return parameterStableId;
 	}
 	/**
-	 * @param parameter the parameter to set
+	 * @param parameterStableId the parameterStableId to set
 	 */
-	public void setParameter(String parameter) {
-		this.parameter = parameter;
+	public void setParameterStableId(String parameterStableId) {
+		this.parameterStableId = parameterStableId;
 	}
 	/**
 	 * @return the organisation
@@ -67,6 +67,18 @@ public class ExperimentDTO {
 	 */
 	public void setStrain(String strain) {
 		this.strain = strain;
+	}
+	/**
+	 * @return the geneMarker
+	 */
+	public String getGeneMarker() {
+		return geneMarker;
+	}
+	/**
+	 * @param geneMarker the geneMarker to set
+	 */
+	public void setGeneMarker(String geneMarker) {
+		this.geneMarker = geneMarker;
 	}
 	/**
 	 * @return the zygosity
@@ -128,7 +140,9 @@ public class ExperimentDTO {
 	public void setControls(Set<ObservationDTO> controls) {
 		this.controls = controls;
 	}
-
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -137,11 +151,15 @@ public class ExperimentDTO {
 				+ ((controls == null) ? 0 : controls.hashCode());
 		result = prime * result
 				+ ((experimentId == null) ? 0 : experimentId.hashCode());
+		result = prime * result
+				+ ((geneMarker == null) ? 0 : geneMarker.hashCode());
 		result = prime * result + ((mutants == null) ? 0 : mutants.hashCode());
 		result = prime * result
 				+ ((organisation == null) ? 0 : organisation.hashCode());
-		result = prime * result
-				+ ((parameter == null) ? 0 : parameter.hashCode());
+		result = prime
+				* result
+				+ ((parameterStableId == null) ? 0 : parameterStableId
+						.hashCode());
 		result = prime * result
 				+ ((this.result == null) ? 0 : this.result.hashCode());
 		result = prime * result + ((sexes == null) ? 0 : sexes.hashCode());
@@ -150,7 +168,9 @@ public class ExperimentDTO {
 				+ ((zygosity == null) ? 0 : zygosity.hashCode());
 		return result;
 	}
-
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -177,6 +197,13 @@ public class ExperimentDTO {
 		} else if (!experimentId.equals(other.experimentId)) {
 			return false;
 		}
+		if (geneMarker == null) {
+			if (other.geneMarker != null) {
+				return false;
+			}
+		} else if (!geneMarker.equals(other.geneMarker)) {
+			return false;
+		}
 		if (mutants == null) {
 			if (other.mutants != null) {
 				return false;
@@ -191,11 +218,11 @@ public class ExperimentDTO {
 		} else if (!organisation.equals(other.organisation)) {
 			return false;
 		}
-		if (parameter == null) {
-			if (other.parameter != null) {
+		if (parameterStableId == null) {
+			if (other.parameterStableId != null) {
 				return false;
 			}
-		} else if (!parameter.equals(other.parameter)) {
+		} else if (!parameterStableId.equals(other.parameterStableId)) {
 			return false;
 		}
 		if (result == null) {
@@ -224,16 +251,19 @@ public class ExperimentDTO {
 		}
 		return true;
 	}
-
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
-		return "ExperimentDTO [experimentId=" + experimentId + ", parameter="
-				+ parameter + ", organisation=" + organisation + ", strain="
-				+ strain + ", zygosity=" + zygosity + ", sexes=" + sexes
-				+ ", result=" + result + ", mutants=" + mutants + ", controls="
-				+ controls + "]";
+		return "ExperimentDTO [experimentId=" + experimentId
+				+ ", parameterStableId=" + parameterStableId
+				+ ", organisation=" + organisation + ", strain=" + strain
+				+ ", geneMarker=" + geneMarker + ", zygosity=" + zygosity
+				+ ", sexes=" + sexes + ", result=" + result + ", mutants="
+				+ mutants + ", controls=" + controls + "]";
 	}
 
 	
-
+	
 }
