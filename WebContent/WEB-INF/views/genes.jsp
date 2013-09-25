@@ -15,7 +15,7 @@
         <script type="text/javascript">
         dcc.ie8 = true;
         </script>
-	<![endif]-->
+	<![endif]--> 
 	<script>
           //new dcc.PhenoHeatMap('procedural', 'phenodcc-heatmap', '${gene.symbol}', '${gene.id.accession}', 6, '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/heatmap/');
           new dcc.PhenoHeatMap({
