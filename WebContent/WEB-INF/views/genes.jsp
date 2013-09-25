@@ -415,7 +415,7 @@
 						/* var oDataTable = $('table#phenotypes').dataTable();
 						oDataTable.fnDestroy();  */
 						// use jquery DataTable for table searching/sorting/pagination
-						var aDataTblCols = [0,1,2,3,4,5];
+						var aDataTblCols = [0,1,2,3,4,5,6];
 						var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
 			  						"aoColumns": [
 			  							{ "sType": "html", "mRender":function( data, type, full ) {
@@ -424,6 +424,7 @@
 			  							{ "sType": "html", "mRender":function( data, type, full ) {
 			  						        return (type === "filter") ? $(data).text() : data;
 			  						    }},
+			  						    { "sType": "string"},
 			  						    { "sType": "string"},
 			  							{ "sType": "alt-string", "bSearchable" : false },
 			  						   /*  { "sType": "string"}, */
