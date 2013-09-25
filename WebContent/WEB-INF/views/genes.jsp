@@ -347,17 +347,13 @@
 					<%-- 	${phenoFacet.key}
 					${phenoFacet.value} --%>
 							<select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
-				
-						<option>All</option>
 				<c:forEach var="facet" items="${phenoFacet.value}">
 				<option>${facet.key}</option>
 				</c:forEach>
 				</select> 
 				</c:forEach>
 				<!-- <input type="text" id="myInputTextField"> -->
-				<c:if test="${not empty phenoFacets}">
-				<input type="submit" class='btn primary' value="Filter" />
-				</c:if>
+			
 				</form>
 				<jsp:include page="PhenoFrag.jsp"></jsp:include>
 				<div id="exportIconsDiv"></div>
@@ -476,63 +472,8 @@
 			    	    	}).corner('6px');	 
 			    	    }  
 			    		
-			    		//http://stackoverflow.com/questions/5990386/datatables-search-box-outside-datatable
-			    		//to move the input text or reassign the div that does it and hide the other one??
-			    		//put filtering in another text field than the default so we can position it with the other controls like dropdown ajax filters for project etc
-						/* $('#myInputTextField').keypress(function(){
-							oDataTable.fnFilter( $(this).val() );
-						}); */
-					
-			    		//stuff for dropdown tick boxes here
-			    		$("#resource_fullname").dropdownchecklist( { firstItemChecksAll: true, emptyText: "Projects: All", icon: {}, minWidth: 150 } );
-			    		$("#top_level_mp_term_name").dropdownchecklist( { firstItemChecksAll: true, emptyText: "Top Level MP: All", icon: {} , minWidth: 150} );
-			    		// $("select[multiple]").bsmSelect();
-			    		//if filter parameters are already set then we need to set them as selected in the dropdowns
-			    		var previousParams=$("#filterParams").html();
-			    		//alert('previous='+previousParams);
 			    		
-			    		function refreshGenesPhenoFrag() {
-			  					var rootUrl=window.location.href;
-			    			 // alert(rootUrl);
-			    			  var newUrl=rootUrl.replace("genes", "genesPhenoFrag");
-			    			// alert( $("option:selected").parent().attr("id"));
-			    			 var output ='?';
-			    			//http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=marker_accession_id:MGI:98373&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet=true&facet.field=project_name&facet.field=top_level_mp_term_name&fq=top_level_mp_term_name:(%22vision/eye%20phenotype%22%20OR%20%22craniofacial%20phenotype%22)
-			    			var array1=$("#resource_fullname").val() || [];
-			    			if(array1.length==1){//if only one entry for this parameter then don't use brackets and or
-			    				 output+='&fq=resource_fullname:"'+array1[0]+'"';
-			    			} 
-							if(array1.length>1)	{
-			    				output+='&fq=resource_fullname:(';//note " before and after value for solr handle spaces
-			    			 		for(var i=0; i<array1.length; i++){
-			    						 
-			    							 //if(i==0)output+=' " ';
-			    						 output+='"'+array1[i]+'"';
-			    						 if(i<array1.length-1){
-			    							 output+=' OR ';
-			    						 }else{
-			    							 output+=')';
-			    						 }
-			    						 //console.log('logging='+array1[i]);
-			    			 }
-			    		}
-			    			 var output2 ='';//='"'+ ($("#top_level_mp_term_name").val() || []).join('"&fq=top_level_mp_term_name:"')+'"';
-			    			 var array2=$("#top_level_mp_term_name").val() || [];
-			    				if(array2.length==1){//if only one entry for this parameter then don't use brackets and or
-				    				 output+='&fq=top_level_mp_term_name:"'+array2[0]+'"';
-				    			}
-			    				if(array2.length>1){
-				    				output+='&fq=top_level_mp_term_name:(';//note " before and after value for solr handle spaces
-			    			 			for(var i=0; i<array2.length; i++){
-			    			 				 output+='"'+array2[i]+'"';
-				    						 if(i<array2.length-1){
-				    							 output+=' OR ';
-				    						 }else{
-				    							 output+=')';
-				    						 }
-			    			 		}
-			    			 }
-			    			 newUrl+=output+output2;
+			    		function refreshPhenoTable(newUrl){
 			    			 //alert(newUrl);
 			    			  $.ajax({
 			    				  url: newUrl,
@@ -561,10 +502,134 @@
 			    				  	//alert('calling new table in genes.jsp');
 									//$oDataTable.fnDraw(); 
 			    				});
+			    		}
+			    		//http://stackoverflow.com/questions/5990386/datatables-search-box-outside-datatable
+			    		//to move the input text or reassign the div that does it and hide the other one??
+			    		//put filtering in another text field than the default so we can position it with the other controls like dropdown ajax filters for project etc
+						/* $('#myInputTextField').keypress(function(){
+							oDataTable.fnFilter( $(this).val() );
+						}); */
+					
+			    		//stuff for dropdown tick boxes here
+			    		var multipleSelectA =$('#top_level_mp_term_name');
+						var multipleSelectB =  $('#resource_fullname');
+						createDropdown(multipleSelectA,"Top Level MP: All", multipleSelectB);
+						createDropdown(multipleSelectB, "Projects: All", multipleSelectA);
+						
+			    		function createDropdown(multipleSelect1, emptyText,  multipleSelect2){
+			    		$(multipleSelect1).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, minWidth: 150, onItemClick: function(checkbox, selector){
+			    			
+
+			    			var justChecked = checkbox.prop("checked");
+			    			console.log("justChecked="+justChecked);
+			    			console.log("checked="+ checkbox.val());
+			    			 var values = [];
+			    			
+			    		        for(var  i=0; i < selector.options.length; i++ ) {
+			    		            if (selector.options[i].selected && (selector.options[i].value != "")) {
+			    		                values .push(selector.options[i].value);
+			    		            }
+			    		        }
+			    			
+			    		        if(justChecked){
+			    		        	
+			    		        	/*  if(checkbox.val()!="All"){
+				    		        		console.log("all not checked");
+				    		        		//need to remove the all from the values as this is unchecked by clicking something other than all
+				    		        		 var index = $.inArray("All", values);
+				    		        		 console.log("All index="+index);
+			    		        				values.splice(index, 1+1);//+1 as we have an "all" option added by the plugin
+				    		        	} */
+			    		        	 values.push( checkbox.val());
+			    		        }else{//just unchecked value is in the array so we remove it as already ticked
+			    		        	
+ 		    		        	 var index = $.inArray(checkbox.val(), values);
+				    		         console.log("index="+index);
+			    		        	values.splice(index, 1+1);//+1 as we have an "all" option added by the plugin
+			    		        }  
+			    		        
+			    		      /*    if(index == -1)//just checked value not in the array so we add it
+			    		        {
+			    		        	
+			    		         
+			    		        } */
+			    			  	console.log("values="+values );
+			    			  	//refactor to call the method from here with arrays?
+			    			  			var array1=$(multipleSelect2).val() || [];
+			    			  			console.log("id="+multipleSelect1.attr('id'));
+			    			refreshGenesPhenoFrag(multipleSelect1.attr('id'), values, multipleSelect2.attr('id') , array1  );
+			    			
+			    		}
+			    		} );
+			    		}
+						
+			    		// $("select[multiple]").bsmSelect();
+			    		//if filter parameters are already set then we need to set them as selected in the dropdowns
+			    		var previousParams=$("#filterParams").html();
+			    		//alert('previous='+previousParams);
+			    		
+			    		function refreshGenesPhenoFrag(name1, array1, name2, array2) {
+			  					var rootUrl=window.location.href;
+			    			 console.log("genesPhenFrag method called with array1="+array1+" and array2="+array2);
+			    			 //if array1 or array2 contains "All" then empty them as we don't want to use a filter for that field
+			    			 /* var index = $.inArray("All",array1);
+			    		         console.log("index="+index);
+			    		         if(index != -1)//All is in array
+			    		        {
+			    		        	array1=[];//empty array
+			    		         
+			    		        }
+			    		         
+			    		         var index = $.inArray("All",array2);
+			    		         console.log("index="+index);
+			    		         if(index != -1)//All is in array
+			    		        {
+			    		        	array2=[];//empty array
+			    		         
+			    		        } */
+			    			  var newUrl=rootUrl.replace("genes", "genesPhenoFrag");
+			    			// alert( $("option:selected").parent().attr("id"));
+			    			 var output ='?';
+			    			//http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=marker_accession_id:MGI:98373&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet=true&facet.field=project_name&facet.field=top_level_mp_term_name&fq=top_level_mp_term_name:(%22vision/eye%20phenotype%22%20OR%20%22craniofacial%20phenotype%22)
+			    			//var array1=$("#resource_fullname").val() || [];
+			    			if(array1.length==1){//if only one entry for this parameter then don't use brackets and or
+			    				 output+='&fq='+name1+':"'+array1[0]+'"';
+			    			} 
+							if(array1.length>1)	{
+			    				output+='&fq='+name1+':(';//note " before and after value for solr handle spaces
+			    			 		for(var i=0; i<array1.length; i++){
+			    						 
+			    							 //if(i==0)output+=' " ';
+			    						 output+='"'+array1[i]+'"';
+			    						 if(i<array1.length-1){
+			    							 output+=' OR ';
+			    						 }else{
+			    							 output+=')';
+			    						 }
+			    						 //console.log('logging='+array1[i]);
+			    			 }
+			    		}
+			    			 var output2 ='';//='"'+ ($("#top_level_mp_term_name").val() || []).join('"&fq=top_level_mp_term_name:"')+'"';
+			    			 //var array2=$("#top_level_mp_term_name").val() || [];
+			    				if(array2.length==1){//if only one entry for this parameter then don't use brackets and or
+				    				 output+='&fq='+name2+':"'+array2[0]+'"';
+				    			}
+			    				if(array2.length>1){
+				    				output+='&fq='+name2+':(';//note " before and after value for solr handle spaces
+			    			 			for(var i=0; i<array2.length; i++){
+			    			 				 output+='"'+array2[i]+'"';
+				    						 if(i<array2.length-1){
+				    							 output+=' OR ';
+				    						 }else{
+				    							 output+=')';
+				    						 }
+			    			 		}
+			    			 }
+			    			 newUrl+=output+output2;
+			    			 refreshPhenoTable(newUrl);
 			    			  return false;
 			    			}
-			    		
-						$('#target').submit(refreshGenesPhenoFrag);
+						
 					});
 				</script>
 		
