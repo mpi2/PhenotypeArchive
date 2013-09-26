@@ -157,15 +157,19 @@ public class ObservationService {
 	    	String experimentKey = observation.getOrganisation()
 	    			+ observation.getStrain()
 	    			+ observation.getParameterStableId()
-	    			+ observation.getGeneAccession()
-	    			+ observation.getZygosity();
+	    			+ observation.getGeneAccession();
 
 	    	if (experimentsMap.containsKey(experimentKey)) {
 	    		experiment = experimentsMap.get(experimentKey);
 	    	} else {
 	    		experiment = new ExperimentDTO();
 	    		experiment.setExperimentId(experimentKey);
-	    		experiment.setMutants(new HashSet<ObservationDTO>());
+	    		experiment.setHomozygoteMutants(new HashSet<ObservationDTO>());
+	    		experiment.setHeterozygoteMutants(new HashSet<ObservationDTO>());
+
+	    		//Tree sets to keep "female" before "male" and "hetero" before "hom"
+	    		experiment.setSexes(new TreeSet<SexType>());
+	    		experiment.setZygosities(new TreeSet<ZygosityType>());
 	    	}
 
 	    	if (experiment.getGeneMarker() == null) {
@@ -184,21 +188,17 @@ public class ObservationService {
 	    		experiment.setStrain(observation.getStrain());
 	    	}
 
-	    	if (experiment.getZygosity() == null) {
-	    		experiment.setZygosity(ZygosityType.valueOf(observation.getZygosity()));
-	    	}
-
-	    	if (experiment.getSexes() == null) {
-	    		//Tree set to keep "female" before "male"
-	    		experiment.setSexes(new TreeSet<SexType>());
-	    		experiment.getSexes().add(SexType.valueOf(observation.getSex()));
-	    	} else {
-	    		experiment.getSexes().add(SexType.valueOf(observation.getSex()));
-	    	}
-	    	
+    		experiment.getZygosities().add(ZygosityType.valueOf(observation.getZygosity()));
+     		experiment.getSexes().add(SexType.valueOf(observation.getSex()));
+    	
 	    	//TODO: set the stat result
 	    	
-	    	experiment.getMutants().add(observation);
+	    	if (observation.getZygosity().equals(ZygosityType.heterozygote) || observation.getZygosity().equals(ZygosityType.hemizygote)) {
+	    		// NOTE: in the stats analysis we collapse hom and hemi together
+		    	experiment.getHeterozygoteMutants().add(observation);	    		
+	    	} else if (observation.getZygosity().equals(ZygosityType.heterozygote)) {
+	    		experiment.getHomozygoteMutants().add(observation);
+	    	}
 
 	    	if (experiment.getControls() == null) {
 	    		experiment.setControls(new HashSet<ObservationDTO>());

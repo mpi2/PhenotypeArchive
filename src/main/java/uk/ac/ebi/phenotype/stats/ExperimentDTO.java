@@ -13,126 +13,172 @@ public class ExperimentDTO {
 	private String organisation;
 	private String strain;
 	private String geneMarker;
-	private ZygosityType zygosity;
+	private Set<ZygosityType> zygosities;
 	private Set<SexType> sexes;
 	private StatisticalResult result;
 	
-	private Set<ObservationDTO> mutants;
+	private Set<ObservationDTO> homozygoteMutants;
+	private Set<ObservationDTO> heterozygoteMutants;
 	private Set<ObservationDTO> controls;
+
+	@Override
+	public String toString() {
+		return "ExperimentDTO [experimentId=" + experimentId
+				+ ", parameterStableId=" + parameterStableId
+				+ ", organisation=" + organisation + ", strain=" + strain
+				+ ", geneMarker=" + geneMarker + ", zygosities=" + zygosities
+				+ ", sexes=" + sexes + ", result=" + result + ", Num homozygous mutants="
+				+ homozygoteMutants.size() + ", Num heterozygous mutants="
+				+ heterozygoteMutants.size() + ", Numcontrols=" + controls.size() + "]";
+	}
+
 	/**
 	 * @return the experimentId
 	 */
 	public String getExperimentId() {
 		return experimentId;
 	}
+
 	/**
 	 * @param experimentId the experimentId to set
 	 */
 	public void setExperimentId(String experimentId) {
 		this.experimentId = experimentId;
 	}
+
 	/**
 	 * @return the parameterStableId
 	 */
 	public String getParameterStableId() {
 		return parameterStableId;
 	}
+
 	/**
 	 * @param parameterStableId the parameterStableId to set
 	 */
 	public void setParameterStableId(String parameterStableId) {
 		this.parameterStableId = parameterStableId;
 	}
+
 	/**
 	 * @return the organisation
 	 */
 	public String getOrganisation() {
 		return organisation;
 	}
+
 	/**
 	 * @param organisation the organisation to set
 	 */
 	public void setOrganisation(String organisation) {
 		this.organisation = organisation;
 	}
+
 	/**
 	 * @return the strain
 	 */
 	public String getStrain() {
 		return strain;
 	}
+
 	/**
 	 * @param strain the strain to set
 	 */
 	public void setStrain(String strain) {
 		this.strain = strain;
 	}
+
 	/**
 	 * @return the geneMarker
 	 */
 	public String getGeneMarker() {
 		return geneMarker;
 	}
+
 	/**
 	 * @param geneMarker the geneMarker to set
 	 */
 	public void setGeneMarker(String geneMarker) {
 		this.geneMarker = geneMarker;
 	}
+
 	/**
 	 * @return the zygosity
 	 */
-	public ZygosityType getZygosity() {
-		return zygosity;
+	public Set<ZygosityType> getZygosities() {
+		return zygosities;
 	}
+
 	/**
 	 * @param zygosity the zygosity to set
 	 */
-	public void setZygosity(ZygosityType zygosity) {
-		this.zygosity = zygosity;
+	public void setZygosities(Set<ZygosityType> zygosities) {
+		this.zygosities = zygosities;
 	}
+
 	/**
 	 * @return the sexes
 	 */
 	public Set<SexType> getSexes() {
 		return sexes;
 	}
+
 	/**
-	 * @param treeSet the sexes to set
+	 * @param sexes the sexes to set
 	 */
-	public void setSexes(Set<SexType> treeSet) {
-		this.sexes = treeSet;
+	public void setSexes(Set<SexType> sexes) {
+		this.sexes = sexes;
 	}
+
 	/**
 	 * @return the result
 	 */
 	public StatisticalResult getResult() {
 		return result;
 	}
+
 	/**
 	 * @param result the result to set
 	 */
 	public void setResult(StatisticalResult result) {
 		this.result = result;
 	}
+
 	/**
-	 * @return the mutants
+	 * @return the homozygoteMutants
 	 */
-	public Set<ObservationDTO> getMutants() {
-		return mutants;
+	public Set<ObservationDTO> getHomozygoteMutants() {
+		return homozygoteMutants;
 	}
+
 	/**
-	 * @param mutants the mutants to set
+	 * @param homozygoteMutants the homozygoteMutants to set
 	 */
-	public void setMutants(Set<ObservationDTO> mutants) {
-		this.mutants = mutants;
+	public void setHomozygoteMutants(Set<ObservationDTO> homozygoteMutants) {
+		this.homozygoteMutants = homozygoteMutants;
 	}
+
+	/**
+	 * @return the heterozygoteMutants
+	 */
+	public Set<ObservationDTO> getHeterozygoteMutants() {
+		return heterozygoteMutants;
+	}
+
+	/**
+	 * @param heterozygoteMutants the heterozygoteMutants to set
+	 */
+	public void setHeterozygoteMutants(Set<ObservationDTO> heterozygoteMutants) {
+		this.heterozygoteMutants = heterozygoteMutants;
+	}
+
 	/**
 	 * @return the controls
 	 */
 	public Set<ObservationDTO> getControls() {
 		return controls;
 	}
+
 	/**
 	 * @param controls the controls to set
 	 */
@@ -140,7 +186,9 @@ public class ExperimentDTO {
 		this.controls = controls;
 	}
 
-
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -151,7 +199,14 @@ public class ExperimentDTO {
 				+ ((experimentId == null) ? 0 : experimentId.hashCode());
 		result = prime * result
 				+ ((geneMarker == null) ? 0 : geneMarker.hashCode());
-		result = prime * result + ((mutants == null) ? 0 : mutants.hashCode());
+		result = prime
+				* result
+				+ ((heterozygoteMutants == null) ? 0 : heterozygoteMutants
+						.hashCode());
+		result = prime
+				* result
+				+ ((homozygoteMutants == null) ? 0 : homozygoteMutants
+						.hashCode());
 		result = prime * result
 				+ ((organisation == null) ? 0 : organisation.hashCode());
 		result = prime
@@ -163,11 +218,13 @@ public class ExperimentDTO {
 		result = prime * result + ((sexes == null) ? 0 : sexes.hashCode());
 		result = prime * result + ((strain == null) ? 0 : strain.hashCode());
 		result = prime * result
-				+ ((zygosity == null) ? 0 : zygosity.hashCode());
+				+ ((zygosities == null) ? 0 : zygosities.hashCode());
 		return result;
 	}
 
-
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -201,11 +258,18 @@ public class ExperimentDTO {
 		} else if (!geneMarker.equals(other.geneMarker)) {
 			return false;
 		}
-		if (mutants == null) {
-			if (other.mutants != null) {
+		if (heterozygoteMutants == null) {
+			if (other.heterozygoteMutants != null) {
 				return false;
 			}
-		} else if (!mutants.equals(other.mutants)) {
+		} else if (!heterozygoteMutants.equals(other.heterozygoteMutants)) {
+			return false;
+		}
+		if (homozygoteMutants == null) {
+			if (other.homozygoteMutants != null) {
+				return false;
+			}
+		} else if (!homozygoteMutants.equals(other.homozygoteMutants)) {
 			return false;
 		}
 		if (organisation == null) {
@@ -243,22 +307,16 @@ public class ExperimentDTO {
 		} else if (!strain.equals(other.strain)) {
 			return false;
 		}
-		if (zygosity != other.zygosity) {
+		if (zygosities == null) {
+			if (other.zygosities != null) {
+				return false;
+			}
+		} else if (!zygosities.equals(other.zygosities)) {
 			return false;
 		}
 		return true;
 	}
 
-
-	@Override
-	public String toString() {
-		return "ExperimentDTO [experimentId=" + experimentId
-				+ ", parameterStableId=" + parameterStableId
-				+ ", organisation=" + organisation + ", strain=" + strain
-				+ ", geneMarker=" + geneMarker + ", zygosity=" + zygosity
-				+ ", sexes=" + sexes + ", result=" + result + ", Nummutants="
-				+ mutants.size() + ", Numcontrols=" + controls.size() + "]";
-	}
 
 	
 	
