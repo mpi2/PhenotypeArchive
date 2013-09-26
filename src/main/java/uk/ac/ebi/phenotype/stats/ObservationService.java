@@ -193,10 +193,10 @@ public class ObservationService {
     	
 	    	//TODO: set the stat result
 	    	
-	    	if (observation.getZygosity().equals(ZygosityType.heterozygote) || observation.getZygosity().equals(ZygosityType.hemizygote)) {
+	    	if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.heterozygote) || ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.hemizygote)) {
 	    		// NOTE: in the stats analysis we collapse hom and hemi together
 		    	experiment.getHeterozygoteMutants().add(observation);	    		
-	    	} else if (observation.getZygosity().equals(ZygosityType.heterozygote)) {
+	    	} else if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.heterozygote)) {
 	    		experiment.getHomozygoteMutants().add(observation);
 	    	}
 
