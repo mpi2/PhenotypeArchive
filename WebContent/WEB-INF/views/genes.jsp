@@ -269,10 +269,11 @@
 	</c:if>
 	<!--/row-->
 
-
-<!--  ilinca -->
-<div class="row-fluid dataset">
-        <div class="row-fluid">
+	<!--row-->
+	<div class="row-fluid dataset">
+	    <div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
+	    <h4 class="caption">Phenotype Associations from EuroPhenome and WTSI Mouse Genetics Project</h4>
+	     <div class="row-fluid">
             <div class="container span12">
                 <h4 class="caption">Phenotype summary </h4>
                 <div class="row-fluid" id="phenotypesSummary">
@@ -323,14 +324,6 @@
                 </div>
             </div>
         </div>
-</div>
-<!--  end ilinca -->
-
-
-	<!--row-->
-	<div class="row-fluid dataset">
-	    <div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-	    <h4 class="caption">Phenotype Associations from EuroPhenome and WTSI Mouse Genetics Project</h4>
 		<div class="row-fluid">
 			<div class="container span12">
 				

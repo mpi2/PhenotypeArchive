@@ -233,6 +233,9 @@ $(document).ready(function(){
 							$('#top_level_mp_term_name').val(filter);
 							//$("#top_level_mp_term_name").val(...) // do something to the original select, for example, changing which items are selected
 							$("#top_level_mp_term_name").dropdownchecklist("refresh");
+							$('#resource_fullname').val([]);
+							//$("#top_level_mp_term_name").val(...) // do something to the original select, for example, changing which items are selected
+							$("#resource_fullname").dropdownchecklist("refresh");
 							var array1= $('#top_level_mp_term_name').val() || [];
 							var array2=[];//set array for second dropdown to empty so we get the same numbers as in Illincas links if want to keep we need this code -> $('#resource_fullname').val() || [];
 							refreshGenesPhenoFrag('top_level_mp_term_name', array1, 'resource_fullname' , array2  );
