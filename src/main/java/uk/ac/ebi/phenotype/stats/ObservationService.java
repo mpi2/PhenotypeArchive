@@ -1,6 +1,9 @@
 package uk.ac.ebi.phenotype.stats;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -8,14 +11,23 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
+@Service
 public class ObservationService {
+
+	@Autowired
+	UnidimensionalStatisticsDAO uDAO;
 
 	private String solrURL = "http://localhost:8080/solr/experiment";
 	private HttpSolrServer solr;
@@ -69,16 +81,38 @@ public class ObservationService {
 		List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
 
 		SolrQuery query = new SolrQuery()
-	    	.setQuery("((geneAccession:"+gene.replace(":", "\\:") + " AND zygosity:"+zygosity+") OR biologicalSampleGroup:control) ")
+	    	.setQuery("geneAccession:"+gene.replace(":", "\\:") + " AND zygosity:"+zygosity+"")
 	    	.addFilterQuery("parameterId:"+parameterId)
 	    	.addFilterQuery("organisationId:"+organisationId)
 	    	.addFilterQuery("strain:"+strain.replace(":", "\\:"))
 	    	;
-	    query.setStart(0).setRows(10000);
+	    query.setStart(0).setRows(1000);
 	
 	    QueryResponse response = solr.query(query);
 	    resultsDTO = response.getBeans(ObservationDTO.class);
+	    
+	    Date max = new Date(0L); //epoch
+	    for (ObservationDTO o : resultsDTO) {
+	    	if (o.getDateOfExperiment().after(max)) {
+	    		max=o.getDateOfExperiment();
+	    	}
+	    }
 
+	    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00");
+
+		query = new SolrQuery()
+			.setQuery("biologicalSampleGroup:control AND dateOfExperiment:["+df.format(new Date(0L))+"Z TO "+df.format(max)+"Z]")
+			.addFilterQuery("parameterId:"+parameterId)
+			.addFilterQuery("organisationId:"+organisationId)
+			.addFilterQuery("strain:"+strain.replace(":", "\\:"))
+			.setSortField("dateOfExperiment", ORDER.desc)
+			;
+		query.setStart(0).setRows(1000);
+		response = solr.query(query);
+
+		resultsDTO.addAll(response.getBeans(ObservationDTO.class));
+
+	    
 		return resultsDTO;
 	}
 
@@ -194,7 +228,9 @@ public class ObservationService {
     		experiment.getZygosities().add(ZygosityType.valueOf(observation.getZygosity()));
      		experiment.getSexes().add(SexType.valueOf(observation.getSex()));
     	
-	    	//TODO: set the stat result
+     		if (experiment.getResult()==null && experiment.getControlBiologicalModelId()==null && experiment.getExperimentalBiologicalModelId()==null) {
+     			experiment.setResult((StatisticalResult) uDAO.getUnidimensionalResultByParameterIdAndBiologicalModelIds(observation.getParameterId(), experiment.getControlBiologicalModelId(), experiment.getExperimentalBiologicalModelId()));
+     		}
 	    	
 	    	if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.heterozygote) || ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.hemizygote)) {
 	    		// NOTE: in the stats analysis we collapse hom and hemi together
