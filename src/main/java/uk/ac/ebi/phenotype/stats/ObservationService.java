@@ -30,6 +30,8 @@ public class ObservationService {
 	UnidimensionalStatisticsDAO uDAO;
 
 	private String solrURL = "http://localhost:8080/solr/experiment";
+	private static final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00");
+
 	private HttpSolrServer solr;
 
 	public ObservationService() {
@@ -44,22 +46,21 @@ public class ObservationService {
 
 
 	protected List<ObservationDTO> getControls(Integer parameterId,
-			String strain, Integer organisationId) throws SolrServerException {
-		List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
+			String strain, Integer organisationId, Date max) throws SolrServerException {
 
 		SolrQuery query = new SolrQuery()
-	    	.setQuery("*:*")
-	    	.addFilterQuery("biologicalSampleGroup:control")
-	    	.addFilterQuery("parameterId:"+parameterId)
-	    	.addFilterQuery("organisationId:"+organisationId)
-	    	.addFilterQuery("strain:"+strain.replace(":", "\\:"))
-	    	;
-	    query.setStart(0).setRows(10000);
-	
-	    QueryResponse response = solr.query(query);
-	    resultsDTO = response.getBeans(ObservationDTO.class);
+			.setQuery("*:*")
+			.addFilterQuery("biologicalSampleGroup:control")
+			.addFilterQuery("dateOfExperiment:["+df.format(new Date(0L))+"Z TO "+df.format(max)+"Z]")
+			.addFilterQuery("parameterId:"+parameterId)
+			.addFilterQuery("organisationId:"+organisationId)
+			.addFilterQuery("strain:"+strain.replace(":", "\\:"))
+			.setSortField("dateOfExperiment", ORDER.desc)
+			;
+		query.setStart(0).setRows(1000);
+		QueryResponse response = solr.query(query);
 
-		return resultsDTO;
+		return response.getBeans(ObservationDTO.class);
 	}
 
 	/**
@@ -98,20 +99,9 @@ public class ObservationService {
 	    	}
 	    }
 
-	    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00");
 
-		query = new SolrQuery()
-			.setQuery("biologicalSampleGroup:control AND dateOfExperiment:["+df.format(new Date(0L))+"Z TO "+df.format(max)+"Z]")
-			.addFilterQuery("parameterId:"+parameterId)
-			.addFilterQuery("organisationId:"+organisationId)
-			.addFilterQuery("strain:"+strain.replace(":", "\\:"))
-			.setSortField("dateOfExperiment", ORDER.desc)
-			;
-		query.setStart(0).setRows(1000);
-		response = solr.query(query);
 
-		resultsDTO.addAll(response.getBeans(ObservationDTO.class));
-
+		resultsDTO.addAll(getControls(parameterId, strain, organisationId, max));
 	    
 		return resultsDTO;
 	}
@@ -172,7 +162,8 @@ public class ObservationService {
 	    	.setRows(10000);
 	    results = solr.query(query).getBeans(ObservationDTO.class);
 
-	    // 
+	    Integer organisationId = null;
+	    
 	    Map<String, ExperimentDTO> experimentsMap = new HashMap<String, ExperimentDTO>();
 
 	    for (ObservationDTO observation : results) {
@@ -204,6 +195,10 @@ public class ObservationService {
 	    		//Tree sets to keep "female" before "male" and "hetero" before "hom"
 	    		experiment.setSexes(new TreeSet<SexType>());
 	    		experiment.setZygosities(new TreeSet<ZygosityType>());
+	    	}
+
+	    	if(organisationId==null){
+	    		organisationId = observation.getOrganisationId();
 	    	}
 
 	    	if (experiment.getGeneMarker() == null) {
@@ -239,18 +234,37 @@ public class ObservationService {
 	    		experiment.getHomozygoteMutants().add(observation);
 	    	}
 
+
+	    	experimentsMap.put(experimentKey, experiment);
+
+	    }
+
+	    // NOTE!!!
+	    // TODO: Hom and Het probably need their own control groups
+	    //
+	    for (ExperimentDTO experiment : experimentsMap.values()) {
 	    	if (experiment.getControls() == null) {
+
+	    		Date max = new Date(0L); //epoch
+	    	    for (ObservationDTO o : experiment.getHeterozygoteMutants()) {
+	    	    	if (o.getDateOfExperiment().after(max)) {
+	    	    		max=o.getDateOfExperiment();
+	    	    	}
+	    	    }
+	    	    for (ObservationDTO o : experiment.getHomozygoteMutants()) {
+	    	    	if (o.getDateOfExperiment().after(max)) {
+	    	    		max=o.getDateOfExperiment();
+	    	    	}
+	    	    }
+
 	    		experiment.setControls(new HashSet<ObservationDTO>());
-	    		List<ObservationDTO> controls = getControls(observation.getParameterId(), observation.getStrain(), observation.getOrganisationId() );
+	    		List<ObservationDTO> controls = getControls(parameterId, experiment.getStrain(), organisationId, max);
 	    		experiment.getControls().addAll(controls);
 	    		
 	    		if(experiment.getControlBiologicalModelId()==null && controls.size()>0) {
 		    		experiment.setControlBiologicalModelId(controls.get(0).getBiologicalModelId());
 		    	}
-	    	}
-
-	    	experimentsMap.put(experimentKey, experiment);
-
+	    	}	    	
 	    }
 	    
 		return new ArrayList<ExperimentDTO>(experimentsMap.values());	
