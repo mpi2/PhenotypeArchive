@@ -1,7 +1,15 @@
 package uk.ac.ebi.phenotype.stats;
 
+import uk.ac.ebi.phenotype.pojo.BiologicalModel;
+
 public class ChartData {
-	
+	BiologicalModel expBiologicalModel;
+	public BiologicalModel getExpBiologicalModel() {
+		return expBiologicalModel;
+	}
+	public void setExpBiologicalModel(BiologicalModel expBiologicalModel) {
+		this.expBiologicalModel = expBiologicalModel;
+	}
 	private Float min=new Float(0);
 	public Float getMin() {
 		return min;

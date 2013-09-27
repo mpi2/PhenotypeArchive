@@ -127,9 +127,6 @@ public class UnidimensionalChartAndTableProvider {
 										|| zyList.contains(zType.name())) {
 									
 									 //loop over all the experimental docs and get all that apply to current loop parameters
-									 net.sf.json.JSONArray docs =
-									 JSONRestUtil.getDocArray(expResult);
-									 
 									 List<Float> mutantCounts=new
 											 ArrayList<Float>();
 									 
