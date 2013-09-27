@@ -1,6 +1,9 @@
 package uk.ac.ebi.phenotype.stats;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
@@ -20,6 +23,26 @@ public class ExperimentDTO {
 	private Set<ObservationDTO> homozygoteMutants;
 	private Set<ObservationDTO> heterozygoteMutants;
 	private Set<ObservationDTO> controls;
+	private Integer controlBiologicalModelId;
+	private Integer experimentalBiologicalModelId;
+	
+	public Integer getControlBiologicalModelId() {
+		return controlBiologicalModelId;
+	}
+
+	public void setControlBiologicalModelId(Integer controlBiologicalModelId) {
+		this.controlBiologicalModelId = controlBiologicalModelId;
+	}
+
+	public Integer getExperimentalBiologicalModelId() {
+		return experimentalBiologicalModelId;
+	}
+
+	public void setExperimentalBiologicalModelId(
+			Integer experimentalBiologicalModelId) {
+		this.experimentalBiologicalModelId = experimentalBiologicalModelId;
+	}
+
 
 	@Override
 	public String toString() {
@@ -318,6 +341,18 @@ public class ExperimentDTO {
 	}
 
 
-	
+	public Set<String> getCatagories() {
+		Set<String> categorieSet=new TreeSet<String>();
+		for(ObservationDTO ob: controls) {
+			categorieSet.add(ob.getCategory());
+		}
+		for(ObservationDTO ob: homozygoteMutants) {
+			categorieSet.add(ob.getCategory());
+		}
+		for(ObservationDTO ob: heterozygoteMutants) {
+			categorieSet.add(ob.getCategory());
+		}
+		return categorieSet;	
+	}
 	
 }

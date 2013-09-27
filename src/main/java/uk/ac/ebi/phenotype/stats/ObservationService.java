@@ -187,6 +187,9 @@ public class ObservationService {
 	    	if (experiment.getStrain() == null) {
 	    		experiment.setStrain(observation.getStrain());
 	    	}
+	    	if(experiment.getExperimentalBiologicalModelId()==null) {
+	    		experiment.setExperimentalBiologicalModelId(observation.getBiologicalModelId());
+	    	}
 
     		experiment.getZygosities().add(ZygosityType.valueOf(observation.getZygosity()));
      		experiment.getSexes().add(SexType.valueOf(observation.getSex()));
@@ -196,7 +199,7 @@ public class ObservationService {
 	    	if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.heterozygote) || ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.hemizygote)) {
 	    		// NOTE: in the stats analysis we collapse hom and hemi together
 		    	experiment.getHeterozygoteMutants().add(observation);	    		
-	    	} else if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.heterozygote)) {
+	    	} else if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.homozygote)) {
 	    		experiment.getHomozygoteMutants().add(observation);
 	    	}
 
@@ -204,6 +207,10 @@ public class ObservationService {
 	    		experiment.setControls(new HashSet<ObservationDTO>());
 	    		List<ObservationDTO> controls = getControls(observation.getParameterId(), observation.getStrain(), observation.getOrganisationId() );
 	    		experiment.getControls().addAll(controls);
+	    		
+	    		if(experiment.getControlBiologicalModelId()==null && controls.size()>0) {
+		    		experiment.setControlBiologicalModelId(controls.get(0).getBiologicalModelId());
+		    	}
 	    	}
 
 	    	experimentsMap.put(experimentKey, experiment);

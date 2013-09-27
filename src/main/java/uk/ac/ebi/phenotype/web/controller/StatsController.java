@@ -27,6 +27,7 @@ import java.util.Map;
 
 import net.sf.json.JSONArray;
 
+import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +61,9 @@ import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ChartType;
+import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 import uk.ac.ebi.phenotype.stats.JSONGraphUtils;
+import uk.ac.ebi.phenotype.stats.ObservationService;
 import uk.ac.ebi.phenotype.stats.PipelineProcedureData;
 import uk.ac.ebi.phenotype.stats.PipelineProcedureTablesCreator;
 import uk.ac.ebi.phenotype.stats.TableObject;
@@ -105,6 +108,8 @@ public class StatsController implements BeanFactoryAware {
 	@Autowired
 	private PhenotypeCallSummaryDAO phenotypeCallSummaryDAO;
 	
+	@Autowired
+	private ObservationService observationService;
 		
 	/**
 	 * Runs when the request missing an accession ID. This redirects to the
@@ -122,7 +127,7 @@ public class StatsController implements BeanFactoryAware {
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
 			@RequestParam(required = false, value = "model") String[] biologicalModelsParam,
 			@PathVariable String acc, Model model)
-			throws GenomicFeatureNotFoundException, IOException, URISyntaxException {
+			throws GenomicFeatureNotFoundException, IOException, URISyntaxException, SolrServerException {
 
 		boolean statsError=false;
 		// Get the global application configuration
@@ -176,6 +181,7 @@ public class StatsController implements BeanFactoryAware {
 			//make a solr request for each param?
 			 //get all the experimental data for this param and gene
 			 net.sf.json.JSONObject expResult=JSONGraphUtils.getExperimentalData(parameterId, acc, config);
+			 
 			 JSONArray resultsArray=JSONRestUtil.getDocArray(expResult);
 			 if(resultsArray.size()>0) {
 				 net.sf.json.JSONObject exp=resultsArray.getJSONObject(0);
@@ -196,6 +202,9 @@ public class StatsController implements BeanFactoryAware {
 			//ObservationType observationTypeForParam=Utilities.checkType(parameter);
 			log.info("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
 			
+			
+			List<ExperimentDTO> experimentList = observationService.getExperimentDTO(parameter.getId(), acc);
+			System.out.println("Experiment dto marker="+experimentList);
 			//ESLIM_003_001_003 id=962 calorimetry data for time series graph new MGI:1926153
 			//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1926153?parameterId=ESLIM_003_001_003
 			try{
@@ -209,15 +218,14 @@ public class StatsController implements BeanFactoryAware {
 			if(observationTypeForParam.equals(ObservationType.unidimensional)){
 				//http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
 				log.info("calling chart creation for unidimensional data");
-					UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(bmDAO, config, expResult, unidimensionalMutantBiologicalModels, parameter, acc , model, genderList, zyList, ChartType.UnidimensionalBoxPlot);
+					UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(experimentList, bmDAO, config, expResult, unidimensionalMutantBiologicalModels, parameter, acc , model, genderList, zyList, ChartType.UnidimensionalBoxPlot);
 				allUnidimensionalChartsAndTables.add(unidimensionalChartNTables);
 			}
 			if(observationTypeForParam.equals(ObservationType.categorical)){
 				//https://dev.mousephenotype.org/mi/impc/dev/phenotype-archive/stats/genes/MGI:1346872?parameterId=ESLIM_001_001_004
 			
-					CategoricalResultAndCharts categoricalResultAndCharts=categoricalChartAndTableProvider.doCategoricalData(bmDAO, config, expResult, categoricalMutantBiologicalModels,  parameter, acc, model, genderList, zyList,
-					biologicalModelsParams, charts, categoricalTables, 
-					parameterId);
+					CategoricalResultAndCharts categoricalResultAndCharts=categoricalChartAndTableProvider.doCategoricalData(experimentList, bmDAO, config, parameter,  acc, model, genderList, zyList, biologicalModelsParams,
+					charts, categoricalTables, parameterId);
 					allCategoricalResultAndCharts.add(categoricalResultAndCharts);
 			
 			}
@@ -260,7 +268,7 @@ public class StatsController implements BeanFactoryAware {
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
 			@RequestParam(required = false, value = "model") String[] biologicalModelsParam,
 			@PathVariable String acc, Model model)
-			throws GenomicFeatureNotFoundException, IOException, URISyntaxException {
+			throws GenomicFeatureNotFoundException, IOException, URISyntaxException, SolrServerException {
 
 		boolean statsError=false;
 		// Get the global application configuration
@@ -284,6 +292,7 @@ public class StatsController implements BeanFactoryAware {
 		
 		List<BiologicalModel> unidimensionalMutantBiologicalModels=new ArrayList<BiologicalModel>();
 		
+		
 		for (String parameterId : paramIds) {
 			ObservationType observationTypeForParam=null;
 			 net.sf.json.JSONObject expResult=JSONGraphUtils.getExperimentalData(parameterId, acc, config);
@@ -303,7 +312,8 @@ public class StatsController implements BeanFactoryAware {
 			if(parameterUnits.length>1){
 				yUnits=parameterUnits[1];
 			}
-			
+			List<ExperimentDTO> experimentList = observationService.getExperimentDTO(parameter.getId(), acc);
+			System.out.println("Experiment dto marker="+experimentList);
 			log.info("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
 			
 			//ESLIM_003_001_003 id=962 calorimetry data for time series graph new MGI:1926153
@@ -313,7 +323,7 @@ public class StatsController implements BeanFactoryAware {
 			if(observationTypeForParam.equals(ObservationType.unidimensional)){
 				//http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
 				
-				UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(bmDAO, config, expResult, unidimensionalMutantBiologicalModels, parameter, acc , model, genderList, zyList, ChartType.UnidimensionalScatter);
+				UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(experimentList, bmDAO, config, expResult, unidimensionalMutantBiologicalModels, parameter, acc , model, genderList, zyList, ChartType.UnidimensionalScatter);
 				allUnidimensionalChartsAndTables.add(unidimensionalChartNTables);
 			}
 			

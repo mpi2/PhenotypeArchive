@@ -40,6 +40,10 @@
 	<!-- Weaves in transactional advice around @Transactional methods -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
+<bean id="observationService" class="uk.ac.ebi.phenotype.stats.ObservationService">
+		<constructor-arg  value="${internalSolrUrl}/experiment" />
+	</bean>
+	
 	<bean id="biologicalModelDAO" class="uk.ac.ebi.phenotype.dao.BiologicalModelDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>

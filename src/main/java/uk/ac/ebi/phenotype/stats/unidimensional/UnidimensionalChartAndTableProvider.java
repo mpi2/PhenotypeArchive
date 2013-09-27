@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.json.JSONObject;
 
@@ -30,8 +32,10 @@ import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ChartType;
 import uk.ac.ebi.phenotype.stats.ChartUtils;
+import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 import uk.ac.ebi.phenotype.stats.JSONGraphUtils;
 import uk.ac.ebi.phenotype.stats.MouseDataPoint;
+import uk.ac.ebi.phenotype.stats.ObservationDTO;
 import uk.ac.ebi.phenotype.stats.TableObject;
 
 @Service
@@ -46,76 +50,13 @@ public class UnidimensionalChartAndTableProvider {
 
 
 	public UnidimensionalDataSet doUnidimensionalData(
-			BiologicalModelDAO bmDAO, Map<String, String> config, JSONObject expResult,
+			List<ExperimentDTO> experimentList, BiologicalModelDAO bmDAO, Map<String, String> config, JSONObject expResult,
 			List<BiologicalModel> unidimensionalMutantBiologicalModels,
 			Parameter parameter, String acc, Model model,
 			List<String> genderList, List<String> zyList, ChartType boxOrScatter)
 			throws SQLException, IOException, URISyntaxException {
 
-		net.sf.json.JSONObject facetCounts = expResult
-				.getJSONObject("facet_counts");
-		net.sf.json.JSONObject facetFields = facetCounts
-				.getJSONObject("facet_fields");
-		System.out.println("facetFields=" + facetFields);
-		net.sf.json.JSONArray facets = facetFields.getJSONArray("organisation");
-		ArrayList<String> organisationsWithData = new ArrayList<>();
-		for (int i = 0; i < facets.size(); i += 2) {
-			String facet = facets.getString(i);
-			int count = facets.getInt(i + 1);
-			if (count > 0) {
-				organisationsWithData.add(facet);
-			}
-		}
-		System.out.println("organisations with data=" + organisationsWithData);
-
-		net.sf.json.JSONArray facets2 = facetFields.getJSONArray("strain");
-		// get the strains from the facets
-		ArrayList<String> strains = new ArrayList<>();
-		for (int i = 0; i < facets2.size(); i += 2) {
-			String facet = facets2.getString(i);
-			int count = facets2.getInt(i + 1);
-			if (count > 0) {
-				strains.add(facet);
-			}
-		}
-		System.out.println("strains=" + strains);
-
-		net.sf.json.JSONArray facets3 = facetFields
-				.getJSONArray("biologicalModelId");
-		// get the strains from the facets
-		ArrayList<Integer> biologicalModelIds = new ArrayList<Integer>();
-		for (int i = 0; i < facets3.size(); i += 2) {
-			int facet = facets3.getInt(i);
-			int count = facets3.getInt(i + 1);
-			if (count > 0) {
-				biologicalModelIds.add(facet);
-			}
-		}
-		System.out.println("biologicalModelIds=" + biologicalModelIds);
-		net.sf.json.JSONArray facets4 = facetFields.getJSONArray("gender");
-		// get the strains from the facets
-		ArrayList<String> genders = new ArrayList<>();
-		for (int i = 0; i < facets4.size(); i += 2) {
-			String facet = facets4.getString(i);
-			int count = facets4.getInt(i + 1);
-			if (count > 0) {
-				genders.add(facet);
-			}
-		}
-		System.out.println("genders=" + genders);
-
-		net.sf.json.JSONArray facets5 = facetFields.getJSONArray("zygosity");
-		// get the strains from the facets
-		ArrayList<ZygosityType> zygosities = new ArrayList<ZygosityType>();
-		for (int i = 0; i < facets5.size(); i += 2) {
-			String facet = facets5.getString(i);
-			int count = facets5.getInt(i + 1);
-			if (count > 0) {
-				ZygosityType zygosityType = ZygosityType.valueOf(facet);
-				zygosities.add(zygosityType);
-			}
-		}
-		System.out.println("zygosities=" + zygosities);
+	
 
 		// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
 		// String parameterId="ESLIM_015_001_018";// ESLIM_015_001_018
@@ -134,97 +75,17 @@ public class UnidimensionalChartAndTableProvider {
 		Float min = new Float(1000000000);
 
 		// get control data
-		for (String organisation : organisationsWithData) {
-
-			for (String strain : strains) {
-			Integer 	controlBiologicalModelId=null;
-				net.sf.json.JSONObject controlResult = JSONGraphUtils.getControlData( organisation, strain, parameter.getStableId(), config);
-				
-				BiologicalModel controlBiologicalModel=null;
-				net.sf.json.JSONObject controlFacetCounts = controlResult.getJSONObject("facet_counts");
-				net.sf.json.JSONObject controlFacetFields = controlFacetCounts
-						.getJSONObject("facet_fields");
-				System.out.println("facetFields=" + facetFields);
-				
-				net.sf.json.JSONArray controlFacets = controlFacetFields.getJSONArray("biologicalModelId");
-				ArrayList<Integer> controlBiologicalModelIds = new ArrayList<>();
-				for (int i = 0; i < facets.size(); i += 2) {
-					int facet = controlFacets.getInt(i);
-					int count = controlFacets.getInt(i + 1);
-					if (count > 0) {
-						controlBiologicalModelIds.add(facet);
-					}
-				}
-					if(controlBiologicalModelIds.size()!=1) {
-								System.err.println("There should be only one control biological model");
-					}else {
-										controlBiologicalModelId=controlBiologicalModelIds.get(0);
-										controlBiologicalModel = bmDAO.getBiologicalModelById(controlBiologicalModelId);
-					}
-				System.out.println("Control Biological models=" + controlBiologicalModelIds);
-
-				for (int biologicalModelId : biologicalModelIds) {
-BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(biologicalModelId);
-					for (String sex : genders) { // one graph for each sex if
+		for (ExperimentDTO experiment : experimentList) {
+			BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(experiment.getExperimentalBiologicalModelId());
+					for (SexType sexType : experiment.getSexes()) { // one graph for each sex if
 													// unspecified in params to
 													// page or in list of sex
 													// param specified
-						SexType sexType = SexType.valueOf(sex);
-
+						
 						if (genderList.isEmpty()
 								|| genderList.contains(sexType.name())) {
 
-							//
-							// //
-							// logger.debug("allelicComposition="+biologicalModel.getAllelicComposition());
-							// List<Integer> popIds =
-							// unidimensionalStatisticsDAO
-							// .getPopulationIdsByParameterAndMutantBiologicalModel(
-							// parameter, biologicalModel);
-							// System.out.println("popids=" + popIds);
-							// int i = 0;
-
-							//
-							// SexType sexType = unidimensionalStatisticsDAO
-							// .getSexByPopulation(popId);// (new
-							// Integer(5959));
-							// // logger.debug(popId+" sextype="+sexType);
-							// List<ZygosityType> zygosities =
-							// unidimensionalStatisticsDAO
-							// .getZygositiesByPopulation(popId);
-							// logger.debug("zygosity for popId=" + zygosities);
-							// BiologicalModel mutantBiologicalModel =
-							// unidimensionalStatisticsDAO
-							// .getMutantBiologicalModelByPopulation(popId);
-							// unidimensionalMutantBiologicalModels.add(mutantBiologicalModel);
-//							BiologicalModel controlBiologicalModel =
-//							unidimensionalStatisticsDAO.
-							// if (i == 0) {// only do this call once as only
-							// need once???
-
-							 List<UnidimensionalResult>
-							 unidimensionalResultList =
-							 unidimensionalStatisticsDAO
-							 .getUnidimensionalResultByParameterIdAndBiologicalModelIds(
-							 parameter.getId(), new Integer(controlBiologicalModelId),
-							 new Integer(biologicalModelId));
-							
-
-							 if (unidimensionalResultList.size() > 0) {
-							 System.out.println("unidimensionalResult="
-							 + unidimensionalResultList);
-							 System.out.println("unidimensionalResult size="
-							 + unidimensionalResultList.size());
-							 System.out.println("significance class="
-							 + unidimensionalResultList.get(0)
-							 .getSignificanceClassification());
-							 allUnidimensionalResults
-							 .addAll(unidimensionalResultList);
-							 }
-							//
-							// }
-							//
-
+					
 							 //mouse data points are needed for the scatter plots so we have mouse ids with them
 							 //currently not getting this from solr experiments - can we add it?
 							 List<List<MouseDataPoint>> mouseDataPointsSet=new
@@ -243,27 +104,25 @@ BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(biologicalModelI
 //							 .getControlDataPointsWithMouseName(popId);
 							 
 							 //loop over the control points and add them
-							 net.sf.json.JSONArray controlDocs = JSONRestUtil.getDocArray(controlResult);
-							 for(int i=0; i<controlDocs.size();i++) {
-								 net.sf.json.JSONObject ctrlDoc = controlDocs.getJSONObject(i);
+							
+							 for(ObservationDTO control:experiment.getControls()) {
 								 //get the attributes of this data point
 								 //We don't want to split controls by gender on Unidimensional data
 								// SexType docSexType=SexType.valueOf(ctrlDoc.getString("gender"));
 								// ZygosityType zygosityType=ZygosityType.valueOf(ctrlDoc.getString("zygosity"));
-								String docStrain= ctrlDoc.getString("strain");
-								 Long dataPoint=ctrlDoc.getLong("dataPoint");
-								 if(docStrain.equals(strain)){
+								
+								 Float dataPoint=control.getDataPoint();
 								controlCounts.add(new Float(dataPoint));
-								controlMouseDataPoints.add(new MouseDataPoint("Need MouseIds from Solr",new Float(dataPoint)));
+								controlMouseDataPoints.add(new MouseDataPoint("Need MouseIds from Solr",dataPoint));
 								System.out.println("adding control point="+dataPoint);
 								controlMouseDataPoints.add(new MouseDataPoint("uknown", new Float(dataPoint)));
-								 }
+								 
 							 }
 							 mouseDataPointsSet.add(controlMouseDataPoints);
 							observations2DList.add(controlCounts);
 							
 						
-							for (ZygosityType zType : zygosities) {
+							for (ZygosityType zType : experiment.getZygosities()) {
 								if (zyList.isEmpty()
 										|| zyList.contains(zType.name())) {
 									
@@ -276,14 +135,26 @@ BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(biologicalModelI
 									 
 									 List<MouseDataPoint> mutantMouseDataPoints=new ArrayList<>();
 									 
-									 for(int j=0; j<docs.size();j++) {
-									 net.sf.json.JSONObject doc = docs.getJSONObject(j);
+										Set<ObservationDTO> expObservationsSet = Collections.emptySet();
+										if (zType.equals(ZygosityType.heterozygote)
+												|| zType.equals(ZygosityType.hemizygote)) {
+											expObservationsSet = experiment
+													.getHeterozygoteMutants();
+										}
+										if (zType.equals(ZygosityType.homozygote)) {
+											expObservationsSet = experiment
+													.getHomozygoteMutants();
+										}
+
+										for (ObservationDTO expDto : expObservationsSet) {
+									
 									 //get the attributes of this data point
-									 SexType docSexType=SexType.valueOf(doc.getString("gender"));
-									 ZygosityType zygosityType=ZygosityType.valueOf(doc.getString("zygosity"));
-									String docStrain= doc.getString("strain");
-									 Long dataPoint=doc.getLong("dataPoint");
-									 		if(zygosityType.equals(zType) && docSexType.equals(sexType) && docStrain.equals(strain)){
+											SexType docSexType = SexType.valueOf(expDto
+													.getSex());
+									
+									
+									 Float dataPoint=expDto.getDataPoint();
+									 		if( docSexType.equals(sexType)){
 									 			mutantCounts.add(new Float(dataPoint));
 									 			System.out.println("adding mutant point="+dataPoint);
 									 			mutantMouseDataPoints.add(new MouseDataPoint("uknown", new Float(dataPoint)));
@@ -324,15 +195,16 @@ BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(biologicalModelI
 							 // rather than an box and scatter plot
 							 // like below
 							 chartAndTable = processScatterChartData(title,
-							 sexType, parameter, zygosities, zyList,
+							 sexType, parameter, experiment.getZygosities(), zyList,
 							 mouseDataPointsSet, expBiologicalModel);
 							
 							 } else {
 							 chartAndTable = processChartData(title, sexType,
-							 parameter, zygosities, zyList,
-							 observations2DList, expBiologicalModel);
+							 parameter, experiment.getZygosities(), zyList,
+							 observations2DList, experiment);
 							
 							 }
+							
 							// // return an new class to represent a
 							// unidimensional
 							// // data set chart and table object to include
@@ -342,7 +214,7 @@ BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(biologicalModelI
 							 List<UnidimensionalStatsObject>
 							 unidimensionalStatsObject =
 							 produceUnidimensionalStatsData(
-							 title, sexType, parameter, zygosities, zyList,
+							 title, sexType, parameter, experiment.getZygosities(), zyList,
 							 observations2DList, expBiologicalModel);
 							 unidimensionalStatsObjects
 							 .addAll(unidimensionalStatsObject);
@@ -359,14 +231,9 @@ BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(biologicalModelI
 
 					// i++;
 					}
-				} // end of biological model loop
+				} // end of experiment loop
 
-			}// end of strain loop
-
-		}// end of organisation loop
-			// we can change the max value for the YAxis retrospectively by
-			// accessing the chartStrings and addin max : 2 in the appropriate
-			// place?
+			
 
 //		min = allMinMax.get("min");
 //		max = allMinMax.get("max");
@@ -400,9 +267,9 @@ BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(biologicalModelI
 	 * @return map containing min and max values
 	 */
 	private ChartData processChartData(String title, SexType sexType,
-			Parameter parameter, List<ZygosityType> zygosities,
+			Parameter parameter, Set<ZygosityType> set,
 			List<String> zyList, List<List<Float>> rawData,
-			BiologicalModel biologicalModelId) {
+			ExperimentDTO experiment) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
 		List<ChartData> chartsAndTables = new ArrayList<ChartData>();
 		Float max = new Float(0);
@@ -420,7 +287,7 @@ BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(biologicalModelI
 											// our bar chart
 
 		// add two columns for each zyg
-		for (ZygosityType zType : zygosities) {
+		for (ZygosityType zType : set) {
 			if (zyList.isEmpty() || zyList.contains(zType.name())) {
 				categoriesListBoxChart.add(zType.name().substring(0, 3)
 						.toUpperCase());
@@ -561,9 +428,9 @@ BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(biologicalModelI
 	 * @return map containing min and max values
 	 */
 	private ChartData processScatterChartData(String title, SexType sexType,
-			Parameter parameter, List<ZygosityType> zygosities,
+			Parameter parameter, Set<ZygosityType> set,
 			List<String> zyList, List<List<MouseDataPoint>> rawData,
-			BiologicalModel biologicalModelId) {
+			BiologicalModel expBiologicalModel) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
 		// List<ChartData> chartsAndTables = new ArrayList<ChartData>();
 		Float max = new Float(0);
@@ -578,10 +445,10 @@ BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(biologicalModelI
 		categoriesList.add("WT");
 
 		// add two columns for each zyg
-		for (ZygosityType zType : zygosities) {
+		for (ZygosityType zType : set) {
 			if (zyList.isEmpty() || zyList.contains(zType.name())) {
 				categoriesList.add(zType.name().substring(0, 3).toUpperCase());
-				String alleleComposition = "dummy allelci composition here"; //biologicalModelId.getAllelicComposition();
+				String alleleComposition =expBiologicalModel.getAllelicComposition();
 				if (zType.equals(ZygosityType.homozygote)) {// if homozygote
 															// don't need the
 															// second part of
@@ -680,18 +547,17 @@ BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(biologicalModelI
 	 */
 	private List<UnidimensionalStatsObject> produceUnidimensionalStatsData(
 			String title, SexType sexType, Parameter parameter,
-			List<ZygosityType> zygosities, List<String> zyList,
-			List<List<Float>> rawData, BiologicalModel mutantBiologicalModel) {
+			Set<ZygosityType> set, List<String> zyList,
+			List<List<Float>> rawData, BiologicalModel expBiologicalModel) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
 		List<UnidimensionalStatsObject> statsObjects = new ArrayList<UnidimensionalStatsObject>();
 		// String parameterUnit = parameter.checkParameterUnit(1);
 		UnidimensionalStatsObject wtStatsObject = new UnidimensionalStatsObject();
 		statsObjects.add(wtStatsObject);
-		for (ZygosityType zType : zygosities) {
+		for (ZygosityType zType : set) {
 			if (zyList.isEmpty() || zyList.contains(zType.name())) {
 				UnidimensionalStatsObject tempObje = new UnidimensionalStatsObject();
-				String alleleComposition = mutantBiologicalModel
-						.getAllelicComposition();
+				String alleleComposition =expBiologicalModel.getAllelicComposition();
 				if (zType.equals(ZygosityType.homozygote)) {// if homozygote
 															// don't need the
 															// second part of
@@ -702,10 +568,8 @@ BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(biologicalModelI
 				}
 				tempObje.setZygosity(zType);
 				tempObje.setLine(alleleComposition);
-				tempObje.setAllele(mutantBiologicalModel.getAlleles().get(0)
-						.getSymbol());
-				tempObje.setGeneticBackground(mutantBiologicalModel
-						.getGeneticBackground());
+				tempObje.setAllele(expBiologicalModel.getAlleles().get(0).getSymbol());
+				tempObje.setGeneticBackground(expBiologicalModel.getGeneticBackground());
 				statsObjects.add(tempObje);
 			}
 		}

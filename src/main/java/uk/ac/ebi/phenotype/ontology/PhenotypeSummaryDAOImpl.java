@@ -30,7 +30,7 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 	public PhenotypeSummaryDAOImpl() throws MalformedURLException {
 	}
 	
-	public PhenotypeSummaryDAOImpl(String solrBaseUrl) throws MalformedURLException {
+/*	public PhenotypeSummaryDAOImpl(String solrBaseUrl) throws MalformedURLException {
 		// Use system proxy if set
 		if (System.getProperty("http.proxyHost") != null && System.getProperty("http.proxyPort") != null) {
 			String PROXY_HOST = System.getProperty("http.proxyHost");
@@ -43,7 +43,7 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 			server = new HttpSolrServer(solrBaseUrl);
 		}
 	}
-	
+	*/
 	public void instantiateSolrServer(){
 		String solrBaseUrl = config.get("internalSolrUrl") + "/genotype-phenotype";
 		if (System.getProperty("http.proxyHost") != null && System.getProperty("http.proxyPort") != null) {
