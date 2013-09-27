@@ -10,10 +10,10 @@
 	<c:if test = "${timeLoop.count  % 2!=0}">
 		<div class="row-fluid dataset">  
 		 <div class="row-fluid ">
-		 		<div class="container span6"><h4><!--  style="background-color:lightgrey;"  -->Allele -  <t:formatAllele>${timeSeriesMutantBiologicalModels[timeLoop.index].alleles[0].symbol}</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${timeSeriesMutantBiologicalModels[timeLoop.index].geneticBackground}</span></h4>
+		 		<div class="container span6"><h4><!--  style="background-color:lightgrey;"  -->Allele -  <t:formatAllele>${timeChart.expBiologicalModel.alleles[0].symbol}</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${timeSeriesChartsAndTables[timeLoop.index].expBiologicalModel.geneticBackground}</span></h4>
 		 		</div>
 		 		 <c:if test="${fn:length(timeSeriesChartsAndTables) > (timeLoop.index+1)}">
-		 		 <div class="container span6"><h4><!--  style="background-color:lightgrey;"  -->Allele -  <t:formatAllele>${timeSeriesMutantBiologicalModels[timeLoop.index+1].alleles[0].symbol}</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${timeSeriesMutantBiologicalModels[timeLoop.index+1].geneticBackground}</span></h4>
+		 		 <div class="container span6"><h4><!--  style="background-color:lightgrey;"  -->Allele -  <t:formatAllele>${timeSeriesChartsAndTables[timeLoop.index+1].expBiologicalModel.alleles[0].symbol}</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${timeSeriesChartsAndTables[timeLoop.index+1].expBiologicalModel.geneticBackground}</span></h4>
 		 		</div>
 		 		</c:if>
  		</div>

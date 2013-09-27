@@ -211,7 +211,7 @@ public class StatsController implements BeanFactoryAware {
 			
 			if(observationTypeForParam.equals(ObservationType.time_series)){
 				//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
-				List<ChartData> timeSeriesForParam=timeSeriesChartAndTableProvider.doTimeSeriesData(bmDAO, config, expResult, timeSeriesMutantBiologicalModels, parameter, acc , model, genderList, zyList, timeSeriesChartsAndTables.size()+1, biologicalModelsParams);
+				List<ChartData> timeSeriesForParam=timeSeriesChartAndTableProvider.doTimeSeriesData(bmDAO, experimentList, parameter, model, genderList, zyList , timeSeriesChartsAndTables.size()+1, biologicalModelsParams);
 				timeSeriesChartsAndTables.addAll(timeSeriesForParam);
 			}
 			
