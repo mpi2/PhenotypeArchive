@@ -20,10 +20,10 @@
 
 (function($){	
 	
-	$.fn.fetchSolrFacetCount = function(q){		
+	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
 		
 		//$('div#userKeyword').html('Search keyword: <span>' + q + '</span>');	
-		
+		var q = oUrlHashParams.q;
 		var oFacets = {};
 		oFacets.count = {};		
 		

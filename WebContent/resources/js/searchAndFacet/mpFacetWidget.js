@@ -64,40 +64,48 @@
 						currHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
 						
 						// update hash
-						if ( caller.find('table#mpFacet td.highlight').size() == 0 ){
+						if ( caller.find('table#mpFacetTbl td.highlight').size() == 0 ){
 							window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
 						}
 						else {
 							if ( self.options.data.core != hashParams.coreName ){
-								var fqText = caller.find('table#mpFacet td.highlight').text() + ' phenotype';								
-								currHashParams.fq = 'ontology_subset:* AND top_level_mp_term:"' + fqText +'"';								
-								window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);
+																
+								var fqTextList = [];
+								var displayedFilter = [];
 								
-								// reload dataTable							
-								self._reloadDataTableForHashUrl(fqText);
+								caller.find('table#mpFacetTbl td.highlight').each(function(){
+									fqTextList.push('top_level_mp_term:"' + $(this).text() + ' phenotype"');
+									displayedFilter.push($(this).text());
+								});
+								
+								var fqText = fqTextList.join(' OR ');
+								
+								var obj = {'fqStr'  : MPI2.searchAndFacetConfig.facetParams['mpFacet'].fq + ' AND (' + fqText + ')',
+										   'filter' : displayedFilter.join(" OR "),
+										   'chkbox' : null
+										   }; 
+						    										   			
+								$.fn.fetchFilteredDataTable(obj, 'mpFacet', self.options.data.q);
 							}							
-						}							
-						
-						// dataTable code					
-						//console.log('name: ' + MPI2.searchAndFacetConfig.facetParams[facetDivId].topLevelName);
-						if ( $('table#'+ gridName).size() != 1 ){
-							$.fn.invokeFacetDataTable(solrSrchParams, facetDivId, gridName);						
-						}	
+						}						
 					}
 				}	
 			});	
 													
-			// click on SUM facetCount to fetch results in grid
-			//$('span.facetCount').click(function(){								
-			caller.find('span.facetCount').click(function(){	
+			// click on SUM facetCount to fetch results in grid											
+			caller.find('span.facetCount').click(function(){
+				
 				if ( $(this).text() != '0' ){
 					var gridName = MPI2.searchAndFacetConfig.facetParams[facetDivId].gridName;
 					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
 					var solrSrchParams = {}
 					var hashParams = {};							
+				
+					$.fn.removeFacetFilter(solrCoreName);
 					
 					// remove highlight from selected 							
-					$('table#mpFacet td').removeClass('highlight');
+					$('table#mpFacetTbl td').removeClass('highlight');
+					
 						solrSrchParams = $.extend({}, 
 								MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams, 
 								MPI2.searchAndFacetConfig.commonSolrParams);
@@ -161,7 +169,7 @@
 	    			// update this if facet is loaded by redirected page, which does not use autocomplete
 	    			$('div#mpFacet span.facetCount').attr({title: 'total number of unique phenotype terms'}).text(json.response.numFound);
 	    			
-	    			var table = $("<table id='mpFacet' class='facetTable'></table>");	    			
+	    			var table = $("<table id='mpFacetTbl' class='facetTable'></table>");	    			
 	    			
 	    	    	var aTopLevelCount = json.facet_counts.facet_fields['top_level_mp_term'];
 	    	    
@@ -170,13 +178,13 @@
 	    	    		
 	        			var tr = $('<tr></tr>').attr({'rel':aTopLevelCount[i], 'id':'topLevelMpTr'+i});  
 	        			// remove trailing ' phenotype' in MP term
-	        				        			
-						var coreField = 'mp|top_level_mp|' + aTopLevelCount[i].replace(' phenotype', '');						
+	        			var count = aTopLevelCount[i+1];	        			
+						var coreField = 'mp|top_level_mp_term|' + aTopLevelCount[i].replace(' phenotype', '') + '|' + count;						
 						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});
 	        				        			
-	    	    		var td1 = $('<td></td>').attr({'class': 'mpTopLevel', 'rel': aTopLevelCount[i+1]}).text(aTopLevelCount[i].replace(' phenotype', ''));	    	    		   	    		
+	    	    		var td1 = $('<td></td>').attr({'class': 'mpTopLevel', 'rel': count}).text(aTopLevelCount[i].replace(' phenotype', ''));	    	    		   	    		
 	    	    		
-	    	    		var a = $('<a></a>').attr({'rel':aTopLevelCount[i]}).text(aTopLevelCount[i+1]);
+	    	    		var a = $('<a></a>').attr({'rel':aTopLevelCount[i]}).text(count);
 	    	    		var td2 = $('<td></td>').attr({'class': 'mpTopLevelCount'}).append(a);
 	    	    		table.append(tr.append(chkbox, td1, td2)); 
 	        			
@@ -197,12 +205,22 @@
     		}	    			
     		$('div#'+facetDivId+ ' .facetCatList').html(table);
     		
-    		$('table#'+ ontology + 'Facet td a').click(function(){      			
-    			$.fn.fetchFilteredDataTable($(this), facetDivId, self.options.data.q,'facetFilter');    			
+    		$('table#'+ ontology + 'FacetTbl td a').click(function(){      			
+    			$.fn.fetchFilteredDataTable($(this), facetDivId, self.options.data.q, 'facetFilter');
+    			
+    			// uncheck all facet filter checkboxes 
+    			$('table#'+ ontology + 'FacetTbl input').attr('checked', false);
+    			
+    			// also remove all filters for that facet container	
+    			$.fn.removeFacetFilter('mp');    	
+    			$(this).parent().parent().find('input').attr('checked', true);
+    			$.fn.addFacetFilter($(this).parent().parent().find('input'), self.options.data.q);
     		});  
-    		   
-    		$('table#'+ ontology + 'Facet input').click(function(){				
-				$.fn.composeFacetFilterControl($(this));					
+    		  
+    		$('table#'+ ontology + 'FacetTbl input').click(function(){	
+    			// highlight the item in facet
+    			$(this).parent().find('td.mpTopLevel').addClass('highlight');
+				$.fn.composeFacetFilterControl($(this), self.options.data.q);					
 			});
     		
     		/*------------------------------------------------------------------------------------*/
@@ -210,84 +228,25 @@
 	    	/*------------------------------------------------------------------------------------*/	
     		    		
 	    	if ( self.options.data.fq != 'ontology_subset:*' ){
-	    		//console.log('MP filtered');	    		
-	    		var fqText = self.options.data.fq.replace('ontology_subset:* AND top_level_mp_term:', '').replace(/"/g, '');	    	
-	    		$.fn.fetchFilteredDataTable($('a[rel="' + fqText + '"]'), 'mpFacet', self.options.data.q);	
+	    		console.log('MP filtered');	    		
+	    		//var fqText = self.options.data.fq.replace('ontology_subset:* AND top_level_mp_term:', '').replace(/"/g, '');	    	
+	    		//$.fn.fetchFilteredDataTable($('a[rel="' + fqText + '"]'), 'mpFacet', self.options.data.q);	
+	    	
+	    		var fields = ['top_level_mp_term'];	        	
+	    		$.fn.parseUrlForFacetCheckbox(self.options.data.q, self.options.data.fq, 'mpFacet', fields);
+	    	
+	    		// now load dataTable	    		
+	    		$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'mpFacet');
 	    	}
-	    	else {//if ( self.options.data.core == 'mp' && self.options.data.fq && self.options.data.fq == 'ontology_subset:*' ){	    		
+	    	else {//if ( self.options.data.core == 'mp' && self.options.data.fq && self.options.data.fq == 'ontology_subset:*' ){
+	    		console.log('MP UNfiltered');	
 	    		var solrSrchParams = $.extend({}, MPI2.searchAndFacetConfig.facetParams['mpFacet'].filterParams, MPI2.searchAndFacetConfig.commonSolrParams);						
     			solrSrchParams.q = self.options.data.q;
     			solrSrchParams.coreName = 'mp'; // to work out breadkCrumb facet display
     			solrSrchParams.facetCount = self.options.data.facetCount;
 	    		$.fn.invokeFacetDataTable(solrSrchParams, 'mpFacet', MPI2.searchAndFacetConfig.facetParams['mpFacet'].gridName, self.options.data.q);	    		
 	    	}
-    		
-    		// skip display subterms for now
-    		// fetch and expand children of top level MP term
-    		/*$('table#'+ ontology + 'Facet td.'+ontology+'TopLevel').click(function(){  
-    			
-    			var parent = $(thiconsole.log('make '+ core);		s).parent();
-    			var children = $('tr[class^=' + $(this).parent().attr('id') +']');
-    			
-    			if ( parent.hasClass(ontology + 'TopExpanded') ){
-    				children.hide();
-    				parent.removeClass(ontology + 'TopExpanded');
-    			}
-    			else {
-    				parent.addClass(ontology + 'TopExpanded');
-    				
-    				if ( children.size() == 0 )phenotype_call_summary{
-    					
-    					var topLevelOntoTerm = $(this).siblings('td').find('a').attr('rel');    				
-    					var thisTable = $('table#'+ ontology+ 'Facet');
-    			
-    					var solrSrchParams = $.extend({}, MPI2.searchAndFacetConfig.facetParams.mpFacet.filterParams, MPI2.searchAndFacetConfig.commonSolrParams);	                   
-    					solrSrchParams.q = self.options.data.q;
-    					
-    					solrSrchParams.fl = ontology+ '_id,'+ ontology + '_term,'+'ontology_subset';    					
-    					solrSrchParams.sort = ontology + '_term asc';
-    					solrSrchParams.solrBaseURL = solrBaseUrl;                  
-    					console.log('make '+ core);		
-    					var solrSrchParamsStr = $.fn.stringifyJsonAsUrlParams(solrSrchParams);    					
-    				
-    					if ( ontology == 'ma' ){
-    						solrSrchParamsStr += '&fq=top_level_'+ ontology + '_term:' + '"'+ topLevelOntoTerm + '"'
-    					                      +  '&fq=top_level_'+ ontology + '_term_part_of:' + '"'+ topLevelOntoTerm + '"';    						
-    					}	
-    					else {
-    						solrSrchParamsStr += '&fq=top_level_'+ ontology + '_term:' + '"'+ topLevelOntoTerm + '"'; 
-    					} 
-    					
-    					$.ajax({    					
-    						'url': solrBaseUrl + '?' + solrSrchParamsStr,    											
-    						'dataType': 'jsonp',
-    						'jsonp': 'json.wrfhttp://localhost:8983/solr/ma/select?q=*%3A*&wt=json&indent=true',
-    						'success': function(json) {    							
-    					var facet = labels[0];
-		var field = labels[1];
-				if (json.response.numFound > 10 ){    							
-    								self._display_subTerms_in_tabs(json, topLevelOntoTerm, thisTable, ontology);
-    							}
-    							else {
-    								self._display_subTerms(json, topLevelOntoTerm, thisTable, ontology);
-    							}    							
-    						}		
-    					});		
-    				}
-    				else {
-    					// fetch children only once
-    					children.show();
-    					parent.addClass(ontology+ 'TopExpanded');
-    				}
-    			}
-    		});  */  		
-	    },
-		
-	    _reloadDataTableForHashUrl: function(fqText){
-	    	var self = this;
-			//ontology_subset:* AND top_level_mp_term:"behavior/neurological phenotype"			   			
-			$.fn.fetchFilteredDataTable($('a[rel="' + fqText + '"]'), 'mpFacet', self.options.data.q);
-		},
+	    },		
 		
 	    destroy: function () {    	   
 	    	// does not generate selector class

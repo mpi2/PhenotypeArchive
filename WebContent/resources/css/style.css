@@ -153,7 +153,7 @@ table#gFacet td.geneSubfacetCount,
 table#pipeline td a.paramCount,
 table#mpFacet td.mpTopLevelCount,
 table#maFacet td.maTopLevelCount,
-table#imgFacet td.imgExperimentCount
+table#imgFacet td.imgSubfacetCount
 /*table#mpFacet td.mpTopLevel*/ 
 /*table#maFacet td.maTopLevelCount, table#maFacet td.maTopLevel */{
 	cursor: pointer;	

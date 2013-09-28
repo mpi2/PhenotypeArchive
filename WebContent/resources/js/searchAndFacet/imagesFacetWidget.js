@@ -32,7 +32,7 @@
 		
 			caller.find('div.facetCat').click(function(){
 				if ( caller.find('span.facetCount').text() != '0' ){								
-					var gridName = MPI2.searchAndFacetConfig.facetParams[facetDivId].gridName;
+					
 					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
 					
 					caller.parent().find('div.facetCat').removeClass('facetCatUp');
@@ -46,42 +46,42 @@
 						caller.find('.facetCatList').show(); // show itself					
 						$(this).addClass('facetCatUp');						
 						
-						var solrSrchParams = {};
-						var currHashParams = {};				
-											
-						solrSrchParams = $.extend({}, 
-									MPI2.searchAndFacetConfig.commonSolrParams, 
-									MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams);						
-						
-						solrSrchParams.facetCount = $(this).text();
-						solrSrchParams.q = self.options.data.q;									
-						
-						var hashParams = $.fn.parseHashString(window.location.hash.substring(1));
-						
+						var currHashParams = {};						
 						currHashParams.q = self.options.data.q;
 						currHashParams.core = solrCoreName;
-						currHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
+						currHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq; //default
 						
-						// update hash
-						if ( caller.find('table#imgFacet td.highlight').size() == 0 ){						
+						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
+						
+						// if no selected subfacet, load all results of this facet
+						if ( caller.find('table#imagesFacetTbl td.highlight').size() == 0 ){
+							console.log('none');
 							window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
-						}
-						else {						
-							if ( self.options.data.core != hashParams.coreName ){
-								var fqText = caller.find('table#imgFacet td.highlight').siblings('td').find('a').attr('class');						
-								currHashParams.fq = fqText;								
-								window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);
+						}						
+						else {
+							// if there is selected subfacets: work out the url							
+							if ( self.options.data.core != oHashParams.coreName ){															
+							
+								var fqFieldVals = {};
 								
-								// reload dataTable							
-								self._reloadDataTableForHashUrl(fqText);
+								caller.find('table#imagesFacetTbl td.highlight').each(function(){	
+									var aVals = $(this).siblings('td').find('a').attr('class').split(":");
+									var fqField = aVals[0];
+									var val = aVals[1];
+									
+									if ( typeof fqFieldVals[fqField] === 'undefined' ){
+										fqFieldVals[fqField] = [];										
+									}									
+									fqFieldVals[fqField].push(fqField + ':' + val);
+								});					
+								
+								var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
+								console.log(fqStr);
+								
+								// update hash tag so that we know there is hash change, which then triggers loadDataTable  
+			  	    			window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr + '&ftOpen=true';	
 							}							
-						}			
-												
-						// dataTable code					
-						//console.log('name: ' + MPI2.searchAndFacetConfig.facetParams[facetDivId].topLevelName);
-						if ( $('table#'+ gridName).size() != 1 ){
-							$.fn.invokeFacetDataTable(solrSrchParams, facetDivId, gridName, self.options.data.q);						
-						}	
+						}						
 					}	
 				}	
 			});	
@@ -90,36 +90,20 @@
 			//$('span.facetCount').click(function(){								
 			caller.find('span.facetCount').click(function(){	
 				if ( $(this).text() != '0' ){
-					var gridName = MPI2.searchAndFacetConfig.facetParams[facetDivId].gridName;
+					
+					$.fn.setDefaultImgSwitcherConf();
+										
 					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
-					var solrSrchParams = {}
-					var hashParams = {};							
+					
+					$.fn.removeFacetFilter(solrCoreName);
 					
 					// remove highlight from selected				
-					$('table#imgFacet td').removeClass('highlight');
-					solrSrchParams = $.extend({}, 
-							MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams, 
-							MPI2.searchAndFacetConfig.commonSolrParams);					
-				
-					solrSrchParams.facetCount = $(this).text();
-					solrSrchParams.q = self.options.data.q;											
-									
-					hashParams.q = self.options.data.q;
-					hashParams.core = solrCoreName;
-					hashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
+					$('table#imagesFacetTbl td').removeClass('highlight');
 					
-					// hash state stuff				   
-					window.location.hash = $.fn.stringifyJsonAsUrlParams(hashParams);// + "&core=" + solrCoreName;
-															
-					// only invoke dataTable when there is hash change in url
-					// otherwise we are at same page, so no action taken
-					if (MPI2.setHashChange == 1){						
-						MPI2.setHashChange = 0;
-						//$.fn.updateFacetAndDataTableDisplay($.fn.stringifyJsonAsUrlParams(hashParams));	
-						// invoke dataTable	via hash state with the 4th param
-						// ie, it does not invoke dataTable directly but through hash change							
-						$.fn.invokeFacetDataTable(solrSrchParams, facetDivId, gridName, self.options.data.q);							
-					}	
+					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
+					
+					// update hash tag so that we know there is hash change, which then triggers loadDataTable  
+  	    			window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
 				}	
 			});	
     	},
@@ -163,7 +147,7 @@
   	    			
       	    		$('div#imagesFacet span.facetCount').attr({title: 'total number of unique images'}).html(json.response.numFound);
   	    		
-  	    			var table = $("<table id='imgFacet' class='facetTable'></table>");
+  	    			var table = $("<table id='imagesFacetTbl' class='facetTable'></table>");
   	    			
   	    			var aFacetFields = json.facet_counts.facet_fields; // eg. expName, symbol..
   	    			
@@ -175,16 +159,17 @@
   	    								};	    			    			    			
   	    				    			
   	    			for ( var facetName in aFacetFields ){ 	    				
-  	    				    				
+  	    				   console.log('facetname: '+ facetName); 				
   	    				for ( var i=0; i<aFacetFields[facetName].length; i+=2){    					  					
   	    					
   	    					var fieldName   = aFacetFields[facetName][i];
-  	    					var facetCount  = aFacetFields[facetName][i+1];
-  	    					var displayName = displayLabel[facetName];
+  	    					var facetCount  = aFacetFields[facetName][i+1];  	    					
+  	    					var catLabel    = displayLabel[facetName];
   	    					//console.log(fieldName + ' : '+ facetCount);
   	    					
   	    					var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i, 'class':'subFacet'});
-  	    					var td1 = $('<td></td>').attr({'class': 'imgExperiment', 'rel': facetCount}).text(fieldName);
+  	    					var displayName = facetName == 'higherLevelMpTermName' ? fieldName.replace(' phenotype', '') : fieldName;
+  	    					var td1 = $('<td></td>').attr({'class': 'imgSubfacet', 'rel': facetCount}).text(displayName);
   	    				
   	    					var imgBaseUrl = baseUrl + "/images?";
   	    					
@@ -197,10 +182,10 @@
   		    	    		var fqClass = facetName + ":" + '"' + fieldName + '"';
   		    	    		
   		    	    		var imgUrl = imgBaseUrl + params;	
-  		    	    				    	    		
+  		    	    		var catLabel2 = catLabel == 'Gene' ? 'gene subtype' : catLabel.toLowerCase();    	    		
   		    	    		var infos = "{params:\"" + encodeURI(params) 
   		    	    		          + "\", fullLink:\"" +  encodeURI(imgUrl) 
-  		    	    		          + "\",imgType:\"" + displayName 
+  		    	    		          + "\",imgType:\"" + catLabel2
   		    	    		         // + "\",facetParams:\"" + facetParams
   		    	    		          + "\",imgSubName:\"" + fieldName
   		    	    		          + "\", imgCount:\"" + facetCount
@@ -209,17 +194,16 @@
   		    	    		          + "\"}";		    	    		
   		    	    		   		
   		    	    		var a = $('<a></a>').attr({'rel':infos, 'class':fqClass}).text(facetCount);
-  		    	    		var td2 = $('<td></td>').attr({'class': 'imgExperimentCount'}).append(a);
+  		    	    		var td2 = $('<td></td>').attr({'class': 'imgSubfacetCount'}).append(a);
   		    	    		
   		    	    		if ( i == 0 ){
-  	    						var catTr = $('<tr></tr>').attr({'class':'facetSubCat'});
-  	    						var catLabel = displayLabel[facetName];
+  	    						var catTr = $('<tr></tr>').attr({'class':'facetSubCat'});  	    						
   	    						var catTd = $('<td></td>').attr({'colspan':3}).text(catLabel);
   	    						catTr.append(catTd);
   	    						table.append(catTr); 
   	    					}	
   		    	    		
-  		    	    		var coreField = 'images|'+ facetName + '|' + fieldName;	
+  		    	    		var coreField = 'images|'+ facetName + '|' + displayName + '|' + facetCount;	
   		        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField}); 		    	    			    		
   		    	    		
   		    	    		table.append(tr.append(chkbox, td1, td2));		    	    		
@@ -228,8 +212,8 @@
   	    			self._displayImageFacet(json, 'images', 'imagesFacet', table);			
   	    		}		
   	    	});	    	
-  	    }, 
-  	    	    
+  	    },  	   
+  	    
   	    _displayImageFacet: function(json, coreName, facetDivId, table){
   	    	var self = this;
   	    	
@@ -240,22 +224,65 @@
       		}
   	    	else {
   	    		$('div#'+facetDivId+ ' .facetCatList').html(table);
-  	    		table.find('td a').click(function(){	    			
+  	    		
+  	    		table.find('td a').click(function(){	
+  	    			
+  	    			$.fn.setDefaultImgSwitcherConf();
+  	    			
   	    			// invoke filtered toplevel in dataTable
-  	    			MPI2.searchAndFacetConfig.facetParams[facetDivId].showImgView = true; // default  	    			
-  	    			$.fn.fetchFilteredDataTable($(this), facetDivId, self.options.data.q, 'facetFilter');
+  	    			//MPI2.searchAndFacetConfig.facetParams[facetDivId].showImgView = true; // default  	    			
+  	    			//$.fn.fetchFilteredDataTable($(this), facetDivId, self.options.data.q, 'facetFilter');
+  	    			
+  	    			
+  	    			// uncheck all facet filter checkboxes 
+        			$('table#imagesFacetTbl input').attr('checked', false);
+        			
+        			// remove all highlight
+        			$('table#imagesFacetTbl td.imgSubfacet').removeClass('highlight');
+        			
+        			// also remove all filters for that facet container	
+        			$.fn.removeFacetFilter('images');
+        			
+        			$(this).parent().parent().find('input').attr('checked', true);
+        			$(this).parent().parent().find('td.imgSubfacet').addClass('highlight');
+        			
+        			$.fn.addFacetFilter($(this).parent().parent().find('input'), self.options.data.q);
+  	    			        			
+        			// update hash tag so that we know there is hash change, which then triggers loadDataTable
+  	    			var oParams = eval( "(" + $(this).attr('rel') + ")" );  	    			
+  	    			console.log(oParams);
+  	    			//fq=higherLevelMaTermName:"adipose tissue"&core=images&q=*
+  	    			window.location.hash = oParams.params + '&core=' + oParams.solrCoreName;  	    			
+  	    			
   	    		});	
   	    		
-  	    		table.find('input').click(function(){	    			
-  	    			$.fn.composeFacetFilterControl($(this));
-  	    		});	
+  	    		table.find('input').click(function(){	
+  	    			
+  	    			$.fn.setDefaultImgSwitcherConf();
+  	    			
+  	    			// highlight the item in facet
+  	    			$(this).parent().find('td.imgSubfacet').addClass('highlight');
+  	    			$.fn.composeFacetFilterControl($(this), self.options.data.q);
+  	    		});  	    		
   	    	}
   	    	
   	    	/*------------------------------------------------------------------------------------*/
 	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
 	    	/*------------------------------------------------------------------------------------*/    		    
   	    	 	
-  	    	if ( self.options.data.fq.match(/annotationTermId.+/)){
+  	    	if ( self.options.data.fq.match(/annotationTermId.+/) || 
+  	    		 self.options.data.fq.match(/expName.+|higherLevel.+|subtype.+/)){
+  	    		
+  	    			$.fn.setDefaultImgSwitcherConf();  
+  	    		
+  	    			var fields = MPI2.searchAndFacetConfig.facetParams[facetDivId].subFacetFqFields;       	
+  	    			$.fn.parseUrlForFacetCheckbox(self.options.data.q, self.options.data.fq, 'imagesFacet', fields);
+	    	
+  	    			// now load dataTable	    		
+  	    			$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'imagesFacet'); 
+  	    		
+  	    		/*$.fn.setDefaultImgSwitcherConf();
+  	    		
   	    		//console.log('UNfiltered images fq: ' + self.options.data.fq);
       			var solrSrchParams = $.extend({}, 
       					MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams, 
@@ -270,24 +297,29 @@
       			}					
   						
       			// load dataTable							
-      			$.fn.invokeFacetDataTable(solrSrchParams, facetDivId, MPI2.searchAndFacetConfig.facetParams[facetDivId].gridName, true); 
+      			$.fn.invokeFacetDataTable(solrSrchParams, facetDivId, MPI2.searchAndFacetConfig.facetParams[facetDivId].gridName, true);
+      			*/
       		}
-  	    	else if ( self.options.data.fq.match(/expName.+|higherLevel.+|subtype.+/) ){
+  	    	/*else if ( self.options.data.fq.match(/expName.+|higherLevel.+|subtype.+/) ){
+  	    		
+  	    		$.fn.setDefaultImgSwitcherConf();
+  	    		
   	    		// imageView
   	    		//console.log('filtered images fq: ' + self.options.data.fq);
-  	    		var obj = $('div#imagesFacet div.facetCatList').find("table#imgFacet a[class='" + self.options.data.fq + "']");
-  	    		$.fn.fetchFilteredDataTable(obj, 'imagesFacet', self.options.data.q);
+  	    		//var obj = $('div#imagesFacet div.facetCatList').find("table#imagesFacetTbl a[class='" + self.options.data.fq + "']");
+  	    		//$.fn.fetchFilteredDataTable(obj, 'imagesFacet', self.options.data.q);
+  	    		
+  	    		var fields = MPI2.searchAndFacetConfig.facetParams[facetDivId].subFacetFqFields;       	
+	    		$.fn.parseUrlForFacetCheckbox(self.options.data.q, self.options.data.fq, 'imagesFacet', fields);
+	    	
+	    		// now load dataTable	    		
+	    		$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'imagesFacet'); 
   	    	}       		
-  	    	
+  	    	*/
   	    	// when last facet is done
   	    	$('div#facetBrowser').html(MPI2.searchAndFacetConfig.endOfSearch);
   	    },	
   	    
-  	    _reloadDataTableForHashUrl: function(fqText){
-	    	var self = this;	    	   	
-	    	$.fn.fetchFilteredDataTable($('a[class="' + fqText + '"]'), 'imagesFacet', self.options.data.q);	    
-	    },	        
-	    	
 	    destroy: function () {    	   
 	    	// does not generate selector class
     	    // if using jQuery UI 1.8.x

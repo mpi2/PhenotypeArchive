@@ -31,19 +31,31 @@
 			$(window).bind("hashchange", function(e) {
 				// In jQuery 1.4, use e.getState( "url" );				
 				var url = $.param.fragment();				
-				//console.log('hash change URL: '+ '/search#' + url);
-				var hashParams = $.fn.parseHashString(window.location.hash.substring(1));
+				console.log('hash change URL: '+ '/search#' + url);
+				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 				
-				$.fn.updateFacetAndDataTableDisplay(hashParams);
+				//$.fn.updateFacetAndDataTableDisplay(oHashParams);
+				console.log(oHashParams);
+				
+				// make sure checkboxes are updated according to url
+				if ( !oHashParams.ftOpen ){
+					console.log('not here')
+					//$.fn.removeFacetFilter(oHashParams.coreName);
+					//var aFields = MPI2.searchAndFacetConfig.facetParams[oHashParams.coreName+'Facet'].subFacetFqFields;				
+					//$.fn.parseUrlForFacetCheckbox(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet', aFields);
+				}
+				
+				$.fn.loadDataTable(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet'); 
 			});
 			
 			$('div#filterToggle').click(function(){	
+				console.log('toggle');
 				var ul = $('ul#facetFilter');	
 				if ( ul.is(":visible") ){				
-					ul.show();					
+					ul.hide();					
 				}
 				else {				
-					ul.hide();				
+					ul.show();				
 				}
 			});
 		});
@@ -54,9 +66,9 @@
 
     <jsp:body>
        <!-- search filter display -->
-       	<div id='filterToggle'>Show facet filters</div>
-       		
+       	<div id='filterToggle'>Show facet filters</div>       		
 	   	<ul id='facetFilter'> 
+	   	    <li class='has-sub none'>no filter added</li>
 	   		<li class='has-sub gene'>Genes</li>
 	   		<li class='has-sub mp'>Phenotypes</li>
 			<li class='has-sub ma'>Anatomy</li>	 

@@ -13196,9 +13196,9 @@ f.fn.dataTableExt.fnVersionCheck("1.9.0")?f.fn.dataTableExt.aoFeatures.push({fnI
     		
     		topLevelName = oInfos.imgSubName;
     			    		
-    		$('table#imgFacet td.imgExperiment').removeClass('highlight');
-			obj.parent().siblings('td.imgExperiment').addClass('highlight'); 
-			facetCount = obj.parent().siblings('td.imgExperiment').attr('rel');			
+    		$('table#imgFacet td.imgSubfacet').removeClass('highlight');
+			obj.parent().siblings('td.imgSubfacet').addClass('highlight'); 
+			facetCount = obj.parent().siblings('td.imgSubfacet').attr('rel');			
 						
 			imgParamStr = oInfos.params + '&facetCount=' + facetCount;								
 			var unit = facetCount > 1 ? 'images' : 'image';
@@ -15657,7 +15657,7 @@ $.extend( $.fn.dataTableExt.oSort, {
   	    					//console.log(fieldName + ' : '+ facetCount);
   	    					
   	    					var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i, 'class':'subFacet'});
-  	    					var td1 = $('<td></td>').attr({'class': 'imgExperiment', 'rel': facetCount}).text(fieldName);
+  	    					var td1 = $('<td></td>').attr({'class': 'imgSubfacet', 'rel': facetCount}).text(fieldName);
   	    				
   	    					var imgBaseUrl = baseUrl + "/images?";
   	    					
@@ -15682,7 +15682,7 @@ $.extend( $.fn.dataTableExt.oSort, {
   		    	    		          + "\"}";		    	    		
   		    	    		   		
   		    	    		var a = $('<a></a>').attr({'rel':infos, 'class':fqClass}).text(facetCount);
-  		    	    		var td2 = $('<td></td>').attr({'class': 'imgExperimentCount'}).append(a);
+  		    	    		var td2 = $('<td></td>').attr({'class': 'imgSubfacetCount'}).append(a);
   		    	    		
   		    	    		if ( i == 0 ){
   	    						var catTr = $('<tr></tr>').attr({'class':'facetSubCat'});
