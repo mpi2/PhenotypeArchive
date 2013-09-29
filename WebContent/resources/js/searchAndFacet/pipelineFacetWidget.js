@@ -25,7 +25,6 @@
      
     	_create: function(){
     		
-    		
     		// execute only once 	
     		var self = this;	
     		var facetDivId = self.element.attr('id');
@@ -34,9 +33,8 @@
 		
 			caller.find('div.facetCat').click(function(){
 				
-				if ( caller.find('span.facetCount').text() != '0' ){
-							
-					//var gridName = MPI2.searchAndFacetConfig.facetParams[facetDivId].gridName;
+				if ( caller.find('span.facetCount').text() != '0' ){						
+					
 					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
 					
 					caller.parent().find('div.facetCat').removeClass('facetCatUp');
@@ -55,12 +53,13 @@
 						currHashParams.core = solrCoreName;
 						currHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq; //default
 										
+						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 						
-						// update hash
+						// if no selected subfacet, load all results of this facet
 						if ( caller.find('table#pipelineFacetTbl td.highlight').size() == 0 ){						
 							window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
 						}
-						else {
+						else {						
 							// if there is selected subfacets: work out the url							
 							if ( self.options.data.core != oHashParams.coreName ){															
 							
@@ -77,34 +76,11 @@
 								});					
 								
 								var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
-								
-								// update hash tag so that we know there is hash change, which then triggers loadDataTable  
+							
+			  	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable 	
 			  	    			window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;	
 							}							
-						}			
-						/*else {
-							if ( self.options.data.core != hashParams.coreName ){
-																
-								var fqTextList = [];
-								var displayedFilter = [];
-								var facetCount = 0;
-								caller.find('table#pipelineFacetTbl td.highlight').each(function(){									
-									fqTextList.push('procedure_stable_id:' + $(this).siblings('td').find('a').attr('rel'));
-									displayedFilter.push($(this).text());
-									facetCount += $(this).siblings('td').find('a').text();
-								});
-								
-								var fqText = fqTextList.join(' OR ');
-								
-								var obj = {'fqStr'  : MPI2.searchAndFacetConfig.facetParams['pipelineFacet'].fq + ' AND (' + fqText + ')',
-										   'filter' : displayedFilter.join(" OR "),
-										   'chkbox' : null,
-										   'facetCount' : facetCount
-										   }; 
-						    										   			
-								$.fn.fetchFilteredDataTable(obj, 'pipelineFacet', self.options.data.q);
-							}							
-						}*/						
+						}				
 					}	
 				}								
 			});	
@@ -124,43 +100,7 @@
 					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
 					
 					// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-  	    			window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
-					
-					/*var gridName = MPI2.searchAndFacetConfig.facetParams[facetDivId].gridName;
-					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
-					var solrSrchParams = {}
-					var hashParams = {};				
-					
-					$.fn.removeFacetFilter(solrCoreName);
-					
-					// remove highlight from selected
-					$('table#pipelineFacetTbl td[class^=procedure]').removeClass('highlight');	
-					
-					solrSrchParams = $.extend({}, 
-							MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams, 
-							MPI2.searchAndFacetConfig.commonSolrParams);	
-					
-					MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams.fq = "pipeline_stable_id:IMPC_001";	
-					
-					solrSrchParams.facetCount = $(this).text();
-					solrSrchParams.q = self.options.data.q;											
-									
-					hashParams.q = self.options.data.q;
-					hashParams.core = solrCoreName;
-					hashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
-					
-					// hash state stuff				   
-					window.location.hash = $.fn.stringifyJsonAsUrlParams(hashParams);// + "&core=" + solrCoreName;
-										
-					// only invoke dataTable when there is hash change in url
-					// otherwise we are at same page, so no action taken
-					if (MPI2.setHashChange == 1){						
-						MPI2.setHashChange = 0;
-						//$.fn.updateFacetAndDataTableDisplay($.fn.stringifyJsonAsUrlParams(hashParams));	
-						// invoke dataTable	via hash state with the 4th param
-						// ie, it does not invoke dataTable directly but through hash change							
-						$.fn.invokeFacetDataTable(solrSrchParams, facetDivId, gridName);							
-					}	*/			
+  	    			window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;					
 				}				
 			});	
     	},
@@ -239,14 +179,7 @@
 	        		$('div#pipelineFacet .facetCatList').html(table);
 	        		
 	        		$('table#pipelineFacetTbl td a.paramCount').click(function(){	        			
-	        			//$.fn.fetchFilteredDataTable($(this), 'pipelineFacet', self.options.data.q, 'facetFilter');
-	        			
-	        			
-	        			// also remove all filters for that facet container	
-	        			//$.fn.removeFacetFilter('pipeline');	
-	        			//$(this).parent().parent().find('input').attr('checked', true);
-	        			//$.fn.addFacetFilter($(this).parent().parent().find('input'), self.options.data.q);/*
-	        			
+	        				        			
 	        			// also remove all filters for that facet container	
 	        			$.fn.removeFacetFilter('pipeline');
 	        			// now update filter
@@ -276,24 +209,12 @@
 	        		
 	        		/*------------------------------------------------------------------------------------*/
 	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
-	    	    	/*------------------------------------------------------------------------------------*/	
-	        		        		
-	        		if ( self.options.data.fq.match(/pipeline_stable_id.+/) ){
-	        			//console.log('1 pipeline UNfiltered');
-	        			var solrSrchParams = $.extend({}, MPI2.searchAndFacetConfig.facetParams['pipelineFacet'].filterParams, MPI2.searchAndFacetConfig.commonSolrParams);						
-	        			solrSrchParams.q = self.options.data.q;	
-	        			solrSrchParams.coreName = 'pipeline';  // to work out breadkCrumb facet display
-	        			solrSrchParams.facetCount = self.options.data.facetCount;
-	    	    		$.fn.invokeFacetDataTable(solrSrchParams, 'pipelineFacet', MPI2.searchAndFacetConfig.facetParams['pipelineFacet'].gridName, self.options.data.q);        					    	    	
-	        		}
-	        		else {
-	        			//console.log('1 pipeline FILTERED');
-	        			//var proc_sid = self.options.data.fq.replace('procedure_stable_id:', '');
-	    	    		//var obj = $('div#pipelineFacet div.facetCatList').find("table#pipelineFacetTbl a[rel='" + proc_sid + "']"); 
-	    	    		//$.fn.fetchFilteredDataTable(obj, 'pipelineFacet', self.options.data.q);
+	    	    	/*------------------------------------------------------------------------------------*/        		      		
+	        		
+	        		if ( self.options.data.fq.match(/.*/) ){        		
 	        			
-	        			var fields = ['procedure_stable_id'];	        	
-	    	    		$.fn.parseUrlForFacetCheckbox(self.options.data.q, self.options.data.fq, 'pipelineFacet', fields);
+	        			//var fields = ['procedure_stable_id'];	        	
+	    	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'pipelineFacet');
 	    	    	
 	    	    		// now load dataTable	    		
 	    	    		$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'pipelineFacet'); 

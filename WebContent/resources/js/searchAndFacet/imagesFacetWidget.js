@@ -76,8 +76,7 @@
 								});					
 								
 								var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
-								console.log(fqStr);
-								
+																
 								// update hash tag so that we know there is hash change, which then triggers loadDataTable  
 			  	    			window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr + '&ftOpen=true';	
 							}							
@@ -270,13 +269,14 @@
 	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
 	    	/*------------------------------------------------------------------------------------*/    		    
   	    	 	
-  	    	if ( self.options.data.fq.match(/annotationTermId.+/) || 
-  	    		 self.options.data.fq.match(/expName.+|higherLevel.+|subtype.+/)){
+  	    	//if ( self.options.data.fq.match(/annotationTermId.+/) || 
+  	    	 //self.options.data.fq.match(/expName.+|higherLevel.+|subtype.+/)){
   	    		
+  	    		if ( self.options.data.fq.match(/.*/) ){ 	
   	    			$.fn.setDefaultImgSwitcherConf();  
   	    		
-  	    			var fields = MPI2.searchAndFacetConfig.facetParams[facetDivId].subFacetFqFields;       	
-  	    			$.fn.parseUrlForFacetCheckbox(self.options.data.q, self.options.data.fq, 'imagesFacet', fields);
+  	    			//var fields = MPI2.searchAndFacetConfig.facetParams[facetDivId].subFacetFqFields;       	
+  	    			$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'imagesFacet');
 	    	
   	    			// now load dataTable	    		
   	    			$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'imagesFacet'); 

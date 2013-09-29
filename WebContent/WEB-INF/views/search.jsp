@@ -37,13 +37,11 @@
 				//$.fn.updateFacetAndDataTableDisplay(oHashParams);
 				console.log(oHashParams);
 				
+				// back/forward button navigation: 
 				// make sure checkboxes are updated according to url
-				if ( !oHashParams.ftOpen ){
-					console.log('not here')
-					//$.fn.removeFacetFilter(oHashParams.coreName);
-					//var aFields = MPI2.searchAndFacetConfig.facetParams[oHashParams.coreName+'Facet'].subFacetFqFields;				
-					//$.fn.parseUrlForFacetCheckbox(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet', aFields);
-				}
+				$.fn.removeFacetFilter(oHashParams.coreName);
+				var aFields = MPI2.searchAndFacetConfig.facetParams[oHashParams.coreName+'Facet'].subFacetFqFields;				
+				$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet', aFields);				
 				
 				$.fn.loadDataTable(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet'); 
 			});
