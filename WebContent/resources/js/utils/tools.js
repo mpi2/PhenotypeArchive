@@ -303,18 +303,6 @@
     	}	    	
 	}
 		
-	function compose_composite_params(obj){
-		var subFacetLinkObj = obj.subFacetLinkObj;
-		
-		return {
-				params:"q=*:*&q.option=AND&qf=auto_suggest&defType=edismax&wt=json&fq=" + obj.fqStr,
-				fullLink:"/PhenotypeArchive/images?q=*:*&q.option=AND&qf=auto_suggest&defType=edismax&wt=json&fq=" + obj.fqStr,
-				imgCount:obj.facetCount, 
-			    solrCoreName:'images', 
-			    mode:'"imageGrid'				
-		};		
-	}
-	
 	$.fn.ieCheck = function(){
 		
 		if ( $.browser.msie && $.browser.version < 8.0 ){		
