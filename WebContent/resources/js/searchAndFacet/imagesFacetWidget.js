@@ -54,8 +54,7 @@
 						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 						
 						// if no selected subfacet, load all results of this facet
-						if ( caller.find('table#imagesFacetTbl td.highlight').size() == 0 ){
-							console.log('none');
+						if ( caller.find('table#imagesFacetTbl td.highlight').size() == 0 ){							
 							window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
 						}						
 						else {
@@ -158,7 +157,7 @@
   	    								};	    			    			    			
   	    				    			
   	    			for ( var facetName in aFacetFields ){ 	    				
-  	    				   console.log('facetname: '+ facetName); 				
+  	    							
   	    				for ( var i=0; i<aFacetFields[facetName].length; i+=2){    					  					
   	    					
   	    					var fieldName   = aFacetFields[facetName][i];
@@ -249,7 +248,7 @@
   	    			        			
         			// update hash tag so that we know there is hash change, which then triggers loadDataTable
   	    			var oParams = eval( "(" + $(this).attr('rel') + ")" );  	    			
-  	    			console.log(oParams);
+  	    		
   	    			//fq=higherLevelMaTermName:"adipose tissue"&core=images&q=*
   	    			window.location.hash = oParams.params + '&core=' + oParams.solrCoreName;  	    			
   	    			
@@ -267,55 +266,18 @@
   	    	
   	    	/*------------------------------------------------------------------------------------*/
 	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
-	    	/*------------------------------------------------------------------------------------*/    		    
-  	    	 	
-  	    	//if ( self.options.data.fq.match(/annotationTermId.+/) || 
-  	    	 //self.options.data.fq.match(/expName.+|higherLevel.+|subtype.+/)){
+	    	/*------------------------------------------------------------------------------------*/ 
   	    		
-  	    		if ( self.options.data.fq.match(/.*/) ){ 	
-  	    			$.fn.setDefaultImgSwitcherConf();  
+    		if ( self.options.data.fq.match(/.*/) ){ 	
+    			$.fn.setDefaultImgSwitcherConf();  
+    		
+    			//var fields = MPI2.searchAndFacetConfig.facetParams[facetDivId].subFacetFqFields;       	
+    			$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'imagesFacet');
+    	
+    			// now load dataTable	    		
+    			$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'imagesFacet'); 
+    		}
   	    		
-  	    			//var fields = MPI2.searchAndFacetConfig.facetParams[facetDivId].subFacetFqFields;       	
-  	    			$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'imagesFacet');
-	    	
-  	    			// now load dataTable	    		
-  	    			$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'imagesFacet'); 
-  	    		
-  	    		/*$.fn.setDefaultImgSwitcherConf();
-  	    		
-  	    		//console.log('UNfiltered images fq: ' + self.options.data.fq);
-      			var solrSrchParams = $.extend({}, 
-      					MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams, 
-      					MPI2.searchAndFacetConfig.commonSolrParams);
-      			
-      			solrSrchParams.q = self.options.data.q;
-      			solrSrchParams.coreName = 'images'; // to work out breadkCrumb facet display
-      			solrSrchParams.facetCount = self.options.data.facetCount;
-      			// for images, qf is either auto_suggest or text_search depending on query string
-      			if ( solrSrchParams.q.indexOf('*') == -1 ){					
-      				solrSrchParams.qf = 'text_search';
-      			}					
-  						
-      			// load dataTable							
-      			$.fn.invokeFacetDataTable(solrSrchParams, facetDivId, MPI2.searchAndFacetConfig.facetParams[facetDivId].gridName, true);
-      			*/
-      		}
-  	    	/*else if ( self.options.data.fq.match(/expName.+|higherLevel.+|subtype.+/) ){
-  	    		
-  	    		$.fn.setDefaultImgSwitcherConf();
-  	    		
-  	    		// imageView
-  	    		//console.log('filtered images fq: ' + self.options.data.fq);
-  	    		//var obj = $('div#imagesFacet div.facetCatList').find("table#imagesFacetTbl a[class='" + self.options.data.fq + "']");
-  	    		//$.fn.fetchFilteredDataTable(obj, 'imagesFacet', self.options.data.q);
-  	    		
-  	    		var fields = MPI2.searchAndFacetConfig.facetParams[facetDivId].subFacetFqFields;       	
-	    		$.fn.parseUrlForFacetCheckbox(self.options.data.q, self.options.data.fq, 'imagesFacet', fields);
-	    	
-	    		// now load dataTable	    		
-	    		$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'imagesFacet'); 
-  	    	}       		
-  	    	*/
   	    	// when last facet is done
   	    	$('div#facetBrowser').html(MPI2.searchAndFacetConfig.endOfSearch);
   	    },	

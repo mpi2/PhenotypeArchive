@@ -20,16 +20,16 @@
 (function ($) {
 	'use strict';
     $.widget('MPI2.geneFacet', {
-        
-	    options: {},    
-			    
+    	
+	    options: {},  
+	    
     	_create: function(){
     		// execute only once 	
     		var self = this;
     		
     		var facetDivId = self.element.attr('id');
     		var caller = self.element;
-    		delete MPI2.searchAndFacetConfig.commonSolrParams.rows;    	   		  		
+    		delete MPI2.searchAndFacetConfig.commonSolrParams.rows;	 
     		
 			caller.find('div.facetCat').click(function(){
 				if ( caller.find('span.facetCount').text() != '0' ){
@@ -74,7 +74,7 @@
 										fqFieldVals[fqField] = [];										
 									}		
 																	
-									fqFieldVals[fqField].push(fqField + ':"' + val + '"');
+									fqFieldVals[fqField].push(fqFieldOri + ':"' + val + '"');
 								});					
 								
 								var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
@@ -110,7 +110,8 @@
 	    // want to use _init instead of _create to allow the widget being invoked each time by same element
 	    _init: function () {
 			var self = this;						
-			self._initFacet();			
+			self._initFacet();	
+			console.log('about to open gene facet');
 			$.fn.openFacet(self.options.data.core);			
 	    },
 	    
@@ -304,46 +305,16 @@
 	    	/*------------------------------------------------------------------------------------*/	
 	    	
 	    	if ( typeof self.options.data.fq == 'undefined' ){ 
-	    		self.options.data.fq = MPI2.searchAndFacetConfig.facetParams['geneFacet'].filterParams.fq;
+	    		//self.options.data.fq = MPI2.searchAndFacetConfig.facetParams['geneFacet'].filterParams.fq;
 	    	}
 	    	if ( self.options.data.fq.match(/.*/) ){	
-        		
+        	console.log('inside here');	
 	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'geneFacet');
-	    		// now load dataTable	    		
+	    		
+	    		// now load dataTable    		
 	    		$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'geneFacet'); 
     		}
 	    },	       
-	    
-	    _checkSubfacet: function(fqStr){
-	    	
-	    	var self = this;
-	    		    	
-	    	var filters = fqStr.replace('marker_type:* -marker_type:"heritable phenotypic marker" AND ', '').replace(/^\(|\)$/g, '');
-	    
-	    	var aKw = filters.split(' OR ');
-	    	for (var i=0; i<aKw.length; i++){
-	    		var akeyVal = aKw[i].split(':');
-	    		var classStr =  akeyVal[0];
-	    		var relVal   =  akeyVal[1].replace(/^"|"$/g, '');
-	    		
-	    		$('table#geneFacetTbl td a').each(function(){	    			
-	    			if ( $(this).hasClass(classStr) && $(this).attr('rel') == relVal ){	    			
-	    				if ( classStr == 'marker_type' ){
-	    					$(this).parent().siblings('td.geneSubtype').addClass('highlight');
-	    				}
-	    				else if ( classStr == 'status' ){
-	    					$(this).parent().siblings('td.geneStatus').addClass('highlight');
-	    				}
-	    				else if ( classStr.indexOf('imits_phenotype_') != -1 ){	    				
-	    					$(this).parent().siblings('td.phenotypingStatus').addClass('highlight'); 
-	    				}	    				
-	    				
-	    				$(this).parent().siblings('input').prop('checked', true);
-	    				//$.fn.composeFacetFilterControl(oChkbox, self.options.data.q);
-	    			}
-	    		});
-	    	} 
-	    },	
 	  
 	    destroy: function () {    	   
 	    	//this.element.empty();

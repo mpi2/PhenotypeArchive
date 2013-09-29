@@ -127,6 +127,9 @@ span.gSymbol {
 span.gNameSyn {
 	font-weight: bold;
 }
+div#imgView {
+	margin-bottom: 10px;
+}
 span#imgViewSubTitle {
 	font-weight: bold;
 	font-size: 12px;
@@ -324,7 +327,7 @@ div.dataTables_wrapper {
 
 /* ----- start of  facet filter ----- */
 div#filterToggle {
-	
+	display: none;
 }
 
 ul#facetFilter {
@@ -337,6 +340,7 @@ ul#facetFilter {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
+  display: none;
 }
 ul#facetFilter ul {
   /*z-index: 9999;	

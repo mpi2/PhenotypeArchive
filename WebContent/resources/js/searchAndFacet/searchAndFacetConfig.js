@@ -69,18 +69,18 @@ config.phenotypingStatusFq2Label = {
 };
 
 config.facetFilterLabel = {
-	'imits_phenotype_complete'   : 'phenotyping status',
-	'imits_phenotype_started'    : 'phenotyping status',
-	'imits_phenotype_status'     : 'phenotyping status',
-	'status'                     : 'mouse production status',
+	'imits_phenotype_complete'   : 'phenotyping_status',
+	'imits_phenotype_started'    : 'phenotyping_status',
+	'imits_phenotype_status'     : 'phenotyping_status',
+	'status'                     : 'mouse_production_status',
 	'marker_type'                : 'subtype',
-	'top_level_mp_term'          : 'top level term',
-	'selected_top_level_ma_term' : 'top level term',
+	'top_level_mp_term'          : 'top_level_term',
+	'selected_top_level_ma_term' : 'top_level_term',
 	'procedure_stable_id'        : 'procedrue',
 	'higherLevelMaTermName'      : 'anatomy',
 	'higherLevelMpTermName'      : 'phenotype',
 	'expName'                    : 'procedure',
-	'subtype'                    : 'gene subtype'
+	'subtype'                    : 'gene_subtype'
 };
                             
 //config.solrBaseURL_bytemark = 'http://dev.mousephenotype.org/bytemark/solr/';
@@ -117,7 +117,7 @@ config.facetParams = {
 		solrCoreName: 'gene',			 
 		tableCols: 3, 	
 		tableHeader: "<thead><th>Gene</th><th>Mouse Production Status</th><th>Phenotyping Status</th><th>Register for Updates</th></thead>",
-		fq: 'marker_type:* -marker_type:"heritable phenotypic marker',//undefined,
+		fq: 'marker_type:* -marker_type:"heritable phenotypic marker"',//undefined,
 		qf: "marker_symbol^100.0 human_gene_symbol^90.0 marker_name^10.0 allele^10 marker_synonym mgi_accession_id auto_suggest",
 		gridName: 'geneGrid',
 		gridFields: 'marker_symbol,marker_synonym,marker_name,status,human_gene_symbol', 
