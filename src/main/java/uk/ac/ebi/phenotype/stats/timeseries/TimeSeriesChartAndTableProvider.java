@@ -1,5 +1,10 @@
 package uk.ac.ebi.phenotype.stats.timeseries;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.WordUtils;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
+import uk.ac.ebi.generic.util.JSONRestUtil;
+import uk.ac.ebi.phenotype.dao.BiologicalModelDAO;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.TimeSeriesStatisticsDAO;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
@@ -25,6 +33,10 @@ import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ChartUtils;
+import uk.ac.ebi.phenotype.stats.ExperimentDTO;
+import uk.ac.ebi.phenotype.stats.JSONGraphUtils;
+import uk.ac.ebi.phenotype.stats.MouseDataPoint;
+import uk.ac.ebi.phenotype.stats.ObservationDTO;
 import uk.ac.ebi.phenotype.stats.TableObject;
 
 @Service
@@ -33,73 +45,109 @@ public class TimeSeriesChartAndTableProvider {
 
 	@Autowired
 	private TimeSeriesStatisticsDAO timeSeriesStatisticsDAO;
+	
+	 SimpleDateFormat sdf  = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss.SSS");
 
-	public List<ChartData> doTimeSeriesData(List<BiologicalModel> timeSeriesMutantBiologicalModels, Parameter parameter, String acc, Model model,
-			List<String> genderList, List<String> zyList,
-			int listIndex, List<String> biologicalModelsParams) {
+	public List<ChartData> doTimeSeriesData(BiologicalModelDAO bmDAO, List<ExperimentDTO> experiments, Parameter parameter, Model model, List<String> genderList, List<String> zyList, int listIndex,
+			List<String> biologicalModelsParams) throws IOException, URISyntaxException {
 		// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
 		Float max=new Float(0);
 		Float min=new Float(1000000000);
 		List<ChartData> chartsNTablesForParameter=new ArrayList<ChartData>();
-//		Map<String, Float> allMinMax=null;
-//		try {
-//			allMinMax = timeSeriesStatisticsDAO.getMinAndMaxForParameter(parameter.getStableId());
-//		} catch (SQLException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		//logger.debug("doing time_series data");
+
+		//maybe need to put these into method that can be called as repeating this - so needs refactoring though there are minor differences?
+		
+		
+		
+		
+			for (ExperimentDTO experiment : experiments) {
+				BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(experiment.getExperimentalBiologicalModelId());
+				//timeSeriesMutantBiologicalModels.add(expBiologicalModel);
 		Map<String, List<DiscreteTimePoint>> lines = new HashMap<String, List<DiscreteTimePoint>>();
-		List<BiologicalModel> biologicalModels = timeSeriesStatisticsDAO
-				.getBiologicalModelsByParameterAndGene(parameter, acc);
-		logger.warn("biologicalmodels size=" + biologicalModels.size());
-		for (BiologicalModel biologicalModel : biologicalModels) {
 
-			if (biologicalModelsParams.isEmpty()
-					|| biologicalModelsParams.contains(biologicalModel.getId()
-							.toString())) {
-
-				logger.warn("biologicalModel=" + biologicalModel);
-				List<Integer> popIds = timeSeriesStatisticsDAO
-						.getPopulationIdsByParameterAndMutantBiologicalModel(
-								parameter, biologicalModel);
-				logger.warn("Population IDs: " + popIds);
-				for (Integer popId : popIds) {
-
-					SexType sexType = timeSeriesStatisticsDAO
-							.getSexByPopulation(new Integer(popId.intValue()));// (new
-																				// Integer(5959));
-					logger.debug(popId + " sextype=" + sexType);
-					List<ZygosityType> zygosities = timeSeriesStatisticsDAO
-							.getZygositiesByPopulation(popId);
-					BiologicalModel mutantBiologicalModel = timeSeriesStatisticsDAO.getMutantBiologicalModelByPopulation(popId);
-					logger.info("getting data for mutant popId="+popId);
-					timeSeriesMutantBiologicalModels.add(mutantBiologicalModel);
-
+					
+					for (SexType sex : experiment.getSexes()) { // one graph for each sex if
+						// unspecified in params to
+						// page or in list of sex
+						// param specified
+						
 					if (genderList.isEmpty()
-							|| genderList.contains(sexType.name())) {
+							|| genderList.contains(sex.name())) {
 						List<List<Float>> errorBarsPairs = null;
 
-						List<DiscreteTimePoint> controlData = timeSeriesStatisticsDAO
-								.getControlStats(sexType, parameter, popId);
-						logger.debug("controlCounts=" + controlData);
-//						TimeSeriesStats controlStats = new TimeSeriesStats(
-//								controlData);
+						
+						List<DiscreteTimePoint> controlDataPoints=new ArrayList<>();
+						 //loop over the control points and add them
+						
+						 for(ObservationDTO control: experiment.getControls() ) {
+							
+							 //get the attributes of this data point
+							 //We don't want to split controls by gender on Unidimensional data
+							// SexType docSexType=SexType.valueOf(ctrlDoc.getString("gender"));
+							// ZygosityType zygosityType=ZygosityType.valueOf(ctrlDoc.getString("zygosity"));
+							 String docGender=control.getSex();
+							 if(SexType.valueOf(docGender).equals(sex)){
+							 Float dataPoint=control.getDataPoint();
+							 String timePoint=control.getTimePoint();
+								 long timeInMillisSinceEpoch = getEpocTime(timePoint);
+								 controlDataPoints.add(new DiscreteTimePoint(new Float(timeInMillisSinceEpoch) ,dataPoint));//new Float(dataPoint));
+							//controlMouseDataPoints.add(new MouseDataPoint("Need MouseIds from Solr",new Float(dataPoint)));
+							//System.out.println("adding control point time="+timePoint+" epoc="+timeInMillisSinceEpoch+" datapoint="+dataPoint);
+							//controlMouseDataPoints.add(new MouseDataPoint("uknown", new Float(dataPoint)));
+							 }
+						 }
+						 System.out.println("finished putting control to data points");
+						 TimeSeriesStats stats=new TimeSeriesStats();
+						 List<DiscreteTimePoint> controlMeans= stats.getMeanDataPoints(controlDataPoints);
+					//List<DiscreteTimePoint> controlData = timeSeriesStatisticsDAO
+					//			.getControlStats(sexType, parameter, popId);
+						
+//				TimeSeriesStats controlStats = new TimeSeriesStats(
+//						controlData);
 //						List<DiscreteTimePoint> controlMeans = controlStats
 //								.getMeans();
-						logger.debug("control means=" + controlData);
-						lines.put("Control", controlData);
-						for (ZygosityType zType : zygosities) {
+						//logger.debug("control means=" + controlMeans);
+						lines.put("Control", controlMeans);
+						for (ZygosityType zType : experiment.getZygosities()) {
 							if (zyList.isEmpty()
 									|| zyList.contains(zType.name())) {
-								List<DiscreteTimePoint> mutantData = timeSeriesStatisticsDAO
-										.getMutantStats(sexType, zType, parameter,
-												popId);
-								logger.debug("mutantCounts=" + mutantData);
-								
-								
+							List<DiscreteTimePoint> mutantData=new ArrayList<>();// = timeSeriesStatisticsDAO
+//										.getMutantStats(sexType, zType, parameter,
+//												popId);
+							//	logger.debug("mutantCounts=" + mutantData);
+							Set<ObservationDTO> expObservationsSet = Collections.emptySet();
+							if (zType.equals(ZygosityType.heterozygote)
+									|| zType.equals(ZygosityType.hemizygote)) {
+								expObservationsSet = experiment
+										.getHeterozygoteMutants();
+							}
+							if (zType.equals(ZygosityType.homozygote)) {
+								expObservationsSet = experiment
+										.getHomozygoteMutants();
+							}
+
+							for (ObservationDTO expDto : expObservationsSet) {
+								 //get the attributes of this data point
+								 //We don't want to split controls by gender on Unidimensional data
+								// SexType docSexType=SexType.valueOf(ctrlDoc.getString("gender"));
+								// ZygosityType zygosityType=ZygosityType.valueOf(ctrlDoc.getString("zygosity"));
+								 String docGender=expDto.getSex();
+								 if(SexType.valueOf(docGender).equals(sex)){
+								 Float dataPoint=expDto.getDataPoint();
+								 String timePoint=expDto.getTimePoint();
+									 long timeInMillisSinceEpoch = getEpocTime(timePoint);
+								//Float discreteTime=;
+									 mutantData.add(new DiscreteTimePoint(new Float(timeInMillisSinceEpoch) ,new Float(dataPoint)));//new Float(dataPoint));
+								//controlMouseDataPoints.add(new MouseDataPoint("Need MouseIds from Solr",new Float(dataPoint)));
+								//System.out.println("adding control point time="+timePoint+" epoc="+timeInMillisSinceEpoch+" datapoint="+dataPoint);
+								//controlMouseDataPoints.add(new MouseDataPoint("uknown", new Float(dataPoint)));
+								 }
+							 }	 
+							 
+							 System.out.println("doing mutant data");
+							 List<DiscreteTimePoint> mutantMeans= stats.getMeanDataPoints(mutantData);	
 								lines.put(WordUtils.capitalize(zType.name()),
-										mutantData);
+										mutantMeans);
 
 							}
 						}
@@ -108,24 +156,44 @@ public class TimeSeriesChartAndTableProvider {
 						if(lines.size()>1){//if lines are greater than one i.e. more than just control create charts and tables
 						ChartData chartNTableForParameter=creatDiscretePointTimeSeriesChart(listIndex,
 								title, lines, parameter.checkParameterUnit(1),
-								parameter.checkParameterUnit(2), sexType);
+								parameter.checkParameterUnit(2), sex);
 						Float tempMin=chartNTableForParameter.getMin();
 						Float tempMax=chartNTableForParameter.getMax();
+						chartNTableForParameter.setExpBiologicalModel(expBiologicalModel);
 						if(tempMin<min)min=tempMin;
 						if(tempMax>max)max=tempMax;
 						chartsNTablesForParameter.add(chartNTableForParameter);
 						listIndex++;
 						}
 					}// end of gender
-				}
+				//}
 
 			}// end of biological model param
-		}
+		}//end of sex loop
+		
+			
+		
 		//min=allMinMax.get("min"); 
 		//max=allMinMax.get("max");
 		logger.debug("min="+min+" max="+max);
 		List<ChartData> yAxisAdjustedTimeSeriesCharts=ChartUtils.alterMinAndMaxYAxisOfCharts(chartsNTablesForParameter, min, max);
 		return yAxisAdjustedTimeSeriesCharts;
+	}
+
+
+
+	private long getEpocTime(String timeString) {
+		
+		java.util.Date date = null;
+		try {
+			date = sdf.parse(timeString);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		 long timeInMillisSinceEpoch = date.getTime(); 
+		 long timeInMinutesSinceEpoch = timeInMillisSinceEpoch / (60 * 1000);
+		return timeInMinutesSinceEpoch;
 	}
 
 

@@ -140,7 +140,7 @@ public class HttpProxy {
 		return content;
 	}
 
-	private Proxy getProxy(URL url) {
+	public Proxy getProxy(URL url) {
 
 		String proxyHost = System.getProperty("http.proxyHost");
 		Integer proxyPort = null;

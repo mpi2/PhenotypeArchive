@@ -436,4 +436,15 @@ System.out.println(query);
 		return resultsMap;
 	}
 
+	@Override
+	public List<UnidimensionalResult> getUnidimensionalResultByParameterIdAndBiologicalModelIds(
+			Integer parameterId, Integer controlBiologicalId,
+			Integer biologicalId) {
+		return (List<UnidimensionalResult>) getCurrentSession().createQuery("from UnidimensionalResult u  WHERE parameter=? and control_id=? and experimental_id=?")
+				.setInteger(0, parameterId)
+				.setInteger(1, controlBiologicalId)
+				.setInteger(2, biologicalId)
+				.list();
+	}
+
 }

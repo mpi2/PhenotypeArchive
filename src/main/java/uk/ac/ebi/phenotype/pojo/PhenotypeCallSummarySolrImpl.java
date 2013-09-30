@@ -43,7 +43,7 @@ public class PhenotypeCallSummarySolrImpl implements
 				+ core
 				+ "/select/?q=marker_accession_id:\""
 				+ accId
-				+ "\"&rows=10000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=resource_fullname&facet.field=top_level_mp_term_name";
+				+ "\"&fq=-resource_name:IMPC&rows=10000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=resource_fullname&facet.field=top_level_mp_term_name";
 		if (queryString.startsWith("&")) {
 			url += queryString;
 		} else {// add an ampersand parameter splitter if not one as we need
@@ -211,7 +211,7 @@ public class PhenotypeCallSummarySolrImpl implements
 				+ core
 				+ "/select/?q=mp_term_id:\""
 				+ phenotype_id
-				+ "\"&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=resource_fullname&facet.field=procedure_name";
+				+ "\"&fq=-resource_name:IMPC&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=resource_fullname&facet.field=procedure_name";
 		// if (!filterString.equals("")) {
 		if (queryString.startsWith("&")) {
 			url += queryString;

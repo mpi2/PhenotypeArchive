@@ -356,3 +356,5 @@ body div#allele_tracker_panel_results  a img {
     text-align:center;
     font-size:0.875em;
 }
+
+.filterTrigger { cursor: pointer; }

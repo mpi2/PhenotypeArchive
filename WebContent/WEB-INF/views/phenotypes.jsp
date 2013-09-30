@@ -74,7 +74,7 @@
 					</c:if>
 					<tr>
 						<td>MGI MP browser:</td>
-						<td><a href="http://www.informatics.jax.org/marker/${phenotype.id.accession}">${phenotype.id.accession}</a></td>
+						<td><a href="http://www.informatics.jax.org/searches/Phat.cgi?id=${phenotype.id.accession}">${phenotype.id.accession}</a></td>
 					</tr>
 				</tbody>
 			</table>

@@ -56,6 +56,11 @@ public interface UnidimensionalStatisticsDAO extends StatisticsDAO {
 			Parameter parameter, BiologicalModel controlBiologicalModel,
 			BiologicalModel biologicalModel);
 	
+	public List<UnidimensionalResult> getUnidimensionalResultByParameterIdAndBiologicalModelIds(
+			Integer parameter, Integer controlBiologicalId,
+			Integer biologicalId);
+	
+	
 	public List<MouseDataPoint> getMutantDataPointsWithMouseName(SexType sex, ZygosityType zygosity, Parameter parameter,  Integer populationId);
 	public List<MouseDataPoint> getControlDataPointsWithMouseName(Integer populationId);
 

@@ -15,7 +15,7 @@
         <script type="text/javascript">
         dcc.ie8 = true;
         </script>
-	<![endif]-->
+	<![endif]-->  
 	<script>
           //new dcc.PhenoHeatMap('procedural', 'phenodcc-heatmap', '${gene.symbol}', '${gene.id.accession}', 6, '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/heatmap/');
           new dcc.PhenoHeatMap({
@@ -55,6 +55,7 @@
 	<script type="text/javascript" src="${baseUrl}/js/genomic-browser/dalliance-compiled.js"></script>
 	<!--<![endif]-->
 	<script src="${baseUrl}/js/imaging/genomicB.js"></script>
+		<script src="${baseUrl}/js/general/dropdownfilters.js"></script>
 	</jsp:attribute>
 	
 
@@ -176,6 +177,12 @@
 								<a href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=601;db=core;g=${gene.id.accession}">Compara&nbsp;View</a>
 					       </td>
 						</tr>
+						<tr class="odd">
+							<td>ENU Link:</td>
+							<td class="gene-data" id="enu_links">
+								<a href="https://databases.apf.edu.au/mutations/snpRow/list?mgiAccessionId=${gene.id.accession}">ENU</a>
+							 </td>
+						</tr>
 					</tbody>
 				</table>
 			</div>
@@ -183,10 +190,7 @@
 				
 			</div>
 			
-			
 		</div>
-
-
 		<div class="row-fluid">
 		    
 			<div class="container span12">
@@ -265,11 +269,61 @@
 	</c:if>
 	<!--/row-->
 
-
 	<!--row-->
 	<div class="row-fluid dataset">
 	    <div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
 	    <h4 class="caption">Phenotype Associations from EuroPhenome and WTSI Mouse Genetics Project</h4>
+	     <div class="row-fluid">
+            <div class="container span12">
+                <h4 class="caption">Phenotype summary </h4>
+                <div class="row-fluid" id="phenotypesSummary">
+                
+                <p>Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models.</p>
+                
+                <c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0}">
+                    <p> <b>Both sexes</b> have the following phenotypic abnormalities</p>
+                        <ul>
+                            <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
+                                    <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()} (${summaryObj.getId()})</a>. Evidence from
+                                    <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop">
+                                    ${evidence}
+                                        <c:if test="${!loop.last}">,&nbsp;</c:if>
+                                    </c:forEach>  
+                                    &nbsp;&nbsp;&nbsp; (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>    
+                            </c:forEach>
+                        </ul>
+                </c:if>
+                
+                <c:if test="${phenotypeSummaryObjects.getFemalePhenotypes().size() > 0}">
+                <p> Following phenotypic abnormalities occured in <b>females</b> only</p>
+                    <ul>
+                        <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getFemalePhenotypes()}">
+                                <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()} (${summaryObj.getId()})</a>. Evidence from
+                                    <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop">
+                                    ${evidence}
+                                        <c:if test="${!loop.last}">,&nbsp;</c:if>
+                                    </c:forEach>
+                                     &nbsp;&nbsp;&nbsp; (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>                
+                        </c:forEach>
+                    </ul>
+                </c:if>
+                
+                <c:if test="${phenotypeSummaryObjects.getMalePhenotypes().size() > 0}">
+                <p> Following phenotypic abnormalities occured in <b>males</b> only</p>
+                    <ul>
+                        <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getMalePhenotypes()}">
+                                <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()} (${summaryObj.getId()})</a>. Evidence from                     
+                                <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop">
+                                    ${evidence}
+                                    <c:if test="${!loop.last}">,&nbsp;</c:if>
+                                </c:forEach>
+                                &nbsp;&nbsp;&nbsp;   (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>    
+                        </c:forEach>
+                    </ul>
+                </c:if>
+                </div>
+            </div>
+        </div>
 		<div class="row-fluid">
 			<div class="container span12">
 				
@@ -287,17 +341,13 @@
 					<%-- 	${phenoFacet.key}
 					${phenoFacet.value} --%>
 							<select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
-				
-						<option>All</option>
 				<c:forEach var="facet" items="${phenoFacet.value}">
 				<option>${facet.key}</option>
 				</c:forEach>
 				</select> 
 				</c:forEach>
 				<!-- <input type="text" id="myInputTextField"> -->
-				<c:if test="${not empty phenoFacet}">
-				<input type="submit" class='btn primary' value="Filter" />
-				</c:if>
+			
 				</form>
 				<jsp:include page="PhenoFrag.jsp"></jsp:include>
 				<div id="exportIconsDiv"></div>
@@ -351,159 +401,7 @@
 			</div>
 		</div>
 		
-			<script>
-					$(document).ready(function(){						
-						
-						$.fn.qTip('gene');	// bubble popup for brief panel documentation					
-						
-						/* var oDataTable = $('table#phenotypes').dataTable();
-						oDataTable.fnDestroy();  */
-						// use jquery DataTable for table searching/sorting/pagination
-						var aDataTblCols = [0,1,2,3,4,5];
-						var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
-			  						"aoColumns": [
-			  							{ "sType": "html", "mRender":function( data, type, full ) {
-			  						        return (type === "filter") ? $(data).text() : data;
-			  						    }},
-			  							{ "sType": "html", "mRender":function( data, type, full ) {
-			  						        return (type === "filter") ? $(data).text() : data;
-			  						    }},
-			  						    { "sType": "string"},
-			  							{ "sType": "alt-string", "bSearchable" : false },
-			  						   /*  { "sType": "string"}, */
-			  						    { "sType": "html"}
-			  						    , { "sType": "string", "bSortable" : false }
-
-			  						],
-			  						"bDestroy": true,
-			  						"bFilter":false
-			  					});
-						
-						$('[rel=tooltip]').tooltip();
-													    		
-			    		//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
-			    		$('div#exportIconsDiv').append($.fn.loadFileExporterUI({
-			    			label: 'Export table as:',
-			    			formatSelector: {
-			    				TSV: 'tsv_phenoAssoc',
-			    				XLS: 'xls_phenoAssoc'	    			 					
-			    			},
-			    			class: 'fileIcon'
-			    		}));
-			    		
-			    		initFileExporter({
-							mgiGeneId: '${gene.id.accession}',
-							geneSymbol: '${gene.symbol}',
-							externalDbId: 3,
-							panel: 'phenoAssoc',
-							fileName: 'phenotype_associations_of_gene-${gene.symbol}'
-						});
-			    		function initFileExporter(conf){
-			    			
-			    	    	$('button.fileIcon').click(function(){
-			    	    		var classString = $(this).attr('class');	    		
-			    	    		//var controller = classString.substr(0, classString.indexOf(" "));
-			    	    		
-			    	    		var fileType = $(this).text();
-			    	    		var url = baseUrl + '/export';	    		
-			    	    		var sInputs = '';
-			    	    		for ( var k in conf ){
-			    	    			sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";	    			
-			    	    		}
-			    	    		sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
-			    	    		
-			    	    		$("<form action='"+ url + "' method=get>" + sInputs + "</form>").appendTo('body').submit().remove();    		
-			    	    	}).corner('6px');	 
-			    	    }  
-			    		
-			    		//http://stackoverflow.com/questions/5990386/datatables-search-box-outside-datatable
-			    		//to move the input text or reassign the div that does it and hide the other one??
-			    		//put filtering in another text field than the default so we can position it with the other controls like dropdown ajax filters for project etc
-						/* $('#myInputTextField').keypress(function(){
-							oDataTable.fnFilter( $(this).val() );
-						}); */
-					
-			    		//stuff for dropdown tick boxes here
-			    		$("#resource_fullname").dropdownchecklist( { firstItemChecksAll: true, emptyText: "Projects: All", icon: {}, minWidth: 150 } );
-			    		$("#top_level_mp_term_name").dropdownchecklist( { firstItemChecksAll: true, emptyText: "Top Level MP: All", icon: {} , minWidth: 150} );
-			    		// $("select[multiple]").bsmSelect();
-			    		//if filter parameters are already set then we need to set them as selected in the dropdowns
-			    		var previousParams=$("#filterParams").html();
-			    		//alert('previous='+previousParams);
-						$('#target').submit(function() {
-			  					var rootUrl=window.location.href;
-			    			 // alert(rootUrl);
-			    			  var newUrl=rootUrl.replace("genes", "genesPhenoFrag");
-			    			// alert( $("option:selected").parent().attr("id"));
-			    			 var output ='?';
-			    			//http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=marker_accession_id:MGI:98373&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet=true&facet.field=project_name&facet.field=top_level_mp_term_name&fq=top_level_mp_term_name:(%22vision/eye%20phenotype%22%20OR%20%22craniofacial%20phenotype%22)
-			    			var array1=$("#resource_fullname").val() || [];
-			    			if(array1.length==1){//if only one entry for this parameter then don't use brackets and or
-			    				 output+='&fq=resource_fullname:"'+array1[0]+'"';
-			    			} 
-							if(array1.length>1)	{
-			    				output+='&fq=resource_fullname:(';//note " before and after value for solr handle spaces
-			    			 		for(var i=0; i<array1.length; i++){
-			    						 
-			    							 //if(i==0)output+=' " ';
-			    						 output+='"'+array1[i]+'"';
-			    						 if(i<array1.length-1){
-			    							 output+=' OR ';
-			    						 }else{
-			    							 output+=')';
-			    						 }
-			    						 //console.log('logging='+array1[i]);
-			    			 }
-			    		}
-			    			 var output2 ='';//='"'+ ($("#top_level_mp_term_name").val() || []).join('"&fq=top_level_mp_term_name:"')+'"';
-			    			 var array2=$("#top_level_mp_term_name").val() || [];
-			    				if(array2.length==1){//if only one entry for this parameter then don't use brackets and or
-				    				 output+='&fq=top_level_mp_term_name:"'+array2[0]+'"';
-				    			}
-			    				if(array2.length>1){
-				    				output+='&fq=top_level_mp_term_name:(';//note " before and after value for solr handle spaces
-			    			 			for(var i=0; i<array2.length; i++){
-			    			 				 output+='"'+array2[i]+'"';
-				    						 if(i<array2.length-1){
-				    							 output+=' OR ';
-				    						 }else{
-				    							 output+=')';
-				    						 }
-			    			 		}
-			    			 }
-			    			 newUrl+=output+output2;
-			    			 //alert(newUrl);
-			    			  $.ajax({
-			    				  url: newUrl,
-			    				  cache: false
-			    				}).done(function( html ) {
-			    				  $("#phenotypes_wrapper").html(html);//phenotypes wrapper div has been created by the original datatable so we need to replace this div with the new table and content
-			    				  var aDataTblCols = [0,1,2,3,4,5];
-									var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
-						  						"aoColumns": [
-						  							{ "sType": "html", "mRender":function( data, type, full ) {
-						  						        return (type === "filter") ? $(data).text() : data;
-						  						    }},
-						  							{ "sType": "html", "mRender":function( data, type, full ) {
-						  						        return (type === "filter") ? $(data).text() : data;
-						  						    }},
-						  						    { "sType": "string"},
-						  							{ "sType": "alt-string", "bSearchable" : false },
-						  						   /*  { "sType": "string"}, */
-						  						    { "sType": "html"}
-						  						    , { "sType": "string", "bSortable" : false }
-
-						  						],
-						  						"bDestroy": true,
-						  						"bFilter":false
-						  					});
-			    				  	//alert('calling new table in genes.jsp');
-									//$oDataTable.fnDraw(); 
-			    				});
-			    			  return false;
-			    			});
-					});
-				</script>
+			
 		
 <%--
 		<div class="row-fluid">		

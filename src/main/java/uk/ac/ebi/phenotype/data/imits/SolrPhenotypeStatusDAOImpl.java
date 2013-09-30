@@ -63,7 +63,7 @@ public class SolrPhenotypeStatusDAOImpl implements PhenotypeStatusDAO {
 			throws ConnectTimeoutException {
 
 		// prevent errors (test connection time-out)
-System.out.println("calling get colonystatus in solrPhenotypeStatus");
+log.info("calling get colonystatus in solrPhenotypeStatus");
 		colonyStatusList = new ArrayList<ColonyStatus>();
 
 		log.info("Posting for " + gene.getId().getAccession());

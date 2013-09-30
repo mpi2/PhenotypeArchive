@@ -20,6 +20,7 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +64,8 @@ import uk.ac.ebi.phenotype.data.imits.ColonyStatus;
 import uk.ac.ebi.phenotype.data.imits.PhenotypeStatusDAO;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
+import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
+import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
@@ -93,6 +96,9 @@ public class GenesController {
 
 	@Autowired
 	SolrIndex solrIndex;
+
+	@Autowired
+	private PhenotypeSummaryDAO phenSummary;
 	
 	@Autowired
 	@Qualifier("solr")
@@ -176,6 +182,21 @@ public class GenesController {
 		} catch (IndexOutOfBoundsException exception) {
 			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
 		}
+
+		/**
+		* Phenotype Summary
+		*/
+
+		PhenotypeSummaryBySex phenotypeSummaryObjects = null;
+
+		try {
+		model.addAttribute("phenotypeSummary", phenSummary.getSummary(acc));
+		System.out.println(phenSummary.getSummary(acc));
+		phenotypeSummaryObjects =  phenSummary.getSummaryObjects(acc);
+		model.addAttribute("phenotypeSummaryObjects",phenotypeSummaryObjects);
+		} catch (Exception e){
+		e.printStackTrace();
+		} 
 		
 		/**
 		 * PHENOTYPE STATUS (IMITS BIOMART)
@@ -384,11 +405,8 @@ public class GenesController {
 			pr.setRawZygosity(rawZygosity);
 			pr.setZygosity(pcs.getZygosity());
 			pr.setProjectId(pcs.getExternalId());
-
-			// DO not include these for the gene datatable
 			pr.setProcedure(pcs.getProcedure());
 			pr.setParameter(pcs.getParameter());
-			
 
 			if(phenotypes.containsKey(pr)) {
 				pr = phenotypes.get(pr);
@@ -400,11 +418,13 @@ public class GenesController {
 
 			phenotypes.put(pr, pr);
 		}
-		model.addAttribute("phenotypes", new ArrayList<PhenotypeRow>(phenotypes.keySet()));
+		ArrayList<PhenotypeRow> l = new ArrayList<PhenotypeRow>(phenotypes.keySet());
+		Collections.sort(l); // sort in alpha order by MP term name
+		model.addAttribute("phenotypes", l);
 	}
 	
-        private Map<String, List<Map<String, String>>> getProviders(
-			List<Map<String, String>> constructs) throws org.json.JSONException {
+	private Map<String, List<Map<String, String>>> getProviders(
+		List<Map<String, String>> constructs) throws org.json.JSONException {
 		
 		Map<String, List<Map<String, String>>> nameToProvider=new HashMap<String,List< Map<String, String>>>(); 
 		for(Map<String, String> construct: constructs){

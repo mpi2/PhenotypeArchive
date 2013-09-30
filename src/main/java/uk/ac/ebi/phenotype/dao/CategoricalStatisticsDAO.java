@@ -45,9 +45,9 @@ public interface CategoricalStatisticsDAO extends StatisticsDAO {
 
 	public Double getpValueByParameterAndControlBiologicalModelAndSexAndZygosity(Parameter parameter, BiologicalModel biologicalModel, SexType sex, ZygosityType zygosity);
 	
-	public Double getpValueByParameterAndMutantBiologicalModelAndSexAndZygosity(Parameter parameter, BiologicalModel biologicalModel, SexType sex, ZygosityType zygosity);
+	public List<Double> getpValueByParameterAndMutantBiologicalModelAndSexAndZygosity(Parameter parameter, BiologicalModel biologicalModel, SexType sex, ZygosityType zygosity);
 	
-	public Double getMaxEffectSizeByParameterAndMutantBiologicalModelAndSexAndZygosity(Parameter parameter, BiologicalModel biologicalModel, SexType sex, ZygosityType zygosity);
+	public List<Double> getMaxEffectSizeByParameterAndMutantBiologicalModelAndSexAndZygosity(Parameter parameter, BiologicalModel biologicalModel, SexType sex, ZygosityType zygosity);
 	
 	public Organisation getOrganisationByPopulation(Integer populationId);
 	public List<Integer> getPopulationIdsByParameter(Parameter parameter);

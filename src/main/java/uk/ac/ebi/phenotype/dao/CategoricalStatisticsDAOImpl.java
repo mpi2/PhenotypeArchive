@@ -278,28 +278,29 @@ public class CategoricalStatisticsDAOImpl extends StatisticsDAOImpl implements C
 				.setInteger(1, biologicalModel.getId()).list();
 	}
 
-	public Double getpValueByParameterAndMutantBiologicalModelAndSexAndZygosity(
+	public List<Double> getpValueByParameterAndMutantBiologicalModelAndSexAndZygosity(
 			Parameter parameter, BiologicalModel controlBiologicalModel, SexType sex,
 			ZygosityType zygosity) {
-		return (Double) getCurrentSession()
+		System.out.println("get p value query="+parameter.getId()+" " +controlBiologicalModel.getId()+" "+sex.name()+" "+zygosity);
+		return (List<Double>) getCurrentSession()
 				.createQuery(
 						"SELECT pValue FROM CategoricalResult WHERE parameter=? AND experimentalBiologicalModel=? AND experimentalSex=? AND experimentalZygosity=?")
 				.setLong(0, parameter.getId())
 				.setInteger(1, controlBiologicalModel.getId())
 				.setString(2, sex.name()).setString(3, zygosity.name())
-				.uniqueResult();
+				.list();
 	}
 
-	public Double getMaxEffectSizeByParameterAndMutantBiologicalModelAndSexAndZygosity(
+	public List<Double> getMaxEffectSizeByParameterAndMutantBiologicalModelAndSexAndZygosity(
 			Parameter parameter, BiologicalModel mutantBiologicalModel, SexType sex,
 			ZygosityType zygosity) {
-		return (Double) getCurrentSession()
+		return (List<Double>) getCurrentSession()
 				.createQuery(
 						"SELECT maxEffect FROM CategoricalResult WHERE parameter=? AND experimentalBiologicalModel=? AND experimentalSex=? AND experimentalZygosity=?")
 				.setLong(0, parameter.getId())
 				.setInteger(1, mutantBiologicalModel.getId())
 				.setString(2, sex.name()).setString(3, zygosity.name())
-				.uniqueResult();
+				.list();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -411,7 +412,7 @@ System.out.println("query for categorical results="+query);
 				csr.setCategoryA(resultSet.getString("category_a"));
 				csr.setCategoryB(resultSet.getString("category_b"));
 				//csr.setControlBiologicalModel(cStatsDAO.getControlBiologicalModelByPopulation(populationId));
-				csr.setControlZygosity(ZygosityType.valueOf(resultSet.getString("control_zygosity")));
+				//csr.setControlZygosity(ZygosityType.valueOf(resultSet.getString("control_zygosity")));
 				csr.setControlSex(SexType.valueOf(resultSet.getString("control_sex")));
 				//csr.setExperimentalBiologicalModel(cStatsDAO.getMutantBiologicalModelByPopulation(populationId));
 				csr.setExperimentalZygosity(ZygosityType.valueOf(resultSet.getString("experimental_zygosity")));

@@ -37,6 +37,8 @@
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 
+	<bean id="phenotypeSummary" class="uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAOImpl" init-method="instantiateSolrServer">
+	</bean>
 
 
 	<bean id="phenotypeCallSummaryDAO" class="uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAOImpl">
@@ -132,16 +134,8 @@
 		
 	<!-- Translates Hibernate exceptions to Spring Data Access Exceptions -->
 	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
-	
-	<!-- Creates a MySQL Datasource -->
-	<bean id="komp2DataSource" class="org.apache.commons.dbcp.BasicDataSource"
-		destroy-method="close">
-		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
-		<property name="url" value="jdbcurldummy" />
-		<property name="username" value="dumyuser" />
-		<property name="password" value="dummypass" />
-	</bean>
 
+	<import resource="datasources-config.xml"/>
 	
 	<bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">
 		<property name="targetMapClass">
