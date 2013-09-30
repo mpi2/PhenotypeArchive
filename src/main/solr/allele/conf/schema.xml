@@ -78,7 +78,6 @@
      <field name="order_from_urls" type="text" indexed="true" stored="true" multiValued="true" />
      <field name="order_from_names" type="text" indexed="true" stored="true" multiValued="true" />
      <field name="allele_id" type="int" indexed="true" stored="true" multiValued="false" required="true" />
-     <field name="text" type="text" indexed="true" stored="false" multiValued="true"/>
      <field name="best_status_pa_cre_ex_not_required" type="text" indexed="true" stored="true" multiValued="false" />
      <field name="best_status_pa_cre_ex_required" type="text" indexed="true" stored="true" multiValued="false" />
      <field name="current_pa_status" type="text" indexed="true" stored="true" multiValued="false" />
