@@ -1,6 +1,8 @@
 package uk.ac.ebi.phenotype.ontology;
 
 import java.net.MalformedURLException;
+import java.net.Proxy;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -18,6 +20,8 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.stereotype.Service;
+
+import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 @Service
 public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
@@ -46,14 +50,18 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 	*/
 	public void instantiateSolrServer(){
 		String solrBaseUrl = config.get("internalSolrUrl") + "/genotype-phenotype";
-		if (System.getProperty("http.proxyHost") != null && System.getProperty("http.proxyPort") != null) {
-			String PROXY_HOST = System.getProperty("http.proxyHost");
-			Integer PROXY_PORT = Integer.parseInt(System.getProperty("http.proxyPort"));
-			HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT, "http");
-			DefaultHttpClient client = new DefaultHttpClient();
-			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-			server = new HttpSolrServer(solrBaseUrl, client);
-		} else {
+		Proxy proxy; 
+		try {
+			proxy = (new HttpProxy()).getProxy(new URL(solrBaseUrl));
+			if (proxy != null) {
+				DefaultHttpClient client = new DefaultHttpClient();
+				client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+				server = new HttpSolrServer(solrBaseUrl, client);
+			}
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		if(server == null){
 			server = new HttpSolrServer(solrBaseUrl);
 		}
 	}
