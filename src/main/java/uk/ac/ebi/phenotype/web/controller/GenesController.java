@@ -328,6 +328,7 @@ public class GenesController {
 			e.printStackTrace();
 		}
 		model.addAttribute("countIKMCAlleles", countIKMCAlleles);
+		log.debug("CHECK IKMC allele error : " + ikmcError);
 		log.debug("CHECK IKMC allele found : " + countIKMCAlleles);
 	}
 
