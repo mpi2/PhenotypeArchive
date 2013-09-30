@@ -490,11 +490,12 @@
 		if ( facetDivId == 'pipelineFacet' ){
 			userFqStr = convert_proc_id_2_name(userFqStr);
 		}
-				
-		if (userFqStr == 'gene_subtype:* -gene_subtype:"heritable phenotypic marker"' ){
+		
+		// some quicky/lazy cosmetic change
+		if (userFqStr == 'gene_subtype:* -gene_subtype:"heritable phenotypic marker"' || userFqStr == '*:*' ){
 			userFqStr = '';
 			searchKw = searchKw.replace(' AND ', '');
-		}
+		}		
 		
     	var dataCount = "<span id='resultCount'><span id='annotCount'></span><a></a></span>";    	
     	var resultMsg = $("<div id='resultMsg'></div>").append(imgViewSwitcher, dataCount, ' for ' + userFqStr, searchKw);
@@ -726,7 +727,9 @@
 		dataType = count > 1 ? dataType : dataType.replace(/s$/, '');
 		var txt = count + ' ' + dataType;
 		if ( oInfos.solrCoreName == 'images' ){
+						
 			var imgUrl = baseUrl + "/images?" + oInfos.params;
+			
 			if ( MPI2.searchAndFacetConfig.facetParams.imagesFacet.showImgView ){
 	   			// record img count, as in annotation view, the count is number of annotations and not images
 				MPI2.searchAndFacetConfig.lastImgCount = count;

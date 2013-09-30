@@ -51,7 +51,7 @@
 						currHashParams.q = self.options.data.q;
 						currHashParams.core = solrCoreName;
 						currHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq; //default
-						alert(self.options.data);				
+									
 						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 					
 						// if no selected subfacet, load all results of this facet
