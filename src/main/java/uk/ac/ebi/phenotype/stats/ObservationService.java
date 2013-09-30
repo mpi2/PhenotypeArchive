@@ -241,7 +241,7 @@ public class ObservationService {
 
 	    // NOTE!!!
 	    // TODO: Hom and Het probably need their own control groups
-	    //
+	    // because of the sliding window of control selection based on date
 	    for (ExperimentDTO experiment : experimentsMap.values()) {
 	    	if (experiment.getControls() == null) {
 
