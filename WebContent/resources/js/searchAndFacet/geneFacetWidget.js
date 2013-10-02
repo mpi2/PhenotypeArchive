@@ -56,7 +56,7 @@
 					
 						// if no selected subfacet, load all results of this facet
 						if ( caller.find('table#geneFacetTbl td.highlight').size() == 0 ){						
-							window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
+							//window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
 						}	
 						else {		
 							// if there is selected subfacets: work out the url							
@@ -80,7 +80,8 @@
 								var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
 							
 			  	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable 	
-			  	    			window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;	
+			  	    			//window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;	
+			  	    			window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
 							}	
 						}	
 					}
@@ -102,7 +103,8 @@
 					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
 					
 					// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-  	    			window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+  	    			//window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+  	    			window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
 				}	
 			});							
     	},
@@ -191,11 +193,12 @@
 						var coreField = 'gene|'+ phenotypingStatusFq + '|';					
 						//var chkbox = "<input type=checkbox rel=" + coreField + phenotypingStatusVal + ">";	
 						var chkbox = $('<input></input>').attr({'class':'phenotyping', 'type': 'checkbox', 'rel': coreField + phenotypingStatusVal + '|' + count});
-						var tr = $('<tr></tr>').attr({'class':'subFacet'});
+						var td0 = $('<td></td>').append(chkbox);
+						var tr = $('<tr></tr>').attr({'class':'subFacet'});						
 						var td1 = $('<td></td>').attr({'class':'phenotypingStatus geneSubfacet', 'rel':count}).text(aPhenos[i]);
 						var link = $('<a></a>').attr({'rel': phenotypingStatusVal, 'class': phenotypingStatusFq}).text(count);
 						var td2 = $('<td></td>').attr({'class':'geneSubfacetCount', 'rel':phenotypingStatusVal}).append(link);
-						table.append(tr.append(chkbox, td1, td2));
+						table.append(tr.append(td0, td1, td2));
 					}					
 				}	    		
 	    		
@@ -216,12 +219,13 @@
 					
 					if ( count !== undefined ){
 						var coreField = 'gene|status|';
-						var chkbox = $('<input></input>').attr({'class':'production', 'type': 'checkbox', 'rel': coreField + status + '|' + count});						
+						var chkbox = $('<input></input>').attr({'class':'production', 'type': 'checkbox', 'rel': coreField + status + '|' + count});
+						var td0 = $('<td></td>').append(chkbox);
 						var tr = $('<tr></tr>').attr({'class':'subFacet'});
 						var td1 = $('<td></td>').attr({'class':'geneStatus geneSubfacet', 'rel':count}).text(status);
 						var link = $('<a></a>').attr({'rel': status, 'class': 'status'}).text(count);
 						var td2 = $('<td></td>').attr({'class':'geneSubfacetCount', 'rel':status}).append(link);
-						table.append(tr.append(chkbox, td1, td2));						
+						table.append(tr.append(td0, td1, td2));						
 					}					
 				}	    		
 	    		
@@ -237,16 +241,17 @@
 					var count = mkr_facets[i+1];	
 					var coreField = 'gene|marker_type|';						
 					var chkbox = $('<input></input>').attr({'class':'subtype', 'type': 'checkbox', 'rel': coreField + type + '|' + count});
+					var td0 = $('<td></td>').append(chkbox);
 					var tr = $('<tr></tr>').attr({'class':'geneSubTypeTr'});
 					var td1 = $('<td></td>').attr({'class':'geneSubtype geneSubfacet', 'rel':count}).text(type);
 					var link = $('<a></a>').attr({'rel': type, 'class': 'marker_type'}).text(count);
 					var td2 = $('<td></td>').attr({'class':'geneSubfacetCount', 'rel':type}).append(link);					
 					
 					if ( type != 'unclassified gene' ){	
-						table.append(tr.append(chkbox, td1, td2));
+						table.append(tr.append(td0, td1, td2));
 					}
 					else {
-						unclassifiedTr = tr.append(chkbox, td1, td2);
+						unclassifiedTr = tr.append(td0, td1, td2);
 					}					
 	    		} 
 	    		  
@@ -288,8 +293,8 @@
 		    			        			
 	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable	  	    			
 		    		var fqStr = $(this).attr('class') + ':"' + $(this).attr('rel') + '"'; 
-		    		window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=gene'; 
-	    			
+		    		//window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=gene'; 
+		    		window.location.hash = 'fq=' + fqStr + '&core=gene';
 	    		});  
 	    		$('table#geneFacetTbl input').click(function(){
 	    			

@@ -25,9 +25,13 @@
 	    _create: function(){
     		// execute only once 	
     		
+	    	
     		var self = this;	
     		var facetDivId = self.element.attr('id');
+    		self.element.attr('class', 'maFacetWidget');
+    		
     		var caller = self.element;
+    		    		    		
     		delete MPI2.searchAndFacetConfig.commonSolrParams.rows;    	   		  		
 		
 			caller.find('div.facetCat').click(function(){
@@ -48,15 +52,16 @@
 						$(this).addClass('facetCatUp');						
 					
 						var currHashParams = {};						
-						currHashParams.q = self.options.data.q;
+						//currHashParams.q = self.options.data.q;
 						currHashParams.core = solrCoreName;
 						currHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq; //default
 										
-						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-					
+						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));										
+						
 						// if no selected subfacet, load all results of this facet
-						if ( caller.find('table#maFacetTbl td.highlight').size() == 0 ){						
-							window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
+						if ( caller.find('table#maFacetTbl td.highlight').size() == 0 ){	
+							//alert('here');
+							//window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
 						}	
 						else {		
 							// if there is selected subfacets: work out the url							
@@ -77,7 +82,8 @@
 								var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND ' + $.fn.compose_AndOrStr(fqFieldVals);
 							
 			  	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable 	
-			  	    			window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;	
+			  	    			//window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+			  	    			window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
 							}	
 						}	
 					}					
@@ -99,7 +105,8 @@
 					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
 					
 					// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-  	    			window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;	
+  	    			//window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;	
+  	    			window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
 				}				
 			});	
     	},
@@ -116,7 +123,7 @@
 	    	var self = this;    	
 	    		  	
 	    	var queryParams = $.extend({}, {				
-		    	'fq': MPI2.searchAndFacetConfig.facetParams.maFacet.filterParams.fq,
+		    	'fq': MPI2.searchAndFacetConfig.facetParams.maFacet.fq,
 				'rows': 0, // override default
 				'facet': 'on',								
 				'facet.mincount': 1,
@@ -147,12 +154,12 @@
 	        			var count = aTopLevelCount[i+1];
 	        			var coreField = 'ma|selected_top_level_ma_term|' + aTopLevelCount[i] + '|' + count;	
 	        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});
-	        			
+	        			var td0 = $('<td></td>').append(chkbox);
 	    	    		var td1 = $('<td></td>').attr({'class': 'maTopLevel', 'rel': count}).text(aTopLevelCount[i]);	    	    		   	    		
 	    	    		
 	    	    		var a = $('<a></a>').attr({'rel':aTopLevelCount[i]}).text(count);
 	    	    		var td2 = $('<td></td>').attr({'class': 'maTopLevelCount'}).append(a);
-	    	    		table.append(tr.append(chkbox, td1, td2)); 	        			
+	    	    		table.append(tr.append(td0, td1, td2)); 	        			
 	    	    	}    	
 	    	    	
 	    			self._displayOntologyFacet(json, 'maFacet', table);	    			    			
@@ -190,14 +197,14 @@
 	    			        			
     			// update hash tag so that we know there is hash change, which then triggers loadDataTable	  	    			
 	    		var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND selected_top_level_ma_term:"' + $(this).attr('rel')  + '"';	    			    			
-	    		window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=ma'; 
+	    		//window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=ma'; 
+	    		window.location.hash = 'fq=' + fqStr + '&core=ma'; 
     			
     		});  
     		    		
     		$('table#maFacetTbl input').click(function(){
     			// highlight the item in facet
-    			$(this).parent().find('td.maTopLevel').addClass('highlight');
-    			    			
+    			$(this).parent().find('td.maTopLevel').addClass('highlight');    			    			
 				$.fn.composeFacetFilterControl($(this), self.options.data.q);					
 			});   		
     		
@@ -214,7 +221,8 @@
     		}    		
 	    },	   
 		
-	    destroy: function () {    	   
+	    destroy: function () {
+	    	this.removeClass('maFacetWidget');
 	    	// does not generate selector class
     	    // if using jQuery UI 1.8.x
     	    $.Widget.prototype.destroy.call(this);

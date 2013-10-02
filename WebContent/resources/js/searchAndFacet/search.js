@@ -21,7 +21,7 @@
 (function($){	
 	
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
-				
+		
 		var q = oUrlHashParams.q;
 		var oFacets = {};
 		oFacets.count = {};		
@@ -97,7 +97,7 @@
 	function _doTissueAutoSuggest(geneResponse, mpResponse, pipelineResponse, q, oFacets){
 		MPI2.searchAndFacetConfig.facetParams.maFacet.srchParams.q = q;	
 		MPI2.searchAndFacetConfig.facetParams.maFacet.srchParams.sort = 'ma_term asc';
-		MPI2.searchAndFacetConfig.facetParams.maFacet.srchParams.fq = MPI2.searchAndFacetConfig.facetParams.maFacet.filterParams.fq;
+		MPI2.searchAndFacetConfig.facetParams.maFacet.srchParams.fq = MPI2.searchAndFacetConfig.facetParams.maFacet.fq;
 		
 		$.ajax({
     	    url: solrUrl + '/ma/select',
@@ -153,6 +153,7 @@
     	    	}
     	    	else {
     	    		
+    	    		MPI2.searchAndFacetConfig.currentQuery = q;
     	        	// remove all previous facet results before loading new facet results
     	        	$('div.facetCatList').html('');  
     	        	
@@ -193,22 +194,23 @@
 		});
 	}
 		
-	function _prepareCores(core, q, oFacets){
+	function _prepareCores(core, q, oFacets){		
 		
-		var widgetName = core + 'Facet';
+		var widgetName = core + 'Facet';		
 		
 		window.jQuery('div#' + core + 'Facet').click(function(){
-				
+		
 			var $this = window.jQuery(this);
 			
 			// check widget has not been created			
 			if ( typeof $this.data(widgetName) === 'undefined' ){
-				
 				var hashParams = {};
-				hashParams.q = q;
-				hashParams.core = core;
-				hashParams.fq = MPI2.searchAndFacetConfig.facetParams[core + 'Facet'].fq;				
-				window.location.hash = $.fn.stringifyJsonAsUrlParams(hashParams);						
+				
+				//hashParams.q = q;					
+				//hashParams.core = core;
+				//hashParams.fq = MPI2.searchAndFacetConfig.facetParams[core + 'Facet'].fq;
+				
+				//window.location.hash = $.fn.stringifyJsonAsUrlParams(hashParams);						
 				
 				if ( $this.find('.facetCatList').html() == '' && $this.find('span.facetCount').text() != '0' ){					
 					$this[widgetName]({  
@@ -217,10 +219,10 @@
 							qf: MPI2.searchAndFacetConfig.facetParams[core + 'Facet'].qf,
 							facetCount: oFacets.count[core]
 							},
-							geneGridElem: 'div#mpi2-search'			                                      
+							geneGridElem: 'div#mpi2-search'							
 					});					
 				}
-			}		
+			}			
 		});
 	}
 	

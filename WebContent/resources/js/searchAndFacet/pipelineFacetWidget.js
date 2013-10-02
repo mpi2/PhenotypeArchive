@@ -55,9 +55,9 @@
 										
 						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 						
-						// if no selected subfacet, load all results of this facet
-						if ( caller.find('table#pipelineFacetTbl td.highlight').size() == 0 ){						
-							window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
+						// if no selected subfacet, load all results of this facet (with filter if any)
+						if ( caller.find('table#pipelineFacetTbl td.highlight').size() == 0 ){							
+							//window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
 						}
 						else {						
 							// if there is selected subfacets: work out the url							
@@ -78,7 +78,8 @@
 								var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
 							
 			  	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable 	
-			  	    			window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;	
+			  	    			//window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;	
+			  	    			window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
 							}							
 						}				
 					}	
@@ -100,7 +101,8 @@
 					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
 					
 					// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-  	    			window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;					
+  	    			//window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;	
+  	    			window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;				
 				}				
 			});	
     	},
@@ -166,11 +168,11 @@
 	        			
 	        			var coreField = 'pipeline|procedure_stable_id|' + procedure_name + '___' + procedureName2IdKey[procedure_name].stable_id + '|' + paramCount;	
 	        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});	        			
-	        			
+	        			var td0 = $('<td></td>').append(chkbox);
 	        			var td1 = $('<td></td>').attr({'class': pClass, 'rel':paramCount});	        			
 	        			var td2 = $('<td></td>');	        			        			
 	        			var a = $('<a></a>').attr({'class':'paramCount', 'rel': procedureName2IdKey[procedure_name].stable_id}).text(paramCount);
-	        			table.append(tr.append(chkbox, td1.text(procedure_name), td2.append(a)));
+	        			table.append(tr.append(td0, td1.text(procedure_name), td2.append(a)));
 	        		} 			
 	        		
 	        		if (json.response.numFound == 0 ){
@@ -198,12 +200,14 @@
 	  	    			        			
 	        			// update hash tag so that we know there is hash change, which then triggers loadDataTable	  	    			
 	  	    			var fqStr = 'procedure_stable_id:"' + $(this).attr('rel')  + '"'; 
-	  	    			window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=pipeline'; 
+	  	    			//window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=pipeline'; 
+	  	    			window.location.hash = 'fq=' + fqStr + '&core=pipeline';
 	        		});
 	        		
 	        		$('table#pipelineFacetTbl input').click(function(){
+	        			console.log('click.....');
 	        			// highlight the item in facet
-	        			$(this).parent().find('td[class^=procedure]').addClass('highlight');
+	        			$(this).parent().siblings('td[class^=procedure]').addClass('highlight');
 	        			$.fn.composeFacetFilterControl($(this), self.options.data.q);
 	        		});	        		       		
 	        		

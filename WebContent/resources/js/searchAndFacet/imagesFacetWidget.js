@@ -55,7 +55,7 @@
 						
 						// if no selected subfacet, load all results of this facet
 						if ( caller.find('table#imagesFacetTbl td.highlight').size() == 0 ){							
-							window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
+							//window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
 						}						
 						else {
 							// if there is selected subfacets: work out the url							
@@ -77,7 +77,8 @@
 								var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
 																
 								// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-			  	    			window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr + '&ftOpen=true';	
+			  	    			//window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr + '&ftOpen=true';	
+			  	    			window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;	
 							}							
 						}						
 					}	
@@ -101,7 +102,8 @@
 					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
 					
 					// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-  	    			window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+  	    			//window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+  	    			window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
 				}	
 			});	
     	},
@@ -203,8 +205,8 @@
   		    	    		
   		    	    		var coreField = 'images|'+ facetName + '|' + displayName + '|' + facetCount;	
   		        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField}); 		    	    			    		
-  		    	    		
-  		    	    		table.append(tr.append(chkbox, td1, td2));		    	    		
+  		        			var td0 = $('<td></td>').append(chkbox);
+  		    	    		table.append(tr.append(td0, td1, td2));		    	    		
   	    				}
   	    			}	    				    	    	
   	    			self._displayImageFacet(json, 'images', 'imagesFacet', table);			
@@ -248,9 +250,11 @@
   	    			        			
         			// update hash tag so that we know there is hash change, which then triggers loadDataTable
   	    			var oParams = eval( "(" + $(this).attr('rel') + ")" );  	    			
-  	    		
+  	    		console.log(oParams);
   	    			//fq=higherLevelMaTermName:"adipose tissue"&core=images&q=*
-  	    			window.location.hash = oParams.params + '&core=' + oParams.solrCoreName;  	    			
+  	    			//window.location.hash = oParams.params + '&core=' + oParams.solrCoreName;
+  	    		console.log(oParams.params.replace(/q=.*&/, ''));
+  	    			window.location.hash = oParams.params.replace(/q=\b.*\b&/, '') + '&core=' + oParams.solrCoreName;     			
   	    			
   	    		});	
   	    		

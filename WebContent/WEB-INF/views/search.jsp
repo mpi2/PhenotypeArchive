@@ -23,16 +23,31 @@
 		(1) the facet count is clicked
 	    (2) the back or forward button is clicked
 	    The params are parsed to load dataTable -->
-	    
+	
 	<script type="text/javascript">
-		$(document).ready(function(){
+		$(document).ready(function(){	
 			
-			// catch back/forward buttons: load dataTable based on url params
+			// non hash tag keyword query
+			<c:if test="${not empty q}">				
+				oHashParams = {};
+				oHashParams.q = "${q}";
+				$.fn.fetchSolrFacetCount(oHashParams);				
+			</c:if>;
+					
+			// hash tag query
+			// catch back/forward buttons and hash change: loada dataTable based on url params
 			$(window).bind("hashchange", function(e) {
-				// In jQuery 1.4, use e.getState( "url" );				
+				// In jQuery 1.4, use e.getState( "url" );
+				
 				var url = $.param.fragment();				
-				//console.log('hash change URL: '+ '/search#' + url);
+				console.log('hash change URL: '+ '/search#' + url);
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
+				
+				if ( typeof oHashParams.q === 'undefined' ){
+					console.log(window.location.search);
+					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');
+					console.log(oHashParams.q);
+				}
 				
 				// keyword search has no fq in url when hash change is detected
 				if (oHashParams.fq ){				
@@ -45,7 +60,7 @@
 					$.fn.loadDataTable(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet'); 
 				}
 			});
-			
+						
 			$('div#filterToggle').click(function(){	
 				
 				var ul = $('ul#facetFilter');	
@@ -63,6 +78,8 @@
 	</jsp:attribute>
 
     <jsp:body>
+       
+    
        <!-- search filter display -->
        	<div id='filterToggle'>Show facet filters</div>       		
 	   	<ul id='facetFilter'> 
