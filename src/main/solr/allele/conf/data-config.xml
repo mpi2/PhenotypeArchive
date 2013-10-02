@@ -4,7 +4,7 @@
       
         <dataSource name="sanger" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/allele/" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
         <document name="docs">
-                <entity dataSource="sanger" name="doc" stream="true" url="select?q=id:*&amp;rows=150000&amp;wt=normal"
+                <entity dataSource="sanger" name="doc" stream="true" url="select?q=*&amp;rows=150000&amp;wt=normal"
                 processor="XPathEntityProcessor" forEach="/response/result/doc/"
                   readTimeout="10000" connectionTimeout="10000"  >                      
                        
