@@ -110,8 +110,7 @@
 	    // want to use _init instead of _create to allow the widget being invoked each time by same element
 	    _init: function () {
 			var self = this;						
-			self._initFacet();	
-			console.log('about to open gene facet');
+			self._initFacet();		
 			$.fn.openFacet(self.options.data.core);			
 	    },
 	    
@@ -300,7 +299,7 @@
 				});	    		
     		}
 	    	
-	    	/*------------------------------------------------------------------------------------*/
+	    	/*--------------------------console.log('inside here');	----------------------------------------------------------*/
 	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
 	    	/*------------------------------------------------------------------------------------*/	
 	    	
@@ -308,7 +307,7 @@
 	    		//self.options.data.fq = MPI2.searchAndFacetConfig.facetParams['geneFacet'].filterParams.fq;
 	    	}
 	    	if ( self.options.data.fq.match(/.*/) ){	
-        	console.log('inside here');	
+        	
 	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'geneFacet');
 	    		
 	    		// now load dataTable    		
