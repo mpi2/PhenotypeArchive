@@ -528,11 +528,14 @@
     }
     
     $.fn.relabelFilterForUsers = function(fqStr){
-    	    	
+    
     	var oldStr = fqStr;
     	for ( var i in MPI2.searchAndFacetConfig.facetFilterLabel ){    
-    		var regex = new RegExp('\\b'+i+'\\b', "gi");	
+    		var regex = new RegExp('\\b'+i+'\\b', "gi");    		
     		fqStr = fqStr.replace(regex, MPI2.searchAndFacetConfig.facetFilterLabel[i]);    		
+    	}
+    	if (fqStr == '(phenotyping_status:"1")' ){
+    		fqStr = '(phenotyping_status:"Started")';
     	}
     
     	return fqStr;    	
