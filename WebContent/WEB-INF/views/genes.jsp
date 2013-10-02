@@ -274,12 +274,15 @@
 	    <div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
 	    <h4 class="caption">Phenotype Associations</h4>
 	     <div class="row-fluid">
+						<c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
+                            
             <div class="container span12">
+								              
                 <div class="row-fluid" id="phenotypesSummary">
-                
-                <c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
+             
                 	<p>Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models.</p>
-                </c:if>
+              
+                
                 <c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0}">
                     <p> <b>Both sexes</b> have the following phenotypic abnormalities</p>
                         <ul>
@@ -323,6 +326,7 @@
                 </c:if>
                 </div>
             </div>
+              </c:if>
         </div>
 		<div class="row-fluid">
 			<div class="container span12">

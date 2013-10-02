@@ -72,7 +72,7 @@ log.info("calling get colonystatus in solrPhenotypeStatus");
 		String urlString = solrUrl
 				+ "/select/?q=mgi_accession_id:\""
 				+ accession
-				+ "\"&rows=100&version=2.2&start=0&indent=on&wt=json&defType=edismax";
+				+ "\"&rows=100&version=2.2&start=0&indent=on&wt=json";
 	
 		try {
 			JSONObject results = JSONRestUtil.getResults(urlString);
