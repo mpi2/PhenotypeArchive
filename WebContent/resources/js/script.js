@@ -1,3 +1,68 @@
+
+/**
+ * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License.  
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ * searchAndFacetConfig: definition of variables for the search and facet 
+ * see searchAndFacet directory
+ * 
+ * Author: Chao-Kung Chen
+ * 
+ */
+
+if(typeof(window.MDOC) === 'undefined') {
+    window.MDOC = {};
+}
+
+var defaultDesc = 'Brief info about this panel';
+
+MDOC.gene = {		
+		'generalPanel'         : defaultDesc,
+		'generalPanelDocUrl'   : '/data/documentation/geneGeneralPanel.html',
+		'preQcPanel'           : defaultDesc,
+		'preQcPanelDocUrl'     : '/data/documentation/preQcPanel.html',
+		'mpPanel'              : defaultDesc,
+		'mpPanelDocUrl'        : '/data/documentation/geneMpPanel.html',
+		'imagePanel'           : defaultDesc,
+		'imagePanelDocUrl'     : '/data/documentation/geneImagePanel.html',
+		'expressionPanel'      : defaultDesc,
+		'expressionPanelDocUrl': '/data/documentation/geneExpressionPanel.html',
+		'allelePanel'          : defaultDesc,
+		'allelePanelDocUrl'    : '/data/documentation/allelePanel.html'
+};
+MDOC.mp = {
+		'generalPanel'         : defaultDesc,
+		'generalPanelDocUrl'   : '/data/documentation/mpGeneralPanel.html',
+		'genePanel'            : defaultDesc,
+		'genePanelDocUrl'      : '/data/documentation/mpGenePanel.html',
+		'relatedMpPanel'       : defaultDesc,
+		'relatedMpPanelDocUrl' : '/data/documentation/relatedMpPanel.html',
+		'imagePanel'           : defaultDesc,
+		'imagePanelDocUrl'     : '/data/documentation/mpImagePanel.html'
+};
+MDOC.ma = {
+		'generalPanel'         : defaultDesc,
+		'generalPanelDocUrl'   : '/data/documentation/maGeneralPanel.html',
+		'mpPanel'              : defaultDesc,
+		'mpPanelDocUrl'        : '/data/documentation/maMpPanel.html',
+		'relatedMaPanel'       : defaultDesc,
+		'relatedMaPanelDocUrl' : '/data/documentation/maRelatedMaPanel.html',
+		'expressionPanel'      : defaultDesc,
+		'expressionPanelDocUrl': '/data/documentation/maExpressionPanel.html'
+};
+
+
 /**
  * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
@@ -12781,6 +12846,51 @@ f.fn.dataTableExt.fnVersionCheck("1.9.0")?f.fn.dataTableExt.aoFeatures.push({fnI
  * Author: Chao-Kung Chen
  */
 (function($){	
+
+	$.fn.qTip = function(pageName){
+		// pageName: gene | mp | ma
+		$('div.documentation a').each(function(){
+			
+			var key = $(this).attr('class');
+			$(this).attr('href', MDOC[pageName][key+'DocUrl']);
+			
+			$(this).qtip({
+			 	content: MDOC[pageName][key],
+			   	style: { 
+			   		delay: 1,
+			    	width: 200,
+			      	padding: 5,
+			      	background: '#CCCCCC',
+			      	color: 'black',
+			      	textAlign: 'center',
+			      	border: {
+			        	width: 1,
+			         	radius: 5,
+			         	color: '#CCCCCC'
+			   	  	},
+			    	tip: 'bottomMiddle', //'bottomLeft',
+			    	name: 'dark' // Inherit the rest of the attributes from the preset dark style
+			   	},				 
+				show: {		            
+		               event: 'mouseover',
+					   delay: 0
+		        },
+		        hide: {		        		
+			           event: 'mouseout' 
+		        },							
+				position: {
+			    	corner: {
+			        	target: 'topLeft',
+			        	tooltip: 'middleRight'
+			        },
+			    	adjust: {
+			        	x: 105,
+			        	y: -55
+			        }
+			    }	   
+			});			
+		});
+	}
 	
 	$.fn.setHashUrl = function(q, core){		
 		var hashParams = {};
@@ -13031,7 +13141,7 @@ f.fn.dataTableExt.fnVersionCheck("1.9.0")?f.fn.dataTableExt.aoFeatures.push({fnI
     		topLevelName = obj.attr('rel'); 
     		var topLevelNameOri = topLevelName;
     		
-    		$('tablehashParamStr#gFacet td').removeClass('highlight');
+    		$('table#gFacet td').removeClass('highlight');
     		
     		obj.parent().siblings('td.geneSubfacet').addClass('highlight');
 			facetCount = obj.parent().siblings('td.geneSubfacet').attr('rel');
@@ -13086,9 +13196,9 @@ f.fn.dataTableExt.fnVersionCheck("1.9.0")?f.fn.dataTableExt.aoFeatures.push({fnI
     		
     		topLevelName = oInfos.imgSubName;
     			    		
-    		$('table#imgFacet td.imgExperiment').removeClass('highlight');
-			obj.parent().siblings('td.imgExperiment').addClass('highlight'); 
-			facetCount = obj.parent().siblings('td.imgExperiment').attr('rel');			
+    		$('table#imgFacet td.imgSubfacet').removeClass('highlight');
+			obj.parent().siblings('td.imgSubfacet').addClass('highlight'); 
+			facetCount = obj.parent().siblings('td.imgSubfacet').attr('rel');			
 						
 			imgParamStr = oInfos.params + '&facetCount=' + facetCount;								
 			var unit = facetCount > 1 ? 'images' : 'image';
@@ -14292,10 +14402,10 @@ $.extend( $.fn.dataTableExt.oSort, {
 	    	
 	    	if (numFound > 0){
 	    		
-	    		var trs = '';
-	    		// subfacet: IMPC Phenotype
-	    		var phenoStatusTrCap = "<tr class='facetSubCat'><td colspan=2>IMPC Phenotyping Status</td></tr>";
-	    		
+	    		// subfacet: IMPC mouse phenotyping status
+	    		var table = $("<table id='gFacet' class='facetTable'></table>");	
+	    		table.append($('<tr></tr>').attr({'class':'facetSubCat'}).append($('<td></td>').attr({'colspan':3}).text('IMPC Phenotyping Status')));
+	    			    		
 	    		var pheno_count = {};
 	    		var aImitsPhenos = {'imits_phenotype_complete':'Complete', 
 	    							'imits_phenotype_started':'Started', 
@@ -14313,7 +14423,7 @@ $.extend( $.fn.dataTableExt.oSort, {
 	    	    		} 
 	    			}    			
 	    		}
-	    		//console.log(pheno_count);
+	    	
 	    		var phenoStatusTr = '';
 	    		var aPhenos = ['Complete', 'Started', 'Attempt Registered'];	    		
 	    		for ( var i=0; i<aPhenos.length; i++ ){
@@ -14321,18 +14431,21 @@ $.extend( $.fn.dataTableExt.oSort, {
 					var phenotypingStatusVal = MPI2.searchAndFacetConfig.phenotypingStatuses[aPhenos[i]].val; 
 					var count = pheno_count[aPhenos[i]];
 					
-					if ( count !== undefined ){						
-						phenoStatusTr += "<tr><td class='phenotypingStatus geneSubfacet' rel=" + count + ">" + aPhenos[i] + "</td>"
-							+ "    <td rel='" + phenotypingStatusVal + "' class='geneSubfacetCount'><a rel='" + phenotypingStatusVal + "' class='" + phenotypingStatusFq + "'>" + count + "</a></td>"
-							+  "</tr>";
+					if ( count !== undefined ){	
+						var coreField = 'gene|'+ phenotypingStatusFq + '|';					
+						//var chkbox = "<input type=checkbox rel=" + coreField + phenotypingStatusVal + ">";	
+						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + phenotypingStatusVal});
+						var tr = $('<tr></tr>').attr({'class':'subFacet'});
+						var td1 = $('<td></td>').attr({'class':'phenotypingStatus geneSubfacet', 'rel':count}).text(aPhenos[i]);
+						var link = $('<a></a>').attr({'rel': phenotypingStatusVal, 'class': phenotypingStatusFq}).text(count);
+						var td2 = $('<td></td>').attr({'class':'geneSubfacetCount', 'rel':phenotypingStatusVal}).append(link);
+						table.append(tr.append(chkbox, td1, td2));
 					}					
-				}	
-	    		if (phenoStatusTr != ''){
-	    			trs += phenoStatusTrCap + phenoStatusTr;
-	    		}
+				}	    		
 	    		
-	    		// subfacet: IMPC Mouse Production
-	    		trs += "<tr class='facetSubCat'><td colspan=2>IMPC Mouse Production Status</td></tr>";
+	    		// subfacet: IMPC mouse production status    		
+	    		table.append($('<tr></tr>').attr({'class':'facetSubCat'}).append($('<td></td>').attr({'colspan':3}).text('IMPC Mouse Production Status')));
+	    		
 	    		var status_facets = json.facet_counts['facet_fields']['status'];
 	    		var status_count = {};
 	    		for ( var i=0; i<status_facets.length; i+=2 ){ 
@@ -14346,34 +14459,46 @@ $.extend( $.fn.dataTableExt.oSort, {
 					var count = status_count[MPI2.searchAndFacetConfig.geneStatuses[i]];
 					
 					if ( count !== undefined ){
-						trs += "<tr><td class='geneStatus geneSubfacet' rel=" + count + ">" + status + "</td><td rel='" + status + "' class='geneSubfacetCount'><a rel='" + status + "' class='status'>" + count + "</a></td></tr>";
+						var coreField = 'gene|status|';
+						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + status});						
+						var tr = $('<tr></tr>').attr({'class':'subFacet'});
+						var td1 = $('<td></td>').attr({'class':'geneStatus geneSubfacet', 'rel':count}).text(status);
+						var link = $('<a></a>').attr({'rel': status, 'class': 'status'}).text(count);
+						var td2 = $('<td></td>').attr({'class':'geneSubfacetCount', 'rel':status}).append(link);
+						table.append(tr.append(chkbox, td1, td2));						
 					}					
 				}	    		
 	    		
 				// subfacet: IMPC gene subtype
 	    		var unclassified_gene_subType;	    		
-	    		trs += "<tr class='facetSubCat geneSubTypeTrCap'><td colspan=2>Subtype</td></tr>";
+	    		table.append($('<tr></tr>').attr({'class':'facetSubCat geneSubTypeTrCap'}).append($('<td></td>').attr({'colspan':3}).text('Subtype')));
+	    			    		
 	    		var mkr_facets = json.facet_counts['facet_fields']['marker_type'];
+	    		var unclassifiedTr;
 	    		for ( var i=0; i<mkr_facets.length; i+=2 ){		    			
-	    			//console.log( facets[i] + ' ' + facets[i+1]);
+	    			
 					var type = mkr_facets[i];
-					var count = mkr_facets[i+1];			
-					if ( type == 'unclassified gene' ){					
-						//unclassified_gene_subType = "<tr class='geneSubTypeTr'><td class='geneSubtype geneSubfacet'>" + type + "</td><td rel='" + type + "' class='geneSubfacetCount'><a rel='" + type + "' class='subtype'>" + count + "</a></td></tr>";
-						unclassified_gene_subType = "<tr class='geneSubTypeTr'><td class='geneSubtype geneSubfacet' rel="+ count + ">" + type + "</td><td rel='" + type + "' class='geneSubfacetCount'><a rel='" + type + "' class='marker_type'>" + count + "</a></td></tr>";
-						
+					var count = mkr_facets[i+1];	
+					var coreField = 'gene|marker_type|';						
+					var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + type});
+					var tr = $('<tr></tr>').attr({'class':'geneSubTypeTr'});
+					var td1 = $('<td></td>').attr({'class':'geneSubtype geneSubfacet', 'rel':count}).text(type);
+					var link = $('<a></a>').attr({'rel': type, 'class': 'marker_type'}).text(count);
+					var td2 = $('<td></td>').attr({'class':'geneSubfacetCount', 'rel':type}).append(link);					
+					
+					if ( type != 'unclassified gene' ){	
+						table.append(tr.append(chkbox, td1, td2));
 					}
 					else {
-						//trs += "<tr class='geneSubTypeTr'><td class='geneSubtype geneSubfacet'>" + type + "</td><td rel='" + type + "' class='geneSubfacetCount'><a rel='" + type + "' class='subtype'>" + count + "</a></td></tr>";
-						trs += "<tr class='geneSubTypeTr'><td class='geneSubtype geneSubfacet' rel=" + count + ">" + type + "</td><td rel='" + type + "' class='geneSubfacetCount'><a rel='" + type + "' class='marker_type'>" + count + "</a></td></tr>";
-					}
+						unclassifiedTr = tr.append(chkbox, td1, td2);
+					}					
 	    		} 
-	    		if ( unclassified_gene_subType ){
-	    			trs += unclassified_gene_subType
-	    		}
+	    		  
+	    		if (unclassifiedTr){
+	    			table.append(unclassifiedTr);
+	    		}	    		
 	    		
-	    		
-	    		var table = "<table id='gFacet' class='facetTable'>" + trs + "</table>";				
+	    		//var table = "<table id='gFacet' class='facetTable'>" + trs + "</table>";				
 	    		$('div#geneFacet div.facetCatList').html(table);
 	    			
 	    		// gene subtype is collapsed by default
@@ -14388,7 +14513,8 @@ $.extend( $.fn.dataTableExt.oSort, {
 	    			}
 	    		);
 	    		
-	    		self._applyGeneGridResultFilterByMarkerSubFacet($('table#gFacet td.geneSubfacetCount a'));	    		
+	    		self._applyGeneGridResultFilterByMarkerSubFacet($('table#gFacet td.geneSubfacetCount a'));	  
+	    		self._addFacetFilterControl($('table#gFacet input'));
     		}
 	    	
 	    	/*------------------------------------------------------------------------------------*/
@@ -14417,46 +14543,25 @@ $.extend( $.fn.dataTableExt.oSort, {
 		_applyGeneGridResultFilterByMarkerSubFacet: function(obj){
 			var self = this;
 			// subFacet result trigger	
-			obj.live('click', function(){			
+			obj.live('click', function(){				
 			//	obj.click(function(){	
 				// invoke dataTable	via hash state with the 4th param
 				// ie, it does not invoke dataTable directly but through hash change				
 				$.fn.fetchFilteredDataTable($(this), 'geneFacet', self.options.data.q, 'facetFilter');
 				
-			});
-
-			/*function singleClick(e) {
-			    // do something, "this" will be the DOM element
-				console.log('single')
-				// invoke dataTable	via hash state with the 4th param
-				// ie, it does not invoke dataTable directly but through hash change				
-				$.fn.fetchFilteredDataTable($(this), 'geneFacet', self.options.data.q, 'facetFilter');
-			}
-
-			function doubleClick(e) {
-			    // do something, "this" will be the DOM element
-				console.log('double')
-				$.fn.fetchFilteredDataTable($(this), 'geneFacet', self.options.data.q, 'facetFilter');
-			}
-
-			obj.live('click', function(e){
-			    var that = this;
-			    setTimeout(function() {
-			        var dblclick = parseInt($(that).data('double'), 10);
-			        if (dblclick > 0) {
-			            $(that).data('double', dblclick-1);
-			        } else {
-			            singleClick.call(that, e);
-			        }
-			    }, 300);
-			}).dblclick(function(e) {
-			    $(this).data('double', 2);
-			    doubleClick.call(this, e);
-			});
-			*/
-			
+			});		
 		},
-   
+		
+		_addFacetFilterControl: function(oChkbox) {
+			oChkbox.click(function(){
+				console.log($(this).attr('rel'));
+				//$(this).prop('checked', false);
+				
+				
+				
+			});
+		},
+		
 		_reloadDataTableForHashUrl: function(){
 			var self = this;
 			var hashParams = $.fn.parseHashString(window.location.hash.substring(1));
@@ -14657,11 +14762,12 @@ $.extend( $.fn.dataTableExt.oSort, {
 	        			var tr = $('<tr></tr>').attr({'rel':aTopLevelCount[i], 'id':'topLevelMpTr'+i});  
 	        			// remove trailing ' phenotype' in MP term
 	        			
+	        			var chkbox = $('<input>').attr({'type':'checkbox', 'name' : 'mp_'+ aTopLevelCount[i]});
 	    	    		var td1 = $('<td></td>').attr({'class': 'mpTopLevel', 'rel': aTopLevelCount[i+1]}).text(aTopLevelCount[i].replace(' phenotype', ''));	    	    		   	    		
 	    	    		
 	    	    		var a = $('<a></a>').attr({'rel':aTopLevelCount[i]}).text(aTopLevelCount[i+1]);
 	    	    		var td2 = $('<td></td>').attr({'class': 'mpTopLevelCount'}).append(a);
-	    	    		table.append(tr.append(td1, td2)); 
+	    	    		table.append(tr.append(chkbox, td1, td2)); 
 	        			
 	    	    	}    	
 	    	    	
@@ -14952,12 +15058,12 @@ $.extend( $.fn.dataTableExt.oSort, {
 	    	    	for ( var i=0;  i<aTopLevelCount.length; i+=2 ){	    		
 	    	    		
 	        			var tr = $('<tr></tr>').attr({'rel':aTopLevelCount[i], 'id':'topLevelMaTr'+i});        		
-	        			
+	        			var chkbox = "<input type=checkbox name=" + 'ma_'+ aTopLevelCount[i] + ">";
 	    	    		var td1 = $('<td></td>').attr({'class': 'maTopLevel', 'rel': aTopLevelCount[i+1]}).text(aTopLevelCount[i]);	    	    		   	    		
 	    	    		
 	    	    		var a = $('<a></a>').attr({'rel':aTopLevelCount[i]}).text(aTopLevelCount[i+1]);
 	    	    		var td2 = $('<td></td>').attr({'class': 'maTopLevelCount'}).append(a);
-	    	    		table.append(tr.append(td1, td2)); 	        			
+	    	    		table.append(tr.append(chkbox, td1, td2)); 	        			
 	    	    	}    	
 	    	    	
 	    			self._displayOntologyFacet(json, 'maFacet', table);	    			    			
@@ -15203,7 +15309,7 @@ $.extend( $.fn.dataTableExt.oSort, {
 	    			
 	    			var table = $("<table id='pipeline' class='facetTable'></table>");
 	        		var trCat = $('<tr></tr>').attr({'class':'facetSubCat'});
-	        		table.append(trCat.append( $('<td></td>').attr({'colspan':2}).text('IMPC')));
+	        		table.append(trCat.append( $('<td></td>').attr({'colspan':3}).text('IMPC')));
 	    			
 	    			for ( var f=0; f<facets.length; f+=2 ){       			
 	        			
@@ -15211,11 +15317,12 @@ $.extend( $.fn.dataTableExt.oSort, {
 	        			var paramCount = facets[f+1];
 	        				        			
 	        			var pClass = 'procedure'+f;
-	        			var tr = $('<tr></tr>');
+	        			var tr = $('<tr></tr>').attr({'class':'subFacet'});
+	        			var chkbox = "<input type=checkbox name=" + 'pipeline_'+ procedureName2IdKey[procedure_name].stable_id + ">";
 	        			var td1 = $('<td></td>').attr({'class': pClass, 'rel':paramCount});	        			
 	        			var td2 = $('<td></td>');	        			        			
 	        			var a = $('<a></a>').attr({'class':'paramCount', 'rel': procedureName2IdKey[procedure_name].stable_id}).text(paramCount);
-	        			table.append(tr.append(td1.text(procedure_name), td2.append(a)));
+	        			table.append(tr.append(chkbox, td1.text(procedure_name), td2.append(a)));
 	        		}	     
 	    			
 	    			/*
@@ -15549,8 +15656,8 @@ $.extend( $.fn.dataTableExt.oSort, {
   	    					var displayName = displayLabel[facetName];
   	    					//console.log(fieldName + ' : '+ facetCount);
   	    					
-  	    					var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i});
-  	    					var td1 = $('<td></td>').attr({'class': 'imgExperiment', 'rel': facetCount}).text(fieldName);
+  	    					var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i, 'class':'subFacet'});
+  	    					var td1 = $('<td></td>').attr({'class': 'imgSubfacet', 'rel': facetCount}).text(fieldName);
   	    				
   	    					var imgBaseUrl = baseUrl + "/images?";
   	    					
@@ -15575,16 +15682,19 @@ $.extend( $.fn.dataTableExt.oSort, {
   		    	    		          + "\"}";		    	    		
   		    	    		   		
   		    	    		var a = $('<a></a>').attr({'rel':infos, 'class':fqClass}).text(facetCount);
-  		    	    		var td2 = $('<td></td>').attr({'class': 'imgExperimentCount'}).append(a);
+  		    	    		var td2 = $('<td></td>').attr({'class': 'imgSubfacetCount'}).append(a);
   		    	    		
   		    	    		if ( i == 0 ){
   	    						var catTr = $('<tr></tr>').attr({'class':'facetSubCat'});
   	    						var catLabel = displayLabel[facetName];
-  	    						var catTd = $('<td></td>').attr({'colspan':2}).text(catLabel);
+  	    						var catTd = $('<td></td>').attr({'colspan':3}).text(catLabel);
   	    						catTr.append(catTd);
   	    						table.append(catTr); 
-  	    					}		    	    				    	    		
-  		    	    		table.append(tr.append(td1, td2));		    	    		
+  	    					}	
+  		    	    		
+  		    	    		var chkbox = "<input type=checkbox name=" + 'images_'+ fqClass + ">";
+  		    	    		
+  		    	    		table.append(tr.append(chkbox, td1, td2));		    	    		
   	    				}
   	    			}	    				    	    	
   	    			self._displayImageFacet(json, 'images', 'imagesFacet', table);			

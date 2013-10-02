@@ -1,7 +1,8 @@
 package uk.ac.ebi.phenotype.stats;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
@@ -24,7 +25,7 @@ public class ObservationServiceTest {
 
 	@Test
 	public void testGetControls() throws SolrServerException {
-		List<ObservationDTO> test = os.getControls(1267, "MGI:3028467", 7);
+		List<ObservationDTO> test = os.getControls(1267, "MGI:3028467", 7, new Date(0L));
 		assertTrue(test.size()>0);
 	}
 

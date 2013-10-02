@@ -99,7 +99,7 @@
 				
 				// remove highlight from selected 
 				if ( facetDivId == 'geneFacet' ){
-					$('table#gFacet td').removeClass('highlight');
+					$('table#geneFacetTbl td').removeClass('highlight');
 					if (self.options.geneSubFacet_filter_params){
 						//solrSrchParams.fq = self.options.geneSubFacet_filter_params;
 						solrSrchParams = $.extend({}, self.options.commonParams, 
@@ -108,17 +108,17 @@
 					}				
 				}
 				else if (facetDivId == 'pipelineFacet' ){
-					$('table#pipeline td[class^=procedure]').removeClass('highlight');					
+					$('table#pipelineFacetTbl td[class^=procedure]').removeClass('highlight');					
 					solrSrchParams = $.extend({}, MPI2.searchAndFacetConfig.facetParams[facetDivId].params, self.options.commonParams);					
 					MPI2.searchAndFacetConfig.facetParams[facetDivId].params.fq = "pipeline_stable_id:IMPC_001";					
 				}	
 				else if (facetDivId == 'mpFacet' ){				
-					$('table#mpFacet td').removeClass('highlight');
+					$('table#mpFacetTbl td').removeClass('highlight');
 					solrSrchParams = $.extend({}, MPI2.searchAndFacetConfig.facetParams[facetDivId].params, self.options.commonParams);
 					MPI2.searchAndFacetConfig.facetParams[facetDivId].params.fq = "ontology_subset:*";					
 				}
 				else if (facetDivId == 'imagesFacet' ){    	    			
-					$('table#imgFacet td').removeClass('highlight');
+					$('table#imagesFacetTbl td').removeClass('highlight');
 					solrSrchParams = $.extend({}, MPI2.searchAndFacetConfig.facetParams[facetDivId].params, self.options.commonParams);					
 				}
 				
@@ -382,12 +382,12 @@
 					}					
 				}	    		
 	    		
-	    		var table = "<table id='gFacet' class='facetTable'>" + trs + "</table>";				
+	    		var table = "<table id='geneFacetTbl' class='facetTable'>" + trs + "</table>";				
 	    		$('div#geneFacet div.facetCatList').html(table);
 	    		
-	    		self._applyGeneGridResultFilterByMarkerSubFacet($('table#gFacet td.geneSubfacetCount a')); 
-				//self._applyGeneGridResultFilterByMarkerSubType($('table#gFacet td.geneSubtypeCount a'));	
-				//self._applyGeneGridResultFilterByMarkerSubType($('table#gFacet td.geneStatusCount a'));    		
+	    		self._applyGeneGridResultFilterByMarkerSubFacet($('table#geneFacetTbl td.geneSubfacetCount a')); 
+				//self._applyGeneGridResultFilterByMarkerSubType($('table#geneFacetTbl td.geneSubtypeCount a'));	
+				//self._applyGeneGridResultFilterByMarkerSubType($('table#geneFacetTbl td.geneStatusCount a'));    		
     		}
 	    	
 	    	/*---------------------------------------------*/
@@ -402,7 +402,7 @@
 	    		//console.log('fq: '+ self.options.data.fq);
 	    		var subFacet = self.options.data.fq.replace(/\w+:/, '').replace(/"/g,'');
 	    		//console.log('gene filtered: '+ subFacet);
-	    		var obj = $('div#geneFacet div.facetCatList').find("table#gFacet td[rel='" + subFacet + "']").find('a');	
+	    		var obj = $('div#geneFacet div.facetCatList').find("table#geneFacetTbl td[rel='" + subFacet + "']").find('a');	
 	    			    			    		
 	    		self._fetchFilteredDataTable(obj, 'geneFacet');
 	    	}
@@ -465,7 +465,7 @@
 	    	
 	    	var aTopLevelCount = self._processMAFacetJson(json);
 	    	
-	    	var table = $("<table id='maFacet' class='facetTable'></table>");
+	    	var table = $("<table id='maFacetTbl' class='facetTable'></table>");
 	    	
 	    	// top level MA terms	    	
 	    	var counter = 0;
@@ -541,7 +541,7 @@
 	    			//var facets = json.facet_counts['facet_fields']['proc_param_name'];	    			
 	    			var facets = json.facet_counts['facet_fields']['procedure_name'];
 	    			
-	    			var table = $("<table id='pipeline' class='facetTable'></table>");
+	    			var table = $("<table id='pipelineFacetTbl' class='facetTable'></table>");
 	        		var trCat = $('<tr></tr>').attr({'class':'facetSubCat'});
 	        		table.append(trCat.append( $('<td></td>').attr({'colspan':2}).text('IMPC')));
 	    			
@@ -575,8 +575,8 @@
 	        													param_count: count});	        		
 	        		}	      		       		
 	        			        		
-	        		//var table = $("<table id='pipeline' class='facetTable'><caption>IMPC</caption></table>");
-	        		var table = $("<table id='pipeline' class='facetTable'></table>");
+	        		//var table = $("<table id='pipelineFacetTbl' class='facetTable'><caption>IMPC</caption></table>");
+	        		var table = $("<table id='pipelineFacetTbl' class='facetTable'></table>");
 	        		var trCat = $('<tr></tr>').attr({'class':'facetSubCat'});
 	        		table.append(trCat.append( $('<td></td>').attr({'colspan':2}).text('IMPC')));
 	        		
@@ -615,7 +615,7 @@
 	        		
 	        		// skip toggle table inside a tr for subterms
 	        		/*var regex = /procedure\d+/;
-	        		$('table#pipeline td[class^=procedure]').toggle(
+	        		$('table#pipelineFacetTbl td[class^=procedure]').toggle(
 	        			function(){ 
 	        				var match = regex.exec( $(this).attr('class') );
 	        				var thisClass = match[0] ? match[0] : $(this).attr('class');	        				
@@ -629,7 +629,7 @@
 	        		);
 	        		*/
 	        		
-	        		$('table#pipeline td a.paramCount').click(function(){	
+	        		$('table#pipelineFacetTbl td a.paramCount').click(function(){	
 	        			self._fetchFilteredDataTable($(this), 'pipelineFacet');	        			
 	        		});
 	        		
@@ -643,7 +643,7 @@
 	        		else if ( self.options.data.core == 'pipeline' && self.options.data.fq.match(/procedure_stable_id.+/) ){
 	        			//console.log('1 pipeline FILTERED');
 	        			var proc_sid = self.options.data.fq.replace('procedure_stable_id:', '');
-	    	    		var obj = $('div#pipelineFacet div.facetCatList').find("table#pipeline a[rel='" + proc_sid + "']"); 
+	    	    		var obj = $('div#pipelineFacet div.facetCatList').find("table#pipelineFacetTbl a[rel='" + proc_sid + "']"); 
 	        			self._fetchFilteredDataTable(obj, 'pipelineFacet');	
 	        		}
 	    		}	    		
@@ -703,7 +703,7 @@
 	    			// update this if facet is loaded by redirected page, which does not use autocomplete
 	    			$('div#mpFacet span.facetCount').attr({title: 'total number of unique phenotype terms'}).text(json.response.numFound);
 	    			
-	    			var table = $("<table id='mpFacet' class='facetTable'></table>");	    			
+	    			var table = $("<table id='mpFacetTbl' class='facetTable'></table>");	    			
 	    			
 	    	    	var aTopLevelCount = json.facet_counts.facet_fields['top_level_mp_term'];
 	    	    
@@ -855,7 +855,7 @@
 	    			    	    		
     	    		$('div#imagesFacet span.facetCount').attr({title: 'total number of unique images'}).html(json.response.numFound);
 	    		
-	    			var table = $("<table id='imgFacet' class='facetTable'></table>");
+	    			var table = $("<table id='imagesFacetTbl' class='facetTable'></table>");
 	    			
 	    			var aFacetFields = json.facet_counts.facet_fields; // eg. expName, symbol..
 	    			
@@ -876,7 +876,7 @@
 	    					//console.log(fieldName + ' : '+ facetCount);
 	    					
 	    					var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i});
-	    					var td1 = $('<td></td>').attr({'class': 'imgExperiment'}).text(fieldName);
+	    					var td1 = $('<td></td>').attr({'class': 'imgSubfacet'}).text(fieldName);
 	    				
 	    					var imgBaseUrl = baseUrl + "/images?";
 	    					
@@ -901,7 +901,7 @@
 		    	    		          + "\"}";		    	    		
 		    	    		   		
 		    	    		var a = $('<a></a>').attr({'rel':infos, 'class':fqClass}).text(facetCount);
-		    	    		var td2 = $('<td></td>').attr({'class': 'imgExperimentCount'}).append(a);
+		    	    		var td2 = $('<td></td>').attr({'class': 'imgSubfacetCount'}).append(a);
 		    	    		
 		    	    		if ( i == 0 ){
 	    						var catTr = $('<tr></tr>').attr({'class':'facetSubCat'});
@@ -951,7 +951,7 @@
     		}
 	    	else if ( self.options.data.core == 'images' && self.options.data.fq.match(/expName.+|higherLevel.+|subtype.+/) ){	    
 	    		//console.log('filtered images fq: ' + self.options.data.fq);
-	    		var obj = $('div#imagesFacet div.facetCatList').find("table#imgFacet a[class='" + self.options.data.fq + "']");	    		
+	    		var obj = $('div#imagesFacet div.facetCatList').find("table#imagesFacetTbl a[class='" + self.options.data.fq + "']");	    		
 	    		self._fetchFilteredDataTable(obj, 'imagesFacet');
 	    	}       		
 	    	
@@ -990,7 +990,7 @@
 	    	else if (facetDivId == 'geneFacet') {
 	    		topLevelName = obj.attr('rel'); 
 	    		
-	    		$('table#gFacet td').removeClass('highlight');
+	    		$('table#geneFacetTbl td').removeClass('highlight');
 	    		
 	    		obj.parent().siblings('td.geneSubfacet').addClass('highlight');
 								
@@ -1008,7 +1008,7 @@
 	    	}
 	    	else if (facetDivId == 'pipelineFacet'){
 	    		topLevelName = obj.parent().siblings('td[class^=procedure]').text(); 
-	    		$('table#pipeline td[class^=procedure]').removeClass('highlight');
+	    		$('table#pipelineFacetTbl td[class^=procedure]').removeClass('highlight');
 				obj.parent().siblings('td[class^=procedure]').addClass('highlight');
 				var proc_stable_id = obj.attr('rel');   
 	            oSolrSrchParams = $.extend({}, oVal, self.options.commonParams); 
@@ -1023,8 +1023,8 @@
 	    		
 	    		topLevelName = oInfos.imgSubName;
 	    			    		
-	    		$('table#imgFacet td.imgExperiment').removeClass('highlight');
-				obj.parent().siblings('td.imgExperiment').addClass('highlight'); 
+	    		$('table#imagesFacetTbl td.imgSubfacet').removeClass('highlight');
+				obj.parent().siblings('td.imgSubfacet').addClass('highlight'); 
 											
 				imgParamStr = oInfos.params;								
 				

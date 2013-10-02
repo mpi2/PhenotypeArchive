@@ -20,10 +20,9 @@
 
 (function($){	
 	
-	$.fn.fetchSolrFacetCount = function(q){		
-		
-		//$('div#userKeyword').html('Search keyword: <span>' + q + '</span>');	
-		
+	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
+				
+		var q = oUrlHashParams.q;
 		var oFacets = {};
 		oFacets.count = {};		
 		
@@ -32,7 +31,7 @@
 	 	// facet types are done sequencially; starting from gene	 		
 	    $.ajax({            	    
 	    		url: solrUrl + '/gene/select',	       	
-	       	    data: MPI2.searchAndFacetConfig.facetParams.geneFacet.srchParams,
+	       	    data: $.extend({}, MPI2.searchAndFacetConfig.facetParams.geneFacet.srchParams, MPI2.searchAndFacetConfig.facetParams.geneFacet.filterParams),
 	       	    dataType: 'jsonp',
 	       	    jsonp: 'json.wrf',
 	       	    timeout: 5000,
@@ -55,7 +54,7 @@
 		
 		$.ajax({
     	    url: solrUrl + '/mp/select',
-    	    data: MPI2.searchAndFacetConfig.facetParams.mpFacet.srchParams,
+    	    data: $.extend({}, MPI2.searchAndFacetConfig.facetParams.mpFacet.srchParams, MPI2.searchAndFacetConfig.facetParams.mpFacet.filterParams),
     	    dataType: 'jsonp',
     	    jsonp: 'json.wrf',
     	    timeout: 5000,
@@ -155,7 +154,8 @@
     	    	else {
     	    		
     	        	// remove all previous facet results before loading new facet results
-    	        	$('div.facetCatList').html('');	    
+    	        	$('div.facetCatList').html('');  
+    	        	
     	        	var widgetName = coreName+'Facet';    	        				
     	        	window.jQuery('div#' + coreName + 'Facet')[widgetName]({
     					data: {	q: q, 
