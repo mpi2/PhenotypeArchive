@@ -195,7 +195,7 @@ public class SolrIndex {
 			System.out.println("MA PARAMS: " + url);
 		} else if (mode.equals("ikmcAlleleGrid")) {
 			url += "q=" + query;
-			url += "&start=0&rows=0&wt=json&defType=edismax";
+			url += "&start=0&rows=0&wt=json";
 			System.out.println("IKMC ALLELE PARAMS: " + url);
 		} else if (mode.equals("all") || mode.equals("page") || mode.equals("")) {
 			url += gridSolrParams;
