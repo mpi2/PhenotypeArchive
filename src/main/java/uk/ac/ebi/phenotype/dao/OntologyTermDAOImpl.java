@@ -33,6 +33,7 @@ import org.hibernate.Transaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.Datasource;
+import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 
 public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTermDAO {
@@ -56,6 +57,11 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTer
 		return (OntologyTerm) getCurrentSession().createQuery("from OntologyTerm as o where o.name= ?").setString(0, name).uniqueResult();
 	}
 
+	@Transactional(readOnly = true)
+	public OntologyTerm getOntologyTermBySynonym(String name) {
+		return (OntologyTerm) getCurrentSession().createQuery("from OntologyTerm as o inner join o.synonyms s where s.symbol = ?").setString(0, name).uniqueResult();
+	}
+	
 	@Transactional(readOnly = true)
 	public OntologyTerm getOntologyTermByNameAndDatabaseId(String name, int databaseId) {
 		return (OntologyTerm) getCurrentSession().createQuery("from OntologyTerm as o where o.name= ? and o.id.databaseId = ?").setString(0, name).setInteger(1, databaseId).uniqueResult();
