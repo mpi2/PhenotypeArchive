@@ -39,7 +39,7 @@ if ( typeof solrUrl == 'undefined' ){
 if ( typeof baseUrl == 'undefined' ){
 	baseUrl = '/data';
 }
-
+config.currentQuery = false;
 config.lastParams = false;
 config.lastImgCount = false;
 config.cores = ['gene', 'mp', 'ma', 'pipeline', 'images'];
@@ -144,7 +144,7 @@ config.facetParams = {
 		 gridName: 'pipelineGrid',	
 		 filterParams:{'fq': 'pipeline_stable_id:IMPC_001'},
 		 breadCrumbLabel: 'Parameters',		 
-		 srchParams: $.extend({},
+		 srchParams: $.extend({},				     
 					commonSolrParams    				
 					)					
 	 },	
@@ -215,8 +215,7 @@ config.facetParams = {
 		 filterParams: {//'fl' : 'annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath',
 			 	  'fq' : "(annotationTermId:M* OR expName:* OR symbol:* OR higherLevelMaTermName:* OR higherLevelMpTermName:*)"},	
 	 	 srchParams: $.extend({},
-				commonSolrParams,				
-				//{'fl' : 'higherLevelMaTermName,higherLevelMpTermName,annotationTermId,annotationTermName,expName,symbol'})
-				{'fl' : '*'})
+				commonSolrParams				
+				)
 	 }
 }; 

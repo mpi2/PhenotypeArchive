@@ -28,10 +28,9 @@ $(document).ready(function(){
 	// default search when search page loads
 	if ( /search\/?$/.exec(location.href) ){
 		// do default gene search by * when search page loads	
-		hashParams.q = '*:*';
-		
+		hashParams.q = '*:*';		
 		$.fn.fetchSolrFacetCount(hashParams);
-	}
+	}	
 	else if ( location.href.indexOf('/search#') != -1 ){		
 		// load page based on url hash parameters		
 		hashParams = $.fn.parseHashString(window.location.hash.substring(1));	
@@ -50,9 +49,11 @@ $(document).ready(function(){
 	    		document.location.href = baseUrl + '/search';
 	    	}
 	    	else {
-	    		document.location.href = baseUrl + '/search#q=' + input;
-	    		hashParams.q = input;
-	    		$.fn.fetchSolrFacetCount(hashParams);
+	    		document.location.href = baseUrl + '/search?q=' + input; // handed over to hash change
+	    		console.log(window.location.search);
+	    		
+	    		//hashParams.q = input;
+	    		//$.fn.fetchSolrFacetCount(hashParams);
 	    	}
 	    }
 	}).click(function(){
@@ -68,9 +69,9 @@ $(document).ready(function(){
     		document.location.href = baseUrl + '/search';
     	}
     	else {
-    		document.location.href = baseUrl + '/search#q=' + input;  
-    		hashParams.q = input;
-    		$.fn.fetchSolrFacetCount(hashParams);
+    		document.location.href = baseUrl + '/search?q=' + input; // handed over to hash change 
+    		//hashParams.q = input;
+    		//$.fn.fetchSolrFacetCount(hashParams);
     	}		
 	});		
 

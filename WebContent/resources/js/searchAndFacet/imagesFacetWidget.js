@@ -55,7 +55,7 @@
 						
 						// if no selected subfacet, load all results of this facet
 						if ( caller.find('table#imagesFacetTbl td.highlight').size() == 0 ){							
-							window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
+							//window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
 						}						
 						else {
 							// if there is selected subfacets: work out the url							
@@ -77,7 +77,12 @@
 								var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
 																
 								// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-			  	    			window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr + '&ftOpen=true';	
+								if (self.options.data.q == '*:*'){
+									window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr + '&ftOpen=true';
+								}
+								else {
+									window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+								}
 							}							
 						}						
 					}	
@@ -101,7 +106,12 @@
 					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
 					
 					// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-  	    			window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+					if (self.options.data.q == '*:*'){					
+						window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+					}
+					else {
+						window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+					}
 				}	
 			});	
     	},
@@ -203,8 +213,8 @@
   		    	    		
   		    	    		var coreField = 'images|'+ facetName + '|' + displayName + '|' + facetCount;	
   		        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField}); 		    	    			    		
-  		    	    		
-  		    	    		table.append(tr.append(chkbox, td1, td2));		    	    		
+  		        			var td0 = $('<td></td>').append(chkbox);
+  		    	    		table.append(tr.append(td0, td1, td2));		    	    		
   	    				}
   	    			}	    				    	    	
   	    			self._displayImageFacet(json, 'images', 'imagesFacet', table);			
@@ -227,11 +237,6 @@
   	    			
   	    			$.fn.setDefaultImgSwitcherConf();
   	    			
-  	    			// invoke filtered toplevel in dataTable
-  	    			//MPI2.searchAndFacetConfig.facetParams[facetDivId].showImgView = true; // default  	    			
-  	    			//$.fn.fetchFilteredDataTable($(this), facetDivId, self.options.data.q, 'facetFilter');
-  	    			
-  	    			
   	    			// uncheck all facet filter checkboxes 
         			$('table#imagesFacetTbl input').attr('checked', false);
         			
@@ -247,11 +252,14 @@
         			$.fn.addFacetFilter($(this).parent().parent().find('input'), self.options.data.q);
   	    			        			
         			// update hash tag so that we know there is hash change, which then triggers loadDataTable
-  	    			var oParams = eval( "(" + $(this).attr('rel') + ")" );  	    			
-  	    		
-  	    			//fq=higherLevelMaTermName:"adipose tissue"&core=images&q=*
-  	    			window.location.hash = oParams.params + '&core=' + oParams.solrCoreName;  	    			
-  	    			
+  	    			var oParams = eval( "(" + $(this).attr('rel') + ")" ); 			
+  	    		 	    				    			  	    			
+  	    			if (self.options.data.q == '*:*'){
+  	    				window.location.hash = oParams.params + '&core=' + oParams.solrCoreName;
+  	    			}
+  	    			else {
+  	    				window.location.hash = oParams.params.replace(/q=\b.*\b&/, '') + '&core=' + oParams.solrCoreName;
+  	    			}  	    			
   	    		});	
   	    		
   	    		table.find('input').click(function(){	

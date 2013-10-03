@@ -56,7 +56,7 @@
 					
 						// if no selected subfacet, load all results of this facet
 						if ( caller.find('table#mpFacetTbl td.highlight').size() == 0 ){						
-							window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
+							//window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
 						}	
 						else {		
 							// if there is selected subfacets: work out the url							
@@ -77,7 +77,12 @@
 								var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND ' + $.fn.compose_AndOrStr(fqFieldVals);
 							
 			  	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable 	
-			  	    			window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;	
+								if (self.options.data.q == '*:*'){
+									window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+								}
+								else {
+									window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+								}
 							}	
 						}	
 					}	
@@ -98,7 +103,12 @@
 					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
 					
 					// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-  	    			window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;	
+					if (self.options.data.q == '*:*'){
+						window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+					}
+					else {
+						window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+					}
 				}				
 			});	
     	},
@@ -147,12 +157,12 @@
 	        			var count = aTopLevelCount[i+1];	        			
 						var coreField = 'mp|top_level_mp_term|' + aTopLevelCount[i].replace(' phenotype', '') + '|' + count;						
 						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});
-	        				        			
+						var td0 = $('<td></td>').append(chkbox);      			
 	    	    		var td1 = $('<td></td>').attr({'class': 'mpTopLevel', 'rel': count}).text(aTopLevelCount[i].replace(' phenotype', ''));	    	    		   	    		
 	    	    		
 	    	    		var a = $('<a></a>').attr({'rel':aTopLevelCount[i]}).text(count);
 	    	    		var td2 = $('<td></td>').attr({'class': 'mpTopLevelCount'}).append(a);
-	    	    		table.append(tr.append(chkbox, td1, td2)); 
+	    	    		table.append(tr.append(td0, td1, td2)); 
 	        			
 	    	    	}    	
 	    	    	
@@ -189,8 +199,13 @@
 	    			        			
     			// update hash tag so that we know there is hash change, which then triggers loadDataTable	  	    			
 	    		var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND top_level_mp_term:"' + $(this).attr('rel')  + '"'; 
-	    		window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=mp'; 
-    			
+	    		
+	    		if (self.options.data.q == '*:*'){
+	    			window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=mp';
+	    		}
+	    		else {
+	    			window.location.hash = 'fq=' + fqStr + '&core=mp';
+	    		}
     		});  
     		    		
     		$('table#mpFacetTbl input').click(function(){

@@ -221,6 +221,17 @@ table#mpTable, table#maTable {
 	margin: 0;
 }
 
+table[id$=FacetTbl] tr td input {
+	margin: 0 !important;
+	padding: 0 !important;	
+}
+table[id$=FacetTbl] tr td {
+	text-align:center;
+}
+table[id$=FacetTbl] tr td:nth-child(2),  table[id$=FacetTbl] tr.facetSubCat td {
+	text-align:left;
+}
+
 .highlight {
   color: #D17023;
 }

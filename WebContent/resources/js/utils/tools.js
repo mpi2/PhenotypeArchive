@@ -111,7 +111,12 @@
 		}
     	
     	// update hash tag so that we know there is hash change, which then triggers loadDataTable
-		window.location.hash = 'q=' + q + '&fq=' + fqStr + '&core=' + facet; 
+    	if (q == '*:*'){
+    		window.location.hash = 'q=' + q + '&fq=' + fqStr + '&core=' + facet;
+    	}
+    	else {
+    		window.location.hash = 'fq=' + fqStr + '&core=' + facet;
+    	}
 	}
 	
 	$.fn.compose_AndOrStr = function(json){
@@ -242,7 +247,7 @@
 	
 	$.fn.setHashUrl = function(q, core){		
 		var hashParams = {};
-		hashParams.q = q;
+		//hashParams.q = q;
 		hashParams.core = core;
 		hashParams.fq = MPI2.searchAndFacetConfig.facetParams[core + 'Facet'].fq;
 		window.location.hash = $.fn.stringifyJsonAsUrlParams(hashParams);
@@ -436,7 +441,7 @@
     	var self = this;
     	    
     	fqStr = fqStr.replace(MPI2.searchAndFacetConfig.facetParams[facet].filterParams.fq, '');
-    	    	
+    	
     	// unhightlight all from this facet
 		$('table#'+ facet +'Tbl td').removeClass('highlight');    
 	   
@@ -464,9 +469,9 @@
     		}
     		
     		// highlight this facet term
-    		var aObjs = obj.parent().find('td');
+    		var aObjs = obj.parent().siblings('td');    		
 			$(aObjs[0]).addClass('highlight');	    		
-    		
+			
     		// also add to unordered list
     		$.fn.addFacetFilter(obj, q);
     	} 
@@ -528,16 +533,15 @@
     }
     
     $.fn.relabelFilterForUsers = function(fqStr){
-    
+    	
     	var oldStr = fqStr;
     	for ( var i in MPI2.searchAndFacetConfig.facetFilterLabel ){    
-    		var regex = new RegExp('\\b'+i+'\\b', "gi");    		
+    		var regex = new RegExp('\\b'+i+'\\b', "gi");	
     		fqStr = fqStr.replace(regex, MPI2.searchAndFacetConfig.facetFilterLabel[i]);    		
     	}
-    	if (fqStr == '(phenotyping_status:"1")' ){
-    		fqStr = '(phenotyping_status:"Started")';
-    	}
     
+    	fqStr = fqStr.replace(/\"1\"/g, '"Started"');
+    	
     	return fqStr;    	
     }
     
@@ -555,6 +559,9 @@
 		oParams.q = q;
 		oParams.rows = 10;
 		
+		/*currHashParams = $.extend({}, currHashParams, MPI2.searchAndFacetConfig.facetParams[facetDivId].srchParams, 
+   	    		MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams);
+		*/
 		var userFqStr;
 		if ( facetDivId == 'imagesFacet' ) {
 			oInfos.showImgView = true;	
@@ -731,7 +738,7 @@
 		var txt = count + ' ' + dataType;
 		if ( oInfos.solrCoreName == 'images' ){
 						
-			var imgUrl = baseUrl + "/images?" + oInfos.params;
+			var imgUrl = baseUrl + "/imagesb?" + oInfos.params;
 			
 			if ( MPI2.searchAndFacetConfig.facetParams.imagesFacet.showImgView ){
 	   			// record img count, as in annotation view, the count is number of annotations and not images
@@ -745,8 +752,8 @@
 				$('span#resultCount a').attr({'href':imgUrl}).text(txt);
 			}			
 			
-			if ( count == 0 ){
-				$('span#resultCount a').text(txt);
+			if ( count == 0 ){		
+				$('span#resultCount a').removeAttr('href').css({'text-decoration':'none','cursor':'normal','color':'gray'});
 				$('span#annotCount').text(  oInfos.showImgView ? '' : '0 annotation / ');
 			}
 		}
