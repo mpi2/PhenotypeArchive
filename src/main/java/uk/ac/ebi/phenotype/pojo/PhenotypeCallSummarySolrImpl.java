@@ -168,6 +168,7 @@ public class PhenotypeCallSummarySolrImpl implements
 		// dropdowns/ checkboxes
 		JSONObject facets = results.getJSONObject("facet_counts")
 				.getJSONObject("facet_fields");
+		System.out.println("*****Facets: " + facets);
 		Iterator<String> ite = facets.keys();
 		Map<String, Map<String, Integer>> dropdowns = new HashMap<String, Map<String, Integer>>();
 		while (ite.hasNext()) {
@@ -211,7 +212,7 @@ public class PhenotypeCallSummarySolrImpl implements
 				+ core
 				+ "/select/?q=mp_term_id:\""
 				+ phenotype_id
-				+ "\"&fq=-resource_name:IMPC&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=resource_fullname&facet.field=procedure_name";
+				+ "\"&fq=-resource_name:IMPC&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=resource_fullname&facet.field=procedure_name&facet.field=marker_symbol";
 		// if (!filterString.equals("")) {
 		if (queryString.startsWith("&")) {
 			url += queryString;
