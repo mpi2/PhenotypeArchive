@@ -110,9 +110,9 @@ $(document).ready(function(){
 						createDropdown(multipleSelectB, "Projects: All", multipleSelectA);
 						
 			    		function createDropdown(multipleSelect1, emptyText,  multipleSelect2){
-			    		$(multipleSelect1).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, minWidth: 150, onItemClick: function(checkbox, selector){
+			    		$(multipleSelect1).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
+			    			minWidth: 150, onItemClick: function(checkbox, selector){
 			    			
-
 			    			var justChecked = checkbox.prop("checked");
 			    			console.log("justChecked="+justChecked);
 			    			console.log("checked="+ checkbox.val());
@@ -138,7 +138,8 @@ $(document).ready(function(){
 			    		        	
  		    		        	 var index = $.inArray(checkbox.val(), values);
 				    		         console.log("index="+index);
-			    		        	values.splice(index, 1+1);//+1 as we have an "all" option added by the plugin
+///			    		        	values.splice(index, 1+1);//+1 as we have an "all" option added by the plugin
+				    		       values.splice(index, 1);//I think the + 1 was actually only introducing a bug.
 			    		        }  
 			    		        
 			    		      /*    if(index == -1)//just checked value not in the array so we add it
