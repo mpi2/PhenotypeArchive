@@ -68,7 +68,7 @@
      <field name="type" type="string" indexed="true" stored="true" multiValued="false" required="true" />
      <field name="product_type" type="text" indexed="true" stored="true" multiValued="false" />
      <field name="mgi_accession_id" type="text" indexed="true" stored="true" multiValued="false" required="true" />
-     <field name="allele_type" type="text" indexed="true" stored="true" multiValued="false" />
+     <field name="allele_type" type="string" indexed="true" stored="true" multiValued="false" />
      <field name="strain" type="text" indexed="true" stored="true" multiValued="false" />
      <field name="allele_name" type="text" indexed="true" stored="true" multiValued="false" />
      <field name="allele_image_url" type="text" indexed="true" stored="true" multiValued="false" />
