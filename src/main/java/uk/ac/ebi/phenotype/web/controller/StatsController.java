@@ -57,6 +57,7 @@ import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.ParameterIncrement;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.stats.ChartData;
@@ -177,16 +178,17 @@ public class StatsController implements BeanFactoryAware {
 		
 			
 		for (String parameterId : paramIds) {
-			 ObservationType observationTypeForParam=null;
 			//make a solr request for each param?
 			 //get all the experimental data for this param and gene
-			 net.sf.json.JSONObject expResult=JSONGraphUtils.getExperimentalData(parameterId, acc, config);
 			 
-			 JSONArray resultsArray=JSONRestUtil.getDocArray(expResult);
-			 if(resultsArray.size()>0) {
-				 net.sf.json.JSONObject exp=resultsArray.getJSONObject(0);
-				 observationTypeForParam=ObservationType.valueOf(exp.getString("observationType"));
-			 }
+			 //using this request only to get observation type so can I just get this from the db instead as getting param for db anyway- how did it work before?
+//			 net.sf.json.JSONObject expResult=JSONGraphUtils.getExperimentalData(parameterId, acc, config);
+//			 
+//			 JSONArray resultsArray=JSONRestUtil.getDocArray(expResult);
+//			 if(resultsArray.size()>0) {
+//				 net.sf.json.JSONObject exp=resultsArray.getJSONObject(0);
+//				 observationTypeForParam=ObservationType.valueOf(exp.getString("observationType"));
+//			 }
 			
 			Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion(parameterId, 1, 0);
 			String[] parameterUnits=parameter.checkParameterUnits();
@@ -199,7 +201,7 @@ public class StatsController implements BeanFactoryAware {
 			if(parameterUnits.length>1){
 				yUnits=parameterUnits[1];
 			}
-			//ObservationType observationTypeForParam=Utilities.checkType(parameter);
+			ObservationType observationTypeForParam=Utilities.checkType(parameter);
 			log.info("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
 			
 			
@@ -211,6 +213,12 @@ public class StatsController implements BeanFactoryAware {
 			
 			if(observationTypeForParam.equals(ObservationType.time_series)){
 				//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
+				if(parameter.isIncrementFlag()) {
+					for(ParameterIncrement increment: parameter.getIncrement()) {
+					System.out.println("increment="+increment);
+					}
+					
+				}
 				List<ChartData> timeSeriesForParam=timeSeriesChartAndTableProvider.doTimeSeriesData(bmDAO, experimentList, parameter, model, genderList, zyList , timeSeriesChartsAndTables.size()+1, biologicalModelsParams);
 				timeSeriesChartsAndTables.addAll(timeSeriesForParam);
 			}
@@ -218,7 +226,7 @@ public class StatsController implements BeanFactoryAware {
 			if(observationTypeForParam.equals(ObservationType.unidimensional)){
 				//http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
 				log.info("calling chart creation for unidimensional data");
-					UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(experimentList, bmDAO, config, expResult, unidimensionalMutantBiologicalModels, parameter, acc , model, genderList, zyList, ChartType.UnidimensionalBoxPlot);
+					UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(experimentList, bmDAO, config, unidimensionalMutantBiologicalModels, parameter, acc, model , genderList, zyList, ChartType.UnidimensionalBoxPlot);
 				allUnidimensionalChartsAndTables.add(unidimensionalChartNTables);
 			}
 			if(observationTypeForParam.equals(ObservationType.categorical)){
@@ -302,6 +310,7 @@ public class StatsController implements BeanFactoryAware {
 				 observationTypeForParam = ObservationType.valueOf(exp.getString("observationType"));
 			 }
 			Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion(parameterId, 1, 0);
+			
 			String[] parameterUnits=parameter.checkParameterUnits();
 			String xUnits="";
 			String yUnits="";
@@ -323,7 +332,7 @@ public class StatsController implements BeanFactoryAware {
 			if(observationTypeForParam.equals(ObservationType.unidimensional)){
 				//http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
 				
-				UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(experimentList, bmDAO, config, expResult, unidimensionalMutantBiologicalModels, parameter, acc , model, genderList, zyList, ChartType.UnidimensionalScatter);
+				UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(experimentList, bmDAO, config, unidimensionalMutantBiologicalModels, parameter, acc, model , genderList, zyList, ChartType.UnidimensionalScatter);
 				allUnidimensionalChartsAndTables.add(unidimensionalChartNTables);
 			}
 			
