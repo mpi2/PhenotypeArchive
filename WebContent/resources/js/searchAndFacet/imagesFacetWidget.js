@@ -77,8 +77,12 @@
 								var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
 																
 								// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-			  	    			//window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr + '&ftOpen=true';	
-			  	    			window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;	
+								if (self.options.data.q == '*:*'){
+									window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr + '&ftOpen=true';
+								}
+								else {
+									window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+								}
 							}							
 						}						
 					}	
@@ -102,8 +106,12 @@
 					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
 					
 					// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-  	    			//window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
-  	    			window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+					if (self.options.data.q == '*:*'){					
+						window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+					}
+					else {
+						window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+					}
 				}	
 			});	
     	},
@@ -229,11 +237,6 @@
   	    			
   	    			$.fn.setDefaultImgSwitcherConf();
   	    			
-  	    			// invoke filtered toplevel in dataTable
-  	    			//MPI2.searchAndFacetConfig.facetParams[facetDivId].showImgView = true; // default  	    			
-  	    			//$.fn.fetchFilteredDataTable($(this), facetDivId, self.options.data.q, 'facetFilter');
-  	    			
-  	    			
   	    			// uncheck all facet filter checkboxes 
         			$('table#imagesFacetTbl input').attr('checked', false);
         			
@@ -249,13 +252,14 @@
         			$.fn.addFacetFilter($(this).parent().parent().find('input'), self.options.data.q);
   	    			        			
         			// update hash tag so that we know there is hash change, which then triggers loadDataTable
-  	    			var oParams = eval( "(" + $(this).attr('rel') + ")" );  	    			
-  	    		console.log(oParams);
-  	    			//fq=higherLevelMaTermName:"adipose tissue"&core=images&q=*
-  	    			//window.location.hash = oParams.params + '&core=' + oParams.solrCoreName;
-  	    		console.log(oParams.params.replace(/q=.*&/, ''));
-  	    			window.location.hash = oParams.params.replace(/q=\b.*\b&/, '') + '&core=' + oParams.solrCoreName;     			
-  	    			
+  	    			var oParams = eval( "(" + $(this).attr('rel') + ")" ); 			
+  	    		 	    				    			  	    			
+  	    			if (self.options.data.q == '*:*'){
+  	    				window.location.hash = oParams.params + '&core=' + oParams.solrCoreName;
+  	    			}
+  	    			else {
+  	    				window.location.hash = oParams.params.replace(/q=\b.*\b&/, '') + '&core=' + oParams.solrCoreName;
+  	    			}  	    			
   	    		});	
   	    		
   	    		table.find('input').click(function(){	

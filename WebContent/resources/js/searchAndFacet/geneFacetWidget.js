@@ -80,8 +80,12 @@
 								var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
 							
 			  	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable 	
-			  	    			//window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;	
-			  	    			window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+								if (self.options.data.q == '*:*'){
+									window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+								}
+								else {
+									window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+								}
 							}	
 						}	
 					}
@@ -103,8 +107,12 @@
 					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
 					
 					// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-  	    			//window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
-  	    			window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+					if (self.options.data.q == '*:*'){
+						window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+					}
+					else {
+						window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+					}
 				}	
 			});							
     	},
@@ -292,9 +300,14 @@
 	    			$(this).parent().parent().find('td.geneSubfacet').addClass('highlight');
 		    			        			
 	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable	  	    			
-		    		var fqStr = $(this).attr('class') + ':"' + $(this).attr('rel') + '"'; 
-		    		//window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=gene'; 
-		    		window.location.hash = 'fq=' + fqStr + '&core=gene';
+		    		var fqStr = $(this).attr('class') + ':"' + $(this).attr('rel') + '"';
+		    		
+		    		if (self.options.data.q == '*:*'){
+		    			window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=gene';
+		    		}
+		    		else {
+		    			window.location.hash = 'fq=' + fqStr + '&core=gene';
+		    		}
 	    		});  
 	    		$('table#geneFacetTbl input').click(function(){
 	    			
@@ -308,11 +321,11 @@
 	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
 	    	/*------------------------------------------------------------------------------------*/	
 	    	
-	    	if ( typeof self.options.data.fq == 'undefined' ){ 
-	    		//self.options.data.fq = MPI2.searchAndFacetConfig.facetParams['geneFacet'].filterParams.fq;
-	    	}
+	    	
 	    	if ( self.options.data.fq.match(/.*/) ){	
-        	
+	    		
+	    		self.options.data.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');
+	    		
 	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'geneFacet');
 	    		
 	    		// now load dataTable    		

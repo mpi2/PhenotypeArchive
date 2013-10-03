@@ -78,8 +78,12 @@
 								var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
 							
 			  	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable 	
-			  	    			//window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;	
-			  	    			window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+								if (self.options.data.q == '*:*'){
+									window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+								}
+								else {
+									window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+								}
 							}							
 						}				
 					}	
@@ -101,8 +105,12 @@
 					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
 					
 					// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-  	    			//window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;	
-  	    			window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;				
+					if (self.options.data.q == '*:*'){
+						window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+					}
+					else {
+						window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+					}
 				}				
 			});	
     	},
@@ -200,8 +208,13 @@
 	  	    			        			
 	        			// update hash tag so that we know there is hash change, which then triggers loadDataTable	  	    			
 	  	    			var fqStr = 'procedure_stable_id:"' + $(this).attr('rel')  + '"'; 
-	  	    			//window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=pipeline'; 
-	  	    			window.location.hash = 'fq=' + fqStr + '&core=pipeline';
+	  	    			
+	  	    			if (self.options.data.q == '*:*'){
+	  	    				window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=pipeline';
+	  	    			}
+	  	    			else {
+	  	    				window.location.hash = 'fq=' + fqStr + '&core=pipeline';
+	  	    			}
 	        		});
 	        		
 	        		$('table#pipelineFacetTbl input').click(function(){

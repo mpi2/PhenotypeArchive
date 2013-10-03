@@ -77,8 +77,12 @@
 								var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND ' + $.fn.compose_AndOrStr(fqFieldVals);
 							
 			  	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable 	
-			  	    			//window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;	
-			  	    			window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;	
+								if (self.options.data.q == '*:*'){
+									window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+								}
+								else {
+									window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+								}
 							}	
 						}	
 					}	
@@ -99,8 +103,12 @@
 					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
 					
 					// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-  	    			//window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;	
-  	    			window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;	
+					if (self.options.data.q == '*:*'){
+						window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+					}
+					else {
+						window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+					}
 				}				
 			});	
     	},
@@ -191,8 +199,13 @@
 	    			        			
     			// update hash tag so that we know there is hash change, which then triggers loadDataTable	  	    			
 	    		var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND top_level_mp_term:"' + $(this).attr('rel')  + '"'; 
-	    		//window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=mp'; 
-	    		window.location.hash = 'fq=' + fqStr + '&core=mp'; 
+	    		
+	    		if (self.options.data.q == '*:*'){
+	    			window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=mp';
+	    		}
+	    		else {
+	    			window.location.hash = 'fq=' + fqStr + '&core=mp';
+	    		}
     		});  
     		    		
     		$('table#mpFacetTbl input').click(function(){

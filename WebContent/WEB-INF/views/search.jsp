@@ -40,13 +40,11 @@
 				// In jQuery 1.4, use e.getState( "url" );
 				
 				var url = $.param.fragment();				
-				console.log('hash change URL: '+ '/search#' + url);
+				//console.log('hash change URL: '+ '/search#' + url);
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 				
 				if ( typeof oHashParams.q === 'undefined' ){
-					console.log(window.location.search);
-					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');
-					console.log(oHashParams.q);
+					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');					
 				}
 				
 				// keyword search has no fq in url when hash change is detected

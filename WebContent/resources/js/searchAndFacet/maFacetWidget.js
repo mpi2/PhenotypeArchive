@@ -82,8 +82,12 @@
 								var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND ' + $.fn.compose_AndOrStr(fqFieldVals);
 							
 			  	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable 	
-			  	    			//window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
-			  	    			window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+								if (self.options.data.q == '*:*'){
+									window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+								}
+								else {
+									window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+								}			  	    			
 							}	
 						}	
 					}					
@@ -105,8 +109,12 @@
 					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
 					
 					// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-  	    			//window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;	
-  	    			window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+					if (self.options.data.q == '*:*'){
+						window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+					}
+					else {
+						window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+					}
 				}				
 			});	
     	},
@@ -197,9 +205,13 @@
 	    			        			
     			// update hash tag so that we know there is hash change, which then triggers loadDataTable	  	    			
 	    		var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND selected_top_level_ma_term:"' + $(this).attr('rel')  + '"';	    			    			
-	    		//window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=ma'; 
-	    		window.location.hash = 'fq=' + fqStr + '&core=ma'; 
-    			
+	    		
+	    		if (self.options.data.q == '*:*'){	    		
+	    			window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=ma';
+	    		}
+	    		else {
+	    			window.location.hash = 'fq=' + fqStr + '&core=ma';
+	    		}    			
     		});  
     		    		
     		$('table#maFacetTbl input').click(function(){

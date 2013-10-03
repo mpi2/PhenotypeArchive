@@ -111,8 +111,12 @@
 		}
     	
     	// update hash tag so that we know there is hash change, which then triggers loadDataTable
-		//window.location.hash = 'q=' + q + '&fq=' + fqStr + '&core=' + facet; 
-		window.location.hash = 'fq=' + fqStr + '&core=' + facet; 
+    	if (q == '*:*'){
+    		window.location.hash = 'q=' + q + '&fq=' + fqStr + '&core=' + facet;
+    	}
+    	else {
+    		window.location.hash = 'fq=' + fqStr + '&core=' + facet;
+    	}
 	}
 	
 	$.fn.compose_AndOrStr = function(json){
@@ -437,7 +441,7 @@
     	var self = this;
     	    
     	fqStr = fqStr.replace(MPI2.searchAndFacetConfig.facetParams[facet].filterParams.fq, '');
-    	    	
+    	
     	// unhightlight all from this facet
 		$('table#'+ facet +'Tbl td').removeClass('highlight');    
 	   
@@ -465,10 +469,9 @@
     		}
     		
     		// highlight this facet term
-    		var aObjs = obj.parent().siblings('td');
-    		console.log(aObjs);
+    		var aObjs = obj.parent().siblings('td');    		
 			$(aObjs[0]).addClass('highlight');	    		
-    		
+			
     		// also add to unordered list
     		$.fn.addFacetFilter(obj, q);
     	} 
