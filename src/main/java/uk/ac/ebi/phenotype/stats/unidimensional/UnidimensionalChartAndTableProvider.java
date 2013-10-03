@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
@@ -50,10 +49,10 @@ public class UnidimensionalChartAndTableProvider {
 
 
 	public UnidimensionalDataSet doUnidimensionalData(
-			List<ExperimentDTO> experimentList, BiologicalModelDAO bmDAO, Map<String, String> config, JSONObject expResult,
-			List<BiologicalModel> unidimensionalMutantBiologicalModels,
-			Parameter parameter, String acc, Model model,
-			List<String> genderList, List<String> zyList, ChartType boxOrScatter)
+			List<ExperimentDTO> experimentList, BiologicalModelDAO bmDAO, Map<String, String> config, List<BiologicalModel> unidimensionalMutantBiologicalModels,
+			Parameter parameter,
+			String acc, Model model, List<String> genderList,
+			List<String> zyList, ChartType boxOrScatter)
 			throws SQLException, IOException, URISyntaxException {
 
 	

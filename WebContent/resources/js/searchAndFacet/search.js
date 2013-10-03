@@ -44,8 +44,7 @@
 	       	    error: function (jqXHR, textStatus, errorThrown) {	       	                	        
 	       	        $('div#facetBrowser').html('Error fetching data ...');
 	       	    }            	
-	    });	
-		
+	    });			
 	}
 	
 	function _doMPAutoSuggest(geneResponse, q, oFacets){		
@@ -152,8 +151,7 @@
     	    		$('div.facetCat').removeClass('facetCatUp');	    	    		
     	    	}
     	    	else {
-    	    		
-    	    		MPI2.searchAndFacetConfig.currentQuery = q;
+    	    		    	    		
     	        	// remove all previous facet results before loading new facet results
     	        	$('div.facetCatList').html('');  
     	        	

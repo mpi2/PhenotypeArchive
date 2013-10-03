@@ -25,8 +25,6 @@ if(typeof(window.MPI2) === 'undefined') {
     window.MPI2 = {};
 }
 
-MPI2.buttCount = 0;
-
 MPI2.searchAndFacetConfig = {};
 var config = MPI2.searchAndFacetConfig;
 
@@ -39,8 +37,7 @@ if ( typeof solrUrl == 'undefined' ){
 if ( typeof baseUrl == 'undefined' ){
 	baseUrl = '/data';
 }
-config.currentQuery = false;
-config.lastParams = false;
+
 config.lastImgCount = false;
 config.cores = ['gene', 'mp', 'ma', 'pipeline', 'images'];
 config.restfulPrefix = {

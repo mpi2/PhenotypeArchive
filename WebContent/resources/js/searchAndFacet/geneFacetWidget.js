@@ -126,9 +126,7 @@
 	    
 		_initFacet: function(){
 	    	var self = this;
-	    	//MPI2.searchAndFacetConfig.commonSolrParams.rows = 10;
-	   
-	    	//var queryParams = $.extend({},{		
+	    	    	
 	    	var queryParams = $.extend({}, { 
 				'rows': 0,
 				'facet': 'on',								

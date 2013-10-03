@@ -122,13 +122,24 @@ public class ImagesController {
 	}
 
 	@RequestMapping("/imagesb*")
-	public String allImagesb(HttpServletRequest request, Model model)
+	public String allImagesb(
+			@RequestParam(required = false, defaultValue = "0", value = "start") int start,
+			@RequestParam(required = false, defaultValue = "48", value = "length") int length,
+			@RequestParam(required = false, defaultValue = "*:*", value = "q") String qIn,
+			@RequestParam(required = false, defaultValue = "", value = "phenotype_id") String mpId,
+			@RequestParam(required = false, defaultValue = "", value = "gene_id") String geneId,
+			@RequestParam(required = false, defaultValue = "", value = "fq") String[] filterField,
+			@RequestParam(required = false, defaultValue = "", value = "facet.field") String facetField,
+			@RequestParam(required = false, defaultValue = "", value = "qf") String qf,
+			@RequestParam(required = false, defaultValue = "", value = "defType") String defType,
+			@RequestParam(required = false, defaultValue = "", value = "anatomy_id") String maId,
+			HttpServletRequest request, Model model)
 			throws SolrServerException, IOException, URISyntaxException {
-
+		//only need to send the solr query part of the url to solr
 		sendQueryStringToSolr(request, model);
-
-		// model.addAttribute("breadcrumbText", getBreadcrumbs(request, qIn,
-		// mpId, geneId, filterField, maId));
+//add breadcrumbs using the same method as for images.jsp
+		 model.addAttribute("breadcrumbText", getBreadcrumbs(request, qIn,
+		 mpId, geneId, filterField, maId));
 
 		return "imagesb";
 	}
@@ -138,7 +149,7 @@ public class ImagesController {
 
 		String queryString = request.getQueryString();
 		String startString = "0";
-		String rowsString = "24";
+		String rowsString = "24";//the number of images passed back for each solr request
 		if (request.getParameter("start") != null) {
 			startString = request.getParameter("start");
 		}
@@ -171,12 +182,12 @@ public class ImagesController {
 				}
 			}
 		}
+		newQueryString+="&start="+startString+"&rows="+rowsString;
 		System.out.println("newQueryString=" + newQueryString);
 
-		System.out.println("start=" + startString + " rowsString=" + rowsString
-				+ "queryString=" + newQueryString);
+		System.out.println("queryString=" + newQueryString);
 		JSONObject imageResults = JSONRestUtil.getResults(config
-				.get("internalSolrUrl") + "/images/select?" + queryString);
+				.get("internalSolrUrl") + "/images/select?" + newQueryString);
 		JSONArray imageDocs = JSONRestUtil.getDocArray(imageResults);
 		if (imageDocs != null) {
 			model.addAttribute("images", imageDocs);
