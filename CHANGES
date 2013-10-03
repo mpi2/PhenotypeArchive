@@ -15,6 +15,38 @@ Getting Started
 ---------------
 You need a Java 1.7 VM or later installed and a servlet container.
 
+================== Release 0.2.6 ==================
+
+Status
+------
+01 October 2013 release.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  Multiple subfacet selection
+ 2.  Phenotype summary section under Phenotype association
+ 3.  High-level phenotype summary refresh phenotype call summaryn table
+ 4.  Bubble pop-ups
+
+Other Changes
+ 1.  Filter button next to phenotype call summary table removed
+ 2.  Phenotype call on same MP term but different genotype reported
+     individually on phenotype call summary table of gene page
+ 3.  Phenotype and Anatomy search information generated from automated SLIM 
+     creation
+ 4.  Fix incorrect link from phenotype page to MGI phenotype browser
+ 5.  Add Parameter column to phenotype call summary table
+ 6.  REST API documentation page for experimental data access
+ 7.  Human ortholog title on search results
+     
+ Known bugs 
+ 1.  Link back from image view on breadcrumb is broken
+ 2.  Data export broken on gene page
+ 3.  Data export broken on phenotype page
+ 
+
 ================== Release 0.2.5 ==================
 
 Status
