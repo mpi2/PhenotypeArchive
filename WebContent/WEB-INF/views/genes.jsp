@@ -340,17 +340,13 @@
 			</div> 
 				<c:if test="${not empty phenotypes}">
 				<form id="target" action="destination.html">
-  <!-- <input type="text" value="Hello there" /> -->
 					<c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
-					<%-- 	${phenoFacet.key}
-					${phenoFacet.value} --%>
 							<select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
 				<c:forEach var="facet" items="${phenoFacet.value}">
 				<option>${facet.key}</option>
 				</c:forEach>
 				</select> 
 				</c:forEach>
-				<!-- <input type="text" id="myInputTextField"> -->
 			
 				</form>
 				<jsp:include page="PhenoFrag.jsp"></jsp:include>
