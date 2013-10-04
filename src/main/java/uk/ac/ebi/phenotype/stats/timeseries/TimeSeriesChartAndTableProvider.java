@@ -324,7 +324,7 @@ public class TimeSeriesChartAndTableProvider {
 		}
 		
 		logger.warn("series="+series);
-		String headerFormatString="headerFormat: '<span style=\"font-size: 12px\">"+xUnitsLabel+" {point.key}</span><br/>',";
+		String headerFormatString="headerFormat: '<span style=\"font-size: 12px\">"+WordUtils.capitalize(xUnitsLabel)+" {point.key}</span><br/>',";
 		String pointToolTip="tooltip: { "+headerFormatString+"pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>:<b>{point.y:.1f}"+yUnitsLabel+"</b> '}";
 		String escapedPlaceholder="\"placeholder\":\"placeholder\"";
 		seriesString=series.toString().replace(escapedPlaceholder, pointToolTip);
