@@ -88,15 +88,17 @@ public class TimeSeriesChartAndTableProvider {
 							 String docGender=control.getSex();
 							 if(SexType.valueOf(docGender).equals(sex)){
 							 Float dataPoint=control.getDataPoint();
-							 String timePoint=control.getTimePoint();
-								 long timeInMillisSinceEpoch = getEpocTime(timePoint);
-								 controlDataPoints.add(new DiscreteTimePoint(new Float(timeInMillisSinceEpoch) ,dataPoint));//new Float(dataPoint));
+							 String timePointString=control.getTimePoint();
+							 //System.out.println("timePointString="+timePointString);
+							 Float discreteTimePoint=control.getDiscretePoint();//TimePoint();
+								 //long timeInMillisSinceEpoch = getEpocTime(timePoint);
+								 controlDataPoints.add(new DiscreteTimePoint(discreteTimePoint ,dataPoint));//new Float(dataPoint));
 							//controlMouseDataPoints.add(new MouseDataPoint("Need MouseIds from Solr",new Float(dataPoint)));
 							//System.out.println("adding control point time="+timePoint+" epoc="+timeInMillisSinceEpoch+" datapoint="+dataPoint);
 							//controlMouseDataPoints.add(new MouseDataPoint("uknown", new Float(dataPoint)));
 							 }
 						 }
-						 System.out.println("finished putting control to data points");
+						logger.debug("finished putting control to data points");
 						 TimeSeriesStats stats=new TimeSeriesStats();
 						 List<DiscreteTimePoint> controlMeans= stats.getMeanDataPoints(controlDataPoints);
 					//List<DiscreteTimePoint> controlData = timeSeriesStatisticsDAO
@@ -134,17 +136,17 @@ public class TimeSeriesChartAndTableProvider {
 								 String docGender=expDto.getSex();
 								 if(SexType.valueOf(docGender).equals(sex)){
 								 Float dataPoint=expDto.getDataPoint();
-								 String timePoint=expDto.getTimePoint();
-									 long timeInMillisSinceEpoch = getEpocTime(timePoint);
+								 Float discreateTimePoint=expDto.getDiscretePoint();//getTimePoint();
+									// long timeInMillisSinceEpoch = getEpocTime(timePoint);
 								//Float discreteTime=;
-									 mutantData.add(new DiscreteTimePoint(new Float(timeInMillisSinceEpoch) ,new Float(dataPoint)));//new Float(dataPoint));
+									 mutantData.add(new DiscreteTimePoint(discreateTimePoint ,new Float(dataPoint)));//new Float(dataPoint));
 								//controlMouseDataPoints.add(new MouseDataPoint("Need MouseIds from Solr",new Float(dataPoint)));
 								//System.out.println("adding control point time="+timePoint+" epoc="+timeInMillisSinceEpoch+" datapoint="+dataPoint);
 								//controlMouseDataPoints.add(new MouseDataPoint("uknown", new Float(dataPoint)));
 								 }
 							 }	 
 							 
-							 System.out.println("doing mutant data");
+							 logger.debug("doing mutant data");
 							 List<DiscreteTimePoint> mutantMeans= stats.getMeanDataPoints(mutantData);	
 								lines.put(WordUtils.capitalize(zType.name()),
 										mutantMeans);
@@ -220,6 +222,7 @@ public class TimeSeriesChartAndTableProvider {
 												// count in jsp
 		
 		JSONArray series = new JSONArray();
+		String seriesString="";
 		Set<Float> categoriesSet = new HashSet<Float>();
 		Float maxForChart=new Float(0);
 		Float minForChart=new Float(1000000000);
@@ -241,6 +244,9 @@ public class TimeSeriesChartAndTableProvider {
 					errorBarsObject = new JSONObject();// "{ name: 'Confidence', type: 'errorbar', color: 'black', data: [ [7.5, 8.5], [2.8, 4], [1.5, 2.5], [3, 4.1], [6.5, 7.5], [3.3, 4.1], [4.8, 5.1], [2.2, 3.0], [5.1, 8] ] } ");
 					errorBarsObject.put("name", "Standard Deviation");
 					errorBarsObject.put("type", "errorbar");
+					//errorBarsObject.put("tooltip", "pointFormat: '(error range: {point.low}-{point.high}°C)<br/>' ");
+					//errorBarsObject.append("tooltip", "pointFormat: '(error range: {point.low}-{point.high}°C)<br/>' ");
+					
 					String color = "blue";
 					if (i % 2 == 0) {
 						color = "black";
@@ -278,7 +284,16 @@ public class TimeSeriesChartAndTableProvider {
 				}
 				object.put("data", data);
 				series.put(object);
+				//we now want to add different tooltips for thses data sets which we can't do for java json objects so we need to deal with strings sooner
+				
 				series.put(errorBarsObject);
+//				System.out.println("object for point data="+object);
+//				System.out.println("errorbars="+errorBarsObject);
+//				if(i==0) {
+//					seriesString+=",";
+//				}
+//				seriesString+=","+object.toString()+","+errorBarsObject.toString();
+//				System.out.println("seriesString="+seriesString);
 				// categoriesMap.put(key);
 				i++;
 			}
@@ -288,7 +303,7 @@ public class TimeSeriesChartAndTableProvider {
 			e.printStackTrace();
 		}
 
-		logger.debug("series=" + series);
+		
 		// need to add error bars to series data as well!
 		// sort the categories by time as means are all sorted already
 
@@ -297,6 +312,19 @@ public class TimeSeriesChartAndTableProvider {
 			cats.add(cat);
 		}
 		Collections.sort(cats);
+		String noDecimalsString="";
+		if(xUnitsLabel.equals("number")) {
+			//set the xAxis to be numbers with no decimals
+			noDecimalsString="allowDecimals:false,";
+		}
+		
+		logger.warn("series="+series);
+		String errorBarsToolTip="tooltip: { pointFormat: '(error range: {point.low}-{point.high}"+yUnitsLabel+")<br/>' }";
+		int index=series.toString().indexOf("\"errorbar");
+		logger.warn("index="+index);
+		String escapedErrorString="\"errorbar\"";
+		seriesString=series.toString().replace(escapedErrorString, escapedErrorString+","+errorBarsToolTip);
+		logger.warn("seriesString="+seriesString);
 		String axisFontSize = "15";
 		String javascript = "$(function () { var chart; $(document).ready(function() { chart = new Highcharts.Chart({ chart: {  zoomType: 'x', renderTo: 'timeChart"
 				+ size
@@ -304,7 +332,7 @@ public class TimeSeriesChartAndTableProvider {
 				+ WordUtils.capitalize(title)
 				+ "', x: -20  }, credits: { enabled: false },  subtitle: { text: '"
 				+ WordUtils.capitalize(sex.name())
-				+ "', x: -20 }, xAxis: { labels: { style:{ fontSize:"
+				+ "', x: -20 }, xAxis: { "+noDecimalsString+" labels: { style:{ fontSize:"
 				+ axisFontSize
 				+ " }},   title: {   text: '"+xUnitsLabel+"'   }  }, yAxis: {max: 2, min: 0, labels: { style:{ fontSize:"
 				+ axisFontSize
@@ -312,8 +340,14 @@ public class TimeSeriesChartAndTableProvider {
 				+ yUnitsLabel
 				+ "' }, plotLines: [{ value: 0, width: 1, color: '#808080' }] }, tooltip: { formatter: function() { return '<b>'+ this.series.name +'</b><br/>'+ this.x +': '+ this.y +'"
 				+ yUnitsLabel
-				+ "'; } }, legend: { layout: 'vertical', align: 'right', verticalAlign: 'top', x: -10, y: 100, borderWidth: 0 }, series: "
-				+ series + " }); }); }); "; 
+				+ "'; } }, legend: { layout: 'vertical', align: 'right', verticalAlign: 'top', x: -10, y: 100, borderWidth: 0 }, " +
+				"tooltip: {shared: true},"+
+				"series: "
+				+
+				seriesString 
+				
+				
+				+ " }); }); }); "; 
 		ChartData chartAndTable=new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setMin(minForChart);

@@ -8,6 +8,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.collections.map.LinkedMap;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.log4j.Logger;
 
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 
@@ -15,6 +16,7 @@ public class TimeSeriesStats {
 
 	
 	
+	private static final Logger log = Logger.getLogger(TimeSeriesStats.class);
 
 	public List<DiscreteTimePoint> getMeanDataPoints(List<DiscreteTimePoint> timeSeriesDataForLine) {
 		List<DiscreteTimePoint> means=new ArrayList<>();
@@ -32,11 +34,11 @@ public class TimeSeriesStats {
 			 }
 			 
 		 }
-		 System.out.println("time map size="+timeMap.keySet().size());
+		log.debug("time map size="+timeMap.keySet().size());
 		 
 			for(Float time:  timeMap.keySet()) {
 				 DescriptiveStatistics stats = new DescriptiveStatistics();
-				System.out.println("time="+time+" number of points="+ timeMap.get(time).size());
+				log.debug("time="+time+" number of points="+ timeMap.get(time).size());
 				for(Float data: timeMap.get(time)) {
 			        stats.addValue(data);
 				}
@@ -52,7 +54,7 @@ public class TimeSeriesStats {
 				Float higher=new Float(mean+std);
 				errorPair.add(lower);
 				errorPair.add(higher);
-				System.out.println("stddev="+std+" lower="+lower+" higher="+higher);
+				log.debug("stddev="+std+" lower="+lower+" higher="+higher);
 				meanDataTimePoint.setErrorPair(errorPair);
 				//meanDataTimePoint.s
 				means.add(meanDataTimePoint);
