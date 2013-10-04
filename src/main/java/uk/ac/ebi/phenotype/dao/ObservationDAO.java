@@ -47,7 +47,6 @@ public interface ObservationDAO extends HibernateDAO {
 			String simpleValue,
 			Parameter parameter, 
 			BiologicalSample sample,
-			int populationId,
 			Datasource datasource,
 			Experiment experiment);
 	
@@ -58,7 +57,17 @@ public interface ObservationDAO extends HibernateDAO {
 			String secondDimensionUnit,
 			Parameter parameter, 
 			BiologicalSample sample, 
-			int populationId,
+			Datasource datasource,
+			Experiment experiment);
+	
+	public Observation createTimeSeriesObservationWithOriginalDate(
+			ObservationType observationType, 
+			String firstDimensionValue, 
+			String secondDimensionValue,
+			String actualTimepoint,
+			String secondDimensionUnit,
+			Parameter parameter, 
+			BiologicalSample sample, 
 			Datasource datasource,
 			Experiment experiment);
 	

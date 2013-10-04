@@ -22,7 +22,6 @@ package uk.ac.ebi.phenotype.pojo;
  * @since February 2012
  * 
  */
-import java.text.DateFormat;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -97,34 +96,53 @@ public class TimeSeriesObservation extends Observation {
 	 */
 	public void setTimePoint(String timePoint, Date experimentDate, String unit) {
 		
-		Date date = null;
-		DateFormat inputDateFormatter = null;
-//		System.out.println("setTimePoint: " + timePoint + "   "  + unit);
-		
 		try {
 
-			if (unit.equals("minutes") || unit.equals("number") || unit.equals("Time in hours relative to lights out")) {
+			if (unit.equals("minutes") || unit.equals("number") || unit.equals("") || unit.equals("Time in hours relative to lights out")) {
+				
 				float value = Float.parseFloat(timePoint);
+				this.setTimePoint(experimentDate);
 				this.setDiscretePoint(value);
-				//inputDateFormatter = new SimpleDateFormat("m");
-				//date = inputDateFormatter.parse(timePoint);
 
-			} else { //if (unit.equals("Time in hours relative to lights out")) {
-				// experimental code!!!
-				// check if it's relative to hours or absolute
-				try {
-					float value = Float.parseFloat(timePoint);
-					// right so convert to an hour
-					String rawHours = timePoint.substring(0, timePoint.indexOf("."));
-					String rawMinutes = timePoint.substring(timePoint.indexOf(".")+1);
-//					System.out.println(rawHours + "::::" + rawMinutes);
-					int hours = Integer.parseInt(rawHours);
-					float minutes = Float.parseFloat(rawMinutes) * 0.6f;
-//					System.out.println(hours + "::::" + minutes);
-					
-				} catch (NumberFormatException ex) {
+			} else if ( Boolean.FALSE) {
 
-				}					
+//				float value = Float.parseFloat(timePoint);
+//				this.setTimePoint(experimentDate);
+//				this.setDiscretePoint(value);
+
+//				if (timePoint.contains("-")) {
+//					// This time point has been specified as an absolute date
+//					// time. Treat accordingly
+//					try {
+//						date = inputDateFormatter.parse(timePoint);
+//					} catch (ParseException e) {
+//						// Ok, not in an expected format. Report!
+//					}
+//					this.setTimePoint(date);
+//				} else {
+//					Float value = Float.parseFloat(timePoint);
+//					Calendar c = Calendar.getInstance();
+//					c.setTime(experimentDate);
+//					
+//					c.add(Calendar.MINUTE, value.intValue());
+//					this.setTimePoint(c.getTime());
+//				}
+
+//					// experimental code!!!
+//				// check if it's relative to hours or absolute
+//				try {
+//					float value = Float.parseFloat(timePoint);
+//					// right so convert to an hour
+//					String rawHours = timePoint.substring(0, timePoint.indexOf("."));
+//					String rawMinutes = timePoint.substring(timePoint.indexOf(".")+1);
+////					System.out.println(rawHours + "::::" + rawMinutes);
+//					int hours = Integer.parseInt(rawHours);
+//					float minutes = Float.parseFloat(rawMinutes) * 0.6f;
+////					System.out.println(hours + "::::" + minutes);
+//					
+//				} catch (NumberFormatException ex) {
+//
+//				}					
 			}
 
 		} catch (NumberFormatException e) {

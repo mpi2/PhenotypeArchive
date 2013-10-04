@@ -25,6 +25,9 @@ package uk.ac.ebi.phenotype.dao;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -533,10 +536,9 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 			String simpleValue, 
 			Parameter parameter, 
 			BiologicalSample sample, 
-			int populationId,
 			Datasource datasource,
 			Experiment experiment) {
-		return createObservation(observationType, simpleValue, null, null, parameter, sample, populationId, datasource, experiment);
+		return createObservation(observationType, simpleValue, null, null, parameter, sample, datasource, experiment);
 	}
 	
 	@Transactional(readOnly = false)
@@ -547,7 +549,6 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 			String secondDimensionUnit,
 			Parameter parameter, 
 			BiologicalSample sample, 
-			int populationId,
 			Datasource datasource,
 			Experiment experiment) {
 		
@@ -555,7 +556,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 		
 		if (observationType == ObservationType.time_series) {
 
-			logger.debug("Series :" + secondDimensionValue + "\t" + firstDimensionValue);
+//			logger.debug("Series :" + secondDimensionValue + "\t" + firstDimensionValue);
 			
 			TimeSeriesObservation seriesObservation = new TimeSeriesObservation();
 			
@@ -651,7 +652,52 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 			obs = textObservation;
 		}
 		
-		obs.setPopulationId(populationId);
+		obs.setParameterStableId(parameter.getStableId());
+		
+		return obs;
+	}
+
+	@Transactional(readOnly = false)
+	public Observation createTimeSeriesObservationWithOriginalDate(
+			ObservationType observationType, 
+			String firstDimensionValue, 
+			String secondDimensionValue,
+			String actualTimepoint,
+			String secondDimensionUnit,
+			Parameter parameter, 
+			BiologicalSample sample, 
+			Datasource datasource,
+			Experiment experiment) {
+		
+		//logger.debug("Series :" + secondDimensionValue + "\t" + firstDimensionValue);
+		
+		TimeSeriesObservation obs = new TimeSeriesObservation();
+		
+		if (firstDimensionValue == null || firstDimensionValue.equals("null") || firstDimensionValue.equals("")) {
+			obs.setMissingFlag(true);
+		} else {
+			obs.setDataPoint(Float.parseFloat(firstDimensionValue));
+		}
+		
+		Date actualTimePoint = (experiment != null) ? experiment.getDateOfExperiment() : null;
+		
+		// If the center supplied an actual date time, 
+		// use that as the time_point
+		if (actualTimepoint.contains("-")) {
+			DateFormat inputDateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			try {
+				actualTimePoint = inputDateFormatter.parse(actualTimepoint);
+			} catch (ParseException e) {
+				actualTimePoint = (experiment != null) ? experiment.getDateOfExperiment() : null;
+			}
+		}
+
+		obs.setTimePoint(secondDimensionValue, actualTimePoint, secondDimensionUnit);
+		obs.setDatasource(datasource);
+		obs.setExperiment(experiment);
+		obs.setParameter(parameter);
+		obs.setSample(sample);
+		obs.setType(observationType);
 		obs.setParameterStableId(parameter.getStableId());
 		
 		return obs;
