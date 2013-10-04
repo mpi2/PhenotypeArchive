@@ -48,9 +48,6 @@ $(document).ready(function(){
 	function initFileExporter(conf){
 
 		$('button.fileIcon').click(function(){
-			var classString = $(this).attr('class');	    		
-			//var controller = classString.substr(0, classString.indexOf(" "));
-
 			var fileType = $(this).text();
 			var url = baseUrl + '/export';	    		
 			var sInputs = '';
@@ -101,7 +98,7 @@ $(document).ready(function(){
 	allDropdowns[0] = $('#resource_fullname');
 	allDropdowns[1] = $('#procedure_name');
 	allDropdowns[2] = $('#marker_symbol');
-	createDropdown(allDropdowns[0],"Resource: All", allDropdowns);
+	createDropdown(allDropdowns[0],"Source: All", allDropdowns);
 	createDropdown(allDropdowns[1], "Procedure: All", allDropdowns);
 	createDropdown(allDropdowns[2], "Gene: All", allDropdowns);
 

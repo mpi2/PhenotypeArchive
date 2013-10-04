@@ -107,7 +107,7 @@ $(document).ready(function(){
 			    		var multipleSelectA =$('#top_level_mp_term_name');
 						var multipleSelectB =  $('#resource_fullname');
 						createDropdown(multipleSelectA,"Top Level MP: All", multipleSelectB);
-						createDropdown(multipleSelectB, "Projects: All", multipleSelectA);
+						createDropdown(multipleSelectB, "Source: All", multipleSelectA);
 						
 			    		function createDropdown(multipleSelect1, emptyText,  multipleSelect2){
 			    		$(multipleSelect1).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
