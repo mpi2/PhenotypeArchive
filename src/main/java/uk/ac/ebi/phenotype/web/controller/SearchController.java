@@ -47,11 +47,9 @@ public class SearchController {
 			@RequestParam(value = "core", required = false) String core,
 			@RequestParam(value = "fq", required = false) String fq,
 			HttpServletRequest request, 
-			Model model) {
-				
-		System.out.println("q is: " + q );
-		//model.addAttribute("q", q.contains("\"") ? q.replaceAll("\"", "\\\\\"") : q);
-
+			Model model) {			
+		
+		// this is for solr phrase search
 		if ( q != null && q.contains("\"") ){ 
 			q = q.replaceAll("\"", "\\\\\"");
 		}
