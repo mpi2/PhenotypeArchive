@@ -285,6 +285,9 @@ public class TimeSeriesChartAndTableProvider {
 
 				}
 				object.put("data", data);
+				//add a placholder string so we can add a tooltip method specifically for data that is not error bars later on in this code
+				String placeholderString="placeholder";
+				object.put(placeholderString, placeholderString);
 				series.put(object);
 				//we now want to add different tooltips for thses data sets which we can't do for java json objects so we need to deal with strings sooner
 				
@@ -321,11 +324,16 @@ public class TimeSeriesChartAndTableProvider {
 		}
 		
 		logger.warn("series="+series);
-		String errorBarsToolTip="tooltip: { pointFormat: '(error range: {point.low}-{point.high}"+yUnitsLabel+")<br/>' }";
+		String headerFormatString="headerFormat: '<span style=\"font-size: 12px\">"+xUnitsLabel+" {point.key}</span><br/>',";
+		String pointToolTip="tooltip: { "+headerFormatString+"pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>:<b>{point.y:.1f}"+yUnitsLabel+"</b> '}";
+		String escapedPlaceholder="\"placeholder\":\"placeholder\"";
+		seriesString=series.toString().replace(escapedPlaceholder, pointToolTip);
+		
+		String errorBarsToolTip="tooltip: { pointFormat: 'SD: {point.low}-{point.high}<br/>' }";
 		int index=series.toString().indexOf("\"errorbar");
 		logger.warn("index="+index);
 		String escapedErrorString="\"errorbar\"";
-		seriesString=series.toString().replace(escapedErrorString, escapedErrorString+","+errorBarsToolTip);
+		seriesString=seriesString.replace(escapedErrorString, escapedErrorString+","+errorBarsToolTip);
 		logger.warn("seriesString="+seriesString);
 		String axisFontSize = "15";
 		String javascript = "$(function () { var chart; $(document).ready(function() { chart = new Highcharts.Chart({ chart: {  zoomType: 'x', renderTo: 'timeChart"
@@ -340,9 +348,7 @@ public class TimeSeriesChartAndTableProvider {
 				+ axisFontSize
 				+ " }}, title: { text: ' "
 				+ yUnitsLabel
-				+ "' }, plotLines: [{ value: 0, width: 1, color: '#808080' }] }, tooltip: { formatter: function() { return '<b>'+ this.series.name +'</b><br/>'+ this.x +': '+ this.y +'"
-				+ yUnitsLabel
-				+ "'; } }, legend: { layout: 'vertical', align: 'right', verticalAlign: 'top', x: -10, y: 100, borderWidth: 0 }, " +
+				+ "' }, plotLines: [{ value: 0, width: 1, color: '#808080' }] },  legend: { layout: 'vertical', align: 'right', verticalAlign: 'top', x: -10, y: 100, borderWidth: 0 }, " +
 				"tooltip: {shared: true},"+
 				"series: "
 				+
