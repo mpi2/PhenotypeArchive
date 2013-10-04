@@ -346,6 +346,11 @@ body div#allele_tracker_panel_results  a img {
 .ui-dropdownchecklist-item input[type=checkbox] {
 	margin: 4px 4px 4px;
 	}
+div.ui-dropdownchecklist-dropcontainer {
+	max-height: 300px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
 
 .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default{
 	background: white;

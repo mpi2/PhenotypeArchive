@@ -168,7 +168,6 @@ public class PhenotypeCallSummarySolrImpl implements
 		// dropdowns/ checkboxes
 		JSONObject facets = results.getJSONObject("facet_counts")
 				.getJSONObject("facet_fields");
-		System.out.println("*****Facets: " + facets);
 		Iterator<String> ite = facets.keys();
 		Map<String, Map<String, Integer>> dropdowns = new HashMap<String, Map<String, Integer>>();
 		while (ite.hasNext()) {
