@@ -96,17 +96,17 @@ $(document).ready(function(){
 	//stuff for dropdown tick boxes here
 	var allDropdowns = new Array();
 	allDropdowns[0] = $('#resource_fullname');
+	console.log ("resource : " + allDropdowns[0].options);
 	allDropdowns[1] = $('#procedure_name');
 	allDropdowns[2] = $('#marker_symbol');
 	createDropdown(allDropdowns[0],"Source: All", allDropdowns);
 	createDropdown(allDropdowns[1], "Procedure: All", allDropdowns);
-	createDropdown(allDropdowns[2], "Gene: All", allDropdowns);
+	createDropdown(allDropdowns[2].sort(), "Gene: All", allDropdowns);
 
 
 	function createDropdown(multipleSel, emptyText,  allDd){
 		$(multipleSel).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
 			minWidth: 150, onItemClick: function(checkbox, selector){
-
 				var justChecked = checkbox.prop("checked");
 				console.log("justChecked="+justChecked);
 				console.log("checked="+ checkbox.val());
@@ -124,8 +124,8 @@ $(document).ready(function(){
 					var index = $.inArray(checkbox.val(), values);
 					values.splice(index, 1);
 				}  
+				
 				console.log("values="+values );
-				alert(values);
 				// add current one and create dropdown object 
 				dd1 = new Object();
 				dd1.name = multipleSel.attr('id'); 
