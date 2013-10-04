@@ -136,13 +136,15 @@
   	<copyField source="ma_id" dest="auto_suggest" />
     <copyField source="ma_term" dest="auto_suggest" />	    
     <copyField source="ma_term_synonym" dest="auto_suggest" />    
-    <copyField source="child_ma_term" dest="auto_suggest" />
+    
     <copyField source="ma_2_mp_name" dest="auto_suggest" />
     <copyField source="ma_id" dest="auto_suggest" />
     <copyField source="child_ma_id" dest="auto_suggest" />
+    <copyField source="child_ma_term" dest="auto_suggest" />
+    
     <copyField source="ma_2_mp_id" dest="auto_suggest" />
  	<copyField source="selected_top_level_ma_term" dest="auto_suggest" />
-    <copyField source="selected_top_level_ma_id" dest="auto_suggest" />
-
+    <copyField source="selected_top_level_ma_id" dest="auto_suggest" />  
+	
 </schema>
 

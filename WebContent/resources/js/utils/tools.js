@@ -503,7 +503,7 @@
 		}		
 		
     	var dataCount = "<span id='resultCount'><span id='annotCount'></span><a></a></span>";    	
-    	var resultMsg = $("<div id='resultMsg'></div>").append(imgViewSwitcher, dataCount, ' for ' + userFqStr, searchKw);
+    	var resultMsg = $("<div id='resultMsg'></div>").append(imgViewSwitcher, dataCount, ' for ' + userFqStr + decodeURI(searchKw));
     	    	
     	$('div#mpi2-search').html('');
     	$('div#mpi2-search').append(resultMsg, dTable);   

@@ -170,13 +170,45 @@ ies. -->
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
   
+   
   <!-- <copyField source="name" dest="text"/>-->
  
 	<copyField source="*" dest="text"/>
   	<copyField source="mp_id" dest="auto_suggest" />
-    <copyField source="mp_term" dest="auto_suggest" />	    
-    <copyField source="mp_term_synonym" dest="auto_suggest" />   
- 
+	<copyField source="mp_term" dest="auto_suggest" />
+	<copyField source="mp_term_synonym" dest="auto_suggest" />   
+	<copyField source="mp_definition" dest="auto_suggest" />
+
+	<copyField source="top_level_mp_id" dest="auto_suggest" />
+	<copyField source="top_level_mp_term" dest="auto_suggest" />
+	<copyField source="top_level_mp_definition" dest="auto_suggest" />
+
+	<copyField source="sibling_mp_id" dest="auto_suggest" />
+	<copyField source="sibling_mp_term" dest="auto_suggest" />
+	<copyField source="sibling_mp_definition" dest="auto_suggest" />	
+
+	<copyField source="ma_id" dest="auto_suggest" />
+	<copyField source="ma_term" dest="auto_suggest" />
+
+	<copyField source="allele_id" dest="auto_suggest" />
+	<copyField source="allele_symbol" dest="auto_suggest" /> 
+
+	<copyField source="go_id" dest="auto_suggest" />
+	<copyField source="mgi_accession_id" dest="auto_suggest" />
+
+	<copyField source="strain_id" dest="auto_suggest" />
+	<copyField source="strain_name" dest="auto_suggest" /> 	
+
+	<copyField source="marker_symbol" dest="auto_suggest" />  
+	
+	<copyField source="pipeline_stable_id" dest="auto_suggest" /> 
+	<copyField source="pipeline_name" dest="auto_suggest" />  
+
+	<copyField source="procedure_stable_id" dest="auto_suggest" /> 
+	<copyField source="procedure_name" dest="auto_suggest" /> 
+
+	<copyField source="parameter_stable_id" dest="auto_suggest" /> 
+	<copyField source="parameter_name" dest="auto_suggest" /> 	
 
 </schema>
 

@@ -49,6 +49,13 @@ public class SearchController {
 			HttpServletRequest request, 
 			Model model) {
 				
+		System.out.println("q is: " + q );
+		//model.addAttribute("q", q.contains("\"") ? q.replaceAll("\"", "\\\\\"") : q);
+
+		if ( q != null && q.contains("\"") ){ 
+			q = q.replaceAll("\"", "\\\\\"");
+		}
+		
 		model.addAttribute("q", q);
 		model.addAttribute("core", core);
 		model.addAttribute("fq", fq);

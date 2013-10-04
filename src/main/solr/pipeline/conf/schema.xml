@@ -136,7 +136,9 @@
    <copyField source="parameter_stable_id"  dest="auto_suggest" />
    <copyField source="parameter_name"  dest="auto_suggest" />	 
    <copyField source="procedure_stable_id" dest="auto_suggest" />
-   <copyField source="procedure_name"  dest="auto_suggest" />
-  
+   <copyField source="procedure_name"  dest="auto_suggest" /> 
+   <copyField source="pipeline_stable_id"  dest="auto_suggest" /> 
+   <copyField source="pipeline_name"  dest="auto_suggest" />  
+	
 </schema>
 
