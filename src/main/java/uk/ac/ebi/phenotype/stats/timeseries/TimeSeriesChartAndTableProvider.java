@@ -177,6 +177,8 @@ public class TimeSeriesChartAndTableProvider {
 		
 		//min=allMinMax.get("min"); 
 		//max=allMinMax.get("max");
+			//for time series we always want min to be zero?? maybe some are negative?
+			if(min>0)min=new Float(0);
 		logger.debug("min="+min+" max="+max);
 		List<ChartData> yAxisAdjustedTimeSeriesCharts=ChartUtils.alterMinAndMaxYAxisOfCharts(chartsNTablesForParameter, min, max);
 		return yAxisAdjustedTimeSeriesCharts;

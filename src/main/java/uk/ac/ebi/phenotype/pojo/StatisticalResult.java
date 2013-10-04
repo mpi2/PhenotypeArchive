@@ -11,6 +11,14 @@ import javax.persistence.OneToOne;
 @MappedSuperclass
 public class StatisticalResult {
 
+	@Override
+	public String toString() {
+		return "StatisticalResult [id=" + id + ", controlBiologicalModel="
+				+ controlBiologicalModel + ", experimentalBiologicalModel="
+				+ experimentalBiologicalModel + ", organisation="
+				+ organisation + ", parameter=" + parameter + "]";
+	}
+
 	/**
 	 * MySQL auto increment
 	 * GenerationType.AUTO won't work

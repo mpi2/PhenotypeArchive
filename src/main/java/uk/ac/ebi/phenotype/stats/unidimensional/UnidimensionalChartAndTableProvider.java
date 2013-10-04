@@ -25,6 +25,7 @@ import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
@@ -113,7 +114,7 @@ public class UnidimensionalChartAndTableProvider {
 								 Float dataPoint=control.getDataPoint();
 								controlCounts.add(new Float(dataPoint));
 								controlMouseDataPoints.add(new MouseDataPoint("Need MouseIds from Solr",dataPoint));
-								System.out.println("adding control point="+dataPoint);
+								logger.debug("adding control point="+dataPoint);
 								controlMouseDataPoints.add(new MouseDataPoint("uknown", new Float(dataPoint)));
 								 
 							 }
@@ -152,32 +153,15 @@ public class UnidimensionalChartAndTableProvider {
 									 Float dataPoint=expDto.getDataPoint();
 									 		if( docSexType.equals(sexType)){
 									 			mutantCounts.add(new Float(dataPoint));
-									 			System.out.println("adding mutant point="+dataPoint);
+									 			logger.debug("adding mutant point="+dataPoint);
 									 			mutantMouseDataPoints.add(new MouseDataPoint("uknown", new Float(dataPoint)));
 									 		}
 									 		mouseDataPointsSet.add(mutantMouseDataPoints);
 									 }
 									 observations2DList.add(mutantCounts);
-									 //List<Float> mutantCounts =
-									// unidimensionalStatisticsDAO
-									 // .getMutantDataPoints(sexType, zType,
-									 // parameter, popId);
-									 // observations2DList.add(mutantCounts);
 									
-//									 List<MouseDataPoint>
-//									 mutantMouseDataPoints =
-//									 unidimensionalStatisticsDAO
-//									 .getMutantDataPointsWithMouseName(sexType,
-//									 zType,
-//									 parameter);
-//									 mouseDataPointsSet.add(mutantMouseDataPoints);
-//									 for(MouseDataPoint mPoint:
-//									 mutantMouseDataPoints){
-//									 mutantCounts.add(mPoint.getDataPoint());
-//									 }
-//									 observations2DList.add(mutantCounts);
 								}
-								//
+								
 							}
 							if (observations2DList.size() > 1) {// only
 							// create the table
@@ -211,7 +195,8 @@ public class UnidimensionalChartAndTableProvider {
 							 unidimensionalStatsObject =
 							 produceUnidimensionalStatsData(
 							 title, sexType, parameter, experiment.getZygosities(), zyList,
-							 observations2DList, expBiologicalModel);
+							 observations2DList, expBiologicalModel, experiment);
+							 logger.debug("unidimensionalStatsObject="+unidimensionalStatsObject);
 							 unidimensionalStatsObjects
 							 .addAll(unidimensionalStatsObject);
 							 chartsAndTablesForParameter.add(chartAndTable);
@@ -233,7 +218,7 @@ public class UnidimensionalChartAndTableProvider {
 
 //		min = allMinMax.get("min");
 //		max = allMinMax.get("max");
-		System.out.println("min=" + min + "  max=" + max);
+		logger.debug("min=" + min + "  max=" + max);
 		// List<String> yAxisAdjustedBoxCharts
 		// =ChartUtils.alterMinAndMaxYAxisOfCharts(continuousCharts, min, max);
 		yAxisAdjustedBoxChartsNTables = ChartUtils.alterMinAndMaxYAxisOfCharts(
@@ -533,6 +518,7 @@ public class UnidimensionalChartAndTableProvider {
 	 * @param zyList
 	 * @param rawData
 	 *            - list of floats for WT then hom or het
+	 * @param experiment TODO
 	 * @param biologicalModel
 	 * @param parameterUnit
 	 * @param xAxisCategoriesList
@@ -544,8 +530,10 @@ public class UnidimensionalChartAndTableProvider {
 	private List<UnidimensionalStatsObject> produceUnidimensionalStatsData(
 			String title, SexType sexType, Parameter parameter,
 			Set<ZygosityType> set, List<String> zyList,
-			List<List<Float>> rawData, BiologicalModel expBiologicalModel) {
+			List<List<Float>> rawData, BiologicalModel expBiologicalModel, ExperimentDTO experiment) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
+		StatisticalResult result = experiment.getResult();
+		logger.debug("result="+result);
 		List<UnidimensionalStatsObject> statsObjects = new ArrayList<UnidimensionalStatsObject>();
 		// String parameterUnit = parameter.checkParameterUnit(1);
 		UnidimensionalStatsObject wtStatsObject = new UnidimensionalStatsObject();
