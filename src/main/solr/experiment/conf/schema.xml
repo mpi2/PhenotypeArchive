@@ -63,6 +63,8 @@
 		<field name="dateOfBirth"        type="tdate"  indexed="true"  stored="true"  multiValued="false" />
 		<field name="dateOfExperiment"   type="tdate"  indexed="true"  stored="true"  multiValued="false" />
 		<field name="populationId"       type="int"    indexed="true"  stored="true"  multiValued="false" />
+		
+		<field name="externalSampleId"           type="string" indexed="true"  stored="true"  multiValued="false" />
 	
 		<!-- unidimensional/multidimensional/time series -->
 		<field name="dataPoint"      type="float"   indexed="true"  stored="true"  multiValued="false" />
