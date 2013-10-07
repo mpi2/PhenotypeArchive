@@ -20,6 +20,9 @@
  * 
  */
 
+if ( $ === 'undefined'){
+	$ = window.jQuery;
+}
 
 if(typeof(window.MPI2) === 'undefined') {
     window.MPI2 = {};
