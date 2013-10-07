@@ -41,8 +41,10 @@ public class ChartUtilsTest {
 	@Test
 	public void testGetDecimalAdjustedFloat() {
 		int numberOfDecimals=2;
-		Float n1=new Float(10.0001);
-		ChartUtils.getDecimalAdjustedFloat(n1, numberOfDecimals);
+		Float n1=new Float(10.7777);
+		Float result=ChartUtils.getDecimalAdjustedFloat(n1, numberOfDecimals);
+		System.out.println("adjuted float="+result);
+		assertTrue(new Float(10.00)==result);
 		
 	}
 

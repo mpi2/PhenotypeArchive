@@ -52,7 +52,12 @@ public class ChartUtils {
 		
 		public static Float getDecimalAdjustedFloat(Float number, int numberOfDecimals) {
 			//1 decimal #.#
-			DecimalFormat df = new DecimalFormat("#.");
+			String decimalFormatString="#.";
+			for(int i=0; i<numberOfDecimals;i++) {
+				decimalFormatString+="#";
+			}
+			
+			DecimalFormat df = new DecimalFormat(decimalFormatString);
 			String decimalAdjustedMean = df.format(number);
 			Float decFloat=new Float(decimalAdjustedMean);
 			return decFloat;

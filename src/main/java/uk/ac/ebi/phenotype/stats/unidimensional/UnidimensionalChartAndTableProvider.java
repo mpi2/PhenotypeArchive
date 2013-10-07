@@ -253,6 +253,8 @@ public class UnidimensionalChartAndTableProvider {
 			List<String> zyList, List<List<Float>> rawData,
 			ExperimentDTO experiment) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
+		
+		int decimalPlaces=ChartUtils.getDecimalPlaces(experiment);
 		List<ChartData> chartsAndTables = new ArrayList<ChartData>();
 		Float max = new Float(0);
 		Float min = new Float(100000000);
@@ -309,11 +311,11 @@ public class UnidimensionalChartAndTableProvider {
 				stats.addValue(point);
 			}
 			List<Float> wt1 = new ArrayList<Float>();
-			double Q1 = stats.getPercentile(25);
-			double Q3 = stats.getPercentile(75);
+			double Q1 = ChartUtils.getDecimalAdjustedFloat(new Float(stats.getPercentile(25)),decimalPlaces);
+			double Q3 = ChartUtils.getDecimalAdjustedFloat(new Float(stats.getPercentile(75)), decimalPlaces);
 			double IQR = Q3 - Q1;
 
-			Float minIQR = new Float(Q1 - (1.5 * IQR));
+			Float minIQR = ChartUtils.getDecimalAdjustedFloat(new Float(Q1 - (1.5 * IQR)), decimalPlaces);
 			wt1.add(minIQR);// minimum
 			wt1.add(new Float(Q1));// lower quartile
 			
@@ -322,7 +324,7 @@ public class UnidimensionalChartAndTableProvider {
 			wt1.add(new Float(Q3));// upper quartile
 
 			Float maxTemp = new Float(stats.getMax());
-			Float maxIQR = new Float(Q3 + (1.5 * IQR));
+			Float maxIQR =  ChartUtils.getDecimalAdjustedFloat(new Float(Q3 + (1.5 * IQR)), decimalPlaces);
 			wt1.add(maxIQR);// maximumbs.
 			if (maxTemp > max)
 				max = maxTemp;// count
@@ -345,15 +347,15 @@ public class UnidimensionalChartAndTableProvider {
 			boxPlotData.add(wt2);
 
 			// for Barchart
-			Float mean = new Float(stats.getMean());
-			Float sd = new Float(stats.getStandardDeviation());
-			listOfMeansForBarChart.add(mean);
-			List<Float> sds = new ArrayList<Float>();
-			Float plusSd = mean + sd;
-			Float minusSd = mean - sd;
-			sds.add(minusSd);
-			sds.add(plusSd);
-			sdsList.add(sds);
+//			Float mean = new Float(stats.getMean());
+//			Float sd = new Float(stats.getStandardDeviation());
+//			listOfMeansForBarChart.add(mean);
+//			List<Float> sds = new ArrayList<Float>();
+//			Float plusSd = mean + sd;
+//			Float minusSd = mean - sd;
+//			sds.add(minusSd);
+//			sds.add(plusSd);
+//			sdsList.add(sds);
 			row++;
 		}
 		String yAxisTitle = parameterUnit;
@@ -385,10 +387,10 @@ public class UnidimensionalChartAndTableProvider {
 			columnIndex += 2;
 		}
 
-		int decimalPlaces=ChartUtils.getDecimalPlaces(experiment);
+		
 		String chartString = createContinuousBoxPlotChartsString(
 				categoriesListBoxChart, title, sexType, yAxisTitle,
-				theoreticalMean, boxPlotData, scatterColumns,decimalPlaces);
+				boxPlotData, scatterColumns);
 		// continuousCharts.add(chartString);
 		ChartData cNTable = new ChartData();
 		// cNTable.setTable(table);
@@ -572,12 +574,9 @@ public class UnidimensionalChartAndTableProvider {
 			for (Float point : listOfFloats) {
 				stats.addValue(point);
 			}
-			Float mean = new Float(stats.getMean());
+			Float mean = ChartUtils.getDecimalAdjustedFloat(new Float(stats.getMean()), decimalPlaces);
 			System.out.println("mean="+mean);
-//			DecimalFormat df = new DecimalFormat("#.#####");
-//			String decimalAdjustedMean = df.format(mean);
-//			Float decFloat=new Float(decimalAdjustedMean);
-			Float sd = new Float(stats.getStandardDeviation());
+			Float sd = ChartUtils.getDecimalAdjustedFloat(new Float(stats.getStandardDeviation()), decimalPlaces);
 			UnidimensionalStatsObject statsObject = statsObjects.get(row);
 			statsObject.setMean(mean);
 			statsObject.setSd(sd);
@@ -590,25 +589,20 @@ public class UnidimensionalChartAndTableProvider {
 
 	/**
 	 * 
-	 * @param xAisxCcategoriesList
-	 *            e.g. WT, WT, HOM, HOM for each column to be displayed
 	 * @param title
 	 *            main title of the graph
 	 * @param yAxisTitle
 	 *            - unit of measurement - how to get this from the db?
-	 * @param theoreticalMean
-	 *            - not sure if we need this - draws a line across the graph
-	 *            currently red
 	 * @param observations2dList
 	 * @param scatterColumns
-	 * @param decimalPlaces 
+	 * @param xAisxCcategoriesList
+	 *            e.g. WT, WT, HOM, HOM for each column to be displayed
 	 * @return
 	 */
 	private String createContinuousBoxPlotChartsString(
 			List<String> xAxisCategoriesList, String title, SexType sex,
-			String yAxisTitle, String theoreticalMean,
-			List<List<Float>> observations2dList,
-			List<List<Float>> scatterColumns, int decimalPlaces) {
+			String yAxisTitle, List<List<Float>> observations2dList,
+			List<List<Float>> scatterColumns) {
 		JSONArray categoriesArray = new JSONArray(xAxisCategoriesList);
 		String categories = categoriesArray.toString();// "['WT', 'WT', 'HOM', 'HOM']";
 		JSONArray boxPlot2DData = new JSONArray(observations2dList);
@@ -625,7 +619,7 @@ public class UnidimensionalChartAndTableProvider {
 														// is first column 3 is
 														// second
 		
-		String decimalFormatString=":."+decimalPlaces+"f";
+		
 		String chartString = "{ chart: { type: 'boxplot' },  tooltip: { formatter: function () { if(typeof this.point.high === 'undefined'){ return '<b>Observation</b><br/>' + this.point.y; } else { return '<b>Genotype: ' + this.key + '</b><br/>LQ - 1.5 * IQR: ' + this.point.low + '<br/>Lower Quartile: ' + this.point.options.q1 + '<br/>Median: ' + this.point.options.median + '<br/>Upper Quartile: ' + this.point.options.q3 + '<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '</b>'; } } }    , title: { text: '"
 				+ title
 				+ "' } , credits: { enabled: false },  subtitle: { text: '"
