@@ -226,7 +226,7 @@ try {
 				</div>
 				
 				<div>
-					<h4>Phrase query example: using double quotes</h4>
+					<h4>Phrase query example: <h2>using double quotes</h2></h4>
 					<p><a class="example" href="${baseUrl}/search?q=&quot;zinc finger protein&quot;#core=gene&fq=marker_type:* -marker_type:&quot;heritable phenotypic marker&quot;">"zinc finger protein"</a> - looking for genes whose product is zinc finger protein</p>
 				</div>
 			</div>
