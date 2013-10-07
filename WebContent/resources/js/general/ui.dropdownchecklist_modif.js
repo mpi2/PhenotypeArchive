@@ -566,8 +566,8 @@
             var text = self._formatText(selectOptions, options.firstItemChecksAll, firstOption);
             var controlLabel = controlWrapper.find(".ui-dropdownchecklist-text");
             var shortText = text;
-            if (text.length > 20){
-            	var shortText = text.slice(0,20) + " ...";
+            if (text.length > 25){
+            	var shortText = text.slice(0,25) + " ...";
             }
             controlLabel.html(shortText);
             // the attribute needs naked text, not html
