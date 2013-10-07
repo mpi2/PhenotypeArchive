@@ -96,7 +96,6 @@ $(document).ready(function(){
 	//stuff for dropdown tick boxes here
 	var allDropdowns = new Array();
 	allDropdowns[0] = $('#resource_fullname');
-	console.log ("resource : " + allDropdowns[0].options);
 	allDropdowns[1] = $('#procedure_name');
 	allDropdowns[2] = $('#marker_symbol');
 	createDropdown(allDropdowns[0],"Source: All", allDropdowns);
@@ -144,6 +143,34 @@ $(document).ready(function(){
 				}
 				console.log("call with " + dropdownsList.length);
 				refreshGenesPhenoFrag(dropdownsList);
+			}, textFormatFunction: function(options) {
+				var selectedOptions = options.filter(":selected");
+		        var countOfSelected = selectedOptions.size();
+		        var size = options.size();
+		        var text = "";
+		        if (size > 1){
+		        	options.each(function() {
+	                    if ($(this).prop("selected")) {
+	                        if ( text != "" ) { text += ", "; }
+	                        /* NOTE use of .html versus .text, which can screw up ampersands for IE */
+	                        var optCss = $(this).attr('style');
+	                        var tempspan = $('<span/>');
+	                        tempspan.html( $(this).html() );
+	                        if ( optCss == null ) {
+	                                text += tempspan.html();
+	                        } else {
+	                                tempspan.attr('style',optCss);
+	                                text += $("<span/>").append(tempspan).html();
+	                        }
+	                    }
+	                });
+		        }
+		        switch(countOfSelected) {
+		           case 0: return emptyText;
+		           case 1: return selectedOptions.text();
+		           case options.size(): return emptyText;
+		           default: return text;
+		        }
 			}
 		} );
 	}

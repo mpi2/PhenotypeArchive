@@ -25,6 +25,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.annotation.Resource;
@@ -348,6 +349,13 @@ public class GenesController {
 		return "PhenoFrag";
 	}
 	
+	private Map<String, Map<String, Integer>> sortPhenFacets(Map<String, Map<String, Integer>> phenFacets){
+		Map<String, Map<String, Integer>> sortPhenFacets = phenFacets;
+		for (String key: phenFacets.keySet()){
+			sortPhenFacets.put(key, new TreeMap<String, Integer>(phenFacets.get(key)));
+		}
+		return sortPhenFacets;
+	}
 	
 	private void processPhenotypes(String acc, Model model, String queryString) throws IOException, URISyntaxException {
 		//facet field example for project name and higher level mp term with gene as query : http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=marker_accession_id:MGI:98373&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet.field=project_name&facet.field=top_level_mp_term_name&facet=true		//top_level_mp_term_name
@@ -365,7 +373,8 @@ public class GenesController {
 			phenotypeList=phenoResult.getPhenotypeCallSummaries();
 
 			Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
-			model.addAttribute("phenoFacets", phenoFacets);
+			// sort facets first			
+			model.addAttribute("phenoFacets", sortPhenFacets(phenoFacets));
 
 		} catch (HibernateException|JSONException e) {
 			log.error("ERROR GETTING PHENOTYPE LIST");
