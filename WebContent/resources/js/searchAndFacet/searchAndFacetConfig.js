@@ -124,7 +124,7 @@ config.facetParams = {
 		filterParams: {fq:'marker_type:* -marker_type:"heritable phenotypic marker"',		 
 			      qf:"marker_symbol^100.0 human_gene_symbol^90.0 marker_name^10.0 marker_synonym mgi_accession_id auto_suggest",			     
 			      bq:'marker_type:"protein coding gene"^100'},
-		srchParams: $.extend({},				
+		srchParams: window.jQuery.extend({},				
 				 	commonSolrParams	 	
 					),
 		subFacet_filter_params: '', // set by widget on the fly
@@ -144,7 +144,7 @@ config.facetParams = {
 		 gridName: 'pipelineGrid',	
 		 filterParams:{'fq': 'pipeline_stable_id:IMPC_001'},
 		 breadCrumbLabel: 'Parameters',		 
-		 srchParams: $.extend({},				     
+		 srchParams: window.jQuery.extend({},				     
 					commonSolrParams    				
 					)					
 	 },	
@@ -165,7 +165,7 @@ config.facetParams = {
 		 ontology: 'mp',
 		 breadCrumbLabel: 'Phenotypes',		
 		 filterParams: {'fq': 'ontology_subset:*'},
-		 srchParams: $.extend({},				
+		 srchParams: window.jQuery.extend({},				
 					commonSolrParams,	 	
 					{'fl': 'mp_id,mp_term,mp_definition,top_level_mp_term'})
 	 },	
@@ -188,7 +188,7 @@ config.facetParams = {
 		 breadCrumbLabel: 'Anatomy',		 
 		 //filterParams: {'fq': "ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*", 'fl': 'ma_id,ma_term,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'},
 		 filterParams: {'fq': 'ontology_subset:IMPC_Terms'},		 
-		 srchParams: $.extend({},
+		 srchParams: window.jQuery.extend({},
 					commonSolrParams,
 					{'fl' : 'ma_id,ma_term,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'})		
 	 },	
@@ -214,7 +214,7 @@ config.facetParams = {
 		 breadCrumbLabel: 'Images',
 		 filterParams: {//'fl' : 'annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath',
 			 	  'fq' : "(annotationTermId:M* OR expName:* OR symbol:* OR higherLevelMaTermName:* OR higherLevelMpTermName:*)"},	
-	 	 srchParams: $.extend({},
+	 	 srchParams: window.jQuery.extend({},
 				commonSolrParams				
 				)
 	 }
