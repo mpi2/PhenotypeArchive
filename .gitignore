@@ -1,11 +1,10 @@
 #ignore any files beginning with a .
 .*
 #exclude the built style and js files
-script.js
-script.min.js
-style.min.js
-style.css
-style.min.css
+WebContent/resources/js/script.js
+WebContent/resources/js/script.min.js
+WebContent/resources/css/style.css
+WebContent/resources/css/style.min.css
 #ignore the target dir
 target/
 *.appConfig.properties

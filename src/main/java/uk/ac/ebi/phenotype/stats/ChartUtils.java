@@ -1,9 +1,11 @@
 package uk.ac.ebi.phenotype.stats;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.apache.poi.poifs.filesystem.OfficeXmlFileException;
 
 public class ChartUtils {
 	
@@ -31,4 +33,28 @@ public class ChartUtils {
 			return chartsAndTablesForParameter;
 		}
 
+		public static int getDecimalPlaces(ExperimentDTO experiment) {
+			int numberOfDecimalPlaces=0;
+			int i=0;
+			for(ObservationDTO control:experiment.getControls()) {
+				Float dataPoint = control.getDataPoint();
+				String dString=dataPoint.toString();
+				int pointIndex=dString.indexOf(".");
+				int length=dString.length();
+				int tempNumber=length-(pointIndex+1);
+				//System.out.println(tempNumber);
+				if(tempNumber>numberOfDecimalPlaces)numberOfDecimalPlaces=tempNumber;
+				i++;
+				if(i>100)break;//only sample the first 100 hopefully representative
+			}
+			return numberOfDecimalPlaces;
+		}
+		
+		public static Float getDecimalAdjustedFloat(Float number, int numberOfDecimals) {
+			//1 decimal #.#
+			DecimalFormat df = new DecimalFormat("#.");
+			String decimalAdjustedMean = df.format(number);
+			Float decFloat=new Float(decimalAdjustedMean);
+			return decFloat;
+		}
 }

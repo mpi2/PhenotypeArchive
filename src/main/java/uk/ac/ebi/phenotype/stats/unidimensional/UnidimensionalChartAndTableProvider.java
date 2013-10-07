@@ -3,6 +3,7 @@ package uk.ac.ebi.phenotype.stats.unidimensional;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,8 +44,8 @@ public class UnidimensionalChartAndTableProvider {
 	private static final Logger logger = Logger
 			.getLogger(UnidimensionalChartAndTableProvider.class);
 
-	@Autowired
-	private UnidimensionalStatisticsDAO unidimensionalStatisticsDAO;
+//	@Autowired
+//	private UnidimensionalStatisticsDAO unidimensionalStatisticsDAO;
 
 	private String axisFontSize = "15";
 
@@ -315,7 +316,9 @@ public class UnidimensionalChartAndTableProvider {
 			Float minIQR = new Float(Q1 - (1.5 * IQR));
 			wt1.add(minIQR);// minimum
 			wt1.add(new Float(Q1));// lower quartile
-			wt1.add(new Float(stats.getMean()));// median
+			
+			Float decFloat=ChartUtils.getDecimalAdjustedFloat(new Float(stats.getMean()), 1);
+			wt1.add(decFloat);// median
 			wt1.add(new Float(Q3));// upper quartile
 
 			Float maxTemp = new Float(stats.getMax());
@@ -382,9 +385,10 @@ public class UnidimensionalChartAndTableProvider {
 			columnIndex += 2;
 		}
 
+		int decimalPlaces=ChartUtils.getDecimalPlaces(experiment);
 		String chartString = createContinuousBoxPlotChartsString(
 				categoriesListBoxChart, title, sexType, yAxisTitle,
-				theoreticalMean, boxPlotData, scatterColumns);
+				theoreticalMean, boxPlotData, scatterColumns,decimalPlaces);
 		// continuousCharts.add(chartString);
 		ChartData cNTable = new ChartData();
 		// cNTable.setTable(table);
@@ -557,6 +561,8 @@ public class UnidimensionalChartAndTableProvider {
 				statsObjects.add(tempObje);
 			}
 		}
+		
+		int decimalPlaces=ChartUtils.getDecimalPlaces(experiment);
 		int row = 0;
 		for (List<Float> listOfFloats : rawData) {
 			// Get a DescriptiveStatistics instance
@@ -567,6 +573,10 @@ public class UnidimensionalChartAndTableProvider {
 				stats.addValue(point);
 			}
 			Float mean = new Float(stats.getMean());
+			System.out.println("mean="+mean);
+//			DecimalFormat df = new DecimalFormat("#.#####");
+//			String decimalAdjustedMean = df.format(mean);
+//			Float decFloat=new Float(decimalAdjustedMean);
 			Float sd = new Float(stats.getStandardDeviation());
 			UnidimensionalStatsObject statsObject = statsObjects.get(row);
 			statsObject.setMean(mean);
@@ -591,13 +601,14 @@ public class UnidimensionalChartAndTableProvider {
 	 *            currently red
 	 * @param observations2dList
 	 * @param scatterColumns
+	 * @param decimalPlaces 
 	 * @return
 	 */
 	private String createContinuousBoxPlotChartsString(
 			List<String> xAxisCategoriesList, String title, SexType sex,
 			String yAxisTitle, String theoreticalMean,
 			List<List<Float>> observations2dList,
-			List<List<Float>> scatterColumns) {
+			List<List<Float>> scatterColumns, int decimalPlaces) {
 		JSONArray categoriesArray = new JSONArray(xAxisCategoriesList);
 		String categories = categoriesArray.toString();// "['WT', 'WT', 'HOM', 'HOM']";
 		JSONArray boxPlot2DData = new JSONArray(observations2dList);
@@ -613,7 +624,8 @@ public class UnidimensionalChartAndTableProvider {
 														// category/column so 0
 														// is first column 3 is
 														// second
-
+		
+		String decimalFormatString=":."+decimalPlaces+"f";
 		String chartString = "{ chart: { type: 'boxplot' },  tooltip: { formatter: function () { if(typeof this.point.high === 'undefined'){ return '<b>Observation</b><br/>' + this.point.y; } else { return '<b>Genotype: ' + this.key + '</b><br/>LQ - 1.5 * IQR: ' + this.point.low + '<br/>Lower Quartile: ' + this.point.options.q1 + '<br/>Median: ' + this.point.options.median + '<br/>Upper Quartile: ' + this.point.options.q3 + '<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '</b>'; } } }    , title: { text: '"
 				+ title
 				+ "' } , credits: { enabled: false },  subtitle: { text: '"

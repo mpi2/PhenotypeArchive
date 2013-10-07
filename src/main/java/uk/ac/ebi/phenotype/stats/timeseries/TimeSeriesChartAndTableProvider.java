@@ -88,6 +88,7 @@ public class TimeSeriesChartAndTableProvider {
 							 String docGender=control.getSex();
 							 if(SexType.valueOf(docGender).equals(sex)){
 							 Float dataPoint=control.getDataPoint();
+							 logger.warn("data value="+dataPoint);
 							 String timePointString=control.getTimePoint();
 							 //System.out.println("timePointString="+timePointString);
 							 Float discreteTimePoint=control.getDiscretePoint();//TimePoint();
@@ -136,6 +137,7 @@ public class TimeSeriesChartAndTableProvider {
 								 String docGender=expDto.getSex();
 								 if(SexType.valueOf(docGender).equals(sex)){
 								 Float dataPoint=expDto.getDataPoint();
+								 logger.warn("data value="+dataPoint);
 								 Float discreateTimePoint=expDto.getDiscretePoint();//getTimePoint();
 									// long timeInMillisSinceEpoch = getEpocTime(timePoint);
 								//Float discreteTime=;
@@ -156,9 +158,10 @@ public class TimeSeriesChartAndTableProvider {
 
 						String title = "Mean " + parameter.getName();
 						if(lines.size()>1){//if lines are greater than one i.e. more than just control create charts and tables
+						int deimalPlaces=ChartUtils.getDecimalPlaces(experiment);
 						ChartData chartNTableForParameter=creatDiscretePointTimeSeriesChart(listIndex,
 								title, lines, parameter.checkParameterUnit(1),
-								parameter.checkParameterUnit(2), sex);
+								parameter.checkParameterUnit(2), sex, deimalPlaces);
 						Float tempMin=chartNTableForParameter.getMin();
 						Float tempMax=chartNTableForParameter.getMax();
 						chartNTableForParameter.setExpBiologicalModel(expBiologicalModel);
@@ -218,7 +221,7 @@ public class TimeSeriesChartAndTableProvider {
 	private ChartData creatDiscretePointTimeSeriesChart(
 			int listIndex, String title,
 			Map<String, List<DiscreteTimePoint>> lines, String xUnitsLabel,
-			String yUnitsLabel, SexType sex) {
+			String yUnitsLabel, SexType sex, int decimalPlaces) {
 		int size = listIndex;// to know which div to render to
 												// not 0 index as using loop
 												// count in jsp
@@ -324,12 +327,13 @@ public class TimeSeriesChartAndTableProvider {
 		}
 		
 		logger.warn("series="+series);
+		String decimalFormatString=":."+decimalPlaces+"f";
 		String headerFormatString="headerFormat: '<span style=\"font-size: 12px\">"+WordUtils.capitalize(xUnitsLabel)+" {point.key}</span><br/>',";
-		String pointToolTip="tooltip: { "+headerFormatString+"pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>:<b>{point.y:.1f}"+yUnitsLabel+"</b> '}";
+		String pointToolTip="tooltip: { "+headerFormatString+"pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>:<b>{point.y"+decimalFormatString+"}"+yUnitsLabel+"</b> '}";
 		String escapedPlaceholder="\"placeholder\":\"placeholder\"";
 		seriesString=series.toString().replace(escapedPlaceholder, pointToolTip);
 		
-		String errorBarsToolTip="tooltip: { pointFormat: 'SD: {point.low}-{point.high}<br/>' }";
+		String errorBarsToolTip="tooltip: { pointFormat: 'SD: {point.low"+decimalFormatString+"}-{point.high"+decimalFormatString+"}<br/>' }";
 		int index=series.toString().indexOf("\"errorbar");
 		logger.warn("index="+index);
 		String escapedErrorString="\"errorbar\"";
