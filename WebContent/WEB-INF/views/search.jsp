@@ -36,9 +36,8 @@
 					
 			// hash tag query
 			// catch back/forward buttons and hash change: loada dataTable based on url params
-			$(window).bind("hashchange", function(e) {
-				// In jQuery 1.4, use e.getState( "url" );
-				
+			$(window).bind("hashchange", function() {
+								
 				var url = $.param.fragment();				
 				//console.log('hash change URL: '+ '/search#' + url);
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
