@@ -1,5 +1,3 @@
-
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -36,7 +34,7 @@
 		<hibernate.dialect>org.hibernate.dialect.MySQLDialect</hibernate.dialect>
 		<hibernate.version>3.6.10.Final</hibernate.version>
 		<servlet.api.version>2.3</servlet.api.version>
-		<baseUrl>/data</baseUrl>
+		<baseUrl>http://localhost:8080/phenotype-archive</baseUrl>
 		<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
 			to EBI servers for performance -->
 		<solrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</solrUrl>
@@ -1017,7 +1015,7 @@
 					to EBI servers for performance -->
 				<solrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
 				<internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
-				<dupalBaseUrl>https://dev.mousephenotype.org</dupalBaseUrl>
+				<drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
 				<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
 				<liveSite>false</liveSite>
 			</properties>
@@ -1041,7 +1039,7 @@
 			</build>
 
 		</profile>
-                <profile>
+    <profile>
 			<id>external-user</id>
 
 			<properties>
@@ -1050,7 +1048,7 @@
 					to EBI servers for performance -->
 				<solrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
 				<internalSolrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</internalSolrUrl>
-				<dupalBaseUrl>http://localhost:8084</dupalBaseUrl>
+				<drupalBaseUrl>http://localhost:8084</drupalBaseUrl>
 				<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
 				<liveSite>false</liveSite>
 			</properties>
