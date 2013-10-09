@@ -38,18 +38,20 @@ $(document).ready(function(){
 		class: 'fileIcon'
 	}));
 
+	var mpId = window.location.href.split("/")[window.location.href.split("/").length-1];
+	alert(mpId);
+	
 	initFileExporter({
-		mpId: "MP:0001262",
+		mpId: "\"" + mpId+ "\"",
 		externalDbId: 3,
-		fileName: 'blah',
+		fileName: 'phen_data'+mpId,
 		solrCoreName: 'genotype-phenotype',
 		dumpMode: 'all',
 		baseUrl: baseUrl,
 		gridFields: 'marker_symbol,allele_symbol,zygosity,sex,procedure_name,resource_fullname,parameter_stable_id,marker_accession_id, parameter_name,parameter_name',
-		params: "qf=auto_suggest&defType=edismax&wt=json&rows=100000&q=*:*&fq=(mp_term_id:\"MP:0001262\")"
+		params: "qf=auto_suggest&defType=edismax&wt=json&rows=100000&q=*:*&fq=(mp_term_id:\"" + mpId + "\")"
 	});
 	function initFileExporter(conf){
-
 		$('button.fileIcon').click(function(){
 			var fileType = $(this).text();
 			var url = baseUrl + '/export';	 
@@ -211,7 +213,6 @@ $(document).ready(function(){
 			}			    			 
 		}
 		newUrl+=output;
-		console.log("new URL: " + newUrl)
 		refreshPhenoTable(newUrl);
 		return false;
 	}
