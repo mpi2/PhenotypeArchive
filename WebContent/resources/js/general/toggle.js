@@ -52,4 +52,20 @@ $('a.interest').click(function(){
 	return false;    		    	  
 });
 
+//code for setting ENU links on Gene Page
+
+$.ajax({
+	url: '../genesEnu/' + gene_id,                       
+	success: function (response) {
+		$('#enu').html(response);
+		console.log("success");
+		
+	},
+    error: function () {
+    	window.alert('AJAX error trying to register interest');                     
+    }
+});
+
+
+
 });

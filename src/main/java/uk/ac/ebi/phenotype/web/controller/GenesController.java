@@ -32,6 +32,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -57,6 +58,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.dao.DatasourceDAO;
@@ -607,6 +609,30 @@ public class GenesController {
 			HttpServletRequest request,
 			RedirectAttributes attributes) {
 		return "identifierError";
+	}
+	
+	/**
+	 * @throws IOException 
+	 */
+	@RequestMapping("/genesEnu/{acc}")
+	public String genesEnuFrag(
+			@PathVariable String acc,
+			Model model,
+			HttpServletRequest request,
+			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
+		//just pass on any query string after the ? to the solr requesting object for now
+//		String queryString=request.getQueryString();
+//		processPhenotypes(acc, model, queryString);
+		//send a request to their web service https://databases.apf.edu.au/mutations/snpRow/getSnpCount?mgiAccessionId=MGI:1935228
+		String url="https://databases.apf.edu.au/mutations/snpRow/getSnpCount?mgiAccessionId="+acc;
+		JSONObject result = JSONRestUtil.getResults(url);
+		
+		int count=result.getInt("count");
+		System.out.println("count="+count);
+
+	model.addAttribute("makeEnuLink",count);
+
+		return "genesEnuFrag";
 	}
 	
 }
