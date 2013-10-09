@@ -34,6 +34,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpRequest;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,7 +99,7 @@ public class FileExportController {
 		Model model
 		) throws Exception{	
 		log.debug("solr params: " + solrParams);
-
+		System.out.println("grid params : " + gridFields);
 		Workbook wb = null;
 		String dataString = null;
 		
@@ -249,10 +250,49 @@ public class FileExportController {
 		else if ( solrCoreName.equals("images") ){
 			rows = composeImageDataTableRows(json,  iDisplayStart,  iDisplayLength, showImgView, solrParams, request);
 		}
-
+		else if ( solrCoreName.equals("genotype-phenotype") ){
+			rows = composeGPDataTableRows(json, request);
+		}
 		return rows;
 	}
-
+	
+	private List<String> composeGPDataTableRows(JSONObject json, HttpServletRequest request){
+		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");	
+		List<String> rowData = new ArrayList<String>();
+		// add respective table header 
+		rowData.add("Gene\tAllele\tZygosity\tSex\tProcedure/Parameter\tSource\tGraph"); // copied from the column names in 
+		for (int i=0; i<docs.size(); i++) {			
+			List<String> data = new ArrayList<String>();
+			JSONObject doc = docs.getJSONObject(i);
+			System.out.println(doc);
+			data.add(doc.getString("marker_symbol"));
+			if (doc.containsKey("allele_symbol"))
+				data.add(doc.getString("allele_symbol"));
+			else data.add("");
+			data.add(doc.getString("zygosity"));
+			data.add(doc.getString("sex"));
+			data.add(doc.getString("procedure_name") + "/" + doc.getString("parameter_name"));
+			data.add(doc.getString("resource_fullname"));
+			//TODO add graph link
+			//<c:if test="${phenotype.dataSourceName eq 'EuroPhenome' }">
+			//	<a href="${baseUrl}/stats/genes/${phenotype.gene.id.accession}?parameterId=${phenotype.parameter.stableId}
+			//		<c:if test="${fn:length(phenotype.sexes) eq 1}">&gender=${phenotype.sexes[0]}</c:if>
+			//		&zygosity=${phenotype.zygosity}"><img src="${baseUrl}/img/icon_stats.png" alt="Graph" /></a></c:if>
+			//TODO automatically 
+			String graphUrl = "";
+			System.out.println("BASE URL " + config.get("baseUrl"));
+			if ((doc.getString("resource_fullname")).equalsIgnoreCase("EuroPhenome")){ // only show links for Europhenome
+				graphUrl = config.get("baseUrl")+"/stats/genes/" + doc.getString("marker_accession_id") + "?parameterId=" ;
+				graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
+				graphUrl += "&zygosity=" + doc.getString("zygosity") ;
+			}
+			data.add(graphUrl);
+			rowData.add(StringUtils.join(data, "\t"));
+		}
+		
+		return rowData;
+	}
+	
 	private List<String> composeProcedureDataTableRows(JSONObject json){
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");	
 		

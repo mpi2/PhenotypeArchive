@@ -813,7 +813,7 @@
 		var fileType = thisButt.text(); 
 		var dumpMode = thisButt.attr('class').indexOf('all') != -1 ? 'all' : 'page';    
 		
-		var url = baseUrl + '/export';	    		
+		var url = baseUrl + '/export';	
 		var sInputs = '';
 		var aParams = [];
 		for ( var k in conf ){

@@ -54,10 +54,12 @@ $(document).ready(function(){
 			    	    		//var controller = classString.substr(0, classString.indexOf(" "));
 			    	    		
 			    	    		var fileType = $(this).text();
-			    	    		var url = baseUrl + '/export';	    		
+			    	    		var url = baseUrl + '/export';	    	
+			    	    		alert("url  " +  url);
 			    	    		var sInputs = '';
 			    	    		for ( var k in conf ){
-			    	    			sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";	    			
+			    	    			sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";	   
+			    	    			console.log( "<input type='text' name='" + k + "' value='" + conf[k] + "'>");
 			    	    		}
 			    	    		sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
 			    	    		

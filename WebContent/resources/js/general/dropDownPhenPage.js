@@ -39,28 +39,47 @@ $(document).ready(function(){
 	}));
 
 	initFileExporter({
-		mgiGeneId: '${gene.id.accession}',
-		geneSymbol: '${gene.symbol}',
+		mpId: "MP:0001262",
 		externalDbId: 3,
-		panel: 'phenoAssoc',
-		fileName: 'phenotype_associations_of_gene-${gene.symbol}'
+		fileName: 'blah',
+		solrCoreName: 'genotype-phenotype',
+		dumpMode: 'all',
+		baseUrl: baseUrl,
+		gridFields: 'marker_symbol,allele_symbol,zygosity,sex,procedure_name,resource_fullname,parameter_stable_id,marker_accession_id, parameter_name,parameter_name',
+		params: "qf=auto_suggest&defType=edismax&wt=json&rows=100000&q=*:*&fq=(mp_term_id:\"MP:0001262\")"
 	});
 	function initFileExporter(conf){
 
 		$('button.fileIcon').click(function(){
 			var fileType = $(this).text();
-			var url = baseUrl + '/export';	    		
+			var url = baseUrl + '/export';	 
 			var sInputs = '';
 			for ( var k in conf ){
-				sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";	    			
+				sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";	 
 			}
 			sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
-
-			$("<form action='"+ url + "' method=get>" + sInputs + "</form>").appendTo('body').submit().remove();    		
+			  
+//			$("<form action='"+ url + "' method=get>" + sInputs + "</form>").appendTo('body').submit().remove(); 
+			var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");		
+			_doDataExport(url, form);
+			
 		}).corner('6px');	 
 	}  
 
-
+	 function _doDataExport(url, form){
+	    	$.ajax({
+				type: 'GET',
+				url: url,
+				cache: false,
+				data: $(form).serialize(),
+				success:function(data){    				
+					$(form).appendTo('body').submit().remove();
+				},
+				error:function(){
+					//alert("Oops, there is error during data export..");
+				}
+			});
+	 }
 	function refreshPhenoTable(newUrl){
 		//alert(newUrl);
 		$.ajax({
@@ -192,6 +211,7 @@ $(document).ready(function(){
 			}			    			 
 		}
 		newUrl+=output;
+		console.log("new URL: " + newUrl)
 		refreshPhenoTable(newUrl);
 		return false;
 	}
