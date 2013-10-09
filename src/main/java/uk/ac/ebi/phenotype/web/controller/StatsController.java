@@ -426,57 +426,27 @@ public class StatsController implements BeanFactoryAware {
 		if(start==null)start=0;
 		if(length==null)length=100;
 		@SuppressWarnings("unchecked")
-//		Map<String, String> config = (Map<String, String>) bf
-//				.getBean("globalConfiguration");
-//		String url=config.get("internalSolrUrl")+"/experiment/select?q=observationType:"+type+"&wt=json&indent=true&start="+start+"&rows="+length;
-//		net.sf.json.JSONObject result = JSONRestUtil.getResults(url);
-//		System.out.println(result.toString());
-//		JSONArray resultsArray=JSONRestUtil.getDocArray(result);
-//	
-//			System.out.println(start+" end="+length);
-//			 List<Map<String, String>> listWithStableId=new ArrayList<Map<String, String>>();
-//			 for(int i=0; i<resultsArray.size(); i++){
-//				 Map<String,String> map=new HashMap<String,String>();
-//				net.sf.json.JSONObject exp=resultsArray.getJSONObject(i);
-//				String statbleParamId=exp.getString("parameterStableId");
-//				int internalParamId=exp.getInt("parameterId");
-//				String accession=exp.getString("geneAccession");
-//				 System.out.println(accession+" parameter="+statbleParamId);
-//				// Parameter parameter=pipelineDAO.getParameterById(Integer.valueOf(parameterId));
-//				 map.put("paramStableId", statbleParamId);
-//				 map.put("accession",accession);
-//				 listWithStableId.add(map);
-//			 }
-			 
-				List<Map<String, String>> list=null;
-				if(type==ObservationType.time_series){
-				  list = timeSeriesStatisticsDAO.getListOfUniqueParametersAndGenes(start, length);
-				}
-				if(type==ObservationType.unidimensional){
-					if(parameterIds.size()>0){
-						for(String paramId: parameterIds){
-							List<Map<String, String>>tempList=unidimensionalStatisticsDAO.getListOfUniqueParametersAndGenes(start, length, paramId);
-							list.addAll(tempList);
-						}
-					}
-					  list = unidimensionalStatisticsDAO.getListOfUniqueParametersAndGenes(start, length);
-					}
-				if(type==ObservationType.categorical){
-					  list = categoricalStatsDao.getListOfUniqueParametersAndGenes(start, length);
-					}
-				
-				 List<Map<String, String>> listWithStableId=new ArrayList<Map<String, String>>();
-				 for(Map<String, String> row :list){
-					 Map<String,String> map=new HashMap<String,String>();
-					String parameterId=row.get("parameter_id");
-					String accession=row.get("accession");
-					log.debug(accession+" parameter="+parameterId);
-					 Parameter parameter=pipelineDAO.getParameterById(Integer.valueOf(parameterId));
-					 map.put("paramStableId",parameter.getStableId());
-					 map.put("accession",accession);
-					 listWithStableId.add(map);
-				 }
-
+		Map<String, String> config = (Map<String, String>) bf
+				.getBean("globalConfiguration");
+		String url=config.get("internalSolrUrl")+"/experiment/select?q=observationType:"+type+" AND biologicalSampleGroup:experimental"+"&wt=json&indent=true&start="+start+"&rows="+length;
+		net.sf.json.JSONObject result = JSONRestUtil.getResults(url);
+		System.out.println(result.toString());
+		JSONArray resultsArray=JSONRestUtil.getDocArray(result);
+	
+			System.out.println(start+" end="+length);
+			 List<Map<String, String>> listWithStableId=new ArrayList<Map<String, String>>();
+			 for(int i=0; i<resultsArray.size(); i++){
+				 Map<String,String> map=new HashMap<String,String>();
+				net.sf.json.JSONObject exp=resultsArray.getJSONObject(i);
+				String statbleParamId=exp.getString("parameterStableId");
+				int internalParamId=exp.getInt("parameterId");
+				String accession=exp.getString("geneAccession");
+				 System.out.println(accession+" parameter="+statbleParamId);
+				// Parameter parameter=pipelineDAO.getParameterById(Integer.valueOf(parameterId));
+				 map.put("paramStableId", statbleParamId);
+				 map.put("accession",accession);
+				 listWithStableId.add(map);
+			 }
 			 
 			 model.addAttribute("statsLinks", listWithStableId);
 		

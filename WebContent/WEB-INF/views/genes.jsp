@@ -177,12 +177,9 @@
 								<a href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=601;db=core;g=${gene.id.accession}">Compara&nbsp;View</a>
 					       </td>
 						</tr>
-						<%-- <tr class="odd">
-							<td>ENU Link:</td>
-							<td class="gene-data" id="enu_links">
-								<a href="https://databases.apf.edu.au/mutations/snpRow/list?mgiAccessionId=${gene.id.accession}">ENU</a>
-							 </td>
-						</tr> --%>
+						
+						 <tr class="odd" id="enu">
+						</tr> 
 					</tbody>
 				</table>
 			</div>
