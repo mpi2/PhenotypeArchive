@@ -294,14 +294,17 @@
   	    			var facetName = $(this).attr('class').replace('facetSubCat ',''); 
   	    			
   	    			if ( $(this).find('td').hasClass('unCollapse')){
-  	    				// hide all subfacet members
+  	    				// change arrow image
   	    				$(this).find('td').removeClass('unCollapse');
+  	    				// hide all its members
 	  	    			$(this).siblings('tr.'+facetName).addClass('trHidden');
   	    			}
   	    			else {  	    			
+  	    				// refresh all to collapsed first
 	  	    			table.find('tr.subFacet').addClass('trHidden');
 	  	    			table.find('tr.facetSubCat td').removeClass('unCollapse');	  	    			 	    			 	    			
 	  	    			  	    			
+	  	    			// change arrow image and reveal all members of the clicked facet
 	  	    			$(this).find('td').addClass('unCollapse');
 	  	    			$(this).siblings('tr.'+facetName).removeClass('trHidden');
   	    			}
