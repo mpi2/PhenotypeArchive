@@ -170,16 +170,16 @@ tr.subFacet td:nth-child(2) {
 table#geneFacetTbl tr.geneSubTypeTrCap {
 	cursor: pointer;
 }
-table#geneFacetTbl tr.geneSubTypeTrCap td {
+table#geneFacetTbl tr.geneSubTypeTrCap td, table#imagesFacetTbl tr.facetSubCat td{
 	padding-left: 15px !important;
 	background-image: url('../img/right.gif');
     background-repeat: no-repeat;
     background-position: 2px 50%; /*x,y*/	
 }
-table#geneFacetTbl tr.geneSubTypeTrCap td.unCollapse {
+table#geneFacetTbl tr.geneSubTypeTrCap td.unCollapse,  table#imagesFacetTbl tr.facetSubCat td.unCollapse{
 	background-image: url('../img/down.gif');
 }
-table#geneFacetTbl tr.geneSubTypeTr {
+table#geneFacetTbl tr.geneSubTypeTr, tr.trHidden {
 	display: none;
 }
 table#pipelineFacetTbl td[class^=procedure]:nth-child(1) {

@@ -159,6 +159,17 @@
   	    			
   	    			var aFacetFields = json.facet_counts.facet_fields; // eg. expName, symbol..
   	    			
+  	    			var aSubFacetNames = [];
+  	    			
+  	    			// do some sorting for facet names, but put Phenotype on front of list
+  	    			for ( var facetName in aFacetFields ){ 	
+  	    				if (facetName != 'higherLevelMpTermName' ){
+  	    					aSubFacetNames.push(facetName);
+  	    				}
+  	    			}	
+  	    			aSubFacetNames.sort();
+  	    			aSubFacetNames.unshift('higherLevelMpTermName');
+  	    			  	    			
   	    			var displayLabel = {
   	    								higherLevelMaTermName: 'Anatomy',
   	    								expName : 'Procedure',	    					            
@@ -166,8 +177,10 @@
   	    					            subtype: 'Gene'
   	    								};	    			    			    			
   	    				    			
-  	    			for ( var facetName in aFacetFields ){ 	    				
-  	    							
+  	    			//for ( var facetName in aFacetFields ){ 	   
+  	    			for ( var n=0; n<aSubFacetNames.length; n++){
+  	    				var facetName = aSubFacetNames[n];
+  	    				
   	    				for ( var i=0; i<aFacetFields[facetName].length; i+=2){    					  					
   	    					
   	    					var fieldName   = aFacetFields[facetName][i];
@@ -175,7 +188,8 @@
   	    					var catLabel    = displayLabel[facetName];
   	    					//console.log(fieldName + ' : '+ facetCount);
   	    					
-  	    					var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i, 'class':'subFacet'});
+  	    					var hiddenClass = facetName == 'higherLevelMpTermName' ? null : 'trHidden';
+  	    					var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i, 'class':'subFacet ' + hiddenClass + ' ' + facetName});
   	    					var displayName = facetName == 'higherLevelMpTermName' ? fieldName.replace(' phenotype', '') : fieldName;
   	    					var td1 = $('<td></td>').attr({'class': 'imgSubfacet', 'rel': facetCount}).text(displayName);
   	    				
@@ -205,8 +219,11 @@
   		    	    		var td2 = $('<td></td>').attr({'class': 'imgSubfacetCount'}).append(a);
   		    	    		
   		    	    		if ( i == 0 ){
-  	    						var catTr = $('<tr></tr>').attr({'class':'facetSubCat'});  	    						
-  	    						var catTd = $('<td></td>').attr({'colspan':3}).text(catLabel);
+  		    	    			
+  	    						var catTr = $('<tr></tr>').attr({'class':'facetSubCat '+ facetName});  	
+  	    						var collapeClass = (facetName == 'higherLevelMpTermName') ? 'unCollapse' : null;
+  	    						
+  	    						var catTd = $('<td></td>').attr({'colspan':3, 'class':collapeClass}).text(catLabel);
   	    						catTr.append(catTd);
   	    						table.append(catTr); 
   	    					}	
@@ -269,7 +286,27 @@
   	    			// highlight the item in facet
   	    			$(this).parent().find('td.imgSubfacet').addClass('highlight');
   	    			$.fn.composeFacetFilterControl($(this), self.options.data.q);
-  	    		});  	    		
+  	    		});  
+  	    		
+  	    		// collapsable subfacet items
+  	    		table.find('tr.facetSubCat').click(function(){
+  	    		
+  	    			var facetName = $(this).attr('class').replace('facetSubCat ',''); 
+  	    			
+  	    			if ( $(this).find('td').hasClass('unCollapse')){
+  	    				// hide all subfacet members
+  	    				$(this).find('td').removeClass('unCollapse');
+	  	    			$(this).siblings('tr.'+facetName).addClass('trHidden');
+  	    			}
+  	    			else {  	    			
+	  	    			table.find('tr.subFacet').addClass('trHidden');
+	  	    			table.find('tr.facetSubCat td').removeClass('unCollapse');	  	    			 	    			 	    			
+	  	    			  	    			
+	  	    			$(this).find('td').addClass('unCollapse');
+	  	    			$(this).siblings('tr.'+facetName).removeClass('trHidden');
+  	    			}
+  	    		});
+  	    		
   	    	}
   	    	
   	    	/*------------------------------------------------------------------------------------*/
