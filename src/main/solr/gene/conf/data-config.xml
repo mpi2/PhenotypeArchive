@@ -49,7 +49,7 @@
             <field column="escell" xpath="/response/result/doc/arr[@name='escell']/str" />
             <field column="ikmc_project" splitBy="," xpath="/response/result/doc/arr[@name='ikmc_project']/str" />  
             <field column="imits_consortium" xpath="/response/result/doc/str[@name='imits_consortium']" />                                   
-            <field column="status" xpath="/response/result/doc/str[@name='latest_project_status']" />
+            <field column="status" xpath="/response/result/doc/str[@name='status']" />
             <field column="imits_phenotype_started" xpath="/response/result/doc/arr[@name='imits_phenotype_started']/str" />
             
 			<field column="imits_phenotype_complete" xpath="/response/result/doc/arr[@name='imits_phenotype_complete']/str" />
