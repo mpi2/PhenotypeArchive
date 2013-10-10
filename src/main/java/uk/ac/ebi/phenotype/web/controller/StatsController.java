@@ -228,7 +228,7 @@ public class StatsController implements BeanFactoryAware {
 							//if increment flag true and increment unit is empty then display as unidimensional
 							//e.g. http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1098275?parameterId=ESLIM_002_001_002&gender=female&zygosity=heterozygote
 							//as per ticket https://www.ebi.ac.uk/panda/jira/browse/MPII-145
-							log.info("changing parameter type from time_series to unidimensional");
+							log.warn("changing parameter type from time_series to unidimensional");
 							observationTypeForParam=ObservationType.unidimensional;
 							
 						}
