@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -83,7 +84,7 @@ public class UnidimensionalChartAndTableProvider {
 		// get control data
 		for (ExperimentDTO experiment : experimentList) {
 			System.out.println("biolgocialModelId="+experiment.getExperimentalBiologicalModelId());
-			Map<String,Float> mouseIdsToColumnsMap=new HashMap<>();
+			Map<String,Integer> mouseIdsToColumnsMap=new HashMap<>();
 			BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(experiment.getExperimentalBiologicalModelId());
 					for (SexType sexType : experiment.getSexes()) { // one graph for each sex if
 													// unspecified in params to
@@ -121,14 +122,12 @@ public class UnidimensionalChartAndTableProvider {
 								
 								 Float dataPoint=control.getDataPoint();
 								controlCounts.add(new Float(dataPoint));
-								Float mouseColumn=new Float(0);
+								Integer mouseColumn=null;
 								if(mouseIdsToColumnsMap.containsKey(control.getExternalSampleId())){
 									mouseColumn=mouseIdsToColumnsMap.get(control.getExternalSampleId());
 								}else {
-									int columInt=mouseIdsToColumnsMap.size()+1;
-									Float currentColumnCount=new Float(columInt);
-									mouseColumn=currentColumnCount;
-									mouseIdsToColumnsMap.put(control.getExternalSampleId(),currentColumnCount);
+									 mouseColumn=mouseIdsToColumnsMap.size();
+									mouseIdsToColumnsMap.put(control.getExternalSampleId(),mouseColumn);
 								}
 								MouseDataPoint mDataPoint=new MouseDataPoint(control.getExternalSampleId(), dataPoint,  mouseColumn);
 					 			logger.warn("controlMouseDataPoint="+mDataPoint);
@@ -170,14 +169,13 @@ public class UnidimensionalChartAndTableProvider {
 									
 									 Float dataPoint=expDto.getDataPoint();
 									 		if( docSexType.equals(sexType)){
-									 			Float mouseColumn=new Float(0);
+									 			Integer mouseColumn=null;
 												if(mouseIdsToColumnsMap.containsKey(expDto.getExternalSampleId())){
 													mouseColumn=mouseIdsToColumnsMap.get(expDto.getExternalSampleId());
 												}else {
-													int columInt=mouseIdsToColumnsMap.size()+1;
-													Float currentColumnCount=new Float(columInt);
-													mouseColumn=currentColumnCount;
-													mouseIdsToColumnsMap.put(expDto.getExternalSampleId(),currentColumnCount);
+													mouseColumn=mouseIdsToColumnsMap.size();
+													
+													mouseIdsToColumnsMap.put(expDto.getExternalSampleId(),mouseColumn);
 												}
 									 			mutantCounts.add(new Float(dataPoint));
 									 			logger.debug("adding mutant point="+dataPoint);
@@ -445,7 +443,7 @@ public class UnidimensionalChartAndTableProvider {
 	private ChartData processScatterChartData(String title, SexType sexType,
 			Parameter parameter, Set<ZygosityType> set,
 			List<String> zyList, List<List<MouseDataPoint>> mouseDataPointSets,
-			BiologicalModel expBiologicalModel, Map<String,Float>mouseIdToColumn) {
+			BiologicalModel expBiologicalModel, Map<String, Integer> mouseIdsToColumnsMap) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
 		// List<ChartData> chartsAndTables = new ArrayList<ChartData>();
 		Float max = new Float(0);
@@ -502,7 +500,7 @@ public class UnidimensionalChartAndTableProvider {
 		}
 		String yAxisTitle = parameterUnit;
 
-		List<List<List<Float>>> scatterColumns = new ArrayList<List<List<Float>>>();// for
+		List<List<MouseDataPoint>> scatterColumns = new ArrayList<List<MouseDataPoint>>();// for
 		// example
 		// there
 		// are
@@ -520,17 +518,15 @@ public class UnidimensionalChartAndTableProvider {
 		// for each set of raw data 0 being control data and 1 being mutant for
 		// specific gender we want a set of value pairs for x and y axis
 		for (List<MouseDataPoint> listOfFloats : mouseDataPointSets) {
-			List<List<Float>> controlOrMutantSet = new ArrayList<List<Float>>();
-			int columnIndex = 0;// we want to add observation/scatter column
-								// every
+			List<MouseDataPoint> controlOrMutantSet = new ArrayList<MouseDataPoint>();
+			
 			for (MouseDataPoint dataPoint : listOfFloats) {
-				List<Float> xYPair = new ArrayList<Float>();
+				//List<Float> xYPair = new ArrayList<Float>();
 				String mouseIdString=dataPoint.getMouseId();
 				System.out.println("mouseId="+mouseIdString);
-				xYPair.add(dataPoint.getColumn());
-				xYPair.add(dataPoint.getDataPoint());
-				controlOrMutantSet.add(xYPair);
-				columnIndex++;
+//				xYPair.add(dataPoint.getColumn());
+//				xYPair.add(dataPoint.getDataPoint());
+				controlOrMutantSet.add(dataPoint);
 			}
 			scatterColumns.add(controlOrMutantSet);
 
@@ -538,7 +534,7 @@ public class UnidimensionalChartAndTableProvider {
 
 		String chartString = createScatterPlotChartsString(categoriesList,
 				title, sexType, yAxisTitle, scatterColumns,
-				mouseIdToColumn);
+				mouseIdsToColumnsMap);
 		// continuousCharts.add(chartString);
 		ChartData cNTable = new ChartData();
 		// cNTable.setTable(table);
@@ -695,8 +691,8 @@ public class UnidimensionalChartAndTableProvider {
 	private String createScatterPlotChartsString(
 			List<String> xAxisCategoriesList, String title, SexType sex,
 			String yAxisTitle,
-			List<List<List<Float>>> scatterColumns,
-			Map<String, Float> mouseIdToColumn) {
+			List<List<MouseDataPoint>> scatterColumns,
+			Map<String, Integer> mouseIdToColumn) {
 		String xAxisTitle = "Mouse";
 		JSONArray categoriesArray = new JSONArray(xAxisCategoriesList);
 		String categories = categoriesArray.toString();// "['WT', 'WT', 'HOM', 'HOM']";
@@ -725,9 +721,21 @@ public class UnidimensionalChartAndTableProvider {
         		 
 		List<String> mouseIdStrings=new ArrayList<>();
 		//mouse id strings maybe from keys of Map<String, List<Float>
-		for(String key: mouseIdToColumn.keySet()) {
-			mouseIdStrings.add(key);
+//		for(String key: mouseIdToColumn.keySet()) {
+//			mouseIdStrings.add(key);
+//		}
+		//so we know that the columns should equal the number of mouseIds we have
+		for(int column=0; column<mouseIdToColumn.keySet().size(); column++) {
+			//get mice id for column index 0 then 1 etc and add to the mouseId list so it shoud correspond to the correct columns
+			for(String key: mouseIdToColumn.keySet()) {
+				int value=mouseIdToColumn.get(key);
+				if(value==column) {
+					System.out.println("column found "+column + "mouseId="+key);
+					mouseIdStrings.add(key);
+					}
+			}
 		}
+		
 		JSONArray mouseIdArrayJson = new JSONArray(mouseIdStrings);
 		//then we need the values for each mouse in order in an array for each contol or zygosity set WT, HOM, HET is our xAxisCategories list
 		String seriesString=" series: [ ";
@@ -737,9 +745,14 @@ public class UnidimensionalChartAndTableProvider {
 					+ xAxisCategory+" ' "
 				//	+ "', color: 'rgba(223, 83, 83, .5)' "
 					+", "
-					+ "data:"
-					+ new JSONArray(scatterColumns.get(i))
-					+ "}, ";
+					+ "data: [";
+					
+					String data="";
+					for(MouseDataPoint mouseDataPoint: scatterColumns.get(i)) {
+						data+="["+mouseDataPoint.getColumn() +"," +mouseDataPoint.getDataPoint()+"],"; 
+					}
+					seriesString+=data;
+					seriesString+= " ] }, ";
 				
 			i++;
 			}

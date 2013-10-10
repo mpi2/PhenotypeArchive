@@ -3,13 +3,13 @@ package uk.ac.ebi.phenotype.stats;
 public class MouseDataPoint {
 	private String mouseId;
 	private Float dataPoint;
-	private Float column;//store the column index for this point which is mapped to the mouseId and starts at 0 for first column/mouse
+	private Integer column;//store the column index for this point which is mapped to the mouseId and starts at 0 for first column/mouse
 
-	public Float getColumn() {
+	public int getColumn() {
 		return column;
 	}
 
-	public void setColumn(Float column) {
+	public void setColumn(int column) {
 		this.column = column;
 	}
 
@@ -19,7 +19,7 @@ public class MouseDataPoint {
 	}
 
 	public MouseDataPoint(String externalSampleId, Float dataPoint2,
-			Float mouseColumn) {
+			int mouseColumn) {
 		this(externalSampleId, dataPoint2);
 		this.column=mouseColumn;
 	}
