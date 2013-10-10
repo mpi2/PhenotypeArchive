@@ -229,7 +229,7 @@
   	    					}	
   		    	    		
   		    	    		var coreField = 'images|'+ facetName + '|' + displayName + '|' + facetCount;	
-  		        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField}); 		    	    			    		
+  		        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField, 'class':facetName}); 		    	    			    		
   		        			var td0 = $('<td></td>').append(chkbox);
   		    	    		table.append(tr.append(td0, td1, td2));		    	    		
   	    				}
@@ -318,9 +318,10 @@
   	    		
     		if ( self.options.data.fq.match(/.*/) ){ 	
     			$.fn.setDefaultImgSwitcherConf();  
-    		
-    			//var fields = MPI2.searchAndFacetConfig.facetParams[facetDivId].subFacetFqFields;       	
-    			$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'imagesFacet');
+    			//console.log('reload');
+    			    			
+    			var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority)
+    			$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'imagesFacet', pageReload);
     	
     			// now load dataTable	    		
     			$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'imagesFacet'); 

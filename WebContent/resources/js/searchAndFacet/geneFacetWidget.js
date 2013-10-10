@@ -246,7 +246,7 @@
 					var type = mkr_facets[i];
 					var count = mkr_facets[i+1];	
 					var coreField = 'gene|marker_type|';						
-					var chkbox = $('<input></input>').attr({'class':'subtype', 'type': 'checkbox', 'rel': coreField + type + '|' + count});
+					var chkbox = $('<input></input>').attr({'class':'marker_type', 'type': 'checkbox', 'rel': coreField + type + '|' + count});
 					var td0 = $('<td></td>').append(chkbox);
 					var tr = $('<tr></tr>').attr({'class':'geneSubTypeTr'});
 					var td1 = $('<td></td>').attr({'class':'geneSubtype geneSubfacet', 'rel':count}).text(type);
@@ -269,16 +269,16 @@
 	    		$('div#geneFacet div.facetCatList').html(table);
 	    			
 	    		// gene subtype is collapsed by default
-	    		$('tr.geneSubTypeTrCap').toggle(
-	    			function(){
-	    				$('tr.geneSubTypeTr').show();
-	    				$(this).find('td').addClass('unCollapse');
-	    			},
-	    			function(){
+	    		$('tr.geneSubTypeTrCap').click(function(){
+	    			if ( $(this).find('td').hasClass('unCollapse')){
 	    				$('tr.geneSubTypeTr').hide();
 	    				$(this).find('td').removeClass('unCollapse');
 	    			}
-	    		);	    		    		
+	    			else {
+	    				$('tr.geneSubTypeTr').show();	    			
+	    				$(this).find('td').addClass('unCollapse');
+	    			}
+	    		});	    		    		
 	    			    		
 	    		$('table#geneFacetTbl td.geneSubfacetCount a').click(function(){
 	    		
@@ -324,7 +324,8 @@
 	    		
 	    		self.options.data.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');
 	    		
-	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'geneFacet');
+	    		var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority)
+	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'geneFacet', pageReload);
 	    		
 	    		// now load dataTable    		
 	    		$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'geneFacet'); 

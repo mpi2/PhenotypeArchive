@@ -39,20 +39,23 @@
 			$(window).bind("hashchange", function() {
 								
 				var url = $.param.fragment();				
-				//console.log('hash change URL: '+ '/search#' + url);
+				console.log('hash change URL: '+ '/search#' + url);
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 				
 				if ( typeof oHashParams.q === 'undefined' ){
 					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');					
 				}
 				
-				// keyword search has no fq in url when hash change is detected
+				// search by keyword (user's input) has no fq in url when hash change is detected
 				if (oHashParams.fq ){				
 					// back/forward button navigation: 
 					// make sure checkboxes are updated according to url
 					$.fn.removeFacetFilter(oHashParams.coreName);
-					var aFields = MPI2.searchAndFacetConfig.facetParams[oHashParams.coreName+'Facet'].subFacetFqFields;				
-					$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet', aFields);				
+					var aFields = MPI2.searchAndFacetConfig.facetParams[oHashParams.coreName+'Facet'].subFacetFqFields;
+					
+					var pageReload;  // this controls checking which subfacet to open (ie, show by priority). 
+									 // Set to undefined for no checking here, as we are now capturing hash change and not page reload
+					$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet', pageReload);				
 					
 					$.fn.loadDataTable(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet'); 
 				}
