@@ -40,33 +40,52 @@ $(document).ready(function(){
 			    			class: 'fileIcon'
 			    		}));
 			    		
-			    		initFileExporter({
-							mgiGeneId: '${gene.id.accession}',
-							geneSymbol: '${gene.symbol}',
-							externalDbId: 3,
-							panel: 'phenoAssoc',
-							fileName: 'phenotype_associations_of_gene-${gene.symbol}'
-						});
-			    		function initFileExporter(conf){
-			    			
-			    	    	$('button.fileIcon').click(function(){
-			    	    		var classString = $(this).attr('class');	    		
-			    	    		//var controller = classString.substr(0, classString.indexOf(" "));
-			    	    		
-			    	    		var fileType = $(this).text();
-			    	    		var url = baseUrl + '/export';	    	
-			    	    		alert("url  " +  url);
-			    	    		var sInputs = '';
-			    	    		for ( var k in conf ){
-			    	    			sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";	   
-			    	    			console.log( "<input type='text' name='" + k + "' value='" + conf[k] + "'>");
-			    	    		}
-			    	    		sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
-			    	    		
-			    	    		$("<form action='"+ url + "' method=get>" + sInputs + "</form>").appendTo('body').submit().remove();    		
-			    	    	}).corner('6px');	 
-			    	    }  
+			    		var mgiGeneId = window.location.href.split("/")[window.location.href.split("/").length-1];
+			    		alert(mgiGeneId);
 			    		
+			    		initFileExporter({
+			    			mgiGeneId: mgiGeneId,
+			    			externalDbId: 3,
+			    			fileName: 'phenotype_associations_for_'+mgiGeneId.replace(/:/g,'_'),
+			    			solrCoreName: 'genotype-phenotype',
+			    			dumpMode: 'all',
+			    			baseUrl: baseUrl,
+			    			page:"gene",
+			    			gridFields: 'marker_symbol,allele_symbol,zygosity,sex,procedure_name,resource_fullname,parameter_stable_id,marker_accession_id, parameter_name,parameter_name,mp_term_name',
+			    			params: "qf=auto_suggest&defType=edismax&wt=json&rows=100000&q=*:*&fq=(marker_accession_id:\"" + mgiGeneId + "\")"
+			    		});
+			    		function initFileExporter(conf){
+
+			    			$('button.fileIcon').click(function(){
+			    				var fileType = $(this).text();
+			    				var url = baseUrl + '/export';	 
+			    				var sInputs = '';
+			    				for ( var k in conf ){
+			    					sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";	 
+			    				}
+			    				sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
+			    				  
+//			    				$("<form action='"+ url + "' method=get>" + sInputs + "</form>").appendTo('body').submit().remove(); 
+			    				var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");		
+			    				_doDataExport(url, form);
+			    				
+			    			}).corner('6px');	 
+			    		}  
+
+			    		 function _doDataExport(url, form){
+			    		    	$.ajax({
+			    					type: 'GET',
+			    					url: url,
+			    					cache: false,
+			    					data: $(form).serialize(),
+			    					success:function(data){    				
+			    						$(form).appendTo('body').submit().remove();
+			    					},
+			    					error:function(){
+			    						//alert("Oops, there is error during data export..");
+			    					}
+			    				});
+			    		 }
 			    		
 			    		function refreshPhenoTable(newUrl){
 			    			 //alert(newUrl);

@@ -131,7 +131,7 @@ public class FileExportController {
 													
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
 				List<String> rows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);
-
+				
 				// Remove the title row (row 0) from the list and assign it to
 				// the string array for the spreadsheet
 				String[] titles = rows.remove(0).split("\t");				
@@ -215,16 +215,18 @@ public class FileExportController {
 	public String[][] composeXlsTableData(List<String> rows) {
 
 		int rowNum = rows.size();// - 1; // omit title row
+		System.out.println("*" + rows.get(0));
 		int colNum = (rows.size() > 0) ? rows.get(0).split("\t").length : 0;
-		
+		System.out.println("COL NO " + colNum + " " + rows.get(0));
 		String[][] tableData = new String[rowNum][colNum];
 		
 		// add one to omit title row
 		for( int i=0; i<rowNum; i++ ){
 
 			String[] colVals = rows.get(i).split("\t");
-
-			for (int j=0; j<colVals.length; j++) {				
+			System.out.println(rows.get(i));
+			for (int j=0; j<colVals.length; j++) {	
+				System.out.println(colVals[j]);
 				tableData[i][j] = colVals[j];
 			}
 		}
@@ -256,40 +258,69 @@ public class FileExportController {
 		return rows;
 	}
 	
-	private List<String> composeGPDataTableRows(JSONObject json, HttpServletRequest request){
+	
+	// Export for tables on gene  & phenotype page
+	private List<String> composeGPDataTableRows(JSONObject json, HttpServletRequest request){ //ilinca
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");	
 		List<String> rowData = new ArrayList<String>();
 		// add respective table header 
-		rowData.add("Gene\tAllele\tZygosity\tSex\tProcedure/Parameter\tSource\tGraph"); // copied from the column names in 
-		for (int i=0; i<docs.size(); i++) {			
-			List<String> data = new ArrayList<String>();
-			JSONObject doc = docs.getJSONObject(i);
-			System.out.println(doc);
-			data.add(doc.getString("marker_symbol"));
-			if (doc.containsKey("allele_symbol"))
-				data.add(doc.getString("allele_symbol"));
-			else data.add("");
-			data.add(doc.getString("zygosity"));
-			data.add(doc.getString("sex"));
-			data.add(doc.getString("procedure_name") + "/" + doc.getString("parameter_name"));
-			data.add(doc.getString("resource_fullname"));
-			//TODO add graph link
-			//<c:if test="${phenotype.dataSourceName eq 'EuroPhenome' }">
-			//	<a href="${baseUrl}/stats/genes/${phenotype.gene.id.accession}?parameterId=${phenotype.parameter.stableId}
-			//		<c:if test="${fn:length(phenotype.sexes) eq 1}">&gender=${phenotype.sexes[0]}</c:if>
-			//		&zygosity=${phenotype.zygosity}"><img src="${baseUrl}/img/icon_stats.png" alt="Graph" /></a></c:if>
-			//TODO automatically 
-			String graphUrl = "";
-			System.out.println("BASE URL " + config.get("baseUrl"));
-			if ((doc.getString("resource_fullname")).equalsIgnoreCase("EuroPhenome")){ // only show links for Europhenome
-				graphUrl = config.get("baseUrl")+"/stats/genes/" + doc.getString("marker_accession_id") + "?parameterId=" ;
-				graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
-				graphUrl += "&zygosity=" + doc.getString("zygosity") ;
+		// from the phenotype core we export both the table on gene & phenotype page so we need to check on which file we are
+		if (request.getParameter("page").equalsIgnoreCase("gene")){
+			rowData.add("Phenotype\tAllele\tZygosity\tSex\tProcedure/Parameter\tSource\tGraph"); 
+			for (int i=0; i<docs.size(); i++) {			
+				List<String> data = new ArrayList<String>();
+				JSONObject doc = docs.getJSONObject(i);
+				if (!doc.getString("resource_fullname").equalsIgnoreCase("International Mouse Phenotyping Consortium")){
+					System.out.println(doc);
+					data.add(doc.getString("mp_term_name"));
+					if (doc.containsKey("allele_symbol"))
+						data.add(doc.getString("allele_symbol"));
+					else data.add("");
+					data.add(doc.getString("zygosity"));
+					data.add(doc.getString("sex"));
+					data.add(doc.getString("procedure_name") + "/" + doc.getString("parameter_name"));
+					data.add(doc.getString("resource_fullname"));
+					String graphUrl = "\"\"";
+					System.out.println("BASE URL " + config.get("baseUrl"));
+					if ((doc.getString("resource_fullname")).equalsIgnoreCase("EuroPhenome")){ // only show links for Europhenome
+						graphUrl = config.get("baseUrl")+"/stats/genes/" + doc.getString("marker_accession_id") + "?parameterId=" ;
+						graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
+						graphUrl += "&zygosity=" + doc.getString("zygosity") ;
+					}
+					data.add(graphUrl);
+					rowData.add(StringUtils.join(data, "\t"));
+				}
 			}
-			data.add(graphUrl);
-			rowData.add(StringUtils.join(data, "\t"));
 		}
-		
+		else if (request.getParameter("page").equalsIgnoreCase("phenotype")){
+			rowData.add("Gene\tAllele\tZygosity\tSex\tProcedure/Parameter\tSource\tGraph"); 
+			for (int i=0; i<docs.size(); i++) {		
+				JSONObject doc = docs.getJSONObject(i);
+				// for some reason we need to filter out the IMPC entries.
+				if (!doc.getString("resource_fullname").equalsIgnoreCase("International Mouse Phenotyping Consortium")){
+					List<String> data = new ArrayList<String>();
+					System.out.println(doc);
+					data.add(doc.getString("marker_symbol"));
+					if (doc.containsKey("allele_symbol"))
+						data.add(doc.getString("allele_symbol"));
+					else data.add("");
+					data.add(doc.getString("zygosity"));
+					data.add(doc.getString("sex"));
+					data.add(doc.getString("procedure_name") + "/" + doc.getString("parameter_name"));
+					data.add(doc.getString("resource_fullname"));
+					String graphUrl = "\"\"";
+					System.out.println("BASE URL " + config.get("baseUrl"));
+					//TODO check, this might need to change
+					if ((doc.getString("resource_fullname")).equalsIgnoreCase("EuroPhenome")){ // only show links for Europhenome
+						graphUrl = config.get("baseUrl")+"/stats/genes/" + doc.getString("marker_accession_id") + "?parameterId=" ;
+						graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
+						graphUrl += "&zygosity=" + doc.getString("zygosity") ;
+					}
+					data.add(graphUrl);
+					rowData.add(StringUtils.join(data, "\t"));
+				}
+			}
+		}
 		return rowData;
 	}
 	

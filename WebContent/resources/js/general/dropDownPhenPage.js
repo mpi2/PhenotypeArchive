@@ -44,15 +44,18 @@ $(document).ready(function(){
 	initFileExporter({
 		mpId: "\"" + mpId+ "\"",
 		externalDbId: 3,
-		fileName: 'phen_data'+mpId,
+		fileName: 'gene_variants_with_phen_'+mpId.replace(/:/g,'_'),
 		solrCoreName: 'genotype-phenotype',
 		dumpMode: 'all',
 		baseUrl: baseUrl,
+		page:"phenotype",
 		gridFields: 'marker_symbol,allele_symbol,zygosity,sex,procedure_name,resource_fullname,parameter_stable_id,marker_accession_id, parameter_name,parameter_name',
 		params: "qf=auto_suggest&defType=edismax&wt=json&rows=100000&q=*:*&fq=(mp_term_id:\"" + mpId + "\")"
 	});
 	function initFileExporter(conf){
 		$('button.fileIcon').click(function(){
+			alert(1);
+			alert($(this).text());
 			var fileType = $(this).text();
 			var url = baseUrl + '/export';	 
 			var sInputs = '';
