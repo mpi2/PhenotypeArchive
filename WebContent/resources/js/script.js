@@ -63,6 +63,50 @@ MDOC.ma = {
 };
 
 
+
+window.jQuery('document').ready(function(){
+
+        window.jQuery('input#userInput').val('');  // clears input when pages loads
+
+        // search via ENTER
+        window.jQuery('input#userInput').keyup(function (e) {
+            if (e.keyCode == 13) { // user hits enter
+               
+                var input = $('input#userInput').val();
+	    	    //console.log('user input search: ' + input);
+	    	    if  (input == ''){
+	    		   document.location.href = baseUrl + '/search';
+	    	    }
+	    	    else {
+	    		   document.location.href = baseUrl + '/search?q=' + input; // handed over to hash change
+	    		   console.log(window.location.search);
+	    	    }
+            }
+        }).click(function(){
+                window.jQuery(this).val(''); // clears input
+        });
+
+        // search via button click
+        window.jQuery('button#acSearch').click(function(){
+
+                 var input = $('input#userInput').val();
+		         //console.log('button search in search and facet= ' + input);
+		         if (input == ''){
+    		         document.location.href = baseUrl + '/search';
+    	         }
+    	         else {
+    		         document.location.href = baseUrl + '/search?q=' + input; // handed over to hash change     		
+    	         }	                
+        });
+
+
+       // dynamically readjusted position of autosuggest dropdown list due to elastic design of page
+       window.jQuery(window).resize(function(){
+            var pos = window.jQuery('input#userInput').offset();
+            window.jQuery('ul.ui-autocomplete').css({'position':'absolute', 'top':pos.top + 26, 'left': pos.left});
+       });
+});
+
 /**
  * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
  * 
@@ -85,6 +129,9 @@ MDOC.ma = {
  * 
  */
 
+if ( typeof $ === 'undefined'){
+	$ = window.jQuery;
+}
 
 if(typeof(window.MPI2) === 'undefined') {
     window.MPI2 = {};
@@ -186,7 +233,7 @@ config.facetParams = {
 		filterParams: {fq:'marker_type:* -marker_type:"heritable phenotypic marker"',		 
 			      qf:"marker_symbol^100.0 human_gene_symbol^90.0 marker_name^10.0 marker_synonym mgi_accession_id auto_suggest",			     
 			      bq:'marker_type:"protein coding gene"^100'},
-		srchParams: $.extend({},				
+		srchParams : $.extend({},				
 				 	commonSolrParams	 	
 					),
 		subFacet_filter_params: '', // set by widget on the fly
@@ -13282,7 +13329,7 @@ f.fn.dataTableExt.fnVersionCheck("1.9.0")?f.fn.dataTableExt.aoFeatures.push({fnI
     	return hashParams;
     }
     
-    $.fn.fetchEmptyTable = function(theadStr, colNum, id){
+    $.fn.fetchEmptyTable = function(theadStr, colNum, id, pageReload){
     	
     	var table = $('<table></table>').attr({'id':id});
     	var thead = theadStr;
@@ -13295,7 +13342,7 @@ f.fn.dataTableExt.fnVersionCheck("1.9.0")?f.fn.dataTableExt.aoFeatures.push({fnI
     	return table;
     }  
        
-    $.fn.parseUrlForFacetCheckboxAndTermHighlight = function(q, fqStr, facet, aFields){
+    $.fn.parseUrlForFacetCheckboxAndTermHighlight = function(q, fqStr, facet, pageReload){
     	var self = this;
     	    
     	fqStr = fqStr.replace(MPI2.searchAndFacetConfig.facetParams[facet].filterParams.fq, '');
@@ -13306,6 +13353,7 @@ f.fn.dataTableExt.fnVersionCheck("1.9.0")?f.fn.dataTableExt.aoFeatures.push({fnI
 		var pat = '(\\b\\w*\\b):"([a-zA-Z0-9_\/ ]*)"';		
 		var regex = new RegExp(pat, "gi");		    	
 		var result;
+		var objList = [];
     	while ( result = regex.exec(fqStr) ) {		    		
     		var wantStr = result[1]+ '|' + result[2];
     		    	
@@ -13325,6 +13373,7 @@ f.fn.dataTableExt.fnVersionCheck("1.9.0")?f.fn.dataTableExt.aoFeatures.push({fnI
     		else {    		
     			obj.attr('checked', true);
     		}
+    		objList.push(obj);    		
     		
     		// highlight this facet term
     		var aObjs = obj.parent().siblings('td');    		
@@ -13333,7 +13382,73 @@ f.fn.dataTableExt.fnVersionCheck("1.9.0")?f.fn.dataTableExt.aoFeatures.push({fnI
     		// also add to unordered list
     		$.fn.addFacetFilter(obj, q);
     	} 
+
+		// Work out which subfacet needs to be open:
+		// This is for gene and images cores only where there are collapsed subfacets by default.
+		// Ie, if a particular subfacet was open, we need to reopen it now when page reloads
+    	// But ignore this bit if we are dealing with hash change in url
+    	if ( typeof pageReload != 'undefined' ){
+    		_setFacetToOpen(objList);
+    	}
     }
+    
+    function _setFacetToOpen(objList){
+    	
+    	var aSubFacetNames = [];
+    	// sort first for priority
+    	var seenMP;
+    	for (var i=0; i<objList.length; i++){
+    		if ( objList[i].attr('class') == 'higherLevelMpTermName' ){
+				seenMP = true;
+			}
+			else {
+	    		aSubFacetNames.push(objList[i].attr('class'));	    	
+			}
+    	}  
+    	aSubFacetNames.sort();  	
+    	if ( seenMP ){
+    		aSubFacetNames.unshift('higherLevelMpTermName');
+    	}    	   	
+    	
+    	// only for gene and images facets
+    	for (var i=0; i<aSubFacetNames.length; i++){
+    		var subFacetName = aSubFacetNames[i];
+    		
+    		if ( subFacetName == 'marker_type' ){
+    			$('tr.geneSubTypeTrCap').find('td').addClass('unCollapse');  
+    			$('tr.geneSubTypeTr').show();  			
+    		}    		
+    		else {
+    			// change arrow image to collapse and make all images subfacets hidden
+        		$('table#imagesFacetTbl').find('tr.subFacet').addClass('trHidden');
+        		$('table#imagesFacetTbl').find('tr.facetSubCat td').removeClass('unCollapse');        		     			  	    			
+      			
+    			if (subFacetName == 'higherLevelMpTermName'){
+    				_arrowSwitch(subFacetName);    						
+    			} 
+    			else if (subFacetName == 'expName'){
+    				_arrowSwitch(subFacetName);  			
+	    		}
+	    		else if (subFacetName == 'higherLevelMaTermName'){
+	    			_arrowSwitch(subFacetName); 
+	    		}	    		
+	    		else if (subFacetName == 'subtype'){
+	    			_arrowSwitch(subFacetName);  		
+	    		}
+	    		
+	    		$('tr.' + subFacetName).removeClass('trHidden');
+	    		break;
+	    	}    		
+    	}    	
+    }
+    
+    function _arrowSwitch(subFacetName){
+    	$('tr.facetSubCat').each(function(){
+			if ( $(this).hasClass(subFacetName) ){
+				$(this).find('td').addClass('unCollapse'); 
+			}
+		}); 
+    }   
     
     function _prepare_resultMsg_and_dTableSkeleton(q, fqStr, facetDivId){
     
@@ -13671,7 +13786,7 @@ f.fn.dataTableExt.fnVersionCheck("1.9.0")?f.fn.dataTableExt.aoFeatures.push({fnI
 		var fileType = thisButt.text(); 
 		var dumpMode = thisButt.attr('class').indexOf('all') != -1 ? 'all' : 'page';    
 		
-		var url = baseUrl + '/export';	    		
+		var url = baseUrl + '/export';	
 		var sInputs = '';
 		var aParams = [];
 		for ( var k in conf ){
@@ -14422,7 +14537,7 @@ $.extend( $.fn.dataTableExt.oSort, {
 					var type = mkr_facets[i];
 					var count = mkr_facets[i+1];	
 					var coreField = 'gene|marker_type|';						
-					var chkbox = $('<input></input>').attr({'class':'subtype', 'type': 'checkbox', 'rel': coreField + type + '|' + count});
+					var chkbox = $('<input></input>').attr({'class':'marker_type', 'type': 'checkbox', 'rel': coreField + type + '|' + count});
 					var td0 = $('<td></td>').append(chkbox);
 					var tr = $('<tr></tr>').attr({'class':'geneSubTypeTr'});
 					var td1 = $('<td></td>').attr({'class':'geneSubtype geneSubfacet', 'rel':count}).text(type);
@@ -14445,16 +14560,16 @@ $.extend( $.fn.dataTableExt.oSort, {
 	    		$('div#geneFacet div.facetCatList').html(table);
 	    			
 	    		// gene subtype is collapsed by default
-	    		$('tr.geneSubTypeTrCap').toggle(
-	    			function(){
-	    				$('tr.geneSubTypeTr').show();
-	    				$(this).find('td').addClass('unCollapse');
-	    			},
-	    			function(){
+	    		$('tr.geneSubTypeTrCap').click(function(){
+	    			if ( $(this).find('td').hasClass('unCollapse')){
 	    				$('tr.geneSubTypeTr').hide();
 	    				$(this).find('td').removeClass('unCollapse');
 	    			}
-	    		);	    		    		
+	    			else {
+	    				$('tr.geneSubTypeTr').show();	    			
+	    				$(this).find('td').addClass('unCollapse');
+	    			}
+	    		});	    		    		
 	    			    		
 	    		$('table#geneFacetTbl td.geneSubfacetCount a').click(function(){
 	    		
@@ -14500,7 +14615,8 @@ $.extend( $.fn.dataTableExt.oSort, {
 	    		
 	    		self.options.data.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');
 	    		
-	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'geneFacet');
+	    		var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority)
+	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'geneFacet', pageReload);
 	    		
 	    		// now load dataTable    		
 	    		$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'geneFacet'); 
@@ -15461,6 +15577,17 @@ $.extend( $.fn.dataTableExt.oSort, {
   	    			
   	    			var aFacetFields = json.facet_counts.facet_fields; // eg. expName, symbol..
   	    			
+  	    			var aSubFacetNames = [];
+  	    			
+  	    			// do some sorting for facet names, but put Phenotype on front of list
+  	    			for ( var facetName in aFacetFields ){ 	
+  	    				if (facetName != 'higherLevelMpTermName' ){
+  	    					aSubFacetNames.push(facetName);
+  	    				}
+  	    			}	
+  	    			aSubFacetNames.sort();
+  	    			aSubFacetNames.unshift('higherLevelMpTermName');
+  	    			  	    			
   	    			var displayLabel = {
   	    								higherLevelMaTermName: 'Anatomy',
   	    								expName : 'Procedure',	    					            
@@ -15468,8 +15595,10 @@ $.extend( $.fn.dataTableExt.oSort, {
   	    					            subtype: 'Gene'
   	    								};	    			    			    			
   	    				    			
-  	    			for ( var facetName in aFacetFields ){ 	    				
-  	    							
+  	    			//for ( var facetName in aFacetFields ){ 	   
+  	    			for ( var n=0; n<aSubFacetNames.length; n++){
+  	    				var facetName = aSubFacetNames[n];
+  	    				
   	    				for ( var i=0; i<aFacetFields[facetName].length; i+=2){    					  					
   	    					
   	    					var fieldName   = aFacetFields[facetName][i];
@@ -15477,7 +15606,8 @@ $.extend( $.fn.dataTableExt.oSort, {
   	    					var catLabel    = displayLabel[facetName];
   	    					//console.log(fieldName + ' : '+ facetCount);
   	    					
-  	    					var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i, 'class':'subFacet'});
+  	    					var hiddenClass = facetName == 'higherLevelMpTermName' ? null : 'trHidden';
+  	    					var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i, 'class':'subFacet ' + hiddenClass + ' ' + facetName});
   	    					var displayName = facetName == 'higherLevelMpTermName' ? fieldName.replace(' phenotype', '') : fieldName;
   	    					var td1 = $('<td></td>').attr({'class': 'imgSubfacet', 'rel': facetCount}).text(displayName);
   	    				
@@ -15507,14 +15637,17 @@ $.extend( $.fn.dataTableExt.oSort, {
   		    	    		var td2 = $('<td></td>').attr({'class': 'imgSubfacetCount'}).append(a);
   		    	    		
   		    	    		if ( i == 0 ){
-  	    						var catTr = $('<tr></tr>').attr({'class':'facetSubCat'});  	    						
-  	    						var catTd = $('<td></td>').attr({'colspan':3}).text(catLabel);
+  		    	    			
+  	    						var catTr = $('<tr></tr>').attr({'class':'facetSubCat '+ facetName});  	
+  	    						var collapeClass = (facetName == 'higherLevelMpTermName') ? 'unCollapse' : null;
+  	    						
+  	    						var catTd = $('<td></td>').attr({'colspan':3, 'class':collapeClass}).text(catLabel);
   	    						catTr.append(catTd);
   	    						table.append(catTr); 
   	    					}	
   		    	    		
   		    	    		var coreField = 'images|'+ facetName + '|' + displayName + '|' + facetCount;	
-  		        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField}); 		    	    			    		
+  		        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField, 'class':facetName}); 		    	    			    		
   		        			var td0 = $('<td></td>').append(chkbox);
   		    	    		table.append(tr.append(td0, td1, td2));		    	    		
   	    				}
@@ -15571,7 +15704,30 @@ $.extend( $.fn.dataTableExt.oSort, {
   	    			// highlight the item in facet
   	    			$(this).parent().find('td.imgSubfacet').addClass('highlight');
   	    			$.fn.composeFacetFilterControl($(this), self.options.data.q);
-  	    		});  	    		
+  	    		});  
+  	    		
+  	    		// collapsable subfacet items
+  	    		table.find('tr.facetSubCat').click(function(){
+  	    		
+  	    			var facetName = $(this).attr('class').replace('facetSubCat ',''); 
+  	    			
+  	    			if ( $(this).find('td').hasClass('unCollapse')){
+  	    				// change arrow image
+  	    				$(this).find('td').removeClass('unCollapse');
+  	    				// hide all its members
+	  	    			$(this).siblings('tr.'+facetName).addClass('trHidden');
+  	    			}
+  	    			else {  	    			
+  	    				// refresh all to collapsed first
+	  	    			table.find('tr.subFacet').addClass('trHidden');
+	  	    			table.find('tr.facetSubCat td').removeClass('unCollapse');	  	    			 	    			 	    			
+	  	    			  	    			
+	  	    			// change arrow image and reveal all members of the clicked facet
+	  	    			$(this).find('td').addClass('unCollapse');
+	  	    			$(this).siblings('tr.'+facetName).removeClass('trHidden');
+  	    			}
+  	    		});
+  	    		
   	    	}
   	    	
   	    	/*------------------------------------------------------------------------------------*/
@@ -15580,9 +15736,10 @@ $.extend( $.fn.dataTableExt.oSort, {
   	    		
     		if ( self.options.data.fq.match(/.*/) ){ 	
     			$.fn.setDefaultImgSwitcherConf();  
-    		
-    			//var fields = MPI2.searchAndFacetConfig.facetParams[facetDivId].subFacetFqFields;       	
-    			$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'imagesFacet');
+    			//console.log('reload');
+    			    			
+    			var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority)
+    			$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'imagesFacet', pageReload);
     	
     			// now load dataTable	    		
     			$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'imagesFacet'); 

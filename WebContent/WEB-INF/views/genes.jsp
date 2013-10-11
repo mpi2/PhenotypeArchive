@@ -327,7 +327,7 @@
         </div>
 		<div class="row-fluid">
 			<div class="container span12">
-				
+			</br>	
 				<div class="row-fluid" id="phenotypesDiv">	
 			<div class="container span12">
 			<!--  style="display: none;" --><div id="filterParams" >
