@@ -99,7 +99,6 @@ public class FileExportController {
 		Model model
 		) throws Exception{	
 		log.debug("solr params: " + solrParams);
-		System.out.println("grid params : " + gridFields);
 		Workbook wb = null;
 		String dataString = null;
 		
@@ -215,18 +214,14 @@ public class FileExportController {
 	public String[][] composeXlsTableData(List<String> rows) {
 
 		int rowNum = rows.size();// - 1; // omit title row
-		System.out.println("*" + rows.get(0));
 		int colNum = (rows.size() > 0) ? rows.get(0).split("\t").length : 0;
-		System.out.println("COL NO " + colNum + " " + rows.get(0));
 		String[][] tableData = new String[rowNum][colNum];
 		
 		// add one to omit title row
 		for( int i=0; i<rowNum; i++ ){
 
 			String[] colVals = rows.get(i).split("\t");
-			System.out.println(rows.get(i));
-			for (int j=0; j<colVals.length; j++) {	
-				System.out.println(colVals[j]);
+			for (int j=0; j<colVals.length; j++) {
 				tableData[i][j] = colVals[j];
 			}
 		}
@@ -257,7 +252,7 @@ public class FileExportController {
 		}
 		return rows;
 	}
-	
+	 
 	
 	// Export for tables on gene  & phenotype page
 	private List<String> composeGPDataTableRows(JSONObject json, HttpServletRequest request){ //ilinca
@@ -271,7 +266,6 @@ public class FileExportController {
 				List<String> data = new ArrayList<String>();
 				JSONObject doc = docs.getJSONObject(i);
 				if (!doc.getString("resource_fullname").equalsIgnoreCase("International Mouse Phenotyping Consortium")){
-					System.out.println(doc);
 					data.add(doc.getString("mp_term_name"));
 					if (doc.containsKey("allele_symbol"))
 						data.add(doc.getString("allele_symbol"));
@@ -281,7 +275,6 @@ public class FileExportController {
 					data.add(doc.getString("procedure_name") + "/" + doc.getString("parameter_name"));
 					data.add(doc.getString("resource_fullname"));
 					String graphUrl = "\"\"";
-					System.out.println("BASE URL " + config.get("baseUrl"));
 					if ((doc.getString("resource_fullname")).equalsIgnoreCase("EuroPhenome")){ // only show links for Europhenome
 						graphUrl = config.get("baseUrl")+"/stats/genes/" + doc.getString("marker_accession_id") + "?parameterId=" ;
 						graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
@@ -299,7 +292,6 @@ public class FileExportController {
 				// for some reason we need to filter out the IMPC entries.
 				if (!doc.getString("resource_fullname").equalsIgnoreCase("International Mouse Phenotyping Consortium")){
 					List<String> data = new ArrayList<String>();
-					System.out.println(doc);
 					data.add(doc.getString("marker_symbol"));
 					if (doc.containsKey("allele_symbol"))
 						data.add(doc.getString("allele_symbol"));
@@ -309,7 +301,6 @@ public class FileExportController {
 					data.add(doc.getString("procedure_name") + "/" + doc.getString("parameter_name"));
 					data.add(doc.getString("resource_fullname"));
 					String graphUrl = "\"\"";
-					System.out.println("BASE URL " + config.get("baseUrl"));
 					//TODO check, this might need to change
 					if ((doc.getString("resource_fullname")).equalsIgnoreCase("EuroPhenome")){ // only show links for Europhenome
 						graphUrl = config.get("baseUrl")+"/stats/genes/" + doc.getString("marker_accession_id") + "?parameterId=" ;
