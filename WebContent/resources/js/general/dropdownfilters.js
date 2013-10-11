@@ -41,7 +41,7 @@ $(document).ready(function(){
 			    		}));
 			    		
 			    		var mgiGeneId = window.location.href.split("/")[window.location.href.split("/").length-1];
-			    		alert(mgiGeneId);
+			    		//alert(mgiGeneId);
 			    		
 			    		initFileExporter({
 			    			mgiGeneId: mgiGeneId,
