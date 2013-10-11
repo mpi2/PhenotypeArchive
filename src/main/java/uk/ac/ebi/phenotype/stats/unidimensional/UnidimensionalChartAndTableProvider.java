@@ -84,7 +84,7 @@ public class UnidimensionalChartAndTableProvider {
 		// get control data
 		for (ExperimentDTO experiment : experimentList) {
 			System.out.println("biolgocialModelId="+experiment.getExperimentalBiologicalModelId());
-			Map<String,Integer> mouseIdsToColumnsMap=new HashMap<>();
+			Map<String,Integer> mouseIdsToColumnsMap=new TreeMap<>();
 			BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(experiment.getExperimentalBiologicalModelId());
 					for (SexType sexType : experiment.getSexes()) { // one graph for each sex if
 													// unspecified in params to
@@ -122,16 +122,18 @@ public class UnidimensionalChartAndTableProvider {
 								
 								 Float dataPoint=control.getDataPoint();
 								controlCounts.add(new Float(dataPoint));
-								Integer mouseColumn=null;
-								if(mouseIdsToColumnsMap.containsKey(control.getExternalSampleId())){
-									mouseColumn=mouseIdsToColumnsMap.get(control.getExternalSampleId());
-								}else {
-									 mouseColumn=mouseIdsToColumnsMap.size();
-									mouseIdsToColumnsMap.put(control.getExternalSampleId(),mouseColumn);
-								}
-								MouseDataPoint mDataPoint=new MouseDataPoint(control.getExternalSampleId(), dataPoint,  mouseColumn);
-					 			logger.warn("controlMouseDataPoint="+mDataPoint);
-								controlMouseDataPoints.add(mDataPoint);
+//								Integer mouseColumn=null;
+//								if(mouseIdsToColumnsMap.containsKey(control.getExternalSampleId())){
+//									mouseColumn=mouseIdsToColumnsMap.get(control.getExternalSampleId());
+//								}else {
+//									 mouseColumn=mouseIdsToColumnsMap.size();
+//									mouseIdsToColumnsMap.put(control.getExternalSampleId(),mouseColumn);
+//								}
+//								MouseDataPoint mDataPoint=new MouseDataPoint(control.getExternalSampleId(), dataPoint,  mouseColumn);
+//					 			logger.warn("controlMouseDataPoint="+mDataPoint);
+								//controlMouseDataPoints.add(mDataPoint);
+								addMouseDataPoint(mouseIdsToColumnsMap, controlCounts, controlMouseDataPoints, control, dataPoint);
+								
 								logger.debug("adding control point="+dataPoint);
 								 
 							 }
@@ -169,19 +171,11 @@ public class UnidimensionalChartAndTableProvider {
 									
 									 Float dataPoint=expDto.getDataPoint();
 									 		if( docSexType.equals(sexType)){
-									 			Integer mouseColumn=null;
-												if(mouseIdsToColumnsMap.containsKey(expDto.getExternalSampleId())){
-													mouseColumn=mouseIdsToColumnsMap.get(expDto.getExternalSampleId());
-												}else {
-													mouseColumn=mouseIdsToColumnsMap.size();
-													
-													mouseIdsToColumnsMap.put(expDto.getExternalSampleId(),mouseColumn);
-												}
-									 			mutantCounts.add(new Float(dataPoint));
-									 			logger.debug("adding mutant point="+dataPoint);
-									 			MouseDataPoint mDataPoint=new MouseDataPoint(expDto.getExternalSampleId(), dataPoint,  mouseColumn);
-									 			logger.warn("mouseDataPoint="+mDataPoint);
-									 			mutantMouseDataPoints.add(mDataPoint);
+									 			addMouseDataPoint(
+														mouseIdsToColumnsMap,
+														mutantCounts,
+														mutantMouseDataPoints,
+														expDto, dataPoint);
 									 		}
 									 		mouseDataPointsSet.add(mutantMouseDataPoints);
 									 }
@@ -258,6 +252,26 @@ public class UnidimensionalChartAndTableProvider {
 		// return yAxisAdjustedBoxChartsNTables;
 		return unidimensionalDataSet;
 
+	}
+
+	private void addMouseDataPoint(Map<String, Integer> mouseIdsToColumnsMap,
+			List<Float> countsForSet,
+			List<MouseDataPoint> mouseDataPointsList, ObservationDTO observationDTO,
+			Float dataPoint) {
+		
+		Integer mouseColumn=null;
+		if(mouseIdsToColumnsMap.containsKey(observationDTO.getExternalSampleId())){
+			mouseColumn=mouseIdsToColumnsMap.get(observationDTO.getExternalSampleId());
+		}else {
+			mouseColumn=mouseIdsToColumnsMap.size();
+			
+			mouseIdsToColumnsMap.put(observationDTO.getExternalSampleId(),mouseColumn);
+		}
+		countsForSet.add(new Float(dataPoint));
+		logger.debug("adding mutant point="+dataPoint);
+		MouseDataPoint mDataPoint=new MouseDataPoint(observationDTO.getExternalSampleId(), dataPoint,  mouseColumn, observationDTO.getDateOfExperiment());
+		logger.warn("mouseDataPoint="+mDataPoint);
+		mouseDataPointsList.add(mDataPoint);
 	}
 
 	/**
@@ -534,7 +548,7 @@ public class UnidimensionalChartAndTableProvider {
 
 		String chartString = createScatterPlotChartsString(categoriesList,
 				title, sexType, yAxisTitle, scatterColumns,
-				mouseIdsToColumnsMap);
+				mouseIdsToColumnsMap, false);
 		// continuousCharts.add(chartString);
 		ChartData cNTable = new ChartData();
 		// cNTable.setTable(table);
@@ -681,6 +695,7 @@ public class UnidimensionalChartAndTableProvider {
 	 *            - unit of measurement - how to get this from the db?
 	 * @param scatterColumns
 	 * @param mouseIdToColumn 
+	 * @param dateGraph TODO
 	 * @param xAisxCcategoriesList
 	 *            e.g. WT, WT, HOM, HOM for each column to be displayed
 	 * @param theoreticalMean
@@ -692,7 +707,7 @@ public class UnidimensionalChartAndTableProvider {
 			List<String> xAxisCategoriesList, String title, SexType sex,
 			String yAxisTitle,
 			List<List<MouseDataPoint>> scatterColumns,
-			Map<String, Integer> mouseIdToColumn) {
+			Map<String, Integer> mouseIdToColumn, boolean dateGraph) {
 		String xAxisTitle = "Mouse";
 		JSONArray categoriesArray = new JSONArray(xAxisCategoriesList);
 		String categories = categoriesArray.toString();// "['WT', 'WT', 'HOM', 'HOM']";
