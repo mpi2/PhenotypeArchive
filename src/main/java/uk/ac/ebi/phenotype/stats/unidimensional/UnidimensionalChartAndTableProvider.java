@@ -787,7 +787,7 @@ public class UnidimensionalChartAndTableProvider {
 	
 					+"showLastLabel: true }, yAxis: { title: { text: '"
 				+ yAxisTitle
-				+ "' } }, legend: { layout: 'vertical', align: 'left', verticalAlign: 'top', x: 100, y: 70, floating: true, backgroundColor: '#FFFFFF', borderWidth: 1 }, plotOptions: { scatter: { marker: { radius: 5, states: { hover: { enabled: true, lineColor: 'rgb(100,100,100)' } } }, states: { hover: { marker: { enabled: false } } }, tooltip: { headerFormat: '<b>{series.name}</b><br>', pointFormat: 'mouse {point.x} , {point.y}"
+				+ "' } },  credits: { enabled: false }, legend: { layout: 'vertical', align: 'left', verticalAlign: 'top', x: 100, y: 70, floating: true, backgroundColor: '#FFFFFF', borderWidth: 1 }, plotOptions: { scatter: { marker: { radius: 5, states: { hover: { enabled: true, lineColor: 'rgb(100,100,100)' } } }, states: { hover: { marker: { enabled: false } } }, tooltip: { headerFormat: '<b>{series.name}</b><br>', pointFormat: 'mouse {point.x} , {point.y}"
 				+ yAxisTitle
 				+ "' } } },"+
 				
