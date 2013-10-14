@@ -40,7 +40,6 @@ $(document).ready(function(){
 
 	var mpId = window.location.href.split("/")[window.location.href.split("/").length-1];
 	var windowLocation = window.location; 
-	alert(windowLocation);
 	initFileExporter({
 		mpId: "\"" + mpId+ "\"",
 		externalDbId: 3,

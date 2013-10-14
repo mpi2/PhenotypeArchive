@@ -221,7 +221,6 @@ $(document).ready(function(){
 			}			    			 
 		}
 		newUrl+=output;
-		alert("*" + newUrl)
 		refreshPhenoTable(newUrl);
 		return false;
 	}
