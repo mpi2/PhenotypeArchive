@@ -44,7 +44,7 @@
 				</entity>	
 				</entity -->
 				
-				<entity dataSource="ds2" name="mps" query="SELECT top_level_node_id FROM `mp_node2term` mp , mp_node_top_level tl WHERE term_id='${phenotype_call.mp_term_id}' and mp.node_id=tl.node_id">
+				<entity dataSource="ds2" name="mps" query="SELECT distinct top_level_node_id FROM `mp_node2term` mp , mp_node_top_level tl WHERE term_id='${phenotype_call.mp_term_id}' and mp.node_id=tl.node_id">
 						<field column="top_level_node_id" name="topLevel" />
 
 						<entity dataSource="ds2" name="mphigher"
