@@ -3,7 +3,9 @@ package uk.ac.ebi.phenotype.stats.unidimensional;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -807,10 +809,16 @@ System.out.println("byMouseId="+byMouseId);
 	
 					+"showLastLabel: true }, yAxis: { title: { text: '"
 				+ yAxisTitle
-				+ "' } },  credits: { enabled: false }, legend: { layout: 'vertical', align: 'left', verticalAlign: 'top', x: 100, y: 70, floating: true, backgroundColor: '#FFFFFF', borderWidth: 1 }, plotOptions: { scatter: { marker: { radius: 5, states: { hover: { enabled: true, lineColor: 'rgb(100,100,100)' } } }, states: { hover: { marker: { enabled: false } } }, tooltip: { headerFormat: '<b>{series.name}</b><br>', pointFormat: 'mouse {point.x} , {point.y}"
-				+ yAxisTitle
-				+ "' } } },"+
+				+ "' } },  credits: { enabled: false }, legend: { layout: 'vertical', align: 'left', verticalAlign: 'top', x: 100, y: 70, floating: true, backgroundColor: '#FFFFFF', borderWidth: 1 }, plotOptions: { scatter: { marker: { radius: 5, states: { hover: { enabled: true, lineColor: 'rgb(100,100,100)' } } }, states: { hover: { marker: { enabled: false } } }"
+				+" } },"+
 				
+		        " tooltip: {"
+		              +"  formatter: function() { "
+		                       +"  return '<b>'+ this.series.name +'</b><br/>'+"
+		               +   "      this.x +': '+ this.y +' m'; "
+		          +     " } "
+		     +     "  }, "+
+		            
 				seriesString
 //				+ " series: [{ name: '"
 //				+ xAxisCategoriesList.get(0)
@@ -954,9 +962,9 @@ System.out.println("byMouseId="+byMouseId);
 
 		int column = 0;
 		if(!byMouseId) {
-		
+		SimpleDateFormat shortFormat=new SimpleDateFormat("EEE, MMM d, ''yy");
 		for (Date experimentDate : mouseDateToColumn.keySet()) {
-			mouseIdStrings.add(experimentDate.toString());
+			mouseIdStrings.add(shortFormat.format(experimentDate));
 			mouseDateToColumn.put(experimentDate, column);
 			column++;
 		}

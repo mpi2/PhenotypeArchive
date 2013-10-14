@@ -297,7 +297,7 @@ public class StatsController implements BeanFactoryAware {
 		//model.addAttribute("allPipelines", pipelines);//limit pipelines to two for testing
 	}
 	
-	@RequestMapping("/stats/scatter/genes/{acc}")
+	@RequestMapping("/stats/genes/scatter/{acc}")
 	public String genesScatter(
 			@RequestParam(required = false, /*defaultValue = "ESLIM_001_001_007",*/ value = "parameterId") String[] parameterIds,
 			@RequestParam(required = false,  value = "gender") String[] gender,
