@@ -254,7 +254,7 @@ public class StatsController implements BeanFactoryAware {
 				//http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
 				log.info("calling chart creation for unidimensional data");
 				log.info("experimentList="+experimentList);
-					UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(experimentList, bmDAO, config, unidimensionalMutantBiologicalModels, parameter, acc, model , genderList, zyList, ChartType.UnidimensionalBoxPlot);
+					UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(experimentList, bmDAO, config, unidimensionalMutantBiologicalModels, parameter, acc, model , genderList, zyList, ChartType.UnidimensionalBoxPlot, false);
 				allUnidimensionalChartsAndTables.add(unidimensionalChartNTables);
 			}
 			if(observationTypeForParam.equals(ObservationType.categorical)){
@@ -302,7 +302,8 @@ public class StatsController implements BeanFactoryAware {
 			@RequestParam(required = false, /*defaultValue = "ESLIM_001_001_007",*/ value = "parameterId") String[] parameterIds,
 			@RequestParam(required = false,  value = "gender") String[] gender,
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
-			@RequestParam(required = false, value = "model") String[] biologicalModelsParam,
+			@RequestParam(required = false, value = "model") String[] biologicalModelsParam, 
+			@RequestParam(required = false, value = "byMouseId", defaultValue = "false") Boolean byMouseId,
 			@PathVariable String acc, Model model)
 			throws GenomicFeatureNotFoundException, IOException, URISyntaxException, SolrServerException {
 
@@ -360,7 +361,7 @@ public class StatsController implements BeanFactoryAware {
 			if(observationTypeForParam.equals(ObservationType.unidimensional)){
 				//http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
 				
-				UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(experimentList, bmDAO, config, unidimensionalMutantBiologicalModels, parameter, acc, model , genderList, zyList, ChartType.UnidimensionalScatter);
+				UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(experimentList, bmDAO, config, unidimensionalMutantBiologicalModels, parameter, acc, model , genderList, zyList, ChartType.UnidimensionalScatter, byMouseId);
 				allUnidimensionalChartsAndTables.add(unidimensionalChartNTables);
 			}
 			

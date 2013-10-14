@@ -7,6 +7,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -60,11 +61,11 @@ public class UnidimensionalChartAndTableProvider {
 			List<ExperimentDTO> experimentList, BiologicalModelDAO bmDAO, Map<String, String> config, List<BiologicalModel> unidimensionalMutantBiologicalModels,
 			Parameter parameter,
 			String acc, Model model, List<String> genderList,
-			List<String> zyList, ChartType boxOrScatter)
+			List<String> zyList, ChartType boxOrScatter, Boolean byMouseId)
 			throws SQLException, IOException, URISyntaxException {
 
 	
-
+System.out.println("byMouseId="+byMouseId);
 		// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
 		// String parameterId="ESLIM_015_001_018";// ESLIM_015_001_018
 
@@ -132,7 +133,7 @@ public class UnidimensionalChartAndTableProvider {
 //								MouseDataPoint mDataPoint=new MouseDataPoint(control.getExternalSampleId(), dataPoint,  mouseColumn);
 //					 			logger.warn("controlMouseDataPoint="+mDataPoint);
 								//controlMouseDataPoints.add(mDataPoint);
-								addMouseDataPoint(mouseIdsToColumnsMap, controlCounts, controlMouseDataPoints, control, dataPoint);
+								controlMouseDataPoints=addMouseDataPoint(mouseIdsToColumnsMap, controlCounts, controlMouseDataPoints, control, dataPoint);
 								
 								logger.debug("adding control point="+dataPoint);
 								 
@@ -171,7 +172,7 @@ public class UnidimensionalChartAndTableProvider {
 									
 									 Float dataPoint=expDto.getDataPoint();
 									 		if( docSexType.equals(sexType)){
-									 			addMouseDataPoint(
+									 			mutantMouseDataPoints=addMouseDataPoint(
 														mouseIdsToColumnsMap,
 														mutantCounts,
 														mutantMouseDataPoints,
@@ -197,7 +198,7 @@ public class UnidimensionalChartAndTableProvider {
 							 // like below
 							 chartAndTable = processScatterChartData(title,
 							 sexType, parameter, experiment.getZygosities(), zyList,
-							 mouseDataPointsSet, expBiologicalModel, mouseIdsToColumnsMap);
+							 mouseDataPointsSet, expBiologicalModel, mouseIdsToColumnsMap, byMouseId);
 							
 							 } else {
 							 chartAndTable = processChartData(title, sexType,
@@ -254,24 +255,18 @@ public class UnidimensionalChartAndTableProvider {
 
 	}
 
-	private void addMouseDataPoint(Map<String, Integer> mouseIdsToColumnsMap,
+	private List<MouseDataPoint> addMouseDataPoint(Map<String, Integer> mouseIdsToColumnsMap,
 			List<Float> countsForSet,
 			List<MouseDataPoint> mouseDataPointsList, ObservationDTO observationDTO,
 			Float dataPoint) {
 		
-		Integer mouseColumn=null;
-		if(mouseIdsToColumnsMap.containsKey(observationDTO.getExternalSampleId())){
-			mouseColumn=mouseIdsToColumnsMap.get(observationDTO.getExternalSampleId());
-		}else {
-			mouseColumn=mouseIdsToColumnsMap.size();
-			
-			mouseIdsToColumnsMap.put(observationDTO.getExternalSampleId(),mouseColumn);
-		}
+	
 		countsForSet.add(new Float(dataPoint));
 		logger.debug("adding mutant point="+dataPoint);
-		MouseDataPoint mDataPoint=new MouseDataPoint(observationDTO.getExternalSampleId(), dataPoint,  mouseColumn, observationDTO.getDateOfExperiment());
+		MouseDataPoint mDataPoint=new MouseDataPoint(observationDTO.getExternalSampleId(), dataPoint,  0, observationDTO.getDateOfExperiment());
 		logger.warn("mouseDataPoint="+mDataPoint);
 		mouseDataPointsList.add(mDataPoint);
+		return mouseDataPointsList;
 	}
 
 	/**
@@ -399,7 +394,6 @@ public class UnidimensionalChartAndTableProvider {
 			row++;
 		}
 		String yAxisTitle = parameterUnit;
-		String theoreticalMean = "932";
 
 		List<List<Float>> scatterColumns = new ArrayList<List<Float>>();// for
 																		// example
@@ -457,7 +451,7 @@ public class UnidimensionalChartAndTableProvider {
 	private ChartData processScatterChartData(String title, SexType sexType,
 			Parameter parameter, Set<ZygosityType> set,
 			List<String> zyList, List<List<MouseDataPoint>> mouseDataPointSets,
-			BiologicalModel expBiologicalModel, Map<String, Integer> mouseIdsToColumnsMap) {
+			BiologicalModel expBiologicalModel, Map<String, Integer> mouseIdsToColumnsMap, Boolean byMouseId) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
 		// List<ChartData> chartsAndTables = new ArrayList<ChartData>();
 		Float max = new Float(0);
@@ -548,7 +542,7 @@ public class UnidimensionalChartAndTableProvider {
 
 		String chartString = createScatterPlotChartsString(categoriesList,
 				title, sexType, yAxisTitle, scatterColumns,
-				mouseIdsToColumnsMap, false);
+				byMouseId);
 		// continuousCharts.add(chartString);
 		ChartData cNTable = new ChartData();
 		// cNTable.setTable(table);
@@ -694,7 +688,6 @@ public class UnidimensionalChartAndTableProvider {
 	 * @param yAxisTitle
 	 *            - unit of measurement - how to get this from the db?
 	 * @param scatterColumns
-	 * @param mouseIdToColumn 
 	 * @param dateGraph TODO
 	 * @param xAisxCcategoriesList
 	 *            e.g. WT, WT, HOM, HOM for each column to be displayed
@@ -707,15 +700,13 @@ public class UnidimensionalChartAndTableProvider {
 			List<String> xAxisCategoriesList, String title, SexType sex,
 			String yAxisTitle,
 			List<List<MouseDataPoint>> scatterColumns,
-			Map<String, Integer> mouseIdToColumn, boolean dateGraph) {
+			boolean byMouseId) {
 		String xAxisTitle = "Mouse";
 		JSONArray categoriesArray = new JSONArray(xAxisCategoriesList);
 		String categories = categoriesArray.toString();// "['WT', 'WT', 'HOM', 'HOM']";
 		System.out.println("categories=" + categories);
 		System.out.println("scatter columns size=" + scatterColumns.size());
-		
 
-		
 		//we need categories on the xAxis " categories: ['mouseId1','mouseId2','mouseId3'] , "
 		
 //		mouseIdStrings.add("mouseId1");
@@ -733,23 +724,52 @@ public class UnidimensionalChartAndTableProvider {
 //            color: 'rgba(119, 152, 191, .5)',
 //            data: [[0,261.2], [0, 259.5], [1,261.2], [1, 259.5],[2,361.2], [2, 359.5] ]
 //        }]
-        		 
-		List<String> mouseIdStrings=new ArrayList<>();
-		//mouse id strings maybe from keys of Map<String, List<Float>
-//		for(String key: mouseIdToColumn.keySet()) {
-//			mouseIdStrings.add(key);
+//		Map<String, Integer> mouseIdToColumn = new TreeMap<>();
+//		Map<Date, Integer> mouseDateToColumn = new TreeMap<>();//sort date by natural order
+//		List<String> mouseIdStrings=new ArrayList<>();
+//       
+        	
+//        	xAxis: {
+//            type: 'datetime',
+//            dateTimeLabelFormats: { // don't display the dummy year
+//                month: '%e. %b',
+//                year: '%b'
+//            }
+        	//}
+        
+       	
+		List<String> mouseIdStrings=naturallyOrderColumns(scatterColumns, byMouseId);
+		
+//		for (List<MouseDataPoint> mouseList : scatterColumns) {
+//			for (MouseDataPoint mouseDataPoint : mouseList) {
+//				Integer mouseColumn = null;
+//
+//				if (mouseIdToColumn.containsKey(mouseDataPoint.getMouseId())) {
+//					mouseColumn = mouseIdToColumn.get(mouseDataPoint
+//							.getMouseId());
+//					mouseDataPoint.setColumn(mouseColumn);
+//				} else {
+//					mouseColumn = mouseIdToColumn.size();
+//					mouseDataPoint.setColumn(mouseColumn);
+//					mouseIdToColumn.put(mouseDataPoint.getMouseId(),
+//							mouseColumn);
+//
+//				}
+//			}
 //		}
+        
+		
 		//so we know that the columns should equal the number of mouseIds we have
-		for(int column=0; column<mouseIdToColumn.keySet().size(); column++) {
-			//get mice id for column index 0 then 1 etc and add to the mouseId list so it shoud correspond to the correct columns
-			for(String key: mouseIdToColumn.keySet()) {
-				int value=mouseIdToColumn.get(key);
-				if(value==column) {
-					System.out.println("column found "+column + "mouseId="+key);
-					mouseIdStrings.add(key);
-					}
-			}
-		}
+//		for(int column=0; column<mouseIdToColumn.keySet().size(); column++) {
+//			//get mice id for column index 0 then 1 etc and add to the mouseId list so it shoud correspond to the correct columns
+//			for(String key: mouseIdToColumn.keySet()) {
+//				int value=mouseIdToColumn.get(key);
+//				if(value==column) {
+//					System.out.println("column found "+column + "mouseId="+key);
+//					mouseIdStrings.add(key);
+//					}
+//			}
+//		}
 		
 		JSONArray mouseIdArrayJson = new JSONArray(mouseIdStrings);
 		//then we need the values for each mouse in order in an array for each contol or zygosity set WT, HOM, HET is our xAxisCategories list
@@ -888,6 +908,109 @@ public class UnidimensionalChartAndTableProvider {
 //		    });
 //		    
 //		});
+	}
+
+	private List<String> naturallyOrderColumns(
+			List<List<MouseDataPoint>> scatterColumns, boolean byMouseId) {
+
+		Map<String, Integer> mouseIdToColumn = new TreeMap<>();
+		Map<Date, Integer> mouseDateToColumn = new TreeMap<>();// sort date by
+																// natural order
+		List<String> mouseIdStrings = new ArrayList<>();
+
+		// loop through all points and get a map that as TreeMap is
+		// naturally ordered by date or id char
+		for (List<MouseDataPoint> mouseList : scatterColumns) {
+
+			if (!byMouseId) {
+
+				for (MouseDataPoint mouseDataPoint : mouseList) {
+					if (mouseDateToColumn.containsKey(mouseDataPoint
+							.getDateOfExperiment())) {
+						// do nothing if date key exists
+					} else {
+						// dont order until keys are ordered after we have all
+						// keys
+						mouseDateToColumn.put(
+								mouseDataPoint.getDateOfExperiment(), 0);
+					}
+				}
+
+			} else {
+				// do string natural ordering as not dates
+				for (MouseDataPoint mouseDataPoint : mouseList) {
+					if (mouseIdToColumn.containsKey(mouseDataPoint
+							.getMouseId())) {
+						// do nothing if date key exists
+					} else {
+						// dont order until keys are ordered after we have all
+						// keys
+						mouseIdToColumn.put(
+								mouseDataPoint.getMouseId(), 0);
+					}
+				}
+			}
+		}
+
+		int column = 0;
+		if(!byMouseId) {
+		
+		for (Date experimentDate : mouseDateToColumn.keySet()) {
+			mouseIdStrings.add(experimentDate.toString());
+			mouseDateToColumn.put(experimentDate, column);
+			column++;
+		}
+		}else {
+	
+		for (String mouseId : mouseIdToColumn.keySet()) {
+			mouseIdStrings.add(mouseId);
+			mouseIdToColumn.put(mouseId, column);
+			column++;
+		}
+		}
+
+		for (List<MouseDataPoint> mouseList : scatterColumns) {
+
+			
+				for (MouseDataPoint mouseDataPoint : mouseList) {
+					
+					if (!byMouseId) {
+					setColumnsByDate(mouseDateToColumn, mouseDataPoint);
+					}else {	
+						setColumnsByMouseId(mouseIdToColumn, mouseDataPoint);
+					}
+				}
+			}
+		
+		return mouseIdStrings;
+	}
+
+	private void setColumnsByMouseId(Map<String, Integer> mouseIdToColumn,
+			MouseDataPoint mouseDataPoint) {
+		Integer mouseColumn;
+		if (mouseIdToColumn.containsKey(mouseDataPoint
+				.getMouseId())) {
+			mouseColumn = mouseIdToColumn.get(mouseDataPoint
+					.getMouseId());
+			mouseDataPoint.setColumn(mouseColumn);
+		} else {
+			System.err.println("something wrong - mouse Id should be in map");
+
+		}
+	}
+
+	private void setColumnsByDate(Map<Date, Integer> mouseDateToColumn,
+			MouseDataPoint mouseDataPoint) {
+		Integer mouseColumn;
+		if (mouseDateToColumn.containsKey(mouseDataPoint
+				.getDateOfExperiment())) {
+			mouseColumn = mouseDateToColumn.get(mouseDataPoint
+					.getDateOfExperiment());
+			mouseDataPoint.setColumn(mouseColumn);
+		} else {
+			System.err.println("something wrong - mouse exp date should be in map");
+
+		}
 	}
 
 }

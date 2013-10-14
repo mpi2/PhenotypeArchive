@@ -433,6 +433,7 @@ public class GenesController {
 		ArrayList<PhenotypeRow> l = new ArrayList<PhenotypeRow>(phenotypes.keySet());
 		Collections.sort(l); // sort in alpha order by MP term name
 		model.addAttribute("phenotypes", l);
+		//model.addAt
 	}
 	
 	private Map<String, List<Map<String, String>>> getProviders(
