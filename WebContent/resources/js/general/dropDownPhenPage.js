@@ -39,13 +39,15 @@ $(document).ready(function(){
 	}));
 
 	var mpId = window.location.href.split("/")[window.location.href.split("/").length-1];
+	var windowLocation = window.location; 
+	alert(windowLocation);
 	initFileExporter({
 		mpId: "\"" + mpId+ "\"",
 		externalDbId: 3,
 		fileName: 'gene_variants_with_phen_'+mpId.replace(/:/g,'_'),
 		solrCoreName: 'genotype-phenotype',
 		dumpMode: 'all',
-		baseUrl: baseUrl,
+		baseUrl: windowLocation,
 		page:"phenotype",
 		gridFields: 'marker_symbol,allele_symbol,zygosity,sex,procedure_name,resource_fullname,parameter_stable_id,marker_accession_id, parameter_name,parameter_name',
 		//TODO add here filter params too

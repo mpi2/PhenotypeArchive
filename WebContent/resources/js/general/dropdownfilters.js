@@ -43,6 +43,7 @@ $(document).ready(function(){
 	}));
 
 	var mgiGeneId = window.location.href.split("/")[window.location.href.split("/").length-1];
+	var windowLocation = window.location;
 
 	initFileExporter({
 		mgiGeneId: mgiGeneId,
@@ -50,7 +51,7 @@ $(document).ready(function(){
 		fileName: 'phenotype_associations_for_'+mgiGeneId.replace(/:/g,'_'),
 		solrCoreName: 'genotype-phenotype',
 		dumpMode: 'all',
-		baseUrl: baseUrl,
+		baseUrl: windowLocation,
 		page:"gene",
 		gridFields: 'marker_symbol,allele_symbol,zygosity,sex,procedure_name,resource_fullname,parameter_stable_id,marker_accession_id, parameter_name,parameter_name,mp_term_name',
 		//TODO add filters to the url too
@@ -220,6 +221,7 @@ $(document).ready(function(){
 			}			    			 
 		}
 		newUrl+=output;
+		alert("*" + newUrl)
 		refreshPhenoTable(newUrl);
 		return false;
 	}
