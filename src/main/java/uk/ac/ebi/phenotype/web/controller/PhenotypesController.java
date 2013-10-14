@@ -282,7 +282,7 @@ public class PhenotypesController {
 			pr.setProjectId(pcs.getExternalId());
 			pr.setProcedure(pcs.getProcedure());
 			pr.setParameter(pcs.getParameter());
-
+			//TODO ILINCA: I guess here I need to set the project id as well
 			if(phenotypes.containsKey(pr)) {
 				pr = phenotypes.get(pr);
 				TreeSet<String> sexes = new TreeSet<String>();

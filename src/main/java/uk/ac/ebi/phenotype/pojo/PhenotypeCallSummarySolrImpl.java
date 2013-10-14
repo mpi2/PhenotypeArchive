@@ -50,7 +50,6 @@ public class PhenotypeCallSummarySolrImpl implements
 				// one to add to the already present solr query string
 			url += "&" + queryString;
 		}
-
 		return createPhenotypeResultFromSolrResponse(url);
 	}
 

@@ -194,7 +194,7 @@ public class GenesController {
 
 		try {
 		model.addAttribute("phenotypeSummary", phenSummary.getSummary(acc));
-		System.out.println(phenSummary.getSummary(acc));
+//		System.out.println(phenSummary.getSummary(acc));
 		phenotypeSummaryObjects =  phenSummary.getSummaryObjects(acc);
 		model.addAttribute("phenotypeSummaryObjects",phenotypeSummaryObjects);
 		} catch (Exception e){
