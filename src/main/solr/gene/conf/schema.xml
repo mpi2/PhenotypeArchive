@@ -86,7 +86,8 @@
     <field name="escell" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
     <field name="ikmc_project" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
     <field name="status" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    
+    <field name="mouse2human_symbol" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
     <field name="imits_phenotype_started" type="string" indexed="true" multiValued="true"/>
 	<field name="imits_phenotype_complete" type="string" indexed="true" multiValued="true"/>
 	<field name="colony_prefix" type="string" indexed="true" stored="true" multiValued="true"/>

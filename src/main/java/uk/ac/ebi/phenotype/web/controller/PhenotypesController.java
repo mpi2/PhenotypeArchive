@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.annotation.Resource;
@@ -221,7 +222,13 @@ public class PhenotypesController {
 		return "phenotypes";
 	}
 
-
+	private Map<String, Map<String, Integer>> sortPhenFacets(Map<String, Map<String, Integer>> phenFacets){
+		Map<String, Map<String, Integer>> sortPhenFacets = phenFacets;
+		for (String key: phenFacets.keySet()){
+			sortPhenFacets.put(key, new TreeMap<String, Integer>(phenFacets.get(key)));
+		}
+		return sortPhenFacets;
+	}
 
 	private void processPhenotypes(String phenotype_id, String filter, Model model) throws IOException, URISyntaxException {
 		// This block collapses phenotype rows
@@ -233,6 +240,8 @@ public class PhenotypesController {
 			phenotypeList=phenoResult.getPhenotypeCallSummaries();
 			
 			Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
+			// sort facet values so that they will look nicer in the drop-down lists.
+			phenoFacets = sortPhenFacets(phenoFacets);
 			
 			model.addAttribute("phenoFacets", phenoFacets);
 		} catch (HibernateException|JSONException e) {

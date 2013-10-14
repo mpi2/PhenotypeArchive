@@ -122,7 +122,7 @@ public class StatsController implements BeanFactoryAware {
 	}
 
 	@RequestMapping("/stats/genes/{acc}")
-	public String generateProcedureView(
+	public String statisticsGraphs(
 			@RequestParam(required = false, /*defaultValue = "ESLIM_001_001_007",*/ value = "parameterId") String[] parameterIds,
 			@RequestParam(required = false, value = "gender") String[] gender,
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
@@ -204,21 +204,48 @@ public class StatsController implements BeanFactoryAware {
 			ObservationType observationTypeForParam=Utilities.checkType(parameter);
 			log.info("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
 			
+			if(parameter.isIncrementFlag()) {
+				for(ParameterIncrement increment: parameter.getIncrement()) {
+
+					//proper time-series data will 0,15,30 etc?
+					//grip strength ESLIM_009_001_002 - not timed but increment value unit = number increment values 1,2,3 so attempts at any time not specific times
+					//oxygne consumption ESLIM_003_001_003
+					//systolic arterial pressure datatype= something different?
+					//distance travelled ESLIM_007_001_001 increment unit minutes, increment values 5,10,15 etc
+					
+					//grip strength repeat experiment url=
+					//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1916658?parameterId=ESLIM_009_001_002
+				//increment=Value: 3; dataType: REPEAT; unit: number; minimum: 0 increment min=0 data typ=REPEATnumber
+					
+					//oxygen conusmption will not have increments?
+					//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:102674?parameterId=ESLIM_003_001_003&gender=male&zygosity=homozygote
+					//increment=Value: ; dataType: REPEAT; unit: Time in hours relative to lights out; minimum: 0 increment min=0 data typ=REPEATTime in hours relative to lights out
+					
+					//https://www.mousephenotype.org/data/stats/genes/MGI:2141881?parameterId=ESLIM_007_001_002
+					//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:2141881?parameterId=ESLIM_007_001_002
+						if(increment.getUnit().equals("")) {
+							log.info("increment is empty !!!!!!!!!");
+							//if increment flag true and increment unit is empty then display as unidimensional
+							//e.g. http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1098275?parameterId=ESLIM_002_001_002&gender=female&zygosity=heterozygote
+							//as per ticket https://www.ebi.ac.uk/panda/jira/browse/MPII-145
+							log.warn("changing parameter type from time_series to unidimensional");
+							observationTypeForParam=ObservationType.unidimensional;
+							
+						}
+				log.debug("increment="+increment+" increment min="+increment.getMinimum()+ " data typ="+increment.getDataType()+ increment.getUnit());
+				}
+				
+			}
 			
 			List<ExperimentDTO> experimentList = observationService.getExperimentDTO(parameter.getId(), acc);
-			System.out.println("Experiment dto marker="+experimentList);
+			log.debug("Experiment dto marker="+experimentList);
 			//ESLIM_003_001_003 id=962 calorimetry data for time series graph new MGI:1926153
 			//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1926153?parameterId=ESLIM_003_001_003
 			try{
 			
 			if(observationTypeForParam.equals(ObservationType.time_series)){
 				//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
-				if(parameter.isIncrementFlag()) {
-					for(ParameterIncrement increment: parameter.getIncrement()) {
-					System.out.println("increment="+increment);
-					}
-					
-				}
+				
 				List<ChartData> timeSeriesForParam=timeSeriesChartAndTableProvider.doTimeSeriesData(bmDAO, experimentList, parameter, model, genderList, zyList , timeSeriesChartsAndTables.size()+1, biologicalModelsParams);
 				timeSeriesChartsAndTables.addAll(timeSeriesForParam);
 			}
@@ -226,6 +253,7 @@ public class StatsController implements BeanFactoryAware {
 			if(observationTypeForParam.equals(ObservationType.unidimensional)){
 				//http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
 				log.info("calling chart creation for unidimensional data");
+				log.info("experimentList="+experimentList);
 					UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(experimentList, bmDAO, config, unidimensionalMutantBiologicalModels, parameter, acc, model , genderList, zyList, ChartType.UnidimensionalBoxPlot);
 				allUnidimensionalChartsAndTables.add(unidimensionalChartNTables);
 			}
@@ -322,7 +350,7 @@ public class StatsController implements BeanFactoryAware {
 				yUnits=parameterUnits[1];
 			}
 			List<ExperimentDTO> experimentList = observationService.getExperimentDTO(parameter.getId(), acc);
-			System.out.println("Experiment dto marker="+experimentList);
+			log.debug("Experiment dto marker="+experimentList);
 			log.info("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
 			
 			//ESLIM_003_001_003 id=962 calorimetry data for time series graph new MGI:1926153
@@ -368,16 +396,15 @@ public class StatsController implements BeanFactoryAware {
 			 @RequestParam(required = false, /*defaultValue = "ESLIM_001_001_007",*/ value = "parameterId") String[] parameterIds,
 			 Model model)
 			throws GenomicFeatureNotFoundException, IOException, URISyntaxException, SQLException {
-		System.out.println("calling stats links");
+		log.debug("calling stats links");
 		//equivalent url from solr service http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment/select?q=observationType:unidimensional&wt=json&indent=true&start=0&rows=10
 		ObservationType oType=null;
 		for(ObservationType type: ObservationType.values()){
-			System.out.println(type.name());
 			if(type.name().equalsIgnoreCase(observationType)){
 				oType=type;
 			}
 		}
-		System.out.println("calling observation type="+oType);
+		log.debug("calling observation type="+oType);
 		List<String> paramIds = getParamsAsList(parameterIds);
 	
 			getLinksForStats(start, length, model, oType, paramIds);
@@ -400,57 +427,27 @@ public class StatsController implements BeanFactoryAware {
 		if(start==null)start=0;
 		if(length==null)length=100;
 		@SuppressWarnings("unchecked")
-//		Map<String, String> config = (Map<String, String>) bf
-//				.getBean("globalConfiguration");
-//		String url=config.get("internalSolrUrl")+"/experiment/select?q=observationType:"+type+"&wt=json&indent=true&start="+start+"&rows="+length;
-//		net.sf.json.JSONObject result = JSONRestUtil.getResults(url);
-//		System.out.println(result.toString());
-//		JSONArray resultsArray=JSONRestUtil.getDocArray(result);
-//	
-//			System.out.println(start+" end="+length);
-//			 List<Map<String, String>> listWithStableId=new ArrayList<Map<String, String>>();
-//			 for(int i=0; i<resultsArray.size(); i++){
-//				 Map<String,String> map=new HashMap<String,String>();
-//				net.sf.json.JSONObject exp=resultsArray.getJSONObject(i);
-//				String statbleParamId=exp.getString("parameterStableId");
-//				int internalParamId=exp.getInt("parameterId");
-//				String accession=exp.getString("geneAccession");
-//				 System.out.println(accession+" parameter="+statbleParamId);
-//				// Parameter parameter=pipelineDAO.getParameterById(Integer.valueOf(parameterId));
-//				 map.put("paramStableId", statbleParamId);
-//				 map.put("accession",accession);
-//				 listWithStableId.add(map);
-//			 }
-			 
-				List<Map<String, String>> list=null;
-				if(type==ObservationType.time_series){
-				  list = timeSeriesStatisticsDAO.getListOfUniqueParametersAndGenes(start, length);
-				}
-				if(type==ObservationType.unidimensional){
-					if(parameterIds.size()>0){
-						for(String paramId: parameterIds){
-							List<Map<String, String>>tempList=unidimensionalStatisticsDAO.getListOfUniqueParametersAndGenes(start, length, paramId);
-							list.addAll(tempList);
-						}
-					}
-					  list = unidimensionalStatisticsDAO.getListOfUniqueParametersAndGenes(start, length);
-					}
-				if(type==ObservationType.categorical){
-					  list = categoricalStatsDao.getListOfUniqueParametersAndGenes(start, length);
-					}
-				
-				 List<Map<String, String>> listWithStableId=new ArrayList<Map<String, String>>();
-				 for(Map<String, String> row :list){
-					 Map<String,String> map=new HashMap<String,String>();
-					String parameterId=row.get("parameter_id");
-					String accession=row.get("accession");
-					 System.out.println(accession+" parameter="+parameterId);
-					 Parameter parameter=pipelineDAO.getParameterById(Integer.valueOf(parameterId));
-					 map.put("paramStableId",parameter.getStableId());
-					 map.put("accession",accession);
-					 listWithStableId.add(map);
-				 }
-
+		Map<String, String> config = (Map<String, String>) bf
+				.getBean("globalConfiguration");
+		String url=config.get("internalSolrUrl")+"/experiment/select?q=observationType:"+type+" AND biologicalSampleGroup:experimental"+"&wt=json&indent=true&start="+start+"&rows="+length;
+		net.sf.json.JSONObject result = JSONRestUtil.getResults(url);
+		System.out.println(result.toString());
+		JSONArray resultsArray=JSONRestUtil.getDocArray(result);
+	
+			System.out.println(start+" end="+length);
+			 List<Map<String, String>> listWithStableId=new ArrayList<Map<String, String>>();
+			 for(int i=0; i<resultsArray.size(); i++){
+				 Map<String,String> map=new HashMap<String,String>();
+				net.sf.json.JSONObject exp=resultsArray.getJSONObject(i);
+				String statbleParamId=exp.getString("parameterStableId");
+				int internalParamId=exp.getInt("parameterId");
+				String accession=exp.getString("geneAccession");
+				 System.out.println(accession+" parameter="+statbleParamId);
+				// Parameter parameter=pipelineDAO.getParameterById(Integer.valueOf(parameterId));
+				 map.put("paramStableId", statbleParamId);
+				 map.put("accession",accession);
+				 listWithStableId.add(map);
+			 }
 			 
 			 model.addAttribute("statsLinks", listWithStableId);
 		

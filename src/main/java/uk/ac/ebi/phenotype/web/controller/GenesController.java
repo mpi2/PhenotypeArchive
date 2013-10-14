@@ -25,12 +25,14 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -56,6 +58,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.dao.DatasourceDAO;
@@ -348,6 +351,13 @@ public class GenesController {
 		return "PhenoFrag";
 	}
 	
+	private Map<String, Map<String, Integer>> sortPhenFacets(Map<String, Map<String, Integer>> phenFacets){
+		Map<String, Map<String, Integer>> sortPhenFacets = phenFacets;
+		for (String key: phenFacets.keySet()){
+			sortPhenFacets.put(key, new TreeMap<String, Integer>(phenFacets.get(key)));
+		}
+		return sortPhenFacets;
+	}
 	
 	private void processPhenotypes(String acc, Model model, String queryString) throws IOException, URISyntaxException {
 		//facet field example for project name and higher level mp term with gene as query : http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=marker_accession_id:MGI:98373&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet.field=project_name&facet.field=top_level_mp_term_name&facet=true		//top_level_mp_term_name
@@ -365,7 +375,8 @@ public class GenesController {
 			phenotypeList=phenoResult.getPhenotypeCallSummaries();
 
 			Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
-			model.addAttribute("phenoFacets", phenoFacets);
+			// sort facets first			
+			model.addAttribute("phenoFacets", sortPhenFacets(phenoFacets));
 
 		} catch (HibernateException|JSONException e) {
 			log.error("ERROR GETTING PHENOTYPE LIST");
@@ -598,6 +609,30 @@ public class GenesController {
 			HttpServletRequest request,
 			RedirectAttributes attributes) {
 		return "identifierError";
+	}
+	
+	/**
+	 * @throws IOException 
+	 */
+	@RequestMapping("/genesEnu/{acc}")
+	public String genesEnuFrag(
+			@PathVariable String acc,
+			Model model,
+			HttpServletRequest request,
+			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
+		//just pass on any query string after the ? to the solr requesting object for now
+//		String queryString=request.getQueryString();
+//		processPhenotypes(acc, model, queryString);
+		//send a request to their web service https://databases.apf.edu.au/mutations/snpRow/getSnpCount?mgiAccessionId=MGI:1935228
+		String url="https://databases.apf.edu.au/mutations/snpRow/getSnpCount?mgiAccessionId="+acc;
+		JSONObject result = JSONRestUtil.getResults(url);
+		
+		int count=result.getInt("count");
+		System.out.println("count="+count);
+
+	model.addAttribute("makeEnuLink",count);
+
+		return "genesEnuFrag";
 	}
 	
 }

@@ -559,7 +559,8 @@
             var selectOptions = sourceSelect.find("option");
             var text = self._formatText(selectOptions, options.firstItemChecksAll, firstOption);
             var controlLabel = controlWrapper.find(".ui-dropdownchecklist-text");
-            controlLabel.html(text);
+            var shortText = text.slice(0,24) + " ...";
+            controlLabel.html(shortText);
             // the attribute needs naked text, not html
             controlLabel.attr("title", controlLabel.text());
         },

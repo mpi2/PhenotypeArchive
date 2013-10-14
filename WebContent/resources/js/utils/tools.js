@@ -424,7 +424,7 @@
     	return hashParams;
     }
     
-    $.fn.fetchEmptyTable = function(theadStr, colNum, id){
+    $.fn.fetchEmptyTable = function(theadStr, colNum, id, pageReload){
     	
     	var table = $('<table></table>').attr({'id':id});
     	var thead = theadStr;
@@ -437,7 +437,7 @@
     	return table;
     }  
        
-    $.fn.parseUrlForFacetCheckboxAndTermHighlight = function(q, fqStr, facet, aFields){
+    $.fn.parseUrlForFacetCheckboxAndTermHighlight = function(q, fqStr, facet, pageReload){
     	var self = this;
     	    
     	fqStr = fqStr.replace(MPI2.searchAndFacetConfig.facetParams[facet].filterParams.fq, '');
@@ -448,6 +448,7 @@
 		var pat = '(\\b\\w*\\b):"([a-zA-Z0-9_\/ ]*)"';		
 		var regex = new RegExp(pat, "gi");		    	
 		var result;
+		var objList = [];
     	while ( result = regex.exec(fqStr) ) {		    		
     		var wantStr = result[1]+ '|' + result[2];
     		    	
@@ -467,6 +468,7 @@
     		else {    		
     			obj.attr('checked', true);
     		}
+    		objList.push(obj);    		
     		
     		// highlight this facet term
     		var aObjs = obj.parent().siblings('td');    		
@@ -475,7 +477,73 @@
     		// also add to unordered list
     		$.fn.addFacetFilter(obj, q);
     	} 
+
+		// Work out which subfacet needs to be open:
+		// This is for gene and images cores only where there are collapsed subfacets by default.
+		// Ie, if a particular subfacet was open, we need to reopen it now when page reloads
+    	// But ignore this bit if we are dealing with hash change in url
+    	if ( typeof pageReload != 'undefined' ){
+    		_setFacetToOpen(objList);
+    	}
     }
+    
+    function _setFacetToOpen(objList){
+    	
+    	var aSubFacetNames = [];
+    	// sort first for priority
+    	var seenMP;
+    	for (var i=0; i<objList.length; i++){
+    		if ( objList[i].attr('class') == 'higherLevelMpTermName' ){
+				seenMP = true;
+			}
+			else {
+	    		aSubFacetNames.push(objList[i].attr('class'));	    	
+			}
+    	}  
+    	aSubFacetNames.sort();  	
+    	if ( seenMP ){
+    		aSubFacetNames.unshift('higherLevelMpTermName');
+    	}    	   	
+    	
+    	// only for gene and images facets
+    	for (var i=0; i<aSubFacetNames.length; i++){
+    		var subFacetName = aSubFacetNames[i];
+    		
+    		if ( subFacetName == 'marker_type' ){
+    			$('tr.geneSubTypeTrCap').find('td').addClass('unCollapse');  
+    			$('tr.geneSubTypeTr').show();  			
+    		}    		
+    		else {
+    			// change arrow image to collapse and make all images subfacets hidden
+        		$('table#imagesFacetTbl').find('tr.subFacet').addClass('trHidden');
+        		$('table#imagesFacetTbl').find('tr.facetSubCat td').removeClass('unCollapse');        		     			  	    			
+      			
+    			if (subFacetName == 'higherLevelMpTermName'){
+    				_arrowSwitch(subFacetName);    						
+    			} 
+    			else if (subFacetName == 'expName'){
+    				_arrowSwitch(subFacetName);  			
+	    		}
+	    		else if (subFacetName == 'higherLevelMaTermName'){
+	    			_arrowSwitch(subFacetName); 
+	    		}	    		
+	    		else if (subFacetName == 'subtype'){
+	    			_arrowSwitch(subFacetName);  		
+	    		}
+	    		
+	    		$('tr.' + subFacetName).removeClass('trHidden');
+	    		break;
+	    	}    		
+    	}    	
+    }
+    
+    function _arrowSwitch(subFacetName){
+    	$('tr.facetSubCat').each(function(){
+			if ( $(this).hasClass(subFacetName) ){
+				$(this).find('td').addClass('unCollapse'); 
+			}
+		}); 
+    }   
     
     function _prepare_resultMsg_and_dTableSkeleton(q, fqStr, facetDivId){
     
@@ -503,7 +571,7 @@
 		}		
 		
     	var dataCount = "<span id='resultCount'><span id='annotCount'></span><a></a></span>";    	
-    	var resultMsg = $("<div id='resultMsg'></div>").append(imgViewSwitcher, dataCount, ' for ' + userFqStr, searchKw);
+    	var resultMsg = $("<div id='resultMsg'></div>").append(imgViewSwitcher, dataCount, ' for ' + userFqStr + decodeURI(searchKw));
     	    	
     	$('div#mpi2-search').html('');
     	$('div#mpi2-search').append(resultMsg, dTable);   
@@ -813,7 +881,7 @@
 		var fileType = thisButt.text(); 
 		var dumpMode = thisButt.attr('class').indexOf('all') != -1 ? 'all' : 'page';    
 		
-		var url = baseUrl + '/export';	    		
+		var url = baseUrl + '/export';	
 		var sInputs = '';
 		var aParams = [];
 		for ( var k in conf ){

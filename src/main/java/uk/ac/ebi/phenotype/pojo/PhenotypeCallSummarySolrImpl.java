@@ -211,7 +211,7 @@ public class PhenotypeCallSummarySolrImpl implements
 				+ core
 				+ "/select/?q=mp_term_id:\""
 				+ phenotype_id
-				+ "\"&fq=-resource_name:IMPC&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=resource_fullname&facet.field=procedure_name";
+				+ "\"&fq=-resource_name:IMPC&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=resource_fullname&facet.field=procedure_name&facet.field=marker_symbol";
 		// if (!filterString.equals("")) {
 		if (queryString.startsWith("&")) {
 			url += queryString;

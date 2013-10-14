@@ -1,8 +1,9 @@
 /*-------- autosuggest -------*/
   
  /* 2 columns: 1 fixed (L), 1 liquid (R) */
-/*div#wrapper{float:left;width:100%;}
-div#content{margin-left:270px}
+div#wrapper{clear: both;}
+
+/*div#content{margin-left:270px}
 div#leftSideBar{float:left;width:230px;margin-left:-100%; border: 1px solid gray; padding: 10px;}*/
 /* end of 2 columns style */
 
@@ -126,6 +127,9 @@ span.gSymbol {
 span.gNameSyn {
 	font-weight: bold;
 }
+div#imgView {
+	margin-bottom: 10px;
+}
 span#imgViewSubTitle {
 	font-weight: bold;
 	font-size: 12px;
@@ -146,16 +150,16 @@ span.annotType {
 	font-weight: bold;	
 }
 
-table#gFacet td.geneSubtypeCount,
-table#gFacet td.geneStatusCount,
-table#gFacet td.geneSubfacetCount,
-/*table#pipeline td[class^=procedure],*/ 
-table#pipeline td a.paramCount,
-table#mpFacet td.mpTopLevelCount,
-table#maFacet td.maTopLevelCount,
-table#imgFacet td.imgSubfacetCount
-/*table#mpFacet td.mpTopLevel*/ 
-/*table#maFacet td.maTopLevelCount, table#maFacet td.maTopLevel */{
+table#geneFacetTbl td.geneSubtypeCount,
+table#geneFacetTbl td.geneStatusCount,
+table#geneFacetTbl td.geneSubfacetCount,
+/*table#pipelineFacetTbl td[class^=procedure],*/ 
+table#pipelineFacetTbl td a.paramCount,
+table#mpFacetTbl td.mpTopLevelCount,
+table#maFacetTbl td.maTopLevelCount,
+table#imagesFacetTbl td.imgSubfacetCount
+/*table#mpFacetTbl td.mpTopLevel*/ 
+/*table#maFacetTbl td.maTopLevelCount, table#maFacetTbl td.maTopLevel */{
 	cursor: pointer;	
 }
 
@@ -163,25 +167,25 @@ tr.subFacet td:nth-child(2) {
 	padding-left: 5px !important;	
 }
 
-table#gFacet tr.geneSubTypeTrCap {
+table#geneFacetTbl tr.geneSubTypeTrCap,  table#imagesFacetTbl tr.facetSubCat {
 	cursor: pointer;
 }
-table#gFacet tr.geneSubTypeTrCap td {
+table#geneFacetTbl tr.geneSubTypeTrCap td, table#imagesFacetTbl tr.facetSubCat td{
 	padding-left: 15px !important;
 	background-image: url('../img/right.gif');
     background-repeat: no-repeat;
     background-position: 2px 50%; /*x,y*/	
 }
-table#gFacet tr.geneSubTypeTrCap td.unCollapse {
+table#geneFacetTbl tr.geneSubTypeTrCap td.unCollapse,  table#imagesFacetTbl tr.facetSubCat td.unCollapse{
 	background-image: url('../img/down.gif');
 }
-table#gFacet tr.geneSubTypeTr {
+table#geneFacetTbl tr.geneSubTypeTr, tr.trHidden {
 	display: none;
 }
-table#pipeline td[class^=procedure]:nth-child(1) {
+table#pipelineFacetTbl td[class^=procedure]:nth-child(1) {
 	padding-left: 5px;
 }
-table#pipeline tr[class$=_param] {
+table#pipelineFacetTbl tr[class$=_param] {
 	display: none;
 	font-size: 10px;
 	color: gray;
@@ -215,6 +219,17 @@ span#maMsg {
 table#mpTable, table#maTable {
 	float: left;
 	margin: 0;
+}
+
+table[id$=FacetTbl] tr td input {
+	margin: 0 !important;
+	padding: 0 !important;	
+}
+table[id$=FacetTbl] tr td {
+	text-align:center;
+}
+table[id$=FacetTbl] tr td:nth-child(2),  table[id$=FacetTbl] tr.facetSubCat td {
+	text-align:left;
 }
 
 .highlight {
@@ -312,7 +327,7 @@ span.hiddenId {
 div.gridSubTitle {
 	display: inline;	
 }
-div.gridTitle, div#resultMsg, strong.lead {
+div#resultMsg, strong.lead {
 	color: gray !important;
 	font-weight: bold !important;
 	font-size: 13px !important;
@@ -320,6 +335,56 @@ div.gridTitle, div#resultMsg, strong.lead {
 div.dataTables_wrapper {
 	margin-top: 30px;
 }
+
+/* ----- start of  facet filter ----- */
+div#filterToggle {
+	display: none;
+}
+
+ul#facetFilter {
+  width: auto;	
+  margin: -23px 0 0 150px;
+  padding: 3px 6px;
+  background: none;
+  border-radius: 1em;
+  font: normal 1em Arial, Helvetica, sans-serif;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  display: none;
+}
+ul#facetFilter ul {
+  /*z-index: 9999;	
+  display: none;*/
+  margin: 0 0 5px 20px;
+  padding: 2px 5px;
+  width: auto;
+  /*position: absolute;
+  top: 20px;
+  left: 0;*/
+  /*background: #F4F4F4;*/ /*url(overlay.png) repeat-x 0 0;*/
+  /*border: solid 1px #b4b4b4;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;*/ 
+}
+#facetFilter li.has-sub {
+	list-style: none;
+}
+ul#facetFilter li ul li {	
+	list-style: none;
+	/*margin-left: 20px;*/	
+}
+ul#facetFilter li.has-sub {
+	display: none;
+}
+ul#facetFilter li.none {
+	display: block;
+}
+
+
+/* ----- end of  facet filter ----- */
+
 
 /*
  * Table
@@ -755,6 +820,7 @@ table tr:last-child td{
    margin:10px;
 background-image: url('../img/down-arrow.png');
 background-repeat:no-repeat;
+vertical-align:middle;
 
 }
 
@@ -762,6 +828,7 @@ background-repeat:no-repeat;
    margin:10px;
 background-image: url('../img/up-arrow.png');
 background-repeat:no-repeat;
+vertical-align:middle;
 }
 
 div.gridTitle {
@@ -984,11 +1051,17 @@ body div#allele_tracker_panel_results  a img {
 	color: black;
 	margin: 4px;
 	font-size: 14px;
+	vertical-align: middle;
 	}
 /*make the checkboxes have a reasonable spacing around them*/
 .ui-dropdownchecklist-item input[type=checkbox] {
 	margin: 4px 4px 4px;
 	}
+div.ui-dropdownchecklist-dropcontainer {
+	max-height: 300px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
 
 .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default{
 	background: white;
@@ -1002,3 +1075,5 @@ body div#allele_tracker_panel_results  a img {
     text-align:center;
     font-size:0.875em;
 }
+
+.filterTrigger { cursor: pointer; }

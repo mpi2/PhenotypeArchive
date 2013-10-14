@@ -20,6 +20,9 @@
  * 
  */
 
+if ( typeof $ === 'undefined'){
+	$ = window.jQuery;
+}
 
 if(typeof(window.MPI2) === 'undefined') {
     window.MPI2 = {};
@@ -121,7 +124,7 @@ config.facetParams = {
 		filterParams: {fq:'marker_type:* -marker_type:"heritable phenotypic marker"',		 
 			      qf:"marker_symbol^100.0 human_gene_symbol^90.0 marker_name^10.0 marker_synonym mgi_accession_id auto_suggest",			     
 			      bq:'marker_type:"protein coding gene"^100'},
-		srchParams: $.extend({},				
+		srchParams : $.extend({},				
 				 	commonSolrParams	 	
 					),
 		subFacet_filter_params: '', // set by widget on the fly

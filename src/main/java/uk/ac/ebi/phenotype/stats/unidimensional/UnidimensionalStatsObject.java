@@ -4,6 +4,7 @@ import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 public class UnidimensionalStatsObject {
+
 private String line="Control";//if not set we assume control
 private ZygosityType zygosity=ZygosityType.homozygote;
 private SexType sexType=SexType.male;
@@ -59,6 +60,14 @@ public Integer getSampleSize() {
 }
 public void setSampleSize(Integer sampleSize) {
 	this.sampleSize = sampleSize;
+}
+
+@Override
+public String toString() {
+	return "UnidimensionalStatsObject [line=" + line + ", zygosity="
+			+ zygosity + ", sexType=" + sexType + ", mean=" + mean
+			+ ", sd=" + sd + ", sampleSize=" + sampleSize + ", allele="
+			+ allele + ", geneticBackground=" + geneticBackground + "]";
 }
 
 }

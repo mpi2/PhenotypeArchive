@@ -97,12 +97,22 @@ public class ObservationDTO {
 	@Field
 	private Float discretePoint;
 
+	@Field
+	private String externalSampleId;
 
 
 
 	/**
 	 * helper methods
 	 */
+
+	public String getExternalSampleId() {
+		return externalSampleId;
+	}
+
+	public void setExternalSampleId(String externalSampleId) {
+		this.externalSampleId = externalSampleId;
+	}
 
 	/**
 	 * Format date of experiment string into day/month/year format

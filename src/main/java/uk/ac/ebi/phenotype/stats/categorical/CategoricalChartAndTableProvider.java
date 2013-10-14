@@ -285,8 +285,10 @@ public class CategoricalChartAndTableProvider {
 										expBiologicalModel);
 						chartData.setChart(chartNew);
 						categoricalResultAndCharts.add(chartData);
+						
+						System.out.println("experimental result="+experiment.getResult());
 						categoricalResultAndCharts
-								.setStatsResults(categoricalResults);
+								.setStatsResults((List<CategoricalResult>) experiment.getResult());
 						// TableObject table =
 						// this.creatCategoricalDataTableFromObjects(chartData,
 						// sexType, "",

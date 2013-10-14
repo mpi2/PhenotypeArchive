@@ -16,6 +16,7 @@
     <jsp:attribute name="footer">
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js'></script>
 		<script type='text/javascript' src='${baseUrl}/js/imaging/mp.js'></script>
+		<script src="${baseUrl}/js/general/dropDownPhenPage.js"></script>
 		<script src="${baseUrl}/js/general/toggle.js"></script>
 		
     </jsp:attribute>
@@ -122,169 +123,17 @@
 						<form id="target" action="www.google.com">
 								<c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
 										<select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
-											<option>All</option>
 											<c:forEach var="facet" items="${phenoFacet.value}">
 												<option>${facet.key}</option>
 											</c:forEach>
 										</select> 
 								</c:forEach>
-								<input type="submit" class='btn primary' value="Filter" />
 						</form>
 						<jsp:include page="geneVariantsWithPhenotypeTable.jsp"></jsp:include>
 <div id="exportIconsDiv"></div>
-				</div>
-				<script>
-					$(document).ready(function(){						
-						
-						$.fn.qTip('mp');	// bubble popup for brief panel documentation	
-						
-						//var oDataTable = $('table#phenotypes').dataTable();
-						//oDataTable.fnDestroy();//clean up the previous datatable from the calling page
-					// use jquery DataTable for table searching/sorting/pagination
-					var aDataTblCols = [0,1,2,3,4,5,6];
-					var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
-						"aoColumns": [
-							{ "sType": "html", "mRender":function( data, type, full ) {
-						        return (type === "filter") ? $(data).text() : data;
-						    }},
-							{ "sType": "html", "mRender":function( data, type, full ) {
-						        return (type === "filter") ? $(data).text() : data;
-						    }},
-						    { "sType": "string"},
-							{ "sType": "alt-string", "bSearchable" : false },
-						    { "sType": "string"},
-						    { "sType": "html"}
-						    , { "sType": "string", "bSortable" : false }
-
-						],
-						"bDestroy": true,
-						"bFilter":false,
-		   	    		"iDisplayLength": 10000   // 10 rows as default 
-					});
-
-					$('[rel=tooltip]').tooltip();
-					//$("#phenotypes_filter").hide();
-												    		
-		    		//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
-		    		$('div#exportIconsDiv').append($.fn.loadFileExporterUI({
-		    			label: 'Export table as:',
-		    			formatSelector: {
-		    				TSV: 'tsv_phenoAssoc',
-		    				XLS: 'xls_phenoAssoc'	    			 					
-		    			},
-		    			class: 'fileIcon'
-		    		})); 
-		    		
-		    		initFileExporter({
-						mpId: '${phenotype.id.accession}',
-						mpTerm: '${phenotype.name}',
-						externalDbId: 5,  //mp_db_id in phenotype_call_summary table
-						panel: 'geneVariants',
-						fileName: 'gene_variants_of_MP-${fn:replace(phenotype.name, " ", "_")}'	
-					});
-		    		function initFileExporter(conf){
-		    			
-		    	    	$('button.fileIcon').click(function(){
-		    	    		var classString = $(this).attr('class');	    		
-		    	    		//var controller = classString.substr(0, classString.indexOf(" "));
-		    	    		
-		    	    		var fileType = $(this).text();
-		    	    		var url = baseUrl + '/export';	    		
-		    	    		var sInputs = '';
-		    	    		for ( var k in conf ){
-		    	    			sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";	    			
-		    	    		}
-		    	    		sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
-		    	    		
-		    	    		$("<form action='"+ url + "' method=get>" + sInputs + "</form>").appendTo('body').submit().remove();    		
-		    	    	}).corner('6px');	 
-		    	    }  
 					
-			    		//stuff for dropdown tick boxes here
-			    		$("#resource_fullname").dropdownchecklist( { firstItemChecksAll: true, emptyText: "Projects: All", icon: {}, minWidth: 150 } );
-			    		$("#procedure_name").dropdownchecklist( { firstItemChecksAll: true, emptyText: "Procedure: All", icon: {} , minWidth: 150} );
-			    		// $("select[multiple]").bsmSelect();
-			    		//if filter parameters are already set then we need to set them as selected in the dropdowns
-			    		var previousParams=$("#filterParams").html();
-			    		//alert('previous='+previousParams);
-				$('#target').submit(function() {
-			  var rootUrl=window.location.href;
-			    			 // alert(rootUrl);
-			    			  var newUrl=rootUrl.replace("phenotypes", "geneVariantsWithPhenotypeTable");//change the new url to point to the fragment view in the controller
-			    			// alert( $("option:selected").parent().attr("id"));
-			    			 var output ='?';
-			    			//http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=marker_accession_id:MGI:98373&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet=true&facet.field=project_name&facet.field=top_level_mp_term_name&fq=top_level_mp_term_name:(%22vision/eye%20phenotype%22%20OR%20%22craniofacial%20phenotype%22)
-			    			var array1=$("#resource_fullname").val() || [];
-			    			if(array1.length==1){//if only one entry for this parameter then don't use brackets and or
-			    				 output+='&fq=resource_fullname:"'+array1[0]+'"';
-			    			} 
-							if(array1.length>1)	{
-			    				output+='&fq=resource_fullname:(';//note " before and after value for solr handle spaces
-			    			 		for(var i=0; i<array1.length; i++){
-			    						 
-			    							 //if(i==0)output+=' " ';
-			    						 output+='"'+array1[i]+'"';
-			    						 if(i<array1.length-1){
-			    							 output+=' OR ';
-			    						 }else{
-			    							 output+=')';
-			    						 }
-			    						 //console.log('logging='+array1[i]);
-			    			 }
-			    		}
-			    			 var output2 ='';//='"'+ ($("#top_level_mp_term_name").val() || []).join('"&fq=top_level_mp_term_name:"')+'"';
-			    			 var array2=$("#procedure_name").val() || [];
-			    				if(array2.length==1){//if only one entry for this parameter then don't use brackets and or
-				    				 output+='&fq=procedure_name:"'+array2[0]+'"';
-				    			}
-			    				if(array2.length>1){
-				    				output+='&fq=procedure_name:(';//note " before and after value for solr handle spaces
-			    			 			for(var i=0; i<array2.length; i++){
-			    			 				 output+='"'+array2[i]+'"';
-				    						 if(i<array2.length-1){
-				    							 output+=' OR ';
-				    						 }else{
-				    							 output+=')';
-				    						 }
-			    			 		}
-			    			 }
-			    			 newUrl+=output+output2;
-			    			 //alert(newUrl);
-			    			  $.ajax({
-			    				  url: newUrl,
-			    				  cache: false
-			    				}).done(function( html ) {
-			    				  $("#phenotypes_wrapper").html(html);
-			    				  
-			    				  
-			    				// use jquery DataTable for table searching/sorting/pagination
-			  					var aDataTblCols = [0,1,2,3,4,5,6];
-			  					var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
-			  						"aoColumns": [
-			  							{ "sType": "html", "mRender":function( data, type, full ) {
-			  						        return (type === "filter") ? $(data).text() : data;
-			  						    }},
-			  							{ "sType": "html", "mRender":function( data, type, full ) {
-			  						        return (type === "filter") ? $(data).text() : data;
-			  						    }},
-			  						    { "sType": "string"},
-			  							{ "sType": "alt-string", "bSearchable" : false },
-			  						    { "sType": "string"},
-			  						    { "sType": "html"}
-			  						    , { "sType": "string", "bSortable" : false }
-
-			  						],
-			  						"bDestroy": true,
-			  						"bFilter":false,
-			  		   	    		"iDisplayLength": 10000   // 10 rows as default 
-			  					});			  
-			    				});
-			    			  return false;
-			    			});
-					});
-				</script>
-	
-	</c:if>
+			</c:if>
+	</div>
 	<c:if test="${empty phenotypes}">
 					<div class="alert alert-info">You'll see EuroPhenome phenotype data when available. You'll find links to the Wellcome Trust Sanger Institute mouse portal when appropriate.</div>
 				</c:if>
