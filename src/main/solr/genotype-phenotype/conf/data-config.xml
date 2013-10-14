@@ -26,8 +26,8 @@
 			<field column="resource_name" name="resource_name" />
 			<field column="external_id" name="external_id" />
 			
-			<!-- top level MP term of this MP term -->
-			<entity dataSource="ds2" name="mp_node2term"
+			<!-- top level MP terms of this MP term -->
+			<!--  entity dataSource="ds2" name="mp_node2term"
 				query="select node_id from mp_node2term where term_id='${phenotype_call.mp_term_id}'">
 				<entity dataSource="ds2" name="mp_node_top_level"
 					query="select top_level_node_id from mp_node_top_level where node_id=${mp_node2term.node_id}">
@@ -36,13 +36,24 @@
 						<entity dataSource="ds2" name="mp_term_infos"
 							query="select term_id, name, definition from mp_term_infos where term_id='${mp_node2term.term_id}' and term_id != 'MP:0000001'">
 
-							<!-- do not want to include the root term -->
 							<field column="term_id" name="top_level_mp_term_id" />
 							<field column="name" name="top_level_mp_term_name" />
 							<field column="definition" name="top_level_mp_term_definition" />
 						</entity>
 					</entity>
+				</entity -->
+				
+				<entity dataSource="ds2" name="mps" query="SELECT top_level_node_id FROM `mp_node2term` mp , mp_node_top_level tl WHERE term_id='${phenotype_call.mp_term_id}' and mp.node_id=tl.node_id">
+						<field column="top_level_node_id" name="topLevel" />
+
+						<entity dataSource="ds2" name="mphigher"
+							query="SELECT mp.node_id, mp.term_id as mpTerm, inf.term_id, name, definition FROM `mp_node2term` mp , `mp_term_infos` inf WHERE mp.node_id=${mps.top_level_node_id} and inf.term_id=mp.term_id">
+							<field column="name" name="top_level_mp_term_name" />
+							<field column="mpTerm" name="top_level_mp_term_id" />
+							<field column="definition" name="top_level_mp_term_definition" />
+						</entity>
 				</entity>
+				
 			</entity>
 								
 			<!-- Link to phenotype parameter -->
