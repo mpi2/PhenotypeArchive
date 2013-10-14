@@ -141,8 +141,8 @@ public class PhenotypeCallSummarySolrImpl implements
 																		// in
 																		// solr
 																		// index!!!
-			if (phen.containsKey("external_id")) {
-				sum.setExternalId(phen.getInt("external_id"));
+			if (phen.containsKey("project_external_id")) {
+				sum.setExternalId(phen.getInt("project_external_id"));
 			}
 			sum.setProject(project);
 			// "procedure_stable_id":"77",
