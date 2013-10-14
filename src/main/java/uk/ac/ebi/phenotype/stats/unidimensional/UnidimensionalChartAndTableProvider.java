@@ -804,6 +804,7 @@ System.out.println("byMouseId="+byMouseId);
 			}
 		seriesString+="]";
 		//use catagories like this instead for mouseId strings http://jsfiddle.net/QBvLS/
+		
 		String dateToolTip="tooltip: { "+
                 " formatter: function() { "
                     +  "  return '<b>'+ this.series.name +'</b><br/>'+ "
@@ -812,14 +813,17 @@ System.out.println("byMouseId="+byMouseId);
           +"  },";
 		String normalToolTip=" tooltip: {"
 		         +"  formatter: function() { "
-		            +"  return '<b>'+ this.series.name +'</b><br/>'+"
+		            +"  return '<b>'+ this.series.name +'</b><br/>Mouse Id:'+"
 		    +   "      this.x +': '+ this.y +' m'; "
 		+     " } "
 		+     "  }, ";
+		
+		String tooltip=dateToolTip;//default is date so datetooltip is default
+		
 		String categoriesString=" ";
 		if(	byMouseId) {
 			categoriesString=" categories:"+mouseIdArrayJson +" , ";
-			
+			tooltip=normalToolTip;
 		};
 		
 		String scatterChartString = "{ chart: { type: 'scatter', zoomType: 'xy' }, title: { text: '"
@@ -840,7 +844,7 @@ System.out.println("byMouseId="+byMouseId);
 				+ yAxisTitle
 				+ "' } },  credits: { enabled: false }, legend: { layout: 'vertical', align: 'left', verticalAlign: 'top', x: 100, y: 70, floating: true, backgroundColor: '#FFFFFF', borderWidth: 1 }, plotOptions: { scatter: { marker: { radius: 5, states: { hover: { enabled: true, lineColor: 'rgb(100,100,100)' } } }, states: { hover: { marker: { enabled: false } } }"
 				+" } },"+
-				dateToolTip
+				tooltip
 					+
 		            
 				seriesString
