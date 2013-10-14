@@ -777,6 +777,8 @@ System.out.println("byMouseId="+byMouseId);
 		//then we need the values for each mouse in order in an array for each contol or zygosity set WT, HOM, HET is our xAxisCategories list
 		String seriesString=" series: [ ";
 		int i=0;
+		//Date.UTC(1970,  9, 27)
+		SimpleDateFormat utcDateFormat=new SimpleDateFormat("yyyy, MM, dd");
 		for(String xAxisCategory: xAxisCategoriesList) {
 			seriesString+="{ name: '"
 					+ xAxisCategory+" ' "
@@ -786,7 +788,14 @@ System.out.println("byMouseId="+byMouseId);
 					
 					String data="";
 					for(MouseDataPoint mouseDataPoint: scatterColumns.get(i)) {
+						if(byMouseId) {
 						data+="["+mouseDataPoint.getColumn() +"," +mouseDataPoint.getDataPoint()+"],"; 
+						}
+						else {
+							//Date.UTC(1970,  9, 27)
+							data+="["+"Date.UTC("+utcDateFormat.format(mouseDataPoint.getDateOfExperiment())+")" +", " +mouseDataPoint.getDataPoint()+"],"; 
+							//System.out.println("data="+data);
+						}
 					}
 					seriesString+=data;
 					seriesString+= " ] }, ";
@@ -795,15 +804,35 @@ System.out.println("byMouseId="+byMouseId);
 			}
 		seriesString+="]";
 		//use catagories like this instead for mouseId strings http://jsfiddle.net/QBvLS/
+		String dateToolTip="tooltip: { "+
+                " formatter: function() { "
+                    +  "  return '<b>'+ this.series.name +'</b><br/>'+ "
+                     +"   Highcharts.dateFormat('%e. %b', this.x) +': '+ this.y +' m'; "
+             +  " }"
+          +"  },";
+		String normalToolTip=" tooltip: {"
+		         +"  formatter: function() { "
+		            +"  return '<b>'+ this.series.name +'</b><br/>'+"
+		    +   "      this.x +': '+ this.y +' m'; "
+		+     " } "
+		+     "  }, ";
+		String categoriesString=" ";
+		if(	byMouseId) {
+			categoriesString=" categories:"+mouseIdArrayJson +" , ";
+			
+		};
+		
 		String scatterChartString = "{ chart: { type: 'scatter', zoomType: 'xy' }, title: { text: '"
 				+ title
 				+ "' }, subtitle: { text: '"
 				+ WordUtils.capitalize(sex.name())
-				+ "' }, xAxis: { title: { enabled: true, text: '"
+				+ "' }, xAxis: { "+
+				" type: 'datetime',"
+				+"title: { enabled: true, text: '"
 				+ xAxisTitle
-				+ "' },  "+
+				+ "' },  "
 				
-				" categories:"+mouseIdArrayJson +" , "+
+			+categoriesString+
 				
 				" labels: { rotation: -45, align: 'right', style: { fontSize: '13px',  fontFamily: 'Verdana, sans-serif' }   }, "
 	
@@ -811,13 +840,8 @@ System.out.println("byMouseId="+byMouseId);
 				+ yAxisTitle
 				+ "' } },  credits: { enabled: false }, legend: { layout: 'vertical', align: 'left', verticalAlign: 'top', x: 100, y: 70, floating: true, backgroundColor: '#FFFFFF', borderWidth: 1 }, plotOptions: { scatter: { marker: { radius: 5, states: { hover: { enabled: true, lineColor: 'rgb(100,100,100)' } } }, states: { hover: { marker: { enabled: false } } }"
 				+" } },"+
-				
-		        " tooltip: {"
-		              +"  formatter: function() { "
-		                       +"  return '<b>'+ this.series.name +'</b><br/>'+"
-		               +   "      this.x +': '+ this.y +' m'; "
-		          +     " } "
-		     +     "  }, "+
+				dateToolTip
+					+
 		            
 				seriesString
 //				+ " series: [{ name: '"
