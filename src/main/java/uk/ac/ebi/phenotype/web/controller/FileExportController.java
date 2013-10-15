@@ -92,7 +92,8 @@ public class FileExportController {
 		@RequestParam(value="params", required=false) String solrParams,
 		@RequestParam(value="gridFields", required=false) String gridFields,		
 		@RequestParam(value="showImgView", required=false, defaultValue="false") boolean showImgView,	
-		@RequestParam(value="dumpMode", required=false) String dumpMode,
+		@RequestParam(value="dumpMode", required=false) String dumpMode,	
+		@RequestParam(value="baseUrl", required=false) String baseUrl,
 		HttpSession session, 
 		HttpServletRequest request, 
 		HttpServletResponse response,
@@ -276,7 +277,7 @@ public class FileExportController {
 					data.add(doc.getString("resource_fullname"));
 					String graphUrl = "\"\"";
 					if ((doc.getString("resource_fullname")).equalsIgnoreCase("EuroPhenome")){ // only show links for Europhenome
-						graphUrl = config.get("baseUrl")+"/stats/genes/" + doc.getString("marker_accession_id") + "?parameterId=" ;
+						graphUrl = request.getParameter("baseUrl").replace("/genes/", "/stats/genes/") + "?parameterId=" ;
 						graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
 						graphUrl += "&zygosity=" + doc.getString("zygosity") ;
 					}
@@ -301,9 +302,9 @@ public class FileExportController {
 					data.add(doc.getString("procedure_name") + "/" + doc.getString("parameter_name"));
 					data.add(doc.getString("resource_fullname"));
 					String graphUrl = "\"\"";
-					//TODO check, this might need to change
+					// TODO check, this might need to change
 					if ((doc.getString("resource_fullname")).equalsIgnoreCase("EuroPhenome")){ // only show links for Europhenome
-						graphUrl = config.get("baseUrl")+"/stats/genes/" + doc.getString("marker_accession_id") + "?parameterId=" ;
+						graphUrl = request.getParameter("baseUrl").replace("/phenotypes/", "/stats/genes/") + "?parameterId=" ;
 						graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
 						graphUrl += "&zygosity=" + doc.getString("zygosity") ;
 					}

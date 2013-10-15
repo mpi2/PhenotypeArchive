@@ -98,9 +98,9 @@
     <field name="mp_term_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />	
 	<field name="mp_term_name" type="string" indexed="true" stored="true" required="true" multiValued="false" />
 
-    <field name="top_level_mp_term_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />	
-	<field name="top_level_mp_term_name" type="string" indexed="true" stored="true" required="false" multiValued="false" />
-	<field name="top_level_mp_term_definition" type="string" indexed="true" stored="true" required="false" multiValued="false" />	
+    <field name="top_level_mp_term_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="top_level_mp_term_name" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_term_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
 		
    	<field name="marker_symbol" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="marker_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
@@ -112,6 +112,7 @@
 	<field name="strain_name" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="strain_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     
+    <field name="project_external_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
  	<field name="project_name" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="project_fullname" type="string" indexed="true" stored="true" required="false" multiValued="false" />
  

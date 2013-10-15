@@ -4,10 +4,11 @@
 	<dataSource name="ds2" jndiName="java:comp/env/jdbc/ontodbDataSource" /> 
 	<document name="komp2_indexing">
 		<!-- Phenotype call summary -->
-		<entity dataSource="ds1" name="phenotype_call" query ="select s.id as doc_id, s.parameter_id as parameter_id, s.procedure_id as procedure_id, s.pipeline_id as pipeline_id, s.gf_acc as marker_accession_id, gf.symbol as marker_symbol, s.allele_acc as allele_accession_id, al.name as allele_name, al.symbol as allele_symbol, s.strain_acc as strain_accession_id, st.name as strain_name, s.sex as sex, s.zygosity as zygosity, p.name as project_name, p.fullname as project_fullname, s.mp_acc as mp_term_id, ot.name as mp_term_name, s.p_value as p_value, s.effect_size as effect_size, db.name as resource_fullname, db.short_name as resource_name from phenotype_call_summary s join project p on s.project_id = p.id join ontology_term ot on ot.acc = s.mp_acc join genomic_feature gf on s.gf_acc = gf.acc left outer join strain st on s.strain_acc = st.acc left outer join allele al on s.allele_acc = al.acc inner join external_db db on s.external_db_id = db.id">
+		<entity dataSource="ds1" name="phenotype_call" query ="select s.id as doc_id, s.external_id as project_external_id, s.parameter_id as parameter_id, s.procedure_id as procedure_id, s.pipeline_id as pipeline_id, s.gf_acc as marker_accession_id, gf.symbol as marker_symbol, s.allele_acc as allele_accession_id, al.name as allele_name, al.symbol as allele_symbol, s.strain_acc as strain_accession_id, st.name as strain_name, s.sex as sex, s.zygosity as zygosity, p.name as project_name, p.fullname as project_fullname, s.mp_acc as mp_term_id, ot.name as mp_term_name, s.p_value as p_value, s.effect_size as effect_size, db.name as resource_fullname, db.short_name as resource_name from phenotype_call_summary s join project p on s.project_id = p.id join ontology_term ot on ot.acc = s.mp_acc join genomic_feature gf on s.gf_acc = gf.acc left outer join strain st on s.strain_acc = st.acc left outer join allele al on s.allele_acc = al.acc inner join external_db db on s.external_db_id = db.id">
 			<field column="doc_id" name="doc_id" />
 			<field column="sex" name="sex" />
 			<field column="zygosity" name="zygosity" />
+			<field column="project_external_id" name="project_external_id" />
 			<field column="project_name"  name="project_name" />
 			<field column="project_fullname"  name="project_fullname" />
 			<field column="mp_term_id" name="mp_term_id" />
@@ -25,8 +26,8 @@
 			<field column="resource_name" name="resource_name" />
 			<field column="external_id" name="external_id" />
 			
-			<!-- top level MP term of this MP term -->
-			<entity dataSource="ds2" name="mp_node2term"
+			<!-- top level MP terms of this MP term -->
+			<!--  entity dataSource="ds2" name="mp_node2term"
 				query="select node_id from mp_node2term where term_id='${phenotype_call.mp_term_id}'">
 				<entity dataSource="ds2" name="mp_node_top_level"
 					query="select top_level_node_id from mp_node_top_level where node_id=${mp_node2term.node_id}">
@@ -35,14 +36,26 @@
 						<entity dataSource="ds2" name="mp_term_infos"
 							query="select term_id, name, definition from mp_term_infos where term_id='${mp_node2term.term_id}' and term_id != 'MP:0000001'">
 
-							<!-- do not want to include the root term -->
 							<field column="term_id" name="top_level_mp_term_id" />
 							<field column="name" name="top_level_mp_term_name" />
 							<field column="definition" name="top_level_mp_term_definition" />
 						</entity>
 					</entity>
+				</entity>	
+				</entity -->
+				
+				<entity dataSource="ds2" name="mps" query="SELECT distinct top_level_node_id FROM `mp_node2term` mp , mp_node_top_level tl WHERE term_id='${phenotype_call.mp_term_id}' and mp.node_id=tl.node_id">
+						<field column="top_level_node_id" name="topLevel" />
+
+						<entity dataSource="ds2" name="mphigher"
+							query="SELECT mp.node_id, mp.term_id as mpTerm, inf.term_id, name, definition FROM `mp_node2term` mp , `mp_term_infos` inf WHERE mp.node_id=${mps.top_level_node_id} and inf.term_id=mp.term_id">
+							<field column="name" name="top_level_mp_term_name" />
+							<field column="mpTerm" name="top_level_mp_term_id" />
+							<field column="definition" name="top_level_mp_term_definition" />
+						</entity>
 				</entity>
-			</entity>
+				
+			
 								
 			<!-- Link to phenotype parameter -->
 			<entity dataSource="ds1" name="phenotype_parameter" query="select stable_id, name from phenotype_parameter where id=${phenotype_call.parameter_id}">

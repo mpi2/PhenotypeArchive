@@ -34,7 +34,7 @@
 		<hibernate.dialect>org.hibernate.dialect.MySQLDialect</hibernate.dialect>
 		<hibernate.version>3.6.10.Final</hibernate.version>
 		<servlet.api.version>2.3</servlet.api.version>
-		<baseUrl>http://localhost:8080/phenotype-archive</baseUrl>
+		<baseUrl>/data</baseUrl>
 		<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
 			to EBI servers for performance -->
 		<solrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</solrUrl>

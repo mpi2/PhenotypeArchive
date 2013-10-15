@@ -70,7 +70,7 @@
    								$(function () {
    								    $('#chart${uniDimensionalLoop.count}').highcharts(${unidimensionalChartsAndTable.chart});
 								</script>
-								
+							<a href="../${acc}?${pageContext.request.queryString}">Box Plot  Versions</a>		
 		</div><!-- end of span6  individual chart holder -->
 		</c:forEach>
 		<table id="continuousTable${uniDimensionalLoop.count}" class="table table-bordered  table-striped table-condensed">

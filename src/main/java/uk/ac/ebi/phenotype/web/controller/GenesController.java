@@ -194,7 +194,7 @@ public class GenesController {
 
 		try {
 		model.addAttribute("phenotypeSummary", phenSummary.getSummary(acc));
-		System.out.println(phenSummary.getSummary(acc));
+//		System.out.println(phenSummary.getSummary(acc));
 		phenotypeSummaryObjects =  phenSummary.getSummaryObjects(acc);
 		model.addAttribute("phenotypeSummaryObjects",phenotypeSummaryObjects);
 		} catch (Exception e){
@@ -433,6 +433,7 @@ public class GenesController {
 		ArrayList<PhenotypeRow> l = new ArrayList<PhenotypeRow>(phenotypes.keySet());
 		Collections.sort(l); // sort in alpha order by MP term name
 		model.addAttribute("phenotypes", l);
+		//model.addAt
 	}
 	
 	private Map<String, List<Map<String, String>>> getProviders(

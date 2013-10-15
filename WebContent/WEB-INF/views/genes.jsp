@@ -284,7 +284,7 @@
                     <p> <b>Both sexes</b> have the following phenotypic abnormalities</p>
                         <ul>
                             <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
-                                    <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()} (${summaryObj.getId()})</a>. Evidence from
+                                    <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from
                                     <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop">
                                     ${evidence}
                                         <c:if test="${!loop.last}">,&nbsp;</c:if>
@@ -298,7 +298,7 @@
                 <p> Following phenotypic abnormalities occured in <b>females</b> only</p>
                     <ul>
                         <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getFemalePhenotypes()}">
-                                <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()} (${summaryObj.getId()})</a>. Evidence from
+                                <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from
                                     <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop">
                                     ${evidence}
                                         <c:if test="${!loop.last}">,&nbsp;</c:if>
@@ -312,7 +312,7 @@
                 <p> Following phenotypic abnormalities occured in <b>males</b> only</p>
                     <ul>
                         <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getMalePhenotypes()}">
-                                <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()} (${summaryObj.getId()})</a>. Evidence from                     
+                                <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from                     
                                 <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop">
                                     ${evidence}
                                     <c:if test="${!loop.last}">,&nbsp;</c:if>

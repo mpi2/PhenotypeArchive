@@ -3,6 +3,7 @@ package uk.ac.ebi.phenotype.ontology;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -74,7 +75,13 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 			for (int i = 0; i < result.size(); i++) {
 				SolrDocument doc = result.get(i);
 				if (doc.getFieldValue("top_level_mp_term_id") != null){
-					tl.put((String) doc.getFieldValue("top_level_mp_term_id"), (String) doc.getFieldValue("top_level_mp_term_name"));
+					ArrayList<String> tlTermIDs = (ArrayList<String>) doc.getFieldValue("top_level_mp_term_id");
+					ArrayList<String> tlTermNames = (ArrayList<String>) doc.getFieldValue("top_level_mp_term_name");
+					int len = tlTermIDs.size();
+					for (int k = 0 ; k < len ; k++){
+						tl.put( tlTermIDs.get(k), tlTermNames.get(k));
+					}
+	//					tl.put((String) doc.getFieldValue("top_level_mp_term_id"), (String) doc.getFieldValue("top_level_mp_term_name"));
 				}
 				else { // it seems that when the term id is a top level term itself the top level term field 
 					tl.put((String) doc.getFieldValue("mp_term_id"), (String) doc.getFieldValue("mp_term_name"));					
