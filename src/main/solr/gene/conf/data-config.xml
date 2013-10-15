@@ -1,13 +1,12 @@
 <dataConfig>
-     <script type='text/javascript'><![CDATA[
+	<script type='text/javascript'><![CDATA[
 	function process_colon(row) {
 		if ( row.get('mgi_accession_id') ){				
 			id = row.get('mgi_accession_id').toString().replace(":", "\\:");				
 			row.put('mgi_accession_id_escaped', id);  						
-	    	} 
+	    } 
 		
-		return row;
-	
+		return row;	
 	}		
 	function fetch_center_info(row) {            	
         		
@@ -21,42 +20,33 @@
 			else if ( sType == 'phenotype_attempt' ){							
 				row.put('phenotyping_center', center);  						
 			}			
-	    	}              
-		/*else if ( row.get('production_center') && row.get('phenotyping_center')){
-			row.put('has_MI_PA_pair', 'has_MI_PA_pair');
-		}
-		else if ( row.get('production_center') ){
-			row.put('has_MI_only', 'has_MI_only');
-		}
-		else if ( row.get('phenotyping_center') ){
-			row.put('has_PA_only', 'has_PA_only');
-		}*/	
-		
+	    }
+	    
    		return row; 			
-       	}
+   	}
 	function fetch_human_symbol(row){
 		if ( row.get('mouse2human_symbol') ){				
 			aList = row.get('mouse2human_symbol').toString().split('___');			
 			row.put('human_gene_symbol', aList[1]);  						
-	    	}              
+	    }              
 		
    		return row; 
 	}
 
     ]]></script>
 
-        <!-- The gene status is calculated on the fly using DataimportHandler script transformer -->
-        <dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/allele/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
-        <dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
-	<dataSource name="human2mouse_symbol_core" type="HttpDataSource" baseUrl="http://localhost:8983/solr/human2mouse_symbol/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+    <!-- The gene status is calculated on the fly using DataimportHandler script transformer -->
+    <dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/allele/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
+    <dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+ 	<dataSource name="human2mouse_symbol_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_ci/human2mouse_symbol/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 
-        <document name="docs">
-                <entity dataSource="gene2_core" name="doc" stream="true" url="search?q=*&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status,imits_phenotype_is_active&amp;rows=50000&amp;wt=normal"
-                processor="XPathEntityProcessor" forEach="/response/result/doc/"
-		transformer="script:process_colon"	
-                readTimeout="10000" connectionTimeout="10000"  >
-                      
-                        <field column="mgi_accession_id" xpath="/response/result/doc/str[@name='MGI']" />			
+    <document name="docs">
+       	<entity dataSource="gene2_core" name="doc" stream="true" url="search?q=*&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status,imits_phenotype_is_active&amp;rows=50000&amp;wt=normal"
+               processor="XPathEntityProcessor" forEach="/response/result/doc/"
+	transformer="script:process_colon"	
+               readTimeout="10000" connectionTimeout="10000"  >
+                     
+           	<field column="mgi_accession_id" xpath="/response/result/doc/str[@name='MGI']" />			
 			<field column="mgi_accession_id_escaped" name="mgi_accession_id_escaped" /> 
 
 			<!-- mouse production center/phenotyping center based on mgi_accesson_id in Sanger allele core -->			
@@ -72,17 +62,7 @@
 				<field column="phenotyping_center" name="phenotyping_center" /> 
 			</entity> 
 
-			<!-- now work out which gene has/has not MI/PA pair for center information -->	
-			<!--<entity	
-			dataField="doc.production_center, doc.phenotyping_center" name="centerPair"
-				transformer="script:fetch_center_info">					
-
-				<field column="has_MI_PA_pair" name="has_MI_PA_pair" /> 				                 
-				<field column="has_MI_only" name="has_MI_only" /> 
-				<field column="has_PA_only" name="has_PA_only" /> 
-			</entity> -->
-
-                        <field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />
+            <field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />
 
 			<!-- mouse to human gene symbol mapping: multiple human name can be mapped to one mouse symbol -->
 			<entity dataSource="human2mouse_symbol_core" name="symbol_mapping" stream="true" 
@@ -94,19 +74,18 @@
 				<field column="human_gene_symbol" name="human_gene_symbol" /> 				                 
 			</entity> 
 
-                        <field column="marker_name" xpath="/response/result/doc/arr[@name='marker_name']/str" />
-                        <field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
-                        <field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" /> 
-			
+            <field column="marker_name" xpath="/response/result/doc/arr[@name='marker_name']/str" />
+            <field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
+            <field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" /> 
 
 			<field column="imits_report_phenotyping_complete_date" xpath="/response/result/doc/arr[@name='imits_report_phenotyping_complete_date']/str" />
-		        <field column="imits_report_genotype_confirmed_date" xpath="/response/result/doc/arr[@name='imits_report_genotype_confirmed_date']/str" />
-		        <field column="imits_report_mi_plan_status" xpath="/response/result/doc/arr[@name='imits_report_mi_plan_status']/str" />
-		        <field column="escell" xpath="/response/result/doc/arr[@name='escell']/str" />
-		        <field column="ikmc_project" splitBy="," xpath="/response/result/doc/arr[@name='ikmc_project']/str" />  
-		        <field column="imits_consortium" xpath="/response/result/doc/str[@name='imits_consortium']" />                                   
-		        <field column="status" xpath="/response/result/doc/str[@name='latest_project_status']" />
-		        <field column="imits_phenotype_started" xpath="/response/result/doc/arr[@name='imits_phenotype_started']/str" />
+	        <field column="imits_report_genotype_confirmed_date" xpath="/response/result/doc/arr[@name='imits_report_genotype_confirmed_date']/str" />
+	        <field column="imits_report_mi_plan_status" xpath="/response/result/doc/arr[@name='imits_report_mi_plan_status']/str" />
+	        <field column="escell" xpath="/response/result/doc/arr[@name='escell']/str" />
+	        <field column="ikmc_project" splitBy="," xpath="/response/result/doc/arr[@name='ikmc_project']/str" />  
+	        <field column="imits_consortium" xpath="/response/result/doc/str[@name='imits_consortium']" />                                   
+	        <field column="status" xpath="/response/result/doc/str[@name='latest_project_status']" />
+	        <field column="imits_phenotype_started" xpath="/response/result/doc/arr[@name='imits_phenotype_started']/str" />
             
 			<field column="imits_phenotype_complete" xpath="/response/result/doc/arr[@name='imits_phenotype_complete']/str" />
 			<field column="colony_prefix" xpath="/response/result/doc/arr[@name='colony_prefix']/str" />
@@ -114,9 +93,6 @@
 			<field column="imits_phenotype_allele_type" xpath="/response/result/doc/arr[@name='imits_phenotype_allele_type']/str" />
 			<field column="imits_phenotype_status" xpath="/response/result/doc/arr[@name='imits_phenotype_status']/str" />
 			<field column="imits_phenotype_is_active" xpath="/response/result/doc/arr[@name='imits_phenotype_is_active']/str" />
-						
-
-
 		</entity>
 	</document>
 </dataConfig>
