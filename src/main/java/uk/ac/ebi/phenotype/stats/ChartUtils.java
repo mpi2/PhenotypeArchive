@@ -27,7 +27,7 @@ public class ChartUtils {
 				String chartString=chartNTable.getChart();
 				String newChartString=chartString.replace("min: 0", "min: "+min);
 				newChartString=newChartString.replace("max: 2", "max: "+max);
-				logger.debug(newChartString);
+				logger.warn("altering chart string="+newChartString);
 				chartNTable.setChart(newChartString);
 				}
 			return chartsAndTablesForParameter;

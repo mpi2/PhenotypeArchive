@@ -27,7 +27,9 @@
 								${timeChart.chart}
 								</script>
 					</div>
+					
 <c:if test = "${(timeLoop.count % 2==0) || timeLoop.count eq fn:length(timeSeriesChartsAndTables)}">
+<a href="scatter/${acc}?${pageContext.request.queryString}">Scatter Graphs</a>	
 		 </div>
 		 </div>
 </c:if>

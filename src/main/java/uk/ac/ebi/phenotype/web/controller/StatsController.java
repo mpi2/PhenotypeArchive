@@ -358,11 +358,14 @@ public class StatsController implements BeanFactoryAware {
 			//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1926153?parameterId=ESLIM_003_001_003
 			try{
 			
-			if(observationTypeForParam.equals(ObservationType.unidimensional)){
+			if(observationTypeForParam.equals(ObservationType.unidimensional) || observationTypeForParam.equals(ObservationType.time_series)){
 				//http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
 				
 				UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(experimentList, bmDAO, config, unidimensionalMutantBiologicalModels, parameter, acc, model , genderList, zyList, ChartType.UnidimensionalScatter, byMouseId);
 				allUnidimensionalChartsAndTables.add(unidimensionalChartNTables);
+			}else {
+				//must be categorical
+				//we don't want scatters for categorical!
 			}
 			
 			} catch (SQLException e) {
