@@ -350,7 +350,9 @@ System.out.println("byMouseId="+byMouseId);
 			for (Float point : listOfFloats) {
 				stats.addValue(point);
 			}
+			
 			List<Float> wt1 = new ArrayList<Float>();
+			if(listOfFloats.size()>0) {
 			double Q1 = ChartUtils.getDecimalAdjustedFloat(new Float(stats.getPercentile(25)),decimalPlaces);
 			double Q3 = ChartUtils.getDecimalAdjustedFloat(new Float(stats.getPercentile(75)), decimalPlaces);
 			double IQR = Q3 - Q1;
@@ -379,7 +381,7 @@ System.out.println("byMouseId="+byMouseId);
 								// value set the min to this
 			minMax.put("min", min);
 			minMax.put("max", max);
-
+			}
 			boxPlotData.add(wt1);
 			List<Float> wt2 = new ArrayList<Float>();// add empty llist as the
 														// next column is
@@ -497,19 +499,21 @@ System.out.println("byMouseId="+byMouseId);
 		for (List<Float> listOfFloats : rawData) {
 			// Get a DescriptiveStatistics instance
 			DescriptiveStatistics stats = new DescriptiveStatistics();
-
+			UnidimensionalStatsObject statsObject = statsObjects.get(row);
 			// Add the data from the array
 			for (Float point : listOfFloats) {
 				stats.addValue(point);
 			}
+			if(listOfFloats.size()>0) {
 			Float mean = ChartUtils.getDecimalAdjustedFloat(new Float(stats.getMean()), decimalPlaces);
 			System.out.println("mean="+mean);
 			Float sd = ChartUtils.getDecimalAdjustedFloat(new Float(stats.getStandardDeviation()), decimalPlaces);
-			UnidimensionalStatsObject statsObject = statsObjects.get(row);
 			statsObject.setMean(mean);
 			statsObject.setSd(sd);
+			}
 			statsObject.setSampleSize(listOfFloats.size());
 			statsObject.setSexType(sexType);
+			
 			row++;
 		}
 		return statsObjects;
