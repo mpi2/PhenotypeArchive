@@ -6,6 +6,7 @@ public class PhenotypeSummaryBySex {
 	private ArrayList <PhenotypeSummaryType> malePhens;
 	private ArrayList <PhenotypeSummaryType> femalePhens;
 	private ArrayList <PhenotypeSummaryType> bothPhens;
+	int total = 0;
 	
 	public PhenotypeSummaryBySex(){
 		malePhens = new ArrayList<PhenotypeSummaryType>();
@@ -22,6 +23,7 @@ public class PhenotypeSummaryBySex {
 		else if (sex.equals("both sexes"))
 			bothPhens.add(obj);
 		else throw (new Exception("Object of type PhenotypeSummaryTuype recieved without valid sex field."));
+		
 	}
 	
 	public ArrayList <PhenotypeSummaryType> getMalePhenotypes(){
@@ -34,6 +36,16 @@ public class PhenotypeSummaryBySex {
 	
 	public ArrayList <PhenotypeSummaryType> getBothPhenotypes(){
 		return bothPhens;
+	}
+	
+	public int getTotalPhenotypesNumber(){
+		for (PhenotypeSummaryType entry: malePhens)
+			total += entry.getNumberOfEntries();		
+		for (PhenotypeSummaryType entry: femalePhens)
+			total += entry.getNumberOfEntries();		
+		for (PhenotypeSummaryType entry: bothPhens)
+			total += entry.getNumberOfEntries();
+		return total;
 	}
 	
 }

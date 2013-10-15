@@ -112,6 +112,8 @@
 <div class="row-fluid dataset">
     <div class='documentation'><a href='' class='relatedMpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
     <h4 class="caption">Gene variants with this phenotype</h4>
+    <p>	Total entries found: ${phenotypeSummaryObjects.getTotalPhenotypesNumber()} </p>
+	    
 	<div class="row-fluid">	    	
 		<div class="container span12">			
 			<div class="row-fluid" id="phenotypesDiv">	

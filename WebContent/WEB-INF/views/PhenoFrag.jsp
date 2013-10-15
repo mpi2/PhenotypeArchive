@@ -2,6 +2,17 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
+	<script>
+	
+	</script>
+	<c:set var="count" value="0" scope="page" />
+	<c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
+							<c:forEach var="sex" items="${phenotype.sexes}"><c:set var="count" value="${count + 1}" scope="page"/></c:forEach>
+	</c:forEach>
+	<p id="resultCount">
+	Total number of results: ${count}
+	</p>
+
 				<table id="phenotypes" class="table table-striped">
 					<thead>
 						<tr>
@@ -45,8 +56,7 @@
 				</table>
 				<script>
 					$(document).ready(function(){	
-					/* 	var $oDataTable = $("table#phenotypes").dataTable( { bRetrieve : true } );
-						$oDataTable.fnDraw(); */
 					});
+					
 						</script>
 	<!-- /row -->

@@ -179,6 +179,7 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 			HashSet<String> ds = getDataSourcesForPhenotypesSet(resp);
 			long n = resp.getNumFound();
 			PhenotypeSummaryType phen = new PhenotypeSummaryType(id, summary.get(id), sex, n, ds);
+			System.out.println("-----" + summary.get(id) + " " + n);
 			res.addPhenotye(phen);
 		}
 		return res;

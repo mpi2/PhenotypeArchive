@@ -54,7 +54,6 @@ $(document).ready(function(){
 		baseUrl: windowLocation,
 		page:"gene",
 		gridFields: 'marker_symbol,allele_symbol,zygosity,sex,procedure_name,resource_fullname,parameter_stable_id,marker_accession_id, parameter_name,parameter_name,mp_term_name',
-		//TODO add filters to the url too
 		params: "qf=auto_suggest&defType=edismax&wt=json&rows=100000&q=*:*&fq=marker_accession_id:\"" + mgiGeneId +"\""
 	});
 
@@ -116,7 +115,6 @@ $(document).ready(function(){
 				              "bFilter":false
 			});
 			//alert('calling new table in genes.jsp');
-			//$oDataTable.fnDraw(); 
 		});
 	}
 	//http://stackoverflow.com/questions/5990386/datatables-search-box-outside-datatable
@@ -202,7 +200,7 @@ $(document).ready(function(){
 		} );
 	}
 	//if filter parameters are already set then we need to set them as selected in the dropdowns
-	var previousParams=$("#filterParams").html();
+	var previousParams = $("#filterParams").html();
 	
 	function refreshGenesPhenoFrag(dropdownsList) {
 		var rootUrl=window.location.href;

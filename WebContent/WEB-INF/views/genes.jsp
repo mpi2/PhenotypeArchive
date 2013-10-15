@@ -270,6 +270,7 @@
 	<div class="row-fluid dataset">
 	    <div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
 	    <h4 class="caption">Phenotype Associations</h4>
+	    
 	     <div class="row-fluid">
 						<c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
                             
@@ -325,9 +326,10 @@
             </div>
               </c:if>
         </div>
+        
 		<div class="row-fluid">
 			<div class="container span12">
-			</br>	
+			<br/>	
 				<div class="row-fluid" id="phenotypesDiv">	
 			<div class="container span12">
 			<!--  style="display: none;" --><div id="filterParams" >
@@ -344,8 +346,13 @@
 				</c:forEach>
 				</select> 
 				</c:forEach>
-			
 				</form>
+
+	<c:set var="count" value="0" scope="page" />
+	<c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
+		<c:forEach var="sex" items="${phenotype.sexes}"><c:set var="count" value="${count + 1}" scope="page"/></c:forEach>
+	</c:forEach>
+
 				<jsp:include page="PhenoFrag.jsp"></jsp:include>
 				<div id="exportIconsDiv"></div>
 				<%-- <div id="phenotypesTableDiv">

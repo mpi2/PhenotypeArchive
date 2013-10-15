@@ -281,7 +281,10 @@ public class FileExportController {
 						graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
 						graphUrl += "&zygosity=" + doc.getString("zygosity") ;
 					}
-					data.add(graphUrl);
+//					if (request.getParameter("fileType").equalsIgnoreCase("xls"))
+//						data.add("=HYPERLINK(\"" + graphUrl +  "\")");
+//					else 
+						data.add(graphUrl);
 					rowData.add(StringUtils.join(data, "\t"));
 				}
 			}
@@ -308,7 +311,10 @@ public class FileExportController {
 						graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
 						graphUrl += "&zygosity=" + doc.getString("zygosity") ;
 					}
-					data.add(graphUrl);
+//					if (request.getParameter("fileType").equalsIgnoreCase("xls"))
+//						data.add("=HYPERLINK(\"" + graphUrl +  "\")");
+//					else 
+						data.add(graphUrl);
 					rowData.add(StringUtils.join(data, "\t"));
 				}
 			}
