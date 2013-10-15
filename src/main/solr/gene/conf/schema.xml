@@ -72,22 +72,23 @@
   </types>
 
   <fields>  
-    <field name="_version_" type="long" indexed="true" stored="true"/>             
-    <field name="mgi_accession_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="marker_symbol" type="text_general" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="marker_name" type="text_general" indexed="true" stored="true" required="false" />    
-    <field name="marker_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="marker_type" type="string" indexed="true" stored="true" multiValued="false" />  
-    <field name="human_gene_symbol" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
-    <field name="imits_report_phenotyping_complete_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
-    <field name="imits_report_genotype_confirmed_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
-    <field name="imits_report_mi_plan_status" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="imits_consortium" type="string" indexed="true" stored="true" required="false" multiValued="false" />
-    <field name="escell" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
-    <field name="ikmc_project" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
-    <field name="status" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="mouse2human_symbol" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-
+	<field name="_version_" type="long" indexed="true" stored="true"/>             
+	<field name="mgi_accession_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+	<field name="mgi_accession_id_escaped" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+	<field name="marker_symbol" type="text_general" indexed="true" stored="true" required="true" multiValued="false" />
+	<field name="marker_name" type="text_general" indexed="true" stored="true" required="false" />    
+	<field name="marker_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="marker_type" type="string" indexed="true" stored="true" multiValued="false" />  
+	<field name="human_gene_symbol" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
+	<field name="imits_report_phenotyping_complete_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="imits_report_genotype_confirmed_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="imits_report_mi_plan_status" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="imits_consortium" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="escell" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
+	<field name="ikmc_project" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
+	<field name="status" type="string" indexed="true" stored="true" required="true" multiValued="false" />      
+	<field name="production_center" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
+	<field name="phenotyping_center" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
     <field name="imits_phenotype_started" type="string" indexed="true" multiValued="true"/>
 	<field name="imits_phenotype_complete" type="string" indexed="true" multiValued="true"/>
 	<field name="colony_prefix" type="string" indexed="true" stored="true" multiValued="true"/>
@@ -96,8 +97,8 @@
 	<field name="imits_phenotype_status" type="string" indexed="true" multiValued="true"/>
 	<field name="imits_phenotype_is_active" type="string" indexed="true" multiValued="true"/>
         
-    <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
-    <field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
+	<field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
+	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
  </fields>
 
  <!-- Field to use to determine and enforce document uniqueness. 
@@ -108,16 +109,16 @@
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
  <defaultSearchField>text</defaultSearchField>
 
-  <copyField source="*" dest="text"/>  
-  <copyField source="mgi_accession_id" dest="auto_suggest"/> 
-  <copyField source="marker_symbol" dest="auto_suggest"/> 
-  <copyField source="marker_name" dest="auto_suggest"/> 
-  <copyField source="marker_synonym" dest="auto_suggest"/>
-  <copyField source="human_gene_symbol" dest="auto_suggest"/>
-  
-  
+	<copyField source="*" dest="text"/>  
+	<copyField source="mgi_accession_id" dest="auto_suggest"/> 
+	<copyField source="marker_symbol" dest="auto_suggest"/> 
+	<copyField source="marker_name" dest="auto_suggest"/> 
+	<copyField source="marker_synonym" dest="auto_suggest"/>
+	<copyField source="human_gene_symbol" dest="auto_suggest"/>
+	<copyField source="production_center" dest="auto_suggest"/>
+	<copyField source="phenotyping_center" dest="auto_suggest"/>
+
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
  <solrQueryParser defaultOperator="OR"/>
 
 </schema>
-

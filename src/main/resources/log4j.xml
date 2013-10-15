@@ -42,6 +42,15 @@
 	</logger>
 
 	<logger name="uk.ac.ebi.phenotype.web.controller">
+		<level value="info" />
+	</logger>
+	
+	
+	<logger name="uk.ac.ebi.phenotype.stats.unidimensional">
+		<level value="debug" />
+	</logger>
+	
+	<logger name="uk.ac.ebi.phenotype.pojo.StatisticalResult">
 		<level value="debug" />
 	</logger>
 	
