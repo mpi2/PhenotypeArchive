@@ -274,6 +274,9 @@ try {
 	<script type='text/javascript' src='${baseUrl}/js/vendor/jquery.corner.mini.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/vendor/jquery.qtip-1.0.0-rc3.min.js'></script>
 	
+	<script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js'></script>
+	
+	
  	<script>
 	$(document).ready(function() {
 		// wire up the example queries
