@@ -20,7 +20,7 @@ window.jQuery('document').ready(function(){
         }).click(function(){
                 window.jQuery(this).val(''); // clears input
         });
-
+       
         // search via button click
         window.jQuery('button#acSearch').click(function(){
 

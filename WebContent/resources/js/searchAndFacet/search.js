@@ -44,7 +44,7 @@
 	       	    error: function (jqXHR, textStatus, errorThrown) {	       	                	        
 	       	        $('div#facetBrowser').html('Error fetching data ...');
 	       	    }            	
-	    });			
+	    });
 	}
 	
 	function _doMPAutoSuggest(geneResponse, q, oFacets){		

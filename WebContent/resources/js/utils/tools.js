@@ -95,15 +95,23 @@
 				val = names[0];
 				fqFieldVals[fqField].push(fqFieldOri + ':"' + psid + '"');
 			}
+			else if ( fqField == 'phenotyping_center' ){
+				val = aVals[2];				
+				fqFieldVals[fqField].push('(' + fqFieldOri + ':"' + val + '" AND production_center:*)');
+			}
+			else if ( fqField == 'production_center' ){
+				val = aVals[2];				
+				fqFieldVals[fqField].push('(' + fqFieldOri + ':"' + val + '")');				
+			}
 			else {
 				val = aVals[2];
 				fqFieldVals[fqField].push(fqFieldOri + ':"' + val + '"');
 			}				
 			
 		});	
-				
+		console.log(fqFieldVals);		
 		var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
-				
+		console.log(fqStr);	
 		var facetDivId = facet+'Facet';
 
     	if ( facetDivId == 'maFacet' ||  facetDivId == 'mpFacet' ){
@@ -405,6 +413,8 @@
     				|| aKV[i].match(/fq=\(?expName.+\)?|fq=\(?higherLevel.+\)?|fq=\(?subtype.+\)?/) 
     				|| aKV[i].match(/fq=ontology_subset:\* AND \(?top_level_mp_term.+\)?/)
     				|| aKV[i].match(/fq=ontology_subset:IMPC_Terms AND \(?selected_top_level_ma_term.+\)?/)
+    				|| aKV[i].match(/fq=\({0,}production_center:.+\)?/)
+    				|| aKV[i].match(/fq=\({0,}phenotyping_center:.+\)?/)
     				|| aKV[i].match(/fq=\(?ontology_subset:.+/)
     				|| aKV[i].match(/\(?imits_phenotype.+\)?/)
     				|| aKV[i].match(/\(?marker_type.+\)?/)
@@ -497,6 +507,7 @@
 				seenMP = true;
 			}
 			else {
+				console.log(objList[i].attr('class'));
 	    		aSubFacetNames.push(objList[i].attr('class'));	    	
 			}
     	}  
@@ -512,33 +523,41 @@
     		if ( subFacetName == 'marker_type' ){
     			$('tr.geneSubTypeTrCap').find('td').addClass('unCollapse');  
     			$('tr.geneSubTypeTr').show();  			
+    		}  
+    		else if (subFacetName == 'phenoCenter'){
+    			$('tr.phenoCenterTrCap').find('td').addClass('unCollapse');  
+    			$('tr.phenoCenterTr').show();  		
+    		}
+    		else if (subFacetName == 'prodCenter'){
+    			$('tr.prodCenterTrCap').find('td').addClass('unCollapse');  
+    			$('tr.prodCenterTr').show();   		
     		}    		
     		else {
     			// change arrow image to collapse and make all images subfacets hidden
-        		$('table#imagesFacetTbl').find('tr.subFacet').addClass('trHidden');
-        		$('table#imagesFacetTbl').find('tr.facetSubCat td').removeClass('unCollapse');        		     			  	    			
-      			
-    			if (subFacetName == 'higherLevelMpTermName'){
+        		//$('table#imagesFacetTbl').find('tr.subFacet').addClass('trHidden');
+        		//$('table#imagesFacetTbl').find('tr.facetSubCat td').removeClass('unCollapse');        		     			  	    			
+        		_arrowSwitch(subFacetName);
+    			/*if (subFacetName == 'higherLevelMpTermName'){
     				_arrowSwitch(subFacetName);    						
     			} 
-    			else if (subFacetName == 'expName'){
+    			if (subFacetName == 'expName'){
     				_arrowSwitch(subFacetName);  			
 	    		}
-	    		else if (subFacetName == 'higherLevelMaTermName'){
+	    		if (subFacetName == 'higherLevelMaTermName'){
 	    			_arrowSwitch(subFacetName); 
 	    		}	    		
-	    		else if (subFacetName == 'subtype'){
+	    		if (subFacetName == 'subtype'){
 	    			_arrowSwitch(subFacetName);  		
-	    		}
-	    		
+	    		}	*/    		
+    			
 	    		$('tr.' + subFacetName).removeClass('trHidden');
-	    		break;
+	    		//break;
 	    	}    		
     	}    	
     }
     
     function _arrowSwitch(subFacetName){
-    	$('tr.facetSubCat').each(function(){
+    	$('tr.facetSubCat').each(function(){    	
 			if ( $(this).hasClass(subFacetName) ){
 				$(this).find('td').addClass('unCollapse'); 
 			}

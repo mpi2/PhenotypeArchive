@@ -31,6 +31,7 @@
     		delete MPI2.searchAndFacetConfig.commonSolrParams.rows;    	   		  		
 		
 			caller.find('div.facetCat').click(function(){
+				
 				if ( caller.find('span.facetCount').text() != '0' ){								
 					
 					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
@@ -293,7 +294,7 @@
   	    		
   	    			var facetName = $(this).attr('class').replace('facetSubCat ',''); 
   	    			
-  	    			if ( $(this).find('td').hasClass('unCollapse')){
+  	    			if ( $(this).find('td').hasClass('unCollapse')){  	    			
   	    				// change arrow image
   	    				$(this).find('td').removeClass('unCollapse');
   	    				// hide all its members
@@ -301,9 +302,9 @@
   	    			}
   	    			else {  	    			
   	    				// refresh all to collapsed first
-	  	    			table.find('tr.subFacet').addClass('trHidden');
-	  	    			table.find('tr.facetSubCat td').removeClass('unCollapse');	  	    			 	    			 	    			
-	  	    			  	    			
+	  	    			//table.find('tr.subFacet').addClass('trHidden');
+	  	    			//table.find('tr.facetSubCat td').removeClass('unCollapse'); 
+  	    				
 	  	    			// change arrow image and reveal all members of the clicked facet
 	  	    			$(this).find('td').addClass('unCollapse');
 	  	    			$(this).siblings('tr.'+facetName).removeClass('trHidden');
