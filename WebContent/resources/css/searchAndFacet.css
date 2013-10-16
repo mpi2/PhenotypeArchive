@@ -352,7 +352,6 @@ div.dataTables_wrapper {
 div#filterToggle {
 	display: none;
 }
-
 ul#facetFilter {
   width: auto;	
   margin: -23px 0 0 150px;

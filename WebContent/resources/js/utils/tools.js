@@ -493,11 +493,11 @@
 		// Ie, if a particular subfacet was open, we need to reopen it now when page reloads
     	// But ignore this bit if we are dealing with hash change in url
     	if ( typeof pageReload != 'undefined' ){
-    		_setFacetToOpen(objList);
+    		_setFacetToOpen(objList, facet);
     	}
     }
     
-    function _setFacetToOpen(objList){
+    function _setFacetToOpen(objList, facet){
     	
     	var aSubFacetNames = [];
     	// sort first for priority
@@ -506,8 +506,7 @@
     		if ( objList[i].attr('class') == 'higherLevelMpTermName' ){
 				seenMP = true;
 			}
-			else {
-				console.log(objList[i].attr('class'));
+			else {				
 	    		aSubFacetNames.push(objList[i].attr('class'));	    	
 			}
     	}  
@@ -515,6 +514,12 @@
     	if ( seenMP ){
     		aSubFacetNames.unshift('higherLevelMpTermName');
     	}    	   	
+    	
+    	if ( facet == 'imagesFacet' && aSubFacetNames.length != 0){
+	    	// change arrow image to collapse and make all images subfacets hidden
+			$('table#imagesFacetTbl').find('tr.subFacet').addClass('trHidden');
+			$('table#imagesFacetTbl').find('tr.facetSubCat td').removeClass('unCollapse');   
+    	}
     	
     	// only for gene and images facets
     	for (var i=0; i<aSubFacetNames.length; i++){
@@ -532,26 +537,9 @@
     			$('tr.prodCenterTrCap').find('td').addClass('unCollapse');  
     			$('tr.prodCenterTr').show();   		
     		}    		
-    		else {
-    			// change arrow image to collapse and make all images subfacets hidden
-        		//$('table#imagesFacetTbl').find('tr.subFacet').addClass('trHidden');
-        		//$('table#imagesFacetTbl').find('tr.facetSubCat td').removeClass('unCollapse');        		     			  	    			
+    		else {		     			  	    			
         		_arrowSwitch(subFacetName);
-    			/*if (subFacetName == 'higherLevelMpTermName'){
-    				_arrowSwitch(subFacetName);    						
-    			} 
-    			if (subFacetName == 'expName'){
-    				_arrowSwitch(subFacetName);  			
-	    		}
-	    		if (subFacetName == 'higherLevelMaTermName'){
-	    			_arrowSwitch(subFacetName); 
-	    		}	    		
-	    		if (subFacetName == 'subtype'){
-	    			_arrowSwitch(subFacetName);  		
-	    		}	*/    		
-    			
 	    		$('tr.' + subFacetName).removeClass('trHidden');
-	    		//break;
 	    	}    		
     	}    	
     }

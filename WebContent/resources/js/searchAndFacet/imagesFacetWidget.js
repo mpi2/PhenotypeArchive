@@ -189,8 +189,10 @@
   	    					var catLabel    = displayLabel[facetName];
   	    					//console.log(fieldName + ' : '+ facetCount);
   	    					
-  	    					var hiddenClass = facetName == 'higherLevelMpTermName' ? null : 'trHidden';
+  	    					var hiddenClass = facetName == 'higherLevelMpTermName' ? null : 'trHidden';  	    						
   	    					var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i, 'class':'subFacet ' + hiddenClass + ' ' + facetName});
+  	    					
+  	    					//var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i, 'class':'subFacet trHidden ' + facetName});
   	    					var displayName = facetName == 'higherLevelMpTermName' ? fieldName.replace(' phenotype', '') : fieldName;
   	    					var td1 = $('<td></td>').attr({'class': 'imgSubfacet', 'rel': facetCount}).text(displayName);
   	    				
@@ -225,6 +227,7 @@
   	    						var collapeClass = (facetName == 'higherLevelMpTermName') ? 'unCollapse' : null;
   	    						
   	    						var catTd = $('<td></td>').attr({'colspan':3, 'class':collapeClass}).text(catLabel);
+  	    						
   	    						catTr.append(catTd);
   	    						table.append(catTr); 
   	    					}	
