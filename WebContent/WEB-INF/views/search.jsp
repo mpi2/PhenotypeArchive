@@ -26,6 +26,10 @@
 	
 	<script type="text/javascript">
 		$(document).ready(function(){	
+			$.fn.qTip({'pageName':'search',
+					'textAlign':'left',
+					'tip':'topLeft'
+			});
 			
 			// non hash tag keyword query
 			<c:if test="${not empty q}">				
@@ -101,8 +105,10 @@
 				<div id='mainDataContainer'></div>
 			</div>
 		</div>
-		<div class='row-fluid'>		
-		<div id="leftSideBar" class='rounded-corners span3'>			
+		<div class='row-fluid'>	
+		
+		<div id="leftSideBar" class='rounded-corners span3'>	
+			<div class='documentation'><a href='' class='facetPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>			
 			<div id='facetBrowser'><img src='img/loading_small.gif' /> Processing search ...</div> 
 			<div id='geneFacet'>
 				<div><div class='facetCat'>Genes</div><span class='facetCount countDisplay'></span></div>
