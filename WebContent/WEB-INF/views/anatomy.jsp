@@ -159,7 +159,10 @@
 	<script>
 		$(document).ready(function(){						
 					
-			$.fn.qTip('ma');	// bubble popup for brief panel documentation					
+			$.fn.qTip({'pageName':'ma',
+				'textAlign':'left',
+				'tip':'topLeft'
+			});	// bubble popup for brief panel documentation					
 		});				
 	</script>
 	

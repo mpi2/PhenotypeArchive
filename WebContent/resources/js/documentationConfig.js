@@ -27,6 +27,18 @@ if(typeof(window.MDOC) === 'undefined') {
 
 var defaultDesc = 'Brief info about this panel';
 
+MDOC.search = {
+		'facetPanel'         : '<h6>Browse IMPC data with facets</h6>'
+							+ '<ul><li>Click on a facet/subfacet to open or hide it.</li>'
+							+ '    <li>Ways to display facet result:'
+							+ '        <ul><li>Click on the <b>facet counts</b> on the right.</li>'
+							+ '            <li>Click on <b>checkbox</b> on the left.</li>'
+							+'         </ul></li>'
+							+'     <li>Click on the <b>info button</b> for detailed description.</li>'
+							+ '</ul>', 
+			
+		'facetPanelDocUrl'   : '/data/documentation/facetPanel.html',	
+};
 MDOC.gene = {		
 		'generalPanel'         : defaultDesc,
 		'generalPanelDocUrl'   : '/data/documentation/geneGeneralPanel.html',

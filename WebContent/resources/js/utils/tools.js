@@ -208,28 +208,28 @@
 		});
 	}
 	
-	$.fn.qTip = function(pageName){
+	$.fn.qTip = function(oConf){
 		// pageName: gene | mp | ma
 		$('div.documentation a').each(function(){
-			
+						
 			var key = $(this).attr('class');
-			$(this).attr('href', MDOC[pageName][key+'DocUrl']);
+			$(this).attr('href', MDOC[oConf.pageName][key+'DocUrl']);
 			
 			$(this).qtip({
-			 	content: MDOC[pageName][key],
+			 	content: MDOC[oConf.pageName][key],
 			   	style: { 
 			   		delay: 1,
 			    	width: 200,
-			      	padding: 5,
-			      	background: '#CCCCCC',
+			      	padding: 8,
+			      	background: '#EEE9E9',
 			      	color: 'black',
-			      	textAlign: 'center',
+			      	textAlign: oConf.textAlign,
 			      	border: {
 			        	width: 1,
 			         	radius: 5,
-			         	color: '#CCCCCC'
+			         	color: '#EEE9E9'
 			   	  	},
-			    	tip: 'bottomMiddle', //'bottomLeft',
+			    	tip: oConf.tip,//'bottomMiddle', //'bottomLeft',
 			    	name: 'dark' // Inherit the rest of the attributes from the preset dark style
 			   	},				 
 				show: {		            
@@ -242,11 +242,11 @@
 				position: {
 			    	corner: {
 			        	target: 'topLeft',
-			        	tooltip: 'middleRight'
+			        	tooltip: 'middleLeft'
 			        },
 			    	adjust: {
-			        	x: 105,
-			        	y: -55
+			        	x: 20,
+			        	y: 25
 			        }
 			    }	   
 			});			
