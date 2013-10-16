@@ -39,9 +39,9 @@
 			$(window).bind("hashchange", function() {
 								
 				var url = $.param.fragment();				
-				console.log('hash change URL: '+ '/search#' + url);
+				//console.log('hash change URL: '+ '/search#' + url);
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-				console.log(oHashParams);
+				
 				if ( typeof oHashParams.q === 'undefined' ){
 					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');					
 				}

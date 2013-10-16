@@ -109,9 +109,9 @@
 			}				
 			
 		});	
-		console.log(fqFieldVals);		
+		
 		var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
-		console.log(fqStr);	
+		
 		var facetDivId = facet+'Facet';
 
     	if ( facetDivId == 'maFacet' ||  facetDivId == 'mpFacet' ){

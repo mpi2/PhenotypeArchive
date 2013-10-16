@@ -161,8 +161,7 @@
 	    		'data': queryParamStr, 
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
-	    		'success': function(json) {	  
-	    			console.log(json);
+	    		'success': function(json) {	  	    		
 	    			self._displayGeneSubTypeFacet(json);	    				
 	    		}		
 	    	});	    	
