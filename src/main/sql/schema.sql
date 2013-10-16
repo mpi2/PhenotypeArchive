@@ -269,6 +269,8 @@ CREATE TABLE synonym (
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+CREATE FULLTEXT INDEX synonym_symbol_idx ON synonym (symbol);
+
 /**
  * Genomic feature cross-reference from other datasources.
  */
