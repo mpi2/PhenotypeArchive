@@ -234,7 +234,7 @@ CREATE TABLE seq_region (
 CREATE TABLE genomic_feature (
     acc                       VARCHAR(20) NOT NULL,
     db_id                     INT(10) NOT NULL,
-    symbol					  VARCHAR(100) NOT NULL,
+    symbol                    VARCHAR(100) NOT NULL,
     name                      VARCHAR(200) NOT NULL,
     biotype_acc               VARCHAR(20) NOT NULL,
     biotype_db_id             INT(10) NOT NULL,
@@ -245,9 +245,10 @@ CREATE TABLE genomic_feature (
     seq_region_end            INT(10) UNSIGNED DEFAULT 0,
     seq_region_strand         TINYINT(2) DEFAULT 0,
     cm_position               VARCHAR(40),
-	status 				      ENUM('active', 'withdrawn') NOT NULL DEFAULT 'active',   
+    status                    ENUM('active', 'withdrawn') NOT NULL DEFAULT 'active',   
     
     PRIMARY   KEY (acc, db_id),
+    KEY genomic_feature_symbol_idx (symbol),
     KEY genomic_feature_acc_idx (acc),
     KEY seq_region_idx (seq_region_id),
     KEY biotype_idx (biotype_acc, biotype_db_id),
