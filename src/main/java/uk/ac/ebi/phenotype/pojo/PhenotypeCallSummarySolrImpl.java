@@ -277,10 +277,19 @@ public class PhenotypeCallSummarySolrImpl implements
 		CategoricalResult catResult=new CategoricalResult();
 		for (Object doc : docs) {
 			JSONObject phen = (JSONObject) doc;
+			//System.out.println("pValue="+pValue);
 			String pValue = phen.getString("p_value");
+			String sex = phen.getString("sex");
+			String zygosity=phen.getString("zygosity");
+			String effectSize=phen.getString("effect_size");
+			
+			
 			//System.out.println("pValue="+pValue);
 			if(pValue!=null) {
 				catResult.setpValue(Double.valueOf(pValue));
+				catResult.setZygosityType(ZygosityType.valueOf(zygosity));
+				catResult.setEffectSize(new Double(Double.valueOf(effectSize)));
+				catResult.setSexType(SexType.valueOf(sex));
 			}
 			results.add(catResult);
 		}

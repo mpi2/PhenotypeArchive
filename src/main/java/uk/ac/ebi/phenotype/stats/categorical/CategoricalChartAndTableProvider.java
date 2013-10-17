@@ -246,6 +246,8 @@ public class CategoricalChartAndTableProvider {
 										expCatData.setResult((CategoricalResult)result);
 									}
 								}
+								List<CategoricalResult> categoricalR = categoricalStatsDao.getCategoricalResultByParameter(parameter, expBiologicalModelId, sexType);
+								
 								// logger.warn("getting pvalue for sex="+sexType+"  zyg="+
 								// zType+" param="+ parameter+" category="+
 								// category+"popId="+ popId);
