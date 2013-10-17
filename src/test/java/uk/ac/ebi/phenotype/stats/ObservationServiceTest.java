@@ -2,6 +2,8 @@ package uk.ac.ebi.phenotype.stats;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.List;
 
@@ -30,7 +32,7 @@ public class ObservationServiceTest {
 	}
 
 	@Test
-	public void testGetExperimentDTO() throws SolrServerException {
+	public void testGetExperimentDTO() throws SolrServerException, IOException, URISyntaxException {
 		List<ExperimentDTO> exp = os.getExperimentDTO(1267, "MGI:1931053");
 		System.out.println(exp);
 		assertTrue(exp.size()>0);
