@@ -25,6 +25,8 @@
                         <field column="best_status_pa_cre_ex_not_required" xpath="/response/result/doc/str[@name='best_status_pa_cre_ex_not_required']" />
                         <field column="best_status_pa_cre_ex_required" xpath="/response/result/doc/str[@name='best_status_pa_cre_ex_required']" />
                         <field column="current_pa_status" xpath="/response/result/doc/str[@name='current_pa_status']" />
+                        <field column="production_centre" xpath="/response/result/doc/str[@name='production_centre']" />
+                        
                 </entity>
         </document>       
 </dataConfig>
