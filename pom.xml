@@ -734,6 +734,10 @@
 								<jsSourceFile>searchAndFacet/imagesFacetWidget.js</jsSourceFile>
 								<jsSourceFile>searchAndFacet/search.js</jsSourceFile>
 								<jsSourceFile>searchAndFacet/searchAndFacet_primer.js</jsSourceFile>
+								<jsSourceFile>general/dropdownfilters.js</jsSourceFile>
+								<jsSourceFile>general/dropDownPhenPage.js</jsSourceFile>
+								<jsSourceFile>general/ui.dropdownchecklist_modif.js</jsSourceFile>
+								
 							</jsSourceFiles>
 							<jsFinalFile>script.js</jsFinalFile>
 						</configuration>
