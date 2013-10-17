@@ -208,7 +208,6 @@ public class SolrIndex {
 //			System.out.println("GRID DUMP PARAMS - " + core + ": " + url);
 		}
 		// OTHER solrCoreNames to be added here
-		System.out.println("*** composeSolrUrl returns : " + url);
 		return url;
 	}
 

@@ -20,9 +20,13 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
+
+import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
@@ -34,6 +38,9 @@ public class ObservationService {
 
 	@Autowired
 	UnidimensionalStatisticsDAO uDAO;
+	
+	@Autowired
+	PhenotypePipelineDAO parameterDAO;
 	
 	@Autowired
 	private PhenotypeCallSummaryDAOReadOnly phenoDAO;
@@ -53,6 +60,25 @@ public class ObservationService {
 		solr = new HttpSolrServer(solrURL);
 	}
 
+
+	protected List<ObservationDTO> getControls(String parameterStableId,
+			String strain, Integer organisationId, Date max) throws SolrServerException {
+
+		SolrQuery query = new SolrQuery()
+			.setQuery("*:*")
+			.addFilterQuery("biologicalSampleGroup:control")
+			.addFilterQuery("dateOfExperiment:["+df.format(new Date(0L))+"Z TO "+df.format(max)+"Z]")
+			.addFilterQuery("parameterStableId:"+parameterStableId)
+			.addFilterQuery("organisationId:"+organisationId)
+			.addFilterQuery("strain:"+strain.replace(":", "\\:"))
+			.setSortField("dateOfExperiment", ORDER.desc)
+			.setStart(0)
+			.setRows(1000);
+		QueryResponse response = solr.query(query);
+		System.out.println(query);
+
+		return response.getBeans(ObservationDTO.class);
+	}
 
 	protected List<ObservationDTO> getControls(Integer parameterId,
 			String strain, Integer organisationId, Date max) throws SolrServerException {
@@ -115,6 +141,18 @@ public class ObservationService {
 		return resultsDTO;
 	}
 
+	public String getUnidimensionalQueryStringByParameterGeneAccZygosityOrganisationStrain(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain) throws SolrServerException {
+
+		SolrQuery query = new SolrQuery()
+	    	.setQuery("geneAccession:"+gene.replace(":", "\\:") + " AND zygosity:"+zygosity+"")
+	    	.addFilterQuery("parameterId:"+parameterId)
+	    	.addFilterQuery("organisationId:"+organisationId)
+	    	.addFilterQuery("strain:"+strain.replace(":", "\\:"))
+	    	.setStart(0)
+	    	.setRows(1000);
+		return query.toString();
+	}
+	
 	/**
 	 * 
 	 * construct a query to get all the categortical observations for a given
@@ -284,5 +322,11 @@ public class ObservationService {
 	    
 		return new ArrayList<ExperimentDTO>(experimentsMap.values());	
 	}
+	
+	public List<ExperimentDTO> getExperimentDTO(String parameterStableId, String geneAccession) throws SolrServerException, IOException, URISyntaxException {
+		Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameterStableId, 1, 0);
+		return getExperimentDTO(p.getId(), geneAccession);
+	}
+
 
 }

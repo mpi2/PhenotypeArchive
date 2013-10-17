@@ -2,6 +2,21 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
+	
+	<c:set var="count" value="0" scope="page" />
+	<c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
+			<c:forEach var="sex" items="${phenotype.sexes}"><c:set var="count" value="${count + 1}" scope="page"/></c:forEach>
+	</c:forEach>
+	<p class="resultCount">
+	Total number of results: ${count}
+	</p>
+
+	<script>
+	 var resTemp = document.getElementsByClassName("resultCount");
+	 if (resTemp.length > 1)
+		 resTemp[0].remove();
+	</script>
+	
 			
 			<table id="phenotypes" class="table table-striped">
 				<thead>

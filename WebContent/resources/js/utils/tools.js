@@ -219,7 +219,7 @@
 			 	content: MDOC[oConf.pageName][key],
 			   	style: { 
 			   		delay: 1,
-			    	width: 200,
+			    	width: 250,
 			      	padding: 8,
 			      	background: '#EEE9E9',
 			      	color: 'black',
