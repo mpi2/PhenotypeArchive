@@ -21,8 +21,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
+import uk.ac.ebi.phenotype.pojo.CategoricalResult;
+import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
+import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.util.PhenotypeCallSummaryDAOReadOnly;
 
@@ -197,6 +200,7 @@ public class ObservationService {
 	    	} else {
 	    		experiment = new ExperimentDTO();
 	    		experiment.setExperimentId(experimentKey);
+	    		experiment.setObservationType(ObservationType.valueOf(observation.getObservationType()));
 	    		experiment.setHomozygoteMutants(new HashSet<ObservationDTO>());
 	    		experiment.setHeterozygoteMutants(new HashSet<ObservationDTO>());
 
@@ -232,8 +236,10 @@ public class ObservationService {
      		experiment.getSexes().add(SexType.valueOf(observation.getSex()));
      		
     	//System.out.println("control mId="+experiment.getControlBiologicalModelId()+" exp mod Id="+experiment.getExperimentalBiologicalModelId());
-     		if (experiment.getResult()==null && experiment.getExperimentalBiologicalModelId()!=null) {
-     			experiment.setResult((StatisticalResult) phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), experiment.getParameterStableId()));
+     		if (experiment.getResults()==null && experiment.getExperimentalBiologicalModelId()!=null) {
+     			
+     			//for unidimensional example http://localhost:8080/PhenotypeArchive/stats/genes/MGI:97525?parameterId=GMC_906_001_016&gender=male&zygosity=homozygote
+     			experiment.setResults( phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), experiment.getParameterStableId(), ObservationType.valueOf(observation.getObservationType()), observation.getStrain()));
      		}
 	    	
 	    	if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.heterozygote) || ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.hemizygote)) {

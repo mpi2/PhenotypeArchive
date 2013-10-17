@@ -1,6 +1,7 @@
 package uk.ac.ebi.phenotype.stats.unidimensional;
 
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 public class UnidimensionalStatsObject {
@@ -13,6 +14,13 @@ private Float sd=new Float(0);
 private Integer sampleSize=100;
 private String allele="allele not found";
 private String geneticBackground="genetic background not found";
+private UnidimensionalResult result;
+public UnidimensionalResult getResult() {
+	return result;
+}
+public void setResult(UnidimensionalResult result) {
+	this.result = result;
+}
 public String getGeneticBackground() {
 	return geneticBackground;
 }
@@ -61,6 +69,7 @@ public Integer getSampleSize() {
 public void setSampleSize(Integer sampleSize) {
 	this.sampleSize = sampleSize;
 }
+
 
 @Override
 public String toString() {

@@ -5,6 +5,7 @@ import java.util.List;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
+import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 
 /**
  * Class to hold all data, charts and tables pertaining to a Categorical Result Stats set so for male and female data combined
@@ -21,8 +22,8 @@ public class CategoricalResultAndCharts {
 		return statsResults;
 	}
 
-	public void setStatsResults(List<CategoricalResult> statsResults) {
-		this.statsResults = statsResults;
+	public void setStatsResults(List<? extends StatisticalResult> list) {
+		this.statsResults = (List<CategoricalResult>) list;
 	}
 
 	public List<CategoricalChartDataObject> getMaleAndFemale() {

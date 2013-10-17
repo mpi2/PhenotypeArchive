@@ -12,6 +12,8 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import uk.ac.ebi.generic.util.JSONRestUtil;
@@ -21,6 +23,10 @@ import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 public class PhenotypeCallSummarySolrImpl implements
 		PhenotypeCallSummaryDAOReadOnly {
 
+	
+	private static final Logger log = Logger
+			.getLogger(PhenotypeCallSummarySolrImpl.class);
+	
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
 	// TODO change this to come from the configuration
@@ -224,34 +230,63 @@ public class PhenotypeCallSummarySolrImpl implements
 
 	}
 	
-	public StatisticalResult getStatisticalResultFor(String accession, String parameterStableId) throws IOException, URISyntaxException {
+	public List<? extends StatisticalResult> getStatisticalResultFor(String accession, String parameterStableId, ObservationType observationType, String strainAccession) throws IOException, URISyntaxException {
 		
 		String solrUrl = config.get("internalSolrUrl");// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
 		String url = solrUrl
 				+ "/"
 				+ core
 				+ "/select/?q=marker_accession_id:\""
-				+ accession+"\"&rows=10000000&version=2.2&start=0&indent=on&wt=json";
-		StatisticalResult statisticalResult=this.createStatsResultFromSolr(url);
+				+ accession+"\""+"&fq=parameter_stable_id:"+parameterStableId+"&fq=strain_accession_id:\""+strainAccession+"\"&rows=10000000&version=2.2&start=0&indent=on&wt=json";
+		List<? extends StatisticalResult> statisticalResult=this.createStatsResultFromSolr(url, observationType);
 		return statisticalResult;
 	}
 
-	private StatisticalResult createStatsResultFromSolr(String url) throws IOException, URISyntaxException {
+	private List<? extends StatisticalResult> createStatsResultFromSolr(String url, ObservationType observationType) throws IOException, URISyntaxException {
 		//need some way of determining what type of data and therefor what type of stats result object to create default to unidimensional for now
-		UnidimensionalResult statisticalResult=new UnidimensionalResult();
-		JSONObject results = null;
-		results = JSONRestUtil.getResults(url);
-
-		JSONArray docs = results.getJSONObject("response").getJSONArray("docs");
+		List<StatisticalResult> results=new ArrayList<>();
+//		StatisticalResult statisticalResult=new StatisticalResult();
+		
+		JSONObject resultsj = null;
+		resultsj = JSONRestUtil.getResults(url);
+		JSONArray docs = resultsj.getJSONObject("response").getJSONArray("docs");
+		
+		if(observationType==ObservationType.unidimensional) {
+		UnidimensionalResult unidimensionalResult=new UnidimensionalResult();//dummy result just in case no other cases are met!
+		for (Object doc : docs) {
+			JSONObject phen = (JSONObject) doc;
+			String pValue = phen.getString("p_value");
+			String sex = phen.getString("sex");
+			String zygosity=phen.getString("zygosity");
+			String effectSize=phen.getString("effect_size");
+			
+			
+			//System.out.println("pValue="+pValue);
+			if(pValue!=null) {
+				unidimensionalResult.setpValue(Double.valueOf(pValue));
+				unidimensionalResult.setZygosityType(ZygosityType.valueOf(zygosity));
+				unidimensionalResult.setEffectSize(new Double(Double.valueOf(effectSize)));
+				unidimensionalResult.setSexType(SexType.valueOf(sex));
+			}
+			results.add(unidimensionalResult);
+		}
+		return results;
+	}
+	
+	if(observationType==ObservationType.categorical) {
+		CategoricalResult catResult=new CategoricalResult();
 		for (Object doc : docs) {
 			JSONObject phen = (JSONObject) doc;
 			String pValue = phen.getString("p_value");
 			//System.out.println("pValue="+pValue);
 			if(pValue!=null) {
-				statisticalResult.setpValue(Double.valueOf(pValue));
+				catResult.setpValue(Double.valueOf(pValue));
 			}
+			results.add(catResult);
 		}
-		return statisticalResult;
+		return results;
+	}
+	return results;
 	}
 
 }
