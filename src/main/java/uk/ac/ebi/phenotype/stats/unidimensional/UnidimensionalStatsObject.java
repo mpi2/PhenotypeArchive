@@ -11,8 +11,8 @@ private SexType sexType=SexType.male;
 private Float mean=new Float(0);
 private Float sd=new Float(0);
 private Integer sampleSize=100;
-private String allele="allele should be set here";
-private String geneticBackground="genetic background should be here";
+private String allele="allele not found";
+private String geneticBackground="genetic background not found";
 public String getGeneticBackground() {
 	return geneticBackground;
 }

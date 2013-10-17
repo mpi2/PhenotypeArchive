@@ -52,7 +52,7 @@ public class ExperimentDTO {
 				+ ", geneMarker=" + geneMarker + ", zygosities=" + zygosities
 				+ ", sexes=" + sexes + ", result=" + result + ", Num homozygous mutants="
 				+ homozygoteMutants.size() + ", Num heterozygous mutants="
-				+ heterozygoteMutants.size() + ", Numcontrols=" + controls.size() + "]";
+				+ heterozygoteMutants.size() + ", Numcontrols=" + controls.size() +" control bm id="+this.controlBiologicalModelId+"  exp bm id="+experimentalBiologicalModelId+ "]";
 	}
 
 	/**

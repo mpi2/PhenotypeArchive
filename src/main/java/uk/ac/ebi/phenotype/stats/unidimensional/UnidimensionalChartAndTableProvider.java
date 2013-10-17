@@ -61,34 +61,55 @@ public class UnidimensionalChartAndTableProvider {
 
 	private String axisFontSize = "15";
 
-
-	public UnidimensionalDataSet doUnidimensionalData(
+/**
+ * return one unidimensional data set per experiment - one experiment should have one or two graphs corresponding to sex and a stats result for one table at the bottom
+ * @param experimentList
+ * @param bmDAO
+ * @param config
+ * @param unidimensionalMutantBiologicalModels
+ * @param parameter
+ * @param acc
+ * @param model
+ * @param genderList
+ * @param zyList
+ * @param boxOrScatter
+ * @param byMouseId
+ * @return
+ * @throws SQLException
+ * @throws IOException
+ * @throws URISyntaxException
+ */
+	public List<UnidimensionalDataSet> doUnidimensionalData(
 			List<ExperimentDTO> experimentList, BiologicalModelDAO bmDAO, Map<String, String> config, List<BiologicalModel> unidimensionalMutantBiologicalModels,
 			Parameter parameter,
 			String acc, Model model, List<String> genderList,
 			List<String> zyList, ChartType boxOrScatter, Boolean byMouseId)
 			throws SQLException, IOException, URISyntaxException {
 
-	
-System.out.println("byMouseId="+byMouseId);
 		// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
 		// String parameterId="ESLIM_015_001_018";// ESLIM_015_001_018
 
 		// Map<String, Float> allMinMax =
 		// unidimensionalStatisticsDAO.getMinAndMaxForParameter(parameter.getStableId());
-		List<UnidimensionalResult> allUnidimensionalResults = new ArrayList<UnidimensionalResult>();
-		UnidimensionalDataSet unidimensionalDataSet = new UnidimensionalDataSet();
-		List<ChartData> chartsAndTablesForParameter = new ArrayList<ChartData>();
-		List<UnidimensionalStatsObject> unidimensionalStatsObjects = new ArrayList<>();
-		List<ChartData> yAxisAdjustedBoxChartsNTables = new ArrayList<ChartData>();
+		List<UnidimensionalDataSet> unidimensionalDataSets=new ArrayList<UnidimensionalDataSet>();
+		
+		
 		// List<BiologicalModel> biologicalModels = unidimensionalStatisticsDAO
 		// .getBiologicalModelsByParameterAndGene(parameter, acc);
 		// logger.debug("biologicalmodels size=" + biologicalModels.size());
-		Float max = new Float(0);
-		Float min = new Float(1000000000);
+		
 
 		// get control data
 		for (ExperimentDTO experiment : experimentList) {
+			Float max = new Float(0);
+			Float min = new Float(1000000000);
+			List<UnidimensionalResult> allUnidimensionalResults = new ArrayList<UnidimensionalResult>();
+			UnidimensionalDataSet unidimensionalDataSet = new UnidimensionalDataSet();
+			unidimensionalDataSet.setExperimentId(experiment.getExperimentId());
+			List<ChartData> chartsAndTablesForParameter = new ArrayList<ChartData>();
+			List<UnidimensionalStatsObject> unidimensionalStatsObjects = new ArrayList<>();
+			List<ChartData> yAxisAdjustedBoxChartsNTables = new ArrayList<ChartData>();
+			
 			System.out.println("biolgocialModelId="+experiment.getExperimentalBiologicalModelId());
 			Map<String,Integer> mouseIdsToColumnsMap=new TreeMap<>();
 			BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(experiment.getExperimentalBiologicalModelId());
@@ -140,7 +161,7 @@ System.out.println("byMouseId="+byMouseId);
 								//controlMouseDataPoints.add(mDataPoint);
 								controlMouseDataPoints=addMouseDataPoint(mouseIdsToColumnsMap, controlCounts, controlMouseDataPoints, control, dataPoint);
 								
-								logger.debug("adding control point="+dataPoint);
+								//logger.debug("adding control point="+dataPoint);
 								 
 							 }
 							 mouseDataPointsSet.add(controlMouseDataPoints);
@@ -239,24 +260,27 @@ System.out.println("byMouseId="+byMouseId);
 
 					// i++;
 					}
+					
+//					min = allMinMax.get("min");
+//					max = allMinMax.get("max");
+					logger.debug("min=" + min + "  max=" + max);
+					// List<String> yAxisAdjustedBoxCharts
+					// =ChartUtils.alterMinAndMaxYAxisOfCharts(continuousCharts, min, max);
+					yAxisAdjustedBoxChartsNTables = ChartUtils.alterMinAndMaxYAxisOfCharts(
+							chartsAndTablesForParameter, min, max);
+					unidimensionalDataSet
+							.setSexChartAndTables(yAxisAdjustedBoxChartsNTables);
+					unidimensionalDataSet
+							.setAllUnidimensionalResults(allUnidimensionalResults);
+					unidimensionalDataSet.setStatsObjects(unidimensionalStatsObjects);
+					unidimensionalDataSets.add(unidimensionalDataSet);
 				} // end of experiment loop
 
 			
 
-//		min = allMinMax.get("min");
-//		max = allMinMax.get("max");
-		logger.debug("min=" + min + "  max=" + max);
-		// List<String> yAxisAdjustedBoxCharts
-		// =ChartUtils.alterMinAndMaxYAxisOfCharts(continuousCharts, min, max);
-		yAxisAdjustedBoxChartsNTables = ChartUtils.alterMinAndMaxYAxisOfCharts(
-				chartsAndTablesForParameter, min, max);
-		unidimensionalDataSet
-				.setSexChartAndTables(yAxisAdjustedBoxChartsNTables);
-		unidimensionalDataSet
-				.setAllUnidimensionalResults(allUnidimensionalResults);
-		unidimensionalDataSet.setStatsObjects(unidimensionalStatsObjects);
+
 		// return yAxisAdjustedBoxChartsNTables;
-		return unidimensionalDataSet;
+		return unidimensionalDataSets;
 
 	}
 
@@ -267,9 +291,9 @@ System.out.println("byMouseId="+byMouseId);
 		
 	
 		countsForSet.add(new Float(dataPoint));
-		logger.debug("adding mutant point="+dataPoint);
+		//logger.debug("adding mutant point="+dataPoint);
 		MouseDataPoint mDataPoint=new MouseDataPoint(observationDTO.getExternalSampleId(), dataPoint,  0, observationDTO.getDateOfExperiment());
-		logger.warn("mouseDataPoint="+mDataPoint);
+		//logger.warn("mouseDataPoint="+mDataPoint);
 		mouseDataPointsList.add(mDataPoint);
 		return mouseDataPointsList;
 	}
@@ -463,8 +487,9 @@ System.out.println("byMouseId="+byMouseId);
 			Set<ZygosityType> set, List<String> zyList,
 			List<List<Float>> rawData, BiologicalModel expBiologicalModel, ExperimentDTO experiment) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
+		//logger.debug("experiment="+experiment);
 		StatisticalResult result = experiment.getResult();
-		logger.debug("result="+result);
+		//logger.debug("result="+result);
 		List<UnidimensionalStatsObject> statsObjects = new ArrayList<UnidimensionalStatsObject>();
 		// String parameterUnit = parameter.checkParameterUnit(1);
 		UnidimensionalStatsObject wtStatsObject = new UnidimensionalStatsObject();

@@ -49,8 +49,11 @@
 		</c:if>
 		<c:if test="${fn:length(unidimensionalData.statsObjects)>0}">
 		 <div class="row-fluid">
-		 		<div class="container span12"><h4>Allele -  <t:formatAllele> ${unidimensionalData.statsObjects[1].allele }</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${unidimensionalData.statsObjects[1].geneticBackground }</span></h4>
+		 		<div class="container span6"><h4>Allele -  <t:formatAllele> ${unidimensionalData.statsObjects[0].allele }</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${unidimensionalData.statsObjects[0].geneticBackground }</span></h4>
 				 </div>
+				 	<c:if test="${fn:length(unidimensionalData.statsObjects)>1}">
+				 <div class="container span6"><h4>Allele -  <t:formatAllele> ${unidimensionalData.statsObjects[1].allele }</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${unidimensionalData.statsObjects[1].geneticBackground }</span></h4>
+				 </div></c:if>
  		</div>
  		<div class="row-fluid">
 <c:forEach var="unidimensionalChartsAndTable" items="${unidimensionalData.sexChartAndTables}" varStatus="uniDimensionalLoop">

@@ -1,5 +1,7 @@
 package uk.ac.ebi.phenotype.stats;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,12 +24,16 @@ import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.util.PhenotypeCallSummaryDAOReadOnly;
 
 @Service
 public class ObservationService {
 
 	@Autowired
 	UnidimensionalStatisticsDAO uDAO;
+	
+	@Autowired
+	private PhenotypeCallSummaryDAOReadOnly phenoDAO;
 
 	private String solrURL = "http://localhost:8080/solr/experiment";
 	private static final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00");
@@ -150,8 +156,10 @@ public class ObservationService {
 	 * @param geneAccession
 	 * @return set of experiment DTOs
 	 * @throws SolrServerException 
+	 * @throws URISyntaxException 
+	 * @throws IOException 
 	 */
-	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession) throws SolrServerException {
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession) throws SolrServerException, IOException, URISyntaxException {
 
 		List<ObservationDTO> results = new ArrayList<ObservationDTO>();
 		SolrQuery query = new SolrQuery()
@@ -222,9 +230,10 @@ public class ObservationService {
 
     		experiment.getZygosities().add(ZygosityType.valueOf(observation.getZygosity()));
      		experiment.getSexes().add(SexType.valueOf(observation.getSex()));
-    	
-     		if (experiment.getResult()==null && experiment.getControlBiologicalModelId()==null && experiment.getExperimentalBiologicalModelId()==null) {
-     			experiment.setResult((StatisticalResult) uDAO.getUnidimensionalResultByParameterIdAndBiologicalModelIds(observation.getParameterId(), experiment.getControlBiologicalModelId(), experiment.getExperimentalBiologicalModelId()));
+     		
+    	//System.out.println("control mId="+experiment.getControlBiologicalModelId()+" exp mod Id="+experiment.getExperimentalBiologicalModelId());
+     		if (experiment.getResult()==null && experiment.getExperimentalBiologicalModelId()!=null) {
+     			experiment.setResult((StatisticalResult) phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), experiment.getParameterStableId()));
      		}
 	    	
 	    	if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.heterozygote) || ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.hemizygote)) {

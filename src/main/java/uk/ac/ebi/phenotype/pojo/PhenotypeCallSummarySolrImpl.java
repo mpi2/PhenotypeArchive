@@ -223,5 +223,35 @@ public class PhenotypeCallSummarySolrImpl implements
 		return createPhenotypeResultFromSolrResponse(url);
 
 	}
+	
+	public StatisticalResult getStatisticalResultFor(String accession, String parameterStableId) throws IOException, URISyntaxException {
+		
+		String solrUrl = config.get("internalSolrUrl");// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
+		String url = solrUrl
+				+ "/"
+				+ core
+				+ "/select/?q=marker_accession_id:\""
+				+ accession+"\"&rows=10000000&version=2.2&start=0&indent=on&wt=json";
+		StatisticalResult statisticalResult=this.createStatsResultFromSolr(url);
+		return statisticalResult;
+	}
+
+	private StatisticalResult createStatsResultFromSolr(String url) throws IOException, URISyntaxException {
+		//need some way of determining what type of data and therefor what type of stats result object to create default to unidimensional for now
+		UnidimensionalResult statisticalResult=new UnidimensionalResult();
+		JSONObject results = null;
+		results = JSONRestUtil.getResults(url);
+
+		JSONArray docs = results.getJSONObject("response").getJSONArray("docs");
+		for (Object doc : docs) {
+			JSONObject phen = (JSONObject) doc;
+			String pValue = phen.getString("p_value");
+			//System.out.println("pValue="+pValue);
+			if(pValue!=null) {
+				statisticalResult.setpValue(Double.valueOf(pValue));
+			}
+		}
+		return statisticalResult;
+	}
 
 }

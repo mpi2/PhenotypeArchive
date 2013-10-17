@@ -163,7 +163,7 @@ public class StatsController implements BeanFactoryAware {
 		// MGI:105313 male het param 655
 		// log.info("acc=" + acc);
 		List<JSONObject> charts = new ArrayList<JSONObject>();
-		List<UnidimensionalDataSet> allUnidimensionalChartsAndTables=new ArrayList<UnidimensionalDataSet>();
+		List<UnidimensionalDataSet> allUnidimensionalDataSets=new ArrayList<UnidimensionalDataSet>();
 		List<CategoricalResultAndCharts> allCategoricalResultAndCharts=new ArrayList<CategoricalResultAndCharts>();
 		List<TableObject> categoricalTables=new ArrayList<TableObject>();
 		List<BiologicalModel> categoricalMutantBiologicalModels=new ArrayList<BiologicalModel>();
@@ -238,7 +238,7 @@ public class StatsController implements BeanFactoryAware {
 			}
 			
 			List<ExperimentDTO> experimentList = observationService.getExperimentDTO(parameter.getId(), acc);
-			log.debug("Experiment dto marker="+experimentList);
+			//log.debug("Experiment dto marker="+experimentList);
 			//ESLIM_003_001_003 id=962 calorimetry data for time series graph new MGI:1926153
 			//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1926153?parameterId=ESLIM_003_001_003
 			try{
@@ -253,9 +253,9 @@ public class StatsController implements BeanFactoryAware {
 			if(observationTypeForParam.equals(ObservationType.unidimensional)){
 				//http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
 				log.info("calling chart creation for unidimensional data");
-				log.info("experimentList="+experimentList);
-					UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(experimentList, bmDAO, config, unidimensionalMutantBiologicalModels, parameter, acc, model , genderList, zyList, ChartType.UnidimensionalBoxPlot, false);
-				allUnidimensionalChartsAndTables.add(unidimensionalChartNTables);
+				//log.info("experimentList="+experimentList);
+					List<UnidimensionalDataSet> unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(experimentList, bmDAO, config, unidimensionalMutantBiologicalModels, parameter, acc, model , genderList, zyList, ChartType.UnidimensionalBoxPlot, false);
+					allUnidimensionalDataSets.addAll(unidimensionalChartNTables);
 			}
 			if(observationTypeForParam.equals(ObservationType.categorical)){
 				//https://dev.mousephenotype.org/mi/impc/dev/phenotype-archive/stats/genes/MGI:1346872?parameterId=ESLIM_001_001_004
@@ -272,7 +272,7 @@ public class StatsController implements BeanFactoryAware {
 		}// end of parameterId iterations
 
 		model.addAttribute("unidimensionalMutantBiologicalModels", unidimensionalMutantBiologicalModels );
-		model.addAttribute("allUnidimensionalChartsAndTables", allUnidimensionalChartsAndTables);
+		model.addAttribute("allUnidimensionalDataSets", allUnidimensionalDataSets);
 		model.addAttribute("timeSeriesMutantBiologicalModels", timeSeriesMutantBiologicalModels );
 		model.addAttribute("timeSeriesChartsAndTables", timeSeriesChartsAndTables);
 		model.addAttribute("categoricalMutantBModel", categoricalMutantBiologicalModels );
@@ -351,7 +351,7 @@ public class StatsController implements BeanFactoryAware {
 				yUnits=parameterUnits[1];
 			}
 			List<ExperimentDTO> experimentList = observationService.getExperimentDTO(parameter.getId(), acc);
-			log.debug("Experiment dto marker="+experimentList);
+			//log.debug("Experiment dto marker="+experimentList);
 			log.info("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
 			
 			//ESLIM_003_001_003 id=962 calorimetry data for time series graph new MGI:1926153
@@ -361,8 +361,8 @@ public class StatsController implements BeanFactoryAware {
 			if(observationTypeForParam.equals(ObservationType.unidimensional) || observationTypeForParam.equals(ObservationType.time_series)){
 				//http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
 				
-				UnidimensionalDataSet unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(experimentList, bmDAO, config, unidimensionalMutantBiologicalModels, parameter, acc, model , genderList, zyList, ChartType.UnidimensionalScatter, byMouseId);
-				allUnidimensionalChartsAndTables.add(unidimensionalChartNTables);
+				List<UnidimensionalDataSet> unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(experimentList, bmDAO, config, unidimensionalMutantBiologicalModels, parameter, acc, model , genderList, zyList, ChartType.UnidimensionalScatter, byMouseId);
+				allUnidimensionalChartsAndTables.addAll(unidimensionalChartNTables);
 			}else {
 				//must be categorical
 				//we don't want scatters for categorical!

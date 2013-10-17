@@ -6,7 +6,19 @@ import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.TableObject;
 
+/**
+ * UnidimensionalDataSet should represent one experimentDTO i.e. both sexes with one table or one sex and one table
+ * @author jwarren
+ *
+ */
 public class UnidimensionalDataSet {
+	 private String experimentId=""; //experimentId should be distinct per UnidimensionalSet
+	public String getExperimentId() {
+		return experimentId;
+	}
+	public void setExperimentId(String experimentId) {
+		this.experimentId = experimentId;
+	}
 
 	private List<ChartData> sexChartAndTables;
 	public List<ChartData> getSexChartAndTables() {
