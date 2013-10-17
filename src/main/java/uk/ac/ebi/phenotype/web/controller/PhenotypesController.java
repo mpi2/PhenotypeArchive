@@ -125,8 +125,7 @@ public class PhenotypesController {
 		dId.setAccession(phenotype_id);
 		dId.setDatabaseId(5);
 		oTerm.setId(dId);
-		
-		
+			
 		Set<OntologyTerm> anatomyTerms = new HashSet<OntologyTerm>();
 		Set<OntologyTerm> mpSiblings = new HashSet<OntologyTerm>();
 		Set<OntologyTerm> goTerms = new HashSet<OntologyTerm>();
@@ -138,8 +137,7 @@ public class PhenotypesController {
 				.getJSONObject("response")
 				.getJSONArray("docs")
 				.getJSONObject(0);
-
-			JSONArray terms;
+				JSONArray terms;
 			
 			if (mpData.containsKey("mp_term")) {
 				String term = mpData.getString("mp_term");
@@ -199,7 +197,6 @@ public class PhenotypesController {
 
 		// Query the images for this phenotype
 		QueryResponse response=imagesSolrDao.getDocsForMpTerm(phenotype_id, 0, 6);
-		System.out.println(response);
 		model.addAttribute("numberFound", response.getResults().getNumFound());
 		model.addAttribute("images", response.getResults());
 		//get a string, image map instead?
@@ -304,8 +301,7 @@ public class PhenotypesController {
 		for(PhenotypeRow pr: list){
 			if(pr.getGene().getSymbol().equals("Dll1"))System.out.println("phenotype row="+pr);
 		}
-		model.addAttribute("phenotypes", new ArrayList<PhenotypeRow>(phenotypes.keySet()));
-		
+		model.addAttribute("phenotypes", new ArrayList<PhenotypeRow>(phenotypes.keySet()));	
 	}	
 
 

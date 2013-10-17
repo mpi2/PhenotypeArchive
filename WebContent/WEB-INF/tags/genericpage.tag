@@ -248,7 +248,22 @@ try {
 	
 	<script type="text/javascript" src='${baseUrl}/js/vendor/jquery.ba-bbq.min.js' ></script>
 	<script type="text/javascript" src='${baseUrl}/js/bootstrap/bootstrap.min.js' ></script>
-	<script type="text/javascript" src='${baseUrl}/js/script.min.js' ></script>
+	<script type='text/javascript' src='${baseUrl}/js/documentationConfig.js'></script>      
+  <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js'></script>
+    
+  <script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/jquery.dataTables.js'></script>
+  <script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/core.filter.js'></script>
+  <script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/TableTools.min.js'></script>
+  <script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>
+    
+  <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/geneFacetWidget.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/mpFacetWidget.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/maFacetWidget.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>  
+    
 	<script type='text/javascript' src='${baseUrl}/js/vendor/respond.min.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/vendor/jquery.corner.mini.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/vendor/jquery.qtip-1.0.0-rc3.min.js'></script>
