@@ -2,6 +2,7 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
+<!-- most of this page is the same as the unidimensionalStatsFrag.jsp so we should refactor this so they are the same page -->
 <t:genericpage>
 	<jsp:attribute name="title">Scatter for ${gene.name}</jsp:attribute>
 
@@ -42,25 +43,23 @@
 	
 
 
- <c:forEach var="unidimensionalData" items="${allUnidimensionalChartsAndTables}" varStatus="unidimensionalDataLoop">
+ <c:forEach var="unidimensionalDataSet" items="${allUnidimensionalDataSets}" varStatus="unidimensionalDataSetLoop">
  <div class="row-fluid dataset"> 
- <c:if test="${fn:length(unidimensionalData.statsObjects)==0}">
+ <c:if test="${fn:length(unidimensionalDataSet.statsObjects)==0}">
 		No data for this zygosity and gender for this parameter and gene
 		</c:if>
-		<c:if test="${fn:length(unidimensionalData.statsObjects)>0}">
+		<c:if test="${fn:length(unidimensionalDataSet.statsObjects)>0}">
 		 <div class="row-fluid">
-		 		<div class="container span6"><h4>Allele -  <t:formatAllele> ${unidimensionalData.statsObjects[0].allele }</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${unidimensionalData.statsObjects[0].geneticBackground }</span></h4>
-				 </div>
-				 	<c:if test="${fn:length(unidimensionalData.statsObjects)>1}">
-				 <div class="container span6"><h4>Allele -  <t:formatAllele> ${unidimensionalData.statsObjects[1].allele }</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${unidimensionalData.statsObjects[1].geneticBackground }</span></h4>
-				 </div></c:if>
+		 	<div class="container span6"><h4>Allele -  <t:formatAllele> ${unidimensionalDataSet.statsObjects[1].allele }</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${unidimensionalDataSet.statsObjects[1].geneticBackground }</span></h4>
+				 	</div>
+				 
  		</div>
  		<div class="row-fluid">
-<c:forEach var="unidimensionalChartsAndTable" items="${unidimensionalData.sexChartAndTables}" varStatus="uniDimensionalLoop">
+<c:forEach var="unidimensionalChartsAndTable" items="${unidimensionalDataSet.sexChartAndTables}" varStatus="uniDimensionalLoop">
  <%-- ${loop.count  % 2} --%>
 
   		<div class="container span6">
-				<div id="chart${uniDimensionalLoop.count}"
+				<div id="chart${unidimensionalDataSetLoop.count}_${uniDimensionalLoop.count}"
 									style="min-width: 400px; height: 400px; margin: 0 auto">
 				</div>
 		
@@ -71,12 +70,13 @@
    								<script type="text/javascript">
    
    								$(function () {
-   								    $('#chart${uniDimensionalLoop.count}').highcharts(${unidimensionalChartsAndTable.chart});
+   								    $('#chart${unidimensionalDataSetLoop.count}_${uniDimensionalLoop.count}').highcharts(${unidimensionalChartsAndTable.chart});
 								</script>
 								${parameter }
 							<a href="../${acc}?${pageContext.request.queryString}">Box Plot / Time Series  Graphs</a>		
 		</div><!-- end of span6  individual chart holder -->
 		</c:forEach>
+		</div><!-- end of row-fluid for graphs -->
 		<table id="continuousTable${uniDimensionalLoop.count}" class="table table-bordered  table-striped table-condensed">
 		<thead><tr>
 		<th>Line</th>
@@ -91,7 +91,7 @@
 										
 										
 										
-											<c:forEach var="statsObject" items="${unidimensionalData.statsObjects}">
+											<c:forEach var="statsObject" items="${unidimensionalDataSet.statsObjects}">
 												<tr>
 												<td>${statsObject.line}</td>
 												<c:choose>
@@ -119,13 +119,13 @@
 										</table>
 				
 				
-				<c:if test="${fn:length(unidimensionalData.allUnidimensionalResults)>0}">
+				<c:if test="${fn:length(unidimensionalDataSet.allUnidimensionalResults)>0}">
 				<div class="row-fluid">
 						<div class="container span12">
 						<table class="ttable table-bordered  table-striped table-condensed">
 						<%-- ${fn:length(unidimensionalData.allUnidimensionalResults)} --%>
 						
- 							<c:forEach var="data" items="${unidimensionalData.allUnidimensionalResults}">
+ 							<c:forEach var="data" items="${unidimensionalDataSet.allUnidimensionalResults}">
  							<%-- <td>${data.significanceClassification}</td> --%>
  									<c:choose>
           									<c:when test="${data.significanceClassification == 'both_equally' || data.significanceClassification == 'none'  || data.significanceClassification == 'cannot_classify' }">

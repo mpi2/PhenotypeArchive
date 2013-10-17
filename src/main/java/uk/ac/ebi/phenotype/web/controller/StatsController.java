@@ -325,7 +325,7 @@ public class StatsController implements BeanFactoryAware {
 		List<String> genderList = getParamsAsList(gender);
 		List<String> zyList=getParamsAsList(zygosity);
 		
-		List<UnidimensionalDataSet> allUnidimensionalChartsAndTables=new ArrayList<UnidimensionalDataSet>();
+		List<UnidimensionalDataSet> allUnidimensionalDataSets=new ArrayList<UnidimensionalDataSet>();
 		
 		List<BiologicalModel> unidimensionalMutantBiologicalModels=new ArrayList<BiologicalModel>();
 		
@@ -362,7 +362,7 @@ public class StatsController implements BeanFactoryAware {
 				//http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
 				
 				List<UnidimensionalDataSet> unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(experimentList, bmDAO, config, unidimensionalMutantBiologicalModels, parameter, acc, model , genderList, zyList, ChartType.UnidimensionalScatter, byMouseId);
-				allUnidimensionalChartsAndTables.addAll(unidimensionalChartNTables);
+				allUnidimensionalDataSets.addAll(unidimensionalChartNTables);
 			}else {
 				//must be categorical
 				//we don't want scatters for categorical!
@@ -375,7 +375,7 @@ public class StatsController implements BeanFactoryAware {
 		}// end of parameterId iterations
 
 		model.addAttribute("unidimensionalMutantBiologicalModels", unidimensionalMutantBiologicalModels );
-		model.addAttribute("allUnidimensionalChartsAndTables", allUnidimensionalChartsAndTables);
+		model.addAttribute("allUnidimensionalDataSets", allUnidimensionalDataSets);
 		model.addAttribute("statsError", statsError );
 		return "scatter";
 	}
