@@ -27,13 +27,13 @@ public class ObservationServiceTest {
 
 	@Test
 	public void testGetControls() throws SolrServerException {
-		List<ObservationDTO> test = os.getControls(1267, "MGI:3028467", 7, new Date(0L));
+		List<ObservationDTO> test = os.getControls("ESLIM_001_001_158", "MGI:3028467", 7, new Date());
 		assertTrue(test.size()>0);
 	}
 
 	@Test
 	public void testGetExperimentDTO() throws SolrServerException, IOException, URISyntaxException {
-		List<ExperimentDTO> exp = os.getExperimentDTO(1267, "MGI:1931053");
+		List<ExperimentDTO> exp = os.getExperimentDTO("ESLIM_001_001_158", "MGI:1920194");
 		System.out.println(exp);
 		assertTrue(exp.size()>0);
 		System.out.println(exp.get(0));
@@ -45,4 +45,13 @@ public class ObservationServiceTest {
 		
 	}
 
+	@Test
+	public void testGetUrl() throws SolrServerException {
+		
+		String url = os.getUnidimensionalQueryStringByParameterGeneAccZygosityOrganisationStrain(new Integer(1), "MGI:88255", "homozygous", new Integer(3), "MGI:2159965");
+		
+		System.out.println(url);
+		assertTrue(url.length()>0);
+		
+	}
 }
