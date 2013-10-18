@@ -176,13 +176,17 @@ tr.subFacet td:nth-child(2) {
 
 table#geneFacetTbl tr.phenoCenterTrCap,
 table#geneFacetTbl tr.prodCenterTrCap,
-table#geneFacetTbl tr.geneSubTypeTrCap, 
+table#geneFacetTbl tr.geneSubTypeTrCap,
+table#geneFacetTbl tr.phenoStatusTrCap,
+table#geneFacetTbl tr.prodStatusTrCap,
 table#imagesFacetTbl tr.facetSubCat {
 	cursor: pointer;
 }
 table#geneFacetTbl tr.prodCenterTrCap td,
 table#geneFacetTbl tr.phenoCenterTrCap td, 
 table#geneFacetTbl tr.geneSubTypeTrCap td, 
+table#geneFacetTbl tr.phenoStatusTrCap td,
+table#geneFacetTbl tr.prodStatusTrCap td,
 table#imagesFacetTbl tr.facetSubCat td{
 	padding-left: 15px !important;
 	background-image: url('../img/right.gif');
@@ -192,12 +196,16 @@ table#imagesFacetTbl tr.facetSubCat td{
 table#geneFacetTbl tr.prodCenterTrCap td.unCollapse, 
 table#geneFacetTbl tr.phenoCenterTrCap td.unCollapse,  
 table#geneFacetTbl tr.geneSubTypeTrCap td.unCollapse, 
-table#imagesFacetTbl tr.facetSubCat td.unCollapse{
+table#geneFacetTbl tr.prodStatusTrCap td.unCollapse, 
+table#geneFacetTbl tr.phenoStatusTrCap td.unCollapse, 
+table#imagesFacetTbl tr.facetSubCat td.unCollapse {
 	background-image: url('../img/down.gif');
 }
 table#geneFacetTbl tr.phenoCenterTr, 
 table#geneFacetTbl tr.prodCenterTr, 
 table#geneFacetTbl tr.geneSubTypeTr, 
+table#geneFacetTbl tr.prodStatusTr,
+table#geneFacetTbl tr.phenoStatusTr,
 tr.trHidden {
 	display: none;
 }
