@@ -38,7 +38,8 @@
     <!-- The gene status is calculated on the fly using DataimportHandler script transformer -->
     <dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/allele/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
     <dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
- 		<dataSource name="human2mouse_symbol_core" type="HttpDataSource" baseUrl="${human2mouseurl}/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+ 		<!-- dataSource name="human2mouse_symbol_core" type="HttpDataSource" baseUrl="${human2mouseurl}/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/-->
+		<dataSource name="human2mouse_symbol_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_ci/human2mouse_symbol/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 
     <document name="docs">
        	<entity dataSource="gene2_core" name="doc" stream="true" url="search?q=*&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status,imits_phenotype_is_active&amp;rows=50000&amp;wt=normal"
