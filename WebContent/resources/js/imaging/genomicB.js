@@ -102,14 +102,14 @@ jQuery(document).ready(function() {
 				uri: getProxyUri( 'http://www.ebi.ac.uk/mi/ws/dazzle-ws/das/mmu_68_38k/'),
 				desc: 'Mouse reference genome build NCBIm38',
 				tier_type: 'sequence',
-				provides_entrypoints: true
+				provides_entrypoints: true,
+				provides_karyotype: true
 				},
 				{
 					name: 'Genes',
 					desc: 'Gene structures from Ensembl 58',
 					uri: getProxyUri('http://www.ebi.ac.uk/mi/ws/dazzle-ws/das/mmu_68_38k/'),
 					collapseSuperGroups: true,
-					provides_karyotype: true,
 					provides_search: true
 				},
 				{

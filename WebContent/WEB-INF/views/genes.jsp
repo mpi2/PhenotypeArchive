@@ -355,47 +355,6 @@
 
 				<jsp:include page="PhenoFrag.jsp"></jsp:include>
 				<div id="exportIconsDiv"></div>
-				<%-- <div id="phenotypesTableDiv">
-				<table id="phenotypes" class="table table-striped">
-					<thead>
-						<tr>
-							<th>Phenotype</th>
-							<th>Allele</th>
-							<th>Zygosity</th>
-							<th>Sex</th>
-							<th>Data</th>
-							<th>Graph</th>
-							<th>Strain</th>
-						</tr>
-					</thead>
-					<tbody>
-						<c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
-						<c:set var="europhenome_gender" value="Both-Split"/>
-						<tr>
-						<td><a href="${baseUrl}/phenotypes/${phenotype.phenotypeTerm.id.accession}">${phenotype.phenotypeTerm.name}</a></td>
-						<td><c:choose><c:when test="${fn:contains(phenotype.allele.id.accession, 'MGI')}"><a href="http://www.informatics.jax.org/accession/${phenotype.allele.id.accession}"><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></a></c:when><c:otherwise><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></c:otherwise></c:choose></td>
-						<td>${phenotype.zygosity}</td>
-						<td style="font-family:Verdana;font-weight:bold;">
-							<c:set var="count" value="0" scope="page" />
-							<c:forEach var="sex" items="${phenotype.sexes}"><c:set var="count" value="${count + 1}" scope="page"/><c:if test="${sex == 'female'}"><c:set var="europhenome_gender" value="Female"/><img style="cursor:help;color:#D6247D;" rel="tooltip" data-placement="top" title="Female" alt="Female" src="${baseUrl}/img/icon-female.png" /></c:if><c:if test="${sex == 'male'}"><c:set var="europhenome_gender" value="Male"/><img style="cursor:help;color:#247DD6;margin-left:<c:if test="${count != 2}">16</c:if><c:if test="${count == 2}">4</c:if>px;" rel="tooltip" data-placement="top" title="Male" alt="Male" src="${baseUrl}/img/icon-male.png" /></c:if></c:forEach>
-						</td>
-						<td>
-						<c:choose>
-						<c:when test="${phenotype.phenotypeLink eq ''}">
-							${phenotype.dataSourceName}
-						</c:when>
-						<c:otherwise>
-						<a href="${phenotype.phenotypeLink }">${phenotype.dataSourceName}</a>
-						</c:otherwise>
-						</c:choose>
-						</td>
-						
-						<td style="text-align:center"><c:if test="${phenotype.dataSourceName eq 'EuroPhenome' }"><a href="${baseUrl}/stats/genes/${gene.id.accession}?parameterId=${phenotype.parameter.stableId}<c:if test="${fn:length(phenotype.sexes) eq 1}">&gender=${phenotype.sexes[0]}</c:if>&zygosity=${phenotype.zygosity}"><img src="${baseUrl}/img/icon_stats.png" alt="Graph" /></a></c:if></td>
-						</tr>
-						</c:forEach>
-					</tbody>
-				</table>
-				</div> --%>
 				</c:if>
 				<c:if test="${empty phenotypes}">
 					<div class="alert alert-info">You'll see EuroPhenome phenotype data when available. You'll find links to the Wellcome Trust Sanger Institute mouse portal when appropriate.</div>
@@ -404,32 +363,6 @@
 		</div>
 			</div>
 		</div>
-		
-			
-		
-<%--
-		<div class="row-fluid">		
-			<c:if test="${bPreQC}">
-			<div class="container span6">
-				<a href='${qcLink}'><img src="${drupalBaseUrl}/sites/dev.mousephenotype.org/files/images/phenodcc.png" alt="Click here to access preliminary data" style="border-style: none"/>&nbsp;Pre QC data from PhenoDCC Available</a>
-			</div>		
-			</c:if>
-			<c:if test="${bSangerLegacy}">
-			<div class="container span6">
-				<a href='${sangerLegacyLink}'><img src="${drupalBaseUrl}/sites/dev.mousephenotype.org/files/sangerLogo.png" alt="Click here to access Sanger phenotype data" style="border-style: none"/>&nbsp;Legacy data from Sanger Institute Mouse Resources Portal</a>
-			</div>		
-			</c:if>
-		</div>
-		
-		<c:if test="${bEurophenomeLegacy}">
-			<div class="row-fluid">
-				<div class="container span6">
-					<a href='${europhenomeLegacyLink}'><img src="${drupalBaseUrl}/sites/dev.mousephenotype.org/files/europhenomeLogo.png" alt="Click here to access Europhenome phenotype data" style="border-style: none"/>&nbsp;Legacy data from Europhenome</a>
-				</div>		
-			</div>
-		</c:if>
- --%>
-
 		</div>
 
 	<!-- row -->

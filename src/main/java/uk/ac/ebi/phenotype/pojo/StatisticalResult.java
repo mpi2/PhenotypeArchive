@@ -7,6 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 
 @MappedSuperclass
 public class StatisticalResult {
@@ -43,6 +44,40 @@ public class StatisticalResult {
 	@OneToOne
 	@JoinColumn(name = "parameter_id")
 	protected Parameter parameter;
+
+	@Transient
+	private Double effectSize;
+	
+	@Transient
+	private SexType sexType;
+	
+	
+	public SexType getSexType() {
+		return sexType;
+	}
+
+	public void setSexType(SexType sexType) {
+		this.sexType = sexType;
+	}
+
+	public Double getEffectSize() {
+		return effectSize;
+	}
+
+	public void setEffectSize(Double effectSize) {
+		this.effectSize = effectSize;
+	}
+
+	@Transient
+	ZygosityType zygosityType;
+	
+	public ZygosityType getZygosityType() {
+		return zygosityType;
+	}
+
+	public void setZygosityType(ZygosityType zygosityType) {
+		this.zygosityType = zygosityType;
+	}
 
 
 	/**
@@ -103,5 +138,8 @@ public class StatisticalResult {
 	public void setParameter(Parameter parameter) {
 		this.parameter = parameter;
 	}
+	
+	
+	
 
 }

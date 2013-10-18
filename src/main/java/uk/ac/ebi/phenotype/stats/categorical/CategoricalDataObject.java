@@ -1,5 +1,7 @@
 package uk.ac.ebi.phenotype.stats.categorical;
 
+import uk.ac.ebi.phenotype.pojo.CategoricalResult;
+import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 /**
@@ -12,6 +14,17 @@ import uk.ac.ebi.phenotype.pojo.ZygosityType;
  */
 public class CategoricalDataObject {
 	private String name = "";
+	
+	private CategoricalResult result;
+	
+
+	public CategoricalResult getResult() {
+		return result;
+	}
+
+	public void setResult(CategoricalResult result) {
+		this.result = result;
+	}
 
 	private Long count=new Long(0);
 	public Long getCount() {

@@ -2,7 +2,9 @@ package uk.ac.ebi.phenotype.util;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 
+import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 
 
@@ -19,6 +21,6 @@ public interface PhenotypeCallSummaryDAOReadOnly {
 	public PhenotypeFacetResult getPhenotypeCallByMPAccessionAndFilter(
 			String phenotype_id, String filter) throws IOException, URISyntaxException;
 	
-	public StatisticalResult getStatisticalResultFor(String accession, String parameterStableId)throws IOException, URISyntaxException;
+	public List<? extends StatisticalResult> getStatisticalResultFor(String accession, String parameterStableId, ObservationType observationType, String strainAccession)throws IOException, URISyntaxException;
 	
 }

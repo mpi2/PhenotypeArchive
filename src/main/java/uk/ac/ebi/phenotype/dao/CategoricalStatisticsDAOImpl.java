@@ -401,6 +401,7 @@ System.out.println("statslink query="+query);
 
 		List<CategoricalResult> data=new ArrayList<CategoricalResult>();
 String query="select * from stats_categorical_results where parameter_id = "+ parameter.getId() +" and experimental_id="+mutantBiologicalModel_id+" and experimental_sex='"+experimentalSex.name()+ "'";
+
 System.out.println("query for categorical results="+query);
 		try {
 			Statement stmt = getConnection().createStatement();

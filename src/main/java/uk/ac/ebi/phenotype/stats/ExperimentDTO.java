@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
@@ -13,18 +14,29 @@ public class ExperimentDTO {
 	
 	private String experimentId;
 	private String parameterStableId;
+	private ObservationType observationType;
 	private String organisation;
 	private String strain;
 	private String geneMarker;
 	private Set<ZygosityType> zygosities;
 	private Set<SexType> sexes;
-	private StatisticalResult result;
+	private List<? extends StatisticalResult> results;
 	
 	private Set<ObservationDTO> homozygoteMutants;
 	private Set<ObservationDTO> heterozygoteMutants;
 	private Set<ObservationDTO> controls;
 	private Integer controlBiologicalModelId;
 	private Integer experimentalBiologicalModelId;
+	
+	
+	
+	public ObservationType getObservationType() {
+		return observationType;
+	}
+
+	public void setObservationType(ObservationType observationType) {
+		this.observationType = observationType;
+	}
 	
 	public Integer getControlBiologicalModelId() {
 		return controlBiologicalModelId;
@@ -50,7 +62,7 @@ public class ExperimentDTO {
 				+ ", parameterStableId=" + parameterStableId
 				+ ", organisation=" + organisation + ", strain=" + strain
 				+ ", geneMarker=" + geneMarker + ", zygosities=" + zygosities
-				+ ", sexes=" + sexes + ", result=" + result + ", Num homozygous mutants="
+				+ ", sexes=" + sexes + ", result=" + results + ", Num homozygous mutants="
 				+ homozygoteMutants.size() + ", Num heterozygous mutants="
 				+ heterozygoteMutants.size() + ", Numcontrols=" + controls.size() +" control bm id="+this.controlBiologicalModelId+"  exp bm id="+experimentalBiologicalModelId+ "]";
 	}
@@ -156,15 +168,15 @@ public class ExperimentDTO {
 	/**
 	 * @return the result
 	 */
-	public StatisticalResult getResult() {
-		return result;
+	public List<? extends StatisticalResult> getResults() {
+		return results;
 	}
 
 	/**
 	 * @param result the result to set
 	 */
-	public void setResult(StatisticalResult result) {
-		this.result = result;
+	public void setResults(List<? extends StatisticalResult> results) {
+		this.results = results;
 	}
 
 	/**
@@ -237,7 +249,7 @@ public class ExperimentDTO {
 				+ ((parameterStableId == null) ? 0 : parameterStableId
 						.hashCode());
 		result = prime * result
-				+ ((this.result == null) ? 0 : this.result.hashCode());
+				+ ((this.results == null) ? 0 : this.results.hashCode());
 		result = prime * result + ((sexes == null) ? 0 : sexes.hashCode());
 		result = prime * result + ((strain == null) ? 0 : strain.hashCode());
 		result = prime * result
@@ -309,11 +321,11 @@ public class ExperimentDTO {
 		} else if (!parameterStableId.equals(other.parameterStableId)) {
 			return false;
 		}
-		if (result == null) {
-			if (other.result != null) {
+		if (results == null) {
+			if (other.results != null) {
 				return false;
 			}
-		} else if (!result.equals(other.result)) {
+		} else if (!results.equals(other.results)) {
 			return false;
 		}
 		if (sexes == null) {
