@@ -241,12 +241,12 @@
 		        },							
 				position: {
 			    	corner: {
-			        	target: 'topLeft',
-			        	tooltip: 'middleLeft'
+			        	target: 'topLeft'
+			        	//tooltip: 'Left'
 			        },
 			    	adjust: {
-			        	x: 20,
-			        	y: 25
+			        	x: oConf.posX,
+			        	y: oConf.posY
 			        }
 			    }	   
 			});			
@@ -499,57 +499,34 @@
     
     function _setFacetToOpen(objList, facet){
     	
-    	var aSubFacetNames = [];
-    	// sort first for priority
-    	var seenMP;
-    	for (var i=0; i<objList.length; i++){
-    		if ( objList[i].attr('class') == 'higherLevelMpTermName' ){
-				seenMP = true;
-			}
-			else {				
-	    		aSubFacetNames.push(objList[i].attr('class'));	    	
-			}
-    	}  
-    	aSubFacetNames.sort();  	
-    	if ( seenMP ){
-    		aSubFacetNames.unshift('higherLevelMpTermName');
-    	}    	   	
-    	
-    	if ( facet == 'imagesFacet' && aSubFacetNames.length != 0){
-	    	// change arrow image to collapse and make all images subfacets hidden
-			$('table#imagesFacetTbl').find('tr.subFacet').addClass('trHidden');
-			$('table#imagesFacetTbl').find('tr.facetSubCat td').removeClass('unCollapse');   
+    	if ( (facet == 'imagesFacet' || facet == 'geneFacet') && objList.length != 0){
+	    	// first change arrow image to collapse and make all images subfacets hidden
+			$('table#' + facet + 'Tbl').find('tr.subFacet').addClass('trHidden');
+			$('table#' + facet + 'Tbl').find('tr.facetSubCat td').removeClass('unCollapse');   
     	}
     	
-    	// only for gene and images facets
-    	for (var i=0; i<aSubFacetNames.length; i++){
-    		var subFacetName = aSubFacetNames[i];
-    		
-    		if ( subFacetName == 'marker_type' ){
-    			$('tr.geneSubTypeTrCap').find('td').addClass('unCollapse');  
-    			$('tr.geneSubTypeTr').show();  			
-    		}  
-    		else if (subFacetName == 'phenoCenter'){
-    			$('tr.phenoCenterTrCap').find('td').addClass('unCollapse');  
-    			$('tr.phenoCenterTr').show();  		
-    		}
-    		else if (subFacetName == 'prodCenter'){
-    			$('tr.prodCenterTrCap').find('td').addClass('unCollapse');  
-    			$('tr.prodCenterTr').show();   		
-    		}    		
-    		else {		     			  	    			
-        		_arrowSwitch(subFacetName);
-	    		$('tr.' + subFacetName).removeClass('trHidden');
-	    	}    		
-    	}    	
+    	var subFacetName;
+    	if ( objList.length == 0 ){
+    		// open gene phenotyping status subfacet by default
+    		subFacetName = 'phenotyping'; 
+    		_arrowSwitch(subFacetName); 
+    	}
+    	else {
+	    	// only for gene and images facets
+	    	for (var i=0; i<objList.length; i++){
+	    		subFacetName = objList[i].attr('class');
+	    		_arrowSwitch(subFacetName);	    
+	    	}  
+    	}
     }
-    
+  
     function _arrowSwitch(subFacetName){
     	$('tr.facetSubCat').each(function(){    	
 			if ( $(this).hasClass(subFacetName) ){
 				$(this).find('td').addClass('unCollapse'); 
 			}
 		}); 
+    	$('tr.' + subFacetName).show()
     }   
     
     function _prepare_resultMsg_and_dTableSkeleton(q, fqStr, facetDivId){

@@ -85,6 +85,8 @@
 			<th>Mean</th>
 			<th>SD</th>
 			<th>Sample Size</th>
+			<th>Effect Size</th>
+			<th>pValue</th>
 		<%-- <th>${tables[loop.count-1].xAxisCategories[1]}</th><th>${tables[loop.count-1].xAxisCategories[2]}</th> --%>
 		</tr></thead>
 		<tbody>
@@ -106,6 +108,8 @@
 												<td>${statsObject.mean}</td>
 												<td>${statsObject.sd}</td>
 												<td>${statsObject.sampleSize}</td>
+												<td>${statsObject.result.effectSize}</td>
+												<td>${statsObject.result.pValue}</td>
 												</tr>
 												</c:forEach>
 												

@@ -29,6 +29,8 @@ import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.pojo.StatisticalResult;
+import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
@@ -135,8 +137,8 @@ public class CategoricalChartAndTableProvider {
 			for (SexType sexType : experiment.getSexes()) { // one graph for
 															// each sex if
 				if (genderList.isEmpty() || genderList.contains(sexType.name())) {
-					CategoricalResult statsResults = (CategoricalResult) experiment
-							.getResult();// getCategoricalResultByParameter(parameter,
+					List<? extends StatisticalResult> results = (List<? extends StatisticalResult>) experiment
+							.getResults();// getCategoricalResultByParameter(parameter,
 											// expBiologicalModel.getId(),
 											// sexType);
 					// System.out.println("statsResults size="+statsResults.size()+
@@ -239,6 +241,13 @@ public class CategoricalChartAndTableProvider {
 								expCatData.setName(zType.name());
 								expCatData.setCategory(category);
 								expCatData.setCount(mutantCount);
+								for(StatisticalResult result: results) {
+									if(result.getZygosityType().equals(zType) && result.getSexType().equals(sexType)) {
+										expCatData.setResult((CategoricalResult)result);
+									}
+								}
+								List<CategoricalResult> categoricalR = categoricalStatsDao.getCategoricalResultByParameter(parameter, expBiologicalModelId, sexType);
+								
 								// logger.warn("getting pvalue for sex="+sexType+"  zyg="+
 								// zType+" param="+ parameter+" category="+
 								// category+"popId="+ popId);
@@ -286,9 +295,9 @@ public class CategoricalChartAndTableProvider {
 						chartData.setChart(chartNew);
 						categoricalResultAndCharts.add(chartData);
 						
-						System.out.println("experimental result="+experiment.getResult());
+						System.out.println("experimental result="+experiment.getResults());
 						categoricalResultAndCharts
-								.setStatsResults((List<CategoricalResult>) experiment.getResult());
+								.setStatsResults(experiment.getResults());
 						// TableObject table =
 						// this.creatCategoricalDataTableFromObjects(chartData,
 						// sexType, "",

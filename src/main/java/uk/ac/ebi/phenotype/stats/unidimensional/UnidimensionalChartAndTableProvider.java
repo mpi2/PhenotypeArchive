@@ -488,7 +488,7 @@ public class UnidimensionalChartAndTableProvider {
 			List<List<Float>> rawData, BiologicalModel expBiologicalModel, ExperimentDTO experiment) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
 		//logger.debug("experiment="+experiment);
-		StatisticalResult result = experiment.getResult();
+		List<? extends StatisticalResult> results = experiment.getResults();
 		//logger.debug("result="+result);
 		List<UnidimensionalStatsObject> statsObjects = new ArrayList<UnidimensionalStatsObject>();
 		// String parameterUnit = parameter.checkParameterUnit(1);
@@ -514,6 +514,11 @@ public class UnidimensionalChartAndTableProvider {
 				}
 				tempObje.setGeneticBackground(expBiologicalModel.getGeneticBackground());
 				statsObjects.add(tempObje);
+				for(StatisticalResult result: results) {
+					if(result.getZygosityType().equals(zType) && result.getSexType().equals(sexType)) {
+						tempObje.setResult((UnidimensionalResult)result);
+					}
+				}
 			}else {
 				System.err.println("error allele size=0");
 			}
