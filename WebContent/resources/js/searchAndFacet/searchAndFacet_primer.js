@@ -49,11 +49,7 @@ $(document).ready(function(){
 	    		document.location.href = baseUrl + '/search';
 	    	}
 	    	else {
-	    		document.location.href = baseUrl + '/search?q=' + input; // handed over to hash change
-	    		console.log(window.location.search);
-	    		
-	    		//hashParams.q = input;
-	    		//$.fn.fetchSolrFacetCount(hashParams);
+	    		document.location.href = baseUrl + '/search?q=' + input; // handed over to hash change	    	
 	    	}
 	    }
 	}).click(function(){
@@ -70,8 +66,6 @@ $(document).ready(function(){
     	}
     	else {
     		document.location.href = baseUrl + '/search?q=' + input; // handed over to hash change 
-    		//hashParams.q = input;
-    		//$.fn.fetchSolrFacetCount(hashParams);
     	}		
 	});		
 
