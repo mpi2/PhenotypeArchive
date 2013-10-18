@@ -28,7 +28,9 @@
 		$(document).ready(function(){	
 			$.fn.qTip({'pageName':'search',
 					'textAlign':'left',
-					'tip':'topLeft'
+					'tip':'topLeft',
+					'posX':20,
+					'posY':25
 			});
 			
 			// non hash tag keyword query
