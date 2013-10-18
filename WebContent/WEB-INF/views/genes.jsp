@@ -65,6 +65,7 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css"/>
 <link rel="stylesheet" type="text/css" href="${baseUrl}/css/custom.css"/>
 	<script src="${baseUrl}/js/general/toggle.js"></script>
+	<script src="${baseUrl}/js/general/enu.js"></script>
 <!-- <script src="http://dropdown-check-list.googlecode.com/svn/trunk/doc/jquery-ui-1.8.13.custom.min.js"></script> -->
 	<style>
 	/* Force allele table to not be like tables anymore for responsive layout */
