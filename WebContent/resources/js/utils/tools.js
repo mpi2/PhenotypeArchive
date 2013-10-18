@@ -95,14 +95,14 @@
 				val = names[0];
 				fqFieldVals[fqField].push(fqFieldOri + ':"' + psid + '"');
 			}
-			else if ( fqField == 'phenotyping_center' ){
+			/*else if ( fqField == 'phenotyping_center' ){
 				val = aVals[2];				
 				fqFieldVals[fqField].push('(' + fqFieldOri + ':"' + val + '" AND production_center:*)');
 			}
 			else if ( fqField == 'production_center' ){
 				val = aVals[2];				
 				fqFieldVals[fqField].push('(' + fqFieldOri + ':"' + val + '")');				
-			}
+			}*/
 			else {
 				val = aVals[2];
 				fqFieldVals[fqField].push(fqFieldOri + ':"' + val + '"');

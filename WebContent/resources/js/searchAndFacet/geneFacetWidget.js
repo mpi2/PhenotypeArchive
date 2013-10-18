@@ -73,15 +73,14 @@
 									if ( typeof fqFieldVals[fqField] === 'undefined' ){
 										fqFieldVals[fqField] = [];										
 									}		
-									if ( fqField.indexOf('phenotyping_center') != -1 ){
+									/*if ( fqField.indexOf('phenotyping_center') != -1 ){
 										qry = '(' + fqFieldOri + ':"' + val + '" AND production_center:*)';
 									} 
 									else if (fqField.indexOf('production_center') != -1 ){
 										qry = '(' + fqFieldOri + ':"' + val + '")';										
-									}
-									else {
-										qry = fqFieldOri + ':"' + val + '"';
-									}
+									}*/
+									
+									qry = fqFieldOri + ':"' + val + '"';									
 									
 									fqFieldVals[fqField].push(qry);
 								});					
@@ -353,14 +352,14 @@
 	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable	  	    			
 		    		var fqStr = $(this).attr('class') + ':"' + $(this).attr('rel') + '"';
 		    		
-		    		if ( $(this).attr('class') == 'phenotyping_center' ){
+		    		/*if ( $(this).attr('class') == 'phenotyping_center' ){
 		    			//fqStr = '(' + $(this).attr('class') + ':"' + $(this).attr('rel') + '" AND production_center:*)';
 		    			fqStr = $(this).attr('class') + ':"' + $(this).attr('rel') + '" AND production_center:*';
 		    		}
 		    		else if ( $(this).attr('class') == 'production_center' ){
 		    			//fqStr = '(' + $(this).attr('class') + ':"' + $(this).attr('rel') + '")';
 		    			fqStr = $(this).attr('class') + ':"' + $(this).attr('rel') + '"';
-		    		}		    		
+		    		}*/		    		
 		    		
 		    		if (self.options.data.q == '*:*'){
 		    			window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=gene';
