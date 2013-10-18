@@ -135,7 +135,7 @@
 				<a href='' class='relatedMpPanel'><img
 					src="${baseUrl}/img/info_20x20.png" /></a>
 			</div>
-    <h4 class="caption">Gene variants with this phenotype</h4>
+    <h4 class="caption">Gene variants with ${phenotype.name}</h4>
 	    
 	<div class="row-fluid">	    	
 		<div class="container span12">			

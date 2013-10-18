@@ -270,7 +270,7 @@
 	<!--row-->
 	<div class="row-fluid dataset">
 	    <div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-	    <h4 class="caption">Phenotype Associations</h4>
+	    <h4 class="caption">Phenotype associations for ${gene.symbol}</h4>
 	    
 	     <div class="row-fluid">
 						<c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
