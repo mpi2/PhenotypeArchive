@@ -139,7 +139,6 @@ public class SolrIndex {
 				length, false);
 		
 		log.debug("Export data URL: " + url);
-		System.out.println("***Export data URL: " + url);
 		return getResults(url);
 	}
 
