@@ -61,23 +61,9 @@ public class ObservationService {
 	}
 
 
-	protected List<ObservationDTO> getControls(String parameterStableId,
-			String strain, Integer organisationId, Date max) throws SolrServerException {
-
-		SolrQuery query = new SolrQuery()
-			.setQuery("*:*")
-			.addFilterQuery("biologicalSampleGroup:control")
-			.addFilterQuery("dateOfExperiment:["+df.format(new Date(0L))+"Z TO "+df.format(max)+"Z]")
-			.addFilterQuery("parameterStableId:"+parameterStableId)
-			.addFilterQuery("organisationId:"+organisationId)
-			.addFilterQuery("strain:"+strain.replace(":", "\\:"))
-			.setSortField("dateOfExperiment", ORDER.desc)
-			.setStart(0)
-			.setRows(1000);
-		QueryResponse response = solr.query(query);
-		System.out.println(query);
-
-		return response.getBeans(ObservationDTO.class);
+	protected List<ObservationDTO> getControls(String parameterStableId, String strain, Integer organisationId, Date max) throws SolrServerException {
+		Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameterStableId, 1, 0);
+		return getControls(p.getId(), strain, organisationId, max);
 	}
 
 	protected List<ObservationDTO> getControls(Integer parameterId,
@@ -298,21 +284,23 @@ public class ObservationService {
 	    for (ExperimentDTO experiment : experimentsMap.values()) {
 	    	if (experiment.getControls() == null) {
 
-	    		Date max = new Date(0L); //epoch
-	    	    for (ObservationDTO o : experiment.getHeterozygoteMutants()) {
-	    	    	if (o.getDateOfExperiment().after(max)) {
-	    	    		max=o.getDateOfExperiment();
-	    	    	}
-	    	    }
-	    	    for (ObservationDTO o : experiment.getHomozygoteMutants()) {
-	    	    	if (o.getDateOfExperiment().after(max)) {
-	    	    		max=o.getDateOfExperiment();
-	    	    	}
-	    	    }
+// SHOW all the data
+//	    		Date max = new Date(0L); //epoch
+//	    	    for (ObservationDTO o : experiment.getHeterozygoteMutants()) {
+//	    	    	if (o.getDateOfExperiment().after(max)) {
+//	    	    		max=o.getDateOfExperiment();
+//	    	    	}
+//	    	    }
+//	    	    for (ObservationDTO o : experiment.getHomozygoteMutants()) {
+//	    	    	if (o.getDateOfExperiment().after(max)) {
+//	    	    		max=o.getDateOfExperiment();
+//	    	    	}
+//	    	    }
 
+	    		// SHOW all the data
 	    		experiment.setControls(new HashSet<ObservationDTO>());
-	    		List<ObservationDTO> controls = getControls(parameterId, experiment.getStrain(), organisationId, max);
-	    		experiment.getControls().addAll(controls);
+    			List<ObservationDTO> controls = getControls(parameterId, experiment.getStrain(), organisationId, new Date());
+    			experiment.getControls().addAll(controls);
 	    		
 	    		if(experiment.getControlBiologicalModelId()==null && controls.size()>0) {
 		    		experiment.setControlBiologicalModelId(controls.get(0).getBiologicalModelId());
