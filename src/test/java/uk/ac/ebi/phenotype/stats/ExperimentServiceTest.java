@@ -1,8 +1,8 @@
 package uk.ac.ebi.phenotype.stats;
-
 import static org.junit.Assert.assertTrue;
 
-import java.util.Date;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
@@ -18,24 +18,22 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration(locations = { "classpath:app-config.xml" })
 @TransactionConfiguration
 @Transactional
-public class ObservationServiceTest {
+public class ExperimentServiceTest {
 
 	@Autowired
-	private ObservationService os;
+	private ExperimentService es;
 
 	@Test
-	public void testGetControls() throws SolrServerException {
-		List<ObservationDTO> test = os.getControls("ESLIM_001_001_158", "MGI:3028467", 7, new Date());
-		assertTrue(test.size()>0);
-	}
-
-	@Test
-	public void testGetUrl() throws SolrServerException {
+	public void testGetExperimentDTO() throws SolrServerException, IOException, URISyntaxException {
+		List<ExperimentDTO> exp = es.getExperimentDTO("ESLIM_001_001_158", "MGI:1920194");
+		System.out.println(exp);
+		assertTrue(exp.size()>0);
+		System.out.println(exp.get(0));
 		
-		String url = os.getUnidimensionalQueryStringByParameterGeneAccZygosityOrganisationStrain(new Integer(1), "MGI:88255", "homozygous", new Integer(3), "MGI:2159965");
-		
-		System.out.println(url);
-		assertTrue(url.length()>0);
+		exp = es.getExperimentDTO(2043, "MGI:1349215");
+		System.out.println(exp);
+		assertTrue(exp.size()>0);
+		System.out.println(exp.get(0));
 		
 	}
 
