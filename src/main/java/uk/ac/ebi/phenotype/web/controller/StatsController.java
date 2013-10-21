@@ -63,8 +63,8 @@ import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ChartType;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
+import uk.ac.ebi.phenotype.stats.ExperimentService;
 import uk.ac.ebi.phenotype.stats.JSONGraphUtils;
-import uk.ac.ebi.phenotype.stats.ObservationService;
 import uk.ac.ebi.phenotype.stats.PipelineProcedureData;
 import uk.ac.ebi.phenotype.stats.PipelineProcedureTablesCreator;
 import uk.ac.ebi.phenotype.stats.TableObject;
@@ -110,7 +110,7 @@ public class StatsController implements BeanFactoryAware {
 	private PhenotypeCallSummaryDAO phenotypeCallSummaryDAO;
 	
 	@Autowired
-	private ObservationService observationService;
+	private ExperimentService experimentService;
 		
 	/**
 	 * Runs when the request missing an accession ID. This redirects to the
@@ -237,7 +237,7 @@ public class StatsController implements BeanFactoryAware {
 				
 			}
 			
-			List<ExperimentDTO> experimentList = observationService.getExperimentDTO(parameter.getId(), acc);
+			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc);
 			//log.debug("Experiment dto marker="+experimentList);
 			//ESLIM_003_001_003 id=962 calorimetry data for time series graph new MGI:1926153
 			//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1926153?parameterId=ESLIM_003_001_003
@@ -350,7 +350,7 @@ public class StatsController implements BeanFactoryAware {
 			if(parameterUnits.length>1){
 				yUnits=parameterUnits[1];
 			}
-			List<ExperimentDTO> experimentList = observationService.getExperimentDTO(parameter.getId(), acc);
+			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc);
 			//log.debug("Experiment dto marker="+experimentList);
 			log.info("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
 			

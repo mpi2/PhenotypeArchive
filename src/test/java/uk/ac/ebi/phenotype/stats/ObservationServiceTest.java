@@ -2,8 +2,6 @@ package uk.ac.ebi.phenotype.stats;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.List;
 
@@ -32,20 +30,6 @@ public class ObservationServiceTest {
 	}
 
 	@Test
-	public void testGetExperimentDTO() throws SolrServerException, IOException, URISyntaxException {
-		List<ExperimentDTO> exp = os.getExperimentDTO("ESLIM_001_001_158", "MGI:1920194");
-		System.out.println(exp);
-		assertTrue(exp.size()>0);
-		System.out.println(exp.get(0));
-		
-		exp = os.getExperimentDTO(2043, "MGI:1349215");
-		System.out.println(exp);
-		assertTrue(exp.size()>0);
-		System.out.println(exp.get(0));
-		
-	}
-
-	@Test
 	public void testGetUrl() throws SolrServerException {
 		
 		String url = os.getUnidimensionalQueryStringByParameterGeneAccZygosityOrganisationStrain(new Integer(1), "MGI:88255", "homozygous", new Integer(3), "MGI:2159965");
@@ -54,4 +38,5 @@ public class ObservationServiceTest {
 		assertTrue(url.length()>0);
 		
 	}
+
 }
