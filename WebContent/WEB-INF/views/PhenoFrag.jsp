@@ -56,7 +56,6 @@
 						
 						
 						<td style="text-align:center">
-						${phenotype.parameter.derivedFlag }
 						<c:if test="${not phenotype.parameter.derivedFlag}">
 						<c:if test="${phenotype.dataSourceName eq 'EuroPhenome' }"><a href="${baseUrl}/stats/genes/${acc}?parameterId=${phenotype.parameter.stableId}<c:if test="${fn:length(phenotype.sexes) eq 1}">&gender=${phenotype.sexes[0]}</c:if>&zygosity=${phenotype.zygosity}"><img src="${baseUrl}/img/icon_stats.png" alt="Graph" /></a>
 						</c:if>
