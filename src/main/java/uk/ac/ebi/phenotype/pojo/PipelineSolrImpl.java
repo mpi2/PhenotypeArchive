@@ -54,7 +54,7 @@ public class PipelineSolrImpl {
 			parameter.setName(paramDoc.getString("parameter_name"));
 			//we need to set is derived in the solr core!
 			//pipeline core parameter_derived field
-			
+			parameter.setStableId(paramDoc.getString("parameter_stable_id"));
 			if (paramDoc.containsKey("procedure_stable_key")) {
 				parameter.setStableKey(Integer.parseInt(paramDoc
 						.getString("procedure_stable_key")));
