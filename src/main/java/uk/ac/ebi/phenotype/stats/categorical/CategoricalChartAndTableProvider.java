@@ -47,7 +47,26 @@ public class CategoricalChartAndTableProvider {
 	@Autowired
 	private CategoricalStatisticsDAO categoricalStatsDao;
 
-	public CategoricalResultAndCharts doCategoricalData(
+	/**
+	 * return a list of categorical result and chart objects - one for each ExperimentDTO
+	 * @param experimentList
+	 * @param bmDAO
+	 * @param config
+	 * @param parameter
+	 * @param acc
+	 * @param model
+	 * @param genderList
+	 * @param zyList
+	 * @param biologicalModelsParams
+	 * @param charts
+	 * @param categoricalTables
+	 * @param parameterId
+	 * @return
+	 * @throws SQLException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	public List<CategoricalResultAndCharts> doCategoricalData(
 			List<ExperimentDTO> experimentList, BiologicalModelDAO bmDAO,
 			Map<String, String> config,
 			Parameter parameter,
@@ -125,11 +144,13 @@ public class CategoricalChartAndTableProvider {
 		model.addAttribute("parameterId", parameter.getId().toString());
 		model.addAttribute("parameterDescription", parameter.getDescription());
 
-		CategoricalResultAndCharts categoricalResultAndCharts = new CategoricalResultAndCharts();
-		List<CategoricalResult> categoricalResults = new ArrayList<CategoricalResult>();
-
+		
+		//List<CategoricalResult> categoricalResults = new ArrayList<CategoricalResult>();
+List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one object for each experiment
 		for (ExperimentDTO experiment : experimentList) {
-
+			CategoricalResultAndCharts categoricalResultAndCharts = new CategoricalResultAndCharts();
+			List<? extends StatisticalResult> statsResults = (List<? extends StatisticalResult>) experiment
+					.getResults();
 			// should get one for each sex here if there is a result for each
 			// experimental sex
 			Integer expBiologicalModelId = experiment.getExperimentalBiologicalModelId();
@@ -137,14 +158,13 @@ public class CategoricalChartAndTableProvider {
 			for (SexType sexType : experiment.getSexes()) { // one graph for
 															// each sex if
 				if (genderList.isEmpty() || genderList.contains(sexType.name())) {
-					List<? extends StatisticalResult> results = (List<? extends StatisticalResult>) experiment
-							.getResults();// getCategoricalResultByParameter(parameter,
+					// getCategoricalResultByParameter(parameter,
 											// expBiologicalModel.getId(),
 											// sexType);
 					// System.out.println("statsResults size="+statsResults.size()+
 					// "statsResults="+statsResults);
 					// categoricalResults.addAll(statsResults);
-					// categoricalResultAndCharts.setStatsResults(statsResults);
+					 categoricalResultAndCharts.setStatsResults(statsResults);
 					CategoricalChartDataObject chartData = new CategoricalChartDataObject();// make
 																							// a
 																							// new
@@ -241,12 +261,17 @@ public class CategoricalChartAndTableProvider {
 								expCatData.setName(zType.name());
 								expCatData.setCategory(category);
 								expCatData.setCount(mutantCount);
-								for(StatisticalResult result: results) {
+								CategoricalResult tempStatsResult=null;
+								for(StatisticalResult result: statsResults) {
 									if(result.getZygosityType().equals(zType) && result.getSexType().equals(sexType)) {
 										expCatData.setResult((CategoricalResult)result);
+										result.setSexType(sexType);
+										result.setZygosityType(zType);
+										tempStatsResult=(CategoricalResult)result;
+										//result.setControlBiologicalModel(controlBiologicalModel);
 									}
 								}
-								List<CategoricalResult> categoricalR = categoricalStatsDao.getCategoricalResultByParameter(parameter, expBiologicalModelId, sexType);
+								//List<CategoricalResult> categoricalR = categoricalStatsDao.getCategoricalResultByParameter(parameter, expBiologicalModelId, sexType);
 								
 								// logger.warn("getting pvalue for sex="+sexType+"  zyg="+
 								// zType+" param="+ parameter+" category="+
@@ -262,8 +287,8 @@ public class CategoricalChartAndTableProvider {
 								// if(pValue.size()>0 && maxEffect.size()>0){
 								// //TODO get multiple p values when necessary
 								// System.err.println("ERROR WE NEED to change the code to handle multiple p values and max effect!!!!!!!!");
-								// expCatData.setpValue(pValue.get(0));
-								// expCatData.setMaxEffect(maxEffect.get(0));
+								expCatData.setpValue(tempStatsResult.getpValue());
+								 expCatData.setMaxEffect(tempStatsResult.getMaxEffect());
 								// logger.warn("pValue="+pValue+" maxEffect="+maxEffect);
 								// }
 								zTypeSet.add(expCatData);
@@ -296,8 +321,8 @@ public class CategoricalChartAndTableProvider {
 						categoricalResultAndCharts.add(chartData);
 						
 						System.out.println("experimental result="+experiment.getResults());
-						categoricalResultAndCharts
-								.setStatsResults(experiment.getResults());
+						//categoricalResultAndCharts
+							//	.setStatsResults(experiment.getResults());
 						// TableObject table =
 						// this.creatCategoricalDataTableFromObjects(chartData,
 						// sexType, "",
@@ -307,10 +332,10 @@ public class CategoricalChartAndTableProvider {
 					}
 				}
 			}// end of gender
-
+			listOfChartsAndResults.add(categoricalResultAndCharts);
 		}// end of experiment loop
 
-		return categoricalResultAndCharts;
+		return listOfChartsAndResults;
 	}
 
 	private String createCategoricalHighChartUsingObjects(

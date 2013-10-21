@@ -38,6 +38,17 @@ public class CategoricalStatisticsDAOImplTest {
 	@Autowired
 	private PhenotypePipelineDAO pipelineDAO;
 
+	
+	@Test
+	public void testGetDerviedParameter() throws SQLException{
+		Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion("ESLIM_009_001_703", 1, 0);
+		// male ESLIM_001_001_004 increased length3209
+		System.out.println(parameter.getDerivedFlag());
+		assertTrue(parameter.getDerivedFlag());
+	}
+	
+	
+	
 	@Test
 	public void test() {
 
