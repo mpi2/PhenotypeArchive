@@ -123,12 +123,17 @@ public class PhenotypeCallSummarySolrImpl implements
 			// "procedure_stable_key":"41",
 			Parameter parameter = new Parameter();
 			if (phen.containsKey("parameter_stable_id")) {
-				parameter.setStableId(phen.getString("parameter_stable_id"));
-				parameter.setName(phen.getString("parameter_name"));
-				if (phen.containsKey("procedure_stable_key")) {
-					parameter.setStableKey(Integer.parseInt(phen
-							.getString("procedure_stable_key")));
-				}
+				parameter=this.getParameterByStableId(phen.getString("parameter_stable_id"));
+				System.out.println("parameter is derived="+parameter.getDerivedFlag());
+//				parameter.setStableId();
+//				parameter.setName(phen.getString("parameter_name"));
+				//we need to set is derived in the solr core!
+				//pipeline core parameter_derived field
+				
+//				if (phen.containsKey("procedure_stable_key")) {
+//					parameter.setStableKey(Integer.parseInt(phen
+//							.getString("procedure_stable_key")));
+//				}
 			} else {
 				System.err.println("parameter_stable_id missing");
 			}
@@ -300,4 +305,13 @@ public class PhenotypeCallSummarySolrImpl implements
 	return results;
 	}
 
+	
+	
+	public Parameter getParameterByStableId(String parameterStableId) throws IOException, URISyntaxException {
+			PipelineSolrImpl pipelineSolrImpl=new PipelineSolrImpl(config);
+			Parameter parameter=pipelineSolrImpl.getParameterByStableId(parameterStableId, "");
+			return parameter;
+	}
+	
+	
 }
