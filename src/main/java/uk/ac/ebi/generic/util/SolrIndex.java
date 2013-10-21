@@ -568,6 +568,7 @@ public class SolrIndex {
 		String url = config.get("internalSolrUrl")
 				+ "/mp/select?wt=json&qf=auto_suggest&defType=edismax&q="
 				+ phenotype_id;
+		System.out.println("HERE");
 		return getResults(url);
 	}
 
