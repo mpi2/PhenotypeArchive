@@ -239,7 +239,7 @@ try {
 					style="width: 1222px; height: 50px;">
 				<jsp:invoke fragment="footer" />
 				<small class="muted">
-				Version: <c:out value="${version}" escapeXml="false"/> • <a href="http://raw.github.com/mpi2/PhenotypeArchive/master/LICENSE">License</a> • <a href="http://raw.github.com/mpi2/PhenotypeArchive/master/CHANGES">Changelog</a>  
+				Version: <c:out value="${version}" escapeXml="false"/> • <a href="http://raw.github.com/mpi2/PhenotypeArchive/master/LICENSE">License</a> • <a href="http://raw.github.com/mpi2/PhenotypeArchive/master/CHANGES">Changelog</a> • <a href="${baseUrl}/documentation/index.html">Help</a>  
 				</small>
 			</div>
 	
