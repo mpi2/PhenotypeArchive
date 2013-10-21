@@ -419,7 +419,6 @@ public class GenesController {
 			pr.setProjectId(pcs.getExternalId());
 			pr.setProcedure(pcs.getProcedure());
 			pr.setParameter(pcs.getParameter());
-
 			if(phenotypes.containsKey(pr)) {
 				pr = phenotypes.get(pr);
 				TreeSet<String> sexes = new TreeSet<String>();

@@ -202,7 +202,7 @@ public class Parameter extends PipelineEntry {
 	/**
 	 * @return the derivedFlag
 	 */
-	public boolean isDerivedFlag() {
+	public boolean getDerivedFlag() {
 		return derivedFlag;
 	}
 
