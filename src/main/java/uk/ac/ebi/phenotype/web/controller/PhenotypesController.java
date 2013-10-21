@@ -137,7 +137,14 @@ public class PhenotypesController {
 				.getJSONObject("response")
 				.getJSONArray("docs")
 				.getJSONObject(0);
-				JSONArray terms;
+			JSONArray terms;
+			
+			if (mpData.containsKey("ontology_subset")){
+				model.addAttribute("isImpcTerm", mpData.getJSONArray("ontology_subset").contains("IMPC_Terms"));
+			}
+			else {
+				model.addAttribute("isImpcTerm", false);
+			}
 			
 			if (mpData.containsKey("mp_term")) {
 				String term = mpData.getString("mp_term");
@@ -207,12 +214,7 @@ public class PhenotypesController {
 
 		model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
 		
-		
-		
-	
-		
 		TreeSet<Procedure> procedures = new TreeSet<Procedure>(pipelineDao.getProceduresByOntologyTerm(oTerm));
-
 		model.addAttribute("phenotype", oTerm);
 		model.addAttribute("procedures", procedures);
 
@@ -279,7 +281,6 @@ public class PhenotypesController {
 			pr.setProjectId(pcs.getExternalId());
 			pr.setProcedure(pcs.getProcedure());
 			pr.setParameter(pcs.getParameter());
-			//TODO ILINCA: I guess here I need to set the project id as well
 			if(phenotypes.containsKey(pr)) {
 				pr = phenotypes.get(pr);
 				TreeSet<String> sexes = new TreeSet<String>();

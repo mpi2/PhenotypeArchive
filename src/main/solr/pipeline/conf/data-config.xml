@@ -5,10 +5,11 @@
 	<document name="komp2_indexing">
 
 		<!-- IMPC pipeline -->
-		<entity dataSource="ds1" name="phenotype_parameter" query="select id, stable_id, name, stable_key from phenotype_parameter">
+		<entity dataSource="ds1" name="phenotype_parameter" query="select id, stable_id, name, stable_key, derived from phenotype_parameter">
 			<field column="stable_id" name="parameter_stable_id" />
             <field column="name" name="parameter_name" />
             <field column="stable_key" name="parameter_stable_key" />
+            <field column="derived" name="parameter_derived" />
 
 			<entity dataSource="ds1" name="phenotype_procedure_parameter" query="select procedure_id, parameter_id from phenotype_procedure_parameter where parameter_id=${phenotype_parameter.id}">
 
