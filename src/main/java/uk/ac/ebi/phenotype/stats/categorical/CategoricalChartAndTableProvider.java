@@ -287,8 +287,10 @@ List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one 
 								// if(pValue.size()>0 && maxEffect.size()>0){
 								// //TODO get multiple p values when necessary
 								// System.err.println("ERROR WE NEED to change the code to handle multiple p values and max effect!!!!!!!!");
+								if(tempStatsResult!=null) {
 								expCatData.setpValue(tempStatsResult.getpValue());
 								 expCatData.setMaxEffect(tempStatsResult.getMaxEffect());
+								}
 								// logger.warn("pValue="+pValue+" maxEffect="+maxEffect);
 								// }
 								zTypeSet.add(expCatData);
