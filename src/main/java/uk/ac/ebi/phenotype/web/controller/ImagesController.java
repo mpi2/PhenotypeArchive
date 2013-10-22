@@ -17,6 +17,7 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -40,6 +41,8 @@ import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.helpers.OnlyOnceErrorHandler;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.coode.parsers.oppl.OPPLScript_OPPLParser.query_return;
+import org.jboss.netty.handler.codec.http.QueryStringDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -137,9 +140,23 @@ public class ImagesController {
 			throws SolrServerException, IOException, URISyntaxException {
 		//only need to send the solr query part of the url to solr
 		sendQueryStringToSolr(request, model);
-//add breadcrumbs using the same method as for images.jsp
-		 model.addAttribute("breadcrumbText", getBreadcrumbs(request, qIn,
-		 mpId, geneId, filterField, maId));
+//add breadcrumbs using different method than for  images.jsp that is called from genes or phenotypes pages
+		String emptyString="*:*";
+		String queryString="";
+		if(filterField.length>0) {
+			if(!filterField[0].equals(emptyString)) {
+				queryString+=filterField[0];
+			}
+			
+		}
+		if(qIn!=null && !qIn.equals(emptyString)) {
+			queryString+= " with keyword search: "+qIn;//URLDecoder.decode(request.getQueryString(), "UTF-8");
+		}
+		queryString=queryString.replace("higherLevelMpTermName", "Phenotype");
+		queryString=queryString.replace("higherLevelMaTermName", "Anatomy");
+		
+	
+		 model.addAttribute("breadcrumbText", queryString);
 
 		return "imagesb";
 	}
