@@ -50,7 +50,7 @@
 														<td>${maleOrFemale.sexType }</td>
 																<td>${categoricalSet.name }</td>
 																		<c:forEach var="catObject"  items="${categoricalSet.catObjects}" varStatus="catObjectStatus">
-																				<td>${catObject.category } | ${catObject.count } </td>
+																				<td>${catObject.count } </td>
 																				
 																		</c:forEach>
 																		<td>${categoricalSet.catObjects[catSetStatus.index].result.pValue } </td>
