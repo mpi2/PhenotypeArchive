@@ -27,38 +27,92 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 	<div class="row">
 		<div class="span3">
 
-			<div class="page-header"><h3>Quick help links</h3></div>
-	
-			<ul class="nav nav-list affix-top">
-			<li><a href="gene-help.html#gene-page">Genes</a></li>
-			<li><a href="phenotype-help.html">Phenotypes</a> </li>
-			<li><a href="image-help.html">Images</a></li>
-			<li><a href="statistics-help.html">Statistics</a> </li>
-			</ul>
+				<div class="page-header"><h3>Quick help links</h3></div>
+		
+				<ul id="navbar" class="nav nav-list">
+				<li><a href="gene-help.html"><span class="alert-message info">Genes</span></a>
+					<ul>
+						<li><a href="gene-help.html#details">Gene details</a></li>
+						<li><a href="gene-help.html#browser">Gene browser and more information</a></li>
+						<li><a href="gene-help.html#phenotypes">Gene-Phenotype associations</a>
+							<ul>
+								<li><a href="gene-help.html#phenotype-summary">Summary</a></li>
+								<li><a href="gene-help.html#phenotype-table">Table of associations</a></li>
+								<li><a href="gene-help.html#phenotype-filtering">Filtering</a></li>
+								<li><a href="gene-help.html#phenotype-download">Downloading results</a></li>
+							</ul>
+						</li>
+						<li><a href="gene-help.html#phenotype-images">Gene-Phenotype images</a>
+						<li><a href="gene-help.html#expression-images">Gene expression images</a>
+						<li><a href="gene-help.html#alleles">Gene ES cells &amp; alleles</a>
+					</ul>
+				</li>
+				<li><a href="phenotype-help.html">Phenotypes</a> </li>
+				<li><a href="image-help.html">Images</a></li>
+				<li><a href="statistics-help.html">Statistics</a> </li>
+				<li><a href="graph-help.html">Graphs</a> </li>
+				</ul>
 	
 		</div>
 
-		<div class="span9">
+		<div class="span8">
 
-			<div class="page-header"><h3>Explore the diverse entry points to mouse phenotype data.</h3></div> 
+			<div class="page-header"><h3>Gene details page</h3></div> 
 
-			<dl>
-				<dt>How do I search my favorite gene, phenotype.</dt>
-				<dd>The IMPC portal offers a powerful search interface to query information on 
-				mouse production and mouse phenotyping. <a href="search-help.html">Find out more</a>
-				</dd>
-			</dl>
-			<dl>
-				<dt>What are some of the the things I can do at the data portal</dt>
-				<dd><a href="gene-help.html">look at my favourite gene and retrieve associated phenotype data.</a></dd>
-				<dd><a href="phenotype-help.html">get a list of genotypes associated to a specific phenotype.</a></dd>
-				<dd><a href="image-help.html">retrieve X-ray, expression images.</a></dd>
-			</dl>
+			<h3><a name="details">Gene details</a></h3>
+			<p>The gene details section of the page shows information about the marker.  The information displayed includes
+			<ul>
+				<li>Name</li>
+				<li>Synonyms</li>
+				<li>MGI ID with a link to the corresponding page at Mouse Genome Informatics</li>
+				<li>The latest IMPC production status for this gene.  This checks all ongoing projects for this gene in <a href>iMits</a> and displays the status of the project that is closest to producing a mouse.</li>
+				<li>Links to different view of the gene in the Ensembl genome browser: 
+				<strong>Gene view</strong> links to the browser centered on the gene, 
+				<strong>Location view</strong> links to a view of the chromosome,
+				<strong>Compara view</strong> links to the Ensembl compara view for this gene</li>
+				<li>ENU link to the ENU mutant library at the Australian Phenomics Facility</li>   
+			</ul>
+			<img class="well" src="img/gene-details.png" />
+
+			<h3><a name="browser">Gene browser and more information</a></h3>
+			<p>By clicking the <strong>Show More Gene Information</strong> link, a browser will be shown displaying a quick view
+			of the gene's location graphically.  The browser is interactive and you can zoom and scroll to see nearby features.
+			</p>
+
+			<p>This section also shows any Vega, NCBI, or cCDS IDs associated with this gene.</p>
+			
+			<img class="well" src="img/gene-browser.png" />
+			
+			<h3><a name="phenotypes">Gene phenotypes</a></h3>
+			<img class="well" src="img/gene-phenotypes.png" />
+			
+			<h3><a name="phenotype-summary">Gene phenotype summary</a></h3>
+			<img class="well" src="img/gene-phenotype-summary.png" />
+			
+			<h3><a name="phenotype-table">Gene phenotype table</a></h3>
+			<img class="well" src="img/gene-phenotype-table.png" />
+			
+			<h3><a name="phenotype-filtering">Gene phenotype filtering</a></h3>
+			<img class="well" src="img/gene-phenotype-filter.png" />
+			<img class="well" src="img/gene-phenotype-filter1.png" />
+
+			<h3><a name="phenotype-download">Gene phenotype download</a></h3>
+			<img class="well" src="img/gene-phenotype-download.png" />
+			
+			<h3><a name="phenotype-images">Gene phenotype images</a></h3>
+			<img class="well" src="img/gene-phenotype-images.png" />
+
+			<h3><a name="expression-images">Gene expression images</a></h3>
+			<img class="well" src="img/gene-expression-images.png" />
+			
+			<h3><a name="alleles">Gene ES cells &amp; alleles</a></h3>
+			<img class="well" src="img/gene-alleles.png" />
+			
+			
+			
 
 		</div>
 	</div>
-
-	<script type="text/javascript" src='../js/bootstrap/bootstrap.min.js' ></script>
 
 </body>
 </html>
