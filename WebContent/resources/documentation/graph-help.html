@@ -30,19 +30,20 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 			<div class="page-header"><h3>Quick help links</h3></div>
 	
 			<ul class="nav nav-list affix-top">
+			<li><a href="search-help.html">Search</a></li>
 			<li><a href="gene-help.html">Genes</a></li>
 			<li><a href="phenotype-help.html">Phenotypes</a> </li>
-			<li><a href="image-help.html">Images</a></li>	
+			<li><a href="image-help.html">Images</a></li>
 			<li><a href="statistics-help.html">Statistics</a> </li>
-			<li><a href="graph-help.html">Graphs</a>
-				<ul>
+			<li><a href="graph-help.html">Graphs</a> 
+								<ul>
 								<li><a href="graph-help.html#data">Where is the data from?</a></li>
 								<li><a href="graph-help.html#interactions">Interacting with Graphs</a></li>
 								<li><a href="graph-help.html#export">Exporting Graph Data</a></li>
 								<li><a href="graph-help.html#types">Types of Graphs and Equations</a></li>
-								
-								
-				</ul></li>
+								</ul>
+			</li>
+				
 			</ul>
 	
 		</div>
@@ -73,8 +74,11 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 				<p>Once zoomed a "Reset zoom" button appears at the right of the graph to enable the graph to be reset to original position:
 				<img src="img/graph_after_zoom.png" alt="Zoomed in graph here">
 				</p>
+				<p>An export button is always visible on the right hand side of the graphs where the graph picture can be exported in png, jpeg, pdf or svg format which will be downloaded to your computer:
+				<img src="img/graph_export.png" alt="export button in graph here">
+				</p>
 				<h3><a name="download">Exporting Graph Data</a></h3>
-				<p>At present there is no way of easily downloading large numbers of images at once. However there is a restful web service available for retrieving information pertaining to images via a web browser or a programming language of your choice.
+				<p>Images of the graphs can be saved to your computer. At present there is no way of easily downloading the data for the graph this is a feature we will implement in the near future. However there is a restful web service available for retrieving information pertaining to experiments via a web browser or a programming language of your choice documentation for this can be found <a href="https://github.com/mpi2/PhenotypeArchive/wiki">here</a>.
 				</p>
 				
 				<h2><a name="types">Types of Graphs and Equations</a></h2>
@@ -89,6 +93,8 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 				</ol>
 				
 				<h2><a name="categorical_graphs">Categorical Bar Graphs</a></h2>
+				<img src="img/graph_categorical_normal.png">
+				Categorical 
 				<h2><a name="undimensional_graphs">Unidimensional Scatter and Box Plot Graphs</a></h2>
 				<h2><a name="time_graphs">Time Series Graphs</a></h2>
 				<h2><a name="scatter_graphs">Scatter Plots Showing Data grouped by Date</a></h2>
@@ -97,8 +103,6 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 
 		</div>
 	</div>
-
-	<script type="text/javascript" src='../js/bootstrap/bootstrap.min.js' ></script>
 
 </body>
 </html>
