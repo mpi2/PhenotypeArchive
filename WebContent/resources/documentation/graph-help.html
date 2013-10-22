@@ -19,8 +19,8 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 
 	<div class="row">
 		<div class="well">
-			<h1>IMPC gene details page documentation</h1>
-			<p class="lead">Gene details</p>
+			<h1>IMPC graph page documentation</h1>
+			<p class="lead">Graph details</p>
 		</div>
 	</div>
 
@@ -30,29 +30,49 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 			<div class="page-header"><h3>Quick help links</h3></div>
 	
 			<ul class="nav nav-list affix-top">
-			<li><a href="gene-help.html#gene-page">Genes</a></li>
+			<li><a href="gene-help.html">Genes</a></li>
 			<li><a href="phenotype-help.html">Phenotypes</a> </li>
-			<li><a href="image-help.html">Images</a></li>
+			<li><a href="image-help.html">Images</a></li>	
 			<li><a href="statistics-help.html">Statistics</a> </li>
+			<li><a href="graph-help.html">Graphs</a>
+				<ul>
+								<li><a href="graph-help.html#data">Where is the data from?</a></li>
+								<li><a href="graph-help.html#interactions">Interacting with Graphs</a></li>
+								<li><a href="graph-help.html#export">Exporting Graph Data</a></li>
+								<li><a href="graph-help.html#types">Types of Graphs and Equations</a></li>
+								
+								
+				</ul></li>
 			</ul>
 	
 		</div>
 
 		<div class="span9">
 
-			<div class="page-header"><h3>Explore the diverse entry points to mouse phenotype data.</h3></div> 
+			<div class="page-header"><h3>Graphs</h3></div> 
 
 			<dl>
-				<dt>How do I search my favorite gene, phenotype.</dt>
-				<dd>The IMPC portal offers a powerful search interface to query information on 
-				mouse production and mouse phenotyping. <a href="search-help.html">Find out more</a>
+			
+				<dt><a name="data">Where is the data from?</a></dt>
+				<dd>
+				Currently data for the graphs are obtained from legacy data with the MP calls, associated p value and max effect from <a href="http://www.europhenome.org/"> Europhenome</a>. On the right of the tables from the genes page or the phenotypes page Europhenome links are available to the original data. Graphs next to these links are new graphs representing the same data from europhenome.
+				 When data becomes available these new graphs will be used to display the new data from the IMPC procedures. 
+				<img src="img/graph_links.png">
 				</dd>
-			</dl>
-			<dl>
-				<dt>What are some of the the things I can do at the data portal</dt>
-				<dd><a href="gene-help.html">look at my favourite gene and retrieve associated phenotype data.</a></dd>
-				<dd><a href="phenotype-help.html">get a list of genotypes associated to a specific phenotype.</a></dd>
-				<dd><a href="image-help.html">retrieve X-ray, expression images.</a></dd>
+				
+				<dt><a name="interactions">Interacting with Graphs</a> </dt>
+				<dd>Graphs are interective so that you can adjust the view to your liking. Click on a legend will remove a set of data from the graph. This is especially useful if you wish to remove "noise" from a graph and focus on the control or experimental data. <img src="img/graph_legends.png"> <img src="img/graph_no_control.png">
+				</dd>
+				
+				<dt><a name="types">Types of Graphs and Equations</a></dt>
+				<dd>
+				At the moment they are updated irregularly but very soon they will be updated on a regular basis. I anticipate them being update within the next 3 weeks and then regularly from that point on.
+				</dd>
+				
+				<dt><a name="download">Exporting Graph Data</a></dt>
+				<dd>At present there is no way of easily downloading large numbers of images at once. However there is a restful web service available for retrieving information pertaining to images via a web browser or a programming language of your choice.
+				</dd>
+				
 			</dl>
 
 		</div>

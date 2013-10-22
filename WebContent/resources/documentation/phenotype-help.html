@@ -31,7 +31,19 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 	
 			<ul class="nav nav-list affix-top">
 			<li><a href="gene-help.html">Genes</a></li>
-			<li><a href="phenotype-help.html">Phenotypes</a> </li>
+			<li><a href="phenotype-help.html">Phenotypes</a> 
+			<ul>
+						<li><a href="phenotype-help.html#details">Phenotype details</a></li>
+						<li><a href="phenotype-help.html#associations">Gene-Phenotype associations</a>
+							<ul>
+								<li><a href="phenotype-help.html#table">Table of associations</a></li>
+								<li><a href="phenotype-help.html#dvi">Direct vs. inferred associations</a></li>
+								<li><a href="phenotype-help.html#table-filtering">Filtering</a></li>
+								<li><a href="phenotype-help.html#table-download">Downloading results</a></li>
+							</ul>
+						</li>
+					</ul>
+			</li>
 			<li><a href="image-help.html">Images</a></li>
 			<li><a href="statistics-help.html">Statistics</a> </li>
 			</ul>
@@ -41,43 +53,69 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 		<div class="span9">
 
 			<div class="page-header"><h3>Explore the diverse entry points to mouse phenotype data.</h3></div> 
-
-			<dl>
-				<dt>How do I search my favorite gene, phenotype.</dt>
-				<dd>The IMPC portal offers a powerful search interface to query information on 
-				mouse production and mouse phenotyping. <a href="search-help.html">Find out more</a>
-				</dd>
-			</dl>
-			<dl>
-				<dt>What are some of the the things I can do at the data portal</dt>
-				<dd><a href="gene-help.html">look at my favourite gene and retrieve associated phenotype data.</a></dd>
-				<dd><a href="phenotype-help.html">get a list of genotypes associated to a specific phenotype.</a></dd>
-				<dd><a href="image-help.html">retrieve X-ray, expression images.</a></dd>
-			</dl>
-
+			<p>
+				Our phenotype page currently consists of two parts: the phenotype information/details and the table of gene variants associated with the current phenotype.
+			</p>
+			
+			<h3><a name="details">Phenotype details</a></h3>
+				<p>The <b>synonyms</b> and <b>definition</b> we provide come from the mouse anatomy ontology (MP). This is also why we provide the MP id of the current
+				 phenotype page as well as the link to it on the <b>MGI MP browser</b>.</p>
+				 
+				 <p> The <b>procedures</b> come from legacy data pipelines such as EUMODIC, GMC. </p>
+				
+				<figure>
+				<img class="well" src="img/phenotype-information.png"/>
+				</figure>
+				
+				
+			<h3><a name="associations">Gene-Phenotype associations</a></h3>
+			
+			How we get them???
+			
+			<h3><a name="table">Table of associations</a></h3>
+			Rows are collapsed based on sex. For more readability we group entries where all fields are identical except the sex to one row. These rows are identified by a both-sexes icon (<img src="img/both-sexes-icon.png"/>). The <b>total number of results</b> shown on top of the table will double count this rows (once for females and once for males).
+			
+			
+			<h3><a name="dvi">Direct vs. inferred associations</a></h3>
+				<p>
+				The gene associations table on the phenotype page comes in two slightly different flavors:
+				<ul>
+				<li>phenotype terms that are directly annotated to data</li>
+				<li>phenotype terms whose gene associations have been inferred. Thus, for a top level term, in the 5th column we have a phenotype term indicating the MP term directly associated to the respective gene (allele??).</li>
+				
+				</ul>
+				</p>
+				
+				<p> Lower level MP terms, directly associated. </p>
+				<img class="well" src="img/phenotype-help-directly-annotated-mp.png"/>
+				
+				
+				<p> The image below pictures the table for a top level term. Since we want to keep the granularity of the MP term associations we introduced phenotype information in
+				 the table (highlighted).
+				 To ease the navigation all MP terms in the table have hyperlinks to their respective IMPC page.   
+				Top level MP terms with the gene associations inherited from lower level terms associations. </p>
+				<img class="well" src="img/phenotype-help-top-level-table.png"/>
+				
+				
+				
+			<h3><a name="table-download">Downloading results</a></h3>
+				<p>
+				We offer 2 export options for the data in the table: 
+				<ul>
+					<li> TSV, text file with tab separated variables (<img title="TSV" style="vertical-align:text-bottom;" src="img/tsv.png"/>)</li>
+					<li> ELS, Microsoft Excel spread sheet (<img title="XSL" style="vertical-align:text-bottom;" src="img/xls.png"/>)</li>
+				</ul>
+				</p>
+				
+				<p>
+					Please note that in the table displayed on our page entry lines are collapsed based on sex. That is, if for 2 lines all fields are identical except the gender, they will be shown together for a better user experience.
+					In the export file however we export all lines separately, to allow easier further processing of the data. This holds for both XLS and TSV files.
+				</p>
 		</div>
 	</div>
 
 	<div>
-	<!--  ILINCA"S TEMP DIV -->
-<p>
-The gene associations table on the phenotype page comes in two slightly different flavours:
-<br/>
-- phenotype terms that are directly annotated to data
-<br/>
-- phenotype terms whose gene associations have been inferred. Thus, for a top level term, in the 5th column we have a phenotype term indicating the MP term directly associated to the respectivegene (allele??).
-</p>
-<figure>
-<img width="45%"  src="../img/phenotype-help-directly-annotated-mp.png"/>
-<figcaption>Title ../img/phenotype-help-directly-annotated-mp.png</figcaption>
-</figure>
-<figure>
-<img width="45%" src="../img/phenotype-help-top-level-table.png"/>
-<figcaption>Title ../img/phenotype-help-directly-annotated-mp.png</figcaption>
-</figure>
-<p>
-We offer 2 export options for the data in the table : in a text file with tab separated variables (<img title="TSV" style="vertical-align:text-bottom;" src="../img/tsv.png"/>) and as an excell sheet (<img title="XSL" style="vertical-align:text-bottom;" src="../img/xls.png"/>). In the table on our page entries lines are collapsed if all fields are identical except the gender. In the export file, for a html table line representing both genders we will export 2 lines in both XLS and TSV files.
-</p>
+
 	</div>
 
 	<script type="text/javascript" src='../js/bootstrap/bootstrap.min.js' ></script>
