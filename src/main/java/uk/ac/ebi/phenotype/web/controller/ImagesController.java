@@ -154,7 +154,7 @@ public class ImagesController {
 		}
 		queryString=queryString.replace("higherLevelMpTermName", "Phenotype");
 		queryString=queryString.replace("higherLevelMaTermName", "Anatomy");
-		
+		queryString=queryString.replace("expName", "Experiment Name");
 	
 		 model.addAttribute("breadcrumbText", queryString);
 
