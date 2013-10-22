@@ -3,7 +3,7 @@
 <head>
 
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="wih3h=device-wih3h, initial-scale=1.0">
 
 <title>International Mouse Phenotyping Consortium Documentation</title>
 
@@ -51,29 +51,49 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 
 			<div class="page-header"><h3>Graphs</h3></div> 
 
-			<dl>
+		
 			
-				<dt><a name="data">Where is the data from?</a></dt>
-				<dd>
+				<h3><a name="data">Where is the data from?</a></h3>
+				<p>
 				Currently data for the graphs are obtained from legacy data with the MP calls, associated p value and max effect from <a href="http://www.europhenome.org/"> Europhenome</a>. On the right of the tables from the genes page or the phenotypes page Europhenome links are available to the original data. Graphs next to these links are new graphs representing the same data from europhenome.
 				 When data becomes available these new graphs will be used to display the new data from the IMPC procedures. 
 				<img src="img/graph_links.png">
-				</dd>
+				</p>
 				
-				<dt><a name="interactions">Interacting with Graphs</a> </dt>
-				<dd>Graphs are interective so that you can adjust the view to your liking. Click on a legend will remove a set of data from the graph. This is especially useful if you wish to remove "noise" from a graph and focus on the control or experimental data. <img src="img/graph_legends.png"> <img src="img/graph_no_control.png">
-				</dd>
+				<h3><a name="interactions">Interacting with Graphs</a> </h3>
+				<p>Graphs are interective so that you can adjust the view to your liking. Click on a legend will remove a set of data from the graph. This is especially useful if you wish to remove "noise" from a graph and focus on the control or experimental data. <img src="img/graph_legends.png"> 
+				</p>
 				
-				<dt><a name="types">Types of Graphs and Equations</a></dt>
-				<dd>
-				At the moment they are updated irregularly but very soon they will be updated on a regular basis. I anticipate them being update within the next 3 weeks and then regularly from that point on.
-				</dd>
+				<p>After clicking on the control legend the control data has dissappeared:<img src="img/graph_no_control.png" alt="graph with no control here">
+				</p>
+				<p>Hovering over a data point or error bars displays extra information about the data point:<img src="img/graph_hover.png" alt="graph with a hovering over mouse label here">
+				</p>
+				<p>If appropriate the graph will allow you to zoom in on a data set by clicking and dragging to create a square/zoomable area:<img src="img/graph_before_zoom.png" alt="Scatter graph with no zoom shown here">
+				</p>
+				<p>Once zoomed a "Reset zoom" button appears at the right of the graph to enable the graph to be reset to original position:
+				<img src="img/graph_after_zoom.png" alt="Zoomed in graph here">
+				</p>
+				<h3><a name="download">Exporting Graph Data</a></h3>
+				<p>At present there is no way of easily downloading large numbers of images at once. However there is a restful web service available for retrieving information pertaining to images via a web browser or a programming language of your choice.
+				</p>
 				
-				<dt><a name="download">Exporting Graph Data</a></dt>
-				<dd>At present there is no way of easily downloading large numbers of images at once. However there is a restful web service available for retrieving information pertaining to images via a web browser or a programming language of your choice.
-				</dd>
+				<h2><a name="types">Types of Graphs and Equations</a></h2>
+				<p>
+				Currently 4 types of graph exist in the IMPC portal from the IMPC: 
+				</p>
+				<ol>
+				<li><a href="graph-help.html#categorical_graphs">Categorical Bar Graphs</a></li>
+				<li><a href="graph-help.html#undimensional_graphs">Unidimensional Scatter and Box Plot Graphs</a></li>
+				<li><a href="graph-help.html#time_graphs">Time Series Graphs</a></li>
+				<li><a href="graph-help.html#scatter_graphs">Scatter Plots Showing Data Grouped by Date</a></li>
+				</ol>
 				
-			</dl>
+				<h2><a name="categorical_graphs">Categorical Bar Graphs</a></h2>
+				<h2><a name="undimensional_graphs">Unidimensional Scatter and Box Plot Graphs</a></h2>
+				<h2><a name="time_graphs">Time Series Graphs</a></h2>
+				<h2><a name="scatter_graphs">Scatter Plots Showing Data grouped by Date</a></h2>
+				
+			
 
 		</div>
 	</div>
