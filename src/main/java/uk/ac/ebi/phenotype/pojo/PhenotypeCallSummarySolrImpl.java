@@ -213,7 +213,7 @@ public class PhenotypeCallSummarySolrImpl implements
 				+ phenotype_id
 				+ "\"+OR+top_level_mp_term_id:\""
 				+ phenotype_id
-				+ "\")&fq=-resource_name:IMPC&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=resource_fullname&facet.field=procedure_name&facet.field=marker_symbol";
+				+ "\")&fq=-resource_name:IMPC&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=resource_fullname&facet.field=procedure_name&facet.field=marker_symbol&facet.field=mp_term_name";
 		// if (!filterString.equals("")) {
 		if (queryString.startsWith("&")) {
 			url += queryString;
