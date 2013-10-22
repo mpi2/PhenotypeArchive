@@ -51,7 +51,7 @@ $(document).ready(function(){
 		dumpMode: 'all',
 		baseUrl: windowLocation,
 		page:"phenotype",
-		gridFields: 'marker_symbol,allele_symbol,zygosity,sex,procedure_name,resource_fullname,parameter_stable_id,marker_accession_id, parameter_name,parameter_name',
+		gridFields: 'marker_symbol,allele_symbol,zygosity,sex,procedure_name,resource_fullname,parameter_stable_id,mp_term_name,marker_accession_id, parameter_name,parameter_name',
 		//TODO add here filter params too
 //		params: "qf=auto_suggest&defType=edismax&wt=json&rows=100000&q=*:*&fq=(mp_term_id:\"" + mpId + "&" + dropdownsList[0].name+':(\"' + dropdownsList[0].array.join("\"OR\"") + '\")&' + dropdownsList[1].name+':(\"' + dropdownsList[1].array.join("\"OR\"") + '\")&' + dropdownsList[2].name+':(\"' + dropdownsList[2].array.join("\"OR\"") + '\")' +  "\")"
 		params: "qf=auto_suggest&defType=edismax&wt=json&rows=100000&q=*:*&fq=(mp_term_id:\"" + mpId + "\"+OR+top_level_mp_term_id:\"" + mpId + "\")"
@@ -125,6 +125,10 @@ $(document).ready(function(){
 	allDropdowns[0] = $('#resource_fullname');
 	allDropdowns[1] = $('#procedure_name');
 	allDropdowns[2] = $('#marker_symbol');
+	allDropdowns[3] = $('#mp_term_name');
+	// the phenptype dropdown should only be shown on the top level terms pages
+
+	createDropdown(allDropdowns[3].sort(), "Phenotype: All", allDropdowns);
 	createDropdown(allDropdowns[0],"Source: All", allDropdowns);
 	createDropdown(allDropdowns[1], "Procedure: All", allDropdowns);
 	createDropdown(allDropdowns[2].sort(), "Gene: All", allDropdowns);
