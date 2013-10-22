@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ import uk.ac.ebi.generic.util.ExcelWorkBook;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
+import uk.ac.ebi.phenotype.pojo.PipelineSolrImpl;
 
 @Controller
 public class FileExportController {
@@ -259,10 +261,12 @@ public class FileExportController {
 	private List<String> composeGPDataTableRows(JSONObject json, HttpServletRequest request){ //ilinca
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");	
 		List<String> rowData = new ArrayList<String>();
+		PipelineSolrImpl pipe = new PipelineSolrImpl(config);
 		// add respective table header 
 		// from the phenotype core we export both the table on gene & phenotype page so we need to check on which file we are
 		if (request.getParameter("page").equalsIgnoreCase("gene")){
 			rowData.add("Phenotype\tAllele\tZygosity\tSex\tProcedure/Parameter\tSource\tGraph"); 
+			System.out.println(docs.getJSONObject(1));
 			for (int i=0; i<docs.size(); i++) {			
 				List<String> data = new ArrayList<String>();
 				JSONObject doc = docs.getJSONObject(i);
@@ -277,14 +281,20 @@ public class FileExportController {
 					data.add(doc.getString("resource_fullname"));
 					String graphUrl = "\"\"";
 					if ((doc.getString("resource_fullname")).equalsIgnoreCase("EuroPhenome")){ // only show links for Europhenome
-						graphUrl = request.getParameter("baseUrl").replace("/genes/", "/stats/genes/") + "?parameterId=" ;
-						graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
-						graphUrl += "&zygosity=" + doc.getString("zygosity") ;
+						// also don't show graph links for derived parameters
+						try {
+							if (!pipe.getParameterByStableId(doc.getString("parameter_stable_id"), "").getDerivedFlag()){
+								graphUrl = request.getParameter("baseUrl").replace("/genes/", "/stats/genes/") + "?parameterId=" ;
+								graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
+								graphUrl += "&zygosity=" + doc.getString("zygosity") ;
+							}
+						} catch (IOException e) {
+							e.printStackTrace();
+						} catch (URISyntaxException e) {
+							e.printStackTrace();
+						}
 					}
-//					if (request.getParameter("fileType").equalsIgnoreCase("xls"))
-//						data.add("=HYPERLINK(\"" + graphUrl +  "\")");
-//					else 
-						data.add(graphUrl);
+					data.add(graphUrl);
 					rowData.add(StringUtils.join(data, "\t"));
 				}
 			}
@@ -307,14 +317,19 @@ public class FileExportController {
 					String graphUrl = "\"\"";
 					// TODO check, this might need to change
 					if ((doc.getString("resource_fullname")).equalsIgnoreCase("EuroPhenome")){ // only show links for Europhenome
-						graphUrl = request.getParameter("baseUrl").replace("/phenotypes/", "/stats/genes/") + "?parameterId=" ;
-						graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
-						graphUrl += "&zygosity=" + doc.getString("zygosity") ;
+						try {
+							if (!pipe.getParameterByStableId(doc.getString("parameter_stable_id"), "").getDerivedFlag()){
+								graphUrl = request.getParameter("baseUrl").replace("/phenotypes/", "/stats/genes/") + "?parameterId=" ;
+								graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
+								graphUrl += "&zygosity=" + doc.getString("zygosity") ;
+							}
+						} catch (IOException e) {
+							e.printStackTrace();
+						} catch (URISyntaxException e) {
+							e.printStackTrace();
+						}
 					}
-//					if (request.getParameter("fileType").equalsIgnoreCase("xls"))
-//						data.add("=HYPERLINK(\"" + graphUrl +  "\")");
-//					else 
-						data.add(graphUrl);
+					data.add(graphUrl);
 					rowData.add(StringUtils.join(data, "\t"));
 				}
 			}

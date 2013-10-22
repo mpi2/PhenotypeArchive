@@ -331,15 +331,8 @@ public class StatsController implements BeanFactoryAware {
 		
 		
 		for (String parameterId : paramIds) {
-			ObservationType observationTypeForParam=null;
-			 net.sf.json.JSONObject expResult=JSONGraphUtils.getExperimentalData(parameterId, acc, config);
-			 JSONArray resultsArray=JSONRestUtil.getDocArray(expResult);
-			 for(int i=0; i<resultsArray.size(); i++){
-				 net.sf.json.JSONObject exp=resultsArray.getJSONObject(i);
-				 observationTypeForParam = ObservationType.valueOf(exp.getString("observationType"));
-			 }
 			Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion(parameterId, 1, 0);
-			
+			ObservationType observationTypeForParam=Utilities.checkType(parameter);
 			String[] parameterUnits=parameter.checkParameterUnits();
 			String xUnits="";
 			String yUnits="";
