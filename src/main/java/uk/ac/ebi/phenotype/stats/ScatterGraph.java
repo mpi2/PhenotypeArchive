@@ -266,7 +266,7 @@ private static final Logger log = Logger.getLogger(ScatterGraph.class);
 				
 				" labels: { rotation: -45, align: 'right', style: { fontSize: '13px',  fontFamily: 'Verdana, sans-serif' }   }, "
 	
-					+"showLastLabel: true }, yAxis: { title: { text: '"
+					+"showLastLabel: true }, yAxis: { max: 2,  min: 0, title: { text: '"
 				+ yAxisTitle
 				+ "' } },  credits: { enabled: false }, legend: { layout: 'vertical', align: 'left', verticalAlign: 'top', x: 100, y: 70, floating: true, backgroundColor: '#FFFFFF', borderWidth: 1 }, plotOptions: { scatter: { marker: { radius: 5, states: { hover: { enabled: true, lineColor: 'rgb(100,100,100)' } } }, states: { hover: { marker: { enabled: false } } }"
 				+" } },"+

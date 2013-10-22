@@ -88,7 +88,7 @@ public class TimeSeriesChartAndTableProvider {
 							 String docGender=control.getSex();
 							 if(SexType.valueOf(docGender).equals(sex)){
 							 Float dataPoint=control.getDataPoint();
-							 logger.warn("data value="+dataPoint);
+							 logger.debug("data value="+dataPoint);
 							 String timePointString=control.getTimePoint();
 							 //System.out.println("timePointString="+timePointString);
 							 Float discreteTimePoint=control.getDiscretePoint();//TimePoint();
@@ -137,7 +137,7 @@ public class TimeSeriesChartAndTableProvider {
 								 String docGender=expDto.getSex();
 								 if(SexType.valueOf(docGender).equals(sex)){
 								 Float dataPoint=expDto.getDataPoint();
-								 logger.warn("data value="+dataPoint);
+								 logger.debug("data value="+dataPoint);
 								 Float discreateTimePoint=expDto.getDiscretePoint();//getTimePoint();
 									// long timeInMillisSinceEpoch = getEpocTime(timePoint);
 								//Float discreteTime=;
@@ -169,12 +169,12 @@ public class TimeSeriesChartAndTableProvider {
 						if(tempMax>max)max=tempMax;
 						chartsNTablesForParameter.add(chartNTableForParameter);
 						listIndex++;
-						}
+						}//end of gender
 					}// end of gender
 				//}
 
-			}// end of biological model param
-		}//end of sex loop
+			}// end of gender
+		}//end experiment loop
 		
 			
 		
