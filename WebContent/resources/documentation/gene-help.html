@@ -79,38 +79,63 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 			of the gene's location graphically.  The browser is interactive and you can zoom and scroll to see nearby features.
 			</p>
 
-			<p>This section also shows any Vega, NCBI, or cCDS IDs associated with this gene.</p>
+			<p>This section also shows all Vega, NCBI, or cCDS IDs associated with this gene.</p>
 			
 			<img class="well" src="img/gene-browser.png" />
 			
 			<h3><a name="phenotypes">Gene phenotypes</a></h3>
+			
+			<p>The gene phenotypes section shows the associations of genes to <a href="http://www.informatics.jax.org/searches/MP_form.shtml">Mammalian phenotype</a> terms</p>
+			
 			<img class="well" src="img/gene-phenotypes.png" />
 			
 			<h3><a name="phenotype-summary">Gene phenotype summary</a></h3>
+			
+			<p>A summary of phenotype terms for this gene with associated counts.  The counts indicate the number of unique combinations of:
+			<ul>
+			<li>Phenotype term</li>
+			<li>Allele</li>
+			<li>Zygosity</li>
+			<li>Sex</li>
+			</ul>
+
+			<p>Due to this combining process, the number of rows in the results table may not equal the count shown. Also, be aware that MP terms may have more than one high level parent and so the counts in the summary may not equal the total number of entries.</p>
+			
 			<img class="well" src="img/gene-phenotype-summary.png" />
 			
 			<h3><a name="phenotype-table">Gene phenotype table</a></h3>
+			
+			<p>The phenotype table lists the individual phenotypes associated to this gene through a specific allele.  If both sexes are associated, then both are shown on the same row indicated by the male (<img src="../img/icon-male.png" />) / female (<img src="../img/icon-female.png" />) icons.</p>
+			
 			<img class="well" src="img/gene-phenotype-table.png" />
 			
 			<h3><a name="phenotype-filtering">Gene phenotype filtering</a></h3>
+
+			<p>The results shown in the phenotype table may be filtered using the dropdown filters.  Select the check boxes to include entries pertaining to the selection.  The displayed rows are the result of logically ORing within and logically ANDing between dropdowns.</p>
+
 			<img class="well" src="img/gene-phenotype-filter.png" />
 			<img class="well" src="img/gene-phenotype-filter1.png" />
 
 			<h3><a name="phenotype-download">Gene phenotype download</a></h3>
+			
+			<p>The results in the table may be downloaded in either CSV or Microsoft Excel format.  The resulting download respects all filters that have been applied to the data.</p>
+			
 			<img class="well" src="img/gene-phenotype-download.png" />
 			
 			<h3><a name="phenotype-images">Gene phenotype images</a></h3>
+			
+			<p>The phenotype images section shows all the images associated to this gene via direct annotation from the image source</p>
 			<img class="well" src="img/gene-phenotype-images.png" />
 
 			<h3><a name="expression-images">Gene expression images</a></h3>
 			<img class="well" src="img/gene-expression-images.png" />
 			
 			<h3><a name="alleles">Gene ES cells &amp; alleles</a></h3>
+			
+			<p>The alleles and ES cells section describes the mutations available from the IKMC resource.  Each row corresponds to an allele of this gene.  A diagram is included depicting the mutation the allele carries and a link to where the ES cell or mouse may be purchased when available.  The <strong>genbank file</strong> link points to a genbank file describing the genomic sequence of the allele.</p>
+
 			<img class="well" src="img/gene-alleles.png" />
 			
-			
-			
-
 		</div>
 	</div>
 
