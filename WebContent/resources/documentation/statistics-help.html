@@ -41,25 +41,18 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 
 		<div class="span9">
 
-			<div class="page-header"><h3>Explore the diverse entry points to mouse phenotype data.</h3></div> 
+			<div class="page-header"><h3>Details about the way IMPC uses statistics.</h3></div> 
 
-			<dl>
-				<dt>How do I search my favorite gene, phenotype.</dt>
-				<dd>The IMPC portal offers a powerful search interface to query information on 
-				mouse production and mouse phenotyping. <a href="search-help.html">Find out more</a>
-				</dd>
-			</dl>
-			<dl>
-				<dt>What are some of the the things I can do at the data portal</dt>
-				<dd><a href="gene-help.html">look at my favourite gene and retrieve associated phenotype data.</a></dd>
-				<dd><a href="phenotype-help.html">get a list of genotypes associated to a specific phenotype.</a></dd>
-				<dd><a href="image-help.html">retrieve X-ray, expression images.</a></dd>
-			</dl>
+			<p>The IMPC uses a variety of statistical methods for making phenotype calls, including:</p>
+
+			<ul>
+				<li>Fisher's Exact test - for categorical data parameters</li>
+				<li>Mixed Model - for continuous data parameters which include random effects (such as <a href="#batch-effect">batch effect</a>)</li>
+				<li>Linear Model - for continuous data parameters when mixed model doesn't apply</li>
+			</ul>
 
 		</div>
 	</div>
-
-	<script type="text/javascript" src='../js/bootstrap/bootstrap.min.js' ></script>
 
 </body>
 </html>
