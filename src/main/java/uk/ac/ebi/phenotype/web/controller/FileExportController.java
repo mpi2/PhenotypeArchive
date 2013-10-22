@@ -264,8 +264,9 @@ public class FileExportController {
 		PipelineSolrImpl pipe = new PipelineSolrImpl(config);
 		// add respective table header 
 		// from the phenotype core we export both the table on gene & phenotype page so we need to check on which file we are
+		
 		if (request.getParameter("page").equalsIgnoreCase("gene")){
-			rowData.add("Phenotype\tAllele\tZygosity\tSex\tProcedure/Parameter\tSource\tGraph"); 
+			rowData.add("Phenotype\tAllele\tZygosity\tSex\tProcedure / Parameter\tSource\tGraph"); 
 			System.out.println(docs.getJSONObject(1));
 			for (int i=0; i<docs.size(); i++) {			
 				List<String> data = new ArrayList<String>();
@@ -277,7 +278,7 @@ public class FileExportController {
 					else data.add("");
 					data.add(doc.getString("zygosity"));
 					data.add(doc.getString("sex"));
-					data.add(doc.getString("procedure_name") + "/" + doc.getString("parameter_name"));
+					data.add(doc.getString("procedure_name") + " / " + doc.getString("parameter_name"));
 					data.add(doc.getString("resource_fullname"));
 					String graphUrl = "\"\"";
 					if ((doc.getString("resource_fullname")).equalsIgnoreCase("EuroPhenome")){ // only show links for Europhenome
@@ -300,7 +301,15 @@ public class FileExportController {
 			}
 		}
 		else if (request.getParameter("page").equalsIgnoreCase("phenotype")){
-			rowData.add("Gene\tAllele\tZygosity\tSex\tProcedure/Parameter\tSource\tGraph"); 
+			boolean isTopLevel = (!docs.getJSONObject(0).containsKey("top_level_mp_term_name"));
+			// table is different for top level terms and the rest
+			if (!isTopLevel){
+				// top_level ones don't have this field
+				rowData.add("Gene\tAllele\tZygosity\tSex\tProcedure / Parameter\tSource\tGraph"); 
+			}
+			else {
+				rowData.add("Gene\tAllele\tZygosity\tSex\tPhenotype / Parameter\tSource\tGraph"); 
+			}
 			for (int i=0; i<docs.size(); i++) {		
 				JSONObject doc = docs.getJSONObject(i);
 				// for some reason we need to filter out the IMPC entries.
@@ -312,7 +321,13 @@ public class FileExportController {
 					else data.add("");
 					data.add(doc.getString("zygosity"));
 					data.add(doc.getString("sex"));
-					data.add(doc.getString("procedure_name") + "/" + doc.getString("parameter_name"));
+					if (isTopLevel)
+					{
+						data.add(doc.getString("mp_term_name") + " / " + doc.getString("parameter_name"));
+					}
+					else {
+						data.add(doc.getString("procedure_name") + " / " + doc.getString("parameter_name"));
+					}
 					data.add(doc.getString("resource_fullname"));
 					String graphUrl = "\"\"";
 					// TODO check, this might need to change
