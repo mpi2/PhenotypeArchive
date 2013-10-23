@@ -2,7 +2,7 @@ $(document).ready(function(){
 
 	// bubble popup for brief panel documentation
 	$.fn.qTip({
-		'pageName': 'phenotype',
+		'pageName': 'phenotypes',
 		'textAlign': 'left',
 		'tip': 'topRight'
 	});
