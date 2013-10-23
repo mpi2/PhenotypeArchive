@@ -40,17 +40,17 @@ MDOC.search = {
 		'facetPanelDocUrl'   : baseUrl + '/documentation/search-help.html',	
 };
 MDOC.gene = {		
-		'generalPanel'         : defaultDesc,
+		'generalPanel'         : '<p>Details about the gene including: Gene name, accession IDs, location, links and a genome browser.</p><p>Click the help icon for more detail.</p>',
 		'generalPanelDocUrl'   : baseUrl + '/documentation/gene-help.html#details',
-		'preQcPanel'           : defaultDesc,
+		'preQcPanel'           : '<p>Preliminary analysis of the IMPC data displayed in a heatmap.</p><p>Click the help icon for more detail.</p>',
 		'preQcPanelDocUrl'     : baseUrl + '/documentation/gene-help.html#pre-qc',
-		'mpPanel'              : defaultDesc,
+		'mpPanel'              : '<p>Mammalian Phenotype (MP) associations made to this gene.</p><p>Click the help icon for more detail.</p>',
 		'mpPanelDocUrl'        : baseUrl + '/documentation/gene-help.html#phenotypes',
-		'imagePanel'           : defaultDesc,
+		'imagePanel'           : '<p>Images associated to this gene.  Note that the phenotype associations made in some of the image descriptions have not been verified for accuracy.</p><p>Click the help icon for more detail.</p>',
 		'imagePanelDocUrl'     : baseUrl + '/documentation/gene-help.html#phenotype-images',
-		'expressionPanel'      : defaultDesc,
+		'expressionPanel'      : '<p>Expression images associated to this gene.',
 		'expressionPanelDocUrl': baseUrl + '/documentation/gene-help.html#expression-images',
-		'allelePanel'          : defaultDesc,
+		'allelePanel'          : '<p>Alleles and ES cells of this gene produced from the IKMC project.  When available to order a link to the correspondiong repository will be included.</p><p>Click the help icon for more detail.</p>',
 		'allelePanelDocUrl'    : baseUrl + '/documentation/gene-help.html#alleles'
 };
 MDOC.phenotypes = {
@@ -64,5 +64,9 @@ MDOC.images = {
 		'generalPanelDocUrl'   : baseUrl + '/documentation/image-help.html',
 };
 
-
-
+MDOC.graphs = {		
+		'generalPanel'         : '<p>Details about the gene including: Gene name, accession IDs, location, links and a genome browser.</p><p>Click the help icon for more detail.</p>',
+		'generalPanelDocUrl'   : baseUrl + '/documentation/graph-help.html#details',
+		'preQcPanel'           : '<p>Preliminary analysis of the IMPC data displayed in a heatmap.</p><p>Click the help icon for more detail.</p>',
+		'preQcPanelDocUrl'     : baseUrl + '/documentation/graph-help.html#pre-qc'
+};
