@@ -54,13 +54,13 @@ MDOC.gene = {
 		'allelePanelDocUrl'    : baseUrl + '/documentation/gene-help.html#alleles'
 };
 MDOC.phenotypes = {
-		'generalPanel'         : "Phenotype details panel. Click for more details.",
+		'generalPanel'         : "<p> Phenotype details panel.<p> <p>Click the help icon for more detail.</p>",
 		'generalPanelDocUrl'   : baseUrl + '/documentation/phenotype-help.html',
-		'relatedMpPanel'       : "Allele associated with current phenotype. You can filter the table using the dropdown checkbox filters over the table, sort by one column and export the data. Click for more information.",
+		'relatedMpPanel'       : "<p>Allele associated with current phenotype. You can filter the table using the dropdown checkbox filters over the table, sort by one column and export the data. <p>Click the help icon for more detail.</p>",
 		'relatedMpPanelDocUrl' : baseUrl + '/documentation/phenotype-help.html#associations'
 };
 MDOC.images = {
-		'generalPanel'         : "All images associated with current phenotype. Click for more details.",
+		'generalPanel'         : "<p>All images associated with current phenotype.</p> <p>Click the help icon for more detail.</p>",
 		'generalPanelDocUrl'   : baseUrl + '/documentation/image-help.html',
 };
 
