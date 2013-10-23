@@ -1,9 +1,12 @@
 $(document).ready(function(){						
 
-	$.fn.qTip({'pageName':'gene',
-		'textAlign':'left',
-		'tip':'topLeft'
-		});	// bubble popup for brief panel documentation					
+	// bubble popup for brief panel documentation
+	$.fn.qTip({
+		'pageName': 'phenotype',
+		'textAlign': 'left',
+		'tip': 'topRight'
+	});
+	
 	//function to fire off a refresh of a table and it's dropdown filters
 	var selectedFilters = "";
 	var dropdownsList = new Array();

@@ -238,11 +238,11 @@
 		        },
 		        hide: {		        		
 			           event: 'mouseout' 
-		        },							
+		        },
 				position: {
 			    	corner: {
-			        	target: 'topLeft'
-			        	//tooltip: 'Left'
+			        	target: 'bottomLeft',
+			        	tooltip: 'topRight'
 			        },
 			    	adjust: {
 			        	x: oConf.posX,
