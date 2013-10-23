@@ -266,7 +266,7 @@ public class ImagesController {
 			String value = gf.getSymbol();
 			String geneBc = "<a href='" + baseUrl + "/genes/" + geneId + "'>"
 					+ gf.getSymbol() + "</a>";
-			breadcrumbs.add("Gene: " + geneBc);
+			breadcrumbs.add("gene: \"" + geneBc + "\"");
 		}
 
 		if (!mpId.equals("")) {
@@ -276,7 +276,7 @@ public class ImagesController {
 			String value = mpTerm.getName();
 			String mpBc = "<a href='" + baseUrl + "/phenotypes/" + mpId + "'>"
 					+ value + "</a>";
-			breadcrumbs.add("Phenotype: " + mpBc);
+			breadcrumbs.add("phenotype: \"" + mpBc + "\"");
 		}
 
 		if (!maId.equals("")) {
@@ -285,7 +285,7 @@ public class ImagesController {
 			String value = maTerm.getName();
 			String mpBc = "<a href='" + baseUrl + "/phenotypes/" + maId + "'>"
 					+ value + "</a>";
-			breadcrumbs.add("Anatomy: " + mpBc);
+			breadcrumbs.add("anatomy: \"" + mpBc + "\"");
 		}
 
 		if (!qIn.equals("") && !qIn.equals("*:*") && !qIn.equals("*")
@@ -323,9 +323,9 @@ public class ImagesController {
 									+ baseUrl
 									+ "/search#q=*&core=images&fq=higherLevelMaTermName:\""
 									+ value + "\"'>" + value + "</a>";
-							orFields.add(key + ": " + value);
+							orFields.add(key.toLowerCase() + ": \"" + value + "\"");
 						} else {
-							orFields.add(key + ": " + value);
+							orFields.add(key.toLowerCase() + ": \"" + value + "\"");
 						}
 					}
 				}
