@@ -16,10 +16,20 @@
  * imageUtils: various util functions
  * 
  */
+
 function imgError(image){
 	image.onerror = "";
 	image.src = "../img/NoImageAvailable_200x200.png";
 	return true;
 }
 
+$(document).ready(function(){						
+	
+	// bubble popup for brief panel documentation
+	$.fn.qTip({
+		'pageName': 'images',
+		'textAlign': 'left',
+		'tip': 'topRight'
+	});
+});
 

@@ -54,20 +54,15 @@ MDOC.gene = {
 		'allelePanelDocUrl'    : baseUrl + '/documentation/gene-help.html#alleles'
 };
 MDOC.phenotypes = {
-		'generalPanel'         : defaultDesc,
+		'generalPanel'         : "Phenotype details panel. Click for more details.",
 		'generalPanelDocUrl'   : baseUrl + '/documentation/phenotype-help.html',
-		'relatedMpPanel'       : defaultDesc,
+		'relatedMpPanel'       : "Allele associated with current phenotype. You can filter the table using the dropdown checkbox filters over the table, sort by one column and export the data. Click for more information.",
 		'relatedMpPanelDocUrl' : baseUrl + '/documentation/phenotype-help.html#associations'
 };
-MDOC.ma = {
-		'generalPanel'         : defaultDesc,
-		'generalPanelDocUrl'   : baseUrl + '/documentation/maGeneralPanel.html',
-		'mpPanel'              : defaultDesc,
-		'mpPanelDocUrl'        : baseUrl + '/documentation/maMpPanel.html',
-		'relatedMaPanel'       : defaultDesc,
-		'relatedMaPanelDocUrl' : baseUrl + '/documentation/maRelatedMaPanel.html',
-		'expressionPanel'      : defaultDesc,
-		'expressionPanelDocUrl': baseUrl + '/documentation/maExpressionPanel.html'
+MDOC.images = {
+		'generalPanel'         : "All images associated with current phenotype. Click for more details.",
+		'generalPanelDocUrl'   : baseUrl + '/documentation/image-help.html',
 };
+
 
 
