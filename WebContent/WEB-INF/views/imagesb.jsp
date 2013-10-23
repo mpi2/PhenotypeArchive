@@ -1,7 +1,7 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
-
+<%@ taglib prefix='fn' uri='http://java.sun.com/jsp/jstl/functions'%>
 <t:genericpage>
 
 	<jsp:attribute name="title">${queryTerms} IMPC Images Information</jsp:attribute>
@@ -22,11 +22,17 @@
 		<script src="${baseUrl}/js/imaging/imageUtils.js"></script>
     </jsp:attribute>
 
+
 	<jsp:attribute name="footer">
 		<script>$.autopager({link: '#next',content: '#grid'});</script>
 	</jsp:attribute>
 
-    <jsp:body>
+<jsp:body>
+   <div class='documentation'>
+			<a href='' class='generalPanel'><img
+					src="${baseUrl}/img/info_20x20.png" /></a>
+		</div>	
+    
     <c:if test="${solrImagesError ne null}"><h4>There is an error the image index is down please contact the IMPC if this error persists</h4></c:if>
 		<c:if test="${imageCount eq 0}"><h4>There are no images for ${breadcrumbTerms}</h4></c:if>
 		<c:if test="${imageCount ne 0}"><h4><strong class=lead>${imageCount} images for ${breadcrumbText}</strong></h4></c:if>
