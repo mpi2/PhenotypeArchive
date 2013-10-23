@@ -56,6 +56,11 @@ public class ObservationService {
 		return getControls(p.getId(), strain, organisationId, max);
 	}
 
+	protected List<ObservationDTO> getControls(Integer parameterId, String strain, Integer organisationId, Date max) throws SolrServerException {
+
+		return getControls(parameterId, strain, organisationId, max, Boolean.FALSE);
+	}
+
 	/**
 	 * get control data observations for the combination of parameters passed
 	 * in.
@@ -67,7 +72,7 @@ public class ObservationService {
 	 * @return list of observations 
 	 * @throws SolrServerException when solr has a troubled mind/heart/body
 	 */
-	protected List<ObservationDTO> getControls(Integer parameterId, String strain, Integer organisationId, Date max) throws SolrServerException {
+	protected List<ObservationDTO> getControls(Integer parameterId, String strain, Integer organisationId, Date max, Boolean showAll) throws SolrServerException {
 
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
@@ -78,7 +83,11 @@ public class ObservationService {
 			.addFilterQuery("strain:"+strain.replace(":", "\\:"))
 			.setSortField("dateOfExperiment", ORDER.desc)
 			;
-		query.setStart(0).setRows(1000);
+		if (!showAll) {
+			query.setStart(0).setRows(1000);
+		} else {
+			query.setStart(0).setRows(10000);
+		}
 		QueryResponse response = solr.query(query);
 
 		return response.getBeans(ObservationDTO.class);
