@@ -169,7 +169,7 @@
 	    _displayGeneSubTypeFacet: function(json){	    	
 	    	var self = this;
 	    	var numFound = json.response.numFound;
-	    		    	console.log(json);
+	    	
 	    	/*-------------------------------------------------------*/
 	    	/* ------ displaying sidebar and update dataTable ------ */
 	    	/*-------------------------------------------------------*/

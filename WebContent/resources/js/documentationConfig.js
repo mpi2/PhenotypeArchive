@@ -37,41 +37,41 @@ MDOC.search = {
 							+'     <li>Click on the <b>info button</b> for detailed description.</li>'
 							+ '</ul>', 
 			
-		'facetPanelDocUrl'   : '/data/documentation/facetPanel.html',	
+		'facetPanelDocUrl'   : baseUrl + '/documentation/search-help.html',	
 };
 MDOC.gene = {		
 		'generalPanel'         : defaultDesc,
-		'generalPanelDocUrl'   : '/data/documentation/geneGeneralPanel.html',
+		'generalPanelDocUrl'   : baseUrl + '/documentation/geneGeneralPanel.html',
 		'preQcPanel'           : defaultDesc,
-		'preQcPanelDocUrl'     : '/data/documentation/preQcPanel.html',
+		'preQcPanelDocUrl'     : baseUrl + '/documentation/preQcPanel.html',
 		'mpPanel'              : defaultDesc,
-		'mpPanelDocUrl'        : '/data/documentation/geneMpPanel.html',
+		'mpPanelDocUrl'        : baseUrl + '/documentation/geneMpPanel.html',
 		'imagePanel'           : defaultDesc,
-		'imagePanelDocUrl'     : '/data/documentation/geneImagePanel.html',
+		'imagePanelDocUrl'     : baseUrl + '/documentation/geneImagePanel.html',
 		'expressionPanel'      : defaultDesc,
-		'expressionPanelDocUrl': '/data/documentation/geneExpressionPanel.html',
+		'expressionPanelDocUrl': baseUrl + '/documentation/geneExpressionPanel.html',
 		'allelePanel'          : defaultDesc,
-		'allelePanelDocUrl'    : '/data/documentation/allelePanel.html'
+		'allelePanelDocUrl'    : baseUrl + '/documentation/allelePanel.html'
 };
 MDOC.mp = {
 		'generalPanel'         : defaultDesc,
-		'generalPanelDocUrl'   : '/data/documentation/mpGeneralPanel.html',
+		'generalPanelDocUrl'   : baseUrl + '/documentation/mpGeneralPanel.html',
 		'genePanel'            : defaultDesc,
-		'genePanelDocUrl'      : '/data/documentation/mpGenePanel.html',
+		'genePanelDocUrl'      : baseUrl + '/documentation/mpGenePanel.html',
 		'relatedMpPanel'       : defaultDesc,
-		'relatedMpPanelDocUrl' : '/data/documentation/relatedMpPanel.html',
+		'relatedMpPanelDocUrl' : baseUrl + '/documentation/relatedMpPanel.html',
 		'imagePanel'           : defaultDesc,
-		'imagePanelDocUrl'     : '/data/documentation/mpImagePanel.html'
+		'imagePanelDocUrl'     : baseUrl + '/documentation/mpImagePanel.html'
 };
 MDOC.ma = {
 		'generalPanel'         : defaultDesc,
-		'generalPanelDocUrl'   : '/data/documentation/maGeneralPanel.html',
+		'generalPanelDocUrl'   : baseUrl + '/documentation/maGeneralPanel.html',
 		'mpPanel'              : defaultDesc,
-		'mpPanelDocUrl'        : '/data/documentation/maMpPanel.html',
+		'mpPanelDocUrl'        : baseUrl + '/documentation/maMpPanel.html',
 		'relatedMaPanel'       : defaultDesc,
-		'relatedMaPanelDocUrl' : '/data/documentation/maRelatedMaPanel.html',
+		'relatedMaPanelDocUrl' : baseUrl + '/documentation/maRelatedMaPanel.html',
 		'expressionPanel'      : defaultDesc,
-		'expressionPanelDocUrl': '/data/documentation/maExpressionPanel.html'
+		'expressionPanelDocUrl': baseUrl + '/documentation/maExpressionPanel.html'
 };
 
 
