@@ -58,12 +58,7 @@
 <link type='text/css' rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css' />
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap.min.css'  />
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap-responsive.min.css'  />
-
-<link type='text/css' rel='stylesheet' href='${baseUrl}/css/searchAndFacet.css' />	
-
-<link type='text/css' rel='stylesheet' href='${baseUrl}/css/vendor/DataTables-1.9.4/jquery.dataTables.css' media='all' />
-<link type='text/css' rel='stylesheet' href='${baseUrl}/css/vendor/DataTables-1.9.4/customDataTable.css' media='all' />
-<link type='text/css' rel='stylesheet' href='${baseUrl}/css/custom.css'  />
+<link rel="stylesheet" type="text/css" href="${baseUrl}/css/style.min.css"/>
 <style>
 
 body {
@@ -244,7 +239,7 @@ try {
 					style="width: 1222px; height: 50px;">
 				<jsp:invoke fragment="footer" />
 				<small class="muted">
-				Version: <c:out value="${version}" escapeXml="false"/> • <a href="http://raw.github.com/mpi2/PhenotypeArchive/master/LICENSE">License</a> • <a href="http://raw.github.com/mpi2/PhenotypeArchive/master/CHANGES">Changelog</a> • <a href="${baseUrl}/documentation/index.html">Help</a>  
+				Version: <c:out value="${version}" escapeXml="false"/> • <a href="http://raw.github.com/mpi2/PhenotypeArchive/master/LICENSE">License</a> • <a href="http://raw.github.com/mpi2/PhenotypeArchive/master/CHANGES">Changelog</a>  
 				</small>
 			</div>
 	
@@ -253,22 +248,7 @@ try {
 	
 	<script type="text/javascript" src='${baseUrl}/js/vendor/jquery.ba-bbq.min.js' ></script>
 	<script type="text/javascript" src='${baseUrl}/js/bootstrap/bootstrap.min.js' ></script>
-	<script type='text/javascript' src='${baseUrl}/js/documentationConfig.js'></script>      
-  <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js'></script>
-    
-  <script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/jquery.dataTables.js'></script>
-  <script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/core.filter.js'></script>
-  <script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/TableTools.min.js'></script>
-  <script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>
-    
-  <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/geneFacetWidget.js'></script>
-    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/mpFacetWidget.js'></script>
-    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/maFacetWidget.js'></script>
-    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js'></script>
-    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js'></script>
-    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script>
-    <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>  
-    
+	<script type="text/javascript" src='${baseUrl}/js/script.min.js' ></script>
 	<script type='text/javascript' src='${baseUrl}/js/vendor/respond.min.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/vendor/jquery.corner.mini.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/vendor/jquery.qtip-1.0.0-rc3.min.js'></script>
@@ -290,4 +270,4 @@ try {
 	</script>
 	</compress:html>
 </body>
-</html> 
+</html>

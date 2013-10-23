@@ -264,6 +264,8 @@ try {
     <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js'></script>
     <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script>
     <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>	
+    <script type='text/javascript' src='${baseUrl}/js/vendor/jquery.qtip-1.0.0-rc3.min.js'></script>
+	<script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js'></script>
 	
 	replaceJSEnd-->
 
