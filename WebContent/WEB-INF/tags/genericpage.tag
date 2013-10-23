@@ -58,7 +58,12 @@
 <link type='text/css' rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css' />
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap.min.css'  />
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap-responsive.min.css'  />
-<link rel="stylesheet" type="text/css" href="${baseUrl}/css/style.min.css"/>
+
+<link type='text/css' rel='stylesheet' href='${baseUrl}/css/searchAndFacet.css' />	
+
+<link type='text/css' rel='stylesheet' href='${baseUrl}/css/vendor/DataTables-1.9.4/jquery.dataTables.css' media='all' />
+<link type='text/css' rel='stylesheet' href='${baseUrl}/css/vendor/DataTables-1.9.4/customDataTable.css' media='all' />
+<link type='text/css' rel='stylesheet' href='${baseUrl}/css/custom.css'  />
 <style>
 
 body {
