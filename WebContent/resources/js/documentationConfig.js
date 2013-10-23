@@ -55,13 +55,9 @@ MDOC.gene = {
 };
 MDOC.phenotypes = {
 		'generalPanel'         : defaultDesc,
-		'generalPanelDocUrl'   : baseUrl + '/documentation/mpGeneralPanel.html',
-		'genePanel'            : defaultDesc,
-		'genePanelDocUrl'      : baseUrl + '/documentation/mpGenePanel.html',
+		'generalPanelDocUrl'   : baseUrl + '/documentation/phenotype-help.html',
 		'relatedMpPanel'       : defaultDesc,
-		'relatedMpPanelDocUrl' : baseUrl + '/documentation/relatedMpPanel.html',
-		'imagePanel'           : defaultDesc,
-		'imagePanelDocUrl'     : baseUrl + '/documentation/mpImagePanel.html'
+		'relatedMpPanelDocUrl' : baseUrl + '/documentation/phenotype-help.html#associations'
 };
 MDOC.ma = {
 		'generalPanel'         : defaultDesc,
