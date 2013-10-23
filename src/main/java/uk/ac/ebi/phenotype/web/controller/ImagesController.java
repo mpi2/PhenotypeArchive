@@ -150,13 +150,17 @@ public class ImagesController {
 			
 		}
 		if(qIn!=null && !qIn.equals(emptyString)) {
-			queryString+= " with keyword search: "+qIn;//URLDecoder.decode(request.getQueryString(), "UTF-8");
+			queryString+= " AND search keyword: \"" + qIn + "\"";//URLDecoder.decode(request.getQueryString(), "UTF-8");
 		}
-		queryString=queryString.replace("higherLevelMpTermName", "Phenotype");
-		queryString=queryString.replace("higherLevelMaTermName", "Anatomy");
-		queryString=queryString.replace("expName", "Experiment Name");
+		else {
+			queryString+= " AND search keyword: \"\""; 
+		}
+		queryString=queryString.replace("higherLevelMpTermName", "phenotype");
+		queryString=queryString.replace("higherLevelMaTermName", "anatomy");
+		queryString=queryString.replace("expName", "procedure");
+		queryString=queryString.replace("subtype", "gene_subtype");
 	
-		 model.addAttribute("breadcrumbText", queryString);
+		model.addAttribute("breadcrumbText", queryString);
 
 		return "imagesb";
 	}
