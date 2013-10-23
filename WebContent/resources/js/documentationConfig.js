@@ -64,9 +64,7 @@ MDOC.images = {
 		'generalPanelDocUrl'   : baseUrl + '/documentation/image-help.html',
 };
 
-MDOC.graphs = {		
-		'generalPanel'         : '<p>Details about the gene including: Gene name, accession IDs, location, links and a genome browser.</p><p>Click the help icon for more detail.</p>',
-		'generalPanelDocUrl'   : baseUrl + '/documentation/graph-help.html#details',
-		'preQcPanel'           : '<p>Preliminary analysis of the IMPC data displayed in a heatmap.</p><p>Click the help icon for more detail.</p>',
-		'preQcPanelDocUrl'     : baseUrl + '/documentation/graph-help.html#pre-qc'
+MDOC.graphs = {
+		'generalPanel'         : '<p>Details about the graphs.</p> <p>Click the help icon for more detail.</p>',
+		'generalPanelDocUrl'   : baseUrl + '/documentation/graph-help.html'
 };
