@@ -41,19 +41,19 @@ MDOC.search = {
 };
 MDOC.gene = {		
 		'generalPanel'         : defaultDesc,
-		'generalPanelDocUrl'   : baseUrl + '/documentation/geneGeneralPanel.html',
+		'generalPanelDocUrl'   : baseUrl + '/documentation/gene-help.html#details',
 		'preQcPanel'           : defaultDesc,
-		'preQcPanelDocUrl'     : baseUrl + '/documentation/preQcPanel.html',
+		'preQcPanelDocUrl'     : baseUrl + '/documentation/gene-help.html#pre-qc',
 		'mpPanel'              : defaultDesc,
-		'mpPanelDocUrl'        : baseUrl + '/documentation/geneMpPanel.html',
+		'mpPanelDocUrl'        : baseUrl + '/documentation/gene-help.html#phenotypes',
 		'imagePanel'           : defaultDesc,
-		'imagePanelDocUrl'     : baseUrl + '/documentation/geneImagePanel.html',
+		'imagePanelDocUrl'     : baseUrl + '/documentation/gene-help.html#phenotype-images',
 		'expressionPanel'      : defaultDesc,
-		'expressionPanelDocUrl': baseUrl + '/documentation/geneExpressionPanel.html',
+		'expressionPanelDocUrl': baseUrl + '/documentation/gene-help.html#expression-images',
 		'allelePanel'          : defaultDesc,
-		'allelePanelDocUrl'    : baseUrl + '/documentation/allelePanel.html'
+		'allelePanelDocUrl'    : baseUrl + '/documentation/gene-help.html#alleles'
 };
-MDOC.mp = {
+MDOC.phenotypes = {
 		'generalPanel'         : defaultDesc,
 		'generalPanelDocUrl'   : baseUrl + '/documentation/mpGeneralPanel.html',
 		'genePanel'            : defaultDesc,
