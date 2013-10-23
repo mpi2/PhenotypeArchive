@@ -241,8 +241,8 @@
 		        },
 				position: {
 			    	corner: {
-			        	target: 'bottomLeft',
-			        	tooltip: 'topRight'
+			        	target: typeof oConf.target != undefined ? oConf.target : 'bottomLeft',
+			        	tooltip: typeof oConf.tip != undefined ? oConf.tip : 'topRight'
 			        },
 			    	adjust: {
 			        	x: oConf.posX,

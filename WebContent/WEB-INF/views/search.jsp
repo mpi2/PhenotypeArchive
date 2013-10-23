@@ -30,7 +30,7 @@
 					'textAlign':'left',
 					'tip':'topLeft',
 					'posX':20,
-					'posY':25
+					'posY':0
 			});
 			
 			// non hash tag keyword query
