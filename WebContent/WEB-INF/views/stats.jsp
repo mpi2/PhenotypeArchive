@@ -56,6 +56,11 @@
 						<strong>Error:</strong> An issue occurred processing the statistics for this page - results on this page maybe incorrect.
 					</div>
 		</c:if>
+		<c:if test="${noData}">
+					<div class="alert alert-error">
+						<strong>We don't appear to have any data for this query plese try the europhenome graph link instead</strong>
+					</div>
+		</c:if>
 	
 
 

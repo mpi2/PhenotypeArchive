@@ -131,6 +131,7 @@ public class StatsController implements BeanFactoryAware {
 			throws GenomicFeatureNotFoundException, IOException, URISyntaxException, SolrServerException {
 
 		boolean statsError=false;
+		boolean noData=false;;//if we have no data for this phenotype call summary we link back to europhenome!!!
 		// Get the global application configuration
 		@SuppressWarnings("unchecked")
 		Map<String, String> config = (Map<String, String>) bf
@@ -238,6 +239,9 @@ public class StatsController implements BeanFactoryAware {
 			}
 			
 			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc);
+			if(experimentList.size()==0) {
+				noData=true;
+			}
 			//log.debug("Experiment dto marker="+experimentList);
 			//ESLIM_003_001_003 id=962 calorimetry data for time series graph new MGI:1926153
 			//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1926153?parameterId=ESLIM_003_001_003
@@ -278,6 +282,9 @@ public class StatsController implements BeanFactoryAware {
 		model.addAttribute("categoricalMutantBModel", categoricalMutantBiologicalModels );
 		model.addAttribute("allCategoricalResultAndCharts", allCategoricalResultAndCharts);
 		model.addAttribute("statsError", statsError );
+		//set no data to true and the europhenome link if no experiments returned
+		model.addAttribute("noData",noData);
+		//model.addAttribute("europhenomeLink", europhenomeLink);
 		return "stats";
 	}
 
