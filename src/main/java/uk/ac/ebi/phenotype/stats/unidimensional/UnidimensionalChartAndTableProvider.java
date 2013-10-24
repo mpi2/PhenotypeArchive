@@ -508,7 +508,7 @@ public class UnidimensionalChartAndTableProvider {
 				}
 				tempObje.setZygosity(zType);
 				tempObje.setLine(alleleComposition);
-				if(expBiologicalModel.getAlleles().size()>1) {
+				if(expBiologicalModel.getAlleles().size()>0) {
 					System.err.println("error allele size=0");
 				tempObje.setAllele(expBiologicalModel.getAlleles().get(0).getSymbol());
 				}
