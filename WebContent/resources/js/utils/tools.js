@@ -22,7 +22,7 @@
  */
 (function($){		
 	
-	$.fn.composeFacetFilterControl = function(oChkbox, q){		
+	$.fn.composeFacetFilterControl = function(oChkbox, q){	
 		do_ParentFilterDisplay(oChkbox, q);		
 	}
 	
@@ -624,7 +624,7 @@
 		oInfos.fq = fqStr;
 				
 		$.fn.updateBreadCrumb(oVal.solrCoreName);	
-		$.fn.openFacet(oVal.solrCoreName);
+		$.fn.openFacet(oVal.solrCoreName);	
 		$.fn.invokeDataTable(oInfos);
     }   
     
@@ -825,7 +825,7 @@
     	$('div.dataTables_processing').siblings('div#tableTool').append(saveTool, toolBox); 
     	    	
     	$('div#saveTable').click(function(){
-    			
+    		
         	if ( $('div#toolBox').is(":visible")){
     			$('div#toolBox').hide();
     		}
@@ -841,10 +841,11 @@
     	    	
     	    	var iRowStart = iActivePage == 1 ? 0 : iActivePage*10-10;
     	    	//console.log('start: '+ iRowStart);
-    	    	var showImgView = $('div.resultMsg div#imgView').attr('rel') == 'imageView' ? true : false;  
-    	    	
+    	    	var showImgView = $('div#resultMsg div#imgView').attr('rel') == 'imageView' ? true : false; 
+    	    	    	    	
     	    	$('button.gridDump').unbind('click');
-    	    	$('button.gridDump').click(function(){        	    		
+    	    	$('button.gridDump').click(function(){  
+    	    		
     	    		initGridExporter($(this), {        	    							
     					externalDbId: 5,				
     					rowStart: iRowStart,
@@ -876,7 +877,6 @@
 		sInputs += "<input type='text' name='dumpMode' value='" + dumpMode + "'>";
 		
 		var form = "<form action='"+ url + "' method=get>" + sInputs + "</form>";
-		
 		
 		if (dumpMode == 'all'){ 
 			

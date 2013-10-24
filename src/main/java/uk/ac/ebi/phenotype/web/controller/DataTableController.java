@@ -145,7 +145,7 @@ public class DataTableController {
 			jsonStr = parseJsonforProtocolDataTable(json, request);
 		} 
 		else if (mode.equals("imagesGrid")) {
-			jsonStr = parseJsonforImageDataTable(json, start, length, solrParams, showImgView, request);
+			jsonStr = parseJsonforImageDataTable(json, start, length, solrParams, showImgView, request, query);
 		} 
 		else if (mode.equals("mpGrid")) {
 			jsonStr = parseJsonforMpDataTable(json, request);
@@ -316,7 +316,7 @@ public class DataTableController {
 		return j.toString();	
 	}
 	
-	public String parseJsonforImageDataTable(JSONObject json, int start, int length, String solrParams, boolean showImgView, HttpServletRequest request) throws IOException, URISyntaxException{
+	public String parseJsonforImageDataTable(JSONObject json, int start, int length, String solrParams, boolean showImgView, HttpServletRequest request, String query) throws IOException, URISyntaxException{
 				
 		String fqStr = "";
 		String[] paramsList = solrParams.split("&");
@@ -326,7 +326,8 @@ public class DataTableController {
 			}
 		}		
 		
-		String baseUrl = request.getAttribute("baseUrl") + "/images?" + solrParams;
+		String baseUrl = request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
+		//System.out.println("THE PARAMs: "+ solrParams);
 		String mediaBaseUrl = config.get("mediaBaseUrl");
 
 		if ( showImgView ){			
@@ -463,8 +464,9 @@ public class DataTableController {
 
 					String imgSubSetLink = "<a href='" + baseUrl+ "&fq=" + facetField + ":\"" + names[0] + "\"" + "'>" + imgCount + " " + unit+ "</a>";
 
-					rowData.add(displayAnnotName + " (" + imgSubSetLink + ")"); 
-					rowData.add(fetchImagePathByAnnotName(facetField, names[0], fqStr));
+					rowData.add(displayAnnotName + " (" + imgSubSetLink + ")");
+					//System.out.println(("fqStr: " + fqStr));
+					rowData.add(fetchImagePathByAnnotName(facetField, names[0], fqStr, query));
 
 					j.getJSONArray("aaData").add(rowData);
 				}
@@ -495,18 +497,18 @@ public class DataTableController {
 	}
 
 	
-	public String fetchImagePathByAnnotName(String facetField, String annotName, String fqStr) throws IOException, URISyntaxException{
+	public String fetchImagePathByAnnotName(String facetField, String annotName, String fqStr, String query) throws IOException, URISyntaxException{
 	
 		String mediaBaseUrl = config.get("mediaBaseUrl");
 		
 		final int maxNum = 4; // max num of images to display in grid column
 		
 		String queryUrl = config.get("internalSolrUrl") 
-				+ "/images/select?qf=auto_suggest&defType=edismax&wt=json&q=*:*" 
+				+ "/images/select?qf=auto_suggest&defType=edismax&wt=json&q=" + query 
 				+ "&fq=" + facetField + ":\"" + annotName + "\""
 				+ "&" + fqStr
 				+ "&rows=" + maxNum;
-
+		//System.out.println("IMG URL: "+ queryUrl);
 		List<String> imgPath = new ArrayList<String>();
 	
 		JSONObject thumbnailJson = solrIndex.getResults(queryUrl);

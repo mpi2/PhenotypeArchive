@@ -93,7 +93,7 @@ public class FileExportController {
 		@RequestParam(value="solrCoreName", required=false) String solrCoreName,
 		@RequestParam(value="params", required=false) String solrParams,
 		@RequestParam(value="gridFields", required=false) String gridFields,		
-		@RequestParam(value="showImgView", required=false, defaultValue="false") boolean showImgView,	
+		@RequestParam(value="showImgView", required=false, defaultValue="false") boolean showImgView,		
 		@RequestParam(value="dumpMode", required=false) String dumpMode,	
 		@RequestParam(value="baseUrl", required=false) String baseUrl,
 		HttpSession session, 
@@ -109,7 +109,7 @@ public class FileExportController {
 		Integer length = 10;
 
 		panelName = panelName == null ? "" : panelName; 
-		
+	
 		// Excel
 		if ( fileType.equals("xls") ){				
 			
@@ -371,11 +371,15 @@ public class FileExportController {
 	
 	private List<String> composeImageDataTableRows(JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request){
 		
+		String serverName = request.getServerName();
+		
 		String mediaBaseUrl = config.get("mediaBaseUrl");
 		
 		List<String> rowData = new ArrayList<String>();
-		
+				
 		if (showImgView){
+			
+			System.out.println("MODE: imgview " + showImgView);
 			JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 			rowData.add("Annotation_term\tAnnotation_id\tProcedure\tGene_Symbol\tImage_path"); // column names	
 			
@@ -403,6 +407,7 @@ public class FileExportController {
 			}
 		}
 		else {
+			System.out.println("MODE: imgview " + showImgView);
 			// annotation view
 			// annotation view: images group by annotationTerm per row
 			rowData.add("Annotation_type\tAnnotation_name\tRelated_image_count\tUrl_to_images"); // column names	
@@ -433,7 +438,8 @@ public class FileExportController {
 					data.add(imgCount);
 					
 					String facetField = hm.get("field").toString();
-					String imgSubSetLink = request.getAttribute("baseUrl") + "/images?" + solrParams + "q=*:*&fq=" + facetField + ":\"" + names[0] + "\"";						
+					
+					String imgSubSetLink = serverName + request.getAttribute("baseUrl") + "/images?" + solrParams + "q=*:*&fq=" + facetField + ":\"" + names[0] + "\"";						
 					data.add(imgSubSetLink);
 					rowData.add(StringUtils.join(data, "\t"));
 				}
