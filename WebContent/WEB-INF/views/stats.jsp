@@ -22,7 +22,7 @@
 <script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js'></script>
  <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js'></script> 
 <script src="${baseUrl}/js/charts/exporting.js"></script>
-	
+
 
 	
 
@@ -31,12 +31,29 @@
 
     </jsp:attribute>
 
+	<jsp:attribute name="footer">
+	<script>
+		$(document).ready(function(){						
+			// bubble popup for brief panel documentation
+			$.fn.qTip({
+				'pageName': 'stats',
+				'textAlign': 'left',
+				'tip': 'topRight'
+			});
+		});
+	</script>
+	</jsp:attribute>
+
 	<jsp:body>
+
+	<div class='documentation'>
+   		<a href='' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a>
+	</div>	
         
 		<div class='topic'>Gene: ${gene.symbol}</div>
 		<c:if test="${statsError}">
 					<div class="alert alert-error">
-							  				<strong>Error:</strong> A stats error occured - results on this page maybe incorrect.
+						<strong>Error:</strong> An issue occurred processing the statistics for this page - results on this page maybe incorrect.
 					</div>
 		</c:if>
 	

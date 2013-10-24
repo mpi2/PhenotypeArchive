@@ -64,7 +64,7 @@ MDOC.images = {
 		'generalPanelDocUrl'   : baseUrl + '/documentation/image-help.html',
 };
 
-MDOC.graphs = {
+MDOC.scatter = MDOC.stats = {
 		'generalPanel'         : '<p>Details about the graphs.</p> <p>Click the help icon for more detail.</p>',
-		'generalPanelDocUrl'   : baseUrl + '/documentation/graph-help.html'
+		'generalPanelDocUrl'   : baseUrl + '/documentation/graph-help.html#types'
 };

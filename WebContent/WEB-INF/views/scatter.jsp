@@ -25,21 +25,36 @@
 <script src="${baseUrl}/js/charts/exporting.js"></script>
 	
 
-	
-
 <style>
 </style>
 
     </jsp:attribute>
 
+	<jsp:attribute name="footer">
+	<script>
+		$(document).ready(function(){						
+			// bubble popup for brief panel documentation
+			$.fn.qTip({
+				'pageName': 'scatter',
+				'textAlign': 'left',
+				'tip': 'topRight'
+			});
+		});
+	</script>
+	</jsp:attribute>
+
 	<jsp:body>
         
-		<div class='topic'>Gene: ${gene.symbol}</div>
-		<c:if test="${statsError}">
-					<div class="alert alert-error">
-							  				<strong>Error:</strong> A stats error occured - results on this page maybe incorrect.
-					</div>
-		</c:if>
+	<div class='documentation'>
+   		<a href='' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a>
+	</div>	
+    
+	<div class='topic'>Gene: ${gene.symbol}</div>
+	<c:if test="${statsError}">
+		<div class="alert alert-error">
+			<strong>Error:</strong> An issue occurred processing the statistics for this page - results on this page maybe incorrect.
+		</div>
+	</c:if>
 	
 
 

@@ -117,7 +117,7 @@
 	</div>
 
 	<div class="row-fluid dataset">
-		<div class='documentation'><a href='' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
+		<div class='documentation'><a href='${baseUrl}/documentation/gene-help.html#details' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
 		<div class="row-fluid">			
 			<div class="container span12">
 						<div class="row-fluid">
