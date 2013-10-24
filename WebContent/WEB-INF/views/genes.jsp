@@ -82,15 +82,16 @@
 		#allele_tracker_panel_results td:before {position: absolute;top: 6px;left: 6px;width: 45%;padding-right: 10px;white-space: nowrap;text-align: left;font-weight: bold;}
 		#allele_tracker_panel_results td:before {content: attr(data-title);}
 		#allele_tracker_panel_results td:nth-of-type(1):before {content: "Product"}
-		#allele_tracker_panel_results td:nth-of-type(2):before {content: "Allele"}
-		#allele_tracker_panel_results td:nth-of-type(3):before {content: "Type"}
-		#allele_tracker_panel_results td:nth-of-type(4):before {content: "Strain of Origin"}
-		#allele_tracker_panel_results td:nth-of-type(5):before {content: "MGI Allele Name"}
-		#allele_tracker_panel_results td:nth-of-type(6):before {content: "Allele Map"}
-		#allele_tracker_panel_results td:nth-of-type(7):before {content: "Allele Sequence"}
-		#allele_tracker_panel_results td:nth-of-type(8):before {content: "Order"}
+		#allele_tracker_panel_results td:nth-of-type(2):before {content: "Allele Type"}
+		#allele_tracker_panel_results td:nth-of-type(3):before {content: "Strain of Origin"}
+		#allele_tracker_panel_results td:nth-of-type(4):before {content: "MGI Allele Name"}
+		#allele_tracker_panel_results td:nth-of-type(5):before {content: "Allele Map"}
+		#allele_tracker_panel_results td:nth-of-type(6):before {content: "Allele Sequence"}
+		#allele_tracker_panel_results td:nth-of-type(7):before {content: "Order"}
 	}
 	#svgHolder div div {z-index:100;}
+	.ui-dropdownchecklist-selector > .ui-icon {margin-top:4px;}
+	.ui-dropdownchecklist-text {padding:2px;margin:0;}
 	</style>
 
 	<c:if test="${phenotypeStarted && !isLive}">
