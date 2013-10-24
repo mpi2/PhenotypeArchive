@@ -137,18 +137,17 @@ public class ExperimentService {
 	    for (ExperimentDTO experiment : experimentsMap.values()) {
 	    	if (experiment.getControls() == null) {
 
-// SHOW all the data
-//	    		Date max = new Date(0L); //epoch
-//	    	    for (ObservationDTO o : experiment.getHeterozygoteMutants()) {
-//	    	    	if (o.getDateOfExperiment().after(max)) {
-//	    	    		max=o.getDateOfExperiment();
-//	    	    	}
-//	    	    }
-//	    	    for (ObservationDTO o : experiment.getHomozygoteMutants()) {
-//	    	    	if (o.getDateOfExperiment().after(max)) {
-//	    	    		max=o.getDateOfExperiment();
-//	    	    	}
-//	    	    }
+	    		Date max = new Date(0L); //epoch
+	    	    for (ObservationDTO o : experiment.getHeterozygoteMutants()) {
+	    	    	if (o.getDateOfExperiment().after(max)) {
+	    	    		max=o.getDateOfExperiment();
+	    	    	}
+	    	    }
+	    	    for (ObservationDTO o : experiment.getHomozygoteMutants()) {
+	    	    	if (o.getDateOfExperiment().after(max)) {
+	    	    		max=o.getDateOfExperiment();
+	    	    	}
+	    	    }
 
 	    		// SHOW all the data
 	    		experiment.setControls(new HashSet<ObservationDTO>());
