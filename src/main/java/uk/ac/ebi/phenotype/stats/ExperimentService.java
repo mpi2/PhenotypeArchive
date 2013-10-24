@@ -8,9 +8,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -131,10 +131,16 @@ public class ExperimentService {
 
 	    }
 
+	    // Set to record the experiments that don't have control data
+	    Set<String> noControls = new HashSet<String>();
+
 	    // NOTE!!!
 	    // TODO: Hom and Het probably need their own control groups
 	    // because of the sliding window of control selection based on date
-	    for (ExperimentDTO experiment : experimentsMap.values()) {
+	    for (String key : experimentsMap.keySet()) {
+
+	    	ExperimentDTO experiment = experimentsMap.get(key);
+
 	    	if (experiment.getControls() == null) {
 
 	    		Date max = new Date(0L); //epoch
@@ -157,7 +163,17 @@ public class ExperimentService {
 	    		if(experiment.getControlBiologicalModelId()==null && controls.size()>0) {
 		    		experiment.setControlBiologicalModelId(controls.get(0).getBiologicalModelId());
 		    	}
+	    		
+	    	    // Flag all the experiments that don't have control data
+	    		if(controls.size()<1) {
+	    			noControls.add(key);
+	    		}
 	    	}	    	
+	    }
+
+	    // Remove all the experiments that don't have control data
+	    for(String key : noControls) {
+	    	experimentsMap.remove(key);
 	    }
 	    
 		return new ArrayList<ExperimentDTO>(experimentsMap.values());	
