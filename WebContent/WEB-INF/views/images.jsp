@@ -28,7 +28,7 @@
 
     <jsp:body>
     <c:if test="${solrImagesError ne null}"><h4>There is an error the image index is down please contact the IMPC if this error persists</h4></c:if>
-		<c:if test="${imageCount eq 0}"><h4>There are no images for ${breadcrumbTerms}</h4></c:if>
+		<c:if test="${imageCount eq 0}"><h4>There are no images for ${breadcrumbText}</h4></c:if>
 		<c:if test="${imageCount ne 0}"><h4><strong class=lead>${imageCount} images for ${breadcrumbText}</strong></h4></c:if>
 		<div id="grid" class="container">
 			<div class="row">
