@@ -55,10 +55,10 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 
 		
 			
-				<h3><a name="data">Where is the data from?</a></h3>
+				<h3><a name="data">Where is the data coming from?</a></h3>
 				<p>
-				Currently data for the graphs are obtained from legacy data with the MP calls, associated p value and max effect from <a href="http://www.europhenome.org/"> Europhenome</a>. On the right of the tables from the genes page or the phenotypes page Europhenome links are available to the original data. Graphs next to these links are new graphs representing the same data from europhenome.
-				 When data becomes available these new graphs will be used to display the new data from the IMPC procedures. 
+				Currently data for the graphs are obtained from legacy data with associated phenotype calls, p values and effect sizes as calculated from <a href="http://www.europhenome.org/"> Europhenome</a>. Association tables from gene and phenotype pages contain links to the original data in the Europhenome resource. Graphs next to these links are new graphs representing the same data from Europhenome.</p>  
+				<p> As IMPC data is quality controlled, these new graphs will be used to display the data from the IMPC procedures. 
 				<img src="img/graph_links.png">
 				</p>
 				
@@ -79,7 +79,7 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 				<img src="img/graph_export.png" alt="export button in graph here">
 				</p>
 				<h3><a name="download">Exporting Graph Data</a></h3>
-				<p>Images of the graphs can be saved to your computer. At present there is no way of easily downloading the data for the graph this is a feature we will implement in the near future. However there is a restful web service available for retrieving information pertaining to experiments via a web browser or a programming language of your choice documentation for this can be found <a href="https://github.com/mpi2/PhenotypeArchive/wiki">here</a>.
+				<p>Images of the graphs can be saved to your computer and the ability to download the underlying data is in development. There is also a restful web service available for retrieving information pertaining to experiments via a web browser or a programming language of your choice. Documentation for this can be found <a href="https://github.com/mpi2/PhenotypeArchive/wiki">here</a>.
 				</p>
 				
 				<h2><a name="types">Types of Graphs and Equations</a></h2>
@@ -95,12 +95,12 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 				
 				<h2><a name="categorical_graphs">Categorical Bar Graphs</a></h2>
 				<img src="img/graph_categorical_normal.png">
-				<p>Categorical graphs contain data where an observation can be categorised into one of two or more groups e.g. Abnormal Eye or Normal Eye. Graphs are presented as bar graphs with a table underneath. If IMPC data is available this will be displayed otherwise if data from europhenome is available the p values and max effects will be displayed. Note that these may not correlate exactly with the data displayed in the graphs although every attempt has been made to make them correlate (see <a href="statistics-help.html">statistic help</a> for more information).
+				<p>Categorical graphs contain data where an observation can be categorised into one of two or more groups e.g. Abnormal Eye or Normal Eye. Graphs are presented as bar graphs with a table underneath. If IMPC data is available this will be displayed. Otherwise if data from Europhenome is available, the p values and max effects as determined by Europhenoome will be displayed. Note that these may not correlate exactly with the data displayed in the graphs although every attempt has been made to make them correlate.  (see <a href="statistics-help.html">statistic help</a> for more information).
 				</p>
 				
 				<h2><a name="undimensional_graphs">Unidimensional Scatter and Box Plot Graphs</a></h2>
 				<img src="img/graph_box_normal.png">
-				<p>Where an observation can be measured on a continuous basis for example red blood cell counts or tail length we display them in a mixed box and scatter plot. The first column contains a box plot for wild type data the second a scatter plot for that same wild type data. The third column is a box plot for homozygote or heterozygote data and the 4th will be
+				<p>Where an observation can be measured on a continuous basis (e.g. red blood cell counts or tail length), we display them in a mixed box and scatter plot. The first column contains a box plot for wild-type data and the second a scatter plot for that same wild type data. The third column is a box plot for homozygote or heterozygote data and the 4th will be
 				a scatter plot for the same data. Hover over the box in the graph will show the basic statistics for that set of data: 
 				<img src="img/graph_box_with_labels.png">
 				</p>
