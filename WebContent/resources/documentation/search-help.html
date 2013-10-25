@@ -10,26 +10,19 @@
 <link type='text/css' rel='stylesheet' href='../css/bootstrap.min.css'  />
 <link type='text/css' rel='stylesheet' href='../css/bootstrap-responsive.min.css'  />
 <script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
-
+<script type="text/javascript" src="../js/helpDocLogo.js"></script>
 <script type="text/javascript">
 var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"]);(function() {var ga = document.createElement("script");ga.type = "text/javascript";ga.async = true;ga.src = "https://dev.mousephenotype.org/sites/mousephenotype.org/files/googleanalytics/ga.js?mjafjk";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(ga, s);})();
-
-$(document).ready(function(){
-	var url = window.location.href;		
-	var arr = url.split("/");
-	var domain = arr[0] + "//" + arr[2]
-	$('a#logo').attr('href', domain);
-	console.log(domain);
-});
-
 </script>
+
 </head>
 
 <body class="container">
 
 	<div class="row">
 		<div class="well">
-			<h1><a id='logo' href=''><img src='img/IMPCBetalogo.png' /></a>IMPC search page documentation</h1>		
+			<h1><a id='logo' href=''><img src='img/IMPCBetalogo.png' /></a>IMPC search page documentation</h1>	
+			<p class="lead">Search page details</p>
 		</div>
 	</div>
 
@@ -39,6 +32,7 @@ $(document).ready(function(){
 			<div class="page-header"><h3>Quick help links</h3></div>
 	
 			<ul id="navbar" class="nav nav-list">
+				<li><a href="index.html">Overview</a></li>
 				<li><a href="search-help.html">Search</a>
 					<ul>
 						<li><a href="search-help.html#details">Quick Search</a>
