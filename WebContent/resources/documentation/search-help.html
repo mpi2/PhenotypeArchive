@@ -15,9 +15,11 @@
 var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"]);(function() {var ga = document.createElement("script");ga.type = "text/javascript";ga.async = true;ga.src = "https://dev.mousephenotype.org/sites/mousephenotype.org/files/googleanalytics/ga.js?mjafjk";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(ga, s);})();
 
 $(document).ready(function(){
-	//var drupalBaseUrl = "${drupalBaseUrl}";
-	var domain = window.location.hostname;	
+	var url = window.location.href;		
+	var arr = url.split("/");
+	var domain = arr[0] + "//" + arr[2]
 	$('a#logo').attr('href', domain);
+	console.log(domain);
 });
 
 </script>
