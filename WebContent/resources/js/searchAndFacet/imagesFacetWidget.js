@@ -105,7 +105,7 @@
 					$('table#imagesFacetTbl td').removeClass('highlight');
 					
 					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
-					
+					console.log(fqStr);
 					// update hash tag so that we know there is hash change, which then triggers loadDataTable  
 					if (self.options.data.q == '*:*'){					
 						window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;

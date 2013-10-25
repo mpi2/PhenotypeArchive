@@ -93,6 +93,7 @@ public class DataTableController {
 
 		String solrCoreName = jParams.getString("solrCoreName");
 		String query = "";
+		String fqOri = "";
 		String mode = jParams.getString("mode");
 		String solrParamStr = jParams.getString("params");
 		
@@ -101,19 +102,20 @@ public class DataTableController {
 		for (String pair : pairs) {
 			String[] parts = pair.split("=");
 			if (parts[0].equals("q")) {
-				query = parts[1];
-				break;
+				query = parts[1];				
 			}
-		}
+			if (parts[0].equals("fq")) {
+				fqOri = "&fq=" + parts[1];				
+			}			
+		}		
 		
-
 		boolean showImgView = false;
 		if (jParams.containsKey("showImgView")) {
 			showImgView = jParams.getBoolean("showImgView");
 		}
 
 		JSONObject json = solrIndex.getDataTableJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);		
-		String content = fetchDataTableJson(request, json, mode, query, iDisplayStart, iDisplayLength, solrParamStr, showImgView);
+		String content = fetchDataTableJson(request, json, mode, query, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView);
 		
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 	}
@@ -135,7 +137,7 @@ public class DataTableController {
 		return responseHeaders;
 	}
 
-	public String fetchDataTableJson(HttpServletRequest request, JSONObject json, String mode, String query, int start, int length, String solrParams, boolean showImgView) throws IOException, URISyntaxException {
+	public String fetchDataTableJson(HttpServletRequest request, JSONObject json, String mode, String query, String fqOri, int start, int length, String solrParams, boolean showImgView) throws IOException, URISyntaxException {
 
 		String jsonStr = null;
 		if (mode.equals("geneGrid")) {
@@ -145,7 +147,7 @@ public class DataTableController {
 			jsonStr = parseJsonforProtocolDataTable(json, request);
 		} 
 		else if (mode.equals("imagesGrid")) {
-			jsonStr = parseJsonforImageDataTable(json, start, length, solrParams, showImgView, request, query);
+			jsonStr = parseJsonforImageDataTable(json, start, length, solrParams, showImgView, request, query, fqOri);
 		} 
 		else if (mode.equals("mpGrid")) {
 			jsonStr = parseJsonforMpDataTable(json, request);
@@ -316,18 +318,8 @@ public class DataTableController {
 		return j.toString();	
 	}
 	
-	public String parseJsonforImageDataTable(JSONObject json, int start, int length, String solrParams, boolean showImgView, HttpServletRequest request, String query) throws IOException, URISyntaxException{
-				
-		String fqStr = "";
-		String[] paramsList = solrParams.split("&");
-		for ( String str : paramsList ){			
-			if ( str.startsWith("fq=") ){
-				fqStr = str;				
-			}
-		}		
+	public String parseJsonforImageDataTable(JSONObject json, int start, int length, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri) throws IOException, URISyntaxException{
 		
-		String baseUrl = request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
-		//System.out.println("THE PARAMs: "+ solrParams);
 		String mediaBaseUrl = config.get("mediaBaseUrl");
 
 		if ( showImgView ){			
@@ -419,15 +411,22 @@ public class DataTableController {
 			
 			return j.toString();		
 		}
-		else {
-			// annotation view: images group by annotationTerm per row			
+		else {			
+			// annotation view: images group by annotationTerm per row
+			
+			String fqStr = fqOri;						
+			solrParams = solrParams.replace(fqOri, "");		
+			
+			String baseUrl = request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
+			//System.out.println("THE PARAMs: "+ solrParams);
+			
 			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 			
 			JSONArray facets = solrIndex.mergeFacets(facetFields);
 
 			int numFacets = facets.size();
 
-			System.out.println("Number of facets: " + numFacets);
+			//System.out.println("Number of facets: " + numFacets);
 
 	        JSONObject j = new JSONObject();
 			j.put("aaData", new Object[0]);
@@ -436,7 +435,7 @@ public class DataTableController {
 			j.put("iTotalDisplayRecords", numFacets/2);
 			
 			int end = start+length;
-			System.out.println("Start: "+start*2+", End: "+end*2); 
+			//System.out.println("Start: "+start*2+", End: "+end*2); 
 
 			// The facets array looks like:
 			//   [0] = facet name
@@ -463,10 +462,20 @@ public class DataTableController {
 					String unit = Integer.parseInt(imgCount) > 1 ? "images" : "image";	
 
 					String imgSubSetLink = "<a href='" + baseUrl+ "&fq=" + facetField + ":\"" + names[0] + "\"" + "'>" + imgCount + " " + unit+ "</a>";
-
+									
 					rowData.add(displayAnnotName + " (" + imgSubSetLink + ")");
-					//System.out.println(("fqStr: " + fqStr));
-					rowData.add(fetchImagePathByAnnotName(facetField, names[0], fqStr, query));
+					
+					// messy here, as ontodb (the latest term name info) may not have the terms in ann_annotation table
+					// so we just use the name from ann_annotation table
+					String thisFqStr = "";
+					if (facetField == "annotationTermName2") {
+						thisFqStr = "fq=" + facetField + ":\"" + names[0] + "\" OR annotationTermName:\"" + 	names[0] + "\"";				
+					}
+					else {
+						thisFqStr = "fq=" + facetField + ":\"" + names[0] + "\"";
+					}
+					
+					rowData.add(fetchImagePathByAnnotName(query, thisFqStr));
 
 					j.getJSONArray("aaData").add(rowData);
 				}
@@ -497,18 +506,17 @@ public class DataTableController {
 	}
 
 	
-	public String fetchImagePathByAnnotName(String facetField, String annotName, String fqStr, String query) throws IOException, URISyntaxException{
+	public String fetchImagePathByAnnotName(String query, String fqStr) throws IOException, URISyntaxException{
 	
 		String mediaBaseUrl = config.get("mediaBaseUrl");
 		
 		final int maxNum = 4; // max num of images to display in grid column
-		
+				
 		String queryUrl = config.get("internalSolrUrl") 
-				+ "/images/select?qf=auto_suggest&defType=edismax&wt=json&q=" + query 
-				+ "&fq=" + facetField + ":\"" + annotName + "\""
+				+ "/images/select?qf=auto_suggest&defType=edismax&wt=json&q=" + query			
 				+ "&" + fqStr
 				+ "&rows=" + maxNum;
-		//System.out.println("IMG URL: "+ queryUrl);
+		
 		List<String> imgPath = new ArrayList<String>();
 	
 		JSONObject thumbnailJson = solrIndex.getResults(queryUrl);
