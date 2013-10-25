@@ -46,7 +46,8 @@ private static final Logger log = Logger.getLogger(ScatterGraph.class);
 		Float max = new Float(0);
 		Float min = new Float(100000000);
 		Map<String, Float> minMax = new HashMap<String, Float>();
-		String parameterUnit = parameter.checkParameterUnit(1);
+		String parameterUnitxAxis = parameter.checkParameterUnit(2);
+		String parameterUnitYAxis = parameter.checkParameterUnit(2);
 		List<String> categoriesList = new ArrayList<String>();
 		// List<String> categoriesListBarChart = new ArrayList<String>();
 
@@ -95,10 +96,10 @@ private static final Logger log = Logger.getLogger(ScatterGraph.class);
 			minMax.put("max", max);
 
 		}
-		String yAxisTitle = parameterUnit;
+		
 
 		String chartString = createScatterPlotChartsString(categoriesList,
-				title, sexType, yAxisTitle, mouseDataPointSets,
+				title, sexType, parameterUnitYAxis, mouseDataPointSets,
 				byMouseId);
 		// continuousCharts.add(chartString);
 		ChartData cNTable = new ChartData();
@@ -234,13 +235,13 @@ private static final Logger log = Logger.getLogger(ScatterGraph.class);
 		String dateToolTip="tooltip: { "+
                 " formatter: function() { "
                     +  "  return '<b>'+ this.series.name +'</b><br/>'+ "
-                     +"   Highcharts.dateFormat('%e. %b', this.x) +': '+ this.y +' m'; "
+                     +"   Highcharts.dateFormat('%e %b %Y', this.x) +': '+ this.y + ' "+yAxisTitle+" '; "
              +  " }"
           +"  },";
 		String normalToolTip=" tooltip: {"
 		         +"  formatter: function() { "
 		            +"  return '<b>'+ this.series.name +'</b><br/>Mouse Id:'+"
-		    +   "      this.x +': '+ this.y +' m'; "
+		    +   "      this.x +': '+ this.y +'  "+yAxisTitle+"   '; "
 		+     " } "
 		+     "  }, ";
 		
