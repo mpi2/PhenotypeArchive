@@ -414,8 +414,11 @@ public class DataTableController {
 		else {			
 			// annotation view: images group by annotationTerm per row
 			
-			String fqStr = fqOri;						
-			solrParams = solrParams.replace(fqOri, "");		
+			String fqStr = fqOri;		
+			if ( fqStr.equals("&fq=annotationTermId:M*%20OR%20expName:*%20OR%20symbol:*%20OR%20higherLevelMaTermName:*%20OR%20higherLevelMpTermName:*") ){
+				solrParams = solrParams.replace(fqOri, "");	
+				fqStr = "";
+			}
 			
 			String baseUrl = request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
 			//System.out.println("THE PARAMs: "+ solrParams);
@@ -461,21 +464,25 @@ public class DataTableController {
 					String imgCount = facets.get(i+1).toString();	
 					String unit = Integer.parseInt(imgCount) > 1 ? "images" : "image";	
 
-					String imgSubSetLink = "<a href='" + baseUrl+ "&fq=" + facetField + ":\"" + names[0] + "\"" + "'>" + imgCount + " " + unit+ "</a>";
+					//String imgSubSetLink = "<a href='" + baseUrl+ "&fq=" + facetField + ":\"" + names[0] + "\"" + "'>" + imgCount + " " + unit+ "</a>";
+					String imgSubSetLink = "<a href='" + baseUrl+ " AND " + facetField + ":\"" + names[0] + "\"" + "'>" + imgCount + " " + unit+ "</a>";
 									
 					rowData.add(displayAnnotName + " (" + imgSubSetLink + ")");
 					
 					// messy here, as ontodb (the latest term name info) may not have the terms in ann_annotation table
 					// so we just use the name from ann_annotation table
 					String thisFqStr = "";
+					String fq = "";
 					if (facetField == "annotationTermName2") {
-						thisFqStr = "fq=" + facetField + ":\"" + names[0] + "\" OR annotationTermName:\"" + 	names[0] + "\"";				
+						fq = "(" + facetField + ":\"" + names[0] + "\" OR annotationTermName:\"" + 	names[0] + "\")";	
 					}
-					else {
-						thisFqStr = "fq=" + facetField + ":\"" + names[0] + "\"";
+					else {					
+						fq = facetField + ":\"" + names[0] + "\"";
 					}
 					
-					//String thisFqStr ="fq=" + facetField + ":\"" + names[0] + "\"";
+					thisFqStr = fqStr.equals("") ? "fq=" + fq : fqStr + " AND " + fq;	
+					
+					
 					rowData.add(fetchImagePathByAnnotName(query, thisFqStr));
 
 					j.getJSONArray("aaData").add(rowData);
@@ -517,7 +524,7 @@ public class DataTableController {
 				+ "/images/select?qf=auto_suggest&defType=edismax&wt=json&q=" + query			
 				+ "&" + fqStr
 				+ "&rows=" + maxNum;
-		
+		System.out.println("URL: " +queryUrl );
 		List<String> imgPath = new ArrayList<String>();
 	
 		JSONObject thumbnailJson = solrIndex.getResults(queryUrl);
