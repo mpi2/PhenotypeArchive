@@ -467,14 +467,15 @@ public class DataTableController {
 					
 					// messy here, as ontodb (the latest term name info) may not have the terms in ann_annotation table
 					// so we just use the name from ann_annotation table
-					String thisFqStr = "";
+					/*String thisFqStr = "";
 					if (facetField == "annotationTermName2") {
 						thisFqStr = "fq=" + facetField + ":\"" + names[0] + "\" OR annotationTermName:\"" + 	names[0] + "\"";				
 					}
 					else {
 						thisFqStr = "fq=" + facetField + ":\"" + names[0] + "\"";
-					}
+					}*/
 					
+					String thisFqStr ="fq=" + facetField + ":\"" + names[0] + "\"";
 					rowData.add(fetchImagePathByAnnotName(query, thisFqStr));
 
 					j.getJSONArray("aaData").add(rowData);
@@ -541,7 +542,7 @@ public class DataTableController {
 		
 		String markerSymbol = "<span class='gSymbol'>" + doc.getString("marker_symbol") + "</span>";		
 		String mgiId = doc.getString("mgi_accession_id");
-		System.out.println(request.getAttribute("baseUrl"));
+		//System.out.println(request.getAttribute("baseUrl"));
 		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;		
 		//String markerSymbolLink = "<a href='" + geneUrl + "' target='_blank'>" + markerSymbol + "</a>";
 		String markerSymbolLink = "<a href='" + geneUrl + "'>" + markerSymbol + "</a>";
