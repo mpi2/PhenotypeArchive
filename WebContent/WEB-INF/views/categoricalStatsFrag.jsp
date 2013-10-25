@@ -51,10 +51,11 @@
 																<td>${categoricalSet.name }</td>
 																		<c:forEach var="catObject"  items="${categoricalSet.catObjects}" varStatus="catObjectStatus">
 																				<td>${catObject.count } </td>
-																				
+																				<%-- ${catObject} --%>
 																		</c:forEach>
-																		<td>${categoricalSet.catObjects[catSetStatus.index].result.pValue } </td>
-																		<td>${categoricalSet.catObjects[catSetStatus.index].result.maxEffect } </td>
+																		<%-- ${categoricalSet.catObjects[catSetStatus.index].result} --%>
+																		<td>${categoricalSet.catObjects[0].pValue } </td>
+																		<td>${categoricalSet.catObjects[0].maxEffect } </td>
 														</tr>
 														</c:forEach>
 												

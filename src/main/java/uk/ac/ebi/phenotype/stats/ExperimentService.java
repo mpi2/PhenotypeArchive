@@ -173,10 +173,11 @@ public class ExperimentService {
 	    	}	    	
 	    }
 
-	    // Remove all the experiments that don't have control data
-	    for(String key : noControls) {
-	    	experimentsMap.remove(key);
-	    }
+	    // had to comment this out as we have phenotype calls from the pheno summary table that are for graphs with no control data
+	    //so if we take those out then there appears to be no reason to have a graph link.
+//	    for(String key : noControls) {
+//	    	experimentsMap.remove(key);
+//	    }
 	    
 		return new ArrayList<ExperimentDTO>(experimentsMap.values());	
 	}
