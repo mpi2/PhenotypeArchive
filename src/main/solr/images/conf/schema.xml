@@ -105,6 +105,7 @@
 	<field name="yEnd"   type="float"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="annotationTermId"   type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="annotationTermName"   type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="annotationTermName2"   type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="name"   type="string"   indexed="true"  stored="true"  multiValued="false" /> 
 	<field name="accession"   type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="expName"   type="string"   indexed="true"  stored="true"  multiValued="true" />
@@ -170,6 +171,7 @@
     <copyField source="tagValue" dest="auto_suggest" /> 
     <copyField source="expName" dest="auto_suggest" />
     <copyField source="annotationTermName" dest="auto_suggest" />
+    <copyField source="annotationTermName2" dest="auto_suggest" />
     <copyField source="higherLevelMaTermName" dest="auto_suggest" />
     <copyField source="higherLevelMpTermName" dest="auto_suggest" />
     <copyField source="symbol" dest="auto_suggest" />
