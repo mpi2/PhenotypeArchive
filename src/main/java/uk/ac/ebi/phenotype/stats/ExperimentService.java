@@ -155,9 +155,11 @@ public class ExperimentService {
 	    	    	}
 	    	    }
 
-	    		// SHOW all the data
 	    		experiment.setControls(new HashSet<ObservationDTO>());
-    			List<ObservationDTO> controls = os.getControls(parameterId, experiment.getStrain(), organisationId, new Date(), Boolean.TRUE);
+
+	    		// SHOW all the data
+//    			List<ObservationDTO> controls = os.getControls(parameterId, experiment.getStrain(), organisationId, new Date(), Boolean.TRUE);
+	    		List<ObservationDTO> controls = os.getControls(parameterId, experiment.getStrain(), organisationId, max, Boolean.FALSE);
     			experiment.getControls().addAll(controls);
 	    		
 	    		if(experiment.getControlBiologicalModelId()==null && controls.size()>0) {

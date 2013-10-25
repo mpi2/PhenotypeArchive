@@ -1,11 +1,13 @@
 package uk.ac.ebi.phenotype.stats;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -74,25 +76,104 @@ public class ObservationService {
 	 */
 	protected List<ObservationDTO> getControls(Integer parameterId, String strain, Integer organisationId, Date max, Boolean showAll) throws SolrServerException {
 
-		SolrQuery query = new SolrQuery()
+		int n = 1000;		
+		if (showAll){
+			n = 10000000;
+		}
+		List<ObservationDTO> results = new ArrayList<ObservationDTO>();
+		results.addAll(getControlsBySex(parameterId, strain, organisationId, max, showAll, "female", n/2));
+		results.addAll(getControlsBySex(parameterId, strain, organisationId, max, showAll, "male", n/2));
+		return results;
+	}
+
+	private  List<ObservationDTO> getControlsBySex(Integer parameterId, String strain, Integer organisationId, Date max, Boolean showAll, String sex, int resultsMaxSize) throws SolrServerException{
+		
+		int dateIncrement = 6; // month
+		
+		List<ObservationDTO> results = new ArrayList<ObservationDTO>();
+		Boolean withinTimeLimits = Boolean.TRUE;
+		QueryResponse responseb = new QueryResponse();
+		QueryResponse responsea = new QueryResponse();
+		Date today = new Date();
+		Date minDate = new Date();
+		SimpleDateFormat f = new SimpleDateFormat("dd-MMM-yyyy");
+		try {
+			minDate = f.parse("01-Jan-2000");
+		} catch (ParseException e) {
+			e.printStackTrace();
+		} // Jan 1, 2000 UTC
+		
+		int resSize = 0;
+		int loop = 1;
+		
+		while (resSize < resultsMaxSize && withinTimeLimits) {
+
+			Date start = DateUtils.addMonths(max, -(dateIncrement*loop));			
+			Date end = DateUtils.addMonths(max, (dateIncrement*loop));
+
+			if (start.before(minDate) && end.after(today)) { // Jan 1, 2000 UTC & today
+				withinTimeLimits = Boolean.FALSE;
+			}			
+			
+			SolrQuery queryb = new SolrQuery()
 			.setQuery("*:*")
 			.addFilterQuery("biologicalSampleGroup:control")
-			.addFilterQuery("dateOfExperiment:["+df.format(new Date(0L))+"Z TO "+df.format(max)+"Z]")
+			.addFilterQuery("dateOfExperiment:["+df.format(start)+"Z TO "+df.format(max)+"Z]")
 			.addFilterQuery("parameterId:"+parameterId)
 			.addFilterQuery("organisationId:"+organisationId)
 			.addFilterQuery("strain:"+strain.replace(":", "\\:"))
-			.setSortField("dateOfExperiment", ORDER.desc)
+			.addFilterQuery("gender:"+sex)
+			.setSortField("dateOfExperiment", ORDER.desc) // good for dates before the date of the experiment
 			;
-		if (!showAll) {
-			query.setStart(0).setRows(1000);
-		} else {
-			query.setStart(0).setRows(10000);
+			queryb.setStart(0).setRows(resultsMaxSize/2);
+			
+			SolrQuery querya = new SolrQuery()
+			.setQuery("*:*")
+			.addFilterQuery("biologicalSampleGroup:control")
+			.addFilterQuery("dateOfExperiment:["+df.format(DateUtils.addDays(max, -1))+"Z TO "+df.format(end)+"Z]")
+			.addFilterQuery("parameterId:"+parameterId)
+			.addFilterQuery("organisationId:"+organisationId)
+			.addFilterQuery("strain:"+strain.replace(":", "\\:"))
+			.addFilterQuery("gender:"+sex)
+			.setSortField("dateOfExperiment", ORDER.asc) // good for dates after the date of the experiment
+			;
+			
+			querya.setStart(0).setRows(resultsMaxSize/2);
+
+			responseb = solr.query(queryb);
+			responsea = solr.query(querya);
+			
+			// in case the data is all on one side of the max date but all within the same time frame, take it all
+			int resSizeA = responsea.getResults().size();
+			int resSizeB = responseb.getResults().size();
+			resSize = resSizeB + resSizeA;
+			
+			if (resSize < resultsMaxSize){
+				if (resSizeA == resultsMaxSize/2){
+					querya.setStart(0).setRows(resultsMaxSize);
+					responsea = solr.query(querya);
+					
+				}
+				else if (resSizeB == resultsMaxSize/2){
+					queryb.setStart(0).setRows(resultsMaxSize);
+					responseb = solr.query(queryb);
+				}
+			}
+			
+			loop++;
 		}
-		QueryResponse response = solr.query(query);
 
-		return response.getBeans(ObservationDTO.class);
+		results.addAll(responsea.getBeans(ObservationDTO.class));
+		results.addAll(responseb.getBeans(ObservationDTO.class));
+		
+//		System.out.println("---- I RETURN :" + results.size() + " , " + responsea.getResults().size() + " + " + responseb.getResults().size()) ;
+		
+//		for (ObservationDTO obs : results){
+//				System.out.println(obs);
+//			}
+		return results;
 	}
-
+	
 	/**
 	 * Return all the unidimensional observations for a given
 	 * combination of parameter, gene, zygosity, organisation and strain
@@ -127,6 +208,7 @@ public class ObservationService {
 	    		max=o.getDateOfExperiment();
 	    	}
 	    }
+	    System.out.println("---- Experiment date ----  " + max);
 
 		resultsDTO.addAll(getControls(parameterId, strain, organisationId, max));
 	    
