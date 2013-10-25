@@ -321,8 +321,6 @@ List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one 
 										expBiologicalModel);
 						chartData.setChart(chartNew);
 						categoricalResultAndCharts.add(chartData);
-						
-						System.out.println("experimental result="+experiment.getResults());
 						//categoricalResultAndCharts
 							//	.setStatsResults(experiment.getResults());
 						// TableObject table =
@@ -380,7 +378,6 @@ List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one 
 		for (CategoricalDataObject catObject : catSet1.getCatObjects()) {
 			String category = catObject.getCategory();
 			// if(!category.equals("")){
-			System.out.println("adding category=" + category);
 			categories.put(category, new ArrayList<Long>());
 			// }
 		}
