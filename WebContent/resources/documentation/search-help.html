@@ -9,9 +9,17 @@
 
 <link type='text/css' rel='stylesheet' href='../css/bootstrap.min.css'  />
 <link type='text/css' rel='stylesheet' href='../css/bootstrap-responsive.min.css'  />
+<script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
 
 <script type="text/javascript">
 var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"]);(function() {var ga = document.createElement("script");ga.type = "text/javascript";ga.async = true;ga.src = "https://dev.mousephenotype.org/sites/mousephenotype.org/files/googleanalytics/ga.js?mjafjk";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(ga, s);})();
+
+$(document).ready(function(){
+	//var drupalBaseUrl = "${drupalBaseUrl}";
+	var domain = window.location.host;	
+	$('a#logo').attr('href', domain);
+});
+
 </script>
 </head>
 
@@ -19,7 +27,7 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 
 	<div class="row">
 		<div class="well">
-			<h1>IMPC search page documentation</h1>
+			<h1><a id='logo' href=''><img src='img/IMPCBetalogo.png' /></a>IMPC search page documentation</h1>
 			<p class="lead">Search details</p>
 		</div>
 	</div>
@@ -32,18 +40,17 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 			<ul id="navbar" class="nav nav-list">
 				<li><a href="search-help.html">Search</a>
 					<ul>
-						<li><a href="gene-help.html#details">Quick Search</a>
+						<li><a href="search-help.html#details">Quick Search</a>
 							<ul>
 								<li><a href="search-help.html#quick_gene_srch">Quick Gene Search</a></li>
 								<li><a href="search-help.html#quick_pheno_srch">Quick Phenotype Search</a></li>
-								<li><a href="search-help.html#quick_param_srch">Quick Assay Search</a>	
-								<li><a href="search-help.html#quick_anatomy_srch">Quick Anatomy Search</a>
-								<li><a href="search-help.html#quick_img_srch">Quick Image Search</a>					
+								<li><a href="search-help.html#quick_param_srch">Quick Assay Search</a></li>
+								<li><a href="search-help.html#quick_anatomy_srch">Quick Anatomy Search</a></li>
+								<li><a href="search-help.html#quick_img_srch">Quick Image Search</a></li>					
 							</ul>						
 						</li>
-						<li>
-							<a href="search-help.htm#complex_srch">Complex Search</a>						
-						</li>						
+						<li><a href="search-help.html#complex_srch">Complex Search</a></li>	
+						<li><a href="search-help.html#export">Data Export of Search Results</a></li>					
 					</ul>				
 				</li>
 				<li><a href="gene-help.html">Genes</span></a> </li>
@@ -83,15 +90,29 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 			
 			<h3><a name="quick_img_srch" href='#'>Quick Image Search</a></h3>
 			<div>Type a gene, phenotype, assay, or anatomical entity, click on the images facet on the left panel and the results grid will return relevant image pages.
-			<p>Eg. search by phenotype "immune":<br>			
+			<p>By default, Image View will be displayed, where annotations to an image is enlisted.<p>Eg. search by phenotype "immune":<br>				
 			</div> 
 			<img src='img/quick_img_search.jpg' />
+			
+			<p>To view images grouped by annotations, simply click on the "Show Annotation View" button to the top-right corner of the results grid. The label of the same button will then be switched to "Show Image View" so that you can toggle the views.</p>
+			<img src='img/quick_img_search_annotView.jpg' />
+			
 			
 			<h3><a name="complex_srch" href='#'>Complex Search</a></h3>
 			<div>Facets on left hand panel can be used in combination to generate complex queries.</div>
 			<img src='img/facetPanel.jpg' />
+			
+			<h3><a name="export" href='#'>Data Export of Search Results</a></h3>
+			<div>Click on the export icon <img src='img/export.jpg' /> to the top-right corner of the results grid to expand or hide it. 
+			When expanded, <img src='img/export_expanded.jpg' /><p><p>
+			click on either TSV (tab separated) or XLS (MS Excel) buttons for format of export. 
+			<p>To limit the export data on current page only, choose the buttons of the "Current paginated entries in table", 
+			whereas "All entries in table" will export the whole search results".
+			<br>A warning message dialog box will be displayed if the dataset is large and download can take longer depending on your network speed.</div>			
+			
 		</div>
 	</div>	
 
 </body>
 </html>
+</t:genericpage>
