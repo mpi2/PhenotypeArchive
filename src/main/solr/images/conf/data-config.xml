@@ -117,7 +117,7 @@
 				<entity dataSource="komp2ds" name="maAnnotations" query="select * from ANN_ANNOTATION where FOREIGN_KEY_ID=${tag.ID} and TERM_ID like 'MA%'">
 					<field column="TERM_NAME" name="annotationTermName" />
 					
-					<entity dataSource="komp2ds" name="annotations2" query="select name from ontology_term where acc='${maAnnotations.TERM_ID}'">					
+					<entity dataSource="komp2ds" name="maAnnotations2" query="select name from ontology_term where acc='${maAnnotations.TERM_ID}'">					
 						<field column="name" name="annotationTermName2" />
 					</entity>
 					
@@ -134,7 +134,7 @@
 
 				<entity dataSource="komp2ds" name="mpAnnotations" query="select * from ANN_ANNOTATION where FOREIGN_KEY_ID=${tag.ID} and TERM_ID like 'MP%'">
 					<field column="TERM_NAME" name="annotationTermName" />
-					<entity dataSource="komp2ds" name="annotations2" query="select name from ontology_term where acc='${mpAnnotations.TERM_ID}'">						
+					<entity dataSource="komp2ds" name="mpAnnotations2" query="select name from ontology_term where acc='${mpAnnotations.TERM_ID}'">						
 						<field column="name" name="annotationTermName2" />
 					</entity>
 					
