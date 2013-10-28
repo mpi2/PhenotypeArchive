@@ -118,8 +118,15 @@
 	<field name="higherLevelMaTermId"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="ageInWeeks"  type="string"   indexed="true"  stored="true"  multiValued="false" />
 	<field name="higherLevelMaTermName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
-	<field name="higherLevelMpTermId"  type="string"   indexed="true"  stored="true"  multiValued="true" />
-	<field name="higherLevelMpTermName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+	
+	<field name="mappedHigherLevelMaTermId" type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="mappedHigherLevelMaTermName" type="string"   indexed="true"  stored="true"  multiValued="true" />	
+	<field name="mappedHigherLevelMpTermId" type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="mappedHigherLevelMpTermName" type="string"   indexed="true"  stored="true"  multiValued="true" />	
+	
+	<field name="higherLevelMpTermId" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="higherLevelMpTermName" type="string" indexed="true" stored="true" multiValued="true" />
+	
 	<field name="symbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="institute"  type="string"   indexed="true"  stored="true"  multiValued="false" />
 	<field name="sangerSymbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />

@@ -129,6 +129,10 @@
 						<field column=" lowerId" name="maAnnotationTermId" />
 						<field column="HIGHER_TERM_ID" name="higherLevelMaTermId" />
 						<field column="higherTermName" name="higherLevelMaTermName" />
+						<entity dataSource="ontods" name="ma2mp" query="select distinct ti.term_id, ti.name from mp_node_top_level tl, mp_node2term nt, mp_term_infos ti where tl.top_level_node_id=nt.node_id and ti.term_id=nt.term_id and tl.node_id in  (select n.node_id from mp_mappings m, mp_node2term n where m.term_id=n.term_id and m.mapped_term_id='${maAnnotations.TERM_ID}')" >
+							<field column="top_level_term_id" name="mappedHigherLevelMpTermId" />
+							<field column="name" name="mappedHigherLevelMpTermName" />						
+						</entity>
 					</entity>
 				</entity>
 
@@ -145,7 +149,10 @@
 					<entity dataSource="ontods" name="mps" query="SELECT top_level_node_id, concat('${mpAnnotations.TERM_NAME}', '_${mpAnnotations.TERM_ID}') as mpTermName, mp.term_id FROM `mp_node2term` mp , mp_node_top_level tl WHERE term_id='${mpAnnotations.TERM_ID}' and mp.node_id=tl.node_id">
 						<field column="mpTermName" name="mpTermName" />
 						<field column="top_level_node_id" name="topLevel" />
-
+						<entity dataSource="ontods" name="mp2ma" query="select distinct lm.top_level_term_id, ti.name from ma_node_2_selected_top_level_mapping lm, ma_term_infos ti where lm.top_level_term_id = ti.term_id and lm.node_id in (select distinct t.node_id from ma_node2term t, mp_mappings m where m.mapped_term_id = t.term_id and m.term_id='${mpAnnotations.TERM_ID}')">
+							<field column="top_level_term_id" name="mappedHigherLevelMaTermId" />
+							<field column="name" name="mappedHigherLevelMaTermName" />						
+						</entity> 
 						<entity dataSource="ontods" name="mphigher"
 							query="SELECT mp.node_id, mp.term_id as mpTerm, inf.term_id, name FROM `mp_node2term` mp , `mp_term_infos` inf WHERE mp.node_id=${mps.top_level_node_id} and inf.term_id=mp.term_id">
 							<field column="name" name="higherLevelMpTermName" />
