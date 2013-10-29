@@ -270,7 +270,9 @@ public class ObservationService {
 	    	.addFilterQuery("biologicalSampleGroup:experimental")
 	    	.setStart(0)
 	    	.setRows(10000);
-
+		
+		System.out.println("SOLR QWUERY : " + solr.getBaseURL() + query);
+		
 		return solr.query(query).getBeans(ObservationDTO.class);
 	}
 

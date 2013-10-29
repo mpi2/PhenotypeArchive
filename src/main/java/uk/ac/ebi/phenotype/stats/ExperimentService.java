@@ -47,6 +47,8 @@ public class ExperimentService {
 	 * @throws IOException 
 	 */
 	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession) throws SolrServerException, IOException, URISyntaxException {
+		
+		System.out.println("EXPERIMENT DTO + " + geneAccession);
 
 	    List<ObservationDTO> results = os.getExperimentalUnidimensionalObservationsByParameterGeneAcc(parameterId, geneAccession);
 

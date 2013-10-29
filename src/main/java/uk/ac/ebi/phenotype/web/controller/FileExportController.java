@@ -253,12 +253,42 @@ public class FileExportController {
 		else if ( solrCoreName.equals("genotype-phenotype") ){
 			rows = composeGPDataTableRows(json, request);
 		}
+		else if (solrCoreName.equals("experiment")){
+			rows = composeExperimentDataExport(json,request);
+		}
 		return rows;
 	}
 	 
 	
+	private List<String> composeExperimentDataExport(JSONObject json, HttpServletRequest request) { 
+
+		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");	
+		List<String> rowData = new ArrayList<String>();
+		PipelineSolrImpl pipe = new PipelineSolrImpl(config);
+
+		if (request.getParameter("page").equalsIgnoreCase("timeSeries")){
+			System.out.println("TIME SERIES " + docs.getJSONObject(0));
+			rowData.add("timePoint\tdateOfBirth\tgender\tzygosity\tdataPoint\tdiscretePoint\tdateOfExperiment"); 
+			for (int i=0; i<docs.size(); i++) {			
+				List<String> data = new ArrayList<String>();
+				JSONObject doc = docs.getJSONObject(i);
+				data.add(doc.getString("timePoint"));
+				data.add(doc.getString("dateOfBirth"));
+				data.add(doc.getString("gender"));
+				data.add(doc.getString("zygosity"));
+				data.add(doc.getString("dataPoint"));
+				data.add(doc.getString("discretePoint"));
+				data.add(doc.getString("dateOfExperiment"));
+				
+				rowData.add(StringUtils.join(data, "\t"));
+			}
+		}
+		
+		return rowData;
+	}
+	
 	// Export for tables on gene  & phenotype page
-	private List<String> composeGPDataTableRows(JSONObject json, HttpServletRequest request){ //ilinca
+	private List<String> composeGPDataTableRows(JSONObject json, HttpServletRequest request){ 
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");	
 		List<String> rowData = new ArrayList<String>();
 		PipelineSolrImpl pipe = new PipelineSolrImpl(config);
