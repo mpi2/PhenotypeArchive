@@ -40,6 +40,7 @@
 				'textAlign': 'left',
 				'tip': 'topRight'
 			});
+			
 		});
 	</script>
 	</jsp:attribute>

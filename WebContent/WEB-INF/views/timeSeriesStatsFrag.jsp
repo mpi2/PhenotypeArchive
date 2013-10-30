@@ -34,6 +34,7 @@
 						</h4>
 					</div>
 				</c:if>
+				
 			</div>
 			<div class="row-fluid">
 	</c:if>
@@ -43,7 +44,6 @@
 		<script type="text/javascript">
 			${timeChart.chart}
 		</script>
-
 	</div>
 
 	<c:if
@@ -53,20 +53,22 @@
 			by date</a>
 
 
-		<div id="exportIconsDiv"></div>
+	<div id="exportIconsDivTS"></div>	
 		</div>
 		</div>
+		
 	</c:if>
 
 </c:forEach>
+
 
 <script>
 	$(document)
 			.ready(
 					function() {
-						$('div#exportIconsDiv').append(
+						$('div#exportIconsDivTS').append(
 								$.fn.loadFileExporterUI({
-									label : 'Export data as:',
+									label : 'Export data as: (timeSeries)',
 									formatSelector : {
 										TSV : 'tsv_phenoAssoc',
 										XLS : 'xls_phenoAssoc'
@@ -94,13 +96,14 @@
 									+ mgiGeneId
 									+ "\"&fq=parameterStableId:"
 									+ paramId
-									+ "&fq=biologicalSampleGroup:experimental&start=0&rows=10000"
+									+ "&start=0&rows=10000"
 						});
 
 						function initFileExporter(conf) {
 							$('button.fileIcon')
 									.click(
 											function() {
+												alert("click on timeseries");
 												var fileType = $(this).text();
 												var url = baseUrl + '/export';
 												var sInputs = '';
@@ -129,7 +132,7 @@
 													.remove();
 										},
 										error : function() {
-											alert("Oops, there is error during data export..");
+						//					alert("Oops, there is error during data export..");
 										}
 									});
 						}

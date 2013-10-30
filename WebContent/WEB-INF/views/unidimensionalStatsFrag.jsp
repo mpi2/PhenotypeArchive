@@ -28,10 +28,13 @@
    								    $('#chart${unidimensionalDataSetLoop.count}_${uniDimensionalLoop.count}').highcharts(${unidimensionalChartsAndTable.chart});
 								</script>
 								<a href="scatter/${acc}?${pageContext.request.queryString}">Graph by date</a>	
+								
 					</div><!-- end of span6  individual chart holder -->
 			
 		
 				</c:forEach>
+				
+								<div id="exportIconsDivUni"></div>
 		</div><!-- end of chart row-fluid -->
 		<table id="continuousTable${uniDimensionalLoop.count}" class="table table-bordered  table-striped table-condensed">
 		<thead><tr>
@@ -45,8 +48,7 @@
 			<th>pValue</th>
 		<%-- <th>${tables[loop.count-1].xAxisCategories[1]}</th><th>${tables[loop.count-1].xAxisCategories[2]}</th> --%>
 		</tr></thead>
-		<tbody>
-										
+		<tbody>									
 										
 										
 											<c:forEach var="statsObject" items="${unidimensionalDataSet.statsObjects}">
@@ -185,8 +187,87 @@
  	 							
  						</div>
  				</div>
- 				</c:if>	
+ 				
+ 				</c:if>
+ 				<script>
+	$(document)
+			.ready(
+					function() {
+				//		alert("unidimensional");
+						$('div#exportIconsDivUni').html("");
+						$('div#exportIconsDivUni').append(
+								$.fn.loadFileExporterUI({
+									label : 'Export data as: (uni)',
+									formatSelector : {
+										TSV : 'tsv_phenoAssoc',
+										XLS : 'xls_phenoAssoc'
+									},
+									class : 'fileIcon'
+								}));
+
+						var params = window.location.href.split("/")[window.location.href
+								.split("/").length - 1];
+						var mgiGeneId = params.split("\?")[0];
+						var paramId = params.split("parameterId\=")[1].split("\&")[0];
+						var windowLocation = window.location;
+
+						initFileExporter({
+							mgiGeneId : mgiGeneId,
+							externalDbId : 3,
+							fileName : 'unidimensionalData_'
+									+ mgiGeneId.replace(/:/g, '_'),
+							solrCoreName : 'experiment',
+							dumpMode : 'all',
+							baseUrl : windowLocation,
+							page : "unidimensionalData",
+							gridFields : 'geneAccession,dateOfExperiment,discretePoint,geneSymbol,dataPoint,zygosity,gender,dateOfBirth,timePoint',
+							params : "qf=auto_suggest&defType=edismax&wt=json&q=*:*&fq=geneAccession:\""
+									+ mgiGeneId
+									+ "\"&fq=parameterStableId:"
+									+ paramId
+									+ "&start=0&rows=10000"
+						});
+
+						function initFileExporter(conf) {
+							$('button.fileIcon')
+									.click(
+											function() {
+												var fileType = $(this).text();
+												var url = baseUrl + '/export';
+												var sInputs = '';
+												for ( var k in conf) {
+														sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";
+												}
+												sInputs += "<input type='text' name='fileType' value='"
+														+ fileType
+																.toLowerCase()
+														+ "'>";
+												var form = $("<form action='"+ url + "' method=get>"
+														+ sInputs + "</form>");
+												_doDataExport(url, form);
+											}).corner('6px');
+						}
+
+						function _doDataExport(url, form) {
+							$
+									.ajax({
+										type : 'GET',
+										url : url,
+										cache : false,
+										data : $(form).serialize(),
+										success : function(data) {
+											$(form).appendTo('body').submit()
+													.remove();
+										},
+										error : function() {
+											alert("Oops, there is error during data export..");
+										}
+									});
+						}
+					});
+</script>	
  				</c:if>
 	<!-- </div> -->
 </div><!-- end of row fluid data set -->
 </c:forEach><!--  end of undimensional data loop -->
+

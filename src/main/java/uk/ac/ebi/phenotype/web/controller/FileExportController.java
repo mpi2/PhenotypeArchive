@@ -283,7 +283,66 @@ public class FileExportController {
 				rowData.add(StringUtils.join(data, "\t"));
 			}
 		}
-		
+		else if (request.getParameter("page").equalsIgnoreCase("scatterPlot")){
+			System.out.println("TIME SERIES " + docs.getJSONObject(0));
+			rowData.add("dateOfBirth\tgender\tzygosity\tdataPoint\tdateOfExperiment"); 
+				for (int i=0; i<docs.size(); i++) {			
+					List<String> data = new ArrayList<String>();
+					JSONObject doc = docs.getJSONObject(i);
+					data.add(doc.getString("dateOfBirth"));
+					data.add(doc.getString("gender"));
+					data.add(doc.getString("zygosity"));
+					data.add(doc.getString("dataPoint"));
+					data.add(doc.getString("dateOfExperiment"));
+					
+					rowData.add(StringUtils.join(data, "\t"));
+				}
+		}
+		else if (request.getParameter("page").equalsIgnoreCase("categorical")){
+			System.out.println("CATEGORICAL: " + docs.getJSONObject(0));
+			rowData.add("dateOfBirth\tgender\tzygosity\tdateOfExperiment"); 
+				for (int i=0; i<docs.size(); i++) {			
+					List<String> data = new ArrayList<String>();
+					JSONObject doc = docs.getJSONObject(i);
+					data.add(doc.getString("dateOfBirth"));
+					data.add(doc.getString("gender"));
+					data.add(doc.getString("zygosity"));
+					data.add(doc.getString("dateOfExperiment"));
+					
+					rowData.add(StringUtils.join(data, "\t"));
+				}
+		}
+		else if (request.getParameter("page").equalsIgnoreCase("unidimensionalData")){
+			System.out.println("UNIDIMENSIONAL " + docs.getJSONObject(0));
+			System.out.println(request);
+			rowData.add("dateOfBirth\tgender\tzygosity\tdataPoint\tdateOfExperiment");
+				for (int i=0; i<docs.size(); i++) {			
+					List<String> data = new ArrayList<String>();
+					JSONObject doc = docs.getJSONObject(i);
+					data.add(doc.getString("dateOfBirth"));
+					data.add(doc.getString("gender"));
+					data.add(doc.getString("zygosity"));
+					data.add(doc.getString("dataPoint"));
+					data.add(doc.getString("dateOfExperiment"));
+					
+					rowData.add(StringUtils.join(data, "\t"));
+				}
+		}
+		else if (request.getParameter("page").equalsIgnoreCase("stats")){
+			System.out.println("STATS " + docs.getJSONObject(0));
+			rowData.add("dateOfBirth\tgender\tzygosity\tdataPoint\tdateOfExperiment"); 
+				for (int i=0; i<docs.size(); i++) {			
+					List<String> data = new ArrayList<String>();
+					JSONObject doc = docs.getJSONObject(i);
+					data.add(doc.getString("dateOfBirth"));
+					data.add(doc.getString("gender"));
+					data.add(doc.getString("zygosity"));
+					data.add(doc.getString("dataPoint"));
+					data.add(doc.getString("dateOfExperiment"));
+					
+					rowData.add(StringUtils.join(data, "\t"));
+				}
+		}
 		return rowData;
 	}
 	

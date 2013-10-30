@@ -31,16 +31,7 @@
     </jsp:attribute>
 
 	<jsp:attribute name="footer">
-	<script>
-		$(document).ready(function(){						
-			// bubble popup for brief panel documentation
-			$.fn.qTip({
-				'pageName': 'scatter',
-				'textAlign': 'left',
-				'tip': 'topRight'
-			});
-		});
-	</script>
+
 	</jsp:attribute>
 
 	<jsp:body>
@@ -92,6 +83,10 @@
 		</div><!-- end of span6  individual chart holder -->
 		</c:forEach>
 		</div><!-- end of row-fluid for graphs -->
+		
+		
+		<div id="exportIconsDiv"></div>
+		
 		<table id="continuousTable${uniDimensionalLoop.count}" class="table table-bordered  table-striped table-condensed">
 		<thead><tr>
 		<th>Line</th>
@@ -242,7 +237,87 @@
 </div><!-- end of row fluid data set -->
 </c:forEach><!--  end of undimensional data loop -->
 
+<script>
+	$(document)
+			.ready(
+					function() {
+			//			alert("scatter");
+						$.fn.qTip({
+							'pageName': 'scatter',
+							'textAlign': 'left',
+							'tip': 'topRight'
+						});
+						$('div#exportIconsDiv').append(
+								$.fn.loadFileExporterUI({
+									label : 'Export data as: (scatter)',
+									formatSelector : {
+										TSV : 'tsv_phenoAssoc',
+										XLS : 'xls_phenoAssoc'
+									},
+									class : 'fileIcon'
+								}));
 
+						var params = window.location.href.split("/")[window.location.href
+								.split("/").length - 1];
+						var mgiGeneId = params.split("\?")[0];
+						var paramId = params.split("parameterId\=")[1].split("\&")[0];
+						var windowLocation = window.location;
+
+						initFileExporter({
+							mgiGeneId : mgiGeneId,
+							externalDbId : 3,
+							fileName : 'scatterPlotData'
+									+ mgiGeneId.replace(/:/g, '_'),
+							solrCoreName : 'experiment',
+							dumpMode : 'all',
+							baseUrl : windowLocation,
+							page : "scatterPlot",
+							gridFields : 'geneAccession,dateOfExperiment,geneSymbol,dataPoint,zygosity,gender,dateOfBirth',
+							params : "qf=auto_suggest&defType=edismax&wt=json&q=*:*&fq=geneAccession:\""
+									+ mgiGeneId
+									+ "\"&fq=parameterStableId:"
+									+ paramId
+									+ "&start=0&rows=10000"
+						});
+
+						function initFileExporter(conf) {
+							$('button.fileIcon')
+									.click(
+											function() {
+												var fileType = $(this).text();
+												var url = baseUrl + '/export';
+												var sInputs = '';
+												for ( var k in conf) {
+														sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";
+												}
+												sInputs += "<input type='text' name='fileType' value='"
+														+ fileType
+																.toLowerCase()
+														+ "'>";
+												var form = $("<form action='"+ url + "' method=get>"
+														+ sInputs + "</form>");
+												_doDataExport(url, form);
+											}).corner('6px');
+						}
+
+						function _doDataExport(url, form) {
+							$
+									.ajax({
+										type : 'GET',
+										url : url,
+										cache : false,
+										data : $(form).serialize(),
+										success : function(data) {
+											$(form).appendTo('body').submit()
+													.remove();
+										},
+										error : function() {
+											alert("Oops, there is error during data export..");
+										}
+									});
+						}
+					});
+</script>
 
 
     </jsp:body>

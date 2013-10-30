@@ -28,6 +28,9 @@
  				</c:forEach>
 				</div>
  <%--  ${categoricalResultAndCharts.maleAndFemale} --%>
+ 				
+		<div id="exportIconsDivCat"></div>
+ 
  				<div class="row-fluid">
  				<table id="catTable${experimentLoop.index}" class="table table-bordered  table-striped table-condensed">
  							<thead><tr>
@@ -147,7 +150,85 @@
 								</c:forEach>
 						</c:forEach> --%>
 				</div>
+				<script>
+	$(document)
+			.ready(
+					function() {
+						alert("categorical");
+						$('div#exportIconsDivCat').append(
+								$.fn.loadFileExporterUI({
+									label : 'Export data as: (categ)',
+									formatSelector : {
+										TSV : 'tsv_phenoAssoc',
+										XLS : 'xls_phenoAssoc'
+									},
+									class : 'fileIcon'
+								}));
+
+						var params = window.location.href.split("/")[window.location.href
+								.split("/").length - 1];
+						var mgiGeneId = params.split("\?")[0];
+						var paramId = params.split("parameterId\=")[1].split("\&")[0];
+						var windowLocation = window.location;
+
+						initFileExporter({
+							mgiGeneId : mgiGeneId,
+							externalDbId : 3,
+							fileName : 'categoricalData'
+									+ mgiGeneId.replace(/:/g, '_'),
+							solrCoreName : 'experiment',
+							dumpMode : 'all',
+							baseUrl : windowLocation,
+							page : "categorical",
+							gridFields : 'geneAccession,dateOfExperiment,discretePoint,geneSymbol,zygosity,gender,dateOfBirth,timePoint',
+							params : "qf=auto_suggest&defType=edismax&wt=json&q=*:*&fq=geneAccession:\""
+									+ mgiGeneId
+									+ "\"&fq=parameterStableId:"
+									+ paramId
+									+ "&start=0&rows=10000"
+						});
+
+						function initFileExporter(conf) {
+							$('button.fileIcon')
+									.click(
+											function() {
+												var fileType = $(this).text();
+												var url = baseUrl + '/export';
+												var sInputs = '';
+												for ( var k in conf) {
+														sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";
+												}
+												sInputs += "<input type='text' name='fileType' value='"
+														+ fileType
+																.toLowerCase()
+														+ "'>";
+												var form = $("<form action='"+ url + "' method=get>"
+														+ sInputs + "</form>");
+												_doDataExport(url, form);
+											}).corner('6px');
+						}
+
+						function _doDataExport(url, form) {
+							$
+									.ajax({
+										type : 'GET',
+										url : url,
+										cache : false,
+										data : $(form).serialize(),
+										success : function(data) {
+											$(form).appendTo('body').submit()
+													.remove();
+										},
+										error : function() {
+					//						alert("Oops, there is error during data export..");
+										}
+									});
+						}
+					});
+</script>
 				</c:if>
  	</div>
  </c:forEach>
 <!--/end of categoriacl charts-->
+
+
