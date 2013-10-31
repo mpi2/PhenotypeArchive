@@ -1,4 +1,6 @@
-// Timestamp: 2013-07-30-14:42:29
+// Timestamp: 2013-10-31-10:28:31
+// temp change to point at staging
+
 (function ($) {
     'use strict';
 
@@ -110,17 +112,17 @@
         config: {
             defaultSolrURLs: {
                 gene: 'http://ikmc.vm.bytemark.co.uk:8983/solr/gene/search',
-                allele: 'http://ikmc.vm.bytemark.co.uk:8983/solr/allele/search',
+                allele: 'http://ikmc.vm.bytemark.co.uk:8984/solr/allele/search',
                 parameter: 'http://beta.mousephenotype.org/mi/solr/pipeline/select',
                 phenotype: 'http://beta.mousephenotype.org/mi/solr/mp/select'
             }
         }
     };
 
-    if (/(\.|^)mousephenotype.org$/i.test(window.location.hostname)) {
-        MPI2.Search.config.defaultSolrURLs.gene = '/bytemark/solr/gene/search';
-        MPI2.Search.config.defaultSolrURLs.allele = '/bytemark/solr/allele/search';
-    }
+    //if (/(\.|^)mousephenotype.org$/i.test(window.location.hostname)) {
+    //    MPI2.Search.config.defaultSolrURLs.gene = '/bytemark/solr/gene/search';
+    //    MPI2.Search.config.defaultSolrURLs.allele = '/bytemark/solr/allele/search';
+    //}
 
     MPI2.Search.Error = function (message) {
         this.name = "MPI2.Search.Error";
@@ -946,7 +948,7 @@
     });
 
 }(jQuery));
-(function ($) {
+(function($) {
     'use strict';
 
     $.widget("MPI2.mpi2GenePageAlleleGrid", $.MPI2.mpi2SolrGrid, {
@@ -955,9 +957,11 @@
             shouldHideCreKnockIns: true
         },
 
-        _tableType: function () { return 'Alleles'; },
+        _tableType: function() {
+            return 'Alleles';
+        },
 
-        _create: function () {
+        _create: function() {
             var self = this;
 
             self.perPage = 100;
@@ -971,7 +975,6 @@
             $.MPI2.mpi2SolrGrid.prototype._create.call(self);
 
             self._shouldHideRedundantData = true;
-            self._shouldHideGeneData = true;
 
             self.container.addClass('allele');
             self.lastSearchContainer.hide();
@@ -982,104 +985,118 @@
             self.toggleButton = $('<button>Show less / Show more</button>');
             self.buttonContainer.append(self.toggleButton);
 
-            self.toggleButton.bind('click', function () {
-                self._shouldHideRedundantData = ! self._shouldHideRedundantData;
+            self.toggleButton.bind('click', function() {
+                self._shouldHideRedundantData = !self._shouldHideRedundantData;
                 self.changePage(0);
             });
 
             self.grid.before(self.buttonContainer);
         },
 
-        _buildColumns: function () {
+        _buildColumns: function() {
             var self = this;
 
-            var options = [
-                {
-                    name: 'product',
-                    title: 'Product',
-                    cellRenderer: function (doc) {return $('<span>' + doc.solrDoc.product_type + '</span>');}
-                },
-                {
-                    name: 'allele-type',
-                    title: 'Allele Type',
-                    cellRenderer: function (doc) {return $('<span>' + doc.solrDoc.allele_type + '</span>');}
-                },
-                {
-                    name: 'strain-of-origin',
-                    title: 'Strain of Origin',
-                    cellRenderer: function (doc) {
-                        if (doc.solrDoc.strain) {
-                            return $('<span>' + doc.solrDoc.strain + '</span>');
-                        } else {
-                            return $('<span></span>');
-                        }
-                    }
-                },
-                {
-                    name: 'mgi-allele-name',
-                    title: 'MGI Allele Name',
-                    cellRenderer: function (doc) {return $('<span>' + doc.solrDoc.allele_name + '</span>');}
-                },
-                {
-                    name: 'allele-map',
-                    title: 'Allele Map',
-                    cellRenderer: function (doc) {
-                        var url = doc.solrDoc.simple_allele_image_url;
-                        if (url) {
-                        return $('<a href="' + url + '" target="_blank">' +
-                                 '<img width="400" src="' + url + '" alt="allele image" />' +
-                                 '</a>');
-                        }
-                        return '';
-                    }
-                },
-                {
-                    name: 'allele-sequence',
-                    title: 'Allele Sequence',
-                    cellRenderer: function (doc) {return $('<a href=' + doc.solrDoc.genbank_file_url + '>Genbank file</a>');}
-                },
-                {
-                    name: 'order',
-                    title: 'Order',
-                    cellRenderer: function (doc) {
-                        var names, urls, solrDoc = doc.solrDoc;
-
-                        if (!jQuery.isArray(solrDoc.order_from_names) || !jQuery.isArray(doc.solrDoc.order_from_urls)) {
-                            if (!solrDoc.order_from_name || !solrDoc.order_from_url) {
-                                names = [];
-                                urls = [];
-                            } else {
-                                names = [solrDoc.order_from_name];
-                                urls = [solrDoc.order_from_url];
-                            }
-                        } else {
-                            names = solrDoc.order_from_names;
-                            urls = solrDoc.order_from_urls;
-                        }
-
-                        var orderLinks = [];
-                        $.each(names, function (index) {
-                            var name = names[index], url = urls[index];
-
-                            orderLinks.push('<li><a href="' + url + '">' + name + '</a></li>');
-                        });
-
-                        return '<ul>' + orderLinks.join() + '</ul>';
+            var options = [{
+                name: 'product',
+                title: 'Product',
+                cellRenderer: function(doc) {
+                    return $('<span>' + doc.solrDoc.product_type + '</span>');
+                }
+            }, {
+                name: 'allele-type',
+                title: 'Allele Type',
+                cellRenderer: function(doc) {
+                    return $('<span>' + doc.solrDoc.allele_type + '</span>');
+                }
+            }, {
+                name: 'strain-of-origin',
+                title: 'Strain of Origin',
+                cellRenderer: function(doc) {
+                    if (doc.solrDoc.strain) {
+                        return $('<span>' + doc.solrDoc.strain + '</span>');
+                    } else {
+                        return $('<span></span>');
                     }
                 }
-            ];
+            }, {
+                name: 'mgi-allele-name',
+                title: 'MGI Allele Name',
+                cellRenderer: function(doc) {
+                    return $('<span>' + doc.solrDoc.allele_name + '</span>');
+                }
+            }, {
+                name: 'allele-map',
+                title: 'Allele Map',
+                cellRenderer: function(doc) {
+                    var url = doc.solrDoc.simple_allele_image_url;
+                    if (url) {
+                        return $('<a href="' + url + '" target="_blank">' + '<img width="400" src="' + url + '" alt="allele image" />' + '</a>');
+                    }
+                    return '';
+                }
+            }, {
+                name: 'allele-sequence',
+                title: 'Allele Sequence',
+                cellRenderer: function(doc) {
+                    return $('<a href=' + doc.solrDoc.genbank_file_url + '>Genbank file</a>');
+                }
+            }, {
+                name: 'projects',
+                title: 'Product Details',
+                cellRenderer: function(doc) {
+                    if (!doc.solrDoc.project_ids || doc.solrDoc.project_ids.length < 1) {
+                        return '';
+                    }
+                    var html = '';
+                    $.each(doc.solrDoc.project_ids, function(index, value) {
+                        if(value.length < 1) {
+                            return;
+                        }
+                        html += '<a href="' + 'http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/' + value + '" target="_blank">' + value + '</a>' + '&nbsp;';
+                    });
+                    return html;
+                }
+            }, {
+                name: 'order',
+                title: 'Order',
+                cellRenderer: function(doc) {
+                    var names, urls, solrDoc = doc.solrDoc;
+
+                    if (!jQuery.isArray(solrDoc.order_from_names) || !jQuery.isArray(doc.solrDoc.order_from_urls)) {
+                        if (!solrDoc.order_from_name || !solrDoc.order_from_url) {
+                            names = [];
+                            urls = [];
+                        } else {
+                            names = [solrDoc.order_from_name];
+                            urls = [solrDoc.order_from_url];
+                        }
+                    } else {
+                        names = solrDoc.order_from_names;
+                        urls = solrDoc.order_from_urls;
+                    }
+
+                    var orderLinks = [];
+                    $.each(names, function(index) {
+                        var name = names[index],
+                            url = urls[index];
+
+                        orderLinks.push('<li><a href="' + url + '">' + name + '</a></li>');
+                    });
+
+                    return '<ul>' + orderLinks.join() + '</ul>';
+                }
+            }];
 
             $.MPI2.mpi2SolrGrid.prototype._buildColumns.call(self);
             self._addColumns.call(self, options);
         },
 
-        beforeRender: function (docs, continueRenderingFunc) {
+        beforeRender: function(docs, continueRenderingFunc) {
             var self = this;
 
             self._hideData(docs, {
                 shouldHideRedundantData: self._shouldHideRedundantData,
-                shouldHideCreKnockIns: self.options.shouldHideCreKnockIns,
-                shouldHideGeneData: self._shouldHideGeneData
+                shouldHideCreKnockIns: self.options.shouldHideCreKnockIns
             });
 
             self._sortDocs(docs);
@@ -1087,17 +1104,17 @@
             continueRenderingFunc.call(self);
         },
 
-        _hideData: function (docs, options) {
+        _hideData: function(docs, options) {
             var self = this;
 
             var alleleIdsOfMice = [];
             var strainsWithConditionalReadyEsCells = {};
             var docsToKeep = [];
 
-            $.each(docs, function (idx, doc) {
+            $.each(docs, function(idx, doc) {
                 var solrDoc = doc.solrDoc;
                 if (solrDoc.product_type === 'Mouse') {
-                    if(alleleIdsOfMice.indexOf(solrDoc.allele_id) === -1) {
+                    if (alleleIdsOfMice.indexOf(solrDoc.allele_id) === -1) {
                         alleleIdsOfMice.push(solrDoc.allele_id);
                     }
                 }
@@ -1105,24 +1122,14 @@
                 if (solrDoc.product_type === 'ES Cell' && solrDoc.allele_type === 'Conditional Ready') {
                     strainsWithConditionalReadyEsCells[solrDoc.strain] = true;
                 }
-
-                if (solrDoc.allele_type === 'Conditional Ready') {
-                    solrDoc.allele_type = 'Knockout First, Reporter-tagged insertion with conditional potential';
-                }
-
-                if (solrDoc.allele_type === 'Deletion') {
-                    solrDoc.allele_type = 'Reporter-Tagged Deletion';
-                }
             });
 
-            $.each(docs, function (idx, doc) {
-                var solrDoc = doc.solrDoc, keepDoc = true;
+            $.each(docs, function(idx, doc) {
+                var solrDoc = doc.solrDoc,
+                    keepDoc = true;
 
                 if (options.shouldHideRedundantData === true) {
-                    if (solrDoc.product_type === 'ES Cell' &&
-                        solrDoc.allele_type === 'Targeted Non Conditional' &&
-                        alleleIdsOfMice.indexOf(solrDoc.allele_id) === -1 &&
-                        strainsWithConditionalReadyEsCells[solrDoc.strain] === true) {
+                    if (solrDoc.product_type === 'ES Cell' && solrDoc.allele_type === 'Targeted Non Conditional' && alleleIdsOfMice.indexOf(solrDoc.allele_id) === -1 && strainsWithConditionalReadyEsCells[solrDoc.strain] === true) {
                         keepDoc = false;
                     }
                 }
@@ -1133,10 +1140,8 @@
                     }
                 }
 
-                if(options.shouldHideGeneData === true) {
-                    if (solrDoc.type === 'gene') {
-                        keepDoc = false;
-                    }
+                if (solrDoc.type === 'gene') {
+                    keepDoc = false;
                 }
 
                 if (keepDoc === true) {
@@ -1145,27 +1150,27 @@
             });
 
             docs.length = 0;
-            $.each(docsToKeep, function (idx, doc) {
+            $.each(docsToKeep, function(idx, doc) {
                 docs.push(doc);
             });
         },
 
-        _sortDocs: function (docs) {
+        _sortDocs: function(docs) {
             var priorities = {
-                'allele':          100,
-                'mi_attempt':       10,
+                'allele': 100,
+                'mi_attempt': 10,
                 'phenotype_attempt': 1
             };
-            docs.sort(function (doc1, doc2) {
-                var p1 = priorities[doc1.solrDoc.type], p2 = priorities[doc2.solrDoc.type];
+            docs.sort(function(doc1, doc2) {
+                var p1 = priorities[doc1.solrDoc.type],
+                    p2 = priorities[doc2.solrDoc.type];
                 return p2 - p1;
             });
         }
 
     });
 
-}(jQuery));
-(function ($) {
+}(jQuery));(function ($) {
     'use strict';
 
     $.widget('MPI2.mpi2Search', {
