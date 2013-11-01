@@ -2,4 +2,5 @@
 <Context path="/PhenotypeArchive">
   <ResourceLink global="jdbc/komp2DataSource" name="jdbc/komp2DataSource" type="javax.sql.DataSource"/>
   <ResourceLink global="jdbc/ontodbDataSource" name="jdbc/ontodbDataSource" type="javax.sql.DataSource"/>
+  <ResourceLink global="jdbc/phenodigmDataSource" name="jdbc/phenodigmDataSource" type="javax.sql.DataSource"/>
 </Context>

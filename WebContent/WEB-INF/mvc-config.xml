@@ -27,6 +27,7 @@
     <mvc:resources mapping="/documentation/**" location="/resources/documentation/" />
     
 	<context:component-scan base-package="uk.ac.ebi.phenotype.web.controller" />
+	<context:component-scan base-package="uk.ac.sanger.phenodigm2.controller" />
 
 	<!-- <mvc:annotation-driven/> use this if you don't need extra converters -->
 	<mvc:annotation-driven>
