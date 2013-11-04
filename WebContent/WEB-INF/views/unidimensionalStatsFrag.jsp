@@ -34,7 +34,7 @@
 		
 				</c:forEach>
 				
-								<div id="exportIconsDivUni"></div>
+								<%--div id="exportIconsDivUni"></div--%>
 		</div><!-- end of chart row-fluid -->
 		<table id="continuousTable${uniDimensionalLoop.count}" class="table table-bordered  table-striped table-condensed">
 		<thead><tr>

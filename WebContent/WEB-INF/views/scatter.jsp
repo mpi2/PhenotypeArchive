@@ -85,7 +85,7 @@
 		</div><!-- end of row-fluid for graphs -->
 		
 		
-		<div id="exportIconsDiv"></div>
+		<%--div id="exportIconsDiv"></div--%>
 		
 		<table id="continuousTable${uniDimensionalLoop.count}" class="table table-bordered  table-striped table-condensed">
 		<thead><tr>

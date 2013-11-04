@@ -29,7 +29,7 @@
 				</div>
  <%--  ${categoricalResultAndCharts.maleAndFemale} --%>
  				
-		<div id="exportIconsDivCat"></div>
+		<%--div id="exportIconsDivCat"></div--%>
  
  				<div class="row-fluid">
  				<table id="catTable${experimentLoop.index}" class="table table-bordered  table-striped table-condensed">
@@ -154,7 +154,7 @@
 	$(document)
 			.ready(
 					function() {
-						alert("categorical");
+						// alert("categorical");
 						$('div#exportIconsDivCat').append(
 								$.fn.loadFileExporterUI({
 									label : 'Export data as: (categ)',

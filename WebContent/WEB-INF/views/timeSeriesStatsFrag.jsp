@@ -53,7 +53,7 @@
 			by date</a>
 
 
-	<div id="exportIconsDivTS"></div>	
+	<%--div id="exportIconsDivTS"></div--%>	
 		</div>
 		</div>
 		
@@ -103,7 +103,7 @@
 							$('button.fileIcon')
 									.click(
 											function() {
-												alert("click on timeseries");
+											//	alert("click on timeseries");
 												var fileType = $(this).text();
 												var url = baseUrl + '/export';
 												var sInputs = '';
