@@ -116,6 +116,12 @@ public class BiologicalModelDAOImpl extends HibernateDAOImpl implements Biologic
 		}
 		return liveSamples;
 	}
+	@Transactional(readOnly = true)
+	public LiveSample getAllLiveSampleBySampleId(String sampleId){
+		return (LiveSample)getCurrentSession().createQuery("FROM LiveSample WHERE stableId = ?")
+				.setString(0, sampleId)
+				.uniqueResult();
+	}
 	
 	@Transactional(readOnly = true)
 	public BiologicalModel getBiologicalModelById(int modelId) {
