@@ -95,6 +95,7 @@
 			<li class='has-sub ma'>Anatomy</li>	 
 			<li class='has-sub pipeline'>Procedures</li>
 			<li class='has-sub images'>Images</li>
+			<li class='has-sub disease'>Diseases</li>
 		</ul>
        	
        <!--  facet skeleton on left sidebar -->
@@ -132,7 +133,10 @@
 				<div><div class='facetCat'>Images</div><span class='facetCount countDisplay'></span></div>
 				<div class='facetCatList'></div>
 			</div>
-			
+			<div id='diseaseFacet'>
+				<div><div class='facetCat'>Diseases</div><span class='facetCount countDisplay'></span></div>
+				<div class='facetCatList'></div>
+			</div>
 		</div>
 		<!--  end of facet skeleton on left sidebar -->
 		

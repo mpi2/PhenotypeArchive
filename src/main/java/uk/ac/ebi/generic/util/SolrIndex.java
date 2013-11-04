@@ -196,6 +196,11 @@ public class SolrIndex {
 			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
 					+ iDisplayStart + "&rows=" + iDisplayLength;
 //			System.out.println("MA PARAMS: " + url);
+		} else if ( mode.equals("diseaseGrid") ){
+			url = "http://localhost:8983/solr/disease/select?";
+			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
+					+ iDisplayStart + "&rows=" + iDisplayLength;
+			System.out.println("DISEASE PARAMS: " + url);
 		} else if (mode.equals("ikmcAlleleGrid")) {
 			url += "q=" + query;
 			url += "&start=0&rows=0&wt=json";

@@ -160,7 +160,7 @@
 			value = 'started';
 		}
 		
-		var filterTxt = ( facet == 'gene' || facet == 'images' ) ? display + ' : ' + value : value;					
+		var filterTxt = ( facet == 'gene' || facet == 'images' || facet == 'disease' ) ? display + ' : ' + value : value;					
 		if (facet == 'pipeline'){
 			var names = filterTxt.split('___');
 			filterTxt = names[0];
@@ -416,6 +416,7 @@
     				|| aKV[i].match(/fq=\({0,}production_center:.+\)?/)
     				|| aKV[i].match(/fq=\({0,}phenotyping_center:.+\)?/)
     				|| aKV[i].match(/fq=\(?ontology_subset:.+/)
+    				|| aKV[i].match(/fq=\(?type:disease+/)
     				|| aKV[i].match(/\(?imits_phenotype.+\)?/)
     				|| aKV[i].match(/\(?marker_type.+\)?/)
     				|| aKV[i].match(/\(?status.+\)?/)
@@ -754,7 +755,7 @@
         		);	
     			oSettings.jqXHR = $.ajax( {
     	               // "url": "http://ves-ebi-d0.ebi.ac.uk:8080/phenotype-archive-dev/dataTable",
-    	                "data": aoData,
+    	                "data": aoDainvokeDataTableta,
     	                "success": fnCallback,
     	                "success": function(json){
     	                	fnCallback(json);
