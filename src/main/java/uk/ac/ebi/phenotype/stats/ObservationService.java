@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
 import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.SexType;
 
 @Service
 public class ObservationService {
@@ -215,13 +216,26 @@ public class ObservationService {
 		return resultsDTO;
 	}
 
-	public String getUnidimensionalQueryStringByParameterGeneAccZygosityOrganisationStrain(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain) throws SolrServerException {
+	public String getQueryStringByParameterGeneAccZygosityOrganisationStrain(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain) throws SolrServerException {
 
 		SolrQuery query = new SolrQuery()
 	    	.setQuery("geneAccession:"+gene.replace(":", "\\:") + " AND zygosity:"+zygosity+"")
 	    	.addFilterQuery("parameterId:"+parameterId)
 	    	.addFilterQuery("organisationId:"+organisationId)
 	    	.addFilterQuery("strain:"+strain.replace(":", "\\:"))
+	    	.setStart(0)
+	    	.setRows(1000);
+		return query.toString();
+	}
+
+	public String getQueryStringByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain, SexType sex) throws SolrServerException {
+
+		SolrQuery query = new SolrQuery()
+	    	.setQuery("geneAccession:"+gene.replace(":", "\\:") + " AND zygosity:"+zygosity+"")
+	    	.addFilterQuery("parameterId:"+parameterId)
+	    	.addFilterQuery("organisationId:"+organisationId)
+	    	.addFilterQuery("strain:"+strain.replace(":", "\\:"))
+	    	.addFilterQuery("gender:"+sex.name())
 	    	.setStart(0)
 	    	.setRows(1000);
 		return query.toString();
@@ -274,6 +288,24 @@ public class ObservationService {
 		System.out.println("SOLR QWUERY : " + solr.getBaseURL() + query);
 		
 		return solr.query(query).getBeans(ObservationDTO.class);
+	}
+
+	public List<ObservationDTO> getObservationsByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain, SexType sex) throws SolrServerException {
+		List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
+
+		SolrQuery query = new SolrQuery()
+	    	.setQuery("((geneAccession:"+gene.replace(":", "\\:") + " AND zygosity:"+zygosity+") OR biologicalSampleGroup:control) ")
+	    	.addFilterQuery("parameterId:"+parameterId)
+	    	.addFilterQuery("organisationId:"+organisationId)
+	    	.addFilterQuery("strain:"+strain.replace(":", "\\:"))
+	    	.addFilterQuery("gender:"+sex)
+	    	;
+	    query.setStart(0).setRows(10000);    
+
+	    QueryResponse response = solr.query(query);
+	    resultsDTO = response.getBeans(ObservationDTO.class);
+
+		return resultsDTO;
 	}
 
 	
