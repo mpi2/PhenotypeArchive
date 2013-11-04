@@ -48,6 +48,13 @@
 
 	<dependencies>
 
+<!--Phenodigm disease pages dependencies-->
+       <dependency>
+            <groupId>uk.ac.sanger</groupId>
+            <artifactId>phenodigm2-core</artifactId>
+            <version>1.1</version>
+        </dependency>
+        
 	<dependency>
 	<groupId>org.bbop</groupId>
 	<artifactId>OWLTools-Core</artifactId>
