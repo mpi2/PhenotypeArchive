@@ -42,6 +42,11 @@ public class UnidimensionalObservation extends Observation {
 		return dataPoint;
 	}
 
+	@Override
+	public String toString() {
+		return "UnidimensionalObservation [dataPoint=" + dataPoint + "]";
+	}
+
 	/**
 	 * @param dataPoint the dataPoint to set
 	 */
