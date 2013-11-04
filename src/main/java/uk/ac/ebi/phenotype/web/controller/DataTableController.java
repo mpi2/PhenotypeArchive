@@ -496,7 +496,7 @@ public class DataTableController {
 	}
 	
 	public String parseJsonforDiseaseDataTable(JSONObject json, HttpServletRequest request){
-		System.out.println("DISEASE: " + json);
+		
 		String baseUrl = request.getAttribute("baseUrl") + "/phenodigm/disease/";
 		
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
@@ -523,13 +523,13 @@ public class DataTableController {
 			rowData.add(src);
 			
 			// curated data: human/mouse			
-			String isHumanCurated = doc.getString("human_curated").equals("1") ? "Yes" : "No";
+			String isHumanCurated = doc.getString("human_curated").equals("1") ? "Yes" : "-";
 			rowData.add(isHumanCurated);
-			String isMouseCurated = doc.getString("mouse_curated").equals("1") ? "Yes" : "No";
+			String isMouseCurated = doc.getString("mouse_curated").equals("1") ? "Yes" : "-";
 			rowData.add(isMouseCurated);
-			String isImpcPredicted = (doc.getString("impc_predicted").equals("1") || doc.getString("impc_predicted_in_locus").equals("1")) ? "Yes" : "No";
+			String isImpcPredicted = (doc.getString("impc_predicted").equals("1") || doc.getString("impc_predicted_in_locus").equals("1")) ? "Yes" : "-";
 			rowData.add(isImpcPredicted);
-			String isMgiPredicted = (doc.getString("mgi_predicted").equals("1") || doc.getString("mgi_predicted_in_locus").equals("1")) ? "Yes" : "No";
+			String isMgiPredicted = (doc.getString("mgi_predicted").equals("1") || doc.getString("mgi_predicted_in_locus").equals("1")) ? "Yes" : "-";
 			rowData.add(isMgiPredicted);			
 			
 			j.getJSONArray("aaData").add(rowData);

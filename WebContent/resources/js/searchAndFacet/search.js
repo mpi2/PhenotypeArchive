@@ -125,7 +125,7 @@
 		jsonBase.diseaseFacet.srchParams.q = q;		
 		jsonBase.diseaseFacet.srchParams.fq = jsonBase.diseaseFacet.fq;
 		
-		console.log($.fn.stringifyJsonAsUrlParams(jsonBase.diseaseFacet.srchParams));
+		//console.log($.fn.stringifyJsonAsUrlParams(jsonBase.diseaseFacet.srchParams));
 		$.ajax({
     	    url: 'http://localhost:8983/solr/disease/select',
     	    //url: solrUrl + '/disease/select',	
@@ -134,7 +134,7 @@
     	    jsonp: 'json.wrf',
     	    timeout: 10000,
     	    success: function (diseaseResponse) { 	   	    	    		    	   	    	
-    			console.log(diseaseResponse);
+    			
     	    	$('div#diseaseFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.disease = diseaseResponse.response.numFound;
     	    	$('div#diseaseFacet span.facetCount').html(oFacets.count.disease);

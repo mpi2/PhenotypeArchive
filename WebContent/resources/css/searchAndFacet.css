@@ -376,7 +376,7 @@ div.dataTables_wrapper {
 
 /* ----- start of  facet filter ----- */
 div#filterToggle {
-	display: block;
+	display: none;
 }
 ul#facetFilter {
   width: auto;	
@@ -388,7 +388,7 @@ ul#facetFilter {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
-  display: block;
+  display: none;
 }
 ul#facetFilter ul {
   /*z-index: 9999;	
