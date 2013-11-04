@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,15 +25,22 @@ public class ObservationServiceTest {
 	private ObservationService os;
 
 	@Test
+	@Ignore
 	public void testGetControls() throws SolrServerException {
 		List<ObservationDTO> test = os.getControls("ESLIM_001_001_158", "MGI:3028467", 7, new Date());
 		assertTrue(test.size()>0);
 	}
 
 	@Test
+	public void testGetControlsDate() throws SolrServerException {
+		List<ObservationDTO> test = os.getControls("ESLIM_003_001_012", "MGI:1922257", 7, new Date());
+		assertTrue(test.size()>0);
+	}
+
+	@Test
 	public void testGetUrl() throws SolrServerException {
 		
-		String url = os.getUnidimensionalQueryStringByParameterGeneAccZygosityOrganisationStrain(new Integer(1), "MGI:88255", "homozygous", new Integer(3), "MGI:2159965");
+		String url = os.getQueryStringByParameterGeneAccZygosityOrganisationStrain(new Integer(1), "MGI:88255", "homozygous", new Integer(3), "MGI:2159965");
 		
 		System.out.println(url);
 		assertTrue(url.length()>0);
