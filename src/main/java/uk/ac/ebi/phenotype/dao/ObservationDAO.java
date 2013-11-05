@@ -112,5 +112,7 @@ public interface ObservationDAO extends HibernateDAO {
 
 	public List<String> getAllGeneAccessionIdsByParameterOrganisationStrainZygosity(Parameter parameter, Organisation organisation, String strain, ZygosityType zygosity) throws SQLException;
 	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity(Integer parameterId, Organisation organisation, String strain, ZygosityType zygosity) throws SQLException;
+
+	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationStrainZygositySex(Integer parameterId, Organisation organisation, String strain, ZygosityType zygosity, SexType sex) throws SQLException;
 	
 }

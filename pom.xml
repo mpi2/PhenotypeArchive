@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>uk.ac.ebi.phenotype</groupId>
 	<artifactId>PhenotypeArchive</artifactId>
-	<version>0.2.7</version>
+	<version>0.2.9</version>
 	<packaging>war</packaging>
 	<name>EBI Phenotype Archive</name>
 	<description>EBI Phenotype Archive Project</description>
@@ -48,6 +48,13 @@
 
 	<dependencies>
 
+<!--Phenodigm disease pages dependencies-->
+       <dependency>
+            <groupId>uk.ac.sanger</groupId>
+            <artifactId>phenodigm2-core</artifactId>
+            <version>1.1</version>
+        </dependency>
+        
 	<dependency>
 	<groupId>org.bbop</groupId>
 	<artifactId>OWLTools-Core</artifactId>
@@ -59,12 +66,7 @@
 		<artifactId>owlapi-distribution</artifactId>
 		<version>3.4.5</version>
 	</dependency>
-        <!--Phenodigm disease pages dependencies-->
-       <dependency>
-            <groupId>uk.ac.sanger</groupId>
-            <artifactId>phenodigm2-core</artifactId>
-            <version>1.1</version>
-        </dependency>
+
 	<dependency>
 		<groupId>org.bbop</groupId>
 		<artifactId>OWLTools-Oort</artifactId>
@@ -548,7 +550,7 @@
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>2.4.2</version>
 					<configuration>
-						<skipTests>true</skipTests>
+						<skipTests>false</skipTests>
 						<testFailureIgnore>true</testFailureIgnore>
 						<excludes>
 							<exclude>**/integration/**</exclude>

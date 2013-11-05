@@ -104,7 +104,7 @@ public class FileExportController {
 		log.debug("solr params: " + solrParams);
 		Workbook wb = null;
 		String dataString = null;
-		
+		List<String> dataRows = new ArrayList<String> ();
 		// Default to exporting 10 rows
 		Integer length = 10;
 
@@ -160,8 +160,8 @@ public class FileExportController {
 				}
 
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
-				dataString = StringUtils.join(composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request), "\n");
-
+			//	dataString = StringUtils.join(composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request), "\n");
+				dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);
 			}
 		}
 		
@@ -172,18 +172,22 @@ public class FileExportController {
 			
 			if ( fileType.equals("tsv") ){
 				ServletOutputStream output = response.getOutputStream();
-				StringBuffer sb = new StringBuffer();						
-				sb.append(dataString);					
-	 
+				for (String line : dataRows){
+					output.println(line);
+				}
+//				StringBuffer sb = new StringBuffer();						
+//				sb.append(dataString);			
+				
+				/*
 				InputStream in = new ByteArrayInputStream(sb.toString().getBytes("UTF-8"));
 	 
-				byte[] outputByte = new byte[4096];
+				byte[] outputByte = new byte[1024];
 				//copy binary content to output stream
-				while(in.read(outputByte, 0, 4096) != -1) {
-					output.write(outputByte, 0, 4096);
+				while(in.read(outputByte, 0, 1024) != -1) {
+					output.write(outputByte, 0, 1024);
 				}
 				
-				in.close();					
+				in.close();			*/		
 				output.flush();
 				output.close();
 			}
@@ -388,7 +392,11 @@ public class FileExportController {
 						}
 					}
 					data.add(graphUrl);
-					rowData.add(StringUtils.join(data, "\t"));
+					String line = StringUtils.join(data, "\t");
+					if (!rowData.contains(line)){
+						rowData.add(line);
+					}else 
+						System.out.println("Duplicate row " + line);
 				}
 			}
 		}
@@ -441,6 +449,7 @@ public class FileExportController {
 				}
 			}
 		}
+		System.out.println("RETURN rowData with " + rowData.size());
 		return rowData;
 	}
 	
