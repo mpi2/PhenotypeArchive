@@ -1,6 +1,6 @@
 <dataConfig>	
 
-  <dataSource name="phenodb" jndiName="java:comp/env/jdbc/phenodigmDataSource"/>
+  <dataSource name="phenodb" jndiName="java:comp/env/jdbc/phenodigmDataSource"/>	
 	
     <document>
         <!--disease_summary-->
