@@ -86,7 +86,7 @@
 			}				
 			
 			var val;
-			if ( fqField == 'top_level_mp_term' || fqField == 'higherLevelMpTermName' ) {
+			if ( fqField == 'top_level_mp_term' || fqField == 'annotated_or_inferred_higherLevelMpTermName' ) {
 				val = aVals[2] + ' phenotype';				
 				fqFieldVals[fqField].push(fqFieldOri + ':"' + val + '"');
 			}
@@ -436,6 +436,7 @@
     			if ( aKV[i] == 'fq=' + MPI2.searchAndFacetConfig.facetParams.imagesFacet.fq
     				|| aKV[i].match(/fq=\(?marker_type:* -marker_type:"heritable phenotypic marker"\)?/) 
     				|| aKV[i].match(/fq=\(?annotationTermId:M* OR expName:* OR symbol:*.+\)?/) 
+    				|| aKV[i].match(/fq=\(?annotated_or_inferred.+\)?/) 
     				|| aKV[i].match(/fq=\(?expName.+\)?|fq=\(?higherLevel.+\)?|fq=\(?subtype.+\)?/) 
     				|| aKV[i].match(/fq=ontology_subset:\* AND \(?top_level_mp_term.+\)?/)
     				|| aKV[i].match(/fq=ontology_subset:IMPC_Terms AND \(?selected_top_level_ma_term.+\)?/)
