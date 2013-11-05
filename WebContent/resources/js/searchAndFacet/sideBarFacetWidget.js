@@ -841,8 +841,8 @@
 	    	
 	    	var paramStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
 	    		+ "&facet.field=expName"
-	    		+ "&facet.field=higherLevelMaTermName"
-	    		+ "&facet.field=higherLevelMpTermName"
+	    		+ "&facet.field=annotated_or_inferred_higherLevelMaTermName"
+	    		+ "&facet.field=annotated_or_inferred_higherLevelMpTermName"
 	    		+ "&facet.field=subtype"
 	    		    	
 	    	$.ajax({	
@@ -860,9 +860,9 @@
 	    			var aFacetFields = json.facet_counts.facet_fields; // eg. expName, symbol..
 	    			
 	    			var displayLabel = {
-	    								higherLevelMaTermName: 'Anatomy',
+	    								annotated_or_inferred_higherLevelMaTermName: 'Anatomy',
 	    								expName : 'Procedure',	    					            
-	    					            higherLevelMpTermName: 'Phenotype',
+	    								annotated_or_inferred_higherLevelMpTermName: 'Phenotype',
 	    					            subtype: 'Gene'
 	    								};	    			    			    			
 	    				    			

@@ -143,8 +143,8 @@
   	    	
   	    	var paramStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
   	    		+ "&facet.field=expName"
-  	    		+ "&facet.field=higherLevelMaTermName"
-  	    		+ "&facet.field=higherLevelMpTermName"
+  	    		+ "&facet.field=annotated_or_inferred_higherLevelMpTermName"
+  	    		+ "&facet.field=annotated_or_inferred_higherLevelMaTermName"
   	    		+ "&facet.field=subtype"
   	    		    	
   	    	$.ajax({	
@@ -164,17 +164,17 @@
   	    			
   	    			// do some sorting for facet names, but put Phenotype on front of list
   	    			for ( var facetName in aFacetFields ){ 	
-  	    				if (facetName != 'higherLevelMpTermName' ){
+  	    				if (facetName != 'annotated_or_inferred_higherLevelMpTermName' ){
   	    					aSubFacetNames.push(facetName);
   	    				}
   	    			}	
   	    			aSubFacetNames.sort();
-  	    			aSubFacetNames.unshift('higherLevelMpTermName');
+  	    			aSubFacetNames.unshift('annotated_or_inferred_higherLevelMpTermName');
   	    			  	    			
   	    			var displayLabel = {
-  	    								higherLevelMaTermName: 'Anatomy',
+  	    					annotated_or_inferred_higherLevelMaTermName: 'Anatomy',
   	    								expName : 'Procedure',	    					            
-  	    					            higherLevelMpTermName: 'Phenotype',
+  	    								annotated_or_inferred_higherLevelMpTermName: 'Phenotype',
   	    					            subtype: 'Gene'
   	    								};	    			    			    			
   	    				    			
@@ -189,11 +189,11 @@
   	    					var catLabel    = displayLabel[facetName];
   	    					//console.log(fieldName + ' : '+ facetCount);
   	    					
-  	    					var hiddenClass = facetName == 'higherLevelMpTermName' ? null : 'trHidden';  	    						
+  	    					var hiddenClass = facetName == 'annotated_or_inferred_higherLevelMpTermName' ? null : 'trHidden';  	    						
   	    					var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i, 'class':'subFacet ' + hiddenClass + ' ' + facetName});
   	    					
   	    					//var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i, 'class':'subFacet trHidden ' + facetName});
-  	    					var displayName = facetName == 'higherLevelMpTermName' ? fieldName.replace(' phenotype', '') : fieldName;
+  	    					var displayName = facetName == 'annotated_or_inferred_higherLevelMpTermName' ? fieldName.replace(' phenotype', '') : fieldName;
   	    					var td1 = $('<td></td>').attr({'class': 'imgSubfacet', 'rel': facetCount}).text(displayName);
   	    				
   	    					var imgBaseUrl = baseUrl + "/images?";
@@ -224,7 +224,7 @@
   		    	    		if ( i == 0 ){
   		    	    			
   	    						var catTr = $('<tr></tr>').attr({'class':'facetSubCat '+ facetName});  	
-  	    						var collapeClass = (facetName == 'higherLevelMpTermName') ? 'unCollapse' : null;
+  	    						var collapeClass = (facetName == 'annotated_or_inferred_higherLevelMpTermName') ? 'unCollapse' : null;
   	    						
   	    						var catTd = $('<td></td>').attr({'colspan':3, 'class':collapeClass}).text(catLabel);
   	    						

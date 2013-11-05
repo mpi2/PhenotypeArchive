@@ -79,8 +79,8 @@ config.facetFilterLabel = {
 	'top_level_mp_term'          : 'top_level_term',
 	'selected_top_level_ma_term' : 'top_level_term',
 	'procedure_stable_id'        : 'procedrue',
-	'higherLevelMaTermName'      : 'anatomy',
-	'higherLevelMpTermName'      : 'phenotype',
+	'annotated_or_inferred_higherLevelMaTermName'      : 'anatomy',
+	'annotated_or_inferred_higherLevelMpTermName'      : 'phenotype',
 	'expName'                    : 'procedure',
 	'subtype'                    : 'gene_subtype',
 	'disease_classes' 			 : 'classification',
@@ -227,11 +227,11 @@ config.facetParams = {
 	 
 	 imagesFacet: {		
 		 type: 'images',		 
-		 subFacetFqFields: ['expName', 'higherLevelMaTermName', 'higherLevelMpTermName', 'subtype'],
+		 subFacetFqFields: ['expName', 'annotated_or_inferred_higherLevelMaTermName', 'annotated_or_inferred_higherLevelMpTermName', 'subtype'],
 		 solrCoreName: 'images',
 		 tableCols: 2, 
 		 tableHeader: '<thead><th>Name</th><th>Example Images</th></thead>', 
-		 fq: 'annotationTermId:M* OR expName:* OR symbol:* OR higherLevelMaTermName:* OR higherLevelMpTermName:*',		
+		 fq: 'annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotated_or_inferred_higherLevelMpTermName:*',		
 		 qf: 'auto_suggest', 
 		 defType: 'edismax',
 		 wt: 'json',
@@ -245,7 +245,7 @@ config.facetParams = {
 		 showImgView: true,		 
 		 breadCrumbLabel: 'Images',
 		 filterParams: {//'fl' : 'annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath',
-			 	  'fq' : "(annotationTermId:M* OR expName:* OR symbol:* OR higherLevelMaTermName:* OR higherLevelMpTermName:*)"},	
+			 	  'fq' : "(annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotated_or_inferred_higherLevelMpTermName:*)"},	
 	 	 srchParams: $.extend({},
 				commonSolrParams				
 				)

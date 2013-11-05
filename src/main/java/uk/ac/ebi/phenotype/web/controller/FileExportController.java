@@ -250,6 +250,9 @@ public class FileExportController {
 		else if ( solrCoreName.equals("images") ){
 			rows = composeImageDataTableRows(json,  iDisplayStart,  iDisplayLength, showImgView, solrParams, request);
 		}
+		else if ( solrCoreName.equals("disease") ){
+			rows = composeDiseaseDataTableRows(json);
+		}
 		else if ( solrCoreName.equals("genotype-phenotype") ){
 			rows = composeGPDataTableRows(json, request);
 		}
@@ -666,7 +669,27 @@ public class FileExportController {
 		
 		return rowData;		
 	}
-
+	private List<String> composeDiseaseDataTableRows(JSONObject json){
+		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");	
+		
+		List<String> rowData = new ArrayList<String>();
+		rowData.add("Disease id\tDisease name\tSource\tCurated genes in human\tCurated genes in mouse (MGI)\tCandidate genes by phenotype (MGI)\tCandidate genes by phenotype (IMPC)"); // column names	
+		
+		for (int i=0; i<docs.size(); i++) {			
+			List<String> data = new ArrayList<String>();
+			JSONObject doc = docs.getJSONObject(i);
+			data.add(doc.getString("disease_id"));
+			data.add(doc.getString("disease_term"));
+			data.add(doc.getString("disease_source"));
+			data.add(doc.getString("human_curated").equals("1") ? "Yes" : "-");
+			data.add(doc.getString("mouse_curated").equals("1") ? "Yes" : "-");
+			data.add((doc.getString("impc_predicted").equals("1") || doc.getString("impc_predicted_in_locus").equals("1")) ? "Yes" : "-");
+			data.add((doc.getString("mgi_predicted").equals("1") || doc.getString("mgi_predicted_in_locus").equals("1")) ? "Yes" : "-");
+						
+			rowData.add(StringUtils.join(data, "\t"));
+		}
+		return rowData;
+	}
 	private String[] fetchGeneVariantsTitles(){		
 		String[] titles = {"Gene", "Allele Symbol", "Zygosity", "Sex", "Procedure", "Data"};		
 		return titles;

@@ -442,7 +442,7 @@
 								</div>
 								<div id="collapse${status.count}" class="accordion-body collapse<c:if test="${status.count ==1}"> in</c:if>">
 									<div class="accordion-inner">
-							 			<a href='${baseUrl}/images?gene_id=${acc}&q=expName:"Wholemount Expression"&fq=higherLevelMaTermName:"${entry.name}"'>[show all  ${entry.count} images]</a>
+							 			<a href='${baseUrl}/images?gene_id=${acc}&q=expName:"Wholemount Expression"&fq=annotated_or_inferred_higherLevelMaTermName:"${entry.name}"'>[show all  ${entry.count} images]</a>
 										<ul>
 										<c:forEach var="doc" items="${expFacetToDocs[entry.name]}">
                                                                                     <li class="span2">
