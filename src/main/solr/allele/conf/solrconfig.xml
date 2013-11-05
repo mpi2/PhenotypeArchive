@@ -95,7 +95,15 @@
       <str name="echoParams">all</str>
     </lst>
   </requestHandler>
-   
+  
+  <requestHandler name="/select" class="solr.SearchHandler">
+    <lst name="defaults">
+      <str name="echoParams">explicit</str>
+      <int name="rows">10</int>
+      <str name="df">*</str>
+    </lst>
+  </requestHandler>
+  
   <!-- config for the admin interface --> 
   <admin>
     <defaultQuery>solr</defaultQuery>
