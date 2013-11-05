@@ -46,8 +46,14 @@ private static final Logger log = Logger.getLogger(ScatterGraph.class);
 		Float max = new Float(0);
 		Float min = new Float(100000000);
 		Map<String, Float> minMax = new HashMap<String, Float>();
-		String parameterUnitxAxis = parameter.checkParameterUnit(2);
+		String yAxisLabel="";
+		String parameterUnitxAxis = parameter.checkParameterUnit(1);
 		String parameterUnitYAxis = parameter.checkParameterUnit(2);
+			if(parameterUnitYAxis==null) {
+					yAxisLabel=parameterUnitxAxis;
+			}else {
+					yAxisLabel=parameterUnitYAxis;
+			}
 		List<String> categoriesList = new ArrayList<String>();
 		// List<String> categoriesListBarChart = new ArrayList<String>();
 
@@ -99,7 +105,7 @@ private static final Logger log = Logger.getLogger(ScatterGraph.class);
 		
 
 		String chartString = createScatterPlotChartsString(categoriesList,
-				title, sexType, parameterUnitYAxis, mouseDataPointSets,
+				title, sexType, yAxisLabel, mouseDataPointSets,
 				byMouseId);
 		// continuousCharts.add(chartString);
 		ChartData cNTable = new ChartData();
