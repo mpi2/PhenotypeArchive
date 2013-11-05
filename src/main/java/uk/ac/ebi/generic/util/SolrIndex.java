@@ -132,7 +132,8 @@ public class SolrIndex {
 			gridFields += ",imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,ikmc_project,imits_phenotype_started,imits_phenotype_complete,imits_phenotype_status";
 		}
 
-		String newgridSolrParams = gridSolrParams + "&rows=" + length
+		//String newgridSolrParams = gridSolrParams + "&rows=" + length
+				String newgridSolrParams = gridSolrParams 		
 				+ "&start=" + start + "&fl=" + gridFields;
 
 		String url = composeSolrUrl(core, "", "", newgridSolrParams, start,

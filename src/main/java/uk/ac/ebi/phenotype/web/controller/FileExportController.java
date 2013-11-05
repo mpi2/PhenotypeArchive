@@ -128,7 +128,9 @@ public class FileExportController {
 			else if ( !solrCoreName.isEmpty() ){					
 				if (dumpMode.equals("all")){
 					rowStart = 0;
-					length = parseMaxRow(solrParams); // this is the facetCount				
+					//length = parseMaxRow(solrParams); // this is the facetCount	
+					length = 999999;	
+					solrParams = solrParams.replace("rows=10", "rows="+length);
 				}
 													
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
@@ -156,7 +158,8 @@ public class FileExportController {
 
 				if (dumpMode.equals("all")){
 					rowStart = 0;
-					length = 50000;
+					length = 999999;
+					solrParams = solrParams.replace("rows=10", "rows="+length);
 				}
 
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
@@ -175,19 +178,19 @@ public class FileExportController {
 				for (String line : dataRows){
 					output.println(line);
 				}
-//				StringBuffer sb = new StringBuffer();						
-//				sb.append(dataString);			
 				
-				/*
+				/*StringBuffer sb = new StringBuffer();						
+				sb.append(dataString);			
+								
 				InputStream in = new ByteArrayInputStream(sb.toString().getBytes("UTF-8"));
 	 
 				byte[] outputByte = new byte[1024];
 				//copy binary content to output stream
 				while(in.read(outputByte, 0, 1024) != -1) {
 					output.write(outputByte, 0, 1024);
-				}
+				}				
+				in.close();	*/
 				
-				in.close();			*/		
 				output.flush();
 				output.close();
 			}
