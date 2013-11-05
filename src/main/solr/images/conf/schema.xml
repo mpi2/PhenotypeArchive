@@ -105,7 +105,6 @@
 	<field name="yEnd"   type="float"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="annotationTermId"   type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="annotationTermName"   type="string"   indexed="true"  stored="true"  multiValued="true" />
-	<field name="annotationTermName2"   type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="name"   type="string"   indexed="true"  stored="true"  multiValued="false" /> 
 	<field name="accession"   type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="expName"   type="string"   indexed="true"  stored="true"  multiValued="true" />
@@ -114,19 +113,30 @@
 	<field name="fullResolutionFilePath" type="string"   indexed="false"  stored="true"/>
 	<field name="largeThumbnailFilePath" type="string"   indexed="false"  stored="true"/>
 	<field name="originalFileName" type="string"   indexed="false"  stored="true"/>
-	<field name="smallThumbnailFilePath" type="string"   indexed="true"  stored="true"/>
-	<field name="higherLevelMaTermId"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="smallThumbnailFilePath" type="string"   indexed="true"  stored="true"/>	
 	<field name="ageInWeeks"  type="string"   indexed="true"  stored="true"  multiValued="false" />
-	<field name="higherLevelMaTermName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+
+	<field name="inferredMpTermId" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="inferredMpTermName" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="inferredMaTermId" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="inferredMaTermName" type="string" indexed="true" stored="true" multiValued="true" />	
+
+	<field name="annotatedHigherLevelMaTermId" type="string" indexed="true" stored="true" multiValued="true" />	
+	<field name="annotatedHigherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="annotatedHigherLevelMpTermId" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="annotatedHigherLevelMpTermName" type="string" indexed="true" stored="true" multiValued="true" />
 	
-	<field name="mappedHigherLevelMaTermId" type="string"   indexed="true"  stored="true"  multiValued="true" />
-	<field name="mappedHigherLevelMaTermName" type="string"   indexed="true"  stored="true"  multiValued="true" />	
-	<field name="mappedHigherLevelMpTermId" type="string"   indexed="true"  stored="true"  multiValued="true" />
-	<field name="mappedHigherLevelMpTermName" type="string"   indexed="true"  stored="true"  multiValued="true" />	
-	
-	<field name="higherLevelMpTermId" type="string" indexed="true" stored="true" multiValued="true" />
-	<field name="higherLevelMpTermName" type="string" indexed="true" stored="true" multiValued="true" />
-	
+	<field name="inferredHigherLevelMaTermId" type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="inferredHigherLevelMaTermName" type="string"   indexed="true"  stored="true"  multiValued="true" />	
+	<field name="inferredHigherLevelMpTermId" type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="inferredHigherLevelMpTermName" type="string"   indexed="true"  stored="true"  multiValued="true" />	
+
+	<field name="annotated_or_inferred_higherLevelMpTermName" type="string" indexed="true" stored="true" multiValued="true" />	
+	<field name="annotated_or_inferred_higherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />
+
+        <field name="annotated_or_inferred_higherLevelMpTermId" type="string" indexed="true" stored="true" multiValued="true" />	
+	<field name="annotated_or_inferred_higherLevelMaTermId" type="string" indexed="true" stored="true" multiValued="true" />
+
 	<field name="symbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="institute"  type="string"   indexed="true"  stored="true"  multiValued="false" />
 	<field name="sangerSymbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />
@@ -159,7 +169,7 @@
 	<field name="text"   type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
 	<field name="text_search" type="text_general" indexed="true" stored="false" multiValued="true"/>   
-   
+   	
  </fields>
 
     <uniqueKey>id</uniqueKey>
@@ -178,9 +188,19 @@
     <copyField source="tagValue" dest="auto_suggest" /> 
     <copyField source="expName" dest="auto_suggest" />
     <copyField source="annotationTermName" dest="auto_suggest" />
-    <copyField source="annotationTermName2" dest="auto_suggest" />
-    <copyField source="higherLevelMaTermName" dest="auto_suggest" />
-    <copyField source="higherLevelMpTermName" dest="auto_suggest" />
+    <copyField source="annotatedHigherLevelMaTermName" dest="auto_suggest" />
+    <copyField source="annotatedHigherLevelMpTermName" dest="auto_suggest" />
+
+    <copyField source="annotatedHigherLevelMpTermName" dest="annotated_or_inferred_higherLevelMpTermName" />
+    <copyField source="inferredHigherLevelMpTermName" dest="annotated_or_inferred_higherLevelMpTermName" />
+    <copyField source="annotatedHigherLevelMaTermName" dest="annotated_or_inferred_higherLevelMaTermName" />
+    <copyField source="inferredHigherLevelMaTermName" dest="annotated_or_inferred_higherLevelMaTermName" />
+
+    <copyField source="annotatedHigherLevelMpTermId" dest="annotated_or_inferred_higherLevelMpTermId" />
+    <copyField source="inferredHigherLevelMpTermId" dest="annotated_or_inferred_higherLevelMpTermId" />
+    <copyField source="annotatedHigherLevelMaTermId" dest="annotated_or_inferred_higherLevelMaTermId" />
+    <copyField source="inferredHigherLevelMaTermId" dest="annotated_or_inferred_higherLevelMaTermId" />
+
     <copyField source="symbol" dest="auto_suggest" />
     <copyField source="geneName" dest="auto_suggest" />
     <copyField source="geneSynonyms" dest="auto_suggest" />
@@ -193,8 +213,8 @@
     <copyField source="tagValue" dest="text_search" /> 
     <copyField source="expName" dest="text_search" />
     <copyField source="annotationTermName" dest="text_search" />
-    <copyField source="higherLevelMaTermName" dest="text_search" />
-    <copyField source="higherLevelMpTermName" dest="text_search" />
+    <copyField source="annotatedHigherLevelMaTermName" dest="text_search" />
+    <copyField source="annotatedHigherLevelMpTermName" dest="text_search" />
     <copyField source="symbol" dest="text_search" />
     <copyField source="geneName" dest="text_search" />
     <copyField source="geneSynonyms" dest="text_search" />
