@@ -15,9 +15,7 @@
  */
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,9 +33,9 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpRequest;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -50,6 +48,9 @@ import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.PipelineSolrImpl;
+import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.stats.ExperimentDTO;
+import uk.ac.ebi.phenotype.stats.ExperimentService;
 
 @Controller
 public class FileExportController {
@@ -65,8 +66,12 @@ public class FileExportController {
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 
-	private String tsvDelimiter = "\t";
+	@Autowired
+	private ExperimentService experimentService;
+		
 	
+
+	private String tsvDelimiter = "\t";
 	//eg ESLIM_001_001_115
 	private String patternStr = "(.+_\\d+_\\d+_\\d+)";
 	private Pattern pattern = Pattern.compile(patternStr);
@@ -89,6 +94,9 @@ public class FileExportController {
 		@RequestParam(value="mpId", required=false) String mpId,
 		@RequestParam(value="mpTerm", required=false) String mpTerm,			
 		@RequestParam(value="mgiGeneId", required=false) String mgiGeneId,
+		@RequestParam(value="parameterStableId", required=false) String parameterStableId, // should be filled for graph data export
+		@RequestParam(value="zygosity", required=false) String zygosity, // should be filled for graph data export
+		@RequestParam(value="strain", required=false) String strain, // should be filled for graph data export
 		@RequestParam(value="geneSymbol", required=false) String geneSymbol,			
 		@RequestParam(value="solrCoreName", required=false) String solrCoreName,
 		@RequestParam(value="params", required=false) String solrParams,
@@ -128,14 +136,18 @@ public class FileExportController {
 			else if ( !solrCoreName.isEmpty() ){					
 				if (dumpMode.equals("all")){
 					rowStart = 0;
-					//length = parseMaxRow(solrParams); // this is the facetCount	
-					length = 999999;	
-					solrParams = solrParams.replace("rows=10", "rows="+length);
+					length = parseMaxRow(solrParams); // this is the facetCount				
 				}
 													
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
-				List<String> rows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);
-				
+				List<String> rows;
+				if (!solrCoreName.equalsIgnoreCase("experiment")){
+					rows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);
+				}
+				else{
+					String zyg = (zygosity.equalsIgnoreCase("null")) ? null : zygosity; 
+					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, null, null, zyg, strain);
+				}
 				// Remove the title row (row 0) from the list and assign it to
 				// the string array for the spreadsheet
 				String[] titles = rows.remove(0).split("\t");				
@@ -158,13 +170,13 @@ public class FileExportController {
 
 				if (dumpMode.equals("all")){
 					rowStart = 0;
-					length = 999999;
-					solrParams = solrParams.replace("rows=10", "rows="+length);
+					length = 50000;
 				}
 
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
-			//	dataString = StringUtils.join(composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request), "\n");
-				dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);
+				if (!solrCoreName.equalsIgnoreCase("experiment")){
+					dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);}
+				else dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, null, null, zygosity, strain);
 			}
 		}
 		
@@ -178,19 +190,19 @@ public class FileExportController {
 				for (String line : dataRows){
 					output.println(line);
 				}
+//				StringBuffer sb = new StringBuffer();						
+//				sb.append(dataString);			
 				
-				/*StringBuffer sb = new StringBuffer();						
-				sb.append(dataString);			
-								
+				/*
 				InputStream in = new ByteArrayInputStream(sb.toString().getBytes("UTF-8"));
 	 
 				byte[] outputByte = new byte[1024];
 				//copy binary content to output stream
 				while(in.read(outputByte, 0, 1024) != -1) {
 					output.write(outputByte, 0, 1024);
-				}				
-				in.close();	*/
+				}
 				
+				in.close();			*/		
 				output.flush();
 				output.close();
 			}
@@ -236,7 +248,19 @@ public class FileExportController {
 			}
 		}
 		return tableData;
-	}	
+	}
+	
+	public List<String> composeExperimetDataExportRows(String parameterStableId, String geneAccession, String gender, Integer organisationId, String zygosity, String strain ) throws SolrServerException, IOException, URISyntaxException{
+		List<String> rows = new ArrayList<String>();
+		SexType sex = null;
+		if (gender != null)
+			sex = SexType.valueOf(gender);
+		List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameterStableId, geneAccession, sex, organisationId, zygosity, strain);
+		for (ExperimentDTO experiment : experimentList) { 
+			rows.addAll(experiment.getTabbedToString()) ;
+		}
+		return rows;
+	}
 
 	public List<String> composeDataTableExportRows(String solrCoreName, JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request){
 		List<String> rows = null;
@@ -256,103 +280,10 @@ public class FileExportController {
 		else if ( solrCoreName.equals("images") ){
 			rows = composeImageDataTableRows(json,  iDisplayStart,  iDisplayLength, showImgView, solrParams, request);
 		}
-		else if ( solrCoreName.equals("disease") ){
-			rows = composeDiseaseDataTableRows(json);
-		}
 		else if ( solrCoreName.equals("genotype-phenotype") ){
 			rows = composeGPDataTableRows(json, request);
 		}
-		else if (solrCoreName.equals("experiment")){
-			rows = composeExperimentDataExport(json,request);
-		}
 		return rows;
-	}
-	 
-	
-	private List<String> composeExperimentDataExport(JSONObject json, HttpServletRequest request) { 
-
-		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");	
-		List<String> rowData = new ArrayList<String>();
-		PipelineSolrImpl pipe = new PipelineSolrImpl(config);
-
-		if (request.getParameter("page").equalsIgnoreCase("timeSeries")){
-			System.out.println("TIME SERIES " + docs.getJSONObject(0));
-			rowData.add("timePoint\tdateOfBirth\tgender\tzygosity\tdataPoint\tdiscretePoint\tdateOfExperiment"); 
-			for (int i=0; i<docs.size(); i++) {			
-				List<String> data = new ArrayList<String>();
-				JSONObject doc = docs.getJSONObject(i);
-				data.add(doc.getString("timePoint"));
-				data.add(doc.getString("dateOfBirth"));
-				data.add(doc.getString("gender"));
-				data.add(doc.getString("zygosity"));
-				data.add(doc.getString("dataPoint"));
-				data.add(doc.getString("discretePoint"));
-				data.add(doc.getString("dateOfExperiment"));
-				
-				rowData.add(StringUtils.join(data, "\t"));
-			}
-		}
-		else if (request.getParameter("page").equalsIgnoreCase("scatterPlot")){
-			System.out.println("TIME SERIES " + docs.getJSONObject(0));
-			rowData.add("dateOfBirth\tgender\tzygosity\tdataPoint\tdateOfExperiment"); 
-				for (int i=0; i<docs.size(); i++) {			
-					List<String> data = new ArrayList<String>();
-					JSONObject doc = docs.getJSONObject(i);
-					data.add(doc.getString("dateOfBirth"));
-					data.add(doc.getString("gender"));
-					data.add(doc.getString("zygosity"));
-					data.add(doc.getString("dataPoint"));
-					data.add(doc.getString("dateOfExperiment"));
-					
-					rowData.add(StringUtils.join(data, "\t"));
-				}
-		}
-		else if (request.getParameter("page").equalsIgnoreCase("categorical")){
-			System.out.println("CATEGORICAL: " + docs.getJSONObject(0));
-			rowData.add("dateOfBirth\tgender\tzygosity\tdateOfExperiment"); 
-				for (int i=0; i<docs.size(); i++) {			
-					List<String> data = new ArrayList<String>();
-					JSONObject doc = docs.getJSONObject(i);
-					data.add(doc.getString("dateOfBirth"));
-					data.add(doc.getString("gender"));
-					data.add(doc.getString("zygosity"));
-					data.add(doc.getString("dateOfExperiment"));
-					
-					rowData.add(StringUtils.join(data, "\t"));
-				}
-		}
-		else if (request.getParameter("page").equalsIgnoreCase("unidimensionalData")){
-			System.out.println("UNIDIMENSIONAL " + docs.getJSONObject(0));
-			System.out.println(request);
-			rowData.add("dateOfBirth\tgender\tzygosity\tdataPoint\tdateOfExperiment");
-				for (int i=0; i<docs.size(); i++) {			
-					List<String> data = new ArrayList<String>();
-					JSONObject doc = docs.getJSONObject(i);
-					data.add(doc.getString("dateOfBirth"));
-					data.add(doc.getString("gender"));
-					data.add(doc.getString("zygosity"));
-					data.add(doc.getString("dataPoint"));
-					data.add(doc.getString("dateOfExperiment"));
-					
-					rowData.add(StringUtils.join(data, "\t"));
-				}
-		}
-		else if (request.getParameter("page").equalsIgnoreCase("stats")){
-			System.out.println("STATS " + docs.getJSONObject(0));
-			rowData.add("dateOfBirth\tgender\tzygosity\tdataPoint\tdateOfExperiment"); 
-				for (int i=0; i<docs.size(); i++) {			
-					List<String> data = new ArrayList<String>();
-					JSONObject doc = docs.getJSONObject(i);
-					data.add(doc.getString("dateOfBirth"));
-					data.add(doc.getString("gender"));
-					data.add(doc.getString("zygosity"));
-					data.add(doc.getString("dataPoint"));
-					data.add(doc.getString("dateOfExperiment"));
-					
-					rowData.add(StringUtils.join(data, "\t"));
-				}
-		}
-		return rowData;
 	}
 	
 	// Export for tables on gene  & phenotype page
@@ -680,27 +611,7 @@ public class FileExportController {
 		
 		return rowData;		
 	}
-	private List<String> composeDiseaseDataTableRows(JSONObject json){
-		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");	
-		
-		List<String> rowData = new ArrayList<String>();
-		rowData.add("Disease id\tDisease name\tSource\tCurated genes in human\tCurated genes in mouse (MGI)\tCandidate genes by phenotype (MGI)\tCandidate genes by phenotype (IMPC)"); // column names	
-		
-		for (int i=0; i<docs.size(); i++) {			
-			List<String> data = new ArrayList<String>();
-			JSONObject doc = docs.getJSONObject(i);
-			data.add(doc.getString("disease_id"));
-			data.add(doc.getString("disease_term"));
-			data.add(doc.getString("disease_source"));
-			data.add(doc.getString("human_curated").equals("1") ? "Yes" : "-");
-			data.add(doc.getString("mouse_curated").equals("1") ? "Yes" : "-");
-			data.add((doc.getString("impc_predicted").equals("1") || doc.getString("impc_predicted_in_locus").equals("1")) ? "Yes" : "-");
-			data.add((doc.getString("mgi_predicted").equals("1") || doc.getString("mgi_predicted_in_locus").equals("1")) ? "Yes" : "-");
-						
-			rowData.add(StringUtils.join(data, "\t"));
-		}
-		return rowData;
-	}
+
 	private String[] fetchGeneVariantsTitles(){		
 		String[] titles = {"Gene", "Allele Symbol", "Zygosity", "Sex", "Procedure", "Data"};		
 		return titles;

@@ -3,6 +3,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 
+								<div id="exportIconsDivUni"></div>
 <c:forEach var="unidimensionalDataSet" items="${allUnidimensionalDataSets}" varStatus="unidimensionalDataSetLoop">
  <div class="row-fluid dataset"> 
  		<c:if test="${fn:length(unidimensionalDataSet.statsObjects)==0}">
@@ -34,7 +35,6 @@
 		
 				</c:forEach>
 				
-								<%--div id="exportIconsDivUni"></div--%>
 		</div><!-- end of chart row-fluid -->
 		<table id="continuousTable${uniDimensionalLoop.count}" class="table table-bordered  table-striped table-condensed">
 		<thead><tr>
@@ -210,6 +210,10 @@
 						var mgiGeneId = params.split("\?")[0];
 						var paramId = params.split("parameterId\=")[1].split("\&")[0];
 						var windowLocation = window.location;
+						var paramId = params.split("parameterId\=")[1].split("\&")[0];
+						var zygosity = null;
+						if (params.indexOf("zygosity\=") > 0)
+							zygosity = params.split("zygosity\=")[1].split("\&")[0];
 
 						initFileExporter({
 							mgiGeneId : mgiGeneId,
@@ -219,6 +223,8 @@
 							solrCoreName : 'experiment',
 							dumpMode : 'all',
 							baseUrl : windowLocation,
+							parameterStableId : paramId,
+							zygosity: zygosity,
 							page : "unidimensionalData",
 							gridFields : 'geneAccession,dateOfExperiment,discretePoint,geneSymbol,dataPoint,zygosity,gender,dateOfBirth,timePoint',
 							params : "qf=auto_suggest&defType=edismax&wt=json&q=*:*&fq=geneAccession:\""

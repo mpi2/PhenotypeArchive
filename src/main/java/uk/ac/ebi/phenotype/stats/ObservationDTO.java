@@ -106,6 +106,67 @@ public class ObservationDTO {
 	 * helper methods
 	 */
 
+	public String tabbedToString(){
+		return 	id + "\t" + pipelineName + "\t" + pipelineStableId + "\t" + procedureStableId + "\t" + parameterStableId
+				 + "\t" + pipelineId
+				 + "\t" + procedureId
+				 + "\t" + parameterId
+				 + "\t" + strain
+				 + "\t" + experimentSourceId
+				 + "\t" + geneSymbol
+				 + "\t" + geneAccession
+				 + "\t" + experimentId
+				 + "\t" + organisationId
+				 + "\t" + observationType
+				 + "\t" + organisation
+				 + "\t" + colonyId
+				 + "\t" + dateOfExperiment
+				 + "\t" + dateOfBirth
+				 + "\t" + biologicalSampleId
+				 + "\t" + biologicalModelId
+				 + "\t" + zygosity
+				 + "\t" + sex
+				 + "\t" + group
+				 + "\t" + category
+				 + "\t" + dataPoint
+				 + "\t" + orderIndex
+				 + "\t" + dimension
+				 + "\t" + timePoint
+				 + "\t" + discretePoint
+				 + "\t" + externalSampleId;
+	}
+	
+	public String getTabbedFields(){
+		return 	"id \t pipeline name" 
+				 + "\t pipeline stable id \t procedure stable id \t parameter stable id"
+				 + "\t pipeline id" 
+				 + "\t  procedureId"
+				 + "\t  parameterId"
+				 + "\t  strain"
+				 + "\t experimentSourceId"
+				 + "\t geneSymbol"
+				 + "\t geneAccession"
+				 + "\t experimentId"
+				 + "\t organisationId"
+				 + "\t observationType"
+				 + "\t organisation"
+				 + "\t colonyId"
+				 + "\t dateOfExperiment"
+				 + "\t dateOfBirth"
+				 + "\t biologicalSampleId"
+				 + "\t biologicalModelId"
+				 + "\t zygosity"
+				 + "\t sex"
+				 + "\t group"
+				 + "\t category"
+				 + "\t dataPoint"
+				 + "\t orderIndex"
+				 + "\t dimension"
+				 + "\t timePoint"
+				 + "\t discretePoint"
+				 + "\t externalSampleId";
+	}
+	
 	public String getExternalSampleId() {
 		return externalSampleId;
 	}

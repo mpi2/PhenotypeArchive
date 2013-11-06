@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.stats;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,7 +29,30 @@ public class ExperimentDTO {
 	private Integer controlBiologicalModelId;
 	private Integer experimentalBiologicalModelId;
 	
-	
+	/**
+	 * 
+	 * @return list of 
+	 */
+	public List<String> getTabbedToString(){
+		List<String> rows = new ArrayList<String> ();
+		for (ObservationDTO obs : homozygoteMutants){
+			if (rows.size() == 0)
+				rows.add(obs.getTabbedFields());
+			rows.add(obs.tabbedToString());
+		}
+		for (ObservationDTO obs : heterozygoteMutants){
+			if (rows.size() == 0)
+				rows.add(obs.getTabbedFields());
+			rows.add(obs.tabbedToString());
+		}
+		for (ObservationDTO obs : controls){
+			if (rows.size() == 0)
+				rows.add(obs.getTabbedFields());
+			rows.add(obs.tabbedToString());
+		}
+		
+		return rows;
+	}
 	
 	public ObservationType getObservationType() {
 		return observationType;
