@@ -126,9 +126,8 @@
 		jsonBase.diseaseFacet.srchParams.fq = jsonBase.diseaseFacet.fq;
 		
 		//console.log($.fn.stringifyJsonAsUrlParams(jsonBase.diseaseFacet.srchParams));
-		$.ajax({
-    	    url: 'http://localhost:8983/solr/disease/select',
-    	    //url: solrUrl + '/disease/select',	
+		$.ajax({    	  
+    	    url: solrUrl + '/disease/select',	
     	    data: jsonBase.diseaseFacet.srchParams,
     	    dataType: 'jsonp',
     	    jsonp: 'json.wrf',

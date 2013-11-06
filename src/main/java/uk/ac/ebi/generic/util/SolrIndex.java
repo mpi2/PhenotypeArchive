@@ -197,8 +197,7 @@ public class SolrIndex {
 			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
 					+ iDisplayStart + "&rows=" + iDisplayLength;
 //			System.out.println("MA PARAMS: " + url);
-		} else if ( mode.equals("diseaseGrid") ){
-			url = "http://localhost:8983/solr/disease/select?";
+		} else if ( mode.equals("diseaseGrid") ){			
 			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
 					+ iDisplayStart + "&rows=" + iDisplayLength;
 //			System.out.println("DISEASE PARAMS: " + url);

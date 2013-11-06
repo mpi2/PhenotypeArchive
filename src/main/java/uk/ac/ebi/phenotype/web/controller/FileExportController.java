@@ -236,8 +236,7 @@ public class FileExportController {
 			}
 		}
 		return tableData;
-	}
-	
+	}	
 
 	public List<String> composeDataTableExportRows(String solrCoreName, JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request){
 		List<String> rows = null;

@@ -149,8 +149,7 @@
 	    	                  + '&facet.field=disease_source';	    	
 	    	
 	    	$.ajax({ 				 					
-	    		//'url': solrUrl + '/disease/select',
-	    		'url': 'http://localhost:8983/solr/disease/select',
+	    		'url': solrUrl + '/disease/select',	    		
 	    		'data': queryParamStr, 
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
