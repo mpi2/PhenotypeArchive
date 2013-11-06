@@ -170,9 +170,9 @@ public class AnatomyController {
 		exception.printStackTrace();
 		ModelAndView mv = new ModelAndView("identifierError");
 		mv.addObject("errorMessage", exception.getMessage());
-		mv.addObject("acc", "");
-		mv.addObject("type", "mouse phenotype");
-		mv.addObject("exampleURI", "/phenotypes/MA:0002950");
+		mv.addObject("acc", "This");
+		mv.addObject("type", "mouse anatomy");
+		mv.addObject("exampleURI", "/anatomy/MA:0002950");
 		return mv;
 	}
 
