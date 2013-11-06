@@ -76,7 +76,8 @@
 			var linkTxt = $(this).text().replace(' ', '');
 			var aVals = $(this).attr('rel').split("|");		
 			var fqField = aVals[1];
-						
+				
+			console.log(fqField);
 			// fq filter used for solr query
 			var fqFieldOri = fqField;
 			fqField = fqField.indexOf('imits_phenotype') != -1 ? 'imits_phenotype' : fqField;
@@ -85,7 +86,7 @@
 			}				
 			
 			var val;
-			if ( fqField == 'top_level_mp_term' || fqField == 'higherLevelMpTermName' ) {
+			if ( fqField == 'top_level_mp_term' || fqField == 'annotated_or_inferred_higherLevelMpTermName' ) {
 				val = aVals[2] + ' phenotype';				
 				fqFieldVals[fqField].push(fqFieldOri + ':"' + val + '"');
 			}
@@ -94,6 +95,24 @@
 				psid = names[1];				
 				val = names[0];
 				fqFieldVals[fqField].push(fqFieldOri + ':"' + psid + '"');
+			}
+			else if ( fqField.match(/.+_curated/) ){
+				// curated diseases
+				val = aVals[2];	
+				delete fqFieldVals[fqField];
+				if ( typeof fqFieldVals['curated'] === 'undefined' ){
+					fqFieldVals['curated'] = [];					
+				}	
+				fqFieldVals['curated'].push(fqFieldOri + ':"' + val + '"');
+			}			
+			else if ( fqField.match(/.+_predicted(in_locus)?/) ){
+				// predicted diseases
+				val = aVals[2];	
+				delete fqFieldVals[fqField];
+				if ( typeof fqFieldVals['predicted'] === 'undefined' ){
+					fqFieldVals['predicted'] = [];					
+				}	
+				fqFieldVals['predicted'].push(fqFieldOri + ':"' + val + '"');
 			}
 			/*else if ( fqField == 'phenotyping_center' ){
 				val = aVals[2];				
@@ -108,14 +127,17 @@
 				fqFieldVals[fqField].push(fqFieldOri + ':"' + val + '"');
 			}				
 			
-		});	
+		});
 		
 		var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
-		
+		console.log(fqStr);
 		var facetDivId = facet+'Facet';
 
     	if ( facetDivId == 'maFacet' ||  facetDivId == 'mpFacet' ){
     		fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND ' + fqStr;					
+		}
+    	else if ( facetDivId =='diseaseFacet' ){
+    		fqStr = fqStr + ' AND ' + MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;	
 		}
     	
     	// update hash tag so that we know there is hash change, which then triggers loadDataTable
@@ -160,7 +182,7 @@
 			value = 'started';
 		}
 		
-		var filterTxt = ( facet == 'gene' || facet == 'images' ) ? display + ' : ' + value : value;					
+		var filterTxt = ( facet == 'gene' || facet == 'images' || facet == 'disease' ) ? display + ' : ' + value : value;					
 		if (facet == 'pipeline'){
 			var names = filterTxt.split('___');
 			filterTxt = names[0];
@@ -313,7 +335,11 @@
     	else if (core == 'images'){
     		$('div#imagesFacet div.facetCatList').show();	
     		$('div#imagesFacet div.facetCat').addClass('facetCatUp'); 
-    	}	    	
+    	}	
+    	else if (core == 'disease'){
+    		$('div#diseaseFacet div.facetCatList').show();	
+    		$('div#diseaseFacet div.facetCat').addClass('facetCatUp'); 
+    	}    	
 	}
 		
 	$.fn.ieCheck = function(){
@@ -409,13 +435,18 @@
     			
     			if ( aKV[i] == 'fq=' + MPI2.searchAndFacetConfig.facetParams.imagesFacet.fq
     				|| aKV[i].match(/fq=\(?marker_type:* -marker_type:"heritable phenotypic marker"\)?/) 
-    				|| aKV[i].match(/fq=\(?annotationTermId:M* OR expName:* OR symbol:*\)?/) 
+    				|| aKV[i].match(/fq=\(?annotationTermId:M* OR expName:* OR symbol:*.+\)?/) 
+    				|| aKV[i].match(/fq=\(?annotated_or_inferred.+\)?/) 
     				|| aKV[i].match(/fq=\(?expName.+\)?|fq=\(?higherLevel.+\)?|fq=\(?subtype.+\)?/) 
     				|| aKV[i].match(/fq=ontology_subset:\* AND \(?top_level_mp_term.+\)?/)
     				|| aKV[i].match(/fq=ontology_subset:IMPC_Terms AND \(?selected_top_level_ma_term.+\)?/)
     				|| aKV[i].match(/fq=\({0,}production_center:.+\)?/)
     				|| aKV[i].match(/fq=\({0,}phenotyping_center:.+\)?/)
     				|| aKV[i].match(/fq=\(?ontology_subset:.+/)
+    				|| aKV[i].match(/fq=\(?type:disease+/)
+    				|| aKV[i].match(/fq=\(?disease_\w*:.+/)
+    				|| aKV[i].match(/fq=\(?.+_curated:.+/)
+    				|| aKV[i].match(/fq=\(?.+_predicted(_in_locus)?:.+/)
     				|| aKV[i].match(/\(?imits_phenotype.+\)?/)
     				|| aKV[i].match(/\(?marker_type.+\)?/)
     				|| aKV[i].match(/\(?status.+\)?/)
@@ -473,7 +504,7 @@
     		
     		// tick checkbox if not already
     		if ( obj.is(':checked') ){
-    	   		// do nothing for now		
+    	   		// do nothing for now    			
     		}
     		else {    		
     			obj.attr('checked', true);
@@ -487,7 +518,7 @@
     		// also add to unordered list
     		$.fn.addFacetFilter(obj, q);
     	} 
-
+    	
 		// Work out which subfacet needs to be open:
 		// This is for gene and images cores only where there are collapsed subfacets by default.
 		// Ie, if a particular subfacet was open, we need to reopen it now when page reloads
@@ -499,22 +530,28 @@
     
     function _setFacetToOpen(objList, facet){
     	
-    	if ( (facet == 'imagesFacet' || facet == 'geneFacet') && objList.length != 0){
-	    	// first change arrow image to collapse and make all images subfacets hidden
+    	if ( (facet == 'imagesFacet' || facet == 'geneFacet' || facet == 'diseaseFacet' ) && objList.length != 0){
+	    	// first change arrow image to collapse and make all gene/images/disease subfacets hidden
 			$('table#' + facet + 'Tbl').find('tr.subFacet').addClass('trHidden');
 			$('table#' + facet + 'Tbl').find('tr.facetSubCat td').removeClass('unCollapse');   
     	}
     	
     	var subFacetName;
-    	if ( objList.length == 0 ){
-    		// open gene phenotyping status subfacet by default
-    		subFacetName = 'phenotyping'; 
+    	if ( objList.length == 0 ) {
+    		if ( facet == 'geneFacet' ){
+    			// open gene phenotyping status subfacet by default  
+    			subFacetName = 'phenotyping';
+    		}
+    		else if (facet == 'diseaseFacet' ){
+    			// open disease source subfacet by default  
+    			subFacetName = 'disease_source';
+    		}    	
     		_arrowSwitch(subFacetName); 
-    	}
-    	else {
-	    	// only for gene and images facets
+    	}    	
+    	else {    		
+	    	// only for gene, images and disease facets
 	    	for (var i=0; i<objList.length; i++){
-	    		subFacetName = objList[i].attr('class');
+	    		subFacetName = objList[i].attr('class');	    	
 	    		_arrowSwitch(subFacetName);	    
 	    	}  
     	}
@@ -543,7 +580,7 @@
     	var searchKw = " AND search keyword: ";		
 		searchKw += q == '*:*' ? '""' : '"' + q + '"';			
 			
-		var userFqStr = $.fn.relabelFilterForUsers(fqStr);
+		var userFqStr = $.fn.relabelFilterForUsers(fqStr, facetDivId);
 		if ( facetDivId == 'pipelineFacet' ){
 			userFqStr = convert_proc_id_2_name(userFqStr);
 		}
@@ -584,7 +621,7 @@
     	return $.fn.compose_AndOrStr(fqFieldVals);		
     }
     
-    $.fn.relabelFilterForUsers = function(fqStr){
+    $.fn.relabelFilterForUsers = function(fqStr, facetDivId){
     	
     	var oldStr = fqStr;
     	for ( var i in MPI2.searchAndFacetConfig.facetFilterLabel ){    
@@ -592,7 +629,10 @@
     		fqStr = fqStr.replace(regex, MPI2.searchAndFacetConfig.facetFilterLabel[i]);    		
     	}
     
-    	fqStr = fqStr.replace(/\"1\"/g, '"Started"');
+    	//fqStr = fqStr.replace(/\"1\"/g, '"Started"');
+    	fqStr = fqStr.replace(/\"1\"/g, function(){
+    		return facetDivId == 'diseaseFacet' ? 'yes' : 'Started';    		
+    	});
     	
     	return fqStr;    	
     }
@@ -754,7 +794,7 @@
         		);	
     			oSettings.jqXHR = $.ajax( {
     	               // "url": "http://ves-ebi-d0.ebi.ac.uk:8080/phenotype-archive-dev/dataTable",
-    	                "data": aoData,
+    	                "data": aoDainvokeDataTableta,
     	                "success": fnCallback,
     	                "success": function(json){
     	                	fnCallback(json);

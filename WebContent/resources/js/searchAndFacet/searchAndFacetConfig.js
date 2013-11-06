@@ -42,7 +42,7 @@ if ( typeof baseUrl == 'undefined' ){
 }
 
 config.lastImgCount = false;
-config.cores = ['gene', 'mp', 'ma', 'pipeline', 'images'];
+config.cores = ['gene', 'mp', 'ma', 'pipeline', 'images', 'disease'];
 config.restfulPrefix = {
 		'gene' : 'genes',
 		'mp'   : 'phenotypes',
@@ -79,10 +79,18 @@ config.facetFilterLabel = {
 	'top_level_mp_term'          : 'top_level_term',
 	'selected_top_level_ma_term' : 'top_level_term',
 	'procedure_stable_id'        : 'procedrue',
-	'higherLevelMaTermName'      : 'anatomy',
-	'higherLevelMpTermName'      : 'phenotype',
+	'annotated_or_inferred_higherLevelMaTermName'      : 'anatomy',
+	'annotated_or_inferred_higherLevelMpTermName'      : 'phenotype',
 	'expName'                    : 'procedure',
-	'subtype'                    : 'gene_subtype'
+	'subtype'                    : 'gene_subtype',
+	'disease_classes' 			 : 'classification',
+	'disease_source'			 : 'source',
+	'human_curated'              : 'human_data',
+	'mouse_curated'              : 'mouse_data',
+	'impc_predicted'             : 'IMPC_predicted',
+	'impc_predicted_in_locus'    : 'IMPC_predicted_in_locus',
+	'mgi_predicted'              : 'MGI_predicted',
+	'mgi_predicted_in_locus'     : 'MGI_predicted_in_locus'	
 };
                             
 //config.solrBaseURL_bytemark = 'http://dev.mousephenotype.org/bytemark/solr/';
@@ -197,13 +205,33 @@ config.facetParams = {
 					commonSolrParams,
 					{'fl' : 'ma_id,ma_term,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'})		
 	 },	
+	 diseaseFacet: {			    	
+		 type: 'diseases',
+		 subFacetFqFields: '',
+		 solrCoreName: 'disease', 
+		 tableCols: 1, 
+		 tableHeader: '<thead><th>Disease name</th><th>Source</th><th>Curated genes in human</th><th>Curated genes in mouse (MGI)</th><th>Candidate genes by phenotype (MGI)</th><th>Candidate genes by phenotype (IMPC)</th></thead>', 
+		 subset: '',
+		 fq: 'type:disease',		
+		 wt: 'json',
+		 gridFields: '',
+		 gridName: 'diseaseGrid',		
+		 ontology: 'disease',
+		 breadCrumbLabel: 'Diseases',		 
+		 //filterParams: {'fq': "ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*", 'fl': 'ma_id,ma_term,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'},
+		 filterParams: {'fq': 'type:disease'},		 
+		 srchParams: $.extend({},
+					commonSolrParams
+					)		
+	 },	
+	 
 	 imagesFacet: {		
 		 type: 'images',		 
-		 subFacetFqFields: ['expName', 'higherLevelMaTermName', 'higherLevelMpTermName', 'subtype'],
+		 subFacetFqFields: ['expName', 'annotated_or_inferred_higherLevelMaTermName', 'annotated_or_inferred_higherLevelMpTermName', 'subtype'],
 		 solrCoreName: 'images',
 		 tableCols: 2, 
 		 tableHeader: '<thead><th>Name</th><th>Example Images</th></thead>', 
-		 fq: 'annotationTermId:M* OR expName:* OR symbol:* OR higherLevelMaTermName:* OR higherLevelMpTermName:*',		
+		 fq: 'annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotated_or_inferred_higherLevelMpTermName:*',		
 		 qf: 'auto_suggest', 
 		 defType: 'edismax',
 		 wt: 'json',
@@ -217,7 +245,7 @@ config.facetParams = {
 		 showImgView: true,		 
 		 breadCrumbLabel: 'Images',
 		 filterParams: {//'fl' : 'annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath',
-			 	  'fq' : "(annotationTermId:M* OR expName:* OR symbol:* OR higherLevelMaTermName:* OR higherLevelMpTermName:*)"},	
+			 	  'fq' : "(annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotated_or_inferred_higherLevelMpTermName:*)"},	
 	 	 srchParams: $.extend({},
 				commonSolrParams				
 				)

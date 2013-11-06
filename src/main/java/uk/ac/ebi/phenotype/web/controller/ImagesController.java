@@ -79,8 +79,8 @@ public class ImagesController {
 		private static final long serialVersionUID = 1L;
 		{
 			put("expName", "Procedure");
-			put("higherLevelMaTermName", "Anatomy");
-			put("higherLevelMpTermName", "Phenotype group");
+			put("annotated_or_inferred_higherLevelMaTermName", "Anatomy");
+			put("annotated_or_inferred_higherLevelMpTermName", "Phenotype group");
 			put("annotationTermId", "Annotation term");
 			put("subtype", "Type");
 			put("accession", "Accession");
@@ -155,8 +155,8 @@ public class ImagesController {
 		else {
 			queryString+= " AND search keyword: \"\""; 
 		}
-		queryString=queryString.replace("higherLevelMpTermName", "phenotype");
-		queryString=queryString.replace("higherLevelMaTermName", "anatomy");
+		queryString=queryString.replace("annotated_or_inferred_higherLevelMpTermName", "phenotype");
+		queryString=queryString.replace("annotated_or_inferred_higherLevelMaTermName", "anatomy");
 		queryString=queryString.replace("expName", "procedure");
 		queryString=queryString.replace("subtype", "gene_subtype");
 	
@@ -321,7 +321,7 @@ public class ImagesController {
 						if (key.equals("Anatomy")) {
 							value = "<a href='"
 									+ baseUrl
-									+ "/search#q=*&core=images&fq=higherLevelMaTermName:\""
+									+ "/search#q=*&core=images&fq=annotated_or_inferred_higherLevelMaTermName:\""
 									+ value + "\"'>" + value + "</a>";
 							orFields.add(key.toLowerCase() + ": \"" + value + "\"");
 						} else {

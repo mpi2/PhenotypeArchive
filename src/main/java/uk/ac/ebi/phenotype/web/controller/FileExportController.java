@@ -128,7 +128,9 @@ public class FileExportController {
 			else if ( !solrCoreName.isEmpty() ){					
 				if (dumpMode.equals("all")){
 					rowStart = 0;
-					length = parseMaxRow(solrParams); // this is the facetCount				
+					//length = parseMaxRow(solrParams); // this is the facetCount	
+					length = 999999;	
+					solrParams = solrParams.replace("rows=10", "rows="+length);
 				}
 													
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
@@ -156,7 +158,8 @@ public class FileExportController {
 
 				if (dumpMode.equals("all")){
 					rowStart = 0;
-					length = 50000;
+					length = 999999;
+					solrParams = solrParams.replace("rows=10", "rows="+length);
 				}
 
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
@@ -175,19 +178,19 @@ public class FileExportController {
 				for (String line : dataRows){
 					output.println(line);
 				}
-//				StringBuffer sb = new StringBuffer();						
-//				sb.append(dataString);			
 				
-				/*
+				/*StringBuffer sb = new StringBuffer();						
+				sb.append(dataString);			
+								
 				InputStream in = new ByteArrayInputStream(sb.toString().getBytes("UTF-8"));
 	 
 				byte[] outputByte = new byte[1024];
 				//copy binary content to output stream
 				while(in.read(outputByte, 0, 1024) != -1) {
 					output.write(outputByte, 0, 1024);
-				}
+				}				
+				in.close();	*/
 				
-				in.close();			*/		
 				output.flush();
 				output.close();
 			}
@@ -233,8 +236,7 @@ public class FileExportController {
 			}
 		}
 		return tableData;
-	}
-	
+	}	
 
 	public List<String> composeDataTableExportRows(String solrCoreName, JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request){
 		List<String> rows = null;
@@ -253,6 +255,9 @@ public class FileExportController {
 		}
 		else if ( solrCoreName.equals("images") ){
 			rows = composeImageDataTableRows(json,  iDisplayStart,  iDisplayLength, showImgView, solrParams, request);
+		}
+		else if ( solrCoreName.equals("disease") ){
+			rows = composeDiseaseDataTableRows(json);
 		}
 		else if ( solrCoreName.equals("genotype-phenotype") ){
 			rows = composeGPDataTableRows(json, request);
@@ -675,7 +680,27 @@ public class FileExportController {
 		
 		return rowData;		
 	}
-
+	private List<String> composeDiseaseDataTableRows(JSONObject json){
+		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");	
+		
+		List<String> rowData = new ArrayList<String>();
+		rowData.add("Disease id\tDisease name\tSource\tCurated genes in human\tCurated genes in mouse (MGI)\tCandidate genes by phenotype (MGI)\tCandidate genes by phenotype (IMPC)"); // column names	
+		
+		for (int i=0; i<docs.size(); i++) {			
+			List<String> data = new ArrayList<String>();
+			JSONObject doc = docs.getJSONObject(i);
+			data.add(doc.getString("disease_id"));
+			data.add(doc.getString("disease_term"));
+			data.add(doc.getString("disease_source"));
+			data.add(doc.getString("human_curated").equals("1") ? "Yes" : "-");
+			data.add(doc.getString("mouse_curated").equals("1") ? "Yes" : "-");
+			data.add((doc.getString("impc_predicted").equals("1") || doc.getString("impc_predicted_in_locus").equals("1")) ? "Yes" : "-");
+			data.add((doc.getString("mgi_predicted").equals("1") || doc.getString("mgi_predicted_in_locus").equals("1")) ? "Yes" : "-");
+						
+			rowData.add(StringUtils.join(data, "\t"));
+		}
+		return rowData;
+	}
 	private String[] fetchGeneVariantsTitles(){		
 		String[] titles = {"Gene", "Allele Symbol", "Zygosity", "Sex", "Procedure", "Data"};		
 		return titles;

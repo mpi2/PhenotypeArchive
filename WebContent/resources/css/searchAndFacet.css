@@ -156,7 +156,9 @@ span.imgAnnots {
 span.annotType {
 	font-weight: bold;	
 }
-
+table#diseaseGrid th:nth-child(1) {
+	width: 35% !important;
+}
 table#geneFacetTbl td.geneSubtypeCount,
 table#geneFacetTbl td.geneStatusCount,
 table#geneFacetTbl td.geneSubfacetCount,
@@ -164,7 +166,8 @@ table#geneFacetTbl td.geneSubfacetCount,
 table#pipelineFacetTbl td a.paramCount,
 table#mpFacetTbl td.mpTopLevelCount,
 table#maFacetTbl td.maTopLevelCount,
-table#imagesFacetTbl td.imgSubfacetCount
+table#imagesFacetTbl td.imgSubfacetCount,
+table#diseaseFacetTbl td.diseaseSubfacetCount
 /*table#mpFacetTbl td.mpTopLevel*/ 
 /*table#maFacetTbl td.maTopLevelCount, table#maFacetTbl td.maTopLevel */{
 	cursor: pointer;	
@@ -179,7 +182,8 @@ table#geneFacetTbl tr.prodCenterTrCap,
 table#geneFacetTbl tr.geneSubTypeTrCap,
 table#geneFacetTbl tr.phenoStatusTrCap,
 table#geneFacetTbl tr.prodStatusTrCap,
-table#imagesFacetTbl tr.facetSubCat {
+table#imagesFacetTbl tr.facetSubCat,
+table#diseaseFacetTbl tr.facetSubCat {
 	cursor: pointer;
 }
 table#geneFacetTbl tr.prodCenterTrCap td,
@@ -187,7 +191,9 @@ table#geneFacetTbl tr.phenoCenterTrCap td,
 table#geneFacetTbl tr.geneSubTypeTrCap td, 
 table#geneFacetTbl tr.phenoStatusTrCap td,
 table#geneFacetTbl tr.prodStatusTrCap td,
-table#imagesFacetTbl tr.facetSubCat td{
+table#imagesFacetTbl tr.facetSubCat td,
+table#diseaseFacetTbl tr.facetSubCat td
+{
 	padding-left: 15px !important;
 	background-image: url('../img/right.gif');
     background-repeat: no-repeat;
@@ -198,7 +204,8 @@ table#geneFacetTbl tr.phenoCenterTrCap td.unCollapse,
 table#geneFacetTbl tr.geneSubTypeTrCap td.unCollapse, 
 table#geneFacetTbl tr.prodStatusTrCap td.unCollapse, 
 table#geneFacetTbl tr.phenoStatusTrCap td.unCollapse, 
-table#imagesFacetTbl tr.facetSubCat td.unCollapse {
+table#imagesFacetTbl tr.facetSubCat td.unCollapse, 
+table#diseaseFacetTbl tr.facetSubCat td.unCollapse {
 	background-image: url('../img/down.gif');
 }
 table#geneFacetTbl tr.phenoCenterTr, 
@@ -206,6 +213,10 @@ table#geneFacetTbl tr.prodCenterTr,
 table#geneFacetTbl tr.geneSubTypeTr, 
 table#geneFacetTbl tr.prodStatusTr,
 table#geneFacetTbl tr.phenoStatusTr,
+table#diseaseFacetTbl tr.disease_classesTr,
+table#diseaseFacetTbl tr.disease_sourceTr,
+table#diseaseFacetTbl tr.curatedTr,
+table#diseaseFacetTbl tr.predictedTr,
 tr.trHidden {
 	display: none;
 }

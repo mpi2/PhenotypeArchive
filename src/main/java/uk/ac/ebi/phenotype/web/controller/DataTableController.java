@@ -155,7 +155,9 @@ public class DataTableController {
 		else if (mode.equals("maGrid")) {
 			jsonStr = parseJsonforMaDataTable(json, request);
 		}
-		
+		else if (mode.equals("diseaseGrid")) {
+			jsonStr = parseJsonforDiseaseDataTable(json, request);
+		}
 		return jsonStr;
 	}
 
@@ -492,7 +494,50 @@ public class DataTableController {
 			return j.toString();	
 		}
 	}
+	
+	public String parseJsonforDiseaseDataTable(JSONObject json, HttpServletRequest request){
+		
+		String baseUrl = request.getAttribute("baseUrl") + "/phenodigm/disease/";
+		
+		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
+		int totalDocs = json.getJSONObject("response").getInt("numFound");
+				
+        JSONObject j = new JSONObject();
+		j.put("aaData", new Object[0]);
+		
+		j.put("iTotalRecords", totalDocs);
+		j.put("iTotalDisplayRecords", totalDocs);
+		
+		for (int i=0; i<docs.size(); i++){
+			List<String> rowData = new ArrayList<String>();
 
+			// disease link			
+			JSONObject doc = docs.getJSONObject(i);
+			String diseaseId = doc.getString("disease_id");
+			String diseaseTerm = doc.getString("disease_term");
+			String diseaseLink = "<a href='" + baseUrl + diseaseId + "'>" + diseaseTerm + "</a>";			
+			rowData.add(diseaseLink);						
+			
+			// disease source
+			String src = doc.getString("disease_source");
+			rowData.add(src);
+			
+			// curated data: human/mouse			
+			String isHumanCurated = doc.getString("human_curated").equals("1") ? "Yes" : "-";
+			rowData.add(isHumanCurated);
+			String isMouseCurated = doc.getString("mouse_curated").equals("1") ? "Yes" : "-";
+			rowData.add(isMouseCurated);
+			String isImpcPredicted = (doc.getString("impc_predicted").equals("1") || doc.getString("impc_predicted_in_locus").equals("1")) ? "Yes" : "-";
+			rowData.add(isImpcPredicted);
+			String isMgiPredicted = (doc.getString("mgi_predicted").equals("1") || doc.getString("mgi_predicted_in_locus").equals("1")) ? "Yes" : "-";
+			rowData.add(isMgiPredicted);			
+			
+			j.getJSONArray("aaData").add(rowData);
+		} 
+		
+		return j.toString();	
+	}
+	
 	private ArrayList<String> fetchImgGeneAnnotations(JSONObject doc, HttpServletRequest request) {
 		
 		ArrayList<String> gene = new ArrayList<String>();		
