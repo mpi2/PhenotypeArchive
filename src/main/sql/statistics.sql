@@ -63,7 +63,7 @@ create table stats_unidimensional_results (
 	gender_male_ko_stderr_estimate   FLOAT NULL,
 	gender_male_ko_pvalue            FLOAT NULL,
 	classification_tag               VARCHAR(200) NULL,
-	cohensf                          FLOAT NULL,
+	cohensf                          TEXT NULL,
 
 	PRIMARY KEY (id),
 	KEY parameter_idx (parameter_id)
