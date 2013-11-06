@@ -34,7 +34,19 @@ public class ExperimentService {
 	@Autowired
 	private PhenotypeCallSummaryDAOReadOnly phenoDAO;
 
-
+/**
+ * 
+ * @param parameterId
+ * @param geneAccession
+ * @param sex	null for both sexes
+ * @param organisationId	null for any organisation
+ * @param zygosity	 null for any zygosity	
+ * @param strain	null for any strain
+ * @return
+ * @throws SolrServerException
+ * @throws IOException
+ * @throws URISyntaxException
+ */
 	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer organisationId, String zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
 	
 		List<ObservationDTO> results = os.getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(parameterId, 
