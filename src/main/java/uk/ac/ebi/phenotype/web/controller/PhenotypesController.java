@@ -113,18 +113,18 @@ public class PhenotypesController {
 			HttpServletRequest request,
 			RedirectAttributes attributes) throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException {
 		
-//		OntologyTerm phenotype = ontoTermDao.getOntologyTermByAccessionAndDatabaseId(phenotype_id, 5);
-//		System.out.println("phenotype="+phenotype.getSynonyms());
-//		if (phenotype == null) {
-//			throw new OntologyTermNotFoundException("", phenotype_id);
-//		}
+		OntologyTerm oTerm = ontoTermDao.getOntologyTermByAccessionAndDatabaseId(phenotype_id, 5);
+		
+		if (oTerm == null) {
+			throw new OntologyTermNotFoundException("", phenotype_id);
+		}
 		
 
-		OntologyTerm oTerm=new OntologyTerm();
-		DatasourceEntityId dId=new DatasourceEntityId();
-		dId.setAccession(phenotype_id);
-		dId.setDatabaseId(5);
-		oTerm.setId(dId);
+//		OntologyTerm oTerm=new OntologyTerm();
+//		DatasourceEntityId dId=new DatasourceEntityId();
+//		dId.setAccession(phenotype_id);
+//		dId.setDatabaseId(5);
+//		oTerm.setId(dId);
 			
 		Set<OntologyTerm> anatomyTerms = new HashSet<OntologyTerm>();
 		Set<OntologyTerm> mpSiblings = new HashSet<OntologyTerm>();
@@ -308,11 +308,11 @@ public class PhenotypesController {
 
 	
 	@ExceptionHandler(OntologyTermNotFoundException.class)
-	public ModelAndView handleGenomicFeatureNotFoundException(OntologyTermNotFoundException exception) {
+	public ModelAndView handleOntologyTermNotFoundException(OntologyTermNotFoundException exception) {
         ModelAndView mv = new ModelAndView("identifierError");
         mv.addObject("errorMessage",exception.getMessage());
         mv.addObject("acc",exception.getAcc());
-        mv.addObject("type","mouse phenotype");
+        mv.addObject("type","mammalian phenotype");
         mv.addObject("exampleURI", "/phenotypes/MP:0000585");
         return mv;
     } 
@@ -323,7 +323,7 @@ public class PhenotypesController {
         ModelAndView mv = new ModelAndView("identifierError");
         mv.addObject("errorMessage",exception.getMessage());
         mv.addObject("acc","");
-        mv.addObject("type","mouse phenotype");
+        mv.addObject("type","mammalian phenotype");
         mv.addObject("exampleURI", "/phenotypes/MP:0000585");
         return mv;
     } 

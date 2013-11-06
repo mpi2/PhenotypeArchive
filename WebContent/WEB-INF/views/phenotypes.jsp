@@ -47,10 +47,12 @@
 					<div class="container span6">
 						<table class="table table-striped">
 							<tbody>
+								<c:if test="${not empty phenotype.description}">
 								<tr>
 									<td>Definition:</td>
 									<td>${phenotype.description}</td>
 								</tr>
+								</c:if>
 								<c:if test="${not empty phenotype.synonyms}">
 								<tr>
 									<td>Synonym:</td>
