@@ -308,7 +308,7 @@ public class PhenotypesController {
 
 	
 	@ExceptionHandler(OntologyTermNotFoundException.class)
-	public ModelAndView handleGenomicFeatureNotFoundException(OntologyTermNotFoundException exception) {
+	public ModelAndView handleOntologyTermNotFoundException(OntologyTermNotFoundException exception) {
         ModelAndView mv = new ModelAndView("identifierError");
         mv.addObject("errorMessage",exception.getMessage());
         mv.addObject("acc",exception.getAcc());
