@@ -172,15 +172,10 @@ table#diseaseFacetTbl td.diseaseSubfacetCount
 /*table#maFacetTbl td.maTopLevelCount, table#maFacetTbl td.maTopLevel */{
 	cursor: pointer;	
 }
-
 tr.subFacet td:nth-child(1){
-	padding-left: 0px !important;	
-	border: 1px solid red;
+	width: 20px !important;
 }
-tr.subFacet td:nth-child(2) {
-	color: red;
-	padding-left: 0px !important;	
-}
+
 table#geneFacetTbl tr.phenoCenterTrCap,
 table#geneFacetTbl tr.prodCenterTrCap,
 table#geneFacetTbl tr.geneSubTypeTrCap,
