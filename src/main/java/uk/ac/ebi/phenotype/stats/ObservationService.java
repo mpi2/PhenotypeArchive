@@ -61,7 +61,7 @@ public class ObservationService {
 
 	protected List<ObservationDTO> getControls(Integer parameterId, String strain, Integer organisationId, Date max) throws SolrServerException {
 
-		return getControls(parameterId, strain, organisationId, max, Boolean.FALSE);
+		return getControls(parameterId, strain, organisationId, max, Boolean.FALSE, null);
 	}
 
 	/**
@@ -75,15 +75,20 @@ public class ObservationService {
 	 * @return list of observations 
 	 * @throws SolrServerException when solr has a troubled mind/heart/body
 	 */
-	protected List<ObservationDTO> getControls(Integer parameterId, String strain, Integer organisationId, Date max, Boolean showAll) throws SolrServerException {
+	protected List<ObservationDTO> getControls(Integer parameterId, String strain, Integer organisationId, Date max, Boolean showAll, String sex) throws SolrServerException {
 
 		int n = 1000;		
 		if (showAll){
 			n = 10000000;
 		}
 		List<ObservationDTO> results = new ArrayList<ObservationDTO>();
-		results.addAll(getControlsBySex(parameterId, strain, organisationId, max, showAll, "female", n/2));
-		results.addAll(getControlsBySex(parameterId, strain, organisationId, max, showAll, "male", n/2));
+		if (sex == null){
+			results.addAll(getControlsBySex(parameterId, strain, organisationId, max, showAll, "female", n/2));
+			results.addAll(getControlsBySex(parameterId, strain, organisationId, max, showAll, "male", n/2));
+		}
+		else 
+			results.addAll(getControlsBySex(parameterId, strain, organisationId, max, showAll, sex, n));
+		System.out.println("Controls returned: " +  results.size());
 		return results;
 	}
 
@@ -290,24 +295,47 @@ public class ObservationService {
 		return solr.query(query).getBeans(ObservationDTO.class);
 	}
 
-	public List<ObservationDTO> getObservationsByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain, SexType sex) throws SolrServerException {
+	public List<ObservationDTO> getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain, SexType sex) throws SolrServerException {
+		
 		List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
-
-		SolrQuery query = new SolrQuery()
-	    	.setQuery("((geneAccession:"+gene.replace(":", "\\:") + " AND zygosity:"+zygosity+") OR biologicalSampleGroup:control) ")
-	    	.addFilterQuery("parameterId:"+parameterId)
-	    	.addFilterQuery("organisationId:"+organisationId)
-	    	.addFilterQuery("strain:"+strain.replace(":", "\\:"))
-	    	.addFilterQuery("gender:"+sex)
-	    	;
+		SolrQuery query = new SolrQuery().setQuery("geneAccession:"+gene.replace(":", "\\:"));
+		if (zygosity != null)
+			query.addFilterQuery("zygosity:"+zygosity);
+		query.addFilterQuery("parameterId:"+parameterId);
+		if (strain != null){
+	    	query.addFilterQuery("strain:"+strain.replace(":", "\\:"));
+		}
+		if (organisationId != null){
+			query.addFilterQuery("organisationId:"+organisationId);
+		}
+		if (sex != null){
+			query.addFilterQuery("gender:"+sex);
+		}
 	    query.setStart(0).setRows(10000);    
-
+	    
+	    System.out.println("SOLR QUERY : " + solr.getBaseURL() + query.toString());
+	    
 	    QueryResponse response = solr.query(query);
 	    resultsDTO = response.getBeans(ObservationDTO.class);
-
 		return resultsDTO;
 	}
 
-	
+	public List<ObservationDTO> getObservationsByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain, SexType sex) throws SolrServerException {
+        List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
+
+        SolrQuery query = new SolrQuery()
+            .setQuery("((geneAccession:"+gene.replace(":", "\\:") + " AND zygosity:"+zygosity+") OR biologicalSampleGroup:control) ")
+            .addFilterQuery("parameterId:"+parameterId)
+            .addFilterQuery("organisationId:"+organisationId)
+            .addFilterQuery("strain:"+strain.replace(":", "\\:"))
+            .addFilterQuery("gender:"+sex)
+            ;
+    query.setStart(0).setRows(10000);    
+
+    QueryResponse response = solr.query(query);
+    resultsDTO = response.getBeans(ObservationDTO.class);
+
+        return resultsDTO;
+}
 
 }
