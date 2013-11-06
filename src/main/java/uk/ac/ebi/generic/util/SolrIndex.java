@@ -289,13 +289,13 @@ public class SolrIndex {
 		if (id.startsWith("MP:")) {
 			String url = baseUrl + "/phenotypes/" + id;
 			hm.put("label", "MP");
-			hm.put("field", "annotationTermName2");
+			hm.put("field", "annotationTermName");
 			//hm.put("field", "mpTermName");
 			hm.put("link", "<a href='" + url + "'>" + name + "</a>");
 		} else if (id.startsWith("MA:")) {
 			String url = baseUrl + "/anatomy/" + id;
 			hm.put("label", "MA");
-			hm.put("field", "annotationTermName2");		
+			hm.put("field", "annotationTermName");		
 			hm.put("link", name);
 		} else if (id.equals("exp")) {
 			hm.put("label", "Procedure");
