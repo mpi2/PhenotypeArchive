@@ -1,10 +1,10 @@
 <dataConfig>	
 
- <dataSource name="phenodb" jndiName="java:comp/env/jdbc/phenodigmDataSource"/>
-
+   <dataSource name="phenodb" jndiName="java:comp/env/jdbc/phenodigmDataSource"/> 
+	
     <document>
         <!--disease_summary-->
-          <entity dataSource="phenodb" name="disease" transformer="RegexTransformer" query="select disease_id as id, 'disease' as type, disease_id, disease_term, disease_alts, CASE disease_classes when '' THEN 'unclassified' ELSE disease_classes END as disease_classes, human_curated, mouse_curated, mgi_predicted, impc_predicted, mgi_predicted_in_locus, impc_predicted_in_locus from disease_summary;">
+          <entity name="disease" transformer="RegexTransformer" query="select disease_id as id, 'disease' as type, disease_id, disease_term, disease_alts, CASE disease_classes when '' THEN 'unclassified' ELSE disease_classes END as disease_classes, human_curated, mouse_curated, mgi_predicted, impc_predicted, mgi_predicted_in_locus, impc_predicted_in_locus from disease_summary;">
        
             <field column="id" name="id"/>
             <field column="type" name="type"/>
