@@ -140,7 +140,7 @@ public class ImagesController {
 			throws SolrServerException, IOException, URISyntaxException {
 		//only need to send the solr query part of the url to solr
 		sendQueryStringToSolr(request, model);
-//add breadcrumbs using different method than for  images.jsp that is called from genes or phenotypes pages
+//add breadcrumbs using different method than for images.jsp that is called from genes or phenotypes pages
 		String emptyString="*:*";
 		String queryString="";
 		if(filterField.length>0) {
@@ -187,11 +187,11 @@ public class ImagesController {
 		Enumeration keys = request.getParameterNames();
 		while (keys.hasMoreElements()) {
 			String key = (String) keys.nextElement();
-			System.out.println("key=" + key);
+			//System.out.println("key=" + key);
 
 			// To retrieve a single value
 			String value = request.getParameter(key);
-			System.out.println("value=" + value);
+			//System.out.println("value=" + value);
 			//only add to our new query string if not rows or length as we want to set those to specific values in the jsp
 			if (!key.equals("rows") && !key.equals("start")) {
 				newQueryString += "&" + key + "=" + value;
@@ -204,9 +204,8 @@ public class ImagesController {
 			}
 		}
 		newQueryString+="&start="+startString+"&rows="+rowsString;
-		System.out.println("newQueryString=" + newQueryString);
-
-		System.out.println("queryString=" + newQueryString);
+		
+		//System.out.println("queryString=" + newQueryString);
 		JSONObject imageResults = JSONRestUtil.getResults(config
 				.get("internalSolrUrl") + "/images/select?" + newQueryString);
 		JSONArray imageDocs = JSONRestUtil.getDocArray(imageResults);
@@ -214,7 +213,7 @@ public class ImagesController {
 			model.addAttribute("images", imageDocs);
 			int numberFound = JSONRestUtil
 					.getNumberFoundFromJsonResponse(imageResults);
-			System.out.println("image count=" + numberFound);
+			//System.out.println("image count=" + numberFound);
 			model.addAttribute("imageCount", numberFound);
 			model.addAttribute("q", newQueryString);
 			// model.addAttribute("filterQueries", filterQueries);

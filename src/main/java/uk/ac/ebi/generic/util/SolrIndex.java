@@ -188,7 +188,7 @@ public class SolrIndex {
 			if (!showImgView) {
 				url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.mincount=1&facet.limit=-1";
 			}
-//			System.out.println("IMG PARAMS: " + url);
+			System.out.println("IMG PARAMS: " + url);
 		} else if (mode.equals("mpGrid")) {
 			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
 					+ iDisplayStart + "&rows=" + iDisplayLength;

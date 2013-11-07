@@ -417,7 +417,7 @@ public class DataTableController {
 			// annotation view: images group by annotationTerm per row
 			
 			String fqStr = fqOri;		
-			if ( fqStr.equals("&fq=annotationTermId:M*%20OR%20expName:*%20OR%20symbol:*%20OR%20higherLevelMaTermName:*%20OR%20higherLevelMpTermName:*") ){
+			if ( fqStr.equals("&fq=annotationTermId:M*%20OR%20expName:*%20OR%20symbol:*%20OR%20annotated_or_inferred_higherLevelMaTermName:*%20OR%20annotated_or_inferred_higherLevelMpTermName:*") ){				
 				solrParams = solrParams.replace(fqOri, "");	
 				fqStr = "";
 			}
@@ -475,7 +475,7 @@ public class DataTableController {
 					// so we just use the name from ann_annotation table
 					String thisFqStr = "";
 					String fq = "";
-					if (facetField == "annotationTermName2") {
+					if (facetField == "annotationTermName") {
 						fq = "(" + facetField + ":\"" + names[0] + "\" OR annotationTermName:\"" + 	names[0] + "\")";	
 					}
 					else {					
