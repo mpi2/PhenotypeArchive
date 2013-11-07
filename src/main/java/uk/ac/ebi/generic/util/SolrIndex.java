@@ -133,7 +133,8 @@ public class SolrIndex {
 		}
 
 		//String newgridSolrParams = gridSolrParams + "&rows=" + length
-				String newgridSolrParams = gridSolrParams 		
+		gridSolrParams = gridSolrParams.replace("rows=10", "rows="+length);
+		String newgridSolrParams = gridSolrParams 		
 				+ "&start=" + start + "&fl=" + gridFields;
 
 		String url = composeSolrUrl(core, "", "", newgridSolrParams, start,
