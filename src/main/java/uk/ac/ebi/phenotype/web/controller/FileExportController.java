@@ -136,7 +136,8 @@ public class FileExportController {
 			else if ( !solrCoreName.isEmpty() ){					
 				if (dumpMode.equals("all")){
 					rowStart = 0;
-					length = parseMaxRow(solrParams); // this is the facetCount				
+					//length = parseMaxRow(solrParams); // this is the facetCount
+					length = 999999;
 				}
 													
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
@@ -170,7 +171,7 @@ public class FileExportController {
 
 				if (dumpMode.equals("all")){
 					rowStart = 0;
-					length = 50000;
+					length = 999999;
 				}
 
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
@@ -279,6 +280,9 @@ public class FileExportController {
 		}
 		else if ( solrCoreName.equals("images") ){
 			rows = composeImageDataTableRows(json,  iDisplayStart,  iDisplayLength, showImgView, solrParams, request);
+		}
+		else if ( solrCoreName.equals("disease") ){
+			rows = composeDiseaseDataTableRows(json);
 		}
 		else if ( solrCoreName.equals("genotype-phenotype") ){
 			rows = composeGPDataTableRows(json, request);
