@@ -214,7 +214,7 @@ config.facetParams = {
 		 subset: '',
 		 fq: 'type:disease',		
 		 wt: 'json',
-		 gridFields: '',
+		 gridFields: 'disease_id,disease_term,disease_source,human_curated,mouse_curated,impc_predicted,impc_predicted_in_locus,mgi_predicted,mgi_predicted_in_locus',
 		 gridName: 'diseaseGrid',		
 		 ontology: 'disease',
 		 breadCrumbLabel: 'Diseases',		 
