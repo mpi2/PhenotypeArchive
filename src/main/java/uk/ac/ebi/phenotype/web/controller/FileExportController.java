@@ -137,7 +137,7 @@ public class FileExportController {
 				if (dumpMode.equals("all")){
 					rowStart = 0;
 					//length = parseMaxRow(solrParams); // this is the facetCount
-					length = 999999;
+					length = 9999999;
 				}
 													
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
@@ -171,7 +171,7 @@ public class FileExportController {
 
 				if (dumpMode.equals("all")){
 					rowStart = 0;
-					length = 999999;
+					length = 9999999;
 				}
 
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
