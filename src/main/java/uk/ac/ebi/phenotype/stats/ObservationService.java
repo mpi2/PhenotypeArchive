@@ -150,7 +150,7 @@ public class ObservationService {
 			}
 			if (closest.get(1) != null){
 				results.add(closest.get(1));
-				resA.remove(0);
+				resB.remove(0);
 			}
 		}
 		
