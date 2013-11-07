@@ -210,7 +210,7 @@ config.facetParams = {
 		 subFacetFqFields: '',
 		 solrCoreName: 'disease', 
 		 tableCols: 1, 
-		 tableHeader: '<thead><th>Disease name</th><th>Source</th><th>Curated genes in human</th><th>Curated genes in mouse (MGI)</th><th>Candidate genes by phenotype (MGI)</th><th>Candidate genes by phenotype (IMPC)</th></thead>', 
+		 tableHeader: '<thead><th>Disease name</th><th>Source</th><th>Curated genes in human</th><th>Curated genes in mouse (MGI)</th><th>Candidate genes by phenotype (IMPC)</th><th>Candidate genes by phenotype (MGI)</th></thead>', 
 		 subset: '',
 		 fq: 'type:disease',		
 		 wt: 'json',

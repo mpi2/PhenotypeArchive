@@ -528,10 +528,10 @@ public class DataTableController {
 			String isMouseCurated = doc.getString("mouse_curated").equals("1") ? "Yes" : "-";
 			rowData.add(isMouseCurated);
 			String isImpcPredicted = (doc.getString("impc_predicted").equals("1") || doc.getString("impc_predicted_in_locus").equals("1")) ? "Yes" : "-";
-			rowData.add(isImpcPredicted);
+			rowData.add(isImpcPredicted);			
 			String isMgiPredicted = (doc.getString("mgi_predicted").equals("1") || doc.getString("mgi_predicted_in_locus").equals("1")) ? "Yes" : "-";
-			rowData.add(isMgiPredicted);			
-			
+			rowData.add(isMgiPredicted);
+						
 			j.getJSONArray("aaData").add(rowData);
 		} 
 		
