@@ -620,7 +620,7 @@ public class FileExportController {
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");	
 		
 		List<String> rowData = new ArrayList<String>();
-		rowData.add("Disease id\tDisease name\tSource\tCurated genes in human\tCurated genes in mouse (MGI)\tCandidate genes by phenotype (IMPC)\tCandidate genes by phenotype (MGI)"); // column names	
+		rowData.add("Disease id\tDisease name\tSource\tCurated genes in human\tCurated genes in mouse (MGI)\tCandidate genes by phenotype (MGP)\tCandidate genes by phenotype (MGI)"); // column names	
 		
 		for (int i=0; i<docs.size(); i++) {			
 			List<String> data = new ArrayList<String>();
