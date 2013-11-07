@@ -3,6 +3,8 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 
+		<div id="exportIconsDivCat"></div>
+
 <c:forEach var="categoricalResultAndCharts" items="${allCategoricalResultAndCharts}" varStatus="experimentLoop">
 	<div class="row-fluid dataset">
 	<c:if test="${fn:length(categoricalResultAndCharts.maleAndFemale)==0}">
@@ -29,7 +31,6 @@
 				</div>
  <%--  ${categoricalResultAndCharts.maleAndFemale} --%>
  				
-		<%--div id="exportIconsDivCat"></div--%>
  
  				<div class="row-fluid">
  				<table id="catTable${experimentLoop.index}" class="table table-bordered  table-striped table-condensed">
@@ -170,6 +171,10 @@
 						var mgiGeneId = params.split("\?")[0];
 						var paramId = params.split("parameterId\=")[1].split("\&")[0];
 						var windowLocation = window.location;
+						var paramId = params.split("parameterId\=")[1].split("\&")[0];
+						var zygosity = null;
+						if (params.indexOf("zygosity\=") > 0)
+							zygosity = params.split("zygosity\=")[1].split("\&")[0];
 
 						initFileExporter({
 							mgiGeneId : mgiGeneId,
@@ -180,6 +185,8 @@
 							dumpMode : 'all',
 							baseUrl : windowLocation,
 							page : "categorical",
+							parameterStableId : paramId,
+							zygosity: zygosity,
 							gridFields : 'geneAccession,dateOfExperiment,discretePoint,geneSymbol,zygosity,gender,dateOfBirth,timePoint',
 							params : "qf=auto_suggest&defType=edismax&wt=json&q=*:*&fq=geneAccession:\""
 									+ mgiGeneId

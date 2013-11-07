@@ -113,7 +113,6 @@ public class ObservationService {
 		int loop = 1;
 		
 		while (resSize < resultsMaxSize && withinTimeLimits) {
-
 			Date start = DateUtils.addMonths(max, -(dateIncrement*loop));			
 			Date end = DateUtils.addMonths(max, (dateIncrement*loop));
 
@@ -154,17 +153,25 @@ public class ObservationService {
 			int resSizeB = responseb.getResults().size();
 			resSize = resSizeB + resSizeA;
 			
+			
 			if (resSize < resultsMaxSize){
 				if (resSizeA == resultsMaxSize/2){
 					querya.setStart(0).setRows(resultsMaxSize);
 					responsea = solr.query(querya);
+					resSizeA = responsea.getResults().size();
 					
 				}
 				else if (resSizeB == resultsMaxSize/2){
 					queryb.setStart(0).setRows(resultsMaxSize);
 					responseb = solr.query(queryb);
+					resSizeB = responseb.getResults().size();
 				}
 			}
+			
+			resSize = resSizeB + resSizeA;
+
+	//		System.out.println("resSizeA : " + resSizeA);
+	//		System.out.println("resSizeB : " + resSizeB);
 			
 			loop++;
 		}
@@ -172,6 +179,7 @@ public class ObservationService {
 		results.addAll(responsea.getBeans(ObservationDTO.class));
 		results.addAll(responseb.getBeans(ObservationDTO.class));
 		
+		System.out.println("returning : " + results.size() + " for " + sex);
 //		System.out.println("---- I RETURN :" + results.size() + " , " + responsea.getResults().size() + " + " + responseb.getResults().size()) ;
 		
 //		for (ObservationDTO obs : results){
@@ -299,7 +307,7 @@ public class ObservationService {
 		
 		List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
 		SolrQuery query = new SolrQuery().setQuery("geneAccession:"+gene.replace(":", "\\:"));
-		if (zygosity != null)
+		if (zygosity != null && !zygosity.equalsIgnoreCase("null"))
 			query.addFilterQuery("zygosity:"+zygosity);
 		query.addFilterQuery("parameterId:"+parameterId);
 		if (strain != null){

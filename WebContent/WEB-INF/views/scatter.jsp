@@ -21,7 +21,8 @@
 	<!--    extra header stuff goes here such as extra page specific javascript -->
 	<!-- highcharts -->
 <script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js'></script>
- <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js'></script> 
+ <script type='text/javascript'
+			src='${baseUrl}/js/charts/highcharts-more.js'></script> 
 <script src="${baseUrl}/js/charts/exporting.js"></script>
 	
 
@@ -37,10 +38,13 @@
 	<jsp:body>
         
 	<div class='documentation'>
-   		<a href='' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a>
+   		<a href='' class='generalPanel'><img
+				src="${baseUrl}/img/info_20x20.png" /></a>
 	</div>	
     
 	<div class='topic'>Gene: ${gene.symbol}</div>
+	<div id="exportIconsDiv"></div>
+	
 	<c:if test="${statsError}">
 		<div class="alert alert-error">
 			<strong>Error:</strong> An issue occurred processing the statistics for this page - results on this page maybe incorrect.
@@ -49,23 +53,31 @@
 	
 
 
- <c:forEach var="unidimensionalDataSet" items="${allUnidimensionalDataSets}" varStatus="unidimensionalDataSetLoop">
+ <c:forEach var="unidimensionalDataSet"
+			items="${allUnidimensionalDataSets}"
+			varStatus="unidimensionalDataSetLoop">
  <div class="row-fluid dataset"> 
  <c:if test="${fn:length(unidimensionalDataSet.statsObjects)==0}">
 		No data for this zygosity and gender for this parameter and gene
 		</c:if>
 		<c:if test="${fn:length(unidimensionalDataSet.statsObjects)>0}">
 		 <div class="row-fluid">
-		 	<div class="container span6"><h4>Allele -  <t:formatAllele> ${unidimensionalDataSet.statsObjects[1].allele }</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${unidimensionalDataSet.statsObjects[1].geneticBackground }</span></h4>
+		 	<div class="container span6">
+							<h4>Allele -  <t:formatAllele> ${unidimensionalDataSet.statsObjects[1].allele }</t:formatAllele> <span
+									class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${unidimensionalDataSet.statsObjects[1].geneticBackground }</span>
+							</h4>
 				 	</div>
 				 
  		</div>
  		<div class="row-fluid">
-<c:forEach var="unidimensionalChartsAndTable" items="${unidimensionalDataSet.sexChartAndTables}" varStatus="uniDimensionalLoop">
+<c:forEach var="unidimensionalChartsAndTable"
+							items="${unidimensionalDataSet.sexChartAndTables}"
+							varStatus="uniDimensionalLoop">
  <%-- ${loop.count  % 2} --%>
 
   		<div class="container span6">
-				<div id="chart${unidimensionalDataSetLoop.count}_${uniDimensionalLoop.count}"
+				<div
+									id="chart${unidimensionalDataSetLoop.count}_${uniDimensionalLoop.count}"
 									style="min-width: 400px; height: 400px; margin: 0 auto">
 				</div>
 		
@@ -80,15 +92,17 @@
 								</script>
 								${parameter }
 							<a href="../${acc}?${pageContext.request.queryString}">Box Plot / Time Series  Graphs</a>		
-		</div><!-- end of span6  individual chart holder -->
+		</div>
+							<!-- end of span6  individual chart holder -->
 		</c:forEach>
-		</div><!-- end of row-fluid for graphs -->
+		</div>
+					<!-- end of row-fluid for graphs -->
 		
-		
-		<%--div id="exportIconsDiv"></div--%>
-		
-		<table id="continuousTable${uniDimensionalLoop.count}" class="table table-bordered  table-striped table-condensed">
-		<thead><tr>
+				
+		<table id="continuousTable${uniDimensionalLoop.count}"
+						class="table table-bordered  table-striped table-condensed">
+		<thead>
+							<tr>
 		<th>Line</th>
 		<th>Zygosity</th>
 			<th>Sex</th>
@@ -98,12 +112,14 @@
 			<th>Effect Size</th>
 			<th>pValue</th>
 		<%-- <th>${tables[loop.count-1].xAxisCategories[1]}</th><th>${tables[loop.count-1].xAxisCategories[2]}</th> --%>
-		</tr></thead>
+		</tr>
+						</thead>
 		<tbody>
 										
 										
 										
-											<c:forEach var="statsObject" items="${unidimensionalDataSet.statsObjects}">
+											<c:forEach var="statsObject"
+								items="${unidimensionalDataSet.statsObjects}">
 												<tr>
 												<td>${statsObject.line}</td>
 												<c:choose>
@@ -133,25 +149,50 @@
 										</table>
 				
 				
-				<c:if test="${fn:length(unidimensionalDataSet.allUnidimensionalResults)>0}">
+				<c:if
+						test="${fn:length(unidimensionalDataSet.allUnidimensionalResults)>0}">
 				<div class="row-fluid">
 						<div class="container span12">
-						<table class="ttable table-bordered  table-striped table-condensed">
+						<table
+									class="ttable table-bordered  table-striped table-condensed">
 						<%-- ${fn:length(unidimensionalData.allUnidimensionalResults)} --%>
 						
- 							<c:forEach var="data" items="${unidimensionalDataSet.allUnidimensionalResults}">
+ 							<c:forEach var="data"
+										items="${unidimensionalDataSet.allUnidimensionalResults}">
  							<%-- <td>${data.significanceClassification}</td> --%>
  									<c:choose>
-          									<c:when test="${data.significanceClassification == 'both_equally' || data.significanceClassification == 'none'  || data.significanceClassification == 'cannot_classify' }">
-          												<tr><th>Global Test</th><th>Significance/Classification</th><th>Effect</th></tr>
-          												<tr><td>${data.nullTestSignificance}</td><td>${data.significanceClassification.text}</td><td>${data.genotypeParameterEstimate}</td></tr></c:when>
-         									<c:when test="${data.significanceClassification == 'female_only' || data.significanceClassification == 'male_only'  || data.significanceClassification == 'female_greater' || data.significanceClassification == 'male_greater' || data.significanceClassification == 'different_directions'}">
-       													 <tr><th>Global Test</th><th>Significance/Classification</th><th>Gender</th><th>Effect</th></tr>
+          									<c:when
+												test="${data.significanceClassification == 'both_equally' || data.significanceClassification == 'none'  || data.significanceClassification == 'cannot_classify' }">
+          												<tr>
+													<th>Global Test</th>
+													<th>Significance/Classification</th>
+													<th>Effect</th>
+												</tr>
+          												<tr>
+													<td>${data.nullTestSignificance}</td>
+													<td>${data.significanceClassification.text}</td>
+													<td>${data.genotypeParameterEstimate}</td>
+												</tr>
+											</c:when>
+         									<c:when
+												test="${data.significanceClassification == 'female_only' || data.significanceClassification == 'male_only'  || data.significanceClassification == 'female_greater' || data.significanceClassification == 'male_greater' || data.significanceClassification == 'different_directions'}">
+       													 <tr>
+													<th>Global Test</th>
+													<th>Significance/Classification</th>
+													<th>Gender</th>
+													<th>Effect</th>
+												</tr>
        													 <tr>
        													 <td rowspan="2">${data.nullTestSignificance}</td>
        													 <td rowspan="2">${data.significanceClassification.text}</td>
-       													 <td>Female</td><td>${data.genderFemaleKoEstimate}</td>
-       													 <tr><td> Male</td><td> ${data.genderMaleKoEstimate}</td></tr></c:when>
+       													 <td>Female</td>
+													<td>${data.genderFemaleKoEstimate}</td>
+       													 
+												<tr>
+													<td> Male</td>
+													<td> ${data.genderMaleKoEstimate}</td>
+												</tr>
+											</c:when>
 									</c:choose>
 									</c:forEach>
  	 							</table>
@@ -234,8 +275,10 @@
  				</c:if>	
  				</c:if>
 	<!-- </div> -->
-</div><!-- end of row fluid data set -->
-</c:forEach><!--  end of undimensional data loop -->
+</div>
+			<!-- end of row fluid data set -->
+</c:forEach>
+		<!--  end of undimensional data loop -->
 
 <script>
 	$(document)
@@ -261,6 +304,9 @@
 								.split("/").length - 1];
 						var mgiGeneId = params.split("\?")[0];
 						var paramId = params.split("parameterId\=")[1].split("\&")[0];
+						var zygosity = null;
+						if (params.indexOf("zygosity\=") > 0)
+							zygosity = params.split("zygosity\=")[1].split("\&")[0];
 						var windowLocation = window.location;
 
 						initFileExporter({
@@ -271,6 +317,8 @@
 							solrCoreName : 'experiment',
 							dumpMode : 'all',
 							baseUrl : windowLocation,
+							parameterStableId : paramId,
+							zygosity: zygosity,
 							page : "scatterPlot",
 							gridFields : 'geneAccession,dateOfExperiment,geneSymbol,dataPoint,zygosity,gender,dateOfBirth',
 							params : "qf=auto_suggest&defType=edismax&wt=json&q=*:*&fq=geneAccession:\""

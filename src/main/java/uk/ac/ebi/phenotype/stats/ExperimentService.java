@@ -347,6 +347,11 @@ public class ExperimentService {
 		Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameterStableId, 1, 0);
 		return getExperimentDTO(p.getId(), geneAccession);
 	}
+// public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer organisationId, String zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
 
+	public List<ExperimentDTO> getExperimentDTO(String parameterStableId, String geneAccession, SexType sex, Integer organisationId, String zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
+		Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameterStableId, 1, 0);
+		return getExperimentDTO(p.getId(), geneAccession, sex, organisationId, zygosity, strain);
+	}
 
 }
