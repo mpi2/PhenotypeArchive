@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -211,7 +212,6 @@ private static final Logger log = Logger.getLogger(ScatterGraph.class);
 		String seriesString=" series: [ ";
 		int i=0;
 		//Date.UTC(1970,  9, 27)
-		SimpleDateFormat utcDateFormat=new SimpleDateFormat("yyyy, MM, dd");
 		for(String xAxisCategory: xAxisCategoriesList) {
 			seriesString+="{ name: '"
 					+ xAxisCategory+" ' "
@@ -225,9 +225,12 @@ private static final Logger log = Logger.getLogger(ScatterGraph.class);
 						data+="["+mouseDataPoint.getColumn() +"," +mouseDataPoint.getDataPoint()+"],"; 
 						}
 						else {
+							Date date = mouseDataPoint.getDateOfExperiment();
 							//Date.UTC(1970,  9, 27)
-							data+="["+"Date.UTC("+utcDateFormat.format(mouseDataPoint.getDateOfExperiment())+")" +", " +mouseDataPoint.getDataPoint()+"],"; 
-							//System.out.println("data="+data);
+							long dateString = date.getTime();
+							// highcharts expect date as milliseconds since 1970
+							data+="["+dateString + ", " +mouseDataPoint.getDataPoint()+"],"; 
+					//		System.out.println("data="+data + "  from  " + mouseDataPoint.getDateOfExperiment());
 						}
 					}
 					seriesString+=data;
