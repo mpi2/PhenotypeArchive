@@ -5,13 +5,17 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,7 +39,7 @@ public class ObservationService {
 	private HttpSolrServer solr;
 
 	public ObservationService() {
-		String solrURL = "http://localhost:8080/solr/experiment"; //default
+		String solrURL = "http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment"; //default
 		solr = new HttpSolrServer(solrURL);
 	}
 
@@ -337,12 +341,87 @@ public class ObservationService {
             .addFilterQuery("strain:"+strain.replace(":", "\\:"))
             .addFilterQuery("gender:"+sex)
             ;
-    query.setStart(0).setRows(10000);    
+        query.setStart(0).setRows(10000);    
 
-    QueryResponse response = solr.query(query);
-    resultsDTO = response.getBeans(ObservationDTO.class);
+        QueryResponse response = solr.query(query);
+        resultsDTO = response.getBeans(ObservationDTO.class);
 
         return resultsDTO;
-}
+	}
+
+	/**
+	 * Return all the parameter ids that have associated data for a given
+	 * organisation
+	 * 
+	 * @param organisation
+	 *            the name of the organisation
+	 * @return list of integer db keys of the parameter rows
+	 * @throws SolrServerException
+	 */
+	public List<Integer> getAllUnidimensionalParameterIdsWithObservationsByOrganisation(String organisation) throws SolrServerException {
+		Set<Integer> parameters = new HashSet<Integer>();
+
+		SolrQuery query = new SolrQuery()
+			.setQuery("*:*")
+			.addFilterQuery("organisation:" + organisation)
+			.setRows(0)
+			.addFacetField("parameterId")
+			.setFacet(true)
+			.setFacetMinCount(-1)
+			.setFacetLimit(1000);
+
+		QueryResponse response = solr.query(query);
+		List<FacetField> fflist = response.getFacetFields();
+
+		for(FacetField ff : fflist){
+		    for(Count c : ff.getValues()){
+				parameters.add(Integer.parseInt(c.getName()));
+		    }
+		}
+
+		return new ArrayList<Integer>(parameters);
+	}
+
+	
+	
+	/**
+	 * Return all the gene accession ids that have associated data for a given
+	 * organisation, strain, and zygosity
+	 * 
+	 * @param organisation
+	 *            the name of the organisation
+	 * @param strain
+	 *            the strain
+	 * @param zygosity
+	 *            the zygosity
+	 * @return list of integer db keys of the parameter rows
+	 * @throws SolrServerException
+	 */
+	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity(String organisation, String strain, String zygosity) throws SolrServerException {
+		Set<String> genes = new HashSet<String>();
+
+		SolrQuery query = new SolrQuery()
+			.setQuery("*:*")
+			.addFilterQuery("biologicalSampleGroup:experimental")
+			.addFilterQuery("organisation:" + organisation)
+			.addFilterQuery("strain:" + strain)
+			.addFilterQuery("zygosity:" + zygosity)
+			.setRows(0)
+			.addFacetField("geneAccession")
+			.setFacet(true)
+			.setFacetMinCount(-1)
+			.setFacetLimit(1000);
+
+		QueryResponse response = solr.query(query);
+		List<FacetField> fflist = response.getFacetFields();
+
+		for(FacetField ff : fflist){
+		    for(Count c : ff.getValues()){
+				genes.add(c.getName());
+		    }
+		}
+
+		return new ArrayList<String>(genes);
+	}
 
 }

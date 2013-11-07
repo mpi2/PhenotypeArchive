@@ -138,28 +138,6 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 		return parameterIds; 	
 	}
 
-	public List<Integer> getAllUnidimensionalParameterIdsWithObservationsByOrganisation(Organisation organisation) throws SQLException {
-	    List<Integer> parameterIds = new ArrayList<Integer>();
-
-		String query = "SELECT DISTINCT p.id"
-		+ " FROM phenotype_parameter p"
-		+ " INNER JOIN observation o ON o.parameter_id=p.id"
-		+ " INNER JOIN biological_sample bs ON bs.id=o.biological_sample_id"
-		+ " WHERE bs.organisation_id=?"
-		+ " AND o.observation_type='unidimensional'"
-		;
-
-		try (PreparedStatement statement = getConnection().prepareStatement(query)){
-	        statement.setInt(1, organisation.getId());
-		    ResultSet resultSet = statement.executeQuery();
-			while (resultSet.next()) {
-				parameterIds.add(resultSet.getInt("id"));
-			}
-		}
-
-		return parameterIds; 			
-	}
-
 	
 	@Transactional(readOnly = true)
 	public Observation getObservationById(Integer obsId) {
@@ -321,71 +299,6 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 		return genes; 	
 	}
 
-	@Transactional(readOnly = true)
-	public List<String> getAllGeneAccessionIdsByParameterOrganisationStrainZygosity(Parameter parameter, Organisation organisation, String strain, ZygosityType zygosity) throws SQLException {
-	    List<String> genes = new ArrayList<String>();
-
-		String query = "SELECT DISTINCT bmgf.gf_acc"
-		+ " FROM observation o"
-		+ " INNER JOIN biological_sample bs ON o.biological_sample_id=bs.id"
-		+ " INNER JOIN live_sample ls ON ls.id=bs.id"
-		+ " INNER JOIN biological_model_sample bms ON bms.biological_sample_id=bs.id"
-		+ " INNER JOIN biological_model bm ON bms.biological_model_id=bm.id"
-		+ " INNER JOIN biological_model_genomic_feature bmgf ON bm.id=bmgf.biological_model_id"
-		+ " INNER JOIN biological_model_strain strain on strain.biological_model_id=bm.id"
-		+ " WHERE o.parameter_id=?"
-		+ " AND bs.organisation_id=?"
-		+ " AND strain.strain_acc=?"
-		+ " AND ls.zygosity=?"
-		;
-
-		try (PreparedStatement statement = getConnection().prepareStatement(query)){
-	        statement.setInt(1, parameter.getId());
-	        statement.setInt(2, organisation.getId());
-	        statement.setString(3, strain);
-	        statement.setString(4, zygosity.name());
-		    ResultSet resultSet = statement.executeQuery();
-			while (resultSet.next()) {
-				genes.add(resultSet.getString("gf_acc"));
-			}
-		}
-
-		return genes; 	
-
-	}
-
-	@Transactional(readOnly = true)
-	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity(Integer parameterId, Organisation organisation, String strain, ZygosityType zygosity) throws SQLException {
-	    List<String> genes = new ArrayList<String>();
-
-		String query = "SELECT DISTINCT bmgf.gf_acc"
-		+ " FROM observation o"
-		+ " INNER JOIN biological_sample bs ON o.biological_sample_id=bs.id"
-		+ " INNER JOIN live_sample ls ON ls.id=bs.id"
-		+ " INNER JOIN biological_model_sample bms ON bms.biological_sample_id=bs.id"
-		+ " INNER JOIN biological_model bm ON bms.biological_model_id=bm.id"
-		+ " INNER JOIN biological_model_genomic_feature bmgf ON bm.id=bmgf.biological_model_id"
-		+ " INNER JOIN biological_model_strain strain on strain.biological_model_id=bm.id"
-		+ " WHERE o.parameter_id=?"
-		+ " AND bs.organisation_id=?"
-		+ " AND strain.strain_acc=?"
-		+ " AND ls.zygosity=?"
-		;
-
-		try (PreparedStatement statement = getConnection().prepareStatement(query)){
-	        statement.setInt(1, parameterId);
-	        statement.setInt(2, organisation.getId());
-	        statement.setString(3, strain);
-	        statement.setString(4, zygosity.name());
-		    ResultSet resultSet = statement.executeQuery();
-			while (resultSet.next()) {
-				genes.add(resultSet.getString("gf_acc"));
-			}
-		}
-
-		return genes; 	
-
-	}
 
 	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationStrainZygositySex(Integer parameterId, Organisation organisation, String strain, ZygosityType zygosity, SexType sex) throws SQLException {
 	    List<String> genes = new ArrayList<String>();

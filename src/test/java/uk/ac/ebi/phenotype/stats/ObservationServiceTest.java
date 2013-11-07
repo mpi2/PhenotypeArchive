@@ -47,4 +47,17 @@ public class ObservationServiceTest {
 		
 	}
 
+	
+	@Test
+	public void testGetAllUnidimensionalParameterIdsWithObservationsByOrganisation() throws SolrServerException {
+		List<Integer> params = os.getAllUnidimensionalParameterIdsWithObservationsByOrganisation("WTSI");
+		assertTrue(params.size()>0);
+	}
+	
+	@Test
+	public void testGetAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity() throws SolrServerException {
+		List<String> genes = os.getAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity("WTSI","EUROCURATE1983", "homozygote");
+		assertTrue(genes.size()>0);
+
+	}
 }
