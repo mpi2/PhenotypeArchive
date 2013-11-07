@@ -88,7 +88,6 @@ public class ObservationService {
 		}
 		else 
 			results.addAll(getControlsBySex(parameterId, strain, organisationId, max, showAll, sex, n));
-		System.out.println("Controls returned: " +  results.size());
 		return results;
 	}
 
@@ -318,7 +317,6 @@ http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experimentq=*%3A*&fq=biologica
 	    		max=o.getDateOfExperiment();
 	    	}
 	    }
-	    System.out.println("---- Experiment date ----  " + max);
 
 		resultsDTO.addAll(getControls(parameterId, strain, organisationId, max));
 	    
