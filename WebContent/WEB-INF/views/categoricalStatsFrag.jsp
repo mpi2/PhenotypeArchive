@@ -2,9 +2,9 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
-
-<div id="exportIconsDivCat"></div>
-
+<c:if test="${fn:length(allCategoricalResultAndCharts) > 0}">
+	<div id="exportIconsDivCat"></div>
+</c:if>
 <c:forEach var="categoricalResultAndCharts" items="${allCategoricalResultAndCharts}" varStatus="experimentLoop">
 	<div class="row-fluid dataset">
 	<c:if test="${fn:length(categoricalResultAndCharts.maleAndFemale)==0}">

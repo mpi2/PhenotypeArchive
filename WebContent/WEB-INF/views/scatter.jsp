@@ -43,6 +43,7 @@
 	</div>	
     
 	<div class='topic'>Gene: ${gene.symbol}</div>
+	
 	<div id="exportIconsDiv"></div>
 	
 	<c:if test="${statsError}">
