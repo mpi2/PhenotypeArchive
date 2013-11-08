@@ -284,6 +284,7 @@ public class StatsController implements BeanFactoryAware {
 		model.addAttribute("statsError", statsError );
 		//set no data to true and the europhenome link if no experiments returned
 		model.addAttribute("noData",noData);
+		model.addAttribute("paramIds", paramIds);
 		//model.addAttribute("europhenomeLink", europhenomeLink);
 		return "stats";
 	}
@@ -377,6 +378,7 @@ public class StatsController implements BeanFactoryAware {
 		model.addAttribute("unidimensionalMutantBiologicalModels", unidimensionalMutantBiologicalModels );
 		model.addAttribute("allUnidimensionalDataSets", allUnidimensionalDataSets);
 		model.addAttribute("statsError", statsError );
+		model.addAttribute("paramIds", paramIds);
 		return "scatter";
 	}
 	

@@ -4,7 +4,7 @@
 
 <!-- most of this page is the same as the unidimensionalStatsFrag.jsp so we should refactor this so they are the same page -->
 <t:genericpage>
-	<jsp:attribute name="title">Scatter for ${gene.name}</jsp:attribute>
+	<jsp:attribute name="title">${gene.symbol} ${paramIds} Statistics</jsp:attribute>
 
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
 			href="${baseUrl}/search#sort=marker_symbol asc&q=*:*&core=gene">Genes</a> <c:if
@@ -42,8 +42,12 @@
 				src="${baseUrl}/img/info_20x20.png" /></a>
 	</div>	
     
-	<div class='topic'>Gene: ${gene.symbol}</div>
-	
+	<div class='topic'>Gene: ${gene.symbol} Parameters: 
+	 <c:forEach var="paramId" items="${paramIds}" varStatus="loop">
+  ${paramId }
+    <c:if test="${ not loop.last}">,</c:if>
+	</c:forEach>
+	</div>
 	<div id="exportIconsDiv"></div>
 	
 	<c:if test="${statsError}">

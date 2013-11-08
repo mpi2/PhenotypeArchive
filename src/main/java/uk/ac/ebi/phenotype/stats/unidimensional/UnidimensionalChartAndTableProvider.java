@@ -377,6 +377,8 @@ public class UnidimensionalChartAndTableProvider {
 			
 			List<Float> wt1 = new ArrayList<Float>();
 			if(listOfFloats.size()>0) {
+//				double lower = stats.getPercentile(25);
+//				double higher=stats.getPercentile(75);
 			double Q1 = ChartUtils.getDecimalAdjustedFloat(new Float(stats.getPercentile(25)),decimalPlaces);
 			double Q3 = ChartUtils.getDecimalAdjustedFloat(new Float(stats.getPercentile(75)), decimalPlaces);
 			double IQR = Q3 - Q1;
