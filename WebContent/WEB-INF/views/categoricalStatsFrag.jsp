@@ -4,6 +4,90 @@
 
 <c:if test="${fn:length(allCategoricalResultAndCharts) > 0}">
 	<div id="exportIconsDivCat"></div>
+	 <script>
+	$(document)
+			.ready(
+					function() {
+						// alert("categorical");
+						$('div#exportIconsDivCat').append(
+								$.fn.loadFileExporterUI({
+									label : 'Export data as: (categ)',
+									formatSelector : {
+										TSV : 'tsv_phenoAssoc',
+										XLS : 'xls_phenoAssoc'
+									},
+									class : 'fileIcon'
+								}));
+
+						var params = window.location.href.split("/")[window.location.href
+								.split("/").length - 1];
+						var mgiGeneId = params.split("\?")[0];
+						var windowLocation = window.location;
+						var paramId = params.split("parameterId\=")[1].split("\&")[0];
+						var paramIdList = paramId;
+						for (var k = 2; k < params.split("parameterId\=").length; k++){
+							paramIdList += "\t" + params.split("parameterId\=")[k].split("\&")[0];
+						}
+						var zygosity = (params.indexOf("zygosity\=") > 0) ? params.split("zygosity\=")[1].split("\&")[0] : null;
+		//				var sex = (params.indexOf("gender\=") > 0) ? params.split("gender\=")[1].split("\&")[0] : null;
+
+						initFileExporter({
+							mgiGeneId : mgiGeneId,
+							externalDbId : 3,
+							fileName : 'categoricalData'
+									+ mgiGeneId.replace(/:/g, '_'),
+							solrCoreName : 'experiment',
+							dumpMode : 'all',
+							baseUrl : windowLocation,
+							page : "categorical",
+							parameterStableId : paramIdList,
+							zygosity: zygosity,
+							gridFields : 'geneAccession,dateOfExperiment,discretePoint,geneSymbol,zygosity,gender,dateOfBirth,timePoint',
+							params : "qf=auto_suggest&defType=edismax&wt=json&q=*:*&fq=geneAccession:\""
+									+ mgiGeneId
+									+ "\"&fq=parameterStableId:"
+									+ paramId
+						});
+
+						function initFileExporter(conf) {
+							$('button.fileIcon')
+									.click(
+											function() {
+												var fileType = $(this).text();
+												var url = baseUrl + '/export';
+												var sInputs = '';
+												for ( var k in conf) {
+														sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";
+												}
+												sInputs += "<input type='text' name='fileType' value='"
+														+ fileType
+																.toLowerCase()
+														+ "'>";
+												var form = $("<form action='"+ url + "' method=get>"
+														+ sInputs + "</form>");
+												_doDataExport(url, form);
+											}).corner('6px');
+						}
+
+						function _doDataExport(url, form) {
+							$
+									.ajax({
+										type : 'GET',
+										url : url,
+										cache : false,
+										data : $(form).serialize(),
+										success : function(data) {
+											$(form).appendTo('body').submit()
+													.remove();
+										},
+										error : function() {
+					//						alert("Oops, there is error during data export..");
+										}
+									});
+						}
+					});
+</script>
+	
 </c:if>
 <c:forEach var="categoricalResultAndCharts" items="${allCategoricalResultAndCharts}" varStatus="experimentLoop">
 	<div class="row-fluid dataset">
@@ -156,89 +240,7 @@
  	</div>
  </c:forEach>
  
- <script>
-	$(document)
-			.ready(
-					function() {
-						// alert("categorical");
-						$('div#exportIconsDivCat').append(
-								$.fn.loadFileExporterUI({
-									label : 'Export data as: (categ)',
-									formatSelector : {
-										TSV : 'tsv_phenoAssoc',
-										XLS : 'xls_phenoAssoc'
-									},
-									class : 'fileIcon'
-								}));
 
-						var params = window.location.href.split("/")[window.location.href
-								.split("/").length - 1];
-						var mgiGeneId = params.split("\?")[0];
-						var windowLocation = window.location;
-						var paramId = params.split("parameterId\=")[1].split("\&")[0];
-						var paramIdList = paramId;
-						for (var k = 2; k < params.split("parameterId\=").length; k++){
-							paramIdList += "\t" + params.split("parameterId\=")[k].split("\&")[0];
-						}
-						var zygosity = (params.indexOf("zygosity\=") > 0) ? params.split("zygosity\=")[1].split("\&")[0] : null;
-		//				var sex = (params.indexOf("gender\=") > 0) ? params.split("gender\=")[1].split("\&")[0] : null;
-
-						initFileExporter({
-							mgiGeneId : mgiGeneId,
-							externalDbId : 3,
-							fileName : 'categoricalData'
-									+ mgiGeneId.replace(/:/g, '_'),
-							solrCoreName : 'experiment',
-							dumpMode : 'all',
-							baseUrl : windowLocation,
-							page : "categorical",
-							parameterStableId : paramIdList,
-							zygosity: zygosity,
-							gridFields : 'geneAccession,dateOfExperiment,discretePoint,geneSymbol,zygosity,gender,dateOfBirth,timePoint',
-							params : "qf=auto_suggest&defType=edismax&wt=json&q=*:*&fq=geneAccession:\""
-									+ mgiGeneId
-									+ "\"&fq=parameterStableId:"
-									+ paramId
-						});
-
-						function initFileExporter(conf) {
-							$('button.fileIcon')
-									.click(
-											function() {
-												var fileType = $(this).text();
-												var url = baseUrl + '/export';
-												var sInputs = '';
-												for ( var k in conf) {
-														sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";
-												}
-												sInputs += "<input type='text' name='fileType' value='"
-														+ fileType
-																.toLowerCase()
-														+ "'>";
-												var form = $("<form action='"+ url + "' method=get>"
-														+ sInputs + "</form>");
-												_doDataExport(url, form);
-											}).corner('6px');
-						}
-
-						function _doDataExport(url, form) {
-							$
-									.ajax({
-										type : 'GET',
-										url : url,
-										cache : false,
-										data : $(form).serialize(),
-										success : function(data) {
-											$(form).appendTo('body').submit()
-													.remove();
-										},
-										error : function() {
-					//						alert("Oops, there is error during data export..");
-										}
-									});
-						}
-					});
-</script>
 <!--/end of categoriacl charts-->
 
 
