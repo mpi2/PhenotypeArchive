@@ -141,8 +141,8 @@ public class ObservationService {
 		responseb = solr.query(queryb);
 		responsea = solr.query(querya);
 		
-		List<ObservationDTO> resA = responsea.getBeans(ObservationDTO.class);
-		List<ObservationDTO> resB = responseb.getBeans(ObservationDTO.class);
+		List<ObservationDTO> resA = responsea.getBeans(ObservationDTO.class); // hits AFTER the dateOfExperiment passes
+		List<ObservationDTO> resB = responseb.getBeans(ObservationDTO.class); // hits BEFRE the dateOfExperiment passes
 		ArrayList<ObservationDTO> closest = new ArrayList<ObservationDTO>();
 		long datInMs = max.getTime();
 		
@@ -157,6 +157,17 @@ public class ObservationService {
 				results.add(closest.get(1));
 				resB.remove(0);
 			}
+		}
+
+		System.out.println("resA : " + resA.size());
+		System.out.println("resB : " + resB.size());
+		
+		if (results.size() < resultsMaxSize && resA.size() > 0){
+			results.addAll(resA);
+		}
+			
+		if (results.size() < resultsMaxSize && resB.size() > 0){
+			results.addAll(resB);
 		}
 		
 //		results.addAll(responsea.getBeans(ObservationDTO.class).subList(0, neededAfter));
