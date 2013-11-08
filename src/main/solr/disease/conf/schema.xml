@@ -296,6 +296,7 @@
    <copyField source="disease_classes" dest="auto_suggest"/>
    <copyField source="disease_id" dest="auto_suggest"/>
    <copyField source="disease_source" dest="auto_suggest"/>
+   <copyField source="disease_phenotypes" dest="auto_suggest"/>
    <copyField source="marker_symbol" dest="auto_suggest"/>
    <copyField source="marker_accession" dest="auto_suggest"/>
    <copyField source="mp_id" dest="auto_suggest"/>
@@ -316,7 +317,7 @@
    <copyField source="content_type" dest="text"/>
    <copyField source="resourcename" dest="text"/>
    <copyField source="url" dest="text"/>-->
-  
+
 	
    <!-- Above, multiple source fields are copied to the [text] field. 
 	  Another way to map multiple source fields to the same 
