@@ -159,8 +159,6 @@ public class ObservationService {
 			}
 		}
 
-		System.out.println("resA : " + resA.size());
-		System.out.println("resB : " + resB.size());
 		
 		if (results.size() < resultsMaxSize && resA.size() > 0){
 			results.addAll(resA);
