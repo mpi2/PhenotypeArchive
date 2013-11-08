@@ -217,7 +217,7 @@
 						var zygosity = null;
 						if (params.indexOf("zygosity\=") > 0)
 							zygosity = params.split("zygosity\=")[1].split("\&")[0];
-
+						
 						initFileExporter({
 							mgiGeneId : mgiGeneId,
 							externalDbId : 3,

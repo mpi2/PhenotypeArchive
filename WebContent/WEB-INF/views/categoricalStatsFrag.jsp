@@ -175,9 +175,8 @@
 						for (var k = 2; k < params.split("parameterId\=").length; k++){
 							paramIdList += "\t" + params.split("parameterId\=")[k].split("\&")[0];
 						}
-						var zygosity = null;
-						if (params.indexOf("zygosity\=") > 0)
-							zygosity = params.split("zygosity\=")[1].split("\&")[0];
+						var zygosity = (params.indexOf("zygosity\=") > 0) ? params.split("zygosity\=")[1].split("\&")[0] : null;
+		//				var sex = (params.indexOf("gender\=") > 0) ? params.split("gender\=")[1].split("\&")[0] : null;
 
 						initFileExporter({
 							mgiGeneId : mgiGeneId,
