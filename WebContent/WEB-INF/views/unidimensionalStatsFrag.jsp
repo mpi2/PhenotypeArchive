@@ -2,8 +2,10 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
+<c:if test="${fn:length(allUnidimensionalDataSets) > 0}">
+			<div id="exportIconsDivUni"></div>
+</c:if>
 
-								<div id="exportIconsDivUni"></div>
 <c:forEach var="unidimensionalDataSet" items="${allUnidimensionalDataSets}" varStatus="unidimensionalDataSetLoop">
  <div class="row-fluid dataset"> 
  		<c:if test="${fn:length(unidimensionalDataSet.statsObjects)==0}">
