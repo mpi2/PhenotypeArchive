@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -176,8 +177,11 @@ public class FileExportController {
 
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
 				if (!solrCoreName.equalsIgnoreCase("experiment")){
-					dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);}
-				else dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, null, null, zygosity, strain);
+					dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);
+				}
+				else {
+					dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, null, null, zygosity, strain);
+				}
 			}
 		}
 		
@@ -187,10 +191,17 @@ public class FileExportController {
 		try {				
 			
 			if ( fileType.equals("tsv") ){
-				ServletOutputStream output = response.getOutputStream();
+				//ServletOutputStream output = response.getOutputStream();
+				
+				// ckc note: switch to use getWriter() so that we don't get error like
+				// java.io.CharConversionException: Not an ISO 8859-1 character
+				// and if we do, the error will cause the dump to end prematurely 
+				// and we may not get the full rows (depending on which row causes error)				
+				PrintWriter output = response.getWriter();
 				for (String line : dataRows){
 					output.println(line);
-				}
+				}				
+				
 //				StringBuffer sb = new StringBuffer();						
 //				sb.append(dataString);			
 				
@@ -618,7 +629,7 @@ public class FileExportController {
 
 	private List<String> composeDiseaseDataTableRows(JSONObject json){
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");	
-		
+		System.out.println("DOC num: " + docs.size());
 		List<String> rowData = new ArrayList<String>();
 		rowData.add("Disease id\tDisease name\tSource\tCurated genes in human\tCurated genes in mouse (MGI)\tCandidate genes by phenotype (MGP)\tCandidate genes by phenotype (MGI)"); // column names	
 		
