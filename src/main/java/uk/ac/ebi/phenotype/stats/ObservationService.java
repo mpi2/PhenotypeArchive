@@ -22,8 +22,10 @@ import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
+import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 @Service
 public class ObservationService {
@@ -397,13 +399,14 @@ public class ObservationService {
 	 * @return list of integer db keys of the parameter rows
 	 * @throws SolrServerException
 	 */
-	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity(String organisation, String strain, String zygosity) throws SolrServerException {
+	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity(Integer parameterId, String organisation, String strain, String zygosity) throws SolrServerException {
 		Set<String> genes = new HashSet<String>();
 
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
 			.addFilterQuery("biologicalSampleGroup:experimental")
 			.addFilterQuery("organisation:" + organisation)
+			.addFilterQuery("parameterId:" + parameterId)
 			.addFilterQuery("strain:" + strain)
 			.addFilterQuery("zygosity:" + zygosity)
 			.setRows(0)

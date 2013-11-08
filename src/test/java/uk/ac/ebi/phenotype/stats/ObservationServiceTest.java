@@ -56,7 +56,7 @@ public class ObservationServiceTest {
 	
 	@Test
 	public void testGetAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity() throws SolrServerException {
-		List<String> genes = os.getAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity("WTSI","EUROCURATE1983", "homozygote");
+		List<String> genes = os.getAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity(1234, "WTSI","EUROCURATE1983", "homozygote");
 		assertTrue(genes.size()>0);
 
 	}

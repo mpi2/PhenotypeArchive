@@ -86,10 +86,6 @@ public class ExperimentService {
 	    		experiment.setZygosities(new TreeSet<ZygosityType>());
 	    	}
 
-	    	if(organisationId==null){
-	    		organisationId = observation.getOrganisationId();
-	    	}
-
 	    	if (experiment.getGeneMarker() == null) {
 	    		experiment.setGeneMarker(observation.getGeneSymbol());
 	    	}
@@ -138,6 +134,15 @@ public class ExperimentService {
 	    // because of the sliding window of control selection based on date
 	    for (String key : experimentsMap.keySet()) {
 
+	    	// If the requester filtered based on organisation, then the organisationId
+	    	// parameter will not be null and we can use that, otherwise we need to
+	    	// determine the organisation for this experiment and use that 
+	    	
+	    	Integer experimentOrganisationId = null;
+	    	if(organisationId!=null){
+	    		experimentOrganisationId = organisationId;
+	    	}
+
 	    	ExperimentDTO experiment = experimentsMap.get(key);
 
 	    	if (experiment.getControls() == null) {
@@ -145,12 +150,22 @@ public class ExperimentService {
 	    	    String observationType = null;
 	    		Date max = new Date(0L); //epoch
 	    	    for (ObservationDTO o : experiment.getHeterozygoteMutants()) {
+
+	    	    	if(experimentOrganisationId==null){
+	    	    		experimentOrganisationId = o.getOrganisationId();
+	    	    	}
+
 	    	    	if (o.getDateOfExperiment().after(max)) {
 	    	    		max=o.getDateOfExperiment();
 	    	    		observationType = o.getObservationType();
 	    	    	}
 	    	    }
 	    	    for (ObservationDTO o : experiment.getHomozygoteMutants()) {
+
+	    	    	if(experimentOrganisationId==null){
+	    	    		experimentOrganisationId = o.getOrganisationId();
+	    	    	}
+
 	    	    	if (o.getDateOfExperiment().after(max)) {
 	    	    		max=o.getDateOfExperiment();
 	    	    		observationType = o.getObservationType();
@@ -168,7 +183,7 @@ public class ExperimentService {
 //	    			System.out.println("Sex : " + controlSex + ".");
 	    		}
 //	    		System.out.println("BEFORE GET CONTROLS: "+ parameterId + experiment.getStrain() + organisationId + max + Boolean.FALSE + controlSex);
-	    		List<ObservationDTO> controls = os.getControls(parameterId, experiment.getStrain(), organisationId, max, Boolean.FALSE, controlSex);
+	    		List<ObservationDTO> controls = os.getControls(parameterId, experiment.getStrain(), experimentOrganisationId, max, Boolean.FALSE, controlSex);
     			experiment.getControls().addAll(controls);
 	    		
 	    		if(experiment.getControlBiologicalModelId()==null && controls.size()>0) {
