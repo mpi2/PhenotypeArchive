@@ -188,12 +188,12 @@ public class FileExportController {
 		try {				
 			
 			if ( fileType.equals("tsv") ){
-			//	ServletOutputStream output = response.getOutputStream();
-				//ServletOutputStream output = response.getOutputStream();       
+				// ServletOutputStream output = response.getOutputStream();
+				  
 				// ckc note: switch to use getWriter() so that we don't get error like
 				// java.io.CharConversionException: Not an ISO 8859-1 character
 				// and if we do, the error will cause the dump to end prematurely 
-				 // and we may not get the full rows (depending on which row causes error)        
+				// and we may not get the full rows (depending on which row causes error)        
 				PrintWriter output = response.getWriter();
 				for (String line : dataRows){
 					output.println(line);
