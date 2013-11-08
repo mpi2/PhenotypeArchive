@@ -169,9 +169,12 @@
 						var params = window.location.href.split("/")[window.location.href
 								.split("/").length - 1];
 						var mgiGeneId = params.split("\?")[0];
-						var paramId = params.split("parameterId\=")[1].split("\&")[0];
 						var windowLocation = window.location;
 						var paramId = params.split("parameterId\=")[1].split("\&")[0];
+						var paramIdList = paramId;
+						for (var k = 2; k < params.split("parameterId\=").length; k++){
+							paramIdList += "\t" + params.split("parameterId\=")[k].split("\&")[0];
+						}
 						var zygosity = null;
 						if (params.indexOf("zygosity\=") > 0)
 							zygosity = params.split("zygosity\=")[1].split("\&")[0];
@@ -185,14 +188,13 @@
 							dumpMode : 'all',
 							baseUrl : windowLocation,
 							page : "categorical",
-							parameterStableId : paramId,
+							parameterStableId : paramIdList,
 							zygosity: zygosity,
 							gridFields : 'geneAccession,dateOfExperiment,discretePoint,geneSymbol,zygosity,gender,dateOfBirth,timePoint',
 							params : "qf=auto_suggest&defType=edismax&wt=json&q=*:*&fq=geneAccession:\""
 									+ mgiGeneId
 									+ "\"&fq=parameterStableId:"
 									+ paramId
-									+ "&start=0&rows=10000"
 						});
 
 						function initFileExporter(conf) {
