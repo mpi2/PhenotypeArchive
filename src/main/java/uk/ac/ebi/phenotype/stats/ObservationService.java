@@ -405,7 +405,7 @@ public class ObservationService {
 	 *            the strain
 	 * @param zygosity
 	 *            the zygosity
-	 * @return list of integer db keys of the parameter rows
+	 * @return list of gene accession ids
 	 * @throws SolrServerException
 	 */
 	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity(Integer parameterId, String organisation, String strain, String zygosity) throws SolrServerException {
@@ -434,6 +434,43 @@ public class ObservationService {
 		}
 
 		return new ArrayList<String>(genes);
+	}
+	
+	/**
+	 * Return all the strain accession ids that have associated data for a given
+	 * organisation, and parameter
+	 * 
+	 * @param organisation
+	 *            the name of the organisation
+	 * @param parameterId
+	 *            the database id of the parameter 
+	 * @return list of strain accession ids
+	 * @throws SolrServerException
+	 */
+	public List<String> getAllStrainsByParameterIdOrganistion(Integer parameterId, String organisation) throws SolrServerException {
+		Set<String> strains = new HashSet<String>();
+
+		SolrQuery query = new SolrQuery()
+			.setQuery("*:*")
+			.addFilterQuery("organisation:" + organisation)
+			.addFilterQuery("parameterId:" + parameterId)
+			.setRows(0)
+			.addFacetField("strain")
+			.setFacet(true)
+			.setFacetMinCount(-1)
+			.setFacetLimit(1000);
+
+		QueryResponse response = solr.query(query);
+		List<FacetField> fflist = response.getFacetFields();
+
+		for(FacetField ff : fflist){
+		    for(Count c : ff.getValues()){
+		    	strains.add(c.getName());
+		    }
+		}
+
+		return new ArrayList<String>(strains);
+		
 	}
 
 }

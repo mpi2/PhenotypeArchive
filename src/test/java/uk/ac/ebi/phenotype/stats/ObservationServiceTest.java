@@ -33,7 +33,7 @@ public class ObservationServiceTest {
 
 	@Test
 	public void testGetControlsDate() throws SolrServerException {
-		List<ObservationDTO> test = os.getControls("ESLIM_003_001_012", "MGI:1922257", 7, new Date());
+		List<ObservationDTO> test = os.getControls("ESLIM_003_001_012", "MGI:1922257", 8, new Date());
 		assertTrue(test.size()>0);
 	}
 
@@ -60,4 +60,12 @@ public class ObservationServiceTest {
 		assertTrue(genes.size()>0);
 
 	}
+	
+	@Test
+	public void testGetAllStrainsByParameterIdOrganistion() throws SolrServerException {
+		List<String> strains = os.getAllStrainsByParameterIdOrganistion(1234, "WTSI");
+		assertTrue(strains.size()>0);
+		
+	}
+
 }
