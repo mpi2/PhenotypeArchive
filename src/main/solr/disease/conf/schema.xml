@@ -316,9 +316,7 @@
    <copyField source="content_type" dest="text"/>
    <copyField source="resourcename" dest="text"/>
    <copyField source="url" dest="text"/>-->
-
-   <!-- Create a string version of disease for faceting -->
-   <copyField source="disease_term" dest="disease_term_s"/>
+  
 	
    <!-- Above, multiple source fields are copied to the [text] field. 
 	  Another way to map multiple source fields to the same 

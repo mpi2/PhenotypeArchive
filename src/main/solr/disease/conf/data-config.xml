@@ -1,100 +1,26 @@
-<dataConfig>	
+ <dataConfig>
+	<dataSource name="disease_core" type="HttpDataSource" baseUrl="http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm/" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
+     
+        <document name="docs">
+                <entity dataSource="disease_core" name="doc" stream="true" url="select?q=*&amp;wt=normal&amp;fq=type:disease&amp;fl=*&amp;rows=99999999"
+                processor="XPathEntityProcessor" forEach="/response/result/doc/"		
+                readTimeout="10000" connectionTimeout="10000"  > 
 
-   <dataSource name="phenodb" jndiName="java:comp/env/jdbc/phenodigmDataSource"/> 
-	
-    <document>
-        <!--disease_summary-->
-          <entity name="disease" transformer="RegexTransformer" query="select disease_id as id, 'disease' as type, disease_id, disease_term, disease_alts, CASE disease_classes when '' THEN 'unclassified' ELSE disease_classes END as disease_classes, human_curated, mouse_curated, mgi_predicted, impc_predicted, mgi_predicted_in_locus, impc_predicted_in_locus from disease_summary;">
-       
-            <field column="id" name="id"/>
-            <field column="type" name="type"/>
-            <field column="disease_id" name="disease_id"/>
-            <field column="disease_source" regex="([A-Z]+):[0-9]+" sourceColName="disease_id"/>
-            <field column="disease_term" name="disease_term"/>
-            <field column="disease_alts" splitBy="\|" name="disease_alts"/>
-            <field column="disease_classes" splitBy="," name="disease_classes"/>
-            <field column="human_curated" name="human_curated"/>
-            <field column="mouse_curated" name="mouse_curated"/>
-            <field column="mgi_predicted" name="mgi_predicted"/>
-            <field column="impc_predicted" name="impc_predicted"/>
-            <field column="mgi_predicted_in_locus" name="mgi_predicted_in_locus"/>
-            <field column="impc_predicted_in_locus" name="impc_predicted_in_locus"/>
-            <entity name="disease_phenotypes" query="select concat(dh.hp_id,  '_' , hp.name) as phenotype from disease_hp dh join hp_term_infos hp on hp.term_id = dh.hp_id where dh.disease_id =  '${disease.disease_id}';">
-                <field column="phenotype" name="disease_phenotypes"/>
-            </entity>
-        </entity>
-        
-        <!--disease_gene_summary-->
-        <entity dataSource="phenodb" name="disease_gene" transformer="RegexTransformer" query="select concat(disease_id, '_', mgi_gene_id) as id, 'disease_association' as type, disease_id, mgi_gene_symbol, disease_term, disease_alts, human_curated, mouse_curated from disease_gene_summary;">
-            <field column="id" name="id"/>
-            <field column="type" splitBy="," name="type"/>            
-            <field column="disease_id" name="disease_id"/>
-            <field column="disease_term" name="disease_term"/>
-            <field column="disease_alts" splitBy="\|" name="disease_alts"/>
-            <field column="mgi_gene_id" name="marker_accession"/>
-            <field column="mgi_gene_symbol" name="marker_symbol"/>
-            <field column="human_curated" name="human_curated"/>
-            <field column="mouse_curated" name="mouse_curated"/>
-        </entity>
-        
-        <!--gene_summary-->
-        <entity  dataSource="phenodb" name="gene" query="select mgi_gene_id as id, 'gene' as type, mgi_gene_id, mgi_gene_symbol, human_gene_symbol, hgnc_id, human_curated, mouse_curated, mgi_predicted, impc_predicted, mgi_predicted_in_locus, impc_predicted_in_locus, mgi_mouse, impc_mouse, impc_pheno from gene_summary;">
-            <field column="id" name="id"/>
-            <field column="type" name="type"/>
-            <field column="mgi_gene_id" name="marker_accession"/>
-            <field column="mgi_gene_symbol" name="marker_symbol"/>
-            <field column="human_gene_symbol" name="human_marker_symbol"/>
-            <field column="hgnc_id" name="hgnc_id"/>
-            <field column="human_curated" name="human_curated"/>
-            <field column="mouse_curated" name="mouse_curated"/>
-        </entity>
-        
-       <!--disease_mouse_genotype_associations-->
-       <!--this would be the place to add all the super-redundant info if we wanted to as it brings all the disease, gene and mouse model info together-->
-       <!--mouse_summary table would be of use here to show matched MP and HP terms--> 
-       <entity  dataSource="phenodb" name="disease_model" query="select concat(disease_id, '_', mouse_model_id) as id, 'disease_mouse_model' as type, disease_id, mgi_gene_id, mgi_gene_symbol, mouse_model_id, source from disease_mouse_genotype_associations;">
-         <field column="id" name="id"/>
-         <field column="type" name="type"/>         
-         <field column="disease_id" name="disease_id"/>
-         <field column="mgi_gene_id" name="marker_accession"/>
-         <field column="mgi_gene_symbol" name="marker_symbol"/>
-         <field column="mouse_model_id" name="mouse_model_id"/>
-         <field column="source" name="source"/>
-<!--         oohhh... this bit makes things really slooowww
-         <entity name="mouse_phenotypes" query="select concat(mp.term_id,  '_' , mp.name) as phenotype from mp_mouse_models mmm join mp_term_infos mp on mp.term_id = mmm.mp_id where mmm.mouse_model_id = '${disease_model.mouse_model_id}';">
-                <field column="phenotype" name="mouse_phenotypes"/>
-         </entity>-->
-       </entity>
-       
-       <!--mouse_model-->
-        <entity  dataSource="phenodb" name="mouse_model" transformer="RegexTransformer" query="select mgm.mouse_model_id as id, mgm.mouse_model_id, 'mouse_model' as type, mgm.mgi_gene_id, mg.mgi_gene_symbol from mgi_gene_models mgm join mgi_genes mg on mg.mgi_gene_id = mgm.mgi_gene_id;">
-            <field column="id" name="id"/>
-            <field column="type" name="type"/>
-            <field column="mgi_gene_id" name="marker_accession"/>
-            <field column="mgi_gene_symbol" name="marker_symbol"/>
-            <field column="mouse_model_id" name="mouse_model_id"/>
-            
-            <entity  dataSource="phenodb" name="mouse_phenotypes" query="select concat(mp.term_id,  '_' , mp.name) as phenotype from mp_mouse_models mmm join mp_term_infos mp on mp.term_id = mmm.mp_id where mmm.mouse_model_id = '${mouse_model.mouse_model_id}';">
-                <field column="phenotype" name="mouse_phenotypes"/>
-            </entity>
-        </entity>
-        
-       <!--human phenotypes-->
-       <entity  dataSource="phenodb" name="human_phenotype" query="select term_id as id, 'phenotype' as type, term_id, name, definition from hp_term_infos;">
-         <field column="id" name="id"/>
-         <field column="type" name="type"/>         
-         <field column="term_id" name="hp_id"/>
-         <field column="name" name="hp_term"/>
-         <field column="definition" name="definition"/>
-       </entity>
-       
-       <!--mouse phenotypes-->
-       <entity  dataSource="phenodb" name="mouse_phenotype" query="select term_id as id, 'phenotype' as type, term_id, name, definition from mp_term_infos;">
-         <field column="id" name="id"/>
-         <field column="type" name="type"/>         
-         <field column="term_id" name="mp_id"/>
-         <field column="name" name="mp_term"/>
-         <field column="definition" name="definition"/>
-       </entity>
-    </document>
+	 		<field column="id" xpath="/response/result/doc/str[@name='id']" />
+			<field column="type" xpath="/response/result/doc/str[@name='type']" />
+			<field column="disease_id" xpath="/response/result/doc/str[@name='disease_id']" />		
+			<field column="disease_term" xpath="/response/result/doc/str[@name='disease_term']" />
+			<field column="disease_alts" xpath="/response/result/doc/arr[@name='disease_alts']/str" />
+			<field column="disease_classes" xpath="/response/result/doc/arr[@name='disease_classes']/str" />
+			<field column="disease_source" xpath="/response/result/doc/str[@name='disease_source']" />
+			<field column="disease_phenotypes" xpath="/response/result/doc/arr[@name='disease_phenotypes']/str" />
+			<field column="mgi_predicted" xpath="/response/result/doc/int[@name='mgi_predicted']" />
+			<field column="mgi_predicted_in_locus" xpath="/response/result/doc/int[@name='mgi_predicted_in_locus']" />
+			<field column="impc_predicted" xpath="/response/result/doc/int[@name='impc_predicted']" />
+			<field column="impc_predicted_in_locus" xpath="/response/result/doc/int[@name='impc_predicted_in_locus']" />
+			<field column="human_curated" xpath="/response/result/doc/int[@name='human_curated']" />
+			<field column="mouse_curated" xpath="/response/result/doc/int[@name='mouse_curated']" />
+		</entity>
+	</document>
+
 </dataConfig>
