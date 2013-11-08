@@ -3,7 +3,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 
-		<div id="exportIconsDivCat"></div>
+<div id="exportIconsDivCat"></div>
 
 <c:forEach var="categoricalResultAndCharts" items="${allCategoricalResultAndCharts}" varStatus="experimentLoop">
 	<div class="row-fluid dataset">
@@ -151,7 +151,12 @@
 								</c:forEach>
 						</c:forEach> --%>
 				</div>
-				<script>
+				
+				</c:if>
+ 	</div>
+ </c:forEach>
+ 
+ <script>
 	$(document)
 			.ready(
 					function() {
@@ -234,9 +239,6 @@
 						}
 					});
 </script>
-				</c:if>
- 	</div>
- </c:forEach>
 <!--/end of categoriacl charts-->
 
 
