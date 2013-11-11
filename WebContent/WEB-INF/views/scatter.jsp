@@ -71,6 +71,7 @@
 							<h4>Allele -  <t:formatAllele> ${unidimensionalDataSet.statsObjects[1].allele }</t:formatAllele> <span
 									class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${unidimensionalDataSet.statsObjects[1].geneticBackground }</span>
 							</h4>
+							<h5>${unidimensionalDataSet.organisation }</h5>
 				 	</div>
 				 
  		</div>
