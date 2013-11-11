@@ -105,6 +105,7 @@ public class UnidimensionalChartAndTableProvider {
 			Float min = new Float(1000000000);
 			List<UnidimensionalResult> allUnidimensionalResults = new ArrayList<UnidimensionalResult>();
 			UnidimensionalDataSet unidimensionalDataSet = new UnidimensionalDataSet();
+			unidimensionalDataSet.setOrganisation(experiment.getOrganisation());
 			unidimensionalDataSet.setExperimentId(experiment.getExperimentId());
 			List<ChartData> chartsAndTablesForParameter = new ArrayList<ChartData>();
 			List<UnidimensionalStatsObject> unidimensionalStatsObjects = new ArrayList<>();
@@ -543,6 +544,8 @@ public class UnidimensionalChartAndTableProvider {
 			statsObject.setMean(mean);
 			statsObject.setSd(sd);
 			}
+			//sample size for unidimensional controls  is both male and female so ok under unidimensional but scatter shows time_series as well so in the scatter we should show number of male or female
+			//if use ilincas new code for experiments this wont' be an issue.
 			statsObject.setSampleSize(listOfFloats.size());
 			statsObject.setSexType(sexType);
 			

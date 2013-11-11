@@ -161,7 +161,7 @@ public class TimeSeriesChartAndTableProvider {
 						int deimalPlaces=ChartUtils.getDecimalPlaces(experiment);
 						ChartData chartNTableForParameter=creatDiscretePointTimeSeriesChart(listIndex,
 								title, lines, parameter.checkParameterUnit(1),
-								parameter.checkParameterUnit(2), sex, deimalPlaces);
+								parameter.checkParameterUnit(2), sex, deimalPlaces, experiment.getOrganisation());
 						Float tempMin=chartNTableForParameter.getMin();
 						Float tempMax=chartNTableForParameter.getMax();
 						chartNTableForParameter.setExpBiologicalModel(expBiologicalModel);
@@ -208,20 +208,21 @@ public class TimeSeriesChartAndTableProvider {
 	/**
 	 * Creates a single chart and adds it to the chart array that is then added
 	 * to the model by the main method
-	 * 
-	 * @param model
-	 * @param timeSeriesCharts
 	 * @param title
 	 * @param lines
 	 * @param xUnitsLabel
 	 * @param yUnitsLabel
 	 * @param sex
+	 * @param organisation TODO
+	 * @param model
+	 * @param timeSeriesCharts
+	 * 
 	 * @return
 	 */
 	private ChartData creatDiscretePointTimeSeriesChart(
 			int listIndex, String title,
 			Map<String, List<DiscreteTimePoint>> lines, String xUnitsLabel,
-			String yUnitsLabel, SexType sex, int decimalPlaces) {
+			String yUnitsLabel, SexType sex, int decimalPlaces, String organisation) {
 		int size = listIndex;// to know which div to render to
 												// not 0 index as using loop
 												// count in jsp
@@ -364,6 +365,7 @@ public class TimeSeriesChartAndTableProvider {
 		chartAndTable.setChart(javascript);
 		chartAndTable.setMin(minForChart);
 		chartAndTable.setMax(maxForChart);
+		chartAndTable.setOrganisation(organisation);
 		return chartAndTable;
 	}
 }

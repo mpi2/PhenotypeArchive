@@ -263,10 +263,25 @@ public class FileExportController {
 		SexType sex = null;
 		if (gender != null)
 			sex = SexType.valueOf(gender);
-		List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameterStableId, geneAccession, sex, organisationId, zygosity, strain);
-		for (ExperimentDTO experiment : experimentList) { 
-			rows.addAll(experiment.getTabbedToString()) ;
+		System.out.println("===parameterStableId : " + parameterStableId);
+		List<ExperimentDTO> experimentList = new ArrayList<ExperimentDTO> ();
+		if (parameterStableId.contains("\t")){
+			String [] params = parameterStableId.split("\t");
+			for (int k = 0; k < params.length; k++){
+				experimentList = experimentService.getExperimentDTO(params[k], geneAccession, sex, organisationId, zygosity, strain);
+				for (ExperimentDTO experiment : experimentList) { 
+					rows.addAll(experiment.getTabbedToString()) ;
+				}
+				rows.add("\n");
+			}
 		}
+		else {
+			experimentList = experimentService.getExperimentDTO(parameterStableId, geneAccession, sex, organisationId, zygosity, strain);
+			for (ExperimentDTO experiment : experimentList) { 
+				rows.addAll(experiment.getTabbedToString()) ;
+			}
+		}
+		
 		return rows;
 	}
 
