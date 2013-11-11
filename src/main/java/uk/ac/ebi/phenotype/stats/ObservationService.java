@@ -373,6 +373,7 @@ public class ObservationService {
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
 			.addFilterQuery("organisation:" + organisation)
+			.addFilterQuery("observationType:unidimensional")
 			.setRows(0)
 			.addFacetField("parameterId")
 			.setFacet(true)
@@ -383,6 +384,11 @@ public class ObservationService {
 		List<FacetField> fflist = response.getFacetFields();
 
 		for(FacetField ff : fflist){
+
+			// If there are no face results, the values will be null
+			// skip this facet field in that case
+			if(ff.getValues()==null) { continue;}
+
 		    for(Count c : ff.getValues()){
 				parameters.add(Integer.parseInt(c.getName()));
 		    }
@@ -414,7 +420,7 @@ public class ObservationService {
 			.addFilterQuery("biologicalSampleGroup:experimental")
 			.addFilterQuery("organisation:" + organisation)
 			.addFilterQuery("parameterId:" + parameterId)
-			.addFilterQuery("strain:" + strain.replaceAll(":", "\\:"))
+			.addFilterQuery("strain:" + strain.replace(":", "\\:"))
 			.addFilterQuery("zygosity:" + zygosity)
 			.setRows(0)
 			.addFacetField("geneAccession")
@@ -467,6 +473,11 @@ public class ObservationService {
 		List<FacetField> fflist = response.getFacetFields();
 
 		for(FacetField ff : fflist){
+
+			// If there are no face results, the values will be null
+			// skip this facet field in that case
+			if(ff.getValues()==null) { continue;}
+
 		    for(Count c : ff.getValues()){
 		    	strains.add(c.getName());
 		    }
@@ -499,6 +510,11 @@ public class ObservationService {
 	List<FacetField> fflist = response.getFacetFields();
 
 	for(FacetField ff : fflist){
+
+		// If there are no face results, the values will be null
+		// skip this facet field in that case
+		if(ff.getValues()==null) { continue;}
+
 	    for(Count c : ff.getValues()){
 	    	organisations.add(Integer.parseInt(c.getName()));
 	    }
