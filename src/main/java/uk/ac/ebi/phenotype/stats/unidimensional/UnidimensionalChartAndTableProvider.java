@@ -105,6 +105,7 @@ public class UnidimensionalChartAndTableProvider {
 			Float min = new Float(1000000000);
 			List<UnidimensionalResult> allUnidimensionalResults = new ArrayList<UnidimensionalResult>();
 			UnidimensionalDataSet unidimensionalDataSet = new UnidimensionalDataSet();
+			unidimensionalDataSet.setOrganisation(experiment.getOrganisation());
 			unidimensionalDataSet.setExperimentId(experiment.getExperimentId());
 			List<ChartData> chartsAndTablesForParameter = new ArrayList<ChartData>();
 			List<UnidimensionalStatsObject> unidimensionalStatsObjects = new ArrayList<>();

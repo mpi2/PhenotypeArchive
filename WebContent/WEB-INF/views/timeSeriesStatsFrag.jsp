@@ -23,6 +23,7 @@
 							-
 							${timeSeriesChartsAndTables[timeLoop.index].expBiologicalModel.geneticBackground}</span>
 					</h4>
+					<h5>${timeSeriesChartsAndTables.organisation}</h5>
 				</div>
 				<c:if
 					test="${fn:length(timeSeriesChartsAndTables) > (timeLoop.index+1)}">
