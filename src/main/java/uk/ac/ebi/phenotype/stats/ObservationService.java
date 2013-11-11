@@ -335,8 +335,6 @@ public class ObservationService {
 		}
 	    query.setStart(0).setRows(10000);    
 	    
-	    System.out.println("SOLR QUERY : " + solr.getBaseURL() + query.toString());
-	    
 	    QueryResponse response = solr.query(query);
 	    resultsDTO = response.getBeans(ObservationDTO.class);
 		return resultsDTO;
@@ -425,7 +423,6 @@ public class ObservationService {
 			.setFacetLimit(1000);
 
 		QueryResponse response = solr.query(query);
-		System.out.println("Gene query: "+query.toString());
 		List<FacetField> fflist = response.getFacetFields();
 
 		for(FacetField ff : fflist){
