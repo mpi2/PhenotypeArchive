@@ -476,6 +476,14 @@ public class ObservationService {
 		
 	}
 
+	/**
+	 * Return all the organisation ids that have associated observations
+	 * 
+	 * @param organisation
+	 *            the name of the organisation
+	 * @return list of organisation database ids
+	 * @throws SolrServerException
+	 */
 	public List<Integer> getAllOrganisationIdsWithObservations() throws SolrServerException {
 		List<Integer> organisations = new ArrayList<Integer>();
 
