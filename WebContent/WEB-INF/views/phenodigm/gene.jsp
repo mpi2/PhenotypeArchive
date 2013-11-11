@@ -14,7 +14,7 @@
     </jsp:attribute>
 
     <jsp:attribute name="breadcrumb">
-        &nbsp;&raquo; <a href="${baseUrl}/phenodigm/home">PhenoDigm</a>&nbsp;&raquo; <a href="${baseUrl}/phenodigm/gene/"> Genes</a> &nbsp;&raquo; ${geneIdentifier.geneSymbol}
+        &nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&core=disease&fq=type:disease"> Diseases</a>&nbsp;&raquo; ${geneIdentifier.geneSymbol}
     </jsp:attribute>
 
     <jsp:body>
@@ -56,8 +56,8 @@
             <div class="row-fluid dataset">
                 <div class="container span12">
                     <h4 class="topic">Curated Disease Associations <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a></h4>
-                    <table id="phenotypes" class="table table-striped">
                         The following diseases are associated with ${geneIdentifier.geneSymbol} from external resources*
+                    <table id="phenotypes" class="table table-striped">
                         <thead>
                             <tr>
                                 <th>Disease Name</th>
@@ -92,7 +92,7 @@
                                     <td>
                                         <h5>${disease.diseaseId} Disease Phenotype Terms</h5>
                                         <c:forEach var="hpTerm" items="${disease.phenotypeTerms}">
-                                            ${hpTerm}<br>
+                                            ${hpTerm.name}<br>
                                         </c:forEach>
                                     </td>
                                     <td></td>
@@ -103,7 +103,7 @@
                                                 <c:set var="mouseModel" value="${diseaseAssociation.mouseModel}"></c:set>
                                                 <b style="color:#FF9000">${diseaseAssociation.modelToDiseaseScore}</b>: ${mouseModel.allelicCompositionLink} ${mouseModel.geneticBackground} (Source: MGI curation)</br>
                                                 <c:forEach var="phenotypeTerm" items="${mouseModel.phenotypeTerms}">
-                                                    ${phenotypeTerm}<br/>
+                                                    ${phenotypeTerm.name}<br>
                                                 </c:forEach>
                                                     <br/>
                                             </c:forEach>
@@ -112,9 +112,9 @@
                                             <h5>${disease.diseaseId} Associated Mouse Models (PhenoDigm predicted)</h5>
                                             <c:forEach var="diseaseAssociation" items="${association.phenotypicAssociations}" varStatus="loop">
                                                 <c:set var="mouseModel" value="${diseaseAssociation.mouseModel}"></c:set>
-                                                <b style="color:#FF9000">${diseaseAssociation.modelToDiseaseScore}</b>: ${mouseModel.allelicCompositionLink} ${mouseModel.geneticBackground} (Source: PhenoDigm)</br>
+                                                <b style="color:#FF9000">${diseaseAssociation.modelToDiseaseScore}</b>: ${mouseModel.allelicCompositionLink} ${mouseModel.geneticBackground} (Source: ${mouseModel.source})</br>
                                                 <c:forEach var="phenotypeTerm" items="${mouseModel.phenotypeTerms}">
-                                                    ${phenotypeTerm}<br/>
+                                                    ${phenotypeTerm.name}<br>
                                                 </c:forEach>
                                                     <br/>                                        
                                             </c:forEach>
@@ -130,8 +130,8 @@
         <div class="row-fluid dataset">
             <div class="container span12">
                     <h4 class="topic">Phenotypic Disease Associations <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a></h4>
-                    <table id="predictedPhenotypes" class="table table-striped">
                         The following diseases are associated with ${geneIdentifier.geneSymbol} by phenotypic similarity
+                    <table id="predictedPhenotypes" class="table table-striped">
                         <thead>
                             <tr>
                                 <th>Disease Name</th>
@@ -166,7 +166,7 @@
                                     <td>
                                         <h5>${disease.diseaseId} Disease Phenotype Terms</h5>
                                         <c:forEach var="hpTerm" items="${disease.phenotypeTerms}">
-                                            ${hpTerm}<br>
+                                            ${hpTerm.name}<br>
                                         </c:forEach>
                                     </td>
                                     <td></td>
@@ -177,7 +177,7 @@
                                                 <c:set var="mouseModel" value="${diseaseAssociation.mouseModel}"></c:set>
                                                 <b style="color:#FF9000">${diseaseAssociation.modelToDiseaseScore}</b>: ${mouseModel.allelicCompositionLink} ${mouseModel.geneticBackground} (Source: MGI curation)</br>
                                                 <c:forEach var="phenotypeTerm" items="${mouseModel.phenotypeTerms}">
-                                                    ${phenotypeTerm}<br/>
+                                                    ${phenotypeTerm.name}<br>
                                                 </c:forEach>
                                                     <br/>
                                             </c:forEach>
@@ -186,9 +186,9 @@
                                             <h5>${disease.diseaseId} Associated Mouse Models (PhenoDigm predicted)</h5>
                                             <c:forEach var="diseaseAssociation" items="${association.phenotypicAssociations}" varStatus="loop">
                                                 <c:set var="mouseModel" value="${diseaseAssociation.mouseModel}"></c:set>
-                                                <b style="color:#FF9000">${diseaseAssociation.modelToDiseaseScore}</b>: ${mouseModel.allelicCompositionLink} ${mouseModel.geneticBackground} (Source: PhenoDigm)</br>
+                                                <b style="color:#FF9000">${diseaseAssociation.modelToDiseaseScore}</b>: ${mouseModel.allelicCompositionLink} ${mouseModel.geneticBackground} (Source: ${mouseModel.source})</br>
                                                 <c:forEach var="phenotypeTerm" items="${mouseModel.phenotypeTerms}">
-                                                    ${phenotypeTerm}<br/>
+                                                    ${phenotypeTerm.name}<br>
                                                 </c:forEach>
                                                     <br/>                                        
                                             </c:forEach>
