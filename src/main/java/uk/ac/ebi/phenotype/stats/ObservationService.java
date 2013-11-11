@@ -414,7 +414,7 @@ public class ObservationService {
 			.addFilterQuery("biologicalSampleGroup:experimental")
 			.addFilterQuery("organisation:" + organisation)
 			.addFilterQuery("parameterId:" + parameterId)
-			.addFilterQuery("strain:" + strain)
+			.addFilterQuery("strain:" + strain.replaceAll(":", "\\:"))
 			.addFilterQuery("zygosity:" + zygosity)
 			.setRows(0)
 			.addFacetField("geneAccession")
