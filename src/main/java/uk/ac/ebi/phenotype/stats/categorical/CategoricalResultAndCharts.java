@@ -17,6 +17,7 @@ public class CategoricalResultAndCharts {
 	List<CategoricalChartDataObject> maleAndFemale=new ArrayList<CategoricalChartDataObject>();
 	List<BiologicalModel> biologicalModels=new ArrayList<BiologicalModel>();
 	private List<CategoricalResult> statsResults; 
+	private String organisation="blah";
 	
 	public List<CategoricalResult> getStatsResults() {
 		return statsResults;
@@ -52,5 +53,13 @@ public class CategoricalResultAndCharts {
 		
 	}
 
+	public String getOrganisation() {
+		 return organisation;
+	}
+
+	public void setOrganisation(String organisation) {
+		this.organisation=organisation;
+		
+	}
 
 }

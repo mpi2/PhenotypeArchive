@@ -72,4 +72,6 @@ public class CategoricalChartDataObject {
 		this.chart=javascript;
 		
 	}
+	
+
 }
