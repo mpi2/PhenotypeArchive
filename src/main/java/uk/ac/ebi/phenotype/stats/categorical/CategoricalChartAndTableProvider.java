@@ -75,69 +75,6 @@ public class CategoricalChartAndTableProvider {
 			List<JSONObject> charts, List<TableObject> categoricalTables,
 			String parameterId)
 			throws SQLException, IOException, URISyntaxException {
-		// if one or more parameterIds
-		// specified in the url do
-		// this
-
-		// MEKK1
-		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1346872?parameterId=ESLIM_001_001_007
-
-		// net.sf.json.JSONObject facetCounts = expResult
-		// .getJSONObject("facet_counts");
-		// net.sf.json.JSONObject facetFields = facetCounts
-		// .getJSONObject("facet_fields");
-		// System.out.println("facetFields=" + facetFields);
-		// net.sf.json.JSONArray facets =
-		// facetFields.getJSONArray("organisation");
-		//
-		//
-		// net.sf.json.JSONArray facets3 = facetFields
-		// .getJSONArray("biologicalModelId");
-		// // get the strains from the facets
-		// ArrayList<Integer> biologicalModelIds = new ArrayList<Integer>();
-		// for (int i = 0; i < facets3.size(); i += 2) {
-		// int facet = facets3.getInt(i);
-		// int count = facets3.getInt(i + 1);
-		// if (count > 0) {
-		// biologicalModelIds.add(facet);
-		// }
-		// }
-		// System.out.println("biologicalModelIds=" + biologicalModelIds);
-		// net.sf.json.JSONArray facets4 = facetFields.getJSONArray("gender");
-		// // get the strains from the facets
-		// ArrayList<String> genders = new ArrayList<>();
-		// for (int i = 0; i < facets4.size(); i += 2) {
-		// String facet = facets4.getString(i);
-		// int count = facets4.getInt(i + 1);
-		// if (count > 0) {
-		// genders.add(facet);
-		// }
-		// }
-		// System.out.println("genders=" + genders);
-		//
-		// net.sf.json.JSONArray facets5 = facetFields.getJSONArray("zygosity");
-		// // get the strains from the facets
-		// ArrayList<ZygosityType> zygosities = new ArrayList<ZygosityType>();
-		// for (int i = 0; i < facets5.size(); i += 2) {
-		// String facet = facets5.getString(i);
-		// int count = facets5.getInt(i + 1);
-		// if (count > 0) {
-		// ZygosityType zygosityType = ZygosityType.valueOf(facet);
-		// zygosities.add(zygosityType);
-		// }
-		// }
-		// System.out.println("zygosities=" + zygosities);
-		//
-		// net.sf.json.JSONArray facets6 = facetFields.getJSONArray("category");
-		// // get the strains from the facets
-
-		// for (int i = 0; i < facets6.size(); i += 2) {
-		// String facet = facets6.getString(i);
-		// int count = facets6.getInt(i + 1);
-		// if (count > 0) {
-		// categories.add(facet);
-		// }
-		// }
 
 		logger.debug("running categorical data");
 
@@ -308,6 +245,7 @@ List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one 
 					// parameter.getName() ,
 					// xAxisCategories, categories,
 					// seriesDataForCategoricalType);
+					categoricalResultAndCharts.setOrganisation(experiment.getOrganisation());//add it here before check so we can see the organisation even if no graph data
 					if (xAxisCategories.size() > 1) {// if size is greater than
 														// one i.e. we have more
 														// than the control data
@@ -318,7 +256,7 @@ List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one 
 								.createCategoricalHighChartUsingObjects(
 										chartData,
 										parameter.getName(),
-										expBiologicalModel);
+										expBiologicalModel,experiment.getOrganisation());
 						chartData.setChart(chartNew);
 						categoricalResultAndCharts.add(chartData);
 						//categoricalResultAndCharts
@@ -340,7 +278,7 @@ List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one 
 
 	private String createCategoricalHighChartUsingObjects(
 			CategoricalChartDataObject chartData, String parameterName,
-			BiologicalModel bm) {
+			BiologicalModel bm, String organisation) {
 		System.out.println(chartData);
 
 		// int size=categoricalBarCharts.size()+1;//to know which div to render
@@ -429,7 +367,7 @@ List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one 
 		// e.printStackTrace();
 		// }
 		// logger.debug("model="+model);
-		String chartId = bm.getId() + sex.name();
+		String chartId = bm.getId() + sex.name()+organisation.replace(" ", "_");//replace space in MRC Harwell with underscore so valid javascritp variable
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ Math.round(this.percentage) +'%)';   }    }";
 		String javascript = "$(function () {  var chart"
 				+ chartId

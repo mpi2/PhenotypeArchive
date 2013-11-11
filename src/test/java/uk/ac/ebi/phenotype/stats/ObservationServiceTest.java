@@ -59,16 +59,22 @@ public class ObservationServiceTest {
 	
 	@Test
 	public void testGetAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity() throws SolrServerException {
-		List<String> genes = os.getAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity(1234, "WTSI","EUROCURATE1983", "homozygote");
+		List<String> genes = os.getAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity(2192, "WTSI","EUROCURATE1983", "homozygote");
 		assertTrue(genes.size()>0);
 
 	}
 	
 	@Test
 	public void testGetAllStrainsByParameterIdOrganistion() throws SolrServerException {
-		List<String> strains = os.getAllStrainsByParameterIdOrganistion(1234, "WTSI");
+		List<String> strains = os.getAllStrainsByParameterIdOrganistion(2192, "WTSI");
 		assertTrue(strains.size()>0);
 		
+	}
+	
+	@Test
+	public void testGetAllOrganisationIdsWithObservations() throws SolrServerException {
+		List<Integer> organisationIds = os.getAllOrganisationIdsWithObservations();
+		assertTrue(organisationIds.size()>0);
 	}
 
 }

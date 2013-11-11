@@ -335,8 +335,6 @@ public class ObservationService {
 		}
 	    query.setStart(0).setRows(10000);    
 	    
-	    System.out.println("SOLR QUERY : " + solr.getBaseURL() + query.toString());
-	    
 	    QueryResponse response = solr.query(query);
 	    resultsDTO = response.getBeans(ObservationDTO.class);
 		return resultsDTO;
@@ -378,7 +376,7 @@ public class ObservationService {
 			.setRows(0)
 			.addFacetField("parameterId")
 			.setFacet(true)
-			.setFacetMinCount(-1)
+			.setFacetMinCount(1)
 			.setFacetLimit(1000);
 
 		QueryResponse response = solr.query(query);
@@ -421,14 +419,19 @@ public class ObservationService {
 			.setRows(0)
 			.addFacetField("geneAccession")
 			.setFacet(true)
-			.setFacetMinCount(-1)
+			.setFacetMinCount(1)
 			.setFacetLimit(1000);
 
 		QueryResponse response = solr.query(query);
 		List<FacetField> fflist = response.getFacetFields();
 
 		for(FacetField ff : fflist){
-		    for(Count c : ff.getValues()){
+
+			// If there are no face results, the values will be null
+			// skip this facet field in that case
+			if(ff.getValues()==null) { continue;}
+
+			for(Count c : ff.getValues()){
 				genes.add(c.getName());
 		    }
 		}
@@ -457,7 +460,7 @@ public class ObservationService {
 			.setRows(0)
 			.addFacetField("strain")
 			.setFacet(true)
-			.setFacetMinCount(-1)
+			.setFacetMinCount(1)
 			.setFacetLimit(1000);
 
 		QueryResponse response = solr.query(query);
@@ -473,4 +476,26 @@ public class ObservationService {
 		
 	}
 
+	public List<Integer> getAllOrganisationIdsWithObservations() throws SolrServerException {
+		List<Integer> organisations = new ArrayList<Integer>();
+
+		SolrQuery query = new SolrQuery()
+		.setQuery("*:*")
+		.setRows(0)
+		.addFacetField("organisationId")
+		.setFacet(true)
+		.setFacetMinCount(1)
+		.setFacetLimit(1000);
+
+	QueryResponse response = solr.query(query);
+	List<FacetField> fflist = response.getFacetFields();
+
+	for(FacetField ff : fflist){
+	    for(Count c : ff.getValues()){
+	    	organisations.add(Integer.parseInt(c.getName()));
+	    }
+	}
+
+		return organisations;
+	}
 }

@@ -4,6 +4,8 @@ import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 
 public class ChartData {
 	BiologicalModel expBiologicalModel;
+	
+	String organisation="";
 	public BiologicalModel getExpBiologicalModel() {
 		return expBiologicalModel;
 	}
@@ -32,5 +34,12 @@ public class ChartData {
 public void setChart(String chart) {
 	this.chart = chart;
 }
+public String getOrganisation() {
+	return organisation;
+}
+public void setOrganisation(String organisation) {
+	this.organisation = organisation;
+}
  
+
 }

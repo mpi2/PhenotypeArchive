@@ -13,6 +13,13 @@ import uk.ac.ebi.phenotype.stats.TableObject;
  */
 public class UnidimensionalDataSet {
 	 private String experimentId=""; //experimentId should be distinct per UnidimensionalSet
+	 private String organisation="";
+	public String getOrganisation() {
+		return organisation;
+	}
+	public void setOrganisation(String organisation) {
+		this.organisation = organisation;
+	}
 	public String getExperimentId() {
 		return experimentId;
 	}
