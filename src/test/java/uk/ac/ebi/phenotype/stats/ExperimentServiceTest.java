@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ public class ExperimentServiceTest {
 	@Autowired
 	private ExperimentService es;
 
+	@Ignore
 	@Test
 	public void testGetExperimentDTO() throws SolrServerException, IOException, URISyntaxException {
 		List<ExperimentDTO> exp = es.getExperimentDTO("ESLIM_001_001_158", "MGI:1920194");
@@ -31,6 +33,15 @@ public class ExperimentServiceTest {
 		System.out.println(exp.get(0));
 		
 		exp = es.getExperimentDTO(2043, "MGI:1349215");
+		System.out.println(exp);
+		assertTrue(exp.size()>0);
+		System.out.println(exp.get(0));
+		
+	}
+
+	@Test
+	public void testGetExperimentDTO2() throws SolrServerException, IOException, URISyntaxException {
+		List<ExperimentDTO> exp = es.getExperimentDTO("ESLIM_003_001_011", "MGI:1922257");
 		System.out.println(exp);
 		assertTrue(exp.size()>0);
 		System.out.println(exp.get(0));

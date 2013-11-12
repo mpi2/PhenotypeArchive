@@ -25,15 +25,14 @@ public class ObservationServiceTest {
 	private ObservationService os;
 
 	@Test
-	@Ignore
 	public void testGetControls() throws SolrServerException {
-		List<ObservationDTO> test = os.getControls("ESLIM_001_001_158", "MGI:3028467", 7, new Date());
+		List<ObservationDTO> test = os.getControls("ESLIM_003_001_011", "MGI:2159873", 9, new Date());
 		assertTrue(test.size()>0);
 	}
 
 	@Test
-	public void testGetControlsDate() throws SolrServerException {
-		List<ObservationDTO> test = os.getControls("ESLIM_003_001_012", "MGI:1922257", 8, new Date());
+	public void testGetMutants() throws SolrServerException {
+		List<ObservationDTO> test = os.getControls("ESLIM_003_001_011", "MGI:2159873", 9, new Date());
 		assertTrue(test.size()>0);
 	}
 

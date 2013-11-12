@@ -326,19 +326,22 @@ public class ObservationService {
 		
 		List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
 		SolrQuery query = new SolrQuery().setQuery("geneAccession:"+gene.replace(":", "\\:"));
-		if (zygosity != null && !zygosity.equalsIgnoreCase("null"))
-			query.addFilterQuery("zygosity:"+zygosity);
 		query.addFilterQuery("parameterId:"+parameterId);
-		if (strain != null){
+
+		if (zygosity != null && !zygosity.equalsIgnoreCase("null")) {
+			query.addFilterQuery("zygosity:"+zygosity);
+		}
+		if (strain != null) {
 	    	query.addFilterQuery("strain:"+strain.replace(":", "\\:"));
 		}
-		if (organisationId != null){
+		if (organisationId != null) {
 			query.addFilterQuery("organisationId:"+organisationId);
 		}
-		if (sex != null){
+		if (sex != null) {
 			query.addFilterQuery("gender:"+sex);
 		}
-	    query.setStart(0).setRows(10000);    
+
+		query.setStart(0).setRows(10000);    
 	    
 	    QueryResponse response = solr.query(query);
 	    resultsDTO = response.getBeans(ObservationDTO.class);
