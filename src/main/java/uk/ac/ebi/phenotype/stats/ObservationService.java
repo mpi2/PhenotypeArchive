@@ -410,12 +410,12 @@ public class ObservationService {
 	 * @return list of integer db keys of the parameter rows
 	 * @throws SolrServerException
 	 */
-	public List<Integer> getCategoricalParameterIdsWithObservationsByOrganisation(String organisation) throws SolrServerException {
+	public List<Integer> getCategoricalParameterIdsWithObservationsByOrganisationId(Integer organisationId) throws SolrServerException {
 		Set<Integer> parameterIds = new HashSet<Integer>();
 
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
-			.addFilterQuery("organisation:" + organisation)
+			.addFilterQuery("organisationId:" + organisationId)
 			.addFilterQuery("observationType:categorical")
 			.setRows(0)
 			.addFacetField("parameterId")
