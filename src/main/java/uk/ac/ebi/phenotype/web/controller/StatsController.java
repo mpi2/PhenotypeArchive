@@ -131,7 +131,7 @@ public class StatsController implements BeanFactoryAware {
 			throws GenomicFeatureNotFoundException, IOException, URISyntaxException, SolrServerException {
 
 		boolean statsError=false;
-		boolean noData=false;;//if we have no data for this phenotype call summary we link back to europhenome!!!
+		boolean noData=false;//if we have no data for this phenotype call summary we link back to europhenome!!!
 		// Get the global application configuration
 		@SuppressWarnings("unchecked")
 		Map<String, String> config = (Map<String, String>) bf
@@ -171,6 +171,7 @@ public class StatsController implements BeanFactoryAware {
 		List<BiologicalModel> unidimensionalMutantBiologicalModels=new ArrayList<BiologicalModel>();
 		List<BiologicalModel> timeSeriesMutantBiologicalModels=new ArrayList<BiologicalModel>();
 		List<ChartData> timeSeriesChartsAndTables=new ArrayList<ChartData>();
+		List<Parameter> parameters=new ArrayList<Parameter>();
 		// param 655
 		// female homzygote
 		// population id=4640 or 4047 - male, het.
@@ -192,6 +193,7 @@ public class StatsController implements BeanFactoryAware {
 //			 }
 			
 			Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion(parameterId, 1, 0);
+			parameters.add(parameter);
 			String[] parameterUnits=parameter.checkParameterUnits();
 			String xUnits="";
 			String yUnits="";
@@ -284,7 +286,7 @@ public class StatsController implements BeanFactoryAware {
 		model.addAttribute("statsError", statsError );
 		//set no data to true and the europhenome link if no experiments returned
 		model.addAttribute("noData",noData);
-		model.addAttribute("paramIds", paramIds);
+		model.addAttribute("parameters", parameters);
 		//model.addAttribute("europhenomeLink", europhenomeLink);
 		return "stats";
 	}
@@ -336,10 +338,11 @@ public class StatsController implements BeanFactoryAware {
 		List<UnidimensionalDataSet> allUnidimensionalDataSets=new ArrayList<UnidimensionalDataSet>();
 		
 		List<BiologicalModel> unidimensionalMutantBiologicalModels=new ArrayList<BiologicalModel>();
-		
+		List<Parameter> parameters=new ArrayList<Parameter>();
 		
 		for (String parameterId : paramIds) {
 			Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion(parameterId, 1, 0);
+			parameters.add(parameter);
 			ObservationType observationTypeForParam=Utilities.checkType(parameter);
 			String[] parameterUnits=parameter.checkParameterUnits();
 			String xUnits="";
@@ -378,7 +381,7 @@ public class StatsController implements BeanFactoryAware {
 		model.addAttribute("unidimensionalMutantBiologicalModels", unidimensionalMutantBiologicalModels );
 		model.addAttribute("allUnidimensionalDataSets", allUnidimensionalDataSets);
 		model.addAttribute("statsError", statsError );
-		model.addAttribute("paramIds", paramIds);
+		model.addAttribute("parameters", parameters);
 		return "scatter";
 	}
 	

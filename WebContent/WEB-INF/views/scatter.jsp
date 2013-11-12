@@ -4,7 +4,10 @@
 
 <!-- most of this page is the same as the unidimensionalStatsFrag.jsp so we should refactor this so they are the same page -->
 <t:genericpage>
-	<jsp:attribute name="title">${gene.symbol} ${paramIds} Statistics</jsp:attribute>
+<jsp:attribute name="title"> <c:forEach var="parameter" items="${parameters}" varStatus="loop">
+  ${parameter.name}
+    <c:if test="${ not loop.last}">,</c:if>
+	</c:forEach>Statistics for ${gene.symbol} </jsp:attribute>
 
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
 			href="${baseUrl}/search#sort=marker_symbol asc&q=*:*&core=gene">Genes</a> <c:if
@@ -43,8 +46,8 @@
 	</div>	
     
 	<div class='topic'>Gene: ${gene.symbol} Parameters: 
-	 <c:forEach var="paramId" items="${paramIds}" varStatus="loop">
-  ${paramId }
+	 <c:forEach var="parameter" items="${parameters}" varStatus="loop">
+  ${parameter.name}
     <c:if test="${ not loop.last}">,</c:if>
 	</c:forEach>
 	</div>
@@ -111,10 +114,10 @@
 							<tr>
 		<th>Line</th>
 		<th>Zygosity</th>
-			<th>Sex</th>
+			<%-- <th>Sex</th> --%>
 			<th>Mean</th>
 			<th>SD</th>
-			<th>Sample Size</th>
+			<th>Female/Male Sample Size</th>
 			<th>Effect Size</th>
 			<th>pValue</th>
 		<%-- <th>${tables[loop.count-1].xAxisCategories[1]}</th><th>${tables[loop.count-1].xAxisCategories[2]}</th> --%>
@@ -136,10 +139,10 @@
 												<td>${statsObject.zygosity}</td>
 												</c:when>
 												</c:choose>
-												<td>${statsObject.sexType}</td>
+												<%-- <td>${statsObject.sexType}</td> --%>
 												<td>${statsObject.mean}</td>
 												<td>${statsObject.sd}</td>
-												<td>${statsObject.sampleSize}</td>
+												<td>${statsObject.sampleSizeFemale} / ${statsObject.sampleSizeMale}</td>
 												<td>${statsObject.result.effectSize}</td>
 												<td>${statsObject.result.pValue}</td>
 												</tr>
