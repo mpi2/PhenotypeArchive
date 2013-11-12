@@ -370,12 +370,12 @@ public class ObservationService {
 	 * @return list of integer db keys of the parameter rows
 	 * @throws SolrServerException
 	 */
-	public List<Integer> getUnidimensionalParameterIdsWithObservationsByOrganisation(String organisation) throws SolrServerException {
+	public List<Integer> getUnidimensionalParameterIdsWithObservationsByOrganisationId(Integer organisationId) throws SolrServerException {
 		Set<Integer> parameterIds = new HashSet<Integer>();
 
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
-			.addFilterQuery("organisation:" + organisation)
+			.addFilterQuery("organisationId:" + organisationId)
 			.addFilterQuery("observationType:unidimensional")
 			.setRows(0)
 			.addFacetField("parameterId")

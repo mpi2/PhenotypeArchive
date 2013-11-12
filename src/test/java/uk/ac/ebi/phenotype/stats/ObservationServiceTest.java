@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +13,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+
+import uk.ac.ebi.phenotype.dao.OrganisationDAO;
+import uk.ac.ebi.phenotype.pojo.Organisation;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:app-config.xml" })
@@ -23,6 +25,9 @@ public class ObservationServiceTest {
 
 	@Autowired
 	private ObservationService os;
+	
+	@Autowired
+	private OrganisationDAO organisationDAO;
 
 	@Test
 	public void testGetControls() throws SolrServerException {
@@ -49,7 +54,8 @@ public class ObservationServiceTest {
 	
 	@Test
 	public void testGetAllUnidimensionalParameterIdsWithObservationsByOrganisation() throws SolrServerException {
-		List<Integer> params = os.getUnidimensionalParameterIdsWithObservationsByOrganisation("WTSI");
+		Organisation org = organisationDAO.getOrganisationByName("WTSI");
+		List<Integer> params = os.getUnidimensionalParameterIdsWithObservationsByOrganisationId(org.getId());
 		assertTrue(params.size()>0);
 	}
 	
