@@ -22,8 +22,10 @@ import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
+import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 @Service
 public class ObservationService {
@@ -365,8 +367,8 @@ public class ObservationService {
 	 * @return list of integer db keys of the parameter rows
 	 * @throws SolrServerException
 	 */
-	public List<Integer> getAllUnidimensionalParameterIdsWithObservationsByOrganisation(String organisation) throws SolrServerException {
-		Set<Integer> parameters = new HashSet<Integer>();
+	public List<Integer> getUnidimensionalParameterIdsWithObservationsByOrganisation(String organisation) throws SolrServerException {
+		Set<Integer> parameterIds = new HashSet<Integer>();
 
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
@@ -376,7 +378,7 @@ public class ObservationService {
 			.addFacetField("parameterId")
 			.setFacet(true)
 			.setFacetMinCount(1)
-			.setFacetLimit(1000);
+			.setFacetLimit(-1);
 
 		QueryResponse response = solr.query(query);
 		List<FacetField> fflist = response.getFacetFields();
@@ -388,15 +390,53 @@ public class ObservationService {
 			if(ff.getValues()==null) { continue;}
 
 		    for(Count c : ff.getValues()){
-				parameters.add(Integer.parseInt(c.getName()));
+				parameterIds.add(Integer.parseInt(c.getName()));
 		    }
 		}
 
-		return new ArrayList<Integer>(parameters);
+		return new ArrayList<Integer>(parameterIds);
 	}
 
-	
-	
+
+	/**
+	 * Return all the parameter ids that have associated data for a given
+	 * organisation
+	 * 
+	 * @param organisation
+	 *            the name of the organisation
+	 * @return list of integer db keys of the parameter rows
+	 * @throws SolrServerException
+	 */
+	public List<Integer> getCategoricalParameterIdsWithObservationsByOrganisation(String organisation) throws SolrServerException {
+		Set<Integer> parameterIds = new HashSet<Integer>();
+
+		SolrQuery query = new SolrQuery()
+			.setQuery("*:*")
+			.addFilterQuery("organisation:" + organisation)
+			.addFilterQuery("observationType:categorical")
+			.setRows(0)
+			.addFacetField("parameterId")
+			.setFacet(true)
+			.setFacetMinCount(1)
+			.setFacetLimit(-1);
+
+		QueryResponse response = solr.query(query);
+		List<FacetField> fflist = response.getFacetFields();
+
+		for(FacetField ff : fflist){
+
+			// If there are no face results, the values will be null
+			// skip this facet field in that case
+			if(ff.getValues()==null) { continue;}
+
+		    for(Count c : ff.getValues()){
+				parameterIds.add(Integer.parseInt(c.getName()));
+		    }
+		}
+
+		return new ArrayList<Integer>(parameterIds);
+	}
+
 	/**
 	 * Return all the gene accession ids that have associated data for a given
 	 * organisation, strain, and zygosity
@@ -424,7 +464,7 @@ public class ObservationService {
 			.addFacetField("geneAccession")
 			.setFacet(true)
 			.setFacetMinCount(1)
-			.setFacetLimit(1000);
+			.setFacetLimit(-1);
 
 		QueryResponse response = solr.query(query);
 		List<FacetField> fflist = response.getFacetFields();
@@ -454,7 +494,7 @@ public class ObservationService {
 	 * @return list of strain accession ids
 	 * @throws SolrServerException
 	 */
-	public List<String> getAllStrainsByParameterIdOrganistion(Integer parameterId, String organisation) throws SolrServerException {
+	public List<String> getStrainsByParameterIdOrganistion(Integer parameterId, String organisation) throws SolrServerException {
 		Set<String> strains = new HashSet<String>();
 
 		SolrQuery query = new SolrQuery()
@@ -465,7 +505,7 @@ public class ObservationService {
 			.addFacetField("strain")
 			.setFacet(true)
 			.setFacetMinCount(1)
-			.setFacetLimit(1000);
+			.setFacetLimit(-1);
 
 		QueryResponse response = solr.query(query);
 		List<FacetField> fflist = response.getFacetFields();
@@ -502,7 +542,7 @@ public class ObservationService {
 		.addFacetField("organisationId")
 		.setFacet(true)
 		.setFacetMinCount(1)
-		.setFacetLimit(1000);
+		.setFacetLimit(-1);
 
 	QueryResponse response = solr.query(query);
 	List<FacetField> fflist = response.getFacetFields();
@@ -519,5 +559,39 @@ public class ObservationService {
 	}
 
 		return organisations;
+	}
+
+	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationStrainZygositySex(Integer parameterId, String organisation, String strain, String zygosity, String sex) throws SolrServerException {
+		Set<String> genes = new HashSet<String>();
+
+		SolrQuery query = new SolrQuery()
+			.setQuery("*:*")
+			.addFilterQuery("biologicalSampleGroup:experimental")
+			.addFilterQuery("organisation:" + organisation)
+			.addFilterQuery("parameterId:" + parameterId)
+			.addFilterQuery("strain:" + strain.replace(":", "\\:"))
+			.addFilterQuery("zygosity:" + zygosity)
+			.addFilterQuery("gender:" + sex)
+			.setRows(0)
+			.addFacetField("geneAccession")
+			.setFacet(true)
+			.setFacetMinCount(1)
+			.setFacetLimit(-1);
+
+		QueryResponse response = solr.query(query);
+		List<FacetField> fflist = response.getFacetFields();
+
+		for(FacetField ff : fflist){
+
+			// If there are no face results, the values will be null
+			// skip this facet field in that case
+			if(ff.getValues()==null) { continue;}
+
+			for(Count c : ff.getValues()){
+				genes.add(c.getName());
+		    }
+		}
+
+		return new ArrayList<String>(genes);
 	}
 }
