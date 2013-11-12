@@ -50,7 +50,7 @@ public class ObservationServiceTest {
 	
 	@Test
 	public void testGetAllUnidimensionalParameterIdsWithObservationsByOrganisation() throws SolrServerException {
-		List<Integer> params = os.getAllUnidimensionalParameterIdsWithObservationsByOrganisation("WTSI");
+		List<Integer> params = os.getUnidimensionalParameterIdsWithObservationsByOrganisation("WTSI");
 		assertTrue(params.size()>0);
 	}
 	
@@ -66,7 +66,7 @@ public class ObservationServiceTest {
 	
 	@Test
 	public void testGetAllStrainsByParameterIdOrganistion() throws SolrServerException {
-		List<String> strains = os.getAllStrainsByParameterIdOrganistion(2192, "WTSI");
+		List<String> strains = os.getStrainsByParameterIdOrganistion(2192, "WTSI");
 		assertTrue(strains.size()>0);
 		
 	}
