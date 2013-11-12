@@ -3,6 +3,7 @@
 	<dataSource name="ds1" jndiName="java:comp/env/jdbc/komp2DataSource" />
 	<dataSource name="ds2" jndiName="java:comp/env/jdbc/ontodbDataSource" />
 
+	
 	<document name="komp2_indexing">
 		<!-- test MP:0000180 for multipe node_id being linked to this term -->
 		<!-- term infos: ID, name, definition -->
@@ -96,7 +97,7 @@
 				<field column="external_id" name="external_id" />
 				<field column="sex" name="sex" />
 				<field column="zygosity" name="zygosity" />
-
+				
 				<entity dataSource="ds1" name="genomic_feature"
 					query="select acc, symbol from genomic_feature where acc='${phenotype_call_summary.gf_acc}'">
 					<field column="symbol" name="marker_symbol" />
