@@ -11,7 +11,23 @@ private ZygosityType zygosity=ZygosityType.homozygote;
 private SexType sexType=SexType.male;
 private Float mean=new Float(0);
 private Float sd=new Float(0);
-private Integer sampleSize=100;
+private Integer sampleSizeMale=0;
+public Integer getSampleSizeMale() {
+	return sampleSizeMale;
+}
+public void setSampleSizeMale(Integer sampleSizeMale) {
+	this.sampleSizeMale = sampleSizeMale;
+}
+public Integer getSampleSizeFemale() {
+	return sampleSizeFemale;
+}
+public void setSampleSizeFemale(Integer sampleSizeFemale) {
+	this.sampleSizeFemale = sampleSizeFemale;
+}
+
+
+
+private Integer sampleSizeFemale=0;
 private String allele="allele not found";
 private String geneticBackground="genetic background not found";
 private UnidimensionalResult result;
@@ -63,19 +79,14 @@ public Float getSd() {
 public void setSd(Float sd) {
 	this.sd = sd;
 }
-public Integer getSampleSize() {
-	return sampleSize;
-}
-public void setSampleSize(Integer sampleSize) {
-	this.sampleSize = sampleSize;
-}
+
 
 
 @Override
 public String toString() {
 	return "UnidimensionalStatsObject [line=" + line + ", zygosity="
 			+ zygosity + ", sexType=" + sexType + ", mean=" + mean
-			+ ", sd=" + sd + ", sampleSize=" + sampleSize + ", allele="
+			+ ", sd=" + sd + ", sampleSizeFemale=" + sampleSizeFemale +"sampleSizeMale="+sampleSizeMale+ ", allele="
 			+ allele + ", geneticBackground=" + geneticBackground + "]";
 }
 

@@ -43,10 +43,10 @@
 		<thead><tr>
 		<th>Line</th>
 		<th>Zygosity</th>
-			<th>Sex</th>
+			<%-- <th>Sex</th> --%>
 			<th>Mean</th>
 			<th>SD</th>
-			<th>Sample Size</th>
+			<th>Female/Male Sample Size</th>
 			<th>Effect Size</th>
 			<th>pValue</th>
 		<%-- <th>${tables[loop.count-1].xAxisCategories[1]}</th><th>${tables[loop.count-1].xAxisCategories[2]}</th> --%>
@@ -65,18 +65,18 @@
 												<td>${statsObject.zygosity}</td>
 												</c:when>
 												</c:choose>
-												<c:choose>
+												<%-- <c:choose>
 												<c:when test="${statsObject.line =='Control' }">
 												<td>Mixed</td>
 												</c:when>
 												<c:when test="${statsObject.line !='Control' }">
 												<td>${statsObject.sexType}</td>
 												</c:when>
-												</c:choose>
+												</c:choose> --%>
 												
 												<td>${statsObject.mean}</td>
 												<td>${statsObject.sd}</td>
-												<td>${statsObject.sampleSize}</td>
+												<td>${statsObject.sampleSizeFemale} / ${statsObject.sampleSizeMale}</td>
 												<td>${statsObject.result.effectSize}</td>
 												<td>${statsObject.result.pValue}</td>
 												</tr>

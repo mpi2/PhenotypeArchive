@@ -3,7 +3,10 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <t:genericpage>
-	<jsp:attribute name="title">${gene.symbol} ${paramIds} Statistics</jsp:attribute>
+	<jsp:attribute name="title"> <c:forEach var="parameter" items="${parameters}" varStatus="loop">
+  ${parameter.name}
+    <c:if test="${ not loop.last}">,</c:if>
+	</c:forEach>Statistics for ${gene.symbol} </jsp:attribute>
 
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
 			href="${baseUrl}/search#sort=marker_symbol asc&q=*:*&core=gene">Genes</a> <c:if
@@ -51,12 +54,14 @@
    		<a href='' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a>
 	</div>	
         
-		<div class='topic'>Gene: ${gene.symbol} Parameters: 
-	 <c:forEach var="paramId" items="${paramIds}" varStatus="loop">
-  ${paramId }
+
+	<div class='topic'>Gene: ${gene.symbol} Parameters: 
+	 <c:forEach var="parameter" items="${parameters}" varStatus="loop">
+  ${parameter.name}
     <c:if test="${ not loop.last}">,</c:if>
 	</c:forEach>
 	</div>
+	
 		<c:if test="${statsError}">
 					<div class="alert alert-error">
 						<strong>Error:</strong> An issue occurred processing the statistics for this page - results on this page maybe incorrect.

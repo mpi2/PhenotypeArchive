@@ -141,7 +141,7 @@ public class ImagesSolrJ implements ImagesSolrDao {
 	public QueryResponse getExpressionFacetForGeneAccession(String geneId) throws SolrServerException {
 		String processedGeneId = SolrUtils.processQuery(geneId);
 		log.debug("eventually gene id will be here and we'll need an extra filter");
-		QueryResponse solrResp = this.runFacetQuery("expName:"+"\"Wholemount Expression\"","higherLevelMaTermName", 0,1, "accession:"+processedGeneId);
+		QueryResponse solrResp = this.runFacetQuery("expName:"+"\"Wholemount Expression\"","annotated_or_inferred_higherLevelMaTermName", 0,1, "accession:"+processedGeneId);
 		
 		log.debug("uri="+solrResp.getRequestUrl());
 		return solrResp;
