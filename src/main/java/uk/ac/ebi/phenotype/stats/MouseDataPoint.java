@@ -2,11 +2,22 @@ package uk.ac.ebi.phenotype.stats;
 
 import java.util.Date;
 
+import uk.ac.ebi.phenotype.pojo.SexType;
+
 public class MouseDataPoint {
 	private String mouseId;
 	private Float dataPoint;
 	private Integer column;//store the column index for this point which is mapped to the mouseId and starts at 0 for first column/mouse
 	private Date dateOfExperiment;
+	private SexType sexType;
+	public SexType getSexType() {
+		return sexType;
+	}
+
+	public void setSexType(SexType sexType) {
+		this.sexType = sexType;
+	}
+
 	public Date getDateOfExperiment() {
 		return dateOfExperiment;
 	}
@@ -45,7 +56,7 @@ public class MouseDataPoint {
 	}
 	
 	public MouseDataPoint(String externalSampleId, Float dataPoint2,
-			int mouseColumn, Date dateOfExperiment) {
+			int mouseColumn, Date dateOfExperiment, SexType sexType) {
 		this(externalSampleId, dataPoint2, mouseColumn);
 		this.dateOfExperiment=dateOfExperiment;
 	}

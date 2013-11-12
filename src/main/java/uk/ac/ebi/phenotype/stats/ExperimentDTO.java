@@ -28,6 +28,8 @@ public class ExperimentDTO {
 	private Set<ObservationDTO> controls;
 	private Integer controlBiologicalModelId;
 	private Integer experimentalBiologicalModelId;
+	private Set<ObservationDTO> maleControls;
+	private Set<ObservationDTO> femaleControls;
 	
 	/**
 	 * 
@@ -391,4 +393,58 @@ public class ExperimentDTO {
 		return categorieSet;	
 	}
 	
+	public int getControlSampleSizeFemale() {
+		return this.getFemaleControls().size();
+	}
+	public int getControlSampleSizeMale() {
+		return this.getMaleControls().size();
+	}
+	
+	public Set<ObservationDTO> getFemaleControls(){
+		return this.getControls(SexType.female);
+	}
+	
+	public Set<ObservationDTO> getMaleControls(){
+		return this.getControls(SexType.male);
+	}
+
+	private Set<ObservationDTO> getControls(SexType sex) {
+
+		if (femaleControls == null || maleControls == null) {
+			femaleControls = new HashSet<ObservationDTO>();
+			maleControls = new HashSet<ObservationDTO>();
+			for (ObservationDTO control : this.getControls()) {
+
+				if (sex.equals(SexType.female)) {
+					femaleControls.add(control);
+				} else {
+					maleControls.add(control);
+				}
+			}
+		}
+		if (sex.equals(SexType.female)) {
+			return femaleControls;
+		} else {
+			return maleControls;
+		}
+
+}
+
+	public Set<ObservationDTO> getMutants(SexType sex, ZygosityType zyg) {
+		Set<ObservationDTO> mutantsDtos;
+		Set<ObservationDTO> mutantDtosForSex=new HashSet<ObservationDTO>();
+		if (zyg.equals(ZygosityType.homozygote)) {
+			mutantsDtos = this.getHomozygoteMutants();
+		} else {
+			mutantsDtos = this.getHeterozygoteMutants();
+		}
+
+		for (ObservationDTO mutant : mutantsDtos) {
+
+			if (sex.equals(SexType.valueOf(mutant.getSex()))) {
+				mutantDtosForSex.add(mutant);
+			} 
+		}
+		return mutantDtosForSex;
+	}
 }

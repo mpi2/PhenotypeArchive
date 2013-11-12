@@ -90,8 +90,11 @@ public class ObservationService {
 			results.addAll(getControlsBySex(parameterId, strain, organisationId, max, showAll, "female", n/2));
 			results.addAll(getControlsBySex(parameterId, strain, organisationId, max, showAll, "male", n/2));
 		}
-		else 
+		else { 
 			results.addAll(getControlsBySex(parameterId, strain, organisationId, max, showAll, sex, n));
+			
+		}
+		System.out.println("results size="+results.size()+" sex="+sex);
 		return results;
 	}
 
@@ -138,6 +141,8 @@ public class ObservationService {
 
 		responseb = solr.query(queryb);
 		responsea = solr.query(querya);
+		System.out.println("querya="+querya);
+		System.out.println("queryb="+queryb);
 		
 		List<ObservationDTO> resA = responsea.getBeans(ObservationDTO.class); // hits AFTER the dateOfExperiment passes
 		List<ObservationDTO> resB = responseb.getBeans(ObservationDTO.class); // hits BEFRE the dateOfExperiment passes
