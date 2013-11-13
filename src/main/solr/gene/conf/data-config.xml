@@ -1,93 +1,90 @@
 <dataConfig>
 	<script type='text/javascript'><![CDATA[
-	function process_colon(row) {
-		if ( row.get('mgi_accession_id') ){				
-			id = row.get('mgi_accession_id').toString().replace(":", "\\:");				
-			row.put('mgi_accession_id_escaped', id);  						
-	    } 
+        function process_colon(row) {
+		if ( row.get('mgi_accession_id') ){
+        id = row.get('mgi_accession_id').toString().replace(":", "\\:");
+        row.put('mgi_accession_id_escaped', id);
+	    }
 		
-		return row;	
-	}		
-	function fetch_center_info(row) {            	
-        		
+		return row;
+        }
+        function fetch_center_info(row) {
+        
 		if ( row.get('allele_type') && row.get('production_centre') ){
-			center = row.get('production_centre');
+        center = row.get('production_centre');
 		
-	                sType = row.get('allele_type').toString();
-			if ( sType == 'mi_attempt' ){				
-				row.put('production_center', center);  			
-			}		    	 
-			else if ( sType == 'phenotype_attempt' ){							
-				row.put('phenotyping_center', center);  						
-			}			
+        sType = row.get('allele_type').toString();
+        if ( sType == 'mi_attempt' ){
+        row.put('production_center', center);
+        }
+        else if ( sType == 'phenotype_attempt' ){
+        row.put('phenotyping_center', center);
+        }
 	    }
 	    
-   		return row; 			
-   	}
-	function fetch_human_symbol(row){
-		if ( row.get('mouse2human_symbol') ){				
-			aList = row.get('mouse2human_symbol').toString().split('___');			
-			row.put('human_gene_symbol', aList[1]);  						
-	    }              
+   		return row;
+        }
+        function fetch_human_symbol(row){
+		if ( row.get('mouse2human_symbol') ){
+        aList = row.get('mouse2human_symbol').toString().split('___');
+        row.put('human_gene_symbol', aList[1]);
+	    }
 		
-   		return row; 
-	}
-
+   		return row;
+        }
+        
     ]]></script>
-
+    
     <!-- The gene status is calculated on the fly using DataimportHandler script transformer -->
     <dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/allele/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
-    <dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
-    <!--dataSource name="human2mouse"  type="HttpDataSource" baseUrl="${url.human2mouse}/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/-->
+    <dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+    <!-- dataSource name="human2mouse_symbol_core" type="HttpDataSource" baseUrl="${human2mouseurl}/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/-->
+    <dataSource name="human2mouse_symbol_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_ci/human2mouse_symbol/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
     
-    <!--dataSource name="human2mouse" type="HttpDataSource" baseUrl="${url.human2mouseurl}/select?"  encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/-->
- 		<!-- dataSource name="human2mouse_symbol_core" type="HttpDataSource" baseUrl="${human2mouseurl}/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/-->
-    <dataSource name="human2mouse_symbol_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/human2mouse_symbol/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
-
     <document name="docs">
-       	<entity dataSource="gene2_core" name="doc" stream="true" url="q=*&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status,imits_phenotype_is_active&amp;rows=50000&amp;wt=normal"
-               processor="XPathEntityProcessor" forEach="/response/result/doc/"
-	transformer="script:process_colon"	
-               readTimeout="10000" connectionTimeout="10000"  >
-                     
-           	<field column="mgi_accession_id" xpath="/response/result/doc/str[@name='MGI']" />			
-			<field column="mgi_accession_id_escaped" name="mgi_accession_id_escaped" /> 
-
-			<!-- mouse production center/phenotyping center based on mgi_accesson_id in Sanger allele core -->			
-			<entity dataSource="allele_core" name="centers" stream="true" 
-				url="q=mgi_accession_id:${doc.mgi_accession_id_escaped}&amp;wt=normal&amp;fl=mgi_accession_id,type,production_centre&amp;fq=type:*_attempt"				
+       	<entity dataSource="gene2_core" name="doc" stream="true" url="search?q=*&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status,imits_phenotype_is_active&amp;rows=50000&amp;wt=normal"
+            processor="XPathEntityProcessor" forEach="/response/result/doc/"
+            transformer="script:process_colon"
+            readTimeout="10000" connectionTimeout="10000"  >
+            
+           	<field column="mgi_accession_id" xpath="/response/result/doc/str[@name='MGI']" />
+			<field column="mgi_accession_id_escaped" name="mgi_accession_id_escaped" />
+            
+			<!-- mouse production center/phenotyping center based on mgi_accesson_id in Sanger allele core -->
+			<entity dataSource="allele_core" name="centers" stream="true"
+				url="q=mgi_accession_id:${doc.mgi_accession_id_escaped}&amp;wt=normal&amp;fl=mgi_accession_id,type,production_centre&amp;fq=type:*_attempt"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/"
-                		transformer="script:fetch_center_info" readTimeout="10000" connectionTimeout="10000"  >				 
-
+                transformer="script:fetch_center_info" readTimeout="10000" connectionTimeout="10000"  >
+                
 				<!-- add production_centre and allele_type for transformer (none-schema) and put transformed value into production_center or phenotyping_center (add to schema)-->
-				<field column="production_centre" xpath="/response/result/doc/str[@name='production_centre']" /> 
-				<field column="allele_type" xpath="/response/result/doc/str[@name='type']" />					
-				<field column="production_center" name="production_center" /> 				                 
-				<field column="phenotyping_center" name="phenotyping_center" /> 
-			</entity> 
-
+				<field column="production_centre" xpath="/response/result/doc/str[@name='production_centre']" />
+				<field column="allele_type" xpath="/response/result/doc/str[@name='type']" />
+				<field column="production_center" name="production_center" />
+				<field column="phenotyping_center" name="phenotyping_center" />
+			</entity>
+            
             <field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />
-
+            
 			<!-- mouse to human gene symbol mapping: multiple human name can be mapped to one mouse symbol -->
 			<entity dataSource="human2mouse_symbol_core" name="symbol_mapping" stream="true"
-				url="q=mouse2human_symbol:${doc.marker_symbol}*&amp;wt=normal&amp;fl=mouse2human_symbol"				
+				url="q=${doc.marker_symbol}*&amp;wt=normal&amp;fl=mouse2human_symbol"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/"
-                		transformer="script:fetch_human_symbol" readTimeout="10000" connectionTimeout="10000"  >				 
-
+                transformer="script:fetch_human_symbol" readTimeout="10000" connectionTimeout="10000"  >
+                
 				<field column="mouse2human_symbol" xpath="/response/result/doc/str[@name='mouse2human_symbol']" />
-				<field column="human_gene_symbol" name="human_gene_symbol" /> 				                 
-			</entity> 
-
+				<field column="human_gene_symbol" name="human_gene_symbol" />
+			</entity>
+            
             <field column="marker_name" xpath="/response/result/doc/arr[@name='marker_name']/str" />
             <field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
-            <field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" /> 
-
+            <field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />
+            
 			<field column="imits_report_phenotyping_complete_date" xpath="/response/result/doc/arr[@name='imits_report_phenotyping_complete_date']/str" />
 	        <field column="imits_report_genotype_confirmed_date" xpath="/response/result/doc/arr[@name='imits_report_genotype_confirmed_date']/str" />
 	        <field column="imits_report_mi_plan_status" xpath="/response/result/doc/arr[@name='imits_report_mi_plan_status']/str" />
 	        <field column="escell" xpath="/response/result/doc/arr[@name='escell']/str" />
-	        <field column="ikmc_project" splitBy="," xpath="/response/result/doc/arr[@name='ikmc_project']/str" />  
-	        <field column="imits_consortium" xpath="/response/result/doc/str[@name='imits_consortium']" />                                   
+	        <field column="ikmc_project" splitBy="," xpath="/response/result/doc/arr[@name='ikmc_project']/str" />
+	        <field column="imits_consortium" xpath="/response/result/doc/str[@name='imits_consortium']" />
 	        <field column="status" xpath="/response/result/doc/str[@name='latest_project_status']" />
 	        <field column="imits_phenotype_started" xpath="/response/result/doc/arr[@name='imits_phenotype_started']/str" />
             
