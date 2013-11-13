@@ -26,8 +26,8 @@
         }
         function fetch_human_symbol(row){
 		if ( row.get('mouse2human_symbol') ){
-        aList = row.get('mouse2human_symbol').toString().split('___');
-        row.put('human_gene_symbol', aList[1]);
+        aList = row.get('mouse2human_symbol').toString().split('___');        
+        row.put('human_gene_symbol', aList[1].replace(']',''));
 	    }
 		
    		return row;
