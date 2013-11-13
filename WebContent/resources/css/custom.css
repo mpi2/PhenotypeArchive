@@ -358,7 +358,7 @@ div.ui-dropdownchecklist-dropcontainer {
 
 .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default{
 	background: white;
-	min-width:240px;	
+	min-width: 240px;	
 }
 	
  .ui-state-hover {
@@ -366,13 +366,18 @@ div.ui-dropdownchecklist-dropcontainer {
 } 
 
 .caption {
-    text-align:center;
-    font-size:0.875em;
+    text-align: center;
+    font-size: 0.875em;
 }
 
 .filterTrigger { cursor: pointer; }
 
 .bigPercent {
 	font-size: 20px;
-	font-weight:bold;
+	font-weight: bold;
+}
+
+.half{
+	float: left;
+	width: 50%;
 }
