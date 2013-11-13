@@ -453,13 +453,13 @@ public class ObservationService {
 	 * @return list of gene accession ids
 	 * @throws SolrServerException
 	 */
-	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity(Integer parameterId, String organisation, String strain, String zygosity) throws SolrServerException {
+	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationIdStrainZygosity(Integer parameterId, Integer organisationId, String strain, String zygosity) throws SolrServerException {
 		Set<String> genes = new HashSet<String>();
 
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
 			.addFilterQuery("biologicalSampleGroup:experimental")
-			.addFilterQuery("organisation:" + organisation)
+			.addFilterQuery("organisationId:" + organisationId)
 			.addFilterQuery("parameterId:" + parameterId)
 			.addFilterQuery("strain:" + strain.replace(":", "\\:"))
 			.addFilterQuery("zygosity:" + zygosity)
@@ -488,21 +488,21 @@ public class ObservationService {
 	
 	/**
 	 * Return all the strain accession ids that have associated data for a given
-	 * organisation, and parameter
+	 * organisation ID and parameter ID
 	 * 
-	 * @param organisation
-	 *            the name of the organisation
+	 * @param organisation ID
+	 *            the database id of the organisation
 	 * @param parameterId
 	 *            the database id of the parameter 
 	 * @return list of strain accession ids
 	 * @throws SolrServerException
 	 */
-	public List<String> getStrainsByParameterIdOrganistion(Integer parameterId, String organisation) throws SolrServerException {
+	public List<String> getStrainsByParameterIdOrganistionId(Integer parameterId, Integer organisationId) throws SolrServerException {
 		Set<String> strains = new HashSet<String>();
 
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
-			.addFilterQuery("organisation:" + organisation)
+			.addFilterQuery("organisationId:" + organisationId)
 			.addFilterQuery("parameterId:" + parameterId)
 			.setRows(0)
 			.addFacetField("strain")

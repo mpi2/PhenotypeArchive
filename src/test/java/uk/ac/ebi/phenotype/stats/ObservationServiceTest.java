@@ -64,14 +64,14 @@ public class ObservationServiceTest {
 	
 	@Test
 	public void testGetAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity() throws SolrServerException {
-		List<String> genes = os.getAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity(2192, "WTSI","EUROCURATE1983", "homozygote");
+		List<String> genes = os.getAllGeneAccessionIdsByParameterIdOrganisationIdStrainZygosity(2192, 3,"EUROCURATE1983", "homozygote");
 		assertTrue(genes.size()>0);
 
 	}
 	
 	@Test
 	public void testGetAllStrainsByParameterIdOrganistion() throws SolrServerException {
-		List<String> strains = os.getStrainsByParameterIdOrganistion(2192, "WTSI");
+		List<String> strains = os.getStrainsByParameterIdOrganistionId(2192, 3);
 		assertTrue(strains.size()>0);
 		
 	}
