@@ -107,7 +107,7 @@
 									Control
 	   							</div>
 	   							<div class="container span6">
-	   								<img src="${mediaBaseUrl}/${exampleImages.experimental.smallThumbnailFilePath}" />
+	   								<img src="getSolrInstance/${exampleImages.experimental.smallThumbnailFilePath}" />
 	   								<c:forEach var="sangerSymbol" items="${exampleImages.experimental.sangerSymbol}" varStatus="symbolStatus">
 										<c:if test="${not empty exampleImages.experimental.sangerSymbol}">
 											<t:formatAllele>${sangerSymbol}</t:formatAllele><br />
@@ -122,6 +122,7 @@
 							</c:if>
 	    				</c:otherwise>
 				</c:choose>
+			
 		
 				</div>
 			</div>
@@ -129,6 +130,20 @@
 	</div>
 </div>
 	
+	<div class="row-fluid dataset">
+	<div class='documentation'>
+		<a href='' class='phenotypeStatsPanel'><img src="${baseUrl}/img/info_20x20.png" /></a>
+	</div>
+	
+    <h4 class="caption">Phenotype associations stats</h4>
+	<div>
+	<p> <span class="bigPercent">${genePercentage.getTotalPercentage()}%</span> of the tested genes have a phenotype association to ${phenotype.name} 
+	(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
+	<p>&nbsp;&nbsp;&nbsp; <b>${genePercentage.getFemalePercentage()}%</b> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </p>
+	<p>&nbsp;&nbsp;&nbsp; <b>${genePercentage.getMalePercentage()}</b> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</p>
+	</div>
+	</div>
+		
 <div class="row-fluid dataset">
 
     <div class='documentation'>
