@@ -65,7 +65,7 @@
 			</entity> 
 
             <field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />
-
+ 
 			<!-- mouse to human gene symbol mapping: multiple human name can be mapped to one mouse symbol -->
 			<entity dataSource="human2mouse_symbol_core" name="symbol_mapping" stream="true"
 				url="q=${doc.marker_symbol}*&amp;wt=normal&amp;fl=mouse2human_symbol"				
