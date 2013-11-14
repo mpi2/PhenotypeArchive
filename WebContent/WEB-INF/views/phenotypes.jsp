@@ -142,7 +142,7 @@
 			<p> <span class="bigPercent">${genePercentage.getTotalPercentage()}%</span> of the tested genes have a phenotype association to ${phenotype.name} 
 			(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
 			<p>&nbsp;&nbsp;&nbsp; <b>${genePercentage.getFemalePercentage()}%</b> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </p>
-			<p>&nbsp;&nbsp;&nbsp; <b>${genePercentage.getMalePercentage()}</b> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</p>
+			<p>&nbsp;&nbsp;&nbsp; <b>${genePercentage.getMalePercentage()}%</b> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</p>
 		</div>
 		
 		<div class="half container span5"  id="ovRight">
