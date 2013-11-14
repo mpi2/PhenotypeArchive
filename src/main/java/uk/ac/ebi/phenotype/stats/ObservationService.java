@@ -260,13 +260,13 @@ public class ObservationService {
 	public String getQueryStringByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain, SexType sex) throws SolrServerException {
 
 		SolrQuery query = new SolrQuery()
-	    	.setQuery("geneAccession:"+gene.replace(":", "\\:") + " AND zygosity:"+zygosity+"")
+	    	.setQuery("((geneAccession:"+gene.replace(":", "\\:") + " AND zygosity:"+zygosity+") OR biologicalSampleGroup:control) ")
 	    	.addFilterQuery("parameterId:"+parameterId)
 	    	.addFilterQuery("organisationId:"+organisationId)
 	    	.addFilterQuery("strain:"+strain.replace(":", "\\:"))
-	    	.addFilterQuery("gender:"+sex.name())
-	    	.setStart(0)
-	    	.setRows(1000);
+	    	.addFilterQuery("gender:"+sex)
+	    	.setStart(0).setRows(10000);
+
 		return query.toString();
 	}
 	
