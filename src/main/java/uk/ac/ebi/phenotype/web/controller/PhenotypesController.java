@@ -145,7 +145,8 @@ public class PhenotypesController {
 		Set<OntologyTerm> anatomyTerms = new HashSet<OntologyTerm>();
 		Set<OntologyTerm> mpSiblings = new HashSet<OntologyTerm>();
 		Set<OntologyTerm> goTerms = new HashSet<OntologyTerm>();
-
+		Set<Synonym> synonymTerms = new HashSet<Synonym>();
+		
 		try {
 
 			JSONObject mpData = solrIndex
@@ -178,7 +179,7 @@ public class PhenotypesController {
 					String synm = (String) syn;
 					Synonym synonym=new Synonym();
 					synonym.setSymbol(synm);
-					oTerm.addSynonym(synonym);
+					synonymTerms.add(synonym);
 				}
 			}
 			
@@ -217,7 +218,7 @@ public class PhenotypesController {
 		model.addAttribute("anatomy", anatomyTerms);
 		model.addAttribute("go", goTerms);
 		model.addAttribute("siblings", mpSiblings);
-
+		model.addAttribute("synonyms", synonymTerms);
 		// Query the images for this phenotype
 		QueryResponse response=imagesSolrDao.getDocsForMpTerm(phenotype_id, 0, 6);
 		model.addAttribute("numberFound", response.getResults().getNumFound());

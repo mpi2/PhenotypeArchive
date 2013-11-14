@@ -53,12 +53,12 @@
 									<td>${phenotype.description}</td>
 								</tr>
 								</c:if>
-								<c:if test="${not empty phenotype.synonyms}">
+								<c:if test="${not empty synonyms}">
 								<tr>
 									<td>Synonym:</td>
 									<td>
 										<ul>
-										<c:forEach var="synonym" items="${phenotype.synonyms}" varStatus="loop">
+										<c:forEach var="synonym" items="${synonyms}" varStatus="loop">
 										<li>${synonym.symbol}</li>
 										</c:forEach>
 										</ul>
