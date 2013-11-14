@@ -23,6 +23,7 @@ package uk.ac.ebi.phenotype.dao;
  * @since May 2012
  */
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -45,6 +46,7 @@ import uk.ac.ebi.phenotype.pojo.ParameterOntologyAnnotation;
 import uk.ac.ebi.phenotype.pojo.ParameterOption;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.Procedure;
+import uk.ac.ebi.phenotype.stats.MouseDataPoint;
 
 
 
@@ -253,6 +255,27 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 		}
 
 		return parameters;
+	}
+
+	@Override
+	public List<String> getParameterStableIdsByPhenotypeTerm(String mpTermId) {
+		
+		String query = "SELECT DISTINCT pp.stable_id FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa " +
+		"ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=5 AND ppoa.ontology_acc=?";
+		PreparedStatement statement = null;
+	    ResultSet resultSet = null;
+	    ArrayList<String> parameters = new ArrayList<String>();
+		try (Connection connection = getConnection()) {
+	        statement = connection.prepareStatement(query);
+	        statement.setString(1, mpTermId);
+	        resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				parameters.add(resultSet.getString("stable_id"));
+			}
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return parameters;		
 	}
 
 }

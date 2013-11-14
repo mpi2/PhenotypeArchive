@@ -53,12 +53,12 @@
 									<td>${phenotype.description}</td>
 								</tr>
 								</c:if>
-								<c:if test="${not empty phenotype.synonyms}">
+								<c:if test="${not empty synonyms}">
 								<tr>
 									<td>Synonym:</td>
 									<td>
 										<ul>
-										<c:forEach var="synonym" items="${phenotype.synonyms}" varStatus="loop">
+										<c:forEach var="synonym" items="${synonyms}" varStatus="loop">
 										<li>${synonym.symbol}</li>
 										</c:forEach>
 										</ul>
@@ -98,7 +98,7 @@
 					</div>
 			
 				<%-- There must not be any spaces --%>
-				<div class="container span5" id="ovRight">
+				<!-- div class="container span5" id="ovRight">
 				<c:choose>
 	    				<c:when test="${not empty exampleImages}">
 		      				<div class="row-fluid">
@@ -107,7 +107,7 @@
 									Control
 	   							</div>
 	   							<div class="container span6">
-	   								<img src="${mediaBaseUrl}/${exampleImages.experimental.smallThumbnailFilePath}" />
+	   								<img src="getSolrInstance/${exampleImages.experimental.smallThumbnailFilePath}" />
 	   								<c:forEach var="sangerSymbol" items="${exampleImages.experimental.sangerSymbol}" varStatus="symbolStatus">
 										<c:if test="${not empty exampleImages.experimental.sangerSymbol}">
 											<t:formatAllele>${sangerSymbol}</t:formatAllele><br />
@@ -122,13 +122,55 @@
 							</c:if>
 	    				</c:otherwise>
 				</c:choose>
+			
 		
-				</div>
+				</div-->
 			</div>
 		</div>
 	</div>
 </div>
 	
+	<div class="row-fluid dataset">	
+		<div class='documentation'>
+			<a href='' class='phenotypeStatsPanel'><img	src="${baseUrl}/img/info_20x20.png" /></a>
+		</div>
+		
+	  <h4 class="caption">Phenotype associations stats</h4>
+		
+		<div class="half">
+			<p> <span class="bigPercent">${genePercentage.getTotalPercentage()}%</span> of the tested genes have a phenotype association to ${phenotype.name} 
+			(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
+			<p>&nbsp;&nbsp;&nbsp; <b>${genePercentage.getFemalePercentage()}%</b> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </p>
+			<p>&nbsp;&nbsp;&nbsp; <b>${genePercentage.getMalePercentage()}</b> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</p>
+		</div>
+		
+		<div class="half container span5"  id="ovRight">
+				<c:choose>
+	    				<c:when test="${not empty exampleImages}">
+		      				<div class="row-fluid">
+								<div class="container span6">
+									<img src="${mediaBaseUrl}/${exampleImages.control.smallThumbnailFilePath}" />
+									Control
+	   							</div>
+	   							<div class="container span6">
+	   								<img src="getSolrInstance/${exampleImages.experimental.smallThumbnailFilePath}" />
+	   								<c:forEach var="sangerSymbol" items="${exampleImages.experimental.sangerSymbol}" varStatus="symbolStatus">
+										<c:if test="${not empty exampleImages.experimental.sangerSymbol}">
+											<t:formatAllele>${sangerSymbol}</t:formatAllele><br />
+										</c:if>
+									</c:forEach>
+								</div>
+	      					</div>
+	    				</c:when>
+	    				<c:otherwise>
+		      				<c:if test="${not empty images}">
+								<img src="${mediaBaseUrl}/${images[0].largeThumbnailFilePath}" />
+							</c:if>
+	    				</c:otherwise>
+				</c:choose>
+		</div>
+	</div>
+		
 <div class="row-fluid dataset">
 
     <div class='documentation'>
