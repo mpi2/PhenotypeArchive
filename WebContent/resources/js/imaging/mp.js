@@ -17,7 +17,7 @@
  */
 jQuery(document).ready(function() {
 
-	if ($('#ovRight').children().length == 0) {
+	if ( document.getElementById('ovRight') != null && $('#ovRight').children().length == 0) {
 		$('#ovRight').append('<div id="chart" style="width: 100%; height: 200px"></div>');
 
 		new Highcharts.Chart({

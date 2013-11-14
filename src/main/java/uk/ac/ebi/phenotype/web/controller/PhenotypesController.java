@@ -235,21 +235,24 @@ public class PhenotypesController {
 		model.addAttribute("phenotype", oTerm);
 		model.addAttribute("procedures", procedures);
 		model.addAttribute("genePercentage", getPercentages(phenotype_id));
-		
 		return "phenotypes";
 	}
+		
 	private PhenotypeGeneSummaryDTO getPercentages(String phenotype_id) throws SolrServerException{ // <sex, percentage>
 		PhenotypeGeneSummaryDTO pgs = new PhenotypeGeneSummaryDTO();
 		
 		int total = 0;
 		int nominator = 0;
 		SolrQuery query = new SolrQuery()
-		.setQuery("(mp_term_id:\"" + phenotype_id + "\" OR top_level_mp_term_id:\"" + phenotype_id + "\")")
+		.setQuery("(mp_term_id:\"" + phenotype_id + "\" OR top_level_mp_term_id:\"" + phenotype_id + "\") AND "+
+				"(strain_accession_id:\"MGI:2159965\" OR strain_accession_id:\"MGI:2164831\")")
+		.setFilterQueries("resource_fullname:EuroPhenome")
+	//	.setFilterQueries()
 		.setRows(10000);	
 		query.set("group.field", "marker_symbol");
 		query.set("group", true);
-		System.out.println("---" + query.toString());
 		HttpSolrServer solr = getSolrInstance("genotype-phenotype");
+		System.out.println("---" + solr.getBaseURL() + query.toString());
 		HttpSolrServer experimentSolr = getSolrInstance("experiment");
 		// males & females
 		QueryResponse results = solr.query(query);		
@@ -261,32 +264,41 @@ public class PhenotypesController {
  		pgs.setTotalPercentage(100*(float)nominator/(float)total);
 		pgs.setTotalGenesAssociated(nominator);
 		pgs.setTotalGenesTested(total);
-		//females only
-		query.addFilterQuery("sex:female");
-		results = solr.query(query);
-		nominator = results.getGroupResponse().getValues().get(0).getValues().size();
-		System.out.println("female: " + nominator);
-		total = getTestedGenes(phenotype_id, "female", experimentSolr);
-		pgs.setFemalePercentage(100*(float)nominator/(float)total);
-		pgs.setFemaleGenesAssociated(nominator);
-		pgs.setFemaleGenesTested(total);
-		//males only
-		SolrQuery q = new SolrQuery()
-		.setQuery("(mp_term_id:\"" + phenotype_id + "\" OR top_level_mp_term_id:\"" + phenotype_id + "\")")
-		.setRows(10000);	
-		q.set("group.field", "marker_symbol");
-		q.set("group", true);
-		q.addFilterQuery("sex:male");
-		results = solr.query(q);
-		System.out.println(q);
-		System.out.println(query);
-		nominator = results.getGroupResponse().getValues().get(0).getValues().size();
-		System.out.println("male: " + nominator);
-		total = getTestedGenes(phenotype_id, "male", experimentSolr);
-		pgs.setMalePercentage(100*(float)nominator/(float)total);
-		pgs.setMaleGenesAssociated(nominator);
-		pgs.setMaleGenesTested(total);
 		
+		boolean display = (total > 0) ? true : false;
+		pgs.setDisplay(display);		
+		
+		if (display){
+			//females only
+			query.addFilterQuery("sex:female");
+			results = solr.query(query);
+			nominator = results.getGroupResponse().getValues().get(0).getValues().size();
+			System.out.println("female: " + nominator);
+			total = getTestedGenes(phenotype_id, "female", experimentSolr);
+			pgs.setFemalePercentage(100*(float)nominator/(float)total);
+			pgs.setFemaleGenesAssociated(nominator);
+			pgs.setFemaleGenesTested(total);
+			
+			//males only
+			SolrQuery q = new SolrQuery()
+			.setQuery("(mp_term_id:\"" + phenotype_id + "\" OR top_level_mp_term_id:\"" + phenotype_id + "\") AND " + 
+					"(strain_accession_id:\"MGI:2159965\" OR strain_accession_id:\"MGI:2164831\")")
+			.setFilterQueries("resource_fullname:EuroPhenome")
+		//	.setFilterQueries("strain_accession_id:\"MGI:2159965\"+OR+strain_accession_id:\"MGI:2164831\"")
+			.setRows(10000);
+			q.set("group.field", "marker_symbol");
+			q.set("group", true);
+			q.addFilterQuery("sex:male");
+			results = solr.query(q);
+			System.out.println(solr.getBaseURL() + q);
+			System.out.println(solr.getBaseURL() + query);
+			nominator = results.getGroupResponse().getValues().get(0).getValues().size();
+			System.out.println("male: " + nominator);
+			total = getTestedGenes(phenotype_id, "male", experimentSolr);
+			pgs.setMalePercentage(100*(float)nominator/(float)total);
+			pgs.setMaleGenesAssociated(nominator);
+			pgs.setMaleGenesTested(total);
+		}
 		return pgs;
 	}
 	
@@ -297,8 +309,8 @@ public class PhenotypesController {
 		for (String parameter : parameters){
 			SolrQuery query = new SolrQuery()
 			.setQuery("parameterStableId:" + parameter)
-			.addFilterQuery("biologicalSampleGroup:experimental")
 			.addField("geneAccession")
+			.setFilterQueries("strain:\"MGI:2159965\" OR strain:\"MGI:2164831\"")
 			.setRows(10000);
 			query.set("group.field", "geneAccession");
 			query.set("group", true);
@@ -307,6 +319,7 @@ public class PhenotypesController {
 			}
 			// I need to add the genes to a hash in case some come up multiple times from different parameters
 			List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
+			System.out.println("=====" + solr.getBaseURL() + query);
 			for (Group gr : groups){
 			//	System.out.println(gr.getGroupValue());
 				if (!genes.contains((String)gr.getGroupValue())){

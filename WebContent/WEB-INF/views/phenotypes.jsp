@@ -98,7 +98,7 @@
 					</div>
 			
 				<%-- There must not be any spaces --%>
-				<!-- div class="container span5" id="ovRight">
+				<div class="container span5">
 				<c:choose>
 	    				<c:when test="${not empty exampleImages}">
 		      				<div class="row-fluid">
@@ -124,12 +124,13 @@
 				</c:choose>
 			
 		
-				</div-->
+				</div>
 			</div>
 		</div>
 	</div>
 </div>
 	
+	<c:if test="${genePercentage.getDisplay()}">
 	<div class="row-fluid dataset">	
 		<div class='documentation'>
 			<a href='' class='phenotypeStatsPanel'><img	src="${baseUrl}/img/info_20x20.png" /></a>
@@ -145,32 +146,11 @@
 		</div>
 		
 		<div class="half container span5"  id="ovRight">
-				<c:choose>
-	    				<c:when test="${not empty exampleImages}">
-		      				<div class="row-fluid">
-								<div class="container span6">
-									<img src="${mediaBaseUrl}/${exampleImages.control.smallThumbnailFilePath}" />
-									Control
-	   							</div>
-	   							<div class="container span6">
-	   								<img src="getSolrInstance/${exampleImages.experimental.smallThumbnailFilePath}" />
-	   								<c:forEach var="sangerSymbol" items="${exampleImages.experimental.sangerSymbol}" varStatus="symbolStatus">
-										<c:if test="${not empty exampleImages.experimental.sangerSymbol}">
-											<t:formatAllele>${sangerSymbol}</t:formatAllele><br />
-										</c:if>
-									</c:forEach>
-								</div>
-	      					</div>
-	    				</c:when>
-	    				<c:otherwise>
-		      				<c:if test="${not empty images}">
-								<img src="${mediaBaseUrl}/${images[0].largeThumbnailFilePath}" />
-							</c:if>
-	    				</c:otherwise>
-				</c:choose>
 		</div>
-	</div>
 		
+	</div>
+	</c:if>
+	
 <div class="row-fluid dataset">
 
     <div class='documentation'>

@@ -56,6 +56,15 @@ public class PhenotypeGeneSummaryDTO {
 	public void setTotalGenesAssociated(int totalGenesAssociated) {
 		this.totalGenesAssociated = totalGenesAssociated;
 	}
+	public boolean getDisplay() {
+		return display;
+	}
+	public void setDisplay(boolean display) {
+		this.display = display;
+	}
+	
+	private boolean display;
+	
 	private float malePercentage;
 	private float femalePercentage;
 	private float totalPercentage;
