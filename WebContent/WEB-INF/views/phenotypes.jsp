@@ -55,11 +55,13 @@
 								</c:if>
 								<c:if test="${not empty synonyms}">
 								<tr>
-									<td>Synonym:</td>
+									<td>Synonyms:</td>
 									<td>
 										<ul>
-										<c:forEach var="synonym" items="${synonyms}" varStatus="loop">
-										<li>${synonym.symbol}</li>
+										<c:forEach var="synonym" items="${synonyms}" varStatus="loop">${synonym.symbol}<c:if test="${!loop.last}"><br /></c:if>
+											<c:if test="${loop.count==3 && fn:length(synonyms)>2}"><a data-toggle="collapse" data-target="#other_synonyms" href="#">+...</a><div id="other_synonyms" class="collapse"></c:if>
+											<c:if test="${loop.last && fn:length(synonyms) >3}"></div></c:if>
+								
 										</c:forEach>
 										</ul>
 									</td>
@@ -139,7 +141,7 @@
 	  <h4 class="caption">Phenotype associations stats</h4>
 		
 		<div class="half">
-			<p> <span class="bigPercent">${genePercentage.getTotalPercentage()}%</span> of the tested genes have a phenotype association to ${phenotype.name} 
+			<p> <span class="bigPercent">${genePercentage.getTotalPercentage()}%</span> of the EuroPhenome tested genes have a phenotype association to ${phenotype.name} 
 			(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
 			<p>&nbsp;&nbsp;&nbsp; <b>${genePercentage.getFemalePercentage()}%</b> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </p>
 			<p>&nbsp;&nbsp;&nbsp; <b>${genePercentage.getMalePercentage()}%</b> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</p>
