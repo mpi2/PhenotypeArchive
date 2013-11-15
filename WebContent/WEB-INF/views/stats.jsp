@@ -8,7 +8,7 @@
     <c:if test="${ not loop.last}">,</c:if>
 	</c:forEach>Statistics for ${gene.symbol} </jsp:attribute>
 
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; Statistics &raquo; <a href='${baseUrl}/stats/genes/${gene.id.accession}'>${gene.symbol}</a> &raquo; Boxplot</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; Statistics &raquo; <a href='${baseUrl}/stats/genes/${gene.id.accession}'>${gene.symbol}</a></jsp:attribute>
 
 	<jsp:attribute name="header">
 
