@@ -9,11 +9,7 @@
     <c:if test="${ not loop.last}">,</c:if>
 	</c:forEach>Statistics for ${gene.symbol} </jsp:attribute>
 
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
-			href="${baseUrl}/search#sort=marker_symbol asc&q=*:*&core=gene">Genes</a> <c:if
-			test="${not empty gene.subtype.name }">&raquo; <a
-				href='${baseUrl}/search#fq=marker_type:"${gene.subtype.name}"&q=*:*&core=gene'>${gene.subtype.name}</a>
-		</c:if> &raquo; ${gene.symbol}</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; Statistics &raquo; <a href='${baseUrl}/genes/${gene.id.accession}'>${gene.symbol}</a> &raquo; Scatter graph</jsp:attribute>
 
 	<jsp:attribute name="header">
 
@@ -48,7 +44,7 @@
 	<div class='topic'>Gene: ${gene.symbol} Parameters: 
 	 <c:forEach var="parameter" items="${parameters}" varStatus="loop">
   ${parameter.name}
-    <c:if test="${ not loop.last}">,</c:if>
+    <c:if test="${ not loop.last}">, </c:if>
 	</c:forEach>
 	</div>
 	<div id="exportIconsDiv"></div>
@@ -117,7 +113,8 @@
 			<%-- <th>Sex</th> --%>
 			<th>Mean</th>
 			<th>SD</th>
-			<th>Female/Male Sample Size</th>
+			<th>Sex</th>
+			<th>Count</th>
 			<th>Effect Size</th>
 			<th>pValue</th>
 		<%-- <th>${tables[loop.count-1].xAxisCategories[1]}</th><th>${tables[loop.count-1].xAxisCategories[2]}</th> --%>
@@ -142,7 +139,13 @@
 												<%-- <td>${statsObject.sexType}</td> --%>
 												<td>${statsObject.mean}</td>
 												<td>${statsObject.sd}</td>
-												<td>${statsObject.sampleSizeFemale} / ${statsObject.sampleSizeMale}</td>
+												<td><c:choose><c:when test="${statsObject.sexType eq 'female'}"><img style="cursor:help;color:#D6247D;" rel="tooltip" data-placement="top" title="Female" alt="Female" src="${baseUrl}/img/icon-female.png" /></c:when><c:otherwise><img style="cursor:help;color:#247DD6;" rel="tooltip" data-placement="top" title="Male" alt="Male" src="${baseUrl}/img/icon-male.png" /></c:otherwise></c:choose></td>
+												<c:if test="${statsObject.sexType eq 'female'}">
+												<td>${statsObject.sampleSizeFemale}</td>
+												</c:if>
+												<c:if test="${statsObject.sexType eq 'male'}">
+												<td>${statsObject.sampleSizeMale}</td>
+												</c:if>
 												<td>${statsObject.result.effectSize}</td>
 												<td>${statsObject.result.pValue}</td>
 												</tr>
