@@ -415,9 +415,12 @@ public class ExperimentDTO {
 			maleControls = new HashSet<ObservationDTO>();
 			for (ObservationDTO control : this.getControls()) {
 
-				if (sex.equals(SexType.female)) {
+				System.out.println("Sex is "+SexType.valueOf(control.getSex()));
+				if (SexType.valueOf(control.getSex()).equals(SexType.female)) {
+					System.out.println("Adding as "+SexType.female);
 					femaleControls.add(control);
 				} else {
+					System.out.println("Adding as "+SexType.male);
 					maleControls.add(control);
 				}
 			}
