@@ -379,7 +379,7 @@ public class ExperimentDTO {
 	}
 
 
-	public Set<String> getCatagories() {
+	public Set<String> getCategories() {
 		Set<String> categorieSet=new TreeSet<String>();
 		for(ObservationDTO ob: controls) {
 			categorieSet.add(ob.getCategory());
@@ -431,17 +431,17 @@ public class ExperimentDTO {
 }
 
 	public Set<ObservationDTO> getMutants(SexType sex, ZygosityType zyg) {
-		Set<ObservationDTO> mutantsDtos;
-		Set<ObservationDTO> mutantDtosForSex=new HashSet<ObservationDTO>();
-		if (zyg.equals(ZygosityType.homozygote)) {
+		Set<ObservationDTO> mutantsDtos = new HashSet<ObservationDTO>();
+		Set<ObservationDTO> mutantDtosForSex = new HashSet<ObservationDTO>();
+		if (zyg == null || zyg.equals(ZygosityType.homozygote)) {
 			mutantsDtos = this.getHomozygoteMutants();
-		} else {
+		} 
+		if (zyg == null || zyg.equals(ZygosityType.heterozygote)){
 			mutantsDtos = this.getHeterozygoteMutants();
 		}
 
 		for (ObservationDTO mutant : mutantsDtos) {
-
-			if (sex.equals(SexType.valueOf(mutant.getSex()))) {
+			if (sex == null || sex.equals(SexType.valueOf(mutant.getSex()))) {
 				mutantDtosForSex.add(mutant);
 			} 
 		}
