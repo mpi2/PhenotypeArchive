@@ -53,13 +53,15 @@
 									<td>${phenotype.description}</td>
 								</tr>
 								</c:if>
-								<c:if test="${not empty phenotype.synonyms}">
+								<c:if test="${not empty synonyms}">
 								<tr>
-									<td>Synonym:</td>
+									<td>Synonyms:</td>
 									<td>
 										<ul>
-										<c:forEach var="synonym" items="${phenotype.synonyms}" varStatus="loop">
-										<li>${synonym.symbol}</li>
+										<c:forEach var="synonym" items="${synonyms}" varStatus="loop">${synonym.symbol}<c:if test="${!loop.last}"><br /></c:if>
+											<c:if test="${loop.count==3 && fn:length(synonyms)>2}"><a data-toggle="collapse" data-target="#other_synonyms" href="#">+...</a><div id="other_synonyms" class="collapse"></c:if>
+											<c:if test="${loop.last && fn:length(synonyms) >3}"></div></c:if>
+								
 										</c:forEach>
 										</ul>
 									</td>
@@ -98,7 +100,7 @@
 					</div>
 			
 				<%-- There must not be any spaces --%>
-				<div class="container span5" id="ovRight">
+				<div class="container span5">
 				<c:choose>
 	    				<c:when test="${not empty exampleImages}">
 		      				<div class="row-fluid">
@@ -107,7 +109,7 @@
 									Control
 	   							</div>
 	   							<div class="container span6">
-	   								<img src="${mediaBaseUrl}/${exampleImages.experimental.smallThumbnailFilePath}" />
+	   								<img src="getSolrInstance/${exampleImages.experimental.smallThumbnailFilePath}" />
 	   								<c:forEach var="sangerSymbol" items="${exampleImages.experimental.sangerSymbol}" varStatus="symbolStatus">
 										<c:if test="${not empty exampleImages.experimental.sangerSymbol}">
 											<t:formatAllele>${sangerSymbol}</t:formatAllele><br />
@@ -122,12 +124,34 @@
 							</c:if>
 	    				</c:otherwise>
 				</c:choose>
+			
 		
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
+	
+	<c:if test="${genePercentage.getDisplay()}">
+	<div class="row-fluid dataset">	
+		<div class='documentation'>
+			<a href='' class='phenotypeStatsPanel'><img	src="${baseUrl}/img/info_20x20.png" /></a>
+		</div>
+		
+	  <h4 class="caption">Phenotype associations stats</h4>
+		
+		<div class="half">
+			<p> <span class="bigPercent">${genePercentage.getTotalPercentage()}%</span> of the EuroPhenome tested genes have a phenotype association to ${phenotype.name} 
+			(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
+			<p>&nbsp;&nbsp;&nbsp; <b>${genePercentage.getFemalePercentage()}%</b> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </p>
+			<p>&nbsp;&nbsp;&nbsp; <b>${genePercentage.getMalePercentage()}%</b> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</p>
+		</div>
+		
+		<div class="half container span5"  id="ovRight">
+		</div>
+		
+	</div>
+	</c:if>
 	
 <div class="row-fluid dataset">
 

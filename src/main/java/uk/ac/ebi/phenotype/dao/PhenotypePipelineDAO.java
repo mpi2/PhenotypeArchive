@@ -86,7 +86,6 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	public void saveParameterOption(ParameterOption parameterOption);
 	public void saveParameterIncrement(ParameterIncrement parameterIncrement);
 	public void saveParameterOntologyAnnotation(ParameterOntologyAnnotation parameterOntologyAnnotation);
-	
 	/**
 	 * Delete phenotype pipelines from a specific datasource;
 	 * Status: experimental
@@ -94,6 +93,7 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	 */
 	public void deleteAllPipelinesByDatasource(Datasource datasource);
 
+	public List<String> getParameterStableIdsByPhenotypeTerm(String mpTermId);
 	public Parameter getParameterById(Integer parameterId);
 	public Set<Parameter> getAllCategoricalParametersForProcessing() throws SQLException;
 	public Set<Parameter> getAllUnidimensionalParametersForProcessing() throws SQLException;

@@ -8,11 +8,7 @@
     <c:if test="${ not loop.last}">,</c:if>
 	</c:forEach>Statistics for ${gene.symbol} </jsp:attribute>
 
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
-			href="${baseUrl}/search#sort=marker_symbol asc&q=*:*&core=gene">Genes</a> <c:if
-			test="${not empty gene.subtype.name }">&raquo; <a
-				href='${baseUrl}/search#fq=marker_type:"${gene.subtype.name}"&q=*:*&core=gene'>${gene.subtype.name}</a>
-		</c:if> &raquo; ${gene.symbol}</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; Statistics &raquo; <a href='${baseUrl}/stats/genes/${gene.id.accession}'>${gene.symbol}</a></jsp:attribute>
 
 	<jsp:attribute name="header">
 
@@ -69,7 +65,7 @@
 		</c:if>
 		<c:if test="${noData}">
 					<div class="alert alert-error">
-						<strong>We don't appear to have any data for this query plese try the europhenome graph link instead</strong>
+						<strong>We don't appear to have any data for this query please try the europhenome graph link instead</strong>
 					</div>
 		</c:if>
 	

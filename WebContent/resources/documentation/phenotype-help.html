@@ -38,6 +38,7 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 			<li><a href="phenotype-help.html">Phenotypes</a> 
 			<ul>
 						<li><a href="phenotype-help.html#details">Phenotype details</a></li>
+						<li><a href="phenotype-help.html#phenotype-stats-panel">Phenotype stats</a></li>
 						<li><a href="phenotype-help.html#associations">Gene-Phenotype associations</a>
 							<ul>
 								<li><a href="phenotype-help.html#dvi">Direct vs. inferred associations</a></li>
@@ -72,7 +73,11 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 				<img class="well" src="img/phenotype-information.png"/>
 				</figure>
 				
-				
+				<h3><a name="phenotype-stats-panel" href='#'>Phenotype stats</a></h3>
+				<p> The percentage of genes associated to the current phenotype in one sex only, say females is the number of genes associated to phenotypeX in 
+				females divided by the total number of genes tested in females for parameters potentially leading to phenotypeX associations. Thus, the percent 
+				values we show for females and males do not have to add up to 1 nor do the percentages for males/females only need to be smaller than the combined percentage.</p>
+				<p> The data used for this panel is restricted to EuroPhenome data on B6N and B6NTac strains, to reduce background noise. </p> 				
 			<h3><a name="associations" href='#'>Gene-Phenotype associations</a></h3>
 			
 			<p>All gene variants associated with the current phenotype are shown in a table similar to the one on the gene page. The table contains several fields of interest such 
