@@ -43,6 +43,9 @@
         <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
             <property name="dataSource" ref="phenodigmDataSource" />
         </bean>
+        
+        <bean id="phenoDigmDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmDaoJdbcImpl"/>
+            
 	<!-- Weaves in transactional advice around @Transactional methods -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
