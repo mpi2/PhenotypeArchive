@@ -564,7 +564,7 @@ public class ObservationService {
 		return organisations;
 	}
 
-	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationStrainZygositySex(Integer parameterId, Integer organisationId, String strain, String zygosity, String sex) throws SolrServerException {
+	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationIdStrainZygositySex(Integer parameterId, Integer organisationId, String strain, String zygosity, String sex) throws SolrServerException {
 		Set<String> genes = new HashSet<String>();
 
 		SolrQuery query = new SolrQuery()
