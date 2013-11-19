@@ -204,12 +204,22 @@ public class ObservationDTO {
 
 	@Override
 	public String toString() {
-		return "id=" + id + ", parameterId="
-			+ parameterId + ", organisationId=" + organisationId
-			+ ", biologicalModelId=" + biologicalModelId + ", zygosity="
-			+ zygosity + ", sex=" + sex + ", group=" + group
-			+ ", colonyId=" + colonyId + ", dataPoint=" + dataPoint
-			+ ", dateOfExperiment=" + dateOfExperiment;
+		return "id=" + id 
+			+ ", parameterId=" + parameterId 
+			+ ", organisationId=" + organisationId
+			+ ", biologicalModelId=" + biologicalModelId 
+			+ ", zygosity=" + zygosity 
+			+ ", sex=" + sex 
+			+ ", group=" + group
+			+ ", colonyId=" + colonyId 
+			+ ", dataPoint=" + dataPoint 
+			+ ", category=" + category
+			+ ", dateOfExperiment=" + dateOfExperiment 
+			+ ", orderIndex=" + orderIndex
+			+ ", dimension=" + dimension
+			+ ", timePoint=" + timePoint
+			+ ", discretePoint=" + discretePoint
+			+ ", externalSampleId=" + externalSampleId;
 	}
 
 	/**
