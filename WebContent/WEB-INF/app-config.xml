@@ -23,7 +23,7 @@
 	</bean>
 
 	<context:component-scan base-package="uk.ac.ebi" />
-	<context:component-scan base-package="uk.ac.sanger" />
+	<context:component-scan base-package="uk.ac.sanger.phenodigm2.controller" />
 
 	<context:annotation-config />
 
@@ -37,14 +37,14 @@
 
 	<!--  Get the datasources from the JNDI container -->
 	<jee:jndi-lookup id="komp2DataSource" jndi-name="java:comp/env/jdbc/komp2DataSource" expected-type="javax.sql.DataSource" />
-        <jee:jndi-lookup id="phenodigmDataSource" jndi-name="java:comp/env/jdbc/phenodigmDataSource" expected-type="javax.sql.DataSource" />
+    <jee:jndi-lookup id="phenodigmDataSource" jndi-name="java:comp/env/jdbc/phenodigmDataSource" expected-type="javax.sql.DataSource" />
 
-        <!-- Provide the jdbcTemplate for the phenodigmDataSource--> 
-        <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-            <property name="dataSource" ref="phenodigmDataSource" />
-        </bean>
-        
-        <!-- bean id="phenoDigmDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmDaoJdbcImpl"/-->
+    <!-- Provide the jdbcTemplate for the phenodigmDataSource--> 
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="phenodigmDataSource" />
+    </bean>
+    
+	<bean id="phenoDigmDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmDaoJdbcImpl"/>
             
 	<!-- Weaves in transactional advice around @Transactional methods -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
