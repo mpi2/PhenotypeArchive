@@ -37,15 +37,17 @@
 
 	<!--  Get the datasources from the JNDI container -->
 	<jee:jndi-lookup id="komp2DataSource" jndi-name="java:comp/env/jdbc/komp2DataSource" expected-type="javax.sql.DataSource" />
-    <jee:jndi-lookup id="phenodigmDataSource" jndi-name="java:comp/env/jdbc/phenodigmDataSource" expected-type="javax.sql.DataSource" />
+        <jee:jndi-lookup id="phenodigmDataSource" jndi-name="java:comp/env/jdbc/phenodigmDataSource" expected-type="javax.sql.DataSource" />
 
-    <!-- Provide the jdbcTemplate for the phenodigmDataSource--> 
-    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-        <property name="dataSource" ref="phenodigmDataSource" />
-    </bean>
+        <!-- Provide the jdbcTemplate for the phenodigmDataSource--> 
+        <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+            <property name="dataSource" ref="phenodigmDataSource" />
+        </bean>
     
-	<bean id="phenoDigmDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmDaoJdbcImpl"/>
-            
+	<!--<bean id="phenoDigmDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmDaoJdbcImpl" init-method="setUpCaches"/>-->
+        <!--this is the DAO implementation we are looking for...-->
+        <bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoJdbcImpl"/>     
+    
 	<!-- Weaves in transactional advice around @Transactional methods -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
