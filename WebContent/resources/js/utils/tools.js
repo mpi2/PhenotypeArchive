@@ -147,8 +147,7 @@
 		}
     	
     	// update hash tag so that we know there is hash change, which then triggers loadDataTable
-    	if (q == '*:*'){
-    		console.log(fqStr);
+    	if (q == '*:*'){    		
     		window.location.hash = 'q=' + q + '&fq=' + fqStr + '&core=' + facet;
     	}
     	else {
