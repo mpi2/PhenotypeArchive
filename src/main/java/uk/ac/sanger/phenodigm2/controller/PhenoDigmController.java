@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,31 +29,17 @@ import uk.ac.sanger.phenodigm2.web.DiseaseGeneAssociationDetail;
  */
 @Controller
 public class PhenoDigmController {
-    @Resource(name="globalConfiguration")
-    private Map<String, String> config;
   
     private static final Logger logger = LoggerFactory.getLogger(PhenoDigmController.class);
 
     @Autowired
     private PhenoDigmWebDao phenoDigmDao;
-    
-    @RequestMapping(value = "")
-    public String home(Model model) {
-
-        return "home";
-    }
-    
-    @RequestMapping(value = "/home")
-    public String altHome(Model model) {
-
-        return "home";
-    }
-    
+      
     //AJAX method
-    @RequestMapping(value="/diseaseGeneAssociations", method=RequestMethod.GET)
-    public ModelAndView getPhenotypes(@RequestParam String requestPageType, @RequestParam String diseaseId, @RequestParam String geneId, Model model) {
+    @RequestMapping(value="/phenodigm/diseaseGeneAssociations", method=RequestMethod.GET)
+    public String getPhenotypes(@RequestParam String requestPageType, @RequestParam String diseaseId, @RequestParam String geneId, Model model) {
         
-//        logger.info("AJAX call for {} {} from {} page", diseaseId, geneId, requestPageType);
+        logger.info(String.format("AJAX call for %s %s from %s page", diseaseId, geneId, requestPageType));
         model.addAttribute("requestPageType", requestPageType);
         
         DiseaseGeneAssociationDetail details = phenoDigmDao.getDiseaseGeneAssociationDetail(new DiseaseIdentifier(diseaseId), new GeneIdentifier(geneId, geneId));
@@ -89,6 +73,6 @@ public class PhenoDigmController {
         model.addAttribute("literatureAssociations", literatureAssociations);
         model.addAttribute("phenotypicAssociations", phenotypicAssociations);
 
-        return new ModelAndView("diseaseGeneAssociationDetails");
+        return "phenodigm/diseaseGeneAssociationDetails";
     }
 }

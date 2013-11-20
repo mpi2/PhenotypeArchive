@@ -33,7 +33,7 @@
                 var requestPageType = $(targetRow).attr("requestpagetype");
                 console.log(requestPageType + " page getDiseaseAssociations for: " + geneId + " " + diseaseId);
 
-                var uri = "/phenodigm2/diseaseGeneAssociations";
+                var uri = "${baseUrl}/phenodigm/diseaseGeneAssociations";
                 $.get(uri, {
                     geneId: geneId,
                     diseaseId: diseaseId,
