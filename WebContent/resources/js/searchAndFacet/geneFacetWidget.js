@@ -61,7 +61,7 @@
 						else {		
 							// if there is selected subfacets: work out the url							
 							if ( self.options.data.core != oHashParams.coreName ){															
-												
+							
 								var fqFieldVals = {};
 								
 								caller.find('table#geneFacetTbl td.highlight').each(function(){									
@@ -332,47 +332,8 @@
 	    			}
 	    		});	    		    		
 	    			    		
-	    		/****$('table#geneFacetTbl td.geneSubfacetCount a').click(function(){
-	    			console.log('click subfacet count');   			
-	    			
-	    			// also remove all filters for that facet container	
-	    			$.fn.removeFacetFilter('gene');
-	    			// now update filter
-	    			$.fn.addFacetFilter($(this).parent().parent().find('input'), self.options.data.q); 	        			
-	    			
-	    			// uncheck all facet filter checkboxes 
-	    			$('table#geneFacetTbl input').attr('checked', false);
-	    			// now check this checkbox
-	    			$(this).parent().parent().find('input').attr('checked', true);
-	    			
-	    			// remove all highlight
-	    			$('table#geneFacetTbl td.geneSubfacet').removeClass('highlight');
-	    			// now highlight this one
-	    			$(this).parent().parent().find('td.geneSubfacet').addClass('highlight');
-		    			        			
-	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable	  	    			
-		    		var fqStr = $(this).attr('class') + ':"' + $(this).attr('rel') + '"';
-		    		
-		    		if ( $(this).attr('class') == 'phenotyping_center' ){
-		    			//fqStr = '(' + $(this).attr('class') + ':"' + $(this).attr('rel') + '" AND production_center:*)';
-		    			fqStr = $(this).attr('class') + ':"' + $(this).attr('rel') + '" AND production_center:*';
-		    		}
-		    		else if ( $(this).attr('class') == 'production_center' ){
-		    			//fqStr = '(' + $(this).attr('class') + ':"' + $(this).attr('rel') + '")';
-		    			fqStr = $(this).attr('class') + ':"' + $(this).attr('rel') + '"';
-		    		}		    		
-		    		
-		    		if (self.options.data.q == '*:*'){
-		    			window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=gene';
-		    		}
-		    		else {
-		    			window.location.hash = 'fq=' + fqStr + '&core=gene';
-		    		}
-	    		}); */
-	    		
 	    		$('table#geneFacetTbl td.geneSubfacetCount a').click(function(){
-	    			console.log('click subfacet count');   			
-	    			
+	    		
 	    			// also remove all filters for that facet container	
 	    			$.fn.removeFacetFilter('gene');
 	    			// now update filter
@@ -390,9 +351,6 @@
 		    			        			
 	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable	  	    			
 		    		var fqStr = $(this).attr('class') + ':"' + $(this).attr('rel') + '"';
-		    		console.log(fqStr);
-		    		// query mega core and update all facets
-		    		$.fn.updateAllFacets(self.options.data.q, 'gene');
 		    		
 		    		/*if ( $(this).attr('class') == 'phenotyping_center' ){
 		    			//fqStr = '(' + $(this).attr('class') + ':"' + $(this).attr('rel') + '" AND production_center:*)';
@@ -404,10 +362,10 @@
 		    		}*/		    		
 		    		
 		    		if (self.options.data.q == '*:*'){
-		    			//window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=gene';
+		    			window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=gene';
 		    		}
 		    		else {
-		    			//window.location.hash = 'fq=' + fqStr + '&core=gene';
+		    			window.location.hash = 'fq=' + fqStr + '&core=gene';
 		    		}
 	    		});  
 	    		$('table#geneFacetTbl input').click(function(){

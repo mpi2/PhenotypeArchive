@@ -22,7 +22,7 @@
     $.widget('MPI2.mpFacet', {
         
 	    options: {},	
-     /*
+     
     	_create: function(){
     		// execute only once 	
     		var self = this;	
@@ -87,8 +87,8 @@
 						}	
 					}	
 				}	
-			});	*/
-		_create: function(){
+			});	
+		/*_create: function(){
     		// execute only once 	
     		var self = this;	
     		var facetDivId = self.element.attr('id');
@@ -119,12 +119,13 @@
 						currHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq; //default
 									
 						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-					
-						console.log('expand');
-						$.fn.updateAllFacets(self.options.data.q, 'mp');
+						// update facet count when necessary
+		    			if ( $('ul#facetFilter li li a').size() != 0 ){
+		    				$.fn.fetchQueryResult(self.options.data.q, 'mp);
+		    			}							
 					}	
 				}	
-			});											
+			});	*/										
 			// click on SUM facetCount to fetch results in grid											
 			caller.find('span.facetCount').click(function(){
 				
@@ -202,7 +203,13 @@
 	        			
 	    	    	}    	
 	    	    	
-	    			self._displayOntologyFacet(json, 'mpFacet', table);	    			    			
+	    			self._displayOntologyFacet(json, 'mpFacet', table);	 
+	    			
+	    			// update facet count when necessary
+	    			if ( $('ul#facetFilter li li a').size() != 0 ){
+	    				$.fn.fetchQueryResult(self.options.data.q, 'mp');
+	    			}	
+	    			
 	    		}		
 	    	});		    	
 	    },

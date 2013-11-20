@@ -103,7 +103,7 @@ for ( var i=0; i<megaFacetFields.length; i++){
 }
 config.mega = {};
 config.mega.facetParams = "&facet=on&facet.limit=-1&facet.mincount=1" + facetFieldsStr;
-console.log(config.mega.facetParams);
+//console.log(config.mega.facetParams);
 //config.solrBaseURL_bytemark = 'http://dev.mousephenotype.org/bytemark/solr/';
 config.solrBaseURL_bytemark = solrUrl + '/';
 config.solrBaseURL_ebi = solrUrl + '/';
