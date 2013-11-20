@@ -87,7 +87,13 @@
 			
 			var val;
 			if ( fqField == 'top_level_mp_term' || fqField == 'annotated_or_inferred_higherLevelMpTermName' ) {
-				val = aVals[2] + ' phenotype';				
+				if ( aVals[2] == 'mortality/aging' ){ 
+					// due to MP term name not having a trailing phenotype for this term!
+					val = aVals[2];
+				}
+				else {
+					val = aVals[2] + ' phenotype';
+				}
 				fqFieldVals[fqField].push(fqFieldOri + ':"' + val + '"');
 			}
 			else if ( fqField == 'procedure_stable_id' ){
@@ -142,6 +148,7 @@
     	
     	// update hash tag so that we know there is hash change, which then triggers loadDataTable
     	if (q == '*:*'){
+    		console.log(fqStr);
     		window.location.hash = 'q=' + q + '&fq=' + fqStr + '&core=' + facet;
     	}
     	else {
