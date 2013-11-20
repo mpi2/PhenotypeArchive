@@ -76,8 +76,7 @@
 			var linkTxt = $(this).text().replace(' ', '');
 			var aVals = $(this).attr('rel').split("|");		
 			var fqField = aVals[1];
-				
-			console.log(fqField);
+						
 			// fq filter used for solr query
 			var fqFieldOri = fqField;
 			fqField = fqField.indexOf('imits_phenotype') != -1 ? 'imits_phenotype' : fqField;
@@ -87,7 +86,13 @@
 			
 			var val;
 			if ( fqField == 'top_level_mp_term' || fqField == 'annotated_or_inferred_higherLevelMpTermName' ) {
-				val = aVals[2] + ' phenotype';				
+				if ( aVals[2] == 'mortality/aging' ){ 
+					// due to MP term name not having a trailing phenotype for this term!
+					val = aVals[2];
+				}
+				else {
+					val = aVals[2] + ' phenotype';
+				}
 				fqFieldVals[fqField].push(fqFieldOri + ':"' + val + '"');
 			}
 			else if ( fqField == 'procedure_stable_id' ){
@@ -130,7 +135,7 @@
 		});
 		
 		var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
-		console.log(fqStr);
+		
 		var facetDivId = facet+'Facet';
 
     	if ( facetDivId == 'maFacet' ||  facetDivId == 'mpFacet' ){
@@ -141,7 +146,7 @@
 		}
     	
     	// update hash tag so that we know there is hash change, which then triggers loadDataTable
-    	if (q == '*:*'){
+    	if (q == '*:*'){    		
     		window.location.hash = 'q=' + q + '&fq=' + fqStr + '&core=' + facet;
     	}
     	else {

@@ -18,12 +18,38 @@
     </jsp:attribute>
 
     <jsp:body>
-        
+
         <script src="https://www.mousephenotype.org/js/general/toggle.js"></script>
         <script type="text/javascript" charset="utf-8" src="${baseUrl}/js/vendor/DataTables-1.9.4/jquery.dataTables.min.js"></script>
         <script type="text/javascript" charset="utf-8" src="${baseUrl}/js/vendor/jquery-1.7.2.min.js"></script>
         <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
-        
+
+        <script type="text/javascript">
+            function getDiseaseAssociations(targetRowId) {
+                //                alert(targetRowId);
+                var targetRow = $('#' + targetRowId);
+                var geneId = $(targetRow).attr("geneid");
+                var diseaseId = $(targetRow).attr("diseaseid");
+                var requestPageType = $(targetRow).attr("requestpagetype");
+                console.log(requestPageType + " page getDiseaseAssociations for: " + geneId + " " + diseaseId);
+
+                var uri = "${baseUrl}/phenodigm/diseaseGeneAssociations";
+                $.get(uri, {
+                    geneId: geneId,
+                    diseaseId: diseaseId,
+                    requestPageType: requestPageType
+                }, function(response) {
+                    console.log(response);
+                    //${disease.diseaseId}_${mouseGeneIdentifier.compoundIdentifier}
+                    var id = "#" + geneId + "_" + diseaseId;
+                    console.log("Searching for id:" + id);
+                    $(targetRow).html(response);
+
+                });
+            }
+            ;
+        </script>
+
         <script type="text/javascript">
             $(document).ready(function() {
                 $("#phenotypes tr:odd").addClass("odd");
@@ -33,6 +59,9 @@
                 $("#phenotypes tr.odd").click(function() {
                     $(this).next("tr").toggle();
                     $(this).find(".arrow").toggleClass("up");
+                    if ($(this).next("tr").find("td").length === 0) {
+                        getDiseaseAssociations($(this).attr("targetRowId"));
+                    }
                 });
                 //$("#report").jExpand();
             });
@@ -46,159 +75,144 @@
                 $("#predictedPhenotypes tr.odd").click(function() {
                     $(this).next("tr").toggle();
                     $(this).find(".arrow").toggleClass("up");
+                    if ($(this).next("tr").find("td").length === 0) {
+                        getDiseaseAssociations($(this).attr("targetRowId"));
+                    }
                 });
-                //$("#report").jExpand();
             });
         </script>
-    
+
         <div class='topic'>Disease Associations for <a href="https://www.mousephenotype.org/data/genes/${geneIdentifier.databaseCode}:${geneIdentifier.databaseAcc}">${geneIdentifier.geneSymbol}</a> (human ortholog <a href="http://www.genenames.org/data/hgnc_data.php?hgnc_id=${humanOrtholog.databaseAcc}">${humanOrtholog.geneSymbol}</a>)</div>
-        
-            <div class="row-fluid dataset">
-                <div class="container span12">
-                    <h4 class="topic">Curated Disease Associations <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a></h4>
-                        The following diseases are associated with ${geneIdentifier.geneSymbol} from external resources*
-                    <table id="phenotypes" class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Disease Name</th>
-                                <th>Source</th>
-                                <th>Associated in Human</th>
-                                <th>Mouse Literature Evidence (MGI)</th>
-                                <th>Mouse Phenotype Evidence (Phenodigm)</th>
-                                <th></th>
-                            </tr>
-                        </thead>                        
-                        <tbody> 
-                            <c:forEach var="association" items="${curatedAssociations}" varStatus="loop">
-                                <c:set var="disease" value="${association.disease}"></c:set>
-                                <tr>
-                                    <!--Disease Name-->
-                                    <td><a href="../disease/${disease.diseaseId}">${disease.term}</a></td>
-                                    <!--Source-->
-                                    <td><a href="http://omim.org/entry/${disease.diseaseIdentifier.databaseAcc}">${disease.diseaseId}</a></td>
-                                    <!--Associated in Human --> 
-                                    <td>
-                                        <c:if test="${association.associatedInHuman}">Yes</c:if>
-                                    </td>                                    
-                                    <!--Mouse Literature Evidence (MGI)-->
-                                    <td><c:if test="${association.hasLiteratureEvidence}">Yes</c:if></td>
-                                    <!--Mouse Phenotype Evidence (Phenodigm)-->
-                                    <td>
-                                        <b style="color:#FF9000">${association.bestScore}</b>   
-                                    </td>
-                                    <td><img style="cursor:help;color:#D6247D;" rel="tooltip" data-placement="top" title="Click anywhere on row display phenotype terms" alt="Click row to display phenotype terms" src="${baseUrl}/img/plus.gif" /></td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <h5>${disease.diseaseId} Disease Phenotype Terms</h5>
-                                        <c:forEach var="hpTerm" items="${disease.phenotypeTerms}">
-                                            ${hpTerm.name}<br>
-                                        </c:forEach>
-                                    </td>
-                                    <td></td>
-                                    <td colspan="5">
-                                        <c:if test="${not empty association.curatedAssociations}">
-                                            <h5>${disease.diseaseId} Associated Mouse Models (MGI curated)</h5>
-                                            <c:forEach var="diseaseAssociation" items="${association.curatedAssociations}" varStatus="loop">
-                                                <c:set var="mouseModel" value="${diseaseAssociation.mouseModel}"></c:set>
-                                                <b style="color:#FF9000">${diseaseAssociation.modelToDiseaseScore}</b>: ${mouseModel.allelicCompositionLink} ${mouseModel.geneticBackground} (Source: MGI curation)</br>
-                                                <c:forEach var="phenotypeTerm" items="${mouseModel.phenotypeTerms}">
-                                                    ${phenotypeTerm.name}<br>
-                                                </c:forEach>
-                                                    <br/>
-                                            </c:forEach>
-                                        </c:if>
-                                        <c:if test="${not empty association.phenotypicAssociations}">
-                                            <h5>${disease.diseaseId} Associated Mouse Models (PhenoDigm predicted)</h5>
-                                            <c:forEach var="diseaseAssociation" items="${association.phenotypicAssociations}" varStatus="loop">
-                                                <c:set var="mouseModel" value="${diseaseAssociation.mouseModel}"></c:set>
-                                                <b style="color:#FF9000">${diseaseAssociation.modelToDiseaseScore}</b>: ${mouseModel.allelicCompositionLink} ${mouseModel.geneticBackground} (Source: ${mouseModel.source})</br>
-                                                <c:forEach var="phenotypeTerm" items="${mouseModel.phenotypeTerms}">
-                                                    ${phenotypeTerm.name}<br>
-                                                </c:forEach>
-                                                    <br/>                                        
-                                            </c:forEach>
-                                        </c:if>
-                                    </td>
-                                </tr>
-                            </c:forEach>                            
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-       
+
         <div class="row-fluid dataset">
             <div class="container span12">
-                    <h4 class="topic">Phenotypic Disease Associations <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a></h4>
-                        The following diseases are associated with ${geneIdentifier.geneSymbol} by phenotypic similarity
-                    <table id="predictedPhenotypes" class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Disease Name</th>
-                                <th>Source</th>
-                                <th>Associated in Human</th>
-                                <th>Mouse Literature Evidence (MGI)</th>
-                                <th>Mouse Phenotype Evidence (Phenodigm)</th>
-                                <th></th>
-                            </tr>
-                        </thead>                        
-                        <tbody>
-                            <c:forEach var="association" items="${phenotypeAssociations}" varStatus="loop">
-                                <c:set var="disease" value="${association.disease}"></c:set>
+                <h4 class="topic">Curated Disease Associations <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a></h4>
+                <c:choose>
+                    <c:when test="${empty curatedAssociations}">
+                        No diseases are known to be associated with ${geneIdentifier.geneSymbol} according to external resources.
+                    </c:when>
+                    <c:otherwise>
+                        The following diseases are associated with ${geneIdentifier.geneSymbol} from external resources*
+                        <table id="phenotypes" class="table table-striped">
+                            <thead>
                                 <tr>
-                                    <!--Disease Name-->
-                                    <td><a href="../disease/${disease.diseaseId}">${disease.term}</a></td>
-                                    <!--Source-->
-                                    <td><a href="http://omim.org/entry/${disease.diseaseIdentifier.databaseAcc}">${disease.diseaseId}</a></td>
-                                    <!--Associated in Human --> 
-                                    <td>
-                                        <c:if test="${association.associatedInHuman}">Yes</c:if>
-                                    </td>                                    
-                                    <!--Mouse Literature Evidence (MGI)-->
-                                    <td><c:if test="${association.hasLiteratureEvidence}">Yes</c:if></td>
-                                    <!--Mouse Phenotype Evidence (Phenodigm)-->
-                                    <td>
-                                        <b style="color:#FF9000">${association.bestScore}</b>   
-                                    </td>
-                                    <td><img style="cursor:help;color:#D6247D;" rel="tooltip" data-placement="top" title="Click anywhere on row display phenotype terms" alt="Click row to display phenotype terms" src="${baseUrl}/img/plus.gif" /></td>
+                                    <th>Disease Name</th>
+                                    <th>Source</th>
+                                    <th>Associated in Human</th>
+                                    <th>Mouse Literature Evidence (MGI)</th>
+                                    <th>In Locus</th>
+                                    <th>MGI Mouse Phenotype Evidence (Phenodigm)</th>
+                                    <th>MGP Mouse Phenotype Evidence (Phenodigm)</th>
+                                    <th></th>
                                 </tr>
-                                <tr>
-                                    <td>
-                                        <h5>${disease.diseaseId} Disease Phenotype Terms</h5>
-                                        <c:forEach var="hpTerm" items="${disease.phenotypeTerms}">
-                                            ${hpTerm.name}<br>
-                                        </c:forEach>
-                                    </td>
-                                    <td></td>
-                                    <td colspan="5">
-                                        <c:if test="${not empty association.curatedAssociations}">
-                                            <h5>${disease.diseaseId} Associated Mouse Models (MGI curated)</h5>
-                                            <c:forEach var="diseaseAssociation" items="${association.curatedAssociations}" varStatus="loop">
-                                                <c:set var="mouseModel" value="${diseaseAssociation.mouseModel}"></c:set>
-                                                <b style="color:#FF9000">${diseaseAssociation.modelToDiseaseScore}</b>: ${mouseModel.allelicCompositionLink} ${mouseModel.geneticBackground} (Source: MGI curation)</br>
-                                                <c:forEach var="phenotypeTerm" items="${mouseModel.phenotypeTerms}">
-                                                    ${phenotypeTerm.name}<br>
-                                                </c:forEach>
-                                                    <br/>
-                                            </c:forEach>
-                                        </c:if>
-                                        <c:if test="${not empty association.phenotypicAssociations}">
-                                            <h5>${disease.diseaseId} Associated Mouse Models (PhenoDigm predicted)</h5>
-                                            <c:forEach var="diseaseAssociation" items="${association.phenotypicAssociations}" varStatus="loop">
-                                                <c:set var="mouseModel" value="${diseaseAssociation.mouseModel}"></c:set>
-                                                <b style="color:#FF9000">${diseaseAssociation.modelToDiseaseScore}</b>: ${mouseModel.allelicCompositionLink} ${mouseModel.geneticBackground} (Source: ${mouseModel.source})</br>
-                                                <c:forEach var="phenotypeTerm" items="${mouseModel.phenotypeTerms}">
-                                                    ${phenotypeTerm.name}<br>
-                                                </c:forEach>
-                                                    <br/>                                        
-                                            </c:forEach>
-                                        </c:if>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>                        
+                            <tbody> 
+                                <c:forEach var="association" items="${curatedAssociations}" varStatus="loop">
+                                    <c:set var="disease" value="${association.disease}"></c:set>
+                                    <c:set var="associationSummary" value="${association.associationSummary}"></c:set>
+                                    <tr id="${disease.diseaseIdentifier.databaseAcc}" targetRowId="${geneIdentifier.databaseAcc}_${disease.diseaseIdentifier.databaseAcc}" style="cursor:help;color:#27408B;" rel="tooltip" data-placement="top" title="Click anywhere on row display phenotype terms" alt="Click row to display phenotype terms" >
+                                        <!--Disease Name-->
+                                        <td><a href="../disease/${disease.diseaseId}">${disease.term}</a></td>
+                                        <!--Source-->
+                                        <td>
+                                            <a id="diseaseId" href="${disease.diseaseIdentifier.externalUri}">${disease.diseaseId}</a></td>
+                                        <!--Associated in Human --> 
+                                        <td>
+                                            <c:if test="${associationSummary.associatedInHuman}">Yes</c:if>
+                                            </td>  
+                                            <td>
+                                                <!--Mouse Literature Evidence (MGI) - Yes or empty-->
+                                            <c:if test="${associationSummary.hasLiteratureEvidence}">Yes</c:if>
+                                            </td>                                    
+                                            <td>
+                                            <c:if test="${associationSummary.inLocus}">
+                                                Yes
+                                            </c:if>
+                                        </td>
+                                        <!--Mouse Phenotype Evidence (Phenodigm)-->
+                                        <td>
+                                            <b style="color:#FF9000">${associationSummary.bestMgiScore}</b>   
+                                        </td>
+                                        <td>
+                                            <b style="color:#FF9000">${associationSummary.bestImpcScore}</b>   
+                                        </td>
+                                        <td class="arrow">
+                                            
+                                        </td>   
+                                    </tr>
+                                    <tr id="${geneIdentifier.databaseAcc}_${disease.diseaseIdentifier.databaseAcc}" requestpagetype= "gene" geneid="${geneIdentifier.compoundIdentifier}" diseaseid="${disease.diseaseIdentifier.compoundIdentifier}">
+                                    </tr>
+                                </c:forEach>                            
+                            </tbody>
+                        </table>
+                    </c:otherwise>
+                </c:choose>
             </div>
+        </div>
+
+        <div class="row-fluid dataset">
+            <div class="container span12">
+                <h4 class="topic">Phenotypic Disease Associations <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a></h4>
+                <c:choose>
+                    <c:when test="${empty phenotypeAssociations}">
+                        No diseases are known to be associated with ${geneIdentifier.geneSymbol} according to external resources.
+                    </c:when>
+                    <c:otherwise>
+                        The following diseases are associated with ${geneIdentifier.geneSymbol} by phenotypic similarity
+                        <table id="predictedPhenotypes" class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Disease Name</th>
+                                    <th>Source</th>
+                                    <th>Associated in Human</th>
+                                    <th>Mouse Literature Evidence (MGI)</th>
+                                    <th>In Locus</th>
+                                    <th>MGI Mouse Phenotype Evidence (Phenodigm)</th>
+                                    <th>MGP Mouse Phenotype Evidence (Phenodigm)</th>
+                                    <th></th>
+                                </tr>
+                            </thead>                        
+                            <tbody>
+                                <c:forEach var="association" items="${phenotypeAssociations}" varStatus="loop">
+                                    <c:set var="disease" value="${association.disease}"></c:set>
+                                    <c:set var="associationSummary" value="${association.associationSummary}"></c:set>
+                                    <tr id="${disease.diseaseIdentifier.databaseAcc}" targetRowId="P${geneIdentifier.databaseAcc}_${disease.diseaseIdentifier.databaseAcc}" style="cursor:help;color:#27408B;" rel="tooltip" data-placement="top" title="Click anywhere on row display phenotype terms" alt="Click row to display phenotype terms" >
+                                        <!--Disease Name-->
+                                        <td><a href="../disease/${disease.diseaseId}">${disease.term}</a></td>
+                                        <!--Source-->
+                                        <td><a href="${disease.diseaseIdentifier.externalUri}">${disease.diseaseId}</a></td>
+                                        <!--Associated in Human --> 
+                                        <td>
+                                            <c:if test="${associationSummary.associatedInHuman}">Yes</c:if>
+                                            </td>  
+                                            <td>
+                                                <!--Mouse Literature Evidence (MGI) - Yes or empty-->
+                                            <c:if test="${associationSummary.hasLiteratureEvidence}">Yes</c:if>
+                                            </td>                                    
+                                            <td>
+                                            <c:if test="${associationSummary.inLocus}">
+                                                Yes
+                                            </c:if>
+                                        </td>
+                                        <!--Mouse Phenotype Evidence (Phenodigm)-->
+                                        <td>
+                                            <b style="color:#FF9000">${associationSummary.bestMgiScore}</b>   
+                                        </td>
+                                        <td>
+                                            <b style="color:#FF9000">${associationSummary.bestImpcScore}</b>   
+                                        </td>
+                                        <td class="arrow">
+                                    
+                                        </td>   
+                                    </tr>
+                                    <tr id="P${geneIdentifier.databaseAcc}_${disease.diseaseIdentifier.databaseAcc}" requestpagetype= "gene" geneid="${geneIdentifier.compoundIdentifier}" diseaseid="${disease.diseaseIdentifier.compoundIdentifier}">
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
     </jsp:body>
 </t:genericpage>
