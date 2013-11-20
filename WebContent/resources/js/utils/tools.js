@@ -21,10 +21,98 @@
  * Author: Chao-Kung Chen
  */
 (function($){		
+	$.fn.updateAllFacets = function(q, facet){
+		console.log($("ul#facetFilter li ul").size());
+		
+		var fqStr = compose_solr_facetFilter2(q);
+		console.log('fqStr: '+ fqStr);		
+		var paramStr = 'q=' + q + '&fq=' + fqStr + '&wt=json' + MPI2.searchAndFacetConfig.mega.facetParams;
+		console.log('paramStr: '+ paramStr);
+		$.ajax({ 	
+			//'url': solrUrl + '/mega/select',
+    		'url': 'http://localhost:8983/solr/mega/select',
+    		'data': paramStr,
+    		'dataType': 'jsonp',
+    		'jsonp': 'json.wrf',
+    		'success': function(json) {
+    			console.log(json);	
+    			var oFacets = json.facet_counts.facet_fields;
+    			setFacetCounts(oFacets);
+    			/*var geneCount = $.fn.getUnique(oFacets.mgi_accession_id).length - 1;
+    			
+    			$('div#geneFacet span.facetCount').text(geneCount);    			
+    			console.log(oFacets.status);
+    			for (var i=0; i<oFacets.status.length; i=i+2){
+    				console.log(oFacets.status[i] + oFacets.status[i+1]);
+    			}*/
+    			
+    		}		
+    	});	
+	}	
+	
+	function setFacetCounts(oFacets){
+		
+		// refresh gene facet
+		var geneCount = $.fn.getUnique(oFacets.mgi_accession_id).length - 1;
+	
+		$('div#geneFacet span.facetCount').text(geneCount);    			
+		console.log(oFacets.status);
+		
+		$('table#geneFacetTbl td.geneSubfacetCount').each(function(){
+				$(this).find('a').text('0');
+		})			
+			
+		for (var i=0; i<oFacets.status.length; i=i+2){
+			console.log(oFacets.status[i] + oFacets.status[i+1]);
+			var subFacetName = oFacets.status[i];
+			$('table#geneFacetTbl td.geneSubfacetCount a[rel="' + subFacetName + '"]').text(oFacets.status[i+1]);
+		}	
+		for (var i=0; i<oFacets.marker_type.length; i=i+2){
+			console.log(oFacets.marker_type[i] + oFacets.marker_type[i+1]);
+			var subFacetName = oFacets.marker_type[i];
+			$('table#geneFacetTbl td.geneSubfacetCount a[rel="' + subFacetName + '"]').text(oFacets.marker_type[i+1]);
+		}
+		for (var i=0; i<oFacets.imits_phenotype_complete.length; i=i+2){
+			if (oFacets.imits_phenotype_complete[i] == '1'){
+				$('table#geneFacetTbl td.geneSubfacetCount a[class="imits_phenotype_complete"]').text(oFacets.imits_phenotype_complete[i+1]);
+			}
+		}
+		for (var i=0; i<oFacets.imits_phenotype_started.length; i=i+2){
+			if (oFacets.imits_phenotype_started[i] == '1'){
+				$('table#geneFacetTbl td.geneSubfacetCount a[class="imits_phenotype_started"]').text(oFacets.imits_phenotype_started[i+1]);
+			}
+		}
+		for (var i=0; i<oFacets.imits_phenotype_status.length; i=i+2){
+			console.log('***** '+ oFacets.imits_phenotype_status[i]);
+			if (oFacets.imits_phenotype_status[i] == 'Phenotype Attempt Registered'){
+				console.log('//// '+ oFacets.imits_phenotype_status[i]);
+				console.log('//// '+ oFacets.imits_phenotype_status[i+1]);
+				$('table#geneFacetTbl td.geneSubfacetCount a[class="imits_phenotype_status"]').text(oFacets.imits_phenotype_status[i+1]);
+			}
+		}
+		
+		// refresh phenotype facet
+		$('table#mpFacetTbl td.mpTopLevelCount a').text('0');
+		var mpCount = oFacets.mp_term.length / 2;		
+		$('div#mpFacet span.facetCount').text(mpCount);
+		for (var i=0; i<oFacets.top_level_mp_term.length; i=i+2){	
+			console.log('99 : '+ oFacets.top_level_mp_term[i]);
+			$('table#mpFacetTbl td.mpTopLevelCount a[rel="' + oFacets.top_level_mp_term[i] + '"]').text(oFacets.top_level_mp_term[i+1]);			
+		}		
+		
+		var maCount = oFacets.inferred_ma_term.length / 2;		
+		$('div#maFacet span.facetCount').text(maCount);
+		
+		var procedureCount = oFacets.procedure_name.length / 2;		
+		$('div#pipelineFacet span.facetCount').text(procedureCount);
+		
+	}
 	
 	$.fn.composeFacetFilterControl = function(oChkbox, q){	
 		do_ParentFilterDisplay(oChkbox, q);		
 	}
+	
+	
 	
 	function do_ParentFilterDisplay(oChkbox, q) {
 		var labels = oChkbox.attr('rel').split("|");
@@ -67,8 +155,74 @@
 			$.fn.checkFilters();
 		}		
 	}
-	
-	function compose_solr_facetFilter(facet, q, oChkbox) {				
+	function compose_solr_facetFilter2(q) {				
+		
+		var fqFieldVals = {};
+		
+		$('ul#facetFilter li li a').each(function(){	
+			
+			var linkTxt = $(this).text().replace(' ', '');
+			var aVals = $(this).attr('rel').split("|");		
+			var fqField = aVals[1];
+				
+			console.log(fqField);
+			// fq filter used for solr query					
+			var fqFieldOri = fqField;
+            fqField = fqField.indexOf('imits_phenotype') != -1 ? 'imits_phenotype' : fqField;
+            if ( typeof fqFieldVals[fqField] === 'undefined' ){
+                    fqFieldVals[fqField] = [];                                        
+            }             
+            
+			var val;
+			if ( fqField == 'top_level_mp_term' || fqField == 'annotated_or_inferred_higherLevelMpTermName' ) {
+				val = aVals[2] + ' phenotype';				
+				fqFieldVals[fqField].push(fqFieldOri + ':"' + val + '"');
+			}
+			else if ( fqField == 'procedure_stable_id' ){
+				var names = aVals[2].split('___');
+				psid = names[1];				
+				val = names[0];
+				fqFieldVals[fqField].push(fqFieldOri + ':"' + psid + '"');
+			}
+			else if ( fqField.match(/.+_curated/) ){
+				// curated diseases
+				val = aVals[2];	
+				delete fqFieldVals[fqField];
+				if ( typeof fqFieldVals['curated'] === 'undefined' ){
+					fqFieldVals['curated'] = [];					
+				}	
+				fqFieldVals['curated'].push(fqFieldOri + ':"' + val + '"');
+			}			
+			else if ( fqField.match(/.+_predicted(in_locus)?/) ){
+				// predicted diseases
+				val = aVals[2];	
+				delete fqFieldVals[fqField];
+				if ( typeof fqFieldVals['predicted'] === 'undefined' ){
+					fqFieldVals['predicted'] = [];					
+				}	
+				fqFieldVals['predicted'].push(fqFieldOri + ':"' + val + '"');
+			}
+			/*else if ( fqField == 'phenotyping_center' ){
+				val = aVals[2];				
+				fqFieldVals[fqField].push('(' + fqFieldOri + ':"' + val + '" AND production_center:*)');
+			}
+			else if ( fqField == 'production_center' ){
+				val = aVals[2];				
+				fqFieldVals[fqField].push('(' + fqFieldOri + ':"' + val + '")');				
+			}*/
+			else {
+				val = aVals[2];
+				fqFieldVals[fqField].push(fqFieldOri + ':"' + val + '"');
+			}				
+			
+		});
+		
+		var fqStr = $.fn.compose_AndOrStr(fqFieldVals);	
+		
+    	return fqStr;    	
+    	
+	}
+	function compose_solr_facetFilter(facet, q, oChkbox, updateAll) {				
 				
 		var fqFieldVals = {};
 		$('ul#facetFilter li.' + facet + ' li a').each(function(){	
@@ -78,13 +232,13 @@
 			var fqField = aVals[1];
 				
 			console.log(fqField);
-			// fq filter used for solr query
+			// fq filter used for solr query					
 			var fqFieldOri = fqField;
-			fqField = fqField.indexOf('imits_phenotype') != -1 ? 'imits_phenotype' : fqField;
-			if ( typeof fqFieldVals[fqField] === 'undefined' ){
-				fqFieldVals[fqField] = [];					
-			}				
-			
+            fqField = fqField.indexOf('imits_phenotype') != -1 ? 'imits_phenotype' : fqField;
+            if ( typeof fqFieldVals[fqField] === 'undefined' ){
+                    fqFieldVals[fqField] = [];                                        
+            }             
+            
 			var val;
 			if ( fqField == 'top_level_mp_term' || fqField == 'annotated_or_inferred_higherLevelMpTermName' ) {
 				val = aVals[2] + ' phenotype';				
@@ -140,13 +294,14 @@
     		fqStr = fqStr + ' AND ' + MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;	
 		}
     	
+    	
     	// update hash tag so that we know there is hash change, which then triggers loadDataTable
     	if (q == '*:*'){
     		window.location.hash = 'q=' + q + '&fq=' + fqStr + '&core=' + facet;
     	}
     	else {
     		window.location.hash = 'fq=' + fqStr + '&core=' + facet;
-    	}
+    	}	
 	}
 	
 	$.fn.compose_AndOrStr = function(json){

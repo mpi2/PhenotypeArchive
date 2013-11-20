@@ -22,7 +22,7 @@
     $.widget('MPI2.mpFacet', {
         
 	    options: {},	
-     
+     /*
     	_create: function(){
     		// execute only once 	
     		var self = this;	
@@ -87,8 +87,44 @@
 						}	
 					}	
 				}	
-			});	
-													
+			});	*/
+		_create: function(){
+    		// execute only once 	
+    		var self = this;	
+    		var facetDivId = self.element.attr('id');
+    		var caller = self.element;
+    		delete MPI2.searchAndFacetConfig.commonSolrParams.rows;    	   		  		
+		
+			caller.find('div.facetCat').click(function(){
+				
+				if ( caller.find('span.facetCount').text() != '0' ){
+					
+					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
+					
+					caller.parent().find('div.facetCat').removeClass('facetCatUp');
+					
+					if ( caller.find('.facetCatList').is(':visible') ){					
+						caller.parent().find('div.facetCatList').hide(); // collapse all other facets                     
+						caller.find('.facetCatList').hide(); // hide itself					
+					}
+					else {
+						
+						caller.parent().find('div.facetCatList').hide(); // collapse all other facets 
+						caller.find('.facetCatList').show(); // show itself					
+						$(this).addClass('facetCatUp');						
+					
+						var currHashParams = {};						
+						currHashParams.q = self.options.data.q;
+						currHashParams.core = solrCoreName;
+						currHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq; //default
+									
+						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
+					
+						console.log('expand');
+						$.fn.updateAllFacets(self.options.data.q, 'mp');
+					}	
+				}	
+			});											
 			// click on SUM facetCount to fetch results in grid											
 			caller.find('span.facetCount').click(function(){
 				

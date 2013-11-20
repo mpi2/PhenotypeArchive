@@ -59,6 +59,7 @@
     	    jsonp: 'json.wrf',
     	    timeout: 5000,
     	    success: function (mpResponse) { 
+    	    	console.log(mpResponse);
     	    	$('div#mpFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
        	    	oFacets.count.mp = mpResponse.response.numFound;
        	    	$('div#mpFacet span.facetCount').html(oFacets.count.mp);

@@ -92,7 +92,18 @@ config.facetFilterLabel = {
 	'mgi_predicted'              : 'MGI_predicted',
 	'mgi_predicted_in_locus'     : 'MGI_predicted_in_locus'	
 };
-                            
+    
+var megaFacetFields = ['status', 'imits_phenotype_complete', 'imits_phenotype_started', 'imits_phenotype_status', 
+                       'mgi_accession_id', 'marker_type', 'top_level_mp_term', 'mp_term', 
+                       'inferred_selected_top_level_ma_term', 'inferred_ma_term', 
+                       'procedure_name'];
+var facetFieldsStr = '';
+for ( var i=0; i<megaFacetFields.length; i++){
+	facetFieldsStr += '&facet.field=' + megaFacetFields[i];
+}
+config.mega = {};
+config.mega.facetParams = "&facet=on&facet.limit=-1&facet.mincount=1" + facetFieldsStr;
+console.log(config.mega.facetParams);
 //config.solrBaseURL_bytemark = 'http://dev.mousephenotype.org/bytemark/solr/';
 config.solrBaseURL_bytemark = solrUrl + '/';
 config.solrBaseURL_ebi = solrUrl + '/';
@@ -116,7 +127,7 @@ var commonSolrParams = {
 		'qf': 'auto_suggest',
 		'defType': 'edismax',
 		'wt': 'json',
-		'rows': 0
+		'rows': 50
 };
 config.commonSolrParams = commonSolrParams;
 
@@ -249,5 +260,6 @@ config.facetParams = {
 	 	 srchParams: $.extend({},
 				commonSolrParams				
 				)
-	 }
+	 } 
+	 
 }; 
