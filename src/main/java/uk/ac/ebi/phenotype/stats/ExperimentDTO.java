@@ -415,12 +415,9 @@ public class ExperimentDTO {
 			maleControls = new HashSet<ObservationDTO>();
 			for (ObservationDTO control : this.getControls()) {
 
-				System.out.println("Sex is "+SexType.valueOf(control.getSex()));
 				if (SexType.valueOf(control.getSex()).equals(SexType.female)) {
-					System.out.println("Adding as "+SexType.female);
 					femaleControls.add(control);
 				} else {
-					System.out.println("Adding as "+SexType.male);
 					maleControls.add(control);
 				}
 			}
@@ -431,7 +428,7 @@ public class ExperimentDTO {
 			return maleControls;
 		}
 
-}
+	}
 
 	public Set<ObservationDTO> getMutants(SexType sex, ZygosityType zyg) {
 		Set<ObservationDTO> mutantsDtos = new HashSet<ObservationDTO>();

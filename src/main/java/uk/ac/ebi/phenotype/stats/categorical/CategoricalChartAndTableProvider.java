@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +16,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,31 +24,41 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
+import com.sun.xml.internal.ws.model.ParameterImpl;
+
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.dao.BiologicalModelDAO;
 import uk.ac.ebi.phenotype.dao.CategoricalStatisticsDAO;
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
-
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
+import uk.ac.ebi.phenotype.stats.ExperimentService;
 import uk.ac.ebi.phenotype.stats.JSONGraphUtils;
 import uk.ac.ebi.phenotype.stats.MouseDataPoint;
 import uk.ac.ebi.phenotype.stats.ObservationDTO;
+import uk.ac.ebi.phenotype.stats.ObservationService;
 import uk.ac.ebi.phenotype.stats.TableObject;
 
 @Service
 public class CategoricalChartAndTableProvider {
 	private static final Logger logger = Logger
 			.getLogger(CategoricalChartAndTableProvider.class);
-
+	
+	
 	@Autowired
 	private CategoricalStatisticsDAO categoricalStatsDao;
+	
+	@Autowired
+	private ExperimentService experimentService;
+	
 
+		
 	/**
 	 * return a list of categorical result and chart objects - one for each ExperimentDTO
 	 * @param experimentList
@@ -83,7 +95,7 @@ public class CategoricalChartAndTableProvider {
 
 		
 		//List<CategoricalResult> categoricalResults = new ArrayList<CategoricalResult>();
-List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one object for each experiment
+		List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one object for each experiment
 		for (ExperimentDTO experiment : experimentList) {
 			CategoricalResultAndCharts categoricalResultAndCharts = new CategoricalResultAndCharts();
 			List<? extends StatisticalResult> statsResults = (List<? extends StatisticalResult>) experiment
@@ -92,24 +104,14 @@ List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one 
 			// experimental sex
 			Integer expBiologicalModelId = experiment.getExperimentalBiologicalModelId();
 			BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(expBiologicalModelId);
-			for (SexType sexType : experiment.getSexes()) { // one graph for
-															// each sex if
+			for (SexType sexType : experiment.getSexes()) { // one graph for each sex if
 				if (genderList.isEmpty() || genderList.contains(sexType.name())) {
-					// getCategoricalResultByParameter(parameter,
-											// expBiologicalModel.getId(),
-											// sexType);
+					// getCategoricalResultByParameter(parameter, expBiologicalModel.getId(), sexType);
 					// System.out.println("statsResults size="+statsResults.size()+
 					// "statsResults="+statsResults);
 					// categoricalResults.addAll(statsResults);
 					 categoricalResultAndCharts.setStatsResults(statsResults);
-					CategoricalChartDataObject chartData = new CategoricalChartDataObject();// make
-																							// a
-																							// new
-																							// chart
-																							// object
-																							// for
-																							// each
-																							// sex
+					CategoricalChartDataObject chartData = new CategoricalChartDataObject();// make a new chart object for each sex
 					chartData.setSexType(sexType);
 					List<String> xAxisCategories = this.getXAxisCategories(
 							experiment.getZygosities(), zyList);
@@ -117,7 +119,7 @@ List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one 
 					CategoricalSet controlSet = new CategoricalSet();
 					controlSet.setName("Control");
 
-					for (String category : experiment.getCatagories()) {
+					for (String category : experiment.getCategories()) {
 						if (category.equals("imageOnly"))
 							continue;// ignore image categories as no numbers!
 						CategoricalDataObject controlCatData = new CategoricalDataObject();
@@ -146,27 +148,13 @@ List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one 
 					// now do experimental i.e. zygocities
 					for (ZygosityType zType : experiment.getZygosities()) {
 						if (zyList.isEmpty() || zyList.contains(zType.name())) {
-							CategoricalSet zTypeSet = new CategoricalSet();// hold
-																			// the
-																			// data
-																			// for
-																			// each
-																			// bar
-																			// on
-																			// graph
-																			// hom,
-																			// normal,
-																			// abnormal
+							CategoricalSet zTypeSet = new CategoricalSet();// hold the data for each bar on graph hom, normal, abnormal
 							zTypeSet.setName(zType.name());
-							for (String category : experiment.getCatagories()) {
+							for (String category : experiment.getCategories()) {
 								if (category.equals("imageOnly"))
 									continue;
 								logger.debug(zyList);
-								Long mutantCount = new Long(0);// .countMutant(sexType,
-																// zType,
-																// parameter,
-																// category,
-																// popId);
+								Long mutantCount = new Long(0);// .countMutant(sexType, zType, parameter, category, popId);
 								// loop over all the experimental docs and get
 								// all that apply to current loop parameters
 								Set<ObservationDTO> expObservationsSet = Collections.emptySet();
@@ -246,11 +234,7 @@ List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one 
 					// xAxisCategories, categories,
 					// seriesDataForCategoricalType);
 					categoricalResultAndCharts.setOrganisation(experiment.getOrganisation());//add it here before check so we can see the organisation even if no graph data
-					if (xAxisCategories.size() > 1) {// if size is greater than
-														// one i.e. we have more
-														// than the control data
-														// then draw charts and
-														// tables
+					if (xAxisCategories.size() > 1) {// if size is greater than one i.e. we have more than the control data then draw charts and tables
 						
 						String chartNew = this
 								.createCategoricalHighChartUsingObjects(
@@ -271,11 +255,290 @@ List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one 
 				}
 			}// end of gender
 			listOfChartsAndResults.add(categoricalResultAndCharts);
-		}// end of experiment loop
 
+		}// end of experiment loop
+		System.out.println("list of charts and results " + listOfChartsAndResults);
 		return listOfChartsAndResults;
 	}
 
+	
+	public CategoricalResultAndCharts doCategoricalDataOverview(CategoricalSet controlSet, 
+			CategoricalSet mutantSet,
+			Model model, 
+			String parameterId,
+			String chartTitle){
+		HashSet<ObservationDTO> categories = new HashSet<ObservationDTO>();
+		
+		// do the charts
+		CategoricalChartDataObject chartData = new CategoricalChartDataObject();
+		chartData.add(controlSet);
+		chartData.add(mutantSet);
+		CategoricalResultAndCharts categoricalResultAndCharts = new CategoricalResultAndCharts();
+		if (mutantSet.getCount() > 0 && controlSet.getCount() > 0) {// if size is greater than one i.e. we have more than the control data then draw charts and tables
+			String chartNew = this.createCategoricalHighChartUsingObjects2( controlSet, mutantSet, model, parameterId, chartData, chartTitle);
+			chartData.setChart(chartNew);
+//			System.out.println("ADDING CHAR DATA " + chartData);
+			categoricalResultAndCharts.add(chartData);
+//			System.out.println("AND GETMALESFEMALES : " + categoricalResultAndCharts.getMaleAndFemale());
+		}
+		return categoricalResultAndCharts;
+	}
+	
+	
+	private String createCategoricalHighChartUsingObjects2(CategoricalSet controlSet, 
+			CategoricalSet mutantSet,
+			Model model, 
+			String parameterId,
+			CategoricalChartDataObject chartData, 
+			String chartTitle) {
+		System.out.println("controlSet  " + controlSet);
+		System.out.println("mutantSet  " + mutantSet);
+
+		// int size=categoricalBarCharts.size()+1;//to know which div to render
+		// to not 0 index as using loop count in jsp
+		JSONArray seriesArray = new JSONArray();
+		JSONArray xAxisCategoriesArray = new JSONArray();
+		String title = chartTitle;
+		String colorNormal = "#4572A7";
+		String colorAbnormal = "#AA4643";
+		String color = "";
+
+		// get a list of unique categories
+		HashMap<String, List<Long>> categories = new LinkedHashMap<String, List<Long>>();// keep the order so we have normal first!
+		for (CategoricalDataObject catObject : controlSet.getCatObjects()) {
+			String category = catObject.getCategory();
+			categories.put(category, new ArrayList<Long>());
+		}
+		for (CategoricalDataObject catObject : mutantSet.getCatObjects()) {
+			String category = catObject.getCategory();
+			if (!categories.containsKey(category) && !category.equalsIgnoreCase("no data")){
+				categories.put(category, new ArrayList<Long>());
+			}
+		}
+		
+		for(String categoryLabel : categories.keySet()){
+			
+			if (controlSet.getCategoryByLabel(categoryLabel) != null){
+				categories.get(categoryLabel).add(controlSet.getCategoryByLabel(categoryLabel).getCount());
+			}
+			else categories.get(categoryLabel).add((long)0);
+
+			if (mutantSet.getCategoryByLabel(categoryLabel) != null){
+				categories.get(categoryLabel).add(mutantSet.getCategoryByLabel(categoryLabel).getCount());
+			}
+			else categories.get(categoryLabel).add((long)0);
+		}
+			xAxisCategoriesArray.put(controlSet.getName());
+			xAxisCategoriesArray.put(mutantSet.getName());
+			
+			
+		try {
+			int i = 0;
+			Iterator it = categories.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry pairs = (Map.Entry) it.next();
+				List<Long> data = (List<Long>) pairs.getValue();
+				JSONObject dataset1 = new JSONObject();// e.g. normal
+				dataset1.put("name", pairs.getKey());
+				if (i == 0) {
+					color = colorNormal;
+				} else {
+					color = colorAbnormal;
+				}
+				// dataset1.put("color", color);
+				JSONArray dataset = new JSONArray();
+
+				for (Long singleValue : data) {
+					dataset.put(singleValue);
+				}
+				dataset1.put("data", dataset);
+				seriesArray.put(dataset1);
+				i++;
+			}
+			System.out.println();
+			System.out.println( "- new series array:  " + seriesArray);
+			System.out.println();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		String chartId = parameterId;//replace space in MRC Harwell with underscore so valid javascritp variable
+		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ Math.round(this.percentage) +'%)';   }    }";
+		String javascript = "$(function () {  var chart"
+				+ chartId
+				+ "; $(document).ready(function() { chart"
+				+ chartId
+				+ " = new Highcharts.Chart({ tooltip : "
+				+ toolTipFunction
+				+ ", chart: { renderTo: 'categoricalBarChart"
+				+ chartId
+				+ "', type: 'column' }, title: { text: '"
+				+ WordUtils.capitalize(title)
+				+ "' }, credits: { enabled: false }, "
+				+ "xAxis: { categories: "
+				+ xAxisCategoriesArray
+				+ "}, yAxis: { min: 0, title: { text: 'Percent Occurrance' } ,  labels: {       formatter: function() { return this.value +'%';   }  }},  plotOptions: { column: { stacking: 'percent' } }, series: "
+				+ seriesArray + " });   });});";
+
+		chartData.setChart(javascript);
+		chartData.setChartIdentifier(chartId);
+		System.out.println(" -- Javascript : -- ");
+		System.out.println(javascript);
+		
+		return javascript;
+		
+	}
+	
+	public CategoricalResultAndCharts doCategoricalDataOverview(
+			List<ExperimentDTO> experimentList,
+			Model model, 
+			String parameterId)
+			throws SQLException, IOException, URISyntaxException {
+		
+		CategoricalSet controlSet = new CategoricalSet();
+		controlSet.setName("Control");
+		CategoricalSet mutantSet = new CategoricalSet();
+		mutantSet.setName("Mutant");
+		HashSet<ObservationDTO> controls = new HashSet<ObservationDTO>();
+		HashSet<ObservationDTO> mutants = new HashSet<ObservationDTO> ();
+		for (ExperimentDTO experiment : experimentList) {
+			mutants.addAll(experiment.getMutants(null, null));
+			controls.addAll(experiment.getControls()); // to get rig of duplicates (same controls might be found for different experiments
+		}
+		
+		// add empty CategoricalDataObject for each object
+		for (String category: experimentList.get(0).getCategories()){
+			if (category.equals("imageOnly"))
+				continue;// ignore image categories as no numbers!
+			CategoricalDataObject controlCatData = new CategoricalDataObject();
+			controlCatData.setName("control");
+			controlCatData.setCategory(category);
+			controlCatData.setCount((long) 0);
+			controlSet.add(controlCatData);
+			CategoricalDataObject mutantCatData = new CategoricalDataObject();
+			mutantCatData.setCategory(category);
+			mutantCatData.setCount((long) 0);
+			mutantCatData.setName("mutant");
+			mutantSet.add(mutantCatData);
+		}
+		System.out.println("MUTANT " + mutants.size() );
+		System.out.println("CONTROLS " + controls.size() );
+		
+		// count mutants and controls
+		for (ObservationDTO c : controls){
+			controlSet.addToCategory((String)c.getCategory());
+		}
+		// controls miss category
+		for (ObservationDTO m : mutants){
+			mutantSet.addToCategory((String)m.getCategory());
+		}
+//		System.out.println("Controlset " + controlSet);
+//		System.out.println("mutant set " + mutantSet);
+//		System.out.println("CATEGORIES " + experimentList.get(0).getCategories());
+		
+		// do the charts
+		CategoricalChartDataObject chartData = new CategoricalChartDataObject();
+		chartData.add(controlSet);
+		chartData.add(mutantSet);
+		CategoricalResultAndCharts categoricalResultAndCharts = new CategoricalResultAndCharts();
+		if (mutants.size() > 0 && controls.size() > 0) {// if size is greater than one i.e. we have more than the control data then draw charts and tables
+			String chartNew = this.createCategoricalHighChartUsingObjects(
+							chartData,
+							parameterId);
+			chartData.setChart(chartNew);
+//			System.out.println("ADDING CHAR DATA " + chartData);
+			categoricalResultAndCharts.add(chartData);
+//			System.out.println("AND GETMALESFEMALES : " + categoricalResultAndCharts.getMaleAndFemale());
+		}
+		return categoricalResultAndCharts;
+	}
+	
+
+	
+	private String createCategoricalHighChartUsingObjects(
+			CategoricalChartDataObject chartData, String parameterName) {
+		System.out.println(chartData);
+
+		// int size=categoricalBarCharts.size()+1;//to know which div to render
+		// to not 0 index as using loop count in jsp
+		JSONArray seriesArray = new JSONArray();
+		JSONArray xAxisCategoriesArray = new JSONArray();
+		String title = parameterName;
+		String colorNormal = "#4572A7";
+		String colorAbnormal = "#AA4643";
+		String color = "";
+
+		List<CategoricalSet> catSets = chartData.getCategoricalSets();
+		// get a list of unique categories
+		HashMap<String, List<Long>> categories = new LinkedHashMap<String, List<Long>>();// keep the order so we have normal first!
+		CategoricalSet catSet1 = catSets.get(0);// assume each cat set has the same number of categories
+		for (CategoricalDataObject catObject : catSet1.getCatObjects()) {
+			String category = catObject.getCategory();
+			categories.put(category, new ArrayList<Long>());
+		}
+
+		for (CategoricalSet catSet : catSets) {// loop through control, then hom, then het etc
+			xAxisCategoriesArray.put(catSet.getName());
+			for (CategoricalDataObject catObject : catSet.getCatObjects()) {// each cat object represents
+				List<Long> catData = categories.get(catObject.getCategory());
+				catData.add(catObject.getCount());
+			}
+		}
+
+		try {
+			int i = 0;
+			Iterator it = categories.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry pairs = (Map.Entry) it.next();
+				List<Long> data = (List<Long>) pairs.getValue();
+				JSONObject dataset1 = new JSONObject();// e.g. normal
+				dataset1.put("name", pairs.getKey());
+				if (i == 0) {
+					color = colorNormal;
+				} else {
+					color = colorAbnormal;
+				}
+				// dataset1.put("color", color);
+				JSONArray dataset = new JSONArray();
+
+				for (Long singleValue : data) {
+					dataset.put(singleValue);
+				}
+				dataset1.put("data", dataset);
+				seriesArray.put(dataset1);
+				i++;
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		System.out.println();
+		System.out.println("SERIES ARRAY    " +  seriesArray);
+		System.out.println();
+		
+		String chartId = parameterName;//replace space in MRC Harwell with underscore so valid javascritp variable
+		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ Math.round(this.percentage) +'%)';   }    }";
+		String javascript = "$(function () {  var chart"
+				+ chartId
+				+ "; $(document).ready(function() { chart"
+				+ chartId
+				+ " = new Highcharts.Chart({ tooltip : "
+				+ toolTipFunction
+				+ ", chart: { renderTo: 'categoricalBarChart"
+				+ chartId
+				+ "', type: 'column' }, title: { text: '"
+				+ WordUtils.capitalize(title)
+				+ "' }, credits: { enabled: false }, "
+				+ "xAxis: { categories: "
+				+ xAxisCategoriesArray
+				+ "}, yAxis: { min: 0, title: { text: 'Percent Occurrance' } ,  labels: {       formatter: function() { return this.value +'%';   }  }},  plotOptions: { column: { stacking: 'percent' } }, series: "
+				+ seriesArray + " });   });});";
+		chartData.setChart(javascript);
+		chartData.setChartIdentifier(chartId);
+		return javascript;
+	}
+
+	
 	private String createCategoricalHighChartUsingObjects(
 			CategoricalChartDataObject chartData, String parameterName,
 			BiologicalModel bm, String organisation) {
@@ -302,17 +565,9 @@ List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one 
 
 		List<CategoricalSet> catSets = chartData.getCategoricalSets();
 		// get a list of unique categories
-		HashMap<String, List<Long>> categories = new LinkedHashMap<String, List<Long>>();// keep
-																							// the
-																							// order
-																							// so
-																							// we
-																							// have
-																							// normal
-																							// first!
+		HashMap<String, List<Long>> categories = new LinkedHashMap<String, List<Long>>();// keep the order so we have normal first!
 		// for(CategoricalSet catSet: catSets){
-		CategoricalSet catSet1 = catSets.get(0);// assume each cat set has the
-												// same number of categories
+		CategoricalSet catSet1 = catSets.get(0);// assume each cat set has the same number of categories
 		for (CategoricalDataObject catObject : catSet1.getCatObjects()) {
 			String category = catObject.getCategory();
 			// if(!category.equals("")){
@@ -321,13 +576,9 @@ List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one 
 		}
 		// }
 
-		for (CategoricalSet catSet : catSets) {// loop through control, then
-												// hom, then het etc
+		for (CategoricalSet catSet : catSets) {// loop through control, then hom, then het etc
 			xAxisCategoriesArray.put(catSet.getName());
-			for (CategoricalDataObject catObject : catSet.getCatObjects()) {// each
-																			// cat
-																			// object
-																			// represents
+			for (CategoricalDataObject catObject : catSet.getCatObjects()) {// each cat object represents
 				List<Long> catData = categories.get(catObject.getCategory());
 				catData.add(catObject.getCount());
 
@@ -361,7 +612,7 @@ List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one 
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		
 		// } catch (JSONException e) {
 		// // TODO Auto-generated catch block
 		// e.printStackTrace();
@@ -423,8 +674,7 @@ List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one 
 	private List<String> getXAxisCategories(Set<ZygosityType> set,
 			List<String> zygosityParams) {
 		List<String> xAxisCat = new ArrayList<String>();
-		xAxisCat.add("Control");// we know we have controls and we want to put
-								// these first.
+		xAxisCat.add("Control");// we know we have controls and we want to put these first.
 
 		for (ZygosityType type : set) {
 			if (zygosityParams.isEmpty()

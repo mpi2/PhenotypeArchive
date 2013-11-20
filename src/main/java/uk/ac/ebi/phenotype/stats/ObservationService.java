@@ -9,12 +9,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,8 @@ import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.stats.categorical.CategoricalDataObject;
+import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
 
 @Service
 public class ObservationService {
@@ -69,6 +73,8 @@ public class ObservationService {
 
 		return getControls(parameterId, strain, organisationId, max, Boolean.FALSE, null);
 	}
+	
+	
 
 	/**
 	 * get control data observations for the combination of parameters passed
@@ -596,5 +602,42 @@ public class ObservationService {
 		}
 
 		return new ArrayList<String>(genes);
+	}
+
+	// gets categorical data for graphs on phenotype page 
+	public CategoricalSet getCategories(String parameter, ArrayList<String >genes, String biologicalSampleGroup, ArrayList<String>  strains) throws SolrServerException{
+		
+		CategoricalSet resSet = new CategoricalSet();
+		resSet.setName(biologicalSampleGroup);
+		SolrQuery query = new SolrQuery()
+		.addFilterQuery("biologicalSampleGroup:" + biologicalSampleGroup)
+		.addFilterQuery("parameterStableId:"+parameter);
+		String q = (strains.size() > 1) ? "(strain:\"" + StringUtils.join(strains.toArray(), "\" OR strain:\"") + "\")" : "strain:\"" + strains.get(0) + "\"";
+		if (genes != null && genes.size() > 0){
+			q += " AND (";
+			q += (genes.size() > 1) ? "geneAccession:\"" + StringUtils.join(genes.toArray(), "\" OR geneAccession:\"") + "\"" : "geneAccession:\"" + genes.get(0) + "\"";
+			q+= ")";
+		}
+		query.setQuery(q);
+		query.set("group.field", "category");
+		query.set("group", true);
+		
+		System.out.println("query :  " + query);
+		List<String> categories = new ArrayList<String> ();
+		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
+		for (Group gr : groups){
+			categories.add((String) gr.getGroupValue());
+			System.out.println(" - cat : " + gr.getGroupValue() + " count "  + gr.getResult().getNumFound());
+			CategoricalDataObject catObj = new CategoricalDataObject();
+			catObj.setCount((long) gr.getResult().getNumFound());
+			catObj.setCategory(gr.getGroupValue());
+			resSet.add(catObj);
+			System.out.println("----");
+			System.out.println(catObj);
+			System.out.println("----");
+		}
+		
+		System.out.println("QUERY - getCategories " + query);
+		return resSet;
 	}
 }

@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
 import uk.ac.ebi.phenotype.util.PhenotypeCallSummaryDAOReadOnly;
 
 @Service
@@ -362,6 +365,12 @@ public class ExperimentService {
 		Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameterStableId, 1, 0);
 		return getExperimentDTO(p.getId(), geneAccession);
 	}
+	
+	public List<ExperimentDTO> getExperimentDTO(String parameterStableId, String geneAccession, String strain) throws SolrServerException, IOException, URISyntaxException {
+		Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameterStableId, 1, 0);
+		return getExperimentDTO(p.getId(), geneAccession, null, null, null, strain);
+	}
+	
 // public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer organisationId, String zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
 
 	public List<ExperimentDTO> getExperimentDTO(String parameterStableId, String geneAccession, SexType sex, Integer organisationId, String zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
@@ -369,4 +378,10 @@ public class ExperimentService {
 		return getExperimentDTO(p.getId(), geneAccession, sex, organisationId, zygosity, strain);
 	}
 
+	// gets categorical data for graphs on phenotype page 
+	public CategoricalSet getCategories(String parameter, ArrayList<String >genes, String biologicalSampleGroup, ArrayList<String>  strains) throws SolrServerException{
+		return os.getCategories(parameter, genes, biologicalSampleGroup, strains);
+	}
+	
+	
 }

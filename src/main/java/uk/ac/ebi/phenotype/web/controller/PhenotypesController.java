@@ -22,7 +22,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,16 +40,13 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
 import org.hibernate.HibernateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,16 +63,23 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
 import uk.ac.ebi.phenotype.pojo.Datasource;
-import uk.ac.ebi.phenotype.pojo.DatasourceEntityId;
+import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
+import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.Synonym;
-import uk.ac.ebi.phenotype.stats.MouseDataPoint;
+import uk.ac.ebi.phenotype.stats.ExperimentDTO;
+import uk.ac.ebi.phenotype.stats.ExperimentService;
+import uk.ac.ebi.phenotype.stats.ObservationDTO;
+import uk.ac.ebi.phenotype.stats.categorical.CategoricalChartAndTableProvider;
+import uk.ac.ebi.phenotype.stats.categorical.CategoricalResultAndCharts;
+import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
 import uk.ac.ebi.phenotype.util.PhenotypeCallSummaryDAOReadOnly;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
@@ -106,6 +109,9 @@ public class PhenotypesController {
 	@Autowired
 	private ImagesSolrDao imagesSolrDao;
 
+	@Autowired
+	private ExperimentService experimentService;
+	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 
@@ -120,6 +126,7 @@ public class PhenotypesController {
 	 * @throws URISyntaxException 
 	 * @throws IOException 
 	 * @throws SolrServerException 
+	 * @throws SQLException 
 	 * 
 	 */
 	@RequestMapping(value="/phenotypes/{phenotype_id}", method=RequestMethod.GET)
@@ -127,7 +134,7 @@ public class PhenotypesController {
 			@PathVariable String phenotype_id, 
 			Model model,
 			HttpServletRequest request,
-			RedirectAttributes attributes) throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException {
+			RedirectAttributes attributes) throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
 		
 		OntologyTerm oTerm = ontoTermDao.getOntologyTermByAccessionAndDatabaseId(phenotype_id, 5);
 		
@@ -235,7 +242,85 @@ public class PhenotypesController {
 		model.addAttribute("phenotype", oTerm);
 		model.addAttribute("procedures", procedures);
 		model.addAttribute("genePercentage", getPercentages(phenotype_id));
+		
+		model.addAttribute("overviewPhenCharts", getCategoricalDataOverviewCharts(phenotype_id, model));
+		
 		return "phenotypes";
+	}
+	
+	private List<CategoricalResultAndCharts> getCategoricalDataOverviewCharts(String mpId, Model model) throws SolrServerException, IOException, URISyntaxException, SQLException{
+		List<CategoricalResultAndCharts> listOfChartsAndResults = new ArrayList<>();//one object for each parameter
+
+		long time = System.currentTimeMillis();
+		List<String> parameters = pipelineDao.getParameterStableIdsByPhenotypeTerm(mpId);
+		long gettingparameters = System.currentTimeMillis() - time;
+		long getgenes = 0;
+		long adding = 0 ;
+		long faster = 0;
+		long getExperiments = 0;
+		List<ExperimentDTO> experimentList = new ArrayList<ExperimentDTO> ();
+		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
+		HttpSolrServer solr = getSolrInstance("genotype-phenotype");
+		ArrayList<String> strains = new ArrayList<>();
+		strains.add("MGI:2159965");
+		strains.add("MGI:2164831");
+		for (String parameter : parameters) {
+			// get all genes associated with mpId because of parameter
+			Parameter p = pipelineDao.getParameterByStableIdAndVersion(parameter, 1, 0);
+//			System.out.println("parameter : " + p + " for " + parameter + "  ");
+			if(p != null && Utilities.checkType(p).equals(ObservationType.categorical)){
+				//https://dev.mousephenotype.org/mi/impc/dev/phenotype-archive/stats/genes/MGI:1346872?parameterId=ESLIM_001_001_004
+				time = System.currentTimeMillis();
+				List<String> genes = getGenesAssocByParamAndMp(parameter, mpId, solr);
+				getgenes += System.currentTimeMillis() - time ;
+				if (genes.size() > 0){
+			/*		for (String gene : genes){
+						time = System.currentTimeMillis();
+						experimentList.addAll(experimentService.getExperimentDTO(parameter, gene, "MGI:2159965"));
+						getExperiments += (System.currentTimeMillis() - time);
+						time = System.currentTimeMillis();
+						experimentList.addAll(experimentService.getExperimentDTO(parameter, gene, "MGI:2164831"));
+						getExperiments += (System.currentTimeMillis() - time);
+					}
+					time = System.currentTimeMillis();
+					listOfChartsAndResults.add(cctp.doCategoricalDataOverview(experimentList, model, parameter));
+					adding += System.currentTimeMillis() - time ;
+*/
+					time = System.currentTimeMillis();
+					CategoricalSet controlSet = experimentService.getCategories(parameter, null , "control", strains);
+					controlSet.setName("Control");
+					CategoricalSet mutantSet = experimentService.getCategories(parameter, (ArrayList<String>) genes, "experimental", strains);
+					mutantSet.setName("Mutant");
+					listOfChartsAndResults.add(cctp.doCategoricalDataOverview(controlSet, mutantSet, model, parameter, p.getName()+" ("+parameter+")"));
+					faster += System.currentTimeMillis() - time ;
+				}
+			}
+		}
+//		System.out.println("I'VE ADDED " +  listOfChartsAndResults.size());
+		System.out.println("gettingparameters " + gettingparameters);
+		System.out.println("getgenes " + getgenes);
+		System.out.println("getExperiments " + getExperiments);
+		System.out.println("adding " + adding);
+		System.out.println("faster " + faster);
+		return listOfChartsAndResults;
+	}
+		
+	private List<String> getGenesAssocByParamAndMp (String parameterStableId, String phenotype_id, HttpSolrServer solr) throws SolrServerException{
+		List<String> res = new ArrayList<String>();
+		SolrQuery query = new SolrQuery()
+		.setQuery("(mp_term_id:\"" + phenotype_id + "\" OR top_level_mp_term_id:\"" + phenotype_id + "\") AND (strain_accession_id:\"MGI:2159965\" OR strain_accession_id:\"MGI:2164831\") AND parameter_stable_id:\"" + parameterStableId+"\"")
+		.setFilterQueries("resource_fullname:EuroPhenome")
+		.setRows(10000);	
+		query.set("group.field", "marker_accession_id");
+		query.set("group", true);
+//		System.out.println("=====" + solr.getBaseURL() + query);
+		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
+		for (Group gr : groups){
+			if (!res.contains((String)gr.getGroupValue())){
+				res.add((String) gr.getGroupValue());
+			}
+		}
+		return res;
 	}
 		
 	private PhenotypeGeneSummaryDTO getPercentages(String phenotype_id) throws SolrServerException{ // <sex, percentage>
@@ -244,22 +329,16 @@ public class PhenotypesController {
 		int total = 0;
 		int nominator = 0;
 		SolrQuery query = new SolrQuery()
-		.setQuery("(mp_term_id:\"" + phenotype_id + "\" OR top_level_mp_term_id:\"" + phenotype_id + "\") AND "+
-				"(strain_accession_id:\"MGI:2159965\" OR strain_accession_id:\"MGI:2164831\")")
+		.setQuery("(mp_term_id:\"" + phenotype_id + "\" OR top_level_mp_term_id:\"" + phenotype_id + "\") AND (strain_accession_id:\"MGI:2159965\" OR strain_accession_id:\"MGI:2164831\")")
 		.setFilterQueries("resource_fullname:EuroPhenome")
-	//	.setFilterQueries()
 		.setRows(10000);	
 		query.set("group.field", "marker_symbol");
 		query.set("group", true);
 		HttpSolrServer solr = getSolrInstance("genotype-phenotype");
-		System.out.println("---" + solr.getBaseURL() + query.toString());
 		HttpSolrServer experimentSolr = getSolrInstance("experiment");
 		// males & females
 		QueryResponse results = solr.query(query);		
 		nominator = results.getGroupResponse().getValues().get(0).getValues().size();
-		System.out.println("Total : " + nominator);
-		System.out.println("solr query : " + solr.getBaseURL() + query);
-		System.out.println(results.getGroupResponse().getValues());
  		total = getTestedGenes(phenotype_id, null, experimentSolr);
  		pgs.setTotalPercentage(100*(float)nominator/(float)total);
 		pgs.setTotalGenesAssociated(nominator);
@@ -273,7 +352,6 @@ public class PhenotypesController {
 			query.addFilterQuery("sex:female");
 			results = solr.query(query);
 			nominator = results.getGroupResponse().getValues().get(0).getValues().size();
-			System.out.println("female: " + nominator);
 			total = getTestedGenes(phenotype_id, "female", experimentSolr);
 			pgs.setFemalePercentage(100*(float)nominator/(float)total);
 			pgs.setFemaleGenesAssociated(nominator);
@@ -281,19 +359,16 @@ public class PhenotypesController {
 			
 			//males only
 			SolrQuery q = new SolrQuery()
-			.setQuery("(mp_term_id:\"" + phenotype_id + "\" OR top_level_mp_term_id:\"" + phenotype_id + "\") AND " + 
-					"(strain_accession_id:\"MGI:2159965\" OR strain_accession_id:\"MGI:2164831\")")
+			.setQuery("(mp_term_id:\"" + phenotype_id + "\" OR top_level_mp_term_id:\"" + phenotype_id + "\") AND (strain_accession_id:\"MGI:2159965\" OR strain_accession_id:\"MGI:2164831\")")
 			.setFilterQueries("resource_fullname:EuroPhenome")
-		//	.setFilterQueries("strain_accession_id:\"MGI:2159965\"+OR+strain_accession_id:\"MGI:2164831\"")
 			.setRows(10000);
 			q.set("group.field", "marker_symbol");
 			q.set("group", true);
 			q.addFilterQuery("sex:male");
 			results = solr.query(q);
-			System.out.println(solr.getBaseURL() + q);
-			System.out.println(solr.getBaseURL() + query);
+//			System.out.println(solr.getBaseURL() + q);
+//			System.out.println(solr.getBaseURL() + query);
 			nominator = results.getGroupResponse().getValues().get(0).getValues().size();
-			System.out.println("male: " + nominator);
 			total = getTestedGenes(phenotype_id, "male", experimentSolr);
 			pgs.setMalePercentage(100*(float)nominator/(float)total);
 			pgs.setMaleGenesAssociated(nominator);
@@ -302,9 +377,9 @@ public class PhenotypesController {
 		return pgs;
 	}
 	
-	private int getTestedGenes(String parameter_id, String sex, HttpSolrServer solr) throws SolrServerException{
+	private int getTestedGenes(String phenotypeId, String sex, HttpSolrServer solr) throws SolrServerException{
 
-		List<String> parameters = pipelineDao.getParameterStableIdsByPhenotypeTerm(parameter_id);
+		List<String> parameters = pipelineDao.getParameterStableIdsByPhenotypeTerm(phenotypeId);
 	    List<String> genes = new ArrayList<String>();
 		for (String parameter : parameters){
 			SolrQuery query = new SolrQuery()
@@ -319,15 +394,15 @@ public class PhenotypesController {
 			}
 			// I need to add the genes to a hash in case some come up multiple times from different parameters
 			List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
-			System.out.println("=====" + solr.getBaseURL() + query);
+//			System.out.println("=====" + solr.getBaseURL() + query);
 			for (Group gr : groups){
-			//	System.out.println(gr.getGroupValue());
+//				System.out.println(gr.getGroupValue());
 				if (!genes.contains((String)gr.getGroupValue())){
 					genes.add((String) gr.getGroupValue());
 				}
 			}
 		}		
-		System.out.println("tested genes: " + genes.size());
+//		System.out.println("tested genes: " + genes.size());
 		return genes.size();
 	}
 	

@@ -35,7 +35,6 @@ public class CategoricalResultAndCharts {
 		this.maleAndFemale = maleAndFemale;
 	}
 
-
 	public List<BiologicalModel> getBiologicalModels() {
 		return biologicalModels;
 	}

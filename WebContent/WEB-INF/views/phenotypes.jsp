@@ -147,9 +147,26 @@
 			<p>&nbsp;&nbsp;&nbsp; <b>${genePercentage.getMalePercentage()}%</b> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</p>
 		</div>
 		
-		<div class="half container span5"  id="ovRight">
+		<!-- div class="half container span5"  id="ovRight">
+		</div-->
+		<c:if test="${overviewPhenCharts.size()>0}">
+		<div class="half">
+		<c:forEach var="categoricalResultAndCharts" items="${overviewPhenCharts}" varStatus="experimentLoop">
+		<div class="row-fluid">
+ 				<c:forEach var="categoricalChartDataObject" items="${categoricalResultAndCharts.getMaleAndFemale()}" varStatus="chartLoop">
+  				 	<div class="container span6">
+								<div id="categoricalBarChart${categoricalChartDataObject.chartIdentifier}"
+									style="min-width: 400px; height: 400px; margin: 0 auto">
+								</div>
+   								<script type="text/javascript">
+   								${categoricalChartDataObject.chart}
+   							</script>
+					</div>
+ 				</c:forEach>
 		</div>
-		
+		</c:forEach>
+		</div>
+		</c:if>
 	</div>
 	</c:if>
 	

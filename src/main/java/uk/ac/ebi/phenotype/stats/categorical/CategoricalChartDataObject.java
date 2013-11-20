@@ -52,15 +52,11 @@ public class CategoricalChartDataObject {
 	}
 	
 	public String toString(){
-		String sex="";
-		if(this.sexType!=null){
-			sex=this.sexType.name();
-		}
 		String dataString="";
 		for(CategoricalSet data: this.categoricalSets){
 			dataString+=data.toString()+"\n";
 		}
-		String string="chart has sexType="+sex+"\n "+dataString;
+		String string = (this.sexType!=null) ? "chart has sexType="+ this.sexType.name() + "\n " : "" + dataString;
 		return string;
 	}
 
