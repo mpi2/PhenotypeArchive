@@ -56,13 +56,19 @@
 				if ( oHashParams.fq ){				
 					// back/forward button navigation: 
 					// make sure checkboxes are updated according to url
-					$.fn.removeFacetFilter(oHashParams.coreName);
-					//console.log(oHashParams.fq);					
-					var pageReload;  // this controls checking which subfacet to open (ie, show by priority). 
-									 // Set to undefined for no checking here, as we are now capturing hash change and not page reload
-					$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet', pageReload);				
 					
-					$.fn.loadDataTable(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet'); 
+					if ( oHashParams.coreName ){
+						$.fn.removeFacetFilter(oHashParams.coreName);
+						//console.log(oHashParams.fq);					
+						var pageReload;  // this controls checking which subfacet to open (ie, show by priority). 
+										 // Set to undefined for no checking here, as we are now capturing hash change and not page reload
+						$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet', pageReload);				
+						
+						$.fn.loadDataTable(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet'); 
+					}
+					else {
+						console.log('from filter');
+					}
 				}
 			});
 						

@@ -88,44 +88,7 @@
 					}	
 				}	
 			});	
-		/*_create: function(){
-    		// execute only once 	
-    		var self = this;	
-    		var facetDivId = self.element.attr('id');
-    		var caller = self.element;
-    		delete MPI2.searchAndFacetConfig.commonSolrParams.rows;    	   		  		
-		
-			caller.find('div.facetCat').click(function(){
-				
-				if ( caller.find('span.facetCount').text() != '0' ){
-					
-					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
-					
-					caller.parent().find('div.facetCat').removeClass('facetCatUp');
-					
-					if ( caller.find('.facetCatList').is(':visible') ){					
-						caller.parent().find('div.facetCatList').hide(); // collapse all other facets                     
-						caller.find('.facetCatList').hide(); // hide itself					
-					}
-					else {
-						
-						caller.parent().find('div.facetCatList').hide(); // collapse all other facets 
-						caller.find('.facetCatList').show(); // show itself					
-						$(this).addClass('facetCatUp');						
-					
-						var currHashParams = {};						
-						currHashParams.q = self.options.data.q;
-						currHashParams.core = solrCoreName;
-						currHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq; //default
-									
-						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-						// update facet count when necessary
-		    			if ( $('ul#facetFilter li li a').size() != 0 ){
-		    				$.fn.fetchQueryResult(self.options.data.q, 'mp);
-		    			}							
-					}	
-				}	
-			});	*/										
+								
 			// click on SUM facetCount to fetch results in grid											
 			caller.find('span.facetCount').click(function(){
 				
@@ -241,7 +204,7 @@
     			$(this).parent().parent().find('td.mpTopLevel').addClass('highlight');
 	    			        			
     			// update hash tag so that we know there is hash change, which then triggers loadDataTable	  	    			
-	    		var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND top_level_mp_term:"' + $(this).attr('rel')  + '"'; 
+	    		var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND top_level_mp_term:"' + $(this).attr('rel')  + '"';  		
 	    		
 	    		if (self.options.data.q == '*:*'){
 	    			window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=mp';
@@ -249,6 +212,8 @@
 	    		else {
 	    			window.location.hash = 'fq=' + fqStr + '&core=mp';
 	    		}
+    			//$.fn.composeFacetFilterControl($(this).parent().parent().find('td.mpTopLevel'), self.options.data.q);	
+    			
     		});  
     		    		
     		$('table#mpFacetTbl input').click(function(){

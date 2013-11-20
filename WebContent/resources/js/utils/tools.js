@@ -58,8 +58,8 @@
 	    			var oFacets = json.facet_counts.facet_fields;
 	    			
 	    			// refresh gene facet
-	    			var geneCount = $.fn.getUnique(oFacets.mgi_accession_id).length - 1;
-	    		
+	    			//var geneCount = $.fn.getUnique(oFacets.mgi_accession_id).length;
+	    			var geneCount = oFacets.mgi_accession_id.length /2;
 	    			$('div#geneFacet span.facetCount').text(geneCount);    			
 	    			console.log(oFacets.status);
 	    			
@@ -114,10 +114,10 @@
 	    			// now update dataTable
 	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable
 	    	    	if (q == '*:*'){
-	    	    		window.location.hash = 'q=' + q + '&fq=' + fqStr + '&core=' + facet;    	    		
+	    	    		window.location.hash = 'q=' + q + '&fq=' + fqStr + '&facet=' + facet;    	    		
 	    	    	}
 	    	    	else {
-	    	    		window.location.hash = 'fq=' + fqStr + '&core=' + facet;    	    		
+	    	    		window.location.hash = 'fq=' + fqStr + '&facet=' + facet;    	    		
 	    	    	}	
     			}	
     		}		
@@ -149,7 +149,7 @@
 			thisLi.find('ul li').each(function(){
 				if ( $(this).find('a').attr('rel') == oChkbox.attr('rel') ){			
 					$(this).remove();					
-					oChkbox.parent().find('td.highlight').removeClass('highlight');
+					oChkbox.parent().find('td.highlight').removeClass('highlight');					
 				}
 			});			
 			
