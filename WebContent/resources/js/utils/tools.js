@@ -76,8 +76,7 @@
 			var linkTxt = $(this).text().replace(' ', '');
 			var aVals = $(this).attr('rel').split("|");		
 			var fqField = aVals[1];
-				
-			console.log(fqField);
+						
 			// fq filter used for solr query
 			var fqFieldOri = fqField;
 			fqField = fqField.indexOf('imits_phenotype') != -1 ? 'imits_phenotype' : fqField;
@@ -136,7 +135,7 @@
 		});
 		
 		var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
-		console.log(fqStr);
+		
 		var facetDivId = facet+'Facet';
 
     	if ( facetDivId == 'maFacet' ||  facetDivId == 'mpFacet' ){
