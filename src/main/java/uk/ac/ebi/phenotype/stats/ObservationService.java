@@ -16,18 +16,16 @@ import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
-import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalDataObject;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
 
@@ -39,7 +37,46 @@ public class ObservationService {
 	
 	@Autowired
 	PhenotypePipelineDAO parameterDAO;
-	
+
+	// Definition of the solr fields
+	class ExperimentField {
+		public final static String ID = "id";
+		public final static String ORGANISATION = "organisation";
+		public final static String ORGANISATION_ID = "organisation_id";
+		public final static String GENE_ACCESSION = "gene_accession";
+		public final static String GENE_SYMBOL = "gene_symbol";
+		public final static String ZYGOSITY = "zygosity";
+		public final static String SEX = "sex";
+		public final static String BIOLOGICAL_MODEL_ID = "biological_model_id";
+		public final static String BIOLOGICAL_SAMPLE_ID = "biological_sample_id";
+		public final static String BIOLOGICAL_SAMPLE_GROUP = "biological_sample_group";
+		public final static String STRAIN = "strain";
+		public final static String PIPELINE_NAME = "pipeline_name";
+		public final static String PIPELINE_ID = "pipeline_id";
+		public final static String PIPELINE_STABLE_ID = "pipeline_stable_id";
+		public final static String PROCEDURE_ID = "procedure_id";
+		public final static String PROCEDURE_NAME = "procedure_name";
+		public final static String PROCEDURE_STABLE_ID = "procedure_stable_id";
+		public final static String PARAMETER_ID = "parameter_id";
+		public final static String PARAMETER_NAME = "parameter_name";
+		public final static String PARAMETER_STABLE_ID = "parameter_stable_id";
+		public final static String EXPERIMENT_ID = "experiment_id";
+		public final static String EXPERIMENT_SOURCE_ID = "experiment_source_id";
+		public final static String OBSERVATION_TYPE = "observation_type";
+		public final static String COLONY_ID = "colony_id";
+		public final static String DATE_OF_BIRTH = "date_of_birth";
+		public final static String DATE_OF_EXPERIMENT = "date_of_experiment";
+		public final static String POPULATION_ID = "population_id";
+		public final static String EXTERNAL_SAMPLE_ID = "external_sample_id";
+		public final static String DATA_POINT = "data_point";
+		public final static String ORDER_INDEX = "order_index";
+		public final static String DIMENSION = "dimension";
+		public final static String TIME_POINT = "time_point";
+		public final static String DISCRETE_POINT = "discrete_point";
+		public final static String CATEGORY = "category";
+		public final static String VALUE = "value";
+	}
+
 	private static final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00");
 
 	private HttpSolrServer solr;
@@ -95,8 +132,8 @@ public class ObservationService {
 		}
 		List<ObservationDTO> results = new ArrayList<ObservationDTO>();
 		if (sex == null){
-			results.addAll(getControlsBySex(parameterId, strain, organisationId, max, showAll, "female", n/2));
-			results.addAll(getControlsBySex(parameterId, strain, organisationId, max, showAll, "male", n/2));
+			results.addAll(getControlsBySex(parameterId, strain, organisationId, max, showAll, SexType.female.name(), n/2));
+			results.addAll(getControlsBySex(parameterId, strain, organisationId, max, showAll, SexType.male.name(), n/2));
 		}
 		else { 
 			results.addAll(getControlsBySex(parameterId, strain, organisationId, max, showAll, sex, n));
@@ -106,16 +143,17 @@ public class ObservationService {
 	}
 
 	private  List<ObservationDTO> getControlsBySex(Integer parameterId, String strain, Integer organisationId, Date max, Boolean showAll, String sex, int resultsMaxSize) throws SolrServerException{
-		
-		int dateIncrement = 6; // month
-		
+
 		List<ObservationDTO> results = new ArrayList<ObservationDTO>();
-		Boolean withinTimeLimits = Boolean.TRUE;
+
 		QueryResponse responseb = new QueryResponse();
 		QueryResponse responsea = new QueryResponse();
+
 		Date today = new Date();
 		Date minDate = new Date();
+
 		SimpleDateFormat f = new SimpleDateFormat("dd-MMM-yyyy");
+
 		try {
 			minDate = f.parse("01-Jan-2000");
 		} catch (ParseException e) {
@@ -123,26 +161,27 @@ public class ObservationService {
 		} // Jan 1, 2000 UTC
 		
 		SolrQuery queryb = new SolrQuery()
-		.setQuery("*:*")
-		.addFilterQuery("biologicalSampleGroup:control")
-		.addFilterQuery("dateOfExperiment:["+df.format(minDate)+"Z TO "+df.format(max)+"Z]")
-		.addFilterQuery("parameterId:"+parameterId)
-		.addFilterQuery("organisationId:"+organisationId)
-		.addFilterQuery("strain:"+strain.replace(":", "\\:"))
-		.addFilterQuery("gender:"+sex)
-		.setSortField("dateOfExperiment", ORDER.desc) // good for dates before the date of the experiment
+			.setQuery("*:*")
+			.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":control")
+			.addFilterQuery(ExperimentField.DATE_OF_EXPERIMENT + ":["+df.format(minDate)+"Z TO "+df.format(max)+"Z]")
+			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
+			.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
+			.addFilterQuery(ExperimentField.SEX + ":" + sex)
+			.setSortField(ExperimentField.DATE_OF_EXPERIMENT, ORDER.desc) // good for dates before the date of the experiment
 		;
 		queryb.setStart(0).setRows(resultsMaxSize);
+		System.out.println(queryb.toString());
 		
 		SolrQuery querya = new SolrQuery()
 		.setQuery("*:*")
-		.addFilterQuery("biologicalSampleGroup:control")
-		.addFilterQuery("dateOfExperiment:["+df.format(DateUtils.addDays(max, -1))+"Z TO "+df.format(today)+"Z]")
-		.addFilterQuery("parameterId:"+parameterId)
-		.addFilterQuery("organisationId:"+organisationId)
-		.addFilterQuery("strain:"+strain.replace(":", "\\:"))
-		.addFilterQuery("gender:"+sex)
-		.setSortField("dateOfExperiment", ORDER.asc) // good for dates after the date of the experiment
+		.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":control")
+		.addFilterQuery(ExperimentField.DATE_OF_EXPERIMENT + ":["+df.format(DateUtils.addDays(max, -1))+"Z TO "+df.format(today)+"Z]")
+		.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
+		.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+		.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
+		.addFilterQuery(ExperimentField.SEX + ":" + sex)
+		.setSortField(ExperimentField.DATE_OF_EXPERIMENT, ORDER.asc) // good for dates after the date of the experiment
 		;
 		querya.setStart(0).setRows(resultsMaxSize);
 
@@ -218,66 +257,54 @@ public class ObservationService {
 	 * ex solr query: parameterId:1116%20AND%20geneAccession:MGI\:1923523%20AND%20zygosity:homozygote%20AND%20organisationId:9%20AND%20colonyId:HEPD0550_6_G09%20AND%20gender:female
 	 * 
 	 * @param parameterId
-	 * @param gene
+	 * @param geneAcc
 	 * @param zygosity
 	 * @param organisationId
 	 * @param strain
 	 * @return
 	 * @throws SolrServerException
 	 */
-	public List<ObservationDTO> getUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrain(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain) throws SolrServerException {
+	public List<ObservationDTO> getUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrain(Integer parameterId, String geneAcc, String zygosity, Integer organisationId, String strain) throws SolrServerException {
 		List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
 
 		SolrQuery query = new SolrQuery()
-	    	.setQuery("geneAccession:"+gene.replace(":", "\\:") + " AND zygosity:"+zygosity+"")
-	    	.addFilterQuery("parameterId:"+parameterId)
-	    	.addFilterQuery("organisationId:"+organisationId)
-	    	.addFilterQuery("strain:"+strain.replace(":", "\\:"))
-	    	;
-	    query.setStart(0).setRows(1000);
+	    	.setQuery(ExperimentField.GENE_ACCESSION + ":" + geneAcc.replace(":", "\\:"))
+			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
+	    	.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
+			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
+			.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+	    	.setStart(0)
+	    	.setRows(1000);
 	
 	    QueryResponse response = solr.query(query);
 	    resultsDTO = response.getBeans(ObservationDTO.class);
 	    
-	    Date max = new Date(0L); //epoch
+	    Date recentExperimentDate = new Date(0L); //epoch
 	    for (ObservationDTO o : resultsDTO) {
-	    	if (o.getDateOfExperiment().after(max)) {
-	    		max=o.getDateOfExperiment();
+	    	if (o.getDateOfExperiment().after(recentExperimentDate)) {
+	    		recentExperimentDate=o.getDateOfExperiment();
 	    	}
 	    }
 
-		resultsDTO.addAll(getControls(parameterId, strain, organisationId, max));
+		resultsDTO.addAll(getControls(parameterId, strain, organisationId, recentExperimentDate));
 	    
 		return resultsDTO;
 	}
 
-	public String getQueryStringByParameterGeneAccZygosityOrganisationStrain(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain) throws SolrServerException {
+	public String getQueryStringByParameterGeneAccZygosityOrganisationStrain(Integer parameterId, String geneAcc, String zygosity, Integer organisationId, String strain) throws SolrServerException {
 
 		SolrQuery query = new SolrQuery()
-	    	.setQuery("geneAccession:"+gene.replace(":", "\\:") + " AND zygosity:"+zygosity+"")
-	    	.addFilterQuery("parameterId:"+parameterId)
-	    	.addFilterQuery("organisationId:"+organisationId)
-	    	.addFilterQuery("strain:"+strain.replace(":", "\\:"))
+	    	.setQuery(ExperimentField.GENE_ACCESSION + ":" + geneAcc.replace(":", "\\:"))
+	    	.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
+			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
+			.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
 	    	.setStart(0)
 	    	.setRows(1000);
 		return query.toString();
 	}
 
-	public String getQueryStringByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain, SexType sex) throws SolrServerException {
-
-		SolrQuery query = new SolrQuery()
-	    	.setQuery("((geneAccession:"+gene.replace(":", "\\:") + " AND zygosity:"+zygosity+") OR biologicalSampleGroup:control) ")
-	    	.addFilterQuery("parameterId:"+parameterId)
-	    	.addFilterQuery("organisationId:"+organisationId)
-	    	.addFilterQuery("strain:"+strain.replace(":", "\\:"))
-	    	.addFilterQuery("gender:"+sex)
-	    	.setStart(0).setRows(10000);
-
-		return query.toString();
-	}
-	
 	/**
-	 * 
 	 * construct a query to get all the categortical observations for a given
 	 * combination of parameter, gene, zygosity, organisation and strain
 	 *   
@@ -292,31 +319,36 @@ public class ObservationService {
 	 * @return
 	 * @throws SolrServerException
 	 */
-	public List<ObservationDTO> getCategoricalObservationsByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain, String sex) throws SolrServerException {
+	public SolrQuery getSolrQueryByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String geneAcc, String zygosity, Integer organisationId, String strain, String sex) throws SolrServerException {
 
-		List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
-
-		SolrQuery query = new SolrQuery()
-	    	.setQuery("((geneAccession:"+gene.replace(":", "\\:") + " AND zygosity:"+zygosity+") OR biologicalSampleGroup:control) ")
-	    	.addFilterQuery("parameterId:"+parameterId)
-	    	.addFilterQuery("organisationId:"+organisationId)
-	    	.addFilterQuery("strain:"+strain.replace(":", "\\:"))
-	    	.addFilterQuery("gender:"+sex)
-	    	;
-	    query.setStart(0).setRows(10000);    
-
-	    QueryResponse response = solr.query(query);
-	    resultsDTO = response.getBeans(ObservationDTO.class);
-
-		return resultsDTO;
+		return new SolrQuery()
+	    	.setQuery("((" + ExperimentField.GENE_ACCESSION + ":" + geneAcc.replace(":", "\\:") 
+	    			+ " AND " + ExperimentField.ZYGOSITY + ":" + zygosity 
+	    			+ ") OR " + ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":control) ")
+			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
+			.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
+			.addFilterQuery(ExperimentField.SEX + ":" + sex)
+	    	.setStart(0)
+	    	.setRows(10000);
 	}
+
+	public String getQueryStringByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String geneAcc, String zygosity, Integer organisationId, String strain, SexType sex) throws SolrServerException {
+		return getSolrQueryByParameterGeneAccZygosityOrganisationStrainSex(parameterId, geneAcc, zygosity, organisationId, strain, sex.name()).toString();
+	}
+	
+	public List<ObservationDTO> getObservationsByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain, SexType sex) throws SolrServerException {
+        SolrQuery query = getSolrQueryByParameterGeneAccZygosityOrganisationStrainSex(parameterId, gene, zygosity, organisationId, strain, sex.name());
+        return solr.query(query).getBeans(ObservationDTO.class);
+	}
+
 
 	public List<ObservationDTO> getExperimentalUnidimensionalObservationsByParameterGeneAcc(Integer parameterId, String geneAccession) throws SolrServerException {
 
 		SolrQuery query = new SolrQuery()
-	    	.setQuery("geneAccession:"+geneAccession.replace(":", "\\:"))
-	    	.addFilterQuery("parameterId:"+parameterId)
-	    	.addFilterQuery("biologicalSampleGroup:experimental")
+	    	.setQuery(ExperimentField.GENE_ACCESSION + ":" + geneAccession.replace(":", "\\:"))
+			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
+	    	.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
 	    	.setStart(0)
 	    	.setRows(10000);
 		
@@ -326,45 +358,28 @@ public class ObservationService {
 	public List<ObservationDTO> getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain, SexType sex) throws SolrServerException {
 		
 		List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
-		SolrQuery query = new SolrQuery().setQuery("geneAccession:"+gene.replace(":", "\\:"));
-		query.addFilterQuery("parameterId:"+parameterId);
+		SolrQuery query = new SolrQuery()
+			.setQuery(ExperimentField.GENE_ACCESSION + ":" + gene.replace(":", "\\:"))
+			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
+			.setStart(0)
+			.setRows(10000);
 
 		if (zygosity != null && !zygosity.equalsIgnoreCase("null")) {
-			query.addFilterQuery("zygosity:"+zygosity);
+			query.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity);
 		}
 		if (strain != null) {
-	    	query.addFilterQuery("strain:"+strain.replace(":", "\\:"));
+	    	query.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"));
 		}
 		if (organisationId != null) {
-			query.addFilterQuery("organisationId:"+organisationId);
+			query.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId);
 		}
 		if (sex != null) {
-			query.addFilterQuery("gender:"+sex);
+			query.addFilterQuery(ExperimentField.SEX + ":" + sex);
 		}
 
-		query.setStart(0).setRows(10000);    
-	    
 	    QueryResponse response = solr.query(query);
 	    resultsDTO = response.getBeans(ObservationDTO.class);
 		return resultsDTO;
-	}
-
-	public List<ObservationDTO> getObservationsByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain, SexType sex) throws SolrServerException {
-        List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
-
-        SolrQuery query = new SolrQuery()
-            .setQuery("((geneAccession:"+gene.replace(":", "\\:") + " AND zygosity:"+zygosity+") OR biologicalSampleGroup:control) ")
-            .addFilterQuery("parameterId:"+parameterId)
-            .addFilterQuery("organisationId:"+organisationId)
-            .addFilterQuery("strain:"+strain.replace(":", "\\:"))
-            .addFilterQuery("gender:"+sex)
-            ;
-        query.setStart(0).setRows(10000);    
-
-        QueryResponse response = solr.query(query);
-        resultsDTO = response.getBeans(ObservationDTO.class);
-
-        return resultsDTO;
 	}
 
 	/**
@@ -381,10 +396,10 @@ public class ObservationService {
 
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
-			.addFilterQuery("organisationId:" + organisationId)
-			.addFilterQuery("observationType:unidimensional")
+			.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+			.addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":unidimensional")
 			.setRows(0)
-			.addFacetField("parameterId")
+			.addFacetField(ExperimentField.PARAMETER_ID)
 			.setFacet(true)
 			.setFacetMinCount(1)
 			.setFacetLimit(-1);
@@ -421,10 +436,10 @@ public class ObservationService {
 
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
-			.addFilterQuery("organisationId:" + organisationId)
-			.addFilterQuery("observationType:categorical")
+			.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+			.addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":categorical")
 			.setRows(0)
-			.addFacetField("parameterId")
+			.addFacetField(ExperimentField.PARAMETER_ID)
 			.setFacet(true)
 			.setFacetMinCount(1)
 			.setFacetLimit(-1);
@@ -464,17 +479,18 @@ public class ObservationService {
 
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
-			.addFilterQuery("biologicalSampleGroup:experimental")
-			.addFilterQuery("organisationId:" + organisationId)
-			.addFilterQuery("parameterId:" + parameterId)
-			.addFilterQuery("strain:" + strain.replace(":", "\\:"))
-			.addFilterQuery("zygosity:" + zygosity)
+			.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+			.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
+			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
+	    	.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
 			.setRows(0)
-			.addFacetField("geneAccession")
+			.addFacetField(ExperimentField.GENE_ACCESSION)
 			.setFacet(true)
 			.setFacetMinCount(1)
 			.setFacetLimit(-1);
 
+		System.out.println("======"+query.toString());
 		QueryResponse response = solr.query(query);
 		List<FacetField> fflist = response.getFacetFields();
 
@@ -508,10 +524,10 @@ public class ObservationService {
 
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
-			.addFilterQuery("organisationId:" + organisationId)
-			.addFilterQuery("parameterId:" + parameterId)
+			.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
 			.setRows(0)
-			.addFacetField("strain")
+			.addFacetField(ExperimentField.STRAIN)
 			.setFacet(true)
 			.setFacetMinCount(1)
 			.setFacetLimit(-1);
@@ -548,7 +564,7 @@ public class ObservationService {
 		SolrQuery query = new SolrQuery()
 		.setQuery("*:*")
 		.setRows(0)
-		.addFacetField("organisationId")
+		.addFacetField(ExperimentField.ORGANISATION_ID)
 		.setFacet(true)
 		.setFacetMinCount(1)
 		.setFacetLimit(-1);
@@ -575,14 +591,14 @@ public class ObservationService {
 
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
-			.addFilterQuery("biologicalSampleGroup:experimental")
-			.addFilterQuery("organisationId:" + organisationId)
-			.addFilterQuery("parameterId:" + parameterId)
-			.addFilterQuery("strain:" + strain.replace(":", "\\:"))
-			.addFilterQuery("zygosity:" + zygosity)
-			.addFilterQuery("gender:" + sex)
+			.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+			.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
+			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
+	    	.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
+			.addFilterQuery(ExperimentField.SEX + ":" + sex)
 			.setRows(0)
-			.addFacetField("geneAccession")
+			.addFacetField(ExperimentField.GENE_ACCESSION)
 			.setFacet(true)
 			.setFacetMinCount(1)
 			.setFacetLimit(-1);
@@ -606,20 +622,22 @@ public class ObservationService {
 
 	// gets categorical data for graphs on phenotype page 
 	public CategoricalSet getCategories(String parameter, ArrayList<String >genes, String biologicalSampleGroup, ArrayList<String>  strains) throws SolrServerException{
-		
 		CategoricalSet resSet = new CategoricalSet();
 		resSet.setName(biologicalSampleGroup);
 		SolrQuery query = new SolrQuery()
-		.addFilterQuery("biologicalSampleGroup:" + biologicalSampleGroup)
-		.addFilterQuery("parameterStableId:"+parameter);
-		String q = (strains.size() > 1) ? "(strain:\"" + StringUtils.join(strains.toArray(), "\" OR strain:\"") + "\")" : "strain:\"" + strains.get(0) + "\"";
+			.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":" + biologicalSampleGroup)
+			.addFilterQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + parameter);
+
+		String q = (strains.size() > 1) ? "("+ExperimentField.STRAIN+":\"" + StringUtils.join(strains.toArray(), "\" OR "+ExperimentField.STRAIN+":\"") + "\")" : ExperimentField.STRAIN+":\"" + strains.get(0) + "\"";
+
 		if (genes != null && genes.size() > 0){
 			q += " AND (";
-			q += (genes.size() > 1) ? "geneAccession:\"" + StringUtils.join(genes.toArray(), "\" OR geneAccession:\"") + "\"" : "geneAccession:\"" + genes.get(0) + "\"";
-			q+= ")";
+			q += (genes.size() > 1) ? ExperimentField.GENE_ACCESSION+":\"" + StringUtils.join(genes.toArray(), "\" OR "+ExperimentField.GENE_ACCESSION+":\"") + "\"" : ExperimentField.GENE_ACCESSION+":\"" + genes.get(0) + "\"";
+			q += ")";
 		}
+
 		query.setQuery(q);
-		query.set("group.field", "category");
+		query.set("group.field", ExperimentField.CATEGORY);
 		query.set("group", true);
 		
 		List<String> categories = new ArrayList<String> ();

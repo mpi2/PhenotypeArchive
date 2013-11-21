@@ -15,7 +15,9 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.dao.OrganisationDAO;
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.Organisation;
+import uk.ac.ebi.phenotype.pojo.Parameter;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:app-config.xml" })
@@ -25,6 +27,9 @@ public class ObservationServiceTest {
 
 	@Autowired
 	private ObservationService os;
+	
+	@Autowired
+	private PhenotypePipelineDAO parameterDAO;
 	
 	@Autowired
 	private OrganisationDAO organisationDAO;
@@ -64,14 +69,16 @@ public class ObservationServiceTest {
 	
 	@Test
 	public void testGetAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity() throws SolrServerException {
-		List<String> genes = os.getAllGeneAccessionIdsByParameterIdOrganisationIdStrainZygosity(2192, 3,"EUROCURATE1983", "homozygote");
+		Parameter p = parameterDAO.getParameterByStableIdAndVersion("M-G-P_009_001_002", 1, 1);
+		List<String> genes = os.getAllGeneAccessionIdsByParameterIdOrganisationIdStrainZygosity(p.getId(), 3,"EUROCURATE1983", "homozygote");
 		assertTrue(genes.size()>0);
 
 	}
 	
 	@Test
 	public void testGetAllStrainsByParameterIdOrganistion() throws SolrServerException {
-		List<String> strains = os.getStrainsByParameterIdOrganistionId(2192, 3);
+		Parameter p = parameterDAO.getParameterByStableIdAndVersion("M-G-P_009_001_002", 1, 1);
+		List<String> strains = os.getStrainsByParameterIdOrganistionId(p.getId(), 3);
 		assertTrue(strains.size()>0);
 		
 	}
