@@ -138,7 +138,7 @@ public class FileExportController {
 				if (dumpMode.equals("all")){
 					rowStart = 0;
 					//length = parseMaxRow(solrParams); // this is the facetCount
-					length = 9999999;
+					length = 100000;
 				}
 													
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
@@ -172,7 +172,7 @@ public class FileExportController {
 
 				if (dumpMode.equals("all")){
 					rowStart = 0;
-					length = 9999999;
+					length = 100000;
 				}
 
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
@@ -336,18 +336,12 @@ public class FileExportController {
 					data.add(doc.getString("resource_fullname"));
 					String graphUrl = "\"\"";
 					if ((doc.getString("resource_fullname")).equalsIgnoreCase("EuroPhenome")){ // only show links for Europhenome
-						// also don't show graph links for derived parameters
-						try {
-							if (!pipe.getParameterByStableId(doc.getString("parameter_stable_id"), "").getDerivedFlag()){
+					// also don't show graph links for derived parameters
+					//		if (!pipe.getParameterByStableId(doc.getString("parameter_stable_id"), "").getDerivedFlag()){
 								graphUrl = request.getParameter("baseUrl").replace("/genes/", "/stats/genes/") + "?parameterId=" ;
 								graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
 								graphUrl += "&zygosity=" + doc.getString("zygosity") ;
-							}
-						} catch (IOException e) {
-							e.printStackTrace();
-						} catch (URISyntaxException e) {
-							e.printStackTrace();
-						}
+					//		}
 					}
 					data.add(graphUrl);
 					String line = StringUtils.join(data, "\t");
@@ -390,17 +384,11 @@ public class FileExportController {
 					String graphUrl = "\"\"";
 					// TODO check, this might need to change
 					if ((doc.getString("resource_fullname")).equalsIgnoreCase("EuroPhenome")){ // only show links for Europhenome
-						try {
-							if (!pipe.getParameterByStableId(doc.getString("parameter_stable_id"), "").getDerivedFlag()){
+					//		if (!pipe.getParameterByStableId(doc.getString("parameter_stable_id"), "").getDerivedFlag()){
 								graphUrl = request.getParameter("baseUrl").replace("/phenotypes/", "/stats/genes/") + "?parameterId=" ;
 								graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
 								graphUrl += "&zygosity=" + doc.getString("zygosity") ;
-							}
-						} catch (IOException e) {
-							e.printStackTrace();
-						} catch (URISyntaxException e) {
-							e.printStackTrace();
-						}
+					//		}
 					}
 					data.add(graphUrl);
 					rowData.add(StringUtils.join(data, "\t"));
