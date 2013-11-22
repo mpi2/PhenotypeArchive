@@ -263,7 +263,6 @@ public class FileExportController {
 		SexType sex = null;
 		if (gender != null)
 			sex = SexType.valueOf(gender);
-		System.out.println("===parameterStableId : " + parameterStableId);
 		List<ExperimentDTO> experimentList = new ArrayList<ExperimentDTO> ();
 		if (parameterStableId.contains("\t")){
 			String [] params = parameterStableId.split("\t");

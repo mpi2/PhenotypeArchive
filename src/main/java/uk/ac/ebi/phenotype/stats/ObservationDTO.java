@@ -107,64 +107,90 @@ public class ObservationDTO {
 	 */
 
 	public String tabbedToString(){
-		return 	id + "\t" + pipelineName + "\t" + pipelineStableId + "\t" + procedureStableId + "\t" + parameterStableId
-				 + "\t" + pipelineId
-				 + "\t" + procedureId
-				 + "\t" + parameterId
+		String tabbed =	id + "\t" + pipelineName + "\t" + pipelineStableId + "\t" + procedureStableId + "\t" + parameterStableId
+			//	 + "\t" + pipelineId
+			//	 + "\t" + procedureId
+			//	 + "\t" + parameterId
 				 + "\t" + strain
-				 + "\t" + experimentSourceId
+			//	 + "\t" + experimentSourceId
 				 + "\t" + geneSymbol
 				 + "\t" + geneAccession
-				 + "\t" + experimentId
-				 + "\t" + organisationId
-				 + "\t" + observationType
+			//	 + "\t" + experimentId
+			//	 + "\t" + organisationId
+			//	 + "\t" + observationType
 				 + "\t" + organisation
 				 + "\t" + colonyId
 				 + "\t" + dateOfExperiment
-				 + "\t" + dateOfBirth
-				 + "\t" + biologicalSampleId
-				 + "\t" + biologicalModelId
+			//	 + "\t" + dateOfBirth
+			//	 + "\t" + biologicalSampleId
+			//	 + "\t" + biologicalModelId
 				 + "\t" + zygosity
 				 + "\t" + sex
 				 + "\t" + group
-				 + "\t" + category
-				 + "\t" + dataPoint
-				 + "\t" + orderIndex
-				 + "\t" + dimension
-				 + "\t" + timePoint
-				 + "\t" + discretePoint
-				 + "\t" + externalSampleId;
+			//	 + "\t" + category
+			//	 + "\t" + dataPoint
+			//	 + "\t" + orderIndex
+			//	 + "\t" + dimension
+			//	 + "\t" + timePoint
+			//	 + "\t" + discretePoint
+			//	 + "\t" + externalSampleId
+				 ;
+		
+		if (observationType.equalsIgnoreCase("unidimensional")){
+			tabbed += "\t" + dataPoint;
+		}
+		else if (observationType.equalsIgnoreCase("categorical")){
+			tabbed += "\t" + category;
+		}
+		else if (observationType.equalsIgnoreCase("time_series")){
+			tabbed += "\t" + dataPoint + "\t" + discretePoint;
+		}
+		return tabbed;
 	}
 	
 	public String getTabbedFields(){
-		return 	"id \t pipeline name" 
-				 + "\t pipeline stable id \t procedure stable id \t parameter stable id"
-				 + "\t pipeline id" 
-				 + "\t  procedureId"
-				 + "\t  parameterId"
-				 + "\t  strain"
-				 + "\t experimentSourceId"
+		String tabbed = "id"
+				 + "\t pipeline name" 
+				 + "\t pipeline stable id"
+				 + "\t procedure stable id"
+				 + "\t parameter stable id"
+			//	 + "\t pipeline id" 
+			//	 + "\t procedureId"
+			//	 + "\t parameterId"
+				 + "\t strain"
+			//	 + "\t experimentSourceId"
 				 + "\t geneSymbol"
 				 + "\t geneAccession"
-				 + "\t experimentId"
-				 + "\t organisationId"
-				 + "\t observationType"
+			//	 + "\t experimentId"
+			//	 + "\t organisationId"
+			//	 + "\t observationType"
 				 + "\t organisation"
 				 + "\t colonyId"
 				 + "\t dateOfExperiment"
-				 + "\t dateOfBirth"
-				 + "\t biologicalSampleId"
-				 + "\t biologicalModelId"
+			//	 + "\t dateOfBirth"
+			//	 + "\t biologicalSampleId"
+			//	 + "\t biologicalModelId"
 				 + "\t zygosity"
 				 + "\t sex"
 				 + "\t group"
-				 + "\t category"
-				 + "\t dataPoint"
-				 + "\t orderIndex"
-				 + "\t dimension"
-				 + "\t timePoint"
-				 + "\t discretePoint"
-				 + "\t externalSampleId";
+			//	 + "\t category"
+			//	 + "\t dataPoint"
+			//	 + "\t orderIndex"
+			//	 + "\t dimension"
+			//	 + "\t timePoint"
+			//	 + "\t discretePoint"
+			//	 + "\t externalSampleId"
+				 ;
+		if (observationType.equalsIgnoreCase("unidimensional")){
+			tabbed += "\t" + "dataPoint";
+		}
+		else if (observationType.equalsIgnoreCase("categorical")){
+			tabbed += "\t" + "category";
+		}
+		else if (observationType.equalsIgnoreCase("time_series")){
+			tabbed += "\t" + "dataPoint" + "\t" + "discretePoint";
+		}
+		return tabbed;
 	}
 	
 	public String getExternalSampleId() {
