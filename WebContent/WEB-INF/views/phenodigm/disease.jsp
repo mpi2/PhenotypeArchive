@@ -77,7 +77,7 @@
                 });
             });
         </script>
-        <div class='topic'>Gene associations for ${disease.term} <a href="http://omim.org/entry/${disease.diseaseIdentifier.databaseAcc}">(${disease.diseaseId})</a> </div>
+        <div class='topic'>Gene associations for ${disease.term} <a href="${disease.diseaseIdentifier.externalUri}">(${disease.diseaseId})</a> </div>
         <div class="row-fluid dataset">
             <div class="container span12">
                 <h4 class="topic">Curated Gene Associations</h4>
@@ -133,7 +133,9 @@
                                     <b style="color:#FF9000">${associationSummary.bestMgiScore}</b>   
                                 </td>
                                 <td>
-                                    <b style="color:#FF9000">${associationSummary.bestImpcScore}</b>   
+                                    <c:if test="${0.0 != associationSummary.bestImpcScore}">
+                                        <b style="color:#FF9000">${associationSummary.bestImpcScore}</b>
+                                    </c:if>
                                 </td>
                                 <td class="arrow">
 
@@ -203,7 +205,9 @@
                                             <b style="color:#FF9000">${associationSummary.bestMgiScore}</b>   
                                         </td>
                                         <td>
-                                            <b style="color:#FF9000">${associationSummary.bestImpcScore}</b>   
+                                            <c:if test="${0.0 != associationSummary.bestImpcScore}">
+                                                <b style="color:#FF9000">${associationSummary.bestImpcScore}</b>
+                                            </c:if>                                        
                                         </td>
                                         <td class="arrow">
 

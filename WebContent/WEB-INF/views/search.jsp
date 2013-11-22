@@ -120,6 +120,10 @@
 				<div><div class='facetCat'>Phenotypes</div><span class='facetCount countDisplay'></span></div>
 				<div class='facetCatList'></div>
 			</div>
+                        <div id='diseaseFacet'>
+				<div><div class='facetCat'>Diseases</div><span class='facetCount countDisplay'></span></div>
+				<div class='facetCatList'></div>
+			</div>
 			<div id='maFacet'>
 				<div><div class='facetCat'>Anatomy</div><span class='facetCount countDisplay'></span></div>
 				<div class='facetCatList'></div>
@@ -132,11 +136,7 @@
 				<div><div class='facetCat'>Images</div><span class='facetCount countDisplay'></span></div>
 				<div class='facetCatList'></div>
 			</div>
-			<div id='diseaseFacet'>
-				<div><div class='facetCat'>Diseases</div><span class='facetCount countDisplay'></span></div>
-				<div class='facetCatList'></div>
 			</div>
-		</div>
 		<!--  end of facet skeleton on left sidebar -->
 		
 		<!--  container to display dataTable -->

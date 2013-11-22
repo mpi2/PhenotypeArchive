@@ -87,8 +87,8 @@
         <div class="row-fluid dataset">
             <div class="container span12">
                 <h4 class="topic">Curated Disease Associations <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a></h4>
-                <c:choose>
-                    <c:when test="${empty curatedAssociations}">
+                    <c:choose>
+                        <c:when test="${empty curatedAssociations}">
                         No diseases are known to be associated with ${geneIdentifier.geneSymbol} according to external resources.
                     </c:when>
                     <c:otherwise>
@@ -134,10 +134,12 @@
                                             <b style="color:#FF9000">${associationSummary.bestMgiScore}</b>   
                                         </td>
                                         <td>
-                                            <b style="color:#FF9000">${associationSummary.bestImpcScore}</b>   
+                                            <c:if test="${0.0 != associationSummary.bestImpcScore}">
+                                                <b style="color:#FF9000">${associationSummary.bestImpcScore}</b>
+                                            </c:if>                                        
                                         </td>
                                         <td class="arrow">
-                                            
+
                                         </td>   
                                     </tr>
                                     <tr id="${geneIdentifier.databaseAcc}_${disease.diseaseIdentifier.databaseAcc}" requestpagetype= "gene" geneid="${geneIdentifier.compoundIdentifier}" diseaseid="${disease.diseaseIdentifier.compoundIdentifier}">
@@ -153,8 +155,8 @@
         <div class="row-fluid dataset">
             <div class="container span12">
                 <h4 class="topic">Phenotypic Disease Associations <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a></h4>
-                <c:choose>
-                    <c:when test="${empty phenotypeAssociations}">
+                    <c:choose>
+                        <c:when test="${empty phenotypeAssociations}">
                         No diseases are known to be associated with ${geneIdentifier.geneSymbol} according to external resources.
                     </c:when>
                     <c:otherwise>
@@ -199,10 +201,12 @@
                                             <b style="color:#FF9000">${associationSummary.bestMgiScore}</b>   
                                         </td>
                                         <td>
-                                            <b style="color:#FF9000">${associationSummary.bestImpcScore}</b>   
+                                            <c:if test="${0.0 != associationSummary.bestImpcScore}">
+                                                <b style="color:#FF9000">${associationSummary.bestImpcScore}</b>
+                                            </c:if>                                        
                                         </td>
                                         <td class="arrow">
-                                    
+
                                         </td>   
                                     </tr>
                                     <tr id="P${geneIdentifier.databaseAcc}_${disease.diseaseIdentifier.databaseAcc}" requestpagetype= "gene" geneid="${geneIdentifier.compoundIdentifier}" diseaseid="${disease.diseaseIdentifier.compoundIdentifier}">
