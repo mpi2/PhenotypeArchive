@@ -131,7 +131,9 @@
                                 </td>
                                 <!--Mouse Phenotype Evidence (Phenodigm)-->
                                 <td>
-                                    <b style="color:#FF9000">${associationSummary.bestMgiScore}</b>   
+                                    <c:if test="${0.0 != associationSummary.bestMgiScore}">
+                                        <b style="color:#FF9000">${associationSummary.bestMgiScore}</b>   
+                                    </c:if>                                        
                                 </td>
                                 <td>
                                     <c:if test="${0.0 != associationSummary.bestImpcScore}">
@@ -204,7 +206,9 @@
                                         </td>
                                         <!--Mouse Phenotype Evidence (Phenodigm)-->
                                         <td>
-                                            <b style="color:#FF9000">${associationSummary.bestMgiScore}</b>   
+                                            <c:if test="${0.0 != associationSummary.bestMgiScore}">
+                                                <b style="color:#FF9000">${associationSummary.bestMgiScore}</b>   
+                                            </c:if>                                        
                                         </td>
                                         <td>
                                             <c:if test="${0.0 != associationSummary.bestImpcScore}">
