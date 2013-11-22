@@ -500,7 +500,29 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 			Experiment experiment) {
 		
 		Observation obs = null;
-		
+//		if (observationType == ObservationType.image_record) {
+//
+////			logger.debug("Series :" + secondDimensionValue + "\t" + firstDimensionValue);
+//			
+//			MediaObservation imgObservation = new MediaObservation();
+//			
+////			if (firstDimensionValue == null || firstDimensionValue.equals("null") || firstDimensionValue.equals("")) {
+////				imgObservation.setMissingFlag(true);
+////			} else {
+////				imgObservation.setDataPoint(Float.parseFloat(firstDimensionValue));
+////			}
+//			
+//			Date dateOfExperiment = (experiment != null) ? experiment.getDateOfExperiment() : null;
+//			//imgObservation.setTimePoint(secondDimensionValue, dateOfExperiment, secondDimensionUnit);
+//			imgObservation.setDatasource(datasource);
+//			imgObservation.setExperiment(experiment);
+//			imgObservation.setParameter(parameter);
+//			imgObservation.setSample(sample);
+//			imgObservation.setType(observationType);
+//
+//			obs = imgObservation;
+//			
+//		} 
 		if (observationType == ObservationType.time_series) {
 
 //			logger.debug("Series :" + secondDimensionValue + "\t" + firstDimensionValue);

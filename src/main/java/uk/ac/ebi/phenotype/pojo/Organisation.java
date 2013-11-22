@@ -60,7 +60,7 @@ public class Organisation implements Serializable {
 	  )
 	private Set<Project> projects = new HashSet<Project>();
 	
-	protected Organisation() {
+	public  Organisation() {
 		super();
 	}
 
