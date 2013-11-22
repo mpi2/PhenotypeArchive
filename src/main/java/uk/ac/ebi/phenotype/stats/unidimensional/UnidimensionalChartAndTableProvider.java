@@ -535,12 +535,13 @@ public class UnidimensionalChartAndTableProvider {
 															// the forward slash
 					alleleComposition = alleleComposition.substring(0,
 							alleleComposition.indexOf("/"));
-					if(sexType.equals(SexType.female)) {
+				}
+				if(sexType.equals(SexType.female)) {
 					tempObje.setSampleSizeFemale(experiment.getMutants(sexType, zType).size());
 					}else {
 						tempObje.setSampleSizeMale(experiment.getMutants(sexType, zType).size());
 					}
-				}
+				
 				tempObje.setZygosity(zType);
 				tempObje.setLine(alleleComposition);
 				if (expBiologicalModel.getAlleles().size() > 0) {
