@@ -382,6 +382,33 @@ public class ExperimentService {
 	public CategoricalSet getCategories(String parameter, ArrayList<String >genes, String biologicalSampleGroup, ArrayList<String>  strains) throws SolrServerException{
 		return os.getCategories(parameter, genes, biologicalSampleGroup, strains);
 	}
+
+
+	public List<ExperimentDTO> getExperimentDTO(Integer id, String acc,
+			List<String> genderList, List<String> zyList) throws SolrServerException, IOException, URISyntaxException {
+		List<ExperimentDTO> experimentList=new ArrayList<ExperimentDTO>();
+		
+		if (genderList.isEmpty() || genderList.size()==2) {//if gender list is size 2 assume both sexes so no filter needed
+			
+			
+			if (zyList.isEmpty() || zyList.size()==2) {//if zygosity list is size 2 then no filter needed either
+				experimentList=this.getExperimentDTO(id, acc,  null, null, null, null);
+			}else {
+				experimentList=this.getExperimentDTO(id, acc,  null, null, zyList.get(0), null);
+			}
+			
+		}else {
+			String gender=genderList.get(0);
+			if (zyList.isEmpty() || zyList.size()==2) {
+				experimentList=this.getExperimentDTO(id, acc, SexType.valueOf(gender), null, null, null);
+			}else {
+				experimentList=this.getExperimentDTO(id, acc, SexType.valueOf(gender), null, zyList.get(0), null);
+			}
+			
+		}
+		
+		return experimentList;
+	}
 	
 	
 }

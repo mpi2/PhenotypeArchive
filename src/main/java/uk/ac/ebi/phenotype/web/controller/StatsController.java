@@ -60,6 +60,7 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.ParameterIncrement;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
+import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ChartType;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
@@ -240,7 +241,9 @@ public class StatsController implements BeanFactoryAware {
 				
 			}
 			
-			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc);
+			//List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc);
+			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList);
+			System.out.println(experimentList);
 			if(experimentList.size()!=0) {
 				noData=false;
 			//log.debug("Experiment dto marker="+experimentList);
