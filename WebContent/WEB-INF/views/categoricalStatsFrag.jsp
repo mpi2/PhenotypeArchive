@@ -11,7 +11,7 @@
 						// alert("categorical");
 						$('div#exportIconsDivCat').append(
 								$.fn.loadFileExporterUI({
-									label : 'Export data as: (categ)',
+									label : 'Export data as: ',
 									formatSelector : {
 										TSV : 'tsv_phenoAssoc',
 										XLS : 'xls_phenoAssoc'

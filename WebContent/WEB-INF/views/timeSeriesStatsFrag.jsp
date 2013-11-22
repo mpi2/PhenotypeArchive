@@ -72,7 +72,7 @@
 					function() {
 						$('div#exportIconsDivTS').append(
 								$.fn.loadFileExporterUI({
-									label : 'Export data as: (timeSeries)',
+									label : 'Export data as: ',
 									formatSelector : {
 										TSV : 'tsv_phenoAssoc',
 										XLS : 'xls_phenoAssoc'

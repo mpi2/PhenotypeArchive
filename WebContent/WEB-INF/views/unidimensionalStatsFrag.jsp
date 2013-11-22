@@ -207,7 +207,7 @@
 						$('div#exportIconsDivUni').html("");
 						$('div#exportIconsDivUni').append(
 								$.fn.loadFileExporterUI({
-									label : 'Export data as: (uni)',
+									label : 'Export data as: ',
 									formatSelector : {
 										TSV : 'tsv_phenoAssoc',
 										XLS : 'xls_phenoAssoc'

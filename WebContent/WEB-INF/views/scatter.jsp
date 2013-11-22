@@ -304,7 +304,7 @@
 						});
 						$('div#exportIconsDiv').append(
 								$.fn.loadFileExporterUI({
-									label : 'Export data as: (scatter)',
+									label : 'Export data as: ',
 									formatSelector : {
 										TSV : 'tsv_phenoAssoc',
 										XLS : 'xls_phenoAssoc'

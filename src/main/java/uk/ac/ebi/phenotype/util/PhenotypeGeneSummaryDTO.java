@@ -2,23 +2,23 @@ package uk.ac.ebi.phenotype.util;
 
 public class PhenotypeGeneSummaryDTO {
 
-	public float getMalePercentage() {
+	public String getMalePercentage() {
 		return malePercentage;
 	}
 	public void setMalePercentage(float malePercentage) {
-		this.malePercentage = malePercentage;
+		this.malePercentage = String.format("%.2f", malePercentage);
 	}
-	public float getFemalePercentage() {
+	public String getFemalePercentage() {
 		return femalePercentage;
 	}
 	public void setFemalePercentage(float femalePercentage) {
-		this.femalePercentage = femalePercentage;
+		this.femalePercentage = String.format("%.2f", femalePercentage);
 	}
-	public float getTotalPercentage() {
+	public String getTotalPercentage() {
 		return totalPercentage;
 	}
 	public void setTotalPercentage(float totalPercentage) {
-		this.totalPercentage = totalPercentage;
+		this.totalPercentage = String.format("%.2f", totalPercentage);
 	}
 	public int getMaleGenesTested() {
 		return maleGenesTested;
@@ -65,9 +65,9 @@ public class PhenotypeGeneSummaryDTO {
 	
 	private boolean display;
 	
-	private float malePercentage;
-	private float femalePercentage;
-	private float totalPercentage;
+	private String malePercentage;
+	private String femalePercentage;
+	private String totalPercentage;
 	
 	private int maleGenesTested;
 	private int femaleGenesTested;
