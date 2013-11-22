@@ -7,10 +7,8 @@
 </c:if>
 
 <c:forEach var="unidimensionalDataSet" items="${allUnidimensionalDataSets}" varStatus="unidimensionalDataSetLoop">
-<c:if test="${fn:length(categoricalResultAndCharts.maleAndFemale)>0}">
+<c:if test="${fn:length(unidimensionalDataSet.statsObjects)>0}">
  <div class="row-fluid dataset"> 
-
-		<c:if test="${fn:length(unidimensionalDataSet.statsObjects)>0}">
 		 	<div class="row-fluid">
 		 	<!-- statsObject 1 is the first non WT set which is where we get the background strain from not 0 which is control which we currently don't pass to graphs the background strain for -->
 		 			<div class="container span6"><h4>Allele -  <t:formatAllele> ${unidimensionalDataSet.statsObjects[1].allele }</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${unidimensionalDataSet.statsObjects[1].geneticBackground }</span></h4>
@@ -283,7 +281,6 @@
 						}
 					});
 </script>	
- 				</c:if>
 	<!-- </div> -->
 </div><!-- end of row fluid data set -->
 </c:if>
