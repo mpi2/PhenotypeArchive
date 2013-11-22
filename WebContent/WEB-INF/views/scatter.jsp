@@ -61,9 +61,7 @@
 			items="${allUnidimensionalDataSets}"
 			varStatus="unidimensionalDataSetLoop">
  <div class="row-fluid dataset"> 
- <c:if test="${fn:length(unidimensionalDataSet.statsObjects)==0}">
-		No data for this zygosity and gender for this parameter and gene
-		</c:if>
+ 
 		<c:if test="${fn:length(unidimensionalDataSet.statsObjects)>0}">
 		 <div class="row-fluid">
 		 	<div class="container span6">

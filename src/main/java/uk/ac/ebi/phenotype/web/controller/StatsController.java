@@ -131,7 +131,7 @@ public class StatsController implements BeanFactoryAware {
 			throws GenomicFeatureNotFoundException, IOException, URISyntaxException, SolrServerException {
 
 		boolean statsError=false;
-		boolean noData=false;//if we have no data for this phenotype call summary we link back to europhenome!!!
+		boolean noData=true;//if we have no data for this phenotype call summary we link back to europhenome!!!
 		// Get the global application configuration
 		@SuppressWarnings("unchecked")
 		Map<String, String> config = (Map<String, String>) bf
@@ -241,39 +241,39 @@ public class StatsController implements BeanFactoryAware {
 			}
 			
 			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc);
-			if(experimentList.size()==0) {
-				noData=true;
-			}
+			if(experimentList.size()!=0) {
+				noData=false;
 			//log.debug("Experiment dto marker="+experimentList);
 			//ESLIM_003_001_003 id=962 calorimetry data for time series graph new MGI:1926153
 			//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1926153?parameterId=ESLIM_003_001_003
-			try{
-			
-			if(observationTypeForParam.equals(ObservationType.time_series)){
-				//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
+				try{
 				
-				List<ChartData> timeSeriesForParam=timeSeriesChartAndTableProvider.doTimeSeriesData(bmDAO, experimentList, parameter, model, genderList, zyList , timeSeriesChartsAndTables.size()+1, biologicalModelsParams);
-				timeSeriesChartsAndTables.addAll(timeSeriesForParam);
-			}
-			
-			if(observationTypeForParam.equals(ObservationType.unidimensional)){
-				//http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
-				log.info("calling chart creation for unidimensional data");
-				//log.info("experimentList="+experimentList);
-					List<UnidimensionalDataSet> unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(experimentList, bmDAO, config, unidimensionalMutantBiologicalModels, parameter, acc, model , genderList, zyList, ChartType.UnidimensionalBoxPlot, false);
-					allUnidimensionalDataSets.addAll(unidimensionalChartNTables);
-			}
-			if(observationTypeForParam.equals(ObservationType.categorical)){
-				//https://dev.mousephenotype.org/mi/impc/dev/phenotype-archive/stats/genes/MGI:1346872?parameterId=ESLIM_001_001_004
-			
-					List<CategoricalResultAndCharts> listOfcategoricalResultAndCharts=categoricalChartAndTableProvider.doCategoricalData(experimentList, bmDAO, config, parameter,  acc, model, genderList, zyList, biologicalModelsParams,
-					charts, categoricalTables, parameterId);
-					allCategoricalResultAndCharts.addAll(listOfcategoricalResultAndCharts);
-			
-			}
-			} catch (SQLException e) {
-				e.printStackTrace();
-				statsError=true;
+				if(observationTypeForParam.equals(ObservationType.time_series)){
+					//http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
+					
+					List<ChartData> timeSeriesForParam=timeSeriesChartAndTableProvider.doTimeSeriesData(bmDAO, experimentList, parameter, model, genderList, zyList , timeSeriesChartsAndTables.size()+1, biologicalModelsParams);
+					timeSeriesChartsAndTables.addAll(timeSeriesForParam);
+				}
+				
+				if(observationTypeForParam.equals(ObservationType.unidimensional)){
+					//http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
+					log.info("calling chart creation for unidimensional data");
+					//log.info("experimentList="+experimentList);
+						List<UnidimensionalDataSet> unidimensionalChartNTables = continousChartAndTableProvider.doUnidimensionalData(experimentList, bmDAO, config, unidimensionalMutantBiologicalModels, parameter, acc, model , genderList, zyList, ChartType.UnidimensionalBoxPlot, false);
+						allUnidimensionalDataSets.addAll(unidimensionalChartNTables);
+				}
+				if(observationTypeForParam.equals(ObservationType.categorical)){
+					//https://dev.mousephenotype.org/mi/impc/dev/phenotype-archive/stats/genes/MGI:1346872?parameterId=ESLIM_001_001_004
+				
+						List<CategoricalResultAndCharts> listOfcategoricalResultAndCharts=categoricalChartAndTableProvider.doCategoricalData(experimentList, bmDAO, config, parameter,  acc, model, genderList, zyList, biologicalModelsParams,
+						charts, categoricalTables, parameterId);
+						allCategoricalResultAndCharts.addAll(listOfcategoricalResultAndCharts);
+				
+				}
+				} catch (SQLException e) {
+					e.printStackTrace();
+					statsError=true;
+				}
 			}
 		}// end of parameterId iterations
 

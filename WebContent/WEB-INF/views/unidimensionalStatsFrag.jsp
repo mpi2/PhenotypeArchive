@@ -7,10 +7,9 @@
 </c:if>
 
 <c:forEach var="unidimensionalDataSet" items="${allUnidimensionalDataSets}" varStatus="unidimensionalDataSetLoop">
+<c:if test="${fn:length(categoricalResultAndCharts.maleAndFemale)>0}">
  <div class="row-fluid dataset"> 
- 		<c:if test="${fn:length(unidimensionalDataSet.statsObjects)==0}">
-		No unidimensional data for this zygosity and gender for this parameter and gene
-		</c:if>
+
 		<c:if test="${fn:length(unidimensionalDataSet.statsObjects)>0}">
 		 	<div class="row-fluid">
 		 	<!-- statsObject 1 is the first non WT set which is where we get the background strain from not 0 which is control which we currently don't pass to graphs the background strain for -->
@@ -287,5 +286,6 @@
  				</c:if>
 	<!-- </div> -->
 </div><!-- end of row fluid data set -->
+</c:if>
 </c:forEach><!--  end of undimensional data loop -->
 

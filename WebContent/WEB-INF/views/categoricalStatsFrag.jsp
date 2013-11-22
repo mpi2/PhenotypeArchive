@@ -89,12 +89,11 @@
 </script>
 	
 </c:if>
+
+	
 <c:forEach var="categoricalResultAndCharts" items="${allCategoricalResultAndCharts}" varStatus="experimentLoop">
 	<div class="row-fluid dataset">
-	<c:if test="${fn:length(categoricalResultAndCharts.maleAndFemale)==0}">
-	No Categorical data for this zygosity and gender for this parameter and gene
-	</c:if>
-	<c:if test="${fn:length(categoricalResultAndCharts.maleAndFemale)>0}">
+	
  		<div class="row-fluid">
 				<div class="container span12">
 		 				<h4>Allele - <t:formatAllele>${categoricalResultAndCharts.maleAndFemale[0].biologicalModel.alleles[0].symbol}</t:formatAllele> <span class="graphGenBackground"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${categoricalResultAndCharts.maleAndFemale[0].biologicalModel.geneticBackground} </span></h4>
@@ -237,7 +236,6 @@
 						</c:forEach> --%>
 				</div>
 				
-				</c:if>
  	</div>
  </c:forEach>
  

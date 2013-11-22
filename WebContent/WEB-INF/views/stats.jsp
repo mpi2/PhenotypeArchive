@@ -68,15 +68,16 @@
 						<strong>We don't appear to have any data for this query please try the europhenome graph link instead</strong>
 					</div>
 		</c:if>
-	
+		<c:if test="${not noData}">			
+			<jsp:include page="timeSeriesStatsFrag.jsp"/>
+			
+			<jsp:include page="categoricalStatsFrag.jsp"/>
+			
+			<jsp:include page="unidimensionalStatsFrag.jsp"/>
+					
+		</c:if>
 
 
-
-<jsp:include page="timeSeriesStatsFrag.jsp"/>
-
-<jsp:include page="categoricalStatsFrag.jsp"/>
-
-<jsp:include page="unidimensionalStatsFrag.jsp"/>
 
 
 		
