@@ -92,6 +92,7 @@
 
 	
 <c:forEach var="categoricalResultAndCharts" items="${allCategoricalResultAndCharts}" varStatus="experimentLoop">
+<c:if test="${fn:length(categoricalResultAndCharts.maleAndFemale)>0}">
 	<div class="row-fluid dataset">
 	
  		<div class="row-fluid">
@@ -237,6 +238,7 @@
 				</div>
 				
  	</div>
+</c:if>
  </c:forEach>
  
 

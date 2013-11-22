@@ -60,9 +60,10 @@
  <c:forEach var="unidimensionalDataSet"
 			items="${allUnidimensionalDataSets}"
 			varStatus="unidimensionalDataSetLoop">
- <div class="row-fluid dataset"> 
- 
-		<c:if test="${fn:length(unidimensionalDataSet.statsObjects)>0}">
+			
+	<c:if test="${fn:length(unidimensionalDataSet.statsObjects)>0}">
+ 		<div class="row-fluid dataset"> 
+
 		 <div class="row-fluid">
 		 	<div class="container span6">
 							<h4>Allele -  <t:formatAllele> ${unidimensionalDataSet.statsObjects[1].allele }</t:formatAllele> <span
@@ -283,9 +284,9 @@
  						</div>
  				</div>
  				</c:if>	
- 				</c:if>
 	<!-- </div> -->
 </div>
+ 				</c:if>
 			<!-- end of row fluid data set -->
 </c:forEach>
 		<!--  end of undimensional data loop -->

@@ -59,7 +59,7 @@
 									<td>
 										<ul>
 										<c:forEach var="synonym" items="${synonyms}" varStatus="loop">${synonym.symbol}<c:if test="${!loop.last}"><br /></c:if>
-											<c:if test="${loop.count==3 && fn:length(synonyms)>2}"><a data-toggle="collapse" data-target="#other_synonyms" href="#">+...</a><div id="other_synonyms" class="collapse"></c:if>
+											<c:if test="${loop.count==3 && !loop.last}"><a data-toggle="collapse" data-target="#other_synonyms" href="#">+...</a><div id="other_synonyms" class="collapse"></c:if>
 											<c:if test="${loop.last && fn:length(synonyms) >3}"></div></c:if>
 								
 										</c:forEach>
