@@ -15,6 +15,102 @@ Getting Started
 ---------------
 You need a Java 1.7 VM or later installed and a servlet container.
 
+================== Release 0.3.0 ==================
+
+Status
+------
+22 November 2013 release.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  Compute and display percentage of lines having a given phenotype
+
+Other Changes
+ 1.  Message displayed when data is missing from experimental core (graph)
+ 2.  Number of synonyms shown on phenotype pages limited by default
+ 3.  Title for graph page changed to include the parameter names
+ 4.  Disease facet moved up in search results
+ 
+Bug fixes
+ 1.  Image display issue for LacZ expression images
+ 2.  Breadcrumb for graph page fixed
+ 3.  Export from graph now work on multiple parameters
+ 4.  Fix link to diseases facet on breadcrumb from a disease page
+ 5.  "mortality/aging" phenotype facet fixed
+  
+ Known bugs 
+ 1.  Error message on categorical graph pages
+ 2.  Link from phenotype page to MGI Phenotype browser is broken
+ 3.  Duplicate entries for procedures/pipelines
+
+================== Release 0.2.9 ==================
+
+Status
+------
+8 November 2013 release.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  Documentation available from the webpages
+ 2.  Search by disease (new disease facet) based on PhenoDigm associations
+ 3.  Export disease information from search page
+ 4.  Derived parameter calculation
+
+Other Changes
+ 1.  Integration of PhenoDigm predicted information into Solr
+ 2.  Inferred MA terms associated to MP terms for images added to image Solr
+ 
+ Known bugs 
+ 1.  Some disease pages are broken
+ 
+================== Release 0.2.8 ==================
+
+Status
+------
+25 October 2013 release.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  Scatter plot for time series and categorical charts
+ 2.  Unidimensional scatter plot displays points by dates
+
+Other Changes
+ 1.  Scatter plots for blood pressure graphs
+ 2.  MP accession removedd from Phenotype summary on gene page
+ 3.  All genotypes shown on high-level MP page
+ 4.  Associate MP terms to multiple parents in genotype-phenotype Solr core
+ 5.  EuroPhenome Project ID added to the genotype-phenotype Solr core
+ 6.  Scatter plots min and max across plots match
+ 7.  Allele accession available on charts
+ 8.  Phenotype MP term added to the table on the phenotype top level phenotype 
+     page
+  
+ Known bugs 
+ 1.  Link back from image view on breadcrumb is broken
+ 2.  Data export broken on gene page
+ 3.  Data export broken on phenotype page
+ 
+================== Release 0.2.7 ==================
+
+Status
+------
+11 October 2013 release.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  Gene symbol filter added on genotype table of phenotype page
+
+Other Changes
+ 1.  MP synonyms loaded in database to track obsolete MP terms
+
 ================== Release 0.2.6 ==================
 
 Status
