@@ -1,4 +1,4 @@
-// Timestamp: 2013-11-01-13:27:23
+// Timestamp: 2013-11-21-11:03:21
 (function ($) {
     'use strict';
 
@@ -111,6 +111,8 @@
             defaultSolrURLs: {
                 gene: 'http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/search',
                 allele: 'http://ikmc.vm.bytemark.co.uk:8983/solr/allele/search',
+                //allele: 'http://ikmc.vm.bytemark.co.uk:8984/solr/allele/search',
+                //allele: 'http://deskpro101067.internal.sanger.ac.uk:8983/solr/allele/search',
                 parameter: 'http://beta.mousephenotype.org/mi/solr/pipeline/select',
                 phenotype: 'http://beta.mousephenotype.org/mi/solr/mp/select'
             }
@@ -915,7 +917,7 @@
             $.MPI2.mpi2SolrGrid.prototype._create.call(self);
 
             self._shouldHideRedundantData = true;
-            self._shouldHideGeneData = true;
+            self._shouldHideGeneData = false;
 
             self.container.addClass('allele');
             self.lastSearchContainer.hide();
@@ -934,6 +936,12 @@
             self.grid.before(self.buttonContainer);
         },
 
+        // see http://stackoverflow.com/questions/18082/validate-numbers-in-javascript-isnumeric
+
+        isNumber: function(n) {
+            return !isNaN(parseFloat(n)) && isFinite(n);
+        },
+
         _buildColumns: function () {
             var self = this;
 
@@ -941,7 +949,38 @@
                 {
                     name: 'product',
                     title: 'Product',
-                    cellRenderer: function (doc) {return $('<span>' + doc.solrDoc.product_type + '</span>');}
+                    cellRenderer: function (doc) {
+                        return $('<span>' + doc.solrDoc.product_type + '</span>');
+                    },
+                    tdRenderer: function (doc) {
+                        var colspan = '';
+
+                        if(doc.solrDoc.type !== 'gene' || doc.solrDoc.vector_project_ids.length < 1) {
+                            var td = $('<td class="' + this.name + '"></td>');
+                            td.append(this.cellRenderer.call(this, doc));
+                            return td;
+                        }
+
+                        colspan = 'colspan="8"';
+
+                        var html = '';
+                        $.each(doc.solrDoc.vector_project_ids, function(index, value) {
+                            if(value.length < 1 || ! self.isNumber(value)) {
+                                return;
+                            }
+                            html += '<a href="' + 'http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/' + value + '" target="_blank">' + value + '</a>' + '&nbsp;';
+                        });
+
+                        doc.solrDoc.project_ids = undefined;
+
+                        var marker_symbol = "<a href='https://www.mousephenotype.org/phenotype-archive/search#q=" + doc.solrDoc.marker_symbol + "'>" + doc.solrDoc.marker_symbol + "</a>";
+
+                        //var blurb = html.length > 0 ? "Additional Targeting vectors are available for this gene (" + marker_symbol + ") see links for details: " : '';
+                        var blurb = html.length > 0 ? "Additional Targeting vectors are available for this gene - see links for details: " : '';
+
+                        var td = $('<td ALIGN="center" ' + colspan + '>' + blurb + html + '</td>');
+                        return td;
+                    }
                 },
                 {
                     name: 'allele-type',
@@ -980,7 +1019,12 @@
                 {
                     name: 'allele-sequence',
                     title: 'Allele Sequence',
-                    cellRenderer: function (doc) {return $('<a href=' + doc.solrDoc.genbank_file_url + '>Genbank file</a>');}
+                    cellRenderer: function (doc) {
+                        if(!doc.solrDoc.genbank_file_url) {
+                            return '';
+                        }
+                        return $('<a href=' + doc.solrDoc.genbank_file_url + '>Genbank file</a>');
+                    }
                 },
                 {
                     name: 'projects',
@@ -1113,9 +1157,10 @@
 
         _sortDocs: function (docs) {
             var priorities = {
-                'allele':          100,
-                'mi_attempt':       10,
-                'phenotype_attempt': 1
+                'allele':            1000,
+                'mi_attempt':        100,
+                'phenotype_attempt': 10,
+                'gene':              1
             };
             docs.sort(function (doc1, doc2) {
                 var p1 = priorities[doc1.solrDoc.type], p2 = priorities[doc2.solrDoc.type];
