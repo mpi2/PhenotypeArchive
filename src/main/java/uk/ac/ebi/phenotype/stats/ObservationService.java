@@ -622,22 +622,16 @@ public class ObservationService {
 		query.set("group.field", "category");
 		query.set("group", true);
 		
-		System.out.println("query :  " + query);
 		List<String> categories = new ArrayList<String> ();
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
 		for (Group gr : groups){
 			categories.add((String) gr.getGroupValue());
-			System.out.println(" - cat : " + gr.getGroupValue() + " count "  + gr.getResult().getNumFound());
 			CategoricalDataObject catObj = new CategoricalDataObject();
 			catObj.setCount((long) gr.getResult().getNumFound());
 			catObj.setCategory(gr.getGroupValue());
 			resSet.add(catObj);
-			System.out.println("----");
-			System.out.println(catObj);
-			System.out.println("----");
 		}
 		
-		System.out.println("QUERY - getCategories " + query);
 		return resSet;
 	}
 }

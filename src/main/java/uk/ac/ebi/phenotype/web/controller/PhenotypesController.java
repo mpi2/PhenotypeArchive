@@ -251,13 +251,8 @@ public class PhenotypesController {
 	private List<CategoricalResultAndCharts> getCategoricalDataOverviewCharts(String mpId, Model model) throws SolrServerException, IOException, URISyntaxException, SQLException{
 		List<CategoricalResultAndCharts> listOfChartsAndResults = new ArrayList<>();//one object for each parameter
 
-		long time = System.currentTimeMillis();
 		List<String> parameters = pipelineDao.getParameterStableIdsByPhenotypeTerm(mpId);
-		long gettingparameters = System.currentTimeMillis() - time;
-		long getgenes = 0;
-		long adding = 0 ;
-		long faster = 0;
-		long getExperiments = 0;
+		long time = System.currentTimeMillis();
 		List<ExperimentDTO> experimentList = new ArrayList<ExperimentDTO> ();
 		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
 		HttpSolrServer solr = getSolrInstance("genotype-phenotype");
@@ -267,41 +262,18 @@ public class PhenotypesController {
 		for (String parameter : parameters) {
 			// get all genes associated with mpId because of parameter
 			Parameter p = pipelineDao.getParameterByStableIdAndVersion(parameter, 1, 0);
-//			System.out.println("parameter : " + p + " for " + parameter + "  ");
 			if(p != null && Utilities.checkType(p).equals(ObservationType.categorical)){
-				//https://dev.mousephenotype.org/mi/impc/dev/phenotype-archive/stats/genes/MGI:1346872?parameterId=ESLIM_001_001_004
-				time = System.currentTimeMillis();
 				List<String> genes = getGenesAssocByParamAndMp(parameter, mpId, solr);
-				getgenes += System.currentTimeMillis() - time ;
 				if (genes.size() > 0){
-			/*		for (String gene : genes){
-						time = System.currentTimeMillis();
-						experimentList.addAll(experimentService.getExperimentDTO(parameter, gene, "MGI:2159965"));
-						getExperiments += (System.currentTimeMillis() - time);
-						time = System.currentTimeMillis();
-						experimentList.addAll(experimentService.getExperimentDTO(parameter, gene, "MGI:2164831"));
-						getExperiments += (System.currentTimeMillis() - time);
-					}
-					time = System.currentTimeMillis();
-					listOfChartsAndResults.add(cctp.doCategoricalDataOverview(experimentList, model, parameter));
-					adding += System.currentTimeMillis() - time ;
-*/
-					time = System.currentTimeMillis();
 					CategoricalSet controlSet = experimentService.getCategories(parameter, null , "control", strains);
 					controlSet.setName("Control");
 					CategoricalSet mutantSet = experimentService.getCategories(parameter, (ArrayList<String>) genes, "experimental", strains);
 					mutantSet.setName("Mutant");
 					listOfChartsAndResults.add(cctp.doCategoricalDataOverview(controlSet, mutantSet, model, parameter, p.getName()+" ("+parameter+")"));
-					faster += System.currentTimeMillis() - time ;
 				}
 			}
 		}
-//		System.out.println("I'VE ADDED " +  listOfChartsAndResults.size());
-		System.out.println("gettingparameters " + gettingparameters);
-		System.out.println("getgenes " + getgenes);
-		System.out.println("getExperiments " + getExperiments);
-		System.out.println("adding " + adding);
-		System.out.println("faster " + faster);
+		log.info("Generating the overview graphs took " + (System.currentTimeMillis() - time) + " milliseconds.") ;
 		return listOfChartsAndResults;
 	}
 		
@@ -313,7 +285,6 @@ public class PhenotypesController {
 		.setRows(10000);	
 		query.set("group.field", "marker_accession_id");
 		query.set("group", true);
-//		System.out.println("=====" + solr.getBaseURL() + query);
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
 		for (Group gr : groups){
 			if (!res.contains((String)gr.getGroupValue())){

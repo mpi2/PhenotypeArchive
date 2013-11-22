@@ -151,9 +151,9 @@
 		</div-->
 		<c:if test="${overviewPhenCharts.size()>0}">
 		<div class="half">
-		<c:forEach var="categoricalResultAndCharts" items="${overviewPhenCharts}" varStatus="experimentLoop">
+		<!-- c:forEach var="categoricalResultAndCharts" items="${overviewPhenCharts}" varStatus="experimentLoop"-->
 		<div class="row-fluid">
- 				<c:forEach var="categoricalChartDataObject" items="${categoricalResultAndCharts.getMaleAndFemale()}" varStatus="chartLoop">
+ 				<c:forEach var="categoricalChartDataObject" items="${overviewPhenCharts.get(0).getMaleAndFemale()}" varStatus="chartLoop">
   				 	<div class="container span6">
 								<div id="categoricalBarChart${categoricalChartDataObject.chartIdentifier}"
 									style="min-width: 400px; height: 400px; margin: 0 auto">
@@ -164,7 +164,7 @@
 					</div>
  				</c:forEach>
 		</div>
-		</c:forEach>
+		<!-- /c:forEach-->
 		</div>
 		</c:if>
 	</div>
