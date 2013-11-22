@@ -622,6 +622,7 @@ public class ObservationService {
 
 	// gets categorical data for graphs on phenotype page 
 	public CategoricalSet getCategories(String parameter, ArrayList<String >genes, String biologicalSampleGroup, ArrayList<String>  strains) throws SolrServerException{
+
 		CategoricalSet resSet = new CategoricalSet();
 		resSet.setName(biologicalSampleGroup);
 		SolrQuery query = new SolrQuery()
