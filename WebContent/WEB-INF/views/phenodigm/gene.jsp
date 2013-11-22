@@ -86,6 +86,7 @@
 
         <div class="row-fluid dataset">
             <div class="container span12">
+                <div class='documentation'><a href='${baseUrl}/documentation/disease-help.html#details' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
                 <h4 class="topic">Curated Disease Associations <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a></h4>
                     <c:choose>
                         <c:when test="${empty curatedAssociations}">
@@ -154,6 +155,7 @@
 
         <div class="row-fluid dataset">
             <div class="container span12">
+                <div class='documentation'><a href='${baseUrl}/documentation/disease-help.html#details' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
                 <h4 class="topic">Phenotypic Disease Associations <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a></h4>
                     <c:choose>
                         <c:when test="${empty phenotypeAssociations}">

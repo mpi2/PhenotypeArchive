@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>International Mouse Phenotyping Consortium Documentation</title>
+
+        <link type='text/css' rel='stylesheet' href='../css/bootstrap.min.css'  />
+        <link type='text/css' rel='stylesheet' href='../css/bootstrap-responsive.min.css'  />
+        <script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+        <script type="text/javascript" src="../js/helpDocLogo.js"></script>
+        <script type="text/javascript">
+            var _gaq = _gaq || [];
+            _gaq.push(["_setAccount", ""]);
+            _gaq.push(["_trackPageview"]);
+            (function() {
+                var ga = document.createElement("script");
+                ga.type = "text/javascript";
+                ga.async = true;
+                ga.src = "https://dev.mousephenotype.org/sites/mousephenotype.org/files/googleanalytics/ga.js?mjafjk";
+                var s = document.getElementsByTagName("script")[0];
+                s.parentNode.insertBefore(ga, s);
+            })();
+        </script>
+    </head>
+
+    <body class="container">
+
+        <div class="row">
+            <div class="well">
+                <h1><a id='logo' href=''><img src='img/IMPCBetalogo.png' /></a>IMPC images page documentation</h1>
+                <p class="lead">Disease details</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="span3">
+
+                <div class="page-header"><h3>Quick help links</h3></div>
+
+                <ul class="nav nav-list affix-top">
+
+                    <li><a href="index.html">Overview</a></li>
+                    <li><a href="search-help.html">Search</a></li>
+                    <li><a href="gene-help.html">Genes</a></li>
+                    <li><a href="phenotype-help.html">Phenotypes</a> </li>
+                    <li><a href="disease-help.html">Diseases</a><ul>
+                            <li><a href="disease-help.html#explore">Explore Disease Data</a></li>
+                            <li><a href="disease-help.html#details">Disease details pages</a></li>
+                            <li><a href="disease-help.html#phenodigm">PhenoDigm</a></li>
+                        </ul> </li>
+                    <li><a href="image-help.html">Images</a></li>
+                    <li><a href="statistics-help.html">Statistics</a> </li>
+                    <li><a href="graph-help.html">Graphs</a> </li>
+                </ul>
+
+            </div>
+
+            <div class="span9">
+
+                <div class="page-header"><h3>Disease Data</h3></div> 
+
+                <dl>
+
+                    <dt><a name="explore" href='#'>Explore Disease Data</a></dt>
+                    <dd>Type a (partial) disease name or ID (OMIM, Orphanet or DECIPHER), click on the disease facet and the the results grid will return relevant disease pages. 
+                        Eg. Search for "cardiac" diseases:
+                        Click <a href="#details">here</a>  to find out more where the disease data comes from and how it is created.
+                        <img src="img/disease_search.png">
+                    </dd>
+
+                    <dt><a name="details" href='#'>Disease details pages</a> </dt>
+                    <dd>The IMPC disease details page contains known gene associations and mouse models 
+                        for the disease as well as predicted gene candidates and mouse models based on the
+                        phenotypic similarity of the disease clinical symptoms and the mouse phenotype 
+                        annotations. The latter uses data from both the MGI curated dataset as well as
+                        high-throughput phenotype assignments from the IMPC pipeline. 
+                        <img src="img/disease_details.png">
+                    </dd>    
+                    
+                    <dt><a name="phenodigm" href='#'>PhenoDigm</a> </dt>
+                    <dd>                        
+                        We use our <a href=www.sanger.ac.uk/resources/databases/phenodigm> PhenoDigm</a> 
+                        algorithm to calculate a percentage similarity score where the best possible mouse
+                        model match to a disease would score 100%. In this interface, we only display
+                        high-scoring (> 60%) matches that show a reasonable phenotypic similarity,
+                        with the exception of the known gene associations where we display results for
+                        all possible mouse models.
+                    </dd>				
+                </dl>
+
+            </div>
+        </div>
+
+
+
+    </body>
+</html>

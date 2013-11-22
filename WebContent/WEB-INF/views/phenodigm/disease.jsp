@@ -80,6 +80,7 @@
         <div class='topic'>Gene associations for ${disease.term} <a href="${disease.diseaseIdentifier.externalUri}">(${disease.diseaseId})</a> </div>
         <div class="row-fluid dataset">
             <div class="container span12">
+                <div class='documentation'><a href='${baseUrl}/documentation/disease-help.html#details' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
                 <h4 class="topic">Curated Gene Associations</h4>
                 <c:choose>
                     <c:when test="${empty curatedAssociations}">
@@ -152,6 +153,7 @@
         </div>
         <div class="row-fluid dataset">
             <div class="container span12">
+                <div class='documentation'><a href='${baseUrl}/documentation/disease-help.html#details' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
                 <h4 class="topic">Phenotypic Gene Associations <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a></h4>
                     <c:choose>
                         <c:when test="${empty phenotypeAssociations}">
