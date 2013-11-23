@@ -846,10 +846,11 @@ public class UnidimensionalResult extends StatisticalResult implements Serializa
         @Override
         public String toString() {
                 return "UnidimensionalResult [colonyId=" + colonyId
-                                + ", controlBiologicalModelId=" + controlBiologicalModel.getId()
-                                + ", mutantBiologicalModelId=" + experimentalBiologicalModel.getId()
+                                + ", controlBiologicalModelId=" + ((controlBiologicalModel!=null)?controlBiologicalModel.getId():null)
+                                + ", mutantBiologicalModelId=" + ((experimentalBiologicalModel!=null)?experimentalBiologicalModel.getId():null)
                                 + ", experimentalZygosity=" + experimentalZygosity
-                                + ", organisation=" + organisation.getName() + ", parameter=" + parameter.getStableId()
+                                + ", organisation=" + ((organisation!=null)?organisation.getName():null) 
+                                + ", parameter=" + ((parameter!=null)?parameter.getStableId():null)
                                 + ", statsMethod=" + statsMethod + ", dependantVariable="
                                 + dependantVariable + ", batchSignificance="
                                 + batchSignificance + ", varianceSignificance="
