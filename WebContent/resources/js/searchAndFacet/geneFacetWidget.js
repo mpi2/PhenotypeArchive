@@ -53,49 +53,54 @@
 						currHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq; //default
 										
 						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-					
+						
+						if ( typeof oHashParams.facetName != 'undefined'){
+							window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + '&facet=' +  solrCoreName; 
+						}
+						else {
 						// if no selected subfacet, load all results of this facet
 						if ( caller.find('table#geneFacetTbl td.highlight').size() == 0 ){						
 							//window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
 						}	
 						else {		
-							// if there is selected subfacets: work out the url							
-							if ( self.options.data.core != oHashParams.coreName ){															
-							
-								var fqFieldVals = {};
+								// if there is selected subfacets: work out the url							
+								if ( self.options.data.core != oHashParams.coreName ){															
 								
-								caller.find('table#geneFacetTbl td.highlight').each(function(){									
-									var val = $(this).siblings('td').find('a').attr('rel');								
-									var fqField = $(this).siblings('td').find('a').attr('class');
-									var qry;
-									var fqFieldOri = fqField;
-									fqField = fqField.indexOf('imits_phenotype') != -1 ? 'imits_phenotype' : fqField;
-									if ( typeof fqFieldVals[fqField] === 'undefined' ){
-										fqFieldVals[fqField] = [];										
-									}		
-									/*if ( fqField.indexOf('phenotyping_center') != -1 ){
-										qry = '(' + fqFieldOri + ':"' + val + '" AND production_center:*)';
-									} 
-									else if (fqField.indexOf('production_center') != -1 ){
-										qry = '(' + fqFieldOri + ':"' + val + '")';										
-									}*/
+									var fqFieldVals = {};
 									
-									qry = fqFieldOri + ':"' + val + '"';									
-									
-									fqFieldVals[fqField].push(qry);
-								});					
-								console.log(fqFieldVals);
-								var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
-							
-			  	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable 	
-								if (self.options.data.q == '*:*'){
-									window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
-								}
-								else {
-									window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
-								}
+									caller.find('table#geneFacetTbl td.highlight').each(function(){									
+										var val = $(this).siblings('td').find('a').attr('rel');								
+										var fqField = $(this).siblings('td').find('a').attr('class');
+										var qry;
+										var fqFieldOri = fqField;
+										fqField = fqField.indexOf('imits_phenotype') != -1 ? 'imits_phenotype' : fqField;
+										if ( typeof fqFieldVals[fqField] === 'undefined' ){
+											fqFieldVals[fqField] = [];										
+										}		
+										/*if ( fqField.indexOf('phenotyping_center') != -1 ){
+											qry = '(' + fqFieldOri + ':"' + val + '" AND production_center:*)';
+										} 
+										else if (fqField.indexOf('production_center') != -1 ){
+											qry = '(' + fqFieldOri + ':"' + val + '")';										
+										}*/
+										
+										qry = fqFieldOri + ':"' + val + '"';									
+										
+										fqFieldVals[fqField].push(qry);
+									});					
+									console.log(fqFieldVals);
+									var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
+								
+				  	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable 	
+									if (self.options.data.q == '*:*'){
+										window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+									}
+									else {
+										window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+									}
+								}	
 							}	
-						}	
+						}
 					}
 				}
 			});				

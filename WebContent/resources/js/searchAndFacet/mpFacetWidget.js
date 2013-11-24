@@ -31,7 +31,7 @@
     		delete MPI2.searchAndFacetConfig.commonSolrParams.rows;    	   		  		
 		
 			caller.find('div.facetCat').click(function(){
-				console.log('facetCatClick');
+				
 				if ( caller.find('span.facetCount').text() != '0' ){
 										
 					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
@@ -43,6 +43,7 @@
 						caller.find('.facetCatList').hide(); // hide itself					
 					}
 					else {	
+						console.log('open facetCatClick');
 						caller.parent().find('div.facetCatList').hide(); // collapse all other facets 
 						caller.find('.facetCatList').show(); // show itself					
 						$(this).addClass('facetCatUp');						
@@ -54,36 +55,41 @@
 									
 						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 					
-						// if no selected subfacet, load all results of this facet
-						if ( caller.find('table#mpFacetTbl td.highlight').size() == 0 ){						
-							//window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
-						}	
-						else {		
-							// if there is selected subfacets: work out the url							
-							if ( self.options.data.core != oHashParams.coreName ){															
-							
-								var fqFieldVals = {};
-								
-								caller.find('table#mpFacetTbl td.highlight').each(function(){									
-									var val = $(this).siblings('td').find('a').attr('rel');								
-									var fqField = 'top_level_mp_term';
-									
-									if ( typeof fqFieldVals[fqField] === 'undefined' ){
-										fqFieldVals[fqField] = [];										
-									}									
-									fqFieldVals[fqField].push(fqField + ':"' + val + '"');
-								});					
-								
-								var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND ' + $.fn.compose_AndOrStr(fqFieldVals);
-							
-			  	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable 	
-								if (self.options.data.q == '*:*'){
-									window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
-								}
-								else {
-									window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
-								}
+						if ( typeof oHashParams.facetName != 'undefined'){
+							window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + '&facet=' +  solrCoreName; 
+						}
+						else {
+							// if no selected subfacet, load all results of this facet
+							if ( caller.find('table#mpFacetTbl td.highlight').size() == 0 ){						
+								//window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
 							}	
+							else {		
+								// if there is selected subfacets: work out the url							
+								if ( self.options.data.core != oHashParams.coreName ){															
+								
+									var fqFieldVals = {};
+									
+									caller.find('table#mpFacetTbl td.highlight').each(function(){									
+										var val = $(this).siblings('td').find('a').attr('rel');								
+										var fqField = 'top_level_mp_term';
+										
+										if ( typeof fqFieldVals[fqField] === 'undefined' ){
+											fqFieldVals[fqField] = [];										
+										}									
+										fqFieldVals[fqField].push(fqField + ':"' + val + '"');
+									});					
+									
+									var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND ' + $.fn.compose_AndOrStr(fqFieldVals);
+								
+				  	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable 	
+									if (self.options.data.q == '*:*'){
+										window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+									}
+									else {
+										window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+									}
+								}	
+							}
 						}	
 					}	
 				}	
@@ -101,13 +107,21 @@
 					$('table#mpFacetTbl td').removeClass('highlight');
 					
 					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
+					var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 					
-					// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-					if (self.options.data.q == '*:*'){
-						window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+					console.log(oHashParams);
+					if (oHashParams.facetName){
+						oHashParams.facetName += 'Facet';
+						$.fn.loadDataTable(oHashParams);
 					}
 					else {
-						window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+						// update hash tag so that we know there is hash change, which then triggers loadDataTable  
+						if (self.options.data.q == '*:*'){
+							window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+						}
+						else {
+							window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+						}
 					}
 				}				
 			});	

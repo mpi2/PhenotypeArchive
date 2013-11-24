@@ -137,7 +137,7 @@
 		var aTop_mp_term_ids = oFacets.top_mp_term_id;
 		for ( var i=0; i<aTop_mp_term_ids.length; i=i+2){						
 			if ( aTop_mp_term_ids[i].indexOf(facetName) != -1 ){
-				var aStr = aTop_mp_term_ids[i].split('_');
+				var aStr = aTop_mp_term_ids[i].split('__');
 				var top_mp_id = aStr[1];
 				var aMps = oFacets.top2mp_term;
 				for (var j=0; j<aMps.length; j=j+2){
@@ -883,7 +883,9 @@
     		oInfos.solrCoreName = oVal.solrCoreName;    		
     	}
     	else {
-    		oInfos.facetName = oHashParams.facetName;
+    		oInfos.facetName = oHashParams.facetName; 
+    	}
+    	if (oVal.solrCoreName != 'gene' ){  // mega core is based on gene document so no need to parse results via faceting    		   		
     		var facetQryStr = MPI2.searchAndFacetConfig.mega.Facets[oInfos.facetName];
     		oInfos.params += facetQryStr;
     	}

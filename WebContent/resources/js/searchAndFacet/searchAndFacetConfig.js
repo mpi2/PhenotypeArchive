@@ -95,7 +95,7 @@ config.facetFilterLabel = {
     
 config.lastCheckbox = null;
 var megaFacetFields = ['status', 'imits_phenotype_complete', 'imits_phenotype_started', 'imits_phenotype_status', 
-                       'mgi_accession_id', 'marker_type', 'top_level_mp_term', 'top_mp_term_id', 'top2mp_term', 'mp_term', 
+                       'mgi_accession_id', 'marker_type', 'top_level_mp_term', 'top2mp_term', 'mp_term', 'top_mp_term_id',
                        'inferred_selected_top_level_ma_term', 'inferred_ma_term', 
                        'procedure_name'];
 var facetFieldsStr = '';
@@ -107,8 +107,7 @@ config.mega = {};
 config.mega.facetParams = facetMod + facetFieldsStr;
 config.mega.Facets = {
 	//'mpFacet' : '&facet.field=top_mp_term_id&facet.field=top2mp_id&facet.field=top2mp_term&facet.field=top2mp_def&facet.field=top2mp_idTermDef' + facetMod
-	'mpFacet' : '&facet.field=top_mp_term_id&facet.field=top2mp_idTermDef' + facetMod
-
+	'mpFacet' : '&facet.field=top_mp_term_id&facet.field=top2mp_idTermDef&facet.field=mp_idTermDef' + facetMod
 };
 //MPI2.searchAndFacetConfig.mega.Facets
 //console.log(config.mega.facetParams);
