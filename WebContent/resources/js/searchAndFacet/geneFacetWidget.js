@@ -376,7 +376,7 @@
 				});	    		
     		}
 	    	
-	    	/*--------------------------console.log('inside here');	----------------------------------------------------------*/
+	    	/*------------------------------------------------------------------------------------*/
 	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
 	    	/*------------------------------------------------------------------------------------*/	
 	    	
@@ -386,10 +386,14 @@
 	    		self.options.data.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');
 	    		
 	    		var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority)
-	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'geneFacet', pageReload);
+	    		var oHashParams = {};
+	    		oHashParams.q = self.options.data.q;
+	    		oHashParams.fq = self.options.data.fq;
+	    		oHashParams.coreName = 'geneFacet';
+	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);
 	    		
 	    		// now load dataTable    		
-	    		$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'geneFacet'); 
+	    		$.fn.loadDataTable(oHashParams); 
     		}
 	    },	       
 	  

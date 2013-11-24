@@ -325,10 +325,14 @@
     			//console.log('reload');
     			    			
     			var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority)
-    			$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'imagesFacet', pageReload);
-    	
-    			// now load dataTable	    		
-    			$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'imagesFacet'); 
+    			var oHashParams = {};
+	    		oHashParams.q = self.options.data.q;
+	    		oHashParams.fq = self.options.data.fq;
+	    		oHashParams.coreName = 'imagesFacet';
+	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);
+	    		
+	    		// now load dataTable    		
+	    		$.fn.loadDataTable(oHashParams); 
     		}
   	    		
   	    	// when last facet is done

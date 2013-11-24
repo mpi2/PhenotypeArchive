@@ -59,69 +59,19 @@
     	    jsonp: 'json.wrf',
     	    timeout: 5000,
     	    success: function (mpResponse) { 
-    	    	console.log(mpResponse);
+    	    	//console.log(mpResponse);
     	    	$('div#mpFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
        	    	oFacets.count.mp = mpResponse.response.numFound;
        	    	$('div#mpFacet span.facetCount').html(oFacets.count.mp);
-    	    	_doPipelineAutoSuggest(geneResponse, mpResponse, q, oFacets);      	    	       	    	
+       	    	
+    	    	_doDiseaseAutoSuggest(geneResponse, mpResponse, q, oFacets);  
     	    },
     	    error: function (jqXHR, textStatus, errorThrown) {				         	        
 				$('div#facetBrowser').html('Error fetching data ...');
 			}        	    
 		});  			
 	}   	
-	
-	function _doPipelineAutoSuggest(geneResponse, mpResponse, q, oFacets){
-		
-		jsonBase.pipelineFacet.srchParams.q = q;	
-		
-		$.ajax({
-    	    url: solrUrl + '/pipeline/select',
-    	    data: jsonBase.pipelineFacet.srchParams,
-    	    dataType: 'jsonp',
-    	    jsonp: 'json.wrf',
-    	    timeout: 5000,
-    	    success: function (pipelineResponse) {
-    	    	
-    	    	$('div#pipelineFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
-    	    	oFacets.count.pipeline = pipelineResponse.response.numFound;
-    	    	$('div#pipelineFacet span.facetCount').html(oFacets.count.pipeline);
-    	    	
-    	    	_doTissueAutoSuggest(geneResponse, mpResponse, pipelineResponse, q, oFacets); 
-    	    },
-			error: function (jqXHR, textStatus, errorThrown) {			        	        
-				$('div#facetBrowser').html('Error fetching data ...');
-			} 
-		});
-	}	
-	
-	function _doTissueAutoSuggest(geneResponse, mpResponse, pipelineResponse, q, oFacets){
-		jsonBase.maFacet.srchParams.q = q;	
-		jsonBase.maFacet.srchParams.sort = 'ma_term asc';
-		jsonBase.maFacet.srchParams.fq = jsonBase.maFacet.fq;
-				
-		$.ajax({
-    	    url: solrUrl + '/ma/select',
-    	    data: jsonBase.maFacet.srchParams,
-    	    dataType: 'jsonp',
-    	    jsonp: 'json.wrf',
-    	    timeout: 10000,
-    	    success: function (maResponse) {    	    	   	    	    		    	   	    	
-    			
-    	    	$('div#maFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
-    	    	oFacets.count.ma = maResponse.response.numFound;
-    	    	$('div#maFacet span.facetCount').html(oFacets.count.ma);
-    	    	
-    	    	_doDiseaseAutoSuggest(geneResponse, mpResponse, pipelineResponse, maResponse, q, oFacets);
-    	    	//_doImageAutosuggest(geneResponse, mpResponse, pipelineResponse, maResponse, q, oFacets);
-    	    },
-			error: function (jqXHR, textStatus, errorThrown) {			       	        
-				$('div#facetBrowser').html('Error fetching data ...');
-			} 
-		});
-	}
-	
-	function _doDiseaseAutoSuggest(geneResponse, mpResponse, pipelineResponse, maResponse, q, oFacets){
+	function _doDiseaseAutoSuggest(geneResponse, mpResponse, q, oFacets){
 		
 		jsonBase.diseaseFacet.srchParams.q = q;		
 		jsonBase.diseaseFacet.srchParams.fq = jsonBase.diseaseFacet.fq;
@@ -137,17 +87,65 @@
     			
     	    	$('div#diseaseFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.disease = diseaseResponse.response.numFound;
-    	    	$('div#diseaseFacet span.facetCount').html(oFacets.count.disease);
-    	    	
-    	    	_doImageAutosuggest(geneResponse, mpResponse, pipelineResponse, maResponse, diseaseResponse, q, oFacets);
-    	    	
+    	    	$('div#diseaseFacet span.facetCount').html(oFacets.count.disease);    	    	
+    	    	_doTissueAutoSuggest(geneResponse, mpResponse, diseaseResponse, q, oFacets);    	    	
     	    },
 			error: function (jqXHR, textStatus, errorThrown) {			       	        
 				$('div#facetBrowser').html('Error fetching data ...');
 			} 
 		});
 	}
-	function _doImageAutosuggest(geneResponse, mpResponse, pipelineResponse, maResponse, diseaseResponse, q, oFacets){
+	
+	function _doTissueAutoSuggest(geneResponse, mpResponse, diseaseResponse, q, oFacets){
+		jsonBase.maFacet.srchParams.q = q;	
+		jsonBase.maFacet.srchParams.sort = 'ma_term asc';
+		jsonBase.maFacet.srchParams.fq = jsonBase.maFacet.fq;
+				
+		$.ajax({
+    	    url: solrUrl + '/ma/select',
+    	    data: jsonBase.maFacet.srchParams,
+    	    dataType: 'jsonp',
+    	    jsonp: 'json.wrf',
+    	    timeout: 10000,
+    	    success: function (maResponse) {    	    	   	    	    		    	   	    	
+    			
+    	    	$('div#maFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
+    	    	oFacets.count.ma = maResponse.response.numFound;
+    	    	$('div#maFacet span.facetCount').html(oFacets.count.ma);
+    	    	    	    	
+    	    	_doPipelineAutoSuggest(geneResponse, mpResponse, diseaseResponse, maResponse, q, oFacets);
+    	    },
+			error: function (jqXHR, textStatus, errorThrown) {			       	        
+				$('div#facetBrowser').html('Error fetching data ...');
+			} 
+		});
+	}
+		
+	function _doPipelineAutoSuggest(geneResponse, mpResponse, diseaseResponse, maResponse, q, oFacets){
+		
+		jsonBase.pipelineFacet.srchParams.q = q;	
+		
+		$.ajax({
+    	    url: solrUrl + '/pipeline/select',
+    	    data: jsonBase.pipelineFacet.srchParams,
+    	    dataType: 'jsonp',
+    	    jsonp: 'json.wrf',
+    	    timeout: 5000,
+    	    success: function (pipelineResponse) {
+    	    	
+    	    	$('div#pipelineFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
+    	    	oFacets.count.pipeline = pipelineResponse.response.numFound;
+    	    	$('div#pipelineFacet span.facetCount').html(oFacets.count.pipeline);
+    	    	
+    	    	_doImageAutosuggest(geneResponse, mpResponse, diseaseResponse, maResponse, pipelineResponse, q, oFacets); 
+    	    },
+			error: function (jqXHR, textStatus, errorThrown) {			        	        
+				$('div#facetBrowser').html('Error fetching data ...');
+			} 
+		});
+	}
+	
+	function _doImageAutosuggest(geneResponse, mpResponse, diseaseResponse, maResponse, pipelineResponse, q, oFacets){
 		
 		jsonBase.imagesFacet.srchParams.q = q;	
 		
@@ -178,8 +176,7 @@
     	    		$('div.facetCatList').html('');
     	    		$('div.facetCat').removeClass('facetCatUp');	    	    		
     	    	}
-    	    	else {
-    	    		    	    		
+    	    	else {    	    	    		
     	        	// remove all previous facet results before loading new facet results
     	        	$('div.facetCatList').html('');  
     	        	
@@ -193,7 +190,7 @@
     							},
     			        geneGridElem: 'div#mpi2-search'			                                      
     				});
-    	        	
+    	      	  	
     	        	// load none-zero facet results on demand    	        	
     	        	var aCores = MPI2.searchAndFacetConfig.cores;
     	        	//delete active core, no need to invoke again  
@@ -262,6 +259,9 @@
 		else if ( oCounts.mp != 0){				
 			return 'mp';			
 		}  
+		else if ( oCounts.disease != 0 ){    			
+			return 'disease';						
+		}
 		else if ( oCounts.ma != 0){				
 			return 'ma';			
 		} 
@@ -270,10 +270,7 @@
 		}
 		else if ( oCounts.images != 0 ){    			
 			return 'images';						
-		}	
-		else if ( oCounts.disease != 0 ){    			
-			return 'disease';						
-		}		
+		}				
 		else {
 			return false; // nothing found
 		}

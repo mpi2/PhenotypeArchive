@@ -31,7 +31,7 @@
     		delete MPI2.searchAndFacetConfig.commonSolrParams.rows;    	   		  		
 		
 			caller.find('div.facetCat').click(function(){
-				//console.log('facetCatClick');
+				console.log('facetCatClick');
 				if ( caller.find('span.facetCount').text() != '0' ){
 										
 					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
@@ -227,11 +227,14 @@
 	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
 	    	/*------------------------------------------------------------------------------------*/	
     		if ( self.options.data.fq.match(/.*/) ){	
-        		
-	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'mpFacet');
-	    	
-	    		// now load dataTable	    		
-	    		$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'mpFacet'); 
+    			var oHashParams = {};
+	    		oHashParams.q = self.options.data.q;
+	    		oHashParams.fq = self.options.data.fq;
+	    		oHashParams.coreName = 'mpFacet';
+	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams);
+	    		
+	    		// now load dataTable    		
+	    		$.fn.loadDataTable(oHashParams);
     		}    		
 	    },		
 		

@@ -41,7 +41,7 @@ if ( typeof baseUrl == 'undefined' ){
 	baseUrl = '/data';
 }
 
-config.lastImgCount = false;
+
 config.cores = ['gene', 'mp', 'ma', 'pipeline', 'images', 'disease'];
 config.restfulPrefix = {
 		'gene' : 'genes',
@@ -93,16 +93,24 @@ config.facetFilterLabel = {
 	'mgi_predicted_in_locus'     : 'MGI_predicted_in_locus'	
 };
     
+config.lastCheckbox = null;
 var megaFacetFields = ['status', 'imits_phenotype_complete', 'imits_phenotype_started', 'imits_phenotype_status', 
-                       'mgi_accession_id', 'marker_type', 'top_level_mp_term', 'mp_term', 
+                       'mgi_accession_id', 'marker_type', 'top_level_mp_term', 'top_mp_term_id', 'top2mp_term', 'mp_term', 
                        'inferred_selected_top_level_ma_term', 'inferred_ma_term', 
                        'procedure_name'];
 var facetFieldsStr = '';
 for ( var i=0; i<megaFacetFields.length; i++){
 	facetFieldsStr += '&facet.field=' + megaFacetFields[i];
 }
+var facetMod = "&facet=on&facet.limit=-1&facet.mincount=1";
 config.mega = {};
-config.mega.facetParams = "&facet=on&facet.limit=-1&facet.mincount=1" + facetFieldsStr;
+config.mega.facetParams = facetMod + facetFieldsStr;
+config.mega.Facets = {
+	//'mpFacet' : '&facet.field=top_mp_term_id&facet.field=top2mp_id&facet.field=top2mp_term&facet.field=top2mp_def&facet.field=top2mp_idTermDef' + facetMod
+	'mpFacet' : '&facet.field=top_mp_term_id&facet.field=top2mp_idTermDef' + facetMod
+
+};
+//MPI2.searchAndFacetConfig.mega.Facets
 //console.log(config.mega.facetParams);
 //config.solrBaseURL_bytemark = 'http://dev.mousephenotype.org/bytemark/solr/';
 config.solrBaseURL_bytemark = solrUrl + '/';
@@ -191,7 +199,7 @@ config.facetParams = {
 		 filterParams: {'fq': 'ontology_subset:*'},
 		 srchParams: $.extend({},				
 					commonSolrParams,	 	
-					{'fl': 'mp_id,mp_term,mp_definition,top_level_mp_term'})
+					{'fl': 'mp_id,mp_term,mp_definition,top_level_mp_term,top_mp_term_id,top2mp_id,top2mp_term,top2mp_def'})
 	 },	
 	 maFacet: {			    	
 		 type: 'tissues',

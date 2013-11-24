@@ -229,12 +229,14 @@
 	    	    	/*------------------------------------------------------------------------------------*/        		      		
 	        		
 	        		if ( self.options.data.fq.match(/.*/) ){        		
-	        			
-	        			//var fields = ['procedure_stable_id'];	        	
-	    	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'pipelineFacet');
-	    	    	
-	    	    		// now load dataTable	    		
-	    	    		$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'pipelineFacet'); 
+	        			var oHashParams = {};
+	    	    		oHashParams.q = self.options.data.q;
+	    	    		oHashParams.fq = self.options.data.fq;
+	    	    		oHashParams.coreName = 'pipelineFacet';
+	    	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams);
+	    	    		
+	    	    		// now load dataTable    		
+	    	    		$.fn.loadDataTable(oHashParams);
 	        		}
 	    		}	    		
 	    	});	    	

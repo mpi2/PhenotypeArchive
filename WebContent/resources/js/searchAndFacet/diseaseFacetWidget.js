@@ -309,10 +309,15 @@
 	    		self.options.data.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');
 	    		
 	    		var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority)
-	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'diseaseFacet', pageReload);
+	    	
+	    		var oHashParams = {};
+	    		oHashParams.q = self.options.data.q;
+	    		oHashParams.fq = self.options.data.fq;
+	    		oHashParams.coreName = 'diseaseFacet';
+	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);
 	    		
 	    		// now load dataTable    		
-	    		$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'diseaseFacet'); 
+	    		$.fn.loadDataTable(oHashParams);
     		}
 	    },	       
 	  

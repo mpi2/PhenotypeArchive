@@ -226,10 +226,14 @@
     		
     		if ( self.options.data.fq.match(/.*/) ){	
     		
-	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'maFacet');
-	    	
-	    		// now load dataTable		    		
-	    		$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'maFacet'); 
+    			var oHashParams = {};
+	    		oHashParams.q = self.options.data.q;
+	    		oHashParams.fq = self.options.data.fq;
+	    		oHashParams.coreName = 'maFacet';
+	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams);
+	    		
+	    		// now load dataTable    		
+	    		$.fn.loadDataTable(oHashParams);
     		}    		
 	    },	   
 		

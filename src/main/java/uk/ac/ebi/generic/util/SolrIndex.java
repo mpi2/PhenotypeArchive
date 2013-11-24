@@ -169,9 +169,14 @@ public class SolrIndex {
 			String gridSolrParams, Integer iDisplayStart,
 			Integer iDisplayLength, boolean showImgView) {
 		String internalSolrUrl = config.get("internalSolrUrl");
-
+		
 		String url = internalSolrUrl + "/" + core + "/select?";
 
+		//temporary
+		if ( core == "mega") {
+			url = "http://localhost:8983/solr/mega/select?";
+		}
+		
 		if (mode.equals("mpPage")) {
 			url += "q=" + query;
 			url += "&start=0&rows=0&wt=json&qf=auto_suggest&defType=edismax";
@@ -193,7 +198,7 @@ public class SolrIndex {
 		} else if (mode.equals("mpGrid")) {
 			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
 					+ iDisplayStart + "&rows=" + iDisplayLength;
-//			System.out.println("MP PARAMS: " + url);
+			System.out.println("MP PARAMS: " + url);
 		} else if (mode.equals("maGrid")) {
 			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
 					+ iDisplayStart + "&rows=" + iDisplayLength;
@@ -214,6 +219,7 @@ public class SolrIndex {
 //			System.out.println("GRID DUMP PARAMS - " + core + ": " + url);
 		}
 		// OTHER solrCoreNames to be added here
+		
 		return url;
 	}
 
@@ -576,7 +582,7 @@ public class SolrIndex {
 		String url = config.get("internalSolrUrl")
 				+ "/mp/select?wt=json&qf=mp_id&defType=edismax&q="
 				+ phenotype_id;
-		System.out.println("HERE");
+		
 		return getResults(url);
 	}
 

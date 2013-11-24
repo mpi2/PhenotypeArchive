@@ -48,6 +48,7 @@
 				console.log('hash change URL: '+ '/search#' + url);
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 				
+				console.log(oHashParams);
 				if ( typeof oHashParams.q === 'undefined' ){
 					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');					
 				}
@@ -62,12 +63,22 @@
 						//console.log(oHashParams.fq);					
 						var pageReload;  // this controls checking which subfacet to open (ie, show by priority). 
 										 // Set to undefined for no checking here, as we are now capturing hash change and not page reload
-						$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet', pageReload);				
-						
-						$.fn.loadDataTable(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet'); 
+						oHashParams.coreName += 'Facet'; 				 
+								
+						$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);						
+						$.fn.loadDataTable(oHashParams);
 					}
 					else {
 						console.log('from filter');
+						// parse selected checkbox(es) of this facet
+						var facet = oHashParams.facetName;
+						var aFilters = [];
+						$('ul#facetFilter li.' + facet + ' li a').each(function(){
+							aFilters.push($(this).text());
+						});
+						oHashParams.filters = aFilters;
+						oHashParams.facetName = facet + 'Facet';
+						$.fn.loadDataTable(oHashParams);
 					}
 				}
 			});
@@ -126,6 +137,10 @@
 				<div><div class='facetCat'>Phenotypes</div><span class='facetCount countDisplay'></span></div>
 				<div class='facetCatList'></div>
 			</div>
+			<div id='diseaseFacet'>
+				<div><div class='facetCat'>Diseases</div><span class='facetCount countDisplay'></span></div>
+				<div class='facetCatList'></div>
+			</div>
 			<div id='maFacet'>
 				<div><div class='facetCat'>Anatomy</div><span class='facetCount countDisplay'></span></div>
 				<div class='facetCatList'></div>
@@ -137,11 +152,7 @@
 			<div id='imagesFacet'>
 				<div><div class='facetCat'>Images</div><span class='facetCount countDisplay'></span></div>
 				<div class='facetCatList'></div>
-			</div>
-			<div id='diseaseFacet'>
-				<div><div class='facetCat'>Diseases</div><span class='facetCount countDisplay'></span></div>
-				<div class='facetCatList'></div>
-			</div>
+			</div>			
 		</div>
 		<!--  end of facet skeleton on left sidebar -->
 		
