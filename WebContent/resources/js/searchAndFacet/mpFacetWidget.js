@@ -204,15 +204,17 @@
     			$(this).parent().parent().find('td.mpTopLevel').addClass('highlight');
 	    			        			
     			// update hash tag so that we know there is hash change, which then triggers loadDataTable	  	    			
-	    		var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND top_level_mp_term:"' + $(this).attr('rel')  + '"';  		
-	    		
+	    		//var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND top_level_mp_term:"' + $(this).attr('rel')  + '"';  		
+	    		/*var fqStr = 'top_level_mp_term:"' + $(this).attr('rel')  + '"';  
 	    		if (self.options.data.q == '*:*'){
-	    			window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=mp';
+	    			//window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=mp';
+	    			window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&facet=mp';
 	    		}
 	    		else {
-	    			window.location.hash = 'fq=' + fqStr + '&core=mp';
-	    		}
-    			//$.fn.composeFacetFilterControl($(this).parent().parent().find('td.mpTopLevel'), self.options.data.q);	
+	    			//window.location.hash = 'fq=' + fqStr + '&core=mp';
+	    			window.location.hash = 'fq=' + fqStr + '&facet=mp';
+	    		}*/
+    			$.fn.composeFacetFilterControl($(this).parent().parent().find('td.mpTopLevel'), self.options.data.q);	
     			
     		});  
     		    		

@@ -145,27 +145,27 @@ public class DataTableController {
 
 		String jsonStr = null;
 		if (mode.equals("geneGrid")) {
-			jsonStr = parseJsonforGeneDataTable(request, json, query, solrCoreName, filters);
+			jsonStr = parseJsonforGeneDataTable(request, json, query, solrCoreName, filters, start);
 		} 
 		else if (mode.equals("pipelineGrid")) {
-			jsonStr = parseJsonforProtocolDataTable(json, request, solrCoreName, filters);
+			jsonStr = parseJsonforProtocolDataTable(json, request, solrCoreName, filters, start);
 		} 
 		else if (mode.equals("imagesGrid")) {
 			jsonStr = parseJsonforImageDataTable(json, start, length, solrParams, showImgView, request, query, fqOri, solrCoreName, filters);
 		} 
 		else if (mode.equals("mpGrid")) {
-			jsonStr = parseJsonforMpDataTable(json, request, solrCoreName, filters);
+			jsonStr = parseJsonforMpDataTable(json, request, solrCoreName, filters, start);
 		}
 		else if (mode.equals("maGrid")) {
-			jsonStr = parseJsonforMaDataTable(json, request, solrCoreName, filters);
+			jsonStr = parseJsonforMaDataTable(json, request, solrCoreName, filters, start);
 		}
 		else if (mode.equals("diseaseGrid")) {
-			jsonStr = parseJsonforDiseaseDataTable(json, request, solrCoreName, filters);
+			jsonStr = parseJsonforDiseaseDataTable(json, request, solrCoreName, filters, start);
 		}
 		return jsonStr;
 	}
 
-	public String parseJsonforGeneDataTable(HttpServletRequest request, JSONObject json, String qryStr, String solrCoreName, List<String> filters){
+	public String parseJsonforGeneDataTable(HttpServletRequest request, JSONObject json, String qryStr, String solrCoreName, List<String> filters, int start){
 
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config, request);
 
@@ -211,7 +211,7 @@ public class DataTableController {
 		
 		return j.toString();	
 	}
-	public String parseJsonforProtocolDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters){
+	public String parseJsonforProtocolDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters, int start){
 		
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
@@ -246,7 +246,7 @@ public class DataTableController {
 		return j.toString();	
 	}
 	
-	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters){
+	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters, int start){
 				
 		String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";		
 		
@@ -262,6 +262,7 @@ public class DataTableController {
 			JSONArray mpIdTermDefs = facetFields.getJSONArray("top2mp_idTermDef");
 						
 			int mpCount = 0;				
+		
 			for( Object s : filters ){
 				String sFilter = s.toString(); // eg. integument phenotype
 				for( Object t : topMpTermIds ){
@@ -271,19 +272,22 @@ public class DataTableController {
 						String topLevelMpId = parts[1]; // eg. MP:0010771
 						for( Object m : mpIdTermDefs ){	
 							String sMp = m.toString(); //eg. MP:0010771_MP:0005316_termName_termDef
-							if ( sMp.startsWith(topLevelMpId) ){										
-								List<String> rowData = new ArrayList<String>();
-								//System.out.println("CHK: " +sMp );
-								String[] mParts = sMp.split("_");
-								String mpId = mParts[1];
-								String mpTerm = mParts[2];
-								String mpDef = mParts[3];
-								String mpLink = "<a href='" + baseUrl + mpId + "'>" + mpTerm + "</a>";			
-								rowData.add(mpLink);
-								rowData.add(mpDef);
-								j.getJSONArray("aaData").add(rowData);
+							if ( sMp.startsWith(topLevelMpId) ){	
 								mpCount++;
-								//System.out.println("ADDing " + mpId + ":"+mpTerm+":"+mpDef);										
+								
+								// do pagination as we are using solr facets not solr documents
+								if ( mpCount >= start+1 && mpCount <= start+10 ){									
+									List<String> rowData = new ArrayList<String>();
+									//System.out.println("CHK: " +sMp );
+									String[] mParts = sMp.split("_");
+									String mpId = mParts[1];
+									String mpTerm = mParts[2];
+									String mpDef = mParts[3];
+									String mpLink = "<a href='" + baseUrl + mpId + "'>" + mpTerm + "</a>";			
+									rowData.add(mpLink);
+									rowData.add(mpDef);
+									j.getJSONArray("aaData").add(rowData);
+								}									
 							}								
 						}					
 					}
@@ -326,7 +330,7 @@ public class DataTableController {
 		return j.toString();	
 	}
 	
-	public String parseJsonforMaDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters){
+	public String parseJsonforMaDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters, int start){
 		
 		String baseUrl = request.getAttribute("baseUrl") + "/anatomy/";
 		
@@ -540,7 +544,7 @@ public class DataTableController {
 		}
 	}
 	
-	public String parseJsonforDiseaseDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters){
+	public String parseJsonforDiseaseDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters, int start){
 		
 		String baseUrl = request.getAttribute("baseUrl") + "/phenodigm/disease/";
 		
