@@ -7,6 +7,8 @@ WebContent/resources/css/style.css
 WebContent/resources/css/style.min.css
 #ignore the target dir
 target/
+#ignore the bin dir
+bin/
 *.appConfig.properties
 *.svn
 *.class
