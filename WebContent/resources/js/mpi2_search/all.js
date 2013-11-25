@@ -1,4 +1,4 @@
-// Timestamp: 2013-11-21-11:03:21
+// Timestamp: 2013-11-25-17:00:26
 (function ($) {
     'use strict';
 
@@ -955,7 +955,13 @@
                     tdRenderer: function (doc) {
                         var colspan = '';
 
-                        if(doc.solrDoc.type !== 'gene' || doc.solrDoc.vector_project_ids.length < 1) {
+                        if(doc.solrDoc.type !== 'gene' || ! doc.solrDoc.vector_project_ids || doc.solrDoc.vector_project_ids.length < 1) {
+                            if(!doc.solrDoc.product_type) {
+                                doc.solrDoc.product_type = '';
+                                doc.solrDoc.project_ids = [];
+                                doc.solrDoc.vector_project_ids = [];
+                            }
+
                             var td = $('<td class="' + this.name + '"></td>');
                             td.append(this.cellRenderer.call(this, doc));
                             return td;
@@ -978,7 +984,8 @@
                         //var blurb = html.length > 0 ? "Additional Targeting vectors are available for this gene (" + marker_symbol + ") see links for details: " : '';
                         var blurb = html.length > 0 ? "Additional Targeting vectors are available for this gene - see links for details: " : '';
 
-                        var td = $('<td ALIGN="center" ' + colspan + '>' + blurb + html + '</td>');
+                        //var td = $('<td ALIGN="center" ' + colspan + '>' + blurb + html + '</td>');
+                        var td = $('<td ALIGN="center" style="text-align: center" ' + colspan + '>' + blurb + html + '</td>');
                         return td;
                     }
                 },
