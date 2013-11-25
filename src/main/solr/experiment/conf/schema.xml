@@ -29,8 +29,8 @@
 	<fields>  
 		<field name="_version_"               type="long"   indexed="true" stored="true"/> 
 		<field name="id"                      type="int"    indexed="true" stored="true" multiValued="false" required="true"/>
-		<field name="organisation"            type="string" indexed="true" stored="true" multiValued="false" />
-		<field name="organisation_id"         type="int"    indexed="true" stored="true" multiValued="false" />
+		<field name="phenotyping_center_id"   type="int"    indexed="true" stored="true" multiValued="false" />
+		<field name="phenotyping_center"      type="string" indexed="true" stored="true" multiValued="false" />
 		<field name="gene_accession"          type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="gene_symbol"             type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="zygosity"                type="string" indexed="true" stored="true" multiValued="false" /> 
@@ -39,14 +39,14 @@
 		<field name="biological_sample_id"    type="int"    indexed="true" stored="true" multiValued="false" />
 		<field name="biological_sample_group" type="string" indexed="true" stored="true" multiValued="false" />
 		<field name="strain"                  type="string" indexed="true" stored="true" multiValued="false" />
-		<field name="pipeline_name"           type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="pipeline_id"             type="int"    indexed="true" stored="true" multiValued="false" /> 
+		<field name="pipeline_name"           type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="pipeline_stable_id"      type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="procedure_id"            type="int"    indexed="true" stored="true" multiValued="false" /> 
-		<field name="procedure_stable_id"     type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="procedure_name"          type="string" indexed="true" stored="true" multiValued="false" /> 
-		<field name="parameter_name"          type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="procedure_stable_id"     type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="parameter_id"            type="int"    indexed="true" stored="true" multiValued="false" /> 
+		<field name="parameter_name"          type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="parameter_stable_id"     type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="experiment_id"           type="int"    indexed="true" stored="true" multiValued="false" /> 
 		<field name="experiment_source_id"    type="string" indexed="true" stored="true" multiValued="false" /> 

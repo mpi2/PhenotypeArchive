@@ -84,13 +84,14 @@
 			<field column="strain_acc" name="strain" />
 
 			<field column="organisation_id" name ="organisation_id" />
+			<field column="name" name="phenotyping_center" />
 			<field column="name" name ="organisation" />
 
 			<field column="pipeline_name" name ="pipeline_name" />
 			<field column="pipeline_id" name ="pipeline_id" />
 			<field column="pipeline_stable_id" name ="pipeline_stable_id" />
 
-			<field column="procedure_id" name ="procedure_dd" />
+			<field column="procedure_id" name ="procedure_id" />
 			<field column="procedure_name" name ="procedure_name" />
 			<field column="procedure_stable_id" name ="procedure_stable_id" />
 

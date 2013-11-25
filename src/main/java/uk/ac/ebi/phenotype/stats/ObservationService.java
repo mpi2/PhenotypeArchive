@@ -41,8 +41,8 @@ public class ObservationService {
 	// Definition of the solr fields
 	class ExperimentField {
 		public final static String ID = "id";
-		public final static String ORGANISATION = "organisation";
-		public final static String ORGANISATION_ID = "organisation_id";
+		public final static String PHENOTYPING_CENTER = "phenotyping_center";
+		public final static String PHENOTYPING_CENTER_ID = "phenotyping_center_id";
 		public final static String GENE_ACCESSION = "gene_accession";
 		public final static String GENE_SYMBOL = "gene_symbol";
 		public final static String ZYGOSITY = "zygosity";
@@ -165,7 +165,7 @@ public class ObservationService {
 			.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":control")
 			.addFilterQuery(ExperimentField.DATE_OF_EXPERIMENT + ":["+df.format(minDate)+"Z TO "+df.format(max)+"Z]")
 			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-			.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
 			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
 			.addFilterQuery(ExperimentField.SEX + ":" + sex)
 			.setSortField(ExperimentField.DATE_OF_EXPERIMENT, ORDER.desc) // good for dates before the date of the experiment
@@ -178,7 +178,7 @@ public class ObservationService {
 		.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":control")
 		.addFilterQuery(ExperimentField.DATE_OF_EXPERIMENT + ":["+df.format(DateUtils.addDays(max, -1))+"Z TO "+df.format(today)+"Z]")
 		.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-		.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+		.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
 		.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
 		.addFilterQuery(ExperimentField.SEX + ":" + sex)
 		.setSortField(ExperimentField.DATE_OF_EXPERIMENT, ORDER.asc) // good for dates after the date of the experiment
@@ -272,7 +272,7 @@ public class ObservationService {
 			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
 	    	.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
 			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-			.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
 	    	.setStart(0)
 	    	.setRows(1000);
 	
@@ -297,7 +297,7 @@ public class ObservationService {
 	    	.setQuery(ExperimentField.GENE_ACCESSION + ":" + geneAcc.replace(":", "\\:"))
 	    	.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
 			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-			.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
 			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
 	    	.setStart(0)
 	    	.setRows(1000);
@@ -326,7 +326,7 @@ public class ObservationService {
 	    			+ " AND " + ExperimentField.ZYGOSITY + ":" + zygosity 
 	    			+ ") OR " + ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":control) ")
 			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-			.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
 			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
 			.addFilterQuery(ExperimentField.SEX + ":" + sex)
 	    	.setStart(0)
@@ -371,7 +371,7 @@ public class ObservationService {
 	    	query.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"));
 		}
 		if (organisationId != null) {
-			query.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId);
+			query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId);
 		}
 		if (sex != null) {
 			query.addFilterQuery(ExperimentField.SEX + ":" + sex);
@@ -396,7 +396,7 @@ public class ObservationService {
 
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
-			.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
 			.addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":unidimensional")
 			.setRows(0)
 			.addFacetField(ExperimentField.PARAMETER_ID)
@@ -436,7 +436,7 @@ public class ObservationService {
 
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
-			.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
 			.addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":categorical")
 			.setRows(0)
 			.addFacetField(ExperimentField.PARAMETER_ID)
@@ -480,7 +480,7 @@ public class ObservationService {
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
 			.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
-			.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
 			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
 			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
 	    	.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
@@ -524,7 +524,7 @@ public class ObservationService {
 
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
-			.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
 			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
 			.setRows(0)
 			.addFacetField(ExperimentField.STRAIN)
@@ -564,7 +564,7 @@ public class ObservationService {
 		SolrQuery query = new SolrQuery()
 		.setQuery("*:*")
 		.setRows(0)
-		.addFacetField(ExperimentField.ORGANISATION_ID)
+		.addFacetField(ExperimentField.PHENOTYPING_CENTER_ID)
 		.setFacet(true)
 		.setFacetMinCount(1)
 		.setFacetLimit(-1);
@@ -592,7 +592,7 @@ public class ObservationService {
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
 			.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
-			.addFilterQuery(ExperimentField.ORGANISATION_ID + ":" + organisationId)
+			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
 			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
 			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
 	    	.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
