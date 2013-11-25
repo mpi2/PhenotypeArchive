@@ -112,6 +112,8 @@
 	<field name="strain_name" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="strain_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     
+    <field name="phenotyping_center" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+    
     <field name="project_external_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
  	<field name="project_name" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="project_fullname" type="string" indexed="true" stored="true" required="false" multiValued="false" />
