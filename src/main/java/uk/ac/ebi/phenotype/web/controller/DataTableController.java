@@ -278,7 +278,7 @@ public class DataTableController {
 									// do pagination as we are using solr facets not solr documents
 									if ( mpCount >= start+1 && mpCount <= start+10 ){									
 										List<String> rowData = new ArrayList<String>();
-										System.out.println("CHK: " +sMp );
+										//System.out.println("CHK: " +sMp );
 										String[] mParts = sMp.split("__");
 										String mpId = mParts[1];
 										String mpTerm = mParts[2];
@@ -302,7 +302,7 @@ public class DataTableController {
 					// do pagination as we are using solr facets not solr documents
 					if ( mpCount >= start+1 && mpCount <= start+10 ){	
 						String sMp = mpIdTermDefs.getString(i); //eg. MP:0005316_termName_termDef
-						System.out.println("CHK2: " + sMp);
+						//System.out.println("CHK2: " + sMp);
 	                    List<String> rowData = new ArrayList<String>();
 	                    String[] mParts = sMp.split("__");
 						String mpId = mParts[0];

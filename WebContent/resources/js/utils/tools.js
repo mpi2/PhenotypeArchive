@@ -96,7 +96,7 @@
 	    			// refresh phenotype facet
 	    			$('table#mpFacetTbl td.mpTopLevel').attr('rel', '0');
 	    			$('table#mpFacetTbl td.mpTopLevelCount a').text('0');
-	    			var mpCount = oFacets.mp_term.length / 2;		
+	    			var mpCount = oFacets.mp_idTermDef.length / 2;		
 	    			$('div#mpFacet span.facetCount').text(mpCount);
 	    			for (var i=0; i<oFacets.top_level_mp_term.length; i=i+2){	
 	    				//console.log('92 : '+ oFacets.top_level_mp_term[i]);
@@ -878,14 +878,15 @@
 		}
 		
 		oInfos.params = $.fn.stringifyJsonAsUrlParams(oParams);// + facetQryStr;
-		
+		console.log(oHashParams);
     	if ( typeof oHashParams.facetName == 'undefined' ){		
     		oInfos.solrCoreName = oVal.solrCoreName;    		
     	}
     	else {
     		oInfos.facetName = oHashParams.facetName; 
     	}
-    	if (oVal.solrCoreName != 'gene' ){  // mega core is based on gene document so no need to parse results via faceting    		   		
+    	if ( typeof oHashParams.facetName != 'undefined' && oVal.solrCoreName != 'gene' ){  
+    		// mega core is based on gene document so no need to parse results via faceting for gene facet  		   		
     		var facetQryStr = MPI2.searchAndFacetConfig.mega.Facets[oInfos.facetName];
     		oInfos.params += facetQryStr;
     	}
