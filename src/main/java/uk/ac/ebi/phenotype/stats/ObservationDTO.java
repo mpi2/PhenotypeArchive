@@ -7,103 +7,103 @@ import org.apache.solr.client.solrj.beans.Field;
 
 public class ObservationDTO {
 
-	@Field
+	@Field("id")
 	private Integer id;
 
-	@Field
+	@Field("pipeline_name")
 	private String pipelineName;
 
-	@Field
+	@Field("pipeline_stable_id")
 	private String pipelineStableId;
 
-	@Field
+	@Field("procedure_stable_id")
 	private String procedureStableId;
 
-	@Field
+	@Field("parameter_stable_id")
 	private String parameterStableId;
 
-	@Field
+	@Field("pipeline_id")
 	private Integer pipelineId;
 
-	@Field
+	@Field("procedure_id")
 	private Integer procedureId;
 
-	@Field
+	@Field("parameter_id")
 	private Integer parameterId;
 
-	@Field
+	@Field("strain")
 	private String strain;
 
-	@Field
+	@Field("experiment_source_id")
 	private String experimentSourceId;
 
-	@Field
+	@Field("gene_symbol")
 	private String geneSymbol;
 
-	@Field
+	@Field("gene_accession")
 	private String geneAccession;
 
-	@Field
+	@Field("experiment_id")
 	private Integer experimentId;
 
 	@Field
 	private Integer organisationId;
 
 	@Field
-	private String observationType;
-
-	@Field
 	private String organisation;
 
-	@Field
+	@Field("observation_type")
+	private String observationType;
+
+	@Field("colony_id")
 	private String colonyId;
 
-	@Field
+	@Field("date_of_experiment")
 	private Date dateOfExperiment;
 
-	@Field
+	@Field("date_of_birth")
 	private Date dateOfBirth;
 
-	@Field
+	@Field("biological_sample_id")
 	private Integer biologicalSampleId;
 
-	@Field
+	@Field("biological_model_id")
 	private Integer biologicalModelId;
 
-	@Field
+	@Field("zygosity")
 	private String zygosity;
 
-	@Field("gender")
+	@Field("sex")
 	private String sex;
 
-	@Field("biologicalSampleGroup")
+	@Field("biological_sample_group")
 	private String group;
 
-	@Field
+	@Field("category")
 	private String category;
 
-	@Field
+	@Field("data_point")
 	private Float dataPoint;
 
-	@Field
+	@Field("order_index")
 	private Integer orderIndex;
 
-	@Field
+	@Field("dimension")
 	private String dimension;
 
-	@Field
+	@Field("time_point")
 	private String timePoint;
 
-	@Field
+	@Field("discrete_point")
 	private Float discretePoint;
 
-	@Field
+	@Field("external_sample_id")
 	private String externalSampleId;
 
-	@Field
+	@Field("parameter_name")
 	private String parameterName;
 	
-	@Field 
+	@Field("procedure_name")
 	private String procedureName;
 	
 	/**
