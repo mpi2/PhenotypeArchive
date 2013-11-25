@@ -84,6 +84,7 @@
 			<field column="strain_acc" name="strain" />
 
 			<field column="organisation_id" name ="organisation_id" />
+			<field column="organisation_id" name="phenotyping_center_id" />
 			<field column="name" name="phenotyping_center" />
 			<field column="name" name ="organisation" />
 
