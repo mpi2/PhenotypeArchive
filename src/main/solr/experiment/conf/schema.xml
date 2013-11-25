@@ -54,7 +54,9 @@
 		<field name="procedureId"        type="int"    indexed="true"  stored="true"  multiValued="false" /> 
 		<field name="procedureStableId"  type="string" indexed="true"  stored="true"  multiValued="false" /> 
 		<field name="parameterId"        type="int"    indexed="true"  stored="true"  multiValued="false" /> 
-		<field name="parameterStableId"  type="string" indexed="true"  stored="true"  multiValued="false" /> 
+		<field name="parameterStableId"  type="string" indexed="true"  stored="true"  multiValued="false" /> 		
+		<field name="parameterName"  type="string" indexed="true"  stored="true"  multiValued="false" /> 
+		<field name="procedureName"  type="string" indexed="true"  stored="true"  multiValued="false" /> 
 	
 		<field name="experimentId"       type="int"    indexed="true"  stored="true"  multiValued="false" /> 
 		<field name="experimentSourceId" type="string" indexed="true"  stored="true"  multiValued="false" /> 
