@@ -382,9 +382,9 @@
 	    	
 	    	
 	    	if ( self.options.data.fq.match(/.*/) ){	
-	    		
+	    	
 	    		self.options.data.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');
-	    		
+	    		    		
 	    		var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority)
 	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'geneFacet', pageReload);
 	    		

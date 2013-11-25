@@ -27,14 +27,16 @@ $(document).ready(function(){
 	
 	// default search when search page loads
 	if ( /search\/?$/.exec(location.href) ){
-		// do default gene search by * when search page loads	
+		// do default gene search by * when search page loads
+		
 		hashParams.q = '*:*';		
 		$.fn.fetchSolrFacetCount(hashParams);
 	}	
 	else if ( location.href.indexOf('/search#') != -1 ){		
-		// load page based on url hash parameters		
-		hashParams = $.fn.parseHashString(window.location.hash.substring(1));	
+		// load page based on url hash parameters	
 		
+		hashParams = $.fn.parseHashString(window.location.hash.substring(1));	
+						
 		MPI2.searchAndFacetConfig.pageLoad = true;
 		$.fn.fetchSolrFacetCount(hashParams);
 	}
