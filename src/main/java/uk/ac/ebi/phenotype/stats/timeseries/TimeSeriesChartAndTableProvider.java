@@ -2,7 +2,6 @@ package uk.ac.ebi.phenotype.stats.timeseries;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -14,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.WordUtils;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
-import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.dao.BiologicalModelDAO;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.TimeSeriesStatisticsDAO;
@@ -34,10 +31,7 @@ import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ChartUtils;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
-import uk.ac.ebi.phenotype.stats.JSONGraphUtils;
-import uk.ac.ebi.phenotype.stats.MouseDataPoint;
 import uk.ac.ebi.phenotype.stats.ObservationDTO;
-import uk.ac.ebi.phenotype.stats.TableObject;
 
 @Service
 public class TimeSeriesChartAndTableProvider {
