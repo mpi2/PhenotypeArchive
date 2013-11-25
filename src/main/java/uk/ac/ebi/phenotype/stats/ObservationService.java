@@ -39,7 +39,7 @@ public class ObservationService {
 	PhenotypePipelineDAO parameterDAO;
 
 	// Definition of the solr fields
-	class ExperimentField {
+	public static class ExperimentField {
 		public final static String ID = "id";
 		public final static String PHENOTYPING_CENTER = "phenotyping_center";
 		public final static String PHENOTYPING_CENTER_ID = "phenotyping_center_id";

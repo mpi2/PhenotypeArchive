@@ -60,12 +60,11 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.ParameterIncrement;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
-import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ChartType;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 import uk.ac.ebi.phenotype.stats.ExperimentService;
-import uk.ac.ebi.phenotype.stats.JSONGraphUtils;
+import uk.ac.ebi.phenotype.stats.ObservationService;
 import uk.ac.ebi.phenotype.stats.PipelineProcedureData;
 import uk.ac.ebi.phenotype.stats.PipelineProcedureTablesCreator;
 import uk.ac.ebi.phenotype.stats.TableObject;
@@ -405,23 +404,25 @@ public class StatsController implements BeanFactoryAware {
 			@RequestParam(required = false, value = "start") Integer start,
 			@RequestParam(required = false, value = "length") Integer length,
 			@RequestParam(required = false, value = "observationType") String observationType,
-			 @RequestParam(required = false, /*defaultValue = "ESLIM_001_001_007",*/ value = "parameterId") String[] parameterIds,
-			 Model model)
+			@RequestParam(required = false, /*defaultValue = "ESLIM_001_001_007",*/ value = "parameterId") String[] parameterIds,
+			Model model)
 			throws GenomicFeatureNotFoundException, IOException, URISyntaxException, SQLException {
 		log.debug("calling stats links");
+
 		//equivalent url from solr service http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment/select?q=observationType:unidimensional&wt=json&indent=true&start=0&rows=10
+
 		ObservationType oType=null;
+
 		for(ObservationType type: ObservationType.values()){
 			if(type.name().equalsIgnoreCase(observationType)){
 				oType=type;
 			}
 		}
 		log.debug("calling observation type="+oType);
+
 		List<String> paramIds = getParamsAsList(parameterIds);
-	
-			getLinksForStats(start, length, model, oType, paramIds);
-		
-		
+		getLinksForStats(start, length, model, oType, paramIds);
+
 		return "statsLinksList";
 	}
 
@@ -438,31 +439,33 @@ public class StatsController implements BeanFactoryAware {
 	private void getLinksForStats(Integer start, Integer length, Model model, ObservationType type, List<String>parameterIds) throws IOException, URISyntaxException, SQLException {
 		if(start==null)start=0;
 		if(length==null)length=100;
+
 		@SuppressWarnings("unchecked")
-		Map<String, String> config = (Map<String, String>) bf
-				.getBean("globalConfiguration");
-		String url=config.get("internalSolrUrl")+"/experiment/select?q=observationType:"+type+" AND biologicalSampleGroup:experimental"+"&wt=json&indent=true&start="+start+"&rows="+length;
+		Map<String, String> config = (Map<String, String>) bf.getBean("globalConfiguration");
+
+		String url = config.get("internalSolrUrl") + "/experiment/select?"
+			+ "q=" + ObservationService.ExperimentField.OBSERVATION_TYPE + ":" + type
+			+ " AND " + ObservationService.ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental"
+			+ "&wt=json&indent=true&start=" + start + "&rows=" + length;
+
 		net.sf.json.JSONObject result = JSONRestUtil.getResults(url);
 		System.out.println(result.toString());
 		JSONArray resultsArray=JSONRestUtil.getDocArray(result);
-	
-			System.out.println(start+" end="+length);
-			 List<Map<String, String>> listWithStableId=new ArrayList<Map<String, String>>();
-			 for(int i=0; i<resultsArray.size(); i++){
-				 Map<String,String> map=new HashMap<String,String>();
-				net.sf.json.JSONObject exp=resultsArray.getJSONObject(i);
-				String statbleParamId=exp.getString("parameterStableId");
-				int internalParamId=exp.getInt("parameterId");
-				String accession=exp.getString("geneAccession");
-				 System.out.println(accession+" parameter="+statbleParamId);
-				// Parameter parameter=pipelineDAO.getParameterById(Integer.valueOf(parameterId));
-				 map.put("paramStableId", statbleParamId);
-				 map.put("accession",accession);
-				 listWithStableId.add(map);
-			 }
-			 
-			 model.addAttribute("statsLinks", listWithStableId);
-		
+
+		System.out.println("start="+start+" end="+length);
+
+		List<Map<String, String>> listWithStableId=new ArrayList<Map<String, String>>();
+		for(int i=0; i<resultsArray.size(); i++){
+			Map<String,String> map=new HashMap<String,String>();
+			net.sf.json.JSONObject exp=resultsArray.getJSONObject(i);
+			String statbleParamId=exp.getString(ObservationService.ExperimentField.PARAMETER_STABLE_ID);
+			String accession=exp.getString(ObservationService.ExperimentField.GENE_ACCESSION);
+			System.out.println(accession+" parameter="+statbleParamId);
+			map.put("paramStableId", statbleParamId);
+			map.put("accession",accession);
+			listWithStableId.add(map);
+		}
+		model.addAttribute("statsLinks", listWithStableId);
 	}
 
 	/**
