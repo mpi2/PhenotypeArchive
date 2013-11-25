@@ -111,7 +111,7 @@ public class ObservationDTO {
 	 */
 
 	public String tabbedToString(){
-		String tabbed =	id + "\t" + pipelineName 
+		String tabbed =	pipelineName 
 				 + "\t" + pipelineStableId 
 				 + "\t" + procedureStableId 
 				 + "\t" + procedureName
@@ -158,8 +158,7 @@ public class ObservationDTO {
 	}
 	
 	public String getTabbedFields(){
-		String tabbed = "id"
-				 + "\t pipeline name" 
+		String tabbed = "pipeline name" 
 				 + "\t pipeline stable id"
 				 + "\t procedure stable id"
 				 + "\t procedure name"

@@ -77,12 +77,39 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", ""]);_gaq.push(["_trackPageview"
 				<p>Once zoomed a "Reset zoom" button appears at the right of the graph to enable the graph to be reset to original position:
 				<img src="img/graph_after_zoom.png" alt="Zoomed in graph here">
 				</p>
-				<p>An export button is always visible on the right hand side of the graphs where the graph picture can be exported in png, jpeg, pdf or svg format which will be downloaded to your computer:
-				<img src="img/graph_export.png" alt="export button in graph here">
+				
 				</p>
 				<h3><a name="download" href='#'>Exporting Graph Data</a></h3>
-				<p>Images of the graphs can be saved to your computer and the ability to download the underlying data is in development. There is also a restful web service available for retrieving information pertaining to experiments via a web browser or a programming language of your choice. Documentation for this can be found <a href="https://github.com/mpi2/PhenotypeArchive/wiki">here</a>.
+				<p>An export button is always visible on the right hand side of the graphs where the graph picture can be exported in png, jpeg, pdf or svg format which will be downloaded to your computer:
+				<img src="img/graph_export.png" alt="export button in graph here">
+				<p>The data used to generate the graphs can be downloaded in XLS or TSV formats from the buttons on the top of the page (<img src="img/graph-data-export.png" 
+				alt="export button in graph here">). This will export data for all graphs shown on the page. Data for males and females from the same experiment will be shown 
+				in the same table while for different zygosities, organizations or strains there will be separate tables exported in the same file. Following we present a list of
+				exported values accompanied by a short description when needed.
 				</p>
+				<table>
+				<tr> <th width="20%">Column</th> <th> Description</th></tr>
+				<tr><td> pipelineName </td><td> Pipeline through which the phenotyping was done, i.e. EUMODIC pipelines </td></tr>
+				<tr><td> pipelineStableId </td><td> Pipeline id </td></tr>
+				<tr><td> procedureStableId </td><td> Procedure id </td></tr>
+				<tr><td> procedureName </td><td> Procedure name </td></tr>
+				<tr><td> parameterStableId </td><td> Parameter id </td></tr>
+				<tr><td> parameterName </td><td> Parameter name </td></tr>
+				<tr><td> strain </td><td> Mouse strain used </td></tr>
+				<tr><td> geneSymbol </td><td> Gene symbol </td></tr>
+				<tr><td> geneAccession </td><td> Gene MGI id </td></tr>
+				<tr><td> organisation </td><td> Organization name </td></tr>
+				<tr><td> colonyId </td><td> Colony id </td></tr>
+				<tr><td> dateOfExperiment </td><td> Date of experiment </td></tr>
+				<tr><td> zygosity </td><td> Zygosity </td></tr>
+				<tr><td> sex </td><td> Sex </td></tr>  
+				<tr><td> group </td><td> This field has only 2 values : control or experiment </td></tr>  
+				<tr><td> category </td><td> Column is exported only for categorical data. It contains the label of the category assigned. </td></tr>  
+				<tr><td> dataPoint </td><td> Coulmn is exported for unidimensional or time series data. It contains the value resulted from the measurment decribed by the current procedure.</td></tr>  
+				<tr><td> discretePoint </td><td> Column exported for time series data. It contains the relative timepoints at which the measurments were made. </td></tr> 
+				</table>
+				<br/>
+				<p> A <b>restful web service</b> is also available for retrieving information pertaining to experiments via a web browser or a programming language of your choice. Documentation for this can be found <a href="https://github.com/mpi2/PhenotypeArchive/wiki">here</a>.			</p>
 				
 				<h2><a name="types" href='#'>Types of Graphs and Equations</a></h2>
 				<p>
