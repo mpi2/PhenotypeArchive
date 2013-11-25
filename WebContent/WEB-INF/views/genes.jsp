@@ -269,6 +269,7 @@
 	<!--/row-->
 
 	<!--row-->
+	<c:if test="${phenotypeStarted or not empty phenotypes}">
 	<div class="row-fluid dataset">
 	    <div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
 	    <h4 class="caption">Phenotype associations for ${gene.symbol}</h4>
@@ -359,13 +360,14 @@
 				<div id="exportIconsDiv"></div>
 				</c:if>
 				<c:if test="${empty phenotypes}">
-					<div class="alert alert-info">You'll see EuroPhenome phenotype data when available. You'll find links to the Wellcome Trust Sanger Institute mouse portal when appropriate.</div>
+					<div class="alert alert-info">Pre QC data has been submitted for this gene. Once the QC process is finished phenotype associations stats will be made available.</div>
 				</c:if>
 			</div>
 		</div>
 			</div>
 		</div>
 		</div>
+		</c:if>
 
 	<!-- row -->
 	<c:if test="${not empty imageErrors}">
