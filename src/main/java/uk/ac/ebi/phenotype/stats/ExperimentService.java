@@ -70,7 +70,7 @@ public class ExperimentService {
 	    	// - zygosity
 	    	ExperimentDTO experiment;
 	    	
-	    	String experimentKey = observation.getOrganisation()
+	    	String experimentKey = observation.getPhenotypingCenter()
 	    			+ observation.getStrain()
 	    			+ observation.getParameterStableId()
 	    			+ observation.getGeneAccession();
@@ -98,7 +98,7 @@ public class ExperimentService {
 	    	}
 
 	    	if (experiment.getOrganisation() == null) {
-	    		experiment.setOrganisation(observation.getOrganisation());
+	    		experiment.setOrganisation(observation.getPhenotypingCenter());
 	    	}
 
 	    	if (experiment.getStrain() == null) {
@@ -155,7 +155,7 @@ public class ExperimentService {
 	    	    for (ObservationDTO o : experiment.getHeterozygoteMutants()) {
 
 	    	    	if(experimentOrganisationId==null){
-	    	    		experimentOrganisationId = o.getOrganisationId();
+	    	    		experimentOrganisationId = o.getPhenotypingCenterId();
 	    	    	}
 
 	    	    	if (o.getDateOfExperiment().after(max)) {
@@ -166,7 +166,7 @@ public class ExperimentService {
 	    	    for (ObservationDTO o : experiment.getHomozygoteMutants()) {
 
 	    	    	if(experimentOrganisationId==null){
-	    	    		experimentOrganisationId = o.getOrganisationId();
+	    	    		experimentOrganisationId = o.getPhenotypingCenterId();
 	    	    	}
 
 	    	    	if (o.getDateOfExperiment().after(max)) {

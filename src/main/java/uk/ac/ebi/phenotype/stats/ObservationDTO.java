@@ -46,11 +46,11 @@ public class ObservationDTO {
 	@Field("experiment_id")
 	private Integer experimentId;
 
-	@Field
-	private Integer organisationId;
+	@Field("phenotyping_center_id")
+	private Integer phenotypingCenterId;
 
-	@Field
-	private String organisation;
+	@Field("phenotyping_center")
+	private String phenotypingCenter;
 
 	@Field("observation_type")
 	private String observationType;
@@ -127,7 +127,7 @@ public class ObservationDTO {
 			//	 + "\t" + experimentId
 			//	 + "\t" + organisationId
 			//	 + "\t" + observationType
-				 + "\t" + organisation
+				 + "\t" + phenotypingCenter
 				 + "\t" + colonyId
 				 + "\t" + dateOfExperiment
 			//	 + "\t" + dateOfBirth
@@ -258,7 +258,7 @@ public class ObservationDTO {
 	public String toString() {
 		return "id=" + id 
 			+ ", parameterId=" + parameterId 
-			+ ", organisationId=" + organisationId
+			+ ", phenotypingCenterId=" + phenotypingCenterId
 			+ ", biologicalModelId=" + biologicalModelId 
 			+ ", zygosity=" + zygosity 
 			+ ", sex=" + sex 
@@ -459,15 +459,15 @@ public class ObservationDTO {
 	/**
 	 * @return the organisationId
 	 */
-	public Integer getOrganisationId() {
-		return organisationId;
+	public Integer getPhenotypingCenterId() {
+		return phenotypingCenterId;
 	}
 
 	/**
 	 * @param organisationId the organisationId to set
 	 */
-	public void setOrganisationId(Integer organisationId) {
-		this.organisationId = organisationId;
+	public void setPhenotypingCenterId(Integer phenotypingCenterId) {
+		this.phenotypingCenterId = phenotypingCenterId;
 	}
 
 	/**
@@ -487,15 +487,15 @@ public class ObservationDTO {
 	/**
 	 * @return the organisation
 	 */
-	public String getOrganisation() {
-		return organisation;
+	public String getPhenotypingCenter() {
+		return phenotypingCenter;
 	}
 
 	/**
 	 * @param organisation the organisation to set
 	 */
-	public void setOrganisation(String organisation) {
-		this.organisation = organisation;
+	public void setPhenotypingCenter(String phenotypingCenter) {
+		this.phenotypingCenter = phenotypingCenter;
 	}
 
 	/**
