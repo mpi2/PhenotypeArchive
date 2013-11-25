@@ -100,14 +100,23 @@ public class ObservationDTO {
 	@Field
 	private String externalSampleId;
 
-
-
+	@Field
+	private String parameterName;
+	
+	@Field 
+	private String procedureName;
+	
 	/**
 	 * helper methods
 	 */
 
 	public String tabbedToString(){
-		String tabbed =	id + "\t" + pipelineName + "\t" + pipelineStableId + "\t" + procedureStableId + "\t" + parameterStableId
+		String tabbed =	id + "\t" + pipelineName 
+				 + "\t" + pipelineStableId 
+				 + "\t" + procedureStableId 
+				 + "\t" + procedureName
+				 + "\t" + parameterStableId
+				 + "\t" + parameterName
 			//	 + "\t" + pipelineId
 			//	 + "\t" + procedureId
 			//	 + "\t" + parameterId
@@ -153,7 +162,9 @@ public class ObservationDTO {
 				 + "\t pipeline name" 
 				 + "\t pipeline stable id"
 				 + "\t procedure stable id"
+				 + "\t procedure name"
 				 + "\t parameter stable id"
+				 + "\t parameter name"
 			//	 + "\t pipeline id" 
 			//	 + "\t procedureId"
 			//	 + "\t parameterId"
@@ -191,6 +202,22 @@ public class ObservationDTO {
 			tabbed += "\t" + "dataPoint" + "\t" + "discretePoint";
 		}
 		return tabbed;
+	}
+	
+	public String getParameterName(){
+		return parameterName;
+	}
+	
+	public void setParameterName(String parameterName){
+		this.parameterName = parameterName;
+	}
+	
+	public String getProcedureName(){
+		return this.procedureName;
+	}
+	
+	public void setProcedureName(String procedureName){
+		this.procedureName = procedureName;
 	}
 	
 	public String getExternalSampleId() {

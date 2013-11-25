@@ -30,7 +30,7 @@ public class ExperimentDTO {
 	private Integer experimentalBiologicalModelId;
 	private Set<ObservationDTO> maleControls;
 	private Set<ObservationDTO> femaleControls;
-	
+		
 	/**
 	 * 
 	 * @return list of 
