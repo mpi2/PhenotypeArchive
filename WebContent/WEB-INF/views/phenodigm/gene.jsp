@@ -82,7 +82,7 @@
             });
         </script>
 
-        <div class='topic'>Disease Associations for <a href="https://www.mousephenotype.org/data/genes/${geneIdentifier.databaseCode}:${geneIdentifier.databaseAcc}">${geneIdentifier.geneSymbol}</a> (human ortholog <a href="http://www.genenames.org/data/hgnc_data.php?hgnc_id=${humanOrtholog.databaseAcc}">${humanOrtholog.geneSymbol}</a>)</div>
+        <div class='topic'>Disease Associations for <a href="https://www.mousephenotype.org/data/genes/${geneIdentifier.databaseCode}:${geneIdentifier.databaseAcc}">${geneIdentifier.geneSymbol}</a> (human ortholog <a href="${humanOrtholog.externalUri}">${humanOrtholog.geneSymbol}</a>)</div>
 
         <div class="row-fluid dataset">
             <div class="container span12">

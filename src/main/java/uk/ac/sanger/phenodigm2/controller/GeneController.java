@@ -62,6 +62,7 @@ public class GeneController {
         
         for (Gene gene : geneToDiseaseAssociationsMap.keySet()) {
             model.addAttribute("geneIdentifier", gene.getOrthologGeneId());
+            model.addAttribute("humanOrtholog", gene.getHumanGeneId());
             logger.info(String.format("Found gene: %s %s", gene.getOrthologGeneId().getCompoundIdentifier(), gene.getOrthologGeneId().getGeneSymbol()));
             List<DiseaseAssociationSummary> diseaseAssociationSummarys = geneToDiseaseAssociationsMap.get(gene);
             
