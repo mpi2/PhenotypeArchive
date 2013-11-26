@@ -178,9 +178,9 @@ public class StatsController implements BeanFactoryAware {
 		// param 655
 		// female homzygote
 		// population id=4640 or 4047 - male, het.
-		String phenotypingParamString=null;
+		String phenotypingCenterParamString=null;
 		if(phenotypingCenters !=null && phenotypingCenters.size()>0) {
-			phenotypingParamString=phenotypingCenters.get(0);
+			phenotypingCenterParamString=phenotypingCenters.get(0);
 		}
 		
 		
@@ -247,7 +247,7 @@ public class StatsController implements BeanFactoryAware {
 			}
 			
 			//List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc);
-			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList, phenotypingParamString);
+			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList, phenotypingCenterParamString);
 			System.out.println(experimentList);
 			if(experimentList.size()!=0) {
 				noData=false;
@@ -349,9 +349,9 @@ public class StatsController implements BeanFactoryAware {
 		
 		List<BiologicalModel> unidimensionalMutantBiologicalModels=new ArrayList<BiologicalModel>();
 		List<Parameter> parameters=new ArrayList<Parameter>();
-		String phenotypingParamString=null;
+		String phenotypingCenterParamString=null;
 		if(phenotypingCenters !=null && phenotypingCenters.size()>0) {
-			phenotypingParamString=phenotypingCenters.get(0);
+			phenotypingCenterParamString=phenotypingCenters.get(0);
 		}
 		
 		for (String parameterId : paramIds) {
@@ -369,7 +369,7 @@ public class StatsController implements BeanFactoryAware {
 				yUnits=parameterUnits[1];
 			}
 			//List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc);
-			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList, phenotypingParamString);
+			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList, phenotypingCenterParamString);
 			//log.debug("Experiment dto marker="+experimentList);
 			log.info("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
 			
