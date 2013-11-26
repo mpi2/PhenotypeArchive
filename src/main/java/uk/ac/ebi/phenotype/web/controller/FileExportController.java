@@ -340,7 +340,10 @@ public class FileExportController {
 					//		if (!pipe.getParameterByStableId(doc.getString("parameter_stable_id"), "").getDerivedFlag()){
 								graphUrl = request.getParameter("baseUrl").replace("/genes/", "/stats/genes/") + "?parameterId=" ;
 								graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
-								graphUrl += "&zygosity=" + doc.getString("zygosity") ;
+								graphUrl += "&zygosity=" + doc.getString("zygosity");
+								if (doc.containsKey("phenotyping_center")){
+									graphUrl += "&phenotyping_center=" +doc.getString("phenotyping_center");
+								}
 					//		}
 					}
 					data.add(graphUrl);
@@ -388,6 +391,9 @@ public class FileExportController {
 								graphUrl = request.getParameter("baseUrl").replace("/phenotypes/", "/stats/genes/") + "?parameterId=" ;
 								graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
 								graphUrl += "&zygosity=" + doc.getString("zygosity") ;
+								if (doc.containsKey("phenotyping_center")){
+									graphUrl += "&phenotyping_center=" +doc.getString("phenotyping_center");
+								}
 					//		}
 					}
 					data.add(graphUrl);

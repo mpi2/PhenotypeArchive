@@ -59,7 +59,7 @@ $(document).ready(function(){
 		dumpMode: 'all',
 		baseUrl: windowLocation,
 		page:"gene",
-		gridFields: 'marker_symbol,allele_symbol,zygosity,sex,procedure_name,resource_fullname,parameter_stable_id,marker_accession_id, parameter_name,parameter_name,mp_term_name',
+		gridFields: 'marker_symbol,allele_symbol,zygosity,sex,procedure_name,resource_fullname,parameter_stable_id,phenotyping_center,marker_accession_id, parameter_name,parameter_name,mp_term_name',
 		params: "qf=auto_suggest&defType=edismax&wt=json&rows=100000&q=*:*&fq=marker_accession_id:\"" + mgiGeneId +"\""
 	});
 
