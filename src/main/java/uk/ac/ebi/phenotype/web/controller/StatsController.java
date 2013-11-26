@@ -27,6 +27,7 @@ import java.util.Map;
 
 import net.sf.json.JSONArray;
 
+import org.antlr.analysis.SemanticContext.AND;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -127,6 +128,7 @@ public class StatsController implements BeanFactoryAware {
 			@RequestParam(required = false, value = "gender") String[] gender,
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
 			@RequestParam(required = false, value = "model") String[] biologicalModelsParam,
+			@RequestParam(required = false, value = "phenotypingCenter") String[] phenotypingCenter,
 			@PathVariable String acc, Model model)
 			throws GenomicFeatureNotFoundException, IOException, URISyntaxException, SolrServerException {
 
@@ -152,6 +154,7 @@ public class StatsController implements BeanFactoryAware {
 		List<String> genderList = getParamsAsList(gender);
 		List<String> zyList=getParamsAsList(zygosity);
 		List<String> biologicalModelsParams=getParamsAsList(biologicalModelsParam);
+		List<String> phenotypingCenters=getParamsAsList(phenotypingCenter);
 		
 		//if no parameter Ids or gender or zygosity or bm specified then create a procedure view by default 
 		if(paramIds.isEmpty() && genderList.isEmpty() && zyList.isEmpty() && biologicalModelsParams.isEmpty()){
@@ -175,7 +178,10 @@ public class StatsController implements BeanFactoryAware {
 		// param 655
 		// female homzygote
 		// population id=4640 or 4047 - male, het.
-		
+		String phenotypingCenterParamString=null;
+		if(phenotypingCenters !=null && phenotypingCenters.size()>0) {
+			phenotypingCenterParamString=phenotypingCenters.get(0);
+		}
 		
 		
 			
@@ -241,7 +247,7 @@ public class StatsController implements BeanFactoryAware {
 			}
 			
 			//List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc);
-			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList);
+			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList, phenotypingCenterParamString);
 			System.out.println(experimentList);
 			if(experimentList.size()!=0) {
 				noData=false;
@@ -315,6 +321,7 @@ public class StatsController implements BeanFactoryAware {
 			@RequestParam(required = false,  value = "gender") String[] gender,
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
 			@RequestParam(required = false, value = "model") String[] biologicalModelsParam, 
+			@RequestParam(required = false, value = "phenotypingCenter") String[] phenotypingCenter,
 			@RequestParam(required = false, value = "byMouseId", defaultValue = "false") Boolean byMouseId,
 			@PathVariable String acc, Model model)
 			throws GenomicFeatureNotFoundException, IOException, URISyntaxException, SolrServerException {
@@ -336,11 +343,16 @@ public class StatsController implements BeanFactoryAware {
 		List<String> paramIds = getParamsAsList(parameterIds);
 		List<String> genderList = getParamsAsList(gender);
 		List<String> zyList=getParamsAsList(zygosity);
+		List<String> phenotypingCenters=getParamsAsList(phenotypingCenter);
 		
 		List<UnidimensionalDataSet> allUnidimensionalDataSets=new ArrayList<UnidimensionalDataSet>();
 		
 		List<BiologicalModel> unidimensionalMutantBiologicalModels=new ArrayList<BiologicalModel>();
 		List<Parameter> parameters=new ArrayList<Parameter>();
+		String phenotypingCenterParamString=null;
+		if(phenotypingCenters !=null && phenotypingCenters.size()>0) {
+			phenotypingCenterParamString=phenotypingCenters.get(0);
+		}
 		
 		for (String parameterId : paramIds) {
 			Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion(parameterId, 1, 0);
@@ -357,7 +369,7 @@ public class StatsController implements BeanFactoryAware {
 				yUnits=parameterUnits[1];
 			}
 			//List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc);
-			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList);
+			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList, phenotypingCenterParamString);
 			//log.debug("Experiment dto marker="+experimentList);
 			log.info("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
 			

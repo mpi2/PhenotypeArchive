@@ -377,7 +377,7 @@ public class ObservationService {
 		return solr.query(query).getBeans(ObservationDTO.class);
 	}
 
-	public List<ObservationDTO> getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain, SexType sex) throws SolrServerException {
+	public List<ObservationDTO> getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain, SexType sex, String phenotypingCenter) throws SolrServerException {
 		
 		List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
 		SolrQuery query = new SolrQuery()
@@ -397,6 +397,10 @@ public class ObservationService {
 		}
 		if (sex != null) {
 			query.addFilterQuery(ExperimentField.SEX + ":" + sex);
+		}
+		//MRC Harwell spaces need to be handled?
+		if (phenotypingCenter != null) {
+			query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER + ":" + phenotypingCenter);
 		}
 
 	    QueryResponse response = solr.query(query);
