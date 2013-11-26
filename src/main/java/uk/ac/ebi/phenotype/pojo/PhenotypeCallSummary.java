@@ -125,11 +125,20 @@ public class PhenotypeCallSummary {
 	@JoinColumn(name = "parameter_id")
 	private Parameter parameter;
 
+	private String phenotypingCenter;
 	
 	public PhenotypeCallSummary() {
 		
 	}
 
+	public String getPhenotypingCenter(){
+		return phenotypingCenter;
+	}
+	
+	public void setPhenotypeingCenter(String phenotypingCenter){
+		this.phenotypingCenter = phenotypingCenter;
+	}
+	
 	/**
 	 * @return the id
 	 */

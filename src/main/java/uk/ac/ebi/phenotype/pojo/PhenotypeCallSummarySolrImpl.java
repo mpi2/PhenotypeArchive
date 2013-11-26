@@ -102,7 +102,9 @@ public class PhenotypeCallSummarySolrImpl implements
 				gf.setId(geneEntity);
 				sum.setGene(gf);
 			}
-
+			if (phen.containsKey("phenotyping_center")){
+				sum.setPhenotypeingCenter(phen.getString("phenotyping_center"));
+			}
 			// GenomicFeature gene=new GenomicFeature();
 			// gene.
 			// allele.setGene(gene);

@@ -45,10 +45,10 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 	private ZygosityType zygosity;
 	private String rawZygosity;
 	private int projectId;
+	private String phenotypingCenter;
 	private Procedure procedure;
 	private Parameter parameter;
 	private String dataSourceName;//to hold the name of the origin of the data e.g. Europhenome or WTSI Mouse Genetics Project
-	 
 	/**
 	 * Returns a PhenotypeRow object with the original data provider link
 	 * populated.
@@ -90,7 +90,15 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 
 		return linkUrl;
 	}
-
+	
+	public String getPhenotypingCenter(){
+		return this.phenotypingCenter;
+	}
+	
+	public void setPhenotypingCenter(String phenotypingCenter){
+		this.phenotypingCenter = phenotypingCenter;
+	}
+	
 	public String getDataSourceName() {
 		return dataSourceName;
 	}

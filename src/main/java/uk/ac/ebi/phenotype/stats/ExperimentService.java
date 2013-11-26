@@ -378,12 +378,6 @@ public class ExperimentService {
 		return getExperimentDTO(p.getId(), geneAccession, sex, organisationId, zygosity, strain);
 	}
 
-	// gets categorical data for graphs on phenotype page 
-	public CategoricalSet getCategories(String parameter, ArrayList<String >genes, String biologicalSampleGroup, ArrayList<String>  strains) throws SolrServerException{
-		return os.getCategories(parameter, genes, biologicalSampleGroup, strains);
-	}
-
-
 	public List<ExperimentDTO> getExperimentDTO(Integer id, String acc,
 			List<String> genderList, List<String> zyList) throws SolrServerException, IOException, URISyntaxException {
 		List<ExperimentDTO> experimentList=new ArrayList<ExperimentDTO>();

@@ -1,5 +1,11 @@
 package uk.ac.ebi.phenotype.stats;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.Proxy;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -7,10 +13,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -21,13 +32,20 @@ import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
+import uk.ac.ebi.phenotype.data.impress.Utilities;
+import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.stats.categorical.CategoricalChartAndTableProvider;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalDataObject;
+import uk.ac.ebi.phenotype.stats.categorical.CategoricalResultAndCharts;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
+import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
+import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 @Service
 public class ObservationService {
@@ -38,6 +56,10 @@ public class ObservationService {
 	@Autowired
 	PhenotypePipelineDAO parameterDAO;
 
+
+	@Resource(name="globalConfiguration")
+	private Map<String, String> config;
+	
 	// Definition of the solr fields
 	public static final class ExperimentField {
 		public final static String ID = "id";
@@ -89,7 +111,7 @@ public class ObservationService {
 	public ObservationService(String solrUrl) {
 		solr = new HttpSolrServer(solrUrl);
 	}
-
+	
 	/**
 	 * Wrapper to get the parameter ID when passed a parameter object.  This
 	 * calls the getControls method with an integer for a parameterID
@@ -653,4 +675,154 @@ public class ObservationService {
 		
 		return resSet;
 	}
+	
+	public List<String> getGenesAssocByParamAndMp (String parameterStableId, String phenotype_id, HttpSolrServer solr) throws SolrServerException{
+		List<String> res = new ArrayList<String>();
+		SolrQuery query = new SolrQuery()
+		.setQuery("(mp_term_id:\"" + phenotype_id + "\" OR top_level_mp_term_id:\"" + phenotype_id + "\") AND (strain_accession_id:\"MGI:2159965\" OR strain_accession_id:\"MGI:2164831\") AND parameter_stable_id:\"" + parameterStableId+"\"")
+		.setFilterQueries("resource_fullname:EuroPhenome")
+		.setRows(10000);	
+		query.set("group.field", "marker_accession_id");
+		query.set("group", true);
+		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
+		for (Group gr : groups){
+			if (!res.contains((String)gr.getGroupValue())){
+				res.add((String) gr.getGroupValue());
+			}
+		}
+		return res;
+	}
+		
+	public PhenotypeGeneSummaryDTO getPercentages(String phenotype_id) throws SolrServerException{ // <sex, percentage>
+		PhenotypeGeneSummaryDTO pgs = new PhenotypeGeneSummaryDTO();
+		
+		int total = 0;
+		int nominator = 0;
+		SolrQuery query = new SolrQuery()
+		.setQuery("(mp_term_id:\"" + phenotype_id + "\" OR top_level_mp_term_id:\"" + phenotype_id + "\") AND (strain_accession_id:\"MGI:2159965\" OR strain_accession_id:\"MGI:2164831\")")
+		.setFilterQueries("resource_fullname:EuroPhenome")
+		.setRows(10000);	
+		query.set("group.field", "marker_symbol");
+		query.set("group", true);
+		HttpSolrServer solr = getSolrInstance("genotype-phenotype");
+		HttpSolrServer experimentSolr = getSolrInstance("experiment");
+		List<String> parameters = parameterDAO.getParameterStableIdsByPhenotypeTerm(phenotype_id);
+		// males & females
+		QueryResponse results = solr.query(query);		
+		nominator = results.getGroupResponse().getValues().get(0).getValues().size();
+ 		total = getTestedGenes(phenotype_id, null, experimentSolr, parameters);
+ 		pgs.setTotalPercentage(100*(float)nominator/(float)total);
+		pgs.setTotalGenesAssociated(nominator);
+		pgs.setTotalGenesTested(total);
+		
+		boolean display = (total > 0 && nominator > 0) ? true : false;
+		pgs.setDisplay(display);		
+		
+		if (display){
+			//females only
+			query.addFilterQuery("sex:female");
+			results = solr.query(query);
+			nominator = results.getGroupResponse().getValues().get(0).getValues().size();
+
+			total = getTestedGenes(phenotype_id, "female", experimentSolr, parameters);
+			pgs.setFemalePercentage(100*(float)nominator/(float)total);
+			pgs.setFemaleGenesAssociated(nominator);
+			pgs.setFemaleGenesTested(total);
+			
+			//males only
+			SolrQuery q = new SolrQuery()
+			.setQuery("(mp_term_id:\"" + phenotype_id + "\" OR top_level_mp_term_id:\"" + phenotype_id + "\") AND (strain_accession_id:\"MGI:2159965\" OR strain_accession_id:\"MGI:2164831\")")
+			.setFilterQueries("resource_fullname:EuroPhenome")
+			.setRows(10000);
+			q.set("group.field", "marker_symbol");
+			q.set("group", true);
+			q.addFilterQuery("sex:male");
+			results = solr.query(q);
+			nominator = results.getGroupResponse().getValues().get(0).getValues().size();
+			
+			total = getTestedGenes(phenotype_id, "male", experimentSolr, parameters);
+			pgs.setMalePercentage(100*(float)nominator/(float)total);
+			pgs.setMaleGenesAssociated(nominator);
+			pgs.setMaleGenesTested(total);
+		}
+		return pgs;
+	}
+	
+	private int getTestedGenes(String phenotypeId, String sex, HttpSolrServer solr, List<String> parameters) throws SolrServerException{
+
+	    List<String> genes = new ArrayList<String>();
+		for (String parameter : parameters){
+			SolrQuery query = new SolrQuery()
+			.setQuery("parameter_stable_id:" + parameter)
+			.addField("gene_accession")
+			.setFilterQueries("strain:\"MGI:2159965\" OR strain:\"MGI:2164831\"")
+			.setRows(10000);
+			query.set("group.field", "gene_accession");
+			query.set("group", true);
+			if (sex != null){
+				query.addFilterQuery("sex:"+sex);
+			}
+			// I need to add the genes to a hash in case some come up multiple times from different parameters
+//			System.out.println("=====" + solr.getBaseURL() + query);
+			List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
+			for (Group gr : groups){
+//				System.out.println(gr.getGroupValue());
+				if (!genes.contains((String)gr.getGroupValue())){
+					genes.add((String) gr.getGroupValue());
+				}
+			}
+		}		
+//		System.out.println("tested genes: " + genes.size());
+		return genes.size();
+	}
+
+	private HttpSolrServer getSolrInstance(String core){
+		String solrBaseUrl = config.get("internalSolrUrl") + "/" + core;
+		Proxy proxy; 
+		HttpSolrServer server = null;
+		try {
+			proxy = (new HttpProxy()).getProxy(new URL(solrBaseUrl));
+			if (proxy != null) {
+				DefaultHttpClient client = new DefaultHttpClient();
+				client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+				server = new HttpSolrServer(solrBaseUrl, client);
+			}
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		if(server == null){
+			server = new HttpSolrServer(solrBaseUrl);
+		}
+		return server;
+	}
+
+	public List<CategoricalResultAndCharts> getCategoricalDataOverviewCharts(String mpId, Model model) throws SolrServerException, IOException, URISyntaxException, SQLException{
+		List<CategoricalResultAndCharts> listOfChartsAndResults = new ArrayList<>();//one object for each parameter
+
+		List<String> parameters = parameterDAO.getParameterStableIdsByPhenotypeTerm(mpId);
+		long time = System.currentTimeMillis();
+		List<ExperimentDTO> experimentList = new ArrayList<ExperimentDTO> ();
+		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
+		HttpSolrServer solr = getSolrInstance("genotype-phenotype");
+		ArrayList<String> strains = new ArrayList<>();
+		strains.add("MGI:2159965");
+		strains.add("MGI:2164831");
+		for (String parameter : parameters) {
+			// get all genes associated with mpId because of parameter
+			Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameter, 1, 0);
+			if(p != null && Utilities.checkType(p).equals(ObservationType.categorical)){
+				List<String> genes = getGenesAssocByParamAndMp(parameter, mpId, solr);
+				if (genes.size() > 0){
+					CategoricalSet controlSet = getCategories(parameter, null , "control", strains);
+					controlSet.setName("Control");
+					CategoricalSet mutantSet = getCategories(parameter, (ArrayList<String>) genes, "experimental", strains);
+					mutantSet.setName("Mutant");
+					listOfChartsAndResults.add(cctp.doCategoricalDataOverview(controlSet, mutantSet, model, parameter, p.getName()+" ("+parameter+")"));
+				}
+			}
+		}
+//		log.info("Generating the overview graphs took " + (System.currentTimeMillis() - time) + " milliseconds.") ;
+		return listOfChartsAndResults;
+	}
+	
 }
