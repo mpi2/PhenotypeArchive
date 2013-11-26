@@ -182,12 +182,9 @@ public class ExperimentService {
 //    			List<ObservationDTO> controls = os.getControls(parameterId, experiment.getStrain(), organisationId, new Date(), Boolean.TRUE);
 	    		String controlSex = null;
 	    		// we want single sex controls for unidimensional data with 1 sex parameter only 
-	    		System.out.println("- - - " + observationType + sex);
 	    		if (sex != null){
 	    			controlSex = sex.toString();
-	    			System.out.println(" - - - Sex : " + controlSex + ".");
 	    		}
-	    		System.out.println(" - - - BEFORE GET CONTROLS: "+ parameterId + experiment.getStrain() + organisationId + max + Boolean.FALSE + controlSex);
 	    		List<ObservationDTO> controls = os.getControls(parameterId, experiment.getStrain(), experimentOrganisationId, max, Boolean.FALSE, controlSex);
     			experiment.getControls().addAll(controls);
 	    		
@@ -375,9 +372,9 @@ public class ExperimentService {
 	
 // public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer organisationId, String zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
 
-	public List<ExperimentDTO> getExperimentDTO(String parameterStableId, String geneAccession, SexType sex, Integer organisationId, String zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
+	public List<ExperimentDTO> getExperimentDTO(String parameterStableId, String geneAccession, SexType sex, Integer organisationId, String zygosity, String strain, String phenotypingCenter) throws SolrServerException, IOException, URISyntaxException {
 		Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameterStableId, 1, 0);
-		return getExperimentDTO(p.getId(), geneAccession, sex, organisationId, zygosity, strain, null);
+		return getExperimentDTO(p.getId(), geneAccession, sex, organisationId, zygosity, strain, phenotypingCenter);
 	}
 
 	public List<ExperimentDTO> getExperimentDTO(Integer id, String acc,

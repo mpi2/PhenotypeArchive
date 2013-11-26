@@ -106,6 +106,7 @@ public class FileExportController {
 		@RequestParam(value="dumpMode", required=false) String dumpMode,	
 		@RequestParam(value="baseUrl", required=false) String baseUrl,	
 		@RequestParam(value="sex", required=false) String sex,
+		@RequestParam(value="phenotypingCenter", required=false) String phenotypingCenter,
 		HttpSession session, 
 		HttpServletRequest request, 
 		HttpServletResponse response,
@@ -117,7 +118,7 @@ public class FileExportController {
 		List<String> dataRows = new ArrayList<String> ();
 		// Default to exporting 10 rows
 		Integer length = 10;
-
+		
 		panelName = panelName == null ? "" : panelName; 
 	
 		// Excel
@@ -149,7 +150,7 @@ public class FileExportController {
 				}
 				else{
 					String zyg = (zygosity.equalsIgnoreCase("null")) ? null : zygosity; 
-					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, null, zyg, strain);
+					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, null, zyg, strain, phenotypingCenter);
 				}
 				// Remove the title row (row 0) from the list and assign it to
 				// the string array for the spreadsheet
@@ -179,7 +180,9 @@ public class FileExportController {
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
 				if (!solrCoreName.equalsIgnoreCase("experiment")){
 					dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);}
-				else dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, null, zygosity, strain);
+				else{
+					dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, null, zygosity, strain, phenotypingCenter);
+				}
 			}
 		}
 		
@@ -259,7 +262,7 @@ public class FileExportController {
 		return tableData;
 	}
 	
-	public List<String> composeExperimetDataExportRows(String parameterStableId, String geneAccession, String gender, Integer organisationId, String zygosity, String strain ) throws SolrServerException, IOException, URISyntaxException{
+	public List<String> composeExperimetDataExportRows(String parameterStableId, String geneAccession, String gender, Integer organisationId, String zygosity, String strain, String phenotypingCenter) throws SolrServerException, IOException, URISyntaxException{
 		List<String> rows = new ArrayList<String>();
 		SexType sex = null;
 		if (gender != null)
@@ -268,7 +271,7 @@ public class FileExportController {
 		if (parameterStableId.contains("\t")){
 			String [] params = parameterStableId.split("\t");
 			for (int k = 0; k < params.length; k++){
-				experimentList = experimentService.getExperimentDTO(params[k], geneAccession, sex, organisationId, zygosity, strain);
+				experimentList = experimentService.getExperimentDTO(params[k], geneAccession, sex, organisationId, zygosity, strain, phenotypingCenter);
 				for (ExperimentDTO experiment : experimentList) { 
 					rows.addAll(experiment.getTabbedToString()) ;
 				}
@@ -276,7 +279,7 @@ public class FileExportController {
 			}
 		}
 		else {
-			experimentList = experimentService.getExperimentDTO(parameterStableId, geneAccession, sex, organisationId, zygosity, strain);
+			experimentList = experimentService.getExperimentDTO(parameterStableId, geneAccession, sex, organisationId, zygosity, strain, phenotypingCenter);
 			for (ExperimentDTO experiment : experimentList) { 
 				rows.addAll(experiment.getTabbedToString()) ;
 			}
@@ -322,7 +325,6 @@ public class FileExportController {
 		
 		if (request.getParameter("page").equalsIgnoreCase("gene")){
 			rowData.add("Phenotype\tAllele\tZygosity\tSex\tProcedure / Parameter\tSource\tGraph"); 
-			System.out.println(docs.getJSONObject(1));
 			for (int i=0; i<docs.size(); i++) {			
 				List<String> data = new ArrayList<String>();
 				JSONObject doc = docs.getJSONObject(i);
@@ -352,7 +354,8 @@ public class FileExportController {
 					if (!rowData.contains(line)){
 						rowData.add(line);
 					}else 
-						System.out.println("Duplicate row " + line);
+		//				System.out.println("Duplicate row " + line);
+						;
 				}
 			}
 		}
@@ -402,7 +405,6 @@ public class FileExportController {
 				}
 			}
 		}
-		System.out.println("RETURN rowData with " + rowData.size());
 		return rowData;
 	}
 	

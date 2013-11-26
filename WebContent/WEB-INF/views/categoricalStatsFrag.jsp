@@ -41,6 +41,7 @@
 							dumpMode : 'all',
 							baseUrl : windowLocation,
 							page : "categorical",
+							phenotypingCenter: phenotypingCenter,
 							parameterStableId : paramIdList,
 							zygosity: zygosity,
 							sex: sex,

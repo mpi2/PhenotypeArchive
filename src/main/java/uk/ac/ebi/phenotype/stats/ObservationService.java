@@ -379,7 +379,8 @@ public class ObservationService {
 		return solr.query(query).getBeans(ObservationDTO.class);
 	}
 
-	public List<ObservationDTO> getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain, SexType sex, String phenotypingCenter) throws SolrServerException {
+	public List<ObservationDTO> getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, 
+			String zygosity, Integer organisationId, String strain, SexType sex, String phenotypingCenter) throws SolrServerException {
 		
 		List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
 		SolrQuery query = new SolrQuery()
@@ -401,6 +402,7 @@ public class ObservationService {
 			query.addFilterQuery(ExperimentField.SEX + ":" + sex);
 		}
 		//MRC Harwell spaces need to be handled with quotes
+
 		if (phenotypingCenter != null) {
 			query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER + ":\"" + phenotypingCenter+"\"");
 		}
@@ -690,7 +692,7 @@ public class ObservationService {
 		List<String> parameters = parameterDAO.getParameterStableIdsByPhenotypeTerm(phenotype_id);
 		// males & females	
 		nominator = gpService.getGenesBy(phenotype_id, null).size();
-		System.out.println("- - - nominator : " + nominator);
+//		System.out.println("- - - nominator : " + nominator);
  		total = getTestedGenes(phenotype_id, null, solr, parameters);
  		pgs.setTotalPercentage(100*(float)nominator/(float)total);
 		pgs.setTotalGenesAssociated(nominator);
@@ -702,7 +704,7 @@ public class ObservationService {
 		if (display){
 			//females only
 			nominator = gpService.getGenesBy(phenotype_id, "female").size();
-			System.out.println("- - - nominator : " + nominator);
+//			System.out.println("- - - nominator : " + nominator);
 			total = getTestedGenes(phenotype_id, "female", solr, parameters);
 			pgs.setFemalePercentage(100*(float)nominator/(float)total);
 			pgs.setFemaleGenesAssociated(nominator);
@@ -710,7 +712,7 @@ public class ObservationService {
 			
 			//males only
 			nominator = gpService.getGenesBy(phenotype_id, "male").size();
-			System.out.println("- - - nominator : " + nominator);
+//			System.out.println("- - - nominator : " + nominator);
 			total = getTestedGenes(phenotype_id, "male", solr, parameters);
 			pgs.setMalePercentage(100*(float)nominator/(float)total);
 			pgs.setMaleGenesAssociated(nominator);
@@ -743,7 +745,7 @@ public class ObservationService {
 				}
 			}
 		}		
-		System.out.println(" - - - tested genes: " + genes.size());
+//		System.out.println(" - - - tested genes: " + genes.size());
 		return genes.size();
 	}
 

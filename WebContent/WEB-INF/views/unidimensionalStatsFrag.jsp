@@ -238,6 +238,7 @@
 							parameterStableId : paramIdList,
 							zygosity: zygosity,
 							sex: sex,
+							phenotypingCenter: phenotypingCenter,
 							page : "unidimensionalData",
 							gridFields : 'gene_accession,date_of_experiment,discrete_point,gene_symbol,data_point,zygosity,sex,date_of_birth,time_point',
 							params : "qf=auto_suggest&defType=edismax&wt=json&q=*:*&fq=gene_accession:\""
