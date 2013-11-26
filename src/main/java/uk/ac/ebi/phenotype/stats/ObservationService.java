@@ -56,7 +56,9 @@ public class ObservationService {
 	@Autowired
 	PhenotypePipelineDAO parameterDAO;
 
-
+	@Autowired
+	GenotypePhenotypeService gpService;
+	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 	
@@ -674,44 +676,21 @@ public class ObservationService {
 			catObj.setCount((long) gr.getResult().getNumFound());
 			catObj.setCategory(gr.getGroupValue());
 			resSet.add(catObj);
-		}
-		
+		}		
 		return resSet;
 	}
 	
-	public List<String> getGenesAssocByParamAndMp (String parameterStableId, String phenotype_id, HttpSolrServer solr) throws SolrServerException{
-		List<String> res = new ArrayList<String>();
-		SolrQuery query = new SolrQuery()
-		.setQuery("(mp_term_id:\"" + phenotype_id + "\" OR top_level_mp_term_id:\"" + phenotype_id + "\") AND (strain_accession_id:\"MGI:2159965\" OR strain_accession_id:\"MGI:2164831\") AND parameter_stable_id:\"" + parameterStableId+"\"")
-		.setFilterQueries("resource_fullname:EuroPhenome")
-		.setRows(10000);	
-		query.set("group.field", "marker_accession_id");
-		query.set("group", true);
-		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
-		for (Group gr : groups){
-			if (!res.contains((String)gr.getGroupValue())){
-				res.add((String) gr.getGroupValue());
-			}
-		}
-		return res;
-	}
 		
 	public PhenotypeGeneSummaryDTO getPercentages(String phenotype_id) throws SolrServerException{ // <sex, percentage>
 		PhenotypeGeneSummaryDTO pgs = new PhenotypeGeneSummaryDTO();
 		
 		int total = 0;
 		int nominator = 0;
-		SolrQuery query = new SolrQuery()
-		.setQuery("(mp_term_id:\"" + phenotype_id + "\" OR top_level_mp_term_id:\"" + phenotype_id + "\") AND (strain_accession_id:\"MGI:2159965\" OR strain_accession_id:\"MGI:2164831\")")
-		.setFilterQueries("resource_fullname:EuroPhenome")
-		.setRows(10000);	
-		query.set("group.field", "marker_symbol");
-		query.set("group", true);
-		HttpSolrServer solrgp = getSolrInstance();
+		
 		List<String> parameters = parameterDAO.getParameterStableIdsByPhenotypeTerm(phenotype_id);
-		// males & females
-		QueryResponse results = solrgp.query(query);		
-		nominator = results.getGroupResponse().getValues().get(0).getValues().size();
+		// males & females	
+		nominator = gpService.getGenesBy(phenotype_id, null).size();
+		System.out.println("- - - nominator : " + nominator);
  		total = getTestedGenes(phenotype_id, null, solr, parameters);
  		pgs.setTotalPercentage(100*(float)nominator/(float)total);
 		pgs.setTotalGenesAssociated(nominator);
@@ -722,26 +701,16 @@ public class ObservationService {
 		
 		if (display){
 			//females only
-			query.addFilterQuery("sex:female");
-			results = solrgp.query(query);
-			nominator = results.getGroupResponse().getValues().get(0).getValues().size();
-
+			nominator = gpService.getGenesBy(phenotype_id, "female").size();
+			System.out.println("- - - nominator : " + nominator);
 			total = getTestedGenes(phenotype_id, "female", solr, parameters);
 			pgs.setFemalePercentage(100*(float)nominator/(float)total);
 			pgs.setFemaleGenesAssociated(nominator);
 			pgs.setFemaleGenesTested(total);
 			
 			//males only
-			SolrQuery q = new SolrQuery()
-			.setQuery("(mp_term_id:\"" + phenotype_id + "\" OR top_level_mp_term_id:\"" + phenotype_id + "\") AND (strain_accession_id:\"MGI:2159965\" OR strain_accession_id:\"MGI:2164831\")")
-			.setFilterQueries("resource_fullname:EuroPhenome")
-			.setRows(10000);
-			q.set("group.field", "marker_symbol");
-			q.set("group", true);
-			q.addFilterQuery("sex:male");
-			results = solrgp.query(q);
-			nominator = results.getGroupResponse().getValues().get(0).getValues().size();
-			
+			nominator = gpService.getGenesBy(phenotype_id, "male").size();
+			System.out.println("- - - nominator : " + nominator);
 			total = getTestedGenes(phenotype_id, "male", solr, parameters);
 			pgs.setMalePercentage(100*(float)nominator/(float)total);
 			pgs.setMaleGenesAssociated(nominator);
@@ -774,7 +743,7 @@ public class ObservationService {
 				}
 			}
 		}		
-//		System.out.println("tested genes: " + genes.size());
+		System.out.println(" - - - tested genes: " + genes.size());
 		return genes.size();
 	}
 
@@ -784,10 +753,7 @@ public class ObservationService {
 		List<CategoricalResultAndCharts> listOfChartsAndResults = new ArrayList<>();//one object for each parameter
 
 		List<String> parameters = parameterDAO.getParameterStableIdsByPhenotypeTerm(mpId);
-		long time = System.currentTimeMillis();
-		List<ExperimentDTO> experimentList = new ArrayList<ExperimentDTO> ();
 		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
-		HttpSolrServer solr = getSolrInstance();
 		ArrayList<String> strains = new ArrayList<>();
 		strains.add("MGI:2159965");
 		strains.add("MGI:2164831");
@@ -795,7 +761,7 @@ public class ObservationService {
 			// get all genes associated with mpId because of parameter
 			Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameter, 1, 0);
 			if(p != null && Utilities.checkType(p).equals(ObservationType.categorical)){
-				List<String> genes = getGenesAssocByParamAndMp(parameter, mpId, solr);
+				List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
 				if (genes.size() > 0){
 					CategoricalSet controlSet = getCategories(parameter, null , "control", strains);
 					controlSet.setName("Control");
@@ -805,26 +771,7 @@ public class ObservationService {
 				}
 			}
 		}
-//		log.info("Generating the overview graphs took " + (System.currentTimeMillis() - time) + " milliseconds.") ;
 		return listOfChartsAndResults;
 	}
-	private HttpSolrServer getSolrInstance(){
-		String solrBaseUrl = config.get("internalSolrUrl") + "/" + "genotype-phenotype";
-		Proxy proxy; 
-		HttpSolrServer server = null;
-		try {
-			proxy = (new HttpProxy()).getProxy(new URL(solrBaseUrl));
-			if (proxy != null) {
-				DefaultHttpClient client = new DefaultHttpClient();
-				client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-				server = new HttpSolrServer(solrBaseUrl, client);
-			}
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		if(server == null){
-			server = new HttpSolrServer(solrBaseUrl);
-		}
-		return server;
-	}
+	
 }
