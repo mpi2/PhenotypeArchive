@@ -70,7 +70,8 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 	@Override
 	public HashMap<String, String> getTopLevelMPTerms(String gene) throws SolrServerException {
 		HashMap<String,String> tl = new HashMap<String,String>(); 
-		SolrDocumentList result = runQuery("marker_accession_id:" + gene.replace(":", "\\:"));
+//		SolrDocumentList result = runQuery("marker_accession_id:" + gene.replace(":", "\\:"));
+		SolrDocumentList result = runQuery("marker_accession_id:" + gene.replace(":", "\\:") + " AND -resource_name:IMPC");
 		if (result.size() > 0) {
 			for (int i = 0; i < result.size(); i++) {
 				SolrDocument doc = result.get(i);
@@ -88,6 +89,7 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 				}
 			}
 		}		
+		System.out.println("RETURNED TOPE LEVEL TERM " + tl.keySet());
 		return tl;
 	}
 
@@ -96,7 +98,8 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 		SolrDocumentList result = runQuery("marker_accession_id:" + gene.replace(":", "\\:") + " AND top_level_mp_term_id:" + mpID.replace(":", "\\:"));
 		// mpID might be in mp_id instead of top level field
 		if (result.size() == 0 || result == null)
-			result = runQuery("marker_accession_id:" + gene.replace(":", "\\:") + " AND mp_term_id:" + mpID.replace(":", "\\:"));
+		//	result = runQuery("marker_accession_id:" + gene.replace(":", "\\:") + " AND mp_term_id:" + mpID.replace(":", "\\:"));
+			result = runQuery("marker_accession_id:" + gene.replace(":", "\\:") + " AND mp_term_id:" + mpID.replace(":", "\\:") + " AND -resource_name:IMPC");
 		return result;
 	}
 
@@ -193,7 +196,6 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 		String query = q.replaceAll("\\(", "\\\\(");
 		query = query.replaceAll("\\)", "\\\\)");
 		query = query.replaceAll("\\*", "\\\\*");
-		query = query.replaceAll("\\-", "\\\\-");
 		SolrQuery solrQuery = new SolrQuery();
 		System.out.println("query solrj="+query);
 		solrQuery.setQuery(query);
