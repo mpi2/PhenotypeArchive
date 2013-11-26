@@ -33,6 +33,8 @@ New features
 Other Changes
  1.  Graph page can be requested per center
  2.  Phenotype association panel warning message changed on gene page
+ 3.  experimental core: camel case (i.e. parameterStableId) replaced with snake case 
+     (i.e. parameter_stable_id)
 
 Bug fixes
  1.  ENU link pops up misleading error message
