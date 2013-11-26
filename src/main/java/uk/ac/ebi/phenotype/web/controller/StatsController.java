@@ -340,6 +340,7 @@ public class StatsController implements BeanFactoryAware {
 		List<String> paramIds = getParamsAsList(parameterIds);
 		List<String> genderList = getParamsAsList(gender);
 		List<String> zyList=getParamsAsList(zygosity);
+		List<String> phenotypingCenters=getParamsAsList(phenotypingCenter);
 		
 		List<UnidimensionalDataSet> allUnidimensionalDataSets=new ArrayList<UnidimensionalDataSet>();
 		
@@ -361,7 +362,7 @@ public class StatsController implements BeanFactoryAware {
 				yUnits=parameterUnits[1];
 			}
 			//List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc);
-			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList, null);
+			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList, phenotypingCenters.get(0));
 			//log.debug("Experiment dto marker="+experimentList);
 			log.info("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
 			
