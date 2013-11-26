@@ -182,11 +182,12 @@ public class ExperimentService {
 //    			List<ObservationDTO> controls = os.getControls(parameterId, experiment.getStrain(), organisationId, new Date(), Boolean.TRUE);
 	    		String controlSex = null;
 	    		// we want single sex controls for unidimensional data with 1 sex parameter only 
-	    		if (observationType.equals(ObservationType.valueOf("unidimensional")) && sex != null){
+	    		System.out.println("- - - " + observationType + sex);
+	    		if (sex != null){
 	    			controlSex = sex.toString();
-//	    			System.out.println("Sex : " + controlSex + ".");
+	    			System.out.println(" - - - Sex : " + controlSex + ".");
 	    		}
-//	    		System.out.println("BEFORE GET CONTROLS: "+ parameterId + experiment.getStrain() + organisationId + max + Boolean.FALSE + controlSex);
+	    		System.out.println(" - - - BEFORE GET CONTROLS: "+ parameterId + experiment.getStrain() + organisationId + max + Boolean.FALSE + controlSex);
 	    		List<ObservationDTO> controls = os.getControls(parameterId, experiment.getStrain(), experimentOrganisationId, max, Boolean.FALSE, controlSex);
     			experiment.getControls().addAll(controls);
 	    		

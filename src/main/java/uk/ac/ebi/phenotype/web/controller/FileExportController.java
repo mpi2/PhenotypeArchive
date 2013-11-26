@@ -104,7 +104,8 @@ public class FileExportController {
 		@RequestParam(value="gridFields", required=false) String gridFields,		
 		@RequestParam(value="showImgView", required=false, defaultValue="false") boolean showImgView,		
 		@RequestParam(value="dumpMode", required=false) String dumpMode,	
-		@RequestParam(value="baseUrl", required=false) String baseUrl,
+		@RequestParam(value="baseUrl", required=false) String baseUrl,	
+		@RequestParam(value="sex", required=false) String sex,
 		HttpSession session, 
 		HttpServletRequest request, 
 		HttpServletResponse response,
@@ -120,7 +121,7 @@ public class FileExportController {
 		panelName = panelName == null ? "" : panelName; 
 	
 		// Excel
-		if ( fileType.equals("xls") ){				
+		if ( fileType.equals("xls") ){
 			
 			response.setContentType("application/vnd.ms-excel");					
 			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls" );
@@ -148,7 +149,7 @@ public class FileExportController {
 				}
 				else{
 					String zyg = (zygosity.equalsIgnoreCase("null")) ? null : zygosity; 
-					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, null, null, zyg, strain);
+					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, null, zyg, strain);
 				}
 				// Remove the title row (row 0) from the list and assign it to
 				// the string array for the spreadsheet
@@ -178,7 +179,7 @@ public class FileExportController {
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
 				if (!solrCoreName.equalsIgnoreCase("experiment")){
 					dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);}
-				else dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, null, null, zygosity, strain);
+				else dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, null, zygosity, strain);
 			}
 		}
 		

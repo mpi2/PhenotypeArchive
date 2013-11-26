@@ -92,7 +92,8 @@
 						var zygosity = null;
 						if (params.indexOf("zygosity\=") > 0)
 							zygosity = params.split("zygosity\=")[1].split("\&")[0];
-						var phenotypingCenter = params.split("phenotypingCenter\=")[1].split("\&")[0];
+						var phenotypingCenter = (params.indexOf("phenotypingCenter\=") > 0) ? params.split("phenotypingCenter\=")[1].split("\&")[0] : null;
+						var sex = (params.indexOf("gender\=") > 0) ? params.split("gender\=")[1].split("\&")[0] : null;
 						
 						initFileExporter({
 							mgiGeneId : mgiGeneId,
@@ -105,6 +106,7 @@
 							page : "timeSeries",
 							parameterStableId : paramIdList,
 							zygosity: zygosity,
+							sex: sex,
 							gridFields : 'gene_accession,date_of_experiment,discrete_point,gene_symbol,data_point,zygosity,sex,date_of_birth,time_point',
 							params : "qf=auto_suggest&defType=edismax&wt=json&q=*:*&fq=gene_accession:\""
 									+ mgiGeneId
