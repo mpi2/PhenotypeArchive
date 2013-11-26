@@ -356,7 +356,8 @@ public class StatsController implements BeanFactoryAware {
 			if(parameterUnits.length>1){
 				yUnits=parameterUnits[1];
 			}
-			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc);
+			//List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc);
+			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList);
 			//log.debug("Experiment dto marker="+experimentList);
 			log.info("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
 			

@@ -478,9 +478,9 @@
 					<strong>Error:</strong> IKMC allele status currently unavailable.
 				</div>
 				</c:when>
-				<c:when test="${countIKMCAlleles == 0}">
+				<%-- <c:when test="${countIKMCAlleles == 0}">
 					<div class="alert alert-info">There are no IKMC alleles available.</div>
-				</c:when>
+				</c:when> --%>
 				<c:otherwise>
 					<script src="${baseUrl}/js/mpi2_search/all.js"></script>
 					<script type="text/javascript">
