@@ -23,7 +23,7 @@
 	
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
 		
-		var q = oUrlHashParams.q;
+		var q = oUrlHashParams.q ? oUrlHashParams.q : '*:*';
 		var oFacets = {};
 		oFacets.count = {};		
 						
