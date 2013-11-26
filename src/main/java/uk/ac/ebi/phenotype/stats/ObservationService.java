@@ -400,7 +400,7 @@ public class ObservationService {
 		}
 		//MRC Harwell spaces need to be handled?
 		if (phenotypingCenter != null) {
-			query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER + ":" + phenotypingCenter);
+			query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER + ":\"" + phenotypingCenter+"\"");
 		}
 
 	    QueryResponse response = solr.query(query);
