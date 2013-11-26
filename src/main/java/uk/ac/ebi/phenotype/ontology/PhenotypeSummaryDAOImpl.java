@@ -197,10 +197,10 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 		query = query.replaceAll("\\)", "\\\\)");
 		query = query.replaceAll("\\*", "\\\\*");
 		SolrQuery solrQuery = new SolrQuery();
-		System.out.println("query solrj="+query);
+		//System.out.println("query solrj="+query);
 		solrQuery.setQuery(query);
 		solrQuery.setRows(1000000);
-		System.out.println("solr query obj="+solrQuery);
+		//System.out.println("solr query obj="+solrQuery);
 		QueryResponse rsp = null;
 		rsp = server.query(solrQuery);
 		return rsp.getResults();
