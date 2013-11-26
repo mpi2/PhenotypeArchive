@@ -54,6 +54,7 @@ import uk.ac.ebi.phenotype.dao.TimeSeriesStatisticsDAO;
 import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
 import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
+import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
@@ -130,7 +131,7 @@ public class StatsController implements BeanFactoryAware {
 			@RequestParam(required = false, value = "model") String[] biologicalModelsParam,
 			@RequestParam(required = false, value = "phenotypingCenter") String[] phenotypingCenter,
 			@PathVariable String acc, Model model)
-			throws GenomicFeatureNotFoundException, IOException, URISyntaxException, SolrServerException {
+			throws GenomicFeatureNotFoundException, ParameterNotFoundException,  IOException, URISyntaxException, SolrServerException {
 
 		boolean statsError=false;
 		boolean noData=true;//if we have no data for this phenotype call summary we link back to europhenome!!!
@@ -199,6 +200,10 @@ public class StatsController implements BeanFactoryAware {
 //			 }
 			
 			Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion(parameterId, 1, 0);
+			if (parameter == null) {
+				throw new ParameterNotFoundException("Parameter " + parameterId
+						+ " can't be found.", parameterId);
+			}
 			parameters.add(parameter);
 			String[] parameterUnits=parameter.checkParameterUnits();
 			String xUnits="";
@@ -324,7 +329,7 @@ public class StatsController implements BeanFactoryAware {
 			@RequestParam(required = false, value = "phenotypingCenter") String[] phenotypingCenter,
 			@RequestParam(required = false, value = "byMouseId", defaultValue = "false") Boolean byMouseId,
 			@PathVariable String acc, Model model)
-			throws GenomicFeatureNotFoundException, IOException, URISyntaxException, SolrServerException {
+			throws GenomicFeatureNotFoundException, ParameterNotFoundException, IOException, URISyntaxException, SolrServerException {
 
 		boolean statsError=false;
 		// Get the global application configuration
@@ -359,6 +364,10 @@ public class StatsController implements BeanFactoryAware {
 			parameters.add(parameter);
 			ObservationType observationTypeForParam=Utilities.checkType(parameter);
 			String[] parameterUnits=parameter.checkParameterUnits();
+			if (gene == null) {
+				throw new GenomicFeatureNotFoundException("Gene " + acc
+						+ " can't be found.", acc);
+			}
 			String xUnits="";
 			String yUnits="";
 			
@@ -519,6 +528,16 @@ public class StatsController implements BeanFactoryAware {
         mv.addObject("acc",exception.getAcc());
         mv.addObject("type","MGI gene");
         mv.addObject("exampleURI", "/stats/genes/MGI:104874");
+        return mv;
+    } 
+	
+	@ExceptionHandler(ParameterNotFoundException.class)
+	public ModelAndView handleParameterNotFoundException(ParameterNotFoundException exception) {
+        ModelAndView mv = new ModelAndView("identifierError");
+        mv.addObject("errorMessage",exception.getMessage());
+        mv.addObject("acc",exception.getAcc());
+        mv.addObject("type","Parameter");
+        mv.addObject("exampleURI", "/stats/genes/MGI:98373?parameterId=M-G-P_014_001_001&gender=male&zygosity=homozygote&phenotypingCenter=WTSI");
         return mv;
     } 
 

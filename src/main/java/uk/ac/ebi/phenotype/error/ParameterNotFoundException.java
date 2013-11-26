@@ -12,26 +12,38 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
- * toggle: used for the image dropdown.
- * 
  */
-jQuery(document).ready(	function() {
+package uk.ac.ebi.phenotype.error;
 
-//code for setting ENU links on Gene Page
+/**
+ * 
+ * GenomicFeatureNotFoundException is thrown when a genomic feature can't be
+ * found 
+ * @see GenesController
+ */
 
-$.ajax({
-	url: '../genesEnu/' + gene_id,                       
-	success: function (response) {
-		$('#enu').html(response);
-		console.log("success");
-		
-	},
-    error: function () {
-    	console.log('AJAX error trying to do ENU request');                     
-    }
-});
+public class ParameterNotFoundException extends Exception {
 
+	String parameter = null;
+	
+	public ParameterNotFoundException(String msg, String parameter) {
+		super(msg);
+		this.parameter = parameter;
+	}
 
+	/**
+	 * @return the acc
+	 */
+	public String getAcc() {
+		return parameter;
+	}
 
-});
+	/**
+	 * @param acc the acc to set
+	 */
+	public void setAcc(String parameter) {
+		this.parameter = parameter;
+	}
+	
+	
+}
