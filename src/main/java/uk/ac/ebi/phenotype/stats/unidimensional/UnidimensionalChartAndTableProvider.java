@@ -98,8 +98,8 @@ public class UnidimensionalChartAndTableProvider {
 			List<UnidimensionalStatsObject> unidimensionalStatsObjects = new ArrayList<>();
 			List<ChartData> yAxisAdjustedBoxChartsNTables = new ArrayList<ChartData>();
 
-			System.out.println("biolgocialModelId="
-					+ experiment.getExperimentalBiologicalModelId());
+			//System.out.println("biolgocialModelId="
+					//+ experiment.getExperimentalBiologicalModelId());
 			Map<String, Integer> mouseIdsToColumnsMap = new TreeMap<>();
 			BiologicalModel expBiologicalModel = bmDAO
 					.getBiologicalModelById(experiment
@@ -560,7 +560,7 @@ public class UnidimensionalChartAndTableProvider {
 			if (listOfFloats.size() > 0) {
 				Float mean = ChartUtils.getDecimalAdjustedFloat(
 						new Float(stats.getMean()), decimalPlaces);
-				System.out.println("mean=" + mean);
+				//System.out.println("mean=" + mean);
 				Float sd = ChartUtils.getDecimalAdjustedFloat(
 						new Float(stats.getStandardDeviation()), decimalPlaces);
 				statsObject.setMean(mean);
