@@ -127,6 +127,7 @@ public class StatsController implements BeanFactoryAware {
 			@RequestParam(required = false, value = "gender") String[] gender,
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
 			@RequestParam(required = false, value = "model") String[] biologicalModelsParam,
+			@RequestParam(required = false, value = "phenotypingCenter") String[] phenotypingCenter,
 			@PathVariable String acc, Model model)
 			throws GenomicFeatureNotFoundException, IOException, URISyntaxException, SolrServerException {
 
@@ -152,6 +153,7 @@ public class StatsController implements BeanFactoryAware {
 		List<String> genderList = getParamsAsList(gender);
 		List<String> zyList=getParamsAsList(zygosity);
 		List<String> biologicalModelsParams=getParamsAsList(biologicalModelsParam);
+		List<String> phenotypingCenters=getParamsAsList(phenotypingCenter);
 		
 		//if no parameter Ids or gender or zygosity or bm specified then create a procedure view by default 
 		if(paramIds.isEmpty() && genderList.isEmpty() && zyList.isEmpty() && biologicalModelsParams.isEmpty()){
@@ -241,7 +243,8 @@ public class StatsController implements BeanFactoryAware {
 			}
 			
 			//List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc);
-			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList);
+			
+			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList, phenotypingCenters.get(0));
 			System.out.println(experimentList);
 			if(experimentList.size()!=0) {
 				noData=false;
@@ -315,6 +318,7 @@ public class StatsController implements BeanFactoryAware {
 			@RequestParam(required = false,  value = "gender") String[] gender,
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
 			@RequestParam(required = false, value = "model") String[] biologicalModelsParam, 
+			@RequestParam(required = false, value = "phenotypingCenter") String[] phenotypingCenter,
 			@RequestParam(required = false, value = "byMouseId", defaultValue = "false") Boolean byMouseId,
 			@PathVariable String acc, Model model)
 			throws GenomicFeatureNotFoundException, IOException, URISyntaxException, SolrServerException {
@@ -357,7 +361,7 @@ public class StatsController implements BeanFactoryAware {
 				yUnits=parameterUnits[1];
 			}
 			//List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc);
-			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList);
+			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList, null);
 			//log.debug("Experiment dto marker="+experimentList);
 			log.info("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
 			
