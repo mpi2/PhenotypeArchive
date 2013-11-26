@@ -27,6 +27,7 @@ import java.util.Map;
 
 import net.sf.json.JSONArray;
 
+import org.antlr.analysis.SemanticContext.AND;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -177,7 +178,10 @@ public class StatsController implements BeanFactoryAware {
 		// param 655
 		// female homzygote
 		// population id=4640 or 4047 - male, het.
-		
+		String phenotypingParamString=null;
+		if(phenotypingCenters !=null && phenotypingCenters.size()>0) {
+			phenotypingParamString=phenotypingCenters.get(0);
+		}
 		
 		
 			
@@ -243,8 +247,7 @@ public class StatsController implements BeanFactoryAware {
 			}
 			
 			//List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc);
-			
-			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList, phenotypingCenters.get(0));
+			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList, phenotypingParamString);
 			System.out.println(experimentList);
 			if(experimentList.size()!=0) {
 				noData=false;
@@ -346,6 +349,10 @@ public class StatsController implements BeanFactoryAware {
 		
 		List<BiologicalModel> unidimensionalMutantBiologicalModels=new ArrayList<BiologicalModel>();
 		List<Parameter> parameters=new ArrayList<Parameter>();
+		String phenotypingParamString=null;
+		if(phenotypingCenters !=null && phenotypingCenters.size()>0) {
+			phenotypingParamString=phenotypingCenters.get(0);
+		}
 		
 		for (String parameterId : paramIds) {
 			Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion(parameterId, 1, 0);
@@ -362,7 +369,7 @@ public class StatsController implements BeanFactoryAware {
 				yUnits=parameterUnits[1];
 			}
 			//List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc);
-			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList, phenotypingCenters.get(0));
+			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList, phenotypingParamString);
 			//log.debug("Experiment dto marker="+experimentList);
 			log.info("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
 			
