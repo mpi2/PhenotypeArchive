@@ -707,13 +707,12 @@ public class ObservationService {
 		.setRows(10000);	
 		query.set("group.field", "marker_symbol");
 		query.set("group", true);
-		HttpSolrServer solr = getSolrInstance("genotype-phenotype");
-		HttpSolrServer experimentSolr = getSolrInstance("experiment");
+		HttpSolrServer solrgp = getSolrInstance();
 		List<String> parameters = parameterDAO.getParameterStableIdsByPhenotypeTerm(phenotype_id);
 		// males & females
-		QueryResponse results = solr.query(query);		
+		QueryResponse results = solrgp.query(query);		
 		nominator = results.getGroupResponse().getValues().get(0).getValues().size();
- 		total = getTestedGenes(phenotype_id, null, experimentSolr, parameters);
+ 		total = getTestedGenes(phenotype_id, null, solr, parameters);
  		pgs.setTotalPercentage(100*(float)nominator/(float)total);
 		pgs.setTotalGenesAssociated(nominator);
 		pgs.setTotalGenesTested(total);
@@ -724,10 +723,10 @@ public class ObservationService {
 		if (display){
 			//females only
 			query.addFilterQuery("sex:female");
-			results = solr.query(query);
+			results = solrgp.query(query);
 			nominator = results.getGroupResponse().getValues().get(0).getValues().size();
 
-			total = getTestedGenes(phenotype_id, "female", experimentSolr, parameters);
+			total = getTestedGenes(phenotype_id, "female", solr, parameters);
 			pgs.setFemalePercentage(100*(float)nominator/(float)total);
 			pgs.setFemaleGenesAssociated(nominator);
 			pgs.setFemaleGenesTested(total);
@@ -740,10 +739,10 @@ public class ObservationService {
 			q.set("group.field", "marker_symbol");
 			q.set("group", true);
 			q.addFilterQuery("sex:male");
-			results = solr.query(q);
+			results = solrgp.query(q);
 			nominator = results.getGroupResponse().getValues().get(0).getValues().size();
 			
-			total = getTestedGenes(phenotype_id, "male", experimentSolr, parameters);
+			total = getTestedGenes(phenotype_id, "male", solr, parameters);
 			pgs.setMalePercentage(100*(float)nominator/(float)total);
 			pgs.setMaleGenesAssociated(nominator);
 			pgs.setMaleGenesTested(total);
@@ -779,25 +778,7 @@ public class ObservationService {
 		return genes.size();
 	}
 
-	private HttpSolrServer getSolrInstance(String core){
-		String solrBaseUrl = config.get("internalSolrUrl") + "/" + core;
-		Proxy proxy; 
-		HttpSolrServer server = null;
-		try {
-			proxy = (new HttpProxy()).getProxy(new URL(solrBaseUrl));
-			if (proxy != null) {
-				DefaultHttpClient client = new DefaultHttpClient();
-				client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-				server = new HttpSolrServer(solrBaseUrl, client);
-			}
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		if(server == null){
-			server = new HttpSolrServer(solrBaseUrl);
-		}
-		return server;
-	}
+	
 
 	public List<CategoricalResultAndCharts> getCategoricalDataOverviewCharts(String mpId, Model model) throws SolrServerException, IOException, URISyntaxException, SQLException{
 		List<CategoricalResultAndCharts> listOfChartsAndResults = new ArrayList<>();//one object for each parameter
@@ -806,7 +787,7 @@ public class ObservationService {
 		long time = System.currentTimeMillis();
 		List<ExperimentDTO> experimentList = new ArrayList<ExperimentDTO> ();
 		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
-		HttpSolrServer solr = getSolrInstance("genotype-phenotype");
+		HttpSolrServer solr = getSolrInstance();
 		ArrayList<String> strains = new ArrayList<>();
 		strains.add("MGI:2159965");
 		strains.add("MGI:2164831");
@@ -827,5 +808,23 @@ public class ObservationService {
 //		log.info("Generating the overview graphs took " + (System.currentTimeMillis() - time) + " milliseconds.") ;
 		return listOfChartsAndResults;
 	}
-	
+	private HttpSolrServer getSolrInstance(){
+		String solrBaseUrl = config.get("internalSolrUrl") + "/" + "genotype-phenotype";
+		Proxy proxy; 
+		HttpSolrServer server = null;
+		try {
+			proxy = (new HttpProxy()).getProxy(new URL(solrBaseUrl));
+			if (proxy != null) {
+				DefaultHttpClient client = new DefaultHttpClient();
+				client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+				server = new HttpSolrServer(solrBaseUrl, client);
+			}
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		if(server == null){
+			server = new HttpSolrServer(solrBaseUrl);
+		}
+		return server;
+	}
 }
