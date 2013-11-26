@@ -15,6 +15,29 @@ Getting Started
 ---------------
 You need a Java 1.7 VM or later installed and a servlet container.
 
+================== Release 0.3.1 ==================
+
+Status
+------
+26 November 2013 release.
+
+Detailed Change list
+--------------------
+
+New features
+ 1.  phenotyping_center, parameter_name and procedure_name field added to 
+     experimental core
+ 2.  phenotyping_center field added to genotype-phenotype core
+ 3.  Link to graph display available for derived parameters
+
+Other Changes
+ 1.  Graph page can be requested per center
+ 2.  Phenotype association panel warning message changed on gene page
+
+Bug fixes
+ 1.  ENU link pops up misleading error message
+ 2.  Graph page bug when selecting an unknown parameter
+
 ================== Release 0.3.0 ==================
 
 Status
