@@ -419,7 +419,6 @@ public class GenesController {
 			pr.setProjectId(pcs.getExternalId());
 			pr.setProcedure(pcs.getProcedure());
 			pr.setParameter(pcs.getParameter());
-			System.out.println("------ phenotypeing center " + pcs.getPhenotypingCenter());
 			if (pcs.getPhenotypingCenter() != null)
 				pr.setPhenotypingCenter(pcs.getPhenotypingCenter());
 			if(phenotypes.containsKey(pr)) {
