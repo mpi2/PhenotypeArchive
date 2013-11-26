@@ -512,7 +512,6 @@ public class ObservationService {
 			.setFacetMinCount(1)
 			.setFacetLimit(-1);
 
-		System.out.println("======"+query.toString());
 		QueryResponse response = solr.query(query);
 		List<FacetField> fflist = response.getFacetFields();
 
