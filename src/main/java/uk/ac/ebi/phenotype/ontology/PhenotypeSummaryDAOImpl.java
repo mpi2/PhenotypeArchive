@@ -89,7 +89,6 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 				}
 			}
 		}		
-		System.out.println("RETURNED TOPE LEVEL TERM " + tl.keySet());
 		return tl;
 	}
 
@@ -130,7 +129,8 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 		if (resp.size() > 0) {
 			for (int i = 0; i < resp.size(); i++) {
 				SolrDocument doc = resp.get(i);
-				data.add((String) doc.getFieldValue("resource_name"));
+				if (!doc.getFieldValue("resource_name").toString().equalsIgnoreCase("IMPC"))
+					data.add((String) doc.getFieldValue("resource_name"));
 			}
 		}	
 		return data;
