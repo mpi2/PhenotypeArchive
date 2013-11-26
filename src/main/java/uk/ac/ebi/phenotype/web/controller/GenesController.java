@@ -629,7 +629,7 @@ public class GenesController {
 		JSONObject result = JSONRestUtil.getResults(url);
 		
 		int count=result.getInt("count");
-		System.out.println("count="+count);
+		//System.out.println("count="+count);
 
 	model.addAttribute("makeEnuLink",count);
 

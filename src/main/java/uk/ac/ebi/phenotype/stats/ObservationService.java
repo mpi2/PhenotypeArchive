@@ -195,7 +195,7 @@ public class ObservationService {
 			.setSortField(ExperimentField.DATE_OF_EXPERIMENT, ORDER.desc) // good for dates before the date of the experiment
 		;
 		queryb.setStart(0).setRows(resultsMaxSize);
-		System.out.println(queryb.toString());
+		//System.out.println(queryb.toString());
 		
 		SolrQuery querya = new SolrQuery()
 		.setQuery("*:*")
@@ -400,7 +400,7 @@ public class ObservationService {
 		if (sex != null) {
 			query.addFilterQuery(ExperimentField.SEX + ":" + sex);
 		}
-		//MRC Harwell spaces need to be handled?
+		//MRC Harwell spaces need to be handled with quotes
 		if (phenotypingCenter != null) {
 			query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER + ":\"" + phenotypingCenter+"\"");
 		}
