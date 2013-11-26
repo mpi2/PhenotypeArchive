@@ -30,7 +30,8 @@
 						}
 						var zygosity = (params.indexOf("zygosity\=") > 0) ? params.split("zygosity\=")[1].split("\&")[0] : null;
 		//				var sex = (params.indexOf("gender\=") > 0) ? params.split("gender\=")[1].split("\&")[0] : null;
-
+						var phenotypingCenter = params.split("phenotypingCenter\=")[1].split("\&")[0];
+						
 						initFileExporter({
 							mgiGeneId : mgiGeneId,
 							externalDbId : 3,
@@ -42,11 +43,14 @@
 							page : "categorical",
 							parameterStableId : paramIdList,
 							zygosity: zygosity,
-							gridFields : 'geneAccession,dateOfExperiment,discretePoint,geneSymbol,zygosity,gender,dateOfBirth,timePoint',
-							params : "qf=auto_suggest&defType=edismax&wt=json&q=*:*&fq=geneAccession:\""
+							gridFields : 'gene_accession,date_of_experiment,discrete_point,gene_symbol,data_point,zygosity,sex,date_of_birth,time_point',
+							params : "qf=auto_suggest&defType=edismax&wt=json&q=*:*&fq=gene_accession:\""
 									+ mgiGeneId
-									+ "\"&fq=parameterStableId:"
+									+ "\"&fq=parameter_stable_id:\""
 									+ paramId
+									+ "\"&fq=phenotyping_center:\""
+									+ phenotypingCenter
+									+"\""
 						});
 
 						function initFileExporter(conf) {

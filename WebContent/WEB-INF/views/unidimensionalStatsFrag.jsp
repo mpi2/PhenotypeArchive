@@ -221,6 +221,7 @@
 						for (var k = 2; k < params.split("parameterId\=").length; k++){
 							paramIdList += "\t" + params.split("parameterId\=")[k].split("\&")[0];
 						}
+						var phenotypingCenter = params.split("phenotypingCenter\=")[1].split("\&")[0];
 						var zygosity = null;
 						if (params.indexOf("zygosity\=") > 0)
 							zygosity = params.split("zygosity\=")[1].split("\&")[0];
@@ -236,11 +237,14 @@
 							parameterStableId : paramIdList,
 							zygosity: zygosity,
 							page : "unidimensionalData",
-							gridFields : 'geneAccession,dateOfExperiment,discretePoint,geneSymbol,dataPoint,zygosity,gender,dateOfBirth,timePoint',
-							params : "qf=auto_suggest&defType=edismax&wt=json&q=*:*&fq=geneAccession:\""
+							gridFields : 'gene_accession,date_of_experiment,discrete_point,gene_symbol,data_point,zygosity,sex,date_of_birth,time_point',
+							params : "qf=auto_suggest&defType=edismax&wt=json&q=*:*&fq=gene_accession:\""
 									+ mgiGeneId
-									+ "\"&fq=parameterStableId:"
+									+ "\"&fq=parameter_stable_id:\""
 									+ paramId
+									+ "\"&fq=phenotyping_center:\""
+									+ phenotypingCenter
+									+ "\""
 						});
 
 						function initFileExporter(conf) {
