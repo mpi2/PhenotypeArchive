@@ -39,7 +39,9 @@ public class GenotypePhenotypeService {
 		.setRows(10000);
 		q.set("group.field", "marker_symbol");
 		q.set("group", true);
-		q.addFilterQuery("sex:" + sex);
+		if (sex != null){
+			q.addFilterQuery("sex:" + sex);
+		}
 		QueryResponse results = solr.query(q);
 		return results.getGroupResponse().getValues().get(0).getValues();
 	}
