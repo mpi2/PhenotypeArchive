@@ -131,7 +131,7 @@ public class ObservationDTO {
 				 + "\t" + colonyId
 				 + "\t" + dateOfExperiment
 			//	 + "\t" + dateOfBirth
-			//	 + "\t" + biologicalSampleId
+				 + "\t" + biologicalSampleId
 			//	 + "\t" + biologicalModelId
 				 + "\t" + zygosity
 				 + "\t" + sex
@@ -142,7 +142,7 @@ public class ObservationDTO {
 			//	 + "\t" + dimension
 			//	 + "\t" + timePoint
 			//	 + "\t" + discretePoint
-			//	 + "\t" + externalSampleId
+				 + "\t" + externalSampleId
 				 ;
 		
 		if (observationType.equalsIgnoreCase("unidimensional")){
@@ -189,7 +189,7 @@ public class ObservationDTO {
 			//	 + "\t dimension"
 			//	 + "\t timePoint"
 			//	 + "\t discretePoint"
-			//	 + "\t externalSampleId"
+				 + "\t externalSampleId"
 				 ;
 		if (observationType.equalsIgnoreCase("unidimensional")){
 			tabbed += "\t" + "dataPoint";
