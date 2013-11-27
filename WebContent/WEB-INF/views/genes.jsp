@@ -44,7 +44,7 @@
                 'container': 'phenodcc-heatmap',
 
                 /* colony identifier (MGI identifier) */
-                'mgiid': 'MGI:1922257',
+                'mgiid': '${gene.id.accession}',
 
                 /* default usage mode: ontological or procedural */
                 'mode': 'ontological',
@@ -53,7 +53,7 @@
                 'ncol': 5,
 
                 /* heatmap title to use */
-                'title': 'Fam63a',
+                'title': '${gene.symbol}',
 
                 'url': {
                     /* the base URL of the heatmap javascript source */
