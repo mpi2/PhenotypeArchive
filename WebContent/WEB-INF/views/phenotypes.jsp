@@ -206,7 +206,7 @@
 			</c:if>
 	</div>
 	<c:if test="${empty phenotypes}">
-		<div class="alert alert-info">You'll see EuroPhenome phenotype data when available. You'll find links to the Wellcome Trust Sanger Institute mouse portal when appropriate.</div>
+		<div class="alert alert-info">Phenotype associations to genes and alleles will be available once data has completed quality control.</div>
 	</c:if>
 			</div>
 		</div>
