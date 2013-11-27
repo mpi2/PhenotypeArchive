@@ -43,8 +43,15 @@
 
                     /* function that generates target URL for data visualisation */
                     'viz': function(genotype_id, type) {
-                        return '${drupalBaseUrl}/phenotypedata?g=' + genotype_id
-                            + '&t=' + type + '&w=all';
+                        <!--[if !IE]><!-->
+                            return '${drupalBaseUrl}/phenoview?gid=' + genotype_id + '&qeid=' + type;
+                        <!--<![endif]-->
+                        <!--[if lt IE 9]>
+                            return '${drupalBaseUrl}/phenotypedata?g=' + genotype_id + '&t=' + type + '&w=all';
+                        <![endif]-->
+                        <!--[if gte IE 9]>
+                            return '${drupalBaseUrl}/phenoview?gid=' + genotype_id + '&qeid=' + type;
+                        <![endif]-->
                     }
                 }
             });
