@@ -94,7 +94,7 @@
 	.ui-dropdownchecklist-text {padding:2px;margin:0;}
 	</style>
 
-	<c:if test="${phenotypeStarted && !isLive}">
+	<c:if test="${phenotypeStarted}">
         <!--[if !IE]><!-->
         <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css">
         <!--<![endif]-->
