@@ -141,7 +141,7 @@
 	  <h4 class="caption">Phenotype associations stats</h4>
 		
 		<div class="half">
-			<p> <span class="bigPercent">${genePercentage.getTotalPercentage()}%</span> of the EuroPhenome tested genes have a phenotype association to ${phenotype.name} 
+			<p> <span class="bigPercent">${genePercentage.getTotalPercentage()}%</span> of tested genes with null mutations on a B6N genetic background have a phenotype association to ${phenotype.name} (source: EuroPhenome)
 			(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
 			<p>&nbsp;&nbsp;&nbsp; <b>${genePercentage.getFemalePercentage()}%</b> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </p>
 			<p>&nbsp;&nbsp;&nbsp; <b>${genePercentage.getMalePercentage()}%</b> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</p>
