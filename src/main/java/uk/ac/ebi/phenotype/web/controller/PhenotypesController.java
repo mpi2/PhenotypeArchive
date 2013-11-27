@@ -74,6 +74,7 @@ import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.Synonym;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 import uk.ac.ebi.phenotype.stats.ExperimentService;
+import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.stats.ObservationDTO;
 import uk.ac.ebi.phenotype.stats.ObservationService;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalChartAndTableProvider;
@@ -117,6 +118,8 @@ public class PhenotypesController {
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 
+	@Autowired
+	GenotypePhenotypeService gpService;
 
 	/**
 	 * Phenotype controller loads information required for displaying 
@@ -243,9 +246,9 @@ public class PhenotypesController {
 		TreeSet<Procedure> procedures = new TreeSet<Procedure>(pipelineDao.getProceduresByOntologyTerm(oTerm));
 		model.addAttribute("phenotype", oTerm);
 		model.addAttribute("procedures", procedures);
-		model.addAttribute("genePercentage", os.getPercentages(phenotype_id));
+		model.addAttribute("genePercentage", getPercentages(phenotype_id));
 		
-		model.addAttribute("overviewPhenCharts", os.getCategoricalDataOverviewCharts(phenotype_id, model));
+		model.addAttribute("overviewPhenCharts", getCategoricalDataOverviewCharts(phenotype_id, model));
 		
 		return "phenotypes";
 	}
@@ -427,5 +430,63 @@ public class PhenotypesController {
 	return Collections.emptyMap();
 	}
 	
-	
+	public PhenotypeGeneSummaryDTO getPercentages(String phenotype_id) throws SolrServerException{ // <sex, percentage>
+		PhenotypeGeneSummaryDTO pgs = new PhenotypeGeneSummaryDTO();
+		
+		int total = 0;
+		int nominator = 0;
+		
+		List<String> parameters = pipelineDao.getParameterStableIdsByPhenotypeTerm(phenotype_id);
+		// males & females	
+		nominator = gpService.getGenesBy(phenotype_id, null).size();
+ 		total = os.getTestedGenes(phenotype_id, null, parameters);
+ 		pgs.setTotalPercentage(100*(float)nominator/(float)total);
+		pgs.setTotalGenesAssociated(nominator);
+		pgs.setTotalGenesTested(total);
+		
+		boolean display = (total > 0 && nominator > 0) ? true : false;
+		pgs.setDisplay(display);		
+		
+		if (display){
+			//females only
+			nominator = gpService.getGenesBy(phenotype_id, "female").size();
+			total = os.getTestedGenes(phenotype_id, "female", parameters);
+			pgs.setFemalePercentage(100*(float)nominator/(float)total);
+			pgs.setFemaleGenesAssociated(nominator);
+			pgs.setFemaleGenesTested(total);
+			
+			//males only
+			nominator = gpService.getGenesBy(phenotype_id, "male").size();
+			total = os.getTestedGenes(phenotype_id, "male", parameters);
+			pgs.setMalePercentage(100*(float)nominator/(float)total);
+			pgs.setMaleGenesAssociated(nominator);
+			pgs.setMaleGenesTested(total);
+		}
+		return pgs;
+	}
+
+	public List<CategoricalResultAndCharts> getCategoricalDataOverviewCharts(String mpId, Model model) throws SolrServerException, IOException, URISyntaxException, SQLException{
+		List<CategoricalResultAndCharts> listOfChartsAndResults = new ArrayList<>();//one object for each parameter
+
+		List<String> parameters = pipelineDao.getParameterStableIdsByPhenotypeTerm(mpId);
+		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
+		ArrayList<String> strains = new ArrayList<>();
+		strains.add("MGI:2159965");
+		strains.add("MGI:2164831");
+		for (String parameter : parameters) {
+			// get all genes associated with mpId because of parameter
+			Parameter p = pipelineDao.getParameterByStableIdAndVersion(parameter, 1, 0);
+			if(p != null && Utilities.checkType(p).equals(ObservationType.categorical)){
+				List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
+				if (genes.size() > 0){
+					CategoricalSet controlSet = os.getCategories(parameter, null , "control", strains);
+					controlSet.setName("Control");
+					CategoricalSet mutantSet = os.getCategories(parameter, (ArrayList<String>) genes, "experimental", strains);
+					mutantSet.setName("Mutant");
+					listOfChartsAndResults.add(cctp.doCategoricalDataOverview(controlSet, mutantSet, model, parameter, p.getName()+" ("+parameter+")"));
+				}
+			}
+		}
+		return listOfChartsAndResults;
+	}
 }

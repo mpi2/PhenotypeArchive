@@ -55,9 +55,6 @@ public class ObservationService {
 	
 	@Autowired
 	PhenotypePipelineDAO parameterDAO;
-
-	@Autowired
-	GenotypePhenotypeService gpService;
 	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
@@ -682,43 +679,8 @@ public class ObservationService {
 		return resSet;
 	}
 	
-		
-	public PhenotypeGeneSummaryDTO getPercentages(String phenotype_id) throws SolrServerException{ // <sex, percentage>
-		PhenotypeGeneSummaryDTO pgs = new PhenotypeGeneSummaryDTO();
-		
-		int total = 0;
-		int nominator = 0;
-		
-		List<String> parameters = parameterDAO.getParameterStableIdsByPhenotypeTerm(phenotype_id);
-		// males & females	
-		nominator = gpService.getGenesBy(phenotype_id, null).size();
- 		total = getTestedGenes(phenotype_id, null, solr, parameters);
- 		pgs.setTotalPercentage(100*(float)nominator/(float)total);
-		pgs.setTotalGenesAssociated(nominator);
-		pgs.setTotalGenesTested(total);
-		
-		boolean display = (total > 0 && nominator > 0) ? true : false;
-		pgs.setDisplay(display);		
-		
-		if (display){
-			//females only
-			nominator = gpService.getGenesBy(phenotype_id, "female").size();
-			total = getTestedGenes(phenotype_id, "female", solr, parameters);
-			pgs.setFemalePercentage(100*(float)nominator/(float)total);
-			pgs.setFemaleGenesAssociated(nominator);
-			pgs.setFemaleGenesTested(total);
-			
-			//males only
-			nominator = gpService.getGenesBy(phenotype_id, "male").size();
-			total = getTestedGenes(phenotype_id, "male", solr, parameters);
-			pgs.setMalePercentage(100*(float)nominator/(float)total);
-			pgs.setMaleGenesAssociated(nominator);
-			pgs.setMaleGenesTested(total);
-		}
-		return pgs;
-	}
 	
-	private int getTestedGenes(String phenotypeId, String sex, HttpSolrServer solr, List<String> parameters) throws SolrServerException{
+	public int getTestedGenes(String phenotypeId, String sex, List<String> parameters) throws SolrServerException{
 
 	    List<String> genes = new ArrayList<String>();
 		for (String parameter : parameters){
@@ -746,30 +708,5 @@ public class ObservationService {
 	}
 
 	
-
-	public List<CategoricalResultAndCharts> getCategoricalDataOverviewCharts(String mpId, Model model) throws SolrServerException, IOException, URISyntaxException, SQLException{
-		List<CategoricalResultAndCharts> listOfChartsAndResults = new ArrayList<>();//one object for each parameter
-
-		List<String> parameters = parameterDAO.getParameterStableIdsByPhenotypeTerm(mpId);
-		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
-		ArrayList<String> strains = new ArrayList<>();
-		strains.add("MGI:2159965");
-		strains.add("MGI:2164831");
-		for (String parameter : parameters) {
-			// get all genes associated with mpId because of parameter
-			Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameter, 1, 0);
-			if(p != null && Utilities.checkType(p).equals(ObservationType.categorical)){
-				List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
-				if (genes.size() > 0){
-					CategoricalSet controlSet = getCategories(parameter, null , "control", strains);
-					controlSet.setName("Control");
-					CategoricalSet mutantSet = getCategories(parameter, (ArrayList<String>) genes, "experimental", strains);
-					mutantSet.setName("Mutant");
-					listOfChartsAndResults.add(cctp.doCategoricalDataOverview(controlSet, mutantSet, model, parameter, p.getName()+" ("+parameter+")"));
-				}
-			}
-		}
-		return listOfChartsAndResults;
-	}
 	
 }
