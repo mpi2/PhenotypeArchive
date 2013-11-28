@@ -149,16 +149,8 @@ public class CategoricalChartAndTableProvider {
 								// loop over all the experimental docs and get
 								// all that apply to current loop parameters
 								Set<ObservationDTO> expObservationsSet = Collections.emptySet();
-								if (zType.equals(ZygosityType.heterozygote)
-										|| zType.equals(ZygosityType.hemizygote)) {
-									expObservationsSet = experiment
-											.getHeterozygoteMutants();
-								}
-								if (zType.equals(ZygosityType.homozygote)) {
-									expObservationsSet = experiment
-											.getHomozygoteMutants();
-								}
-
+								expObservationsSet=experiment.getMutants(sexType, zType);
+								
 								for (ObservationDTO expDto : expObservationsSet) {
 
 									// get the attributes of this data point

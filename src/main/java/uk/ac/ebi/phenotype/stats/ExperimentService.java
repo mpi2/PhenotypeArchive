@@ -84,6 +84,7 @@ public class ExperimentService {
 	    		experiment.setObservationType(ObservationType.valueOf(observation.getObservationType()));
 	    		experiment.setHomozygoteMutants(new HashSet<ObservationDTO>());
 	    		experiment.setHeterozygoteMutants(new HashSet<ObservationDTO>());
+	    		experiment.setHemizygoteMutants(new HashSet<ObservationDTO>());
 
 	    		//Tree sets to keep "female" before "male" and "hetero" before "hom"
 	    		experiment.setSexes(new TreeSet<SexType>());
@@ -122,9 +123,13 @@ public class ExperimentService {
 	    	if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.heterozygote) || ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.hemizygote)) {
 	    		// NOTE: in the stats analysis we collapse hom and hemi together
 		    	experiment.getHeterozygoteMutants().add(observation);	    		
-	    	} else if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.homozygote)) {
-	    		experiment.getHomozygoteMutants().add(observation);
+	    	}  if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.hemizygote)) {
+	    		//not using else here so we can also add hemizygote to the hemizygote list for graphs to get the correct data seperately from the stats code
+	    		experiment.getHemizygoteMutants().add(observation);
 	    	}
+	    	else if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.homozygote)) {
+	    		experiment.getHomozygoteMutants().add(observation);
+	    	} 
 
 	    	experimentsMap.put(experimentKey, experiment);
 

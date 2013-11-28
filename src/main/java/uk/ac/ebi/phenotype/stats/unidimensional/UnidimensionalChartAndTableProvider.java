@@ -176,15 +176,9 @@ public class UnidimensionalChartAndTableProvider {
 
 							Set<ObservationDTO> expObservationsSet = Collections
 									.emptySet();
-							if (zType.equals(ZygosityType.heterozygote)
-									|| zType.equals(ZygosityType.hemizygote)) {
-								expObservationsSet = experiment
-										.getHeterozygoteMutants();
-							}
-							if (zType.equals(ZygosityType.homozygote)) {
-								expObservationsSet = experiment
-										.getHomozygoteMutants();
-							}
+							//JW added hemizygote capabillity to experimentService so just use this one method
+							expObservationsSet=experiment.getMutants(sexType, zType);
+							
 
 							for (ObservationDTO expDto : expObservationsSet) {
 

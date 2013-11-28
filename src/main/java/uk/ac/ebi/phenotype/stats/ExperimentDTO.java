@@ -25,11 +25,14 @@ public class ExperimentDTO {
 	
 	private Set<ObservationDTO> homozygoteMutants;
 	private Set<ObservationDTO> heterozygoteMutants;
+	private HashSet<ObservationDTO> hemizygoteMutants;
+
 	private Set<ObservationDTO> controls;
 	private Integer controlBiologicalModelId;
 	private Integer experimentalBiologicalModelId;
 	private Set<ObservationDTO> maleControls;
 	private Set<ObservationDTO> femaleControls;
+	
 		
 	/**
 	 * 
@@ -211,6 +214,10 @@ public class ExperimentDTO {
 	public Set<ObservationDTO> getHomozygoteMutants() {
 		return homozygoteMutants;
 	}
+	
+	public HashSet<ObservationDTO> getHemizygoteMutants() {
+		return hemizygoteMutants;
+	}
 
 	/**
 	 * @param homozygoteMutants the homozygoteMutants to set
@@ -232,6 +239,13 @@ public class ExperimentDTO {
 	public void setHeterozygoteMutants(Set<ObservationDTO> heterozygoteMutants) {
 		this.heterozygoteMutants = heterozygoteMutants;
 	}
+	
+	/**
+	 * @param hemizygote Mutants the hemizygoteMutants to set
+	 */
+	public void setHemizygoteMutants(HashSet<ObservationDTO> hemizygote) {
+		this.hemizygoteMutants = hemizygote;
+	}
 
 	/**
 	 * @return the controls
@@ -247,19 +261,31 @@ public class ExperimentDTO {
 		this.controls = controls;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime
+				* result
+				+ ((controlBiologicalModelId == null) ? 0
+						: controlBiologicalModelId.hashCode());
 		result = prime * result
 				+ ((controls == null) ? 0 : controls.hashCode());
 		result = prime * result
 				+ ((experimentId == null) ? 0 : experimentId.hashCode());
+		result = prime
+				* result
+				+ ((experimentalBiologicalModelId == null) ? 0
+						: experimentalBiologicalModelId.hashCode());
+		result = prime * result
+				+ ((femaleControls == null) ? 0 : femaleControls.hashCode());
 		result = prime * result
 				+ ((geneMarker == null) ? 0 : geneMarker.hashCode());
+		result = prime
+				* result
+				+ ((hemizygoteMutants == null) ? 0 : hemizygoteMutants
+						.hashCode());
 		result = prime
 				* result
 				+ ((heterozygoteMutants == null) ? 0 : heterozygoteMutants
@@ -269,13 +295,16 @@ public class ExperimentDTO {
 				+ ((homozygoteMutants == null) ? 0 : homozygoteMutants
 						.hashCode());
 		result = prime * result
+				+ ((maleControls == null) ? 0 : maleControls.hashCode());
+		result = prime * result
+				+ ((observationType == null) ? 0 : observationType.hashCode());
+		result = prime * result
 				+ ((organisation == null) ? 0 : organisation.hashCode());
 		result = prime
 				* result
 				+ ((parameterStableId == null) ? 0 : parameterStableId
 						.hashCode());
-		result = prime * result
-				+ ((this.results == null) ? 0 : this.results.hashCode());
+		result = prime * result + ((results == null) ? 0 : results.hashCode());
 		result = prime * result + ((sexes == null) ? 0 : sexes.hashCode());
 		result = prime * result + ((strain == null) ? 0 : strain.hashCode());
 		result = prime * result
@@ -283,101 +312,101 @@ public class ExperimentDTO {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
+		if (obj == null)
 			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
 		ExperimentDTO other = (ExperimentDTO) obj;
+		if (controlBiologicalModelId == null) {
+			if (other.controlBiologicalModelId != null)
+				return false;
+		} else if (!controlBiologicalModelId
+				.equals(other.controlBiologicalModelId))
+			return false;
 		if (controls == null) {
-			if (other.controls != null) {
+			if (other.controls != null)
 				return false;
-			}
-		} else if (!controls.equals(other.controls)) {
+		} else if (!controls.equals(other.controls))
 			return false;
-		}
 		if (experimentId == null) {
-			if (other.experimentId != null) {
+			if (other.experimentId != null)
 				return false;
-			}
-		} else if (!experimentId.equals(other.experimentId)) {
+		} else if (!experimentId.equals(other.experimentId))
 			return false;
-		}
+		if (experimentalBiologicalModelId == null) {
+			if (other.experimentalBiologicalModelId != null)
+				return false;
+		} else if (!experimentalBiologicalModelId
+				.equals(other.experimentalBiologicalModelId))
+			return false;
+		if (femaleControls == null) {
+			if (other.femaleControls != null)
+				return false;
+		} else if (!femaleControls.equals(other.femaleControls))
+			return false;
 		if (geneMarker == null) {
-			if (other.geneMarker != null) {
+			if (other.geneMarker != null)
 				return false;
-			}
-		} else if (!geneMarker.equals(other.geneMarker)) {
+		} else if (!geneMarker.equals(other.geneMarker))
 			return false;
-		}
+		if (hemizygoteMutants == null) {
+			if (other.hemizygoteMutants != null)
+				return false;
+		} else if (!hemizygoteMutants.equals(other.hemizygoteMutants))
+			return false;
 		if (heterozygoteMutants == null) {
-			if (other.heterozygoteMutants != null) {
+			if (other.heterozygoteMutants != null)
 				return false;
-			}
-		} else if (!heterozygoteMutants.equals(other.heterozygoteMutants)) {
+		} else if (!heterozygoteMutants.equals(other.heterozygoteMutants))
 			return false;
-		}
 		if (homozygoteMutants == null) {
-			if (other.homozygoteMutants != null) {
+			if (other.homozygoteMutants != null)
 				return false;
-			}
-		} else if (!homozygoteMutants.equals(other.homozygoteMutants)) {
+		} else if (!homozygoteMutants.equals(other.homozygoteMutants))
 			return false;
-		}
+		if (maleControls == null) {
+			if (other.maleControls != null)
+				return false;
+		} else if (!maleControls.equals(other.maleControls))
+			return false;
+		if (observationType != other.observationType)
+			return false;
 		if (organisation == null) {
-			if (other.organisation != null) {
+			if (other.organisation != null)
 				return false;
-			}
-		} else if (!organisation.equals(other.organisation)) {
+		} else if (!organisation.equals(other.organisation))
 			return false;
-		}
 		if (parameterStableId == null) {
-			if (other.parameterStableId != null) {
+			if (other.parameterStableId != null)
 				return false;
-			}
-		} else if (!parameterStableId.equals(other.parameterStableId)) {
+		} else if (!parameterStableId.equals(other.parameterStableId))
 			return false;
-		}
 		if (results == null) {
-			if (other.results != null) {
+			if (other.results != null)
 				return false;
-			}
-		} else if (!results.equals(other.results)) {
+		} else if (!results.equals(other.results))
 			return false;
-		}
 		if (sexes == null) {
-			if (other.sexes != null) {
+			if (other.sexes != null)
 				return false;
-			}
-		} else if (!sexes.equals(other.sexes)) {
+		} else if (!sexes.equals(other.sexes))
 			return false;
-		}
 		if (strain == null) {
-			if (other.strain != null) {
+			if (other.strain != null)
 				return false;
-			}
-		} else if (!strain.equals(other.strain)) {
+		} else if (!strain.equals(other.strain))
 			return false;
-		}
 		if (zygosities == null) {
-			if (other.zygosities != null) {
+			if (other.zygosities != null)
 				return false;
-			}
-		} else if (!zygosities.equals(other.zygosities)) {
+		} else if (!zygosities.equals(other.zygosities))
 			return false;
-		}
 		return true;
 	}
-
 
 	public Set<String> getCategories() {
 		Set<String> categorieSet=new TreeSet<String>();
@@ -439,6 +468,10 @@ public class ExperimentDTO {
 		if (zyg == null || zyg.equals(ZygosityType.heterozygote)){
 			mutantsDtos = this.getHeterozygoteMutants();
 		}
+		if (zyg == null || zyg.equals(ZygosityType.hemizygote)){
+			mutantsDtos = this.getHemizygoteMutants();
+		}
+		
 
 		for (ObservationDTO mutant : mutantsDtos) {
 			if (sex == null || sex.equals(SexType.valueOf(mutant.getSex()))) {
@@ -447,4 +480,5 @@ public class ExperimentDTO {
 		}
 		return mutantDtosForSex;
 	}
+
 }
