@@ -155,8 +155,7 @@ public class ExperimentService {
 	    	ExperimentDTO experiment = experimentsMap.get(key);
 
 	    	if (experiment.getControls() == null) {
-
-	    	    String observationType = null;
+   
 	    		Date max = new Date(0L); //epoch
 	    	    for (ObservationDTO o : experiment.getHeterozygoteMutants()) {
 
@@ -165,8 +164,7 @@ public class ExperimentService {
 	    	    	}
 
 	    	    	if (o.getDateOfExperiment().after(max)) {
-	    	    		max=o.getDateOfExperiment();
-	    	    		observationType = o.getObservationType();
+	    	    		max=o.getDateOfExperiment();	
 	    	    	}
 	    	    }
 	    	    for (ObservationDTO o : experiment.getHomozygoteMutants()) {
@@ -177,7 +175,17 @@ public class ExperimentService {
 
 	    	    	if (o.getDateOfExperiment().after(max)) {
 	    	    		max=o.getDateOfExperiment();
-	    	    		observationType = o.getObservationType();
+	    	    	}
+	    	    }
+	    	    //added as we have above for het and hom
+	    	    for (ObservationDTO o : experiment.getHemizygoteMutants()) {
+
+	    	    	if(experimentOrganisationId==null){
+	    	    		experimentOrganisationId = o.getPhenotypingCenterId();
+	    	    	}
+
+	    	    	if (o.getDateOfExperiment().after(max)) {
+	    	    		max=o.getDateOfExperiment();	
 	    	    	}
 	    	    }
 
