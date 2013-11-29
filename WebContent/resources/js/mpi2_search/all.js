@@ -1,4 +1,4 @@
-// Timestamp: 2013-11-29-13:14:55
+// Timestamp: 2013-11-29-15:58:42
 (function ($) {
     'use strict';
 
@@ -955,7 +955,10 @@
                     tdRenderer: function (doc) {
                         var colspan = '';
 
-                        if(doc.solrDoc.empty === true) {
+                        //console.log('tdRenderer: self.empty: ' + self.empty);
+
+                        if(self.empty === true) {
+                            //console.log('tdRenderer: empty!');
                             var td = $('<td ALIGN="center" style="text-align: center" colspan="8"><div class="alert alert-info">There are no alleles available.</div></td>');
                             doc.solrDoc.product_type = '';
                             doc.solrDoc.project_ids = [];
@@ -1104,15 +1107,15 @@
 
             self._sortDocs(docs);
 
-            if(docs && docs.length === 1 && docs[0].solrDoc.type === 'gene' && (!docs[0].solrDoc.vector_project_ids || docs[0].solrDoc.vector_project_ids.length === 0)) {
+            if((!docs || docs.length === 0) || (docs && docs.length === 1 && docs[0].solrDoc.type === 'gene' && (!docs[0].solrDoc.vector_project_ids || docs[0].solrDoc.vector_project_ids.length === 0))) {
                 $('#show_less_show_more').hide();
-                docs[0].solrDoc.empty = true;
+                self.empty = true;
             }
             else {
                 $('#show_less_show_more').show();
                 //console.log(docs);
                 //if(docs.)
-                //docs[0].solrDoc.empty = false;
+                self.empty = false;
             }
 
             continueRenderingFunc.call(self);
