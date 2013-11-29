@@ -1,4 +1,4 @@
-// Timestamp: 2013-11-25-17:00:26
+// Timestamp: 2013-11-29-13:14:55
 (function ($) {
     'use strict';
 
@@ -925,7 +925,7 @@
 
             self.buttonContainer = $('<div></div>');
 
-            self.toggleButton = $('<button>Show less / Show more</button>');
+            self.toggleButton = $('<button id="show_less_show_more">Show less / Show more</button>');
             self.buttonContainer.append(self.toggleButton);
 
             self.toggleButton.bind('click', function () {
@@ -954,6 +954,14 @@
                     },
                     tdRenderer: function (doc) {
                         var colspan = '';
+
+                        if(doc.solrDoc.empty === true) {
+                            var td = $('<td ALIGN="center" style="text-align: center" colspan="8"><div class="alert alert-info">There are no alleles available.</div></td>');
+                            doc.solrDoc.product_type = '';
+                            doc.solrDoc.project_ids = [];
+                            doc.solrDoc.vector_project_ids = [];
+                            return td;
+                        }
 
                         if(doc.solrDoc.type !== 'gene' || ! doc.solrDoc.vector_project_ids || doc.solrDoc.vector_project_ids.length < 1) {
                             if(!doc.solrDoc.product_type) {
@@ -1096,6 +1104,17 @@
 
             self._sortDocs(docs);
 
+            if(docs && docs.length === 1 && docs[0].solrDoc.type === 'gene' && (!docs[0].solrDoc.vector_project_ids || docs[0].solrDoc.vector_project_ids.length === 0)) {
+                $('#show_less_show_more').hide();
+                docs[0].solrDoc.empty = true;
+            }
+            else {
+                $('#show_less_show_more').show();
+                //console.log(docs);
+                //if(docs.)
+                //docs[0].solrDoc.empty = false;
+            }
+
             continueRenderingFunc.call(self);
         },
 
@@ -1125,6 +1144,9 @@
                 if (solrDoc.allele_type === 'Deletion') {
                     solrDoc.allele_type = 'Reporter-Tagged Deletion';
                 }
+
+                //console.log('solrDoc:');
+                //console.log(solrDoc);
             });
 
             $.each(docs, function (idx, doc) {
