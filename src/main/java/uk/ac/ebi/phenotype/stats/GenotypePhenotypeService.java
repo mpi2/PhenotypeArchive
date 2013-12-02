@@ -61,6 +61,40 @@ public class GenotypePhenotypeService {
 	
 	private HttpSolrServer solr;
 	
+	
+	public static final class GenotypePhenotypeField {
+		public final static String PHENOTYPING_CENTER = "phenotyping_center"; //
+		public final static String ZYGOSITY = "zygosity"; //
+		public final static String MARKER_SYMBOL = "marker_symbol";//
+		public final static String ALLELE_NAME = "allele_name";//
+		public final static String SEX = "sex"; //
+		public final static String PROJECT_NAME = "project_name";//
+		public final static String STRAIN_NAME = "strain_name"; //
+		public final static String PROJECT_FULLNAME = "project_fullname";//
+		public final static String EFFECT_SIZE = "effect_size";///
+		public final static String MARKER_ACCESSION_ID = "marker_accession_id";//
+		public final static String ALLELE_SYMBOL = "allele_symbol";//
+		public final static String MP_TERM_NAME = "mp_term_name"; //
+		public final static String RESOURCE_NAME = "resource_name"; //
+		public final static String DOC_ID = "doc_id";//
+		public final static String ALLELE_ACCESSION_ID = "allele_accession_id";//
+		public final static String STRAIN_ACCESSION_ID = "strain_accession_id"; //
+		public final static String P_VALUE = "p_value";//
+		public final static String RESOURCE_FULLNAME = "resource_fullname";//
+		public final static String MP_TERM_ID = "mp_term_id"; //
+		public final static String PROJECT_EXTERNAL_ID = "project_external_id";//
+		public final static String TOP_LEVEL_MP_TERM_NAME = "top_level_mp_term_name";//
+		public final static String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";//
+		public final static String PARAMETER_STABLE_ID = "parameter_stable_id";//
+		public final static String PARAMETER_NAME = "parameter_name";//
+		public final static String PROCEDURE_STABLE_ID = "procedure_stable_id";//
+		public final static String PROCEDURE_STABLE_KEY = "procedure_stable_key";		//
+		public final static String PROCEDURE_NAME = "procedure_name";		//
+		public final static String PIPELINE_STABLE_ID = "pipeline_stable_id";		//
+		public final static String PIPELINE_STABLE_KEY = "pipeline_stable_key";		//
+		public final static String PIPELINE_NAME = "pipeline_name";		//
+	}
+	
 	public GenotypePhenotypeService(String baseUrl){
 		solr = getSolrInstance(baseUrl);
 	}
@@ -68,13 +102,14 @@ public class GenotypePhenotypeService {
 	public List<Group> getGenesBy(String phenotype_id, String sex) throws SolrServerException{
 		//males only
 		SolrQuery q = new SolrQuery()
-		.setQuery("(mp_term_id:\"" + phenotype_id + "\" OR top_level_mp_term_id:\"" + phenotype_id + "\") AND (strain_accession_id:\"MGI:2159965\" OR strain_accession_id:\"MGI:2164831\")")
-		.setFilterQueries("resource_fullname:EuroPhenome")
+		.setQuery("(" + GenotypePhenotypeField.MP_TERM_ID + ":\"" + phenotype_id + "\" OR " + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":\"" 
+		+ phenotype_id + "\") AND (" + GenotypePhenotypeField.STRAIN_ACCESSION_ID + ":\"MGI:2159965\" OR " + GenotypePhenotypeField.STRAIN_ACCESSION_ID + ":\"MGI:2164831\")")
+		.setFilterQueries(GenotypePhenotypeField.RESOURCE_FULLNAME + ":EuroPhenome")
 		.setRows(10000);
-		q.set("group.field", "marker_symbol");
+		q.set("group.field", "" + GenotypePhenotypeField.MARKER_SYMBOL);
 		q.set("group", true);
 		if (sex != null){
-			q.addFilterQuery("sex:" + sex);
+			q.addFilterQuery( GenotypePhenotypeField.SEX + ":" + sex);
 		}
 		QueryResponse results = solr.query(q);
 		return results.getGroupResponse().getValues().get(0).getValues();
@@ -102,10 +137,12 @@ public class GenotypePhenotypeService {
 	public List<String> getGenesAssocByParamAndMp (String parameterStableId, String phenotype_id) throws SolrServerException{
 		List<String> res = new ArrayList<String>();
 		SolrQuery query = new SolrQuery()
-		.setQuery("(mp_term_id:\"" + phenotype_id + "\" OR top_level_mp_term_id:\"" + phenotype_id + "\") AND (strain_accession_id:\"MGI:2159965\" OR strain_accession_id:\"MGI:2164831\") AND parameter_stable_id:\"" + parameterStableId+"\"")
-		.setFilterQueries("resource_fullname:EuroPhenome")
+		.setQuery("(" + GenotypePhenotypeField.MP_TERM_ID + ":\"" + phenotype_id + "\" OR " + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":\"" + phenotype_id 
+				+ "\") AND (" + GenotypePhenotypeField.STRAIN_ACCESSION_ID + ":\"MGI:2159965\" OR " + GenotypePhenotypeField.STRAIN_ACCESSION_ID 
+				+ ":\"MGI:2164831\") AND " + GenotypePhenotypeField.PARAMETER_STABLE_ID + ":\"" + parameterStableId+"\"")
+		.setFilterQueries("" + GenotypePhenotypeField.RESOURCE_FULLNAME + ":EuroPhenome")
 		.setRows(10000);	
-		query.set("group.field", "marker_accession_id");
+		query.set("group.field", GenotypePhenotypeField.MARKER_ACCESSION_ID );
 		query.set("group", true);
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
 		for (Group gr : groups){
@@ -120,15 +157,15 @@ public class GenotypePhenotypeService {
 	public Set<String> getAllGenes() throws SolrServerException{
 		
 		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery("marker_accession_id:*");
+		solrQuery.setQuery( GenotypePhenotypeField.MARKER_ACCESSION_ID + ":*");
 		solrQuery.setRows(1000000);
-		solrQuery.setFields("marker_accession_id");
+		solrQuery.setFields( GenotypePhenotypeField.MARKER_ACCESSION_ID );
 		QueryResponse rsp = null;
 		rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		HashSet<String> allGenes = new HashSet<String>();
 		for (SolrDocument doc: res){
-			allGenes.add((String) doc.getFieldValue("marker_accession_id"));
+			allGenes.add((String) doc.getFieldValue( GenotypePhenotypeField.MARKER_ACCESSION_ID ));
 		}
 		return allGenes;
 	}
@@ -138,16 +175,17 @@ public class GenotypePhenotypeService {
 	 */
 	
 	public SolrDocumentList getPhenotypesForTopLevelTerm(String gene, String mpID) throws SolrServerException {	
-		SolrDocumentList result = runQuery("marker_accession_id:\"" + gene + "\" AND top_level_mp_term_id:\"" + mpID + "\"");
+		SolrDocumentList result = runQuery( GenotypePhenotypeField.MARKER_ACCESSION_ID + ":\"" + gene + "\" AND " + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":\"" + mpID + "\"");
 		// mpID might be in mp_id instead of top level field
 		if (result.size() == 0 || result == null)
 		//	result = runQuery("marker_accession_id:" + gene.replace(":", "\\:") + " AND mp_term_id:" + mpID.replace(":", "\\:"));
-			result = runQuery("marker_accession_id:\"" + gene + "\" AND mp_term_id:\"" + mpID + "\" AND -resource_name:IMPC");
+			result = runQuery(GenotypePhenotypeField.MARKER_ACCESSION_ID + ":\"" + gene + "\" AND " + GenotypePhenotypeField.MP_TERM_ID + ":\"" + mpID + "\" AND -" 
+					+ GenotypePhenotypeField.RESOURCE_NAME + ":IMPC");
 		return result;
 	}
 	
 	public SolrDocumentList getPgehnotypes(String gene) throws SolrServerException{
-		SolrDocumentList result = runQuery("marker_accession_id:\"" + gene + "\"");
+		SolrDocumentList result = runQuery( GenotypePhenotypeField.MARKER_ACCESSION_ID + ":\"" + gene + "\"");
 		return result;
 	}
 	
@@ -162,13 +200,13 @@ public class GenotypePhenotypeService {
 	public HashMap<String, String> getTopLevelMPTerms(String gene) throws SolrServerException {
 		HashMap<String,String> tl = new HashMap<String,String>(); 
 //		SolrDocumentList result = runQuery("marker_accession_id:" + gene.replace(":", "\\:"));
-		SolrDocumentList result = runQuery("marker_accession_id:\"" + gene + "\" AND -resource_name:IMPC");
+		SolrDocumentList result = runQuery( GenotypePhenotypeField.MARKER_ACCESSION_ID + ":\"" + gene + "\" AND -" + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC");
 		if (result.size() > 0) {
 			for (int i = 0; i < result.size(); i++) {
 				SolrDocument doc = result.get(i);
-				if (doc.getFieldValue("top_level_mp_term_id") != null){
-					ArrayList<String> tlTermIDs = (ArrayList<String>) doc.getFieldValue("top_level_mp_term_id");
-					ArrayList<String> tlTermNames = (ArrayList<String>) doc.getFieldValue("top_level_mp_term_name");
+				if (doc.getFieldValue( GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID ) != null){
+					ArrayList<String> tlTermIDs = (ArrayList<String>) doc.getFieldValue( GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID );
+					ArrayList<String> tlTermNames = (ArrayList<String>) doc.getFieldValue( GenotypePhenotypeField.TOP_LEVEL_MP_TERM_NAME );
 					int len = tlTermIDs.size();
 					for (int k = 0 ; k < len ; k++){
 						tl.put( tlTermIDs.get(k), tlTermNames.get(k));
@@ -176,7 +214,7 @@ public class GenotypePhenotypeService {
 	//					tl.put((String) doc.getFieldValue("top_level_mp_term_id"), (String) doc.getFieldValue("top_level_mp_term_name"));
 				}
 				else { // it seems that when the term id is a top level term itself the top level term field 
-					tl.put((String) doc.getFieldValue("mp_term_id"), (String) doc.getFieldValue("mp_term_name"));					
+					tl.put((String) doc.getFieldValue( GenotypePhenotypeField.MP_TERM_ID ), (String) doc.getFieldValue( GenotypePhenotypeField.MP_TERM_NAME ));					
 				}
 			}
 		}		
@@ -195,7 +233,7 @@ public class GenotypePhenotypeService {
 			URISyntaxException {
 		String pipelineCoreString="pipeline";
 		String solrUrl = solr.getBaseURL()
-				+ "/select/?q=parameter_stable_id:\""
+				+ "/select/?q=" + GenotypePhenotypeField.PARAMETER_STABLE_ID + ":\""
 				+ paramStableId
 				+ "\"&rows=10000000&version=2.2&start=0&indent=on&wt=json";
 		if (queryString.startsWith("&")) {
@@ -221,13 +259,13 @@ public class GenotypePhenotypeService {
 				derived=true;
 			}
 			parameter.setDerivedFlag(derived);
-			parameter.setName(paramDoc.getString("parameter_name"));
+			parameter.setName(paramDoc.getString(GenotypePhenotypeField.PARAMETER_NAME));
 			//we need to set is derived in the solr core!
 			//pipeline core parameter_derived field
-			parameter.setStableId(paramDoc.getString("parameter_stable_id"));
-			if (paramDoc.containsKey("procedure_stable_key")) {
+			parameter.setStableId(paramDoc.getString("" + GenotypePhenotypeField.PARAMETER_STABLE_ID + ""));
+			if (paramDoc.containsKey( GenotypePhenotypeField.PROCEDURE_STABLE_KEY )) {
 				parameter.setStableKey(Integer.parseInt(paramDoc
-						.getString("procedure_stable_key")));
+						.getString( GenotypePhenotypeField.PROCEDURE_STABLE_KEY )));
 			}
 			
 		}
@@ -245,8 +283,8 @@ public class GenotypePhenotypeService {
 	public List<? extends StatisticalResult> getStatsResultFor(String accession, String parameterStableId, ObservationType observationType, String strainAccession) throws IOException, URISyntaxException {
 		
 		String solrUrl = solr.getBaseURL();// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
-		solrUrl += "/select/?q=marker_accession_id:\""
-				+ accession+"\""+"&fq=parameter_stable_id:"+parameterStableId+"&fq=strain_accession_id:\""+strainAccession+"\"&rows=10000000&version=2.2&start=0&indent=on&wt=json";
+		solrUrl += "/select/?q=" + GenotypePhenotypeField.MARKER_ACCESSION_ID + ":\""
+				+ accession+"\""+"&fq=" + GenotypePhenotypeField.PARAMETER_STABLE_ID + ":"+parameterStableId+"&fq=" + GenotypePhenotypeField.STRAIN_ACCESSION_ID + ":\""+strainAccession+"\"&rows=10000000&version=2.2&start=0&indent=on&wt=json";
 		List<? extends StatisticalResult> statisticalResult = this.createStatsResultFromSolr(solrUrl, observationType);
 		return statisticalResult;
 	}
@@ -257,9 +295,11 @@ public class GenotypePhenotypeService {
 			URISyntaxException {
 
 		String solrUrl = solr.getBaseURL()
-				+ "/select/?q=marker_accession_id:\""
+				+ "/select/?q=" + GenotypePhenotypeField.MARKER_ACCESSION_ID + ":\""
 				+ accId
-				+ "\"&fq=-resource_name:IMPC&rows=10000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=resource_fullname&facet.field=top_level_mp_term_name";
+				+ "\"&fq=-" + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC&rows=10000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=" 
+				+ GenotypePhenotypeField.RESOURCE_FULLNAME 
+				+ "&facet.field=" + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_NAME + "";
 		if (queryString.startsWith("&")) {
 			solrUrl += queryString;
 		} else {// add an ampersand parameter splitter if not one as we need
@@ -274,11 +314,14 @@ public class GenotypePhenotypeService {
 			URISyntaxException {
 		// http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=mp_term_id:MP:0010025&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet=true&facet.field=resource_fullname&facet.field=top_level_mp_term_name&
 		String solrUrl = solr.getBaseURL()
-				+ "/select/?q=(mp_term_id:\""
+				+ "/select/?q=(" + GenotypePhenotypeField.MP_TERM_ID + ":\""
 				+ phenotype_id
-				+ "\"+OR+top_level_mp_term_id:\""
+				+ "\"+OR+" + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":\""
 				+ phenotype_id
-				+ "\")&fq=-resource_name:IMPC&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=resource_fullname&facet.field=procedure_name&facet.field=marker_symbol&facet.field=mp_term_name";
+				+ "\")&fq=-" + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=" 
+				+ GenotypePhenotypeField.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeField.PROCEDURE_NAME+ "&facet.field=" 
+				+ GenotypePhenotypeField.MARKER_SYMBOL + "&facet.field="
+				+ GenotypePhenotypeField.MP_TERM_NAME + "";
 		// if (!filterString.equals("")) {
 		if (queryString.startsWith("&")) {
 			solrUrl += queryString;
@@ -306,10 +349,10 @@ public class GenotypePhenotypeService {
 		UnidimensionalResult unidimensionalResult=new UnidimensionalResult();//dummy result just in case no other cases are met!
 		for (Object doc : docs) {
 			JSONObject phen = (JSONObject) doc;
-			String pValue = phen.getString("p_value");
-			String sex = phen.getString("sex");
-			String zygosity=phen.getString("zygosity");
-			String effectSize=phen.getString("effect_size");
+			String pValue = phen.getString( GenotypePhenotypeField.P_VALUE );
+			String sex = phen.getString( GenotypePhenotypeField.SEX );
+			String zygosity=phen.getString( GenotypePhenotypeField.ZYGOSITY );
+			String effectSize=phen.getString(GenotypePhenotypeField.EFFECT_SIZE);
 			
 			
 			//System.out.println("pValue="+pValue);
@@ -330,10 +373,10 @@ public class GenotypePhenotypeService {
 			for (Object doc : docs) {
 				JSONObject phen = (JSONObject) doc;
 				//System.out.println("pValue="+pValue);
-				String pValue = phen.getString("p_value");
-				String sex = phen.getString("sex");
-				String zygosity=phen.getString("zygosity");
-				String effectSize=phen.getString("effect_size");
+				String pValue = phen.getString( GenotypePhenotypeField.P_VALUE );
+				String sex = phen.getString( GenotypePhenotypeField.SEX );
+				String zygosity=phen.getString( GenotypePhenotypeField.ZYGOSITY );
+				String effectSize=phen.getString(GenotypePhenotypeField.EFFECT_SIZE);
 				
 				
 				//System.out.println("pValue="+pValue);
@@ -362,8 +405,8 @@ public class GenotypePhenotypeService {
 		JSONArray docs = results.getJSONObject("response").getJSONArray("docs");
 		for (Object doc : docs) {
 			JSONObject phen = (JSONObject) doc;
-			String mpTerm = phen.getString("mp_term_name");
-			String mpId = phen.getString("mp_term_id");
+			String mpTerm = phen.getString( GenotypePhenotypeField.MP_TERM_NAME );
+			String mpId = phen.getString( GenotypePhenotypeField.MP_TERM_ID );
 			PhenotypeCallSummary sum = new PhenotypeCallSummary();
 
 			OntologyTerm phenotypeTerm = new OntologyTerm();
@@ -373,40 +416,40 @@ public class GenotypePhenotypeService {
 			mpEntity.setAccession(mpId);
 			phenotypeTerm.setId(mpEntity);
 			sum.setPhenotypeTerm(phenotypeTerm);
-			if (phen.containsKey("allele_symbol")) {
+			if (phen.containsKey( GenotypePhenotypeField.ALLELE_SYMBOL )) {
 				Allele allele = new Allele();
-				allele.setSymbol(phen.getString("allele_symbol"));
+				allele.setSymbol(phen.getString(GenotypePhenotypeField.ALLELE_SYMBOL ));
 				GenomicFeature alleleGene = new GenomicFeature();
 				DatasourceEntityId alleleEntity = new DatasourceEntityId();
 				alleleEntity
-						.setAccession(phen.getString("allele_accession_id"));
+						.setAccession(phen.getString( GenotypePhenotypeField.ALLELE_ACCESSION_ID ));
 				allele.setId(alleleEntity);
 				alleleGene.setId(alleleEntity);
-				alleleGene.setSymbol(phen.getString("marker_symbol"));
+				alleleGene.setSymbol(phen.getString(GenotypePhenotypeField.MARKER_SYMBOL));
 				allele.setGene(alleleGene);
 				sum.setAllele(allele);
 			}
-			if (phen.containsKey("marker_symbol")) {
+			if (phen.containsKey(GenotypePhenotypeField.MARKER_SYMBOL)) {
 				GenomicFeature gf = new GenomicFeature();
-				gf.setSymbol(phen.getString("marker_symbol"));
+				gf.setSymbol(phen.getString( GenotypePhenotypeField.MARKER_SYMBOL ));
 				DatasourceEntityId geneEntity = new DatasourceEntityId();
-				geneEntity.setAccession(phen.getString("marker_accession_id"));
+				geneEntity.setAccession(phen.getString( GenotypePhenotypeField.MARKER_ACCESSION_ID ));
 				gf.setId(geneEntity);
 				sum.setGene(gf);
 			}
-			if (phen.containsKey("phenotyping_center")){
-				sum.setPhenotypeingCenter(phen.getString("phenotyping_center"));
+			if (phen.containsKey(GenotypePhenotypeField.PHENOTYPING_CENTER )){
+				sum.setPhenotypeingCenter(phen.getString( GenotypePhenotypeField.PHENOTYPING_CENTER ));
 			}
 			// GenomicFeature gene=new GenomicFeature();
 			// gene.
 			// allele.setGene(gene);
-			String zygosity = phen.getString("zygosity");
+			String zygosity = phen.getString( GenotypePhenotypeField.ZYGOSITY );
 			ZygosityType zyg = ZygosityType.valueOf(zygosity);
 			sum.setZygosity(zyg);
-			String sex = phen.getString("sex");
+			String sex = phen.getString( GenotypePhenotypeField.SEX );
 			SexType sexType = SexType.valueOf(sex);
 			sum.setSex(sexType);
-			String provider = phen.getString("resource_fullname");
+			String provider = phen.getString(GenotypePhenotypeField.RESOURCE_FULLNAME);
 			Datasource datasource = new Datasource();
 			datasource.setName(provider);
 			sum.setDatasource(datasource);
@@ -416,29 +459,29 @@ public class GenotypePhenotypeService {
 			// "procedure_stable_id":"41",
 			// "procedure_stable_key":"41",
 			Parameter parameter = new Parameter();
-			if (phen.containsKey("parameter_stable_id")) {
-				parameter = pipelineDAO.getParameterByStableIdAndVersion(phen.getString("parameter_stable_id"), 1, 0);
+			if (phen.containsKey( GenotypePhenotypeField.PARAMETER_STABLE_ID )) {
+				parameter = pipelineDAO.getParameterByStableIdAndVersion(phen.getString( GenotypePhenotypeField.PARAMETER_STABLE_ID ), 1, 0);
 			} else {
 				System.err.println("parameter_stable_id missing");
 			}
 
 			sum.setParameter(parameter);
 			Project project = new Project();
-			project.setName(phen.getString("project_name"));
-			project.setDescription(phen.getString("project_fullname")); // is this right for description? no other field in solr index!!!
-			if (phen.containsKey("project_external_id")) {
-				sum.setExternalId(phen.getInt("project_external_id"));
+			project.setName(phen.getString( GenotypePhenotypeField.PROJECT_NAME ));
+			project.setDescription(phen.getString( GenotypePhenotypeField.PROJECT_FULLNAME )); // is this right for description? no other field in solr index!!!
+			if (phen.containsKey( GenotypePhenotypeField.PROJECT_EXTERNAL_ID )) {
+				sum.setExternalId(phen.getInt( GenotypePhenotypeField.PROJECT_EXTERNAL_ID ));
 			}
 			sum.setProject(project);
 			// "procedure_stable_id":"77",
 			// "procedure_stable_key":"77",
 			// "procedure_name":"Plasma Chemistry",
 			Procedure procedure = new Procedure();
-			if (phen.containsKey("procedure_stable_id")) {
-				procedure.setStableId(phen.getString("procedure_stable_id"));
+			if (phen.containsKey(GenotypePhenotypeField.PROCEDURE_STABLE_ID)) {
+				procedure.setStableId(phen.getString( GenotypePhenotypeField.PROCEDURE_STABLE_ID ));
 				procedure.setStableKey(Integer.valueOf(phen
-						.getString("procedure_stable_key")));
-				procedure.setName(phen.getString("procedure_name"));
+						.getString( GenotypePhenotypeField.PROCEDURE_STABLE_KEY )));
+				procedure.setName(phen.getString( GenotypePhenotypeField.PROCEDURE_NAME));
 				sum.setProcedure(procedure);
 			} else {
 				System.err.println("procedure_stable_id");
