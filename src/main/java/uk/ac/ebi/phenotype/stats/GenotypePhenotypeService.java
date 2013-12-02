@@ -168,12 +168,61 @@ public class GenotypePhenotypeService {
 	 */
 	
 	
+	/*
+	 * Methods for PipelineSolrImpl
+	 */
+	public Parameter getParameterByStableId(
+			String paramStableId, String queryString) throws IOException,
+			URISyntaxException {
+		String pipelineCoreString="pipeline";
+		String solrUrl = solr.getBaseURL()
+				+ "/select/?q=parameter_stable_id:\""
+				+ paramStableId
+				+ "\"&rows=10000000&version=2.2&start=0&indent=on&wt=json";
+		if (queryString.startsWith("&")) {
+			solrUrl += queryString;
+		} else {// add an ampersand parameter splitter if not one as we need
+				// one to add to the already present solr query string
+			solrUrl += "&" + queryString;
+		}
+		return createParameter(solrUrl);
+	}
+	
+	private Parameter createParameter(String url) throws IOException, URISyntaxException {
+		Parameter parameter=new Parameter();
+		JSONObject results = null;
+		results = JSONRestUtil.getResults(url);
 
+		JSONArray docs = results.getJSONObject("response").getJSONArray("docs");
+		for (Object doc : docs) {
+			JSONObject paramDoc = (JSONObject) doc;
+			String isDerivedInt = paramDoc.getString("parameter_derived");
+			boolean derived=false;
+			if( isDerivedInt.equals("true")) {
+				derived=true;
+			}
+			parameter.setDerivedFlag(derived);
+			parameter.setName(paramDoc.getString("parameter_name"));
+			//we need to set is derived in the solr core!
+			//pipeline core parameter_derived field
+			parameter.setStableId(paramDoc.getString("parameter_stable_id"));
+			if (paramDoc.containsKey("procedure_stable_key")) {
+				parameter.setStableKey(Integer.parseInt(paramDoc
+						.getString("procedure_stable_key")));
+			}
+			
+		}
+		return parameter;
+	}
+	/* 
+	 * End of method for PipelineSolrImpl
+	 */
+
+	
+	
 	/*
 	 * Methods used by PhenotypeCallSummarySolrImpl
 	 */
-	
-
 	public List<? extends StatisticalResult> getStatsResultFor(String accession, String parameterStableId, ObservationType observationType, String strainAccession) throws IOException, URISyntaxException {
 		
 		String solrUrl = solr.getBaseURL();// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
@@ -408,6 +457,8 @@ public class GenotypePhenotypeService {
 		facetResult.setPhenotypeCallSummaries(list);
 		return facetResult;
 	}
-
+	/*
+	 * End of method for PhenotypeCallSummarySolrImpl
+	 */
 
 }
