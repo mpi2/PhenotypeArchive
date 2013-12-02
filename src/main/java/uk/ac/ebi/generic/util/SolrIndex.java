@@ -262,7 +262,7 @@ public class SolrIndex {
 				}
 			}
 			if (doc.containsKey("hasQc")) {				
-					return "QCed data";			
+					return "QCed data available";			
 			}
 			
 		} catch (Exception e) {
