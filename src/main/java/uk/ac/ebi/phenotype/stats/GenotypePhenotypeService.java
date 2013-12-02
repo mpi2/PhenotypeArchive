@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
@@ -80,5 +83,56 @@ public class GenotypePhenotypeService {
 			}
 		}
 		return res;
+	}
+	
+	
+	/*
+	 * Methods used by PhenotypeSummaryDAO
+	 */
+	
+	public SolrDocumentList getPhenotypesForTopLevelTerm(String gene, String mpID) throws SolrServerException {	
+		SolrDocumentList result = runQuery("marker_accession_id:\"" + gene + "\" AND top_level_mp_term_id:\"" + mpID + "\"");
+		// mpID might be in mp_id instead of top level field
+		if (result.size() == 0 || result == null)
+		//	result = runQuery("marker_accession_id:" + gene.replace(":", "\\:") + " AND mp_term_id:" + mpID.replace(":", "\\:"));
+			result = runQuery("marker_accession_id:\"" + gene + "\" AND mp_term_id:\"" + mpID + "\" AND -resource_name:IMPC");
+		return result;
+	}
+	
+	public SolrDocumentList getPgehnotypes(String gene) throws SolrServerException{
+		SolrDocumentList result = runQuery("marker_accession_id:\"" + gene + "\"");
+		return result;
+	}
+	
+	private SolrDocumentList runQuery(String q) throws SolrServerException {
+		SolrQuery solrQuery = new SolrQuery().setQuery(q);
+		solrQuery.setRows(1000000);
+		QueryResponse rsp = null;
+		rsp = solr.query(solrQuery);
+		return rsp.getResults();
+	}
+	
+	public HashMap<String, String> getTopLevelMPTerms(String gene) throws SolrServerException {
+		HashMap<String,String> tl = new HashMap<String,String>(); 
+//		SolrDocumentList result = runQuery("marker_accession_id:" + gene.replace(":", "\\:"));
+		SolrDocumentList result = runQuery("marker_accession_id:\"" + gene + "\" AND -resource_name:IMPC");
+		if (result.size() > 0) {
+			for (int i = 0; i < result.size(); i++) {
+				SolrDocument doc = result.get(i);
+				if (doc.getFieldValue("top_level_mp_term_id") != null){
+					ArrayList<String> tlTermIDs = (ArrayList<String>) doc.getFieldValue("top_level_mp_term_id");
+					ArrayList<String> tlTermNames = (ArrayList<String>) doc.getFieldValue("top_level_mp_term_name");
+					int len = tlTermIDs.size();
+					for (int k = 0 ; k < len ; k++){
+						tl.put( tlTermIDs.get(k), tlTermNames.get(k));
+					}
+	//					tl.put((String) doc.getFieldValue("top_level_mp_term_id"), (String) doc.getFieldValue("top_level_mp_term_name"));
+				}
+				else { // it seems that when the term id is a top level term itself the top level term field 
+					tl.put((String) doc.getFieldValue("mp_term_id"), (String) doc.getFieldValue("mp_term_name"));					
+				}
+			}
+		}		
+		return tl;
 	}
 }

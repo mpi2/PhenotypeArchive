@@ -14,10 +14,6 @@ import uk.ac.ebi.phenotype.dao.HibernateDAOImpl;
 
 public interface PhenotypeSummaryDAO {
 	
-	public abstract HashMap<String, String> getTopLevelMPTerms (String gene) throws SolrServerException ;
-	
-	public abstract SolrDocumentList getPhenotypesForTopLevelTerm(String gene, String mpID) throws SolrServerException;
-	
 	// returns one of {male, female, both sexess} for each set of phenotypes 
 	public abstract String getSexesRepresentationForPhenotypesSet(
 			SolrDocumentList resp);
@@ -30,7 +26,5 @@ public interface PhenotypeSummaryDAO {
 			String gene) throws SolrServerException ;
 	
 	public abstract PhenotypeSummaryBySex getSummaryObjects(String gene) throws Exception;
-	
-	public void instantiateSolrServer();
 	
 }
