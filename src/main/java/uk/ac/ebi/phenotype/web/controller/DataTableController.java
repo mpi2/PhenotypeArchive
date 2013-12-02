@@ -117,7 +117,7 @@ public class DataTableController {
 		}
 		
 		JSONObject json = solrIndex.getDataTableJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
-		System.out.println("JSON: "+ json);
+		//System.out.println("JSON: "+ json);
 		
 		String content = fetchDataTableJson(request, json, mode, query, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, filters);
 		
