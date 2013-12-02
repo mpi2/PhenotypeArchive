@@ -18,7 +18,7 @@ public class PipelineSolrImpl {
 	@Autowired
 	GenotypePhenotypeService gpService;
 	
-	public PipelineSolrImpl( ) {
+	public PipelineSolrImpl() {
 	}
 	
 	public Parameter getParameterByStableId(

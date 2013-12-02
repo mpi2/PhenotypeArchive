@@ -319,7 +319,7 @@ public class FileExportController {
 	private List<String> composeGPDataTableRows(JSONObject json, HttpServletRequest request){ 
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");	
 		List<String> rowData = new ArrayList<String>();
-		PipelineSolrImpl pipe = new PipelineSolrImpl(config);
+		PipelineSolrImpl pipe = new PipelineSolrImpl();
 		// add respective table header 
 		// from the phenotype core we export both the table on gene & phenotype page so we need to check on which file we are
 		
