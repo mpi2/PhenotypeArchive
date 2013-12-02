@@ -113,6 +113,9 @@ public class StatsController implements BeanFactoryAware {
 	
 	@Autowired
 	private ExperimentService experimentService;
+	
+	@Autowired
+	private ObservationService os;
 		
 	/**
 	 * Runs when the request missing an accession ID. This redirects to the
@@ -461,33 +464,7 @@ public class StatsController implements BeanFactoryAware {
 	private void getLinksForStats(Integer start, Integer length, Model model, ObservationType type, List<String>parameterIds) throws IOException, URISyntaxException, SQLException {
 		if(start==null)start=0;
 		if(length==null)length=100;
-
-		@SuppressWarnings("unchecked")
-		Map<String, String> config = (Map<String, String>) bf.getBean("globalConfiguration");
-
-		String url = config.get("internalSolrUrl") + "/experiment/select?"
-			+ "q=" + ObservationService.ExperimentField.OBSERVATION_TYPE + ":" + type
-			+ " AND " + ObservationService.ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental"
-			+ "&wt=json&indent=true&start=" + start + "&rows=" + length;
-
-		net.sf.json.JSONObject result = JSONRestUtil.getResults(url);
-		System.out.println(result.toString());
-		JSONArray resultsArray=JSONRestUtil.getDocArray(result);
-
-		System.out.println("start="+start+" end="+length);
-
-		List<Map<String, String>> listWithStableId=new ArrayList<Map<String, String>>();
-		for(int i=0; i<resultsArray.size(); i++){
-			Map<String,String> map=new HashMap<String,String>();
-			net.sf.json.JSONObject exp=resultsArray.getJSONObject(i);
-			String statbleParamId=exp.getString(ObservationService.ExperimentField.PARAMETER_STABLE_ID);
-			String accession=exp.getString(ObservationService.ExperimentField.GENE_ACCESSION);
-			System.out.println(accession+" parameter="+statbleParamId);
-			map.put("paramStableId", statbleParamId);
-			map.put("accession",accession);
-			listWithStableId.add(map);
-		}
-		model.addAttribute("statsLinks", listWithStableId);
+		model.addAttribute("statsLinks", os.getLinksListForStats(start, length, type, parameterIds));
 	}
 
 	/**
@@ -506,9 +483,6 @@ public class StatsController implements BeanFactoryAware {
 	}
 	
 	
-
-
-
 	/**
 	 * required for implementing BeanFactoryAware
 	 * 

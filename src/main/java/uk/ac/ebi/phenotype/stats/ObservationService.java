@@ -11,12 +11,15 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
+
+import net.sf.json.JSONArray;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -34,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
+import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
 import uk.ac.ebi.phenotype.data.impress.Utilities;
@@ -160,6 +164,47 @@ public class ObservationService {
 		return results;
 	}
 
+	/**
+	 * for testing - not for users
+	 * @param start
+	 * @param length
+	 * @param model
+	 * @param type
+	 * @throws URISyntaxException 
+	 * @throws IOException 
+	 * @throws SQLException 
+	 */
+	public List<Map<String, String>> getLinksListForStats(Integer start, Integer length, ObservationType type, List<String>parameterIds) throws IOException, URISyntaxException, SQLException {
+		if(start==null)start=0;
+		if(length==null)length=100;
+
+		String url = solr.getBaseURL() + "/select?"
+			+ "q=" + ObservationService.ExperimentField.OBSERVATION_TYPE + ":" + type
+			+ " AND " + ObservationService.ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental"
+			+ "&wt=json&indent=true&start=" + start + "&rows=" + length;
+
+		net.sf.json.JSONObject result = JSONRestUtil.getResults(url);
+		System.out.println(result.toString());
+		JSONArray resultsArray=JSONRestUtil.getDocArray(result);
+
+		System.out.println("start="+start+" end="+length);
+
+		List<Map<String, String>> listWithStableId=new ArrayList<Map<String, String>>();
+		for(int i=0; i<resultsArray.size(); i++){
+			Map<String,String> map=new HashMap<String,String>();
+			net.sf.json.JSONObject exp=resultsArray.getJSONObject(i);
+			String statbleParamId=exp.getString(ObservationService.ExperimentField.PARAMETER_STABLE_ID);
+			String accession=exp.getString(ObservationService.ExperimentField.GENE_ACCESSION);
+			System.out.println(accession+" parameter="+statbleParamId);
+			map.put("paramStableId", statbleParamId);
+			map.put("accession",accession);
+			listWithStableId.add(map);
+		}
+		return listWithStableId;
+	}
+
+	
+	
 	private  List<ObservationDTO> getControlsBySex(Integer parameterId, String strain, Integer organisationId, Date max, Boolean showAll, String sex, int resultsMaxSize) throws SolrServerException{
 
 		List<ObservationDTO> results = new ArrayList<ObservationDTO>();
