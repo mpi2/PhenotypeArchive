@@ -67,7 +67,7 @@ public class Project implements Serializable {
 		return participants;
 	}
 
-	protected Project() {
+	public Project() {
 		super();
 	}
 
