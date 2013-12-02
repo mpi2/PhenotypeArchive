@@ -96,7 +96,9 @@
 	<field name="imits_phenotype_allele_type" type="string" indexed="true" multiValued="true"/>
 	<field name="imits_phenotype_status" type="string" indexed="true" multiValued="true"/>
 	<field name="imits_phenotype_is_active" type="string" indexed="true" multiValued="true"/>
-        
+   	<field name="qcGene" type="string" indexed="false" stored="false" multiValued="false"/>
+	<field name="hasQc" type="int" indexed="true" stored="true" multiValued="false"/>
+		
 	<field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
 	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
  </fields>
