@@ -261,6 +261,10 @@ public class SolrIndex {
 					}
 				}
 			}
+			if (doc.containsKey("hasQc")) {				
+					return "QCed data";			
+			}
+			
 		} catch (Exception e) {
 			log.error("Error getting phenotyping status");
 			log.error(e.getLocalizedMessage());
