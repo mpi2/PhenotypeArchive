@@ -56,9 +56,6 @@ public class ObservationService {
 	@Autowired
 	PhenotypePipelineDAO parameterDAO;
 	
-	@Resource(name="globalConfiguration")
-	private Map<String, String> config;
-	
 	// Definition of the solr fields
 	public static final class ExperimentField {
 		public final static String ID = "id";

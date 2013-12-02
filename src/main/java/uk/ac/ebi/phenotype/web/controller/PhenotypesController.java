@@ -98,8 +98,6 @@ public class PhenotypesController {
 	@Autowired
 	private OntologyTermDAO ontoTermDao;
 	
-//	@Autowired
-//	private PhenotypeCallSummaryDAO phenoDAO;
 	@Autowired
 	private PhenotypeCallSummaryDAOReadOnly phenoDAO;
 
