@@ -7,9 +7,11 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -19,6 +21,7 @@ import net.sf.json.JSONObject;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.Group;
@@ -114,6 +117,22 @@ public class GenotypePhenotypeService {
 	}
 	
 
+	public Set<String> getAllGenes() throws SolrServerException{
+		
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery("marker_accession_id:*");
+		solrQuery.setRows(1000000);
+		solrQuery.setFields("marker_accession_id");
+		QueryResponse rsp = null;
+		rsp = solr.query(solrQuery);
+		SolrDocumentList res = rsp.getResults();
+		HashSet<String> allGenes = new HashSet<String>();
+		for (SolrDocument doc: res){
+			allGenes.add((String) doc.getFieldValue("marker_accession_id"));
+		}
+		return allGenes;
+	}
+	
 	/*
 	 * Methods used by PhenotypeSummaryDAO
 	 */
