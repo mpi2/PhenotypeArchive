@@ -74,7 +74,6 @@
   <fields>  
 	<field name="_version_" type="long" indexed="true" stored="true"/>             
 	<field name="mgi_accession_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-	<field name="mgi_accession_id_escaped" type="string" indexed="true" stored="true" required="true" multiValued="false" />
 	<field name="marker_symbol" type="text_general" indexed="true" stored="true" required="true" multiValued="false" />
 	<field name="marker_name" type="text_general" indexed="true" stored="true" required="false" />    
 	<field name="marker_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
