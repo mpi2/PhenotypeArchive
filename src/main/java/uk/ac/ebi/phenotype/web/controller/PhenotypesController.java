@@ -113,9 +113,6 @@ public class PhenotypesController {
 	@Autowired
 	private ExperimentService experimentService;
 	
-	@Resource(name="globalConfiguration")
-	private Map<String, String> config;
-
 	@Autowired
 	GenotypePhenotypeService gpService;
 

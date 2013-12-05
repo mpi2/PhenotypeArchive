@@ -1,10 +1,7 @@
 package uk.ac.ebi.phenotype.stats;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.Proxy;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -17,14 +14,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
-
 import net.sf.json.JSONArray;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -35,28 +28,18 @@ import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
-import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.stats.categorical.CategoricalChartAndTableProvider;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalDataObject;
-import uk.ac.ebi.phenotype.stats.categorical.CategoricalResultAndCharts;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
-import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
-import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 @Service
 public class ObservationService {
 
-	@Autowired
-	UnidimensionalStatisticsDAO uDAO;
-	
 	@Autowired
 	PhenotypePipelineDAO parameterDAO;
 	
