@@ -607,6 +607,7 @@ CREATE TABLE categorical_observation (
  * image_record_observation
  * Link to single/multiple image/movie records in the database
  */
+/** OBSOLETED 2013-12-09 
 CREATE TABLE image_record_observation (
 
     id                        INT(10) UNSIGNED NOT NULL,
@@ -616,6 +617,7 @@ CREATE TABLE image_record_observation (
     KEY image_record_idx(image_record_id)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
+*/
 
 /** 
  * unidimensional_observation
