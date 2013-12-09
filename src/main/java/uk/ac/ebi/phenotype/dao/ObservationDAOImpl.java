@@ -622,7 +622,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 		}
 		
 		obs.setParameterStableId(parameter.getStableId());
-		
+		obs.setParameterStatus(parameterStatus);
 		return obs;
 	}
 
@@ -636,7 +636,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 			Parameter parameter, 
 			BiologicalSample sample, 
 			Datasource datasource,
-			Experiment experiment) {
+			Experiment experiment, String parameterStatus) {
 		
 		//logger.debug("Series :" + secondDimensionValue + "\t" + firstDimensionValue);
 		
@@ -668,6 +668,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 		obs.setSample(sample);
 		obs.setType(observationType);
 		obs.setParameterStableId(parameter.getStableId());
+		obs.setParameterStatus(parameterStatus);
 		
 		return obs;
 	}

@@ -69,7 +69,7 @@ public interface ObservationDAO extends HibernateDAO {
 			Parameter parameter, 
 			BiologicalSample sample, 
 			Datasource datasource,
-			Experiment experiment);
+			Experiment experiment, String parameterStatus);
 	
 	public int deleteAllExperimentsByOrganisationAndDatasource(Organisation organisation, Datasource datasource);
 	public int deleteAllCategoricalObservationsByOrganisationAndDatasource(Organisation organisation, Datasource datasource);
