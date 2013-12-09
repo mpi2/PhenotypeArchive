@@ -48,7 +48,7 @@ public interface ObservationDAO extends HibernateDAO {
 			Parameter parameter, 
 			BiologicalSample sample,
 			Datasource datasource,
-			Experiment experiment);
+			Experiment experiment, String parameterStatus);
 	
 	public Observation createObservation(
 			ObservationType observationType, 
@@ -58,7 +58,7 @@ public interface ObservationDAO extends HibernateDAO {
 			Parameter parameter, 
 			BiologicalSample sample, 
 			Datasource datasource,
-			Experiment experiment);
+			Experiment experiment, String parameterStatus);
 	
 	public Observation createTimeSeriesObservationWithOriginalDate(
 			ObservationType observationType, 

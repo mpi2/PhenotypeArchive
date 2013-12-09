@@ -70,7 +70,18 @@ public class Observation extends SourcedEntry {
 	@Column(name = "population_id")
 	private int populationId;
 	
+	@Column(name = "parameter_status")
+	private String parameterStatus;
 	
+	
+	public String getParameterStatus() {
+		return parameterStatus;
+	}
+
+	public void setParameterStatus(String parameterStatus) {
+		this.parameterStatus = parameterStatus;
+	}
+
 	/**
 	 * bi-directional
 	 */

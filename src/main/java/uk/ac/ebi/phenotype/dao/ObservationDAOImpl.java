@@ -484,8 +484,8 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 			Parameter parameter, 
 			BiologicalSample sample, 
 			Datasource datasource,
-			Experiment experiment) {
-		return createObservation(observationType, simpleValue, null, null, parameter, sample, datasource, experiment);
+			Experiment experiment, String parameterStatus) {
+		return createObservation(observationType, simpleValue, null, null, parameter, sample, datasource, experiment, parameterStatus);
 	}
 	
 	@Transactional(readOnly = false)
@@ -497,7 +497,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 			Parameter parameter, 
 			BiologicalSample sample, 
 			Datasource datasource,
-			Experiment experiment) {
+			Experiment experiment, String parameterStatus) {
 		
 		Observation obs = null;
 //		if (observationType == ObservationType.image_record) {
