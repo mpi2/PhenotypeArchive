@@ -16,8 +16,29 @@
         dcc.ie8 = true;
         </script>
 	<![endif]-->  
-	<script>
-          //new dcc.PhenoHeatMap('procedural', 'phenodcc-heatmap', '${gene.symbol}', '${gene.id.accession}', 6, '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/heatmap/');
+    <!--[if !IE]><!-->
+    <script>
+        dcc.heatmapUrlGenerator = function(genotype_id, type) {
+            return '${drupalBaseUrl}/phenoview?gid=' + genotype_id + '&qeid=' + type;
+        };
+    </script>
+    <!--<![endif]-->
+    <!--[if lt IE 9]>
+    <script>
+        dcc.heatmapUrlGenerator = function(genotype_id, type) {
+           return '${drupalBaseUrl}/phenotypedata?g=' + genotype_id + '&t=' + type + '&w=all';
+        };
+    </script>
+    <![endif]-->
+    <!--[if gte IE 9]>
+    <script>
+        dcc.heatmapUrlGenerator = function(genotype_id, type) {
+           return '${drupalBaseUrl}/phenoview?gid=' + genotype_id + '&qeid=' + type;
+        };
+    </script>
+    <![endif]-->
+    <script>
+          //new dcc.PhenoHeatMap('procedural', 'phenodcc-heatmap', 'Fam63a', 'MGI:1922257', 6, '//dev.mousephenotype.org/heatmap/rest/heatmap/');
           new dcc.PhenoHeatMap({
                 /* identifier of <div> node that will host the heatmap */
                 'container': 'phenodcc-heatmap',
@@ -42,14 +63,11 @@
                     'json': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/',
 
                     /* function that generates target URL for data visualisation */
-                    'viz': function(genotype_id, type) {
-                        return '${drupalBaseUrl}/phenotypedata?g=' + genotype_id
-                            + '&t=' + type + '&w=all';
-                    }
+                    'viz': dcc.heatmapUrlGenerator
                 }
             });
-	</script>
-	</c:if>
+    </script>
+    </c:if>
 
 	<!--[if !IE]><!-->
 	<script type="text/javascript" src="${baseUrl}/js/genomic-browser/dalliance-compiled.js"></script>
