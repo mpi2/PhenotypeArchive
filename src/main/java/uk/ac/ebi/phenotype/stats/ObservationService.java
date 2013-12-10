@@ -86,7 +86,6 @@ public class ObservationService {
 		public final static String VALUE = "value";
 	}
 
-	private static final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00");
 
 	private HttpSolrServer solr;
 
@@ -202,6 +201,7 @@ public class ObservationService {
 		Date today = new Date();
 		Date minDate = new Date();
 
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00");
 		SimpleDateFormat f = new SimpleDateFormat("dd-MMM-yyyy");
 
 		try {

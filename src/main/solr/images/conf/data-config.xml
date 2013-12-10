@@ -4,7 +4,20 @@
 	<dataSource name="ontods" jndiName="java:comp/env/jdbc/ontodbDataSource" />
 
 	<document name="komp2_indexing">
+<!-- for xml generated image info not straight from sanger -->
 
+<entity dataSource="komp2ds" name="ima_image_record"
+			query="SELECT * from observation ob JOIN image_record_observation imo ON (ob.id=imo.id) LEFT outer JOIN parameter_association pa on (pa.observation_id=ob.id) LEFT outer JOIN dimension dim on (pa.id=dim.parameter_association_id)">
+
+			<field column="id" name="id" />
+			<field column="FULL_RESOLUTION_FILE_PATH" name="fullResolutionFilePath" />
+			<field column="LARGE_THUMBNAIL_FILE_PATH" name="largeThumbnailFilePath" />
+			<field column="ORIGINAL_FILE_NAME" name="originalFileName" />
+			<field column="SMALL_THUMBNAIL_FILE_PATH" name="smallThumbnailFilePath" />
+			<field column="institute" name="institute" /> 
+</entity>
+		
+		
 		<!-- IMPC images (filter out the mouse necropsy images) -->
 		<entity dataSource="komp2ds" name="ima_image_record"
 			query="SELECT IMA_IMAGE_RECORD.ID, FOREIGN_TABLE_NAME, FOREIGN_KEY_ID, ORIGINAL_FILE_NAME, CREATOR_ID, CREATED_DATE, EDITED_BY, EDIT_DATE, CHECK_NUMBER, FULL_RESOLUTION_FILE_PATH, SMALL_THUMBNAIL_FILE_PATH, LARGE_THUMBNAIL_FILE_PATH, SUBCONTEXT_ID, QC_STATUS_ID, PUBLISHED_STATUS_ID, o.name as institute, IMA_EXPERIMENT_DICT.ID as experiment_dict_id FROM IMA_IMAGE_RECORD, IMA_SUBCONTEXT, IMA_EXPERIMENT_DICT, organisation o  WHERE IMA_IMAGE_RECORD.organisation=o.id AND IMA_IMAGE_RECORD.subcontext_id=IMA_SUBCONTEXT.id AND IMA_SUBCONTEXT.experiment_dict_id=IMA_EXPERIMENT_DICT.id AND IMA_EXPERIMENT_DICT.name!='Mouse Necropsy' ">
