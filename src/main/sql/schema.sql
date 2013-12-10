@@ -74,6 +74,10 @@ DROP TABLE IF EXISTS text_observation;
 DROP TABLE IF EXISTS time_series_observation;
 DROP TABLE IF EXISTS unidimensional_observation;
 DROP TABLE IF EXISTS xref;
+DROP TABLE IF EXISTS image_record_observation;
+DROP TABLE IF EXISTS dimension;
+DROP TABLE IF EXISTS parameter_association;
+DROP TABLE IF EXISTS procedure_meta_data;
 
 /**
  * Contains meta information about the database like
@@ -524,7 +528,7 @@ CREATE TABLE observation (
 	population_id              INT(10) UNSIGNED NOT NULL,
 	observation_type           enum('categorical', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text'),
 	missing                    TINYINT(1) DEFAULT 0,
-
+	parameter_status varchar(450) DEFAULT NULL,
 	PRIMARY KEY(id),
 	KEY biological_sample_idx(biological_sample_id),
 	KEY parameter_idx(parameter_id),
@@ -994,61 +998,53 @@ CREATE TABLE phenotype_call_summary (
 /*
  * Tables below are for the storage of media/image information
  */
-CREATE TABLE `image_record_observation` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `SAMPLE_ID` int(11) DEFAULT NULL,
-  `ORIGINAL_FILE_NAME` varchar(1024) DEFAULT NULL,
-  `CREATOR_ID` int(11) DEFAULT NULL,
-  `CREATED_DATE` date DEFAULT NULL,
-  `EDITED_BY` varchar(64) DEFAULT NULL,
-  `EDIT_DATE` date DEFAULT NULL,
-  `CHECK_NUMBER` int(11) DEFAULT NULL,
-  `FULL_RESOLUTION_FILE_PATH` varchar(256) DEFAULT NULL,
-  `SMALL_THUMBNAIL_FILE_PATH` varchar(256) DEFAULT NULL,
-  `LARGE_THUMBNAIL_FILE_PATH` varchar(256) DEFAULT NULL,
-  `DOWNLOAD_FILE_PATH` varchar(256) NOT NULL,
-  `SUBCONTEXT_ID` int(11) DEFAULT NULL,
-  `QC_STATUS_ID` int(11) DEFAULT NULL,
-  `PUBLISHED_STATUS_ID` int(11) DEFAULT NULL,
-  `organisation` int(10) NOT NULL DEFAULT '0',
-  `increment_value` varchar(45) DEFAULT NULL,
-  `file_type` varchar(45) DEFAULT NULL,
-  `media_sample_local_id` varchar(45) DEFAULT NULL,
-  `media_section_id` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `DOWNLOAD_FILE_PATH_UNIQUE` (`DOWNLOAD_FILE_PATH`),
-  KEY `FOREIGN_KEY_ID` (`SAMPLE_ID`),
-  KEY `SUBCONTEXT_ID` (`SUBCONTEXT_ID`),
-  KEY `organisation` (`organisation`)
+CREATE TABLE image_record_observation (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  sample_id int(11) DEFAULT NULL,
+  original_file_name varchar(1024) DEFAULT NULL,
+  creator_id int(11) DEFAULT NULL,
+  full_resolution_file_path varchar(256) DEFAULT NULL,
+  small_thumbnail_file_path varchar(256) DEFAULT NULL,
+  larg_thumbnail_file_path varchar(256) DEFAULT NULL,
+  download_fle_path varchar(256) DEFAULT NULL,
+  organisation int(10) NOT NULL DEFAULT '0',
+  increment_value varchar(45) DEFAULT NULL,
+  file_type varchar(45) DEFAULT NULL,
+  media_sample_local_id varchar(45) DEFAULT NULL,
+  media_section_id varchar(45) DEFAULT NULL,
+  PRIMARY KEY (id)
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
 
-CREATE TABLE `dimension` (
-  `dim_id` int(11) NOT NULL AUTO_INCREMENT,
-  `parameter_association_id` int(11) NOT NULL,
-  `id` varchar(45) NOT NULL,
-  `origin` varchar(45) NOT NULL,
-  `unit` varchar(45) DEFAULT NULL,
-  `value` decimal(65,10) DEFAULT NULL,
-  PRIMARY KEY (`dim_id`)
+CREATE TABLE dimension (
+  dim_id int(11) NOT NULL AUTO_INCREMENT,
+  parameter_association_id int(11) NOT NULL,
+  id varchar(45) NOT NULL,
+  origin varchar(45) NOT NULL,
+  unit varchar(45) DEFAULT NULL,
+  value decimal(65,10) DEFAULT NULL,
+  PRIMARY KEY (`dim_id`,`parameter_association_id`)
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
 
-CREATE TABLE `parameter_association` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `observation_id` varchar(45) NOT NULL,
-  `parameter_id` varchar(45) NOT NULL,
-  `sequence_id` int(11) DEFAULT NULL,
-  `dim_id` varchar(45) DEFAULT NULL,
+CREATE TABLE parameter_association (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  observation_id varchar(45) NOT NULL,
+  parameter_id varchar(45) NOT NULL,
+  sequence_id int(11) DEFAULT NULL,
+  dim_id varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
-CREATE TABLE `procedure_meta_data` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `parameter_id` varchar(45) NOT NULL,
-  `sequence_id` varchar(45) DEFAULT NULL,
-  `parameter_status` varchar(45) DEFAULT NULL,
-  `value` varchar(45) DEFAULT NULL,
+CREATE TABLE procedure_meta_data (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  parameter_id varchar(45) NOT NULL,
+  sequence_id varchar(45) DEFAULT NULL,
+  parameter_status varchar(45) DEFAULT NULL,
+  value varchar(450) DEFAULT NULL,
+  procedure_id varchar(45) NOT NULL,
+  experiment_id int(11) NOT NULL,
+  observation_id int(11) DEFAULT '0',
   PRIMARY KEY (`id`)
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
