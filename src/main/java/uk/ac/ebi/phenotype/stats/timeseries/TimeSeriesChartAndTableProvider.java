@@ -32,6 +32,7 @@ import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ChartUtils;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 import uk.ac.ebi.phenotype.stats.ObservationDTO;
+import uk.ac.ebi.phenotype.stats.categorical.CategoricalResultAndCharts;
 
 @Service
 public class TimeSeriesChartAndTableProvider {
@@ -42,6 +43,23 @@ public class TimeSeriesChartAndTableProvider {
 	
 	 SimpleDateFormat sdf  = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss.SSS");
 
+	 public ChartData doTimeSeriesOverviewData(Map<String, List<DiscreteTimePoint>>lines, Parameter p){
+
+	/*	 private ChartData creatDiscretePointTimeSeriesChart(
+					int listIndex, String title,
+					Map<String, List<DiscreteTimePoint>> lines, String xUnitsLabel,
+					String yUnitsLabel, SexType sex, int decimalPlaces, String organisation) {
+					*/
+			
+		String title =  p.getName() + " (" + p.getStableId() + ")";
+		// create CharData
+		ChartData chartsNTablesForParameter = creatDiscretePointTimeSeriesChart(1, title, lines, p.checkParameterUnit(1), p.checkParameterUnit(2), null, 1, "org");
+		chartsNTablesForParameter.alterMinMax(Math.floor(chartsNTablesForParameter.getMin()), Math.ceil(chartsNTablesForParameter.getMax()));
+		System.out.println("here, for MGI:2447303 " + lines.get("MGI:2447303"));
+		System.out.println(lines.keySet());
+		return chartsNTablesForParameter;
+	 }
+	 
 	public List<ChartData> doTimeSeriesData(BiologicalModelDAO bmDAO, List<ExperimentDTO> experiments, Parameter parameter, Model model, List<String> genderList, List<String> zyList, int listIndex,
 			List<String> biologicalModelsParams) throws IOException, URISyntaxException {
 		// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
@@ -50,9 +68,7 @@ public class TimeSeriesChartAndTableProvider {
 		List<ChartData> chartsNTablesForParameter=new ArrayList<ChartData>();
 
 		//maybe need to put these into method that can be called as repeating this - so needs refactoring though there are minor differences?
-		
-		
-		
+				
 		
 			for (ExperimentDTO experiment : experiments) {
 				BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(experiment.getExperimentalBiologicalModelId());
@@ -221,6 +237,10 @@ public class TimeSeriesChartAndTableProvider {
 												// not 0 index as using loop
 												// count in jsp
 		
+		System.out.println(" - listIndex " + listIndex);
+//		System.out.println(" - lines " + lines);
+		System.out.println(" - xUnitsLabel " + xUnitsLabel);
+		
 		JSONArray series = new JSONArray();
 		String seriesString="";
 		Set<Float> categoriesSet = new HashSet<Float>();
@@ -321,7 +341,7 @@ public class TimeSeriesChartAndTableProvider {
 			noDecimalsString="allowDecimals:false,";
 		}
 		
-		logger.warn("series="+series);
+		logger.warn("series="+series.length());
 		String decimalFormatString=":."+decimalPlaces+"f";
 		String headerFormatString="headerFormat: '<span style=\"font-size: 12px\">"+WordUtils.capitalize(xUnitsLabel)+" {point.key}</span><br/>',";
 		String pointToolTip="tooltip: { "+headerFormatString+"pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>:<b>{point.y"+decimalFormatString+"}"+yUnitsLabel+"</b> '}";
@@ -330,17 +350,18 @@ public class TimeSeriesChartAndTableProvider {
 		
 		String errorBarsToolTip="tooltip: { pointFormat: 'SD: {point.low"+decimalFormatString+"}-{point.high"+decimalFormatString+"}<br/>' }";
 		int index=series.toString().indexOf("\"errorbar");
-		logger.warn("index="+index);
+//		logger.warn("index="+index);
 		String escapedErrorString="\"errorbar\"";
 		seriesString=seriesString.replace(escapedErrorString, escapedErrorString+","+errorBarsToolTip);
-		logger.warn("seriesString="+seriesString);
+//		logger.warn("seriesString="+seriesString);
 		String axisFontSize = "15";
-		String javascript = "$(function () { var chart; $(document).ready(function() { chart = new Highcharts.Chart({ chart: {  zoomType: 'x', renderTo: 'timeChart"
-				+ size
+		String chartid = "timeChart" + size;
+		String javascript = "$(function () { var chart; $(document).ready(function() { chart = new Highcharts.Chart({ chart: {  zoomType: 'x', renderTo: '"
+				+ chartid
 				+ "', type: 'line', marginRight: 130, marginBottom: 50 }, title: { text: '"
 				+ WordUtils.capitalize(title)
 				+ "', x: -20  }, credits: { enabled: false },  subtitle: { text: '"
-				+ WordUtils.capitalize(sex.name())
+				+ (sex != null ? WordUtils.capitalize(sex.name()) : "")
 				+ "', x: -20 }, xAxis: { "+noDecimalsString+" labels: { style:{ fontSize:"
 				+ axisFontSize
 				+ " }},   title: {   text: '"+xUnitsLabel+"'   }  }, yAxis: {max: 2, min: 0, labels: { style:{ fontSize:"
@@ -351,15 +372,15 @@ public class TimeSeriesChartAndTableProvider {
 				"tooltip: {shared: true},"+
 				"series: "
 				+
-				seriesString 
-				
-				
+				seriesString 			
 				+ " }); }); }); "; 
 		ChartData chartAndTable=new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setMin(minForChart);
 		chartAndTable.setMax(maxForChart);
 		chartAndTable.setOrganisation(organisation);
+		chartAndTable.setId(chartid);
+		System.out.println("... minForChart " + minForChart  + " maxForChart " + maxForChart);
 		return chartAndTable;
 	}
 }

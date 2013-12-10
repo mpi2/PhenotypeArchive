@@ -31,6 +31,7 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 import uk.ac.ebi.phenotype.stats.ExperimentService;
 import uk.ac.ebi.phenotype.stats.ObservationDTO;
@@ -244,16 +245,14 @@ public class CategoricalChartAndTableProvider {
 	}
 
 	
-	public CategoricalResultAndCharts doCategoricalDataOverview(CategoricalSet controlSet, 
+	public List<ChartData> doCategoricalDataOverview(CategoricalSet controlSet, 
 			CategoricalSet mutantSet,
 			Model model, 
 			String parameterId,
 			String chartTitle){		
 		// do the charts
-		CategoricalChartDataObject chartData = new CategoricalChartDataObject();
-		chartData.add(controlSet);
-		chartData.add(mutantSet);
-		CategoricalResultAndCharts categoricalResultAndCharts = new CategoricalResultAndCharts();
+		ChartData chartData = new ChartData();
+		List<ChartData> categoricalResultAndCharts = new ArrayList<ChartData>();
 		if (mutantSet.getCount() > 0 && controlSet.getCount() > 0) {// if size is greater than one i.e. we have more than the control data then draw charts and tables
 			String chartNew = this.createCategoricalHighChartUsingObjects2( controlSet, mutantSet, model, parameterId, chartData, chartTitle);
 			chartData.setChart(chartNew);
@@ -267,7 +266,7 @@ public class CategoricalChartAndTableProvider {
 			CategoricalSet mutantSet,
 			Model model, 
 			String parameterId,
-			CategoricalChartDataObject chartData, 
+			ChartData chartData, 
 			String chartTitle) {
 
 		// to not 0 index as using loop count in jsp
@@ -334,7 +333,7 @@ public class CategoricalChartAndTableProvider {
 			e.printStackTrace();
 		}
 		
-		String chartId = parameterId;//replace space in MRC Harwell with underscore so valid javascritp variable
+		String chartId = "chart" + parameterId;//replace space in MRC Harwell with underscore so valid javascritp variable
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ Math.round(this.percentage) +'%)';   }    }";
 		String javascript = "$(function () {  var chart"
 				+ chartId
@@ -342,7 +341,7 @@ public class CategoricalChartAndTableProvider {
 				+ chartId
 				+ " = new Highcharts.Chart({ tooltip : "
 				+ toolTipFunction
-				+ ", chart: { renderTo: 'categoricalBarChart"
+				+ ", chart: { renderTo: '"
 				+ chartId
 				+ "', type: 'column' }, title: { text: '"
 				+ WordUtils.capitalize(title)
@@ -353,7 +352,7 @@ public class CategoricalChartAndTableProvider {
 				+ seriesArray + " });   });});";
 
 		chartData.setChart(javascript);
-		chartData.setChartIdentifier(chartId);		
+		chartData.setId(chartId);		
 		return javascript;
 		
 	}

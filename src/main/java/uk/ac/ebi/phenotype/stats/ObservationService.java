@@ -18,6 +18,7 @@ import net.sf.json.JSONArray;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -26,10 +27,13 @@ import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
+import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
@@ -672,6 +676,164 @@ public class ObservationService {
 	}
 
 	// gets categorical data for graphs on phenotype page 
+		public Map<String, List<DiscreteTimePoint>> getTimeSeriesMutantData(String parameter,List<String> genes,
+				ArrayList<String> strains) throws SolrServerException {
+			
+			
+			Map<String, List<DiscreteTimePoint>> finalRes = new HashMap<String, List<DiscreteTimePoint>>(); // <allele_accession, timeSeriesData>
+			
+			SolrQuery query = new SolrQuery().addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental").addFilterQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + parameter);
+
+			String q = (strains.size() > 1) ? "(" + ExperimentField.STRAIN + ":\""
+					+ StringUtils.join(strains.toArray(), "\" OR " + ExperimentField.STRAIN + ":\"") + "\")"
+					: ExperimentField.STRAIN + ":\"" + strains.get(0) + "\"";
+
+			if (genes != null && genes.size() > 0) {
+				q += " AND (";
+				q += (genes.size() > 1) ? ExperimentField.GENE_ACCESSION + ":\"" + StringUtils.join(genes.toArray(), "\" OR "
+								+ ExperimentField.GENE_ACCESSION + ":\"") + "\"" : ExperimentField.GENE_ACCESSION + ":\"" + genes.get(0) + "\"";
+				q += ")";
+			}
+
+			query.setQuery(q);
+			query.set("group.field", ExperimentField.GENE_SYMBOL);
+			query.set("group", true);
+			query.set("fl", ExperimentField.DATA_POINT + "," + ExperimentField.DISCRETE_POINT);
+			query.set("group.limit", 100000); // number of documents to be returned per group
+			query.set("group.sort", ExperimentField.DISCRETE_POINT + " asc");
+			query.setRows(10000);
+
+			System.out.println("+_+_+ " + solr.getBaseURL() + "/select?" + query);
+			List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
+			// for mutants it doesn't seem we need binning
+			// groups are the alleles
+			for (Group gr : groups) {
+					SolrDocumentList resDocs = gr.getResult();
+					DescriptiveStatistics stats = new DescriptiveStatistics();
+					float discreteTime = (float)resDocs.get(0).getFieldValue(ExperimentField.DISCRETE_POINT);
+					ArrayList<DiscreteTimePoint> res = new ArrayList<DiscreteTimePoint>();
+					for (int i = 0; i < resDocs.getNumFound(); i++) {
+						SolrDocument doc = resDocs.get(i);
+						stats.addValue((float) doc.getFieldValue(ExperimentField.DATA_POINT));
+						if (discreteTime != (float)doc.getFieldValue(ExperimentField.DISCRETE_POINT)){
+							// add to list
+							float discreteDataPoint = (float) stats.getMean();
+							DiscreteTimePoint dp = new DiscreteTimePoint(discreteTime,
+									discreteDataPoint, new Float(stats.getStandardDeviation()));
+							List<Float> errorPair = new ArrayList<>();
+							double std = stats.getStandardDeviation();
+							Float lower = new Float(discreteDataPoint);
+							Float higher = new Float(discreteDataPoint);
+							errorPair.add(lower);
+							errorPair.add(higher);
+							dp.setErrorPair(errorPair);
+							res.add(dp);
+							// update discrete point
+							discreteTime = Float.valueOf(doc.getFieldValue(ExperimentField.DISCRETE_POINT).toString());
+							//update stats
+							stats = new DescriptiveStatistics();
+						}
+					}
+					// add list
+					finalRes.put(gr.getGroupValue(), res);
+			}
+			return finalRes;
+		}
+		
+	// gets categorical data for graphs on phenotype page 
+	public List<DiscreteTimePoint> getTimeSeriesControlData(String parameter,
+			ArrayList<String> strains) throws SolrServerException {
+		
+		
+		ArrayList<DiscreteTimePoint> res = new ArrayList<DiscreteTimePoint>();
+		
+		SolrQuery query = new SolrQuery().addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":control").addFilterQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + parameter);
+
+		String q = (strains.size() > 1) ? "(" + ExperimentField.STRAIN + ":\""
+				+ StringUtils.join(strains.toArray(), "\" OR " + ExperimentField.STRAIN + ":\"") + "\")"
+				: ExperimentField.STRAIN + ":\"" + strains.get(0) + "\"";
+
+		query.setQuery(q);
+		query.set("group.field", ExperimentField.DISCRETE_POINT);
+		query.set("group", true);
+		query.set("fl", ExperimentField.DATA_POINT + "," + ExperimentField.DISCRETE_POINT);
+		query.set("group.limit", 100000); // number of documents to be returned per group
+		query.set("sort", ExperimentField.DISCRETE_POINT + " asc");
+		query.setRows(10000);
+
+		System.out.println("+_+_+ " + solr.getBaseURL() + "/select?" + query);
+		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
+		boolean rounding = false;
+		// decide if binning is needed i.e. is the increment points are too scattered, as for calorimetry
+		if (groups.size() > 30){ // arbitrary value, just piced it because it seems reasonable for the size of our graphs
+			if (Float.valueOf(groups.get(groups.size()-1).getGroupValue())
+					- Float.valueOf(groups.get(0).getGroupValue()) <= 30){ //then rounding  will be enough
+				rounding = true;
+			}
+		}
+		if (rounding){
+			int bin = Math.round(Float.valueOf(groups.get(0).getGroupValue()));
+			for (Group gr : groups) {
+				int discreteTime = Math.round(Float.valueOf(gr.getGroupValue()));
+				// for calormetry ignore what's before -5 and after 16
+				if (parameter.startsWith("IMPC_CAL") || parameter.startsWith("ESLIM_003_001") || parameter.startsWith("M-G-P_003_001")) {
+					if (discreteTime < -5){
+						continue;
+					}
+					else if (discreteTime > 16){
+						break;
+					}
+				}
+				float sum = 0;
+				SolrDocumentList resDocs = gr.getResult();
+				DescriptiveStatistics stats = new DescriptiveStatistics();
+				for (SolrDocument doc : resDocs) {
+					sum += (float) doc.getFieldValue(ExperimentField.DATA_POINT);
+					stats.addValue((float) doc.getFieldValue(ExperimentField.DATA_POINT));
+				}
+				if (bin < discreteTime || groups.indexOf(gr) == groups.size() - 1){ // finished the groups of filled the bin
+					float discreteDataPoint = sum / resDocs.getNumFound();
+					DiscreteTimePoint dp = new DiscreteTimePoint((float)discreteTime,
+							discreteDataPoint, new Float(stats.getStandardDeviation()));
+					List<Float> errorPair = new ArrayList<>();
+					double std = stats.getStandardDeviation();
+					Float lower = new Float(discreteDataPoint - std);
+					Float higher = new Float(discreteDataPoint + std);
+					errorPair.add(lower);
+					errorPair.add(higher);
+					dp.setErrorPair(errorPair);
+					res.add(dp);
+					bin = discreteTime;
+				}
+			}
+		}
+		else {
+			for (Group gr : groups) {
+				Float discreteTime = Float.valueOf(gr.getGroupValue());
+				float sum = 0;
+				SolrDocumentList resDocs = gr.getResult();
+				DescriptiveStatistics stats = new DescriptiveStatistics();
+				for (SolrDocument doc : resDocs) {
+					sum += (float) doc.getFieldValue(ExperimentField.DATA_POINT);
+					stats.addValue((float) doc.getFieldValue(ExperimentField.DATA_POINT));
+				}
+				float discreteDataPoint = sum / resDocs.getNumFound();
+				DiscreteTimePoint dp = new DiscreteTimePoint(discreteTime,
+						discreteDataPoint, new Float(stats.getStandardDeviation()));
+				List<Float> errorPair = new ArrayList<>();
+				double std = stats.getStandardDeviation();
+				Float lower = new Float(discreteDataPoint - std);
+				Float higher = new Float(discreteDataPoint + std);
+				errorPair.add(lower);
+				errorPair.add(higher);
+				dp.setErrorPair(errorPair);
+				res.add(dp);
+			}
+		}
+		return res;
+	}
+	
+	// gets categorical data for graphs on phenotype page 
 	public CategoricalSet getCategories(String parameter, ArrayList<String >genes, String biologicalSampleGroup, ArrayList<String>  strains) throws SolrServerException{
 
 		CategoricalSet resSet = new CategoricalSet();
@@ -710,14 +872,14 @@ public class ObservationService {
 	    List<String> genes = new ArrayList<String>();
 		for (String parameter : parameters){
 			SolrQuery query = new SolrQuery()
-			.setQuery("parameter_stable_id:" + parameter)
-			.addField("gene_accession")
-			.setFilterQueries("strain:\"MGI:2159965\" OR strain:\"MGI:2164831\"")
+			.setQuery( ExperimentField.PARAMETER_STABLE_ID + ":" + parameter)
+			.addField(ExperimentField.GENE_ACCESSION)
+			.setFilterQueries(ExperimentField.STRAIN + ":\"MGI:2159965\" OR " + ExperimentField.STRAIN + ":\"MGI:2164831\"")
 			.setRows(10000);
-			query.set("group.field", "gene_accession");
+			query.set("group.field", ExperimentField.GENE_ACCESSION);
 			query.set("group", true);
 			if (sex != null){
-				query.addFilterQuery("sex:"+sex);
+				query.addFilterQuery(ExperimentField.SEX + ":"+sex);
 			}
 			// I need to add the genes to a hash in case some come up multiple times from different parameters
 //			System.out.println("=====" + solr.getBaseURL() + query);
