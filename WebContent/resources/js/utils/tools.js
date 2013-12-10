@@ -27,14 +27,209 @@
 				
 		var fqStr = compose_solr_facetFilter2(q, facet);
 		console.log('fqStr: '+ fqStr);		
-		var paramStr = 'q=' + q + '&fq=' + fqStr + '&wt=json&defType=edismax&qf=auto_suggest' + MPI2.searchAndFacetConfig.mega.facetParams;
+		var paramStr = 'q=' + q + '&fq=' + fqStr + '&wt=json&defType=edismax&qf=auto_suggest';// + MPI2.searchAndFacetConfig.mega.facetParams;
 		console.log('paramStr: '+ paramStr);
 		
 		$.fn.setFacetCounts(q, paramStr, fqStr, facet);
 		
 	}	
-	
 	$.fn.setFacetCounts = function(q, paramStr, fqStr, facet){
+		console.log(q + " -- " + paramStr + " -- " + fqStr + " -- " + facet);
+		paramStr = paramStr.replace('selected_top_level_ma_term', 'inferred_selected_top_level_ma_term');
+        
+		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['status', 'imits_phenotype_complete', 'imits_phenotype_started', 'imits_phenotype_status', 
+         'marker_type']);
+        
+        paramStr += '&fq='+ MPI2.searchAndFacetConfig.facetParams.geneFacet.fq + fecetFieldsStr;        
+        console.log('GENE: '+ paramStr);
+        
+		$.ajax({ 	
+			//'url': solrUrl + '/mega/select',
+    		'url': 'http://localhost:8983/solr/mega_gene/select', // starts with gene
+    		'data': paramStr + fecetFieldsStr,
+    		'dataType': 'jsonp',
+    		'jsonp': 'json.wrf',
+    		'success': function(json) {
+    			console.log('gene');
+    			console.log(json);
+    			if ( $('ul#facetFilter li li a').size() == 0 ){
+    				if ( q == '*:*'){
+    					document.location.href = baseUrl + '/search';
+    				}
+    				else {
+    					document.location.href = baseUrl + '/search?q=' + q;
+    				}
+    			}
+    			else {    				
+    				do_megaGene(json);
+    				do_megaMp(paramStr);
+    				do_megaDisease(paramStr);
+    				do_megaMa(paramStr);
+    			}
+    		}
+		});
+	}	
+	
+	function do_megaGene(json){
+		
+		var oFacets = json.facet_counts.facet_fields;
+		
+		// refresh gene facet
+		
+		var geneCount = json.response.numFound;
+		$('div#geneFacet span.facetCount').text(geneCount);    			
+				
+		$('table#geneFacetTbl td.geneSubfacetCount').each(function(){
+			$(this).find('a').text('0');
+		})			
+			
+		for (var i=0; i<oFacets.status.length; i=i+2){			
+			var subFacetName = oFacets.status[i];
+			$('table#geneFacetTbl td.geneSubfacetCount a[rel="' + subFacetName + '"]').text(oFacets.status[i+1]);
+		}	
+		for (var i=0; i<oFacets.marker_type.length; i=i+2){
+			//console.log(oFacets.marker_type[i] + oFacets.marker_type[i+1]);
+			var subFacetName = oFacets.marker_type[i];
+			$('table#geneFacetTbl td.geneSubfacetCount a[rel="' + subFacetName + '"]').text(oFacets.marker_type[i+1]);
+		}
+		for (var i=0; i<oFacets.imits_phenotype_complete.length; i=i+2){
+			if (oFacets.imits_phenotype_complete[i] == '1'){
+				$('table#geneFacetTbl td.geneSubfacetCount a[class="imits_phenotype_complete"]').text(oFacets.imits_phenotype_complete[i+1]);
+			}
+		}
+		for (var i=0; i<oFacets.imits_phenotype_started.length; i=i+2){
+			if (oFacets.imits_phenotype_started[i] == '1'){	    						
+				$('table#geneFacetTbl td.geneSubfacetCount a[class="imits_phenotype_started"]').text(oFacets.imits_phenotype_started[i+1]);
+			}
+		}
+		for (var i=0; i<oFacets.imits_phenotype_status.length; i=i+2){
+			//console.log('***** '+ oFacets.imits_phenotype_status[i]);
+			if (oFacets.imits_phenotype_status[i] == 'Phenotype Attempt Registered'){	    					
+				$('table#geneFacetTbl td.geneSubfacetCount a[class="imits_phenotype_status"]').text(oFacets.imits_phenotype_status[i+1]);
+			}
+		}
+	}
+	
+	function do_megaMp(paramStr){
+		
+		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['top_level_mp_term']);
+		
+		paramStr += '&fq=ontology_subset:*' + fecetFieldsStr; 
+		console.log('MP: '+ paramStr);
+		$.ajax({ 	
+			//'url': solrUrl + '/mega/select',
+    		'url': 'http://localhost:8983/solr/mega_mp/select', // starts with gene
+    		'data': paramStr,
+    		'dataType': 'jsonp',
+    		'jsonp': 'json.wrf',
+    		'success': function(json) {
+    			console.log('mp: ');	
+    			console.log(json);			
+    			// refresh phenotype facet
+    			var oFacets = json.facet_counts.facet_fields;
+    			
+    			$('table#mpFacetTbl td.mpTopLevel').attr('rel', '0');
+    			$('table#mpFacetTbl td.mpTopLevelCount a').text('0');
+    			    			
+    			var mpCount = json.response.numFound;
+    			$('div#mpFacet span.facetCount').text(mpCount);
+    			
+    			for (var i=0; i<oFacets.top_level_mp_term.length; i=i+2){	
+    				//console.log('92 : '+ oFacets.top_level_mp_term[i]);
+    				var facetName = oFacets.top_level_mp_term[i];
+    				var facetName2 = facetName.replace(' phenotype', '');    				   				
+    				var facetCount = oFacets.top_level_mp_term[i+1];
+    				
+    				$('table#mpFacetTbl td.mpTopLevel[rel="' + facetCount + '"]').text(facetName);    					
+    				$('table#mpFacetTbl td.mpTopLevelCount a[rel="' + facetName + '"]').text(facetCount);			
+    			}    			
+    		}
+		});		
+	}	
+	
+	function do_megaDisease(paramStr){
+				
+		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['disease_classes','disease_source','human_curated','mouse_curated','impc_predicted','impc_predicted_in_locus','mgi_predicted','mgi_predicted_in_locus']);
+		console.log('DISEASE: '+ paramStr + fecetFieldsStr);
+				
+		$.ajax({ 	
+			//'url': solrUrl + '/mega/select',
+    		'url': 'http://localhost:8983/solr/mega_disease/select', // starts with gene
+    		'data': paramStr + fecetFieldsStr,
+    		'dataType': 'jsonp',
+    		'jsonp': 'json.wrf',
+    		'success': function(json) {
+    			console.log(json);			
+    			// refresh disease facet
+    			var oFacets = json.facet_counts.facet_fields;
+    			
+    			$('table#diseaseFacetTbl td.diseaseSubfacet').attr('rel', '0');
+    			$('table#diseaseFacetTbl td.diseaseSubfacetCount a').text('0');
+    			
+    			var diseaseCount = json.response.numFound;		
+    			$('div#diseaseFacet span.facetCount').text(diseaseCount);
+    			
+    			var aSubFacetsA = ['disease_source','disease_classes'];
+    			for (var i=0; i<aSubFacetsA.length; i++){    				
+    				var subFacetName = aSubFacetsA[i];
+    				for (var j=0; j<oFacets[subFacetName].length; j=j+2){
+	    				var facetName = oFacets[subFacetName][j];    				 				   				
+	    				var facetCount = oFacets[subFacetName][j+1];
+	    				console.log(facetName + ':'+facetCount);
+	    				$('table#diseaseFacetTbl tr.' + subFacetName).find('td.diseaseSubfacet[rel=' + facetCount + ']').text(facetName);
+	    				$('table#diseaseFacetTbl tr.' + subFacetName).find('td.diseaseSubfacetCount a[rel="' + facetName + '"]').text(facetCount);
+	    				
+    				}   			
+    			}
+    		}
+		});		
+	}
+	
+function do_megaMa(paramStr){
+				
+		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['selected_top_level_ma_term']);
+		paramStr = paramStr.replace('inferred_selected_top_level_ma_term','selected_top_level_ma_term');
+		
+		paramStr += '&fq=ontology_subset:IMPC_Terms' + fecetFieldsStr; 
+		console.log('MA: '+ paramStr);
+		$.ajax({ 	
+			//'url': solrUrl + '/mega/select',
+    		'url': 'http://localhost:8983/solr/mega_ma/select', // starts with gene
+    		'data': paramStr,
+    		'dataType': 'jsonp',
+    		'jsonp': 'json.wrf',
+    		'success': function(json) {
+    			console.log('ma: ');	
+    			console.log(json);			
+    			// refresh phenotype facet
+    			var oFacets = json.facet_counts.facet_fields;
+    			
+    			$('table#maFacetTbl td.maTopLevel').attr('rel', '0');
+    			$('table#maFacetTbl td.maTopLevelCount a').text('0');
+    			    			
+    			var maCount = json.response.numFound;
+    			$('div#maFacet span.facetCount').text(maCount);
+    			
+    			for (var i=0; i<oFacets.selected_top_level_ma_term.length; i=i+2){	
+    				//console.log('92 : '+ oFacets.top_level_mp_term[i]);
+    				var facetName = oFacets.selected_top_level_ma_term[i];    								   				
+    				var facetCount = oFacets.selected_top_level_ma_term[i+1];    				
+    				$('table#maFacetTbl td.maTopLevel[rel="' + facetCount + '"]').text(facetName);
+    				$('table#maFacetTbl td.maTopLevelCount a[rel="' + facetName + '"]').text(facetCount);			
+    			}    			
+    		}
+		});		
+	}	
+	
+	$.fn.fetchFecetFieldsStr = function(aFacetFields){
+		var facetFieldsStr = '';;
+		for ( var i=0; i<aFacetFields.length; i++){
+			facetFieldsStr += '&facet.field=' + aFacetFields[i];
+		}
+		return facetFieldsStr + "&facet=on&facet.limit=-1&facet.mincount=1&rows=0";
+	}
+	
+	$.fn.setFacetCountsOri = function(q, paramStr, fqStr, facet){
 		$.ajax({ 	
 			//'url': solrUrl + '/mega/select',
     		'url': 'http://localhost:8983/solr/mega/select',
@@ -202,7 +397,7 @@
 				$.fn.fetchQueryResult(q, facet);
 			}
 						
-			// say no filter if none is chosen for all facets 
+			// display "no filter" if none is chosen for all facets 
 			$.fn.checkFilters();
 		}		
 	}

@@ -42,7 +42,7 @@ if ( typeof baseUrl == 'undefined' ){
 }
 
 
-config.cores = ['gene', 'mp', 'ma', 'pipeline', 'images', 'disease'];
+config.cores = ['gene', 'mp', 'disease', 'ma', 'pipeline', 'images'];
 config.restfulPrefix = {
 		'gene' : 'genes',
 		'mp'   : 'phenotypes',
@@ -95,7 +95,7 @@ config.facetFilterLabel = {
     
 config.lastCheckbox = null;
 var megaFacetFields = ['status', 'imits_phenotype_complete', 'imits_phenotype_started', 'imits_phenotype_status', 
-                       'mgi_accession_id', 'marker_type', 'top_level_mp_term', 'top2mp_term', 'mp_term', 'mp_idTermDef', 'top_mp_term_id',
+                       'mgi_accession_id', 'marker_type', 'top_level_mp_term', 'mp_term', 
                        'inferred_selected_top_level_ma_term', 'inferred_ma_term', 
                        'procedure_name'];
 var facetFieldsStr = '';
@@ -222,7 +222,7 @@ config.facetParams = {
 		 srchParams: $.extend({},
 					commonSolrParams,
 					{'fl' : 'ma_id,ma_term,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'})		
-	 },	
+	 },	 
 	 diseaseFacet: {			    	
 		 type: 'diseases',
 		 subFacetFqFields: '',

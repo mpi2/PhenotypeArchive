@@ -68,8 +68,7 @@
 									var val = $(this).siblings('td').find('a').attr('rel');								
 									var fqField = $(this).siblings('td').find('a').attr('class');
 									var qry;
-									var fqFieldOri = fqField;
-									
+									var fqFieldOri = fqField;									
 									
 									qry = fqFieldOri + ':"' + val + '"';									
 									
@@ -247,7 +246,12 @@
 	    		}
 	    			    					
 	    		$('div#diseaseFacet div.facetCatList').html(table);
-	    			
+	    		
+	    		// update facet count when necessary
+    			if ( $('ul#facetFilter li li a').size() != 0 ){
+    				$.fn.fetchQueryResult(self.options.data.q, 'disease');
+    			}		
+	    		
 	    		// disease_source is open and rest of disease subfacets are collapsed by default
 	    		$('tr.disease_sourceTrCap, tr.disease_classesTrCap, tr.curatedTrCap, tr.predictedTrCap').click(function(){
 	    		
@@ -263,7 +267,10 @@
 	    				$(this).find('td').addClass('unCollapse');
 	    			}
 	    		});	    		    		
-	    			    		
+	    			    
+	    		
+	    		
+	    		
 	    		$('table#diseaseFacetTbl td.diseaseSubfacetCount a').click(function(){
 	    		
 	    			// also remove all filters for that facet container	

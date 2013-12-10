@@ -193,6 +193,7 @@
     	      	  	
     	        	// load none-zero facet results on demand    	        	
     	        	var aCores = MPI2.searchAndFacetConfig.cores;
+    	        	
     	        	//delete active core, no need to invoke again  
     	        	
     	        	var index;// = aCores.indexOf(coreName);
@@ -202,7 +203,7 @@
     	        		}
     	        	}
     	        	aCores.splice(index, 1); // remove core that has the index result already in dataTable  
-    	        
+    	        	
     	        	for ( var i=0; i< aCores.length; i++){
     	        		var core = aCores[i];
     	        		if ( oFacets.count[core] != 0 ){    	        	
