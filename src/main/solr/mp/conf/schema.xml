@@ -105,9 +105,13 @@
     <field name="mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-
+	
 	<field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="inferred_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="inferred_selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
 
 	<field name="mp_with_pheno_image" type="string" indexed="true" stored="true" required="false" multiValued="false" />	
 
