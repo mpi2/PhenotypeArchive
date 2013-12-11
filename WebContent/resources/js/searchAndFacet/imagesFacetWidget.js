@@ -238,7 +238,13 @@
   		    	    		table.append(tr.append(td0, td1, td2));		    	    		
   	    				}
   	    			}	    				    	    	
-  	    			self._displayImageFacet(json, 'images', 'imagesFacet', table);			
+  	    			self._displayImageFacet(json, 'images', 'imagesFacet', table);
+  	    		
+  	    			// update facet count when necessary
+  	    			if ( $('ul#facetFilter li li a').size() != 0 ){
+  	    				$.fn.fetchQueryResult(self.options.data.q, 'images');
+  	    			}	
+  	    			
   	    		}		
   	    	});	    	
   	    },  	   

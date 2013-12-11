@@ -188,6 +188,12 @@
 	        		}	    			
 	        		$('div#pipelineFacet .facetCatList').html(table);
 	        		
+	        		// update facet count when necessary
+	    			if ( $('ul#facetFilter li li a').size() != 0 ){
+	    				$.fn.fetchQueryResult(self.options.data.q, 'pipeline');
+	    			}	
+	        		
+	        		
 	        		$('table#pipelineFacetTbl td a.paramCount').click(function(){	        			
 	        				        			
 	        			// also remove all filters for that facet container	
