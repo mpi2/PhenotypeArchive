@@ -841,11 +841,11 @@ public class ObservationService {
 
 		String q = (strains.size() > 1) ? "("+ExperimentField.STRAIN+":\"" + StringUtils.join(strains.toArray(), "\" OR "+ExperimentField.STRAIN+":\"") + "\")" : ExperimentField.STRAIN+":\"" + strains.get(0) + "\"";
 	
-		if (genes != null && genes.size() > 0){
-			q += " AND (";
-			q += (genes.size() > 1) ? ExperimentField.GENE_ACCESSION+":\"" + StringUtils.join(genes.toArray(), "\" OR "+ExperimentField.GENE_ACCESSION+":\"") + "\"" : ExperimentField.GENE_ACCESSION+":\"" + genes.get(0) + "\"";
-			q += ")";
-		}
+//		if (genes != null && genes.size() > 0){
+//			q += " AND (";
+//			q += (genes.size() > 1) ? ExperimentField.GENE_ACCESSION+":\"" + StringUtils.join(genes.toArray(), "\" OR "+ExperimentField.GENE_ACCESSION+":\"") + "\"" : ExperimentField.GENE_ACCESSION+":\"" + genes.get(0) + "\"";
+//			q += ")";
+//		}
 	
 		query.setQuery(q);
 		query.setRows(1000000);
@@ -873,7 +873,7 @@ public class ObservationService {
 			System.out.println("adding : " + sum/total);
 		}
 		
-		int binCount = (int) Math.floor((double)groups.size()/2);
+		int binCount = Math.min((int) Math.floor((double)groups.size()/2), 20);
 		
 		List<Double> histogram = new ArrayList<Double>();
 		List<Double> labels = new ArrayList<Double>();
