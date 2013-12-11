@@ -334,7 +334,7 @@ public class CategoricalChartAndTableProvider {
 		}
 		
 		String chartId = "chart" + parameterId;//replace space in MRC Harwell with underscore so valid javascritp variable
-		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ Math.round(this.percentage) +'%)';   }    }";
+		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
 		String javascript = "$(function () {  var chart"
 				+ chartId
 				+ "; $(document).ready(function() { chart"
@@ -437,7 +437,7 @@ public class CategoricalChartAndTableProvider {
 		// }
 		// logger.debug("model="+model);
 		String chartId = bm.getId() + sex.name()+organisation.replace(" ", "_");//replace space in MRC Harwell with underscore so valid javascritp variable
-		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ Math.round(this.percentage) +'%)';   }    }";
+		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
 		String javascript = "$(function () {  var chart"
 				+ chartId
 				+ "; $(document).ready(function() { chart"

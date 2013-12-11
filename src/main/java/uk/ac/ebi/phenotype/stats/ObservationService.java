@@ -740,15 +740,13 @@ public class ObservationService {
 			return finalRes;
 		}
 		
+		
 	// gets categorical data for graphs on phenotype page 
 	public List<DiscreteTimePoint> getTimeSeriesControlData(String parameter,
 			ArrayList<String> strains) throws SolrServerException {
 		
-		
 		ArrayList<DiscreteTimePoint> res = new ArrayList<DiscreteTimePoint>();
-		
 		SolrQuery query = new SolrQuery().addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":control").addFilterQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + parameter);
-
 		String q = (strains.size() > 1) ? "(" + ExperimentField.STRAIN + ":\""
 				+ StringUtils.join(strains.toArray(), "\" OR " + ExperimentField.STRAIN + ":\"") + "\")"
 				: ExperimentField.STRAIN + ":\"" + strains.get(0) + "\"";
@@ -833,6 +831,100 @@ public class ObservationService {
 		return res;
 	}
 	
+	
+	public Map<String, List<Double>> getUnidimensionalData(Parameter p, List<String> genes, ArrayList<String> strains, String biologicalSample) throws SolrServerException{
+		
+		List<Integer> res = new ArrayList<Integer>();
+		SolrQuery query = new SolrQuery()
+		.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":" + biologicalSample)
+		.addFilterQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + p.getStableId());
+
+		String q = (strains.size() > 1) ? "("+ExperimentField.STRAIN+":\"" + StringUtils.join(strains.toArray(), "\" OR "+ExperimentField.STRAIN+":\"") + "\")" : ExperimentField.STRAIN+":\"" + strains.get(0) + "\"";
+	
+		if (genes != null && genes.size() > 0){
+			q += " AND (";
+			q += (genes.size() > 1) ? ExperimentField.GENE_ACCESSION+":\"" + StringUtils.join(genes.toArray(), "\" OR "+ExperimentField.GENE_ACCESSION+":\"") + "\"" : ExperimentField.GENE_ACCESSION+":\"" + genes.get(0) + "\"";
+			q += ")";
+		}
+	
+		query.setQuery(q);
+		query.setRows(1000000);
+//		query.set("sort", ExperimentField.DATA_POINT + " asc");
+		query.setFields(ExperimentField.DATA_POINT);
+		query.set("group", true);
+		query.set("group.field", ExperimentField.COLONY_ID);
+		query.set("group.limit", 10000); // number of documents to be returned per group
+		
+		System.out.println("--- look --- " + solr.getBaseURL() + "/select?" + query);
+		
+		// for each colony get the mean & put it in the array of data to plot
+		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
+		double[] meansArray = new double[groups.size()];
+		int i = 0;
+		for (Group gr : groups){
+			double sum = 0;
+			double total = 0;
+			SolrDocumentList resDocs = gr.getResult();
+			for (SolrDocument doc : resDocs){
+				sum += (double)0 + (float)doc.getFieldValue(ExperimentField.DATA_POINT);
+				total ++;
+			}
+			meansArray[i++] = sum/total;
+			System.out.println("adding : " + sum/total);
+		}
+		
+		int binCount = (int) Math.floor((double)groups.size()/2);
+		
+		List<Double> histogram = new ArrayList<Double>();
+		List<Double> labels = new ArrayList<Double>();
+		org.apache.commons.math3.random.EmpiricalDistribution distribution = new org.apache.commons.math3.random.EmpiricalDistribution(binCount);
+
+		distribution.load(meansArray);
+		int k = 0;
+		for(double bound : distribution.getUpperBounds())
+			labels.add(bound);
+		for(org.apache.commons.math3.stat.descriptive.SummaryStatistics stats: distribution.getBinStats())
+		{
+		    histogram.add((double)stats.getN());
+		   System.out.println("--- stats-- " + stats.getSummary().toString());
+		}
+		
+		Map<String, List<Double>> map = new HashMap<String, List<Double>>();
+		map.put("labels", labels);
+		map.put("data", histogram);
+		return map;
+		
+/*		SolrDocumentList resDocs =solr.query(query).getResults();
+		
+		double[] data = new double[(int)resDocs.getNumFound()]; 
+		int pos = 0; 
+		for (SolrDocument doc : resDocs){
+			data[pos++] = (double)0 + (float)doc.getFieldValue(ExperimentField.DATA_POINT);
+		}
+		
+		List<Long> histogram = new ArrayList<Long>();
+		org.apache.commons.math3.random.EmpiricalDistribution distribution = new org.apache.commons.math3.random.EmpiricalDistribution(binCount);
+
+		distribution.load(data);
+		int k = 0;
+		for(org.apache.commons.math3.stat.descriptive.SummaryStatistics stats: distribution.getBinStats())
+		{
+		    histogram.add(stats.getN());
+		   System.out.println("--- stats-- " + stats.getSummary().toString());
+		}
+		System.out.println("Bin upper bounds: " + distribution.getUpperBounds()[0] + " " 
+				+ distribution.getUpperBounds()[3] + " " 
+				+ distribution.getUpperBounds()[4] + " " 
+				+ distribution.getUpperBounds()[5] + " " 
+				+ distribution.getUpperBounds()[6] + " " );
+		// get number of animals in interval & fill bins
+		
+				// return array
+		return histogram;
+		*/
+		}
+	
+	
 	// gets categorical data for graphs on phenotype page 
 	public CategoricalSet getCategories(String parameter, ArrayList<String >genes, String biologicalSampleGroup, ArrayList<String>  strains) throws SolrServerException{
 
@@ -853,6 +945,7 @@ public class ObservationService {
 		query.setQuery(q);
 		query.set("group.field", ExperimentField.CATEGORY);
 		query.set("group", true);
+		query.setRows(100); // shouldn't have more then 10 categories for one parameter!!
 		
 		List<String> categories = new ArrayList<String> ();
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();

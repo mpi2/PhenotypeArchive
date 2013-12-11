@@ -627,4 +627,32 @@ public class UnidimensionalChartAndTableProvider {
 		return chartString;
 	}
 
+	public ChartData getHistogram(List<String> labels, List<Double> values, String title){
+		double min = 0; 
+		for (double val : values)
+			if (val< min)
+				min = val;
+		String chartId = "histogram" + values.hashCode();
+		String yTitle = "Number of strains";
+		String javascript = "$(function () {    var chart; $(document).ready(function() {chart = new Highcharts.Chart({ chart: {  type: 'column' , renderTo: '"
+				+ chartId
+				+ "'},"+
+           " title: { text: '" + title + "' },  subtitle: {   text: '' }, "+
+           " xAxis: { categories: " + labels + " },"+
+           " yAxis: { min: "+ min + ",  title: {  text: '"+yTitle+"'  }   },"+
+           " tooltip: {"+
+             "   headerFormat: '<span style=\"font-size:10px\">{point.key}</span><table>',"+
+              "  pointFormat: '<tr><td style=\"color:{series.color};padding:0\">{series.name}: </td>' +"+
+               "     '<td style=\"padding:0\"><b>{point.y:.1f} mm</b></td></tr>',"+
+               " footerFormat: '</table>', shared: true,  useHTML: true  }, "+
+           "  plotOptions: {   column: {  pointPadding: 0.2,  borderWidth: 0  }  }," +
+               "   series: [{ name: 'Mutants',  data: "+
+           values + "  }]"+
+               " });  }); });";
+		ChartData chartAndTable=new ChartData();
+		chartAndTable.setChart(javascript);
+		chartAndTable.setId(chartId);
+		System.out.println("... histogram with id " + chartId);
+		return chartAndTable;
+	}
 }

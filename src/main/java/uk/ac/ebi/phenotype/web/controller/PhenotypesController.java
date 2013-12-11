@@ -23,6 +23,7 @@ import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -83,6 +84,7 @@ import uk.ac.ebi.phenotype.stats.categorical.CategoricalChartAndTableProvider;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalResultAndCharts;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
 import uk.ac.ebi.phenotype.stats.timeseries.TimeSeriesChartAndTableProvider;
+import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalChartAndTableProvider;
 import uk.ac.ebi.phenotype.util.PhenotypeCallSummaryDAOReadOnly;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
@@ -470,6 +472,7 @@ public class PhenotypesController {
 		List<String> parameters = pipelineDao.getParameterStableIdsByPhenotypeTerm(mpId);
 		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
 		TimeSeriesChartAndTableProvider tstp = new TimeSeriesChartAndTableProvider();
+		UnidimensionalChartAndTableProvider uctp = new UnidimensionalChartAndTableProvider();
 		ArrayList<String> strains = new ArrayList<>();
 		strains.add("MGI:2159965");
 		strains.add("MGI:2164831");
@@ -489,11 +492,26 @@ public class PhenotypesController {
 			else if ( p != null && Utilities.checkType(p).equals(ObservationType.time_series)){
 				System.out.println("getting timeseries data for :  " + p);
 				List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
-				System.out.println(" genes for " + p + " " + genes);
 				if (genes.size() > 0){
 					Map<String, List<DiscreteTimePoint>> data = os.getTimeSeriesMutantData(parameter, genes, strains);
 					data.put("Control", os.getTimeSeriesControlData(parameter, strains));
 					chartsList.add(tstp.doTimeSeriesOverviewData(data, p));
+				}
+			}
+			else if ( p != null && Utilities.checkType(p).equals(ObservationType.unidimensional)){
+				System.out.println("getting unidimensional data for :  " + p);
+				List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
+				System.out.println(" genes for " + p + " " + genes);
+				if (genes.size() > 0){
+					Map<String, List<Double>> map = os.getUnidimensionalData(p, genes, strains, "experimental");
+					List<Double> data  = map.get("data");
+					List<String> labels = new ArrayList<String> (); 
+					DecimalFormat df = new DecimalFormat("#.##");
+					for (double label : map.get("labels")){
+						labels.add("'<" + df.format(label) + "'");
+					}
+					String chartTitle = "Mean " +  p.getName() + "(" + p.getStableId()+")";
+					chartsList.add(uctp.getHistogram(labels, data, chartTitle));
 				}
 			}
 		}
