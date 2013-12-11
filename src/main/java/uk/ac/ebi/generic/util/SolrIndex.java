@@ -173,8 +173,8 @@ public class SolrIndex {
 		String url = internalSolrUrl + "/" + core + "/select?";
 
 		//temporary
-		if ( core == "mega") {
-			url = "http://localhost:8983/solr/mega/select?";
+		if ( core.startsWith("mega_")) {
+			url = "http://localhost:8983/solr/" + core + "/select?";
 		}
 		
 		if (mode.equals("mpPage")) {

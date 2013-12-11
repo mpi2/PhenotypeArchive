@@ -91,7 +91,7 @@ public class DataTableController {
 		System.out.println("solr params: " + solrParams);
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(solrParams);
 		
-		String solrCoreName = jParams.containsKey("solrCoreName") ? jParams.getString("solrCoreName") : "mega";				
+		String solrCoreName = jParams.containsKey("solrCoreName") ? jParams.getString("solrCoreName") : jParams.getString("facetName");				
 		List<String> filters = jParams.containsKey("filters") ? jParams.getJSONArray("filters") : null;	
 		System.out.println("FILTERS: " + filters);
 		String query = "";
@@ -251,105 +251,37 @@ public class DataTableController {
 		String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";		
 		
 		JSONObject j = new JSONObject();
-		j.put("aaData", new Object[0]);	
+		j.put("aaData", new Object[0]);			
 		
-		if ( solrCoreName.equals("mega") ){				
-			
-			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");			
-			JSONArray topMpTermIds = facetFields.getJSONArray("top_mp_term_id");	
-			JSONArray mpIdTermDefs = facetFields.getJSONArray("mp_idTermDef");
-			JSONArray top2MpIdTermDefs = facetFields.getJSONArray("top2mp_idTermDef");
-			
-			int mpCount = 0;				
-			if ( filters.size() > 0 ){
-				// mp list w/ filters (checkbox clicked)
-				for( Object s : filters ){
-					String sFilter = s.toString(); // eg. integument phenotype
-					for( Object t : topMpTermIds ){
-						String top = t.toString(); // eg. integument phenotype_MP:0010771
-						if ( top.startsWith(sFilter) ){
-							String[] parts = top.split("__");
-							String topLevelMpId = parts[1]; // eg. MP:0010771
-							for( Object m : top2MpIdTermDefs ){	
-								String sMp = m.toString(); //eg. MP:0010771_MP:0005316_termName_termDef
-								if ( sMp.startsWith(topLevelMpId) ){ // only want those match the filter	
-									mpCount++;
-									
-									// do pagination as we are using solr facets not solr documents
-									if ( mpCount >= start+1 && mpCount <= start+10 ){									
-										List<String> rowData = new ArrayList<String>();
-										//System.out.println("CHK: " +sMp );
-										String[] mParts = sMp.split("__");
-										String mpId = mParts[1];
-										String mpTerm = mParts[2];
-										String mpDef = mParts[3];
-										String mpLink = "<a href='" + baseUrl + mpId + "'>" + mpTerm + "</a>";			
-										rowData.add(mpLink);
-										rowData.add(mpDef);
-										j.getJSONArray("aaData").add(rowData);
-									}									
-								}								
-							}					
-						}
-					}				
-				}
-			}
-			else {
-				// mp list w/o filters (checkbox not clicked)
-				for( int i=0; i<mpIdTermDefs.size(); i=i+2 ){	
-					mpCount++;
+		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
+		int totalDocs = json.getJSONObject("response").getInt("numFound");
 					
-					// do pagination as we are using solr facets not solr documents
-					if ( mpCount >= start+1 && mpCount <= start+10 ){	
-						String sMp = mpIdTermDefs.getString(i); //eg. MP:0005316_termName_termDef
-						//System.out.println("CHK2: " + sMp);
-	                    List<String> rowData = new ArrayList<String>();
-	                    String[] mParts = sMp.split("__");
-						String mpId = mParts[0];
-						String mpTerm = mParts[1];
-						String mpDef = mParts[2];
-						String mpLink = "<a href='" + baseUrl + mpId + "'>" + mpTerm + "</a>";			
-						rowData.add(mpLink);
-						rowData.add(mpDef);
-						j.getJSONArray("aaData").add(rowData);
-					}					
-				}
-			}
+		j.put("iTotalRecords", totalDocs);
+		j.put("iTotalDisplayRecords", totalDocs);
+		
+		for (int i=0; i<docs.size(); i++){
+			List<String> rowData = new ArrayList<String>();
+
+			// array element is an alternate of facetField and facetCount			
+			JSONObject doc = docs.getJSONObject(i);
+			String mpId = doc.getString("mp_id");
+			String mpTerm = doc.getString("mp_term");
+			String mpLink = "<a href='" + baseUrl + mpId + "'>" + mpTerm + "</a>";			
+			rowData.add(mpLink);
 			
-			j.put("iTotalRecords", mpCount);
-			j.put("iTotalDisplayRecords", mpCount);
-			
-		}
-		else {
-			JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-			int totalDocs = json.getJSONObject("response").getInt("numFound");
-						
-			j.put("iTotalRecords", totalDocs);
-			j.put("iTotalDisplayRecords", totalDocs);
-			
-			for (int i=0; i<docs.size(); i++){
-				List<String> rowData = new ArrayList<String>();
-	
-				// array element is an alternate of facetField and facetCount			
-				JSONObject doc = docs.getJSONObject(i);
-				String mpId = doc.getString("mp_id");
-				String mpTerm = doc.getString("mp_term");
-				String mpLink = "<a href='" + baseUrl + mpId + "'>" + mpTerm + "</a>";			
-				rowData.add(mpLink);
-				
-				// some MP do not have definition
-				String mpDef = "not applicable";
-				try {
-					mpDef = doc.getString("mp_definition");
-				} 
-				catch (Exception e) {			 			
-				    //e.printStackTrace();
-				}
-				rowData.add(mpDef);	
-				
-				j.getJSONArray("aaData").add(rowData);
+			// some MP do not have definition
+			String mpDef = "not applicable";
+			try {
+				mpDef = doc.getString("mp_definition");
 			} 
-		}
+			catch (Exception e) {			 			
+			    //e.printStackTrace();
+			}
+			rowData.add(mpDef);	
+			
+			j.getJSONArray("aaData").add(rowData);
+		} 
+		
 		return j.toString();	
 	}
 	
