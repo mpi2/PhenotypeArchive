@@ -1040,7 +1040,7 @@ CREATE TABLE procedure_meta_data (
   id int(11) NOT NULL AUTO_INCREMENT,
   parameter_id varchar(45) NOT NULL,
   sequence_id varchar(45) DEFAULT NULL,
-  parameter_status varchar(45) DEFAULT NULL,
+  parameter_status varchar(450) DEFAULT NULL,
   value varchar(450) DEFAULT NULL,
   procedure_id varchar(45) NOT NULL,
   experiment_id int(11) NOT NULL,
