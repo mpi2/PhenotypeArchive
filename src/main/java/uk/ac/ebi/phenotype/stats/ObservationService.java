@@ -272,39 +272,44 @@ public class ObservationService {
 //		System.out.println(solr.getBaseURL() + queryb);
 		
 //		System.out.println("------Got after : " + sizeA );
-//		System.out.println("------Got before : " + sizeB );
-//		System.out.println("------Return total " + results.size());
+// System.out.println("------Got before : " + sizeB );
+		// System.out.println("------Return total " + results.size());
 
-//		System.out.println("returning : " + results.size() + " for " + sex);
-//		System.out.println("---- I RETURN :" + results.size() + " , " + responsea.getResults().size() + " + " + responseb.getResults().size()) ;
+		// System.out.println("returning : " + results.size() + " for " + sex);
+		// System.out.println("---- I RETURN :" + results.size() + " , " +
+		// responsea.getResults().size() + " + " +
+		// responseb.getResults().size()) ;
 		return results;
 	}
 
 	// list <b,a>
-	private ArrayList<ObservationDTO> getClosest (long datInMs, ObservationDTO aObj, ObservationDTO bObj){
+	private ArrayList<ObservationDTO> getClosest(long datInMs,
+			ObservationDTO aObj, ObservationDTO bObj) {
 		ArrayList<ObservationDTO> res = new ArrayList<>();
 		long distanceA = aObj.getDateOfExperiment().getTime() - datInMs;
 		long distanceB = datInMs - bObj.getDateOfExperiment().getTime();
-		if (distanceA == distanceB){
+		if (distanceA == distanceB) {
 			res.add(aObj);
 			res.add(bObj);
-		}
-		else if (distanceA < distanceB){
+		} else if (distanceA < distanceB) {
 			res.add(aObj);
 			res.add(null);
-		}
-		else if (distanceB < distanceA){
+		} else if (distanceB < distanceA) {
 			res.add(null);
 			res.add(bObj);
 		}
 		return res;
 	}
-	
+
 	/**
-	 * Return all the unidimensional observations for a given
-	 * combination of parameter, gene, zygosity, organisation and strain
-	 *   
-	 * ex solr query: parameterId:1116%20AND%20geneAccession:MGI\:1923523%20AND%20zygosity:homozygote%20AND%20organisationId:9%20AND%20colonyId:HEPD0550_6_G09%20AND%20gender:female
+	 * Return all the unidimensional observations for a given combination of
+	 * parameter, gene, zygosity, organisation and strain
+	 * 
+	 * ex solr query:
+	 * parameterId:1116%20AND%20geneAccession:MGI\:1923523%20AND%20
+	 * zygosity:homozygote
+	 * %20AND%20organisationId:9%20AND%20colonyId:HEPD0550_6_G09
+	 * %20AND%20gender:female
 	 * 
 	 * @param parameterId
 	 * @param geneAcc
@@ -314,51 +319,71 @@ public class ObservationService {
 	 * @return
 	 * @throws SolrServerException
 	 */
-	public List<ObservationDTO> getUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrain(Integer parameterId, String geneAcc, String zygosity, Integer organisationId, String strain) throws SolrServerException {
+	public List<ObservationDTO> getUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrain(
+			Integer parameterId, String geneAcc, String zygosity,
+			Integer organisationId, String strain) throws SolrServerException {
 		List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
 
 		SolrQuery query = new SolrQuery()
-	    	.setQuery(ExperimentField.GENE_ACCESSION + ":" + geneAcc.replace(":", "\\:"))
-			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
-	    	.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
-			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
-	    	.setStart(0)
-	    	.setRows(1000);
-	
-	    QueryResponse response = solr.query(query);
-	    resultsDTO = response.getBeans(ObservationDTO.class);
-	    
-	    Date recentExperimentDate = new Date(0L); //epoch
-	    for (ObservationDTO o : resultsDTO) {
-	    	if (o.getDateOfExperiment().after(recentExperimentDate)) {
-	    		recentExperimentDate=o.getDateOfExperiment();
-	    	}
-	    }
+				.setQuery(
+						ExperimentField.GENE_ACCESSION + ":"
+								+ geneAcc.replace(":", "\\:"))
+				.addFilterQuery(
+						ExperimentField.STRAIN + ":"
+								+ strain.replace(":", "\\:"))
+				.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
+				.addFilterQuery(
+						ExperimentField.PARAMETER_ID + ":" + parameterId)
+				.addFilterQuery(
+						ExperimentField.PHENOTYPING_CENTER_ID + ":"
+								+ organisationId).setStart(0).setRows(1000);
 
-		resultsDTO.addAll(getControls(parameterId, strain, organisationId, recentExperimentDate));
-	    
+		QueryResponse response = solr.query(query);
+		resultsDTO = response.getBeans(ObservationDTO.class);
+
+		Date recentExperimentDate = new Date(0L); // epoch
+		for (ObservationDTO o : resultsDTO) {
+			if (o.getDateOfExperiment().after(recentExperimentDate)) {
+				recentExperimentDate = o.getDateOfExperiment();
+			}
+		}
+
+		resultsDTO.addAll(getControls(parameterId, strain, organisationId,
+				recentExperimentDate));
+
 		return resultsDTO;
 	}
 
-	public String getQueryStringByParameterGeneAccZygosityOrganisationStrain(Integer parameterId, String geneAcc, String zygosity, Integer organisationId, String strain) throws SolrServerException {
+	public String getQueryStringByParameterGeneAccZygosityOrganisationStrain(
+			Integer parameterId, String geneAcc, String zygosity,
+			Integer organisationId, String strain) throws SolrServerException {
 
 		SolrQuery query = new SolrQuery()
-	    	.setQuery(ExperimentField.GENE_ACCESSION + ":" + geneAcc.replace(":", "\\:"))
-	    	.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
-			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
-			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
-	    	.setStart(0)
-	    	.setRows(1000);
+				.setQuery(
+						ExperimentField.GENE_ACCESSION + ":"
+								+ geneAcc.replace(":", "\\:"))
+				.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
+				.addFilterQuery(
+						ExperimentField.PARAMETER_ID + ":" + parameterId)
+				.addFilterQuery(
+						ExperimentField.PHENOTYPING_CENTER_ID + ":"
+								+ organisationId)
+				.addFilterQuery(
+						ExperimentField.STRAIN + ":"
+								+ strain.replace(":", "\\:")).setStart(0)
+				.setRows(1000);
 		return query.toString();
 	}
 
 	/**
 	 * construct a query to get all the categortical observations for a given
 	 * combination of parameter, gene, zygosity, organisation and strain
-	 *   
-	 * ex solr query: parameterId:1116%20AND%20geneAccession:MGI\:1923523%20AND%20zygosity:homozygote%20AND%20organisationId:9%20AND%20colonyId:HEPD0550_6_G09%20AND%20gender:female
+	 * 
+	 * ex solr query:
+	 * parameterId:1116%20AND%20geneAccession:MGI\:1923523%20AND%20
+	 * zygosity:homozygote
+	 * %20AND%20organisationId:9%20AND%20colonyId:HEPD0550_6_G09
+	 * %20AND%20gender:female
 	 * 
 	 * @param parameterId
 	 * @param gene
@@ -369,72 +394,103 @@ public class ObservationService {
 	 * @return
 	 * @throws SolrServerException
 	 */
-	public SolrQuery getSolrQueryByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String geneAcc, String zygosity, Integer organisationId, String strain, String sex) throws SolrServerException {
+	public SolrQuery getSolrQueryByParameterGeneAccZygosityOrganisationStrainSex(
+			Integer parameterId, String geneAcc, String zygosity,
+			Integer organisationId, String strain, String sex)
+			throws SolrServerException {
 
 		return new SolrQuery()
-	    	.setQuery("((" + ExperimentField.GENE_ACCESSION + ":" + geneAcc.replace(":", "\\:") 
-	    			+ " AND " + ExperimentField.ZYGOSITY + ":" + zygosity 
-	    			+ ") OR " + ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":control) ")
-			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
-			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
-			.addFilterQuery(ExperimentField.SEX + ":" + sex)
-	    	.setStart(0)
-	    	.setRows(10000);
+				.setQuery(
+						"((" + ExperimentField.GENE_ACCESSION + ":"
+								+ geneAcc.replace(":", "\\:") + " AND "
+								+ ExperimentField.ZYGOSITY + ":" + zygosity
+								+ ") OR "
+								+ ExperimentField.BIOLOGICAL_SAMPLE_GROUP
+								+ ":control) ")
+				.addFilterQuery(
+						ExperimentField.PARAMETER_ID + ":" + parameterId)
+				.addFilterQuery(
+						ExperimentField.PHENOTYPING_CENTER_ID + ":"
+								+ organisationId)
+				.addFilterQuery(
+						ExperimentField.STRAIN + ":"
+								+ strain.replace(":", "\\:"))
+				.addFilterQuery(ExperimentField.SEX + ":" + sex).setStart(0)
+				.setRows(10000);
 	}
 
-	public String getQueryStringByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String geneAcc, String zygosity, Integer organisationId, String strain, SexType sex) throws SolrServerException {
-		return getSolrQueryByParameterGeneAccZygosityOrganisationStrainSex(parameterId, geneAcc, zygosity, organisationId, strain, sex.name()).toString();
+	public String getQueryStringByParameterGeneAccZygosityOrganisationStrainSex(
+			Integer parameterId, String geneAcc, String zygosity,
+			Integer organisationId, String strain, SexType sex)
+			throws SolrServerException {
+		return getSolrQueryByParameterGeneAccZygosityOrganisationStrainSex(
+				parameterId, geneAcc, zygosity, organisationId, strain,
+				sex.name()).toString();
 	}
-	
-	public List<ObservationDTO> getObservationsByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain, SexType sex) throws SolrServerException {
-        SolrQuery query = getSolrQueryByParameterGeneAccZygosityOrganisationStrainSex(parameterId, gene, zygosity, organisationId, strain, sex.name());
-        return solr.query(query).getBeans(ObservationDTO.class);
-	}
 
-
-	public List<ObservationDTO> getExperimentalUnidimensionalObservationsByParameterGeneAcc(Integer parameterId, String geneAccession) throws SolrServerException {
-
-		SolrQuery query = new SolrQuery()
-	    	.setQuery(ExperimentField.GENE_ACCESSION + ":" + geneAccession.replace(":", "\\:"))
-			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-	    	.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
-	    	.setStart(0)
-	    	.setRows(10000);
-		
+	public List<ObservationDTO> getObservationsByParameterGeneAccZygosityOrganisationStrainSex(
+			Integer parameterId, String gene, String zygosity,
+			Integer organisationId, String strain, SexType sex)
+			throws SolrServerException {
+		SolrQuery query = getSolrQueryByParameterGeneAccZygosityOrganisationStrainSex(
+				parameterId, gene, zygosity, organisationId, strain, sex.name());
 		return solr.query(query).getBeans(ObservationDTO.class);
 	}
 
-	public List<ObservationDTO> getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, 
-			String zygosity, Integer organisationId, String strain, SexType sex, String phenotypingCenter) throws SolrServerException {
-		
+	public List<ObservationDTO> getExperimentalUnidimensionalObservationsByParameterGeneAcc(
+			Integer parameterId, String geneAccession)
+			throws SolrServerException {
+
+		SolrQuery query = new SolrQuery()
+				.setQuery(
+						ExperimentField.GENE_ACCESSION + ":"
+								+ geneAccession.replace(":", "\\:"))
+				.addFilterQuery(
+						ExperimentField.PARAMETER_ID + ":" + parameterId)
+				.addFilterQuery(
+						ExperimentField.BIOLOGICAL_SAMPLE_GROUP
+								+ ":experimental").setStart(0).setRows(10000);
+
+		return solr.query(query).getBeans(ObservationDTO.class);
+	}
+
+	public List<ObservationDTO> getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(
+			Integer parameterId, String gene, String zygosity,
+			Integer organisationId, String strain, SexType sex,
+			String phenotypingCenter) throws SolrServerException {
+
 		List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
 		SolrQuery query = new SolrQuery()
-			.setQuery(ExperimentField.GENE_ACCESSION + ":" + gene.replace(":", "\\:"))
-			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-			.setStart(0)
-			.setRows(10000);
+				.setQuery(
+						ExperimentField.GENE_ACCESSION + ":"
+								+ gene.replace(":", "\\:"))
+				.addFilterQuery(
+						ExperimentField.PARAMETER_ID + ":" + parameterId)
+				.setStart(0).setRows(10000);
 
 		if (zygosity != null && !zygosity.equalsIgnoreCase("null")) {
 			query.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity);
 		}
 		if (strain != null) {
-	    	query.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"));
+			query.addFilterQuery(ExperimentField.STRAIN + ":"
+					+ strain.replace(":", "\\:"));
 		}
 		if (organisationId != null) {
-			query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId);
+			query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":"
+					+ organisationId);
 		}
 		if (sex != null) {
 			query.addFilterQuery(ExperimentField.SEX + ":" + sex);
 		}
-		//MRC Harwell spaces need to be handled with quotes
+		// MRC Harwell spaces need to be handled with quotes
 
 		if (phenotypingCenter != null) {
-			query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER + ":\"" + phenotypingCenter+"\"");
+			query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER + ":\""
+					+ phenotypingCenter + "\"");
 		}
 
-	    QueryResponse response = solr.query(query);
-	    resultsDTO = response.getBeans(ObservationDTO.class);
+		QueryResponse response = solr.query(query);
+		resultsDTO = response.getBeans(ObservationDTO.class);
 		return resultsDTO;
 	}
 
@@ -447,36 +503,38 @@ public class ObservationService {
 	 * @return list of integer db keys of the parameter rows
 	 * @throws SolrServerException
 	 */
-	public List<Integer> getUnidimensionalParameterIdsWithObservationsByOrganisationId(Integer organisationId) throws SolrServerException {
+	public List<Integer> getUnidimensionalParameterIdsWithObservationsByOrganisationId(
+			Integer organisationId) throws SolrServerException {
 		Set<Integer> parameterIds = new HashSet<Integer>();
 
 		SolrQuery query = new SolrQuery()
-			.setQuery("*:*")
-			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
-			.addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":unidimensional")
-			.setRows(0)
-			.addFacetField(ExperimentField.PARAMETER_ID)
-			.setFacet(true)
-			.setFacetMinCount(1)
-			.setFacetLimit(-1);
+				.setQuery("*:*")
+				.addFilterQuery(
+						ExperimentField.PHENOTYPING_CENTER_ID + ":"
+								+ organisationId)
+				.addFilterQuery(
+						ExperimentField.OBSERVATION_TYPE + ":unidimensional")
+				.setRows(0).addFacetField(ExperimentField.PARAMETER_ID)
+				.setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
 
 		QueryResponse response = solr.query(query);
 		List<FacetField> fflist = response.getFacetFields();
 
-		for(FacetField ff : fflist){
+		for (FacetField ff : fflist) {
 
 			// If there are no face results, the values will be null
 			// skip this facet field in that case
-			if(ff.getValues()==null) { continue;}
+			if (ff.getValues() == null) {
+				continue;
+			}
 
-		    for(Count c : ff.getValues()){
+			for (Count c : ff.getValues()) {
 				parameterIds.add(Integer.parseInt(c.getName()));
-		    }
+			}
 		}
 
 		return new ArrayList<Integer>(parameterIds);
 	}
-
 
 	/**
 	 * Return all the parameter ids that have associated data for a given
@@ -487,31 +545,34 @@ public class ObservationService {
 	 * @return list of integer db keys of the parameter rows
 	 * @throws SolrServerException
 	 */
-	public List<Integer> getCategoricalParameterIdsWithObservationsByOrganisationId(Integer organisationId) throws SolrServerException {
+	public List<Integer> getCategoricalParameterIdsWithObservationsByOrganisationId(
+			Integer organisationId) throws SolrServerException {
 		Set<Integer> parameterIds = new HashSet<Integer>();
 
 		SolrQuery query = new SolrQuery()
-			.setQuery("*:*")
-			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
-			.addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":categorical")
-			.setRows(0)
-			.addFacetField(ExperimentField.PARAMETER_ID)
-			.setFacet(true)
-			.setFacetMinCount(1)
-			.setFacetLimit(-1);
+				.setQuery("*:*")
+				.addFilterQuery(
+						ExperimentField.PHENOTYPING_CENTER_ID + ":"
+								+ organisationId)
+				.addFilterQuery(
+						ExperimentField.OBSERVATION_TYPE + ":categorical")
+				.setRows(0).addFacetField(ExperimentField.PARAMETER_ID)
+				.setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
 
 		QueryResponse response = solr.query(query);
 		List<FacetField> fflist = response.getFacetFields();
 
-		for(FacetField ff : fflist){
+		for (FacetField ff : fflist) {
 
 			// If there are no face results, the values will be null
 			// skip this facet field in that case
-			if(ff.getValues()==null) { continue;}
+			if (ff.getValues() == null) {
+				continue;
+			}
 
-		    for(Count c : ff.getValues()){
+			for (Count c : ff.getValues()) {
 				parameterIds.add(Integer.parseInt(c.getName()));
-		    }
+			}
 		}
 
 		return new ArrayList<Integer>(parameterIds);
@@ -530,79 +591,91 @@ public class ObservationService {
 	 * @return list of gene accession ids
 	 * @throws SolrServerException
 	 */
-	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationIdStrainZygosity(Integer parameterId, Integer organisationId, String strain, String zygosity) throws SolrServerException {
+	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationIdStrainZygosity(
+			Integer parameterId, Integer organisationId, String strain,
+			String zygosity) throws SolrServerException {
 		Set<String> genes = new HashSet<String>();
 
 		SolrQuery query = new SolrQuery()
-			.setQuery("*:*")
-			.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
-			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
-			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
-	    	.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
-			.setRows(0)
-			.addFacetField(ExperimentField.GENE_ACCESSION)
-			.setFacet(true)
-			.setFacetMinCount(1)
-			.setFacetLimit(-1);
+				.setQuery("*:*")
+				.addFilterQuery(
+						ExperimentField.BIOLOGICAL_SAMPLE_GROUP
+								+ ":experimental")
+				.addFilterQuery(
+						ExperimentField.PHENOTYPING_CENTER_ID + ":"
+								+ organisationId)
+				.addFilterQuery(
+						ExperimentField.PARAMETER_ID + ":" + parameterId)
+				.addFilterQuery(
+						ExperimentField.STRAIN + ":"
+								+ strain.replace(":", "\\:"))
+				.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
+				.setRows(0).addFacetField(ExperimentField.GENE_ACCESSION)
+				.setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
 
 		QueryResponse response = solr.query(query);
 		List<FacetField> fflist = response.getFacetFields();
 
-		for(FacetField ff : fflist){
+		for (FacetField ff : fflist) {
 
 			// If there are no face results, the values will be null
 			// skip this facet field in that case
-			if(ff.getValues()==null) { continue;}
+			if (ff.getValues() == null) {
+				continue;
+			}
 
-			for(Count c : ff.getValues()){
+			for (Count c : ff.getValues()) {
 				genes.add(c.getName());
-		    }
+			}
 		}
 
 		return new ArrayList<String>(genes);
 	}
-	
+
 	/**
 	 * Return all the strain accession ids that have associated data for a given
 	 * organisation ID and parameter ID
 	 * 
-	 * @param organisation ID
-	 *            the database id of the organisation
+	 * @param organisation
+	 *            ID the database id of the organisation
 	 * @param parameterId
-	 *            the database id of the parameter 
+	 *            the database id of the parameter
 	 * @return list of strain accession ids
 	 * @throws SolrServerException
 	 */
-	public List<String> getStrainsByParameterIdOrganistionId(Integer parameterId, Integer organisationId) throws SolrServerException {
+	public List<String> getStrainsByParameterIdOrganistionId(
+			Integer parameterId, Integer organisationId)
+			throws SolrServerException {
 		Set<String> strains = new HashSet<String>();
 
 		SolrQuery query = new SolrQuery()
-			.setQuery("*:*")
-			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
-			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-			.setRows(0)
-			.addFacetField(ExperimentField.STRAIN)
-			.setFacet(true)
-			.setFacetMinCount(1)
-			.setFacetLimit(-1);
+				.setQuery("*:*")
+				.addFilterQuery(
+						ExperimentField.PHENOTYPING_CENTER_ID + ":"
+								+ organisationId)
+				.addFilterQuery(
+						ExperimentField.PARAMETER_ID + ":" + parameterId)
+				.setRows(0).addFacetField(ExperimentField.STRAIN)
+				.setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
 
 		QueryResponse response = solr.query(query);
 		List<FacetField> fflist = response.getFacetFields();
 
-		for(FacetField ff : fflist){
+		for (FacetField ff : fflist) {
 
 			// If there are no face results, the values will be null
 			// skip this facet field in that case
-			if(ff.getValues()==null) { continue;}
+			if (ff.getValues() == null) {
+				continue;
+			}
 
-		    for(Count c : ff.getValues()){
-		    	strains.add(c.getName());
-		    }
+			for (Count c : ff.getValues()) {
+				strains.add(c.getName());
+			}
 		}
 
 		return new ArrayList<String>(strains);
-		
+
 	}
 
 	/**
@@ -613,172 +686,215 @@ public class ObservationService {
 	 * @return list of organisation database ids
 	 * @throws SolrServerException
 	 */
-	public List<Integer> getAllOrganisationIdsWithObservations() throws SolrServerException {
+	public List<Integer> getAllOrganisationIdsWithObservations()
+			throws SolrServerException {
 		List<Integer> organisations = new ArrayList<Integer>();
 
-		SolrQuery query = new SolrQuery()
-		.setQuery("*:*")
-		.setRows(0)
-		.addFacetField(ExperimentField.PHENOTYPING_CENTER_ID)
-		.setFacet(true)
-		.setFacetMinCount(1)
-		.setFacetLimit(-1);
-
-	QueryResponse response = solr.query(query);
-	List<FacetField> fflist = response.getFacetFields();
-
-	for(FacetField ff : fflist){
-
-		// If there are no face results, the values will be null
-		// skip this facet field in that case
-		if(ff.getValues()==null) { continue;}
-
-	    for(Count c : ff.getValues()){
-	    	organisations.add(Integer.parseInt(c.getName()));
-	    }
-	}
-
-		return organisations;
-	}
-
-	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationIdStrainZygositySex(Integer parameterId, Integer organisationId, String strain, String zygosity, String sex) throws SolrServerException {
-		Set<String> genes = new HashSet<String>();
-
-		SolrQuery query = new SolrQuery()
-			.setQuery("*:*")
-			.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
-			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
-			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
-	    	.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
-			.addFilterQuery(ExperimentField.SEX + ":" + sex)
-			.setRows(0)
-			.addFacetField(ExperimentField.GENE_ACCESSION)
-			.setFacet(true)
-			.setFacetMinCount(1)
-			.setFacetLimit(-1);
+		SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0)
+				.addFacetField(ExperimentField.PHENOTYPING_CENTER_ID)
+				.setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
 
 		QueryResponse response = solr.query(query);
 		List<FacetField> fflist = response.getFacetFields();
 
-		for(FacetField ff : fflist){
+		for (FacetField ff : fflist) {
 
 			// If there are no face results, the values will be null
 			// skip this facet field in that case
-			if(ff.getValues()==null) { continue;}
+			if (ff.getValues() == null) {
+				continue;
+			}
 
-			for(Count c : ff.getValues()){
+			for (Count c : ff.getValues()) {
+				organisations.add(Integer.parseInt(c.getName()));
+			}
+		}
+
+		return organisations;
+	}
+
+	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationIdStrainZygositySex(
+			Integer parameterId, Integer organisationId, String strain,
+			String zygosity, String sex) throws SolrServerException {
+		Set<String> genes = new HashSet<String>();
+
+		SolrQuery query = new SolrQuery()
+				.setQuery("*:*")
+				.addFilterQuery(
+						ExperimentField.BIOLOGICAL_SAMPLE_GROUP
+								+ ":experimental")
+				.addFilterQuery(
+						ExperimentField.PHENOTYPING_CENTER_ID + ":"
+								+ organisationId)
+				.addFilterQuery(
+						ExperimentField.PARAMETER_ID + ":" + parameterId)
+				.addFilterQuery(
+						ExperimentField.STRAIN + ":"
+								+ strain.replace(":", "\\:"))
+				.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
+				.addFilterQuery(ExperimentField.SEX + ":" + sex).setRows(0)
+				.addFacetField(ExperimentField.GENE_ACCESSION).setFacet(true)
+				.setFacetMinCount(1).setFacetLimit(-1);
+
+		QueryResponse response = solr.query(query);
+		List<FacetField> fflist = response.getFacetFields();
+
+		for (FacetField ff : fflist) {
+
+			// If there are no face results, the values will be null
+			// skip this facet field in that case
+			if (ff.getValues() == null) {
+				continue;
+			}
+
+			for (Count c : ff.getValues()) {
 				genes.add(c.getName());
-		    }
+			}
 		}
 
 		return new ArrayList<String>(genes);
 	}
 
-	// gets categorical data for graphs on phenotype page 
-		public Map<String, List<DiscreteTimePoint>> getTimeSeriesMutantData(String parameter,List<String> genes,
-				ArrayList<String> strains) throws SolrServerException {
-			
-			
-			Map<String, List<DiscreteTimePoint>> finalRes = new HashMap<String, List<DiscreteTimePoint>>(); // <allele_accession, timeSeriesData>
-			
-			SolrQuery query = new SolrQuery().addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental").addFilterQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + parameter);
+	// gets categorical data for graphs on phenotype page
+	public Map<String, List<DiscreteTimePoint>> getTimeSeriesMutantData(
+			String parameter, List<String> genes, ArrayList<String> strains)
+			throws SolrServerException {
 
-			String q = (strains.size() > 1) ? "(" + ExperimentField.STRAIN + ":\""
-					+ StringUtils.join(strains.toArray(), "\" OR " + ExperimentField.STRAIN + ":\"") + "\")"
-					: ExperimentField.STRAIN + ":\"" + strains.get(0) + "\"";
+		Map<String, List<DiscreteTimePoint>> finalRes = new HashMap<String, List<DiscreteTimePoint>>(); // <allele_accession,
+																										// timeSeriesData>
 
-			if (genes != null && genes.size() > 0) {
-				q += " AND (";
-				q += (genes.size() > 1) ? ExperimentField.GENE_ACCESSION + ":\"" + StringUtils.join(genes.toArray(), "\" OR "
-								+ ExperimentField.GENE_ACCESSION + ":\"") + "\"" : ExperimentField.GENE_ACCESSION + ":\"" + genes.get(0) + "\"";
-				q += ")";
-			}
+		SolrQuery query = new SolrQuery().addFilterQuery(
+				ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+				.addFilterQuery(
+						ExperimentField.PARAMETER_STABLE_ID + ":" + parameter);
 
-			query.setQuery(q);
-			query.set("group.field", ExperimentField.GENE_SYMBOL);
-			query.set("group", true);
-			query.set("fl", ExperimentField.DATA_POINT + "," + ExperimentField.DISCRETE_POINT);
-			query.set("group.limit", 100000); // number of documents to be returned per group
-			query.set("group.sort", ExperimentField.DISCRETE_POINT + " asc");
-			query.setRows(10000);
+		String q = (strains.size() > 1) ? "("
+				+ ExperimentField.STRAIN
+				+ ":\""
+				+ StringUtils.join(strains.toArray(), "\" OR "
+						+ ExperimentField.STRAIN + ":\"") + "\")"
+				: ExperimentField.STRAIN + ":\"" + strains.get(0) + "\"";
 
-			System.out.println("+_+_+ " + solr.getBaseURL() + "/select?" + query);
-			List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
-			// for mutants it doesn't seem we need binning
-			// groups are the alleles
-			for (Group gr : groups) {
-					SolrDocumentList resDocs = gr.getResult();
-					DescriptiveStatistics stats = new DescriptiveStatistics();
-					float discreteTime = (float)resDocs.get(0).getFieldValue(ExperimentField.DISCRETE_POINT);
-					ArrayList<DiscreteTimePoint> res = new ArrayList<DiscreteTimePoint>();
-					for (int i = 0; i < resDocs.getNumFound(); i++) {
-						SolrDocument doc = resDocs.get(i);
-						stats.addValue((float) doc.getFieldValue(ExperimentField.DATA_POINT));
-						if (discreteTime != (float)doc.getFieldValue(ExperimentField.DISCRETE_POINT)){
-							// add to list
-							float discreteDataPoint = (float) stats.getMean();
-							DiscreteTimePoint dp = new DiscreteTimePoint(discreteTime,
-									discreteDataPoint, new Float(stats.getStandardDeviation()));
-							List<Float> errorPair = new ArrayList<>();
-							double std = stats.getStandardDeviation();
-							Float lower = new Float(discreteDataPoint);
-							Float higher = new Float(discreteDataPoint);
-							errorPair.add(lower);
-							errorPair.add(higher);
-							dp.setErrorPair(errorPair);
-							res.add(dp);
-							// update discrete point
-							discreteTime = Float.valueOf(doc.getFieldValue(ExperimentField.DISCRETE_POINT).toString());
-							//update stats
-							stats = new DescriptiveStatistics();
-						}
-					}
-					// add list
-					finalRes.put(gr.getGroupValue(), res);
-			}
-			return finalRes;
+		if (genes != null && genes.size() > 0) {
+			q += " AND (";
+			q += (genes.size() > 1) ? ExperimentField.GENE_ACCESSION
+					+ ":\""
+					+ StringUtils.join(genes.toArray(), "\" OR "
+							+ ExperimentField.GENE_ACCESSION + ":\"") + "\""
+					: ExperimentField.GENE_ACCESSION + ":\"" + genes.get(0)
+							+ "\"";
+			q += ")";
 		}
-		
-		
-	// gets categorical data for graphs on phenotype page 
+
+		query.setQuery(q);
+		query.set("group.field", ExperimentField.GENE_SYMBOL);
+		query.set("group", true);
+		query.set("fl", ExperimentField.DATA_POINT + ","
+				+ ExperimentField.DISCRETE_POINT);
+		query.set("group.limit", 100000); // number of documents to be returned
+											// per group
+		query.set("group.sort", ExperimentField.DISCRETE_POINT + " asc");
+		query.setRows(10000);
+
+		System.out.println("+_+_+ " + solr.getBaseURL() + "/select?" + query);
+		List<Group> groups = solr.query(query).getGroupResponse().getValues()
+				.get(0).getValues();
+		// for mutants it doesn't seem we need binning
+		// groups are the alleles
+		for (Group gr : groups) {
+			SolrDocumentList resDocs = gr.getResult();
+			DescriptiveStatistics stats = new DescriptiveStatistics();
+			float discreteTime = (float) resDocs.get(0).getFieldValue(
+					ExperimentField.DISCRETE_POINT);
+			ArrayList<DiscreteTimePoint> res = new ArrayList<DiscreteTimePoint>();
+			for (int i = 0; i < resDocs.getNumFound(); i++) {
+				SolrDocument doc = resDocs.get(i);
+				stats.addValue((float) doc
+						.getFieldValue(ExperimentField.DATA_POINT));
+				if (discreteTime != (float) doc
+						.getFieldValue(ExperimentField.DISCRETE_POINT)) {
+					// add to list
+					float discreteDataPoint = (float) stats.getMean();
+					DiscreteTimePoint dp = new DiscreteTimePoint(discreteTime,
+							discreteDataPoint, new Float(
+									stats.getStandardDeviation()));
+					List<Float> errorPair = new ArrayList<>();
+					double std = stats.getStandardDeviation();
+					Float lower = new Float(discreteDataPoint);
+					Float higher = new Float(discreteDataPoint);
+					errorPair.add(lower);
+					errorPair.add(higher);
+					dp.setErrorPair(errorPair);
+					res.add(dp);
+					// update discrete point
+					discreteTime = Float.valueOf(doc.getFieldValue(
+							ExperimentField.DISCRETE_POINT).toString());
+					// update stats
+					stats = new DescriptiveStatistics();
+				}
+			}
+			// add list
+			finalRes.put(gr.getGroupValue(), res);
+		}
+		return finalRes;
+	}
+
+	// gets categorical data for graphs on phenotype page
 	public List<DiscreteTimePoint> getTimeSeriesControlData(String parameter,
 			ArrayList<String> strains) throws SolrServerException {
-		
+
 		ArrayList<DiscreteTimePoint> res = new ArrayList<DiscreteTimePoint>();
-		SolrQuery query = new SolrQuery().addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":control").addFilterQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + parameter);
-		String q = (strains.size() > 1) ? "(" + ExperimentField.STRAIN + ":\""
-				+ StringUtils.join(strains.toArray(), "\" OR " + ExperimentField.STRAIN + ":\"") + "\")"
+		SolrQuery query = new SolrQuery().addFilterQuery(
+				ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":control")
+				.addFilterQuery(
+						ExperimentField.PARAMETER_STABLE_ID + ":" + parameter);
+		String q = (strains.size() > 1) ? "("
+				+ ExperimentField.STRAIN
+				+ ":\""
+				+ StringUtils.join(strains.toArray(), "\" OR "
+						+ ExperimentField.STRAIN + ":\"") + "\")"
 				: ExperimentField.STRAIN + ":\"" + strains.get(0) + "\"";
 
 		query.setQuery(q);
 		query.set("group.field", ExperimentField.DISCRETE_POINT);
 		query.set("group", true);
-		query.set("fl", ExperimentField.DATA_POINT + "," + ExperimentField.DISCRETE_POINT);
-		query.set("group.limit", 100000); // number of documents to be returned per group
+		query.set("fl", ExperimentField.DATA_POINT + ","
+				+ ExperimentField.DISCRETE_POINT);
+		query.set("group.limit", 100000); // number of documents to be returned
+											// per group
 		query.set("sort", ExperimentField.DISCRETE_POINT + " asc");
 		query.setRows(10000);
 
 		System.out.println("+_+_+ " + solr.getBaseURL() + "/select?" + query);
-		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
+		List<Group> groups = solr.query(query).getGroupResponse().getValues()
+				.get(0).getValues();
 		boolean rounding = false;
-		// decide if binning is needed i.e. is the increment points are too scattered, as for calorimetry
-		if (groups.size() > 30){ // arbitrary value, just piced it because it seems reasonable for the size of our graphs
-			if (Float.valueOf(groups.get(groups.size()-1).getGroupValue())
-					- Float.valueOf(groups.get(0).getGroupValue()) <= 30){ //then rounding  will be enough
+		// decide if binning is needed i.e. is the increment points are too
+		// scattered, as for calorimetry
+		if (groups.size() > 30) { // arbitrary value, just piced it because it
+									// seems reasonable for the size of our
+									// graphs
+			if (Float.valueOf(groups.get(groups.size() - 1).getGroupValue())
+					- Float.valueOf(groups.get(0).getGroupValue()) <= 30) { // then
+																			// rounding
+																			// will
+																			// be
+																			// enough
 				rounding = true;
 			}
 		}
-		if (rounding){
+		if (rounding) {
 			int bin = Math.round(Float.valueOf(groups.get(0).getGroupValue()));
 			for (Group gr : groups) {
-				int discreteTime = Math.round(Float.valueOf(gr.getGroupValue()));
+				int discreteTime = Math
+						.round(Float.valueOf(gr.getGroupValue()));
 				// for calormetry ignore what's before -5 and after 16
-				if (parameter.startsWith("IMPC_CAL") || parameter.startsWith("ESLIM_003_001") || parameter.startsWith("M-G-P_003_001")) {
-					if (discreteTime < -5){
+				if (parameter.startsWith("IMPC_CAL")
+						|| parameter.startsWith("ESLIM_003_001")
+						|| parameter.startsWith("M-G-P_003_001")) {
+					if (discreteTime < -5) {
 						continue;
-					}
-					else if (discreteTime > 16){
+					} else if (discreteTime > 16) {
 						break;
 					}
 				}
@@ -786,13 +902,23 @@ public class ObservationService {
 				SolrDocumentList resDocs = gr.getResult();
 				DescriptiveStatistics stats = new DescriptiveStatistics();
 				for (SolrDocument doc : resDocs) {
-					sum += (float) doc.getFieldValue(ExperimentField.DATA_POINT);
-					stats.addValue((float) doc.getFieldValue(ExperimentField.DATA_POINT));
+					sum += (float) doc
+							.getFieldValue(ExperimentField.DATA_POINT);
+					stats.addValue((float) doc
+							.getFieldValue(ExperimentField.DATA_POINT));
 				}
-				if (bin < discreteTime || groups.indexOf(gr) == groups.size() - 1){ // finished the groups of filled the bin
+				if (bin < discreteTime
+						|| groups.indexOf(gr) == groups.size() - 1) { // finished
+																		// the
+																		// groups
+																		// of
+																		// filled
+																		// the
+																		// bin
 					float discreteDataPoint = sum / resDocs.getNumFound();
-					DiscreteTimePoint dp = new DiscreteTimePoint((float)discreteTime,
-							discreteDataPoint, new Float(stats.getStandardDeviation()));
+					DiscreteTimePoint dp = new DiscreteTimePoint(
+							(float) discreteTime, discreteDataPoint, new Float(
+									stats.getStandardDeviation()));
 					List<Float> errorPair = new ArrayList<>();
 					double std = stats.getStandardDeviation();
 					Float lower = new Float(discreteDataPoint - std);
@@ -804,20 +930,22 @@ public class ObservationService {
 					bin = discreteTime;
 				}
 			}
-		}
-		else {
+		} else {
 			for (Group gr : groups) {
 				Float discreteTime = Float.valueOf(gr.getGroupValue());
 				float sum = 0;
 				SolrDocumentList resDocs = gr.getResult();
 				DescriptiveStatistics stats = new DescriptiveStatistics();
 				for (SolrDocument doc : resDocs) {
-					sum += (float) doc.getFieldValue(ExperimentField.DATA_POINT);
-					stats.addValue((float) doc.getFieldValue(ExperimentField.DATA_POINT));
+					sum += (float) doc
+							.getFieldValue(ExperimentField.DATA_POINT);
+					stats.addValue((float) doc
+							.getFieldValue(ExperimentField.DATA_POINT));
 				}
 				float discreteDataPoint = sum / resDocs.getNumFound();
 				DiscreteTimePoint dp = new DiscreteTimePoint(discreteTime,
-						discreteDataPoint, new Float(stats.getStandardDeviation()));
+						discreteDataPoint, new Float(
+								stats.getStandardDeviation()));
 				List<Float> errorPair = new ArrayList<>();
 				double std = stats.getStandardDeviation();
 				Float lower = new Float(discreteDataPoint - std);
@@ -830,163 +958,222 @@ public class ObservationService {
 		}
 		return res;
 	}
-	
-	
-	public Map<String, List<Double>> getUnidimensionalData(Parameter p, List<String> genes, ArrayList<String> strains, String biologicalSample) throws SolrServerException{
-		
-		List<Integer> res = new ArrayList<Integer>();
-		SolrQuery query = new SolrQuery()
-		.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":" + biologicalSample)
-		.addFilterQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + p.getStableId());
 
-		String q = (strains.size() > 1) ? "("+ExperimentField.STRAIN+":\"" + StringUtils.join(strains.toArray(), "\" OR "+ExperimentField.STRAIN+":\"") + "\")" : ExperimentField.STRAIN+":\"" + strains.get(0) + "\"";
-	
-//		if (genes != null && genes.size() > 0){
-//			q += " AND (";
-//			q += (genes.size() > 1) ? ExperimentField.GENE_ACCESSION+":\"" + StringUtils.join(genes.toArray(), "\" OR "+ExperimentField.GENE_ACCESSION+":\"") + "\"" : ExperimentField.GENE_ACCESSION+":\"" + genes.get(0) + "\"";
-//			q += ")";
-//		}
-	
+	public Map<String, List<Double>> getUnidimensionalData(Parameter p,
+			List<String> genes, ArrayList<String> strains,
+			String biologicalSample) throws SolrServerException {
+
+		List<Integer> res = new ArrayList<Integer>();
+		SolrQuery query = new SolrQuery().addFilterQuery(
+				ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":"
+						+ biologicalSample).addFilterQuery(
+				ExperimentField.PARAMETER_STABLE_ID + ":" + p.getStableId());
+
+		String q = (strains.size() > 1) ? "("
+				+ ExperimentField.STRAIN
+				+ ":\""
+				+ StringUtils.join(strains.toArray(), "\" OR "
+						+ ExperimentField.STRAIN + ":\"") + "\")"
+				: ExperimentField.STRAIN + ":\"" + strains.get(0) + "\"";
+
+		// if (genes != null && genes.size() > 0){
+		// q += " AND (";
+		// q += (genes.size() > 1) ? ExperimentField.GENE_ACCESSION+":\"" +
+		// StringUtils.join(genes.toArray(),
+		// "\" OR "+ExperimentField.GENE_ACCESSION+":\"") + "\"" :
+		// ExperimentField.GENE_ACCESSION+":\"" + genes.get(0) + "\"";
+		// q += ")";
+		// }
+
 		query.setQuery(q);
 		query.setRows(1000000);
-//		query.set("sort", ExperimentField.DATA_POINT + " asc");
-		query.setFields(ExperimentField.DATA_POINT);
+		// query.set("sort", ExperimentField.DATA_POINT + " asc");
+		query.setFields(ExperimentField.GENE_ACCESSION, ExperimentField.DATA_POINT);
 		query.set("group", true);
 		query.set("group.field", ExperimentField.COLONY_ID);
-		query.set("group.limit", 10000); // number of documents to be returned per group
-		
-		System.out.println("--- look --- " + solr.getBaseURL() + "/select?" + query);
-		
+		query.set("group.limit", 10000); // number of documents to be returned
+											// per group
+
+		System.out.println("--- look --- " + solr.getBaseURL() + "/select?"
+				+ query);
+
 		// for each colony get the mean & put it in the array of data to plot
-		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
+		List<Group> groups = solr.query(query).getGroupResponse().getValues()
+				.get(0).getValues();
 		double[] meansArray = new double[groups.size()];
+		String[] allelesArray = new String[groups.size()];
 		int i = 0;
-		for (Group gr : groups){
+		for (Group gr : groups) {
 			double sum = 0;
 			double total = 0;
 			SolrDocumentList resDocs = gr.getResult();
-			for (SolrDocument doc : resDocs){
-				sum += (double)0 + (float)doc.getFieldValue(ExperimentField.DATA_POINT);
-				total ++;
+			for (SolrDocument doc : resDocs) {
+				sum += (double) 0
+						+ (float) doc.getFieldValue(ExperimentField.DATA_POINT);
+				total++;
 			}
-			meansArray[i++] = sum/total;
-			System.out.println("adding : " + sum/total);
+			allelesArray[i] = (String) resDocs.get(0).get(
+					ExperimentField.GENE_ACCESSION);
+			meansArray[i++] = sum / total;
+			System.out.println("adding : " + sum / total);
 		}
-		
-		int binCount = Math.min((int) Math.floor((double)groups.size()/2), 20);
-		
-		List<Double> histogram = new ArrayList<Double>();
-		List<Double> labels = new ArrayList<Double>();
-		org.apache.commons.math3.random.EmpiricalDistribution distribution = new org.apache.commons.math3.random.EmpiricalDistribution(binCount);
+
+		// we do the binning for all the data but fill the bins after that to
+		// keep tract of phenotype associations
+		int binCount = Math.min((int) Math.floor((double) groups.size() / 2),
+				20);
+
+		List<Double> upperBounds = new ArrayList<Double>();
+		org.apache.commons.math3.random.EmpiricalDistribution distribution = new org.apache.commons.math3.random.EmpiricalDistribution(
+				binCount);
 
 		distribution.load(meansArray);
 		int k = 0;
-		for(double bound : distribution.getUpperBounds())
-			labels.add(bound);
-		for(org.apache.commons.math3.stat.descriptive.SummaryStatistics stats: distribution.getBinStats())
-		{
-		    histogram.add((double)stats.getN());
-		   System.out.println("--- stats-- " + stats.getSummary().toString());
-		}
-		
-		Map<String, List<Double>> map = new HashMap<String, List<Double>>();
-		map.put("labels", labels);
-		map.put("data", histogram);
-		return map;
-		
-/*		SolrDocumentList resDocs =solr.query(query).getResults();
-		
-		double[] data = new double[(int)resDocs.getNumFound()]; 
-		int pos = 0; 
-		for (SolrDocument doc : resDocs){
-			data[pos++] = (double)0 + (float)doc.getFieldValue(ExperimentField.DATA_POINT);
-		}
-		
-		List<Long> histogram = new ArrayList<Long>();
-		org.apache.commons.math3.random.EmpiricalDistribution distribution = new org.apache.commons.math3.random.EmpiricalDistribution(binCount);
+		for (double bound : distribution.getUpperBounds())
+			upperBounds.add(bound);
+		// we we need to distribute the control mutants and the
+		// phenotype-mutants in the bins
+		List<Double> controlM = new ArrayList<Double>();
+		List<Double> phenMutants = new ArrayList<Double>();
 
-		distribution.load(data);
-		int k = 0;
-		for(org.apache.commons.math3.stat.descriptive.SummaryStatistics stats: distribution.getBinStats())
-		{
-		    histogram.add(stats.getN());
-		   System.out.println("--- stats-- " + stats.getSummary().toString());
+		for (int j = 0; j < upperBounds.size(); j++) {
+			controlM.add((double) 0);
+			phenMutants.add((double) 0);
 		}
-		System.out.println("Bin upper bounds: " + distribution.getUpperBounds()[0] + " " 
-				+ distribution.getUpperBounds()[3] + " " 
-				+ distribution.getUpperBounds()[4] + " " 
-				+ distribution.getUpperBounds()[5] + " " 
-				+ distribution.getUpperBounds()[6] + " " );
-		// get number of animals in interval & fill bins
-		
-				// return array
-		return histogram;
-		*/
+
+		for (int j = 0; j < groups.size(); j++) {
+			// find out the proper bin
+			int binIndex = getBin(upperBounds, meansArray[j]);
+			if (genes.contains(allelesArray[j])) {
+				phenMutants.set(binIndex, 1 + phenMutants.get(binIndex));
+			} else { // treat as control because they don't have this phenotype
+						// association
+				controlM.set(binIndex, 1 + controlM.get(binIndex));
+			}
 		}
-	
-	
-	// gets categorical data for graphs on phenotype page 
-	public CategoricalSet getCategories(String parameter, ArrayList<String >genes, String biologicalSampleGroup, ArrayList<String>  strains) throws SolrServerException{
+
+		Map<String, List<Double>> map = new HashMap<String, List<Double>>();
+		map.put("labels", upperBounds);
+		map.put("control", controlM);
+		map.put("mutant", phenMutants);
+		return map;
+
+		/*
+		 * SolrDocumentList resDocs =solr.query(query).getResults();
+		 * 
+		 * double[] data = new double[(int)resDocs.getNumFound()]; int pos = 0;
+		 * for (SolrDocument doc : resDocs){ data[pos++] = (double)0 +
+		 * (float)doc.getFieldValue(ExperimentField.DATA_POINT); }
+		 * 
+		 * List<Long> histogram = new ArrayList<Long>();
+		 * org.apache.commons.math3.random.EmpiricalDistribution distribution =
+		 * new org.apache.commons.math3.random.EmpiricalDistribution(binCount);
+		 * 
+		 * distribution.load(data); int k = 0;
+		 * for(org.apache.commons.math3.stat.descriptive.SummaryStatistics
+		 * stats: distribution.getBinStats()) { histogram.add(stats.getN());
+		 * System.out.println("--- stats-- " + stats.getSummary().toString()); }
+		 * System.out.println("Bin upper bounds: " +
+		 * distribution.getUpperBounds()[0] + " " +
+		 * distribution.getUpperBounds()[3] + " " +
+		 * distribution.getUpperBounds()[4] + " " +
+		 * distribution.getUpperBounds()[5] + " " +
+		 * distribution.getUpperBounds()[6] + " " ); // get number of animals in
+		 * interval & fill bins
+		 * 
+		 * // return array return histogram;
+		 */
+	}
+
+	private int getBin(List<Double> bins, Double valueToBin) {
+		for (Double upperBound : bins) {
+			if (valueToBin < upperBound)
+				return bins.indexOf(upperBound);
+		}
+		return bins.size() - 1;
+	}
+
+	// gets categorical data for graphs on phenotype page
+	public CategoricalSet getCategories(String parameter,
+			ArrayList<String> genes, String biologicalSampleGroup,
+			ArrayList<String> strains) throws SolrServerException {
 
 		CategoricalSet resSet = new CategoricalSet();
 		resSet.setName(biologicalSampleGroup);
-		SolrQuery query = new SolrQuery()
-			.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":" + biologicalSampleGroup)
-			.addFilterQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + parameter);
+		SolrQuery query = new SolrQuery().addFilterQuery(
+				ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":"
+						+ biologicalSampleGroup).addFilterQuery(
+				ExperimentField.PARAMETER_STABLE_ID + ":" + parameter);
 
-		String q = (strains.size() > 1) ? "("+ExperimentField.STRAIN+":\"" + StringUtils.join(strains.toArray(), "\" OR "+ExperimentField.STRAIN+":\"") + "\")" : ExperimentField.STRAIN+":\"" + strains.get(0) + "\"";
+		String q = (strains.size() > 1) ? "("
+				+ ExperimentField.STRAIN
+				+ ":\""
+				+ StringUtils.join(strains.toArray(), "\" OR "
+						+ ExperimentField.STRAIN + ":\"") + "\")"
+				: ExperimentField.STRAIN + ":\"" + strains.get(0) + "\"";
 
-		if (genes != null && genes.size() > 0){
+		if (genes != null && genes.size() > 0) {
 			q += " AND (";
-			q += (genes.size() > 1) ? ExperimentField.GENE_ACCESSION+":\"" + StringUtils.join(genes.toArray(), "\" OR "+ExperimentField.GENE_ACCESSION+":\"") + "\"" : ExperimentField.GENE_ACCESSION+":\"" + genes.get(0) + "\"";
+			q += (genes.size() > 1) ? ExperimentField.GENE_ACCESSION
+					+ ":\""
+					+ StringUtils.join(genes.toArray(), "\" OR "
+							+ ExperimentField.GENE_ACCESSION + ":\"") + "\""
+					: ExperimentField.GENE_ACCESSION + ":\"" + genes.get(0)
+							+ "\"";
 			q += ")";
 		}
 
 		query.setQuery(q);
 		query.set("group.field", ExperimentField.CATEGORY);
 		query.set("group", true);
-		query.setRows(100); // shouldn't have more then 10 categories for one parameter!!
-		
-		List<String> categories = new ArrayList<String> ();
-		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
-		for (Group gr : groups){
+		query.setRows(100); // shouldn't have more then 10 categories for one
+							// parameter!!
+
+		List<String> categories = new ArrayList<String>();
+		List<Group> groups = solr.query(query).getGroupResponse().getValues()
+				.get(0).getValues();
+		for (Group gr : groups) {
 			categories.add((String) gr.getGroupValue());
 			CategoricalDataObject catObj = new CategoricalDataObject();
 			catObj.setCount((long) gr.getResult().getNumFound());
 			catObj.setCategory(gr.getGroupValue());
 			resSet.add(catObj);
-		}		
+		}
 		return resSet;
 	}
-	
-	
-	public int getTestedGenes(String phenotypeId, String sex, List<String> parameters) throws SolrServerException{
 
-	    List<String> genes = new ArrayList<String>();
-		for (String parameter : parameters){
+	public int getTestedGenes(String phenotypeId, String sex,
+			List<String> parameters) throws SolrServerException {
+
+		List<String> genes = new ArrayList<String>();
+		for (String parameter : parameters) {
 			SolrQuery query = new SolrQuery()
-			.setQuery( ExperimentField.PARAMETER_STABLE_ID + ":" + parameter)
-			.addField(ExperimentField.GENE_ACCESSION)
-			.setFilterQueries(ExperimentField.STRAIN + ":\"MGI:2159965\" OR " + ExperimentField.STRAIN + ":\"MGI:2164831\"")
-			.setRows(10000);
+					.setQuery(
+							ExperimentField.PARAMETER_STABLE_ID + ":"
+									+ parameter)
+					.addField(ExperimentField.GENE_ACCESSION)
+					.setFilterQueries(
+							ExperimentField.STRAIN + ":\"MGI:2159965\" OR "
+									+ ExperimentField.STRAIN
+									+ ":\"MGI:2164831\"").setRows(10000);
 			query.set("group.field", ExperimentField.GENE_ACCESSION);
 			query.set("group", true);
-			if (sex != null){
-				query.addFilterQuery(ExperimentField.SEX + ":"+sex);
+			if (sex != null) {
+				query.addFilterQuery(ExperimentField.SEX + ":" + sex);
 			}
-			// I need to add the genes to a hash in case some come up multiple times from different parameters
-//			System.out.println("=====" + solr.getBaseURL() + query);
-			List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
-			for (Group gr : groups){
-//				System.out.println(gr.getGroupValue());
-				if (!genes.contains((String)gr.getGroupValue())){
+			// I need to add the genes to a hash in case some come up multiple
+			// times from different parameters
+			// System.out.println("=====" + solr.getBaseURL() + query);
+			List<Group> groups = solr.query(query).getGroupResponse()
+					.getValues().get(0).getValues();
+			for (Group gr : groups) {
+				// System.out.println(gr.getGroupValue());
+				if (!genes.contains((String) gr.getGroupValue())) {
 					genes.add((String) gr.getGroupValue());
 				}
 			}
-		}		
+		}
 		return genes.size();
 	}
 
-	
-	
 }
