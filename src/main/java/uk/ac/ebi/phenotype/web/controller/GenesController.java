@@ -34,12 +34,14 @@ import javax.servlet.http.HttpServletRequest;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
+import org.hibernate.exception.JDBCConnectionException;
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -433,7 +435,7 @@ public class GenesController {
 		ArrayList<PhenotypeRow> l = new ArrayList<PhenotypeRow>(phenotypes.keySet());
 		Collections.sort(l); // sort in alpha order by MP term name
 		model.addAttribute("phenotypes", l);
-		//model.addAt
+
 	}
 	
 	private Map<String, List<Map<String, String>>> getProviders(
@@ -596,6 +598,21 @@ public class GenesController {
         mv.addObject("acc",exception.getAcc());
         mv.addObject("type","MGI gene");
         mv.addObject("exampleURI", "/genes/MGI:104874");
+        return mv;
+    }
+
+	@ExceptionHandler(JDBCConnectionException.class)
+	public ModelAndView handleJDBCConnectionException(JDBCConnectionException exception) {
+        ModelAndView mv = new ModelAndView("uncaughtException");
+        System.out.println(ExceptionUtils.getFullStackTrace(exception));
+        mv.addObject("errorMessage", "An error occurred connecting to the database");
+        return mv;
+    }
+
+	@ExceptionHandler(Exception.class)
+	public ModelAndView handleGeneralException(Exception exception) {
+        ModelAndView mv = new ModelAndView("uncaughtException");
+        System.out.println(ExceptionUtils.getFullStackTrace(exception));
         return mv;
     }
 

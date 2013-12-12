@@ -235,12 +235,7 @@ public class TimeSeriesChartAndTableProvider {
 			String yUnitsLabel, SexType sex, int decimalPlaces, String organisation) {
 		int size = listIndex;// to know which div to render to
 												// not 0 index as using loop
-												// count in jsp
-		
-		System.out.println(" - listIndex " + listIndex);
-//		System.out.println(" - lines " + lines);
-		System.out.println(" - xUnitsLabel " + xUnitsLabel);
-		
+												// count in jsp		
 		JSONArray series = new JSONArray();
 		String seriesString="";
 		Set<Float> categoriesSet = new HashSet<Float>();
@@ -350,10 +345,10 @@ public class TimeSeriesChartAndTableProvider {
 		
 		String errorBarsToolTip="tooltip: { pointFormat: 'SD: {point.low"+decimalFormatString+"}-{point.high"+decimalFormatString+"}<br/>' }";
 		int index=series.toString().indexOf("\"errorbar");
-//		logger.warn("index="+index);
+		logger.warn("index="+index);
 		String escapedErrorString="\"errorbar\"";
 		seriesString=seriesString.replace(escapedErrorString, escapedErrorString+","+errorBarsToolTip);
-//		logger.warn("seriesString="+seriesString);
+		logger.warn("seriesString="+seriesString);
 		String axisFontSize = "15";
 		String chartid = "timeChart" + size;
 		String javascript = "$(function () { var chart; $(document).ready(function() { chart = new Highcharts.Chart({ chart: {  zoomType: 'x', renderTo: '"
@@ -380,7 +375,7 @@ public class TimeSeriesChartAndTableProvider {
 		chartAndTable.setMax(maxForChart);
 		chartAndTable.setOrganisation(organisation);
 		chartAndTable.setId(chartid);
-		System.out.println("... minForChart " + minForChart  + " maxForChart " + maxForChart);
 		return chartAndTable;
 	}
+	
 }
