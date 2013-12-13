@@ -502,14 +502,7 @@ public class PhenotypesController {
 //				System.out.println(" genes for " + p + " " + genes);
 				if (genes.size() > 0){
 					Map<String, List<Double>> map = os.getUnidimensionalData(p, genes, strains, "experimental");
-					List<Double> control  = map.get("control");
-					List<Double> mutant  = map.get("mutant");					
-					List<String> labels = new ArrayList<String> (); 
-					DecimalFormat df = new DecimalFormat("#.##");
-					for (double label : map.get("labels")){
-						labels.add("'<" + df.format(label) + "'");
-					}
-					String chartTitle = "Mean " +  p.getName() + "(" + p.getStableId()+")";
+					String chartTitle = "Mean " +  p.getName() + " (" + p.getStableId()+")";
 					//chartsList.add(uctp.getHistogram(labels, data, chartTitle));
 					chartsList.add(uctp.getStackedHistogram(map, chartTitle));
 				}

@@ -972,15 +972,6 @@ public class ObservationService {
 						+ ExperimentField.STRAIN + ":\"") + "\")"
 				: ExperimentField.STRAIN + ":\"" + strains.get(0) + "\"";
 
-		// if (genes != null && genes.size() > 0){
-		// q += " AND (";
-		// q += (genes.size() > 1) ? ExperimentField.GENE_ACCESSION+":\"" +
-		// StringUtils.join(genes.toArray(),
-		// "\" OR "+ExperimentField.GENE_ACCESSION+":\"") + "\"" :
-		// ExperimentField.GENE_ACCESSION+":\"" + genes.get(0) + "\"";
-		// q += ")";
-		// }
-
 		query.setQuery(q);
 		query.setRows(1000000);
 		// query.set("sort", ExperimentField.DATA_POINT + " asc");
@@ -1008,7 +999,10 @@ public class ObservationService {
 			}
 			allelesArray[i] = (String) resDocs.get(0).get(
 					ExperimentField.GENE_ACCESSION);
-			meansArray[i++] = sum / total;
+			meansArray[i] = sum / total;
+//			if (meansArray[i] > 20)
+//				System.out.println(p.getStableId() + " for colony id :" + gr.getGroupValue() + " (allele : " + allelesArray[i]  + ") 	 mean value = " + meansArray[i]);
+			i++;
 //			System.out.println("adding : " + sum / total);
 		}
 
@@ -1039,11 +1033,12 @@ public class ObservationService {
 			int binIndex = getBin(upperBounds, meansArray[j]);
 			if (genes.contains(allelesArray[j])) {
 				phenMutants.set(binIndex, 1 + phenMutants.get(binIndex));
-			} else { // treat as control because they don't have this phenotype
-						// association
+			} else { // treat as control because they don't have this phenotype association
+				
 				controlM.set(binIndex, 1 + controlM.get(binIndex));
 			}
 		}
+		System.out.println(" Mutants list " + phenMutants);
 
 		Map<String, List<Double>> map = new HashMap<String, List<Double>>();
 		map.put("labels", upperBounds);
@@ -1066,15 +1061,6 @@ public class ObservationService {
 		 * for(org.apache.commons.math3.stat.descriptive.SummaryStatistics
 		 * stats: distribution.getBinStats()) { histogram.add(stats.getN());
 		 * System.out.println("--- stats-- " + stats.getSummary().toString()); }
-		 * System.out.println("Bin upper bounds: " +
-		 * distribution.getUpperBounds()[0] + " " +
-		 * distribution.getUpperBounds()[3] + " " +
-		 * distribution.getUpperBounds()[4] + " " +
-		 * distribution.getUpperBounds()[5] + " " +
-		 * distribution.getUpperBounds()[6] + " " ); // get number of animals in
-		 * interval & fill bins
-		 * 
-		 * // return array return histogram;
 		 */
 	}
 
