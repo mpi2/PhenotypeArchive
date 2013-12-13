@@ -369,7 +369,6 @@ public class PhenotypesController {
 			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
 		//just pass on any query string after the ? to the solr requesting object for now
 		String queryString=request.getQueryString();
-		System.out.println("calling geneVariantsWithPhenotype");
 		processPhenotypes(acc, queryString, model);
 
 		return "geneVariantsWithPhenotypeTable";
@@ -490,7 +489,6 @@ public class PhenotypesController {
 				}
 			}
 			else if ( p != null && Utilities.checkType(p).equals(ObservationType.time_series)){
-				System.out.println("getting timeseries data for :  " + p);
 				List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
 				if (genes.size() > 0){
 					Map<String, List<DiscreteTimePoint>> data = os.getTimeSeriesMutantData(parameter, genes, strains);
@@ -499,19 +497,21 @@ public class PhenotypesController {
 				}
 			}
 			else if ( p != null && Utilities.checkType(p).equals(ObservationType.unidimensional)){
-				System.out.println("getting unidimensional data for :  " + p);
+//				System.out.println("getting unidimensional data for :  " + p);
 				List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
-				System.out.println(" genes for " + p + " " + genes);
+//				System.out.println(" genes for " + p + " " + genes);
 				if (genes.size() > 0){
 					Map<String, List<Double>> map = os.getUnidimensionalData(p, genes, strains, "experimental");
-					List<Double> data  = map.get("data");
+					List<Double> control  = map.get("control");
+					List<Double> mutant  = map.get("mutant");					
 					List<String> labels = new ArrayList<String> (); 
 					DecimalFormat df = new DecimalFormat("#.##");
 					for (double label : map.get("labels")){
 						labels.add("'<" + df.format(label) + "'");
 					}
 					String chartTitle = "Mean " +  p.getName() + "(" + p.getStableId()+")";
-					chartsList.add(uctp.getHistogram(labels, data, chartTitle));
+					//chartsList.add(uctp.getHistogram(labels, data, chartTitle));
+					chartsList.add(uctp.getStackedHistogram(map, chartTitle));
 				}
 			}
 		}
