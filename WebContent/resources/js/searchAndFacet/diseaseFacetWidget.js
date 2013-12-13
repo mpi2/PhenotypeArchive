@@ -54,6 +54,43 @@
 										
 						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 					
+						if ( typeof oHashParams.facetName != 'undefined'){
+							window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + '&facet=' +  solrCoreName; 
+						}
+						else {
+							// if no selected subfacet, load all results of this facet
+							if ( caller.find('table#diseaseFacetTbl td.highlight').size() == 0 ){						
+								//window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
+							}	
+							else {		
+								// if there is selected subfacets: work out the url							
+								if ( self.options.data.core != oHashParams.coreName ){															
+								
+									var fqFieldVals = {};
+									
+									caller.find('table#diseaseFacetTbl td.highlight').each(function(){									
+										var val = $(this).siblings('td').find('a').attr('rel');								
+										var fqField = 'top_level_mp_term';
+										
+										if ( typeof fqFieldVals[fqField] === 'undefined' ){
+											fqFieldVals[fqField] = [];										
+										}									
+										fqFieldVals[fqField].push(fqField + ':"' + val + '"');
+									});					
+									
+									var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND ' + $.fn.compose_AndOrStr(fqFieldVals);
+								
+				  	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable 	
+									if (self.options.data.q == '*:*'){
+										window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+									}
+									else {
+										window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+									}
+								}	
+							}
+						}	
+						/*
 						// if no selected subfacet, load all results of this facet
 						if ( caller.find('table#diseaseFacetTbl td.highlight').size() == 0 ){						
 							//window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
@@ -85,7 +122,7 @@
 									window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
 								}
 							}	
-						}	
+						}	*/
 					}
 				}
 			});				
@@ -299,7 +336,7 @@
 	    		$('table#diseaseFacetTbl input').click(function(){
 	    			
 	    			// // highlight the item in facet	    			
-	    			$(this).parent().find('td.diseaseSubfacet').addClass('highlight');
+	    			$(this).parent().parent().find('td.diseaseSubfacet').addClass('highlight');
 					$.fn.composeFacetFilterControl($(this), self.options.data.q);					
 				});	    		
     		}

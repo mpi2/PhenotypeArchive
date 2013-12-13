@@ -221,7 +221,7 @@
     		    		
     		$('table#maFacetTbl input').click(function(){
     			// highlight the item in facet
-    			$(this).parent().find('td.maTopLevel').addClass('highlight');    			    			
+    			$(this).parent().parent().find('td.maTopLevel').addClass('highlight');    			    			
 				$.fn.composeFacetFilterControl($(this), self.options.data.q);					
 			});   		
     		

@@ -192,7 +192,9 @@
 	    		
 	    		for (var key in aImitsPhenos ){	    			
 	    			var phenoFieldList = json.facet_counts['facet_fields'][key];	    			
-	    			if ( phenoFieldList.length != 0 ){
+	    		     
+
+			if ( phenoFieldList.length != 0 ){
 	    				
 	    	    		for ( var j=0; j<phenoFieldList.length; j+=2 ){
 	    	    			// skip status '0'	    	    		
@@ -280,7 +282,9 @@
     	    			var coreField = 'gene|'+ prodCenterFq + '|';	
     	    			var chkbox = $('<input></input>').attr({'class':'prodCenter', 'type': 'checkbox', 'rel': coreField + center + '|' + count});
 						var td0 = $('<td></td>').append(chkbox);
-						var tr = $('<tr></tr>').attr({'class':'subFacet prodCenterTr'});						
+			     
+
+			var tr = $('<tr></tr>').attr({'class':'subFacet prodCenterTr'});						
 						var td1 = $('<td></td>').attr({'class':'prodCenter geneSubfacet', 'rel':count}).text(center);
 						var link = $('<a></a>').attr({'rel': center, 'class': prodCenterFq}).text(count);
 						var td2 = $('<td></td>').attr({'class':'geneSubfacetCount', 'rel':center}).append(link);
@@ -376,7 +380,7 @@
 	    		$('table#geneFacetTbl input').click(function(){
 	    			
 	    			// // highlight the item in facet	    			
-	    			$(this).parent().find('td.geneSubfacet').addClass('highlight');
+	    			$(this).parent().parent().find('td.geneSubfacet').addClass('highlight');
 					$.fn.composeFacetFilterControl($(this), self.options.data.q);					
 				});	    		
     		}
