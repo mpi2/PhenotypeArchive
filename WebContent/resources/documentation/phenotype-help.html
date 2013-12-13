@@ -37,7 +37,9 @@
 			<li><a href="phenotype-help.html">Phenotypes</a> 
 			<ul>
 						<li><a href="phenotype-help.html#details">Phenotype details</a></li>
-						<li><a href="phenotype-help.html#phenotype-stats-panel">Phenotype association stats</a></li>
+						<li><a href="phenotype-help.html#phenotype-stats-panel">Phenotype association stats</a>
+							<ul> <li> <a href="phenotype-help.html#phenGraphs">Overview Graphs </a> </li> </ul>
+						</li>
 						<li><a href="phenotype-help.html#associations">Gene-Phenotype associations</a>
 							<ul>
 								<li><a href="phenotype-help.html#dvi">Direct vs. inferred associations</a></li>
@@ -81,7 +83,37 @@
 				associated to the current phenotype in one sex only, for example females is the number of genes associated to phenotypeX in 
 				females divided by the total number of genes tested in females for parameters potentially leading to phenotypeX associations. Thus, the percent 
 				values we show for females and males do not have to add up to 1 nor do the percentages for males/females only need to be smaller than the combined percentage.</p>
+				
 				<p> The data used for this panel is restricted to EuroPhenome data on B6N and B6NTac strains, to reduce background noise. </p> 				
+				
+				<h5> <a name="phenGraphs" href='#'> Overview Graphs</a></h5>
+				<p> The way we represent different types of data varies a lot in terms of what we select as control, what we represent (individual animals or strains) or values (means, count) 
+				so we describe each separately. </p>
+				
+				<p><b> Unidimensional Data </b> </p>
+				<figure>
+					<img class="well" src="img/unidimensional-overview.png"/>
+				</figure>
+				<p> Unidimensional data is plotted as stacked histograms. We take the mean for each <b>strain</b> and plot these values as a histogram. Please note that this approach flattens
+				 the results in case a phenotype occurs only in one sex/zigosity. The mutant strains are the ones represented in the table below. The control strains are the 
+				 other (mutant) strains, but for which for which we have no association to the current phenotype. 
+				</p>
+				
+				<p><b> Time series Data </b> </p>
+				<figure>
+					<img class="well" src="img/time-series-overview.png"/>
+				</figure>
+				<p> For time-series data we plot each mutant <b>strain</b> . We average the values in each strain at each time-point and thus get the plot values. The control is the baseline strain.
+				
+				<p><b> Categorical Data </b> </p>
+				<figure>
+					<img class="well" src="img/categorical-overview.png"/>
+				</figure>
+				<p> Categorical overview graphs are the most straight forward ones to interpret. We represent the number of <b>animals</b> in each category, but plot the percentages of these numbers. 
+				The control values are the ones of the baseline animals and the mutant values are for all mutant strains with this phenotype together. </p>
+				
+				
+				
 			<h3><a name="associations" href='#'>Gene-Phenotype associations</a></h3>
 			
 			<p>All gene variants associated with the current phenotype are shown in a table similar to the one on the gene page. The table contains several fields of interest such 
