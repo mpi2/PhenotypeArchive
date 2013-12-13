@@ -1038,7 +1038,7 @@ public class ObservationService {
 				controlM.set(binIndex, 1 + controlM.get(binIndex));
 			}
 		}
-		System.out.println(" Mutants list " + phenMutants);
+//		System.out.println(" Mutants list " + phenMutants);
 
 		Map<String, List<Double>> map = new HashMap<String, List<Double>>();
 		map.put("labels", upperBounds);
