@@ -343,7 +343,7 @@ public class CategoricalChartAndTableProvider {
 				+ toolTipFunction
 				+ ", chart: { renderTo: '"
 				+ chartId
-				+ "', type: 'column' }, title: { text: '"
+				+ "', type: 'column' },  credits: { enabled: false }, title: { text: '"
 				+ WordUtils.capitalize(title)
 				+ "' }, credits: { enabled: false }, "
 				+ "xAxis: { categories: "
@@ -360,7 +360,7 @@ public class CategoricalChartAndTableProvider {
 	private String createCategoricalHighChartUsingObjects(
 			CategoricalChartDataObject chartData, String parameterName,
 			BiologicalModel bm, String organisation) {
-		System.out.println(chartData);
+//		System.out.println(chartData);
 
 		// int size=categoricalBarCharts.size()+1;//to know which div to render
 		// to not 0 index as using loop count in jsp

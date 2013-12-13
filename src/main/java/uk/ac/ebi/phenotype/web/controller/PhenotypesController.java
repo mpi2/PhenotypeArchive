@@ -333,7 +333,7 @@ public class PhenotypesController {
 		Collections.sort(list);
 		//Map names=new 
 		for(PhenotypeRow pr: list){
-			if(pr.getGene().getSymbol().equals("Dll1"))System.out.println("phenotype row="+pr);
+			if(pr.getGene().getSymbol().equals("Dll1")) System.out.println("phenotype row="+pr);
 		}
 		model.addAttribute("phenotypes", new ArrayList<PhenotypeRow>(phenotypes.keySet()));	
 	}	
@@ -369,7 +369,6 @@ public class PhenotypesController {
 			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
 		//just pass on any query string after the ? to the solr requesting object for now
 		String queryString=request.getQueryString();
-		System.out.println("calling geneVariantsWithPhenotype");
 		processPhenotypes(acc, queryString, model);
 
 		return "geneVariantsWithPhenotypeTable";
@@ -490,7 +489,6 @@ public class PhenotypesController {
 				}
 			}
 			else if ( p != null && Utilities.checkType(p).equals(ObservationType.time_series)){
-				System.out.println("getting timeseries data for :  " + p);
 				List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
 				if (genes.size() > 0){
 					Map<String, List<DiscreteTimePoint>> data = os.getTimeSeriesMutantData(parameter, genes, strains);
@@ -499,9 +497,9 @@ public class PhenotypesController {
 				}
 			}
 			else if ( p != null && Utilities.checkType(p).equals(ObservationType.unidimensional)){
-				System.out.println("getting unidimensional data for :  " + p);
+//				System.out.println("getting unidimensional data for :  " + p);
 				List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
-				System.out.println(" genes for " + p + " " + genes);
+//				System.out.println(" genes for " + p + " " + genes);
 				if (genes.size() > 0){
 					Map<String, List<Double>> map = os.getUnidimensionalData(p, genes, strains, "experimental");
 					List<Double> control  = map.get("control");

@@ -19,6 +19,7 @@ import net.sf.json.JSONArray;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.random.EmpiricalDistribution;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -170,10 +171,10 @@ public class ObservationService {
 			+ "&wt=json&indent=true&start=" + start + "&rows=" + length;
 
 		net.sf.json.JSONObject result = JSONRestUtil.getResults(url);
-		System.out.println(result.toString());
+//		System.out.println(result.toString());
 		JSONArray resultsArray=JSONRestUtil.getDocArray(result);
 
-		System.out.println("start="+start+" end="+length);
+//		System.out.println("start="+start+" end="+length);
 
 		List<Map<String, String>> listWithStableId=new ArrayList<Map<String, String>>();
 		for(int i=0; i<resultsArray.size(); i++){
@@ -181,7 +182,7 @@ public class ObservationService {
 			net.sf.json.JSONObject exp=resultsArray.getJSONObject(i);
 			String statbleParamId=exp.getString(ObservationService.ExperimentField.PARAMETER_STABLE_ID);
 			String accession=exp.getString(ObservationService.ExperimentField.GENE_ACCESSION);
-			System.out.println(accession+" parameter="+statbleParamId);
+//			System.out.println(accession+" parameter="+statbleParamId);
 			map.put("paramStableId", statbleParamId);
 			map.put("accession",accession);
 			listWithStableId.add(map);
@@ -865,7 +866,7 @@ public class ObservationService {
 		query.set("sort", ExperimentField.DISCRETE_POINT + " asc");
 		query.setRows(10000);
 
-		System.out.println("+_+_+ " + solr.getBaseURL() + "/select?" + query);
+//		System.out.println("+_+_+ " + solr.getBaseURL() + "/select?" + query);
 		List<Group> groups = solr.query(query).getGroupResponse().getValues()
 				.get(0).getValues();
 		boolean rounding = false;
@@ -994,12 +995,10 @@ public class ObservationService {
 		query.set("group.limit", 10000); // number of documents to be returned
 											// per group
 
-		System.out.println("--- look --- " + solr.getBaseURL() + "/select?"
-				+ query);
+//		System.out.println("--- look --- " + solr.getBaseURL() + "/select?" + query);
 
 		// for each colony get the mean & put it in the array of data to plot
-		List<Group> groups = solr.query(query).getGroupResponse().getValues()
-				.get(0).getValues();
+		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
 		double[] meansArray = new double[groups.size()];
 		String[] allelesArray = new String[groups.size()];
 		int i = 0;
@@ -1015,7 +1014,7 @@ public class ObservationService {
 			allelesArray[i] = (String) resDocs.get(0).get(
 					ExperimentField.GENE_ACCESSION);
 			meansArray[i++] = sum / total;
-			System.out.println("adding : " + sum / total);
+//			System.out.println("adding : " + sum / total);
 		}
 
 		// we do the binning for all the data but fill the bins after that to
@@ -1024,8 +1023,7 @@ public class ObservationService {
 				20);
 
 		List<Double> upperBounds = new ArrayList<Double>();
-		org.apache.commons.math3.random.EmpiricalDistribution distribution = new org.apache.commons.math3.random.EmpiricalDistribution(
-				binCount);
+		EmpiricalDistribution distribution = new EmpiricalDistribution(binCount);
 
 		distribution.load(meansArray);
 		int k = 0;

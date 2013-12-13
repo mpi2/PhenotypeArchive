@@ -653,7 +653,7 @@ public class UnidimensionalChartAndTableProvider {
 		ChartData chartAndTable=new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setId(chartId);
-		System.out.println("... histogram with id " + chartId);
+//		System.out.println("... histogram with id " + chartId);
 		return chartAndTable;
 	}
 	
@@ -680,16 +680,17 @@ public class UnidimensionalChartAndTableProvider {
 				+ chartId
 				+ "'},"+
            " title: { text: '" + title + "' },"+
+           " credits: { enabled: false },"+
            " xAxis: { categories: " + labels + ", labels: {rotation: -45}  },"+
            " yAxis: { min: "+ min + ",  title: {  text: '"+yTitle+"'  }, stackLabels: { enabled: false}  }," +
            " tooltip: { formatter: function() { return ''+  this.series.name +': '+ this.y +'<br/>'+ 'Total: '+ this.point.stackTotal;  }  }, " +
            " plotOptions: { column: {  stacking: 'normal',  dataLabels: { enabled: false} } }," +
            " series: [{ name: 'Mutants',  data: " +  mutant + "  }, {name: 'Control', data: " + control + "}]" +  " });  }); });";
-		ChartData chartAndTable=new ChartData();
+		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setId(chartId);
-		System.out.println("... column-stacked with id " + chartId);
-		System.out.println("and the mutants were : " + mutant);
+//		System.out.println("... column-stacked with id " + chartId);
+//		System.out.println("and the mutants were : " + mutant);
 		return chartAndTable;
 		
 		/*
