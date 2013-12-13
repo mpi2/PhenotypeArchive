@@ -664,7 +664,7 @@ public class UnidimensionalChartAndTableProvider {
 		List<String> labels = new ArrayList<String> (); 
 		DecimalFormat df = new DecimalFormat("#.##");
 		for (double label : map.get("labels")){
-			labels.add("'<" + df.format(label) + "'");
+			labels.add("'" + df.format(label) + "'");
 		}
 		double min = 0; 
 		for (double val : mutant)
@@ -685,7 +685,7 @@ public class UnidimensionalChartAndTableProvider {
            " yAxis: { min: "+ min + ",  title: {  text: '"+yTitle+"'  }, stackLabels: { enabled: false}  }," +
            " tooltip: { formatter: function() { return ''+  this.series.name +': '+ this.y +'<br/>'+ 'Total: '+ this.point.stackTotal;  }  }, " +
            " plotOptions: { column: {  stacking: 'normal',  dataLabels: { enabled: false} } }," +
-           " series: [{ name: 'Mutants',  data: " +  mutant + "  }, {name: 'Control', data: " + control + "}]" +  " });  }); });";
+           " series: [{ name: 'Mutant strains with this phenotype called',  data: " +  mutant + "  }, {name: 'Mutant strains with no calls for this phenotype', data: " + control + "}]" +  " });  }); });";
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setId(chartId);
