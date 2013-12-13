@@ -386,7 +386,8 @@ public class ObservationService {
 	public String getQueryStringByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String geneAcc, String zygosity, Integer organisationId, String strain, SexType sex) throws SolrServerException {
 		return getSolrQueryByParameterGeneAccZygosityOrganisationStrainSex(parameterId, geneAcc, zygosity, organisationId, strain, sex.name()).toString();
 	}
-	
+
+	//TODO: REFACTOR CODE TO GET CONCURRENT OR ALL CONTROLS TO HERE
 	public List<ObservationDTO> getObservationsByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, String zygosity, Integer organisationId, String strain, SexType sex) throws SolrServerException {
         SolrQuery query = getSolrQueryByParameterGeneAccZygosityOrganisationStrainSex(parameterId, gene, zygosity, organisationId, strain, sex.name());
         return solr.query(query).getBeans(ObservationDTO.class);
@@ -406,7 +407,7 @@ public class ObservationService {
 	}
 
 	public List<ObservationDTO> getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(Integer parameterId, String gene, 
-			String zygosity, Integer organisationId, String strain, SexType sex, String phenotypingCenter) throws SolrServerException {
+			String zygosity, Integer phenotypingCenterId, String strain, SexType sex) throws SolrServerException {
 		
 		List<ObservationDTO> resultsDTO = new ArrayList<ObservationDTO>();
 		SolrQuery query = new SolrQuery()
@@ -421,17 +422,13 @@ public class ObservationService {
 		if (strain != null) {
 	    	query.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"));
 		}
-		if (organisationId != null) {
-			query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId);
+		if (phenotypingCenterId != null) {
+			query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + phenotypingCenterId);
 		}
 		if (sex != null) {
 			query.addFilterQuery(ExperimentField.SEX + ":" + sex);
 		}
 		//MRC Harwell spaces need to be handled with quotes
-
-		if (phenotypingCenter != null) {
-			query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER + ":\"" + phenotypingCenter+"\"");
-		}
 
 	    QueryResponse response = solr.query(query);
 	    resultsDTO = response.getBeans(ObservationDTO.class);
@@ -985,6 +982,69 @@ public class ObservationService {
 			}
 		}		
 		return genes.size();
+	}
+
+	/**
+	 * Get all controls for a specified set of center, strain, parameter, and
+	 * (optional) sex.
+	 * 
+	 * @param parameterId
+	 * @param strain
+	 * @param organisationId
+	 * @param sex if null, both sexes are returned
+	 * @return
+	 * @throws SolrServerException
+	 */
+	public List<ObservationDTO> getAllControlsBySex(Integer parameterId, String strain, Integer organisationId, String sex) throws SolrServerException {
+
+		List<ObservationDTO> results = new ArrayList<ObservationDTO>();
+
+		QueryResponse response = new QueryResponse();
+		
+		SolrQuery query = new SolrQuery()
+			.setQuery("*:*")
+			.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":control")
+			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
+			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
+			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
+			.setStart(0)
+			.setRows(5000)
+		;
+
+		if(sex!=null) {
+			query.addFilterQuery(ExperimentField.SEX + ":" + sex);
+		}
+
+		response = solr.query(query);		
+		results = response.getBeans(ObservationDTO.class);
+		
+		return results;
+	}
+
+	public List<ObservationDTO> getConcurrentControlsBySex(Integer parameterId, String strain, Integer organisationId, Date experimentDate, String sex) throws SolrServerException {
+
+		List<ObservationDTO> results = new ArrayList<ObservationDTO>();
+
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00");
+		
+		QueryResponse response = new QueryResponse();
+	
+		SolrQuery query = new SolrQuery()
+			.setQuery("*:*")
+			.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":control")
+			.addFilterQuery(ExperimentField.DATE_OF_EXPERIMENT + ":["+df.format(DateUtils.addDays(experimentDate,-1))+"Z TO "+df.format(DateUtils.addDays(experimentDate, 1))+"Z]")
+			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
+			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
+			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
+			.addFilterQuery(ExperimentField.SEX + ":" + sex)
+			.setStart(0)
+			.setRows(5000)
+		;
+
+		response = solr.query(query);		
+		results = response.getBeans(ObservationDTO.class);
+		
+		return results;
 	}
 
 	
