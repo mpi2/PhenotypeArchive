@@ -128,7 +128,7 @@
 			});				
 						
 			// click on SUM facetCount to fetch results in grid										
-			caller.find('span.facetCount').click(function(event){
+			/*caller.find('span.facetCount').click(function(event){
 				
 				if ( $(this).text() != '0' ){
 				
@@ -149,7 +149,7 @@
 						window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
 					}
 				}	
-			});							
+			});*/							
     	},
     	 	        	
 	    // want to use _init instead of _create to allow the widget being invoked each time by same element

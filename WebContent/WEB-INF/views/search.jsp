@@ -68,14 +68,15 @@
 						$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);						
 						$.fn.loadDataTable(oHashParams);
 					}
-					else {
-						console.log('from filter');
+					else {						
 						// parse selected checkbox(es) of this facet
 						var facet = oHashParams.facetName;
 						var aFilters = [];
 						$('ul#facetFilter li.' + facet + ' li a').each(function(){
+							console.log('check filter: '+ $(this).text());
 							aFilters.push($(this).text());
 						});
+						console.log('filter: ' + aFilters );
 						oHashParams.filters = aFilters;
 						oHashParams.facetName = facet + 'Facet';
 						$.fn.loadDataTable(oHashParams);

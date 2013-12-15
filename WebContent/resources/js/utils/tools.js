@@ -35,18 +35,19 @@
 	}	
 	$.fn.setFacetCounts = function(q, paramStr, fqStr, facet){
 		console.log(q + " -- " + paramStr + " -- " + fqStr + " -- " + facet);
-		paramStr = paramStr.replace('selected_top_level_ma_term', 'inferred_selected_top_level_ma_term');
-        
+		var gene_paramStr = paramStr.replace('selected_top_level_ma_term', 'inferred_selected_top_level_ma_term');
+		gene_paramStr = gene_paramStr.replace('subtype', 'marker_type');
+				
 		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['status', 'imits_phenotype_complete', 'imits_phenotype_started', 'imits_phenotype_status', 
          'marker_type']);
         
-        paramStr += '&fq='+ MPI2.searchAndFacetConfig.facetParams.geneFacet.fq + fecetFieldsStr;        
-        console.log('GENE: '+ paramStr);
+        gene_paramStr += '&fq='+ MPI2.searchAndFacetConfig.facetParams.geneFacet.fq + fecetFieldsStr;        
+        console.log('GENE: '+ gene_paramStr);
         
 		$.ajax({ 	
 			//'url': solrUrl + '/mega/select',
     		'url': 'http://localhost:8983/solr/mega_gene/select', // starts with gene
-    		'data': paramStr + fecetFieldsStr,
+    		'data': gene_paramStr,
     		'dataType': 'jsonp',
     		'jsonp': 'json.wrf',
     		'success': function(json) {
@@ -68,8 +69,20 @@
     				do_megaPipeline(paramStr);
     				do_megaImages(paramStr);
     				
-    				// now update dataTable
-	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable
+    				// now update dataTable	 
+    				if ( facet == 'images' || facet == 'gene' ){
+    					fqStr = fqStr.replace('subtype', 'marker_type');    				
+    				}
+    				else if ( facet == 'ma' ){
+    					fqStr = fqStr.replace('top_level_mp_term','inferred_top_level_mp_term');
+    					fqStr = fqStr.replace('inferred_selected_top_level_ma_term','selected_top_level_ma_term');  
+    					fqStr += ' AND ontology_subset:IMPC_Terms';
+    				}
+    				else if ( facet == 'mp' ){
+    					fqStr += ' AND ontology_subset:*';
+    				}
+    				
+    				
 	    	    	if (q == '*:*'){
 	    	    		window.location.hash = 'q=' + q + '&fq=' + fqStr + '&facet=' + facet;    	    		
 	    	    	}
@@ -245,7 +258,7 @@
 		console.log('PIPELINE: '+ paramStr);
 		$.ajax({ 	
 			//'url': solrUrl + '/mega/select',
-			'url': 'http://localhost:8983/solr/mega_pipeline/select', // starts with gene
+			'url': 'http://localhost:8983/solr/mega_pipeline/select',
 			'data': paramStr,
 			'dataType': 'jsonp',
 			'jsonp': 'json.wrf',
@@ -269,7 +282,7 @@
 					
 					$('table#mpFacetTbl td.mpTopLevel[rel="' + facetCount + '"]').text(facetName);    					
 					$('table#mpFacetTbl td.mpTopLevelCount a[rel="' + facetName + '"]').text(facetCount);			
-				}*/    			
+				}*/  			
 			}
 		});		
 	}	
@@ -295,17 +308,35 @@
     			$('table#imagesFacetTbl td.imgSubfacetCount a').text('0');
     			    			
     			var imgCount = json.response.numFound;
-    			$('div#imagesFacet span.facetCount').text(imgCount);
+    			$('div#imagesFacet span.facetCount').text(imgCount);    			
     			
-    			/*for (var i=0; i<oFacets.top_level_mp_term.length; i=i+2){	
-    				//console.log('92 : '+ oFacets.top_level_mp_term[i]);
-    				var facetName = oFacets.top_level_mp_term[i];
-    				var facetName2 = facetName.replace(' phenotype', '');    				   				
-    				var facetCount = oFacets.top_level_mp_term[i+1];
-    				
-    				$('table#mpFacetTbl td.mpTopLevel[rel="' + facetCount + '"]').text(facetName);    					
-    				$('table#mpFacetTbl td.mpTopLevelCount a[rel="' + facetName + '"]').text(facetCount);			
-    			} */   			
+    			var aSubFacets = ['subtype','expName','annotatedHigherLevelMaTermName','annotatedHigherLevelMpTermName'];    			
+    			for ( var i=0; i<aSubFacets.length; i++){
+    				var facetStr = aSubFacets[i];
+    				var sClass = facetStr;
+	    			for (var j=0; j<oFacets[facetStr].length; j=j+2){
+	    				
+	    				if ( facetStr == 'annotatedHigherLevelMaTermName' ){    					
+	    					sClass = 'annotated_or_inferred_higherLevelMaTermName';
+	    				}
+	    				else if (facetStr == 'annotatedHigherLevelMpTermName'){
+	    					sClass = 'annotated_or_inferred_higherLevelMpTermName';
+	    				}
+	    				
+	    				var facetName = oFacets[facetStr][j];	    								   				
+	    				var facetCount = oFacets[facetStr][j+1];
+	    				
+	    				var oTr = $('table#imagesFacetTbl tr.'+ sClass + '[rel="' + facetName + '"]');
+	    				//console.log(oTr);
+	    				//console.log(oTr.find('td.imgSubfacet').text());
+	    				oTr.find('td.imgSubfacet').attr('rel', facetCount).text(facetName);
+	    					    				
+	    				var jsonStr = oTr.find('td.imgSubfacetCount a').attr('rel');
+	    				var oJson = eval("(" + jsonStr + ")");	    				
+	    				oJson.imgCount = facetCount;
+	    				oTr.find('td.imgSubfacetCount a').text(facetCount);	    				
+	    			}  
+    			}
     		}
 		});		
 	}	
@@ -381,7 +412,7 @@
 	    			$('table#mpFacetTbl td.mpTopLevel').attr('rel', '0');
 	    			$('table#mpFacetTbl td.mpTopLevelCount a').text('0');
 	    			var mpCount = oFacets.mp_idTermDef.length / 2;		
-	    			$('div#mpFacet span.facetCount').text(mpCount);
+	    			console.log('OPEN FACET: ' + fqStr);$('div#mpFacet span.facetCount').text(mpCount);
 	    			for (var i=0; i<oFacets.top_level_mp_term.length; i=i+2){	
 	    				//console.log('92 : '+ oFacets.top_level_mp_term[i]);
 	    				var facetName = oFacets.top_level_mp_term[i];
@@ -459,7 +490,7 @@
 			thisLi.find('ul li').each(function(){
 				if ( $(this).find('a').attr('rel') == oChkbox.attr('rel') ){			
 					$(this).remove();					
-					oChkbox.parent().find('td.highlight').removeClass('highlight');					
+					oChkbox.parent().parent().find('td.highlight').removeClass('highlight');					
 				}
 			});			
 			
@@ -936,6 +967,7 @@
     				|| aKV[i].match(/fq=ontology_subset:IMPC_Terms AND \(?selected_top_level_ma_term.+\)?/)
     				|| aKV[i].match(/fq=\(?top_level_mp_term.+\)?/)
     				|| aKV[i].match(/fq=\(?selected_top_level_ma_term.+\)?/)
+    				|| aKV[i].match(/fq=\(?inferred_top_level_mp_term.+\)?/)
     				|| aKV[i].match(/fq=\({0,}production_center:.+\)?/)
     				|| aKV[i].match(/fq=\({0,}phenotyping_center:.+\)?/)
     				|| aKV[i].match(/fq=\(?ontology_subset:.+/)
@@ -1169,12 +1201,7 @@
     	else {
     		oInfos.facetName = oHashParams.facetName; 
     	}
-    	if ( typeof oHashParams.facetName != 'undefined' && oVal.solrCoreName != 'gene' ){  
-    		// mega core is based on gene document so no need to parse results via faceting for gene facet  		   		
-    		var facetQryStr = MPI2.searchAndFacetConfig.mega.Facets[oInfos.facetName];
-    		oInfos.params += facetQryStr;
-    	}
-		
+    			
 		oInfos.q = q;
 		oInfos.fq = fqStr;	
 		oInfos.filters = oHashParams.filters;

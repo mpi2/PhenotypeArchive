@@ -170,13 +170,18 @@ public class SolrIndex {
 			Integer iDisplayLength, boolean showImgView) {
 		String internalSolrUrl = config.get("internalSolrUrl");
 		
+		if (core.contains("Facet")){
+			core = "mega_" + core.replace("Facet", "");
+		}
+		
 		String url = internalSolrUrl + "/" + core + "/select?";
-
+	
+		
 		//temporary
 		if ( core.startsWith("mega_")) {
 			url = "http://localhost:8983/solr/" + core + "/select?";
 		}
-		
+		System.out.println(("BASEURL: " + url));
 		if (mode.equals("mpPage")) {
 			url += "q=" + query;
 			url += "&start=0&rows=0&wt=json&qf=auto_suggest&defType=edismax";

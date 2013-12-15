@@ -91,7 +91,8 @@ public class DataTableController {
 		System.out.println("solr params: " + solrParams);
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(solrParams);
 		
-		String solrCoreName = jParams.containsKey("solrCoreName") ? jParams.getString("solrCoreName") : jParams.getString("facetName");				
+		String solrCoreName = jParams.containsKey("solrCoreName") ? jParams.getString("solrCoreName") : jParams.getString("facetName");	
+				
 		List<String> filters = jParams.containsKey("filters") ? jParams.getJSONArray("filters") : null;	
 		System.out.println("FILTERS: " + filters);
 		String query = "";

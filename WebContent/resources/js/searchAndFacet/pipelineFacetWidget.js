@@ -92,7 +92,7 @@
 													
 			// click on SUM facetCount to fetch results in grid
 			//$('span.facetCount').click(function(){								
-			caller.find('span.facetCount').click(function(){	
+			/*caller.find('span.facetCount').click(function(){	
 				if ( $(this).text() != '0' ){	
 					
 					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
@@ -112,7 +112,7 @@
 						window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
 					}
 				}				
-			});	
+			});	*/
     	},
  	        	
 	    // want to use _init instead of _create to allow the widget being invoked each time by same element

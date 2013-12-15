@@ -95,36 +95,8 @@
 				}	
 			});	
 								
-			// click on SUM facetCount to fetch results in grid											
-			caller.find('span.facetCount').click(function(){
-				
-				if ( $(this).text() != '0' ){
-					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
-					
-					$.fn.removeFacetFilter(solrCoreName);
-					
-					// remove highlight from selected				
-					$('table#mpFacetTbl td').removeClass('highlight');
-					
-					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
-					var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-					
-					console.log(oHashParams);
-					/*if (oHashParams.facetName){
-						oHashParams.facetName += 'Facet';
-						$.fn.loadDataTable(oHashParams);
-					}
-					else {*/
-						// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-						if (self.options.data.q == '*:*'){
-							window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
-						}
-						else {
-							window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
-						}
-					//}
-				}				
-			});	
+			// click on SUM facetCount to fetch results in grid: deprecated											
+			
     	},
  	        	
 	    // want to use _init instead of _create to allow the widget being invoked each time by same element
@@ -199,42 +171,11 @@
     			table = null;
     		}	    			
     		$('div#'+facetDivId+ ' .facetCatList').html(table);
-    		
-    		$('table#mpFacetTbl td a').click(function(){
-    			
-    			// also remove all filters for that facet container	
-    			$.fn.removeFacetFilter('mp');
-    			// now update filter
-    			$.fn.addFacetFilter($(this).parent().parent().find('input'), self.options.data.q); 	        			
-    			
-    			// uncheck all facet filter checkboxes 
-    			$('table#mpFacetTbl input').attr('checked', false);
-    			// now check this checkbox
-    			$(this).parent().parent().find('input').attr('checked', true);
-    			
-    			// remove all highlight
-    			$('table#mpFacetTbl td.mpTopLevel').removeClass('highlight');
-    			// now highlight this one
-    			$(this).parent().parent().find('td.mpTopLevel').addClass('highlight');
-	    			        			
-    			// update hash tag so that we know there is hash change, which then triggers loadDataTable	  	    			
-	    		//var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND top_level_mp_term:"' + $(this).attr('rel')  + '"';  		
-	    		var fqStr = 'top_level_mp_term:"' + $(this).attr('rel')  + '"';  
-	    		/*if (self.options.data.q == '*:*'){
-	    			//window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=mp';
-	    			window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&facet=mp';
-	    		}
-	    		else {
-	    			//window.location.hash = 'fq=' + fqStr + '&core=mp';
-	    			window.location.hash = 'fq=' + fqStr + '&facet=mp';
-	    		}*/
-    			$.fn.composeFacetFilterControl($(this).parent().parent().find('td.mpTopLevel'), self.options.data.q);	
-    			
-    		});  
+    		    		
     		    		
     		$('table#mpFacetTbl input').click(function(){
     			// highlight the item in facet
-    			$(this).parent().find('td.mpTopLevel').addClass('highlight');
+    			$(this).parent().parent().find('td.mpTopLevel').addClass('highlight');
     			    			
 				$.fn.composeFacetFilterControl($(this), self.options.data.q);					
 			});  

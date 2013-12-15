@@ -159,19 +159,19 @@ span.annotType {
 table#diseaseGrid th:nth-child(1) {
 	width: 35% !important;
 }
-table#geneFacetTbl td.geneSubtypeCount,
+/*table#geneFacetTbl td.geneSubtypeCount,
 table#geneFacetTbl td.geneStatusCount,
 table#geneFacetTbl td.geneSubfacetCount,
-/*table#pipelineFacetTbl td[class^=procedure],*/ 
+table#pipelineFacetTbl td[class^=procedure], 
 table#pipelineFacetTbl td a.paramCount,
 table#mpFacetTbl td.mpTopLevelCount,
 table#maFacetTbl td.maTopLevelCount,
 table#imagesFacetTbl td.imgSubfacetCount,
 table#diseaseFacetTbl td.diseaseSubfacetCount
-/*table#mpFacetTbl td.mpTopLevel*/ 
-/*table#maFacetTbl td.maTopLevelCount, table#maFacetTbl td.maTopLevel */{
+table#mpFacetTbl td.mpTopLevel
+table#maFacetTbl td.maTopLevelCount, table#maFacetTbl td.maTopLevel {
 	cursor: pointer;	
-}
+}*/
 tr.subFacet td:nth-child(1){
 	width: 20px !important;
 }
@@ -375,7 +375,7 @@ div.dataTables_wrapper {
 
 /* ----- start of  facet filter ----- */
 div#filterToggle {
-	display: none;
+	display: block;
 }
 ul#facetFilter {
   width: auto;	
@@ -387,7 +387,7 @@ ul#facetFilter {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
-  display: none;
+  display: block;
 }
 ul#facetFilter ul {
   /*z-index: 9999;	
@@ -417,7 +417,9 @@ ul#facetFilter li.has-sub {
 ul#facetFilter li.none {
 	display: block;
 }
-
+ul#facetFilter li.has-sub img {
+	cursor: pointer;
+}
 
 /* ----- end of  facet filter ----- */
 

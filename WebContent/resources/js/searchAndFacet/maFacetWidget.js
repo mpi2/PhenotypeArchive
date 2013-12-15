@@ -59,7 +59,44 @@
 						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));										
 						
 						// if no selected subfacet, load all results of this facet
-						if ( caller.find('table#maFacetTbl td.highlight').size() == 0 ){	
+						if ( typeof oHashParams.facetName != 'undefined'){
+							window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + '&facet=' +  solrCoreName; 
+						}
+						else {
+							// if no selected subfacet, load all results of this facet
+							if ( caller.find('table#maFacetTbl td.highlight').size() == 0 ){						
+								//window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
+							}	
+							else {		
+								// if there is selected subfacets: work out the url							
+								if ( self.options.data.core != oHashParams.coreName ){															
+								
+									var fqFieldVals = {};
+									
+									caller.find('table#maFacetTbl td.highlight').each(function(){									
+										var val = $(this).siblings('td').find('a').attr('rel');								
+										var fqField = 'selected_top_level_ma_term';
+										
+										if ( typeof fqFieldVals[fqField] === 'undefined' ){
+											fqFieldVals[fqField] = [];										
+										}									
+										fqFieldVals[fqField].push(fqField + ':"' + val + '"');
+									});					
+									
+									var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND ' + $.fn.compose_AndOrStr(fqFieldVals);
+								
+				  	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable 	
+									if (self.options.data.q == '*:*'){
+										window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
+									}
+									else {
+										window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
+									}
+								}	
+							}
+						}	
+						// if no selected subfacet, load all results of this facet
+						/*if ( caller.find('table#maFacetTbl td.highlight').size() == 0 ){	
 							//alert('here');
 							//window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
 						}	
@@ -89,7 +126,7 @@
 									window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
 								}			  	    			
 							}	
-						}	
+						}*/	
 					}					
 				}	
 			});	
@@ -189,35 +226,7 @@
     			table = null;
     		}	    			
     		$('div#'+facetDivId+ ' .facetCatList').html(table);
-    		
-    		$('table#maFacetTbl td a').click(function(){    			
-    			
-    			// also remove all filters for that facet container	
-    			$.fn.removeFacetFilter('ma');
-    			// now update filter
-    			$.fn.addFacetFilter($(this).parent().parent().find('input'), self.options.data.q); 	        			
-    			
-    			// uncheck all facet filter checkboxes 
-    			$('table#maFacetTbl input').attr('checked', false);
-    			// now check this checkbox
-    			$(this).parent().parent().find('input').attr('checked', true);
-    			
-    			// remove all highlight
-    			$('table#maFacetTbl td.maTopLevel').removeClass('highlight');
-    			// now highlight this one
-    			$(this).parent().parent().find('td.maTopLevel').addClass('highlight');      			
-    			
-	    			        			
-    			// update hash tag so that we know there is hash change, which then triggers loadDataTable	  	    			
-	    		var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND selected_top_level_ma_term:"' + $(this).attr('rel')  + '"';	    			    			
-	    		
-	    		if (self.options.data.q == '*:*'){	    		
-	    			window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=ma';
-	    		}
-	    		else {
-	    			window.location.hash = 'fq=' + fqStr + '&core=ma';
-	    		}    			
-    		});  
+    		    		
     		    		
     		$('table#maFacetTbl input').click(function(){
     			// highlight the item in facet
