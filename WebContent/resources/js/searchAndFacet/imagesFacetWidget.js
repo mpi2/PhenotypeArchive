@@ -260,7 +260,7 @@
   	    	else {
   	    		$('div#'+facetDivId+ ' .facetCatList').html(table);
   	    		
-  	    		table.find('td a').click(function(){	
+  	    		/*table.find('td a').click(function(){	
   	    			
   	    			$.fn.setDefaultImgSwitcherConf();
   	    			
@@ -287,7 +287,7 @@
   	    			else {
   	    				window.location.hash = oParams.params.replace(/q=\b.*\b&/, '') + '&core=' + oParams.solrCoreName;
   	    			}  	    			
-  	    		});	
+  	    		});	*/
   	    		
   	    		table.find('input').click(function(){	
   	    			

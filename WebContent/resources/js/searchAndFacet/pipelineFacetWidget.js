@@ -171,7 +171,7 @@
 	        			var procedure_name = facets[f];
 	        			var paramCount = facets[f+1];
 	        				        			
-	        			var pClass = 'procedure'+f;
+	        			var pClass = 'procedure'+f + ' ' + procedureName2IdKey[procedure_name].stable_id;
 	        			var tr = $('<tr></tr>').attr({'class':'subFacet'});
 	        			
 	        			var coreField = 'pipeline|procedure_stable_id|' + procedure_name + '___' + procedureName2IdKey[procedure_name].stable_id + '|' + paramCount;	

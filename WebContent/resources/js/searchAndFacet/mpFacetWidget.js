@@ -43,7 +43,7 @@
 						caller.find('.facetCatList').hide(); // hide itself					
 					}
 					else {	
-						console.log('open facetCatClick');
+						
 						caller.parent().find('div.facetCatList').hide(); // collapse all other facets 
 						caller.find('.facetCatList').show(); // show itself					
 						$(this).addClass('facetCatUp');						

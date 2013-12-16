@@ -34,17 +34,80 @@
 		
 	}	
 	$.fn.setFacetCounts = function(q, paramStr, fqStr, facet){
-		console.log(q + " -- " + paramStr + " -- " + fqStr + " -- " + facet);
-		var gene_paramStr = paramStr.replace('selected_top_level_ma_term', 'inferred_selected_top_level_ma_term');
-		gene_paramStr = gene_paramStr.replace('subtype', 'marker_type');
-				
-		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['status', 'imits_phenotype_complete', 'imits_phenotype_started', 'imits_phenotype_status', 
-         'marker_type']);
+		
+		console.log(q + " -- " + paramStr + " -- " + fqStr + " -- " + facet);		
         
-        gene_paramStr += '&fq='+ MPI2.searchAndFacetConfig.facetParams.geneFacet.fq + fecetFieldsStr;        
-        console.log('GENE: '+ gene_paramStr);
+        if ( $('ul#facetFilter li li a').size() == 0 ){
+			if ( q == '*:*'){
+				document.location.href = baseUrl + '/search';
+			}
+			else {
+				document.location.href = baseUrl + '/search?q=' + q;
+			}
+		}
+		else {  
+			
+			if ( fqStr.indexOf('expName:') != -1 ){
+				// gene is not linke to images (procedure_name)
+				$('div#geneFacet span.facetCount').text(0);
+			}
+			else {
+				do_megaGene(paramStr);
+			}
+						
+			do_megaMp(paramStr);
+			
+			if ( facet != 'images' && facet != 'pipeline' ){
+				// no images/procedures are annotated to diesease
+				do_megaDisease(paramStr);
+			}
+			else {
+				$('div#diseaseFacet span.facetCount').text(0);
+			}
+			
+			do_megaMa(paramStr);
+			do_megaPipeline(paramStr, facet);
+			do_megaImages(paramStr);
+			
+			// now update dataTable	 
+			if ( facet == 'images' || facet == 'gene' ){
+				fqStr = fqStr.replace('subtype', 'marker_type');    				
+			}
+			else if ( facet == 'ma' ){
+				fqStr = fqStr.replace('top_level_mp_term','inferred_top_level_mp_term');
+				fqStr = fqStr.replace('inferred_selected_top_level_ma_term','selected_top_level_ma_term');  
+				fqStr += ' AND ontology_subset:IMPC_Terms';
+			}
+			else if ( facet == 'mp' ){
+				fqStr += ' AND ontology_subset:*';
+			}
+			else if ( facet == 'pipeline' ){
+				var oMapping = {
+					'Dysmorphology' : 'IMPC_CSD_002',
+					'Eye Morphology' : 'IMPC_EYE_001',
+					'Flow Cytometry' : 'IMPC_FAC_001',
+					'Histology Slide' : 'IMPC_HIS_001',
+					'Wholemount Expression' : 'IMPC_ALZ_001',
+					'Xray' : 'IMPC_XRY_001',
+					'expName:' : 'procedure_stable_id:'
+				}	
+				for( var name in oMapping ){
+					fqStr = fqStr.replace(name, oMapping[name]);
+				}		
+			}		
+			
+	    	if (q == '*:*'){
+	    		window.location.hash = 'q=' + q + '&fq=' + fqStr + '&facet=' + facet;    	    		
+	    	}
+	    	else {
+	    		window.location.hash = 'fq=' + fqStr + '&facet=' + facet;    	    		
+	    	}	
+			
+		}
         
-		$.ajax({ 	
+        
+        
+		/*$.ajax({ 	
 			//'url': solrUrl + '/mega/select',
     		'url': 'http://localhost:8983/solr/mega_gene/select', // starts with gene
     		'data': gene_paramStr,
@@ -61,10 +124,22 @@
     					document.location.href = baseUrl + '/search?q=' + q;
     				}
     			}
-    			else {    				
+    			else {    
+    				
+    				
     				do_megaGene(json);
+    				
+    				
     				do_megaMp(paramStr);
-    				do_megaDisease(paramStr);
+    				
+    				if ( facet != 'images'){
+    					// no images are annotated to diesease
+    					do_megaDisease(paramStr);
+    				}
+    				else {
+    					$('div#diseaseFacet span.facetCount').text(0);
+    				}
+    				
     				do_megaMa(paramStr);
     				do_megaPipeline(paramStr);
     				do_megaImages(paramStr);
@@ -91,48 +166,70 @@
 	    	    	}	
     			}
     		}
-		});
+		});*/
 	}	
 	
-	function do_megaGene(json){
+	function do_megaGene(paramStr){
 		
-		var oFacets = json.facet_counts.facet_fields;
-		
-		// refresh gene facet
-		
-		var geneCount = json.response.numFound;
-		$('div#geneFacet span.facetCount').text(geneCount);    			
+		paramStr = paramStr.replace('selected_top_level_ma_term', 'inferred_selected_top_level_ma_term');
+		console.log('check paramStr: ' + paramStr);
+		paramStr = paramStr.replace('subtype', 'marker_type');
 				
-		$('table#geneFacetTbl td.geneSubfacetCount').each(function(){
-			$(this).find('a').text('0');
-		})			
-			
-		for (var i=0; i<oFacets.status.length; i=i+2){			
-			var subFacetName = oFacets.status[i];
-			$('table#geneFacetTbl td.geneSubfacetCount a[rel="' + subFacetName + '"]').text(oFacets.status[i+1]);
-		}	
-		for (var i=0; i<oFacets.marker_type.length; i=i+2){
-			//console.log(oFacets.marker_type[i] + oFacets.marker_type[i+1]);
-			var subFacetName = oFacets.marker_type[i];
-			$('table#geneFacetTbl td.geneSubfacetCount a[rel="' + subFacetName + '"]').text(oFacets.marker_type[i+1]);
-		}
-		
-		for (var i=0; i<oFacets.imits_phenotype_complete.length; i=i+2){
-			if (oFacets.imits_phenotype_complete[i] == '1'){
-				$('table#geneFacetTbl td.geneSubfacetCount a[class="imits_phenotype_complete"]').text(oFacets.imits_phenotype_complete[i+1]);
-			}
-		}
-		for (var i=0; i<oFacets.imits_phenotype_started.length; i=i+2){
-			if (oFacets.imits_phenotype_started[i] == '1'){	    						
-				$('table#geneFacetTbl td.geneSubfacetCount a[class="imits_phenotype_started"]').text(oFacets.imits_phenotype_started[i+1]);
-			}
-		}
-		for (var i=0; i<oFacets.imits_phenotype_status.length; i=i+2){
-			//console.log('***** '+ oFacets.imits_phenotype_status[i]);
-			if (oFacets.imits_phenotype_status[i] == 'Phenotype Attempt Registered'){	    					
-				$('table#geneFacetTbl td.geneSubfacetCount a[class="imits_phenotype_status"]').text(oFacets.imits_phenotype_status[i+1]);
-			}
-		}
+		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['status', 'imits_phenotype_complete', 'imits_phenotype_started', 'imits_phenotype_status', 
+         'marker_type']);
+        
+        paramStr += '&fq='+ MPI2.searchAndFacetConfig.facetParams.geneFacet.fq + fecetFieldsStr;        
+        console.log('GENE: '+ paramStr);
+        
+        $.ajax({ 	
+			//'url': solrUrl + '/mega/select',
+    		'url': 'http://localhost:8983/solr/mega_gene/select', // starts with gene
+    		'data': paramStr,
+    		'dataType': 'jsonp',
+    		'jsonp': 'json.wrf',
+    		'success': function(json) {
+    			console.log('gene');
+    			console.log(json);
+    			
+				var oFacets = json.facet_counts.facet_fields;
+				
+				// refresh gene facet
+				
+				var geneCount = json.response.numFound;
+				$('div#geneFacet span.facetCount').text(geneCount);    			
+						
+				$('table#geneFacetTbl td.geneSubfacetCount').each(function(){
+					$(this).find('a').text('0');
+				})			
+					
+				for (var i=0; i<oFacets.status.length; i=i+2){			
+					var subFacetName = oFacets.status[i];
+					$('table#geneFacetTbl td.geneSubfacetCount a[rel="' + subFacetName + '"]').text(oFacets.status[i+1]);
+				}	
+				for (var i=0; i<oFacets.marker_type.length; i=i+2){
+					//console.log(oFacets.marker_type[i] + oFacets.marker_type[i+1]);
+					var subFacetName = oFacets.marker_type[i];
+					$('table#geneFacetTbl td.geneSubfacetCount a[rel="' + subFacetName + '"]').text(oFacets.marker_type[i+1]);
+				}
+				
+				for (var i=0; i<oFacets.imits_phenotype_complete.length; i=i+2){
+					if (oFacets.imits_phenotype_complete[i] == '1'){
+						$('table#geneFacetTbl td.geneSubfacetCount a[class="imits_phenotype_complete"]').text(oFacets.imits_phenotype_complete[i+1]);
+					}
+				}
+				for (var i=0; i<oFacets.imits_phenotype_started.length; i=i+2){
+					if (oFacets.imits_phenotype_started[i] == '1'){	    						
+						$('table#geneFacetTbl td.geneSubfacetCount a[class="imits_phenotype_started"]').text(oFacets.imits_phenotype_started[i+1]);
+					}
+				}
+				for (var i=0; i<oFacets.imits_phenotype_status.length; i=i+2){
+					//console.log('***** '+ oFacets.imits_phenotype_status[i]);
+					if (oFacets.imits_phenotype_status[i] == 'Phenotype Attempt Registered'){	    					
+						$('table#geneFacetTbl td.geneSubfacetCount a[class="imits_phenotype_status"]').text(oFacets.imits_phenotype_status[i+1]);
+					}
+				}
+    		}
+        });
 	}
 	
 	function do_megaMp(paramStr){
@@ -176,6 +273,9 @@
 				
 		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['disease_classes','disease_source','human_curated','mouse_curated','impc_predicted','impc_predicted_in_locus','mgi_predicted','mgi_predicted_in_locus']);
 				
+		
+		//paramStr = paramStr.replace('annotated_or_inferred_higherLevelMpTermName:"adipose tissue phenotype")
+		
 		console.log('DISEASE: '+ paramStr + fecetFieldsStr);
 				
 		$.ajax({ 	
@@ -249,9 +349,25 @@
 		});		
 	}	
 	
-	function do_megaPipeline(paramStr){
+	function do_megaPipeline(paramStr, facet){
 		
 		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['procedure_name', 'procedure_stable_id']);
+		
+		// image expName and pipeline procedure_name mapping
+		if ( facet == 'images' || facet == 'pipeline' ){
+			var oMapping = {
+				'Dysmorphology' : 'IMPC_CSD_002',
+				'Eye Morphology' : 'IMPC_EYE_001',
+				'Flow Cytometry' : 'IMPC_FAC_001',
+				'Histology Slide' : 'IMPC_HIS_001',
+				'Wholemount Expression' : 'IMPC_ALZ_001',
+				'Xray' : 'IMPC_XRY_001',
+				'expName:' : 'procedure_stable_id:'				
+			}	
+			for( var name in oMapping ){
+				paramStr = paramStr.replace(name, oMapping[name]);
+			}		
+		}			
 		
 		//paramStr += '&fq=pipeline_stable_id:IMPC_001' + fecetFieldsStr; 
 		paramStr += fecetFieldsStr; 
@@ -274,22 +390,22 @@
 				var pipelineCount = json.response.numFound;
 				$('div#pipelineFacet span.facetCount').text(pipelineCount);
 				
-				/*for (var i=0; i<oFacets.procedure_name.length; i=i+2){	
+				for (var i=0; i<oFacets.procedure_name.length; i=i+2){	
 				
-					var facetName = oFacets.top_level_mp_term[i];
-					var facetName2 = facetName.replace(' phenotype', '');    				   				
-					var facetCount = oFacets.top_level_mp_term[i+1];
+					var facetName = oFacets.procedure_name[i];									   				
+					var facetCount = oFacets.procedure_name[i+1];
+					var sClass = oFacets.procedure_stable_id[i];
 					
-					$('table#mpFacetTbl td.mpTopLevel[rel="' + facetCount + '"]').text(facetName);    					
-					$('table#mpFacetTbl td.mpTopLevelCount a[rel="' + facetName + '"]').text(facetCount);			
-				}*/  			
+					$('table#pipelineFacetTbl td.' + sClass).attr('rel', facetCount);    					
+					$("table#pipelineFacetTbl td a[rel='" + sClass + "']").text(facetCount);			
+				}  			
 			}
 		});		
 	}	
 
 	function do_megaImages(paramStr){
 		
-		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['annotatedHigherLevelMpTermName', 'annotatedHigherLevelMaTermName', 'expName', 'subtype']);		
+		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['annotated_or_inferred_higherLevelMpTermName', 'annotated_or_inferred_higherLevelMaTermName', 'expName', 'subtype']);		
 		paramStr += fecetFieldsStr; 
 		console.log('IMAGES: '+ paramStr);
 		$.ajax({ 	
@@ -310,23 +426,15 @@
     			var imgCount = json.response.numFound;
     			$('div#imagesFacet span.facetCount').text(imgCount);    			
     			
-    			var aSubFacets = ['subtype','expName','annotatedHigherLevelMaTermName','annotatedHigherLevelMpTermName'];    			
+    			var aSubFacets = ['subtype','expName','annotated_or_inferred_higherLevelMpTermName','annotated_or_inferred_higherLevelMaTermName'];    			
     			for ( var i=0; i<aSubFacets.length; i++){
-    				var facetStr = aSubFacets[i];
-    				var sClass = facetStr;
-	    			for (var j=0; j<oFacets[facetStr].length; j=j+2){
-	    				
-	    				if ( facetStr == 'annotatedHigherLevelMaTermName' ){    					
-	    					sClass = 'annotated_or_inferred_higherLevelMaTermName';
-	    				}
-	    				else if (facetStr == 'annotatedHigherLevelMpTermName'){
-	    					sClass = 'annotated_or_inferred_higherLevelMpTermName';
-	    				}
+    				var facetStr = aSubFacets[i];    				
+	    			for (var j=0; j<oFacets[facetStr].length; j=j+2){	    				
 	    				
 	    				var facetName = oFacets[facetStr][j];	    								   				
 	    				var facetCount = oFacets[facetStr][j+1];
 	    				
-	    				var oTr = $('table#imagesFacetTbl tr.'+ sClass + '[rel="' + facetName + '"]');
+	    				var oTr = $('table#imagesFacetTbl tr.'+ facetStr + '[rel="' + facetName + '"]');
 	    				//console.log(oTr);
 	    				//console.log(oTr.find('td.imgSubfacet').text());
 	    				oTr.find('td.imgSubfacet').attr('rel', facetCount).text(facetName);
@@ -1097,11 +1205,11 @@
     }   
     
     function _prepare_resultMsg_and_dTableSkeleton(q, fqStr, facetDivId){
-    console.log('here-1');
+    console.log('here-1: ' +  facetDivId);
     	var oVal = MPI2.searchAndFacetConfig.facetParams[facetDivId];
     	var dTable = $.fn.fetchEmptyTable(oVal.tableHeader, 
                 oVal.tableCols, oVal.gridName);
-    	 console.log('here-2');
+    	
     	var imgViewSwitcher = '';
     	if ( facetDivId == 'imagesFacet' ){
     		imgViewSwitcher = _load_imgViewSwitcher(dTable, oVal);    		
@@ -1205,7 +1313,7 @@
 		oInfos.q = q;
 		oInfos.fq = fqStr;	
 		oInfos.filters = oHashParams.filters;
-		console.log(oInfos.params);
+		
 		$.fn.updateBreadCrumb(oVal.solrCoreName);		
 		$.fn.openFacet(oVal.solrCoreName);		
 		$.fn.invokeDataTable(oInfos);
@@ -1252,9 +1360,9 @@
     		"sDom": "<'row-fluid'<'#exportSpinner'><'#tableTool'>r>t<'row-fluid'<'span6'i><'span6'p>>",    		
 			"sPaginationType": "bootstrap",    		
     		"fnDrawCallback": function( oSettings ) {  // when dataTable is loaded
-    		
+    			    			
     			// bring in some control logic for image view switcher when dataTable is loaded
-    			if (oInfos.solrCoreName == 'images'){    				
+    			if ( oInfos.facetName == 'imagesFacet' || oInfos.solrCoreName == 'images' ){    				
     				$('span#imgViewSwitcher').click(function(){	
     		   			
     		   			var oConf = MPI2.searchAndFacetConfig.facetParams.imagesFacet;  
@@ -1271,8 +1379,10 @@
     		   				$.fn.setDefaultImgSwitcherConf(); 
     		   				oInfos.showImgView = true;   		   				
     		   			}  
+    		   			    		   			
+    		   			var sfacet = typeof oInfos.solrCoreName == 'undefined' ? oInfos.facetName : oInfos.solrCoreName+'Facet';
+    		   			_prepare_resultMsg_and_dTableSkeleton(oInfos.q, oInfos.fq, sfacet);
     		   			
-    		   			_prepare_resultMsg_and_dTableSkeleton(oInfos.q, oInfos.fq, oInfos.solrCoreName+'Facet');
     		   			$.fn.invokeDataTable(oInfos);    		   					
     		   		});   
     			}  
@@ -1373,8 +1483,8 @@
 		dataType = count > 1 ? dataType : dataType.replace(/s$/, '');	
 		
 		var txt = count + ' ' + dataType;
-		
-		if ( sFacet == 'images' ){
+		console.log('1383: ' + sFacet);
+		if ( sFacet == 'imagesFacet' ){
 						
 			var imgUrl = baseUrl + "/imagesb?" + oInfos.params;
 			
