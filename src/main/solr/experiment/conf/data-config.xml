@@ -26,6 +26,14 @@
 			
 			return row;
 		}
+		
+		function computeMetadataGroup(row) {
+
+			var md = row.get('metadata');
+			row.put('metadata_group', md.join(",");
+
+			return row;
+		}
 	]]>
 	</script>
 
@@ -36,13 +44,13 @@
 
 		<!-- For all observations (data points) -->
 		<entity dataSource="komp2ds" transformer="script:getData" name="observation" query="
-			SELECT strain.strain_acc, pipe.name as pipeline_name, pipe.id as pipeline_id, pipe.stable_id as pipeline_stable_id, param.name as parameter_name, proc.name as procedure_name, proc.id as procedure_id, proc.stable_id as procedure_stable_id, param.stable_id as parameter_stable_id,bs.organisation_id, org.name, bs.sample_group, gf.acc as acc, ls.sex as sex, ls.colony_id, ls.zygosity, gf.symbol as symbol, bms.biological_model_id as bmid, ls.date_of_birth as birthdate, ls.colony_id, e.date_of_experiment, e.external_id, e.id as experiment_id, o.*, co.category as category, uo.data_point as unidimensional_data_point, mo.data_point as multidimensional_data_point, mo.order_index, mo.dimension, tso.data_point as time_series_data_point, tso.time_point, tso.discrete_point, mdo.property_value as value, bs.external_id as external_sample_id
+			SELECT strain.strain_acc, pipe.name as pipeline_name, pipe.id as pipeline_id, pipe.stable_id as pipeline_stable_id, param.name as parameter_name, proc.name as procedure_name, proc.id as procedure_id, proc.stable_id as procedure_stable_id, param.stable_id as parameter_stable_id,bs.organisation_id, org.name, bs.sample_group, gf.acc as acc, ls.sex as sex, ls.colony_id, ls.zygosity, gf.symbol as symbol, bms.biological_model_id as bmid, ls.date_of_birth as birthdate, ls.colony_id, e.date_of_experiment, e.external_id, e.id as experiment_id, o.*, co.category as category, uo.data_point as unidimensional_data_point, mo.data_point as multidimensional_data_point, mo.order_index, mo.dimension, tso.data_point as time_series_data_point, tso.time_point, tso.discrete_point, iro.file_type, iro.full_resolution_file_path, iro.small_thumbnail_file_path, bs.external_id as external_sample_id
 			FROM observation o
 			LEFT OUTER JOIN categorical_observation co ON o.id=co.id
 			LEFT OUTER JOIN unidimensional_observation uo ON o.id=uo.id
 			LEFT OUTER JOIN multidimensional_observation mo ON o.id=mo.id
 			LEFT OUTER JOIN time_series_observation tso ON o.id=tso.id
-			LEFT OUTER JOIN metadata_observation mdo ON o.id=mdo.id
+			LEFT OUTER JOIN image_record_observation iro ON o.id=iro.id
 			INNER JOIN biological_sample bs ON bs.id=o.biological_sample_id
 			INNER JOIN organisation org ON bs.organisation_id=org.id
 			INNER JOIN live_sample ls ON bs.id=ls.id
@@ -57,7 +65,7 @@
 			INNER JOIN phenotype_pipeline pipe ON pipe.id=pipeproc.pipeline_id
 			INNER JOIN experiment_observation eo ON eo.observation_id=o.id
 			INNER JOIN experiment e on eo.experiment_id=e.id
-			WHERE o.missing = 0
+			WHERE o.missing = 0 limit 100000
 			">
 
 			<field column="id" name="id" />
@@ -74,6 +82,9 @@
 			<field column="dimension" name ="dimension" />
 			<field column="time_point" name ="time_point" />
 			<field column="discrete_point" name ="discrete_point" />
+			<field column="full_resolution_file_path" name ="full_resolution_file_path" />
+			<field column="large_thumbnail_file_path" name ="large_thumbnail_file_path" />
+			<field column="small_thumbnail_file_path" name ="small_thumbnail_file_path" />
 
 			<field column="acc" name="gene_accession" />
 			<field column="symbol" name="gene_symbol" />
@@ -104,6 +115,20 @@
 			<field column="external_id" name ="experiment_source_id" />
 			<field column="date_of_experiment" name ="date_of_experiment" />
 
+			<!--  metadata -->
+            <entity dataSource="komp2ds" name="procedureMetaData"
+               	query="select concat(parameter_id, ':', value) as metadata from procedure_meta_data where experiment_id=${observation.experiment_id}">
+                <field column="metadata" name="metadata" />
+         	</entity>
+
+            <entity transformer="script:computeMetadataGroup" name="procedureMetaDataGroup">
+				<field column="metadata_group" name ="metadata_group" />
+			</entity>
+         	
+
+			<entity dataSource="komp2ds" transformer="script:getData" name="mdata" query="">
+			</entity>
+			
 		</entity>
 
 	</document>
