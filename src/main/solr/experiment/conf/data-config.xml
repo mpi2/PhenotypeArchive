@@ -26,14 +26,7 @@
 			
 			return row;
 		}
-		
-		function computeMetadataGroup(row) {
 
-			var md = row.get('metadata');
-			row.put('metadata_group', md.join(",");
-
-			return row;
-		}
 	]]>
 	</script>
 
@@ -121,14 +114,12 @@
                 <field column="metadata" name="metadata" />
          	</entity>
 
-            <entity transformer="script:computeMetadataGroup" name="procedureMetaDataGroup">
+            <entity dataSource="komp2ds" name="procedureMetaDataGroup" 
+            	query="select MD5(GROUP_CONCAT(DISTINCT CONCAT(parameter_id, ':', value) ORDER BY parameter_id ASC SEPARATOR '')) as metadata_group 
+					FROM procedure_meta_data 
+					WHERE experiment_id=${observation.experiment_id}">
 				<field column="metadata_group" name ="metadata_group" />
-			</entity>
-         	
-
-			<entity dataSource="komp2ds" transformer="script:getData" name="mdata" query="">
-			</entity>
-			
+			</entity>         	
 		</entity>
 
 	</document>
