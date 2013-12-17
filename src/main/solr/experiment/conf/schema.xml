@@ -56,7 +56,6 @@
 		<field name="parameter_stable_id"     type="string" indexed="true" stored="true" multiValued="false" /> 
 
 		<field name="experiment_id"           type="int"    indexed="true" stored="true" multiValued="false" /> 
-		<field name="phenotyping_center"      type="string" indexed="true" stored="true" multiValued="false" />
 		<field name="experiment_source_id"    type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="date_of_experiment"      type="tdate"  indexed="true" stored="true" multiValued="false" />
 	
