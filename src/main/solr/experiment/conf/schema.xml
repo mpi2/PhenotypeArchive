@@ -74,8 +74,8 @@
 		<field name="category"        type="string" indexed="true" stored="true" multiValued="false" /> 
 
 		<!-- metadata -->
-		<field name="metadata"                type="string" indexed="true" stored="true" multiValued="true" /> 
-		<field name="metadata_group"          type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="metadata"        type="string" indexed="true" stored="true" multiValued="true" /> 
+		<field name="metadata_group"  type="string" indexed="true" stored="true" multiValued="false" /> 
 		
 		<!-- images -->
 		<field name="full_resolution_file_path" type="string" indexed="true" stored="true" multiValued="false" />
