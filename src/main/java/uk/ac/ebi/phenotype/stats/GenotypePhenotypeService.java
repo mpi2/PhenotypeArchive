@@ -1,10 +1,7 @@
 package uk.ac.ebi.phenotype.stats;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.Proxy;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,15 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.Group;
@@ -42,7 +34,6 @@ import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.pojo.PipelineSolrImpl;
 import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.Project;
 import uk.ac.ebi.phenotype.pojo.SexType;
@@ -50,7 +41,6 @@ import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
-import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 
 @Service
@@ -95,8 +85,8 @@ public class GenotypePhenotypeService {
 		public final static String PIPELINE_NAME = "pipeline_name";		//
 	}
 	
-	public GenotypePhenotypeService(String baseUrl){
-		solr = getSolrInstance(baseUrl);
+	public GenotypePhenotypeService(String solrUrl){
+		solr = new HttpSolrServer(solrUrl);
 	}
 	
 	public List<Group> getGenesBy(String phenotype_id, String sex) throws SolrServerException{
@@ -114,25 +104,7 @@ public class GenotypePhenotypeService {
 		QueryResponse results = solr.query(q);
 		return results.getGroupResponse().getValues().get(0).getValues();
 	}
-	
-	private HttpSolrServer getSolrInstance(String solrBaseUrl){
-		Proxy proxy; 
-		HttpSolrServer server = null;
-		try {
-			proxy = (new HttpProxy()).getProxy(new URL(solrBaseUrl));
-			if (proxy != null) {
-				DefaultHttpClient client = new DefaultHttpClient();
-				client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-				server = new HttpSolrServer(solrBaseUrl, client);
-			}
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		if(server == null){
-			server = new HttpSolrServer(solrBaseUrl);
-		}
-		return server;
-	}
+
 	
 	public List<String> getGenesAssocByParamAndMp (String parameterStableId, String phenotype_id) throws SolrServerException{
 		List<String> res = new ArrayList<String>();
@@ -231,7 +203,6 @@ public class GenotypePhenotypeService {
 	public Parameter getParameterByStableId(
 			String paramStableId, String queryString) throws IOException,
 			URISyntaxException {
-		String pipelineCoreString="pipeline";
 		String solrUrl = solr.getBaseURL()
 				+ "/select/?q=" + GenotypePhenotypeField.PARAMETER_STABLE_ID + ":\""
 				+ paramStableId

@@ -37,7 +37,9 @@
 			<li><a href="phenotype-help.html">Phenotypes</a> 
 			<ul>
 						<li><a href="phenotype-help.html#details">Phenotype details</a></li>
-						<li><a href="phenotype-help.html#phenotype-stats-panel">Phenotype association stats</a></li>
+						<li><a href="phenotype-help.html#phenotype-stats-panel">Phenotype association stats</a>
+							<ul> <li> <a href="phenotype-help.html#phenGraphs">Overview Graphs </a> </li> </ul>
+						</li>
 						<li><a href="phenotype-help.html#associations">Gene-Phenotype associations</a>
 							<ul>
 								<li><a href="phenotype-help.html#dvi">Direct vs. inferred associations</a></li>
@@ -80,8 +82,42 @@
 				a phenotype. As multiple parameters may map to the same phenotype, percentages are calculated across all parameters that map to a phenotype. The percentage of genes 
 				associated to the current phenotype in one sex only, for example females is the number of genes associated to phenotypeX in 
 				females divided by the total number of genes tested in females for parameters potentially leading to phenotypeX associations. Thus, the percent 
-				values we show for females and males do not have to add up to 1 nor do the percentages for males/females only need to be smaller than the combined percentage.</p>
-				<p> The data used for this panel is restricted to EuroPhenome data on B6N and B6NTac strains, to reduce background noise. </p> 				
+				values we show for females and males may not add up to 1 nor do the percentages for males/females have to be smaller than the combined percentage.</p>
+				
+				<p> Currently the data used for this panel is restricted to EuroPhenome data on B6N and B6NTac strains. This will be replaced when a sufficient amount of IMPC phenotype 
+				data becomes available. Mutant strains with the phenotype association appear in the gene -phenoytype table found further down the phenotype page. Users may view the control
+				 and phenotype data that was used in the phenotype call using links from this table.</p> 				
+				
+				<h5> <a name="phenGraphs" href='#'> Overview Graphs</a></h5>
+				<p> The way we represent different types of data varies in what we select as control, what we represent (individual animals or strains) or values (means, count) 
+				so we describe each separately. </p>
+				
+				<p><b> Unidimensional Data </b> </p>
+				<figure>
+					<img class="well" src="img/unidimensional-overview.png"/>
+				</figure>
+				<p> Unidimensional data is plotted as stacked histograms. We take the mean for each <b>strain</b> and plot these values as a histogram. . Mutant strains that have been
+				 associated to the phenotype are highlighted including those strains where the phenotype was only observed in one gender or zygotic state. Some strains may be associated
+				  to a phenotype that do not appear to be an outlier; this usually result from controls having relatively low or high values in the time period the mutant strain was tested.
+				</p>
+				
+				<p><b> Time series Data </b> </p>
+				<figure>
+					<img class="well" src="img/time-series-overview.png"/>
+				</figure>
+				<p> For time-series data we plot mean values for each mutant <b>strain</b> . We average the values in each strain at each time-point and thus get the plot values. 
+				To simplify visualization of calorimetric parameters, data is binned into discrete time points by taking the mean of values measured between two time points. The 
+				control data represents the mean of all C57BL/6N baseline animals.
+				
+				<p><b> Categorical Data </b> </p>
+				<figure>
+					<img class="well" src="img/categorical-overview.png"/>
+				</figure>
+				<p> Categorical overview graphs represent the percentage of <b>animals</b> in each category. 
+				The control values are percentages of baseline animals and the mutant values are percentage of animals from mutant strains for which the phenotype association is made. </p>
+				
+				
+				
 			<h3><a name="associations" href='#'>Gene-Phenotype associations</a></h3>
 			
 			<p>All gene variants associated with the current phenotype are shown in a table similar to the one on the gene page. The table contains several fields of interest such 

@@ -261,7 +261,7 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	public List<String> getParameterStableIdsByPhenotypeTerm(String mpTermId) {
 		
 		String query = "SELECT DISTINCT pp.stable_id FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa " +
-		"ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=5 AND ppoa.ontology_acc=?";
+		"ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=5 AND ppoa.ontology_acc=? LIMIT 1000";
 		PreparedStatement statement = null;
 	    ResultSet resultSet = null;
 	    ArrayList<String> parameters = new ArrayList<String>();

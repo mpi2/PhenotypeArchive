@@ -215,7 +215,7 @@ public class ExperimentDTO {
 		return homozygoteMutants;
 	}
 	
-	public HashSet<ObservationDTO> getHemizygoteMutants() {
+	public Set<ObservationDTO> getHemizygoteMutants() {
 		return hemizygoteMutants;
 	}
 

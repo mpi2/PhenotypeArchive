@@ -17,7 +17,7 @@ public class CategoricalResultAndCharts {
 	List<CategoricalChartDataObject> maleAndFemale=new ArrayList<CategoricalChartDataObject>();
 	List<BiologicalModel> biologicalModels=new ArrayList<BiologicalModel>();
 	private List<CategoricalResult> statsResults; 
-	private String organisation="blah";
+	private String organisation="placeHolder";
 	
 	public List<CategoricalResult> getStatsResults() {
 		return statsResults;

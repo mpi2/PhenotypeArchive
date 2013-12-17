@@ -46,6 +46,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import uk.ac.ebi.generic.util.ExcelWorkBook;
 import uk.ac.ebi.generic.util.SolrIndex;
+import uk.ac.ebi.phenotype.dao.OrganisationDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.PipelineSolrImpl;
@@ -69,6 +70,9 @@ public class FileExportController {
 
 	@Autowired
 	private ExperimentService experimentService;
+	
+	@Autowired
+	OrganisationDAO organisationDao;
 		
 	
 
@@ -118,6 +122,13 @@ public class FileExportController {
 		List<String> dataRows = new ArrayList<String> ();
 		// Default to exporting 10 rows
 		Integer length = 10;
+
+		Integer phenotypingCenterId = null;
+		try {
+			phenotypingCenterId = organisationDao.getOrganisationByName(phenotypingCenter).getId();
+		} catch (NullPointerException e) {
+			log.error("Cannot find organisation ID for org with name " + phenotypingCenter);
+		}
 		
 		panelName = panelName == null ? "" : panelName; 
 	
@@ -150,7 +161,7 @@ public class FileExportController {
 				}
 				else{
 					String zyg = (zygosity.equalsIgnoreCase("null")) ? null : zygosity; 
-					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, null, zyg, strain, phenotypingCenter);
+					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, phenotypingCenterId, zyg, strain);
 				}
 				// Remove the title row (row 0) from the list and assign it to
 				// the string array for the spreadsheet
@@ -181,7 +192,7 @@ public class FileExportController {
 				if (!solrCoreName.equalsIgnoreCase("experiment")){
 					dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);}
 				else{
-					dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, null, zygosity, strain, phenotypingCenter);
+					dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, phenotypingCenterId, zygosity, strain);
 				}
 			}
 		}
@@ -262,7 +273,7 @@ public class FileExportController {
 		return tableData;
 	}
 	
-	public List<String> composeExperimetDataExportRows(String parameterStableId, String geneAccession, String gender, Integer organisationId, String zygosity, String strain, String phenotypingCenter) throws SolrServerException, IOException, URISyntaxException{
+	public List<String> composeExperimetDataExportRows(String parameterStableId, String geneAccession, String gender, Integer phenotypingCenterId, String zygosity, String strain) throws SolrServerException, IOException, URISyntaxException{
 		List<String> rows = new ArrayList<String>();
 		SexType sex = null;
 		if (gender != null)
@@ -271,7 +282,7 @@ public class FileExportController {
 		if (parameterStableId.contains("\t")){
 			String [] params = parameterStableId.split("\t");
 			for (int k = 0; k < params.length; k++){
-				experimentList = experimentService.getExperimentDTO(params[k], geneAccession, sex, organisationId, zygosity, strain, phenotypingCenter);
+				experimentList = experimentService.getExperimentDTO(params[k], geneAccession, sex, phenotypingCenterId, zygosity, strain);
 				for (ExperimentDTO experiment : experimentList) { 
 					rows.addAll(experiment.getTabbedToString()) ;
 				}
@@ -279,7 +290,7 @@ public class FileExportController {
 			}
 		}
 		else {
-			experimentList = experimentService.getExperimentDTO(parameterStableId, geneAccession, sex, organisationId, zygosity, strain, phenotypingCenter);
+			experimentList = experimentService.getExperimentDTO(parameterStableId, geneAccession, sex, phenotypingCenterId, zygosity, strain);
 			for (ExperimentDTO experiment : experimentList) { 
 				rows.addAll(experiment.getTabbedToString()) ;
 			}

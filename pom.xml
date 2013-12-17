@@ -49,31 +49,39 @@
 
 	<dependencies>
 
-<!--Phenodigm disease pages dependencies-->
-       <dependency>
-            <groupId>uk.ac.sanger</groupId>
-            <artifactId>phenodigm2-core</artifactId>
-            <version>1.2</version>
-        </dependency>
-        
-	<dependency>
-	<groupId>org.bbop</groupId>
-	<artifactId>OWLTools-Core</artifactId>
-	<version>0.2.1-SNAPSHOT</version>
-</dependency>
 
-	<dependency>
-		<groupId>net.sourceforge.owlapi</groupId>
-		<artifactId>owlapi-distribution</artifactId>
-		<version>3.4.5</version>
-	</dependency>
 
-	<dependency>
-		<groupId>org.bbop</groupId>
-		<artifactId>OWLTools-Oort</artifactId>
-		<version>0.2.1-SNAPSHOT</version>
-	</dependency>
-	
+		<!--Phenodigm disease pages dependencies -->
+		<dependency>
+			<groupId>uk.ac.sanger</groupId>
+			<artifactId>phenodigm2-core</artifactId>
+			<version>1.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math3</artifactId>
+			<version>3.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.bbop</groupId>
+			<artifactId>OWLTools-Core</artifactId>
+			<version>0.2.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sourceforge.owlapi</groupId>
+			<artifactId>owlapi-distribution</artifactId>
+			<version>3.4.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.bbop</groupId>
+			<artifactId>OWLTools-Oort</artifactId>
+			<version>0.2.1-SNAPSHOT</version>
+		</dependency>
+
 
 		<dependency>
 			<groupId>se.jiderhamn</groupId>
@@ -294,11 +302,11 @@
 
 		<!-- HTTP components Dependencies -->
 
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-            <version>4.3</version>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpcore</artifactId>
+			<version>4.3</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
@@ -512,23 +520,23 @@
 
 
 	<repositories>
-	<!--  OWL TOOLS -->
-	<repository>
-		<id>BerkeleyBOP</id>
-		<name>Berkeley BOP maven repository</name>
-		<url>http://code.berkeleybop.org/maven/repository/</url>
-		<snapshots>
-			<enabled>true</enabled>
-		</snapshots>
-	</repository>
-	<repository>
-		<id>BerkeleyBOPSnapshot</id>
-		<url>http://code.berkeleybop.org/maven/snapshot-repository/</url>
-		<snapshots>
-			<enabled>true</enabled>
-		</snapshots>
-	</repository>
-	
+		<!-- OWL TOOLS -->
+		<repository>
+			<id>BerkeleyBOP</id>
+			<name>Berkeley BOP maven repository</name>
+			<url>http://code.berkeleybop.org/maven/repository/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>BerkeleyBOPSnapshot</id>
+			<url>http://code.berkeleybop.org/maven/snapshot-repository/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+
 		<!-- JBoss Repository used for Java EE 6 pieces -->
 		<repository>
 			<id>repository.jboss.org</id>
@@ -872,6 +880,7 @@
 							<includes>
 								<include>**/dao/*</include>
 								<include>**/pojo/*</include>
+								<include>**/phenotype/util/*</include>
 								<include>**/data/europhenome/*</include>
 								<include>**/data/impress/*</include>
 								<include>**/stats/**</include>
@@ -1055,7 +1064,7 @@
 			</build>
 
 		</profile>
-    <profile>
+		<profile>
 			<id>external-user</id>
 
 			<properties>
@@ -1115,8 +1124,10 @@
 							</excludes>
 						</configuration>
 					</plugin>
-<!-- allows you to select derived on the target directory in eclipse so we dont have it polluting search etc and then this stops the target being overwritten and thus the setting reset all the time -->
-				<!--  http://stackoverflow.com/questions/283489/is-there-a-way-to-hide-maven-2-target-folder-in-eclipse-3 -->
+					<!-- allows you to select derived on the target directory in eclipse 
+						so we dont have it polluting search etc and then this stops the target being 
+						overwritten and thus the setting reset all the time -->
+					<!-- http://stackoverflow.com/questions/283489/is-there-a-way-to-hide-maven-2-target-folder-in-eclipse-3 -->
 					<plugin>
 						<artifactId>maven-clean-plugin</artifactId>
 						<configuration>

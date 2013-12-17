@@ -1,11 +1,10 @@
-package uk.ac.ebi.phenotype.util;
+package uk.ac.ebi.phenotype.pojo;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import uk.ac.ebi.phenotype.pojo.ObservationType;
-import uk.ac.ebi.phenotype.pojo.StatisticalResult;
+import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 
 
 

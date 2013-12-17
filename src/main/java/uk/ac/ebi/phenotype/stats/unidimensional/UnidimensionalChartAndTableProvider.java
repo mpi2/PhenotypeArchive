@@ -3,6 +3,7 @@ package uk.ac.ebi.phenotype.stats.unidimensional;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -627,4 +628,136 @@ public class UnidimensionalChartAndTableProvider {
 		return chartString;
 	}
 
+	public ChartData getHistogram(List<String> labels, List<Double> values, String title){
+		double min = 0; 
+		for (double val : values)
+			if (val< min)
+				min = val;
+		String chartId = "histogram" + values.hashCode();
+		String yTitle = "Number of strains";
+		String javascript = "$(function () {    var chart; $(document).ready(function() {chart = new Highcharts.Chart({ chart: {  type: 'column' , renderTo: '"
+				+ chartId
+				+ "'},"+
+           " title: { text: '" + title + "' },  subtitle: {   text: '' }, "+
+           " xAxis: { categories: " + labels + " },"+
+           " yAxis: { min: "+ min + ",  title: {  text: '"+yTitle+"'  }   },"+
+           " tooltip: {"+
+             "   headerFormat: '<span style=\"font-size:10px\">{point.key}</span><table>',"+
+              "  pointFormat: '<tr><td style=\"color:{series.color};padding:0\">{series.name}: </td>' +"+
+               "     '<td style=\"padding:0\"><b>{point.y:.1f} mm</b></td></tr>',"+
+               " footerFormat: '</table>', shared: true,  useHTML: true  }, "+
+           "  plotOptions: {   column: {  pointPadding: 0.2,  borderWidth: 0  }  }," +
+               "   series: [{ name: 'Mutants',  data: "+
+           values + "  }]"+
+               " });  }); });";
+		ChartData chartAndTable=new ChartData();
+		chartAndTable.setChart(javascript);
+		chartAndTable.setId(chartId);
+//		System.out.println("... histogram with id " + chartId);
+		return chartAndTable;
+	}
+	
+	public ChartData getStackedHistogram(Map<String, List<Double>> map, String title){
+	//	http://jsfiddle.net/gh/get/jquery/1.9.1/highslide-software/highcharts.com/tree/master/samples/highcharts/demo/column-stacked/
+		List<Double> control  = map.get("control");
+		List<Double> mutant  = map.get("mutant");					
+		List<String> labels = new ArrayList<String> (); 
+		DecimalFormat df = new DecimalFormat("#.##");
+		for (double label : map.get("labels")){
+			labels.add("'" + df.format(label) + "'");
+		}
+		double min = 0; 
+		for (double val : mutant)
+			if (val< min)
+				min = val;
+		for (double val : control)
+			if (val< min)
+				min = val;
+		String chartId = "column-stacked" + mutant.hashCode();
+		String yTitle = "Number of strains";
+		
+		String javascript = "$(function () {    var chart; $(document).ready(function() {chart = new Highcharts.Chart({ chart: {  type: 'column' , renderTo: '"
+				+ chartId
+				+ "'},"+
+           " title: { text: '" + title + "' },"+
+           " credits: { enabled: false },"+
+           " xAxis: { categories: " + labels + ", labels: {rotation: -45}  },"+
+           " yAxis: { min: "+ min + ",  title: {  text: '"+yTitle+"'  }, stackLabels: { enabled: false}  }," +
+           " tooltip: { formatter: function() { return ''+  this.series.name +': '+ this.y +'<br/>'+ 'Total: '+ this.point.stackTotal;  }  }, " +
+           " plotOptions: { column: {  stacking: 'normal',  dataLabels: { enabled: false} } }," +
+           " series: [{ name: 'Mutant strains with this phenotype called',  data: " +  mutant + "  }, {name: 'Mutant strains with no calls for this phenotype', data: " + control + "}]" +  " });  }); });";
+		ChartData chartAndTable = new ChartData();
+		chartAndTable.setChart(javascript);
+		chartAndTable.setId(chartId);
+//		System.out.println("... column-stacked with id " + chartId);
+//		System.out.println("and the mutants were : " + mutant);
+		return chartAndTable;
+		
+		/*
+		 * $(function () {
+        $('#container').highcharts({
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'Stacked column chart'
+            },
+            xAxis: {
+                categories: ['Apples', 'Oranges', 'Pears', 'Grapes', 'Bananas']
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Total fruit consumption'
+                },
+                stackLabels: {
+                    enabled: true,
+                    style: {
+                        fontWeight: 'bold',
+                        color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                    }
+                }
+            },
+            legend: {
+                align: 'right',
+                x: -70,
+                verticalAlign: 'top',
+                y: 20,
+                floating: true,
+                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColorSolid) || 'white',
+                borderColor: '#CCC',
+                borderWidth: 1,
+                shadow: false
+            },
+            tooltip: {
+                formatter: function() {
+                    return '<b>'+ this.x +'</b><br/>'+
+                        this.series.name +': '+ this.y +'<br/>'+
+                        'Total: '+ this.point.stackTotal;
+                }
+            },
+            plotOptions: {
+                column: {
+                    stacking: 'normal',
+                    dataLabels: {
+                        enabled: true,
+                        color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                    }
+                }
+            },
+            series: [{
+                name: 'John',
+                data: [5, 3, 4, 7, 2]
+            }, {
+                name: 'Jane',
+                data: [2, 2, 3, 2, 1]
+            }, {
+                name: 'Joe',
+                data: [3, 4, 4, 2, 5]
+            }]
+        });
+    });
+		 * 
+		 * */		
+	}
 }

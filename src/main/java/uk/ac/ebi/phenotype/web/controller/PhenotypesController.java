@@ -23,6 +23,7 @@ import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -59,6 +60,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.generic.util.SolrIndex;
+import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.impress.Utilities;
@@ -70,8 +72,10 @@ import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
+import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
 import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.Synonym;
+import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 import uk.ac.ebi.phenotype.stats.ExperimentService;
 import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
@@ -80,7 +84,8 @@ import uk.ac.ebi.phenotype.stats.ObservationService;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalChartAndTableProvider;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalResultAndCharts;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
-import uk.ac.ebi.phenotype.util.PhenotypeCallSummaryDAOReadOnly;
+import uk.ac.ebi.phenotype.stats.timeseries.TimeSeriesChartAndTableProvider;
+import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalChartAndTableProvider;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
@@ -243,7 +248,7 @@ public class PhenotypesController {
 		model.addAttribute("procedures", procedures);
 		model.addAttribute("genePercentage", getPercentages(phenotype_id));
 		
-		model.addAttribute("overviewPhenCharts", getCategoricalDataOverviewCharts(phenotype_id, model));
+		model.addAttribute("overviewPhenCharts", getDataOverviewCharts(phenotype_id, model));
 		
 		return "phenotypes";
 	}
@@ -364,7 +369,6 @@ public class PhenotypesController {
 			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
 		//just pass on any query string after the ? to the solr requesting object for now
 		String queryString=request.getQueryString();
-		System.out.println("calling geneVariantsWithPhenotype");
 		processPhenotypes(acc, queryString, model);
 
 		return "geneVariantsWithPhenotypeTable";
@@ -438,10 +442,10 @@ public class PhenotypesController {
  		pgs.setTotalPercentage(100*(float)nominator/(float)total);
 		pgs.setTotalGenesAssociated(nominator);
 		pgs.setTotalGenesTested(total);
-		
+
 		boolean display = (total > 0 && nominator > 0) ? true : false;
 		pgs.setDisplay(display);		
-		
+
 		if (display){
 			//females only
 			nominator = gpService.getGenesBy(phenotype_id, "female").size();
@@ -449,7 +453,7 @@ public class PhenotypesController {
 			pgs.setFemalePercentage(100*(float)nominator/(float)total);
 			pgs.setFemaleGenesAssociated(nominator);
 			pgs.setFemaleGenesTested(total);
-			
+
 			//males only
 			nominator = gpService.getGenesBy(phenotype_id, "male").size();
 			total = os.getTestedGenes(phenotype_id, "male", parameters);
@@ -457,14 +461,17 @@ public class PhenotypesController {
 			pgs.setMaleGenesAssociated(nominator);
 			pgs.setMaleGenesTested(total);
 		}
+		
 		return pgs;
 	}
 
-	public List<CategoricalResultAndCharts> getCategoricalDataOverviewCharts(String mpId, Model model) throws SolrServerException, IOException, URISyntaxException, SQLException{
-		List<CategoricalResultAndCharts> listOfChartsAndResults = new ArrayList<>();//one object for each parameter
-
+	public List<ChartData> getDataOverviewCharts(String mpId, Model model) throws SolrServerException, IOException, URISyntaxException, SQLException{
+		
+		List<ChartData> chartsList = new ArrayList<>();//one object for each parameter
 		List<String> parameters = pipelineDao.getParameterStableIdsByPhenotypeTerm(mpId);
 		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
+		TimeSeriesChartAndTableProvider tstp = new TimeSeriesChartAndTableProvider();
+		UnidimensionalChartAndTableProvider uctp = new UnidimensionalChartAndTableProvider();
 		ArrayList<String> strains = new ArrayList<>();
 		strains.add("MGI:2159965");
 		strains.add("MGI:2164831");
@@ -478,10 +485,29 @@ public class PhenotypesController {
 					controlSet.setName("Control");
 					CategoricalSet mutantSet = os.getCategories(parameter, (ArrayList<String>) genes, "experimental", strains);
 					mutantSet.setName("Mutant");
-					listOfChartsAndResults.add(cctp.doCategoricalDataOverview(controlSet, mutantSet, model, parameter, p.getName()+" ("+parameter+")"));
+					chartsList.addAll(cctp.doCategoricalDataOverview(controlSet, mutantSet, model, parameter, p.getName()+" ("+parameter+")"));
+				}
+			}
+			else if ( p != null && Utilities.checkType(p).equals(ObservationType.time_series)){
+				List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
+				if (genes.size() > 0){
+					Map<String, List<DiscreteTimePoint>> data = os.getTimeSeriesMutantData(parameter, genes, strains);
+					data.put("Control", os.getTimeSeriesControlData(parameter, strains));
+					chartsList.add(tstp.doTimeSeriesOverviewData(data, p));
+				}
+			}
+			else if ( p != null && Utilities.checkType(p).equals(ObservationType.unidimensional)){
+//				System.out.println("getting unidimensional data for :  " + p);
+				List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
+//				System.out.println(" genes for " + p + " " + genes);
+				if (genes.size() > 0){
+					Map<String, List<Double>> map = os.getUnidimensionalData(p, genes, strains, "experimental");
+					String chartTitle = "Mean " +  p.getName() + " (" + p.getStableId()+")";
+					//chartsList.add(uctp.getHistogram(labels, data, chartTitle));
+					chartsList.add(uctp.getStackedHistogram(map, chartTitle));
 				}
 			}
 		}
-		return listOfChartsAndResults;
+		return chartsList;
 	}
 }

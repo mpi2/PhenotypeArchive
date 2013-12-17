@@ -21,13 +21,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.json.JSONArray;
-
-import org.antlr.analysis.SemanticContext.AND;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -44,10 +40,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.dao.BiologicalModelDAO;
 import uk.ac.ebi.phenotype.dao.CategoricalStatisticsDAO;
 import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
+import uk.ac.ebi.phenotype.dao.OrganisationDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.dao.TimeSeriesStatisticsDAO;
@@ -92,6 +88,15 @@ public class StatsController implements BeanFactoryAware {
 	private GenomicFeatureDAO genesDao;
 
 	@Autowired
+	private PhenotypeCallSummaryDAO phenoDAO;
+
+	@Autowired
+	private OrganisationDAO organisationDAO;
+	
+	@Autowired
+	private PhenotypeCallSummaryDAO phenotypeCallSummaryDAO;
+	
+	@Autowired
 	private CategoricalStatisticsDAO categoricalStatsDao;
 	
 	@Autowired
@@ -101,16 +106,14 @@ public class StatsController implements BeanFactoryAware {
 	private TimeSeriesStatisticsDAO timeSeriesStatisticsDAO;
 
 	@Autowired
-	private PhenotypeCallSummaryDAO phenoDAO;
-	@Autowired
 	private CategoricalChartAndTableProvider categoricalChartAndTableProvider;
+
 	@Autowired
 	private TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider;
+
 	@Autowired
 	private UnidimensionalChartAndTableProvider continousChartAndTableProvider;
-	@Autowired
-	private PhenotypeCallSummaryDAO phenotypeCallSummaryDAO;
-	
+
 	@Autowired
 	private ExperimentService experimentService;
 	
@@ -182,9 +185,15 @@ public class StatsController implements BeanFactoryAware {
 		// param 655
 		// female homzygote
 		// population id=4640 or 4047 - male, het.
-		String phenotypingCenterParamString=null;
+
+		// Use the first phenotyping center passed in (ignore the others?)
+		Integer phenotypingCenterId=null;
 		if(phenotypingCenters !=null && phenotypingCenters.size()>0) {
-			phenotypingCenterParamString=phenotypingCenters.get(0);
+			try {
+				phenotypingCenterId = organisationDAO.getOrganisationByName(phenotypingCenters.get(0)).getId();
+			} catch (NullPointerException e) {
+				log.error("Cannot find center ID for organisation with name " + phenotypingCenter);
+			}
 		}
 		
 		
@@ -255,7 +264,7 @@ public class StatsController implements BeanFactoryAware {
 			}
 			
 			//List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc);
-			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList, phenotypingCenterParamString);
+			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList, phenotypingCenterId);
 			System.out.println(experimentList);
 			if(experimentList.size()!=0) {
 				noData=false;
@@ -357,9 +366,15 @@ public class StatsController implements BeanFactoryAware {
 		
 		List<BiologicalModel> unidimensionalMutantBiologicalModels=new ArrayList<BiologicalModel>();
 		List<Parameter> parameters=new ArrayList<Parameter>();
-		String phenotypingCenterParamString=null;
+
+		// Use the first phenotyping center passed in (ignore the others?)
+		Integer phenotypingCenterId = null;
 		if(phenotypingCenters !=null && phenotypingCenters.size()>0) {
-			phenotypingCenterParamString=phenotypingCenters.get(0);
+			try {
+				phenotypingCenterId = organisationDAO.getOrganisationByName(phenotypingCenters.get(0)).getId();
+			} catch (NullPointerException e) {
+				log.error("Cannot find center ID for organisation with name " + phenotypingCenter);
+			}
 		}
 		
 		for (String parameterId : paramIds) {
@@ -381,7 +396,7 @@ public class StatsController implements BeanFactoryAware {
 				yUnits=parameterUnits[1];
 			}
 			//List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc);
-			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList, phenotypingCenterParamString);
+			List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(parameter.getId(), acc, genderList, zyList, phenotypingCenterId);
 			//log.debug("Experiment dto marker="+experimentList);
 			log.info("param="+parameter.getName()+" Description="+parameter.getDescription()+ " xUnits="+xUnits + " yUnits="+yUnits + " dataType="+observationTypeForParam);
 			
