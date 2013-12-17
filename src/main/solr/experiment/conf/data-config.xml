@@ -110,7 +110,10 @@
 
 			<!--  metadata -->
             <entity dataSource="komp2ds" name="procedureMetaData"
-               	query="select parameter_name, ': ', value) as metadata from procedure_meta_data where experiment_id=${observation.experiment_id}">
+               	query="SELECT CONCAT(pp.name, ' = ', value) AS metadata 
+               		FROM procedure_meta_data pmd 
+               		INNER JOIN phenotype_parameter pp ON pmd.parameter_id=pp.stable_id 
+               		WHERE experiment_id=${observation.experiment_id}">
                 <field column="metadata" name="metadata" />
          	</entity>
 
