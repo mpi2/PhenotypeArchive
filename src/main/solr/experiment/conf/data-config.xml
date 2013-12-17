@@ -58,7 +58,7 @@
 			INNER JOIN phenotype_pipeline pipe ON pipe.id=pipeproc.pipeline_id
 			INNER JOIN experiment_observation eo ON eo.observation_id=o.id
 			INNER JOIN experiment e on eo.experiment_id=e.id
-			WHERE o.missing = 0 limit 100000
+			WHERE o.missing = 0
 			">
 
 			<field column="id" name="id" />
@@ -110,19 +110,21 @@
 
 			<!--  metadata -->
             <entity dataSource="komp2ds" name="procedureMetaData"
-               	query="SELECT CONCAT(pp.name, ' = ', value) AS metadata 
+               	query="SELECT DISTINCT CONCAT(pp.name, ' = ', value) AS metadata 
                		FROM procedure_meta_data pmd 
                		INNER JOIN phenotype_parameter pp ON pmd.parameter_id=pp.stable_id 
                		WHERE experiment_id=${observation.experiment_id}">
                 <field column="metadata" name="metadata" />
          	</entity>
 
+			<!--  calculate metadata group -->
             <entity dataSource="komp2ds" name="procedureMetaDataGroup" 
             	query="select MD5(GROUP_CONCAT(DISTINCT CONCAT(parameter_id, ':', value) ORDER BY parameter_id ASC SEPARATOR '')) as metadata_group 
 					FROM procedure_meta_data 
 					WHERE experiment_id=${observation.experiment_id}">
 				<field column="metadata_group" name ="metadata_group" />
-			</entity>         	
+			</entity>
+
 		</entity>
 
 	</document>
