@@ -45,7 +45,7 @@
     that avoids logging every request
 -->
 
-<schema name="phenodigm" version="1.5">
+<schema name="disease" version="1.5">
   <!-- attribute "name" is the name of this schema and is only used for display purposes.
        version="x.y" is Solr's version number for the schema syntax and 
        semantics.  It should not normally be changed by applications.
@@ -105,45 +105,89 @@
       and back compatibility is not guaranteed.  Names with both leading and
       trailing underscores (e.g. _version_) are reserved.
    -->
-   <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />      
-   <field name="type" type="string" indexed="true" stored="true"/>
-   
-   <!--disease fields-->
-   <field name="disease_id" type="string" indexed="true" stored="true" multiValued="false" /> 
-   <field name="disease_source" type="string" indexed="true" stored="true" multiValued="false" /> 
-   <field name="disease_term" type="text_en_splitting" indexed="true" stored="true"/>
-   <field name="disease_alts" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
-   <field name="disease_classes" type="string" indexed="true" stored="true" multiValued="true"/>
-   <field name="disease_phenotypes" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
-   
-   <!--gene fields-->
-   <field name="marker_accession" type="string" indexed="true" stored="true" multiValued="false"/>
-   <field name="marker_symbol" type="string" indexed="true" stored="true" multiValued="false"/>
-   <field name="human_marker_symbol" type="string" indexed="true" stored="true" multiValued="false"/>
-   <field name="hgnc_id" type="string" indexed="true" stored="true" multiValued="false"/>
-   
-   <!--mouse model fields-->
-   <field name="mouse_model_id" type="string" indexed="true" stored="true" multiValued="false" /> 
-   <field name="source" type="string" indexed="true" stored="true" multiValued="false" /> 
-   <field name="mouse_phenotypes" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
-   
-   <!--project/curation status flags-->
-   <field name="human_curated" type="int" indexed="true" stored="true"/>
-   <field name="mouse_curated" type="int" indexed="true" stored="true"/>
-   <field name="mgi_predicted" type="int" indexed="true" stored="true"/>
-   <field name="impc_predicted" type="int" indexed="true" stored="true"/>
-   <field name="mgi_predicted_in_locus" type="int" indexed="true" stored="true"/>
-   <field name="impc_predicted_in_locus" type="int" indexed="true" stored="true"/>
-   
-   <!--phenotypes-->
-   <field name="mp_id" type="string" indexed="true" stored="true" multiValued="false" /> 
-   <field name="mp_term" type="string" indexed="true" stored="true" multiValued="false" /> 
-   <field name="hp_id" type="string" indexed="true" stored="true" multiValued="false" /> 
-   <field name="hp_term" type="string" indexed="true" stored="true" multiValued="false" /> 
-   <field name="definition" type="text_en_splitting" indexed="true" stored="true" multiValued="false" /> 
-   
-   <!-- for fields that will be auto_suggest-searched -->
-   <field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
+	<field name="id" type="string" indexed="true" stored="true" multiValued="false" />      
+	<field name="type" type="string" indexed="true" stored="true"/>
+
+	<!--disease fields-->
+	<field name="disease_id" type="string" indexed="true" stored="true" multiValued="false" /> 
+	<field name="disease_source" type="string" indexed="true" stored="true" multiValued="false" /> 
+	<field name="disease_term" type="text_en_splitting" indexed="true" stored="true"/>
+	<field name="disease_alts" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
+	<field name="disease_classes" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="disease_human_phenotypes" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
+
+	<field name="mgi_accession_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />			
+
+	<!--project/curation status flags-->
+	<field name="human_curated" type="int" indexed="true" stored="true"/>
+	<field name="mouse_curated" type="int" indexed="true" stored="true"/>
+	<field name="mgi_predicted" type="int" indexed="true" stored="true"/>
+	<field name="impc_predicted" type="int" indexed="true" stored="true"/>
+	<field name="mgi_predicted_in_locus" type="int" indexed="true" stored="true"/>
+	<field name="impc_predicted_in_locus" type="int" indexed="true" stored="true"/> 
+	
+	<!-- gene core stuff -->	
+	<field name="marker_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="false" />  
+	<field name="marker_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true"  />    
+	<field name="marker_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="marker_type" type="string" indexed="true" stored="true" multiValued="true" />  
+	<field name="human_gene_symbol" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
+	<field name="imits_report_phenotyping_complete_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="imits_report_genotype_confirmed_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="imits_report_mi_plan_status" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="imits_consortium" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="escell" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
+	<field name="ikmc_project" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
+	<field name="status" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="production_center" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
+	<field name="phenotyping_center" type="string" indexed="true" stored="true" required="false" multiValued="true" />    	
+    <field name="imits_phenotype_started" type="string" indexed="true" multiValued="true"/>
+	<field name="imits_phenotype_complete" type="string" indexed="true" multiValued="true"/>
+	<field name="colony_prefix" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="imits_phenotype_colony_name" type="string" indexed="true" multiValued="true"/>
+	<field name="imits_phenotype_allele_type" type="string" indexed="true" multiValued="true"/>
+	<field name="imits_phenotype_status" type="string" indexed="true" multiValued="true"/>
+	<field name="imits_phenotype_is_active" type="string" indexed="true" multiValued="true"/>
+    <field name="phenotyping_started_center" type="string" indexed="true" multiValued="true"/>					                 
+	<field name="phenotyping_attempt_registered_center" type="string" indexed="true" multiValued="true"/>
+
+	<!-- annotated and inferred mp term -->
+	<field name="mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="mp_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="inferred_mp_definition" type="text_general" indexed="false" stored="true" required="false" multiValued="true" />	
+	<field name="inferred_top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_top_level_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_top_level_mp_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<!-- ontology subset of mp/ma terms -->
+	<field name="mp_ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="ma_ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<!-- annotated and inferred ma term -->
+	<field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="ma_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="selected_top_level_ma_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="inferred_ma_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_selected_top_level_ma_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
+
+	<!-- for fields that will be auto_suggest-searched -->
+	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
 
 
    <!-- Common metadata fields, named specifically to match up with
@@ -163,7 +207,7 @@
    <field name="category" type="text_general" indexed="true" stored="true"/>
    <field name="resourcename" type="text_general" indexed="true" stored="true"/>
    <field name="url" type="text_general" indexed="true" stored="true"/>
-   <field name="content_type" type="string" indexed="true" stored="true" multiValued="true"/>
+   <field name="content_type" type="string" indexed=_general"true" stored="true" multiValued="true"/>
    <field name="last_modified" type="date" indexed="true" stored="true"/>
    <field name="links" type="string" indexed="true" stored="true" multiValued="true"/>-->
 
@@ -172,11 +216,7 @@
         using copyField below. This is to save space. Use this field for returning and
         highlighting document content. Use the "text" field to search the content. -->
    <!--<field name="content" type="text_general" indexed="false" stored="true" multiValued="true"/>-->
-   
-
-   <!-- catchall field, containing all other searchable text fields (implemented
-        via copyField further on in this schema  -->
-   <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
+  
 
    <!-- catchall text field that indexes tokens both normally and in reverse for efficient
         leading wildcard queries. -->
@@ -257,8 +297,8 @@
  <!-- Field to use to determine and enforce document uniqueness. 
       Unless this field is marked with required="false", it will be a required field
    -->
- <uniqueKey>id</uniqueKey>
- <!--<uniqueKey>marker_accession</uniqueKey>-->
+ <!--<uniqueKey>id</uniqueKey>-->
+ 
 
  <!-- DEPRECATED: The defaultSearchField is consulted by various query parsers when
   parsing a query string that isn't explicit about the field.  Machine (non-user)
@@ -279,31 +319,27 @@
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
 
-   <copyField source="disease_term" dest="text"/>
-   <copyField source="disease_alts" dest="text"/>
-   <copyField source="disease_classes" dest="text"/>
-   <copyField source="disease_id" dest="text"/>
-   <copyField source="disease_source" dest="text"/>
-   <copyField source="marker_symbol" dest="text"/>
-   <copyField source="marker_accession" dest="text"/>
-   <copyField source="mp_id" dest="text"/>
-   <copyField source="mp_term" dest="text"/>
-   <copyField source="hp_id" dest="text"/>
-   <copyField source="hp_term" dest="text"/>
+	<copyField source="disease_term" dest="text"/>
+	<copyField source="disease_alts" dest="text"/>
+	<copyField source="disease_classes" dest="text"/>
+	<copyField source="disease_id" dest="text"/>
+	<copyField source="disease_source" dest="text"/> 
+	<copyField source="disease_human_phenotypes" dest="text"/>
+	<copyField source="mgi_accession_id" dest="text"/>
+	<copyField source="marker_symbol" dest="text"/>
+	<copyField source="marker_name" dest="text"/>
+	<copyField source="marker_synonym" dest="text"/>
 
-   <copyField source="disease_term" dest="auto_suggest"/>
-   <copyField source="disease_alts" dest="auto_suggest"/>
-   <copyField source="disease_classes" dest="auto_suggest"/>
-   <copyField source="disease_id" dest="auto_suggest"/>
-   <copyField source="disease_source" dest="auto_suggest"/>
-   <copyField source="disease_phenotypes" dest="auto_suggest"/>
-   <copyField source="marker_symbol" dest="auto_suggest"/>
-   <copyField source="marker_accession" dest="auto_suggest"/>
-   <copyField source="mp_id" dest="auto_suggest"/>
-   <copyField source="mp_term" dest="auto_suggest"/>
-   <copyField source="hp_id" dest="auto_suggest"/>
-   <copyField source="hp_term" dest="auto_suggest"/>
-    
+	<copyField source="disease_term" dest="auto_suggest"/>
+	<copyField source="disease_alts" dest="auto_suggest"/>
+	<copyField source="disease_classes" dest="auto_suggest"/>
+	<copyField source="disease_id" dest="auto_suggest"/>
+	<copyField source="disease_source" dest="auto_suggest"/>
+	<copyField source="disease_human_phenotypes" dest="auto_suggest"/>
+	<copyField source="mgi_accession_id" dest="auto_suggest"/>
+	<copyField source="marker_symbol" dest="auto_suggest"/>
+	<copyField source="marker_name" dest="auto_suggest"/>
+	<copyField source="marker_synonym" dest="auto_suggest"/>
 
    <!-- Copy the price into a currency enabled field (default USD) -->
    <!--<copyField source="price" dest="price_c"/>-->
@@ -1176,3 +1212,4 @@
     -->
 
 </schema>
+
