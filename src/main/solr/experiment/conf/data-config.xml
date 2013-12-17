@@ -110,7 +110,7 @@
 
 			<!--  metadata -->
             <entity dataSource="komp2ds" name="procedureMetaData"
-               	query="select concat(parameter_id, ':', value) as metadata from procedure_meta_data where experiment_id=${observation.experiment_id}">
+               	query="select parameter_name, ': ', value) as metadata from procedure_meta_data where experiment_id=${observation.experiment_id}">
                 <field column="metadata" name="metadata" />
          	</entity>
 
