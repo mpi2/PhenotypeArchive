@@ -148,7 +148,8 @@
   	    		+ "&facet.field=subtype"
   	    		    	
   	    	$.ajax({	
-  	    		'url': solrUrl + '/images/select',
+  	    		//'url': solrUrl + '/images/select',
+  	    		'url' : 'http://localhost:8983/solr/images/select',
   	    		'data': paramStr,   //queryParams,						
   	    		'dataType': 'jsonp',
   	    		'jsonp': 'json.wrf',	    		

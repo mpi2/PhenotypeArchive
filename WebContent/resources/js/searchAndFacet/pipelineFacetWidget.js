@@ -129,24 +129,27 @@
 	    	var aProcedure_names = [];	    	
 	    	  	
 	    	var queryParams = $.extend({}, {	    		  		
-	    		'fq': 'pipeline_stable_id:IMPC_001',				
+	    		//'fq': 'pipeline_stable_id:IMPC_001',				
 				'rows': 500000,
 				'facet': 'on',								
 				'facet.mincount': 1,
-				'facet.limit': -1,
-				'facet.field': 'procedure_name', //proc_param_name',
+				'facet.limit': -1,				
 				'facet.sort': 'index',
 				'fl': 'parameter_name,parameter_stable_key,parameter_stable_id,procedure_name,procedure_stable_key,procedure_stable_id',						
 				'q': self.options.data.q}, MPI2.searchAndFacetConfig.commonSolrParams);	    		    	
 	    	
 	    	//console.log(queryParams);
+	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
+	    				+ '&facet.field=procedure_name'
+	    				+ '&facet.field=pipeline_name'; 
+	    	
 	    	$.ajax({ 				 					
 	    		'url': solrUrl + '/pipeline/select',
-	    		'data': queryParams,
+	    		'data': queryParamStr,
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
 	    		'success': function(json) { 
-	    			//console.log(json);
+	    			console.log(json);
 	    			
 	    			// update this if facet is loaded by redirected page, which does not use autocomplete
 	    			$('div#pipelineFacet .facetCount').attr({title: 'total number of unique parameter terms'}).text(json.response.numFound);
@@ -167,7 +170,7 @@
 	        		table.append(trCat.append( $('<td></td>').attr({'colspan':3}).text('IMPC')));
 	    			
 	    			for ( var f=0; f<facets.length; f+=2 ){       			
-	        			
+	    						        		
 	        			var procedure_name = facets[f];
 	        			var paramCount = facets[f+1];
 	        				        			
@@ -191,10 +194,9 @@
 	        		// update facet count when necessary
 	    			if ( $('ul#facetFilter li li a').size() != 0 ){
 	    				$.fn.fetchQueryResult(self.options.data.q, 'pipeline');
-	    			}	
+	    			}	        		
 	        		
-	        		
-	        		$('table#pipelineFacetTbl td a.paramCount').click(function(){	        			
+	        		/*$('table#pipelineFacetTbl td a.paramCount').click(function(){	        			
 	        				        			
 	        			// also remove all filters for that facet container	
 	        			$.fn.removeFacetFilter('pipeline');
@@ -221,7 +223,7 @@
 	  	    			else {
 	  	    				window.location.hash = 'fq=' + fqStr + '&core=pipeline';
 	  	    			}
-	        		});
+	        		});*/
 	        		
 	        		$('table#pipelineFacetTbl input').click(function(){
 	        			console.log('click.....');

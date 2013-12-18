@@ -150,7 +150,8 @@
 		jsonBase.imagesFacet.srchParams.q = q;	
 		
 		$.ajax({
-    	    url: solrUrl + '/images/select',
+    	    //url: solrUrl + '/images/select',
+    	    url: 'http://localhost:8983/solr/images/select',
     	    data: jsonBase.imagesFacet.srchParams,
     	    dataType: 'jsonp',
     	    jsonp: 'json.wrf',

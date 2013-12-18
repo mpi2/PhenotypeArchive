@@ -219,6 +219,8 @@ public class SolrIndex {
 		} else if (mode.equals("all") || mode.equals("page") || mode.equals("")) {
 			url += gridSolrParams;
 			if (core.equals("images") && !showImgView) {
+				
+				
 				url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.mincount=1&facet.limit=-1";
 			}
 //			System.out.println("GRID DUMP PARAMS - " + core + ": " + url);

@@ -47,14 +47,15 @@
 		}
 		else {  
 			
-			if ( fqStr.indexOf('expName:') != -1 ){
+			/*if ( fqStr.indexOf('expName:') != -1 ){
 				// gene is not linke to images (procedure_name)
 				$('div#geneFacet span.facetCount').text(0);
 			}
 			else {
 				do_megaGene(paramStr);
-			}
-						
+			}*/
+			
+			do_megaGene(paramStr);			
 			do_megaMp(paramStr);
 			
 			if ( facet != 'images' && facet != 'pipeline' ){
@@ -79,6 +80,7 @@
 				fqStr += ' AND ontology_subset:IMPC_Terms';
 			}
 			else if ( facet == 'mp' ){
+				//paramStr = paramStr.replace('annotated_or_inferred_higherLevelMpTermName', 'top_level_mp_term');
 				fqStr += ' AND ontology_subset:*';
 			}
 			else if ( facet == 'pipeline' ){
@@ -104,69 +106,6 @@
 	    	}	
 			
 		}
-        
-        
-        
-		/*$.ajax({ 	
-			//'url': solrUrl + '/mega/select',
-    		'url': 'http://localhost:8983/solr/mega_gene/select', // starts with gene
-    		'data': gene_paramStr,
-    		'dataType': 'jsonp',
-    		'jsonp': 'json.wrf',
-    		'success': function(json) {
-    			console.log('gene');
-    			console.log(json);
-    			if ( $('ul#facetFilter li li a').size() == 0 ){
-    				if ( q == '*:*'){
-    					document.location.href = baseUrl + '/search';
-    				}
-    				else {
-    					document.location.href = baseUrl + '/search?q=' + q;
-    				}
-    			}
-    			else {    
-    				
-    				
-    				do_megaGene(json);
-    				
-    				
-    				do_megaMp(paramStr);
-    				
-    				if ( facet != 'images'){
-    					// no images are annotated to diesease
-    					do_megaDisease(paramStr);
-    				}
-    				else {
-    					$('div#diseaseFacet span.facetCount').text(0);
-    				}
-    				
-    				do_megaMa(paramStr);
-    				do_megaPipeline(paramStr);
-    				do_megaImages(paramStr);
-    				
-    				// now update dataTable	 
-    				if ( facet == 'images' || facet == 'gene' ){
-    					fqStr = fqStr.replace('subtype', 'marker_type');    				
-    				}
-    				else if ( facet == 'ma' ){
-    					fqStr = fqStr.replace('top_level_mp_term','inferred_top_level_mp_term');
-    					fqStr = fqStr.replace('inferred_selected_top_level_ma_term','selected_top_level_ma_term');  
-    					fqStr += ' AND ontology_subset:IMPC_Terms';
-    				}
-    				else if ( facet == 'mp' ){
-    					fqStr += ' AND ontology_subset:*';
-    				}
-    				
-    				
-	    	    	if (q == '*:*'){
-	    	    		window.location.hash = 'q=' + q + '&fq=' + fqStr + '&facet=' + facet;    	    		
-	    	    	}
-	    	    	else {
-	    	    		window.location.hash = 'fq=' + fqStr + '&facet=' + facet;    	    		
-	    	    	}	
-    			}
-    		}
-		});*/
 	}	
 	
 	function do_megaGene(paramStr){
@@ -235,6 +174,8 @@
 	function do_megaMp(paramStr){
 		
 		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['top_level_mp_term']);
+		paramStr = paramStr.replace('annotated_or_inferred_higherLevelMpTermName', 'top_level_mp_term');
+		paramStr = paramStr.replace('annotated_or_inferred_higherLevelMaTermName', 'inferred_selected_top_level_ma_term');
 		
 		paramStr += '&fq=ontology_subset:*' + fecetFieldsStr; 
 		console.log('MP: '+ paramStr);
@@ -306,7 +247,7 @@
 	    				$('table#diseaseFacetTbl').find('td.' + subFacetName + '[rel=' + facetCount + ']').text(facetName);
 	    				$('table#diseaseFacetTbl').find('td.diseaseSubfacetCount a.' + subFacetName + '[rel="' + facetName + '"]').text(facetCount);
 	    				
-    				}   			
+    				}   			annotatedHigherLevelMpTermName
     			}
     		}
 		});		
@@ -362,6 +303,10 @@
 				'Histology Slide' : 'IMPC_HIS_001',
 				'Wholemount Expression' : 'IMPC_ALZ_001',
 				'Xray' : 'IMPC_XRY_001',
+				
+				
+				
+				
 				'expName:' : 'procedure_stable_id:'				
 			}	
 			for( var name in oMapping ){
@@ -370,7 +315,8 @@
 		}			
 		
 		//paramStr += '&fq=pipeline_stable_id:IMPC_001' + fecetFieldsStr; 
-		paramStr += fecetFieldsStr; 
+		paramStr += fecetFieldsStr;
+		
 		console.log('PIPELINE: '+ paramStr);
 		$.ajax({ 	
 			//'url': solrUrl + '/mega/select',
@@ -390,15 +336,20 @@
 				var pipelineCount = json.response.numFound;
 				$('div#pipelineFacet span.facetCount').text(pipelineCount);
 				
+				// IMPC pipeline procedure_stable_id mapping
 				for (var i=0; i<oFacets.procedure_name.length; i=i+2){	
 				
 					var facetName = oFacets.procedure_name[i];									   				
 					var facetCount = oFacets.procedure_name[i+1];
 					var sClass = oFacets.procedure_stable_id[i];
-					
+					console.log(facetName + ' ---- ' + sClass);
 					$('table#pipelineFacetTbl td.' + sClass).attr('rel', facetCount);    					
-					$("table#pipelineFacetTbl td a[rel='" + sClass + "']").text(facetCount);			
+					$("table#pipelineFacetTbl td a[rel='" + sClass + "']").text(facetCount);
 				}  			
+				// non-IMPC pipeline procedure_stable_id mapping
+				
+				
+				
 			}
 		});		
 	}	
