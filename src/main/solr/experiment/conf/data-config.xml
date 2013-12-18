@@ -31,10 +31,9 @@
 		/* http://erlycoder.com/49/javascript-hash-functions-to-convert-string-into-integer-hash- */	
 		function djb2Code(str) {
 			var hash = 5381;
-System.out.println(str);
 			for (i = 0; i < str.length; i++) {
-				char = str.charCodeAt(i);
-				hash = ((hash << 5) + hash) + char; /* hash * 33 + c */
+				var ch = str.charCodeAt(i);
+				hash = ((hash << 5) + hash) + ch; /* hash * 33 + c */
 			}
 			return hash;
 		}
@@ -53,7 +52,7 @@ System.out.println(str);
 				}
 
 				row.put('metadata', arr);
-				row.put('metadata_group', djb2Code(String(row.get('metadata_combined')));
+				row.put('metadata_group', djb2Code(String(row.get('metadata_combined'))));
 			}
 			
 			return row;
@@ -90,7 +89,7 @@ System.out.println(str);
 			INNER JOIN phenotype_pipeline pipe ON pipe.id=pipeproc.pipeline_id
 			INNER JOIN experiment_observation eo ON eo.observation_id=o.id
 			INNER JOIN experiment e on eo.experiment_id=e.id
-			WHERE o.missing = 0 limit 10
+			WHERE o.missing = 0
 			">
 
 			<field column="id" name="id" />
