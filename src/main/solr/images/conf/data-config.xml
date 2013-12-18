@@ -7,14 +7,22 @@
 <!-- for xml generated image info not straight from sanger -->
 
 <entity dataSource="komp2ds" name="ima_image_record"
-			query="SELECT * from observation ob JOIN image_record_observation imo ON (ob.id=imo.id) LEFT outer JOIN parameter_association pa on (pa.observation_id=ob.id) LEFT outer JOIN dimension dim on (pa.id=dim.parameter_association_id)">
+			query="SELECT * from observation ob JOIN image_record_observation imo ON (ob.id=imo.id) LEFT outer JOIN parameter_association pa on (pa.observation_id=ob.id) LEFT outer JOIN dimension dim on (pa.id=dim.parameter_association_id) limit 100">
 
 			<field column="id" name="id" />
 			<field column="FULL_RESOLUTION_FILE_PATH" name="fullResolutionFilePath" />
 			<field column="LARGE_THUMBNAIL_FILE_PATH" name="largeThumbnailFilePath" />
 			<field column="ORIGINAL_FILE_NAME" name="originalFileName" />
 			<field column="SMALL_THUMBNAIL_FILE_PATH" name="smallThumbnailFilePath" />
-			<field column="institute" name="institute" /> 
+			<field column="institute" name="organisation_id" /> 
+			
+			<entity dataSource="komp2ds" name="imaDcfImageView"
+				query="SELECT DCF_ID, NAME, PROCEDURE_ID, EXPERIMENT_ID, MOUSE_ID FROM `IMA_DCF_IMAGE_VW` dcf, IMA_IMAGE_RECORD ir, PHN_STD_OPERATING_PROCEDURE stdOp WHERE dcf.id=ir.id and dcf.dcf_id=stdOp.id and ir.id=${ima_image_record.id}">
+				<field column="DCF_ID" name="dcfId" />
+				<field column="EXPERIMENT_ID" name="dcfExpId" />
+				<field column="NAME" name="sangerProcedureName" />
+				<field column="PROCEDURE_ID" name="sangerProcedureId" />
+			</entity>
 </entity>
 		
 		

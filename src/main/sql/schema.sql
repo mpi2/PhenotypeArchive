@@ -999,53 +999,67 @@ CREATE TABLE phenotype_call_summary (
  * Tables below are for the storage of media/image information
  */
 CREATE TABLE image_record_observation (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  sample_id int(11) DEFAULT NULL,
-  original_file_name varchar(1024) DEFAULT NULL,
-  creator_id int(11) DEFAULT NULL,
-  full_resolution_file_path varchar(256) DEFAULT NULL,
-  small_thumbnail_file_path varchar(256) DEFAULT NULL,
-  larg_thumbnail_file_path varchar(256) DEFAULT NULL,
-  download_fle_path varchar(256) DEFAULT NULL,
-  organisation int(10) NOT NULL DEFAULT '0',
-  increment_value varchar(45) DEFAULT NULL,
-  file_type varchar(45) DEFAULT NULL,
-  media_sample_local_id varchar(45) DEFAULT NULL,
-  media_section_id varchar(45) DEFAULT NULL,
-  PRIMARY KEY (id)
+
+	id int(11) NOT NULL AUTO_INCREMENT,
+	sample_id int(11) DEFAULT NULL,
+	original_file_name varchar(1024) DEFAULT NULL,
+	creator_id int(11) DEFAULT NULL,
+	full_resolution_file_path varchar(256) DEFAULT NULL,
+	small_thumbnail_file_path varchar(256) DEFAULT NULL,
+	large_thumbnail_file_path varchar(256) DEFAULT NULL,
+	download_file_path varchar(256) DEFAULT NULL,
+	organisation_id int(10) NOT NULL DEFAULT '0',
+	increment_value varchar(45) DEFAULT NULL,
+	file_type varchar(45) DEFAULT NULL,
+	media_sample_local_id varchar(45) DEFAULT NULL,
+	media_section_id varchar(45) DEFAULT NULL,
+	
+	PRIMARY KEY (id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
 
 CREATE TABLE dimension (
-  dim_id int(11) NOT NULL AUTO_INCREMENT,
-  parameter_association_id int(11) NOT NULL,
-  id varchar(45) NOT NULL,
-  origin varchar(45) NOT NULL,
-  unit varchar(45) DEFAULT NULL,
-  value decimal(65,10) DEFAULT NULL,
-  PRIMARY KEY (`dim_id`,`parameter_association_id`)
+
+	dim_id int(11) NOT NULL AUTO_INCREMENT,
+	parameter_association_id int(11) NOT NULL,
+	id varchar(45) NOT NULL,
+	origin varchar(45) NOT NULL,
+	unit varchar(45) DEFAULT NULL,
+	value decimal(65,10) DEFAULT NULL,
+	
+	PRIMARY KEY (dim_id, parameter_association_id)
+	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
 
 CREATE TABLE parameter_association (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  observation_id varchar(45) NOT NULL,
-  parameter_id varchar(45) NOT NULL,
-  sequence_id int(11) DEFAULT NULL,
-  dim_id varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+
+	id int(11) NOT NULL AUTO_INCREMENT,
+	observation_id varchar(45) NOT NULL,
+	parameter_id varchar(45) NOT NULL,
+	sequence_id int(11) DEFAULT NULL,
+	dim_id varchar(45) DEFAULT NULL,
+
+	PRIMARY KEY (id)
+
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
+
 CREATE TABLE procedure_meta_data (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  parameter_id varchar(45) NOT NULL,
-  sequence_id varchar(45) DEFAULT NULL,
-  parameter_status varchar(450) DEFAULT NULL,
-  value varchar(450) DEFAULT NULL,
-  procedure_id varchar(45) NOT NULL,
-  experiment_id int(11) NOT NULL,
-  observation_id int(11) DEFAULT '0',
-  PRIMARY KEY (`id`)
+
+	id int(11) NOT NULL AUTO_INCREMENT,
+	parameter_id varchar(45) NOT NULL,
+	sequence_id varchar(45) DEFAULT NULL,
+	parameter_status varchar(450) DEFAULT NULL,
+	value varchar(450) DEFAULT NULL,
+	procedure_id varchar(45) NOT NULL,
+	experiment_id int(11) NOT NULL,
+	observation_id int(11) DEFAULT '0',
+
+	PRIMARY KEY (id),
+	KEY procedure_meta_data_experiment_idx (experiment_id)
+
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
 

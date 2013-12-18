@@ -56,7 +56,6 @@
 		<field name="parameter_stable_id"     type="string" indexed="true" stored="true" multiValued="false" /> 
 
 		<field name="experiment_id"           type="int"    indexed="true" stored="true" multiValued="false" /> 
-		<field name="observation_type"        type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="experiment_source_id"    type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="date_of_experiment"      type="tdate"  indexed="true" stored="true" multiValued="false" />
 	
@@ -75,7 +74,14 @@
 		<field name="category"        type="string" indexed="true" stored="true" multiValued="false" /> 
 
 		<!-- metadata -->
-		<field name="value"           type="string" indexed="true" stored="true" multiValued="false" />
+		<field name="metadata"        type="string" indexed="true" stored="true" multiValued="true" /> 
+		<field name="metadata_group"  type="string" indexed="true" stored="true" multiValued="false" /> 
+		
+		<!-- images -->
+		<field name="full_resolution_file_path" type="string" indexed="true" stored="true" multiValued="false" />
+		<field name="large_thumbnail_file_path" type="string" indexed="true" stored="true" multiValued="false" />
+		<field name="small_thumbnail_file_path" type="string" indexed="true" stored="true" multiValued="false" />
+
 	</fields>
 
 	<uniqueKey>id</uniqueKey>
