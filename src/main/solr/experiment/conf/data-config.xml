@@ -27,6 +27,38 @@
 			return row;
 		}
 
+		/* hash function for calculating metadata group */
+		/* http://erlycoder.com/49/javascript-hash-functions-to-convert-string-into-integer-hash- */	
+		function djb2Code(str) {
+			var hash = 5381;
+System.out.println(str);
+			for (i = 0; i < str.length; i++) {
+				char = str.charCodeAt(i);
+				hash = ((hash << 5) + hash) + char; /* hash * 33 + c */
+			}
+			return hash;
+		}
+
+		function getMetadata(row) {
+
+			var combined = row.get('metadata_combined');
+
+			if(typeof pieces != 'undefined') {
+
+				var pieces = combined.split('::');
+				var arr = new java.util.ArrayList();
+
+				for (var i=0; i<pieces.length; i++) {
+					arr.add(pieces[i]);
+				}
+
+				row.put('metadata', arr);
+				row.put('metadata_group', djb2Code(String(row.get('metadata_combined')));
+			}
+			
+			return row;
+		}
+
 	]]>
 	</script>
 
@@ -58,7 +90,7 @@
 			INNER JOIN phenotype_pipeline pipe ON pipe.id=pipeproc.pipeline_id
 			INNER JOIN experiment_observation eo ON eo.observation_id=o.id
 			INNER JOIN experiment e on eo.experiment_id=e.id
-			WHERE o.missing = 0
+			WHERE o.missing = 0 limit 10
 			">
 
 			<field column="id" name="id" />
@@ -108,20 +140,14 @@
 			<field column="external_id" name ="experiment_source_id" />
 			<field column="date_of_experiment" name ="date_of_experiment" />
 
-			<!--  metadata -->
-            <entity dataSource="komp2ds" name="procedureMetaData"
-               	query="SELECT DISTINCT CONCAT(pp.name, ' = ', value) AS metadata 
-               		FROM procedure_meta_data pmd 
-               		INNER JOIN phenotype_parameter pp ON pmd.parameter_id=pp.stable_id 
-               		WHERE experiment_id=${observation.experiment_id}">
-                <field column="metadata" name="metadata" />
-         	</entity>
-
-			<!--  calculate metadata group -->
-            <entity dataSource="komp2ds" name="procedureMetaDataGroup" 
-            	query="select MD5(GROUP_CONCAT(DISTINCT CONCAT(parameter_id, ':', value) ORDER BY parameter_id ASC SEPARATOR '')) as metadata_group 
-					FROM procedure_meta_data 
-					WHERE experiment_id=${observation.experiment_id}">
+			<!--  metadata and calculate metadata group -->
+			<entity dataSource="komp2ds" transformer="script:getMetadata" name="procedureMetaDataGroup" 
+				query="select GROUP_CONCAT(DISTINCT CONCAT(name, ' = ', value) ORDER BY parameter_id ASC SEPARATOR '::') as metadata_combined 
+					FROM (SELECT pp.name, pmd.value, pmd.parameter_id, pmd.experiment_id FROM procedure_meta_data pmd
+					INNER JOIN phenotype_parameter pp ON pp.stable_id=pmd.parameter_id 
+					WHERE experiment_id=${observation.experiment_id}) pmd
+					">
+				<field column="metadata" name="metadata" />
 				<field column="metadata_group" name ="metadata_group" />
 			</entity>
 
