@@ -90,9 +90,9 @@
               </entity>
               
               
-              <!-- <entity dataSource="komp2ds" name="subtype2" query="select name,  concat('${ima_image_record.symbol}_', '${ima_image_record.acc}') as symbol_gene from `ontology_term` where acc='${ima_image_record.subtype_acc}' and db_id=${ima_image_record.subtype_db_id}">
+            <!--   <entity dataSource="komp2ds" name="subtype2" query="select name,  concat('${ima_image_record.symbol}_', '${ima_image_record.acc}') as symbol_gene from `ontology_term` where acc='${ima_image_record.subtype_acc}' and db_id=${ima_image_record.subtype_db_id}">
 							<field column="name" name="subtype" />
-						</entity> -->
+						</entity>  -->
                    
 	
 </entity>
