@@ -22,6 +22,7 @@
    <fieldType name="float" class="solr.TrieFloatField" precisionStep="0" positionIncrementGap="0"/>
    <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
    <fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+   <fieldType name="tdate" class="solr.TrieDateField" omitNorms="true" precisionStep="6" positionIncrementGap="0"/>
 
     <!-- A general text field that has reasonable, generic
          cross-language defaults: it tokenizes with StandardTokenizer,
@@ -165,6 +166,41 @@
 	<field name="pipeline"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
 	<field name="shapeOfRibs"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
 	<field name="skullShape"      type="string"   indexed="true"  stored="true"  multiValued="false"/> -->	
+	
+	<!-- from experiment schema as many fields are now the same with new image data -->
+	<field name="phenotyping_center_id"   type="int"    indexed="true" stored="true" multiValued="false" />
+		<field name="phenotyping_center"      type="string" indexed="true" stored="true" multiValued="false" />
+
+		<field name="gene_accession"          type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="gene_symbol"             type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="zygosity"                type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="sex"                     type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="biological_model_id"     type="int"    indexed="true" stored="true" multiValued="false" /> 
+		<field name="biological_sample_id"    type="int"    indexed="true" stored="true" multiValued="false" />
+		<field name="biological_sample_group" type="string" indexed="true" stored="true" multiValued="false" />
+		<field name="strain"                  type="string" indexed="true" stored="true" multiValued="false" />
+		<field name="colony_id"               type="string" indexed="true" stored="true" multiValued="false" />
+		<field name="date_of_birth"           type="tdate"  indexed="true" stored="true" multiValued="false" />
+		<field name="external_sample_id"      type="string" indexed="true" stored="true" multiValued="false" />
+
+		<field name="pipeline_id"             type="int"    indexed="true" stored="true" multiValued="false" /> 
+		<field name="pipeline_name"           type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="pipeline_stable_id"      type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="procedure_id"            type="int"    indexed="true" stored="true" multiValued="false" /> 
+		<field name="procedure_name"          type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="procedure_stable_id"     type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="parameter_id"            type="int"    indexed="true" stored="true" multiValued="false" /> 
+		<field name="parameter_name"          type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="parameter_stable_id"     type="string" indexed="true" stored="true" multiValued="false" /> 
+
+		<field name="experiment_id"           type="int"    indexed="true" stored="true" multiValued="false" /> 
+		<field name="experiment_source_id"    type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="date_of_experiment"      type="tdate"  indexed="true" stored="true" multiValued="false" />
+		
+		
+		<!-- end of experiment data fields -->
+		
+		
 												
 	<field name="text"   type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>

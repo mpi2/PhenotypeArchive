@@ -40,7 +40,6 @@
 		<field name="biological_sample_id"    type="int"    indexed="true" stored="true" multiValued="false" />
 		<field name="biological_sample_group" type="string" indexed="true" stored="true" multiValued="false" />
 		<field name="strain"                  type="string" indexed="true" stored="true" multiValued="false" />
-		<field name="population_id"           type="int"    indexed="true" stored="true" multiValued="false" />
 		<field name="colony_id"               type="string" indexed="true" stored="true" multiValued="false" />
 		<field name="date_of_birth"           type="tdate"  indexed="true" stored="true" multiValued="false" />
 		<field name="external_sample_id"      type="string" indexed="true" stored="true" multiValued="false" />
