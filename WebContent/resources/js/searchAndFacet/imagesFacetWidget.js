@@ -47,74 +47,14 @@
 						caller.find('.facetCatList').show(); // show itself					
 						$(this).addClass('facetCatUp');						
 						
-						var currHashParams = {};						
-						currHashParams.q = self.options.data.q;
-						currHashParams.core = solrCoreName;
-						currHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq; //default
-						
-						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-						
-						// if no selected subfacet, load all results of this facet
-						if ( caller.find('table#imagesFacetTbl td.highlight').size() == 0 ){							
-							//window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
-						}						
-						else {
-							// if there is selected subfacets: work out the url							
-							if ( self.options.data.core != oHashParams.coreName ){															
-							
-								var fqFieldVals = {};
-								
-								caller.find('table#imagesFacetTbl td.highlight').each(function(){	
-									var aVals = $(this).siblings('td').find('a').attr('class').split(":");
-									var fqField = aVals[0];
-									var val = aVals[1];
-									
-									if ( typeof fqFieldVals[fqField] === 'undefined' ){
-										fqFieldVals[fqField] = [];										
-									}									
-									fqFieldVals[fqField].push(fqField + ':' + val);
-								});					
-								
-								var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
-																
-								// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-								if (self.options.data.q == '*:*'){
-									window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr + '&ftOpen=true';
-								}
-								else {
-									window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
-								}
-							}							
-						}						
+						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));						
+						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';												
+						window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
 					}	
 				}	
 			});	
-													
-			// click on SUM facetCount to fetch results in grid
-			//$('span.facetCount').click(function(){								
-			/*caller.find('span.facetCount').click(function(){	
-				if ( $(this).text() != '0' ){
-					
-					$.fn.setDefaultImgSwitcherConf();
-										
-					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
-					
-					$.fn.removeFacetFilter(solrCoreName);
-					
-					// remove highlight from selected				
-					$('table#imagesFacetTbl td').removeClass('highlight');
-					
-					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
-					console.log(fqStr);
-					// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-					if (self.options.data.q == '*:*'){					
-						window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
-					}
-					else {
-						window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
-					}
-				}	
-			});*/	
+			
+			// click on SUM facetCount to fetch results in grid: deprecated	
     	},
  	        	
 	    // want to use _init instead of _create to allow the widget being invoked each time by same element
@@ -138,7 +78,7 @@
   				'fl': 'annotationTermId,annotationTermName,expName,symbol',
   				//'fq': "annotationTermId:M* OR symbol_gene:*",  // images that have annotations only
   				'q.option': 'AND',				
-  				'q': self.options.data.q 				
+  				'q': self.options.data.hashParams.q 				
   				}, MPI2.searchAndFacetConfig.commonSolrParams);  	    	  	    	
   	    	
   	    	var paramStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
@@ -173,7 +113,7 @@
   	    			aSubFacetNames.unshift('annotated_or_inferred_higherLevelMpTermName');
   	    			  	    			
   	    			var displayLabel = {
-  	    					annotated_or_inferred_higherLevelMaTermName: 'Anatomy',
+  	    								annotated_or_inferred_higherLevelMaTermName: 'Anatomy',
   	    								expName : 'Procedure',	    					            
   	    								annotated_or_inferred_higherLevelMpTermName: 'Phenotype',
   	    					            subtype: 'Gene'
@@ -194,12 +134,12 @@
   	    					var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i, 'class':'subFacet ' + hiddenClass + ' ' + facetName});
   	    					
   	    					//var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i, 'class':'subFacet trHidden ' + facetName});
-  	    					var displayName = facetName == 'annotated_or_inferred_higherLevelMpTermName' ? fieldName.replace(' phenotype', '') : fieldName;
-  	    					var td1 = $('<td></td>').attr({'class': 'imgSubfacet', 'rel': facetCount}).text(displayName);
-  	    				
+  	    					//var displayName = facetName == 'annotated_or_inferred_higherLevelMpTermName' ? fieldName.replace(' phenotype', '') : fieldName;  	    					
+  	    					
+  	    					var td1 = $('<td></td>').attr({'class': 'imgSubfacet', 'rel': facetCount}).text(fieldName);  	    				
   	    					var imgBaseUrl = baseUrl + "/images?";
   	    					
-  		    	    		var params = "q=" + self.options.data.q;
+  		    	    		var params = "q=" + self.options.data.hashParams.q;
   		    	    		//params += "&fq=annotationTermId:M*&q.option=AND&qf=" + queryParams.qf + "&defType=edismax&wt=json&fq=" + facetName + ":";	
   		    	    		// here we take all images - ie, not filtering on having annotations or not
   		    	    		params += "&q.option=AND&qf=" + queryParams.qf + "&defType=edismax&wt=json&fq=" + facetName + ":";	
@@ -233,7 +173,7 @@
   	    						table.append(catTr); 
   	    					}	
   		    	    		
-  		    	    		var coreField = 'images|'+ facetName + '|' + displayName + '|' + facetCount;	
+  		    	    		var coreField = 'images|'+ facetName + '|' + fieldName + '|' + facetCount;	
   		        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField, 'class':facetName}); 		    	    			    		
   		        			var td0 = $('<td></td>').append(chkbox);
   		    	    		table.append(tr.append(td0, td1, td2));		    	    		
@@ -241,9 +181,9 @@
   	    			}	    				    	    	
   	    			self._displayImageFacet(json, 'images', 'imagesFacet', table);
   	    		
-  	    			// update facet count when necessary
+  	    			// update facet count when filters applied
   	    			if ( $('ul#facetFilter li li a').size() != 0 ){
-  	    				$.fn.fetchQueryResult(self.options.data.q, 'images');
+  	    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'images');
   	    			}	
   	    			
   	    		}		
@@ -259,36 +199,7 @@
       			table = null;
       		}
   	    	else {
-  	    		$('div#'+facetDivId+ ' .facetCatList').html(table);
-  	    		
-  	    		/*table.find('td a').click(function(){	
-  	    			
-  	    			$.fn.setDefaultImgSwitcherConf();
-  	    			
-  	    			// uncheck all facet filter checkboxes 
-        			$('table#imagesFacetTbl input').attr('checked', false);
-        			
-        			// remove all highlight
-        			$('table#imagesFacetTbl td.imgSubfacet').removeClass('highlight');
-        			
-        			// also remove all filters for that facet container	
-        			$.fn.removeFacetFilter('images');
-        			
-        			$(this).parent().parent().find('input').attr('checked', true);
-        			$(this).parent().parent().find('td.imgSubfacet').addClass('highlight');
-        			
-        			$.fn.addFacetFilter($(this).parent().parent().find('input'), self.options.data.q);
-  	    			        			
-        			// update hash tag so that we know there is hash change, which then triggers loadDataTable
-  	    			var oParams = eval( "(" + $(this).attr('rel') + ")" ); 			
-  	    		 	    				    			  	    			
-  	    			if (self.options.data.q == '*:*'){
-  	    				window.location.hash = oParams.params + '&core=' + oParams.solrCoreName;
-  	    			}
-  	    			else {
-  	    				window.location.hash = oParams.params.replace(/q=\b.*\b&/, '') + '&core=' + oParams.solrCoreName;
-  	    			}  	    			
-  	    		});	*/
+  	    		$('div#'+facetDivId+ ' .facetCatList').html(table);  
   	    		
   	    		table.find('input').click(function(){	
   	    			
@@ -296,7 +207,7 @@
   	    			
   	    			// highlight the item in facet
   	    			$(this).parent().parent().find('td.imgSubfacet').addClass('highlight');
-  	    			$.fn.composeFacetFilterControl($(this), self.options.data.q);
+  	    			$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);
   	    		});  
   	    		
   	    		// collapsable subfacet items
@@ -327,19 +238,16 @@
 	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
 	    	/*------------------------------------------------------------------------------------*/ 
   	    		
-    		if ( self.options.data.fq.match(/.*/) ){ 	
+    		if ( self.options.data.hashParams.fq.match(/.*/) ){ 	
     			$.fn.setDefaultImgSwitcherConf();  
-    			//console.log('reload');
-    			    			
-    			var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority)
-    			var oHashParams = {};
-	    		oHashParams.q = self.options.data.q;
-	    		oHashParams.fq = self.options.data.fq;
-	    		oHashParams.coreName = 'imagesFacet';
-	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);
+    			
+    			var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority) 		
 	    		
+	    		var oHashParams = self.options.data.hashParams;
+    			
+	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);	    	    		
 	    		// now load dataTable    		
-	    		$.fn.loadDataTable(oHashParams); 
+	    		$.fn.loadDataTable(oHashParams);
     		}
   	    		
   	    	// when last facet is done

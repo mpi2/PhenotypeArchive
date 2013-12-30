@@ -19,7 +19,7 @@
  */
 $(document).ready(function(){
 	'use strict';	
-	var hashParams = {};
+	var oHashParams = {};
 	
 	$('span.facetCount').text(''); // default when page loads
 	
@@ -28,15 +28,25 @@ $(document).ready(function(){
 	// default search when search page loads
 	if ( /search\/?$/.exec(location.href) ){
 		// do default gene search by * when search page loads	
-		hashParams.q = '*:*';		
-		$.fn.fetchSolrFacetCount(hashParams);
+		oHashParams.q = '*:*';		
+		$.fn.fetchSolrFacetCount(oHashParams);
 	}	
 	else if ( location.href.indexOf('/search#') != -1 ){		
 		// load page based on url hash parameters		
-		hashParams = $.fn.parseHashString(window.location.hash.substring(1));	
+		oHashParams = $.fn.parseHashString(window.location.hash.substring(1));	
 		
-		MPI2.searchAndFacetConfig.pageLoad = true;
-		$.fn.fetchSolrFacetCount(hashParams);
+		//MPI2.searchAndFacetConfig.pageLoad = true;
+		console.log(oHashParams);
+		
+		/*if (oHashParams.facetName ){
+			var pageReload = true;	
+			oHashParams.widgetName = oHashParams.facetName + 'Facet';
+			
+    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);	 
+		}*/
+		//else {
+			$.fn.fetchSolrFacetCount(oHashParams);
+		//}
 	}
 	
 	// search via ENTER

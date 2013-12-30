@@ -58,6 +58,9 @@
 					// back/forward button navigation: 
 					// make sure checkboxes are updated according to url
 					
+					oHashParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;
+					oHashParams.widgetName += 'Facet';
+					
 					if ( oHashParams.coreName ){
 						$.fn.removeFacetFilter(oHashParams.coreName);
 						//console.log(oHashParams.fq);					
@@ -72,13 +75,16 @@
 						// parse selected checkbox(es) of this facet
 						var facet = oHashParams.facetName;
 						var aFilters = [];
-						$('ul#facetFilter li.' + facet + ' li a').each(function(){
+						//$('ul#facetFilter li.' + facet + ' li a').each(function(){
+						$('ul#facetFilter li li a').each(function(){	
 							console.log('check filter: '+ $(this).text());
 							aFilters.push($(this).text());
-						});
+						});														
+						
 						console.log('filter: ' + aFilters );
 						oHashParams.filters = aFilters;
-						oHashParams.facetName = facet + 'Facet';
+						//oHashParams.facetName = facet + 'Facet';
+						oHashParams.facetName = facet;						
 						$.fn.loadDataTable(oHashParams);
 					}
 				}
@@ -88,10 +94,12 @@
 				
 				var ul = $('ul#facetFilter');	
 				if ( ul.is(":visible") ){				
-					ul.hide();					
+					ul.hide();	
+					$(this).find('span').text('Show facet filters');
 				}
 				else {				
 					ul.show();				
+					$(this).find('span').text('Hide facet filters');
 				}
 			});
 		});
@@ -104,7 +112,7 @@
        
     
        <!-- search filter display -->
-       	<div id='filterToggle'>Show facet filters</div>       		
+       	<div id='filterToggle'><span>Hide facet filters</span></div>       		
 	   	<ul id='facetFilter'> 
 	   	    <li class='has-sub none'>no filter added</li>
 	   		<li class='has-sub gene'>Genes</li>

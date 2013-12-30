@@ -36,7 +36,10 @@ var config = MPI2.searchAndFacetConfig;
 if ( typeof solrUrl == 'undefined' ){
 	solrUrl = '/data/solr';	
 }
-
+else {
+	solrUrl = 'http://localhost:8983/solr';
+}
+console.log('solrurl: ' + solrUrl);
 if ( typeof baseUrl == 'undefined' ){
 	baseUrl = '/data';
 }
@@ -75,75 +78,24 @@ config.facetFilterLabel = {
 	'imits_phenotype_started'    : 'phenotyping_status',
 	'imits_phenotype_status'     : 'phenotyping_status',
 	'status'                     : 'mouse_production_status',
-	'marker_type'                : 'subtype',
+	'marker_type'                : 'gene_subtype',
 	'top_level_mp_term'          : 'top_level_term',
 	'selected_top_level_ma_term' : 'top_level_term',
-	'procedure_stable_id'        : 'procedrue',
-	'annotated_or_inferred_higherLevelMaTermName'      : 'anatomy',
-	'annotated_or_inferred_higherLevelMpTermName'      : 'phenotype',
+	'procedure_stable_id'        : 'procedure',
+	'ma'					     : 'anatomy',
+	'annotated_or_inferred_higherLevelMaTermName' : 'anatomy',
+	'mp'      					 : 'phenotype',
+	'annotated_or_inferred_higherLevelMpTermName' : 'phenotype',
 	'expName'                    : 'procedure',
-	'subtype'                    : 'gene_subtype',
-	'disease_classes' 			 : 'classification',
-	'disease_source'			 : 'source',
+	'subtype'                    : 'gene_subtype',	
+	'disease_classes' 			 : 'disease_classification',
+	'disease_source'			 : 'disease_source',
 	'human_curated'              : 'human_data',
 	'mouse_curated'              : 'mouse_data',
 	'impc_predicted'             : 'IMPC_predicted',
 	'impc_predicted_in_locus'    : 'IMPC_predicted_in_locus',
 	'mgi_predicted'              : 'MGI_predicted',
 	'mgi_predicted_in_locus'     : 'MGI_predicted_in_locus'	
-};
-
-var procedure_name_mapping = {
-	'Acoustic Startle&PPI' : 'IMPC_ACS_001',
-	'Body Composition (DEXA)' : 'IMPC_DXA_001',
-	'Body Weight' : 'IMPC_BWT_001',
-	'Bodyweight (GMC)' : 'IMPC_BWT_001',
-	'Calorimetry' : '?',
-	'Clinical Chemistry' : '?',
-	'Clinical chemistry (GMC)' : '?',
-	'DEXA' : '?',
-	'Dexa-scan analysis' : '?',
-	'Dysmorphology' : 'IMPC_CSD_002',
-	'Dysmorphology A (GMC)' : '?',
-	'ELISA (GMC)' : '?',
-	'Eye Morphology' : 'IMPC_EYE_001',
-	'Eye size (GMC)' : '?',
-	'FACs Analysis' : 'IMPC_FAC_001',
-	'Fasted Clinical Chemistry' : '?',
-	'Glucose Tolerance (ip)' : '?',
-	'Grip Strength' : 'IMPC_GRS_001',
-	'Grip Strength (GMC)' : 'IMPC_GRS_001',
-	'Grip-Strength' : 'IMPC_GRS_001',
-	'Haematology' : 'IMPC_HEM_002',
-	'Haematology (CBC)' : 'IMPC_HEM_002',
-	'Haematology (GMC)' : 'IMPC_HEM_002',
-	'Haematology test' : 'IMPC_HEM_002',
-	'Heart Weight' : 'IMPC_HWT_001',
-	'Heart weight/tibia length' : '?',
-	'Holeboard (GMC)' : '?',
-	'Hot Plate' : '?',
-	'Immunoglobulin' : '?',
-	'Indirect Calorimetry' : 'IMPC_CAL_002',
-	'Indirect ophthalmoscopy' : '?',
-	'Modified SHIRPA' : '?',
-	'Nociception Hotplate (GMC)' : '?',
-	'Non-Invasive Blood Pressure' : '?',
-	'Non-Invasive blood pressure' : '?',
-	'Open Field' : 'IMPC_OFD_001',
-	'Open-field' : 'IMPC_OFD_001',
-	'Ophthalmoscope' : '?',
-	'Peripheral Blood Leukocytes' : '?',
-	'Plasma Chemistry' : '?',
-	'Rotarod' : '?',
-	'Shirpa (GMC)' : '?',
-	'Simplified IPGTT' : '?',
-	'Slit Lamp' : '?',
-	'Stress Induced Hyperthermia' : '?',
-	'Weight Curves' : '?',
-	'X-Ray' : 'IMPC_XRY_001',
-	'X-ray' : 'IMPC_XRY_001',
-	'X-ray Imaging' : 'IMPC_XRY_001',
-	'pDexa (GMC)' : '?'
 };
  
 config.lastCheckbox = null;
@@ -220,7 +172,7 @@ config.facetParams = {
 		 solrCoreName: 'pipeline',			
 		 tableCols: 3, 
 		 tableHeader: '<thead><th>Parameter</th><th>Procedure</th><th>Pipeline</th></thead>',		
-		 fq: "pipeline_stable_id:IMPC_001", 
+		 fq: "pipeline_stable_id:*", //"pipeline_stable_id:IMPC_001", 
 		 qf: 'auto_suggest', 
 		 defType: 'edismax',
 		 wt: 'json',
@@ -248,10 +200,10 @@ config.facetParams = {
 		 topLevelName: '',
 		 ontology: 'mp',
 		 breadCrumbLabel: 'Phenotypes',		
-		 filterParams: {'fq': 'ontology_subset:*'},
+		 filterParams: {'fq': 'ontology_subset:IMPC_Terms'},
 		 srchParams: $.extend({},				
 					commonSolrParams,	 	
-					{'fl': 'mp_id,mp_term,mp_definition,top_level_mp_term,top_mp_term_id,top2mp_id,top2mp_term,top2mp_def'})
+					{'fl': 'mp_id,mp_term,mp_definition,top_level_mp_term,top_mp_term_id'})
 	 },	
 	 maFacet: {			    	
 		 type: 'tissues',
@@ -271,7 +223,7 @@ config.facetParams = {
 		 ontology: 'ma',
 		 breadCrumbLabel: 'Anatomy',		 
 		 //filterParams: {'fq': "ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*", 'fl': 'ma_id,ma_term,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'},
-		 filterParams: {'fq': 'ontology_subset:IMPC_Terms'},		 
+		 filterParams: {}, //'fq': 'ontology_subset:IMPC_Terms'},		 
 		 srchParams: $.extend({},
 					commonSolrParams,
 					{'fl' : 'ma_id,ma_term,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'})		

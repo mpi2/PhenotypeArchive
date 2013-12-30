@@ -1063,7 +1063,8 @@
 				<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
 					to EBI servers for performance -->
 				<solrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
-				<internalSolrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</internalSolrUrl>
+				<!-- <internalSolrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</internalSolrUrl>-->
+				<internalSolrUrl>http://localhost:8983/solr</internalSolrUrl>
 				<drupalBaseUrl>http://localhost:8084</drupalBaseUrl>
 				<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
 				<liveSite>false</liveSite>

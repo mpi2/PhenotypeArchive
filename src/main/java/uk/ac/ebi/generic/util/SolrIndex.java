@@ -170,17 +170,11 @@ public class SolrIndex {
 			Integer iDisplayLength, boolean showImgView) {
 		String internalSolrUrl = config.get("internalSolrUrl");
 		
-		if (core.contains("Facet")){
-			core = "mega_" + core.replace("Facet", "");
-		}
+		internalSolrUrl = "http://localhost:8983/solr"; // temporary
 		
 		String url = internalSolrUrl + "/" + core + "/select?";
-	
-		
-		//temporary
-		if ( core.startsWith("mega_")) {
-			url = "http://localhost:8983/solr/" + core + "/select?";
-		}
+		//internalSolrUrl); //http://wwwdev.ebi.ac.uk/mi/impc/dev/solr
+				
 		System.out.println(("BASEURL: " + url));
 		if (mode.equals("mpPage")) {
 			url += "q=" + query;
@@ -218,9 +212,7 @@ public class SolrIndex {
 //			System.out.println("IKMC ALLELE PARAMS: " + url);
 		} else if (mode.equals("all") || mode.equals("page") || mode.equals("")) {
 			url += gridSolrParams;
-			if (core.equals("images") && !showImgView) {
-				
-				
+			if (core.equals("images") && !showImgView) {				
 				url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.mincount=1&facet.limit=-1";
 			}
 //			System.out.println("GRID DUMP PARAMS - " + core + ": " + url);
