@@ -467,22 +467,14 @@
 			// hide facet filter container if no filter chosen for that facet 
 			if ( thisLi.find('li').size() == 0 ){
 				thisLi.find('ul').remove();
-				thisLi.hide();	
-								
-				// load all result of facet via change hash#
-				// reset to default
-				//var hashParams = {};
-				//hashParams.q = q;		
-				//$.fn.fetchSolrFacetCount(hashParams);
-				//$.fn.setHashUrl(q, facet);
+				thisLi.hide();				
 				
 				// update facet filter and compose solr query for result		
 				$.fn.fetchQueryResult(q, facet);
 			}	
 			else {	
 				console.log('delete filter');
-				// update facet filter
-                //compose_solr_facetFilter(facet, q, oChkbox);			
+				
 				// update facet filter and compose solr query for result			
 				$.fn.fetchQueryResult(q, facet);
 			}
@@ -516,12 +508,13 @@
 			value = 'started';
 		}
 		
-		var filterTxt = ( facet == 'gene' || facet == 'images' || facet == 'disease' ) ? display + ' : ' + value : value;	
+		var qValue = '"' + value + '"';
+		var filterTxt = ( facet == 'gene' || facet == 'images' || facet == 'disease' ) ? display + ' : ' + qValue : value;	
 		var pipelineName, a;
 		
 		if (facet == 'pipeline'){
 			var names = filterTxt.split('___');
-			filterTxt = oChkbox.attr('class').replace(/_/g, ' ') + ' : ' + names[0];
+			filterTxt = oChkbox.attr('class').replace(/_/g, ' ') + ' : ' + '"' + names[0] + '"';
 		}
 		
 		var a = $('<a></a>').attr({'rel':oChkbox.attr('rel')}).text(filterTxt.replace(/ phenotype$/, ''));		
@@ -572,14 +565,8 @@
 			
 			var fqStr = aStr.join(' AND ');			
 			
-			if ( fqStr.indexOf('annotated_or_inferred_higherLevelMxTermName') != -1 ){
-				/*if ( facet == 'ma' ){
-					fqStr += ' AND selected_top_level_ma_term:*';	
-				}
-				else if ( facet == 'mp' ){
-					fqStr = fqStr.replace(' AND selected_top_level_ma_term:*', '');
-				}*/
-				fqStr += ' AND ontology_subset:*';
+			if ( fqStr.indexOf('annotated_or_inferred_higherLevelMxTermName') != -1 ){			
+				fqStr += ' AND (ontology_subset:*)';
 			}	
 			return fqStr;
 		}
@@ -603,7 +590,7 @@
 				value = value.replace(/ phenotype$/, '');
 			}
 			
-			return MPI2.searchAndFacetConfig.facetFilterLabel[field] + ': "' + value + '"';
+			return MPI2.searchAndFacetConfig.facetFilterLabel[field] + ' : "' + value + '"';
 		}		
 	}
 		
@@ -882,12 +869,12 @@
     	
     	var facet = oHashParams.widgetName;    	
     	var fqStr = oHashParams.fq;
-    	fqStr = fqStr.replace(MPI2.searchAndFacetConfig.facetParams[facet].filterParams.fq, '').replace(/ AND /, '');
+    	fqStr = fqStr.replace(MPI2.searchAndFacetConfig.facetParams[facet].filterParams.fq, '').replace(/ AND /g, '');
     	
     	console.log(fqStr);
     	// unhightlight all from this facet
 		$('table#'+ facet +'Tbl td').removeClass('highlight');    
-	   
+		
 		var pat = '(\\b\\w*\\b):"([a-zA-Z0-9_\/ ]*)"';		
 		var regex = new RegExp(pat, "gi");		    	
 		var result;
@@ -899,13 +886,13 @@
     			wantStr = result[2];
     			console.log('want str: ' + wantStr);
     		}	
-    		else if ( facet == 'imagesFacet' || facet == 'mpFacet' ){
-    			wantStr = wantStr.replace(' phenotype', '');
-    		}
+    		//else if ( facet == 'imagesFacet' || facet == 'mpFacet' ){
+    		//	wantStr = wantStr.replace(' phenotype', '');
+    		//}
     		    		    		
     		var obj = $('table#'+ facet + 'Tbl tr').find('input[rel*="'+wantStr+'"]');
     		//var obj = $("table[id$=FacetTbl] tr").find('input[rel*="'+wantStr+'"]');
-    		
+    		console.log('WANT: ' + wantStr);
     		console.log(obj);
     		
     		if (obj.length != 0 ){
@@ -925,6 +912,27 @@
 	    		// also add to unordered list
 	    		$.fn.addFacetFilter(obj, oHashParams.q);
     		}	
+    		else {
+    			// add unfound to filter list as it is in uninitialized facets
+    			// the facet count of uninitialized facets will then be updated
+    			var oMapping;
+    			if ( wantStr.match(/mortality\/aging/) || wantStr.match(/^annotated_or_inferred_higherLevelMxTermName|.+phenotype$/) ){
+    				oMapping = MPI2.searchAndFacetConfig.filterMapping['mp'];
+    			}
+    			else {
+    				var testStr = wantStr.replace(/\|.+$/, '');
+    			
+    				console.log(testStr);
+    				oMapping = MPI2.searchAndFacetConfig.filterMapping[wantStr] ? MPI2.searchAndFacetConfig.filterMapping[wantStr] 
+    					: MPI2.searchAndFacetConfig.filterMapping[testStr];
+    			}
+    			
+    			var relStr = oMapping.facet + '|' + wantStr;
+    			
+    			
+    			var obj = $('<input></input>').attr({'rel': relStr, 'class': oMapping['class']});
+    			$.fn.addFacetFilter(obj, oHashParams.q);
+    		}
     	} 
     	
 		// Work out which subfacet needs to be open:
@@ -1098,8 +1106,7 @@
 		
 		$.fn.updateBreadCrumb(oVal.solrCoreName);		
 		$.fn.openFacet(oVal.solrCoreName);	
-		//console.log(oInfos);
-		//$.fn.invokeDataTable(oInfos);
+		
 		console.log(oHashParams);
 		$.fn.invokeDataTable(oHashParams);
 		
@@ -1116,10 +1123,7 @@
    		else {
    			oDTable.find('th:nth-child(2)').text("Example Images");
    		}   		
-   		//viewLabel = oConf.viewLabel; //'Image View: lists annotations to an image';
-   		//imgViewSwitcherDisplay = oConf.imgViewSwitcherDisplay; //'Show Annotation View'; 
-   		//viewMode = oConf.viewMode; //'imageView';   		
-   				   		
+   		
    		var imgViewSwitcher = $('<div></div>').attr({'id':'imgView','rel':oConf.viewMode}).html(
    			"<span id='imgViewSubTitle'>" + oConf.viewLabel + "</span>" +
    			"<span id='imgViewSwitcher'>" + oConf.imgViewSwitcherDisplay + "</span>");   		 		

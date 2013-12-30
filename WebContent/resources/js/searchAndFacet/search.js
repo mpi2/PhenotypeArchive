@@ -46,7 +46,7 @@
 	       	    success: function (geneResponse) {	       	    	
 	       	    	$('div#geneFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
 	       	    	oFacets.count.gene = geneResponse.response.numFound;	
-	       	    	_updateFacetCount('geneFacet', geneResponse, facetMode);	       	    	     	    	
+	       	    	_updateFacetCount('geneFacet', geneResponse, facetMode);	       	    	
 	       	    	_doMPAutoSuggest(geneResponse, q, oFacets, facetMode);	            	    
 	       	    },
 	       	    error: function (jqXHR, textStatus, errorThrown) {	       	                	        
@@ -169,9 +169,7 @@
     	    	 * ie, fetch facet full result for that facet and display only facet count for the rest of the facets 
     	    	 * Other facet results will be fetched on demand */
     	    	var hashParams = $.fn.parseHashString(window.location.hash.substring(1));    	    	
-    	    	
-    	    	//var coreName = hashParams.coreName ? hashParams.coreName : 
-    	    		//	(hashParams.facetName ? (hashParams.coreName = hashParams.facetName) : _setSearchMode(oFacets.count));
+    	    	    	    	
     	    	var coreName, facetName;
     	    	
     	    	if ( hashParams.coreName ){
@@ -205,11 +203,9 @@
     	        	hashParams.q = q;
     	        	    	        	
     	        	window.jQuery('div#' + widgetName)[widgetName]({
-    					data: {	q: q, 
-    							core: coreName, 
-    							facet: facetName,
-    							fq: hashParams.fq ? hashParams.fq : jsonBase[widgetName].fq,
-    							qf: jsonBase[widgetName].qf,
+    					data: {	   							 
+    							core: coreName,    							
+    							//qf: jsonBase[widgetName].qf,
     							facetCount: oFacets.count[thisCore],
     							hashParams: hashParams
     							},
@@ -223,7 +219,7 @@
     	        	
     	        	var index;// = aCores.indexOf(coreName);
     	        	for ( var i=0; i< aCores.length; i++){
-    	        		if (aCores[i] == coreName ){
+    	        		if (aCores[i] == thisCore ){
     	        			index = i;
     	        		}
     	        	}
@@ -235,7 +231,7 @@
     	        			_prepareCores(core, q, oFacets);
     	        		}
     	        	}    	        		        	
-    	    	}    	    	
+    	    	}   	    	
     	    },
 			error: function (jqXHR, textStatus, errorThrown) {			        	        
 				$('div#facetBrowser').html('Error fetching data ...');

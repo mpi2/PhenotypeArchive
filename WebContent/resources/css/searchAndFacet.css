@@ -396,14 +396,14 @@ div#resetFilter {
 ul#facetFilter {
   width: auto;	
   margin: -23px 0 0 150px;
-  padding: 3px 6px;
-  background: none;
+  padding: 3px 10px;
+  background-color: #F4F4F4;
   border-radius: 1em;
   font: normal 1em Arial, Helvetica, sans-serif;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
-  display: block;
+  display: block;  
 }
 ul#facetFilter ul {
   /*z-index: 9999;	
@@ -436,6 +436,8 @@ ul#facetFilter li.none {
 ul#facetFilter li.has-sub img {
 	cursor: pointer;
 }
-
+ul#facetFilter li li a {
+	font-size: 12px;
+}
 /* ----- end of  facet filter ----- */
 

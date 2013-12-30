@@ -97,7 +97,31 @@ config.facetFilterLabel = {
 	'mgi_predicted'              : 'MGI_predicted',
 	'mgi_predicted_in_locus'     : 'MGI_predicted_in_locus'	
 };
- 
+
+config.filterMapping = {
+		'imits_phenotype_complete|1':{'class':'phenotyping', 'facet':'gene'},
+		'imits_phenotype_started|1' : {'class':'phenotyping', 'facet':'gene'},
+		'imits_phenotype_status|Phenotype Attempt Registered' : {'class':'phenotyping', 'facet':'gene'},
+		'status|Mice Produced' : {'class':'production', 'facet':'gene'},		
+		'status|Assigned for Mouse Production and Phenotyping' : {'class':'production', 'facet':'gene'},
+		'status|ES Cells Produced' : {'class':'production', 'facet':'gene'},
+		'status|Assigned for ES Cell Production' : {'class':'production', 'facet':'gene'},
+		'status|Not Assigned for ES Cell Production' : {'class':'production', 'facet':'gene'},
+		'marker_type' : {'class':'marker_type', 'facet':'gene'},
+		
+		'mp' : {'class':'', 'facet':'mp'},
+		'ma' : {'class':'', 'facet':'ma'},
+		
+		'disease_source' : {'class':'disease_source', 'facet':'disease'},
+		'disease_classes' : {'class':'disease_classes', 'facet':'disease'},
+		'human_curated|1' : {'class':'curated', 'facet':'disease'},
+		'mouse_curated|1' : {'class':'curated', 'facet':'disease'},
+		'impc_predicted|1' : {'class':'predicted', 'facet':'disease'},
+		'impc_predicted_in_locus|1' : {'class':'predicted', 'facet':'disease'},
+		'mgi_predicted|1' : {'class':'predicted', 'facet':'disease'},
+		'mgi_predicted_in_locus|1' : {'class':'predicted', 'facet':'disease'}
+};
+
 config.lastCheckbox = null;
 var megaFacetFields = ['status', 'imits_phenotype_complete', 'imits_phenotype_started', 'imits_phenotype_status', 
                        'mgi_accession_id', 'marker_type', 'top_level_mp_term', 'mp_term', 

@@ -55,7 +55,7 @@
 						if ( oHashParams.fq.indexOf('annotated_or_inferred_higherLevelM') != -1 ){
 				    		oHashParams.fq = oHashParams.fq.replace(' AND selected_top_level_ma_term:*', '');
 						}
-						
+						console.log(oHashParams);
 						window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;						
 					}	
 				}	
@@ -123,7 +123,7 @@
 	    			self._displayOntologyFacet(json, 'mpFacet', table);	 
 	    			
 	    			// update facet count when filters applied
-	    			if ( $('ul#facetFilter li li a').size() != 0 ){
+	    			if ( $('ul#facetFilter li li a').size() != 0 ){  	    				
 	    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'mp');
 	    			}	    			
 	    		}		
