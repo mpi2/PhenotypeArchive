@@ -232,7 +232,8 @@ table#pipelineFacetTbl tr[class$=_param] {
 	color: gray;
 	cursor: text !important;
 }
-table#pipelineFacetTbl tr.facetSubCat td.grayout {
+table#pipelineFacetTbl tr.facetSubCat td.grayout,
+table#imagesFacetTbl tr.facetSubCat td.grayout {
 	color: gray;
 }
 

@@ -303,11 +303,9 @@
 	        			var proSid = aVals[2];
 	        			var paramCount = prFacets[f+1];
 	        					        			
-	        			if (pipeName == currPipe ){
-	        				
+	        			if (pipeName == currPipe ){	        				
 	        				$('table#pipelineFacetTbl td.' + proSid).attr('rel', paramCount);    					
-	    					$("table#pipelineFacetTbl td a[rel='" + proSid + "']").text(paramCount);
-	        				
+	    					$("table#pipelineFacetTbl td a[rel='" + proSid + "']").text(paramCount);	        				
 	        			}
 	        		}
     			}			
@@ -352,9 +350,32 @@
     			var imgCount = json.response.numFound;
     			$('div#imagesFacet span.facetCount').text(imgCount);    			
     			
-    			var aSubFacets = ['subtype','expName','annotated_or_inferred_higherLevelMpTermName','annotated_or_inferred_higherLevelMaTermName'];    			
+    			// first collapse all procedures and grayout all pipelines    			
+				$('table#imagesFacetTbl tr.facetSubCat td').each(function(){
+					if ( $(this).hasClass('unCollapse') ){
+						$(this).click();
+					}
+				});	    							
+				$('table#imagesFacetTbl tr.facetSubCat td').addClass('grayout');
+								
+    			var aSubFacets = ['annotated_or_inferred_higherLevelMpTermName','annotated_or_inferred_higherLevelMaTermName','expName','subtype'];    			  			
+    			var k=0;
     			for ( var i=0; i<aSubFacets.length; i++){
     				var facetStr = aSubFacets[i];    				
+    				
+    				if ( oFacets[facetStr].length != 0 ){
+    					k++;    					
+    					$('table#imagesFacetTbl tr.facetSubCat').each(function(){
+    						if ( $(this).hasClass(facetStr) ){
+    							$(this).find('td').removeClass('grayout');
+    							// open first subfacet that has filter match
+    							if ( k==1 ){	    						
+    								$(this).find('td').click();
+    							}	
+    						}
+    					});    					
+    				}    				
+    				
 	    			for (var j=0; j<oFacets[facetStr].length; j=j+2){	    				
 	    				
 	    				var facetName = oFacets[facetStr][j];	    								   				
@@ -370,8 +391,8 @@
 	    				var oJson = eval("(" + jsonStr + ")");	    				
 	    				oJson.imgCount = facetCount;
 	    				oTr.find('td.imgSubfacetCount a').text(facetCount);	    				
-	    			}  
-    			}
+	    			}	    			
+    			}    			
     		}
 		});		
 	}	
@@ -405,7 +426,7 @@
 		if ( facet == 'gene '){
 			fqStr = fqStr.replace(' AND selected_top_level_ma_term:*', '');
 		}
-		if (facet == 'images' ) {
+		else if (facet == 'images' ) {
 			fqStr = fqStr.replace(/ AND \(?ontology_subset:\*\)?/,'').replace(' AND selected_top_level_ma_term:*','');	
 		}		
 		else if ( facet == 'ma' ){
