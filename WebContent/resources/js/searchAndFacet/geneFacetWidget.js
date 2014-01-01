@@ -47,11 +47,10 @@
 						caller.find('.facetCatList').show(); // show itself					
 						$(this).addClass('facetCatUp');						
 											
-						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));	
+						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));							
+						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'gene');						
+						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';
 						
-						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'gene');
-						
-						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';												
 						window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;						
 					}
 				}
@@ -84,12 +83,12 @@
 	    	);    	   	
 	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
-	    					  + '&facet.field=status'
-	    	                  + '&facet.field=imits_phenotype_started' 
-	    	                  + '&facet.field=imits_phenotype_complete'
-	    	                  + '&facet.field=imits_phenotype_status';
-	    	                  //+ '&facet.field=production_center'
-	    	                  //+ '&facet.field=phenotyping_center'
+				  + '&facet.field=status'
+				  + '&facet.field=imits_phenotype_started' 
+				  + '&facet.field=imits_phenotype_complete'
+				  + '&facet.field=imits_phenotype_status';
+				  //+ '&facet.field=production_center'
+				  //+ '&facet.field=phenotyping_center'
 	    	
 	    	$.ajax({ 				 					
 	    		'url': solrUrl + '/gene/select',
@@ -257,8 +256,7 @@
 	    		$('div#geneFacet div.facetCatList').html(table);
 	    			
 	    		// update facet count when filters applied
-	    		if ( $('ul#facetFilter li li a').size() != 0 ){    
-	    			alert('about to change')
+	    		if ( $('ul#facetFilter li li a').size() != 0 ){	    		
     				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'gene');
     			}	
 	    		

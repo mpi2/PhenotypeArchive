@@ -32,12 +32,12 @@
 		var paramStr = 'q=' + q + '&fq=' + fqStr + '&wt=json&defType=edismax&qf=auto_suggest';// + MPI2.searchAndFacetConfig.mega.facetParams;
 		console.log('paramStr: '+ paramStr);
 		
-		$.fn.setFacetCounts(q, paramStr, fqStr, facet);
+		$.fn.setFacetCounts(q, fqStr, facet);
 		
 	}	
-	$.fn.setFacetCounts = function(q, paramStr, fqStr, facet){
+	$.fn.setFacetCounts = function(q, fqStr, facet){
 		
-		console.log(q + " -- " + paramStr + " -- " + fqStr + " -- " + facet);		
+		console.log(q + " -- " +  fqStr + " -- " + facet);		
         
         if ( $('ul#facetFilter li li a').size() == 0 ){
 			if ( q == '*:*'){
@@ -49,20 +49,20 @@
 		}
 		else {		
 			
-			do_megaGene(paramStr);			
-			do_megaMp(paramStr);
+			do_megaGene(q, fqStr);			
+			do_megaMp(q, fqStr);
 			
 			if ( facet != 'images' && facet != 'pipeline' ){
 				// no images/procedures are annotated to diesease
-				do_megaDisease(paramStr);
+				do_megaDisease(q, fqStr);
 			}
 			else {
 				$('div#diseaseFacet span.facetCount').text(0);
 			}
 			
 			do_megaMa(q, fqStr);
-			do_megaPipeline(paramStr, facet);
-			do_megaImages(paramStr, facet);			
+			do_megaPipeline(q, fqStr, facet);
+			do_megaImages(q, fqStr, facet);			
 			
 			// make sure field mapping in url is correct with selected facet
 			fqStr = $.fn.fieldNameMapping(fqStr, facet);
@@ -78,14 +78,14 @@
 		}
 	}	
 	
-	function do_megaGene(paramStr){
+	function do_megaGene(q, fqStr){
 		
-		paramStr = $.fn.fieldNameMapping(paramStr, 'gene');
+		var fqStr = $.fn.fieldNameMapping(fqStr, 'gene');
 						
 		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['status', 'imits_phenotype_complete', 'imits_phenotype_started', 'imits_phenotype_status', 
          'marker_type']);
-        
-        paramStr += '&fq='+ MPI2.searchAndFacetConfig.facetParams.geneFacet.fq + fecetFieldsStr;        
+        var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';
+        paramStr += '&fq=' + fqStr + ' AND ' + MPI2.searchAndFacetConfig.facetParams.geneFacet.fq + fecetFieldsStr;        
         console.log('GENE: '+ paramStr);
         
         $.ajax({ 	
@@ -138,11 +138,13 @@
         });
 	}
 	
-	function do_megaMp(paramStr){
+	function do_megaMp(q, fqStr){
 		
-		paramStr = $.fn.fieldNameMapping(paramStr, 'mp');		
-		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['annotated_or_inferred_higherLevelMpTermName']);		
-		paramStr += fecetFieldsStr; 
+		fqStr = $.fn.fieldNameMapping(fqStr, 'mp');		
+		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['annotated_or_inferred_higherLevelMpTermName']);
+	
+		var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';
+        paramStr += '&fq=' + fqStr + fecetFieldsStr; 
 		
 		console.log('MP: '+ paramStr);
 		$.ajax({ 	
@@ -174,12 +176,14 @@
 		});		
 	}	
 	
-	function do_megaDisease(paramStr){
+	function do_megaDisease(q, fqStr){
 		
-		//paramStr = $.fn.fieldNameMapping(paramStr, 'disease');
-		
+		fqStr = $.fn.fieldNameMapping(fqStr, 'disease');		
 		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['disease_classes','disease_source','human_curated','mouse_curated','impc_predicted','impc_predicted_in_locus','mgi_predicted','mgi_predicted_in_locus']);
-		
+				
+		var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';
+        paramStr += '&fq=' + fqStr + fecetFieldsStr;
+        
 		console.log('DISEASE: '+ paramStr + fecetFieldsStr);
 				
 		$.ajax({ 	
@@ -219,17 +223,10 @@
 		
 		fqStr = $.fn.fieldNameMapping(fqStr, 'ma');		
 		
-		var paramStr = 'q=' + q + '&fq=' + fqStr + '&wt=json&defType=edismax&qf=auto_suggest';// + MPI2.searchAndFacetConfig.mega.facetParams;
-			
-		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['annotated_or_inferred_higherLevelMaTermName'])
-		/*paramStr = paramStr.replace('top_level_mp_term','inferred_top_level_mp_term');
-		
-		paramStr = paramStr.indexOf('inferred_selected_top_level_ma_term') != -1 ?  
-				paramStr.replace('inferred_selected_top_level_ma_term','selected_top_level_ma_term') :					
-					paramStr += "&fq=selected_top_level_ma_term:*";	
-		*/
-		paramStr += fecetFieldsStr;
-		
+		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['annotated_or_inferred_higherLevelMaTermName'])		
+		var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';
+        paramStr += '&fq=' + fqStr + fecetFieldsStr;		
+				
 		console.log('MA: '+ paramStr);
 		$.ajax({ 	
 			'url': solrUrl + '/ma/select',
@@ -259,14 +256,14 @@
 		});		
 	}	
 		
-	function do_megaPipeline(paramStr){		
-		
-		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['pipeline_name', 'pipe_proc_sid']);
-		
-		// image expName <-> pipeline procedure stable id mapping		
-		paramStr = $.fn.fieldNameMapping(paramStr, 'pipeline');		
+	function do_megaPipeline(q, fqStr){		
 				
-		paramStr += fecetFieldsStr;
+		// image expName <-> pipeline procedure stable id mapping		
+		fqStr = $.fn.fieldNameMapping(fqStr, 'pipeline');		
+				
+		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['pipeline_name', 'pipe_proc_sid']);
+		var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';
+        paramStr += '&fq=' + fqStr + fecetFieldsStr;		
 		
 		console.log('PIPELINE: '+ paramStr);
 		$.ajax({ 	
@@ -328,17 +325,15 @@
 		});		
 	}	
 
-	function do_megaImages(paramStr){
+	function do_megaImages(q, fqStr){
 		
 		// image expName <-> pipeline procedure stable id mapping	
-		paramStr = $.fn.fieldNameMapping(paramStr, 'images');	
-		
+		fqStr = $.fn.fieldNameMapping(fqStr, 'images');		
 		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['annotated_or_inferred_higherLevelMpTermName', 'annotated_or_inferred_higherLevelMaTermName', 'expName', 'subtype']);		
-		paramStr += fecetFieldsStr; 
 		
-		//paramStr = paramStr.replace('top_level_mp_term:','annotated_or_inferred_higherLevelMpTermName:');
-		//paramStr = paramStr.replace('top_level_ma_term:','annotated_or_inferred_higherLevelMaTermName:');
-		
+		var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';
+        paramStr += '&fq=' + fqStr + fecetFieldsStr;
+       
 		console.log('IMAGES: '+ paramStr);
 		$.ajax({ 	
 			'url': solrUrl + '/images/select',
@@ -381,52 +376,56 @@
 		});		
 	}	
 		
-	$.fn.fieldNameMapping = function(paramStr, facet){
+	$.fn.fieldNameMapping = function(fqStr, facet){
 				
 		var oMapping;		
 			
-		if ( paramStr.indexOf('procedure_stable_id:') != -1 && facet == 'images' ){		
+		if ( fqStr.indexOf('procedure_stable_id:') != -1 && facet == 'images' ){		
 			oMapping = MPI2.searchAndFacetConfig.procSid2ExpNameMapping;			
 		}
-		else if (paramStr.indexOf('expName:') != -1 && facet != 'images' ){						
+		else if (fqStr.indexOf('expName:') != -1 && facet != 'images' ){						
 			oMapping = MPI2.searchAndFacetConfig.expName2ProcSidMapping;
 		}
 		
 		for( var name in oMapping ){
-			paramStr = paramStr.replace(name, oMapping[name]);
+			fqStr = fqStr.replace(name, oMapping[name]);
 		}
 		
-		if ( paramStr.indexOf('marker_type:') != -1 && facet == 'images' ){		
+		if ( fqStr.indexOf('marker_type:') != -1 && facet == 'images' ){		
 				oMapping = MPI2.searchAndFacetConfig.markerType2SubTypeMapping;			
 		}
-		else if (paramStr.indexOf('subtype:') != -1 && facet != 'images' ){						
+		else if (fqStr.indexOf('subtype:') != -1 && facet != 'images' ){						
 				oMapping = MPI2.searchAndFacetConfig.subType2MarkerTypeMapping;
 		}
 		
 		for( var name in oMapping ){
-			paramStr = paramStr.replace(name, oMapping[name]);
+			fqStr = fqStr.replace(name, oMapping[name]);
 		}	
 		
+		if ( facet == 'gene '){
+			fqStr = fqStr.replace(' AND selected_top_level_ma_term:*', '');
+		}
 		if (facet == 'images' ) {
-			paramStr = paramStr.replace(/ AND \(?ontology_subset:\*\)?/,'').replace(' AND selected_top_level_ma_term:*','');	
+			fqStr = fqStr.replace(/ AND \(?ontology_subset:\*\)?/,'').replace(' AND selected_top_level_ma_term:*','');	
 		}		
 		else if ( facet == 'ma' ){
-			paramStr.replace(' AND (ontology_subset:*)','');
-			if (paramStr.indexOf(' AND selected_top_level_ma_term:*') == -1 ){
-				paramStr += ' AND selected_top_level_ma_term:*';
+			fqStr.replace(' AND (ontology_subset:*)','');
+			if (fqStr.indexOf(' AND selected_top_level_ma_term:*') == -1 ){
+				fqStr += ' AND selected_top_level_ma_term:*';
 			}
 		}
 		else if ( facet == 'pipeline' ){
-			paramStr = paramStr.replace(' AND selected_top_level_ma_term:*', '');
+			fqStr = fqStr.replace(' AND selected_top_level_ma_term:*', '');
 		}
-		else if ( facet == 'mp' ){
-			paramStr = paramStr.replace(' AND selected_top_level_ma_term:*', '');
-			if (paramStr.indexOf(/ AND \(?ontology_subset:\*\)?/) == -1 ){
-				paramStr += ' AND ontology_subset:*';
+		else if ( facet == 'mp' || facet == 'disease' ){
+			fqStr = fqStr.replace(' AND selected_top_level_ma_term:*', '');
+			//if (fqStr.indexOf(' AND ontology_subset:*') == -1 ){			
+			if (! / AND \(?ontology_subset:\*\)?/.exec(fqStr) ){		
+				fqStr += ' AND ontology_subset:*';
 			}	
 		}
 		
-		return paramStr;
+		return fqStr;	
 	}	
 	
 	$.fn.fetchFecetFieldsStr = function(aFacetFields){
