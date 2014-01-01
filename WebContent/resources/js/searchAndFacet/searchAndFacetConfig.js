@@ -44,7 +44,6 @@ if ( typeof baseUrl == 'undefined' ){
 	baseUrl = '/data';
 }
 
-
 config.cores = ['gene', 'mp', 'disease', 'ma', 'pipeline', 'images'];
 config.restfulPrefix = {
 		'gene' : 'genes',
@@ -70,6 +69,31 @@ config.phenotypingStatusFq2Label = {
 		'imits_phenotype_started'  : 'Started',
 		'imits_phenotype_status'   : 'Attempt Registered'
 };
+
+config.subType2MarkerTypeMapping = {
+		'subtype' : 'marker_type'
+}
+config.markerType2SubTypeMapping = {
+		'marker_type' : 'subtype'
+}
+config.expName2ProcSidMapping = {
+		'Dysmorphology' : 'IMPC_CSD_002',
+		'Eye Morphology' : 'IMPC_EYE_001',
+		'Flow Cytometry' : 'IMPC_FAC_001',
+		'Histology Slide' : 'IMPC_HIS_001',
+		'Wholemount Expression' : 'IMPC_ALZ_001',
+		'Xray' : 'IMPC_XRY_001',				
+		'expName:' : 'procedure_stable_id:'				
+};	
+config.procSid2ExpNameMapping = {
+		'IMPC_CSD_002' : 'Dysmorphology',
+		'IMPC_EYE_001' : 'Eye Morphology',
+		'IMPC_FAC_001' : 'Flow Cytometry',
+		'IMPC_HIS_001' : 'Histology Slide',
+		'IMPC_ALZ_001' : 'Wholemount Expression',
+		'IMPC_XRY_001' : 'Xray',				
+		'procedure_stable_id:' : 'expName:' 				
+};	
 
 config.facetFilterLabel = {
 	'phenotyping_center'         : 'phenotyping_center',
@@ -99,6 +123,7 @@ config.facetFilterLabel = {
 };
 
 config.filterMapping = {
+		//gene
 		'imits_phenotype_complete|1':{'class':'phenotyping', 'facet':'gene'},
 		'imits_phenotype_started|1' : {'class':'phenotyping', 'facet':'gene'},
 		'imits_phenotype_status|Phenotype Attempt Registered' : {'class':'phenotyping', 'facet':'gene'},
@@ -109,9 +134,11 @@ config.filterMapping = {
 		'status|Not Assigned for ES Cell Production' : {'class':'production', 'facet':'gene'},
 		'marker_type' : {'class':'marker_type', 'facet':'gene'},
 		
+		// mp, ma
 		'mp' : {'class':'', 'facet':'mp'},
 		'ma' : {'class':'', 'facet':'ma'},
 		
+		// disease
 		'disease_source' : {'class':'disease_source', 'facet':'disease'},
 		'disease_classes' : {'class':'disease_classes', 'facet':'disease'},
 		'human_curated|1' : {'class':'curated', 'facet':'disease'},
@@ -119,7 +146,13 @@ config.filterMapping = {
 		'impc_predicted|1' : {'class':'predicted', 'facet':'disease'},
 		'impc_predicted_in_locus|1' : {'class':'predicted', 'facet':'disease'},
 		'mgi_predicted|1' : {'class':'predicted', 'facet':'disease'},
-		'mgi_predicted_in_locus|1' : {'class':'predicted', 'facet':'disease'}
+		'mgi_predicted_in_locus|1' : {'class':'predicted', 'facet':'disease'},
+		
+		// pipeline: using ajax		
+		
+		// images
+		'imgMp' : {'class':'annotated_or_inferred_higherLevelMpTermName', 'facet':'images'},
+		'imgMa' : {'class':'annotated_or_inferred_higherLevelMaTermName', 'facet':'images'},
 };
 
 config.lastCheckbox = null;

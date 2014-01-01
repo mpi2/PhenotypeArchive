@@ -62,21 +62,12 @@
 			
 			do_megaMa(q, fqStr);
 			do_megaPipeline(paramStr, facet);
-			do_megaImages(paramStr);
+			do_megaImages(paramStr, facet);			
+			
+			// make sure field mapping in url is correct with selected facet
+			fqStr = $.fn.fieldNameMapping(fqStr, facet);
 			
 			// now update dataTable	 
-			if ( facet == 'images' || facet == 'gene' ){
-				fqStr = fqStr.replace('subtype', 'marker_type'); 
-				//fqStr = fqStr.replace('top_level_mp_term:','annotated_or_inferred_higherLevelMpTermName:');
-				//fqStr = fqStr.replace('top_level_ma_term:','annotated_or_inferred_higherLevelMaTermName:');
-			}
-			else if ( facet == 'ma' ){
-	    		fqStr += ' AND selected_top_level_ma_term:*';
-			}
-			else if ( facet == 'mp' ){
-				fqStr = fqStr.replace(' AND selected_top_level_ma_term:*', '');
-			}	
-						
 	    	if (q == '*:*'){
 	    		window.location.hash = 'q=' + q + '&fq=' + fqStr + '&facet=' + facet;    	    		
 	    	}
@@ -89,10 +80,8 @@
 	
 	function do_megaGene(paramStr){
 		
-		//paramStr = paramStr.replace('selected_top_level_ma_term', 'inferred_selected_top_level_ma_term');
-		console.log('check paramStr: ' + paramStr);
-		paramStr = paramStr.replace('subtype', 'marker_type');
-				
+		paramStr = $.fn.fieldNameMapping(paramStr, 'gene');
+						
 		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['status', 'imits_phenotype_complete', 'imits_phenotype_started', 'imits_phenotype_status', 
          'marker_type']);
         
@@ -150,15 +139,11 @@
 	}
 	
 	function do_megaMp(paramStr){
-			
-		paramStr = paramStr.replace(' AND selected_top_level_ma_term:*', '');	
 		
-		//var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['top_level_mp_term']);
-		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['annotated_or_inferred_higherLevelMpTermName']);
-		//paramStr = paramStr.replace('annotated_or_inferred_higherLevelMpTermName', 'top_level_mp_term');
-		//paramStr = paramStr.replace('annotated_or_inferred_higherLevelMaTermName', 'inferred_selected_top_level_ma_term');
-		
+		paramStr = $.fn.fieldNameMapping(paramStr, 'mp');		
+		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['annotated_or_inferred_higherLevelMpTermName']);		
 		paramStr += fecetFieldsStr; 
+		
 		console.log('MP: '+ paramStr);
 		$.ajax({ 	
 			'url': solrUrl + '/mp/select',    		
@@ -190,11 +175,10 @@
 	}	
 	
 	function do_megaDisease(paramStr){
-				
-		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['disease_classes','disease_source','human_curated','mouse_curated','impc_predicted','impc_predicted_in_locus','mgi_predicted','mgi_predicted_in_locus']);
-				
 		
-		//paramStr = paramStr.replace('annotated_or_inferred_higherLevelMpTermName:"adipose tissue phenotype")
+		//paramStr = $.fn.fieldNameMapping(paramStr, 'disease');
+		
+		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['disease_classes','disease_source','human_curated','mouse_curated','impc_predicted','impc_predicted_in_locus','mgi_predicted','mgi_predicted_in_locus']);
 		
 		console.log('DISEASE: '+ paramStr + fecetFieldsStr);
 				
@@ -233,9 +217,7 @@
 	
 	function do_megaMa(q, fqStr){
 		
-		if ( fqStr.indexOf('annotated_or_inferred_higherLevelM') != -1 ){
-			fqStr += ' AND selected_top_level_ma_term:*';
-		}
+		fqStr = $.fn.fieldNameMapping(fqStr, 'ma');		
 		
 		var paramStr = 'q=' + q + '&fq=' + fqStr + '&wt=json&defType=edismax&qf=auto_suggest';// + MPI2.searchAndFacetConfig.mega.facetParams;
 			
@@ -276,26 +258,13 @@
     		}
 		});		
 	}	
-	
-	function do_megaPipeline(paramStr, facet){
+		
+	function do_megaPipeline(paramStr){		
 		
 		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['pipeline_name', 'pipe_proc_sid']);
 		
-		// image expName and pipeline procedure_name mapping
-		if ( facet == 'images' ){//}|| facet == 'pipeline' ){
-			var oMapping = {
-				'Dysmorphology' : 'IMPC_CSD_002',
-				'Eye Morphology' : 'IMPC_EYE_001',
-				'Flow Cytometry' : 'IMPC_FAC_001',
-				'Histology Slide' : 'IMPC_HIS_001',
-				'Wholemount Expression' : 'IMPC_ALZ_001',
-				'Xray' : 'IMPC_XRY_001',				
-				'expName:' : 'procedure_stable_id:'				
-			}	
-			for( var name in oMapping ){
-				paramStr = paramStr.replace(name, oMapping[name]);
-			}		
-		}			
+		// image expName <-> pipeline procedure stable id mapping		
+		paramStr = $.fn.fieldNameMapping(paramStr, 'pipeline');		
 				
 		paramStr += fecetFieldsStr;
 		
@@ -361,6 +330,9 @@
 
 	function do_megaImages(paramStr){
 		
+		// image expName <-> pipeline procedure stable id mapping	
+		paramStr = $.fn.fieldNameMapping(paramStr, 'images');	
+		
 		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['annotated_or_inferred_higherLevelMpTermName', 'annotated_or_inferred_higherLevelMaTermName', 'expName', 'subtype']);		
 		paramStr += fecetFieldsStr; 
 		
@@ -392,14 +364,14 @@
 	    				
 	    				var facetName = oFacets[facetStr][j];	    								   				
 	    				var facetCount = oFacets[facetStr][j+1];
-	    				console.log(facetName + ' vs ' + facetCount);
+	    				//console.log(facetName + ' vs ' + facetCount);
 	    				var oTr = $('table#imagesFacetTbl tr.'+ facetStr + '[rel="' + facetName + '"]');
-	    				console.log(oTr);
-	    				console.log(oTr.find('td.imgSubfacet').text());
+	    				//console.log(oTr);
+	    				//console.log(oTr.find('td.imgSubfacet').text());
 	    				oTr.find('td.imgSubfacet').attr('rel', facetCount).text(facetName);
 	    					    				
 	    				var jsonStr = oTr.find('td.imgSubfacetCount a').attr('rel');
-	    				console.log(jsonStr);
+	    				//console.log(jsonStr);
 	    				var oJson = eval("(" + jsonStr + ")");	    				
 	    				oJson.imgCount = facetCount;
 	    				oTr.find('td.imgSubfacetCount a').text(facetCount);	    				
@@ -407,6 +379,54 @@
     			}
     		}
 		});		
+	}	
+		
+	$.fn.fieldNameMapping = function(paramStr, facet){
+				
+		var oMapping;		
+			
+		if ( paramStr.indexOf('procedure_stable_id:') != -1 && facet == 'images' ){		
+			oMapping = MPI2.searchAndFacetConfig.procSid2ExpNameMapping;			
+		}
+		else if (paramStr.indexOf('expName:') != -1 && facet != 'images' ){						
+			oMapping = MPI2.searchAndFacetConfig.expName2ProcSidMapping;
+		}
+		
+		for( var name in oMapping ){
+			paramStr = paramStr.replace(name, oMapping[name]);
+		}
+		
+		if ( paramStr.indexOf('marker_type:') != -1 && facet == 'images' ){		
+				oMapping = MPI2.searchAndFacetConfig.markerType2SubTypeMapping;			
+		}
+		else if (paramStr.indexOf('subtype:') != -1 && facet != 'images' ){						
+				oMapping = MPI2.searchAndFacetConfig.subType2MarkerTypeMapping;
+		}
+		
+		for( var name in oMapping ){
+			paramStr = paramStr.replace(name, oMapping[name]);
+		}	
+		
+		if (facet == 'images' ) {
+			paramStr = paramStr.replace(/ AND \(?ontology_subset:\*\)?/,'').replace(' AND selected_top_level_ma_term:*','');	
+		}		
+		else if ( facet == 'ma' ){
+			paramStr.replace(' AND (ontology_subset:*)','');
+			if (paramStr.indexOf(' AND selected_top_level_ma_term:*') == -1 ){
+				paramStr += ' AND selected_top_level_ma_term:*';
+			}
+		}
+		else if ( facet == 'pipeline' ){
+			paramStr = paramStr.replace(' AND selected_top_level_ma_term:*', '');
+		}
+		else if ( facet == 'mp' ){
+			paramStr = paramStr.replace(' AND selected_top_level_ma_term:*', '');
+			if (paramStr.indexOf(/ AND \(?ontology_subset:\*\)?/) == -1 ){
+				paramStr += ' AND ontology_subset:*';
+			}	
+		}
+		
+		return paramStr;
 	}	
 	
 	$.fn.fetchFecetFieldsStr = function(aFacetFields){
@@ -504,9 +524,9 @@
 		var thisLi = $('ul#facetFilter li.' + facet);
 		
 		var display = MPI2.searchAndFacetConfig.facetFilterLabel[field];
-		if (field == 'imits_phenotype_started' && value == 1 ){
-			value = 'started';
-		}
+		if ( value == 1 ){
+			value = field == 'imits_phenotype_started' ? 'Started' : 'Yes';		
+		}	
 		
 		var qValue = '"' + value + '"';
 		var filterTxt = ( facet == 'gene' || facet == 'images' || facet == 'disease' ) ? display + ' : ' + qValue : value;	
@@ -514,6 +534,9 @@
 		
 		if (facet == 'pipeline'){
 			var names = filterTxt.split('___');
+			
+			console.log(names);
+			
 			filterTxt = oChkbox.attr('class').replace(/_/g, ' ') + ' : ' + '"' + names[0] + '"';
 		}
 		
@@ -556,10 +579,11 @@
 				var fqField = aVals[1];
 				var value =  aVals[2];
 						
-				if ( facet == 'pipeline' ){
+				if ( fqField == 'procedure_stable_id' ){
 					var aV = value.split('___');
 					value = aV[1]; // procedure stable id					
-				}
+				}						
+				
 				aStr.push('(' + fqField + ':"' + value + '")');				
 			});
 			
@@ -879,8 +903,9 @@
 		var regex = new RegExp(pat, "gi");		    	
 		var result;
 		var objList = [];
-    	while ( result = regex.exec(fqStr) ) {    		
-    		var wantStr = result[1]+ '|' + result[2];
+		
+    	while ( result = regex.exec(fqStr) ) {    	
+    		var wantStr = result[1]+ '|' + result[2];    		  
     		
     		if ( facet == 'pipelineFacet' ){
     			wantStr = result[2];
@@ -893,10 +918,9 @@
     		var obj = $('table#'+ facet + 'Tbl tr').find('input[rel*="'+wantStr+'"]');
     		//var obj = $("table[id$=FacetTbl] tr").find('input[rel*="'+wantStr+'"]');
     		console.log('WANT: ' + wantStr);
-    		console.log(obj);
-    		
+    	    		
     		if (obj.length != 0 ){
-	    		// tick checkbox if not already
+	    		// tick checkbox if not already in the facet to be opened
 	    		if ( obj.is(':checked') ){
 	    	   		// do nothing for now    			
 	    		}
@@ -913,26 +937,59 @@
 	    		$.fn.addFacetFilter(obj, oHashParams.q);
     		}	
     		else {
-    			// add unfound to filter list as it is in uninitialized facets
-    			// the facet count of uninitialized facets will then be updated
+    			// add other filter in list so that the facet count of uninitialized facets will be updated
+    			    			
     			var oMapping;
-    			if ( wantStr.match(/mortality\/aging/) || wantStr.match(/^annotated_or_inferred_higherLevelMxTermName|.+phenotype$/) ){
-    				oMapping = MPI2.searchAndFacetConfig.filterMapping['mp'];
-    			}
+    			if ( wantStr.match(/procedure_stable_id|(.+)/) ){
+        			
+    				
+    				var sid = wantStr.replace('procedure_stable_id|', '');
+    				console.log('PIPE: '+ sid);
+    				
+    				// need to do ajax solr query to fetch for procedure name from procedure_id    				
+    				$.ajax({ 	
+    					'url': solrUrl + '/pipeline/select',
+    					'data': 'q=procedure_stable_id:"' + sid + '"&fl=procedure_name,pipeline_name&rows=1&wt=json',
+    					'dataType': 'jsonp',
+    					'async': false,
+    					'jsonp': 'json.wrf',
+    					'success': function(json) {
+    					
+    						var procName = json.response.docs[0].procedure_name;
+    						var pipeName = json.response.docs[0].pipeline_name;
+    		    			//console.log(procName);
+    						var relStr = 'pipeline|procedure_stable_id|' + procName + '___' + sid;
+    		    			var obj = $('<input></input>').attr({'rel': relStr, 'class': pipeName.replace(/ /g, '_')});
+    		    			$.fn.addFacetFilter(obj, oHashParams.q);  
+    					}    					
+    				});				
+    			}    			
     			else {
-    				var testStr = wantStr.replace(/\|.+$/, '');
-    			
-    				console.log(testStr);
-    				oMapping = MPI2.searchAndFacetConfig.filterMapping[wantStr] ? MPI2.searchAndFacetConfig.filterMapping[wantStr] 
-    					: MPI2.searchAndFacetConfig.filterMapping[testStr];
+    				if ( wantStr.match(/mortality\/aging/) || wantStr.match(/^annotated_or_inferred_higherLevelMxTermName|.+phenotype$/) ){    			
+    					oMapping = MPI2.searchAndFacetConfig.filterMapping['mp'];
+    				}
+    				else if ( wantStr.match(/^annotated_or_inferred_higherLevelMpTermName/) ){    			
+    					oMapping = MPI2.searchAndFacetConfig.filterMapping['imgMp'];
+    				}
+    				else if ( wantStr.match(/^annotated_or_inferred_higherLevelMaTermName/) ){    			
+    					oMapping = MPI2.searchAndFacetConfig.filterMapping['imgMa'];
+    				}
+	    			else {
+	    				var testStr = wantStr.replace(/\|.+$/, '');
+	    			
+	    				console.log(testStr);
+	    				oMapping = MPI2.searchAndFacetConfig.filterMapping[wantStr] ? MPI2.searchAndFacetConfig.filterMapping[wantStr] 
+	    					: MPI2.searchAndFacetConfig.filterMapping[testStr];
+	    			}
+	    			
+	    			
+	    			var relStr = oMapping.facet + '|' + wantStr;    			
+	    			
+	    			var obj = $('<input></input>').attr({'rel': relStr, 'class': oMapping['class']});
+	    			$.fn.addFacetFilter(obj, oHashParams.q);
     			}
-    			
-    			var relStr = oMapping.facet + '|' + wantStr;
-    			
-    			
-    			var obj = $('<input></input>').attr({'rel': relStr, 'class': oMapping['class']});
-    			$.fn.addFacetFilter(obj, oHashParams.q);
-    		}
+    		}	
+    		
     	} 
     	
 		// Work out which subfacet needs to be open:
@@ -942,6 +999,25 @@
     	if ( typeof pageReload != 'undefined' ){    		
     		_setFacetToOpen(objList, oHashParams);
     	}
+    }
+    
+    function _fetchProcedureNameById(sid){
+    	$.ajax({ 	
+			'url': solrUrl + '/pipeline/select',
+			'data': 'q=procedure_stable_id:"' + sid + '"&fl=procedure_name&rows=1',
+			'dataType': 'jsonp',
+			'async': false,
+			'jsonp': 'json.wrf',
+			'success': function(json) {
+				$('span#hiddenBox').html(json);
+				return procName = json.response.numFound;    											    			
+    			
+				/*var relStr = 'pipeline|procedure_stable_id|' + procName + '___' + sid;
+    			var obj = $('<input></input>').attr({'rel': relStr, 'class': sid});
+    			$.fn.addFacetFilter(obj, oHashParams.q);*/    						
+				
+			}
+		});  
     }
     
     function _setFacetToOpen(objList, oHashParams){

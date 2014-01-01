@@ -48,7 +48,10 @@
 						caller.find('.facetCatList').show(); // show itself					
 						$(this).addClass('facetCatUp');						
 						
-						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));						
+						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));			
+												
+						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'pipeline');
+						
 						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';												
 						window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
 					}	

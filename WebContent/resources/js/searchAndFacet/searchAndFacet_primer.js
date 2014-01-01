@@ -19,6 +19,7 @@
  */
 $(document).ready(function(){
 	'use strict';	
+		
 	var oHashParams = {};
 	
 	$('span.facetCount').text(''); // default when page loads

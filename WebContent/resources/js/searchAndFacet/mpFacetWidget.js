@@ -43,7 +43,7 @@
 						caller.find('.facetCatList').hide(); // hide itself					
 					}
 					else {	
-						
+					
 						caller.parent().find('div.facetCatList').hide(); // collapse all other facets 
 						caller.find('.facetCatList').show(); // show itself					
 						$(this).addClass('facetCatUp');										
@@ -51,10 +51,9 @@
 						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));											
 						oHashParams.fq = oHashParams.fq.replace(' AND selected_top_level_ma_term:*', '');
 						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';
-										
-						if ( oHashParams.fq.indexOf('annotated_or_inferred_higherLevelM') != -1 ){
-				    		oHashParams.fq = oHashParams.fq.replace(' AND selected_top_level_ma_term:*', '');
-						}
+						
+						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'mp');
+						
 						console.log(oHashParams);
 						window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;						
 					}	

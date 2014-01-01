@@ -47,7 +47,10 @@
 						caller.find('.facetCatList').show(); // show itself					
 						$(this).addClass('facetCatUp');						
 											
-						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));						
+						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));	
+						
+						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'gene');
+						
 						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';												
 						window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;						
 					}
@@ -254,7 +257,8 @@
 	    		$('div#geneFacet div.facetCatList').html(table);
 	    			
 	    		// update facet count when filters applied
-	    		if ( $('ul#facetFilter li li a').size() != 0 ){    			
+	    		if ( $('ul#facetFilter li li a').size() != 0 ){    
+	    			alert('about to change')
     				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'gene');
     			}	
 	    		

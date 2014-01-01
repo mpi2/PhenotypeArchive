@@ -38,12 +38,13 @@
 		
 	 	// facet types are done sequencially; starting from gene	 		
 	    $.ajax({            	    
-	    		url: solrUrl + '/gene/select',
-	       	    data: $.extend({}, jsonBase.geneFacet.srchParams, jsonBase.geneFacet.filterParams),
+	    		url: solrUrl + '/gene/select',	    	
+	       	    data: $.extend({}, jsonBase.geneFacet.srchParams, jsonBase.geneFacet.filterParams),	       	 
 	       	    dataType: 'jsonp',
 	       	    jsonp: 'json.wrf',
 	       	    timeout: 5000,
-	       	    success: function (geneResponse) {	       	    	
+	       	    success: function (geneResponse) {
+	       	    	console.log(geneResponse);
 	       	    	$('div#geneFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
 	       	    	oFacets.count.gene = geneResponse.response.numFound;	
 	       	    	_updateFacetCount('geneFacet', geneResponse, facetMode);	       	    	

@@ -48,7 +48,11 @@
 						$(this).addClass('facetCatUp');						
 						
 						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));						
-						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';												
+						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';	
+						
+						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'images');
+						//oHashParams.fq = oHashParams.fq.replace(' AND (ontology_subset:*)','')
+						
 						window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
 					}	
 				}	
