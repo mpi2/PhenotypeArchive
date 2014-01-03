@@ -3,6 +3,24 @@
 	<script>
 	<![CDATA[
 		function getData(row) {
+
+			// Get metadata
+
+			var combined = row.get('metadata_combined');
+			var pieces = combined.split('::');
+
+			if(typeof pieces != 'undefined') {
+
+				var arr = new java.util.ArrayList();
+				for (var i=0; i<pieces.length; i++) {
+					arr.add(pieces[i]);
+				}
+
+				row.put('metadata', arr);
+			}
+
+			// Get specific observation data
+
 			if (row.get('observation_type') == 'categorical') {
 				row.put('category', row.get('category'));
 
@@ -27,37 +45,6 @@
 			return row;
 		}
 
-		/* hash function for calculating metadata group */
-		/* http://erlycoder.com/49/javascript-hash-functions-to-convert-string-into-integer-hash- */	
-		function djb2Code(str) {
-			var hash = 5381;
-			for (i = 0; i < str.length; i++) {
-				var ch = str.charCodeAt(i);
-				hash = ((hash << 5) + hash) + ch; /* hash * 33 + c */
-			}
-			return hash;
-		}
-
-		function getMetadata(row) {
-
-			var combined = row.get('metadata_combined');
-
-			if(typeof pieces != 'undefined') {
-
-				var pieces = combined.split('::');
-				var arr = new java.util.ArrayList();
-
-				for (var i=0; i<pieces.length; i++) {
-					arr.add(pieces[i]);
-				}
-
-				row.put('metadata', arr);
-				row.put('metadata_group', djb2Code(String(row.get('metadata_combined'))));
-			}
-			
-			return row;
-		}
-
 	]]>
 	</script>
 
@@ -68,7 +55,7 @@
 
 		<!-- For all observations (data points) -->
 		<entity dataSource="komp2ds" transformer="script:getData" name="observation" query="
-			SELECT strain.strain_acc, pipe.name as pipeline_name, pipe.id as pipeline_id, pipe.stable_id as pipeline_stable_id, param.name as parameter_name, proc.name as procedure_name, proc.id as procedure_id, proc.stable_id as procedure_stable_id, param.stable_id as parameter_stable_id,bs.organisation_id, org.name, bs.sample_group, gf.acc as acc, ls.sex as sex, ls.colony_id, ls.zygosity, gf.symbol as symbol, bms.biological_model_id as bmid, ls.date_of_birth as birthdate, ls.colony_id, e.date_of_experiment, e.external_id, e.id as experiment_id, o.*, co.category as category, uo.data_point as unidimensional_data_point, mo.data_point as multidimensional_data_point, mo.order_index, mo.dimension, tso.data_point as time_series_data_point, tso.time_point, tso.discrete_point, iro.file_type, iro.full_resolution_file_path, iro.small_thumbnail_file_path, bs.external_id as external_sample_id
+			SELECT MD5(GROUP_CONCAT(DISTINCT CONCAT(param.name, ' = ', pmd.value) ORDER BY pmd.parameter_id ASC SEPARATOR '::')) as metadata_group, GROUP_CONCAT(DISTINCT CONCAT(param.name, ' = ', pmd.value) ORDER BY pmd.parameter_id ASC SEPARATOR '::') as metadata_combined, strain.strain_acc, pipe.name as pipeline_name, pipe.id as pipeline_id, pipe.stable_id as pipeline_stable_id, param.name as parameter_name, proc.name as procedure_name, proc.id as procedure_id, proc.stable_id as procedure_stable_id, param.stable_id as parameter_stable_id,bs.organisation_id, org.name, bs.sample_group, gf.acc as acc, ls.sex as sex, ls.colony_id, ls.zygosity, gf.symbol as symbol, bms.biological_model_id as bmid, ls.date_of_birth as birthdate, ls.colony_id, e.date_of_experiment, e.external_id, e.id as experiment_id, o.*, co.category as category, uo.data_point as unidimensional_data_point, mo.data_point as multidimensional_data_point, mo.order_index, mo.dimension, tso.data_point as time_series_data_point, tso.time_point, tso.discrete_point, iro.file_type, iro.full_resolution_file_path, iro.small_thumbnail_file_path, bs.external_id as external_sample_id
 			FROM observation o
 			LEFT OUTER JOIN categorical_observation co ON o.id=co.id
 			LEFT OUTER JOIN unidimensional_observation uo ON o.id=uo.id
@@ -139,16 +126,8 @@
 			<field column="external_id" name ="experiment_source_id" />
 			<field column="date_of_experiment" name ="date_of_experiment" />
 
-			<!--  metadata and calculate metadata group -->
-			<entity dataSource="komp2ds" transformer="script:getMetadata" name="procedureMetaDataGroup" 
-				query="select GROUP_CONCAT(DISTINCT CONCAT(name, ' = ', value) ORDER BY parameter_id ASC SEPARATOR '::') as metadata_combined 
-					FROM (SELECT pp.name, pmd.value, pmd.parameter_id, pmd.experiment_id FROM procedure_meta_data pmd
-					INNER JOIN phenotype_parameter pp ON pp.stable_id=pmd.parameter_id 
-					WHERE experiment_id=${observation.experiment_id}) pmd
-					">
-				<field column="metadata" name="metadata" />
-				<field column="metadata_group" name ="metadata_group" />
-			</entity>
+			<field column="metadata" name="metadata" />
+			<field column="metadata_group" name ="metadata_group" />
 
 		</entity>
 
