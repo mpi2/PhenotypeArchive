@@ -657,7 +657,7 @@ public class UnidimensionalChartAndTableProvider {
 		return chartAndTable;
 	}
 	
-	public ChartData getStackedHistogram(Map<String, List<Double>> map, String title){
+	public ChartData getStackedHistogram(Map<String, List<Double>> map, String title, String xLabel){
 	//	http://jsfiddle.net/gh/get/jquery/1.9.1/highslide-software/highcharts.com/tree/master/samples/highcharts/demo/column-stacked/
 		List<Double> control  = map.get("control");
 		List<Double> mutant  = map.get("mutant");					
@@ -675,13 +675,12 @@ public class UnidimensionalChartAndTableProvider {
 				min = val;
 		String chartId = "column-stacked" + mutant.hashCode();
 		String yTitle = "Number of strains";
-		
 		String javascript = "$(function () {    var chart; $(document).ready(function() {chart = new Highcharts.Chart({ chart: {  type: 'column' , renderTo: '"
 				+ chartId
 				+ "'},"+
            " title: { text: '" + title + "' },"+
            " credits: { enabled: false },"+
-           " xAxis: { categories: " + labels + ", labels: {rotation: -45}  },"+
+           " xAxis: { categories: " + labels + ", labels: {rotation: -45} , title: { text: '" + xLabel + "'} },"+
            " yAxis: { min: "+ min + ",  title: {  text: '"+yTitle+"'  }, stackLabels: { enabled: false}  }," +
            " tooltip: { formatter: function() { return ''+  this.series.name +': '+ this.y +'<br/>'+ 'Total: '+ this.point.stackTotal;  }  }, " +
            " plotOptions: { column: {  stacking: 'normal',  dataLabels: { enabled: false} } }," +

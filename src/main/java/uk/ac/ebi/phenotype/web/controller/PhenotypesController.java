@@ -504,7 +504,7 @@ public class PhenotypesController {
 					Map<String, List<Double>> map = os.getUnidimensionalData(p, genes, strains, "experimental");
 					String chartTitle = "Mean " +  p.getName() + " (" + p.getStableId()+")";
 					//chartsList.add(uctp.getHistogram(labels, data, chartTitle));
-					chartsList.add(uctp.getStackedHistogram(map, chartTitle));
+					chartsList.add(uctp.getStackedHistogram(map, chartTitle, p.getUnit()));
 				}
 			}
 		}
