@@ -109,8 +109,6 @@
 			
 			<img class="well" src="img/gene-phenotypes.png" />
 			
-			Phenotypes may have multimple parents so the same phenotype call can be counted twice in the summary above. This is why in the example shown here, we have 27 phenotype associations in the table but we get 31 by adding the numbers in the summary.
-			
 			<h3><a name="phenotype-summary" href='#'>Gene phenotype summary</a></h3>
 			
 			<p>A summary of phenotype terms for this gene with associated counts.  The counts indicate the number of unique combinations of:
@@ -122,7 +120,10 @@
 			<li>Source - project that asserted the association</li>
 			</ul>
 
-			<p>Due to this combining process, the number of rows in the results table may not equal the count shown. Also, be aware that MP terms may have more than one high level parent and so the counts in the summary may not equal the total number of entries.</p>
+			<p>Due to this combining process, the number of rows in the results table may not equal the count shown. Also, be aware that MP terms may have more than 
+			one high level parent and so the counts in the summary may not equal the total number of entries. This is also the case in the presented example: we have 27 phenotype 
+			associations in the table but we get 31 by adding the numbers in the summary.
+			</p>
 			
 			<img class="well" src="img/gene-phenotype-summary.png" />
 			
@@ -152,7 +153,7 @@
 			</p>
 			
 			<p>
-				Please note that in the table displayed on our page entry lines are collapsed based on sex. That is, if for 2 lines all fields are identical except the gender, they will be shown together for a better user experience.
+				In the table displayed on our page entry lines are collapsed based on sex. That is, if for 2 lines all fields are identical except the gender, they will be shown together for a better user experience.
 				In the export file however we export all lines separately, to allow easier further processing of the data. This holds for both XLS and TSV files.
 			</p>
 			
