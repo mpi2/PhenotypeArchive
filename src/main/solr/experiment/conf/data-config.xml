@@ -76,6 +76,7 @@
 			INNER JOIN phenotype_pipeline pipe ON pipe.id=pipeproc.pipeline_id
 			INNER JOIN experiment_observation eo ON eo.observation_id=o.id
 			INNER JOIN experiment e on eo.experiment_id=e.id
+			LEFT OUTER JOIN procedure_meta_data pmd ON pmd.experiment_id=e.id
 			WHERE o.missing = 0
 			">
 
