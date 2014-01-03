@@ -130,7 +130,7 @@
 
 			<!--  metadata and calculate metadata group -->
 			<entity dataSource="komp2ds" transformer="getMetadata" name="procedureMetaDataGroup" 
-				query="select MD5(GROUP_CONCAT(DISTINCT CONCAT(name, ' = ', value) ORDER BY parameter_id ASC SEPARATOR '::')) as metadata_group, GROUP_CONCAT(DISTINCT CONCAT(name, ' = ', value) ORDER BY parameter_id ASC SEPARATOR '::') as metadata_combined 
+				query="SELECT MD5(GROUP_CONCAT(DISTINCT CONCAT(name, ' = ', value) ORDER BY parameter_id ASC SEPARATOR '::')) as metadata_group, GROUP_CONCAT(DISTINCT CONCAT(name, ' = ', value) ORDER BY parameter_id ASC SEPARATOR '::') as metadata_combined 
 					FROM (SELECT pp.name, pmd.value, pmd.parameter_id, pmd.experiment_id FROM procedure_meta_data pmd
 					INNER JOIN phenotype_parameter pp ON pp.stable_id=pmd.parameter_id 
 					WHERE experiment_id=${observation.experiment_id}) pmd
