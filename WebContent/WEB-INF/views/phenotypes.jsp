@@ -178,7 +178,7 @@
 	</div>
 
     <h4 class="caption">Gene variants with ${phenotype.name}</h4>
-	    
+	   
 	<div class="row-fluid">	    	
 		<div class="container span12">			
 			<div class="row-fluid" id="phenotypesDiv">	
@@ -201,7 +201,9 @@
 										</c:if>
 								</c:forEach>
 						</form>
-						<jsp:include page="geneVariantsWithPhenotypeTable.jsp"></jsp:include>
+						<jsp:include page="geneVariantsWithPhenotypeTable.jsp">
+							<jsp:param name="isImpcTerm" value="${isImpcTerm}"/>
+						</jsp:include>
 		<div id="exportIconsDiv"></div>
 					
 			</c:if>

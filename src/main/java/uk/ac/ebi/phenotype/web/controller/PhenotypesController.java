@@ -336,6 +336,18 @@ public class PhenotypesController {
 			if(pr.getGene().getSymbol().equals("Dll1"))System.out.println("phenotype row="+pr);
 		}
 		model.addAttribute("phenotypes", new ArrayList<PhenotypeRow>(phenotypes.keySet()));	
+		JSONObject mpData = solrIndex
+				.getMpData(phenotype_id)
+				.getJSONObject("response")
+				.getJSONArray("docs")
+				.getJSONObject(0);
+		if (mpData.containsKey("ontology_subset")){
+			model.addAttribute("isImpcTerm", mpData.getJSONArray("ontology_subset").contains("IMPC_Terms"));
+		}
+		else {
+			model.addAttribute("isImpcTerm", false);
+		}
+		
 	}	
 
 
