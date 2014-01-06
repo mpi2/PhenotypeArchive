@@ -271,7 +271,7 @@ public class ExperimentService {
 	    			
 	    			controls.addAll(potentialControls);
 	    		
-	    		} else if (experiment.getSexes().contains(SexType.female) && maleBatches.size()>1) {
+	    		} else if (experiment.getSexes().contains(SexType.female) && femaleBatches.size()>1) {
 	    		
 	    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, SexType.female.name()));
 	    		
