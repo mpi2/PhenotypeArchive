@@ -11,9 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.neethi.All;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +21,6 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
-import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
 
 @Service
 public class ExperimentService {
@@ -227,6 +223,15 @@ public class ExperimentService {
 	    		// CONTROL GROUP SELECTION STRATEGY
 	    		// Use concurrent controls if appropriate
 	    		// else use ALL control data
+	    		//
+	    		// TODO: When multiple batches of mutants, check if each batch
+	    		//       has accompanying controls in the same batch (i.e. on
+	    		//       the same day), if so, use those controls
+	    		//
+	    		// TODO: Verify all the centers control strategy
+	    		//
+	    		// TODO: Add in metadata splits
+	    		//
 	    		// ======================================
 
 	    		List<ObservationDTO> controls = new ArrayList<ObservationDTO>();
@@ -234,31 +239,44 @@ public class ExperimentService {
 	    		// If one batch male, use controls from the same day as the experiment batch
 	    		// else load all male controls
 	    		if (experiment.getSexes().contains(SexType.male) && maleBatches.size()==1) {
+
 	    			List<ObservationDTO> potentialControls = new ArrayList<ObservationDTO>();
 	    			potentialControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, SexType.male.name());
+
 	    			System.out.println(" ++++ Male concurrent control count: "+potentialControls.size());
+
 	    			if (potentialControls.size()<MIN_CONTROLS) {
 		    			potentialControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, SexType.male.name());
 	    			}
+
 	    			controls.addAll(potentialControls);
 	    		} else if (experiment.getSexes().contains(SexType.male) && maleBatches.size()>1) {
+
 	    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, SexType.male.name()));
+	    		
 	    		}
 
 	    		// If one batch female, use controls from the same day as the experiment batch
 	    		// else load all female controls
 	    		if (experiment.getSexes().contains(SexType.female) && femaleBatches.size()==1) {
+	    		
 	    			List<ObservationDTO> potentialControls = new ArrayList<ObservationDTO>();
 	    			potentialControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, SexType.female.name());
+	    			
 	    			System.out.println(" ++++ Female concurrent control count: "+potentialControls.size());
+	    			
 	    			if (potentialControls.size()<MIN_CONTROLS) {
 		    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, SexType.female.name()));
 	    			}
+	    			
 	    			controls.addAll(potentialControls);
+	    		
 	    		} else if (experiment.getSexes().contains(SexType.female) && maleBatches.size()>1) {
+	    		
 	    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, SexType.female.name()));
+	    		
 	    		}
-
+	    		
 	    		//os.getControls(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, Boolean.FALSE, SexType.female.name());
 
 	    		// If both sexes contain multiple batches, use all control animals
