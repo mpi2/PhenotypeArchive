@@ -30,6 +30,7 @@ import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.eclipse.jetty.util.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -1193,17 +1194,39 @@ public class ObservationService {
 	}
 
 	public List<ObservationDTO> getConcurrentControlsBySex(Integer parameterId, String strain, Integer organisationId, Date experimentDate, String sex) throws SolrServerException {
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00");
 
 		List<ObservationDTO> results = new ArrayList<ObservationDTO>();
 
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00");
+		// DEFAULT
+		// Use any control mouse ON THE SAME DATE as concurrent control
+		String dateFilter = df.format(DateUtils.addDays(experimentDate,-1))+"Z TO "+df.format(DateUtils.addDays(experimentDate, 1))+"Z";
+
+		if(organisationId == 3) {
+			// WTSI rules
+			// Use any mouse WITHIN A WEEK as concurrent control
+			// Week is deined as Sunday to Saturday (inclusive) surrounding
+			// the date of experiment
+			
+
+			// Sunday = DOW 0, subtract num returned from getDay from experiment Date
+			// to get to the previous Sunday
+			Date startWeekDate = DateUtils.addDays(experimentDate, (-1 * experimentDate.getDay()));			
+
+			// Saturday = DOW 6 (zero based week), subtract from 6 num returned
+			// from getDay to experiment Date to get to the next Saturday
+			Date endWeekDate = DateUtils.addDays(experimentDate, (6 - experimentDate.getDay()));
+
+			dateFilter = df.format(startWeekDate)+"Z TO "+df.format(endWeekDate)+"Z";
+			
+		}
 		
 		QueryResponse response = new QueryResponse();
 	
 		SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
 			.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":control")
-			.addFilterQuery(ExperimentField.DATE_OF_EXPERIMENT + ":["+df.format(DateUtils.addDays(experimentDate,-1))+"Z TO "+df.format(DateUtils.addDays(experimentDate, 1))+"Z]")
+			.addFilterQuery(ExperimentField.DATE_OF_EXPERIMENT + ":[" + dateFilter + "]")
 			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
 			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
 			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
