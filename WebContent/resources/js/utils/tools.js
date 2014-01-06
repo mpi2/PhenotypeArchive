@@ -192,28 +192,70 @@
     		'dataType': 'jsonp',
     		'jsonp': 'json.wrf',
     		'success': function(json) {
+    			console.log('disease: ');
     			console.log(json);			
     			// refresh disease facet
     			var oFacets = json.facet_counts.facet_fields;
-    			
+    			    			
     			$('table#diseaseFacetTbl td.diseaseSubfacet').attr('rel', '0');
     			$('table#diseaseFacetTbl td.diseaseSubfacetCount a').text('0');
     			
     			var diseaseCount = json.response.numFound;		
     			$('div#diseaseFacet span.facetCount').text(diseaseCount);
     			
+    			// first collapse all procedures and grayout all pipelines
+				$('table#diseaseFacetTbl tr.subFacet').hide();
+				$('table#diseaseFacetTbl tr.facetSubCat td').addClass('grayout').removeClass('unCollapse');
+				//$('table#diseaseFacetTbl tr.facetSubCat td').removeClass('unCollapse');
+    			
+				var foundMatch = {'curated':0,'predicted':0,'disease_source':0,'disease_classes':0};
     			// subfacets: source/classification/curated/predicted
-    			var aSubFacets = ['disease_source','disease_classes', 'mouse_curated','human_curated','mgi_predicted','mgi_predicted_in_locus', 'impc_predicted','impc_predicted_in_locus'];
+    			var aSubFacets = ['disease_source','disease_classes','mouse_curated','human_curated','mgi_predicted','mgi_predicted_in_locus', 'impc_predicted','impc_predicted_in_locus'];
     			for (var i=0; i<aSubFacets.length; i++){    				
     				var subFacetName = aSubFacets[i];
+    				
+    				// do some accouting for matching subfacets
+    				if ( subFacetName.indexOf('curated') != -1 ) {
+    					for ( var cr=0; cr<oFacets[subFacetName].length; cr=cr+2){
+    						if ( oFacets[subFacetName][cr] == '1' ){
+    							foundMatch.curated++;
+    							console.log('curated length: '+ oFacets[subFacetName][cr+1]);
+    						}
+    					}    					
+    				}
+    				else if ( subFacetName.indexOf('predicted') != -1 ){    					
+    					for ( var pr=0; pr<oFacets[subFacetName].length; pr=pr+2){
+    						if ( oFacets[subFacetName][pr] == '1' ){
+    							foundMatch.predicted++;
+    							console.log('predicted length: '+ oFacets[subFacetName][pr+1]);
+    						}
+    					} 				
+					}
+    				else {
+    					foundMatch[subFacetName]++;
+    				}    				    				
+    				
     				for (var j=0; j<oFacets[subFacetName].length; j=j+2){
 	    				var facetName = oFacets[subFacetName][j];    				 				   				
 	    				var facetCount = oFacets[subFacetName][j+1];
-	    				//console.log(facetName + ':'+facetCount);
+	    				//console.log(facetName + ':'+facetCount);    				
 	    				$('table#diseaseFacetTbl').find('td.' + subFacetName + '[rel=' + facetCount + ']').text(facetName);
-	    				$('table#diseaseFacetTbl').find('td.diseaseSubfacetCount a.' + subFacetName + '[rel="' + facetName + '"]').text(facetCount);
-	    				
+	    				$('table#diseaseFacetTbl').find('td.diseaseSubfacetCount a.' + subFacetName + '[rel="' + facetName + '"]').text(facetCount);	    				
     				}   			
+    			}
+    			
+    			// gray out subfacets that do not have query matches
+    			var aSubFacetTrs = ['disease_source','disease_classes','curated','predicted' ];    			
+    			var firstFound = 0;
+    			for ( var n=0; n<aSubFacetTrs.length; n++){
+    				var oElem = $('table#diseaseFacetTbl tr.' + aSubFacetTrs[n]+'TrCap').find('td');    				
+    				if ( foundMatch[aSubFacetTrs[n]] !=0  ){
+    					oElem.removeClass('grayout');
+    					firstFound++;
+    					if ( firstFound == 1 ){
+        					oElem.click(); // open the first match
+        				}
+    				}    				
     			}
     		}
 		});		
@@ -243,7 +285,7 @@
     			$('table#maFacetTbl td.maTopLevelCount a').text('0');
     			    			
     			var maCount = json.response.numFound;
-    			$('div#maFacet span.facetCount').text(maCount);
+    			$('div#maFacet span.facetCount').text(maCount);    						
     			
     			for (var i=0; i<oFacets.annotated_or_inferred_higherLevelMaTermName.length; i=i+2){	
     				//console.log('92 : '+ oFacets.top_level_mp_term[i]);
@@ -553,10 +595,8 @@
 		var pipelineName, a;
 		
 		if (facet == 'pipeline'){
-			var names = filterTxt.split('___');
-			
-			console.log(names);
-			
+			var names = filterTxt.split('___');			
+			console.log(names);			
 			filterTxt = oChkbox.attr('class').replace(/_/g, ' ') + ' : ' + '"' + names[0] + '"';
 		}
 		
@@ -923,20 +963,11 @@
 		var regex = new RegExp(pat, "gi");		    	
 		var result;
 		var objList = [];
-		
+		var wantStr;
     	while ( result = regex.exec(fqStr) ) {    	
-    		var wantStr = result[1]+ '|' + result[2];    		  
-    		
-    		if ( facet == 'pipelineFacet' ){
-    			wantStr = result[2];
-    			console.log('want str: ' + wantStr);
-    		}	
-    		//else if ( facet == 'imagesFacet' || facet == 'mpFacet' ){
-    		//	wantStr = wantStr.replace(' phenotype', '');
-    		//}
-    		    		    		
-    		var obj = $('table#'+ facet + 'Tbl tr').find('input[rel*="'+wantStr+'"]');
-    		//var obj = $("table[id$=FacetTbl] tr").find('input[rel*="'+wantStr+'"]');
+    		wantStr =  result[1] == 'procedure_stable_id' ? result[2] : result[1]+ '|' + result[2];    		  
+    		    		
+    		var obj = $('table#'+ facet + 'Tbl tr').find('input[rel*="'+wantStr+'"]');    		
     		console.log('WANT: ' + wantStr);
     	    		
     		if (obj.length != 0 ){
@@ -957,12 +988,13 @@
 	    		$.fn.addFacetFilter(obj, oHashParams.q);
     		}	
     		else {
+    			wantStr =  result[1]+ '|' + result[2];
+    			
     			// add other filter in list so that the facet count of uninitialized facets will be updated
     			    			
     			var oMapping;
-    			if ( wantStr.match(/procedure_stable_id|(.+)/) ){
-        			
-    				
+    			if ( wantStr.match(/^procedure_stable_id\|.*/) ){
+        			    				
     				var sid = wantStr.replace('procedure_stable_id|', '');
     				console.log('PIPE: '+ sid);
     				
@@ -993,7 +1025,7 @@
     				}
     				else if ( wantStr.match(/^annotated_or_inferred_higherLevelMaTermName/) ){    			
     					oMapping = MPI2.searchAndFacetConfig.filterMapping['imgMa'];
-    				}
+    				}    				
 	    			else {
 	    				var testStr = wantStr.replace(/\|.+$/, '');
 	    			
@@ -1393,7 +1425,7 @@
     }
     
     function initDataTableDumpControl(oInfos){
-    
+    console.log(oInfos);
     	$('div#saveTable').remove();
     	$('div#toolBox').remove();
     
@@ -1413,8 +1445,8 @@
     			// browser-specific position fix
     			if ($.browser.msie  && parseInt($.browser.version, 10) === 8) {
     				$('div#toolBox').css({'top': '-30px', 'left': '65px'});
-    			}
-    	    	var solrCoreName = oInfos.solrCoreName;
+    			}    			
+    	    	var solrCoreName = oInfos.widgetName.replace('Facet','');
     	    	var iActivePage = $('div.dataTables_paginate li.active a').text();
     	    	
     	    	var iRowStart = iActivePage == 1 ? 0 : iActivePage*10-10;
@@ -1430,7 +1462,7 @@
     					solrCoreName: solrCoreName,        				
     					params: oInfos.params,
     					showImgView: showImgView,
-    					gridFields: MPI2.searchAndFacetConfig.facetParams[solrCoreName+'Facet'].gridFields,
+    					gridFields: MPI2.searchAndFacetConfig.facetParams[oInfos.widgetName].gridFields,
     					fileName: solrCoreName + '_table_dump'	
     	    		});   
     	    	}).corner('6px'); 
