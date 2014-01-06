@@ -44,13 +44,11 @@ public class TimeSeriesChartAndTableProvider {
 	 SimpleDateFormat sdf  = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss.SSS");
 
 	 public ChartData doTimeSeriesOverviewData(Map<String, List<DiscreteTimePoint>>lines, Parameter p){
-
-	/*	 private ChartData creatDiscretePointTimeSeriesChart(
-					int listIndex, String title,
-					Map<String, List<DiscreteTimePoint>> lines, String xUnitsLabel,
-					String yUnitsLabel, SexType sex, int decimalPlaces, String organisation) {
-					*/
-			
+		
+		 if (lines == null){
+			 return new ChartData();
+		 }
+		 
 		String title =  p.getName() + " (" + p.getStableId() + ")";
 		// create CharData
 		ChartData chartsNTablesForParameter = creatDiscretePointTimeSeriesChart(1, title, lines, p.checkParameterUnit(1), p.checkParameterUnit(2), null, 1, "org");
