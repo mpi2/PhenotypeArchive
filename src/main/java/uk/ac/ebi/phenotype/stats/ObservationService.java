@@ -793,7 +793,7 @@ public class ObservationService {
 		query.set("group.sort", ExperimentField.DISCRETE_POINT + " asc");
 		query.setRows(10000);
 
-		System.out.println("+_+_+ " + solr.getBaseURL() + "/select?" + query);
+//		System.out.println("+_+_+ " + solr.getBaseURL() + "/select?" + query);
 		List<Group> groups = solr.query(query).getGroupResponse().getValues()
 				.get(0).getValues();
 		// for mutants it doesn't seem we need binning
@@ -808,8 +808,8 @@ public class ObservationService {
 				SolrDocument doc = resDocs.get(i);
 				stats.addValue((float) doc
 						.getFieldValue(ExperimentField.DATA_POINT));
-				if (discreteTime != (float) doc
-						.getFieldValue(ExperimentField.DISCRETE_POINT)) {
+				if (discreteTime != (float) doc.getFieldValue(ExperimentField.DISCRETE_POINT) || 
+						i == resDocs.getNumFound() - 1) { // we are at the end of the document list
 					// add to list
 					float discreteDataPoint = (float) stats.getMean();
 					DiscreteTimePoint dp = new DiscreteTimePoint(discreteTime,
