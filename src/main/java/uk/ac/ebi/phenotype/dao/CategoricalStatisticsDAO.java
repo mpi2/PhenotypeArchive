@@ -32,7 +32,7 @@ import uk.ac.ebi.phenotype.pojo.ZygosityType;
 public interface CategoricalStatisticsDAO extends StatisticsDAO {
 
 	public List<String> getCategories(Parameter parameter);
-
+	
 	public Long countControl(SexType sex, Parameter parameter, String category, Integer populationId) throws SQLException;
 	public Long countMutant(SexType sex, ZygosityType zygosity, Parameter parameter, String category, Integer populationId) throws SQLException;
 	

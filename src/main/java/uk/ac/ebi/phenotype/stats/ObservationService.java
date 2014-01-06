@@ -1078,16 +1078,16 @@ public class ObservationService {
 	}
 
 	// gets categorical data for graphs on phenotype page
-	public CategoricalSet getCategories(String parameter,
+	public CategoricalSet getCategories(Parameter parameter,
 			ArrayList<String> genes, String biologicalSampleGroup,
-			ArrayList<String> strains) throws SolrServerException {
+			ArrayList<String> strains) throws SolrServerException, SQLException {
 
 		CategoricalSet resSet = new CategoricalSet();
 		resSet.setName(biologicalSampleGroup);
 		SolrQuery query = new SolrQuery().addFilterQuery(
 				ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":"
 						+ biologicalSampleGroup).addFilterQuery(
-				ExperimentField.PARAMETER_STABLE_ID + ":" + parameter);
+				ExperimentField.PARAMETER_STABLE_ID + ":" + parameter.getStableId());
 
 		String q = (strains.size() > 1) ? "("
 				+ ExperimentField.STRAIN
@@ -1120,7 +1120,8 @@ public class ObservationService {
 			categories.add((String) gr.getGroupValue());
 			CategoricalDataObject catObj = new CategoricalDataObject();
 			catObj.setCount((long) gr.getResult().getNumFound());
-			catObj.setCategory(gr.getGroupValue());
+			String catLabel = parameterDAO.getCategoryDescription(parameter.getId(), gr.getGroupValue());
+			catObj.setCategory(catLabel);
 			resSet.add(catObj);
 		}
 		return resSet;

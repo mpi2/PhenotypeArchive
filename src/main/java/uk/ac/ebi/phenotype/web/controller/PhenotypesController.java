@@ -493,11 +493,11 @@ public class PhenotypesController {
 			if(p != null && Utilities.checkType(p).equals(ObservationType.categorical)){
 				List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
 				if (genes.size() > 0){
-					CategoricalSet controlSet = os.getCategories(parameter, null , "control", strains);
+					CategoricalSet controlSet = os.getCategories(p, null , "control", strains);
 					controlSet.setName("Control");
-					CategoricalSet mutantSet = os.getCategories(parameter, (ArrayList<String>) genes, "experimental", strains);
+					CategoricalSet mutantSet = os.getCategories(p, (ArrayList<String>) genes, "experimental", strains);
 					mutantSet.setName("Mutant");
-					chartsList.addAll(cctp.doCategoricalDataOverview(controlSet, mutantSet, model, parameter, p.getName()+" ("+parameter+")"));
+					chartsList.addAll(cctp.doCategoricalDataOverview(controlSet, mutantSet, model, p, p.getName()+" ("+parameter+")"));
 				}
 			}
 			else if ( p != null && Utilities.checkType(p).equals(ObservationType.time_series)){
