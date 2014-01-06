@@ -136,6 +136,7 @@ public class ObservationService {
 	 */
 	protected List<ObservationDTO> getControls(Integer parameterId, String strain, Integer organisationId, Date max, Boolean showAll, String sex) throws SolrServerException {
 
+		System.out.println("--- Calling getControls with : " + parameterId + " " + strain + " " +  organisationId + " " + sex);
 		int n = 1000;		
 		if (showAll){
 			n = 10000000;
@@ -981,8 +982,7 @@ public class ObservationService {
 		query.set("group.field", ExperimentField.COLONY_ID);
 		query.set("group.limit", 10000); // number of documents to be returned
 											// per group
-
-//		System.out.println("--- look --- " + solr.getBaseURL() + "/select?" + query);
+		System.out.println("--- look --- " + solr.getBaseURL() + "/select?" + query);
 
 		// for each colony get the mean & put it in the array of data to plot
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
@@ -1004,7 +1004,7 @@ public class ObservationService {
 //			if (meansArray[i] > 20)
 //				System.out.println(p.getStableId() + " for colony id :" + gr.getGroupValue() + " (allele : " + allelesArray[i]  + ") 	 mean value = " + meansArray[i]);
 			i++;
-//			System.out.println("adding : " + sum / total);
+		System.out.println("adding : " + sum / total);
 		}
 
 		// we do the binning for all the data but fill the bins after that to
@@ -1014,38 +1014,42 @@ public class ObservationService {
 
 		List<Double> upperBounds = new ArrayList<Double>();
 		EmpiricalDistribution distribution = new EmpiricalDistribution(binCount);
-
-		distribution.load(meansArray);
-		int k = 0;
-		for (double bound : distribution.getUpperBounds())
-			upperBounds.add(bound);
-		// we we need to distribute the control mutants and the
-		// phenotype-mutants in the bins
-		List<Double> controlM = new ArrayList<Double>();
-		List<Double> phenMutants = new ArrayList<Double>();
-
-		for (int j = 0; j < upperBounds.size(); j++) {
-			controlM.add((double) 0);
-			phenMutants.add((double) 0);
-		}
-
-		for (int j = 0; j < groups.size(); j++) {
-			// find out the proper bin
-			int binIndex = getBin(upperBounds, meansArray[j]);
-			if (genes.contains(allelesArray[j])) {
-				phenMutants.set(binIndex, 1 + phenMutants.get(binIndex));
-			} else { // treat as control because they don't have this phenotype association
-				
-				controlM.set(binIndex, 1 + controlM.get(binIndex));
+		System.out.println("--- meansArray: " + meansArray.length);
+		if (meansArray.length > 0){
+			distribution.load(meansArray);
+			int k = 0;
+			for (double bound : distribution.getUpperBounds())
+				upperBounds.add(bound);
+			// we we need to distribute the control mutants and the
+			// phenotype-mutants in the bins
+			List<Double> controlM = new ArrayList<Double>();
+			List<Double> phenMutants = new ArrayList<Double>();
+	
+			for (int j = 0; j < upperBounds.size(); j++) {
+				controlM.add((double) 0);
+				phenMutants.add((double) 0);
 			}
+	
+			for (int j = 0; j < groups.size(); j++) {
+				// find out the proper bin
+				int binIndex = getBin(upperBounds, meansArray[j]);
+				if (genes.contains(allelesArray[j])) {
+					phenMutants.set(binIndex, 1 + phenMutants.get(binIndex));
+				} else { // treat as control because they don't have this phenotype association
+					
+					controlM.set(binIndex, 1 + controlM.get(binIndex));
+				}
+			}
+	//		System.out.println(" Mutants list " + phenMutants);
+	
+			Map<String, List<Double>> map = new HashMap<String, List<Double>>();
+			map.put("labels", upperBounds);
+			map.put("control", controlM);
+			map.put("mutant", phenMutants);
+			return map;
 		}
-//		System.out.println(" Mutants list " + phenMutants);
-
-		Map<String, List<Double>> map = new HashMap<String, List<Double>>();
-		map.put("labels", upperBounds);
-		map.put("control", controlM);
-		map.put("mutant", phenMutants);
-		return map;
+		
+		return null;
 
 		/*
 		 * SolrDocumentList resDocs =solr.query(query).getResults();
