@@ -743,7 +743,8 @@ CREATE TABLE phenotype_pipeline_procedure (
     procedure_id              INT(10) UNSIGNED NOT NULL,
 
     KEY pipeline_idx (pipeline_id),
-    KEY procedure_idx (procedure_id)
+    KEY procedure_idx (procedure_id),
+    UNIQUE (pipeline_id, procedure_id)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -814,7 +815,8 @@ CREATE TABLE phenotype_procedure_parameter (
     parameter_id              INT(10) UNSIGNED NOT NULL,
 
     KEY procedure_idx (procedure_id),
-    KEY parameter_idx (parameter_id)
+    KEY parameter_idx (parameter_id),
+    UNIQUE (procedure_id, parameter_id)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
