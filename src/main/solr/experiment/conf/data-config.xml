@@ -30,7 +30,7 @@
 		// Add metadata to the document
 		function getMetadata(row) {
 
-			var combined = row.get('metadata_combined);
+			var combined = row.get('metadata_combined');
 
 			if(typeof combined != 'undefined' && combined != null) {
 
@@ -137,7 +137,7 @@
 
 			<!--  metadata and calculate metadata group -->
 			<entity dataSource="komp2ds" transformer="script:getMetadata" name="procedureMetaDataGroup" 
-				query="SSELECT MD5(GROUP_CONCAT(DISTINCT CONCAT(pmdreq.name, ' = ', pmdreq.value) ORDER BY pmdreq.parameter_id ASC SEPARATOR '::')) as metadata_group, 
+				query="SELECT MD5(GROUP_CONCAT(DISTINCT CONCAT(pmdreq.name, ' = ', pmdreq.value) ORDER BY pmdreq.parameter_id ASC SEPARATOR '::')) as metadata_group, 
 					GROUP_CONCAT(DISTINCT CONCAT(pmdall.name, ' = ', pmdall.value) ORDER BY pmdall.parameter_id ASC SEPARATOR '::') as metadata_combined 
 					FROM (
 						SELECT pp.name, pmdin.value, pmdin.parameter_id, pmdin.experiment_id FROM procedure_meta_data pmdin
