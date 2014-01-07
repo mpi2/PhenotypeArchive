@@ -1,11 +1,13 @@
 package uk.ac.ebi.phenotype.stats;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
@@ -39,23 +41,24 @@ public class ExperimentDTO {
 	/**
 	 * 
 	 * @return list of 
+	 * @throws SQLException 
 	 */
-	public List<String> getTabbedToString(){
+	public List<String> getTabbedToString(PhenotypePipelineDAO ppDAO) throws SQLException{
 		List<String> rows = new ArrayList<String> ();
 		for (ObservationDTO obs : homozygoteMutants){
 			if (rows.size() == 0)
 				rows.add(obs.getTabbedFields());
-			rows.add(obs.tabbedToString());
+			rows.add(obs.tabbedToString(ppDAO));
 		}
 		for (ObservationDTO obs : heterozygoteMutants){
 			if (rows.size() == 0)
 				rows.add(obs.getTabbedFields());
-			rows.add(obs.tabbedToString());
+			rows.add(obs.tabbedToString(ppDAO));
 		}
 		for (ObservationDTO obs : controls){
 			if (rows.size() == 0)
 				rows.add(obs.getTabbedFields());
-			rows.add(obs.tabbedToString());
+			rows.add(obs.tabbedToString(ppDAO));
 		}
 		
 		return rows;

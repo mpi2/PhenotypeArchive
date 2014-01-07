@@ -660,6 +660,9 @@ public class UnidimensionalChartAndTableProvider {
 	
 	public ChartData getStackedHistogram(Map<String, List<Double>> map, String title, String xLabel){
 	//	http://jsfiddle.net/gh/get/jquery/1.9.1/highslide-software/highcharts.com/tree/master/samples/highcharts/demo/column-stacked/
+		if (map == null){
+			return new ChartData();
+		}
 		List<Double> control  = map.get("control");
 		List<Double> mutant  = map.get("mutant");					
 		List<String> labels = new ArrayList<String> (); 

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,6 +24,7 @@ import org.springframework.ui.Model;
 
 import uk.ac.ebi.phenotype.dao.BiologicalModelDAO;
 import uk.ac.ebi.phenotype.dao.CategoricalStatisticsDAO;
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.Parameter;
@@ -44,12 +44,7 @@ public class CategoricalChartAndTableProvider {
 	
 	
 	@Autowired
-	private CategoricalStatisticsDAO categoricalStatsDao;
-	
-	@Autowired
-	private ExperimentService experimentService;
-	
-
+	PhenotypePipelineDAO ppDAO;
 		
 	/**
 	 * return a list of categorical result and chart objects - one for each ExperimentDTO
@@ -85,7 +80,6 @@ public class CategoricalChartAndTableProvider {
 		model.addAttribute("parameterId", parameter.getId().toString());
 		model.addAttribute("parameterDescription", parameter.getDescription());
 
-		
 		//List<CategoricalResult> categoricalResults = new ArrayList<CategoricalResult>();
 		List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one object for each experiment
 		for (ExperimentDTO experiment : experimentList) {
@@ -117,23 +111,22 @@ public class CategoricalChartAndTableProvider {
 							continue;// ignore image categories as no numbers!
 						CategoricalDataObject controlCatData = new CategoricalDataObject();
 						controlCatData.setName("control");
-						controlCatData.setCategory(category);
+						controlCatData.setCategory(ppDAO.getCategoryDescription(parameter.getId(), category));
 
 						long controlCount = 0;
 						for (ObservationDTO control : experiment.getControls()) {
 							// get the attributes of this data point
 							SexType docSexType = SexType.valueOf(control
 									.getSex());
-							String categoString = control.getCategory();
-							if (categoString.equals(category) && docSexType.equals(sexType)) {
+							String categoString =control.getCategory();
+							if (categoString.equals( category) && docSexType.equals(sexType)) {
 								controlCount++;
-
 							}
 						}
 
 						controlCatData.setCount(controlCount);
 						logger.debug("control=" + sexType.name() + " count="
-								+ controlCount + " category=" + category);
+								+ controlCount + " category=" + ppDAO.getCategoryDescription(parameter.getId(), category));
 						controlSet.add(controlCatData);
 					}
 					chartData.add(controlSet);
@@ -169,7 +162,7 @@ public class CategoricalChartAndTableProvider {
 
 								CategoricalDataObject expCatData = new CategoricalDataObject();
 								expCatData.setName(zType.name());
-								expCatData.setCategory(category);
+								expCatData.setCategory(ppDAO.getCategoryDescription(parameter.getId(), category));
 								expCatData.setCount(mutantCount);
 								CategoricalResult tempStatsResult=null;
 								for(StatisticalResult result: statsResults) {
@@ -224,7 +217,7 @@ public class CategoricalChartAndTableProvider {
 						String chartNew = this
 								.createCategoricalHighChartUsingObjects(
 										chartData,
-										parameter.getName(),
+										parameter,
 										expBiologicalModel,experiment.getOrganisation());
 						chartData.setChart(chartNew);
 						categoricalResultAndCharts.add(chartData);
@@ -249,13 +242,13 @@ public class CategoricalChartAndTableProvider {
 	public List<ChartData> doCategoricalDataOverview(CategoricalSet controlSet, 
 			CategoricalSet mutantSet,
 			Model model, 
-			String parameterId,
-			String chartTitle){		
+			Parameter parameter,
+			String chartTitle) throws SQLException{		
 		// do the charts
 		ChartData chartData = new ChartData();
 		List<ChartData> categoricalResultAndCharts = new ArrayList<ChartData>();
 		if (mutantSet.getCount() > 0 && controlSet.getCount() > 0) {// if size is greater than one i.e. we have more than the control data then draw charts and tables
-			String chartNew = this.createCategoricalHighChartUsingObjects2( controlSet, mutantSet, model, parameterId, chartData, chartTitle);
+			String chartNew = this.createCategoricalHighChartUsingObjects2( controlSet, mutantSet, model, parameter, chartData, chartTitle);
 			chartData.setChart(chartNew);
 			categoricalResultAndCharts.add(chartData);
 		}
@@ -266,9 +259,9 @@ public class CategoricalChartAndTableProvider {
 	private String createCategoricalHighChartUsingObjects2(CategoricalSet controlSet, 
 			CategoricalSet mutantSet,
 			Model model, 
-			String parameterId,
+			Parameter parameter,
 			ChartData chartData, 
-			String chartTitle) {
+			String chartTitle) throws SQLException {
 
 		// to not 0 index as using loop count in jsp
 		JSONArray seriesArray = new JSONArray();
@@ -292,7 +285,7 @@ public class CategoricalChartAndTableProvider {
 		}
 		
 		for(String categoryLabel : categories.keySet()){
-			
+
 			if (controlSet.getCategoryByLabel(categoryLabel) != null){
 				categories.get(categoryLabel).add(controlSet.getCategoryByLabel(categoryLabel).getCount());
 			}
@@ -334,7 +327,7 @@ public class CategoricalChartAndTableProvider {
 			e.printStackTrace();
 		}
 		
-		String chartId = "chart" + parameterId;//replace space in MRC Harwell with underscore so valid javascritp variable
+		String chartId = "chart" + parameter.getStableId();//replace space in MRC Harwell with underscore so valid javascritp variable
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
 		String javascript = "$(function () {  var chart"
 				+ chartId
@@ -359,15 +352,15 @@ public class CategoricalChartAndTableProvider {
 	}
 		
 	private String createCategoricalHighChartUsingObjects(
-			CategoricalChartDataObject chartData, String parameterName,
-			BiologicalModel bm, String organisation) {
+			CategoricalChartDataObject chartData, Parameter parameter,
+			BiologicalModel bm, String organisation) throws SQLException {
 		System.out.println(chartData);
 
 		// int size=categoricalBarCharts.size()+1;//to know which div to render
 		// to not 0 index as using loop count in jsp
 		JSONArray seriesArray = new JSONArray();
 		JSONArray xAxisCategoriesArray = new JSONArray();
-		String title = parameterName;
+		String title = parameter.getName();
 		SexType sex = chartData.getSexType();
 		// try {
 
@@ -400,7 +393,6 @@ public class CategoricalChartAndTableProvider {
 			for (CategoricalDataObject catObject : catSet.getCatObjects()) {// each cat object represents
 				List<Long> catData = categories.get(catObject.getCategory());
 				catData.add(catObject.getCount());
-
 			}
 		}
 

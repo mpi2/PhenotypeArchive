@@ -278,4 +278,29 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 		return parameters;		
 	}
 
+	
+//	@Transactional(readOnly = true)
+	@Override
+	public String getCategoryDescription(int parameterId, String category) throws SQLException {
+		
+		if (isNumeric(category)){
+			String query = "SELECT * FROM phenotype_parameter_lnk_option pplo INNER JOIN phenotype_parameter_option ppo ON ppo.id = pplo.option_id WHERE ppo.name=? AND pplo.parameter_id=?";
+			
+			try (PreparedStatement statement = getConnection().prepareStatement(query)){
+			       statement.setString(1, category.split(".0")[0]);
+			       statement.setInt(2, parameterId);
+			    ResultSet resultSet = statement.executeQuery();
+				while (resultSet.next()) {
+					if (resultSet.getString("description") != null && !resultSet.getString("description").equals(""))
+						return resultSet.getString("description");
+				}
+			}
+		}
+		return category;
+	}
+	
+	public boolean isNumeric(String str)  
+	{  
+		return str.matches("-?\\d+(\\.\\d+)?");
+	}
 }

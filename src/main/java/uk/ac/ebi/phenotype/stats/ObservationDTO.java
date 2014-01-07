@@ -1,13 +1,19 @@
 package uk.ac.ebi.phenotype.stats;
 
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.solr.client.solrj.beans.Field;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
+
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 
 public class ObservationDTO {
-
+	
 	@Field("id")
 	private Integer id;
 
@@ -116,9 +122,10 @@ public class ObservationDTO {
 
 	/**
 	 * helper methods
+	 * @throws SQLException 
 	 */
 
-	public String tabbedToString(){
+	public String tabbedToString(PhenotypePipelineDAO ppDAO) throws SQLException{
 		String tabbed =	pipelineName 
 				 + "\t" + pipelineStableId 
 				 + "\t" + procedureStableId 
@@ -157,7 +164,7 @@ public class ObservationDTO {
 			tabbed += "\t" + dataPoint;
 		}
 		else if (observationType.equalsIgnoreCase("categorical")){
-			tabbed += "\t" + category;
+			tabbed += "\t" + ppDAO.getCategoryDescription(parameterId, category);
 		}
 		else if (observationType.equalsIgnoreCase("time_series")){
 			tabbed += "\t" + dataPoint + "\t" + discretePoint;

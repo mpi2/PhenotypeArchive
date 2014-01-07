@@ -2,6 +2,7 @@ package uk.ac.ebi.phenotype.stats;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -363,5 +364,7 @@ public class ExperimentService {
 		return experimentList;
 	}
 	
-	
+	public String getCategoryLabels (int parameterId, String category) throws SQLException{
+		return parameterDAO.getCategoryDescription(parameterId, category);
+	}
 }

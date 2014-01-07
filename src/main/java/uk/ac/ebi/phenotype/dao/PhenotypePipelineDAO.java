@@ -23,9 +23,13 @@ package uk.ac.ebi.phenotype.dao;
  * @since May 2012
  */
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
+
+import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
@@ -98,4 +102,7 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	public Set<Parameter> getAllCategoricalParametersForProcessing() throws SQLException;
 	public Set<Parameter> getAllUnidimensionalParametersForProcessing() throws SQLException;
 	public List<String> getCategoriesByParameterId(Integer id) throws SQLException;
+	
+	public String getCategoryDescription (int parameterId, String category) throws SQLException;
+	
 }

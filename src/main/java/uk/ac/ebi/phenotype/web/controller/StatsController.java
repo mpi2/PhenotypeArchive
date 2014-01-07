@@ -289,9 +289,9 @@ public class StatsController implements BeanFactoryAware {
 				}
 				if(observationTypeForParam.equals(ObservationType.categorical)){
 					//https://dev.mousephenotype.org/mi/impc/dev/phenotype-archive/stats/genes/MGI:1346872?parameterId=ESLIM_001_001_004
-				
-						List<CategoricalResultAndCharts> listOfcategoricalResultAndCharts=categoricalChartAndTableProvider.doCategoricalData(experimentList, bmDAO, config, parameter,  acc, model, genderList, zyList, biologicalModelsParams,
-						charts, categoricalTables, parameterId);
+						List<CategoricalResultAndCharts> listOfcategoricalResultAndCharts=categoricalChartAndTableProvider
+								.doCategoricalData(experimentList, bmDAO, config, parameter,  acc, model, genderList, zyList, 
+										biologicalModelsParams,	charts, categoricalTables, parameterId);
 						allCategoricalResultAndCharts.addAll(listOfcategoricalResultAndCharts);
 				
 				}
