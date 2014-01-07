@@ -6,9 +6,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.solr.client.solrj.beans.Field;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 
