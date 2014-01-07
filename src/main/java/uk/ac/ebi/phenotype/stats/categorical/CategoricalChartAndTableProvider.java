@@ -77,12 +77,9 @@ public class CategoricalChartAndTableProvider {
 
 		logger.debug("running categorical data");
 
-		System.out.println(" -- in doCategoricalData");
 		model.addAttribute("parameterId", parameter.getId().toString());
 		model.addAttribute("parameterDescription", parameter.getDescription());
 
-		System.out.println("----is null? : " + (ppDAO==null));
-		
 		//List<CategoricalResult> categoricalResults = new ArrayList<CategoricalResult>();
 		List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one object for each experiment
 		for (ExperimentDTO experiment : experimentList) {
@@ -120,10 +117,9 @@ public class CategoricalChartAndTableProvider {
 							// get the attributes of this data point
 							SexType docSexType = SexType.valueOf(control
 									.getSex());
-							String categoString = ppDAO.getCategoryDescription(parameter.getId(), control.getCategory());
-							if (categoString.equals(ppDAO.getCategoryDescription(parameter.getId(), category)) && docSexType.equals(sexType)) {
+							String categoString =control.getCategory();
+							if (categoString.equals( category) && docSexType.equals(sexType)) {
 								controlCount++;
-
 							}
 						}
 

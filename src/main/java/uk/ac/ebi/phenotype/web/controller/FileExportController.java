@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ import uk.ac.ebi.generic.util.ExcelWorkBook;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.dao.OrganisationDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.PipelineSolrImpl;
 import uk.ac.ebi.phenotype.pojo.SexType;
@@ -65,6 +67,9 @@ public class FileExportController {
 	@Autowired
 	private SolrIndex solrIndex;
 
+	@Autowired
+	private PhenotypePipelineDAO ppDAO;
+	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 
@@ -73,8 +78,6 @@ public class FileExportController {
 	
 	@Autowired
 	OrganisationDAO organisationDao;
-		
-	
 
 	private String tsvDelimiter = "\t";
 	//eg ESLIM_001_001_115
@@ -273,7 +276,7 @@ public class FileExportController {
 		return tableData;
 	}
 	
-	public List<String> composeExperimetDataExportRows(String parameterStableId, String geneAccession, String gender, Integer phenotypingCenterId, String zygosity, String strain) throws SolrServerException, IOException, URISyntaxException{
+	public List<String> composeExperimetDataExportRows(String parameterStableId, String geneAccession, String gender, Integer phenotypingCenterId, String zygosity, String strain) throws SolrServerException, IOException, URISyntaxException, SQLException{
 		List<String> rows = new ArrayList<String>();
 		SexType sex = null;
 		if (gender != null)
@@ -284,7 +287,7 @@ public class FileExportController {
 			for (int k = 0; k < params.length; k++){
 				experimentList = experimentService.getExperimentDTO(params[k], geneAccession, sex, phenotypingCenterId, zygosity, strain);
 				for (ExperimentDTO experiment : experimentList) { 
-					rows.addAll(experiment.getTabbedToString()) ;
+					rows.addAll(experiment.getTabbedToString(ppDAO)) ;
 				}
 				rows.add("\n");
 			}
@@ -292,7 +295,7 @@ public class FileExportController {
 		else {
 			experimentList = experimentService.getExperimentDTO(parameterStableId, geneAccession, sex, phenotypingCenterId, zygosity, strain);
 			for (ExperimentDTO experiment : experimentList) { 
-				rows.addAll(experiment.getTabbedToString()) ;
+				rows.addAll(experiment.getTabbedToString(ppDAO)) ;
 			}
 		}
 		
