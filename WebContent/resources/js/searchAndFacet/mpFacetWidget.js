@@ -119,7 +119,7 @@
 	    			self._displayOntologyFacet(json, 'mpFacet', table);	 
 	    			
 	    			// update facet count when filters applied
-	    			if ( $('ul#facetFilter li li a').size() != 0 ){  	    				
+	    			if ( $('ul#facetFilter li li a').size() != 0 ){	    			
 	    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'mp');
 	    			}	    			
 	    		}		

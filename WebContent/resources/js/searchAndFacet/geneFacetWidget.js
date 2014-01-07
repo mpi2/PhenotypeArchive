@@ -47,7 +47,8 @@
 						caller.find('.facetCatList').show(); // show itself					
 						$(this).addClass('facetCatUp');						
 											
-						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));							
+						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
+						console.log('right here');
 						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'gene');						
 						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';
 						
@@ -74,8 +75,7 @@
 				'rows': 0,
 				'facet': 'on',								
 				'facet.mincount': 1,
-				'facet.limit': -1,
-				'facet.field': 'marker_type',				
+				'facet.limit': -1,							
 				'facet.sort': 'count',					
 	    		'q': self.options.data.hashParams.q},
 	    		MPI2.searchAndFacetConfig.commonSolrParams,
@@ -83,6 +83,7 @@
 	    	);    	   	
 	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
+	    		  + '&facet.field=marker_type'
 				  + '&facet.field=status'
 				  + '&facet.field=imits_phenotype_started' 
 				  + '&facet.field=imits_phenotype_complete'
@@ -101,13 +102,16 @@
 	    	});	    	
 	    },
 	    
-	    _displayGeneSubTypeFacet: function(json){	    	
+	    _displayGeneSubTypeFacet: function(json){
+	    	console.log('gene widget responson');
+	    	console.log(json);
 	    	var self = this;
 	    	var numFound = json.response.numFound;
 	    	
 	    	/*-------------------------------------------------------*/
 	    	/* ------ displaying sidebar and update dataTable ------ */
-	    	/*-------------------------------------------------------*/
+	    	/*-------------------------------------------------------*/	    	  	
+	    	var oSums = {'phenoStatus':0,'prodStatus':0,'geneSubType':0};
 	    	
 	    	if (numFound > 0){
 	    		
@@ -119,22 +123,21 @@
 	    		var aImitsPhenos = {'imits_phenotype_complete':'Complete', 
 	    							'imits_phenotype_started':'Started', 
 	    							'imits_phenotype_status':'Attempt Registered'};
-	    		
+	    			    		
 	    		for (var key in aImitsPhenos ){	    			
-	    			var phenoFieldList = json.facet_counts['facet_fields'][key];	    			
-	    		     
+	    			var phenoFieldList = json.facet_counts['facet_fields'][key];	
 
-			if ( phenoFieldList.length != 0 ){
-	    				
+	    			if ( phenoFieldList.length != 0 ){
+	    				oSums.phenoStatus += phenoFieldList.length;
 	    	    		for ( var j=0; j<phenoFieldList.length; j+=2 ){
 	    	    			// skip status '0'	    	    		
 	    	    			if ( phenoFieldList[j] == 'Phenotype Attempt Registered' || phenoFieldList[j] == 1 ){
 	    						pheno_count[aImitsPhenos[key]] = phenoFieldList[j+1];
 	    	    			}	    	    			
 	    	    		} 
-	    			}    			
+	    			} 
 	    		}
-	    	
+	    		
 	    		var phenoStatusTr = '';
 	    		var aPhenos = ['Complete', 'Started', 'Attempt Registered'];	    		
 	    		for ( var i=0; i<aPhenos.length; i++ ){
@@ -153,10 +156,11 @@
 						var td2 = $('<td></td>').attr({'class':'geneSubfacetCount', 'rel':phenotypingStatusVal}).append(link);
 						table.append(tr.append(td0, td1, td2));
 					}					
-				}	    		
+				}
+	    		    		
 	    		// subfacet: IMPC mouse phenotyping centers
 	    		/*table.append($('<tr></tr>').attr({'class':'facetSubCat phenoCenterTrCap'}).append($('<td></td>').attr({'colspan':3}).text('IMPC Phenotyping Center')));
-	    		var phenoCenterFq = 'phenotyping_center';
+	    		var phenoCenterFq = 'phenotyping_centersubFacetName';
 	    		var phenoCenterList = json.facet_counts['facet_fields'][phenoCenterFq];	    			
     			if ( phenoCenterList.length != 0 ){    				
     	    		for ( var i=0; i<phenoCenterList.length; i+=2 ){
@@ -178,6 +182,7 @@
 	    		table.append($('<tr></tr>').attr({'class':'facetSubCat prodStatusTrCap production'}).append($('<td></td>').attr({'colspan':3}).text('IMPC Mouse Production Status')));
 	    		
 	    		var status_facets = json.facet_counts['facet_fields']['status'];
+	    		oSums.prodStatus = status_facets.length;
 	    		var status_count = {};
 	    		for ( var i=0; i<status_facets.length; i+=2 ){ 
 					var type = status_facets[i];
@@ -217,7 +222,7 @@
 			var tr = $('<tr></tr>').attr({'class':'subFacet prodCenterTr'});						
 						var td1 = $('<td></td>').attr({'class':'prodCenter geneSubfacet', 'rel':count}).text(center);
 						var link = $('<a></a>').attr({'rel': center, 'class': prodCenterFq}).text(count);
-						var td2 = $('<td></td>').attr({'class':'geneSubfacetCount', 'rel':center}).append(link);
+						var td2 = $('<td></td>').attr({subFacetName'class':'geneSubfacetCount', 'rel':center}).append(link);
 						table.append(tr.append(td0, td1, td2));   	    			
     	    		}    	    		
     			}*/
@@ -227,6 +232,7 @@
 	    		table.append($('<tr></tr>').attr({'class':'facetSubCat geneSubTypeTrCap marker_type'}).append($('<td></td>').attr({'colspan':3}).text('Subtype')));
 	    			    		
 	    		var mkr_facets = json.facet_counts['facet_fields']['marker_type'];
+	    		oSums.geneSubType = mkr_facets.length;
 	    		var unclassifiedTr;
 	    		for ( var i=0; i<mkr_facets.length; i+=2 ){		    			
 	    			
@@ -253,16 +259,17 @@
 	    		}	    		
 	    		
 	    		//var table = "<table id='geneFacetTbl' clasJAXs='facetTable'>" + trs + "</table>";				
-	    		$('div#geneFacet div.facetCatList').html(table);
-	    			
+	    		$('div#geneFacet div.facetCatList').html(table);	    		
+	    		
 	    		// update facet count when filters applied
 	    		if ( $('ul#facetFilter li li a').size() != 0 ){	    		
     				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'gene');
     			}	
 	    		
-	    		// gene subtype is collapsed by default
-	    		$('tr.geneSubTypeTrCap, tr.phenoCenterTrCap, tr.prodCenterTrCap, tr.phenoStatusTrCap, tr.prodStatusTrCap').click(function(){
-	    		
+	    		// phenoStatus subFacet is open by default	    		
+	    	
+	    		//$('tr.geneSubTypeTrCap, tr.phenoCenterTrCap, tr.prodCenterTrCap, tr.phenoStatusTrCap, tr.prodStatusTrCap').click(function(){
+	    		$('tr.geneSubTypeTrCap, tr.phenoStatusTrCap, tr.prodStatusTrCap').click(function(){
 	    			var aClass = $(this).attr('class').split(' ');
 	    			var trClass = aClass[1].replace('Cap','');	    				    			
 	    			
@@ -275,7 +282,24 @@
 	    				$(this).find('td').addClass('unCollapse');
 	    			}
 	    		});	    		    		
-	    			    		
+	    		$('tr.phenoStatusTrCap td').click();
+	    		
+	    		// grayout subfacets having no matches for user query
+	    		if ( self.options.data.hashParams.q != '*:*' ){
+		    		var firstMatch = 0;
+		    		for ( var subFacetClass in oSums ){
+		    			var oTd = $('table#geneFacetTbl tr.' + subFacetClass + 'TrCap td'); 
+		    			if ( oSums[subFacetClass] == 0 ){		    				
+		    				oTd.addClass('grayout').removeClass('unCollapse');		    						    				
+		    			}
+		    			else {
+		    				firstMatch++;
+		    				if ( firstMatch == 1 ){	    				
+		    					oTd.click();	    					    					
+		    				}
+		    			}
+		    		}
+	    		}	    		
 	    		
 	    		$('table#geneFacetTbl input').click(function(){
 	    			

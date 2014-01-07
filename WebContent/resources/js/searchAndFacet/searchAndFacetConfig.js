@@ -179,7 +179,7 @@ config.solrBaseURL_ebi = solrUrl + '/';
 
 config.searchSpin = "<img src='img/loading_small.gif' />";
 config.spinner = "<img src='img/loading_small.gif' /> Processing search ...";
-config.spinnerExport = "<img src='img/loading_small.gif' /> Processing data for export, please do not interrupt ... ";
+config.spinnerExport = "<img src='img/loading_sm_tickFilterCheckBox('mp');	all.gif' /> Processing data for export, please do not interrupt ... ";
 config.endOfSearch = "Search result";
 
 // custom 404 page does not know about baseUrl
@@ -196,7 +196,7 @@ var commonSolrParams = {
 		'qf': 'auto_suggest',
 		'defType': 'edismax',
 		'wt': 'json',
-		'rows': 50
+		'rows': 0
 };
 config.commonSolrParams = commonSolrParams;
 

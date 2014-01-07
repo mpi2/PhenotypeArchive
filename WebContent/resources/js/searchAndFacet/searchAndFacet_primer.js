@@ -34,20 +34,8 @@ $(document).ready(function(){
 	}	
 	else if ( location.href.indexOf('/search#') != -1 ){		
 		// load page based on url hash parameters		
-		oHashParams = $.fn.parseHashString(window.location.hash.substring(1));	
-		
-		//MPI2.searchAndFacetConfig.pageLoad = true;
-		console.log(oHashParams);
-		
-		/*if (oHashParams.facetName ){
-			var pageReload = true;	
-			oHashParams.widgetName = oHashParams.facetName + 'Facet';
-			
-    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);	 
-		}*/
-		//else {
-			$.fn.fetchSolrFacetCount(oHashParams);
-		//}
+		oHashParams = $.fn.parseHashString(window.location.hash.substring(1));		
+		$.fn.fetchSolrFacetCount(oHashParams);		
 	}
 	
 	// search via ENTER

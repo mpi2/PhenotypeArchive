@@ -84,8 +84,7 @@
 				//'fl': 'parameter_name,parameter_stable_key,parameter_stable_id,procedure_name,procedure_stable_key,procedure_stable_id',				
 				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams);	    		    	
 	    	
-	    	//console.log(queryParams);
-	    	console.log(self.options.data.hashParams.fq);
+	    	//console.log(queryParams);	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams)	    				
 	    				+ '&facet.field=pipeline_name'
 	    				+ '&facet.field=pipe_proc_sid';
@@ -96,8 +95,7 @@
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
 	    		'success': function(json) { 
-	    			console.log(json);
-	    			
+	    			    			
 	    			// update this if facet is loaded by redirected page, which does not use autocomplete
 	    			$('div#pipelineFacet .facetCount').attr({title: 'total number of unique parameter terms'}).text(json.response.numFound);
 	        			        		
@@ -203,8 +201,7 @@
 	    			}	        		
 	        		
 	        		
-	        		$('table#pipelineFacetTbl input').click(function(){
-	        			console.log('click.....');
+	        		$('table#pipelineFacetTbl input').click(function(){	        			
 	        			// highlight the item in facet
 	        			$(this).parent().siblings('td[class^=procedure]').addClass('highlight');
 	        			$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);
@@ -218,7 +215,7 @@
 	        			var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority) 
 	        				        			
 	        			var oHashParams = self.options.data.hashParams;
-	        			console.log(oHashParams);
+	        			
 	    	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);	    	    		
 	    	    		// now load dataTable    		
 	    	    		$.fn.loadDataTable(oHashParams);

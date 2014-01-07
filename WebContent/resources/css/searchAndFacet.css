@@ -232,12 +232,9 @@ table#pipelineFacetTbl tr[class$=_param] {
 	color: gray;
 	cursor: text !important;
 }
-table#diseaseFacetTbl tr.facetSubCat td.grayout,
-table#pipelineFacetTbl tr.facetSubCat td.grayout,
-table#imagesFacetTbl tr.facetSubCat td.grayout {
+table tr.facetSubCat td.grayout {
 	color: gray;
 }
-
 img#maFacetInfo, img#mpFacetInfo {
 	float: right;	
 	margin: 0px 80px 10px 10px;		

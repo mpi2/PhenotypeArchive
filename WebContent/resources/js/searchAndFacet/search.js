@@ -44,7 +44,7 @@
 	       	    jsonp: 'json.wrf',
 	       	    timeout: 5000,
 	       	    success: function (geneResponse) {
-	       	    	console.log(geneResponse);
+	       	    	//console.log(geneResponse);
 	       	    	$('div#geneFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
 	       	    	oFacets.count.gene = geneResponse.response.numFound;	
 	       	    	_updateFacetCount('geneFacet', geneResponse, facetMode);	       	    	
@@ -59,7 +59,7 @@
 	function _doMPAutoSuggest(geneResponse, q, oFacets, facetMode){		
 		
 		jsonBase.mpFacet.srchParams.q = q;
-		console.log($.extend({}, jsonBase.mpFacet.srchParams, jsonBase.mpFacet.filterParams));
+		
 		$.ajax({
     	    url: solrUrl + '/mp/select',
     	    data: $.extend({}, jsonBase.mpFacet.srchParams, jsonBase.mpFacet.filterParams),
@@ -67,7 +67,7 @@
     	    jsonp: 'json.wrf',
     	    timeout: 5000,
     	    success: function (mpResponse) { 
-    	    	console.log(mpResponse);
+    	    	//console.log(mpResponse);
     	    	$('div#mpFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
        	    	oFacets.count.mp = mpResponse.response.numFound;       	    	
        	    	_updateFacetCount('mpFacet', mpResponse, facetMode);	 
@@ -202,7 +202,7 @@
     	        	hashParams.fq = hashParams.fq ? hashParams.fq : jsonBase[widgetName].fq;    	        	    	        	
     	        	hashParams.widgetName = widgetName;
     	        	hashParams.q = q;
-    	        	    	        	
+    	        	     	
     	        	window.jQuery('div#' + widgetName)[widgetName]({
     					data: {	   							 
     							core: coreName,    							
