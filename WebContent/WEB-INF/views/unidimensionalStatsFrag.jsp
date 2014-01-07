@@ -29,13 +29,13 @@
  					<%-- ${loop.count  % 2} --%>
 
   					<div class="container span6">
-						<div id="chart${unidimensionalDataSetLoop.count}_${uniDimensionalLoop.count}"
+						<div id="chart${unidimensionalDataSetLoop.count}_${uniDimensionalLoop.count}_${unidimensionalDataSet.experiment.metadataGroup}"
 									style="min-width: 400px; height: 400px; margin: 0 auto">
 						</div>
    								<script type="text/javascript">
    
    								$(function () {
-   								    $('#chart${unidimensionalDataSetLoop.count}_${uniDimensionalLoop.count}').highcharts("${unidimensionalChartsAndTable.chart}");
+   								    $('#chart${unidimensionalDataSetLoop.count}_${uniDimensionalLoop.count}_${unidimensionalDataSet.experiment.metadataGroup}').highcharts(${unidimensionalChartsAndTable.chart});
 								</script>
 								<a href="scatter/${acc}?${pageContext.request.queryString}">Graph by date</a>	
 								
