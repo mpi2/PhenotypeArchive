@@ -42,6 +42,9 @@ public class CategoricalChartAndTableProvider {
 	private static final Logger logger = Logger
 			.getLogger(CategoricalChartAndTableProvider.class);
 	
+	
+	@Autowired
+	PhenotypePipelineDAO ppDAO;
 		
 	/**
 	 * return a list of categorical result and chart objects - one for each ExperimentDTO
@@ -74,9 +77,11 @@ public class CategoricalChartAndTableProvider {
 
 		logger.debug("running categorical data");
 
+		System.out.println(" -- in doCategoricalData");
 		model.addAttribute("parameterId", parameter.getId().toString());
 		model.addAttribute("parameterDescription", parameter.getDescription());
 
+		System.out.println("----is null? : " + (ppDAO==null));
 		
 		//List<CategoricalResult> categoricalResults = new ArrayList<CategoricalResult>();
 		List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one object for each experiment
@@ -108,15 +113,15 @@ public class CategoricalChartAndTableProvider {
 							continue;// ignore image categories as no numbers!
 						CategoricalDataObject controlCatData = new CategoricalDataObject();
 						controlCatData.setName("control");
-						controlCatData.setCategory(category);
+						controlCatData.setCategory(ppDAO.getCategoryDescription(parameter.getId(), category));
 
 						long controlCount = 0;
 						for (ObservationDTO control : experiment.getControls()) {
 							// get the attributes of this data point
 							SexType docSexType = SexType.valueOf(control
 									.getSex());
-							String categoString = control.getCategory();
-							if (categoString.equals(category) && docSexType.equals(sexType)) {
+							String categoString = ppDAO.getCategoryDescription(parameter.getId(), control.getCategory());
+							if (categoString.equals(ppDAO.getCategoryDescription(parameter.getId(), category)) && docSexType.equals(sexType)) {
 								controlCount++;
 
 							}
@@ -124,7 +129,7 @@ public class CategoricalChartAndTableProvider {
 
 						controlCatData.setCount(controlCount);
 						logger.debug("control=" + sexType.name() + " count="
-								+ controlCount + " category=" + category);
+								+ controlCount + " category=" + ppDAO.getCategoryDescription(parameter.getId(), category));
 						controlSet.add(controlCatData);
 					}
 					chartData.add(controlSet);
@@ -160,7 +165,7 @@ public class CategoricalChartAndTableProvider {
 
 								CategoricalDataObject expCatData = new CategoricalDataObject();
 								expCatData.setName(zType.name());
-								expCatData.setCategory(category);
+								expCatData.setCategory(ppDAO.getCategoryDescription(parameter.getId(), category));
 								expCatData.setCount(mutantCount);
 								CategoricalResult tempStatsResult=null;
 								for(StatisticalResult result: statsResults) {
@@ -215,7 +220,7 @@ public class CategoricalChartAndTableProvider {
 						String chartNew = this
 								.createCategoricalHighChartUsingObjects(
 										chartData,
-										parameter.getName(),
+										parameter,
 										expBiologicalModel,experiment.getOrganisation());
 						chartData.setChart(chartNew);
 						categoricalResultAndCharts.add(chartData);
@@ -350,15 +355,15 @@ public class CategoricalChartAndTableProvider {
 	}
 		
 	private String createCategoricalHighChartUsingObjects(
-			CategoricalChartDataObject chartData, String parameterName,
-			BiologicalModel bm, String organisation) {
+			CategoricalChartDataObject chartData, Parameter parameter,
+			BiologicalModel bm, String organisation) throws SQLException {
 		System.out.println(chartData);
 
 		// int size=categoricalBarCharts.size()+1;//to know which div to render
 		// to not 0 index as using loop count in jsp
 		JSONArray seriesArray = new JSONArray();
 		JSONArray xAxisCategoriesArray = new JSONArray();
-		String title = parameterName;
+		String title = parameter.getName();
 		SexType sex = chartData.getSexType();
 		// try {
 
@@ -391,7 +396,6 @@ public class CategoricalChartAndTableProvider {
 			for (CategoricalDataObject catObject : catSet.getCatObjects()) {// each cat object represents
 				List<Long> catData = categories.get(catObject.getCategory());
 				catData.add(catObject.getCount());
-
 			}
 		}
 
