@@ -27,6 +27,10 @@
 	 				<!-- ul><c:forEach var="metadata" items="${timeSeriesChartsAndTables[timeLoop.index].experiment.metadata}">
 						<li>${metadata}</li>
 					</c:forEach></ul -->
+					<!--
+					Metadata group: ${timeSeriesChartsAndTables[timeLoop.index].experiment.metadataGroup}
+					Control animal IDs: <c:forEach var="animal" items="${timeSeriesChartsAndTables[timeLoop.index].experiment.controls}">${animal.externalSampleId}, </c:forEach>
+					-->
 				</div>
 				<c:if
 					test="${fn:length(timeSeriesChartsAndTables) > (timeLoop.index+1)}">
@@ -43,6 +47,10 @@
 		 				<!-- ul><c:forEach var="metadata" items="${timeSeriesChartsAndTables[timeLoop.index+1].experiment.metadata}">
 							<li>${metadata}</li>
 						</c:forEach></ul -->
+						<!--
+						Metadata group: ${timeSeriesChartsAndTables[timeLoop.index+1].experiment.metadataGroup}
+						Control animal IDs: <c:forEach var="animal" items="${timeSeriesChartsAndTables[timeLoop.index+1].experiment.controls}">${animal.externalSampleId}, </c:forEach>
+						-->
 					</div>
 				</c:if>
 				

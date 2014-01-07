@@ -18,6 +18,10 @@
 						<li>${metadata}</li>
 					</c:forEach></ul>
 					 -->
+					<!--
+					Metadata group: ${unidimensionalDataSet.experiment.metadataGroup}
+					Control animal IDs: <c:forEach var="animal" items="${unidimensionalDataSet.experiment.controls}">${animal.externalSampleId}, </c:forEach>
+					-->
 		 	</div>
  			</div>
  			<div class="row-fluid">

@@ -108,6 +108,10 @@
 		 				<!-- ul><c:forEach var="metadata" items="${categoricalResultAndCharts.experiment.metadata}">
 							<li>${metadata}</li>
 						</c:forEach></ul -->
+						<!--
+						Metadata group: ${categoricalResultAndCharts.experiment.metadataGroup}
+						Control animal IDs: <c:forEach var="animal" items="${categoricalResultAndCharts.experiment.controls}">${animal.externalSampleId}, </c:forEach>
+						-->
 		 		</div>
 		 </div>
 		
