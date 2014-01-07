@@ -4,6 +4,7 @@ import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 
 public class ChartData {
 	BiologicalModel expBiologicalModel;
+	private ExperimentDTO experiment;
 	private String chart;
 	String organisation = "";
 	private Float min = new Float(0);
@@ -63,6 +64,20 @@ public class ChartData {
 
 	public void setOrganisation(String organisation) {
 		this.organisation = organisation;
+	}
+
+	/**
+	 * @return the experiment
+	 */
+	public ExperimentDTO getExperiment() {
+		return experiment;
+	}
+
+	/**
+	 * @param experiment the experiment to set
+	 */
+	public void setExperiment(ExperimentDTO experiment) {
+		this.experiment = experiment;
 	}
 
 }

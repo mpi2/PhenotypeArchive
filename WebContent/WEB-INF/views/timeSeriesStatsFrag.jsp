@@ -24,6 +24,9 @@
 							${timeSeriesChartsAndTables[timeLoop.index].expBiologicalModel.geneticBackground}</span>
 					</h4>
 					<h5>${timeSeriesChartsAndTables[timeLoop.index].organisation}</h5>
+	 				<!-- ul><c:forEach var="metadata" items="${timeSeriesChartsAndTables[timeLoop.index].experiment.metadata}">
+						<li>${metadata}</li>
+					</c:forEach></ul -->
 				</div>
 				<c:if
 					test="${fn:length(timeSeriesChartsAndTables) > (timeLoop.index+1)}">
@@ -37,6 +40,9 @@
 								${timeSeriesChartsAndTables[timeLoop.index+1].expBiologicalModel.geneticBackground}</span>
 						</h4>
 						<h5>${timeSeriesChartsAndTables[timeLoop.index+1].organisation}</h5>
+		 				<!-- ul><c:forEach var="metadata" items="${timeSeriesChartsAndTables[timeLoop.index+1].experiment.metadata}">
+							<li>${metadata}</li>
+						</c:forEach></ul -->
 					</div>
 				</c:if>
 				

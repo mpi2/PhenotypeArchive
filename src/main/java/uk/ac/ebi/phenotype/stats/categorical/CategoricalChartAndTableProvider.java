@@ -90,6 +90,7 @@ public class CategoricalChartAndTableProvider {
 		List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one object for each experiment
 		for (ExperimentDTO experiment : experimentList) {
 			CategoricalResultAndCharts categoricalResultAndCharts = new CategoricalResultAndCharts();
+			categoricalResultAndCharts.setExperiment(experiment);
 			List<? extends StatisticalResult> statsResults = (List<? extends StatisticalResult>) experiment
 					.getResults();
 			// should get one for each sex here if there is a result for each

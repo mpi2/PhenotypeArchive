@@ -2,6 +2,7 @@ package uk.ac.ebi.phenotype.stats;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.solr.client.solrj.beans.Field;
 
@@ -105,7 +106,14 @@ public class ObservationDTO {
 	
 	@Field("procedure_name")
 	private String procedureName;
+
+	@Field("metadata_group")
+	private String metadataGroup;
+
+	@Field("metadata")
+	private List<String> metadata;
 	
+
 	/**
 	 * helper methods
 	 */
@@ -264,6 +272,7 @@ public class ObservationDTO {
 			+ ", sex=" + sex 
 			+ ", group=" + group
 			+ ", colonyId=" + colonyId 
+			+ ", metadataGroup=" + metadataGroup 
 			+ ", dataPoint=" + dataPoint 
 			+ ", category=" + category
 			+ ", dateOfExperiment=" + dateOfExperiment 
@@ -694,4 +703,34 @@ public class ObservationDTO {
 		this.discretePoint = discretePoint;
 	}
 
+	/**
+	 * @return the metadataGroup
+	 */
+	public String getMetadataGroup() {
+		return metadataGroup;
+	}
+
+	/**
+	 * @param metadataGroup the metadataGroup to set
+	 */
+	public void setMetadataGroup(String metadataGroup) {
+		this.metadataGroup = metadataGroup;
+	}
+
+	/**
+	 * @return the metadata
+	 */
+	public List<String> getMetadata() {
+		return metadata;
+	}
+
+	/**
+	 * @param metadata the metadata to set
+	 */
+	public void setMetadata(List<String> metadata) {
+		this.metadata = metadata;
+	}
+
+	
+	
 }

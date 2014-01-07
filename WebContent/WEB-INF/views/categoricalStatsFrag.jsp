@@ -105,6 +105,9 @@
 				<div class="container span12">
 		 				<h4>Allele - <t:formatAllele>${categoricalResultAndCharts.maleAndFemale[0].biologicalModel.alleles[0].symbol}</t:formatAllele> <span class="graphGenBackground"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${categoricalResultAndCharts.maleAndFemale[0].biologicalModel.geneticBackground} </span></h4>
 		 				<h5>${categoricalResultAndCharts.organisation}</h5>
+		 				<!-- ul><c:forEach var="metadata" items="${categoricalResultAndCharts.experiment.metadata}">
+							<li>${metadata}</li>
+						</c:forEach></ul -->
 		 		</div>
 		 </div>
 		

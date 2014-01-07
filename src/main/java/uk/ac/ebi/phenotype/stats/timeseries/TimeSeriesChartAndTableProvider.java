@@ -172,6 +172,7 @@ public class TimeSeriesChartAndTableProvider {
 						ChartData chartNTableForParameter=creatDiscretePointTimeSeriesChart(listIndex,
 								title, lines, parameter.checkParameterUnit(1),
 								parameter.checkParameterUnit(2), sex, deimalPlaces, experiment.getOrganisation());
+						chartNTableForParameter.setExperiment(experiment);
 						Float tempMin=chartNTableForParameter.getMin();
 						Float tempMax=chartNTableForParameter.getMax();
 						chartNTableForParameter.setExpBiologicalModel(expBiologicalModel);

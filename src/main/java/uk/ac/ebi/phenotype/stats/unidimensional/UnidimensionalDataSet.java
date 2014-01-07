@@ -4,7 +4,7 @@ import java.util.List;
 
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.stats.ChartData;
-import uk.ac.ebi.phenotype.stats.TableObject;
+import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 
 /**
  * UnidimensionalDataSet should represent one experimentDTO i.e. both sexes with one table or one sex and one table
@@ -13,6 +13,7 @@ import uk.ac.ebi.phenotype.stats.TableObject;
  */
 public class UnidimensionalDataSet {
 	 private String experimentId=""; //experimentId should be distinct per UnidimensionalSet
+	 private ExperimentDTO experiment;
 	 private String organisation="";
 	public String getOrganisation() {
 		return organisation;
@@ -50,6 +51,18 @@ public class UnidimensionalDataSet {
 	}
 	public void setStatsObjects(List<UnidimensionalStatsObject> statsObjects) {
 		this.statsObjects = statsObjects;
+	}
+	/**
+	 * @return the experiment
+	 */
+	public ExperimentDTO getExperiment() {
+		return experiment;
+	}
+	/**
+	 * @param experiment the experiment to set
+	 */
+	public void setExperiment(ExperimentDTO experiment) {
+		this.experiment = experiment;
 	}
 	
 }

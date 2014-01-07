@@ -6,6 +6,7 @@ import java.util.List;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
+import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 
 /**
  * Class to hold all data, charts and tables pertaining to a Categorical Result Stats set so for male and female data combined
@@ -15,6 +16,7 @@ import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 public class CategoricalResultAndCharts {
 	
 	List<CategoricalChartDataObject> maleAndFemale=new ArrayList<CategoricalChartDataObject>();
+	ExperimentDTO experiment;
 	List<BiologicalModel> biologicalModels=new ArrayList<BiologicalModel>();
 	private List<CategoricalResult> statsResults; 
 	private String organisation="placeHolder";
@@ -59,6 +61,20 @@ public class CategoricalResultAndCharts {
 	public void setOrganisation(String organisation) {
 		this.organisation=organisation;
 		
+	}
+
+	/**
+	 * @return the experiment
+	 */
+	public ExperimentDTO getExperiment() {
+		return experiment;
+	}
+
+	/**
+	 * @param experiment the experiment to set
+	 */
+	public void setExperiment(ExperimentDTO experiment) {
+		this.experiment = experiment;
 	}
 
 }

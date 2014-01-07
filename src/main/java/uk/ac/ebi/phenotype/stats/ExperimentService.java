@@ -71,7 +71,8 @@ public class ExperimentService {
 	    	String experimentKey = observation.getPhenotypingCenter()
 	    			+ observation.getStrain()
 	    			+ observation.getParameterStableId()
-	    			+ observation.getGeneAccession();
+	    			+ observation.getGeneAccession()
+	    			+ observation.getMetadataGroup();
 
 	    	if (experimentsMap.containsKey(experimentKey)) {
 	    		experiment = experimentsMap.get(experimentKey);
@@ -86,6 +87,14 @@ public class ExperimentService {
 	    		//Tree sets to keep "female" before "male" and "hetero" before "hom"
 	    		experiment.setSexes(new TreeSet<SexType>());
 	    		experiment.setZygosities(new TreeSet<ZygosityType>());
+	    	}
+
+	    	if (experiment.getMetadata() == null) {
+	    		experiment.setMetadata(observation.getMetadata());
+	    	}
+
+	    	if (experiment.getMetadataGroup() == null) {
+	    		experiment.setMetadataGroup(observation.getMetadataGroup());
 	    	}
 
 	    	if (experiment.getGeneMarker() == null) {
@@ -209,9 +218,6 @@ public class ExperimentService {
 
 	    		experiment.setControls(new HashSet<ObservationDTO>());
 
-	    		// SHOW all the data
-//    			List<ObservationDTO> controls = os.getControls(parameterId, experiment.getStrain(), organisationId, new Date(), Boolean.TRUE);
-
 	    		String controlSex = null;
 	    		// we want single sex controls for unidimensional data with 1 sex parameter only 
 
@@ -230,8 +236,6 @@ public class ExperimentService {
 	    		//
 	    		// TODO: Verify all the centers control strategy
 	    		//
-	    		// TODO: Add in metadata splits
-	    		//
 	    		// ======================================
 
 	    		List<ObservationDTO> controls = new ArrayList<ObservationDTO>();
@@ -241,18 +245,16 @@ public class ExperimentService {
 	    		if (experiment.getSexes().contains(SexType.male) && maleBatches.size()==1) {
 
 	    			List<ObservationDTO> potentialControls = new ArrayList<ObservationDTO>();
-	    			potentialControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, SexType.male.name());
-
-	    			System.out.println(" ++++ Male concurrent control count: "+potentialControls.size());
+	    			potentialControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, SexType.male.name(), experiment.getMetadataGroup());
 
 	    			if (potentialControls.size()<MIN_CONTROLS) {
-		    			potentialControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, SexType.male.name());
+		    			potentialControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, SexType.male.name(), experiment.getMetadataGroup());
 	    			}
 
 	    			controls.addAll(potentialControls);
 	    		} else if (experiment.getSexes().contains(SexType.male) && maleBatches.size()>1) {
 
-	    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, SexType.male.name()));
+	    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, SexType.male.name(), experiment.getMetadataGroup()));
 	    		
 	    		}
 
@@ -261,19 +263,17 @@ public class ExperimentService {
 	    		if (experiment.getSexes().contains(SexType.female) && femaleBatches.size()==1) {
 	    		
 	    			List<ObservationDTO> potentialControls = new ArrayList<ObservationDTO>();
-	    			potentialControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, SexType.female.name());
-	    			
-	    			System.out.println(" ++++ Female concurrent control count: "+potentialControls.size());
-	    			
+	    			potentialControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, SexType.female.name(), experiment.getMetadataGroup());
+	    				    			
 	    			if (potentialControls.size()<MIN_CONTROLS) {
-		    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, SexType.female.name()));
+		    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, SexType.female.name(), experiment.getMetadataGroup()));
 	    			}
 	    			
 	    			controls.addAll(potentialControls);
 	    		
 	    		} else if (experiment.getSexes().contains(SexType.female) && femaleBatches.size()>1) {
 	    		
-	    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, SexType.female.name()));
+	    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, SexType.female.name(), experiment.getMetadataGroup()));
 	    		
 	    		}
 	    		
@@ -281,10 +281,9 @@ public class ExperimentService {
 
 	    		// If both sexes contain multiple batches, use all control animals
 	    		if (maleBatches.size()>2 && femaleBatches.size()>2) {
-	    			controls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, controlSex);
+	    			controls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, controlSex, experiment.getMetadataGroup());
 	    		}
 
-	    		System.out.println("+++ Male mutant batches: " + maleBatches.size() + ", female mutant batches: "+ femaleBatches.size());
 	    		experiment.getControls().addAll(controls);
 	    		
 	    		if(experiment.getControlBiologicalModelId()==null && controls.size()>0) {

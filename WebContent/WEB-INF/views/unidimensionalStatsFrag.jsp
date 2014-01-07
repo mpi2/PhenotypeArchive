@@ -13,7 +13,12 @@
 		 	<!-- statsObject 1 is the first non WT set which is where we get the background strain from not 0 which is control which we currently don't pass to graphs the background strain for -->
 		 			<div class="container span6"><h4>Allele -  <t:formatAllele> ${unidimensionalDataSet.statsObjects[1].allele }</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${unidimensionalDataSet.statsObjects[1].geneticBackground }</span></h4>
 				 	<h5>${unidimensionalDataSet.organisation }</h5>
-				 	</div>
+					<!-- 
+					<ul><c:forEach var="metadata" items="${unidimensionalDataSet.experiment.metadata}">
+						<li>${metadata}</li>
+					</c:forEach></ul>
+					 -->
+		 	</div>
  			</div>
  			<div class="row-fluid">
 					<c:forEach var="unidimensionalChartsAndTable" items="${unidimensionalDataSet.sexChartAndTables}" varStatus="uniDimensionalLoop">
@@ -26,7 +31,7 @@
    								<script type="text/javascript">
    
    								$(function () {
-   								    $('#chart${unidimensionalDataSetLoop.count}_${uniDimensionalLoop.count}').highcharts(${unidimensionalChartsAndTable.chart});
+   								    $('#chart${unidimensionalDataSetLoop.count}_${uniDimensionalLoop.count}').highcharts("${unidimensionalChartsAndTable.chart}");
 								</script>
 								<a href="scatter/${acc}?${pageContext.request.queryString}">Graph by date</a>	
 								

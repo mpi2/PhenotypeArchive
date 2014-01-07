@@ -70,6 +70,13 @@
 									class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${unidimensionalDataSet.statsObjects[1].geneticBackground }</span>
 							</h4>
 							<h5>${unidimensionalDataSet.organisation }</h5>
+							<!-- ul><c:forEach var="metadata" items="${unidimensionalDataSet.experiment.metadata}">
+								<li>${metadata}</li>
+							</c:forEach></ul -->
+							<!--
+							Metadata group: ${unidimensionalDataSet.experiment.metadataGroup}
+							Control animal IDs: <c:forEach var="animal" items="${unidimensionalDataSet.experiment.controls}">${animal.externalSampleId}, </c:forEach>
+							-->
 				 	</div>
 				 
  		</div>

@@ -86,6 +86,8 @@ public class ObservationService {
 		public final static String DISCRETE_POINT = "discrete_point";
 		public final static String CATEGORY = "category";
 		public final static String VALUE = "value";
+		public final static String METADATA = "metadata";
+		public final static String METADATA_GROUP = "metadata_group";
 	}
 
 
@@ -1157,17 +1159,18 @@ public class ObservationService {
 	}
 
 	/**
-	 * Get all controls for a specified set of center, strain, parameter, and
-	 * (optional) sex.
+	 * Get all controls for a specified set of center, strain, parameter, 
+	 * (optional) sex, and metadata group.
 	 * 
 	 * @param parameterId
 	 * @param strain
 	 * @param organisationId
 	 * @param sex if null, both sexes are returned
-	 * @return
+	 * @param metadataGroup when metadataGroup is empty string, force solr to search for metadata_group:""
+	 * @return list of control observationDTOs that conform to the search criteria
 	 * @throws SolrServerException
 	 */
-	public List<ObservationDTO> getAllControlsBySex(Integer parameterId, String strain, Integer organisationId, String sex) throws SolrServerException {
+	public List<ObservationDTO> getAllControlsBySex(Integer parameterId, String strain, Integer organisationId, String sex, String metadataGroup) throws SolrServerException {
 
 		List<ObservationDTO> results = new ArrayList<ObservationDTO>();
 
@@ -1183,6 +1186,12 @@ public class ObservationService {
 			.setRows(5000)
 		;
 
+		if(metadataGroup==null || metadataGroup.isEmpty()) {
+			query.addFilterQuery(ExperimentField.METADATA_GROUP + ":\"\"");
+		} else {
+			query.addFilterQuery(ExperimentField.METADATA_GROUP + ":" + metadataGroup);
+		}
+
 		if(sex!=null) {
 			query.addFilterQuery(ExperimentField.SEX + ":" + sex);
 		}
@@ -1193,7 +1202,21 @@ public class ObservationService {
 		return results;
 	}
 
-	public List<ObservationDTO> getConcurrentControlsBySex(Integer parameterId, String strain, Integer organisationId, Date experimentDate, String sex) throws SolrServerException {
+	/**
+	 * Get all controls for a specified set of center, strain, parameter, 
+	 * (optional) sex, and metadata group that occur on the same day as
+	 * passed in (or in WTSI case, the same week).
+	 * 
+	 * @param parameterId
+	 * @param strain
+	 * @param organisationId
+	 * @param experimentDate the date of interest
+	 * @param sex if null, both sexes are returned
+	 * @param metadataGroup when metadataGroup is empty string, force solr to search for metadata_group:""
+	 * @return list of control observationDTOs that conform to the search criteria
+	 * @throws SolrServerException
+	 */
+	public List<ObservationDTO> getConcurrentControlsBySex(Integer parameterId, String strain, Integer organisationId, Date experimentDate, String sex, String metadataGroup) throws SolrServerException {
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00");
 
 		List<ObservationDTO> results = new ArrayList<ObservationDTO>();
@@ -1234,6 +1257,12 @@ public class ObservationService {
 			.setStart(0)
 			.setRows(5000)
 		;
+
+		if(metadataGroup==null || metadataGroup.isEmpty()) {
+			query.addFilterQuery(ExperimentField.METADATA_GROUP + ":\"\"");
+		} else {
+			query.addFilterQuery(ExperimentField.METADATA_GROUP + ":" + metadataGroup);
+		}
 
 		response = solr.query(query);		
 		results = response.getBeans(ObservationDTO.class);
