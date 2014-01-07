@@ -33,7 +33,7 @@
     		
 			caller.find('div.facetCat').click(function(){
 				if ( caller.find('span.facetCount').text() != '0' ){
-					console.log('gene click');
+					console.log('gene click: ' + window.location.search);
 					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
 					
 					caller.parent().find('div.facetCat').removeClass('facetCatUp');
@@ -51,8 +51,11 @@
 						console.log('right here');
 						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'gene');						
 						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';
-						
-						window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;						
+												
+						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+						if ( ! window.location.search.match(/q=/) ){
+							window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
+						}						
 					}
 				}
 			});		

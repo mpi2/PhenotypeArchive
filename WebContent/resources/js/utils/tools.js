@@ -547,7 +547,7 @@
 		}	
 		
 		if ( facet == 'gene'){
-			fqStr = fqStr.replace(' AND selected_top_level_ma_term:*', '');	
+			fqStr = fqStr.replace(' AND selected_top_level_ma_term:*', '').replace(' AND ontology_subset:*', '');
 		}
 		else if (facet == 'images' ) {
 			fqStr = fqStr.replace(/ AND \(?ontology_subset:\*\)?/,'').replace(' AND selected_top_level_ma_term:*','');	
