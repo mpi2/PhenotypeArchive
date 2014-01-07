@@ -155,6 +155,7 @@ public class ObservationDTO {
 			//	 + "\t" + timePoint
 			//	 + "\t" + discretePoint
 				 + "\t" + externalSampleId
+				 + "\t" + metadata
 				 ;
 		
 		if (observationType.equalsIgnoreCase("unidimensional")){
@@ -202,6 +203,7 @@ public class ObservationDTO {
 			//	 + "\t timePoint"
 			//	 + "\t discretePoint"
 				 + "\t externalSampleId"
+				 + "\t metadata"
 				 ;
 		if (observationType.equalsIgnoreCase("unidimensional")){
 			tabbed += "\t" + "dataPoint";
