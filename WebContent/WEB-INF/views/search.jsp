@@ -1,4 +1,3 @@
-
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
@@ -26,7 +25,7 @@
 	    The params are parsed to load dataTable -->
 	
 	<script type="text/javascript">
-		$(document).ready(function(){	
+		jQuery(document).ready(function(){	
 			$.fn.qTip({'pageName':'search',
 					'textAlign':'left',
 					'tip':'topLeft',
