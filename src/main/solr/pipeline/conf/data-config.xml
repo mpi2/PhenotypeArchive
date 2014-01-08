@@ -84,7 +84,9 @@
 
 					<entity dataSource="komp2db" name="phenotype_pipeline_procedure" query="select pipeline_id from phenotype_pipeline_procedure where procedure_id=${phenotype_procedure.id}">
 						<field column="pipeline_id" name="pipeline_id" />
-						<entity dataSource="komp2db" name="phenotype_pipeline" query="select stable_id, name, stable_key, concat(name, '___', '${phenotype_procedure.name}', '___', '${phenotype_procedure.stable_id}') as pipe_proc_sid from phenotype_pipeline where id=${phenotype_pipeline_procedure.pipeline_id}">
+						
+						<!--  only want IMPress related pipeline  -->
+						<entity dataSource="komp2db" name="phenotype_pipeline" onError="continue" query="select stable_id, name, stable_key, concat(name, '___', '${phenotype_procedure.name}', '___', '${phenotype_procedure.stable_id}') as pipe_proc_sid from phenotype_pipeline where id=${phenotype_pipeline_procedure.pipeline_id} and db_id=6">
 							<field column="stable_id" name="pipeline_stable_id" />
 							<field column="name" name="pipeline_name" />
 							<field column="stable_key" name="pipeline_stable_key" />
