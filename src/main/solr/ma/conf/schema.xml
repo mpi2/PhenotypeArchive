@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<schema name="gene core" version="1.1">
+<schema name="mega_ma core" version="1.1">
   <types>
    <fieldtype name="string"  class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
    <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
@@ -86,31 +86,172 @@
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/> 
         </analyzer>
     </fieldType>  
-
+	<fieldType name="text_en_splitting" class="solr.TextField" positionIncrementGap="100" autoGeneratePhraseQueries="true">
+      <analyzer type="index">
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <!-- in this example, we will only use synonyms at query time
+        <filter class="solr.SynonymFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
+        -->
+        <!-- Case insensitive stop word removal.
+        -->
+        <filter class="solr.StopFilterFactory"
+                ignoreCase="true"
+                words="lang/stopwords_en.txt"
+                />
+        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
+        <filter class="solr.PorterStemFilterFactory"/>
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+        <filter class="solr.StopFilterFactory"
+                ignoreCase="true"
+                words="lang/stopwords_en.txt"
+                />
+        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
+        <filter class="solr.PorterStemFilterFactory"/>
+      </analyzer>
+    </fieldType>
   </types>
 
   <fields>  
     <field name="_version_" type="long" indexed="true" stored="true"/> 
+    <field name="dataType" type="string" indexed="true" stored="true" required="true" multiValued="false" />   
     <field name="ma_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="ma_term" type="string" indexed="true" stored="true" required="true" multiValued="false" />	   
-    <field name="ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="ma_2_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="ma_2_mp_name" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />   
     <field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="symbol_gene" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+   
     <field name="child_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="child_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />							
     <field name="child_ma_idTerm" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="image_id" type="int" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<field name="inferred_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="inferred_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" /> 
+  	<field name="inferred_mp_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" /> 
+	<field name="inferred_top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="inferred_top_level_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />   	
+	<field name="inferred_top_level_mp_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />   
 
   	<field name="top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />   
 
 	<field name="selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" /> 
-  
-    <field name="top_level_ma_id_part_of" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="top_level_ma_term_part_of" type="string" indexed="true" stored="true" required="false" multiValued="true" /> 
+  	<field name="go_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<!-- gene core stuff -->
+	<field name="marker_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="mgi_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />    
+    <field name="marker_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="marker_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="marker_type" type="string" indexed="true" stored="true" multiValued="true" />
+    <field name="human_gene_symbol" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="imits_report_phenotyping_complete_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />        
+    <field name="imits_report_genotype_confirmed_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />        
+    <field name="imits_report_mi_plan_status" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="imits_consortium" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="escell" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="ikmc_project" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="status" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="production_center" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="phenotyping_center" type="string" indexed="true" stored="true" required="false" multiValued="true" />        
+	<field name="imits_phenotype_started" type="string" indexed="true" multiValued="true"/>
+    <field name="imits_phenotype_complete" type="string" indexed="true" multiValued="true"/>
+    <field name="colony_prefix" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="imits_phenotype_colony_name" type="string" indexed="true" multiValued="true"/>
+    <field name="imits_phenotype_allele_type" type="string" indexed="true" multiValued="true"/>
+    <field name="imits_phenotype_status" type="string" indexed="true" multiValued="true"/>
+    <field name="imits_phenotype_is_active" type="string" indexed="true" multiValued="true"/>
+	<field name="qcGene" type="string" indexed="false" stored="false" multiValued="false"/>
+	<field name="hasQc" type="int" indexed="true" stored="true" multiValued="false"/>	
+	
+	<!-- disease core stuff -->	
+	<field name="type" type="string" indexed="true" stored="true"  multiValued="true" />	
+	<field name="disease_id" type="string" indexed="true" stored="true" multiValued="true" /> 
+	<field name="disease_source" type="string" indexed="true" stored="true" multiValued="true" /> 
+	<field name="disease_term" type="text_en_splitting" indexed="true" stored="true" multiValued="true" />
+	<field name="disease_alts" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
+	<field name="disease_classes" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="disease_human_phenotypes" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
+	<field name="human_curated" type="int" indexed="true" stored="true" multiValued="true" />
+	<field name="mouse_curated" type="int" indexed="true" stored="true" multiValued="true" />
+	<field name="mgi_predicted" type="int" indexed="true" stored="true" multiValued="true" />
+	<field name="impc_predicted" type="int" indexed="true" stored="true" multiValued="true" />
+	<field name="mgi_predicted_in_locus" type="int" indexed="true" stored="true" multiValued="true" />
+	<field name="impc_predicted_in_locus" type="int" indexed="true" stored="true" multiValued="true" />   
+
+	<!-- images core stuff -->	
+	<field name="annotationTermId"   type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="annotationTermName"   type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="name"   type="string"   indexed="true"  stored="true"  multiValued="true" /> 
+	<field name="accession"   type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="expName"   type="string"   indexed="true"  stored="true"  multiValued="true" />	
+	<field name="largeThumbnailFilePath" type="string"   indexed="false"  stored="true"/>	
+	<field name="smallThumbnailFilePath" type="string"   indexed="true"  stored="true"/>	
+	<field name="inferredMpTermId" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="inferredMpTermName" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="inferredMaTermId" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="inferredMaTermName" type="string" indexed="true" stored="true" multiValued="true" />	
+	<field name="annotatedHigherLevelMaTermId" type="string" indexed="true" stored="true" multiValued="true" />	
+	<field name="annotatedHigherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="annotatedHigherLevelMpTermId" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="annotatedHigherLevelMpTermName" type="string" indexed="true" stored="true" multiValued="true" />	
+	<field name="inferredHigherLevelMaTermId" type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="inferredHigherLevelMaTermName" type="string"   indexed="true"  stored="true"  multiValued="true" />	
+	<field name="inferredHigherLevelMpTermId" type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="inferredHigherLevelMpTermName" type="string"   indexed="true"  stored="true"  multiValued="true" />	
+	<field name="annotated_or_inferred_higherLevelMpTermName" type="string" indexed="true" stored="true" multiValued="true" />	
+	<field name="annotated_or_inferred_higherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />
+
+	<field name="annotated_or_inferred_higherLevelMpTermId" type="string" indexed="true" stored="true" multiValued="true" />	
+	<field name="annotated_or_inferred_higherLevelMaTermId" type="string" indexed="true" stored="true" multiValued="true" />
+
+	<field name="annotated_or_inferred_higherLevelMxTermName" type="string" indexed="true" stored="true" multiValued="true" />    
+
+	<field name="symbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="sangerSymbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="geneName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="subtype"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="geneSynonyms"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="alleleName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="maTermId"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="maTermName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="mpTermId"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="mpTermName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="expName_exp"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="symbol_gene"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="topLevel"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+
+
+	<field name="allele_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="allele_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<field name="strain_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="strain_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<field name="pipeline_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="pipeline_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="pipeline_stable_key" type="string" indexed="false" stored="true" required="false" multiValued="true" />
+
+	<field name="procedure_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="procedure_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="procedure_stable_key" type="string" indexed="false" stored="true" required="false" multiValued="true" />
+
+	<field name="parameter_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="parameter_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="parameter_stable_key" type="string" indexed="false" stored="true" required="false" multiValued="true" />
+
+	<field name="top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+
+
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
    <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
@@ -136,15 +277,18 @@
   	<copyField source="ma_id" dest="auto_suggest" />
     <copyField source="ma_term" dest="auto_suggest" />	    
     <copyField source="ma_term_synonym" dest="auto_suggest" />    
-    
-    <copyField source="ma_2_mp_name" dest="auto_suggest" />
-    <copyField source="ma_id" dest="auto_suggest" />
+    <copyField source="child_ma_term" dest="auto_suggest" /> 
     <copyField source="child_ma_id" dest="auto_suggest" />
-    <copyField source="child_ma_term" dest="auto_suggest" />
-    
-    <copyField source="ma_2_mp_id" dest="auto_suggest" />
- 	<copyField source="selected_top_level_ma_term" dest="auto_suggest" />
-    <copyField source="selected_top_level_ma_id" dest="auto_suggest" />  
-	
-</schema>
+   
+    <copyField source="selected_top_level_ma_term" dest="auto_suggest" />
+    <copyField source="selected_top_level_ma_id" dest="auto_suggest" />
 
+	<copyField source="inferred_top_level_mp_term" dest="annotated_or_inferred_higherLevelMpTermName" />
+	<copyField source="selected_top_level_ma_term" dest="annotated_or_inferred_higherLevelMaTermName" />	
+
+	<copyField source="inferred_top_level_mp_term" dest="annotated_or_inferred_higherLevelMxTermName" />
+        <copyField source="selected_top_level_ma_term" dest="annotated_or_inferred_higherLevelMxTermName" />
+
+
+
+</schema>

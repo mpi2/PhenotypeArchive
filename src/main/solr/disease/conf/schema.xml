@@ -45,7 +45,7 @@
     that avoids logging every request
 -->
 
-<schema name="disease" version="1.5">
+<schema name="mega_disease_core" version="1.5">
   <!-- attribute "name" is the name of this schema and is only used for display purposes.
        version="x.y" is Solr's version number for the schema syntax and 
        semantics.  It should not normally be changed by applications.
@@ -105,10 +105,10 @@
       and back compatibility is not guaranteed.  Names with both leading and
       trailing underscores (e.g. _version_) are reserved.
    -->
-	<field name="id" type="string" indexed="true" stored="true" multiValued="false" />      
-	<field name="type" type="string" indexed="true" stored="true"/>
 
 	<!--disease fields-->
+	<field name="type" type="string" indexed="true" stored="true"/>	
+	<field name="dataType" type="string" indexed="true" stored="true" required="true" multiValued="false" />  
 	<field name="disease_id" type="string" indexed="true" stored="true" multiValued="false" /> 
 	<field name="disease_source" type="string" indexed="true" stored="true" multiValued="false" /> 
 	<field name="disease_term" type="text_en_splitting" indexed="true" stored="true"/>
@@ -116,18 +116,16 @@
 	<field name="disease_classes" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="disease_human_phenotypes" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
 
-	<field name="mgi_accession_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />			
-
-	<!--project/curation status flags-->
 	<field name="human_curated" type="int" indexed="true" stored="true"/>
 	<field name="mouse_curated" type="int" indexed="true" stored="true"/>
 	<field name="mgi_predicted" type="int" indexed="true" stored="true"/>
 	<field name="impc_predicted" type="int" indexed="true" stored="true"/>
 	<field name="mgi_predicted_in_locus" type="int" indexed="true" stored="true"/>
-	<field name="impc_predicted_in_locus" type="int" indexed="true" stored="true"/> 
-	
-	<!-- gene core stuff -->	
-	<field name="marker_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="false" />  
+	<field name="impc_predicted_in_locus" type="int" indexed="true" stored="true"/>   
+
+	<!-- gene core stuff -->
+	<field name="mgi_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />		
+	<field name="marker_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />  
 	<field name="marker_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true"  />    
 	<field name="marker_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="marker_type" type="string" indexed="true" stored="true" multiValued="true" />  
@@ -153,9 +151,9 @@
 
 	<!-- annotated and inferred mp term -->
 	<field name="mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="mp_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />	
 	<field name="mp_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="mp_term_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="top_level_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="top_level_mp_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
@@ -167,22 +165,24 @@
 	<field name="inferred_top_level_mp_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<!-- ontology subset of mp/ma terms -->
-	<field name="mp_ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="ma_ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<!-- annotated and inferred ma term -->
 	<field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />	
 	<field name="ma_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="selected_top_level_ma_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="selected_top_level_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="selected_top_level_ma_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="inferred_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="inferred_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="inferred_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />	
 	<field name="inferred_ma_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="inferred_selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="inferred_selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="inferred_selected_top_level_ma_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_selected_top_level_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_selected_top_level_ma_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+
+	<field name="annotated_or_inferred_higherLevelMxTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
 
@@ -207,7 +207,7 @@
    <field name="category" type="text_general" indexed="true" stored="true"/>
    <field name="resourcename" type="text_general" indexed="true" stored="true"/>
    <field name="url" type="text_general" indexed="true" stored="true"/>
-   <field name="content_type" type="string" indexed=_general"true" stored="true" multiValued="true"/>
+   <field name="content_type" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="last_modified" type="date" indexed="true" stored="true"/>
    <field name="links" type="string" indexed="true" stored="true" multiValued="true"/>-->
 
@@ -297,8 +297,7 @@
  <!-- Field to use to determine and enforce document uniqueness. 
       Unless this field is marked with required="false", it will be a required field
    -->
- <!--<uniqueKey>id</uniqueKey>-->
- 
+ <!--<uniqueKey>disease_id</uniqueKey>-->
 
  <!-- DEPRECATED: The defaultSearchField is consulted by various query parsers when
   parsing a query string that isn't explicit about the field.  Machine (non-user)
@@ -323,12 +322,11 @@
 	<copyField source="disease_alts" dest="text"/>
 	<copyField source="disease_classes" dest="text"/>
 	<copyField source="disease_id" dest="text"/>
-	<copyField source="disease_source" dest="text"/> 
-	<copyField source="disease_human_phenotypes" dest="text"/>
-	<copyField source="mgi_accession_id" dest="text"/>
+	<copyField source="disease_source" dest="text"/>
 	<copyField source="marker_symbol" dest="text"/>
-	<copyField source="marker_name" dest="text"/>
-	<copyField source="marker_synonym" dest="text"/>
+	<copyField source="mgi_accession_id" dest="text"/>
+	<copyField source="mp_id" dest="text"/>
+	<copyField source="mp_term" dest="text"/>
 
 	<copyField source="disease_term" dest="auto_suggest"/>
 	<copyField source="disease_alts" dest="auto_suggest"/>
@@ -336,10 +334,12 @@
 	<copyField source="disease_id" dest="auto_suggest"/>
 	<copyField source="disease_source" dest="auto_suggest"/>
 	<copyField source="disease_human_phenotypes" dest="auto_suggest"/>
-	<copyField source="mgi_accession_id" dest="auto_suggest"/>
+	
 	<copyField source="marker_symbol" dest="auto_suggest"/>
-	<copyField source="marker_name" dest="auto_suggest"/>
-	<copyField source="marker_synonym" dest="auto_suggest"/>
+	<copyField source="mgi_accession_id" dest="auto_suggest"/>
+
+	<copyField source="top_level_mp_term" dest="annotated_or_inferred_higherLevelMxTermName" />
+
 
    <!-- Copy the price into a currency enabled field (default USD) -->
    <!--<copyField source="price" dest="price_c"/>-->
@@ -1212,4 +1212,3 @@
     -->
 
 </schema>
-

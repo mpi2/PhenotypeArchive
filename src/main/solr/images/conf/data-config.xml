@@ -1,7 +1,36 @@
 <dataConfig>
 
-	<dataSource name="komp2ds" jndiName="java:comp/env/jdbc/komp2DataSource" />
-	<dataSource name="ontods" jndiName="java:comp/env/jdbc/ontodbDataSource" />
+        <script type='text/javascript'><![CDATA[        
+
+                function procedure_mapping(row){
+                        if ( row.get('NAME') ){                         
+                                name = row.get('NAME').toString();                              
+
+                                // do something name mapping here before we have the right data
+                                mapping = {
+                                        'Wholemount Expression' : 'Adult LacZ',
+                                        'Xray' : 'X-ray',
+                                        //'Xray' : 'X-ray Imaging',
+                                        'Flow Cytometry' : 'FACS Analysis',
+                                        'Histology Slide' : 'Histopathology',
+                                        'Embryo Dysmorphology' : 'Combined SHIRPA and Dysmorphology'
+
+                                };
+
+                                name = mapping[name] == null ? name : mapping[name];
+                                row.put('procedure_name', name);                                                
+                        }              
+                
+                        return row; 
+                }       
+
+    ]]></script>
+
+        <dataSource name="komp2ds" jndiName="java:comp/env/jdbc/komp2DataSource" />
+        <dataSource name="ontods" jndiName="java:comp/env/jdbc/ontodbDataSource" />
+        <dataSource name="phenodigmdb" jndiName="java:comp/env/jdbc/phenodigmDataSource" />
+        <dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/search?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+
 
 	<document name="komp2_indexing">
 <!-- for xml generated image info not straight from sanger SELECT * from observation ob JOIN image_record_observation imo ON (ob.id=imo.id) LEFT outer JOIN parameter_association pa on (pa.observation_id=ob.id) LEFT outer JOIN dimension dim on (pa.id=dim.parameter_association_id) limit 100 -->
@@ -164,6 +193,32 @@
 							<entity dataSource="komp2ds" name="synonym" query="select * from synonym where acc='${genomic_feature2.acc}' ">
 								<field column="symbol" name="geneSynonyms" />
 							</entity>
+							<!-- other gene core stuff -->							
+							<entity dataSource="gene2_core" name="genedoc" stream="true" url="q=${genomic_feature2.acc}&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status,imits_phenotype_is_active&amp;rows=50000&amp;wt=normal"
+								processor="XPathEntityProcessor" forEach="/response/result/doc/" >	
+						
+								<field column="status" xpath="/response/result/doc/str[@name='latest_project_status']" />
+								<field column="imits_phenotype_complete" xpath="/response/result/doc/arr[@name='imits_phenotype_complete']/str" />
+								<field column="imits_phenotype_started" xpath="/response/result/doc/arr[@name='imits_phenotype_started']/str" />
+								<field column="imits_phenotype_status" xpath="/response/result/doc/arr[@name='imits_phenotype_status']/str" />							
+								<field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />
+								<!--
+								<field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />							
+								<field column="marker_name" xpath="/response/result/doc/arr[@name='marker_name']/str" />
+								<field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
+								<field column="imits_report_phenotyping_complete_date" xpath="/response/result/doc/arr[@name='imits_report_phenotyping_complete_date']/str" />
+								<field column="imits_report_genotype_confirmed_date" xpath="/response/result/doc/arr[@name='imits_report_genotype_confirmed_date']/str" />
+								<field column="imits_report_mi_plan_status" xpath="/response/result/doc/arr[@name='imits_report_mi_plan_status']/str" />
+								<field column="escell" xpath="/response/result/doc/arr[@name='escell']/str" />
+								<field column="ikmc_project" splitBy="," xpath="/response/result/doc/arr[@name='ikmc_project']/str" />
+								<field column="imits_consortium" xpath="/response/result/doc/str[@name='imits_consortium']" />								
+								<field column="colony_prefix" xpath="/response/result/doc/arr[@name='colony_prefix']/str" />
+								<field column="imits_phenotype_colony_name" xpath="/response/result/doc/arr[@name='imits_phenotype_colony_name']/str" />
+								<field column="imits_phenotype_allele_type" xpath="/response/result/doc/arr[@name='imits_phenotype_allele_type']/str" />
+								<field column="imits_phenotype_is_active" xpath="/response/result/doc/arr[@name='imits_phenotype_is_active']/str" />
+								-->	
+							</entity>							
+							
 						</entity>
 					</entity>
 				<!-- </entity> -->
@@ -193,12 +248,14 @@
 					</entity>
 				</entity>
 			</entity> -->
+			
+			<entity dataSource="komp2ds" name="experiment" query="select IMA_EXPERIMENT_DICT.NAME, IMA_EXPERIMENT_DICT.DESCRIPTION, concat(IMA_EXPERIMENT_DICT.NAME,'_exp') as expName_exp FROM IMA_EXPERIMENT_DICT, IMA_SUBCONTEXT, IMA_IMAGE_RECORD where IMA_SUBCONTEXT.ID=IMA_IMAGE_RECORD.SUBCONTEXT_ID and IMA_EXPERIMENT_DICT.ID=IMA_SUBCONTEXT.EXPERIMENT_DICT_ID AND IMA_IMAGE_RECORD.ID=${ima_image_record.ID}" transformer="script:procedure_mapping" >
 
-			<entity dataSource="komp2ds" name="experiment" query="select IMA_EXPERIMENT_DICT.NAME, IMA_EXPERIMENT_DICT.DESCRIPTION, concat(IMA_EXPERIMENT_DICT.NAME,'_exp') as expName_exp FROM IMA_EXPERIMENT_DICT, IMA_SUBCONTEXT, IMA_IMAGE_RECORD where IMA_SUBCONTEXT.ID=IMA_IMAGE_RECORD.SUBCONTEXT_ID and IMA_EXPERIMENT_DICT.ID=IMA_SUBCONTEXT.EXPERIMENT_DICT_ID AND IMA_IMAGE_RECORD.ID=${ima_image_record.ID}">
 				<field column="NAME" name="expName" />
 				<field column="expName_exp" name="expName_exp" />
-			</entity>phenodigm-data-config.xml
+				<field column="procedure_name" name="procedure_name" /> <!-- converted to IMPRESS procedure_name -->				
 
+			</entity>
 			<entity dataSource="komp2ds" name="tag" query="select * from IMA_IMAGE_TAG where IMAGE_RECORD_ID=${ima_image_record.ID}">
 				<field column="TAG_NAME" name="tagName" />
 				<field column="TAG_VALUE" name="tagValue" />
@@ -214,7 +271,7 @@
 
 					<entity dataSource="komp2ds" name="annotations" query="SELECT  h.TERM_NAME as higherTermName, concat(l.TERM_NAME, '_${maAnnotations.TERM_ID}') as lowerTermName, l.TERM_ID AS lowerId, HIGHER_TERM_ID FROM lower_to_higher_level_annotation l, higher_level_annotation h WHERE l.higher_term_id = h.term_id and  l.term_id='${maAnnotations.TERM_ID}'">
 						<field column="lowerTermName" name="maTermName" />
-						<field column=" lowerId" name="maAnnotationTermId" />
+						<field column="lowerId" name="maAnnotationTermId" />
 						<field column="HIGHER_TERM_ID" name="annotatedHigherLevelMaTermId" />
 						<field column="higherTermName" name="annotatedHigherLevelMaTermName" />
 
@@ -234,7 +291,29 @@
 					<field column="TERM_ID" name="annotationTermId" />
 					<field column="TERM_NAME" name="mpTermName" />
 					<field column="TERM_ID" name="mpTermId" />
-
+					
+					<!-- disease annotated to this MP -->					
+					<!--<entity dataSource="phenodigmdb" name="disease" transformer="RegexTransformer" query="select distinct 'disease' as type, ds.disease_id, ds.disease_term, ds.disease_alts, CASE ds.disease_classes when '' THEN 'unclassified' ELSE ds.disease_classes END as disease_classes, ds.human_curated, ds.mouse_curated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_predicted_in_locus from disease_summary ds, disease_mouse_genotype_associations dmga, mp_mouse_models mmm where ds.disease_id=dmga.disease_id and dmga.mouse_model_id=mmm.mouse_model_id and mmm.mp_id='${mpAnnotations.TERM_ID}'">    
+   			
+						<field column="disease_source" regex="([A-Z]+):[0-9]+" sourceColName="disease_id"/>
+						<field column="disease_classes" splitBy="," name="disease_classes"/>
+						<field column="human_curated" name="human_curated"/>
+						<field column="mouse_curated" name="mouse_curated"/>
+						<field column="mgi_predicted" name="mgi_predicted"/>
+						<field column="impc_predicted" name="impc_predicted"/>
+						<field column="mgi_predicted_in_locus" name="mgi_predicted_in_locus"/>
+						<field column="impc_predicted_in_locus" name="impc_predicted_in_locus"/>
+					
+						<field column="type" name="type"/>
+						<field column="disease_id" name="disease_id"/>						
+						<field column="disease_term" name="disease_term"/>
+						<field column="disease_alts" splitBy="\|" name="disease_alts"/>
+						<entity dataSource="phenodigmdb" name="disease_phenotypes" query="select concat(dh.hp_id, '_' , hp.name) as phenotype from disease_hp dh join hp_term_infos hp on hp.term_id = dh.hp_id where dh.disease_id = '${disease.disease_id}';">
+						    <field column="phenotype" name="disease_human_phenotypes"/>
+						</entity>
+						
+					</entity>
+					-->
 					<entity dataSource="ontods" name="mps" query="SELECT top_level_node_id, concat('${mpAnnotations.TERM_NAME}', '_${mpAnnotations.TERM_ID}') as mpTermName, mp.term_id FROM `mp_node2term` mp , mp_node_top_level tl WHERE term_id='${mpAnnotations.TERM_ID}' and mp.node_id=tl.node_id">
 						<field column="mpTermName" name="mpTermName" />
 						<field column="top_level_node_id" name="topLevel" />

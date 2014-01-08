@@ -1,61 +1,128 @@
+     
 <dataConfig>
-
+	
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />
 	<dataSource name="ontodb" jndiName="java:comp/env/jdbc/ontodbDataSource" />
-
-<<<<<<< HEAD
-	<dataSource name="disease_core" type="HttpDataSource" baseUrl="http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
-=======
+	<dataSource name="phenodigmdb" jndiName="java:comp/env/jdbc/phenodigmDataSource" />
+	<dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/search?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	  
+	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>       
 	
-	<document name="komp2_indexing">
-		<!-- test MP:0000180 for multipe node_id being linked to this term -->
+	<document name="docs">
+		<!-- test with MP:0002100, MP:0002075-->
 		<!-- term infos: ID, name, definition -->
-		<entity dataSource="ds2" name="mp_term_infos"
-			query="select term_id, name, definition from mp_term_infos where term_id != 'MP:0000001'">
+
+		<entity dataSource="ontodb" name="mp_term_infos"			
+			query="select 'mp' as dataType, term_id, name, definition from mp_term_infos where term_id !='MP:0000001'">
+
+			<field column="dataType" name="dataType"/>
 			<field column="term_id" name="mp_id" />
 			<field column="name" name="mp_term" />
-			<field column="definition" name="mp_definition" />
+			<field column="definition" name="mp_definition" />			
+
+			<!-- disease to this MP -->
+			<entity dataSource="phenodigmdb" name="disease" transformer="RegexTransformer" query="select distinct 'disease' as type, ds.disease_id, ds.disease_term, ds.disease_alts, CASE ds.disease_classes when '' THEN 'unclassified' ELSE ds.disease_classes END as disease_classes, ds.human_curated, ds.mouse_curated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_predicted_in_locus from disease_summary ds, disease_mouse_genotype_associations dmga, mp_mouse_models mmm where ds.disease_id=dmga.disease_id and dmga.mouse_model_id=mmm.mouse_model_id and mmm.mp_id='${mp_term_infos.term_id}'">       			
+			
+		        <field column="type" name="type"/>
+		        <field column="disease_id" name="disease_id"/>
+		        <field column="disease_source" regex="([A-Z]+):[0-9]+" sourceColName="disease_id"/>
+		        <field column="disease_term" name="disease_term"/>
+		        <field column="disease_alts" splitBy="\|" name="disease_alts"/>
+		        <field column="disease_classes" splitBy="," name="disease_classes"/>
+		        <field column="human_curated" name="human_curated"/>
+		        <field column="mouse_curated" name="mouse_curated"/>
+		        <field column="mgi_predicted" name="mgi_predicted"/>
+		        <field column="impc_predicted" name="impc_predicted"/>
+		        <field column="mgi_predicted_in_locus" name="mgi_predicted_in_locus"/>
+		        <field column="impc_predicted_in_locus" name="impc_predicted_in_locus"/>
+
+		        <entity dataSource="phenodigmdb" name="disease_phenotypes" query="select concat(dh.hp_id, '_' , hp.name) as phenotype from disease_hp dh join hp_term_infos hp on hp.term_id = dh.hp_id where dh.disease_id = '${disease.disease_id}';">
+		            <field column="phenotype" name="disease_human_phenotypes"/>
+		        </entity>
+
+			</entity>
+
+			<!-- images annotated to this MP -->
+			<entity dataSource="images_core" name="imgCore" stream="true" url="q=mpTermId:&quot;${mp_term_infos.term_id}&quot;&amp;wt=normal&amp;rows=999999"
+				processor="XPathEntityProcessor" forEach="/response/result/doc/"							
+				readTimeout="10000" connectionTimeout="10000"  >
+			
+				<field column="largeThumbnailFilePath" xpath="/response/result/doc/str[@name='largeThumbnailFilePath']"/>
+				<field column="smallThumbnailFilePath" xpath="/response/result/doc/str[@name='smallThumbnailFilePath']"/>
+				<field column="expName" xpath="/response/result/doc/arr[@name='expName']/str"/>
+				<field column="expName_exp" xpath="/response/result/doc/arr[@name='expName_exp']/str" />
+                                <field column="subtype" xpath="/response/result/doc/arr[@name='subtype']/str" />
+				<field column="symbol_gene" xpath="/response/result/doc/arr[@name='symbol_gene']/str" />
+				<field column="inferredHigherLevelMaTermId" xpath="/response/result/doc/arr[@name='inferredHigherLevelMaTermId']/str" />
+				<field column="inferredHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='inferredHigherLevelMaTermName']/str" />	
+				<field column="annotationTermName" xpath="/response/result/doc/arr[@name='annotationTermName']/str" />
+				<field column="annotationTermId" xpath="/response/result/doc/arr[@name='annotationTermId']/str" />			
+				<field column="mpTermId" xpath="/response/result/doc/arr[@name='mpTermId']/str" />
+				<field column="mpTermName" xpath="/response/result/doc/arr[@name='mpTermName']/str" />
+				<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
+			</entity>
 
 			<!-- subset of this MP term: parsed from obo file -->
-			<entity dataSource="ds2" name="mp_term_subsets"
+			<entity dataSource="ontodb" name="mp_term_subsets"
 				query="select subset from mp_term_subsets where term_id='${mp_term_infos.term_id}'">
 				<field column="subset" name="ontology_subset" />
 			</entity>
 
 			<!-- synonym of this MP term -->
-			<entity dataSource="ds2" name="mp_synonyms"
-				query="select syn_name from mp_synonyms where term_id = '${mp_term_infos.term_id}'">
+			<entity dataSource="ontodb" name="mp_synonyms"
+				query="select distinct syn_name from mp_synonyms where term_id = '${mp_term_infos.term_id}'">
 				<field column="syn_name" name="mp_term_synonym" />
 			</entity>
->>>>>>> a37c8eb426b097105969e25335b8fa7d6876b28f
 
-	<document name="komp2_indexing">
-        <!-- test MP:0000180 for multipe node_id being linked to this term -->
-        <!-- term infos: ID, name, definition -->
-        <entity dataSource="ontodb" name="mp_term_infos"
-            query="select term_id, name, definition from mp_term_infos where term_id != 'MP:0000001'">
-            <field column="term_id" name="mp_id" />
-            <field column="name" name="mp_term" />
-            <field column="definition" name="mp_definition" />
+			<!-- GO association of MP term -->
+			<entity dataSource="ontodb" name="mp_dbxrefs"
+				query="select distinct xref_id from mp_dbxrefs where term_id='${mp_term_infos.term_id}' and xref_id like 'GO:%'">
+				<field column="xref_id" name="go_id" />
+			</entity>	
 
-            <!-- subset of this MP term: parsed from obo file -->
-            <entity dataSource="ontodb" name="mp_term_subsets"
-                query="select subset from mp_term_subsets where term_id='${mp_term_infos.term_id}'">
-                <field column="subset" name="ontology_subset" />
-            </entity>
+			<!-- top level MP term of this MP term -->
+			<entity dataSource="ontodb" name="mp_node2term"
+				query="select distinct node_id from mp_node2term where term_id='${mp_term_infos.term_id}'">
+				<entity dataSource="ontodb" name="mp_node_top_level"
+					query="select distinct top_level_node_id from mp_node_top_level where node_id=${mp_node2term.node_id}">
+					<entity dataSource="ontodb" name="mp_node2term2"
+						query="select distinct term_id from mp_node2term where node_id=${mp_node_top_level.top_level_node_id}">
+						<entity dataSource="ontodb" name="mp_term_infos2"							
+							query="select term_id as top_level_mp_id, name as top_level_mp_term, definition from mp_term_infos where term_id='${mp_node2term2.term_id}' and term_id != 'MP:0000001'" >
+							<!-- do not want to include the root term -->
+							<field column="term_id" name="top_level_mp_id" />
+							<field column="name" name="top_level_mp_term" />
+							<field column="definition" name="top_level_mp_definition" />														
+                          
+						</entity>
+					</entity>
+				</entity>
+			</entity>
 
-            <!-- synonym of this MP term -->
-            <entity dataSource="ontodb" name="mp_synonyms"
-                query="select syn_name from mp_synonyms where term_id = '${mp_term_infos.term_id}'">
-                <field column="syn_name" name="mp_term_synonym" />
-            </entity>
+			<!-- child MP term of this MP term -->
+			<entity dataSource="ontodb" name="mp_node2term3"
+				query="select distinct node_id from mp_node2term where term_id='${mp_term_infos.term_id}'">
+				<entity dataSource="ontodb" name="mp_parent_children" onError="continue"
+					query="select distinct parent_node_id, child_node_id from mp_parent_children where child_node_id=${mp_node2term3.node_id}">
+					<entity dataSource="ontodb" name="mp_parent_children"
+						query="select distinct child_node_id from mp_parent_children where parent_node_id=${mp_parent_children.parent_node_id}">
+						<entity dataSource="ontodb" name="mp_node2term"
+							query="select distinct term_id from mp_node2term where node_id=${mp_parent_children.child_node_id}">
 
-            <!-- GO association of MP term -->
-            <entity dataSource="ontodb" name="mp_dbxrefs"
-                query="select xref_id from mp_dbxrefs where term_id='${mp_term_infos.term_id}' and xref_id like 'GO:%'">
-                <field column="xref_id" name="go_id" />
-            </entity>
-           
+							<!-- only index child term that has mp annotation -->
+							<entity dataSource="komp2db" onError="continue" name="phenotype_call_summary"
+								query="select count(*) from phenotype_call_summary where mp_acc='${mp_node2term3.term_id}'">
+								<entity dataSource="ontodb" name="mp_term_infos3"
+									query="select distinct term_id, name, definition from mp_term_infos where term_id='${mp_node2term3.term_id}'">
+									<field column="term_id" name="child_mp_id" />
+									<field column="name" name="child_mp_term" />
+									<field column="definition" name="child_mp_definition" />
+								</entity>
+							</entity>
+						</entity>
+					</entity>
+				</entity>
+			</entity>
+
 			<!-- MP -> MA relationship; MA term has no definition -->
 			<entity dataSource="ontodb" name="mp_mappings" onError="continue"
 				query="select distinct mapped_term_id from mp_mappings where term_id='${mp_term_infos.term_id}' and ontology='MA'">
@@ -74,202 +141,66 @@
 					<field column="name" name="inferred_selected_top_level_ma_term" /> 								
 				</entity>						      											
 			</entity>
-<<<<<<< HEAD
 			
-            <!-- top level MP term of this MP term -->
-            <entity dataSource="ontodb" name="mp_node2term"
-                query="select node_id from mp_node2term where term_id='${mp_term_infos.term_id}'">
-                <entity dataSource="ontodb" name="mp_node_top_level"
-                    query="select top_level_node_id from mp_node_top_level where node_id=${mp_node2term.node_id}">
-                    <entity dataSource="ontodb" name="mp_node2term"
-                        query="select term_id from mp_node2term where node_id=${mp_node_top_level.top_level_node_id}">
-                        <entity dataSource="ontodb" name="mp_term_infos2"
-                            query="select term_id, name, definition from mp_term_infos where term_id='${mp_node2term.term_id}' and term_id != 'MP:0000001'">
-
-                            <!-- do not want to include the root term -->
-                            <field column="term_id" name="top_level_mp_id" />
-                            <field column="name" name="top_level_mp_term" />
-                            <field column="definition" name="top_level_mp_definition" />
-                        </entity>
-                    </entity>
-                </entity>
-            </entity>
-
-            <!-- child MP term of this MP term -->
-            <entity dataSource="ontodb" name="mp_node2term"
-                query="select node_id from mp_node2term where term_id='${mp_term_infos.term_id}'">
-                <entity dataSource="ontodb" name="mp_parent_children" onError="continue"
-                    query="select parent_node_id, child_node_id from mp_parent_children where child_node_id=${mp_node2term.node_id}">
-                    <entity dataSource="ontodb" name="mp_parent_children"
-                        query="select child_node_id from mp_parent_children where parent_node_id=${mp_parent_children.parent_node_id}">
-                        <entity dataSource="ontodb" name="mp_node2term"
-                            query="select term_id from mp_node2term where node_id=${mp_parent_children.child_node_id}">
-
-                            <!-- only index child term that has mp annotation -->
-                            <entity dataSource="komp2db" onError="continue" name="phenotype_call_summary"
-                                query="select count(*) from phenotype_call_summary where mp_acc='${mp_node2term.term_id}'">
-                                <entity dataSource="ontodb" name="mp_term_infos3"
-                                    query="select term_id, name, definition from mp_term_infos where term_id='${mp_node2term.term_id}'">
-                                    <field column="term_id" name="child_mp_id" />
-                                    <field column="name" name="child_mp_term" />
-                                    <field column="definition" name="child_mp_definition" />
-                                </entity>
-                            </entity>
-                        </entity>
-                    </entity>
-                </entity>
-            </entity>
-
-            <!-- whether this MP has annotated phenotype images -->
-            <entity dataSource="ontodb" onError="continue" name="mp_with_pheno_image"
-                query="select term_id from mp_with_pheno_image where term_id='${mp_term_infos.term_id}'">
-                <field column="term_id" name="mp_with_pheno_image" />
-            </entity>
-
-            <!-- MGI genes annotated to this MP term which has pipeline/procedure and allele/strain infos -->
-            <entity dataSource="komp2db" name="phenotype_call_summary"
-                query="select external_id, gf_acc, procedure_id, parameter_id, pipeline_id, allele_acc, strain_acc, sex, zygosity from phenotype_call_summary where mp_acc='${mp_term_infos.term_id}' and gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null">
-                <field column="external_id" name="external_id" />
-                <field column="sex" name="sex" />
-                <field column="zygosity" name="zygosity" />
-
-                <entity dataSource="komp2db" name="genomic_feature"
-                    query="select acc, symbol from genomic_feature where acc='${phenotype_call_summary.gf_acc}'">
-                    <field column="symbol" name="marker_symbol" />
-                    <field column="acc" name="mgi_accession_id" />
-                </entity>
-
-                <!-- allele: currently NOT restricted to MGI alleles, ie, allele_db_id not restricted to 3 -->
-                <!-- index will be problematic if phenotype_call_summary.allele_acc and phenotype_call_summary.gf_acc do not have an entry in komp2.allele table -->
-                <entity dataSource="komp2db" name="allele"
-                    query="select symbol, acc from allele where acc='${phenotype_call_summary.allele_acc}' and gf_acc='${phenotype_call_summary.gf_acc}'">
-                    <field column="symbol" name="allele_symbol" />
-                    <field column="acc" name="allele_id" />
-                </entity>
-
-                <!-- strain -->
-                <entity dataSource="komp2db" name="strain"
-                    query="select name, acc from strain where acc='${phenotype_call_summary.strain_acc}' and db_id=3">
-                    <field column="name" name="strain_name" />
-                    <field column="acc" name="strain_id" />
-                </entity>
-
-                <!-- pipeline -->
-                <entity dataSource="komp2db" name="phenotype_pipeline"
-                    query="select stable_id, name, stable_key from phenotype_pipeline where id=${phenotype_call_summary.pipeline_id}">
-                    <field column="stable_id" name="pipeline_stable_id" />
-                    <field column="name" name="pipeline_name" />
-                    <field column="stable_key" name="pipeline_stable_key" />
-                </entity>
-
-                <!-- procedure of pipeline -->
-                <entity dataSource="komp2db" name="phenotype_procedure"
-                    query="select distinct name, stable_id, stable_key from phenotype_procedure where id = ${phenotype_call_summary.procedure_id}">
-                    <field column="name" name="procedure_name" />
-                    <field column="stable_id" name="procedure_stable_id" />
-                    <field column="stable_key" name="procedure_stable_key" />
-                </entity>
-
-                <!-- parameter of pipeline -->
-                <entity dataSource="komp2db" name="phenotype_parameter"
-                    query="select name, stable_id, stable_key from phenotype_parameter where id=${phenotype_call_summary.parameter_id}">
-                    <field column="name" name="parameter_name" />
-                    <field column="stable_id" name="parameter_stable_id" />
-                    <field column="stable_key" name="parameter_stable_key" />
-                </entity>
-
-            </entity>
-        </entity>
-=======
-
-			<!-- top level MP term of this MP term -->
-			<entity dataSource="ds2" name="mp_node2term"
-				query="select node_id from mp_node2term where term_id='${mp_term_infos.term_id}'">
-				<entity dataSource="ds2" name="mp_node_top_level"
-					query="select top_level_node_id from mp_node_top_level where node_id=${mp_node2term.node_id}">
-					<entity dataSource="ds2" name="mp_node2term"
-						query="select term_id from mp_node2term where node_id=${mp_node_top_level.top_level_node_id}">
-						<entity dataSource="ds2" name="mp_term_infos2"
-							query="select term_id, name, definition from mp_term_infos where term_id='${mp_node2term.term_id}' and term_id != 'MP:0000001'">
-
-							<!-- do not want to include the root term -->
-							<field column="term_id" name="top_level_mp_id" />
-							<field column="name" name="top_level_mp_term" />
-							<field column="definition" name="top_level_mp_definition" />
-						</entity>
-					</entity>
-				</entity>
-			</entity>
-
-			<!-- child MP term of this MP term -->
-			<entity dataSource="ds2" name="mp_node2term"
-				query="select node_id from mp_node2term where term_id='${mp_term_infos.term_id}'">
-				<entity dataSource="ds2" name="mp_parent_children" onError="continue"
-					query="select parent_node_id, child_node_id from mp_parent_children where child_node_id=${mp_node2term.node_id}">
-					<entity dataSource="ds2" name="mp_parent_children"
-						query="select child_node_id from mp_parent_children where parent_node_id=${mp_parent_children.parent_node_id}">
-						<entity dataSource="ds2" name="mp_node2term"
-							query="select term_id from mp_node2term where node_id=${mp_parent_children.child_node_id}">
-
-							<!-- only index child term that has mp annotation -->
-							<entity dataSource="ds1" onError="continue" name="phenotype_call_summary"
-								query="select count(*) from phenotype_call_summary where mp_acc='${mp_node2term.term_id}'">
-								<entity dataSource="ds2" name="mp_term_infos3"
-									query="select term_id, name, definition from mp_term_infos where term_id='${mp_node2term.term_id}'">
-									<field column="term_id" name="child_mp_id" />
-									<field column="name" name="child_mp_term" />
-									<field column="definition" name="child_mp_definition" />
-								</entity>
-							</entity>
-						</entity>
-					</entity>
-				</entity>
-			</entity>
-
-			<!-- whether this MP has annotated phenotype images -->
-			<entity dataSource="ds2" onError="continue" name="mp_with_pheno_image"
-				query="select term_id from mp_with_pheno_image where term_id='${mp_term_infos.term_id}'">
-				<field column="term_id" name="mp_with_pheno_image" />
-			</entity>
 
 			<!-- MGI genes annotated to this MP term which has pipeline/procedure and allele/strain infos -->
-			<entity dataSource="ds1" name="phenotype_call_summary"
-				query="select external_id, gf_acc, procedure_id, parameter_id, pipeline_id, allele_acc, strain_acc, sex, zygosity from phenotype_call_summary where mp_acc='${mp_term_infos.term_id}' and gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null">
-				<field column="external_id" name="external_id" />
-				<field column="sex" name="sex" />
-				<field column="zygosity" name="zygosity" />
+			<entity dataSource="komp2db" name="phenotype_call_summary"
+				query="select distinct gf_acc, procedure_id, parameter_id, pipeline_id, allele_acc, strain_acc from phenotype_call_summary where mp_acc='${mp_term_infos.term_id}' and gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null">											
 				
-				<entity dataSource="ds1" name="genomic_feature"
-					query="select acc, symbol from genomic_feature where acc='${phenotype_call_summary.gf_acc}'">
-					<field column="symbol" name="marker_symbol" />
-					<field column="acc" name="mgi_accession_id" />
+				<field column="gf_acc" name="mgi_accession_id" />
+
+				<!-- other fields from gene core -->
+				<entity dataSource="gene2_core" name="doc" stream="true" url="q=${phenotype_call_summary.gf_acc}&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status,imits_phenotype_is_active&amp;rows=50000&amp;wt=normal"
+						processor="XPathEntityProcessor" forEach="/response/result/doc/" >			
+					
+					<field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />							
+					<field column="marker_name" xpath="/response/result/doc/arr[@name='marker_name']/str" />
+					<field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
+					<field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />
+
+					<field column="imits_report_phenotyping_complete_date" xpath="/response/result/doc/arr[@name='imits_report_phenotyping_complete_date']/str" />
+					<field column="imits_report_genotype_confirmed_date" xpath="/response/result/doc/arr[@name='imits_report_genotype_confirmed_date']/str" />
+					<field column="imits_report_mi_plan_status" xpath="/response/result/doc/arr[@name='imits_report_mi_plan_status']/str" />
+					<field column="escell" xpath="/response/result/doc/arr[@name='escell']/str" />
+					<field column="ikmc_project" splitBy="," xpath="/response/result/doc/arr[@name='ikmc_project']/str" />
+					<field column="imits_consortium" xpath="/response/result/doc/str[@name='imits_consortium']" />
+					<field column="status" xpath="/response/result/doc/str[@name='latest_project_status']" />
+					<field column="imits_phenotype_started" xpath="/response/result/doc/arr[@name='imits_phenotype_started']/str" />
+
+					<field column="imits_phenotype_complete" xpath="/response/result/doc/arr[@name='imits_phenotype_complete']/str" />
+					<field column="colony_prefix" xpath="/response/result/doc/arr[@name='colony_prefix']/str" />
+					<field column="imits_phenotype_colony_name" xpath="/response/result/doc/arr[@name='imits_phenotype_colony_name']/str" />
+					<field column="imits_phenotype_allele_type" xpath="/response/result/doc/arr[@name='imits_phenotype_allele_type']/str" />
+					<field column="imits_phenotype_status" xpath="/response/result/doc/arr[@name='imits_phenotype_status']/str" />
+					<field column="imits_phenotype_is_active" xpath="/response/result/doc/arr[@name='imits_phenotype_is_active']/str" />				
+	
 				</entity>
 
 				<!-- allele: currently NOT restricted to MGI alleles, ie, allele_db_id not restricted to 3 -->
 				<!-- index will be problematic if phenotype_call_summary.allele_acc and phenotype_call_summary.gf_acc do not have an entry in komp2.allele table -->
-				<entity dataSource="ds1" name="allele"
-					query="select symbol, acc from allele where acc='${phenotype_call_summary.allele_acc}' and gf_acc='${phenotype_call_summary.gf_acc}'">
+				<entity dataSource="komp2db" name="allele"
+					query="select distinct symbol, acc from allele where acc='${phenotype_call_summary.allele_acc}' and gf_acc='${phenotype_call_summary.gf_acc}'">
 					<field column="symbol" name="allele_symbol" />
 					<field column="acc" name="allele_id" />
 				</entity>
 
 				<!-- strain -->
-				<entity dataSource="ds1" name="strain"
-					query="select name, acc from strain where acc='${phenotype_call_summary.strain_acc}' and db_id=3">
+				<entity dataSource="komp2db" name="strain"
+					query="select distinct name, acc from strain where acc='${phenotype_call_summary.strain_acc}' and db_id=3">
 					<field column="name" name="strain_name" />
 					<field column="acc" name="strain_id" />
 				</entity>
 
 				<!-- pipeline -->
-				<entity dataSource="ds1" name="phenotype_pipeline"
-					query="select stable_id, name, stable_key from phenotype_pipeline where id=${phenotype_call_summary.pipeline_id}">
+				<entity dataSource="komp2db" name="phenotype_pipeline"
+					query="select distinct stable_id, name, stable_key from phenotype_pipeline where id=${phenotype_call_summary.pipeline_id}">
 					<field column="stable_id" name="pipeline_stable_id" />
 					<field column="name" name="pipeline_name" />
 					<field column="stable_key" name="pipeline_stable_key" />
 				</entity>
 
 				<!-- procedure of pipeline -->
-				<entity dataSource="ds1" name="phenotype_procedure"
+				<entity dataSource="komp2db" name="phenotype_procedure"
 					query="select distinct name, stable_id, stable_key from phenotype_procedure where id = ${phenotype_call_summary.procedure_id}">
 					<field column="name" name="procedure_name" />
 					<field column="stable_id" name="procedure_stable_id" />
@@ -277,17 +208,14 @@
 				</entity>
 
 				<!-- parameter of pipeline -->
-				<entity dataSource="ds1" name="phenotype_parameter"
-					query="select name, stable_id, stable_key from phenotype_parameter where id=${phenotype_call_summary.parameter_id}">
+				<entity dataSource="komp2db" name="phenotype_parameter"
+					query="select distinct name, stable_id, stable_key from phenotype_parameter where id=${phenotype_call_summary.parameter_id}">
 					<field column="name" name="parameter_name" />
 					<field column="stable_id" name="parameter_stable_id" />
 					<field column="stable_key" name="parameter_stable_key" />
 				</entity>
-
 			</entity>
 		</entity>
->>>>>>> a37c8eb426b097105969e25335b8fa7d6876b28f
 	</document>
 
 </dataConfig>
-
