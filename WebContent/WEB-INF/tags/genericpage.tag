@@ -28,7 +28,9 @@
         cannot be contacted
         */
         DrupalHttpProxy proxy = new DrupalHttpProxy(request);
-        jspContext.setAttribute("menu", proxy.getDrupalMenu((String)request.getAttribute("drupalBaseUrl")));
+        String url = (String)request.getAttribute("drupalBaseUrl");
+        url = url.replace("dev.", "test.");
+        jspContext.setAttribute("menu", proxy.getDrupalMenu(url));
         
 %>
 <%@attribute name="header" fragment="true"%>
@@ -175,12 +177,13 @@ try {
 <jsp:invoke fragment="bodyTag"/>
 	<div id="wrapper">
 	 <header id="header">
-        
-        <div class="region region-header">
+     
+
+ <div class="region region-header">
             
             <div id="tn">
                 <ul>
-                    <li><i class="fa fa-user"></i><a href="login.php" title="Login with your account">My IMPC</a></li>
+                    <li><i class="fa fa-user"></i><a href="login.php" title="Login with your account">Login</a></li>
                     <li><i class="fa fa-sign-in"></i><a href="register.php" title="Register for an account">Register</a></li>
                 </ul>
             </div>
@@ -193,31 +196,47 @@ try {
             
 						<nav id="mn">
                 <ul class="menu">
-                    <li id="m_search"><a href="search.php">Search</a></li>
-                    <li id="m_about"><a href="content.php">About IMPC</a>
-                        <ul class="menu">
-                            <li><a href="content.php">Goals</a></li>
-                            <li id="m_members"><a href="content.php">Memebers</a></li>
-                            <li><a href="content.php">Coordination</a></li>
-                            <li><a href="content.php">Additional Information</a></li>
-                        </ul>
-                    </li>
-                    <li id="m_news"><a href="news-events.php">News & Events</a>
-                        <ul>
-                            <li id="m_newsonly"><a href="news.php">News</a></li>
-                            <li><a href="news.php">Events</a></li>
-                            <li><a href="news.php">Phone Conferences</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="content.php">Contact</a></li>
-                </ul>
+                    <c:forEach var="menuitem" items="${menu}" varStatus="loop">
+                                        <c:if test="${menuitem.below != null}">
+                                        <li class="dropdown">
+                                                <a id="drop${loop.count}" data-target="#" class="dropdown-toggle" data-toggle="dropdown" href="${drupalBaseUrl}/${menuitem.href}">${menuitem.title} <b class="caret"></b></a>
+                                                <ul class="dropdown-menu">
+                                                        <li><a class="dropdown-submenu" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li>
+                                                        <c:forEach var="submenuitem" items="${menuitem.below}">
+                                                        <c:if test="${submenuitem.below != null}">
+                                                        <li class="dropdown-submenu">
+                                                                <a data-target="#" href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${submenuitem.href}">${submenuitem.title}</a>
+                                                                <ul class="dropdown-menu">
+                                                                <c:forEach var="subsubmenuitem" items="${submenuitem.below}">
+                                                                        <li><a href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${subsubmenuitem.href}">${subsubmenuitem.title}</a></li>
+                                                                </c:forEach>
+                                                                </ul>
+                                                        </li>
+                                                        </c:if>
+                                                        <c:if test="${submenuitem.below == null}">
+                                                        <li><a href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${submenuitem.href}">${submenuitem.title}</a></li>
+                                                        </c:if>
+                                                        </c:forEach>
+                                                </ul>
+                                        </li>
+                                        </c:if>
+                                        <c:if test="${menuitem.below == null}">
+                                        <li><a href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li>
+                                        </c:if>
+                                        </c:forEach>
+
+						</ul>
             </nav>
 
             <div class="clear"></div>
         
         </div>
         
+
     </header>        
+
+
+
 
         <div class="container" style="padding-top:0;">
                 <div class="navbar" style="margin:0; padding:0;text-transform:uppercase;font-weight:bold;">
@@ -312,7 +331,7 @@ try {
         <div class="centercontent">
            <div class="region region-footer">
 					   <div id="block-block-7" class="block block-block">
-								<div class="content"><img src="${drupalBaseUrl}/sites/all/themes/impc_zen/images/footerLogos.jpg" />
+								<div class="content"><img src="${baseUrl}/img/footerLogos.jpg" />
 									 <div class="clear"></div>
 									 </div>  
 								</div>

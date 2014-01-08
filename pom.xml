@@ -40,7 +40,7 @@
 			to EBI servers for performance -->
 		<solrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</solrUrl>
 		<internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</internalSolrUrl>
-		<drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
+		<drupalBaseUrl>https://test.mousephenotype.org</drupalBaseUrl>
 		<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
 		<googleAnalytics></googleAnalytics>
 		<liveSite>false</liveSite>
