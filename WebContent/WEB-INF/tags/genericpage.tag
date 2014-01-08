@@ -35,6 +35,8 @@
 <%@attribute name="footer" fragment="true"%>
 <%@attribute name="title" fragment="true"%>
 <%@attribute name="breadcrumb" fragment="true"%>
+<%@attribute name="bodyTag" fragment="true"%>
+
 <% // the baseUrl variable is set from the DeploymentInterceptor class %>
 
 <c:set var="domain">${pageContext.request.serverName}</c:set>
@@ -170,7 +172,7 @@ try {
 
 
 </head>
-<body id="top" class="page-node searchpage one-sidebar sidebar-first small-header">
+<jsp:invoke fragment="bodyTag"/>
 	<div id="wrapper">
 	 <header id="header">
         
@@ -379,5 +381,6 @@ try {
         });        
         </script>
         </compress:html>
+        </div> <!-- wrapper -->
 </body>
 </html>

@@ -7,6 +7,8 @@
 	
    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#sort=marker_symbol asc&q=*:*&core=gene">Genes</a> &raquo; ${gene.symbol}</jsp:attribute>
 
+	<jsp:attribute name="bodyTag"><body  class="gene-node no-sidebars small-header"></jsp:attribute>
+
 	<jsp:attribute name="footer">
 
 	<c:if test="${phenotypeStarted}">
