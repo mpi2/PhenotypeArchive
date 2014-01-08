@@ -1060,7 +1060,8 @@ CREATE TABLE procedure_meta_data (
 	observation_id int(11) DEFAULT '0',
 
 	PRIMARY KEY (id),
-	KEY procedure_meta_data_experiment_idx (experiment_id)
+	KEY procedure_meta_data_experiment_idx (experiment_id),
+	KEY procedure_meta_data_parameter_idx (parameter_id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
