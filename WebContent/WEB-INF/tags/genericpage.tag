@@ -184,7 +184,8 @@ try {
             </div>
             
             <div id="logo">
-                <a href="index.php"><img src="${baseUrl}/img/IMPC<c:if test='${not fn:contains(drupalBaseUrl,"www")}'>Beta</c:if>logo.png" alt="IMPC Logo" /></a>
+                <!-- a href="index.php"><img src="${baseUrl}/img/IMPC<c:if test='${not fn:contains(drupalBaseUrl,"www")}'>Beta</c:if>logo.png" alt="IMPC Logo" /></a-->
+                <a href="index.php"><img src="${baseUrl}/img/impc.png" alt="IMPC Logo" /></a>
                 <div id="logoslogan">International Mouse Phenotyping Consortium</div>
             </div>
             
@@ -251,10 +252,10 @@ try {
                                         </c:forEach>
                                 </ul>
                                 <span id="searchBlock" class="row nav input-append span6">
-                                        <input id="userInput" type="text" />
+                                        <!-- input id="userInput" type="text" />
                                         <button id="acSearch" type="submit" class="btn"><i class="icon-search"></i> Search</button>
                                         <div id="bannerSearch"></div>
-                                        <a href="#examples" data-toggle="modal" id="examplesearches" class="pull-right" >View example searches</a>
+                                        <a href="#examples" data-toggle="modal" id="examplesearches" class="pull-right" >View example searches</a-->
                                         <p class="ikmcbreadcrumb">
                                                 <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invoke fragment="breadcrumb" /><%-- breadcrumbs here --%>
                                         </p>
