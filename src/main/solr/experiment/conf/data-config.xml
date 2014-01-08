@@ -63,7 +63,7 @@
 	<document name="komp2_indexing">
 
 		<!-- For all observations (data points) -->
-		<entity dataSource="komp2ds" transformer="script:getData" name="observation" onError="continue" query="
+		<entity dataSource="komp2ds" transformer="script:getData" name="observation" onError="skip" query="
 			SELECT strain.strain_acc, pipe.name as pipeline_name, pipe.id as pipeline_id, pipe.stable_id as pipeline_stable_id, param.name as parameter_name, proc.name as procedure_name, proc.id as procedure_id, proc.stable_id as procedure_stable_id, param.stable_id as parameter_stable_id,bs.organisation_id, org.name, bs.sample_group, gf.acc as acc, ls.sex as sex, ls.colony_id, ls.zygosity, gf.symbol as symbol, bms.biological_model_id as bmid, ls.date_of_birth as birthdate, ls.colony_id, e.date_of_experiment, e.external_id, e.id as experiment_id, o.*, co.category as category, uo.data_point as unidimensional_data_point, mo.data_point as multidimensional_data_point, mo.order_index, mo.dimension, tso.data_point as time_series_data_point, tso.time_point, tso.discrete_point, iro.file_type, iro.full_resolution_file_path, iro.small_thumbnail_file_path, bs.external_id as external_sample_id
 			FROM observation o
 			LEFT OUTER JOIN categorical_observation co ON o.id=co.id
@@ -136,7 +136,7 @@
 			<field column="date_of_experiment" name ="date_of_experiment" />
 
 			<!--  metadata and calculate metadata group -->
-			<entity dataSource="komp2ds" transformer="script:getMetadata" name="procedureMetaDataGroup" onError="continue"
+			<entity dataSource="komp2ds" transformer="script:getMetadata" name="procedureMetaDataGroup" onError="skip"
 				query="SELECT MD5(GROUP_CONCAT(DISTINCT CONCAT(pmdreq.name, ' = ', pmdreq.value) ORDER BY pmdreq.parameter_id ASC SEPARATOR '::')) as metadata_group, 
 					GROUP_CONCAT(DISTINCT CONCAT(pmdall.name, ' = ', pmdall.value) ORDER BY pmdall.parameter_id ASC SEPARATOR '::') as metadata_combined 
 					FROM (
