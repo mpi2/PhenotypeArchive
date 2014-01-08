@@ -93,9 +93,8 @@
   	    		+ "&facet.field=subtype"
   	    		    	
   	    	$.ajax({	
-  	    		//'url': solrUrl + '/images/select',
-  	    		'url' : 'http://localhost:8983/solr/images/select',
-  	    		'data': paramStr,   //queryParams,						
+  	    		'url': solrUrl + '/images/select',  	    		
+  	    		'data': paramStr,  				
   	    		'dataType': 'jsonp',
   	    		'jsonp': 'json.wrf',	    		
   	    		'success': function(json) {	 
@@ -185,7 +184,7 @@
   	    				}
   	    			}	    				    	    	
   	    			self._displayImageFacet(json, 'images', 'imagesFacet', table);
-  	    		
+  	    		  	    			
   	    			// update facet count when filters applied
   	    			if ( $('ul#facetFilter li li a').size() != 0 ){
   	    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'images');

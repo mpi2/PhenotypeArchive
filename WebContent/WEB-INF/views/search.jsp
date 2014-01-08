@@ -80,12 +80,11 @@
 						var facet = oHashParams.facetName;
 						var aFilters = [];
 						//$('ul#facetFilter li.' + facet + ' li a').each(function(){
-						$('ul#facetFilter li li a').each(function(){	
-							console.log('check filter: '+ $(this).text());
+						$('ul#facetFilter li li a').each(function(){							
 							aFilters.push($(this).text());
 						});														
 						
-						console.log('filter: ' + aFilters );
+						//console.log('filter: ' + aFilters );
 						oHashParams.filters = aFilters;
 						//oHashParams.facetName = facet + 'Facet';
 						oHashParams.facetName = facet;						
