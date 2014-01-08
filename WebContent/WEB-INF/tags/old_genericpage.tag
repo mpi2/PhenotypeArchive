@@ -58,17 +58,7 @@
 <link type='text/css' rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css' />
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap.min.css' />
 <link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap-responsive.min.css' />
-<link rel="stylesheet" type="text/css" href="${baseUrl}/css/style.min.css">
-
-<!--  NEW DESIGN CSS -->
-
-<!-- css -->
-<link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600" media="all" />
-<link type="text/css" rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" media="all" />
-<link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/qtip2/2.1.1/jquery.qtip.min.css" media="all" />
-<link type="text/css" rel="stylesheet" href="http://impc.webdesign-muenchen.de/media/css/css_euvvVaEmy9YriBALtopiSDtwpJN72sLiQLtpTgjlZNk.css" media="all" />
-<link type="text/css" rel="stylesheet" href="//www.webdesign-muenchen.de/projekte/impc/css/wdm.css" media="all" />
-
+<link rel="stylesheet" type="text/css" href="${baseUrl}/css/style.min.css"/>
 <style>
 
 body {
@@ -147,75 +137,16 @@ try {
 <![endif]-->
 
 <!-- jquery -->
-<!-- script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+<script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
 <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js'></script>
-<script>window.jQuery || document.write('<script src="${baseUrl}/js/vendor/jquery-1.7.2.min.js"><\/script><script src="${baseUrl}/js/vendor/jquery-ui-1.8.18.min.js"><\/script><link type="text/css" rel="stylesheet" href="${baseUrl}/css/vendor/jquery-ui-1.8.18.css" />');</script-->
+<script>window.jQuery || document.write('<script src="${baseUrl}/js/vendor/jquery-1.7.2.min.js"><\/script><script src="${baseUrl}/js/vendor/jquery-ui-1.8.18.min.js"><\/script><link type="text/css" rel="stylesheet" href="${baseUrl}/css/vendor/jquery-ui-1.8.18.css" />');</script>
 
-
-<!-- NEW DESIGN JAVASCRIPT -->
-
-<!-- js -->
-<!--[if lt IE 9 ]><script type="text/javascript" src="/sites/all/themes/impc/js/selectivizr-min.js"></script><![endif]-->
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-<script type="text/javascript">window.jQuery || document.write("<script src='${baseUrl}/js/jquery.min.js'>\x3C/script>")</script>
-<script type="text/javascript" src="http://impc.webdesign-muenchen.de/media/js/js_IkgOrrVZK1UTp2HktvFi5vo1g7b25Muyr5GoySikuic.js"></script>
-<script type="text/javascript" src="http://impc.webdesign-muenchen.de/media/js/js_nF1kS3yBefzThMly1LnFJN-dQNkoVQJPKVCmjzG9dTI.js"></script>
-<script type="text/javascript" src="http://impc.webdesign-muenchen.de/media/js/js_NcyY1MXOAWQIqFK0ISOPL6iUJfd8MVZZCx6YMYEudS4.js"></script>
-<script type="text/javascript" src="${baseUrl}/js/jquery.qtip.min.js"></script>
-<script type="text/javascript" src="http://impc.webdesign-muenchen.de/media/js/js_YTUqHOApvKD8NZgydKoRiwoYkoU53cV4KU11keZg04k.js"></script>
-
-<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js'></script>
 
 <jsp:invoke fragment="header" />
 
 
 </head>
-<body id="top" class="page-node searchpage one-sidebar sidebar-first small-header">
-	<div id="wrapper">
-	 <header id="header">
-        
-        <div class="region region-header">
-            
-            <div id="tn">
-                <ul>
-                    <li><i class="fa fa-user"></i><a href="login.php" title="Login with your account">My IMPC</a></li>
-                    <li><i class="fa fa-sign-in"></i><a href="register.php" title="Register for an account">Register</a></li>
-                </ul>
-            </div>
-            
-            <div id="logo">
-                <a href="index.php"><img src="${baseUrl}/img/IMPC<c:if test='${not fn:contains(drupalBaseUrl,"www")}'>Beta</c:if>logo.png" alt="IMPC Logo" /></a>
-                <div id="logoslogan">International Mouse Phenotyping Consortium</div>
-            </div>
-            
-						<nav id="mn">
-                <ul class="menu">
-                    <li id="m_search"><a href="search.php">Search</a></li>
-                    <li id="m_about"><a href="content.php">About IMPC</a>
-                        <ul class="menu">
-                            <li><a href="content.php">Goals</a></li>
-                            <li id="m_members"><a href="content.php">Memebers</a></li>
-                            <li><a href="content.php">Coordination</a></li>
-                            <li><a href="content.php">Additional Information</a></li>
-                        </ul>
-                    </li>
-                    <li id="m_news"><a href="news-events.php">News & Events</a>
-                        <ul>
-                            <li id="m_newsonly"><a href="news.php">News</a></li>
-                            <li><a href="news.php">Events</a></li>
-                            <li><a href="news.php">Phone Conferences</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="content.php">Contact</a></li>
-                </ul>
-            </nav>
-
-            <div class="clear"></div>
-        
-        </div>
-        
-    </header>        
-
+<body>
         <div class="container" style="padding-top:0;">
                 <div class="navbar" style="margin:0; padding:0;text-transform:uppercase;font-weight:bold;">
                         <div class="row">
@@ -300,60 +231,20 @@ try {
                                 </div>
                         </div>
                 </div>
-                
-        </div><!-- /container -->
         
+                <div class="row-fluid" id='logoFooter'>
+                        <div class="span12 centered-text">
+                                <img alt="IMPC member logos" class="footerLogos"
+                                        src="${drupalBaseUrl}/sites/all/themes/impc_zen/images/footerLogos.jpg"
+                                        style="width: 1222px; height: 50px;">
+                                <jsp:invoke fragment="footer" />
+                                <small class="muted">                                
+                                Versiooon: <c:out value="${version}" escapeXml="false"/> • <a href="http://raw.github.com/mpi2/PhenotypeArchive/master/LICENSE">License</a> • <a href="http://raw.github.com/mpi2/PhenotypeArchive/master/CHANGES">Changelog</a> • <a href="${baseUrl}/documentation/index.html">Help</a>
+                                </small>
+                        </div>
         
-    <footer id="footer">
-    
-        <div class="centercontent">
-           <div class="region region-footer">
-					   <div id="block-block-7" class="block block-block">
-								<div class="content"><img src="${drupalBaseUrl}/sites/all/themes/impc_zen/images/footerLogos.jpg" />
-									 <div class="clear"></div>
-									 </div>  
-								</div>
-						  </div>
-        </div>
-
-        
-        <div id="footerline">
-            
-            <div class="centercontent">
-                
-                <div id="footersitemap" class="twothird left">&nbsp;</div>
-                <div class="onethird right">
-                    
-                    <div id="vnavi">                    
-                        <ul>
-                            <li>Version: <c:out value="${version}" escapeXml="false"/></li>
-                            <li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/LICENSE">License</a></li>
-                            <li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/CHANGES">Changelog</a></li>
-                        </ul>
-                    </div>
-                    <div class="clear"></div>
-                    
-                    <p class="textright">&copy; 2014 IMPC &middot; International Mouse Phenotyping Consortium</p>
-                    
-                    <div id="fn">
-                        <ul>
-                            <li><a href="#">Imprint</a></li>
-                            <li><a href="#">Legal notices</a></li>
-                        </ul>
-                    </div>
-                    <div class="clear"></div>
-                    
                 </div>
-                
-                    
-                <div class="clear"></div>
-            
-            </div>
-        
-        </div>
-        
-    </footer>
-        
+        </div><!-- /container -->
         
         <script type="text/javascript" src='${baseUrl}/js/vendor/jquery.ba-bbq.min.js' ></script>
         <script type="text/javascript" src='${baseUrl}/js/bootstrap/bootstrap.min.js' ></script>
