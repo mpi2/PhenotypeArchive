@@ -26,3 +26,4 @@ bin/
 #ignore netbeans config file
 nb-configuration.xml
 /imits_allele_stats
+/bin

@@ -36,10 +36,7 @@ var config = MPI2.searchAndFacetConfig;
 if ( typeof solrUrl == 'undefined' ){
 	solrUrl = '/data/solr';	
 }
-else {
-	solrUrl = 'http://localhost:8983/solr';
-}
-console.log('solrurl: ' + solrUrl);
+
 if ( typeof baseUrl == 'undefined' ){
 	baseUrl = '/data';
 }

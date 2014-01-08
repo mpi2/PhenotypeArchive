@@ -28,20 +28,7 @@ $(document).ready(function(){
 	
 	// default search when search page loads
 	if ( /search\/?$/.exec(location.href) ){
-<<<<<<< HEAD
-		// do default gene search by * when search page loads
-		
-		hashParams.q = '*:*';		
-		$.fn.fetchSolrFacetCount(hashParams);
-	}	
-	else if ( location.href.indexOf('/search#') != -1 ){		
-		// load page based on url hash parameters	
-		
-		hashParams = $.fn.parseHashString(window.location.hash.substring(1));	
-						
-		MPI2.searchAndFacetConfig.pageLoad = true;
-		$.fn.fetchSolrFacetCount(hashParams);
-=======
+
 		// do default gene search by * when search page loads	
 		oHashParams.q = '*:*';		
 		$.fn.fetchSolrFacetCount(oHashParams);
@@ -49,8 +36,7 @@ $(document).ready(function(){
 	else if ( location.href.indexOf('/search#') != -1 ){		
 		// load page based on url hash parameters		
 		oHashParams = $.fn.parseHashString(window.location.hash.substring(1));		
-		$.fn.fetchSolrFacetCount(oHashParams);		
->>>>>>> a37c8eb426b097105969e25335b8fa7d6876b28f
+		$.fn.fetchSolrFacetCount(oHashParams);	
 	}
 	
 	// search via ENTER

@@ -315,19 +315,11 @@
 	    	/*------------------------------------------------------------------------------------*/
 	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
 	    	/*------------------------------------------------------------------------------------*/	
-	    	
-	    	
-<<<<<<< HEAD
-	    	if ( self.options.data.fq.match(/.*/) ){	
-	    	
-	    		self.options.data.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');
-	    		    		
-=======
+
 	    	if ( self.options.data.hashParams.fq.match(/.*/) ){	
 	    		
-	    		self.options.data.hashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');
-	    		
->>>>>>> a37c8eb426b097105969e25335b8fa7d6876b28f
+	    		self.options.data.hashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');	    		
+
 	    		var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority)
 	    		
 	    		var oHashParams = self.options.data.hashParams;

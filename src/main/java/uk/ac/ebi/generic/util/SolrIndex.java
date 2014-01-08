@@ -170,11 +170,8 @@ public class SolrIndex {
 			Integer iDisplayLength, boolean showImgView) {
 		String internalSolrUrl = config.get("internalSolrUrl");
 		
-		internalSolrUrl = "http://localhost:8983/solr"; // temporary
-		
 		String url = internalSolrUrl + "/" + core + "/select?";
-		//internalSolrUrl); //http://wwwdev.ebi.ac.uk/mi/impc/dev/solr
-				
+						
 		System.out.println(("BASEURL: " + url));
 		if (mode.equals("mpPage")) {
 			url += "q=" + query;
@@ -585,10 +582,7 @@ public class SolrIndex {
 		String url = config.get("internalSolrUrl")
 				+ "/mp/select?wt=json&qf=mp_id&defType=edismax&q="
 				+ phenotype_id;
-<<<<<<< HEAD
-=======
-		
->>>>>>> a37c8eb426b097105969e25335b8fa7d6876b28f
+
 		return getResults(url);
 	}
 

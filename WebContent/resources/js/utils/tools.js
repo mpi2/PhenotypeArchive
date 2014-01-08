@@ -644,101 +644,8 @@
 						
 			// display "no filter" if none is chosen for all facets 
 			$.fn.checkFilters();
-		}		
-<<<<<<< HEAD
-	}
-	
-	function compose_solr_facetFilter(facet, q, oChkbox) {				
-				
-		var fqFieldVals = {};
-		$('ul#facetFilter li.' + facet + ' li a').each(function(){	
-			
-			var linkTxt = $(this).text().replace(' ', '');
-			var aVals = $(this).attr('rel').split("|");		
-			var fqField = aVals[1];
-						
-			// fq filter used for solr query
-			var fqFieldOri = fqField;
-			fqField = fqField.indexOf('imits_phenotype') != -1 ? 'imits_phenotype' : fqField;
-			if ( typeof fqFieldVals[fqField] === 'undefined' ){
-				fqFieldVals[fqField] = [];					
-			}				
-			
-			var val;
-			if ( fqField == 'top_level_mp_term' || fqField == 'annotated_or_inferred_higherLevelMpTermName' ) {
-				if ( aVals[2] == 'mortality/aging' ){ 
-					// due to MP term name not having a trailing phenotype for this term!
-					val = aVals[2];
-				}
-				else {
-					val = aVals[2] + ' phenotype';
-				}
-				fqFieldVals[fqField].push(fqFieldOri + ':"' + val + '"');
-			}
-			else if ( fqField == 'procedure_stable_id' ){
-				var names = aVals[2].split('___');
-				psid = names[1];				
-				val = names[0];
-				fqFieldVals[fqField].push(fqFieldOri + ':"' + psid + '"');
-			}
-			else if ( fqField.match(/.+_curated/) ){
-				// curated diseases
-				val = aVals[2];	
-				delete fqFieldVals[fqField];
-				if ( typeof fqFieldVals['curated'] === 'undefined' ){
-					fqFieldVals['curated'] = [];					
-				}	
-				fqFieldVals['curated'].push(fqFieldOri + ':"' + val + '"');
-			}			
-			else if ( fqField.match(/.+_predicted(in_locus)?/) ){
-				// predicted diseases
-				val = aVals[2];	
-				delete fqFieldVals[fqField];
-				if ( typeof fqFieldVals['predicted'] === 'undefined' ){
-					fqFieldVals['predicted'] = [];					
-				}	
-				fqFieldVals['predicted'].push(fqFieldOri + ':"' + val + '"');
-			}
-			/*else if ( fqField == 'phenotyping_center' ){
-				val = aVals[2];				
-				fqFieldVals[fqField].push('(' + fqFieldOri + ':"' + val + '" AND production_center:*)');
-			}
-			else if ( fqField == 'production_center' ){
-				val = aVals[2];				
-				fqFieldVals[fqField].push('(' + fqFieldOri + ':"' + val + '")');				
-			}*/
-			else {
-				val = aVals[2];
-				fqFieldVals[fqField].push(fqFieldOri + ':"' + val + '"');
-			}				
-			
-		});
-		
-		var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
-		
-		var facetDivId = facet+'Facet';
-
-    	if ( facetDivId == 'maFacet' ||  facetDivId == 'mpFacet' ){
-    		fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].subset + ' AND ' + fqStr;					
 		}
-    	else if ( facetDivId =='diseaseFacet' ){
-    		fqStr = fqStr + ' AND ' + MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;	
-		}
-    	
-    	// update hash tag so that we know there is hash change, which then triggers loadDataTable
-    	if (q == '*:*'){    		
-    		window.location.hash = 'q=' + q + '&fq=' + fqStr + '&core=' + facet;
-    	}
-    	else {
-    		window.location.hash = 'fq=' + fqStr + '&core=' + facet;
-    	}
-	}
-	
-	$.fn.compose_AndOrStr = function(json){
-		var andOrStrList = [];
-=======
 	}	
->>>>>>> a37c8eb426b097105969e25335b8fa7d6876b28f
 		
 	$.fn.removeFacetFilter = function(facet) {
 		$('ul#facetFilter li.' + facet + ' ul').remove();
@@ -1123,17 +1030,11 @@
    
     $.fn.parseUrlForFacetCheckboxAndTermHighlight = function(oHashParams, pageReload){	
     	var self = this;
-<<<<<<< HEAD
-    	    
-    	fqStr = fqStr.replace(MPI2.searchAndFacetConfig.facetParams[facet].filterParams.fq, '');
-    
-=======
     	
     	var facet = oHashParams.widgetName;    	
     	var fqStr = oHashParams.fq;
-    	fqStr = fqStr.replace(MPI2.searchAndFacetConfig.facetParams[facet].filterParams.fq, '').replace(/ AND /g, '');
-    	    	
->>>>>>> a37c8eb426b097105969e25335b8fa7d6876b28f
+    	fqStr = fqStr.replace(MPI2.searchAndFacetConfig.facetParams[facet].filterParams.fq, '').replace(/ AND /g, '');    	
+
     	// unhightlight all from this facet
 		$('table#'+ facet +'Tbl td').removeClass('highlight');    
 		

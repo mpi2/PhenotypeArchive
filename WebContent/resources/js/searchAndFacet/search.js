@@ -30,10 +30,9 @@
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
 		
 		var q = oUrlHashParams.q ? oUrlHashParams.q : '*:*';
-<<<<<<< HEAD
-=======
+
 		var facetMode = oUrlHashParams.facetName;
->>>>>>> a37c8eb426b097105969e25335b8fa7d6876b28f
+
 		var oFacets = {};
 		oFacets.count = {};		
 						
