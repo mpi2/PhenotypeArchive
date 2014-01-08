@@ -218,7 +218,8 @@ public class CategoricalChartAndTableProvider {
 								.createCategoricalHighChartUsingObjects(
 										chartData,
 										parameter,
-										expBiologicalModel,experiment.getOrganisation());
+										expBiologicalModel,experiment.getOrganisation(),
+                                                                                experiment.getMetadataGroup());
 						chartData.setChart(chartNew);
 						categoricalResultAndCharts.add(chartData);
 						//categoricalResultAndCharts
@@ -353,7 +354,7 @@ public class CategoricalChartAndTableProvider {
 		
 	private String createCategoricalHighChartUsingObjects(
 			CategoricalChartDataObject chartData, Parameter parameter,
-			BiologicalModel bm, String organisation) throws SQLException {
+			BiologicalModel bm, String organisation, String metadataGroup) throws SQLException {
 		System.out.println(chartData);
 
 		// int size=categoricalBarCharts.size()+1;//to know which div to render
@@ -424,16 +425,12 @@ public class CategoricalChartAndTableProvider {
 			e.printStackTrace();
 		}
 		
-		// } catch (JSONException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		// logger.debug("model="+model);
-		String chartId = bm.getId() + sex.name()+organisation.replace(" ", "_");//replace space in MRC Harwell with underscore so valid javascritp variable
+                //replace space in MRC Harwell with underscore so valid javascript variable
+                String chartId = bm.getId() + sex.name()+organisation.replace(" ", "_")+"_"+metadataGroup;
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
-		String javascript = "$(function () {  var chart"
+		String javascript = "$(function () {  var chart_"
 				+ chartId
-				+ "; $(document).ready(function() { chart"
+				+ "; $(document).ready(function() { chart_"
 				+ chartId
 				+ " = new Highcharts.Chart({ tooltip : "
 				+ toolTipFunction
