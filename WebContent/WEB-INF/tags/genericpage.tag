@@ -198,24 +198,14 @@ try {
                 <ul class="menu">
                     <c:forEach var="menuitem" items="${menu}" varStatus="loop">
                                         <c:if test="${menuitem.below != null}">
-                                        <li class="dropdown">
-                                                <a id="drop${loop.count}" data-target="#" class="dropdown-toggle" data-toggle="dropdown" href="${drupalBaseUrl}/${menuitem.href}">${menuitem.title} <b class="caret"></b></a>
-                                                <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-submenu" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li>
+                                        <li>
+                                                <a id="drop${loop.count}" data-target="#" href="${drupalBaseUrl}/${menuitem.href}">${menuitem.title} </a>
+                                                <ul>
+                                                        <li><a href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li>
                                                         <c:forEach var="submenuitem" items="${menuitem.below}">
-                                                        <c:if test="${submenuitem.below != null}">
-                                                        <li class="dropdown-submenu">
-                                                                <a data-target="#" href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${submenuitem.href}">${submenuitem.title}</a>
-                                                                <ul class="dropdown-menu">
-                                                                <c:forEach var="subsubmenuitem" items="${submenuitem.below}">
-                                                                        <li><a href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${subsubmenuitem.href}">${subsubmenuitem.title}</a></li>
-                                                                </c:forEach>
-                                                                </ul>
-                                                        </li>
-                                                        </c:if>
-                                                        <c:if test="${submenuitem.below == null}">
-                                                        <li><a href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${submenuitem.href}">${submenuitem.title}</a></li>
-                                                        </c:if>
+                                                        
+                                                        	<li><a href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${submenuitem.href}">${submenuitem.title}</a></li>
+                                                        
                                                         </c:forEach>
                                                 </ul>
                                         </li>
