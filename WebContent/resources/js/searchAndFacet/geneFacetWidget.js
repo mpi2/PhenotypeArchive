@@ -33,7 +33,7 @@
     		
 			caller.find('div.facetCat').click(function(){
 				if ( caller.find('span.facetCount').text() != '0' ){
-					console.log('gene click: ' + window.location.search);
+					
 					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
 					
 					caller.parent().find('div.facetCat').removeClass('facetCatUp');
@@ -48,7 +48,7 @@
 						$(this).addClass('facetCatUp');						
 											
 						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-						console.log('right here');
+						
 						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'gene');						
 						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';
 												
@@ -181,7 +181,7 @@
     	    		}    	    		
     			}*/	    			    		
 	    		
-	    		// subfacet: IMPC mouse production status    		
+	    		// subfacet: IMPC mouse production status    		WebContent/resources/img/scissors-15x15.png
 	    		table.append($('<tr></tr>').attr({'class':'facetSubCat prodStatusTrCap production'}).append($('<td></td>').attr({'colspan':3}).text('IMPC Mouse Production Status')));
 	    		
 	    		var status_facets = json.facet_counts['facet_fields']['status'];
@@ -292,7 +292,7 @@
 		    		var firstMatch = 0;
 		    		for ( var subFacetClass in oSums ){
 		    			var oTd = $('table#geneFacetTbl tr.' + subFacetClass + 'TrCap td'); 
-		    			if ( oSums[subFacetClass] == 0 ){		    				
+		    			if ( oSums[subFacetClass] == 0 ){		    			
 		    				oTd.addClass('grayout').removeClass('unCollapse');		    						    				
 		    			}
 		    			else {

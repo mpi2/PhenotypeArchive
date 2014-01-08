@@ -53,11 +53,13 @@
 						$(this).addClass('facetCatUp');					
 										
 						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));						
+						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'ma');
 						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';
 						
-						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'ma');
-											
-						window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;						
+						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+						if ( ! window.location.search.match(/q=/) ){
+							window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
+						}					
 					}					
 				}	
 			});

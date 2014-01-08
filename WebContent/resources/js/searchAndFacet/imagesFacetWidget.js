@@ -51,7 +51,10 @@
 						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'images');
 						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';		
 						
-						window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
+						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+						if ( ! window.location.search.match(/q=/) ){
+							window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
+						}
 					}	
 				}	
 			});	
