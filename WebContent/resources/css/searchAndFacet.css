@@ -159,19 +159,19 @@ span.annotType {
 table#diseaseGrid th:nth-child(1) {
 	width: 35% !important;
 }
-table#geneFacetTbl td.geneSubtypeCount,
+/*table#geneFacetTbl td.geneSubtypeCount,
 table#geneFacetTbl td.geneStatusCount,
 table#geneFacetTbl td.geneSubfacetCount,
-/*table#pipelineFacetTbl td[class^=procedure],*/ 
+table#pipelineFacetTbl td[class^=procedure], 
 table#pipelineFacetTbl td a.paramCount,
 table#mpFacetTbl td.mpTopLevelCount,
 table#maFacetTbl td.maTopLevelCount,
 table#imagesFacetTbl td.imgSubfacetCount,
 table#diseaseFacetTbl td.diseaseSubfacetCount
-/*table#mpFacetTbl td.mpTopLevel*/ 
-/*table#maFacetTbl td.maTopLevelCount, table#maFacetTbl td.maTopLevel */{
+table#mpFacetTbl td.mpTopLevel
+table#maFacetTbl td.maTopLevelCount, table#maFacetTbl td.maTopLevel {
 	cursor: pointer;	
-}
+}*/
 tr.subFacet td:nth-child(1){
 	width: 20px !important;
 }
@@ -182,6 +182,7 @@ table#geneFacetTbl tr.geneSubTypeTrCap,
 table#geneFacetTbl tr.phenoStatusTrCap,
 table#geneFacetTbl tr.prodStatusTrCap,
 table#imagesFacetTbl tr.facetSubCat,
+table#pipelineFacetTbl tr.facetSubCat,
 table#diseaseFacetTbl tr.facetSubCat {
 	cursor: pointer;
 }
@@ -190,6 +191,7 @@ table#geneFacetTbl tr.phenoCenterTrCap td,
 table#geneFacetTbl tr.geneSubTypeTrCap td, 
 table#geneFacetTbl tr.phenoStatusTrCap td,
 table#geneFacetTbl tr.prodStatusTrCap td,
+table#pipelineFacetTbl tr.facetSubCat td,
 table#imagesFacetTbl tr.facetSubCat td,
 table#diseaseFacetTbl tr.facetSubCat td
 {
@@ -202,7 +204,8 @@ table#geneFacetTbl tr.prodCenterTrCap td.unCollapse,
 table#geneFacetTbl tr.phenoCenterTrCap td.unCollapse,  
 table#geneFacetTbl tr.geneSubTypeTrCap td.unCollapse, 
 table#geneFacetTbl tr.prodStatusTrCap td.unCollapse, 
-table#geneFacetTbl tr.phenoStatusTrCap td.unCollapse, 
+table#geneFacetTbl tr.phenoStatusTrCap td.unCollapse,
+table#pipelineFacetTbl tr.facetSubCat td.unCollapse, 
 table#imagesFacetTbl tr.facetSubCat td.unCollapse, 
 table#diseaseFacetTbl tr.facetSubCat td.unCollapse {
 	background-image: url('../img/down.gif');
@@ -216,6 +219,7 @@ table#diseaseFacetTbl tr.disease_classesTr,
 table#diseaseFacetTbl tr.disease_sourceTr,
 table#diseaseFacetTbl tr.curatedTr,
 table#diseaseFacetTbl tr.predictedTr,
+table#pipelineFacetTbl tr.subFacet,
 tr.trHidden {
 	display: none;
 }
@@ -228,7 +232,9 @@ table#pipelineFacetTbl tr[class$=_param] {
 	color: gray;
 	cursor: text !important;
 }
-
+table tr.facetSubCat td.grayout {
+	color: gray;
+}
 img#maFacetInfo, img#mpFacetInfo {
 	float: right;	
 	margin: 0px 80px 10px 10px;		
@@ -375,19 +381,28 @@ div.dataTables_wrapper {
 
 /* ----- start of  facet filter ----- */
 div#filterToggle {
-	display: none;
+	display: block;	
+}
+div#filterToggle span {
+	border: 1px solid gray;
+	padding: 2px 4px;
+	font-size: 11px;
+	cursor: pointer;
+}
+div#resetFilter {
+	font-size: 11px;
 }
 ul#facetFilter {
   width: auto;	
   margin: -23px 0 0 150px;
-  padding: 3px 6px;
-  background: none;
+  padding: 3px 10px;
+  background-color: #F4F4F4;
   border-radius: 1em;
   font: normal 1em Arial, Helvetica, sans-serif;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
-  display: none;
+  display: block;  
 }
 ul#facetFilter ul {
   /*z-index: 9999;	
@@ -417,7 +432,11 @@ ul#facetFilter li.has-sub {
 ul#facetFilter li.none {
 	display: block;
 }
-
-
+ul#facetFilter li.has-sub img {
+	cursor: pointer;
+}
+ul#facetFilter li li a {
+	font-size: 12px;
+}
 /* ----- end of  facet filter ----- */
 

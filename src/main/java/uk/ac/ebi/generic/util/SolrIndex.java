@@ -169,9 +169,13 @@ public class SolrIndex {
 			String gridSolrParams, Integer iDisplayStart,
 			Integer iDisplayLength, boolean showImgView) {
 		String internalSolrUrl = config.get("internalSolrUrl");
-
+		
+		internalSolrUrl = "http://localhost:8983/solr"; // temporary
+		
 		String url = internalSolrUrl + "/" + core + "/select?";
-
+		//internalSolrUrl); //http://wwwdev.ebi.ac.uk/mi/impc/dev/solr
+				
+		System.out.println(("BASEURL: " + url));
 		if (mode.equals("mpPage")) {
 			url += "q=" + query;
 			url += "&start=0&rows=0&wt=json&qf=auto_suggest&defType=edismax";
@@ -193,7 +197,7 @@ public class SolrIndex {
 		} else if (mode.equals("mpGrid")) {
 			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
 					+ iDisplayStart + "&rows=" + iDisplayLength;
-//			System.out.println("MP PARAMS: " + url);
+			System.out.println("MP PARAMS: " + url);
 		} else if (mode.equals("maGrid")) {
 			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
 					+ iDisplayStart + "&rows=" + iDisplayLength;
@@ -208,12 +212,13 @@ public class SolrIndex {
 //			System.out.println("IKMC ALLELE PARAMS: " + url);
 		} else if (mode.equals("all") || mode.equals("page") || mode.equals("")) {
 			url += gridSolrParams;
-			if (core.equals("images") && !showImgView) {
+			if (core.equals("images") && !showImgView) {				
 				url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.mincount=1&facet.limit=-1";
 			}
 //			System.out.println("GRID DUMP PARAMS - " + core + ": " + url);
 		}
 		// OTHER solrCoreNames to be added here
+		
 		return url;
 	}
 
@@ -580,6 +585,10 @@ public class SolrIndex {
 		String url = config.get("internalSolrUrl")
 				+ "/mp/select?wt=json&qf=mp_id&defType=edismax&q="
 				+ phenotype_id;
+<<<<<<< HEAD
+=======
+		
+>>>>>>> a37c8eb426b097105969e25335b8fa7d6876b28f
 		return getResults(url);
 	}
 

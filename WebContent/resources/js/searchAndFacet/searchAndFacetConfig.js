@@ -36,13 +36,15 @@ var config = MPI2.searchAndFacetConfig;
 if ( typeof solrUrl == 'undefined' ){
 	solrUrl = '/data/solr';	
 }
-
+else {
+	solrUrl = 'http://localhost:8983/solr';
+}
+console.log('solrurl: ' + solrUrl);
 if ( typeof baseUrl == 'undefined' ){
 	baseUrl = '/data';
 }
 
-config.lastImgCount = false;
-config.cores = ['gene', 'mp', 'ma', 'pipeline', 'images', 'disease'];
+config.cores = ['gene', 'mp', 'disease', 'ma', 'pipeline', 'images'];
 config.restfulPrefix = {
 		'gene' : 'genes',
 		'mp'   : 'phenotypes',
@@ -68,6 +70,31 @@ config.phenotypingStatusFq2Label = {
 		'imits_phenotype_status'   : 'Attempt Registered'
 };
 
+config.subType2MarkerTypeMapping = {
+		'subtype' : 'marker_type'
+}
+config.markerType2SubTypeMapping = {
+		'marker_type' : 'subtype'
+}
+config.expName2ProcSidMapping = {
+		'Dysmorphology' : 'IMPC_CSD_002',
+		'Eye Morphology' : 'IMPC_EYE_001',
+		'Flow Cytometry' : 'IMPC_FAC_001',
+		'Histology Slide' : 'IMPC_HIS_001',
+		'Wholemount Expression' : 'IMPC_ALZ_001',
+		'Xray' : 'IMPC_XRY_001',				
+		'expName:' : 'procedure_stable_id:'				
+};	
+config.procSid2ExpNameMapping = {
+		'IMPC_CSD_002' : 'Dysmorphology',
+		'IMPC_EYE_001' : 'Eye Morphology',
+		'IMPC_FAC_001' : 'Flow Cytometry',
+		'IMPC_HIS_001' : 'Histology Slide',
+		'IMPC_ALZ_001' : 'Wholemount Expression',
+		'IMPC_XRY_001' : 'Xray',				
+		'procedure_stable_id:' : 'expName:' 				
+};	
+
 config.facetFilterLabel = {
 	'phenotyping_center'         : 'phenotyping_center',
 	'production_center'          : 'production_center',
@@ -75,16 +102,18 @@ config.facetFilterLabel = {
 	'imits_phenotype_started'    : 'phenotyping_status',
 	'imits_phenotype_status'     : 'phenotyping_status',
 	'status'                     : 'mouse_production_status',
-	'marker_type'                : 'subtype',
+	'marker_type'                : 'gene_subtype',
 	'top_level_mp_term'          : 'top_level_term',
 	'selected_top_level_ma_term' : 'top_level_term',
-	'procedure_stable_id'        : 'procedrue',
-	'annotated_or_inferred_higherLevelMaTermName'      : 'anatomy',
-	'annotated_or_inferred_higherLevelMpTermName'      : 'phenotype',
+	'procedure_stable_id'        : 'procedure',
+	'ma'					     : 'anatomy',
+	'annotated_or_inferred_higherLevelMaTermName' : 'anatomy',
+	'mp'      					 : 'phenotype',
+	'annotated_or_inferred_higherLevelMpTermName' : 'phenotype',
 	'expName'                    : 'procedure',
-	'subtype'                    : 'gene_subtype',
-	'disease_classes' 			 : 'classification',
-	'disease_source'			 : 'source',
+	'subtype'                    : 'gene_subtype',	
+	'disease_classes' 			 : 'disease_classification',
+	'disease_source'			 : 'disease_source',
 	'human_curated'              : 'human_data',
 	'mouse_curated'              : 'mouse_data',
 	'impc_predicted'             : 'IMPC_predicted',
@@ -92,14 +121,65 @@ config.facetFilterLabel = {
 	'mgi_predicted'              : 'MGI_predicted',
 	'mgi_predicted_in_locus'     : 'MGI_predicted_in_locus'	
 };
-                            
+
+config.filterMapping = {
+		//gene
+		'imits_phenotype_complete|1':{'class':'phenotyping', 'facet':'gene'},
+		'imits_phenotype_started|1' : {'class':'phenotyping', 'facet':'gene'},
+		'imits_phenotype_status|Phenotype Attempt Registered' : {'class':'phenotyping', 'facet':'gene'},
+		'status|Mice Produced' : {'class':'production', 'facet':'gene'},		
+		'status|Assigned for Mouse Production and Phenotyping' : {'class':'production', 'facet':'gene'},
+		'status|ES Cells Produced' : {'class':'production', 'facet':'gene'},
+		'status|Assigned for ES Cell Production' : {'class':'production', 'facet':'gene'},
+		'status|Not Assigned for ES Cell Production' : {'class':'production', 'facet':'gene'},
+		'marker_type' : {'class':'marker_type', 'facet':'gene'},
+		
+		// mp, ma
+		'mp' : {'class':'', 'facet':'mp'},
+		'ma' : {'class':'', 'facet':'ma'},
+		
+		// disease
+		'disease_source' : {'class':'disease_source', 'facet':'disease'},
+		'disease_classes' : {'class':'disease_classes', 'facet':'disease'},
+		'human_curated|1' : {'class':'curated', 'facet':'disease'},
+		'mouse_curated|1' : {'class':'curated', 'facet':'disease'},
+		'impc_predicted|1' : {'class':'predicted', 'facet':'disease'},
+		'impc_predicted_in_locus|1' : {'class':'predicted', 'facet':'disease'},
+		'mgi_predicted|1' : {'class':'predicted', 'facet':'disease'},
+		'mgi_predicted_in_locus|1' : {'class':'predicted', 'facet':'disease'},
+		
+		// pipeline: using ajax		
+		
+		// images
+		'imgMp' : {'class':'annotated_or_inferred_higherLevelMpTermName', 'facet':'images'},
+		'imgMa' : {'class':'annotated_or_inferred_higherLevelMaTermName', 'facet':'images'},
+};
+
+config.lastCheckbox = null;
+var megaFacetFields = ['status', 'imits_phenotype_complete', 'imits_phenotype_started', 'imits_phenotype_status', 
+                       'mgi_accession_id', 'marker_type', 'top_level_mp_term', 'mp_term', 
+                       'inferred_selected_top_level_ma_term', 'inferred_ma_term', 
+                       'procedure_name'];
+var facetFieldsStr = '';
+for ( var i=0; i<megaFacetFields.length; i++){
+	facetFieldsStr += '&facet.field=' + megaFacetFields[i];
+}
+var facetMod = "&facet=on&facet.limit=-1&facet.mincount=1";
+config.mega = {};
+config.mega.facetParams = facetMod + facetFieldsStr;
+config.mega.Facets = {
+	//'mpFacet' : '&facet.field=top_mp_term_id&facet.field=top2mp_id&facet.field=top2mp_term&facet.field=top2mp_def&facet.field=top2mp_idTermDef' + facetMod
+	'mpFacet' : '&facet.field=top_mp_term_id&facet.field=top2mp_idTermDef&facet.field=mp_idTermDef' + facetMod
+};
+//MPI2.searchAndFacetConfig.mega.Facets
+//console.log(config.mega.facetParams);
 //config.solrBaseURL_bytemark = 'http://dev.mousephenotype.org/bytemark/solr/';
 config.solrBaseURL_bytemark = solrUrl + '/';
 config.solrBaseURL_ebi = solrUrl + '/';
 
 config.searchSpin = "<img src='img/loading_small.gif' />";
 config.spinner = "<img src='img/loading_small.gif' /> Processing search ...";
-config.spinnerExport = "<img src='img/loading_small.gif' /> Processing data for export, please do not interrupt ... ";
+config.spinnerExport = "<img src='img/loading_sm_tickFilterCheckBox('mp');	all.gif' /> Processing data for export, please do not interrupt ... ";
 config.endOfSearch = "Search result";
 
 // custom 404 page does not know about baseUrl
@@ -149,7 +229,7 @@ config.facetParams = {
 		 solrCoreName: 'pipeline',			
 		 tableCols: 3, 
 		 tableHeader: '<thead><th>Parameter</th><th>Procedure</th><th>Pipeline</th></thead>',		
-		 fq: "pipeline_stable_id:IMPC_001", 
+		 fq: "pipeline_stable_id:*", //"pipeline_stable_id:IMPC_001", 
 		 qf: 'auto_suggest', 
 		 defType: 'edismax',
 		 wt: 'json',
@@ -177,10 +257,10 @@ config.facetParams = {
 		 topLevelName: '',
 		 ontology: 'mp',
 		 breadCrumbLabel: 'Phenotypes',		
-		 filterParams: {'fq': 'ontology_subset:*'},
+		 filterParams: {'fq': 'ontology_subset:IMPC_Terms'},
 		 srchParams: $.extend({},				
 					commonSolrParams,	 	
-					{'fl': 'mp_id,mp_term,mp_definition,top_level_mp_term'})
+					{'fl': 'mp_id,mp_term,mp_definition,top_level_mp_term,top_mp_term_id'})
 	 },	
 	 maFacet: {			    	
 		 type: 'tissues',
@@ -200,11 +280,11 @@ config.facetParams = {
 		 ontology: 'ma',
 		 breadCrumbLabel: 'Anatomy',		 
 		 //filterParams: {'fq': "ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*", 'fl': 'ma_id,ma_term,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'},
-		 filterParams: {'fq': 'ontology_subset:IMPC_Terms'},		 
+		 filterParams: {}, //'fq': 'ontology_subset:IMPC_Terms'},		 
 		 srchParams: $.extend({},
 					commonSolrParams,
 					{'fl' : 'ma_id,ma_term,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'})		
-	 },	
+	 },	 
 	 diseaseFacet: {			    	
 		 type: 'diseases',
 		 subFacetFqFields: '',
@@ -249,5 +329,6 @@ config.facetParams = {
 	 	 srchParams: $.extend({},
 				commonSolrParams				
 				)
-	 }
+	 } 
+	 
 }; 

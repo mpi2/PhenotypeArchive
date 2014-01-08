@@ -33,7 +33,7 @@
     		
 			caller.find('div.facetCat').click(function(){
 				if ( caller.find('span.facetCount').text() != '0' ){
-					
+					console.log('gene click: ' + window.location.search);
 					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
 					
 					caller.parent().find('div.facetCat').removeClass('facetCatUp');
@@ -46,83 +46,22 @@
 						caller.parent().find('div.facetCatList').hide(); // collapse all other facets 
 						caller.find('.facetCatList').show(); // show itself					
 						$(this).addClass('facetCatUp');						
-					
-						var currHashParams = {};						
-						currHashParams.q = self.options.data.q;
-						currHashParams.core = solrCoreName;
-						currHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq; //default
-										
+											
 						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-					
-						// if no selected subfacet, load all results of this facet
-						if ( caller.find('table#geneFacetTbl td.highlight').size() == 0 ){						
-							//window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
-						}	
-						else {		
-							// if there is selected subfacets: work out the url							
-							if ( self.options.data.core != oHashParams.coreName ){															
-							
-								var fqFieldVals = {};
-								
-								caller.find('table#geneFacetTbl td.highlight').each(function(){									
-									var val = $(this).siblings('td').find('a').attr('rel');								
-									var fqField = $(this).siblings('td').find('a').attr('class');
-									var qry;
-									var fqFieldOri = fqField;
-									fqField = fqField.indexOf('imits_phenotype') != -1 ? 'imits_phenotype' : fqField;
-									if ( typeof fqFieldVals[fqField] === 'undefined' ){
-										fqFieldVals[fqField] = [];										
-									}		
-									/*if ( fqField.indexOf('phenotyping_center') != -1 ){
-										qry = '(' + fqFieldOri + ':"' + val + '" AND production_center:*)';
-									} 
-									else if (fqField.indexOf('production_center') != -1 ){
-										qry = '(' + fqFieldOri + ':"' + val + '")';										
-									}*/
-									
-									qry = fqFieldOri + ':"' + val + '"';									
-									
-									fqFieldVals[fqField].push(qry);
-								});					
-								console.log(fqFieldVals);
-								var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
-							
-			  	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable 	
-								if (self.options.data.q == '*:*'){
-									window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
-								}
-								else {
-									window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
-								}
-							}	
-						}	
+						console.log('right here');
+						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'gene');						
+						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';
+												
+						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+						if ( ! window.location.search.match(/q=/) ){
+							window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
+						}						
 					}
 				}
-			});				
-						
-			// click on SUM facetCount to fetch results in grid										
-			caller.find('span.facetCount').click(function(event){
-				
-				if ( $(this).text() != '0' ){
+			});		
+			
+			// click on SUM facetCount to fetch results in grid: deprecated
 					
-					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
-					
-					$.fn.removeFacetFilter(solrCoreName);
-					
-					// remove highlight from selected				
-					$('table#geneFacetTbl td').removeClass('highlight');
-					
-					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
-					
-					// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-					if (self.options.data.q == '*:*'){
-						window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
-					}
-					else {
-						window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
-					}
-				}	
-			});							
     	},
     	 	        	
 	    // want to use _init instead of _create to allow the widget being invoked each time by same element
@@ -139,21 +78,21 @@
 				'rows': 0,
 				'facet': 'on',								
 				'facet.mincount': 1,
-				'facet.limit': -1,
-				'facet.field': 'marker_type',				
+				'facet.limit': -1,							
 				'facet.sort': 'count',					
-	    		'q': self.options.data.q},
+	    		'q': self.options.data.hashParams.q},
 	    		MPI2.searchAndFacetConfig.commonSolrParams,
 	    		MPI2.searchAndFacetConfig.facetParams.geneFacet.filterParams
 	    	);    	   	
 	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
-	    					  + '&facet.field=status'
-	    	                  + '&facet.field=imits_phenotype_started' 
-	    	                  + '&facet.field=imits_phenotype_complete'
-	    	                  + '&facet.field=imits_phenotype_status';
-	    	                  //+ '&facet.field=production_center'
-	    	                  //+ '&facet.field=phenotyping_center'
+	    		  + '&facet.field=marker_type'
+				  + '&facet.field=status'
+				  + '&facet.field=imits_phenotype_started' 
+				  + '&facet.field=imits_phenotype_complete'
+				  + '&facet.field=imits_phenotype_status';
+				  //+ '&facet.field=production_center'
+				  //+ '&facet.field=phenotyping_center'
 	    	
 	    	$.ajax({ 				 					
 	    		'url': solrUrl + '/gene/select',
@@ -166,13 +105,16 @@
 	    	});	    	
 	    },
 	    
-	    _displayGeneSubTypeFacet: function(json){	    	
+	    _displayGeneSubTypeFacet: function(json){
+	    	console.log('gene widget responson');
+	    	console.log(json);
 	    	var self = this;
 	    	var numFound = json.response.numFound;
 	    	
 	    	/*-------------------------------------------------------*/
 	    	/* ------ displaying sidebar and update dataTable ------ */
-	    	/*-------------------------------------------------------*/
+	    	/*-------------------------------------------------------*/	    	  	
+	    	var oSums = {'phenoStatus':0,'prodStatus':0,'geneSubType':0};
 	    	
 	    	if (numFound > 0){
 	    		
@@ -184,20 +126,21 @@
 	    		var aImitsPhenos = {'imits_phenotype_complete':'Complete', 
 	    							'imits_phenotype_started':'Started', 
 	    							'imits_phenotype_status':'Attempt Registered'};
-	    		
+	    			    		
 	    		for (var key in aImitsPhenos ){	    			
-	    			var phenoFieldList = json.facet_counts['facet_fields'][key];	    			
+	    			var phenoFieldList = json.facet_counts['facet_fields'][key];	
+
 	    			if ( phenoFieldList.length != 0 ){
-	    				
+	    				oSums.phenoStatus += phenoFieldList.length;
 	    	    		for ( var j=0; j<phenoFieldList.length; j+=2 ){
 	    	    			// skip status '0'	    	    		
 	    	    			if ( phenoFieldList[j] == 'Phenotype Attempt Registered' || phenoFieldList[j] == 1 ){
 	    						pheno_count[aImitsPhenos[key]] = phenoFieldList[j+1];
 	    	    			}	    	    			
 	    	    		} 
-	    			}    			
+	    			} 
 	    		}
-	    	
+	    		
 	    		var phenoStatusTr = '';
 	    		var aPhenos = ['Complete', 'Started', 'Attempt Registered'];	    		
 	    		for ( var i=0; i<aPhenos.length; i++ ){
@@ -216,10 +159,11 @@
 						var td2 = $('<td></td>').attr({'class':'geneSubfacetCount', 'rel':phenotypingStatusVal}).append(link);
 						table.append(tr.append(td0, td1, td2));
 					}					
-				}	    		
+				}
+	    		    		
 	    		// subfacet: IMPC mouse phenotyping centers
 	    		/*table.append($('<tr></tr>').attr({'class':'facetSubCat phenoCenterTrCap'}).append($('<td></td>').attr({'colspan':3}).text('IMPC Phenotyping Center')));
-	    		var phenoCenterFq = 'phenotyping_center';
+	    		var phenoCenterFq = 'phenotyping_centersubFacetName';
 	    		var phenoCenterList = json.facet_counts['facet_fields'][phenoCenterFq];	    			
     			if ( phenoCenterList.length != 0 ){    				
     	    		for ( var i=0; i<phenoCenterList.length; i+=2 ){
@@ -241,6 +185,7 @@
 	    		table.append($('<tr></tr>').attr({'class':'facetSubCat prodStatusTrCap production'}).append($('<td></td>').attr({'colspan':3}).text('IMPC Mouse Production Status')));
 	    		
 	    		var status_facets = json.facet_counts['facet_fields']['status'];
+	    		oSums.prodStatus = status_facets.length;
 	    		var status_count = {};
 	    		for ( var i=0; i<status_facets.length; i+=2 ){ 
 					var type = status_facets[i];
@@ -275,10 +220,12 @@
     	    			var coreField = 'gene|'+ prodCenterFq + '|';	
     	    			var chkbox = $('<input></input>').attr({'class':'prodCenter', 'type': 'checkbox', 'rel': coreField + center + '|' + count});
 						var td0 = $('<td></td>').append(chkbox);
-						var tr = $('<tr></tr>').attr({'class':'subFacet prodCenterTr'});						
+			     
+
+			var tr = $('<tr></tr>').attr({'class':'subFacet prodCenterTr'});						
 						var td1 = $('<td></td>').attr({'class':'prodCenter geneSubfacet', 'rel':count}).text(center);
 						var link = $('<a></a>').attr({'rel': center, 'class': prodCenterFq}).text(count);
-						var td2 = $('<td></td>').attr({'class':'geneSubfacetCount', 'rel':center}).append(link);
+						var td2 = $('<td></td>').attr({subFacetName'class':'geneSubfacetCount', 'rel':center}).append(link);
 						table.append(tr.append(td0, td1, td2));   	    			
     	    		}    	    		
     			}*/
@@ -288,6 +235,7 @@
 	    		table.append($('<tr></tr>').attr({'class':'facetSubCat geneSubTypeTrCap marker_type'}).append($('<td></td>').attr({'colspan':3}).text('Subtype')));
 	    			    		
 	    		var mkr_facets = json.facet_counts['facet_fields']['marker_type'];
+	    		oSums.geneSubType = mkr_facets.length;
 	    		var unclassifiedTr;
 	    		for ( var i=0; i<mkr_facets.length; i+=2 ){		    			
 	    			
@@ -314,11 +262,17 @@
 	    		}	    		
 	    		
 	    		//var table = "<table id='geneFacetTbl' clasJAXs='facetTable'>" + trs + "</table>";				
-	    		$('div#geneFacet div.facetCatList').html(table);
-	    			
-	    		// gene subtype is collapsed by default
-	    		$('tr.geneSubTypeTrCap, tr.phenoCenterTrCap, tr.prodCenterTrCap, tr.phenoStatusTrCap, tr.prodStatusTrCap').click(function(){
+	    		$('div#geneFacet div.facetCatList').html(table);	    		
 	    		
+	    		// update facet count when filters applied
+	    		if ( $('ul#facetFilter li li a').size() != 0 ){	    		
+    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'gene');
+    			}	
+	    		
+	    		// phenoStatus subFacet is open by default	    		
+	    	
+	    		//$('tr.geneSubTypeTrCap, tr.phenoCenterTrCap, tr.prodCenterTrCap, tr.phenoStatusTrCap, tr.prodStatusTrCap').click(function(){
+	    		$('tr.geneSubTypeTrCap, tr.phenoStatusTrCap, tr.prodStatusTrCap').click(function(){
 	    			var aClass = $(this).attr('class').split(' ');
 	    			var trClass = aClass[1].replace('Cap','');	    				    			
 	    			
@@ -331,65 +285,56 @@
 	    				$(this).find('td').addClass('unCollapse');
 	    			}
 	    		});	    		    		
-	    			    		
-	    		$('table#geneFacetTbl td.geneSubfacetCount a').click(function(){
+	    		$('tr.phenoStatusTrCap td').click();
 	    		
-	    			// also remove all filters for that facet container	
-	    			$.fn.removeFacetFilter('gene');
-	    			// now update filter
-	    			$.fn.addFacetFilter($(this).parent().parent().find('input'), self.options.data.q); 	        			
-	    			
-	    			// uncheck all facet filter checkboxes 
-	    			$('table#geneFacetTbl input').attr('checked', false);
-	    			// now check this checkbox
-	    			$(this).parent().parent().find('input').attr('checked', true);
-	    			
-	    			// remove all highlight
-	    			$('table#geneFacetTbl td.geneSubfacet').removeClass('highlight');
-	    			// now highlight this one
-	    			$(this).parent().parent().find('td.geneSubfacet').addClass('highlight');
-		    			        			
-	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable	  	    			
-		    		var fqStr = $(this).attr('class') + ':"' + $(this).attr('rel') + '"';
-		    		
-		    		/*if ( $(this).attr('class') == 'phenotyping_center' ){
-		    			//fqStr = '(' + $(this).attr('class') + ':"' + $(this).attr('rel') + '" AND production_center:*)';
-		    			fqStr = $(this).attr('class') + ':"' + $(this).attr('rel') + '" AND production_center:*';
+	    		// grayout subfacets having no matches for user query
+	    		if ( self.options.data.hashParams.q != '*:*' ){
+		    		var firstMatch = 0;
+		    		for ( var subFacetClass in oSums ){
+		    			var oTd = $('table#geneFacetTbl tr.' + subFacetClass + 'TrCap td'); 
+		    			if ( oSums[subFacetClass] == 0 ){		    				
+		    				oTd.addClass('grayout').removeClass('unCollapse');		    						    				
+		    			}
+		    			else {
+		    				firstMatch++;
+		    				if ( firstMatch == 1 ){	    				
+		    					oTd.click();	    					    					
+		    				}
+		    			}
 		    		}
-		    		else if ( $(this).attr('class') == 'production_center' ){
-		    			//fqStr = '(' + $(this).attr('class') + ':"' + $(this).attr('rel') + '")';
-		    			fqStr = $(this).attr('class') + ':"' + $(this).attr('rel') + '"';
-		    		}*/		    		
-		    		
-		    		if (self.options.data.q == '*:*'){
-		    			window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=gene';
-		    		}
-		    		else {
-		    			window.location.hash = 'fq=' + fqStr + '&core=gene';
-		    		}
-	    		});  
+	    		}	    		
+	    		
 	    		$('table#geneFacetTbl input').click(function(){
 	    			
 	    			// // highlight the item in facet	    			
-	    			$(this).parent().find('td.geneSubfacet').addClass('highlight');
-					$.fn.composeFacetFilterControl($(this), self.options.data.q);					
+	    			$(this).parent().parent().find('td.geneSubfacet').addClass('highlight');
+					$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
 				});	    		
     		}
 	    	
-	    	/*--------------------------console.log('inside here');	----------------------------------------------------------*/
+	    	/*------------------------------------------------------------------------------------*/
 	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
 	    	/*------------------------------------------------------------------------------------*/	
 	    	
 	    	
+<<<<<<< HEAD
 	    	if ( self.options.data.fq.match(/.*/) ){	
 	    	
 	    		self.options.data.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');
 	    		    		
-	    		var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority)
-	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'geneFacet', pageReload);
+=======
+	    	if ( self.options.data.hashParams.fq.match(/.*/) ){	
 	    		
+	    		self.options.data.hashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');
+	    		
+>>>>>>> a37c8eb426b097105969e25335b8fa7d6876b28f
+	    		var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority)
+	    		
+	    		var oHashParams = self.options.data.hashParams;
+    			
+	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);	    	    		
 	    		// now load dataTable    		
-	    		$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'geneFacet'); 
+	    		$.fn.loadDataTable(oHashParams);
     		}
 	    },	       
 	  

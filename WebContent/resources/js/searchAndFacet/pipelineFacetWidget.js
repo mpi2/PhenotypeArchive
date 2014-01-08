@@ -48,73 +48,18 @@
 						caller.find('.facetCatList').show(); // show itself					
 						$(this).addClass('facetCatUp');						
 						
-						var currHashParams = {};						
-						currHashParams.q = self.options.data.q;
-						currHashParams.core = solrCoreName;
-						currHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq; //default
-										
-						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
+						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));													
+						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'pipeline');						
+						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';
 						
-						// if no selected subfacet, load all results of this facet (with filter if any)
-						if ( caller.find('table#pipelineFacetTbl td.highlight').size() == 0 ){							
-							//window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
-						}
-						else {						
-							// if there is selected subfacets: work out the url							
-							if ( self.options.data.core != oHashParams.coreName ){															
-							
-								var fqFieldVals = {};
-								
-								caller.find('table#pipelineFacetTbl td.highlight').each(function(){									
-									var val = $(this).siblings('td').find('a').attr('rel');								
-									var fqField = 'procedure_stable_id';
-									
-									if ( typeof fqFieldVals[fqField] === 'undefined' ){
-										fqFieldVals[fqField] = [];										
-									}									
-									fqFieldVals[fqField].push(fqField + ':"' + val + '"');
-								});					
-								
-								var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
-							
-			  	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable 	
-								if (self.options.data.q == '*:*'){
-									window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
-								}
-								else {
-									window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
-								}
-							}							
-						}				
+						window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
 					}	
 				}								
 			});	
-													
-			// click on SUM facetCount to fetch results in grid
-			//$('span.facetCount').click(function(){								
-			caller.find('span.facetCount').click(function(){	
-				if ( $(this).text() != '0' ){	
-					
-					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
-					
-					$.fn.removeFacetFilter(solrCoreName);
-					
-					// remove highlight from selected				
-					$('table#pipelineFacetTbl td').removeClass('highlight');
-					
-					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
-					
-					// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-					if (self.options.data.q == '*:*'){
-						window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
-					}
-					else {
-						window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
-					}
-				}				
-			});	
-    	},
- 	        	
+			
+			// click on SUM facetCount to fetch results in grid: deprecated	
+    	}, 
+    	
 	    // want to use _init instead of _create to allow the widget being invoked each time by same element
 	    _init: function () {
 			var self = this;
@@ -129,144 +74,155 @@
 	    	var aProcedure_names = [];	    	
 	    	  	
 	    	var queryParams = $.extend({}, {	    		  		
-	    		'fq': 'pipeline_stable_id:IMPC_001',				
-				'rows': 500000,
+	    		//'fq': 'pipeline_stable_id:IMPC_001',
+	    		'fq': self.options.data.hashParams.fq,
+				'rows': 0,
 				'facet': 'on',								
 				'facet.mincount': 1,
-				'facet.limit': -1,
-				'facet.field': 'procedure_name', //proc_param_name',
-				'facet.sort': 'index',
-				'fl': 'parameter_name,parameter_stable_key,parameter_stable_id,procedure_name,procedure_stable_key,procedure_stable_id',						
-				'q': self.options.data.q}, MPI2.searchAndFacetConfig.commonSolrParams);	    		    	
+				'facet.limit': -1,				
+				'facet.sort': 'index',			
+				//'fl': 'parameter_name,parameter_stable_key,parameter_stable_id,procedure_name,procedure_stable_key,procedure_stable_id',				
+				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams);	    		    	
 	    	
-	    	//console.log(queryParams);
-	    	$.ajax({ 				 					
+	    	//console.log(queryParams);	    	
+	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams)	    				
+	    				+ '&facet.field=pipeline_name'
+	    				+ '&facet.field=pipe_proc_sid';
+	    	
+	    	$.ajax({ 
 	    		'url': solrUrl + '/pipeline/select',
-	    		'data': queryParams,
+	    		'data': queryParamStr,
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
 	    		'success': function(json) { 
-	    			//console.log(json);
-	    			
+	    			    			
 	    			// update this if facet is loaded by redirected page, which does not use autocomplete
 	    			$('div#pipelineFacet .facetCount').attr({title: 'total number of unique parameter terms'}).text(json.response.numFound);
 	        			        		
 	    			var procedures_params = {};
-	    			var facetCountSum = 0;
-	    			
-	    			var mappings = self._doNames2IdMapping(json.response);
-	    			
-	    			var procedureName2IdKey = mappings[0]; // stable_id
-	    			var parameterName2IdKey = mappings[1]; // stabley_key
-	    			
-	    			//var facets = json.facet_counts['facet_fields']['proc_param_name'];	    			
-	    			var facets = json.facet_counts['facet_fields']['procedure_name'];
+	    			var facetCountSum = 0;	    			    					 			
+	    				    			
+	    			var plFacets = json.facet_counts['facet_fields']['pipeline_name'];	    			
+	    			var prFacets = json.facet_counts['facet_fields']['pipe_proc_sid'];
 	    			
 	    			var table = $("<table id='pipelineFacetTbl' class='facetTable'></table>");
-	        		var trCat = $('<tr></tr>').attr({'class':'facetSubCat'});
-	        		table.append(trCat.append( $('<td></td>').attr({'colspan':3}).text('IMPC')));
-	    			
-	    			for ( var f=0; f<facets.length; f+=2 ){       			
-	        			
-	        			var procedure_name = facets[f];
-	        			var paramCount = facets[f+1];
-	        				        			
-	        			var pClass = 'procedure'+f;
-	        			var tr = $('<tr></tr>').attr({'class':'subFacet'});
-	        			
-	        			var coreField = 'pipeline|procedure_stable_id|' + procedure_name + '___' + procedureName2IdKey[procedure_name].stable_id + '|' + paramCount;	
-	        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});	        			
-	        			var td0 = $('<td></td>').append(chkbox);
-	        			var td1 = $('<td></td>').attr({'class': pClass, 'rel':paramCount});	        			
-	        			var td2 = $('<td></td>');	        			        			
-	        			var a = $('<a></a>').attr({'class':'paramCount', 'rel': procedureName2IdKey[procedure_name].stable_id}).text(paramCount);
-	        			table.append(tr.append(td0, td1.text(procedure_name), td2.append(a)));
-	        		} 			
 	        		
+	    			var aImpc = [];
+	    			
+	        		for ( var p=0; p<plFacets.length; p+=2){
+	        			var currPipe = plFacets[p];	
+	        			var pipeClass = currPipe.replace(/ /g, '_');
+	        			var trCat = $('<tr></tr>').attr({'class':'facetSubCat ' + pipeClass + 'Cap ' + pipeClass}).append( $('<td></td>').attr({'colspan':3}).text(currPipe));
+	        			
+	        			// place IMPc pipeline on top of list	        			
+	        			if ( currPipe != 'IMPC Pipeline' ){
+	        				table.append(trCat);
+	        			}
+	        			else {	        			
+	        				aImpc.push(trCat);
+	        			}
+		        		
+		        		for ( var f=0; f<prFacets.length; f+=2 ){ 		        			        			
+		        			var aVals = prFacets[f].split('___');
+		        			var pipeName = aVals[0];
+		        			var procedure_name = aVals[1];
+		        			var proSid = aVals[2];
+		        			var paramCount = prFacets[f+1];
+		        					        			
+		        			if (pipeName == currPipe ){
+			        		
+		        				//console.log(pipeName + ' --- ' + procedure_name + ' --- '+ paramCount);
+			        			//var pClass = 'procedure'+f + ' ' + procedureName2IdKey[procedure_name].stable_id;
+			        			var pClass = 'procedure'+f + ' ' + proSid;
+			        			var tr = $('<tr></tr>').attr({'class':'subFacet ' + pipeClass});		        		
+			        			
+			        			//var coreField = 'pipeline|procedure_stable_id|' + procedure_name + '___' + procedureName2IdKey[procedure_name].stable_id + '|' + paramCount;
+			        			var coreField = 'pipeline|procedure_stable_id|' + procedure_name + '___' + proSid + '|' + paramCount;
+			        			
+			        			var chkbox = $('<input></input>').attr({'class': pipeClass, 'type': 'checkbox', 'rel': coreField});	        			
+			        			var td0 = $('<td></td>').append(chkbox);
+			        			var td1 = $('<td></td>').attr({'class': pClass, 'rel':paramCount});	        			
+			        			var td2 = $('<td></td>');	        			        			
+			        			//var a = $('<a></a>').attr({'class':'paramCount', 'rel': procedureName2IdKey[procedure_name].stable_id}).text(paramCount);			        			
+			        			var a = $('<a></a>').attr({'class':'paramCount', 'rel': proSid}).text(paramCount);
+			        			
+			        			if ( currPipe != 'IMPC Pipeline' ){
+			        				table.append(tr.append(td0, td1.text(procedure_name), td2.append(a)));
+			        			}
+			        			else {
+			        				aImpc.push(tr.append(td0, td1.text(procedure_name), td2.append(a)));
+			        			}	
+		        			}	
+		        			
+		        		} 	
+		        		table.prepend(aImpc);
+	        		}
 	        		if (json.response.numFound == 0 ){
 	        			table = null;
 	        		}	    			
 	        		$('div#pipelineFacet .facetCatList').html(table);
 	        		
-	        		$('table#pipelineFacetTbl td a.paramCount').click(function(){	        			
-	        				        			
-	        			// also remove all filters for that facet container	
-	        			$.fn.removeFacetFilter('pipeline');
-	        			// now update filter
-	        			$.fn.addFacetFilter($(this).parent().parent().find('input'), self.options.data.q); 	        			
-	        			
-	        			// uncheck all facet filter checkboxes 
-	        			$('table#pipelineFacetTbl input').attr('checked', false);
-	        			// now check this checkbox
-	        			$(this).parent().parent().find('input').attr('checked', true);
-	        			
-	        			// remove all highlight
-	        			$('table#pipelineFacetTbl td[class^=procedure]').removeClass('highlight');
-	        			// now highlight this one
-	        			$(this).parent().parent().find('td[class^=procedure]').addClass('highlight');      			
-	        			
-	  	    			        			
-	        			// update hash tag so that we know there is hash change, which then triggers loadDataTable	  	    			
-	  	    			var fqStr = 'procedure_stable_id:"' + $(this).attr('rel')  + '"'; 
-	  	    			
-	  	    			if (self.options.data.q == '*:*'){
-	  	    				window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=pipeline';
-	  	    			}
-	  	    			else {
-	  	    				window.location.hash = 'fq=' + fqStr + '&core=pipeline';
-	  	    			}
-	        		});
 	        		
-	        		$('table#pipelineFacetTbl input').click(function(){
-	        			console.log('click.....');
+	        		// all pipelines, except IMPC pipeline, are collapsed by default
+		    		$('table#pipelineFacetTbl tr.facetSubCat').click(function(){
+		    			
+		    			var aClass = $(this).attr('class').split(' ');
+		    			for (var i=0; i<aClass.length; i++){
+		    				if ( aClass[i].indexOf('Cap') != -1 ){		    					
+		    					var trClass = aClass[1].replace('Cap','');	 
+
+				    			if ( $(this).find('td').hasClass('unCollapse')){				    			
+				    				$('tr.subFacet').each(function(){
+				    					if ( $(this).hasClass(trClass) ){
+				    						$(this).hide();
+				    					}
+				    				});
+				    				
+				    				$(this).find('td').removeClass('unCollapse');
+				    			}
+				    			else {				    			
+				    				$('tr.subFacet').each(function(){
+				    					if ( $(this).hasClass(trClass) ){
+				    						$(this).show();
+				    					}
+				    				});
+				    						
+				    				$(this).find('td').addClass('unCollapse');
+				    			}
+				    			break;
+		    				}
+		    			}	    			
+		    			
+		    		});	   
+	        		
+		    		// update facet count when filters applied
+	    			if ( $('ul#facetFilter li li a').size() != 0 ){	    				
+	    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'pipeline');
+	    			}	        		
+	        		
+	        		
+	        		$('table#pipelineFacetTbl input').click(function(){	        			
 	        			// highlight the item in facet
 	        			$(this).parent().siblings('td[class^=procedure]').addClass('highlight');
-	        			$.fn.composeFacetFilterControl($(this), self.options.data.q);
+	        			$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);
 	        		});	        		       		
 	        		
 	        		/*------------------------------------------------------------------------------------*/
 	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
 	    	    	/*------------------------------------------------------------------------------------*/        		      		
 	        		
-	        		if ( self.options.data.fq.match(/.*/) ){        		
+	        		if ( self.options.data.hashParams.fq.match(/.*/) ){     
+	        			var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority) 
+	        				        			
+	        			var oHashParams = self.options.data.hashParams;
 	        			
-	        			//var fields = ['procedure_stable_id'];	        	
-	    	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'pipelineFacet');
-	    	    	
-	    	    		// now load dataTable	    		
-	    	    		$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'pipelineFacet'); 
+	    	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);	    	    		
+	    	    		// now load dataTable    		
+	    	    		$.fn.loadDataTable(oHashParams);
 	        		}
 	    		}	    		
 	    	});	    	
-	    },   
-		    	    
-	    _doNames2IdMapping: function(response){
-	    	var nodes = response.docs;
-	    	var procedureName2IdKey = {};
-	    	var parameterName2IdKey = {};
-	    	
-	    	for( var n=0; n<nodes.length; n++){
-	    		var node = nodes[n];	    		
-	    			    		
-	    		var procName = node.procedure_name;	    			    		
-	    		var procSId  = node.procedure_stable_id;
-	    		var procKey  = node.procedure_stable_key;
-	    		
-	    		var paramName = node.parameter_name;
-	    		var paramSId  = node.parameter_stable_id;
-	    		var paramKey  = node.parameter_stable_key;	    		
-	    			    		
-	    		if ( !procedureName2IdKey[procName] ){
-	    			procedureName2IdKey[procName] = {};
-	    		}
-	    		if ( !parameterName2IdKey[paramName] ){
-	    			parameterName2IdKey[paramName] = {};
-	    		}
-	    		procedureName2IdKey[procName] = {stable_id: procSId, stable_key: procKey};
-	    		parameterName2IdKey[paramName] = {stable_id: paramSId, stable_key: paramKey};	    		
-	    	}
-	    	return [procedureName2IdKey, parameterName2IdKey];
-	    },	     
+	    },	   
 	    
 	    destroy: function () {    	   
 	    	// does not generate selector class

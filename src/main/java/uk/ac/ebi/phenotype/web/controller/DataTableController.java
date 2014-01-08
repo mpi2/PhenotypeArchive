@@ -90,8 +90,11 @@ public class DataTableController {
 			Model model) throws IOException, URISyntaxException  {
 		//System.out.println("solr params: " + solrParams);
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(solrParams);
-
-		String solrCoreName = jParams.getString("solrCoreName");
+		
+		String solrCoreName = jParams.containsKey("solrCoreName") ? jParams.getString("solrCoreName") : jParams.getString("facetName");	
+				
+		List<String> filters = jParams.containsKey("filters") ? jParams.getJSONArray("filters") : null;	
+		System.out.println("FILTERS: " + filters);
 		String query = "";
 		String fqOri = "";
 		String mode = jParams.getString("mode");
@@ -113,9 +116,11 @@ public class DataTableController {
 		if (jParams.containsKey("showImgView")) {
 			showImgView = jParams.getBoolean("showImgView");
 		}
-
-		JSONObject json = solrIndex.getDataTableJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);		
-		String content = fetchDataTableJson(request, json, mode, query, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView);
+		
+		JSONObject json = solrIndex.getDataTableJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
+		//System.out.println("JSON: "+ json);
+		
+		String content = fetchDataTableJson(request, json, mode, query, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, filters);
 		
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 	}
@@ -137,31 +142,31 @@ public class DataTableController {
 		return responseHeaders;
 	}
 
-	public String fetchDataTableJson(HttpServletRequest request, JSONObject json, String mode, String query, String fqOri, int start, int length, String solrParams, boolean showImgView) throws IOException, URISyntaxException {
+	public String fetchDataTableJson(HttpServletRequest request, JSONObject json, String mode, String query, String fqOri, int start, int length, String solrParams, boolean showImgView, String solrCoreName, List<String> filters) throws IOException, URISyntaxException {
 
 		String jsonStr = null;
 		if (mode.equals("geneGrid")) {
-			jsonStr = parseJsonforGeneDataTable(request, json, query);
+			jsonStr = parseJsonforGeneDataTable(request, json, query, solrCoreName, filters);
 		} 
 		else if (mode.equals("pipelineGrid")) {
-			jsonStr = parseJsonforProtocolDataTable(json, request);
+			jsonStr = parseJsonforProtocolDataTable(json, request, solrCoreName, filters, start);
 		} 
 		else if (mode.equals("imagesGrid")) {
-			jsonStr = parseJsonforImageDataTable(json, start, length, solrParams, showImgView, request, query, fqOri);
+			jsonStr = parseJsonforImageDataTable(json, start, length, solrParams, showImgView, request, query, fqOri, solrCoreName, filters);
 		} 
 		else if (mode.equals("mpGrid")) {
-			jsonStr = parseJsonforMpDataTable(json, request);
+			jsonStr = parseJsonforMpDataTable(json, request, solrCoreName, filters, start);
 		}
 		else if (mode.equals("maGrid")) {
-			jsonStr = parseJsonforMaDataTable(json, request);
+			jsonStr = parseJsonforMaDataTable(json, request, solrCoreName, filters, start);
 		}
 		else if (mode.equals("diseaseGrid")) {
-			jsonStr = parseJsonforDiseaseDataTable(json, request);
+			jsonStr = parseJsonforDiseaseDataTable(json, request, solrCoreName, filters, start);
 		}
 		return jsonStr;
 	}
 
-	public String parseJsonforGeneDataTable(HttpServletRequest request, JSONObject json, String qryStr){
+	public String parseJsonforGeneDataTable(HttpServletRequest request, JSONObject json, String qryStr, String solrCoreName, List<String> filters){
 
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config, request);
 
@@ -207,7 +212,7 @@ public class DataTableController {
 		
 		return j.toString();	
 	}
-	public String parseJsonforProtocolDataTable(JSONObject json, HttpServletRequest request){
+	public String parseJsonforProtocolDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters, int start){
 		
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
@@ -242,16 +247,16 @@ public class DataTableController {
 		return j.toString();	
 	}
 	
-	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request){
+	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters, int start){
+				
+		String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";		
 		
-		String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";
+		JSONObject j = new JSONObject();
+		j.put("aaData", new Object[0]);			
 		
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
-				
-        JSONObject j = new JSONObject();
-		j.put("aaData", new Object[0]);
-		
+					
 		j.put("iTotalRecords", totalDocs);
 		j.put("iTotalDisplayRecords", totalDocs);
 		
@@ -281,7 +286,7 @@ public class DataTableController {
 		return j.toString();	
 	}
 	
-	public String parseJsonforMaDataTable(JSONObject json, HttpServletRequest request){
+	public String parseJsonforMaDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters, int start){
 		
 		String baseUrl = request.getAttribute("baseUrl") + "/anatomy/";
 		
@@ -320,7 +325,7 @@ public class DataTableController {
 		return j.toString();	
 	}
 	
-	public String parseJsonforImageDataTable(JSONObject json, int start, int length, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri) throws IOException, URISyntaxException{
+	public String parseJsonforImageDataTable(JSONObject json, int start, int length, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName, List<String> filters) throws IOException, URISyntaxException{
 		
 		String mediaBaseUrl = config.get("mediaBaseUrl");
 
@@ -495,7 +500,7 @@ public class DataTableController {
 		}
 	}
 	
-	public String parseJsonforDiseaseDataTable(JSONObject json, HttpServletRequest request){
+	public String parseJsonforDiseaseDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters, int start){
 		
 		String baseUrl = request.getAttribute("baseUrl") + "/phenodigm/disease/";
 		

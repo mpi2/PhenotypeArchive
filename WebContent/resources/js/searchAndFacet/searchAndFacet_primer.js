@@ -19,7 +19,8 @@
  */
 $(document).ready(function(){
 	'use strict';	
-	var hashParams = {};
+		
+	var oHashParams = {};
 	
 	$('span.facetCount').text(''); // default when page loads
 	
@@ -27,6 +28,7 @@ $(document).ready(function(){
 	
 	// default search when search page loads
 	if ( /search\/?$/.exec(location.href) ){
+<<<<<<< HEAD
 		// do default gene search by * when search page loads
 		
 		hashParams.q = '*:*';		
@@ -39,6 +41,16 @@ $(document).ready(function(){
 						
 		MPI2.searchAndFacetConfig.pageLoad = true;
 		$.fn.fetchSolrFacetCount(hashParams);
+=======
+		// do default gene search by * when search page loads	
+		oHashParams.q = '*:*';		
+		$.fn.fetchSolrFacetCount(oHashParams);
+	}	
+	else if ( location.href.indexOf('/search#') != -1 ){		
+		// load page based on url hash parameters		
+		oHashParams = $.fn.parseHashString(window.location.hash.substring(1));		
+		$.fn.fetchSolrFacetCount(oHashParams);		
+>>>>>>> a37c8eb426b097105969e25335b8fa7d6876b28f
 	}
 	
 	// search via ENTER

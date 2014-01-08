@@ -47,73 +47,16 @@
 						caller.find('.facetCatList').show(); // show itself					
 						$(this).addClass('facetCatUp');						
 					
-						var currHashParams = {};						
-						currHashParams.q = self.options.data.q;
-						currHashParams.core = solrCoreName;
-						currHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq; //default
-										
-						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-					
-						// if no selected subfacet, load all results of this facet
-						if ( caller.find('table#diseaseFacetTbl td.highlight').size() == 0 ){						
-							//window.location.hash = $.fn.stringifyJsonAsUrlParams(currHashParams);									
-						}	
-						else {		
-							// if there is selected subfacets: work out the url							
-							if ( self.options.data.core != oHashParams.coreName ){															
-							
-								var fqFieldVals = {};
-								
-								caller.find('table#diseaseFacetTbl td.highlight').each(function(){									
-									var val = $(this).siblings('td').find('a').attr('rel');								
-									var fqField = $(this).siblings('td').find('a').attr('class');
-									var qry;
-									var fqFieldOri = fqField;
-									
-									
-									qry = fqFieldOri + ':"' + val + '"';									
-									
-									fqFieldVals[fqField].push(qry);
-								});					
-								console.log(fqFieldVals);
-								var fqStr = $.fn.compose_AndOrStr(fqFieldVals);
-							
-			  	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable 	
-								if (self.options.data.q == '*:*'){
-									window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
-								}
-								else {
-									window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
-								}
-							}	
-						}	
+						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));							
+						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'disease');						
+						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';
+						
+						window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;						
 					}
 				}
 			});				
 						
-			// click on SUM facetCount to fetch results in grid										
-			caller.find('span.facetCount').click(function(event){
-				
-				if ( $(this).text() != '0' ){
-				
-					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;								
-					
-					$.fn.removeFacetFilter(solrCoreName);
-					
-					// remove highlight from selected				
-					$('table#diseaseFacetTbl td').removeClass('highlight');
-					
-					var fqStr = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
-					
-					// update hash tag so that we know there is hash change, which then triggers loadDataTable  
-					if (self.options.data.q == '*:*'){
-						window.location.hash = 'q=' + self.options.data.q + '&core=' +  solrCoreName + '&fq=' + fqStr;
-					}
-					else {
-						window.location.hash = 'core=' +  solrCoreName + '&fq=' + fqStr;
-					}
-				}	
-			});							
+			// click on SUM facetCount to fetch results in grid: deprecated				
     	},
     	 	        	
 	    // want to use _init instead of _create to allow the widget being invoked each time by same element
@@ -133,7 +76,7 @@
 				'facet.mincount': 1,
 				'facet.limit': -1,								
 				'facet.sort': 'count',					
-	    		'q': self.options.data.q},
+	    		'q': self.options.data.hashParams.q},
 	    		MPI2.searchAndFacetConfig.commonSolrParams,
 	    		MPI2.searchAndFacetConfig.facetParams.diseaseFacet.filterParams
 	    	);    	   	
@@ -193,9 +136,9 @@
 						var chkbox = $('<input></input>').attr({'class': fq, 'type': 'checkbox', 'rel': coreField + subFacetName + '|' + count});
 						var td0 = $('<td></td>').append(chkbox);
 						var tr = $('<tr></tr>').attr({'class':'subFacet ' + trClass + ' ' + fq});						
-						var td1 = $('<td></td>').attr({'class':'dClass diseaseSubfacet', 'rel':count}).text(subFacetName);
+						var td1 = $('<td></td>').attr({'class':'dClass diseaseSubfacet ' + fq, 'rel':count}).text(subFacetName);
 						var link = $('<a></a>').attr({'rel': subFacetName, 'class': diseaseFq}).text(count);
-						var td2 = $('<td></td>').attr({'class':'diseaseSubfacetCount', 'rel':subFacetName}).append(link);						
+						var td2 = $('<td></td>').attr({'class':'diseaseSubfacetCount ' + fq, 'rel':subFacetName}).append(link);						
 						
 						if ( subFacetName != 'unclassified' ){	
 							table.append(tr.append(td0, td1, td2));
@@ -236,7 +179,7 @@
 								var td0 = $('<td></td>').append(chkbox);
 								var trClass = assoc+'Tr';
 								var tr = $('<tr></tr>').attr({'class':'subFacet ' + trClass + ' ' + assoc});						
-								var td1 = $('<td></td>').attr({'class':trClass + ' diseaseSubfacet', 'rel':count}).text(thisSubfacet);
+								var td1 = $('<td></td>').attr({'class':trClass + ' ' + fq + ' diseaseSubfacet', 'rel':count}).text(thisSubfacet);
 								var link = $('<a></a>').attr({'rel': '1', 'class': diseaseFq}).text(count);
 								var td2 = $('<td></td>').attr({'class':'diseaseSubfacetCount', 'rel':'1'}).append(link);					
 								
@@ -247,7 +190,12 @@
 	    		}
 	    			    					
 	    		$('div#diseaseFacet div.facetCatList').html(table);
-	    			
+	    		
+	    		// update facet count when filters applied
+    			if ( $('ul#facetFilter li li a').size() != 0 ){
+    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'disease');
+    			}		
+	    		
 	    		// disease_source is open and rest of disease subfacets are collapsed by default
 	    		$('tr.disease_sourceTrCap, tr.disease_classesTrCap, tr.curatedTrCap, tr.predictedTrCap').click(function(){
 	    		
@@ -262,40 +210,13 @@
 	    				$('tr.' + trClass).show();	    				
 	    				$(this).find('td').addClass('unCollapse');
 	    			}
-	    		});	    		    		
-	    			    		
-	    		$('table#diseaseFacetTbl td.diseaseSubfacetCount a').click(function(){
+	    		});			
 	    		
-	    			// also remove all filters for that facet container	
-	    			$.fn.removeFacetFilter('disease');
-	    			// now update filter
-	    			$.fn.addFacetFilter($(this).parent().parent().find('input'), self.options.data.q); 	        			
-	    			
-	    			// uncheck all facet filter checkboxes 
-	    			$('table#diseaseFacetTbl input').attr('checked', false);
-	    			// now check this checkbox
-	    			$(this).parent().parent().find('input').attr('checked', true);
-	    			
-	    			// remove all highlight
-	    			$('table#diseaseFacetTbl td.diseaseSubfacet').removeClass('highlight');
-	    			// now highlight this one
-	    			$(this).parent().parent().find('td.diseaseSubfacet').addClass('highlight');
-		    			        			
-	    			// update hash tag so that we know there is hash change, which then triggers loadDataTable	  	    			
-		    		var fqStr = $(this).attr('class') + ':"' + $(this).attr('rel') + '"' + " AND " + MPI2.searchAndFacetConfig.facetParams['diseaseFacet'].fq;	    			    		    		
-		    		
-		    		if (self.options.data.q == '*:*'){
-		    			window.location.hash = 'q=' +  self.options.data.q + '&fq=' + fqStr + '&core=disease';
-		    		}
-		    		else {
-		    			window.location.hash = 'fq=' + fqStr + '&core=disease';
-		    		}
-	    		});  
 	    		$('table#diseaseFacetTbl input').click(function(){
 	    			
 	    			// // highlight the item in facet	    			
-	    			$(this).parent().find('td.diseaseSubfacet').addClass('highlight');
-					$.fn.composeFacetFilterControl($(this), self.options.data.q);					
+	    			$(this).parent().parent().find('td.diseaseSubfacet').addClass('highlight');
+					$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
 				});	    		
     		}
 	    	
@@ -304,15 +225,17 @@
 	    	/*------------------------------------------------------------------------------------*/	
 	    	
 	    	
-	    	if ( self.options.data.fq.match(/.*/) ){	
+	    	if ( self.options.data.hashParams.fq.match(/.*/) ){	
 	    		
-	    		self.options.data.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');
+	    		self.options.data.hashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');
 	    		
-	    		var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority)
-	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(self.options.data.q, self.options.data.fq, 'diseaseFacet', pageReload);
+	    		var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority)  	
 	    		
+	    		var oHashParams = self.options.data.hashParams;
+    			
+	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);	    	    		
 	    		// now load dataTable    		
-	    		$.fn.loadDataTable(self.options.data.q, self.options.data.fq, 'diseaseFacet'); 
+	    		$.fn.loadDataTable(oHashParams);
     		}
 	    },	       
 	  

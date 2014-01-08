@@ -19,11 +19,21 @@
  */
 
 (function($){	
+	
+	function _updateFacetCount(facet, response, facetMode){
+		var num = facetMode ? '' : response.response.numFound;		
+		$('div#' + facet + ' span.facetCount').html(num);		
+	}
+	
 	var jsonBase = MPI2.searchAndFacetConfig.facetParams;
 	
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
 		
 		var q = oUrlHashParams.q ? oUrlHashParams.q : '*:*';
+<<<<<<< HEAD
+=======
+		var facetMode = oUrlHashParams.facetName;
+>>>>>>> a37c8eb426b097105969e25335b8fa7d6876b28f
 		var oFacets = {};
 		oFacets.count = {};		
 						
@@ -31,16 +41,17 @@
 		
 	 	// facet types are done sequencially; starting from gene	 		
 	    $.ajax({            	    
-	    		url: solrUrl + '/gene/select',	       	
-	       	    data: $.extend({}, jsonBase.geneFacet.srchParams, jsonBase.geneFacet.filterParams),
+	    		url: solrUrl + '/gene/select',	    	
+	       	    data: $.extend({}, jsonBase.geneFacet.srchParams, jsonBase.geneFacet.filterParams),	       	 
 	       	    dataType: 'jsonp',
 	       	    jsonp: 'json.wrf',
 	       	    timeout: 5000,
-	       	    success: function (geneResponse) {	       	    	
+	       	    success: function (geneResponse) {
+	       	    	//console.log(geneResponse);
 	       	    	$('div#geneFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
-	       	    	oFacets.count.gene = geneResponse.response.numFound;	       	    	
-	       	    	$('div#geneFacet span.facetCount').html(oFacets.count.gene);	       	    	
-	       	    	_doMPAutoSuggest(geneResponse, q, oFacets);	            	    
+	       	    	oFacets.count.gene = geneResponse.response.numFound;	
+	       	    	_updateFacetCount('geneFacet', geneResponse, facetMode);	       	    	
+	       	    	_doMPAutoSuggest(geneResponse, q, oFacets, facetMode);	            	    
 	       	    },
 	       	    error: function (jqXHR, textStatus, errorThrown) {	       	                	        
 	       	        $('div#facetBrowser').html('Error fetching data ...');
@@ -48,7 +59,7 @@
 	    });
 	}
 	
-	function _doMPAutoSuggest(geneResponse, q, oFacets){		
+	function _doMPAutoSuggest(geneResponse, q, oFacets, facetMode){		
 		
 		jsonBase.mpFacet.srchParams.q = q;
 		
@@ -59,68 +70,18 @@
     	    jsonp: 'json.wrf',
     	    timeout: 5000,
     	    success: function (mpResponse) { 
+    	    	//console.log(mpResponse);
     	    	$('div#mpFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
-       	    	oFacets.count.mp = mpResponse.response.numFound;
-       	    	$('div#mpFacet span.facetCount').html(oFacets.count.mp);
-    	    	_doPipelineAutoSuggest(geneResponse, mpResponse, q, oFacets);      	    	       	    	
+       	    	oFacets.count.mp = mpResponse.response.numFound;       	    	
+       	    	_updateFacetCount('mpFacet', mpResponse, facetMode);	 
+    	    	_doDiseaseAutoSuggest(geneResponse, mpResponse, q, oFacets, facetMode);  
     	    },
     	    error: function (jqXHR, textStatus, errorThrown) {				         	        
 				$('div#facetBrowser').html('Error fetching data ...');
 			}        	    
 		});  			
 	}   	
-	
-	function _doPipelineAutoSuggest(geneResponse, mpResponse, q, oFacets){
-		
-		jsonBase.pipelineFacet.srchParams.q = q;	
-		
-		$.ajax({
-    	    url: solrUrl + '/pipeline/select',
-    	    data: jsonBase.pipelineFacet.srchParams,
-    	    dataType: 'jsonp',
-    	    jsonp: 'json.wrf',
-    	    timeout: 5000,
-    	    success: function (pipelineResponse) {
-    	    	
-    	    	$('div#pipelineFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
-    	    	oFacets.count.pipeline = pipelineResponse.response.numFound;
-    	    	$('div#pipelineFacet span.facetCount').html(oFacets.count.pipeline);
-    	    	
-    	    	_doTissueAutoSuggest(geneResponse, mpResponse, pipelineResponse, q, oFacets); 
-    	    },
-			error: function (jqXHR, textStatus, errorThrown) {			        	        
-				$('div#facetBrowser').html('Error fetching data ...');
-			} 
-		});
-	}	
-	
-	function _doTissueAutoSuggest(geneResponse, mpResponse, pipelineResponse, q, oFacets){
-		jsonBase.maFacet.srchParams.q = q;	
-		jsonBase.maFacet.srchParams.sort = 'ma_term asc';
-		jsonBase.maFacet.srchParams.fq = jsonBase.maFacet.fq;
-				
-		$.ajax({
-    	    url: solrUrl + '/ma/select',
-    	    data: jsonBase.maFacet.srchParams,
-    	    dataType: 'jsonp',
-    	    jsonp: 'json.wrf',
-    	    timeout: 10000,
-    	    success: function (maResponse) {    	    	   	    	    		    	   	    	
-    			
-    	    	$('div#maFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
-    	    	oFacets.count.ma = maResponse.response.numFound;
-    	    	$('div#maFacet span.facetCount').html(oFacets.count.ma);
-    	    	
-    	    	_doDiseaseAutoSuggest(geneResponse, mpResponse, pipelineResponse, maResponse, q, oFacets);
-    	    	//_doImageAutosuggest(geneResponse, mpResponse, pipelineResponse, maResponse, q, oFacets);
-    	    },
-			error: function (jqXHR, textStatus, errorThrown) {			       	        
-				$('div#facetBrowser').html('Error fetching data ...');
-			} 
-		});
-	}
-	
-	function _doDiseaseAutoSuggest(geneResponse, mpResponse, pipelineResponse, maResponse, q, oFacets){
+	function _doDiseaseAutoSuggest(geneResponse, mpResponse, q, oFacets, facetMode){
 		
 		jsonBase.diseaseFacet.srchParams.q = q;		
 		jsonBase.diseaseFacet.srchParams.fq = jsonBase.diseaseFacet.fq;
@@ -135,83 +96,146 @@
     	    success: function (diseaseResponse) { 	   	    	    		    	   	    	
     			
     	    	$('div#diseaseFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
-    	    	oFacets.count.disease = diseaseResponse.response.numFound;
-    	    	$('div#diseaseFacet span.facetCount').html(oFacets.count.disease);
-    	    	
-    	    	_doImageAutosuggest(geneResponse, mpResponse, pipelineResponse, maResponse, diseaseResponse, q, oFacets);
-    	    	
+    	    	oFacets.count.disease = diseaseResponse.response.numFound;    	    	
+    	    	_updateFacetCount('diseaseFacet', diseaseResponse, facetMode);	 
+    	    	_doTissueAutoSuggest(geneResponse, mpResponse, diseaseResponse, q, oFacets, facetMode);    	    	
     	    },
 			error: function (jqXHR, textStatus, errorThrown) {			       	        
 				$('div#facetBrowser').html('Error fetching data ...');
 			} 
 		});
 	}
-	function _doImageAutosuggest(geneResponse, mpResponse, pipelineResponse, maResponse, diseaseResponse, q, oFacets){
+	
+	function _doTissueAutoSuggest(geneResponse, mpResponse, diseaseResponse, q, oFacets, facetMode){
+		jsonBase.maFacet.srchParams.q = q;	
+		jsonBase.maFacet.srchParams.sort = 'ma_term asc';
+		jsonBase.maFacet.srchParams.fq = jsonBase.maFacet.fq;
+				
+		$.ajax({
+    	    url: solrUrl + '/ma/select',    	    
+    	    data: jsonBase.maFacet.srchParams,
+    	    dataType: 'jsonp',
+    	    jsonp: 'json.wrf',
+    	    timeout: 10000,
+    	    success: function (maResponse) {    	    	   	    	    		    	   	    	
+    			
+    	    	$('div#maFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
+    	    	oFacets.count.ma = maResponse.response.numFound;    	    	
+    	    	_updateFacetCount('maFacet', maResponse, facetMode);	     	    	
+    	    	_doPipelineAutoSuggest(geneResponse, mpResponse, diseaseResponse, maResponse, q, oFacets, facetMode);
+    	    },
+			error: function (jqXHR, textStatus, errorThrown) {			       	        
+				$('div#facetBrowser').html('Error fetching data ...');
+			} 
+		});
+	}
+		
+	function _doPipelineAutoSuggest(geneResponse, mpResponse, diseaseResponse, maResponse, q, oFacets, facetMode){
+		
+		jsonBase.pipelineFacet.srchParams.q = q;	
+		
+		$.ajax({
+    	    url: solrUrl + '/pipeline/select',    	   
+    	    data: jsonBase.pipelineFacet.srchParams,
+    	    dataType: 'jsonp',
+    	    jsonp: 'json.wrf',
+    	    timeout: 5000,
+    	    success: function (pipelineResponse) {
+    	    	
+    	    	$('div#pipelineFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
+    	    	oFacets.count.pipeline = pipelineResponse.response.numFound;    	    	
+    	    	_updateFacetCount('pipelineFacet', pipelineResponse, facetMode);	 
+    	    	_doImageAutosuggest(geneResponse, mpResponse, diseaseResponse, maResponse, pipelineResponse, q, oFacets, facetMode); 
+    	    },
+			error: function (jqXHR, textStatus, errorThrown) {			        	        
+				$('div#facetBrowser').html('Error fetching data ...');
+			} 
+		});
+	}
+	
+	function _doImageAutosuggest(geneResponse, mpResponse, diseaseResponse, maResponse, pipelineResponse, q, oFacets, facetMode){
 		
 		jsonBase.imagesFacet.srchParams.q = q;	
 		
 		$.ajax({
-    	    url: solrUrl + '/images/select',
+    	    url: solrUrl + '/images/select',   
     	    data: jsonBase.imagesFacet.srchParams,
     	    dataType: 'jsonp',
     	    jsonp: 'json.wrf',
     	    timeout: 5000,
     	    success: function (imagesResponse) {  
     	    	$('div#imagesFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
-    	    	oFacets.count.images = imagesResponse.response.numFound;
-    	    	$('div#imagesFacet span.facetCount').html(oFacets.count.images);    	        
+    	    	oFacets.count.images = imagesResponse.response.numFound;    	    	
+    	    	_updateFacetCount('imagesFacet', imagesResponse, facetMode);	 
     	    
     	    	/* now check which core needs to be displayed by default in the order of 
     	    	 * gene -> mp -> ma -> pipeline -> images -> disease
     	    	 * ie, fetch facet full result for that facet and display only facet count for the rest of the facets 
     	    	 * Other facet results will be fetched on demand */
-    	    	var hashParams = $.fn.parseHashString(window.location.hash.substring(1));
-    	    	var coreName = hashParams.coreName ? hashParams.coreName : _setSearchMode(oFacets.count);
+    	    	var hashParams = $.fn.parseHashString(window.location.hash.substring(1));    	    	
+    	    	    	    	
+    	    	var coreName, facetName;
+    	    	
+    	    	if ( hashParams.coreName ){
+    	    		coreName = hashParams.coreName;
+    	    	}
+    	    	else if (hashParams.facetName ){
+    	    		facetName = hashParams.facetName;    	    		
+    	    	}
+    	    	else {
+    	    		coreName = _setSearchMode(oFacets.count);
+    	    	}    	    	   	    	
     	    	
     	    	$('div#facetBrowser').html('Search results ...');
     	    	
-    	    	if ( ! coreName ){
+    	    	if ( ! coreName && ! facetName ){
     	    		// nothing found
     	    		$('div#userKeyword').html('Search keyword: ' + q + ' has returned no entry in the database');    	    	
     	    		$('div#mpi2-search').html('');
     	    		$('div.facetCatList').html('');
     	    		$('div.facetCat').removeClass('facetCatUp');	    	    		
     	    	}
-    	    	else {
-    	    		    	    		
+    	    	else {    	    	    		
     	        	// remove all previous facet results before loading new facet results
-    	        	$('div.facetCatList').html('');  
+    	    		var thisCore = coreName ? coreName : facetName; 
+    	        	$('div.facetCatList').html(''); 
     	        	
-    	        	var widgetName = coreName+'Facet';    	        				
-    	        	window.jQuery('div#' + coreName + 'Facet')[widgetName]({
-    					data: {	q: q, 
-    							core: coreName, 
-    							fq: hashParams.fq ? hashParams.fq : jsonBase[widgetName].fq,
-    							qf: jsonBase[widgetName].qf,
-    							facetCount: oFacets.count[coreName]
+    	        	//var widgetName = coreName+'Facet'; 
+    	        	var widgetName = thisCore+'Facet';    
+    	        	hashParams.fq = hashParams.fq ? hashParams.fq : jsonBase[widgetName].fq;    	        	    	        	
+    	        	hashParams.widgetName = widgetName;
+    	        	hashParams.q = q;
+    	        	     	
+    	        	window.jQuery('div#' + widgetName)[widgetName]({
+    					data: {	   							 
+    							core: coreName,    							
+    							//qf: jsonBase[widgetName].qf,
+    							facetCount: oFacets.count[thisCore],
+    							hashParams: hashParams
     							},
     			        geneGridElem: 'div#mpi2-search'			                                      
     				});
-    	        	
+    	      	  	
     	        	// load none-zero facet results on demand    	        	
     	        	var aCores = MPI2.searchAndFacetConfig.cores;
+    	        	
     	        	//delete active core, no need to invoke again  
     	        	
     	        	var index;// = aCores.indexOf(coreName);
     	        	for ( var i=0; i< aCores.length; i++){
-    	        		if (aCores[i] == coreName ){
+    	        		if (aCores[i] == thisCore ){
     	        			index = i;
     	        		}
     	        	}
     	        	aCores.splice(index, 1); // remove core that has the index result already in dataTable  
-    	        
+    	        	
     	        	for ( var i=0; i< aCores.length; i++){
     	        		var core = aCores[i];
     	        		if ( oFacets.count[core] != 0 ){    	        	
     	        			_prepareCores(core, q, oFacets);
     	        		}
     	        	}    	        		        	
-    	    	}    	    	
+    	    	}   	    	
     	    },
 			error: function (jqXHR, textStatus, errorThrown) {			        	        
 				$('div#facetBrowser').html('Error fetching data ...');
@@ -229,20 +253,20 @@
 			
 			// check widget has not been created			
 			if ( typeof $this.data(widgetName) === 'undefined' ){
-				var hashParams = {};
-				
-				//hashParams.q = q;					
-				//hashParams.core = core;
-				//hashParams.fq = jsonBase[core + 'Facet'].fq;
+				var hashParams = {};						
 				
 				//window.location.hash = $.fn.stringifyJsonAsUrlParams(hashParams);						
-				
+				hashParams.fq = jsonBase[widgetName].fq;
+	        	hashParams.widgetName = widgetName;
+	        	hashParams.q = q;
+	        	
 				if ( $this.find('.facetCatList').html() == '' && $this.find('span.facetCount').text() != '0' ){					
 					$this[widgetName]({  
-						data: {q: q, core: core, 
-							fq: jsonBase[core + 'Facet'].fq,
-							qf: jsonBase[core + 'Facet'].qf,
-							facetCount: oFacets.count[core]
+						data: {							 
+							core: core,							
+							//qf: jsonBase[core + 'Facet'].qf,
+							facetCount: oFacets.count[core],
+							hashParams: hashParams
 							},
 							geneGridElem: 'div#mpi2-search'							
 					});					
@@ -261,6 +285,9 @@
 		else if ( oCounts.mp != 0){				
 			return 'mp';			
 		}  
+		else if ( oCounts.disease != 0 ){    			
+			return 'disease';						
+		}
 		else if ( oCounts.ma != 0){				
 			return 'ma';			
 		} 
@@ -269,10 +296,7 @@
 		}
 		else if ( oCounts.images != 0 ){    			
 			return 'images';						
-		}	
-		else if ( oCounts.disease != 0 ){    			
-			return 'disease';						
-		}		
+		}				
 		else {
 			return false; // nothing found
 		}
