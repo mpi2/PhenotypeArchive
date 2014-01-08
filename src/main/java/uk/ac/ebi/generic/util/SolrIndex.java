@@ -41,7 +41,9 @@ import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 @Service
 public class SolrIndex {
-
+/**
+ * branch test
+ */
 	private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
 	@Resource(name = "globalConfiguration")
