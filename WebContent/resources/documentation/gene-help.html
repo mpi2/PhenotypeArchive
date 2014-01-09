@@ -1,186 +1,221 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!doctype html>
+<!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="en" class="no-js ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="en" class="no-js ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="en" class="no-js ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
+    <head>
 
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=1024" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
-<title>International Mouse Phenotyping Consortium Documentation</title>
+        <title>International Mouse Phenotyping Consortium Documentation</title>
 
-<link type='text/css' rel='stylesheet' href='../css/bootstrap.min.css'  />
-<link type='text/css' rel='stylesheet' href='../css/bootstrap-responsive.min.css'  />
-<script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
-<script type="text/javascript" src="../js/helpDocLogo.js"></script>
-<script type="text/javascript"> var _gaq = _gaq || []; _gaq.push(['_setAccount', 'UA-23433997-1']); _gaq.push(['_trackPageview']); (function() { var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })();</script>
+        <!-- css -->
+        <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
+        <link type='text/css' rel='stylesheet' href='../css/vendor/font-awesome/font-awesome.min.css'  />
+        <link type='text/css' rel='stylesheet' href='../css/default.css'  />
+        <link type='text/css' rel='stylesheet' href='../css/wdm.css'  />
+        <script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script type="text/javascript" src="../js/helpDocLogo.js"></script>
 
-</head>
+        <script type="text/javascript"> var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-23433997-1']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga = document.createElement('script');
+                ga.type = 'text/javascript';
+                ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+            })();
+        </script>
 
-<body class="container">
+    </head>
 
-	<div class="row">
-		<div class="well">
-			<h1><a id='logo' href=''><img src='img/IMPClogo.png' /></a>IMPC gene details page documentation</h1>
-			<p class="lead">More detailed information about the gene page</p>
-		</div>
-	</div>
+    <body id="top" class="page-node searchpage one-sidebar sidebar-first small-header">
+        <div id="wrapper">
 
-	<div class="row">
-		<div class="span3">
+            <header id="header">
+                <div class="region region-header">
+                    <div id="logo">
+                        <a href=""><img src="../img/impc.png" alt="IMPC Logo" /></a>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+            </header>        
 
-				<div class="page-header"><h3>Quick help links</h3></div>
-		
-				<ul id="navbar" class="nav nav-list">
-				<li><a href="index.html">Overview</a></li>
-				<li><a href="search-help.html">Search</a></li>
-				<li><a href="gene-help.html"><span class="alert-message info">Genes</span></a>
-					<ul>
-						<li><a href="gene-help.html#details">Gene details</a></li>
-						<li><a href="gene-help.html#browser">Gene browser and more information</a></li>
-						<li><a href="gene-help.html#pre-qc">Pre-QC phenotype heatmap</a></li>
-						<li><a href="gene-help.html#phenotypes">Gene-Phenotype associations</a>
-							<ul>
-								<li><a href="gene-help.html#phenotype-summary">Summary</a></li>
-								<li><a href="gene-help.html#phenotype-table">Table of associations</a></li>
-								<li><a href="gene-help.html#phenotype-filtering">Filtering</a></li>
-								<li><a href="gene-help.html#phenotype-download">Downloading results</a></li>
-							</ul>
-						</li>
-						<li><a href="gene-help.html#phenotype-images">Gene-Phenotype images</a>
-						<li><a href="gene-help.html#expression-images">Gene expression images</a>
-						<li><a href="gene-help.html#alleles">Gene ES cells &amp; alleles</a>
-					</ul>
-				</li>
-				<li><a href="phenotype-help.html">Phenotypes</a> </li>
+            <div id="main">
+
+                <!-- Breadcrumb -->
+                <div class="breadcrumb"><a href="/">Home</a> › <a href="index.html">Documentation</a> › Genes</div>
+
+                <!-- Sidebar First -->
+                <div class="region region-sidebar-first">
+                    <div id="facet" class="block">
+                        <div class="head">Quick help links</div>
+                        <div class="content node">
+                            <ul>
+                                <li><a href="index.html">Overview</a></li>
+                                <li><a href="search-help.html">Search</a></li>
+                                <li><a href="gene-help.html"><span class="alert-message info">Genes</span></a>
+                                    <ul>
+                                        <li><a href="gene-help.html#details">Gene details</a></li>
+                                        <li><a href="gene-help.html#browser">Gene browser and more information</a></li>
+                                        <li><a href="gene-help.html#pre-qc">Pre-QC phenotype heatmap</a></li>
+                                        <li><a href="gene-help.html#phenotypes">Gene-Phenotype associations</a>
+                                            <ul>
+                                                <li><a href="gene-help.html#phenotype-summary">Summary</a></li>
+                                                <li><a href="gene-help.html#phenotype-table">Table of associations</a></li>
+                                                <li><a href="gene-help.html#phenotype-filtering">Filtering</a></li>
+                                                <li><a href="gene-help.html#phenotype-download">Downloading results</a></li>
+                                            </ul>
+                                        </li>
+                                        <li><a href="gene-help.html#phenotype-images">Gene-Phenotype images</a>
+                                        <li><a href="gene-help.html#expression-images">Gene expression images</a>
+                                        <li><a href="gene-help.html#alleles">Gene ES cells &amp; alleles</a>
+                                    </ul>
+                                </li>
+                                <li><a href="phenotype-help.html">Phenotypes</a> </li>
                                 <li><a href="disease-help.html">Diseases</a> </li>
-				<li><a href="image-help.html">Images</a></li>
-				<li><a href="statistics-help.html">Statistics</a> </li>
-				<li><a href="graph-help.html">Graphs</a> </li>
-                <li><a href="api-help.html">RESTful API</a></li>
-				</ul>
-	
-		</div>
+                                <li><a href="image-help.html">Images</a></li>
+                                <li><a href="statistics-help.html">Statistics</a> </li>
+                                <li><a href="graph-help.html">Graphs</a> </li>
+                                <li><a href="api-help.html">RESTful API</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
 
-		<div class="span8">
+                <!-- Maincontent -->
 
-			<div class="page-header"><h3>Gene details page</h3></div>
+                <div class="region region-content">              
 
-			<h3><a name="details" href='#'>Gene details</a></h3>
-			<p>The gene details section of the page shows information about the gene.  The information displayed includes:
-			<ul>
-				<li>Name</li>
-				<li>Synonyms</li>
-				<li>MGI ID which links to the corresponding gene detail page at <a href="http://www.informatics.jax.org">Mouse Genome Informatics</a></li>
-				<li>The latest IMPC production status for this gene.  This aggregates the statuses of all ongoing projects for this gene in <a href="https://www.mousephenotype.org/imits/">iMits</a> and displays the status of the project that is closest to producing a mouse.</li>
-				<li>Links to different view of the gene in the Ensembl genome browser: 
-				<strong>Gene view</strong> links to the browser centered on the gene, 
-				<strong>Location view</strong> links to a view of the chromosome,
-				<strong>Compara view</strong> links to the Ensembl compara view for this gene</li>
-				<li>ENU link to the ENU mutant library at the Australian Phenomics Facility</li>   
-			</ul>
-			<img class="well" src="img/gene-details.png" />
+                    <div class="block block-system">
 
-			<h3><a name="browser" href='#'>Gene browser and more information</a></h3>
-			<p>By clicking the <strong>Show More Gene Information</strong> link, a genome browser will be shown displaying a graphical view
-			of the gene's location and surrounding features.  The browser is interactive and you can use your mouse to zoom and scroll.
-			</p>
+                        <div class="content node">
 
-			<p>This section also shows all Vega, NCBI, or cCDS IDs associated with this gene.</p>
-			
-			<img class="well" src="img/gene-browser.png" />
-			
-			<h3><a name="pre-qc" href='#'>Pre-QC phenotype heatmap</a></h3>
+                            <h3>Explore the diverse entry points to mouse phenotype data.</h3>
+                            
+                            <h4><a name="details" href='#'>Gene details</a></h4>
+                            <p>The gene details section of the page shows information about the gene.  The information displayed includes:
+                            <ul>
+                                <li>Name</li>
+                                <li>Synonyms</li>
+                                <li>MGI ID which links to the corresponding gene detail page at <a href="http://www.informatics.jax.org">Mouse Genome Informatics</a></li>
+                                <li>The latest IMPC production status for this gene.  This aggregates the statuses of all ongoing projects for this gene in <a href="https://www.mousephenotype.org/imits/">iMits</a> and displays the status of the project that is closest to producing a mouse.</li>
+                                <li>Links to different view of the gene in the Ensembl genome browser: 
+                                    <strong>Gene view</strong> links to the browser centered on the gene, 
+                                    <strong>Location view</strong> links to a view of the chromosome,
+                                    <strong>Compara view</strong> links to the Ensembl compara view for this gene</li>
+                                <li>ENU link to the ENU mutant library at the Australian Phenomics Facility</li>   
+                            </ul>
+                            <img src="img/gene-details.png" />
 
-			<p>When there is data available, but not yet complete, from the IMPC resource, the Pre-QC panel will appear.  The pre QC panel shows a heatmap of the results of preliminary analysis on data that has been collected by the IMPC production centers to date, but is not yet complete. In order to be marked Complete, 7 males and 7 females must complete all core screens required by the IMPC pipeline.
-			</p>
+                            <h4><a name="browser" href='#'>Gene browser and more information</a></h4>
+                            <p>By clicking the <strong>Show More Gene Information</strong> link, a genome browser will be shown displaying a graphical view
+                                of the gene's location and surrounding features.  The browser is interactive and you can use your mouse to zoom and scroll.
+                            </p>
 
-			<p>Please visit the <a href="https://www.mousephenotype.org/heatmap/manual.html">comprehensive heatmap documentation</a> for more information about the heatmap.</p>			
+                            <p>This section also shows all Vega, NCBI, or cCDS IDs associated with this gene.</p>
 
-			<p>Please visit the <a href="https://www.mousephenotype.org/impress">IMPReSS</a> website for more information about the IMPC pipeline.</p>			
+                            <img src="img/gene-browser.png" />
 
-			<p>
-			NOTE: Use this analysis with caution as the analysis is likely to change when more data becomes available.
-			</p>
+                            <h4><a name="pre-qc" href='#'>Pre-QC phenotype heatmap</a></h4>
 
-			<img class="well" src="img/gene-pre-qc.png" />
-			
-			<h3><a name="phenotypes" href='#'>Gene phenotypes</a></h3>
-			
-			<p>The gene phenotypes section of a gene page shows the association of genes to <a href="http://www.informatics.jax.org/searches/MP_form.shtml">Mammalian phenotype</a> terms.</p>
-			
-			<img class="well" src="img/gene-phenotypes.png" />
-			
-			<h3><a name="phenotype-summary" href='#'>Gene phenotype summary</a></h3>
-			
-			<p>A summary of phenotype terms for this gene with associated counts.  The counts indicate the number of unique combinations of:
-			<ul>
-			<li>Phenotype term</li>
-			<li>Allele</li>
-			<li>Zygosity</li>
-			<li>Sex</li>
-			<li>Source - project that asserted the association</li>
-			</ul>
+                            <p>When there is data available, but not yet complete, from the IMPC resource, the Pre-QC panel will appear.  The pre QC panel shows a heatmap of the results of preliminary analysis on data that has been collected by the IMPC production centers to date, but is not yet complete. In order to be marked Complete, 7 males and 7 females must complete all core screens required by the IMPC pipeline.
+                            </p>
 
-			<p>Due to this combining process, the number of rows in the results table may not equal the count shown. Also, be aware that MP terms may have more than 
-			one high level parent and so the counts in the summary may not equal the total number of entries. This is also the case in the presented example: we have 27 phenotype 
-			associations in the table but we get 31 by adding the numbers in the summary.
-			</p>
-			
-			<img class="well" src="img/gene-phenotype-summary.png" />
-			
-			<h3><a name="phenotype-table" href='#'>Gene phenotype table</a></h3>
-			
-			<p>The phenotype table lists the individual phenotypes associated to this gene through a specific allele.  If both sexes are associated, then both are shown on the same row indicated by the male (<img src="../img/icon-male.png" />) / female (<img src="../img/icon-female.png" />) icons.</p>
-			
-			<img class="well" src="img/gene-phenotype-table.png" />
-			
-			<h3><a name="phenotype-filtering" href='#'>Gene phenotype filtering</a></h3>
+                            <p>Please visit the <a href="https://www.mousephenotype.org/heatmap/manual.html">comprehensive heatmap documentation</a> for more information about the heatmap.</p>			
 
-			<p>The results shown in the phenotype table may be filtered using the dropdown filters.  Select the check boxes to include entries pertaining to the selection.  The displayed rows are the result of logically ORing within and logically ANDing between dropdowns.</p>
+                            <p>Please visit the <a href="https://www.mousephenotype.org/impress">IMPReSS</a> website for more information about the IMPC pipeline.</p>			
 
-			<img class="well" src="img/gene-phenotype-filter.png" />
-			<img class="well" src="img/gene-phenotype-filter1.png" />
+                            <p>
+                                NOTE: Use this analysis with caution as the analysis is likely to change when more data becomes available.
+                            </p>
 
-			<h3><a name="phenotype-download" href='#'>Gene phenotype download</a></h3>
-			
-			<p>The results in the table may be downloaded for further processing.  The resulting download respects all filters that have been applied to the data.</p>
-			
-			<p>
-			We offer 2 export options for the data in the table: 
-			<ul>
-				<li> TSV, text file with tab separated variables (<img title="TSV" style="vertical-align:text-bottom;" src="img/tsv.png"/>)</li>
-				<li> XLS, Microsoft Excel spread sheet (<img title="XSL" style="vertical-align:text-bottom;" src="img/xls.png"/>)</li>
-			</ul>
-			</p>
-			
-			<p>
-				In the table displayed on our page entry lines are collapsed based on sex. That is, if for 2 lines all fields are identical except the gender, they will be shown together for a better user experience.
-				In the export file however we export all lines separately, to allow easier further processing of the data. This holds for both XLS and TSV files.
-			</p>
-			
-			<h3><a name="phenotype-images" href='#'>Gene phenotype images</a></h3>
-			
-			<p>The phenotype images section shows all the images associated to this gene via direct annotation from the image source. Currently all images are courtesy of the <a href="http://www.sanger.ac.uk/mouseportal/">Sanger Mouse Genetic Project</a>.</p>
-			
-			<p>NOTE: This is a work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</p>
+                            <img src="img/gene-pre-qc.png" />
 
-			<img class="well" src="img/gene-phenotype-images.png" />
+                            <h4><a name="phenotypes" href='#'>Gene phenotypes</a></h4>
 
-			<h3><a name="expression-images" href='#'>Gene expression images</a></h3>
+                            <p>The gene phenotypes section of a gene page shows the association of genes to <a href="http://www.informatics.jax.org/searches/MP_form.shtml">Mammalian phenotype</a> terms.</p>
 
-			<p>The expression images section shows all the expression images associated to this gene via direct annotation from the image source. Currently all images are courtesy of the <a href="http://www.sanger.ac.uk/mouseportal/">Sanger Mouse Genetic Project</a>.</p>
+                            <img src="img/gene-phenotypes.png" />
 
-			<p>NOTE: This is a work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</p>
+                            <h4><a name="phenotype-summary" href='#'>Gene phenotype summary</a></h4>
 
-			<img class="well" src="img/gene-expression-images.png" />
-			
-			<h3><a name="alleles" href='#'>Gene ES cells &amp; alleles</a></h3>
-			
-			<p>The alleles and ES cells section describes the mutations available from the IKMC resource.  Each row corresponds to an allele of this gene.  A diagram is included depicting the mutation the allele carries and a link to where the ES cell or mouse may be purchased when available.  The <strong>genbank file</strong> link points to a genbank file describing the genomic sequence of the allele.</p>
+                            <p>A summary of phenotype terms for this gene with associated counts.  The counts indicate the number of unique combinations of:
+                            <ul>
+                                <li>Phenotype term</li>
+                                <li>Allele</li>
+                                <li>Zygosity</li>
+                                <li>Sex</li>
+                                <li>Source - project that asserted the association</li>
+                            </ul>
 
-			<img class="well" src="img/gene-alleles.png" />
-			
-		</div>
-	</div>
+                            <p>Due to this combining process, the number of rows in the results table may not equal the count shown. Also, be aware that MP terms may have more than 
+                                one high level parent and so the counts in the summary may not equal the total number of entries. This is also the case in the presented example: we have 27 phenotype 
+                                associations in the table but we get 31 by adding the numbers in the summary.
+                            </p>
 
-</body>
+                            <img src="img/gene-phenotype-summary.png" />
+
+                            <h4><a name="phenotype-table" href='#'>Gene phenotype table</a></h4>
+
+                            <p>The phenotype table lists the individual phenotypes associated to this gene through a specific allele.  If both sexes are associated, then both are shown on the same row indicated by the male (<img src="../img/icon-male.png" />) / female (<img src="../img/icon-female.png" />) icons.</p>
+
+                            <img src="img/gene-phenotype-table.png" alt="" />
+
+                            <h4><a name="phenotype-filtering" href='#'>Gene phenotype filtering</a></h4>
+
+                            <p>The results shown in the phenotype table may be filtered using the dropdown filters.  Select the check boxes to include entries pertaining to the selection.  The displayed rows are the result of logically ORing within and logically ANDing between dropdowns.</p>
+
+                            <img src="img/gene-phenotype-filter.png" alt="Filter be top level MP term" />
+                            <img src="img/gene-phenotype-filter1.png" alt="Filter by center or top level MP term"/>
+
+                            <h4><a name="phenotype-download" href='#'>Gene phenotype download</a></h4>
+
+                            <p>The results in the table may be downloaded for further processing.  The resulting download respects all filters that have been applied to the data.</p>
+
+                            <p>We offer 2 export options for the data in the table: </p>
+                            <ul>
+                                <li> TSV, text file with tab separated variables (<img title="TSV" style="vertical-align:text-bottom;" src="img/tsv.png"/>)</li>
+                                <li> XLS, Microsoft Excel spread sheet (<img title="XSL" style="vertical-align:text-bottom;" src="img/xls.png"/>)</li>
+                            </ul>
+
+                            <p>
+                                In the table displayed on our page entry lines are collapsed based on sex. That is, if for 2 lines all fields are identical except the gender, they will be shown together for a better user experience.
+                                In the export file however we export all lines separately, to allow easier further processing of the data. This holds for both XLS and TSV files.
+                            </p>
+
+                            <h4><a name="phenotype-images" href='#'>Gene phenotype images</a></h4>
+
+                            <p>The phenotype images section shows all the images associated to this gene via direct annotation from the image source. Currently all images are courtesy of the <a href="http://www.sanger.ac.uk/mouseportal/">Sanger Mouse Genetic Project</a>.</p>
+
+                            <p>NOTE: This is a work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</p>
+
+                            <img src="img/gene-phenotype-images.png" />
+
+                            <h4><a name="expression-images" href='#'>Gene expression images</a></h4>
+
+                            <p>The expression images section shows all the expression images associated to this gene via direct annotation from the image source. Currently all images are courtesy of the <a href="http://www.sanger.ac.uk/mouseportal/">Sanger Mouse Genetic Project</a>.</p>
+
+                            <p>NOTE: This is a work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</p>
+
+                            <img src="img/gene-expression-images.png" />
+
+                            <h4><a name="alleles" href='#'>Gene ES cells &amp; alleles</a></h4>
+
+                            <p>The alleles and ES cells section describes the mutations available from the IKMC resource.  Each row corresponds to an allele of this gene.  A diagram is included depicting the mutation the allele carries and a link to where the ES cell or mouse may be purchased when available.  The <strong>genbank file</strong> link points to a genbank file describing the genomic sequence of the allele.</p>
+
+                            <img src="img/gene-alleles.png" />
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
 </html>

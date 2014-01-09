@@ -1,152 +1,187 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!doctype html>
+<!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="en" class="no-js ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="en" class="no-js ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="en" class="no-js ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
+    <head>
 
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="wih3h=device-wih3h, initial-scale=1.0">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=1024" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
-<title>International Mouse Phenotyping Consortium Documentation</title>
+        <title>International Mouse Phenotyping Consortium Documentation</title>
 
-<link type='text/css' rel='stylesheet' href='../css/bootstrap.min.css'  />
-<link type='text/css' rel='stylesheet' href='../css/bootstrap-responsive.min.css'  />
-<script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
-<script type="text/javascript" src="../js/helpDocLogo.js"></script>
-<script type="text/javascript"> var _gaq = _gaq || []; _gaq.push(['_setAccount', 'UA-23433997-1']); _gaq.push(['_trackPageview']); (function() { var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })();</script>
-</head>
+        <!-- css -->
+        <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
+        <link type='text/css' rel='stylesheet' href='../css/vendor/font-awesome/font-awesome.min.css'  />
+        <link type='text/css' rel='stylesheet' href='../css/default.css'  />
+        <link type='text/css' rel='stylesheet' href='../css/wdm.css'  />
+        <script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script type="text/javascript" src="../js/helpDocLogo.js"></script>
 
-<body class="container">
+        <script type="text/javascript"> var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-23433997-1']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga = document.createElement('script');
+                ga.type = 'text/javascript';
+                ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+            })();
+        </script>
 
-	<div class="row">
-		<div class="well">
-			<h1><a id='logo' href=''><img src='img/IMPClogo.png' /></a>IMPC graph page documentation</h1>
-			<p class="lead">Graph details</p>
-		</div>
-	</div>
+    </head>
 
-	<div class="row">
-		<div class="span3">
+    <body id="top" class="page-node searchpage one-sidebar sidebar-first small-header">
+        <div id="wrapper">
 
-			<div class="page-header"><h3>Quick help links</h3></div>
-	
-			<ul class="nav nav-list affix-top">
-			<li><a href="index.html">Overview</a></li>
-			<li><a href="search-help.html">Search</a></li>
-			<li><a href="gene-help.html">Genes</a></li>
-                        <li><a href="disease-help.html">Diseases</a> </li>
-			<li><a href="phenotype-help.html">Phenotypes</a> </li>
-			<li><a href="image-help.html">Images</a></li>
-			<li><a href="statistics-help.html">Statistics</a> </li>
-			<li><a href="graph-help.html">Graphs</a> 
-								<ul>
-								<li><a href="graph-help.html#data">Where is the data from?</a></li>
-								<li><a href="graph-help.html#interactions">Interacting with Graphs</a></li>
-								<li><a href="graph-help.html#export">Exporting Graph Data</a></li>
-								<li><a href="graph-help.html#types">Types of Graphs and Equations</a></li>
-								</ul>
-			</li>
-            <li><a href="api-help.html">RESTful API</a></li>
-				
-			</ul>
-	
-		</div>
+            <header id="header">
+                <div class="region region-header">
+                    <div id="logo">
+                        <a href=""><img src="../img/impc.png" alt="IMPC Logo" /></a>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+            </header>        
 
-		<div class="span9">
+            <div id="main">
 
-			<div class="page-header"><h3>Graphs</h3></div> 
+                <!-- Breadcrumb -->
+                <div class="breadcrumb"><a href="/">Home</a> › <a href="index.html">Documentation</a> › Graphs</div>
 
-		
-			
-				<h3><a name="data" href='#'>Where is the data coming from?</a></h3>
-				<p>
-				Currently data for the graphs are obtained from legacy data with associated phenotype calls, p values and effect sizes as calculated from <a href="http://www.europhenome.org/"> Europhenome</a>. Association tables from gene and phenotype pages contain links to the original data in the Europhenome resource. Graphs next to these links are new graphs representing the same data from Europhenome.</p>  
-				<p> As IMPC data is quality controlled, these new graphs will be used to display the data from the IMPC procedures. 
-				<img src="img/graph_links.png">
-				</p>
-				
-				<h3><a name="interactions" href='#'>Interacting with Graphs</a> </h3>
-				<p>Graphs are interective so that you can adjust the view to your liking. Click on a legend will remove a set of data from the graph. This is especially useful if you wish to remove "noise" from a graph and focus on the control or experimental data. <img src="img/graph_legends.png"> 
-				</p>
-				
-				<p>After clicking on the control legend the control data has dissappeared:<img src="img/graph_no_control.png" alt="graph with no control here">
-				</p>
-				<p>Hovering over a data point or error bars displays extra information about the data point:<img src="img/graph_hover.png" alt="graph with a hovering over mouse label here">
-				</p>
-				<p>If appropriate the graph will allow you to zoom in on a data set by clicking and dragging to create a square/zoomable area:<img src="img/graph_before_zoom.png" alt="Scatter graph with no zoom shown here">
-				</p>
-				<p>Once zoomed a "Reset zoom" button appears at the right of the graph to enable the graph to be reset to original position:
-				<img src="img/graph_after_zoom.png" alt="Zoomed in graph here">
-				</p>
-				
-				</p>
-				<h3><a name="export" href='#'>Exporting Graph Data</a></h3>
-				<p>An export button is always visible on the right hand side of the graphs where the graph picture can be exported in png, jpeg, pdf or svg format which will be downloaded to your computer:
-				<img src="img/graph_export.png" alt="export button in graph here">
-				<p>The data used to generate the graphs can be downloaded in XLS or TSV formats from the buttons on the top of the page (<img src="img/graph-data-export.png" 
-				alt="export button in graph here">). This will export data for all graphs shown on the page. Data for males and females from the same experiment will be shown 
-				in the same table while for different zygosities, organizations or strains there will be separate tables exported in the same file. Following we present a list of
-				exported values accompanied by a short description when needed.
-				</p>
-				<table>
-				<tr> <th width="20%">Column</th> <th> Description</th></tr>
-				<tr><td> pipelineName </td><td> Pipeline through which the phenotyping was done, i.e. EUMODIC pipelines </td></tr>
-				<tr><td> pipelineStableId </td><td> Pipeline id </td></tr>
-				<tr><td> procedureStableId </td><td> Procedure id </td></tr>
-				<tr><td> procedureName </td><td> Procedure name </td></tr>
-				<tr><td> parameterStableId </td><td> Parameter id </td></tr>
-				<tr><td> parameterName </td><td> Parameter name </td></tr>
-				<tr><td> strain </td><td> Mouse strain used </td></tr>
-				<tr><td> geneSymbol </td><td> Gene symbol </td></tr>
-				<tr><td> geneAccession </td><td> Gene MGI id </td></tr>
-				<tr><td> organisation </td><td> Organization name </td></tr>
-				<tr><td> colonyId </td><td> Colony id </td></tr>
-				<tr><td> dateOfExperiment </td><td> Date of experiment </td></tr>
-				<tr><td> externalSampleId </td><td> Animal id </td></tr>
-				<tr><td> zygosity </td><td> Zygosity </td></tr>
-				<tr><td> sex </td><td> Sex </td></tr>  
-				<tr><td> group </td><td> This field has only 2 values: control or experiment </td></tr>  
-				<tr><td> category </td><td> Column is exported only for categorical data. It contains the label of the category assigned. </td></tr>  
-				<tr><td> dataPoint </td><td> Coulmn is exported for unidimensional or time series data. It contains the value resulted from the measurment decribed by the current procedure.</td></tr>  
-				<tr><td> discretePoint </td><td> Column exported for time series data. It contains the relative timepoints at which the measurments were made. </td></tr> 
-				</table>
-				<br/>
-				<p> A <b>restful web service</b> is also available for retrieving information pertaining to experiments via a web browser or a programming language of your choice. Documentation for this can be found <a href="https://github.com/mpi2/PhenotypeArchive/wiki">here</a>.			</p>
-				
-				<h2><a name="types" href='#'>Types of Graphs and Equations</a></h2>
-				<p>
-				Currently 4 types of graph exist in the IMPC portal from the IMPC: 
-				</p>
-				<ol>
-				<li><a href="graph-help.html#categorical_graphs">Categorical Bar Graphs</a></li>
-				<li><a href="graph-help.html#undimensional_graphs">Unidimensional Scatter and Box Plot Graphs</a></li>
-				<li><a href="graph-help.html#time_graphs">Time Series Graphs</a></li>
-				<li><a href="graph-help.html#scatter_graphs">Scatter Plots Showing Data Grouped by Date</a></li>
-				</ol>
-				
-				<h2><a name="categorical_graphs" href='#'>Categorical Bar Graphs</a></h2>
-				<img src="img/graph_categorical_normal.png">
-				<p>Categorical graphs contain data where an observation can be categorised into one of two or more groups e.g. Abnormal Eye or Normal Eye. Graphs are presented as bar graphs with a table underneath. If IMPC data is available this will be displayed. Otherwise if data from Europhenome is available, the p values and max effects as determined by Europhenoome will be displayed. Note that these may not correlate exactly with the data displayed in the graphs although every attempt has been made to make them correlate.  (see <a href="statistics-help.html">statistic help</a> for more information).
-				</p>
-				
-				<h2><a name="undimensional_graphs" href='#'>Unidimensional Scatter and Box Plot Graphs</a></h2>
-				<img src="img/graph_box_normal.png">
-				<p>Where an observation can be measured on a continuous basis (e.g. red blood cell counts or tail length), we display them in a mixed box and scatter plot. The first column contains a box plot for wild-type data and the second a scatter plot for that same wild type data. The third column is a box plot for homozygote or heterozygote data and the 4th will be
-				a scatter plot for the same data. Hover over the box in the graph will show the basic statistics for that set of data: 
-				<img src="img/graph_box_with_labels.png">
-				</p>
-				
-				<h2><a name="time_graphs" href='#'>Time Series Graphs</a></h2>
-				<img src="img/graph_time_series.png">
-				<p>Where an observation can be measured as a time series (e.g. cumulative food intake), we display the data in a line graph and scatter plot. The line graph will contain two lines, one each for wild-type and mutant data.  The data points displayed are the mean of all data collected at that timepoint and the whiskers indicate standard deviation.
-				Hover over the points to see basic statistics about the data.  
+                <!-- Sidebar First -->
+                <div class="region region-sidebar-first">
+                    <div id="facet" class="block">
+                        <div class="head">Quick help links</div>
+                        <div class="content node">
+                            <ul>
+                                <li><a href="index.html">Overview</a></li>
+                                <li><a href="search-help.html">Search</a></li>
+                                <li><a href="gene-help.html">Genes</a></li>
+                                <li><a href="disease-help.html">Diseases</a> </li>
+                                <li><a href="phenotype-help.html">Phenotypes</a> </li>
+                                <li><a href="image-help.html">Images</a></li>
+                                <li><a href="statistics-help.html">Statistics</a> </li>
+                                <li><a href="graph-help.html">Graphs</a> 
+                                    <ul>
+                                        <li><a href="graph-help.html#data">Where is the data from?</a></li>
+                                        <li><a href="graph-help.html#interactions">Interacting with Graphs</a></li>
+                                        <li><a href="graph-help.html#export">Exporting Graph Data</a></li>
+                                        <li><a href="graph-help.html#types">Types of Graphs and Equations</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="api-help.html">RESTful API</a></li>
 
-				<h2><a name="scatter_graphs" href='#'>Scatter Plots Showing Data grouped by Date</a></h2>
-				<img src="img/graph_scatterplot.png">
-				<p>When the data for a parameter is collected at various points in time, a scatter plot will show each data value on the y a-xis and the date/time the data was collected on the x-axis. 
-				
-			
+                            </ul>
+                        </div>
+                    </div>
+                </div>
 
-		</div>
-	</div>
+                <!-- Maincontent -->
 
-</body>
+                <div class="region region-content">              
+
+                    <div class="block block-system">
+
+                        <div class="content node">
+
+                            <h3>More information about the way IMPC uses graphs.</h3>
+
+                            <h4><a name="data" href='#'>Where is the data coming from?</a></h4>
+                            <p>
+                                Currently data for the graphs are obtained from legacy data with associated phenotype calls, p values and effect sizes as calculated from <a href="http://www.europhenome.org/"> Europhenome</a>. Association tables from gene and phenotype pages contain links to the original data in the Europhenome resource. Graphs next to these links are new graphs representing the same data from Europhenome.</p>  
+                            <p> As IMPC data is quality controlled, these new graphs will be used to display the data from the IMPC procedures. 
+                                <img src="img/graph_links.png">
+                            </p>
+
+                            <h4><a name="interactions" href='#'>Interacting with Graphs</a> </h4>
+                            <p>Graphs are interective so that you can adjust the view to your liking. Click on a legend will remove a set of data from the graph. This is especially useful if you wish to remove "noise" from a graph and focus on the control or experimental data. <img src="img/graph_legends.png"> 
+                            </p>
+
+                            <p>After clicking on the control legend the control data has dissappeared:<img src="img/graph_no_control.png" alt="graph with no control here">
+                            </p>
+                            <p>Hovering over a data point or error bars displays extra information about the data point:<img src="img/graph_hover.png" alt="graph with a hovering over mouse label here">
+                            </p>
+                            <p>If appropriate the graph will allow you to zoom in on a data set by clicking and dragging to create a square/zoomable area:<img src="img/graph_before_zoom.png" alt="Scatter graph with no zoom shown here">
+                            </p>
+                            <p>Once zoomed a "Reset zoom" button appears at the right of the graph to enable the graph to be reset to original position:
+                                <img src="img/graph_after_zoom.png" alt="Zoomed in graph here">
+                            </p>
+
+                            <h4><a name="export" href='#'>Exporting Graph Data</a></h4>
+                            <p>An export button is always visible on the right hand side of the graphs where the graph picture can be exported in png, jpeg, pdf or svg format which will be downloaded to your computer:
+                                <img src="img/graph_export.png" alt="export button in graph here">
+                            <p>The data used to generate the graphs can be downloaded in XLS or TSV formats from the buttons on the top of the page (<img src="img/graph-data-export.png" 
+                                                                                                                                                          alt="export button in graph here">). This will export data for all graphs shown on the page. Data for males and females from the same experiment will be shown 
+                                in the same table while for different zygosities, organizations or strains there will be separate tables exported in the same file. Following we present a list of
+                                exported values accompanied by a short description when needed.
+                            </p>
+                            <table>
+                                <tr> <th width="20%">Column</th> <th> Description</th></tr>
+                                <tr><td> pipelineName </td><td> Pipeline through which the phenotyping was done, i.e. EUMODIC pipelines </td></tr>
+                                <tr><td> pipelineStableId </td><td> Pipeline id </td></tr>
+                                <tr><td> procedureStableId </td><td> Procedure id </td></tr>
+                                <tr><td> procedureName </td><td> Procedure name </td></tr>
+                                <tr><td> parameterStableId </td><td> Parameter id </td></tr>
+                                <tr><td> parameterName </td><td> Parameter name </td></tr>
+                                <tr><td> strain </td><td> Mouse strain used </td></tr>
+                                <tr><td> geneSymbol </td><td> Gene symbol </td></tr>
+                                <tr><td> geneAccession </td><td> Gene MGI id </td></tr>
+                                <tr><td> organisation </td><td> Organization name </td></tr>
+                                <tr><td> colonyId </td><td> Colony id </td></tr>
+                                <tr><td> dateOfExperiment </td><td> Date of experiment </td></tr>
+                                <tr><td> externalSampleId </td><td> Animal id </td></tr>
+                                <tr><td> zygosity </td><td> Zygosity </td></tr>
+                                <tr><td> sex </td><td> Sex </td></tr>  
+                                <tr><td> group </td><td> This field has only 2 values: control or experiment </td></tr>  
+                                <tr><td> category </td><td> Column is exported only for categorical data. It contains the label of the category assigned. </td></tr>  
+                                <tr><td> dataPoint </td><td> Coulmn is exported for unidimensional or time series data. It contains the value resulted from the measurment decribed by the current procedure.</td></tr>  
+                                <tr><td> discretePoint </td><td> Column exported for time series data. It contains the relative timepoints at which the measurments were made. </td></tr> 
+                            </table>
+                            <br/>
+                            <p> A <b>restful web service</b> is also available for retrieving information pertaining to experiments via a web browser or a programming language of your choice. Documentation for this can be found <a href="https://github.com/mpi2/PhenotypeArchive/wiki">here</a>.			</p>
+
+                            <h4><a name="types" href='#'>Types of Graphs and Equations</a></h4>
+                            <p>
+                                Currently 4 types of graph exist in the IMPC portal from the IMPC: 
+                            </p>
+                            <ol>
+                                <li><a href="graph-help.html#categorical_graphs">Categorical Bar Graphs</a></li>
+                                <li><a href="graph-help.html#undimensional_graphs">Unidimensional Scatter and Box Plot Graphs</a></li>
+                                <li><a href="graph-help.html#time_graphs">Time Series Graphs</a></li>
+                                <li><a href="graph-help.html#scatter_graphs">Scatter Plots Showing Data Grouped by Date</a></li>
+                            </ol>
+
+                            <h4><a name="categorical_graphs" href='#'>Categorical Bar Graphs</a></h4>
+                            <img src="img/graph_categorical_normal.png">
+                            <p>Categorical graphs contain data where an observation can be categorised into one of two or more groups e.g. Abnormal Eye or Normal Eye. Graphs are presented as bar graphs with a table underneath. If IMPC data is available this will be displayed. Otherwise if data from Europhenome is available, the p values and max effects as determined by Europhenoome will be displayed. Note that these may not correlate exactly with the data displayed in the graphs although every attempt has been made to make them correlate.  (see <a href="statistics-help.html">statistic help</a> for more information).
+                            </p>
+
+                            <h4><a name="undimensional_graphs" href='#'>Unidimensional Scatter and Box Plot Graphs</a></h4>
+                            <img src="img/graph_box_normal.png">
+                            <p>Where an observation can be measured on a continuous basis (e.g. red blood cell counts or tail length), we display them in a mixed box and scatter plot. The first column contains a box plot for wild-type data and the second a scatter plot for that same wild type data. The third column is a box plot for homozygote or heterozygote data and the 4th will be
+                                a scatter plot for the same data. Hover over the box in the graph will show the basic statistics for that set of data: 
+                                <img src="img/graph_box_with_labels.png">
+                            </p>
+
+                            <h4><a name="time_graphs" href='#'>Time Series Graphs</a></h4>
+                            <img src="img/graph_time_series.png">
+                            <p>Where an observation can be measured as a time series (e.g. cumulative food intake), we display the data in a line graph and scatter plot. The line graph will contain two lines, one each for wild-type and mutant data.  The data points displayed are the mean of all data collected at that timepoint and the whiskers indicate standard deviation.
+                                Hover over the points to see basic statistics about the data.  
+
+                            <h4><a name="scatter_graphs" href='#'>Scatter Plots Showing Data grouped by Date</a></h4>
+                            <img src="img/graph_scatterplot.png">
+                            <p>When the data for a parameter is collected at various points in time, a scatter plot will show each data value on the y a-xis and the date/time the data was collected on the x-axis. 
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
 </html>

@@ -1,180 +1,215 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!doctype html>
+<!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="en" class="no-js ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="en" class="no-js ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="en" class="no-js ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
+    <head>
 
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=1024" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
-<title>International Mouse Phenotyping Consortium Documentation</title>
+        <title>International Mouse Phenotyping Consortium Documentation</title>
 
-<link type='text/css' rel='stylesheet' href='../css/bootstrap.min.css'  />
-<link type='text/css' rel='stylesheet' href='../css/bootstrap-responsive.min.css'  />
-<script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
-<script type="text/javascript" src="../js/helpDocLogo.js"></script>
-<script type="text/javascript"> var _gaq = _gaq || []; _gaq.push(['_setAccount', 'UA-23433997-1']); _gaq.push(['_trackPageview']); (function() { var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })();</script>
+        <!-- css -->
+        <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
+        <link type='text/css' rel='stylesheet' href='../css/vendor/font-awesome/font-awesome.min.css'  />
+        <link type='text/css' rel='stylesheet' href='../css/default.css'  />
+        <link type='text/css' rel='stylesheet' href='../css/wdm.css'  />
+        <script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script type="text/javascript" src="../js/helpDocLogo.js"></script>
 
-</head>
+        <script type="text/javascript"> var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-23433997-1']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga = document.createElement('script');
+                ga.type = 'text/javascript';
+                ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+            })();
+        </script>
 
-<body class="container">
+    </head>
 
-	<div class="row">
-		<div class="well">
-			<h1><a id='logo' href=''><img src='img/IMPClogo.png' /></a>IMPC phenotype page documentation</h1>
-			<p class="lead">Phenotype details</p>
-		</div>
-	</div>
+    <body id="top" class="page-node searchpage one-sidebar sidebar-first small-header">
+        <div id="wrapper">
 
-	<div class="row">
-		<div class="span3">
+            <header id="header">
+                <div class="region region-header">
+                    <div id="logo">
+                        <a href=""><img src="../img/impc.png" alt="IMPC Logo" /></a>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+            </header>        
 
-			<div class="page-header"><h3>Quick help links</h3></div>
-	
-			<ul class="nav nav-list affix-top">
-			
-			<li><a href="index.html">Overview</a></li>
-			<li><a href="search-help.html">Search</a></li>
-			<li><a href="gene-help.html">Genes</a></li>
-			<li><a href="phenotype-help.html">Phenotypes</a> 
-			<ul>
-						<li><a href="phenotype-help.html#details">Phenotype details</a></li>
-						<li><a href="phenotype-help.html#phenotype-stats-panel">Phenotype association stats</a>
-							<ul> <li> <a href="phenotype-help.html#phenGraphs">Overview Graphs </a> </li> </ul>
-						</li>
-						<li><a href="phenotype-help.html#associations">Gene-Phenotype associations</a>
-							<ul>
-								<li><a href="phenotype-help.html#dvi">Direct vs. inferred associations</a></li>
-								<li><a href="phenotype-help.html#table-filtering">Table filtering</a></li>
-								<li><a href="phenotype-help.html#table-download">Downloading results</a></li>
-							</ul>
-						</li>
-					</ul>
-			</li>
-            <li><a href="disease-help.html">Diseases</a> </li>
-			<li><a href="image-help.html">Images</a></li>
-			<li><a href="statistics-help.html">Statistics</a> </li>
-			<li><a href="graph-help.html">Graphs</a> </li>
-            <li><a href="api-help.html">RESTful API</a></li>
-			</ul>
-	
-		</div>
+            <div id="main">
 
-		<div class="span9">
+                <!-- Breadcrumb -->
+                <div class="breadcrumb"><a href="/">Home</a> › <a href="index.html">Documentation</a> › Phenotypes</div>
 
-			<div class="page-header"><h3>Explore the diverse entry points to mouse phenotype data.</h3></div> 
-			<p>
-				Our phenotype page currently consists of two main parts: the phenotype information/details and the table of gene variants associated with the current phenotype.
-			</p>
-			<img src="img/phenotype-page.png"/>
-			
-			<h3><a name="details" href='#'>Phenotype details</a></h3>
-				<p>The <b>synonyms</b> and <b>definition</b> we provide come from the mouse phenotype ontology (MP). This is also why we provide the MP id of the current
-				 phenotype page as well as the link to it on the <b>MGI MP browser</b>.</p>
-				 
-				 <p> The <b>procedures</b> come from legacy data pipelines such as EUMODIC, GMC and they will change in the future. </p>
-				
-				<figure>
-				<img class="well" src="img/phenotype-information.png"/>
-				</figure>
-				
-				<h3><a name="phenotype-stats-panel" href='#'>Phenotype Association Stats</a></h3>
-				<img class="well" src="img/phenotype-associations-stats.png"/>
-				<p> IMPC mouse strains are subjected to a wide range of phenotype assays, allowing for estimates on the percentage of genes that when knocked out contribute to 
-				a phenotype. As multiple parameters may map to the same phenotype, percentages are calculated across all parameters that map to a phenotype. The percentage of genes 
-				associated to the current phenotype in one sex only, for example females is the number of genes associated to phenotypeX in 
-				females divided by the total number of genes tested in females for parameters potentially leading to phenotypeX associations. Thus, the percent 
-				values we show for females and males may not add up to 1 nor do the percentages for males/females have to be smaller than the combined percentage.</p>
-				
-				<p> Currently the data used for this panel is restricted to EuroPhenome data on B6N and B6NTac strains. This will be replaced when a sufficient amount of IMPC phenotype 
-				data becomes available. Mutant strains with the phenotype association appear in the gene -phenoytype table found further down the phenotype page. Users may view the control
-				 and phenotype data that was used in the phenotype call using links from this table.</p> 				
-				
-				<h5> <a name="phenGraphs" href='#'> Overview Graphs</a></h5>
-				<p> The way we represent different types of data varies in what we select as control, what we represent (individual animals or strains) or values (means, count) 
-				so we describe each separately. </p>
-				
-				<p><b> Unidimensional Data </b> </p>
-				<figure>
-					<img class="well" src="img/unidimensional-overview.png"/>
-				</figure>
-				<p> Unidimensional data is plotted as stacked histograms. We take the mean for each <b>strain</b> and plot these values as a histogram. . Mutant strains that have been
-				 associated to the phenotype are highlighted including those strains where the phenotype was only observed in one gender or zygotic state. Some strains may be associated
-				  to a phenotype that do not appear to be an outlier; this usually result from controls having relatively low or high values in the time period the mutant strain was tested.
-				</p>
-				
-				<p><b> Time series Data </b> </p>
-				<figure>
-					<img class="well" src="img/time-series-overview.png"/>
-				</figure>
-				<p> For time-series data we plot mean values for each mutant <b>strain</b> . We average the values in each strain at each time-point and thus get the plot values. 
-				To simplify visualization of calorimetric parameters, data is binned into discrete time points by taking the mean of values measured between two time points. The 
-				control data represents the mean of all C57BL/6N baseline animals. For the mutant lines we do not show the error bars in order to avoid overcrow-ding the graph.
-				
-				<p><b> Categorical Data </b> </p>
-				<figure>
-					<img class="well" src="img/categorical-overview.png"/>
-				</figure>
-				<p> Categorical overview graphs represent the percentage of <b>animals</b> in each category. 
-				The control values are percentages of baseline animals and the mutant values are percentage of animals from mutant strains for which the phenotype association is made. </p>
-				
-				
-				
-			<h3><a name="associations" href='#'>Gene-Phenotype associations</a></h3>
-			
-			<p>All gene variants associated with the current phenotype are shown in a table similar to the one on the gene page. The table contains several fields of interest such 
-			as gene name and the corresponding allele, zygosity, sex, data source, parameter, a link to the <a href="graph-help.html">graph</a> when one is available as well as the 
-			used procedure <i>or</i> directly associated phenotype, depending on the MP term (see <a href="phenotype-help.html#dvi">Direct vs. inferred associations</a>).
-			<p>Rows are collapsed based on sex. For more readability we group entries where all fields are identical except the sex to one row. These rows are identified by 
-			a both-sexes icon (<img src="img/both-sexes-icon.png"/>). The <b>total number of results</b> shown on top of the table will double count this rows (once for females 
-			and once for males).</p>
-			
-			
-			<h3><a name="dvi" href='#'>Direct vs. inferred associations</a></h3>
-			
-				<p> The gene associations table on the phenotype page comes in two slightly different flavors, depending on how the phenotype is associated</p>
-					<p> (1) phenotype terms that are directly annotated to data</p>
-					<p> (2) phenotype terms whose gene associations have been inferred</p>		
-			
-				<h5> Lower level MP terms, directly associated </h5>
-				<p>The associations come directly from the pipelines. At the moment this is the case for the vast majority of the phenotype pages.</p>
-				<img class="well" src="img/phenotype-help-directly-annotated-mp.png"/>
-				
-				<h5>Higher level MP terms and the transitively associated gene variants</h5>
-				<p>This is the case only for the top level at the moment, but we might add intermediate terms too. One way to navigate to these pages is from the
-				 <a href="gene-help.html#phenotype-summary">phenotype summary</a> on the gene page or you could simply do search for a top level MP term.</p>				 
-				<p> The image below pictures the table for a top level term (growth/size phenotype). We obtain this information by joining information from all ontology descendants 
-				of the current MP term.    
-				To keep the granularity of the MP term associations we introduced phenotype information in
-				 the table (highlighted in red below).
-				 To ease the navigation all MP terms in the table have hyperlinks to their respective IMPC page. </p>				 
-				<p> We also add a new filter, the actual phenotype terms associated, also highlighted in the image below. </p>
-				<img class="well" src="img/phenotype-help-top-level-table.png"/>
-				
-				
-			<h3><a name="table-filtering" href='#'>Table filtering</a></h3>
-			
-				<p>The filters over the gene variants associations table offer flexible filtering possibilities. Multiple checkboxes can be selected from any filter dropdown list 
-				and the table will automatically reload with each new selected option. 
-				These changes will be mirrored by the total number of results over the table as well as by the table export.  </p>
-				<p>Multiple filters from the same dropdown list will be joined by a logical OR while between different lists we will use AND. </p>
-				<img src ="img/phenotype-filters.png"/>
-				
-				
-			<h3><a name="table-download" href='#'>Downloading results</a></h3>
-				<p> The results in the table may be downloaded for further processing. The resulting download respects all filters that have been applied to the data.</p>
-				<p> We offer 2 export options for the data in the table:</p> 
-				<ul>
-					<li> TSV, text file with tab separated variables (<img title="TSV" style="vertical-align:text-bottom;" src="img/tsv.png"/>)</li>
-					<li> XLS, Microsoft Excel spread sheet (<img title="XSL" style="vertical-align:text-bottom;" src="img/xls.png"/>)</li>
-				</ul>		
-				<p> Please note that in the table displayed on our page entry lines are collapsed based on sex. That is, if for 2 lines all fields are identical except the gender, 
-					they will be shown together for a better user experience.
-					In the export file however we export all lines separately, to allow easier further processing of the data. This holds for both XLS and TSV files. </p>
-		</div>
-	</div>
+                <!-- Sidebar First -->
+                <div class="region region-sidebar-first">
+                    <div id="facet" class="block">
+                        <div class="head">Quick help links</div>
+                        <div class="content node">
+                            <ul>
+                                <li><a href="index.html">Overview</a></li>
+                                <li><a href="search-help.html">Search</a></li>
+                                <li><a href="gene-help.html">Genes</a></li>
+                                <li><a href="phenotype-help.html">Phenotypes</a> 
+                                    <ul>
+                                        <li><a href="phenotype-help.html#details">Phenotype details</a></li>
+                                        <li><a href="phenotype-help.html#phenotype-stats-panel">Phenotype association stats</a>
+                                            <ul> <li> <a href="phenotype-help.html#phenGraphs">Overview Graphs </a> </li> </ul>
+                                        </li>
+                                        <li><a href="phenotype-help.html#associations">Gene-Phenotype associations</a>
+                                            <ul>
+                                                <li><a href="phenotype-help.html#dvi">Direct vs. inferred associations</a></li>
+                                                <li><a href="phenotype-help.html#table-filtering">Table filtering</a></li>
+                                                <li><a href="phenotype-help.html#table-download">Downloading results</a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><a href="disease-help.html">Diseases</a> </li>
+                                <li><a href="image-help.html">Images</a></li>
+                                <li><a href="statistics-help.html">Statistics</a> </li>
+                                <li><a href="graph-help.html">Graphs</a> </li>
+                                <li><a href="api-help.html">RESTful API</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
 
-	<div>
+                <!-- Maincontent -->
 
-	</div>
+                <div class="region region-content">              
 
-</body>
-</html>
+                    <div class="block block-system">
+
+                        <div class="content node">
+
+                            <h3>Explore the diverse entry points to mouse phenotype data.</h3>
+
+                            <p>
+                                Our phenotype page currently consists of two main parts: the phenotype information/details and the table of gene variants associated with the current phenotype.
+                            </p>
+                            <img src="img/phenotype-page.png"/>
+
+                            <h4><a name="details" href='#'>Phenotype details</a></h4>
+                            <p>The <b>synonyms</b> and <b>definition</b> we provide come from the mouse phenotype ontology (MP). This is also why we provide the MP id of the current
+                                phenotype page as well as the link to it on the <b>MGI MP browser</b>.</p>
+
+                            <p> The <b>procedures</b> come from legacy data pipelines such as EUMODIC, GMC and they will change in the future. </p>
+
+                            <figure>
+                                <img class="well" src="img/phenotype-information.png"/>
+                            </figure>
+
+                            <h4><a name="phenotype-stats-panel" href='#'>Phenotype Association Stats</a></h4>
+                            <img class="well" src="img/phenotype-associations-stats.png"/>
+                            <p> IMPC mouse strains are subjected to a wide range of phenotype assays, allowing for estimates on the percentage of genes that when knocked out contribute to 
+                                a phenotype. As multiple parameters may map to the same phenotype, percentages are calculated across all parameters that map to a phenotype. The percentage of genes 
+                                associated to the current phenotype in one sex only, for example females is the number of genes associated to phenotypeX in 
+                                females divided by the total number of genes tested in females for parameters potentially leading to phenotypeX associations. Thus, the percent 
+                                values we show for females and males may not add up to 1 nor do the percentages for males/females have to be smaller than the combined percentage.</p>
+
+                            <p> Currently the data used for this panel is restricted to EuroPhenome data on B6N and B6NTac strains. This will be replaced when a sufficient amount of IMPC phenotype 
+                                data becomes available. Mutant strains with the phenotype association appear in the gene -phenoytype table found further down the phenotype page. Users may view the control
+                                and phenotype data that was used in the phenotype call using links from this table.</p> 				
+
+                            <h5> <a name="phenGraphs" href='#'> Overview Graphs</a></h5>
+                            <p> The way we represent different types of data varies in what we select as control, what we represent (individual animals or strains) or values (means, count) 
+                                so we describe each separately. </p>
+
+                            <p><b> Unidimensional Data </b> </p>
+                            <figure>
+                                <img class="well" src="img/unidimensional-overview.png"/>
+                            </figure>
+                            <p> Unidimensional data is plotted as stacked histograms. We take the mean for each <b>strain</b> and plot these values as a histogram. . Mutant strains that have been
+                                associated to the phenotype are highlighted including those strains where the phenotype was only observed in one gender or zygotic state. Some strains may be associated
+                                to a phenotype that do not appear to be an outlier; this usually result from controls having relatively low or high values in the time period the mutant strain was tested.
+                            </p>
+
+                            <p><b> Time series Data </b> </p>
+                            <figure>
+                                <img class="well" src="img/time-series-overview.png"/>
+                            </figure>
+                            <p> For time-series data we plot mean values for each mutant <b>strain</b> . We average the values in each strain at each time-point and thus get the plot values. 
+                                To simplify visualization of calorimetric parameters, data is binned into discrete time points by taking the mean of values measured between two time points. The 
+                                control data represents the mean of all C57BL/6N baseline animals. For the mutant lines we do not show the error bars in order to avoid overcrow-ding the graph.
+
+                            <p><b> Categorical Data </b> </p>
+                            <figure>
+                                <img class="well" src="img/categorical-overview.png"/>
+                            </figure>
+                            <p> Categorical overview graphs represent the percentage of <b>animals</b> in each category. 
+                                The control values are percentages of baseline animals and the mutant values are percentage of animals from mutant strains for which the phenotype association is made. </p>
+
+
+
+                            <h4><a name="associations" href='#'>Gene-Phenotype associations</a></h4>
+
+                            <p>All gene variants associated with the current phenotype are shown in a table similar to the one on the gene page. The table contains several fields of interest such 
+                                as gene name and the corresponding allele, zygosity, sex, data source, parameter, a link to the <a href="graph-help.html">graph</a> when one is available as well as the 
+                                used procedure <i>or</i> directly associated phenotype, depending on the MP term (see <a href="phenotype-help.html#dvi">Direct vs. inferred associations</a>).
+                            <p>Rows are collapsed based on sex. For more readability we group entries where all fields are identical except the sex to one row. These rows are identified by 
+                                a both-sexes icon (<img src="img/both-sexes-icon.png"/>). The <b>total number of results</b> shown on top of the table will double count this rows (once for females 
+                                and once for males).</p>
+
+
+                            <h4><a name="dvi" href='#'>Direct vs. inferred associations</a></h4>
+
+                            <p> The gene associations table on the phenotype page comes in two slightly different flavors, depending on how the phenotype is associated</p>
+                            <p> (1) phenotype terms that are directly annotated to data</p>
+                            <p> (2) phenotype terms whose gene associations have been inferred</p>		
+
+                            <h5> Lower level MP terms, directly associated </h5>
+                            <p>The associations come directly from the pipelines. At the moment this is the case for the vast majority of the phenotype pages.</p>
+                            <img class="well" src="img/phenotype-help-directly-annotated-mp.png"/>
+
+                            <h5>Higher level MP terms and the transitively associated gene variants</h5>
+                            <p>This is the case only for the top level at the moment, but we might add intermediate terms too. One way to navigate to these pages is from the
+                                <a href="gene-help.html#phenotype-summary">phenotype summary</a> on the gene page or you could simply do search for a top level MP term.</p>				 
+                            <p> The image below pictures the table for a top level term (growth/size phenotype). We obtain this information by joining information from all ontology descendants 
+                                of the current MP term.    
+                                To keep the granularity of the MP term associations we introduced phenotype information in
+                                the table (highlighted in red below).
+                                To ease the navigation all MP terms in the table have hyperlinks to their respective IMPC page. </p>				 
+                            <p> We also add a new filter, the actual phenotype terms associated, also highlighted in the image below. </p>
+                            <img class="well" src="img/phenotype-help-top-level-table.png"/>
+
+
+                            <h4><a name="table-filtering" href='#'>Table filtering</a></h4>
+
+                            <p>The filters over the gene variants associations table offer flexible filtering possibilities. Multiple checkboxes can be selected from any filter dropdown list 
+                                and the table will automatically reload with each new selected option. 
+                                These changes will be mirrored by the total number of results over the table as well as by the table export.  </p>
+                            <p>Multiple filters from the same dropdown list will be joined by a logical OR while between different lists we will use AND. </p>
+                            <img src ="img/phenotype-filters.png"/>
+
+
+                            <h4><a name="table-download" href='#'>Downloading results</a></h4>
+                            <p> The results in the table may be downloaded for further processing. The resulting download respects all filters that have been applied to the data.</p>
+                            <p> We offer 2 export options for the data in the table:</p> 
+                            <ul>
+                                <li> TSV, text file with tab separated variables (<img title="TSV" style="vertical-align:text-bottom;" src="img/tsv.png"/>)</li>
+                                <li> XLS, Microsoft Excel spread sheet (<img title="XSL" style="vertical-align:text-bottom;" src="img/xls.png"/>)</li>
+                            </ul>		
+                            <p> Please note that in the table displayed on our page entry lines are collapsed based on sex. That is, if for 2 lines all fields are identical except the gender, 
+                                they will be shown together for a better user experience.
+                                In the export file however we export all lines separately, to allow easier further processing of the data. This holds for both XLS and TSV files. </p>
+                        </div>
+                    </div>
+
+                    <div>
+
+                    </div>
+
+                    </body>
+                    </html>
