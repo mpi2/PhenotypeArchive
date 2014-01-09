@@ -50,8 +50,11 @@ public class Parameter extends PipelineEntry {
 	@Column(name = "unit")
 	private String unit;	
 
+	@Column(name = "parameter_type")
+	private String type;
+	
 	@Column(name = "datatype")
-	private String datatype;	
+	private String datatype;
 
 	@Column(name = "formula")
 	private String formula;
@@ -82,7 +85,13 @@ public class Parameter extends PipelineEntry {
 
 	@Column(name = "media")
 	private boolean mediaFlag;
+	
+	@Column(name = "data_analysis")
+	private boolean requiredForDataAnalysisFlag;
 
+	@Column(name = "data_analysis_notes")
+	private String dataAnalysisNotes;
+	
 	/**
 	 * bi-directional
 	 */
@@ -324,6 +333,54 @@ public class Parameter extends PipelineEntry {
 	public void setMediaFlag(boolean mediaFlag) {
 		this.mediaFlag = mediaFlag;
 	}
+	
+	/**
+	 * @return the type
+	 */
+	public String getType() {
+		return type;
+	}
+
+
+	/**
+	 * @param type the type to set
+	 */
+	public void setType(String type) {
+		this.type = type;
+	}
+
+
+	/**
+	 * @return the requiredForDataAnalysisFlag
+	 */
+	public boolean isRequiredForDataAnalysisFlag() {
+		return requiredForDataAnalysisFlag;
+	}
+
+
+	/**
+	 * @param requiredForDataAnalysisFlag the requiredForDataAnalysisFlag to set
+	 */
+	public void setRequiredForDataAnalysisFlag(boolean requiredForDataAnalysisFlag) {
+		this.requiredForDataAnalysisFlag = requiredForDataAnalysisFlag;
+	}
+
+
+	/**
+	 * @return the dataAnalysisNotes
+	 */
+	public String getDataAnalysisNotes() {
+		return dataAnalysisNotes;
+	}
+
+
+	/**
+	 * @param dataAnalysisNotes the dataAnalysisNotes to set
+	 */
+	public void setDataAnalysisNotes(String dataAnalysisNotes) {
+		this.dataAnalysisNotes = dataAnalysisNotes;
+	}
+
 
 	/**
 	 * @param increment add an increment to set

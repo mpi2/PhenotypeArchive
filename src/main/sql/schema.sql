@@ -835,6 +835,7 @@ CREATE TABLE phenotype_parameter (
     minor_version             INT(10) NOT NULL DEFAULT 0,
     unit                      VARCHAR(20) NOT NULL,
     datatype                  VARCHAR(20) NOT NULL,
+    parameter_type            VARCHAR(30) NOT NULL,
     formula                   TEXT,
     required                  TINYINT(1) DEFAULT 0,
     metadata                  TINYINT(1) DEFAULT 0,
@@ -846,6 +847,7 @@ CREATE TABLE phenotype_parameter (
     sequence                  INT(10) UNSIGNED NOT NULL,
     media                     TINYINT(1) DEFAULT 0,
     data_analysis             TINYINT(1) DEFAULT 0,
+    data_analysis_notes       VARCHAR(200),
     stable_key                INT(10) DEFAULT 0,
  
     PRIMARY KEY (id),
