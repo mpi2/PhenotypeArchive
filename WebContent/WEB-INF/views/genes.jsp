@@ -130,7 +130,81 @@
 
 	<jsp:body>
 
-		<div class='topic'> <h1>Gene: ${gene.symbol}  &nbsp;&nbsp; </h1>
+<div class="region region-content">
+	<div class="block block-system">
+		<div class="content">
+			<div class="node-node-gene">
+				<h1 class="title">Gene: ${gene.symbol}  &nbsp;&nbsp; </h1>
+				<div class="section">
+					<div class="inner">
+					<!--  login interest button -->
+					<div class="floatright">
+						<c:choose>
+							<c:when test="${registerButtonAnchor!=''}">
+								<p> <a class="btn" href='${registerButtonAnchor}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
+							</c:when>
+							<c:otherwise>
+								<p> <a class="btn" id='${registerButtonId}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
+							</c:otherwise>
+						</c:choose>
+					</div>
+					
+					<p class="with-label no-margin">
+						<span class="label">Name</span>
+						${gene.name}
+					</p>
+					
+					<p class="with-label no-margin">
+						<span class="label">Synonyms</span>
+						<c:forEach var="synonym" items="${gene.synonyms}" varStatus="loop">
+							${synonym.symbol}
+							<c:if test="${!loop.last}">, </c:if>
+							<c:if test="${loop.last}"></p></c:if>
+						</c:forEach>
+					
+					
+					<p class="with-label">
+						<span class="label">MGI Id</span>
+						<a href="http://www.informatics.jax.org/marker/${gene.id.accession}">${gene.id.accession}</a>
+					</p>
+					
+					<p class="with-label">
+						<span class="label">Status</span>
+						
+						<c:choose>
+								<c:when test="${empty geneStatus}">
+										<div class="alert alert-error">
+							  				<strong>Error:</strong> Gene status currently unavailable.
+										</div>
+								</c:when>
+								<c:otherwise>
+									<c:if test="${fn:contains(geneStatus,'produced')}"> <a class="status done" data-hasqtip="37" oldtitle="${geneStatus}" title aria-describebody="qtip-37"></c:if>
+									<c:if test="${!fn:contains(geneStatus,'produced')}"> <a class="status inprogress" data-hasqtip="37" oldtitle="${geneStatus}" title aria-describebody="qtip-37"></c:if>
+									
+									<span>ES Cell</span>
+									</a>
+								</c:otherwise>
+							</c:choose>
+						
+					</p>
+					
+					<p class="with-label">
+						<span class="label">ENSEMBL Links</span>
+						<a href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.id.accession}"><i class="fa fa-external-link"></i>&nbsp;Gene&nbsp;View</a>&nbsp;&nbsp;
+						<a href="http://www.ensembl.org/Mus_musculus/Location/View?g=${gene.id.accession};contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=labels"><i class="fa fa-external-link"></i>&nbsp;Location&nbsp;View</a>&nbsp;&nbsp;     
+						<a href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=601;db=core;g=${gene.id.accession}"><i class="fa fa-external-link"></i>&nbsp;Compara&nbsp;View</a> 
+					</p>
+					
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+			
+	
+
+		<div class='topic'> <h1 class="title">Gene: ${gene.symbol}  &nbsp;&nbsp; </h1>
 		<c:choose>
 		<c:when test="${registerButtonAnchor!=''}"><a href='${registerButtonAnchor}'  id='${registerButtonId}'  class='btn primary'>${registerInterestButtonString}</a></c:when>
 		<c:otherwise><a  id='${registerButtonId}'  class='btn primary interest'>${registerInterestButtonString}</a></c:otherwise>
