@@ -206,7 +206,7 @@ try {
                 <jsp:doBody />
                 </div>
                         
-        </div><!-- /main -->
+		        </div><!-- /main -->
         
         
     <footer id="footer">
