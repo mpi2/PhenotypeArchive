@@ -33,103 +33,10 @@
 
 
 	<document name="komp2_indexing">
-<!-- for xml generated image info not straight from sanger SELECT * from observation ob JOIN image_record_observation imo ON (ob.id=imo.id) LEFT outer JOIN parameter_association pa on (pa.observation_id=ob.id) LEFT outer JOIN dimension dim on (pa.id=dim.parameter_association_id) limit 100 -->
-
-<entity dataSource="komp2ds" name="ima_image_record"
-			query="SELECT strain.strain_acc, pipe.name as pipeline_name, pipe.id as pipeline_id, pipe.stable_id as pipeline_stable_id, param.name as parameter_name, proc.name as procedure_name, proc.id as procedure_id, proc.stable_id as procedure_stable_id, param.stable_id as parameter_stable_id,bs.organisation_id, org.name, bs.sample_group, gf.acc as acc, ls.sex as sex, ls.colony_id, ls.zygosity, gf.symbol as symbol, bms.biological_model_id as bmid, ls.date_of_birth as birthdate, ls.colony_id, e.date_of_experiment, e.external_id, e.id as experiment_id, o.*, iro.file_type, iro.full_resolution_file_path, iro.small_thumbnail_file_path, bs.external_id as external_sample_id, gf.subtype_acc as subtype_acc, gf.subtype_db_id FROM observation o
-			LEFT OUTER JOIN image_record_observation iro ON o.id=iro.id
-			INNER JOIN biological_sample bs ON bs.id=o.biological_sample_id
-			INNER JOIN organisation org ON bs.organisation_id=org.id
-			INNER JOIN live_sample ls ON bs.id=ls.id
-			INNER JOIN biological_model_sample bms ON bs.id=bms.biological_sample_id
-			INNER JOIN biological_model_strain strain ON strain.biological_model_id=bms.biological_model_id
-			LEFT OUTER JOIN biological_model_genomic_feature bmgf ON bmgf.biological_model_id=bms.biological_model_id
-			LEFT OUTER JOIN genomic_feature gf ON gf.acc=bmgf.gf_acc
-			INNER JOIN phenotype_parameter param ON param.id=o.parameter_id
-			INNER JOIN phenotype_procedure_parameter procparam ON procparam.parameter_id=param.id
-			INNER JOIN phenotype_procedure proc ON proc.id=procparam.procedure_id
-			INNER JOIN phenotype_pipeline_procedure pipeproc ON pipeproc.procedure_id=proc.id
-			INNER JOIN phenotype_pipeline pipe ON pipe.id=pipeproc.pipeline_id
-			INNER JOIN experiment_observation eo ON eo.observation_id=o.id
-			INNER JOIN experiment e on eo.experiment_id=e.id
-			WHERE o.missing = 0 and  o.observation_type='image_record' limit 100; ">
-
-		 				<field column="id" name="id" />
-                        <field column="full_resolution_file_path" name="fullResolutionFilePath" />
-                        <field column="large_thumbnail_file_path" name="largeThumbnailFilePath" />
-                        <field column="original_file_name" name="originalFileName" />
-                        <field column="small_thumbnail_file_path" name="smallThumbnailFilePath" />
-<!--            				<field column="organisation_id" name="institute" /> -->
-           				
-           				<field column="observation_type" name ="observation_type" />
-			<field column="bmid" name="biological_model_id" />
-			<field column="biological_sample_id" name ="biological_sample_id" />
-			<field column="sample_group" name="biological_sample_group" />
-			<field column="external_sample_id" name ="external_sample_id" />
-
-			<field column="value" name ="value" />
-			<field column="category" name ="category" />
-			<field column="data_point" name ="data_point" />
-			<field column="order_index" name ="order_index" />
-			<field column="dimension" name ="dimension" />
-			<field column="time_point" name ="time_point" />
-			<field column="discrete_point" name ="discrete_point" />
-			<field column="full_resolution_file_path" name ="full_resolution_file_path" />
-			<field column="large_thumbnail_file_path" name ="large_thumbnail_file_path" />
-			<field column="small_thumbnail_file_path" name ="small_thumbnail_file_path" />
-
-			<field column="acc" name="gene_accession" />
-			<field column="symbol" name="gene_symbol" />
-			<field column="zygosity" name="genotype" /> <!-- changed to genotype for images interface-->
-			<field column="birthdate" name="date_of_birth" />
-			<field column="sex" name="gender" /><!--changed to gender from exp sex-->
-			<field column="colony_id" name="colony_id" />
-			<field column="strain_acc" name="strain" />
-
-			<!-- field column="organisation_id" name ="organisation_id" /-->
-			<!-- field column="name" name ="organisation" /-->
-			<field column="organisation_id" name="phenotyping_center_id" />
-			<field column="name" name="phenotyping_center" />
-
-			<field column="pipeline_name" name ="pipeline_name" />
-			<field column="pipeline_id" name ="pipeline_id" />
-			<field column="pipeline_stable_id" name ="pipeline_stable_id" />
-
-			<field column="procedure_id" name ="procedure_id" />
-			<field column="procedure_name" name ="procedure_name" />
-			<!-- merge these fields as same but interface uses this -->
-			<field column="procedure_name" name ="expName" />
-			
-			<field column="procedure_stable_id" name ="procedure_stable_id" />
-
-			<field column="parameter_id" name ="parameter_id" />
-			<field column="parameter_name" name ="parameter_name" />
-			<field column="parameter_name" name ="parameter_name" />
-			
-			<field column="parameter_stable_id" name ="parameter_stable_id" />
-
-			<field column="experiment_id" name ="experiment_id" />
-			<field column="external_id" name ="experiment_source_id" />
-			<field column="date_of_experiment" name ="date_of_experiment" />
-           				
-                        
-             <entity dataSource="komp2ds" name="org"
-                                query="SELECT name as org_name from organisation WHERE id=${ima_image_record.organisation_id}">
-                       <field column="org_name" name="institute" />
-              </entity>
-              
-              
-            <!--   <entity dataSource="komp2ds" name="subtype2" query="select name,  concat('${ima_image_record.symbol}_', '${ima_image_record.acc}') as symbol_gene from `ontology_term` where acc='${ima_image_record.subtype_acc}' and db_id=${ima_image_record.subtype_db_id}">
-							<field column="name" name="subtype" />
-						</entity>  -->
-                   
-	
-</entity>
-		
-		
+		<!-- test with and IMA_IMAGE_RECORD.ID=70220 -->
 		<!-- IMPC images (filter out the mouse necropsy images) -->
 		<entity dataSource="komp2ds" name="ima_image_record"
-			query="SELECT IMA_IMAGE_RECORD.ID, FOREIGN_TABLE_NAME, FOREIGN_KEY_ID, ORIGINAL_FILE_NAME, CREATOR_ID, CREATED_DATE, EDITED_BY, EDIT_DATE, CHECK_NUMBER, FULL_RESOLUTION_FILE_PATH, SMALL_THUMBNAIL_FILE_PATH, LARGE_THUMBNAIL_FILE_PATH, SUBCONTEXT_ID, QC_STATUS_ID, PUBLISHED_STATUS_ID, o.name as institute, IMA_EXPERIMENT_DICT.ID as experiment_dict_id FROM IMA_IMAGE_RECORD, IMA_SUBCONTEXT, IMA_EXPERIMENT_DICT, organisation o  WHERE IMA_IMAGE_RECORD.organisation=o.id AND IMA_IMAGE_RECORD.subcontext_id=IMA_SUBCONTEXT.id AND IMA_SUBCONTEXT.experiment_dict_id=IMA_EXPERIMENT_DICT.id AND IMA_EXPERIMENT_DICT.name!='Mouse Necropsy' ">
+			query="SELECT IMA_IMAGE_RECORD.ID, FOREIGN_TABLE_NAME, FOREIGN_KEY_ID, ORIGINAL_FILE_NAME, CREATOR_ID, CREATED_DATE, EDITED_BY, EDIT_DATE, CHECK_NUMBER, FULL_RESOLUTION_FILE_PATH, SMALL_THUMBNAIL_FILE_PATH, LARGE_THUMBNAIL_FILE_PATH, SUBCONTEXT_ID, QC_STATUS_ID, PUBLISHED_STATUS_ID, o.name as institute, IMA_EXPERIMENT_DICT.ID as experiment_dict_id FROM IMA_IMAGE_RECORD, IMA_SUBCONTEXT, IMA_EXPERIMENT_DICT, organisation o  WHERE IMA_IMAGE_RECORD.organisation=o.id AND IMA_IMAGE_RECORD.subcontext_id=IMA_SUBCONTEXT.id AND IMA_SUBCONTEXT.experiment_dict_id=IMA_EXPERIMENT_DICT.id AND IMA_EXPERIMENT_DICT.name!='Mouse Necropsy'">
 
 			<field column="id" name="id" />
 			<field column="FULL_RESOLUTION_FILE_PATH" name="fullResolutionFilePath" />
@@ -145,7 +52,6 @@
 				<field column="NAME" name="sangerProcedureName" />
 				<field column="PROCEDURE_ID" name="sangerProcedureId" />
 			</entity>
-
 
 
 			<!-- Mouse -->
@@ -193,6 +99,7 @@
 							<entity dataSource="komp2ds" name="synonym" query="select * from synonym where acc='${genomic_feature2.acc}' ">
 								<field column="symbol" name="geneSynonyms" />
 							</entity>
+
 							<!-- other gene core stuff -->							
 							<entity dataSource="gene2_core" name="genedoc" stream="true" url="q=${genomic_feature2.acc}&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status,imits_phenotype_is_active&amp;rows=50000&amp;wt=normal"
 								processor="XPathEntityProcessor" forEach="/response/result/doc/" >	
@@ -217,8 +124,8 @@
 								<field column="imits_phenotype_allele_type" xpath="/response/result/doc/arr[@name='imits_phenotype_allele_type']/str" />
 								<field column="imits_phenotype_is_active" xpath="/response/result/doc/arr[@name='imits_phenotype_is_active']/str" />
 								-->	
-							</entity>							
-							
+							</entity>
+
 						</entity>
 					</entity>
 				<!-- </entity> -->
@@ -248,7 +155,7 @@
 					</entity>
 				</entity>
 			</entity> -->
-			
+
 			<entity dataSource="komp2ds" name="experiment" query="select IMA_EXPERIMENT_DICT.NAME, IMA_EXPERIMENT_DICT.DESCRIPTION, concat(IMA_EXPERIMENT_DICT.NAME,'_exp') as expName_exp FROM IMA_EXPERIMENT_DICT, IMA_SUBCONTEXT, IMA_IMAGE_RECORD where IMA_SUBCONTEXT.ID=IMA_IMAGE_RECORD.SUBCONTEXT_ID and IMA_EXPERIMENT_DICT.ID=IMA_SUBCONTEXT.EXPERIMENT_DICT_ID AND IMA_IMAGE_RECORD.ID=${ima_image_record.ID}" transformer="script:procedure_mapping" >
 
 				<field column="NAME" name="expName" />
@@ -256,6 +163,7 @@
 				<field column="procedure_name" name="procedure_name" /> <!-- converted to IMPRESS procedure_name -->				
 
 			</entity>
+
 			<entity dataSource="komp2ds" name="tag" query="select * from IMA_IMAGE_TAG where IMAGE_RECORD_ID=${ima_image_record.ID}">
 				<field column="TAG_NAME" name="tagName" />
 				<field column="TAG_VALUE" name="tagValue" />
@@ -271,7 +179,7 @@
 
 					<entity dataSource="komp2ds" name="annotations" query="SELECT  h.TERM_NAME as higherTermName, concat(l.TERM_NAME, '_${maAnnotations.TERM_ID}') as lowerTermName, l.TERM_ID AS lowerId, HIGHER_TERM_ID FROM lower_to_higher_level_annotation l, higher_level_annotation h WHERE l.higher_term_id = h.term_id and  l.term_id='${maAnnotations.TERM_ID}'">
 						<field column="lowerTermName" name="maTermName" />
-						<field column="lowerId" name="maAnnotationTermId" />
+						<field column=" lowerId" name="maAnnotationTermId" />
 						<field column="HIGHER_TERM_ID" name="annotatedHigherLevelMaTermId" />
 						<field column="higherTermName" name="annotatedHigherLevelMaTermName" />
 
@@ -291,7 +199,7 @@
 					<field column="TERM_ID" name="annotationTermId" />
 					<field column="TERM_NAME" name="mpTermName" />
 					<field column="TERM_ID" name="mpTermId" />
-					
+
 					<!-- disease annotated to this MP -->					
 					<!--<entity dataSource="phenodigmdb" name="disease" transformer="RegexTransformer" query="select distinct 'disease' as type, ds.disease_id, ds.disease_term, ds.disease_alts, CASE ds.disease_classes when '' THEN 'unclassified' ELSE ds.disease_classes END as disease_classes, ds.human_curated, ds.mouse_curated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_predicted_in_locus from disease_summary ds, disease_mouse_genotype_associations dmga, mp_mouse_models mmm where ds.disease_id=dmga.disease_id and dmga.mouse_model_id=mmm.mouse_model_id and mmm.mp_id='${mpAnnotations.TERM_ID}'">    
    			
@@ -339,4 +247,3 @@
 		</entity>
 	</document>
 </dataConfig>
-	
