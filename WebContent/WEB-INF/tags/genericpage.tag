@@ -63,12 +63,16 @@
 <!--  NEW DESIGN CSS -->
 
 <!-- css -->
-<link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600" media="all" />
-<link type="text/css" rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" media="all" />
-<link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/qtip2/2.1.1/jquery.qtip.min.css" media="all" />
-<link type="text/css" rel="stylesheet" href="http://impc.webdesign-muenchen.de/media/css/css_euvvVaEmy9YriBALtopiSDtwpJN72sLiQLtpTgjlZNk.css" media="all" />
-<link type="text/css" rel="stylesheet" href="//www.webdesign-muenchen.de/projekte/impc/css/wdm.css" media="all" />
-
+<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
+<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.theme.css">
+<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.slider.css">
+<link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome.min.css">
+<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.qtip.min.css">
+<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.fancybox-1.3.4.css">
+<link href="${baseUrl}/css/default.css?cache=09-01-14" rel="stylesheet" type="text/css" />
+<link href="${baseUrl}/css/heatmap.css?cache=09-01-14" rel="stylesheet" type="text/css" />
+<link href="${baseUrl}/css/wdm.css?cache=09-01-14" rel="stylesheet" type="text/css" />
 
 <%--
 Short circuit favicon requests
@@ -118,17 +122,22 @@ try {
 
 <!-- NEW DESIGN JAVASCRIPT -->
 
-<!-- js -->
-<!--[if lt IE 9 ]><script type="text/javascript" src="/sites/all/themes/impc/js/selectivizr-min.js"></script><![endif]-->
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-<script type="text/javascript">window.jQuery || document.write("<script src='${baseUrl}/js/jquery.min.js'>\x3C/script>")</script>
-<script type="text/javascript" src="http://impc.webdesign-muenchen.de/media/js/js_IkgOrrVZK1UTp2HktvFi5vo1g7b25Muyr5GoySikuic.js"></script>
-<script type="text/javascript" src="http://impc.webdesign-muenchen.de/media/js/js_nF1kS3yBefzThMly1LnFJN-dQNkoVQJPKVCmjzG9dTI.js"></script>
-<script type="text/javascript" src="http://impc.webdesign-muenchen.de/media/js/js_NcyY1MXOAWQIqFK0ISOPL6iUJfd8MVZZCx6YMYEudS4.js"></script>
-<script type="text/javascript" src="${baseUrl}/js/jquery.qtip.min.js"></script>
-<script type="text/javascript" src="http://impc.webdesign-muenchen.de/media/js/js_YTUqHOApvKD8NZgydKoRiwoYkoU53cV4KU11keZg04k.js"></script>
+<!-- javascript -->
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/head.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery_1.5.1.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/jquery/vendor/jquery/jquery.ui.core.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/jquery/vendor/jquery/jquery.ui.widget.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/jquery/vendor/jquery/jquery.ui.mouse.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/jquery/vendor/jquery/jquery.ui.slider.min.js"></script>
+<!--[if lt IE 9 ]><script type="text/javascript" src="js/selectivizr-min.js"></script><![endif]-->
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.qtip.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.fancybox-1.3.4.pack.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.tablesorter.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="http://code.highcharts.com/highcharts-more.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/default.js?cache=09-01-14"></script>
 
-<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js'></script>
+
 
 <jsp:invoke fragment="header" />
 
@@ -287,11 +296,7 @@ try {
         
         
         <script type="text/javascript" src='${baseUrl}/js/vendor/jquery.ba-bbq.min.js' ></script>
-        <script type="text/javascript" src='${baseUrl}/js/bootstrap/bootstrap.min.js' ></script>
         <script type="text/javascript" src='${baseUrl}/js/script.min.js' ></script>
-        <script type='text/javascript' src='${baseUrl}/js/vendor/respond.min.js'></script>
-        <script type='text/javascript' src='${baseUrl}/js/vendor/jquery.corner.mini.js'></script>
-        <script type='text/javascript' src='${baseUrl}/js/vendor/jquery.qtip-1.0.0-rc3.min.js'></script>
         <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js'></script>
         
         <compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">
