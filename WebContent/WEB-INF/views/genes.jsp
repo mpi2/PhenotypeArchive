@@ -130,7 +130,7 @@
 
 	<jsp:body>
 
-		<div class='topic'>Gene: ${gene.symbol}  &nbsp;&nbsp;
+		<div class='topic'> <h1>Gene: ${gene.symbol}  &nbsp;&nbsp; </h1>
 		<c:choose>
 		<c:when test="${registerButtonAnchor!=''}"><a href='${registerButtonAnchor}'  id='${registerButtonId}'  class='btn primary'>${registerInterestButtonString}</a></c:when>
 		<c:otherwise><a  id='${registerButtonId}'  class='btn primary interest'>${registerInterestButtonString}</a></c:otherwise>
