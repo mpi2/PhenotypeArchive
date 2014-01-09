@@ -59,10 +59,6 @@
 
 <title><jsp:invoke fragment="title"></jsp:invoke> | International Mouse Phenotyping Consortium</title>
 
-<link type='text/css' rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css' />
-<link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap.min.css' />
-<link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap-responsive.min.css' />
-<link rel="stylesheet" type="text/css" href="${baseUrl}/css/style.min.css">
 
 <!--  NEW DESIGN CSS -->
 
@@ -73,42 +69,6 @@
 <link type="text/css" rel="stylesheet" href="http://impc.webdesign-muenchen.de/media/css/css_euvvVaEmy9YriBALtopiSDtwpJN72sLiQLtpTgjlZNk.css" media="all" />
 <link type="text/css" rel="stylesheet" href="//www.webdesign-muenchen.de/projekte/impc/css/wdm.css" media="all" />
 
-<style>
-
-body {
-background-image: url('https://www.mousephenotype.org/sites/all/themes/impc_zen/images/bannerBG.jpg');
-background-repeat: repeat-x;
-}
-#menus {font-size:88%;}
-.navbar .nav li a {padding:5px 10px; font-size:13px; color:#555555;}
-
-<%--
-   changed base path for servlet to /. Must serve images from the resource
-   mapping defined in mvc-config.xml
---%>
-[class^="icon-"],
-[class*=" icon-"] {
-  background-image: url("${baseUrl}/img/glyphicons-halflings.png");
-}
-
-/* White icons with optional class, or on hover/active states of certain elements */
-
-.icon-white,
-.nav-tabs > .active > a > [class^="icon-"],
-.nav-tabs > .active > a > [class*=" icon-"],
-.nav-pills > .active > a > [class^="icon-"],
-.nav-pills > .active > a > [class*=" icon-"],
-.nav-list > .active > a > [class^="icon-"],
-.nav-list > .active > a > [class*=" icon-"],
-.navbar-inverse .nav > .active > a > [class^="icon-"],
-.navbar-inverse .nav > .active > a > [class*=" icon-"],
-.dropdown-menu > li > a:hover > [class^="icon-"],
-.dropdown-menu > li > a:hover > [class*=" icon-"],
-.dropdown-menu > .active > a > [class^="icon-"],
-.dropdown-menu > .active > a > [class*=" icon-"] {
-  background-image: url("${baseUrl}/img/glyphicons-halflings-white.png");
-}
-</style>
 
 <%--
 Short circuit favicon requests
@@ -228,50 +188,9 @@ try {
 
 
 
-        <div class="container" style="padding-top:0;">
-                <div class="navbar" style="margin:0; padding:0;text-transform:uppercase;font-weight:bold;">
-                        <div class="row">
-                                <a href="${drupalBaseUrl}/" id="logo" class="span2"><img id="logoImage" src="${baseUrl}/img/IMPC<c:if test='${not fn:contains(drupalBaseUrl,"www")}'>Beta</c:if>logo.png" alt="International Mouse Phenotyping Consortium"/></a>
-                                <ul id="menus" class="nav span10">
-                                        <c:forEach var="menuitem" items="${menu}" varStatus="loop">
-                                        <c:if test="${menuitem.below != null}">
-                                        <li class="dropdown">
-                                                <a id="drop${loop.count}" data-target="#" class="dropdown-toggle" data-toggle="dropdown" href="${drupalBaseUrl}/${menuitem.href}">${menuitem.title} <b class="caret"></b></a>
-                                                <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-submenu" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li>
-                                                        <c:forEach var="submenuitem" items="${menuitem.below}">
-                                                        <c:if test="${submenuitem.below != null}">
-                                                        <li class="dropdown-submenu">
-                                                                <a data-target="#" href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${submenuitem.href}">${submenuitem.title}</a>
-                                                                <ul class="dropdown-menu">
-                                                                <c:forEach var="subsubmenuitem" items="${submenuitem.below}">
-                                                                        <li><a href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${subsubmenuitem.href}">${subsubmenuitem.title}</a></li>
-                                                                </c:forEach>
-                                                                </ul>
-                                                        </li>
-                                                        </c:if>
-                                                        <c:if test="${submenuitem.below == null}">
-                                                        <li><a href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${submenuitem.href}">${submenuitem.title}</a></li>
-                                                        </c:if>
-                                                        </c:forEach>
-                                                </ul>
-                                        </li>
-                                        </c:if>
-                                        <c:if test="${menuitem.below == null}">
-                                        <li><a href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li>
-                                        </c:if>
-                                        </c:forEach>
-                                </ul>
-                                <span id="searchBlock" class="row nav input-append span6">
-                                        <!-- input id="userInput" type="text" />
-                                        <button id="acSearch" type="submit" class="btn"><i class="icon-search"></i> Search</button>
-                                        <div id="bannerSearch"></div>
-                                        <a href="#examples" data-toggle="modal" id="examplesearches" class="pull-right" >View example searches</a-->
-                                        <p class="ikmcbreadcrumb">
-                                                <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invoke fragment="breadcrumb" /><%-- breadcrumbs here --%>
-                                        </p>
-                                </span>
-                        </div>
+        <div id="main">
+                <div class="breadcrumb">
+                   <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invoke fragment="breadcrumb" /><%-- breadcrumbs here --%>   
                 </div>
         
                 <div class="container">
