@@ -67,7 +67,7 @@
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.theme.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.slider.css">
-<link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome.min.css">
+<link rel="stylesheet" href="${baseUrl}/css/font-awesome.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.qtip.min.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.fancybox-1.3.4.css">
 <link href="${baseUrl}/css/default.css?cache=09-01-14" rel="stylesheet" type="text/css" />
@@ -123,12 +123,12 @@ try {
 <!-- NEW DESIGN JAVASCRIPT -->
 
 <!-- javascript -->
-<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/head.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/head.min.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery_1.5.1.min.js"></script>
-<script type="text/javascript" src="${baseUrl}/jquery/vendor/jquery/jquery.ui.core.min.js"></script>
-<script type="text/javascript" src="${baseUrl}/jquery/vendor/jquery/jquery.ui.widget.min.js"></script>
-<script type="text/javascript" src="${baseUrl}/jquery/vendor/jquery/jquery.ui.mouse.min.js"></script>
-<script type="text/javascript" src="${baseUrl}/jquery/vendor/jquery/jquery.ui.slider.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.core.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.widget.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.mouse.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.slider.min.js"></script>
 <!--[if lt IE 9 ]><script type="text/javascript" src="js/selectivizr-min.js"></script><![endif]-->
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.qtip.min.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.fancybox-1.3.4.pack.js"></script>
