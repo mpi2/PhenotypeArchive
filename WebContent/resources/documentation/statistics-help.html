@@ -1,76 +1,113 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!doctype html>
+<!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="en" class="no-js ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="en" class="no-js ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="en" class="no-js ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
+    <head>
 
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=1024" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
-<title>International Mouse Phenotyping Consortium Documentation</title>
+        <title>International Mouse Phenotyping Consortium Documentation</title>
 
-<link type='text/css' rel='stylesheet' href='../css/bootstrap.min.css'  />
-<link type='text/css' rel='stylesheet' href='../css/bootstrap-responsive.min.css'  />
-<script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
-<script type="text/javascript" src="../js/helpDocLogo.js"></script>
-<script type="text/javascript"> var _gaq = _gaq || []; _gaq.push(['_setAccount', 'UA-23433997-1']); _gaq.push(['_trackPageview']); (function() { var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })();</script>
-</head>
+        <!-- css -->
+        <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
+        <link type='text/css' rel='stylesheet' href='../css/vendor/font-awesome/font-awesome.min.css'  />
+        <link type='text/css' rel='stylesheet' href='../css/default.css'  />
+        <link type='text/css' rel='stylesheet' href='../css/wdm.css'  />
+        <script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script type="text/javascript" src="../js/helpDocLogo.js"></script>
 
-<body class="container">
+        <script type="text/javascript"> var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-23433997-1']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga = document.createElement('script');
+                ga.type = 'text/javascript';
+                ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+            })();
+        </script>
 
-	<div class="row">
-		<div class="well">
-			<h1><a id='logo' href=''><img src='img/IMPClogo.png' /></a>IMPC statistics page documentation</h1>
-			<p class="lead">Statistics details</p>
-		</div>
-	</div>
+    </head>
 
-	<div class="row">
-		<div class="span3">
+    <body class="one-sidebar sidebar-first">
+        <div id="wrapper">
 
-			<div class="page-header"><h3>Quick help links</h3></div>
-	
-			<ul class="nav nav-list affix-top">
-			
-			<li><a href="index.html">Overview</a></li>
-			<li><a href="search-help.html">Search</a></li>
-			<li><a href="gene-help.html">Genes</a></li>
-			<li><a href="phenotype-help.html">Phenotypes</a> </li>
-                        <li><a href="disease-help.html">Diseases</a></li>
-			<li><a href="image-help.html">Images</a></li>
-			<li><a href="statistics-help.html">Statistics</a> </li>
-			<li><a href="graph-help.html">Graphs</a> </li>
-            <li><a href="api-help.html">RESTful API</a></li>
-			</ul>
-	
-		</div>
+            <header id="header">
+                <div class="region region-header">
+                    <div id="logo">
+                        <a href=""><img src="../img/impc.png" alt="IMPC Logo" /></a>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+            </header>        
 
-		<div class="span9">
+            <div id="main">
 
-			<div class="page-header"><h3>More details about the way IMPC uses statistics.</h3></div> 
+                <!-- Breadcrumb -->
+                <div class="breadcrumb"><a href="/">Home</a> › <a href="index.html">Documentation</a> › Statistics</div>
 
-			<h4>IMPC statistics</h4>
+                <!-- Sidebar First -->
+                <div class="region region-sidebar-first">
+                    <div id="facet" class="block">
+                        <div class="head">Quick help links</div>
+                        <div class="content node">
+                            <ul>
+                                <li><a href="index.html">Overview</a></li>
+                                <li><a href="search-help.html">Search</a></li>
+                                <li><a href="gene-help.html">Genes</a></li>
+                                <li><a href="phenotype-help.html">Phenotypes</a> </li>
+                                <li><a href="disease-help.html">Diseases</a></li>
+                                <li><a href="image-help.html">Images</a></li>
+                                <li><a href="statistics-help.html">Statistics</a> </li>
+                                <li><a href="graph-help.html">Graphs</a> </li>
+                                <li><a href="api-help.html">RESTful API</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
 
-			<p>The IMPC uses a variety of statistical methods for making phenotype calls, including:</p>
+                <!-- Maincontent -->
 
-			<ul>
-				<li><a href="https://en.wikipedia.org/wiki/Fisher%27s_exact_test"><strong>Fisher's Exact test</strong></a> - for categorical data parameters</li>
-				<li><a href="https://en.wikipedia.org/wiki/Mixed_model"><strong>Mixed Model</strong></a> - for continuous data parameters which include random effects </li>
-				<li><a href="https://en.wikipedia.org/wiki/Linear_model"><strong>Linear Model</strong></a> - for continuous data parameters when mixed model doesn't apply</li>
-			</ul>
-			<p> Further documentation will be available as part of an upcoming statistical Bioconducter package </p>
+                <div class="region region-content">              
 
-			<h4>Europhenome statistics</h4>
+                    <div class="block block-system">
 
-			<p>Europhenome data is analyzed using a variety of statistical methods for making phenotype calls, including:</p>
+                        <div class="content node">
 
-			<ul>
-				<li><a href="http://europhenome.org/databrowser/significanceCatagorical.jsp"><strong>Pearson's chi-square test</strong></a> - for categorical data parameters</li>
-				<li><a href="http://europhenome.org/databrowser/significanceReference.jsp"><strong>Reference Range</strong></a> - for continuous data parameters</li>
-				<li><a href="http://europhenome.org/databrowser/significance1DT.jsp"><strong>Student's T test</strong></a> - for continuous data parameters </li>
-				<li><a href="http://europhenome.org/databrowser/significance1D.jsp"><strong>Rank sum (Mann-Whitney U test)</strong></a> - for continuous data parameters</li>
-			</ul>
+                            <h3>More information about the way IMPC uses statistics.</h3>
 
-		</div>
-	</div>
+                            <h4>IMPC statistics</h4>
 
-</body>
+                            <p>The IMPC uses a variety of statistical methods for making phenotype calls, including:</p>
+
+                            <ul>
+                                <li><a href="https://en.wikipedia.org/wiki/Fisher%27s_exact_test"><strong>Fisher's Exact test</strong></a> - for categorical data parameters</li>
+                                <li><a href="https://en.wikipedia.org/wiki/Mixed_model"><strong>Mixed Model</strong></a> - for continuous data parameters which include random effects </li>
+                                <li><a href="https://en.wikipedia.org/wiki/Linear_model"><strong>Linear Model</strong></a> - for continuous data parameters when mixed model doesn't apply</li>
+                            </ul>
+                            <p> Further documentation will be available as part of an upcoming statistical Bioconducter package </p>
+
+                            <h4>Europhenome statistics</h4>
+
+                            <p>Europhenome data is analyzed using a variety of statistical methods for making phenotype calls, including:</p>
+
+                            <ul>
+                                <li><a href="http://europhenome.org/databrowser/significanceCatagorical.jsp"><strong>Pearson's chi-square test</strong></a> - for categorical data parameters</li>
+                                <li><a href="http://europhenome.org/databrowser/significanceReference.jsp"><strong>Reference Range</strong></a> - for continuous data parameters</li>
+                                <li><a href="http://europhenome.org/databrowser/significance1DT.jsp"><strong>Student's T test</strong></a> - for continuous data parameters </li>
+                                <li><a href="http://europhenome.org/databrowser/significance1D.jsp"><strong>Rank sum (Mann-Whitney U test)</strong></a> - for continuous data parameters</li>
+                            </ul>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
 </html>
