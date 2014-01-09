@@ -205,43 +205,8 @@ try {
                 <div class="container">
                 <jsp:doBody />
                 </div>
-        
-                <div id="examples" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                        <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                <h3>Example Searches</h3>
-                        </div>
-        
-                        <div class="modal-body">
-                                <p>Sample queries for several fields are shown. Click the desired query to execute any of the samples.
-                                <span class="text-success">Note that queries are focused on Relationships, leaving modifier terms to be applied as filters.</span></p>
-        
-                                <div>
-                                        <h4>Gene query examples</h4>
-                                        <p><a class="example" href="${baseUrl}/search?q=akt2#&core=gene">Akt2</a> - looking for a specific gene, Akt2</p>
-                                        <p><a class="example" href="${baseUrl}/search?q=*rik#core=gene">*rik</a> - looking for all Riken genes</p>
-                                        <p><a class="example" href="${baseUrl}/search?q=hox*#core=gene">hox*</a> - looking for all hox genes</p>
-                                </div>
                         
-                                <div>
-                                        <h4>Phenotype query examples</h4>
-                                        <p><a class="example" href="${baseUrl}/search?q=abnormal skin morphology#core=mp&fq=ontology_subset:*">abnormal skin morphology</a> - looking for a specific phenotype</p>
-                                        <p><a class="example" href="${baseUrl}/search?q=ear#core=mp&fq=ontology_subset:*">ear</a> - find all ear related phenotypes</p>
-                                </div>
-                        
-                                <div>
-                                        <h4>Procedure query example</h4>
-                                        <p><a class="example" href="${baseUrl}/search?q=grip strength#fq=pipeline_stable_id:IMPC_001&core=pipeline">grip strength</a> - looking for a specific procedure</p>
-                                </div>
-                                
-                                <div>
-                                        <h4>Phrase query example: <h6>using double quotes</h6></h4>
-                                        <p><a class="example" href="${baseUrl}/search?q=&quot;zinc finger protein&quot;#core=gene&fq=marker_type:* -marker_type:&quot;heritable phenotypic marker&quot;">"zinc finger protein"</a> - looking for genes whose product is zinc finger protein</p>
-                                </div>
-                        </div>
-                </div>
-                
-        </div><!-- /container -->
+        </div><!-- /main -->
         
         
     <footer id="footer">
