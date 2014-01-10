@@ -237,7 +237,7 @@
 	
 	$.fn.qTip = function(oConf){
 		// pageName: gene | mp | ma
-		$('div.documentation a').each(function(){
+		$('.documentation a').each(function(){
 						
 			var key = $(this).attr('class');
 			$(this).attr('href', MDOC[oConf.pageName][key+'DocUrl']);

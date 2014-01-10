@@ -308,6 +308,7 @@
 <!--  Phenotype Associations Panel -->
 <div class="section">
 	<h2 class="title" id="section-associations"> Phenotype associations for ${gene.symbol} <i class="fa fa-question-circle pul-right" data-has-qtip="26" oldtitle="" title></i> </h2>
+	<div class='documentation'><a href='' class='mpPanel'><i class="fa fa-question-circle pul-right" data-has-qtip="26"></i></a></div>
 	<div class="inner">
 		<div class="abnormalities">TODO</div>
 		<c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">

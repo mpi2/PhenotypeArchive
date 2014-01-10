@@ -67,9 +67,9 @@
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.theme.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.slider.css">
-<link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.qtip.min.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.fancybox-1.3.4.css">
+<link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
 <link href="${baseUrl}/css/default.css?cache=10-01-14" rel="stylesheet" type="text/css" />
 <link href="${baseUrl}/css/heatmap.css?cache=10-01-14" rel="stylesheet" type="text/css" />
 <link href="${baseUrl}/css/wdm.css?cache=10-01-14" rel="stylesheet" type="text/css" />
@@ -80,10 +80,11 @@ See: http://stackoverflow.com/questions/1321878/how-to-prevent-favicon-ico-reque
 --%>
 <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 
+<!-- UNCOMMENT THIS WHEN DONE TESTING 
 <script type="text/javascript">
 var _gaq = _gaq || [];_gaq.push(["_setAccount", "${googleAnalytics}"]);_gaq.push(["_trackPageview"]);(function() {var ga = document.createElement("script");ga.type = "text/javascript";ga.async = true;ga.src = "${drupalBaseUrl}/sites/mousephenotype.org/files/googleanalytics/ga.js?mjafjk";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(ga, s);})();
 </script>
-
+-->
 <script>
 var baseUrl='${baseUrl}';
 var solrUrl='${solrUrl}';
@@ -124,11 +125,12 @@ try {
 
 <!-- javascript -->
 <script type="text/javascript" src="${baseUrl}/js/head.min.js"></script>
-<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery_1.5.1.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery-1.7.2.min.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.core.min.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.widget.min.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.mouse.min.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.slider.min.js"></script>
+
 <!--[if lt IE 9 ]><script type="text/javascript" src="js/selectivizr-min.js"></script><![endif]-->
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.qtip.min.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.fancybox-1.3.4.pack.js"></script>
