@@ -74,8 +74,7 @@
 	<jsp:attribute name="header">
 	
 	<!-- CSS Local Imports -->
-	<link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css"/>
-	<link rel="stylesheet" type="text/css" href="${baseUrl}/css/custom.css"/>
+	<!-- link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css"/-->
 	
 	<!-- JavaScript Local Imports -->
 	<script src="${baseUrl}/js/general/toggle.js"></script>
