@@ -115,6 +115,17 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	}
 	
 	@Transactional(readOnly = false)
+	public void save(Object object) {
+		getCurrentSession().saveOrUpdate(object);
+		
+	}
+	
+	@Transactional(readOnly = false)
+	public void update(Object object) {
+		getCurrentSession().saveOrUpdate(object);
+	}
+	
+	@Transactional(readOnly = false)
 	public void savePipeline(Pipeline pipeline) {
 		getCurrentSession().saveOrUpdate(pipeline);
 		
