@@ -132,7 +132,7 @@
 <div class="region region-content">
 	<div class="block block-system">
 		<div class="content">
-			<div class="node-node-gene">
+			<div class="node node-gene">
 				<h1 class="title">Gene: ${gene.symbol}  &nbsp;&nbsp; </h1>
 				<div class="section">
 					<div class="inner">
@@ -308,70 +308,39 @@
 <!--  Phenotype Associations Panel -->
 <div class="section">
 	<h2 class="title" id="section-associations"> Phenotype associations for ${gene.symbol} <i class="fa fa-question-circle pul-right" data-has-qtip="26" oldtitle="" title></i> </h2>
+	<div class="inner">
+		<div class="abnormalities">TODO</div>
+		<c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
+            
+			<p> Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models. </p>
+		    <c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0}">
+	        <p> <b>Both sexes</b> have the following phenotypic abnormalities</p>
+	        <ul>
+	         	<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
+	           	<li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> ${evidence} <c:if test="${!loop.last}">,&nbsp;</c:if>  </c:forEach> &nbsp;&nbsp;&nbsp; (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>    
+	          </c:forEach>
+	        </ul>
+        </c:if>
+                
+        <c:if test="${phenotypeSummaryObjects.getFemalePhenotypes().size() > 0}">
+        	<p> Following phenotypic abnormalities occured in <b>females</b> only</p>
+        	<ul>
+	          <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getFemalePhenotypes()}"> 
+	          	<li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> ${evidence} <c:if test="${!loop.last}">,&nbsp;</c:if> </c:forEach> &nbsp;&nbsp;&nbsp; (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>                
+	          </c:forEach>
+          </ul>
+        </c:if>
+                
+        <c:if test="${phenotypeSummaryObjects.getMalePhenotypes().size() > 0}">
+       		<p> Following phenotypic abnormalities occured in <b>males</b> only</p>
+          	<ul>
+            	<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getMalePhenotypes()}">
+              	<li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> ${evidence} <c:if test="${!loop.last}">,&nbsp;</c:if> </c:forEach> &nbsp;&nbsp;&nbsp;   (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>    
+              </c:forEach>
+            </ul>
+        </c:if>
 
-</div>
 
-	<!--row-->
-	<c:if test="${phenotypeStarted or not empty phenotypes}">
-	<div class="row-fluid dataset">
-	    <div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-	    <h4 class="caption">Phenotype associations for ${gene.symbol}</h4>
-	    
-	     <div class="row-fluid">
-						<c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
-                            
-            <div class="container span12">
-								              
-                <div class="row-fluid" id="phenotypesSummary">
-             
-                	<p>Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models.</p>
-              
-                
-                <c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0}">
-                    <p> <b>Both sexes</b> have the following phenotypic abnormalities</p>
-                        <ul>
-                            <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
-                                    <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from
-                                    <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop">
-                                    ${evidence}
-                                        <c:if test="${!loop.last}">,&nbsp;</c:if>
-                                    </c:forEach>  
-                                    &nbsp;&nbsp;&nbsp; (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>    
-                            </c:forEach>
-                        </ul>
-                </c:if>
-                
-                <c:if test="${phenotypeSummaryObjects.getFemalePhenotypes().size() > 0}">
-                <p> Following phenotypic abnormalities occured in <b>females</b> only</p>
-                    <ul>
-                        <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getFemalePhenotypes()}">
-                                <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from
-                                    <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop">
-                                    ${evidence}
-                                        <c:if test="${!loop.last}">,&nbsp;</c:if>
-                                    </c:forEach>
-                                     &nbsp;&nbsp;&nbsp; (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>                
-                        </c:forEach>
-                    </ul>
-                </c:if>
-                
-                <c:if test="${phenotypeSummaryObjects.getMalePhenotypes().size() > 0}">
-                <p> Following phenotypic abnormalities occured in <b>males</b> only</p>
-                    <ul>
-                        <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getMalePhenotypes()}">
-                                <li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from                     
-                                <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop">
-                                    ${evidence}
-                                    <c:if test="${!loop.last}">,&nbsp;</c:if>
-                                </c:forEach>
-                                &nbsp;&nbsp;&nbsp;   (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>    
-                        </c:forEach>
-                    </ul>
-                </c:if>
-                </div>
-            </div>
-              </c:if>
-        </div>
         
 		<div class="row-fluid">
 			<div class="container span12">
@@ -408,7 +377,6 @@
 			</div>
 		</div>
 			</div>
-		</div>
 		</div>
 		</c:if>
 
@@ -562,6 +530,11 @@
 		</div>
 	</div>
 	</div>
-
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
     </jsp:body>
 </t:genericpage>
