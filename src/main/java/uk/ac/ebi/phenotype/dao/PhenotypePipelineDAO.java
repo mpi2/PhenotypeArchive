@@ -84,6 +84,8 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	
 	public Set<Procedure> getProceduresByOntologyTerm(OntologyTerm term);
 	
+	public void save(Object object);
+	public void update(Object object);
 	public void savePipeline(Pipeline pipeline);
 	public void saveProcedure(Procedure procedure);
 	public void saveParameter(Parameter parameter);
