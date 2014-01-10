@@ -307,8 +307,7 @@
 
 <!--  Phenotype Associations Panel -->
 <div class="section">
-	<h2 class="title" id="section-associations"> Phenotype associations for ${gene.symbol} <i class="fa fa-question-circle pul-right" data-has-qtip="26" oldtitle="" title></i> </h2>
-	<div class='documentation'><a href='' class='mpPanel'><i class="fa fa-question-circle pul-right" data-has-qtip="26"></i></a></div>
+	<h2 class="title " id="section-associations"> Phenotype associations for ${gene.symbol} <span class="documentation"><a href='' class='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span></h2>
 	<div class="inner">
 		<div class="abnormalities">TODO</div>
 		<c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
@@ -388,93 +387,80 @@
 			</div>
 			
 		</c:if>
-
+	</div>
+</div>
 
 
 	<c:if test="${phenotypeStarted}">
-	<div class="row-fluid dataset">
-	    <div class='documentation'><a href='' class='preQcPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-	    <h4 class="caption">Pre-QC phenotype heatmap -
+	<div class="section">
+	    <h2 class="documentation title" id="heatmap">Pre-QC phenotype heatmap -
 				<c:forEach items="${allColonyStatus}" var="colonyStatus">
 						<c:if test="${colonyStatus.phenotypeStarted == 1}">
 							${colonyStatus.alleleName}<%-- </td><td>${colonyStatus.backgroundStrain}</td><td>${colonyStatus.phenotypeCenter}</td></tr> --%>
 						</c:if>
 				</c:forEach>	
-			</h4>
-		<div class="row-fluid container clearfix" style="float:none;">
-			
-			<div class="alert alert-block">
-			<h4>Caution!</h4>
-			This is the results of a preliminary statistical analysis. Data are still in the process of being quality controlled and results may change.
+				<a href='' class='mpPanel'><i class="fa fa-question-circle pull-right"></i></a>
+			</h2>
+		<div class="inner">
+			<div class="messages errors">
+				<h5>Caution</h5>
+				<p>This is the results of a preliminary statistical analysis. Data are still in the process of being quality controlled and results may change.</p>
 			</div>
 		</div>
-		<div class="row-fluid">
-       		<div class="phenodcc-heatmap" id="phenodcc-heatmap"></div>
+		<div class="dcc-heatmap-root">
+       	<div class="phenodcc-heatmap" id="phenodcc-heatmap"></div>
 		</div>
-	</div>
+	</div> <!-- section end -->
 	</c:if>
-	<!--/row-->
 
 
-	<!-- row -->
 	<c:if test="${not empty imageErrors}">
 		<div class="row-fluid dataset">
 			<div class="alert"><strong>Warning!</strong>${imageErrors }</div>
 		</div>
 	</c:if>
-	<!-- /row -->
 
-	<!-- row -->
+
 	<c:if test="${not empty solrFacets}">
-	<div class="row-fluid dataset">
+		<div class="section">
 	    <div class='documentation'><a href='' class='imagePanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-	    <h4 class="caption">Phenotype Associated Images  <a href='${baseUrl}/images?gene_id=${acc}&fq=!expName:"Wholemount%20Expression"'><small>Show All Images</small></a></h4><div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	
-		<div class="row-fluid">         	
-			<div class="container span12">				
-				<div class="accordion" id="accordion1">
-					<c:forEach var="entry" items="${solrFacets}" varStatus="status">
-					<div class="accordion-group">
-						<div class="accordion-heading">
-							<a class="accordion-toggle" data-toggle="collapse" data-target="#pheno${status.count}">
-								${entry.name} [${entry.count}]<i class="icon-chevron-<c:if test="${status.count ==1}">down</c:if><c:if test="${status.count!=1}">right</c:if> pull-left"></i>
-							</a>
-						</div>
-						<div id="pheno${status.count}" class="accordion-body collapse<c:if test="${status.count ==1}"> in</c:if>">
-							<div class="accordion-inner">
-							<a href="${baseUrl}/images?gene_id=${acc}&fq=expName:${entry.name}">[show all ${entry.count} images]</a>
-								<ul>
+	    	<h2 class="title">Phenotype Associated Images  <a href='${baseUrl}/images?gene_id=${acc}&fq=!expName:"Wholemount%20Expression"'><small>Show All Images</small></a></h2>
+	    	<div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	
+				<div class="inner">         		
+					<div class="accordion" id="accordion1">
+						<c:forEach var="entry" items="${solrFacets}" varStatus="status">
+							<div class="accordion-group">
+								<div class="accordion-heading">
+									<a class="accordion-toggle" data-toggle="collapse" data-target="#pheno${status.count}">
+										${entry.name} [${entry.count}]<i class="icon-chevron-<c:if test="${status.count ==1}">down</c:if><c:if test="${status.count!=1}">right</c:if> pull-left"></i>
+									</a>
+								</div>
+							<div id="pheno${status.count}" class="accordion-body collapse<c:if test="${status.count ==1}"> in</c:if>">
+								<div class="accordion-inner">
+									<a href="${baseUrl}/images?gene_id=${acc}&fq=expName:${entry.name}">[show all ${entry.count} images]</a>
+									<ul>
 									<c:forEach var="doc" items="${facetToDocs[entry.name]}">
-									<%-- <li class="span2">
-										<a href="${mediaBaseUrl}/${doc.fullResolutionFilePath}">
-										<img src="${mediaBaseUrl}/${doc.smallThumbnailFilePath}" /></a>
-										<c:forEach var="maTerm" items="${doc.annotationTermName}" varStatus="status">${maTerm}<br/></c:forEach>
-										<c:if test="${not empty doc.genotype}">${doc.genotype}<br/></c:if>
-										<c:if test="${not empty doc.gender}">${doc.gender}<br/></c:if>
-										<c:if test="${not empty doc.institute}"><c:forEach var="org" items="${doc.institute}">${org}<br /></c:forEach></c:if> 
-									</li> --%>
-                                                                        <li class="span2">
-									<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
-                                                                        </li>
+									  <li class="span2">
+											<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
+                    </li>
 									</c:forEach>
-								</ul>
+									</ul>
+								</div>
 							</div>
 						</div>
-					</div>
 					</c:forEach>
 				</div>
 			</div>
 		</div>
-	</div>
 	</c:if>
-	<!-- /row -->
 
 			
 			
 	<c:if test="${not empty expressionFacets}">
-	<div class="row-fluid dataset">
+	<div class="section">
 		<div class='documentation'><a href='' class='expressionPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-		<h4 class="caption">Expression</h4><div id="showAllExpression"></div>
-		<div class="row-fluid">			
+		<h2 class="title">Expression</h2><div id="showAllExpression"></div>
+		<div class="inner">			
 			<div class="container span12">				
 			</div>
 			<div class="row-fluid">
@@ -510,14 +496,11 @@
 		</div>
 	</div>
 	</c:if>
-	<!--/row-->
 
-	<div class="row-fluid dataset">
+	<div class="section">
 	<div class='documentation'><a href='' class='allelePanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-	<h4 class="caption">ES Cell and Mouse Alleles</h4>	
-	    <div class="row-fluid"> 
-			<div class="container span12">
-			
+	<h2 class="title">ES Cell and Mouse Alleles</h2>	
+	    <div class="inner"> 			
 			<div id="allele_tracker_panel_results">&nbsp;</div>
 			<c:choose>
 				<c:when test="${countIKMCAllelesError}">
@@ -536,11 +519,8 @@
 					</script>
 				</c:otherwise>
 			</c:choose>
-		</div>
 	</div>
 	</div>
-</div>
-</div>
 </div>
 </div>
 </div>
