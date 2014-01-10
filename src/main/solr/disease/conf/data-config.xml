@@ -1,7 +1,7 @@
  <dataConfig>   
 
         <dataSource name="phenodigmdb" jndiName="java:comp/env/jdbc/phenodigmDataSource" />
-        <dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d1.ebi.ac.uk:8090/build_indexes/mp/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
+        <dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/mp/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
         <dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>        
  
  <document name="docs">
