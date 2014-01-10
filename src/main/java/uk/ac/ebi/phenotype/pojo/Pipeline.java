@@ -33,14 +33,14 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "phenotype_pipeline")
 public class Pipeline extends PipelineEntry {
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@ManyToMany(cascade = CascadeType.ALL, mappedBy="procedures")
     @JoinTable(
             name="phenotype_pipeline_procedure",
             joinColumns = @JoinColumn( name="pipeline_id"),
