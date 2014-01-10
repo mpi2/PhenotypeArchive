@@ -180,12 +180,17 @@
 								<c:otherwise>
 									<c:if test="${fn:contains(geneStatus,'produced')}"> <a class="status done" data-hasqtip="37" oldtitle="${geneStatus}" title aria-describebody="qtip-37"></c:if>
 									<c:if test="${!fn:contains(geneStatus,'produced')}"> <a class="status inprogress" data-hasqtip="37" oldtitle="${geneStatus}" title aria-describebody="qtip-37"></c:if>
-									
 									<span>ES Cell</span>
 									</a>
-								</c:otherwise>
-							</c:choose>
+							</c:otherwise>
+						</c:choose>
 						
+						<c:if test="${not empty phenotypeStatus}">
+							
+								<td>Phenotyping Status:</td>
+							 	<td><button type="button" class="btn btn-info" disabled>${phenotypeStatus}</button></td>
+							</tr>
+						</c:if>
 					</p>
 					
 					<p class="with-label">
