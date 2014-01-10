@@ -119,7 +119,7 @@ jQuery(document).ready(function() {
 					uri: getProxyUri('http://beta.mousephenotype.org/mi/ws/das-ws/das/ikmcallelesm38/'),collapseSuperGroups: true   
 				}
 			],
-			uiPrefix: 'https://dev.mousephenotype.org/data/css/',
+			uiPrefix: 'https://dev.mousephenotype.org/data/',
 			searchEndpoint: new DASSource(getProxyUri('http://www.ebi.ac.uk/mi/ws/dazzle-ws/das/mmu_68_38k/')),
 			karyoEndpoint: new DASSource(getProxyUri('http://www.ebi.ac.uk/mi/ws/dazzle-ws/das/mmu_68_38k/')),
 			browserLinks: {
