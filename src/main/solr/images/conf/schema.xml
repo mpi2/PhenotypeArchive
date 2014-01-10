@@ -94,6 +94,7 @@
     <fields>
         <field name="_version_" type="long" indexed="true" stored="true"/> 
         <field name="id"      type="string"   indexed="true"  stored="true"  multiValued="false" required="true"/>
+        <field name="dataType"      type="string"   indexed="true"  stored="true"  multiValued="false" required="true"/>
         <field name="mouseId"    type="string"   indexed="true"  stored="true"  multiValued="false" /> 
         <field name="gender"    type="string"   indexed="true"  stored="true"  multiValued="false" /> 
         <field name="colonyName"   type="string"   indexed="true"  stored="true"  multiValued="false" /> 
