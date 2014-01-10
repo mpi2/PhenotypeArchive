@@ -39,24 +39,20 @@ import uk.ac.ebi.phenotype.stats.TableObject;
 
 @Service
 public class CategoricalChartAndTableProvider {
-	private static final Logger logger = Logger
-			.getLogger(CategoricalChartAndTableProvider.class);
-	
-	
-	@Autowired
+	private static final Logger logger = Logger.getLogger(CategoricalChartAndTableProvider.class);
+
+        @Autowired
 	PhenotypePipelineDAO ppDAO;
-		
+
 	/**
 	 * return a list of categorical result and chart objects - one for each ExperimentDTO
 	 * @param experimentList
 	 * @param bmDAO
-	 * @param config
 	 * @param parameter
 	 * @param acc
 	 * @param model
 	 * @param genderList
 	 * @param zyList
-	 * @param biologicalModelsParams
 	 * @param charts
 	 * @param categoricalTables
 	 * @param parameterId
@@ -67,10 +63,9 @@ public class CategoricalChartAndTableProvider {
 	 */
 	public List<CategoricalResultAndCharts> doCategoricalData(
 			List<ExperimentDTO> experimentList, BiologicalModelDAO bmDAO,
-			Map<String, String> config,
 			Parameter parameter,
 			String acc, Model model, List<String> genderList,
-			List<String> zyList, List<String> biologicalModelsParams,
+			List<String> zyList,
 			List<JSONObject> charts, List<TableObject> categoricalTables,
 			String parameterId)
 			throws SQLException, IOException, URISyntaxException {
