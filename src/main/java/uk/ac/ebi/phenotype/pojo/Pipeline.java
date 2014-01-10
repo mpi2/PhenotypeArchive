@@ -25,7 +25,9 @@ package uk.ac.ebi.phenotype.pojo;
  */
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -44,7 +46,7 @@ public class Pipeline extends PipelineEntry {
             joinColumns = @JoinColumn( name="pipeline_id"),
             inverseJoinColumns = @JoinColumn( name="procedure_id")
     )
-	private List<Procedure> procedures;
+	private Set<Procedure> procedures;
 	
 	public Pipeline() {
 		super();
@@ -53,7 +55,7 @@ public class Pipeline extends PipelineEntry {
 	public void addProcedure(Procedure procedure) {
 		
 		if (procedures == null) {
-			procedures = new ArrayList<Procedure>();
+			procedures = new HashSet<Procedure>();
 		}
 		procedures.add(procedure);
 		
@@ -62,14 +64,14 @@ public class Pipeline extends PipelineEntry {
 	/**
 	 * @return the procedures
 	 */
-	public List<Procedure> getProcedures() {
+	public Set<Procedure> getProcedures() {
 		return procedures;
 	}
 
 	/**
 	 * @param procedures the procedures to set
 	 */
-	public void setProcedures(List<Procedure> procedures) {
+	public void setProcedures(Set<Procedure> procedures) {
 		this.procedures = procedures;
 	}
 	
