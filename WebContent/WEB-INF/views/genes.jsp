@@ -341,44 +341,52 @@
             </ul>
         </c:if>
 
-
+				<!-- Associations table -->
+				<h5>Filter this table</h5>
+				   
         
-		<div class="row-fluid">
-			<div class="container span12">
-			<br/>	
-				<div class="row-fluid" id="phenotypesDiv">	
-			<div class="container span12">
-			<!--  style="display: none;" --><div id="filterParams" >
-			<c:forEach var="filterParameters" items="${paramValues.fq}">
-			${filterParameters}
-			</c:forEach>
-			</div> 
-				<c:if test="${not empty phenotypes}">
-				<form id="target" action="destination.html">
-					<c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
-							<select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
-				<c:forEach var="facet" items="${phenoFacet.value}">
-				<option>${facet.key}</option>
-				</c:forEach>
-				</select> 
-				</c:forEach>
-				</form>
-
-	<c:set var="count" value="0" scope="page" />
-	<c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
-		<c:forEach var="sex" items="${phenotype.sexes}"><c:set var="count" value="${count + 1}" scope="page"/></c:forEach>
-	</c:forEach>
-
-				<jsp:include page="PhenoFrag.jsp"></jsp:include>
-				<div id="exportIconsDiv"></div>
-				</c:if>
-				<c:if test="${empty phenotypes}">
-					<div class="alert alert-info">Pre QC data has been submitted for this gene. Once the QC process is finished phenotype associations stats will be made available.</div>
-				</c:if>
+				<div class="row-fluid">
+					<div class="container span12">
+						<br/>	
+						<div class="row-fluid" id="phenotypesDiv">	
+							<div class="container span12">
+								<div id="filterParams" >
+									<c:forEach var="filterParameters" items="${paramValues.fq}">
+										${filterParameters}
+									</c:forEach>
+								</div> 
+							<c:if test="${not empty phenotypes}">
+								<div class="tablefiltering">
+									<form id="target" action="destination.html">
+										<c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
+											<select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
+												<c:forEach var="facet" items="${phenoFacet.value}">
+													<option>${facet.key}</option>
+												</c:forEach>
+											</select> 
+										</c:forEach>
+									</form>
+								</div>
+								
+								<c:set var="count" value="0" scope="page" />
+								<c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
+									<c:forEach var="sex" items="${phenotype.sexes}"><c:set var="count" value="${count + 1}" scope="page"/></c:forEach>
+								</c:forEach>
+		
+								<jsp:include page="PhenoFrag.jsp"></jsp:include>
+								<div id="exportIconsDiv"></div>
+							</c:if>
+							
+							<!-- if no data to show -->
+							<c:if test="${empty phenotypes}">
+								<div class="alert alert-info">Pre QC data has been submitted for this gene. Once the QC process is finished phenotype associations stats will be made available.</div>
+							</c:if>
+							
+						</div>
+					</div>
+				</div>
 			</div>
-		</div>
-			</div>
-		</div>
+			
 		</c:if>
 
 
