@@ -22,6 +22,8 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.stats.strategy.AllControlsStrategy;
+import uk.ac.ebi.phenotype.stats.strategy.ControlSelectionStrategy;
 
 @Service
 public class ExperimentService {
@@ -367,4 +369,19 @@ public class ExperimentService {
 	public String getCategoryLabels (int parameterId, String category) throws SQLException{
 		return parameterDAO.getCategoryDescription(parameterId, category);
 	}
+
+    /**
+     * Control strategy selection based on phenotyping center and user supplied
+     * strategy.
+     * 
+     * @param phenotypingCenter center at which the mutants were phenotyped
+     * @param strategies which control selection strategy to use
+     * 
+     * @return an instance of a control selection strategy
+     */
+    public ControlSelectionStrategy getControlSelectionStrategy(String[] phenotypingCenter, String[] strategies) {
+        // TODO: implement logic to get appropriate control selection strategy
+        // object
+        return new AllControlsStrategy();
+    }
 }
