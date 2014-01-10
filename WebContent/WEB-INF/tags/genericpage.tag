@@ -166,16 +166,13 @@ try {
 						<nav id="mn">
                 <ul class="menu">
                     <c:forEach var="menuitem" items="${menu}" varStatus="loop">
-                                        <c:if test="${menuitem.below != null}">
+                                        <c:if test="${(menuitem.below != null)}">
                                         <li>
                                                 <a id="drop${loop.count}" data-target="#" href="${drupalBaseUrl}/${menuitem.href}">${menuitem.title} </a>
                                                 <ul>
-                                                        <li><a href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li>
                                                         <c:forEach var="submenuitem" items="${menuitem.below}">
-                                                        
-                                                        	<li><a href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${submenuitem.href}">${submenuitem.title}</a></li>
-                                                        
-                                                        </c:forEach>
+                                                         	<li><a href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${submenuitem.href}">${submenuitem.title}</a></li>
+                                                      	</c:forEach>
                                                 </ul>
                                         </li>
                                         </c:if>
