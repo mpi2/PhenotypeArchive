@@ -65,14 +65,18 @@
 <!-- css -->
 <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
-<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.theme.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.slider.css">
+<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.theme.css">
+
+<link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.qtip.min.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.fancybox-1.3.4.css">
-<link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
-<link href="${baseUrl}/css/default.css?cache=10-01-14" rel="stylesheet" type="text/css" />
-<link href="${baseUrl}/css/heatmap.css?cache=10-01-14" rel="stylesheet" type="text/css" />
-<link href="${baseUrl}/css/wdm.css?cache=10-01-14" rel="stylesheet" type="text/css" />
+<link href="${baseUrl}/css/default.css?cache=09-01-14" rel="stylesheet" type="text/css" />
+<link href="${baseUrl}/css/heatmap.css?cache=09-01-14" rel="stylesheet" type="text/css" />
+<link href="${baseUrl}/css/wdm.css?cache=09-01-14" rel="stylesheet" type="text/css" />
+
+<link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" />
+
 
 <%--
 Short circuit favicon requests
@@ -80,11 +84,12 @@ See: http://stackoverflow.com/questions/1321878/how-to-prevent-favicon-ico-reque
 --%>
 <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 
-<!-- UNCOMMENT THIS WHEN DONE TESTING 
+</style>
+
 <script type="text/javascript">
 var _gaq = _gaq || [];_gaq.push(["_setAccount", "${googleAnalytics}"]);_gaq.push(["_trackPageview"]);(function() {var ga = document.createElement("script");ga.type = "text/javascript";ga.async = true;ga.src = "${drupalBaseUrl}/sites/mousephenotype.org/files/googleanalytics/ga.js?mjafjk";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(ga, s);})();
 </script>
--->
+
 <script>
 var baseUrl='${baseUrl}';
 var solrUrl='${solrUrl}';
@@ -125,12 +130,14 @@ try {
 
 <!-- javascript -->
 <script type="text/javascript" src="${baseUrl}/js/head.min.js"></script>
-<script type="text/javascript" src="${baseUrl}/js/vendor/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery_1.5.1.min.js"></script>                
+<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/jquery.dataTables.js'></script>
+<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/core.filter.js'></script>
+<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/TableTools.min.js'></script>   
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.core.min.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.widget.min.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.mouse.min.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.slider.min.js"></script>
-
 <!--[if lt IE 9 ]><script type="text/javascript" src="js/selectivizr-min.js"></script><![endif]-->
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.qtip.min.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.fancybox-1.3.4.pack.js"></script>
@@ -139,12 +146,11 @@ try {
 <script src="http://code.highcharts.com/highcharts-more.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/default.js?cache=09-01-14"></script>
 
-
-
 <jsp:invoke fragment="header" />
 
 
 </head>
+
 <jsp:invoke fragment="bodyTag"/>
 	<div id="wrapper">
 	 <header id="header">
@@ -207,6 +213,9 @@ try {
                         
 		        </div><!-- /main -->
         
+       
+        
+        
         
     <footer id="footer">
     
@@ -260,21 +269,85 @@ try {
         
         
         <script type="text/javascript" src='${baseUrl}/js/vendor/jquery.ba-bbq.min.js' ></script>
-        <script type="text/javascript" src='${baseUrl}/js/script.min.js' ></script>
+        <!-- <script type="text/javascript" src='${baseUrl}/js/script.min.js' ></script>-->
+        
+         <script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>   
+        <script type='text/javascript' src='${baseUrl}/js/documentationConfig.js'></script>     
+        <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/geneFacetWidget.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/mpFacetWidget.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/maFacetWidget.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/diseaseFacetWidget.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>                  
+        
         <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js'></script>
         
         <compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">
          <script>
-        $(document).ready(function() {
-                // wire up the example queries
-                   $("a.example").click(function(){
-                        $('#examples').modal('hide');
-                        document.location.href = $(this).attr('href');
-                        document.location.reload();
-                });
+        $(document).ready(function() {        		
+        	$.fn.qTip({'pageName':'search',
+				'textAlign':'left',
+				'tip':'topLeft',
+				'posX':200,
+				'posY':30
+			});
+        	
+			// non hash tag keyword query
+			<c:if test="${not empty q}">				
+				oHashParams = {};
+				oHashParams.q = "${q}";
+				$.fn.fetchSolrFacetCount(oHashParams);				
+			</c:if>;
+					
+			// hash tag query
+			// catch back/forward buttons and hash change: loada dataTable based on url params
+			$(window).bind("hashchange", function() {
+								
+				var url = $.param.fragment();				
+				//console.log('hash change URL: '+ '/search#' + url);
+				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
+				
+				if ( typeof oHashParams.q === 'undefined' ){
+					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');					
+				}
+				
+				// search by keyword (user's input) has no fq in url when hash change is detected
+				if ( oHashParams.fq ){				
+					// back/forward button navigation: 
+					// make sure checkboxes are updated according to url
+					$.fn.removeFacetFilter(oHashParams.coreName);
+					//console.log(oHashParams.fq);					
+					var pageReload;  // this controls checking which subfacet to open (ie, show by priority). 
+									 // Set to undefined for no checking here, as we are now capturing hash change and not page reload
+					$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet', pageReload);				
+					
+					$.fn.loadDataTable(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet'); 
+				}
+			});
+						
+			$('div#filterToggle').click(function(){	
+				
+				var ul = $('ul#facetFilter');	
+				if ( ul.is(":visible") ){				
+					ul.hide();					
+				}
+				else {				
+					ul.show();				
+				}
+			});        	
+        	
+            // wire up the example queries
+               $("a.example").click(function(){
+                    $('#examples').modal('hide');
+                    document.location.href = $(this).attr('href');
+                    document.location.reload();
+            });
 
-                // Message to IE users
-                $.fn.ieCheck();
+            // Message to IE users
+            $.fn.ieCheck();
         });        
         </script>
         </compress:html>

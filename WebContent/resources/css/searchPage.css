@@ -1,0 +1,68 @@
+table.dataTable td{
+
+	width:99.9%;
+}
+
+/* ----- start of  facet filter ----- */
+div#filterToggle {
+	display: block;
+}
+ul#facetFilter {
+  width: auto;	
+  margin: -23px 0 0 150px;
+  padding: 3px 6px;
+  background: none;
+  border-radius: 1em;
+  font: normal 1em Arial, Helvetica, sans-serif;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  display: none;
+}
+ul#facetFilter ul {
+  /*z-index: 9999;	
+  display: none;*/
+  margin: 0 0 5px 20px;
+  padding: 2px 5px;
+  width: auto;
+  /*position: absolute;
+  top: 20px;
+  left: 0;*/
+  /*background: #F4F4F4;*/ /*url(overlay.png) repeat-x 0 0;*/
+  /*border: solid 1px #b4b4b4;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;*/ 
+}
+#facetFilter li.has-sub {
+	list-style: none;
+}
+ul#facetFilter li ul li {	
+	list-style: none;
+	/*margin-left: 20px;*/	
+}
+ul#facetFilter li.has-sub {
+	display: none;
+}
+ul#facetFilter li.none {
+	display: block;
+}
+
+
+/* ----- end of  facet filter ----- */
+
+
+
+div#mpi2-search table.dataTable {
+	width: auto !important;
+}
+h2.documentation {
+	padding-bottom: 15px;
+}
+
+div.dataTables_info, div.dataTables_paginate {
+	display: inline;	
+}
+div.dataTables_info {
+	margin-left: 272px;
+}

@@ -775,9 +775,13 @@
 	
 	$.fn.qTip = function(oConf){
 		// pageName: gene | mp | ma
-		$('.documentation a').each(function(){
-						
-			var key = $(this).attr('class');
+
+		// preappend h2 for efficiency and performance reason
+		$('h2.documentation a').each(function(){	
+			
+			// now use id instead of class for better css logic
+			var key = $(this).attr('id');
+
 			$(this).attr('href', MDOC[oConf.pageName][key+'DocUrl']);
 			
 			$(this).qtip({
@@ -1349,7 +1353,7 @@
     		"bProcessing": true,
     		"bServerSide": true,	    		
     		//"sDom": "<'row-fluid'<'span6'><'span6'>>t<'row-fluid'<'span6'i><'span6'p>>",
-    		"sDom": "<'row-fluid'<'#exportSpinner'><'#tableTool'>r>t<'row-fluid'<'span6'i><'span6'p>>",    		
+    		"sDom": "<<'#exportSpinner'><'#tableTool'>r>t<<ip>>",    		
 			"sPaginationType": "bootstrap",    		
     		"fnDrawCallback": function( oSettings ) {  // when dataTable is loaded
     			    			
@@ -1504,7 +1508,7 @@
     	$('div#saveTable').remove();
     	$('div#toolBox').remove();
     
-    	var saveTool = $("<div id='saveTable'></div>").html("Export table <img src='"+baseUrl+"/img/floppy.png' />").corner("4px");    	
+    	var saveTool = $("<div id='saveTable'></div>").html("Export table <img src='"+baseUrl+"/img/floppy.png' />");//.corner("4px");    	
     	var toolBox = fetchSaveTableGui();
     	
     	$('div.dataTables_processing').siblings('div#tableTool').append(saveTool, toolBox); 
@@ -1540,7 +1544,7 @@
     					gridFields: MPI2.searchAndFacetConfig.facetParams[oInfos.widgetName].gridFields,
     					fileName: solrCoreName + '_table_dump'	
     	    		});   
-    	    	}).corner('6px'); 
+    	    	});//.corner('6px'); 
     		}        		
     	});
     }
@@ -1624,7 +1628,7 @@
     
     function fetchSaveTableGui(){
     	
-    	var div = $("<div id='toolBox'></div>").corner("4px");
+    	var div = $("<div id='toolBox'></div>");//.corner("4px");
     	div.append($("<div class='dataName'></div>").html("Current paginated entries in table"));    	
     	div.append($.fn.loadFileExporterUI({
 			label: 'Export as:',
@@ -1657,7 +1661,7 @@
 		};*/
 				
 		var params = {	
-//				"sDom": "<'row-fluid'<'#foundEntries'><'span6'f>r>t<'row-fluid'<'#tableShowAllLess'><'span6'p>>",
+//				"sDom": "<'row-fluid'<'#foundEntries'><'span6'f>r>t<'row-fluid'<'#tableShowAllLess'><'span6'p>>",				
 //				 "bPaginate":true,
 					"bLengthChange": false,
 					"bSort": true,
