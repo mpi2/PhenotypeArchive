@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.  
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     //www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,44 +17,37 @@
  * Contains utility methods for the phenotype archive gene details page
  * 
  */
-// Convert a URL to HTTPS if necessary
-function convertToHttps(url){
-	var protocol = location.protocol;
-	if(protocol=='https:'){
-		url=url.replace('http:', 'https:');
-	}
-	return url;
-}
+
 
 // Transform original url into a url that we proxy through to avoid
 // CORS errors and get round ajax permission restrictions
 function getProxyUri(originalUrl) {
 	
-	var root = location.protocol + '//' + location.host;
+	var root =  '//' + location.host;
+	alert('root='+root);
 	var localUrl = originalUrl;
 
 	//if on localhost just return the original url
-	if(root == 'http://localhost:8080' || root == 'https://localhost:8080') {
+	if(root == '//localhost:8080' || root == '//localhost:8080') {
 		return originalUrl;
 	}else{
-		if(originalUrl.indexOf('http://www.ebi.ac.uk/mi/ws/dazzle-ws/das/') != -1){
-			localUrl = originalUrl.replace('http://www.ebi.ac.uk/mi/ws/dazzle-ws/das/', root + '/mi/ws/dazzle-ws/das/');
+		if(originalUrl.indexOf('//www.ebi.ac.uk/mi/ws/dazzle-ws/das/') != -1){
+			localUrl = originalUrl.replace('//www.ebi.ac.uk/mi/ws/dazzle-ws/das/', root + '/mi/ws/dazzle-ws/das/');
 		}
-		if(originalUrl.indexOf('http://beta.mousephenotype.org/mi/ws/das-ws/das/ikmcallelesm38/') != -1){
-			localUrl = originalUrl.replace('http://beta.mousephenotype.org/mi/ws/das-ws/das/ikmcallelesm38/',root + '/mi/ws/das-ws/das/ikmcallelesm38/');
+		if(originalUrl.indexOf('//beta.mousephenotype.org/mi/ws/das-ws/das/ikmcallelesm38/') != -1){
+			localUrl = originalUrl.replace('//beta.mousephenotype.org/mi/ws/das-ws/das/ikmcallelesm38/',root + '/mi/ws/das-ws/das/ikmcallelesm38/');
 		}
-		if(originalUrl.indexOf("http://gbrowse.informatics.jax.org/cgi-bin/gbrowse_img/thumbs_current") != -1){
-			localUrl = originalUrl.replace('http://gbrowse.informatics.jax.org/cgi-bin/gbrowse_img/thumbs_current',root + '/jax/cgi-bin/gbrowse_img/thumbs_current/');
+		if(originalUrl.indexOf("//gbrowse.informatics.jax.org/cgi-bin/gbrowse_img/thumbs_current") != -1){
+			localUrl = originalUrl.replace('//gbrowse.informatics.jax.org/cgi-bin/gbrowse_img/thumbs_current',root + '/jax/cgi-bin/gbrowse_img/thumbs_current/');
 		}
 	}
-	localUrl = convertToHttps(localUrl);
 	return localUrl;
 }
 
 // Document onload functions 
 jQuery(document).ready(function() {
 	// See here for this solution to detecting IE. 
-	// http://stackoverflow.com/questions/4169160/javascript-ie-detection-why-not-use-simple-conditional-comments
+	// //stackoverflow.com/questions/4169160/javascript-ie-detection-why-not-use-simple-conditional-comments
 	function supportsSvg(){
 		var isIE = /*@cc_on!@*/false;
 		if(isIE){
@@ -74,8 +67,8 @@ jQuery(document).ready(function() {
 		// browser being interactive because the IE fallback 
 		// browser (gbrowse) isn't interactive
 
-		var dontUseIEString='<div class="alert alert-info">For a more interactive and informative gene image please use a newish browser e.g. <a href="http://www.mozilla.com/firefox/">Firefox</a> 3.6+, <a href="http://www.google.com/chrome">Google Chrome</a>, and <a href="http://www.apple.com/safari/">Safari</a> 5 or newer</div>';
-		var gbrowseimage='<a href="http://gbrowse.informatics.jax.org/cgi-bin/gb2/gbrowse/mousebuild38/?start='+start+';stop='+stop+';ref='+chromosome+'"><img border="0" src="http://gbrowse.informatics.jax.org/cgi-bin/gb2/gbrowse_img/mousebuild38/?t=MGI_Genome_Features;name='+chromosome+':'+start+'..'+stop+';width=400"></a>';
+		var dontUseIEString='<div class="alert alert-info">For a more interactive and informative gene image please use a newish browser e.g. <a href="//www.mozilla.com/firefox/">Firefox</a> 3.6+, <a href="//www.google.com/chrome">Google Chrome</a>, and <a href="//www.apple.com/safari/">Safari</a> 5 or newer</div>';
+		var gbrowseimage='<a href="//gbrowse.informatics.jax.org/cgi-bin/gb2/gbrowse/mousebuild38/?start='+start+';stop='+stop+';ref='+chromosome+'"><img border="0" src="//gbrowse.informatics.jax.org/cgi-bin/gb2/gbrowse_img/mousebuild38/?t=MGI_Genome_Features;name='+chromosome+':'+start+'..'+stop+';width=400"></a>';
 		$('#svgHolder').html(dontUseIEString+gbrowseimage);
 		forceWidth: jQuery('div.row-fluid').width() * 0.98;
 		$('#genomicBrowserInfo').html('');
@@ -99,7 +92,7 @@ jQuery(document).ready(function() {
 			sources: [
 			{
 				name: 'Genome',
-				uri: getProxyUri( 'http://www.ebi.ac.uk/mi/ws/dazzle-ws/das/mmu_68_38k/'),
+				uri: getProxyUri( '//www.ebi.ac.uk/mi/ws/dazzle-ws/das/mmu_68_38k/'),
 				desc: 'Mouse reference genome build NCBIm38',
 				tier_type: 'sequence',
 				provides_entrypoints: true,
@@ -108,23 +101,23 @@ jQuery(document).ready(function() {
 				{
 					name: 'Genes',
 					desc: 'Gene structures from Ensembl 58',
-					uri: getProxyUri('http://www.ebi.ac.uk/mi/ws/dazzle-ws/das/mmu_68_38k/'),
-					//stylesheet_uri: 'http://www.ebi.ac.uk/mi/ws/dazzle-ws/das/mmu_68_38k/stylesheet',
+					uri: getProxyUri('//www.ebi.ac.uk/mi/ws/dazzle-ws/das/mmu_68_38k/'),
+					//stylesheet_uri: '//www.ebi.ac.uk/mi/ws/dazzle-ws/das/mmu_68_38k/stylesheet',
 					collapseSuperGroups: true,
 					provides_search: true
 				},
 				{
 					name: 'ikmc alleles',     
 					desc: 'ikmc alleles',
-					uri: getProxyUri('http://beta.mousephenotype.org/mi/ws/das-ws/das/ikmcallelesm38/'),collapseSuperGroups: true   
+					uri: getProxyUri('//beta.mousephenotype.org/mi/ws/das-ws/das/ikmcallelesm38/'),collapseSuperGroups: true   
 				}
 			],
-			uiPrefix: 'https://dev.mousephenotype.org/data/',
-			searchEndpoint: new DASSource(getProxyUri('http://www.ebi.ac.uk/mi/ws/dazzle-ws/das/mmu_68_38k/')),
-			karyoEndpoint: new DASSource(getProxyUri('http://www.ebi.ac.uk/mi/ws/dazzle-ws/das/mmu_68_38k/')),
+			uiPrefix: '//dev.mousephenotype.org/data/',
+			searchEndpoint: new DASSource(getProxyUri('//www.ebi.ac.uk/mi/ws/dazzle-ws/das/mmu_68_38k/')),
+			karyoEndpoint: new DASSource(getProxyUri('//www.ebi.ac.uk/mi/ws/dazzle-ws/das/mmu_68_38k/')),
 			browserLinks: {
-				Ensembl: 'http://www.ensembl.org/Mus_musculus/Location/View?r=${chr}:${start}-${end}',
-				UCSC: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&position=chr${chr}:${start}-${end}'
+				Ensembl: '//www.ensembl.org/Mus_musculus/Location/View?r=${chr}:${start}-${end}',
+				UCSC: '//genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&position=chr${chr}:${start}-${end}'
 			},
 			forceWidth: jQuery('div.row-fluid').width() * 0.98,
 			 disableDefaultFeaturePopup: true
@@ -139,7 +132,7 @@ jQuery(document).ready(function() {
 //		               featureInfo.setTitle('Blurdibloop');
 //		               featureInfo.addPanel(
 //		                   'Construct',
-//		                   makeElement('img', {src: 'http://mousephenotype.org/images/' + feature.id})
+//		                   makeElement('img', {src: '//mousephenotype.org/images/' + feature.id})
 //		                );
 //		             }
 //		          });
@@ -211,7 +204,7 @@ jQuery(document).ready(function() {
 			                	 if(l.desc=='Cassette Image'){
 			                         // console.debug(l.desc);
 			                		 //mpi2 speicifc
-			                      return makeElement('div',makeElement('a', makeElement('img', l.desc, {width:320, src: l.uri}), {href:l.uri, target: '_new'}));//'<img src="http://www.knockoutmouse.org/targ_rep/alleles/37256/allele-image" alt="some_text"/>');
+			                      return makeElement('div',makeElement('a', makeElement('img', l.desc, {width:320, src: l.uri}), {href:l.uri, target: '_new'}));//'<img src="//www.knockoutmouse.org/targ_rep/alleles/37256/allele-image" alt="some_text"/>');
 			                      }
 			                    return makeElement('div', makeElement('a', l.desc, {href: l.uri, target: '_new'}));
 			                }))
