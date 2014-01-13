@@ -70,11 +70,12 @@ public class Procedure extends PipelineEntry implements Comparable {
 	/**
 	 * bi-directional
 	 */
-	@ManyToMany( cascade = {CascadeType.PERSIST, CascadeType.MERGE} )
+	/*@ManyToMany( cascade = {CascadeType.PERSIST, CascadeType.MERGE} )
     @JoinTable(name="phenotype_pipeline_procedure",
         joinColumns = @JoinColumn(name="procedure_id"),
         inverseJoinColumns = @JoinColumn(name="pipeline_id")
-    )
+    )*/
+	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "procedures")
     private Set<Pipeline> pipelines;
 	
 	
