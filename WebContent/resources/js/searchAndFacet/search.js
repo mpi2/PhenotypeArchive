@@ -36,7 +36,8 @@
 	       	    dataType: 'jsonp',
 	       	    jsonp: 'json.wrf',
 	       	    timeout: 5000,
-	       	    success: function (geneResponse) {	       	    	
+	       	    success: function (geneResponse) {	  
+	       	    	console.log(geneResponse);
 	       	    	$('div#geneFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
 	       	    	oFacets.count.gene = geneResponse.response.numFound;	       	    	
 	       	    	$('div#geneFacet span.facetCount').html(oFacets.count.gene);	       	    	
