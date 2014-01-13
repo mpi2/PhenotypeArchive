@@ -147,7 +147,7 @@
 						SELECT pp.name, pmdin.value, pmdin.parameter_id, pmdin.experiment_id 
 						FROM procedure_meta_data pmdin
 						INNER JOIN phenotype_parameter pp ON pp.stable_id=pmdin.parameter_id 
-						WHERE pp.required=1 AND experiment_id=${observation.experiment_id}) pmdreq 
+						WHERE pp.data_analysis=1 AND experiment_id=${observation.experiment_id}) pmdreq 
 					ON pmdreq.experiment_id=pmdall.experiment_id
 					">
 				<field column="metadata" name="metadata" />
