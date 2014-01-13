@@ -847,7 +847,7 @@ CREATE TABLE phenotype_parameter (
     sequence                  INT(10) UNSIGNED NOT NULL,
     media                     TINYINT(1) DEFAULT 0,
     data_analysis             TINYINT(1) DEFAULT 0,
-    data_analysis_notes       VARCHAR(200),
+    data_analysis_notes       TEXT,
     stable_key                INT(10) DEFAULT 0,
  
     PRIMARY KEY (id),
