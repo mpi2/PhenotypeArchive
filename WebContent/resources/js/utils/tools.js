@@ -237,9 +237,13 @@
 	
 	$.fn.qTip = function(oConf){
 		// pageName: gene | mp | ma
-		
-		$('h2.documentation a').each(function(){					
+
+		// preappend h2 for efficiency and performance reason
+		$('h2.documentation a').each(function(){	
+			
+			// now use id instead of class for better css logic
 			var key = $(this).attr('id');
+
 			$(this).attr('href', MDOC[oConf.pageName][key+'DocUrl']);
 			
 			$(this).qtip({

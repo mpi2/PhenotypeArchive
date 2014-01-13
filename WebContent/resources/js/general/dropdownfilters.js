@@ -36,7 +36,7 @@ $(document).ready(function(){
 		              "bFilter":false
 	});
 
-	$('[rel=tooltip]').tooltip();
+	//$('[rel=tooltip]').tooltip();
 
 	//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
 	$('div#exportIconsDiv').append($.fn.loadFileExporterUI({
@@ -77,7 +77,7 @@ $(document).ready(function(){
 			sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
 			var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");		
 			_doDataExport(url, form);
-		}).corner('6px');	 
+		}); 
 	}  
 
 	function _doDataExport(url, form){

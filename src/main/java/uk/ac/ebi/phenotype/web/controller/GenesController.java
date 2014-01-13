@@ -334,6 +334,8 @@ public class GenesController {
 		model.addAttribute("countIKMCAlleles", countIKMCAlleles);
 		log.debug("CHECK IKMC allele error : " + ikmcError);
 		log.debug("CHECK IKMC allele found : " + countIKMCAlleles);
+		int count = getEnuCount(acc);
+		model.addAttribute("makeEnuLink",count);
 	}
 
 	/**
@@ -629,15 +631,7 @@ public class GenesController {
 		return "identifierError";
 	}
 	
-	/**
-	 * @throws IOException 
-	 */
-	@RequestMapping("/genesEnu/{acc}")
-	public String genesEnuFrag(
-			@PathVariable String acc,
-			Model model,
-			HttpServletRequest request,
-			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
+	public int getEnuCount (String acc) throws URISyntaxException, GenomicFeatureNotFoundException, IOException {
 		//just pass on any query string after the ? to the solr requesting object for now
 //		String queryString=request.getQueryString();
 //		processPhenotypes(acc, model, queryString);
@@ -646,11 +640,8 @@ public class GenesController {
 		JSONObject result = JSONRestUtil.getResults(url);
 		
 		int count=result.getInt("count");
-		//System.out.println("count="+count);
 
-	model.addAttribute("makeEnuLink",count);
-
-		return "genesEnuFrag";
+		return count;
 	}
 	
 }
