@@ -40,7 +40,7 @@ import javax.persistence.Table;
 @Table(name = "phenotype_pipeline")
 public class Pipeline extends PipelineEntry {
 
-	@ManyToMany(cascade = CascadeType.ALL, mappedBy="procedures")
+	@ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name="phenotype_pipeline_procedure",
             joinColumns = @JoinColumn( name="pipeline_id"),
