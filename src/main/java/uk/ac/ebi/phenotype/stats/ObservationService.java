@@ -146,7 +146,6 @@ public class ObservationService {
      * construct a query to get all observations for a given combination of
      * pipeline, parameter, gene, zygosity, organisation and strain
      *
-     * @param pipelineId
      * @param parameterId
      * @param geneAcc
      * @param zygosity
@@ -156,8 +155,8 @@ public class ObservationService {
      * @return
      * @throws SolrServerException
      */
-    public SolrQuery getSolrQueryByPipelineParameterGeneAccZygosityOrganisationStrainSex(
-            Integer pipelineId, Integer parameterId, String geneAcc, String zygosity,
+    public SolrQuery getSolrQueryByParameterGeneAccZygosityOrganisationStrainSex(
+            Integer parameterId, String geneAcc, String zygosity,
             Integer organisationId, String strain, String sex)
             throws SolrServerException {
 
@@ -171,27 +170,26 @@ public class ObservationService {
                         + ":control) ")
                 .addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
                 .addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":"+ organisationId)
-                .addFilterQuery(ExperimentField.PIPELINE_STABLE_ID + ":"+ pipelineId)
                 .addFilterQuery(ExperimentField.STRAIN + ":"+ strain.replace(":", "\\:"))
                 .addFilterQuery(ExperimentField.SEX + ":" + sex).setStart(0)
                 .setRows(10000);
     }
 
     public String getQueryStringByParameterGeneAccZygosityOrganisationStrainSex(
-            Integer pipelineId, Integer parameterId, String geneAcc, 
+            Integer parameterId, String geneAcc, 
             String zygosity, Integer organisationId, String strain, SexType sex)
             throws SolrServerException {
 
-        return getSolrQueryByPipelineParameterGeneAccZygosityOrganisationStrainSex(pipelineId, parameterId, geneAcc, zygosity, organisationId, strain, sex.name()).toString();
+        return getSolrQueryByParameterGeneAccZygosityOrganisationStrainSex(parameterId, geneAcc, zygosity, organisationId, strain, sex.name()).toString();
     
     }
 
-    public List<ObservationDTO> getObservationsByPipelineParameterGeneAccZygosityOrganisationStrainSex(
-            Integer pipelineId, Integer parameterId, String gene, 
+    public List<ObservationDTO> getObservationsByParameterGeneAccZygosityOrganisationStrainSex(
+            Integer parameterId, String gene, 
             String zygosity, Integer organisationId, String strain, SexType sex)
             throws SolrServerException {
 
-        SolrQuery query = getSolrQueryByPipelineParameterGeneAccZygosityOrganisationStrainSex(pipelineId, parameterId, gene, zygosity, organisationId, strain, sex.name());
+        SolrQuery query = getSolrQueryByParameterGeneAccZygosityOrganisationStrainSex(parameterId, gene, zygosity, organisationId, strain, sex.name());
 
         return solr.query(query).getBeans(ObservationDTO.class);
     
@@ -468,50 +466,8 @@ public class ObservationService {
 
         return new ArrayList<>(genes);
     }
-    
-    /**
-     * Return all the pipeline stable ids that have associated data for a given
-     * strain, organisation ID and parameter ID
-     *
-     * @param strain the strain acc id
-     * @param organisationId the database id of the organisation
-     * @param parameterId the database id of the parameter
-     * @return list of pipeline stable IDs
-     * @throws SolrServerException
-     */
-    public List<String> getPipelinesByStrainsParameterIdOrganistionId(String strain, Integer parameterId, Integer organisationId)
-            throws SolrServerException {
-        Set<String> pipelines = new HashSet<>();
 
-        SolrQuery query = new SolrQuery()
-                .setQuery("*:*")
-                .addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
-                .addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-                .addFilterQuery(ExperimentField.STRAIN + ":" + strain.replaceAll(":", "\\:"))
-                .setRows(0).addFacetField(ExperimentField.PIPELINE_STABLE_ID)
-                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
-
-        QueryResponse response = solr.query(query);
-        List<FacetField> fflist = response.getFacetFields();
-
-        for (FacetField ff : fflist) {
-
-            // Skip field if there are no facet results, the values will be null
-            if (ff.getValues() == null) {
-                continue;
-            }
-
-            for (Count c : ff.getValues()) {
-                pipelines.add(c.getName());
-            }
-        }
-
-        return new ArrayList<>(pipelines);
-
-    }
-
-    
-    // gets categorical data for graphs on phenotype page
+	// gets categorical data for graphs on phenotype page
 	public Map<String, List<DiscreteTimePoint>> getTimeSeriesMutantData(
 			String parameter, List<String> genes, ArrayList<String> strains)
 			throws SolrServerException {
@@ -1030,6 +986,5 @@ public class ObservationService {
 		
 		return results;
 	}
-
 
 }

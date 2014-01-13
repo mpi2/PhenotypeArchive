@@ -57,7 +57,7 @@ public class ExperimentService {
 	
 		List<ObservationDTO> results = os.getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(parameterId, geneAccession, zygosity, phenotypingCenterId, strain, sex);
 		
-		Map<String, ExperimentDTO> experimentsMap = new HashMap<String, ExperimentDTO>();
+		Map<String, ExperimentDTO> experimentsMap = new HashMap<>();
 		
 		for (ObservationDTO observation : results) {
 
@@ -106,6 +106,10 @@ public class ExperimentService {
 
 	    	if (experiment.getParameterStableId() == null) {
 	    		experiment.setParameterStableId(observation.getParameterStableId());
+	    	}
+
+	    	if (experiment.getPipelineStableId() == null) {
+	    		experiment.setPipelineStableId(observation.getPipelineStableId());
 	    	}
 
 	    	if (experiment.getOrganisation() == null) {
