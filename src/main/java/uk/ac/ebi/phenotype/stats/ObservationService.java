@@ -30,7 +30,6 @@ import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.eclipse.jetty.util.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +47,7 @@ public class ObservationService {
 
 	@Autowired
 	PhenotypePipelineDAO parameterDAO;
-	
+
 	// Definition of the solr fields
 	public static final class ExperimentField {
 		public final static String ID = "id";
@@ -91,7 +90,7 @@ public class ObservationService {
 	}
 
 
-	private HttpSolrServer solr;
+	private final HttpSolrServer solr;
 
 	public ObservationService() {
 		String solrURL = "http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment"; //default
@@ -129,10 +128,12 @@ public class ObservationService {
 	 * get control data observations for the combination of parameters passed
 	 * in.
 	 * 
-	 * @param parameterStableId the stable identifier of the parameter in question
+	 * @param parameterId the db ID of the parameter in question
 	 * @param strain the strain
 	 * @param organisationId the organisation
 	 * @param max the date at which to cut off results (i.e. no results after date "max" will be returned) 
+        * @param showAll 
+        * @param sex 
 	 * @return list of observations 
 	 * @throws SolrServerException when solr has a troubled mind/heart/body
 	 */
@@ -143,7 +144,7 @@ public class ObservationService {
 		if (showAll){
 			n = 10000000;
 		}
-		List<ObservationDTO> results = new ArrayList<ObservationDTO>();
+		List<ObservationDTO> results = new ArrayList<>();
 		if (sex == null){
 			results.addAll(getControlsBySex(parameterId, strain, organisationId, max, showAll, SexType.female.name(), n/2));
 			results.addAll(getControlsBySex(parameterId, strain, organisationId, max, showAll, SexType.male.name(), n/2));
@@ -159,13 +160,14 @@ public class ObservationService {
 	 * for testing - not for users
 	 * @param start
 	 * @param length
-	 * @param model
 	 * @param type
+         * @param parameterIds
+         * @return 
 	 * @throws URISyntaxException 
 	 * @throws IOException 
 	 * @throws SQLException 
 	 */
-	public List<Map<String, String>> getLinksListForStats(Integer start, Integer length, ObservationType type, List<String>parameterIds) throws IOException, URISyntaxException, SQLException {
+	public List<Map<String, String>> getLinksListForStats(Integer start, Integer length, ObservationType type, List<String> parameterIds) throws IOException, URISyntaxException, SQLException {
 		if(start==null)start=0;
 		if(length==null)length=100;
 
@@ -180,9 +182,9 @@ public class ObservationService {
 
 //		System.out.println("start="+start+" end="+length);
 
-		List<Map<String, String>> listWithStableId=new ArrayList<Map<String, String>>();
+		List<Map<String, String>> listWithStableId=new ArrayList<>();
 		for(int i=0; i<resultsArray.size(); i++){
-			Map<String,String> map=new HashMap<String,String>();
+			Map<String,String> map=new HashMap<>();
 			net.sf.json.JSONObject exp=resultsArray.getJSONObject(i);
 			String statbleParamId=exp.getString(ObservationService.ExperimentField.PARAMETER_STABLE_ID);
 			String accession=exp.getString(ObservationService.ExperimentField.GENE_ACCESSION);
@@ -433,7 +435,7 @@ public class ObservationService {
 				sex.name()).toString();
 	}
 
-	public List<ObservationDTO> getObservationsByParameterGeneAccZygosityOrganisationStrainSex(
+	public List<ObservationDTO> getObservationsByPipelineParameterGeneAccZygosityOrganisationStrainSex(
 			Integer parameterId, String gene, String zygosity,
 			Integer organisationId, String strain, SexType sex)
 			throws SolrServerException {
@@ -1274,5 +1276,48 @@ public class ObservationService {
 		
 		return results;
 	}
+
+
+    /**
+     * Return all the pipeline stable ids that have associated data for a given
+     * strain, organisation ID and parameter ID
+     *
+     * @param strain the strain acc id
+     * @param organisationId the database id of the organisation
+     * @param parameterId the database id of the parameter
+     * @return list of pipeline stable IDs
+     * @throws SolrServerException
+     */
+    public List<String> getPipelinesByStrainsParameterIdOrganistionId(String strain, Integer parameterId, Integer organisationId)
+            throws SolrServerException {
+        Set<String> pipelines = new HashSet<>();
+
+        SolrQuery query = new SolrQuery()
+                .setQuery("*:*")
+                .addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
+                .addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
+                .addFilterQuery(ExperimentField.STRAIN + ":" + strain.replaceAll(":", "\\:"))
+                .setRows(0).addFacetField(ExperimentField.PIPELINE_STABLE_ID)
+                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
+
+        QueryResponse response = solr.query(query);
+        List<FacetField> fflist = response.getFacetFields();
+
+        for (FacetField ff : fflist) {
+
+            // Skip field if there are no facet results, the values will be null
+            if (ff.getValues() == null) {
+                continue;
+            }
+
+            for (Count c : ff.getValues()) {
+                pipelines.add(c.getName());
+            }
+        }
+
+        return new ArrayList<>(pipelines);
+
+    }
+
 
 }
