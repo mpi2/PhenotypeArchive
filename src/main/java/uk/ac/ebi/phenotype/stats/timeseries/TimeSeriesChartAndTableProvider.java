@@ -2,8 +2,6 @@ package uk.ac.ebi.phenotype.stats.timeseries;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,13 +15,11 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
 import uk.ac.ebi.phenotype.dao.BiologicalModelDAO;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
-import uk.ac.ebi.phenotype.dao.TimeSeriesStatisticsDAO;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
@@ -32,16 +28,10 @@ import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ChartUtils;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 import uk.ac.ebi.phenotype.stats.ObservationDTO;
-import uk.ac.ebi.phenotype.stats.categorical.CategoricalResultAndCharts;
 
 @Service
 public class TimeSeriesChartAndTableProvider {
 	private static final Logger logger = Logger.getLogger(TimeSeriesChartAndTableProvider.class);
-
-	@Autowired
-	private TimeSeriesStatisticsDAO timeSeriesStatisticsDAO;
-	
-	 SimpleDateFormat sdf  = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss.SSS");
 
 	 public ChartData doTimeSeriesOverviewData(Map<String, List<DiscreteTimePoint>>lines, Parameter p){
 		
@@ -58,8 +48,7 @@ public class TimeSeriesChartAndTableProvider {
 		return chartsNTablesForParameter;
 	 }
 	 
-	public List<ChartData> doTimeSeriesData(BiologicalModelDAO bmDAO, List<ExperimentDTO> experiments, Parameter parameter, Model model, List<String> genderList, List<String> zyList, int listIndex,
-			List<String> biologicalModelsParams) throws IOException, URISyntaxException {
+	public List<ChartData> doTimeSeriesData(BiologicalModelDAO bmDAO, List<ExperimentDTO> experiments, Parameter parameter, Model model, List<String> genderList, List<String> zyList, int listIndex) throws IOException, URISyntaxException {
 		// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
 		Float max=new Float(0);
 		Float min=new Float(1000000000);
@@ -194,22 +183,6 @@ public class TimeSeriesChartAndTableProvider {
 		logger.debug("min="+min+" max="+max);
 		List<ChartData> yAxisAdjustedTimeSeriesCharts=ChartUtils.alterMinAndMaxYAxisOfCharts(chartsNTablesForParameter, min, max);
 		return yAxisAdjustedTimeSeriesCharts;
-	}
-
-
-
-	private long getEpocTime(String timeString) {
-		
-		java.util.Date date = null;
-		try {
-			date = sdf.parse(timeString);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		 long timeInMillisSinceEpoch = date.getTime(); 
-		 long timeInMinutesSinceEpoch = timeInMillisSinceEpoch / (60 * 1000);
-		return timeInMinutesSinceEpoch;
 	}
 
 

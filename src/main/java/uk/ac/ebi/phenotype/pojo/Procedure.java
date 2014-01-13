@@ -42,7 +42,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.ManyToOne;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -70,12 +70,12 @@ public class Procedure extends PipelineEntry implements Comparable {
 	/**
 	 * bi-directional
 	 */
-	@ManyToOne( cascade = {CascadeType.PERSIST, CascadeType.MERGE} )
+	@ManyToMany( cascade = {CascadeType.PERSIST, CascadeType.MERGE} )
     @JoinTable(name="phenotype_pipeline_procedure",
         joinColumns = @JoinColumn(name="procedure_id"),
         inverseJoinColumns = @JoinColumn(name="pipeline_id")
     )
-    public Pipeline pipeline;
+    private Set<Pipeline> pipelines;
 	
 	
 	@OneToMany(cascade = CascadeType.ALL)
@@ -84,7 +84,7 @@ public class Procedure extends PipelineEntry implements Comparable {
             joinColumns = @JoinColumn( name="procedure_id"),
             inverseJoinColumns = @JoinColumn( name="parameter_id")
     )
-	private List<Parameter> parameters;
+	private Set<Parameter> parameters;
 	
 	public Procedure() {
 		super();
@@ -137,14 +137,14 @@ public class Procedure extends PipelineEntry implements Comparable {
 	/**
 	 * @return the parameters
 	 */
-	public List<Parameter> getParameters() {
+	public Set<Parameter> getParameters() {
 		return parameters;
 	}
 	
 	public void addParameter(Parameter parameter) {
 		
 		if (parameters == null) {
-			parameters = new ArrayList<Parameter>();
+			parameters = new HashSet<Parameter>();
 		}
 		parameters.add(parameter);
 		
@@ -153,7 +153,7 @@ public class Procedure extends PipelineEntry implements Comparable {
 	/**
 	 * @param parameters the parameters to set
 	 */
-	public void setParameters(List<Parameter> parameters) {
+	public void setParameters(Set<Parameter> parameters) {
 		this.parameters = parameters;
 	}
 
@@ -162,8 +162,8 @@ public class Procedure extends PipelineEntry implements Comparable {
 	/**
 	 * @return the pipeline
 	 */
-	public Pipeline getPipeline() {
-		return pipeline;
+	public Set<Pipeline> getPipelines() {
+		return pipelines;
 	}
 
 
@@ -171,16 +171,21 @@ public class Procedure extends PipelineEntry implements Comparable {
 	/**
 	 * @param pipeline the pipeline to set
 	 */
-	public void setPipeline(Pipeline pipeline) {
-		this.pipeline = pipeline;
+	public void setPipelines(Set<Pipeline> pipelines) {
+		this.pipelines = pipelines;
 	}
 
-
+	public void addPipeline(Pipeline pipeline) {
+		if (this.pipelines == null) {
+			pipelines = new HashSet<Pipeline>();
+		}
+		this.pipelines.add(pipeline);
+	}
 
 	public int compareTo(Object o) {
 		if (!o.getClass().equals(this.getClass())) return 0;
 		Procedure p = (Procedure) o;
-		return this.pipeline.getName().compareTo(p.getPipeline().getName());
+		return this.getName().compareTo(p.getName());
 	}
 
 	

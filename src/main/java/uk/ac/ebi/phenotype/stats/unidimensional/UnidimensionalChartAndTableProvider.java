@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import javax.annotation.Resource;
 
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
@@ -38,11 +39,7 @@ import uk.ac.ebi.phenotype.stats.ScatterGraph;
 public class UnidimensionalChartAndTableProvider {
 
 	private ScatterGraph scatterGraph = new ScatterGraph();
-	private static final Logger logger = Logger
-			.getLogger(UnidimensionalChartAndTableProvider.class);
-
-	// @Autowired
-	// private UnidimensionalStatisticsDAO unidimensionalStatisticsDAO;
+	private static final Logger logger = Logger.getLogger(UnidimensionalChartAndTableProvider.class);
 
 	private String axisFontSize = "15";
 
@@ -53,7 +50,6 @@ public class UnidimensionalChartAndTableProvider {
 	 * 
 	 * @param experimentList
 	 * @param bmDAO
-	 * @param config
 	 * @param unidimensionalMutantBiologicalModels
 	 * @param parameter
 	 * @param acc
@@ -69,7 +65,6 @@ public class UnidimensionalChartAndTableProvider {
 	 */
 	public List<UnidimensionalDataSet> doUnidimensionalData(
 			List<ExperimentDTO> experimentList, BiologicalModelDAO bmDAO,
-			Map<String, String> config,
 			List<BiologicalModel> unidimensionalMutantBiologicalModels,
 			Parameter parameter, String acc, Model model,
 			List<String> genderList, List<String> zyList,
