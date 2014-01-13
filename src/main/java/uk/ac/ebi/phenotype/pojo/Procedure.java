@@ -182,11 +182,11 @@ public class Procedure extends PipelineEntry implements Comparable {
 		this.pipelines.add(pipeline);
 	}
 
-/*	public int compareTo(Object o) {
+	public int compareTo(Object o) {
 		if (!o.getClass().equals(this.getClass())) return 0;
 		Procedure p = (Procedure) o;
-		return this.pipeline.getName().compareTo(p.getPipeline().getName());
-	}*/
+		return this.getName().compareTo(p.getName());
+	}
 
 	
 	
