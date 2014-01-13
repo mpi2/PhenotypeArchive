@@ -34,36 +34,6 @@ public class ObservationServiceTest {
 	@Autowired
 	private OrganisationDAO organisationDAO;
 
-	@Test
-	public void testGetControls() throws SolrServerException {
-		List<ObservationDTO> test = os.getControls("ESLIM_003_001_011", "MGI:2159873", 9, new Date());
-		assertTrue(test.size()>0);
-	}
-
-	@Test
-	public void testGetMutants() throws SolrServerException {
-		List<ObservationDTO> test = os.getControls("ESLIM_003_001_011", "MGI:2159873", 9, new Date());
-		assertTrue(test.size()>0);
-	}
-
-	@Test
-	public void testGetUrl() throws SolrServerException {
-		
-		String url = os.getQueryStringByParameterGeneAccZygosityOrganisationStrain(new Integer(1), "MGI:88255", "homozygous", new Integer(3), "MGI:2159965");
-		
-		System.out.println(url);
-		assertTrue(url.length()>0);
-		
-	}
-
-	
-	@Test
-	public void testGetAllUnidimensionalParameterIdsWithObservationsByOrganisation() throws SolrServerException {
-		Organisation org = organisationDAO.getOrganisationByName("WTSI");
-		List<Integer> params = os.getUnidimensionalParameterIdsWithObservationsByOrganisationId(org.getId());
-		assertTrue(params.size()>0);
-	}
-	
 	
 	
 	

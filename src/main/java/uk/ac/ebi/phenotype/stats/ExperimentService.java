@@ -280,8 +280,6 @@ public class ExperimentService {
 	    		
 	    		}
 	    		
-	    		//os.getControls(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, Boolean.FALSE, SexType.female.name());
-
 	    		// If both sexes contain multiple batches, use all control animals
 	    		if (maleBatches.size()>2 && femaleBatches.size()>2) {
 	    			controls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, controlSex, experiment.getMetadataGroup());
