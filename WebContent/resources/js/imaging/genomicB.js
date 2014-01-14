@@ -109,7 +109,7 @@ jQuery(document).ready(function() {
 					name: 'Genes',
 					desc: 'Gene structures from Ensembl 58',
 					uri: getProxyUri('http://www.ebi.ac.uk/mi/ws/dazzle-ws/das/mmu_68_38k/'),
-					stylesheet_uri: 'http://www.ebi.ac.uk/mi/ws/dazzle-ws/das/mmu_68_38k/stylesheet',
+					//stylesheet_uri: 'http://www.ebi.ac.uk/mi/ws/dazzle-ws/das/mmu_68_38k/stylesheet',
 					collapseSuperGroups: true,
 					provides_search: true
 				},
