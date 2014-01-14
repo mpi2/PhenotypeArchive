@@ -50,12 +50,15 @@
 						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 						
 						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'gene');						
-						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';
+						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';					
 												
-						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
 						if ( ! window.location.search.match(/q=/) ){
 							window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
-						}						
+						}					
+						else {
+							window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+						}
+						
 					}
 				}
 			});		
@@ -202,7 +205,7 @@
 						var td0 = $('<td></td>').append(chkbox);
 						var tr = $('<tr></tr>').attr({'class':'subFacet prodStatusTr production'});
 						var td1 = $('<td></td>').attr({'class':'geneStatus geneSubfacet', 'rel':count}).text(status);
-						var link = $('<a></a>').attr({'rel': status, 'class': 'status'}).text(count);
+						var link = $('<a></a>').attr({'rel': status, 'class': 'prodStatus'}).text(count);
 						var td2 = $('<td></td>').attr({'class':'geneSubfacetCount', 'rel':status}).append(link);
 						table.append(tr.append(td0, td1, td2));						
 					}					
@@ -222,7 +225,7 @@
 			     
 
 			var tr = $('<tr></tr>').attr({'class':'subFacet prodCenterTr'});						
-						var td1 = $('<td></td>').attr({'class':'prodCenter geneSubfacet', 'rel':count}).text(center);
+						var td1 = $('<td></td>').attr({'class':'prodCenter ge#q=*:*&fq=(imits_phenotype_started:"1") AND (status:"Mice Produced")&facet=geneneSubfacet', 'rel':count}).text(center);
 						var link = $('<a></a>').attr({'rel': center, 'class': prodCenterFq}).text(count);
 						var td2 = $('<td></td>').attr({subFacetName'class':'geneSubfacetCount', 'rel':center}).append(link);
 						table.append(tr.append(td0, td1, td2));   	    			

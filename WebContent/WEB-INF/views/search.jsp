@@ -4,6 +4,7 @@
 <t:genericpage>
 
 	<jsp:attribute name="title">IMPC Search</jsp:attribute>
+	<jsp:attribute name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute> 
 
 	<jsp:attribute name="header">
 	<style>
@@ -26,7 +27,7 @@
 	    The params are parsed to load dataTable -->
 	
 	<script type="text/javascript">
-	jQuery(document).ready(function($){	
+	/*jQuery(document).ready(function($){	
 		
 			$.fn.qTip({'pageName':'search',
 					'textAlign':'left',
@@ -78,7 +79,7 @@
 					ul.show();				
 				}
 			});
-		});
+		});*/
 	</script>
 	<!-- end of hash state stuff -->	
 	
@@ -114,7 +115,6 @@
 			<div id='facet' class='block'>	
 				<div class="head">Filter your search</div>
 			    <div class='content'>
-			        
 			    	<h2 class='documentation' class='title'>
 								<a href='' id='facetPanel'><i class="fa fa-question-circle pull-right" aria-describedby="qtip-26"></i></a></h2>
 												
@@ -157,7 +157,7 @@
 						<div id="bigsearchbox" class="block">
 							<div class="content">								
 								<p><i id="sicon" class="fa fa-search"></i>
-									<input style="width: 71%; margin-left: 10px;" id="s" type="text" value="Test dummy input" placeholder="Search">
+									<input id="s" type="text" value="Test dummy input" placeholder="Search">
 								</p>									
 							</div>
 						</div>

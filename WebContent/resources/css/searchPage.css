@@ -1,7 +1,3 @@
-table.dataTable td{
-
-	width:99.9%;
-}
 
 /* ----- start of  facet filter ----- */
 div#filterToggle {
@@ -48,21 +44,79 @@ ul#facetFilter li.none {
 	display: block;
 }
 
-
 /* ----- end of  facet filter ----- */
-
-
-
-div#mpi2-search table.dataTable {
-	width: auto !important;
-}
-h2.documentation {
-	padding-bottom: 15px;
-}
 
 div.dataTables_info, div.dataTables_paginate {
 	display: inline;	
 }
-div.dataTables_info {
-	margin-left: 272px;
+
+/* table tool */
+div#tableTool {
+	font-size: 12px;
+	position: relative;
+	top: -100px;
+	right: 0;
+	
+}
+div#saveTable {
+	position: relative;
+	top: 100px;
+	float: right;
+	margin-right: 10px;
+	cursor: pointer;	
+	padding: 1px 5px;
+	z-index: 99;	
+	background-color: #F4F4F4;
+	width: 85px;
+}
+div#toolBox {
+	position: absolute;
+	top: -30px;
+	right: 10px;	
+	height: 123px;
+	width: 145px;	
+	display: none;
+	padding: 15px;	
+	background-color: #F4F4F4;
+	-webkit-border-radius: 5px;
+  	-moz-border-radius: 5px;
+  	border-radius: 5px; 
+}
+div#toolBox span {
+	display: block;
+}
+div#saveSep {
+	margin: 10px;
+}
+div.dataName {
+	font-weight: bold;
+	height: auto;
+}
+div#exportSpinner {
+	float: left;
+	color: #CC6600;
+}
+
+div.fileIcons button {
+	font-size: 10px;	
+}
+div.fileIcons button:nth-child(1) {
+	margin-left: 10px;	
+}
+
+/* end of table tool */
+
+div#resultMsg {
+	margin: 10px 5px;
+}
+div#leftSideBar {
+	padding-top: 5px;
+} 
+div.briefDocCap {
+	padding: 1px;
+	background-color: gray;
+	text-align: center;
+	margin-bottom:5px;	
+	color: white;
+	font-weight: bold;
 }

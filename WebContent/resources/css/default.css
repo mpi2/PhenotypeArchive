@@ -388,7 +388,7 @@ td.unCollapse:before,
 .facetCount             { position: absolute; font-size: 0.8em; right: 0.2em; margin-top: -2em; }
 .imgSubfacetCount,
 .geneSubfacetCount      { text-align: right; }
-.geneSubfacetCount a    { color: #777; text-decoration: none; }
+.geneSubfacetCount a    { color: #777; text-decoration: none;}
 .subFacet td:first-child { padding-left: 0px !important; width: 20px !important; margin: 0; }
 .geneSubTypeTr td,
 .subFacet td            { padding-top: 0em; padding-bottom: 0em; }

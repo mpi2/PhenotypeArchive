@@ -32,7 +32,7 @@
 	}	
 	$.fn.setFacetCounts = function(q, fqStr, facet){
 		
-		//console.log(q + " -- " +  fqStr + " -- " + facet);		
+		console.log(q + " -- " +  fqStr + " -- " + facet);		
         
         if ( $('ul#facetFilter li li a').size() == 0 ){
 			if ( q == '*:*'){
@@ -785,8 +785,9 @@
 			$(this).attr('href', MDOC[oConf.pageName][key+'DocUrl']);
 			
 			$(this).qtip({
-			 	content: MDOC[oConf.pageName][key],
-			   	style: { 
+			 	content: MDOC[oConf.pageName][key], 
+			 	style: { classes: 'qtipimpc' },
+			   /*	style: { 
 			   		delay: 1,
 			    	width: 250,
 			      	padding: 8,
@@ -800,7 +801,7 @@
 			   	  	},
 			    	tip: oConf.tip,//'bottomMiddle', //'bottomLeft',
 			    	name: 'dark' // Inherit the rest of the attributes from the preset dark style
-			   	},				 
+			   	},*/				 
 				show: {		            
 		               event: 'mouseover',
 					   delay: 0
@@ -890,8 +891,8 @@
 	}
 		
 	$.fn.ieCheck = function(){
-		
-		if ( $.browser.msie && $.browser.version < 8.0 ){		
+				
+		/*if ( $.browser.msie && $.browser.version < 8.0 ){		
 			var msg = "<div id='noSupport'>Dear user:<p><p>It appears that you are using Internet Explorer 7 or earlier version.<p>To ensure that IMPC is supporting the best browsing features, functionalities and experiences, " +
 				  "and considering the security issues of older IEs, we decided not to support IE7 and earlier versions.<p>We are sorry if this has caused your inconvenience.<p>Here is a list of supported browsers: " +
 				  "<a href='http://www.mozilla.org'>Firefox</a>, <a href='http://www.google.com/chrome'>Google chrome</a>, <a href='http://support.apple.com/downloads/#internet'>Apple safari</a>.<p>" +
@@ -899,8 +900,34 @@
 			
 			$('div.navbar').siblings('div.container').html(msg);
 			return false;
-		}
+		}*/
+		
+		
+		var ver = getInternetExplorerVersion();
+		
+	    if ( ver < 8.0 ){	        
+	    	var msg = "<div id='noSupport'>Dear user:<p><p>It appears that you are using Internet Explorer 7 or earlier version.<p>To ensure that IMPC is supporting the best browsing features, functionalities and experiences, " +
+			 			"and considering the security issues of older IEs, we decided not to support IE7 and earlier versions.<p>We are sorry if this has caused your inconvenience.<p>Here is a list of supported browsers: " +
+						"<a href='http://www.mozilla.org'>Firefox</a>, <a href='http://www.google.com/chrome'>Google chrome</a>, <a href='http://support.apple.com/downloads/#internet'>Apple safari</a>.<p>" +
+						"IMPC team.</div>";
+	         
+	        $('div.navbar').siblings('div.container').html(msg);
+	        return false;
+	    }
 	}
+	function getInternetExplorerVersion() {
+		
+		// Returns the version of IE or -1	
+	
+	   var rv = -1; // default 
+	   if (navigator.appName == 'Microsoft Internet Explorer') {
+	      var ua = navigator.userAgent;
+	      var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+	      if (re.exec(ua) != null)
+	         rv = parseFloat(RegExp.$1);
+	   }
+	   return rv;
+	}	
 	
 	// inverse simple JSON: eg, {a: 'one', b: 'two}
 	// cannot do complicated nested associated array
@@ -1356,7 +1383,7 @@
     		"sDom": "<<'#exportSpinner'><'#tableTool'>r>t<<ip>>",    		
 			"sPaginationType": "bootstrap",    		
     		"fnDrawCallback": function( oSettings ) {  // when dataTable is loaded
-    			    			
+    			
     			// bring in some control logic for image view switcher when dataTable is loaded
     			if ( oInfos.widgetName == 'imagesFacet' ){    				
     				$('span#imgViewSwitcher').click(function(){	
@@ -1417,6 +1444,14 @@
                     });
     				return false;    		    	  
     			});
+    			
+    			$('div.registerforinterest, span.status').each(function(){
+    				$(this).qtip({       			
+    					style: { classes: 'qtipimpc flat' },
+    					position: { my: 'top center', at: 'bottom center' },
+    					content: { text: $(this).attr('oldtitle')}
+    				});	
+    			});    			   			
     			
     			initDataTableDumpControl(oInfos);
     		},
@@ -1512,7 +1547,7 @@
     	var toolBox = fetchSaveTableGui();
     	
     	$('div.dataTables_processing').siblings('div#tableTool').append(saveTool, toolBox); 
-    	    	
+    	
     	$('div#saveTable').click(function(){
     		
         	if ( $('div#toolBox').is(":visible")){

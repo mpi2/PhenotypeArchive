@@ -121,7 +121,7 @@ config.facetFilterLabel = {
 
 config.filterMapping = {
 		//gene
-		'imits_phenotype_complete|1':{'class':'phenotyping', 'facet':'gene'},
+		'imits_phenotype_complete|1':{'class':'inprogressphenotyping', 'facet':'gene'},
 		'imits_phenotype_started|1' : {'class':'phenotyping', 'facet':'gene'},
 		'imits_phenotype_status|Phenotype Attempt Registered' : {'class':'phenotyping', 'facet':'gene'},
 		'status|Mice Produced' : {'class':'production', 'facet':'gene'},		
@@ -203,7 +203,7 @@ config.facetParams = {
 		subFacetFqFields: ['imits_phenotype_started', 'imits_phenotype_complete', 'imits_phenotype_status', 'status', 'marker_type'],			
 		solrCoreName: 'gene',			 
 		tableCols: 3, 	
-		tableHeader: "<thead><th>Gene</th><th>Mouse Production Status</th><th>Phenotyping Status</th><th>Register for Updates</th></thead>",
+		tableHeader: "<thead><th>Gene</th><th>Production Status</th><th>Phenotype Status</th><th></th></thead>",
 		fq: 'marker_type:* -marker_type:"heritable phenotypic marker"',//undefined,
 		//fq: 'marker_type:* -marker_type:"heritable phenotypic marker" (production_center:* AND phenotyping_center:*)',//undefined,
 		//centerFq: 'marker_type:* -marker_type:"heritable phenotypic marker" AND (production_center:* AND phenotyping_center:*)',

@@ -69,7 +69,7 @@
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.theme.css">
 
 <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
-<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.qtip.min.css">
+<link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.fancybox-1.3.4.css">
 <link href="${baseUrl}/css/default.css?cache=09-01-14" rel="stylesheet" type="text/css" />
 <link href="${baseUrl}/css/heatmap.css?cache=09-01-14" rel="stylesheet" type="text/css" />
@@ -130,17 +130,22 @@ try {
 
 <!-- javascript -->
 <script type="text/javascript" src="${baseUrl}/js/head.min.js"></script>
-<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery_1.5.1.min.js"></script>                
+<!-- <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery_1.5.1.min.js"></script> -->    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/jquery.dataTables.js'></script>
 <script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/core.filter.js'></script>
-<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/TableTools.min.js'></script>   
+<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/TableTools.min.js'></script>
+ <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+ <!--   
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.core.min.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.widget.min.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.mouse.min.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.slider.min.js"></script>
+-->
 <!--[if lt IE 9 ]><script type="text/javascript" src="js/selectivizr-min.js"></script><![endif]-->
-<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.qtip.min.js"></script>
-<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.fancybox-1.3.4.pack.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.pack.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.tablesorter.min.js"></script>
 <script src="http://code.highcharts.com/highcharts.js"></script>
 <script src="http://code.highcharts.com/highcharts-more.js"></script>
@@ -207,9 +212,9 @@ try {
                    <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invoke fragment="breadcrumb" /><%-- breadcrumbs here --%>   
                 </div>
         
-                <div class="container">
+                
                 <jsp:doBody />
-                </div>
+               
                         
 		        </div><!-- /main -->
         
@@ -266,9 +271,7 @@ try {
         </div>
         
     </footer>
-        
-        
-        <script type="text/javascript" src='${baseUrl}/js/vendor/jquery.ba-bbq.min.js' ></script>
+                    
         <!-- <script type="text/javascript" src='${baseUrl}/js/script.min.js' ></script>-->
         
          <script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>   
@@ -283,61 +286,92 @@ try {
 		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script>
 		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>                  
         
-        <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js'></script>
+        <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js'></script>       
         
         <compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">
          <script>
         $(document).ready(function() {        		
-        	$.fn.qTip({'pageName':'search',
-				'textAlign':'left',
-				'tip':'topLeft',
-				'posX':200,
-				'posY':30
-			});
-        	
-			// non hash tag keyword query
-			<c:if test="${not empty q}">				
-				oHashParams = {};
-				oHashParams.q = "${q}";
-				$.fn.fetchSolrFacetCount(oHashParams);				
-			</c:if>;
-					
-			// hash tag query
-			// catch back/forward buttons and hash change: loada dataTable based on url params
-			$(window).bind("hashchange", function() {
-								
-				var url = $.param.fragment();				
-				//console.log('hash change URL: '+ '/search#' + url);
-				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-				
-				if ( typeof oHashParams.q === 'undefined' ){
-					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');					
-				}
-				
-				// search by keyword (user's input) has no fq in url when hash change is detected
-				if ( oHashParams.fq ){				
-					// back/forward button navigation: 
-					// make sure checkboxes are updated according to url
-					$.fn.removeFacetFilter(oHashParams.coreName);
-					//console.log(oHashParams.fq);					
-					var pageReload;  // this controls checking which subfacet to open (ie, show by priority). 
-									 // Set to undefined for no checking here, as we are now capturing hash change and not page reload
-					$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet', pageReload);				
-					
-					$.fn.loadDataTable(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet'); 
-				}
-			});
-						
-			$('div#filterToggle').click(function(){	
-				
-				var ul = $('ul#facetFilter');	
-				if ( ul.is(":visible") ){				
-					ul.hide();					
-				}
-				else {				
-					ul.show();				
-				}
-			});        	
+        	$(document).ready(function(){	
+    			$.fn.qTip({'pageName':'search',
+    					'textAlign':'left',
+    					'tip':'topLeft',
+    					'posX':235,
+    					'posY':15    					
+    			});
+    			
+    			// non hash tag keyword query
+    			<c:if test="${not empty q}">				
+    				oHashParams = {};
+    				oHashParams.q = "${q}";
+    				$.fn.fetchSolrFacetCount(oHashParams);				
+    			</c:if>;
+    					
+    			// hash tag query
+    			// catch back/forward buttons and hash change: loada dataTable based on url params
+    			$(window).bind("hashchange", function() {
+    							
+    				//var url = $.param.fragment();	 
+    				var url = $(location).attr('hash');			
+    				console.log('hash change URL: '+ '/search' + url);
+    				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
+    				
+    				//console.log(oHashParams);								
+    				if ( window.location.search.match(/q=/) ){
+    					oHashParams.q = window.location.search.replace('?q=','')
+    				}
+    				else if ( typeof oHashParams.q === 'undefined' ){
+    					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');					
+    				}
+    				
+    				// search by keyword (user's input) has no fq in url when hash change is detected
+    				if ( oHashParams.fq ){				
+    					// back/forward button navigation: 
+    					// make sure checkboxes are updated according to url
+    					
+    					oHashParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;
+    					oHashParams.widgetName += 'Facet';
+    					
+    					if ( oHashParams.coreName ){
+    						$.fn.removeFacetFilter(oHashParams.coreName);
+    						//console.log(oHashParams.fq);					
+    						var pageReload;  // this controls checking which subfacet to open (ie, show by priority). 
+    										 // Set to undefined for no checking here, as we are now capturing hash change and not page reload
+    						oHashParams.coreName += 'Facet'; 				 
+    								
+    						$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);						
+    						$.fn.loadDataTable(oHashParams);
+    					}
+    					else {						
+    						// parse selected checkbox(es) of this facet
+    						var facet = oHashParams.facetName;
+    						var aFilters = [];
+    						//$('ul#facetFilter li.' + facet + ' li a').each(function(){
+    						$('ul#facetFilter li li a').each(function(){							
+    							aFilters.push($(this).text());
+    						});														
+    						
+    						//console.log('filter: ' + aFilters );
+    						oHashParams.filters = aFilters;
+    						//oHashParams.facetName = facet + 'Facet';
+    						oHashParams.facetName = facet;						
+    						$.fn.loadDataTable(oHashParams);
+    					}
+    				}
+    			});
+    						
+    			$('div#filterToggle').click(function(){	
+    				
+    				var ul = $('ul#facetFilter');	
+    				if ( ul.is(":visible") ){				
+    					ul.hide();	
+    					$(this).find('span').text('Show facet filters');
+    				}
+    				else {				
+    					ul.show();				
+    					$(this).find('span').text('Hide facet filters');
+    				}
+    			});
+    		});     	
         	
             // wire up the example queries
                $("a.example").click(function(){

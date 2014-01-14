@@ -273,7 +273,9 @@ public class SolrIndex {
 		}
 
 		// if all the above fails: no phenotyping data yet
-		return "Not Applicable";
+		//return "Not Applicable";
+		return "";
+		
 	}
 
 	/**
