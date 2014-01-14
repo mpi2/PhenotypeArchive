@@ -19,7 +19,7 @@ function initWindow() {
     
 function initScrolling() {
     /* smooth scrolling for anchor links */
-    $('a[href^="#"]').live('click',function (e) {
+    $('a[href^="#"]').on('click',function (e) {
         e.preventDefault();
         var target = this.hash,
         $target = $(target);
@@ -32,7 +32,7 @@ function initScrolling() {
 
 function initSlider() {
     /* Slider on the frontpage */
-    $('.sliderbar li:not(.active)').live('click',function(e) {
+    $('.sliderbar li:not(.active)').on('click',function(e) {
         $('.sliderbar li.active').removeClass('active');
         $(this).addClass('active');
         var nr = $(this).index('.sliderbar li');
@@ -51,11 +51,11 @@ function showSlide(nr) {
 }
 
 function initTooltips() {
-    /* different qTip Tooltips */
-    $('[title!=""]').qtip({
+    /* different qTip Tooltips */	
+    $('[title!=""]').qtip({    	
         style: { classes: 'qtipimpc' },      
         position: { my: 'top right', at: 'bottom center' }
-    });
+    });    
     $('.has-tooltip').each(function() {
         $(this).qtip({
             style: { classes: 'qtipimpc' },
@@ -100,7 +100,7 @@ function wdmHeatmap() {
 
 function initAccordions() {
     /* Accordeon toggle */
-    $('.accordion-heading').live('click',function() {
+    $('.accordion-heading').on('click',function() {
        $(this).next('.accordion-body').toggle('slow'); 
        $(this).closest('.accordion-group').toggleClass('open');
     });
@@ -108,7 +108,7 @@ function initAccordions() {
 
 function initSections() {
     /* Section toggle */
-    $('.section.collapsed .title').live('click',function() {
+    $('.section.collapsed .title').on('click',function() {
         $(this).closest('.section').toggleClass('open');
         $(this).next('.inner').fadeToggle(function() { $(window).resize(); if ($('.ajaxtabs .tabs a.active',this).length == 0) { $('.ajaxtabs a:first',this).trigger('click'); } });
         
@@ -141,7 +141,7 @@ function initTablesort() {
 
 function initTableFilter() {
     /* Filter a table (used on gene page) */
-    $('.filtertype').live('click',function() {
+    $('.filtertype').on('click',function() {
        $(this).toggleClass('open'); 
        $(this).next('.filteroptions').toggleClass('open'); 
     });
@@ -173,19 +173,19 @@ function initReduceLongTables() {
             $('tr:last',this).after('<tr class="loadmore"><td colspan="100%"><i class="fa fa-th"></i> show all entries</td></tr>');
         }
     });
-    $('tr.loadmore').live('click',function() {
+    $('tr.loadmore').on('click',function() {
         $(this).prevAll().fadeIn('slow');
         $(this).remove();
         $(this).closest('table').removeClass('reduce');       
     });
-    $('.reduce.tablesorter th').live('mouseenter',function() {
+    $('.reduce.tablesorter th').on('mouseenter',function() {
         $('tr.loadmore').trigger('click');
     });
 }
 
 function initRowtoggle() {
     /* Some tables need to toggle some rows */
-   $('tr.clickable').live('click',function() {
+   $('tr.clickable').on('click',function() {
        $(this).toggleClass('open');
        if ($(this).hasClass('open')) {
            $('.fa-plus',this).removeClass('fa-plus').addClass('fa-minus');
@@ -229,7 +229,7 @@ function initTabs() {
     /* Ajax Tabs */
     $('.ajaxtabs').each(function() {
         var ajaxtabs = $(this);
-        $('.tabs a',this).live('click',function(e) {
+        $('.tabs a',this).on('click',function(e) {
             e.preventDefault();
             var index = $(this).index('.tabs a');
             var tabcontent = $('.tabcontent',ajaxtabs).eq(index);
