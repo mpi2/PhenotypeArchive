@@ -17,18 +17,18 @@
 		}
 
 		function set_dataType(row) {
-                        if (row.get('mgi_accession_id')){
-                                row.put('dataType', 'gene');
-                        }
-                        return row;
-                }
-
+	        if (row.get('mgi_accession_id')){
+	                row.put('dataType', 'gene');
+	        }
+	        return row;
+        }
 		
     ]]></script>
 
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />
-        <dataSource name="phenodigmdb" jndiName="java:comp/env/jdbc/phenodigmDataSource" />
-    	<dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/search?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+    <dataSource name="phenodigmdb" jndiName="java:comp/env/jdbc/phenodigmDataSource" />
+    <dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/search?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 
 	<dataSource name="experiment_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
 
@@ -47,6 +47,28 @@
 			<field column="mgi_accession_id" xpath="/response/result/doc/str[@name='MGI']" />
 			<field column="dataType" name="dataType"/>	
 	
+			<!-- mi_attempt allele name -->
+			<entity dataSource="allele_core" name="miAlleleName" stream="true" onError="continue"
+				url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:mi_attempt&amp;wt=normal&amp;fl=allele_name,type,best_status_pa_cre_ex_required"
+				processor="XPathEntityProcessor" forEach="/response/result/doc/" >				
+
+				<field column="mi_allele_type" xpath="/response/result/doc/str[@name='type']" />	
+				<field column="mi_allele_name" xpath="/response/result/doc/str[@name='allele_name']" />
+				<field column="mi_phenotyping_status" xpath="/response/result/doc/str[@name='best_status_pa_cre_ex_required']" />
+											
+			</entity>						
+
+			<!-- phenotype_attempt allele name -->
+			<entity dataSource="allele_core" name="paAlleleName" stream="true" onError="continue"
+				url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:phenotype_attempt&amp;wt=normal&amp;fl=allele_name,type,best_status_pa_cre_ex_required"
+				processor="XPathEntityProcessor" forEach="/response/result/doc/" >				
+
+				<field column="pa_allele_type" xpath="/response/result/doc/str[@name='type']" />	
+				<field column="pa_allele_name" xpath="/response/result/doc/str[@name='allele_name']" />
+				<field column="pa_phenotyping_status" xpath="/response/result/doc/str[@name='best_status_pa_cre_ex_required']" />	
+					
+			</entity>		
+			
 			<!-- check if this gene has been indexed in experiment core, if yes we could use this field to replace 'not applicable' with 'QC data' for phenotyping status -->
 			<entity dataSource="experiment_core" name="qcCheck" stream="true"
 				url="q=gene_accession:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;fl=gene_accession&amp;rows=1"
@@ -141,7 +163,7 @@
 				<field column="mpTermId" xpath="/response/result/doc/arr[@name='mpTermId']/str" />
 				<field column="mpTermName" xpath="/response/result/doc/arr[@name='mpTermName']/str" />
 				-->
-			</entity>
+			<field column="phenotype_attempt_allele_status" name="phenotype_attempt_allele_status" />	</entity>
 			
 			<field column="marker_name" xpath="/response/result/doc/arr[@name='marker_name']/str" />
 			<field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />
@@ -164,7 +186,7 @@
 			<field column="imits_report_mi_plan_status" xpath="/response/result/doc/arr[@name='imits_report_mi_plan_status']/str" />
 			<field column="escell" xpath="/response/result/doc/arr[@name='escell']/str" />
 			<field column="ikmc_project" splitBy="," xpath="/response/result/doc/arr[@name='ikmc_project']/str" />
-			<field column="imits_consortium" xpath="/response/result/doc/str[@name='imits_consortium']" />
+			<field column="imits_consortium" xpath="/response/result/doc/str[@name='imits_consortium']" />			
 			<field column="status" xpath="/response/result/doc/str[@name='latest_project_status']" />
 			<field column="imits_phenotype_started" xpath="/response/result/doc/arr[@name='imits_phenotype_started']/str" />
 

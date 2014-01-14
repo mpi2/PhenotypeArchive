@@ -193,7 +193,7 @@ public class DataTableController {
 			rowData.add(geneInfo);
 
 			// mouse production status	
-			String s = fetchProductionStatusClass(doc.getString("status"));	
+			String s = fetchProductionStatusClass(doc);	
 			System.out.println("STATUS: " + s);
 			if ( s.equals("Not Assigned for ES Cell Production") ){
 				rowData.add("Not Assigned for ES Cell Production");
@@ -220,7 +220,7 @@ public class DataTableController {
 				}
 				else if ( statusStr.equals("none") ){
 					prodStatus = "<span class='status none' oldtitle='" + doc.getString("status") + "' title='' data-hasqtip='' aria-describedby=''>"
-									  + " <span>Mice<br>tm1a</span>";									 
+									  + " <span>ES Cell</span>";									 
 				}
 							  			
 				rowData.add(prodStatus);
@@ -252,23 +252,10 @@ public class DataTableController {
 		
 		return j.toString();	
 	}
-	public String fetchPhenotypeStatusClass(String geneStatus){
-		String phenoClass = null;
-		if ( geneStatus.equals("Mice Produced") ){
-			phenoClass = "Mice_done";
-		}
-		else if ( geneStatus.equals("Assigned for Mouse Production and Phenotyping") ){
-			phenoClass = "Mice_inprogress";
-		}
-		else if ( geneStatus.equals("ES Cells Produced") ){
-			phenoClass = "ES Cell_done";
-		}
-		else if ( geneStatus.equals("Assigned for ES Cell Production") ){
-			phenoClass = "ES Cell_inprogress";
-		}	
-		return phenoClass;
-	}
-	public String fetchProductionStatusClass(String geneStatus){
+	
+	public String fetchProductionStatusClass(JSONObject doc){		
+		
+		String geneStatus = doc.getString("status");
 		String prodClass = null;
 		if ( geneStatus.equals("Mice Produced") ){
 			prodClass = "Mice_done";		
@@ -280,7 +267,7 @@ public class DataTableController {
 			prodClass = "ES Cell_done";
 		}
 		else if ( geneStatus.equals("Assigned for ES Cell Production") ){
-			prodClass = "ES Cell_inprogress";
+			prodClass = "ES Cell_none";
 		}	
 		return prodClass;
 	}

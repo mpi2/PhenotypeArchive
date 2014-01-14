@@ -142,6 +142,14 @@ Licensed to the Apache Software Foundation (ASF) under one or more
 		<field name="qcGene" type="string" indexed="false" stored="false" multiValued="false"/>
 		<field name="hasQc" type="int" indexed="true" stored="true" multiValued="false"/>	
 
+		<field name="mi_allele_type" type="string" indexed="true" stored="true" multiValued="false"/>	
+		<field name="mi_allele_name" type="string" indexed="true" stored="true" multiValued="false"/>	
+		<field name="mi_phenotyping_status" type="string" indexed="true" stored="true" multiValued="false"/>
+		
+		<field name="pa_allele_type" type="string" indexed="true" stored="true" multiValued="false"/>	
+		<field name="pa_allele_name" type="string" indexed="true" stored="true" multiValued="false"/>	
+		<field name="pa_phenotyping_status" type="string" indexed="true" stored="true" multiValued="false"/>
+		
 	<!-- annotated and inferred mp term -->
 
 	<field name="mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
