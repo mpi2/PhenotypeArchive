@@ -67,7 +67,6 @@
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.slider.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.theme.css">
-
 <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
 <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.fancybox-1.3.4.css">
@@ -75,7 +74,9 @@
 <link href="${baseUrl}/css/heatmap.css?cache=09-01-14" rel="stylesheet" type="text/css" />
 <link href="${baseUrl}/css/wdm.css?cache=09-01-14" rel="stylesheet" type="text/css" />
 
+<!-- EBI CSS -->
 <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" />
+<link href="${baseUrl}/css/additionalStyling.css" rel="stylesheet" type="text/css" />
 
 
 <%--
@@ -86,9 +87,9 @@ See: http://stackoverflow.com/questions/1321878/how-to-prevent-favicon-ico-reque
 
 </style>
 
-<script type="text/javascript">
+<!-- script type="text/javascript">
 var _gaq = _gaq || [];_gaq.push(["_setAccount", "${googleAnalytics}"]);_gaq.push(["_trackPageview"]);(function() {var ga = document.createElement("script");ga.type = "text/javascript";ga.async = true;ga.src = "${drupalBaseUrl}/sites/mousephenotype.org/files/googleanalytics/ga.js?mjafjk";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(ga, s);})();
-</script>
+</script-->
 
 <script>
 var baseUrl='${baseUrl}';
@@ -130,8 +131,6 @@ try {
 
 <!-- javascript -->
 <script type="text/javascript" src="${baseUrl}/js/head.min.js"></script>
-<!-- <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery_1.5.1.min.js"></script> -->    
-
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/jquery.dataTables.js'></script>
 <script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/core.filter.js'></script>

@@ -210,8 +210,8 @@
 							<div class="accordion-body collapse <c:if test="${status.count ==1}"> in </c:if>">
 								<div id="genomebrowser" >
 									<div class="floatright">
-										<a href="http://www.biodalliance.org/" target="_blank" data-hasqtip="24" oldtitle="More information on using this browser"><i class="icon-question-sign"> </i> </a>
-										<a data-hasqtip="25" oldtitle="This browser is clickable please experiment by clicking. Click on features to get more info, click on zoom bar etc. To reset click on 'lightning button'" title aria-describeby="qtip-25">This is an interactive genomic browser</a>
+										<a href="http://www.biodalliance.org/" target="_blank" data-hasqtip="24" title="More information on using this browser"><i class="icon-question-sign"> </i> </a>
+										<a data-hasqtip="25" title="This browser is clickable please experiment by clicking. Click on features to get more info, click on zoom bar etc. To reset click on 'lightning button'" title aria-describeby="qtip-25">This is an interactive genomic browser</a>
 									</div>
 									<p>Gene&nbsp;Location: Chr<span id='chr'>${gene.sequenceRegion.name}</span>:<span id='geneStart'>${gene.start}</span>-<span id='geneEnd'>${gene.end}</span> <br/> Gene Type: ${gene.subtype.name}</p>
 										

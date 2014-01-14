@@ -955,9 +955,12 @@
     $.fn.loadFileExporterUI = function(conf){
     	var oFormatSelector = conf.formatSelector;
     	var label = conf.label;    	
-    	var iconDiv = $('<div></div>').attr({'class': 'fileIcons'}).html(label);
+    	var iconDiv = $('<p></p>').attr({'class': 'textright'}).html(label + " &nbsp;");
+    	var it = 0 ;
     	for ( var f in oFormatSelector ){
-    		var btn = $('<button></button>').attr({'class': oFormatSelector[f] + ' ' + conf['class']}).html(f);
+    		if (it++ > 0)
+    			$(iconDiv).append("&nbsp;or&nbsp;");
+    		var btn = $('<a href="#"></a>').attr({'class': oFormatSelector[f] + ' ' + conf['class']}).html("<i class=\"fa fa-download\"></i> " + f);
     		$(iconDiv).append(btn);
     	}
     	return iconDiv;
