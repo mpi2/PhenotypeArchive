@@ -67,7 +67,6 @@
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.slider.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.theme.css">
-
 <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.qtip.min.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.fancybox-1.3.4.css">
@@ -75,7 +74,9 @@
 <link href="${baseUrl}/css/heatmap.css?cache=09-01-14" rel="stylesheet" type="text/css" />
 <link href="${baseUrl}/css/wdm.css?cache=09-01-14" rel="stylesheet" type="text/css" />
 
+<!-- EBI CSS -->
 <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" />
+<link href="${baseUrl}/css/additionalStyling.css" rel="stylesheet" type="text/css" />
 
 
 <%--
