@@ -24,7 +24,7 @@
 function getProxyUri(originalUrl) {
 	
 	var root =  '//' + location.host;
-	alert('root='+root);
+	
 	var localUrl = originalUrl;
 
 	//if on localhost just return the original url
