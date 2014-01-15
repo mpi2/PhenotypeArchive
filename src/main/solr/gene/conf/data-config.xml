@@ -48,7 +48,7 @@
 			<field column="dataType" name="dataType"/>
 				
 			<!-- allele name of produce type ES cell: tm1/tm1a -->
-			<entity dataSource="allele_core" name="miAlleleName" stream="true" onError="continue"
+			<entity dataSource="allele_core" name="esAlleleName" stream="true" onError="continue"
 				url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:allele&amp;wt=normal&amp;fl=allele_name,type"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/" >				
 			
