@@ -193,13 +193,10 @@ public class DataTableController {
 			rowData.add(geneInfo);
 
 			// mouse production status	
-			String s = fetchProductionStatusClass(doc);	
-			System.out.println("STATUS: " + s);
-			if ( s.equals("Not Assigned for ES Cell Production") ){
-				rowData.add("Not Assigned for ES Cell Production");
-			}
-			else {
-				List<String> names = Arrays.asList(s.split("_"));  
+			String prodStatus = deriveProductionStatusForEsCellAndMice(doc, request);	
+			System.out.println("STATUS: " + prodStatus);
+			
+				/*List<String> names = Arrays.asList(s.split("_"));  
 				System.out.println(names);
 				String prodStatus = null;
 				String statusStr = names.get(1);
@@ -224,8 +221,9 @@ public class DataTableController {
 				}
 							  			
 				rowData.add(prodStatus);
-			}
+			}*/
 			
+			rowData.add(doc.getString("status"));
 			// phenotyping status			
 			rowData.add(solrIndex.deriveLatestPhenotypingStatus(doc));			
 			
@@ -253,23 +251,95 @@ public class DataTableController {
 		return j.toString();	
 	}
 	
-	public String fetchProductionStatusClass(JSONObject doc){		
+	public String deriveProductionStatusForEsCellAndMice(JSONObject doc, HttpServletRequest request){		
 		
 		String geneStatus = doc.getString("status");
-		String prodClass = null;
-		if ( geneStatus.equals("Mice Produced") ){
-			prodClass = "Mice_done";		
+		String prodStatus = null;
+		
+		String mgiId = doc.getString("mgi_accession_id");
+		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;
+		
+		// ES cell
+		String esCellStatus = "<a class='status done' href='" + geneUrl + "' oldtitle='" +  geneStatus + "' title=''>"
+					   + " <span>ES cells produced</span>"
+					   + "</a>";	
+		
+		if ( geneStatus.equals("Mice Produced") ){	
+			
+			prodStatus += esCellStatus;	// ES cell		
+			
+			String alleleType = null;
+			if ( doc.has("mi_allele_name") ){
+				if ( doc.getString("mi_allele_name").contains("tm1(KOMP)") ){
+					alleleType = "tm1";
+				}
+				else if ( doc.getString("mi_allele_name").contains("tm1a") ){
+					alleleType = "tm1a";
+				}
+				
+				// tm1/tm1a mice
+				prodStatus += "<a class='status done' href='" + geneUrl + "' oldtitle='" +  geneStatus + "' title=''>"
+					   + " <span>" + alleleType + " mice produced" + "</span>"
+					   + "</a>";
+			}
+			else if ( doc.has("pa_allele_name") ){				
+				if ( doc.getString("pa_allele_name").contains("tm1.1") ){
+					alleleType = "tm1.1";
+				}
+				else if ( doc.getString("mi_allele_name").contains("tm1b") ){
+					alleleType = "tm1b";
+				}
+				
+				// tm1.1/tm1b mice
+				prodStatus += "<a class='status done' href='" + geneUrl + "' oldtitle='" +  geneStatus + "' title=''>"
+					   + " <span>" + alleleType + " mice produced" + "</span>"
+					   + "</a>";
+			}		
 		}
 		else if ( geneStatus.equals("Assigned for Mouse Production and Phenotyping") ){
-			prodClass = "Mice_inprogress";
+			
+			prodStatus += esCellStatus;	// ES cell
+			
+			String alleleType = null;
+			if ( doc.has("mi_allele_name") ){
+				if ( doc.getString("mi_allele_name").contains("tm1(KOMP)") ){
+					alleleType = "tm1";
+				}
+				else if ( doc.getString("mi_allele_name").contains("tm1a") ){
+					alleleType = "tm1a";
+				}
+				
+				// tm1/tm1a mice
+				prodStatus += "<span class='status inprogress' oldtitle='" + alleleType + " mice production in progress' title=''>"
+						   +  "	<span>Mice<br>" + alleleType + "</span>"
+						   +  "</span>";				
+			}
+			else if ( doc.has("pa_allele_name") ){				
+				if ( doc.getString("pa_allele_name").contains("tm1.1") ){
+					alleleType = "tm1.1";
+				}
+				else if ( doc.getString("mi_allele_name").contains("tm1b") ){
+					alleleType = "tm1b";
+				}
+				
+				// tm1.1/tm1b mice
+				prodStatus += prodStatus += "<span class='status inprogress' oldtitle='" + alleleType + " mice production in progress' title=''>"
+				   +  "	<span>Mice<br>" + alleleType + "</span>"
+				   +  "</span>";				
+			}				
 		}
-		else if ( geneStatus.equals("ES Cells Produced") ){
-			prodClass = "ES Cell_done";
+		else if ( geneStatus.equals("ES Cells Produced") ){		
+			prodStatus += esCellStatus; // ES cell
+			/*prodStatus += prodStatus += "<span class='status none' oldtitle='" + alleleType + " mice production in progress' title=''>"
+					   +  "	<span>Mice<br>" + alleleType + "</span>"
+					   +  "</span>";
+			*/
+			
 		}
 		else if ( geneStatus.equals("Assigned for ES Cell Production") ){
-			prodClass = "ES Cell_none";
+			prodStatus = "ES Cell_none";
 		}	
-		return prodClass;
+		return prodStatus;
 	}
 	
 	public String parseJsonforProtocolDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters, int start){
