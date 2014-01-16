@@ -7,99 +7,79 @@
 <t:genericpage>
 
 	<jsp:attribute name="title">${phenotype.id.accession} (${phenotype.name}) | IMPC Phenotype Information</jsp:attribute>
-
+	
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&core=mp&fq=ontology_subset:*">Phenotypes</a> &raquo; ${phenotype.name}</jsp:attribute>
 
 	<jsp:attribute name="header">
-
-		<link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css" />
+	<!-- CSS Local Imports -->
+		<!-- link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css" />
 		<link rel="stylesheet" type="text/css" href="${baseUrl}/css/custom.css" />
-
 		<style>
 			.ui-dropdownchecklist-selector > .ui-icon {margin-top:4px;}
 			.ui-dropdownchecklist-text {padding:2px;margin:0;}
-		</style>
-
+		</style-->
 	</jsp:attribute>
 
 	<jsp:attribute name="footer">
-
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js'></script>
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js'></script>
 		<script type='text/javascript' src='${baseUrl}/js/imaging/mp.js'></script>
 		<script type='text/javascript' src="${baseUrl}/js/general/dropDownPhenPage.js"></script>
 		<script type='text/javascript' src="${baseUrl}/js/general/toggle.js"></script>
-		
-    </jsp:attribute>
+  </jsp:attribute>
+
+	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
 
 	<jsp:body>
 
-	<div class='topic'>Phenotype: ${phenotype.name}</div>
-				  
-	<div class="row-fluid dataset">
-
-		<div class='documentation'>
-			<a href='' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a>
-		</div>		    
-
+	<div class="region region-content">
+		<div class="node node-gene">
+			<h1 class="title">Phenotype: ${phenotype.name}</h1>	  
+				<div class="section">
+					<div class="inner">
+						<div class='documentation'>
+							<a href='' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a>
+						</div>		    
+						<c:if test="${not empty phenotype.description}">
+							<p class="with-label no-margin"> <span class="label"> Definition</span> ${phenotype.description} </p>
+						</c:if>
+						<c:if test="${not empty synonyms}">
+							<p class="with-label no-margin"> <span class="label">Synonyms</span>
+								<c:forEach var="synonym" items="${synonyms}" varStatus="loop">
+									${synonym.symbol}
+									<c:if test="${!loop.last}">, &nbsp;</c:if>
+								</c:forEach>
+							</p>
+						</c:if>
+						<c:if test="${not empty procedures}">
+							<div class="with-label"> <span class="label">Procedure</span>
+								<ul>
+									<c:forEach var="procedure" items="${procedures}" varStatus="loop">
+										<li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.stableKey}">${procedure.name} (${procedure.pipeline.name})</a></li>
+									</c:forEach>
+								</ul>
+							</div>
+						</c:if>
+							<c:if test="${not empty anatomy}">
+							<div class="with-label"> <span class="label">Anatomy</span>
+								<ul>
+									<c:forEach var="term" items="${anatomy}" varStatus="loop">
+										<li><a href="http://informatics.jax.org/searches/AMA.cgi?id=${term.id.accession}">${term.name}</a></li>
+									</c:forEach>
+								</ul>
+							</div>
+						</c:if>
+						<p class="with-label"><span class="label">MGI MP browser</span><a href="http://www.informatics.jax.org/searches/Phat.cgi?id=${phenotype.id.accession}">${phenotype.id.accession}</a></p>
+					</div>
+				</div>
+				
+				<div class="section collapsed open">
+					<h2 class="title">Phenotype associations stats</h2>
+				</div>
+						
 		<div class="row-fluid">	
 			<div class="container span12">
-				<div class="row-fluid">
-					<div class="container span6">
-						<table class="table table-striped">
-							<tbody>
-								<c:if test="${not empty phenotype.description}">
-								<tr>
-									<td>Definition:</td>
-									<td>${phenotype.description}</td>
-								</tr>
-								</c:if>
-								<c:if test="${not empty synonyms}">
-								<tr>
-									<td>Synonyms:</td>
-									<td>
-										<ul>
-										<c:forEach var="synonym" items="${synonyms}" varStatus="loop">${synonym.symbol}<c:if test="${!loop.last}"><br /></c:if>
-											<c:if test="${loop.count==3 && !loop.last}"><a data-toggle="collapse" data-target="#other_synonyms" href="#">+...</a><div id="other_synonyms" class="collapse"></c:if>
-											<c:if test="${loop.last && fn:length(synonyms) >3}"></div></c:if>
-								
-										</c:forEach>
-										</ul>
-									</td>
-								</tr>
-								</c:if>
-								<c:if test="${not empty procedures}">
-								<tr>
-									<td>Procedure:</td>
-									<td>
-										<ul>
-										<c:forEach var="procedure" items="${procedures}" varStatus="loop">
-										<li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.stableKey}">${procedure.name} (${procedure.pipeline.name})</a></li>
-										</c:forEach>
-										</ul>
-									</td>
-								</tr>
-								</c:if>
-								<c:if test="${not empty anatomy}">
-								<tr>
-									<td>Anatomy:</td>
-									<td>
-										<ul>
-										<c:forEach var="term" items="${anatomy}" varStatus="loop">
-										<li><a href="http://informatics.jax.org/searches/AMA.cgi?id=${term.id.accession}">${term.name}</a></li>
-										</c:forEach>
-										</ul>
-									</td>
-								</tr>
-								</c:if>
-								<tr>
-									<td>MGI MP browser:</td>
-									<td><a href="http://www.informatics.jax.org/searches/Phat.cgi?id=${phenotype.id.accession}">${phenotype.id.accession}</a></td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-			
+				<div class="row-fluid">			
 				<%-- There must not be any spaces --%>
 				<div class="container span5">
 				<c:choose>
@@ -131,7 +111,6 @@
 			</div>
 		</div>
 	</div>
-</div>
 	
 	<c:if test="${genePercentage.getDisplay()}">
 	<div class="row-fluid dataset">	
@@ -313,7 +292,7 @@
 	</div>
 			<!--  end of phenotype box section -->
 	</c:if>
-
+</div>
     </jsp:body>
 
 </t:genericpage>
