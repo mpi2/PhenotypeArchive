@@ -40,7 +40,6 @@ DROP TABLE IF EXISTS experiment_observation;
 DROP TABLE IF EXISTS external_db;
 DROP TABLE IF EXISTS genomic_feature;
 DROP TABLE IF EXISTS ilar;
-DROP TABLE IF EXISTS image_record_observation;
 DROP TABLE IF EXISTS live_sample;
 DROP TABLE IF EXISTS metadata_observation;
 DROP TABLE IF EXISTS multidimensional_observation;
@@ -606,22 +605,6 @@ CREATE TABLE categorical_observation (
     KEY category_idx(category)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
-
-/** 
- * image_record_observation
- * Link to single/multiple image/movie records in the database
- */
-/** OBSOLETED 2013-12-09 
-CREATE TABLE image_record_observation (
-
-    id                        INT(10) UNSIGNED NOT NULL,
-    image_record_id           INT(11) UNSIGNED NOT NULL,
-    
-    PRIMARY KEY(id),
-    KEY image_record_idx(image_record_id)
-    
-) COLLATE=utf8_general_ci ENGINE=MyISAM;
-*/
 
 /** 
  * unidimensional_observation
