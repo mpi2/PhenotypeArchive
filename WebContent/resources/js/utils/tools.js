@@ -1448,7 +1448,7 @@
     				return false;    		    	  
     			});
     			
-    			$('div.registerforinterest, span.status').each(function(){
+    			$('div.registerforinterest, td .status').each(function(){
     				$(this).qtip({       			
     					style: { classes: 'qtipimpc flat' },
     					position: { my: 'top center', at: 'bottom center' },
@@ -1559,8 +1559,9 @@
     		else {
     			$('div#toolBox').show();        			       			
     			
-    			// browser-specific position fix
-    			if ($.browser.msie  && parseInt($.browser.version, 10) === 8) {
+    			// browser-specific position fix    					
+    		    if ( parseInt( getInternetExplorerVersion()) === 8 ){	        
+    			//if ($.browser.msie  && parseInt($.browser.version, 10) === 8) {
     				$('div#toolBox').css({'top': '-30px', 'left': '65px'});
     			}    			
     	    	var solrCoreName = oInfos.widgetName.replace('Facet','');
@@ -1570,8 +1571,8 @@
     	    	//console.log('start: '+ iRowStart);
     	    	var showImgView = $('div#resultMsg div#imgView').attr('rel') == 'imageView' ? true : false; 
     	    	    	    	
-    	    	$('button.gridDump').unbind('click');
-    	    	$('button.gridDump').click(function(){  
+    	    	$('a.gridDump').unbind('click');
+    	    	$('a.gridDump').click(function(){  
     	    		
     	    		initGridExporter($(this), {        	    							
     					externalDbId: 5,				

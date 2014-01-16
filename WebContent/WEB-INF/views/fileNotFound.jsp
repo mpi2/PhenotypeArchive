@@ -11,7 +11,7 @@
 	<link type='text/css' rel='stylesheet' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css' />
 	<link type='text/css' rel='stylesheet' href='${baseUrl}/css/searchAndFacet.css' />	
 	<link type='text/css' rel='stylesheet' href='${baseUrl}/css/message.css' media='all' />
-	<link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap.min.css' media='all' />
+	
 </head>
 <body>
 
@@ -60,7 +60,7 @@
 	
 	<script type='text/javascript' src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 	<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js'></script>
-    <script type='text/javascript' src='${baseUrl}/js/bootstrap/bootstrap.min.js'></script>
+  
 	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/autocompleteWidget.js'></script>
 	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/sideBarFacetWidget.js'></script>  
 	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>

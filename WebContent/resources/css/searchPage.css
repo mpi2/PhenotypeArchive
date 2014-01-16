@@ -13,7 +13,7 @@ ul#facetFilter {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
-  display: none;
+  display: block;
 }
 ul#facetFilter ul {
   /*z-index: 9999;	
@@ -43,20 +43,71 @@ ul#facetFilter li.has-sub {
 ul#facetFilter li.none {
 	display: block;
 }
-
 /* ----- end of  facet filter ----- */
 
+/* facet panel on search page */
+table#mpFacetTbl td, table#maFacetTbl td{
+	margin:0;
+	padding:0;
+}
+
+table.facetTable td:nth-child(3) a {
+	text-decoration: none;
+	pointer: none;
+	float: right;
+	font-size: 0.8em;
+	color: #666666;	
+}
+
+span.subcount {
+	float: right;
+	font-size: 0.8em;			
+}
+/* end of facet panel on search page */
+
+
+/* dataTable on search page */
 div.dataTables_info, div.dataTables_paginate {
 	display: inline;	
 }
+div#resultMsg {
+	margin: 10px 5px;
+}
+div#leftSideBar {
+	padding-top: 5px;
+} 
+div.briefDocCap {
+	padding: 1px;
+	background-color: gray;
+	text-align: center;
+	margin-bottom:5px;	
+	color: white;
+	font-weight: bold;
+}
+div#mpi2-search .dataTable td a {
+	margin-right: 5px !important;
+}
+span.imgAnnots {
+	display: block;
+}
+span.annotType {
+	font-weight: bold;	
+}
+table#diseaseGrid th:nth-child(1) {
+	width: 200px !important;
+}
+table#imagesGrid th:nth-child(1) {
+	width: 35% !important;
+}
+/* end of dataTable on search page */
+
 
 /* table tool */
 div#tableTool {
 	font-size: 12px;
 	position: relative;
 	top: -100px;
-	right: 0;
-	
+	right: 0;	
 }
 div#saveTable {
 	position: relative;
@@ -96,27 +147,24 @@ div#exportSpinner {
 	float: left;
 	color: #CC6600;
 }
-
-div.fileIcons button {
-	font-size: 10px;	
-}
-div.fileIcons button:nth-child(1) {
-	margin-left: 10px;	
-}
-
 /* end of table tool */
 
-div#resultMsg {
-	margin: 10px 5px;
+
+/* imgView/annotView switcher */
+div#imgView {
+	margin-bottom: 10px;
 }
-div#leftSideBar {
-	padding-top: 5px;
-} 
-div.briefDocCap {
-	padding: 1px;
-	background-color: gray;
-	text-align: center;
-	margin-bottom:5px;	
-	color: white;
+span#imgViewSubTitle {
 	font-weight: bold;
+	font-size: 1em;
+	color: gray;
 }
+span#imgViewSwitcher {
+	font-size: 0.8em;
+	color: gray;
+	float: right;
+
+	cursor: pointer;
+}
+/* end of imgView/annotView switcher */
+

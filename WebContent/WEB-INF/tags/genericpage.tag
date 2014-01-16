@@ -359,17 +359,18 @@ try {
     			});
     						
     			$('div#filterToggle').click(function(){	
-    				
+    				console.log('filter');
     				var ul = $('ul#facetFilter');	
     				if ( ul.is(":visible") ){				
     					ul.hide();	
-    					$(this).find('span').text('Show facet filters');
+    					$(this).find('span').text('Hide facet filters');
     				}
     				else {				
     					ul.show();				
-    					$(this).find('span').text('Hide facet filters');
+    					$(this).find('span').text('Show facet filters');
     				}
     			});
+    			
     		});     	
         	
             // wire up the example queries

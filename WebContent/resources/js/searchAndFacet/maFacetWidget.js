@@ -120,6 +120,7 @@
 	    	    		var td1 = $('<td></td>').attr({'class': 'maTopLevel', 'rel': count}).text(aTopLevelCount[i]);	    	    		   	    		
 	    	    		
 	    	    		var a = $('<a></a>').attr({'rel':aTopLevelCount[i]}).text(count);
+	    	    		//var span = $('<span></span>').attr({'class':'subcount'}).text(count);
 	    	    		var td2 = $('<td></td>').attr({'class': 'maTopLevelCount'}).append(a);
 	    	    		table.append(tr.append(td0, td1, td2)); 	        			
 	    	    	}    	

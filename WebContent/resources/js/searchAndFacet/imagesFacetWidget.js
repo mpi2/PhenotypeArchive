@@ -166,6 +166,7 @@
   		    	    		          + "\"}";		    	    		
   		    	    		   		
   		    	    		var a = $('<a></a>').attr({'rel':infos, 'class':fqClass}).text(facetCount);
+  		    	    		//var span = $('<span></span>').attr({'class':'subcount'}).text(facetCount);
   		    	    		var td2 = $('<td></td>').attr({'class': 'imgSubfacetCount'}).append(a);
   		    	    		
   		    	    		if ( i == 0 ){

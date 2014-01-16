@@ -150,7 +150,7 @@
 			        			var td2 = $('<td></td>');	        			        			
 			        			//var a = $('<a></a>').attr({'class':'paramCount', 'rel': procedureName2IdKey[procedure_name].stable_id}).text(paramCount);			        			
 			        			var a = $('<a></a>').attr({'class':'paramCount', 'rel': proSid}).text(paramCount);
-			        			
+			        			//var span = $('<span></span>').attr({'class':'subcount'}).text(paramCount);
 			        			if ( currPipe != 'IMPC Pipeline' ){
 			        				table.append(tr.append(td0, td1.text(procedure_name), td2.append(a)));
 			        			}

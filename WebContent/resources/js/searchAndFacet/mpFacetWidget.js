@@ -115,7 +115,7 @@
 						var td0 = $('<td></td>').append(chkbox);      			
 	    	    		var td1 = $('<td></td>').attr({'class': 'mpTopLevel', 'rel': count}).text(aTopLevelCount[i].replace(' phenotype', ''));	    	    		   	    		
 	    	    		
-	    	    		var a = $('<a></a>').attr({'rel':aTopLevelCount[i]}).text(count);
+	    	    		var a = $('<a></a>').attr({'rel':aTopLevelCount[i]}).text(count);	    	    		
 	    	    		var td2 = $('<td></td>').attr({'class': 'mpTopLevelCount'}).append(a);
 	    	    		table.append(tr.append(td0, td1, td2)); 
 	        			

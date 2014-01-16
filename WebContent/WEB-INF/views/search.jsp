@@ -67,18 +67,8 @@
 					
 					$.fn.loadDataTable(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet'); 
 				}
-			});
-						
-			$('div#filterToggle').click(function(){	
-				
-				var ul = $('ul#facetFilter');	
-				if ( ul.is(":visible") ){				
-					ul.hide();					
-				}
-				else {				
-					ul.show();				
-				}
-			});
+			});						
+			
 		});*/
 	</script>
 	<!-- end of hash state stuff -->	
@@ -89,7 +79,7 @@
        
     
        <!-- search filter display -->
-        	<div id='filterToggle'>Show facet filters</div>       		
+        <div id='filterToggle'><span>Show facet filters</span></div>       		
 	   	<ul id='facetFilter'> 
 	   	    <li class='has-sub none'>no filter added</li>
 	   		<li class='has-sub gene'>Genes</li>
