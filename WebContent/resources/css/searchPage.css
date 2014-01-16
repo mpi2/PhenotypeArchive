@@ -118,16 +118,19 @@ div#saveTable {
 	padding: 1px 5px;
 	z-index: 99;	
 	background-color: #F4F4F4;
-	width: 85px;
+	width: auto;
+}
+div#saveTable img {
+	vertical-align: middle !important;	
 }
 div#toolBox {
 	position: absolute;
-	top: -30px;
+	top: -8px;
 	right: 10px;	
-	height: 123px;
-	width: 145px;	
+	height: 80px;
+	width: 220px;	
 	display: none;
-	padding: 15px;	
+	padding: 15px;
 	background-color: #F4F4F4;
 	-webkit-border-radius: 5px;
   	-moz-border-radius: 5px;
@@ -147,6 +150,14 @@ div#exportSpinner {
 	float: left;
 	color: #CC6600;
 }
+button.gridDump {
+	font-size: 11px;
+	background: none;
+	border: none;
+	color: #0978A1;
+    cursor: pointer;
+}
+
 /* end of table tool */
 
 
@@ -167,4 +178,5 @@ span#imgViewSwitcher {
 	cursor: pointer;
 }
 /* end of imgView/annotView switcher */
+
 

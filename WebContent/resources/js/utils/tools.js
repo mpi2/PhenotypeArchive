@@ -960,7 +960,12 @@
     	for ( var f in oFormatSelector ){
     		if (it++ > 0)
     			$(iconDiv).append("&nbsp;or&nbsp;");
-    		var btn = $('<a href="#"></a>').attr({'class': oFormatSelector[f] + ' ' + conf['class']}).html("<i class=\"fa fa-download\"></i> " + f);
+    		//var btn = $('<a href="#"></a>').attr({'class': oFormatSelector[f] + ' ' + conf['class']}).html("<i class=\"fa fa-download\"></i> " + f);    		
+    		// changed to use button instead of <a> as this will follow the link and the download won't work when clicked - have tried return false, 
+    		// but due to a couple of ajax down the road, I could not get it to work.
+    		// The button is styled as the new design
+    		var btn = $('<button></button>').attr({'class': oFormatSelector[f] + ' fa fa-download ' + conf['class']}).html(f);
+    		
     		$(iconDiv).append(btn);
     	}
     	return iconDiv;
@@ -1571,8 +1576,8 @@
     	    	//console.log('start: '+ iRowStart);
     	    	var showImgView = $('div#resultMsg div#imgView').attr('rel') == 'imageView' ? true : false; 
     	    	    	    	
-    	    	$('a.gridDump').unbind('click');
-    	    	$('a.gridDump').click(function(){  
+    	    	$('button.gridDump').unbind('click');
+    	    	$('button.gridDump').click(function(){  
     	    		
     	    		initGridExporter($(this), {        	    							
     					externalDbId: 5,				
@@ -1582,7 +1587,8 @@
     					showImgView: showImgView,
     					gridFields: MPI2.searchAndFacetConfig.facetParams[oInfos.widgetName].gridFields,
     					fileName: solrCoreName + '_table_dump'	
-    	    		});   
+    	    		});
+    	    		
     	    	});//.corner('6px'); 
     		}        		
     	});
@@ -1634,14 +1640,15 @@
         	    },
         	    error: function (jqXHR, textStatus, errorThrown) {        	             	        
         	        $('div#facetBrowser').html('Error fetching data ...');
-        	    }            	
-			});
+        	    }        	    
+			});			
 		}
 		else {
 			_doDataExport(url, form);
 		}
 
 		$('div#toolBox').hide();
+		
     }
 
     // NOTE that IE8 prevents from download if over https.
@@ -1653,16 +1660,16 @@
 			cache: false,
 			data: $(form).serialize(),
 			beforeSend:function(){				
-				$('div#exportSpinner').html(MPI2.searchAndFacetConfig.spinnerExport);			
+				$('div#exportSpinner').html(MPI2.searchAndFacetConfig.spinnerExport);						
 			},
 			success:function(data){    				
-				$(form).appendTo('body').submit().remove();
-				$('div#exportSpinner').html('');
+				$(form).appendTo('body').submit().remove();				
+				$('div#exportSpinner').html('');				
 			},
 			error:function(){
 				//alert("Oops, there is error during data export..");
 			}
-		});
+		});    	
     }
     
     function fetchSaveTableGui(){
