@@ -73,15 +73,46 @@
 					</div>
 				</div>
 				
-				<div class="section collapsed open">
-					<h2 class="title">Phenotype associations stats</h2>
+				<c:if test="${genePercentage.getDisplay()}">
+					<div class="section collapsed">
+					<h2 class="title" id="data-summary">Phenotype associations stats</h2>
+					<div class='documentation'>
+						<a href='' class='phenotypeStatsPanel'><img	src="${baseUrl}/img/info_20x20.png" /></a>
+					</div>
+					
+					<div class="inner" style="display: block;">					
+						<!-- Phenotype Assoc. summary -->
+						<div class="half">
+							<p> <span class="muchbigger">${genePercentage.getTotalPercentage()}%</span> of tested genes with null mutations on a B6N genetic background have a phenotype association to ${phenotype.name} (source: EuroPhenome)
+								(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
+							<p class="padleft"><span class="bigger">${genePercentage.getFemalePercentage()}%</span> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </p>
+							<p class="padleft"><span class="bigger">${genePercentage.getMalePercentage()}%</span> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</p>
+						</div>					
+						<!-- Graphs -->
+						<c:if test="${overviewPhenCharts.size()>0}">
+							<div class="half">
+							<!-- c:forEach var="categoricalResultAndCharts" items="${overviewPhenCharts}" varStatus="experimentLoop"-->
+							<div class="row-fluid">
+					 				<!-- c:forEach var="categoricalChartDataObject" items="${overviewPhenCharts.get(0)}" varStatus="chartLoop"-->
+					  				 	<div class="container span6">
+													<div id="${overviewPhenCharts.get(0).getId()}"
+														style="min-width: 400px; height: 400px; margin: 0 auto">
+													</div>
+					   								<script type="text/javascript">
+					   								${overviewPhenCharts.get(0).getChart()}
+					   							</script>
+										</div>
+	 								<!-- /c:forEach-->
+								</div>
+							<!-- /c:forEach-->
+						</div>
+					</c:if>
 				</div>
+				</div>
+			</c:if>
 						
-		<div class="row-fluid">	
-			<div class="container span12">
-				<div class="row-fluid">			
-				<%-- There must not be any spaces --%>
-				<div class="container span5">
+		<div class="section">	
+		<div class="inner"></div>
 				<c:choose>
 	    				<c:when test="${not empty exampleImages}">
 		      				<div class="row-fluid">
@@ -105,62 +136,20 @@
 							</c:if>
 	    				</c:otherwise>
 				</c:choose>
-			
-		
 				</div>
-			</div>
 		</div>
-	</div>
 	
-	<c:if test="${genePercentage.getDisplay()}">
-	<div class="row-fluid dataset">	
+	
+	
+	<div class="section collapsed open">
 		<div class='documentation'>
-			<a href='' class='phenotypeStatsPanel'><img	src="${baseUrl}/img/info_20x20.png" /></a>
+			<a href='' class='relatedMpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a>
 		</div>
-		
-	  <h4 class="caption">Phenotype associations stats</h4>
-		
-		<div class="half">
-			<p> <span class="bigPercent">${genePercentage.getTotalPercentage()}%</span> of tested genes with null mutations on a B6N genetic background have a phenotype association to ${phenotype.name} (source: EuroPhenome)
-			(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
-			<p>&nbsp;&nbsp;&nbsp; <b>${genePercentage.getFemalePercentage()}%</b> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </p>
-			<p>&nbsp;&nbsp;&nbsp; <b>${genePercentage.getMalePercentage()}%</b> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</p>
-		</div>
-		
-		<!-- div class="half container span5"  id="ovRight">
-		</div-->
-		<c:if test="${overviewPhenCharts.size()>0}">
-		<div class="half">
-		<!-- c:forEach var="categoricalResultAndCharts" items="${overviewPhenCharts}" varStatus="experimentLoop"-->
-		<div class="row-fluid">
- 				<!-- c:forEach var="categoricalChartDataObject" items="${overviewPhenCharts.get(0)}" varStatus="chartLoop"-->
-  				 	<div class="container span6">
-								<div id="${overviewPhenCharts.get(0).getId()}"
-									style="min-width: 400px; height: 400px; margin: 0 auto">
-								</div>
-   								<script type="text/javascript">
-   								${overviewPhenCharts.get(0).getChart()}
-   							</script>
-					</div>
- 				<!-- /c:forEach-->
-		</div>
-		<!-- /c:forEach-->
-		</div>
-		</c:if>
-	</div>
-	</c:if>
-	
-<div class="row-fluid dataset">
 
-    <div class='documentation'>
-		<a href='' class='relatedMpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a>
-	</div>
-
-    <h4 class="caption">Gene variants with ${phenotype.name}</h4>
+    <h2 class="title">Gene variants with ${phenotype.name}</h2>
 	   
-	<div class="row-fluid">	    	
-		<div class="container span12">			
-			<div class="row-fluid" id="phenotypesDiv">	
+		<div class="inner" style="display:block;">	 
+			<div id="phenotypesDiv">	
 				<div class="container span12">
 				<c:forEach var="filterParameters" items="${paramValues.fq}">
 			${filterParameters}
@@ -183,17 +172,14 @@
 						<jsp:include page="geneVariantsWithPhenotypeTable.jsp">
 							<jsp:param name="isImpcTerm" value="${isImpcTerm}"/>
 						</jsp:include>
-		<div id="exportIconsDiv"></div>
-					
-			</c:if>
-	</div>
-	<c:if test="${empty phenotypes}">
-		<div class="alert alert-info">Phenotype associations to genes and alleles will be available once data has completed quality control.</div>
-	</c:if>
+						<div id="exportIconsDiv"></div>					
+				</c:if>
+				</div>
+				<c:if test="${empty phenotypes}">
+					<div class="alert alert-info">Phenotype associations to genes and alleles will be available once data has completed quality control.</div>
+				</c:if>
 			</div>
 		</div>
-	</div>
-</div>
 
 
 	<c:if test="${not empty siblings or not empty go}">
