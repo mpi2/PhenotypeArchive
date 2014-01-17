@@ -16,9 +16,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 
-import uk.ac.ebi.phenotype.dao.BiologicalModelDAO;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.Parameter;
@@ -41,24 +39,21 @@ public class TimeSeriesChartAndTableProvider {
 		 
 		String title =  p.getName() + " (" + p.getStableId() + ")";
 		// create CharData
-		ChartData chartsNTablesForParameter = creatDiscretePointTimeSeriesChart(1, title, lines, p.checkParameterUnit(1), p.checkParameterUnit(2), null, 1, "org");
+		ChartData chartsNTablesForParameter = creatDiscretePointTimeSeriesChart("1", title, lines, p.checkParameterUnit(1), p.checkParameterUnit(2), null, 1, "org");
 		chartsNTablesForParameter.alterMinMax(Math.floor(chartsNTablesForParameter.getMin()), Math.ceil(chartsNTablesForParameter.getMax()));
 //		System.out.println("here, for MGI:2447303 " + lines.get("MGI:2447303"));
 //		System.out.println(lines.keySet());
 		return chartsNTablesForParameter;
 	 }
 	 
-	public List<ChartData> doTimeSeriesData(BiologicalModelDAO bmDAO, List<ExperimentDTO> experiments, Parameter parameter, Model model, List<String> genderList, List<String> zyList, int listIndex) throws IOException, URISyntaxException {
+	public ChartData doTimeSeriesData(ExperimentDTO experiment, Parameter parameter, String gender, List<String> zyList, String chartId) throws IOException, URISyntaxException {
 		// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
 		Float max=new Float(0);
 		Float min=new Float(1000000000);
-		List<ChartData> chartsNTablesForParameter=new ArrayList<ChartData>();
+		ChartData chartNTableForParameter=null;
 
 		//maybe need to put these into method that can be called as repeating this - so needs refactoring though there are minor differences?
 				
-		
-			for (ExperimentDTO experiment : experiments) {
-				BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(experiment.getExperimentalBiologicalModelId());
 				//timeSeriesMutantBiologicalModels.add(expBiologicalModel);
 		Map<String, List<DiscreteTimePoint>> lines = new HashMap<String, List<DiscreteTimePoint>>();
 
@@ -68,8 +63,7 @@ public class TimeSeriesChartAndTableProvider {
 						// page or in list of sex
 						// param specified
 						
-					if (genderList.isEmpty()
-							|| genderList.contains(sex.name())) {
+					
 						List<List<Float>> errorBarsPairs = null;
 
 						
@@ -156,23 +150,22 @@ public class TimeSeriesChartAndTableProvider {
 						String title = "Mean " + parameter.getName();
 						if(lines.size()>1){//if lines are greater than one i.e. more than just control create charts and tables
 						int deimalPlaces=ChartUtils.getDecimalPlaces(experiment);
-						ChartData chartNTableForParameter=creatDiscretePointTimeSeriesChart(listIndex,
+						chartNTableForParameter=creatDiscretePointTimeSeriesChart(chartId,
 								title, lines, parameter.checkParameterUnit(1),
 								parameter.checkParameterUnit(2), sex, deimalPlaces, experiment.getOrganisation());
 						chartNTableForParameter.setExperiment(experiment);
 						Float tempMin=chartNTableForParameter.getMin();
 						Float tempMax=chartNTableForParameter.getMax();
-						chartNTableForParameter.setExpBiologicalModel(expBiologicalModel);
 						if(tempMin<min)min=tempMin;
 						if(tempMax>max)max=tempMax;
-						chartsNTablesForParameter.add(chartNTableForParameter);
-						listIndex++;
+						//chartsNTablesForParameter.add(chartNTableForParameter);
+						
 						}//end of gender
-					}// end of gender
+				
 				//}
 
 			}// end of gender
-		}//end experiment loop
+		
 		
 			
 		
@@ -181,8 +174,8 @@ public class TimeSeriesChartAndTableProvider {
 			//for time series we always want min to be zero?? maybe some are negative?
 			if(min>0)min=new Float(0);
 		logger.debug("min="+min+" max="+max);
-		List<ChartData> yAxisAdjustedTimeSeriesCharts=ChartUtils.alterMinAndMaxYAxisOfCharts(chartsNTablesForParameter, min, max);
-		return yAxisAdjustedTimeSeriesCharts;
+		//List<ChartData> yAxisAdjustedTimeSeriesCharts=ChartUtils.alterMinAndMaxYAxisOfCharts(chartsNTablesForParameter, min, max);
+		return chartNTableForParameter;
 	}
 
 
@@ -202,12 +195,10 @@ public class TimeSeriesChartAndTableProvider {
 	 * @return
 	 */
 	private ChartData creatDiscretePointTimeSeriesChart(
-			int listIndex, String title,
+			String chartId2, String title,
 			Map<String, List<DiscreteTimePoint>> lines, String xUnitsLabel,
 			String yUnitsLabel, SexType sex, int decimalPlaces, String organisation) {
-		int size = listIndex;// to know which div to render to
-												// not 0 index as using loop
-												// count in jsp		
+		
 		JSONArray series = new JSONArray();
 		String seriesString="";
 		Set<Float> categoriesSet = new HashSet<Float>();
@@ -322,16 +313,16 @@ public class TimeSeriesChartAndTableProvider {
 		seriesString=seriesString.replace(escapedErrorString, escapedErrorString+","+errorBarsToolTip);
 		logger.warn("seriesString="+seriesString);
 		String axisFontSize = "15";
-		String chartid = "timeChart" + size;
+		//TODO set max: 2, min: 0, somehow from solr core http://wiki.apache.org/solr/StatsComponent??
 		String javascript = "$(function () { var chart; $(document).ready(function() { chart = new Highcharts.Chart({ chart: {  zoomType: 'x', renderTo: '"
-				+ chartid
+				+ chartId2
 				+ "', type: 'line', marginRight: 130, marginBottom: 50 }, title: { text: '"
 				+ WordUtils.capitalize(title)
 				+ "', x: -20  }, credits: { enabled: false },  subtitle: { text: '"
 				+ (sex != null ? WordUtils.capitalize(sex.name()) : "")
 				+ "', x: -20 }, xAxis: { "+noDecimalsString+" labels: { style:{ fontSize:"
 				+ axisFontSize
-				+ " }},   title: {   text: '"+xUnitsLabel+"'   }  }, yAxis: {max: 2, min: 0, labels: { style:{ fontSize:"
+				+ " }},   title: {   text: '"+xUnitsLabel+"'   }  }, yAxis: { labels: { style:{ fontSize:"
 				+ axisFontSize
 				+ " }}, title: { text: ' "
 				+ yUnitsLabel
@@ -346,7 +337,7 @@ public class TimeSeriesChartAndTableProvider {
 		chartAndTable.setMin(minForChart);
 		chartAndTable.setMax(maxForChart);
 		chartAndTable.setOrganisation(organisation);
-		chartAndTable.setId(chartid);
+		chartAndTable.setId(chartId2);
 		return chartAndTable;
 	}
 	

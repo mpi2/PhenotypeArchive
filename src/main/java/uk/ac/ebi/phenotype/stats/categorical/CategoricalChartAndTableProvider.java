@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
-import uk.ac.ebi.phenotype.dao.BiologicalModelDAO;
 import uk.ac.ebi.phenotype.dao.CategoricalStatisticsDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
@@ -46,48 +45,40 @@ public class CategoricalChartAndTableProvider {
 
 	/**
 	 * return a list of categorical result and chart objects - one for each ExperimentDTO
-	 * @param experimentList
-	 * @param bmDAO
+	 * @param experiment
 	 * @param parameter
 	 * @param acc
-	 * @param model
-	 * @param genderList
+	 * @param gender
 	 * @param zyList
-	 * @param charts
 	 * @param categoricalTables
 	 * @param parameterId
+	 * @param charts
 	 * @return
 	 * @throws SQLException
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public List<CategoricalResultAndCharts> doCategoricalData(
-			List<ExperimentDTO> experimentList, BiologicalModelDAO bmDAO,
-			Parameter parameter,
-			String acc, Model model, List<String> genderList,
-			List<String> zyList,
-			List<JSONObject> charts, List<TableObject> categoricalTables,
+	public CategoricalResultAndCharts doCategoricalData(
+			ExperimentDTO experiment, Parameter parameter,
+			String acc,
+			String gender, List<String> zyList, String chartId,
+			List<TableObject> categoricalTables,
 			String parameterId)
 			throws SQLException, IOException, URISyntaxException {
 
 		logger.debug("running categorical data");
 
-		model.addAttribute("parameterId", parameter.getId().toString());
-		model.addAttribute("parameterDescription", parameter.getDescription());
-
 		//List<CategoricalResult> categoricalResults = new ArrayList<CategoricalResult>();
-		List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one object for each experiment
-		for (ExperimentDTO experiment : experimentList) {
+		
+		
 			CategoricalResultAndCharts categoricalResultAndCharts = new CategoricalResultAndCharts();
 			categoricalResultAndCharts.setExperiment(experiment);
 			List<? extends StatisticalResult> statsResults = (List<? extends StatisticalResult>) experiment
 					.getResults();
 			// should get one for each sex here if there is a result for each
 			// experimental sex
-			Integer expBiologicalModelId = experiment.getExperimentalBiologicalModelId();
-			BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(expBiologicalModelId);
-			for (SexType sexType : experiment.getSexes()) { // one graph for each sex if
-				if (genderList.isEmpty() || genderList.contains(sexType.name())) {
+			for (SexType sexType : experiment.getSexes()) { // one graph for each sex if - but now we should only have one sex as ajax calls make requests to only one sex
+				if (gender.isEmpty() || gender.contains(sexType.name())) {
 					// getCategoricalResultByParameter(parameter, expBiologicalModel.getId(), sexType);
 					// System.out.println("statsResults size="+statsResults.size()+
 					// "statsResults="+statsResults);
@@ -210,10 +201,10 @@ public class CategoricalChartAndTableProvider {
 					if (xAxisCategories.size() > 1) {// if size is greater than one i.e. we have more than the control data then draw charts and tables
 						
 						String chartNew = this
-								.createCategoricalHighChartUsingObjects(
+								.createCategoricalHighChartUsingObjects(chartId,
 										chartData,
 										parameter,
-										expBiologicalModel,experiment.getOrganisation(),
+										experiment.getOrganisation(),
                                                                                 experiment.getMetadataGroup());
 						chartData.setChart(chartNew);
 						categoricalResultAndCharts.add(chartData);
@@ -228,10 +219,10 @@ public class CategoricalChartAndTableProvider {
 					}
 				}
 			}// end of gender
-			listOfChartsAndResults.add(categoricalResultAndCharts);
+			
 
-		}// end of experiment loop
-		return listOfChartsAndResults;
+	
+		return categoricalResultAndCharts;
 	}
 
 	
@@ -347,9 +338,9 @@ public class CategoricalChartAndTableProvider {
 		
 	}
 		
-	private String createCategoricalHighChartUsingObjects(
+	private String createCategoricalHighChartUsingObjects(String chartId,
 			CategoricalChartDataObject chartData, Parameter parameter,
-			BiologicalModel bm, String organisation, String metadataGroup) throws SQLException {
+			 String organisation, String metadataGroup) throws SQLException {
 		System.out.println(chartData);
 
 		// int size=categoricalBarCharts.size()+1;//to know which div to render
@@ -421,7 +412,7 @@ public class CategoricalChartAndTableProvider {
 		}
 		
                 //replace space in MRC Harwell with underscore so valid javascript variable
-                String chartId = bm.getId() + sex.name()+organisation.replace(" ", "_")+"_"+metadataGroup;
+                //String chartId = bm.getId() + sex.name()+organisation.replace(" ", "_")+"_"+metadataGroup;
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
 		String javascript = "$(function () {  var chart_"
 				+ chartId
@@ -429,7 +420,7 @@ public class CategoricalChartAndTableProvider {
 				+ chartId
 				+ " = new Highcharts.Chart({ tooltip : "
 				+ toolTipFunction
-				+ ", chart: { renderTo: 'categoricalBarChart"
+				+ ", chart: { renderTo: '"
 				+ chartId
 				+ "', type: 'column' }, title: { text: '"
 				+ WordUtils.capitalize(title)
@@ -443,7 +434,7 @@ public class CategoricalChartAndTableProvider {
 		// categoricalBarCharts.add(javascript);
 		chartData.setChart(javascript);
 		chartData.setChartIdentifier(chartId);
-		chartData.setBiologicalModel(bm);
+		
 		return javascript;
 	}
 

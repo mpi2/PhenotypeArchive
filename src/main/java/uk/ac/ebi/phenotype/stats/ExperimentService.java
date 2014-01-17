@@ -368,6 +368,12 @@ public class ExperimentService {
 		return experimentList;
 	}
 	
+	
+	
+	public Map<String,List<String>> getExperimentKeys(String mgiAccession, String parameterStableId) throws SolrServerException{
+	return 	os.getExperimentKeys(mgiAccession, parameterStableId);
+	}
+	
 	public String getCategoryLabels (int parameterId, String category) throws SQLException{
 		return parameterDAO.getCategoryDescription(parameterId, category);
 	}

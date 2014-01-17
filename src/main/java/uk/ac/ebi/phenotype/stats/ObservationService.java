@@ -99,6 +99,56 @@ public class ObservationService {
         solr = new HttpSolrServer(solrUrl);
     }
 
+    
+    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId) throws SolrServerException{
+//    	String experimentKey = observation.getPhenotypingCenter()
+//    			+ observation.getStrain()
+//    			+ observation.getParameterStableId()
+//    			+ observation.getGeneAccession()
+//    			+ observation.getMetadataGroup();
+		
+	Map<String, List<String>> map=new HashMap<String, List<String>>();
+	
+        Set<Integer> parameterIds = new HashSet<>();
+
+        SolrQuery query = new SolrQuery()
+                .setQuery("gene_accession:\""+mgiAccession+"\"")
+                .addFilterQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + parameterStableId)
+              //  .addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":unidimensional")
+                .setRows(0).addFacetField(ExperimentField.PHENOTYPING_CENTER)
+                .setRows(0).addFacetField(ExperimentField.STRAIN)
+                .setRows(0).addFacetField(ExperimentField.METADATA_GROUP)
+                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
+
+        QueryResponse response = solr.query(query);
+        List<FacetField> fflist = response.getFacetFields();
+
+        for (FacetField ff : fflist) {
+
+            // If there are no face results, the values will be null
+            // skip this facet field in that case
+//            if (ff.getValues() == null) {
+//                continue;
+//            }
+
+            for (Count count : ff.getValues()) {
+               if(map.containsKey(ff.getName())) {
+            	   map.get(ff.getName()).add(count.getName());
+               }else {
+            	   List<String> newList=new ArrayList<String>();
+            	   newList.add(count.getName());
+            	   map.put(ff.getName(), newList);
+               }
+            	
+            }
+        }
+
+        //return new ArrayList<>(parameterIds);
+        System.out.println("experimentKeys="+map);
+    	return map;
+    }
+
+    
     /**
      * for testing - not for users
      *

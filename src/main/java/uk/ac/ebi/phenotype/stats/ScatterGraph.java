@@ -41,7 +41,7 @@ private static final Logger log = Logger.getLogger(ScatterGraph.class);
 	public ChartData processScatterChartData(String title, SexType sexType,
 			Parameter parameter, Set<ZygosityType> set,
 			List<String> zyList, List<List<MouseDataPoint>> mouseDataPointSets,
-			BiologicalModel expBiologicalModel, Boolean byMouseId) {
+			Boolean byMouseId) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
 		// List<ChartData> chartsAndTables = new ArrayList<ChartData>();
 		Float max = new Float(0);
@@ -66,14 +66,14 @@ private static final Logger log = Logger.getLogger(ScatterGraph.class);
 		for (ZygosityType zType : set) {
 			if (zyList.isEmpty() || zyList.contains(zType.name())) {
 				categoriesList.add(zType.name().substring(0, 3).toUpperCase());
-				String alleleComposition =expBiologicalModel.getAllelicComposition();
+//				String alleleComposition =expBiologicalModel.getAllelicComposition();
 				if (zType.equals(ZygosityType.homozygote)) {// if homozygote
 															// don't need the
 															// second part of
 															// the string after
 															// the forward slash
-					alleleComposition = alleleComposition.substring(0,
-							alleleComposition.indexOf("/"));
+//					alleleComposition = alleleComposition.substring(0,
+//							alleleComposition.indexOf("/"));
 				}
 			}
 		}

@@ -20,7 +20,6 @@ import org.json.JSONArray;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
-import uk.ac.ebi.phenotype.dao.BiologicalModelDAO;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
@@ -47,10 +46,7 @@ public class UnidimensionalChartAndTableProvider {
 	 * return one unidimensional data set per experiment - one experiment should
 	 * have one or two graphs corresponding to sex and a stats result for one
 	 * table at the bottom
-	 * 
-	 * @param experimentList
-	 * @param bmDAO
-	 * @param unidimensionalMutantBiologicalModels
+	 * @param chartId
 	 * @param parameter
 	 * @param acc
 	 * @param model
@@ -58,17 +54,19 @@ public class UnidimensionalChartAndTableProvider {
 	 * @param zyList
 	 * @param boxOrScatter
 	 * @param byMouseId
+	 * @param experimentList
+	 * 
 	 * @return
 	 * @throws SQLException
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public List<UnidimensionalDataSet> doUnidimensionalData(
-			List<ExperimentDTO> experimentList, BiologicalModelDAO bmDAO,
-			List<BiologicalModel> unidimensionalMutantBiologicalModels,
-			Parameter parameter, String acc, Model model,
-			List<String> genderList, List<String> zyList,
-			ChartType boxOrScatter, Boolean byMouseId) throws SQLException,
+	public UnidimensionalDataSet doUnidimensionalData(
+			ExperimentDTO experiment, String chartId,
+			Parameter parameter,
+			String acc, Model model, String genderList,
+			List<String> zyList, ChartType boxOrScatter,
+			Boolean byMouseId) throws SQLException,
 			IOException, URISyntaxException {
 
 		// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
@@ -83,7 +81,7 @@ public class UnidimensionalChartAndTableProvider {
 		// logger.debug("biologicalmodels size=" + biologicalModels.size());
 
 		// get control data
-		for (ExperimentDTO experiment : experimentList) {
+		
 			Float max = new Float(0);
 			Float min = new Float(1000000000);
 			List<UnidimensionalResult> allUnidimensionalResults = new ArrayList<UnidimensionalResult>();
@@ -98,9 +96,7 @@ public class UnidimensionalChartAndTableProvider {
 			//System.out.println("biolgocialModelId="
 					//+ experiment.getExperimentalBiologicalModelId());
 			Map<String, Integer> mouseIdsToColumnsMap = new TreeMap<>();
-			BiologicalModel expBiologicalModel = bmDAO
-					.getBiologicalModelById(experiment
-							.getExperimentalBiologicalModelId());
+		
 			for (SexType sexType : experiment.getSexes()) { // one graph for
 															// each sex if
 				// unspecified in params to
@@ -226,7 +222,7 @@ public class UnidimensionalChartAndTableProvider {
 											parameter,
 											experiment.getZygosities(), zyList,
 											mouseDataPointsSet,
-											expBiologicalModel, byMouseId);
+											 byMouseId);
 
 						} else {
 							chartAndTable = processChartData(title, sexType,
@@ -244,7 +240,7 @@ public class UnidimensionalChartAndTableProvider {
 						List<UnidimensionalStatsObject> unidimensionalStatsObject = produceUnidimensionalStatsData(
 								title, sexType, parameter,
 								experiment.getZygosities(), zyList,
-								observations2DList, expBiologicalModel,
+								observations2DList,
 								experiment);
 						logger.debug("unidimensionalStatsObject="
 								+ unidimensionalStatsObject);
@@ -279,10 +275,10 @@ public class UnidimensionalChartAndTableProvider {
 					.setAllUnidimensionalResults(allUnidimensionalResults);
 			unidimensionalDataSet.setStatsObjects(unidimensionalStatsObjects);
 			unidimensionalDataSets.add(unidimensionalDataSet);
-		} // end of experiment loop
+		
 
 		// return yAxisAdjustedBoxChartsNTables;
-		return unidimensionalDataSets;
+		return unidimensionalDataSet;
 
 	}
 
@@ -487,8 +483,7 @@ public class UnidimensionalChartAndTableProvider {
 	private List<UnidimensionalStatsObject> produceUnidimensionalStatsData(
 			String title, SexType sexType, Parameter parameter,
 			Set<ZygosityType> set, List<String> zyList,
-			List<List<Float>> rawData, BiologicalModel expBiologicalModel,
-			ExperimentDTO experiment) {
+			List<List<Float>> rawData, ExperimentDTO experiment) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
 		// logger.debug("experiment="+experiment);
 		List<? extends StatisticalResult> results = experiment.getResults();
@@ -503,15 +498,15 @@ public class UnidimensionalChartAndTableProvider {
 		for (ZygosityType zType : set) {
 			if (zyList.isEmpty() || zyList.contains(zType.name())) {
 				UnidimensionalStatsObject tempObje = new UnidimensionalStatsObject();
-				String alleleComposition = expBiologicalModel
-						.getAllelicComposition();
+				//String alleleComposition = expBiologicalModel
+					//	.getAllelicComposition();
 				if (zType.equals(ZygosityType.homozygote)) {// if homozygote
 															// don't need the
 															// second part of
 															// the string after
 															// the forward slash
-					alleleComposition = alleleComposition.substring(0,
-							alleleComposition.indexOf("/"));
+				//	alleleComposition = alleleComposition.substring(0,
+						//	alleleComposition.indexOf("/"));
 				}
 				if(sexType.equals(SexType.female)) {
 					tempObje.setSampleSizeFemale(experiment.getMutants(sexType, zType).size());
@@ -520,13 +515,13 @@ public class UnidimensionalChartAndTableProvider {
 					}
 				
 				tempObje.setZygosity(zType);
-				tempObje.setLine(alleleComposition);
-				if (expBiologicalModel.getAlleles().size() > 0) {
-					tempObje.setAllele(expBiologicalModel.getAlleles().get(0)
-							.getSymbol());
-				}
-				tempObje.setGeneticBackground(expBiologicalModel
-						.getGeneticBackground());
+				//.setLine(alleleComposition);
+				//if (expBiologicalModel.getAlleles().size() > 0) {
+				//	tempObje.setAllele(expBiologicalModel.getAlleles().get(0)
+				//			.getSymbol());
+			//	}
+			//	tempObje.setGeneticBackground(expBiologicalModel
+				//		.getGeneticBackground());
 				statsObjects.add(tempObje);
 				for (StatisticalResult result : results) {
 					if (result.getZygosityType().equals(zType)
