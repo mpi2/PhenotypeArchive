@@ -140,18 +140,16 @@
 			</entity> -->
 			<!--  metadata and calculate metadata group -->
 			<entity dataSource="komp2ds" transformer="script:getMetadata" name="procedureMetaDataGroup" onError="skip"
-				query="SELECT MD5(GROUP_CONCAT(DISTINCT CONCAT(pmdreq.name, ' = ', pmdreq.value) ORDER BY pmdreq.parameter_id ASC SEPARATOR '::')) as metadata_group, 
-					GROUP_CONCAT(DISTINCT CONCAT(pmdall.name, ' = ', pmdall.value) ORDER BY pmdall.parameter_id ASC SEPARATOR '::') as metadata_combined 
-					FROM (
-						SELECT pp.name, pmdin.value, pmdin.parameter_id, pmdin.experiment_id FROM procedure_meta_data pmdin
-						INNER JOIN phenotype_parameter pp ON pp.stable_id=pmdin.parameter_id 
-						WHERE experiment_id=${observation.experiment_id}) pmdall
-					INNER JOIN (
-						SELECT pp.name, pmdin.value, pmdin.parameter_id, pmdin.experiment_id 
-						FROM procedure_meta_data pmdin
-						INNER JOIN phenotype_parameter pp ON pp.stable_id=pmdin.parameter_id 
-						WHERE pp.data_analysis=1 AND experiment_id=${observation.experiment_id}) pmdreq 
-					ON pmdreq.experiment_id=pmdall.experiment_id
+				query="SELECT 
+					    (SELECT GROUP_CONCAT(DISTINCT CONCAT(pp.name, ' = ', pmdin.value) ORDER BY pmdin.parameter_id ASC SEPARATOR '::')
+					        FROM procedure_meta_data pmdin
+					        INNER JOIN phenotype_parameter pp ON pp.stable_id=pmdin.parameter_id 
+					        WHERE e.id=pmdin.experiment_id) as metadata_combined,
+					    (SELECT MD5(GROUP_CONCAT(DISTINCT CONCAT(pp.name, ' = ', pmdin.value) ORDER BY pmdin.parameter_id ASC SEPARATOR '::'))
+					        FROM procedure_meta_data pmdin
+					        INNER JOIN phenotype_parameter pp ON pp.stable_id=pmdin.parameter_id 
+					        WHERE pp.data_analysis=1 AND pmdin.experiment_id=e.id) as metadata_group
+					FROM experiment e WHERE e.id=${observation.experiment_id}
 					">
 				<field column="metadata" name="metadata" />
 				<field column="metadata_group" name ="metadata_group" />
