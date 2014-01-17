@@ -20,6 +20,7 @@ import java.net.URISyntaxException;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -61,6 +62,10 @@ public class DataTableController {
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 
+	private List<String> alleleTypes_mi = new ArrayList<String>();
+	private List<String> alleleTypes_pa = new ArrayList<String>();
+	
+	
 	/**
 	 * <p>
 	 * Return jQuery dataTable from server-side for lazy-loading.
@@ -168,8 +173,17 @@ public class DataTableController {
 		return jsonStr;
 	}
 
-	public String parseJsonforGeneDataTable(HttpServletRequest request, JSONObject json, String qryStr, String solrCoreName, List<String> filters){
-
+	public String parseJsonforGeneDataTable(HttpServletRequest request, JSONObject json, String qryStr, String solrCoreName, List<String> filters){	
+		
+		// mi_attempt, phenotype_attempt allele
+		alleleTypes_mi.add("tm1");
+		alleleTypes_mi.add("tm1a");
+		alleleTypes_mi.add("tm1e");		
+		
+		alleleTypes_pa.add("tm1.1");
+		alleleTypes_pa.add("tm1b");
+		alleleTypes_pa.add("tm1e.1");
+		
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config, request);
 
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
@@ -227,6 +241,8 @@ public class DataTableController {
 		
 	public String deriveProductionStatusForEsCellAndMice(JSONObject doc, HttpServletRequest request){		
 		
+		
+		
 		String geneStatus = doc.getString("status");
 		String prodStatus = "";
 		String miceStr = "";
@@ -251,30 +267,28 @@ public class DataTableController {
 		else if ( geneStatus.equals("ES Cells Produced") ){		
 			prodStatus = esCellStatus; // ES cell
 						
-			List<String> alleleNames = doc.getJSONArray("es_allele_name");
-			String alleleType = null;
-						
-			int tm1seen = 0;
-			int tm1aseen = 0;
+			List<String> alleleNames = doc.getJSONArray("es_allele_name");					
+	        
+			Map<String,Integer> seenMap = new HashMap<String,Integer>();	      
+			seenMap.put("tm1", 0);
+			seenMap.put("tm1a", 0);
+			seenMap.put("tm1e", 0);
+			
 			for (int i=0; i< alleleNames.size(); i++) {
 				String alName = alleleNames.get(i);
-				System.out.println("ALLELE NAME: " + alName);
+				//System.out.println("ALLELE NAME: " + alName);
 				
-				if ( alName.contains("tm1(KOMP)") ){					
-					tm1seen++;
-					if ( tm1seen == 1 ){
-						miceStr += "<span class='status none' oldtitle='Mice production planned' title=''>"
-								+  "<span>Mice<br>tm1</span>"
-								+  "</span>";	
-					}
-				}
-				else if ( alName.contains("tm1a") ){				
-					tm1aseen++;
-					if ( tm1aseen == 1 ){
-						miceStr += "<span class='status none' oldtitle='Mice production planned' title=''>"
-							    +  "<span>Mice<br>tm1a</span>"
-							    +  "</span>";	
-					}
+				for (String alleleType : alleleTypes_mi){				    
+					if ( alName.contains(alleleType+"(") ){					
+						seenMap.put(alleleType, seenMap.get(alleleType)+1);
+						//tm1seen++;
+						if ( seenMap.get(alleleType) == 1 ){
+							miceStr += "<span class='status none' oldtitle='Mice production planned' title=''>"
+									+  "<span>Mice<br>" + alleleType + "</span>"
+									+  "</span>";	
+						}
+						break;
+					}					
 				}				
 			}			
 		}
@@ -288,36 +302,30 @@ public class DataTableController {
 	
 	public String parseAlleleType(JSONObject doc, String prodStatus){		
 		
-		String miceStr = "";
-		String alleleType = null;
-		
+		String miceStr = "";			
 		String hoverTxt = prodStatus.equals("done") ? "Mice produced" : "Mice production in progress";
 		
+		//tm1/tm1a/tm1e mice	
 		if ( doc.has("mi_allele_name") ){
-			if ( doc.getString("mi_allele_name").contains("tm1(KOMP)") ){
-				alleleType = "tm1";
-			}
-			else if ( doc.getString("mi_allele_name").contains("tm1a") ){
-				alleleType = "tm1a";
-			}
-			
-			// tm1/tm1a mice
-			miceStr += "<span class='status " + prodStatus + "' oldtitle='" + hoverTxt + "' title=''>"
-					+  "	<span>Mice<br>" + alleleType + "</span>"
-					+  "</span>";				
+			for (String alleleType : alleleTypes_mi){	
+				if ( doc.getString("mi_allele_name").contains(alleleType+"(") ){					
+					miceStr += "<span class='status " + prodStatus + "' oldtitle='" + hoverTxt + "' title=''>"
+							+  "	<span>Mice<br>" + alleleType + "</span>"
+							+  "</span>";
+					break;
+				}				
+			}	
 		}
-		else if ( doc.has("pa_allele_name") ){				
-			if ( doc.getString("pa_allele_name").contains("tm1.1") ){
-				alleleType = "tm1.1";
-			}
-			else if ( doc.getString("mi_allele_name").contains("tm1b") ){
-				alleleType = "tm1b";
-			}
-			
-			// tm1.1/tm1b mice
-			miceStr += "<span class='status " + prodStatus + "' oldtitle='" + hoverTxt + "' title=''>"
-					+  "	<span>Mice<br>" + alleleType + "</span>"
-					+  "</span>";				
+		//tm1.1/tm1b/tm1e.1 mice	
+		else if ( doc.has("pa_allele_name") ){	
+			for (String alleleType : alleleTypes_pa){	
+				if ( doc.getString("pa_allele_name").contains(alleleType+"(") ){					
+					miceStr += "<span class='status " + prodStatus + "' oldtitle='" + hoverTxt + "' title=''>"
+							+  "	<span>Mice<br>" + alleleType + "</span>"
+							+  "</span>";					
+				}
+				break;
+			}	
 		}		
 		
 		return miceStr;
@@ -779,8 +787,4 @@ public class DataTableController {
 		}		
 		return info;
 	}
-	
-	
-	
-
 }
