@@ -110,7 +110,7 @@
 			
                         <!--  metadata and calculate metadata group -->
                         <field column="metadata_group" name ="metadata_group" />
-			<entity dataSource="komp2ds" transformer="script:getMetadata" name="procedureMetaDataGroup" onError="skip"
+			<entity dataSource="komp2ds" name="procedureMetaDataGroup" onError="skip"
 				query="SELECT DISTINCT CONCAT(pp.name, ' = ', pmdin.value) as metadata
                                         FROM procedure_meta_data pmdin
                                         INNER JOIN phenotype_parameter pp ON pp.stable_id=pmdin.parameter_id 
