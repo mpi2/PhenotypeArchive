@@ -94,6 +94,9 @@ div.briefDocCap {
 div#mpi2-search .dataTable td a {
 	margin-right: 5px !important;
 }
+span.status {
+	margin-right: 5px !important;
+}
 span.imgAnnots {
 	display: block;
 }
