@@ -74,7 +74,9 @@
 									<td>
 										<ul>
 										<c:forEach var="procedure" items="${procedures}" varStatus="loop">
-										<li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.stableKey}">${procedure.name} (${procedure.pipeline.name})</a></li>
+											<c:forEach var="pipeline" items="${procedure.pipelines}">
+												<li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.stableKey}">${procedure.name} (${pipeline.name})</a></li>
+											</c:forEach>
 										</c:forEach>
 										</ul>
 									</td>
