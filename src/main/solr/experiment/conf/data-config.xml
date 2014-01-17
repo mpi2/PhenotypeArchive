@@ -22,6 +22,10 @@
 			} else if (row.get('observation_type') == 'metadata') {
 				row.put('value', row.get('value'));
 
+			} else if (row.get('observation_type') == 'image_record') {
+				row.put('file_type', row.get('file_type'));
+				row.put('full_resolution_file_path', row.get('full_resolution_file_path'));
+				row.put('small_thumbnail_file_path', row.get('small_thumbnail_file_path'));
 			}
 
 			return row;
