@@ -9,23 +9,21 @@
 			} else if (row.get('observation_type') == 'unidimensional') {
 				row.put('data_point', row.get('unidimensional_data_point'));
 
-			} else if (row.get('observation_type') == 'multidimensional') {
-				row.put('data_point', row.get('multidimensional_data_point'));
-				row.put('order_index', row.get('order_index'));
-				row.put('dimension', row.get('dimension'));
-
 			} else if (row.get('observation_type') == 'time_series') {
 				row.put('data_point', row.get('time_series_data_point'));
 				row.put('time_point', row.get('time_point'));
 				row.put('discrete_point', row.get('discrete_point'));
 
-			} else if (row.get('observation_type') == 'metadata') {
-				row.put('value', row.get('value'));
-
 			} else if (row.get('observation_type') == 'image_record') {
 				row.put('file_type', row.get('file_type'));
 				row.put('full_resolution_file_path', row.get('full_resolution_file_path'));
 				row.put('small_thumbnail_file_path', row.get('small_thumbnail_file_path'));
+
+			} else if (row.get('observation_type') == 'multidimensional') {
+				row.put('data_point', row.get('multidimensional_data_point'));
+				row.put('order_index', row.get('order_index'));
+				row.put('dimension', row.get('dimension'));
+
 			}
 
 			return row;
