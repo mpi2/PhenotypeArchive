@@ -849,7 +849,7 @@ CREATE TABLE phenotype_parameter (
     sequence                  INT(10) UNSIGNED NOT NULL,
     media                     TINYINT(1) DEFAULT 0,
     data_analysis             TINYINT(1) DEFAULT 0,
-    data_analysis_notes       VARCHAR(200),
+    data_analysis_notes       TEXT,
     stable_key                INT(10) DEFAULT 0,
  
     PRIMARY KEY (id),
@@ -1000,6 +1000,22 @@ CREATE TABLE phenotype_call_summary (
     KEY mp_call_idx (mp_acc)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+
+/*
+ * Store the relationship between a phenotype call and the result that
+ * produced the call.  Could refer to either the stats_categorical_result
+ * or a stats_unidimensional_result
+ */
+CREATE TABLE phenotype_call_summary_stat_result (
+
+    phenotype_call_summary_id INT(10) UNSIGNED NOT NULL,
+    result_id                 INT(10) UNSIGNED NOT NULL,
+
+    PRIMARY KEY (phenotype_call_summary_id, result_id)
+    
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
 
 /*
  * Tables below are for the storage of media/image information
