@@ -14,11 +14,6 @@
 				row.put('time_point', row.get('time_point'));
 				row.put('discrete_point', row.get('discrete_point'));
 
-			} else if (row.get('observation_type') == 'image_record') {
-				row.put('file_type', row.get('file_type'));
-				row.put('full_resolution_file_path', row.get('full_resolution_file_path'));
-				row.put('small_thumbnail_file_path', row.get('small_thumbnail_file_path'));
-
 			} else if (row.get('observation_type') == 'multidimensional') {
 				row.put('data_point', row.get('multidimensional_data_point'));
 				row.put('order_index', row.get('order_index'));
@@ -41,7 +36,7 @@
 		<!-- For all observations (data points) -->
 		<entity dataSource="komp2ds" transformer="script:getData" name="observation"
 			query="
-			SELECT strain.strain_acc, pipe.name as pipeline_name, pipe.id as pipeline_id, pipe.stable_id as pipeline_stable_id, param.name as parameter_name, proc.name as procedure_name, proc.id as procedure_id, proc.stable_id as procedure_stable_id, param.stable_id as parameter_stable_id,bs.organisation_id, org.name, bs.sample_group, gf.acc as acc, ls.sex as sex, ls.colony_id, ls.zygosity, gf.symbol as symbol, bms.biological_model_id as bmid, ls.date_of_birth as birthdate, ls.colony_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_group as metadata_group, o.*, co.category as category, uo.data_point as unidimensional_data_point, mo.data_point as multidimensional_data_point, mo.order_index, mo.dimension, tso.data_point as time_series_data_point, tso.time_point, tso.discrete_point, bs.external_id as external_sample_id
+			SELECT strain.strain_acc, pipe.name as pipeline_name, pipe.id as pipeline_id, pipe.stable_id as pipeline_stable_id, param.name as parameter_name, proc.name as procedure_name, proc.id as procedure_id, proc.stable_id as procedure_stable_id, param.stable_id as parameter_stable_id,bs.organisation_id, org.name, bs.sample_group, gf.acc as acc, ls.sex as sex, ls.colony_id, ls.zygosity, gf.symbol as symbol, bms.biological_model_id as bmid, ls.date_of_birth as birthdate, ls.colony_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, o.*, co.category as category, uo.data_point as unidimensional_data_point, mo.data_point as multidimensional_data_point, mo.order_index, mo.dimension, tso.data_point as time_series_data_point, tso.time_point, tso.discrete_point, bs.external_id as external_sample_id
 			FROM observation o
 			LEFT OUTER JOIN categorical_observation co ON o.id=co.id
 			LEFT OUTER JOIN unidimensional_observation uo ON o.id=uo.id
@@ -108,21 +103,37 @@
 			<field column="external_id" name="experiment_source_id" />
 			<field column="date_of_experiment" name="date_of_experiment" />
 
+
 			<!-- metadata and calculate metadata group -->
 			<field column="metadata_group" name="metadata_group" />
-
-<!-- 			
-			<entity dataSource="komp2ds" name="procedureMetaDataGroup"
-				onError="skip"
-				query="SELECT DISTINCT CONCAT(pp.name, ' = ', pmdin.value) as metadata
-                                        FROM procedure_meta_data pmdin
-                                        INNER JOIN phenotype_parameter pp ON pp.stable_id=pmdin.parameter_id 
-                                        WHERE pmdin.experiment_id=${observation.experiment_id}
-                                        ORDER BY pmdin.parameter_id ASC
-					">
-				<field column="metadata" name="metadata" />
+			<entity name="protector" transformer="RegexTransformer"
+				query="select '${observation.metadata_combined}' as metadata_combined">
+				<field column="metadata" sourceColName="metadata_combined" splitBy="::" />
 			</entity>
- -->
+
+			<!-- NOTE ** ALERT ** NOTE ** ALERT ** CAUTION 
+				
+				The outer entity will short circuit executing 
+				the inner entity when observation.id is not defined, 
+				otherwise it will execute the inner entity.
+				
+				Essentially, this will only run the query when the 
+				observation is an image_record_observation.
+
+			CAUTION ** ALERT ** NOTE ** ALERT ** NOTE -->
+
+			<entity name="protect" query="select 1 from external_db where '${observation.observation_type}' = 'image_record'" >
+				<entity dataSource="komp2ds" name="imageRecord" onError="skip" 
+					query="SELECT iro.file_type, iro.full_resolution_file_path, iro.large_thumbnail_file_path, iro.small_thumbnail_file_path
+                       FROM image_record_observation iro
+                       WHERE iro.id=${observation.id}
+						">
+					<field column="full_resolution_file_path" name="full_resolution_file_path" />
+					<field column="large_thumbnail_file_path" name="large_thumbnail_file_path" />
+					<field column="small_thumbnail_file_path" name="small_thumbnail_file_path" />
+					<field column="file_type" name="file_type" />
+				</entity>
+			</entity>
  
 		</entity>
 
