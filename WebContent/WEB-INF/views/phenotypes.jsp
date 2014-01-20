@@ -55,7 +55,7 @@
 							<div class="with-label"> <span class="label">Procedure</span>
 								<ul>
 									<c:forEach var="procedure" items="${procedures}" varStatus="loop">
-										<li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.stableKey}">${procedure.name} (${procedure.pipeline.name})</a></li>
+											<li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.stableKey}">${procedure.name} (${procedure.pipeline.name})</a></li>
 									</c:forEach>
 								</ul>
 							</div>
@@ -73,13 +73,13 @@
 					</div>
 				</div>
 				
-				<c:if test="${genePercentage.getDisplay()}">
+				<c:if test="${genePercentage.getDisplay() || overviewPhenCharts.size()>0}">
 					<div class="section collapsed">
 					<h2 class="title" id="data-summary">Phenotype associations stats</h2>
 					<div class='documentation'>
 						<a href='' class='phenotypeStatsPanel'><img	src="${baseUrl}/img/info_20x20.png" /></a>
 					</div>
-					
+									
 					<div class="inner" style="display: block;">					
 						<!-- Phenotype Assoc. summary -->
 						<div class="half">
@@ -91,6 +91,26 @@
 						<!-- Graphs -->
 						<c:if test="${overviewPhenCharts.size()>0}">
 							<div class="half">
+							<div class="graphfilters">
+								<div class="graphfilter">
+									<div class="filtertype">Center</div>
+									<div class="filteroptions">
+									<ul>
+										<li id="center1">CenterA</li>
+										<li id="center2"> CenterB</li> 
+									</ul>
+									</div>
+								</div>
+								<div class="graphfilter">
+									<div class="filtertype">Sex</div>
+									<div class="filteroptions">
+									<ul>
+										<li id="maleFilter">Male</li>
+										<li id="femaleFilter"> Female</li> 
+									</ul>
+									</div>
+								</div>
+							</div>
 							<!-- c:forEach var="categoricalResultAndCharts" items="${overviewPhenCharts}" varStatus="experimentLoop"-->
 							<div class="row-fluid">
 					 				<!-- c:forEach var="categoricalChartDataObject" items="${overviewPhenCharts.get(0)}" varStatus="chartLoop"-->
@@ -107,6 +127,7 @@
 							<!-- /c:forEach-->
 						</div>
 					</c:if>
+				<div class="clear"></div>
 				</div>
 				</div>
 			</c:if>
