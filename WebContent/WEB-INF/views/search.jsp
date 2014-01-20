@@ -79,7 +79,7 @@
        
     
        <!-- search filter display -->
-        <div id='filterToggle'><span>Show facet filters</span></div>             		
+       <!--  <div id='filterToggle'><span>Show facet filters</span></div>             		
 	   	<ul id='facetFilter'> 
 	   	    <li class='has-sub none'>no filter added</li>
 	   		<li class='has-sub gene'>Genes</li>
@@ -90,7 +90,7 @@
 			<li class='has-sub disease'>Diseases</li>
 		</ul>
 		<div id='resetFilter'><a href="${baseUrl}/search">Remove all filters</a></div>   
-      
+      -->
        <!--  facet skeleton on left sidebar -->
 		<!-- <div id="wrapper">
 		    <div id="userKeyword" class='rounded-corners'></div>	
@@ -105,9 +105,24 @@
 		<div class="region region-sidebar-first">
 			<div id='facet' class='block'>	
 				<div class="head">Filter your search</div>
+				
+				<!-- facet filter block -->
+				<!-- search filter display -->
+		        <div id='filterToggle'><span>Show facet filters</span></div>             		
+			   	<ul id='facetFilter'> 
+			   	    <li class='has-sub none'>no filter added</li>
+			   		<li class='has-sub gene'>Genes</li>
+			   		<li class='has-sub mp'>Phenotypes</li>
+					<li class='has-sub ma'>Anatomy</li>	 
+					<li class='has-sub pipeline'>Procedures</li>
+					<li class='has-sub images'>Images</li>
+					<li class='has-sub disease'>Diseases</li>
+				</ul>
+				<div id='resetFilter'><a href="${baseUrl}/search">Remove all filters</a></div> 
+				
 			    <div class='content'>
 			    	<h2 class='documentation' class='title'>
-								<a href='' id='facetPanel'><i class="fa fa-question-circle pull-right" aria-describedby="qtip-26"></i></a></h2>
+						<a href='' id='facetPanel'><i class="fa fa-question-circle pull-right" aria-describedby="qtip-26"></i></a></h2>
 												
 					<div id="leftSideBar" class='rounded-corners span3'>																		
 									
@@ -191,8 +206,21 @@
 								</p>
 						</div>
 					</div>	
-					<!-- container to display dataTable --> 
-					<!-- <div class="HomepageTable span9" id="mpi2-search"></div>-->					
+					<!-- facet filter block -->
+					<!-- search filter display -->
+			        <div id='filterToggle'><span>Show facet filters</span></div>             		
+				   	<ul id='facetFilter'> 
+				   	    <li class='has-sub none'>no filter added</li>
+				   		<li class='has-sub gene'>Genes</li>
+				   		<li class='has-sub mp'>Phenotypes</li>
+						<li class='has-sub ma'>Anatomy</li>	 
+						<li class='has-sub pipeline'>Procedures</li>
+						<li class='has-sub images'>Images</li>
+						<li class='has-sub disease'>Diseases</li>
+					</ul>
+					<div id='resetFilter'><a href="${baseUrl}/search">Remove all filters</a></div>   
+								
+					<!-- container to display dataTable -->									
 					<div class="HomepageTable" id="mpi2-search"></div>				
 				</div>
 			</div>

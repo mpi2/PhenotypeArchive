@@ -175,7 +175,7 @@ public class DataTableController {
 
 	public String parseJsonforGeneDataTable(HttpServletRequest request, JSONObject json, String qryStr, String solrCoreName, List<String> filters){	
 		
-		// mi_attempt, phenotype_attempt allele
+		// mi_attempt, phenotype_attempt allele types
 		alleleTypes_mi.add("tm1");
 		alleleTypes_mi.add("tm1a");
 		alleleTypes_mi.add("tm1e");		
