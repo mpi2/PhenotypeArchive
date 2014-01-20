@@ -79,6 +79,7 @@
 	<!-- JavaScript Local Imports -->
 	<script src="${baseUrl}/js/general/toggle.js"></script>
 	<script src="${baseUrl}/js/imaging/genomicB.js"></script>
+	<script src="${baseUrl}/js/general/enu.js"></script>
 	<script src="${baseUrl}/js/general/dropdownfilters.js"></script>
 	<!--[if !IE]><!-->
 	<script type="text/javascript" src="${baseUrl}/js/genomic-browser/dalliance-compiled.js"></script>
