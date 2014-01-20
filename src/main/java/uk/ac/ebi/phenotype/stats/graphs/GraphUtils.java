@@ -17,13 +17,19 @@ public class GraphUtils {
 		this.experimentService=experimentService;
 	}
 	public Set<String> getGraphUrls(String acc,
-			String parameterStableId, List<String> genderList, List<String> zyList) throws SolrServerException {
+			String parameterStableId, List<String> genderList, List<String> zyList, String parameterName, String xUnit, String yUnit) throws SolrServerException {
 		Set<String>urls=new HashSet<String>(); //each url should be unique and so we use a set
 		Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameterStableId);
             
             //for each parameter we want the unique set of urls to make ajax requests for experiments
             String seperator="&";
             String accessionAndParam="accession="+acc+seperator+"parameterId="+parameterStableId;
+            if(xUnit!=null) {
+            accessionAndParam+=seperator+"xUnit="+xUnit;
+            }
+            if(yUnit!=null) {
+            	accessionAndParam+=seperator+"yUnit="+yUnit;
+            }
             //add  sex and zyg
             String zygosities="";
 	       

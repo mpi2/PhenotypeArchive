@@ -256,7 +256,7 @@ public class ChartsController {
 			// the experiments - how many, observation types
 
 			Set<String> graphUrlsForParam = graphUtils.getGraphUrls(acc,
-					parameter.getStableId(), genderList, zyList);
+					parameter.getStableId(), genderList, zyList, parameter.getName(), xUnits, yUnits);
 			allGraphUrlSet.addAll(graphUrlsForParam);
 
 		}// end of parameterId iterations
@@ -400,7 +400,10 @@ public class ChartsController {
 		
 			
 			List<TableObject> categoricalTables = new ArrayList<>();
-		
+		String title=parameter.getName();
+		String xAxisTitle=xUnits;//set up some default strings here that most graphs will use?
+		String yAxisTitle= yUnits;
+		String subTitle=gender;
 			try {
 
 				switch (observationTypeForParam) {
@@ -410,8 +413,8 @@ public class ChartsController {
 				
 				 unidimensionalChartNTable =
 				 continousChartAndTableProvider.doUnidimensionalData(experimentList.get(0),
-				 chartId, parameter, accession[0], model,
-				 gender, zyList, ChartType.UnidimensionalBoxPlot, false);
+				 chartId, title, subTitle,
+				 gender, zyList, ChartType.UnidimensionalBoxPlot, false, null, yAxisTitle);
 				 break;
 				
 				case categorical:

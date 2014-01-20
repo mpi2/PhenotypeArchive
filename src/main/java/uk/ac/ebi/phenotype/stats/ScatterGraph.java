@@ -39,7 +39,7 @@ private static final Logger log = Logger.getLogger(ScatterGraph.class);
 	 * @return map containing min and max values
 	 */
 	public ChartData processScatterChartData(String title, SexType sexType,
-			Parameter parameter, Set<ZygosityType> set,
+			Set<ZygosityType> set,
 			List<String> zyList, List<List<MouseDataPoint>> mouseDataPointSets,
 			Boolean byMouseId) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
@@ -48,13 +48,13 @@ private static final Logger log = Logger.getLogger(ScatterGraph.class);
 		Float min = new Float(100000000);
 		Map<String, Float> minMax = new HashMap<String, Float>();
 		String yAxisLabel="";
-		String parameterUnitxAxis = parameter.checkParameterUnit(1);
-		String parameterUnitYAxis = parameter.checkParameterUnit(2);
-			if(parameterUnitYAxis==null) {
-					yAxisLabel=parameterUnitxAxis;
-			}else {
-					yAxisLabel=parameterUnitYAxis;
-			}
+//		String parameterUnitxAxis = parameter.checkParameterUnit(1);
+//		String parameterUnitYAxis = parameter.checkParameterUnit(2);
+//			if(parameterUnitYAxis==null) {
+//					yAxisLabel=parameterUnitxAxis;
+//			}else {
+//					yAxisLabel=parameterUnitYAxis;
+//			}
 		List<String> categoriesList = new ArrayList<String>();
 		// List<String> categoriesListBarChart = new ArrayList<String>();
 

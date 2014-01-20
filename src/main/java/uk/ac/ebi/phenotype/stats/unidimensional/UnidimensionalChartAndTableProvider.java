@@ -48,14 +48,15 @@ public class UnidimensionalChartAndTableProvider {
 	 * table at the bottom
 	 * @param chartId
 	 * @param parameter
-	 * @param acc
-	 * @param model
-	 * @param genderList
 	 * @param zyList
 	 * @param boxOrScatter
 	 * @param byMouseId
+	 * @param xAxisTitle TODO
+	 * @param yAxisTitle TODO
+	 * @param acc
+	 * @param model
+	 * @param genderList
 	 * @param experimentList
-	 * 
 	 * @return
 	 * @throws SQLException
 	 * @throws IOException
@@ -63,10 +64,9 @@ public class UnidimensionalChartAndTableProvider {
 	 */
 	public UnidimensionalDataSet doUnidimensionalData(
 			ExperimentDTO experiment, String chartId,
-			Parameter parameter,
-			String acc, Model model, String gender,
+			String title, String subTitle, String gender,
 			List<String> zyList, ChartType boxOrScatter,
-			Boolean byMouseId) throws SQLException,
+			Boolean byMouseId, String xAxisTitle, String yAxisTitle) throws SQLException,
 			IOException, URISyntaxException {
 
 		// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
@@ -192,7 +192,6 @@ public class UnidimensionalChartAndTableProvider {
 						// // and graph if there is
 						// // more than just WT
 						// // data requested
-						String title = parameter.getName();
 						ChartData chartAndTable = null;
 						if (boxOrScatter
 								.equals(ChartType.UnidimensionalScatter)) {// produce
@@ -212,15 +211,14 @@ public class UnidimensionalChartAndTableProvider {
 																			// below
 							chartAndTable = scatterGraph
 									.processScatterChartData(title, sexType,
-											parameter,
 											experiment.getZygosities(), zyList,
 											mouseDataPointsSet,
 											 byMouseId);
 
 						} else {
 							chartAndTable = processChartData(chartId, title, sexType,
-									parameter, experiment.getZygosities(),
-									zyList, observations2DList, experiment);
+									experiment.getZygosities(),
+									zyList, observations2DList, experiment, yAxisTitle);
 
 						}
 
@@ -231,7 +229,7 @@ public class UnidimensionalChartAndTableProvider {
 						// // tables say one for overview and one for detail
 						// // (annova?)
 						List<UnidimensionalStatsObject> unidimensionalStatsObject = produceUnidimensionalStatsData(
-								title, sexType, parameter,
+								title, sexType,
 								experiment.getZygosities(), zyList,
 								observations2DList,
 								experiment);
@@ -305,8 +303,8 @@ public class UnidimensionalChartAndTableProvider {
 	 * @return map containing min and max values
 	 */
 	private ChartData processChartData(String chartId, String title, SexType sexType,
-			Parameter parameter, Set<ZygosityType> set, List<String> zyList,
-			List<List<Float>> rawData, ExperimentDTO experiment) {
+			Set<ZygosityType> set, List<String> zyList,
+			List<List<Float>> rawData, ExperimentDTO experiment, String yAxisTitle) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
 
 		int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
@@ -314,7 +312,6 @@ public class UnidimensionalChartAndTableProvider {
 		Float max = new Float(0);
 		Float min = new Float(100000000);
 		Map<String, Float> minMax = new HashMap<String, Float>();
-		String parameterUnit = parameter.checkParameterUnit(1);
 		List<String> categoriesListBoxChart = new ArrayList<String>();
 		List<String> categoriesListBarChart = new ArrayList<String>();
 
@@ -417,7 +414,7 @@ public class UnidimensionalChartAndTableProvider {
 			// sdsList.add(sds);
 			row++;
 		}
-		String yAxisTitle = parameterUnit;
+		
 
 		List<List<Float>> scatterColumns = new ArrayList<List<Float>>();// for
 																		// example
@@ -474,7 +471,7 @@ public class UnidimensionalChartAndTableProvider {
 	 * @return map containing min and max values
 	 */
 	private List<UnidimensionalStatsObject> produceUnidimensionalStatsData(
-			String title, SexType sexType, Parameter parameter,
+			String title, SexType sexType,
 			Set<ZygosityType> set, List<String> zyList,
 			List<List<Float>> rawData, ExperimentDTO experiment) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
