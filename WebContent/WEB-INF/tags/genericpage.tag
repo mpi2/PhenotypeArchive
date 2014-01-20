@@ -192,34 +192,20 @@ try {
                                         <li><a href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li>
                                         </c:if>
                                         </c:forEach>
-
 						</ul>
             </nav>
+            <div class="clear"></div>        
+        </div>        
 
-            <div class="clear"></div>
-        
-        </div>
-        
-
-    </header>        
-
-
-
-
+    </header>   
         <div id="main">
                 <div class="breadcrumb">
                    <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invoke fragment="breadcrumb" /><%-- breadcrumbs here --%>   
-                </div>
-        
+                </div>        
                 
-                <jsp:doBody />
-               
+                <jsp:doBody />               
                         
 		        </div><!-- /main -->
-        
-       
-        
-        
         
     <footer id="footer">
     
@@ -301,7 +287,7 @@ try {
     			// non hash tag keyword query
     			<c:if test="${not empty q}">				
     				oHashParams = {};
-    				oHashParams.q = "${q}";
+    				oHashParams.q = "${q}";    				
     				$.fn.fetchSolrFacetCount(oHashParams);				
     			</c:if>;
     					

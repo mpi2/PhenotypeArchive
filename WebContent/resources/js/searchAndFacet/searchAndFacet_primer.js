@@ -48,7 +48,7 @@ $(document).ready(function(){
 	    	if (input == ''){
 	    		document.location.href = baseUrl + '/search';
 	    	}
-	    	else {
+	    	else {	    		
 	    		document.location.href = baseUrl + '/search?q=' + input; // handed over to hash change	    	
 	    	}
 	    }
@@ -56,24 +56,5 @@ $(document).ready(function(){
 		$(this).val(''); // clears input 
 	});
 	
-	// search via button click
-	$('button#acSearch').click(function(){
-		
-		var input = $('input#s').val();
-		//console.log('button search in search and facet= ' + input);
-		if (input == ''){
-    		document.location.href = baseUrl + '/search';
-    	}
-    	else {
-    		document.location.href = baseUrl + '/search?q=' + input; // handed over to hash change 
-    	}		
-	});		
-
-	
-	// dynamically readjusted position of autosuggest dropdown list due to elastic design of page
-	window.jQuery(window).resize(function(){
-		var pos = window.jQuery('input#s').offset();     
-		window.jQuery('ul.ui-autocomplete').css({'position':'absolute', 'top': pos.top + 26, 'left': pos.left}); 
-	});
 	
 });
