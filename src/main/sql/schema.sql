@@ -486,6 +486,8 @@ CREATE TABLE experiment (
     external_id                VARCHAR(50),
     date_of_experiment         TIMESTAMP,
     organisation_id            INT(10) UNSIGNED NOT NULL,  
+    metadata_combined          TEXT,  
+    metadata_group             VARCHAR(50) DEFAULT '',  
     
     PRIMARY KEY(id),
     KEY external_db_idx(db_id),
@@ -998,6 +1000,22 @@ CREATE TABLE phenotype_call_summary (
     KEY mp_call_idx (mp_acc)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+
+/*
+ * Store the relationship between a phenotype call and the result that
+ * produced the call.  Could refer to either the stats_categorical_result
+ * or a stats_unidimensional_result
+ */
+CREATE TABLE phenotype_call_summary_stat_result (
+
+    phenotype_call_summary_id INT(10) UNSIGNED NOT NULL,
+    result_id                 INT(10) UNSIGNED NOT NULL,
+
+    PRIMARY KEY (phenotype_call_summary_id, result_id)
+    
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
 
 /*
  * Tables below are for the storage of media/image information
