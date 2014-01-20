@@ -2,3 +2,8 @@
 
 /* hide pagination below tables on gene and phenotype pages */
 div#phenotypesDiv div.dataTables_paginate {display: none !important;}
+
+form.no-style{
+	border:none;
+	padding:none;
+}

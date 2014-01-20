@@ -378,4 +378,3 @@ try {
         </compress:html>
         </div> <!-- wrapper -->
 </body>
-</html>
