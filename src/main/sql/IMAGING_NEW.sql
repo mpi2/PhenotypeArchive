@@ -421,21 +421,6 @@ CREATE TABLE `ima_image_record_annotation_vw` (
 
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `image_record_observation`
---
-
-DROP TABLE IF EXISTS `image_record_observation`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `image_record_observation` (
-  `id` int(10) unsigned NOT NULL,
-  `image_record_id` int(11) unsigned NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `image_record_idx` (`image_record_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
 
 
 DROP TABLE IF EXISTS `mts_mouse_allele_mv`;
