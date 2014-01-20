@@ -18,24 +18,21 @@
  */
 jQuery(document).ready(	function() {
 
-//code for setting ENU links on Gene Page
-
+//code for setting ENU links on Gene Page	
+	
 	$.ajax({
 		url: '../genesEnu/' + gene_id,    
-		timeout: 1000,
+		timeout: 2000,
 		success: function (response) {
 			$('#enu').html(response);
 			console.log("success");
 			
 		}
 		,error: function(x, t, m) {
-	        if(t==="timeout") {
-	        	var errorMsg='<font color="red">Error trying to retrieve ENU Links</font>';//log error to gene page so we know this is down not just 0.
-	        	console.log(errorMsg); 
-	        	$('#enu').html(errorMsg);
-	        } else {
-	            console.log(t);//not sure what x and m mean? but if not a timeout failure a log will come out in the browser
-	        }
+	      //  if(t==="timeout") { 
+	        //log error to gene page so we know this is down not just 0.
+			var errorMsg='<td>ENU Link:</td><td class="gene-data" id="enu_links"><font color="red"><font color="red">Error trying to retrieve ENU Links( '+t+')</font></td>';
+	    	$('#enu').html(errorMsg);
 	    }
 	});
 
