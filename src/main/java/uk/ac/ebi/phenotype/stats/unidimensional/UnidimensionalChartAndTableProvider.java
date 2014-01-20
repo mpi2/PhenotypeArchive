@@ -590,7 +590,7 @@ public class UnidimensionalChartAndTableProvider {
 														// is first column 3 is
 														// second
 
-		String chartString = "unidimensionalChart = new Highcharts.Chart( { chart: { type: 'boxplot' renderTo: '"
+		String chartString = " chart = new Highcharts.Chart({ chart: { type: 'boxplot', renderTo: '"
 				+ chartId
 				+ "'},  tooltip: { formatter: function () { if(typeof this.point.high === 'undefined'){ return '<b>Observation</b><br/>' + this.point.y; } else { return '<b>Genotype: ' + this.key + '</b><br/>LQ - 1.5 * IQR: ' + this.point.low + '<br/>Lower Quartile: ' + this.point.options.q1 + '<br/>Median: ' + this.point.options.median + '<br/>Upper Quartile: ' + this.point.options.q3 + '<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '</b>'; } } }    , title: { text: '"
 				+ title

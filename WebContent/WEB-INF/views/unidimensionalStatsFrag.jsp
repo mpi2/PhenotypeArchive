@@ -8,9 +8,9 @@
  --%>
   				chartString should be dipslayed here	${unidimensionalChartsAndTable}
    								<script type="text/javascript">
-   								
-   								    ${unidimensionalChartsAndTable}
-   								    
+   
+   								$(function () {
+   								   ${unidimensionalChart}
 								</script>
 								<a href="scatter/${acc}?${pageContext.request.queryString}">Graph by date</a>	
 		
