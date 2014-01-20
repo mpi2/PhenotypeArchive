@@ -78,8 +78,7 @@
 					<h2 class="title" id="data-summary">Phenotype associations stats</h2>
 					<div class='documentation'>
 						<a href='' class='phenotypeStatsPanel'><img	src="${baseUrl}/img/info_20x20.png" /></a>
-					</div>
-									
+					</div>									
 					<div class="inner" style="display: block;">					
 						<!-- Phenotype Assoc. summary -->
 						<div class="half">
