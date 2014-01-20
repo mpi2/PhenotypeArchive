@@ -20,7 +20,7 @@
 		</style-->
 	</jsp:attribute>
 
-	<jsp:attribute name="footer">
+	<jsp:attribute name="addToFooter">
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js'></script>
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js'></script>
 		<script type='text/javascript' src='${baseUrl}/js/imaging/mp.js'></script>

@@ -6,8 +6,7 @@
 	<jsp:attribute name="title">Gene details for ${gene.name}</jsp:attribute>
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#sort=marker_symbol asc&q=*:*&core=gene">Genes</a> &raquo; ${gene.symbol}</jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="gene-node no-sidebars small-header"></jsp:attribute>
-	<jsp:attribute name="footer">
-
+	<jsp:attribute name="addToFooter">
 	<c:if test="${phenotypeStarted}">
 	<script type="text/javascript" src="${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js"></script>
 	<!--[if IE 8]>
@@ -129,7 +128,6 @@
     </jsp:attribute>
 
 	<jsp:body>
-
 <div class="region region-content">
 	<div class="block block-system">
 		<div class="content">

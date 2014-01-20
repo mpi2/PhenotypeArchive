@@ -38,6 +38,7 @@
 <%@attribute name="title" fragment="true"%>
 <%@attribute name="breadcrumb" fragment="true"%>
 <%@attribute name="bodyTag" fragment="true"%>
+<%@attribute name="addToFooter" fragment="true"%>
 
 <% // the baseUrl variable is set from the DeploymentInterceptor class %>
 
@@ -198,6 +199,7 @@ try {
         </div>        
 
     </header>   
+    
         <div id="main">
                 <div class="breadcrumb">
                    <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invoke fragment="breadcrumb" /><%-- breadcrumbs here --%>   
@@ -205,7 +207,7 @@ try {
                 
                 <jsp:doBody />               
                         
-		        </div><!-- /main -->
+		     </div><!-- /main -->
         
     <footer id="footer">
     
@@ -254,6 +256,8 @@ try {
             </div>
         
         </div>
+        
+        <jsp:invoke fragment="addToFooter"/>
         
     </footer>
                     
@@ -314,6 +318,7 @@ try {
     					// make sure checkboxes are updated according to url
     					
     					oHa$('input#s').val();shParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;
+                
     					oHashParams.widgetName += 'Facet';
     					
     					if ( oHashParams.coreName ){
