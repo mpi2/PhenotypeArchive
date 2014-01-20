@@ -98,7 +98,7 @@
 
 	
 
-		
+		${categoricalChartDataObject.chart}
 				<div class="row-fluid">
  				<c:forEach var="categoricalChartDataObject" items="${categoricalResultAndChart.maleAndFemale}" varStatus="chartLoop">
   				 	<div class="container span6">

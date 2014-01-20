@@ -444,7 +444,9 @@ public class ChartsController {
 				log.error(ExceptionUtils.getFullStackTrace(e));
 				statsError = true;
 			}
-			model.addAttribute("unidimensionalChartNTable", unidimensionalChartNTable);
+			String unichart="";
+			if(unidimensionalChartNTable!=null)unichart=unidimensionalChartNTable.getSexChartAndTables().get(0).getChart();
+			model.addAttribute("unidimensionalChartsAndTable", unichart);
 			model.addAttribute("categoricalResultAndChart",
 					categoricalResultAndChart);
 			model.addAttribute("timeSeriesChartsAndTable",

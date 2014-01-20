@@ -2,48 +2,20 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
-<c:if test="${fn:length(allUnidimensionalDataSets) > 0}">
-			<div id="exportIconsDivUni"></div>
-</c:if>
 
-<c:forEach var="unidimensionalDataSet" items="${allUnidimensionalDataSets}" varStatus="unidimensionalDataSetLoop">
-<c:if test="${fn:length(unidimensionalDataSet.statsObjects)>0}">
- <div class="row-fluid dataset"> 
-		 	<div class="row-fluid">
-		 	<!-- statsObject 1 is the first non WT set which is where we get the background strain from not 0 which is control which we currently don't pass to graphs the background strain for -->
-		 			<div class="container span6"><h4>Allele -  <t:formatAllele> ${unidimensionalDataSet.statsObjects[1].allele }</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${unidimensionalDataSet.statsObjects[1].geneticBackground }</span></h4>
-				 	<h5>${unidimensionalDataSet.organisation }</h5>
-					<!-- 
-					<ul><c:forEach var="metadata" items="${unidimensionalDataSet.experiment.metadata}">
-						<li>${metadata}</li>
-					</c:forEach></ul>
-					 -->
-					<!--
-					Metadata group: ${unidimensionalDataSet.experiment.metadataGroup}
-					Control animal IDs: <c:forEach var="animal" items="${unidimensionalDataSet.experiment.controls}">${animal.externalSampleId}, </c:forEach>
-					-->
-		 	</div>
- 			</div>
- 			<div class="row-fluid">
-					<c:forEach var="unidimensionalChartsAndTable" items="${unidimensionalDataSet.sexChartAndTables}" varStatus="uniDimensionalLoop">
- 					<%-- ${loop.count  % 2} --%>
-
-  					<div class="container span6">
-						<div id="chart${unidimensionalDataSetLoop.count}_${uniDimensionalLoop.count}_${unidimensionalDataSet.experiment.metadataGroup}"
-									style="min-width: 400px; height: 400px; margin: 0 auto">
-						</div>
+					<%-- <c:forEach var="unidimensionalChartsAndTable" items="${unidimensionalDataSet.sexChartAndTables}" varStatus="uniDimensionalLoop">
+ 					${loop.count  % 2}
+ --%>
+  				chartString should be dipslayed here	${unidimensionalChartsAndTable}
    								<script type="text/javascript">
-   
-   								$(function () {
-   								    $('#chart${unidimensionalDataSetLoop.count}_${uniDimensionalLoop.count}_${unidimensionalDataSet.experiment.metadataGroup}').highcharts(${unidimensionalChartsAndTable.chart});
+   								
+   								    ${unidimensionalChartsAndTable}
+   								    
 								</script>
 								<a href="scatter/${acc}?${pageContext.request.queryString}">Graph by date</a>	
-								
-					</div><!-- end of span6  individual chart holder -->
-			
 		
-				</c:forEach>
-				
+				<%-- </c:forEach>
+				 --%>
 		</div><!-- end of chart row-fluid -->
 		<table id="continuousTable${uniDimensionalLoop.count}" class="table table-bordered  table-striped table-condensed">
 		<thead><tr>
@@ -298,7 +270,4 @@
 					});
 </script>	
 	<!-- </div> -->
-</div><!-- end of row fluid data set -->
-</c:if>
-</c:forEach><!--  end of undimensional data loop -->
 

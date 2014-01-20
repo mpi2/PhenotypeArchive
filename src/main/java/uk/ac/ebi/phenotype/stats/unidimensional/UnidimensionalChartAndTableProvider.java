@@ -64,7 +64,7 @@ public class UnidimensionalChartAndTableProvider {
 	public UnidimensionalDataSet doUnidimensionalData(
 			ExperimentDTO experiment, String chartId,
 			Parameter parameter,
-			String acc, Model model, String genderList,
+			String acc, Model model, String gender,
 			List<String> zyList, ChartType boxOrScatter,
 			Boolean byMouseId) throws SQLException,
 			IOException, URISyntaxException {
@@ -96,14 +96,7 @@ public class UnidimensionalChartAndTableProvider {
 			//System.out.println("biolgocialModelId="
 					//+ experiment.getExperimentalBiologicalModelId());
 			Map<String, Integer> mouseIdsToColumnsMap = new TreeMap<>();
-		
-			for (SexType sexType : experiment.getSexes()) { // one graph for
-															// each sex if
-				// unspecified in params to
-				// page or in list of sex
-				// param specified
-
-				if (genderList.isEmpty() || genderList.contains(sexType.name())) {
+			SexType sexType=SexType.valueOf(gender);
 
 					// mouse data points are needed for the scatter plots so we
 					// have mouse ids with them
@@ -225,7 +218,7 @@ public class UnidimensionalChartAndTableProvider {
 											 byMouseId);
 
 						} else {
-							chartAndTable = processChartData(title, sexType,
+							chartAndTable = processChartData(chartId, title, sexType,
 									parameter, experiment.getZygosities(),
 									zyList, observations2DList, experiment);
 
@@ -255,10 +248,10 @@ public class UnidimensionalChartAndTableProvider {
 							max = tempMax;
 
 					}
-				}// end of gender
+				
 
 				// i++;
-			}
+			
 
 			// min = allMinMax.get("min");
 			// max = allMinMax.get("max");
@@ -311,7 +304,7 @@ public class UnidimensionalChartAndTableProvider {
 	 * @param max
 	 * @return map containing min and max values
 	 */
-	private ChartData processChartData(String title, SexType sexType,
+	private ChartData processChartData(String chartId, String title, SexType sexType,
 			Parameter parameter, Set<ZygosityType> set, List<String> zyList,
 			List<List<Float>> rawData, ExperimentDTO experiment) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
@@ -452,7 +445,7 @@ public class UnidimensionalChartAndTableProvider {
 			columnIndex += 2;
 		}
 
-		String chartString = createContinuousBoxPlotChartsString(
+		String chartString = createContinuousBoxPlotChartsString(chartId,
 				categoriesListBoxChart, title, sexType, yAxisTitle,
 				boxPlotData, scatterColumns);
 		// continuousCharts.add(chartString);
@@ -577,7 +570,7 @@ public class UnidimensionalChartAndTableProvider {
 	 *            e.g. WT, WT, HOM, HOM for each column to be displayed
 	 * @return
 	 */
-	private String createContinuousBoxPlotChartsString(
+	private String createContinuousBoxPlotChartsString(String chartId,
 			List<String> xAxisCategoriesList, String title, SexType sex,
 			String yAxisTitle, List<List<Float>> observations2dList,
 			List<List<Float>> scatterColumns) {
@@ -597,7 +590,9 @@ public class UnidimensionalChartAndTableProvider {
 														// is first column 3 is
 														// second
 
-		String chartString = "{ chart: { type: 'boxplot' },  tooltip: { formatter: function () { if(typeof this.point.high === 'undefined'){ return '<b>Observation</b><br/>' + this.point.y; } else { return '<b>Genotype: ' + this.key + '</b><br/>LQ - 1.5 * IQR: ' + this.point.low + '<br/>Lower Quartile: ' + this.point.options.q1 + '<br/>Median: ' + this.point.options.median + '<br/>Upper Quartile: ' + this.point.options.q3 + '<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '</b>'; } } }    , title: { text: '"
+		String chartString = "unidimensionalChart = new Highcharts.Chart( { chart: { type: 'boxplot' renderTo: '"
+				+ chartId
+				+ "'},  tooltip: { formatter: function () { if(typeof this.point.high === 'undefined'){ return '<b>Observation</b><br/>' + this.point.y; } else { return '<b>Genotype: ' + this.key + '</b><br/>LQ - 1.5 * IQR: ' + this.point.low + '<br/>Lower Quartile: ' + this.point.options.q1 + '<br/>Median: ' + this.point.options.median + '<br/>Upper Quartile: ' + this.point.options.q3 + '<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '</b>'; } } }    , title: { text: '"
 				+ title
 				+ "' } , credits: { enabled: false },  subtitle: { text: '"
 				+ WordUtils.capitalize(sex.name())
@@ -615,7 +610,7 @@ public class UnidimensionalChartAndTableProvider {
 				+ observationsString
 				+ ",       tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }                    }, { name: 'Observation', color: Highcharts.getOptions().colors[0], type: 'scatter', data: "
 				+ scatterString
-				+ ", marker: { fillColor: 'white', lineWidth: 1, lineColor: Highcharts.getOptions().colors[0] }, tooltip: { pointFormat: '{point.y:..4f}' }          }] }); }";
+				+ ", marker: { fillColor: 'white', lineWidth: 1, lineColor: Highcharts.getOptions().colors[0] }, tooltip: { pointFormat: '{point.y:..4f}' }          }] }); });";
 		return chartString;
 	}
 
