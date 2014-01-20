@@ -313,7 +313,7 @@ try {
     					// back/forward button navigation: 
     					// make sure checkboxes are updated according to url
     					
-    					oHashParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;
+    					oHa$('input#s').val();shParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;
     					oHashParams.widgetName += 'Facet';
     					
     					if ( oHashParams.coreName ){
