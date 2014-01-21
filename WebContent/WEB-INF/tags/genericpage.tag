@@ -72,7 +72,6 @@
 <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.fancybox-1.3.4.css">
 <link href="${baseUrl}/css/default.css?cache=09-01-14" rel="stylesheet" type="text/css" />
-<link href="${baseUrl}/css/heatmap.css?cache=09-01-14" rel="stylesheet" type="text/css" />
 <link href="${baseUrl}/css/wdm.css?cache=09-01-14" rel="stylesheet" type="text/css" />
 
 <!-- EBI CSS -->
