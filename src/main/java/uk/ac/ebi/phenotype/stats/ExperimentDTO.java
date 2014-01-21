@@ -69,7 +69,7 @@ public class ExperimentDTO {
     @Override
     public String toString() {
         return "ExperimentDTO [experimentId=" + experimentId
-                + ", controlSelectionStrategy=" + controlSelectionStrategy.name()
+                + ", controlSelectionStrategy=" + ((controlSelectionStrategy!=null)?controlSelectionStrategy.name():"null")
                 + ", metadataGroup=" + metadataGroup
                 + ", parameterStableId=" + parameterStableId
                 + ", pipelineStableId=" + pipelineStableId
