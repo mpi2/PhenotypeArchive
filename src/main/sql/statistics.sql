@@ -7,6 +7,7 @@ CREATE TABLE stats_categorical_results (
     id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     control_selection_strategy VARCHAR(100),
 	statistical_method         VARCHAR(50),
+	status                     VARCHAR(200),
 	raw_output                 TEXT,
     control_id                 INT(10) UNSIGNED NOT NULL,
     control_sex                ENUM('female', 'hermaphrodite', 'male'),
