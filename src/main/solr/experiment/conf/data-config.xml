@@ -65,6 +65,7 @@
 				<field column="birthdate" name="date_of_birth" />
 				<field column="sex" name="sex" />
 				<field column="colony_id" name="colony_id" />
+				<field column="sample_group" name="biological_sample_group" />
 	
 			</entity>
 
@@ -89,7 +90,6 @@
 	
 			</entity>
 
-			<field column="sample_group" name="biological_sample_group" />
 			<field column="external_sample_id" name="external_sample_id" />
 
 			<field column="category" name="category" />
