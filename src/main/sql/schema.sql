@@ -55,6 +55,8 @@ DROP TABLE IF EXISTS phenotype_annotation_type;
 DROP TABLE IF EXISTS phenotype_call_summary;
 DROP TABLE IF EXISTS phenotype_annotation;
 DROP TABLE IF EXISTS phenotype_parameter;
+DROP TABLE IF EXISTS phenotype_parameter_lnk_eq_annotation;
+DROP TABLE IF EXISTS phenotype_parameter_eq_annotation;
 DROP TABLE IF EXISTS phenotype_parameter_lnk_ontology_annotation;
 DROP TABLE IF EXISTS phenotype_parameter_lnk_increment;
 DROP TABLE IF EXISTS phenotype_parameter_lnk_option;
@@ -1001,20 +1003,6 @@ CREATE TABLE phenotype_call_summary (
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
-
-/*
- * Store the relationship between a phenotype call and the result that
- * produced the call.  Could refer to either the stats_categorical_result
- * or a stats_unidimensional_result
- */
-CREATE TABLE phenotype_call_summary_stat_result (
-
-    phenotype_call_summary_id INT(10) UNSIGNED NOT NULL,
-    result_id                 INT(10) UNSIGNED NOT NULL,
-
-    PRIMARY KEY (phenotype_call_summary_id, result_id)
-    
-) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
 /*

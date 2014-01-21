@@ -61,8 +61,8 @@ public class CategoricalResult extends StatisticalResult implements Serializable
 	@Column(name = "p_value")
 	private double pValue;
 
-	@Column(name = "max_effect")
-	private double maxEffect;
+	@Column(name = "effect_size")
+	private Double effectSize;
 
 
 	/**
@@ -169,17 +169,17 @@ public class CategoricalResult extends StatisticalResult implements Serializable
 	}
 
 	/**
-	 * @return the maxEffect
+	 * @return the effectSize
 	 */
-	public double getMaxEffect() {
-		return maxEffect;
+	public Double getEffectSize() {
+		return effectSize;
 	}
 
 	/**
-	 * @param maxEffect the maxEffect to set
+	 * @param effectSize the effectSize to set
 	 */
-	public void setMaxEffect(double maxEffect) {
-		this.maxEffect = maxEffect;
+	public void setEffectSize(double effectSize) {
+		this.effectSize = effectSize;
 	}
 
 	@Override
@@ -210,7 +210,7 @@ public class CategoricalResult extends StatisticalResult implements Serializable
 						.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		long temp;
-		temp = Double.doubleToLongBits(maxEffect);
+		temp = Double.doubleToLongBits(effectSize);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result
 				+ ((organisation == null) ? 0 : organisation.hashCode());
@@ -281,8 +281,8 @@ public class CategoricalResult extends StatisticalResult implements Serializable
 		} else if (!id.equals(other.id)) {
 			return false;
 		}
-		if (Double.doubleToLongBits(maxEffect) != Double
-				.doubleToLongBits(other.maxEffect)) {
+		if (Double.doubleToLongBits(effectSize) != Double
+				.doubleToLongBits(other.effectSize)) {
 			return false;
 		}
 		if (organisation == null) {
@@ -312,7 +312,7 @@ public class CategoricalResult extends StatisticalResult implements Serializable
 				" catB="+categoryB+" controlSex="+controlSex+
 				" controlZyg="+controlZygosity+" experimentalZyg="+
 				experimentalZygosity+"  experimentalSex="+experimentalSex+
-				" pValue="+pValue+"  maxEffect="+maxEffect; 
+				" pValue="+pValue+"  effectSize="+effectSize; 
 	}
 	
 	
