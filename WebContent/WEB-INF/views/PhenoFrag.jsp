@@ -28,7 +28,6 @@
 							<th class="headerSort">Procedure / Parameter</th> 
 							<th class="headerSort">Source</th>
 							<th class="headerSort">Graph</th>
-							<%-- <th>Strain</th> --%>
 						</tr>
 					</thead>
 					<tbody>

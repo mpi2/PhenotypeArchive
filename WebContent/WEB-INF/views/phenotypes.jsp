@@ -171,9 +171,9 @@
 		<div class="inner" style="display:block;">	 
 			<div id="phenotypesDiv">	
 				<div class="container span12">
-				<c:forEach var="filterParameters" items="${paramValues.fq}">
-			${filterParameters}
-			</c:forEach>
+					<c:forEach var="filterParameters" items="${paramValues.fq}">
+						${filterParameters}
+					</c:forEach>
 					<c:if test="${not empty phenotypes}">
 						<form id="target" action="www.google.com">
 								<c:forEach var="phenoFacet" items="${phenoFacets}"
