@@ -283,8 +283,8 @@ try {
     			$.fn.qTip({'pageName':'search',
     					'textAlign':'left',
     					'tip':'topLeft',
-    					'posX':235,
-    					'posY':15    					
+    					'posX':0,
+    					'posY':0    					
     			});
     			
     			// non hash tag keyword query

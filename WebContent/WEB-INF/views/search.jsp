@@ -122,7 +122,7 @@
 				
 			    <div class='content'>
 			    	<h2 class='documentation' class='title'>
-						<a href='' id='facetPanel'><i class="fa fa-question-circle pull-right" aria-describedby="qtip-26"></i></a></h2>
+						<a href='' id='facetPanel'><i class="fa fa-question-circle pull-right" aria-describedby="qtip-26"></i></a><span class='qTarget'></span></h2>
 												
 					<div id="leftSideBar" class='rounded-corners span3'>																		
 									

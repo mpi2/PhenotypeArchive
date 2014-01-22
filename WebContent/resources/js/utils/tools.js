@@ -814,9 +814,12 @@
 			        	target: typeof oConf.target != undefined ? oConf.target : 'bottomLeft',
 			        	tooltip: typeof oConf.tip != undefined ? oConf.tip : 'topRight'
 			        },
-			    	adjust: {
+					target: 'mouse',				
+			    	adjust: {			    	
 			        	x: oConf.posX,
-			        	y: oConf.posY
+			        	y: oConf.posY, 
+			    		mouse: false,			    		
+			        	resize: true
 			        }
 			    }	   
 			});			
@@ -1456,7 +1459,7 @@
     			$('div.registerforinterest, td .status').each(function(){
     				$(this).qtip({       			
     					style: { classes: 'qtipimpc flat' },
-    					position: { my: 'top center', at: 'bottom center' },
+    					position: { my: 'top center', at: 'bottom center' },    					
     					content: { text: $(this).attr('oldtitle')}
     				});	
     			});    			   			
