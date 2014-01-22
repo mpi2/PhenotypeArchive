@@ -32,7 +32,7 @@
 
 	<jsp:attribute name="footer">
 	<script>
-		$(document).ready(function(){						
+		$(document).ready(function(){				
 			// bubble popup for brief panel documentation
 			$.fn.qTip({
 				'pageName': 'stats',
@@ -68,6 +68,10 @@
 						<strong>We don't appear to have any data for this query please try the europhenome graph link instead</strong>
 					</div>
 		</c:if>
+		
+		
+		
+		
 		<c:if test="${not noData}">			
 			<jsp:include page="timeSeriesStatsFrag.jsp"/>
 			

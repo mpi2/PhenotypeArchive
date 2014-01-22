@@ -55,6 +55,8 @@ DROP TABLE IF EXISTS phenotype_annotation_type;
 DROP TABLE IF EXISTS phenotype_call_summary;
 DROP TABLE IF EXISTS phenotype_annotation;
 DROP TABLE IF EXISTS phenotype_parameter;
+DROP TABLE IF EXISTS phenotype_parameter_lnk_eq_annotation;
+DROP TABLE IF EXISTS phenotype_parameter_eq_annotation;
 DROP TABLE IF EXISTS phenotype_parameter_lnk_ontology_annotation;
 DROP TABLE IF EXISTS phenotype_parameter_lnk_increment;
 DROP TABLE IF EXISTS phenotype_parameter_lnk_option;
@@ -486,6 +488,8 @@ CREATE TABLE experiment (
     external_id                VARCHAR(50),
     date_of_experiment         TIMESTAMP,
     organisation_id            INT(10) UNSIGNED NOT NULL,  
+    metadata_combined          TEXT,  
+    metadata_group             VARCHAR(50) DEFAULT '',  
     
     PRIMARY KEY(id),
     KEY external_db_idx(db_id),
@@ -847,7 +851,7 @@ CREATE TABLE phenotype_parameter (
     sequence                  INT(10) UNSIGNED NOT NULL,
     media                     TINYINT(1) DEFAULT 0,
     data_analysis             TINYINT(1) DEFAULT 0,
-    data_analysis_notes       VARCHAR(200),
+    data_analysis_notes       TEXT,
     stable_key                INT(10) DEFAULT 0,
  
     PRIMARY KEY (id),
@@ -998,6 +1002,8 @@ CREATE TABLE phenotype_call_summary (
     KEY mp_call_idx (mp_acc)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+
 
 /*
  * Tables below are for the storage of media/image information

@@ -101,10 +101,10 @@
       <str name="echoParams">explicit</str>
       <int name="rows">10</int>
       <str name="df">*</str>
-    </lst>
-    <str name="hl.fl">marker_symbol,marker_name,allele,synonym,mgi_accession_id,human_gene_symbol</str>
+      <str name="hl.fl">marker_symbol,marker_name,allele,synonym,mgi_accession_id,human_gene_symbol</str>
+    </lst>    
   </requestHandler>
-
+  
   <!-- config for the admin interface --> 
   <admin>
     <defaultQuery>solr</defaultQuery>

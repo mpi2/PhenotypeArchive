@@ -32,7 +32,7 @@
 
 	<dataSource name="experiment_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
 
- 	<dataSource name="human2mouse_symbol_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/human2mouse_symbol/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+ 	<dataSource name="human2mouse_symbol_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_ci/human2mouse_symbol/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 
    	<dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/mp/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
 
@@ -45,8 +45,39 @@
 			processor="XPathEntityProcessor" forEach="/response/result/doc/"  transformer="script:set_dataType"  >			
 
 			<field column="mgi_accession_id" xpath="/response/result/doc/str[@name='MGI']" />
-			<field column="dataType" name="dataType"/>	
-	
+			<field column="dataType" name="dataType"/>
+				
+			<!-- allele name of produce type ES cell: tm1/tm1a -->
+			<entity dataSource="allele_core" name="esAlleleName" stream="true" onError="continue"
+				url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:allele&amp;wt=normal&amp;fl=allele_name,type"
+				processor="XPathEntityProcessor" forEach="/response/result/doc/" >				
+			
+				<field column="es_allele_name" xpath="/response/result/doc/str[@name='allele_name']" />											
+			</entity>
+				
+			<!-- mi_attempt allele name -->
+			<entity dataSource="allele_core" name="miAlleleName" stream="true" onError="continue"
+				url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:mi_attempt&amp;wt=normal&amp;fl=allele_name,type,best_status_pa_cre_ex_required"
+				processor="XPathEntityProcessor" forEach="/response/result/doc/" >				
+
+				<field column="mi_allele_type" xpath="/response/result/doc/str[@name='type']" />	
+				<field column="mi_allele_name" xpath="/response/result/doc/str[@name='allele_name']" />
+				<field column="mi_phenotyping_status" xpath="/response/result/doc/str[@name='best_status_pa_cre_ex_required']" />
+											
+			</entity>						
+
+			<!-- phenotype_attempt allele name -->
+			<entity dataSource="allele_core" name="paAlleleName" stream="true" onError="continue"
+				url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:phenotype_attempt&amp;wt=normal&amp;fl=allele_name,type,best_status_pa_cre_ex_required"
+				processor="XPathEntityProcessor" forEach="/response/result/doc/" >				
+
+				<field column="pa_allele_type" xpath="/response/result/doc/str[@name='type']" />	
+				<field column="pa_allele_name" xpath="/response/result/doc/str[@name='allele_name']" />
+				<field column="pa_phenotyping_status" xpath="/response/result/doc/str[@name='best_status_pa_cre_ex_required']" />	
+					
+			</entity>		
+
+
 			<!-- allele name of produce type ES cell: tm1/tm1a -->
 			<entity dataSource="allele_core" name="esAlleleName" stream="true" onError="continue"
 				url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:allele&amp;wt=normal&amp;fl=allele_name,type"
@@ -207,5 +238,5 @@
 
 		</entity>
 	</document>
-
+	
 </dataConfig>
