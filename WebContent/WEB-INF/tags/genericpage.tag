@@ -38,6 +38,7 @@
 <%@attribute name="title" fragment="true"%>
 <%@attribute name="breadcrumb" fragment="true"%>
 <%@attribute name="bodyTag" fragment="true"%>
+<%@attribute name="addToFooter" fragment="true"%>
 
 <% // the baseUrl variable is set from the DeploymentInterceptor class %>
 
@@ -66,12 +67,11 @@
 <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.slider.css">
-<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.theme.css">
+<!-- link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.theme.css"-->
 <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
 <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.fancybox-1.3.4.css">
 <link href="${baseUrl}/css/default.css?cache=09-01-14" rel="stylesheet" type="text/css" />
-<link href="${baseUrl}/css/heatmap.css?cache=09-01-14" rel="stylesheet" type="text/css" />
 <link href="${baseUrl}/css/wdm.css?cache=09-01-14" rel="stylesheet" type="text/css" />
 
 <!-- EBI CSS -->
@@ -198,6 +198,7 @@ try {
         </div>        
 
     </header>   
+    
         <div id="main">
                 <div class="breadcrumb">
                    <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invoke fragment="breadcrumb" /><%-- breadcrumbs here --%>   
@@ -205,7 +206,7 @@ try {
                 
                 <jsp:doBody />               
                         
-		        </div><!-- /main -->
+		     </div><!-- /main -->
         
     <footer id="footer">
     
@@ -254,6 +255,8 @@ try {
             </div>
         
         </div>
+        
+        <jsp:invoke fragment="addToFooter"/>
         
     </footer>
                     
@@ -314,6 +317,7 @@ try {
     					// make sure checkboxes are updated according to url
     					
     					oHa$('input#s').val();shParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;
+                
     					oHashParams.widgetName += 'Facet';
     					
     					if ( oHashParams.coreName ){
@@ -373,4 +377,3 @@ try {
         </compress:html>
         </div> <!-- wrapper -->
 </body>
-</html>
