@@ -299,7 +299,7 @@ public class UnidimensionalChartAndTableProvider {
 				wt1.add(new Float(Q1));// lower quartile
 
 				Float decFloat = ChartUtils.getDecimalAdjustedFloat(new Float(
-						stats.getMean()), 1);
+						stats.getMean()), decimalPlaces);
 				wt1.add(decFloat);// median
 				wt1.add(new Float(Q3));// upper quartile
 
