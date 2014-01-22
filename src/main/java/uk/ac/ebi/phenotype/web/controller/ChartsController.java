@@ -175,11 +175,8 @@ public class ChartsController {
 			zyList.add(ZygosityType.heterozygote.name());
 			zyList.add(ZygosityType.hemizygote.name());
 		}
-		List<String> phenotypingCenters = getParamsAsList(phenotypingCenter);
-
-		List<UnidimensionalDataSet> allUnidimensionalDataSets = new ArrayList<>();
-
-		List<Parameter> parameters = new ArrayList<>();
+		
+		//List<Parameter> parameters = new ArrayList<>();
 
 		Set<String> allGraphUrlSet = new HashSet<String>();
 		for (String parameterId : paramIds) {
@@ -190,91 +187,16 @@ public class ChartsController {
 				throw new ParameterNotFoundException("Parameter " + parameterId
 						+ " can't be found.", parameterId);
 			}
-
-			parameters.add(parameter);
-			String[] parameterUnits = parameter.checkParameterUnits();
-			String xUnits = "";
-			String yUnits = "";
-
-			if (parameterUnits.length > 0) {
-				xUnits = parameterUnits[0];
-			}
-			if (parameterUnits.length > 1) {
-				yUnits = parameterUnits[1];
-			}
-
-			ObservationType observationTypeForParam = Utilities
-					.checkType(parameter);
-			log.info("param=" + parameter.getName() + " Description="
-					+ parameter.getDescription() + " xUnits=" + xUnits
-					+ " yUnits=" + yUnits + " dataType="
-					+ observationTypeForParam);
-
-			if (parameter.isIncrementFlag()) {
-				for (ParameterIncrement increment : parameter.getIncrement()) {
-
-					// proper time-series data will 0,15,30 etc?
-					// grip strength ESLIM_009_001_002 - not timed but increment
-					// value unit = number increment values 1,2,3 so attempts at
-					// any time not specific times
-					// oxygne consumption ESLIM_003_001_003
-					// systolic arterial pressure datatype= something different?
-					// distance travelled ESLIM_007_001_001 increment unit
-					// minutes, increment values 5,10,15 etc
-					// grip strength repeat experiment url=
-					// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1916658?parameterId=ESLIM_009_001_002
-					// increment=Value: 3; dataType: REPEAT; unit: number;
-					// minimum: 0 increment min=0 data typ=REPEATnumber
-					// oxygen conusmption will not have increments?
-					// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:102674?parameterId=ESLIM_003_001_003&gender=male&zygosity=homozygote
-					// increment=Value: ; dataType: REPEAT; unit: Time in hours
-					// relative to lights out; minimum: 0 increment min=0 data
-					// typ=REPEATTime in hours relative to lights out
-					// https://www.mousephenotype.org/data/stats/genes/MGI:2141881?parameterId=ESLIM_007_001_002
-					// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:2141881?parameterId=ESLIM_007_001_002
-					if (increment.getUnit().equals("")) {
-
-						// if increment flag true and increment unit is empty
-						// then display as unidimensional
-						// e.g.
-						// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1098275?parameterId=ESLIM_002_001_002&gender=female&zygosity=heterozygote
-						// as per ticket
-						// https://www.ebi.ac.uk/panda/jira/browse/MPII-145
-						log.info("increment is empty !!!!!!!!!");
-						log.warn("changing parameter type from time_series to unidimensional");
-						observationTypeForParam = ObservationType.unidimensional;
-					}
-
-					log.debug("increment=" + increment + " increment min="
-							+ increment.getMinimum() + " data typ="
-							+ increment.getDataType() + increment.getUnit());
-
-				}
-
-			}
 			// instead of an experiment list here we need just the outline of
 			// the experiments - how many, observation types
-
 			Set<String> graphUrlsForParam = graphUtils.getGraphUrls(acc,
-					parameter.getStableId(), genderList, zyList, parameter.getName(), xUnits, yUnits);
+					parameter.getStableId(), genderList, zyList, parameter.getName());
 			allGraphUrlSet.addAll(graphUrlsForParam);
 
 		}// end of parameterId iterations
 
 		model.addAttribute("allGraphUrlSet", allGraphUrlSet);
-		// model.addAttribute("allUnidimensionalDataSets",
-		// allUnidimensionalDataSets);
-		// model.addAttribute("timeSeriesMutantBiologicalModels",
-		// timeSeriesMutantBiologicalModels);
-		// model.addAttribute("timeSeriesChartsAndTables",
-		// timeSeriesChartsAndTables);
-		// model.addAttribute("categoricalMutantBModel",
-		// categoricalMutantBiologicalModels);
-		// model.addAttribute("allCategoricalResultAndCharts",
-		// allCategoricalResultAndCharts);
-		// model.addAttribute("statsError", statsError);
-		// model.addAttribute("noData", noData);
-		model.addAttribute("parameters", parameters);
+		//model.addAttribute("parameters", parameters);
 		return "stats";
 	}
 
@@ -323,7 +245,7 @@ public class ChartsController {
 			@RequestParam(required = false, value = "metadata_group") String[] metadataGroup,
 			@RequestParam(required = false, value = "parameterId") String[] parameterIds,
 			@RequestParam(required = false, value = "parameterStableId") String[] parameterStableIds,
-			@RequestParam(required = false, value = "gender") String gender,//only have one gender per graph
+			@RequestParam(required = false, value = "gender") String[] gender,//only have one gender per graph
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
 			@RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter,
 			@RequestParam(required = false, value = "strategy") String[] strategies,
@@ -364,6 +286,9 @@ public class ChartsController {
 				+ parameter.getDescription() + " xUnits=" + xUnits + " yUnits="
 				+ yUnits + " dataType=" + observationTypeForParam);
 
+		
+		List<String> genderList = getParamsAsList(gender);
+		
 		// System.out.println("paramId="+parameter.getId());
 		// Use the first phenotyping center passed in (ignore the others?)
 		// should only now be one center at this stage for one graph/experiment
@@ -387,9 +312,12 @@ public class ChartsController {
 		// accession[0], gender[0], zygosity[0], phenotypingCenterIdInt);
 		// TDO handle male and female appropriately
 		List<ExperimentDTO> experimentList = experimentService
-				.getExperimentDTO(parameterIds[0], accession[0],
-						SexType.valueOf(gender), phenotypingCenterId,
-						ZygosityType.homozygote.toString(), strain[0]);
+				.getSpecificExperimentDTO(parameter.getId(), accession[0],
+						genderList, zyList,phenotypingCenterId,
+						 strain[0]);
+		
+		//getSpecificExperimentDTO(Integer id, String acc,
+		//List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain)
 		System.out.println("experiment list size=" + experimentList.size());
 		log.info(experimentList.toString());
 		if (!experimentList.isEmpty()) {
@@ -403,7 +331,7 @@ public class ChartsController {
 		String title=parameter.getName();
 		String xAxisTitle=xUnits;//set up some default strings here that most graphs will use?
 		String yAxisTitle= yUnits;
-		String subTitle=gender;
+		//String subTitle=gender;
 			try {
 
 				switch (observationTypeForParam) {
@@ -413,28 +341,28 @@ public class ChartsController {
 				
 				 unidimensionalChartNTable =
 				 continousChartAndTableProvider.doUnidimensionalData(experimentList.get(0),
-				 chartId, title, subTitle,
-				 gender, zyList, ChartType.UnidimensionalBoxPlot, false, null, yAxisTitle);
+				 chartId, title,
+				 genderList, zyList, ChartType.UnidimensionalBoxPlot, false, yAxisTitle);
 				 break;
 				
-				case categorical:
-					// https://dev.mousephenotype.org/mi/impc/dev/phenotype-archive/stats/genes/MGI:1346872?parameterId=ESLIM_001_001_004
-
-					 categoricalResultAndChart = categoricalChartAndTableProvider
-							.doCategoricalData(experimentList.get(0), parameter,
-									accession[0], gender, zyList, chartId,
-									categoricalTables, parameterIds[0]);
-					
-					break;
-
-				case time_series:
-					// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
-
-					timeSeriesForParam = timeSeriesChartAndTableProvider
-							.doTimeSeriesData(experimentList.get(0), parameter, gender,
-									zyList, chartId);
-					
-					break;
+//				case categorical:
+//					// https://dev.mousephenotype.org/mi/impc/dev/phenotype-archive/stats/genes/MGI:1346872?parameterId=ESLIM_001_001_004
+//
+//					 categoricalResultAndChart = categoricalChartAndTableProvider
+//							.doCategoricalData(experimentList.get(0), parameter,
+//									accession[0], gender, zyList, chartId,
+//									categoricalTables, parameterIds[0]);
+//					
+//					break;
+//
+//				case time_series:
+//					// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
+//
+//					timeSeriesForParam = timeSeriesChartAndTableProvider
+//							.doTimeSeriesData(experimentList.get(0), parameter, gender,
+//									zyList, chartId);
+//					
+//					break;
 
 				default:
 					// Trying to graph Unknown observation type
@@ -448,7 +376,7 @@ public class ChartsController {
 				statsError = true;
 			}
 			String unichart="";
-			if(unidimensionalChartNTable!=null)unichart=unidimensionalChartNTable.getSexChartAndTables().get(0).getChart();
+			if(unidimensionalChartNTable!=null)unichart=unidimensionalChartNTable.getChartAndTables().getChart();
 			model.addAttribute("unidimensionalChart", unichart);
 			model.addAttribute("categoricalResultAndChart",
 					categoricalResultAndChart);

@@ -6,7 +6,7 @@
 					<%-- <c:forEach var="unidimensionalChartsAndTable" items="${unidimensionalDataSet.sexChartAndTables}" varStatus="uniDimensionalLoop">
  					${loop.count  % 2}
  --%>
-  				chartString should be dipslayed here	${unidimensionalChartsAndTable}
+  				chartString should be dipslayed here	${unidimensionalChart}
    								<script type="text/javascript">
    
    								$(function () {
@@ -16,19 +16,19 @@
 		
 				<%-- </c:forEach>
 				 --%>
-		</div><!-- end of chart row-fluid -->
+		<%-- </div><!-- end of chart row-fluid -->
 		<table id="continuousTable${uniDimensionalLoop.count}" class="table table-bordered  table-striped table-condensed">
 		<thead><tr>
 		<th>Line</th>
 		<th>Zygosity</th>
-			<%-- <th>Sex</th> --%>
+			<th>Sex</th>
 			<th>Mean</th>
 			<th>SD</th>
 			<th>Sex</th>
 			<th>Count</th>
 			<th>Effect Size</th>
 			<th>pValue</th>
-		<%-- <th>${tables[loop.count-1].xAxisCategories[1]}</th><th>${tables[loop.count-1].xAxisCategories[2]}</th> --%>
+		<th>${tables[loop.count-1].xAxisCategories[1]}</th><th>${tables[loop.count-1].xAxisCategories[2]}</th>
 		</tr></thead>
 		<tbody>									
 										
@@ -44,14 +44,14 @@
 												<td>${statsObject.zygosity}</td>
 												</c:when>
 												</c:choose>
-												<%-- <c:choose>
+												<c:choose>
 												<c:when test="${statsObject.line =='Control' }">
 												<td>Mixed</td>
 												</c:when>
 												<c:when test="${statsObject.line !='Control' }">
 												<td>${statsObject.sexType}</td>
 												</c:when>
-												</c:choose> --%>
+												</c:choose>
 												
 												<td>${statsObject.mean}</td>
 												<td>${statsObject.sd}</td>
@@ -69,10 +69,10 @@
 												
 									
 										
-										<%-- <td>${tables[loop.count-1].seriesDataForCategoricalType[0][0]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[0][1]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[0][2]}</td>
-										 </tr>--%>
-										<%-- <tr><td>${tables[loop.count-1].categories[1]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[1][0]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[1][1]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[1][2]}</td>
-										 </tr>--%>
+										<td>${tables[loop.count-1].seriesDataForCategoricalType[0][0]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[0][1]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[0][2]}</td>
+										 </tr>
+										<tr><td>${tables[loop.count-1].categories[1]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[1][0]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[1][1]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[1][2]}</td>
+										 </tr>
 										</tbody>
 										</table>
 				
@@ -81,10 +81,10 @@
 				<div class="row-fluid">
 						<div class="container span12">
 						<table class="ttable table-bordered  table-striped table-condensed">
-						<%-- ${fn:length(unidimensionalDataSet.allUnidimensionalResults)} --%>
+						${fn:length(unidimensionalDataSet.allUnidimensionalResults)}
 						
  							<c:forEach var="data" items="${unidimensionalDataSet.allUnidimensionalResults}">
- 							<%-- <td>${data.significanceClassification}</td> --%>
+ 							<td>${data.significanceClassification}</td>
  									<c:choose>
           									<c:when test="${data.significanceClassification == 'both_equally' || data.significanceClassification == 'none'  || data.significanceClassification == 'cannot_classify' }">
           												<tr><th>Global Test</th><th>Significance/Classification</th><th>Effect</th></tr>
@@ -100,7 +100,7 @@
 									</c:forEach>
  	 							</table>
  	 							
- 	 		<%-- <table class="ttable table-bordered  table-striped table-condensed">
+ 	 		<table class="ttable table-bordered  table-striped table-condensed">
 						<tr>
 						<th>colonyId</th>
 						<th>experimentalZygosity</th>
@@ -171,7 +171,7 @@
  							<td>${data.genderMaleKoPValue }</td>
  							</tr>
 						</c:forEach>
- 	 					</table>--%>
+ 	 					</table>
  	 							
  						</div>
  				</div>
@@ -268,6 +268,6 @@
 									});
 						}
 					});
-</script>	
+</script>	 --%>
 	<!-- </div> -->
 

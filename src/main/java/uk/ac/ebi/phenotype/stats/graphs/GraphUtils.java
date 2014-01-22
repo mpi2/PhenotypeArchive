@@ -17,19 +17,13 @@ public class GraphUtils {
 		this.experimentService=experimentService;
 	}
 	public Set<String> getGraphUrls(String acc,
-			String parameterStableId, List<String> genderList, List<String> zyList, String parameterName, String xUnit, String yUnit) throws SolrServerException {
+			String parameterStableId, List<String> genderList, List<String> zyList, String parameterName) throws SolrServerException {
 		Set<String>urls=new HashSet<String>(); //each url should be unique and so we use a set
 		Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameterStableId);
             
             //for each parameter we want the unique set of urls to make ajax requests for experiments
             String seperator="&";
             String accessionAndParam="accession="+acc+seperator+"parameterId="+parameterStableId;
-            if(xUnit!=null) {
-            accessionAndParam+=seperator+"xUnit="+xUnit;
-            }
-            if(yUnit!=null) {
-            	accessionAndParam+=seperator+"yUnit="+yUnit;
-            }
             //add  sex and zyg
             String zygosities="";
 	       
@@ -40,13 +34,16 @@ public class GraphUtils {
             List <String>centersList=keyList.get(ObservationService.ExperimentField.PHENOTYPING_CENTER);
             List <String>strains=keyList.get(ObservationService.ExperimentField.STRAIN);
             List<String> metaDataGroupStrings=keyList.get(ObservationService.ExperimentField.METADATA_GROUP);
-            
+            String genderString="";
+            for(String sex:genderList) {
+            	genderString+=seperator+"&gender="+sex;
+            }
             for(String center:centersList) {
             	for(String strain:strains) {
             		for(String metaGroup: metaDataGroupStrings) {
-            			 for(String sex:genderList) {
-            			urls.add(accessionAndParam+seperator+"&gender="+sex+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+ObservationService.ExperimentField.METADATA_GROUP+"="+metaGroup);
-            			 }
+            			
+            			urls.add(accessionAndParam+seperator+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+ObservationService.ExperimentField.METADATA_GROUP+"="+metaGroup);
+            			
             		}
             	}
             }

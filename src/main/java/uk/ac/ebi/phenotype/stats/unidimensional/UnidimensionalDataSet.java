@@ -28,12 +28,12 @@ public class UnidimensionalDataSet {
 		this.experimentId = experimentId;
 	}
 
-	private List<ChartData> sexChartAndTables;
-	public List<ChartData> getSexChartAndTables() {
-		return sexChartAndTables;
+	private ChartData chartAndTables;
+	public ChartData getChartAndTables() {
+		return chartAndTables;
 	}
-	public void setSexChartAndTables(List<ChartData> sexChartAndTables) {
-		this.sexChartAndTables = sexChartAndTables;
+	public void setChartAndTables(ChartData chartAndTables) {
+		this.chartAndTables = chartAndTables;
 	}
 	
 	public List<UnidimensionalResult> getAllUnidimensionalResults() {
