@@ -213,7 +213,10 @@
 											<p>Gene&nbsp;Location: Chr<span id='chr'>${gene.sequenceRegion.name}</span>:<span id='geneStart'>${gene.start}</span>-<span id='geneEnd'>${gene.end}</span> <br/> Gene Type: ${gene.subtype.name}</p>
 												
 											<div class="container span6" id="geneLocation1">
-							
+											<span id="genomicBrowserInfo">
+												<span class="label label-info" rel="tooltip"  title="This browser is clickable please experiment by clicking. Click on features to get more info, click on zoom bar etc. To reset click on 'lightning button'" disabled>This is an interactive genomic browser </span>
+												<a href="http://www.biodalliance.org/"><i class="icon-question-sign" rel="tooltip" title="More information on using this browser"></i></a>
+											</span>
 											<div class="container span12"  id="svgHolder"></div>
 										<table>
 											<tbody>
@@ -304,7 +307,7 @@
 		
 		<!--  Phenotype Associations Panel -->
 		<div class="section">
-			<h2 class="title " id="section-associations"> Phenotype associations for ${gene.symbol} <span class="documentation"><a href='' class='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span></h2>
+			<h2 class="title documentation" id="section-associations"> Phenotype associations for ${gene.symbol} <a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span></h2>
 			<div class="inner">
 				<div class="abnormalities">TODO</div>
 				<c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
@@ -390,14 +393,13 @@
 				
 		<c:if test="${phenotypeStarted}">
 			<div class="section">
-			  
 			  <h2 class="documentation title" id="heatmap">Pre-QC phenotype heatmap -
 					<c:forEach items="${allColonyStatus}" var="colonyStatus">
 						<c:if test="${colonyStatus.phenotypeStarted == 1}">
 							${colonyStatus.alleleName}<%-- </td><td>${colonyStatus.backgroundStrain}</td><td>${colonyStatus.phenotypeCenter}</td></tr> --%>
 						</c:if>
 					</c:forEach>	
-					<a href='' class='mpPanel'><i class="fa fa-question-circle pull-right"></i></a>
+					<a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a>
 				</h2>
 				
 				<div class="inner">
@@ -420,8 +422,7 @@
 		
 			<c:if test="${not empty solrFacets}">
 				<div class="section">
-			    <div class='documentation'><a href='' class='imagePanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-			    	<h2 class="title">Phenotype Associated Images  <a href='${baseUrl}/images?gene_id=${acc}&fq=!expName:"Wholemount%20Expression"'><small>Show All Images</small></a></h2>
+			    	<h2 class="title documentation">Phenotype Associated Images  <a href='${baseUrl}/images?gene_id=${acc}&fq=!expName:"Wholemount%20Expression"'><small>Show All Images</small></a><a href='' id='imagePanel'><i class="fa fa-question-circle pull-right" aria-describedby="qtip-26"></i></a></h2>
 			    	<div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	
 						<div class="inner">         		
 							<div class="accordion" id="accordion1">
@@ -454,8 +455,8 @@
 					
 			<c:if test="${not empty expressionFacets}">
 			<div class="section">
-				<div class='documentation'><a href='' class='expressionPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-				<h2 class="title">Expression</h2><div id="showAllExpression"></div>
+				<h2 class="title documentation">Expression <a href='' id='expressionPanel'><i class="fa fa-question-circle pull-right" aria-describedby="qtip-26"></i></a></h2>
+				<div id="showAllExpression"></div>
 				<div class="inner">			
 					<div class="container span12">				
 					</div>
@@ -494,8 +495,7 @@
 			</c:if>
 		
 			<div class="section">
-				<div class='documentation'><a href='' class='allelePanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-				<h2 class="title">ES Cell and Mouse Alleles</h2>	
+				<h2 class="title documentation">ES Cell and Mouse Alleles <a href='' id='allelePanel'><i class="fa fa-question-circle pull-right" aria-describedby="qtip-26"></i></a></h2>	
 				    <div class="inner"> 			
 						<div id="allele_tracker_panel_results">&nbsp;</div>
 						<c:choose>
