@@ -28,7 +28,7 @@ function getProxyUri(originalUrl) {
 	var localUrl = originalUrl;
 
 	//if on localhost just return the original url
-	if(root == '//localhost:8080' || root == '//localhost:8080') {
+	if(root == '//localhost:8080') {
 		return originalUrl;
 	}else{
 		if(originalUrl.indexOf('//www.ebi.ac.uk/mi/ws/dazzle-ws/das/') != -1){
