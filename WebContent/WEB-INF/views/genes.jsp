@@ -109,13 +109,11 @@
 			#allele_tracker_panel_results td:nth-of-type(7):before {content: "Order"}
 		}
 		#svgHolder div div {z-index:100;}
-		.ui-dropdownchecklist-selector > .ui-icon {margin-top:4px;}
-		.ui-dropdownchecklist-text {padding:2px;margin:0;}
 		</style>
 	
 		<c:if test="${phenotypeStarted}">
 	    <!--[if !IE]><!-->
-	    <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css">
+	    <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css"/>
 	    <!--<![endif]-->
 	    <!--[if IE 8]>
 	    <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmapIE8.1.3.1.css">
@@ -355,7 +353,7 @@
 										</div> 
 									<c:if test="${not empty phenotypes}">
 										<div class="tablefiltering">
-											<form class="no-style" id="target" action="destination.html">
+											<form class="no-style tablefiltering" id="target" action="destination.html">
 												<c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
 													<select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
 														<c:forEach var="facet" items="${phenoFacet.value}">
@@ -364,6 +362,7 @@
 													</select> 
 												</c:forEach>
 											</form>
+											<div class="clear"></div>
 										</div>
 										
 										<c:set var="count" value="0" scope="page" />
@@ -388,18 +387,19 @@
 				</c:if>
 			</div>
 		</div>
-		
-		
-			<c:if test="${phenotypeStarted}">
+				
+		<c:if test="${phenotypeStarted}">
 			<div class="section">
-			    <h2 class="documentation title" id="heatmap">Pre-QC phenotype heatmap -
-						<c:forEach items="${allColonyStatus}" var="colonyStatus">
-								<c:if test="${colonyStatus.phenotypeStarted == 1}">
-									${colonyStatus.alleleName}<%-- </td><td>${colonyStatus.backgroundStrain}</td><td>${colonyStatus.phenotypeCenter}</td></tr> --%>
-								</c:if>
-						</c:forEach>	
-						<a href='' class='mpPanel'><i class="fa fa-question-circle pull-right"></i></a>
-					</h2>
+			  
+			  <h2 class="documentation title" id="heatmap">Pre-QC phenotype heatmap -
+					<c:forEach items="${allColonyStatus}" var="colonyStatus">
+						<c:if test="${colonyStatus.phenotypeStarted == 1}">
+							${colonyStatus.alleleName}<%-- </td><td>${colonyStatus.backgroundStrain}</td><td>${colonyStatus.phenotypeCenter}</td></tr> --%>
+						</c:if>
+					</c:forEach>	
+					<a href='' class='mpPanel'><i class="fa fa-question-circle pull-right"></i></a>
+				</h2>
+				
 				<div class="inner">
 					<div class="messages errors">
 						<h5>Caution</h5>
@@ -407,18 +407,16 @@
 					</div>
 				</div>
 				<div class="dcc-heatmap-root">
-		       	<div class="phenodcc-heatmap" id="phenodcc-heatmap"></div>
+		     	<div class="phenodcc-heatmap" id="phenodcc-heatmap"></div>
 				</div>
 			</div> <!-- section end -->
 			</c:if>
-		
 		
 			<c:if test="${not empty imageErrors}">
 				<div class="row-fluid dataset">
 					<div class="alert"><strong>Warning!</strong>${imageErrors }</div>
 				</div>
 			</c:if>
-		
 		
 			<c:if test="${not empty solrFacets}">
 				<div class="section">
@@ -452,8 +450,7 @@
 					</div>
 				</div>
 			</c:if>
-		
-					
+							
 					
 			<c:if test="${not empty expressionFacets}">
 			<div class="section">

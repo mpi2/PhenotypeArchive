@@ -7,3 +7,16 @@ form.no-style{
 	border:none;
 	padding:none;
 }
+
+.filtersMoreLikeNicolas{
+	background: white;
+	padding: 0.5em; 
+	overflow-y: auto;
+	display: none;
+}
+.filtersMoreLikeNicolas.open{
+	display: block; 
+}
+.filtertype_add.open{
+	background:white;
+}
