@@ -355,8 +355,7 @@
 											</c:forEach>
 										</div> 
 									<c:if test="${not empty phenotypes}">
-										<div class="tablefiltering">
-											<form class="no-style tablefiltering" id="target" action="destination.html">
+											<form class="tablefiltering no-style" id="target" action="destination.html">
 												<c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
 													<select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
 														<c:forEach var="facet" items="${phenoFacet.value}">
@@ -364,10 +363,10 @@
 														</c:forEach>
 													</select> 
 												</c:forEach>
+											<div class="clear"></div>
 											</form>
 											<div class="clear"></div>
-										</div>
-										
+																				
 										<c:set var="count" value="0" scope="page" />
 										<c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
 											<c:forEach var="sex" items="${phenotype.sexes}"><c:set var="count" value="${count + 1}" scope="page"/></c:forEach>
