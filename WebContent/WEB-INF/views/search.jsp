@@ -26,8 +26,9 @@
 	    (2) the back or forward button is clicked
 	    The params are parsed to load dataTable -->
 	
-	<script type="text/javascript">
-	/*jQuery(document).ready(function($){	
+	<!-- <script type="text/javascript">
+	jQuery(document).ready(function($){	
+		
 		
 			$.fn.qTip({'pageName':'search',
 					'textAlign':'left',
@@ -69,8 +70,8 @@
 				}
 			});						
 			
-		});*/
-	</script>
+		});
+	</script>-->
 	<!-- end of hash state stuff -->	
 	
 	</jsp:attribute>
@@ -103,13 +104,67 @@
 		</div>-->
 		
 		<div class="region region-sidebar-first">
-			<div id='facet' class='block'>	
+			<div id='facet' class='fblock block'>	
 				<div class="head">Filter your search</div>
-				
+				<div class='content'>
+				    <div class="ffilter">
+						<ul id="facetFilter">
+							<li class="has-sub gene">
+							<li class="has-sub mp">
+							<li class="has-sub ma">
+							<li class="has-sub pipeline"></li>
+							<li class="has-sub images"></li>
+							<li class="has-sub disease"></li>
+						</ul>
+						<div id="resetFilter"><a href="${baseUrl}/search">Remove all filters</a></div>
+					</div>
+										
+					<p class='documentation' class='title textright'>
+						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+					</p>
+										
+					<div id='facetSrchMsg'><img src='img/loading_small.gif' /> Processing search ...</div> 
+					<div class="flist">
+						<ul>
+							<li class="fmcat open" id="gene">
+								<span class="flabel">Genes</span>
+								<span class="fcount"></span>
+								<ul></ul>
+							</li>
+							<li class="fmcat" id="mp">
+								<span class="flabel">Phenotypes</span>
+								<span class="fcount"></span>
+								<ul></ul>
+							</li>
+							<li class="fmcat" id="disease">
+								<span class="flabel">Diseases</span>
+								<span class="fcount"></span>
+								<ul></ul>
+							</li>
+							<li class="fmcat" id="ma">
+								<span class="flabel">Anatomy</span>
+								<span class="fcount"></span>
+								<ul></ul>
+							</li>
+							<li class="fmcat" id="pipeline">
+								<span class="flabel">Procedures</span>
+								<span class="fcount"></span>
+								<ul></ul>
+							</li>
+							<li class="fmcat" id="images">
+								<span class="flabel">Images</span>
+								<span class="fcount"></span>
+								<ul></ul>
+							</li>
+						</ul>
+					</div>				
+				</div>
+			</div>	
+		</div>	
 				<!-- facet filter block -->
 				<!-- search filter display -->
-		        <div id='filterToggle'><span>Show facet filters</span></div>             		
-			   	<ul id='facetFilter'> 
+		        <!-- <div id='filterToggle'><span>Show facet filters</span></div>-->             		
+			   	<!-- <ul id='facetFilter'> 
 			   	    <li class='has-sub none'>no filter added</li>
 			   		<li class='has-sub gene'>Genes</li>
 			   		<li class='has-sub mp'>Phenotypes</li>
@@ -122,11 +177,11 @@
 				
 			    <div class='content'>
 			    	<h2 class='documentation' class='title'>
-						<a href='' id='facetPanel'><i class="fa fa-question-circle pull-right" aria-describedby="qtip-26"></i></a><span class='qTarget'></span></h2>
+						<a href='' id='facetPanel'><i class="fa fa-question-circle pull-right" aria-describedby="qtip-26"></i></a></h2>
 												
 					<div id="leftSideBar" class='rounded-corners span3'>																		
 									
-						<!-- <div id='facetBrowser'><img src='img/loading_small.gif' /> Processing search ...</div>--> 
+						<!-- <div id='facetSrchMsg''><img src='img/loading_small.gif' /> Processing search ...</div> 
 						<div id='geneFacet'>
 							<div><div class='facetCat'>Genes</div><span class='facetCount countDisplay'></span></div>
 							<div class='facetCatList'></div>
@@ -153,9 +208,9 @@
 						</div>
 					</div>
 				</div>	
-				<!--  end of facet skeleton on left sidebar -->
+				
 			</div>
-		</div>	
+		</div>	-->
 		<div class="region region-content">
 			<div class="block block-system">
 				<div class='content'>
@@ -206,20 +261,8 @@
 								</p>
 						</div>
 					</div>	
-					<!-- facet filter block -->
-					<!-- search filter display -->
-			        <div id='filterToggle'><span>Show facet filters</span></div>             		
-				   	<ul id='facetFilter'> 
-				   	    <li class='has-sub none'>no filter added</li>
-				   		<li class='has-sub gene'>Genes</li>
-				   		<li class='has-sub mp'>Phenotypes</li>
-						<li class='has-sub ma'>Anatomy</li>	 
-						<li class='has-sub pipeline'>Procedures</li>
-						<li class='has-sub images'>Images</li>
-						<li class='has-sub disease'>Diseases</li>
-					</ul>
-					<div id='resetFilter'><a href="${baseUrl}/search">Remove all filters</a></div>   
-								
+					<div class="clear"></div>
+					<!-- facet filter block -->								
 					<!-- container to display dataTable -->									
 					<div class="HomepageTable" id="mpi2-search"></div>				
 				</div>

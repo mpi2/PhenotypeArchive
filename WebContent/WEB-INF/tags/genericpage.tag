@@ -113,7 +113,7 @@ try {
 
 <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
 <!--[if lt IE 9]>
-        <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
         <style>
         #logoImage {margin: 5px; padding:5px;}
         .container .container .navbar .navbar-inner {width:100%}
@@ -121,11 +121,8 @@ try {
         </style>
 <![endif]-->
 
-<!-- jquery -->
-<!-- script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
-<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js'></script>
-<script>window.jQuery || document.write('<script src="${baseUrl}/js/vendor/jquery-1.7.2.min.js"><\/script><script src="${baseUrl}/js/vendor/jquery-ui-1.8.18.min.js"><\/script><link type="text/css" rel="stylesheet" href="${baseUrl}/css/vendor/jquery-ui-1.8.18.css" />');</script-->
-
+<!-- if jquery CDN site is down, use local copy -->
+<script>window.jQuery || document.write('<script src="${baseUrl}/js/vendor/jquery-1.10.2.min.js"><\/script><script src="${baseUrl}/js/vendor/jquery-ui.1.10.3.min.js"><\/script><link type="text/css" rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css" />');</script>                                                                                                                                                                                                                        
 
 <!-- NEW DESIGN JAVASCRIPT -->
 
@@ -280,11 +277,11 @@ try {
          <script>
         $(document).ready(function() {        		
         	$(document).ready(function(){	
-    			$.fn.qTip({'pageName':'search',
-    					'textAlign':'left',
+    			$.fn.qTip({'pageName':'search'
+    					/*'textAlign':'left',
     					'tip':'topLeft',
     					'posX':0,
-    					'posY':0    					
+    					'posY':0*/    					
     			});
     			
     			// non hash tag keyword query
@@ -303,7 +300,7 @@ try {
     				console.log('hash change URL: '+ '/search' + url);
     				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
     				
-    				//console.log(oHashParams);								
+    				console.log(oHashParams);								
     				if ( window.location.search.match(/q=/) ){
     					oHashParams.q = window.location.search.replace('?q=','')
     				}
@@ -316,7 +313,7 @@ try {
     					// back/forward button navigation: 
     					// make sure checkboxes are updated according to url
     					
-    					oHa$('input#s').val();shParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;
+    					oHashParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;
                 
     					oHashParams.widgetName += 'Facet';
     					
@@ -348,6 +345,8 @@ try {
     				}
     			});
     						
+    						
+    			/*	deprecated		
     			$('div#filterToggle').click(function(){	
     				console.log('filter');
     				var ul = $('ul#facetFilter');	
@@ -359,7 +358,9 @@ try {
     					ul.show();				
     					$(this).find('span').text('Show facet filters');
     				}
-    			});
+    			});*/
+    			
+    			
     			
     		});     	
         	

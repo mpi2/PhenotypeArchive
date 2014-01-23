@@ -22,7 +22,34 @@
  */
 (function($){	
 	
-	
+	$.fn.initFacetToggles = function(){
+		
+		// toggle Main Categories
+		$('.fmcat > .flabel').on('click',function() {
+			if ($(this).parent('.fmcat').hasClass('open')) {
+				$(this).parent('.fmcat').removeClass('open');
+			} 
+			else {
+				$('.fmcat').removeClass('open');
+				$(this).parent('.fmcat').addClass('open');
+			}
+		});
+		
+		// toggle Categorie Sections
+		$('.fcatsection:not(.inactive) .flabel').on('click',function() { 
+			$(this).parent('.fcatsection').toggleClass('open') 
+		});
+		
+		// make categories clickable (not only the checkbox itself)
+		$('.fcat .flabel').on('click',function() {
+				$(this).prev('input').trigger('click');
+		});
+		
+		// listen to checkboxes
+		$('.fcheckbox').on('click',function() {
+			$('#testcontainer').append('<p>clicked on a checkbox</p>');
+		});
+	}	
 	$.fn.fetchQueryResult = function(q, facet){		
 		
 		var fqStr = _composeFilterStr(facet);				
@@ -611,6 +638,9 @@
 						
 		if ( oChkbox.is(':checked') ){		
 			
+			if ( !$('div.ffilter').is(':visible') ){
+				$('div.ffilter').show();
+			}
 			// add filter
 			$.fn.addFacetFilter(oChkbox, q);		
 						
@@ -618,12 +648,12 @@
 			$.fn.fetchQueryResult(q, facet);
 		}
 		else {	
-			console.log('uncheck');
+			//console.log('uncheck');
 			// uncheck checkbox with matching value			
 			thisLi.find('ul li').each(function(){
 				if ( $(this).find('a').attr('rel') == oChkbox.attr('rel') ){			
 					$(this).remove();					
-					oChkbox.parent().parent().find('td.highlight').removeClass('highlight');					
+					oChkbox.siblings('span.flabel').removeClass('highlight');					
 				}
 			});			
 			
@@ -672,7 +702,17 @@
 		}	
 		
 		var qValue = '"' + value + '"';
-		var filterTxt = ( facet == 'gene' || facet == 'images' || facet == 'disease' ) ? display + ' : ' + qValue : value;	
+		//var filterTxt = ( facet == 'gene' || facet == 'images' || facet == 'disease' ) ? display + ' : ' + qValue : value;
+		var filterTxt = value;
+		if ( facet == 'gene' ){
+			if ( value == 'Started'  ){
+				filterTxt = 'phenotyping started'; 
+			}
+			else if ( value == 'Phenotype Attempt Registered' || field == 'status' || field == 'marker_type' ){
+				filterTxt = value.toLowerCase();
+			}
+		}
+		
 		var pipelineName, a;
 		
 		if (facet == 'pipeline'){
@@ -681,12 +721,12 @@
 		}
 		
 		var a = $('<a></a>').attr({'rel':oChkbox.attr('rel')}).text(filterTxt.replace(/ phenotype$/, ''));		
-		var del = $('<img>').attr('src', baseUrl + '/img/scissors-15x15.png');
+		//var del = $('<img>').attr('src', baseUrl + '/img/scissors-15x15.png');
 		var hiddenLabel = $("<span class='hidden'></span>").text(_composeFilterStr(facet, field, value));
 		
-		var filter = $('<li></li>').append(del, a, hiddenLabel);			
+		var filter = $('<li class="ftag"></li>').append(a, hiddenLabel);			
 		
-		add_uncheck_js(a, del, filter, oChkbox, q);
+		add_uncheck_js(a, filter, oChkbox, q);
 				
 		if ( thisLi.find('ul').size() == 0 ){			
 			var ul = $('<ul></ul>').html(filter);
@@ -764,10 +804,10 @@
 		}
 	}
 		
-	function add_uncheck_js(oLia, del, filter, oChkbox, q) {
-		del.click(function(){			
+	function add_uncheck_js(oLia, filter, oChkbox, q) {
+		oLia.click(function(){			
 			oChkbox.attr("checked", false);			
-			oChkbox.parent().parent().find('td.highlight').removeClass('highlight');
+			oChkbox.siblings('span.flabel').removeClass('highlight');
 			filter.remove();
 			$.fn.composeFacetFilterControl(oChkbox, q);
 		});
@@ -776,8 +816,8 @@
 	$.fn.qTip = function(oConf){
 		// pageName: gene | mp | ma
 
-		// preappend h2 for efficiency and performance reason
-		$('h2.documentation a').each(function(){	
+		// .documentation is applied to h2 and p
+		$('.documentation a').each(function(){	
 			
 			// now use id instead of class for better css logic
 			var key = $(this).attr('id');
@@ -786,23 +826,8 @@
 			
 			$(this).qtip({
 			 	content: MDOC[oConf.pageName][key], 
-			 	style: { classes: 'qtipimpc' },
-			   /*	style: { 
-			   		delay: 1,
-			    	width: 250,
-			      	padding: 8,
-			      	background: '#EEE9E9',
-			      	color: 'black',
-			      	textAlign: oConf.textAlign,
-			      	border: {
-			        	width: 1,
-			         	radius: 5,
-			         	color: '#EEE9E9'
-			   	  	},
-			    	tip: oConf.tip,//'bottomMiddle', //'bottomLeft',
-			    	name: 'dark' // Inherit the rest of the attributes from the preset dark style
-			   	},*/				 
-				show: {		            
+			 	style: { classes: 'qtipimpc' }			   		 
+				/*show: {		            
 		               event: 'mouseover',
 					   delay: 0
 		        },
@@ -813,15 +838,12 @@
 			    	corner: {
 			        	target: typeof oConf.target != undefined ? oConf.target : 'bottomLeft',
 			        	tooltip: typeof oConf.tip != undefined ? oConf.tip : 'topRight'
-			        },
-					target: 'mouse',				
+			        },						
 			    	adjust: {			    	
 			        	x: oConf.posX,
-			        	y: oConf.posY, 
-			    		mouse: false,			    		
-			        	resize: true
+			        	y: oConf.posY
 			        }
-			    }	   
+			    }*/	   
 			});			
 		});
 	}
@@ -1266,7 +1288,7 @@
 		
 		var dataCount = "<span id='resultCount'><span id='annotCount'></span><a></a></span>";    	
     	var resultMsg = $("<div id='resultMsg'></div>").append(imgViewSwitcher, dataCount, ' for ' + filterStr + decodeURI(searchKw));
-    	    	
+    	//var resultMsg = $("<div id='resultMsg'></div>").append(imgViewSwitcher);  	
     	$('div#mpi2-search').html('');
     	$('div#mpi2-search').append(resultMsg, dTable);    	
     }
