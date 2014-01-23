@@ -217,7 +217,7 @@ public class ExperimentService {
 
 		    		Set<String> allBatches = new HashSet<String>();
 		    		   
-		    		Date experimentDate = new Date(0L); //epoch
+		    		Date experimentDate = new Date();
 		    	    for (ObservationDTO o : experiment.getMutants()) {
 
 	    	    		allBatches.add(o.getDateOfExperiment().getYear() + "-" + o.getDateOfExperiment().getMonth() + "-" + o.getDateOfExperiment().getDate());
@@ -226,7 +226,7 @@ public class ExperimentService {
 		    	    		experimentOrganisationId = o.getPhenotypingCenterId();
 		    	    	}
 
-		    	    	if (o.getDateOfExperiment().after(experimentDate)) {
+		    	    	if (o.getDateOfExperiment().before(experimentDate)) {
 		    	    		experimentDate=o.getDateOfExperiment();	
 		    	    	}
 
