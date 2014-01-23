@@ -218,7 +218,7 @@ public class ExperimentService {
 		    		Set<String> allBatches = new HashSet<String>();
 
 		    		// Find the date of the last experiment
-		    		Date experimentDate = new Date();
+		    		Date experimentDate = new Date(0L);
 		    	    for (ObservationDTO o : experiment.getMutants()) {
 
 	    	    		allBatches.add(o.getDateOfExperiment().getYear() + "-" + o.getDateOfExperiment().getMonth() + "-" + o.getDateOfExperiment().getDate());
