@@ -206,8 +206,23 @@ public class ExperimentService {
 		    		// CATEGORICAL CONTROL SELECTION
 		    		// ======================================
 
+		    	    if (experiment.getSexes()!=null) {
+
+		    	    	for (SexType s : SexType.values()) {
+			    			if( ! experiment.getSexes().contains(s)) {
+			    				continue;
+			    			}
+	
+			    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, s.toString(), experiment.getMetadataGroup()));
+	
+		    	    	}
+
+		    	    } else {
+
+		    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, null, experiment.getMetadataGroup()));
+
+		    	    }
 	    			// Use all appropriate controls for categorical data
-	    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, sex.toString(), experiment.getMetadataGroup()));
 	    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all);
 
 	    		} else {
