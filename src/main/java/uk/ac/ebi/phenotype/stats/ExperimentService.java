@@ -275,17 +275,18 @@ public class ExperimentService {
 
 		    	    }
 
-		    		experiment.getControls().addAll(controls);
-		    		
-		    		if(experiment.getControlBiologicalModelId()==null && controls.size()>0) {
-			    		experiment.setControlBiologicalModelId(controls.get(0).getBiologicalModelId());
-			    	}
-		    		
-		    	    // Flag all the experiments that don't have control data
-		    		if(controls.size()<1) {
-		    			noControls.add(key);
-		    		}
 	    		} // End control selection
+
+	    		experiment.getControls().addAll(controls);
+	    		
+	    		if(experiment.getControlBiologicalModelId()==null && controls.size()>0) {
+		    		experiment.setControlBiologicalModelId(controls.get(0).getBiologicalModelId());
+		    	}
+	    		
+	    	    // Flag all the experiments that don't have control data
+	    		if(controls.size()<1) {
+	    			noControls.add(key);
+	    		}
 	    	}	    	
 	    }
 
