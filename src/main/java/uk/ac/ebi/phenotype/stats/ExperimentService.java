@@ -261,7 +261,7 @@ public class ExperimentService {
 			    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all_until_last_experiment);
 			    			addingControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, s.name(), experiment.getMetadataGroup());
 
-			    			if (addingControls.size() >= MIN_CONTROLS) {
+			    			if (addingControls.size() <= MIN_CONTROLS) {
 			    				// Not enough control data -- use baseline all
 				    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all);
 				    			addingControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, s.name(), experiment.getMetadataGroup());
@@ -290,7 +290,7 @@ public class ExperimentService {
 		    			addingControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, null, experiment.getMetadataGroup());
 
 		    			
-		    			if (addingControls.size() >= MIN_CONTROLS) {
+		    			if (addingControls.size() <= MIN_CONTROLS) {
 		    				// Not enough control data -- use baseline all
 			    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all);
 			    			addingControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, null, experiment.getMetadataGroup());
