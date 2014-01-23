@@ -210,9 +210,9 @@ public class ExperimentService {
 	    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, sex.toString(), experiment.getMetadataGroup()));
 	    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all);
 
-	    		} else if (experiment.getObservationType().equals(ObservationType.unidimensional)) {
+	    		} else {
 		    		// ======================================
-		    		// UNIDIMENSIONAL CONTROL SELECTION
+		    		// UNIDIMENSIONAL/TIMESERIES CONTROL SELECTION
 		    		// ======================================
 
 		    		Set<String> allBatches = new HashSet<String>();
