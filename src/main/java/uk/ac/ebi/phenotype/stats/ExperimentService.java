@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.eclipse.jetty.util.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -134,6 +135,7 @@ public class ExperimentService {
      		// TODO: update to make use of the MP to result association
      		if (experiment.getResults()==null && experiment.getExperimentalBiologicalModelId()!=null) {
      			experiment.setResults( phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), experiment.getParameterStableId(), ObservationType.valueOf(observation.getObservationType()), observation.getStrain()));
+     			System.out.println( " +++++ Exp results: " + experiment.getResults());
      		}
 	    	
 	    	if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.heterozygote)) {
