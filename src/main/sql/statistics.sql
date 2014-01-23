@@ -43,7 +43,7 @@ CREATE TABLE stats_unidimensional_results (
 	control_id                       INT(10) UNSIGNED,
 	experimental_id                  INT(10) UNSIGNED,
 	experimental_zygosity            ENUM('homozygote', 'heterozygote', 'hemizygote'),
-	colony_id                        VARCHAR(200) NOT NULL,
+	colony_id                        VARCHAR(200) NULL,
 	organisation_id                  INT(10) UNSIGNED NOT NULL,
 	parameter_id                     INT(10) UNSIGNED NOT NULL,
 	dependant_variable               VARCHAR(200) NOT NULL,
