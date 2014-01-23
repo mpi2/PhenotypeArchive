@@ -30,7 +30,7 @@ import uk.ac.ebi.phenotype.stats.strategy.ControlSelectionStrategy;
 @Service
 public class ExperimentService {
 
-	public static final Integer MIN_CONTROLS = 5;
+	public static final Integer MIN_CONTROLS = 6;
 
 	@Autowired
 	ObservationService os;
@@ -261,6 +261,12 @@ public class ExperimentService {
 			    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all_until_last_experiment);
 			    			addingControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, s.name(), experiment.getMetadataGroup());
 
+			    			if (addingControls.size() >= MIN_CONTROLS) {
+			    				// Not enough control data -- use baseline all
+				    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all);
+				    			addingControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, s.name(), experiment.getMetadataGroup());
+			    			}
+
 			    			if (allBatches.size()==1) {
 			    				List<ObservationDTO> potentialControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, s.name(), experiment.getMetadataGroup());
 			
@@ -282,6 +288,13 @@ public class ExperimentService {
 	    	    		// DEFAULT
 		    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all_until_last_experiment);
 		    			addingControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, null, experiment.getMetadataGroup());
+
+		    			
+		    			if (addingControls.size() >= MIN_CONTROLS) {
+		    				// Not enough control data -- use baseline all
+			    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all);
+			    			addingControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, null, experiment.getMetadataGroup());
+		    			}
 
 		    			if (allBatches.size()==1) {
 		    				List<ObservationDTO> potentialControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, null, experiment.getMetadataGroup());
