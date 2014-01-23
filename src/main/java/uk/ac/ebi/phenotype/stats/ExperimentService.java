@@ -226,52 +226,58 @@ public class ExperimentService {
 		    	    		experimentOrganisationId = o.getPhenotypingCenterId();
 		    	    	}
 
-		    	    	if (o.getDateOfExperiment().before(experimentDate)) {
+		    	    	if (o.getDateOfExperiment().after(experimentDate)) {
 		    	    		experimentDate=o.getDateOfExperiment();	
 		    	    	}
 
 		    	    }
 
-		    	    // If there is only 1 batch, the selection strategy is to
-		    	    // use concurrent controls.  If there is more than one 
-		    	    // batch, we fall back to baseline controls for the prior
-		    	    // 6 months
+					// If there is only 1 batch, the selection strategy is to
+					// try to use concurrent controls. If there is more than one
+					// batch, we fall back to baseline controls up until the
+					// date of the last experiment
 		    	    if (allBatches.size() == 1) {
 
 		    	    	experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
 
 		    	    } else {
 
-		    	    	experiment.setControlSelectionStrategy(ControlStrategy.baseline_6_months);
+		    	    	experiment.setControlSelectionStrategy(ControlStrategy.baseline_all_until_last_experiment);
 
 		    	    }
 		    	    
-		    	    // For male and female
-		    	    for (SexType s : SexType.values()) {
+		    	    if (experiment.getSexes()!=null) {
 
-		    	    	if (experiment.getSexes().contains(s) && allBatches.size()==1) {
-				    		// If one batch, use controls from the same day as the experiment batch
-				    		// else load all male controls for 6 months previous to the date of the last
-				    	    // collected mutants
-		
-			    			List<ObservationDTO> potentialControls = new ArrayList<ObservationDTO>();
-			    			potentialControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, s.name(), experiment.getMetadataGroup());
-		
-			    			// Failed to get the required number of control animals
-			    			// fall back to baseline controls
-			    			if (potentialControls.size()<MIN_CONTROLS) {
-				    			potentialControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, s.name(), experiment.getMetadataGroup());
-				    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_6_months);
-			    			}
-		
-			    			controls.addAll(potentialControls);
-		
-			    		} else if (experiment.getSexes().contains(s)) {
-		
-			    			// DEFAULT
-			    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, s.name(), experiment.getMetadataGroup()));
-			    		
-			    		}
+		    	    	for (SexType s : SexType.values()) {
+	
+			    	    	if (experiment.getSexes().contains(s) && allBatches.size()==1) {
+			
+				    			List<ObservationDTO> potentialControls = new ArrayList<ObservationDTO>();
+				    			potentialControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, s.name(), experiment.getMetadataGroup());
+			
+				    			// Failed to get the required number of control animals
+				    			// fall back to default method
+				    			if (potentialControls.size() < MIN_CONTROLS) {
+					    			potentialControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, s.name(), experiment.getMetadataGroup());
+					    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all_until_last_experiment);
+				    			}
+			
+				    			controls.addAll(potentialControls);
+			
+				    		} else if (experiment.getSexes().contains(s)) {
+				    			
+				    			// DEFAULT
+				    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, s.name(), experiment.getMetadataGroup()));
+				    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all_until_last_experiment);
+				    		
+				    		}
+	
+			    	    }
+		    	    } else {
+
+		    	    	// DEFAULT
+		    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, null, experiment.getMetadataGroup()));
+		    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all_until_last_experiment);
 
 		    	    }
 

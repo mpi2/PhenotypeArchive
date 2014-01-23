@@ -913,11 +913,16 @@ public class ObservationService {
 		// Filter starting on the experiment date through the prior 6 months
 		if(experimentDate != null) {
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00");
-			String dateFilter = df.format(DateUtils.addMonths(experimentDate,-6))+"Z TO "+df.format(DateUtils.addDays(experimentDate, 1))+"Z";
+
+			Date epoch = new Date(0L); // Start date
+
+			// Add one day because midnight refers to the beginning of the day to solr (I guess T24:00:00Z would work too, but meh. potayto-potahto)
+			String dateFilter = df.format(epoch)+"Z TO "+df.format(DateUtils.addDays(experimentDate, 1))+"Z";
 			query.addFilterQuery(ExperimentField.DATE_OF_EXPERIMENT + ":[" + dateFilter + "]");
 		}
 		
-		response = solr.query(query);		
+		response = solr.query(query);
+System.out.println(" +++ SOLR QUERY FOR CONTROLS: http://ves-ebi-d0:8090/jenkins_dev_komp2/experiment/select?"+query);
 		results = response.getBeans(ObservationDTO.class);
 		
 		return results;
