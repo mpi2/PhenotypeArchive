@@ -134,8 +134,7 @@ public class ExperimentService {
 
      		// TODO: update to make use of the MP to result association
      		if (experiment.getResults()==null && experiment.getExperimentalBiologicalModelId()!=null) {
-     			experiment.setResults( phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), experiment.getParameterStableId(), ObservationType.valueOf(observation.getObservationType()), observation.getStrain()));
-     			System.out.println( " +++++ Exp results: " + experiment.getResults());
+     			experiment.setResults( phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), observation.getParameterStableId(), ObservationType.valueOf(observation.getObservationType()), observation.getStrain()));
      		}
 	    	
 	    	if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.heterozygote)) {
