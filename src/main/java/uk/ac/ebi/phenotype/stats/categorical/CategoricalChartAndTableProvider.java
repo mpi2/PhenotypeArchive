@@ -49,7 +49,6 @@ public class CategoricalChartAndTableProvider {
 	 * @param parameter
 	 * @param acc
 	 * @param gender
-	 * @param zyList
 	 * @param categoricalTables
 	 * @param parameterId
 	 * @param charts
@@ -61,15 +60,13 @@ public class CategoricalChartAndTableProvider {
 	public CategoricalResultAndCharts doCategoricalData(
 			ExperimentDTO experiment, Parameter parameter,
 			String acc,
-			String gender, List<String> zyList, String chartId,
+			String chartId,
 			List<TableObject> categoricalTables,
 			String parameterId)
 			throws SQLException, IOException, URISyntaxException {
 
 		logger.debug("running categorical data");
-
-		//List<CategoricalResult> categoricalResults = new ArrayList<CategoricalResult>();
-		
+		//https://www.mousephenotype.org/data/stats/genes/MGI:98373?parameterId=M-G-P_014_001_009&zygosity=homozygote&phenotypingCenter=WTSI
 		
 			CategoricalResultAndCharts categoricalResultAndCharts = new CategoricalResultAndCharts();
 			categoricalResultAndCharts.setExperiment(experiment);
@@ -77,26 +74,21 @@ public class CategoricalChartAndTableProvider {
 					.getResults();
 			// should get one for each sex here if there is a result for each
 			// experimental sex
-			for (SexType sexType : experiment.getSexes()) { // one graph for each sex if - but now we should only have one sex as ajax calls make requests to only one sex
-				if (gender.isEmpty() || gender.contains(sexType.name())) {
-					// getCategoricalResultByParameter(parameter, expBiologicalModel.getId(), sexType);
-					// System.out.println("statsResults size="+statsResults.size()+
-					// "statsResults="+statsResults);
-					// categoricalResults.addAll(statsResults);
+			CategoricalChartDataObject chartData = new CategoricalChartDataObject();// make a chart object one for both sexes
+			for (SexType sexType : experiment.getSexes()) { 
+				
 					 categoricalResultAndCharts.setStatsResults(statsResults);
-					CategoricalChartDataObject chartData = new CategoricalChartDataObject();// make a new chart object for each sex
-					chartData.setSexType(sexType);
-					List<String> xAxisCategories = this.getXAxisCategories(
-							experiment.getZygosities(), zyList);
+					
+					//chartData.setSexType(sexType);
 					// do control first as requires no zygocity
 					CategoricalSet controlSet = new CategoricalSet();
-					controlSet.setName("Control");
+					controlSet.setName(WordUtils.capitalize(sexType.name())+" Control");
 
 					for (String category : experiment.getCategories()) {
 						if (category.equals("imageOnly"))
 							continue;// ignore image categories as no numbers!
 						CategoricalDataObject controlCatData = new CategoricalDataObject();
-						controlCatData.setName("control");
+						controlCatData.setName(WordUtils.capitalize(sexType.name())+" Control");
 						controlCatData.setCategory(ppDAO.getCategoryDescription(parameter.getId(), category));
 
 						long controlCount = 0;
@@ -119,13 +111,12 @@ public class CategoricalChartAndTableProvider {
 
 					// now do experimental i.e. zygocities
 					for (ZygosityType zType : experiment.getZygosities()) {
-						if (zyList.isEmpty() || zyList.contains(zType.name())) {
+						
 							CategoricalSet zTypeSet = new CategoricalSet();// hold the data for each bar on graph hom, normal, abnormal
-							zTypeSet.setName(zType.name());
+							zTypeSet.setName(WordUtils.capitalize(sexType.name())+" "+WordUtils.capitalize(zType.name()));
 							for (String category : experiment.getCategories()) {
 								if (category.equals("imageOnly"))
 									continue;
-								logger.debug(zyList);
 								Long mutantCount = new Long(0);// .countMutant(sexType, zType, parameter, category, popId);
 								// loop over all the experimental docs and get
 								// all that apply to current loop parameters
@@ -187,7 +178,7 @@ public class CategoricalChartAndTableProvider {
 							}
 							chartData.add(zTypeSet);
 						}
-					}
+					
 
 					// removeColumnsWithZeroData(xAxisCategories,
 					// seriesDataForCategoricalType);
@@ -198,29 +189,27 @@ public class CategoricalChartAndTableProvider {
 					// xAxisCategories, categories,
 					// seriesDataForCategoricalType);
 					categoricalResultAndCharts.setOrganisation(experiment.getOrganisation());//add it here before check so we can see the organisation even if no graph data
-					if (xAxisCategories.size() > 1) {// if size is greater than one i.e. we have more than the control data then draw charts and tables
-						
-						String chartNew = this
-								.createCategoricalHighChartUsingObjects(chartId,
-										chartData,
-										parameter,
-										experiment.getOrganisation(),
-                                                                                experiment.getMetadataGroup());
-						chartData.setChart(chartNew);
-						categoricalResultAndCharts.add(chartData);
-						//categoricalResultAndCharts
-							//	.setStatsResults(experiment.getResults());
-						// TableObject table =
-						// this.creatCategoricalDataTableFromObjects(chartData,
-						// sexType, "",
-						// xAxisCategories, categories,
-						// seriesDataForCategoricalType);
-						// tables.add(table);
-					}
-				}
+				
 			}// end of gender
 			
-
+		
+				String chartNew = this
+						.createCategoricalHighChartUsingObjects(chartId,
+								chartData,
+								parameter,
+								experiment.getOrganisation(),
+                                                                        experiment.getMetadataGroup());
+				chartData.setChart(chartNew);
+				categoricalResultAndCharts.add(chartData);
+				categoricalResultAndCharts
+						.setStatsResults(experiment.getResults());
+				// TableObject table =
+				// this.creatCategoricalDataTableFromObjects(chartData,
+				// sexType, "",
+				// xAxisCategories, categories,
+				// seriesDataForCategoricalType);
+				// tables.add(table);
+			
 	
 		return categoricalResultAndCharts;
 	}
@@ -425,7 +414,7 @@ public class CategoricalChartAndTableProvider {
 				+ "', type: 'column' }, title: { text: '"
 				+ WordUtils.capitalize(title)
 				+ "' }, credits: { enabled: false }, subtitle: { text: '"
-				+ WordUtils.capitalize(sex.name())
+				+ "subtitle here"
 				+ "', x: -20 }, xAxis: { categories: "
 				+ xAxisCategoriesArray
 				+ "}, yAxis: { min: 0, title: { text: 'Percent Occurrance' } ,  labels: {       formatter: function() { return this.value +'%';   }  }},  plotOptions: { column: { stacking: 'percent' } }, series: "
@@ -465,16 +454,11 @@ public class CategoricalChartAndTableProvider {
 		}
 	}
 
-	private List<String> getXAxisCategories(Set<ZygosityType> set,
-			List<String> zygosityParams) {
+	private List<String> getXAxisCategories(SexType sexType, Set<ZygosityType> set) {
 		List<String> xAxisCat = new ArrayList<String>();
 		xAxisCat.add("Control");// we know we have controls and we want to put these first.
-
 		for (ZygosityType type : set) {
-			if (zygosityParams.isEmpty()
-					|| zygosityParams.contains(type.name())) {
-				xAxisCat.add(type.name());
-			}
+				xAxisCat.add(WordUtils.capitalize(sexType.name())+" "+type.name());
 		}
 		return xAxisCat;
 	}

@@ -47,13 +47,12 @@ public class UnidimensionalChartAndTableProvider {
 	 * have one or two graphs corresponding to sex and a stats result for one
 	 * table at the bottom
 	 * @param chartId
-	 * @param parameter
 	 * @param zyList
 	 * @param boxOrScatter
 	 * @param byMouseId
+	 * @param parameter
 	 * @param acc
 	 * @param model
-	 * @param genderList
 	 * @param experimentList
 	 * @return
 	 * @throws SQLException
@@ -62,9 +61,9 @@ public class UnidimensionalChartAndTableProvider {
 	 */
 	public UnidimensionalDataSet doUnidimensionalData(
 			ExperimentDTO experiment, String chartId,
-			String title, List<String> genderList,
-			List<String> zyList, ChartType boxOrScatter,
-			Boolean byMouseId, String yAxisTitle) throws SQLException,
+			String title, List<String> zyList,
+			ChartType boxOrScatter, Boolean byMouseId,
+			String yAxisTitle) throws SQLException,
 			IOException, URISyntaxException {
 		ChartData chartAndTable = null;
 		// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018

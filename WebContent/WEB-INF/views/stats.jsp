@@ -20,7 +20,7 @@
 	<!-- highcharts -->
 <script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js'></script>
  <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js'></script> 
-<script src="${baseUrl}/js/charts/exporting.js"></script>
+<%-- <script src="${baseUrl}/js/charts/exporting.js"></script> --%>
 
 
 	

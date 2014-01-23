@@ -342,27 +342,26 @@ public class ChartsController {
 				 unidimensionalChartNTable =
 				 continousChartAndTableProvider.doUnidimensionalData(experimentList.get(0),
 				 chartId, title,
-				 genderList, zyList, ChartType.UnidimensionalBoxPlot, false, yAxisTitle);
+				 zyList, ChartType.UnidimensionalBoxPlot, false, yAxisTitle);
 				 break;
 				
-//				case categorical:
-//					// https://dev.mousephenotype.org/mi/impc/dev/phenotype-archive/stats/genes/MGI:1346872?parameterId=ESLIM_001_001_004
-//
-//					 categoricalResultAndChart = categoricalChartAndTableProvider
-//							.doCategoricalData(experimentList.get(0), parameter,
-//									accession[0], gender, zyList, chartId,
-//									categoricalTables, parameterIds[0]);
-//					
-//					break;
-//
-//				case time_series:
-//					// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
-//
-//					timeSeriesForParam = timeSeriesChartAndTableProvider
-//							.doTimeSeriesData(experimentList.get(0), parameter, gender,
-//									zyList, chartId);
-//					
-//					break;
+				case categorical:
+					// https://dev.mousephenotype.org/mi/impc/dev/phenotype-archive/stats/genes/MGI:1346872?parameterId=ESLIM_001_001_004
+
+					 categoricalResultAndChart = categoricalChartAndTableProvider
+							.doCategoricalData(experimentList.get(0), parameter,
+									accession[0], chartId,
+									categoricalTables, parameterIds[0]);
+					
+					break;
+
+				case time_series:
+					// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
+
+					timeSeriesForParam = timeSeriesChartAndTableProvider
+							.doTimeSeriesData(experimentList.get(0), parameter, chartId);
+					
+					break;
 
 				default:
 					// Trying to graph Unknown observation type

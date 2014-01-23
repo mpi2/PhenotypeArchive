@@ -6,13 +6,13 @@
 					<%-- <c:forEach var="unidimensionalChartsAndTable" items="${unidimensionalDataSet.sexChartAndTables}" varStatus="uniDimensionalLoop">
  					${loop.count  % 2}
  --%>
-  				chartString should be dipslayed here	${unidimensionalChart}
+  				${unidimensionalChart}
    								<script type="text/javascript">
    
    								$(function () {
    								   ${unidimensionalChart}
 								</script>
-								<a href="scatter/${acc}?${pageContext.request.queryString}">Graph by date</a>	
+								<%-- <a href="scatter/${acc}?${pageContext.request.queryString}">Graph by date</a>	 --%>
 		
 				<%-- </c:forEach>
 				 --%>
