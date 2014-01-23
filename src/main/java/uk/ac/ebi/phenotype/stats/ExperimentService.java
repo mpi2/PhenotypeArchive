@@ -216,7 +216,8 @@ public class ExperimentService {
 		    		// ======================================
 
 		    		Set<String> allBatches = new HashSet<String>();
-		    		   
+
+		    		// Find the date of the last experiment
 		    		Date experimentDate = new Date();
 		    	    for (ObservationDTO o : experiment.getMutants()) {
 
@@ -250,34 +251,50 @@ public class ExperimentService {
 
 		    	    	for (SexType s : SexType.values()) {
 	
-			    	    	if (experiment.getSexes().contains(s) && allBatches.size()==1) {
-			
-				    			List<ObservationDTO> potentialControls = new ArrayList<ObservationDTO>();
-				    			potentialControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, s.name(), experiment.getMetadataGroup());
+			    			List<ObservationDTO> addingControls = new ArrayList<ObservationDTO>();
+
+			    			if( ! experiment.getSexes().contains(s)) {
+			    				continue;
+			    			}
+
+		    				// DEFAULT
+			    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all_until_last_experiment);
+			    			addingControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, s.name(), experiment.getMetadataGroup());
+
+			    			if (allBatches.size()==1) {
+			    				List<ObservationDTO> potentialControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, s.name(), experiment.getMetadataGroup());
 			
 				    			// Failed to get the required number of control animals
 				    			// fall back to default method
-				    			if (potentialControls.size() < MIN_CONTROLS) {
-					    			potentialControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, s.name(), experiment.getMetadataGroup());
-					    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all_until_last_experiment);
+				    			if (potentialControls.size() >= MIN_CONTROLS) {
+				    				addingControls = potentialControls;
+					    			experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
 				    			}
+			    			}
 			
-				    			controls.addAll(potentialControls);
-			
-				    		} else if (experiment.getSexes().contains(s)) {
-				    			
-				    			// DEFAULT
-				    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, s.name(), experiment.getMetadataGroup()));
-				    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all_until_last_experiment);
-				    		
-				    		}
-	
+			    			controls.addAll(addingControls);
 			    	    }
+
 		    	    } else {
 
-		    	    	// DEFAULT
-		    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, null, experiment.getMetadataGroup()));
+		    			List<ObservationDTO> addingControls = new ArrayList<ObservationDTO>();
+
+	    	    		// DEFAULT
 		    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all_until_last_experiment);
+		    			addingControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, null, experiment.getMetadataGroup());
+
+		    			if (allBatches.size()==1) {
+		    				List<ObservationDTO> potentialControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, null, experiment.getMetadataGroup());
+		
+			    			// Failed to get the required number of control animals
+			    			// fall back to default method
+			    			if (potentialControls.size() >= MIN_CONTROLS) {
+			    				addingControls = potentialControls;
+				    			experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
+			    			}
+		    			}
+		
+		    			controls.addAll(addingControls);
 
 		    	    }
 
