@@ -922,7 +922,6 @@ public class ObservationService {
 		}
 		
 		response = solr.query(query);
-System.out.println(" +++ SOLR QUERY FOR CONTROLS: http://ves-ebi-d0:8090/jenkins_dev_komp2/experiment/select?"+query);
 		results = response.getBeans(ObservationDTO.class);
 		
 		return results;
