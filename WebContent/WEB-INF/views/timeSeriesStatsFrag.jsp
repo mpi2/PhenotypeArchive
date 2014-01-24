@@ -149,7 +149,7 @@
 												var form = $("<form action='"+ url + "' method=get>"
 														+ sInputs + "</form>");
 												_doDataExport(url, form);
-											}).corner('6px');
+											});
 						}
 
 						function _doDataExport(url, form) {
