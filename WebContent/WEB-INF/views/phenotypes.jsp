@@ -36,10 +36,10 @@
 				<div class="section">
 					<div class="inner">
 						<c:if test="${not empty phenotype.description}">
-							<p class="with-label no-margin"> <span class="label"> Definition</span> ${phenotype.description} </p>
+							<p class="with-label"> <span class="label"> Definition</span> ${phenotype.description} </p>
 						</c:if>
 						<c:if test="${not empty synonyms}">
-							<p class="with-label no-margin"> <span class="label">Synonyms</span>
+							<p class="with-label"> <span class="label">Synonyms</span>
 								<c:forEach var="synonym" items="${synonyms}" varStatus="loop">
 									${synonym.symbol}
 									<c:if test="${!loop.last}">, &nbsp;</c:if>
@@ -153,7 +153,7 @@
 				
 				<div class="section collapsed open">
 				
-			    <h2 class="title documentation">Gene variants with ${phenotype.name} 	<a href='' class='relatedMpPanel'><i class="fa fa-question-circle pull-right"></i></a></h2>
+			    <h2 class="title documentation">Gene variants with ${phenotype.name} 	<a href='' id='relatedMpPanel'><i class="fa fa-question-circle pull-right"></i></a></h2>
 				   
 					<div class="inner" style="display:block;">	 
 						<div id="phenotypesDiv">	
@@ -193,7 +193,7 @@
 					<c:if test="${not empty siblings or not empty go}">
 					
 					<div class="row-fluid dataset">
-						<h4 class="caption documentation">Explore <a href='' class='relatedMpPanel'><i class="fa fa-question-circle pull-right"></i></a></h4>
+						<h4 class="caption documentation">Explore <a href='' id='relatedMpPanel'><i class="fa fa-question-circle pull-right"></i></a></h4>
 						<div class="row-fluid">
 							<div class="container span12">		
 								<div class="container">
@@ -233,7 +233,7 @@
 	
 			<c:if test="${not empty images && fn:length(images) !=0}">
 				<div class="row-fluid dataset">
-					<h4 class="caption documentation">Images <a href='' class='imagePanel'><i class="fa fa-question-circle pull-right"></i></a></h4>
+					<h4 class="caption documentation">Images <a href='' id='imagePanel'><i class="fa fa-question-circle pull-right"></i></a></h4>
 						<div class="row-fluid">
 						<div class="container span12">
 							<div class="accordion" id="accordion1">
