@@ -21,8 +21,6 @@
 	</jsp:attribute>
 
 	<jsp:attribute name="addToFooter">
-		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js'></script>
 		<script type='text/javascript' src='${baseUrl}/js/imaging/mp.js'></script>
 		<script type='text/javascript' src="${baseUrl}/js/general/dropDownPhenPage.js"></script>
 		<script type='text/javascript' src="${baseUrl}/js/general/toggle.js"></script>
@@ -164,7 +162,7 @@
 									${filterParameters}
 								</c:forEach>
 								<c:if test="${not empty phenotypes}">
-									<form id="target" action="www.google.com">
+									<form class="tablefiltering no-style" id="target" action="www.google.com">
 											<c:forEach var="phenoFacet" items="${phenoFacets}"
 													varStatus="phenoFacetStatus">
 													<c:if
@@ -177,6 +175,8 @@
 													</select> 
 													</c:if>
 											</c:forEach>
+											
+											<div class="clear"></div>
 									</form>
 									<jsp:include page="geneVariantsWithPhenotypeTable.jsp">
 										<jsp:param name="isImpcTerm" value="${isImpcTerm}"/>

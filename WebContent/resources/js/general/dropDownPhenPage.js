@@ -74,7 +74,7 @@ $(document).ready(function(){
 			var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");		
 			_doDataExport(url, form);
 			console.log(sInputs);
-		}).corner('6px');	 
+		});	 
 	}  
 
 	 function _doDataExport(url, form){

@@ -573,7 +573,7 @@
             var controlLabel = controlWrapper.find(".ui-dropdownchecklist-text");
             var shortText = text;
             if (text.length > 25){
-            	var shortText = text.slice(0,25) + " ...";
+            	var shortText = text.slice(0,14) + "...";
             }
             controlLabel.html(shortText);
             // the attribute needs naked text, not html
