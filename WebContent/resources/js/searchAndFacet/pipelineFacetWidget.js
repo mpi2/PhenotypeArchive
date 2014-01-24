@@ -23,46 +23,9 @@
         
 	    options: {},	
      
-    	_create: function(){
-    		
-    		// execute only once 	
-    		var self = this;	
-    		var facetDivId = self.element.attr('id');
-    		var caller = self.element;
-    		delete MPI2.searchAndFacetConfig.commonSolrParams.rows;    	   		  		
-		
-			caller.find('div.facetCat').click(function(){
-				
-				if ( caller.find('span.facetCount').text() != '0' ){						
-					
-					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
-					
-					caller.parent().find('div.facetCat').removeClass('facetCatUp');
-					
-					if ( caller.find('.facetCatList').is(':visible') ){				
-						caller.parent().find('div.facetCatList').hide(); // collapse all other facets                     
-						caller.find('.facetCatList').hide(); // hide itself					
-					}
-					else {					
-						caller.parent().find('div.facetCatList').hide(); // collapse all other facets 
-						caller.find('.facetCatList').show(); // show itself					
-						$(this).addClass('facetCatUp');						
-						
-						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));													
-						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'pipeline');						
-						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';
-												
-						if ( ! window.location.search.match(/q=/) ){
-							window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
-						}
-						else {
-							window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
-						}
-					}	
-				}								
-			});	
-			
-			// click on SUM facetCount to fetch results in grid: deprecated	
+    	_create: function(){    		
+    		// execute only once
+    		$.fn.widgetExpand(this);    	    		
     	}, 
     	
 	    // want to use _init instead of _create to allow the widget being invoked each time by same element
@@ -102,116 +65,84 @@
 	    		'success': function(json) { 
 	    			    			
 	    			// update this if facet is loaded by redirected page, which does not use autocomplete
-	    			$('div#pipelineFacet .facetCount').attr({title: 'total number of unique parameter terms'}).text(json.response.numFound);
-	        			        		
+	    			//$('div#pipelineFacet .facetCount').attr({title: 'total number of unique parameter terms'}).text(json.response.numFound);
+	        			    			
 	    			var procedures_params = {};
 	    			var facetCountSum = 0;	    			    					 			
 	    				    			
 	    			var plFacets = json.facet_counts['facet_fields']['pipeline_name'];	    			
-	    			var prFacets = json.facet_counts['facet_fields']['pipe_proc_sid'];
-	    			
-	    			var table = $("<table id='pipelineFacetTbl' class='facetTable'></table>");
-	        		
-	    			var aImpc = [];
+	    			var prFacets = json.facet_counts['facet_fields']['pipe_proc_sid'];	    			  			
+	        			    			
+	    			var impc;
 	    			
 	        		for ( var p=0; p<plFacets.length; p+=2){
 	        			var currPipe = plFacets[p];	
 	        			var pipeClass = currPipe.replace(/ /g, '_');
-	        			var trCat = $('<tr></tr>').attr({'class':'facetSubCat ' + pipeClass + 'Cap ' + pipeClass}).append( $('<td></td>').attr({'colspan':3}).text(currPipe));
 	        			
-	        			// place IMPc pipeline on top of list	        			
-	        			if ( currPipe != 'IMPC Pipeline' ){
-	        				table.append(trCat);
-	        			}
-	        			else {	        			
-	        				aImpc.push(trCat);
-	        			}
-		        		
+	        			var thisFacetSect = $("<li class='fcatsection'></li>");		 
+		    			thisFacetSect.append($('<span></span>').attr({'class':'flabel'}).text(currPipe));		    			       			
+		    			
+		        		var thisUlContainer = $("<ul></ul>");
+	    			
 		        		for ( var f=0; f<prFacets.length; f+=2 ){ 		        			        			
 		        			var aVals = prFacets[f].split('___');
 		        			var pipeName = aVals[0];
 		        			var procedure_name = aVals[1];
 		        			var proSid = aVals[2];
-		        			var paramCount = prFacets[f+1];
+		        			var count = prFacets[f+1];
 		        					        			
-		        			if (pipeName == currPipe ){
-			        		
-		        				//console.log(pipeName + ' --- ' + procedure_name + ' --- '+ paramCount);
-			        			//var pClass = 'procedure'+f + ' ' + procedureName2IdKey[procedure_name].stable_id;
-			        			var pClass = 'procedure'+f + ' ' + proSid;
-			        			var tr = $('<tr></tr>').attr({'class':'subFacet ' + pipeClass});		        		
+		        			if (pipeName == currPipe ){	
+		        				var pClass = 'procedure'+f + ' ' + proSid;
+		        				var liContainer = $("<li></li>").attr({'class':'fcat ' + pipeClass});
+		        				//console.log(pipeName + ' --- ' + procedure_name + ' --- '+ paramCount);		        			      		
 			        			
-			        			//var coreField = 'pipeline|procedure_stable_id|' + procedure_name + '___' + procedureName2IdKey[procedure_name].stable_id + '|' + paramCount;
-			        			var coreField = 'pipeline|procedure_stable_id|' + procedure_name + '___' + proSid + '|' + paramCount;
+			        			var coreField = 'pipeline|procedure_stable_id|' + procedure_name + '___' + proSid + '|' + count;
 			        			
 			        			var chkbox = $('<input></input>').attr({'class': pipeClass, 'type': 'checkbox', 'rel': coreField});	        			
-			        			var td0 = $('<td></td>').append(chkbox);
+			        			/*var td0 = $('<td></td>').append(chkbox);
 			        			var td1 = $('<td></td>').attr({'class': pClass, 'rel':paramCount});	        			
 			        			var td2 = $('<td></td>');	        			        			
 			        			//var a = $('<a></a>').attr({'class':'paramCount', 'rel': procedureName2IdKey[procedure_name].stable_id}).text(paramCount);			        			
 			        			var a = $('<a></a>').attr({'class':'paramCount', 'rel': proSid}).text(paramCount);
-			        			//var span = $('<span></span>').attr({'class':'subcount'}).text(paramCount);
-			        			if ( currPipe != 'IMPC Pipeline' ){
-			        				table.append(tr.append(td0, td1.text(procedure_name), td2.append(a)));
+			        			//var span = $('<span></span>').attr({'class':'subcount'}).text(paramCount);*/
+			        			var flabel = $('<span></span>').attr({'class':'flabel'}).text(procedure_name);
+								var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
+			        			
+			        			if ( currPipe != 'IMPC Pipeline' ){			        				
+			        				liContainer.append(chkbox, flabel, fcount);			        				
 			        			}
 			        			else {
-			        				aImpc.push(tr.append(td0, td1.text(procedure_name), td2.append(a)));
+			        				impc = thisFacetSect.append(thisUlContainer.append(liContainer.append(chkbox, flabel, fcount)));
+			        				
 			        			}	
-		        			}	
-		        			
-		        		} 	
-		        		table.prepend(aImpc);
+			        			thisUlContainer.append(liContainer);
+		        			}		        			
+		        		}		        		
+		        		
+			    		thisFacetSect.append(thisUlContainer);
+			    		$('div.flist li#pipeline > ul').append(thisFacetSect);		        		
 	        		}
-	        		if (json.response.numFound == 0 ){
-	        			table = null;
-	        		}	    			
-	        		$('div#pipelineFacet .facetCatList').html(table);
 	        		
-	        		
-	        		// all pipelines, except IMPC pipeline, are collapsed by default
-		    		$('table#pipelineFacetTbl tr.facetSubCat').click(function(){
-		    			
-		    			var aClass = $(this).attr('class').split(' ');
-		    			for (var i=0; i<aClass.length; i++){
-		    				if ( aClass[i].indexOf('Cap') != -1 ){		    					
-		    					var trClass = aClass[1].replace('Cap','');	 
-
-				    			if ( $(this).find('td').hasClass('unCollapse')){				    			
-				    				$('tr.subFacet').each(function(){
-				    					if ( $(this).hasClass(trClass) ){
-				    						$(this).hide();
-				    					}
-				    				});
-				    				
-				    				$(this).find('td').removeClass('unCollapse');
-				    			}
-				    			else {				    			
-				    				$('tr.subFacet').each(function(){
-				    					if ( $(this).hasClass(trClass) ){
-				    						$(this).show();
-				    					}
-				    				});
-				    						
-				    				$(this).find('td').addClass('unCollapse');
-				    			}
-				    			break;
-		    				}
-		    			}	    			
-		    			
-		    		});	   
+	        		if ( impc ){
+	        			$('div.flist li#pipeline > ul').prepend(impc);
+		    		}	
 	        		
 		    		// update facet count when filters applied
 	    			if ( $('ul#facetFilter li li a').size() != 0 ){	    				
 	    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'pipeline');
 	    			}	        		
-	        		
-	        		
-	        		$('table#pipelineFacetTbl input').click(function(){	        			
-	        			// highlight the item in facet
-	        			$(this).parent().siblings('td[class^=procedure]').addClass('highlight');
-	        			$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);
-	        		});	        		       		
-	        		
+
+	    			// IMPC pipeline is open and rest of pipeline subfacets are collapsed by default    			
+	    			$('div.flist li#pipeline > ul li:nth-child(1)').addClass('open');
+	    			
+	    			$.fn.initFacetToggles();    			
+		    		
+		    		$('li#pipeline li.fcat input').click(function(){	    			
+		    			// // highlight the item in facet	    			
+		    			$(this).siblings('span.flabel').addClass('highlight');
+						$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
+					});	  
+		    		
 	        		/*------------------------------------------------------------------------------------*/
 	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
 	    	    	/*------------------------------------------------------------------------------------*/        		      		

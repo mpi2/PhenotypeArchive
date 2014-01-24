@@ -24,49 +24,8 @@
 	    options: {},  
 	    
     	_create: function(){
-    		// execute only once 	
-    		var self = this;
-    		
-    		var facetDivId = self.element.attr('id') + 'Facet';
-    		var caller = self.element;
-    		delete MPI2.searchAndFacetConfig.commonSolrParams.rows;	 
-    		
-			caller.click(function(){
-				
-				if ( caller.find('span.fcount').text() != '0' ){
-					alert('gene click ' + facetDivId);
-					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
-					
-					/*caller.parent().find('div.facetCat').removeClass('facetCatUp');
-					
-					if ( caller.find('.facetCatList').is(':visible') ){					
-						caller.parent().find('div.facetCatList').hide(); // collapse all other facets                     
-						caller.find('.facetCatList').hide(); // hide itself					
-					}
-					else {	*/
-						//caller.parent().find('div.facetCatList').hide(); // collapse all other facets 
-						//caller.find('.facetCatList').show(); // show itself					
-						//$(this).addClass('facetCatUp');						
-														
-						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));						
-						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'gene');						
-						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';					
-											
-						if ( ! window.location.search.match(/q=/) ){
-							alert('here-1');							
-							window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
-						}					
-						else {
-							alert('here-2');							
-							window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
-						}
-						
-					//}
-				}
-			});		
-			
-			// click on SUM facetCount to fetch results in grid: deprecated
-					
+    		// execute only once 
+    		$.fn.widgetExpand(this);    		
     	},
     	 	        	
 	    // want to use _init instead of _create to allow the widget being invoked each time by same element
@@ -122,11 +81,9 @@
 	    	
 	    	if (numFound > 0){
 	    		
-	    		// subfacet: IMPC mouse phenotyping status
-	    		
+	    		// subfacet: IMPC mouse phenotyping status	    		
 	    		var phenoStatusSect = $("<li class='fcatsection'></li>");		 
-	    		phenoStatusSect.append($('<span></span>').attr({'class':'flabel'}).text('IMPC Phenotyping Status'));
-	    		
+	    		phenoStatusSect.append($('<span></span>').attr({'class':'flabel'}).text('IMPC Phenotyping Status'));	    		
 	    		
 	    		var pheno_count = {};
 	    		var aImitsPhenos = {'imits_phenotype_complete':'Complete', 
@@ -136,20 +93,19 @@
 	    		var phenoCount = 0;
 	    		for (var key in aImitsPhenos ){	    			
 	    			var phenoFieldList = json.facet_counts['facet_fields'][key];	
-
+	    			
 	    			if ( phenoFieldList.length != 0 ){
 	    				phenoCount = 1;
 	    				oSums.phenoStatus += phenoFieldList.length;
 	    	    		for ( var j=0; j<phenoFieldList.length; j+=2 ){
-	    	    			// skip status '0'	    	    		
+	    	    			// skip status '0'	    	    			
 	    	    			if ( phenoFieldList[j] == 'Phenotype Attempt Registered' || phenoFieldList[j] == 1 ){
 	    						pheno_count[aImitsPhenos[key]] = phenoFieldList[j+1];
 	    	    			}	    	    			
 	    	    		} 
 	    			} 
 	    		}
-	    		
-	    		var phenoStatusTr = '';
+	    			    		
 	    		var phenoUlContainer = $("<ul></ul>");
 	    		
 	    		var aPhenos = ['Complete', 'Started', 'Attempt Registered'];	    		
@@ -157,19 +113,19 @@
 					var phenotypingStatusFq = MPI2.searchAndFacetConfig.phenotypingStatuses[aPhenos[i]].fq;
 					var phenotypingStatusVal = MPI2.searchAndFacetConfig.phenotypingStatuses[aPhenos[i]].val; 
 					var count = pheno_count[aPhenos[i]];
-										
+									
 					if ( count !== undefined ){
 						
-						var liContainer = $("<li></li>").attr({'class':'fcat'});
+						var liContainer = $("<li></li>").attr({'class':'fcat phenotyping'});
 						
 						var coreField = 'gene|'+ phenotypingStatusFq + '|';						
 						var chkbox = $('<input></input>').attr({'class':'phenotyping', 'type': 'checkbox', 'rel': coreField + phenotypingStatusVal + '|' + count});
 						var flabel = $('<span></span>').attr({'class':'flabel'}).text(aPhenos[i]);
 						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 						
-						liContainer.append(chkbox, flabel, fcount);
-					}	
-					phenoUlContainer.append(liContainer);
+						liContainer.append(chkbox, flabel, fcount);						
+						phenoUlContainer.append(liContainer);
+					}					
 				}
 	    		phenoStatusSect.append(phenoUlContainer);
 	    		
@@ -205,13 +161,15 @@
 					var count = status_facets[i+1];
 					status_count[type] = count; 
 	    		}    			
+	    		
 	    		var prodUlContainer = $("<ul></ul>");
+	    		
 				for ( var i=0; i<MPI2.searchAndFacetConfig.geneStatuses.length; i++ ){
 					var status = MPI2.searchAndFacetConfig.geneStatuses[i];
 					var count = status_count[MPI2.searchAndFacetConfig.geneStatuses[i]];					
 					
 					if ( count !== undefined ){
-						var liContainer = $("<li></li>").attr({'class':'fcat'});
+						var liContainer = $("<li></li>").attr({'class':'fcat production'});
 						
 						var coreField = 'gene|status|';
 						var chkbox = $('<input></input>').attr({'class':'production', 'type': 'checkbox', 'rel': coreField + status + '|' + count});
@@ -219,9 +177,9 @@
 						liContainer.append(chkbox);
 						liContainer.append($('<span class="flabel">' +status + '</span>'));
 						liContainer.append($('<span class="fcount">' + count + '</span>'));
+						prodUlContainer.append(liContainer);
 						
-					}	
-					prodUlContainer.append(liContainer);				
+					}									
 				}	
 				prodStatusSect.append(prodUlContainer);
 				
@@ -247,20 +205,17 @@
     	    		}    	    		
     			}*/
     			
-				// subfacet: IMPC gene subtype
-	    		var unclassified_gene_subType;	    		
-	    			
+				// subfacet: IMPC gene subtype	    			
 	    		var subTypeSect = $("<li class='fcatsection'></li>");		 
-	    		subTypeSect.append($('<span></span>').attr({'class':'flabel'}).text('Subtype'));    		
-	    		
+	    		subTypeSect.append($('<span></span>').attr({'class':'flabel'}).text('Subtype'));
 	    		
 	    		var mkr_facets = json.facet_counts['facet_fields']['marker_type'];
 	    		oSums.geneSubType = mkr_facets.length;
-	    		var unclassifiedTr;
+	    		var unclassified;
 	    		var subTypeUlContainer = $("<ul></ul>");
 	    		
 	    		for ( var i=0; i<mkr_facets.length; i+=2 ){		    			
-	    			var liContainer = $("<li></li>").attr({'class':'fcat'});
+	    			var liContainer = $("<li></li>").attr({'class':'fcat marker_type'});
 					var type = mkr_facets[i];
 					var count = mkr_facets[i+1];	
 					var coreField = 'gene|marker_type|';						
@@ -272,13 +227,13 @@
 						liContainer.append(chkbox, flabel, fcount);
 					}
 					else {					
-						unclassifiedTr = liContainer.append(chkbox, flabel, fcount);
+						unclassified = liContainer.append(chkbox, flabel, fcount);
 					}	
 					subTypeUlContainer.append(liContainer);				
 	    		} 
 	    			    		  
-	    		if (unclassifiedTr){	    		
-	    			subTypeUlContainer.append(unclassifiedTr);
+	    		if (unclassified){	    		
+	    			subTypeUlContainer.append(unclassified);
 	    		}	    		
 	    		subTypeSect.append(subTypeUlContainer);
 	    		
@@ -300,39 +255,7 @@
 	    		}
 	    		
 	    		$.fn.initFacetToggles();
-	    		
-	    		/*$('tr.geneSubTypeTrCap, tr.phenoStatusTrCap, tr.prodStatusTrCap').click(function(){
-	    			var aClass = $(this).attr('class').split(' ');
-	    			var trClass = aClass[1].replace('Cap','');	    				    			
-	    			
-	    			if ( $(this).find('td').hasClass('unCollapse')){				
-	    				$('tr.' + trClass).hide();
-	    				$(this).find('td').removeClass('unCollapse');
-	    			}
-	    			else {	    			
-	    				$('tr.' + trClass).show();	    				
-	    				$(this).find('td').addClass('unCollapse');
-	    			}
-	    		});	    		    		
-	    		$('tr.phenoStatusTrCap td').click();
-	    		
-	    		// grayout subfacets having no matches for user query
-	    		if ( self.options.data.hashParams.q != '*:*' ){
-		    		var firstMatch = 0;
-		    		for ( var subFacetClass in oSums ){
-		    			var oTd = $('table#geneFacetTbl tr.' + subFacetClass + 'TrCap td'); 
-		    			if ( oSums[subFacetClass] == 0 ){		    			
-		    				oTd.addClass('grayout').removeClass('unCollapse');		    						    				
-		    			}
-		    			else {
-		    				firstMatch++;
-		    				if ( firstMatch == 1 ){	    				
-		    					oTd.click();	    					    					
-		    				}
-		    			}
-		    		}
-	    		}	 */   		
-	    		
+	    			    		
 	    		$('li#gene li.fcat input').click(function(){	    			
 	    			// // highlight the item in facet	    			
 	    			$(this).siblings('span.flabel').addClass('highlight');

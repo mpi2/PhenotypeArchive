@@ -276,7 +276,7 @@ try {
         <compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">
          <script>
         $(document).ready(function() {        		
-        	$(document).ready(function(){	
+        	$(document).ready(function(){        		
     			$.fn.qTip({'pageName':'search'
     					/*'textAlign':'left',
     					'tip':'topLeft',

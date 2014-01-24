@@ -76,47 +76,21 @@
 	
 	</jsp:attribute>
 
-    <jsp:body>
-       
-    
-       <!-- search filter display -->
-       <!--  <div id='filterToggle'><span>Show facet filters</span></div>             		
-	   	<ul id='facetFilter'> 
-	   	    <li class='has-sub none'>no filter added</li>
-	   		<li class='has-sub gene'>Genes</li>
-	   		<li class='has-sub mp'>Phenotypes</li>
-			<li class='has-sub ma'>Anatomy</li>	 
-			<li class='has-sub pipeline'>Procedures</li>
-			<li class='has-sub images'>Images</li>
-			<li class='has-sub disease'>Diseases</li>
-		</ul>
-		<div id='resetFilter'><a href="${baseUrl}/search">Remove all filters</a></div>   
-      -->
-       <!--  facet skeleton on left sidebar -->
-		<!-- <div id="wrapper">
-		    <div id="userKeyword" class='rounded-corners'></div>	
-			<div id="content">
-				<div class="ui-widget">
-					<div id='dataView'></div>
-				</div>
-				<div id='mainDataContainer'></div>
-			</div>
-		</div>-->
-		
+    <jsp:body>		
 		<div class="region region-sidebar-first">
 			<div id='facet' class='fblock block'>	
 				<div class="head">Filter your search</div>
 				<div class='content'>
 				    <div class="ffilter">
 						<ul id="facetFilter">
-							<li class="has-sub gene">
-							<li class="has-sub mp">
-							<li class="has-sub ma">
-							<li class="has-sub pipeline"></li>
-							<li class="has-sub images"></li>
-							<li class="has-sub disease"></li>
+							<li class="has-sub gene"><span class='fcap'>Gene</span></li>
+							<li class="has-sub mp"><span class='fcap'>Phenotype</span></li>
+							<li class="has-sub disease"><span class='fcap'>Disease</span></li>
+							<li class="has-sub ma"><span class='fcap'>Anatomy</span></li>
+							<li class="has-sub pipeline"><span class='fcap'>Pipeline</span></li>
+							<li class="has-sub images"><span class='fcap'>Images</span></li>					
 						</ul>
-						<div id="resetFilter"><a href="${baseUrl}/search">Remove all filters</a></div>
+						<div id="resetFilter"><a href="${baseUrl}/search">Remove all facet filters</a></div>
 					</div>
 										
 					<p class='documentation' class='title textright'>
@@ -161,56 +135,7 @@
 				</div>
 			</div>	
 		</div>	
-				<!-- facet filter block -->
-				<!-- search filter display -->
-		        <!-- <div id='filterToggle'><span>Show facet filters</span></div>-->             		
-			   	<!-- <ul id='facetFilter'> 
-			   	    <li class='has-sub none'>no filter added</li>
-			   		<li class='has-sub gene'>Genes</li>
-			   		<li class='has-sub mp'>Phenotypes</li>
-					<li class='has-sub ma'>Anatomy</li>	 
-					<li class='has-sub pipeline'>Procedures</li>
-					<li class='has-sub images'>Images</li>
-					<li class='has-sub disease'>Diseases</li>
-				</ul>
-				<div id='resetFilter'><a href="${baseUrl}/search">Remove all filters</a></div> 
 				
-			    <div class='content'>
-			    	<h2 class='documentation' class='title'>
-						<a href='' id='facetPanel'><i class="fa fa-question-circle pull-right" aria-describedby="qtip-26"></i></a></h2>
-												
-					<div id="leftSideBar" class='rounded-corners span3'>																		
-									
-						<!-- <div id='facetSrchMsg''><img src='img/loading_small.gif' /> Processing search ...</div> 
-						<div id='geneFacet'>
-							<div><div class='facetCat'>Genes</div><span class='facetCount countDisplay'></span></div>
-							<div class='facetCatList'></div>
-						</div>						
-						<div id='mpFacet'>
-							<div><div class='facetCat'>Phenotypes</div><span class='facetCount countDisplay'></span></div>
-							<div class='facetCatList'></div>
-						</div>
-			                        <div id='diseaseFacet'>
-							<div><div class='facetCat'>Diseases</div><span class='facetCount countDisplay'></span></div>
-							<div class='facetCatList'></div>
-						</div>
-						<div id='maFacet'>
-							<div><div class='facetCat'>Anatomy</div><span class='facetCount countDisplay'></span></div>
-							<div class='facetCatList'></div>
-						</div>
-						<div id='pipelineFacet'>
-							<div><div class='facetCat'>Procedures</div><span class='facetCount countDisplay'></span></div>
-							<div class='facetCatList'></div>
-						</div>
-						<div id='imagesFacet'>
-							<div><div class='facetCat'>Images</div><span class='facetCount countDisplay'></span></div>
-							<div class='facetCatList'></div>
-						</div>
-					</div>
-				</div>	
-				
-			</div>
-		</div>	-->
 		<div class="region region-content">
 			<div class="block block-system">
 				<div class='content'>

@@ -52,18 +52,22 @@ li.fcat                                 { margin: 0; font-size: 0.9em; line-heig
 /* active facet filter */
 ul#facetFilter > li                     { display: none; }       
 ul#facetFilter li.has-sub               { display: block; }
-ul#facetFilter li.has-sub + .has-sub    { margin-top: 1em; } 
-#resetFilter                            { opacity: 0.5; text-align: right; font-size: 11px; cursor: pointer; }
+ul#facetFilter li.has-sub span.fcap {
+	display: none;
+	font-size: 11px;
+}
+ul#facetFilter li.has-sub + .has-sub    { margin-top: 0em; } 
+#resetFilter                            { opacity: 0.5; text-align: right; font-size: 11px; cursor: pointer; margin-top: 5px;}
 #resetFilter:before                     { font-family: 'FontAwesome'; content: "\f00d"; margin-right: 0.3em; text-decoration: none; }
 #resetFilter:hover                      { opacity: 1; }
 .ftag {
 	padding: 2px;
 }
-.ftag a { 
+.ftag a {
 	display: block;
 	font-size: 11px; 
 	line-height: 1.1em; 
-	padding: 0 0.3em; 
+	padding: 1px 0.3em; 
 	text-decoration: none; 
 	color: #fff; 
 	background: #0978A1; 
