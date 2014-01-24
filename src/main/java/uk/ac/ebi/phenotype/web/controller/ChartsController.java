@@ -222,7 +222,7 @@ public class ChartsController {
 	 */
 	@RequestMapping("/chart")
 	public String chart(
-			@RequestParam(required = true, value = "chartId") String chartId,// we
+			@RequestParam(required = true, value = "experimentNumber") String experimentNumber,// we
 																				// need
 																				// a
 																				// chartId
@@ -253,7 +253,7 @@ public class ChartsController {
 			ParameterNotFoundException, IOException, URISyntaxException,
 			SolrServerException {
 		
-		UnidimensionalDataSet unidimensionalChartNTable=null;
+		UnidimensionalDataSet unidimensionalChartDataSet=null;
 		ChartData timeSeriesForParam=null;
 		CategoricalResultAndCharts categoricalResultAndChart=null;
 		boolean statsError = false;
@@ -325,13 +325,15 @@ public class ChartsController {
 			// ESLIM_003_001_003 id=962 calorimetry data for time series graph
 			// new MGI:1926153
 			// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1926153?parameterId=ESLIM_003_001_003
-		
-			
-			List<TableObject> categoricalTables = new ArrayList<>();
 		String title=parameter.getName();
 		String xAxisTitle=xUnits;//set up some default strings here that most graphs will use?
 		String yAxisTitle= yUnits;
 		//String subTitle=gender;
+		BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(experimentList.get(0).getExperimentalBiologicalModelId());
+		//use some sort of map to pass in these or helper method? so we don't have to redo title, subtitle for each one??
+		String allelicCompositionString=expBiologicalModel.getAllelicComposition();
+		String symbol=expBiologicalModel.getAlleles().get(0).getSymbol();
+		String geneticBackgroundString=expBiologicalModel.getGeneticBackground();
 			try {
 
 				switch (observationTypeForParam) {
@@ -339,10 +341,11 @@ public class ChartsController {
 				 case unidimensional:
 				 //http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
 				
-				 unidimensionalChartNTable =
+					 unidimensionalChartDataSet =
 				 continousChartAndTableProvider.doUnidimensionalData(experimentList.get(0),
-				 chartId, title,
-				 zyList, ChartType.UnidimensionalBoxPlot, false, yAxisTitle);
+						 experimentNumber, title,
+				 ChartType.UnidimensionalBoxPlot, false, yAxisTitle,expBiologicalModel);
+					model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
 				 break;
 				
 				case categorical:
@@ -350,8 +353,9 @@ public class ChartsController {
 
 					 categoricalResultAndChart = categoricalChartAndTableProvider
 							.doCategoricalData(experimentList.get(0), parameter,
-									accession[0], chartId,
-									categoricalTables, parameterIds[0]);
+									accession[0], experimentNumber, expBiologicalModel);
+					 model.addAttribute("categoricalResultAndChart",
+								categoricalResultAndChart);
 					
 					break;
 
@@ -359,8 +363,9 @@ public class ChartsController {
 					// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
 
 					timeSeriesForParam = timeSeriesChartAndTableProvider
-							.doTimeSeriesData(experimentList.get(0), parameter, chartId);
-					
+							.doTimeSeriesData(experimentList.get(0), parameter, experimentNumber, expBiologicalModel);
+					model.addAttribute("timeSeriesChartsAndTable",
+							timeSeriesForParam);
 					break;
 
 				default:
@@ -374,13 +379,7 @@ public class ChartsController {
 				log.error(ExceptionUtils.getFullStackTrace(e));
 				statsError = true;
 			}
-			String unichart="";
-			if(unidimensionalChartNTable!=null)unichart=unidimensionalChartNTable.getChartAndTables().getChart();
-			model.addAttribute("unidimensionalChart", unichart);
-			model.addAttribute("categoricalResultAndChart",
-					categoricalResultAndChart);
-			model.addAttribute("timeSeriesChartsAndTable",
-					timeSeriesForParam);
+			model.addAttribute("experimentNumber", experimentNumber);
 			model.addAttribute("statsError", statsError);
 
 		}

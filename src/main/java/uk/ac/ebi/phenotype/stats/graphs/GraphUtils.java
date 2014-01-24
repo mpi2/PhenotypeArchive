@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.stats.graphs;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrServerException;
 
+import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.stats.ExperimentService;
 import uk.ac.ebi.phenotype.stats.ObservationService;
 
@@ -52,5 +54,16 @@ public class GraphUtils {
             }
             
             return urls;
+	}
+	
+	public static Map<String,String>getUsefulStrings(BiologicalModel expBiologicalModel) {
+		String allelicCompositionString=expBiologicalModel.getAllelicComposition();
+		String symbol=expBiologicalModel.getAlleles().get(0).getSymbol();
+		String geneticBackgroundString=expBiologicalModel.getGeneticBackground();
+		Map<String,String> usefulStrings=new HashMap<String, String>();
+		usefulStrings.put("allelicComposition", allelicCompositionString);
+		usefulStrings.put("geneticBackground", geneticBackgroundString);
+		usefulStrings.put("symbol", symbol);
+		return usefulStrings;
 	}
 }

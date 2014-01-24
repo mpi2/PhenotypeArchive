@@ -6,34 +6,37 @@
 					<%-- <c:forEach var="unidimensionalChartsAndTable" items="${unidimensionalDataSet.sexChartAndTables}" varStatus="uniDimensionalLoop">
  					${loop.count  % 2}
  --%>
-  				${unidimensionalChart}
+ 	<c:if test="${unidimensionalChartDataSet!=null}">
+ 	
+ 	
+  					<div id="chart${experimentNumber}"
+									style="min-width: 400px; height: 400px; margin: 0 auto">
+								</div>
    								<script type="text/javascript">
    
    								$(function () {
-   								   ${unidimensionalChart}
+   								   ${unidimensionalChartDataSet.chartData.chart}
 								</script>
 								<%-- <a href="scatter/${acc}?${pageContext.request.queryString}">Graph by date</a>	 --%>
 		
 				<%-- </c:forEach>
 				 --%>
-		<%-- </div><!-- end of chart row-fluid -->
-		<table id="continuousTable${uniDimensionalLoop.count}" class="table table-bordered  table-striped table-condensed">
+	
+		<table id="continuousTable" class="table table-bordered  table-striped table-condensed">
 		<thead><tr>
 		<th>Line</th>
 		<th>Zygosity</th>
-			<th>Sex</th>
 			<th>Mean</th>
 			<th>SD</th>
 			<th>Sex</th>
 			<th>Count</th>
 			<th>Effect Size</th>
 			<th>pValue</th>
-		<th>${tables[loop.count-1].xAxisCategories[1]}</th><th>${tables[loop.count-1].xAxisCategories[2]}</th>
 		</tr></thead>
 		<tbody>									
 										
 										
-											<c:forEach var="statsObject" items="${unidimensionalDataSet.statsObjects}">
+											<c:forEach var="statsObject" items="${unidimensionalChartDataSet.statsObjects}">
 												<tr>
 												<td>${statsObject.line}</td>
 												<c:choose>
@@ -44,15 +47,6 @@
 												<td>${statsObject.zygosity}</td>
 												</c:when>
 												</c:choose>
-												<c:choose>
-												<c:when test="${statsObject.line =='Control' }">
-												<td>Mixed</td>
-												</c:when>
-												<c:when test="${statsObject.line !='Control' }">
-												<td>${statsObject.sexType}</td>
-												</c:when>
-												</c:choose>
-												
 												<td>${statsObject.mean}</td>
 												<td>${statsObject.sd}</td>
 												<td><c:choose><c:when test="${statsObject.sexType eq 'female'}"><img style="cursor:help;color:#D6247D;" rel="tooltip" data-placement="top" title="Female" alt="Female" src="${baseUrl}/img/icon-female.png" /></c:when><c:otherwise><img style="cursor:help;color:#247DD6;" rel="tooltip" data-placement="top" title="Male" alt="Male" src="${baseUrl}/img/icon-male.png" /></c:otherwise></c:choose></td>
@@ -66,13 +60,6 @@
 												<td>${statsObject.result.pValue}</td>
 												</tr>
 												</c:forEach>
-												
-									
-										
-										<td>${tables[loop.count-1].seriesDataForCategoricalType[0][0]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[0][1]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[0][2]}</td>
-										 </tr>
-										<tr><td>${tables[loop.count-1].categories[1]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[1][0]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[1][1]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[1][2]}</td>
-										 </tr>
 										</tbody>
 										</table>
 				
@@ -177,7 +164,9 @@
  				</div>
  				
  				</c:if>
- 				<script>
+ 				
+ 				</c:if>
+ 	<!-- 			<script>
 	$(document)
 			.ready(
 					function() {

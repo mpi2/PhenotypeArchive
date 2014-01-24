@@ -28,14 +28,15 @@ public class UnidimensionalDataSet {
 		this.experimentId = experimentId;
 	}
 
-	private ChartData chartAndTables;
-	public ChartData getChartAndTables() {
-		return chartAndTables;
-	}
-	public void setChartAndTables(ChartData chartAndTables) {
-		this.chartAndTables = chartAndTables;
-	}
+	private ChartData chartData;
+
 	
+	public ChartData getChartData() {
+		return chartData;
+	}
+	public void setChartData(ChartData chartData) {
+		this.chartData = chartData;
+	}
 	public List<UnidimensionalResult> getAllUnidimensionalResults() {
 		return allUnidimensionalResults;
 	}

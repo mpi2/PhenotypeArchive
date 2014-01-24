@@ -20,7 +20,7 @@
 	<!-- highcharts -->
 <script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js'></script>
  <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js'></script> 
-<%-- <script src="${baseUrl}/js/charts/exporting.js"></script> --%>
+<script src="${baseUrl}/js/charts/exporting.js"></script> 
 
 
 	
@@ -42,7 +42,7 @@ $(document).ready(function(){
 		var id=$(this).attr('id');
 		console.log('id='+id);
 		console.log("obj att"+$(this).attr('graphUrl'));
-		var chartUrl=graphUrl+'&chartId='+id;
+		var chartUrl=graphUrl+'&experimentNumber='+id;
 			$.ajax({
 				  url: chartUrl,
 				  cache: false
@@ -127,8 +127,8 @@ $(document).ready(function(){
 		<c:if test="${graphUrlLoop.count  % 2!=0}">
 				<div class="container span6">
 		</c:if> --%>
-  			<div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}" id="chart${graphUrlLoop.count}">
-  				<a href="${baseUrl}/chart?${graphUrl}">${baseUrl}/chart?${graphUrl}</a>
+  			<div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}" id="${graphUrlLoop.count}">
+  				<%-- <a href="${baseUrl}/chart?${graphUrl}">${baseUrl}/chart?${graphUrl}</a> --%>
   			</div>
   				<%-- <c:if test="${graphUrlLoop.index  % 2!=0}">
   			</div><!--  just end the container span 6-->

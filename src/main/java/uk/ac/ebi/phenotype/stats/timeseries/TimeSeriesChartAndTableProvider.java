@@ -44,14 +44,11 @@ public class TimeSeriesChartAndTableProvider {
 		ChartData chartsNTablesForParameter = creatDiscretePointTimeSeriesChart(
 				"1", title, lines, p.checkParameterUnit(1),
 				p.checkParameterUnit(2), 1, "org");
-		chartsNTablesForParameter.alterMinMax(
-				Math.floor(chartsNTablesForParameter.getMin()),
-				Math.ceil(chartsNTablesForParameter.getMax()));
 		return chartsNTablesForParameter;
 	}
 
 	public ChartData doTimeSeriesData(ExperimentDTO experiment,
-			Parameter parameter, String chartId) throws IOException,
+			Parameter parameter, String chartId, BiologicalModel expBiologicalModel) throws IOException,
 			URISyntaxException {
 		ChartData chartNTableForParameter = null;
 
