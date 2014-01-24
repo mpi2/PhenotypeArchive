@@ -23,3 +23,8 @@ form.no-style{
 /*#tn{ 
 	padding-top: 15px;
 }*/
+.filtertype:before { margin-right: 0.5em; }
+.filtersMoreLikeNicolas { margin-left: -2px; padding: 0.5em; border: #eee 1px solid; border-top: none; border-radius: 0 3px 3px 3px; -webkit-border-radius: 0 3px 3px 3px; -moz-border-radius: 0 3px 3px 3px; -ms-border-radius: 0 3px 3px 3px; -o-border-radius: 0 3px 3px 3px; }
+.ui-dropdownchecklist-item { margin: 0.3em 0; cursor: pointer !important; }
+.ui-dropdownchecklist-item label { cursor: pointer; }
+.ui-dropdownchecklist-item input[type="checkbox"] { margin-right: 0.5em; } 

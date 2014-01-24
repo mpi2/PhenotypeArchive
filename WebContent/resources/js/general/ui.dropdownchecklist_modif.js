@@ -151,7 +151,7 @@
             // inline-block at this level seems to give us better size control
             var wrapper = $("<div/>");
             wrapper.addClass("ui-dropdownchecklist ui-dropdownchecklist-selector-wrapper");
-            wrapper.css( { display: "inline-block", cursor: "default", overflow: "hidden" } );
+//*//            wrapper.css( { display: "inline-block", cursor: "default", overflow: "hidden" } );
             
             // assign an ID 
             var baseID = sourceSelect.attr("id");
@@ -262,7 +262,7 @@
             var label = $("<label for=" + id + "/>");
             label.addClass("ui-dropdownchecklist-text");
             if ( optCss != null ) label.attr('style',optCss);
-            label.css({ cursor: "default" });
+//*//            label.css({ cursor: "default" });
             label.html(text);
 			if (indent) {
 				item.addClass("ui-dropdownchecklist-indent");
