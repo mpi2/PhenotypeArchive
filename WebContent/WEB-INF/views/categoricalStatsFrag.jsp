@@ -5,8 +5,7 @@
 				<div class="row-fluid">
  				<c:forEach var="categoricalChartDataObject" items="${categoricalResultAndChart.maleAndFemale}" varStatus="chartLoop">
   				 	
-								<div id="chart${experimentNumber}"
-									style="min-width: 400px; height: 400px; margin: 0 auto">
+								<div id="chart${experimentNumber}">
 								</div>
    								<script type="text/javascript">
    								${categoricalChartDataObject.chart}
