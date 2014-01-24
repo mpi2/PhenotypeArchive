@@ -1,4 +1,7 @@
 	
+	
+			<jsp:include page="scatterStatsFrag.jsp"/>
+			
 			<jsp:include page="timeSeriesStatsFrag.jsp"/>
 			
 			<jsp:include page="categoricalStatsFrag.jsp"/>

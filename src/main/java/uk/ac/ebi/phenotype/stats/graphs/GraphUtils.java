@@ -19,7 +19,8 @@ public class GraphUtils {
 		this.experimentService=experimentService;
 	}
 	public Set<String> getGraphUrls(String acc,
-			String parameterStableId, List<String> genderList, List<String> zyList, String parameterName) throws SolrServerException {
+			String parameterStableId, List<String> genderList, List<String> zyList, String parameterName, boolean scatter) throws SolrServerException {
+		
 		Set<String>urls=new HashSet<String>(); //each url should be unique and so we use a set
 		Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameterStableId);
             
@@ -39,6 +40,9 @@ public class GraphUtils {
             String genderString="";
             for(String sex:genderList) {
             	genderString+=seperator+"&gender="+sex;
+            }
+            if(scatter) {
+            	accessionAndParam+=seperator+"scatter="+scatter;
             }
             for(String center:centersList) {
             	for(String strain:strains) {

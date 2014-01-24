@@ -70,6 +70,8 @@ import uk.ac.ebi.phenotype.stats.TableObject;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalChartAndTableProvider;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalResultAndCharts;
 import uk.ac.ebi.phenotype.stats.graphs.GraphUtils;
+import uk.ac.ebi.phenotype.stats.graphs.ScatterChartAndData;
+import uk.ac.ebi.phenotype.stats.graphs.ScatterChartAndTableProvider;
 import uk.ac.ebi.phenotype.stats.timeseries.TimeSeriesChartAndTableProvider;
 import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalChartAndTableProvider;
 import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalDataSet;
@@ -102,6 +104,9 @@ public class ChartsController {
 
 	@Autowired
 	private UnidimensionalChartAndTableProvider continousChartAndTableProvider;
+	
+	@Autowired
+	private ScatterChartAndTableProvider scatterChartAndTableProvider;
 
 	@Autowired
 	private ExperimentService experimentService;
@@ -143,6 +148,7 @@ public class ChartsController {
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
 			@RequestParam(required = false, value = "phenotypingCenter") String[] phenotypingCenter,
 			@RequestParam(required = false, value = "strategy") String[] strategies,
+			@RequestParam(required = false, value = "scatter") boolean scatter,
 			@PathVariable String acc, Model model)
 			throws GenomicFeatureNotFoundException, ParameterNotFoundException,
 			IOException, URISyntaxException, SolrServerException {
@@ -190,7 +196,7 @@ public class ChartsController {
 			// instead of an experiment list here we need just the outline of
 			// the experiments - how many, observation types
 			Set<String> graphUrlsForParam = graphUtils.getGraphUrls(acc,
-					parameter.getStableId(), genderList, zyList, parameter.getName());
+					parameter.getStableId(), genderList, zyList, parameter.getName(), scatter);
 			allGraphUrlSet.addAll(graphUrlsForParam);
 
 		}// end of parameterId iterations
@@ -249,6 +255,7 @@ public class ChartsController {
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
 			@RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter,
 			@RequestParam(required = false, value = "strategy") String[] strategies,
+			@RequestParam(required = false, value = "scatter") boolean scatter,
 			Model model) throws GenomicFeatureNotFoundException,
 			ParameterNotFoundException, IOException, URISyntaxException,
 			SolrServerException {
@@ -335,6 +342,13 @@ public class ChartsController {
 		String symbol=expBiologicalModel.getAlleles().get(0).getSymbol();
 		String geneticBackgroundString=expBiologicalModel.getGeneticBackground();
 			try {
+				
+				if(scatter) {
+					System.out.println("calling scatter!");
+					
+					ScatterChartAndData scatterChartAndData=scatterChartAndTableProvider.doScatterData(experimentList.get(0), parameter, experimentNumber, expBiologicalModel);
+					model.addAttribute("scatterChartAndData", scatterChartAndData);
+				}else {
 
 				switch (observationTypeForParam) {
 
@@ -373,6 +387,7 @@ public class ChartsController {
 					log.error("Unknown how to display graph for observation type: "
 							+ observationTypeForParam);
 					break;
+				}
 				}
 
 			} catch (SQLException e) {
