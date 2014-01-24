@@ -91,10 +91,11 @@ CREATE TABLE stats_unidimensional_results (
 DROP TABLE IF EXISTS stat_result_phenotype_call_summary;
 CREATE TABLE stat_result_phenotype_call_summary (
 
-    result_id                 INT(10) UNSIGNED NOT NULL,
+    categorical_result_id     INT(10) UNSIGNED DEFAULT NULL,
+    unidimensional_result_id  INT(10) UNSIGNED DEFAULT NULL,
     phenotype_call_summary_id INT(10) UNSIGNED NOT NULL,
 
-    PRIMARY KEY (phenotype_call_summary_id, result_id)
+    PRIMARY KEY (phenotype_call_summary_id, categorical_result_id, unidimensional_result_id)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
