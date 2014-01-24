@@ -32,13 +32,12 @@ import uk.ac.ebi.phenotype.stats.ChartUtils;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 import uk.ac.ebi.phenotype.stats.MouseDataPoint;
 import uk.ac.ebi.phenotype.stats.ObservationDTO;
-import uk.ac.ebi.phenotype.stats.ScatterGraph;
 import uk.ac.ebi.phenotype.stats.graphs.GraphUtils;
 
 @Service
 public class UnidimensionalChartAndTableProvider {
 
-	private ScatterGraph scatterGraph = new ScatterGraph();
+	
 	private static final Logger logger = Logger.getLogger(UnidimensionalChartAndTableProvider.class);
 
 	private String axisFontSize = "15";
