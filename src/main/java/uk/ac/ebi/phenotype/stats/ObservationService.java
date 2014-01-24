@@ -765,10 +765,7 @@ public class ObservationService {
 			allelesArray[i] = (String) resDocs.get(0).get(
 					ExperimentField.GENE_ACCESSION);
 			meansArray[i] = sum / total;
-//			if (meansArray[i] > 20)
-//				System.out.println(p.getStableId() + " for colony id :" + gr.getGroupValue() + " (allele : " + allelesArray[i]  + ") 	 mean value = " + meansArray[i]);
 			i++;
-		System.out.println("adding : " + sum / total);
 		}
 
 		// we do the binning for all the data but fill the bins after that to
@@ -778,7 +775,6 @@ public class ObservationService {
 
 		List<Double> upperBounds = new ArrayList<Double>();
 		EmpiricalDistribution distribution = new EmpiricalDistribution(binCount);
-		System.out.println("--- meansArray: " + meansArray.length);
 		if (meansArray.length > 0){
 			distribution.load(meansArray);
 			int k = 0;
