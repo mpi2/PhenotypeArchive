@@ -50,11 +50,13 @@
 						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));							
 						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'disease');						
 						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';
-						
-						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+												
 						if ( ! window.location.search.match(/q=/) ){
 							window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
-						}			
+						}	
+						else {
+							window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+						}
 					}
 				}
 			});				
@@ -140,8 +142,9 @@
 						var td0 = $('<td></td>').append(chkbox);
 						var tr = $('<tr></tr>').attr({'class':'subFacet ' + trClass + ' ' + fq});						
 						var td1 = $('<td></td>').attr({'class':'dClass diseaseSubfacet ' + fq, 'rel':count}).text(subFacetName);
-						var link = $('<a></a>').attr({'rel': subFacetName, 'class': diseaseFq}).text(count);
-						var td2 = $('<td></td>').attr({'class':'diseaseSubfacetCount ' + fq, 'rel':subFacetName}).append(link);						
+						//var link = $('<a></a>').attr({'rel': subFacetName, 'class': diseaseFq}).text(count);
+						var span = $('<span></span>').attr({'class':'subcount'}).text(count);
+						var td2 = $('<td></td>').attr({'class':'diseaseSubfacetCount ' + fq, 'rel':subFacetName}).append(span);						
 						
 						if ( subFacetName != 'unclassified' ){	
 							table.append(tr.append(td0, td1, td2));
@@ -184,6 +187,7 @@
 								var tr = $('<tr></tr>').attr({'class':'subFacet ' + trClass + ' ' + assoc});						
 								var td1 = $('<td></td>').attr({'class':trClass + ' ' + fq + ' diseaseSubfacet', 'rel':count}).text(thisSubfacet);
 								var link = $('<a></a>').attr({'rel': '1', 'class': diseaseFq}).text(count);
+								//var span = $('<span></span>').attr({'class':'subcount'}).text(count);
 								var td2 = $('<td></td>').attr({'class':'diseaseSubfacetCount', 'rel':'1'}).append(link);					
 								
 								table.append(tr.append(td0, td1, td2));

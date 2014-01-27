@@ -1,0 +1,4 @@
+/* Additional styling written at EBI */
+
+/* hide pagination below tables on gene and phenotype pages */
+div#phenotypesDiv div.dataTables_paginate {display: none !important;}

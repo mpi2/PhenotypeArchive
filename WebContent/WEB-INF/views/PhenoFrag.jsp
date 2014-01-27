@@ -18,16 +18,16 @@
 	</script>
 	
 
-				<table id="phenotypes" class="table table-striped">
+				<table id="phenotypes" class="table tableSorter">
 					<thead>
 						<tr>
-							<th>Phenotype</th>
-							<th>Allele</th>
-							<th>Zygosity</th>
-							<th>Sex</th>
-							<th>Procedure / Parameter</th> 
-							<th>Source</th>
-							<th>Graph</th>
+							<th class="headerSort">Phenotype</th>
+							<th class="headerSort">Allele</th>
+							<th class="headerSort">Zygosity</th>
+							<th class="headerSort">Sex</th>
+							<th class="headerSort">Procedure / Parameter</th> 
+							<th class="headerSort">Source</th>
+							<th class="headerSort">Graph</th>
 							<%-- <th>Strain</th> --%>
 						</tr>
 					</thead>
@@ -38,10 +38,7 @@
 						<td><a href="${baseUrl}/phenotypes/${phenotype.phenotypeTerm.id.accession}">${phenotype.phenotypeTerm.name}</a></td>
 						<td><c:choose><c:when test="${fn:contains(phenotype.allele.id.accession, 'MGI')}"><a href="http://www.informatics.jax.org/accession/${phenotype.allele.id.accession}"><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></a></c:when><c:otherwise><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></c:otherwise></c:choose></td>
 						<td>${phenotype.zygosity}</td>
-						<td style="font-family:Verdana;font-weight:bold;">
-							<c:set var="count" value="0" scope="page" />
-							<c:forEach var="sex" items="${phenotype.sexes}"><c:set var="count" value="${count + 1}" scope="page"/><c:if test="${sex == 'female'}"><c:set var="europhenome_gender" value="Female"/><img style="cursor:help;color:#D6247D;" rel="tooltip" data-placement="top" title="Female" alt="Female" src="${baseUrl}/img/icon-female.png" /></c:if><c:if test="${sex == 'male'}"><c:set var="europhenome_gender" value="Male"/><img style="cursor:help;color:#247DD6;margin-left:<c:if test="${count != 2}">16</c:if><c:if test="${count == 2}">4</c:if>px;" rel="tooltip" data-placement="top" title="Male" alt="Male" src="${baseUrl}/img/icon-male.png" /></c:if></c:forEach>
-						</td>
+						<td> 	<c:set var="count" value="0" scope="page" /> 	<c:forEach var="sex" items="${phenotype.sexes}">	<c:set var="count" value="${count + 1}" scope="page"/>  <c:if test="${sex == 'female'}">  f  </c:if>  <c:if test="${sex == 'male'}">  <c:if test="${count == 2}"> / </c:if> 	m  </c:if> 	</c:forEach> 	</td>
 						<td>${phenotype.procedure.name} / ${phenotype.parameter.name}</td>
 						<td>
 						<c:choose>

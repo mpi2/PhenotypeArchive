@@ -394,6 +394,12 @@ public class ChartsController {
 				log.error(ExceptionUtils.getFullStackTrace(e));
 				statsError = true;
 			}
+			
+			model.addAttribute("allelicCompositionString", allelicCompositionString);
+			model.addAttribute("symbol", symbol);
+			model.addAttribute("geneticBackgroundString", geneticBackgroundString);
+			model.addAttribute("phenotypingCenter", phenotypingCenters.get(0));
+			
 			model.addAttribute("experimentNumber", experimentNumber);
 			model.addAttribute("statsError", statsError);
 

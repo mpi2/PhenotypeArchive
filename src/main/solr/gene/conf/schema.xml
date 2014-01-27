@@ -158,8 +158,10 @@ Licensed to the Apache Software Foundation (ASF) under one or more
 		<field name="pa_allele_name" type="string" indexed="true" stored="true" multiValued="false"/>	
 		<field name="pa_phenotyping_status" type="string" indexed="true" stored="true" multiValued="false"/>
 		
-		<field name="es_allele_name" type="string" indexed="true" stored="true" multiValued="true"/>			
-			
+
+		<field name="es_allele_name" type="string" indexed="true" stored="true" multiValued="true"/>
+		
+
 	<!-- annotated and inferred mp term -->
 
 	<field name="mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />

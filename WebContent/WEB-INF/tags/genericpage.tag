@@ -28,13 +28,17 @@
         cannot be contacted
         */
         DrupalHttpProxy proxy = new DrupalHttpProxy(request);
-        jspContext.setAttribute("menu", proxy.getDrupalMenu((String)request.getAttribute("drupalBaseUrl")));
+        String url = (String)request.getAttribute("drupalBaseUrl");
+        url = url.replace("dev.", "test.");
+        jspContext.setAttribute("menu", proxy.getDrupalMenu(url));
         
 %>
 <%@attribute name="header" fragment="true"%>
 <%@attribute name="footer" fragment="true"%>
 <%@attribute name="title" fragment="true"%>
 <%@attribute name="breadcrumb" fragment="true"%>
+<%@attribute name="bodyTag" fragment="true"%>
+
 <% // the baseUrl variable is set from the DeploymentInterceptor class %>
 
 <c:set var="domain">${pageContext.request.serverName}</c:set>
@@ -55,46 +59,25 @@
 
 <title><jsp:invoke fragment="title"></jsp:invoke> | International Mouse Phenotyping Consortium</title>
 
-<link type='text/css' rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css' />
-<link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap.min.css' />
-<link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap-responsive.min.css' />
-<link rel="stylesheet" type="text/css" href="${baseUrl}/css/style.min.css"/>
-<style>
 
-body {
-background-image: url('https://www.mousephenotype.org/sites/all/themes/impc_zen/images/bannerBG.jpg');
-background-repeat: repeat-x;
-}
-#menus {font-size:88%;}
-.navbar .nav li a {padding:5px 10px; font-size:13px; color:#555555;}
+<!--  NEW DESIGN CSS -->
 
-<%--
-   changed base path for servlet to /. Must serve images from the resource
-   mapping defined in mvc-config.xml
---%>
-[class^="icon-"],
-[class*=" icon-"] {
-  background-image: url("${baseUrl}/img/glyphicons-halflings.png");
-}
+<!-- css -->
+<link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
+<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.slider.css">
+<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.theme.css">
+<link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
+<link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
+<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.fancybox-1.3.4.css">
+<link href="${baseUrl}/css/default.css?cache=09-01-14" rel="stylesheet" type="text/css" />
+<link href="${baseUrl}/css/heatmap.css?cache=09-01-14" rel="stylesheet" type="text/css" />
+<link href="${baseUrl}/css/wdm.css?cache=09-01-14" rel="stylesheet" type="text/css" />
 
-/* White icons with optional class, or on hover/active states of certain elements */
+<!-- EBI CSS -->
+<link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" />
+<link href="${baseUrl}/css/additionalStyling.css" rel="stylesheet" type="text/css" />
 
-.icon-white,
-.nav-tabs > .active > a > [class^="icon-"],
-.nav-tabs > .active > a > [class*=" icon-"],
-.nav-pills > .active > a > [class^="icon-"],
-.nav-pills > .active > a > [class*=" icon-"],
-.nav-list > .active > a > [class^="icon-"],
-.nav-list > .active > a > [class*=" icon-"],
-.navbar-inverse .nav > .active > a > [class^="icon-"],
-.navbar-inverse .nav > .active > a > [class*=" icon-"],
-.dropdown-menu > li > a:hover > [class^="icon-"],
-.dropdown-menu > li > a:hover > [class*=" icon-"],
-.dropdown-menu > .active > a > [class^="icon-"],
-.dropdown-menu > .active > a > [class*=" icon-"] {
-  background-image: url("${baseUrl}/img/glyphicons-halflings-white.png");
-}
-</style>
 
 <%--
 Short circuit favicon requests
@@ -102,9 +85,11 @@ See: http://stackoverflow.com/questions/1321878/how-to-prevent-favicon-ico-reque
 --%>
 <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 
-<script type="text/javascript">
+</style>
+
+<!-- script type="text/javascript">
 var _gaq = _gaq || [];_gaq.push(["_setAccount", "${googleAnalytics}"]);_gaq.push(["_trackPageview"]);(function() {var ga = document.createElement("script");ga.type = "text/javascript";ga.async = true;ga.src = "${drupalBaseUrl}/sites/mousephenotype.org/files/googleanalytics/ga.js?mjafjk";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(ga, s);})();
-</script>
+</script-->
 
 <script>
 var baseUrl='${baseUrl}';
@@ -137,42 +122,69 @@ try {
 <![endif]-->
 
 <!-- jquery -->
-<script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+<!-- script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
 <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js'></script>
-<script>window.jQuery || document.write('<script src="${baseUrl}/js/vendor/jquery-1.7.2.min.js"><\/script><script src="${baseUrl}/js/vendor/jquery-ui-1.8.18.min.js"><\/script><link type="text/css" rel="stylesheet" href="${baseUrl}/css/vendor/jquery-ui-1.8.18.css" />');</script>
+<script>window.jQuery || document.write('<script src="${baseUrl}/js/vendor/jquery-1.7.2.min.js"><\/script><script src="${baseUrl}/js/vendor/jquery-ui-1.8.18.min.js"><\/script><link type="text/css" rel="stylesheet" href="${baseUrl}/css/vendor/jquery-ui-1.8.18.css" />');</script-->
 
+
+<!-- NEW DESIGN JAVASCRIPT -->
+
+<!-- javascript -->
+<script type="text/javascript" src="${baseUrl}/js/head.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/jquery.dataTables.js'></script>
+<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/core.filter.js'></script>
+<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/TableTools.min.js'></script>
+ <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+ <!--   
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.core.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.widget.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.mouse.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.slider.min.js"></script>
+-->
+<!--[if lt IE 9 ]><script type="text/javascript" src="js/selectivizr-min.js"></script><![endif]-->
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.pack.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.tablesorter.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="http://code.highcharts.com/highcharts-more.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/default.js?cache=09-01-14"></script>
 
 <jsp:invoke fragment="header" />
 
 
 </head>
-<body>
-        <div class="container" style="padding-top:0;">
-                <div class="navbar" style="margin:0; padding:0;text-transform:uppercase;font-weight:bold;">
-                        <div class="row">
-                                <a href="${drupalBaseUrl}/" id="logo" class="span2"><img id="logoImage" src="${baseUrl}/img/IMPC<c:if test='${not fn:contains(drupalBaseUrl,"www")}'>Beta</c:if>logo.png" alt="International Mouse Phenotyping Consortium"/></a>
-                                <ul id="menus" class="nav span10">
-                                        <c:forEach var="menuitem" items="${menu}" varStatus="loop">
-                                        <c:if test="${menuitem.below != null}">
-                                        <li class="dropdown">
-                                                <a id="drop${loop.count}" data-target="#" class="dropdown-toggle" data-toggle="dropdown" href="${drupalBaseUrl}/${menuitem.href}">${menuitem.title} <b class="caret"></b></a>
-                                                <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-submenu" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li>
+
+<jsp:invoke fragment="bodyTag"/>
+	<div id="wrapper">
+	 <header id="header">
+     
+
+ <div class="region region-header">
+            
+            <div id="tn">
+                <ul>
+                    <li><i class="fa fa-user"></i><a href="login.php" title="Login with your account">Login</a></li>
+                    <li><i class="fa fa-sign-in"></i><a href="register.php" title="Register for an account">Register</a></li>
+                </ul>
+            </div>
+            
+            <div id="logo">
+                <!-- a href="index.php"><img src="${baseUrl}/img/IMPC<c:if test='${not fn:contains(drupalBaseUrl,"www")}'>Beta</c:if>logo.png" alt="IMPC Logo" /></a-->
+                <a href="index.php"><img src="${baseUrl}/img/impc.png" alt="IMPC Logo" /></a>
+                <div id="logoslogan">International Mouse Phenotyping Consortium</div>
+            </div>
+            
+						<nav id="mn">
+                <ul class="menu">
+                    <c:forEach var="menuitem" items="${menu}" varStatus="loop">
+                                        <c:if test="${(menuitem.below != null)}">
+                                        <li>
+                                                <a id="drop${loop.count}" data-target="#" href="${drupalBaseUrl}/${menuitem.href}">${menuitem.title} </a>
+                                                <ul>
                                                         <c:forEach var="submenuitem" items="${menuitem.below}">
-                                                        <c:if test="${submenuitem.below != null}">
-                                                        <li class="dropdown-submenu">
-                                                                <a data-target="#" href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${submenuitem.href}">${submenuitem.title}</a>
-                                                                <ul class="dropdown-menu">
-                                                                <c:forEach var="subsubmenuitem" items="${submenuitem.below}">
-                                                                        <li><a href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${subsubmenuitem.href}">${subsubmenuitem.title}</a></li>
-                                                                </c:forEach>
-                                                                </ul>
-                                                        </li>
-                                                        </c:if>
-                                                        <c:if test="${submenuitem.below == null}">
-                                                        <li><a href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${submenuitem.href}">${submenuitem.title}</a></li>
-                                                        </c:if>
-                                                        </c:forEach>
+                                                         	<li><a href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${submenuitem.href}">${submenuitem.title}</a></li>
+                                                      	</c:forEach>
                                                 </ul>
                                         </li>
                                         </c:if>
@@ -180,94 +192,187 @@ try {
                                         <li><a href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li>
                                         </c:if>
                                         </c:forEach>
-                                </ul>
-                                <span id="searchBlock" class="row nav input-append span6">
-                                        <input id="userInput" type="text" />
-                                        <button id="acSearch" type="submit" class="btn"><i class="icon-search"></i> Search</button>
-                                        <div id="bannerSearch"></div>
-                                        <a href="#examples" data-toggle="modal" id="examplesearches" class="pull-right" >View example searches</a>
-                                        <p class="ikmcbreadcrumb">
-                                                <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invoke fragment="breadcrumb" /><%-- breadcrumbs here --%>
-                                        </p>
-                                </span>
-                        </div>
-                </div>
-        
-                <div class="container">
-                <jsp:doBody />
-                </div>
-        
-                <div id="examples" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                        <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                <h3>Example Searches</h3>
-                        </div>
-        
-                        <div class="modal-body">
-                                <p>Sample queries for several fields are shown. Click the desired query to execute any of the samples.
-                                <span class="text-success">Note that queries are focused on Relationships, leaving modifier terms to be applied as filters.</span></p>
-        
-                                <div>
-                                        <h4>Gene query examples</h4>
-                                        <p><a class="example" href="${baseUrl}/search?q=akt2#&core=gene">Akt2</a> - looking for a specific gene, Akt2</p>
-                                        <p><a class="example" href="${baseUrl}/search?q=*rik#core=gene">*rik</a> - looking for all Riken genes</p>
-                                        <p><a class="example" href="${baseUrl}/search?q=hox*#core=gene">hox*</a> - looking for all hox genes</p>
-                                </div>
+						</ul>
+            </nav>
+            <div class="clear"></div>        
+        </div>        
+
+    </header>   
+        <div id="main">
+                <div class="breadcrumb">
+                   <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invoke fragment="breadcrumb" /><%-- breadcrumbs here --%>   
+                </div>        
+                
+                <jsp:doBody />               
                         
-                                <div>
-                                        <h4>Phenotype query examples</h4>
-                                        <p><a class="example" href="${baseUrl}/search?q=abnormal skin morphology#core=mp&fq=ontology_subset:*">abnormal skin morphology</a> - looking for a specific phenotype</p>
-                                        <p><a class="example" href="${baseUrl}/search?q=ear#core=mp&fq=ontology_subset:*">ear</a> - find all ear related phenotypes</p>
-                                </div>
-                        
-                                <div>
-                                        <h4>Procedure query example</h4>
-                                        <p><a class="example" href="${baseUrl}/search?q=grip strength#fq=pipeline_stable_id:IMPC_001&core=pipeline">grip strength</a> - looking for a specific procedure</p>
-                                </div>
-                                
-                                <div>
-                                        <h4>Phrase query example: <h6>using double quotes</h6></h4>
-                                        <p><a class="example" href="${baseUrl}/search?q=&quot;zinc finger protein&quot;#core=gene&fq=marker_type:* -marker_type:&quot;heritable phenotypic marker&quot;">"zinc finger protein"</a> - looking for genes whose product is zinc finger protein</p>
-                                </div>
-                        </div>
+		        </div><!-- /main -->
+        
+    <footer id="footer">
+<jsp:invoke fragment="footer"></jsp:invoke>
+		 
+
+        <div class="centercontent">
+           <div class="region region-footer">
+					   <div id="block-block-7" class="block block-block">
+								<div class="content"><img src="${baseUrl}/img/footerLogos.jpg" />
+									 <div class="clear"></div>
+									 </div>  
+								</div>
+						  </div>
+        </div>
+
+        
+        <div id="footerline">
+            
+            <div class="centercontent">
+                
+                <div id="footersitemap" class="twothird left">&nbsp;</div>
+                <div class="onethird right">
+                    
+                    <div id="vnavi">                    
+                        <ul>
+                            <li>Version: <c:out value="${version}" escapeXml="false"/></li>
+                            <li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/LICENSE">License</a></li>
+                            <li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/CHANGES">Changelog</a></li>
+                        </ul>
+                    </div>
+                    <div class="clear"></div>
+                    
+                    <p class="textright">&copy; 2014 IMPC &middot; International Mouse Phenotyping Consortium</p>
+                    
+                    <div id="fn">
+                        <ul>
+                            <li><a href="#">Imprint</a></li>
+                            <li><a href="#">Legal notices</a></li>
+                        </ul>
+                    </div>
+                    <div class="clear"></div>
+                    
                 </div>
+                
+                    
+                <div class="clear"></div>
+            
+            </div>
         
-                <div class="row-fluid" id='logoFooter'>
-                        <div class="span12 centered-text">
-                                <img alt="IMPC member logos" class="footerLogos"
-                                        src="${drupalBaseUrl}/sites/all/themes/impc_zen/images/footerLogos.jpg"
-                                        style="width: 1222px; height: 50px;">
-                                <jsp:invoke fragment="footer" />
-                                <small class="muted">                                
-                                Version: <c:out value="${version}" escapeXml="false"/> • <a href="http://raw.github.com/mpi2/PhenotypeArchive/master/LICENSE">License</a> • <a href="http://raw.github.com/mpi2/PhenotypeArchive/master/CHANGES">Changelog</a> • <a href="${baseUrl}/documentation/index.html">Help</a>
-                                </small>
-                        </div>
+        </div>
         
-                </div>
-        </div><!-- /container -->
+    </footer>
+                    
+        <!-- <script type="text/javascript" src='${baseUrl}/js/script.min.js' ></script>-->
         
-        <script type="text/javascript" src='${baseUrl}/js/vendor/jquery.ba-bbq.min.js' ></script>
-        <script type="text/javascript" src='${baseUrl}/js/bootstrap/bootstrap.min.js' ></script>
-        <script type="text/javascript" src='${baseUrl}/js/script.min.js' ></script>
-        <script type='text/javascript' src='${baseUrl}/js/vendor/respond.min.js'></script>
-        <script type='text/javascript' src='${baseUrl}/js/vendor/jquery.corner.mini.js'></script>
-        <script type='text/javascript' src='${baseUrl}/js/vendor/jquery.qtip-1.0.0-rc3.min.js'></script>
-        <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js'></script>
+         <script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>   
+        <script type='text/javascript' src='${baseUrl}/js/documentationConfig.js'></script>     
+        <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/geneFacetWidget.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/mpFacetWidget.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/maFacetWidget.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/diseaseFacetWidget.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>                  
+        
+        <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js'></script>       
         
         <compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">
          <script>
-        $(document).ready(function() {
-                // wire up the example queries
-                   $("a.example").click(function(){
-                        $('#examples').modal('hide');
-                        document.location.href = $(this).attr('href');
-                        document.location.reload();
-                });
+        $(document).ready(function() {        		
+        	$(document).ready(function(){	
+    			$.fn.qTip({'pageName':'search',
+    					'textAlign':'left',
+    					'tip':'topLeft',
+    					'posX':235,
+    					'posY':15    					
+    			});
+    			
+    			// non hash tag keyword query
+    			<c:if test="${not empty q}">				
+    				oHashParams = {};
+    				oHashParams.q = "${q}";    				
+    				$.fn.fetchSolrFacetCount(oHashParams);				
+    			</c:if>;
+    					
+    			// hash tag query
+    			// catch back/forward buttons and hash change: loada dataTable based on url params
+    			$(window).bind("hashchange", function() {
+    							
+    				//var url = $.param.fragment();	 
+    				var url = $(location).attr('hash');			
+    				console.log('hash change URL: '+ '/search' + url);
+    				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
+    				
+    				//console.log(oHashParams);								
+    				if ( window.location.search.match(/q=/) ){
+    					oHashParams.q = window.location.search.replace('?q=','')
+    				}
+    				else if ( typeof oHashParams.q === 'undefined' ){
+    					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');					
+    				}
+    				
+    				// search by keyword (user's input) has no fq in url when hash change is detected
+    				if ( oHashParams.fq ){				
+    					// back/forward button navigation: 
+    					// make sure checkboxes are updated according to url
+    					
+    					oHashParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;
+    					oHashParams.widgetName += 'Facet';
+    					
+    					if ( oHashParams.coreName ){
+    						$.fn.removeFacetFilter(oHashParams.coreName);
+    						//console.log(oHashParams.fq);					
+    						var pageReload;  // this controls checking which subfacet to open (ie, show by priority). 
+    										 // Set to undefined for no checking here, as we are now capturing hash change and not page reload
+    						oHashParams.coreName += 'Facet'; 				 
+    								
+    						$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);						
+    						$.fn.loadDataTable(oHashParams);
+    					}
+    					else {						
+    						// parse selected checkbox(es) of this facet
+    						var facet = oHashParams.facetName;
+    						var aFilters = [];
+    						//$('ul#facetFilter li.' + facet + ' li a').each(function(){
+    						$('ul#facetFilter li li a').each(function(){							
+    							aFilters.push($(this).text());
+    						});														
+    						
+    						//console.log('filter: ' + aFilters );
+    						oHashParams.filters = aFilters;
+    						//oHashParams.facetName = facet + 'Facet';
+    						oHashParams.facetName = facet;						
+    						$.fn.loadDataTable(oHashParams);
+    					}
+    				}
+    			});
+    						
+    			$('div#filterToggle').click(function(){	
+    				console.log('filter');
+    				var ul = $('ul#facetFilter');	
+    				if ( ul.is(":visible") ){				
+    					ul.hide();	
+    					$(this).find('span').text('Hide facet filters');
+    				}
+    				else {				
+    					ul.show();				
+    					$(this).find('span').text('Show facet filters');
+    				}
+    			});
+    			
+    		});     	
+        	
+            // wire up the example queries
+               $("a.example").click(function(){
+                    $('#examples').modal('hide');
+                    document.location.href = $(this).attr('href');
+                    document.location.reload();
+            });
 
-                // Message to IE users
-                $.fn.ieCheck();
+            // Message to IE users
+            $.fn.ieCheck();
         });        
         </script>
         </compress:html>
+        </div> <!-- wrapper -->
 </body>
 </html>

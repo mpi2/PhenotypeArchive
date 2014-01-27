@@ -17,7 +17,10 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.sql.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -59,6 +62,10 @@ public class DataTableController {
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 
+	private List<String> alleleTypes_mi = new ArrayList<String>();
+	private List<String> alleleTypes_pa = new ArrayList<String>();
+	
+	
 	/**
 	 * <p>
 	 * Return jQuery dataTable from server-side for lazy-loading.
@@ -166,8 +173,17 @@ public class DataTableController {
 		return jsonStr;
 	}
 
-	public String parseJsonforGeneDataTable(HttpServletRequest request, JSONObject json, String qryStr, String solrCoreName, List<String> filters){
-
+	public String parseJsonforGeneDataTable(HttpServletRequest request, JSONObject json, String qryStr, String solrCoreName, List<String> filters){	
+		
+		// mi_attempt, phenotype_attempt allele types
+		alleleTypes_mi.add("tm1");
+		alleleTypes_mi.add("tm1a");
+		alleleTypes_mi.add("tm1e");		
+		
+		alleleTypes_pa.add("tm1.1");
+		alleleTypes_pa.add("tm1b");
+		alleleTypes_pa.add("tm1e.1");
+		
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config, request);
 
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
@@ -190,27 +206,129 @@ public class DataTableController {
 			String geneInfo = concateGeneInfo(doc, json, qryStr, request);
 			rowData.add(geneInfo);
 
-			// mouse production status
-			String geneStatus = doc.getString("status");
-			rowData.add(geneStatus);
+			// ES cell/mice production status	
+			String prodStatus = deriveProductionStatusForEsCellAndMice(doc, request);			
+			rowData.add(prodStatus);
 			
 			// phenotyping status			
-			rowData.add(solrIndex.deriveLatestPhenotypingStatus(doc));			
+			String phenoStatus = solrIndex.deriveLatestPhenotypingStatus(doc).equals("") ? "" : "<a class='status done'><span>phenotype data available</span></a>";
+			rowData.add(phenoStatus);
 			
 			// register of interest
 			if (registerInterest.loggedIn()) {
 				if (registerInterest.alreadyInterested(doc.getString("mgi_accession_id"))) {
 					rowData.add("<a id='"+doc.getString("mgi_accession_id")+"' href='' class='btn primary interest'>Unregister interest</a>");
-				} else {
+				} 
+				else {
 					rowData.add("<a id='"+doc.getString("mgi_accession_id")+"' href='' class='btn primary interest'>Register interest</a>");
 				}
-			} else {				
-				rowData.add("<a href='/user/register' class='btn primary'>Login to register interest</a>");
+			} 
+			else {	
+				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
+								+ "<i class='fa fa-sign-in'></i>"
+								+ "<a class='regInterest' href='/user/register'>Interest</a>"
+								+ "</div>";
+				
+				rowData.add(interest);
+				//rowData.add("<a href='/user/register' class='btn primary'>Interest</a>");
 			}
+			
 			j.getJSONArray("aaData").add(rowData);			
 		}
 		
 		return j.toString();	
+	}
+		
+	public String deriveProductionStatusForEsCellAndMice(JSONObject doc, HttpServletRequest request){		
+		
+		
+		
+		String geneStatus = doc.getString("status");
+		String prodStatus = "";
+		String miceStr = "";
+		
+		String mgiId = doc.getString("mgi_accession_id");
+		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;
+		
+		// ES cell
+		String esCellStatus = "<a class='status done' href='" + geneUrl + "' oldtitle='ES Cells produced' title=''>"
+					   		+ " <span>ES cells</span>"
+					   		+ "</a>";		
+		
+		if ( geneStatus.equals("Mice Produced") ){	
+			// ES cell
+			prodStatus = esCellStatus;					
+			miceStr = parseAlleleType(doc, "done");			
+		}
+		else if ( geneStatus.equals("Assigned for Mouse Production and Phenotyping") ){
+			prodStatus = esCellStatus; // ES cell
+			miceStr = parseAlleleType(doc, "inprogress");			
+		}
+		else if ( geneStatus.equals("ES Cells Produced") ){		
+			prodStatus = esCellStatus; // ES cell
+						
+			List<String> alleleNames = doc.getJSONArray("es_allele_name");					
+	        
+			Map<String,Integer> seenMap = new HashMap<String,Integer>();	      
+			seenMap.put("tm1", 0);
+			seenMap.put("tm1a", 0);
+			seenMap.put("tm1e", 0);
+			
+			for (int i=0; i< alleleNames.size(); i++) {
+				String alName = alleleNames.get(i);
+				//System.out.println("ALLELE NAME: " + alName);
+				
+				for (String alleleType : alleleTypes_mi){				    
+					if ( alName.contains(alleleType+"(") ){					
+						seenMap.put(alleleType, seenMap.get(alleleType)+1);
+						//tm1seen++;
+						if ( seenMap.get(alleleType) == 1 ){
+							miceStr += "<span class='status none' oldtitle='Mice production planned' title=''>"
+									+  "<span>Mice<br>" + alleleType + "</span>"
+									+  "</span>";	
+						}
+						break;
+					}					
+				}				
+			}			
+		}
+		else if ( geneStatus.equals("Assigned for ES Cell Production") ){
+			prodStatus = "<span class='status inprogress' oldtitle='ES cells production in progress' title=''>"
+					   +  "	<span>ES Cell</span>"
+					   +  "</span>";
+		}	
+		return prodStatus + miceStr;
+	}
+	
+	public String parseAlleleType(JSONObject doc, String prodStatus){		
+		
+		String miceStr = "";			
+		String hoverTxt = prodStatus.equals("done") ? "Mice produced" : "Mice production in progress";
+		
+		//tm1/tm1a/tm1e mice	
+		if ( doc.has("mi_allele_name") ){
+			for (String alleleType : alleleTypes_mi){	
+				if ( doc.getString("mi_allele_name").contains(alleleType+"(") ){					
+					miceStr += "<span class='status " + prodStatus + "' oldtitle='" + hoverTxt + "' title=''>"
+							+  "	<span>Mice<br>" + alleleType + "</span>"
+							+  "</span>";
+					break;
+				}				
+			}	
+		}
+		//tm1.1/tm1b/tm1e.1 mice	
+		else if ( doc.has("pa_allele_name") ){	
+			for (String alleleType : alleleTypes_pa){	
+				if ( doc.getString("pa_allele_name").contains(alleleType+"(") ){					
+					miceStr += "<span class='status " + prodStatus + "' oldtitle='" + hoverTxt + "' title=''>"
+							+  "	<span>Mice<br>" + alleleType + "</span>"
+							+  "</span>";					
+				}
+				break;
+			}	
+		}		
+		
+		return miceStr;
 	}
 	public String parseJsonforProtocolDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters, int start){
 		
@@ -285,45 +403,45 @@ public class DataTableController {
 		
 		return j.toString();	
 	}
-	
 	public String parseJsonforMaDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters, int start){
-		
-		String baseUrl = request.getAttribute("baseUrl") + "/anatomy/";
-		
-		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-		int totalDocs = json.getJSONObject("response").getInt("numFound");
-				
+        
+        String baseUrl = request.getAttribute("baseUrl") + "/anatomy/";
+        
+        JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
+        int totalDocs = json.getJSONObject("response").getInt("numFound");
+                        
         JSONObject j = new JSONObject();
-		j.put("aaData", new Object[0]);
-		
-		j.put("iTotalRecords", totalDocs);
-		j.put("iTotalDisplayRecords", totalDocs);
-		
-		for (int i=0; i<docs.size(); i++){
-			List<String> rowData = new ArrayList<String>();
+        j.put("aaData", new Object[0]);
+        
+        j.put("iTotalRecords", totalDocs);
+        j.put("iTotalDisplayRecords", totalDocs);
+        
+        for (int i=0; i<docs.size(); i++){
+                List<String> rowData = new ArrayList<String>();
 
-			// array element is an alternate of facetField and facetCount			
-			JSONObject doc = docs.getJSONObject(i);
-			String maId = doc.getString("ma_id");
-			String maTerm = doc.getString("ma_term");
-			String maLink = "<a href='" + baseUrl + maId + "'>" + maTerm + "</a>";			
-			rowData.add(maLink);
-			
-			// some MP do not have definition
-			/*String mpDef = "not applicable";
-			try {
-				maDef = doc.getString("ma_definition");
-			} 
-			catch (Exception e) {			 			
-			    //e.printStackTrace();
-			}
-			rowData.add(mpDef);*/	
-			
-			j.getJSONArray("aaData").add(rowData);
-		} 
-		
-		return j.toString();	
+                // array element is an alternate of facetField and facetCount                        
+                JSONObject doc = docs.getJSONObject(i);
+                String maId = doc.getString("ma_id");
+                String maTerm = doc.getString("ma_term");
+                String maLink = "<a href='" + baseUrl + maId + "'>" + maTerm + "</a>";                        
+                rowData.add(maLink);
+                
+                // some MP do not have definition
+                /*String mpDef = "not applicable";
+                try {
+                        maDef = doc.getString("ma_definition");
+                }
+                catch (Exception e) {                                                 
+                 //e.printStackTrace();
+                }
+                rowData.add(mpDef);*/        
+                
+                j.getJSONArray("aaData").add(rowData);
+        }
+        
+        return j.toString();        
 	}
+	
 	
 	public String parseJsonforImageDataTable(JSONObject json, int start, int length, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName, List<String> filters) throws IOException, URISyntaxException{
 		
@@ -634,13 +752,21 @@ public class DataTableController {
 				}
 				
 				field = field == "human_gene_symbol" ? "human ortholog" : field.replace("marker_", " ");
-				geneInfo.add("<span class='gNameSyn'>" + field + "</span>: " + StringUtils.join(info, ", "));
+				//geneInfo.add("<span class='gNameSyn'>" + field + "</span>: " + StringUtils.join(info, ", "));
+				geneInfo.add("<span class='label'>" + field + "</span>: " + StringUtils.join(info, ", "));
 			} 
 			catch (Exception e) {		   		
 			    //e.printStackTrace();
 			}
 		}				
-		return "<div class='geneCol'>" + markerSymbolLink + StringUtils.join(geneInfo, "<br>") + "</div>";
+		//return "<div class='geneCol'>" + markerSymbolLink + StringUtils.join(geneInfo, "<br>") + "</div>";
+		return "<div class='geneCol'><div class='title'>" 
+			+ markerSymbolLink 
+			+ "</div>"
+			+ "<div class='subinfo'>" 
+			+  StringUtils.join(geneInfo, "<br>") 
+			+ "</div>";
+			
 	}
 
 	private List<String> checkMatched(String mgiId, String field, List<String> info, JSONObject json){
@@ -661,8 +787,4 @@ public class DataTableController {
 		}		
 		return info;
 	}
-	
-	
-	
-
 }

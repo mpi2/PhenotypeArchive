@@ -1,84 +1,124 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!doctype html>
+<!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="en" class="no-js ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="en" class="no-js ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="en" class="no-js ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
+    <head>
 
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=1024" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
-<title>International Mouse Phenotyping Consortium Documentation</title>
+        <title>International Mouse Phenotyping Consortium Documentation</title>
 
-<link type='text/css' rel='stylesheet' href='../css/bootstrap.min.css'  />
-<link type='text/css' rel='stylesheet' href='../css/bootstrap-responsive.min.css'  />
-<script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
-<script type="text/javascript" src="../js/helpDocLogo.js"></script>
-<script type="text/javascript"> var _gaq = _gaq || []; _gaq.push(['_setAccount', 'UA-23433997-1']); _gaq.push(['_trackPageview']); (function() { var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })();</script>
+        <!-- css -->
+        <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
+        <link type='text/css' rel='stylesheet' href='../css/vendor/font-awesome/font-awesome.min.css'  />
+        <link type='text/css' rel='stylesheet' href='../css/default.css'  />
+        <link type='text/css' rel='stylesheet' href='../css/wdm.css'  />
+        <script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script type="text/javascript" src="../js/helpDocLogo.js"></script>
 
-</head>
+        <script type="text/javascript"> var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-23433997-1']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga = document.createElement('script');
+                ga.type = 'text/javascript';
+                ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+            })();
+        </script>
 
-<body class="container">
+    </head>
 
-	<div class="row">
-		<div class="well">
-			<h1><a id='logo' href=''><img src='img/IMPClogo.png' /></a>IMPC data portal documentation</h1>
-			<p class="lead">Explore how to retrieve mouse phenotype data</p>
-		</div>
-	</div>
+    <body id="top" class="page-node searchpage one-sidebar sidebar-first small-header">
+        <div id="wrapper">
 
-	<div class="row">
-		<div class="span3">
+            <header id="header">
+                <div class="region region-header">
+                    <div id="logo">
+                        <a href=""><img src="../img/impc.png" alt="IMPC Logo" /></a>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+            </header>        
 
-			<div class="page-header"><h3>Quick help links</h3></div>
-	
-			<ul class="nav nav-list affix-top">
-			
-			<li><a href="index.html">Overview</a></li>
-			<li><a href="search-help.html">Search</a></li>
-			<li><a href="gene-help.html">Genes</a></li>
-			<li><a href="phenotype-help.html">Phenotypes</a> </li>
-            <li><a href="disease-help.html">Diseases</a> </li>
-			<li><a href="image-help.html">Images</a></li>
-			<li><a href="statistics-help.html">Statistics</a> </li>
-			<li><a href="graph-help.html">Graphs</a> </li>
-            <li><a href="api-help.html">RESTful API</a></li>
-			</ul>
-	
-		</div>
+            <div id="main">
 
-		<div class="span9">
+                <!-- Breadcrumb -->
+                <div class="breadcrumb"><a href="/">Home</a> › Documentation</div>
 
-			<div class="page-header"></div> 
+                <!-- Sidebar First -->
+                <div class="region region-sidebar-first">
+                    <div id="facet" class="block">
+                        <div class="head">Quick help links</div>
+                        <div class="content node">
+                            <ul>
+                                <li><a href="index.html">Overview</a></li>
+                                <li><a href="search-help.html">Search</a></li>
+                                <li><a href="gene-help.html">Genes</a></li>
+                                <li><a href="phenotype-help.html">Phenotypes</a> </li>
+                                <li><a href="disease-help.html">Diseases</a> </li>
+                                <li><a href="image-help.html">Images</a></li>
+                                <li><a href="statistics-help.html">Statistics</a> </li>
+                                <li><a href="graph-help.html">Graphs</a> </li>
+                                <li><a href="api-help.html">RESTful API</a></li>
+                            </ul>
 
-			<dl>
-				<dt>The IMPC portal offers a powerful search interface to query information on 
-				mouse production and mouse phenotyping.</dt>
-				<dd><a href="search-help.html">How to find the  data you want</a>
-				</dd>
-			</dl>
-			<dl>
-				<dt>What are some of the the things I can do at the data portal</dt>
-				<dd><a href="gene-help.html">Find gene to phenotype associations, allele maps and more</a></dd>
-				<dd><a href="phenotype-help.html">Find a list of genes associated with a phenotype, 
-assays used to measure the phenotype and more</a></dd>
-                <dd><a href="disease-help.html">Find genes associated with rare diseases</a></dd>				
-                <dd><a href="image-help.html">Retrieve LacZ and phenotype images</a></dd>
-				<dd><a href="graph-help.html">Learn how we visualize phenotype data</a></dd>
-				<dd><a href="statistics-help.html">Learn about the statistical tests used to 
-determine gene to phenotype associations</a></dd>
-			</dl>
+                        </div>
+                    </div>
+                </div>
 
-			<dl>
-				<dt>IMPC Quick Reference Card</dt>
-				<dd><a href="pdf/IMPC-refCard.pdf"><img src="img/pdf-icon.png" alt="IMPC Quick Reference Card"></a>
-				</dd>
-			</dl>
-                        <dl>
-                                <dt>Release notes</dt>
-                                <dd><a href="release/release-notes.html">List of new features and changes to this release</a>
-                                </dd>
-                        </dl>
+                <!-- Maincontent -->
 
-		</div>
-	</div>
+                <div class="region region-content">              
 
-</body>
+                    <div class="block block-system">
+
+                        <div class="content node">
+
+                            <h1>IMPC data portal documentation</h1>
+                            <p>Explore how to retrieve mouse phenotype data</p>
+
+                            <h4>The IMPC portal offers a powerful search interface to query information on 
+                            mouse production and mouse phenotyping.</h4>
+                            <ul>
+                                <li><a href="search-help.html">How to find the  data you want</a>
+                                </li>
+                            </ul>
+
+                            <h4>What are some of the the things I can do at the data portal</h4>
+                            <ul>
+                                <li><a href="gene-help.html">Find gene to phenotype associations, allele maps and more</a></li>
+                                <li><a href="phenotype-help.html">Find a list of genes associated with a phenotype, 
+                                        assays used to measure the phenotype and more</a></li>
+                                <li><a href="disease-help.html">Find genes associated with rare diseases</a></li>				
+                                <li><a href="image-help.html">Retrieve LacZ and phenotype images</a></li>
+                                <li><a href="graph-help.html">Learn how we visualize phenotype data</a></li>
+                                <li><a href="statistics-help.html">Learn about the statistical tests used to 
+                                        determine gene to phenotype associations</a></li>
+                            </ul>
+
+                            <h4>IMPC Quick Reference Card</h4>
+                            <ul>
+                                <li><a href="pdf/IMPC-refCard.pdf"><i class="fa fa-download"></i> pdf</a>
+                                </li>
+                            </ul>
+
+                            <h4>Release notes</h4>
+                            <ul>
+                                <li><a href="release-notes.html">List of new features and changes to this release</a>
+                                </li>
+                            </ul>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
 </html>

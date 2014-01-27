@@ -7,103 +7,168 @@
 <t:genericpage>
 
 	<jsp:attribute name="title">${phenotype.id.accession} (${phenotype.name}) | IMPC Phenotype Information</jsp:attribute>
-
+	
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&core=mp&fq=ontology_subset:*">Phenotypes</a> &raquo; ${phenotype.name}</jsp:attribute>
 
 	<jsp:attribute name="header">
-
-		<link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css" />
+	<!-- CSS Local Imports -->
+		<!-- link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css" />
 		<link rel="stylesheet" type="text/css" href="${baseUrl}/css/custom.css" />
-
 		<style>
 			.ui-dropdownchecklist-selector > .ui-icon {margin-top:4px;}
 			.ui-dropdownchecklist-text {padding:2px;margin:0;}
-		</style>
-
+		</style-->
 	</jsp:attribute>
 
 	<jsp:attribute name="footer">
-
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js'></script>
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js'></script>
 		<script type='text/javascript' src='${baseUrl}/js/imaging/mp.js'></script>
 		<script type='text/javascript' src="${baseUrl}/js/general/dropDownPhenPage.js"></script>
 		<script type='text/javascript' src="${baseUrl}/js/general/toggle.js"></script>
-		
-    </jsp:attribute>
+			 <script>
+			 //ajax chart caller code
+$(document).ready(function(){				
+				    
+	$('.chart').each(function(i, obj) 
+	{
+		var graphUrl=$(this).attr('graphUrl');
+		var id=$(this).attr('id');
+		console.log('id='+id);
+		console.log("obj att"+$(this).attr('graphUrl'));
+		var chartUrl=graphUrl+'&experimentNumber='+id;
+			$.ajax({
+				  url: chartUrl,
+				  cache: false
+			})
+				  .done(function( html ) {
+				    $( '#'+ id ).append( html );
+			});
+			 
+	});	 
+	
+	
+	
+	
+	// bubble popup for brief panel documentation
+	$.fn.qTip({
+				'pageName': 'stats',
+				'textAlign': 'left',
+				'tip': 'topRight'
+	});
+			
+	
+});
+		 </script>
+		 
+  </jsp:attribute>
+
+	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
 
 	<jsp:body>
 
-	<div class='topic'>Phenotype: ${phenotype.name}</div>
-				  
-	<div class="row-fluid dataset">
 
-		<div class='documentation'>
-			<a href='' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a>
-		</div>		    
-
-		<div class="row-fluid">	
-			<div class="container span12">
-				<div class="row-fluid">
-					<div class="container span6">
-						<table class="table table-striped">
-							<tbody>
-								<c:if test="${not empty phenotype.description}">
-								<tr>
-									<td>Definition:</td>
-									<td>${phenotype.description}</td>
-								</tr>
-								</c:if>
-								<c:if test="${not empty synonyms}">
-								<tr>
-									<td>Synonyms:</td>
-									<td>
-										<ul>
-										<c:forEach var="synonym" items="${synonyms}" varStatus="loop">${synonym.symbol}<c:if test="${!loop.last}"><br /></c:if>
-											<c:if test="${loop.count==3 && !loop.last}"><a data-toggle="collapse" data-target="#other_synonyms" href="#">+...</a><div id="other_synonyms" class="collapse"></c:if>
-											<c:if test="${loop.last && fn:length(synonyms) >3}"></div></c:if>
-								
-										</c:forEach>
-										</ul>
-									</td>
-								</tr>
-								</c:if>
-								<c:if test="${not empty procedures}">
-								<tr>
-									<td>Procedure:</td>
-									<td>
-										<ul>
-										<c:forEach var="procedure" items="${procedures}" varStatus="loop">
-											<c:forEach var="pipeline" items="${procedure.pipelines}">
-												<li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.stableKey}">${procedure.name} (${pipeline.name})</a></li>
-											</c:forEach>
-										</c:forEach>
-										</ul>
-									</td>
-								</tr>
-								</c:if>
-								<c:if test="${not empty anatomy}">
-								<tr>
-									<td>Anatomy:</td>
-									<td>
-										<ul>
-										<c:forEach var="term" items="${anatomy}" varStatus="loop">
+	<div class="region region-content">
+		<div class="node node-gene">
+			<h1 class="title">Phenotype: ${phenotype.name}</h1>	  
+				<div class="section">
+					<div class="inner">
+						<div class='documentation'>
+							<a href='' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a>
+						</div>		    
+						<c:if test="${not empty phenotype.description}">
+							<p class="with-label no-margin"> <span class="label"> Definition</span> ${phenotype.description} </p>
+						</c:if>
+						<c:if test="${not empty synonyms}">
+							<p class="with-label no-margin"> <span class="label">Synonyms</span>
+								<c:forEach var="synonym" items="${synonyms}" varStatus="loop">
+									${synonym.symbol}
+									<c:if test="${!loop.last}">, &nbsp;</c:if>
+								</c:forEach>
+							</p>
+						</c:if>
+						<c:if test="${not empty procedures}">
+							<div class="with-label"> <span class="label">Procedure</span>
+								<ul>
+									<c:forEach var="procedure" items="${procedures}" varStatus="loop">
+											<li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.stableKey}">${procedure.name} (${procedure.pipeline.name})</a></li>
+									</c:forEach>
+								</ul>
+							</div>
+						</c:if>
+							<c:if test="${not empty anatomy}">
+							<div class="with-label"> <span class="label">Anatomy</span>
+								<ul>
+									<c:forEach var="term" items="${anatomy}" varStatus="loop">
 										<li><a href="http://informatics.jax.org/searches/AMA.cgi?id=${term.id.accession}">${term.name}</a></li>
-										</c:forEach>
-										</ul>
-									</td>
-								</tr>
-								</c:if>
-								<tr>
-									<td>MGI MP browser:</td>
-									<td><a href="http://www.informatics.jax.org/searches/Phat.cgi?id=${phenotype.id.accession}">${phenotype.id.accession}</a></td>
-								</tr>
-							</tbody>
-						</table>
+									</c:forEach>
+								</ul>
+							</div>
+						</c:if>
+						<p class="with-label"><span class="label">MGI MP browser</span><a href="http://www.informatics.jax.org/searches/Phat.cgi?id=${phenotype.id.accession}">${phenotype.id.accession}</a></p>
 					</div>
-			
-				<%-- There must not be any spaces --%>
-				<div class="container span5">
+				</div>
+				
+				<c:if test="${genePercentage.getDisplay() || overviewPhenCharts.size()>0}">
+					<div class="section collapsed">
+					<h2 class="title" id="data-summary">Phenotype associations stats</h2>
+					<div class='documentation'>
+						<a href='' class='phenotypeStatsPanel'><img	src="${baseUrl}/img/info_20x20.png" /></a>
+					</div>									
+					<div class="inner" style="display: block;">					
+						<!-- Phenotype Assoc. summary -->
+						<div class="half">
+							<p> <span class="muchbigger">${genePercentage.getTotalPercentage()}%</span> of tested genes with null mutations on a B6N genetic background have a phenotype association to ${phenotype.name} (source: EuroPhenome)
+								(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
+							<p class="padleft"><span class="bigger">${genePercentage.getFemalePercentage()}%</span> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </p>
+							<p class="padleft"><span class="bigger">${genePercentage.getMalePercentage()}%</span> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</p>
+						</div>					
+						<!-- Graphs -->
+						<c:if test="${overviewPhenCharts.size()>0}">
+							<div class="half">
+							<div class="graphfilters">
+								<div class="graphfilter">
+									<div class="filtertype">Center</div>
+									<div class="filteroptions">
+									<ul>
+										<li id="center1">CenterA</li>
+										<li id="center2"> CenterB</li> 
+									</ul>
+									</div>
+								</div>
+								<div class="graphfilter">
+									<div class="filtertype">Sex</div>
+									<div class="filteroptions">
+									<ul>
+										<li id="maleFilter">Male</li>
+										<li id="femaleFilter"> Female</li> 
+									</ul>
+									</div>
+								</div>
+							</div>
+							<!-- c:forEach var="categoricalResultAndCharts" items="${overviewPhenCharts}" varStatus="experimentLoop"-->
+							<div class="row-fluid">
+					 				<!-- c:forEach var="categoricalChartDataObject" items="${overviewPhenCharts.get(0)}" varStatus="chartLoop"-->
+					  				 	<div class="container span6">
+													<div id="${overviewPhenCharts.get(0).getId()}"
+														style="min-width: 400px; height: 400px; margin: 0 auto">
+													</div>
+					   								<script type="text/javascript">
+					   								${overviewPhenCharts.get(0).getChart()}
+					   							</script>
+										</div>
+	 								<!-- /c:forEach-->
+								</div>
+							<!-- /c:forEach-->
+						</div>
+					</c:if>
+				<div class="clear"></div>
+				</div>
+				</div>
+			</c:if>
+						
+		<div class="section">	
+		<div class="inner"></div>
 				<c:choose>
 	    				<c:when test="${not empty exampleImages}">
 		      				<div class="row-fluid">
@@ -127,63 +192,20 @@
 							</c:if>
 	    				</c:otherwise>
 				</c:choose>
-			
-		
 				</div>
-			</div>
 		</div>
-	</div>
-</div>
 	
-	<c:if test="${genePercentage.getDisplay()}">
-	<div class="row-fluid dataset">	
+	
+	
+	<div class="section collapsed open">
 		<div class='documentation'>
-			<a href='' class='phenotypeStatsPanel'><img	src="${baseUrl}/img/info_20x20.png" /></a>
+			<a href='' class='relatedMpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a>
 		</div>
-		
-	  <h4 class="caption">Phenotype associations stats</h4>
-		
-		<div class="half">
-			<p> <span class="bigPercent">${genePercentage.getTotalPercentage()}%</span> of tested genes with null mutations on a B6N genetic background have a phenotype association to ${phenotype.name} (source: EuroPhenome)
-			(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
-			<p>&nbsp;&nbsp;&nbsp; <b>${genePercentage.getFemalePercentage()}%</b> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </p>
-			<p>&nbsp;&nbsp;&nbsp; <b>${genePercentage.getMalePercentage()}%</b> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</p>
-		</div>
-		
-		<!-- div class="half container span5"  id="ovRight">
-		</div-->
-		<c:if test="${overviewPhenCharts.size()>0}">
-		<div class="half">
-		<!-- c:forEach var="categoricalResultAndCharts" items="${overviewPhenCharts}" varStatus="experimentLoop"-->
-		<div class="row-fluid">
- 				<!-- c:forEach var="categoricalChartDataObject" items="${overviewPhenCharts.get(0)}" varStatus="chartLoop"-->
-  				 	<div class="container span6">
-								<div id="${overviewPhenCharts.get(0).getId()}"
-									style="min-width: 400px; height: 400px; margin: 0 auto">
-								</div>
-   								<script type="text/javascript">
-   								${overviewPhenCharts.get(0).getChart()}
-   							</script>
-					</div>
- 				<!-- /c:forEach-->
-		</div>
-		<!-- /c:forEach-->
-		</div>
-		</c:if>
-	</div>
-	</c:if>
-	
-<div class="row-fluid dataset">
 
-    <div class='documentation'>
-		<a href='' class='relatedMpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a>
-	</div>
-
-    <h4 class="caption">Gene variants with ${phenotype.name}</h4>
+    <h2 class="title">Gene variants with ${phenotype.name}</h2>
 	   
-	<div class="row-fluid">	    	
-		<div class="container span12">			
-			<div class="row-fluid" id="phenotypesDiv">	
+		<div class="inner" style="display:block;">	 
+			<div id="phenotypesDiv">	
 				<div class="container span12">
 				<c:forEach var="filterParameters" items="${paramValues.fq}">
 			${filterParameters}
@@ -206,17 +228,14 @@
 						<jsp:include page="geneVariantsWithPhenotypeTable.jsp">
 							<jsp:param name="isImpcTerm" value="${isImpcTerm}"/>
 						</jsp:include>
-		<div id="exportIconsDiv"></div>
-					
-			</c:if>
-	</div>
-	<c:if test="${empty phenotypes}">
-		<div class="alert alert-info">Phenotype associations to genes and alleles will be available once data has completed quality control.</div>
-	</c:if>
+						<div id="exportIconsDiv"></div>					
+				</c:if>
+				</div>
+				<c:if test="${empty phenotypes}">
+					<div class="alert alert-info">Phenotype associations to genes and alleles will be available once data has completed quality control.</div>
+				</c:if>
 			</div>
 		</div>
-	</div>
-</div>
 
 
 	<c:if test="${not empty siblings or not empty go}">
@@ -315,7 +334,7 @@
 	</div>
 			<!--  end of phenotype box section -->
 	</c:if>
-
+</div>
     </jsp:body>
 
 </t:genericpage>

@@ -5,7 +5,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>File Not Found</title>
-	<link type='text/css' rel='stylesheet' href='${pageContext.request.contextPath}/css/bootstrap.min.css' media='all' />
+	
 </head>
 
 <body>
@@ -39,6 +39,6 @@
 		</div>
 	</div>
 
-    <script type='text/javascript' src='${pageContext.request.contextPath}/js/bootstrap/bootstrap.min.js'></script>
+   
 </body>
 </html>

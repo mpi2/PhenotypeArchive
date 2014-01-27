@@ -55,11 +55,13 @@
 						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));						
 						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'ma');
 						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';
-						
-						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+												
 						if ( ! window.location.search.match(/q=/) ){
 							window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
-						}					
+						}
+						else {
+							window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+						}
 					}					
 				}	
 			});
@@ -118,6 +120,7 @@
 	    	    		var td1 = $('<td></td>').attr({'class': 'maTopLevel', 'rel': count}).text(aTopLevelCount[i]);	    	    		   	    		
 	    	    		
 	    	    		var a = $('<a></a>').attr({'rel':aTopLevelCount[i]}).text(count);
+	    	    		//var span = $('<span></span>').attr({'class':'subcount'}).text(count);
 	    	    		var td2 = $('<td></td>').attr({'class': 'maTopLevelCount'}).append(a);
 	    	    		table.append(tr.append(td0, td1, td2)); 	        			
 	    	    	}    	

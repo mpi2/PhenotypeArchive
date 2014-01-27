@@ -24,7 +24,7 @@ $(document).ready(function(){
 	
 	$('span.facetCount').text(''); // default when page loads
 	
-	$('input#userInput').val('');  // clears input when pages loads
+	$('input#s').val('');  // clears input when pages loads
 	
 	// default search when search page loads
 	if ( /search\/?$/.exec(location.href) ){
@@ -40,15 +40,15 @@ $(document).ready(function(){
 	}
 	
 	// search via ENTER
-	$('input#userInput').keyup(function (e) {		
+	$('input#s').keyup(function (e) {		
 	    if (e.keyCode == 13) { // user hits enter
 	    	
-	    	var input = $('input#userInput').val();
+	    	var input = $('input#s').val();
 	    	//console.log('user input search: ' + input);
 	    	if (input == ''){
 	    		document.location.href = baseUrl + '/search';
 	    	}
-	    	else {
+	    	else {	    		
 	    		document.location.href = baseUrl + '/search?q=' + input; // handed over to hash change	    	
 	    	}
 	    }
@@ -56,24 +56,5 @@ $(document).ready(function(){
 		$(this).val(''); // clears input 
 	});
 	
-	// search via button click
-	$('button#acSearch').click(function(){
-		
-		var input = $('input#userInput').val();
-		//console.log('button search in search and facet= ' + input);
-		if (input == ''){
-    		document.location.href = baseUrl + '/search';
-    	}
-    	else {
-    		document.location.href = baseUrl + '/search?q=' + input; // handed over to hash change 
-    	}		
-	});		
-
-	
-	// dynamically readjusted position of autosuggest dropdown list due to elastic design of page
-	window.jQuery(window).resize(function(){
-		var pos = window.jQuery('input#userInput').offset();     
-		window.jQuery('ul.ui-autocomplete').css({'position':'absolute', 'top': pos.top + 26, 'left': pos.left}); 
-	});
 	
 });

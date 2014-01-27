@@ -17,11 +17,6 @@
  * 
  */
 jQuery(document).ready(	function() {
-		
-$('.accordion').on('show hide', function(e){
-	console.log('firing toggle');
-    $(e.target).siblings('.accordion-heading').find('.accordion-toggle i').toggleClass('icon-chevron-down icon-chevron-right', 0);
-});
 
 $('a.interest').click(function(){
 	var mgiId = $(this).attr('id');

@@ -51,11 +51,13 @@
 						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));												
 						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'mp');
 						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';
-						
-						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+												
 						if ( ! window.location.search.match(/q=/) ){
 							window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
-						}												
+						}	
+						else {
+							window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+						}
 					}	
 				}	
 			});	
@@ -113,7 +115,7 @@
 						var td0 = $('<td></td>').append(chkbox);      			
 	    	    		var td1 = $('<td></td>').attr({'class': 'mpTopLevel', 'rel': count}).text(aTopLevelCount[i].replace(' phenotype', ''));	    	    		   	    		
 	    	    		
-	    	    		var a = $('<a></a>').attr({'rel':aTopLevelCount[i]}).text(count);
+	    	    		var a = $('<a></a>').attr({'rel':aTopLevelCount[i]}).text(count);	    	    		
 	    	    		var td2 = $('<td></td>').attr({'class': 'mpTopLevelCount'}).append(a);
 	    	    		table.append(tr.append(td0, td1, td2)); 
 	        			

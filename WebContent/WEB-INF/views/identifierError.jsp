@@ -7,7 +7,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>Identifier Error</title>
-	<link type='text/css' rel='stylesheet' href='${baseUrl}/css/bootstrap.min.css' media='all' />
+	
 </head>
 
 <body>
@@ -31,6 +31,6 @@
 	</div>
 
 	<script type='text/javascript' src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-	<script type='text/javascript' src='${baseUrl}/js/bootstrap/bootstrap.min.js'></script>
+	
 </body>
 </html>

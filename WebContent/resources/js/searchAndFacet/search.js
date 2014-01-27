@@ -30,7 +30,11 @@
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
 		
 		var q = oUrlHashParams.q ? oUrlHashParams.q : '*:*';
-
+		
+		if ( q != '*:*' ){
+			$('input#s').val(q);
+		}
+		
 		var facetMode = oUrlHashParams.facetName;
 
 		var oFacets = {};
@@ -45,7 +49,7 @@
 	       	    dataType: 'jsonp',
 	       	    jsonp: 'json.wrf',
 	       	    timeout: 5000,
-	       	    success: function (geneResponse) {
+	       	    success: function (geneResponse) {	  
 	       	    	//console.log(geneResponse);
 	       	    	$('div#geneFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
 	       	    	oFacets.count.gene = geneResponse.response.numFound;	
@@ -54,7 +58,7 @@
 	       	    },
 	       	    error: function (jqXHR, textStatus, errorThrown) {	       	                	        
 	       	        $('div#facetBrowser').html('Error fetching data ...');
-	       	    }            	
+	       	    }           	
 	    });
 	}
 	
@@ -92,8 +96,7 @@
     	    dataType: 'jsonp',
     	    jsonp: 'json.wrf',
     	    timeout: 10000,
-    	    success: function (diseaseResponse) { 	   	    	    		    	   	    	
-    			
+    	    success: function (diseaseResponse) { 
     	    	$('div#diseaseFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.disease = diseaseResponse.response.numFound;    	    	
     	    	_updateFacetCount('diseaseFacet', diseaseResponse, facetMode);	 
@@ -139,8 +142,7 @@
     	    dataType: 'jsonp',
     	    jsonp: 'json.wrf',
     	    timeout: 5000,
-    	    success: function (pipelineResponse) {
-    	    	
+    	    success: function (pipelineResponse) {    	    	
     	    	$('div#pipelineFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.pipeline = pipelineResponse.response.numFound;    	    	
     	    	_updateFacetCount('pipelineFacet', pipelineResponse, facetMode);	 

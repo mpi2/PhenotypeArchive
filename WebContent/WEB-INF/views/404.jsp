@@ -4,7 +4,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>File Not Found</title>
-	<link type='text/css' rel='stylesheet' href='${pageContext.request.contextPath}/css/bootstrap.min.css' media='all' />
+
 </head>
 
 <body>
@@ -31,6 +31,6 @@
 	</div>
 
 	<script type='text/javascript' src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    <script type='text/javascript' src='${pageContext.request.contextPath}/js/bootstrap/bootstrap.min.js'></script>
+   
 </body>
 </html>

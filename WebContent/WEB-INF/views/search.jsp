@@ -1,20 +1,21 @@
-
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 <t:genericpage>
 
 	<jsp:attribute name="title">IMPC Search</jsp:attribute>
+	<jsp:attribute name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute> 
 
 	<jsp:attribute name="header">
 	<style>
-	.pagination {width:450px;}
+	
+	/*.pagination {width:450px;}
 	.pagination, 
 	.pagination a, 
 	.pagination span { white-space:nowrap; font-size:0.95em; border:none; padding:0; margin:0;}
 	.pagination span.page-info { white-space:nowrap; border:none; padding:0; margin:0;}
 	.mpi2-grid {border: 0;}
-	div.last-search{margin-top:0;}
+	div.last-search{margin-top:0;}*/
 	</style>
 	</jsp:attribute>
 
@@ -26,7 +27,8 @@
 	    The params are parsed to load dataTable -->
 	
 	<script type="text/javascript">
-		$(document).ready(function(){	
+	/*jQuery(document).ready(function($){	
+		
 			$.fn.qTip({'pageName':'search',
 					'textAlign':'left',
 					'tip':'topLeft',
@@ -46,14 +48,10 @@
 			$(window).bind("hashchange", function() {
 								
 				var url = $.param.fragment();				
-				console.log('hash change URL: '+ '/search#' + url);
+				//console.log('hash change URL: '+ '/search#' + url);
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 				
-				//console.log(oHashParams);								
-				if ( window.location.search.match(/q=/) ){
-					oHashParams.q = window.location.search.replace('?q=','')
-				}
-				else if ( typeof oHashParams.q === 'undefined' ){
+				if ( typeof oHashParams.q === 'undefined' ){
 					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');					
 				}
 				
@@ -61,51 +59,17 @@
 				if ( oHashParams.fq ){				
 					// back/forward button navigation: 
 					// make sure checkboxes are updated according to url
+					$.fn.removeFacetFilter(oHashParams.coreName);
+					//console.log(oHashParams.fq);					
+					var pageReload;  // this controls checking which subfacet to open (ie, show by priority). 
+									 // Set to undefined for no checking here, as we are now capturing hash change and not page reload
+					$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet', pageReload);				
 					
-					oHashParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;
-					oHashParams.widgetName += 'Facet';
-					
-					if ( oHashParams.coreName ){
-						$.fn.removeFacetFilter(oHashParams.coreName);
-						//console.log(oHashParams.fq);					
-						var pageReload;  // this controls checking which subfacet to open (ie, show by priority). 
-										 // Set to undefined for no checking here, as we are now capturing hash change and not page reload
-						oHashParams.coreName += 'Facet'; 				 
-								
-						$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);						
-						$.fn.loadDataTable(oHashParams);
-					}
-					else {						
-						// parse selected checkbox(es) of this facet
-						var facet = oHashParams.facetName;
-						var aFilters = [];
-						//$('ul#facetFilter li.' + facet + ' li a').each(function(){
-						$('ul#facetFilter li li a').each(function(){							
-							aFilters.push($(this).text());
-						});														
-						
-						//console.log('filter: ' + aFilters );
-						oHashParams.filters = aFilters;
-						//oHashParams.facetName = facet + 'Facet';
-						oHashParams.facetName = facet;						
-						$.fn.loadDataTable(oHashParams);
-					}
+					$.fn.loadDataTable(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet'); 
 				}
-			});
-						
-			$('div#filterToggle').click(function(){	
-				
-				var ul = $('ul#facetFilter');	
-				if ( ul.is(":visible") ){				
-					ul.hide();	
-					$(this).find('span').text('Show facet filters');
-				}
-				else {				
-					ul.show();				
-					$(this).find('span').text('Hide facet filters');
-				}
-			});
-		});
+			});						
+			
+		});*/
 	</script>
 	<!-- end of hash state stuff -->	
 	
@@ -115,7 +79,7 @@
        
     
        <!-- search filter display -->
-       	<div id='filterToggle'><span>Hide facet filters</span></div>       		
+       <!--  <div id='filterToggle'><span>Show facet filters</span></div>             		
 	   	<ul id='facetFilter'> 
 	   	    <li class='has-sub none'>no filter added</li>
 	   		<li class='has-sub gene'>Genes</li>
@@ -125,9 +89,10 @@
 			<li class='has-sub images'>Images</li>
 			<li class='has-sub disease'>Diseases</li>
 		</ul>
-       	<div id='resetFilter'><a href="${baseUrl}/search">Remove all filters</a></div>   
+		<div id='resetFilter'><a href="${baseUrl}/search">Remove all filters</a></div>   
+      -->
        <!--  facet skeleton on left sidebar -->
-		<div id="wrapper">
+		<!-- <div id="wrapper">
 		    <div id="userKeyword" class='rounded-corners'></div>	
 			<div id="content">
 				<div class="ui-widget">
@@ -135,43 +100,134 @@
 				</div>
 				<div id='mainDataContainer'></div>
 			</div>
-		</div>
-		<div class='row-fluid'>	
+		</div>-->
 		
-		<div id="leftSideBar" class='rounded-corners span3'>	
-			<div class='documentation'><a href='' class='facetPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>			
-			<div id='facetBrowser'><img src='img/loading_small.gif' /> Processing search ...</div> 
-			<div id='geneFacet'>
-				<div><div class='facetCat'>Genes</div><span class='facetCount countDisplay'></span></div>
-				<div class='facetCatList'></div>
-			</div>						
-			<div id='mpFacet'>
-				<div><div class='facetCat'>Phenotypes</div><span class='facetCount countDisplay'></span></div>
-				<div class='facetCatList'></div>
+		<div class="region region-sidebar-first">
+			<div id='facet' class='block'>	
+				<div class="head">Filter your search</div>
+				
+				<!-- facet filter block -->
+				<!-- search filter display -->
+		        <div id='filterToggle'><span>Show facet filters</span></div>             		
+			   	<ul id='facetFilter'> 
+			   	    <li class='has-sub none'>no filter added</li>
+			   		<li class='has-sub gene'>Genes</li>
+			   		<li class='has-sub mp'>Phenotypes</li>
+					<li class='has-sub ma'>Anatomy</li>	 
+					<li class='has-sub pipeline'>Procedures</li>
+					<li class='has-sub images'>Images</li>
+					<li class='has-sub disease'>Diseases</li>
+				</ul>
+				<div id='resetFilter'><a href="${baseUrl}/search">Remove all filters</a></div> 
+				
+			    <div class='content'>
+			    	<h2 class='documentation' class='title'>
+						<a href='' id='facetPanel'><i class="fa fa-question-circle pull-right" aria-describedby="qtip-26"></i></a></h2>
+												
+					<div id="leftSideBar" class='rounded-corners span3'>																		
+									
+						<!-- <div id='facetBrowser'><img src='img/loading_small.gif' /> Processing search ...</div>--> 
+						<div id='geneFacet'>
+							<div><div class='facetCat'>Genes</div><span class='facetCount countDisplay'></span></div>
+							<div class='facetCatList'></div>
+						</div>						
+						<div id='mpFacet'>
+							<div><div class='facetCat'>Phenotypes</div><span class='facetCount countDisplay'></span></div>
+							<div class='facetCatList'></div>
+						</div>
+			                        <div id='diseaseFacet'>
+							<div><div class='facetCat'>Diseases</div><span class='facetCount countDisplay'></span></div>
+							<div class='facetCatList'></div>
+						</div>
+						<div id='maFacet'>
+							<div><div class='facetCat'>Anatomy</div><span class='facetCount countDisplay'></span></div>
+							<div class='facetCatList'></div>
+						</div>
+						<div id='pipelineFacet'>
+							<div><div class='facetCat'>Procedures</div><span class='facetCount countDisplay'></span></div>
+							<div class='facetCatList'></div>
+						</div>
+						<div id='imagesFacet'>
+							<div><div class='facetCat'>Images</div><span class='facetCount countDisplay'></span></div>
+							<div class='facetCatList'></div>
+						</div>
+					</div>
+				</div>	
+				<!--  end of facet skeleton on left sidebar -->
 			</div>
-			<div id='diseaseFacet'>
-				<div><div class='facetCat'>Diseases</div><span class='facetCount countDisplay'></span></div>
-				<div class='facetCatList'></div>
+		</div>	
+		<div class="region region-content">
+			<div class="block block-system">
+				<div class='content'>
+					<div class='searchcontent'>
+						<div id="bigsearchbox" class="block">
+							<div class="content">								
+								<p><i id="sicon" class="fa fa-search"></i>
+									<input id="s" type="text" value="Test dummy input" placeholder="Search">
+								</p>									
+							</div>
+						</div>
+					</div>
+					<div class="textright">
+						<a class="has-tooltip" data-hasqtip="19">View example search</a>
+						<div class="data-tooltip">
+							<h3>Example Searches</h3>
+								<p>Sample queries for several fields are shown. Click the desired query to execute any of the samples.
+									<b>Note that queries are focused on Relationships, leaving modifier terms to be applied as filters.</b>
+								</p>
+							<h5>Gene query examples</h5>
+								<p>
+								<a href="#">Akt2</a>
+								- looking for a specific gene, Akt2
+								<br>
+								<a href="#">*rik</a>
+								- looking for all Riken genes
+								<br>
+								<a href="#">hox*</a>
+								- looking for all hox genes
+								</p>
+							<h5>Phenotype query examples</h5>
+								<p>
+								<a href="#">abnormal skin morphology</a>
+								- looking for a specific phenotype
+								<br>
+								<a href="#">ear</a>
+								- find all ear related phenotypes
+								</p>
+							<h5>Procedure query Example</h5>
+								<p>
+								<a href="#">grip strength</a>
+								- looking for a specific procedure
+								</p>
+							<h5>Prase query Example</h5>
+								<p>
+								<a href="#">"zinc finger protein"</a>
+								- looking for genes whose product is zinc finger protein
+								</p>
+						</div>
+					</div>	
+					<!-- facet filter block -->
+					<!-- search filter display -->
+			        <div id='filterToggle'><span>Show facet filters</span></div>             		
+				   	<ul id='facetFilter'> 
+				   	    <li class='has-sub none'>no filter added</li>
+				   		<li class='has-sub gene'>Genes</li>
+				   		<li class='has-sub mp'>Phenotypes</li>
+						<li class='has-sub ma'>Anatomy</li>	 
+						<li class='has-sub pipeline'>Procedures</li>
+						<li class='has-sub images'>Images</li>
+						<li class='has-sub disease'>Diseases</li>
+					</ul>
+					<div id='resetFilter'><a href="${baseUrl}/search">Remove all filters</a></div>   
+								
+					<!-- container to display dataTable -->									
+					<div class="HomepageTable" id="mpi2-search"></div>				
+				</div>
 			</div>
-			<div id='maFacet'>
-				<div><div class='facetCat'>Anatomy</div><span class='facetCount countDisplay'></span></div>
-				<div class='facetCatList'></div>
-			</div>
-			<div id='pipelineFacet'>
-				<div><div class='facetCat'>Procedures</div><span class='facetCount countDisplay'></span></div>
-				<div class='facetCatList'></div>
-			</div>
-			<div id='imagesFacet'>
-				<div><div class='facetCat'>Images</div><span class='facetCount countDisplay'></span></div>
-				<div class='facetCatList'></div>
-			</div>			
 		</div>
-		<!--  end of facet skeleton on left sidebar -->
-		
-		<!--  container to display dataTable -->
-	    <div class="HomepageTable span9" id="mpi2-search"></div>   
-	    </div>
+						
     </jsp:body>
 
 </t:genericpage>
+
 

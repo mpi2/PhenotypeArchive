@@ -50,10 +50,12 @@
 						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));											
 						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'images');
 						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';		
-						
-						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+												
 						if ( ! window.location.search.match(/q=/) ){
 							window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
+						}
+						else {
+							window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
 						}
 					}	
 				}	
@@ -164,6 +166,7 @@
   		    	    		          + "\"}";		    	    		
   		    	    		   		
   		    	    		var a = $('<a></a>').attr({'rel':infos, 'class':fqClass}).text(facetCount);
+  		    	    		//var span = $('<span></span>').attr({'class':'subcount'}).text(facetCount);
   		    	    		var td2 = $('<td></td>').attr({'class': 'imgSubfacetCount'}).append(a);
   		    	    		
   		    	    		if ( i == 0 ){

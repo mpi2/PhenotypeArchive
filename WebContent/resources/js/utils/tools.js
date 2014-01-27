@@ -32,7 +32,7 @@
 	}	
 	$.fn.setFacetCounts = function(q, fqStr, facet){
 		
-		//console.log(q + " -- " +  fqStr + " -- " + facet);		
+		console.log(q + " -- " +  fqStr + " -- " + facet);		
         
         if ( $('ul#facetFilter li li a').size() == 0 ){
 			if ( q == '*:*'){
@@ -775,14 +775,19 @@
 	
 	$.fn.qTip = function(oConf){
 		// pageName: gene | mp | ma
-		$('div.documentation a').each(function(){
-						
-			var key = $(this).attr('class');
+
+		// preappend h2 for efficiency and performance reason
+		$('h2.documentation a').each(function(){	
+			
+			// now use id instead of class for better css logic
+			var key = $(this).attr('id');
+
 			$(this).attr('href', MDOC[oConf.pageName][key+'DocUrl']);
 			
 			$(this).qtip({
-			 	content: MDOC[oConf.pageName][key],
-			   	style: { 
+			 	content: MDOC[oConf.pageName][key], 
+			 	style: { classes: 'qtipimpc' },
+			   /*	style: { 
 			   		delay: 1,
 			    	width: 250,
 			      	padding: 8,
@@ -796,7 +801,7 @@
 			   	  	},
 			    	tip: oConf.tip,//'bottomMiddle', //'bottomLeft',
 			    	name: 'dark' // Inherit the rest of the attributes from the preset dark style
-			   	},				 
+			   	},*/				 
 				show: {		            
 		               event: 'mouseover',
 					   delay: 0
@@ -886,8 +891,8 @@
 	}
 		
 	$.fn.ieCheck = function(){
-		
-		if ( $.browser.msie && $.browser.version < 8.0 ){		
+				
+		/*if ( $.browser.msie && $.browser.version < 8.0 ){		
 			var msg = "<div id='noSupport'>Dear user:<p><p>It appears that you are using Internet Explorer 7 or earlier version.<p>To ensure that IMPC is supporting the best browsing features, functionalities and experiences, " +
 				  "and considering the security issues of older IEs, we decided not to support IE7 and earlier versions.<p>We are sorry if this has caused your inconvenience.<p>Here is a list of supported browsers: " +
 				  "<a href='http://www.mozilla.org'>Firefox</a>, <a href='http://www.google.com/chrome'>Google chrome</a>, <a href='http://support.apple.com/downloads/#internet'>Apple safari</a>.<p>" +
@@ -895,8 +900,34 @@
 			
 			$('div.navbar').siblings('div.container').html(msg);
 			return false;
-		}
+		}*/
+		
+		
+		var ver = getInternetExplorerVersion();
+		
+	    if ( ver < 8.0 ){	        
+	    	var msg = "<div id='noSupport'>Dear user:<p><p>It appears that you are using Internet Explorer 7 or earlier version.<p>To ensure that IMPC is supporting the best browsing features, functionalities and experiences, " +
+			 			"and considering the security issues of older IEs, we decided not to support IE7 and earlier versions.<p>We are sorry if this has caused your inconvenience.<p>Here is a list of supported browsers: " +
+						"<a href='http://www.mozilla.org'>Firefox</a>, <a href='http://www.google.com/chrome'>Google chrome</a>, <a href='http://support.apple.com/downloads/#internet'>Apple safari</a>.<p>" +
+						"IMPC team.</div>";
+	         
+	        $('div.navbar').siblings('div.container').html(msg);
+	        return false;
+	    }
 	}
+	function getInternetExplorerVersion() {
+		
+		// Returns the version of IE or -1	
+	
+	   var rv = -1; // default 
+	   if (navigator.appName == 'Microsoft Internet Explorer') {
+	      var ua = navigator.userAgent;
+	      var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+	      if (re.exec(ua) != null)
+	         rv = parseFloat(RegExp.$1);
+	   }
+	   return rv;
+	}	
 	
 	// inverse simple JSON: eg, {a: 'one', b: 'two}
 	// cannot do complicated nested associated array
@@ -924,9 +955,17 @@
     $.fn.loadFileExporterUI = function(conf){
     	var oFormatSelector = conf.formatSelector;
     	var label = conf.label;    	
-    	var iconDiv = $('<div></div>').attr({'class': 'fileIcons'}).html(label);
+    	var iconDiv = $('<p></p>').attr({'class': 'textright'}).html(label + " &nbsp;");
+    	var it = 0 ;
     	for ( var f in oFormatSelector ){
-    		var btn = $('<button></button>').attr({'class': oFormatSelector[f] + ' ' + conf['class']}).html(f);
+    		if (it++ > 0)
+    			$(iconDiv).append("&nbsp;or&nbsp;");
+    		//var btn = $('<a href="#"></a>').attr({'class': oFormatSelector[f] + ' ' + conf['class']}).html("<i class=\"fa fa-download\"></i> " + f);    		
+    		// changed to use button instead of <a> as this will follow the link and the download won't work when clicked - have tried return false, 
+    		// but due to a couple of ajax down the road, I could not get it to work.
+    		// The button is styled as the new design
+    		var btn = $('<button></button>').attr({'class': oFormatSelector[f] + ' fa fa-download ' + conf['class']}).html(f);
+    		
     		$(iconDiv).append(btn);
     	}
     	return iconDiv;
@@ -1349,10 +1388,10 @@
     		"bProcessing": true,
     		"bServerSide": true,	    		
     		//"sDom": "<'row-fluid'<'span6'><'span6'>>t<'row-fluid'<'span6'i><'span6'p>>",
-    		"sDom": "<'row-fluid'<'#exportSpinner'><'#tableTool'>r>t<'row-fluid'<'span6'i><'span6'p>>",    		
+    		"sDom": "<<'#exportSpinner'><'#tableTool'>r>t<<ip>>",    		
 			"sPaginationType": "bootstrap",    		
     		"fnDrawCallback": function( oSettings ) {  // when dataTable is loaded
-    			    			
+    			
     			// bring in some control logic for image view switcher when dataTable is loaded
     			if ( oInfos.widgetName == 'imagesFacet' ){    				
     				$('span#imgViewSwitcher').click(function(){	
@@ -1413,6 +1452,14 @@
                     });
     				return false;    		    	  
     			});
+    			
+    			$('div.registerforinterest, td .status').each(function(){
+    				$(this).qtip({       			
+    					style: { classes: 'qtipimpc flat' },
+    					position: { my: 'top center', at: 'bottom center' },
+    					content: { text: $(this).attr('oldtitle')}
+    				});	
+    			});    			   			
     			
     			initDataTableDumpControl(oInfos);
     		},
@@ -1504,11 +1551,11 @@
     	$('div#saveTable').remove();
     	$('div#toolBox').remove();
     
-    	var saveTool = $("<div id='saveTable'></div>").html("Export table <img src='"+baseUrl+"/img/floppy.png' />").corner("4px");    	
+    	var saveTool = $("<div id='saveTable'></div>").html("Export table <img src='"+baseUrl+"/img/floppy.png' />");//.corner("4px");    	
     	var toolBox = fetchSaveTableGui();
     	
     	$('div.dataTables_processing').siblings('div#tableTool').append(saveTool, toolBox); 
-    	    	
+    	
     	$('div#saveTable').click(function(){
     		
         	if ( $('div#toolBox').is(":visible")){
@@ -1517,8 +1564,9 @@
     		else {
     			$('div#toolBox').show();        			       			
     			
-    			// browser-specific position fix
-    			if ($.browser.msie  && parseInt($.browser.version, 10) === 8) {
+    			// browser-specific position fix    					
+    		    if ( parseInt( getInternetExplorerVersion()) === 8 ){	        
+    			//if ($.browser.msie  && parseInt($.browser.version, 10) === 8) {
     				$('div#toolBox').css({'top': '-30px', 'left': '65px'});
     			}    			
     	    	var solrCoreName = oInfos.widgetName.replace('Facet','');
@@ -1539,8 +1587,9 @@
     					showImgView: showImgView,
     					gridFields: MPI2.searchAndFacetConfig.facetParams[oInfos.widgetName].gridFields,
     					fileName: solrCoreName + '_table_dump'	
-    	    		});   
-    	    	}).corner('6px'); 
+    	    		});
+    	    		
+    	    	});//.corner('6px'); 
     		}        		
     	});
     }
@@ -1591,14 +1640,15 @@
         	    },
         	    error: function (jqXHR, textStatus, errorThrown) {        	             	        
         	        $('div#facetBrowser').html('Error fetching data ...');
-        	    }            	
-			});
+        	    }        	    
+			});			
 		}
 		else {
 			_doDataExport(url, form);
 		}
 
 		$('div#toolBox').hide();
+		
     }
 
     // NOTE that IE8 prevents from download if over https.
@@ -1610,21 +1660,21 @@
 			cache: false,
 			data: $(form).serialize(),
 			beforeSend:function(){				
-				$('div#exportSpinner').html(MPI2.searchAndFacetConfig.spinnerExport);			
+				$('div#exportSpinner').html(MPI2.searchAndFacetConfig.spinnerExport);						
 			},
 			success:function(data){    				
-				$(form).appendTo('body').submit().remove();
-				$('div#exportSpinner').html('');
+				$(form).appendTo('body').submit().remove();				
+				$('div#exportSpinner').html('');				
 			},
 			error:function(){
 				//alert("Oops, there is error during data export..");
 			}
-		});
+		});    	
     }
     
     function fetchSaveTableGui(){
     	
-    	var div = $("<div id='toolBox'></div>").corner("4px");
+    	var div = $("<div id='toolBox'></div>");//.corner("4px");
     	div.append($("<div class='dataName'></div>").html("Current paginated entries in table"));    	
     	div.append($.fn.loadFileExporterUI({
 			label: 'Export as:',
@@ -1657,7 +1707,7 @@
 		};*/
 				
 		var params = {	
-//				"sDom": "<'row-fluid'<'#foundEntries'><'span6'f>r>t<'row-fluid'<'#tableShowAllLess'><'span6'p>>",
+//				"sDom": "<'row-fluid'<'#foundEntries'><'span6'f>r>t<'row-fluid'<'#tableShowAllLess'><'span6'p>>",				
 //				 "bPaginate":true,
 					"bLengthChange": false,
 					"bSort": true,

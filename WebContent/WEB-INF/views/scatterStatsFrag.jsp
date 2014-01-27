@@ -9,6 +9,11 @@
 								${timeSeriesChartsAndTable.chart}
 		<script type="text/javascript">
 			${scatterChartAndData.chart}
-		</script>
-								
+		</script>	
+	
+	<!-- remove the scatter flag so we go back to the original graph version -->
+						<c:set var="originalUrl" value="${fn:replace(pageContext.request.queryString, 
+                                '&scatter=true', '')}" />
+                                
+                                <a href="${acc}?${originalUrl}">Box Plot / Time Series Graphs</a>	
 	</c:if>
