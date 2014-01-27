@@ -284,10 +284,11 @@ public class ExperimentService {
 			    			}
 
 			    			if (allBatches.size()==1) {
+				    			// If we have enough control data for this sex,
+			    				// use concurrent controls
+
 			    				List<ObservationDTO> potentialControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, s.name(), experiment.getMetadataGroup());
 			
-				    			// Failed to get the required number of control animals
-				    			// fall back to default method
 				    			if (potentialControls.size() >= MIN_CONTROLS) {
 				    				addingControls = potentialControls;
 					    			experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
@@ -313,12 +314,16 @@ public class ExperimentService {
 		    			}
 
 		    			if (allBatches.size()==1) {
-		    				List<ObservationDTO> potentialControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, null, experiment.getMetadataGroup());
-		
-			    			// Failed to get the required number of control animals
-			    			// fall back to default method
-			    			if (potentialControls.size() >= MIN_CONTROLS) {
-			    				addingControls = potentialControls;
+			    			// Only if BOTH counts of male and 
+		    				// female controls are equal or more than MIN_CONTROLS
+		    				//  do we do concurrent controls
+
+		    				List<ObservationDTO> potentialMaleControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, SexType.male.name(), experiment.getMetadataGroup());
+		    				List<ObservationDTO> potentialFemaleControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, SexType.female.name(), experiment.getMetadataGroup());
+	
+			    			if (potentialMaleControls.size() >= MIN_CONTROLS && potentialFemaleControls.size() >= MIN_CONTROLS) {
+			    				addingControls = potentialMaleControls;
+			    				addingControls.addAll(potentialFemaleControls);
 				    			experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
 			    			}
 		    			}
@@ -381,6 +386,13 @@ public class ExperimentService {
 		Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameterStableId, 1, 0);
 		return getExperimentDTO(p.getId(), geneAccession, sex, phenotypingCenterId, zygosity, strain);
 	}
+
+	public List<ExperimentDTO> getExperimentDTO(String parameterStableId, String geneAccession,List<String> sexes, List<String> zygosity, Integer phenotypingCenterId)
+		throws SolrServerException, IOException, URISyntaxException {
+		Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameterStableId, 1, 0);
+		return getExperimentDTO(p.getId(), geneAccession, sexes, zygosity, phenotypingCenterId);
+	}
+
 
 	public List<ExperimentDTO> getExperimentDTO(Integer id, String acc,
 			List<String> genderList, List<String> zyList, Integer phenotypingCenterId) throws SolrServerException, IOException, URISyntaxException {
