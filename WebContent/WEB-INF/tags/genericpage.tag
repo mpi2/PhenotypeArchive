@@ -265,7 +265,7 @@ try {
                 });
 
                 // Message to IE users
-                $.fn.ieCheck();
+                //$.fn.ieCheck();
         });        
         </script>
         </compress:html>
