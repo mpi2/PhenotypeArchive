@@ -48,7 +48,7 @@ public class TimeSeriesChartAndTableProvider {
 	}
 
 	public ChartData doTimeSeriesData(ExperimentDTO experiment,
-			Parameter parameter, String chartId, BiologicalModel expBiologicalModel) throws IOException,
+			Parameter parameter, String experimentNumber, BiologicalModel expBiologicalModel) throws IOException,
 			URISyntaxException {
 		ChartData chartNTableForParameter = null;
 
@@ -118,7 +118,7 @@ public class TimeSeriesChartAndTableProvider {
 									// tables
 				int deimalPlaces = ChartUtils.getDecimalPlaces(experiment);
 				chartNTableForParameter = creatDiscretePointTimeSeriesChart(
-						chartId, title, lines, parameter.checkParameterUnit(1),
+						experimentNumber, title, lines, parameter.checkParameterUnit(1),
 						parameter.checkParameterUnit(2), deimalPlaces,
 						experiment.getOrganisation());
 				chartNTableForParameter.setExperiment(experiment);
@@ -143,7 +143,7 @@ public class TimeSeriesChartAndTableProvider {
 	 * 
 	 * @return
 	 */
-	private ChartData creatDiscretePointTimeSeriesChart(String chartId2,
+	private ChartData creatDiscretePointTimeSeriesChart(String expNumber,
 			String title, Map<String, List<DiscreteTimePoint>> lines,
 			String xUnitsLabel, String yUnitsLabel, int decimalPlaces, String organisation) {
 
@@ -266,8 +266,8 @@ public class TimeSeriesChartAndTableProvider {
 				escapedErrorString + "," + errorBarsToolTip);
 		logger.warn("seriesString=" + seriesString);
 		String axisFontSize = "15";
-		String javascript = "$(function () { var chart; $(document).ready(function() { chart = new Highcharts.Chart({ chart: {  zoomType: 'x', renderTo: '"
-				+ chartId2
+		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ chart: {  zoomType: 'x', renderTo: 'timechart"
+				+ expNumber
 				+ "', type: 'line', marginRight: 130, marginBottom: 50 }, title: { text: '"
 				+ WordUtils.capitalize(title)
 				+ "', x: -20  }, credits: { enabled: false },  subtitle: { text: '"
@@ -286,11 +286,11 @@ public class TimeSeriesChartAndTableProvider {
 				+ "tooltip: {shared: true},"
 				+ "series: "
 				+ seriesString
-				+ " }); }); }); ";
+				+ " }); });  ";
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setOrganisation(organisation);
-		chartAndTable.setId(chartId2);
+		chartAndTable.setId(expNumber);
 		return chartAndTable;
 	}
 

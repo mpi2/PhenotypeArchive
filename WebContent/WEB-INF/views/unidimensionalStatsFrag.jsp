@@ -6,6 +6,7 @@
 					<%-- <c:forEach var="unidimensionalChartsAndTable" items="${unidimensionalDataSet.sexChartAndTables}" varStatus="uniDimensionalLoop">
  					${loop.count  % 2}
  --%>
+ <!-- unidimensional here -->
  	<c:if test="${unidimensionalChartDataSet!=null}">
  	
  	
@@ -16,7 +17,7 @@
    								$(function () {
    								   ${unidimensionalChartDataSet.chartData.chart}
 								</script>
-								<%-- <a href="scatter/${acc}?${pageContext.request.queryString}">Graph by date</a>	 --%>
+								<a href="${acc}?${pageContext.request.queryString}&scatter=1">Graph by date</a>
 		
 				<%-- </c:forEach>
 				 --%>

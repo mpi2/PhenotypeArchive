@@ -471,7 +471,7 @@ public class UnidimensionalChartAndTableProvider {
 				min = val;
 		String chartId = "column-stacked" + mutant.hashCode();
 		String yTitle = "Number of strains";
-		String javascript = "$(function () {    var chart; $(document).ready(function() {chart = new Highcharts.Chart({ chart: {  type: 'column' , renderTo: '"
+		String javascript = "$(document).ready(function() {chart = new Highcharts.Chart({ chart: {  type: 'column' , renderTo: '"
 				+ chartId
 				+ "'},"+
            " title: { text: '" + title + "' },"+
@@ -480,7 +480,7 @@ public class UnidimensionalChartAndTableProvider {
            " yAxis: { min: "+ min + ",  title: {  text: '"+yTitle+"'  }, stackLabels: { enabled: false}  }," +
            " tooltip: { formatter: function() { return ''+  this.series.name +': '+ this.y +'<br/>'+ 'Total: '+ this.point.stackTotal;  }  }, " +
            " plotOptions: { column: {  stacking: 'normal',  dataLabels: { enabled: false} } }," +
-           " series: [{ name: 'Mutant strains with this phenotype called',  data: " +  mutant + "  }, {name: 'Mutant strains with no calls for this phenotype', data: " + control + "}]" +  " });  }); });";
+           " series: [{ name: 'Mutant strains with this phenotype called',  data: " +  mutant + "  }, {name: 'Mutant strains with no calls for this phenotype', data: " + control + "}]" +  " });  }); ";
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setId(chartId);
