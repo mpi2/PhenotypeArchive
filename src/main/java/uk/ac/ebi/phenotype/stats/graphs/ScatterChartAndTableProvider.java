@@ -43,6 +43,7 @@ public class ScatterChartAndTableProvider {
 				+ experimentNumber+"',"
 			    +"         type: 'scatter',"
 			    +"         zoomType: 'xy'"
+			    
 			    +"     },"
 			      +"   title: {"
 			      +"       text: 'Mean corpuscular hemoglobin'"
@@ -132,6 +133,8 @@ public class ScatterChartAndTableProvider {
 	public ScatterChartAndData doScatterData(ExperimentDTO experiment,
 			Parameter parameter, String experimentNumber, BiologicalModel expBiologicalModel) throws IOException,
 			URISyntaxException {
+		
+		
 		ChartData chartNTableForParameter = null;
 		
 		String title="title";
@@ -195,6 +198,9 @@ public class ScatterChartAndTableProvider {
 			}
 			try {
 				controlJsonObject.put("data", dataArray);
+				//if we want opacity not 100% we can use code like below?
+				//controlJsonObject.put("color", "rgba(223, 83, 83, .5)");
+				
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
