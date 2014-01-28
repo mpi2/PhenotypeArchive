@@ -368,13 +368,10 @@ try {
                     document.location.reload();
             });
 
-<<<<<<< HEAD
+
             // Message to IE users
             $.fn.ieCheck();
-=======
-                // Message to IE users
-                //$.fn.ieCheck();
->>>>>>> refs/remotes/origin/master
+
         });        
         </script>
         </compress:html>
