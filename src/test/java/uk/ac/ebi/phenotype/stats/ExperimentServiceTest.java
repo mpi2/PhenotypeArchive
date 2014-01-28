@@ -50,15 +50,15 @@ public class ExperimentServiceTest {
 		
 	}
 	
-	@Test
-	public void testGetGraphUrls() {
-		GraphUtils graphUtils=new GraphUtils(es);
-		try {
-			graphUtils.getGraphUrls("MGI:1922257", "ESLIM_003_001_004");
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+//	@Test
+//	public void testGetGraphUrls() {
+//		GraphUtils graphUtils=new GraphUtils(es);
+//		try {
+//			graphUtils.getGraphUrls("MGI:1922257", "ESLIM_003_001_004");
+//		} catch (SolrServerException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
 
 }
