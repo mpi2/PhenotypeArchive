@@ -138,11 +138,6 @@
 		    			var diseaseFq = fq;
 		    			var coreField = 'disease|'+ diseaseFq + '|';		
 		    			var trClass = fq+'Tr';
-<<<<<<< HEAD
-						var chkbox = $('<input></input>').attr({'class': fq, 'type': 'checkbox', 'rel': coreField + subFacetName + '|' + count});						
-						var flabel = $('<span></span>').attr({'class':'flabel'}).text(subFacetName);
-						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
-=======
 						var chkbox = $('<input></input>').attr({'class': fq, 'type': 'checkbox', 'rel': coreField + subFacetName + '|' + count});
 						var td0 = $('<td></td>').append(chkbox);
 						var tr = $('<tr></tr>').attr({'class':'subFacet ' + trClass + ' ' + fq});						
@@ -150,7 +145,6 @@
 						//var link = $('<a></a>').attr({'rel': subFacetName, 'class': diseaseFq}).text(count);
 						var span = $('<span></span>').attr({'class':'subcount'}).text(count);
 						var td2 = $('<td></td>').attr({'class':'diseaseSubfacetCount ' + fq, 'rel':subFacetName}).append(span);						
->>>>>>> a15c11cafcfeecae8e4e617b7a3d269d90767063
 						
 						if ( subFacetName != 'unclassified' ){	
 							table.append(tr.append(td0, td1, td2));
@@ -174,16 +168,8 @@
 	    			    		
 	    		for ( var assoc in oSubFacets2 ){	    			
 	    			var label = oSubFacets2[assoc].label;
-<<<<<<< HEAD
-	    			var thisFacetSect = $("<li class='fcatsection'></li>");
-	    			
-	    			thisFacetSect.append($('<span></span>').attr({'class':'flabel'}).text(label));	    			
-	    			    		
-	    			var thisUlContainer = $("<ul></ul>");
-=======
 	    			var trCapClass = assoc+'TrCap';
 	    			table.append($('<tr></tr>').attr({'class':'facetSubCat ' + trCapClass + ' ' + assoc}).append($('<td></td>').attr({'colspan':3}).text(label)));
->>>>>>> a15c11cafcfeecae8e4e617b7a3d269d90767063
 	    			
 	    			for ( var fq in oSubFacets2[assoc].subfacets ){
 	    				var thisSubfacet = oSubFacets2[assoc].subfacets[fq]; 
@@ -195,26 +181,6 @@
 				    			var diseaseFq = fq;
 				    			var coreField = 'disease|'+ diseaseFq + '|';		
 							    
-<<<<<<< HEAD
-								var chkbox = $('<input></input>').attr({'class':assoc, 'type': 'checkbox', 'rel': coreField + '1' + '|' + count});								
-								var flabel = $('<span></span>').attr({'class':'flabel'}).text(thisSubfacet);
-								var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
-								liContainer.append(chkbox, flabel, fcount);	
-								thisUlContainer.append(liContainer);							
-			    			}				    			
-			    		}
-			    		thisFacetSect.append(thisUlContainer);
-			    		$('div.flist li#disease > ul').append(thisFacetSect);
-	    			}	
-	    		}	    		    		
-	    		   			
-    			// disease_source is open and rest of disease subfacets are collapsed by default    			
-    			$('div.flist li#disease > ul li:nth-child(1)').addClass('open');    			  						
-	    		
-    			$.fn.initFacetToggles('disease');
-    			
-	    		$('li#disease li.fcat input').click(function(){	    			
-=======
 								var chkbox = $('<input></input>').attr({'class':assoc, 'type': 'checkbox', 'rel': coreField + '1' + '|' + count});
 								var td0 = $('<td></td>').append(chkbox);
 								var trClass = assoc+'Tr';
@@ -255,16 +221,10 @@
 	    		
 	    		$('table#diseaseFacetTbl input').click(function(){
 	    			
->>>>>>> a15c11cafcfeecae8e4e617b7a3d269d90767063
 	    			// // highlight the item in facet	    			
 	    			$(this).parent().parent().find('td.diseaseSubfacet').addClass('highlight');
 					$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
-				});	  
-    			
-    			// update facet count when filters applied
-    			if ( $('ul#facetFilter li li a').size() != 0 ){
-    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'disease');
-    			}    	  		
+				});	    		
     		}
 	    	
 	    	/*--------------------------console.log('inside here');	----------------------------------------------------------*/

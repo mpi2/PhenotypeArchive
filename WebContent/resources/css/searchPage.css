@@ -54,60 +54,10 @@ ul#facetFilter img {
 }
 /* ----- end of  facet filter ----- */
 
-<<<<<<< HEAD
-/* facet - general */
-.fblock                                 { position: relative; }
-.region-sidebar-first .fblock .head     { background: #0978a1; color: #fff; }
-.region-sidebar-first .fblock .content  { background: none; }
-.flist li                               { cursor: pointer; }                         
-.fcount                                 { font-size: 11px; float: right; }
-
-/* facet - main categories */
-.fmcat > .flabel                        { color: #0978A1; font-size: 1.4em; font-weight: 300; }
-.fmcat                                  { margin: 1em 0; }
-.fmcat:before                           { font-family: 'FontAwesome'; content: "\f0da"; color: #0978A1; margin-right: 0.5em; }
-.fmcat.open:before                      { content: "\f0d7"; }
-.fmcat.open + .fmcat                    { margin-top: 2.5em; }
-.fmcat .fcat,
-.fmcat .fcatsection                     { display: none; }
-.fmcat.open .fcat,
-.fmcat.open .fcatsection                { display: block; }
-
-/* facet - categorie headlines */
-.fcatsection > .flabel                  { font-weight: 600; }
-.fcatsection:before                     { font-family: 'FontAwesome'; content: "\f0da"; margin-right: 0.5em; }
-.fcatsection.open:before                { content: "\f0d7"; }
-.fcatsection                            { margin-top: 0.7em; }
-.open .fcatsection .fcat,
-.fcatsection .fcat                      { display: none; }
-.fcatsection.open .fcat                 { display: block; }
-.fcatsection.inactive                   { color: #bbb; }
-.grayout {
-	color: #CCCCCC;
-}
-
-/* facet - categories */
-li.fcat                                 { margin: 0; font-size: 0.9em; line-height: 1.3em; }
-.fcheckbox                              { margin: 0 0.5em 0 -1px; font-size: 0.9em; }
-
-/* highlight checked facet label */
-.highlight {
-	color: #D17023;
-} 
-
-
-/* active facet filter */
-ul#facetFilter > li                     { display: none; }       
-ul#facetFilter li.has-sub               { display: block; }
-ul#facetFilter li.has-sub span.fcap {
-	display: none;
-	font-size: 11px;
-=======
 /* facet panel on search page */
 table#mpFacetTbl td, table#maFacetTbl td{
 	margin:0;
 	padding:0;
->>>>>>> a15c11cafcfeecae8e4e617b7a3d269d90767063
 }
 table.facetTable td:nth-child(3) a {
 	text-decoration: none;

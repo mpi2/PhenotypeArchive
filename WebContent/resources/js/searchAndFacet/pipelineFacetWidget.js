@@ -204,21 +204,6 @@
 	    			if ( $('ul#facetFilter li li a').size() != 0 ){	    				
 	    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'pipeline');
 	    			}	        		
-<<<<<<< HEAD
-
-	    			// IMPC pipeline is open and rest of pipeline subfacets are collapsed by default    			
-	    			$('div.flist li#pipeline > ul li:nth-child(1)').addClass('open');	    		
-	    				    			
-	    			$.fn.initFacetToggles('pipeline');
-	    			//$('div.flist li#pipeline > .flabel').click();
-	    			
-		    		$('li#pipeline li.fcat input').click(function(){	    			
-		    			// // highlight the item in facet	    			
-		    			$(this).siblings('span.flabel').addClass('highlight');
-						$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
-					});	  
-		    		
-=======
 	        		
 	        		
 	        		$('table#pipelineFacetTbl input').click(function(){	        			
@@ -227,7 +212,6 @@
 	        			$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);
 	        		});	        		       		
 	        		
->>>>>>> a15c11cafcfeecae8e4e617b7a3d269d90767063
 	        		/*------------------------------------------------------------------------------------*/
 	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
 	    	    	/*------------------------------------------------------------------------------------*/        		      		

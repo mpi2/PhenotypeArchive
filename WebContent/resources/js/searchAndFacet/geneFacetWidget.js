@@ -289,11 +289,6 @@
 	    		});	    		    		
 	    		$('tr.phenoStatusTrCap td').click();
 	    		
-<<<<<<< HEAD
-	    		$.fn.initFacetToggles('gene');
-	    			    		
-	    		$('li#gene li.fcat input').click(function(){	    			
-=======
 	    		// grayout subfacets having no matches for user query
 	    		if ( self.options.data.hashParams.q != '*:*' ){
 		    		var firstMatch = 0;
@@ -313,7 +308,6 @@
 	    		
 	    		$('table#geneFacetTbl input').click(function(){
 	    			
->>>>>>> a15c11cafcfeecae8e4e617b7a3d269d90767063
 	    			// // highlight the item in facet	    			
 	    			$(this).parent().parent().find('td.geneSubfacet').addClass('highlight');
 					$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					

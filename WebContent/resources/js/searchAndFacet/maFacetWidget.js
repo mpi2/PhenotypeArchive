@@ -124,35 +124,8 @@
 	    	    		var td2 = $('<td></td>').attr({'class': 'maTopLevelCount'}).append(a);
 	    	    		table.append(tr.append(td0, td1, td2)); 	        			
 	    	    	}    	
-<<<<<<< HEAD
-	    	    		    			
-	    			// update all subfacet counts of this facet 
-	        		$('div.flist li#ma > ul').append(maUlContainer);	        		        		
-	        		
-	        		$.fn.initFacetToggles('ma');
-	        		
-	        		$('li#ma li.fcat input').click(function(){	    			
-	        			// // highlight the item in facet	    			
-	        			$(this).siblings('span.flabel').addClass('highlight');
-	    				$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
-	    			});   
-	        		
-	        		/*------------------------------------------------------------------------------------*/
-	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
-	    	    	/*------------------------------------------------------------------------------------*/	
-	        		
-	        		if ( self.options.data.hashParams.fq.match(/.*/) ){	
-	        			
-	    	    		var oHashParams = self.options.data.hashParams;
-	        			
-	    	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams);	    	    		
-	    	    		// now load dataTable    		
-	    	    		$.fn.loadDataTable(oHashParams);
-	        		}    		
-=======
 	    	    	
 	    			self._displayOntologyFacet(json, 'maFacet', table);	
->>>>>>> a15c11cafcfeecae8e4e617b7a3d269d90767063
 	    			
 	    			// update facet count when filters applied
 	    			if ( $('ul#facetFilter li li a').size() != 0 ){
@@ -161,9 +134,6 @@
 	    		}		
 	    	});		    	
 	    	
-<<<<<<< HEAD
-	    },	      
-=======
 	    },
 	    
 	    _displayOntologyFacet: function(json, facetDivId, table){	    	
@@ -195,7 +165,6 @@
 	    		$.fn.loadDataTable(oHashParams);
     		}    		
 	    },	   
->>>>>>> a15c11cafcfeecae8e4e617b7a3d269d90767063
 		
 	    destroy: function () {
 	    	this.removeClass('maFacetWidget');

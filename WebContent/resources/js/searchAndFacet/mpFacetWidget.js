@@ -95,12 +95,6 @@
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
 	    		'success': function(json) {
-<<<<<<< HEAD
-	    			//console.log(json);
-	    				    	    	
-	    	    	var aTopLevelCount = json.facet_counts.facet_fields['annotated_or_inferred_higherLevelMpTermName'];	    	    
-	    	    	var mpUlContainer = $("<ul></ul>");
-=======
 	    			
 	    			// update this if facet is loaded by redirected page, which does not use autocomplete
 	    			$('div#mpFacet span.facetCount').attr({title: 'total number of unique phenotype terms'}).text(json.response.numFound);
@@ -109,7 +103,6 @@
 	    			
 	    	    	//var aTopLevelCount = json.facet_counts.facet_fields['top_level_mp_term'];
 	    	    	var aTopLevelCount = json.facet_counts.facet_fields['annotated_or_inferred_higherLevelMpTermName'];
->>>>>>> a15c11cafcfeecae8e4e617b7a3d269d90767063
 	    	    	
 	    	    	// top level MP terms
 	    	    	for ( var i=0;  i<aTopLevelCount.length; i+=2 ){	    		
@@ -119,38 +112,6 @@
 	        			var count = aTopLevelCount[i+1];						
 	        			var coreField = 'mp|annotated_or_inferred_higherLevelMxTermName|' + aTopLevelCount[i] + '|' + count;
 						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});
-<<<<<<< HEAD
-							    	    		
-	    	    		var flabel = $('<span></span>').attr({'class':'flabel'}).text(aTopLevelCount[i].replace(' phenotype', ''));
-						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
-						liContainer.append(chkbox, flabel, fcount);
-						mpUlContainer.append(liContainer);
-	    	    	}    		    	    	
-	    	    		    			 
-	    			// update all subfacet counts of this facet 
-	        		$('div.flist li#mp > ul').append(mpUlContainer);	        		       		
-	        		
-	        		$.fn.initFacetToggles('mp');
-	        		
-	        		$('li#mp li.fcat input').click(function(){	    			
-	        			// // highlight the item in facet	    			
-	        			$(this).siblings('span.flabel').addClass('highlight');
-	    				$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
-	    			});    		
-	        		
-	        		/*------------------------------------------------------------------------------------*/
-	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
-	    	    	/*------------------------------------------------------------------------------------*/	
-	        		if ( self.options.data.hashParams.fq.match(/.*/) ){   			
-	        			//$.fn.loadDataSetWithoutFilter(self);
-	    	    		var oHashParams = self.options.data.hashParams;
-	        			
-	    	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams);	    	    		
-	    	    		// now load dataTable    		
-	    	    		$.fn.loadDataTable(oHashParams);
-	        		}    	
-	        		
-=======
 						var td0 = $('<td></td>').append(chkbox);      			
 	    	    		var td1 = $('<td></td>').attr({'class': 'mpTopLevel', 'rel': count}).text(aTopLevelCount[i].replace(' phenotype', ''));	    	    		   	    		
 	    	    		
@@ -162,17 +123,12 @@
 	    	    	
 	    			self._displayOntologyFacet(json, 'mpFacet', table);	 
 	    			
->>>>>>> a15c11cafcfeecae8e4e617b7a3d269d90767063
 	    			// update facet count when filters applied
 	    			if ( $('ul#facetFilter li li a').size() != 0 ){	    			
 	    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'mp');
 	    			}	    			
 	    		}		
 	    	});		    	
-<<<<<<< HEAD
-	    },	   
-	    
-=======
 	    },
 	   
 	    _displayOntologyFacet: function(json, facetDivId, table){	    	
@@ -205,7 +161,6 @@
     		}    		
 	    },		
 		
->>>>>>> a15c11cafcfeecae8e4e617b7a3d269d90767063
 	    destroy: function () {    	   
 	    	// does not generate selector class
     	    // if using jQuery UI 1.8.x

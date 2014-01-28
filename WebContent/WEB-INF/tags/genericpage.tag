@@ -299,7 +299,7 @@ try {
     							
     				//var url = $.param.fragment();	 
     				var url = $(location).attr('hash');			
-    				//console.log('hash change URL: '+ '/search' + url);
+    				console.log('hash change URL: '+ '/search' + url);
     				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
     				
     				//console.log(oHashParams);								
