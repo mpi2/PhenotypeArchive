@@ -1,9 +1,6 @@
 package uk.ac.ebi.phenotype.stats;
 
-import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-
 public class ChartData {
-	BiologicalModel expBiologicalModel;
 	private ExperimentDTO experiment;
 	private String chart;
 	String organisation = "";
@@ -18,14 +15,6 @@ public class ChartData {
 	public String getId(){
 		return id;
 	}
-	
-	public BiologicalModel getExpBiologicalModel() {
-		return expBiologicalModel;
-	}
-
-	public void setExpBiologicalModel(BiologicalModel expBiologicalModel) {
-		this.expBiologicalModel = expBiologicalModel;
-	}
 
 	public Float getMin() {
 		return min;
@@ -33,13 +22,6 @@ public class ChartData {
 
 	public void setMin(Float min) {
 		this.min = min;
-	}
-	
-	public void alterMinMax(double d, double e){
-		String chartString = getChart();
-		String newChartString = chartString.replace("min: 0", "min: "+d);
-		newChartString = newChartString.replace("max: 2", "max: "+e);
-		setChart(newChartString);
 	}
 
 	public Float getMax() {

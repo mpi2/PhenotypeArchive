@@ -394,4 +394,43 @@ System.out.println("statslink query="+query);
 	}
 
 
+
+	@Transactional(readOnly = true)
+	public List<CategoricalResult> getCategoricalResultByParameter(
+			Parameter parameter, int mutantBiologicalModel_id, SexType experimentalSex) {
+
+		List<CategoricalResult> data=new ArrayList<CategoricalResult>();
+String query="select * from stats_categorical_results where parameter_id = "+ parameter.getId() +" and experimental_id="+mutantBiologicalModel_id+" and experimental_sex='"+experimentalSex.name()+ "'";
+
+System.out.println("query for categorical results="+query);
+		try {
+			Statement stmt = getConnection().createStatement();
+			ResultSet resultSet = stmt
+					.executeQuery(query);
+			
+			while (resultSet.next()) {	
+				CategoricalResult csr = new CategoricalResult();
+				csr.setCategoryA(resultSet.getString("category_a"));
+				csr.setCategoryB(resultSet.getString("category_b"));
+				//csr.setControlBiologicalModel(cStatsDAO.getControlBiologicalModelByPopulation(populationId));
+				//csr.setControlZygosity(ZygosityType.valueOf(resultSet.getString("control_zygosity")));
+				csr.setControlSex(SexType.valueOf(resultSet.getString("control_sex")));
+				//csr.setExperimentalBiologicalModel(cStatsDAO.getMutantBiologicalModelByPopulation(populationId));
+				csr.setExperimentalZygosity(ZygosityType.valueOf(resultSet.getString("experimental_zygosity")));
+				csr.setExperimentalSex(SexType.valueOf(resultSet.getString("experimental_sex")));
+				csr.setParameter(parameter);
+				//csr.setOrganisation(ccc.getOrganisationByPopulation(populationId));
+				System.out.println("resultset pvalue="+resultSet.getDouble("p_value"));
+				csr.setpValue(resultSet.getDouble("p_value"));
+				csr.setMaxEffect(resultSet.getDouble("max_effect"));
+				data.add(csr);
+			}
+			stmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return data;
+	}
+
+
 }

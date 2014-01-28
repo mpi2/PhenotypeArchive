@@ -22,7 +22,7 @@
 	
 	function _updateFacetCount(facet, response, facetMode){
 		var num = facetMode ? '' : response.response.numFound;		
-		$('div.flist li#' + facet + ' span.fcount').html(num);		
+		$('div#' + facet + ' span.facetCount').html(num);		
 	}
 	
 	var jsonBase = MPI2.searchAndFacetConfig.facetParams;
@@ -51,13 +51,13 @@
 	       	    timeout: 5000,
 	       	    success: function (geneResponse) {	  
 	       	    	//console.log(geneResponse);
-	       	    	$('div.flist li#gene span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
+	       	    	$('div#geneFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
 	       	    	oFacets.count.gene = geneResponse.response.numFound;	
-	       	    	_updateFacetCount('gene', geneResponse, facetMode);	       	    	
+	       	    	_updateFacetCount('geneFacet', geneResponse, facetMode);	       	    	
 	       	    	_doMPAutoSuggest(geneResponse, q, oFacets, facetMode);	            	    
 	       	    },
 	       	    error: function (jqXHR, textStatus, errorThrown) {	       	                	        
-	       	        $('div#facetSrchMsg').html('Error fetching data ...');
+	       	        $('div#facetBrowser').html('Error fetching data ...');
 	       	    }           	
 	    });
 	}
@@ -74,13 +74,13 @@
     	    timeout: 5000,
     	    success: function (mpResponse) { 
     	    	//console.log(mpResponse);
-    	    	$('div.flist li#mp span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
+    	    	$('div#mpFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
        	    	oFacets.count.mp = mpResponse.response.numFound;       	    	
-       	    	_updateFacetCount('mp', mpResponse, facetMode);	 
+       	    	_updateFacetCount('mpFacet', mpResponse, facetMode);	 
     	    	_doDiseaseAutoSuggest(geneResponse, mpResponse, q, oFacets, facetMode);  
     	    },
     	    error: function (jqXHR, textStatus, errorThrown) {				         	        
-				$('div#facetSrchMsg').html('Error fetching data ...');
+				$('div#facetBrowser').html('Error fetching data ...');
 			}        	    
 		});  			
 	}   	
@@ -97,13 +97,13 @@
     	    jsonp: 'json.wrf',
     	    timeout: 10000,
     	    success: function (diseaseResponse) { 
-    	    	$('div.flist li#disease span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
+    	    	$('div#diseaseFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.disease = diseaseResponse.response.numFound;    	    	
-    	    	_updateFacetCount('disease', diseaseResponse, facetMode);	 
+    	    	_updateFacetCount('diseaseFacet', diseaseResponse, facetMode);	 
     	    	_doTissueAutoSuggest(geneResponse, mpResponse, diseaseResponse, q, oFacets, facetMode);    	    	
     	    },
 			error: function (jqXHR, textStatus, errorThrown) {			       	        
-				$('div#facetSrchMsg').html('Error fetching data ...');
+				$('div#facetBrowser').html('Error fetching data ...');
 			} 
 		});
 	}
@@ -121,13 +121,13 @@
     	    timeout: 10000,
     	    success: function (maResponse) {    	    	   	    	    		    	   	    	
     			
-    	    	$('div.flist li#ma span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
+    	    	$('div#maFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.ma = maResponse.response.numFound;    	    	
-    	    	_updateFacetCount('ma', maResponse, facetMode);	     	    	
+    	    	_updateFacetCount('maFacet', maResponse, facetMode);	     	    	
     	    	_doPipelineAutoSuggest(geneResponse, mpResponse, diseaseResponse, maResponse, q, oFacets, facetMode);
     	    },
 			error: function (jqXHR, textStatus, errorThrown) {			       	        
-				$('div#facetSrchMsg').html('Error fetching data ...');
+				$('div#facetBrowser').html('Error fetching data ...');
 			} 
 		});
 	}
@@ -143,13 +143,13 @@
     	    jsonp: 'json.wrf',
     	    timeout: 5000,
     	    success: function (pipelineResponse) {    	    	
-    	    	$('div.flist li#pipeline span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
+    	    	$('div#pipelineFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.pipeline = pipelineResponse.response.numFound;    	    	
-    	    	_updateFacetCount('pipeline', pipelineResponse, facetMode);	 
+    	    	_updateFacetCount('pipelineFacet', pipelineResponse, facetMode);	 
     	    	_doImageAutosuggest(geneResponse, mpResponse, diseaseResponse, maResponse, pipelineResponse, q, oFacets, facetMode); 
     	    },
 			error: function (jqXHR, textStatus, errorThrown) {			        	        
-				$('div#facetSrchMsg').html('Error fetching data ...');
+				$('div#facetBrowser').html('Error fetching data ...');
 			} 
 		});
 	}
@@ -165,9 +165,9 @@
     	    jsonp: 'json.wrf',
     	    timeout: 5000,
     	    success: function (imagesResponse) {  
-    	    	$('div.flist li#images span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
+    	    	$('div#imagesFacet span.facetCount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.images = imagesResponse.response.numFound;    	    	
-    	    	_updateFacetCount('images', imagesResponse, facetMode);	 
+    	    	_updateFacetCount('imagesFacet', imagesResponse, facetMode);	 
     	    
     	    	/* now check which core needs to be displayed by default in the order of 
     	    	 * gene -> mp -> ma -> pipeline -> images -> disease
@@ -187,16 +187,19 @@
     	    		coreName = _setSearchMode(oFacets.count);
     	    	}    	    	   	    	
     	    	
-    	    	$('div#facetSrchMsg').html('&nbsp;');
+    	    	$('div#facetBrowser').html('Search results ...');
     	    	
     	    	if ( ! coreName && ! facetName ){
-    	    		// nothing found    	    		   	    	
-    	    		$('div#mpi2-search').html('INFO: Search keyword "' + q + '" has returned no entry in the database');    	    	    	    		
+    	    		// nothing found
+    	    		$('div#userKeyword').html('Search keyword: ' + q + ' has returned no entry in the database');    	    	
+    	    		$('div#mpi2-search').html('');
+    	    		$('div.facetCatList').html('');
+    	    		$('div.facetCat').removeClass('facetCatUp');	    	    		
     	    	}
     	    	else {    	    	    		
     	        	// remove all previous facet results before loading new facet results
     	    		var thisCore = coreName ? coreName : facetName; 
-    	        	$('li.fmcat > ul').html(''); 
+    	        	$('div.facetCatList').html(''); 
     	        	
     	        	//var widgetName = coreName+'Facet'; 
     	        	var widgetName = thisCore+'Facet';    
@@ -204,7 +207,7 @@
     	        	hashParams.widgetName = widgetName;
     	        	hashParams.q = q;
     	        	     	
-    	        	window.jQuery('li#' + thisCore)[widgetName]({
+    	        	window.jQuery('div#' + widgetName)[widgetName]({
     					data: {	   							 
     							core: coreName,    							
     							//qf: jsonBase[widgetName].qf,
@@ -236,7 +239,7 @@
     	    	}   	    	
     	    },
 			error: function (jqXHR, textStatus, errorThrown) {			        	        
-				$('div#facetSrchMsg').html('Error fetching data ...');
+				$('div#facetBrowser').html('Error fetching data ...');
 			} 
 		});
 	}
@@ -245,7 +248,7 @@
 		
 		var widgetName = core + 'Facet';		
 		
-		window.jQuery('li#' + core).click(function(){
+		window.jQuery('div#' + core + 'Facet').click(function(){
 		
 			var $this = window.jQuery(this);
 			
@@ -258,8 +261,7 @@
 	        	hashParams.widgetName = widgetName;
 	        	hashParams.q = q;
 	        	
-				//if ( $this.find('.facetCatList').html() == '' && $this.find('span.facetCount').text() != '0' ){
-				if ( $this.find('ul').html() == '' && $this.find('span.fcount').text() != '0' ){	
+				if ( $this.find('.facetCatList').html() == '' && $this.find('span.facetCount').text() != '0' ){					
 					$this[widgetName]({  
 						data: {							 
 							core: core,							

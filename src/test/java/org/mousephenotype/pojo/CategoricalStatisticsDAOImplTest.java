@@ -110,4 +110,25 @@ public class CategoricalStatisticsDAOImplTest {
 		assertTrue(count > 0);
 	}
 
+	@Test
+	public void testGetCategoricalResult(){
+//		SELECT * FROM komp2.stats_categorical_results stats, stats_mv_experimental_categorical_values catv where stats.parameter_id=catv.parameter_id and stats.experimental_id=catv.biological_model_id;
+//
+//		SELECT * FROM komp2.stats_categorical_results where p_value<0.05; could join this with one below!
+//
+//		110426, 192100, male, heterozygote, 192101, male, heterozygote, 9, 1321, yes, no, 0.751642, 0.08, 192101, 378541, 9, Asxl1, female, heterozygote, 1321, 1032, yes
+//
+//		biological_models : control_id=192100 experimental_id=192101 parameter_id=1321 (1321, ESLIM_010_001_002, Passive rotation, , , , 1, 0, 0, 0, 1, 1, 1, 0, 0, Passive_rotation, 1, 0, 0, 6, 391
+//		)
+
+		Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion("ESLIM_010_001_002", 1, 0);
+		// param id= 1945
+		List<CategoricalResult> results = null;
+		results = cStatsDAO.getCategoricalResultByParameter(parameter, 192100, null);
+		System.out.println("categgoricalresult size="+results.size());
+		for(CategoricalResult result: results){
+			System.out.println("pValue="+result.getpValue());
+		}
+		assertTrue(results.size() > 0);
+	}
 }

@@ -8,3 +8,4 @@
 <a href="https://databases.apf.edu.au/mutations/snpRow/list?mgiAccessionId=${acc}">ENU (${makeEnuLink})</a>
 </td>
 </c:if>
+

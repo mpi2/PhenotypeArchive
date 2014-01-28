@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
@@ -35,7 +36,18 @@ public class ObservationServiceTest {
 	private OrganisationDAO organisationDAO;
 
 	
-	
+	@Test
+	public void testGetExperimentKeys() {
+		Map<String,List<String>> keys=null;
+		//http://localhost:8080/phenotype-archive/stats/genes/MGI:1922257?parameterId=ESLIM_003_001_004&zygosity=homozygote
+			try {
+				keys = os.getExperimentKeys("MGI:1922257","ESLIM_003_001_004");
+			} catch (SolrServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		assertTrue(keys.size()>0);
+	}
 	
 	@Test
 	public void testGetAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity() throws SolrServerException {

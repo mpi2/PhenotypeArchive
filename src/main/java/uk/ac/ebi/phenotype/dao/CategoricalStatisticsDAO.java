@@ -67,4 +67,7 @@ public interface CategoricalStatisticsDAO extends StatisticsDAO {
 	
 	public  List<Map<String,String>>  getListOfUniqueParametersAndGenes(int start, int length) throws SQLException;
 
+	public List<CategoricalResult> getCategoricalResultByParameter(Parameter parameter, int i, SexType sexType);
+	
+
 }

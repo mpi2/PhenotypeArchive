@@ -2,66 +2,41 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
-<c:if test="${fn:length(allUnidimensionalDataSets) > 0}">
-			<div id="exportIconsDivUni"></div>
-</c:if>
 
-<c:forEach var="unidimensionalDataSet" items="${allUnidimensionalDataSets}" varStatus="unidimensionalDataSetLoop">
-<c:if test="${fn:length(unidimensionalDataSet.statsObjects)>0}">
- <div class="row-fluid dataset"> 
-		 	<div class="row-fluid">
-		 	<!-- statsObject 1 is the first non WT set which is where we get the background strain from not 0 which is control which we currently don't pass to graphs the background strain for -->
-		 			<div class="container span6"><h4>Allele -  <t:formatAllele> ${unidimensionalDataSet.statsObjects[1].allele }</t:formatAllele> <span class="graphGenBackground">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${unidimensionalDataSet.statsObjects[1].geneticBackground }</span></h4>
-				 	<h5>${unidimensionalDataSet.organisation }</h5>
-					<!-- 
-					<ul><c:forEach var="metadata" items="${unidimensionalDataSet.experiment.metadata}">
-						<li>${metadata}</li>
-					</c:forEach></ul>
-					 -->
-					<!--
-					Metadata group: ${unidimensionalDataSet.experiment.metadataGroup}
-					Control animal IDs: <c:forEach var="animal" items="${unidimensionalDataSet.experiment.controls}">${animal.externalSampleId}, </c:forEach>
-					-->
-		 	</div>
- 			</div>
- 			<div class="row-fluid">
-					<c:forEach var="unidimensionalChartsAndTable" items="${unidimensionalDataSet.sexChartAndTables}" varStatus="uniDimensionalLoop">
- 					<%-- ${loop.count  % 2} --%>
-
-  					<div class="container span6">
-						<div id="chart${unidimensionalDataSetLoop.count}_${uniDimensionalLoop.count}_${unidimensionalDataSet.experiment.metadataGroup}"
-									style="min-width: 400px; height: 400px; margin: 0 auto">
-						</div>
+					<%-- <c:forEach var="unidimensionalChartsAndTable" items="${unidimensionalDataSet.sexChartAndTables}" varStatus="uniDimensionalLoop">
+ 					${loop.count  % 2}
+ --%>
+ <!-- unidimensional here -->
+ 	<c:if test="${unidimensionalChartDataSet!=null}">
+ 	
+ 	
+  					<div id="chart${experimentNumber}">
+								</div>
    								<script type="text/javascript">
    
    								$(function () {
-   								    $('#chart${unidimensionalDataSetLoop.count}_${uniDimensionalLoop.count}_${unidimensionalDataSet.experiment.metadataGroup}').highcharts(${unidimensionalChartsAndTable.chart});
+   								   ${unidimensionalChartDataSet.chartData.chart}
 								</script>
-								<a href="scatter/${acc}?${pageContext.request.queryString}">Graph by date</a>	
-								
-					</div><!-- end of span6  individual chart holder -->
-			
+								<a href="${acc}?${pageContext.request.queryString}&scatter=1">Graph by date</a>
 		
-				</c:forEach>
-				
-		</div><!-- end of chart row-fluid -->
-		<table id="continuousTable${uniDimensionalLoop.count}" class="table table-bordered  table-striped table-condensed">
+				<%-- </c:forEach>
+				 --%>
+	
+		<table id="continuousTable" class="table table-bordered  table-striped table-condensed">
 		<thead><tr>
 		<th>Line</th>
 		<th>Zygosity</th>
-			<%-- <th>Sex</th> --%>
 			<th>Mean</th>
 			<th>SD</th>
 			<th>Sex</th>
 			<th>Count</th>
 			<th>Effect Size</th>
 			<th>pValue</th>
-		<%-- <th>${tables[loop.count-1].xAxisCategories[1]}</th><th>${tables[loop.count-1].xAxisCategories[2]}</th> --%>
 		</tr></thead>
 		<tbody>									
 										
 										
-											<c:forEach var="statsObject" items="${unidimensionalDataSet.statsObjects}">
+											<c:forEach var="statsObject" items="${unidimensionalChartDataSet.statsObjects}">
 												<tr>
 												<td>${statsObject.line}</td>
 												<c:choose>
@@ -72,15 +47,6 @@
 												<td>${statsObject.zygosity}</td>
 												</c:when>
 												</c:choose>
-												<%-- <c:choose>
-												<c:when test="${statsObject.line =='Control' }">
-												<td>Mixed</td>
-												</c:when>
-												<c:when test="${statsObject.line !='Control' }">
-												<td>${statsObject.sexType}</td>
-												</c:when>
-												</c:choose> --%>
-												
 												<td>${statsObject.mean}</td>
 												<td>${statsObject.sd}</td>
 												<td><c:choose><c:when test="${statsObject.sexType eq 'female'}"><img style="cursor:help;color:#D6247D;" rel="tooltip" data-placement="top" title="Female" alt="Female" src="${baseUrl}/img/icon-female.png" /></c:when><c:otherwise><img style="cursor:help;color:#247DD6;" rel="tooltip" data-placement="top" title="Male" alt="Male" src="${baseUrl}/img/icon-male.png" /></c:otherwise></c:choose></td>
@@ -94,13 +60,6 @@
 												<td>${statsObject.result.pValue}</td>
 												</tr>
 												</c:forEach>
-												
-									
-										
-										<%-- <td>${tables[loop.count-1].seriesDataForCategoricalType[0][0]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[0][1]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[0][2]}</td>
-										 </tr>--%>
-										<%-- <tr><td>${tables[loop.count-1].categories[1]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[1][0]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[1][1]}</td><td>${tables[loop.count-1].seriesDataForCategoricalType[1][2]}</td>
-										 </tr>--%>
 										</tbody>
 										</table>
 				
@@ -109,10 +68,10 @@
 				<div class="row-fluid">
 						<div class="container span12">
 						<table class="ttable table-bordered  table-striped table-condensed">
-						<%-- ${fn:length(unidimensionalDataSet.allUnidimensionalResults)} --%>
+						${fn:length(unidimensionalDataSet.allUnidimensionalResults)}
 						
  							<c:forEach var="data" items="${unidimensionalDataSet.allUnidimensionalResults}">
- 							<%-- <td>${data.significanceClassification}</td> --%>
+ 							<td>${data.significanceClassification}</td>
  									<c:choose>
           									<c:when test="${data.significanceClassification == 'both_equally' || data.significanceClassification == 'none'  || data.significanceClassification == 'cannot_classify' }">
           												<tr><th>Global Test</th><th>Significance/Classification</th><th>Effect</th></tr>
@@ -128,7 +87,7 @@
 									</c:forEach>
  	 							</table>
  	 							
- 	 		<%-- <table class="ttable table-bordered  table-striped table-condensed">
+ 	 		<table class="ttable table-bordered  table-striped table-condensed">
 						<tr>
 						<th>colonyId</th>
 						<th>experimentalZygosity</th>
@@ -199,13 +158,15 @@
  							<td>${data.genderMaleKoPValue }</td>
  							</tr>
 						</c:forEach>
- 	 					</table>--%>
+ 	 					</table>
  	 							
  						</div>
  				</div>
  				
  				</c:if>
- 				<script>
+ 				
+ 				</c:if>
+ 	<!-- 			<script>
 	$(document)
 			.ready(
 					function() {
@@ -296,9 +257,6 @@
 									});
 						}
 					});
-</script>	
+</script>	 --%>
 	<!-- </div> -->
-</div><!-- end of row fluid data set -->
-</c:if>
-</c:forEach><!--  end of undimensional data loop -->
 

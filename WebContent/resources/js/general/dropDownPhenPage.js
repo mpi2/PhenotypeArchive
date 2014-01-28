@@ -7,6 +7,12 @@ $(document).ready(function(){
 		'tip': 'topRight'
 	});
 	
+	$( "#show_other_procedures" ).click(function() {
+		  $( "#other_procedures" ).toggle( "slow", function() {
+		    // Animation complete.
+		  });
+		});
+	
 	//function to fire off a refresh of a table and it's dropdown filters
 	var selectedFilters = "";
 	var dropdownsList = new Array();
@@ -74,7 +80,7 @@ $(document).ready(function(){
 			var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");		
 			_doDataExport(url, form);
 			console.log(sInputs);
-		});	 
+		}).corner('6px');	 
 	}  
 
 	 function _doDataExport(url, form){
@@ -231,6 +237,8 @@ $(document).ready(function(){
 		refreshPhenoTable(newUrl);
 		return false;
 	}
+
+	
 });
 
 

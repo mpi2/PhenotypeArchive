@@ -61,8 +61,8 @@ public class CategoricalResult extends StatisticalResult implements Serializable
 	@Column(name = "p_value")
 	private double pValue;
 
-	@Column(name = "effect_size")
-	private Double effectSize;
+	@Column(name = "max_effect")
+	private double maxEffect;
 
 
 	/**
@@ -169,17 +169,17 @@ public class CategoricalResult extends StatisticalResult implements Serializable
 	}
 
 	/**
-	 * @return the effectSize
+	 * @return the maxEffect
 	 */
-	public Double getEffectSize() {
-		return effectSize;
+	public double getMaxEffect() {
+		return maxEffect;
 	}
 
 	/**
-	 * @param effectSize the effectSize to set
+	 * @param maxEffect the maxEffect to set
 	 */
-	public void setEffectSize(double effectSize) {
-		this.effectSize = effectSize;
+	public void setMaxEffect(double maxEffect) {
+		this.maxEffect = maxEffect;
 	}
 
 	@Override
@@ -210,7 +210,7 @@ public class CategoricalResult extends StatisticalResult implements Serializable
 						.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		long temp;
-		temp = Double.doubleToLongBits(effectSize);
+		temp = Double.doubleToLongBits(maxEffect);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result
 				+ ((organisation == null) ? 0 : organisation.hashCode());
@@ -281,8 +281,8 @@ public class CategoricalResult extends StatisticalResult implements Serializable
 		} else if (!id.equals(other.id)) {
 			return false;
 		}
-		if (Double.doubleToLongBits(effectSize) != Double
-				.doubleToLongBits(other.effectSize)) {
+		if (Double.doubleToLongBits(maxEffect) != Double
+				.doubleToLongBits(other.maxEffect)) {
 			return false;
 		}
 		if (organisation == null) {
@@ -312,7 +312,7 @@ public class CategoricalResult extends StatisticalResult implements Serializable
 				" catB="+categoryB+" controlSex="+controlSex+
 				" controlZyg="+controlZygosity+" experimentalZyg="+
 				experimentalZygosity+"  experimentalSex="+experimentalSex+
-				" pValue="+pValue+"  effectSize="+effectSize; 
+				" pValue="+pValue+"  maxEffect="+maxEffect; 
 	}
 	
 	

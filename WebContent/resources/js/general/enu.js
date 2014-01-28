@@ -18,6 +18,7 @@
  */
 jQuery(document).ready(	function() {
 
+
 //code for setting ENU links on Gene Page	
 	
 	$.ajax({
@@ -35,7 +36,6 @@ jQuery(document).ready(	function() {
 	    	$('#enu').html(errorMsg);
 	    }
 	});
-
 
 
 });

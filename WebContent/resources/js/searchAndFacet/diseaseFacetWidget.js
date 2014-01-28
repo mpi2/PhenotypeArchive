@@ -25,7 +25,43 @@
 	    
     	_create: function(){
     		// execute only once 	
-    		$.fn.widgetExpand(this);		
+    		var self = this;
+    		
+    		var facetDivId = self.element.attr('id');
+    		var caller = self.element;
+    		delete MPI2.searchAndFacetConfig.commonSolrParams.rows;	 
+    		
+			caller.find('div.facetCat').click(function(){
+				if ( caller.find('span.facetCount').text() != '0' ){
+					
+					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
+					
+					caller.parent().find('div.facetCat').removeClass('facetCatUp');
+					
+					if ( caller.find('.facetCatList').is(':visible') ){					
+						caller.parent().find('div.facetCatList').hide(); // collapse all other facets                     
+						caller.find('.facetCatList').hide(); // hide itself					
+					}
+					else {	
+						caller.parent().find('div.facetCatList').hide(); // collapse all other facets 
+						caller.find('.facetCatList').show(); // show itself					
+						$(this).addClass('facetCatUp');						
+					
+						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));							
+						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'disease');						
+						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';
+												
+						if ( ! window.location.search.match(/q=/) ){
+							window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
+						}	
+						else {
+							window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+						}
+					}
+				}
+			});				
+						
+			// click on SUM facetCount to fetch results in grid: deprecated				
     	},
     	 	        	
 	    // want to use _init instead of _create to allow the widget being invoked each time by same element
@@ -80,24 +116,21 @@
 	    	/* ------ displaying sidebar and update dataTable ------ */
 	    	/*-------------------------------------------------------*/
 	    	
-	    	if (numFound > 0){  				    		
-	    			    		
+	    	if (numFound > 0){	    		
+	    		
+	    		var table = $("<table id='diseaseFacetTbl' class='facetTable'></table>");	
+	    		
 	    		// Subfacets: disease classifications/sources
 	    		var oSubFacets1 = {'disease_source':'Sources', 'disease_classes':'Classifications'};  
 	    		for ( var fq in oSubFacets1 ){	    			
 	    		    var label = oSubFacets1[fq];
 	    			var aData = json.facet_counts['facet_fields'][fq];
+	    			var trCap = fq+'TrCap';
+	    			table.append($('<tr></tr>').attr({'class':'facetSubCat '+ trCap + ' ' + fq}).append($('<td></td>').attr({'colspan':3}).text(label)));
+    				    		
+	    			var unclassifiedTr;
 	    		
-	    			//table.append($('<tr></tr>').attr({'class':'facetSubCat '+ trCap + ' ' + fq}).append($('<td></td>').attr({'colspan':3}).text(label)));
-	    			var thisFacetSect = $("<li class='fcatsection'></li>");		 
-	    			thisFacetSect.append($('<span></span>').attr({'class':'flabel'}).text(label));	    			
-	    			
-	    			var unclassified;
-	    			var thisUlContainer = $("<ul></ul>");
-	    			
 	    			for ( var i=0; i<aData.length; i=i+2 ){
-	    				var liContainer = $("<li></li>").attr({'class':'fcat ' + fq});
-	    				
 		    			var subFacetName = aData[i];
 		    			
 		    			var count = aData[i+1];
@@ -105,24 +138,31 @@
 		    			var diseaseFq = fq;
 		    			var coreField = 'disease|'+ diseaseFq + '|';		
 		    			var trClass = fq+'Tr';
+<<<<<<< HEAD
 						var chkbox = $('<input></input>').attr({'class': fq, 'type': 'checkbox', 'rel': coreField + subFacetName + '|' + count});						
 						var flabel = $('<span></span>').attr({'class':'flabel'}).text(subFacetName);
 						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
+=======
+						var chkbox = $('<input></input>').attr({'class': fq, 'type': 'checkbox', 'rel': coreField + subFacetName + '|' + count});
+						var td0 = $('<td></td>').append(chkbox);
+						var tr = $('<tr></tr>').attr({'class':'subFacet ' + trClass + ' ' + fq});						
+						var td1 = $('<td></td>').attr({'class':'dClass diseaseSubfacet ' + fq, 'rel':count}).text(subFacetName);
+						//var link = $('<a></a>').attr({'rel': subFacetName, 'class': diseaseFq}).text(count);
+						var span = $('<span></span>').attr({'class':'subcount'}).text(count);
+						var td2 = $('<td></td>').attr({'class':'diseaseSubfacetCount ' + fq, 'rel':subFacetName}).append(span);						
+>>>>>>> a15c11cafcfeecae8e4e617b7a3d269d90767063
 						
-						if ( subFacetName != 'unclassified' ){							
-							liContainer.append(chkbox, flabel, fcount);
+						if ( subFacetName != 'unclassified' ){	
+							table.append(tr.append(td0, td1, td2));
 						}
-						else {							
-							unclassified = liContainer.append(chkbox, flabel, fcount);
+						else {
+							unclassifiedTr = tr.append(td0, td1, td2);
 						}
-						thisUlContainer.append(liContainer);	
 		    		}
 		    		
-		    		if ( fq == 'disease_classes' && unclassified){
-		    			thisUlContainer.append(unclassified);
-		    		}	
-		    		thisFacetSect.append(thisUlContainer);
-		    		$('div.flist li#disease > ul').append(thisFacetSect);
+		    		if ( thisSubfacet == 'disease_classes' && unclassifiedTr){
+		    			table.append(unclassifiedTr);
+		    		}	 	
 	    		}
 	    		
 	    		// Subfacets: curated/predicted gene associations
@@ -134,25 +174,28 @@
 	    			    		
 	    		for ( var assoc in oSubFacets2 ){	    			
 	    			var label = oSubFacets2[assoc].label;
+<<<<<<< HEAD
 	    			var thisFacetSect = $("<li class='fcatsection'></li>");
 	    			
 	    			thisFacetSect.append($('<span></span>').attr({'class':'flabel'}).text(label));	    			
 	    			    		
 	    			var thisUlContainer = $("<ul></ul>");
+=======
+	    			var trCapClass = assoc+'TrCap';
+	    			table.append($('<tr></tr>').attr({'class':'facetSubCat ' + trCapClass + ' ' + assoc}).append($('<td></td>').attr({'colspan':3}).text(label)));
+>>>>>>> a15c11cafcfeecae8e4e617b7a3d269d90767063
 	    			
 	    			for ( var fq in oSubFacets2[assoc].subfacets ){
 	    				var thisSubfacet = oSubFacets2[assoc].subfacets[fq]; 
 		    			var aData = json.facet_counts['facet_fields'][fq];  		
 			    		for ( var i=0; i<aData.length; i=i+2 ){
-			    			
-			    			var liContainer = $("<li></li>").attr({'class':'fcat ' + fq});
 			    			var dPositive = aData[i];
-			    			
 			    			if ( dPositive == '1'){
 				    			var count = aData[i+1];
 				    			var diseaseFq = fq;
 				    			var coreField = 'disease|'+ diseaseFq + '|';		
 							    
+<<<<<<< HEAD
 								var chkbox = $('<input></input>').attr({'class':assoc, 'type': 'checkbox', 'rel': coreField + '1' + '|' + count});								
 								var flabel = $('<span></span>').attr({'class':'flabel'}).text(thisSubfacet);
 								var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
@@ -171,8 +214,50 @@
     			$.fn.initFacetToggles('disease');
     			
 	    		$('li#disease li.fcat input').click(function(){	    			
+=======
+								var chkbox = $('<input></input>').attr({'class':assoc, 'type': 'checkbox', 'rel': coreField + '1' + '|' + count});
+								var td0 = $('<td></td>').append(chkbox);
+								var trClass = assoc+'Tr';
+								var tr = $('<tr></tr>').attr({'class':'subFacet ' + trClass + ' ' + assoc});						
+								var td1 = $('<td></td>').attr({'class':trClass + ' ' + fq + ' diseaseSubfacet', 'rel':count}).text(thisSubfacet);
+								var link = $('<a></a>').attr({'rel': '1', 'class': diseaseFq}).text(count);
+								//var span = $('<span></span>').attr({'class':'subcount'}).text(count);
+								var td2 = $('<td></td>').attr({'class':'diseaseSubfacetCount', 'rel':'1'}).append(link);					
+								
+								table.append(tr.append(td0, td1, td2));
+			    			}	
+			    		}	
+	    			}	
+	    		}
+	    			    					
+	    		$('div#diseaseFacet div.facetCatList').html(table);
+	    		
+	    		// update facet count when filters applied
+    			if ( $('ul#facetFilter li li a').size() != 0 ){
+    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'disease');
+    			}		
+	    		
+	    		// disease_source is open and rest of disease subfacets are collapsed by default
+	    		$('tr.disease_sourceTrCap, tr.disease_classesTrCap, tr.curatedTrCap, tr.predictedTrCap').click(function(){
+	    		
+	    			var aClass = $(this).attr('class').split(' ');
+	    			var trClass = aClass[1].replace('Cap','');	    				    			
+	    			
+	    			if ( $(this).find('td').hasClass('unCollapse')){				
+	    				$('tr.' + trClass).hide();
+	    				$(this).find('td').removeClass('unCollapse');
+	    			}
+	    			else {	    			
+	    				$('tr.' + trClass).show();	    				
+	    				$(this).find('td').addClass('unCollapse');
+	    			}
+	    		});			
+	    		
+	    		$('table#diseaseFacetTbl input').click(function(){
+	    			
+>>>>>>> a15c11cafcfeecae8e4e617b7a3d269d90767063
 	    			// // highlight the item in facet	    			
-	    			$(this).siblings('span.flabel').addClass('highlight');
+	    			$(this).parent().parent().find('td.diseaseSubfacet').addClass('highlight');
 					$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
 				});	  
     			

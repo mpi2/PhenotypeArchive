@@ -7,11 +7,10 @@
     * Copyright (c) 2008-2010 Adrian Tosca, Copyright (c) 2010-2011 Ittrium LLC
     * Dual licensed under the MIT (MIT-LICENSE.txt) OR GPL (GPL-LICENSE.txt) licenses.
     * 
+    * Changes: 
     * 
-  * Changes: 
-  * 
-  * _updateControlText
-  *
+    * _updateControlText
+    *
 */
     // The dropdown check list jQuery plugin transforms a regular select html element into a dropdown check list.
     $.widget("ui.dropdownchecklist", {
@@ -27,7 +26,6 @@
             // the container is wrapped in a div
             wrapper.addClass("ui-dropdownchecklist ui-dropdownchecklist-dropcontainer-wrapper");
             wrapper.addClass("ui-widget");
-            wrapper.addClass("filtersMoreLikeNicolas");
             // assign an id
             wrapper.attr("id",controlItem.attr("id") + '-ddw');
             // initially positioned way off screen to prevent it from displaying
@@ -36,7 +34,7 @@
             
             var container = $("<div/>"); // the actual container
             container.addClass("ui-dropdownchecklist-dropcontainer ui-widget-content");
-//*//            container.css("overflow-y", "auto");
+            container.css("overflow-y", "auto");
             wrapper.append(container);
             
             // insert the dropdown after the master control to try to keep the tab order intact
@@ -145,13 +143,12 @@
         // The control resembles a regular select with single selection
         _appendControl: function() {
             var self = this, sourceSelect = this.sourceSelect, options = this.options;
-            
-            var tablefilter = $("<div/>").addClass("tablefilter tablefilter_add");
+
             // the control is wrapped in a basic container
             // inline-block at this level seems to give us better size control
-            var wrapper = $("<div/>");
-            wrapper.addClass("ui-dropdownchecklist ui-dropdownchecklist-selector-wrapper");
-//*//            wrapper.css( { display: "inline-block", cursor: "default", overflow: "hidden" } );
+            var wrapper = $("<span/>");
+            wrapper.addClass("ui-dropdownchecklist ui-dropdownchecklist-selector-wrapper ui-widget");
+            wrapper.css( { display: "inline-block", cursor: "default", overflow: "hidden" } );
             
             // assign an ID 
             var baseID = sourceSelect.attr("id");
@@ -164,9 +161,9 @@
 			
             // the actual control which you can style
             // inline-block needed to enable 'width' but has interesting problems cross browser
-            var control = $("<div/>");
-            control.addClass("ui-dropdownchecklist-selector filtertype filtertype_add");
- //*//           control.css( { display: "inline-block", overflow: "hidden", 'white-space': 'nowrap'} );
+            var control = $("<span/>");
+            control.addClass("ui-dropdownchecklist-selector ui-state-default");
+            control.css( { display: "inline-block", overflow: "hidden", 'white-space': 'nowrap'} );
             // Setting a tab index means we are interested in the tab sequence
             var tabIndex = sourceSelect.attr("tabIndex");
             if ( tabIndex == null ) {
@@ -190,13 +187,13 @@
 	            anIcon.addClass("ui-icon");
 	            anIcon.addClass( (options.icon.toOpen != null) ? options.icon.toOpen : "ui-icon-triangle-1-e");
 	            anIcon.css({ 'float': iconPlacement });
-//*//	            control.append(anIcon);
+	            control.append(anIcon);
 			}
             // the text container keeps the control text that is built from the selected (checked) items
             // inline-block needed to prevent long text from wrapping to next line when icon is active
             var textContainer = $("<span/>");
             textContainer.addClass("ui-dropdownchecklist-text");
- //*//           textContainer.css( {  display: "inline-block", 'white-space': "nowrap", overflow: "hidden" } );
+            textContainer.css( {  display: "inline-block", 'white-space': "nowrap", overflow: "hidden" } );
             control.append(textContainer);
 
             // add the hover styles to the control
@@ -219,10 +216,7 @@
                     self._toggleDropContainer( !self.dropWrapper.isOpen );
                 }
             });
-            
-            wrapper.appendTo(tablefilter);
-
-            tablefilter.insertAfter(sourceSelect);
+            wrapper.insertAfter(sourceSelect);
 
 			// Watch for a window resize and adjust the control if open
             $(window).resize(function() {
@@ -240,7 +234,7 @@
             // the div
             var item = $("<div/>");
             item.addClass("ui-dropdownchecklist-item");
-//*//            item.css({'white-space': "nowrap"});
+            item.css({'white-space': "nowrap"});
             var checkedString = checked ? ' checked="checked"' : '';
 			var classString = disabled ? ' class="inactive"' : ' class="active"';
 			
@@ -262,7 +256,7 @@
             var label = $("<label for=" + id + "/>");
             label.addClass("ui-dropdownchecklist-text");
             if ( optCss != null ) label.attr('style',optCss);
-//*//            label.css({ cursor: "default" });
+            label.css({ cursor: "default" });
             label.html(text);
 			if (indent) {
 				item.addClass("ui-dropdownchecklist-indent");
@@ -374,11 +368,11 @@
 			if (disabled) {
 				group.addClass("ui-state-disabled");
 			}
-//*//			group.css({'white-space': "nowrap"});
+			group.css({'white-space': "nowrap"});
 			
             var label = $("<span/>");
             label.addClass("ui-dropdownchecklist-text");
-//*//            label.css( { cursor: "default" });
+            label.css( { cursor: "default" });
             label.text(text);
 			group.append(label);
 			
@@ -401,11 +395,11 @@
 			var self = this;
 			var closeItem = $("<div />");
 			closeItem.addClass("ui-state-default ui-dropdownchecklist-close ui-dropdownchecklist-item");
-//*//			closeItem.css({'white-space': 'nowrap', 'text-align': 'right'});
+			closeItem.css({'white-space': 'nowrap', 'text-align': 'right'});
 			
             var label = $("<span/>");
             label.addClass("ui-dropdownchecklist-text");
-//*//           label.css( { cursor: "default" });
+            label.css( { cursor: "default" });
             label.html(text);
 			closeItem.append(label);
 			
@@ -573,7 +567,7 @@
             var controlLabel = controlWrapper.find(".ui-dropdownchecklist-text");
             var shortText = text;
             if (text.length > 25){
-            	var shortText = text.slice(0,14) + "...";
+            	var shortText = text.slice(0,25) + " ...";
             }
             controlLabel.html(shortText);
             // the attribute needs naked text, not html
@@ -626,15 +620,19 @@
                     $.ui.dropdownchecklist.gLastOpened = null;
 
 	            	var config = instance.options;
-//*//                    instance.dropWrapper.css({
-//                        top: "-33000px",
- //                       left: "-33000px"
-//                    });
+                    instance.dropWrapper.css({
+                        top: "-33000px",
+                        left: "-33000px"
+                    });
                     var aControl = instance.controlSelector;
 	                aControl.removeClass("ui-state-active");
-	                aControl.removeClass("open");
 	                aControl.removeClass("ui-state-hover");
-	                instance.dropWrapper.removeClass("open");
+
+                    var anIcon = instance.controlWrapper.find(".ui-icon");
+                    if ( anIcon.length > 0 ) {
+                    	anIcon.removeClass( (config.icon.toClose != null) ? config.icon.toClose : "ui-icon-triangle-1-s");
+                    	anIcon.addClass( (config.icon.toOpen != null) ? config.icon.toOpen : "ui-icon-triangle-1-e");
+                    }
                     $(document).unbind("click", hide);
                     
                     // keep the items out of the tab order by disabling them
@@ -669,7 +667,8 @@
 		                instance.dropWrapper.css({
 		                    position: 'absolute'
 		                ,   top: instance.controlWrapper.position().top + instance.controlWrapper.outerHeight() + "px"
-		                ,   left: instance.controlWrapper.position().left + "px"		                });
+		                ,   left: instance.controlWrapper.position().left + "px"
+		                });
 		            } else if (config.positionHow == 'relative') {
 		            	/** Scrolls with the parent but does NOT float above subsequent content */
 		                instance.dropWrapper.css({
@@ -697,10 +696,13 @@
 
 	                var aControl = instance.controlSelector;
 	                aControl.addClass("ui-state-active");
-	                aControl.addClass("open");
-	                instance.dropWrapper.addClass("open");
 	                aControl.removeClass("ui-state-hover");
 	                
+	                var anIcon = instance.controlWrapper.find(".ui-icon");
+	                if ( anIcon.length > 0 ) {
+	                	anIcon.removeClass( (config.icon.toOpen != null) ? config.icon.toOpen : "ui-icon-triangle-1-e");
+	                	anIcon.addClass( (config.icon.toClose != null) ? config.icon.toClose : "ui-icon-triangle-1-s");
+	                }
 	                $(document).bind("click", function(e) {hide(instance);} );
 	                
                     // insert the items back into the tab order by enabling all active ones
@@ -737,7 +739,7 @@
                 }
             }
             var control = this.controlSelector;
- //*//           control.css({ width: controlWidth + "px" });
+            control.css({ width: controlWidth + "px" });
             
             // if we size the text, then Firefox places icons to the right properly
             // and we do not wrap on long lines
@@ -747,7 +749,7 @@
             	// Must be an inner/outer/border problem, but IE6 needs an extra bit of space,
             	// otherwise you can get text pushed down into a second line when icons are active
             	controlWidth -= (controlIcon.outerWidth() + 4);
-//*//            	controlText.css( { width: controlWidth + "px" } );
+            	controlText.css( { width: controlWidth + "px" } );
             }
             // Account for padding, borders, etc
             controlWidth = controlWrapper.outerWidth();
@@ -762,13 +764,13 @@
             // ensure the drop container is not less than the control width (would be ugly)
             var dropWidth = dropCalculatedSize.width < controlWidth ? controlWidth : dropCalculatedSize.width;
 
-//*//           $(dropWrapper).css({
-//*//                height: dropHeight + "px",
-//*//                width: dropWidth + "px"
-//*//            });
-//*//            dropWrapper.find(".ui-dropdownchecklist-dropcontainer").css({
-//*//               height: dropHeight + "px"
-//*//           });
+            $(dropWrapper).css({
+                height: dropHeight + "px",
+                width: dropWidth + "px"
+            });
+            dropWrapper.find(".ui-dropdownchecklist-dropcontainer").css({
+                height: dropHeight + "px"
+            });
         },
         // Initializes the plugin
         _init: function() {

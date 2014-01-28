@@ -24,6 +24,41 @@
 		<script type='text/javascript' src='${baseUrl}/js/imaging/mp.js'></script>
 		<script type='text/javascript' src="${baseUrl}/js/general/dropDownPhenPage.js"></script>
 		<script type='text/javascript' src="${baseUrl}/js/general/toggle.js"></script>
+			 <script>
+			 //ajax chart caller code
+$(document).ready(function(){				
+				    
+	$('.chart').each(function(i, obj) 
+	{
+		var graphUrl=$(this).attr('graphUrl');
+		var id=$(this).attr('id');
+		console.log('id='+id);
+		console.log("obj att"+$(this).attr('graphUrl'));
+		var chartUrl=graphUrl+'&experimentNumber='+id;
+			$.ajax({
+				  url: chartUrl,
+				  cache: false
+			})
+				  .done(function( html ) {
+				    $( '#'+ id ).append( html );
+			});
+			 
+	});	 
+	
+	
+	
+	
+	// bubble popup for brief panel documentation
+	$.fn.qTip({
+				'pageName': 'stats',
+				'textAlign': 'left',
+				'tip': 'topRight'
+	});
+			
+	
+});
+		 </script>
+		 
   </jsp:attribute>
 
 	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
@@ -50,8 +85,13 @@
 							<div class="with-label"> <span class="label">Procedure</span>
 								<ul>
 									<c:forEach var="procedure" items="${procedures}" varStatus="loop">
-										<c:forEach var="pipeline" items="${procedure.pipelines}">
+											<li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.stableKey}">${procedure.name} (${procedure.pipeline.name})</a></li>
+									<c:forEach var="procedure" items="${procedures}" varStatus="firstLoop">
+										<c:forEach var="pipeline" items="${procedure.pipelines}" varStatus="loop">
 											<li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.stableKey}">${procedure.name} (${pipeline.name})</a></li>
+											<c:if test="${firstLoop.count==3 && !(firstLoop.last && loop.last)}"><p ><a id='show_other_procedures'><i class="fa fa-caret-right"></i> more procedures</a></p> <div id="other_procedures"></c:if>
+											<c:if test="${firstLoop.last && loop.last && fn:length(procedures) >3}"></div></c:if>
+											
 										</c:forEach>
 									</c:forEach>
 								</ul>

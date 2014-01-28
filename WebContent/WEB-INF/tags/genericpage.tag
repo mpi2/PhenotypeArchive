@@ -38,7 +38,6 @@
 <%@attribute name="title" fragment="true"%>
 <%@attribute name="breadcrumb" fragment="true"%>
 <%@attribute name="bodyTag" fragment="true"%>
-<%@attribute name="addToFooter" fragment="true"%>
 
 <% // the baseUrl variable is set from the DeploymentInterceptor class %>
 
@@ -67,11 +66,12 @@
 <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.slider.css">
-<!-- link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.theme.css"-->
+<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.theme.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
 <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
 <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.fancybox-1.3.4.css">
 <link href="${baseUrl}/css/default.css?cache=09-01-14" rel="stylesheet" type="text/css" />
+<link href="${baseUrl}/css/heatmap.css?cache=09-01-14" rel="stylesheet" type="text/css" />
 <link href="${baseUrl}/css/wdm.css?cache=09-01-14" rel="stylesheet" type="text/css" />
 
 <!-- EBI CSS -->
@@ -113,7 +113,7 @@ try {
 
 <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
 <!--[if lt IE 9]>
-        <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
         <style>
         #logoImage {margin: 5px; padding:5px;}
         .container .container .navbar .navbar-inner {width:100%}
@@ -121,8 +121,11 @@ try {
         </style>
 <![endif]-->
 
-<!-- if jquery CDN site is down, use local copy -->
-<script>window.jQuery || document.write('<script src="${baseUrl}/js/vendor/jquery-1.10.2.min.js"><\/script><script src="${baseUrl}/js/vendor/jquery-ui.1.10.3.min.js"><\/script><link type="text/css" rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css" />');</script>                                                                                                                                                                                                                        
+<!-- jquery -->
+<!-- script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js'></script>
+<script>window.jQuery || document.write('<script src="${baseUrl}/js/vendor/jquery-1.7.2.min.js"><\/script><script src="${baseUrl}/js/vendor/jquery-ui-1.8.18.min.js"><\/script><link type="text/css" rel="stylesheet" href="${baseUrl}/css/vendor/jquery-ui-1.8.18.css" />');</script-->
+
 
 <!-- NEW DESIGN JAVASCRIPT -->
 
@@ -143,8 +146,8 @@ try {
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.pack.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.tablesorter.min.js"></script>
-<script src="http://code.highcharts.com/highcharts.js"></script>
-<script src="http://code.highcharts.com/highcharts-more.js"></script>
+<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js'></script>		
+<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js'></script>		
 <script type="text/javascript" src="${baseUrl}/js/default.js?cache=09-01-14"></script>
 
 <jsp:invoke fragment="header" />
@@ -195,7 +198,6 @@ try {
         </div>        
 
     </header>   
-    
         <div id="main">
                 <div class="breadcrumb">
                    <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invoke fragment="breadcrumb" /><%-- breadcrumbs here --%>   
@@ -203,10 +205,12 @@ try {
                 
                 <jsp:doBody />               
                         
-		     </div><!-- /main -->
+		        </div><!-- /main -->
         
     <footer id="footer">
-    
+<jsp:invoke fragment="footer"></jsp:invoke>
+		 
+
         <div class="centercontent">
            <div class="region region-footer">
 					   <div id="block-block-7" class="block block-block">
@@ -253,8 +257,6 @@ try {
         
         </div>
         
-        <jsp:invoke fragment="addToFooter"/>
-        
     </footer>
                     
         <!-- <script type="text/javascript" src='${baseUrl}/js/script.min.js' ></script>-->
@@ -276,12 +278,12 @@ try {
         <compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">
          <script>
         $(document).ready(function() {        		
-        	$(document).ready(function(){        		
-    			$.fn.qTip({'pageName':'search'
-    					/*'textAlign':'left',
+        	$(document).ready(function(){	
+    			$.fn.qTip({'pageName':'search',
+    					'textAlign':'left',
     					'tip':'topLeft',
-    					'posX':0,
-    					'posY':0*/    					
+    					'posX':235,
+    					'posY':15    					
     			});
     			
     			// non hash tag keyword query
@@ -314,7 +316,6 @@ try {
     					// make sure checkboxes are updated according to url
     					
     					oHashParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;
-                
     					oHashParams.widgetName += 'Facet';
     					
     					if ( oHashParams.coreName ){
@@ -345,8 +346,6 @@ try {
     				}
     			});
     						
-    						
-    			/*	deprecated		
     			$('div#filterToggle').click(function(){	
     				console.log('filter');
     				var ul = $('ul#facetFilter');	
@@ -358,9 +357,7 @@ try {
     					ul.show();				
     					$(this).find('span').text('Show facet filters');
     				}
-    			});*/
-    			
-    			
+    			});
     			
     		});     	
         	
@@ -371,10 +368,13 @@ try {
                     document.location.reload();
             });
 
+
             // Message to IE users
             $.fn.ieCheck();
+
         });        
         </script>
         </compress:html>
         </div> <!-- wrapper -->
 </body>
+</html>

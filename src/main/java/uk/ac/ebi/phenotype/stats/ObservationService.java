@@ -99,6 +99,56 @@ public class ObservationService {
         solr = new HttpSolrServer(solrUrl);
     }
 
+    
+    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId) throws SolrServerException{
+//    	String experimentKey = observation.getPhenotypingCenter()
+//    			+ observation.getStrain()
+//    			+ observation.getParameterStableId()
+//    			+ observation.getGeneAccession()
+//    			+ observation.getMetadataGroup();
+		
+	Map<String, List<String>> map=new HashMap<String, List<String>>();
+	
+        Set<Integer> parameterIds = new HashSet<>();
+
+        SolrQuery query = new SolrQuery()
+                .setQuery("gene_accession:\""+mgiAccession+"\"")
+                .addFilterQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + parameterStableId)
+              //  .addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":unidimensional")
+                .setRows(0).addFacetField(ExperimentField.PHENOTYPING_CENTER)
+                .setRows(0).addFacetField(ExperimentField.STRAIN)
+                .setRows(0).addFacetField(ExperimentField.METADATA_GROUP)
+                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
+
+        QueryResponse response = solr.query(query);
+        List<FacetField> fflist = response.getFacetFields();
+
+        for (FacetField ff : fflist) {
+
+            // If there are no face results, the values will be null
+            // skip this facet field in that case
+//            if (ff.getValues() == null) {
+//                continue;
+//            }
+
+            for (Count count : ff.getValues()) {
+               if(map.containsKey(ff.getName())) {
+            	   map.get(ff.getName()).add(count.getName());
+               }else {
+            	   List<String> newList=new ArrayList<String>();
+            	   newList.add(count.getName());
+            	   map.put(ff.getName(), newList);
+               }
+            	
+            }
+        }
+
+        //return new ArrayList<>(parameterIds);
+        System.out.println("experimentKeys="+map);
+    	return map;
+    }
+
+    
     /**
      * for testing - not for users
      *
@@ -910,10 +960,15 @@ public class ObservationService {
 			query.addFilterQuery(ExperimentField.SEX + ":" + sex);
 		}
 
+
 		// Filter starting on the experiment date through the prior 6 months
 		if(experimentDate != null) {
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00");
-			String dateFilter = df.format(DateUtils.addMonths(experimentDate,-6))+"Z TO "+df.format(DateUtils.addDays(experimentDate, 1))+"Z";
+
+			Date epoch = new Date(0L); // Start date
+
+			// Add one day because midnight refers to the beginning of the day to solr (I guess T24:00:00Z would work too, but meh. potayto-potahto)
+			String dateFilter = df.format(epoch)+"Z TO "+df.format(DateUtils.addDays(experimentDate, 1))+"Z";
 			query.addFilterQuery(ExperimentField.DATE_OF_EXPERIMENT + ":[" + dateFilter + "]");
 		}
 		

@@ -44,19 +44,23 @@
 			<field column="observation_type" name="observation_type" />
 
 			<entity name="biologicalData" processor="CachedSqlEntityProcessor"
-				query="SELECT bs.id, strain.strain_acc, bs.organisation_id, org.name, bs.sample_group, gf.acc as acc, ls.sex as sex, ls.colony_id, ls.zygosity, gf.symbol as symbol, bms.biological_model_id as bmid, ls.date_of_birth as birthdate, ls.colony_id, bs.external_id as external_sample_id
+				query="SELECT bs.id, strain.strain_acc, bma.allele_acc as allele_accession, a.symbol as allele_symbol, bs.organisation_id, org.name, bs.sample_group, gf.acc as acc, ls.sex as sex, ls.colony_id, ls.zygosity, gf.symbol as symbol, bms.biological_model_id as bmid, ls.date_of_birth as birthdate, ls.colony_id, bs.external_id as external_sample_id
 				FROM biological_sample bs
 				INNER JOIN organisation org ON bs.organisation_id=org.id
 				INNER JOIN live_sample ls ON bs.id=ls.id
 				INNER JOIN biological_model_sample bms ON bs.id=bms.biological_sample_id
 				INNER JOIN biological_model_strain strain ON strain.biological_model_id=bms.biological_model_id
 				LEFT OUTER JOIN biological_model_genomic_feature bmgf ON bmgf.biological_model_id=bms.biological_model_id
-				LEFT OUTER JOIN genomic_feature gf ON gf.acc=bmgf.gf_acc"
-				where="id=observation.bsid">
+				LEFT OUTER JOIN biological_model_allele bma ON bma.biological_model_id=bms.biological_model_id
+				LEFT OUTER JOIN allele a ON (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id)
+				LEFT OUTER JOIN genomic_feature gf ON gf.acc=bmgf.gf_acc 
+				WHERE bs.id=${observation.bsid}">
 
 				<field column="bmid" name="biological_model_id" />
 				<field column="biological_sample_id" name="biological_sample_id" />
 				<field column="acc" name="gene_accession" />
+				<field column="allele_accession" name="allele_accession" />
+				<field column="allele_symbol" name="allele_symbol" />
 				<field column="symbol" name="gene_symbol" />
 				<field column="strain_acc" name="strain" />
 				<field column="organisation_id" name="phenotyping_center_id" />

@@ -44,11 +44,12 @@ public class StatisticalResult {
 	@OneToOne
 	@JoinColumn(name = "parameter_id")
 	protected Parameter parameter;
+
 	
 	@Column(name = "control_selection_strategy", length=100)
 	private String controlSelectionStrategy;
 
-	@Column(name = "statistical_method", length=50)
+	@Column(name = "statistical_method", length=200)
 	private String statisticalMethod;
 
 	@Column(name = "raw_output")

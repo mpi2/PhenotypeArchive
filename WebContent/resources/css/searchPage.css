@@ -1,16 +1,60 @@
-/* New Facet Block without IDs */
-div.ffilter {
-	display: none; /*default, appears only when filter is added */
-	margin-bottom: 5px;
-}
-p.documentation a {
-	float: right;
-}
-div#facetSrchMsg {
-	margin-top: 10px;
-	width: 75%;	
-}
 
+/* ----- start of  facet filter ----- */
+div#filterToggle, div#resetFilter {
+	display: block;
+	font-size: 0.8em;	
+	cursor: pointer;
+}
+ul#facetFilter {
+  width: auto;	
+  margin: -23px 0 0 150px;
+  padding: 3px 6px;
+  background: #F0F0F0;
+  border-radius: 1em;
+  font: normal 0.8em Arial, Helvetica, sans-serif;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  display: block;
+}
+ul#facetFilter ul {
+  /*z-index: 9999;	
+  display: none;*/
+  margin: 0 0 5px 20px;
+  padding: 2px 5px;
+  width: auto;
+  /*position: absolute;
+  top: 20px;
+  left: 0;*/
+  /*background: #F4F4F4;*/ /*url(overlay.png) repeat-x 0 0;*/
+  /*border: solid 1px #b4b4b4;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;*/ 
+}
+#facetFilter li.has-sub {
+	list-style: none;
+}
+ul#facetFilter li ul li {	
+	list-style: none;
+	/*margin-left: 20px;*/	
+}
+ul#facetFilter li.has-sub {
+	display: none;
+}
+ul#facetFilter li.none {
+	display: block;
+}
+ul#facetFilter li a {
+	text-decoration: none;
+	cursor: default;	
+}
+ul#facetFilter img {
+	cursor: pointer;
+}
+/* ----- end of  facet filter ----- */
+
+<<<<<<< HEAD
 /* facet - general */
 .fblock                                 { position: relative; }
 .region-sidebar-first .fblock .head     { background: #0978a1; color: #fff; }
@@ -58,30 +102,25 @@ ul#facetFilter li.has-sub               { display: block; }
 ul#facetFilter li.has-sub span.fcap {
 	display: none;
 	font-size: 11px;
+=======
+/* facet panel on search page */
+table#mpFacetTbl td, table#maFacetTbl td{
+	margin:0;
+	padding:0;
+>>>>>>> a15c11cafcfeecae8e4e617b7a3d269d90767063
 }
-ul#facetFilter li.has-sub + .has-sub    { margin-top: 0em; } 
-#resetFilter                            { opacity: 0.5; text-align: right; font-size: 11px; cursor: pointer; margin-top: 5px;}
-#resetFilter:before                     { font-family: 'FontAwesome'; content: "\f00d"; margin-right: 0.3em; text-decoration: none; }
-#resetFilter:hover                      { opacity: 1; }
-.ftag {
-	padding: 2px;
+table.facetTable td:nth-child(3) a {
+	text-decoration: none;
+	pointer: none;
+	float: right;
+	font-size: 0.8em;
+	color: #666666;	
 }
-.ftag a {
-	display: block;
-	font-size: 11px; 
-	line-height: 1.1em; 
-	padding: 1px 0.3em; 
-	text-decoration: none; 
-	color: #fff; 
-	background: #0978A1; 
-	border-radius: 3px; 
-	-webkit-border-radius: 3px; 
-	-moz-border-radius: 3px; 
-	-ms-border-radius: 3px;	 
+td.grayout {
+	color: #BABABA;
 }
-.ftag a:before                          { font-family: 'FontAwesome'; content: "\f00d"; margin-right: 0.3em; }
-.ftag a:hover                           { background: #ddd; color: #666; }
-.ffilter                                { background: #f4f4f4; padding: 0.5em; border-radius: 3px; -webkit-border-radius: 3px; -moz-border-radius: 3px; -ms-border-radius: 3px; }
+
+/* end of facet panel on search page */
 
 
 /* dataTable on search page */
@@ -199,6 +238,5 @@ span#imgViewSwitcher {
 	cursor: pointer;
 }
 /* end of imgView/annotView switcher */
-
 
 

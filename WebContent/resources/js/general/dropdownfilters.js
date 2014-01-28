@@ -5,9 +5,9 @@ $(document).ready(function(){
 		'pageName': 'gene',
 		'textAlign': 'left',
 		'tip': 'topRight'
-	});							
-	
-    //function to fire off a refresh of a table and it's dropdown filters
+	});					
+
+	//function to fire off a refresh of a table and it's dropdown filters
 
 	var selectedFilters = "";
 	var dropdownsList = new Array();
@@ -37,8 +37,8 @@ $(document).ready(function(){
 	});
 
 	//$('[rel=tooltip]').tooltip();
+
 	//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
-	
 	$('div#exportIconsDiv').append($.fn.loadFileExporterUI({
 		label: 'Export table as:',
 		formatSelector: {
@@ -205,7 +205,6 @@ $(document).ready(function(){
 			}
 		} );
 	}
-	
 	//if filter parameters are already set then we need to set them as selected in the dropdowns
 	var previousParams = $("#filterParams").html();
 	

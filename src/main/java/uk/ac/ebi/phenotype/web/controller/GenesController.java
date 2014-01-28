@@ -167,7 +167,7 @@ public class GenesController {
 		// see if the gene exists first:
 		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
 		if (gene == null) {
-			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
+			log.warn("Gene status for " + acc + " can't be found.");
 		}	
 		
 		/**
