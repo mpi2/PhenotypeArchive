@@ -7,13 +7,15 @@ function initFooterSitemap() {
 }
     
 function initWindow() {
-    /* if the body is not high enough, put the footer to the bottom of the window */
-    var wrapperHeight  = parseInt($('#wrapper').innerHeight());
-    var viewportHeight = parseInt(window.innerHeight);   
-    if (viewportHeight - 50 > wrapperHeight) {
-        $('body').addClass('footerToBottom'); 
-    } else {
-        $('body').removeClass('footerToBottom');
+    if (!$('body').hasClass('searchpage') && !$('body').hasClass('chartpage')) {
+        /* if the body is not high enough, put the footer to the bottom of the window */
+        var wrapperHeight  = parseInt($('#wrapper').innerHeight());
+        var viewportHeight = parseInt(window.innerHeight);   
+        if (viewportHeight - 50 > wrapperHeight) {
+            $('body').addClass('footerToBottom'); 
+        } else {
+            $('body').removeClass('footerToBottom');
+        }
     }
 }
     
