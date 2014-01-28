@@ -133,10 +133,11 @@
 	    			}	        		
 
 	    			// IMPC pipeline is open and rest of pipeline subfacets are collapsed by default    			
-	    			$('div.flist li#pipeline > ul li:nth-child(1)').addClass('open');
+	    			$('div.flist li#pipeline > ul li:nth-child(1)').addClass('open');	    		
+	    				    			
+	    			$.fn.initFacetToggles('pipeline');
+	    			//$('div.flist li#pipeline > .flabel').click();
 	    			
-	    			$.fn.initFacetToggles();    			
-		    		
 		    		$('li#pipeline li.fcat input').click(function(){	    			
 		    			// // highlight the item in facet	    			
 		    			$(this).siblings('span.flabel').addClass('highlight');

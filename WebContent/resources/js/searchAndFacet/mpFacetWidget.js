@@ -57,9 +57,7 @@
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
 	    		'success': function(json) {
-	    			console.log(json);
-	    			// update this if facet is loaded by redirected page, which does not use autocomplete
-	    			//$('div#mpFacet span.facetCount').attr({title: 'total number of unique phenotype terms'}).text(json.response.numFound);   			
+	    			//console.log(json);
 	    				    	    	
 	    	    	var aTopLevelCount = json.facet_counts.facet_fields['annotated_or_inferred_higherLevelMpTermName'];	    	    
 	    	    	var mpUlContainer = $("<ul></ul>");
@@ -78,42 +76,37 @@
 						liContainer.append(chkbox, flabel, fcount);
 						mpUlContainer.append(liContainer);
 	    	    	}    		    	    	
-	    	    	
-	    			self._displayOntologyFacet(json, 'mpFacet', mpUlContainer);	 
-	    			
+	    	    		    			 
+	    			// update all subfacet counts of this facet 
+	        		$('div.flist li#mp > ul').append(mpUlContainer);	        		       		
+	        		
+	        		$.fn.initFacetToggles('mp');
+	        		
+	        		$('li#mp li.fcat input').click(function(){	    			
+	        			// // highlight the item in facet	    			
+	        			$(this).siblings('span.flabel').addClass('highlight');
+	    				$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
+	    			});    		
+	        		
+	        		/*------------------------------------------------------------------------------------*/
+	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
+	    	    	/*------------------------------------------------------------------------------------*/	
+	        		if ( self.options.data.hashParams.fq.match(/.*/) ){   			
+	        			//$.fn.loadDataSetWithoutFilter(self);
+	    	    		var oHashParams = self.options.data.hashParams;
+	        			
+	    	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams);	    	    		
+	    	    		// now load dataTable    		
+	    	    		$.fn.loadDataTable(oHashParams);
+	        		}    	
+	        		
 	    			// update facet count when filters applied
 	    			if ( $('ul#facetFilter li li a').size() != 0 ){	    			
 	    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'mp');
 	    			}	    			
 	    		}		
 	    	});		    	
-	    },
-	   
-	    _displayOntologyFacet: function(json, facetDivId, mpUlContainer){	    	
-	    	
-	    	var self = this;
-	    	
-	    	// update all subfacet counts of this facet 
-    		$('div.flist li#mp > ul').append(mpUlContainer);
-    		
-    		$('li#mp li.fcat input').click(function(){	    			
-    			// // highlight the item in facet	    			
-    			$(this).siblings('span.flabel').addClass('highlight');
-				$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
-			});    		
-    		
-    		/*------------------------------------------------------------------------------------*/
-	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
-	    	/*------------------------------------------------------------------------------------*/	
-    		if ( self.options.data.hashParams.fq.match(/.*/) ){   			
-    			//$.fn.loadDataSetWithoutFilter(self);
-	    		var oHashParams = self.options.data.hashParams;
-    			console.log(oHashParams);
-	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams);	    	    		
-	    		// now load dataTable    		
-	    		$.fn.loadDataTable(oHashParams);
-    		}    		
-	    },		   
+	    },	   
 	    
 	    destroy: function () {    	   
 	    	// does not generate selector class

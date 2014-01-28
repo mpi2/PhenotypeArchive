@@ -254,7 +254,7 @@
 	    			$('div.flist li#gene > ul li:nth-child(2)').addClass('open');
 	    		}
 	    		
-	    		$.fn.initFacetToggles();
+	    		$.fn.initFacetToggles('gene');
 	    			    		
 	    		$('li#gene li.fcat input').click(function(){	    			
 	    			// // highlight the item in facet	    			

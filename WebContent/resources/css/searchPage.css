@@ -38,6 +38,9 @@ div#facetSrchMsg {
 .fcatsection .fcat                      { display: none; }
 .fcatsection.open .fcat                 { display: block; }
 .fcatsection.inactive                   { color: #bbb; }
+.grayout {
+	color: #CCCCCC;
+}
 
 /* facet - categories */
 li.fcat                                 { margin: 0; font-size: 0.9em; line-height: 1.3em; }

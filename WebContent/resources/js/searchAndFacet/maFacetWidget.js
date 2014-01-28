@@ -76,8 +76,30 @@
 						liContainer.append(chkbox, flabel, fcount);
 						maUlContainer.append(liContainer);	        			
 	    	    	}    	
-	    	    	
-	    			self._displayOntologyFacet(json, 'maFacet', maUlContainer);	
+	    	    		    			
+	    			// update all subfacet counts of this facet 
+	        		$('div.flist li#ma > ul').append(maUlContainer);	        		        		
+	        		
+	        		$.fn.initFacetToggles('ma');
+	        		
+	        		$('li#ma li.fcat input').click(function(){	    			
+	        			// // highlight the item in facet	    			
+	        			$(this).siblings('span.flabel').addClass('highlight');
+	    				$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
+	    			});   
+	        		
+	        		/*------------------------------------------------------------------------------------*/
+	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
+	    	    	/*------------------------------------------------------------------------------------*/	
+	        		
+	        		if ( self.options.data.hashParams.fq.match(/.*/) ){	
+	        			
+	    	    		var oHashParams = self.options.data.hashParams;
+	        			
+	    	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams);	    	    		
+	    	    		// now load dataTable    		
+	    	    		$.fn.loadDataTable(oHashParams);
+	        		}    		
 	    			
 	    			// update facet count when filters applied
 	    			if ( $('ul#facetFilter li li a').size() != 0 ){
@@ -86,34 +108,7 @@
 	    		}		
 	    	});		    	
 	    	
-	    },
-	    
-	    _displayOntologyFacet: function(json, facetDivId, maUlContainer){	    	
-	    	
-	    	var self = this;    	
-	    	
-    		// update all subfacet counts of this facet 
-    		$('div.flist li#ma > ul').append(maUlContainer);
-    		
-    		$('li#ma li.fcat input').click(function(){	    			
-    			// // highlight the item in facet	    			
-    			$(this).siblings('span.flabel').addClass('highlight');
-				$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
-			});   
-    		
-    		/*------------------------------------------------------------------------------------*/
-	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
-	    	/*------------------------------------------------------------------------------------*/	
-    		
-    		if ( self.options.data.hashParams.fq.match(/.*/) ){	
-    			
-	    		var oHashParams = self.options.data.hashParams;
-    			
-	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams);	    	    		
-	    		// now load dataTable    		
-	    		$.fn.loadDataTable(oHashParams);
-    		}    		
-	    },	   
+	    },	      
 		
 	    destroy: function () {
 	    	this.removeClass('maFacetWidget');

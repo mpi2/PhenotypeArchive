@@ -105,15 +105,7 @@
 		    			var diseaseFq = fq;
 		    			var coreField = 'disease|'+ diseaseFq + '|';		
 		    			var trClass = fq+'Tr';
-						var chkbox = $('<input></input>').attr({'class': fq, 'type': 'checkbox', 'rel': coreField + subFacetName + '|' + count});
-						
-						/*var td0 = $('<td></td>').append(chkbox);
-						var tr = $('<tr></tr>').attr({'class':'subFacet ' + trClass + ' ' + fq});						
-						var td1 = $('<td></td>').attr({'class':'dClass diseaseSubfacet ' + fq, 'rel':count}).text(subFacetName);
-						//var link = $('<a></a>').attr({'rel': subFacetName, 'class': diseaseFq}).text(count);
-						var span = $('<span></span>').attr({'class':'subcount'}).text(count);
-						var td2 = $('<td></td>').attr({'class':'diseaseSubfacetCount ' + fq, 'rel':subFacetName}).append(span);*/
-						
+						var chkbox = $('<input></input>').attr({'class': fq, 'type': 'checkbox', 'rel': coreField + subFacetName + '|' + count});						
 						var flabel = $('<span></span>').attr({'class':'flabel'}).text(subFacetName);
 						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 						
@@ -142,10 +134,8 @@
 	    			    		
 	    		for ( var assoc in oSubFacets2 ){	    			
 	    			var label = oSubFacets2[assoc].label;
-	    			//var trCapClass = assoc+'TrCap';
+	    			var thisFacetSect = $("<li class='fcatsection'></li>");
 	    			
-	    			//table.append($('<tr></tr>').attr({'class':'facetSubCat ' + trCapClass + ' ' + assoc}).append($('<td></td>').attr({'colspan':3}).text(label)));
-	    			var thisFacetSect = $("<li class='fcatsection'></li>");		 
 	    			thisFacetSect.append($('<span></span>').attr({'class':'flabel'}).text(label));	    			
 	    			    		
 	    			var thisUlContainer = $("<ul></ul>");
@@ -163,16 +153,7 @@
 				    			var diseaseFq = fq;
 				    			var coreField = 'disease|'+ diseaseFq + '|';		
 							    
-								var chkbox = $('<input></input>').attr({'class':assoc, 'type': 'checkbox', 'rel': coreField + '1' + '|' + count});
-								/*var td0 = $('<td></td>').append(chkbox);
-								var trClass = assoc+'Tr';
-								var tr = $('<tr></tr>').attr({'class':'subFacet ' + trClass + ' ' + assoc});						
-								var td1 = $('<td></td>').attr({'class':trClass + ' ' + fq + ' diseaseSubfacet', 'rel':count}).text(thisSubfacet);
-								var link = $('<a></a>').attr({'rel': '1', 'class': diseaseFq}).text(count);
-								//var span = $('<span></span>').attr({'class':'subcount'}).text(count);
-								var td2 = $('<td></td>').attr({'class':'diseaseSubfacetCount', 'rel':'1'}).append(link);					
-								
-								table.append(tr.append(td0, td1, td2));*/
+								var chkbox = $('<input></input>').attr({'class':assoc, 'type': 'checkbox', 'rel': coreField + '1' + '|' + count});								
 								var flabel = $('<span></span>').attr({'class':'flabel'}).text(thisSubfacet);
 								var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 								liContainer.append(chkbox, flabel, fcount);	
@@ -183,22 +164,22 @@
 			    		$('div.flist li#disease > ul').append(thisFacetSect);
 	    			}	
 	    		}	    		    		
-	    		
-	    		// update facet count when filters applied
-    			if ( $('ul#facetFilter li li a').size() != 0 ){
-    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'disease');
-    			}
-    			
+	    		   			
     			// disease_source is open and rest of disease subfacets are collapsed by default    			
-    			$('div.flist li#disease > ul li:nth-child(1)').addClass('open');
-    			
-    			$.fn.initFacetToggles();    			
+    			$('div.flist li#disease > ul li:nth-child(1)').addClass('open');    			  						
 	    		
+    			$.fn.initFacetToggles('disease');
+    			
 	    		$('li#disease li.fcat input').click(function(){	    			
 	    			// // highlight the item in facet	    			
 	    			$(this).siblings('span.flabel').addClass('highlight');
 					$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
-				});	    		
+				});	  
+    			
+    			// update facet count when filters applied
+    			if ( $('ul#facetFilter li li a').size() != 0 ){
+    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'disease');
+    			}    	  		
     		}
 	    	
 	    	/*--------------------------console.log('inside here');	----------------------------------------------------------*/
