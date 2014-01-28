@@ -588,8 +588,10 @@ public class UnidimensionalChartAndTableProvider {
 			UnidimensionalStatsObject wtStatsObject = new UnidimensionalStatsObject();
 			wtStatsObject.setSampleSizeFemale(experiment.getControlSampleSizeFemale());
 			wtStatsObject.setSampleSizeMale(experiment.getControlSampleSizeMale());
+			Set<ObservationDTO> controls = experiment.getControls(sexType);
 			wtStatsObject.setSexType(sexType);
 			statsObjects.add(wtStatsObject);
+			genrateStats(experiment, wtStatsObject, controls);
 			
 			//set up the mutant stats data
 			
@@ -604,11 +606,11 @@ public class UnidimensionalChartAndTableProvider {
 				//	alleleComposition = allelicCompositionString.substring(0,
 						//	alleleComposition.indexOf("/"));
 				}
-				if(sexType.equals(SexType.female)) {
-					tempStatsObject.setSampleSizeFemale(experiment.getMutants(sexType, zType).size());
-					}else {
-						tempStatsObject.setSampleSizeMale(experiment.getMutants(sexType, zType).size());
-					}
+				
+				Set<ObservationDTO> mutants = experiment.getMutants(sexType, zType);
+					genrateStats(experiment, tempStatsObject, mutants);
+					
+					
 				
 			
 				for (StatisticalResult result : results) {
@@ -626,6 +628,12 @@ public class UnidimensionalChartAndTableProvider {
 				tempStatsObject.setGeneticBackground(geneticBackground);
 				tempStatsObject.setSexType(sexType);
 				statsObjects.add(tempStatsObject);
+
+				
+				// sample size for unidimensional controls is both male and female
+				// so ok under unidimensional but scatter shows time_series as well
+				// so in the scatter we should show number of male or female
+				// if use ilincas new code for experiments this wont' be an issue.
 				
 			
 		}
@@ -659,5 +667,30 @@ public class UnidimensionalChartAndTableProvider {
 //		}
 		}//end of sexType
 		return statsObjects;
+	}
+
+	private void genrateStats(ExperimentDTO experiment,
+			UnidimensionalStatsObject tempStatsObject,
+			Set<ObservationDTO> mutants) {
+		tempStatsObject.setSampleSizeFemale(mutants.size());
+
+		//do the stats to get mean and SD
+		// Get a DescriptiveStatistics instance
+		DescriptiveStatistics stats = new DescriptiveStatistics();
+		// Add the data
+		for (ObservationDTO mutantObservationDTO : mutants) {
+			stats.addValue(mutantObservationDTO.getDataPoint());
+		}
+		if (mutants.size() > 0) {
+			int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
+			Float mean = ChartUtils.getDecimalAdjustedFloat(
+					new Float(stats.getMean()), decimalPlaces);
+			//System.out.println("mean=" + mean);
+			Float sd = ChartUtils.getDecimalAdjustedFloat(
+					new Float(stats.getStandardDeviation()), decimalPlaces);
+			tempStatsObject.setMean(mean);
+			tempStatsObject.setSd(sd);
+		}
+		//end of stats creation for table
 	}
 }
