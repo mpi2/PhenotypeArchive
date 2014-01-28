@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.pojo.ControlStrategy;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
@@ -27,11 +28,12 @@ public class ExperimentDTO {
     private String geneMarker;
     private Set<ZygosityType> zygosities;
     private Set<SexType> sexes;
+    private ControlStrategy controlSelectionStrategy;
     private List<? extends StatisticalResult> results;
 
     private Set<ObservationDTO> homozygoteMutants;
     private Set<ObservationDTO> heterozygoteMutants;
-    private HashSet<ObservationDTO> hemizygoteMutants;
+    private Set<ObservationDTO> hemizygoteMutants;
 
     private Set<ObservationDTO> controls;
     private Integer controlBiologicalModelId;
@@ -67,6 +69,7 @@ public class ExperimentDTO {
     @Override
     public String toString() {
         return "ExperimentDTO [experimentId=" + experimentId
+                + ", controlSelectionStrategy=" + ((controlSelectionStrategy!=null)?controlSelectionStrategy.name():"null")
                 + ", metadataGroup=" + metadataGroup
                 + ", parameterStableId=" + parameterStableId
                 + ", pipelineStableId=" + pipelineStableId
@@ -91,6 +94,13 @@ public class ExperimentDTO {
         return categorieSet;
     }
 
+    public ControlStrategy getControlSelectionStrategy() {
+		return controlSelectionStrategy;
+	}
+    public void setControlSelectionStrategy(ControlStrategy controlSelectionStrategy) {
+		this.controlSelectionStrategy = controlSelectionStrategy;
+	}
+    
     public int getControlSampleSizeFemale() {
         return this.getFemaleControls().size();
     }
@@ -107,7 +117,7 @@ public class ExperimentDTO {
         return this.getControls(SexType.male);
     }
 
-    public  Set<ObservationDTO> getControls(SexType sex) {
+    public Set<ObservationDTO> getControls(SexType sex) {
 
         if (femaleControls == null || maleControls == null) {
             femaleControls = new HashSet<>();
@@ -127,6 +137,13 @@ public class ExperimentDTO {
             return maleControls;
         }
 
+    }
+
+    public Set<ObservationDTO> getMutants() {
+    	Set<ObservationDTO> allMutants = new HashSet<>(homozygoteMutants);
+    	allMutants.addAll(hemizygoteMutants);
+    	allMutants.addAll(heterozygoteMutants);
+    	return allMutants;
     }
 
     public Set<ObservationDTO> getMutants(SexType sex, ZygosityType zyg) {

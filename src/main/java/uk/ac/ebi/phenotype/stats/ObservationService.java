@@ -930,10 +930,11 @@ public class ObservationService {
 	 * @param organisationId
 	 * @param sex if null, both sexes are returned
 	 * @param metadataGroup when metadataGroup is empty string, force solr to search for metadata_group:""
+	 * @param experimentDate 
 	 * @return list of control observationDTOs that conform to the search criteria
 	 * @throws SolrServerException
 	 */
-	public List<ObservationDTO> getAllControlsBySex(Integer parameterId, String strain, Integer organisationId, String sex, String metadataGroup) throws SolrServerException {
+	public List<ObservationDTO> getAllControlsBySex(Integer parameterId, String strain, Integer organisationId, Date experimentDate, String sex, String metadataGroup) throws SolrServerException {
 
 		List<ObservationDTO> results = new ArrayList<ObservationDTO>();
 
@@ -949,16 +950,28 @@ public class ObservationService {
 			.setRows(5000)
 		;
 
-		if(metadataGroup==null || metadataGroup.isEmpty()) {
+		if(metadataGroup == null || metadataGroup.isEmpty()) {
 			query.addFilterQuery(ExperimentField.METADATA_GROUP + ":\"\"");
 		} else {
 			query.addFilterQuery(ExperimentField.METADATA_GROUP + ":" + metadataGroup);
 		}
 
-		if(sex!=null) {
+		if(sex != null) {
 			query.addFilterQuery(ExperimentField.SEX + ":" + sex);
 		}
 
+
+		// Filter starting on the experiment date through the prior 6 months
+		if(experimentDate != null) {
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00");
+
+			Date epoch = new Date(0L); // Start date
+
+			// Add one day because midnight refers to the beginning of the day to solr (I guess T24:00:00Z would work too, but meh. potayto-potahto)
+			String dateFilter = df.format(epoch)+"Z TO "+df.format(DateUtils.addDays(experimentDate, 1))+"Z";
+			query.addFilterQuery(ExperimentField.DATE_OF_EXPERIMENT + ":[" + dateFilter + "]");
+		}
+		
 		response = solr.query(query);		
 		results = response.getBeans(ObservationDTO.class);
 		

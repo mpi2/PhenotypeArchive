@@ -484,7 +484,7 @@ CREATE TABLE experiment (
     id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     db_id                      INT(10) UNSIGNED NOT NULL,
     external_id                VARCHAR(50),
-    date_of_experiment         TIMESTAMP,
+    date_of_experiment         TIMESTAMP NULL DEFAULT NULL,
     organisation_id            INT(10) UNSIGNED NOT NULL,  
     metadata_combined          TEXT,  
     metadata_group             VARCHAR(50) DEFAULT '',  

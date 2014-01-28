@@ -45,6 +45,16 @@ public class StatisticalResult {
 	@JoinColumn(name = "parameter_id")
 	protected Parameter parameter;
 
+	
+	@Column(name = "control_selection_strategy", length=100)
+	private String controlSelectionStrategy;
+
+	@Column(name = "statistical_method", length=200)
+	private String statisticalMethod;
+
+	@Column(name = "raw_output")
+	private String rawOutput;
+
 	@Transient
 	private Double effectSize;
 	
