@@ -107,7 +107,7 @@ public class UnidimensionalChartAndTableProvider {
 
 					// loop over the control points and add them
 
-					for (ObservationDTO control : experiment.getControls()) {
+					for (ObservationDTO control : experiment.getControls(sexType)) {
 						 SexType
 						 docSexType=SexType.valueOf(control.getSex());
 						Float dataPoint = control.getDataPoint();
@@ -586,47 +586,29 @@ public class UnidimensionalChartAndTableProvider {
 			
 			// Set up the controls data
 			UnidimensionalStatsObject wtStatsObject = new UnidimensionalStatsObject();
-			wtStatsObject.setSampleSizeFemale(experiment.getControlSampleSizeFemale());
-			wtStatsObject.setSampleSizeMale(experiment.getControlSampleSizeMale());
 			Set<ObservationDTO> controls = experiment.getControls(sexType);
-			wtStatsObject.setSexType(sexType);
+
+			wtStatsObject=genrateStats(experiment, wtStatsObject, controls, null, sexType);
 			statsObjects.add(wtStatsObject);
-			genrateStats(experiment, wtStatsObject, controls);
 			
 			//set up the mutant stats data
 			
 		for (ZygosityType zType : experiment.getZygosities()) {
 				UnidimensionalStatsObject tempStatsObject = new UnidimensionalStatsObject();
 				
-				if (zType.equals(ZygosityType.homozygote)) {// if homozygote
-															// don't need the
-															// second part of
-															// the string after
-															// the forward slash
-				//	alleleComposition = allelicCompositionString.substring(0,
-						//	alleleComposition.indexOf("/"));
-				}
-				
 				Set<ObservationDTO> mutants = experiment.getMutants(sexType, zType);
-					genrateStats(experiment, tempStatsObject, mutants);
+				tempStatsObject=genrateStats(experiment, tempStatsObject, mutants, zType,sexType);
 					
-					
-				
-			
-				for (StatisticalResult result : results) {
+			for (StatisticalResult result : results) {
 					if (result.getZygosityType().equals(zType)
 							&& result.getSexType().equals(sexType)) {
 						tempStatsObject.setResult((UnidimensionalResult) result);
 					}
 				}
 				
-				tempStatsObject.setZygosity(zType);
 				tempStatsObject.setLine(allelicCompositionString);
-				
 				tempStatsObject.setAllele(symbol);
-				
 				tempStatsObject.setGeneticBackground(geneticBackground);
-				tempStatsObject.setSexType(sexType);
 				statsObjects.add(tempStatsObject);
 
 				
@@ -669,11 +651,11 @@ public class UnidimensionalChartAndTableProvider {
 		return statsObjects;
 	}
 
-	private void genrateStats(ExperimentDTO experiment,
+	private UnidimensionalStatsObject genrateStats(ExperimentDTO experiment,
 			UnidimensionalStatsObject tempStatsObject,
-			Set<ObservationDTO> mutants) {
-		tempStatsObject.setSampleSizeFemale(mutants.size());
-
+			Set<ObservationDTO> mutants, ZygosityType zygosity, SexType sexType) {
+		
+		tempStatsObject.setSampleSize(mutants.size());		
 		//do the stats to get mean and SD
 		// Get a DescriptiveStatistics instance
 		DescriptiveStatistics stats = new DescriptiveStatistics();
@@ -690,7 +672,14 @@ public class UnidimensionalChartAndTableProvider {
 					new Float(stats.getStandardDeviation()), decimalPlaces);
 			tempStatsObject.setMean(mean);
 			tempStatsObject.setSd(sd);
+			if(zygosity!=null) {
+			tempStatsObject.setZygosity(zygosity);
+			}
+			if(sexType!=null) {
+				tempStatsObject.setSexType(sexType);
+			}
 		}
 		//end of stats creation for table
+		return tempStatsObject;
 	}
 }
