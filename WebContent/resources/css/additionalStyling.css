@@ -2,3 +2,54 @@
 
 /* hide pagination below tables on gene and phenotype pages */
 div#phenotypesDiv div.dataTables_paginate {display: none !important;}
+
+form.no-style{
+	border:none;
+	padding:none;
+}
+.filtersMoreLikeNicolas.open{
+	display: block; 
+	max-height:18em;
+}
+.filtertype_add{
+	white-space:nowrap;
+}
+.filtertype_add.open{
+	background:white;
+}
+.tablefilter_add{ 
+	width: 21%;	
+	text-wrap:none;
+}
+.filtertype:before { 
+	margin-right: 0.5em; 
+	}
+.filtersMoreLikeNicolas { 
+	margin-left: -2px; 
+	padding: 0.5em; 
+	border: #eee 1px solid; 
+	border-top: none; 
+	border-radius: 0 3px 3px 3px; 
+	-webkit-border-radius: 0 3px 3px 3px; 
+	-moz-border-radius: 0 3px 3px 3px; 
+	-ms-border-radius: 0 3px 3px 3px; 
+	-o-border-radius: 0 3px 3px 3px; 
+	overflow: auto;
+	display: none;
+	background: white;
+	min-width: 21%;
+	white-space:nowrap;
+}
+.ui-dropdownchecklist-item {
+	margin: 0.3em 0;
+	cursor: pointer !important;
+}
+.ui-dropdownchecklist-item label {
+	cursor: pointer;
+}
+.ui-dropdownchecklist-item input[type="checkbox"] { 
+	margin-right: 0.5em; 
+}
+#other_procedures{
+	display:none;
+}
