@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS stats_categorical_results;
 CREATE TABLE stats_categorical_results (
 
     id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    metadata_group             VARCHAR(50) DEFAULT '',  
     control_selection_strategy VARCHAR(100),
 	statistical_method         VARCHAR(50),
 	status                     VARCHAR(200),
@@ -36,6 +37,7 @@ DROP TABLE IF EXISTS stats_unidimensional_results;
 CREATE TABLE stats_unidimensional_results (
 
 	id                               INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    metadata_group                   VARCHAR(50) DEFAULT '',  
     control_selection_strategy       VARCHAR(100),
 	statistical_method               VARCHAR(200),
 	status                           VARCHAR(200),
@@ -76,7 +78,7 @@ CREATE TABLE stats_unidimensional_results (
 	gender_male_ko_pvalue            FLOAT NULL,
 	classification_tag               VARCHAR(200) NULL,
 	cohensf                          TEXT NULL,
-	raw_output                       TEXT,
+	raw_output                       TEXT NULL,
 
 	PRIMARY KEY (id),
 	KEY parameter_idx (parameter_id)
