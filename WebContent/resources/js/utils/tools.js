@@ -131,10 +131,16 @@
 				$('div.flist li#disease span.fcount').text(0);
 			}
 			
-			do_megaMa(q, fqStr);
-			do_megaPipeline(q, fqStr, facet);
-			do_megaImages(q, fqStr, facet);			
-			
+			if ( facet == 'disease' ){
+				do_megaMa(q, fqStr);
+				$('div.flist li#pipeline span.fcount').text(0);
+				$('div.flist li#images span.fcount').text(0);
+			}
+			else {
+				do_megaMa(q, fqStr);
+				do_megaPipeline(q, fqStr, facet);
+				do_megaImages(q, fqStr, facet);			
+			}
 			// make sure field mapping in url is correct with selected facet
 			fqStr = $.fn.fieldNameMapping(fqStr, facet);
 			
@@ -355,14 +361,18 @@
     				for (var j=0; j<oFacets[subFacetName].length; j=j+2){
 	    				var facetName = oFacets[subFacetName][j];    				 				   				
 	    				var facetCount = oFacets[subFacetName][j+1];
-	    				//console.log(facetName + '---:'+facetCount);    				
+	    				//console.log(facetName + '---:'+facetCount + ' >> ' + subFacetName);    				
 	    				
-	    				$(selectorBase + ' li.' + subFacetName).each(function(){	    					    					
-	    					if ( $(this).find('span.flabel').text() == facetName ){    					
+	    				$(selectorBase + ' li.' + subFacetName).each(function(){	
+	    					if (subFacetName.match(/_curated|_predicted/)){
 	    						$(this).find('span.fcount').text(facetCount);
 	    					}
-	    				});    
-	    				
+	    					else {
+	    						if ( $(this).find('span.flabel').text() == facetName ){    					
+	    							$(this).find('span.fcount').text(facetCount);
+	    						}
+	    					}
+	    				});   	    				
     				}   			
     			}
     			
@@ -731,6 +741,9 @@
 		if (facet == 'pipeline'){
 			var names = filterTxt.split('___');					
 			filterTxt = oChkbox.attr('class').replace(/_/g, ' ') + ' : ' + '"' + names[0] + '"';
+		}
+		if (facet == 'disease' && field.match(/_curated|_predicted/) ){
+			filterTxt = MPI2.searchAndFacetConfig.facetFilterLabel[field]; 		
 		}
 		
 		var a = $('<a></a>').attr({'rel':oChkbox.attr('rel')}).text(filterTxt.replace(/ phenotype$/, ''));		

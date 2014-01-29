@@ -645,15 +645,19 @@ public class DataTableController {
 			String src = doc.getString("disease_source");
 			rowData.add(src);
 			
-			// curated data: human/mouse			
-			String isHumanCurated = doc.getString("human_curated").equals("1") ? "Yes" : "-";
-			rowData.add(isHumanCurated);
-			String isMouseCurated = doc.getString("mouse_curated").equals("1") ? "Yes" : "-";
-			rowData.add(isMouseCurated);
-			String isImpcPredicted = (doc.getString("impc_predicted").equals("1") || doc.getString("impc_predicted_in_locus").equals("1")) ? "Yes" : "-";
-			rowData.add(isImpcPredicted);			
-			String isMgiPredicted = (doc.getString("mgi_predicted").equals("1") || doc.getString("mgi_predicted_in_locus").equals("1")) ? "Yes" : "-";
-			rowData.add(isMgiPredicted);
+			// curated data: human/mouse	
+			String human = "<span class='status done'>human</span>";
+			String mice  = "<span class='status done'>mice</span>";
+			String impc  = "<span class='status done'>IMPC</span>";
+			String mgi   = "<span class='status done'>MGI</span>";
+			
+			String isHumanCurated = doc.getString("human_curated").equals("1") ? human : "";			
+			String isMouseCurated = doc.getString("mouse_curated").equals("1") ? mice : "";
+			rowData.add(isHumanCurated + isMouseCurated);
+			
+			String isImpcPredicted = (doc.getString("impc_predicted").equals("1") || doc.getString("impc_predicted_in_locus").equals("1")) ? impc : "";				
+			String isMgiPredicted = (doc.getString("mgi_predicted").equals("1") || doc.getString("mgi_predicted_in_locus").equals("1")) ? mgi : "";
+			rowData.add(isImpcPredicted + isMgiPredicted);
 						
 			j.getJSONArray("aaData").add(rowData);
 		} 
