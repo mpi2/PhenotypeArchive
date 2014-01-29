@@ -10,7 +10,7 @@
 <td>
     <h5 id="${diseaseGeneAssociationDetails.diseaseId}" >${diseaseGeneAssociationDetails.diseaseId} Disease Phenotype Terms</h5>
     <c:forEach var="hpTerm" items="${diseaseGeneAssociationDetails.diseasePhenotypes}">
-        ${hpTerm.name}<br>
+        ${hpTerm.term}<br>
     </c:forEach>
 </td>
 <td></td>
@@ -32,8 +32,8 @@
                         <c:set var="score" value = "${diseaseAssociation.diseaseToModelScore}"/>                       
                     </c:if>
                     <b style="color:#FF9000">${score}</b>: ${mouseModel.allelicCompositionLink} ${mouseModel.geneticBackground} (Source: ${mouseModel.source})<br/>
-                    <c:forEach var="phenotypeTerm" items="${diseaseAssociation.mouseModelPhenotypeTerms}">
-                        ${phenotypeTerm.name}<br/>
+                    <c:forEach var="phenotypeTerm" items="${mouseModel.phenotypeTerms}">
+                        ${phenotypeTerm.term}<br/>
                     </c:forEach>
                     <br/>
                 </c:forEach>
@@ -48,8 +48,8 @@
                         <c:set var="score" value = "${diseaseAssociation.diseaseToModelScore}"/>                       
                     </c:if>
                     <b style="color:#FF9000">${score}</b>: ${mouseModel.allelicCompositionLink} ${mouseModel.geneticBackground} (Source: ${mouseModel.source})<br/>
-                    <c:forEach var="phenotypeTerm" items="${diseaseAssociation.mouseModelPhenotypeTerms}">
-                        ${phenotypeTerm.name}<br/>
+                    <c:forEach var="phenotypeTerm" items="${mouseModel.phenotypeTerms}">
+                        ${phenotypeTerm.term}<br/>
                     </c:forEach>
                     <br/>                                        
                 </c:forEach>
