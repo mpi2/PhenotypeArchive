@@ -53,10 +53,6 @@ public class GraphUtils {
             		}
             	}
             }
-            for(String url:urls) {
-            	System.out.println("graph url="+url);
-            }
-            
             return urls;
 	}
 	

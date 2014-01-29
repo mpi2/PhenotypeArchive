@@ -64,7 +64,7 @@ public class UnidimensionalChartAndTableProvider {
 	 */
 	public UnidimensionalDataSet doUnidimensionalData(
 			ExperimentDTO experiment, String chartId,
-			String title,
+			Parameter parameter,
 			ChartType boxOrScatter, Boolean byMouseId,
 			String yAxisTitle, BiologicalModel expBiologicalModel) throws SQLException,
 			IOException, URISyntaxException {
@@ -161,11 +161,11 @@ public class UnidimensionalChartAndTableProvider {
 					}//end of sextype loop
 					Map<String,String>usefulStrings=GraphUtils.getUsefulStrings(expBiologicalModel);
 					List<UnidimensionalStatsObject> unidimensionalStatsObject = produceUnidimensionalStatsData(
-							title,genderAndRawDataMap,
+							parameter,genderAndRawDataMap,
 							experiment, usefulStrings.get("allelicComposition"), usefulStrings.get("symbol"), usefulStrings.get("geneticBackground"));
 					unidimensionalStatsObjects
 					.addAll(unidimensionalStatsObject);
-					chartAndTable = processChartData(chartId, title, 
+					chartAndTable = processChartData(chartId, parameter, 
 							experiment.getZygosities(), genderAndRawDataMap, experiment, yAxisTitle, usefulStrings.get("allelicComposition"), usefulStrings.get("symbol"));
 			
 			unidimensionalDataSet
@@ -209,7 +209,7 @@ public class UnidimensionalChartAndTableProvider {
 	 * @param max
 	 * @return map containing min and max values
 	 */
-	private ChartData processChartData(String chartId, String title,
+	private ChartData processChartData(String chartId, Parameter parameter,
 			Set<ZygosityType> set, Map<SexType, List<List<Float>>> genderAndRawDataMap, ExperimentDTO experiment, String yAxisTitle, String allelicCompositionString, String symbol) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
 
@@ -254,7 +254,7 @@ public class UnidimensionalChartAndTableProvider {
 		}
 		}
 		
-		logger.debug("raw data=" + genderAndRawDataMap);
+		//logger.debug("raw data=" + genderAndRawDataMap);
 		// first list is control/wt then mutant for hom or het or both
 		
 		
@@ -292,10 +292,6 @@ public class UnidimensionalChartAndTableProvider {
 				wt1.add(maxIQR);// maximumbs.
 				boxPlotData.add(wt1);
 			}
-			
-			
-			
-			System.out.println("column="+columnIndex);
 			columnIndex++;
 		}
 		
@@ -309,7 +305,6 @@ public class UnidimensionalChartAndTableProvider {
 				column1.add(dataPoint);
 				scatterColumns.add(column1);
 			}
-			System.out.println("columnindex in scatter="+columnIndex);
 			columnIndex ++;
 		}
 		
@@ -320,12 +315,9 @@ public class UnidimensionalChartAndTableProvider {
 		
 
 		String chartString = createContinuousBoxPlotChartsString(chartId,
-				categoriesListBoxChart, title,  yAxisTitle,
+				categoriesListBoxChart, parameter,  yAxisTitle,
 				sexAndBoxPlotMap, sexAndScatterMap);
-		System.out.println("unichart="+chartString);
-		// continuousCharts.add(chartString);
 		ChartData cNTable = new ChartData();
-		// cNTable.setTable(table);
 		cNTable.setChart(chartString);
 		return cNTable;
 	}
@@ -333,7 +325,7 @@ public class UnidimensionalChartAndTableProvider {
 	
 	/**
 	 * 
-	 * @param title
+	 * @param parameter.getStableId()
 	 *            main title of the graph
 	 * @param yAxisTitle
 	 *            - unit of measurement - how to get this from the db?
@@ -344,7 +336,7 @@ public class UnidimensionalChartAndTableProvider {
 	 * @return
 	 */
 	private String createContinuousBoxPlotChartsString(String experimentNumber,
-			List<String> xAxisCategoriesList, String title, String yAxisTitle, Map<SexType, List<List<Float>>> sexAndBoxPlotMap,
+			List<String> xAxisCategoriesList, Parameter parameter, String yAxisTitle, Map<SexType, List<List<Float>>> sexAndBoxPlotMap,
 			Map<SexType, List<List<Float>>> sexAndScatterMap) {
 		JSONArray categoriesArray = new JSONArray(xAxisCategoriesList);
 		String categories = categoriesArray.toString();// "['WT', 'WT', 'HOM', 'HOM']";
@@ -403,9 +395,9 @@ public class UnidimensionalChartAndTableProvider {
 		String chartString = " chart = new Highcharts.Chart({ chart: { type: 'boxplot', renderTo: 'chart"
 				+ experimentNumber
 				+ "'},  tooltip: { formatter: function () { if(typeof this.point.high === 'undefined'){ return '<b>Observation</b><br/>' + this.point.y; } else { return '<b>Genotype: ' + this.key + '</b><br/>LQ - 1.5 * IQR: ' + this.point.low + '<br/>Lower Quartile: ' + this.point.options.q1 + '<br/>Median: ' + this.point.options.median + '<br/>Upper Quartile: ' + this.point.options.q3 + '<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '</b>'; } } }    , title: { text: '"
-				+ title
+				+ parameter.getName()
 				+ "' } , credits: { enabled: false },  subtitle: { text: '"
-				+ WordUtils.capitalize("title here")
+				+ parameter.getStableId()
 				+ "', x: -20 }, legend: { enabled: false }, xAxis: {labels: { style:{ fontSize:"
 				+ axisFontSize
 				+ " }}, categories:  "
@@ -574,7 +566,7 @@ public class UnidimensionalChartAndTableProvider {
 	 * @return map containing min and max values
 	 */
 	private List<UnidimensionalStatsObject> produceUnidimensionalStatsData(
-			String title, Map<SexType, List<List<Float>>> genderAndRawDataMap,
+			Parameter parameter, Map<SexType, List<List<Float>>> genderAndRawDataMap,
 			 ExperimentDTO experiment, String allelicCompositionString, String symbol, String geneticBackground) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
 		// logger.debug("experiment="+experiment);

@@ -264,7 +264,6 @@ public class ChartsController {
 		ChartData timeSeriesForParam=null;
 		CategoricalResultAndCharts categoricalResultAndChart=null;
 		boolean statsError = false;
-		System.out.println("calling chart" + accession);
 		// TODO need to check we don't have more than one accession and one
 		// parameter throw and exception if we do
 
@@ -326,7 +325,7 @@ public class ChartsController {
 		//getSpecificExperimentDTO(Integer id, String acc,
 		//List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain)
 		System.out.println("experiment list size=" + experimentList.size());
-		log.info(experimentList.toString());
+		//log.info(experimentList.toString());
 		if (!experimentList.isEmpty()) {
 			// log.debug("Experiment dto marker="+experimentList);
 			// ESLIM_003_001_003 id=962 calorimetry data for time series graph
@@ -357,7 +356,7 @@ public class ChartsController {
 				
 					 unidimensionalChartDataSet =
 				 continousChartAndTableProvider.doUnidimensionalData(experimentList.get(0),
-						 experimentNumber, title,
+						 experimentNumber, parameter,
 				 ChartType.UnidimensionalBoxPlot, false, yAxisTitle,expBiologicalModel);
 					model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
 				 break;

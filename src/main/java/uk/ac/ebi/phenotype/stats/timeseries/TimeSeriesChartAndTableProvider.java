@@ -43,7 +43,7 @@ public class TimeSeriesChartAndTableProvider {
 		// create CharData
 		ChartData chartsNTablesForParameter = creatDiscretePointTimeSeriesChart(
 				"1", title, lines, p.checkParameterUnit(1),
-				p.checkParameterUnit(2), 1, "org");
+				p.checkParameterUnit(2), 1, "org", p);
 		return chartsNTablesForParameter;
 	}
 
@@ -120,7 +120,7 @@ public class TimeSeriesChartAndTableProvider {
 				chartNTableForParameter = creatDiscretePointTimeSeriesChart(
 						experimentNumber, title, lines, parameter.checkParameterUnit(1),
 						parameter.checkParameterUnit(2), deimalPlaces,
-						experiment.getOrganisation());
+						experiment.getOrganisation(), parameter);
 				chartNTableForParameter.setExperiment(experiment);
 
 			}
@@ -138,6 +138,7 @@ public class TimeSeriesChartAndTableProvider {
 	 * @param yUnitsLabel
 	 * @param organisation
 	 *            TODO
+	 * @param parameter 
 	 * @param model
 	 * @param timeSeriesCharts
 	 * 
@@ -145,7 +146,7 @@ public class TimeSeriesChartAndTableProvider {
 	 */
 	private ChartData creatDiscretePointTimeSeriesChart(String expNumber,
 			String title, Map<String, List<DiscreteTimePoint>> lines,
-			String xUnitsLabel, String yUnitsLabel, int decimalPlaces, String organisation) {
+			String xUnitsLabel, String yUnitsLabel, int decimalPlaces, String organisation, Parameter parameter) {
 
 		JSONArray series = new JSONArray();
 		String seriesString = "";
@@ -271,7 +272,7 @@ public class TimeSeriesChartAndTableProvider {
 				+ "', type: 'line', marginRight: 130, marginBottom: 50 }, title: { text: '"
 				+ WordUtils.capitalize(title)
 				+ "', x: -20  }, credits: { enabled: false },  subtitle: { text: '"
-				+ "subtitle here"
+				+ parameter.getStableId()
 				+ "', x: -20 }, xAxis: { "
 				+ noDecimalsString
 				+ " labels: { style:{ fontSize:"
