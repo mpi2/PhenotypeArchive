@@ -930,7 +930,7 @@ public class ObservationService {
 			Date maxDate = cal.getTime();
 
 			Date epoch = new Date(0L); // Start date
-			DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00");
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 			String dateFilter = df.format(epoch)+"Z TO "+df.format(maxDate)+"Z";
 			query.addFilterQuery(ExperimentField.DATE_OF_EXPERIMENT + ":[" + dateFilter + "]");
 		}
@@ -975,7 +975,7 @@ public class ObservationService {
 		cal.set(Calendar.MILLISECOND, 999);
 		Date maxDate = cal.getTime();
 
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00");
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 		String dateFilter = df.format(minDate)+"Z TO "+df.format(maxDate)+"Z";
 
 		QueryResponse response = new QueryResponse();
