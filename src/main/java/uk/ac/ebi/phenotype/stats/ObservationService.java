@@ -915,7 +915,7 @@ public class ObservationService {
 			query.addFilterQuery(ExperimentField.SEX + ":" + sex);
 		}
 
-		// Filter starting at 1970-01-01 (epoch)  and going through the end 
+		// Filter starting at 2000-01-01 and going through the end 
 		// of day on the experiment date
 		if(experimentDate != null) {
 			
@@ -929,9 +929,9 @@ public class ObservationService {
 			cal.set(Calendar.MILLISECOND, 999);
 			Date maxDate = cal.getTime();
 
-			Date epoch = new Date(0L); // Start date
+			Date beginning = new Date(946684800000L); // Start date (Jan 1 2000)
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-			String dateFilter = df.format(epoch)+"Z TO "+df.format(maxDate)+"Z";
+			String dateFilter = df.format(beginning)+"Z TO "+df.format(maxDate)+"Z";
 			query.addFilterQuery(ExperimentField.DATE_OF_EXPERIMENT + ":[" + dateFilter + "]");
 		}
 		
