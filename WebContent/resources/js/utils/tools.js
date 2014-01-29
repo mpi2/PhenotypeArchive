@@ -74,7 +74,10 @@
 									
 					if ( ! window.location.search.match(/q=/) ){											
 						window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
-					}		
+					}
+					else {
+						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+					}
 				}						
 			}
 		});		
@@ -136,13 +139,7 @@
 			fqStr = $.fn.fieldNameMapping(fqStr, facet);
 			
 			// now update dataTable	 
-	    	if (q == '*:*'){
-	    		window.location.hash = 'q=' + q + '&fq=' + fqStr + '&facet=' + facet;    	    		
-	    	}
-	    	else {
-	    		window.location.hash = 'fq=' + fqStr + '&facet=' + facet;    	    		
-	    	}	
-			
+			window.location.hash = 'q=' + q + '&fq=' + fqStr + '&facet=' + facet;	    	
 		}
 	};	
 	
@@ -970,20 +967,6 @@
 	   return rv;
 	}	
 	
-	function getInternetExplorerVersion() {
-	        
-		// Returns the version of IE or -1        
-	
-		var rv = -1; // default
-		if (navigator.appName == 'Microsoft Internet Explorer') {
-			var ua = navigator.userAgent;
-			var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-			if (re.exec(ua) != null)
-				rv = parseFloat(RegExp.$1);
-		 	}
-		 	return rv;
-	}
-	
 	// inverse simple JSON: eg, {a: 'one', b: 'two}
 	// cannot do complicated nested associated array
 	$.fn.inverseSimpleJSON = function(json){
@@ -1606,7 +1589,9 @@
     	$('div#saveTable').remove();
     	$('div#toolBox').remove();
     
-    	var saveTool = $("<div id='saveTable'></div>").html("Export table <img src='"+baseUrl+"/img/floppy.png' />");//.corner("4px");    	
+    	//var saveTool = $("<div id='saveTable'></div>").html("Download table <img src='"+baseUrl+"/img/floppy.png' />");//.corner("4px");    	
+    	var saveTool = $("<div id='saveTable'></div>").html("<span class='fa fa-download'>&nbsp;Download</span>");//.corner("4px");    	
+    	
     	var toolBox = fetchSaveTableGui();
     	
     	$('div.dataTables_processing').siblings('div#tableTool').append(saveTool, toolBox); 
