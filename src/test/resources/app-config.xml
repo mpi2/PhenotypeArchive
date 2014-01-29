@@ -29,6 +29,10 @@
 	<!-- Weaves in transactional advice around @Transactional methods -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
+<bean id="genotypePhenotypeService" class="uk.ac.ebi.phenotype.stats.GenotypePhenotypeService">
+				<constructor-arg  value="${internalSolrUrl}/genotype-phenotype" />
+	</bean>
+	
 	<bean id="biologicalModelDAO" class="uk.ac.ebi.phenotype.dao.BiologicalModelDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>

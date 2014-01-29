@@ -329,30 +329,49 @@ public class ExperimentService {
 		return getExperimentDTO(p.getId(), geneAccession, sex, phenotypingCenterId, zygosity, strain);
 	}
 
-	public List<ExperimentDTO> getExperimentDTO(Integer id, String acc,
-			List<String> genderList, List<String> zyList, Integer phenotypingCenterId) throws SolrServerException, IOException, URISyntaxException {
+	/**
+	 * Should only return 1 experimentDTO
+	 * @param id
+	 * @param acc
+	 * @param genderList
+	 * @param zyList
+	 * @param phenotypingCenterId
+	 * @param strain
+	 * @return
+	 * @throws SolrServerException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	public List<ExperimentDTO> getSpecificExperimentDTO(Integer id, String acc,
+			List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain) throws SolrServerException, IOException, URISyntaxException {
 		List<ExperimentDTO> experimentList=new ArrayList<ExperimentDTO>();
 		
 		if (genderList.isEmpty() || genderList.size()==2) {//if gender list is size 2 assume both sexes so no filter needed
-			
+			 
 			
 			if (zyList.isEmpty() || zyList.size()==2) {//if zygosity list is size 2 then no filter needed either
-				experimentList=this.getExperimentDTO(id, acc,  null, phenotypingCenterId, null, null);
+				experimentList=this.getExperimentDTO(id, acc,  null, phenotypingCenterId, null, strain);
 			}else {
-				experimentList=this.getExperimentDTO(id, acc,  null, phenotypingCenterId, zyList.get(0), null);
+				experimentList=this.getExperimentDTO(id, acc,  null, phenotypingCenterId, zyList.get(0), strain);
 			}
 			
 		}else {
 			String gender=genderList.get(0);
 			if (zyList.isEmpty() || zyList.size()==2) {
-				experimentList=this.getExperimentDTO(id, acc, SexType.valueOf(gender), phenotypingCenterId, null, null);
+				experimentList=this.getExperimentDTO(id, acc, SexType.valueOf(gender), phenotypingCenterId, null, strain);
 			}else {
-				experimentList=this.getExperimentDTO(id, acc, SexType.valueOf(gender), phenotypingCenterId, zyList.get(0), null);
+				experimentList=this.getExperimentDTO(id, acc, SexType.valueOf(gender), phenotypingCenterId, zyList.get(0), strain);
 			}
 			
 		}
 		
 		return experimentList;
+	}
+	
+	
+	
+	public Map<String,List<String>> getExperimentKeys(String mgiAccession, String parameterStableId) throws SolrServerException{
+	return 	os.getExperimentKeys(mgiAccession, parameterStableId);
 	}
 	
 	public String getCategoryLabels (int parameterId, String category) throws SQLException{

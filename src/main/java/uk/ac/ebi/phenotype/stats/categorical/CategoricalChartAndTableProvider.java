@@ -22,12 +22,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
-import uk.ac.ebi.phenotype.dao.BiologicalModelDAO;
 import uk.ac.ebi.phenotype.dao.CategoricalStatisticsDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.ParameterOption;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
@@ -46,66 +46,49 @@ public class CategoricalChartAndTableProvider {
 
 	/**
 	 * return a list of categorical result and chart objects - one for each ExperimentDTO
-	 * @param experimentList
-	 * @param bmDAO
+	 * @param experiment
 	 * @param parameter
 	 * @param acc
-	 * @param model
-	 * @param genderList
-	 * @param zyList
-	 * @param charts
-	 * @param categoricalTables
+	 * @param gender
 	 * @param parameterId
+	 * @param charts
 	 * @return
 	 * @throws SQLException
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public List<CategoricalResultAndCharts> doCategoricalData(
-			List<ExperimentDTO> experimentList, BiologicalModelDAO bmDAO,
-			Parameter parameter,
-			String acc, Model model, List<String> genderList,
-			List<String> zyList,
-			List<JSONObject> charts, List<TableObject> categoricalTables,
-			String parameterId)
+	public CategoricalResultAndCharts doCategoricalData(
+			ExperimentDTO experiment, Parameter parameter,
+			String acc,
+			String numberString, BiologicalModel expBiologicalModel)
 			throws SQLException, IOException, URISyntaxException {
 
+		
+		List<String> categories = this.getCategories(parameter);//loop through all the parameters no just ones with >0 result so use parameter rather than experiment
 		logger.debug("running categorical data");
-
-		model.addAttribute("parameterId", parameter.getId().toString());
-		model.addAttribute("parameterDescription", parameter.getDescription());
-
-		//List<CategoricalResult> categoricalResults = new ArrayList<CategoricalResult>();
-		List<CategoricalResultAndCharts> listOfChartsAndResults=new ArrayList<>();//one object for each experiment
-		for (ExperimentDTO experiment : experimentList) {
+		//https://www.mousephenotype.org/data/stats/genes/MGI:98373?parameterId=M-G-P_014_001_009&zygosity=homozygote&phenotypingCenter=WTSI
+		
 			CategoricalResultAndCharts categoricalResultAndCharts = new CategoricalResultAndCharts();
 			categoricalResultAndCharts.setExperiment(experiment);
 			List<? extends StatisticalResult> statsResults = (List<? extends StatisticalResult>) experiment
 					.getResults();
 			// should get one for each sex here if there is a result for each
 			// experimental sex
-			Integer expBiologicalModelId = experiment.getExperimentalBiologicalModelId();
-			BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(expBiologicalModelId);
-			for (SexType sexType : experiment.getSexes()) { // one graph for each sex if
-				if (genderList.isEmpty() || genderList.contains(sexType.name())) {
-					// getCategoricalResultByParameter(parameter, expBiologicalModel.getId(), sexType);
-					// System.out.println("statsResults size="+statsResults.size()+
-					// "statsResults="+statsResults);
-					// categoricalResults.addAll(statsResults);
+			CategoricalChartDataObject chartData = new CategoricalChartDataObject();// make a chart object one for both sexes
+			for (SexType sexType : experiment.getSexes()) { 
+				
 					 categoricalResultAndCharts.setStatsResults(statsResults);
-					CategoricalChartDataObject chartData = new CategoricalChartDataObject();// make a new chart object for each sex
-					chartData.setSexType(sexType);
-					List<String> xAxisCategories = this.getXAxisCategories(
-							experiment.getZygosities(), zyList);
+					
+					//chartData.setSexType(sexType);
 					// do control first as requires no zygocity
 					CategoricalSet controlSet = new CategoricalSet();
-					controlSet.setName("Control");
+					controlSet.setName(WordUtils.capitalize(sexType.name())+" Control");
 
-					for (String category : experiment.getCategories()) {
+					for (String category :categories) {
 						if (category.equals("imageOnly"))
 							continue;// ignore image categories as no numbers!
 						CategoricalDataObject controlCatData = new CategoricalDataObject();
-						controlCatData.setName("control");
+						controlCatData.setName(WordUtils.capitalize(sexType.name())+" Control");
 						controlCatData.setCategory(ppDAO.getCategoryDescription(parameter.getId(), category));
 
 						long controlCount = 0;
@@ -128,13 +111,12 @@ public class CategoricalChartAndTableProvider {
 
 					// now do experimental i.e. zygocities
 					for (ZygosityType zType : experiment.getZygosities()) {
-						if (zyList.isEmpty() || zyList.contains(zType.name())) {
+						
 							CategoricalSet zTypeSet = new CategoricalSet();// hold the data for each bar on graph hom, normal, abnormal
-							zTypeSet.setName(zType.name());
-							for (String category : experiment.getCategories()) {
+							zTypeSet.setName(WordUtils.capitalize(sexType.name())+" "+WordUtils.capitalize(zType.name()));
+							for (String category : categories) {
 								if (category.equals("imageOnly"))
 									continue;
-								logger.debug(zyList);
 								Long mutantCount = new Long(0);// .countMutant(sexType, zType, parameter, category, popId);
 								// loop over all the experimental docs and get
 								// all that apply to current loop parameters
@@ -169,20 +151,7 @@ public class CategoricalChartAndTableProvider {
 										//result.setControlBiologicalModel(controlBiologicalModel);
 									}
 								}
-								//List<CategoricalResult> categoricalR = categoricalStatsDao.getCategoricalResultByParameter(parameter, expBiologicalModelId, sexType);
 								
-								// logger.warn("getting pvalue for sex="+sexType+"  zyg="+
-								// zType+" param="+ parameter+" category="+
-								// category+"popId="+ popId);
-								// List<Double> pValue =
-								// categoricalStatsDao.getpValueByParameterAndMutantBiologicalModelAndSexAndZygosity(parameter,
-								// expBiologicalModel, sexType, zType);
-								// List<Double>
-								// maxEffect=categoricalStatsDao.getMaxEffectSizeByParameterAndMutantBiologicalModelAndSexAndZygosity(parameter,
-								// expBiologicalModel, sexType, zType);
-								// System.out.println("pValue="+pValue);
-								// System.out.println("maxEffect");
-								// if(pValue.size()>0 && maxEffect.size()>0){
 								// //TODO get multiple p values when necessary
 								// System.err.println("ERROR WE NEED to change the code to handle multiple p values and max effect!!!!!!!!");
 								if(tempStatsResult!=null) {
@@ -196,42 +165,22 @@ public class CategoricalChartAndTableProvider {
 							}
 							chartData.add(zTypeSet);
 						}
-					}
-
-					// removeColumnsWithZeroData(xAxisCategories,
-					// seriesDataForCategoricalType);
-
-					// String chart = this.createCategoricalHighChart(
-					// categoricalBarCharts, sexType,
-					// parameter.getName() ,
-					// xAxisCategories, categories,
-					// seriesDataForCategoricalType);
 					categoricalResultAndCharts.setOrganisation(experiment.getOrganisation());//add it here before check so we can see the organisation even if no graph data
-					if (xAxisCategories.size() > 1) {// if size is greater than one i.e. we have more than the control data then draw charts and tables
-						
-						String chartNew = this
-								.createCategoricalHighChartUsingObjects(
-										chartData,
-										parameter,
-										expBiologicalModel,experiment.getOrganisation(),
-                                                                                experiment.getMetadataGroup());
-						chartData.setChart(chartNew);
-						categoricalResultAndCharts.add(chartData);
-						//categoricalResultAndCharts
-							//	.setStatsResults(experiment.getResults());
-						// TableObject table =
-						// this.creatCategoricalDataTableFromObjects(chartData,
-						// sexType, "",
-						// xAxisCategories, categories,
-						// seriesDataForCategoricalType);
-						// tables.add(table);
-					}
-				}
+				
 			}// end of gender
-			listOfChartsAndResults.add(categoricalResultAndCharts);
-
-		}// end of experiment loop
-		return listOfChartsAndResults;
+			
+		
+				String chartNew = this
+						.createCategoricalHighChartUsingObjects(numberString,
+								chartData,
+								parameter,
+								experiment.getOrganisation(),
+                                                                        experiment.getMetadataGroup());
+				chartData.setChart(chartNew);
+				categoricalResultAndCharts.add(chartData);
+				categoricalResultAndCharts
+						.setStatsResults(experiment.getResults());
+		return categoricalResultAndCharts;
 	}
 
 	
@@ -347,9 +296,9 @@ public class CategoricalChartAndTableProvider {
 		
 	}
 		
-	private String createCategoricalHighChartUsingObjects(
+	private String createCategoricalHighChartUsingObjects(String chartId,
 			CategoricalChartDataObject chartData, Parameter parameter,
-			BiologicalModel bm, String organisation, String metadataGroup) throws SQLException {
+			 String organisation, String metadataGroup) throws SQLException {
 		System.out.println(chartData);
 
 		// int size=categoricalBarCharts.size()+1;//to know which div to render
@@ -357,7 +306,6 @@ public class CategoricalChartAndTableProvider {
 		JSONArray seriesArray = new JSONArray();
 		JSONArray xAxisCategoriesArray = new JSONArray();
 		String title = parameter.getName();
-		SexType sex = chartData.getSexType();
 		// try {
 
 		// logger.debug("call to highchart" + " sex=" + sex + " title="
@@ -421,7 +369,7 @@ public class CategoricalChartAndTableProvider {
 		}
 		
                 //replace space in MRC Harwell with underscore so valid javascript variable
-                String chartId = bm.getId() + sex.name()+organisation.replace(" ", "_")+"_"+metadataGroup;
+                //String chartId = bm.getId() + sex.name()+organisation.replace(" ", "_")+"_"+metadataGroup;
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
 		String javascript = "$(function () {  var chart_"
 				+ chartId
@@ -429,12 +377,12 @@ public class CategoricalChartAndTableProvider {
 				+ chartId
 				+ " = new Highcharts.Chart({ tooltip : "
 				+ toolTipFunction
-				+ ", chart: { renderTo: 'categoricalBarChart"
+				+ ", chart: { renderTo: 'chart"
 				+ chartId
 				+ "', type: 'column' }, title: { text: '"
 				+ WordUtils.capitalize(title)
 				+ "' }, credits: { enabled: false }, subtitle: { text: '"
-				+ WordUtils.capitalize(sex.name())
+				+ "subtitle here"
 				+ "', x: -20 }, xAxis: { categories: "
 				+ xAxisCategoriesArray
 				+ "}, yAxis: { min: 0, title: { text: 'Percent Occurrance' } ,  labels: {       formatter: function() { return this.value +'%';   }  }},  plotOptions: { column: { stacking: 'percent' } }, series: "
@@ -443,7 +391,7 @@ public class CategoricalChartAndTableProvider {
 		// categoricalBarCharts.add(javascript);
 		chartData.setChart(javascript);
 		chartData.setChartIdentifier(chartId);
-		chartData.setBiologicalModel(bm);
+		
 		return javascript;
 	}
 
@@ -473,19 +421,17 @@ public class CategoricalChartAndTableProvider {
 			}
 		}
 	}
+	
+	public List<String> getCategories(Parameter parameter) {
+		List<ParameterOption> options = parameter.getOptions();
+		List<String> categories = new ArrayList<String>();
 
-	private List<String> getXAxisCategories(Set<ZygosityType> set,
-			List<String> zygosityParams) {
-		List<String> xAxisCat = new ArrayList<String>();
-		xAxisCat.add("Control");// we know we have controls and we want to put these first.
-
-		for (ZygosityType type : set) {
-			if (zygosityParams.isEmpty()
-					|| zygosityParams.contains(type.name())) {
-				xAxisCat.add(type.name());
-			}
+		for (ParameterOption option : options) {
+			categories.add(option.getName());
 		}
-		return xAxisCat;
+
+		return categories;
 	}
+
 
 }

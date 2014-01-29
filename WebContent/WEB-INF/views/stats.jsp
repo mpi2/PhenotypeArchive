@@ -1,7 +1,7 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
-
+<%@taglib prefix="t" tagdir="/WEB-INF/tags"%>  
+  
 <t:genericpage>
 	<jsp:attribute name="title"> 
 		<c:forEach var="parameter" items="${parameters}" varStatus="loop">
@@ -21,7 +21,7 @@
 
 	</jsp:attribute>
 
-	<jsp:attribute name="footer">
+	<jsp:attribute name="addToFooter">
 		<script>
 			$(document).ready(function(){				
 				// bubble popup for brief panel documentation
@@ -30,7 +30,7 @@
 					'textAlign': 'left',
 					'tip': 'topRight'
 				});	
-			});
+	});
 		</script>
 	</jsp:attribute>
 
@@ -57,13 +57,6 @@
 					</div>
 		</c:if>
 		
-		<c:if test="${not noData}">			
-			<jsp:include page="timeSeriesStatsFrag.jsp"/>
-			
-			<jsp:include page="categoricalStatsFrag.jsp"/>
-			
-			<jsp:include page="unidimensionalStatsFrag.jsp"/>
-		</c:if>
-
+	
 	</jsp:body>
 </t:genericpage>

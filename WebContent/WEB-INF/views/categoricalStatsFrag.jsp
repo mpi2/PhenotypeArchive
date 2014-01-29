@@ -2,7 +2,7 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
-<c:if test="${fn:length(allCategoricalResultAndCharts) > 0}">
+<%--<c:if test="${fn:length(allCategoricalResultAndCharts) > 0}">
 	<div id="exportIconsDivCat"></div>
 	 <script>
 	$(document)
@@ -96,7 +96,7 @@
 	
 </c:if>
 
-	
+	--%>
 <c:forEach var="categoricalResultAndCharts" items="${allCategoricalResultAndCharts}" varStatus="experimentLoop">
 <c:if test="${fn:length(categoricalResultAndCharts.maleAndFemale)>0}">
 	<div class="row-fluid dataset">
@@ -251,6 +251,7 @@
 				</div>
 				
  	</div>
+ 	
 </c:if>
  </c:forEach>
  
