@@ -263,7 +263,10 @@ public class ExperimentService {
 
 		    	    }
 		    	    
-		    	    if (experiment.getSexes()!=null) {
+		    	    //
+		    	    // If one sex specified
+		    	    //
+		    	    if (experiment.getSexes()!=null && experiment.getSexes().size()<2) {
 
 		    	    	for (SexType s : SexType.values()) {
 	
@@ -299,6 +302,10 @@ public class ExperimentService {
 			    	    }
 
 		    	    } else {
+		    	    	
+		    	    	//
+		    	    	// Processing both sexes
+		    	    	//
 
 		    			List<ObservationDTO> addingControls = new ArrayList<ObservationDTO>();
 
