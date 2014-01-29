@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.junit.After;
@@ -30,7 +30,7 @@ public class SolrImagesServiceTest {
 	@Before
 	public void setUp() throws Exception {
 		
-		server = new CommonsHttpSolrServer(solrBaseUrl);
+		server = new HttpSolrServer(solrBaseUrl);
 		solrUtils=new SolrUtils();
 	}
 
