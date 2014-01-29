@@ -17,7 +17,7 @@
         &nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&core=disease&fq=type:disease"> Diseases</a>&nbsp;&raquo; ${geneIdentifier.geneSymbol}
     </jsp:attribute>
 
-    <jsp:attribute name="footer">
+    <jsp:attribute name="header">
 
         <!--<script src="https://www.mousephenotype.org/js/general/toggle.js"></script>-->
         <script type="text/javascript" charset="utf-8" src="${baseUrl}/js/vendor/DataTables-1.9.4/jquery.dataTables.min.js"></script>

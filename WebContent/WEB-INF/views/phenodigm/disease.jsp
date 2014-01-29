@@ -16,7 +16,7 @@
         &nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&core=disease&fq=type:disease"> Diseases</a>&nbsp;&raquo; ${disease.diseaseId}
     </jsp:attribute>
 
-    <jsp:attribute name="footer">
+    <jsp:attribute name="header">
         
         <script type="text/javascript" charset="utf-8" src="${baseUrl}/js/vendor/jquery-1.7.2.min.js"></script>
 
