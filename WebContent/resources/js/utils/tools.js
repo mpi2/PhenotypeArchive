@@ -970,6 +970,20 @@
 	   return rv;
 	}	
 	
+	function getInternetExplorerVersion() {
+	        
+		// Returns the version of IE or -1        
+	
+		var rv = -1; // default
+		if (navigator.appName == 'Microsoft Internet Explorer') {
+			var ua = navigator.userAgent;
+			var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+			if (re.exec(ua) != null)
+				rv = parseFloat(RegExp.$1);
+		 	}
+		 	return rv;
+	}
+	
 	// inverse simple JSON: eg, {a: 'one', b: 'two}
 	// cannot do complicated nested associated array
 	$.fn.inverseSimpleJSON = function(json){

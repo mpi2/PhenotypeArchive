@@ -371,8 +371,8 @@ try {
                     document.location.reload();
             });
 
-            // Message to IE users
-            $.fn.ieCheck();
+                // Message to IE users
+                //$.fn.ieCheck();
         });        
         </script>
         </compress:html>

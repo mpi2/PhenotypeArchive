@@ -31,9 +31,6 @@ public class UnidimensionalResult extends StatisticalResult implements Serializa
         @Column(name = "experimental_zygosity")
         private ZygosityType experimentalZygosity;
 
-        @Column(name = "stats_method")
-        private String statsMethod;
-
         @Column(name = "dependant_variable")
         private String dependantVariable;
 
@@ -174,14 +171,6 @@ public class UnidimensionalResult extends StatisticalResult implements Serializa
 
         public void setParameter(Parameter parameter) {
                 this.parameter = parameter;
-        }
-
-        public String getStatsMethod() {
-                return statsMethod;
-        }
-
-        public void setStatsMethod(String statsMethod) {
-                this.statsMethod = statsMethod;
         }
 
         public String getDependantVariable() {
@@ -522,8 +511,6 @@ public class UnidimensionalResult extends StatisticalResult implements Serializa
                                 * result
                                 + ((interceptEstimateStandardError == null) ? 0
                                                 : interceptEstimateStandardError.hashCode());
-                result = prime * result
-                                + ((statsMethod == null) ? 0 : statsMethod.hashCode());
                 result = prime
                                 * result
                                 + ((experimentalBiologicalModel == null) ? 0 : experimentalBiologicalModel
@@ -767,13 +754,6 @@ public class UnidimensionalResult extends StatisticalResult implements Serializa
                                 .equals(other.interceptEstimateStandardError)) {
                         return false;
                 }
-                if (statsMethod == null) {
-                        if (other.statsMethod != null) {
-                                return false;
-                        }
-                } else if (!statsMethod.equals(other.statsMethod)) {
-                        return false;
-                }
                 if (experimentalBiologicalModel == null) {
                         if (other.experimentalBiologicalModel != null) {
                                 return false;
@@ -851,7 +831,7 @@ public class UnidimensionalResult extends StatisticalResult implements Serializa
                                 + ", experimentalZygosity=" + experimentalZygosity
                                 + ", organisation=" + ((organisation!=null)?organisation.getName():null) 
                                 + ", parameter=" + ((parameter!=null)?parameter.getStableId():null)
-                                + ", statsMethod=" + statsMethod + ", dependantVariable="
+                                + ", dependantVariable="
                                 + dependantVariable + ", batchSignificance="
                                 + batchSignificance + ", varianceSignificance="
                                 + varianceSignificance + ", nullTestSignificance="

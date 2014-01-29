@@ -1,9 +1,8 @@
  <dataConfig>   
 
         <dataSource name="phenodigmdb" jndiName="java:comp/env/jdbc/phenodigmDataSource" />
-        <dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/mp/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
-        <dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>        
- 
+        <dataSource name="gene_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/gene/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
+      
  <document name="docs">
 
         <!-- root entity -->
@@ -32,12 +31,12 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
                 <field column="phenotype" name="disease_human_phenotypes"/>
             </entity>
 
-            <field column="mgi_gene_id" name="mgi_accession_id"/>                   
-            
+            <field column="mgi_gene_id" name="mgi_accession_id"/>
+                               
             <!-- genes associated with this disease -->
-            <entity dataSource="gene2_core" name="genedoc" stream="true" url="q=mgi_accession_id:&quot;${doc.mgi_gene_id}&quot;&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status,imits_phenotype_is_active&amp;rows=50000&amp;wt=normal"
-    			processor="XPathEntityProcessor" forEach="/response/result/doc/"                
-    			readTimeout="10000" connectionTimeout="10000"  >                                        
+            <entity dataSource="gene_core" name="genedoc" stream="true" url="q=mgi_accession_id:&quot;${doc.mgi_gene_id}&quot;&amp;wt=normal"
+                        processor="XPathEntityProcessor" forEach="/response/result/doc/"                
+                        readTimeout="10000" connectionTimeout="10000"  >                                        
     
                     <field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />                                                        
                     <field column="marker_name" xpath="/response/result/doc/arr[@name='marker_name']/str" />
@@ -53,29 +52,24 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
                     <field column="imits_phenotype_started" xpath="/response/result/doc/arr[@name='imits_phenotype_started']/str" />
         
                     <field column="imits_phenotype_complete" xpath="/response/result/doc/arr[@name='imits_phenotype_complete']/str" />
-                    <field column="colony_prefix" xpath="/response/result/doc/arr[@name='colony_prefix']/str" />
-                    <field column="imits_phenotype_colony_name" xpath="/response/result/doc/arr[@name='imits_phenotype_colony_name']/str" />
-                    <field column="imits_phenotype_allele_type" xpath="/response/result/doc/arr[@name='imits_phenotype_allele_type']/str" />
-                    <field column="imits_phenotype_status" xpath="/response/result/doc/arr[@name='imits_phenotype_status']/str" />
-                    <field column="imits_phenotype_is_active" xpath="/response/result/doc/arr[@name='imits_phenotype_is_active']/str" />
- 			
- 					<!-- MP terms associated with this MGI gene -->					
-					<field column="mp_id" xpath="/response/result/doc/str[@name='mp_id']" />					
-					<field column="mp_term" xpath="/response/result/doc/str[@name='mp_term']" />
-					<field column="mp_definition" xpath="/response/result/doc/str[@name='mp_definition']" />		
-					<field column="mp_term_synonym" xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" />	
-					<field column="ontology_subset" xpath="/response/result/doc/arr[@name='ontology_subset']/str" />
-					<field column="top_level_mp_id" xpath="/response/result/doc/arr[@name='top_level_mp_id']/str" />
-					<field column="top_level_mp_term" xpath="/response/result/doc/arr[@name='top_level_mp_term']/str" />							
-					<field column="top_level_mp_definition" xpath="/response/result/doc/arr[@name='top_level_mp_definition']/str" />					
-			
-					<!-- MA: inferred from MP -->
-					<field column="inferred_ma_id" xpath="/response/result/doc/arr[@name='inferred_ma_id']/str" />	
-					<field column="inferred_ma_term" xpath="/response/result/doc/arr[@name='inferred_ma_term']/str" />
-					<field column="inferred_selected_top_level_ma_id" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_id']/str" />
-					<field column="inferred_selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str" />			
-							
-            </entity>            
+
+                    <!-- MP terms associated with this MGI gene -->                                 
+                    <field column="mp_id" xpath="/response/result/doc/arr[@name='mp_id']/str" />                                        
+                    <field column="mp_term" xpath="/response/result/doc/arr[@name='mp_term']/str" />
+                    <field column="mp_definition" xpath="/response/result/doc/arr[@name='mp_definition']/str" />                
+                    <field column="mp_term_synonym" xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" />        
+                    <field column="ontology_subset" xpath="/response/result/doc/arr[@name='ontology_subset']/str" />
+                    <field column="top_level_mp_id" xpath="/response/result/doc/arr[@name='top_level_mp_id']/str" />
+                    <field column="top_level_mp_term" xpath="/response/result/doc/arr[@name='top_level_mp_term']/str" />                                                    
+                    <field column="top_level_mp_definition" xpath="/response/result/doc/arr[@name='top_level_mp_definition']/str" />                                        
+                        
+                    <!-- MA: inferred from MP -->
+                    <field column="inferred_ma_id" xpath="/response/result/doc/arr[@name='inferred_ma_id']/str" />  
+                    <field column="inferred_ma_term" xpath="/response/result/doc/arr[@name='inferred_ma_term']/str" />
+                    <field column="inferred_selected_top_level_ma_id" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_id']/str" />
+                    <field column="inferred_selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str" />            
+                                                        
+            </entity> 
   		</entity>
 	</document>
 	
