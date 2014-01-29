@@ -45,6 +45,7 @@
 		<googleAnalytics></googleAnalytics>
 		<liveSite>false</liveSite>
 		<ebi.distrib.repository>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/groups/public</ebi.distrib.repository>
+		<phenodigm.solrserver>http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm</phenodigm.solrserver>
 	</properties>
 
 	<dependencies>
@@ -55,7 +56,7 @@
 		<dependency>
 			<groupId>uk.ac.sanger</groupId>
 			<artifactId>phenodigm2-core</artifactId>
-			<version>1.2</version>
+			<version>1.3</version>
 		</dependency>
 
 		<dependency>
@@ -134,7 +135,7 @@
 		<dependency>
 			<artifactId>solr-solrj</artifactId>
 			<groupId>org.apache.solr</groupId>
-			<version>3.6.1</version>
+			<version>4.4.0</version>
 		</dependency>
 
 		<dependency>

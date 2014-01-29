@@ -16,16 +16,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
-import uk.ac.sanger.phenodigm2.model.DiseaseAssociation;
 import uk.ac.sanger.phenodigm2.model.DiseaseIdentifier;
+import uk.ac.sanger.phenodigm2.model.DiseaseModelAssociation;
 import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
 import uk.ac.sanger.phenodigm2.web.DiseaseGeneAssociationDetail;
 
 /**
  *
- * @author jj8
+ * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
  */
 @Controller
 public class PhenoDigmController {
@@ -45,10 +44,10 @@ public class PhenoDigmController {
         DiseaseGeneAssociationDetail details = phenoDigmDao.getDiseaseGeneAssociationDetail(new DiseaseIdentifier(diseaseId), new GeneIdentifier(geneId, geneId));
         model.addAttribute("diseaseGeneAssociationDetails", details);
         
-        List<DiseaseAssociation> literatureAssociations = new ArrayList<>();
-        List<DiseaseAssociation> phenotypicAssociations = new ArrayList<>();
+        List<DiseaseModelAssociation> literatureAssociations = new ArrayList<>();
+        List<DiseaseModelAssociation> phenotypicAssociations = new ArrayList<>();
         
-        for (DiseaseAssociation diseaseAssociation : details.getDiseaseAssociations()) {
+        for (DiseaseModelAssociation diseaseAssociation : details.getDiseaseAssociations()) {
             if (diseaseAssociation.hasLiteratureEvidence()) {
                 literatureAssociations.add(diseaseAssociation);
             }
@@ -57,10 +56,10 @@ public class PhenoDigmController {
         
         //The lists need sorting according to the view in which they will be appearing
         //we'll assume theat the default is going to be a disease page 
-        Comparator pageComparator = DiseaseAssociation.DiseaseToGeneScoreComparator;
+        Comparator pageComparator = DiseaseModelAssociation.DiseaseToGeneScoreComparator;
         //but it could be a gene page
         if (requestPageType.equals("gene")) {
-            pageComparator = DiseaseAssociation.GeneToDiseaseScoreComparator;
+            pageComparator = DiseaseModelAssociation.GeneToDiseaseScoreComparator;
             logger.info("Sorting DiseaseAssociations according to m2d score for Gene page");
         }
         else {
