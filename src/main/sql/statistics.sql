@@ -21,7 +21,7 @@ CREATE TABLE stats_categorical_results (
     category_b                 VARCHAR(200),
     p_value                    FLOAT,
     effect_size                FLOAT,
-	raw_output                 TEXT,
+	raw_output                 MEDIUMTEXT NULL,
     
     PRIMARY KEY (id),
     KEY control_idx (control_id),
@@ -78,7 +78,7 @@ CREATE TABLE stats_unidimensional_results (
 	gender_male_ko_pvalue            FLOAT NULL,
 	classification_tag               VARCHAR(200) NULL,
 	cohensf                          TEXT NULL,
-	raw_output                       TEXT NULL,
+	raw_output                       MEDIUMTEXT NULL,
 
 	PRIMARY KEY (id),
 	KEY parameter_idx (parameter_id)
