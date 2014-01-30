@@ -382,7 +382,7 @@ public class CategoricalChartAndTableProvider {
 				+ "', type: 'column' }, title: { text: '"
 				+ WordUtils.capitalize(title)
 				+ "' }, credits: { enabled: false }, subtitle: { text: '"
-				+ "subtitle here"
+				+  parameter.getStableId()
 				+ "', x: -20 }, xAxis: { categories: "
 				+ xAxisCategoriesArray
 				+ "}, yAxis: { min: 0, title: { text: 'Percent Occurrance' } ,  labels: {       formatter: function() { return this.value +'%';   }  }},  plotOptions: { column: { stacking: 'percent' } }, series: "
