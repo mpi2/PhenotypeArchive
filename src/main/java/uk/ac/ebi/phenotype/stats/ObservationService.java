@@ -326,7 +326,6 @@ public class ObservationService {
                 .addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
                 .addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
                 .addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
-                .addFilterQuery("(" + ExperimentField.ALLELE_SYMBOL + ":*<tm* OR " + ExperimentField.ALLELE_SYMBOL + ":*<Gt*)")
                 .setRows(0).addFacetField(ExperimentField.GENE_ACCESSION)
                 .setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
 
@@ -449,7 +448,6 @@ public class ObservationService {
                 .addFilterQuery(ExperimentField.STRAIN + ":"+ strain.replace(":", "\\:"))
                 .addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
                 .addFilterQuery(ExperimentField.SEX + ":" + sex).setRows(0)
-                .addFilterQuery("(" + ExperimentField.ALLELE_SYMBOL + ":*<tm* OR " + ExperimentField.ALLELE_SYMBOL + ":*<Gt*)")
                 .addFacetField(ExperimentField.GENE_ACCESSION).setFacet(true)
                 .setFacetMinCount(1).setFacetLimit(-1);
 
