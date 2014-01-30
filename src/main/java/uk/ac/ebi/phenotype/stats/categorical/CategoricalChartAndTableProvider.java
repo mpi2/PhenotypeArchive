@@ -156,7 +156,9 @@ public class CategoricalChartAndTableProvider {
 								// System.err.println("ERROR WE NEED to change the code to handle multiple p values and max effect!!!!!!!!");
 								if(tempStatsResult!=null) {
 								expCatData.setpValue(tempStatsResult.getpValue());
+								if(tempStatsResult.getEffectSize()!=null) {
 								 expCatData.setMaxEffect(tempStatsResult.getEffectSize());
+								}
 								}
 								// logger.warn("pValue="+pValue+" maxEffect="+maxEffect);
 								// }
@@ -382,7 +384,7 @@ public class CategoricalChartAndTableProvider {
 				+ "', type: 'column' }, title: { text: '"
 				+ WordUtils.capitalize(title)
 				+ "' }, credits: { enabled: false }, subtitle: { text: '"
-				+ "subtitle here"
+				+  parameter.getStableId()
 				+ "', x: -20 }, xAxis: { categories: "
 				+ xAxisCategoriesArray
 				+ "}, yAxis: { min: 0, title: { text: 'Percent Occurrance' } ,  labels: {       formatter: function() { return this.value +'%';   }  }},  plotOptions: { column: { stacking: 'percent' } }, series: "

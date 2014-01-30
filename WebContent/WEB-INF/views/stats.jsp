@@ -1,55 +1,56 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@taglib prefix="t" tagdir="/WEB-INF/tags"%>  
-  
+<%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
+
 <t:genericpage>
-	<jsp:attribute name="title"> 
-		<c:forEach var="parameter" items="${parameters}" varStatus="loop">
-  		${parameter.name}
-    	<c:if test="${ not loop.last}">,</c:if>
-		</c:forEach>Statistics for ${gene.symbol} 
-	</jsp:attribute>
 
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; Statistics &raquo; <a href='${baseUrl}/genes/${gene.id.accession}'>${gene.symbol}</a></jsp:attribute>
-
+<jsp:attribute name="bodyTag"><body  class="chartpage no-sidebars small-header"></jsp:attribute>
 	<jsp:attribute name="header">
-		<script type="text/javascript">
-			var gene_id = '${acc}';
-		</script>
-		
-		<script src="${baseUrl}/js/charts/exporting.js"></script>
 
-	</jsp:attribute>
+    </jsp:attribute>
 
-	<jsp:attribute name="addToFooter">
-		<script>
-			$(document).ready(function(){				
-				// bubble popup for brief panel documentation
-				$.fn.qTip({
-					'pageName': 'stats',
-					'textAlign': 'left',
-					'tip': 'topRight'
-				});	
-	});
-		</script>
-	</jsp:attribute>
+		<jsp:attribute name="addToFooter">
+			 <script>
+			 //ajax chart caller code
+$(document).ready(function(){				
+				    
+	$('.chart').each(function(i, obj) 
+	{
+		var graphUrl=$(this).attr('graphUrl');
+		var id=$(this).attr('id');
+		console.log('id='+id);
+		console.log("obj att"+$(this).attr('graphUrl'));
+		var chartUrl=graphUrl+'&experimentNumber='+id;
+			$.ajax({
+				  url: chartUrl,
+				  cache: false
+			})
+				  .done(function( html ) {
+				    $( '#'+ id ).append( html );
+			});
+			 
+	});	 
+	
+	// bubble popup for brief panel documentation
+ 	$.fn.qTip({
+				'pageName': 'stats',
+				'textAlign': 'left',
+				'tip': 'topRight'
+	}); 
+			
+	
+});
+		 </script>
+		 
+  </jsp:attribute>
 
 	<jsp:body>
-
-		<div class='documentation'>
-  		<a href='' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a>
-		</div>	
-    
-    <div class='topic'>Gene: ${gene.symbol} Parameters: 
-			<c:forEach var="parameter" items="${parameters}" varStatus="loop">
-  			${parameter.name}
-    		<c:if test="${ not loop.last}">,</c:if>
-			</c:forEach>
-		</div>
+	
 		<c:if test="${statsError}">
-			<div class="alert alert-error">
-				<strong>Error:</strong> An issue occurred processing the statistics for this page - results on this page maybe incorrect.
-			</div>
+					<div class="alert alert-error">
+						<strong>Error:</strong> An issue occurred processing the statistics for this page - results on this page maybe incorrect.
+					</div>
 		</c:if>
 		<c:if test="${noData}">
 					<div class="alert alert-error">
@@ -57,6 +58,12 @@
 					</div>
 		</c:if>
 		
-	
-	</jsp:body>
+		 <c:forEach var="graphUrl" items="${allGraphUrlSet}" varStatus="graphUrlLoop">
+
+  			<div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}" id="${graphUrlLoop.count}">
+  			</div>
+  	
+		</c:forEach>
+
+    </jsp:body>
 </t:genericpage>

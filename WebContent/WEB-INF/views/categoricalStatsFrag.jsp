@@ -2,7 +2,7 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
-<%--<c:if test="${fn:length(allCategoricalResultAndCharts) > 0}">
+<c:if test="${categoricalResultAndChart!=null}">
 	<div id="exportIconsDivCat"></div>
 	 <script>
 	$(document)
@@ -96,47 +96,25 @@
 	
 </c:if>
 
-	--%>
-<c:forEach var="categoricalResultAndCharts" items="${allCategoricalResultAndCharts}" varStatus="experimentLoop">
-<c:if test="${fn:length(categoricalResultAndCharts.maleAndFemale)>0}">
-	<div class="row-fluid dataset">
 	
- 		<div class="row-fluid">
-				<div class="container span12">
-		 				<h4>Allele - <t:formatAllele>${categoricalResultAndCharts.maleAndFemale[0].biologicalModel.alleles[0].symbol}</t:formatAllele> <span class="graphGenBackground"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background -  ${categoricalResultAndCharts.maleAndFemale[0].biologicalModel.geneticBackground} </span></h4>
-		 				<h5>${categoricalResultAndCharts.organisation}</h5>
-		 				<!-- ul><c:forEach var="metadata" items="${categoricalResultAndCharts.experiment.metadata}">
-							<li>${metadata}</li>
-						</c:forEach></ul -->
-						<!--
-						Metadata group: ${categoricalResultAndCharts.experiment.metadataGroup}
-						Control animal IDs: <c:forEach var="animal" items="${categoricalResultAndCharts.experiment.controls}">${animal.externalSampleId}, </c:forEach>
-						-->
-		 		</div>
-		 </div>
-		
+<!-- categorical here -->
 				<div class="row-fluid">
- 				<c:forEach var="categoricalChartDataObject" items="${categoricalResultAndCharts.maleAndFemale}" varStatus="chartLoop">
-  				 	<div class="container span6">
-								<div id="categoricalBarChart${categoricalChartDataObject.chartIdentifier}"
-									style="min-width: 400px; height: 400px; margin: 0 auto">
+ 				<c:forEach var="categoricalChartDataObject" items="${categoricalResultAndChart.maleAndFemale}" varStatus="chartLoop">
+  				 	
+								<div id="chart${experimentNumber}">
 								</div>
    								<script type="text/javascript">
    								${categoricalChartDataObject.chart}
    							</script>
-					</div>
- 				</c:forEach>
-				</div>
- <%--  ${categoricalResultAndCharts.maleAndFemale} --%>
- 				
- 
- 				<div class="row-fluid">
- 				<table id="catTable${experimentLoop.index}" class="table table-bordered  table-striped table-condensed">
+				
+					
+					
+					<table id="catTable" class="table table-bordered  table-striped table-condensed">
  							<thead><tr>
- 										<th>Exp Sex</th>
+ 										
 										<th>Control/Hom/Het</th><!-- blank usually as no header -->
 										<!-- loop over categories -->
-										<c:forEach var="categoryObject"  items="${categoricalResultAndCharts.maleAndFemale[0].categoricalSets[0].catObjects}" varStatus="categoriesStatus">
+										<c:forEach var="categoryObject"  items="${categoricalResultAndChart.maleAndFemale[0].categoricalSets[0].catObjects}" varStatus="categoriesStatus">
 												<th>${categoryObject.category }</th>
 										</c:forEach>
 										<th>P Value</th>
@@ -144,12 +122,11 @@
 										</tr>	
 							</thead>	
 							<tbody>
-							<c:forEach var="maleOrFemale"  items="${categoricalResultAndCharts.maleAndFemale}" varStatus="maleOrFemaleStatus">
+							<c:forEach var="maleOrFemale"  items="${categoricalResultAndChart.maleAndFemale}" varStatus="maleOrFemaleStatus">
 												
 														
 														<c:forEach var="categoricalSet"  items="${maleOrFemale.categoricalSets}" varStatus="catSetStatus">
 														<tr>
-														<td>${maleOrFemale.sexType }</td>
 																<td>${categoricalSet.name }</td>
 																		<c:forEach var="catObject"  items="${categoricalSet.catObjects}" varStatus="catObjectStatus">
 																				<td>${catObject.count } </td>
@@ -165,97 +142,8 @@
 							
 							</tbody>
  				</table>
-						<%-- <table id="catTable${categoricalChartDataObject.chartIdentifier}" class="table table-bordered  table-striped table-condensed">
-										<thead><tr>
-										<th>Control/Hom/Het</th><!-- blank usually as no header -->
-										<!-- loop over categories -->
-										<c:forEach var="category"  items="${categoricalResultAndCharts.categories}" varStatus="catStatsStatus">
-										<th>normal</th><th>ctrl zygosity</th><th>exp zygosity</th><th>Ctrl ${categoricalResultAndCharts.statsResults[0].categoryA}</th><th>Ctrl ${categoricalResultAndCharts.statsResults[0].categoryB}</th><th>Exp ${categoricalResultAndCharts.statsResults[0].categoryA}</th><th>Exp ${categoricalResultAndCharts.statsResults[0].categoryB}</th><th>p Value</th><th>Effect size</th>
-										</tr></thead>
-										<tbody>
-										<c:forEach var="catStatsResult"  items="${categoricalResultAndCharts.statsResults}" varStatus="catStatsStatus">
-										<tr>
-											<td> ${catStatsResult.controlSex }</td><td> ${catStatsResult.experimentalSex }</td><td>${catStatsResult.controlZygosity }</td><td>${catStatsResult.experimentalZygosity }</td>
-											<td>
-													<c:forEach var="sexCatObject" items="${categoricalResultAndCharts.maleAndFemale}">
-												
-														<c:if test="${sexCatObject.sexType==catStatsResult.experimentalSex}" >
-  
-														blah ${sexCatObject.sexType} ${catStatsResult.experimentalSex}
-																<c:forEach var="controlHomOrHetObjectCatSetObject" items="${sexCatObject.categoricalSets}">
-																	<c:forEach var="catObject" items="${controlHomOrHetObjectCatSetObject.catObjects }">
-																	<c:if test="${catObject.name =='control' && catObject.category==catStatsResult.categoryA}" >${catObject.count }
-																	</c:if>
-																	</c:forEach>
-																</c:forEach>
-														</c:if> 
-													</c:forEach>
-											</td>
-											<td><c:forEach var="sexCatObject" items="${categoricalResultAndCharts.maleAndFemale}">
-												
-														<c:if test="${sexCatObject.sexType==catStatsResult.experimentalSex}" >
-  
-														blah ${sexCatObject.sexType} ${catStatsResult.experimentalSex}
-																<c:forEach var="controlHomOrHetObjectCatSetObject" items="${sexCatObject.categoricalSets}">
-																	<c:forEach var="catObject" items="${controlHomOrHetObjectCatSetObject.catObjects }">
-																	<c:if test="${catObject.name =='control' && catObject.category==catStatsResult.categoryB}" >${catObject.count }
-																	</c:if>
-																	</c:forEach>
-																</c:forEach>
-														</c:if> 
-													</c:forEach>
-											</td>
-											<td>
-												<c:forEach var="sexCatObject" items="${categoricalResultAndCharts.maleAndFemale}">
-												
-														<c:if test="${sexCatObject.sexType==catStatsResult.experimentalSex}" >
-  
-														 ${sexCatObject.sexType} ${catStatsResult.experimentalSex}
-																<c:forEach var="controlHomOrHetObjectCatSetObject" items="${sexCatObject.categoricalSets}">
-																	<c:forEach var="catObject" items="${controlHomOrHetObjectCatSetObject.catObjects }">
-																	catName=${catObject.name} zyg= ${catStatsResult.experimentalZygosity }
-																	<c:if test="${(catObject.name ==catStatsResult.experimentalZygosity.name) && catObject.category==catStatsResult.categoryA}" > ${catObject.count }
-																	</c:if>
-																	</c:forEach>
-																</c:forEach>
-														</c:if> 
-													</c:forEach>
-												
-											</td>
-											<td>
-											<c:forEach var="sexCatObject" items="${categoricalResultAndCharts.maleAndFemale}">
-												
-														<c:if test="${sexCatObject.sexType==catStatsResult.experimentalSex}" >
-  
-														 ${sexCatObject.sexType} ${catStatsResult.experimentalSex}
-																<c:forEach var="controlHomOrHetObjectCatSetObject" items="${sexCatObject.categoricalSets}">
-																	<c:forEach var="catObject" items="${controlHomOrHetObjectCatSetObject.catObjects }">
-																	catName=${catObject.name} zyg= ${catStatsResult.experimentalZygosity }
-																	<c:if test="${(catObject.name ==catStatsResult.experimentalZygosity.name) && catObject.category==catStatsResult.categoryB}" > ${catObject.count }
-																	</c:if>
-																	</c:forEach>
-																</c:forEach>
-														</c:if> 
-											</c:forEach>
-											</td>
-											<td>${catStatsResult.pValue }</td><td>${catStatsResult.maxEffect}</td>
-										</tr>
-										</c:forEach>
-						</table> --%>
-					<%-- 	<c:forEach var="sexCatObject" items="${categoricalResultAndCharts.maleAndFemale}">
-						${sexCatObject.sexType}<br/>
-								<c:forEach var="controlHomOrHetObjectCatSetObject" items="${sexCatObject.categoricalSets}">
-									${controlHomOrHetObjectCatSetObject.catObjects } <br/>
-								</c:forEach>
-						</c:forEach> --%>
+ 				</c:forEach>
 				</div>
-				
- 	</div>
- 	
-</c:if>
- </c:forEach>
- 
 
-<!--/end of categoriacl charts-->
 
 

@@ -49,7 +49,7 @@ public class ScatterChartAndTableProvider {
 			      +"       text: 'Mean corpuscular hemoglobin'"
 			      +"    },"
 			    +"     subtitle: {"
-			     +"        text: 'subtitle here'"
+			     +"        text: ' "+subtitle+" ' "
 			     +"    },"
 			    +"     xAxis: {"
 			    +"         type: 'datetime',"
@@ -252,7 +252,7 @@ public class ScatterChartAndTableProvider {
 		}// end of gender
 
 			ScatterChartAndData scatterChartAndData=new ScatterChartAndData();
-			String chartString=createScatter(experimentNumber, title,  subtitle, series);
+			String chartString=createScatter(experimentNumber, title,  parameter.getStableId(), series);
 			scatterChartAndData.setChart(chartString);
 				
 

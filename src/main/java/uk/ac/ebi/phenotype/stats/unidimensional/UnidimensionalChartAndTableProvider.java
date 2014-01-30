@@ -64,7 +64,7 @@ public class UnidimensionalChartAndTableProvider {
 	 */
 	public UnidimensionalDataSet doUnidimensionalData(
 			ExperimentDTO experiment, String chartId,
-			String title,
+			Parameter parameter,
 			ChartType boxOrScatter, Boolean byMouseId,
 			String yAxisTitle, BiologicalModel expBiologicalModel) throws SQLException,
 			IOException, URISyntaxException {
@@ -107,7 +107,7 @@ public class UnidimensionalChartAndTableProvider {
 
 					// loop over the control points and add them
 
-					for (ObservationDTO control : experiment.getControls()) {
+					for (ObservationDTO control : experiment.getControls(sexType)) {
 						 SexType
 						 docSexType=SexType.valueOf(control.getSex());
 						Float dataPoint = control.getDataPoint();
@@ -161,11 +161,11 @@ public class UnidimensionalChartAndTableProvider {
 					}//end of sextype loop
 					Map<String,String>usefulStrings=GraphUtils.getUsefulStrings(expBiologicalModel);
 					List<UnidimensionalStatsObject> unidimensionalStatsObject = produceUnidimensionalStatsData(
-							title,genderAndRawDataMap,
+							parameter,genderAndRawDataMap,
 							experiment, usefulStrings.get("allelicComposition"), usefulStrings.get("symbol"), usefulStrings.get("geneticBackground"));
 					unidimensionalStatsObjects
 					.addAll(unidimensionalStatsObject);
-					chartAndTable = processChartData(chartId, title, 
+					chartAndTable = processChartData(chartId, parameter, 
 							experiment.getZygosities(), genderAndRawDataMap, experiment, yAxisTitle, usefulStrings.get("allelicComposition"), usefulStrings.get("symbol"));
 			
 			unidimensionalDataSet
@@ -209,7 +209,7 @@ public class UnidimensionalChartAndTableProvider {
 	 * @param max
 	 * @return map containing min and max values
 	 */
-	private ChartData processChartData(String chartId, String title,
+	private ChartData processChartData(String chartId, Parameter parameter,
 			Set<ZygosityType> set, Map<SexType, List<List<Float>>> genderAndRawDataMap, ExperimentDTO experiment, String yAxisTitle, String allelicCompositionString, String symbol) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
 
@@ -254,7 +254,7 @@ public class UnidimensionalChartAndTableProvider {
 		}
 		}
 		
-		logger.debug("raw data=" + genderAndRawDataMap);
+		//logger.debug("raw data=" + genderAndRawDataMap);
 		// first list is control/wt then mutant for hom or het or both
 		
 		
@@ -292,10 +292,6 @@ public class UnidimensionalChartAndTableProvider {
 				wt1.add(maxIQR);// maximumbs.
 				boxPlotData.add(wt1);
 			}
-			
-			
-			
-			System.out.println("column="+columnIndex);
 			columnIndex++;
 		}
 		
@@ -309,7 +305,6 @@ public class UnidimensionalChartAndTableProvider {
 				column1.add(dataPoint);
 				scatterColumns.add(column1);
 			}
-			System.out.println("columnindex in scatter="+columnIndex);
 			columnIndex ++;
 		}
 		
@@ -320,12 +315,9 @@ public class UnidimensionalChartAndTableProvider {
 		
 
 		String chartString = createContinuousBoxPlotChartsString(chartId,
-				categoriesListBoxChart, title,  yAxisTitle,
+				categoriesListBoxChart, parameter,  yAxisTitle,
 				sexAndBoxPlotMap, sexAndScatterMap);
-		System.out.println("unichart="+chartString);
-		// continuousCharts.add(chartString);
 		ChartData cNTable = new ChartData();
-		// cNTable.setTable(table);
 		cNTable.setChart(chartString);
 		return cNTable;
 	}
@@ -333,7 +325,7 @@ public class UnidimensionalChartAndTableProvider {
 	
 	/**
 	 * 
-	 * @param title
+	 * @param parameter.getStableId()
 	 *            main title of the graph
 	 * @param yAxisTitle
 	 *            - unit of measurement - how to get this from the db?
@@ -344,7 +336,7 @@ public class UnidimensionalChartAndTableProvider {
 	 * @return
 	 */
 	private String createContinuousBoxPlotChartsString(String experimentNumber,
-			List<String> xAxisCategoriesList, String title, String yAxisTitle, Map<SexType, List<List<Float>>> sexAndBoxPlotMap,
+			List<String> xAxisCategoriesList, Parameter parameter, String yAxisTitle, Map<SexType, List<List<Float>>> sexAndBoxPlotMap,
 			Map<SexType, List<List<Float>>> sexAndScatterMap) {
 		JSONArray categoriesArray = new JSONArray(xAxisCategoriesList);
 		String categories = categoriesArray.toString();// "['WT', 'WT', 'HOM', 'HOM']";
@@ -403,9 +395,9 @@ public class UnidimensionalChartAndTableProvider {
 		String chartString = " chart = new Highcharts.Chart({ chart: { type: 'boxplot', renderTo: 'chart"
 				+ experimentNumber
 				+ "'},  tooltip: { formatter: function () { if(typeof this.point.high === 'undefined'){ return '<b>Observation</b><br/>' + this.point.y; } else { return '<b>Genotype: ' + this.key + '</b><br/>LQ - 1.5 * IQR: ' + this.point.low + '<br/>Lower Quartile: ' + this.point.options.q1 + '<br/>Median: ' + this.point.options.median + '<br/>Upper Quartile: ' + this.point.options.q3 + '<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '</b>'; } } }    , title: { text: '"
-				+ title
+				+ parameter.getName()
 				+ "' } , credits: { enabled: false },  subtitle: { text: '"
-				+ WordUtils.capitalize("title here")
+				+ parameter.getStableId()
 				+ "', x: -20 }, legend: { enabled: false }, xAxis: {labels: { style:{ fontSize:"
 				+ axisFontSize
 				+ " }}, categories:  "
@@ -574,7 +566,7 @@ public class UnidimensionalChartAndTableProvider {
 	 * @return map containing min and max values
 	 */
 	private List<UnidimensionalStatsObject> produceUnidimensionalStatsData(
-			String title, Map<SexType, List<List<Float>>> genderAndRawDataMap,
+			Parameter parameter, Map<SexType, List<List<Float>>> genderAndRawDataMap,
 			 ExperimentDTO experiment, String allelicCompositionString, String symbol, String geneticBackground) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
 		// logger.debug("experiment="+experiment);
@@ -586,9 +578,9 @@ public class UnidimensionalChartAndTableProvider {
 			
 			// Set up the controls data
 			UnidimensionalStatsObject wtStatsObject = new UnidimensionalStatsObject();
-			wtStatsObject.setSampleSizeFemale(experiment.getControlSampleSizeFemale());
-			wtStatsObject.setSampleSizeMale(experiment.getControlSampleSizeMale());
-			wtStatsObject.setSexType(sexType);
+			Set<ObservationDTO> controls = experiment.getControls(sexType);
+
+			wtStatsObject=genrateStats(experiment, wtStatsObject, controls, null, sexType);
 			statsObjects.add(wtStatsObject);
 			
 			//set up the mutant stats data
@@ -596,36 +588,26 @@ public class UnidimensionalChartAndTableProvider {
 		for (ZygosityType zType : experiment.getZygosities()) {
 				UnidimensionalStatsObject tempStatsObject = new UnidimensionalStatsObject();
 				
-				if (zType.equals(ZygosityType.homozygote)) {// if homozygote
-															// don't need the
-															// second part of
-															// the string after
-															// the forward slash
-				//	alleleComposition = allelicCompositionString.substring(0,
-						//	alleleComposition.indexOf("/"));
-				}
-				if(sexType.equals(SexType.female)) {
-					tempStatsObject.setSampleSizeFemale(experiment.getMutants(sexType, zType).size());
-					}else {
-						tempStatsObject.setSampleSizeMale(experiment.getMutants(sexType, zType).size());
-					}
-				
-			
-				for (StatisticalResult result : results) {
+				Set<ObservationDTO> mutants = experiment.getMutants(sexType, zType);
+				tempStatsObject=genrateStats(experiment, tempStatsObject, mutants, zType,sexType);
+					
+			for (StatisticalResult result : results) {
 					if (result.getZygosityType().equals(zType)
 							&& result.getSexType().equals(sexType)) {
 						tempStatsObject.setResult((UnidimensionalResult) result);
 					}
 				}
 				
-				tempStatsObject.setZygosity(zType);
 				tempStatsObject.setLine(allelicCompositionString);
-				
 				tempStatsObject.setAllele(symbol);
-				
 				tempStatsObject.setGeneticBackground(geneticBackground);
-				tempStatsObject.setSexType(sexType);
 				statsObjects.add(tempStatsObject);
+
+				
+				// sample size for unidimensional controls is both male and female
+				// so ok under unidimensional but scatter shows time_series as well
+				// so in the scatter we should show number of male or female
+				// if use ilincas new code for experiments this wont' be an issue.
 				
 			
 		}
@@ -659,5 +641,37 @@ public class UnidimensionalChartAndTableProvider {
 //		}
 		}//end of sexType
 		return statsObjects;
+	}
+
+	private UnidimensionalStatsObject genrateStats(ExperimentDTO experiment,
+			UnidimensionalStatsObject tempStatsObject,
+			Set<ObservationDTO> mutants, ZygosityType zygosity, SexType sexType) {
+		
+		tempStatsObject.setSampleSize(mutants.size());		
+		//do the stats to get mean and SD
+		// Get a DescriptiveStatistics instance
+		DescriptiveStatistics stats = new DescriptiveStatistics();
+		// Add the data
+		for (ObservationDTO mutantObservationDTO : mutants) {
+			stats.addValue(mutantObservationDTO.getDataPoint());
+		}
+		if (mutants.size() > 0) {
+			int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
+			Float mean = ChartUtils.getDecimalAdjustedFloat(
+					new Float(stats.getMean()), decimalPlaces);
+			//System.out.println("mean=" + mean);
+			Float sd = ChartUtils.getDecimalAdjustedFloat(
+					new Float(stats.getStandardDeviation()), decimalPlaces);
+			tempStatsObject.setMean(mean);
+			tempStatsObject.setSd(sd);
+			if(zygosity!=null) {
+			tempStatsObject.setZygosity(zygosity);
+			}
+			if(sexType!=null) {
+				tempStatsObject.setSexType(sexType);
+			}
+		}
+		//end of stats creation for table
+		return tempStatsObject;
 	}
 }

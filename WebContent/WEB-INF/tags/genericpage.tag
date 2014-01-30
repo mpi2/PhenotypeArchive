@@ -143,8 +143,13 @@ try {
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.pack.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.tablesorter.min.js"></script>
-<script src="http://code.highcharts.com/highcharts.js"></script>
-<script src="http://code.highcharts.com/highcharts-more.js"></script>
+<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js'></script>
+<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js'></script>
+<script type='text/javascript' src='${baseUrl}/js/charts/exporting.js'></script>
+<script type='text/javascript' src='${baseUrl}/js/imaging/mp.js'></script>
+<script type='text/javascript' src="${baseUrl}/js/general/dropDownPhenPage.js"></script>
+<script type='text/javascript' src="${baseUrl}/js/general/toggle.js"></script> 
+		
 <script type="text/javascript" src="${baseUrl}/js/default.js?cache=09-01-14"></script>
 
 <jsp:invoke fragment="header" />

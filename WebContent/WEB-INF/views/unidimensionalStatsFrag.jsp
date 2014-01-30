@@ -8,7 +8,7 @@
  --%>
  <!-- unidimensional here -->
  	<c:if test="${unidimensionalChartDataSet!=null}">
- 	
+ 	<div id="exportIconsDivUni"></div>
  	
   					<div id="chart${experimentNumber}">
 								</div>
@@ -51,10 +51,10 @@
 												<td>${statsObject.sd}</td>
 												<td><c:choose><c:when test="${statsObject.sexType eq 'female'}"><img style="cursor:help;color:#D6247D;" rel="tooltip" data-placement="top" title="Female" alt="Female" src="${baseUrl}/img/icon-female.png" /></c:when><c:otherwise><img style="cursor:help;color:#247DD6;" rel="tooltip" data-placement="top" title="Male" alt="Male" src="${baseUrl}/img/icon-male.png" /></c:otherwise></c:choose></td>
 												<c:if test="${statsObject.sexType eq 'female'}">
-												<td>${statsObject.sampleSizeFemale}</td>
+												<td>${statsObject.sampleSize}</td>
 												</c:if>
 												<c:if test="${statsObject.sexType eq 'male'}">
-												<td>${statsObject.sampleSizeMale}</td>
+												<td>${statsObject.sampleSize}</td>
 												</c:if>
 												<td>${statsObject.result.effectSize}</td>
 												<td>${statsObject.result.pValue}</td>
@@ -166,7 +166,7 @@
  				</c:if>
  				
  				</c:if>
- 	<!-- 			<script>
+ 				<script>
 	$(document)
 			.ready(
 					function() {
@@ -237,7 +237,7 @@
 												var form = $("<form action='"+ url + "' method=get>"
 														+ sInputs + "</form>");
 												_doDataExport(url, form);
-											}).corner('6px');
+											});
 						}
 
 						function _doDataExport(url, form) {
@@ -257,6 +257,6 @@
 									});
 						}
 					});
-</script>	 --%>
+</script>	 
 	<!-- </div> -->
 
