@@ -42,6 +42,11 @@ public class ExperimentService {
 	@Autowired
 	private PhenotypeCallSummaryDAOReadOnly phenoDAO;
 
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain)
+			throws SolrServerException, IOException, URISyntaxException {
+		return getExperimentDTO(parameterId, geneAccession, sex, phenotypingCenterId, zygosity, strain, Boolean.TRUE);
+	}
+
 	/**
 	 * 
 	 * @param parameterId
@@ -56,7 +61,7 @@ public class ExperimentService {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain, Boolean includeResults) throws SolrServerException, IOException, URISyntaxException {
 	
 		List<ObservationDTO> results = os.getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(parameterId, geneAccession, zygosity, phenotypingCenterId, strain, sex);
 		
@@ -133,7 +138,9 @@ public class ExperimentService {
      		// TODO: include allele
 
      		// TODO: update to make use of the MP to result association
-     		if (experiment.getResults()==null && experiment.getExperimentalBiologicalModelId()!=null) {
+     		// includeResults variable skips the results when gathering
+     		// experiments for calculating the results (performance)
+     		if (experiment.getResults()==null && experiment.getExperimentalBiologicalModelId()!=null && includeResults) {
      			experiment.setResults( phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), observation.getParameterStableId(), ObservationType.valueOf(observation.getObservationType()), observation.getStrain()));
      		}
 	    	
