@@ -17,7 +17,7 @@
     </jsp:attribute>
 
     <jsp:attribute name="header">
-        
+
         <script type="text/javascript" charset="utf-8" src="${baseUrl}/js/vendor/jquery-1.7.2.min.js"></script>
 
         <script type="text/javascript">
@@ -63,13 +63,12 @@
             });
         </script>
     </jsp:attribute>
-        
+
     <jsp:body>
 
         <h1 class="title">Disease: ${disease.term}</h1>
         <div class="section">
             <div class="inner">
-                <span class='documentation'><a href='${baseUrl}/documentation/disease-help.html#details' class='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span>
                 <p class="with-label no-margin">
                     <span class="label">Name</span>
                     ${disease.term}
@@ -104,6 +103,40 @@
                         </c:otherwise>
                     </c:choose>
                 </p>
+                
+                <p class="with-label no-margin">
+                    <span class="label">Associated Human Genes:</span>
+                    <c:choose>
+                        <c:when test="${empty knownGeneAssociationSummaries}">
+                            -
+                        </c:when>
+                        <c:otherwise>
+                            <c:forEach var="association" items="${knownGeneAssociationSummaries}" varStatus="loop">
+                                <c:set var="humanGeneIdentifier" value="${association.hgncGeneIdentifier}"></c:set>
+                                <!--Human Gene Symbol-->    
+                                <a href="${humanGeneIdentifier.externalUri}">${humanGeneIdentifier.geneSymbol}</a>
+                                <c:if test="${!loop.last}">, </c:if>
+                            </c:forEach>
+                        </c:otherwise>
+                    </c:choose>
+                </p>
+                
+                <p class="with-label no-margin">
+                    <span class="label">Mouse Orthologs:</span>
+                    <c:choose>
+                        <c:when test="${empty knownGeneAssociationSummaries}">
+                            -
+                        </c:when>
+                        <c:otherwise>
+                            <c:forEach var="association" items="${knownGeneAssociationSummaries}" varStatus="loop">
+                                <c:set var="mouseGeneIdentifier" value="${association.modelGeneIdentifier}"></c:set>
+                                <!--Mouse Gene Symbol-->
+                                <a href="../gene/${mouseGeneIdentifier.databaseCode}:${mouseGeneIdentifier.databaseAcc}">${mouseGeneIdentifier.geneSymbol}</a>
+                                <c:if test="${!loop.last}">, </c:if>
+                            </c:forEach>
+                        </c:otherwise>
+                    </c:choose>
+                </p>
 
                 <p class="with-label no-margin">
                     <span class="label">Source</span>
@@ -115,35 +148,30 @@
         <div class="section">
             <h2 class="title">Potential Mouse Models <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a><span class='documentation'><a href='${baseUrl}/documentation/disease-help.html#details' class='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span></h2>
             <div class="inner">                
-                    <c:choose>
-                        <c:when test="${empty phenotypeAssociations}">
-                        No genes associated with ${disease.diseaseId} by phenotypic similarity.
+                <c:choose>
+                    <c:when test="${empty phenotypeAssociations}">
+                        No potential mouse models associated with ${disease.diseaseId} by phenotypic similarity.
                     </c:when>
                     <c:otherwise>
-                        The following genes are associated with ${disease.diseaseId} by phenotypic similarity.
+                        <!--The following genes are associated with ${disease.diseaseId} by phenotypic similarity.-->
                         <table id="phenotypes" class="table table-striped"> 
                             <thead>
                                 <tr>
                                     <!--<th>Human Gene Symbol</th>-->
-                                    <th>Mouse Gene Symbol</th>
-                                    <th>Disease Gene Ortholog</th>
-                                    <th>Mouse Literature Evidence (MGI)</th>
-                                    <th>Syntenic Disease Locus</th>
-                                    <th>MGI Mouse Phenotype Evidence (Phenodigm)</th>
-                                    <th>MGP Mouse Phenotype Evidence (Phenodigm)</th>
+                                    <th><span class="main">Mouse Gene Symbol</span></th>
+                                    <th><span class="main">Disease Gene Ortholog</span></th>
+                                    <th><span class="main">Syntenic Disease Locus</span></th>
+                                    <th><span class="main">Mouse Literature Evidence (MGI)</span></th>
+                                    <th><span class="main">MGI Mouse Phenotype Evidence (Phenodigm)</span></th>
+                                    <th><span class="main">MGP Mouse Phenotype Evidence (Phenodigm)</span></th>
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <c:forEach var="association" items="${phenotypeAssociations}">
                                     <c:set var="mouseGeneIdentifier" value="${association.modelGeneIdentifier}"></c:set>
-                                    <%--<c:set var="humanGeneIdentifier" value="${association.hgncGeneIdentifier}"></c:set>--%>
                                     <c:set var="associationSummary" value="${association.associationSummary}"></c:set>
                                     <tr id="${mouseGeneIdentifier.compoundIdentifier}" targetRowId="P${humanGeneIdentifier.databaseAcc}_${mouseGeneIdentifier.databaseAcc}_${disease.diseaseIdentifier.databaseAcc}" style="cursor:help;color:#27408B;" rel="tooltip" data-placement="top" title="Click anywhere on row display phenotype terms" alt="Click row to display phenotype terms" >
-                                        <!--                                        <td>
-                                                                                    Human Gene Symbol
-                                                                                    <a href="${humanGeneIdentifier.externalUri}">${humanGeneIdentifier.geneSymbol}</a> 
-                                                                                </td>-->
                                         <td>
                                             <!--Mouse Gene Symbol-->
                                             <a href="../gene/${mouseGeneIdentifier.databaseCode}:${mouseGeneIdentifier.databaseAcc}">${mouseGeneIdentifier.geneSymbol}</a> 
@@ -152,16 +180,18 @@
                                         <!--Associated in Human - Yes or empty-->   
                                         <td>
                                             <c:if test="${associationSummary.associatedInHuman}">Yes</c:if>
-                                            </td>  
-                                            <td>
-                                                <!--Mouse Literature Evidence (MGI) - Yes or empty-->
-                                            <c:if test="${associationSummary.hasLiteratureEvidence}">Yes</c:if>
-                                            </td>                                    
-                                            <td>
+                                        </td>  
+                                        <!--in syntenic disease locus - Yes or empty-->
+                                        <td>
                                             <c:if test="${associationSummary.inLocus}">
                                                 Yes
                                             </c:if>
                                         </td>
+                                        <!--Mouse Literature Evidence (MGI) - Yes or empty-->
+                                        <td>
+                                            <c:if test="${associationSummary.hasLiteratureEvidence}">Yes</c:if>
+                                        </td>                                    
+
                                         <!--Mouse Phenotype Evidence (Phenodigm)-->
                                         <td>
                                             <c:if test="${0.0 != associationSummary.bestModScore}">
@@ -172,10 +202,7 @@
                                             <c:if test="${0.0 != associationSummary.bestHtpcScore}">
                                                 <b style="color:#FF9000">${associationSummary.bestHtpcScore}</b>
                                             </c:if>                                        
-                                        </td>
-                                        <td class="arrow">
-
-                                        </td>                                     
+                                        </td>                                    
                                     </tr>
                                     <tr id="P${humanGeneIdentifier.databaseAcc}_${mouseGeneIdentifier.databaseAcc}_${disease.diseaseIdentifier.databaseAcc}" requestpagetype= "disease" geneid="${mouseGeneIdentifier.compoundIdentifier}" diseaseid="${disease.diseaseIdentifier.compoundIdentifier}">
                                     </tr>
@@ -187,5 +214,5 @@
             </div>
         </div>
     </jsp:body>
-        
+
 </t:genericpage>

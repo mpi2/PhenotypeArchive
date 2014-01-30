@@ -89,7 +89,6 @@
 
         <div class="section">
             <div class="inner">
-                <span class='documentation'><a href='${baseUrl}/documentation/disease-help.html#details' class='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span>
                 <p class="with-label no-margin">
                     <span class="label">Mouse Gene Symbol</span>
                     <a href="https://www.mousephenotype.org/data/genes/${geneIdentifier.databaseCode}:${geneIdentifier.databaseAcc}">${geneIdentifier.geneSymbol}</a> 
@@ -101,12 +100,12 @@
                 <p class="with-label no-margin">
                     <span class="label">Associated Diseases</span>
                     <c:choose>
-                        <c:when test="${empty associatedDiseases}">
+                        <c:when test="${empty knownDiseaseAssociationSummaries}">
                             -
                         </c:when>
                         <c:otherwise>
-                            <c:forEach var="synonym" items="${associatedDiseases}" varStatus="loop">
-                                ${disease}
+                            <c:forEach var="association" items="${knownDiseaseAssociationSummaries}" varStatus="loop">
+                                <a href="../disease/${association.diseaseIdentifier}">${association.diseaseTerm}</a> (<a id="diseaseId" href="${association.diseaseIdentifier.externalUri}">${association.diseaseIdentifier}</a>)
                                 <c:if test="${!loop.last}">, </c:if>
                             </c:forEach>
                         </c:otherwise>
@@ -116,24 +115,24 @@
         </div>
 
         <div class="section">
-            <h2 class="topic">Phenotypic Disease Associations <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a><span class='documentation'><a href='${baseUrl}/documentation/disease-help.html#details' class='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span></h2>
+            <h2 class="topic">Potential Disease Models <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a><span class='documentation'><a href='${baseUrl}/documentation/disease-help.html#details' class='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span></h2>
             <div class="inner">
                 <c:choose>
                     <c:when test="${empty phenotypeAssociations}">
                         No diseases are known to be associated with ${geneIdentifier.geneSymbol} according to external resources.
                     </c:when>
                     <c:otherwise>
-                        The following diseases are associated with ${geneIdentifier.geneSymbol} by phenotypic similarity
+                        <!--The following diseases are associated with ${geneIdentifier.geneSymbol} by phenotypic similarity-->
                         <table id="predictedPhenotypes" class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>Disease Name</th>
-                                    <th>Source</th>
-                                    <th>Associated in Human</th>
-                                    <th>Mouse Literature Evidence (MGI)</th>
-                                    <th>In Locus</th>
-                                    <th>MGI Mouse Phenotype Evidence (Phenodigm)</th>
-                                    <th>MGP Mouse Phenotype Evidence (Phenodigm)</th>
+                                    <th><span class="main">Disease Name</span></th>
+                                    <th><span class="main">Source</span></th>
+                                    <th><span class="main">Disease Gene Ortholog</span></th>
+                                    <th><span class="main">Syntenic Disease Locus</span></th>
+                                    <th><span class="main">Mouse Literature Evidence (MGI)</span></th>
+                                    <th><span class="main">MGI Mouse Phenotype Evidence (Phenodigm)</span></th>
+                                    <th><span class="main">MGP Mouse Phenotype Evidence (Phenodigm)</span></th>
                                     <th></th>
                                 </tr>
                             </thead>                        
@@ -150,16 +149,18 @@
                                         <!--Associated in Human --> 
                                         <td>
                                             <c:if test="${associationSummary.associatedInHuman}">Yes</c:if>
-                                            </td>  
-                                            <td>
-                                                <!--Mouse Literature Evidence (MGI) - Yes or empty-->
-                                            <c:if test="${associationSummary.hasLiteratureEvidence}">Yes</c:if>
-                                            </td>                                    
-                                            <td>
+                                        </td>  
+                                        <!--In syntenic disease locus - Yes or empty-->
+                                        <td>
                                             <c:if test="${associationSummary.inLocus}">
                                                 Yes
                                             </c:if>
                                         </td>
+                                        <!--Mouse Literature Evidence (MGI) - Yes or empty-->
+                                        <td>
+                                            <c:if test="${associationSummary.hasLiteratureEvidence}">Yes</c:if>
+                                            </td>                                    
+                                            
                                         <!--Mouse Phenotype Evidence (Phenodigm)-->
                                         <td>
                                             <c:if test="${0.0 != associationSummary.bestModScore}">
