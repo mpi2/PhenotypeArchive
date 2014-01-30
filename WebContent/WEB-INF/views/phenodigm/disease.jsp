@@ -90,16 +90,13 @@
                 </p>
 
                 <p class="with-label no-margin">
-                    <span class="label">Locations</span>
+                    <span class="label">Locus</span>
                     <c:choose>
-                        <c:when test="${empty disease.locations}">
+                        <c:when test="${empty disease.locus}">
                             -
                         </c:when>
                         <c:otherwise>
-                            <c:forEach var="locus" items="${disease.locations}" varStatus="loop">
-                                ${locus}
-                                <c:if test="${!loop.last}">, </c:if>
-                            </c:forEach>
+                            ${disease.locus}
                         </c:otherwise>
                     </c:choose>
                 </p>
