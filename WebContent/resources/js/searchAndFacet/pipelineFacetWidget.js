@@ -79,7 +79,7 @@
 	        			var currPipe = plFacets[p];	
 	        			var pipeClass = currPipe.replace(/ /g, '_');
 	        			
-	        			var thisFacetSect = $("<li class='fcatsection'></li>");		 
+	        			var thisFacetSect = $("<li class='fcatsection " + pipeClass + "'></li>");		 
 		    			thisFacetSect.append($('<span></span>').attr({'class':'flabel'}).text(currPipe));		    			       			
 		    			
 		        		var thisUlContainer = $("<ul></ul>");
@@ -96,15 +96,9 @@
 		        				var liContainer = $("<li></li>").attr({'class':'fcat ' + pipeClass});
 		        				//console.log(pipeName + ' --- ' + procedure_name + ' --- '+ paramCount);		        			      		
 			        			
-			        			var coreField = 'pipeline|procedure_stable_id|' + procedure_name + '___' + proSid + '|' + count;
+			        			var coreField = 'pipeline|procedure_stable_id|' + procedure_name + '___' + proSid + '|' + count + '|' + pipeClass;
 			        			
-			        			var chkbox = $('<input></input>').attr({'class': pipeClass, 'type': 'checkbox', 'rel': coreField});	        			
-			        			/*var td0 = $('<td></td>').append(chkbox);
-			        			var td1 = $('<td></td>').attr({'class': pClass, 'rel':paramCount});	        			
-			        			var td2 = $('<td></td>');	        			        			
-			        			//var a = $('<a></a>').attr({'class':'paramCount', 'rel': procedureName2IdKey[procedure_name].stable_id}).text(paramCount);			        			
-			        			var a = $('<a></a>').attr({'class':'paramCount', 'rel': proSid}).text(paramCount);
-			        			//var span = $('<span></span>').attr({'class':'subcount'}).text(paramCount);*/
+			        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField, 'class':pipeClass});			        			
 			        			var flabel = $('<span></span>').attr({'class':'flabel'}).text(procedure_name);
 								var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 			        			
@@ -135,8 +129,7 @@
 	    			// IMPC pipeline is open and rest of pipeline subfacets are collapsed by default    			
 	    			$('div.flist li#pipeline > ul li:nth-child(1)').addClass('open');	    		
 	    				    			
-	    			$.fn.initFacetToggles('pipeline');
-	    			//$('div.flist li#pipeline > .flabel').click();
+	    			$.fn.initFacetToggles('pipeline');	    			
 	    			
 		    		$('li#pipeline li.fcat input').click(function(){	    			
 		    			// // highlight the item in facet	    			
@@ -162,11 +155,10 @@
 	    },	   
 	    
 	    destroy: function () {    	   
-	    	// does not generate selector class
-    	    // if using jQuery UI 1.8.x
-    	    $.Widget.prototype.destroy.call(this);
-    	    // if using jQuery UI 1.9.x
-    	    //this._destroy();
+	    	//this.element.empty();
+	    	// does not generate selector class    	    
+    	    //$.Widget.prototype.destroy.call(this);  // if using jQuery UI 1.8.x    	    
+    	    this._destroy();                          // if using jQuery UI 1.9.x
     	}  
     });
 	

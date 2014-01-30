@@ -89,7 +89,7 @@
 	    			var aData = json.facet_counts['facet_fields'][fq];
 	    		
 	    			//table.append($('<tr></tr>').attr({'class':'facetSubCat '+ trCap + ' ' + fq}).append($('<td></td>').attr({'colspan':3}).text(label)));
-	    			var thisFacetSect = $("<li class='fcatsection'></li>");		 
+	    			var thisFacetSect = $("<li class='fcatsection " + fq + "'></li>");		 
 	    			thisFacetSect.append($('<span></span>').attr({'class':'flabel'}).text(label));	    			
 	    			
 	    			var unclassified;
@@ -105,7 +105,7 @@
 		    			var diseaseFq = fq;
 		    			var coreField = 'disease|'+ diseaseFq + '|';		
 		    			var trClass = fq+'Tr';
-						var chkbox = $('<input></input>').attr({'class': fq, 'type': 'checkbox', 'rel': coreField + subFacetName + '|' + count});						
+						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + subFacetName + '|' + count + '|' +fq});						
 						var flabel = $('<span></span>').attr({'class':'flabel'}).text(subFacetName);
 						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 						
@@ -134,7 +134,7 @@
 	    			    		
 	    		for ( var assoc in oSubFacets2 ){	    			
 	    			var label = oSubFacets2[assoc].label;
-	    			var thisFacetSect = $("<li class='fcatsection'></li>");
+	    			var thisFacetSect = $("<li class='fcatsection " + assoc + "'></li>");
 	    			
 	    			thisFacetSect.append($('<span></span>').attr({'class':'flabel'}).text(label));	    			
 	    			    		
@@ -153,7 +153,7 @@
 				    			var diseaseFq = fq;
 				    			var coreField = 'disease|'+ diseaseFq + '|';		
 							    
-								var chkbox = $('<input></input>').attr({'class':assoc, 'type': 'checkbox', 'rel': coreField + '1' + '|' + count});								
+								var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + '1' + '|' + count + '|' + assoc});								
 								var flabel = $('<span></span>').attr({'class':'flabel'}).text(thisSubfacet);
 								var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 								liContainer.append(chkbox, flabel, fcount);	
@@ -203,11 +203,9 @@
 	  
 	    destroy: function () {    	   
 	    	//this.element.empty();
-	    	// does not generate selector class
-    	    // if using jQuery UI 1.8.x
-    	    $.Widget.prototype.destroy.call(this);    	
-    	    // if using jQuery UI 1.9.x
-    	    //this._destroy();
+	    	// does not generate selector class    	    
+    	    //$.Widget.prototype.destroy.call(this);  // if using jQuery UI 1.8.x    	    
+    	    this._destroy();                          // if using jQuery UI 1.9.x
     	}  
     });
 	

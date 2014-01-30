@@ -82,7 +82,7 @@
 	    	if (numFound > 0){
 	    		
 	    		// subfacet: IMPC mouse phenotyping status	    		
-	    		var phenoStatusSect = $("<li class='fcatsection'></li>");		 
+	    		var phenoStatusSect = $("<li class='fcatsection phenotyping' + ></li>");		 
 	    		phenoStatusSect.append($('<span></span>').attr({'class':'flabel'}).text('IMPC Phenotyping Status'));	    		
 	    		
 	    		var pheno_count = {};
@@ -119,7 +119,7 @@
 						var liContainer = $("<li></li>").attr({'class':'fcat phenotyping'});
 						
 						var coreField = 'gene|'+ phenotypingStatusFq + '|';						
-						var chkbox = $('<input></input>').attr({'class':'phenotyping', 'type': 'checkbox', 'rel': coreField + phenotypingStatusVal + '|' + count});
+						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + phenotypingStatusVal + '|' + count + '|phenotyping'});
 						var flabel = $('<span></span>').attr({'class':'flabel'}).text(aPhenos[i]);
 						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 						
@@ -150,7 +150,7 @@
     			}*/	    			    		
 	    		
 	    		// subfacet: IMPC mouse production status   
-	    		var prodStatusSect = $("<li class='fcatsection'></li>");		 
+	    		var prodStatusSect = $("<li class='fcatsection production'></li>");		 
 	    		prodStatusSect.append($('<span></span>').attr({'class':'flabel'}).text('IMPC Mouse Production Status'));
 	    		
 	    		var status_facets = json.facet_counts['facet_fields']['status'];
@@ -172,7 +172,7 @@
 						var liContainer = $("<li></li>").attr({'class':'fcat production'});
 						
 						var coreField = 'gene|status|';
-						var chkbox = $('<input></input>').attr({'class':'production', 'type': 'checkbox', 'rel': coreField + status + '|' + count});
+						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + status + '|' + count + '|production'});
 						
 						liContainer.append(chkbox);
 						liContainer.append($('<span class="flabel">' +status + '</span>'));
@@ -206,7 +206,7 @@
     			}*/
     			
 				// subfacet: IMPC gene subtype	    			
-	    		var subTypeSect = $("<li class='fcatsection'></li>");		 
+	    		var subTypeSect = $("<li class='fcatsection marker_type'></li>");		 
 	    		subTypeSect.append($('<span></span>').attr({'class':'flabel'}).text('Subtype'));
 	    		
 	    		var mkr_facets = json.facet_counts['facet_fields']['marker_type'];
@@ -219,7 +219,7 @@
 					var type = mkr_facets[i];
 					var count = mkr_facets[i+1];	
 					var coreField = 'gene|marker_type|';						
-					var chkbox = $('<input></input>').attr({'class':'marker_type', 'type': 'checkbox', 'rel': coreField + type + '|' + count});					
+					var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + type + '|' + count + '|marker_type'});					
 					var flabel = $('<span></span>').attr({'class':'flabel'}).text(type);
 					var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 					
@@ -242,7 +242,8 @@
 	    		
 	    		
 	    		// update facet count when filters applied
-	    		if ( $('ul#facetFilter li li a').size() != 0 ){	    		
+	    		if ( $('ul#facetFilter li li a').size() != 0 ){	   
+	    			console.log('about to update facet count...');
     				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'gene');
     			}	
 	    		
@@ -268,10 +269,10 @@
 	    	/*------------------------------------------------------------------------------------*/	
 
 	    	if ( self.options.data.hashParams.fq.match(/.*/) ){	
-	    		
+	    		console.log('gene page loaded ...');
 	    		self.options.data.hashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');	    		
 
-	    		var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority)
+	    		var pageReload;// = true;  // this controls checking which subfacet to open (ie, show by priority)
 	    		
 	    		var oHashParams = self.options.data.hashParams;
     			
@@ -283,11 +284,9 @@
 	  
 	    destroy: function () {    	   
 	    	//this.element.empty();
-	    	// does not generate selector class
-    	    // if using jQuery UI 1.8.x
-    	    $.Widget.prototype.destroy.call(this);    	
-    	    // if using jQuery UI 1.9.x
-    	    //this._destroy();
+	    	// does not generate selector class    	    
+    	    //$.Widget.prototype.destroy.call(this);  // if using jQuery UI 1.8.x    	    
+    	    this._destroy();                          // if using jQuery UI 1.9.x
     	}  
     });
 	

@@ -94,7 +94,7 @@
 	        		if ( self.options.data.hashParams.fq.match(/.*/) ){   			
 	        			//$.fn.loadDataSetWithoutFilter(self);
 	    	    		var oHashParams = self.options.data.hashParams;
-	        			
+	        			console.log('mp page loaded ...');
 	    	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams);	    	    		
 	    	    		// now load dataTable    		
 	    	    		$.fn.loadDataTable(oHashParams);
@@ -109,11 +109,10 @@
 	    },	   
 	    
 	    destroy: function () {    	   
-	    	// does not generate selector class
-    	    // if using jQuery UI 1.8.x
-    	    $.Widget.prototype.destroy.call(this);
-    	    // if using jQuery UI 1.9.x
-    	    //this._destroy();
+	    	//this.element.empty();
+	    	// does not generate selector class    	    
+    	    //$.Widget.prototype.destroy.call(this);  // if using jQuery UI 1.8.x    	    
+    	    this._destroy();                          // if using jQuery UI 1.9.x
     	}  
     });
 	

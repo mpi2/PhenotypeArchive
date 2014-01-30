@@ -155,7 +155,6 @@ config.filterMapping = {
 		'imgMa' : {'class':'annotated_or_inferred_higherLevelMaTermName', 'facet':'images'},
 };
 
-config.lastCheckbox = null;
 var megaFacetFields = ['status', 'imits_phenotype_complete', 'imits_phenotype_started', 'imits_phenotype_status', 
                        'mgi_accession_id', 'marker_type', 'top_level_mp_term', 'mp_term', 
                        'inferred_selected_top_level_ma_term', 'inferred_ma_term', 
