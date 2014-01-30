@@ -4,6 +4,8 @@
 
 <!-- time series charts here-->
 <c:if test="${timeSeriesChartsAndTable.chart!=null}">
+
+<div id="exportIconsDivTS"></div>
 		<div id="timechart${experimentNumber}">
 		</div>
 	 <a href="${acc}?${pageContext.request.queryString}&scatter=1">Graph by date</a>
@@ -16,7 +18,7 @@
 
 
 
-<!--<script>
+<script>
 	$(document)
 			.ready(
 					function() {
@@ -105,4 +107,4 @@
 									});
 						}
 					});
-</script-->
+</script>

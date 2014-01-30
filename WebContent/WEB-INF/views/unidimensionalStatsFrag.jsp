@@ -8,7 +8,7 @@
  --%>
  <!-- unidimensional here -->
  	<c:if test="${unidimensionalChartDataSet!=null}">
- 	
+ 	<div id="exportIconsDivUni"></div>
  	
   					<div id="chart${experimentNumber}">
 								</div>
@@ -166,7 +166,7 @@
  				</c:if>
  				
  				</c:if>
- 	<!-- 			<script>
+ 				<script>
 	$(document)
 			.ready(
 					function() {
@@ -257,6 +257,6 @@
 									});
 						}
 					});
-</script>	 --%>
+</script>	 
 	<!-- </div> -->
 

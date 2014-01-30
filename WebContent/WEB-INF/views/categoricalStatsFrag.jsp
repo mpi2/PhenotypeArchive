@@ -2,7 +2,7 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
-<%--<c:if test="${fn:length(allCategoricalResultAndCharts) > 0}">
+<c:if test="${categoricalResultAndChart!=null}">
 	<div id="exportIconsDivCat"></div>
 	 <script>
 	$(document)
@@ -96,7 +96,7 @@
 	
 </c:if>
 
-	--%>
+	
 <!-- categorical here -->
 				<div class="row-fluid">
  				<c:forEach var="categoricalChartDataObject" items="${categoricalResultAndChart.maleAndFemale}" varStatus="chartLoop">

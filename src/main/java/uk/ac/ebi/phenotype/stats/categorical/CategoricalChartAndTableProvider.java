@@ -156,7 +156,9 @@ public class CategoricalChartAndTableProvider {
 								// System.err.println("ERROR WE NEED to change the code to handle multiple p values and max effect!!!!!!!!");
 								if(tempStatsResult!=null) {
 								expCatData.setpValue(tempStatsResult.getpValue());
+								if(tempStatsResult.getEffectSize()!=null) {
 								 expCatData.setMaxEffect(tempStatsResult.getEffectSize());
+								}
 								}
 								// logger.warn("pValue="+pValue+" maxEffect="+maxEffect);
 								// }
