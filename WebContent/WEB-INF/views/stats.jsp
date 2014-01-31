@@ -28,6 +28,7 @@ $(document).ready(function(){
 			})
 				  .done(function( html ) {
 				    $( '#'+ id ).append( html );
+				    $( '#spinner'+ id ).html('');
 			});
 			 
 	});	 
@@ -59,9 +60,17 @@ $(document).ready(function(){
 		</c:if>
 		
 		 <c:forEach var="graphUrl" items="${allGraphUrlSet}" varStatus="graphUrlLoop">
-
-  			<div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}" id="${graphUrlLoop.count}">
-  			</div>
+				
+  						<div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}" id="${graphUrlLoop.count}">
+  								<div id="spinner${graphUrlLoop.count}">
+  										<div class="section">
+  												<div class="inner">
+  														Graph coming here.....${graphUrl}
+  												</div>
+  										</div>
+  								</div>
+  						</div>
+  			
   	
 		</c:forEach>
 
