@@ -114,12 +114,12 @@ config.facetFilterLabel = {
 	'subtype'                    : 'gene_subtype',	
 	'disease_classes' 			 : 'disease_classification',
 	'disease_source'			 : 'disease_source',
-	'human_curated'              : 'human_data',
-	'mouse_curated'              : 'mouse_data',
-	'impc_predicted'             : 'IMPC_predicted',
-	'impc_predicted_in_locus'    : 'IMPC_predicted_in_locus',
-	'mgi_predicted'              : 'MGI_predicted',
-	'mgi_predicted_in_locus'     : 'MGI_predicted_in_locus'	
+	'human_curated'              : 'From human data (OMIM, Orphanet)',//'human_data',
+	'mouse_curated'              : 'From mouse data (MGI)', //'mouse_data',
+	'impc_predicted'             : 'From MGP data',//'IMPC_predicted',
+	'impc_predicted_in_locus'    : 'From MGP data in linkage locus',//'IMPC_predicted_in_locus',
+	'mgi_predicted'              : 'From MGI data',//'MGI_predicted',
+	'mgi_predicted_in_locus'     : 'From MGI data in linkage locus',//'MGI_predicted_in_locus'	
 };
 
 config.filterMapping = {
@@ -155,7 +155,6 @@ config.filterMapping = {
 		'imgMa' : {'class':'annotated_or_inferred_higherLevelMaTermName', 'facet':'images'},
 };
 
-config.lastCheckbox = null;
 var megaFacetFields = ['status', 'imits_phenotype_complete', 'imits_phenotype_started', 'imits_phenotype_status', 
                        'mgi_accession_id', 'marker_type', 'top_level_mp_term', 'mp_term', 
                        'inferred_selected_top_level_ma_term', 'inferred_ma_term', 
@@ -290,7 +289,7 @@ config.facetParams = {
 		 subFacetFqFields: '',
 		 solrCoreName: 'disease', 
 		 tableCols: 1, 
-		 tableHeader: '<thead><th>Disease name</th><th>Source</th><th>Curated genes in human</th><th>Curated genes in mouse (MGI)</th><th>Candidate genes by phenotype (MGP)</th><th>Candidate genes by phenotype (MGI)</th></thead>', 
+		 tableHeader: '<thead><th>Disease</th><th>Source</th><th>Curated Genes</th><th><span class="main">Candidate Genes</span><span class="sub">by phenotype</span></th></thead>', 
 		 subset: '',
 		 fq: 'type:disease',		
 		 wt: 'json',

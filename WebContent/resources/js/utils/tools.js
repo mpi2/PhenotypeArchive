@@ -61,8 +61,14 @@
 				
 			if ( caller.find('span.fcount').text() != 0 ){
 				
-				var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facet + 'Facet'].solrCoreName;
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
+				
+				// deals with user query
+				if ( window.location.search != '' ){
+					oHashParams.q = window.location.search.replace('?q=', '');
+				}
+				
+				var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facet + 'Facet'].solrCoreName;				
 				var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';	
 				
 				if ( typeof oHashParams.q == 'undefined' ){
@@ -83,7 +89,7 @@
 		});		
 	};
 	
-	$.fn.facetRefresh = function(json, facet){
+	function _facetRefresh(json, facet){
 		// refresh phenotype facet		  			
 		var selectorBase = "div.flist li#" + facet;
 		    			
@@ -98,17 +104,31 @@
 		return selectorBase;
 	};
 	
+	function _addFacetOpenCollapseLogic(foundMatch, selectorBase) {
+		var firstMatch = 0;				
+		for ( var sub in foundMatch ){	
+			
+			if ( foundMatch[sub] != 0 ) {		
+				firstMatch++;
+				if ( firstMatch == 1 ){					
+					// open first subfacet w/ match					
+					$(selectorBase + ' li.fcatsection.' + sub).addClass('open');
+				}
+				// remove grayout for other subfacet(s) with match
+				$(selectorBase + ' li.fcatsection.' + sub).removeClass('grayout');
+			}
+		}		
+	}
 	$.fn.fetchQueryResult = function(q, facet){		
 		
 		var fqStr = _composeFilterStr(facet);				
-		var paramStr = 'q=' + q + '&fq=' + fqStr + '&wt=json&defType=edismax&qf=auto_suggest';// + MPI2.searchAndFacetConfig.mega.facetParams;		
 		$.fn.setFacetCounts(q, fqStr, facet);
 		
 	};
 	
 	$.fn.setFacetCounts = function(q, fqStr, facet){
 		
-		//console.log(q + " -- " +  fqStr + " -- " + facet);		
+		console.log(q + " -- " +  fqStr + " -- " + facet);		
         
         if ( $('ul#facetFilter li li a').size() == 0 ){
 			if ( q == '*:*'){
@@ -131,10 +151,16 @@
 				$('div.flist li#disease span.fcount').text(0);
 			}
 			
-			do_megaMa(q, fqStr);
-			do_megaPipeline(q, fqStr, facet);
-			do_megaImages(q, fqStr, facet);			
-			
+			if ( facet == 'disease' ){
+				do_megaMa(q, fqStr);
+				$('div.flist li#pipeline span.fcount').text(0);
+				$('div.flist li#images span.fcount').text(0);
+			}
+			else {
+				do_megaMa(q, fqStr);
+				do_megaPipeline(q, fqStr, facet);
+				do_megaImages(q, fqStr, facet);			
+			}
 			// make sure field mapping in url is correct with selected facet
 			fqStr = $.fn.fieldNameMapping(fqStr, facet);
 			
@@ -165,10 +191,10 @@
     			//console.log(json);
     			
 				var oFacets = json.facet_counts.facet_fields;				
-				var selectorBase = $.fn.facetRefresh(json, 'gene'); 
+				var selectorBase = _facetRefresh(json, 'gene'); 
 				
 				// collapse all subfacet first, then open the first one that has matches 
-				//$(selectorBase + ' li.fcatsection').removeClass('open');
+				$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');
 								
 				var foundMatch = {'phenotyping':0, 'production':0, 'marker_type':0};
 				
@@ -183,15 +209,7 @@
 					else if ( aFields[n]=='marker_type' ) {
 						foundMatch.marker_type++;
 					}					
-				}
-				
-				var firstMatch = 0;
-				for ( var sub in foundMatch ){					
-					if (foundMatch[sub] == 0 ){					
-						// close subfacet w/o match										
-						$('li.' + sub).parent().parent().removeClass('open');									
-					}
-				}				
+				}									
 								
 				// update subfacet counts with matches
 				for (var i=0; i<oFacets.status.length; i=i+2){			
@@ -239,7 +257,9 @@
 						});
 					}
 				}
-								
+					
+
+				_addFacetOpenCollapseLogic(foundMatch, selectorBase);	
 				//_tickFilterCheckBox('gene');
     		}
         });
@@ -265,7 +285,7 @@
     			
     			// refresh phenotype facet
     			var oFacets = json.facet_counts.facet_fields;   				
-    			var selectorBase = $.fn.facetRefresh(json, 'mp');  			
+    			var selectorBase = _facetRefresh(json, 'mp');  			
     			
 				for (var i=0; i<oFacets.annotated_or_inferred_higherLevelMpTermName.length; i=i+2){    			
     				var facetName = oFacets.annotated_or_inferred_higherLevelMpTermName[i];    				   				   				
@@ -325,10 +345,14 @@
     			    			
     			// refresh disease facet
     			var oFacets = json.facet_counts.facet_fields;    			
-    			var selectorBase = $.fn.facetRefresh(json, 'disease');    			   			
+    			var selectorBase = _facetRefresh(json, 'disease');    			   			
     			
-				var foundMatch = {'curated':0,'predicted':0,'disease_source':0,'disease_classes':0};
+    			// collapse all subfacet first, then open the first one that has matches 
+				$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');
+    			    			
     			// subfacets: source/classification/curated/predicted
+				var foundMatch = {'disease_source':0, 'disease_classes':0, 'curated':0, 'predicted':0};
+    			
     			var aSubFacets = ['disease_source','disease_classes','mouse_curated','human_curated','mgi_predicted','mgi_predicted_in_locus', 'impc_predicted','impc_predicted_in_locus'];
     			for (var i=0; i<aSubFacets.length; i++){    				
     				var subFacetName = aSubFacets[i];
@@ -350,35 +374,28 @@
 					}
     				else {
     					foundMatch[subFacetName]++;
-    				}    				    				
+    				}  				  				
     				
+    				// update facet count
     				for (var j=0; j<oFacets[subFacetName].length; j=j+2){
 	    				var facetName = oFacets[subFacetName][j];    				 				   				
 	    				var facetCount = oFacets[subFacetName][j+1];
-	    				//console.log(facetName + '---:'+facetCount);    				
+	    				//console.log(facetName + '---:'+facetCount + ' >> ' + subFacetName);    				
 	    				
-	    				$(selectorBase + ' li.' + subFacetName).each(function(){	    					    					
-	    					if ( $(this).find('span.flabel').text() == facetName ){    					
+	    				$(selectorBase + ' li.' + subFacetName).each(function(){	
+	    					if (subFacetName.match(/_curated|_predicted/)){
 	    						$(this).find('span.fcount').text(facetCount);
 	    					}
-	    				});    
-	    				
+	    					else {
+	    						if ( $(this).find('span.flabel').text() == facetName ){    					
+	    							$(this).find('span.fcount').text(facetCount);
+	    						}
+	    					}
+	    				});   	    				
     				}   			
     			}
-    			
-    			// gray out subfacets that do not have query matches
-    			var aSubFacetTrs = ['disease_source','disease_classes','curated','predicted' ];    			
-    			var firstFound = 0;
-    			for ( var n=0; n<aSubFacetTrs.length; n++){
-    				var oElem = $('table#diseaseFacetTbl tr.' + aSubFacetTrs[n]+'TrCap').find('td');    				
-    				if ( foundMatch[aSubFacetTrs[n]] !=0  ){
-    					oElem.removeClass('grayout');
-    					firstFound++;
-    					if ( firstFound == 1 ){
-        					oElem.click(); // open the first match
-        				}
-    				}    				
-    			}
+    			    
+    			_addFacetOpenCollapseLogic(foundMatch, selectorBase);    			
     			
     			//_tickFilterCheckBox('disease');	
     		}
@@ -405,7 +422,7 @@
     			    			
     			// refresh phenotype facet
     			var oFacets = json.facet_counts.facet_fields;    			 		
-    			var selectorBase = $.fn.facetRefresh(json, 'ma'); 
+    			var selectorBase = _facetRefresh(json, 'ma'); 
     			
 				for (var i=0; i<oFacets.annotated_or_inferred_higherLevelMaTermName.length; i=i+2){    			
     				var facetName = oFacets.annotated_or_inferred_higherLevelMaTermName[i];    				   				   				
@@ -443,13 +460,13 @@
 				
 				// refresh phenotype facet
 				var oFacets = json.facet_counts.facet_fields;	
-				var selectorBase = $.fn.facetRefresh(json, 'pipeline'); 				
+				var selectorBase = _facetRefresh(json, 'pipeline'); 	
 				
+				// close/grayout all subfacets by default
+    			$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout')
+    			
 				var plFacets = json.facet_counts['facet_fields']['pipeline_name'];	    			
     			var prFacets = json.facet_counts['facet_fields']['pipe_proc_sid'];
-    			
-    			// close/grayout all subfacets by default
-    			$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout')
     			
     			// update pipeline parameter counts for rocedures
     			for ( var p=0; p<plFacets.length; p+=2){
@@ -511,7 +528,7 @@
     			
     			// refresh images facet
 				var oFacets = json.facet_counts.facet_fields;	
-				var selectorBase = $.fn.facetRefresh(json, 'images'); 
+				var selectorBase = _facetRefresh(json, 'images'); 
 				
 				// close/grayout all subfacets by default
     			$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout')    			  			
@@ -674,19 +691,10 @@
 			if ( thisLi.find('li').size() == 0 ){
 				thisLi.find('ul').remove();
 				thisLi.hide();				
-				thisLi.find('.fcap').hide();
-				// update facet filter and compose solr query for result		
-				$.fn.fetchQueryResult(q, facet);
-			}	
-			else {	
-				console.log('delete filter');
-				
-				// update facet filter and compose solr query for result			
-				$.fn.fetchQueryResult(q, facet);
-			}
-						
-			// display "no filter" if none is chosen for all facets 
-			$.fn.checkFilters();
+				thisLi.find('.fcap').hide();			
+			}			
+			// update facet filter and compose solr query for result
+			$.fn.fetchQueryResult(q, facet);
 		}
 	}	
 		
@@ -695,19 +703,23 @@
 		$('ul#facetFilter li.' + facet).hide();
 		
 		// uncheck all checkboxes of this facet
-		$('div#'+ facet + 'Facet input').attr('checked', false);
-		
-		$.fn.checkFilters();
+		$('div#'+ facet + 'Facet input').attr('checked', false);	
 	}
-	
 	$.fn.addFacetFilter = function(oChkbox, q){
-	
+		
+		if ( !$('div.ffilter').is(':visible') ){
+			$('div.ffilter').show();			
+		}
+		
 		var labels = oChkbox.attr('rel').split('|');
 		// add filter
 		var facet = labels[0];
 		var field = labels[1];
 		var value = labels[2];
 		var thisLi = $('ul#facetFilter li.' + facet);
+		
+		// show filter facet caption
+		thisLi.find('.fcap').show();
 		
 		var display = MPI2.searchAndFacetConfig.facetFilterLabel[field];
 		if ( value == 1 ){
@@ -731,6 +743,9 @@
 		if (facet == 'pipeline'){
 			var names = filterTxt.split('___');					
 			filterTxt = oChkbox.attr('class').replace(/_/g, ' ') + ' : ' + '"' + names[0] + '"';
+		}
+		if (facet == 'disease' && field.match(/_curated|_predicted/) ){
+			filterTxt = MPI2.searchAndFacetConfig.facetFilterLabel[field]; 		
 		}
 		
 		var a = $('<a></a>').attr({'rel':oChkbox.attr('rel')}).text(filterTxt.replace(/ phenotype$/, ''));		
@@ -760,6 +775,74 @@
 		thisLi.show();
 		$('ul#facetFilter li.none').hide();	
 		
+	}
+	$.fn.addFacetFilter2 = function(oChkbox, q){
+		
+		if ( !$('div.ffilter').is(':visible') ){
+			$('div.ffilter').show();			
+		}
+				
+		var labels = oChkbox.attr('rel').split('|');
+		// add filter
+		var facet = labels[0];
+		var field = labels[1];
+		var value = labels[2];
+		var thisLi = $('ul#facetFilter li.' + facet);
+		
+		// show filter facet caption
+		thisLi.find('.fcap').show();
+		
+		var display = MPI2.searchAndFacetConfig.facetFilterLabel[field];
+		if ( value == 1 ){
+			value = field == 'imits_phenotype_started' ? 'Started' : 'Yes';		
+		}	
+		
+		var qValue = '"' + value + '"';
+		//var filterTxt = ( facet == 'gene' || facet == 'images' || facet == 'disease' ) ? display + ' : ' + qValue : value;
+		var filterTxt = value;
+		if ( facet == 'gene' ){
+			if ( value == 'Started'  ){
+				filterTxt = 'phenotyping started'; 
+			}
+			else if ( value == 'Phenotype Attempt Registered' || field == 'status' || field == 'marker_type' ){
+				filterTxt = value.toLowerCase();
+			}
+		}
+		
+		var pipelineName, a;
+		
+		if (facet == 'pipeline'){
+			var names = filterTxt.split('___');					
+			filterTxt = oChkbox.attr('class').replace(/_/g, ' ') + ' : ' + '"' + names[0] + '"';
+		}
+		if (facet == 'disease' && field.match(/_curated|_predicted/) ){
+			filterTxt = MPI2.searchAndFacetConfig.facetFilterLabel[field]; 		
+		}
+		
+		var a = $('<a></a>').attr({'rel':oChkbox.attr('rel')}).text(filterTxt.replace(/ phenotype$/, ''));		
+		//var del = $('<img>').attr('src', baseUrl + '/img/scissors-15x15.png');
+		var hiddenLabel = $("<span class='hidden'></span>").text(_composeFilterStr(facet, field, value));
+		
+		var filter = $('<li class="ftag"></li>').append(a, hiddenLabel);			
+		
+		add_uncheck_js(a, filter, oChkbox, q);
+				
+		if ( thisLi.find('ul').size() == 0 ){			
+			var ul = $('<ul></ul>').html(filter);
+			thisLi.append(ul);								
+		}
+		else if ( thisLi.find('ul').html() == '' ){
+			thisLi.find('ul').append(filter)
+		}
+		else {
+			// double check this filter not already exists: eg, check same filter as the exclusive subFacet did
+			thisLi.find('ul li a').each(function(){
+				if ($(this).text() != filterTxt){
+					thisLi.find('ul').append(filter);
+				}
+			});								
+		}	
+				
 	}
 	
 	function _composeFilterStr(facet, field, value){	
@@ -810,13 +893,7 @@
 			return MPI2.searchAndFacetConfig.facetFilterLabel[field] + ' : "' + value + '"';
 		}		
 	}
-		
-	$.fn.checkFilters = function(){
-		if ( $('ul#facetFilter ul').size() == 0 ){
-			$('ul#facetFilter li.none').show();
-		}
-	}
-		
+			
 	function add_uncheck_js(oLia, filter, oChkbox, q) {
 		oLia.click(function(){			
 			oChkbox.attr("checked", false);			
@@ -1107,13 +1184,15 @@
    
     $.fn.parseUrlForFacetCheckboxAndTermHighlight = function(oHashParams, pageReload){	
     	var self = this;
-    	
+    	console.log('parsing url for filter and chkbox');
     	var facet = oHashParams.widgetName;    	
     	var fqStr = oHashParams.fq;
     	fqStr = fqStr.replace(MPI2.searchAndFacetConfig.facetParams[facet].filterParams.fq, '').replace(/ AND /g, '');    	
-
+    	facet = facet.replace('Facet','');
+    	
+    	console.log(facet + ' ' + fqStr);
     	// unhightlight all from this facet
-		$('table#'+ facet +'Tbl td').removeClass('highlight');    
+		$('div.flist span.flabel').removeClass('highlight');    
 		
 		var pat = '(\\b\\w*\\b):"([a-zA-Z0-9_\/ ]*)"';		
 		var regex = new RegExp(pat, "gi");		    	
@@ -1122,26 +1201,22 @@
 		var wantStr;
     	while ( result = regex.exec(fqStr) ) {    	
     		wantStr =  result[1] == 'procedure_stable_id' ? result[2] : result[1]+ '|' + result[2];    		  
-    		    		
-    		var obj = $('table#'+ facet + 'Tbl tr').find('input[rel*="'+wantStr+'"]');    		
-    		//console.log('WANT: ' + wantStr);
+    		console.log('WANT: ' + wantStr);    		
+    		var obj = $('div.flist li#'+ facet).find('input[rel*="'+wantStr+'"]');       		
     	    		
     		if (obj.length != 0 ){
 	    		// tick checkbox if not already in the facet to be opened
-	    		if ( obj.is(':checked') ){
-	    	   		// do nothing for now    			
-	    		}
-	    		else {    		
+	    		if ( ! obj.is(':checked') ){	    	   	  		
 	    			obj.attr('checked', true);
 	    		}
-	    		objList.push(obj);    		
 	    		
-	    		// highlight this facet term
-	    		var aObjs = obj.parent().siblings('td');    		
-				$(aObjs[0]).addClass('highlight');	    		
+	    		// highlight this facet term	    		
+	    		obj.siblings('.flabel').addClass('highlight');	    		
 				
-	    		// also add to unordered list
+	    		// also add to unordered list	    		
 	    		$.fn.addFacetFilter(obj, oHashParams.q);
+	    		
+	    		objList.push(obj);
     		}	
     		else {
     			wantStr =  result[1]+ '|' + result[2];
@@ -1202,9 +1277,19 @@
 		// Work out which subfacet needs to be open:
 		// This is for gene / disease / pipeline and images cores where there are collapsed subfacets by default.
 		// Ie, if a particular subfacet was open, we need to reopen it now when page reloads
-    	// But ignore this bit if we are dealing with hash change in url
-    	if ( typeof pageReload != 'undefined' ){    		
-    		_setFacetToOpen(objList, oHashParams);
+    	// But ignore this bit if we are dealing with hash change in url (ie, not pageReload)
+    	if ( typeof pageReload != 'undefined' ){  
+    		console.log('do pagereload');    	
+    		// collapse all subfacets first
+    		var baseSelector = 'div.flist li#' + facet + ' li.fcatsection';
+    		$(baseSelector).removeClass('open');
+    		
+    		for (var i=0; i<objList.length; i++ ){
+    			var aList = objList[i].attr('rel').split('|');
+    			$(baseSelector + '.' + aList[4]).addClass('open');
+    		}
+    		//_setFacetToOpen(objList, oHashParams);
+    		//_openFacetWithFilter(objList);
     	}
     }
     
@@ -1220,52 +1305,55 @@
 				return procName = json.response.numFound; 
 			}
 		});  
-    }
+    }  
     
-    function _setFacetToOpen(objList, oHashParams){
+    function _setFacetToOpen2(objList, oHashParams){
     	var facet = oHashParams.widgetName;
     	if ( (facet == 'imagesFacet' || facet == 'geneFacet' || facet == 'diseaseFacet' || facet == 'pipelineFacet') && objList.length != 0){
 	    	// first change arrow image to collapse and make all gene/images/disease/pipeline subfacets hidden
-			$('table#' + facet + 'Tbl').find('tr.subFacet').addClass('trHidden');
-			$('table#' + facet + 'Tbl').find('tr.facetSubCat td').removeClass('unCollapse');		
+			//$('table#' + facet + 'Tbl').find('tr.subFacet').addClass('trHidden');
+			//$('table#' + facet + 'Tbl').find('tr.facetSubCat td').removeClass('unCollapse');		
     	}
     	
-    	var subFacetName;
+    	var fcatsection;
     	if ( objList.length == 0 ) {
     		if ( facet == 'geneFacet' ){
     			// open gene phenotyping status subfacet by default  
-    			subFacetName = 'phenotyping';
+    			fcatsection = 'phenotyping';
     		}
     		else if (facet == 'diseaseFacet' ){
     			// open disease source subfacet by default  
-    			subFacetName = 'disease_source';
+    			fcatsection = 'disease_source';
     		} 
     		else if (facet == 'pipelineFacet' ){    		
     			// open pipeline IMPC subfacet by default  
-    			subFacetName = 'IMPC_Pipeline';
+    			fcatsection = 'IMPC_Pipeline';
     		} 
     		else if (facet == 'imagesFacet' ){    		
     			// open pipeline IMPC subfacet by default  
-    			subFacetName = 'annotated_or_inferred_higherLevelMpTermName';
+    			//fcatsection = 'annotated_or_inferred_higherLevelMpTermName';
+    			fcatsection = 'mp';
     		}
-    		_arrowSwitch(subFacetName); 
+    		//_arrowSwitch(fcatsection); 
+    		
+    		
     	}    	
     	else {    	
 	    	// only for gene, pipeline, images and disease facets
 	    	for (var i=0; i<objList.length; i++){	    		
-	    		subFacetName = objList[i].attr('class');	    		
-	    		_arrowSwitch(subFacetName, oHashParams);	    
+	    		fcatsection = objList[i].attr('class');	    		
+	    		_arrowSwitch(fcatsection, oHashParams);	    
 	    	}  
     	}
     }
   
-    function _arrowSwitch(subFacetName, oHashParams){
+    function _arrowSwitch(fcatsection, oHashParams){
     	$('tr.facetSubCat').each(function(){    	
-			if ( $(this).hasClass(subFacetName) ){
+			if ( $(this).hasClass(fcatsection) ){
 				$(this).find('td').addClass('unCollapse'); 
 			}
 		}); 
-    	$('tr.' + subFacetName).show()
+    	$('tr.' + fcatsection).show()
     	
     	if (oHashParams){
     		$.fn.fetchQueryResult(oHashParams.q, oHashParams.widgetName.replace('Facet',''));

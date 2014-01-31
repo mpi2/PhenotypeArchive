@@ -79,19 +79,15 @@ public class GeneController {
         List<DiseaseAssociationSummary> diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
         logger.info(String.format("%s - recieved %s disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size()));
 
-        List<DiseaseAssociationSummary> curatedAssociationSummaries = new ArrayList<DiseaseAssociationSummary>();
-        List<DiseaseAssociationSummary> phenotypeAssociationSummaries = new ArrayList<DiseaseAssociationSummary>();
-          
-//        for (DiseaseAssociationSummary geneAssociationSummary : diseaseAssociationSummarys) {
-//            AssociationSummary associationSummary = geneAssociationSummary.getAssociationSummary();
-//            //always want the associations in the phenotypes list
-//            phenotypeAssociationSummaries.add(geneAssociationSummary);
-//            //but only the curated ones in the curated list...
-//            if (associationSummary.isAssociatedInHuman() || associationSummary.isHasLiteratureEvidence()) {
-//               curatedAssociationSummaries.add(geneAssociationSummary);
-//            }
-//        }
-                   
+        List<DiseaseAssociationSummary> knownDiseaseAssociationSummaries = new ArrayList<>();
+        //add the known association summaries to a dedicated list for the top panel
+        for (DiseaseAssociationSummary diseaseAssociationSummary : diseaseAssociationSummarys) {
+            AssociationSummary associationSummary = diseaseAssociationSummary.getAssociationSummary();
+            if (associationSummary.isAssociatedInHuman()) {
+               knownDiseaseAssociationSummaries.add(diseaseAssociationSummary);
+            }
+        }
+        model.addAttribute("knownDiseaseAssociationSummaries", knownDiseaseAssociationSummaries);                   
         model.addAttribute("phenotypeAssociations", diseaseAssociationSummarys);
         
         logger.info("returning gene page for " + mgiId);

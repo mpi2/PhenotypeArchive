@@ -89,7 +89,7 @@
   	    				var facetName = aSubFacetNames[n];
   	    				var label = displayLabel[facetName];  	    				
   	    				
-  	    				var thisFacetSect = $("<li class='fcatsection'></li>");		 
+  	    				var thisFacetSect = $("<li class='fcatsection " + label + "'></li>");		 
   	    				thisFacetSect.append($('<span></span>').attr({'class':'flabel'}).text(label));
   	    				
   	    				var thisUlContainer = $("<ul></ul>");
@@ -102,8 +102,8 @@
   	    					var facetCount = aFacetFields[facetName][i+1];  	    					
   	    					var label      = displayLabel[facetName];
   	    					
-  		    	    		var coreField = 'images|'+ facetName + '|' + fieldName + '|' + facetCount;	
-  		        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField, 'class':facetName}); 	
+  		    	    		var coreField = 'images|'+ facetName + '|' + fieldName + '|' + facetCount + '|' + label;	
+  		        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField}); 	
   		        			var flabel = $('<span></span>').attr({'class':'flabel'}).text(fieldName.replace(' phenotype', ''));
   							var fcount = $('<span></span>').attr({'class':'fcount'}).text(facetCount);
   							thisUlContainer.append(liContainer.append(chkbox, flabel, fcount));  							
@@ -152,13 +152,12 @@
 	  	    });	    	
   	    },  	   
   	    
-	    destroy: function () {    	   
-	    	// does not generate selector class
-    	    // if using jQuery UI 1.8.x
-    	    $.Widget.prototype.destroy.call(this);
-    	    // if using jQuery UI 1.9.x
-    	    //this._destroy();
-    	}  
+  	    destroy: function () {    	   
+	    	//this.element.empty();
+	    	// does not generate selector class    	    
+	  	    //$.Widget.prototype.destroy.call(this);  // if using jQuery UI 1.8.x    	    
+	  	    this._destroy();                          // if using jQuery UI 1.9.x
+	  	}  
     });
 	
 }(jQuery));	

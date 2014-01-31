@@ -50,3 +50,6 @@ form.no-style{
 .ui-dropdownchecklist-item input[type="checkbox"] { 
 	margin-right: 0.5em; 
 	} 
+#other_procedures{
+ 	display:none;
+ }

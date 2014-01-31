@@ -110,13 +110,11 @@
 	    	
 	    },	      
 		
-	    destroy: function () {
-	    	this.removeClass('maFacetWidget');
-	    	// does not generate selector class
-    	    // if using jQuery UI 1.8.x
-    	    $.Widget.prototype.destroy.call(this);
-    	    // if using jQuery UI 1.9.x
-    	    //this._destroy();
+	    destroy: function () {    	   
+	    	//this.element.empty();
+	    	// does not generate selector class    	    
+    	    //$.Widget.prototype.destroy.call(this);  // if using jQuery UI 1.8.x    	    
+    	    this._destroy();                          // if using jQuery UI 1.9.x
     	}  
     	
     });

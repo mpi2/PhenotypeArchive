@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.model.Disease;
 import uk.ac.sanger.phenodigm2.model.DiseaseIdentifier;
+import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
 import uk.ac.sanger.phenodigm2.web.AssociationSummary;
 import uk.ac.sanger.phenodigm2.web.GeneAssociationSummary;
 
@@ -69,6 +70,17 @@ public class DiseaseController {
         List<GeneAssociationSummary> geneAssociationSummarys = phenoDigmDao.getDiseaseToGeneAssociationSummaries(diseaseIdentifier, rawScoreCutoff);
         logger.info(String.format("%s - recieved %s gene-disease associations", diseaseId, geneAssociationSummarys.size()));
 
+        //add associated genes for use in the top panel
+        List<GeneAssociationSummary> knownGeneAssociationSummaries = new ArrayList<>();
+        //add the known association summaries to a dedicated list for the top panel
+        for (GeneAssociationSummary geneAssociationSummary : geneAssociationSummarys) {
+            AssociationSummary associationSummary = geneAssociationSummary.getAssociationSummary();
+            if (associationSummary.isAssociatedInHuman()) {
+               knownGeneAssociationSummaries.add(geneAssociationSummary);
+            }
+        }
+        model.addAttribute("knownGeneAssociationSummaries", knownGeneAssociationSummaries);
+     
         model.addAttribute("phenotypeAssociations", geneAssociationSummarys);
         logger.info("Returning disease page for " + diseaseId);
         return "phenodigm/disease";

@@ -200,5 +200,13 @@ span#imgViewSwitcher {
 }
 /* end of imgView/annotView switcher */
 
+/* Disease search results */
+span.status.done { 
+	padding: 0.1em 0.4em;
+	cursor: default !important;
+}
 
-
+/* Table Headings */
+th span.main                        { display: block; white-space:nowrap; }
+th span.sub                         { font-size: 0.8em; } 
+/* end of Disease search results */
