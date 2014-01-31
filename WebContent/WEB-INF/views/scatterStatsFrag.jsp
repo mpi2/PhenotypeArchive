@@ -29,7 +29,7 @@
 							'textAlign': 'left',
 							'tip': 'topRight'
 						});
-						$('div#exportIconsDiv').append(
+						$('div#exportIconsDiv').html(
 								$.fn.loadFileExporterUI({
 									label : 'Export data as: ',
 									formatSelector : {

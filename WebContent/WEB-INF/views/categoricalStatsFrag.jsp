@@ -9,7 +9,7 @@
 			.ready(
 					function() {
 						// alert("categorical");
-						$('div#exportIconsDivCat').append(
+						$('div#exportIconsDivCat').html(
 								$.fn.loadFileExporterUI({
 									label : 'Export data as: ',
 									formatSelector : {

@@ -49,7 +49,7 @@
 												</c:choose>
 												<td>${statsObject.mean}</td>
 												<td>${statsObject.sd}</td>
-												<td><c:choose><c:when test="${statsObject.sexType eq 'female'}"><img style="cursor:help;color:#D6247D;" rel="tooltip" data-placement="top" title="Female" alt="Female" src="${baseUrl}/img/icon-female.png" /></c:when><c:otherwise><img style="cursor:help;color:#247DD6;" rel="tooltip" data-placement="top" title="Male" alt="Male" src="${baseUrl}/img/icon-male.png" /></c:otherwise></c:choose></td>
+												<td><c:choose><c:when test="${statsObject.sexType eq 'female'}"><img style="cursor:help;color:#D6247D;" rel="tooltip" data-placement="top" title="Female" alt="Female" src="${baseUrl}/img/female.jpg" /></c:when><c:otherwise><img style="cursor:help;color:#247DD6;" rel="tooltip" data-placement="top" title="Male" alt="Male" src="${baseUrl}/img/male.jpg" /></c:otherwise></c:choose></td>
 												<c:if test="${statsObject.sexType eq 'female'}">
 												<td>${statsObject.sampleSize}</td>
 												</c:if>
@@ -167,12 +167,14 @@
  				</c:if>
  				
  				<script>
+ 				
+ 				/* <a href="#"><i class="fa fa-download"></i> csv</a> */
 	$(document)
 			.ready(
 					function() {
 				//		alert("unidimensional");
 						$('div#exportIconsDivUni').html("");
-						$('div#exportIconsDivUni').append(
+						$('div#exportIconsDivUni').html(
 								$.fn.loadFileExporterUI({
 									label : 'Export data as: ',
 									formatSelector : {

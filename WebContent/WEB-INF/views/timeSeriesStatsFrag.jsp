@@ -15,7 +15,7 @@
 	$(document)
 			.ready(
 					function() {
-						$('div#exportIconsDivTS').append(
+						$('div#exportIconsDivTS').html(
 								$.fn.loadFileExporterUI({
 									label : 'Export data as: ',
 									formatSelector : {
