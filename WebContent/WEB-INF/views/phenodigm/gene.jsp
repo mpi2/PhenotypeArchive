@@ -126,14 +126,13 @@
                         <table id="predictedPhenotypes" class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>Disease Name</th>
-                                    <th>Source</th>
+                                    <th><span class="main">Disease Name</span></th>
+                                    <th><span class="main">Source</span></th>
                                     <th>Disease Gene Ortholog</th>
                                     <th>Syntenic Disease Locus</th>
                                     <th>Mouse Literature Evidence (MGI)</th>
-                                    <th>MGI Mouse Phenotype Evidence (Phenodigm)</th>
-                                    <th>MGP Mouse Phenotype Evidence (Phenodigm)</th>
-                                    <th></th>
+                                    <th><span class="main">MGI</span><span class="sub">Mouse Phenotype Evidence (Phenodigm)</span></th>
+                                    <th><span class="main">MGP</span><span class="sub">Mouse Phenotype Evidence (Phenodigm)</span></th>
                                 </tr>
                             </thead>                        
                             <tbody>
