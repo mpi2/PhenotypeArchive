@@ -8,7 +8,7 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <td>
-    <h5 id="${diseaseGeneAssociationDetails.diseaseId}" >${diseaseGeneAssociationDetails.diseaseId} Disease Phenotype Terms</h5>
+    <h6 id="${diseaseGeneAssociationDetails.diseaseId}" >${diseaseGeneAssociationDetails.diseaseId} Disease Phenotype Terms</h6>
     <c:forEach var="hpTerm" items="${diseaseGeneAssociationDetails.diseasePhenotypes}">
         ${hpTerm.term}<br>
     </c:forEach>
@@ -23,7 +23,7 @@
         </c:when>
         <c:otherwise>
             <c:if test="${not empty literatureAssociations}">
-                <h5>${disease.diseaseId} Associated Mouse Models (MGI curated)</h5>
+                <h6>${disease.diseaseId} Associated Mouse Models (MGI curated)</h6>
                 <c:forEach var="diseaseAssociation" items="${literatureAssociations}" varStatus="loop">
                     <c:set var="mouseModel" value="${diseaseAssociation.mouseModel}"></c:set>
                     <c:set var="score" value = "${diseaseAssociation.modelToDiseaseScore}"/>
@@ -39,7 +39,7 @@
                 </c:forEach>
             </c:if>
             <c:if test="${not empty phenotypicAssociations}">
-                <h5>${disease.diseaseId} Associated Mouse Models (PhenoDigm predicted)</h5>
+                <h6>${disease.diseaseId} Associated Mouse Models (PhenoDigm predicted)</h6>
                 <c:forEach var="diseaseAssociation" items="${phenotypicAssociations}" varStatus="loop">
                     <c:set var="mouseModel" value="${diseaseAssociation.mouseModel}"></c:set>
                     <c:set var="score" value = "${diseaseAssociation.modelToDiseaseScore}"/>
