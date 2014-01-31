@@ -155,12 +155,12 @@
                             <thead>
                                 <tr>
                                     <!--<th>Human Gene Symbol</th>-->
-                                    <th><span class="main">Mouse Gene Symbol</span></th>
-                                    <th><span class="main">Disease Gene Ortholog</span></th>
-                                    <th><span class="main">Syntenic Disease Locus</span></th>
-                                    <th><span class="main">Mouse Literature Evidence (MGI)</span></th>
-                                    <th><span class="main">MGI Mouse Phenotype Evidence (Phenodigm)</span></th>
-                                    <th><span class="main">MGP Mouse Phenotype Evidence (Phenodigm)</span></th>
+                                    <th>Mouse Gene Symbol</th>
+                                    <th>Disease Gene Ortholog</th>
+                                    <th>Syntenic Disease Locus</th>
+                                    <th>Mouse Literature Evidence (MGI)</th>
+                                    <th>MGI Mouse Phenotype Evidence (Phenodigm)</th>
+                                    <th>MGP Mouse Phenotype Evidence (Phenodigm)</th>
                                     <th></th>
                                 </tr>
                             </thead>
