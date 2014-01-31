@@ -403,6 +403,8 @@ public class ChartsController {
 			model.addAttribute("experimentNumber", experimentNumber);
 			model.addAttribute("statsError", statsError);
 
+		}else {
+			model.addAttribute("emptyExperiment", true);
 		}
 
 		return "chart";

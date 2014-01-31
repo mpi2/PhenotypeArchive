@@ -22,7 +22,7 @@ public class GraphUtils {
 	public Set<String> getGraphUrls(String acc,
 			String parameterStableId, List<String> genderList, List<String> zyList, boolean scatter) throws SolrServerException {
 		
-		Set<String>urls=new LinkedHashSet<String>(); //each url should be unique and so we use a set
+		Set<String>urls=new HashSet<String>(); //each url should be unique and so we use a set
 		Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameterStableId);
             
             //for each parameter we want the unique set of urls to make ajax requests for experiments

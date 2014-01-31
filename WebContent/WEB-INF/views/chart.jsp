@@ -2,7 +2,15 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
-
+<c:choose>
+										<c:when test="${emptyExperiment}">
+												<!-- <div class="alert alert-error">
+									  				<strong>Error:</strong> experiment empty
+												</div> -->
+										</c:when>
+										<c:otherwise>
+										
+									
 <div class="section">
 	<h2 class="title documentation" id="section-associations"> 
 						Allele -
@@ -23,3 +31,6 @@
 		</div>			
 	
 </div>
+
+</c:otherwise>
+</c:choose>
