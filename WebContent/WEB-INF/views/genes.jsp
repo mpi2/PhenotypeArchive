@@ -398,7 +398,7 @@
 				</div>
 			</c:if> --%>
 			
-			static nicols style here:
+		<!-- 	static nicols style here:
 			
 			<div class="section collapsed">
                             
@@ -491,16 +491,15 @@
                             
                        
                         
-                        </div>                      
+                        </div>                       -->
                         
                         
             
         
 			<!-- nicolas accordion for images here -->
-			new nicolas styled here
 <c:if test="${not empty solrFacets}">
-		<div class="section">
-        		<h2 class="title">Phenotype Associated Images  <i class="fa fa-question-circle pull-right"  oldtitle="Brief info about this panel" title=""></i></h2>
+        		<div class="section collapsed">
+                      <h2 class="title">Phenotype Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                        <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
                 		<div class="inner">
                         		<div class="accordion-group">
@@ -524,7 +523,7 @@
                            </div><!--  end of inner -->
          </div> <!-- end of section -->
 </c:if>			
-					old here
+					
 			<c:if test="${not empty expressionFacets}">
 			<div class="section">
 				<h2 class="title documentation">Expression <a href='' id='expressionPanel'><i class="fa fa-question-circle pull-right" aria-describedby="qtip-26"></i></a></h2>
