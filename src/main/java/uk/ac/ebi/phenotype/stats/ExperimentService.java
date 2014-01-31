@@ -63,11 +63,11 @@ public class ExperimentService {
 	 */
 	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain, Boolean includeResults) throws SolrServerException, IOException, URISyntaxException {
 	
-		List<ObservationDTO> results = os.getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(parameterId, geneAccession, zygosity, phenotypingCenterId, strain, sex);
+		List<ObservationDTO> observations = os.getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(parameterId, geneAccession, zygosity, phenotypingCenterId, strain, sex);
 		
 		Map<String, ExperimentDTO> experimentsMap = new HashMap<>();
 		
-		for (ObservationDTO observation : results) {
+		for (ObservationDTO observation : observations) {
 
 	    	// collect all the strains, organisations, sexes, and zygosities 
 	    	// combinations of the mutants to get the controls later
@@ -77,6 +77,7 @@ public class ExperimentService {
 	    	// - strain
 	    	// - parameter
 	    	// - gene
+			// - meatdata group
 	    	ExperimentDTO experiment;
 	    	
 	    	String experimentKey = observation.getPhenotypingCenter()
