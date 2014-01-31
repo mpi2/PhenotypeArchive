@@ -11,14 +11,7 @@
 	 <a href="${acc}?${pageContext.request.queryString}&scatter=1">Graph by date</a>
 				<script type="text/javascript">
 					${timeSeriesChartsAndTable.chart}
-				</script> 
 		
-</c:if>
-	
-
-
-
-<script>
 	$(document)
 			.ready(
 					function() {
@@ -108,3 +101,5 @@
 						}
 					});
 </script>
+</c:if>
+	

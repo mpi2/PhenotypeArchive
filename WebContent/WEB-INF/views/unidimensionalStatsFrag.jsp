@@ -64,6 +64,7 @@
 										</table>
 				
 				
+				
 				<c:if test="${fn:length(unidimensionalDataSet.allUnidimensionalResults)>0}">
 				<div class="row-fluid">
 						<div class="container span12">
@@ -165,7 +166,6 @@
  				
  				</c:if>
  				
- 				</c:if>
  				<script>
 	$(document)
 			.ready(
@@ -258,5 +258,6 @@
 						}
 					});
 </script>	 
-	<!-- </div> -->
-
+ 				
+ 				</c:if>
+ 				

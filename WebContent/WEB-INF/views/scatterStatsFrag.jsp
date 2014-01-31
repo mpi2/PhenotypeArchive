@@ -18,9 +18,8 @@
                                 '&scatter=true', '')}" />
                                 
                                 <a href="${acc}?${originalUrl}">Box Plot / Time Series Graphs</a>	
-	</c:if>
-	
-	<script>
+                                
+                                <script>
 	$(document)
 			.ready(
 					function() {
@@ -116,4 +115,7 @@
 						}
 					});
 </script>
+	
+	</c:if>
+	
 	
