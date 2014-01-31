@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -184,7 +185,7 @@ public class ChartsController {
 		
 		//List<Parameter> parameters = new ArrayList<>();
 
-		Set<String> allGraphUrlSet = new HashSet<String>();
+		Set<String> allGraphUrlSet = new LinkedHashSet<String>();
 		for (String parameterId : paramIds) {
 
 			Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion(
@@ -196,7 +197,7 @@ public class ChartsController {
 			// instead of an experiment list here we need just the outline of
 			// the experiments - how many, observation types
 			Set<String> graphUrlsForParam = graphUtils.getGraphUrls(acc,
-					parameter.getStableId(), genderList, zyList, parameter.getName(), scatter);
+					parameter.getStableId(), genderList, zyList, scatter);
 			allGraphUrlSet.addAll(graphUrlsForParam);
 
 		}// end of parameterId iterations

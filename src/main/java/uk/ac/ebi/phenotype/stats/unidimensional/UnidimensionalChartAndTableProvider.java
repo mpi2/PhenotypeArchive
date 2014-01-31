@@ -163,6 +163,7 @@ public class UnidimensionalChartAndTableProvider {
 					List<UnidimensionalStatsObject> unidimensionalStatsObject = produceUnidimensionalStatsData(
 							parameter,genderAndRawDataMap,
 							experiment, usefulStrings.get("allelicComposition"), usefulStrings.get("symbol"), usefulStrings.get("geneticBackground"));
+					
 					unidimensionalStatsObjects
 					.addAll(unidimensionalStatsObject);
 					chartAndTable = processChartData(chartId, parameter, 
@@ -592,8 +593,10 @@ public class UnidimensionalChartAndTableProvider {
 				tempStatsObject=genrateStats(experiment, tempStatsObject, mutants, zType,sexType);
 					
 			for (StatisticalResult result : results) {
+				System.out.println("sex is "+sexType);
 					if (result.getZygosityType().equals(zType)
 							&& result.getSexType().equals(sexType)) {
+						System.out.println("setting result for sex="+sexType+"   "+result);
 						tempStatsObject.setResult((UnidimensionalResult) result);
 					}
 				}

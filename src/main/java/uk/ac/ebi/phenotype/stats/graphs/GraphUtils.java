@@ -2,6 +2,7 @@ package uk.ac.ebi.phenotype.stats.graphs;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,9 +20,9 @@ public class GraphUtils {
 		this.experimentService=experimentService;
 	}
 	public Set<String> getGraphUrls(String acc,
-			String parameterStableId, List<String> genderList, List<String> zyList, String parameterName, boolean scatter) throws SolrServerException {
+			String parameterStableId, List<String> genderList, List<String> zyList, boolean scatter) throws SolrServerException {
 		
-		Set<String>urls=new HashSet<String>(); //each url should be unique and so we use a set
+		Set<String>urls=new LinkedHashSet<String>(); //each url should be unique and so we use a set
 		Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameterStableId);
             
             //for each parameter we want the unique set of urls to make ajax requests for experiments
