@@ -39,31 +39,34 @@
 			MPI2.searchAndFacetConfig.hasFilters = false;
 			oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 			oHashParams.widgetName = oHashParams.facetName + 'Facet';
+			if ( typeof oHashParams.q == 'undefined' ){
+				oHashParams.q = window.location.search.replace('?q=', '');
+			} 
 		}
 		else {
 			self.options.data.hashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');	
 			oHashParams = self.options.data.hashParams;
 			if ( /search\/?$/.exec(location.href) ){
 				oHashParams.coreName = 'gene';
-			}
-		}	    			
+			}			
+		}	   			
 			
 		console.log(oHashParams);	
 		if ( oHashParams.coreName ){
 			//$.fn.loadDataTable(oHashParams);					
 		}
-		else if (oHashParams.facetName ) {
+		else if (oHashParams.facetName ) {			
 			
-			//$.fn.loadDataTable(oHashParams);
 			// widget open is when a facet category is clicked 
 			// and we don't want to refresh facet, just open it	    
-			console.log(facet + ' widget open check: ' + MPI2.searchAndFacetConfig.widgetOpen);
+			//console.log(facet + ' widget open check: ' + MPI2.searchAndFacetConfig.widgetOpen);
 		
 			var refreshFacet = true;		    		
 			$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, refreshFacet);
 		}
-		else if ( oHashParams.widgetName  ){
+		else if ( oHashParams.widgetName ){
 			//$.fn.loadDataTable(oHashParams);	
+			oHashParams.q = window.location.search.replace('?q=', '');
 		}
 		$.fn.loadDataTable(oHashParams);
 	}	
@@ -110,10 +113,9 @@
 				MPI2.searchAndFacetConfig.widgetOpen = true;				
 				
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-				console.log(oHashParams);
+				
 				// deals with user query
-				console.log(window.location.search);
-				console.log(oHashParams.fq);
+				
 				if ( window.location.search != '' ){
 					oHashParams.q = window.location.search.replace('?q=', '');
 					oHashParams.fq = typeof oHashParams.fq == 'undefined' ? '' : oHashParams.fq;
@@ -121,15 +123,14 @@
 				
 				var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facet + 'Facet'].solrCoreName;				
 				var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';	
-				console.log(oHashParams);
+				
 				if ( typeof oHashParams.q == 'undefined' ){
 					var oHashParams = thisWidget.options.data.hashParams;							
 					window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
 				}
 				else {					
 					oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, facet);	
-					console.log(oHashParams);
-					
+										
 					if ( ! window.location.search.match(/q=/) ){											
 						window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
 					}
