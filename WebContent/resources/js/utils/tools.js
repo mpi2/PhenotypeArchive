@@ -119,11 +119,13 @@
 			}
 		}		
 	}
-	$.fn.fetchQueryResult = function(q, facet){		
+	$.fn.fetchQueryResult = function(q, facet, fqStr){		
 		
-		var fqStr = _composeFilterStr(facet);				
-		$.fn.setFacetCounts(q, fqStr, facet);
+		// make sure field mapping in url is correct with selected facet
+		fqStr = $.fn.fieldNameMapping(fqStr, facet);
 		
+		// now update dataTable	 
+		window.location.hash = 'q=' + q + '&fq=' + fqStr + '&facet=' + facet;	 
 	};
 	
 	$.fn.setFacetCounts = function(q, fqStr, facet){
@@ -160,12 +162,7 @@
 				do_megaMa(q, fqStr);
 				do_megaPipeline(q, fqStr, facet);
 				do_megaImages(q, fqStr, facet);			
-			}
-			// make sure field mapping in url is correct with selected facet
-			fqStr = $.fn.fieldNameMapping(fqStr, facet);
-			
-			// now update dataTable	 
-			window.location.hash = 'q=' + q + '&fq=' + fqStr + '&facet=' + facet;	    	
+			}			   	
 		}
 	};	
 	
@@ -652,10 +649,7 @@
 	}
 	
 	$.fn.composeFacetFilterControl = function(oChkbox, q){	
-		do_ParentFilterDisplay(oChkbox, q);		
-	}
-		
-	function do_ParentFilterDisplay(oChkbox, q) {
+	
 		var labels = oChkbox.attr('rel').split("|");
 		var facet = labels[0];
 		var field = labels[1];
@@ -673,9 +667,6 @@
 			
 			// add filter
 			$.fn.addFacetFilter(oChkbox, q);		
-						
-			// update facet filter and compose solr query for result		
-			$.fn.fetchQueryResult(q, facet);
 		}
 		else {	
 			//console.log('uncheck');
@@ -693,9 +684,12 @@
 				thisLi.hide();				
 				thisLi.find('.fcap').hide();			
 			}			
-			// update facet filter and compose solr query for result
-			$.fn.fetchQueryResult(q, facet);
 		}
+		// update facet filter and compose solr query for result
+		var fqStr = _composeFilterStr(facet);				
+		$.fn.setFacetCounts(q, fqStr, facet);		
+		$.fn.fetchQueryResult(q, facet, fqStr);
+		
 	}	
 		
 	$.fn.removeFacetFilter = function(facet) {
