@@ -82,6 +82,10 @@
 	        		
 	        		$.fn.initFacetToggles('ma');
 	        		
+	        		// when facet widget is open, flag it so that we know there are existing filters 
+	    			// that need to be checked and highlighted
+	    			$.fn.checkAndHighlightSubfacetTerms();
+	        		
 	        		$('li#ma li.fcat input').click(function(){	    			
 	        			// // highlight the item in facet	    			
 	        			$(this).siblings('span.flabel').addClass('highlight');
@@ -93,18 +97,9 @@
 	    	    	/*------------------------------------------------------------------------------------*/	
 	        		
 	        		if ( self.options.data.hashParams.fq.match(/.*/) ){	
-	        			
-	    	    		var oHashParams = self.options.data.hashParams;
-	        			
-	    	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams);	    	    		
-	    	    		// now load dataTable    		
-	    	    		$.fn.loadDataTable(oHashParams);
-	        		}    		
+	        			$.fn.parseUrlFordTableAndFacetFiltering(self);	    	    		
+	        		}
 	    			
-	    			// update facet count when filters applied
-	    			if ( $('ul#facetFilter li li a').size() != 0 ){
-	    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'ma');
-	    			}	
 	    		}		
 	    	});		    	
 	    	

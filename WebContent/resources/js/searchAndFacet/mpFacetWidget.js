@@ -78,9 +78,12 @@
 	    	    	}    		    	    	
 	    	    		    			 
 	    			// update all subfacet counts of this facet 
-	        		$('div.flist li#mp > ul').append(mpUlContainer);	        		       		
-	        		
+	        		$('div.flist li#mp > ul').append(mpUlContainer);  
 	        		$.fn.initFacetToggles('mp');
+	        		
+	        		// when facet widget is open, flag it so that we know there are existing filters 
+	    			// that need to be checked and highlighted
+	    			$.fn.checkAndHighlightSubfacetTerms();
 	        		
 	        		$('li#mp li.fcat input').click(function(){	    			
 	        			// // highlight the item in facet	    			
@@ -92,18 +95,34 @@
 	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
 	    	    	/*------------------------------------------------------------------------------------*/	
 	        		if ( self.options.data.hashParams.fq.match(/.*/) ){   			
-	        			//$.fn.loadDataSetWithoutFilter(self);
-	    	    		var oHashParams = self.options.data.hashParams;
-	        			console.log('mp page loaded ...');
-	    	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams);	    	    		
-	    	    		// now load dataTable    		
-	    	    		$.fn.loadDataTable(oHashParams);
-	        		}    	
-	        		
-	    			// update facet count when filters applied
-	    			if ( $('ul#facetFilter li li a').size() != 0 ){	    			
-	    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'mp');
-	    			}	    			
+	        			$.fn.parseUrlFordTableAndFacetFiltering(self);
+	        			/*console.log('mp widget loaded ...');
+	        			var oHashParams;
+	        			if ( MPI2.searchAndFacetConfig.hasFilters ){
+	    	    			MPI2.searchAndFacetConfig.hasFilters = false;
+	    	    			oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
+	    	    			oHashParams.widgetName = oHashParams.facetName + 'Facet';
+	    	    		}
+	    	    		else {    	    			
+	    	    			self.options.data.hashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');
+	    	    			oHashParams = self.options.data.hashParams;
+	    	    		}	
+	        			
+	        			console.log(oHashParams);
+	        			if ( oHashParams.coreName ){
+	        				$.fn.loadDataTable(oHashParams);
+	        			}
+	        			else if (oHashParams.facetName ) {
+	        				$.fn.loadDataTable(oHashParams);
+		        			console.log('mp widget open check: ' + MPI2.searchAndFacetConfig.widgetOpen);
+		        			    		    		    		    		
+		    		    	var refreshFacet = true;
+		    		    	$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, refreshFacet);
+		    		    	
+	        			}*/
+	        			
+	        		}
+	    			   			
 	    		}		
 	    	});		    	
 	    },	   

@@ -337,7 +337,7 @@ try {
     						var facet = oHashParams.facetName;
     						var aFilters = [];
     						//$('ul#facetFilter li.' + facet + ' li a').each(function(){
-    						$('ul#facetFilter li li a').each(function(){							
+    						$('ul#facetFilter li.ftag a').each(function(){							
     							aFilters.push($(this).text());
     						});														
     						

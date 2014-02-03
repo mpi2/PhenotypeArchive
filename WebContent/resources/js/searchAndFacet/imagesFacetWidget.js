@@ -117,12 +117,10 @@
   	    			$('div.flist li#images li.fcatsection:nth-child(1)').addClass('open');	
   	    			
   	    			$.fn.initFacetToggles('images');
-  	    			//$('div.flist li#images > .flabel').click();
   	    			
-  	    			// update facet count when filters applied
-  	    			if ( $('ul#facetFilter li li a').size() != 0 ){
-  	    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'images');
-  	    			} 
+  	    			// when facet widget is open, flag it so that we know there are existing filters 
+	    			// that need to be checked and highlighted
+	    			$.fn.checkAndHighlightSubfacetTerms();
   	    			
 	  	      		$('li#images li.fcat input').click(function(){	    			
 	  	      			// // highlight the item in facet	    			
@@ -135,15 +133,7 @@
 	  	  	    	/*------------------------------------------------------------------------------------*/ 
 	  	    	    		
 	  	      		if ( self.options.data.hashParams.fq.match(/.*/) ){ 	
-	  	      			$.fn.setDefaultImgSwitcherConf();  
-	  	      			
-	  	      			var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority) 		
-	  	  	    		
-	  	  	    		var oHashParams = self.options.data.hashParams;
-	  	      			
-	  	  	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);	    	    		
-	  	  	    		// now load dataTable    		
-	  	  	    		$.fn.loadDataTable(oHashParams);
+	  	      			$.fn.parseUrlFordTableAndFacetFiltering(self);	
 	  	      		}
 	  	    	    		
   	    	    	// when last facet is done

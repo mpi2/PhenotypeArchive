@@ -238,14 +238,7 @@
 	    		subTypeSect.append(subTypeUlContainer);
 	    		
 	    		// update all subfacet counts of this facet 
-	    		$('div.flist li#gene > ul').append(phenoStatusSect, prodStatusSect, subTypeSect);
-	    		
-	    		
-	    		// update facet count when filters applied
-	    		if ( $('ul#facetFilter li li a').size() != 0 ){	   
-	    			console.log('about to update facet count...');
-    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'gene');
-    			}	
+	    		$('div.flist li#gene > ul').append(phenoStatusSect, prodStatusSect, subTypeSect);	    		
 	    		
 	    		// phenoStatus subFacet is open by default	
 	    		if ( phenoCount != 0 ){
@@ -256,7 +249,11 @@
 	    		}
 	    		
 	    		$.fn.initFacetToggles('gene');
-	    			    		
+	    		
+	    		// when facet widget is open, flag it so that we know there are existing filters 
+    			// that need to be checked and highlighted
+    			$.fn.checkAndHighlightSubfacetTerms();	    		
+	    		
 	    		$('li#gene li.fcat input').click(function(){	    			
 	    			// // highlight the item in facet	    			
 	    			$(this).siblings('span.flabel').addClass('highlight');
@@ -269,16 +266,35 @@
 	    	/*------------------------------------------------------------------------------------*/	
 
 	    	if ( self.options.data.hashParams.fq.match(/.*/) ){	
-	    		console.log('gene page loaded ...');
-	    		self.options.data.hashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');	    		
-
-	    		var pageReload;// = true;  // this controls checking which subfacet to open (ie, show by priority)
+	    		$.fn.parseUrlFordTableAndFacetFiltering(self);
+	    		/*console.log('gene widget loaded ...');
 	    		
-	    		var oHashParams = self.options.data.hashParams;
-    			
-	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);	    	    		
-	    		// now load dataTable    		
-	    		$.fn.loadDataTable(oHashParams);
+	    		var oHashParams;
+	    		
+	    		if ( MPI2.searchAndFacetConfig.hasFilters ){
+	    			MPI2.searchAndFacetConfig.hasFilters = false;
+	    			oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
+	    			oHashParams.widgetName = oHashParams.facetName + 'Facet';
+	    		}
+	    		else {
+	    			self.options.data.hashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');	
+	    			oHashParams = self.options.data.hashParams;    		
+	    		}	    			
+	    		
+	    		console.log(oHashParams);	
+	    		if ( oHashParams.coreName || /search\/?$/.exec(location.href) ){
+    				$.fn.loadDataTable(oHashParams);
+    			}
+	    		else if (oHashParams.facetName ) {
+	    			
+	    			$.fn.loadDataTable(oHashParams);
+		    		// widget open is when a facet category is clicked 
+		    		// and we don't want to refresh facet, just open it	    
+		    		console.log('gene widget open check: ' + MPI2.searchAndFacetConfig.widgetOpen);
+	    		
+	    			var refreshFacet = true;		    		
+		    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, refreshFacet);
+	    		}*/
     		}
 	    },	       
 	  
