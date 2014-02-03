@@ -300,72 +300,68 @@ try {
     			// catch back/forward buttons and hash change: loada dataTable based on url params
     			$(window).bind("hashchange", function() {
     							
-    				//var url = $.param.fragment();	 
+    				//var url = $.param.fragment();	 // not working with jQuery 10.0.1
     				var url = $(location).attr('hash');			
-    				//console.log('hash change URL: '+ '/search' + url);
+    				console.log('hash change URL: '+ '/search' + url);
+    				
+    				if ( /search\/?$/.exec(location.href) ){
+    					// reload page
+    					window.location.reload();
+    				}
+    				
     				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
     				
-    				//console.log(oHashParams);								
+    				oHashParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;	                
+					oHashParams.widgetName += 'Facet';
+    				
+					console.log(oHashParams);
+    				console.log('from widget open: '+ MPI2.searchAndFacetConfig.widgetOpen);
+    				
     				if ( window.location.search.match(/q=/) ){
     					oHashParams.q = window.location.search.replace('?q=','')
     				}
-    				else if ( typeof oHashParams.q === 'undefined' ){
-    					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');					
+    				else if ( typeof oHashParams.q == 'undefined' ){
+    					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');	    					
     				}
     				
-    				// search by keyword (user's input) has no fq in url when hash change is detected
-    				if ( oHashParams.fq ){				
-    					// back/forward button navigation: 
-    					// make sure checkboxes are updated according to url
-    					
-    					oHashParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;
-                
-    					oHashParams.widgetName += 'Facet';
-    					
-    					if ( oHashParams.coreName ){
-    						$.fn.removeFacetFilter(oHashParams.coreName);
-    						//console.log(oHashParams.fq);					
-    						var pageReload;  // this controls checking which subfacet to open (ie, show by priority). 
-    										 // Set to undefined for no checking here, as we are now capturing hash change and not page reload
-    						oHashParams.coreName += 'Facet'; 				 
-    								
-    						$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);						
-    						$.fn.loadDataTable(oHashParams);
-    					}
-    					else {						
-    						// parse selected checkbox(es) of this facet
-    						var facet = oHashParams.facetName;
-    						var aFilters = [];
-    						//$('ul#facetFilter li.' + facet + ' li a').each(function(){
-    						$('ul#facetFilter li.ftag a').each(function(){							
-    							aFilters.push($(this).text());
-    						});														
-    						
-    						//console.log('filter: ' + aFilters );
-    						oHashParams.filters = aFilters;
-    						//oHashParams.facetName = facet + 'Facet';
-    						oHashParams.facetName = facet;						
-    						$.fn.loadDataTable(oHashParams);
-    					}
+    				
+    				if ( MPI2.searchAndFacetConfig.widgetOpen ){
+    					MPI2.searchAndFacetConfig.widgetOpen = false;
+    						    				
+	    				// search by keyword (user's input) has no fq in url when hash change is detected
+	    				if ( oHashParams.fq ){				
+	    					
+	    					if ( oHashParams.coreName ){	    						
+	    						$.fn.removeFacetFilter();
+	    						oHashParams.coreName += 'Facet'; 					
+	    					}
+	    					else {						
+	    						// parse selected checkbox(es) of this facet
+	    						var facet = oHashParams.facetName;
+	    						var aFilters = [];
+	    						//$('ul#facetFilter li.' + facet + ' li a').each(function(){
+	    						$('ul#facetFilter li.ftag a').each(function(){							
+	    							aFilters.push($(this).text());
+	    						});														
+	    						
+	    						//console.log('filter: ' + aFilters );
+	    						oHashParams.filters = aFilters;
+	    						//oHashParams.facetName = facet + 'Facet';
+	    						oHashParams.facetName = facet;	    						
+	    					}
+	    					$.fn.loadDataTable(oHashParams);
+	    				}
     				}
-    			});
-    						
-    						
-    			/*	deprecated		
-    			$('div#filterToggle').click(function(){	
-    				console.log('filter');
-    				var ul = $('ul#facetFilter');	
-    				if ( ul.is(":visible") ){				
-    					ul.hide();	
-    					$(this).find('span').text('Hide facet filters');
-    				}
-    				else {				
-    					ul.show();				
-    					$(this).find('span').text('Show facet filters');
-    				}
-    			});*/
-    			
-    			
+	    			else {	    				   				  				
+	    				console.log('back button');	    				
+	    				console.log(oHashParams);
+	    				    			
+	    				var refreshFacet = oHashParams.coreName ? false : true;	    				
+						$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, refreshFacet);
+	    				
+	    				$.fn.loadDataTable(oHashParams);
+	    			}
+    			});		
     			
     		});     	
         	

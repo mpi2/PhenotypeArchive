@@ -95,34 +95,8 @@
 	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
 	    	    	/*------------------------------------------------------------------------------------*/	
 	        		if ( self.options.data.hashParams.fq.match(/.*/) ){   			
-	        			$.fn.parseUrlFordTableAndFacetFiltering(self);
-	        			/*console.log('mp widget loaded ...');
-	        			var oHashParams;
-	        			if ( MPI2.searchAndFacetConfig.hasFilters ){
-	    	    			MPI2.searchAndFacetConfig.hasFilters = false;
-	    	    			oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-	    	    			oHashParams.widgetName = oHashParams.facetName + 'Facet';
-	    	    		}
-	    	    		else {    	    			
-	    	    			self.options.data.hashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');
-	    	    			oHashParams = self.options.data.hashParams;
-	    	    		}	
-	        			
-	        			console.log(oHashParams);
-	        			if ( oHashParams.coreName ){
-	        				$.fn.loadDataTable(oHashParams);
-	        			}
-	        			else if (oHashParams.facetName ) {
-	        				$.fn.loadDataTable(oHashParams);
-		        			console.log('mp widget open check: ' + MPI2.searchAndFacetConfig.widgetOpen);
-		        			    		    		    		    		
-		    		    	var refreshFacet = true;
-		    		    	$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, refreshFacet);
-		    		    	
-	        			}*/
-	        			
-	        		}
-	    			   			
+	        			$.fn.parseUrlFordTableAndFacetFiltering(self);	        			
+	        		}	    			   			
 	    		}		
 	    	});		    	
 	    },	   

@@ -32,7 +32,7 @@
 		var self = thisWidget;
 		var facet = self.element.attr('id');	
 		console.log(facet + ' widget loaded ...');
-		
+				
 		var oHashParams;
 		
 		if ( MPI2.searchAndFacetConfig.hasFilters ){
@@ -58,9 +58,7 @@
 		else if (oHashParams.facetName ) {			
 			
 			// widget open is when a facet category is clicked 
-			// and we don't want to refresh facet, just open it	    
-			//console.log(facet + ' widget open check: ' + MPI2.searchAndFacetConfig.widgetOpen);
-		
+			// and we don't want to refresh facet, just open it	
 			var refreshFacet = true;		    		
 			$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, refreshFacet);
 		}
@@ -821,76 +819,8 @@
 		}
 					
 		thisLi.show();
-		$('ul#facetFilter li.none').hide();	
+		//$('ul#facetFilter li.none').hide();	
 		
-	}
-	$.fn.addFacetFilter2 = function(oChkbox, q){
-		
-		if ( !$('div.ffilter').is(':visible') ){
-			$('div.ffilter').show();			
-		}
-				
-		var labels = oChkbox.attr('rel').split('|');
-		// add filter
-		var facet = labels[0];
-		var field = labels[1];
-		var value = labels[2];
-		var thisLi = $('ul#facetFilter li.' + facet);
-		
-		// show filter facet caption
-		thisLi.find('.fcap').show();
-		
-		var display = MPI2.searchAndFacetConfig.facetFilterLabel[field];
-		if ( value == 1 ){
-			value = field == 'imits_phenotype_started' ? 'Started' : 'Yes';		
-		}	
-		
-		var qValue = '"' + value + '"';
-		//var filterTxt = ( facet == 'gene' || facet == 'images' || facet == 'disease' ) ? display + ' : ' + qValue : value;
-		var filterTxt = value;
-		if ( facet == 'gene' ){
-			if ( value == 'Started'  ){
-				filterTxt = 'phenotyping started'; 
-			}
-			else if ( value == 'Phenotype Attempt Registered' || field == 'status' || field == 'marker_type' ){
-				filterTxt = value.toLowerCase();
-			}
-		}
-		
-		var pipelineName, a;
-		
-		if (facet == 'pipeline'){
-			var names = filterTxt.split('___');					
-			filterTxt = oChkbox.attr('class').replace(/_/g, ' ') + ' : ' + '"' + names[0] + '"';
-		}
-		if (facet == 'disease' && field.match(/_curated|_predicted/) ){
-			filterTxt = MPI2.searchAndFacetConfig.facetFilterLabel[field]; 		
-		}
-		
-		var a = $('<a></a>').attr({'rel':oChkbox.attr('rel')}).text(filterTxt.replace(/ phenotype$/, ''));		
-		//var del = $('<img>').attr('src', baseUrl + '/img/scissors-15x15.png');
-		var hiddenLabel = $("<span class='hidden'></span>").text(_composeFilterStr(facet, field, value));
-		
-		var filter = $('<li class="ftag"></li>').append(a, hiddenLabel);			
-		
-		add_uncheck_js(a, filter, oChkbox, q);
-				
-		if ( thisLi.find('ul').size() == 0 ){			
-			var ul = $('<ul></ul>').html(filter);
-			thisLi.append(ul);								
-		}
-		else if ( thisLi.find('ul').html() == '' ){
-			thisLi.find('ul').append(filter)
-		}
-		else {
-			// double check this filter not already exists: eg, check same filter as the exclusive subFacet did
-			thisLi.find('ul li a').each(function(){
-				if ($(this).text() != filterTxt){
-					thisLi.find('ul').append(filter);
-				}
-			});								
-		}	
-				
 	}
 	
 	function _composeFilterStr(facet, field, value){	
@@ -1250,7 +1180,54 @@
 		
     	while ( result = regex.exec(fqStr) ) {    	
     		wantStr =  result[1] == 'procedure_stable_id' ? result[2] : result[1]+ '|' + result[2];    		  
-    		console.log('WANT: ' + wantStr);    		
+    		//console.log('WANT: ' + wantStr);    		
+    		var obj = $('div.flist li.fcat').find('input[rel*="'+wantStr+'"]');       		
+    	    		
+    		if (obj.length != 0 ){	    		
+	    		// tick checkbox 
+                obj.prop('checked', true);
+                
+                // highlight this facet term                    
+                obj.siblings('.flabel').addClass('highlight');                  
+                        
+                // repopulate the filter                
+                $.fn.addFacetFilter(obj, oHashParams.q);
+    		}    		
+    	}    	
+    	    	
+    	if ( refreshFacet ){
+    		var fqStr = _composeFilterStr(facet); // from filter block            
+            $.fn.setFacetCounts(oHashParams.q, fqStr, facet); 
+    	}
+    	else {
+    		console.log('work here');
+    		// open the right facet based on url
+    		if ( ! $('div.flist li#' + facet).hasClass('open') ){
+    			$('div.flist li#' + facet + ' > .flabel').click();
+    		}
+    	}
+    }
+    $.fn.parseUrlForFacetCheckboxAndTermHighlightOri = function(oHashParams, refreshFacet){	
+    	var self = this;
+    	console.log('parsing url for filter and chkbox');
+    	var facet = oHashParams.widgetName;    	
+    	var fqStr = oHashParams.fq;
+    	fqStr = fqStr.replace(MPI2.searchAndFacetConfig.facetParams[facet].filterParams.fq, '').replace(/ AND /g, '');    	
+    	facet = facet.replace('Facet','');
+    	
+    	console.log(facet + ' ' + fqStr);
+    	 
+		// unhightlight/uncheck all facets
+        $.fn.removeFacetFilter();
+        
+		var pat = '(\\b\\w*\\b):"([a-zA-Z0-9_\/ ]*)"';		
+		var regex = new RegExp(pat, "gi");		    	
+		var result;		
+		var wantStr;
+		
+    	while ( result = regex.exec(fqStr) ) {    	
+    		wantStr =  result[1] == 'procedure_stable_id' ? result[2] : result[1]+ '|' + result[2];    		  
+    		//console.log('WANT: ' + wantStr);    		
     		var obj = $('div.flist li.fcat').find('input[rel*="'+wantStr+'"]');       		
     	    		
     		if (obj.length != 0 ){	    		
@@ -1342,7 +1319,6 @@
             $.fn.setFacetCounts(oHashParams.q, fqStr, facet); 
     	}
     }
-    
     function _fetchProcedureNameById(sid){
     	$.ajax({ 	
 			'url': solrUrl + '/pipeline/select',
@@ -1388,27 +1364,8 @@
     		
     		
     	}    	
-    	else {    	
-	    	// only for gene, pipeline, images and disease facets
-	    	for (var i=0; i<objList.length; i++){	    		
-	    		fcatsection = objList[i].attr('class');	    		
-	    		_arrowSwitch(fcatsection, oHashParams);	    
-	    	}  
-    	}
-    }
-  
-    function _arrowSwitch(fcatsection, oHashParams){
-    	$('tr.facetSubCat').each(function(){    	
-			if ( $(this).hasClass(fcatsection) ){
-				$(this).find('td').addClass('unCollapse'); 
-			}
-		}); 
-    	$('tr.' + fcatsection).show()
     	
-    	if (oHashParams){
-    		$.fn.fetchQueryResult(oHashParams.q, oHashParams.widgetName.replace('Facet',''));
-    	}
-    }   
+    }  
     
     $.fn.concatFilters = function(operator){
 		var aFilters = [];
