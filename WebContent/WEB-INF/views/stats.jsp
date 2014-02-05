@@ -21,9 +21,11 @@ $(document).ready(function(){
 		var id=$(this).attr('id');
 		console.log('id='+id);
 		console.log("obj att"+$(this).attr('graphUrl'));
+		console.log("request uri="+document.URL);
 		var chartUrl=graphUrl+'&experimentNumber='+id;
 			$.ajax({
 				  url: chartUrl,
+				  data:{"originalUrl":document.URL},
 				  cache: false
 			})
 				  .done(function( html ) {
@@ -59,9 +61,8 @@ $(document).ready(function(){
 					</div>
 		</c:if>
 		
-		 <c:forEach var="graphUrl" items="${allGraphUrlSet}" varStatus="graphUrlLoop">
-				
-  						<div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}" id="${graphUrlLoop.count}">
+		 <c:forEach var="graphUrl" items="${allGraphUrlSet}" varStatus="graphUrlLoop">			
+  						<div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}"  id="${graphUrlLoop.count}">
   								<div id="spinner${graphUrlLoop.count}">
   										<div class="section">
   												<div class="inner">
@@ -70,8 +71,6 @@ $(document).ready(function(){
   										</div>
   								</div>
   						</div>
-  			
-  	
 		</c:forEach>
 
     </jsp:body>

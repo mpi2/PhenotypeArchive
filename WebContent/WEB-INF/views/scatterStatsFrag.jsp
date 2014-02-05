@@ -14,10 +14,11 @@
 		</script>	
 	
 	<!-- remove the scatter flag so we go back to the original graph version -->
-						<c:set var="originalUrl" value="${fn:replace(pageContext.request.queryString, 
-                                '&scatter=true', '')}" />
-                                
-                                <a href="${acc}?${originalUrl}">Box Plot / Time Series Graphs</a>	
+	<!-- param.originalUrl -->
+	<%-- ${param.originalUrl} --%>
+						<c:set var="originalUrl2" value="${fn:replace(param.originalUrl, '&scatter=1', '')}" />
+                                ${originalUrl2}
+                                <a href="${originalUrl2}">Box Plot / Time Series Graphs</a>	
                                 
                                 <script>
 	$(document)

@@ -358,7 +358,7 @@ public class ChartsController {
 					 unidimensionalChartDataSet =
 				 continousChartAndTableProvider.doUnidimensionalData(experimentList.get(0),
 						 experimentNumber, parameter,
-				 ChartType.UnidimensionalBoxPlot, false, yAxisTitle,expBiologicalModel);
+				 ChartType.UnidimensionalBoxPlot, false, xAxisTitle,expBiologicalModel);
 					model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
 				 break;
 				

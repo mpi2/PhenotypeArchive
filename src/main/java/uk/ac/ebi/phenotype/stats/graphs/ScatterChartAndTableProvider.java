@@ -34,7 +34,7 @@ public class ScatterChartAndTableProvider {
 			.getLogger(ScatterChartAndTableProvider.class);
 	
 	
-	public String createScatter(String experimentNumber, String title, String subtitle,JSONArray series) {
+	public String createScatter(String experimentNumber, Parameter parameter, JSONArray series) {
 		
 		String chartString="	$(function () { "
 			  +"  chart71maleWTSI = new Highcharts.Chart({ "
@@ -46,10 +46,10 @@ public class ScatterChartAndTableProvider {
 			    
 			    +"     },"
 			      +"   title: {"
-			      +"       text: 'Mean corpuscular hemoglobin'"
-			      +"    },"
+			      +"       text: ' "+parameter.getName() 
+			      +"'    },"
 			    +"     subtitle: {"
-			     +"        text: ' "+subtitle+" ' "
+			     +"        text: ' "+parameter.getStableId()+" ' "
 			     +"    },"
 			    +"     xAxis: {"
 			    +"         type: 'datetime',"
@@ -137,7 +137,7 @@ public class ScatterChartAndTableProvider {
 		
 		ChartData chartNTableForParameter = null;
 		
-		String title="title";
+		
 		String subtitle="subtitle";
 		
 				JSONArray series=new JSONArray();
@@ -252,7 +252,7 @@ public class ScatterChartAndTableProvider {
 		}// end of gender
 
 			ScatterChartAndData scatterChartAndData=new ScatterChartAndData();
-			String chartString=createScatter(experimentNumber, title,  parameter.getStableId(), series);
+			String chartString=createScatter(experimentNumber, parameter, series);
 			scatterChartAndData.setChart(chartString);
 				
 
