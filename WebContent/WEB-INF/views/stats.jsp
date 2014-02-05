@@ -22,6 +22,7 @@ $(document).ready(function(){
 		console.log('id='+id);
 		console.log("obj att"+$(this).attr('graphUrl'));
 		console.log("request uri="+document.URL);
+		
 		var chartUrl=graphUrl+'&experimentNumber='+id;
 			$.ajax({
 				  url: chartUrl,
@@ -31,6 +32,12 @@ $(document).ready(function(){
 				  .done(function( html ) {
 				    $( '#'+ id ).append( html );
 				    $( '#spinner'+ id ).html('');
+				    if(html.search( 'section-associations' )===-1){//if this element not found in the html then no graph present so remove placeholder section
+				    	console.log('element found');
+				    	//$( '#'+ id ).html( '' ); 
+				    	 console.log('id='+$('#'+ id).parent().parent().html( '' ));
+				    }
+				    
 			});
 			 
 	});	 
@@ -62,15 +69,19 @@ $(document).ready(function(){
 		</c:if>
 		
 		 <c:forEach var="graphUrl" items="${allGraphUrlSet}" varStatus="graphUrlLoop">			
-  						<div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}"  id="${graphUrlLoop.count}">
-  								<div id="spinner${graphUrlLoop.count}">
-  										<div class="section">
-  												<div class="inner">
-  														Graph coming here.....${graphUrl}
-  												</div>
-  										</div>
-  								</div>
-  						</div>
+  						
+  							
+  <div class="section">
+  			<div class="inner">
+  			<a href='' id='generalPanel' class="fa fa-question-circle pull-right" ></a>
+  					<div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}"  id="${graphUrlLoop.count}">			
+  							<div id="spinner${graphUrlLoop.count}"><i class="fa fa-refresh fa-spin"></i></div>	
+  					</div>
+  			</div>
+ </div>
+  			
+  								
+  						
 		</c:forEach>
 
     </jsp:body>
