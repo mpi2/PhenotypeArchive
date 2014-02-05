@@ -18,21 +18,20 @@
 
 		function set_dataType(row) {
 	        if (row.get('mgi_accession_id')){
-	        
-	        	// mark Gm16379 as marker_type:pseudogene
-	        	if ( row.get('marker_type_ori') && row.get('mgi_accession_id').toString() == 'MGI:3647120' ){
+	        	row.put('dataType', 'gene');
+			}
+			
+	        // mark Gm16379 as marker_type:pseudogene	       
+			if ( row.get('marker_symbol').toString() == 'Gm16379' ){
 	        		row.put('marker_type', 'pseudogene');
-	        	}
-	        	else if ( row.get('marker_type_ori') ){
+	        }
+	        if ( row.get('marker_type_ori') ){
 	        		row.put('marker_type', row.get('marker_type_ori').toString());
-	        	}	        	
-	        	else {
-	                row.put('dataType', 'gene');
-	           	}     
-	        }	       
+	        }	        		               
 	        
 	        return row;
         }
+		
 		
     ]]></script>
 
