@@ -15,6 +15,9 @@ h4 + h5                             { margin-top: 2em; }
 /* Additional css for the main navigation */
 #mn li li.active-trail > a          { background: inherit; color: inherit; }
 
+/* */
+h1.title + .section .inner          { border-radius: 0 0 4px 4px; }
+
 /* Divs, which behave like a table (e.g. for search results) */
 div.row                             { padding: 2em 0; border-bottom: #eee 1px solid; }
 div.cell                            { float: left; }
@@ -40,6 +43,16 @@ div.cell                            { float: left; }
 .cell .title a                      { text-decoration: none; }
 .cell .title a:hover                { text-decoration: underline; }
 
+/* Disease search results */
+.smalltitle a                       { text-decoration: none; }
+.smalltitle a:hover                 { text-decoration: underline; }
+a.status.small span, span.status.small span { height: 1.3em; }
+
+/* Table Headings */
+th span.main                        { display: block; white-space:nowrap; }
+th span.sub                         { font-size: 0.8em; }
+
+
 /* Password Strenght */
 .form-item-pass-pass2,
 .form-item-pass-pass1               { position: relative; }
@@ -47,3 +60,19 @@ div.cell                            { float: left; }
 .password-strength-text             { display: none; }
 .password-indicator                 { width: 100px; margin-top: 5px; }
 .indicator                          { height: 3px; background: #EF7B0B; }
+
+/* Bigger IMPC head */
+#header                             { padding: 1.5em 0; }
+#block-system-user-menu, #tn        { font-size: 12px; margin-top: -0.6em; }
+.front #header                      { padding: 1.5em 0 2.3em 0; }
+.front #mn                          { margin-top: 1.9em; }
+
+/* Graph filter */
+.filters                            { margin: 1em 0; padding: 1em; background: #f4f4f4; -moz-border-radius: 3px; -webkit-border-radius: 3px; -ms-border-radius: 3px; border-radius: 3px; }
+.filter                             { float: left; padding-right: 2em; }
+.ftype                              { padding-left: 1em; cursor: pointer; }
+.ftype:before                       { position: absolute; font-family: 'FontAwesome'; content: "\f0da"; margin-left: -1em; }
+.filter.open .ftype:before          { content: "\f0d7"; }
+.filter .foptions                   { display: none; padding-right: 1em; max-height: 120px; overflow-y: scroll; }
+.filter.open .foptions              { display: block; }
+.foptions ul                        { list-style: none; padding-left: 0.8em; }

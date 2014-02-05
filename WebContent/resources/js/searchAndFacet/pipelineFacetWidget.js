@@ -119,17 +119,16 @@
 	        		
 	        		if ( impc ){
 	        			$('div.flist li#pipeline > ul').prepend(impc);
-		    		}	
-	        		
-		    		// update facet count when filters applied
-	    			if ( $('ul#facetFilter li li a').size() != 0 ){	    				
-	    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'pipeline');
-	    			}	        		
+		    		}	        		     		
 
 	    			// IMPC pipeline is open and rest of pipeline subfacets are collapsed by default    			
 	    			$('div.flist li#pipeline > ul li:nth-child(1)').addClass('open');	    		
 	    				    			
 	    			$.fn.initFacetToggles('pipeline');	    			
+	    			
+	    			// when facet widget is open, flag it so that we know there are existing filters 
+	    			// that need to be checked and highlighted
+	    			$.fn.checkAndHighlightSubfacetTerms();
 	    			
 		    		$('li#pipeline li.fcat input').click(function(){	    			
 		    			// // highlight the item in facet	    			
@@ -142,13 +141,7 @@
 	    	    	/*------------------------------------------------------------------------------------*/        		      		
 	        		
 	        		if ( self.options.data.hashParams.fq.match(/.*/) ){     
-	        			var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority) 
-	        				        			
-	        			var oHashParams = self.options.data.hashParams;
-	        			
-	    	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);	    	    		
-	    	    		// now load dataTable    		
-	    	    		$.fn.loadDataTable(oHashParams);
+	        			$.fn.parseUrlFordTableAndFacetFiltering(self);	
 	        		}
 	    		}	    		
 	    	});	    	

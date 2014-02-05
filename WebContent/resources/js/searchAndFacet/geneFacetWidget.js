@@ -238,14 +238,7 @@
 	    		subTypeSect.append(subTypeUlContainer);
 	    		
 	    		// update all subfacet counts of this facet 
-	    		$('div.flist li#gene > ul').append(phenoStatusSect, prodStatusSect, subTypeSect);
-	    		
-	    		
-	    		// update facet count when filters applied
-	    		if ( $('ul#facetFilter li li a').size() != 0 ){	   
-	    			console.log('about to update facet count...');
-    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'gene');
-    			}	
+	    		$('div.flist li#gene > ul').append(phenoStatusSect, prodStatusSect, subTypeSect);	    		
 	    		
 	    		// phenoStatus subFacet is open by default	
 	    		if ( phenoCount != 0 ){
@@ -256,7 +249,11 @@
 	    		}
 	    		
 	    		$.fn.initFacetToggles('gene');
-	    			    		
+	    		
+	    		// when facet widget is open, flag it so that we know there are existing filters 
+    			// that need to be checked and highlighted
+    			$.fn.checkAndHighlightSubfacetTerms();	    		
+	    		
 	    		$('li#gene li.fcat input').click(function(){	    			
 	    			// // highlight the item in facet	    			
 	    			$(this).siblings('span.flabel').addClass('highlight');
@@ -269,16 +266,7 @@
 	    	/*------------------------------------------------------------------------------------*/	
 
 	    	if ( self.options.data.hashParams.fq.match(/.*/) ){	
-	    		console.log('gene page loaded ...');
-	    		self.options.data.hashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');	    		
-
-	    		var pageReload;// = true;  // this controls checking which subfacet to open (ie, show by priority)
-	    		
-	    		var oHashParams = self.options.data.hashParams;
-    			
-	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);	    	    		
-	    		// now load dataTable    		
-	    		$.fn.loadDataTable(oHashParams);
+	    		$.fn.parseUrlFordTableAndFacetFiltering(self);	    		
     		}
 	    },	       
 	  

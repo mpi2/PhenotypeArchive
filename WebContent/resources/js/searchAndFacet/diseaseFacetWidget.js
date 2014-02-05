@@ -170,16 +170,16 @@
 	    		
     			$.fn.initFacetToggles('disease');
     			
+    			// when facet widget is open, flag it so that we know there are existing filters 
+    			// that need to be checked and highlighted
+    			$.fn.checkAndHighlightSubfacetTerms();
+	    			    			    		
 	    		$('li#disease li.fcat input').click(function(){	    			
 	    			// // highlight the item in facet	    			
 	    			$(this).siblings('span.flabel').addClass('highlight');
 					$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
-				});	  
-    			
-    			// update facet count when filters applied
-    			if ( $('ul#facetFilter li li a').size() != 0 ){
-    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'disease');
-    			}    	  		
+				});   			
+    				  		
     		}
 	    	
 	    	/*--------------------------console.log('inside here');	----------------------------------------------------------*/
@@ -188,16 +188,32 @@
 	    	
 	    	
 	    	if ( self.options.data.hashParams.fq.match(/.*/) ){	
-	    		
-	    		self.options.data.hashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');
-	    		
-	    		var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority)  	
-	    		
-	    		var oHashParams = self.options.data.hashParams;
+	    		$.fn.parseUrlFordTableAndFacetFiltering(self);
+	    		/*console.log('disease widget loaded ...');
+    			var oHashParams;
+    			if ( MPI2.searchAndFacetConfig.hasFilters ){
+	    			MPI2.searchAndFacetConfig.hasFilters = false;
+	    			oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
+	    			oHashParams.widgetName = oHashParams.facetName + 'Facet';
+	    		}
+	    		else {    	    			
+	    			self.options.data.hashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');
+	    			oHashParams = self.options.data.hashParams;
+	    		}	
     			
-	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);	    	    		
-	    		// now load dataTable    		
-	    		$.fn.loadDataTable(oHashParams);
+    			console.log(oHashParams);
+    			if ( oHashParams.coreName ){
+    				$.fn.loadDataTable(oHashParams);
+    			}
+    			else if (oHashParams.facetName ) {
+    				$.fn.loadDataTable(oHashParams);
+        			console.log('disease widget open check: ' + MPI2.searchAndFacetConfig.widgetOpen);
+        			    		    		    		    		
+    		    	var refreshFacet = true;
+    		    	$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, refreshFacet);
+    		    	
+    			}*/
+	    		
     		}
 	    },	       
 	  

@@ -31,6 +31,8 @@ if(typeof(window.MPI2) === 'undefined') {
 MPI2.searchAndFacetConfig = {};
 var config = MPI2.searchAndFacetConfig;
 
+config.widgetOpen = false;
+config.hasFilters = false;
 
 // on drupal side this is not available
 if ( typeof solrUrl == 'undefined' ){
