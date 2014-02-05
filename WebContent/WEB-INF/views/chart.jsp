@@ -16,6 +16,7 @@
 						Allele -
 						<t:formatAllele>${symbol}</t:formatAllele>
 						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background	- ${geneticBackgroundString} ${phenotypingCenter} 
+						<i class="fa fa-question-circle pull-right" title="i am the title"></i>
 					<!-- <i class="fa fa-question-circle pull-right" data-hasqtip="30" oldtitle="Brief info about this panel" title="" aria-describedby="qtip-30"> </i> -->
 					</h2>
 					

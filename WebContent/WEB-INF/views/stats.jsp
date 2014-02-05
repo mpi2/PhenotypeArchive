@@ -73,7 +73,6 @@ $(document).ready(function(){
   							
   <div class="section">
   			<div class="inner">
-  			<a href='' id='generalPanel' class="fa fa-question-circle pull-right" ></a>
   					<div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}"  id="${graphUrlLoop.count}">			
   							<div id="spinner${graphUrlLoop.count}"><i class="fa fa-refresh fa-spin"></i></div>	
   					</div>
