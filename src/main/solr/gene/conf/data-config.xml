@@ -18,8 +18,19 @@
 
 		function set_dataType(row) {
 	        if (row.get('mgi_accession_id')){
+	        
+	        	// mark Gm16379 as marker_type:pseudogene
+	        	if ( row.get('marker_type_ori') && row.get('mgi_accession_id').toString() == 'MGI:3647120' ){
+	        		row.put('marker_type', 'pseudogene');
+	        	}
+	        	else if ( row.get('marker_type_ori') ){
+	        		row.put('marker_type', row.get('marker_type_ori').toString());
+	        	}	        	
+	        	else {
 	                row.put('dataType', 'gene');
-	        }
+	           	}     
+	        }	       
+	        
 	        return row;
         }
 		
@@ -27,7 +38,7 @@
 
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />
     <dataSource name="phenodigmdb" jndiName="java:comp/env/jdbc/phenodigmDataSource" />
-    <dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/search?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+    <dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 
 	<dataSource name="experiment_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
@@ -41,11 +52,11 @@
 	<dataSource name="pipeline_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/pipeline/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>-->    
 
 	<document name="docs">
-		<entity dataSource="gene2_core" name="doc" stream="true" url="q=*:*&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status,imits_phenotype_is_active&amp;rows=50000&amp;wt=normal"
+		<entity dataSource="gene2_core" name="doc" stream="true" url="q=*:*&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status,imits_phenotype_is_active&amp;rows=90000&amp;wt=normal"
 			processor="XPathEntityProcessor" forEach="/response/result/doc/"  transformer="script:set_dataType"  >			
 
-			<field column="mgi_accession_id" xpath="/response/result/doc/str[@name='MGI']" />
-			<field column="dataType" name="dataType"/>
+			<field column="mgi_accession_id" xpath="/response/result/doc/str[@name='MGI']" />			
+			<field column="dataType" name="dataType"/>	
 				
 			<!-- allele name of produce type ES cell: tm1/tm1a -->
 			<entity dataSource="allele_core" name="esAlleleName" stream="true" onError="continue"
@@ -205,7 +216,7 @@
 			<field column="phenotype_attempt_allele_status" name="phenotype_attempt_allele_status" />	</entity>
 			
 			<field column="marker_name" xpath="/response/result/doc/arr[@name='marker_name']/str" />
-			<field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />
+			<field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />		
 
 			<!-- mouse to human gene symbol mapping: multiple human name can be mapped to one mouse symbol -->
 			<entity dataSource="human2mouse_symbol_core" name="symbol_mapping" stream="true"
@@ -218,7 +229,8 @@
 			</entity>
 
 			<field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
-			<field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />
+			<field column="marker_type_ori" xpath="/response/result/doc/str[@name='marker_type']" />
+			<field column="marker_type" name = "marker_type" />
 
 			<field column="imits_report_phenotyping_complete_date" xpath="/response/result/doc/arr[@name='imits_report_phenotyping_complete_date']/str" />
 			<field column="imits_report_genotype_confirmed_date" xpath="/response/result/doc/arr[@name='imits_report_genotype_confirmed_date']/str" />
@@ -234,8 +246,8 @@
 			<field column="imits_phenotype_colony_name" xpath="/response/result/doc/arr[@name='imits_phenotype_colony_name']/str" />
 			<field column="imits_phenotype_allele_type" xpath="/response/result/doc/arr[@name='imits_phenotype_allele_type']/str" />
 			<field column="imits_phenotype_status" xpath="/response/result/doc/arr[@name='imits_phenotype_status']/str" />
-			<field column="imits_phenotype_is_active" xpath="/response/result/doc/arr[@name='imits_phenotype_is_active']/str" />
-
+			<field column="imits_phenotype_is_active" xpath="/response/result/doc/arr[@name='imits_phenotype_is_active']/str" />			
+			
 		</entity>
 	</document>
 	
