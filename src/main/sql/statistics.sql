@@ -7,8 +7,8 @@ CREATE TABLE stats_categorical_results (
     id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     metadata_group             VARCHAR(50) DEFAULT '',  
     control_selection_strategy VARCHAR(100),
-	statistical_method         VARCHAR(50),
-	status                     VARCHAR(200),
+    statistical_method         VARCHAR(50),
+    status                     VARCHAR(200),
     control_id                 INT(10) UNSIGNED ,
     control_sex                ENUM('female', 'hermaphrodite', 'male'),
     control_zygosity           ENUM('homozygote', 'heterozygote', 'hemizygote'),
@@ -21,7 +21,7 @@ CREATE TABLE stats_categorical_results (
     category_b                 TEXT,
     p_value                    FLOAT,
     effect_size                FLOAT,
-	raw_output                 MEDIUMTEXT NULL,
+    raw_output                 MEDIUMTEXT NULL,
     
     PRIMARY KEY (id),
     KEY control_idx (control_id),
@@ -77,7 +77,7 @@ CREATE TABLE stats_unidimensional_results (
 	gender_male_ko_stderr_estimate   FLOAT NULL,
 	gender_male_ko_pvalue            FLOAT NULL,
 	classification_tag               VARCHAR(200) NULL,
-	cohensf                          TEXT NULL,
+	additional_information           TEXT NULL,
 	raw_output                       MEDIUMTEXT NULL,
 
 	PRIMARY KEY (id),
