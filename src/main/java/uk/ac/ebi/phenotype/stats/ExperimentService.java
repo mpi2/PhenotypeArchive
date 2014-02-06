@@ -455,8 +455,8 @@ public class ExperimentService {
 	
 	
 	
-	public Map<String,List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> phenotypingCenter, List<String> strain) throws SolrServerException{
-	return 	os.getExperimentKeys(mgiAccession, parameterStableId, phenotypingCenter, strain);
+	public Map<String,List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> phenotypingCenter, List<String> strain, List<String> metaDataGroup) throws SolrServerException{
+	return 	os.getExperimentKeys(mgiAccession, parameterStableId, phenotypingCenter, strain, metaDataGroup);
 	}
 	
 	public String getCategoryLabels (int parameterId, String category) throws SQLException{

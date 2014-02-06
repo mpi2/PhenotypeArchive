@@ -151,6 +151,7 @@ public class ChartsController {
 			@RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter,
 			@RequestParam(required = false, value = "strategy") String[] strategies,
 			@RequestParam(required = false, value = "strain") String[] strains,
+			@RequestParam(required = false, value = "metadata_group") String[] metadataGroup,
 			@RequestParam(required = false, value = "scatter") boolean scatter,
 			@PathVariable String acc, Model model)
 			throws GenomicFeatureNotFoundException, ParameterNotFoundException,
@@ -175,6 +176,7 @@ public class ChartsController {
 		List<String> genderList = getParamsAsList(gender);
 		List<String> phenotypingCentersList=getParamsAsList(phenotypingCenter);
 		List<String> strainsList=getParamsAsList(strains);
+		List<String> metadataGroups=getParamsAsList(metadataGroup);
 		if (genderList.size() == 0) {// add them explicitly here so graphs urls
 										// are created seperately
 			genderList.add(SexType.male.name());
@@ -201,7 +203,7 @@ public class ChartsController {
 			// instead of an experiment list here we need just the outline of
 			// the experiments - how many, observation types
 			Set<String> graphUrlsForParam = graphUtils.getGraphUrls(acc,
-					parameter.getStableId(), genderList, zyList, phenotypingCentersList, strainsList, scatter);
+					parameter.getStableId(), genderList, zyList, phenotypingCentersList, strainsList, metadataGroups, scatter);
 			allGraphUrlSet.addAll(graphUrlsForParam);
 
 		}// end of parameterId iterations

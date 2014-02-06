@@ -20,10 +20,10 @@ public class GraphUtils {
 		this.experimentService=experimentService;
 	}
 	public Set<String> getGraphUrls(String acc,
-			String parameterStableId, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList, List<String> strainsParams, boolean scatter) throws SolrServerException {
+			String parameterStableId, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList, List<String> strainsParams, List<String> metaDataGroup, boolean scatter) throws SolrServerException {
 		
 			Set<String>urls=new HashSet<String>(); //each url should be unique and so we use a set
-			Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameterStableId, phenotypingCentersList, strainsParams);
+			Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameterStableId, phenotypingCentersList, strainsParams, metaDataGroup);
             List <String>centersList=keyList.get(ObservationService.ExperimentField.PHENOTYPING_CENTER);
             List <String>strains=keyList.get(ObservationService.ExperimentField.STRAIN);
             List<String> metaDataGroupStrings=keyList.get(ObservationService.ExperimentField.METADATA_GROUP); 

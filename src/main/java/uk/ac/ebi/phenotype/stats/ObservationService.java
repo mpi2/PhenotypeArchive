@@ -103,7 +103,7 @@ public class ObservationService {
     }
 
     
-    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> phenotypingCenterParams, List<String> strainParams) throws SolrServerException{
+    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> phenotypingCenterParams, List<String> strainParams, List<String> metaDataGroups) throws SolrServerException{
 //    	String experimentKey = observation.getPhenotypingCenter()
 //    			+ observation.getStrain()
 //    			+ observation.getParameterStableId()
@@ -126,6 +126,12 @@ public class ObservationService {
         if(strainParams!=null && strainParams.size()>0) {
         	for(String strain: strainParams) {
         	query.addFilterQuery(ExperimentField.STRAIN + ":\"" + strain+"\"");
+        	}
+        }
+        
+        if(metaDataGroups!=null && metaDataGroups.size()>0) {
+        	for(String metaDataGroup: metaDataGroups) {
+        	query.addFilterQuery(ExperimentField.METADATA_GROUP + ":\"" + metaDataGroup+"\"");
         	}
         }
         

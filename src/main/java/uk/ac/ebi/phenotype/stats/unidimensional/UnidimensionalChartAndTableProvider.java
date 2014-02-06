@@ -32,6 +32,7 @@ import uk.ac.ebi.phenotype.stats.ChartUtils;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 import uk.ac.ebi.phenotype.stats.MouseDataPoint;
 import uk.ac.ebi.phenotype.stats.ObservationDTO;
+import uk.ac.ebi.phenotype.stats.graphs.ChartColors;
 import uk.ac.ebi.phenotype.stats.graphs.GraphUtils;
 
 @Service
@@ -370,13 +371,13 @@ public class UnidimensionalChartAndTableProvider {
 				+ ", marker: { fillColor: 'white', lineWidth: 1, lineColor: 'red' }, tooltip: { pointFormat: '{point.y:..4f}' }          }";
 		}
 		if(sexKey.equals(SexType.male)) {
-		maleBoxPlotObject="{ name: 'Observations',color: 'blue', data:"
+		maleBoxPlotObject="{ name: 'Observations',color: '"+ChartColors.getRgbaString(sexKey, 0, 1.0)+"', data:"
 				+ observationsString
 				+ ",       tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }                    }";
 		
 		maleScatterObjectString="{ name: 'Observation', type: 'scatter', data: "
 				+ scatterString
-				+ ", marker: { fillColor: 'white', lineWidth: 1, lineColor: 'blue' }, tooltip: { pointFormat: '{point.y:..4f}' }          }";
+				+ ", marker: { fillColor: '"+ChartColors.getRgbaString(sexKey, 0, 0.7)+"', lineWidth: 1, lineColor: '"+ChartColors.getRgbaString(sexKey, 0, 0.7)+"' }, tooltip: { pointFormat: '{point.y:..4f}' }          }";
 		}
 		}//end of gender loop
 		
