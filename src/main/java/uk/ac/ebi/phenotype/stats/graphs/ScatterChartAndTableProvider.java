@@ -173,9 +173,12 @@ public class ScatterChartAndTableProvider {
 			// loop over the control points and add them
 			JSONObject controlJsonObject=new JSONObject();
 			JSONArray dataArray=new JSONArray();
+			int colorIndex=0;
 			try {
 				
 				controlJsonObject.put("name", sex+" "+"WT");
+				
+				controlJsonObject.put("color", ChartColors.getRgbaString(sex, colorIndex, ChartColors.alphaScatter));
 				
 				
 			} catch (JSONException e) {
@@ -217,8 +220,11 @@ public class ScatterChartAndTableProvider {
 			JSONObject expZyg=new JSONObject();
 			JSONArray expDataArray=new JSONArray();
 			for (ZygosityType zType : experiment.getZygosities()) {
+				colorIndex++;
 				try {
 					expZyg.put("name", sex+" "+zType);
+					expZyg.put("color", ChartColors.getRgbaString(sex, colorIndex, ChartColors.alphaScatter));
+					
 				} catch (JSONException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
