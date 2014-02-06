@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,6 +55,8 @@ public class ObservationService {
         public final static String PHENOTYPING_CENTER_ID = "phenotyping_center_id";
         public final static String GENE_ACCESSION = "gene_accession";
         public final static String GENE_SYMBOL = "gene_symbol";
+        public final static String ALLELE_ACCESSION = "allele_accession";
+        public final static String ALLELE_SYMBOL = "allele_symbol";
         public final static String ZYGOSITY = "zygosity";
         public final static String SEX = "sex";
         public final static String BIOLOGICAL_MODEL_ID = "biological_model_id";
@@ -971,14 +974,27 @@ public class ObservationService {
 			query.addFilterQuery(ExperimentField.SEX + ":" + sex);
 		}
 
-		// Filter starting on the experiment date through the prior 6 months
+		// Filter starting at 2000-01-01 and going through the end 
+		// of day on the experiment date
 		if(experimentDate != null) {
-			DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00");
-			String dateFilter = df.format(DateUtils.addMonths(experimentDate,-6))+"Z TO "+df.format(DateUtils.addDays(experimentDate, 1))+"Z";
+			
+			// Set time range to the last possible time on the day for SOLR 
+			// range query to include all observations on the same day
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(DateUtils.addDays(experimentDate, 1));
+			cal.set(Calendar.HOUR_OF_DAY, 23);        
+			cal.set(Calendar.MINUTE, 59); 
+			cal.set(Calendar.SECOND, 59);
+			cal.set(Calendar.MILLISECOND, 999);
+			Date maxDate = cal.getTime();
+
+			Date beginning = new Date(946684800000L); // Start date (Jan 1 2000)
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+			String dateFilter = df.format(beginning)+"Z TO "+df.format(maxDate)+"Z";
 			query.addFilterQuery(ExperimentField.DATE_OF_EXPERIMENT + ":[" + dateFilter + "]");
 		}
 		
-		response = solr.query(query);		
+		response = solr.query(query);
 		results = response.getBeans(ObservationDTO.class);
 		
 		return results;
@@ -999,33 +1015,28 @@ public class ObservationService {
 	 * @throws SolrServerException
 	 */
 	public List<ObservationDTO> getConcurrentControlsBySex(Integer parameterId, String strain, Integer organisationId, Date experimentDate, String sex, String metadataGroup) throws SolrServerException {
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00");
 
 		List<ObservationDTO> results = new ArrayList<ObservationDTO>();
 
-		// DEFAULT
 		// Use any control mouse ON THE SAME DATE as concurrent control
-		String dateFilter = df.format(DateUtils.addDays(experimentDate,-1))+"Z TO "+df.format(DateUtils.addDays(experimentDate, 1))+"Z";
+		// Set min and max time ranges to encompass the whole day
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(experimentDate);
+		cal.set(Calendar.HOUR_OF_DAY, 0);        
+		cal.set(Calendar.MINUTE, 0); 
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		Date minDate = cal.getTime();
 
-		if(organisationId == 3) {
-			// WTSI rules
-			// Use any mouse WITHIN A WEEK as concurrent control
-			// Week is deined as Sunday to Saturday (inclusive) surrounding
-			// the date of experiment
-			
+		cal.set(Calendar.HOUR_OF_DAY, 23);        
+		cal.set(Calendar.MINUTE, 59); 
+		cal.set(Calendar.SECOND, 59);
+		cal.set(Calendar.MILLISECOND, 999);
+		Date maxDate = cal.getTime();
 
-			// Sunday = DOW 0, subtract num returned from getDay from experiment Date
-			// to get to the previous Sunday
-			Date startWeekDate = DateUtils.addDays(experimentDate, (-1 * experimentDate.getDay()));			
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		String dateFilter = df.format(minDate)+"Z TO "+df.format(maxDate)+"Z";
 
-			// Saturday = DOW 6 (zero based week), subtract from 6 num returned
-			// from getDay to experiment Date to get to the next Saturday
-			Date endWeekDate = DateUtils.addDays(experimentDate, (6 - experimentDate.getDay()));
-
-			dateFilter = df.format(startWeekDate)+"Z TO "+df.format(endWeekDate)+"Z";
-			
-		}
-		
 		QueryResponse response = new QueryResponse();
 	
 		SolrQuery query = new SolrQuery()

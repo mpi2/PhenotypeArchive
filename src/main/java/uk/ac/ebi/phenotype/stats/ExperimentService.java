@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.eclipse.jetty.util.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,11 @@ public class ExperimentService {
 	@Autowired
 	private PhenotypeCallSummaryDAOReadOnly phenoDAO;
 
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain)
+			throws SolrServerException, IOException, URISyntaxException {
+		return getExperimentDTO(parameterId, geneAccession, sex, phenotypingCenterId, zygosity, strain, Boolean.TRUE);
+	}
+
 	/**
 	 * 
 	 * @param parameterId
@@ -55,13 +61,13 @@ public class ExperimentService {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain, Boolean includeResults) throws SolrServerException, IOException, URISyntaxException {
 	
-		List<ObservationDTO> results = os.getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(parameterId, geneAccession, zygosity, phenotypingCenterId, strain, sex);
+		List<ObservationDTO> observations = os.getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(parameterId, geneAccession, zygosity, phenotypingCenterId, strain, sex);
 		
 		Map<String, ExperimentDTO> experimentsMap = new HashMap<>();
 		
-		for (ObservationDTO observation : results) {
+		for (ObservationDTO observation : observations) {
 
 	    	// collect all the strains, organisations, sexes, and zygosities 
 	    	// combinations of the mutants to get the controls later
@@ -71,6 +77,7 @@ public class ExperimentService {
 	    	// - strain
 	    	// - parameter
 	    	// - gene
+			// - meatdata group
 	    	ExperimentDTO experiment;
 	    	
 	    	String experimentKey = observation.getPhenotypingCenter()
@@ -132,7 +139,9 @@ public class ExperimentService {
      		// TODO: include allele
 
      		// TODO: update to make use of the MP to result association
-     		if (experiment.getResults()==null && experiment.getExperimentalBiologicalModelId()!=null) {
+     		// includeResults variable skips the results when gathering
+     		// experiments for calculating the results (performance)
+     		if (experiment.getResults()==null && experiment.getExperimentalBiologicalModelId()!=null && includeResults) {
      			experiment.setResults( phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), observation.getParameterStableId(), ObservationType.valueOf(observation.getObservationType()), observation.getStrain()));
      		}
 	    	
@@ -262,7 +271,10 @@ public class ExperimentService {
 
 		    	    }
 		    	    
-		    	    if (experiment.getSexes()!=null) {
+		    	    //
+		    	    // If one sex specified
+		    	    //
+		    	    if (experiment.getSexes()!=null && experiment.getSexes().size()<2) {
 
 		    	    	for (SexType s : SexType.values()) {
 	
@@ -298,6 +310,10 @@ public class ExperimentService {
 			    	    }
 
 		    	    } else {
+		    	    	
+		    	    	//
+		    	    	// Processing both sexes
+		    	    	//
 
 		    			List<ObservationDTO> addingControls = new ArrayList<ObservationDTO>();
 
