@@ -13,12 +13,16 @@ import java.util.ResourceBundle.Control;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javassist.expr.NewArray;
+
+import org.antlr.grammar.v3.ANTLRv3Parser.throwsSpec_return;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.eclipse.jetty.util.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.error.SpecificExperimentException;
 import uk.ac.ebi.phenotype.pojo.ControlStrategy;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
@@ -44,7 +48,7 @@ public class ExperimentService {
 
 	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain)
 			throws SolrServerException, IOException, URISyntaxException {
-		return getExperimentDTO(parameterId, geneAccession, sex, phenotypingCenterId, zygosity, strain, Boolean.TRUE);
+		return getExperimentDTO(parameterId, geneAccession, sex, phenotypingCenterId, zygosity, strain, null, Boolean.TRUE);
 	}
 
 	/**
@@ -55,15 +59,16 @@ public class ExperimentService {
 	 * @param phenotypingCenterId	null for any organisation
 	 * @param zygosity	 null for any zygosity	
 	 * @param strain	null for any strain
+	 * @param metaDataString TODO
 	 * @param phenotypingCenter TODO
 	 * @return
 	 * @throws SolrServerException
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain, Boolean includeResults) throws SolrServerException, IOException, URISyntaxException {
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain, String metaDataGroup, Boolean includeResults) throws SolrServerException, IOException, URISyntaxException {
 	
-		List<ObservationDTO> observations = os.getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(parameterId, geneAccession, zygosity, phenotypingCenterId, strain, sex);
+		List<ObservationDTO> observations = os.getExperimentalObservationsByParameterGeneAccZygosityOrganisationStrainSexAndMetaDataGroup(parameterId, geneAccession, zygosity, phenotypingCenterId, strain, sex, metaDataGroup);
 		
 		Map<String, ExperimentDTO> experimentsMap = new HashMap<>();
 		
@@ -403,7 +408,7 @@ public class ExperimentService {
 	}
 
 	/**
-	 * Should only return 1 experimentDTO
+	 * Should only return 1 experimentDTO - returns null if none and exception if more than 1 - used by ajax charts
 	 * @param id
 	 * @param acc
 	 * @param genderList
@@ -415,31 +420,37 @@ public class ExperimentService {
 	 * @throws SolrServerException
 	 * @throws IOException
 	 * @throws URISyntaxException
+	 * @throws SpecificExperimentException 
 	 */
-	public List<ExperimentDTO> getSpecificExperimentDTO(Integer id, String acc,
-			List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain, String metadataGroup) throws SolrServerException, IOException, URISyntaxException {
+	public ExperimentDTO getSpecificExperimentDTO(Integer id, String acc,
+			List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain, String metadataGroup) throws SolrServerException, IOException, URISyntaxException, SpecificExperimentException {
 		List<ExperimentDTO> experimentList=new ArrayList<ExperimentDTO>();
-		
+		boolean includeResults=true;
 		if (genderList.isEmpty() || genderList.size()==2) {//if gender list is size 2 assume both sexes so no filter needed
 			 
 			
 			if (zyList.isEmpty() || zyList.size()==2) {//if zygosity list is size 2 then no filter needed either
-				experimentList=this.getExperimentDTO(id, acc,  null, phenotypingCenterId, null, strain);
+				experimentList=this.getExperimentDTO(id, acc,  null, phenotypingCenterId, null, strain, metadataGroup, includeResults);
 			}else {
-				experimentList=this.getExperimentDTO(id, acc,  null, phenotypingCenterId, zyList.get(0), strain);
+				experimentList=this.getExperimentDTO(id, acc,  null, phenotypingCenterId, zyList.get(0), strain, metadataGroup, includeResults);
 			}
 			
 		}else {
 			String gender=genderList.get(0);
 			if (zyList.isEmpty() || zyList.size()==2) {
-				experimentList=this.getExperimentDTO(id, acc, SexType.valueOf(gender), phenotypingCenterId, null, strain);
+				experimentList=this.getExperimentDTO(id, acc, SexType.valueOf(gender), phenotypingCenterId, null, strain, metadataGroup, includeResults);
 			}else {
-				experimentList=this.getExperimentDTO(id, acc, SexType.valueOf(gender), phenotypingCenterId, zyList.get(0), strain);
+				experimentList=this.getExperimentDTO(id, acc, SexType.valueOf(gender), phenotypingCenterId, zyList.get(0), strain, metadataGroup, includeResults);
 			}
 			
 		}
-		
-		return experimentList;
+		if(experimentList.size()==0) {
+			return null;//return null if no experiments
+		}
+		if(experimentList.size()>1) {
+			throw new SpecificExperimentException("too many experiments returned - should only be one from this method call");
+		}
+		return experimentList.get(0);
 	}
 	
 	

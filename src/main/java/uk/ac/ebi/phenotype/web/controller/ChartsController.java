@@ -52,6 +52,7 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
+import uk.ac.ebi.phenotype.error.SpecificExperimentException;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
@@ -262,7 +263,7 @@ public class ChartsController {
 			@RequestParam(required = false, value = "scatter") boolean scatter,
 			Model model) throws GenomicFeatureNotFoundException,
 			ParameterNotFoundException, IOException, URISyntaxException,
-			SolrServerException {
+			SolrServerException,  SpecificExperimentException {
 		
 		UnidimensionalDataSet unidimensionalChartDataSet=null;
 		ChartData timeSeriesForParam=null;
@@ -321,16 +322,12 @@ public class ChartsController {
 		// experimentService.getExperimentDTO(parameterStableIds[0],
 		// accession[0], gender[0], zygosity[0], phenotypingCenterIdInt);
 		// TDO handle male and female appropriately
-		List<ExperimentDTO> experimentList = experimentService
+		ExperimentDTO experiment = experimentService
 				.getSpecificExperimentDTO(parameter.getId(), accession[0],
 						genderList, zyList,phenotypingCenterId,
 						 strain[0], metadataGroup[0]);
 		
-		//getSpecificExperimentDTO(Integer id, String acc,
-		//List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain)
-		System.out.println("experiment list size=" + experimentList.size());
-		//log.info(experimentList.toString());
-		if (!experimentList.isEmpty()) {
+		if (experiment!=null) {
 			// log.debug("Experiment dto marker="+experimentList);
 			// ESLIM_003_001_003 id=962 calorimetry data for time series graph
 			// new MGI:1926153
@@ -339,7 +336,7 @@ public class ChartsController {
 		String xAxisTitle=xUnits;//set up some default strings here that most graphs will use?
 		String yAxisTitle= yUnits;
 		//String subTitle=gender;
-		BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(experimentList.get(0).getExperimentalBiologicalModelId());
+		BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(experiment.getExperimentalBiologicalModelId());
 		//use some sort of map to pass in these or helper method? so we don't have to redo title, subtitle for each one??
 		String allelicCompositionString=expBiologicalModel.getAllelicComposition();
 		String symbol=expBiologicalModel.getAlleles().get(0).getSymbol();
@@ -349,7 +346,7 @@ public class ChartsController {
 				if(scatter) {
 					System.out.println("calling scatter!");
 					
-					ScatterChartAndData scatterChartAndData=scatterChartAndTableProvider.doScatterData(experimentList.get(0), parameter, experimentNumber, expBiologicalModel);
+					ScatterChartAndData scatterChartAndData=scatterChartAndTableProvider.doScatterData(experiment, parameter, experimentNumber, expBiologicalModel);
 					model.addAttribute("scatterChartAndData", scatterChartAndData);
 				}else {
 
@@ -359,7 +356,7 @@ public class ChartsController {
 				 //http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
 				
 					 unidimensionalChartDataSet =
-				 continousChartAndTableProvider.doUnidimensionalData(experimentList.get(0),
+				 continousChartAndTableProvider.doUnidimensionalData(experiment,
 						 experimentNumber, parameter,
 				 ChartType.UnidimensionalBoxPlot, false, xAxisTitle,expBiologicalModel);
 					model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
@@ -369,7 +366,7 @@ public class ChartsController {
 					// https://dev.mousephenotype.org/mi/impc/dev/phenotype-archive/stats/genes/MGI:1346872?parameterId=ESLIM_001_001_004
 
 					 categoricalResultAndChart = categoricalChartAndTableProvider
-							.doCategoricalData(experimentList.get(0), parameter,
+							.doCategoricalData(experiment, parameter,
 									accession[0], experimentNumber, expBiologicalModel);
 					 model.addAttribute("categoricalResultAndChart",
 								categoricalResultAndChart);
@@ -380,7 +377,7 @@ public class ChartsController {
 					// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
 
 					timeSeriesForParam = timeSeriesChartAndTableProvider
-							.doTimeSeriesData(experimentList.get(0), parameter, experimentNumber, expBiologicalModel);
+							.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
 					model.addAttribute("timeSeriesChartsAndTable",
 							timeSeriesForParam);
 					break;
@@ -451,6 +448,16 @@ public class ChartsController {
 		mv.addObject(
 				"exampleURI",
 				"/stats/genes/MGI:98373?parameterId=M-G-P_014_001_001&gender=male&zygosity=homozygote&phenotypingCenter=WTSI");
+		return mv;
+	}
+	
+	@ExceptionHandler(SpecificExperimentException.class)
+	public ModelAndView handleSpecificExperimentException(
+			ParameterNotFoundException exception) {
+		ModelAndView mv = new ModelAndView("Specific Experiment Not Found Error");
+		mv.addObject("errorMessage", exception.getMessage());
+		mv.addObject("acc", exception.getAcc());
+		mv.addObject("type", "Parameter");
 		return mv;
 	}
 

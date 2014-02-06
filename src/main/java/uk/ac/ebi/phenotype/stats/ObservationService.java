@@ -259,9 +259,9 @@ public class ObservationService {
     
     }
 
-    public List<ObservationDTO> getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(
+    public List<ObservationDTO> getExperimentalObservationsByParameterGeneAccZygosityOrganisationStrainSexAndMetaDataGroup(
             Integer parameterId, String gene, String zygosity,
-            Integer organisationId, String strain, SexType sex
+            Integer organisationId, String strain, SexType sex, String metaDataGroup
     ) throws SolrServerException {
 
         List<ObservationDTO> resultsDTO;
@@ -281,6 +281,9 @@ public class ObservationService {
         }
         if (sex != null) {
             query.addFilterQuery(ExperimentField.SEX + ":" + sex);
+        }
+        if(metaDataGroup!=null) {
+        	query.addFilterQuery(ExperimentField.METADATA_GROUP + ":" + metaDataGroup);
         }
 
         QueryResponse response = solr.query(query);
