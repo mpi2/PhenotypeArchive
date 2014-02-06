@@ -147,8 +147,9 @@ public class ChartsController {
 			@RequestParam(required = false, value = "parameterId") String[] parameterIds,
 			@RequestParam(required = false, value = "gender") String[] gender,
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
-			@RequestParam(required = false, value = "phenotypingCenter") String[] phenotypingCenter,
+			@RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter,
 			@RequestParam(required = false, value = "strategy") String[] strategies,
+			@RequestParam(required = false, value = "strain") String[] strains,
 			@RequestParam(required = false, value = "scatter") boolean scatter,
 			@PathVariable String acc, Model model)
 			throws GenomicFeatureNotFoundException, ParameterNotFoundException,
@@ -171,6 +172,8 @@ public class ChartsController {
 
 		List<String> paramIds = getParamsAsList(parameterIds);
 		List<String> genderList = getParamsAsList(gender);
+		List<String> phenotypingCentersList=getParamsAsList(phenotypingCenter);
+		List<String> strainsList=getParamsAsList(strains);
 		if (genderList.size() == 0) {// add them explicitly here so graphs urls
 										// are created seperately
 			genderList.add(SexType.male.name());
@@ -197,7 +200,7 @@ public class ChartsController {
 			// instead of an experiment list here we need just the outline of
 			// the experiments - how many, observation types
 			Set<String> graphUrlsForParam = graphUtils.getGraphUrls(acc,
-					parameter.getStableId(), genderList, zyList, scatter);
+					parameter.getStableId(), genderList, zyList, phenotypingCentersList, strainsList, scatter);
 			allGraphUrlSet.addAll(graphUrlsForParam);
 
 		}// end of parameterId iterations
@@ -321,7 +324,7 @@ public class ChartsController {
 		List<ExperimentDTO> experimentList = experimentService
 				.getSpecificExperimentDTO(parameter.getId(), accession[0],
 						genderList, zyList,phenotypingCenterId,
-						 strain[0]);
+						 strain[0], metadataGroup[0]);
 		
 		//getSpecificExperimentDTO(Integer id, String acc,
 		//List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain)

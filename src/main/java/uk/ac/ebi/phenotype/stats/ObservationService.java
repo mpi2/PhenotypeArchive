@@ -100,7 +100,7 @@ public class ObservationService {
     }
 
     
-    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId) throws SolrServerException{
+    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> phenotypingCenterParams, List<String> strainParams) throws SolrServerException{
 //    	String experimentKey = observation.getPhenotypingCenter()
 //    			+ observation.getStrain()
 //    			+ observation.getParameterStableId()
@@ -111,14 +111,25 @@ public class ObservationService {
 	
         Set<Integer> parameterIds = new HashSet<>();
 
-        SolrQuery query = new SolrQuery()
-                .setQuery("gene_accession:\""+mgiAccession+"\"")
-                .addFilterQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + parameterStableId)
+        SolrQuery query = new SolrQuery();
+        query.setQuery("gene_accession:\""+mgiAccession+"\"");
+        query.addFilterQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + parameterStableId);
               //  .addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":unidimensional")
-                .setRows(0).addFacetField(ExperimentField.PHENOTYPING_CENTER)
-                .setRows(0).addFacetField(ExperimentField.STRAIN)
-                .setRows(0).addFacetField(ExperimentField.METADATA_GROUP)
-                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
+        if(phenotypingCenterParams!=null && phenotypingCenterParams.size()>0) {
+        	for(String phenotypingCenter: phenotypingCenterParams) {
+        	query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER + ":" + phenotypingCenter);
+        	}
+        }
+        if(strainParams!=null && strainParams.size()>0) {
+        	for(String strain: strainParams) {
+        	query.addFilterQuery(ExperimentField.STRAIN + ":\"" + strain+"\"");
+        	}
+        }
+        
+               query .setRows(0).addFacetField(ExperimentField.PHENOTYPING_CENTER);
+               query .setRows(0).addFacetField(ExperimentField.STRAIN);
+               query .setRows(0).addFacetField(ExperimentField.METADATA_GROUP);
+               query .setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
 
         QueryResponse response = solr.query(query);
         List<FacetField> fflist = response.getFacetFields();

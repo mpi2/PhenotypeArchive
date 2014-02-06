@@ -20,27 +20,35 @@ public class GraphUtils {
 		this.experimentService=experimentService;
 	}
 	public Set<String> getGraphUrls(String acc,
-			String parameterStableId, List<String> genderList, List<String> zyList, boolean scatter) throws SolrServerException {
+			String parameterStableId, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList, List<String> strainsParams, boolean scatter) throws SolrServerException {
 		
-		Set<String>urls=new HashSet<String>(); //each url should be unique and so we use a set
-		Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameterStableId);
-            
-            //for each parameter we want the unique set of urls to make ajax requests for experiments
-            String seperator="&";
-            String accessionAndParam="accession="+acc+seperator+"parameterId="+parameterStableId;
-            //add  sex and zyg
-            String zygosities="";
-	       
-            for(String zyg: zyList) {
-            	zygosities+="&zygosity="+zyg;
-            }
-            accessionAndParam+=zygosities;
+			Set<String>urls=new HashSet<String>(); //each url should be unique and so we use a set
+			Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameterStableId, phenotypingCentersList, strainsParams);
             List <String>centersList=keyList.get(ObservationService.ExperimentField.PHENOTYPING_CENTER);
             List <String>strains=keyList.get(ObservationService.ExperimentField.STRAIN);
-            List<String> metaDataGroupStrings=keyList.get(ObservationService.ExperimentField.METADATA_GROUP);
+            List<String> metaDataGroupStrings=keyList.get(ObservationService.ExperimentField.METADATA_GROUP); 
+                //for each parameter we want the unique set of urls to make ajax requests for experiments
+                String seperator="&";
+                String accessionAndParam="accession="+acc+seperator+"parameterId="+parameterStableId;
+                //add  sex and zyg
+                String zygosities="";
+                String phenoCenterString="";
+//    	       for(String phenoCString: phenotypingCentersList) {
+//    	    	  phenoCenterString+= seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+phenoCString;
+//    	       }
+//    	       if(phenotypingCentersList.size()>0) {
+//    	    	   //if phenotype centers specified in url then just set the centerlist to this and the phenoCenterString should be set correctly above???
+//    	    	   centersList=phenotypingCentersList;
+//    	       }
+    	    	   
+    	       
+                for(String zyg: zyList) {
+                	zygosities+="&zygosity="+zyg;
+                }
+                
             String genderString="";
             for(String sex:genderList) {
-            	genderString+=seperator+"&gender="+sex;
+            	genderString+=seperator+"gender="+sex;
             }
             if(scatter) {
             	accessionAndParam+=seperator+"scatter="+scatter;
@@ -49,7 +57,7 @@ public class GraphUtils {
             	for(String strain:strains) {
             		for(String metaGroup: metaDataGroupStrings) {
             			
-            			urls.add(accessionAndParam+seperator+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+ObservationService.ExperimentField.METADATA_GROUP+"="+metaGroup);
+            			urls.add(accessionAndParam+zygosities+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+ObservationService.ExperimentField.METADATA_GROUP+"="+metaGroup);
             			
             		}
             	}

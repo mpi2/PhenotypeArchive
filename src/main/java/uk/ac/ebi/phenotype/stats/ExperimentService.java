@@ -394,13 +394,14 @@ public class ExperimentService {
 	 * @param zyList
 	 * @param phenotypingCenterId
 	 * @param strain
+	 * @param metadataGroup 
 	 * @return
 	 * @throws SolrServerException
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
 	public List<ExperimentDTO> getSpecificExperimentDTO(Integer id, String acc,
-			List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain) throws SolrServerException, IOException, URISyntaxException {
+			List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain, String metadataGroup) throws SolrServerException, IOException, URISyntaxException {
 		List<ExperimentDTO> experimentList=new ArrayList<ExperimentDTO>();
 		
 		if (genderList.isEmpty() || genderList.size()==2) {//if gender list is size 2 assume both sexes so no filter needed
@@ -427,8 +428,8 @@ public class ExperimentService {
 	
 	
 	
-	public Map<String,List<String>> getExperimentKeys(String mgiAccession, String parameterStableId) throws SolrServerException{
-	return 	os.getExperimentKeys(mgiAccession, parameterStableId);
+	public Map<String,List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> phenotypingCenter, List<String> strain) throws SolrServerException{
+	return 	os.getExperimentKeys(mgiAccession, parameterStableId, phenotypingCenter, strain);
 	}
 	
 	public String getCategoryLabels (int parameterId, String category) throws SQLException{
