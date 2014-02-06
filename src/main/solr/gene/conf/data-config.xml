@@ -24,10 +24,7 @@
 	        // mark Gm16379 as marker_type:pseudogene	       
 			if ( row.get('marker_symbol').toString() == 'Gm16379' ){
 	        		row.put('marker_type', 'pseudogene');
-	        }
-	        if ( row.get('marker_type_ori') ){
-	        		row.put('marker_type', row.get('marker_type_ori').toString());
-	        }	        		               
+	        }	                		               
 	        
 	        return row;
         }
@@ -227,9 +224,8 @@
 				<field column="human_gene_symbol" name="human_gene_symbol" />
 			</entity>
 
-			<field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
-			<field column="marker_type_ori" xpath="/response/result/doc/str[@name='marker_type']" />
-			<field column="marker_type" name = "marker_type" />
+			<field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />			
+			<field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />
 
 			<field column="imits_report_phenotyping_complete_date" xpath="/response/result/doc/arr[@name='imits_report_phenotyping_complete_date']/str" />
 			<field column="imits_report_genotype_confirmed_date" xpath="/response/result/doc/arr[@name='imits_report_genotype_confirmed_date']/str" />
