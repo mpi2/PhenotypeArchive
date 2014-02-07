@@ -36,6 +36,7 @@ import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 import uk.ac.ebi.phenotype.stats.ExperimentService;
 import uk.ac.ebi.phenotype.stats.ObservationDTO;
 import uk.ac.ebi.phenotype.stats.TableObject;
+import uk.ac.ebi.phenotype.stats.graphs.ChartColors;
 
 @Service
 public class CategoricalChartAndTableProvider {
@@ -83,6 +84,7 @@ public class CategoricalChartAndTableProvider {
 					// do control first as requires no zygocity
 					CategoricalSet controlSet = new CategoricalSet();
 					controlSet.setName(WordUtils.capitalize(sexType.name())+" Control");
+					controlSet.setSexType(sexType);
 
 					for (String category :categories) {
 						if (category.equals("imageOnly"))
@@ -337,6 +339,7 @@ public class CategoricalChartAndTableProvider {
 		for (CategoricalSet catSet : catSets) {// loop through control, then hom, then het etc
 			xAxisCategoriesArray.put(catSet.getName());
 			for (CategoricalDataObject catObject : catSet.getCatObjects()) {// each cat object represents
+				System.out.println("catobject="+catObject);
 				List<Long> catData = categories.get(catObject.getCategory());
 				catData.add(catObject.getCount());
 			}
@@ -350,20 +353,25 @@ public class CategoricalChartAndTableProvider {
 				List<Long> data = (List<Long>) pairs.getValue();
 				JSONObject dataset1 = new JSONObject();// e.g. normal
 				dataset1.put("name", pairs.getKey());
-				if (i == 0) {
-					color = colorNormal;
-				} else {
-					color = colorAbnormal;
-				}
+				System.out.println("paris key="+pairs.getKey());
 				// dataset1.put("color", color);
 				JSONArray dataset = new JSONArray();
 
 				for (Long singleValue : data) {
+//					if (i == 0) {
+//						sex = SexType.female;
+//					} else {
+//						sex=SexType.male;
+//					}
+//					System.out.println("single value="+singleValue);
 					dataset.put(singleValue);
+					//dataset1.put("color", ChartColors.getRgbaString(sex, i, ChartColors.alphaScatter));
+					i++;
 				}
 				dataset1.put("data", dataset);
+				//System.out.println("XAxisCat="+xAxisCategoriesArray.get(i));
 				seriesArray.put(dataset1);
-				i++;
+				
 			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -372,6 +380,9 @@ public class CategoricalChartAndTableProvider {
 		
                 //replace space in MRC Harwell with underscore so valid javascript variable
                 //String chartId = bm.getId() + sex.name()+organisation.replace(" ", "_")+"_"+metadataGroup;
+		
+		List<String> colors=ChartColors.getFemaleMaleColorsRgba(0.7);
+		JSONArray colorArray = new JSONArray(colors);
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
 		String javascript = "$(function () {  var chart_"
 				+ chartId
@@ -379,6 +390,7 @@ public class CategoricalChartAndTableProvider {
 				+ chartId
 				+ " = new Highcharts.Chart({ tooltip : "
 				+ toolTipFunction
+				+", colors:"+colorArray
 				+ ", chart: { renderTo: 'chart"
 				+ chartId
 				+ "', type: 'column' }, title: { text: '"

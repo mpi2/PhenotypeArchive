@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.antlr.grammar.v3.ANTLRv3Parser.finallyClause_return;
+import org.semanticweb.elk.reasoner.saturation.conclusions.ForwardLink.ThisBackwardLinkRule;
 
 import uk.ac.ebi.phenotype.pojo.SexType;
 
@@ -24,7 +25,7 @@ public class ChartColors {
 	//rgb(191, 75, 50)
 	//rgb(166, 30, 1)
 	
-	public static final List<String>femaleRgb=java.util.Arrays.asList("239, 123, 11" ,  "247, 157, 70", "247, 181, 117",  "191, 75, 50", "166, 30, 1");
+	public static final List<String>femaleRgb=java.util.Arrays.asList("239, 123, 11" ,  "247, 157, 70", "247, 181, 117",  "191, 75, 50", "166, 30, 1", "191, 75, 50", "166, 30, 1");
 	
 	
 	public static final Double alphaBox=1.0;//set the opacity for boxes here
@@ -51,6 +52,17 @@ public class ChartColors {
 			}
 		System.err.println("no color found returning default");
 		return defaultColor;
+	}
+	
+	public static List<String> getFemaleMaleColorsRgba(Double alpha) {
+		List<String> colorStrings=new ArrayList<String>(); 
+		for(int i=0; i<ChartColors.maleRgb.size(); i++) {
+			colorStrings.add(getRgbaString(SexType.female, i, alphaScatter));
+			colorStrings.add(getRgbaString(SexType.male, i, alphaScatter));
+		}
+		
+		return colorStrings;
+		
 	}
 	
 }

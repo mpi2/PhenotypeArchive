@@ -34,14 +34,6 @@ public class CategoricalChartDataObject {
 		return chart;
 	}
 
-	public SexType getSexType() {
-		return sexType;
-	}
-
-	public void setSexType(SexType sexType) {
-		this.sexType = sexType;
-	}
-
 	public CategoricalChartDataObject() {
 		this.categoricalSets = new ArrayList<CategoricalSet>();
 	}
@@ -56,8 +48,8 @@ public class CategoricalChartDataObject {
 		for(CategoricalSet data: this.categoricalSets){
 			dataString+=data.toString()+"\n";
 		}
-		String string = (this.sexType!=null) ? "chart has sexType="+ this.sexType.name() + "\n " : "" + dataString;
-		return string;
+		 return dataString;
+		
 	}
 
 	public List<CategoricalSet> getCategoricalSets() {

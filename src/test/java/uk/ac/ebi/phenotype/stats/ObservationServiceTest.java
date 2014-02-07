@@ -42,8 +42,7 @@ public class ObservationServiceTest {
 	public void testGetExperimentKeys() {
 		Map<String,List<String>> keys=null;
 		//http://localhost:8080/phenotype-archive/stats/genes/MGI:1922257?parameterId=ESLIM_003_001_004&zygosity=homozygote
-		List phenotypingCenterParamsList=new ArrayList<String>();
-		phenotypingCenterParamsList.add("WTSI");
+		List phenotypingCenterParamsList=Arrays.asList("WTSI");
 		List<String> strainStrings=Arrays.asList("MGI:2164831");
 		List<String> metaDataGoupsList=Arrays.asList("a9dde727aa843954ce9e35ec95495025");
 		

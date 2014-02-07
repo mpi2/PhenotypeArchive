@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.bcel.generic.IF_ACMPEQ;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import org.apache.solr.client.solrj.SolrServerException;
@@ -324,10 +325,18 @@ public class ChartsController {
 		// experimentService.getExperimentDTO(parameterStableIds[0],
 		// accession[0], gender[0], zygosity[0], phenotypingCenterIdInt);
 		// TDO handle male and female appropriately
+		String metaDataGroupString=null;//when a param is empty it doesn't get an array so we can't access 0 so set it here in case
+		if(metadataGroup.length>0) {
+			metaDataGroupString=metadataGroup[0];
+		}
+		
+		if(strain.length>0) {
+			
+		}
 		ExperimentDTO experiment = experimentService
 				.getSpecificExperimentDTO(parameter.getId(), accession[0],
 						genderList, zyList,phenotypingCenterId,
-						 strain[0], metadataGroup[0]);
+						 (strain.length>0) ? strain[0] : null , (metadataGroup.length>0) ? metadataGroup[0] : null);
 		
 		if (experiment!=null) {
 			// log.debug("Experiment dto marker="+experimentList);
