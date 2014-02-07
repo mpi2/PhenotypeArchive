@@ -20,6 +20,7 @@ import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -163,8 +164,11 @@ public class FileExportController {
 					rows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);
 				}
 				else{
-					
-					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, phenotypingCenterId, zygosities, strain);
+					List<String> zygList=null;
+					if(zygosities!=null) {
+						zygList=Arrays.asList(zygosities);
+					}
+					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, phenotypingCenterId, zygList, strain);
 				}
 				// Remove the title row (row 0) from the list and assign it to
 				// the string array for the spreadsheet
@@ -195,7 +199,11 @@ public class FileExportController {
 				if (!solrCoreName.equalsIgnoreCase("experiment")){
 					dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);}
 				else{
-					dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, phenotypingCenterId, zygosities, strain);
+					List<String> zygList=null;
+					if(zygosities!=null) {
+						zygList=Arrays.asList(zygosities);
+					}
+					dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, phenotypingCenterId, zygList, strain);
 				}
 			}
 		}
