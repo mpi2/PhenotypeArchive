@@ -2,6 +2,8 @@ package uk.ac.ebi.phenotype.stats;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -40,8 +42,13 @@ public class ObservationServiceTest {
 	public void testGetExperimentKeys() {
 		Map<String,List<String>> keys=null;
 		//http://localhost:8080/phenotype-archive/stats/genes/MGI:1922257?parameterId=ESLIM_003_001_004&zygosity=homozygote
+		List phenotypingCenterParamsList=new ArrayList<String>();
+		phenotypingCenterParamsList.add("WTSI");
+		List<String> strainStrings=Arrays.asList("MGI:2164831");
+		List<String> metaDataGoupsList=Arrays.asList("a9dde727aa843954ce9e35ec95495025");
+		
 			try {
-				keys = os.getExperimentKeys("MGI:1922257","ESLIM_003_001_004");
+				keys = os.getExperimentKeys("MGI:1924893","ESLIM_010_001_002", phenotypingCenterParamsList, strainStrings, metaDataGoupsList);
 			} catch (SolrServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
