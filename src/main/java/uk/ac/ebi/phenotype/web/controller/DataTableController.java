@@ -217,15 +217,27 @@ public class DataTableController {
 			// register of interest
 			if (registerInterest.loggedIn()) {
 				if (registerInterest.alreadyInterested(doc.getString("mgi_accession_id"))) {
-					rowData.add("<a id='"+doc.getString("mgi_accession_id")+"' href='' class='btn primary interest'>Unregister interest</a>");
+					String uinterest = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
+							+ "<i class='fa fa-sign-out'></i>"
+							+ "<a id='"+doc.getString("mgi_accession_id")+"' class='regInterest primary interest' href=''>Unregister interest</a>"
+							+ "</div>";
+					
+					rowData.add(uinterest);					
+					//rowData.add("<a id='"+doc.getString("mgi_accession_id")+"' href='' class='btn primary interest'>Unregister interest</a>");					
 				} 
 				else {
-					rowData.add("<a id='"+doc.getString("mgi_accession_id")+"' href='' class='btn primary interest'>Register interest</a>");
+					String rinterest = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
+							+ "<i class='fa fa-sign-in'></i>"
+							+ "<a id='"+doc.getString("mgi_accession_id")+"' class='regInterest primary interest' href=''>Register interest</a>"
+							+ "</div>";
+					
+					rowData.add(rinterest);					
+					//rowData.add("<a id='"+doc.getString("mgi_accession_id")+"' href='' class='btn primary interest'>Register interest</a>");
 				}
 			} 
 			else {	
 				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
-								+ "<i class='fa fa-sign-out'></i>"
+								+ "<i class='fa fa-sign-in'></i>"
 								+ "<a class='regInterest' href='/user/register'>Interest</a>"
 								+ "</div>";
 				
