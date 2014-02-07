@@ -1573,9 +1573,11 @@
     						else {                          
     							if( label == 'Register interest' ) {
     								regBtn.text('Unregister interest');
+    								regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out');
     							} 
     							else {
     								regBtn.text('Register interest');
+    								regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in');
     							}                               
     						}                         
                         },
