@@ -103,7 +103,7 @@ public class FileExportController {
 		@RequestParam(value="mpTerm", required=false) String mpTerm,			
 		@RequestParam(value="mgiGeneId", required=false) String mgiGeneId,
 		@RequestParam(value="parameterStableId", required=false) String parameterStableId, // should be filled for graph data export
-		@RequestParam(value="zygosity", required=false) String zygosity, // should be filled for graph data export
+		@RequestParam(value="zygosity", required=false) String []zygosities, // should be filled for graph data export
 		@RequestParam(value="strain", required=false) String strain, // should be filled for graph data export
 		@RequestParam(value="geneSymbol", required=false) String geneSymbol,			
 		@RequestParam(value="solrCoreName", required=false) String solrCoreName,
@@ -163,8 +163,8 @@ public class FileExportController {
 					rows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);
 				}
 				else{
-					String zyg = (zygosity.equalsIgnoreCase("null")) ? null : zygosity; 
-					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, phenotypingCenterId, zyg, strain);
+					
+					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, phenotypingCenterId, zygosities, strain);
 				}
 				// Remove the title row (row 0) from the list and assign it to
 				// the string array for the spreadsheet
@@ -195,7 +195,7 @@ public class FileExportController {
 				if (!solrCoreName.equalsIgnoreCase("experiment")){
 					dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);}
 				else{
-					dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, phenotypingCenterId, zygosity, strain);
+					dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, phenotypingCenterId, zygosities, strain);
 				}
 			}
 		}
@@ -276,7 +276,7 @@ public class FileExportController {
 		return tableData;
 	}
 	
-	public List<String> composeExperimetDataExportRows(String parameterStableId, String geneAccession, String gender, Integer phenotypingCenterId, String zygosity, String strain) throws SolrServerException, IOException, URISyntaxException, SQLException{
+	public List<String> composeExperimetDataExportRows(String parameterStableId, String geneAccession, String gender, Integer phenotypingCenterId, List<String> zygosity, String strain) throws SolrServerException, IOException, URISyntaxException, SQLException{
 		List<String> rows = new ArrayList<String>();
 		SexType sex = null;
 		if (gender != null)

@@ -266,7 +266,7 @@ public class ObservationService {
     }
 
     public List<ObservationDTO> getExperimentalObservationsByParameterGeneAccZygosityOrganisationStrainSexAndMetaDataGroup(
-            Integer parameterId, String gene, String zygosity,
+            Integer parameterId, String gene, List<String> zygosities,
             Integer organisationId, String strain, SexType sex, String metaDataGroup
     ) throws SolrServerException {
 
@@ -276,8 +276,14 @@ public class ObservationService {
                 .addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
                 .setStart(0).setRows(10000);
 
-        if (zygosity != null && !zygosity.equalsIgnoreCase("null")) {
-            query.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity);
+        if (zygosities != null && zygosities.size()>0 && zygosities.size()!=3) {
+        	if(zygosities.size()==2) {
+        		query.addFilterQuery(ExperimentField.ZYGOSITY + ":(" + zygosities.get(0)+" OR "+zygosities.get(1)+")");
+        	}else {
+        			
+        					query.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosities.get(0));//only option is one left
+        			
+        	}
         }
         if (strain != null) {
             query.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"));

@@ -339,7 +339,7 @@ public class ChartsController {
 						 (strain.length>0) ? strain[0] : null , (metadataGroup.length>0) ? metadataGroup[0] : null);
 		
 		if (experiment!=null) {
-			// log.debug("Experiment dto marker="+experimentList);
+			 log.info("Experiment dto marker="+experiment);
 			// ESLIM_003_001_003 id=962 calorimetry data for time series graph
 			// new MGI:1926153
 			// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1926153?parameterId=ESLIM_003_001_003
@@ -386,7 +386,7 @@ public class ChartsController {
 
 				case time_series:
 					// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
-
+System.out.println("dong time series");
 					timeSeriesForParam = timeSeriesChartAndTableProvider
 							.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
 					model.addAttribute("timeSeriesChartsAndTable",
@@ -415,6 +415,7 @@ public class ChartsController {
 			model.addAttribute("statsError", statsError);
 
 		}else {
+			log.info("empty experiment");
 			model.addAttribute("emptyExperiment", true);
 		}
 

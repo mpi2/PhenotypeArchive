@@ -46,7 +46,7 @@ public class ExperimentService {
 	@Autowired
 	private PhenotypeCallSummaryDAOReadOnly phenoDAO;
 
-	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain)
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain)
 			throws SolrServerException, IOException, URISyntaxException {
 		return getExperimentDTO(parameterId, geneAccession, sex, phenotypingCenterId, zygosity, strain, null, Boolean.TRUE);
 	}
@@ -66,7 +66,7 @@ public class ExperimentService {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain, String metaDataGroup, Boolean includeResults) throws SolrServerException, IOException, URISyntaxException {
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain, String metaDataGroup, Boolean includeResults) throws SolrServerException, IOException, URISyntaxException {
 	
 		List<ObservationDTO> observations = os.getExperimentalObservationsByParameterGeneAccZygosityOrganisationStrainSexAndMetaDataGroup(parameterId, geneAccession, zygosity, phenotypingCenterId, strain, sex, metaDataGroup);
 		
@@ -349,7 +349,7 @@ public class ExperimentService {
 		    			}
 		
 		    			controls.addAll(addingControls);
-
+System.out.println("added controls size="+addingControls.size());
 		    	    }
 
 	    		} // End control selection
@@ -402,7 +402,7 @@ public class ExperimentService {
 		return getExperimentDTO(p.getId(), geneAccession, null, null, null, strain);
 	}
 	
-	public List<ExperimentDTO> getExperimentDTO(String parameterStableId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
+	public List<ExperimentDTO> getExperimentDTO(String parameterStableId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
 		Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameterStableId, 1, 0);
 		return getExperimentDTO(p.getId(), geneAccession, sex, phenotypingCenterId, zygosity, strain);
 	}
@@ -429,18 +429,18 @@ public class ExperimentService {
 		if (genderList.isEmpty() || genderList.size()==2) {//if gender list is size 2 assume both sexes so no filter needed
 			 
 			
-			if (zyList.isEmpty() || zyList.size()==2) {//if zygosity list is size 2 then no filter needed either
+			if (zyList.isEmpty() || zyList.size()==3) {//if zygosity list is size 2 then no filter needed either
 				experimentList=this.getExperimentDTO(id, acc,  null, phenotypingCenterId, null, strain, metadataGroup, includeResults);
 			}else {
-				experimentList=this.getExperimentDTO(id, acc,  null, phenotypingCenterId, zyList.get(0), strain, metadataGroup, includeResults);
+				experimentList=this.getExperimentDTO(id, acc,  null, phenotypingCenterId, zyList, strain, metadataGroup, includeResults);
 			}
 			
 		}else {
 			String gender=genderList.get(0);
-			if (zyList.isEmpty() || zyList.size()==2) {
+			if (zyList.isEmpty() || zyList.size()==3) {
 				experimentList=this.getExperimentDTO(id, acc, SexType.valueOf(gender), phenotypingCenterId, null, strain, metadataGroup, includeResults);
 			}else {
-				experimentList=this.getExperimentDTO(id, acc, SexType.valueOf(gender), phenotypingCenterId, zyList.get(0), strain, metadataGroup, includeResults);
+				experimentList=this.getExperimentDTO(id, acc, SexType.valueOf(gender), phenotypingCenterId, zyList, strain, metadataGroup, includeResults);
 			}
 			
 		}
