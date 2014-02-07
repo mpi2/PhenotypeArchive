@@ -386,7 +386,6 @@ public class ChartsController {
 
 				case time_series:
 					// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1920000?parameterId=ESLIM_004_001_002
-System.out.println("dong time series");
 					timeSeriesForParam = timeSeriesChartAndTableProvider
 							.doTimeSeriesData(experiment, parameter, experimentNumber, expBiologicalModel);
 					model.addAttribute("timeSeriesChartsAndTable",

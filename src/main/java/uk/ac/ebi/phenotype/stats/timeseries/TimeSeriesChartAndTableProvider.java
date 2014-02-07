@@ -26,6 +26,7 @@ import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ChartUtils;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 import uk.ac.ebi.phenotype.stats.ObservationDTO;
+import uk.ac.ebi.phenotype.stats.graphs.ChartColors;
 
 @Service
 public class TimeSeriesChartAndTableProvider {
@@ -163,22 +164,19 @@ public class TimeSeriesChartAndTableProvider {
 				JSONObject object = new JSONObject();
 				JSONArray data = new JSONArray();
 				object.put("name", key);
+				SexType sexType=SexType.male;
+				if(key.contains("Female")) {
+					sexType=SexType.female;
+				}
+				String colorString=ChartColors.getRgbaString(sexType, i, ChartColors.alphaScatter);
+				object.put("color", colorString);
 
 				JSONObject errorBarsObject = null;
 				try {
 					errorBarsObject = new JSONObject();// "{ name: 'Confidence', type: 'errorbar', color: 'black', data: [ [7.5, 8.5], [2.8, 4], [1.5, 2.5], [3, 4.1], [6.5, 7.5], [3.3, 4.1], [4.8, 5.1], [2.2, 3.0], [5.1, 8] ] } ");
 					errorBarsObject.put("name", "Standard Deviation");
 					errorBarsObject.put("type", "errorbar");
-					// errorBarsObject.put("tooltip",
-					// "pointFormat: '(error range: {point.low}-{point.high}°C)<br/>' ");
-					// errorBarsObject.append("tooltip",
-					// "pointFormat: '(error range: {point.low}-{point.high}°C)<br/>' ");
-
-					String color = "blue";
-					if (i % 2 == 0) {
-						color = "black";
-					}
-					errorBarsObject.put("color", color);
+					errorBarsObject.put("color", colorString);
 
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
@@ -244,7 +242,6 @@ public class TimeSeriesChartAndTableProvider {
 			noDecimalsString = "allowDecimals:false,";
 		}
 
-		logger.warn("series=" + series.length());
 		String decimalFormatString = ":." + decimalPlaces + "f";
 		String headerFormatString = "headerFormat: '<span style=\"font-size: 12px\">"
 				+ WordUtils.capitalize(xUnitsLabel)
@@ -261,13 +258,17 @@ public class TimeSeriesChartAndTableProvider {
 				+ decimalFormatString + "}-{point.high" + decimalFormatString
 				+ "}<br/>' }";
 		int index = series.toString().indexOf("\"errorbar");
-		logger.warn("index=" + index);
 		String escapedErrorString = "\"errorbar\"";
 		seriesString = seriesString.replace(escapedErrorString,
 				escapedErrorString + "," + errorBarsToolTip);
-		logger.warn("seriesString=" + seriesString);
 		String axisFontSize = "15";
-		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ chart: {  zoomType: 'x', renderTo: 'timechart"
+		
+		List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaScatter);
+//		JSONArray colorArray = new JSONArray(colors);
+		
+		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ " 
+//				+" colors:"+colorArray
+				+" chart: {  zoomType: 'x', renderTo: 'timechart"
 				+ expNumber
 				+ "', type: 'line', marginRight: 130, marginBottom: 50 }, title: { text: '"
 				+ WordUtils.capitalize(title)
@@ -412,14 +413,16 @@ public class TimeSeriesChartAndTableProvider {
 
 		String errorBarsToolTip = "tooltip: { pointFormat: '<br/>' }";
 		int index = series.toString().indexOf("\"errorbar");
-		logger.warn("index=" + index);
 		String escapedErrorString = "\"errorbar\"";
 		seriesString = seriesString.replace(escapedErrorString,
 				escapedErrorString + "," + errorBarsToolTip);
-		logger.warn("seriesString=" + seriesString);
-		String axisFontSize = "15";
+				String axisFontSize = "15";
+				List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaScatter);
+				JSONArray colorArray = new JSONArray(colors);
 		String chartid = "timeChart" + size;
-		String javascript = "$(function () { var chart; $(document).ready(function() { chart = new Highcharts.Chart({ chart: {  zoomType: 'x', renderTo: '"
+		String javascript = "$(function () { var chart; $(document).ready(function() { chart = new Highcharts.Chart({ "
+				+" colors:"+colorArray
+				+", chart: {  zoomType: 'x', renderTo: '"
 				+ chartid
 				+ "', type: 'line', marginRight: 130, marginBottom: 50 }, "
 				+ "title: { text: '"

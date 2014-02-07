@@ -349,7 +349,6 @@ public class ExperimentService {
 		    			}
 		
 		    			controls.addAll(addingControls);
-System.out.println("added controls size="+addingControls.size());
 		    	    }
 
 	    		} // End control selection
