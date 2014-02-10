@@ -191,47 +191,6 @@
 							</c:if>
 						</div>
 					</div>
-
-					<c:if test="${not empty siblings or not empty go}">
-					
-					<div class="row-fluid dataset">
-						<h4 class="caption documentation">Explore <a href='' id='relatedMpPanel'><i class="fa fa-question-circle pull-right"></i></a></h4>
-						<div class="row-fluid">
-							<div class="container span12">		
-								<div class="container">
-									<table class="table table-striped">
-										<tbody>
-											<c:if test="${not empty siblings}">
-												<tr>
-													<td>Related Phenotypes:</td>
-													<td>
-														<ul>
-															<c:forEach var="term" items="${siblings}" varStatus="loop">
-																<li><a href="${baseUrl}/phenotypes/${term.id.accession}">${term.name}</a></li>
-															</c:forEach>
-														</ul>
-													</td>
-												</tr>
-											</c:if>
-											<c:if test="${not empty go}">
-												<tr>
-													<td>Gene Ontology:</td>
-													<td>
-														<ul>
-															<c:forEach var="term" items="${go}" varStatus="loop">
-																<li><a href="http://amigo.geneontology.org/cgi-bin/amigo/term_details?term=${term.id.accession}">${term.name} (${term.id.accession})</a></li>
-															</c:forEach>
-														</ul>
-													</td>
-											</tr>
-										</c:if>
-									</tbody>
-								</table>
-							</div>
-						</div>
-					</div>
-				</div>
-			</c:if>
 	
 			<c:if test="${not empty images && fn:length(images) !=0}">
 				<div class="row-fluid dataset">

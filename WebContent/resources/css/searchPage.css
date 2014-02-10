@@ -171,13 +171,6 @@ div#exportSpinner {
 	float: left;
 	color: #CC6600;
 }
-button.gridDump {
-	font-size: 11px;
-	background: none;
-	border: none;
-	color: #0978A1;
-    cursor: pointer;
-}
 
 /* end of table tool */
 

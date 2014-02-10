@@ -53,3 +53,15 @@ form.no-style{
 #other_procedures{
  	display:none;
  }
+ 
+button.gridDump {
+	font-size: 11px;
+	background: none;
+	border: none;
+	color: #0978A1;
+  cursor: pointer;
+  text-decoration: underline;
+}
+button.exportButton{
+	font-size:14px;
+}
