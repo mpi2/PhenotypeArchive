@@ -74,19 +74,15 @@
 	</div>
 	
 		<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
-	<div class="row-fluid dataset">
-		<div class='documentation'><a href='' class='expressionPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-		<h4 class="caption">Expression Images</h4>
-			<div class="row-fluid">
-			<div class="container span12">
-				<div class="accordion" id="accordion1">
-					<div class="accordion-group">
-						<div class="accordion-heading">
-							<a class="accordion-toggle" data-toggle="collapse" data-target="#expression">Expression Associated Images <i class="icon-chevron-down  pull-left" ></i></a>
-						</div>
-						<div id="expression" class="accordion-body collapse in">
-							<div class="accordion-inner">
-								<a href='${baseUrl}/images?anatomy_id=${anatomy.accession}&fq=expName:Wholemount Expression'>[show all  ${numberExpressionImagesFound} images]</a>
+	<div  class="section">
+		<h2 class="title">Expression Images<i class="fa fa-question-circle pull-right"></i></h2>
+			<div class="inner">		
+						 <div class="accordion-group">
+                        						<div class="accordion-heading">
+                        						Expression Associated Images 
+                        						</div>
+								<div class="accordion-body">
+								
 		    					<ul>
                                                             
 		    					<c:forEach var="doc" items="${expressionImages}">
@@ -96,12 +92,17 @@
                                                         </c:forEach>
                                                         
 								</ul>
+								<c:if test="${entry.count>5}">
+                                        				<p class="textright">
+								<a href='${baseUrl}/images?anatomy_id=${anatomy.accession}&fq=expName:Wholemount Expression'><i class="fa fa-caret-right"></i>show all ${entry.count} images</a>
+								</p>
+								</c:if>
 							</div>
 						</div>
 					<!--  end of accordion -->
 					</div>
 				</div>
-			</div>
+			
 		</div>	
 	</div>
 	</c:if><!-- end of images lacz expression priority and xray maybe -->

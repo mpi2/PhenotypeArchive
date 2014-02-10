@@ -116,7 +116,7 @@ public class AnatomyController {
 		System.out.println("calling anatomy page");
 		// http://www.informatics.jax.org/searches/AMA.cgi?id=MA:0002950
 		// right eye
-		Anatomy ma=JSONMAUtils.getMA(anatomy_id, config);
+		Anatomy ma=JSONMAUtils.getMA(anatomy_id, config, numberOfImagesToDisplay);
 		model.addAttribute("anatomy", ma);
 		Map<String, JSONObject> exampleImagesMap = getExampleImages(anatomy_id);
 
