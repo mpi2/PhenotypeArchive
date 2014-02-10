@@ -1570,17 +1570,15 @@
     						if(response === 'null') {
     							window.alert('Null error trying to register interest');
     						} 
-    						else {                          
+    						else {  
+    							// 3 labels (before login is 'Interest'
     							if( label == 'Register interest' ) {
-    								regBtn.text('Unregister interest');
-    								
-    								console.log(regBtn.siblings('i'));
-    								regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out').parent().attr('title', 'Unregister interest');   		;
+    								regBtn.text('Unregister interest');    								    								
+    								regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out').parent().attr('oldtitle', 'Unregister interest');   		;
     							} 
-    							else {
-    								regBtn.text('Register interest');
-    								console.log(regBtn.siblings('i'));
-    								regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in').parent().attr('title', 'Register interest');
+    							else if (label == 'Unregister interest'){
+    								regBtn.text('Register interest');    								
+    								regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in').parent().attr('oldtitle', 'Register interest');
     							}                               
     						}                         
                         },
