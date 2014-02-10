@@ -42,7 +42,7 @@ public class ChartColors {
 		String defaultColor="rgba(9, 120, 161, 0.5)";
 		if(index>=maleRgb.size()) {
 			System.err.println("no color found returning default");
-			index=index-maleRgb.size();
+			index=index % maleRgb.size();
 			System.out.println("color index="+index);
 			return defaultColor;
 		}
