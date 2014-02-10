@@ -775,7 +775,6 @@ public class ObservationService {
 		query.set("group.field", ExperimentField.COLONY_ID);
 		query.set("group.limit", 10000); // number of documents to be returned
 											// per group
-		System.out.println("--- look --- " + solr.getBaseURL() + "/select?" + query);
 
 		// for each colony get the mean & put it in the array of data to plot
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
@@ -1010,7 +1009,6 @@ public class ObservationService {
 			String dateFilter = df.format(beginning)+"Z TO "+df.format(maxDate)+"Z";
 			query.addFilterQuery(ExperimentField.DATE_OF_EXPERIMENT + ":[" + dateFilter + "]");
 		}
-		System.out.println("------" + query);
 		response = solr.query(query);
 		results = response.getBeans(ObservationDTO.class);
 		
