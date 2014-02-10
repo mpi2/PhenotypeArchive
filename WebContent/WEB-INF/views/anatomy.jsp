@@ -106,7 +106,7 @@
 			<div class="inner">
 							
 				
-				<table class="table table-striped">
+				<table>
 				<tbody>
 					<tr>
 						<%-- <td>MP Terms:</td> --%>
@@ -132,7 +132,7 @@
 				
 		<div class="inner">				
 					
-				<table class="table table-striped">
+				<table>
 				<tbody>
 				<tr>
 						<td>Child Terms:</td>

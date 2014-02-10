@@ -17,7 +17,7 @@ import uk.ac.ebi.phenotype.pojo.SexType;
 public class ChartColors {
 	//HEX #EF7B0B
 	//rgb(239, 123, 11)
-	public static final List<String>maleRgb=java.util.Arrays.asList("9, 120, 161" ,  "61, 167, 208", "100, 178, 208",  "3, 77, 105","36, 139, 75", "1, 121, 46");
+	public static final List<String>maleRgb=java.util.Arrays.asList("9, 120, 161" ,  "61, 167, 208", "100, 178, 208",  "3, 77, 105","36, 139, 75", "1, 121, 46", "51, 51, 51", "191, 151, 50");
 	
 	//rgb(239, 123, 11)
 	//rgb(247, 157, 70)
@@ -25,7 +25,7 @@ public class ChartColors {
 	//rgb(191, 75, 50)
 	//rgb(166, 30, 1)
 	
-	public static final List<String>femaleRgb=java.util.Arrays.asList("239, 123, 11" ,  "247, 157, 70", "247, 181, 117",  "191, 75, 50", "166, 30, 1", "191, 75, 50", "166, 30, 1");
+	public static final List<String>femaleRgb=java.util.Arrays.asList("239, 123, 11" ,  "247, 157, 70", "247, 181, 117",  "191, 75, 50", "166, 30, 1", "191, 75, 50", "166, 30, 1", "255, 201, 67");
 	
 	
 	public static final Double alphaBox=1.0;//set the opacity for boxes here
@@ -40,8 +40,10 @@ public class ChartColors {
 	 */
 	public static String  getRgbaString(SexType sexType, int index, Double alpha) {
 		String defaultColor="rgba(9, 120, 161, 0.5)";
-		if(index>maleRgb.size()) {
+		if(index>=maleRgb.size()) {
 			System.err.println("no color found returning default");
+			index=index-maleRgb.size();
+			System.out.println("color index="+index);
 			return defaultColor;
 		}
 		if(sexType.equals(SexType.male)) {

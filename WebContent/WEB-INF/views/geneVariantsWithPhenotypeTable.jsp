@@ -18,7 +18,7 @@
 		 resTemp[0].remove();
 	</script>
 	
-	<table id="phenotypes" class="table table-striped">
+	<table id="phenotypes">
 	
 		<thead>
 			<tr>

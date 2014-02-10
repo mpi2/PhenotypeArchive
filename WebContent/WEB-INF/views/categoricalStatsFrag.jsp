@@ -98,7 +98,7 @@
 
 	
 <!-- categorical here -->
-				<div class="row-fluid">
+				
  				<c:forEach var="categoricalChartDataObject" items="${categoricalResultAndChart.maleAndFemale}" varStatus="chartLoop">
   				 	
 								<div id="chart${experimentNumber}">
@@ -109,7 +109,7 @@
 				
 					
 					
-					<table id="catTable" class="table table-bordered  table-striped table-condensed">
+					<table id="catTable">
  							<thead><tr>
  										
 										<th>Control/Hom/Het</th><!-- blank usually as no header -->
@@ -143,7 +143,6 @@
 							</tbody>
  				</table>
  				</c:forEach>
-				</div>
 
 
 

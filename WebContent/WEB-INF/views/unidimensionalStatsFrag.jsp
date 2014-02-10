@@ -22,7 +22,7 @@
 				<%-- </c:forEach>
 				 --%>
 	
-		<table id="continuousTable" class="table table-bordered  table-striped table-condensed">
+		<table id="continuousTable">
 		<thead><tr>
 		<th>Line</th>
 		<th>Zygosity</th>
@@ -66,9 +66,8 @@
 				
 				
 				<c:if test="${fn:length(unidimensionalDataSet.allUnidimensionalResults)>0}">
-				<div class="row-fluid">
-						<div class="container span12">
-						<table class="ttable table-bordered  table-striped table-condensed">
+				<div class="section">
+						<table>
 						${fn:length(unidimensionalDataSet.allUnidimensionalResults)}
 						
  							<c:forEach var="data" items="${unidimensionalDataSet.allUnidimensionalResults}">
@@ -88,7 +87,7 @@
 									</c:forEach>
  	 							</table>
  	 							
- 	 		<table class="ttable table-bordered  table-striped table-condensed">
+ 	 		<table>
 						<tr>
 						<th>colonyId</th>
 						<th>experimentalZygosity</th>
@@ -160,8 +159,7 @@
  							</tr>
 						</c:forEach>
  	 					</table>
- 	 							
- 						</div>
+ 	 					
  				</div>
  				
  				</c:if>
