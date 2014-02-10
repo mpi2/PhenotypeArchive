@@ -21,7 +21,7 @@
 <div  class="section half">
 			<div class="inner">		
 			
-			<table class="table table-striped">
+			<table>
 				<tbody>
 					<c:if test="${not empty anatomy}">
 					<tr>
@@ -45,19 +45,18 @@
 			<div class="inner">
 			<c:choose>
     				<c:when test="${not empty exampleImages}">
-      				<div class="row-fluid">
-      								<div class="container span6">
+      				
+      								
       										<img src="${mediaBaseUrl}/${exampleImages.control.smallThumbnailFilePath}"/>
       										Control
-      								</div>
-      								<div class="container span6">
+      								
       										<img src="${mediaBaseUrl}/${exampleImages.experimental.smallThumbnailFilePath}"/>
       										<c:forEach var="sangerSymbol" items="${exampleImages.experimental.sangerSymbol}" varStatus="symbolStatus">
 												<c:if test="${not empty exampleImages.experimental.sangerSymbol}"><t:formatAllele>${sangerSymbol}</t:formatAllele><br /></c:if>
 												</c:forEach>
-      								</div>
+      								
 
-      				</div>
+      				
     				</c:when>
     				<c:otherwise>
       				 <c:if test="${not empty expressionImages}"><img src="${mediaBaseUrl}/${expressionImages[0].smallThumbnailFilePath}"/>Random MA related image</c:if>
@@ -100,13 +99,13 @@
 	</div>
 	</c:if><!-- end of images lacz expression priority and xray maybe -->
 	
-	
-		<div class="row-fluid dataset">
-			<div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-			<h4 class="caption">Associated Phenotypes</h4>
-			<div class="row-fluid">
-				<div class="container span12">				
-				<c:if test="${not empty anatomy.mpTerms}">
+	<c:if test="${not empty anatomy.mpTerms}">
+		<div class="section">
+			<%-- <div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div> --%>
+			<h2 class="title">Associated Phenotypes<i class="fa fa-question-circle pull-right"></i></h2>
+			<div class="inner">
+							
+				
 				<table class="table table-striped">
 				<tbody>
 					<tr>
@@ -119,18 +118,20 @@
 					</tr>
 					</tbody>
 					</table>
-					</c:if>
-				</div>
+					
+				
 		</div>
 		
 	</div><!-- end of images lacz expression priority and xray maybe -->
+	</c:if>
 	
 	
-	<div class="row-fluid dataset">
-	<div class='documentation'><a href='' class='relatedMaPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-				<h4 class="caption">Explore</h4>
-		<div class="row-fluid">				
-				<div class="container span12">				
+	<div class="section">
+	<%-- <div class='documentation'><a href='' class='relatedMaPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div> --%>
+		<h2 class="title">Explore<i class="fa fa-question-circle pull-right"></i></h2>
+				
+		<div class="inner">				
+					
 				<table class="table table-striped">
 				<tbody>
 				<tr>
@@ -144,8 +145,6 @@
 					</tr>
 					</tbody>
 					</table>
-					
-				</div>
 		</div>
 		
 	</div><!-- end of images lacz expression priority and xray maybe -->
