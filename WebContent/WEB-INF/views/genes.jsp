@@ -256,7 +256,18 @@
 		<div class="section">
 			<h2 class="title documentation" id="section-associations"> Phenotype associations for ${gene.symbol} <a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></h2>
 			<div class="inner">
-				<div class="abnormalities">TODO</div>
+				<div class="abnormalities">
+					<div class="allicons"></div>
+						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
+							<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
+						</c:forEach>
+						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getFemalePhenotypes()}">
+							<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
+						</c:forEach>
+						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getMalePhenotypes()}">
+							<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
+						</c:forEach>
+				</div>
 				<c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
 		            
 					<p> Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models. </p>
