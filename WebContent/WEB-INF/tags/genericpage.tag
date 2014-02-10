@@ -147,7 +147,6 @@ try {
 <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js'></script>
 <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js'></script>
 <script type='text/javascript' src='${baseUrl}/js/imaging/mp.js'></script>
-<script type='text/javascript' src="${baseUrl}/js/general/dropDownPhenPage.js"></script>
 <script type='text/javascript' src="${baseUrl}/js/general/toggle.js"></script> 
 		
 <script type="text/javascript" src="${baseUrl}/js/default.js?cache=09-01-14"></script>
