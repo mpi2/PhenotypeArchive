@@ -64,12 +64,12 @@
 				
 			<!-- mi_attempt allele name -->
 			<entity dataSource="allele_core" name="miAlleleName" stream="true" onError="continue"
-				url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:mi_attempt&amp;wt=normal&amp;fl=allele_name,type,best_status_pa_cre_ex_required"
+				url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:mi_attempt&amp;wt=normal&amp;fl=allele_name,type,best_status_pa_cre_ex_not_required"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/" >				
 
 				<field column="mi_allele_type" xpath="/response/result/doc/str[@name='type']" />	
 				<field column="mi_allele_name" xpath="/response/result/doc/str[@name='allele_name']" />
-				<field column="mi_phenotyping_status" xpath="/response/result/doc/str[@name='best_status_pa_cre_ex_required']" />
+				<field column="mi_phenotyping_status" xpath="/response/result/doc/str[@name='best_status_pa_cre_ex_not_required']" />
 											
 			</entity>						
 
