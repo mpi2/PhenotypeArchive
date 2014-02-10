@@ -116,7 +116,7 @@ public class AnatomyController {
 		System.out.println("calling anatomy page");
 		// http://www.informatics.jax.org/searches/AMA.cgi?id=MA:0002950
 		// right eye
-		Anatomy ma=JSONMAUtils.getMA(anatomy_id, config, numberOfImagesToDisplay);
+		Anatomy ma=JSONMAUtils.getMA(anatomy_id, config);
 		model.addAttribute("anatomy", ma);
 		Map<String, JSONObject> exampleImagesMap = getExampleImages(anatomy_id);
 
@@ -124,7 +124,7 @@ public class AnatomyController {
 
 		//get expression only images
 		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils
-				.getAnatomyAssociatedExpressionImages(anatomy_id, config);
+				.getAnatomyAssociatedExpressionImages(anatomy_id, config, numberOfImagesToDisplay);
 		int numberExpressionImagesFound = JSONRestUtil
 				.getNumberFoundFromJsonResponse(maAssociatedExpressionImagesResponse);
 		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject(

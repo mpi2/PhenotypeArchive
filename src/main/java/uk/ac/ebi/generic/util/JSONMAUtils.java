@@ -15,9 +15,9 @@ import net.sf.json.JSONObject;
 
 public class JSONMAUtils {
 
-	public static  Anatomy getMA(String anatomy_id, Map<String, String> config, int  numberOfImagesToDisplay) throws IOException, URISyntaxException {
+	public static  Anatomy getMA(String anatomy_id, Map<String, String> config) throws IOException, URISyntaxException {
 		//url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.mincount=1&facet.limit=-1";
-		String url=config.get("internalSolrUrl")+"/ma/select/?q=ma_id:\""+anatomy_id+"\"&wt=json&start=0&rows="+numberOfImagesToDisplay;
+		String url=config.get("internalSolrUrl")+"/ma/select/?q=ma_id:\""+anatomy_id+"\"&wt=json&start=0&rows=6";
 		JSONObject result = JSONRestUtil.getResults(url);
 		System.out.println(result.toString());
 		JSONArray maArray=JSONRestUtil.getDocArray(result);
