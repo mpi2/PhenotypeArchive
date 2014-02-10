@@ -40,7 +40,7 @@ $(document).ready(function(){
 	}
 	else {
 		// do not understand the url, redirect to error page
-		document.location.href = baseUrl + '/404.jsp';		
+		//document.location.href = baseUrl + '/404.jsp';		
 	}
 	
 	// search via ENTER
