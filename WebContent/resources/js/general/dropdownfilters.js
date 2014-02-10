@@ -45,7 +45,7 @@ $(document).ready(function(){
 			TSV: 'tsv_phenoAssoc',
 			XLS: 'xls_phenoAssoc'	    			 					
 		},
-		class: 'fileIcon'
+		class: 'fileIcon exportButton'
 	}));
 
 	var mgiGeneId = window.location.href.split("/")[window.location.href.split("/").length-1];
