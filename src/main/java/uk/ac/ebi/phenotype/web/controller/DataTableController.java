@@ -239,6 +239,7 @@ public class DataTableController {
 				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
 								+ "<i class='fa fa-sign-in'></i>"
 								+ "<a class='regInterest' href='/user/register'>Interest</a>"
+								//+ "<a class='regInterest' href='#'>Interest</a>"
 								+ "</div>";
 				
 				rowData.add(interest);

@@ -1557,10 +1557,13 @@
     				$('table#geneGrid th:nth-child(1)').width('45%');
     			}  						
     			
+    			
     			$('a.interest').click(function(){
+    				
     				var mgiId = $(this).attr('id');
     				var label = $(this).text();
-    				var regBtn = $(this);
+    				var regBtn = $(this);  
+    				console.log('current label: ' + label );
     				$.ajax({
     					url: '/toggleflagfromjs/' + mgiId,                       
     					success: function (response) {
@@ -1571,15 +1574,28 @@
     							window.alert('Null error trying to register interest');
     						} 
     						else {  
+    							console.log('current label: ' + label );
     							// 3 labels (before login is 'Interest'
     							if( label == 'Register interest' ) {
     								regBtn.text('Unregister interest');    								    								
-    								regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out').parent().attr('oldtitle', 'Unregister interest');   		;
+    								regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out')
+    									.parent().attr('oldtitle', 'Unregister interest')
+    									.qtip({       			
+    				    					style: { classes: 'qtipimpc flat' },
+    				    					position: { my: 'top center', at: 'bottom center' },    					
+    				    					content: { text: $(this).attr('oldtitle')}
+    				    					});	    								
     							} 
     							else if (label == 'Unregister interest'){
     								regBtn.text('Register interest');    								
-    								regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in').parent().attr('oldtitle', 'Register interest');
-    							}                               
+    								regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in')
+    									.parent().attr('oldtitle', 'Register interest')
+    									.qtip({       			
+    										style: { classes: 'qtipimpc flat' },
+    										position: { my: 'top center', at: 'bottom center' },    					
+    										content: { text: $(this).attr('oldtitle')}
+				    						});
+    							}    							                           
     						}                         
                         },
                         error: function () {
