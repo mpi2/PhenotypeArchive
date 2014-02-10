@@ -259,13 +259,19 @@
 				<div class="abnormalities">
 					<div class="allicons"></div>
 						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
-							<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
+							<a class="filterTrigger" id="imageBox_${summaryObj.getName()}">
+								<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
+							</a>
 						</c:forEach>
 						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getFemalePhenotypes()}">
-							<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
+							<a class="filterTrigger" id="imageBox_${summaryObj.getName()}">
+								<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
+							</a>
 						</c:forEach>
 						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getMalePhenotypes()}">
-							<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
+							<a class="filterTrigger" id="imageBox_${summaryObj.getName()}">
+								<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
+							</a>
 						</c:forEach>
 				</div>
 				<c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
