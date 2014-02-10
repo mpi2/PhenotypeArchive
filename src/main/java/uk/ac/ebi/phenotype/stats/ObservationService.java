@@ -973,12 +973,14 @@ public class ObservationService {
 			.setQuery("*:*")
 			.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":control")
 			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
 			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
 			.setStart(0)
 			.setRows(5000)
 		;
-
+		if (organisationId!= null){
+			query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId);
+		}
+		
 		if(metadataGroup == null || metadataGroup.isEmpty()) {
 			query.addFilterQuery(ExperimentField.METADATA_GROUP + ":\"\"");
 		} else {
@@ -1008,7 +1010,7 @@ public class ObservationService {
 			String dateFilter = df.format(beginning)+"Z TO "+df.format(maxDate)+"Z";
 			query.addFilterQuery(ExperimentField.DATE_OF_EXPERIMENT + ":[" + dateFilter + "]");
 		}
-		
+		System.out.println("------" + query);
 		response = solr.query(query);
 		results = response.getBeans(ObservationDTO.class);
 		
