@@ -1575,12 +1575,12 @@
     								regBtn.text('Unregister interest');
     								
     								console.log(regBtn.siblings('i'));
-    								regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out').parent().attr('oldtitle', 'Unregister interest*');   		;
+    								regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out').parent().attr('title', 'Unregister interest');   		;
     							} 
     							else {
     								regBtn.text('Register interest');
     								console.log(regBtn.siblings('i'));
-    								regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in').parent().attr('oldtitle', 'Register interest*');;
+    								regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in').parent().attr('title', 'Register interest');
     							}                               
     						}                         
                         },
