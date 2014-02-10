@@ -1563,7 +1563,7 @@
     				var mgiId = $(this).attr('id');
     				var label = $(this).text();
     				var regBtn = $(this);  
-    				console.log('current label: ' + label );
+    				
     				$.ajax({
     					url: '/toggleflagfromjs/' + mgiId,                       
     					success: function (response) {
@@ -1573,9 +1573,8 @@
     						if(response === 'null') {
     							window.alert('Null error trying to register interest');
     						} 
-    						else {  
-    							console.log('current label: ' + label );
-    							// 3 labels (before login is 'Interest'
+    						else {    							
+    							// 3 labels (before login is 'Interest')
     							if( label == 'Register interest' ) {
     								regBtn.text('Unregister interest');    								    								
     								regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out')
@@ -1584,7 +1583,7 @@
     				    					style: { classes: 'qtipimpc flat' },
     				    					position: { my: 'top center', at: 'bottom center' },    					
     				    					content: { text: $(this).attr('oldtitle')}
-    				    					});	    								
+    				    					});	// refresh tooltip    								
     							} 
     							else if (label == 'Unregister interest'){
     								regBtn.text('Register interest');    								
@@ -1594,7 +1593,7 @@
     										style: { classes: 'qtipimpc flat' },
     										position: { my: 'top center', at: 'bottom center' },    					
     										content: { text: $(this).attr('oldtitle')}
-				    						});
+				    						}); // refresh tooltip
     							}    							                           
     						}                         
                         },
@@ -1605,6 +1604,7 @@
     				return false;    		    	  
     			});
     			
+    			// applied when result page first loads
     			$('div.registerforinterest, td .status').each(function(){
     				$(this).qtip({       			
     					style: { classes: 'qtipimpc flat' },
