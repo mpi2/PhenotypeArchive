@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
+import org.antlr.grammar.v3.ANTLRv3Parser.finallyClause_return;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -111,6 +112,8 @@ public class GenesController {
 
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
+	
+	private static final int numberOfImagesToDisplay=5;
 
 
 	/**
@@ -490,7 +493,7 @@ public class GenesController {
 		for (FacetField facet : expressionfacets) {
 			if (facet.getValueCount() != 0) {
 				for (Count value : facet.getValues()) {
-					QueryResponse response = imagesSolrDao.getDocsForGeneWithFacetField(acc, "annotated_or_inferred_higherLevelMaTermName",value.getName(), "expName:\"Wholemount Expression\"", 0, 6);
+					QueryResponse response = imagesSolrDao.getDocsForGeneWithFacetField(acc, "annotated_or_inferred_higherLevelMaTermName",value.getName(), "expName:\"Wholemount Expression\"", 0, numberOfImagesToDisplay);
 					if(response != null) {
 						facetToDocs.put(value.getName(), response.getResults());
 					}
@@ -540,7 +543,7 @@ public class GenesController {
 					if(!count.getName().equals("Wholemount Expression")){
 
 						// get 5 images if available for this experiment type
-						QueryResponse response = imagesSolrDao.getDocsForGeneWithFacetField(acc, "expName", count.getName(),"", 0, 6);
+						QueryResponse response = imagesSolrDao.getDocsForGeneWithFacetField(acc, "expName", count.getName(),"", 0, numberOfImagesToDisplay);
 						if(response != null) {
 							facetToDocs.put(count.getName(), response.getResults());
 						}

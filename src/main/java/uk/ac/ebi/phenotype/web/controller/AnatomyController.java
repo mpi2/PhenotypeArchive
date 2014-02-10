@@ -93,6 +93,8 @@ public class AnatomyController {
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
+	
+	private static final int numberOfImagesToDisplay=5;
 
 	/**
 	 * Phenotype controller loads information required for displaying the
