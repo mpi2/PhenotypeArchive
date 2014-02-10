@@ -38,6 +38,10 @@ $(document).ready(function(){
 		oHashParams = $.fn.parseHashString(window.location.hash.substring(1));		
 		$.fn.fetchSolrFacetCount(oHashParams);	
 	}
+	else {
+		// do not understand the url, redirect to error page
+		document.location.href = baseUrl + '/404.jsp';		
+	}
 	
 	// search via ENTER
 	$('input#s').keyup(function (e) {		
