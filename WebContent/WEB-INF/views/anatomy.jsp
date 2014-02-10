@@ -17,15 +17,10 @@
     </jsp:attribute>
 
     <jsp:body>
-
-	<div class='topic'>Anatomy Term: ${anatomy.term}</div>
-	
-	<div class="row-fluid dataset">
-		<div class='documentation'><a href='' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-		<div class="row-fluid">
-			<div class="container span12">
-						<div class="row-fluid">
-			<div class="container span6">
+<h1 class="title">Anatomy Term: ${anatomy.term}</h1>
+<div  class="section half">
+			<div class="inner">		
+			
 			<table class="table table-striped">
 				<tbody>
 					<c:if test="${not empty anatomy}">
@@ -44,7 +39,10 @@
 				</tbody>
 			</table>
 			</div>
-			<div class="container span5" id="ovRight">
+			</div><!--  end of first section half -->
+			
+			<div  class="section half">
+			<div class="inner">
 			<c:choose>
     				<c:when test="${not empty exampleImages}">
       				<div class="row-fluid">
@@ -66,12 +64,10 @@
       				  <c:if test="${(empty expressionImages) && (not empty images)}"><img src="${mediaBaseUrl}/${images[0].smallThumbnailFilePath}"/>Random MA related image</c:if>
     				</c:otherwise>
 			</c:choose>
-	
 			</div>
 		</div>
-	</div>
-		</div>
-	</div>
+	
+	
 	
 		<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
 	<div  class="section">
@@ -101,9 +97,6 @@
 						</div>
 					<!--  end of accordion -->
 					</div>
-				</div>
-			
-		</div>	
 	</div>
 	</c:if><!-- end of images lacz expression priority and xray maybe -->
 	

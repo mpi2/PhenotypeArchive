@@ -194,7 +194,7 @@
 						for (var k = 2; k < params.split("parameterId\=").length; k++){
 							paramIdList += "\t" + params.split("parameterId\=")[k].split("\&")[0];
 						}
-						var phenotypingCenter = (params.indexOf("phenotypingCenter\=") > 0) ? params.split("phenotypingCenter\=")[1].split("\&")[0] : null;
+						var phenotypingCenter = (params.indexOf("phenotyping_center\=") > 0) ? params.split("phenotyping_center\=")[1].split("\&")[0] : null;
 						var zygosity = null;
 						if (params.indexOf("zygosity\=") > 0)
 							zygosity = params.split("zygosity\=")[1].split("\&")[0];
