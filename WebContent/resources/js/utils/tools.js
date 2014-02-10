@@ -1057,7 +1057,7 @@
     		// changed to use button instead of <a> as this will follow the link and the download won't work when clicked - have tried return false, 
     		// but due to a couple of ajax down the road, I could not get it to work.
     		// The button is styled as the new design
-    		var btn = $('<button></button>').attr({'class': oFormatSelector[f] + ' fa fa-download ' + conf['class']}).html(f);
+    		var btn = $('<button></button>').attr({'class': oFormatSelector[f] + ' fa fa-download gridDump ' + conf['class']}).html(f);
     		
     		$(iconDiv).append(btn);
     	}

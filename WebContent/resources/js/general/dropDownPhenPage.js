@@ -41,13 +41,13 @@ $(document).ready(function(){
 	$('[rel=tooltip]').tooltip();
 
 	//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
-	$('div#exportIconsDiv').append($.fn.loadFileExporterUI({
+	$('div#exportIconsDiv').html($.fn.loadFileExporterUI({
 		label: 'Export table as:',
 		formatSelector: {
 			TSV: 'tsv_phenoAssoc',
 			XLS: 'xls_phenoAssoc'	    			 					
 		},
-		class: 'fileIcon'
+		class: 'fileIcon exportButton'
 	}));
 
 	var mpId = window.location.href.split("/")[window.location.href.split("/").length-1];
