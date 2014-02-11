@@ -168,7 +168,7 @@ try {
                 <ul>
                     <c:forEach var="menuitem" items="${usermenu}" varStatus="loop">
 <c:if test="${fn:containsIgnoreCase(menuitem.title, 'My IMPC')}"><li><a id="my-impc" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li></c:if>
-<c:if test="${fn:containsIgnoreCase(menuitem.title, 'Messages')}"><li><a id="messages" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li></c:if>
+<c:if test="${fn:containsIgnoreCase(menuitem.title, 'Messages')}"><li><a id="messages" class="fa-envelope" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li></c:if>
 <c:if test="${fn:containsIgnoreCase(menuitem.title, 'Log out')}"><li><a id="logout" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li></c:if>
 <c:if test="${fn:containsIgnoreCase(menuitem.title, 'Login')}"><li><a id="login" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li></c:if>
 <c:if test="${fn:containsIgnoreCase(menuitem.title, 'Log in')}"><li><a id="login" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li></c:if>
