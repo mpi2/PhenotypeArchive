@@ -87,27 +87,6 @@
 		
 		<script type="text/javascript">var gene_id = '${acc}';</script>
 		<style>
-		/* Force allele table to not be like tables anymore for responsive layout */
-		@media only screen and (max-width: 800px) {
-			#allele_tracker_panel_results table,
-			#allele_tracker_panel_results thead,
-			#allele_tracker_panel_results tbody,
-			#allele_tracker_panel_results th,
-			#allele_tracker_panel_results td,
-			#allele_tracker_panel_results tr{display: block;}
-			#allele_tracker_panel_results thead tr {position: absolute;top: -9999px;left: -9999px;}
-			#allele_tracker_panel_results tr {border: 1px solid #ccc;}
-			#allele_tracker_panel_results td {border: none;border-bottom: 1px solid #eee;position: relative;padding-left: 50%;white-space: normal;text-align: left;}
-			#allele_tracker_panel_results td:before {position: absolute;top: 6px;left: 6px;width: 45%;padding-right: 10px;white-space: nowrap;text-align: left;font-weight: bold;}
-			#allele_tracker_panel_results td:before {content: attr(data-title);}
-			#allele_tracker_panel_results td:nth-of-type(1):before {content: "Product"}
-			#allele_tracker_panel_results td:nth-of-type(2):before {content: "Allele Type"}
-			#allele_tracker_panel_results td:nth-of-type(3):before {content: "Strain of Origin"}
-			#allele_tracker_panel_results td:nth-of-type(4):before {content: "MGI Allele Name"}
-			#allele_tracker_panel_results td:nth-of-type(5):before {content: "Allele Map"}
-			#allele_tracker_panel_results td:nth-of-type(6):before {content: "Allele Sequence"}
-			#allele_tracker_panel_results td:nth-of-type(7):before {content: "Order"}
-		}
 		#svgHolder div div {z-index:100;}
 		</style>
 	
@@ -261,18 +240,18 @@
 					<div class="abnormalities">
 						<div class="allicons"></div>
 						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
-							<a class="filterTrigger" id="imageBox_${summaryObj.getName()}">
-								<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
+							<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
+								<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
 							</a>
 						</c:forEach>
 						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getFemalePhenotypes()}">
-							<a class="filterTrigger" id="imageBox_${summaryObj.getName()}">
-								<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
+							<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
+								<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
 							</a>
 						</c:forEach>
 						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getMalePhenotypes()}">
-							<a class="filterTrigger" id="imageBox_${summaryObj.getName()}">
-								<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
+							<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
+								<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
 							</a>
 						</c:forEach>
 					</div>

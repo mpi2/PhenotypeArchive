@@ -250,6 +250,8 @@ public class PhenotypesController {
 		model.addAttribute("procedures", procedures);
 		model.addAttribute("genePercentage", getPercentages(phenotype_id));
 		
+		model.addAttribute("parametersAssociated", pipelineDao.getParameterStableIdsByPhenotypeTerm(phenotype_id));
+		//TODO move all getDataOverviewCharts to the OverviewChartsController
 		model.addAttribute("overviewPhenCharts", getDataOverviewCharts(phenotype_id, model));
 		
 		return "phenotypes";
@@ -351,8 +353,6 @@ public class PhenotypesController {
 		}
 		
 	}	
-
-
 	
 	@ExceptionHandler(OntologyTermNotFoundException.class)
 	public ModelAndView handleOntologyTermNotFoundException(OntologyTermNotFoundException exception) {

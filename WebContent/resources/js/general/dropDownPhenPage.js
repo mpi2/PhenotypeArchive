@@ -79,7 +79,7 @@ $(document).ready(function(){
 			sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
 			var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");		
 			_doDataExport(url, form);
-			console.log(sInputs);
+//			console.log(sInputs);
 		});	 
 	}  
 
@@ -146,8 +146,8 @@ $(document).ready(function(){
 		$(multipleSel).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
 			minWidth: 150, onItemClick: function(checkbox, selector){
 				var justChecked = checkbox.prop("checked");
-				console.log("justChecked="+justChecked);
-				console.log("checked="+ checkbox.val());
+//				console.log("justChecked="+justChecked);
+//				console.log("checked="+ checkbox.val());
 				var values = [];
 
 				for(var  i=0; i < selector.options.length; i++ ) {
@@ -173,14 +173,14 @@ $(document).ready(function(){
 				var ddI  = 1; 
 				for (var ii=0; ii<allDd.length; ii++) { 
 					if ($(allDd[ii]).attr('id') != multipleSel.attr('id')) {
-						console.log ("here " + allDd[ii].val() + " " + allDd[ii].attr('id'));
+//						console.log ("here " + allDd[ii].val() + " " + allDd[ii].attr('id'));
 						dd = new Object();
 						dd.name = allDd[ii].attr('id'); 
 						dd.array = allDd[ii].val() || []; 
 						dropdownsList[ddI++] = dd;
 					}
 				}
-				console.log("call with " + dropdownsList.length);
+//				console.log("call with " + dropdownsList.length);
 				refreshGenesPhenoFrag(dropdownsList);
 			}, textFormatFunction: function(options) {
 				var selectedOptions = options.filter(":selected");
@@ -218,12 +218,12 @@ $(document).ready(function(){
 	
 	function refreshGenesPhenoFrag(dropdownsList) {
 		var rootUrl=window.location.href;
-		console.log("genesPhenFrag method (refreshGenesPhenoFrag) called with "+dropdownsList.length);
+//		console.log("genesPhenFrag method (refreshGenesPhenoFrag) called with "+dropdownsList.length);
 		var newUrl=rootUrl.replace("phenotypes", "geneVariantsWithPhenotypeTable");
 		var output ='?';
 		selectedFilters = "";
 		for (var it = 0; it < dropdownsList.length; it++){
-			console.log(dropdownsList[it].array);
+//			console.log(dropdownsList[it].array);
 			if(dropdownsList[it].array.length == 1){//if only one entry for this parameter then don't use brackets and or
 				output += '&fq=' + dropdownsList[it].name + ':"' + dropdownsList[it].array+'"';
 				selectedFilters += '+AND+' + dropdownsList[it].name + ':"' + dropdownsList[it].array+'"';
