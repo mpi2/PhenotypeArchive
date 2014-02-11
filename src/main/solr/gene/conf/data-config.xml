@@ -59,7 +59,8 @@
 				url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:gene&amp;wt=normal&amp;fl=type"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/" >				
 			
-				<field column="gene_type" xpath="/response/result/doc/str[@name='type']" />											
+				<field column="gene_type" xpath="/response/result/doc/str[@name='type']" />	
+				<field column="gene_type_status" xpath="/response/result/doc/str[@name='status']" />										
 			</entity>		
 					
 				
