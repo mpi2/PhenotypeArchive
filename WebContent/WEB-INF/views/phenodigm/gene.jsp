@@ -89,15 +89,15 @@
 
         <div class="section">
             <div class="inner">
-                <p class="with-label no-margin">
+                <p class="with-label">
                     <span class="label">Mouse Gene Symbol</span>
                     <a href="https://www.mousephenotype.org/data/genes/${geneIdentifier.databaseCode}:${geneIdentifier.databaseAcc}">${geneIdentifier.geneSymbol}</a> 
                 </p>
-                <p class="with-label no-margin">
+                <p class="with-label">
                     <span class="label">Human Ortholog</span>
                     <a href="${humanOrtholog.externalUri}">${humanOrtholog.geneSymbol}</a>
                 </p>
-                <p class="with-label no-margin">
+                <p class="with-label">
                     <span class="label">Associated Diseases</span>
                     <c:choose>
                         <c:when test="${empty knownDiseaseAssociationSummaries}">

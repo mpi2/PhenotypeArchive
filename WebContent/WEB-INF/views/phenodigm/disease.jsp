@@ -69,12 +69,12 @@
         <h1 class="title">Disease: ${disease.term}</h1>
         <div class="section">
             <div class="inner">
-                <p class="with-label no-margin">
+                <p class="with-label">
                     <span class="label">Name</span>
                     ${disease.term}
                 </p>
 
-                <p class="with-label no-margin">
+                <p class="with-label">
                     <span class="label">Synonyms</span>
                     <c:choose>
                         <c:when test="${empty disease.alternativeTerms}">
@@ -89,7 +89,7 @@
                     </c:choose>
                 </p>
 
-                <p class="with-label no-margin">
+                <p class="with-label">
                     <span class="label">Locus</span>
                     <c:choose>
                         <c:when test="${empty disease.locus}">
@@ -101,8 +101,8 @@
                     </c:choose>
                 </p>
                 
-                <p class="with-label no-margin">
-                    <span class="label">Associated Human Genes:</span>
+                <p class="with-label">
+                    <span class="label">Associated Human Genes</span>
                     <c:choose>
                         <c:when test="${empty knownGeneAssociationSummaries}">
                             -
@@ -118,8 +118,8 @@
                     </c:choose>
                 </p>
                 
-                <p class="with-label no-margin">
-                    <span class="label">Mouse Orthologs:</span>
+                <p class="with-label">
+                    <span class="label">Mouse Orthologs</span>
                     <c:choose>
                         <c:when test="${empty knownGeneAssociationSummaries}">
                             -
@@ -135,7 +135,7 @@
                     </c:choose>
                 </p>
 
-                <p class="with-label no-margin">
+                <p class="with-label">
                     <span class="label">Source</span>
                     <a href="${disease.diseaseIdentifier.externalUri}">${disease.diseaseId}</a>
                 </p>
