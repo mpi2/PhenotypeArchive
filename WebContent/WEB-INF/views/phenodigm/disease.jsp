@@ -192,14 +192,14 @@
                                         <!--Mouse Phenotype Evidence (Phenodigm)-->
                                         <td>
                                             <c:if test="${0.0 != associationSummary.bestModScore}">
-                                                <b style="color:#FF9000">${associationSummary.bestModScore}</b>   
+                                                <b style="color:#EF7B0B">${associationSummary.bestModScore}</b>   
                                             </c:if>                                        
                                         </td>
                                         <td>
                                             <c:if test="${0.0 != associationSummary.bestHtpcScore}">
-                                                <b style="color:#FF9000">${associationSummary.bestHtpcScore}</b>
+                                                <b style="color:#EF7B0B">${associationSummary.bestHtpcScore}</b>
                                             </c:if>                                        
-                                        </td>                                    
+                                        </td>
                                     </tr>
                                     <tr id="P${humanGeneIdentifier.databaseAcc}_${mouseGeneIdentifier.databaseAcc}_${disease.diseaseIdentifier.databaseAcc}" requestpagetype= "disease" geneid="${mouseGeneIdentifier.compoundIdentifier}" diseaseid="${disease.diseaseIdentifier.compoundIdentifier}">
                                     </tr>
