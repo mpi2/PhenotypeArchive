@@ -138,7 +138,7 @@
                             <tbody>
                                 <c:forEach var="association" items="${phenotypeAssociations}" varStatus="loop">
                                     <c:set var="associationSummary" value="${association.associationSummary}"></c:set>
-                                    <tr id="${disease.diseaseIdentifier.databaseAcc}" targetRowId="P${geneIdentifier.databaseAcc}_${association.diseaseIdentifier.databaseAcc}" style="cursor:help;color:#27408B;" rel="tooltip" data-placement="top" title="Click anywhere on row display phenotype terms" alt="Click row to display phenotype terms" >
+                                    <tr id="${disease.diseaseIdentifier.databaseAcc}" targetRowId="P${geneIdentifier.databaseAcc}_${association.diseaseIdentifier.databaseAcc}" title="Click anywhere on row display phenotype terms">
                                         <!--Disease Name-->
                                         <td><a href="../disease/${association.diseaseIdentifier}">${association.diseaseTerm}</a></td>
                                         <!--Source-->
@@ -171,9 +171,7 @@
                                                 <b style="color:#EF7B0B">${associationSummary.bestHtpcScore}</b>
                                             </c:if>                                        
                                         </td>
-                                        <td class="arrow">
-
-                                        </td>   
+   
                                     </tr>
                                     <tr id="P${geneIdentifier.databaseAcc}_${association.diseaseIdentifier.databaseAcc}" requestpagetype= "gene" geneid="${geneIdentifier.compoundIdentifier}" diseaseid="${association.diseaseIdentifier.compoundIdentifier}">                                      
                                     </tr>

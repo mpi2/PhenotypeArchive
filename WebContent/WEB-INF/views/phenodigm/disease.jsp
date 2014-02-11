@@ -168,7 +168,7 @@
                                 <c:forEach var="association" items="${phenotypeAssociations}">
                                     <c:set var="mouseGeneIdentifier" value="${association.modelGeneIdentifier}"></c:set>
                                     <c:set var="associationSummary" value="${association.associationSummary}"></c:set>
-                                    <tr id="${mouseGeneIdentifier.compoundIdentifier}" targetRowId="P${humanGeneIdentifier.databaseAcc}_${mouseGeneIdentifier.databaseAcc}_${disease.diseaseIdentifier.databaseAcc}" style="cursor:help;color:#27408B;" rel="tooltip" data-placement="top" title="Click anywhere on row display phenotype terms" alt="Click row to display phenotype terms" >
+                                    <tr id="${mouseGeneIdentifier.compoundIdentifier}" targetRowId="P${humanGeneIdentifier.databaseAcc}_${mouseGeneIdentifier.databaseAcc}_${disease.diseaseIdentifier.databaseAcc}" title="Click anywhere on row display phenotype terms" >
                                         <td>
                                             <!--Mouse Gene Symbol-->
                                             <a href="../gene/${mouseGeneIdentifier.databaseCode}:${mouseGeneIdentifier.databaseAcc}">${mouseGeneIdentifier.geneSymbol}</a> 
