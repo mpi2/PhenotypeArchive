@@ -23,6 +23,7 @@ public class DrupalHttpProxy extends HttpProxy {
 	
 	protected static String authenticatedMenu = null;
 	protected static String publicMenu = null;
+	protected static String publicUserMenu = null;
 	
 	public DrupalHttpProxy(HttpServletRequest request) {
 		super();
@@ -152,6 +153,47 @@ public class DrupalHttpProxy extends HttpProxy {
 		} catch (Exception e) {
 			log.error("Cannot retreive menu from drupal. Using default menu.");
 			content = "[{\"title\":\"Home\",\"link_path\":\"\",\"href\":\"\"},{\"title\":\"About IMPC\",\"link_path\":\"node\\/19\",\"href\":\"node\\/19\",\"below\":[{\"title\":\"Goals\",\"link_path\":\"node\\/72545\",\"href\":\"node\\/72545\"},{\"title\":\"Members\",\"link_path\":\"node\\/21\",\"href\":\"node\\/21\",\"below\":[{\"title\":\"Locations\",\"link_path\":\"node\\/22\",\"href\":\"node\\/22\"}]},{\"title\":\"Secretariat\",\"link_path\":\"node\\/23\",\"href\":\"node\\/23\"},{\"title\":\"Workgroups\",\"link_path\":\"node\\/24\",\"href\":\"node\\/24\",\"below\":[{\"title\":\"IT Work Group\",\"link_path\":\"node\\/25\",\"href\":\"node\\/25\"},{\"title\":\"Phenotyping Work Group\",\"link_path\":\"node\\/26\",\"href\":\"node\\/26\"},{\"title\":\"Industry Work Group\",\"link_path\":\"node\\/27\",\"href\":\"node\\/27\"}]},{\"title\":\"Phenotype Protocols\",\"link_path\":\"http:\\/\\/www.mousephenotype.org\\/impress\",\"href\":\"http:\\/\\/www.mousephenotype.org\\/impress\"},{\"title\":\"Links\",\"link_path\":\"node\\/32\",\"href\":\"node\\/32\"}]},{\"title\":\"Search\",\"link_path\":\"https:\\/\\/www.mousephenotype.org\\/mi\\/impc\\/phenotype-archive\\/search\",\"href\":\"https:\\/\\/www.mousephenotype.org\\/mi\\/impc\\/phenotype-archive\\/search\"},{\"title\":\"News and Events\",\"link_path\":\"news\",\"href\":\"news\",\"below\":[{\"title\":\"Meetings\",\"link_path\":\"node\\/66633\",\"href\":\"node\\/66633\"}]},{\"title\":\"Contact Us\",\"link_path\":\"node\\/33\",\"href\":\"node\\/33\",\"below\":[{\"title\":\"Outreach\",\"link_path\":\"node\\/66694\",\"href\":\"node\\/66694\"}]},{\"title\":\"My IMPC\",\"link_path\":\"user\",\"href\":\"user\",\"below\":[{\"title\":\"Login\",\"link_path\":\"user\\/login\",\"href\":\"user\\/login\"},{\"title\":\"Access IMITS\",\"link_path\":\"https:\\/\\/www.mousephenotype.org\\/imits\",\"href\":\"https:\\/\\/www.mousephenotype.org\\/imits\"},{\"title\":\"Newsletters\",\"link_path\":\"node\\/67171\",\"href\":\"node\\/67171\"},{\"title\":\"Documentation\",\"link_path\":\"node\\/72649\",\"href\":\"node\\/72649\"}]},{\"title\":\"Register\",\"link_path\":\"user\\/register\",\"href\":\"user\\/register\"}]";
+		}
+
+		//strip off the drupal <front> tag
+		content = content.replace("<front>", "");
+
+		JSONArray menu = (JSONArray) JSONSerializer.toJSON(content);
+
+		return menu;
+	}
+
+	/**
+	 * Get the current user menu for the drupal system
+	 * 
+	 * @return a jsonArray corresponding to the drupal menu, or a default it
+	 *         drupal could not be contacted for some reason
+	 * @throws JSONException
+	 */
+	public JSONArray getDrupalUserMenu(String drupalBaseUrl) throws JSONException {
+
+		String content = "";
+		Random randomGenerator = new Random();
+		// If we can't get the menu, default to the logged out menu
+		try {
+			if (getDrupalSessionCookieString() != null && ! getDrupalSessionCookieString().equals("") ) {
+				log.info("Getting drupal user menu.");				
+				URL url = new URL(drupalBaseUrl + "/menudisplayuser");
+				content = this.getContent(url);
+			} else {
+				if (publicUserMenu == null || randomGenerator.nextInt(100) == 1) {
+					log.info("Not logged in, using standard menu.");
+					URL url = new URL(drupalBaseUrl + "/menudisplayuser");
+					publicUserMenu = this.getContent(url);
+					content = publicUserMenu;
+					// "[{\"title\":\"Home\",\"link_path\":\"\",\"href\":\"\"},{\"title\":\"About IMPC\",\"link_path\":\"node\\/19\",\"href\":\"node\\/19\",\"below\":[{\"title\":\"IMPC Goals\",\"link_path\":\"node\\/20\",\"href\":\"node\\/20\"},{\"title\":\"Members\",\"link_path\":\"node\\/21\",\"href\":\"node\\/21\",\"below\":[{\"title\":\"Locations\",\"link_path\":\"node\\/22\",\"href\":\"node\\/22\"}]},{\"title\":\"Secretariat\",\"link_path\":\"node\\/23\",\"href\":\"node\\/23\"},{\"title\":\"Workgroups\",\"link_path\":\"node\\/24\",\"href\":\"node\\/24\",\"below\":[{\"title\":\"IT Work Group\",\"link_path\":\"node\\/25\",\"href\":\"node\\/25\"},{\"title\":\"Phenotyping Work Group\",\"link_path\":\"node\\/26\",\"href\":\"node\\/26\"},{\"title\":\"Industry Work Group\",\"link_path\":\"node\\/27\",\"href\":\"node\\/27\"}]},{\"title\":\"Links\",\"link_path\":\"node\\/32\",\"href\":\"node\\/32\"}]},{\"title\":\"Search\",\"link_path\":\"https:\\/\\/dev.mousephenotype.org\\/mi\\/impc\\/dev\\/phenotype-archive\\/search\",\"href\":\"https:\\/\\/dev.mousephenotype.org\\/mi\\/impc\\/dev\\/phenotype-archive\\/search\"},{\"title\":\"News and Events\",\"link_path\":\"news\",\"href\":\"news\",\"below\":[{\"title\":\"Teleconference and Events Calendar\",\"link_path\":\"telephone-calendar\\/month\",\"href\":\"telephone-calendar\\/month\"}]},{\"title\":\"Send Us Feedback\",\"link_path\":\"contact\\/Beta Website Feedback\",\"href\":\"contact\\/Beta Website Feedback\",\"below\":[{\"title\":\"Newsletters\",\"link_path\":\"node\\/103011\",\"href\":\"node\\/103011\"}]},{\"title\":\"My IMPC\",\"link_path\":\"user\",\"href\":\"user\",\"below\":[{\"title\":\"Login\",\"link_path\":\"user\\/login\",\"href\":\"user\\/login\"},{\"title\":\"Access IMITS\",\"link_path\":\"http:\\/\\/mousephenotype.org\\/imits\",\"href\":\"http:\\/\\/mousephenotype.org\\/imits\"}]},{\"title\":\"Register\",\"link_path\":\"user\\/register\",\"href\":\"user\\/register\"}]";				
+				} else {
+					content = publicUserMenu;
+				}
+			}
+		} catch (Exception e) {
+			log.error("Cannot retreive user menu from drupal. Using default user menu.");
+			content = "[{\"title\":\"My IMPC\",\"link_path\":\"user\",\"href\":\"user\",\"below\":[{\"title\":\"Create new account\",\"link_path\":\"user\\/register\",\"href\":\"user\\/register\"},{\"title\":\"Log in\",\"link_path\":\"user\\/login\",\"href\":\"user\\/login\"},{\"title\":\"Request new password\",\"link_path\":\"user\\/password\",\"href\":\"user\\/password\"}]},{\"title\":\"Login\",\"link_path\":\"user\\/login\",\"href\":\"user\\/login\"},{\"title\":\"Register\",\"link_path\":\"user\\/register\",\"href\":\"user\\/register\"}]";
 		}
 
 		//strip off the drupal <front> tag

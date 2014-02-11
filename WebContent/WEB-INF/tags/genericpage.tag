@@ -31,6 +31,7 @@
         String url = (String)request.getAttribute("drupalBaseUrl");
         url = url.replace("dev.", "test.");
         jspContext.setAttribute("menu", proxy.getDrupalMenu(url));
+        jspContext.setAttribute("usermenu", proxy.getDrupalUserMenu(url));
         
 %>
 <%@attribute name="header" fragment="true"%>
@@ -166,8 +167,20 @@ try {
             
             <div id="tn">
                 <ul>
-                    <li><i class="fa fa-user"></i><a href="login.php" title="Login with your account">Login</a></li>
-                    <li><i class="fa fa-sign-in"></i><a href="register.php" title="Register for an account">Register</a></li>
+                    <c:forEach var="menuitem" items="${usermenu}" varStatus="loop">
+					<li>
+<c:if test="${fn.containts(menuitem.title, 'My IMPC')}"><a id="my-impc" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></c:if>
+<c:if test="${fn.containts(menuitem.title, 'Messages')}"><a href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}" class="fa-envelope">${menuitem.title}</a></c:if>
+<c:if test="${fn.containts(menuitem.title, 'Log out')}"><a id="logout" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></c:if>
+<c:if test="${fn.containts(menuitem.title, 'Login')}"><a id="login" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></c:if>
+<c:if test="${fn.containts(menuitem.title, 'Log in')}"><a id="login" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></c:if>
+<c:if test="${fn.containts(menuitem.title, 'Register')}"><a id="register" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></c:if>
+					</li>
+					<%-- </c:if> --%>
+					</c:forEach>
+
+                    <li><i class="fa fa-user"></i><a href="${drupalBaseUrl}/login.php" title="Login with your account">Login</a></li>
+                    <li><i class="fa fa-sign-in"></i><a href="${drupalBaseUrl}/register.php" title="Register for an account">Register</a></li>
                 </ul>
             </div>
             
