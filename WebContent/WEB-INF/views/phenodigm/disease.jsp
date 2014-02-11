@@ -151,7 +151,7 @@
                     </c:when>
                     <c:otherwise>
                         <!--The following genes are associated with ${disease.diseaseId} by phenotypic similarity.-->
-                        <table id="phenotypes" class="table table-striped"> 
+                        <table id="phenotypes" class="table tableSorter"> 
                             <thead>
                                 <tr>
                                     <!--<th>Human Gene Symbol</th>-->
@@ -206,6 +206,9 @@
                                 </c:forEach>
                             </tbody>
                         </table>
+                        <script>
+                            $(document).ready(function(){ });
+                        </script>
                     </c:otherwise>
                 </c:choose>
             </div>

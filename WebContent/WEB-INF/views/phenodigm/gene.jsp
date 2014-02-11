@@ -123,7 +123,7 @@
                     </c:when>
                     <c:otherwise>
                         <!--The following diseases are associated with ${geneIdentifier.geneSymbol} by phenotypic similarity-->
-                        <table id="predictedPhenotypes" class="table table-striped">
+                        <table id="predictedPhenotypes" class="table tableSorter">
                             <thead>
                                 <tr>
                                     <th><span class="main">Disease Name</span></th>
@@ -178,6 +178,9 @@
                                 </c:forEach>
                             </tbody>
                         </table>
+                        <script>
+                            $(document).ready(function(){ });
+                        </script>
                     </c:otherwise>
                 </c:choose>
             </div>
