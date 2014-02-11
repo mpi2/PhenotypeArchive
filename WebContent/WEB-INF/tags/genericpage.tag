@@ -181,8 +181,7 @@ try {
             </div>
             
             <div id="logo">
-                <!-- a href="index.php"><img src="${baseUrl}/img/IMPC<c:if test='${not fn:contains(drupalBaseUrl,"www")}'>Beta</c:if>logo.png" alt="IMPC Logo" /></a-->
-                <a href="index.php"><img src="${baseUrl}/img/impc.png" alt="IMPC Logo" /></a>
+                <a href="${drupalBaseUrl}/"><img src="${baseUrl}/img/impc.png" alt="IMPC Logo" /></a>
                 <div id="logoslogan">International Mouse Phenotyping Consortium</div>
             </div>
             
