@@ -267,7 +267,7 @@ public class DataTableController {
 				if (doc.containsKey(p)) {
 					JSONArray status = doc.getJSONArray(p);
 					for (Object s : status) {
-						if (s.toString().equals("phenotyping_started") || s.toString().equals("phenotyping_complete") ) {
+						if (s.toString().equals("Phenotyping Started") || s.toString().equals("Phenotyping Complete") ) {
 							return "available";
 						}
 					}
@@ -305,18 +305,19 @@ public class DataTableController {
 						
 			// mice production status
 			
-			// Mice: blue tm1.1/tm1b/1e.1 mice (depending on how many allele docs) 
+			// Mice: blue tm1.1/tm1b/tm1e.1 mice (depending on how many allele docs) 
 			if ( doc.containsKey("pa_allele_type") ){
 				// blue es cell status
 				miceStatus += parseAlleleType(doc, "done", "B");
 			}
+			// Mice: blue tm1/tm1a/tm1e mice (depending on how many allele docs) 
 			else if ( doc.containsKey("mi_allele_type") ){
 				// blue es cell status
 				miceStatus += parseAlleleType(doc, "done", "A");
 			}
 			else if ( doc.containsKey("es_allele_name") && doc.containsKey("gene_type_status")  ){
-				if ( doc.getString("gene_type_status").equals("Microinjection in progress") ){
-					// draw orange tm1/tm1a/1e mice with given alleles
+				if ( doc.getString("gene_type_status").equals("Microinjection in progress") ){					
+					// draw orange tm1/tm1a/tm1e mice with given alleles
 					miceStatus += parseAlleleType(doc, "inprogress", "A");					
 				}	
 				else if (doc.getString("gene_type_status").equals("") ){
@@ -333,7 +334,7 @@ public class DataTableController {
 			log.error(e.getLocalizedMessage());
 		}
 		
-		return miceStatus + esCellStatus;
+		return esCellStatus + miceStatus;
 		
 	}
 	/*public String deriveProductionStatusForEsCellAndMice2(JSONObject doc, HttpServletRequest request){		
@@ -397,9 +398,9 @@ public class DataTableController {
 	public String parseAlleleType(JSONObject doc, String prodStatus, String type){		
 		
 		String miceStr = "";			
-		String hoverTxt = null;
+		String hoverTxt = null;		
 		if ( prodStatus.equals("done") ){
-			hoverTxt = "Mice produced";
+			hoverTxt = "Mice produced";			
 		}
 		else  if (prodStatus.equals("inprogress") ) {
 			hoverTxt = "Mice production in progress";
@@ -408,26 +409,56 @@ public class DataTableController {
 			hoverTxt = "Mice production planned";
 		}
 		
+		
 		//tm1/tm1a/tm1e mice	
-		if ( type.equals("A") ){
+		if ( type.equals("A") ){	
+			
+			Map<String,Integer> seenMap = new HashMap<String,Integer>();	      
+			seenMap.put("tm1", 0);
+			seenMap.put("tm1a", 0);
+			seenMap.put("tm1e", 0);			
+			
 			for (String alleleType : alleleTypes_mi){	
-				if ( doc.getString("mi_allele_name").contains(alleleType+"(") ){					
-					miceStr += "<span class='status " + prodStatus + "' oldtitle='" + hoverTxt + "' title=''>"
-							+  "	<span>Mice<br>" + alleleType + "</span>"
-							+  "</span>";
-					break;
-				}				
+				
+				String key = prodStatus.equals("inprogress") ? "es_allele_name" : "mi_allele_name";				
+				
+				JSONArray alleleNames = doc.getJSONArray(key);
+				for (Object an : alleleNames) {				
+					if ( an.toString().contains(alleleType+"(") ){						
+						seenMap.put(alleleType, seenMap.get(alleleType)+1);
+						//tm1seen++;
+						if ( seenMap.get(alleleType) == 1 ){
+							miceStr += "<span class='status " + prodStatus + "' oldtitle='" + hoverTxt + "' title=''>"
+								+  "	<span>Mice<br>" + alleleType + "</span>"
+								+  "</span>";					
+							break;
+						}					
+					}
+				}	
 			}	
 		}
 		//tm1.1/tm1b/tm1e.1 mice	
 		else if ( type.equals("B") ){	
+			
+			Map<String,Integer> seenMap = new HashMap<String,Integer>();	      
+			seenMap.put("tm1.1", 0);
+			seenMap.put("tm1b", 0);
+			seenMap.put("tm1e.1", 0);
+			
 			for (String alleleType : alleleTypes_pa){	
-				if ( doc.getString("pa_allele_name").contains(alleleType+"(") ){					
-					miceStr += "<span class='status " + prodStatus + "' oldtitle='" + hoverTxt + "' title=''>"
-							+  "	<span>Mice<br>" + alleleType + "</span>"
-							+  "</span>";					
-				}
-				break;
+				
+				JSONArray alleleNames = doc.getJSONArray("pa_allele_name");
+				for (Object an : alleleNames) {				
+					if ( an.toString().contains(alleleType+"(") ){					
+						seenMap.put(alleleType, seenMap.get(alleleType)+1);
+						if ( seenMap.get(alleleType) == 1 ){
+							miceStr += "<span class='status " + prodStatus + "' oldtitle='" + hoverTxt + "' title=''>"
+									+  "	<span>Mice<br>" + alleleType + "</span>"
+									+  "</span>";	
+							break;
+						}	
+					}	
+				}				
 			}	
 		}		
 		
