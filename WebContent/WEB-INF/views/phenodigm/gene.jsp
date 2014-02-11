@@ -89,15 +89,15 @@
 
         <div class="section">
             <div class="inner">
-                <p class="with-label no-margin">
+                <p class="with-label">
                     <span class="label">Mouse Gene Symbol</span>
                     <a href="https://www.mousephenotype.org/data/genes/${geneIdentifier.databaseCode}:${geneIdentifier.databaseAcc}">${geneIdentifier.geneSymbol}</a> 
                 </p>
-                <p class="with-label no-margin">
+                <p class="with-label">
                     <span class="label">Human Ortholog</span>
                     <a href="${humanOrtholog.externalUri}">${humanOrtholog.geneSymbol}</a>
                 </p>
-                <p class="with-label no-margin">
+                <p class="with-label">
                     <span class="label">Associated Diseases</span>
                     <c:choose>
                         <c:when test="${empty knownDiseaseAssociationSummaries}">
@@ -123,7 +123,7 @@
                     </c:when>
                     <c:otherwise>
                         <!--The following diseases are associated with ${geneIdentifier.geneSymbol} by phenotypic similarity-->
-                        <table id="predictedPhenotypes" class="table table-striped">
+                        <table id="predictedPhenotypes" class="table tableSorter">
                             <thead>
                                 <tr>
                                     <th><span class="main">Disease Name</span></th>
@@ -138,7 +138,7 @@
                             <tbody>
                                 <c:forEach var="association" items="${phenotypeAssociations}" varStatus="loop">
                                     <c:set var="associationSummary" value="${association.associationSummary}"></c:set>
-                                    <tr id="${disease.diseaseIdentifier.databaseAcc}" targetRowId="P${geneIdentifier.databaseAcc}_${association.diseaseIdentifier.databaseAcc}" style="cursor:help;color:#27408B;" rel="tooltip" data-placement="top" title="Click anywhere on row display phenotype terms" alt="Click row to display phenotype terms" >
+                                    <tr id="${disease.diseaseIdentifier.databaseAcc}" targetRowId="P${geneIdentifier.databaseAcc}_${association.diseaseIdentifier.databaseAcc}" title="Click anywhere on row display phenotype terms">
                                         <!--Disease Name-->
                                         <td><a href="../disease/${association.diseaseIdentifier}">${association.diseaseTerm}</a></td>
                                         <!--Source-->
@@ -171,15 +171,16 @@
                                                 <b style="color:#EF7B0B">${associationSummary.bestHtpcScore}</b>
                                             </c:if>                                        
                                         </td>
-                                        <td class="arrow">
-
-                                        </td>   
+   
                                     </tr>
                                     <tr id="P${geneIdentifier.databaseAcc}_${association.diseaseIdentifier.databaseAcc}" requestpagetype= "gene" geneid="${geneIdentifier.compoundIdentifier}" diseaseid="${association.diseaseIdentifier.compoundIdentifier}">                                      
                                     </tr>
                                 </c:forEach>
                             </tbody>
                         </table>
+                        <script>
+                            $(document).ready(function(){ });
+                        </script>
                     </c:otherwise>
                 </c:choose>
             </div>
