@@ -95,6 +95,8 @@
 </div>
 </div>
 </div>
+</div>
+</div>
     </jsp:body>	
 
 </t:genericpage>
