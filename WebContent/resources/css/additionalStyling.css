@@ -83,7 +83,7 @@ button.exportButton{
 .abnormalities .sprite_skeleton_phenotype { margin: 80px 0px 0px 40px; background-position: -40px -80px; }
 .abnormalities .sprite_immune_system_phenotype_or_hematopoietic_system_phenotype { margin: 80px 0px 0px 80px; background-position: -80px -80px; }
 .abnormalities .sprite_muscle_phenotype { margin: 80px 0px 0px 120px; background-position: -120px -80px; }
-.abnormalities .spriteendocrine_exocrine_gland_phenotype { margin: 80px 0px 0px 160px; background-position: -160px -80px; }
+.abnormalities .sprite_endocrine_exocrine_gland_phenotype { margin: 80px 0px 0px 160px; background-position: -160px -80px; }
 
 .abnormalities .sprite_craniofacial_phenotype { margin: 120px 0px 0px 0px; background-position: 0px -120px; }
 .abnormalities .sprite_hearing_vestibular_ear_phenotype { margin: 120px 0px 0px 40px; background-position: -40px -120px; }
