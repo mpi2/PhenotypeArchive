@@ -256,8 +256,10 @@
 		<div class="section">
 			<h2 class="title documentation" id="section-associations"> Phenotype associations for ${gene.symbol} <a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></h2>
 			<div class="inner">
-				<div class="abnormalities">
-					<div class="allicons"></div>
+				
+				<c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
+					<div class="abnormalities">
+						<div class="allicons"></div>
 						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
 							<a class="filterTrigger" id="imageBox_${summaryObj.getName()}">
 								<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
@@ -273,8 +275,7 @@
 								<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
 							</a>
 						</c:forEach>
-				</div>
-				<c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
+					</div>
 		            
 					<p> Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models. </p>
 				    <c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0}">
