@@ -250,6 +250,8 @@ public class PhenotypesController {
 		model.addAttribute("procedures", procedures);
 		model.addAttribute("genePercentage", getPercentages(phenotype_id));
 		
+		model.addAttribute("parametersAssociated", pipelineDao.getParameterStableIdsByPhenotypeTerm(phenotype_id));
+		//TODO move all getDataOverviewCharts to the OverviewChartsController
 		model.addAttribute("overviewPhenCharts", getDataOverviewCharts(phenotype_id, model));
 		
 		return "phenotypes";
@@ -351,8 +353,6 @@ public class PhenotypesController {
 		}
 		
 	}	
-
-
 	
 	@ExceptionHandler(OntologyTermNotFoundException.class)
 	public ModelAndView handleOntologyTermNotFoundException(OntologyTermNotFoundException exception) {
@@ -507,7 +507,9 @@ public class PhenotypesController {
 				if (genes.size() > 0){
 					Map<String, List<DiscreteTimePoint>> data = os.getTimeSeriesMutantData(parameter, genes, strains);
 					data.put("Control", os.getTimeSeriesControlData(parameter, strains));
-					chartsList.add(tstp.doTimeSeriesOverviewData(data, p));
+					ChartData chart = tstp.doTimeSeriesOverviewData(data, p);
+					chart.setId("timechart"+chart.getId());
+					chartsList.add(chart);
 				}
 			}
 			else if ( p != null && Utilities.checkType(p).equals(ObservationType.unidimensional)){

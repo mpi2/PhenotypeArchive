@@ -163,19 +163,19 @@
                                         <!--Mouse Phenotype Evidence (Phenodigm)-->
                                         <td>
                                             <c:if test="${0.0 != associationSummary.bestModScore}">
-                                                <b style="color:#FF9000">${associationSummary.bestModScore}</b>   
+                                                <b style="color:#EF7B0B">${associationSummary.bestModScore}</b>   
                                             </c:if>   
                                         </td>
                                         <td>
                                             <c:if test="${0.0 != associationSummary.bestHtpcScore}">
-                                                <b style="color:#FF9000">${associationSummary.bestHtpcScore}</b>
+                                                <b style="color:#EF7B0B">${associationSummary.bestHtpcScore}</b>
                                             </c:if>                                        
                                         </td>
                                         <td class="arrow">
 
                                         </td>   
                                     </tr>
-                                    <tr id="P${geneIdentifier.databaseAcc}_${association.diseaseIdentifier.databaseAcc}" requestpagetype= "gene" geneid="${geneIdentifier.compoundIdentifier}" diseaseid="${association.diseaseIdentifier.compoundIdentifier}">
+                                    <tr id="P${geneIdentifier.databaseAcc}_${association.diseaseIdentifier.databaseAcc}" requestpagetype= "gene" geneid="${geneIdentifier.compoundIdentifier}" diseaseid="${association.diseaseIdentifier.compoundIdentifier}">                                      
                                     </tr>
                                 </c:forEach>
                             </tbody>

@@ -137,6 +137,9 @@ input.auto              { width: auto; }
 #tn a:hover             { text-decoration: underline; }
 
 /* Icons for the Topnavi */
+#messages:before { font-family: 'FontAwesome'; position: absolute; margin-left: -1.25em; }
+
+/* Icons for the Topnavi */
 #my-impc:before,
 #login:before,
 #logout:before,

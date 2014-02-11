@@ -31,6 +31,7 @@
         String url = (String)request.getAttribute("drupalBaseUrl");
         url = url.replace("dev.", "test.");
         jspContext.setAttribute("menu", proxy.getDrupalMenu(url));
+        jspContext.setAttribute("usermenu", proxy.getDrupalUserMenu(url));
         
 %>
 <%@attribute name="header" fragment="true"%>
@@ -165,14 +166,20 @@ try {
             
             <div id="tn">
                 <ul>
-                    <li><i class="fa fa-user"></i><a href="login.php" title="Login with your account">Login</a></li>
-                    <li><i class="fa fa-sign-in"></i><a href="register.php" title="Register for an account">Register</a></li>
+                    <c:forEach var="menuitem" items="${usermenu}" varStatus="loop">
+<c:if test="${fn:containsIgnoreCase(menuitem.title, 'My IMPC')}"><li><a id="my-impc" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li></c:if>
+<c:if test="${fn:containsIgnoreCase(menuitem.title, 'Messages')}"><li><a id="messages" class="fa-envelope" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li></c:if>
+<c:if test="${fn:containsIgnoreCase(menuitem.title, 'Log out')}"><li><a id="logout" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li></c:if>
+<c:if test="${fn:containsIgnoreCase(menuitem.title, 'Login')}"><li><a id="login" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li></c:if>
+<c:if test="${fn:containsIgnoreCase(menuitem.title, 'Log in')}"><li><a id="login" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li></c:if>
+<c:if test="${fn:containsIgnoreCase(menuitem.title, 'Register')}"><li><a id="register" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li></c:if>
+					<%-- </c:if> --%>
+					</c:forEach>
                 </ul>
             </div>
             
             <div id="logo">
-                <!-- a href="index.php"><img src="${baseUrl}/img/IMPC<c:if test='${not fn:contains(drupalBaseUrl,"www")}'>Beta</c:if>logo.png" alt="IMPC Logo" /></a-->
-                <a href="index.php"><img src="${baseUrl}/img/impc.png" alt="IMPC Logo" /></a>
+                <a href="${drupalBaseUrl}/"><img src="${baseUrl}/img/impc.png" alt="IMPC Logo" /></a>
                 <div id="logoslogan">International Mouse Phenotyping Consortium</div>
             </div>
             
@@ -263,19 +270,19 @@ try {
                     
         <!-- <script type="text/javascript" src='${baseUrl}/js/script.min.js' ></script>-->
         
-         <script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>   
+        <script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>                 
+        <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js'></script>      
+        
         <script type='text/javascript' src='${baseUrl}/js/documentationConfig.js'></script>     
         <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/geneFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/mpFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/maFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/diseaseFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>                  
-        
-        <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js'></script>       
+				<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/geneFacetWidget.js'></script>
+				<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/mpFacetWidget.js'></script>
+				<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/maFacetWidget.js'></script>
+				<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js'></script>
+				<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/diseaseFacetWidget.js'></script>
+				<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js'></script>
+				<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script> 
+				<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>    
         
         <compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">
          <script>
