@@ -201,23 +201,15 @@
 						
 						
 								<div class="accordion-group">
-									<div class="accordion-heading withColorWhenOpen">
-										Gene Browser
-									</div>
-									<div class="accordion-body collapse <c:if test="${status.count ==1}"> in </c:if>">
-										<div id="genomebrowser" >
-											<div class="floatright">
-												<a href="http://www.biodalliance.org/" target="_blank" data-hasqtip="24" title="More information on using this browser"><i class="icon-question-sign"> </i> </a>
-												<a data-hasqtip="25" title="This browser is clickable please experiment by clicking. Click on features to get more info, click on zoom bar etc. To reset click on 'lightning button'" title aria-describeby="qtip-25">This is an interactive genomic browser</a>
-											</div>
-											<p>Gene&nbsp;Location: Chr<span id='chr'>${gene.sequenceRegion.name}</span>:<span id='geneStart'>${gene.start}</span>-<span id='geneEnd'>${gene.end}</span> <br/> Gene Type: ${gene.subtype.name}</p>
-												
-											<div class="container span6" id="geneLocation1">
-											<span id="genomicBrowserInfo">
-												<span class="label label-info" rel="tooltip"  title="This browser is clickable please experiment by clicking. Click on features to get more info, click on zoom bar etc. To reset click on 'lightning button'" disabled>This is an interactive genomic browser </span>
-												<a href="http://www.biodalliance.org/"><i class="icon-question-sign" rel="tooltip" title="More information on using this browser"></i></a>
-											</span>
-											<div class="container span12"  id="svgHolder"></div>
+                                    <div class="accordion-heading withColorWhenOpen"> Gene Browser</div>
+                                    <!-- <div class="accordion-body"> -->
+                                         <div id="genomebrowser" >
+											<div class="floatright"><a href="http://www.biodalliance.org/" target="_blank" title="More information on using this browser"><i class="icon-question-sign"></i></a> <a title="This browser is clickable please experiment by clicking. Click on features to get more info, click on zoom bar etc. To reset click on 'lightning button'">This a an interactive genomic browser</a>
+											</div>  
+											Gene&nbsp;Location: Chr<span class="label" id='chr'>${gene.sequenceRegion.name}</span>:<span  class="label" id='geneStart'>${gene.start}</span>-<span  class="label" id='geneEnd'>${gene.end}</span> <br/> Gene Type: ${gene.subtype.name}
+												<!-- <p><img class="fullimg" src="img/dummy/genebrowser.jpg" /></p> -->
+											<div id="svgHolder"></div>
+											
 										<table>
 											<tbody>
 												<c:if test="${not empty vegaIds}">
@@ -241,14 +233,15 @@
 											</tbody>
 										</table>				
 										
-									</div>
-								</div>
+									
+										</div>
+								<!-- </div> --><!--  end of accordion body -->
 							</div>
 						</div>	
 		
 					
-				</div>
-				</div> <!-- section end -->
+				</div><!-- section end -->
+				</div> 
 				
 		
 		
@@ -440,7 +433,7 @@
 			</c:if>
 		
 			<div class="section">
-				<h2 class="title documentation">ES Cell and Mouse Alleles <a href='' id='allelePanel'><i class="fa fa-question-circle pull-right" aria-describedby="qtip-26"></i></a></h2>	
+				<h2 class="title documentation">ES Cell and Mouse Alleles <a href='' id='allelePanel'><i class="fa fa-question-circle pull-right" ></i></a></h2>	
 				    <div class="inner"> 			
 						<div id="allele_tracker_panel_results">&nbsp;</div>
 						<c:choose>
@@ -465,6 +458,6 @@
 		</div>
 		</div>
 		</div>
-		</div>
+		
   </jsp:body>
 </t:genericpage>

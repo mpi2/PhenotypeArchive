@@ -70,7 +70,7 @@ jQuery(document).ready(function() {
 		var dontUseIEString='<div class="alert alert-info">For a more interactive and informative gene image please use a newish browser e.g. <a href="//www.mozilla.com/firefox/">Firefox</a> 3.6+, <a href="//www.google.com/chrome">Google Chrome</a>, and <a href="//www.apple.com/safari/">Safari</a> 5 or newer</div>';
 		var gbrowseimage='<a href="//gbrowse.informatics.jax.org/cgi-bin/gb2/gbrowse/mousebuild38/?start='+start+';stop='+stop+';ref='+chromosome+'"><img border="0" src="//gbrowse.informatics.jax.org/cgi-bin/gb2/gbrowse_img/mousebuild38/?t=MGI_Genome_Features;name='+chromosome+':'+start+'..'+stop+';width=400"></a>';
 		$('#svgHolder').html(dontUseIEString+gbrowseimage);
-		forceWidth: jQuery('div.row-fluid').width() * 0.98;
+		//forceWidth: jQuery('div.row-fluid').width() * 0.98;
 		$('#genomicBrowserInfo').html('');
 
 	} else {
