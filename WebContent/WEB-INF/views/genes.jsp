@@ -256,7 +256,24 @@
 		<div class="section">
 			<h2 class="title documentation" id="section-associations"> Phenotype associations for ${gene.symbol} <a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></h2>
 			<div class="inner">
-				<div class="abnormalities">TODO</div>
+				<div class="abnormalities">
+					<div class="allicons"></div>
+						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
+							<a class="filterTrigger" id="imageBox_${summaryObj.getName()}">
+								<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
+							</a>
+						</c:forEach>
+						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getFemalePhenotypes()}">
+							<a class="filterTrigger" id="imageBox_${summaryObj.getName()}">
+								<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
+							</a>
+						</c:forEach>
+						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getMalePhenotypes()}">
+							<a class="filterTrigger" id="imageBox_${summaryObj.getName()}">
+								<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
+							</a>
+						</c:forEach>
+				</div>
 				<c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
 		            
 					<p> Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models. </p>
@@ -366,146 +383,16 @@
 				</div>
 			</c:if>
 		
-			<%-- <c:if test="${not empty solrFacets}">
-				<div class="section">
-			    	<h2 class="title documentation">Phenotype Associated Images  <a href='${baseUrl}/images?gene_id=${acc}&fq=!expName:"Wholemount%20Expression"'><small>Show All Images</small></a><a href='' id='imagePanel'><i class="fa fa-question-circle pull-right" aria-describedby="qtip-26"></i></a></h2>
-			    	<div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	
-						<div class="inner">         		
-							<div class="accordion" id="accordion1">
-								<c:forEach var="entry" items="${solrFacets}" varStatus="status">
-									<div class="accordion-group">
-										<div class="accordion-heading">
-											<a class="accordion-toggle" data-toggle="collapse" data-target="#pheno${status.count}">
-												${entry.name} [${entry.count}]<i class="icon-chevron-<c:if test="${status.count ==1}">down</c:if><c:if test="${status.count!=1}">right</c:if> pull-left"></i>
-											</a>
-										</div>
-									<div id="pheno${status.count}" class="accordion-body collapse<c:if test="${status.count ==1}"> in</c:if>">
-										<div class="accordion-inner">
-											<a href="${baseUrl}/images?gene_id=${acc}&fq=expName:${entry.name}">[show all ${entry.count} images]</a>
-											<ul>
-											<c:forEach var="doc" items="${facetToDocs[entry.name]}">
-											  <li class="span2">
-													<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
-		                    </li>
-											</c:forEach>
-											</ul>
-										</div>
-									</div>
-								</div>
-							</c:forEach>
-						</div>
-					</div>
-				</div>
-			</c:if> --%>
-			
-		<!-- 	static nicols style here:
-			
-			<div class="section collapsed">
-                            
-                            <h2 class="title">Accordion <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
-                        
-                            <div class="inner">
-                                
-                                <div class="accordion-group">
-                                    
-                                    <div class="accordion-heading">
-                                        
-                                        Some pictures with Fancybox effect
-                                        
-                                    </div>
-                                
-                                    <div class="accordion-body">
-                                    
-                                        <ul>
-                                            <li>
-                                                <a href="https://dev.mousephenotype.org/data/media/images/914/I20080318131750_download_full.jpg"><img src="https://dev.mousephenotype.org/data/media/images/914/I20080318131750_download_tn_small.jpg" /></a><div class="data-title"><a href="#"><i class="fa fa-download"></i> Download this image in high resolution</a></div>
-                                                <div class="caption">Akt2<sup>tm1e(KOMP)Wtsi</sup><br>HOM, Male, WTSI<br></div>
-                                            </li>
-                                            <li>
-                                                <a href="https://dev.mousephenotype.org/data/media/images/914/I20080318131750_download_full.jpg"><img src="https://dev.mousephenotype.org/data/media/images/914/I20080318131854_download_tn_small.jpg" /></a><div class="data-title"><a href="#"><i class="fa fa-download"></i> Download this image in high resolution</a></div>
-                                                <div class="caption">Akt2<sup>tm1e(KOMP)Wtsi</sup><br>HOM, Male, WTSI<br></div>
-                                            </li>
-                                            <li>
-                                                <a href="https://dev.mousephenotype.org/data/media/images/914/I20080318131750_download_full.jpg"><img src="https://dev.mousephenotype.org/data/media/images/914/I20080318132008_download_tn_small.jpg" /></a><div class="data-title"><a href="#"><i class="fa fa-download"></i> Download this image in high resolution</a></div>
-                                                <div class="caption">Akt2<sup>tm1e(KOMP)Wtsi</sup><br>HOM, Male, WTSI<br></div>
-                                            </li>
-                                            <li>
-                                                <a href="https://dev.mousephenotype.org/data/media/images/914/I20080318131750_download_full.jpg"><img src="https://dev.mousephenotype.org/data/media/images/914/I20080318132120_download_tn_small.jpg" /></a><div class="data-title"><a href="#"><i class="fa fa-download"></i> Download this image in high resolution</a></div>
-                                                <div class="caption">Akt2<sup>tm1e(KOMP)Wtsi</sup><br>HOM, Male, WTSI<br></div>
-                                            </li>
-                                            <li>
-                                                <a href="https://dev.mousephenotype.org/data/media/images/914/I20080318131750_download_full.jpg"><img src="https://dev.mousephenotype.org/data/media/images/914/I20080318132351_download_tn_small.jpg" /></a><div class="data-title"><a href="#"><i class="fa fa-download"></i> Download this image in high resolution</a></div>
-                                                <div class="caption">Akt2<sup>tm1e(KOMP)Wtsi</sup><br>HOM, Male, WTSI<br></div>
-                                            </li>
-                                        </ul>
-                                        
-                                        <div class="clear"></div>
-                                        
-                                        <p class="textright"><a href="#"><i class="fa fa-caret-right"></i> all 180 images</a></p>
-    
-                                    </div>
-                                    
-                                    
-                                    
-                                    
-                                         <div class="accordion-heading">
-                                        
-                                        Some pictures with Fancybox effect
-                                        
-                                    </div>
-                                
-                                    <div class="accordion-body">
-                                    
-                                        <ul>
-                                            <li>
-                                                <a href="https://dev.mousephenotype.org/data/media/images/914/I20080318131750_download_full.jpg"><img src="https://dev.mousephenotype.org/data/media/images/914/I20080318131750_download_tn_small.jpg" /></a><div class="data-title"><a href="#"><i class="fa fa-download"></i> Download this image in high resolution</a></div>
-                                                <div class="caption">Akt2<sup>tm1e(KOMP)Wtsi</sup><br>HOM, Male, WTSI<br></div>
-                                            </li>
-                                            <li>
-                                                <a href="https://dev.mousephenotype.org/data/media/images/914/I20080318131750_download_full.jpg"><img src="https://dev.mousephenotype.org/data/media/images/914/I20080318131854_download_tn_small.jpg" /></a><div class="data-title"><a href="#"><i class="fa fa-download"></i> Download this image in high resolution</a></div>
-                                                <div class="caption">Akt2<sup>tm1e(KOMP)Wtsi</sup><br>HOM, Male, WTSI<br></div>
-                                            </li>
-                                            <li>
-                                                <a href="https://dev.mousephenotype.org/data/media/images/914/I20080318131750_download_full.jpg"><img src="https://dev.mousephenotype.org/data/media/images/914/I20080318132008_download_tn_small.jpg" /></a><div class="data-title"><a href="#"><i class="fa fa-download"></i> Download this image in high resolution</a></div>
-                                                <div class="caption">Akt2<sup>tm1e(KOMP)Wtsi</sup><br>HOM, Male, WTSI<br></div>
-                                            </li>
-                                            <li>
-                                                <a href="https://dev.mousephenotype.org/data/media/images/914/I20080318131750_download_full.jpg"><img src="https://dev.mousephenotype.org/data/media/images/914/I20080318132120_download_tn_small.jpg" /></a><div class="data-title"><a href="#"><i class="fa fa-download"></i> Download this image in high resolution</a></div>
-                                                <div class="caption">Akt2<sup>tm1e(KOMP)Wtsi</sup><br>HOM, Male, WTSI<br></div>
-                                            </li>
-                                            <li>
-                                                <a href="https://dev.mousephenotype.org/data/media/images/914/I20080318131750_download_full.jpg"><img src="https://dev.mousephenotype.org/data/media/images/914/I20080318132351_download_tn_small.jpg" /></a><div class="data-title"><a href="#"><i class="fa fa-download"></i> Download this image in high resolution</a></div>
-                                                <div class="caption">Akt2<sup>tm1e(KOMP)Wtsi</sup><br>HOM, Male, WTSI<br></div>
-                                            </li>
-                                        </ul>
-                                        
-                                        <div class="clear"></div>
-                                        
-                                        <p class="textright"><a href="#"><i class="fa fa-caret-right"></i> all 180 images</a></p>
-    
-                                    </div>
-                                
-                                </div>
-                            
-                            </div>
-                            
-                       
-                        
-                        </div>                       -->
-                        
-                        
-            
-        
 			<!-- nicolas accordion for images here -->
 <c:if test="${not empty solrFacets}">
-        		<div class="section collapsed">
-                      <h2 class="title">Phenotype Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+        		<div class="section">
+                      <h2 class="title" id="section-images">Phenotype Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                        <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
                 		<div class="inner">
-                        		<div class="accordion-group">
-                      					 <c:forEach var="entry" items="${solrFacets}" varStatus="status">
+                      				<c:forEach var="entry" items="${solrFacets}" varStatus="status">
+                      					 <div class="accordion-group">
                         						<div class="accordion-heading">
-                                        		${entry.name} [${entry.count}]
+                                        		${entry.name} (${entry.count})
                                     			</div>
                                 				<div class="accordion-body">
                                        					<ul>
@@ -516,36 +403,30 @@
 														</c:forEach>
 														</ul>
                                         				<div class="clear"></div>
+                                        				<c:if test="${entry.count>5}">
                                         				<p class="textright"><a href="${baseUrl}/images?gene_id=${acc}&fq=expName:${entry.name}"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
+    													</c:if>
     											</div><!--  end of accordion body -->
-                                       		</c:forEach><!-- solrFacets end -->
-                               	</div>
+    										</div>
+                                    </c:forEach><!-- solrFacets end -->
+                              
                            </div><!--  end of inner -->
          </div> <!-- end of section -->
 </c:if>			
 					
 			<c:if test="${not empty expressionFacets}">
 			<div class="section">
-				<h2 class="title documentation">Expression <a href='' id='expressionPanel'><i class="fa fa-question-circle pull-right" aria-describedby="qtip-26"></i></a></h2>
-				<div id="showAllExpression"></div>
-				<div class="inner">			
-					<div class="container span12">				
-					</div>
-					<div class="row-fluid">
-						<div class="container span12">
+				<h2 class="title">Expression <i class="fa fa-question-circle pull-right"></i></h2>
+					<div class="inner">			
+					
 							<!-- thumbnail scroller markup begin -->
-							<div id="expressionInfo">
-								<div class="accordion" id="accordion2">
 			   						<c:forEach var="entry" items="${expressionFacets}" varStatus="status">
 		  							<div class="accordion-group">
 										<div class="accordion-heading">
-											<a class="accordion-toggle" data-toggle="collapse" data-target="#collapse${status.count}" >
-												${entry.name}  [${entry.count}]<i class="icon-chevron-<c:if test="${status.count ==1}">down</c:if><c:if test="${status.count!=1}">right</c:if> pull-left"></i>
-											</a>
+												${entry.name}  (${entry.count})
 										</div>
-										<div id="collapse${status.count}" class="accordion-body collapse<c:if test="${status.count ==1}"> in</c:if>">
-											<div class="accordion-inner">
-									 			<a href='${baseUrl}/images?gene_id=${acc}&q=expName:"Wholemount Expression"&fq=annotated_or_inferred_higherLevelMaTermName:"${entry.name}"'>[show all  ${entry.count} images]</a>
+											<div  class="accordion-body">
+									 			
 												<ul>
 												<c:forEach var="doc" items="${expFacetToDocs[entry.name]}">
 		                                                                                    <li class="span2">
@@ -553,15 +434,14 @@
 		                                                                                    </li>
 		    	  								</c:forEach>
 												</ul>
+												<div class="clear"></div>
+												<c:if test="${entry.count>5}">
+												<p class="textright"><a href='${baseUrl}/images?gene_id=${acc}&q=expName:"Wholemount Expression"&fq=annotated_or_inferred_higherLevelMaTermName:"${entry.name}"'>[show all  ${entry.count} images]</a></p>
+												</c:if>
 											</div>
-										</div>
 									</div>
-								</c:forEach>
-								</div>
-							</div>
-						</div>
+								</c:forEach>	
 					</div>
-				</div>
 			</div>
 			</c:if>
 		

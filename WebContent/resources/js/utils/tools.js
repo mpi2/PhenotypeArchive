@@ -1057,7 +1057,7 @@
     		// changed to use button instead of <a> as this will follow the link and the download won't work when clicked - have tried return false, 
     		// but due to a couple of ajax down the road, I could not get it to work.
     		// The button is styled as the new design
-    		var btn = $('<button></button>').attr({'class': oFormatSelector[f] + ' fa fa-download ' + conf['class']}).html(f);
+    		var btn = $('<button></button>').attr({'class': oFormatSelector[f] + ' fa fa-download gridDump ' + conf['class']}).html(f);
     		
     		$(iconDiv).append(btn);
     	}
@@ -1557,10 +1557,13 @@
     				$('table#geneGrid th:nth-child(1)').width('45%');
     			}  						
     			
+    			
     			$('a.interest').click(function(){
+    				
     				var mgiId = $(this).attr('id');
     				var label = $(this).text();
-    				var regBtn = $(this);
+    				var regBtn = $(this);  
+    				
     				$.ajax({
     					url: '/toggleflagfromjs/' + mgiId,                       
     					success: function (response) {
@@ -1570,13 +1573,28 @@
     						if(response === 'null') {
     							window.alert('Null error trying to register interest');
     						} 
-    						else {                          
+    						else {    							
+    							// 3 labels (before login is 'Interest')
     							if( label == 'Register interest' ) {
-    								regBtn.text('Unregister interest');
+    								regBtn.text('Unregister interest');    								    								
+    								regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out')
+    									.parent().attr('oldtitle', 'Unregister interest')
+    									.qtip({       			
+    				    					style: { classes: 'qtipimpc flat' },
+    				    					position: { my: 'top center', at: 'bottom center' },    					
+    				    					content: { text: $(this).attr('oldtitle')}
+    				    					});	// refresh tooltip    								
     							} 
-    							else {
-    								regBtn.text('Register interest');
-    							}                               
+    							else if (label == 'Unregister interest'){
+    								regBtn.text('Register interest');    								
+    								regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in')
+    									.parent().attr('oldtitle', 'Register interest')
+    									.qtip({       			
+    										style: { classes: 'qtipimpc flat' },
+    										position: { my: 'top center', at: 'bottom center' },    					
+    										content: { text: $(this).attr('oldtitle')}
+				    						}); // refresh tooltip
+    							}    							                           
     						}                         
                         },
                         error: function () {
@@ -1586,6 +1604,7 @@
     				return false;    		    	  
     			});
     			
+    			// applied when result page first loads
     			$('div.registerforinterest, td .status').each(function(){
     				$(this).qtip({       			
     					style: { classes: 'qtipimpc flat' },

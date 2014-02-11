@@ -266,7 +266,7 @@ public class ObservationService {
     }
 
     public List<ObservationDTO> getExperimentalObservationsByParameterGeneAccZygosityOrganisationStrainSexAndMetaDataGroup(
-            Integer parameterId, String gene, String zygosity,
+            Integer parameterId, String gene, List<String> zygosities,
             Integer organisationId, String strain, SexType sex, String metaDataGroup
     ) throws SolrServerException {
 
@@ -276,8 +276,14 @@ public class ObservationService {
                 .addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
                 .setStart(0).setRows(10000);
 
-        if (zygosity != null && !zygosity.equalsIgnoreCase("null")) {
-            query.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity);
+        if (zygosities != null && zygosities.size()>0 && zygosities.size()!=3) {
+        	if(zygosities.size()==2) {
+        		query.addFilterQuery(ExperimentField.ZYGOSITY + ":(" + zygosities.get(0)+" OR "+zygosities.get(1)+")");
+        	}else {
+        			
+        					query.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosities.get(0));//only option is one left
+        			
+        	}
         }
         if (strain != null) {
             query.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"));
@@ -769,7 +775,6 @@ public class ObservationService {
 		query.set("group.field", ExperimentField.COLONY_ID);
 		query.set("group.limit", 10000); // number of documents to be returned
 											// per group
-		System.out.println("--- look --- " + solr.getBaseURL() + "/select?" + query);
 
 		// for each colony get the mean & put it in the array of data to plot
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
@@ -967,12 +972,14 @@ public class ObservationService {
 			.setQuery("*:*")
 			.addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":control")
 			.addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-			.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
 			.addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
 			.setStart(0)
 			.setRows(5000)
 		;
-
+		if (organisationId!= null){
+			query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId);
+		}
+		
 		if(metadataGroup == null || metadataGroup.isEmpty()) {
 			query.addFilterQuery(ExperimentField.METADATA_GROUP + ":\"\"");
 		} else {
@@ -1002,7 +1009,6 @@ public class ObservationService {
 			String dateFilter = df.format(beginning)+"Z TO "+df.format(maxDate)+"Z";
 			query.addFilterQuery(ExperimentField.DATE_OF_EXPERIMENT + ":[" + dateFilter + "]");
 		}
-		
 		response = solr.query(query);
 		results = response.getBeans(ObservationDTO.class);
 		

@@ -16,7 +16,7 @@
 										TSV : 'tsv_phenoAssoc',
 										XLS : 'xls_phenoAssoc'
 									},
-									class : 'fileIcon'
+									class : 'fileIcon exportButton'
 								}));
 
 						var params = window.location.href.split("/")[window.location.href
@@ -30,7 +30,7 @@
 						}
 						var zygosity = (params.indexOf("zygosity\=") > 0) ? params.split("zygosity\=")[1].split("\&")[0] : null;
 						var sex = (params.indexOf("gender\=") > 0) ? params.split("gender\=")[1].split("\&")[0] : null;
-						var phenotypingCenter = (params.indexOf("phenotypingCenter\=") > 0) ? params.split("phenotypingCenter\=")[1].split("\&")[0] : null;
+						var phenotypingCenter = (params.indexOf("phenotyping_center\=") > 0) ? params.split("phenotyping_center\=")[1].split("\&")[0] : null;
 						
 						initFileExporter({
 							mgiGeneId : mgiGeneId,
@@ -98,7 +98,7 @@
 
 	
 <!-- categorical here -->
-				<div class="row-fluid">
+				
  				<c:forEach var="categoricalChartDataObject" items="${categoricalResultAndChart.maleAndFemale}" varStatus="chartLoop">
   				 	
 								<div id="chart${experimentNumber}">
@@ -109,7 +109,7 @@
 				
 					
 					
-					<table id="catTable" class="table table-bordered  table-striped table-condensed">
+					<table id="catTable">
  							<thead><tr>
  										
 										<th>Control/Hom/Het</th><!-- blank usually as no header -->
@@ -143,7 +143,6 @@
 							</tbody>
  				</table>
  				</c:forEach>
-				</div>
 
 
 

@@ -17,16 +17,11 @@
     </jsp:attribute>
 
     <jsp:body>
-
-	<div class='topic'>Anatomy Term: ${anatomy.term}</div>
-	
-	<div class="row-fluid dataset">
-		<div class='documentation'><a href='' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-		<div class="row-fluid">
-			<div class="container span12">
-						<div class="row-fluid">
-			<div class="container span6">
-			<table class="table table-striped">
+<h1 class="title">Anatomy Term: ${anatomy.term}</h1>
+<div  class="section half">
+			<div class="inner">		
+			
+			<table>
 				<tbody>
 					<c:if test="${not empty anatomy}">
 					<tr>
@@ -44,49 +39,45 @@
 				</tbody>
 			</table>
 			</div>
-			<div class="container span5" id="ovRight">
+			</div><!--  end of first section half -->
+			
+			<div  class="section half">
+			<div class="inner">
 			<c:choose>
     				<c:when test="${not empty exampleImages}">
-      				<div class="row-fluid">
-      								<div class="container span6">
+      				
+      								
       										<img src="${mediaBaseUrl}/${exampleImages.control.smallThumbnailFilePath}"/>
       										Control
-      								</div>
-      								<div class="container span6">
+      								
       										<img src="${mediaBaseUrl}/${exampleImages.experimental.smallThumbnailFilePath}"/>
       										<c:forEach var="sangerSymbol" items="${exampleImages.experimental.sangerSymbol}" varStatus="symbolStatus">
 												<c:if test="${not empty exampleImages.experimental.sangerSymbol}"><t:formatAllele>${sangerSymbol}</t:formatAllele><br /></c:if>
 												</c:forEach>
-      								</div>
+      								
 
-      				</div>
+      				
     				</c:when>
     				<c:otherwise>
       				 <c:if test="${not empty expressionImages}"><img src="${mediaBaseUrl}/${expressionImages[0].smallThumbnailFilePath}"/>Random MA related image</c:if>
       				  <c:if test="${(empty expressionImages) && (not empty images)}"><img src="${mediaBaseUrl}/${images[0].smallThumbnailFilePath}"/>Random MA related image</c:if>
     				</c:otherwise>
 			</c:choose>
-	
 			</div>
 		</div>
-	</div>
-		</div>
-	</div>
+	
+	
 	
 		<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
-	<div class="row-fluid dataset">
-		<div class='documentation'><a href='' class='expressionPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-		<h4 class="caption">Expression Images</h4>
-			<div class="row-fluid">
-			<div class="container span12">
-				<div class="accordion" id="accordion1">
-					<div class="accordion-group">
-						<div class="accordion-heading">
-							<a class="accordion-toggle" data-toggle="collapse" data-target="#expression">Expression Associated Images <i class="icon-chevron-down  pull-left" ></i></a>
-						</div>
-						<div id="expression" class="accordion-body collapse in">
-							<div class="accordion-inner">
-								<a href='${baseUrl}/images?anatomy_id=${anatomy.accession}&fq=expName:Wholemount Expression'>[show all  ${numberExpressionImagesFound} images]</a>
+	<div  class="section">
+		<h2 class="title">Expression Images<i class="fa fa-question-circle pull-right"></i></h2>
+			<div class="inner">		
+						 <div class="accordion-group">
+                        						<div class="accordion-heading">
+                        						Expression Associated Images 
+                        						</div>
+								<div class="accordion-body">
+								
 		    					<ul>
                                                             
 		    					<c:forEach var="doc" items="${expressionImages}">
@@ -96,24 +87,26 @@
                                                         </c:forEach>
                                                         
 								</ul>
+								<c:if test="${entry.count>5}">
+                                        				<p class="textright">
+								<a href='${baseUrl}/images?anatomy_id=${anatomy.accession}&fq=expName:Wholemount Expression'><i class="fa fa-caret-right"></i>show all ${entry.count} images</a>
+								</p>
+								</c:if>
 							</div>
 						</div>
 					<!--  end of accordion -->
 					</div>
-				</div>
-			</div>
-		</div>	
 	</div>
 	</c:if><!-- end of images lacz expression priority and xray maybe -->
 	
-	
-		<div class="row-fluid dataset">
-			<div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-			<h4 class="caption">Associated Phenotypes</h4>
-			<div class="row-fluid">
-				<div class="container span12">				
-				<c:if test="${not empty anatomy.mpTerms}">
-				<table class="table table-striped">
+	<c:if test="${not empty anatomy.mpTerms}">
+		<div class="section">
+			<%-- <div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div> --%>
+			<h2 class="title">Associated Phenotypes<i class="fa fa-question-circle pull-right"></i></h2>
+			<div class="inner">
+							
+				
+				<table>
 				<tbody>
 					<tr>
 						<%-- <td>MP Terms:</td> --%>
@@ -125,19 +118,21 @@
 					</tr>
 					</tbody>
 					</table>
-					</c:if>
-				</div>
+					
+				
 		</div>
 		
 	</div><!-- end of images lacz expression priority and xray maybe -->
+	</c:if>
 	
 	
-	<div class="row-fluid dataset">
-	<div class='documentation'><a href='' class='relatedMaPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-				<h4 class="caption">Explore</h4>
-		<div class="row-fluid">				
-				<div class="container span12">				
-				<table class="table table-striped">
+	<div class="section">
+	<%-- <div class='documentation'><a href='' class='relatedMaPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div> --%>
+		<h2 class="title">Explore<i class="fa fa-question-circle pull-right"></i></h2>
+				
+		<div class="inner">				
+					
+				<table>
 				<tbody>
 				<tr>
 						<td>Child Terms:</td>
@@ -150,8 +145,6 @@
 					</tr>
 					</tbody>
 					</table>
-					
-				</div>
 		</div>
 		
 	</div><!-- end of images lacz expression priority and xray maybe -->

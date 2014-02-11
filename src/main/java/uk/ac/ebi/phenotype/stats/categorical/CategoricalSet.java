@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import uk.ac.ebi.phenotype.pojo.SexType;
+
 
 /**
  * Class to hold multiple CategoricalDataObjects pertaining to one bar no the graph eg. data for control, normal, abnormal is one set another set would be data for het, normal and abnormal
@@ -15,6 +17,7 @@ public class CategoricalSet {
 		List<CategoricalDataObject> catObjects=new ArrayList<CategoricalDataObject>();
 		HashMap<String, CategoricalDataObject> catObjMap = new HashMap<String, CategoricalDataObject>();
 		long count = 0;
+		private SexType sexType;
 
 		public List<CategoricalDataObject> getCatObjects() {
 			return catObjects;
@@ -67,6 +70,14 @@ public class CategoricalSet {
 			this.catObjects.add(controlCatData);
 			this.catObjMap.put(controlCatData.getCategory(), controlCatData);
 			this.count += controlCatData.getCount();
+		}
+		
+		public SexType getSexType() {
+			return sexType;
+		}
+
+		public void setSexType(SexType sexType) {
+			this.sexType = sexType;
 		}
 		
 		public String toString(){

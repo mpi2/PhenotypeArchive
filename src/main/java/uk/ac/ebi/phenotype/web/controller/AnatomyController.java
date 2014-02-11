@@ -93,6 +93,8 @@ public class AnatomyController {
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
+	
+	private static final int numberOfImagesToDisplay=5;
 
 	/**
 	 * Phenotype controller loads information required for displaying the
@@ -122,7 +124,7 @@ public class AnatomyController {
 
 		//get expression only images
 		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils
-				.getAnatomyAssociatedExpressionImages(anatomy_id, config);
+				.getAnatomyAssociatedExpressionImages(anatomy_id, config, numberOfImagesToDisplay);
 		int numberExpressionImagesFound = JSONRestUtil
 				.getNumberFoundFromJsonResponse(maAssociatedExpressionImagesResponse);
 		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject(

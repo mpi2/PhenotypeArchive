@@ -45,7 +45,7 @@ $(document).ready(function(){
 			TSV: 'tsv_phenoAssoc',
 			XLS: 'xls_phenoAssoc'	    			 					
 		},
-		class: 'fileIcon'
+		class: 'fileIcon exportButton'
 	}));
 
 	var mgiGeneId = window.location.href.split("/")[window.location.href.split("/").length-1];
@@ -234,7 +234,8 @@ $(document).ready(function(){
 		//Do stuff when clicked
 		//the id is set as the field to be filtered on
 		//set the value of the current id of the trigger
-		var filter=$(this).attr("id");
+		var filter=$(this).attr("id").replace("imageBox_", "");
+		
 		$(allDropdowns[0]).val(filter);
 		$(allDropdowns[0]).dropdownchecklist("refresh");
 		$(allDropdowns[1]).val([]);

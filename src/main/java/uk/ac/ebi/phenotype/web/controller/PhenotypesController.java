@@ -120,6 +120,8 @@ public class PhenotypesController {
 	
 	@Autowired
 	GenotypePhenotypeService gpService;
+	
+	private static final int numberOfImagesToDisplay=5;
 
 	/**
 	 * Phenotype controller loads information required for displaying 
@@ -232,7 +234,7 @@ public class PhenotypesController {
 		model.addAttribute("siblings", mpSiblings);
 		model.addAttribute("synonyms", synonymTerms);
 		// Query the images for this phenotype
-		QueryResponse response=imagesSolrDao.getDocsForMpTerm(phenotype_id, 0, 6);
+		QueryResponse response=imagesSolrDao.getDocsForMpTerm(phenotype_id, 0, numberOfImagesToDisplay);
 		model.addAttribute("numberFound", response.getResults().getNumFound());
 		model.addAttribute("images", response.getResults());
 		//get a string, image map instead?

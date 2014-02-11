@@ -363,22 +363,22 @@ public class UnidimensionalChartAndTableProvider {
 														// second
 		
 		if(sexKey.equals(SexType.female)) {
-		femaleBoxPlotObject="{ name: 'Observations',color:'"+ChartColors.getRgbaString(sexKey, 0, ChartColors.alphaBox)+"', data:"
+		femaleBoxPlotObject="{ name: 'Observations', data:"
 				+ observationsString
 				+ ",       tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }                    }";
 		
 		femaleScatterObjectString="{ name: 'Observation', type: 'scatter', data: "
 				+ scatterString
-				+ ", marker: { fillColor: '"+ChartColors.getRgbaString(sexKey, 0, 0.7)+"', lineWidth: 1, lineColor: '"+ChartColors.getRgbaString(sexKey, 0, ChartColors.alphaScatter)+"' }, tooltip: { pointFormat: '{point.y:..4f}' }          }";
+				+ ", marker: { lineWidth: 1}, tooltip: { pointFormat: '{point.y:..4f}' }          }";
 		}
 		if(sexKey.equals(SexType.male)) {
-		maleBoxPlotObject="{ name: 'Observations',color: '"+ChartColors.getRgbaString(sexKey, 0, ChartColors.alphaBox)+"', data:"
+		maleBoxPlotObject="{ name: 'Observations', data:"
 				+ observationsString
 				+ ",       tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }                    }";
 		
 		maleScatterObjectString="{ name: 'Observation', type: 'scatter', data: "
 				+ scatterString
-				+ ", marker: { fillColor: '"+ChartColors.getRgbaString(sexKey, 0, 0.7)+"', lineWidth: 1, lineColor: '"+ChartColors.getRgbaString(sexKey, 0, ChartColors.alphaScatter)+"' }, tooltip: { pointFormat: '{point.y:..4f}' }          }";
+				+ ", marker: { lineWidth: 1 }, tooltip: { pointFormat: '{point.y:..4f}' }          }";
 		}
 		}//end of gender loop
 		
@@ -394,8 +394,12 @@ public class UnidimensionalChartAndTableProvider {
 		}
 		}
 		
+		List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaBox);
+		JSONArray colorArray = new JSONArray(colors);
 		
-		String chartString = " chart = new Highcharts.Chart({ chart: { type: 'boxplot', renderTo: 'chart"
+		String chartString = " chart = new Highcharts.Chart({ " 
+				+" colors:"+colorArray
+				+", chart: { type: 'boxplot', renderTo: 'chart"
 				+ experimentNumber
 				+ "'},  tooltip: { formatter: function () { if(typeof this.point.high === 'undefined'){ return '<b>Observation</b><br/>' + this.point.y; } else { return '<b>Genotype: ' + this.key + '</b><br/>LQ - 1.5 * IQR: ' + this.point.low + '<br/>Lower Quartile: ' + this.point.options.q1 + '<br/>Median: ' + this.point.options.median + '<br/>Upper Quartile: ' + this.point.options.q3 + '<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '</b>'; } } }    , title: { text: '"
 				+ parameter.getName()

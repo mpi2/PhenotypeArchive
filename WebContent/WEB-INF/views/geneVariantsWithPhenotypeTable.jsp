@@ -18,7 +18,7 @@
 		 resTemp[0].remove();
 	</script>
 	
-	<table id="phenotypes" class="table table-striped">
+	<table id="phenotypes">
 	
 		<thead>
 			<tr>
@@ -78,7 +78,7 @@
 						<!-- c:if test="${not phenotype.parameter.derivedFlag}"-->
 						<c:if test="${phenotype.dataSourceName eq 'EuroPhenome' }">
 							<a href="${baseUrl}/stats/genes/${phenotype.gene.id.accession}?parameterId=${phenotype.parameter.stableId}
-								<c:if test="${fn:length(phenotype.sexes) eq 1}">&gender=${phenotype.sexes[0]}</c:if>&zygosity=${phenotype.zygosity}<c:if test="${phenotype.getPhenotypingCenter() != null}">&phenotypingCenter=${phenotype.getPhenotypingCenter()}</c:if>">
+								<c:if test="${fn:length(phenotype.sexes) eq 1}">&gender=${phenotype.sexes[0]}</c:if>&zygosity=${phenotype.zygosity}<c:if test="${phenotype.getPhenotypingCenter() != null}">&phenotyping_center=${phenotype.getPhenotypingCenter()}</c:if>">
 								<i class="fa fa-bar-chart-o" rel="tooltip" data-placement="top" title="Click to open graphs." alt="Graphs" > </i>
 							</a>
 						</c:if>

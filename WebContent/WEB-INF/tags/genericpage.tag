@@ -148,7 +148,6 @@ try {
 <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js'></script>
 <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js'></script>
 <script type='text/javascript' src='${baseUrl}/js/imaging/mp.js'></script>
-<script type='text/javascript' src="${baseUrl}/js/general/dropDownPhenPage.js"></script>
 <script type='text/javascript' src="${baseUrl}/js/general/toggle.js"></script> 
 		
 <script type="text/javascript" src="${baseUrl}/js/default.js?cache=09-01-14"></script>
@@ -277,19 +276,19 @@ try {
                     
         <!-- <script type="text/javascript" src='${baseUrl}/js/script.min.js' ></script>-->
         
-         <script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>   
+        <script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>                 
+        <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js'></script>      
+        
         <script type='text/javascript' src='${baseUrl}/js/documentationConfig.js'></script>     
         <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/geneFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/mpFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/maFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/diseaseFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>                  
-        
-        <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js'></script>       
+				<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/geneFacetWidget.js'></script>
+				<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/mpFacetWidget.js'></script>
+				<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/maFacetWidget.js'></script>
+				<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js'></script>
+				<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/diseaseFacetWidget.js'></script>
+				<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js'></script>
+				<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script> 
+				<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>    
         
         <compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">
          <script>

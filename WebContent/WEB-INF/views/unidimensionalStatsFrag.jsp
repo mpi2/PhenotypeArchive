@@ -22,7 +22,7 @@
 				<%-- </c:forEach>
 				 --%>
 	
-		<table id="continuousTable" class="table table-bordered  table-striped table-condensed">
+		<table id="continuousTable">
 		<thead><tr>
 		<th>Line</th>
 		<th>Zygosity</th>
@@ -66,9 +66,8 @@
 				
 				
 				<c:if test="${fn:length(unidimensionalDataSet.allUnidimensionalResults)>0}">
-				<div class="row-fluid">
-						<div class="container span12">
-						<table class="ttable table-bordered  table-striped table-condensed">
+				<div class="section">
+						<table>
 						${fn:length(unidimensionalDataSet.allUnidimensionalResults)}
 						
  							<c:forEach var="data" items="${unidimensionalDataSet.allUnidimensionalResults}">
@@ -88,7 +87,7 @@
 									</c:forEach>
  	 							</table>
  	 							
- 	 		<table class="ttable table-bordered  table-striped table-condensed">
+ 	 		<table>
 						<tr>
 						<th>colonyId</th>
 						<th>experimentalZygosity</th>
@@ -160,8 +159,7 @@
  							</tr>
 						</c:forEach>
  	 					</table>
- 	 							
- 						</div>
+ 	 					
  				</div>
  				
  				</c:if>
@@ -181,7 +179,7 @@
 										TSV : 'tsv_phenoAssoc',
 										XLS : 'xls_phenoAssoc'
 									},
-									class : 'fileIcon'
+									class : 'fileIcon exportButton'
 								}));
 
 						var params = window.location.href.split("/")[window.location.href
@@ -194,7 +192,7 @@
 						for (var k = 2; k < params.split("parameterId\=").length; k++){
 							paramIdList += "\t" + params.split("parameterId\=")[k].split("\&")[0];
 						}
-						var phenotypingCenter = (params.indexOf("phenotypingCenter\=") > 0) ? params.split("phenotypingCenter\=")[1].split("\&")[0] : null;
+						var phenotypingCenter = (params.indexOf("phenotyping_center\=") > 0) ? params.split("phenotyping_center\=")[1].split("\&")[0] : null;
 						var zygosity = null;
 						if (params.indexOf("zygosity\=") > 0)
 							zygosity = params.split("zygosity\=")[1].split("\&")[0];
