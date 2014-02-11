@@ -572,7 +572,7 @@
             var text = self._formatText(selectOptions, options.firstItemChecksAll, firstOption);
             var controlLabel = controlWrapper.find(".ui-dropdownchecklist-text");
             var shortText = text;
-            if (text.length > 25){
+            if (text.length > 17){
             	var shortText = text.slice(0,14) + "...";
             }
             controlLabel.html(shortText);

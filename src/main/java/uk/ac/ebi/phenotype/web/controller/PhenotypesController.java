@@ -507,7 +507,9 @@ public class PhenotypesController {
 				if (genes.size() > 0){
 					Map<String, List<DiscreteTimePoint>> data = os.getTimeSeriesMutantData(parameter, genes, strains);
 					data.put("Control", os.getTimeSeriesControlData(parameter, strains));
-					chartsList.add(tstp.doTimeSeriesOverviewData(data, p));
+					ChartData chart = tstp.doTimeSeriesOverviewData(data, p);
+					chart.setId("timechart"+chart.getId());
+					chartsList.add(chart);
 				}
 			}
 			else if ( p != null && Utilities.checkType(p).equals(ObservationType.unidimensional)){
