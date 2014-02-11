@@ -157,6 +157,8 @@ Licensed to the Apache Software Foundation (ASF) under one or more
 		<field name="pa_allele_type" type="string" indexed="true" stored="true" multiValued="true"/>	
 		<field name="pa_allele_name" type="string" indexed="true" stored="true" multiValued="true"/>	
 		<field name="pa_phenotyping_status" type="string" indexed="true" stored="true" multiValued="true"/>
+				
+		<field name="gene_type" type="string" indexed="true" stored="true" multiValued="false"/>
 		
 		<field name="es_allele_name" type="string" indexed="true" stored="true" multiValued="true"/>			
 			
