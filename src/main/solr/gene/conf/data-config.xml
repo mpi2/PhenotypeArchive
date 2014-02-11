@@ -56,7 +56,7 @@
 				
 			<!-- type:gene -> this is to derive ES cell status -->
 			<entity dataSource="allele_core" name="geneType" stream="true" onError="continue"
-				url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:gene&amp;wt=normal&amp;fl=type"
+				url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:gene&amp;wt=normal&amp;fl=type,status"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/" >				
 			
 				<field column="gene_type" xpath="/response/result/doc/str[@name='type']" />	
