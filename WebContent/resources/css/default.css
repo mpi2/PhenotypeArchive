@@ -39,7 +39,7 @@ h6                      { font-size: 1em; font-weight: 600; color: #666; }
 /* Paragraphs */
 .region-sidebar-second p { font-size: 0.9em; } 
 
-/* Abstände */
+/* Abst��nde */
 table                   { margin: 1em 0; }
 .accordion-group + h1, .accordion-group + h2, .accordion-group + h3, .accordion-group + h4,
 .section + h1, .section + h2, .section + h3, .section + h4, .section + h5, .section + h6, .section + p
@@ -135,6 +135,9 @@ input.auto              { width: auto; }
 #tn a                   { text-decoration: none; color: #777; }
 #block-system-user-menu a:hover,
 #tn a:hover             { text-decoration: underline; }
+
+/* Icons for the Topnavi */
+#messages:before { font-family: 'FontAwesome'; position: absolute; margin-left: -1.25em; }
 
 /* Icons for the Topnavi */
 #my-impc:before,

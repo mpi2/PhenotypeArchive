@@ -31,7 +31,7 @@
                     <c:if test="${requestPageType eq 'disease'}">
                         <c:set var="score" value = "${diseaseAssociation.diseaseToModelScore}"/>                       
                     </c:if>
-                    <b style="color:#FF9000">${score}</b>: ${mouseModel.allelicCompositionLink} ${mouseModel.geneticBackground} (Source: ${mouseModel.source})<br/>
+                    <b style="color:#EF7B0B">${score}</b>: ${mouseModel.allelicCompositionLink} ${mouseModel.geneticBackground} (Source: ${mouseModel.source})<br/>
                     <c:forEach var="phenotypeTerm" items="${mouseModel.phenotypeTerms}">
                         ${phenotypeTerm.term}<br/>
                     </c:forEach>
@@ -47,7 +47,7 @@
                     <c:if test="${requestPageType eq 'disease'}">
                         <c:set var="score" value = "${diseaseAssociation.diseaseToModelScore}"/>                       
                     </c:if>
-                    <b style="color:#FF9000">${score}</b>: ${mouseModel.allelicCompositionLink} ${mouseModel.geneticBackground} (Source: ${mouseModel.source})<br/>
+                    <b style="color:#EF7B0B">${score}</b>: ${mouseModel.allelicCompositionLink} ${mouseModel.geneticBackground} (Source: ${mouseModel.source})<br/>
                     <c:forEach var="phenotypeTerm" items="${mouseModel.phenotypeTerms}">
                         ${phenotypeTerm.term}<br/>
                     </c:forEach>
