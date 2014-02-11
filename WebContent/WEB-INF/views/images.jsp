@@ -39,20 +39,31 @@
 		<c:if test="${imageCount eq 0}"><h4>There are no images for ${breadcrumbText}</h4></c:if>
 		<c:if test="${imageCount ne 0}"><h4><strong class=lead>${imageCount} images for ${breadcrumbText}</strong></h4></c:if>
 		<div  class="section">
-			<div class="inner">
-				<c:forEach var="image" items="${images}" varStatus="status">
-				<%-- ${image } --%>
-                                
-				
-					<t:imgdisplay img="${image}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
-				
-                                
-			<c:if test="${status.count % 4 eq 0}"></div><div class="inner"></c:if>
+		<div class="inner">
+		<div class="accordion-group">
+                        						<div class="accordion-heading">
+                                        		could put a  header here
+                                    			</div>
+                                				<div class="accordion-body">
+                                       					<ul>
+										<c:forEach var="image" items="${images}" varStatus="status">
+										
+										<li>
+												<t:imgdisplay img="${image}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
+										</li>
+												<%-- <c:if test="${status.count % 4 eq 0}">
+										</div>
+								</div>
+								
+					</c:if> 
+				</div>--%>
 				</c:forEach>
-			</div>
+				</ul>
 		</div>
+</div>
+		
 
-		<c:if test="${imageCount gt start+length || start ne 0}">
+		<%-- <c:if test="${imageCount gt start+length || start ne 0}">
 		<div id="pagination" class="pagination">
 			<ul>
 				<c:if test="${start eq 0}">
@@ -77,8 +88,13 @@
 			</ul>
 		</div>
 		<script>$('div#pagination').hide();</script>
-		</c:if>
+		</c:if> --%>
 
+
+</div>
+</div>
+</div>
+</div>
     </jsp:body>	
 
 </t:genericpage>
