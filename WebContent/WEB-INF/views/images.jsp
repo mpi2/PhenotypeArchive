@@ -37,15 +37,11 @@
     
     <c:if test="${solrImagesError ne null}"><h4>There is an error the image index is down please contact the IMPC if this error persists</h4></c:if>
 		<c:if test="${imageCount eq 0}"><h4>There are no images for ${breadcrumbText}</h4></c:if>
-		<c:if test="${imageCount ne 0}"><h4><strong class=lead>${imageCount} images for ${breadcrumbText}</strong></h4></c:if>
+		<c:if test="${imageCount ne 0}"><h1 class="title">${imageCount} images for ${breadcrumbText}</h1></c:if>
 		<div  class="section">
-		<div class="inner">
-		<div class="accordion-group">
-                        						<div class="accordion-heading">
-                                        		could put a  header here
-                                    			</div>
-                                				<div class="accordion-body">
-                                       					<ul>
+				<div class="inner">
+                         <div class="accordion-body" style="display: block">
+                                   <ul>
 										<c:forEach var="image" items="${images}" varStatus="status">
 										
 										<li>
@@ -57,13 +53,13 @@
 								
 					</c:if> 
 				</div>--%>
-				</c:forEach>
-				</ul>
-		</div>
-</div>
+										</c:forEach>
+								</ul>
+						</div>
+
 		
 
-		<%-- <c:if test="${imageCount gt start+length || start ne 0}">
+		<c:if test="${imageCount gt start+length || start ne 0}">
 		<div id="pagination" class="pagination">
 			<ul>
 				<c:if test="${start eq 0}">
@@ -88,10 +84,10 @@
 			</ul>
 		</div>
 		<script>$('div#pagination').hide();</script>
-		</c:if> --%>
+		</c:if> 
 
 
-</div>
+</div><!-- end of inner div -->
 </div>
 </div>
 </div>

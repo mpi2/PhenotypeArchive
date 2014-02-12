@@ -201,10 +201,11 @@
 							</c:if>
 						
 						
-								<div class="accordion-group">
+								<%-- <div class="accordion-group">
                                     <div class="accordion-heading withColorWhenOpen"> Gene Browser</div>
                                     	<div class="accordion-body">
-                                         <div id="genomebrowser" class="svg-wrap">
+                                    	<iframe> 
+                                         <div id="genomebrowser">
 											<div class="floatright"><a href="http://www.biodalliance.org/" target="_blank" title="More information on using this browser"><i class="icon-question-sign"></i></a> <a title="This browser is clickable please experiment by clicking. Click on features to get more info, click on zoom bar etc. To reset click on 'lightning button'">This a an interactive genomic browser</a>
 											</div>  
 											Gene&nbsp;Location: Chr<span class="label" id='chr'>${gene.sequenceRegion.name}</span>:<span  class="label" id='geneStart'>${gene.start}</span>-<span  class="label"id='geneEnd'>${gene.end}</span> <br/> Gene Type: ${gene.subtype.name}
@@ -236,8 +237,9 @@
 										
 									
 										</div>
+								</iframe> 
 								</div><!--  end of accordion body -->
-							</div>
+							</div> --%>
 						</div>	
 		
 					

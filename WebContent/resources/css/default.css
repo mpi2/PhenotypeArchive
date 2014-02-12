@@ -523,6 +523,7 @@ span.status.done        { background: #0978A1 !important; }
 .accordion-group.open .accordion-heading.withColorWhenOpen { margin-bottom: 0.5em; background: #f4f4f4; }
 .accordion-heading:hover { color: #0978a1; text-decoration: underline; }
 .accordion-body         { padding: 0 0 1em 0; display: none; }
+/* .accordion-body .grid { display:block; } */
 .accordion-body ul      { padding: 0; }
 .accordion-body li      { float: left; width: 18%; padding: 1%; margin: 0; list-style: none; }
 .accordion-body li img  { width: 100%; height: auto; }
