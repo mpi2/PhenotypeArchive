@@ -276,7 +276,7 @@ public class CategoricalChartAndTableProvider {
 			e.printStackTrace();
 		}
 		
-		String chartId = "chart" + parameter.getStableId();//replace space in MRC Harwell with underscore so valid javascritp variable
+		String chartId = "single-chart-div";//replace space in MRC Harwell with underscore so valid javascritp variable
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
 		String javascript = "$(function () {  var chart"
 				+ chartId

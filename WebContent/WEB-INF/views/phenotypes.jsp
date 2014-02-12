@@ -84,9 +84,9 @@
 								<p class="padleft"><span class="bigger">${genePercentage.getMalePercentage()}%</span> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</p>
 							</div>					
 							<!-- Graphs -->
-							<c:if test="${overviewPhenCharts.size() > 0}">
+							<c:if test="${parametersAssociated.size() > 0}">
 								<div class="half">
-								<div class="graphfilters">
+								<!-- div class="graphfilters">
 									<div class="graphfilter">
 										<div class="filtertype">Center</div>
 										<div class="filteroptions">
@@ -105,21 +105,18 @@
 										</ul>
 										</div>
 									</div>
-								</div>
-								<!-- c:forEach var="categoricalResultAndCharts" items="${overviewPhenCharts}" varStatus="experimentLoop"-->
-								<div class="row-fluid">
-						 				<!-- c:forEach var="categoricalChartDataObject" items="${overviewPhenCharts.get(0)}" varStatus="chartLoop"-->
-						  				 	<div class="container span6">
-														<div id="${overviewPhenCharts.get(0).getId()}"
-															style="min-width: 400px; height: 400px; margin: 0 auto">
-														</div>
-						   								<script type="text/javascript">
-						   								${overviewPhenCharts.get(0).getChart()}
-						   							</script>
-											</div>
-		 								<!-- /c:forEach-->
+								</div-->
+								<div id="chart-container">
+									<div id="single-chart-div">
 									</div>
-								<!-- /c:forEach-->
+									<div id="spinner-overview-charts"><i class="fa fa-refresh fa-spin"></i></div>
+								</div>
+								<ul>
+								<c:forEach var="assocParam" items="${parametersAssociated}">
+									<li> <a href="#" onclick="ajaxToBe('${phenotype.id.accession}', '${assocParam}');">${assocParam}</a></li>
+								</c:forEach>
+								</ul>
+							
 							</div>
 						</c:if>
 						<div class="clear"></div>

@@ -42,7 +42,7 @@ public class TimeSeriesChartAndTableProvider {
 
 		String title = p.getName() + " (" + p.getStableId() + ")";
 		// create CharData
-		ChartData chartsNTablesForParameter = creatDiscretePointTimeSeriesChart(
+		ChartData chartsNTablesForParameter = creatDiscretePointTimeSeriesChartOverview(
 				"1", title, lines, p.checkParameterUnit(1),
 				p.checkParameterUnit(2), 1, "org", p);
 		return chartsNTablesForParameter;
@@ -296,19 +296,18 @@ public class TimeSeriesChartAndTableProvider {
 		return chartAndTable;
 	}
 
-	private ChartData creatDiscretePointTimeSeriesChartOverview(int listIndex,
+	private ChartData creatDiscretePointTimeSeriesChartOverview(String expNumber,
 			String title, Map<String, List<DiscreteTimePoint>> lines,
-			String xUnitsLabel, String yUnitsLabel, SexType sex,
-			int decimalPlaces, String organisation) {
-		int size = listIndex;// to know which div to render to
-								// not 0 index as using loop
-								// count in jsp
+			String xUnitsLabel, String yUnitsLabel, int decimalPlaces, String organisation, Parameter parameter) {
+
 		JSONArray series = new JSONArray();
 		String seriesString = "";
 		Set<Float> categoriesSet = new HashSet<Float>();
 		Float maxForChart = new Float(0);
 		Float minForChart = new Float(1000000000);
-		Map<String, Float> minMax = new HashMap<String, Float>();
+		// { name: 'Confidence', type: 'errorbar', color: 'black', data: [ [7.5,
+		// 8.5], [2.8, 4], [1.5, 2.5], [3, 4.1], [6.5, 7.5], [3.3, 4.1], [4.8,
+		// 5.1], [2.2, 3.0], [5.1, 8] ] }
 
 		try {
 			int i = 0;
@@ -316,22 +315,19 @@ public class TimeSeriesChartAndTableProvider {
 				JSONObject object = new JSONObject();
 				JSONArray data = new JSONArray();
 				object.put("name", key);
+				SexType sexType=SexType.male;
+				if(key.contains("Female")) {
+					sexType=SexType.female;
+				}
+				String colorString=ChartColors.getRgbaString(sexType, i, ChartColors.alphaScatter);
+				object.put("color", colorString);
 
 				JSONObject errorBarsObject = null;
 				try {
 					errorBarsObject = new JSONObject();// "{ name: 'Confidence', type: 'errorbar', color: 'black', data: [ [7.5, 8.5], [2.8, 4], [1.5, 2.5], [3, 4.1], [6.5, 7.5], [3.3, 4.1], [4.8, 5.1], [2.2, 3.0], [5.1, 8] ] } ");
 					errorBarsObject.put("name", "Standard Deviation");
 					errorBarsObject.put("type", "errorbar");
-					// errorBarsObject.put("tooltip",
-					// "pointFormat: '(error range: {point.low}-{point.high}°C)<br/>' ");
-					// errorBarsObject.append("tooltip",
-					// "pointFormat: '(error range: {point.low}-{point.high}°C)<br/>' ");
-
-					String color = "blue";
-					if (i % 2 == 0) {
-						color = "black";
-					}
-					errorBarsObject.put("color", color);
+					errorBarsObject.put("color", colorString);
 
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
@@ -350,17 +346,6 @@ public class TimeSeriesChartAndTableProvider {
 					errorBarsJ.put(pt.getDiscreteTime());
 					errorBarsJ.put(pt.getErrorPair().get(0));
 					errorBarsJ.put(pt.getErrorPair().get(1));
-					if (pt.getErrorPair().get(0) > maxForChart)
-						maxForChart = pt.getErrorPair().get(0);
-					if (pt.getErrorPair().get(1) > maxForChart)
-						maxForChart = pt.getErrorPair().get(1);
-					if (pt.getErrorPair().get(0) < minForChart)
-						minForChart = pt.getErrorPair().get(0);
-					if (pt.getErrorPair().get(1) < minForChart)
-						minForChart = pt.getErrorPair().get(1);
-					minMax.put("max", maxForChart);
-					logger.debug("minForChart timeseries=" + minForChart);
-					minMax.put("min", minForChart);
 					errorsDataJson.put(errorBarsJ);
 
 					errorBarsObject.put("data", errorsDataJson);
@@ -376,7 +361,16 @@ public class TimeSeriesChartAndTableProvider {
 				// we now want to add different tooltips for thses data sets
 				// which we can't do for java json objects so we need to deal
 				// with strings sooner
+
 				series.put(errorBarsObject);
+				// System.out.println("object for point data="+object);
+				// System.out.println("errorbars="+errorBarsObject);
+				// if(i==0) {
+				// seriesString+=",";
+				// }
+				// seriesString+=","+object.toString()+","+errorBarsObject.toString();
+				// System.out.println("seriesString="+seriesString);
+				// categoriesMap.put(key);
 				i++;
 			}
 
@@ -387,6 +381,7 @@ public class TimeSeriesChartAndTableProvider {
 
 		// need to add error bars to series data as well!
 		// sort the categories by time as means are all sorted already
+
 		List<Float> cats = new ArrayList<Float>();
 		for (Float cat : categoriesSet) {
 			cats.add(cat);
@@ -398,7 +393,6 @@ public class TimeSeriesChartAndTableProvider {
 			noDecimalsString = "allowDecimals:false,";
 		}
 
-		logger.warn("series=" + series.length());
 		String decimalFormatString = ":." + decimalPlaces + "f";
 		String headerFormatString = "headerFormat: '<span style=\"font-size: 12px\">"
 				+ WordUtils.capitalize(xUnitsLabel)
@@ -411,51 +405,44 @@ public class TimeSeriesChartAndTableProvider {
 		seriesString = series.toString().replace(escapedPlaceholder,
 				pointToolTip);
 
-		String errorBarsToolTip = "tooltip: { pointFormat: '<br/>' }";
+		String errorBarsToolTip = "tooltip: { pointFormat: 'SD: {point.low"
+				+ decimalFormatString + "}-{point.high" + decimalFormatString
+				+ "}<br/>' }";
 		int index = series.toString().indexOf("\"errorbar");
 		String escapedErrorString = "\"errorbar\"";
 		seriesString = seriesString.replace(escapedErrorString,
 				escapedErrorString + "," + errorBarsToolTip);
-				String axisFontSize = "15";
-				List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaScatter);
-				JSONArray colorArray = new JSONArray(colors);
-		String chartid = "timeChart" + size;
-		String javascript = "$(function () { var chart; $(document).ready(function() { chart = new Highcharts.Chart({ "
-				+" colors:"+colorArray
-				+", chart: {  zoomType: 'x', renderTo: '"
-				+ chartid
-				+ "', type: 'line', marginRight: 130, marginBottom: 50 }, "
-				+ "title: { text: '"
+		String axisFontSize = "15";
+		
+		List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaScatter);
+//		JSONArray colorArray = new JSONArray(colors);
+		
+		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ " 
+//				+" colors:"+colorArray
+				+" chart: {  zoomType: 'x', renderTo: 'single-chart-div', type: 'line', marginRight: 130, marginBottom: 50 }, title: { text: '"
 				+ WordUtils.capitalize(title)
-				+ "', x: -20  }, "
-				+ "credits: { enabled: false },  "
-				+ "subtitle: { text: '"
-				+ (sex != null ? WordUtils.capitalize(sex.name()) : "")
-				+ "', x: -20 }, "
-				+ "xAxis: { "
+				+ "', x: -20  }, credits: { enabled: false },  subtitle: { text: '"
+				+ parameter.getStableId()
+				+ "', x: -20 }, xAxis: { "
 				+ noDecimalsString
 				+ " labels: { style:{ fontSize:"
 				+ axisFontSize
-				+ " }},  "
-				+ "title: {   text: '"
+				+ " }},   title: {   text: '"
 				+ xUnitsLabel
-				+ "'   }  }, "
-				+ "yAxis: {max: 2, min: 0, labels: { style:{ fontSize:"
+				+ "'   }  }, yAxis: { labels: { style:{ fontSize:"
 				+ axisFontSize
 				+ " }}, title: { text: ' "
 				+ yUnitsLabel
-				+ "' }, plotLines: [{ value: 0, width: 1, color: '#808080' }] }, "
-				+ "legend: { layout: 'vertical', align: 'right', verticalAlign: 'top', x: -10, y: 100, borderWidth: 0 }, "
+				+ "' }, plotLines: [{ value: 0, width: 1, color: '#808080' }] },  legend: { layout: 'vertical', align: 'right', verticalAlign: 'top', x: -10, y: 100, borderWidth: 0 }, "
 				+ "tooltip: {shared: true},"
 				+ "series: "
 				+ seriesString
-				+ " }); }); }); ";
+				+ " }); });  ";
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
-		chartAndTable.setMin(minForChart);
-		chartAndTable.setMax(maxForChart);
 		chartAndTable.setOrganisation(organisation);
-		chartAndTable.setId(chartid);
+		chartAndTable.setId(parameter.getStableId());
+		System.out.println(javascript);
 		return chartAndTable;
 	}
 

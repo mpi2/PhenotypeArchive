@@ -449,11 +449,12 @@ public class UnidimensionalChartAndTableProvider {
 		return chartAndTable;
 	}
 	
-	public ChartData getStackedHistogram(Map<String, List<Double>> map, String title, String xLabel){
+	public ChartData getStackedHistogram(Map<String, List<Double>> map, String title, Parameter parameter){
 	//	http://jsfiddle.net/gh/get/jquery/1.9.1/highslide-software/highcharts.com/tree/master/samples/highcharts/demo/column-stacked/
 		if (map == null){
 			return new ChartData();
 		}
+		String xLabel = parameter.getUnit();
 		List<Double> control  = map.get("control");
 		List<Double> mutant  = map.get("mutant");					
 		List<String> labels = new ArrayList<String> (); 
@@ -468,11 +469,9 @@ public class UnidimensionalChartAndTableProvider {
 		for (double val : control)
 			if (val< min)
 				min = val;
-		String chartId = "column-stacked" + mutant.hashCode();
+		String chartId = parameter.getStableId();
 		String yTitle = "Number of strains";
-		String javascript = "$(document).ready(function() {chart = new Highcharts.Chart({ chart: {  type: 'column' , renderTo: '"
-				+ chartId
-				+ "'},"+
+		String javascript = "$(document).ready(function() {chart = new Highcharts.Chart({ chart: {  type: 'column' , renderTo: 'single-chart-div'},"+
            " title: { text: '" + title + "' },"+
            " credits: { enabled: false },"+
            " xAxis: { categories: " + labels + ", labels: {rotation: -45} , title: { text: '" + xLabel + "'} },"+
