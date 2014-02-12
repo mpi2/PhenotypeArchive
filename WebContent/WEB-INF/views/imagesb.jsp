@@ -4,7 +4,7 @@
 <%@ taglib prefix='fn' uri='http://java.sun.com/jsp/jstl/functions'%>
 <t:genericpage>
 
-	<jsp:attribute name="title">${queryTerms} IMPC Images Information</jsp:attribute>
+	<jsp:attribute name="title">${queryTerms} IMPC Images Information b</jsp:attribute>
 
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&core=images&fq=annotationTermId:M* OR expName:* OR symbol:*">Images</a> &raquo; Results</jsp:attribute>
 	
@@ -23,7 +23,7 @@
     </jsp:attribute>
 
 
-	<jsp:attribute name="footer">
+	<jsp:attribute name="addToFooter">
 		<script>$.autopager({link: '#next',content: '#grid'});</script>
 	</jsp:attribute>
 
@@ -37,7 +37,7 @@
 		<c:if test="${imageCount eq 0}"><h4>There are no images for ${breadcrumbText}</h4></c:if>
 		<c:if test="${imageCount ne 0}"><h4><strong class=lead>${imageCount} images for ${breadcrumbText}</strong></h4></c:if>
 		<div id="grid" class="container">
-			<div class="row">
+			<div class="section">
 				<c:forEach var="image" items="${images}" varStatus="status">
 				<%-- ${image } --%>
                                 <div class="span3">
@@ -45,7 +45,7 @@
 					<t:imgdisplay img="${image}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
 				</div>
                                 </div>
-			<c:if test="${status.count % 4 eq 0}"></div><div class="row"></c:if>
+			<c:if test="${status.count % 4 eq 0}"></div><div class="section"></c:if>
 				</c:forEach>
 			</div>
 		</div>

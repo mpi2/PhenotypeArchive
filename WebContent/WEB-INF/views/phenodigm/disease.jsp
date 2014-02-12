@@ -69,12 +69,12 @@
         <h1 class="title">Disease: ${disease.term}</h1>
         <div class="section">
             <div class="inner">
-                <p class="with-label no-margin">
+                <p class="with-label">
                     <span class="label">Name</span>
                     ${disease.term}
                 </p>
 
-                <p class="with-label no-margin">
+                <p class="with-label">
                     <span class="label">Synonyms</span>
                     <c:choose>
                         <c:when test="${empty disease.alternativeTerms}">
@@ -89,7 +89,7 @@
                     </c:choose>
                 </p>
 
-                <p class="with-label no-margin">
+                <p class="with-label">
                     <span class="label">Locus</span>
                     <c:choose>
                         <c:when test="${empty disease.locus}">
@@ -101,8 +101,8 @@
                     </c:choose>
                 </p>
                 
-                <p class="with-label no-margin">
-                    <span class="label">Associated Human Genes:</span>
+                <p class="with-label">
+                    <span class="label">Associated Human Genes</span>
                     <c:choose>
                         <c:when test="${empty knownGeneAssociationSummaries}">
                             -
@@ -118,8 +118,8 @@
                     </c:choose>
                 </p>
                 
-                <p class="with-label no-margin">
-                    <span class="label">Mouse Orthologs:</span>
+                <p class="with-label">
+                    <span class="label">Mouse Orthologs</span>
                     <c:choose>
                         <c:when test="${empty knownGeneAssociationSummaries}">
                             -
@@ -135,7 +135,7 @@
                     </c:choose>
                 </p>
 
-                <p class="with-label no-margin">
+                <p class="with-label">
                     <span class="label">Source</span>
                     <a href="${disease.diseaseIdentifier.externalUri}">${disease.diseaseId}</a>
                 </p>
@@ -151,7 +151,7 @@
                     </c:when>
                     <c:otherwise>
                         <!--The following genes are associated with ${disease.diseaseId} by phenotypic similarity.-->
-                        <table id="phenotypes" class="table table-striped"> 
+                        <table id="phenotypes" class="table tableSorter"> 
                             <thead>
                                 <tr>
                                     <!--<th>Human Gene Symbol</th>-->
@@ -168,7 +168,7 @@
                                 <c:forEach var="association" items="${phenotypeAssociations}">
                                     <c:set var="mouseGeneIdentifier" value="${association.modelGeneIdentifier}"></c:set>
                                     <c:set var="associationSummary" value="${association.associationSummary}"></c:set>
-                                    <tr id="${mouseGeneIdentifier.compoundIdentifier}" targetRowId="P${humanGeneIdentifier.databaseAcc}_${mouseGeneIdentifier.databaseAcc}_${disease.diseaseIdentifier.databaseAcc}" style="cursor:help;color:#27408B;" rel="tooltip" data-placement="top" title="Click anywhere on row display phenotype terms" alt="Click row to display phenotype terms" >
+                                    <tr id="${mouseGeneIdentifier.compoundIdentifier}" targetRowId="P${humanGeneIdentifier.databaseAcc}_${mouseGeneIdentifier.databaseAcc}_${disease.diseaseIdentifier.databaseAcc}" title="Click anywhere on row display phenotype terms" >
                                         <td>
                                             <!--Mouse Gene Symbol-->
                                             <a href="../gene/${mouseGeneIdentifier.databaseCode}:${mouseGeneIdentifier.databaseAcc}">${mouseGeneIdentifier.geneSymbol}</a> 
@@ -206,6 +206,9 @@
                                 </c:forEach>
                             </tbody>
                         </table>
+                        <script>
+                            $(document).ready(function(){ });
+                        </script>
                     </c:otherwise>
                 </c:choose>
             </div>

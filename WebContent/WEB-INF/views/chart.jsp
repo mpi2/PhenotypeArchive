@@ -16,7 +16,8 @@
 						Allele -
 						<t:formatAllele>${symbol}</t:formatAllele>
 						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background	- ${geneticBackgroundString} ${phenotypingCenter} 
-						<i class="fa fa-question-circle pull-right" title="i am the title"></i>
+						<a href='' id='generalPanel'><i class="fa fa-question-circle pull-right" title="i am the title"></i></a>
+						<%-- <h2 class="title documentation" id="section-associations"> Phenotype associations for ${gene.symbol} <a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></h2> --%>
 					<!-- <i class="fa fa-question-circle pull-right" data-hasqtip="30" oldtitle="Brief info about this panel" title="" aria-describedby="qtip-30"> </i> -->
 					</h2>
 					

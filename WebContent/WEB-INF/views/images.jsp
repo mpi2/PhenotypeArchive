@@ -22,27 +22,46 @@
 		<script src="${baseUrl}/js/imaging/imageUtils.js"></script>
     </jsp:attribute>
 
-	<jsp:attribute name="footer">
+	<jsp:attribute name="addToFooter">
 		<script>$.autopager({link: '#next',content: '#grid'});</script>
 	</jsp:attribute>
 
     <jsp:body>
+    
+    <div class="region region-content">
+			<div class="block block-system">
+				<div class="content">
+					<div class="node node-gene">
+    
+    
+    
     <c:if test="${solrImagesError ne null}"><h4>There is an error the image index is down please contact the IMPC if this error persists</h4></c:if>
 		<c:if test="${imageCount eq 0}"><h4>There are no images for ${breadcrumbText}</h4></c:if>
-		<c:if test="${imageCount ne 0}"><h4><strong class=lead>${imageCount} images for ${breadcrumbText}</strong></h4></c:if>
-		<div id="grid" class="container">
-			<div class="row">
-				<c:forEach var="image" items="${images}" varStatus="status">
-				<%-- ${image } --%>
-                                <div class="span3">
-				<div class="thumbnail">
-					<t:imgdisplay img="${image}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
-				</div>
-                                </div>
-			<c:if test="${status.count % 4 eq 0}"></div><div class="row"></c:if>
-				</c:forEach>
-			</div>
-		</div>
+		<c:if test="${imageCount ne 0}"><h1 class="title">${imageCount} images for ${breadcrumbText}</h1></c:if>
+		<div  class="section">
+				<div class="inner">
+                         <div class="accordion-body" style="display: block">
+                         <div id="grid">
+                                   <ul>
+										<c:forEach var="image" items="${images}" varStatus="status">
+										
+										<li>
+												<t:imgdisplay img="${image}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
+										</li>
+												<%-- <c:if test="${status.count % 4 eq 0}">
+										</div>
+								</div>
+								
+					</c:if> 
+				</div>--%>
+										</c:forEach>
+								</ul>
+								</div>
+						</div>
+					
+				</div><!-- end of inner div -->
+
+		
 
 		<c:if test="${imageCount gt start+length || start ne 0}">
 		<div id="pagination" class="pagination">
@@ -69,8 +88,15 @@
 			</ul>
 		</div>
 		<script>$('div#pagination').hide();</script>
-		</c:if>
+		</c:if> 
 
+
+
+</div>
+</div>
+</div>
+</div>
+</div>
     </jsp:body>	
 
 </t:genericpage>
