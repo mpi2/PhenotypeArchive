@@ -81,34 +81,12 @@
 		<script src="${baseUrl}/js/general/enu.js"></script>
 		<script src="${baseUrl}/js/general/dropdownfilters.js"></script>
 		<!--[if !IE]><!-->
-		<%-- <script type="text/javascript" src="${baseUrl}/js/genomic-browser/dalliance-compiled.js"></script> --%>
-		<script type="text/javascript" src="http://www.biodalliance.org/dev/dalliance-compiled.js"></script>
+		<script type="text/javascript" src="${baseUrl}/js/genomic-browser/dalliance-compiled.js"></script>
 		<!--<![endif]-->
 		
 		
 		<script type="text/javascript">var gene_id = '${acc}';</script>
 		<style>
-		/* Force allele table to not be like tables anymore for responsive layout */
-		@media only screen and (max-width: 800px) {
-			#allele_tracker_panel_results table,
-			#allele_tracker_panel_results thead,
-			#allele_tracker_panel_results tbody,
-			#allele_tracker_panel_results th,
-			#allele_tracker_panel_results td,
-			#allele_tracker_panel_results tr{display: block;}
-			#allele_tracker_panel_results thead tr {position: absolute;top: -9999px;left: -9999px;}
-			#allele_tracker_panel_results tr {border: 1px solid #ccc;}
-			#allele_tracker_panel_results td {border: none;border-bottom: 1px solid #eee;position: relative;padding-left: 50%;white-space: normal;text-align: left;}
-			#allele_tracker_panel_results td:before {position: absolute;top: 6px;left: 6px;width: 45%;padding-right: 10px;white-space: nowrap;text-align: left;font-weight: bold;}
-			#allele_tracker_panel_results td:before {content: attr(data-title);}
-			#allele_tracker_panel_results td:nth-of-type(1):before {content: "Product"}
-			#allele_tracker_panel_results td:nth-of-type(2):before {content: "Allele Type"}
-			#allele_tracker_panel_results td:nth-of-type(3):before {content: "Strain of Origin"}
-			#allele_tracker_panel_results td:nth-of-type(4):before {content: "MGI Allele Name"}
-			#allele_tracker_panel_results td:nth-of-type(5):before {content: "Allele Map"}
-			#allele_tracker_panel_results td:nth-of-type(6):before {content: "Allele Sequence"}
-			#allele_tracker_panel_results td:nth-of-type(7):before {content: "Order"}
-		}
 		#svgHolder div div {z-index:100;}
 		</style>
 	
@@ -201,14 +179,13 @@
 							</c:if>
 						
 						
-								<%-- <div class="accordion-group">
+								<div class="accordion-group">
                                     <div class="accordion-heading withColorWhenOpen"> Gene Browser</div>
-                                    	<div class="accordion-body">
-                                    	<iframe> 
-                                         <div id="genomebrowser">
+                                    <!-- <div class="accordion-body"> -->
+                                         <div id="genomebrowser" >
 											<div class="floatright"><a href="http://www.biodalliance.org/" target="_blank" title="More information on using this browser"><i class="icon-question-sign"></i></a> <a title="This browser is clickable please experiment by clicking. Click on features to get more info, click on zoom bar etc. To reset click on 'lightning button'">This a an interactive genomic browser</a>
 											</div>  
-											Gene&nbsp;Location: Chr<span class="label" id='chr'>${gene.sequenceRegion.name}</span>:<span  class="label" id='geneStart'>${gene.start}</span>-<span  class="label"id='geneEnd'>${gene.end}</span> <br/> Gene Type: ${gene.subtype.name}
+											Gene&nbsp;Location: Chr<span class="label" id='chr'>${gene.sequenceRegion.name}</span>:<span  class="label" id='geneStart'>${gene.start}</span>-<span  class="label" id='geneEnd'>${gene.end}</span> <br/> Gene Type: ${gene.subtype.name}
 												<!-- <p><img class="fullimg" src="img/dummy/genebrowser.jpg" /></p> -->
 											<div id="svgHolder"></div>
 											
@@ -237,14 +214,13 @@
 										
 									
 										</div>
-								</iframe> 
-								</div><!--  end of accordion body -->
-							</div> --%>
+								<!-- </div> --><!--  end of accordion body -->
+							</div>
 						</div>	
 		
 					
 				</div><!-- section end -->
-				
+				</div> 
 				
 		
 		
@@ -252,19 +228,26 @@
 		<div class="section">
 			<h2 class="title documentation" id="section-associations"> Phenotype associations for ${gene.symbol} <a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></h2>
 			<div class="inner">
-				<div class="abnormalities">
-					<div class="allicons"></div>
+				
+				<c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
+					<div class="abnormalities">
+						<div class="allicons"></div>
 						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
-							<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
+							<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
+								<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
+							</a>
 						</c:forEach>
 						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getFemalePhenotypes()}">
-							<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
+							<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
+								<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
+							</a>
 						</c:forEach>
 						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getMalePhenotypes()}">
-							<div class="sprite sprite_${summaryObj.getName().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getName()}"></div>
+							<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
+								<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
+							</a>
 						</c:forEach>
-				</div>
-				<c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
+					</div>
 		            
 					<p> Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models. </p>
 				    <c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0}">
@@ -458,7 +441,6 @@
 						</c:choose>
 				</div>
 			</div>
-			</div> <!-- end of gene node from top -->
 		</div>
 		</div>
 		</div>
