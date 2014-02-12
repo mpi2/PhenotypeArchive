@@ -42,6 +42,7 @@ $(document).ready(function(){
 			 
 	});	 
 	
+	
 	// bubble popup for brief panel documentation
  	$.fn.qTip({
 				'pageName': 'stats',
@@ -56,7 +57,6 @@ $(document).ready(function(){
   </jsp:attribute>
 
 	<jsp:body>
-	
 		<c:if test="${statsError}">
 					<div class="alert alert-error">
 						<strong>Error:</strong> An issue occurred processing the statistics for this page - results on this page maybe incorrect.

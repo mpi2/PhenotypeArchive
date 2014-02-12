@@ -18,12 +18,26 @@
 	<%-- ${param.originalUrl} --%>
 						<c:set var="originalUrl2" value="${fn:replace(param.originalUrl, '&scatter=1', '')}" />
                                 ${originalUrl2}
-                                <a href="${originalUrl2}">Box Plot / Time Series Graphs</a>	
+                                <a id="goBack" >Box Plot / Time Series Graphs</a>	
                                 
                                 <script>
 	$(document)
 			.ready(
 					function() {
+						
+						
+						//go back functionality here
+						function goBack()
+						  {
+						  window.history.back()
+						  }
+						
+						$('#goBack').click(function() {
+							  goBack();
+						});
+						
+						
+						
 			//			alert("scatter");
 						$.fn.qTip({
 							'pageName': 'scatter',
