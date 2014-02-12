@@ -179,7 +179,7 @@
 							</c:if>
 						
 						
-								<div class="accordion-group">
+								<%-- <div class="accordion-group">
                                     <div class="accordion-heading withColorWhenOpen"> Gene Browser</div>
                                     <!-- <div class="accordion-body"> -->
                                          <div id="genomebrowser" >
@@ -215,12 +215,12 @@
 									
 										</div>
 								<!-- </div> --><!--  end of accordion body -->
-							</div>
+							</div> --%>
 						</div>	
 		
 					
 				</div><!-- section end -->
-				</div> 
+				 
 				
 		
 		
@@ -441,6 +441,7 @@
 						</c:choose>
 				</div>
 			</div>
+			</div> <!--end of node wrapper should be after all secions  -->
 		</div>
 		</div>
 		</div>
