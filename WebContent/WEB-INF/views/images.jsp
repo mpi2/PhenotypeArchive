@@ -44,16 +44,9 @@
                          <div id="grid">
                                    <ul>
 										<c:forEach var="image" items="${images}" varStatus="status">
-										
 										<li>
 												<t:imgdisplay img="${image}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
 										</li>
-												<%-- <c:if test="${status.count % 4 eq 0}">
-										</div>
-								</div>
-								
-					</c:if> 
-				</div>--%>
 										</c:forEach>
 								</ul>
 								</div>
