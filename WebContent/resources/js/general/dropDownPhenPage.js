@@ -1,5 +1,27 @@
 $(document).ready(function(){						
 
+	
+	
+	// AJAX calls for the overview charts
+	$('.oChart').each(function(i, obj) {
+		var mp = $(this).attr('mp');
+		var id = $(this).attr('id');
+		console.log('parameter_id='+id);
+		$(this).html( "here: " + id  + " " + mp);
+		console.log("request uri="+document.URL);
+		
+		var chartUrl = document.URL.split("/phenotypes/")[0];
+		chartUrl += "/overviewCharts/" + mp + "?parameter_id=" + id;
+		$.ajax({
+		  url: chartUrl,
+		  cache: false
+		})
+		.done(function( html ) {
+		   $( '#'+ id ).append( html );
+		   $( '#spinner'+ id ).html('');
+		});
+	});	 
+				
 	// bubble popup for brief panel documentation
 	$.fn.qTip({
 		'pageName': 'phenotypes',
@@ -239,4 +261,19 @@ $(document).ready(function(){
 	}
 });
 
-
+function ajaxToBe(phenotype, parameter){
+	$( '#spinner-overview-charts' ).show();
+	console.log('parameter_id='+parameter);
+	console.log("request uri="+document.URL);
+	var chartUrl = document.URL.split("/phenotypes/")[0];
+	chartUrl += "/overviewCharts/" + phenotype + "?parameter_id=" + parameter;
+	$.ajax({
+	  url: chartUrl,
+	  cache: false
+	})
+	.done(function( html ) {
+		$( '#spinner-overview-charts' ).hide();
+	   $( '#single-chart-div' ).html( html );
+	});
+	
+}
