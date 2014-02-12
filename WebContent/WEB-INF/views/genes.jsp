@@ -242,7 +242,7 @@
 		
 					
 				</div><!-- section end -->
-				</div> 
+				
 				
 		
 		
@@ -456,6 +456,7 @@
 						</c:choose>
 				</div>
 			</div>
+			</div> <!-- end of gene node from top -->
 		</div>
 		</div>
 		</div>
