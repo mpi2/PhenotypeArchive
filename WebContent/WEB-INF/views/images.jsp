@@ -41,6 +41,7 @@
 		<div  class="section">
 				<div class="inner">
                          <div class="accordion-body" style="display: block">
+                         <div id="grid">
                                    <ul>
 										<c:forEach var="image" items="${images}" varStatus="status">
 										
@@ -55,7 +56,10 @@
 				</div>--%>
 										</c:forEach>
 								</ul>
+								</div>
 						</div>
+					
+				</div><!-- end of inner div -->
 
 		
 
@@ -87,7 +91,7 @@
 		</c:if> 
 
 
-</div><!-- end of inner div -->
+
 </div>
 </div>
 </div>
