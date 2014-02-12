@@ -442,7 +442,6 @@ public class TimeSeriesChartAndTableProvider {
 		chartAndTable.setChart(javascript);
 		chartAndTable.setOrganisation(organisation);
 		chartAndTable.setId(parameter.getStableId());
-		System.out.println(javascript);
 		return chartAndTable;
 	}
 

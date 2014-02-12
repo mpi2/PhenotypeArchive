@@ -106,17 +106,22 @@
 										</div>
 									</div>
 								</div-->
+								<script>
+									ajaxToBe('${phenotype.id.accession}', '${assocParam}');
+								</script>
+								
 								<div id="chart-container">
-									<div id="single-chart-div">
+									<div id="single-chart-div" class="oChart" initialid="${parametersAssociated.get(0)}" mp="${phenotype.id.accession}">
 									</div>
 									<div id="spinner-overview-charts"><i class="fa fa-refresh fa-spin"></i></div>
 								</div>
-								<ul>
-								<c:forEach var="assocParam" items="${parametersAssociated}">
-									<li> <a href="#" onclick="ajaxToBe('${phenotype.id.accession}', '${assocParam}');">${assocParam}</a></li>
-								</c:forEach>
-								</ul>
-							
+								<c:if test="${parametersAssociated.size() > 1}">
+									<ul>
+										<c:forEach var="assocParam" items="${parametersAssociated}" varStatus="loop">
+											<li> <a id='list${loop.index}' href="#" onclick="ajaxToBe('${phenotype.id.accession}', '${assocParam}');">${assocParam}</a></li>
+										</c:forEach>
+									</ul>
+								</c:if>
 							</div>
 						</c:if>
 						<div class="clear"></div>
