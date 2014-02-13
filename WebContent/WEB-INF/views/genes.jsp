@@ -116,7 +116,7 @@
 							<div class="floatright">
 								<c:choose>
 									<c:when test="${registerButtonAnchor!=''}">
-										<p> <a class="btn" href='${registerButtonAnchor}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
+										<p> <a class="btn" href='${registerButtonAnchor}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>										
 									</c:when>
 									<c:otherwise>
 										<p> <a class="btn" id='${registerButtonId}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
@@ -226,7 +226,11 @@
 		
 		<!--  Phenotype Associations Panel -->
 		<div class="section">
-			<h2 class="title documentation" id="section-associations"> Phenotype associations for ${gene.symbol} <a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></h2>
+			<h2 class="title documentation" id="section-associations"> Phenotype associations for ${gene.symbol} 
+				<!-- <a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a> -->
+				<a href='' id='mpPanel' class="fa fa-question-circle pull-right"></a> <!--  this works, but need js to drive tip position -->
+			</h2>		
+			
 			<div class="inner">
 				
 				<c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
