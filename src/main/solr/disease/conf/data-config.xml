@@ -1,42 +1,61 @@
- <dataConfig>   
+<dataConfig>	
+	
+	<script type='text/javascript'><![CDATA[	
+		
+		function set_dataType(row) {
+            if (row.get('disease_id')){
+        	    row.put('dataType', 'disease');
+            }
+        	return row;
+        }	
+		function set_new_col(row) {
+            if (row.get('mgi_accession_id')){
+        	    row.put('disease_marker_acc', row.get('mgi_accession_id').toString());
+            }
+        	return row;
+        }		
 
-        <dataSource name="phenodigmdb" jndiName="java:comp/env/jdbc/phenodigmDataSource" />
-        <dataSource name="gene_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/gene/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
-      
- <document name="docs">
+    ]]></script>
+
+	<dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>	
+	<dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />
+	<dataSource name="gene_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/gene/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+	
+	<document name="docs">
 
         <!-- root entity -->
         <!-- around 65,000 diseases --> 
         <!-- test with  dmga.disease_id='OMIM:607225' -->
         <!--<entity dataSource="phenodigmdb" name="doc" transformer="RegexTransformer" query="select distinct @s:=@s+1 id, 'disease' as type, ds.disease_id, ds.disease_term, ds.disease_alts, CASE ds.disease_classes when '' THEN 'unclassified' ELSE ds.disease_classes END as disease_classes, ds.human_curated, ds.mouse_cu
 rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_predicted_in_locus, dmga.mgi_gene_id from disease_summary ds, disease_mouse_genotype_associations dmga, (SELECT @s:= 0) AS s where ds.disease_id=dmga.disease_id"> -->
+      	
+  		<entity dataSource="phenodigm_core" name="ddoc" stream="true" url="q=*:*&amp;fq=type:disease&amp;rows=9999999"
+    		processor="XPathEntityProcessor" forEach="/response/result/doc/"                
+    		readTimeout="10000" connectionTimeout="10000" transformer="script:set_dataType" > 
 
-      	<entity dataSource="phenodigmdb" name="doc" transformer="RegexTransformer" query="select distinct 'disease' as type, ds.disease_id, ds.disease_term, ds.disease_alts, CASE ds.disease_classes when '' THEN 'unclassified' ELSE ds.disease_classes END as disease_classes, ds.human_curated, ds.mouse_curated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_predicted_in_locus, dmga.mgi_gene_id from disease_summary ds, disease_mouse_genotype_associations dmga where ds.disease_id=dmga.disease_id">
-  
-            <field column="type" name="dataType"/>                                                      
-            <field column="type" name="type"/>
-            <field column="disease_id" name="disease_id"/>
-            <field column="disease_source" regex="([A-Z]+):[0-9]+" sourceColName="disease_id"/>
-            <field column="disease_term" name="disease_term"/>
-            <field column="disease_alts" splitBy="\|" name="disease_alts"/>
-            <field column="disease_classes" splitBy="," name="disease_classes"/>
-            <field column="human_curated" name="human_curated"/>
-            <field column="mouse_curated" name="mouse_curated"/>
-            <field column="mgi_predicted" name="mgi_predicted"/>
-            <field column="impc_predicted" name="impc_predicted"/>
-            <field column="mgi_predicted_in_locus" name="mgi_predicted_in_locus"/>
-            <field column="impc_predicted_in_locus" name="impc_predicted_in_locus"/>
-
-            <entity dataSource="phenodigmdb" name="disease_phenotypes" query="select concat(dh.hp_id, '_' , hp.name) as phenotype from disease_hp dh join hp_term_infos hp on hp.term_id = dh.hp_id where dh.disease_id = '${doc.disease_id}';">
-                <field column="phenotype" name="disease_human_phenotypes"/>
-            </entity>
-
-            <field column="mgi_gene_id" name="mgi_accession_id"/>
-                               
-            <!-- genes associated with this disease -->
-            <entity dataSource="gene_core" name="genedoc" stream="true" url="q=mgi_accession_id:&quot;${doc.mgi_gene_id}&quot;&amp;wt=normal"
-                        processor="XPathEntityProcessor" forEach="/response/result/doc/"                
-                        readTimeout="10000" connectionTimeout="10000"  >                                        
+            <field column="disease_id" xpath="/response/result/doc/str[@name='disease_id']" />                                   
+            <field column="type" xpath="/response/result/doc/str[@name='type']" />           
+			<field column="dataType" name="dataType"/>  
+            <field column="disease_source" xpath="/response/result/doc/str[@name='disease_source']" /> 
+            <field column="disease_term" xpath="/response/result/doc/str[@name='disease_term']" /> 
+            <field column="disease_alts" xpath="/response/result/doc/arr[@name='disease_alts']/str" /> 
+            <field column="disease_classes" xpath="/response/result/doc/arr[@name='disease_classes']/str" /> 
+            <field column="human_curated" xpath="/response/result/doc/bool[@name='human_curated']" /> 
+            <field column="mouse_curated" xpath="/response/result/doc/bool[@name='mouse_curated']" /> 
+            <field column="mgi_predicted" xpath="/response/result/doc/bool[@name='mgi_predicted']" /> 
+            <field column="impc_predicted" xpath="/response/result/doc/bool[@name='impc_predicted']" /> 
+            <field column="mgi_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_predicted_in_locus']" /> 
+            <field column="impc_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_predicted_in_locus']" /> 			
+			<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  			
+			
+			<!-- genes associated with this disease -->
+			<entity dataSource="diseaseGenedb" name="dg" query="select * from disease2Gene where disease_id='${ddoc.disease_id}'">
+				<field column="mgi_id" name="mgi_accession_id" />
+		
+				<!-- genes associated with this disease -->
+            	<entity dataSource="gene_core" name="genedoc" stream="true" url="q=mgi_accession_id:&quot;${dg.mgi_id}&quot;&amp;wt=normal"
+					processor="XPathEntityProcessor" forEach="/response/result/doc/"                
+					readTimeout="10000" connectionTimeout="10000"  >                                        
     
                     <field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />                                                        
                     <field column="marker_name" xpath="/response/result/doc/arr[@name='marker_name']/str" />
@@ -52,8 +71,13 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
                     <field column="imits_phenotype_started" xpath="/response/result/doc/arr[@name='imits_phenotype_started']/str" />
         
                     <field column="imits_phenotype_complete" xpath="/response/result/doc/arr[@name='imits_phenotype_complete']/str" />
-
-                    <!-- MP terms associated with this MGI gene -->                                 
+                    <field column="colony_prefix" xpath="/response/result/doc/arr[@name='colony_prefix']/str" />
+                    <field column="imits_phenotype_colony_name" xpath="/response/result/doc/arr[@name='imits_phenotype_colony_name']/str" />
+                    <field column="imits_phenotype_allele_type" xpath="/response/result/doc/arr[@name='imits_phenotype_allele_type']/str" />
+                    <field column="imits_phenotype_status" xpath="/response/result/doc/arr[@name='imits_phenotype_status']/str" />
+                    <field column="imits_phenotype_is_active" xpath="/response/result/doc/arr[@name='imits_phenotype_is_active']/str" />
+				 		
+					<!-- MP terms associated with this MGI gene -->                                 
                     <field column="mp_id" xpath="/response/result/doc/arr[@name='mp_id']/str" />                                        
                     <field column="mp_term" xpath="/response/result/doc/arr[@name='mp_term']/str" />
                     <field column="mp_definition" xpath="/response/result/doc/arr[@name='mp_definition']/str" />                
@@ -62,15 +86,17 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
                     <field column="top_level_mp_id" xpath="/response/result/doc/arr[@name='top_level_mp_id']/str" />
                     <field column="top_level_mp_term" xpath="/response/result/doc/arr[@name='top_level_mp_term']/str" />                                                    
                     <field column="top_level_mp_definition" xpath="/response/result/doc/arr[@name='top_level_mp_definition']/str" />                                        
-                        
+    			
                     <!-- MA: inferred from MP -->
                     <field column="inferred_ma_id" xpath="/response/result/doc/arr[@name='inferred_ma_id']/str" />  
                     <field column="inferred_ma_term" xpath="/response/result/doc/arr[@name='inferred_ma_term']/str" />
                     <field column="inferred_selected_top_level_ma_id" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_id']/str" />
-                    <field column="inferred_selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str" />            
-                                                        
-            </entity> 
-  		</entity>
+                    <field column="inferred_selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str" /> 			
+					
+            	</entity>  	
+			</entity>   
+      	</entity>
+  		
 	</document>
 	
 </dataConfig>
