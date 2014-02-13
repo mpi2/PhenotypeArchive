@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.antlr.grammar.v3.ANTLRv3Parser.finallyClause_return;
+import org.apache.bcel.generic.RETURN;
 import org.semanticweb.elk.reasoner.saturation.conclusions.ForwardLink.ThisBackwardLinkRule;
 
 import uk.ac.ebi.phenotype.pojo.SexType;
@@ -30,6 +31,9 @@ public class ChartColors {
 	
 	public static final Double alphaBox=1.0;//set the opacity for boxes here
 	public static final Double alphaScatter=0.7;//set the opacity for scatter points here
+
+	private static String wtColor="239, 123, 11";
+	private static String mutantColor="9, 120, 161";
 	
 	/**
 	 * get a string to represent rgba for highcharts for either sex and choose your alpha (opacity) 0.0-1.0
@@ -65,6 +69,14 @@ public class ChartColors {
 		
 		return colorStrings;
 		
+	}
+
+	public static String getMutantColor(Double alpha) {
+		return "rgba("+mutantColor+"," +alpha+")";
+	}
+	
+	public static String getWTColor(Double alpha) {
+		return "rgba("+wtColor+"," +alpha+")";
 	}
 	
 }

@@ -412,9 +412,15 @@ System.out.println(chartsSeriesElementsList);
 																		// for each
 																		// column/category
 																		// WT HOM etc
+				//get the color based on if mutant or WT based on terrys ticket MPII-504
+				String color=ChartColors.getMutantColor(ChartColors.alphaBox);
+				if(chartsSeriesElement.getControlOrZygosity().equals("WT")) {
+					color=ChartColors.getWTColor(ChartColors.alphaScatter);
+				}
 				
-				
-			femaleBoxPlotObject="{ name: 'Observations', data:"
+			femaleBoxPlotObject="{"
+					+" color: '"+color+"' ,"
+					+" name: 'Observations', data:"
 					+ observationsString
 					+ ",       tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }                    }";
 			
@@ -442,7 +448,27 @@ System.out.println(chartsSeriesElementsList);
 				scatterJArray.put(array);
 			}
 			
-				
+			String symbol="circle";
+			String lineColor="orange";
+			String color=ChartColors.getMutantColor(ChartColors.alphaScatter);
+			String fillColor=color;
+			if(chartsSeriesElement.getControlOrZygosity().equalsIgnoreCase("WT")) {
+				color=ChartColors.getWTColor(ChartColors.alphaScatter);
+				fillColor="white";
+				lineColor=color;
+			}
+			
+			if(chartsSeriesElement.getSexType().equals(SexType.male) ) {
+				symbol="triangle";
+			}
+			//&& chartsSeriesElement.getControlOrZygosity().equals("WT")
+			
+		String marker="marker: {"
+				+"symbol: '"+symbol
+				+"', fillColor:  '"+fillColor+"'," +
+						" lineWidth: 1,"
+	            +" lineColor: '"+lineColor+ "' "
+	       +" }";
 
 				String scatterString = scatterJArray.toString();// "[ [1, 644], [3, 718], [3, 951], [3, 969] ]";//fist
 																// number of pair
@@ -450,9 +476,14 @@ System.out.println(chartsSeriesElementsList);
 																// category/column so 0
 																// is first column 3 is
 																// second
-				femaleScatterObjectString="{ name: 'Observation', type: 'scatter', data: "
+				femaleScatterObjectString="{ "
+					+" 	name: 'Observation', type: 'scatter', data: "
 				+ scatterString
-				+ ", marker: { lineWidth: 1}, tooltip: { pointFormat: '{point.y:..4f}' }          }";
+				+ ", " 
+				+marker+
+				//"marker: { lineWidth: 1}" +
+				", tooltip: { pointFormat: '{point.y:..4f}' }" +
+				"          }";
 		seriesData+=femaleScatterObjectString+",";//+","+maleBoxPlotObject+", "+maleScatterObjectString;
 				column++;
 			
