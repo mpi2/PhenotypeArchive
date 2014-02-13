@@ -18,11 +18,9 @@
 			.ui-dropdownchecklist-selector > .ui-icon {margin-top:4px;}
 			.ui-dropdownchecklist-text {padding:2px;margin:0;}
 		</style-->
+		<script type='text/javascript' src="${baseUrl}/js/general/dropDownPhenPage.js"></script>
 	</jsp:attribute>
 
-	<jsp:attribute name="addToFooter">
-		<script type='text/javascript' src="${baseUrl}/js/general/dropDownPhenPage.js"></script>
-  </jsp:attribute>
 
 	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
 
@@ -84,11 +82,7 @@
 							<!-- Graphs -->
 							<c:if test="${parametersAssociated.size() > 0}">
 								<div class="half">
-			
-								<script>
-									ajaxToBe('${phenotype.id.accession}', '${assocParam}');
-								</script>
-								
+	
 								<div id="chart-container">
 									<div id="single-chart-div" class="oChart" initialid="${parametersAssociated.get(0)}" mp="${phenotype.id.accession}">
 									</div>

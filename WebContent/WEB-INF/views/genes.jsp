@@ -179,10 +179,8 @@
 							</c:if>
 						</div>	
 		
-					
 				</div><!-- section end -->
-				 
-				
+				 				
 		
 		
 		<!--  Phenotype Associations Panel -->
