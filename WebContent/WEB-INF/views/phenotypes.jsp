@@ -74,7 +74,7 @@
 				
 				<c:if test="${genePercentage.getDisplay()}">
 					<div class="section collapsed open">
-						<h2 class="title documentation" id="data-summary">Phenotype associations stats <a href='' class='phenotypeStatsPanel'><i class="fa fa-question-circle pull-right"></i></a></h2>
+						<h2 class="title documentation" id="data-summary">Phenotype associations stats <a href='' id='phenotypeStatsPanel'><i class="fa fa-question-circle pull-right"></i></a></h2>
 						<div class="inner">					
 							<!-- Phenotype Assoc. summary -->
 							<div class="half">
@@ -86,26 +86,7 @@
 							<!-- Graphs -->
 							<c:if test="${parametersAssociated.size() > 0}">
 								<div class="half">
-								<!-- div class="graphfilters">
-									<div class="graphfilter">
-										<div class="filtertype">Center</div>
-										<div class="filteroptions">
-										<ul>
-											<li id="center1">CenterA</li>
-											<li id="center2"> CenterB</li> 
-										</ul>
-										</div>
-									</div>
-									<div class="graphfilter">
-										<div class="filtertype">Sex</div>
-										<div class="filteroptions">
-										<ul>
-											<li id="maleFilter">Male</li>
-											<li id="femaleFilter"> Female</li> 
-										</ul>
-										</div>
-									</div>
-								</div-->
+			
 								<script>
 									ajaxToBe('${phenotype.id.accession}', '${assocParam}');
 								</script>
@@ -122,6 +103,26 @@
 										</c:forEach>
 									</ul>
 								</c:if>
+								<div class="tablefiltering filters">
+									<div class="tablefilter filter">
+										<div class="filtertype ftype">Center</div>
+										<div class="filteroptions">
+										<ul>
+											<li id="center1"> <input type="checkbox"> CenterA</li>
+											<li id="center2"> <input type="checkbox"> CenterB</li> 
+										</ul>
+										</div>
+									</div>
+									<div class="tablefilter filter">
+										<div class="filtertype ftype">Sex</div>
+										<div class="filteroptions">
+										<ul>
+											<li id="maleFilter"> <input type="checkbox"> Male</li>
+											<li id="femaleFilter"> <input type="checkbox"> Female</li> 
+										</ul>
+										</div>
+									</div>
+								</div>
 							</div>
 						</c:if>
 						<div class="clear"></div>
@@ -155,9 +156,9 @@
 	    		</c:otherwise>
 				</c:choose>
 				
-				<div class="section collapsed open">
+				<div class="section">
 				
-			    <h2 class="title documentation">Gene variants with ${phenotype.name} 	<a href='' id='relatedMpPanel'><i class="fa fa-question-circle pull-right"></i></a></h2>
+			    <h2 class="title documentation ">Gene variants with ${phenotype.name} 	<a href='' id='relatedMpPanel'><i class="fa fa-question-circle pull-right"></i></a></h2>
 				   
 					<div class="inner" style="display:block;">	 
 						<div id="phenotypesDiv">	

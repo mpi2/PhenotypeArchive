@@ -23,7 +23,7 @@ $(document).ready(function(){
 	$.fn.qTip({
 		'pageName': 'phenotypes',
 		'textAlign': 'left',
-		'tip': 'topRight'
+		'tip': 'topLeft'
 	});
 	
 	$( "#show_other_procedures" ).click(function() {
