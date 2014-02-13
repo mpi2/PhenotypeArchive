@@ -132,7 +132,7 @@
                                     <th>Syntenic Disease Locus</th>
                                     <th>Mouse Literature Evidence (MGI)</th>
                                     <th><span class="main">MGI</span><span class="sub">Mouse Phenotype Evidence (Phenodigm)</span></th>
-                                    <th><span class="main">MGP</span><span class="sub">Mouse Phenotype Evidence (Phenodigm)</span></th>
+                                    <th><span class="main">IMPC</span><span class="sub">Mouse Phenotype Evidence (Phenodigm)</span></th>
                                 </tr>
                             </thead>                        
                             <tbody>

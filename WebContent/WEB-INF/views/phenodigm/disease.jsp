@@ -82,7 +82,11 @@
                         </c:when>
                         <c:otherwise>
                             <c:forEach var="synonym" items="${disease.alternativeTerms}" varStatus="loop">
-                                ${synonym}
+                                <!--hack for dealing with non-null empty synonyms -->
+                                <c:choose>
+                                    <c:when test="${empty synonym}">-</c:when>
+                                    <c:otherwise>${synonym}</c:otherwise>
+                                </c:choose>    
                                 <c:if test="${!loop.last}">, </c:if>
                             </c:forEach>
                         </c:otherwise>
@@ -160,7 +164,7 @@
                                     <th>Syntenic Disease Locus</th>
                                     <th>Mouse Literature Evidence (MGI)</th>
                                     <th><span class="main">MGI</span><span class="sub">Mouse Phenotype Evidence (Phenodigm)</span></th>
-                                    <th><span class="main">MGP</span><span class="sub">Mouse Phenotype Evidence (Phenodigm)</span></th>
+                                    <th><span class="main">IMPC</span><span class="sub">Mouse Phenotype Evidence (Phenodigm)</span></th>
 
                                 </tr>
                             </thead>
