@@ -123,7 +123,7 @@ public class DataTableController {
 		if (jParams.containsKey("showImgView")) {
 			showImgView = jParams.getBoolean("showImgView");
 		}
-		
+		//System.out.println("query: "+ query);
 		JSONObject json = solrIndex.getDataTableJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
 		//System.out.println("JSON: "+ json);
 		
@@ -272,13 +272,18 @@ public class DataTableController {
 						}
 					}
 				}
+			}	
+
+			// for legacy data: indexed through experiment core (so not want Sanger Gene or Allele cores)
+			if (doc.containsKey("hasQc")) {				
+				return "QCed data available";			
 			}
-			
-		} catch (Exception e) {
+		}		
+		catch (Exception e) {
 			log.error("Error getting phenotyping status");
 			log.error(e.getLocalizedMessage());
 		}
-		
+				
 		return "";
 	}
 	public String deriveProductionStatusForEsCellAndMice(JSONObject doc, HttpServletRequest request){
@@ -782,6 +787,8 @@ public class DataTableController {
 			// curated data: human/mouse	
 			String human = "<span class='status done'>human</span>";
 			String mice  = "<span class='status done'>mice</span>";
+			
+			// predicted data: impc/mgi
 			String impc  = "<span class='status done'>IMPC</span>";
 			String mgi   = "<span class='status done'>MGI</span>";
 			
@@ -792,7 +799,8 @@ public class DataTableController {
 			String isImpcPredicted = (doc.getString("impc_predicted").equals("1") || doc.getString("impc_predicted_in_locus").equals("1")) ? impc : "";				
 			String isMgiPredicted = (doc.getString("mgi_predicted").equals("1") || doc.getString("mgi_predicted_in_locus").equals("1")) ? mgi : "";
 			rowData.add(isImpcPredicted + isMgiPredicted);
-						
+					
+			//System.out.println("DOCS: " + rowData.toString());
 			j.getJSONArray("aaData").add(rowData);
 		} 
 		

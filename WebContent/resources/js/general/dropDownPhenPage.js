@@ -1,24 +1,21 @@
 $(document).ready(function(){						
-
-	
 	
 	// AJAX calls for the overview charts
 	$('.oChart').each(function(i, obj) {
+		$( '#spinner-overview-charts' ).show();
 		var mp = $(this).attr('mp');
-		var id = $(this).attr('id');
-		console.log('parameter_id='+id);
-		$(this).html( "here: " + id  + " " + mp);
-		console.log("request uri="+document.URL);
-		
+		var id = $(this).attr('initialid');
+		$(this).html( "here: " + id  + " " + mp);	
 		var chartUrl = document.URL.split("/phenotypes/")[0];
 		chartUrl += "/overviewCharts/" + mp + "?parameter_id=" + id;
+		console.log("request uri = " + chartUrl);	
 		$.ajax({
 		  url: chartUrl,
 		  cache: false
 		})
 		.done(function( html ) {
-		   $( '#'+ id ).append( html );
-		   $( '#spinner'+ id ).html('');
+			$( '#spinner-overview-charts' ).hide();
+			$( '#single-chart-div' ).html( html );			
 		});
 	});	 
 				
@@ -26,7 +23,7 @@ $(document).ready(function(){
 	$.fn.qTip({
 		'pageName': 'phenotypes',
 		'textAlign': 'left',
-		'tip': 'topRight'
+		'tip': 'topLeft'
 	});
 	
 	$( "#show_other_procedures" ).click(function() {
@@ -260,6 +257,7 @@ $(document).ready(function(){
 		return false;
 	}
 });
+
 
 function ajaxToBe(phenotype, parameter){
 	$( '#spinner-overview-charts' ).show();

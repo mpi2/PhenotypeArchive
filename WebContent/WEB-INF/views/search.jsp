@@ -17,6 +17,7 @@
 	.mpi2-grid {border: 0;}
 	div.last-search{margin-top:0;}*/
 	</style>
+	<link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" />
 	</jsp:attribute>
 
 	<jsp:attribute name="footer">	
@@ -193,6 +194,118 @@
 				</div>
 			</div>
 		</div>
+		
+		<!--  test -->
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/geneFacetWidget.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/mpFacetWidget.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/maFacetWidget.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/diseaseFacetWidget.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script> 
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>            
+        
+         <script>
+        $(document).ready(function() {        		
+        	$(document).ready(function(){        		
+    			$.fn.qTip({'pageName':'search'
+    					/*'textAlign':'left',
+    					'tip':'topLeft',
+    					'posX':0,
+    					'posY':0*/    					
+    			});
+    			
+    			// non hash tag keyword query
+    			<c:if test="${not empty q}">				
+    				oHashParams = {};
+    				oHashParams.q = "${q}";    				
+    				$.fn.fetchSolrFacetCount(oHashParams);				
+    			</c:if>;
+    					
+    			// hash tag query
+    			// catch back/forward buttons and hash change: loada dataTable based on url params
+    			$(window).bind("hashchange", function() {
+    							
+    				//var url = $.param.fragment();	 // not working with jQuery 10.0.1
+    				var url = $(location).attr('hash');			
+    				console.log('hash change URL: '+ '/search' + url);
+    				
+    				if ( /search\/?$/.exec(location.href) ){
+    					// reload page
+    					window.location.reload();
+    				}
+    				
+    				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
+    				
+    				oHashParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;	                
+					oHashParams.widgetName += 'Facet';
+    				
+					console.log(oHashParams);
+    				console.log('from widget open: '+ MPI2.searchAndFacetConfig.widgetOpen);
+    				
+    				if ( window.location.search.match(/q=/) ){
+    					oHashParams.q = window.location.search.replace('?q=','')
+    				}
+    				else if ( typeof oHashParams.q == 'undefined' ){
+    					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');	    					
+    				}
+    				
+    				
+    				if ( MPI2.searchAndFacetConfig.widgetOpen ){
+    					MPI2.searchAndFacetConfig.widgetOpen = false;
+    						    				
+	    				// search by keyword (user's input) has no fq in url when hash change is detected
+	    				if ( oHashParams.fq ){				
+	    					
+	    					if ( oHashParams.coreName ){	    						
+	    						$.fn.removeFacetFilter();
+	    						oHashParams.coreName += 'Facet'; 					
+	    					}
+	    					else {						
+	    						// parse selected checkbox(es) of this facet
+	    						var facet = oHashParams.facetName;
+	    						var aFilters = [];
+	    						//$('ul#facetFilter li.' + facet + ' li a').each(function(){
+	    						$('ul#facetFilter li.ftag a').each(function(){							
+	    							aFilters.push($(this).text());
+	    						});														
+	    						
+	    						//console.log('filter: ' + aFilters );
+	    						oHashParams.filters = aFilters;
+	    						//oHashParams.facetName = facet + 'Facet';
+	    						oHashParams.facetName = facet;	    						
+	    					}
+	    					$.fn.loadDataTable(oHashParams);
+	    				}
+    				}
+	    			else {	    				   				  				
+	    				console.log('back button');	    				
+	    				console.log(oHashParams);
+	    				    			
+	    				var refreshFacet = oHashParams.coreName ? false : true;	    				
+						$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, refreshFacet);
+	    				
+	    				$.fn.loadDataTable(oHashParams);
+	    			}
+    			});		
+    			
+    		});     	
+        	
+            // wire up the example queries
+               $("a.example").click(function(){
+                    $('#examples').modal('hide');
+                    document.location.href = $(this).attr('href');
+                    document.location.reload();
+            });
+
+                // Message to IE users
+                //$.fn.ieCheck();
+        });        
+        </script>
+			
+			
+			
 						
     </jsp:body>
 

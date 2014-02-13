@@ -93,7 +93,6 @@ public class OverviewChartsController {
 			List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
 			Map<String, List<Double>> map = os.getUnidimensionalData(p, genes, strains, "experimental");
 			String chartTitle = "Mean " +  p.getName() + " (" + p.getStableId()+")";
-			System.out.println("\n" + uctp.getStackedHistogram(map, chartTitle, p).getChart() + "\n");
 			return uctp.getStackedHistogram(map, chartTitle, p);
 		}
 		return null;

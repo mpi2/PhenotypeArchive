@@ -278,13 +278,9 @@ public class CategoricalChartAndTableProvider {
 		
 		String chartId = "single-chart-div";//replace space in MRC Harwell with underscore so valid javascritp variable
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
-		String javascript = "$(function () {  var chart"
-				+ chartId
-				+ "; $(document).ready(function() { chart"
-				+ chartId
-				+ " = new Highcharts.Chart({ tooltip : "
-				+ toolTipFunction
-				+ ", chart: { renderTo: '"
+		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ " 
+//				+" colors:"+colorArray
+				+" chart: { renderTo: '"
 				+ chartId
 				+ "', type: 'column' }, title: { text: '"
 				+ WordUtils.capitalize(title)
@@ -292,10 +288,10 @@ public class CategoricalChartAndTableProvider {
 				+ "xAxis: { categories: "
 				+ xAxisCategoriesArray
 				+ "}, yAxis: { min: 0, title: { text: 'Percent Occurrance' } ,  labels: {       formatter: function() { return this.value +'%';   }  }},  plotOptions: { column: { stacking: 'percent' } }, series: "
-				+ seriesArray + " });   });});";
+				+ seriesArray + " });  });";
 
 		chartData.setChart(javascript);
-		chartData.setId(chartId);		
+		chartData.setId(chartId);	
 		return javascript;
 		
 	}

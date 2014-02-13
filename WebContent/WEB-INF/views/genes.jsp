@@ -177,56 +177,20 @@
 									<a href="https://databases.apf.edu.au/mutations/snpRow/list?mgiAccessionId=${acc}">ENU (${makeEnuLink})</a>
 								</p>
 							</c:if>
-						
-						
-								<%-- <div class="accordion-group">
-                                    <div class="accordion-heading withColorWhenOpen"> Gene Browser</div>
-                                    <!-- <div class="accordion-body"> -->
-                                         <div id="genomebrowser" >
-											<div class="floatright"><a href="http://www.biodalliance.org/" target="_blank" title="More information on using this browser"><i class="icon-question-sign"></i></a> <a title="This browser is clickable please experiment by clicking. Click on features to get more info, click on zoom bar etc. To reset click on 'lightning button'">This a an interactive genomic browser</a>
-											</div>  
-											Gene&nbsp;Location: Chr<span class="label" id='chr'>${gene.sequenceRegion.name}</span>:<span  class="label" id='geneStart'>${gene.start}</span>-<span  class="label" id='geneEnd'>${gene.end}</span> <br/> Gene Type: ${gene.subtype.name}
-												<!-- <p><img class="fullimg" src="img/dummy/genebrowser.jpg" /></p> -->
-											<div id="svgHolder"></div>
-											
-										<table>
-											<tbody>
-												<c:if test="${not empty vegaIds}">
-												<tr>
-													<td>Vega Ids:</td>
-													<td><c:forEach var="id" items="${vegaIds}" varStatus="loop"><a href="http://vega.sanger.ac.uk/Mus_musculus/geneview?gene=${id}&db=core">${id}</a><c:if test="${!loop.last}"><br /></c:if></c:forEach></td>
-												</tr>
-												</c:if>
-												<c:if test="${not empty ncbiIds}">
-												<tr>
-													<td>NCBI Id:</td>
-													<td><c:forEach var="id" items="${ncbiIds}" varStatus="loop"><a href="http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=${id}">${id}</a><c:if test="${!loop.last}"><br /></c:if></c:forEach></td>
-												</tr>
-												</c:if>
-												<c:if test="${not empty ccdsIds}">
-												<tr>
-													<td>CCDS Id:</td>
-													<td><c:forEach var="id" items="${ccdsIds}" varStatus="loop"><a href="http://www.ncbi.nlm.nih.gov/CCDS/CcdsBrowse.cgi?REQUEST=CCDS&DATA=${id}">${id}</a><c:if test="${!loop.last}"><br /></c:if></c:forEach></td>
-												</tr>
-												</c:if>
-											</tbody>
-										</table>				
-										
-									
-										</div>
-								<!-- </div> --><!--  end of accordion body -->
-							</div> --%>
 						</div>	
 		
-					
 				</div><!-- section end -->
-				 
-				
+				 				
 		
 		
 		<!--  Phenotype Associations Panel -->
 		<div class="section">
-			<h2 class="title documentation" id="section-associations"> Phenotype associations for ${gene.symbol} <a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></h2>
+
+			<h2 class="title " id="section-associations"> Phenotype associations for ${gene.symbol} 
+				<!-- <span class="documentation" > <a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span>-->
+				<span class="documentation" ><a href='' id='mpPanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
+			</h2>			
+
 			<div class="inner">
 				
 				<c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
