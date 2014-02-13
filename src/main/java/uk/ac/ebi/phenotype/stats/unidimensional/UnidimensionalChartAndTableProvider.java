@@ -449,7 +449,7 @@ System.out.println(chartsSeriesElementsList);
 			}
 			
 			String symbol="circle";
-			String lineColor="orange";
+			String lineColor=ChartColors.getMutantColor(ChartColors.alphaScatter);
 			String color=ChartColors.getMutantColor(ChartColors.alphaScatter);
 			String fillColor=color;
 			if(chartsSeriesElement.getControlOrZygosity().equalsIgnoreCase("WT")) {
