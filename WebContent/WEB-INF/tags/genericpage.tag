@@ -30,9 +30,10 @@
         DrupalHttpProxy proxy = new DrupalHttpProxy(request);
         String url = (String)request.getAttribute("drupalBaseUrl");
         url = url.replace("dev.", "test.");
-        jspContext.setAttribute("menu", proxy.getDrupalMenu(url));
-        jspContext.setAttribute("usermenu", proxy.getDrupalUserMenu(url));
-        
+
+        jspContext.setAttribute("menu", proxy.getDrupalMenu(url).getJSONArray("mainmenu"));
+        jspContext.setAttribute("usermenu", proxy.getDrupalMenu(url).getJSONArray("usermenu"));
+
 %>
 <%@attribute name="header" fragment="true"%>
 <%@attribute name="footer" fragment="true"%>
