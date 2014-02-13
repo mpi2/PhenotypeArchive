@@ -346,53 +346,91 @@ public class UnidimensionalChartAndTableProvider {
 		String femaleScatterObjectString="";
 		String maleBoxPlotObject="";
 		String maleScatterObjectString="";
+		
+		String seriesData="";
+		
+		int column=0;
 		for(SexType sexKey: sexAndBoxPlotMap.keySet()){
-		
-		JSONArray boxPlot2DData = new JSONArray(sexAndBoxPlotMap.get(sexKey));
-		String observationsString = boxPlot2DData.toString();// " [ [733, 853, 939, 980, 1080], [], [724, 802, 806, 871, 950], [] ]";//array
-																// for each
-																// column/category
-																// WT HOM etc
-		JSONArray scatterJArray = new JSONArray(sexAndScatterMap.get(sexKey));
-
-		String scatterString = scatterJArray.toString();// "[ [1, 644], [3, 718], [3, 951], [3, 969] ]";//fist
-														// number of pair
-														// indicates
-														// category/column so 0
-														// is first column 3 is
-														// second
-		
-		if(sexKey.equals(SexType.female)) {
+			
+			for(List<Float> boxList: sexAndBoxPlotMap.get(sexKey)){
+				
+			
+			JSONArray boxPlot2DData = new JSONArray(boxList);
+			String columnPadding="";
+			for(int i=0;i<column;i++) {
+				//add an empty column for each column
+			columnPadding+="[], ";	
+			}
+			String observationsString = "["+columnPadding+boxPlot2DData.toString()+"]";// " [ [733, 853, 939, 980, 1080], [], [724, 802, 806, 871, 950], [] ]";//array
+																	// for each
+																	// column/category
+																	// WT HOM etc
+			
+			
 		femaleBoxPlotObject="{ name: 'Observations', data:"
 				+ observationsString
 				+ ",       tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }                    }";
 		
-		femaleScatterObjectString="{ name: 'Observation', type: 'scatter', data: "
+		seriesData+=femaleBoxPlotObject+",";
+//		femaleScatterObjectString="{ name: 'Observation', type: 'scatter', data: "
+//				+ scatterString
+//				+ ", marker: { lineWidth: 1}, tooltip: { pointFormat: '{point.y:..4f}' }          }";
+//		dataStrings+=femaleBoxPlotObject+", "+femaleScatterObjectString;//+","+maleBoxPlotObject+", "+maleScatterObjectString;
+		column++;
+		}
+			
+			for(List<Float> scatter: sexAndScatterMap.get(sexKey)) {
+				JSONArray scatterJArray = new JSONArray(scatter);
+
+				String scatterString = scatterJArray.toString();// "[ [1, 644], [3, 718], [3, 951], [3, 969] ]";//fist
+																// number of pair
+																// indicates
+																// category/column so 0
+																// is first column 3 is
+																// second
+				femaleScatterObjectString="{ name: 'Observation', type: 'scatter', data: "
 				+ scatterString
 				+ ", marker: { lineWidth: 1}, tooltip: { pointFormat: '{point.y:..4f}' }          }";
-		}
-		if(sexKey.equals(SexType.male)) {
-		maleBoxPlotObject="{ name: 'Observations', data:"
-				+ observationsString
-				+ ",       tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }                    }";
+		seriesData+=femaleScatterObjectString+",";//+","+maleBoxPlotObject+", "+maleScatterObjectString;
+				
+			}
 		
-		maleScatterObjectString="{ name: 'Observation', type: 'scatter', data: "
-				+ scatterString
-				+ ", marker: { lineWidth: 1 }, tooltip: { pointFormat: '{point.y:..4f}' }          }";
-		}
+//		if(sexKey.equals(SexType.male)) {
+//			
+//			JSONArray boxPlot2DData = new JSONArray(sexAndBoxPlotMap.get(sexKey));
+//			String observationsString = boxPlot2DData.toString();// " [ [733, 853, 939, 980, 1080], [], [724, 802, 806, 871, 950], [] ]";//array
+//																	// for each
+//																	// column/category
+//																	// WT HOM etc
+//			JSONArray scatterJArray = new JSONArray(sexAndScatterMap.get(sexKey));
+//
+//			String scatterString = scatterJArray.toString();// "[ [1, 644], [3, 718], [3, 951], [3, 969] ]";//fist
+//															// number of pair
+//															// indicates
+//															// category/column so 0
+//															// is first column 3 is
+//															// second
+//		maleBoxPlotObject="{ name: 'Observations', data:"
+//				+ observationsString
+//				+ ",       tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }                    }";
+//		
+//		maleScatterObjectString="{ name: 'Observation', type: 'scatter', data: "
+//				+ scatterString
+//				+ ", marker: { lineWidth: 1 }, tooltip: { pointFormat: '{point.y:..4f}' }          }";
+//		}
 		}//end of gender loop
 		
-		String dataStrings="";
-		if(!maleScatterObjectString.equals("")&& !femaleScatterObjectString.equals("")) {//if male is defined add the objects together otherwise just use the female
-			dataStrings=femaleBoxPlotObject+", "+femaleScatterObjectString+","+maleBoxPlotObject+", "+maleScatterObjectString;
-		}else {
-		if(!femaleScatterObjectString.equals("")) {//check we definitely have female data if so make this the data string
-				dataStrings=femaleBoxPlotObject+", "+femaleScatterObjectString;
-		}
-		if(!maleScatterObjectString.equals("")) {
-			dataStrings=maleBoxPlotObject+", "+maleScatterObjectString;
-		}
-		}
+		
+//		if(!maleScatterObjectString.equals("")&& !femaleScatterObjectString.equals("")) {//if male is defined add the objects together otherwise just use the female
+//			dataStrings=femaleBoxPlotObject+", "+femaleScatterObjectString+","+maleBoxPlotObject+", "+maleScatterObjectString;
+//		}else {
+//		if(!femaleScatterObjectString.equals("")) {//check we definitely have female data if so make this the data string
+//				dataStrings=femaleBoxPlotObject+", "+femaleScatterObjectString;
+//		}
+//		if(!maleScatterObjectString.equals("")) {
+//			dataStrings=maleBoxPlotObject+", "+maleScatterObjectString;
+//		}
+//		}
 		
 		List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaBox);
 		JSONArray colorArray = new JSONArray(colors);
@@ -415,7 +453,7 @@ public class UnidimensionalChartAndTableProvider {
 				+ " }},title: { text: '"
 				+ yAxisTitle
 				+ "' } }, "
-				+ "\n series: ["+dataStrings+"] }); });";
+				+ "\n series: ["+seriesData+"] }); });";
 		
 		return chartString;
 	}

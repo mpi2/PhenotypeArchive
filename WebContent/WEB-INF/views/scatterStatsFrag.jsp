@@ -26,7 +26,7 @@
 					function() {
 						
 						
-						//go back functionality here
+						//go back to original graphs functionality here
 						function goBack()
 						  {
 						  window.history.back()
