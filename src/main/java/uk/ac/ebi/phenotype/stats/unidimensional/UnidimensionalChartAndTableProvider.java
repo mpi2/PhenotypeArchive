@@ -7,6 +7,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +18,7 @@ import org.apache.commons.lang.WordUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
@@ -85,20 +87,11 @@ public class UnidimensionalChartAndTableProvider {
 			unidimensionalDataSet.setExperimentId(experiment.getExperimentId());
 			List<UnidimensionalStatsObject> unidimensionalStatsObjects = new ArrayList<>();
 
-			//System.out.println("biolgocialModelId="
-					//+ experiment.getExperimentalBiologicalModelId());
-			Map<String, Integer> mouseIdsToColumnsMap = new TreeMap<>();
-		
-			
-
-					// mouse data points are needed for the scatter plots so we
-					// have mouse ids with them
-					// currently not getting this from solr experiments - can we
-					// add it?
-					List<List<MouseDataPoint>> mouseDataPointsSet = new ArrayList<List<MouseDataPoint>>();
+	
+				
 					// category e.g normal, abnormal
 					Map<SexType, List<List<Float>>> genderAndRawDataMap=new HashMap<SexType, List<List<Float>>>();
-				
+					List<ChartsSeriesElement>chartsSeriesElementsList=new ArrayList<ChartsSeriesElement>();
 					for (SexType sexType : experiment.getSexes()) { 
 						List<List<Float>> rawData = new ArrayList<List<Float>>();
 					List<Float> controlCounts = new ArrayList<Float>();
@@ -107,21 +100,23 @@ public class UnidimensionalChartAndTableProvider {
 					// .getControlDataPointsWithMouseName(popId);
 
 					// loop over the control points and add them
-
+List<Float>dataFloats=new ArrayList<>();
 					for (ObservationDTO control : experiment.getControls(sexType)) {
-						 SexType
-						 docSexType=SexType.valueOf(control.getSex());
-						Float dataPoint = control.getDataPoint();
 						
-						if (docSexType.equals(sexType)) {
-						controlMouseDataPoints = addMouseDataPoint(
-								mouseIdsToColumnsMap, controlCounts,
-								controlMouseDataPoints, control, dataPoint);
-						}
+						Float dataPoint = control.getDataPoint();
+						dataFloats.add(dataPoint);
+						
 						// logger.debug("adding control point="+dataPoint);
 
 					}
-					mouseDataPointsSet.add(controlMouseDataPoints);
+					
+					//set up for WT for this sex
+					ChartsSeriesElement tempElement=	new ChartsSeriesElement();
+					tempElement.setSexType(sexType);
+					tempElement.setControlOrZygosity("WT");
+					tempElement.setOriginalData(dataFloats);
+					//tempElement.setColumn(columnIndex);
+					chartsSeriesElementsList.add( tempElement);
 					rawData.add(controlCounts);
 
 					for (ZygosityType zType : experiment.getZygosities()) {
@@ -137,24 +132,15 @@ public class UnidimensionalChartAndTableProvider {
 									.emptySet();
 							//JW added hemizygote capabillity to experimentService so just use this one method
 							expObservationsSet=experiment.getMutants(sexType, zType);
-							
-
 							for (ObservationDTO expDto : expObservationsSet) {
-
-								// get the attributes of this data point
-								SexType docSexType = SexType.valueOf(expDto
-										.getSex());
-
 								Float dataPoint = expDto.getDataPoint();
-								if (docSexType.equals(sexType)) {
-									mutantMouseDataPoints = addMouseDataPoint(
-											mouseIdsToColumnsMap, mutantCounts,
-											mutantMouseDataPoints, expDto,
-											dataPoint);
-								}
-
+								mutantCounts.add(dataPoint);
 							}
-							mouseDataPointsSet.add(mutantMouseDataPoints);
+							ChartsSeriesElement tempElementExp=	new ChartsSeriesElement();
+							tempElementExp.setSexType(sexType);
+							tempElementExp.setControlOrZygosity(zType.toString());
+							tempElementExp.setOriginalData(mutantCounts);
+							chartsSeriesElementsList.add( tempElementExp);
 							rawData.add(mutantCounts);
 					}
 					
@@ -168,7 +154,7 @@ public class UnidimensionalChartAndTableProvider {
 					unidimensionalStatsObjects
 					.addAll(unidimensionalStatsObject);
 					chartAndTable = processChartData(chartId, parameter, 
-							experiment.getZygosities(), genderAndRawDataMap, experiment, yAxisTitle, usefulStrings.get("allelicComposition"), usefulStrings.get("symbol"));
+							experiment.getZygosities(), genderAndRawDataMap, experiment, yAxisTitle, usefulStrings.get("allelicComposition"), usefulStrings.get("symbol"), chartsSeriesElementsList);
 			
 			unidimensionalDataSet
 					.setChartData(chartAndTable);
@@ -180,20 +166,7 @@ public class UnidimensionalChartAndTableProvider {
 
 	}
 
-	private List<MouseDataPoint> addMouseDataPoint(
-			Map<String, Integer> mouseIdsToColumnsMap,
-			List<Float> countsForSet, List<MouseDataPoint> mouseDataPointsList,
-			ObservationDTO observationDTO, Float dataPoint) {
-
-		countsForSet.add(new Float(dataPoint));
-		// logger.debug("adding mutant point="+dataPoint);
-		MouseDataPoint mDataPoint = new MouseDataPoint(
-				observationDTO.getExternalSampleId(), dataPoint, 0,
-				observationDTO.getDateOfExperiment(), SexType.valueOf(observationDTO.getSex()));
-		// logger.warn("mouseDataPoint="+mDataPoint);
-		mouseDataPointsList.add(mDataPoint);
-		return mouseDataPointsList;
-	}
+	
 
 	/**
 	 * 
@@ -203,6 +176,7 @@ public class UnidimensionalChartAndTableProvider {
 	 *            - list of floats for WT then hom or het
 	 * @param symbol 
 	 * @param allelicCompositionString 
+	 * @param chartsSeriesElementsList 
 	 * @param biologicalModel
 	 * @param parameterUnit
 	 * @param xAxisCategoriesList
@@ -212,10 +186,10 @@ public class UnidimensionalChartAndTableProvider {
 	 * @return map containing min and max values
 	 */
 	private ChartData processChartData(String chartId, Parameter parameter,
-			Set<ZygosityType> set, Map<SexType, List<List<Float>>> genderAndRawDataMap, ExperimentDTO experiment, String yAxisTitle, String allelicCompositionString, String symbol) {
+			Set<ZygosityType> set, Map<SexType, List<List<Float>>> genderAndRawDataMap, ExperimentDTO experiment, String yAxisTitle, String allelicCompositionString, String symbol, List<ChartsSeriesElement> chartsSeriesElementsList) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
-
-		
+System.out.println(chartsSeriesElementsList);
+		//Map<Integer,ChartsSeriesElement> chartsSeriesElements=new LinkedHashMap<Integer,ChartsSeriesElement>();
 		// example
 		// there
 		// are
@@ -228,97 +202,132 @@ public class UnidimensionalChartAndTableProvider {
 		// the
 		// list
 		List<String> categoriesListBoxChart = new ArrayList<String>();
-		int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);	
+		
 		int columnIndex = 0;// we want to add observation/scatter column every
 		// other column
 		// always add the control columns - one for boxmodel and one for
 		// observations
 		//for(String gender: genderList) {
-		Map<SexType,List<List<Float>>> sexAndBoxPlotMap=new HashMap<SexType,List<List<Float>>>(); 
-		Map<SexType,List<List<Float>>> sexAndScatterMap=new HashMap<SexType,List<List<Float>>>(); 
-		for(SexType sexKey:genderAndRawDataMap.keySet()) {
-			
-			List<List<Float>> boxPlotData = new ArrayList<List<Float>>();
-			for(int i=0; i<columnIndex;i++) {
-				List<Float> empty = new ArrayList<Float>();// add 2 empty arrays as the next two columns are for scatter charts
-				 boxPlotData.add(empty);
-				}
-			List<List<Float>> scatterColumns = new ArrayList<List<Float>>();// for
-			
-		for(int i=0; i<2;i++) {//need two sets of these labels for columns one set for box and one set for scatter
-		categoriesListBoxChart.add(WordUtils.capitalize(sexKey.name())+" WT");
-		// add two columns for each zyg
-		for (ZygosityType zType : set) {
+//		Map<SexType,List<List<Float>>> sexAndBoxPlotMap=new HashMap<SexType,List<List<Float>>>(); 
+//		Map<SexType,List<List<Float>>> sexAndScatterMap=new HashMap<SexType,List<List<Float>>>(); 
 		
-				categoriesListBoxChart.add(WordUtils.capitalize(sexKey.name())+" "+zType.name().substring(0, 3)
-						.toUpperCase());	
+//for(ChartsSeriesElement chartsSeriesElement: chartsSeriesElementsList) {
 			
-		}
-		}
+//			List<List<Float>> boxPlotData = new ArrayList<List<Float>>();
+//			for(int i=0; i<columnIndex;i++) {
+//				List<Float> empty = new ArrayList<Float>();// add 2 empty arrays as the next two columns are for scatter charts
+//				 boxPlotData.add(empty);
+//				}
+//			List<List<Float>> scatterColumns = new ArrayList<List<Float>>();// for
+//			
+//		for(int i=0; i<2;i++) {//need two sets of these labels for columns one set for box and one set for scatter
+//		ChartsSeriesElement tempElement=	new ChartsSeriesElement();
+//		categoriesListBoxChart.add(WordUtils.capitalize(sexKey.name())+" WT");
+//		tempElement.setSexType(sexKey);
+//		tempElement.setControlOrZygosity("WT");
+//		tempElement.setColumn(columnIndex);
+//		chartsSeriesElements.put(columnIndex, tempElement);
+//		// add two columns for each zyg
+//				for (ZygosityType zType : set) {
+//					ChartsSeriesElement tempElement2=	new ChartsSeriesElement();
+//							categoriesListBoxChart.add(WordUtils.capitalize(sexKey.name())+" "+zType.name().substring(0, 3)
+//										.toUpperCase());	
+//							tempElement.setSexType(sexKey);
+//							tempElement.setControlOrZygosity(zType.name().substring(0, 3));
+//							tempElement.setColumn(i);
+//							chartsSeriesElements.put(columnIndex, tempElement2);
+//			
+//				}
+//		}
 		
 		//logger.debug("raw data=" + genderAndRawDataMap);
 		// first list is control/wt then mutant for hom or het or both
 		
 		
 		
-		for (List<Float> listOfFloats : genderAndRawDataMap.get(sexKey)) {
-			
-			// Get a DescriptiveStatistics instance
-			DescriptiveStatistics stats = new DescriptiveStatistics();
-			for (Float point : listOfFloats) {
-				stats.addValue(point);
-			}
+//		for (List<Float> listOfFloats : genderAndRawDataMap.get(sexKey)) {
+//			
+//			// Get a DescriptiveStatistics instance
+//			DescriptiveStatistics stats = new DescriptiveStatistics();
+//			for (Float point : listOfFloats) {
+//				stats.addValue(point);
+//			}
+//
+//			List<Float> wt1 = new ArrayList<Float>();
+//			if (listOfFloats.size() > 0) {
+//				// double lower = stats.getPercentile(25);
+//				// double higher=stats.getPercentile(75);
+//				double Q1 = ChartUtils.getDecimalAdjustedFloat(
+//						new Float(stats.getPercentile(25)), decimalPlaces);
+//				double Q3 = ChartUtils.getDecimalAdjustedFloat(
+//						new Float(stats.getPercentile(75)), decimalPlaces);
+//				double IQR = Q3 - Q1;
+//
+//				Float minIQR = ChartUtils.getDecimalAdjustedFloat(new Float(Q1
+//						- (1.5 * IQR)), decimalPlaces);
+//				wt1.add(minIQR);// minimum
+//				wt1.add(new Float(Q1));// lower quartile
+//
+//				Float decFloat = ChartUtils.getDecimalAdjustedFloat(new Float(
+//						stats.getMean()), decimalPlaces);
+//				wt1.add(decFloat);// median
+//				wt1.add(new Float(Q3));// upper quartile
+//
+//				Float maxIQR = ChartUtils.getDecimalAdjustedFloat(new Float(Q3
+//						+ (1.5 * IQR)), decimalPlaces);
+//				wt1.add(maxIQR);// maximumbs.
+//				boxPlotData.add(wt1);
+//			}
+//			ChartsSeriesElement tempElement;
+//			if(chartsSeriesElements.containsKey(columnIndex)) {
+//				tempElement=chartsSeriesElements.get(columnIndex);
+//			}else {
+//				tempElement=new ChartsSeriesElement();
+//				chartsSeriesElements.put(columnIndex,tempElement);//check this is really just the reference which I guess it is
+//			}
+//			tempElement.setSexType(sexKey);
+//			tempElement.setControlOrZygosity("WT");
+//			tempElement.setColumn(columnIndex);
+//			tempElement.setDataArray(new JSONArray(wt1));
+//			
+//			
+//			columnIndex++;
+//		}
+		
+		
+		
+//		for (List<Float> listOfFloats : genderAndRawDataMap.get(sexKey)) {
+//
+//			for (Float dataPoint : listOfFloats) {
+//				List<Float> column1 = new ArrayList<Float>();
+//				column1.add(new Float(columnIndex));
+//				column1.add(dataPoint);
+//				scatterColumns.add(column1);
+//			}
+//			columnIndex ++;
+//		}
+		
+//		sexAndBoxPlotMap.put(sexKey, boxPlotData);
+//		sexAndScatterMap.put(sexKey, scatterColumns);
+//}//end of gender loop
+		
+//		name: 'Observation',
+//			color: 'rgba(30, 151, 50,0.7)', 
+//        type: 'scatter',
+//        data: [
+//            [2, 3.26],
+//            [2, 2.7],
+//            [2, 2.66],
+//            [3, 2.35],
+//            [3, 2.73],
+//            [3, 2.55],
+//            [3, 2.92]
+//        ]
 
-			List<Float> wt1 = new ArrayList<Float>();
-			if (listOfFloats.size() > 0) {
-				// double lower = stats.getPercentile(25);
-				// double higher=stats.getPercentile(75);
-				double Q1 = ChartUtils.getDecimalAdjustedFloat(
-						new Float(stats.getPercentile(25)), decimalPlaces);
-				double Q3 = ChartUtils.getDecimalAdjustedFloat(
-						new Float(stats.getPercentile(75)), decimalPlaces);
-				double IQR = Q3 - Q1;
-
-				Float minIQR = ChartUtils.getDecimalAdjustedFloat(new Float(Q1
-						- (1.5 * IQR)), decimalPlaces);
-				wt1.add(minIQR);// minimum
-				wt1.add(new Float(Q1));// lower quartile
-
-				Float decFloat = ChartUtils.getDecimalAdjustedFloat(new Float(
-						stats.getMean()), decimalPlaces);
-				wt1.add(decFloat);// median
-				wt1.add(new Float(Q3));// upper quartile
-
-				Float maxIQR = ChartUtils.getDecimalAdjustedFloat(new Float(Q3
-						+ (1.5 * IQR)), decimalPlaces);
-				wt1.add(maxIQR);// maximumbs.
-				boxPlotData.add(wt1);
-			}
-			columnIndex++;
-		}
-		
-		
-		
-		for (List<Float> listOfFloats : genderAndRawDataMap.get(sexKey)) {
-
-			for (Float dataPoint : listOfFloats) {
-				List<Float> column1 = new ArrayList<Float>();
-				column1.add(new Float(columnIndex));
-				column1.add(dataPoint);
-				scatterColumns.add(column1);
-			}
-			columnIndex ++;
-		}
-		
-		sexAndBoxPlotMap.put(sexKey, boxPlotData);
-		sexAndScatterMap.put(sexKey, scatterColumns);
-		}//end of gender loop
-		
-		
 
 		String chartString = createContinuousBoxPlotChartsString(chartId,
-				categoriesListBoxChart, parameter,  yAxisTitle,
-				sexAndBoxPlotMap, sexAndScatterMap);
+				 parameter,  yAxisTitle,
+				 chartsSeriesElementsList, experiment);
 		ChartData cNTable = new ChartData();
 		cNTable.setChart(chartString);
 		return cNTable;
@@ -331,31 +340,73 @@ public class UnidimensionalChartAndTableProvider {
 	 *            main title of the graph
 	 * @param yAxisTitle
 	 *            - unit of measurement - how to get this from the db?
-	 * @param sexAndBoxPlotMap
 	 * @param sexAndScatterMap
+	 * @param chartsSeriesElementsList 
 	 * @param xAisxCcategoriesList
 	 *            e.g. WT, WT, HOM, HOM for each column to be displayed
 	 * @return
 	 */
 	private String createContinuousBoxPlotChartsString(String experimentNumber,
-			List<String> xAxisCategoriesList, Parameter parameter, String yAxisTitle, Map<SexType, List<List<Float>>> sexAndBoxPlotMap,
-			Map<SexType, List<List<Float>>> sexAndScatterMap) {
-		JSONArray categoriesArray = new JSONArray(xAxisCategoriesList);
-		String categories = categoriesArray.toString();// "['WT', 'WT', 'HOM', 'HOM']";
+			Parameter parameter, String yAxisTitle, List<ChartsSeriesElement> chartsSeriesElementsList, ExperimentDTO experiment) {
+		
+		//System.out.println("chartSeriesElements="+chartsSeriesElements);
+		//JSONArray categoriesArray = new JSONArray(xAxisCategoriesList);
+		JSONArray categories =new JSONArray();// "['WT', 'WT', 'HOM', 'HOM']";
 		String femaleBoxPlotObject="";
 		String femaleScatterObjectString="";
 		String maleBoxPlotObject="";
 		String maleScatterObjectString="";
 		
 		String seriesData="";
-		
+		int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);	
 		int column=0;
-		for(SexType sexKey: sexAndBoxPlotMap.keySet()){
+		List<Float> boxPlotData = new ArrayList<Float>();
+		for(ChartsSeriesElement chartsSeriesElement: chartsSeriesElementsList){
+			//fist get the raw data for each column (only one column per data set at the moment as we will create both the scatter and boxplots here
+//			// Get a DescriptiveStatistics instance
+			String categoryString=chartsSeriesElement.getSexType().toString()+" "+chartsSeriesElement.getControlOrZygosity();
+			categories.put(categoryString);
+			List<Float> listOfFloats= chartsSeriesElement.getOriginalData();
+			DescriptiveStatistics stats = new DescriptiveStatistics();
+			for (Float point : listOfFloats) {
+				stats.addValue(point);
+			}
 			
-			for(List<Float> boxList: sexAndBoxPlotMap.get(sexKey)){
+			//get boxplot data here
+			for(Float originalDataPoint:listOfFloats){
+				List<Float> wt1 = new ArrayList<Float>();
+				if (listOfFloats.size() > 0) {
+					// double lower = stats.getPercentile(25);
+					// double higher=stats.getPercentile(75);
+					double Q1 = ChartUtils.getDecimalAdjustedFloat(
+							new Float(stats.getPercentile(25)), decimalPlaces);
+					double Q3 = ChartUtils.getDecimalAdjustedFloat(
+							new Float(stats.getPercentile(75)), decimalPlaces);
+					double IQR = Q3 - Q1;
+	
+					Float minIQR = ChartUtils.getDecimalAdjustedFloat(new Float(Q1
+							- (1.5 * IQR)), decimalPlaces);
+					wt1.add(minIQR);// minimum
+					wt1.add(new Float(Q1));// lower quartile
+	
+					Float decFloat = ChartUtils.getDecimalAdjustedFloat(new Float(
+							stats.getMean()), decimalPlaces);
+					wt1.add(decFloat);// median
+					wt1.add(new Float(Q3));// upper quartile
+	
+					Float maxIQR = ChartUtils.getDecimalAdjustedFloat(new Float(Q3
+							+ (1.5 * IQR)), decimalPlaces);
+					wt1.add(maxIQR);// maximumbs.
+					chartsSeriesElement.setBoxPlotArray(new JSONArray(wt1));
+				}
+				
+			}
+			
 				
 			
-			JSONArray boxPlot2DData = new JSONArray(boxList);
+			
+				JSONArray boxPlot2DData = chartsSeriesElement.getBoxPlotArray();
+			
 			String columnPadding="";
 			for(int i=0;i<column;i++) {
 				//add an empty column for each column
@@ -377,10 +428,32 @@ public class UnidimensionalChartAndTableProvider {
 //				+ ", marker: { lineWidth: 1}, tooltip: { pointFormat: '{point.y:..4f}' }          }";
 //		dataStrings+=femaleBoxPlotObject+", "+femaleScatterObjectString;//+","+maleBoxPlotObject+", "+maleScatterObjectString;
 		column++;
-		}
+		
+			//now we are working on the scatter data only
+			//now as we want seperate colors for each column we need to seperate these out into the seperate colums alread contained as the first element in each array
+			Map<Float, Float> columnToDataMap=new HashMap<Float, Float>();
+//			for(List<Float> pairs: sexAndScatterMap.get(sexKey)) {
+//				//get the first array and add it to it's own array
+//				if(pairs.size()>0) {
+//				pairs.get(0);
+//				}
+//			}
 			
-			for(List<Float> scatter: sexAndScatterMap.get(sexKey)) {
-				JSONArray scatterJArray = new JSONArray(scatter);
+		
+				//for the scatter loop over the original data and assign a column as the first element for each array
+			
+			List<Float> originalDataFloats=chartsSeriesElement.getOriginalData();
+			JSONArray scatterJArray = new JSONArray();
+			categories.put(categoryString);//add another category string for this scatter as well as the one for boxplot already added
+			//int column=1;//chartsSeriesElement.getColumn();
+			for(Float data: originalDataFloats) {
+				JSONArray array=new JSONArray();
+				array.put(column);
+				array.put(data);
+				scatterJArray.put(array);
+			}
+			
+				
 
 				String scatterString = scatterJArray.toString();// "[ [1, 644], [3, 718], [3, 951], [3, 969] ]";//fist
 																// number of pair
@@ -393,7 +466,8 @@ public class UnidimensionalChartAndTableProvider {
 				+ ", marker: { lineWidth: 1}, tooltip: { pointFormat: '{point.y:..4f}' }          }";
 		seriesData+=femaleScatterObjectString+",";//+","+maleBoxPlotObject+", "+maleScatterObjectString;
 				
-			}
+			
+		}//end of chartSeriesloop
 		
 //		if(sexKey.equals(SexType.male)) {
 //			
@@ -418,7 +492,7 @@ public class UnidimensionalChartAndTableProvider {
 //				+ scatterString
 //				+ ", marker: { lineWidth: 1 }, tooltip: { pointFormat: '{point.y:..4f}' }          }";
 //		}
-		}//end of gender loop
+	
 		
 		
 //		if(!maleScatterObjectString.equals("")&& !femaleScatterObjectString.equals("")) {//if male is defined add the objects together otherwise just use the female
