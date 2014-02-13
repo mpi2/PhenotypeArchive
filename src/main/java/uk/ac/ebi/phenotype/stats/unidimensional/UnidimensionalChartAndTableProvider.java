@@ -354,13 +354,13 @@ System.out.println(chartsSeriesElementsList);
 		JSONArray categories =new JSONArray();// "['WT', 'WT', 'HOM', 'HOM']";
 		String femaleBoxPlotObject="";
 		String femaleScatterObjectString="";
-		String maleBoxPlotObject="";
-		String maleScatterObjectString="";
 		
 		String seriesData="";
 		int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);	
 		int column=0;
-		List<Float> boxPlotData = new ArrayList<Float>();
+		
+		
+		//loop over the chartSeries data and create boxplots for each
 		for(ChartsSeriesElement chartsSeriesElement: chartsSeriesElementsList){
 			//fist get the raw data for each column (only one column per data set at the moment as we will create both the scatter and boxplots here
 //			// Get a DescriptiveStatistics instance
@@ -368,12 +368,13 @@ System.out.println(chartsSeriesElementsList);
 			categories.put(categoryString);
 			List<Float> listOfFloats= chartsSeriesElement.getOriginalData();
 			DescriptiveStatistics stats = new DescriptiveStatistics();
+			//load up the stats object
 			for (Float point : listOfFloats) {
 				stats.addValue(point);
 			}
 			
 			//get boxplot data here
-			for(Float originalDataPoint:listOfFloats){
+			// use the stats object to get the mean upper quartile etc
 				List<Float> wt1 = new ArrayList<Float>();
 				if (listOfFloats.size() > 0) {
 					// double lower = stats.getPercentile(25);
@@ -400,46 +401,34 @@ System.out.println(chartsSeriesElementsList);
 					chartsSeriesElement.setBoxPlotArray(new JSONArray(wt1));
 				}
 				
-			}
+				JSONArray boxPlot2DData = chartsSeriesElement.getBoxPlotArray();
+				
+				String columnPadding="";
+				for(int i=0;i<column;i++) {
+					//add an empty column for each column
+				columnPadding+="[], ";	
+				}
+				String observationsString = "["+columnPadding+boxPlot2DData.toString()+"]";// " [ [733, 853, 939, 980, 1080], [], [724, 802, 806, 871, 950], [] ]";//array
+																		// for each
+																		// column/category
+																		// WT HOM etc
+				
+				
+			femaleBoxPlotObject="{ name: 'Observations', data:"
+					+ observationsString
+					+ ",       tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }                    }";
+			
+			seriesData+=femaleBoxPlotObject+",";
+			column++;
+				
+		}//end of boxplot loop
+			
 			
 				
-			
-			
-				JSONArray boxPlot2DData = chartsSeriesElement.getBoxPlotArray();
-			
-			String columnPadding="";
-			for(int i=0;i<column;i++) {
-				//add an empty column for each column
-			columnPadding+="[], ";	
-			}
-			String observationsString = "["+columnPadding+boxPlot2DData.toString()+"]";// " [ [733, 853, 939, 980, 1080], [], [724, 802, 806, 871, 950], [] ]";//array
-																	// for each
-																	// column/category
-																	// WT HOM etc
-			
-			
-		femaleBoxPlotObject="{ name: 'Observations', data:"
-				+ observationsString
-				+ ",       tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }                    }";
-		
-		seriesData+=femaleBoxPlotObject+",";
-//		femaleScatterObjectString="{ name: 'Observation', type: 'scatter', data: "
-//				+ scatterString
-//				+ ", marker: { lineWidth: 1}, tooltip: { pointFormat: '{point.y:..4f}' }          }";
-//		dataStrings+=femaleBoxPlotObject+", "+femaleScatterObjectString;//+","+maleBoxPlotObject+", "+maleScatterObjectString;
-		column++;
-		
-			//now we are working on the scatter data only
-			//now as we want seperate colors for each column we need to seperate these out into the seperate colums alread contained as the first element in each array
-			Map<Float, Float> columnToDataMap=new HashMap<Float, Float>();
-//			for(List<Float> pairs: sexAndScatterMap.get(sexKey)) {
-//				//get the first array and add it to it's own array
-//				if(pairs.size()>0) {
-//				pairs.get(0);
-//				}
-//			}
-			
-		
+		//loop over the chartSeries data and create scatters for each
+		for(ChartsSeriesElement chartsSeriesElement: chartsSeriesElementsList){
+					String categoryString=chartsSeriesElement.getSexType().toString()+" "+chartsSeriesElement.getControlOrZygosity();
+				
 				//for the scatter loop over the original data and assign a column as the first element for each array
 			
 			List<Float> originalDataFloats=chartsSeriesElement.getOriginalData();
@@ -465,47 +454,10 @@ System.out.println(chartsSeriesElementsList);
 				+ scatterString
 				+ ", marker: { lineWidth: 1}, tooltip: { pointFormat: '{point.y:..4f}' }          }";
 		seriesData+=femaleScatterObjectString+",";//+","+maleBoxPlotObject+", "+maleScatterObjectString;
-				
+				column++;
 			
-		}//end of chartSeriesloop
 		
-//		if(sexKey.equals(SexType.male)) {
-//			
-//			JSONArray boxPlot2DData = new JSONArray(sexAndBoxPlotMap.get(sexKey));
-//			String observationsString = boxPlot2DData.toString();// " [ [733, 853, 939, 980, 1080], [], [724, 802, 806, 871, 950], [] ]";//array
-//																	// for each
-//																	// column/category
-//																	// WT HOM etc
-//			JSONArray scatterJArray = new JSONArray(sexAndScatterMap.get(sexKey));
-//
-//			String scatterString = scatterJArray.toString();// "[ [1, 644], [3, 718], [3, 951], [3, 969] ]";//fist
-//															// number of pair
-//															// indicates
-//															// category/column so 0
-//															// is first column 3 is
-//															// second
-//		maleBoxPlotObject="{ name: 'Observations', data:"
-//				+ observationsString
-//				+ ",       tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }                    }";
-//		
-//		maleScatterObjectString="{ name: 'Observation', type: 'scatter', data: "
-//				+ scatterString
-//				+ ", marker: { lineWidth: 1 }, tooltip: { pointFormat: '{point.y:..4f}' }          }";
-//		}
-	
-		
-		
-//		if(!maleScatterObjectString.equals("")&& !femaleScatterObjectString.equals("")) {//if male is defined add the objects together otherwise just use the female
-//			dataStrings=femaleBoxPlotObject+", "+femaleScatterObjectString+","+maleBoxPlotObject+", "+maleScatterObjectString;
-//		}else {
-//		if(!femaleScatterObjectString.equals("")) {//check we definitely have female data if so make this the data string
-//				dataStrings=femaleBoxPlotObject+", "+femaleScatterObjectString;
-//		}
-//		if(!maleScatterObjectString.equals("")) {
-//			dataStrings=maleBoxPlotObject+", "+maleScatterObjectString;
-//		}
-//		}
-		
+	}//end of scatter loop
 		List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaBox);
 		JSONArray colorArray = new JSONArray(colors);
 		
