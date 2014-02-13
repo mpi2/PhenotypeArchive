@@ -79,7 +79,7 @@
 						<c:if test="${phenotype.dataSourceName eq 'EuroPhenome' }">
 							<a href="${baseUrl}/stats/genes/${phenotype.gene.id.accession}?parameterId=${phenotype.parameter.stableId}
 								<c:if test="${fn:length(phenotype.sexes) eq 1}">&gender=${phenotype.sexes[0]}</c:if>&zygosity=${phenotype.zygosity}<c:if test="${phenotype.getPhenotypingCenter() != null}">&phenotyping_center=${phenotype.getPhenotypingCenter()}</c:if>">
-								<i class="fa fa-bar-chart-o" rel="tooltip" data-placement="top" title="Click to open graphs." alt="Graphs" > </i>
+								<i class="fa fa-bar-chart-o" rel="tooltip" data-placement="top" title="Click to open graphssss." alt="Graphs" > </i>
 							</a>
 						</c:if>
 						<!-- /c:if-->

@@ -21,9 +21,7 @@
 	</jsp:attribute>
 
 	<jsp:attribute name="addToFooter">
-		<script type='text/javascript' src='${baseUrl}/js/imaging/mp.js'></script>
 		<script type='text/javascript' src="${baseUrl}/js/general/dropDownPhenPage.js"></script>
-		<script type='text/javascript' src="${baseUrl}/js/general/toggle.js"></script>
   </jsp:attribute>
 
 	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
