@@ -49,7 +49,20 @@ public class Experiment extends SourcedEntry {
 	@OneToOne
 	@JoinColumn(name = "organisation_id")
 	private Organisation organisation;
+
+	@OneToOne
+	@JoinColumn(name = "project_id")
+	private Project project;
 	
+	
+	public Project getProject() {
+		return project;
+	}
+	public void setProject(Project project) {
+		this.project = project;
+	}
+	
+
 	/**
 	 * @return the externalId
 	 */
