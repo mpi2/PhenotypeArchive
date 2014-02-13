@@ -30,9 +30,10 @@
         DrupalHttpProxy proxy = new DrupalHttpProxy(request);
         String url = (String)request.getAttribute("drupalBaseUrl");
         url = url.replace("dev.", "test.");
-        jspContext.setAttribute("menu", proxy.getDrupalMenu(url));
-        jspContext.setAttribute("usermenu", proxy.getDrupalUserMenu(url));
-        
+
+        jspContext.setAttribute("menu", proxy.getDrupalMenu(url).getJSONArray("mainmenu"));
+        jspContext.setAttribute("usermenu", proxy.getDrupalMenu(url).getJSONArray("usermenu"));
+
 %>
 <%@attribute name="header" fragment="true"%>
 <%@attribute name="footer" fragment="true"%>
@@ -147,7 +148,6 @@ try {
 <script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js'></script>
 <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js'></script>
 <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js'></script>
-<script type='text/javascript' src='${baseUrl}/js/imaging/mp.js'></script>
 <script type='text/javascript' src="${baseUrl}/js/general/toggle.js"></script> 
 		
 <script type="text/javascript" src="${baseUrl}/js/default.js?cache=09-01-14"></script>
