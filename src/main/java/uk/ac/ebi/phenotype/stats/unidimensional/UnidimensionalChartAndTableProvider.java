@@ -17,6 +17,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
+import org.coode.parsers.ManchesterOWLSyntaxAutoCompleteCombined_ManchesterOWLSyntaxAutoCompleteBase.incompleteAssertionAxiom_return;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.springframework.stereotype.Service;
@@ -113,7 +114,7 @@ List<Float>dataFloats=new ArrayList<>();
 					//set up for WT for this sex
 					ChartsSeriesElement tempElement=	new ChartsSeriesElement();
 					tempElement.setSexType(sexType);
-					tempElement.setControlOrZygosity("WT");
+					tempElement.setZygosityType(null);
 					tempElement.setOriginalData(dataFloats);
 					//tempElement.setColumn(columnIndex);
 					chartsSeriesElementsList.add( tempElement);
@@ -138,7 +139,7 @@ List<Float>dataFloats=new ArrayList<>();
 							}
 							ChartsSeriesElement tempElementExp=	new ChartsSeriesElement();
 							tempElementExp.setSexType(sexType);
-							tempElementExp.setControlOrZygosity(zType.toString());
+							tempElementExp.setZygosityType(zType);
 							tempElementExp.setOriginalData(mutantCounts);
 							chartsSeriesElementsList.add( tempElementExp);
 							rawData.add(mutantCounts);
@@ -358,19 +359,22 @@ System.out.println(chartsSeriesElementsList);
 		String seriesData="";
 		int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);	
 		int column=0;
-		
+		Float min=1000000000f;
+		Float max=0f;
 		
 		//loop over the chartSeries data and create boxplots for each
 		for(ChartsSeriesElement chartsSeriesElement: chartsSeriesElementsList){
 			//fist get the raw data for each column (only one column per data set at the moment as we will create both the scatter and boxplots here
 //			// Get a DescriptiveStatistics instance
-			String categoryString=chartsSeriesElement.getSexType().toString()+" "+chartsSeriesElement.getControlOrZygosity();
+			String categoryString=chartsSeriesElement.getSexType().toString()+" "+chartsSeriesElement.getControlOrZygosityString();
 			categories.put(categoryString);
 			List<Float> listOfFloats= chartsSeriesElement.getOriginalData();
 			DescriptiveStatistics stats = new DescriptiveStatistics();
 			//load up the stats object
 			for (Float point : listOfFloats) {
 				stats.addValue(point);
+				if(point > max)max=point;
+				if(point < min)min=point;
 			}
 			
 			//get boxplot data here
@@ -388,16 +392,19 @@ System.out.println(chartsSeriesElementsList);
 					Float minIQR = ChartUtils.getDecimalAdjustedFloat(new Float(Q1
 							- (1.5 * IQR)), decimalPlaces);
 					wt1.add(minIQR);// minimum
-					wt1.add(new Float(Q1));// lower quartile
+					Float q1=new Float(Q1);
+					wt1.add(q1);// lower quartile
+					if(minIQR < min)min=minIQR;
 	
 					Float decFloat = ChartUtils.getDecimalAdjustedFloat(new Float(
 							stats.getMean()), decimalPlaces);
 					wt1.add(decFloat);// median
-					wt1.add(new Float(Q3));// upper quartile
-	
+					Float q3=new Float(Q3);
+					wt1.add(q3);// upper quartile
 					Float maxIQR = ChartUtils.getDecimalAdjustedFloat(new Float(Q3
 							+ (1.5 * IQR)), decimalPlaces);
 					wt1.add(maxIQR);// maximumbs.
+					if(maxIQR > max)max=maxIQR;
 					chartsSeriesElement.setBoxPlotArray(new JSONArray(wt1));
 				}
 				
@@ -414,7 +421,7 @@ System.out.println(chartsSeriesElementsList);
 																		// WT HOM etc
 				//get the color based on if mutant or WT based on terrys ticket MPII-504
 				String color=ChartColors.getMutantColor(ChartColors.alphaBox);
-				if(chartsSeriesElement.getControlOrZygosity().equals("WT")) {
+				if(chartsSeriesElement.getControlOrZygosityString().equals("WT")) {
 					color=ChartColors.getWTColor(ChartColors.alphaScatter);
 				}
 				
@@ -433,7 +440,7 @@ System.out.println(chartsSeriesElementsList);
 				
 		//loop over the chartSeries data and create scatters for each
 		for(ChartsSeriesElement chartsSeriesElement: chartsSeriesElementsList){
-					String categoryString=chartsSeriesElement.getSexType().toString()+" "+chartsSeriesElement.getControlOrZygosity();
+					String categoryString=chartsSeriesElement.getSexType().toString()+" "+chartsSeriesElement.getControlOrZygosityString();
 				
 				//for the scatter loop over the original data and assign a column as the first element for each array
 			
@@ -448,27 +455,17 @@ System.out.println(chartsSeriesElementsList);
 				scatterJArray.put(array);
 			}
 			
-			String symbol="circle";
-			String lineColor=ChartColors.getMutantColor(ChartColors.alphaScatter);
-			String color=ChartColors.getMutantColor(ChartColors.alphaScatter);
-			String fillColor=color;
-			if(chartsSeriesElement.getControlOrZygosity().equalsIgnoreCase("WT")) {
-				color=ChartColors.getWTColor(ChartColors.alphaScatter);
-				fillColor="white";
-				lineColor=color;
-			}
+//			if(chartsSeriesElement.getControlOrZygosity().equalsIgnoreCase("WT")) {
+//				color=ChartColors.getWTColor(ChartColors.alphaScatter);
+//				fillColor="white";
+//				lineColor=color;
+//			}
+//			
+//			if(chartsSeriesElement.getSexType().equals(SexType.male) ) {
+//				symbol="triangle";
+//			}
 			
-			if(chartsSeriesElement.getSexType().equals(SexType.male) ) {
-				symbol="triangle";
-			}
-			//&& chartsSeriesElement.getControlOrZygosity().equals("WT")
-			
-		String marker="marker: {"
-				+"symbol: '"+symbol
-				+"', fillColor:  '"+fillColor+"'," +
-						" lineWidth: 1,"
-	            +" lineColor: '"+lineColor+ "' "
-	       +" }";
+			String marker = ChartColors.getMarkerString(chartsSeriesElement.getSexType(), chartsSeriesElement.getZygosityType() );
 
 				String scatterString = scatterJArray.toString();// "[ [1, 644], [3, 718], [3, 951], [3, 969] ]";//fist
 																// number of pair
@@ -491,7 +488,7 @@ System.out.println(chartsSeriesElementsList);
 	}//end of scatter loop
 		List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaBox);
 		JSONArray colorArray = new JSONArray(colors);
-		
+		System.out.println("min="+min+"  max="+max);
 		String chartString = " chart = new Highcharts.Chart({ " 
 				+" colors:"+colorArray
 				+", chart: { type: 'boxplot', renderTo: 'chart"
@@ -505,7 +502,9 @@ System.out.println(chartsSeriesElementsList);
 				+ " }}, categories:  "
 				+ categories
 				+ " }, \n"
-				+ "yAxis: { labels: { style:{ fontSize:"
+				+ "yAxis: { " +
+				"max: "+max+",  min: "+min+","
+				+"labels: { style:{ fontSize:"
 				+ axisFontSize
 				+ " }},title: { text: '"
 				+ yAxisTitle
@@ -514,6 +513,7 @@ System.out.println(chartsSeriesElementsList);
 		
 		return chartString;
 	}
+
 
 	public ChartData getHistogram(List<String> labels, List<Double> values, String title){
 		double min = 0; 

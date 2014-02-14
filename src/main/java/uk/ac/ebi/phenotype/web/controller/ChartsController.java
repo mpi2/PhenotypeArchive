@@ -339,7 +339,7 @@ public class ChartsController {
 						 (strain.length>0) ? strain[0] : null , (metadataGroup.length>0) ? metadataGroup[0] : null);
 		
 		if (experiment!=null) {
-			 log.info("Experiment dto marker="+experiment);
+			 log.info("Experiment dto marker="+experiment.getFemaleControls());
 			// ESLIM_003_001_003 id=962 calorimetry data for time series graph
 			// new MGI:1926153
 			// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1926153?parameterId=ESLIM_003_001_003

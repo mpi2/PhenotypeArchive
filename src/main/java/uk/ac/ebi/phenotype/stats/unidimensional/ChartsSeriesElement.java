@@ -34,18 +34,32 @@ public class ChartsSeriesElement {
 	public String toString() {
 		return "ChartsSeriesElement [originalData=" + originalData
 				+ ", column=" + column + ", sexType=" + sexType
-				+ ", controlOrZygosity=" + controlOrZygosity + ", name=" + name
+				+ ", controlOrZygosity=" + zygosityType + ", name=" + name
 				+ ", colorString=" + colorString + ", chartTypeString="
 				+ chartTypeString + ", dataArray=" + boxPlotArray + "]\n";
 	}
 	int column;//to record the column of this data if say for boxplots we need this to determine how many other [] arrays to add before us
 	SexType sexType;
-	String controlOrZygosity;;
-	public String getControlOrZygosity() {
-		return controlOrZygosity;
+	ZygosityType zygosityType;
+	
+	/**
+	 * if zygosity type is null then it must be wildtype
+	 * @return
+	 */
+	public ZygosityType getZygosityType() {
+		return zygosityType;
 	}
-	public void setControlOrZygosity(String controlOrZygosity) {
-		this.controlOrZygosity = controlOrZygosity;
+	public void setZygosityType(ZygosityType zygosityType) {
+		this.zygosityType = zygosityType;
+	}
+	
+	String getControlOrZygosityString() {
+		if(zygosityType==null) {
+			return "WT";
+		}else {
+			return zygosityType.getName();
+		}
+		
 	}
 	public int getColumn() {
 		return column;
