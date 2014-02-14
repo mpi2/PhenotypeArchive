@@ -2,9 +2,9 @@ $(document).ready(function(){
 
 	// bubble popup for brief panel documentation
 	$.fn.qTip({
-		'pageName': 'gene',
-		'textAlign': 'left',
-		'tip': 'topRight'
+		'pageName': 'gene',				
+		'tip': 'top right',
+		'corner' : 'right top'
 	});							
 	
     //function to fire off a refresh of a table and it's dropdown filters
