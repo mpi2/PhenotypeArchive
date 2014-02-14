@@ -71,8 +71,9 @@
 	    	});	    	
 	    },
 	    
-	    _displayDiseaseSubfacet: function(json){	
-	    
+	    _displayDiseaseSubfacet: function(json){
+	    	console.log('disease: ');
+	    	console.log(json);
 	    	var self = this;
 	    	var numFound = json.response.numFound;
 	    	
@@ -147,13 +148,14 @@
 			    			
 			    			var liContainer = $("<li></li>").attr({'class':'fcat ' + fq});
 			    			var dPositive = aData[i];
-			    			
-			    			if ( dPositive == '1'){
+			    			console.log('positive: ' + dPositive)
+			    			console.log(typeof dPositive);
+			    			if ( dPositive == 'true' ){
 				    			var count = aData[i+1];
 				    			var diseaseFq = fq;
 				    			var coreField = 'disease|'+ diseaseFq + '|';		
 							    
-								var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + '1' + '|' + count + '|' + assoc});								
+								var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + 'true' + '|' + count + '|' + assoc});								
 								var flabel = $('<span></span>').attr({'class':'flabel'}).text(thisSubfacet);
 								var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 								liContainer.append(chkbox, flabel, fcount);	

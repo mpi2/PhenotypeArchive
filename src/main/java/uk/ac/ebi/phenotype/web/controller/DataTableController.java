@@ -792,12 +792,12 @@ public class DataTableController {
 			String impc  = "<span class='status done'>IMPC</span>";
 			String mgi   = "<span class='status done'>MGI</span>";
 			
-			String isHumanCurated = doc.getString("human_curated").equals("1") ? human : "";			
-			String isMouseCurated = doc.getString("mouse_curated").equals("1") ? mice : "";
+			String isHumanCurated = doc.getString("human_curated").equals("true") ? human : "";			
+			String isMouseCurated = doc.getString("mouse_curated").equals("true") ? mice : "";
 			rowData.add(isHumanCurated + isMouseCurated);
 			
-			String isImpcPredicted = (doc.getString("impc_predicted").equals("1") || doc.getString("impc_predicted_in_locus").equals("1")) ? impc : "";				
-			String isMgiPredicted = (doc.getString("mgi_predicted").equals("1") || doc.getString("mgi_predicted_in_locus").equals("1")) ? mgi : "";
+			String isImpcPredicted = (doc.getString("impc_predicted").equals("true") || doc.getString("impc_predicted_in_locus").equals("true")) ? impc : "";				
+			String isMgiPredicted = (doc.getString("mgi_predicted").equals("true") || doc.getString("mgi_predicted_in_locus").equals("true")) ? mgi : "";
 			rowData.add(isImpcPredicted + isMgiPredicted);
 					
 			//System.out.println("DOCS: " + rowData.toString());
