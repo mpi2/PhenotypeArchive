@@ -173,18 +173,18 @@
 		    			var aData = json.facet_counts['facet_fields'][fq];  		
 			    		for ( var i=0; i<aData.length; i=i+2 ){
 			    			var dPositive = aData[i];
-			    			if ( dPositive == '1'){
+			    			if ( dPositive == 'true'){
 				    			var count = aData[i+1];
 				    			var diseaseFq = fq;
 				    			var coreField = 'disease|'+ diseaseFq + '|';		
 							    
-								var chkbox = $('<input></input>').attr({'class':assoc, 'type': 'checkbox', 'rel': coreField + '1' + '|' + count});
+								var chkbox = $('<input></input>').attr({'class':assoc, 'type': 'checkbox', 'rel': coreField + 'true' + '|' + count});
 								var td0 = $('<td></td>').append(chkbox);
 								var trClass = assoc+'Tr';
 								var tr = $('<tr></tr>').attr({'class':'subFacet ' + trClass + ' ' + assoc});						
 								var td1 = $('<td></td>').attr({'class':trClass + ' ' + fq + ' diseaseSubfacet', 'rel':count}).text(thisSubfacet);
-								var link = $('<a></a>').attr({'rel': '1', 'class': diseaseFq}).text(count);
-								var td2 = $('<td></td>').attr({'class':'diseaseSubfacetCount', 'rel':'1'}).append(link);					
+								var link = $('<a></a>').attr({'rel': 'true', 'class': diseaseFq}).text(count);
+								var td2 = $('<td></td>').attr({'class':'diseaseSubfacetCount', 'rel':'true'}).append(link);					
 								
 								table.append(tr.append(td0, td1, td2));
 			    			}	

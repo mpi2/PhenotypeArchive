@@ -528,13 +528,13 @@ public class DataTableController {
 			rowData.add(src);
 			
 			// curated data: human/mouse			
-			String isHumanCurated = doc.getString("human_curated").equals("1") ? "Yes" : "-";
+			String isHumanCurated = doc.getString("human_curated").equals("true") ? "Yes" : "-";
 			rowData.add(isHumanCurated);
-			String isMouseCurated = doc.getString("mouse_curated").equals("1") ? "Yes" : "-";
+			String isMouseCurated = doc.getString("mouse_curated").equals("true") ? "Yes" : "-";
 			rowData.add(isMouseCurated);
-			String isImpcPredicted = (doc.getString("impc_predicted").equals("1") || doc.getString("impc_predicted_in_locus").equals("1")) ? "Yes" : "-";
+			String isImpcPredicted = (doc.getString("impc_predicted").equals("true") || doc.getString("impc_predicted_in_locus").equals("true")) ? "Yes" : "-";
 			rowData.add(isImpcPredicted);			
-			String isMgiPredicted = (doc.getString("mgi_predicted").equals("1") || doc.getString("mgi_predicted_in_locus").equals("1")) ? "Yes" : "-";
+			String isMgiPredicted = (doc.getString("mgi_predicted").equals("true") || doc.getString("mgi_predicted_in_locus").equals("true")) ? "Yes" : "-";
 			rowData.add(isMgiPredicted);
 						
 			j.getJSONArray("aaData").add(rowData);

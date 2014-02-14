@@ -298,14 +298,14 @@
     				// do some accouting for matching subfacets
     				if ( subFacetName.indexOf('curated') != -1 ) {
     					for ( var cr=0; cr<oFacets[subFacetName].length; cr=cr+2){
-    						if ( oFacets[subFacetName][cr] == '1' ){
+    						if ( oFacets[subFacetName][cr] == 'true' ){
     							foundMatch.curated++;    							
     						}
     					}    					
     				}
     				else if ( subFacetName.indexOf('predicted') != -1 ){    					
     					for ( var pr=0; pr<oFacets[subFacetName].length; pr=pr+2){
-    						if ( oFacets[subFacetName][pr] == '1' ){
+    						if ( oFacets[subFacetName][pr] == 'true' ){
     							foundMatch.predicted++;    							
     						}
     					} 				
@@ -744,7 +744,7 @@
 				value = value.replace(/ phenotype$/, '');
 			}
 			else if ( facet == 'disease' ){
-				value = value == '1' ? 'Yes' : value;		
+				value = value == 'true' ? 'Yes' : value;		
 			}
 			else if ( facet == 'pipeline' ){
 				var aVals = value.split('___');
