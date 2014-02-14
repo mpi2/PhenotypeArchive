@@ -120,7 +120,7 @@ public class ObservationService {
               //  .addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":unidimensional")
         if(phenotypingCenterParams!=null && phenotypingCenterParams.size()>0) {
         	for(String phenotypingCenter: phenotypingCenterParams) {
-        	query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER + ":" + phenotypingCenter);
+        	query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER + ":" +"\""+ phenotypingCenter+"\"");//need to comment center
         	}
         }
         if(strainParams!=null && strainParams.size()>0) {
