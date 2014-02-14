@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.antlr.grammar.v3.ANTLRv3Parser.finallyClause_return;
 import org.apache.bcel.generic.RETURN;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.semanticweb.elk.reasoner.saturation.conclusions.ForwardLink.ThisBackwardLinkRule;
 
 import uk.ac.ebi.phenotype.pojo.SexType;
@@ -115,12 +117,17 @@ public class ChartColors {
 		}
 		//&& chartsSeriesElement.getControlOrZygosity().equals("WT")
 		
-String marker="marker: {"
+String marker="marker:{"
 			+"symbol: '"+symbol
 			+"', fillColor:  '"+fillColor+"'," +
 					" lineWidth: 1,"
 		    +" lineColor: '"+lineColor+ "' "
       +" }";
 		return marker;
+	}
+	
+	public static JSONObject getMarkerJSONObject(SexType sex, ZygosityType zygosityType) throws JSONException {
+		String markerString=getMarkerString(sex, zygosityType).replace("marker:", "");
+		return new JSONObject(markerString);
 	}
 }

@@ -178,10 +178,12 @@ public class ScatterChartAndTableProvider {
 				
 				controlJsonObject.put("name", sex+" "+"WT");
 				
-				controlJsonObject.put("color", ChartColors.getWTColor(ChartColors.alphaScatter));
-				if(sex.equals(SexType.male)) {
-					controlJsonObject.put("symbol", "triangle");
-				}
+				JSONObject markerObject=ChartColors.getMarkerJSONObject(sex, null);
+				controlJsonObject.put("marker", markerObject);
+//				controlJsonObject.put("color", ChartColors.getWTColor(ChartColors.alphaScatter));
+//				if(sex.equals(SexType.male)) {
+//					controlJsonObject.put("symbol", "triangle");
+//				}
 				
 			} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -225,11 +227,8 @@ public class ScatterChartAndTableProvider {
 				colorIndex++;
 				try {
 					expZyg.put("name", sex+" "+zType);
-					String markerString=ChartColors.getMarkerString(sex, zType);
-					expZyg.put("color", ChartColors.getMutantColor(ChartColors.alphaScatter));
-					if(sex.equals(SexType.male)) {
-						expZyg.put("symbol", "triangle");
-					}
+					JSONObject markerObject=ChartColors.getMarkerJSONObject(sex, zType);
+					expZyg.put("marker", markerObject);
 					
 				} catch (JSONException e1) {
 					// TODO Auto-generated catch block
