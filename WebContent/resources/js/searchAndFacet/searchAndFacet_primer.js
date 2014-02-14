@@ -33,14 +33,14 @@ $(document).ready(function(){
 		oHashParams.q = '*:*';		
 		$.fn.fetchSolrFacetCount(oHashParams);
 	}	
-	else if ( location.href.indexOf('/search#') != -1 ){		
+	else if ( location.href.indexOf('/search?q=') != -1 || location.href.indexOf('/search#q=*:*') != -1 ){   	
 		// load page based on url hash parameters		
 		oHashParams = $.fn.parseHashString(window.location.hash.substring(1));		
 		$.fn.fetchSolrFacetCount(oHashParams);	
 	}
 	else {
 		// do not understand the url, redirect to error page
-		//document.location.href = baseUrl + '/404.jsp';		
+		document.location.href = baseUrl + '/404.jsp';		
 	}
 	
 	// search via ENTER

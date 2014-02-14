@@ -408,14 +408,14 @@
     				// do some accouting for matching subfacets
     				if ( subFacetName.indexOf('curated') != -1 ) {
     					for ( var cr=0; cr<oFacets[subFacetName].length; cr=cr+2){
-    						if ( oFacets[subFacetName][cr] == '1' ){
+    						if ( oFacets[subFacetName][cr] == true ){
     							foundMatch.curated++;    							
     						}
     					}    					
     				}
     				else if ( subFacetName.indexOf('predicted') != -1 ){    					
     					for ( var pr=0; pr<oFacets[subFacetName].length; pr=pr+2){
-    						if ( oFacets[subFacetName][pr] == '1' ){
+    						if ( oFacets[subFacetName][pr] == true ){
     							foundMatch.predicted++;    							
     						}
     					} 				
@@ -858,7 +858,7 @@
 				value = value.replace(/ phenotype$/, '');
 			}
 			else if ( facet == 'disease' ){
-				value = value == '1' ? 'Yes' : value;		
+				value = value == 'true' ? 'Yes' : value;		
 			}
 			else if ( facet == 'pipeline' ){
 				var aVals = value.split('___');
@@ -893,25 +893,16 @@
 			$(this).attr('href', MDOC[oConf.pageName][key+'DocUrl']);
 			
 			$(this).qtip({
-			 	content: MDOC[oConf.pageName][key], 
-			 	style: { classes: 'qtipimpc' }			   		 
-				/*show: {		            
-		               event: 'mouseover',
-					   delay: 0
-		        },
-		        hide: {		        		
-			           event: 'mouseout' 
-		        },
-				position: {
-			    	corner: {
-			        	target: typeof oConf.target != undefined ? oConf.target : 'bottomLeft',
-			        	tooltip: typeof oConf.tip != undefined ? oConf.tip : 'topRight'
-			        },						
-			    	adjust: {			    	
-			        	x: oConf.posX,
-			        	y: oConf.posY
+			 	content: MDOC[oConf.pageName][key],			 	
+			 	style: {
+			 		classes: 'qtipimpc',
+			        tip: {			           
+			        	corner: typeof oConf.tip != undefined ? oConf.tip : 'top right'
 			        }
-			    }*/	   
+			    },
+			    position: {
+			        my: typeof oConf.corner != undefined ? oConf.corner : 'right top'
+			    }
 			});			
 		});
 	}
