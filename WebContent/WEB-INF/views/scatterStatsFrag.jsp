@@ -12,12 +12,6 @@
 		<script type="text/javascript">
 			${scatterChartAndData.chart}
 		</script>	
-	
-	<!-- remove the scatter flag so we go back to the original graph version -->
-	<!-- param.originalUrl -->
-	<%-- ${param.originalUrl} --%>
-						<c:set var="originalUrl2" value="${fn:replace(param.originalUrl, '&scatter=1', '')}" />
-                                ${originalUrl2}
                                 <a id="goBack" >Box Plot / Time Series Graphs</a>	
                                 
                                 <script>

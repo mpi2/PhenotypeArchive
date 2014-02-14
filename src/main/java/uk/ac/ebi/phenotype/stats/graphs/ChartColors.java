@@ -5,9 +5,12 @@ import java.util.List;
 
 import org.antlr.grammar.v3.ANTLRv3Parser.finallyClause_return;
 import org.apache.bcel.generic.RETURN;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.semanticweb.elk.reasoner.saturation.conclusions.ForwardLink.ThisBackwardLinkRule;
 
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 
 /**
@@ -79,4 +82,52 @@ public class ChartColors {
 		return "rgba("+wtColor+"," +alpha+")";
 	}
 	
+	/**
+	 * convenience method that uses default scatter alpha for getMarkerString
+	 * @param sex
+	 * @param zygosityType
+	 * @return
+	 */
+	public static String getMarkerString(SexType sex, ZygosityType zygosityType) {
+		
+		return getMarkerString(sex, zygosityType, null);
+	}
+	/**
+	 * Get a marker string for use in highcharts to display the data with consitent colors and symbols based on these parameters
+	 * @param sex
+	 * @param zygosityType if null then its WT
+	 * @return
+	 */
+	public static String getMarkerString(SexType sex, ZygosityType zygosityType, Double alpha) {
+		if(alpha==null) {
+			alpha=ChartColors.alphaScatter;
+		}
+		String symbol="circle";
+		String lineColor=ChartColors.getMutantColor(alpha);
+		String color=ChartColors.getMutantColor(alpha);
+		String fillColor=color;
+		if(zygosityType==null) {// then its WT
+			color=ChartColors.getWTColor(alpha);
+			fillColor="white";
+			lineColor=color;
+		}
+		
+		if(sex.equals(SexType.male) ) {
+			symbol="triangle";
+		}
+		//&& chartsSeriesElement.getControlOrZygosity().equals("WT")
+		
+String marker="marker:{"
+			+"symbol: '"+symbol
+			+"', fillColor:  '"+fillColor+"'," +
+					" lineWidth: 1,"
+		    +" lineColor: '"+lineColor+ "' "
+      +" }";
+		return marker;
+	}
+	
+	public static JSONObject getMarkerJSONObject(SexType sex, ZygosityType zygosityType) throws JSONException {
+		String markerString=getMarkerString(sex, zygosityType).replace("marker:", "");
+		return new JSONObject(markerString);
+	}
 }
