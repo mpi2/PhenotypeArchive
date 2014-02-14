@@ -144,7 +144,7 @@
 						<div id="bigsearchbox" class="block">
 							<div class="content">								
 								<p><i id="sicon" class="fa fa-search"></i>
-									<input id="s" type="text" value="Test dummy input" placeholder="Search">
+									<input id="s" type="text" value="" placeholder="Search">
 								</p>									
 							</div>
 						</div>
@@ -193,18 +193,7 @@
 					<div class="HomepageTable" id="mpi2-search"></div>				
 				</div>
 			</div>
-		</div>
-		
-		<!--  test -->
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/geneFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/mpFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/maFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/diseaseFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script> 
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>            
+		</div>		       
         
          <script>
         $(document).ready(function() {        		
@@ -252,7 +241,7 @@
     					MPI2.searchAndFacetConfig.widgetOpen = false;
     						    				
 	    				// search by keyword (user's input) has no fq in url when hash change is detected
-	    				if ( oHashParams.fq ){				
+	    				if ( oHashParams.fq ){			
 	    					
 	    					if ( oHashParams.coreName ){	    						
 	    						$.fn.removeFacetFilter();
@@ -295,12 +284,10 @@
                     document.location.reload();
             });
 
-                // Message to IE users
-                //$.fn.ieCheck();
+            // Message to IE users
+            //$.fn.ieCheck();
         });        
         </script>
-			
-			
 			
 						
     </jsp:body>

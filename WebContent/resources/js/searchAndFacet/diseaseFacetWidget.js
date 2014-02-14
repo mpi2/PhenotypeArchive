@@ -148,8 +148,6 @@
 			    			
 			    			var liContainer = $("<li></li>").attr({'class':'fcat ' + fq});
 			    			var dPositive = aData[i];
-			    			console.log('positive: ' + dPositive)
-			    			console.log(typeof dPositive);
 			    			if ( dPositive == 'true' ){
 				    			var count = aData[i+1];
 				    			var diseaseFq = fq;

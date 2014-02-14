@@ -792,19 +792,24 @@ public class DataTableController {
 			String impc  = "<span class='status done'>IMPC</span>";
 			String mgi   = "<span class='status done'>MGI</span>";
 			
-			String isHumanCurated = doc.getString("human_curated").equals("true") ? human : "";			
-			String isMouseCurated = doc.getString("mouse_curated").equals("true") ? mice : "";
-			rowData.add(isHumanCurated + isMouseCurated);
-			
-			String isImpcPredicted = (doc.getString("impc_predicted").equals("true") || doc.getString("impc_predicted_in_locus").equals("true")) ? impc : "";				
-			String isMgiPredicted = (doc.getString("mgi_predicted").equals("true") || doc.getString("mgi_predicted_in_locus").equals("true")) ? mgi : "";
-			rowData.add(isImpcPredicted + isMgiPredicted);
-					
-			//System.out.println("DOCS: " + rowData.toString());
-			j.getJSONArray("aaData").add(rowData);
-		} 
-		
-		return j.toString();	
+			try {
+				String isHumanCurated = doc.getString("human_curated").equals("true") ? human : "";			
+				String isMouseCurated = doc.getString("mouse_curated").equals("true") ? mice : "";
+				rowData.add(isHumanCurated + isMouseCurated);
+				//rowData.add("test1" + "test2");
+				String isImpcPredicted = (doc.getString("impc_predicted").equals("true") || doc.getString("impc_predicted_in_locus").equals("true")) ? impc : "";				
+				String isMgiPredicted = (doc.getString("mgi_predicted").equals("true") || doc.getString("mgi_predicted_in_locus").equals("true")) ? mgi : "";
+				rowData.add(isImpcPredicted + isMgiPredicted);
+				//rowData.add("test3" + "test4");		
+				//System.out.println("DOCS: " + rowData.toString());
+				j.getJSONArray("aaData").add(rowData);							
+			}			
+			catch (Exception e) {
+				log.error("Error getting disease curation values");
+				log.error(e.getLocalizedMessage());
+			}
+		}
+		return j.toString();			
 	}
 	
 	private ArrayList<String> fetchImgGeneAnnotations(JSONObject doc, HttpServletRequest request) {
