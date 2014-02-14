@@ -53,7 +53,10 @@ public class Experiment extends SourcedEntry {
 	@OneToOne
 	@JoinColumn(name = "project_id")
 	private Project project;
-	
+
+	@OneToOne
+	@JoinColumn(name = "external_db_id")
+	private Datasource datasource;
 	
 	public Project getProject() {
 		return project;
@@ -62,6 +65,12 @@ public class Experiment extends SourcedEntry {
 		this.project = project;
 	}
 	
+	public Datasource getDatasource() {
+		return datasource;
+	}
+	public void setDatasource(Datasource datasource) {
+		this.datasource = datasource;
+	}
 
 	/**
 	 * @return the externalId
