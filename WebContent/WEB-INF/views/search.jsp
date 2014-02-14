@@ -209,11 +209,7 @@
          <script>
         $(document).ready(function() {        		
         	$(document).ready(function(){        		
-    			$.fn.qTip({'pageName':'search'
-    					/*'textAlign':'left',
-    					'tip':'topLeft',
-    					'posX':0,
-    					'posY':0*/    					
+    			$.fn.qTip({'pageName':'search'		 					
     			});
     			
     			// non hash tag keyword query
