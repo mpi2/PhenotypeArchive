@@ -84,6 +84,7 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/css/custom.css"/>
 	<script src="${baseUrl}/js/general/toggle.js"></script>
 	<script src="${baseUrl}/js/general/enu.js"></script>
+        <script src="${baseUrl}/js/general/allele.js"></script>
 <!-- <script src="http://dropdown-check-list.googlecode.com/svn/trunk/doc/jquery-ui-1.8.13.custom.min.js"></script> -->
 	<style>
 	/* Force allele table to not be like tables anymore for responsive layout */
@@ -483,32 +484,17 @@
 	</c:if>
 	<!--/row-->
 
-	<div class="row-fluid dataset">
-	<div class='documentation'><a href='' class='allelePanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-	<h4 class="caption">ES Cell and Mouse Alleles</h4>	
-	    <div class="row-fluid"> 
-			<div class="container span12">
-			
-			<div id="allele_tracker_panel_results">&nbsp;</div>
-			<c:choose>
-				<c:when test="${countIKMCAllelesError}">
-				<div class="alert alert-error">
-					<strong>Error:</strong> IKMC allele status currently unavailable.
-				</div>
-				</c:when>
-				<%-- <c:when test="${countIKMCAlleles == 0}">
-					<div class="alert alert-info">There are no IKMC alleles available.</div>
-				</c:when> --%>
-				<c:otherwise>
-					<script src="${baseUrl}/js/mpi2_search/all.js"></script>
-					<script type="text/javascript">
-						var mgiAccession = gene_id;
-						jQuery('#allele_tracker_panel_results').mpi2GenePageAlleleGrid().trigger('search', {solrParams: {q:'mgi_accession_id:'+ mgiAccession}});
-					</script>
-				</c:otherwise>
-			</c:choose>
-		</div>
-	</div>
+        
+        <div class="section">
+        <!-- remove div --><div class="row-fluid dataset">
+            <div class="documentation"><a href="${baseUrl}/documentation/gene-help.html#alleles" class="allelePanel"><img src="${baseUrl}/img/info_20x20.png"></a></div>
+		<!-- <h2>--><h4 class="title documentation">ES Cell and Mouse Alleles  
+       <!--             <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel'><i class="fa fa-question-circle pull-right" aria-describedby="qtip-26"></i></a>
+       -->
+                 <!-- </h2> --></h4>	
+		<div class="inner">
+                        <div id="allele"></div>
+        <!-- remove div --></div>
 	</div>
 
     </jsp:body>
