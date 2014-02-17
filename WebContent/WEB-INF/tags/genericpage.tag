@@ -274,8 +274,6 @@ try {
 	    <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js'></script>     	    
 	    <script type='text/javascript' src='${baseUrl}/js/documentationConfig.js'></script>   	     
 	    
-	    <compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">
-	         
-	    </compress:html>
+	   
 	</div> <!-- wrapper -->
 </body>

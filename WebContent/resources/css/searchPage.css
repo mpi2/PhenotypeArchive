@@ -138,8 +138,10 @@ div#saveTable {
 	cursor: pointer;	
 	padding: 1px 5px;
 	z-index: 99;	
-	background-color: #F4F4F4;
 	width: auto;
+}
+div#saveTable span {
+	color: #0978A1;
 }
 div#saveTable img {
 	vertical-align: middle !important;	
@@ -200,6 +202,6 @@ span.status.done {
 }
 
 /* Table Headings */
-th span.main                        { display: block; white-space:nowrap; }
-th span.sub                         { font-size: 0.8em; } 
+th span.main                        { white-space:nowrap; }
+th span.sub                         { font-size: 0.8em; display: block;} 
 /* end of Disease search results */

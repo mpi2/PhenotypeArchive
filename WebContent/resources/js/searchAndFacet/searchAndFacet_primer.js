@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -19,7 +19,7 @@
  */
 $(document).ready(function(){
 	'use strict';	
-		
+	
 	var oHashParams = {};
 	
 	$('span.facetCount').text(''); // default when page loads
@@ -33,7 +33,10 @@ $(document).ready(function(){
 		oHashParams.q = '*:*';		
 		$.fn.fetchSolrFacetCount(oHashParams);
 	}	
-	else if ( location.href.indexOf('/search?q=') != -1 || location.href.indexOf('/search#q=*:*') != -1 ){   	
+	else if ( location.href.indexOf('/search?q=') != -1 
+			|| location.href.indexOf('/search#q=*:*') != -1 
+			|| location.href.indexOf('/search#q=*') != -1 
+			|| location.href.indexOf('/search#fq=') != -1 ){   	
 		// load page based on url hash parameters		
 		oHashParams = $.fn.parseHashString(window.location.hash.substring(1));		
 		$.fn.fetchSolrFacetCount(oHashParams);	

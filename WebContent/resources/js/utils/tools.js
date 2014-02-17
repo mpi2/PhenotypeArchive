@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -1447,8 +1447,9 @@
     	oHashParams.dataTablePath = MPI2.searchAndFacetConfig.dataTablePath;
 		
 		var oParams = MPI2.searchAndFacetConfig.facetParams[facetDivId].srchParams;		
-		oParams.fq = encodeURI(oHashParams.fq); 
-		oParams.q = oHashParams.q;
+		oParams.fq = encodeURI(oHashParams.fq);
+		
+		oParams.q = oHashParams.q 
 		oParams.rows = 10;
 				
 		
@@ -1473,7 +1474,7 @@
 		$.fn.updateBreadCrumb(oVal.solrCoreName);		
 		$.fn.openFacet(oVal.solrCoreName);	
 		
-		//console.log(oHashParams);
+		console.log(oHashParams);
 		$.fn.invokeDataTable(oHashParams);
 		
     }   
@@ -1506,7 +1507,7 @@
     }
     
     $.fn.invokeDataTable = function(oInfos){   	   	
-    	//console.log(oInfos);
+    	
     	var oDtable = $('table#' + oInfos.mode).dataTable({
     		"bSort" : false,
     		"bProcessing": true,
@@ -1609,13 +1610,11 @@
     		"sAjaxSource": oInfos.dataTablePath,    		
     		"fnServerParams": function ( aoData ) {    			
     			aoData.push(	    			 
-    			    {"name": "solrParams",
-    				 //"value": oInfos.params// + oInfos.facetParams
-    				 "value": JSON.stringify(oInfos, null, 2)
+    			    {"name": "solrParams",    				
+    				 "value": JSON.stringify(oInfos, null, 2)    			     	
     				}	    
     			)		
-    		}
-    		
+    		}    		
     		
     		/*"fnServerData": function ( sSource, aoData, fnCallback, oSettings) {
     			// Add some extra data to the sender     			

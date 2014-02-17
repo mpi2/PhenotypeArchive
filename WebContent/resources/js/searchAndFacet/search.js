@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -28,15 +28,20 @@
 	var jsonBase = MPI2.searchAndFacetConfig.facetParams;
 	
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
-		
-		var q = oUrlHashParams.q ? oUrlHashParams.q : '*:*';
-		
-		if ( q != '*:*' ){
-			$('input#s').val(q);
+				
+		var q = oUrlHashParams.q;
+		if ( typeof q == 'undefined' ){
+			// check search kw
+			if ( window.location.search != '' ){
+				q = window.location.search.replace('?q=','');
+				$('input#s').val(q);
+			}
+			else {
+				q = '*:*';
+			}
 		}
 		
-		var facetMode = oUrlHashParams.facetName;
-
+		var facetMode = oUrlHashParams.facetName;	
 		var oFacets = {};
 		oFacets.count = {};		
 						
