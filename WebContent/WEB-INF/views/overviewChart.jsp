@@ -77,7 +77,6 @@
 					   $( '#single-chart-div' ).html( html );
 					});
 
-					alert(checkedSexes);
 				});
 		}
 	});
