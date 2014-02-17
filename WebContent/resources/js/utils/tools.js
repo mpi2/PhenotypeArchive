@@ -183,15 +183,22 @@
 		
 		console.log(q + " -- " +  fqStr + " -- " + facet);		
         
-        if ( $('ul#facetFilter li li a').size() == 0 ){
+        /*if ( $('ul#facetFilter li li a').size() == 0 ){
 			if ( q == '*:*'){
+				alert('here-1');
 				document.location.href = baseUrl + '/search';
 			}
-			else {
-				document.location.href = baseUrl + '/search?q=' + q;
+			else {	
+				var url = baseUrl 
+						+ '/search#fq=' 
+						+ MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq 
+						+ '&core=' + facet;
+				console.log(url);
+				//document.location.href = baseUrl + '/search?q=' + q;
+				document.location.href = url;
 			}
 		}
-		else {		
+		else {*/		
 			
 			do_megaGene(q, fqStr);			
 			do_megaMp(q, fqStr);
@@ -214,7 +221,7 @@
 				do_megaPipeline(q, fqStr, facet);
 				do_megaImages(q, fqStr, facet);			
 			}			   	
-		}
+		//}
 	};	
 	
 	function do_megaGene(q, fqStr){
@@ -717,12 +724,15 @@
 			thisLi.find('.fcap').show();
 			
 			// add filter
-			$.fn.addFacetFilter(oChkbox, q);		
+			$.fn.addFacetFilter(oChkbox, q);	
+			updateFacetUrlTable(q, facet);	
 		}
 		else {	
-			//console.log('uncheck');
-			// uncheck checkbox with matching value			
+			console.log('uncheck');
+			// uncheck checkbox with matching value		
+			
 			thisLi.find('ul li').each(function(){
+				console.log($(this).find('a').attr('rel') + ' vs '+ oChkbox.attr('rel'));
 				if ( $(this).find('a').attr('rel') == oChkbox.attr('rel') ){			
 					$(this).remove();					
 					oChkbox.siblings('span.flabel').removeClass('highlight');					
@@ -733,15 +743,41 @@
 			if ( thisLi.find('li').size() == 0 ){
 				thisLi.find('ul').remove();
 				thisLi.hide();				
-				thisLi.find('.fcap').hide();			
-			}			
+				thisLi.find('.fcap').hide();	
+				var fqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;
+				
+				var url = baseUrl 
+						+ '/search#fq=' 
+						+ fqStr
+						+ '&core=' + facet;
+				
+				document.location.href = url;
+				location.reload();
+				//oHashParams = $.fn.parseHashString(window.location.hash.substring(1));		
+				//$.fn.fetchSolrFacetCount(oHashParams);
+				//document.location.href = url;
+				
+			}
+			else {
+				updateFacetUrlTable(q, facet);
+			}
 		}
+	
 		// update facet filter and compose solr query for result
-		var fqStr = _composeFilterStr(facet);				
-		$.fn.setFacetCounts(q, fqStr, facet);		
-		$.fn.fetchQueryResult(q, facet, fqStr);
+		/*var fqStr = _composeFilterStr(facet);
+		console.log(facet + ' :: ' + fqStr);
+		$.fn.setFacetCounts(q, fqStr, facet);
+		$.fn.fetchQueryResult(q, facet, fqStr);*/
 		
-	}			
+	}	
+	function updateFacetUrlTable(q, facet){
+		// update facet filter and compose solr query for result
+		var fqStr = _composeFilterStr(facet);
+		console.log(facet + ' :: ' + fqStr);
+		$.fn.setFacetCounts(q, fqStr, facet);
+		$.fn.fetchQueryResult(q, facet, fqStr);
+	}
+	
 	$.fn.removeFacetFilter = function(facet) { 
 		$('div.ffilter').hide();
 	    $('ul#facetFilter li.has-sub ul').remove();
