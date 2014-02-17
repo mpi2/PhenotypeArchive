@@ -38,9 +38,14 @@
 		<baseUrl>/data</baseUrl>
 		<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
 			to EBI servers for performance -->
-		<solrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</solrUrl>
-		<internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</internalSolrUrl>
-		<drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
+		<!-- <solrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</solrUrl>
+		<internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</internalSolrUrl>-->
+		
+		<solrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
+		<internalSolrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</internalSolrUrl>
+		
+		<drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>	
+		
 		<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
 		<googleAnalytics></googleAnalytics>
 		<liveSite>false</liveSite>
