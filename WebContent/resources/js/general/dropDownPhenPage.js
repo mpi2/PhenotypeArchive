@@ -4,7 +4,7 @@ $(document).ready(function(){
 	$('.oChart').each(function(i, obj) {
 		$( '#spinner-overview-charts' ).show();
 		var mp = $(this).attr('mp');
-		var id = $(this).attr('initialid');
+		var id = $(this).attr('parameter');
 		$(this).html( "here: " + id  + " " + mp);	
 		var chartUrl = document.URL.split("/phenotypes/")[0];
 		chartUrl += "/overviewCharts/" + mp + "?parameter_id=" + id;

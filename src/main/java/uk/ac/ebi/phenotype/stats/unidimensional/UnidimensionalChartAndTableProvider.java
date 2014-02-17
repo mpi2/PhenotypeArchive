@@ -515,6 +515,7 @@ System.out.println(chartsSeriesElementsList);
 	}
 
 
+
 	public ChartData getHistogram(List<String> labels, List<Double> values, String title){
 		double min = 0; 
 		for (double val : values)
@@ -555,7 +556,7 @@ System.out.println(chartsSeriesElementsList);
 		List<String> labels = new ArrayList<String> (); 
 		DecimalFormat df = new DecimalFormat("#.##");
 		for (double label : map.get("labels")){
-			labels.add("'" + df.format(label) + "'");
+			labels.add("'" + df.format(label) + "###here" + "'");
 		}
 		double min = 0; 
 		for (double val : mutant)
@@ -564,14 +565,21 @@ System.out.println(chartsSeriesElementsList);
 		for (double val : control)
 			if (val< min)
 				min = val;
+		// Example of clickable highcharts : 
+		// http://www.highcharts.com/demo/line-ajax
+		// http://jsfiddle.net/gh/get/jquery/1.7.2/highslide-software/highcharts.com/tree/master/samples/highcharts/plotoptions/series-point-events-click-column/
+		// AND THIS IS WHAT I NEED:
+		// http://jsfiddle.net/gh/get/jquery/1.7.2/highslide-software/highcharts.com/tree/master/samples/highcharts/xaxis/labels-formatter-linked/
 		String chartId = parameter.getStableId();
 		String yTitle = "Number of strains";
 		String javascript = "$(document).ready(function() {chart = new Highcharts.Chart({ chart: {  type: 'column' , renderTo: 'single-chart-div'},"+
            " title: { text: '" + title + "' },"+
            " credits: { enabled: false },"+
-           " xAxis: { categories: " + labels + ", labels: {rotation: -45} , title: { text: '" + xLabel + "'} },"+
+    //       " xAxis: { categories: " + labels + ", labels: {rotation: -45} , title: { text: '" + xLabel + "'} },"+
+    		" xAxis: { categories: " + labels + ", "
+    				+ "labels: {formatter:function(){ return this.value.split('###')[0]; }, rotation: -45} , title: { text: '" + xLabel + "'} },"+
            " yAxis: { min: "+ min + ",  title: {  text: '"+yTitle+"'  }, stackLabels: { enabled: false}  }," +
-           " tooltip: { formatter: function() { return ''+  this.series.name +': '+ this.y +'<br/>'+ 'Total: '+ this.point.stackTotal;  }  }, " +
+           " tooltip: { formatter: function() { return ''+  this.series.name +': '+ this.y + '  ' + this.x.split('###')[0] + '<br/>'+ 'Total: '+ this.point.stackTotal;  }  }, " +
            " plotOptions: { column: {  stacking: 'normal',  dataLabels: { enabled: false} } }," +
            " series: [{ name: 'Mutant strains with this phenotype called',  data: " +  mutant + "  }, {name: 'Mutant strains with no calls for this phenotype', data: " + control + "}]" +  " });  }); ";
 		ChartData chartAndTable = new ChartData();
@@ -579,74 +587,7 @@ System.out.println(chartsSeriesElementsList);
 		chartAndTable.setId(chartId);
 //		System.out.println("... column-stacked with id " + chartId);
 //		System.out.println("and the mutants were : " + mutant);
-		return chartAndTable;
-		
-		/*
-		 * $(function () {
-        $('#container').highcharts({
-            chart: {
-                type: 'column'
-            },
-            title: {
-                text: 'Stacked column chart'
-            },
-            xAxis: {
-                categories: ['Apples', 'Oranges', 'Pears', 'Grapes', 'Bananas']
-            },
-            yAxis: {
-                min: 0,
-                title: {
-                    text: 'Total fruit consumption'
-                },
-                stackLabels: {
-                    enabled: true,
-                    style: {
-                        fontWeight: 'bold',
-                        color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
-                    }
-                }
-            },
-            legend: {
-                align: 'right',
-                x: -70,
-                verticalAlign: 'top',
-                y: 20,
-                floating: true,
-                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColorSolid) || 'white',
-                borderColor: '#CCC',
-                borderWidth: 1,
-                shadow: false
-            },
-            tooltip: {
-                formatter: function() {
-                    return '<b>'+ this.x +'</b><br/>'+
-                        this.series.name +': '+ this.y +'<br/>'+
-                        'Total: '+ this.point.stackTotal;
-                }
-            },
-            plotOptions: {
-                column: {
-                    stacking: 'normal',
-                    dataLabels: {
-                        enabled: true,
-                        color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
-                    }
-                }
-            },
-            series: [{
-                name: 'John',
-                data: [5, 3, 4, 7, 2]
-            }, {
-                name: 'Jane',
-                data: [2, 2, 3, 2, 1]
-            }, {
-                name: 'Joe',
-                data: [3, 4, 4, 2, 5]
-            }]
-        });
-    });
-		 * 
-		 * */		
+		return chartAndTable;	
 	}
 	
 	/**

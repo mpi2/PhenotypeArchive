@@ -94,7 +94,7 @@
 						<div id="resetFilter"><a href="${baseUrl}/search">Remove all facet filters</a></div>
 					</div>
 										
-					<p class='documentation' class='title textright'>
+					<p class='documentation title textright'>
 						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 					</p>
 										
@@ -149,44 +149,11 @@
 							</div>
 						</div>
 					</div>
+					
 					<div class="textright">
-						<a class="has-tooltip" data-hasqtip="19">View example search</a>
-						<div class="data-tooltip">
-							<h3>Example Searches</h3>
-								<p>Sample queries for several fields are shown. Click the desired query to execute any of the samples.
-									<b>Note that queries are focused on Relationships, leaving modifier terms to be applied as filters.</b>
-								</p>
-							<h5>Gene query examples</h5>
-								<p>
-								<a href="#">Akt2</a>
-								- looking for a specific gene, Akt2
-								<br>
-								<a href="#">*rik</a>
-								- looking for all Riken genes
-								<br>
-								<a href="#">hox*</a>
-								- looking for all hox genes
-								</p>
-							<h5>Phenotype query examples</h5>
-								<p>
-								<a href="#">abnormal skin morphology</a>
-								- looking for a specific phenotype
-								<br>
-								<a href="#">ear</a>
-								- find all ear related phenotypes
-								</p>
-							<h5>Procedure query Example</h5>
-								<p>
-								<a href="#">grip strength</a>
-								- looking for a specific procedure
-								</p>
-							<h5>Prase query Example</h5>
-								<p>
-								<a href="#">"zinc finger protein"</a>
-								- looking for genes whose product is zinc finger protein
-								</p>
-						</div>
+						<a id = 'searchExample' class="">View example search</a>						
 					</div>	
+					
 					<div class="clear"></div>
 					<!-- facet filter block -->								
 					<!-- container to display dataTable -->									
@@ -210,7 +177,7 @@
          <script>        		
        	$(document).ready(function(){        		
    			$.fn.qTip({'pageName':'search'		 					
-   			});
+   			});  			 						
    			
    			// non hash tag keyword query
    			<c:if test="${not empty q}">				
@@ -285,14 +252,57 @@
     				$.fn.loadDataTable(oHashParams);
     			}
    			});		
-    		
-            // wire up the example queries
-            $("a.example").click(function(){
-            	$('#examples').modal('hide');
-                document.location.href = $(this).attr('href');
-                document.location.reload();
+    		var exampleSearch = 
+					 '<h3 id="samplesrch">Example Searches</h3>'
+						+ '<p>Sample queries for several fields are shown. Click the desired query to execute any of the samples.'
+						+ '	<b>Note that queries are focused on Relationships, leaving modifier terms to be applied as filters.</b>'
+						+ '</p>'
+						+ '<h5>Gene query examples</h5>'
+						+ '<p>'
+						+ '<a href="${baseUrl}/search?q=akt2#core=gene">Akt2</a>'
+						+ '- looking for a specific gene, Akt2'
+						+ '<br>'
+						+ '<a href="${baseUrl}/search?q=*rik#core=gene">*rik</a>'
+						+ '- looking for all Riken genes'
+						+ '<br>'
+						+ '<a href="${baseUrl}/search?q=hox*#core=gene">hox*</a>'
+						+ '- looking for all hox genes'
+						+ '</p>'
+						+ '<h5>Phenotype query examples</h5>'
+						+ '<p>'
+						+ '<a href="${baseUrl}/search?q=abnormal skin morphology#core=mp&fq=ontology_subset:*">abnormal skin morphology</a>'
+						+ '- looking for a specific phenotype'
+						+ '<br>'
+						+ '<a href="${baseUrl}/search?q=ear#core=mp&fq=ontology_subset:*">ear</a>'
+						+ '- find all ear related phenotypes'
+						+ '</p>'
+						+ '<h5>Procedure query Example</h5>'
+						+ '<p>'
+						+ '<a href="${baseUrl}/search?q=grip strength#fq=pipeline_stable_id:IMPC_001&core=pipeline">grip strength</a>'
+						+ '- looking for a specific procedure'
+						+ '</p>'
+						+ '<h5>Prase query Example</h5>'
+						+ '<p>'
+						+ '<a href="${baseUrl}/search?q=&quot;zinc finger protein&quot;#core=gene&fq=marker_type:* -marker_type:&quot;heritable phenotypic marker&quot;">"zinc finger protein"</a>'
+						+ '- looking for genes whose product is zinc finger protein'
+						+ '</p>';
+					
+            // initialze search example qTip with close button and proper positioning
+            $("a#searchExample").qtip({            	   
+               	hide: true,
+    			content: {
+    				text: exampleSearch,
+    				title: {'button': 'close'}
+    			},		 	
+   			 	style: {
+   			 		classes: 'qtipimpc',			 		
+   			        tip: {corner: 'top center'}
+   			    },
+   			    position: {my: 'left top',
+   			    		   adjust: {x: -360, y: 0}
+   			    }
             });
-
+                        
             // Message to IE users
             //$.fn.ieCheck();
         });        

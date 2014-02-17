@@ -548,7 +548,7 @@ public class ObservationService {
 
 	// gets categorical data for graphs on phenotype page
 	public Map<String, List<DiscreteTimePoint>> getTimeSeriesMutantData(
-			String parameter, List<String> genes, ArrayList<String> strains)
+			String parameter, List<String> genes, ArrayList<String> strains,  String[] center, String[] sex)
 			throws SolrServerException {
 
 		Map<String, List<DiscreteTimePoint>> finalRes = new HashMap<String, List<DiscreteTimePoint>>(); // <allele_accession,
@@ -576,6 +576,22 @@ public class ObservationService {
 							+ "\"";
 			q += ")";
 		}
+		
+		if (center != null && center.length > 0) {
+			q += " AND (";
+			q += (center.length > 1) ? ExperimentField.PHENOTYPING_CENTER
+					+ ":\""
+					+ StringUtils.join(center, "\" OR "
+							+ ExperimentField.PHENOTYPING_CENTER + ":\"") + "\""
+					: ExperimentField.PHENOTYPING_CENTER + ":\"" + center[0]
+							+ "\"";
+			q += ")";
+		}
+
+		if (sex != null && sex.length == 1){
+			q += " AND " + ExperimentField.SEX + ":\"" + sex[0] + "\"";
+		}
+		
 
 		query.setQuery(q);
 		query.set("group.field", ExperimentField.GENE_SYMBOL);
@@ -632,7 +648,7 @@ public class ObservationService {
 
 	// gets categorical data for graphs on phenotype page
 	public List<DiscreteTimePoint> getTimeSeriesControlData(String parameter,
-			ArrayList<String> strains) throws SolrServerException {
+			ArrayList<String> strains,  String[] center, String[] sex) throws SolrServerException {
 
 		ArrayList<DiscreteTimePoint> res = new ArrayList<DiscreteTimePoint>();
 		SolrQuery query = new SolrQuery().addFilterQuery(
@@ -646,6 +662,22 @@ public class ObservationService {
 						+ ExperimentField.STRAIN + ":\"") + "\")"
 				: ExperimentField.STRAIN + ":\"" + strains.get(0) + "\"";
 
+		
+		if (center != null && center.length > 0) {
+			q += " AND (";
+			q += (center.length > 1) ? ExperimentField.PHENOTYPING_CENTER
+					+ ":\""
+					+ StringUtils.join(center, "\" OR "
+							+ ExperimentField.PHENOTYPING_CENTER + ":\"") + "\""
+					: ExperimentField.PHENOTYPING_CENTER + ":\"" + center[0]
+							+ "\"";
+			q += ")";
+		}
+
+		if (sex != null && sex.length == 1){
+			q += " AND " + ExperimentField.SEX + ":\"" + sex[0] + "\"";
+		}
+		
 		query.setQuery(q);
 		query.set("group.field", ExperimentField.DISCRETE_POINT);
 		query.set("group", true);
@@ -749,10 +781,65 @@ public class ObservationService {
 		}
 		return res;
 	}
+	
+	/**
+	 * 
+	 * @param p
+	 * @param genes
+	 * @param strains
+	 * @param biologicalSample
+	 * @return list of centers and sexes for the given parameters
+	 * @throws SolrServerException 
+	 */
+	
+	public Set<String> getCenters(Parameter p,
+			List<String> genes, ArrayList<String> strains,
+			String biologicalSample) throws SolrServerException{ // this method should work for all types of data.
+		Set<String> centers = new HashSet<String>();
+		
+		SolrQuery query = new SolrQuery().addFilterQuery(
+				ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":"
+						+ biologicalSample).addFilterQuery(
+				ExperimentField.PARAMETER_STABLE_ID + ":" + p.getStableId());
+
+		String q = (strains.size() > 1) ? "("
+				+ ExperimentField.STRAIN
+				+ ":\""
+				+ StringUtils.join(strains.toArray(), "\" OR "
+						+ ExperimentField.STRAIN + ":\"") + "\")"
+				: ExperimentField.STRAIN + ":\"" + strains.get(0) + "\"";
+
+		if (genes != null && genes.size() > 0) {
+			q += " AND (";
+			q += (genes.size() > 1) ? ExperimentField.GENE_ACCESSION
+					+ ":\""
+					+ StringUtils.join(genes.toArray(), "\" OR "
+							+ ExperimentField.GENE_ACCESSION + ":\"") + "\""
+					: ExperimentField.GENE_ACCESSION + ":\"" + genes.get(0)
+							+ "\"";
+			q += ")";
+		}
+		
+		query.setQuery(q);
+		query.setRows(1000000);
+		// query.set("sort", ExperimentField.DATA_POINT + " asc");
+		query.setFields(ExperimentField.GENE_ACCESSION, ExperimentField.DATA_POINT);
+		query.set("group", true);
+		query.set("group.field", ExperimentField.PHENOTYPING_CENTER);
+		
+//		System.out.println("------HEERE-----\n"+query);
+		
+		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
+		for (Group gr : groups) {
+			centers.add((String)gr.getGroupValue());
+		}
+//		System.out.println("CENTERS: " + centers);
+		return centers;
+	}
 
 	public Map<String, List<Double>> getUnidimensionalData(Parameter p,
 			List<String> genes, ArrayList<String> strains,
-			String biologicalSample) throws SolrServerException {
+			String biologicalSample,  String[] center, String[] sex) throws SolrServerException {
 
 		List<Integer> res = new ArrayList<Integer>();
 		SolrQuery query = new SolrQuery().addFilterQuery(
@@ -767,15 +854,31 @@ public class ObservationService {
 						+ ExperimentField.STRAIN + ":\"") + "\")"
 				: ExperimentField.STRAIN + ":\"" + strains.get(0) + "\"";
 
+		if (center != null && center.length > 0) {
+			q += " AND (";
+			q += (center.length > 1) ? ExperimentField.PHENOTYPING_CENTER
+					+ ":\""
+					+ StringUtils.join(center, "\" OR "
+							+ ExperimentField.PHENOTYPING_CENTER + ":\"") + "\""
+					: ExperimentField.PHENOTYPING_CENTER + ":\"" + center[0]
+							+ "\"";
+			q += ")";
+		}
+
+		if (sex != null && sex.length == 1){
+			q += " AND " + ExperimentField.SEX + ":\"" + sex[0] + "\"";
+		}
+		
 		query.setQuery(q);
 		query.setRows(1000000);
-		// query.set("sort", ExperimentField.DATA_POINT + " asc");
+		query.set("sort", ExperimentField.DATA_POINT + " asc");
 		query.setFields(ExperimentField.GENE_ACCESSION, ExperimentField.DATA_POINT);
 		query.set("group", true);
 		query.set("group.field", ExperimentField.COLONY_ID);
-		query.set("group.limit", 10000); // number of documents to be returned
-											// per group
+		// per group
 
+//		System.out.println("--- unidimensional : " + solr.getBaseURL() + "/select?" + query);
+		
 		// for each colony get the mean & put it in the array of data to plot
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
 		double[] meansArray = new double[groups.size()];
@@ -868,7 +971,7 @@ public class ObservationService {
 	// gets categorical data for graphs on phenotype page
 	public CategoricalSet getCategories(Parameter parameter,
 			ArrayList<String> genes, String biologicalSampleGroup,
-			ArrayList<String> strains) throws SolrServerException, SQLException {
+			ArrayList<String> strains,  String[] center, String[] sex) throws SolrServerException, SQLException {
 
 		CategoricalSet resSet = new CategoricalSet();
 		resSet.setName(biologicalSampleGroup);
@@ -894,13 +997,30 @@ public class ObservationService {
 							+ "\"";
 			q += ")";
 		}
+		
+		if (center != null && center.length > 0) {
+			q += " AND (";
+			q += (center.length > 1) ? ExperimentField.PHENOTYPING_CENTER
+					+ ":\""
+					+ StringUtils.join(center, "\" OR "
+							+ ExperimentField.PHENOTYPING_CENTER + ":\"") + "\""
+					: ExperimentField.PHENOTYPING_CENTER + ":\"" + center[0]
+							+ "\"";
+			q += ")";
+		}
 
+		if (sex != null && sex.length == 1){
+			q += " AND " + ExperimentField.SEX + ":\"" + sex[0] + "\"";
+		}
+		
 		query.setQuery(q);
 		query.set("group.field", ExperimentField.CATEGORY);
 		query.set("group", true);
 		query.setRows(100); // shouldn't have more then 10 categories for one
 							// parameter!!
 
+//		System.out.println("-- get categories: " + solr.getBaseURL() + "/select?" + query);
+		
 		List<String> categories = new ArrayList<String>();
 		List<Group> groups = solr.query(query).getGroupResponse().getValues()
 				.get(0).getValues();

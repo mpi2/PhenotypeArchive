@@ -70,7 +70,7 @@
 				
 				<c:if test="${genePercentage.getDisplay()}">
 					<div class="section collapsed open">
-						<h2 class="title documentation" id="data-summary">Phenotype associations stats <a href='' id='phenotypeStatsPanel'><i class="fa fa-question-circle pull-right"></i></a></h2>
+						<h2 class="title" id="data-summary">Phenotype associations stats <span class="documentation" ><a href='' id='phenotypeStatsPanel' class="fa fa-question-circle pull-right"></a></span> </h2>
 						<div class="inner">					
 							<!-- Phenotype Assoc. summary -->
 							<div class="half">
@@ -81,10 +81,10 @@
 							</div>					
 							<!-- Graphs -->
 							<c:if test="${parametersAssociated.size() > 0}">
-								<div class="half">
+								<div id="chartsHalf" class="half">
 	
 								<div id="chart-container">
-									<div id="single-chart-div" class="oChart" initialid="${parametersAssociated.get(0)}" mp="${phenotype.id.accession}">
+									<div id="single-chart-div" class="oChart" parameter="${parametersAssociated.get(0)}" mp="${phenotype.id.accession}">
 									</div>
 									<div id="spinner-overview-charts"><i class="fa fa-refresh fa-spin"></i></div>
 								</div>
@@ -95,26 +95,7 @@
 										</c:forEach>
 									</ul>
 								</c:if>
-								<div class="tablefiltering filters">
-									<div class="tablefilter filter">
-										<div class="filtertype ftype">Center</div>
-										<div class="filteroptions">
-										<ul>
-											<li id="center1"> <input type="checkbox"> CenterA</li>
-											<li id="center2"> <input type="checkbox"> CenterB</li> 
-										</ul>
-										</div>
-									</div>
-									<div class="tablefilter filter">
-										<div class="filtertype ftype">Sex</div>
-										<div class="filteroptions">
-										<ul>
-											<li id="maleFilter"> <input type="checkbox"> Male</li>
-											<li id="femaleFilter"> <input type="checkbox"> Female</li> 
-										</ul>
-										</div>
-									</div>
-								</div>
+								<div id='chartFilters'></div>
 							</div>
 						</c:if>
 						<div class="clear"></div>
@@ -122,35 +103,12 @@
 				</div>
 			</c:if>
 						
-			<c:choose>
-	    	<c:when test="${not empty exampleImages}">
-					<div class="section ">	
-		  			<div class="inner">
-							<div class="container span6">
-								<img src="${mediaBaseUrl}/${exampleImages.control.smallThumbnailFilePath}" />
-								Control
-	   					</div>
-	   				<div class="container span6">
-	   					<img src="getSolrInstance/${exampleImages.experimental.smallThumbnailFilePath}" />
-	   					<c:forEach var="sangerSymbol" items="${exampleImages.experimental.sangerSymbol}" varStatus="symbolStatus">
-								<c:if test="${not empty exampleImages.experimental.sangerSymbol}">
-									<t:formatAllele>${sangerSymbol}</t:formatAllele><br />
-								</c:if>
-							</c:forEach>
-						</div>
-	   			</div>
-				</div>
-				</c:when>
-	  			<c:otherwise>
-	      		<c:if test="${not empty images}">
-							<img src="${mediaBaseUrl}/${images[0].largeThumbnailFilePath}" />
-						</c:if>
-	    		</c:otherwise>
-				</c:choose>
-				
+			
 				<div class="section">
 				
-			    <h2 class="title documentation ">Gene variants with ${phenotype.name} 	<a href='' id='relatedMpPanel'><i class="fa fa-question-circle pull-right"></i></a></h2>
+			    <h2 class="title ">Gene variants with ${phenotype.name} 	
+			    <span class="documentation" ><a href='' id='relatedMpPanel' class="fa fa-question-circle pull-right"></a></span> 
+			    </h2>
 				   
 					<div class="inner" style="display:block;">	 
 						<div id="phenotypesDiv">	
@@ -189,7 +147,7 @@
 	
 			<c:if test="${not empty images && fn:length(images) !=0}">
 				<div class="row-fluid dataset">
-					<h4 class="caption documentation">Images <a href='' id='imagePanel'><i class="fa fa-question-circle pull-right"></i></a></h4>
+					<h4 class="caption">Images <span class="documentation" ><a href='' id='imagePanel' class="fa fa-question-circle pull-right"></a></span></h4>
 						<div class="row-fluid">
 						<div class="container span12">
 							<div class="accordion" id="accordion1">
@@ -238,3 +196,5 @@
 </jsp:body>
 
 </t:genericpage>
+
+
