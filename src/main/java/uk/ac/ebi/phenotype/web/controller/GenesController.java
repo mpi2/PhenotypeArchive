@@ -657,4 +657,23 @@ public class GenesController {
 		return "genesEnuFrag";
 	}
 	
+	/**
+	 * @throws IOException 
+	 */
+	@RequestMapping("/genomeBrowser/{acc}")
+	public String genomeBrowser(
+			@PathVariable String acc,
+			Model model,
+			HttpServletRequest request,
+			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
+		System.out.println("genome browser called");
+		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
+		System.out.println("gene in browser="+gene);
+		if (gene == null) {
+			log.warn("Gene status for " + acc + " can't be found.");
+		}	
+		model.addAttribute("gene",gene);
+		return "genomeBrowser";
+	}
+	
 }
