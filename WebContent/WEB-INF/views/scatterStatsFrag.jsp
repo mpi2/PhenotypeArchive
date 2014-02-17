@@ -4,7 +4,6 @@
 
 	<c:if test="${scatterChartAndData!=null}">
 	
-	<div id="exportIconsDiv"></div>
 	<!-- scatter chart here -->
   					<div id="chart${experimentNumber}">
 								</div>
@@ -12,7 +11,7 @@
 		<script type="text/javascript">
 			${scatterChartAndData.chart}
 		</script>	
-                                <a id="goBack" >Box Plot / Time Series Graphs</a>	
+                                <div class="section half"><a id="goBack" >Box Plot / Time Series Graphs</a></div>	<div class="section half"><div id="exportIconsDiv"></div></div>
                                 
                                 <script>
 	$(document)
