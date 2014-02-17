@@ -34,7 +34,7 @@
 			// check search kw
 			if ( window.location.search != '' ){
 				q = window.location.search.replace('?q=','');
-				$('input#s').val(decodeURI(q));
+				$('input#s').val(decodeURI(q));				
 			}
 			else {
 				q = '*:*';
@@ -43,8 +43,8 @@
 		
 		var facetMode = oUrlHashParams.facetName;	
 		var oFacets = {};
-		oFacets.count = {};		
-						
+		oFacets.count = {};	
+		q = decodeURI(q);
 		jsonBase.geneFacet.srchParams.q = q;
 		
 	 	// facet types are done sequencially; starting from gene	 		

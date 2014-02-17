@@ -751,6 +751,7 @@
 						+ fqStr
 						+ '&core=' + facet;
 				
+				console.log(url);				
 				document.location.href = url;
 				location.reload();
 				//oHashParams = $.fn.parseHashString(window.location.hash.substring(1));		
