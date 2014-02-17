@@ -89,6 +89,8 @@ public class OverviewChartsController {
 			controlSet.setName("Control");
 			CategoricalSet mutantSet = os.getCategories(p, (ArrayList<String>) genes, "experimental", strains, center, sex);
 			mutantSet.setName("Mutant");
+			System.out.println(controlSet.getCount());
+			System.out.println(mutantSet.getCount());
 			chartRes = cctp.doCategoricalDataOverview(controlSet, mutantSet, model, p, p.getName()+" ("+parameter+")").get(0);
 		}
 		else if ( p != null && Utilities.checkType(p).equals(ObservationType.time_series)){
@@ -109,8 +111,7 @@ public class OverviewChartsController {
 		if (chartRes != null && center == null && sex == null){ // we don't do a filtering
 			// we want to offer all filter values, not to eliminate males if we filtered on males
 			// plus we don't want to do another SolR call each time to get the same data
-			Set<String> centerFitlers =	os.getCenters(p, genes, strains, "control");
-			centerFitlers.addAll(os.getCenters(p, genes, strains, "experimental"));
+			Set<String> centerFitlers =	os.getCenters(p, genes, strains, "experimental");
 			model.addAttribute("centerFilters", centerFitlers);
 		}
 		return chartRes;

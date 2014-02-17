@@ -809,6 +809,17 @@ public class ObservationService {
 						+ ExperimentField.STRAIN + ":\"") + "\")"
 				: ExperimentField.STRAIN + ":\"" + strains.get(0) + "\"";
 
+		if (genes != null && genes.size() > 0) {
+			q += " AND (";
+			q += (genes.size() > 1) ? ExperimentField.GENE_ACCESSION
+					+ ":\""
+					+ StringUtils.join(genes.toArray(), "\" OR "
+							+ ExperimentField.GENE_ACCESSION + ":\"") + "\""
+					: ExperimentField.GENE_ACCESSION + ":\"" + genes.get(0)
+							+ "\"";
+			q += ")";
+		}
+		
 		query.setQuery(q);
 		query.setRows(1000000);
 		// query.set("sort", ExperimentField.DATA_POINT + " asc");
@@ -816,13 +827,13 @@ public class ObservationService {
 		query.set("group", true);
 		query.set("group.field", ExperimentField.PHENOTYPING_CENTER);
 		
-		System.out.println("------HEERE-----\n"+query);
+//		System.out.println("------HEERE-----\n"+query);
 		
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
 		for (Group gr : groups) {
 			centers.add((String)gr.getGroupValue());
 		}
-		System.out.println("CENTERS: " + centers);
+//		System.out.println("CENTERS: " + centers);
 		return centers;
 	}
 
@@ -866,7 +877,7 @@ public class ObservationService {
 		query.set("group.field", ExperimentField.COLONY_ID);
 		// per group
 
-		System.out.println("--- unidimensional : " + solr.getBaseURL() + "/select?" + query);
+//		System.out.println("--- unidimensional : " + solr.getBaseURL() + "/select?" + query);
 		
 		// for each colony get the mean & put it in the array of data to plot
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
@@ -1008,6 +1019,8 @@ public class ObservationService {
 		query.setRows(100); // shouldn't have more then 10 categories for one
 							// parameter!!
 
+//		System.out.println("-- get categories: " + solr.getBaseURL() + "/select?" + query);
+		
 		List<String> categories = new ArrayList<String>();
 		List<Group> groups = solr.query(query).getGroupResponse().getValues()
 				.get(0).getValues();
