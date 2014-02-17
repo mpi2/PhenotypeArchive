@@ -6,9 +6,7 @@
 <t:genericpage>
 
 	<jsp:attribute name="title">${anatomy.accession} (${anatomy.term}) | IMPC anatomy Information</jsp:attribute>
-
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&core=ma&fq=ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*">anatomy</a> &raquo; ${anatomy.term}</jsp:attribute>
-
+	 <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&core=ma&fq=ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*">anatomy</a> &raquo; ${anatomy.term}</jsp:attribute>
 <jsp:attribute name="header">
 </jsp:attribute>
     <jsp:attribute name="footer">
@@ -16,62 +14,20 @@
 		
     </jsp:attribute>
 
+                
     <jsp:body>
-<h1 class="title">Anatomy Term: ${anatomy.term}</h1>
-<div  class="section half">
-			<div class="inner">		
-			
-			<table>
-				<tbody>
-					<c:if test="${not empty anatomy}">
-					<tr>
-						<td>Anatomy:</td>
-						<td>					
-							<a href="${anatomy.mgiLinkString}">${anatomy.accession}</a>
-						</td>
-					</tr>
-						<%-- <tr>
-						<td>Definition:</td>
-						<td>${anatomy.description}</td>
-					</tr> --%>
+    
+ <div class="region region-content">
+			<div class="block block-system">
+				<div class="content">
+					<div class="node node-gene">
+								<h1 class="title">Anatomy Term: ${anatomy.term}</h1>
 					
-					</c:if>
-				</tbody>
-			</table>
-			</div>
-			</div><!--  end of first section half -->
-			
-			<div  class="section half">
-			<div class="inner">
-			<c:choose>
-    				<c:when test="${not empty exampleImages}">
-      				
-      								
-      										<img src="${mediaBaseUrl}/${exampleImages.control.smallThumbnailFilePath}"/>
-      										Control
-      								
-      										<img src="${mediaBaseUrl}/${exampleImages.experimental.smallThumbnailFilePath}"/>
-      										<c:forEach var="sangerSymbol" items="${exampleImages.experimental.sangerSymbol}" varStatus="symbolStatus">
-												<c:if test="${not empty exampleImages.experimental.sangerSymbol}"><t:formatAllele>${sangerSymbol}</t:formatAllele><br /></c:if>
-												</c:forEach>
-      								
 
-      				
-    				</c:when>
-    				<c:otherwise>
-      				 <c:if test="${not empty expressionImages}"><img src="${mediaBaseUrl}/${expressionImages[0].smallThumbnailFilePath}"/>Random MA related image</c:if>
-      				  <c:if test="${(empty expressionImages) && (not empty images)}"><img src="${mediaBaseUrl}/${images[0].smallThumbnailFilePath}"/>Random MA related image</c:if>
-    				</c:otherwise>
-			</c:choose>
-			</div>
-		</div>
-	
-	
-	
 		<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
 	<div  class="section">
-		<h2 class="title">Expression Images<i class="fa fa-question-circle pull-right"></i></h2>
-			<div class="inner">		
+		<!-- <h2 class="title">Expression Images<i class="fa fa-question-circle pull-right"></i></h2> -->
+				<div class="inner">		
 						 <div class="accordion-group">
                         						<div class="accordion-heading">
                         						Expression Associated Images 
@@ -87,9 +43,9 @@
                                                         </c:forEach>
                                                         
 								</ul>
-								<c:if test="${entry.count>5}">
+								<c:if test="${numberExpressionImagesFound>5}">
                                         				<p class="textright">
-								<a href='${baseUrl}/images?anatomy_id=${anatomy.accession}&fq=expName:Wholemount Expression'><i class="fa fa-caret-right"></i>show all ${entry.count} images</a>
+								<a href='${baseUrl}/images?anatomy_id=${anatomy.accession}&fq=expName:Wholemount Expression'><i class="fa fa-caret-right"></i>show all ${numberExpressionImagesFound} images</a>
 								</p>
 								</c:if>
 							</div>
@@ -149,6 +105,11 @@
 		
 	</div><!-- end of images lacz expression priority and xray maybe -->
 	
+		</div>
+		</div>
+	</div>
+</div>
+		
 	<script>
 		$(document).ready(function(){						
 					

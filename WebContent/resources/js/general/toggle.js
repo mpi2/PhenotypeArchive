@@ -41,7 +41,7 @@ $('a.interest').click(function(){
 			}                         
         },
         error: function () {
-        	console.log('AJAX error requesting ENU data');                     
+        	console.log('error on registering interest');                     
         }
     });
 	return false;    		    	  
