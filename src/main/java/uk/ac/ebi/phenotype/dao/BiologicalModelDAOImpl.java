@@ -102,7 +102,18 @@ public class BiologicalModelDAOImpl extends HibernateDAOImpl implements Biologic
 		return getCurrentSession().createQuery("from LiveSample as l inner join l.datasource as d where d.id = ?").setInteger(0, databaseId).list();
 	}
 	
-	
+
+	@Transactional(readOnly = true)
+	@SuppressWarnings("unchecked")
+	public List<LiveSample> getAllLiveSamples() {
+		List<LiveSample> liveSamples = new LinkedList<LiveSample>();
+		List<Object> l = getCurrentSession().createQuery("SELECT live FROM LiveSample AS live").list();
+		for (Object o: l) {
+			liveSamples.add((LiveSample) o);
+		}
+		return liveSamples;
+	}
+
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<LiveSample> getAllLiveSampleByOrganisationAndDatasource(Organisation organisation, Datasource datasource) {
@@ -116,6 +127,7 @@ public class BiologicalModelDAOImpl extends HibernateDAOImpl implements Biologic
 		}
 		return liveSamples;
 	}
+
 	@Transactional(readOnly = true)
 	public LiveSample getAllLiveSampleBySampleId(String sampleId){
 		return (LiveSample)getCurrentSession().createQuery("FROM LiveSample WHERE stableId = ?")
