@@ -8,8 +8,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Gene Browser</title>
 <script src="${baseUrl}/js/vendor/jquery-1.10.2.min.js"></script>
-                                    		<script src="${baseUrl}/js/imaging/genomicB.js"></script>
-                                    		<script type="text/javascript" src="${baseUrl}/js/genomic-browser/dalliance-compiled.js"></script>
+                                    		<script src="${baseUrl}/dalliance/genomicB.js"></script>
+                                    		<script type="text/javascript" src="${baseUrl}/dalliance/dalliance-compiled.js"></script>
                                     		</head>
                                     		<body>
                                          <div id="genomebrowser">
