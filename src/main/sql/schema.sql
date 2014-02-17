@@ -489,7 +489,6 @@ CREATE TABLE experiment (
     date_of_experiment         TIMESTAMP NULL DEFAULT NULL,
     organisation_id            INT(10) UNSIGNED NOT NULL,  
     project_id                 INT(10) UNSIGNED NULL DEFAULT NULL,  
-    external_db_id             INT(10) UNSIGNED NULL DEFAULT NULL,  
     metadata_combined          TEXT,  
     metadata_group             VARCHAR(50) DEFAULT '',  
     
