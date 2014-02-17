@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -60,42 +61,59 @@ public class OverviewChartsController {
 	public String getGraph(
 		@PathVariable String phenotype_id, 
 		@RequestParam(required = true, value = "parameter_id") String parameterId,
+		@RequestParam(required = false, value = "center") String center,
+		@RequestParam(required = false, value = "sex") String sex,
 		Model model,
 		HttpServletRequest request,
 		RedirectAttributes attributes) throws SolrServerException, IOException, URISyntaxException, SQLException{
-		model.addAttribute("chart", getDataOverviewChart(phenotype_id, model, parameterId));
-		return "overviewChart";
+		
+			String[] centerArray = (center != null) ? center.split(",") : null;
+			String[] sexArray = (sex != null) ? sex.split(",") : null;
+			model.addAttribute("chart", getDataOverviewChart(phenotype_id, model, parameterId, centerArray, sexArray));
+			System.out.println("GET CHART");
+			System.out.println(center + sex);
+			return "overviewChart";
 	}
 	
-	public ChartData getDataOverviewChart(String mpId, Model model, String parameter) throws SolrServerException, IOException, URISyntaxException, SQLException{
+	public ChartData getDataOverviewChart(String mpId, Model model, String parameter, String[] center, String[] sex) throws SolrServerException, IOException, URISyntaxException, SQLException{
+		
 		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
 		TimeSeriesChartAndTableProvider tstp = new TimeSeriesChartAndTableProvider();
 		UnidimensionalChartAndTableProvider uctp = new UnidimensionalChartAndTableProvider();
 		Parameter p = pipelineDao.getParameterByStableIdAndVersion(parameter, 1, 0);
-		
+		ChartData chartRes = null;
+		List<String> genes = null;
 		if(p != null && Utilities.checkType(p).equals(ObservationType.categorical)){
-			List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
-			CategoricalSet controlSet = os.getCategories(p, null , "control", strains);
+			genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
+			CategoricalSet controlSet = os.getCategories(p, null , "control", strains, center, sex);
 			controlSet.setName("Control");
-			CategoricalSet mutantSet = os.getCategories(p, (ArrayList<String>) genes, "experimental", strains);
+			CategoricalSet mutantSet = os.getCategories(p, (ArrayList<String>) genes, "experimental", strains, center, sex);
 			mutantSet.setName("Mutant");
-			return cctp.doCategoricalDataOverview(controlSet, mutantSet, model, p, p.getName()+" ("+parameter+")").get(0);
+			chartRes = cctp.doCategoricalDataOverview(controlSet, mutantSet, model, p, p.getName()+" ("+parameter+")").get(0);
 		}
 		else if ( p != null && Utilities.checkType(p).equals(ObservationType.time_series)){
-			List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
-			Map<String, List<DiscreteTimePoint>> data = os.getTimeSeriesMutantData(parameter, genes, strains);
-			data.put("Control", os.getTimeSeriesControlData(parameter, strains));
+			genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
+			Map<String, List<DiscreteTimePoint>> data = os.getTimeSeriesMutantData(parameter, genes, strains, center, sex);
+			data.put("Control", os.getTimeSeriesControlData(parameter, strains, center, sex));
 			ChartData chart = tstp.doTimeSeriesOverviewData(data, p);
 			chart.setId(parameter);
-			return chart;
+			chartRes = chart;
 		}
 		else if ( p != null && Utilities.checkType(p).equals(ObservationType.unidimensional)){
-			List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
-			Map<String, List<Double>> map = os.getUnidimensionalData(p, genes, strains, "experimental");
+			genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
+			Map<String, List<Double>> map = os.getUnidimensionalData(p, genes, strains, "experimental", center, sex);
 			String chartTitle = "Mean " +  p.getName() + " (" + p.getStableId()+")";
-			return uctp.getStackedHistogram(map, chartTitle, p);
+			chartRes = uctp.getStackedHistogram(map, chartTitle, p);
 		}
-		return null;
+		
+		if (chartRes != null && center == null && sex == null){ // we don't do a filtering
+			// we want to offer all filter values, not to eliminate males if we filtered on males
+			// plus we don't want to do another SolR call each time to get the same data
+			Set<String> centerFitlers =	os.getCenters(p, genes, strains, "control");
+			centerFitlers.addAll(os.getCenters(p, genes, strains, "experimental"));
+			model.addAttribute("centerFilters", centerFitlers);
+		}
+		return chartRes;
 	}
 	
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -477,54 +477,6 @@ public class PhenotypesController {
 		}
 		
 		return pgs;
-	}
-
-	public List<ChartData> getDataOverviewCharts(String mpId, Model model) throws SolrServerException, IOException, URISyntaxException, SQLException{
-		
-		List<ChartData> chartsList = new ArrayList<>();//one object for each parameter
-		List<String> parameters = getParameters(mpId);
-		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
-		TimeSeriesChartAndTableProvider tstp = new TimeSeriesChartAndTableProvider();
-		UnidimensionalChartAndTableProvider uctp = new UnidimensionalChartAndTableProvider();
-		ArrayList<String> strains = new ArrayList<>();
-		strains.add("MGI:2159965");
-		strains.add("MGI:2164831");
-		for (String parameter : parameters) {
-			// get all genes associated with mpId because of parameter
-			Parameter p = pipelineDao.getParameterByStableIdAndVersion(parameter, 1, 0);
-			if(p != null && Utilities.checkType(p).equals(ObservationType.categorical)){
-				List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
-//				if (genes.size() > 0){
-				CategoricalSet controlSet = os.getCategories(p, null , "control", strains);
-				controlSet.setName("Control");
-				CategoricalSet mutantSet = os.getCategories(p, (ArrayList<String>) genes, "experimental", strains);
-				mutantSet.setName("Mutant");
-				chartsList.addAll(cctp.doCategoricalDataOverview(controlSet, mutantSet, model, p, p.getName()+" ("+parameter+")"));
-//				}
-			}
-			else if ( p != null && Utilities.checkType(p).equals(ObservationType.time_series)){
-				List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
-//				if (genes.size() > 0){
-				Map<String, List<DiscreteTimePoint>> data = os.getTimeSeriesMutantData(parameter, genes, strains);
-				data.put("Control", os.getTimeSeriesControlData(parameter, strains));
-				ChartData chart = tstp.doTimeSeriesOverviewData(data, p);
-				chart.setId("timechart"+chart.getId());
-				chartsList.add(chart);
-//				}
-			}
-			else if ( p != null && Utilities.checkType(p).equals(ObservationType.unidimensional)){
-//				System.out.println("getting unidimensional data for :  " + p);
-				List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
-//				System.out.println(" genes for " + p + " " + genes);
-//				if (genes.size() > 0){
-				Map<String, List<Double>> map = os.getUnidimensionalData(p, genes, strains, "experimental");
-				String chartTitle = "Mean " +  p.getName() + " (" + p.getStableId()+")";
-				//chartsList.add(uctp.getHistogram(labels, data, chartTitle));
-				chartsList.add(uctp.getStackedHistogram(map, chartTitle, p));
-//				}
-			}
-		}
-		return chartsList;
 	}
 	
 	public List<String> getParameters(String mpId) throws SolrServerException {
