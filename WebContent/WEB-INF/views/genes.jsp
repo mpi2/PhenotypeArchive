@@ -177,7 +177,7 @@
 									<a href="https://databases.apf.edu.au/mutations/snpRow/list?mgiAccessionId=${acc}">ENU (${makeEnuLink})</a>
 								</p>
 							</c:if>
-                             <a href="../genomeBrowser/${acc}" target="new"> Gene Browser</a>
+                             <p><a href="../genomeBrowser/${acc}" target="new"> Gene Browser</a></p>
                                     	
 						</div>	
 		
