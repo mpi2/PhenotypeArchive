@@ -34,7 +34,7 @@
 			// check search kw
 			if ( window.location.search != '' ){
 				q = window.location.search.replace('?q=','');
-				$('input#s').val(q);
+				$('input#s').val(decodeURI(q));
 			}
 			else {
 				q = '*:*';
@@ -196,7 +196,7 @@
     	    	
     	    	if ( ! coreName && ! facetName ){
     	    		// nothing found    	    		   	    	
-    	    		$('div#mpi2-search').html('INFO: Search keyword "' + q + '" has returned no entry in the database');    	    	    	    		
+    	    		$('div#mpi2-search').html('INFO: Search keyword "' + decodeURI(q) + '" has returned no entry in the database');    	    	    	    		
     	    	}
     	    	else {    	    	    		
     	        	// remove all previous facet results before loading new facet results

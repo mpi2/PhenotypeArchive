@@ -891,18 +891,19 @@
 			var key = $(this).attr('id');
 
 			$(this).attr('href', MDOC[oConf.pageName][key+'DocUrl']);
-			
-			$(this).qtip({
-			 	content: MDOC[oConf.pageName][key],			 	
+			$(this).qtip({				
+			 	content: {
+			 		text: MDOC[oConf.pageName][key]			 					 		
+			    },		 	
 			 	style: {
-			 		classes: 'qtipimpc',
+			 		classes: 'qtipimpc',			 		
 			        tip: {			           
 			        	corner: typeof oConf.tip != undefined ? oConf.tip : 'top right'
 			        }
 			    },
 			    position: {
 			        my: typeof oConf.corner != undefined ? oConf.corner : 'right top'
-			    }
+			    }			   
 			});			
 		});
 	}
