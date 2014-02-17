@@ -293,34 +293,6 @@ public class GenesController {
 		model.addAttribute("request", request);
 		model.addAttribute("acc", acc);
 
-		Datasource ensembl = datasourceDao.getDatasourceByShortName("Ensembl");
-		Datasource vega = datasourceDao.getDatasourceByShortName("VEGA");
-		Datasource ncbi = datasourceDao.getDatasourceByShortName("EntrezGene");
-		Datasource ccds = datasourceDao.getDatasourceByShortName("cCDS");
-
-		List<String> ensemblIds = new ArrayList<String>();
-		List<String> vegaIds = new ArrayList<String>();
-		List<String> ncbiIds = new ArrayList<String>();
-		List<String> ccdsIds = new ArrayList<String>();
-
-		List<Xref> xrefs = gene.getXrefs();
-		for(Xref xref:xrefs) {
-			if (xref.getXrefDatabaseId() == ensembl.getId()) {
-				ensemblIds.add(xref.getXrefAccession());
-			} else if (xref.getXrefDatabaseId() == vega.getId()) {
-				vegaIds.add(xref.getXrefAccession());
-			} else if (xref.getXrefDatabaseId() == ncbi.getId()) {
-				ncbiIds.add(xref.getXrefAccession());
-			} else if (xref.getXrefDatabaseId() == ccds.getId()) {
-				ccdsIds.add(xref.getXrefAccession());
-			}
-		}
-
-		model.addAttribute("ensemblIds", ensemblIds);
-		model.addAttribute("vegaIds", vegaIds);
-		model.addAttribute("ncbiIds", ncbiIds);
-		model.addAttribute("ccdsIds", ccdsIds);
-
 		// ES Cell and IKMC Allele check (Gautier)
 		
 		String solrCoreName = "allele";
@@ -672,6 +644,34 @@ public class GenesController {
 		if (gene == null) {
 			log.warn("Gene status for " + acc + " can't be found.");
 		}	
+		Datasource ensembl = datasourceDao.getDatasourceByShortName("Ensembl");
+		Datasource vega = datasourceDao.getDatasourceByShortName("VEGA");
+		Datasource ncbi = datasourceDao.getDatasourceByShortName("EntrezGene");
+		Datasource ccds = datasourceDao.getDatasourceByShortName("cCDS");
+
+		List<String> ensemblIds = new ArrayList<String>();
+		List<String> vegaIds = new ArrayList<String>();
+		List<String> ncbiIds = new ArrayList<String>();
+		List<String> ccdsIds = new ArrayList<String>();
+
+		List<Xref> xrefs = gene.getXrefs();
+		for(Xref xref:xrefs) {
+			if (xref.getXrefDatabaseId() == ensembl.getId()) {
+				ensemblIds.add(xref.getXrefAccession());
+			} else if (xref.getXrefDatabaseId() == vega.getId()) {
+				vegaIds.add(xref.getXrefAccession());
+			} else if (xref.getXrefDatabaseId() == ncbi.getId()) {
+				ncbiIds.add(xref.getXrefAccession());
+			} else if (xref.getXrefDatabaseId() == ccds.getId()) {
+				ccdsIds.add(xref.getXrefAccession());
+			}
+		}
+
+		model.addAttribute("ensemblIds", ensemblIds);
+		model.addAttribute("vegaIds", vegaIds);
+		model.addAttribute("ncbiIds", ncbiIds);
+		model.addAttribute("ccdsIds", ccdsIds);
+
 		model.addAttribute("gene",gene);
 		return "genomeBrowser";
 	}
