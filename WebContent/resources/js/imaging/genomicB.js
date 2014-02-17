@@ -76,6 +76,7 @@ jQuery(document).ready(function() {
 	} else {
 					
 		// Display the interactive browser
+		var baseUrl = document.URL.split('genomeBrowser',1);
 
 		var b =	new Browser({
 			chr:        chromosome,
@@ -112,7 +113,7 @@ jQuery(document).ready(function() {
 					uri: getProxyUri('//beta.mousephenotype.org/mi/ws/das-ws/das/ikmcallelesm38/'),collapseSuperGroups: true   
 				}
 			],
-			uiPrefix: '/phenotype-archive/dalliance/', //'//dev.mousephenotype.org/data/',
+			uiPrefix: baseUrl+'/dalliance/', //'//dev.mousephenotype.org/data/',
 			searchEndpoint: new DASSource(getProxyUri('//www.ebi.ac.uk/mi/ws/dazzle-ws/das/mmu_68_38k/')),
 			karyoEndpoint: new DASSource(getProxyUri('//www.ebi.ac.uk/mi/ws/dazzle-ws/das/mmu_68_38k/')),
 			browserLinks: {

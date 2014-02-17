@@ -177,37 +177,8 @@
 									<a href="https://databases.apf.edu.au/mutations/snpRow/list?mgiAccessionId=${acc}">ENU (${makeEnuLink})</a>
 								</p>
 							</c:if>
-							
-							<table>
-											<tbody>
-												<c:if test="${not empty vegaIds}">
-												<tr>
-													<td>Vega Ids:</td>
-													<td><c:forEach var="id" items="${vegaIds}" varStatus="loop"><a href="http://vega.sanger.ac.uk/Mus_musculus/geneview?gene=${id}&db=core">${id}</a><c:if test="${!loop.last}"><br /></c:if></c:forEach></td>
-												</tr>
-												</c:if>
-												<c:if test="${not empty ncbiIds}">
-												<tr>
-													<td>NCBI Id:</td>
-													<td><c:forEach var="id" items="${ncbiIds}" varStatus="loop"><a href="http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=${id}">${id}</a><c:if test="${!loop.last}"><br /></c:if></c:forEach></td>
-												</tr>
-												</c:if>
-												<c:if test="${not empty ccdsIds}">
-												<tr>
-													<td>CCDS Id:</td>
-													<td><c:forEach var="id" items="${ccdsIds}" varStatus="loop"><a href="http://www.ncbi.nlm.nih.gov/CCDS/CcdsBrowse.cgi?REQUEST=CCDS&DATA=${id}">${id}</a><c:if test="${!loop.last}"><br /></c:if></c:forEach></td>
-												</tr>
-												</c:if>
-											</tbody>
-								</table>				
-						
-						
-								<!-- <div class="accordion-group"> -->
-                                    <a href="../genomeBrowser/${acc}" target="new"><!-- <div class="accordion-heading withColorWhenOpen"> --> Gene Browser<!-- </div> --></a>
-                                    	<!-- <div class="accordion-body"> -->
-                                    		<%-- <iframe name="inlineframe" src="../genomeBrowser/${acc}"  width="920" height="500" ></iframe> --%>
-										<!-- </div> --> <!--  end of accordion body -->
-							<!-- </div> -->
+                             <a href="../genomeBrowser/${acc}" target="new"> Gene Browser</a>
+                                    	
 						</div>	
 		
 				</div><!-- section end -->
