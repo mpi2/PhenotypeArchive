@@ -28,15 +28,20 @@
 	var jsonBase = MPI2.searchAndFacetConfig.facetParams;
 	
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
-		
-		var q = oUrlHashParams.q ? oUrlHashParams.q : '*:*';
-		
-		if ( q != '*:*' ){
-			$('input#s').val(q);
+				
+		var q = oUrlHashParams.q;
+		if ( typeof q == 'undefined' ){
+			// check search kw
+			if ( window.location.search != '' ){
+				q = window.location.search.replace('?q=','');
+				$('input#s').val(q);
+			}
+			else {
+				q = '*:*';
+			}
 		}
 		
-		var facetMode = oUrlHashParams.facetName;
-
+		var facetMode = oUrlHashParams.facetName;	
 		var oFacets = {};
 		oFacets.count = {};		
 						

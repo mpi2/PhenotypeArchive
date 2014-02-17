@@ -19,7 +19,7 @@
  */
 $(document).ready(function(){
 	'use strict';	
-		
+	
 	var oHashParams = {};
 	
 	$('span.facetCount').text(''); // default when page loads
@@ -35,6 +35,7 @@ $(document).ready(function(){
 	}	
 	else if ( location.href.indexOf('/search?q=') != -1 
 			|| location.href.indexOf('/search#q=*:*') != -1 
+			|| location.href.indexOf('/search#q=*') != -1 
 			|| location.href.indexOf('/search#fq=') != -1 ){   	
 		// load page based on url hash parameters		
 		oHashParams = $.fn.parseHashString(window.location.hash.substring(1));		
@@ -42,7 +43,7 @@ $(document).ready(function(){
 	}
 	else {
 		// do not understand the url, redirect to error page
-		//document.location.href = baseUrl + '/404.jsp';		
+		document.location.href = baseUrl + '/404.jsp';		
 	}
 	
 	// search via ENTER
