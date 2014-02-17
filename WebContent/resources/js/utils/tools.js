@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -408,14 +408,14 @@
     				// do some accouting for matching subfacets
     				if ( subFacetName.indexOf('curated') != -1 ) {
     					for ( var cr=0; cr<oFacets[subFacetName].length; cr=cr+2){
-    						if ( oFacets[subFacetName][cr] == '1' ){
+    						if ( oFacets[subFacetName][cr] == true ){
     							foundMatch.curated++;    							
     						}
     					}    					
     				}
     				else if ( subFacetName.indexOf('predicted') != -1 ){    					
     					for ( var pr=0; pr<oFacets[subFacetName].length; pr=pr+2){
-    						if ( oFacets[subFacetName][pr] == '1' ){
+    						if ( oFacets[subFacetName][pr] == true ){
     							foundMatch.predicted++;    							
     						}
     					} 				
@@ -858,7 +858,7 @@
 				value = value.replace(/ phenotype$/, '');
 			}
 			else if ( facet == 'disease' ){
-				value = value == '1' ? 'Yes' : value;		
+				value = value == 'true' ? 'Yes' : value;		
 			}
 			else if ( facet == 'pipeline' ){
 				var aVals = value.split('___');
@@ -891,27 +891,19 @@
 			var key = $(this).attr('id');
 
 			$(this).attr('href', MDOC[oConf.pageName][key+'DocUrl']);
-			
-			$(this).qtip({
-			 	content: MDOC[oConf.pageName][key], 
-			 	style: { classes: 'qtipimpc' }			   		 
-				/*show: {		            
-		               event: 'mouseover',
-					   delay: 0
-		        },
-		        hide: {		        		
-			           event: 'mouseout' 
-		        },
-				position: {
-			    	corner: {
-			        	target: typeof oConf.target != undefined ? oConf.target : 'bottomLeft',
-			        	tooltip: typeof oConf.tip != undefined ? oConf.tip : 'topRight'
-			        },						
-			    	adjust: {			    	
-			        	x: oConf.posX,
-			        	y: oConf.posY
+			$(this).qtip({				
+			 	content: {
+			 		text: MDOC[oConf.pageName][key]			 					 		
+			    },		 	
+			 	style: {
+			 		classes: 'qtipimpc',			 		
+			        tip: {			           
+			        	corner: typeof oConf.tip != undefined ? oConf.tip : 'top right'
 			        }
-			    }*/	   
+			    },
+			    position: {
+			        my: typeof oConf.corner != undefined ? oConf.corner : 'right top'
+			    }			   
 			});			
 		});
 	}
@@ -1456,8 +1448,9 @@
     	oHashParams.dataTablePath = MPI2.searchAndFacetConfig.dataTablePath;
 		
 		var oParams = MPI2.searchAndFacetConfig.facetParams[facetDivId].srchParams;		
-		oParams.fq = encodeURI(oHashParams.fq); 
-		oParams.q = oHashParams.q;
+		oParams.fq = encodeURI(oHashParams.fq);
+		
+		oParams.q = oHashParams.q 
 		oParams.rows = 10;
 				
 		
@@ -1482,7 +1475,7 @@
 		$.fn.updateBreadCrumb(oVal.solrCoreName);		
 		$.fn.openFacet(oVal.solrCoreName);	
 		
-		//console.log(oHashParams);
+		console.log(oHashParams);
 		$.fn.invokeDataTable(oHashParams);
 		
     }   
@@ -1515,7 +1508,7 @@
     }
     
     $.fn.invokeDataTable = function(oInfos){   	   	
-    	//console.log(oInfos);
+    	
     	var oDtable = $('table#' + oInfos.mode).dataTable({
     		"bSort" : false,
     		"bProcessing": true,
@@ -1618,13 +1611,11 @@
     		"sAjaxSource": oInfos.dataTablePath,    		
     		"fnServerParams": function ( aoData ) {    			
     			aoData.push(	    			 
-    			    {"name": "solrParams",
-    				 //"value": oInfos.params// + oInfos.facetParams
-    				 "value": JSON.stringify(oInfos, null, 2)
+    			    {"name": "solrParams",    				
+    				 "value": JSON.stringify(oInfos, null, 2)    			     	
     				}	    
     			)		
-    		}
-    		
+    		}    		
     		
     		/*"fnServerData": function ( sSource, aoData, fnCallback, oSettings) {
     			// Add some extra data to the sender     			

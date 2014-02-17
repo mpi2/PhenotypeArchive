@@ -94,7 +94,7 @@
 						<div id="resetFilter"><a href="${baseUrl}/search">Remove all facet filters</a></div>
 					</div>
 										
-					<p class='documentation' class='title textright'>
+					<p class='documentation title textright'>
 						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 					</p>
 										
@@ -144,167 +144,169 @@
 						<div id="bigsearchbox" class="block">
 							<div class="content">								
 								<p><i id="sicon" class="fa fa-search"></i>
-									<input id="s" type="text" value="Test dummy input" placeholder="Search">
+									<input id="s" type="text" value="" placeholder="Search">
 								</p>									
 							</div>
 						</div>
 					</div>
+					
 					<div class="textright">
-						<a class="has-tooltip" data-hasqtip="19">View example search</a>
-						<div class="data-tooltip">
-							<h3>Example Searches</h3>
-								<p>Sample queries for several fields are shown. Click the desired query to execute any of the samples.
-									<b>Note that queries are focused on Relationships, leaving modifier terms to be applied as filters.</b>
-								</p>
-							<h5>Gene query examples</h5>
-								<p>
-								<a href="#">Akt2</a>
-								- looking for a specific gene, Akt2
-								<br>
-								<a href="#">*rik</a>
-								- looking for all Riken genes
-								<br>
-								<a href="#">hox*</a>
-								- looking for all hox genes
-								</p>
-							<h5>Phenotype query examples</h5>
-								<p>
-								<a href="#">abnormal skin morphology</a>
-								- looking for a specific phenotype
-								<br>
-								<a href="#">ear</a>
-								- find all ear related phenotypes
-								</p>
-							<h5>Procedure query Example</h5>
-								<p>
-								<a href="#">grip strength</a>
-								- looking for a specific procedure
-								</p>
-							<h5>Prase query Example</h5>
-								<p>
-								<a href="#">"zinc finger protein"</a>
-								- looking for genes whose product is zinc finger protein
-								</p>
-						</div>
+						<a id = 'searchExample' class="">View example search</a>						
 					</div>	
+					
 					<div class="clear"></div>
 					<!-- facet filter block -->								
 					<!-- container to display dataTable -->									
 					<div class="HomepageTable" id="mpi2-search"></div>				
 				</div>
 			</div>
-		</div>
-		
-		<!--  test -->
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/geneFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/mpFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/maFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/diseaseFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js'></script>
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script> 
-		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>            
+		</div>		       
         
-         <script>
-        $(document).ready(function() {        		
-        	$(document).ready(function(){        		
-    			$.fn.qTip({'pageName':'search'
-    					/*'textAlign':'left',
-    					'tip':'topLeft',
-    					'posX':0,
-    					'posY':0*/    					
-    			});
-    			
-    			// non hash tag keyword query
-    			<c:if test="${not empty q}">				
-    				oHashParams = {};
-    				oHashParams.q = "${q}";    				
-    				$.fn.fetchSolrFacetCount(oHashParams);				
-    			</c:if>;
+        <compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">	    
+			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js'></script>
+			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/geneFacetWidget.js'></script>
+			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/mpFacetWidget.js'></script>
+			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/maFacetWidget.js'></script>
+			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js'></script>
+			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/diseaseFacetWidget.js'></script>
+			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js'></script>
+			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script> 
+			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>		
+	    </compress:html>        
+        
+         <script>        		
+       	$(document).ready(function(){        		
+   			$.fn.qTip({'pageName':'search'		 					
+   			});  			 						
+   			
+   			// non hash tag keyword query
+   			<c:if test="${not empty q}">				
+   				/*oHashParams = {};
+   				oHashParams.q = "${q}";    				
+   				$.fn.fetchSolrFacetCount(oHashParams);*/				
+   			</c:if>;
+   					
+   			// hash tag query
+   			// catch back/forward buttons and hash change: loada dataTable based on url params
+   			$(window).bind("hashchange", function() {
+   							
+   				//var url = $.param.fragment();	 // not working with jQuery 10.0.1
+   				var url = $(location).attr('hash');			
+   				console.log('hash change URL: '+ '/search' + url);
+   				
+   				if ( /search\/?$/.exec(location.href) ){
+   					// reload page
+   					window.location.reload();
+   				}
+   				
+   				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
+   				
+   				oHashParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;	                
+				oHashParams.widgetName += 'Facet';
+   				
+				console.log(oHashParams);
+   				console.log('from widget open: '+ MPI2.searchAndFacetConfig.widgetOpen);
+   				
+   				if ( window.location.search.match(/q=/) ){
+   					oHashParams.q = window.location.search.replace('?q=','')
+   				}
+   				else if ( typeof oHashParams.q == 'undefined' ){
+   					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');	    					
+   				}
+   				
+   				
+   				if ( MPI2.searchAndFacetConfig.widgetOpen ){
+   					MPI2.searchAndFacetConfig.widgetOpen = false;
+   						    				
+    				// search by keyword (user's input) has no fq in url when hash change is detected
+    				if ( oHashParams.fq ){			
     					
-    			// hash tag query
-    			// catch back/forward buttons and hash change: loada dataTable based on url params
-    			$(window).bind("hashchange", function() {
-    							
-    				//var url = $.param.fragment();	 // not working with jQuery 10.0.1
-    				var url = $(location).attr('hash');			
-    				console.log('hash change URL: '+ '/search' + url);
-    				
-    				if ( /search\/?$/.exec(location.href) ){
-    					// reload page
-    					window.location.reload();
+    					if ( oHashParams.coreName ){	    						
+    						$.fn.removeFacetFilter();
+    						oHashParams.coreName += 'Facet'; 					
+    					}
+    					else {						
+    						// parse selected checkbox(es) of this facet
+    						var facet = oHashParams.facetName;
+    						var aFilters = [];
+    						//$('ul#facetFilter li.' + facet + ' li a').each(function(){
+    						$('ul#facetFilter li.ftag a').each(function(){							
+    							aFilters.push($(this).text());
+    						});														
+    						
+    						//console.log('filter: ' + aFilters );
+    						oHashParams.filters = aFilters;
+    						//oHashParams.facetName = facet + 'Facet';
+    						oHashParams.facetName = facet;	    						
+    					}
+    					$.fn.loadDataTable(oHashParams);
     				}
+   				}
+    			else {	    				   				  				
+    				console.log('back button');	    				
+    				console.log(oHashParams);
+    				    			
+    				var refreshFacet = oHashParams.coreName ? false : true;	    				
+					$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, refreshFacet);
     				
-    				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-    				
-    				oHashParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;	                
-					oHashParams.widgetName += 'Facet';
-    				
-					console.log(oHashParams);
-    				console.log('from widget open: '+ MPI2.searchAndFacetConfig.widgetOpen);
-    				
-    				if ( window.location.search.match(/q=/) ){
-    					oHashParams.q = window.location.search.replace('?q=','')
-    				}
-    				else if ( typeof oHashParams.q == 'undefined' ){
-    					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');	    					
-    				}
-    				
-    				
-    				if ( MPI2.searchAndFacetConfig.widgetOpen ){
-    					MPI2.searchAndFacetConfig.widgetOpen = false;
-    						    				
-	    				// search by keyword (user's input) has no fq in url when hash change is detected
-	    				if ( oHashParams.fq ){				
-	    					
-	    					if ( oHashParams.coreName ){	    						
-	    						$.fn.removeFacetFilter();
-	    						oHashParams.coreName += 'Facet'; 					
-	    					}
-	    					else {						
-	    						// parse selected checkbox(es) of this facet
-	    						var facet = oHashParams.facetName;
-	    						var aFilters = [];
-	    						//$('ul#facetFilter li.' + facet + ' li a').each(function(){
-	    						$('ul#facetFilter li.ftag a').each(function(){							
-	    							aFilters.push($(this).text());
-	    						});														
-	    						
-	    						//console.log('filter: ' + aFilters );
-	    						oHashParams.filters = aFilters;
-	    						//oHashParams.facetName = facet + 'Facet';
-	    						oHashParams.facetName = facet;	    						
-	    					}
-	    					$.fn.loadDataTable(oHashParams);
-	    				}
-    				}
-	    			else {	    				   				  				
-	    				console.log('back button');	    				
-	    				console.log(oHashParams);
-	    				    			
-	    				var refreshFacet = oHashParams.coreName ? false : true;	    				
-						$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, refreshFacet);
-	    				
-	    				$.fn.loadDataTable(oHashParams);
-	    			}
-    			});		
-    			
-    		});     	
-        	
-            // wire up the example queries
-               $("a.example").click(function(){
-                    $('#examples').modal('hide');
-                    document.location.href = $(this).attr('href');
-                    document.location.reload();
+    				$.fn.loadDataTable(oHashParams);
+    			}
+   			});		
+    		var exampleSearch = 
+					 '<h3 id="samplesrch">Example Searches</h3>'
+						+ '<p>Sample queries for several fields are shown. Click the desired query to execute any of the samples.'
+						+ '	<b>Note that queries are focused on Relationships, leaving modifier terms to be applied as filters.</b>'
+						+ '</p>'
+						+ '<h5>Gene query examples</h5>'
+						+ '<p>'
+						+ '<a href="${baseUrl}/search?q=akt2#core=gene">Akt2</a>'
+						+ '- looking for a specific gene, Akt2'
+						+ '<br>'
+						+ '<a href="${baseUrl}/search?q=*rik#core=gene">*rik</a>'
+						+ '- looking for all Riken genes'
+						+ '<br>'
+						+ '<a href="${baseUrl}/search?q=hox*#core=gene">hox*</a>'
+						+ '- looking for all hox genes'
+						+ '</p>'
+						+ '<h5>Phenotype query examples</h5>'
+						+ '<p>'
+						+ '<a href="${baseUrl}/search?q=abnormal skin morphology#core=mp&fq=ontology_subset:*">abnormal skin morphology</a>'
+						+ '- looking for a specific phenotype'
+						+ '<br>'
+						+ '<a href="${baseUrl}/search?q=ear#core=mp&fq=ontology_subset:*">ear</a>'
+						+ '- find all ear related phenotypes'
+						+ '</p>'
+						+ '<h5>Procedure query Example</h5>'
+						+ '<p>'
+						+ '<a href="${baseUrl}/search?q=grip strength#fq=pipeline_stable_id:IMPC_001&core=pipeline">grip strength</a>'
+						+ '- looking for a specific procedure'
+						+ '</p>'
+						+ '<h5>Prase query Example</h5>'
+						+ '<p>'
+						+ '<a href="${baseUrl}/search?q=&quot;zinc finger protein&quot;#core=gene&fq=marker_type:* -marker_type:&quot;heritable phenotypic marker&quot;">"zinc finger protein"</a>'
+						+ '- looking for genes whose product is zinc finger protein'
+						+ '</p>';
+					
+            // initialze search example qTip with close button and proper positioning
+            $("a#searchExample").qtip({            	   
+               	hide: true,
+    			content: {
+    				text: exampleSearch,
+    				title: {'button': 'close'}
+    			},		 	
+   			 	style: {
+   			 		classes: 'qtipimpc',			 		
+   			        tip: {corner: 'top center'}
+   			    },
+   			    position: {my: 'left top',
+   			    		   adjust: {x: -360, y: 0}
+   			    }
             });
-
-                // Message to IE users
-                //$.fn.ieCheck();
+                        
+            // Message to IE users
+            //$.fn.ieCheck();
         });        
         </script>
-			
-			
 			
 						
     </jsp:body>

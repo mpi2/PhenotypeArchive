@@ -515,6 +515,7 @@ System.out.println(chartsSeriesElementsList);
 	}
 
 
+
 	public ChartData getHistogram(List<String> labels, List<Double> values, String title){
 		double min = 0; 
 		for (double val : values)

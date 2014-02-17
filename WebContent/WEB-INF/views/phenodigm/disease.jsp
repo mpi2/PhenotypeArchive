@@ -18,15 +18,14 @@
 
     <jsp:attribute name="header">
 
-        <script type="text/javascript" charset="utf-8" src="${baseUrl}/js/vendor/jquery-1.7.2.min.js"></script>
-
         <script type="text/javascript">
-            function getDiseaseAssociations(targetRowId) {
-                //                alert(targetRowId);
+            function getDiseaseAssociations(clicked) {
+
+                var targetRowId = $(clicked).attr("targetRowId");
                 var targetRow = $('#' + targetRowId);
-                var geneId = $(targetRow).attr("geneid");
-                var diseaseId = $(targetRow).attr("diseaseid");
-                var requestPageType = $(targetRow).attr("requestpagetype");
+                var geneId = $(clicked).attr("geneid");
+                var diseaseId = $(clicked).attr("diseaseid");
+                var requestPageType = $(clicked).attr("requestpagetype");
                 console.log(requestPageType + " page getDiseaseAssociations for: " + geneId + " " + diseaseId);
 
                 var uri = "${baseUrl}/phenodigm/diseaseGeneAssociations";
@@ -35,15 +34,26 @@
                     diseaseId: diseaseId,
                     requestPageType: requestPageType
                 }, function(response) {
-                    console.log(response);
-                    //${disease.diseaseId}_${mouseGeneIdentifier.compoundIdentifier}
-                    var id = "#" + geneId + "_" + diseaseId;
-                    console.log("Searching for id:" + id);
+//                    console.log(response);
+                    //add the response html to the target row
                     $(targetRow).html(response);
-
+                    //change the clicked row icon to an minus sign
+                    $(clicked).find("td#toggleButton i").removeClass("fa-plus-square").addClass("fa-minus-square");
                 });
-            }
-            ;
+            };
+            
+            /*
+             * Toggles the row icon between a "fa-minus-square" and a "fa-plus-square".
+             */
+            function toggleRowIcon(row){
+                    var rowOpen = $(row).find("td#toggleButton i").hasClass("fa-minus-square");
+                    if (rowOpen) {
+                        $(row).find("td#toggleButton i").removeClass("fa-minus-square").addClass("fa-plus-square");                        
+                    } 
+                    else {
+                        $(row).find("td#toggleButton i").removeClass("fa-plus-square").addClass("fa-minus-square");                                                
+                    }
+            };
         </script>
 
         <script type="text/javascript">
@@ -54,12 +64,11 @@
 
                 $("#phenotypes tr.odd").click(function() {
                     $(this).next("tr").toggle();
-                    $(this).find(".arrow").toggleClass("up");
                     if ($(this).next("tr").find("td").length === 0) {
-                        getDiseaseAssociations($(this).attr("targetRowId"));
+                        getDiseaseAssociations($(this));
                     }
+                    toggleRowIcon($(this));
                 });
-                //$("#report").jExpand();
             });
         </script>
     </jsp:attribute>
@@ -165,14 +174,14 @@
                                     <th>Mouse Literature Evidence (MGI)</th>
                                     <th><span class="main">MGI</span><span class="sub">Mouse Phenotype Evidence (Phenodigm)</span></th>
                                     <th><span class="main">IMPC</span><span class="sub">Mouse Phenotype Evidence (Phenodigm)</span></th>
-
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <c:forEach var="association" items="${phenotypeAssociations}">
                                     <c:set var="mouseGeneIdentifier" value="${association.modelGeneIdentifier}"></c:set>
                                     <c:set var="associationSummary" value="${association.associationSummary}"></c:set>
-                                    <tr id="${mouseGeneIdentifier.compoundIdentifier}" targetRowId="P${humanGeneIdentifier.databaseAcc}_${mouseGeneIdentifier.databaseAcc}_${disease.diseaseIdentifier.databaseAcc}" title="Click anywhere on row display phenotype terms" >
+                                    <tr id="${mouseGeneIdentifier.compoundIdentifier}" targetRowId="P${humanGeneIdentifier.databaseAcc}_${mouseGeneIdentifier.databaseAcc}_${disease.diseaseIdentifier.databaseAcc}" requestpagetype= "disease" geneid="${mouseGeneIdentifier.compoundIdentifier}" diseaseid="${disease.diseaseIdentifier.compoundIdentifier}">
                                         <td>
                                             <!--Mouse Gene Symbol-->
                                             <a href="../gene/${mouseGeneIdentifier.databaseCode}:${mouseGeneIdentifier.databaseAcc}">${mouseGeneIdentifier.geneSymbol}</a> 
@@ -204,15 +213,13 @@
                                                 <b style="color:#EF7B0B">${associationSummary.bestHtpcScore}</b>
                                             </c:if>                                        
                                         </td>
+                                        <td id="toggleButton" title="Click to display phenotype terms"><i class="fa fa-plus-square"></i></td>
                                     </tr>
-                                    <tr id="P${humanGeneIdentifier.databaseAcc}_${mouseGeneIdentifier.databaseAcc}_${disease.diseaseIdentifier.databaseAcc}" requestpagetype= "disease" geneid="${mouseGeneIdentifier.compoundIdentifier}" diseaseid="${disease.diseaseIdentifier.compoundIdentifier}">
+                                    <tr id="P${humanGeneIdentifier.databaseAcc}_${mouseGeneIdentifier.databaseAcc}_${disease.diseaseIdentifier.databaseAcc}">
                                     </tr>
                                 </c:forEach>
                             </tbody>
                         </table>
-                        <script>
-                            $(document).ready(function(){ });
-                        </script>
                     </c:otherwise>
                 </c:choose>
             </div>

@@ -8,8 +8,8 @@ import java.util.Random;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
-import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
 import org.apache.log4j.Logger;
@@ -122,13 +122,13 @@ public class DrupalHttpProxy extends HttpProxy {
 	}
 
 	/**
-	 * Get the current menu for the drupal system
+	 * Get the current menus for the drupal system -- both the main menu and the user menu
 	 * 
-	 * @return a jsonArray corresponding to the drupal menu, or a default it
+	 * @return a JSONObject corresponding to the drupal menus, or a default it
 	 *         drupal could not be contacted for some reason
 	 * @throws JSONException
 	 */
-	public JSONArray getDrupalMenu(String drupalBaseUrl) throws JSONException {
+	public JSONObject getDrupalMenu(String drupalBaseUrl) throws JSONException {
 
 		String content = "";
 		Random randomGenerator = new Random();
@@ -137,71 +137,30 @@ public class DrupalHttpProxy extends HttpProxy {
 		try {
 			if (getDrupalSessionCookieString() != null && ! getDrupalSessionCookieString().equals("") ) {
 				log.info("Getting drupal menu.");				
-				URL url = new URL(drupalBaseUrl + "/menudisplay");
+				URL url = new URL(drupalBaseUrl + "/menudisplaycombined");
 				content = this.getContent(url);
 			} else {
 				if (publicMenu == null || randomGenerator.nextInt(100) == 1) {
 					log.info("Not logged in, using standard menu.");
-					URL url = new URL(drupalBaseUrl + "/menudisplay");
+					URL url = new URL(drupalBaseUrl + "/menudisplaycombined");
 					publicMenu = this.getContent(url);
 					content = publicMenu;
-					// "[{\"title\":\"Home\",\"link_path\":\"\",\"href\":\"\"},{\"title\":\"About IMPC\",\"link_path\":\"node\\/19\",\"href\":\"node\\/19\",\"below\":[{\"title\":\"IMPC Goals\",\"link_path\":\"node\\/20\",\"href\":\"node\\/20\"},{\"title\":\"Members\",\"link_path\":\"node\\/21\",\"href\":\"node\\/21\",\"below\":[{\"title\":\"Locations\",\"link_path\":\"node\\/22\",\"href\":\"node\\/22\"}]},{\"title\":\"Secretariat\",\"link_path\":\"node\\/23\",\"href\":\"node\\/23\"},{\"title\":\"Workgroups\",\"link_path\":\"node\\/24\",\"href\":\"node\\/24\",\"below\":[{\"title\":\"IT Work Group\",\"link_path\":\"node\\/25\",\"href\":\"node\\/25\"},{\"title\":\"Phenotyping Work Group\",\"link_path\":\"node\\/26\",\"href\":\"node\\/26\"},{\"title\":\"Industry Work Group\",\"link_path\":\"node\\/27\",\"href\":\"node\\/27\"}]},{\"title\":\"Links\",\"link_path\":\"node\\/32\",\"href\":\"node\\/32\"}]},{\"title\":\"Search\",\"link_path\":\"https:\\/\\/dev.mousephenotype.org\\/mi\\/impc\\/dev\\/phenotype-archive\\/search\",\"href\":\"https:\\/\\/dev.mousephenotype.org\\/mi\\/impc\\/dev\\/phenotype-archive\\/search\"},{\"title\":\"News and Events\",\"link_path\":\"news\",\"href\":\"news\",\"below\":[{\"title\":\"Teleconference and Events Calendar\",\"link_path\":\"telephone-calendar\\/month\",\"href\":\"telephone-calendar\\/month\"}]},{\"title\":\"Send Us Feedback\",\"link_path\":\"contact\\/Beta Website Feedback\",\"href\":\"contact\\/Beta Website Feedback\",\"below\":[{\"title\":\"Newsletters\",\"link_path\":\"node\\/103011\",\"href\":\"node\\/103011\"}]},{\"title\":\"My IMPC\",\"link_path\":\"user\",\"href\":\"user\",\"below\":[{\"title\":\"Login\",\"link_path\":\"user\\/login\",\"href\":\"user\\/login\"},{\"title\":\"Access IMITS\",\"link_path\":\"http:\\/\\/mousephenotype.org\\/imits\",\"href\":\"http:\\/\\/mousephenotype.org\\/imits\"}]},{\"title\":\"Register\",\"link_path\":\"user\\/register\",\"href\":\"user\\/register\"}]";				
 				} else {
 					content = publicMenu;
 				}
 			}
 		} catch (Exception e) {
-			log.error("Cannot retreive menu from drupal. Using default menu.");
-			content = "[{\"title\":\"Home\",\"link_path\":\"\",\"href\":\"\"},{\"title\":\"About IMPC\",\"link_path\":\"node\\/19\",\"href\":\"node\\/19\",\"below\":[{\"title\":\"Goals\",\"link_path\":\"node\\/72545\",\"href\":\"node\\/72545\"},{\"title\":\"Members\",\"link_path\":\"node\\/21\",\"href\":\"node\\/21\",\"below\":[{\"title\":\"Locations\",\"link_path\":\"node\\/22\",\"href\":\"node\\/22\"}]},{\"title\":\"Secretariat\",\"link_path\":\"node\\/23\",\"href\":\"node\\/23\"},{\"title\":\"Workgroups\",\"link_path\":\"node\\/24\",\"href\":\"node\\/24\",\"below\":[{\"title\":\"IT Work Group\",\"link_path\":\"node\\/25\",\"href\":\"node\\/25\"},{\"title\":\"Phenotyping Work Group\",\"link_path\":\"node\\/26\",\"href\":\"node\\/26\"},{\"title\":\"Industry Work Group\",\"link_path\":\"node\\/27\",\"href\":\"node\\/27\"}]},{\"title\":\"Phenotype Protocols\",\"link_path\":\"http:\\/\\/www.mousephenotype.org\\/impress\",\"href\":\"http:\\/\\/www.mousephenotype.org\\/impress\"},{\"title\":\"Links\",\"link_path\":\"node\\/32\",\"href\":\"node\\/32\"}]},{\"title\":\"Search\",\"link_path\":\"https:\\/\\/www.mousephenotype.org\\/mi\\/impc\\/phenotype-archive\\/search\",\"href\":\"https:\\/\\/www.mousephenotype.org\\/mi\\/impc\\/phenotype-archive\\/search\"},{\"title\":\"News and Events\",\"link_path\":\"news\",\"href\":\"news\",\"below\":[{\"title\":\"Meetings\",\"link_path\":\"node\\/66633\",\"href\":\"node\\/66633\"}]},{\"title\":\"Contact Us\",\"link_path\":\"node\\/33\",\"href\":\"node\\/33\",\"below\":[{\"title\":\"Outreach\",\"link_path\":\"node\\/66694\",\"href\":\"node\\/66694\"}]},{\"title\":\"My IMPC\",\"link_path\":\"user\",\"href\":\"user\",\"below\":[{\"title\":\"Login\",\"link_path\":\"user\\/login\",\"href\":\"user\\/login\"},{\"title\":\"Access IMITS\",\"link_path\":\"https:\\/\\/www.mousephenotype.org\\/imits\",\"href\":\"https:\\/\\/www.mousephenotype.org\\/imits\"},{\"title\":\"Newsletters\",\"link_path\":\"node\\/67171\",\"href\":\"node\\/67171\"},{\"title\":\"Documentation\",\"link_path\":\"node\\/72649\",\"href\":\"node\\/72649\"}]},{\"title\":\"Register\",\"link_path\":\"user\\/register\",\"href\":\"user\\/register\"}]";
+			log.error("Cannot retrieve menu from drupal. Using default menu.");
+			content = "{\"mainmenu\":[{\"title\":\"Search\",\"link_path\":\"https:\\/\\/test.mousephenotype.org\\/data\\/search\",\"href\":\"https:\\/\\/test.mousephenotype.org\\/data\\/search\"},{\"title\":\"About IMPC\",\"link_path\":\"node\\/19\",\"href\":\"node\\/19\",\"below\":[{\"title\":\"Goals and Background\",\"link_path\":\"node\\/19\",\"href\":\"node\\/19\"},{\"title\":\"IMPC Members\",\"link_path\":\"node\\/21\",\"href\":\"node\\/21\"},{\"title\":\"Governance Documentation\",\"link_path\":\"https:\\/\\/www.mousephenotype.org\\/sites\\/mousephenotype.org\\/files\\/IMPC%20Governance%20and%20Coordination%20v11%20June%202013.pdf\",\"href\":\"https:\\/\\/www.mousephenotype.org\\/sites\\/mousephenotype.org\\/files\\/IMPC%20Governance%20and%20Coordination%20v11%20June%202013.pdf\"},{\"title\":\"Coordination\",\"link_path\":\"node\\/85139\",\"href\":\"node\\/85139\",\"below\":[{\"title\":\"Steering Committee\",\"link_path\":\"node\\/21\",\"href\":\"node\\/21\"},{\"title\":\"Panel of Scientific Consultants\",\"link_path\":\"node\\/83909\",\"href\":\"node\\/83909\"},{\"title\":\"Finance Committee\",\"link_path\":\"node\\/83911\",\"href\":\"node\\/83911\"},{\"title\":\"Communications Working Group\",\"link_path\":\"node\\/83913\",\"href\":\"node\\/83913\"},{\"title\":\"Phenotyping Steering Group\",\"link_path\":\"node\\/83915\",\"href\":\"node\\/83915\"},{\"title\":\"Production Steering Group\",\"link_path\":\"node\\/83917\",\"href\":\"node\\/83917\"},{\"title\":\"Data Analysis Advisory Committee\",\"link_path\":\"node\\/83919\",\"href\":\"node\\/83919\"},{\"title\":\"Statistics Technical Group\",\"link_path\":\"node\\/83921\",\"href\":\"node\\/83921\"},{\"title\":\"MTA and Line Exchange\",\"link_path\":\"node\\/83923\",\"href\":\"node\\/83923\"},{\"title\":\"iMits Steering Group\",\"link_path\":\"node\\/83925\",\"href\":\"node\\/83925\"}]},{\"title\":\"Industry Sponsors\",\"link_path\":\"node\\/83967\",\"href\":\"node\\/83967\"},{\"title\":\"Secretariat\",\"link_path\":\"node\\/23\",\"href\":\"node\\/23\"},{\"title\":\"Additional Information\",\"link_path\":\"node\\/83927\",\"href\":\"node\\/83927\",\"below\":[{\"title\":\"Publications\",\"link_path\":\"node\\/83927\",\"href\":\"node\\/83927\"},{\"title\":\"Citing IMPC\",\"link_path\":\"node\\/83929\",\"href\":\"node\\/83929\"},{\"title\":\"Links\",\"link_path\":\"node\\/32\",\"href\":\"node\\/32\"}]}]},{\"title\":\"News & Events\",\"link_path\":\"news\",\"href\":\"news\",\"below\":[{\"title\":\"IMPC Lethal Lines\",\"link_path\":\"node\\/83629\",\"href\":\"node\\/83629\"},{\"title\":\"Meetings\",\"link_path\":\"node\\/66633\",\"href\":\"node\\/66633\"},{\"title\":\"Phone Conferences\",\"link_path\":\"node\\/83047\",\"href\":\"node\\/83047\"}]},{\"title\":\"Contact\",\"link_path\":\"node\\/33\",\"href\":\"node\\/33\"},{\"title\":\"My IMPC\",\"link_path\":\"user\",\"href\":\"user\",\"below\":[{\"title\":\"IMPC Forum\",\"link_path\":\"forum\",\"href\":\"forum\"},{\"title\":\"Documentation\",\"link_path\":\"node\\/72649\",\"href\":\"node\\/72649\"}]}],\"usermenu\":[{\"title\":\"My IMPC\",\"link_path\":\"user\",\"href\":\"user\",\"below\":[{\"title\":\"Create new account\",\"link_path\":\"user\\/register\",\"href\":\"user\\/register\"},{\"title\":\"Log in\",\"link_path\":\"user\\/login\",\"href\":\"user\\/login\"},{\"title\":\"Request new password\",\"link_path\":\"user\\/password\",\"href\":\"user\\/password\"}]},{\"title\":\"Login\",\"link_path\":\"user\\/login\",\"href\":\"user\\/login\"},{\"title\":\"Register\",\"link_path\":\"user\\/register\",\"href\":\"user\\/register\"}]}";
 		}
 
 		//strip off the drupal <front> tag
 		content = content.replace("<front>", "");
 
-		JSONArray menu = (JSONArray) JSONSerializer.toJSON(content);
+		JSONObject menu = (JSONObject) JSONSerializer.toJSON(content);
 
 		return menu;
 	}
 
-	/**
-	 * Get the current user menu for the drupal system
-	 * 
-	 * @return a jsonArray corresponding to the drupal menu, or a default it
-	 *         drupal could not be contacted for some reason
-	 * @throws JSONException
-	 */
-	public JSONArray getDrupalUserMenu(String drupalBaseUrl) throws JSONException {
-
-		String content = "";
-		Random randomGenerator = new Random();
-		// If we can't get the menu, default to the logged out menu
-		try {
-			if (getDrupalSessionCookieString() != null && ! getDrupalSessionCookieString().equals("") ) {
-				log.info("Getting drupal user menu.");				
-				URL url = new URL(drupalBaseUrl + "/menudisplayuser");
-				content = this.getContent(url);
-			} else {
-				if (publicUserMenu == null || randomGenerator.nextInt(100) == 1) {
-					log.info("Not logged in, using standard menu.");
-					URL url = new URL(drupalBaseUrl + "/menudisplayuser");
-					publicUserMenu = this.getContent(url);
-					content = publicUserMenu;
-					// "[{\"title\":\"Home\",\"link_path\":\"\",\"href\":\"\"},{\"title\":\"About IMPC\",\"link_path\":\"node\\/19\",\"href\":\"node\\/19\",\"below\":[{\"title\":\"IMPC Goals\",\"link_path\":\"node\\/20\",\"href\":\"node\\/20\"},{\"title\":\"Members\",\"link_path\":\"node\\/21\",\"href\":\"node\\/21\",\"below\":[{\"title\":\"Locations\",\"link_path\":\"node\\/22\",\"href\":\"node\\/22\"}]},{\"title\":\"Secretariat\",\"link_path\":\"node\\/23\",\"href\":\"node\\/23\"},{\"title\":\"Workgroups\",\"link_path\":\"node\\/24\",\"href\":\"node\\/24\",\"below\":[{\"title\":\"IT Work Group\",\"link_path\":\"node\\/25\",\"href\":\"node\\/25\"},{\"title\":\"Phenotyping Work Group\",\"link_path\":\"node\\/26\",\"href\":\"node\\/26\"},{\"title\":\"Industry Work Group\",\"link_path\":\"node\\/27\",\"href\":\"node\\/27\"}]},{\"title\":\"Links\",\"link_path\":\"node\\/32\",\"href\":\"node\\/32\"}]},{\"title\":\"Search\",\"link_path\":\"https:\\/\\/dev.mousephenotype.org\\/mi\\/impc\\/dev\\/phenotype-archive\\/search\",\"href\":\"https:\\/\\/dev.mousephenotype.org\\/mi\\/impc\\/dev\\/phenotype-archive\\/search\"},{\"title\":\"News and Events\",\"link_path\":\"news\",\"href\":\"news\",\"below\":[{\"title\":\"Teleconference and Events Calendar\",\"link_path\":\"telephone-calendar\\/month\",\"href\":\"telephone-calendar\\/month\"}]},{\"title\":\"Send Us Feedback\",\"link_path\":\"contact\\/Beta Website Feedback\",\"href\":\"contact\\/Beta Website Feedback\",\"below\":[{\"title\":\"Newsletters\",\"link_path\":\"node\\/103011\",\"href\":\"node\\/103011\"}]},{\"title\":\"My IMPC\",\"link_path\":\"user\",\"href\":\"user\",\"below\":[{\"title\":\"Login\",\"link_path\":\"user\\/login\",\"href\":\"user\\/login\"},{\"title\":\"Access IMITS\",\"link_path\":\"http:\\/\\/mousephenotype.org\\/imits\",\"href\":\"http:\\/\\/mousephenotype.org\\/imits\"}]},{\"title\":\"Register\",\"link_path\":\"user\\/register\",\"href\":\"user\\/register\"}]";				
-				} else {
-					content = publicUserMenu;
-				}
-			}
-		} catch (Exception e) {
-			log.error("Cannot retreive user menu from drupal. Using default user menu.");
-			content = "[{\"title\":\"My IMPC\",\"link_path\":\"user\",\"href\":\"user\",\"below\":[{\"title\":\"Create new account\",\"link_path\":\"user\\/register\",\"href\":\"user\\/register\"},{\"title\":\"Log in\",\"link_path\":\"user\\/login\",\"href\":\"user\\/login\"},{\"title\":\"Request new password\",\"link_path\":\"user\\/password\",\"href\":\"user\\/password\"}]},{\"title\":\"Login\",\"link_path\":\"user\\/login\",\"href\":\"user\\/login\"},{\"title\":\"Register\",\"link_path\":\"user\\/register\",\"href\":\"user\\/register\"}]";
-		}
-
-		//strip off the drupal <front> tag
-		content = content.replace("<front>", "");
-
-		JSONArray menu = (JSONArray) JSONSerializer.toJSON(content);
-
-		return menu;
-	}
 
 }

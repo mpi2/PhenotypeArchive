@@ -8,7 +8,6 @@
  --%>
  <!-- unidimensional here -->
  	<c:if test="${unidimensionalChartDataSet!=null}">
- 	<div id="exportIconsDivUni"></div>
  	
   					<div id="chart${experimentNumber}">
 								</div>
@@ -17,10 +16,7 @@
    								$(function () {
    								   ${unidimensionalChartDataSet.chartData.chart}
 								</script>
-								<a href="${acc}?${pageContext.request.queryString}&scatter=1">Graph by date</a>
-		
-				<%-- </c:forEach>
-				 --%>
+								<div class="section half"><a href="${acc}?${pageContext.request.queryString}&scatter=1">Graph by date</a></div><div class="section half"><div id="exportIconsDivUni"></div></div>
 	
 		<table id="continuousTable">
 		<thead><tr>
