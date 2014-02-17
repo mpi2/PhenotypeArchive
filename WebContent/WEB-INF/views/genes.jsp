@@ -228,9 +228,9 @@
 		<div class="section">
 
 			<h2 class="title " id="section-associations"> Phenotype associations for ${gene.symbol} 
-				<!-- <span class="documentation" > <a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span>-->
-				<span class="documentation" ><a href='' id='mpPanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
-			</h2>			
+					<!-- <span class="documentation" > <a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span>-->
+					<span class="documentation" ><a href='' id='mpPanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
+			</h2>		
 
 			<div class="inner">
 				
@@ -334,13 +334,13 @@
 				
 		<c:if test="${phenotypeStarted}">
 			<div class="section">
-			  <h2 class="documentation title" id="heatmap">Pre-QC phenotype heatmap -
+			  <h2 class="title" id="heatmap">Pre-QC phenotype heatmap -
 					<c:forEach items="${allColonyStatus}" var="colonyStatus">
 						<c:if test="${colonyStatus.phenotypeStarted == 1}">
 							${colonyStatus.alleleName}<%-- </td><td>${colonyStatus.backgroundStrain}</td><td>${colonyStatus.phenotypeCenter}</td></tr> --%>
 						</c:if>
 					</c:forEach>	
-					<a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a>
+					<span class="documentation" ><a href='' id='mpPanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
 				</h2>
 				
 				<div class="inner">
@@ -424,7 +424,8 @@
 			</c:if>
 		
 			<div class="section">
-				<h2 class="title documentation">ES Cell and Mouse Alleles <a href='' id='allelePanel'><i class="fa fa-question-circle pull-right" ></i></a></h2>	
+				<h2 class="title ">ES Cell and Mouse Alleles <span class="documentation" ><a href='' id='allelePanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
+	</h2>	
 				    <div class="inner"> 			
 						<div id="allele_tracker_panel_results">&nbsp;</div>
 						<c:choose>
