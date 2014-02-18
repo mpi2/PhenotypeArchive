@@ -81,7 +81,7 @@
 	</div><!-- end of images lacz expression priority and xray maybe -->
 	</c:if>
 	
-	
+	<c:if test="${fn:length(anatomy.childTerms)>0 }">
 	<div class="section">
 	<%-- <div class='documentation'><a href='' class='relatedMaPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div> --%>
 		<h2 class="title">Explore<i class="fa fa-question-circle pull-right"></i></h2>
@@ -103,8 +103,8 @@
 					</table>
 		</div>
 		
-	</div><!-- end of images lacz expression priority and xray maybe -->
-	
+	</div><!-- end of anatomy explore panel-->
+	</c:if>
 		</div>
 		</div>
 	</div>
