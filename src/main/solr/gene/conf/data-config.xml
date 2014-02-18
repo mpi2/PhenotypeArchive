@@ -48,7 +48,7 @@
 	<dataSource name="pipeline_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/pipeline/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>-->    
 
 	<document name="docs">
-		<entity dataSource="gene2_core" name="doc" stream="true" url="q=*:*&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status,imits_phenotype_is_active&amp;rows=90000&amp;wt=normal"
+		<entity dataSource="gene2_core" name="doc" stream="true" url="q=*:*&amp;fq=marker_symbol:Gm16379+OR+marker_type:*&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status,imits_phenotype_is_active&amp;rows=90000&amp;wt=normal"
 			processor="XPathEntityProcessor" forEach="/response/result/doc/"  transformer="script:set_dataType"  >			
 
 			<field column="mgi_accession_id" xpath="/response/result/doc/str[@name='MGI']" />			
