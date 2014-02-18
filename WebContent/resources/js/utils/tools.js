@@ -730,20 +730,29 @@
 		else {	
 			console.log('uncheck');
 			// uncheck checkbox with matching value		
-			
-			thisLi.find('ul li').each(function(){
-				console.log($(this).find('a').attr('rel') + ' vs '+ oChkbox.attr('rel'));
+			$('ul#facetFilter li.ftag').each(function(){				
 				if ( $(this).find('a').attr('rel') == oChkbox.attr('rel') ){			
 					$(this).remove();					
 					oChkbox.siblings('span.flabel').removeClass('highlight');					
 				}
 			});			
 			
-			// hide facet filter container if no filter chosen for that facet 
-			if ( thisLi.find('li').size() == 0 ){
-				thisLi.find('ul').remove();
-				thisLi.hide();				
-				thisLi.find('.fcap').hide();	
+			// hide facet caption in filter if no filter for that facet is present
+			$('ul#facetFilter li.has-sub').each(function(){
+				if ( $(this).find('li.ftag').size() == 0 ){
+					$(this).find('fcap').hide();
+				}				
+			});  			
+			
+			// when all filters are unchecked, hide facet filter container and reload current url (for current facet)			
+			if ( $('ul#facetFilter li.ftag').size() == 0 ){	
+								
+				$('ul#facetFilter li.has-sub').each(function(){
+					$(this).find('ul').remove();
+					$(this).find('.fcap').hide();
+					$(this).hide();
+				});
+				
 				var fqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;
 				
 				var url = baseUrl 
@@ -753,13 +762,9 @@
 				
 				console.log(url);				
 				document.location.href = url;
-				location.reload();
-				//oHashParams = $.fn.parseHashString(window.location.hash.substring(1));		
-				//$.fn.fetchSolrFacetCount(oHashParams);
-				//document.location.href = url;
-				
+				location.reload();				
 			}
-			else {
+			else {			
 				updateFacetUrlTable(q, facet);
 			}
 		}
@@ -782,7 +787,8 @@
 	$.fn.removeFacetFilter = function(facet) { 
 		$('div.ffilter').hide();
 	    $('ul#facetFilter li.has-sub ul').remove();
-	    $('ul#facetFilter span.fcap').css('visibility','hidden');               
+	    //$('ul#facetFilter span.fcap').css('visibility','hidden');
+	    $('ul#facetFilter span.fcap').hide();
 	    
 	    // uncheck all checkboxes/unhighlight           
 	    $('div.flist li.fcat input').prop('checked', false);
@@ -802,8 +808,9 @@
 		var thisLi = $('ul#facetFilter li.' + facet);
 				
 		// show filter facet caption
-		thisLi.find('.fcap').show().css('visibility', 'visible');
-				
+		//thisLi.find('.fcap').show().css('visibility', 'visible');
+		thisLi.find('.fcap').show();
+		
 		var display = MPI2.searchAndFacetConfig.facetFilterLabel[field];
 		if ( value == 1 ){
 			value = field == 'imits_phenotype_started' ? 'Started' : 'Yes';		
