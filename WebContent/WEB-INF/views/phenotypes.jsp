@@ -23,12 +23,32 @@
 
 
 	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
-
+<jsp:attribute name="addToFooter">
+	<div class="region region-pinned">
+            
+        <div id="flyingnavi" class="block">
+            
+            <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
+            
+            <ul>
+                <li><a href="#phenotype">Phenotype</a></li>
+                <c:if test="${genePercentage.getDisplay()}">
+                		<li><a href="#data-summary">Phenotype Association Stats</a></li>
+                </c:if>
+                <li><a href="#gene-variants">Gene Variants</a></li><!-- message comes up in this section so dont' check here -->
+            </ul>
+            
+            <div class="clear"></div>
+            
+        </div>
+        
+    </div>
+</jsp:attribute>
 	<jsp:body>
 
 	<div class="region region-content">
 		<div class="node node-gene">
-			<h1 class="title">Phenotype: ${phenotype.name} </h1>	  
+			<h1 class="title" id="phenotype">Phenotype: ${phenotype.name} </h1>	  
 				<div class="section">
 					<div class="inner">
 						<c:if test="${not empty phenotype.description}">
@@ -106,7 +126,7 @@
 			
 				<div class="section">
 				
-			    <h2 class="title ">Gene variants with ${phenotype.name} 	
+			    <h2 class="title" id="gene-variants">Gene variants with ${phenotype.name} 	
 			    <span class="documentation" ><a href='' id='relatedMpPanel' class="fa fa-question-circle pull-right"></a></span> 
 			    </h2>
 				   
