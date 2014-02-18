@@ -258,7 +258,8 @@ config.facetParams = {
 		 topLevelName: '',
 		 ontology: 'mp',
 		 breadCrumbLabel: 'Phenotypes',		
-		 filterParams: {'fq': 'ontology_subset:IMPC_Terms'},
+		 //filterParams: {'fq': 'ontology_subset:IMPC_Terms'},
+		 filterParams: {'fq': 'ontology_subset:*'},
 		 srchParams: $.extend({},				
 					commonSolrParams,	 	
 					{'fl': 'mp_id,mp_term,mp_definition,top_level_mp_term,top_mp_term_id'})

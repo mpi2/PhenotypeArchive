@@ -269,7 +269,7 @@
 						+ '- looking for all hox genes'
 						+ '</p>'
 						+ '<h5>Phenotype query examples</h5>'
-						+ '<p>'
+						+ '<p>'					
 						+ '<a href="${baseUrl}/search?q=abnormal skin morphology#core=mp&fq=ontology_subset:*">abnormal skin morphology</a>'
 						+ '- looking for a specific phenotype'
 						+ '<br>'
