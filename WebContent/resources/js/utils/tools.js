@@ -181,47 +181,30 @@
 	
 	$.fn.setFacetCounts = function(q, fqStr, facet){
 		
-		console.log(q + " -- " +  fqStr + " -- " + facet);		
-        
-        /*if ( $('ul#facetFilter li li a').size() == 0 ){
-			if ( q == '*:*'){
-				alert('here-1');
-				document.location.href = baseUrl + '/search';
-			}
-			else {	
-				var url = baseUrl 
-						+ '/search#fq=' 
-						+ MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq 
-						+ '&core=' + facet;
-				console.log(url);
-				//document.location.href = baseUrl + '/search?q=' + q;
-				document.location.href = url;
-			}
+		console.log(q + " -- " +  fqStr + " -- " + facet);	
+		
+		do_megaGene(q, fqStr);			
+		do_megaMp(q, fqStr);
+		
+		if ( facet != 'images' && facet != 'pipeline' ){
+			// no images/procedures are annotated to diesease
+			do_megaDisease(q, fqStr);
 		}
-		else {*/		
-			
-			do_megaGene(q, fqStr);			
-			do_megaMp(q, fqStr);
-			
-			if ( facet != 'images' && facet != 'pipeline' ){
-				// no images/procedures are annotated to diesease
-				do_megaDisease(q, fqStr);
-			}
-			else {
-				$('div.flist li#disease span.fcount').text(0);
-			}
-			
-			if ( facet == 'disease' ){
-				do_megaMa(q, fqStr);
-				$('div.flist li#pipeline span.fcount').text(0);
-				$('div.flist li#images span.fcount').text(0);
-			}
-			else {
-				do_megaMa(q, fqStr);
-				do_megaPipeline(q, fqStr, facet);
-				do_megaImages(q, fqStr, facet);			
-			}			   	
-		//}
+		else {
+			$('div.flist li#disease span.fcount').text(0);
+		}
+		
+		if ( facet == 'disease' ){
+			do_megaMa(q, fqStr);
+			$('div.flist li#pipeline span.fcount').text(0);
+			$('div.flist li#images span.fcount').text(0);
+		}
+		else {
+			do_megaMa(q, fqStr);
+			do_megaPipeline(q, fqStr, facet);
+			do_megaImages(q, fqStr, facet);			
+		}			   	
+		
 	};	
 	
 	function do_megaGene(q, fqStr){
@@ -412,7 +395,7 @@
     			for (var i=0; i<aSubFacets.length; i++){    				
     				var subFacetName = aSubFacets[i];
     				
-    				// do some accouting for matching subfacets
+    				// do some accounting for matching subfacets
     				if ( subFacetName.indexOf('curated') != -1 ) {
     					for ( var cr=0; cr<oFacets[subFacetName].length; cr=cr+2){
     						if ( oFacets[subFacetName][cr] == true ){
