@@ -181,47 +181,30 @@
 	
 	$.fn.setFacetCounts = function(q, fqStr, facet){
 		
-		console.log(q + " -- " +  fqStr + " -- " + facet);		
-        
-        /*if ( $('ul#facetFilter li li a').size() == 0 ){
-			if ( q == '*:*'){
-				alert('here-1');
-				document.location.href = baseUrl + '/search';
-			}
-			else {	
-				var url = baseUrl 
-						+ '/search#fq=' 
-						+ MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq 
-						+ '&core=' + facet;
-				console.log(url);
-				//document.location.href = baseUrl + '/search?q=' + q;
-				document.location.href = url;
-			}
+		console.log(q + " -- " +  fqStr + " -- " + facet);	
+		
+		do_megaGene(q, fqStr);			
+		do_megaMp(q, fqStr);
+		
+		if ( facet != 'images' && facet != 'pipeline' ){
+			// no images/procedures are annotated to diesease
+			do_megaDisease(q, fqStr);
 		}
-		else {*/		
-			
-			do_megaGene(q, fqStr);			
-			do_megaMp(q, fqStr);
-			
-			if ( facet != 'images' && facet != 'pipeline' ){
-				// no images/procedures are annotated to diesease
-				do_megaDisease(q, fqStr);
-			}
-			else {
-				$('div.flist li#disease span.fcount').text(0);
-			}
-			
-			if ( facet == 'disease' ){
-				do_megaMa(q, fqStr);
-				$('div.flist li#pipeline span.fcount').text(0);
-				$('div.flist li#images span.fcount').text(0);
-			}
-			else {
-				do_megaMa(q, fqStr);
-				do_megaPipeline(q, fqStr, facet);
-				do_megaImages(q, fqStr, facet);			
-			}			   	
-		//}
+		else {
+			$('div.flist li#disease span.fcount').text(0);
+		}
+		
+		if ( facet == 'disease' ){
+			do_megaMa(q, fqStr);
+			$('div.flist li#pipeline span.fcount').text(0);
+			$('div.flist li#images span.fcount').text(0);
+		}
+		else {
+			do_megaMa(q, fqStr);
+			do_megaPipeline(q, fqStr, facet);
+			do_megaImages(q, fqStr, facet);			
+		}			   	
+		
 	};	
 	
 	function do_megaGene(q, fqStr){
@@ -412,7 +395,7 @@
     			for (var i=0; i<aSubFacets.length; i++){    				
     				var subFacetName = aSubFacets[i];
     				
-    				// do some accouting for matching subfacets
+    				// do some accounting for matching subfacets
     				if ( subFacetName.indexOf('curated') != -1 ) {
     					for ( var cr=0; cr<oFacets[subFacetName].length; cr=cr+2){
     						if ( oFacets[subFacetName][cr] == true ){
@@ -730,20 +713,29 @@
 		else {	
 			console.log('uncheck');
 			// uncheck checkbox with matching value		
-			
-			thisLi.find('ul li').each(function(){
-				console.log($(this).find('a').attr('rel') + ' vs '+ oChkbox.attr('rel'));
+			$('ul#facetFilter li.ftag').each(function(){				
 				if ( $(this).find('a').attr('rel') == oChkbox.attr('rel') ){			
 					$(this).remove();					
 					oChkbox.siblings('span.flabel').removeClass('highlight');					
 				}
 			});			
 			
-			// hide facet filter container if no filter chosen for that facet 
-			if ( thisLi.find('li').size() == 0 ){
-				thisLi.find('ul').remove();
-				thisLi.hide();				
-				thisLi.find('.fcap').hide();	
+			// hide facet caption in filter if no filter for that facet is present
+			$('ul#facetFilter li.has-sub').each(function(){
+				if ( $(this).find('li.ftag').size() == 0 ){
+					$(this).find('fcap').hide();
+				}				
+			});  			
+			
+			// when all filters are unchecked, hide facet filter container and reload current url (for current facet)			
+			if ( $('ul#facetFilter li.ftag').size() == 0 ){	
+								
+				$('ul#facetFilter li.has-sub').each(function(){
+					$(this).find('ul').remove();
+					$(this).find('.fcap').hide();
+					$(this).hide();
+				});
+				
 				var fqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;
 				
 				var url = baseUrl 
@@ -753,13 +745,9 @@
 				
 				console.log(url);				
 				document.location.href = url;
-				location.reload();
-				//oHashParams = $.fn.parseHashString(window.location.hash.substring(1));		
-				//$.fn.fetchSolrFacetCount(oHashParams);
-				//document.location.href = url;
-				
+				location.reload();				
 			}
-			else {
+			else {			
 				updateFacetUrlTable(q, facet);
 			}
 		}
@@ -782,7 +770,8 @@
 	$.fn.removeFacetFilter = function(facet) { 
 		$('div.ffilter').hide();
 	    $('ul#facetFilter li.has-sub ul').remove();
-	    $('ul#facetFilter span.fcap').css('visibility','hidden');               
+	    //$('ul#facetFilter span.fcap').css('visibility','hidden');
+	    $('ul#facetFilter span.fcap').hide();
 	    
 	    // uncheck all checkboxes/unhighlight           
 	    $('div.flist li.fcat input').prop('checked', false);
@@ -802,8 +791,9 @@
 		var thisLi = $('ul#facetFilter li.' + facet);
 				
 		// show filter facet caption
-		thisLi.find('.fcap').show().css('visibility', 'visible');
-				
+		//thisLi.find('.fcap').show().css('visibility', 'visible');
+		thisLi.find('.fcap').show();
+		
 		var display = MPI2.searchAndFacetConfig.facetFilterLabel[field];
 		if ( value == 1 ){
 			value = field == 'imits_phenotype_started' ? 'Started' : 'Yes';		
