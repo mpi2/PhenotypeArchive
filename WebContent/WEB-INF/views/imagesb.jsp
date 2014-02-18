@@ -25,6 +25,24 @@
 
 	<jsp:attribute name="addToFooter">
 		<script>$.autopager({link: '#next',content: '#grid'});</script>
+		
+		<div class="region region-pinned">
+            
+        <div id="flyingnavi" class="block">
+            
+            <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
+            
+            <ul>
+            	<c:if test="${imageCount ne 0}">
+                	<li><a href="#top">Images</a></li>
+                </c:if>
+            </ul>
+            
+            <div class="clear"></div>
+            
+        </div>
+        
+    </div>
 	</jsp:attribute>
 
 <jsp:body>
@@ -35,7 +53,7 @@
     
    <c:if test="${solrImagesError ne null}"><h4>There is an error the image index is down please contact the IMPC if this error persists</h4></c:if>
 		<c:if test="${imageCount eq 0}"><h4>There are no images for ${breadcrumbText}</h4></c:if>
-		<c:if test="${imageCount ne 0}"><h1 class="title">${imageCount} images for ${breadcrumbText}</h1></c:if>
+		<c:if test="${imageCount ne 0}"><h1 class="title" id="top">${imageCount} images for ${breadcrumbText}</h1></c:if>
 <div  class="section">
 		<div class="inner">
                 <div class="accordion-body" style="display: block">
