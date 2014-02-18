@@ -31,7 +31,7 @@
             <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
             
             <ul>
-                <li><a href="#phenotype">Phenotype</a></li>
+                <li><a href="#top">Phenotype</a></li>
                 <c:if test="${genePercentage.getDisplay()}">
                 		<li><a href="#data-summary">Phenotype Association Stats</a></li>
                 </c:if>
@@ -48,7 +48,7 @@
 
 	<div class="region region-content">
 		<div class="node node-gene">
-			<h1 class="title" id="phenotype">Phenotype: ${phenotype.name} </h1>	  
+			<h1 class="title" id="top">Phenotype: ${phenotype.name} </h1>	  
 				<div class="section">
 					<div class="inner">
 						<c:if test="${not empty phenotype.description}">

@@ -20,7 +20,23 @@
 	<link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" />
 	</jsp:attribute>
 
-	<jsp:attribute name="footer">	
+	<jsp:attribute name="addToFooter">	
+	<div class="region region-pinned">
+            
+        <div id="flyingnavi" class="block">
+            
+            <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
+            
+            <ul>
+                <li><a href="#top">Search</a></li>
+            </ul>
+            
+            <div class="clear"></div>
+            
+        </div>
+        
+    </div>
+	
 	
 	<!-- hash state: the url params will change when
 		(1) the facet count is clicked
