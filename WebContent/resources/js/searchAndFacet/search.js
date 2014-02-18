@@ -32,8 +32,8 @@
 		var q = oUrlHashParams.q;
 		if ( typeof q == 'undefined' ){
 			// check search kw
-			if ( window.location.search != '' ){
-				q = window.location.search.replace('?q=','');
+			if ( window.location.search != '' ){				
+				q = window.location.search.replace(/&.+/, '').replace('?q=','');
 				$('input#s').val(decodeURI(q));				
 			}
 			else {
