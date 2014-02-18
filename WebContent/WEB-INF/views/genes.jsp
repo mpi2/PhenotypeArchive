@@ -194,8 +194,8 @@
 			</h2>		
 
 			<div class="inner">
-				
-				<c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
+				<c:choose>
+				<c:when test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
 					<div class="abnormalities">
 						<div class="allicons"></div>
 						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
@@ -289,7 +289,11 @@
 						</div>
 					</div>
 					
-				</c:if>
+				</c:when>
+				<c:otherwise>
+				<div class="alert alert-info">There is are currently no phenotype associations for the gene ${gene.symbol} </div>
+				</c:otherwise>
+				</c:choose>
 			</div>
 		</div>
 				
