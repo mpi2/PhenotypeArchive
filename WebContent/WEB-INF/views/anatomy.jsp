@@ -9,8 +9,28 @@
 	 <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&core=ma&fq=ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*">anatomy</a> &raquo; ${anatomy.term}</jsp:attribute>
 <jsp:attribute name="header">
 </jsp:attribute>
-    <jsp:attribute name="footer">
-		<script src="${baseUrl}/js/general/toggle.js"></script>
+    <jsp:attribute name="addToFooter">
+		<div class="region region-pinned">
+            
+        <div id="flyingnavi" class="block">
+            
+            <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
+            
+            <ul>
+                <li><a href="#top">Anatomy Term</a></li>
+                <c:if test="${not empty anatomy.mpTerms}">
+                	<li><a href="#associated-phenotypes">Associated Phenotypes</a></li>
+                </c:if>
+                <c:if test="${fn:length(anatomy.childTerms)>0 }">
+                	<li><a href="#explore">Explore</a></li>
+                </c:if>
+            </ul>
+            
+            <div class="clear"></div>
+            
+        </div>
+        
+    </div>
 		
     </jsp:attribute>
 
@@ -21,7 +41,7 @@
 			<div class="block block-system">
 				<div class="content">
 					<div class="node node-gene">
-								<h1 class="title">Anatomy Term: ${anatomy.term}</h1>
+								<h1 class="title" id="top">Anatomy Term: ${anatomy.term}</h1>
 					
 
 		<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
@@ -58,7 +78,7 @@
 	<c:if test="${not empty anatomy.mpTerms}">
 		<div class="section">
 			<%-- <div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div> --%>
-			<h2 class="title">Associated Phenotypes<i class="fa fa-question-circle pull-right"></i></h2>
+			<h2 class="title" id="associated-phenotypes">Associated Phenotypes<i class="fa fa-question-circle pull-right"></i></h2>
 			<div class="inner">
 							
 				
@@ -84,7 +104,7 @@
 	<c:if test="${fn:length(anatomy.childTerms)>0 }">
 	<div class="section">
 	<%-- <div class='documentation'><a href='' class='relatedMaPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div> --%>
-		<h2 class="title">Explore<i class="fa fa-question-circle pull-right"></i></h2>
+		<h2 class="title" id="explore">Explore<i class="fa fa-question-circle pull-right"></i></h2>
 				
 		<div class="inner">				
 					

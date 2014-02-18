@@ -107,8 +107,6 @@
 		<!-- link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css"/-->
 		
 		<!-- JavaScript Local Imports -->
-		<%-- <script src="${baseUrl}/js/general/toggle.js"></script> --%>
-		
 		<script src="${baseUrl}/js/general/enu.js"></script>
 		<script src="${baseUrl}/js/general/dropdownfilters.js"></script>
 		<!--[if !IE]><!-->
