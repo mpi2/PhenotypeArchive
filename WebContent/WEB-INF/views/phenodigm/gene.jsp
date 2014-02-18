@@ -74,10 +74,30 @@
             });
         </script>
     </jsp:attribute>
+    
+     <jsp:attribute name="addToFooter">		
+	<div class="region region-pinned">
+            
+        <div id="flyingnavi" class="block">
+            
+            <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
+            
+            <ul>
+                	<li><a href="#top">Associated Diseases</a></li>
+                	<li><a href="#potential-gene-models">Potential Gene Models</a></li>
+               
+            </ul>
+            
+            <div class="clear"></div>
+            
+        </div>
+        
+    </div>
+	</jsp:attribute>
 
     <jsp:body>
 
-        <h1 class="title">Associated Diseases: ${geneIdentifier.geneSymbol}</h1>
+        <h1 class="title" id="top">Associated Diseases: ${geneIdentifier.geneSymbol}</h1>
 
         <div class="section">
             <div class="inner">
@@ -107,7 +127,7 @@
         </div>
 
         <div class="section">
-            <h2 class="topic">Potential Disease Models <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a><span class='documentation'><a href='${baseUrl}/documentation/disease-help.html#details' class='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span></h2>
+            <h2 class="topic" id="potential-gene-models">Potential Disease Models <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a><span class='documentation'><a href='${baseUrl}/documentation/disease-help.html#details' class='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span></h2>
             <div class="inner">
                 <c:choose>
                     <c:when test="${empty phenotypeAssociations}">
