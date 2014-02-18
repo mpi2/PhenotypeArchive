@@ -140,10 +140,9 @@
 		});		
 	};
 	
-	function _facetRefresh(json, facet){
+	function _facetRefresh(json, selectorBase){
 		// refresh phenotype facet		  			
-		var selectorBase = "div.flist li#" + facet;
-		    			
+							    			
 		// refresh mp facet sum count				
 		var fcount = json.response.numFound;
 		$(selectorBase + ' > span.fcount').text(fcount);    			
@@ -151,12 +150,12 @@
 		// set all subfacet counts to zero first and then update only those matching facets
 		$(selectorBase).find('li.fcat span.fcount').each(function(){
 			$(this).text('0');
-		});	
-		return selectorBase;
+		});					
 	};
-	
+		
 	function _addFacetOpenCollapseLogic(foundMatch, selectorBase) {
-		var firstMatch = 0;				
+		var firstMatch = 0;	
+		
 		for ( var sub in foundMatch ){	
 			
 			if ( foundMatch[sub] != 0 ) {		
@@ -165,6 +164,7 @@
 					// open first subfacet w/ match					
 					$(selectorBase + ' li.fcatsection.' + sub).addClass('open');
 				}
+				
 				// remove grayout for other subfacet(s) with match
 				$(selectorBase + ' li.fcatsection.' + sub).removeClass('grayout');
 			}
@@ -228,8 +228,9 @@
     			//console.log('gene');
     			//console.log(json);
     			
-				var oFacets = json.facet_counts.facet_fields;				
-				var selectorBase = _facetRefresh(json, 'gene'); 
+				var oFacets = json.facet_counts.facet_fields;					
+				var selectorBase = "div.flist li#gene";
+				_facetRefresh(json, selectorBase);				
 				
 				// collapse all subfacet first, then open the first one that has matches 
 				$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');
@@ -241,10 +242,10 @@
 					if ( aFields[n].match(/^imits_/) && oFacets[aFields[n]].length != 0 ){
 						foundMatch.phenotyping++;
 					}
-					else if ( aFields[n]=='status' ){
+					else if ( aFields[n]=='status' && oFacets.status.length != 0 ){
 						foundMatch.production++;
 					}
-					else if ( aFields[n]=='marker_type' ) {
+					else if ( aFields[n]=='marker_type' && oFacets.marker_type.length != 0 ) {
 						foundMatch.marker_type++;
 					}					
 				}									
@@ -323,8 +324,10 @@
     			
     			// refresh phenotype facet
     			var oFacets = json.facet_counts.facet_fields;   				
-    			var selectorBase = _facetRefresh(json, 'mp');  			
-    			
+    						
+    			var selectorBase = "div.flist li#mp";
+				_facetRefresh(json, selectorBase); 
+				
 				for (var i=0; i<oFacets.annotated_or_inferred_higherLevelMpTermName.length; i=i+2){    			
     				var facetName = oFacets.annotated_or_inferred_higherLevelMpTermName[i];    				   				   				
     				var facetCount = oFacets.annotated_or_inferred_higherLevelMpTermName[i+1];
@@ -382,9 +385,10 @@
     			//console.log(json);
     			    			
     			// refresh disease facet
-    			var oFacets = json.facet_counts.facet_fields;    			
-    			var selectorBase = _facetRefresh(json, 'disease');    			   			
-    			
+    			var oFacets = json.facet_counts.facet_fields;
+    			var selectorBase = "div.flist li#disease";
+				_facetRefresh(json, selectorBase); 
+				
     			// collapse all subfacet first, then open the first one that has matches 
 				$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');
     			    			
@@ -398,19 +402,19 @@
     				// do some accounting for matching subfacets
     				if ( subFacetName.indexOf('curated') != -1 ) {
     					for ( var cr=0; cr<oFacets[subFacetName].length; cr=cr+2){
-    						if ( oFacets[subFacetName][cr] == true ){
-    							foundMatch.curated++;    							
+    						if ( oFacets[subFacetName][cr] == 'true' ){    						
+    							foundMatch.curated++;    				    							
     						}
     					}    					
     				}
     				else if ( subFacetName.indexOf('predicted') != -1 ){    					
     					for ( var pr=0; pr<oFacets[subFacetName].length; pr=pr+2){
-    						if ( oFacets[subFacetName][pr] == true ){
-    							foundMatch.predicted++;    							
+    						if ( oFacets[subFacetName][pr] == 'true' ){    							
+    							foundMatch.predicted++;    							 							
     						}
     					} 				
 					}
-    				else {
+    				else if ( oFacets[subFacetName].length > 0 ) {    					
     					foundMatch[subFacetName]++;
     				}  				  				
     				
@@ -459,9 +463,10 @@
     			//console.log(json);			
     			    			
     			// refresh phenotype facet
-    			var oFacets = json.facet_counts.facet_fields;    			 		
-    			var selectorBase = _facetRefresh(json, 'ma'); 
-    			
+    			var oFacets = json.facet_counts.facet_fields;    			
+    			var selectorBase = "div.flist li#ma";
+				_facetRefresh(json, selectorBase); 
+				
 				for (var i=0; i<oFacets.annotated_or_inferred_higherLevelMaTermName.length; i=i+2){    			
     				var facetName = oFacets.annotated_or_inferred_higherLevelMaTermName[i];    				   				   				
     				var facetCount = oFacets.annotated_or_inferred_higherLevelMaTermName[i+1];
@@ -497,8 +502,9 @@
 				//console.log(json);			
 				
 				// refresh phenotype facet
-				var oFacets = json.facet_counts.facet_fields;	
-				var selectorBase = _facetRefresh(json, 'pipeline'); 	
+				var oFacets = json.facet_counts.facet_fields;				
+				var selectorBase = "div.flist li#pipeline";
+				_facetRefresh(json, selectorBase); 
 				
 				// close/grayout all subfacets by default
     			$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout')
@@ -565,8 +571,9 @@
     			//console.log(json);			
     			
     			// refresh images facet
-				var oFacets = json.facet_counts.facet_fields;	
-				var selectorBase = _facetRefresh(json, 'images'); 
+				var oFacets = json.facet_counts.facet_fields;				
+				var selectorBase = "div.flist li#images";
+				_facetRefresh(json, selectorBase); 
 				
 				// close/grayout all subfacets by default
     			$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout')    			  			
