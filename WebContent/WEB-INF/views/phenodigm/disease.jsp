@@ -11,6 +11,26 @@
     <jsp:attribute name="header">
         <link rel="stylesheet" type="text/css" href="${baseUrl}/css/custom.css"/>
     </jsp:attribute>
+    
+    <jsp:attribute name="addToFooter">		
+	<div class="region region-pinned">
+            
+        <div id="flyingnavi" class="block">
+            
+            <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
+            
+            <ul>
+            		<li><a href="#top">Disease</a></li>
+                	<li><a href="#potential_mouse_models">Potential MouseModels</a></li>
+               
+            </ul>
+            
+            <div class="clear"></div>
+            
+        </div>
+        
+    </div>
+	</jsp:attribute>
 
     <jsp:attribute name="breadcrumb">
         &nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&core=disease&fq=type:disease"> Diseases</a>&nbsp;&raquo; ${disease.diseaseId}
@@ -75,7 +95,7 @@
 
     <jsp:body>
 
-        <h1 class="title">Disease: ${disease.term}</h1>
+        <h1 class="title" id="top">Disease: ${disease.term}</h1>
         <div class="section">
             <div class="inner">
                 <p class="with-label">
@@ -156,7 +176,7 @@
             </div>
         </div>
         <div class="section">
-            <h2 class="title">Potential Mouse Models <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a><span class='documentation'><a href='${baseUrl}/documentation/disease-help.html#details' class='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span></h2>
+            <h2 class="title" id="potential_mouse_models">Potential Mouse Models <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a><span class='documentation'><a href='${baseUrl}/documentation/disease-help.html#details' class='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span></h2>
             <div class="inner">                
                 <c:choose>
                     <c:when test="${empty phenotypeAssociations}">
