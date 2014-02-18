@@ -7,6 +7,37 @@
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#sort=marker_symbol asc&q=*:*&core=gene">Genes</a> &raquo; ${gene.symbol}</jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="gene-node no-sidebars small-header"></jsp:attribute>
 	<jsp:attribute name="addToFooter">
+	<!--  start of floating menu for genes page -->
+	<div class="region region-pinned">
+            
+        <div id="flyingnavi" class="block">
+            
+            <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
+            
+            <ul>
+                <li><a href="#top">Gene</a></li>
+                <li><a href="#section-associations">Phenotype Associations</a></li><!--  always a section for this even if says no phenotypes found - do not putting in check here -->
+                <c:if test="${phenotypeStarted}">
+                		<li><a href="#heatmap">Heatmap</a></li>
+                </c:if>
+                <c:if test="${not empty solrFacets}">
+                		<li><a href="#section-images">Associated Images</a></li>
+                </c:if>
+                <c:if test="${not empty expressionFacets}">
+                		<li><a href="#section-expression">Expression</a></li>
+                </c:if>
+                <c:if test="${!countIKMCAllelesError}">
+                		<li><a href="#section-alleles">ES Cell and Mouse Alleles</a></li>
+                </c:if>
+            </ul>
+            
+            <div class="clear"></div>
+            
+        </div>
+        
+    </div>
+	<!--  end of floating menu for genes page -->
+	
 	<c:if test="${phenotypeStarted}">
 	<script type="text/javascript" src="${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js"></script>
 	<!--[if IE 8]>
@@ -109,7 +140,7 @@
 			<div class="block block-system">
 				<div class="content">
 					<div class="node node-gene">
-						<h1 class="title">Gene: ${gene.symbol}  &nbsp;&nbsp; </h1>
+						<h1 class="title" id="top">Gene: ${gene.symbol}  &nbsp;&nbsp; </h1>
 						<div class="section">
 							<div class="inner">
 							<!--  login interest button -->
@@ -359,7 +390,7 @@
 					
 			<c:if test="${not empty expressionFacets}">
 			<div class="section">
-				<h2 class="title">Expression <i class="fa fa-question-circle pull-right"></i></h2>
+				<h2 class="title" id="section-expression">Expression <i class="fa fa-question-circle pull-right"></i></h2>
 					<div class="inner">			
 					
 							<!-- thumbnail scroller markup begin -->
@@ -389,7 +420,7 @@
 			</c:if>
 		
 			<div class="section">
-				<h2 class="title ">ES Cell and Mouse Alleles <span class="documentation" ><a href='' id='allelePanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
+				<h2 class="title" id="section-alleles">ES Cell and Mouse Alleles <span class="documentation" ><a href='' id='allelePanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
 	</h2>	
 				    <div class="inner"> 			
 						<div id="allele_tracker_panel_results">&nbsp;</div>
@@ -417,5 +448,9 @@
 		</div>
 		</div>
 		
+		
+		
+		
   </jsp:body>
+  
 </t:genericpage>
