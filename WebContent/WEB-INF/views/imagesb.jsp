@@ -9,8 +9,7 @@
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&core=images&fq=annotationTermId:M* OR expName:* OR symbol:*">Images</a> &raquo; Results</jsp:attribute>
 	
     <jsp:attribute name="header">
-		<link href="${baseUrl}/css/imagemain.css" rel="stylesheet" />
-		<link href="${baseUrl}/css/searchresults.css" rel="stylesheet" />
+		
 		<style>
 		table th{border-bottom:1px solid #CDC8B1;}
 		table tr:last-child th{border-bottom:none;}
