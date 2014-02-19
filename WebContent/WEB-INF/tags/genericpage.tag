@@ -72,7 +72,8 @@
 <!-- link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.theme.css"-->
 <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
 <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
-<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.fancybox-1.3.4.css">
+
+<link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.css">
 <link href="${baseUrl}/css/default.css?cache=09-01-14" rel="stylesheet" type="text/css" />
 <link href="${baseUrl}/css/wdm.css?cache=09-01-14" rel="stylesheet" type="text/css" />
 
@@ -215,7 +216,7 @@ try {
                 <jsp:doBody />               
                         
 		     </div><!-- /main -->
-        
+
     <footer id="footer">
     
         <div class="centercontent">
@@ -227,8 +228,7 @@ try {
 								</div>
 						  </div>
         </div>
-
-        
+       
         <div id="footerline">
             
             <div class="centercontent">
