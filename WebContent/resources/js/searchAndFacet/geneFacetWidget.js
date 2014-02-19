@@ -77,7 +77,7 @@
 	    	/*-------------------------------------------------------*/
 	    	/* ------ displaying sidebar and update dataTable ------ */
 	    	/*-------------------------------------------------------*/	    	  	
-	    	var oSums = {'phenoStatus':0,'prodStatus':0,'geneSubType':0};
+	    	var foundMatch = {'phenotyping':0,'production':0,'marker_type':0};
 	    	
 	    	if (numFound > 0){
 	    		
@@ -96,7 +96,7 @@
 	    			
 	    			if ( phenoFieldList.length != 0 ){
 	    				phenoCount = 1;
-	    				oSums.phenoStatus += phenoFieldList.length;
+	    				foundMatch.phenotyping++;
 	    	    		for ( var j=0; j<phenoFieldList.length; j+=2 ){
 	    	    			// skip status '0'	    	    			
 	    	    			if ( phenoFieldList[j] == 'Phenotype Attempt Registered' || phenoFieldList[j] == 1 ){
@@ -154,7 +154,7 @@
 	    		prodStatusSect.append($('<span></span>').attr({'class':'flabel'}).text('IMPC Mouse Production Status'));
 	    		
 	    		var status_facets = json.facet_counts['facet_fields']['status'];
-	    		oSums.prodStatus = status_facets.length;
+	    		foundMatch.production = status_facets.length;
 	    		var status_count = {};
 	    		for ( var i=0; i<status_facets.length; i+=2 ){ 
 					var type = status_facets[i];
@@ -210,7 +210,7 @@
 	    		subTypeSect.append($('<span></span>').attr({'class':'flabel'}).text('Subtype'));
 	    		
 	    		var mkr_facets = json.facet_counts['facet_fields']['marker_type'];
-	    		oSums.geneSubType = mkr_facets.length;
+	    		foundMatch.marker_type = mkr_facets.length;
 	    		var unclassified;
 	    		var subTypeUlContainer = $("<ul></ul>");
 	    		
@@ -238,18 +238,15 @@
 	    		subTypeSect.append(subTypeUlContainer);
 	    		
 	    		// update all subfacet counts of this facet 
-	    		$('div.flist li#gene > ul').append(phenoStatusSect, prodStatusSect, subTypeSect);	    		
+	    		$('div.flist li#gene > ul').append(phenoStatusSect, prodStatusSect, subTypeSect);	
 	    		
-	    		// phenoStatus subFacet is open by default	
-	    		if ( phenoCount != 0 ){
-	    			$('div.flist li#gene > ul li:nth-child(1)').addClass('open');
-	    		}
-	    		else {
-	    			$('div.flist li#gene > ul li:nth-child(2)').addClass('open');
-	    		}
-	    		
+	    		var selectorBase = "div.flist li#gene";
+	    		// collapse all subfacet first, then open the first one that has matches 
+				$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');	    		
+	    		$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
+	    			    		
 	    		$.fn.initFacetToggles('gene');
-	    		
+	    			    		
 	    		// when facet widget is open, flag it so that we know there are existing filters 
     			// that need to be checked and highlighted
     			$.fn.checkAndHighlightSubfacetTerms();	    		

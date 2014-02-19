@@ -31,7 +31,7 @@
 	$.fn.parseUrlFordTableAndFacetFiltering = function(thisWidget){
 		var self = thisWidget;
 		var facet = self.element.attr('id');	
-		console.log(facet + ' widget loaded ...');
+		//console.log(facet + ' widget loaded ...');
 				
 		var oHashParams;
 		
@@ -49,9 +49,8 @@
 			if ( /search\/?$/.exec(location.href) ){
 				oHashParams.coreName = 'gene';
 			}			
-		}	   			
-			
-		console.log(oHashParams);	
+		}		
+		//console.log(oHashParams);	
 		if ( oHashParams.coreName ){
 			//$.fn.loadDataTable(oHashParams);					
 		}
@@ -140,8 +139,7 @@
 		});		
 	};
 	
-	function _facetRefresh(json, selectorBase){
-		// refresh phenotype facet		  			
+	function _facetRefresh(json, selectorBase){			  			
 							    			
 		// refresh mp facet sum count				
 		var fcount = json.response.numFound;
@@ -153,7 +151,7 @@
 		});					
 	};
 		
-	function _addFacetOpenCollapseLogic(foundMatch, selectorBase) {
+	$.fn.addFacetOpenCollapseLogic = function(foundMatch, selectorBase) {
 		var firstMatch = 0;	
 		
 		for ( var sub in foundMatch ){	
@@ -298,7 +296,7 @@
 				}
 					
 
-				_addFacetOpenCollapseLogic(foundMatch, selectorBase);	
+				$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);	
 				//_tickFilterCheckBox('gene');
     		}
         });
@@ -437,7 +435,7 @@
     				}   			
     			}
     			    
-    			_addFacetOpenCollapseLogic(foundMatch, selectorBase);    			
+    			$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);    			
     			
     			//_tickFilterCheckBox('disease');	
     		}
@@ -505,7 +503,7 @@
 				var oFacets = json.facet_counts.facet_fields;				
 				var selectorBase = "div.flist li#pipeline";
 				_facetRefresh(json, selectorBase); 
-				
+												
 				// close/grayout all subfacets by default
     			$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout')
     			
@@ -577,34 +575,20 @@
 				
 				// close/grayout all subfacets by default
     			$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout')    			  			
-								
+				var foundMatch = {'Phenotype':0, 'Anatomy':0, 'Procedure':0, 'Gene':0};
+    			
     			var aSubFacets = {'annotated_or_inferred_higherLevelMpTermName':'Phenotype',
     							  'annotated_or_inferred_higherLevelMaTermName':'Anatomy',
     							  'expName':'Procedure',
     							  'subtype':'Gene'}; 
     			
-    			var k=0;
-    			for ( var facetStr in aSubFacets ){    		 
-    				
-    				if ( oFacets[facetStr].length != 0 ){
-    					k++;
-    					
-    					$(selectorBase + ' li.fcatsection > span.flabel').each(function(){    					
-    						if ( k == 1 ){  
-    							// open first subface that have matches
-    							if ( $(this).text() == aSubFacets[facetStr] ){
-    								$(this).parent().addClass('open');
-    							}
-    						}  
-    						// for the rest of matching subfacets
-    						$(this).parent().removeClass('grayout');
-    					});	
-    				}    				
-    				
+    			
+    			for ( var facetStr in aSubFacets ){    				
 	    			for (var j=0; j<oFacets[facetStr].length; j=j+2){	    				
 	    				
 	    				var facetName = oFacets[facetStr][j];	    								   				
 	    				var facetCount = oFacets[facetStr][j+1];	    				 				
+	    				foundMatch[aSubFacets[facetStr]]++;
 	    				
 	    				$(selectorBase + ' li.'+ facetStr).each(function(){
 	    					var aData = $(this).find('input').attr('rel').split('|');	    				
@@ -613,7 +597,8 @@
 	    					}
 	    				});	    				
 	    			}	    			
-    			}     			
+    			}
+    			$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
     		}
 		});		
 	}	
@@ -721,7 +706,7 @@
 			console.log('uncheck');
 			// uncheck checkbox with matching value		
 			$('ul#facetFilter li.ftag').each(function(){				
-				if ( $(this).find('a').attr('rel') == oChkbox.attr('rel') ){			
+				if ( $(this).find('a').attr('rel') == oChkbox.attr('rel') ){					
 					$(this).remove();					
 					oChkbox.siblings('span.flabel').removeClass('highlight');					
 				}
@@ -729,32 +714,34 @@
 			
 			// hide facet caption in filter if no filter for that facet is present
 			$('ul#facetFilter li.has-sub').each(function(){
-				if ( $(this).find('li.ftag').size() == 0 ){
+				if ( $(this).find('li.ftag').size() == 0 ){					
 					$(this).find('fcap').hide();
 				}				
 			});  			
 			
 			// when all filters are unchecked, hide facet filter container and reload current url (for current facet)			
-			if ( $('ul#facetFilter li.ftag').size() == 0 ){	
-								
+			if ( $('ul#facetFilter li.ftag').size() == 0 ){							
 				$('ul#facetFilter li.has-sub').each(function(){
 					$(this).find('ul').remove();
 					$(this).find('.fcap').hide();
 					$(this).hide();
 				});
 				
-				var fqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;
+				var url;
+				if ( window.location.search != '' ){
+					// has search keyword
+					url = baseUrl + '/search?q=' + q;
+				}
+				else {
+					// no search keyword
+					var fqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;					
+					url = baseUrl + '/search#fq=' + fqStr + '&core=' + facet;
+				}
 				
-				var url = baseUrl 
-						+ '/search#fq=' 
-						+ fqStr
-						+ '&core=' + facet;
-				
-				console.log(url);				
-				document.location.href = url;
+				window.history.pushState({},"", url);// change browser url
 				location.reload();				
 			}
-			else {			
+			else {
 				updateFacetUrlTable(q, facet);
 			}
 		}
@@ -1509,7 +1496,7 @@
 		$.fn.updateBreadCrumb(oVal.solrCoreName);		
 		$.fn.openFacet(oVal.solrCoreName);	
 		
-		console.log(oHashParams);
+		//console.log(oHashParams);
 		$.fn.invokeDataTable(oHashParams);
 		
     }   
