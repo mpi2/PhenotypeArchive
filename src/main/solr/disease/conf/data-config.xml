@@ -1,4 +1,4 @@
-<dataConfig>	
+ <dataConfig>	
 	
 	<script type='text/javascript'><![CDATA[	
 		
@@ -7,18 +7,12 @@
         	    row.put('dataType', 'disease');
             }
         	return row;
-        }	
-		function set_new_col(row) {
-            if (row.get('mgi_accession_id')){
-        	    row.put('disease_marker_acc', row.get('mgi_accession_id').toString());
-            }
-        	return row;
         }		
 
     ]]></script>
 
 	<dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>	
-	<dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />
+	<!--<dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />-->
 	<dataSource name="gene_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/gene/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 	
 	<document name="docs">
@@ -49,9 +43,9 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
 			<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  			
 			
 			<!-- genes associated with this disease -->
-			<entity dataSource="diseaseGenedb" name="dg" query="select mgi_id from disease2Gene where disease_id='${ddoc.disease_id}'">
+			<entity dataSource="diseaseGenedb" name="dg" query="select mgi_id from disease2Gene">
 				<field column="mgi_id" name="mgi_accession_id" />
-		
+
 				<!-- genes associated with this disease -->
             	<entity dataSource="gene_core" name="genedoc" stream="true" url="q=mgi_accession_id:&quot;${dg.mgi_id}&quot;&amp;wt=normal"
 					processor="XPathEntityProcessor" forEach="/response/result/doc/"                
@@ -94,7 +88,7 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
                     <field column="inferred_selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str" /> 			
 					
             	</entity>  	
-			</entity>   
+			</entity>
       	</entity>
   		
 	</document>
