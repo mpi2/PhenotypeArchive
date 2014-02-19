@@ -43,7 +43,7 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
 			<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  			
 			
 			<!-- genes associated with this disease -->
-			<entity dataSource="diseaseGenedb" name="dg" query="select mgi_id from disease2Gene">
+			<entity dataSource="diseaseGenedb" name="dg" query="select mgi_id from disease2Gene where disease_id='${ddoc.disease_id}'">
 				<field column="mgi_id" name="mgi_accession_id" />
 
 				<!-- genes associated with this disease -->

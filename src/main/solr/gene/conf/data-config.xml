@@ -32,8 +32,9 @@
 		
     ]]></script>
 
-	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />
-	<dataSource name="disease_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/disease/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
+	<dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />	
+	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />	
+	<dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
 	<dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 
@@ -102,27 +103,30 @@
 				<field column="qcGene" xpath="/response/result/doc/str[@name='gene_accession']" />	
 				<field column="hasQc" name="hasQc" />		
 			</entity>
-
-			<!-- disease associated with this gene -->			
-			<entity dataSource="disease_core" name="diseaseAssoc" stream="true" url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;rows=999999"
-				processor="XPathEntityProcessor" forEach="/response/result/doc/"							
-				readTimeout="10000" connectionTimeout="10000"  >
-				
-				<field column="disease_id" xpath="/response/result/doc/str[@name='disease_id']" />                                   
-	            <field column="type" xpath="/response/result/doc/str[@name='type']" /> 
-	            <field column="disease_source" xpath="/response/result/doc/str[@name='disease_source']" /> 
-	            <field column="disease_term" xpath="/response/result/doc/str[@name='disease_term']" /> 
-	            <field column="disease_alts" xpath="/response/result/doc/arr[@name='disease_alts']/str" /> 
-	            <field column="disease_classes" xpath="/response/result/doc/arr[@name='disease_classes']/str" /> 
-	            <field column="human_curated" xpath="/response/result/doc/bool[@name='human_curated']" /> 
-	            <field column="mouse_curated" xpath="/response/result/doc/bool[@name='mouse_curated']" /> 
-	            <field column="mgi_predicted" xpath="/response/result/doc/bool[@name='mgi_predicted']" /> 
-	            <field column="impc_predicted" xpath="/response/result/doc/bool[@name='impc_predicted']" /> 
-	            <field column="mgi_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_predicted_in_locus']" /> 
-	            <field column="impc_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_predicted_in_locus']" /> 			
-				<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" /> 
-			</entity>
 			
+			<!-- disease associated with this gene -->			
+			<entity dataSource="diseaseGenedb" name="dg" query="select disease_id from disease2Gene where mgi_id='${doc.mgi_accession_id}'">
+				<field column="disease_id" name="disease_id" />
+
+				<entity dataSource="phenodigm_core" name="ddoc" stream="true" url="q=disease_id:&quot;${dg.disease_id}&quot;&amp;fq=type:disease&amp;rows=9999999&amp;wt=normal"
+					processor="XPathEntityProcessor" forEach="/response/result/doc/"                
+					readTimeout="10000" connectionTimeout="10000" > 
+				                                    
+				    <field column="type" xpath="/response/result/doc/str[@name='type']" />           					
+				    <field column="disease_source" xpath="/response/result/doc/str[@name='disease_source']" /> 
+				    <field column="disease_term" xpath="/response/result/doc/str[@name='disease_term']" /> 
+				    <field column="disease_alts" xpath="/response/result/doc/arr[@name='disease_alts']/str" /> 
+				    <field column="disease_classes" xpath="/response/result/doc/arr[@name='disease_classes']/str" /> 
+				    <field column="human_curated" xpath="/response/result/doc/bool[@name='human_curated']" /> 
+				    <field column="mouse_curated" xpath="/response/result/doc/bool[@name='mouse_curated']" /> 
+				    <field column="mgi_predicted" xpath="/response/result/doc/bool[@name='mgi_predicted']" /> 
+				    <field column="impc_predicted" xpath="/response/result/doc/bool[@name='impc_predicted']" /> 
+				    <field column="mgi_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_predicted_in_locus']" /> 
+				    <field column="impc_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_predicted_in_locus']" /> 			
+					<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  
+				
+				</entity>
+			</entity>			
 
 			<!-- MP terms associated with this MGI gene -->
 			<entity dataSource="mp_core" name="mpCore" stream="true" url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;rows=99999"
