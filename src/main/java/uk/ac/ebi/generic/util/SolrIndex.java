@@ -789,12 +789,6 @@ public class SolrIndex {
         }
         
         
-        
-        
-        
-        
-        
-        
 	/**
 	 * Get the IMPC status for a gene identified by accession id along with
 	 * other information for ordering and the table at the top of the gene page
