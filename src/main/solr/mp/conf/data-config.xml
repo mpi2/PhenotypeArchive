@@ -2,8 +2,9 @@
 <dataConfig>
 	
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />
-	<dataSource name="ontodb" jndiName="java:comp/env/jdbc/ontodbDataSource" />
-	<dataSource name="disease_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/disease/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
+	<dataSource name="ontodb" jndiName="java:comp/env/jdbc/ontodbDataSource" /> 
+	<dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />-
+    <dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>		
 	<dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	  
 	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>       
 	
@@ -17,27 +18,7 @@
 			<field column="dataType" name="dataType"/>
 			<field column="term_id" name="mp_id" />
 			<field column="name" name="mp_term" />
-			<field column="definition" name="mp_definition" />			
-
-			<!-- disease to this MP -->			
-			<entity dataSource="disease_core" name="disease" stream="true" url="q=mp_id:&quot;${mp_term_infos.term_id}&quot;&amp;wt=normal&amp;rows=999999"
-				processor="XPathEntityProcessor" forEach="/response/result/doc/"							
-				readTimeout="10000" connectionTimeout="10000"  >
-				
-				<field column="disease_id" xpath="/response/result/doc/str[@name='disease_id']" />                                   
-	            <field column="type" xpath="/response/result/doc/str[@name='type']" /> 
-	            <field column="disease_source" xpath="/response/result/doc/str[@name='disease_source']" /> 
-	            <field column="disease_term" xpath="/response/result/doc/str[@name='disease_term']" /> 
-	            <field column="disease_alts" xpath="/response/result/doc/arr[@name='disease_alts']/str" /> 
-	            <field column="disease_classes" xpath="/response/result/doc/arr[@name='disease_classes']/str" /> 
-	            <field column="human_curated" xpath="/response/result/doc/bool[@name='human_curated']" /> 
-	            <field column="mouse_curated" xpath="/response/result/doc/bool[@name='mouse_curated']" /> 
-	            <field column="mgi_predicted" xpath="/response/result/doc/bool[@name='mgi_predicted']" /> 
-	            <field column="impc_predicted" xpath="/response/result/doc/bool[@name='impc_predicted']" /> 
-	            <field column="mgi_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_predicted_in_locus']" /> 
-	            <field column="impc_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_predicted_in_locus']" /> 			
-				<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" /> 
-			</entity>
+			<field column="definition" name="mp_definition" />		
 
 			<!-- images annotated to this MP -->
 			<entity dataSource="images_core" name="imgCore" stream="true" url="q=mpTermId:&quot;${mp_term_infos.term_id}&quot;&amp;wt=normal&amp;rows=999999"
@@ -78,7 +59,7 @@
 			</entity>	
 
 			<!-- top level MP term of this MP term -->
-			phenodigmdb<entity dataSource="ontodb" name="mp_node2term"
+			<entity dataSource="ontodb" name="mp_node2term"
 				query="select distinct node_id from mp_node2term where term_id='${mp_term_infos.term_id}'">
 				<entity dataSource="ontodb" name="mp_node_top_level"
 					query="select distinct top_level_node_id from mp_node_top_level where node_id=${mp_node2term.node_id}">
@@ -171,6 +152,30 @@
 					<field column="imits_phenotype_allele_type" xpath="/response/result/doc/arr[@name='imits_phenotype_allele_type']/str" />
 					<field column="imits_phenotype_status" xpath="/response/result/doc/arr[@name='imits_phenotype_status']/str" />
 					<field column="imits_phenotype_is_active" xpath="/response/result/doc/arr[@name='imits_phenotype_is_active']/str" />				
+	
+					<!-- disease associated with this MP via this gene -->			
+					<entity dataSource="diseaseGenedb" name="dg" query="select disease_id from disease2Gene where mgi_id='${phenotype_call_summary.gf_acc}'">
+						<field column="disease_id" name="disease_id" />
+
+						<entity dataSource="phenodigm_core" name="ddoc" stream="true" url="q=disease_id:&quot;${dg.disease_id}&quot;&amp;fq=type:disease&amp;rows=9999999&amp;wt=normal"
+							processor="XPathEntityProcessor" forEach="/response/result/doc/"                
+							readTimeout="10000" connectionTimeout="10000" > 
+						                                    
+						    <field column="type" xpath="/response/result/doc/str[@name='type']" />           					
+						    <field column="disease_source" xpath="/response/result/doc/str[@name='disease_source']" /> 
+						    <field column="disease_term" xpath="/response/result/doc/str[@name='disease_term']" /> 
+						    <field column="disease_alts" xpath="/response/result/doc/arr[@name='disease_alts']/str" /> 
+						    <field column="disease_classes" xpath="/response/result/doc/arr[@name='disease_classes']/str" /> 
+						    <field column="human_curated" xpath="/response/result/doc/bool[@name='human_curated']" /> 
+						    <field column="mouse_curated" xpath="/response/result/doc/bool[@name='mouse_curated']" /> 
+						    <field column="mgi_predicted" xpath="/response/result/doc/bool[@name='mgi_predicted']" /> 
+						    <field column="impc_predicted" xpath="/response/result/doc/bool[@name='impc_predicted']" /> 
+						    <field column="mgi_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_predicted_in_locus']" /> 
+						    <field column="impc_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_predicted_in_locus']" /> 			
+							<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  
+						
+						</entity>
+					</entity>
 	
 				</entity>
 
