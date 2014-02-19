@@ -208,7 +208,6 @@ try {
                 <div class="breadcrumb">
                    <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invoke fragment="breadcrumb" /><%-- breadcrumbs here --%>   
                 </div>        
-                jw is here4
                 <jsp:doBody />               
                         
 		     </div><!-- /main -->
