@@ -123,9 +123,6 @@ try {
         </style>
 <![endif]-->
 
-<!-- if jquery CDN site is down, use local copy -->
-<script>window.jQuery || document.write('<script src="${baseUrl}/js/vendor/jquery-1.10.2.min.js"><\/script><script src="${baseUrl}/js/vendor/jquery-ui.1.10.3.min.js"><\/script><link type="text/css" rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css" />');</script>                                                                                                                                                                                                                        
-
 <!-- NEW DESIGN JAVASCRIPT -->
 
 <!-- javascript -->
