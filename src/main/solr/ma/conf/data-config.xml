@@ -65,6 +65,30 @@
 				
 					<field column="gf_acc" name="mgi_accession_id" />
 
+					<!-- disease associated with this MP via this gene -->			
+					<entity dataSource="diseaseGenedb" name="dg" query="select disease_id from disease2Gene where mgi_id='${phenotype_call_summary.gf_acc}'">
+						<field column="disease_id" name="disease_id" />
+
+						<entity dataSource="phenodigm_core" name="ddoc" stream="true" url="q=disease_id:&quot;${dg.disease_id}&quot;&amp;fq=type:disease&amp;rows=9999999&amp;wt=normal"
+							processor="XPathEntityProcessor" forEach="/response/result/doc/"                
+							readTimeout="10000" connectionTimeout="10000" > 
+						                                    
+						    <field column="type" xpath="/response/result/doc/str[@name='type']" />           					
+						    <field column="disease_source" xpath="/response/result/doc/str[@name='disease_source']" /> 
+						    <field column="disease_term" xpath="/response/result/doc/str[@name='disease_term']" /> 
+						    <field column="disease_alts" xpath="/response/result/doc/arr[@name='disease_alts']/str" /> 
+						    <field column="disease_classes" xpath="/response/result/doc/arr[@name='disease_classes']/str" /> 
+						    <field column="human_curated" xpath="/response/result/doc/bool[@name='human_curated']" /> 
+						    <field column="mouse_curated" xpath="/response/result/doc/bool[@name='mouse_curated']" /> 
+						    <field column="mgi_predicted" xpath="/response/result/doc/bool[@name='mgi_predicted']" /> 
+						    <field column="impc_predicted" xpath="/response/result/doc/bool[@name='impc_predicted']" /> 
+						    <field column="mgi_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_predicted_in_locus']" /> 
+						    <field column="impc_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_predicted_in_locus']" /> 			
+							<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  
+						
+						</entity>
+					</entity>
+
 					<!-- other fields from gene core -->
 					<entity dataSource="gene2_core" name="doc" stream="true" url="q=${phenotype_call_summary.gf_acc}&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status,imits_phenotype_is_active&amp;rows=50000&amp;wt=normal"
 							processor="XPathEntityProcessor" forEach="/response/result/doc/" >			
@@ -89,32 +113,7 @@
 						<field column="imits_phenotype_allele_type" xpath="/response/result/doc/arr[@name='imits_phenotype_allele_type']/str" />
 						<field column="imits_phenotype_status" xpath="/response/result/doc/arr[@name='imits_phenotype_status']/str" />
 						<field column="imits_phenotype_is_active" xpath="/response/result/doc/arr[@name='imits_phenotype_is_active']/str" />				
-				
-						
-						<!-- disease associated with this MP via this gene -->			
-						<entity dataSource="diseaseGenedb" name="dg" query="select disease_id from disease2Gene where mgi_id='${phenotype_call_summary.gf_acc}'">
-							<field column="disease_id" name="disease_id" />
-
-							<entity dataSource="phenodigm_core" name="ddoc" stream="true" url="q=disease_id:&quot;${dg.disease_id}&quot;&amp;fq=type:disease&amp;rows=9999999&amp;wt=normal"
-								processor="XPathEntityProcessor" forEach="/response/result/doc/"                
-								readTimeout="10000" connectionTimeout="10000" > 
-							                                    
-							    <field column="type" xpath="/response/result/doc/str[@name='type']" />           					
-							    <field column="disease_source" xpath="/response/result/doc/str[@name='disease_source']" /> 
-							    <field column="disease_term" xpath="/response/result/doc/str[@name='disease_term']" /> 
-							    <field column="disease_alts" xpath="/response/result/doc/arr[@name='disease_alts']/str" /> 
-							    <field column="disease_classes" xpath="/response/result/doc/arr[@name='disease_classes']/str" /> 
-							    <field column="human_curated" xpath="/response/result/doc/bool[@name='human_curated']" /> 
-							    <field column="mouse_curated" xpath="/response/result/doc/bool[@name='mouse_curated']" /> 
-							    <field column="mgi_predicted" xpath="/response/result/doc/bool[@name='mgi_predicted']" /> 
-							    <field column="impc_predicted" xpath="/response/result/doc/bool[@name='impc_predicted']" /> 
-							    <field column="mgi_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_predicted_in_locus']" /> 
-							    <field column="impc_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_predicted_in_locus']" /> 			
-								<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  
-							
-							</entity>
-						</entity>
-	
+					
 					</entity>
 
 					<!-- allele: currently NOT restricted to MGI alleles, ie, allele_db_id not restricted to 3 -->
