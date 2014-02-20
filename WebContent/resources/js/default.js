@@ -120,8 +120,18 @@ function initSections() {
 
 function initFancybox() {
     /* Fancybox (popup) */
-    $('a[href$=".jpg"],.fancyframe').fancybox({'titlePosition':'inside','titleFormat':formatFancyboxTitle});    
-    $('.fancybox').fancybox({'type':'image','titlePosition':'inside','titleFormat':formatFancyboxTitle});
+    //$('a[href$=".jpg"],.fancyframe').fancybox({'titlePosition':'inside','titleFormat':formatFancyboxTitle});    
+    //$('.fancybox').fancybox({'type':'image','titlePosition':'inside','titleFormat':formatFancyboxTitle});
+	$('a[href$=".jpg"],.fancyframe').fancybox({
+	    afterLoad: function() {
+	        this.title = '<a href="' + this.href + '"><i class="fa fa-download"></i> Download this image in high resolution</a>'+this.title;
+	    },
+	    helpers : {
+	        title: {
+	            type: 'inside'
+	        }
+	    }
+	});
 }
 
 function formatFancyboxTitle(title, currentObject, currentIndex, currentOpts) {
