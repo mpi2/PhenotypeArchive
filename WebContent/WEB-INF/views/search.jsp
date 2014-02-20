@@ -191,7 +191,8 @@
 	    </compress:html>        
         
          <script>        		
-       	$(document).ready(function(){        		
+       	$(document).ready(function(){     		   		
+       	
    			$.fn.qTip({'pageName':'search'		 					
    			});  			 						
    			
@@ -223,8 +224,8 @@
 				console.log(oHashParams);
    				console.log('from widget open: '+ MPI2.searchAndFacetConfig.widgetOpen);
    				
-   				if ( window.location.search.match(/q=/) ){
-   					oHashParams.q = window.location.search.replace('?q=','')
+   				if ( window.location.search.match(/q=/) ){   					
+   					oHashParams.q = window.location.search.replace(/&.+/, '').replace('?q=','');
    				}
    				else if ( typeof oHashParams.q == 'undefined' ){
    					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');	    					
@@ -268,6 +269,8 @@
     				$.fn.loadDataTable(oHashParams);
     			}
    			});		
+    						
+    						
     		var exampleSearch = 
 					 '<h3 id="samplesrch">Example Searches</h3>'
 						+ '<p>Sample queries for several fields are shown. Click the desired query to execute any of the samples.'

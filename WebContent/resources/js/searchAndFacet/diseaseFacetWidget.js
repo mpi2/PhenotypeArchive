@@ -76,6 +76,7 @@
 	    	console.log(json);
 	    	var self = this;
 	    	var numFound = json.response.numFound;
+	    	var foundMatch = {'disease_source':0, 'disease_classes':0, 'curated':0, 'predicted':0};
 	    	
 	    	/*-------------------------------------------------------*/
 	    	/* ------ displaying sidebar and update dataTable ------ */
@@ -102,6 +103,7 @@
 		    			var subFacetName = aData[i];
 		    			
 		    			var count = aData[i+1];
+		    			foundMatch[fq]++;
 		    			
 		    			var diseaseFq = fq;
 		    			var coreField = 'disease|'+ diseaseFq + '|';		
@@ -150,6 +152,8 @@
 			    			var dPositive = aData[i];
 			    			if ( dPositive == 'true' ){
 				    			var count = aData[i+1];
+				    			foundMatch[assoc]++;
+				    			
 				    			var diseaseFq = fq;
 				    			var coreField = 'disease|'+ diseaseFq + '|';		
 							    
@@ -168,6 +172,11 @@
     			// disease_source is open and rest of disease subfacets are collapsed by default    			
     			$('div.flist li#disease > ul li:nth-child(1)').addClass('open');    			  						
 	    		
+    			var selectorBase = "div.flist li#disease";
+	    		// collapse all subfacet first, then open the first one that has matches 
+				$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');	    		
+	    		$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
+    			
     			$.fn.initFacetToggles('disease');
     			
     			// when facet widget is open, flag it so that we know there are existing filters 

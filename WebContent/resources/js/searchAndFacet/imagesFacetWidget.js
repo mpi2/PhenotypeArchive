@@ -62,10 +62,11 @@
   	    		'data': paramStr,  				
   	    		'dataType': 'jsonp',
   	    		'jsonp': 'json.wrf',	    		
-  	    		'success': function(json) {  	    			    			
+  	    		'success': function(json) {
   	    			
-  	    			var aFacetFields = json.facet_counts.facet_fields; // eg. expName, symbol..
   	    			
+  	    			var foundMatch = {'Phenotype':0, 'Anatomy':0, 'Procedure':0, 'Gene':0};  	    			
+  	    			var aFacetFields = json.facet_counts.facet_fields; // eg. expName, symbol..  	    			
   	    			var aSubFacetNames = [];
   	    			
   	    			// do some sorting for facet names, but put Phenotype subfacet on front of list
@@ -99,8 +100,9 @@
   	    					var liContainer = $("<li></li>").attr({'class':'fcat ' + facetName});
   	    					
   	    					var fieldName  = aFacetFields[facetName][i];  	    					
-  	    					var facetCount = aFacetFields[facetName][i+1];  	    					
+  	    					var facetCount = aFacetFields[facetName][i+1];   	    					
   	    					var label      = displayLabel[facetName];
+  	    					foundMatch[label]++;
   	    					
   		    	    		var coreField = 'images|'+ facetName + '|' + fieldName + '|' + facetCount + '|' + label;	
   		        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField}); 	
@@ -112,10 +114,12 @@
   	    				thisFacetSect.append(thisUlContainer);
   	    				$('div.flist li#images > ul').append(thisFacetSect);
   	    			}	    			
-  	    			
-  	    			// open first subfacet by default
-  	    			$('div.flist li#images li.fcatsection:nth-child(1)').addClass('open');	
-  	    			
+  	    			  	    			
+  	    			var selectorBase = "div.flist li#images";
+  		    		// collapse all subfacet first, then open the first one that has matches 
+  					$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');	    		
+  					$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
+  					
   	    			$.fn.initFacetToggles('images');
   	    			
   	    			// when facet widget is open, flag it so that we know there are existing filters 

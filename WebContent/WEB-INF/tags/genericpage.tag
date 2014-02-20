@@ -72,7 +72,7 @@
 <!-- link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.theme.css"-->
 <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
 <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
-<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.fancybox-1.3.4.css">
+<link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.css">
 <link href="${baseUrl}/css/default.css?cache=09-01-14" rel="stylesheet" type="text/css" />
 <link href="${baseUrl}/css/wdm.css?cache=09-01-14" rel="stylesheet" type="text/css" />
 
@@ -87,7 +87,7 @@ See: http://stackoverflow.com/questions/1321878/how-to-prevent-favicon-ico-reque
 --%>
 <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 
-</style>
+
 
 <!-- script type="text/javascript">
 var _gaq = _gaq || [];_gaq.push(["_setAccount", "${googleAnalytics}"]);_gaq.push(["_trackPageview"]);(function() {var ga = document.createElement("script");ga.type = "text/javascript";ga.async = true;ga.src = "${drupalBaseUrl}/sites/mousephenotype.org/files/googleanalytics/ga.js?mjafjk";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(ga, s);})();
@@ -122,9 +122,6 @@ try {
         img#logoImage{margin-right:10px;padding-right: 30px;}
         </style>
 <![endif]-->
-
-<!-- if jquery CDN site is down, use local copy -->
-<script>window.jQuery || document.write('<script src="${baseUrl}/js/vendor/jquery-1.10.2.min.js"><\/script><script src="${baseUrl}/js/vendor/jquery-ui.1.10.3.min.js"><\/script><link type="text/css" rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css" />');</script>                                                                                                                                                                                                                        
 
 <!-- NEW DESIGN JAVASCRIPT -->
 
@@ -211,7 +208,6 @@ try {
                 <div class="breadcrumb">
                    <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invoke fragment="breadcrumb" /><%-- breadcrumbs here --%>   
                 </div>        
-                
                 <jsp:doBody />               
                         
 		     </div><!-- /main -->
