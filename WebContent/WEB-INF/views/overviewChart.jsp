@@ -25,7 +25,7 @@
 			for (var i = 0; i < sexes.length; i ++){
 				html += '<li> <input id="' + sexes[i] + '" type="checkbox" class="checkbox" array="sexes"> ' + sexes[i] + '</li>';
 			}
-			html += '</ul> </div> </div> </div>';
+			html += '</ul> </div> </div> <div class="clear"></div> </div>';
 		
 			$("#chartFilters").html(html);
 			

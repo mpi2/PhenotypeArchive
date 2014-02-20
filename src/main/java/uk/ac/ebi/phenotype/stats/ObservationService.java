@@ -933,12 +933,24 @@ public class ObservationService {
 				if (genes.contains(genesArray[j])) {
 					phenMutants.set(binIndex, 1 + phenMutants.get(binIndex));
 					String genesString = mutantGenes.get(binIndex);
-					if (!genesString.contains(geneSymbolArray[j]))
-						mutantGenes.set(binIndex, genesString + ", " + geneSymbolArray[j]);
+					if (!genesString.contains(geneSymbolArray[j])){
+						if (genesString.equals("")){
+							mutantGenes.set(binIndex, geneSymbolArray[j]);
+						}
+						else {
+							mutantGenes.set(binIndex, genesString + ", " + geneSymbolArray[j]);
+						}
+					}
 				} else { // treat as control because they don't have this phenotype association
 					String genesString = controlGenes.get(binIndex);
-					if (!genesString.contains(geneSymbolArray[j]))
-						controlGenes.set(binIndex, genesString + ", " + geneSymbolArray[j]);
+					if (!genesString.contains(geneSymbolArray[j])){
+						if(genesString.equalsIgnoreCase("")){
+							controlGenes.set(binIndex, geneSymbolArray[j]);							
+						}
+						else {
+							controlGenes.set(binIndex, genesString + ", " + geneSymbolArray[j]);
+						}
+					}
 					controlM.set(binIndex, 1 + controlM.get(binIndex));
 				}
 			}

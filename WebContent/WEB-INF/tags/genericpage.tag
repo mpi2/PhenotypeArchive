@@ -211,7 +211,7 @@ try {
                 <jsp:doBody />               
                         
 		     </div><!-- /main -->
-        
+
     <footer id="footer">
     
         <div class="centercontent">
@@ -223,8 +223,7 @@ try {
 								</div>
 						  </div>
         </div>
-
-        
+       
         <div id="footerline">
             
             <div class="centercontent">

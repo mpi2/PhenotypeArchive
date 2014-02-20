@@ -343,6 +343,7 @@ tr.clickable:hover .fa-plus { color: #0978A1; }
 td .title               { font-size: 1.4em; margin-bottom: 0.5em; font-weight: 600; }
 td .title a             { text-decoration: none; }
 td .title a:hover       { text-decoration: underline; }
+td.centered             { text-align: center;}
 .registerforinterest    { white-space:nowrap; }
 tr .subinfo             { visibility: hidden; font-size: 0.9em; line-height: 1em; color: #aaa; }
 tr:hover .subinfo       { visibility: visible; }

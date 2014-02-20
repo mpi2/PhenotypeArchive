@@ -102,20 +102,25 @@
 							<!-- Graphs -->
 							<c:if test="${parametersAssociated.size() > 0}">
 								<div id="chartsHalf" class="half">
+								<c:if test="${parametersAssociated.size() > 1}">
+									<p> Select a different parameter <i class="fa fa-bar-chart-o" ></i>&nbsp; &nbsp;
+										<select onchange="ajaxToBe('${phenotype.id.accession}', this.options[this.selectedIndex].value);">
+											<c:forEach var="assocParam" items="${parametersAssociated}" varStatus="loop">
+												<option value="${assocParam}">${assocParam}</option>
+											</c:forEach>
+										</select>
+									</p>
+								</c:if>
+								<br/>
 	
 								<div id="chart-container">
 									<div id="single-chart-div" class="oChart" parameter="${parametersAssociated.get(0)}" mp="${phenotype.id.accession}">
 									</div>
 									<div id="spinner-overview-charts"><i class="fa fa-refresh fa-spin"></i></div>
 								</div>
-								<c:if test="${parametersAssociated.size() > 1}">
-									<ul>
-										<c:forEach var="assocParam" items="${parametersAssociated}" varStatus="loop">
-											<li> <a id='list${loop.index}' href="#" onclick="ajaxToBe('${phenotype.id.accession}', '${assocParam}');">${assocParam}</a></li>
-										</c:forEach>
-									</ul>
-								</c:if>
+								
 								<div id='chartFilters'></div>
+								
 							</div>
 						</c:if>
 						<div class="clear"></div>
@@ -130,7 +135,7 @@
 			    <span class="documentation" ><a href='' id='relatedMpPanel' class="fa fa-question-circle pull-right"></a></span> 
 			    </h2>
 				   
-					<div class="inner" style="display:block;">	 
+					<div class="inner">	 
 						<div id="phenotypesDiv">	
 							<div class="container span12">
 								<c:forEach var="filterParameters" items="${paramValues.fq}">
