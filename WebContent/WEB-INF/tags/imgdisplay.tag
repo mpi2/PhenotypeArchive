@@ -17,7 +17,7 @@ allele = allele.replaceAll("##", "</sup>");
 <%@ attribute name="mediaBaseUrl" required="true" %>
 
         
-         <a href="${mediaBaseUrl}/${img.largeThumbnailFilePath}"><img src="${mediaBaseUrl}/${img.smallThumbnailFilePath}"></a><div class="data-title"><a href="${mediaBaseUrl}/${img.fullResolutionFilePath}"><i class="fa fa-download"></i> Download this image in high resolution</a></div>
+        <a href="${mediaBaseUrl}/${img.largeThumbnailFilePath}" class="fancybox" fullRes="${mediaBaseUrl}/${img.fullResolutionFilePath}"><img src="${mediaBaseUrl}/${img.smallThumbnailFilePath}"></a>
                                                 <div class="caption">
                                                 <c:if test="${not empty img.genotypeString}"><t:formatAllele>${img.genotypeString}</t:formatAllele><br/></c:if>
                                                 		<c:forEach var="maTerm" items="${img.annotationTermName}" varStatus="status">${maTerm}, </c:forEach>
@@ -25,6 +25,13 @@ allele = allele.replaceAll("##", "</sup>");
    												 		<c:if test="${not empty img.gender}">${img.gender}, </c:if>
    												 		<c:if test="${not empty img.institute}"><c:forEach var="org" items="${img.institute}">${org}</c:forEach></c:if> 
                                                 <br>
-                                                </div>
+                                                </div> 
+                                                
+                                                
                                           
-                                          <!--   <a href="https://dev.mousephenotype.org/data/media/images/914/I20080318131750_download_full.jpg"><img src="https://dev.mousephenotype.org/data/media/images/914/I20080318131750_download_tn_small.jpg" /></a><div class="data-title"><a href="#"><i class="fa fa-download"></i> Download this image in high resolution</a></div> -->
+                                        
+
+
+
+<!-- <a rel="gallery" title="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin imperdiet augue et magna interdum hendrerit" class="fancybox" href="https://dev.mousephenotype.org/data/media/images/584/M00177499_00013016_download_tn_large.jpg"><img src="https://dev.mousephenotype.org/data/media/images/584/M00177499_00013016_download_tn_small.jpg" alt=""/></a>
+ -->
