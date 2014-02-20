@@ -488,7 +488,7 @@
         <div class="section">
         <!-- remove div --><div class="row-fluid dataset">
             <div class="documentation"><a href="${baseUrl}/documentation/gene-help.html#alleles" class="allelePanel"><img src="${baseUrl}/img/info_20x20.png"></a></div>
-		<!-- <h2>--><h4 class="title documentation">ES Cell and Mouse Alleles  
+		<!-- <h2>--><h4 class="caption">ES Cell and Mouse Alleles  
        <!--             <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel'><i class="fa fa-question-circle pull-right" aria-describedby="qtip-26"></i></a>
        -->
                  <!-- </h2> --></h4>	
