@@ -1,16 +1,10 @@
-<dataConfig>	
+ <dataConfig>	
 	
 	<script type='text/javascript'><![CDATA[	
 		
 		function set_dataType(row) {
             if (row.get('disease_id')){
         	    row.put('dataType', 'disease');
-            }
-        	return row;
-        }	
-		function set_new_col(row) {
-            if (row.get('mgi_accession_id')){
-        	    row.put('disease_marker_acc', row.get('mgi_accession_id').toString());
             }
         	return row;
         }		
@@ -49,9 +43,9 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
 			<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  			
 			
 			<!-- genes associated with this disease -->
-			<entity dataSource="diseaseGenedb" name="dg" query="select * from disease2Gene where disease_id='${ddoc.disease_id}'">
+			<entity dataSource="diseaseGenedb" name="dg" query="select mgi_id from disease2Gene where disease_id='${ddoc.disease_id}'">
 				<field column="mgi_id" name="mgi_accession_id" />
-		
+
 				<!-- genes associated with this disease -->
             	<entity dataSource="gene_core" name="genedoc" stream="true" url="q=mgi_accession_id:&quot;${dg.mgi_id}&quot;&amp;wt=normal"
 					processor="XPathEntityProcessor" forEach="/response/result/doc/"                
@@ -94,7 +88,7 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
                     <field column="inferred_selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str" /> 			
 					
             	</entity>  	
-			</entity>   
+			</entity>
       	</entity>
   		
 	</document>
