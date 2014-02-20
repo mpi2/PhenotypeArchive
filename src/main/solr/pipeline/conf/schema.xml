@@ -196,6 +196,21 @@
 	<field name="strain_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="strain_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
+	<!--  disease core stuff -->
+	<field name="type" type="string" indexed="true" stored="true"/>
+	<field name="disease_id" type="string" indexed="true" stored="true" multiValued="false" /> 
+	<field name="disease_source" type="string" indexed="true" stored="true" multiValued="false" /> 
+	<field name="disease_term" type="text_en_splitting" indexed="true" stored="true"/>
+	<field name="disease_alts" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
+	<field name="disease_classes" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="disease_human_phenotypes" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
+
+	<field name="human_curated" type="boolean" indexed="true" stored="true"/>
+	<field name="mouse_curated" type="boolean" indexed="true" stored="true"/>
+	<field name="mgi_predicted" type="boolean" indexed="true" stored="true"/>
+	<field name="impc_predicted" type="boolean" indexed="true" stored="true"/>
+	<field name="mgi_predicted_in_locus" type="boolean" indexed="true" stored="true"/>
+	<field name="impc_predicted_in_locus" type="boolean" indexed="true" stored="true"/>   
 
     <!-- catchall field, containing all other searchable text fields (implemented
          via copyField further on in this schema  -->
