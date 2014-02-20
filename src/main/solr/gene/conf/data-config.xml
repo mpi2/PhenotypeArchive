@@ -31,9 +31,9 @@
 		
 		
     ]]></script>
-
+    
 	<dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />	
-	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />	
+	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />
 	<dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
 	<dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
@@ -46,7 +46,7 @@
 
 	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
 	
-	<dataSource name="pipeline_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/pipeline/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>-->    
+	<dataSource name="pipeline_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/pipeline/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>    
 
 	<document name="docs">
 		<entity dataSource="gene2_core" name="doc" stream="true" url="q=*:*&amp;fq=marker_symbol:Gm16379+OR+marker_type:*&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status,imits_phenotype_is_active&amp;rows=90000&amp;wt=normal"
@@ -58,7 +58,7 @@
 			<!-- type:gene -> this is to derive ES cell status -->
 			<entity dataSource="allele_core" name="geneType" stream="true" onError="continue"
 				url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:gene&amp;wt=normal&amp;fl=type,status"
-				processor="XPathEntityProcessor" forEach="/response/result/doc/" >				
+				processor="XPathEntityProcessor" forEach="/response/result/doc/">				
 			
 				<field column="gene_type" xpath="/response/result/doc/str[@name='type']" />	
 				<field column="gene_type_status" xpath="/response/result/doc/str[@name='status']" />										
@@ -68,7 +68,7 @@
 			<!-- type:allele - product type ES cell: tm1/tm1a, this is to derive ES cell status -->
 			<entity dataSource="allele_core" name="esAlleleName" stream="true" onError="continue"
 				url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:allele&amp;wt=normal&amp;fl=allele_name,type"
-				processor="XPathEntityProcessor" forEach="/response/result/doc/" >				
+				processor="XPathEntityProcessor" forEach="/response/result/doc/">				
 			
 				<field column="es_allele_name" xpath="/response/result/doc/str[@name='allele_name']" />											
 			</entity>					
@@ -96,7 +96,7 @@
 			</entity>			
 			
 			<!-- check if this gene has been indexed in experiment core, if yes we could use this field to replace 'not applicable' with 'QC data' for phenotyping status -->
-			<entity dataSource="experiment_core" name="qcCheck" stream="true"
+			<entity dataSource="experiment_core" name="qcCheck" stream="true"  onError="continue"
 				url="q=gene_accession:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;fl=gene_accession&amp;rows=1"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/" transformer="script:hasQc" >				
 
@@ -127,7 +127,7 @@
 				
 				</entity>
 			</entity>			
-
+			
 			<!-- MP terms associated with this MGI gene -->
 			<entity dataSource="mp_core" name="mpCore" stream="true" url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;rows=99999"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/" onError="continue"							
@@ -155,7 +155,7 @@
 
 				<entity dataSource="pipeline_core" name="pipelineCore" stream="true" url="q=*&amp;fq=pipeline_id:${phenotype_call_summary.pipeline_id}%20AND%20procedure_id:${phenotype_call_summary.procedure_id}%20AND%20parameter_id:${phenotype_call_summary.parameter_id}&amp;wt=normal&amp;rows=999999"
 					processor="XPathEntityProcessor" forEach="/response/result/doc/"							
-					readTimeout="10000" connectionTimeout="10000"  >						
+					readTimeout="10000" connectionTimeout="10000"  onError="continue" >						
 					
 					<field column="pipeline_name" xpath="/response/result/doc/str[@name='pipeline_name']" />	
 					<field column="procedure_name" xpath="/response/result/doc/str[@name='procedure_name']" />	
@@ -167,10 +167,10 @@
 					<field column="proc_param_stable_id" xpath="/response/result/doc/str[@name='proc_param_stable_id']" />
 				</entity>				
 			</entity>	
-						
+
 			<entity dataSource="images_core" name="imgCore" stream="true" url="q=accession:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;rows=999999"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/"							
-				readTimeout="10000" connectionTimeout="10000"  >
+				readTimeout="10000" connectionTimeout="10000" onError="continue" >
 			
 				<field column="expName" xpath="/response/result/doc/arr[@name='expName']/str"/>
 				<field column="subtype" xpath="/response/result/doc/arr[@name='subtype']/str" />
@@ -190,8 +190,10 @@
 				<field column="maTermName" xpath="/response/result/doc/arr[@name='maTermName']/str" />
 				<field column="mpTermId" xpath="/response/result/doc/arr[@name='mpTermId']/str" />
 				<field column="mpTermName" xpath="/response/result/doc/arr[@name='mpTermName']/str" />
-				-->
-			<field column="phenotype_attempt_allele_status" name="phenotype_attempt_allele_status" />	</entity>
+				-->			
+
+				<field column="phenotype_attempt_allele_status" name="phenotype_attempt_allele_status" />	
+			</entity>
 			
 			<field column="marker_name" xpath="/response/result/doc/arr[@name='marker_name']/str" />
 			<field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />		
@@ -200,12 +202,12 @@
 			<entity dataSource="human2mouse_symbol_core" name="symbol_mapping" stream="true"
 				url="q=${doc.marker_symbol}*&amp;wt=normal&amp;fl=mouse2human_symbol"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/"
-				transformer="script:fetch_human_symbol">
+				transformer="script:fetch_human_symbol"  onError="continue" >
 
 				<field column="mouse2human_symbol" xpath="/response/result/doc/str[@name='mouse2human_symbol']" />
 				<field column="human_gene_symbol" name="human_gene_symbol" />
 			</entity>
-
+			
 			<field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />			
 			<field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />
 
@@ -223,9 +225,10 @@
 			<field column="imits_phenotype_colony_name" xpath="/response/result/doc/arr[@name='imits_phenotype_colony_name']/str" />
 			<field column="imits_phenotype_allele_type" xpath="/response/result/doc/arr[@name='imits_phenotype_allele_type']/str" />
 			<field column="imits_phenotype_status" xpath="/response/result/doc/arr[@name='imits_phenotype_status']/str" />
-			<field column="imits_phenotype_is_active" xpath="/response/result/doc/arr[@name='imits_phenotype_is_active']/str" />			
+			<field column="imits_phenotype_is_active" xpath="/response/result/doc/arr[@name='imits_phenotype_is_active']/str" />	
 			
 		</entity>
 	</document>
 	
 </dataConfig>
+
