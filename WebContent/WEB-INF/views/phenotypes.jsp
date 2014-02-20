@@ -130,7 +130,7 @@
 			    <span class="documentation" ><a href='' id='relatedMpPanel' class="fa fa-question-circle pull-right"></a></span> 
 			    </h2>
 				   
-					<div class="inner" style="display:block;">	 
+					<div class="inner">	 
 						<div id="phenotypesDiv">	
 							<div class="container span12">
 								<c:forEach var="filterParameters" items="${paramValues.fq}">
