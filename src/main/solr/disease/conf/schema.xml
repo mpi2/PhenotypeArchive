@@ -116,12 +116,12 @@
 	<field name="disease_classes" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="disease_human_phenotypes" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
 
-	<field name="human_curated" type="int" indexed="true" stored="true"/>
-	<field name="mouse_curated" type="int" indexed="true" stored="true"/>
-	<field name="mgi_predicted" type="int" indexed="true" stored="true"/>
-	<field name="impc_predicted" type="int" indexed="true" stored="true"/>
-	<field name="mgi_predicted_in_locus" type="int" indexed="true" stored="true"/>
-	<field name="impc_predicted_in_locus" type="int" indexed="true" stored="true"/>   
+	<field name="human_curated" type="boolean" indexed="true" stored="true"/>
+	<field name="mouse_curated" type="boolean" indexed="true" stored="true"/>
+	<field name="mgi_predicted" type="boolean" indexed="true" stored="true"/>
+	<field name="impc_predicted" type="boolean" indexed="true" stored="true"/>
+	<field name="mgi_predicted_in_locus" type="boolean" indexed="true" stored="true"/>
+	<field name="impc_predicted_in_locus" type="boolean" indexed="true" stored="true"/>   
 
 	<!-- gene core stuff -->
 	<field name="mgi_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />		
@@ -181,8 +181,39 @@
 	<field name="inferred_selected_top_level_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="inferred_selected_top_level_ma_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
+	<!-- images core stuff -->	
 
-	<field name="annotated_or_inferred_higherLevelMxTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="expName"   type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="subtype"   type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="annotatedHigherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="annotatedHigherLevelMpTermName" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="annotated_or_inferred_higherLevelMpTermName" type="string" indexed="true" stored="true" multiValued="true" />	
+	<field name="annotated_or_inferred_higherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="annotated_or_inferred_higherLevelMxTermName" type="string" indexed="true" stored="true" multiValued="true" />  
+	<field name="allele_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="allele_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="strain_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="strain_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<!-- pipeline core stuff -->    
+	<field name="parameter_id" type="int" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="parameter_stable_id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="parameter_name" type="string" indexed="true" stored="true" required="true" multiValued="false"/>		
+    <field name="parameter_stable_key" type="int" indexed="true" stored="true" required="true" multiValued="false"/>	
+    <field name="procedure_id" type="int" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="procedure_stable_id" type="string" indexed="true" stored="true" required="true" />
+    <field name="procedure_name" type="string" indexed="true" stored="true" required="true" />
+	<field name="mapped_procedure_name" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="procedure_stable_key" type="int" indexed="true" stored="true" required="true" />
+	<field name="proc_name_id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="proc_param_stable_id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="proc_param_name" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
+	<field name="pipeline_id" type="int" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="pipeline_stable_id" type="string" indexed="true" stored="true" required="true" />
+    <field name="pipeline_name" type="string" indexed="true" stored="true" required="true" /> 
+    <field name="pipeline_stable_key" type="int" indexed="true" stored="true" required="true" /> 
+	<field name="pipe_proc_sid" type="string" indexed="true" stored="true" required="true" /> 
+	
 
 	<field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
 

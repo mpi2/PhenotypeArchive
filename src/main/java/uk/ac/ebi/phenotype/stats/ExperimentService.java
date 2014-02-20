@@ -42,6 +42,11 @@ public class ExperimentService {
 	@Autowired
 	private PhenotypeCallSummaryDAOReadOnly phenoDAO;
 
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain)
+			throws SolrServerException, IOException, URISyntaxException {
+		return getExperimentDTO(parameterId, geneAccession, sex, phenotypingCenterId, zygosity, strain, Boolean.TRUE);
+	}
+
 	/**
 	 * 
 	 * @param parameterId
@@ -56,13 +61,13 @@ public class ExperimentService {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain, Boolean includeResults) throws SolrServerException, IOException, URISyntaxException {
 	
-		List<ObservationDTO> results = os.getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(parameterId, geneAccession, zygosity, phenotypingCenterId, strain, sex);
+		List<ObservationDTO> observations = os.getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(parameterId, geneAccession, zygosity, phenotypingCenterId, strain, sex);
 		
 		Map<String, ExperimentDTO> experimentsMap = new HashMap<>();
 		
-		for (ObservationDTO observation : results) {
+		for (ObservationDTO observation : observations) {
 
 	    	// collect all the strains, organisations, sexes, and zygosities 
 	    	// combinations of the mutants to get the controls later
@@ -72,6 +77,7 @@ public class ExperimentService {
 	    	// - strain
 	    	// - parameter
 	    	// - gene
+			// - meatdata group
 	    	ExperimentDTO experiment;
 	    	
 	    	String experimentKey = observation.getPhenotypingCenter()
@@ -133,7 +139,9 @@ public class ExperimentService {
      		// TODO: include allele
 
      		// TODO: update to make use of the MP to result association
-     		if (experiment.getResults()==null && experiment.getExperimentalBiologicalModelId()!=null) {
+     		// includeResults variable skips the results when gathering
+     		// experiments for calculating the results (performance)
+     		if (experiment.getResults()==null && experiment.getExperimentalBiologicalModelId()!=null && includeResults) {
      			experiment.setResults( phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), observation.getParameterStableId(), ObservationType.valueOf(observation.getObservationType()), observation.getStrain()));
      		}
 	    	
@@ -263,7 +271,10 @@ public class ExperimentService {
 
 		    	    }
 		    	    
-		    	    if (experiment.getSexes()!=null) {
+		    	    //
+		    	    // If one sex specified
+		    	    //
+		    	    if (experiment.getSexes()!=null && experiment.getSexes().size()<2) {
 
 		    	    	for (SexType s : SexType.values()) {
 	
@@ -284,10 +295,11 @@ public class ExperimentService {
 			    			}
 
 			    			if (allBatches.size()==1) {
+				    			// If we have enough control data for this sex,
+			    				// use concurrent controls
+
 			    				List<ObservationDTO> potentialControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, s.name(), experiment.getMetadataGroup());
 			
-				    			// Failed to get the required number of control animals
-				    			// fall back to default method
 				    			if (potentialControls.size() >= MIN_CONTROLS) {
 				    				addingControls = potentialControls;
 					    			experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
@@ -298,6 +310,10 @@ public class ExperimentService {
 			    	    }
 
 		    	    } else {
+		    	    	
+		    	    	//
+		    	    	// Processing both sexes
+		    	    	//
 
 		    			List<ObservationDTO> addingControls = new ArrayList<ObservationDTO>();
 
@@ -313,12 +329,16 @@ public class ExperimentService {
 		    			}
 
 		    			if (allBatches.size()==1) {
-		    				List<ObservationDTO> potentialControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, null, experiment.getMetadataGroup());
-		
-			    			// Failed to get the required number of control animals
-			    			// fall back to default method
-			    			if (potentialControls.size() >= MIN_CONTROLS) {
-			    				addingControls = potentialControls;
+			    			// Only if BOTH counts of male and 
+		    				// female controls are equal or more than MIN_CONTROLS
+		    				//  do we do concurrent controls
+
+		    				List<ObservationDTO> potentialMaleControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, SexType.male.name(), experiment.getMetadataGroup());
+		    				List<ObservationDTO> potentialFemaleControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, SexType.female.name(), experiment.getMetadataGroup());
+	
+			    			if (potentialMaleControls.size() >= MIN_CONTROLS && potentialFemaleControls.size() >= MIN_CONTROLS) {
+			    				addingControls = potentialMaleControls;
+			    				addingControls.addAll(potentialFemaleControls);
 				    			experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
 			    			}
 		    			}
@@ -381,6 +401,13 @@ public class ExperimentService {
 		Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameterStableId, 1, 0);
 		return getExperimentDTO(p.getId(), geneAccession, sex, phenotypingCenterId, zygosity, strain);
 	}
+
+	public List<ExperimentDTO> getExperimentDTO(String parameterStableId, String geneAccession,List<String> sexes, List<String> zygosity, Integer phenotypingCenterId)
+		throws SolrServerException, IOException, URISyntaxException {
+		Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameterStableId, 1, 0);
+		return getExperimentDTO(p.getId(), geneAccession, sexes, zygosity, phenotypingCenterId);
+	}
+
 
 	public List<ExperimentDTO> getExperimentDTO(Integer id, String acc,
 			List<String> genderList, List<String> zyList, Integer phenotypingCenterId) throws SolrServerException, IOException, URISyntaxException {

@@ -34,6 +34,8 @@
 
 		<field name="gene_accession"          type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="gene_symbol"             type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="allele_accession"        type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="allele_symbol"           type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="zygosity"                type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="sex"                     type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="biological_model_id"     type="int"    indexed="true" stored="true" multiValued="false" /> 

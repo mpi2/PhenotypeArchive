@@ -36,5 +36,7 @@ public interface DatasourceDAO extends HibernateDAO {
 	public Datasource getDatasourceByName(String name);
 	
 	public Datasource getDatasourceByShortName(String shortName);
+
+	public Datasource getDatasourceById(Integer externalDbId);
 	
 }

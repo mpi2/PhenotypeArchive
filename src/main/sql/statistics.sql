@@ -5,9 +5,10 @@ DROP TABLE IF EXISTS stats_categorical_results;
 CREATE TABLE stats_categorical_results (
 
     id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    metadata_group             VARCHAR(50) DEFAULT '',  
     control_selection_strategy VARCHAR(100),
-	statistical_method         VARCHAR(50),
-	status                     VARCHAR(200),
+    statistical_method         VARCHAR(50),
+    status                     VARCHAR(200),
     control_id                 INT(10) UNSIGNED ,
     control_sex                ENUM('female', 'hermaphrodite', 'male'),
     control_zygosity           ENUM('homozygote', 'heterozygote', 'hemizygote'),
@@ -16,11 +17,11 @@ CREATE TABLE stats_categorical_results (
     experimental_zygosity      ENUM('homozygote', 'heterozygote', 'hemizygote'),
     organisation_id            INT(10) UNSIGNED NOT NULL,
     parameter_id               INT(10) UNSIGNED NOT NULL,
-    category_a                 VARCHAR(200),
-    category_b                 VARCHAR(200),
+    category_a                 TEXT,
+    category_b                 TEXT,
     p_value                    FLOAT,
     effect_size                FLOAT,
-	raw_output                 TEXT,
+    raw_output                 MEDIUMTEXT NULL,
     
     PRIMARY KEY (id),
     KEY control_idx (control_id),
@@ -36,6 +37,7 @@ DROP TABLE IF EXISTS stats_unidimensional_results;
 CREATE TABLE stats_unidimensional_results (
 
 	id                               INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    metadata_group                   VARCHAR(50) DEFAULT '',  
     control_selection_strategy       VARCHAR(100),
 	statistical_method               VARCHAR(200),
 	status                           VARCHAR(200),
@@ -75,8 +77,8 @@ CREATE TABLE stats_unidimensional_results (
 	gender_male_ko_stderr_estimate   FLOAT NULL,
 	gender_male_ko_pvalue            FLOAT NULL,
 	classification_tag               VARCHAR(200) NULL,
-	cohensf                          TEXT NULL,
-	raw_output                       TEXT,
+	additional_information           TEXT NULL,
+	raw_output                       MEDIUMTEXT NULL,
 
 	PRIMARY KEY (id),
 	KEY parameter_idx (parameter_id)
