@@ -585,7 +585,210 @@ public class SolrIndex {
 
 		return getResults(url);
 	}
+        
+        
+        public List<Map<String, String>> getGeneAlleleInfo(String accession)
+			throws IOException, URISyntaxException {
+            
+		String url = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele/search?q=mgi_accession_id:"
+				+ accession.replace(":", "\\:")
+                                + " AND product_type:Mouse"
+				+ "&start=0&rows=100&hl=true&wt=json";
 
+		log.info("url for geneAllele=" + url);
+                
+                JSONObject jsonObject = getResults(url);
+                int numberFound = Integer.parseInt(jsonObject.getJSONObject("response").getString("numFound"));
+		
+		JSONArray docs = jsonObject.getJSONObject("response").getJSONArray("docs");
+
+		if (docs.size() < 1) {
+			log.info("No Mice returned for the query!");
+		}
+                
+                List<String> mouseConstructs = new ArrayList<String>();
+                List<Map<String, String>> esCellConstructs = new ArrayList<Map<String, String>>();
+                List<Map<String, String>> nonTargetedEsCellConstructs = new ArrayList<Map<String, String>>();
+                List<Map<String, String>> geneConstructs = new ArrayList<Map<String, String>>();
+                List<Map<String, String>> constructs = new ArrayList<Map<String, String>>();
+
+                try {
+                        for (int i = 0; i < numberFound ; i++) {
+                                Map<String, String> construct = new HashMap<String, String>();
+				constructs.add(geneAlleleConstruct(docs, i));
+                                mouseConstructs.add(docs.getJSONObject(i).getString("allele_name"));
+				// }
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+                
+		String esCellUrl = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele/search?q=mgi_accession_id:"
+				+ accession.replace(":", "\\:")
+                                + " AND product_type:ES Cell"
+				+ "&start=0&rows=100&hl=true&wt=json";
+
+		log.info("url for geneAllele=" + esCellUrl);
+                
+                JSONObject esCellJsonObject = getResults(esCellUrl);
+                int esCellNumberFound = Integer.parseInt(esCellJsonObject.getJSONObject("response").getString("numFound"));
+		
+		JSONArray esCellDocs = esCellJsonObject.getJSONObject("response").getJSONArray("docs");
+
+		if (esCellDocs.size() < 1) {
+			log.info("No EsCells returned for the query!");
+		}
+                
+                try {
+                        for (int i = 0; i < esCellNumberFound ; i++) {
+                            
+                                if (!mouseConstructs.contains(esCellDocs.getJSONObject(i).getString("allele_name"))){
+                                        if (esCellDocs.getJSONObject(i).getString("allele_type").equals("Targeted Non Conditional")) {
+                                                nonTargetedEsCellConstructs.add(geneAlleleConstruct(esCellDocs, i));
+                                        }
+                                        else {
+                                                esCellConstructs.add(geneAlleleConstruct(esCellDocs, i));
+                                        }
+                                }
+				// }
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+                
+                String geneUrl = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele/search?q=mgi_accession_id:"
+				+ accession.replace(":", "\\:")
+                                + " AND type:gene"
+				+ "&start=0&rows=100&hl=true&wt=json";
+
+		log.info("url for geneAllele=" + geneUrl);
+                
+                JSONObject geneJsonObject = getResults(geneUrl);
+                int geneNumberFound = Integer.parseInt(geneJsonObject.getJSONObject("response").getString("numFound"));
+		
+		JSONArray geneDocs = geneJsonObject.getJSONObject("response").getJSONArray("docs");
+
+		if (geneDocs.size() < 1) {
+			log.info("No gene info returned for the query!");
+		}
+                
+                try {
+                        for (int i = 0; i < geneNumberFound ; i++) {
+                                if (geneDocs.getJSONObject(i).has("vector_project_ids") & geneDocs.getJSONObject(i).getString("vector_project_ids").length() > 0){
+                                            geneConstructs.add(geneAlleleConstruct(geneDocs, i));
+                                }
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+                
+                
+                constructs.addAll(esCellConstructs);
+                if (constructs.size() < 1){
+                      constructs.addAll(nonTargetedEsCellConstructs);
+                }
+                constructs.addAll(geneConstructs);
+                return constructs;
+        }
+        
+        
+	private Map<String, String> geneAlleleConstruct(JSONArray docs, int i) {
+                Map<String, String> construct = new HashMap<String, String>();
+                        String markerSymbol = "";
+                        String product = "";
+                        String alleleType = "";
+                        String type = "";
+                        String strainOfOrigin = "";
+                        String mgiAlleleName = "";
+                        String alleleMap = "";
+                        String alleleGenbankFile = "";
+                        String ikmcProjectId = "";
+                        String orderFromNames = "";
+                        String orderFromUrls = "";
+                        String orderHtml = "";
+                        String vectorProjectIds = "";
+                        String vectorProjectHtml = "";
+                                
+			if (docs.getJSONObject(i).has("marker_symbol")) {
+                                markerSymbol = docs.getJSONObject(i).getString("marker_symbol");
+			}
+			if (docs.getJSONObject(i).has("product_type")) {
+                                product = docs.getJSONObject(i).getString("product_type");
+			}
+                        if (docs.getJSONObject(i).has("type")) {
+                                type = docs.getJSONObject(i).getString("type");
+			}
+			if (docs.getJSONObject(i).has("allele_type")) {
+				alleleType = docs.getJSONObject(i).getString("allele_type");
+                                if (alleleType.equals("Conditional Ready")){
+                                        alleleType = "Knockout First, Reporter-tagged insertion with conditional potential";
+                                }
+                                else if (alleleType.equals("Deletion")){
+                                        alleleType = "Reporter-Tagged Deletion";
+                                }
+			}
+			if (docs.getJSONObject(i).has("strain")) {
+				strainOfOrigin = docs.getJSONObject(i).getString("strain");
+			}
+			if (docs.getJSONObject(i).has("allele_name")) {
+				mgiAlleleName = docs.getJSONObject(i).getString("allele_name");
+			}
+                        if (docs.getJSONObject(i).has("allele_image_url")) {
+                                alleleMap = docs.getJSONObject(i).getString("allele_image_url");
+			}
+                        if (docs.getJSONObject(i).has("genbank_file_url")) {
+                                alleleGenbankFile = docs.getJSONObject(i).getString("genbank_file_url");
+			}
+                        if (docs.getJSONObject(i).has("project_ids")) {
+                                JSONArray projectArray = docs.getJSONObject(i).getJSONArray("project_ids");
+                                if (projectArray.size() > 0){
+                                        ikmcProjectId = projectArray.getString(0);
+                                }
+			}
+                        if (docs.getJSONObject(i).has("order_from_names")) {
+                                orderFromNames = docs.getJSONObject(i).getString("order_from_names");
+			}
+                        if (docs.getJSONObject(i).has("order_from_urls")) {
+                                orderFromUrls = docs.getJSONObject(i).getString("order_from_urls");
+			}
+                        if (docs.getJSONObject(i).has("order_from_urls") && docs.getJSONObject(i).has("order_from_names")) {
+                                JSONArray orderUrlsArray = docs.getJSONObject(i).getJSONArray("order_from_urls");
+                                JSONArray orderNamesArray = docs.getJSONObject(i).getJSONArray("order_from_names");
+                                for (int j = 0; j < orderNamesArray.size() ; j++){
+                                        orderHtml += "<li><a href=" + orderUrlsArray.getString(j) + ">" + orderNamesArray.getString(j) + "</a></li>";
+                                }
+                        }
+                        if (docs.getJSONObject(i).has("vector_project_ids")) {
+                                vectorProjectIds = docs.getJSONObject(i).getString("vector_project_ids");
+			}                        
+                        if (docs.getJSONObject(i).has("vector_project_ids")) {
+                                JSONArray vectorProjectsArray = docs.getJSONObject(i).getJSONArray("vector_project_ids");
+                                for (int k = 0; k < vectorProjectsArray.size() ; k++){
+                                        vectorProjectHtml += "<a href=http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/" + vectorProjectsArray.getString(k) + ">" + vectorProjectsArray.getString(k) + "</a> ";
+                                }
+			} 
+                        
+                        
+                        construct.put("markerSymbol", markerSymbol);
+                        construct.put("product", product);
+                        construct.put("type", type);
+                        construct.put("strainOfOrigin", strainOfOrigin);
+                        construct.put("mgiAlleleName", mgiAlleleName);
+                        construct.put("alleleMap", alleleMap);
+                        construct.put("alleleGenbankFile", alleleGenbankFile);
+                        construct.put("ikmcProjectId", ikmcProjectId);
+                        construct.put("orderFromNames", orderFromNames);
+                        construct.put("orderFromUrls", orderFromUrls);
+                        construct.put("orderHtml", orderHtml);
+                        construct.put("vectorProjectIds", vectorProjectIds);    
+                        construct.put("vectorProjectHtml", vectorProjectHtml); 
+            return construct;
+        }
+        
+        
 	/**
 	 * Get the IMPC status for a gene identified by accession id along with
 	 * other information for ordering and the table at the top of the gene page
