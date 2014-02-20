@@ -88,6 +88,7 @@
 							</div>
 						</c:if>
 						<p class="with-label"><span class="label">MGI MP browser</span><a href="http://www.informatics.jax.org/searches/Phat.cgi?id=${phenotype.id.accession}">${phenotype.id.accession}</a></p>
+					</div><!--  closing off inner here - but does this look correct in all situations- because of complicated looping rules above? jW -->
 					</div>
 				
 				
