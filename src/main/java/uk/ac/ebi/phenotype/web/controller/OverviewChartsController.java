@@ -30,6 +30,7 @@ import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ExperimentService;
 import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.stats.ObservationService;
+import uk.ac.ebi.phenotype.stats.StackedBarsData;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalChartAndTableProvider;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
 import uk.ac.ebi.phenotype.stats.timeseries.TimeSeriesChartAndTableProvider;
@@ -103,9 +104,9 @@ public class OverviewChartsController {
 		}
 		else if ( p != null && Utilities.checkType(p).equals(ObservationType.unidimensional)){
 			genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
-			Map<String, List<Double>> map = os.getUnidimensionalData(p, genes, strains, "experimental", center, sex);
+			StackedBarsData data = os.getUnidimensionalData(p, genes, strains, "experimental", center, sex);
 			String chartTitle = "Mean " +  p.getName() + " (" + p.getStableId()+")";
-			chartRes = uctp.getStackedHistogram(map, chartTitle, p);
+			chartRes = uctp.getStackedHistogram(data, chartTitle, p);
 		}
 		
 		if (chartRes != null && center == null && sex == null){ // we don't do a filtering
