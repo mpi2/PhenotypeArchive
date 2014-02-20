@@ -34,26 +34,29 @@ import uk.ac.ebi.phenotype.pojo.Organisation;
 public interface BiologicalModelDAO extends HibernateDAO {
 
 	public void saveBiologicalSample(BiologicalSample sample);
-	public void saveLiveSample(LiveSample sample);
-	public int deleteAllLiveSamplesByDatasource(Datasource datasource);
-	public int  deleteAllLiveSamplesWithoutModelsByDatasource(Datasource datasource);
 	public int deleteAllBiologicalSamplesByDatasource(Datasource datasource);
-	
-	public List<BiologicalModel> getAllBiologicalModelsByDatasourceId(int databaseId);
-	public List<BiologicalModel> getAllBiologicalModelsByAccession(String accession);
 	
 	public List<LiveSample> getAllLiveSamples();
 	public List<LiveSample> getAllLiveSamplesByDatasourceId(int databaseId);
+	public List<LiveSample> getAllLiveSampleByOrganisation(Organisation organisation);
+	public List<LiveSample> getAllLiveSampleByOrganisationAndDatasource(Organisation organisation, Datasource datasource);
+
+	public void saveLiveSample(LiveSample sample);
+	public int deleteAllLiveSamplesByDatasource(Datasource datasource);
+	public int  deleteAllLiveSamplesWithoutModelsByDatasource(Datasource datasource);
+	public LiveSample getLiveSampleBySampleId(String sampleId);
+
 	
-	
+
 	public BiologicalModel getBiologicalModelById(int modelId);
 	public BiologicalSample getBiologicalSampleById(int sampleId);
+
+	public List<BiologicalModel> getAllBiologicalModelsByDatasourceId(int databaseId);
+	public List<BiologicalModel> getAllBiologicalModelsByAccession(String accession);
 	
 	public void saveBiologicalModel(BiologicalModel model);
 	
 	public int deleteAllBiologicalModelsByDatasource(Datasource datasource);
-	
-	public List<LiveSample> getAllLiveSampleByOrganisationAndDatasource(Organisation organisation, Datasource datasource);
-	public LiveSample getAllLiveSampleBySampleId(String sampleId);
 	public void deleteAllBiologicalModelsAndRelatedDataByDatasourceOrganisation(Datasource ds, Organisation o);
+	
 }
