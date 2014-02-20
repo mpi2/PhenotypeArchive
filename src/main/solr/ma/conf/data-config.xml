@@ -160,7 +160,7 @@
 				<!-- disease to this MP -->			
 				<entity dataSource="disease_core" name="disease" stream="true" url="q=mp_id:&quot;${mp_mappings.term_id}&quot;&amp;wt=normal&amp;rows=999999"
 					processor="XPathEntityProcessor" forEach="/response/result/doc/"							
-					readTimeout="10000" connectionTimeout="10000"  >
+					readTimeout="10000" connectionTimeout="10000" onError="continue" >
 					
 					<field column="disease_id" xpath="/response/result/doc/str[@name='disease_id']" />                                   
 		            <field column="type" xpath="/response/result/doc/str[@name='type']" /> 
