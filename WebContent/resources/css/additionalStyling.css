@@ -106,3 +106,14 @@ button.exportButton{
 }
 
 #single-chart-div{min-width: 400px; height: 400px; margin: 0 auto;}
+
+/* Graph filter */
+.filters                            { margin: 1em 0; padding: 1em; background: #f4f4f4; -moz-border-radius: 3px; -webkit-border-radius: 3px; -ms-border-radius: 3px; border-radius: 3px; }
+.filter                             { float: left; padding-right: 2em; }
+.ftype                              { padding-left: 1em; cursor: pointer; }
+.ftype:before                       { position: absolute; font-family: 'FontAwesome'; content: "\f0da"; margin-left: -1em; }
+.filter.open .ftype:before          { content: "\f0d7"; }
+.filter .foptions                   { display: none; padding-right: 1em; max-height: 120px; overflow-y: auto; }
+.filter.open .foptions              { display: block; }
+.foptions ul                        { list-style: none; padding-left: 0.8em; }
+

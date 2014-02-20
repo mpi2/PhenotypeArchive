@@ -837,7 +837,7 @@ public class ObservationService {
 		return centers;
 	}
 
-	public Map<String, List<Double>> getUnidimensionalData(Parameter p,
+	public StackedBarsData getUnidimensionalData(Parameter p,
 			List<String> genes, ArrayList<String> strains,
 			String biologicalSample,  String[] center, String[] sex) throws SolrServerException {
 
@@ -872,7 +872,7 @@ public class ObservationService {
 		query.setQuery(q);
 		query.setRows(1000000);
 		query.set("sort", ExperimentField.DATA_POINT + " asc");
-		query.setFields(ExperimentField.GENE_ACCESSION, ExperimentField.DATA_POINT);
+		query.setFields(ExperimentField.GENE_ACCESSION, ExperimentField.DATA_POINT, ExperimentField.GENE_SYMBOL);
 		query.set("group", true);
 		query.set("group.field", ExperimentField.COLONY_ID);
 		// per group
@@ -882,7 +882,8 @@ public class ObservationService {
 		// for each colony get the mean & put it in the array of data to plot
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
 		double[] meansArray = new double[groups.size()];
-		String[] allelesArray = new String[groups.size()];
+		String[] genesArray = new String[groups.size()];
+		String [] geneSymbolArray = new String[groups.size()];
 		int i = 0;
 		for (Group gr : groups) {
 			double sum = 0;
@@ -893,8 +894,10 @@ public class ObservationService {
 						+ (float) doc.getFieldValue(ExperimentField.DATA_POINT);
 				total++;
 			}
-			allelesArray[i] = (String) resDocs.get(0).get(
+			genesArray[i] = (String) resDocs.get(0).get(
 					ExperimentField.GENE_ACCESSION);
+			geneSymbolArray[i] = (String) resDocs.get(0).get(
+					ExperimentField.GENE_SYMBOL);
 			meansArray[i] = sum / total;
 			i++;
 		}
@@ -903,8 +906,9 @@ public class ObservationService {
 		// keep tract of phenotype associations
 		int binCount = Math.min((int) Math.floor((double) groups.size() / 2),
 				20);
-
-		List<Double> upperBounds = new ArrayList<Double>();
+		ArrayList<String> mutantGenes = new ArrayList<String>();
+		ArrayList<String> controlGenes = new ArrayList<String>();
+		ArrayList<Double> upperBounds = new ArrayList<Double>();
 		EmpiricalDistribution distribution = new EmpiricalDistribution(binCount);
 		if (meansArray.length > 0){
 			distribution.load(meansArray);
@@ -913,31 +917,40 @@ public class ObservationService {
 				upperBounds.add(bound);
 			// we we need to distribute the control mutants and the
 			// phenotype-mutants in the bins
-			List<Double> controlM = new ArrayList<Double>();
-			List<Double> phenMutants = new ArrayList<Double>();
+			ArrayList<Double> controlM = new ArrayList<Double>();
+			ArrayList<Double> phenMutants = new ArrayList<Double>();
 	
 			for (int j = 0; j < upperBounds.size(); j++) {
 				controlM.add((double) 0);
 				phenMutants.add((double) 0);
+				controlGenes.add("");
+				mutantGenes.add("");
 			}
 	
 			for (int j = 0; j < groups.size(); j++) {
 				// find out the proper bin
 				int binIndex = getBin(upperBounds, meansArray[j]);
-				if (genes.contains(allelesArray[j])) {
+				if (genes.contains(genesArray[j])) {
 					phenMutants.set(binIndex, 1 + phenMutants.get(binIndex));
+					String genesString = mutantGenes.get(binIndex);
+					if (!genesString.contains(geneSymbolArray[j]))
+						mutantGenes.set(binIndex, genesString + ", " + geneSymbolArray[j]);
 				} else { // treat as control because they don't have this phenotype association
-					
+					String genesString = controlGenes.get(binIndex);
+					if (!genesString.contains(geneSymbolArray[j]))
+						controlGenes.set(binIndex, genesString + ", " + geneSymbolArray[j]);
 					controlM.set(binIndex, 1 + controlM.get(binIndex));
 				}
 			}
 	//		System.out.println(" Mutants list " + phenMutants);
 	
-			Map<String, List<Double>> map = new HashMap<String, List<Double>>();
-			map.put("labels", upperBounds);
-			map.put("control", controlM);
-			map.put("mutant", phenMutants);
-			return map;
+			StackedBarsData data = new StackedBarsData();
+			data.setUpperBounds(upperBounds);
+			data.setControlGenes(controlGenes);
+			data.setControlMutatns(controlM);
+			data.setMutantGenes(mutantGenes);
+			data.setPhenMutants(phenMutants);
+			return data;
 		}
 		
 		return null;

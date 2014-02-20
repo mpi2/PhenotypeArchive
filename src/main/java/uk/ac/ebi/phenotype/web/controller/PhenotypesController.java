@@ -340,6 +340,9 @@ public class PhenotypesController {
 			if(pr.getGene().getSymbol().equals("Dll1"))System.out.println("phenotype row="+pr);
 		}
 		model.addAttribute("phenotypes", new ArrayList<PhenotypeRow>(phenotypes.keySet()));	
+		System.out.println("\n\n" + solrIndex
+				.getMpData(phenotype_id)
+				.getJSONObject("response") );
 		JSONObject mpData = solrIndex
 				.getMpData(phenotype_id)
 				.getJSONObject("response")
