@@ -427,7 +427,6 @@ List<Float>dataFloats=new ArrayList<>();
 				controlG = controlG;
 			}
 			else controlG = c ;
-			System.out.println("---------controlG" + controlG);
 			labels.add("'" + df.format(upperBounds.get(i)) + "###" + controlG + "###" + mutantGenes.get(i) + "'");
 		}
 		double min = 0; 
@@ -454,8 +453,8 @@ List<Float>dataFloats=new ArrayList<>();
            " tooltip: { "
            		+ "formatter: function() { "
            		+ "if ('Mutant strains with no calls for this phenotype' === this.series.name )"
-           		+ "return ''+  this.series.name +': '+ this.y + ' out of '+ this.point.stackTotal + '<br/>Genes:' +  this.x.split('###')[1];  "
-           		+ "else return ''+  this.series.name +': '+ this.y + ' out of '+ this.point.stackTotal + '<br/>Genes:' +  this.x.split('###')[2];}  }, " +
+           		+ "return ''+  this.series.name +': '+ this.y + ' out of '+ this.point.stackTotal + '<br/>Genes: ' +  this.x.split('###')[1];  "
+           		+ "else return ''+  this.series.name +': '+ this.y + ' out of '+ this.point.stackTotal + '<br/>Genes: ' +  this.x.split('###')[2];}  }, " +
            " plotOptions: { column: {  stacking: 'normal',  dataLabels: { enabled: false} } }," +
            " series: [{ name: 'Mutant strains with this phenotype called',  data: " +  mutant + "  }, {name: 'Mutant strains with no calls for this phenotype', data: " + control + "}]" +  " });  }); ";
 		ChartData chartAndTable = new ChartData();
