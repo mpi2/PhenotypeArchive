@@ -766,6 +766,7 @@ public class SolrIndex {
                         construct.put("markerSymbol", markerSymbol);
                         construct.put("product", product);
                         construct.put("type", type);
+                        construct.put("alleleType", alleleType);                        
                         construct.put("strainOfOrigin", strainOfOrigin);
                         construct.put("mgiAlleleName", mgiAlleleName);
                         construct.put("alleleMap", alleleMap);

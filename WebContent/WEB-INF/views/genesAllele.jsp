@@ -22,7 +22,7 @@
                         <tr>
                         <c:choose>
                                 <c:when test='${alleleProduct["type"].equals("gene")}'>
-                                    <td colspan="8" align="center">Additional Targeting vectors are available for this gene - see links for details: ${alleleProduct["vectorProjectHtml"]}</td>                                  
+                                    <td colspan="8" style="text-align:center;">Additional Targeting vectors are available for this gene - see links for details: ${alleleProduct["vectorProjectHtml"]}</td>                                  
                                 </c:when>
                                 <c:otherwise>
                                         <td>${alleleProduct["product"]}</td>
