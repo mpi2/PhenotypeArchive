@@ -109,9 +109,7 @@
 		<!-- JavaScript Local Imports -->
 		<script src="${baseUrl}/js/general/enu.js"></script>
 		<script src="${baseUrl}/js/general/dropdownfilters.js"></script>
-		<!--[if !IE]><!-->
-		
-		<!--<![endif]-->
+		<script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
 		
 		
 		<script type="text/javascript">var gene_id = '${acc}';</script>
