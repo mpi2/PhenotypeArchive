@@ -236,7 +236,7 @@ config.facetParams = {
 		 wt: 'json',
 		 gridFields: 'parameter_name,procedure_name,pipeline_name',
 		 gridName: 'pipelineGrid',	
-		 filterParams:{'fq': 'pipeline_stable_id:IMPC_001'},
+		 //filterParams:{'fq': 'pipeline_stable_id:IMPC_001'},
 		 breadCrumbLabel: 'Parameters',		 
 		 srchParams: $.extend({},				     
 					commonSolrParams    				

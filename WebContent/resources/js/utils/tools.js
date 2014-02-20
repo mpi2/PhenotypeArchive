@@ -379,8 +379,8 @@
     		'dataType': 'jsonp',
     		'jsonp': 'json.wrf',
     		'success': function(json) {
-    			//console.log('disease: ');
-    			//console.log(json);
+    			console.log('disease: ');
+    			console.log(json);
     			    			
     			// refresh disease facet
     			var oFacets = json.facet_counts.facet_fields;
@@ -399,35 +399,36 @@
     				
     				// do some accounting for matching subfacets
     				if ( subFacetName.indexOf('curated') != -1 ) {
-    					for ( var cr=0; cr<oFacets[subFacetName].length; cr=cr+2){
-    						if ( oFacets[subFacetName][cr] == 'true' ){    						
+    					for ( var cr=0; cr<oFacets[subFacetName].length; cr=cr+2){    						
+    						if ( oFacets[subFacetName][cr] == 'true' ){ 
     							foundMatch.curated++;    				    							
     						}
     					}    					
     				}
     				else if ( subFacetName.indexOf('predicted') != -1 ){    					
     					for ( var pr=0; pr<oFacets[subFacetName].length; pr=pr+2){
-    						if ( oFacets[subFacetName][pr] == 'true' ){    							
+    						if ( oFacets[subFacetName][pr] == 'true' ){ 					
     							foundMatch.predicted++;    							 							
     						}
     					} 				
 					}
-    				else if ( oFacets[subFacetName].length > 0 ) {    					
+    				else if ( oFacets[subFacetName].length > 0 ) {      					
     					foundMatch[subFacetName]++;
     				}  				  				
     				
     				// update facet count
     				for (var j=0; j<oFacets[subFacetName].length; j=j+2){
-	    				var facetName = oFacets[subFacetName][j];    				 				   				
+    				
+	    				var label = oFacets[subFacetName][j];    				 				   				
 	    				var facetCount = oFacets[subFacetName][j+1];
-	    				//console.log(facetName + '---:'+facetCount + ' >> ' + subFacetName);    				
+	    				//console.log(label + ' ---:'+facetCount + ' >> ' + subFacetName);    				
 	    				
 	    				$(selectorBase + ' li.' + subFacetName).each(function(){	
-	    					if (subFacetName.match(/_curated|_predicted/)){
+	    					if (subFacetName.match(/_curated|_predicted/) && label =='true' ){
 	    						$(this).find('span.fcount').text(facetCount);
 	    					}
 	    					else {
-	    						if ( $(this).find('span.flabel').text() == facetName ){    					
+	    						if ( $(this).find('span.flabel').text() == label ){    					
 	    							$(this).find('span.fcount').text(facetCount);
 	    						}
 	    					}
@@ -602,7 +603,17 @@
     		}
 		});		
 	}	
+	
+	/*$.fn.fqStrIgnore = function(fqStr, facet){
+		if ( /disease_source:|disease_classes:|_predicted\w*:|_curated\w*:/.exec(fqStr) ){
+			if ( facet == 'pipeline ' || facet == 'images' ){
+				return false;
+			}
+			
+		}
 		
+	}*/
+	
 	$.fn.fieldNameMapping = function(fqStr, facet){
 			
 		var oMapping;		
@@ -647,7 +658,7 @@
 		else if ( facet == 'mp' || facet == 'disease' ){
 			fqStr = fqStr.replace(' AND selected_top_level_ma_term:*', '');
 			//if (fqStr.indexOf(' AND ontology_subset:*') == -1 ){			
-			if (! / AND \(?ontology_subset:\*\)?/.exec(fqStr) ){		
+			if (! / AND \(?ontology_subset:\*\)?/.exec(fqStr) && facet == 'mp' ){		
 				fqStr += ' AND ontology_subset:*';
 			}	
 		}
@@ -1125,7 +1136,7 @@
     		}
     		else if ( aKV[i].indexOf('fq=') == 0 ){  
     			
-    			if ( aKV[i] == 'fq=' + MPI2.searchAndFacetConfig.facetParams.imagesFacet.fq
+    			/*if ( aKV[i] == 'fq=' + MPI2.searchAndFacetConfig.facetParams.imagesFacet.fq
     				|| aKV[i].match(/fq=\(?marker_type:* -marker_type:"heritable phenotypic marker"\)?/) 
     				|| aKV[i].match(/fq=\(?annotationTermId:M* OR expName:* OR symbol:*.+\)?/) 
     				|| aKV[i].match(/fq=\(?annotated_or_inferred.+\)?/) 
@@ -1147,9 +1158,9 @@
     				|| aKV[i].match(/\(?status.+\)?/)
     				|| aKV[i].match(/\(?pipeline_stable_id.+\)?/)
     				|| aKV[i].match(/\(?procedure_stable_id.+\)?/)
-    				){
+    				){*/
     				hashParams.fq = aKV[i].replace('fq=','');    				
-    			}    			
+    			//}    			
     		}
     		/*else if ( aKV[i].indexOf('ftOpen') == 0 ){  
     			hashParams.ftOpen = true;
