@@ -678,7 +678,7 @@ public class SolrIndex {
                 
                 try {
                         for (int i = 0; i < geneNumberFound ; i++) {
-                                if (geneDocs.getJSONObject(i).has("vector_project_ids") & geneDocs.getJSONObject(i).getString("vector_project_ids").length() > 0){
+                                if (geneDocs.getJSONObject(i).has("vector_project_ids") && geneDocs.getJSONObject(i).getString("vector_project_ids").length() > 0){
                                             geneConstructs.add(geneAlleleConstruct(geneDocs, i));
                                 }
 			}
