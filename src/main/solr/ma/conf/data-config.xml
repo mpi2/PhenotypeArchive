@@ -154,28 +154,8 @@
 						<field column="stable_id" name="parameter_stable_id" />
 						<field column="stable_key" name="parameter_stable_key" />
 					</entity>
-
 				</entity>
-
-				<!-- disease to this MP -->			
-				<entity dataSource="disease_core" name="disease" stream="true" url="q=mp_id:&quot;${mp_mappings.term_id}&quot;&amp;wt=normal&amp;rows=999999"
-					processor="XPathEntityProcessor" forEach="/response/result/doc/"							
-					readTimeout="10000" connectionTimeout="10000" onError="continue" >
-					
-					<field column="disease_id" xpath="/response/result/doc/str[@name='disease_id']" />                                   
-		            <field column="type" xpath="/response/result/doc/str[@name='type']" /> 
-		            <field column="disease_source" xpath="/response/result/doc/str[@name='disease_source']" /> 
-		            <field column="disease_term" xpath="/response/result/doc/str[@name='disease_term']" /> 
-		            <field column="disease_alts" xpath="/response/result/doc/arr[@name='disease_alts']/str" /> 
-		            <field column="disease_classes" xpath="/response/result/doc/arr[@name='disease_classes']/str" /> 
-		            <field column="human_curated" xpath="/response/result/doc/bool[@name='human_curated']" /> 
-		            <field column="mouse_curated" xpath="/response/result/doc/bool[@name='mouse_curated']" /> 
-		            <field column="mgi_predicted" xpath="/response/result/doc/bool[@name='mgi_predicted']" /> 
-		            <field column="impc_predicted" xpath="/response/result/doc/bool[@name='impc_predicted']" /> 
-		            <field column="mgi_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_predicted_in_locus']" /> 
-		            <field column="impc_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_predicted_in_locus']" /> 			
-					<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" /> 
-				</entity>
+				
             </entity>
  			
             <entity dataSource="ontodb" name="ma_node2term"
