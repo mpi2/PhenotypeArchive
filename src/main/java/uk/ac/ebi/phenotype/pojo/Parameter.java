@@ -43,6 +43,8 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
+import uk.ac.ebi.phenotype.stats.categorical.CategoriesExclude;
+
 @Entity
 @Table(name = "phenotype_parameter")
 public class Parameter extends PipelineEntry {
@@ -654,6 +656,21 @@ public class Parameter extends PipelineEntry {
 			return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * Use for use interface categories for categorical parameter- excludes things like "no data" "image only" and "not defined"
+	 * @return  usable categories List<String> which will be empty if not categorical
+	 */
+	public List<String> getCategoriesUserInterfaceFreindly(){
+		List<ParameterOption> options = this.getOptions();
+		List<String> categories = new ArrayList<String>();
+		for (ParameterOption option : options) {
+			categories.add(option.getName());
+		}
+		//exclude - "no data", "not defined" etc	
+		List<String>okCategoriesList=CategoriesExclude.getInterfaceFreindlyCategories(categories);	
+		return okCategoriesList;
 	}
 	
 }

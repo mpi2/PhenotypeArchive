@@ -433,14 +433,16 @@ public class CategoricalChartAndTableProvider {
 	}
 	
 	public List<String> getCategories(Parameter parameter) {
-		List<ParameterOption> options = parameter.getOptions();
-		List<String> categories = new ArrayList<String>();
-
-		for (ParameterOption option : options) {
-			categories.add(option.getName());
-		}
-
-		return categories;
+//		List<ParameterOption> options = parameter.getOptions();
+//		List<String> categories = new ArrayList<String>();
+//
+//		for (ParameterOption option : options) {
+//			categories.add(option.getName());
+//		}
+//		//exclude - "no data", "not defined" etc	
+//		List<String>okCategoriesList=CategoriesExclude.getInterfaceFreindlyCategories(categories);	
+//		return okCategoriesList;
+		return parameter.getCategoriesUserInterfaceFreindly();
 	}
 
 
