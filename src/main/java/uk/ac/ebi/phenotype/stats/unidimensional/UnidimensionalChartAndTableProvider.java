@@ -443,7 +443,7 @@ List<Float>dataFloats=new ArrayList<>();
 		// http://jsfiddle.net/gh/get/jquery/1.7.2/highslide-software/highcharts.com/tree/master/samples/highcharts/xaxis/labels-formatter-linked/
 		String chartId = parameter.getStableId();
 		String yTitle = "Number of strains";
-		String javascript = "$(document).ready(function() {chart = new Highcharts.Chart({ chart: {  type: 'column' , renderTo: 'single-chart-div'},"+
+		String javascript = "$(document).ready(function() {chart = new Highcharts.Chart({ colors:['rgba(239, 123, 11,0.7)','rgba(9, 120, 161,0.7)'], chart: {  type: 'column' , renderTo: 'single-chart-div'},"+
            " title: { text: '" + title + "' },"+
            " credits: { enabled: false },"+
     //       " xAxis: { categories: " + labels + ", labels: {rotation: -45} , title: { text: '" + xLabel + "'} },"+
@@ -460,8 +460,8 @@ List<Float>dataFloats=new ArrayList<>();
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setId(chartId);
-//		System.out.println("... column-stacked with id " + chartId);
-//		System.out.println("and the mutants were : " + mutant);
+		System.out.println("... column-stacked with id " + chartId);
+		System.out.println("\n\n" + javascript);
 		return chartAndTable;	
 	}
 	

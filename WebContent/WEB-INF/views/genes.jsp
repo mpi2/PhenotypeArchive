@@ -133,7 +133,7 @@
 
 	<jsp:body>
 		<div class="region region-content">
-			<div class="block block-system">
+			<div class="block">
 				<div class="content">
 					<div class="node node-gene">
 						<h1 class="title" id="top">Gene: ${gene.symbol}  &nbsp;&nbsp; </h1>
