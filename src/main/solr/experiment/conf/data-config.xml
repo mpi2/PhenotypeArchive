@@ -29,7 +29,7 @@
 		<!-- For all observations (data points) -->
 		<entity dataSource="komp2ds" transformer="script:getData,RegexTransformer" name="observation"
 			query="
-			SELECT o.biological_sample_id as bsid, o.parameter_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, o.*, co.category as category, uo.data_point as unidimensional_data_point, mo.data_point as multidimensional_data_point, mo.order_index, mo.dimension, tso.data_point as time_series_data_point, tso.time_point, tso.discrete_point
+			SELECT o.biological_sample_id as bsid, IF(co.category IS NOT NULL, CONCAT_WS('_', o.parameter_id, co.category), NULL) AS translate_category_id, o.parameter_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, o.*, co.category as raw_category, uo.data_point as unidimensional_data_point, mo.data_point as multidimensional_data_point, mo.order_index, mo.dimension, tso.data_point as time_series_data_point, tso.time_point, tso.discrete_point
 			FROM observation o
 			LEFT OUTER JOIN categorical_observation co ON o.id=co.id
 			LEFT OUTER JOIN unidimensional_observation uo ON o.id=uo.id
@@ -96,7 +96,17 @@
 
 			<field column="external_sample_id" name="external_sample_id" />
 
-			<field column="category" name="category" />
+			<entity name="categoricalTranslate" processor="CachedSqlEntityProcessor"
+				query="select CONCAT_WS('_', pp.id, ppo.name) as id, CASE ppo.name NOT REGEXP '^[a-zA-Z]' WHEN 0 THEN ppo.name ELSE CASE WHEN ppo.description != '' THEN ppo.description ELSE ppo.name END END AS category
+					FROM phenotype_parameter pp 
+					INNER JOIN phenotype_parameter_lnk_option pplo ON pp.id=pplo.parameter_id
+					INNER JOIN phenotype_parameter_option ppo ON ppo.id=pplo.option_id"
+					where="id=observation.translate_category_id">
+
+				<field column="category" name="category" />
+			</entity>
+
+			<field column="raw_category" name="raw_category" />
 			<field column="data_point" name="data_point" />
 			<field column="order_index" name="order_index" />
 			<field column="dimension" name="dimension" />
