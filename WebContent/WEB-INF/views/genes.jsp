@@ -399,14 +399,14 @@
 									 			
 												<ul>
 												<c:forEach var="doc" items="${expFacetToDocs[entry.name]}">
-		                                                                                    <li class="span2">
+		                                                                                    <li>
 													<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
 		                                                                                    </li>
 		    	  								</c:forEach>
 												</ul>
 												<div class="clear"></div>
 												<c:if test="${entry.count>5}">
-												<p class="textright"><a href='${baseUrl}/images?gene_id=${acc}&q=expName:"Wholemount Expression"&fq=annotated_or_inferred_higherLevelMaTermName:"${entry.name}"'>[show all  ${entry.count} images]</a></p>
+												<p class="textright"><a href='${baseUrl}/images?gene_id=${acc}&q=expName:"Wholemount Expression"&fq=annotated_or_inferred_higherLevelMaTermName:"${entry.name}"'>show all  ${entry.count} images</a></p>
 												</c:if>
 											</div>
 									</div>
