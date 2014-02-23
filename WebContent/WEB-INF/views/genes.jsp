@@ -109,9 +109,7 @@
 		<!-- JavaScript Local Imports -->
 		<script src="${baseUrl}/js/general/enu.js"></script>
 		<script src="${baseUrl}/js/general/dropdownfilters.js"></script>
-		<!--[if !IE]><!-->
-		
-		<!--<![endif]-->
+		<script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
 		
 		
 		<script type="text/javascript">var gene_id = '${acc}';</script>
@@ -135,7 +133,7 @@
 
 	<jsp:body>
 		<div class="region region-content">
-			<div class="block block-system">
+			<div class="block">
 				<div class="content">
 					<div class="node node-gene">
 						<h1 class="title" id="top">Gene: ${gene.symbol}  &nbsp;&nbsp; </h1>
@@ -401,14 +399,14 @@
 									 			
 												<ul>
 												<c:forEach var="doc" items="${expFacetToDocs[entry.name]}">
-		                                                                                    <li class="span2">
+		                                                                                    <li>
 													<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
 		                                                                                    </li>
 		    	  								</c:forEach>
 												</ul>
 												<div class="clear"></div>
 												<c:if test="${entry.count>5}">
-												<p class="textright"><a href='${baseUrl}/images?gene_id=${acc}&q=expName:"Wholemount Expression"&fq=annotated_or_inferred_higherLevelMaTermName:"${entry.name}"'>[show all  ${entry.count} images]</a></p>
+												<p class="textright"><a href='${baseUrl}/images?gene_id=${acc}&q=expName:"Wholemount Expression"&fq=annotated_or_inferred_higherLevelMaTermName:"${entry.name}"'>show all  ${entry.count} images</a></p>
 												</c:if>
 											</div>
 									</div>
@@ -416,39 +414,20 @@
 					</div>
 			</div>
 			</c:if>
-		
-			<div class="section">
-				<h2 class="title" id="section-alleles">ES Cell and Mouse Alleles <span class="documentation" ><a href='' id='allelePanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
-	</h2>	
-				    <div class="inner"> 			
-						<div id="allele_tracker_panel_results">&nbsp;</div>
-						<c:choose>
-							<c:when test="${countIKMCAllelesError}">
-							<div class="alert alert-error">
-								<strong>Error:</strong> IKMC allele status currently unavailable.
-							</div>
-							</c:when>
-							<%-- <c:when test="${countIKMCAlleles == 0}">
-								<div class="alert alert-info">There are no IKMC alleles available.</div>
-							</c:when> --%>
-							<c:otherwise>
-								<script src="${baseUrl}/js/mpi2_search/all.js"></script>
-								<script type="text/javascript">
-									var mgiAccession = gene_id;
-									jQuery('#allele_tracker_panel_results').mpi2GenePageAlleleGrid().trigger('search', {solrParams: {q:'mgi_accession_id:'+ mgiAccession}});
-								</script>
-							</c:otherwise>
-						</c:choose>
-				</div>
-			</div>
-			</div> <!--end of node wrapper should be after all secions  -->
-		</div>
-		</div>
-		</div>
-		
-		
-		
-		
-  </jsp:body>
+			       
+        <div class="section">
+		<h2 class="title documentation">ES Cell and Mouse Alleles  
+                        <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel' class="fa fa-question-circle pull-right" data-hasqtip="212" aria-describedby="qtip-212"></a>
+                </h2>
+		<div class="inner">
+                        <div id="allele"></div>
+                </div>
+ 	</div>
+        </div> <!--end of node wrapper should be after all secions  -->
+    </div>
+    </div>
+    </div>
+
+    </jsp:body>
   
 </t:genericpage>

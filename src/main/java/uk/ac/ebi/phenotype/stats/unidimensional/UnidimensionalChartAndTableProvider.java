@@ -7,21 +7,14 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
-import javax.annotation.Resource;
 
-import org.apache.commons.lang.WordUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
-import org.coode.parsers.ManchesterOWLSyntaxAutoCompleteCombined_ManchesterOWLSyntaxAutoCompleteBase.incompleteAssertionAxiom_return;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.Parameter;
@@ -35,6 +28,7 @@ import uk.ac.ebi.phenotype.stats.ChartUtils;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 import uk.ac.ebi.phenotype.stats.MouseDataPoint;
 import uk.ac.ebi.phenotype.stats.ObservationDTO;
+import uk.ac.ebi.phenotype.stats.StackedBarsData;
 import uk.ac.ebi.phenotype.stats.graphs.ChartColors;
 import uk.ac.ebi.phenotype.stats.graphs.GraphUtils;
 
@@ -404,18 +398,36 @@ List<Float>dataFloats=new ArrayList<>();
 		return chartAndTable;
 	}
 	
-	public ChartData getStackedHistogram(Map<String, List<Double>> map, String title, Parameter parameter){
+	public ChartData getStackedHistogram(StackedBarsData map, String title, Parameter parameter){
 	//	http://jsfiddle.net/gh/get/jquery/1.9.1/highslide-software/highcharts.com/tree/master/samples/highcharts/demo/column-stacked/
 		if (map == null){
 			return new ChartData();
 		}
 		String xLabel = parameter.getUnit();
-		List<Double> control  = map.get("control");
-		List<Double> mutant  = map.get("mutant");					
-		List<String> labels = new ArrayList<String> (); 
+		ArrayList<Double> control  = map.getControlMutatns();
+		ArrayList<Double> mutant  = map.getPhenMutants();					
+		ArrayList<String> labels = new ArrayList<String> (); 				
+		ArrayList<String> controlGenes = map.getControlGenes(); 				
+		ArrayList<String> mutantGenes = map.getMutantGenes(); 
 		DecimalFormat df = new DecimalFormat("#.##");
-		for (double label : map.get("labels")){
-			labels.add("'" + df.format(label) + "###here" + "'");
+		ArrayList<Double> upperBounds = map.getUpperBounds();
+		for (int i = 0; i < upperBounds.size(); i ++){
+			String c = controlGenes.get(i);
+			String controlG = "";
+			if (c.length() > 50){
+				int len = 0;
+				for (String gene : c.split(" " )){
+					controlG += gene + " " ;
+					len += gene.length();
+					if (len > 50){
+						controlG += "<br/>";
+						len = 0;
+					}
+				}
+				controlG = controlG;
+			}
+			else controlG = c ;
+			labels.add("'" + df.format(upperBounds.get(i)) + "###" + controlG + "###" + mutantGenes.get(i) + "'");
 		}
 		double min = 0; 
 		for (double val : mutant)
@@ -431,21 +443,25 @@ List<Float>dataFloats=new ArrayList<>();
 		// http://jsfiddle.net/gh/get/jquery/1.7.2/highslide-software/highcharts.com/tree/master/samples/highcharts/xaxis/labels-formatter-linked/
 		String chartId = parameter.getStableId();
 		String yTitle = "Number of strains";
-		String javascript = "$(document).ready(function() {chart = new Highcharts.Chart({ chart: {  type: 'column' , renderTo: 'single-chart-div'},"+
+		String javascript = "$(document).ready(function() {chart = new Highcharts.Chart({ colors:['rgba(239, 123, 11,0.7)','rgba(9, 120, 161,0.7)'], chart: {  type: 'column' , renderTo: 'single-chart-div'},"+
            " title: { text: '" + title + "' },"+
            " credits: { enabled: false },"+
     //       " xAxis: { categories: " + labels + ", labels: {rotation: -45} , title: { text: '" + xLabel + "'} },"+
     		" xAxis: { categories: " + labels + ", "
     				+ "labels: {formatter:function(){ return this.value.split('###')[0]; }, rotation: -45} , title: { text: '" + xLabel + "'} },"+
            " yAxis: { min: "+ min + ",  title: {  text: '"+yTitle+"'  }, stackLabels: { enabled: false}  }," +
-           " tooltip: { formatter: function() { return ''+  this.series.name +': '+ this.y + '  ' + this.x.split('###')[0] + '<br/>'+ 'Total: '+ this.point.stackTotal;  }  }, " +
+           " tooltip: { "
+           		+ "formatter: function() { "
+           		+ "if ('Mutant strains with no calls for this phenotype' === this.series.name )"
+           		+ "return ''+  this.series.name +': '+ this.y + ' out of '+ this.point.stackTotal + '<br/>Genes: ' +  this.x.split('###')[1];  "
+           		+ "else return ''+  this.series.name +': '+ this.y + ' out of '+ this.point.stackTotal + '<br/>Genes: ' +  this.x.split('###')[2];}  }, " +
            " plotOptions: { column: {  stacking: 'normal',  dataLabels: { enabled: false} } }," +
            " series: [{ name: 'Mutant strains with this phenotype called',  data: " +  mutant + "  }, {name: 'Mutant strains with no calls for this phenotype', data: " + control + "}]" +  " });  }); ";
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setId(chartId);
-//		System.out.println("... column-stacked with id " + chartId);
-//		System.out.println("and the mutants were : " + mutant);
+		System.out.println("... column-stacked with id " + chartId);
+		System.out.println("\n\n" + javascript);
 		return chartAndTable;	
 	}
 	

@@ -143,7 +143,7 @@ public class ObservationDTO {
 				 + "\t" + colonyId
 				 + "\t" + dateOfExperiment
 			//	 + "\t" + dateOfBirth
-				 + "\t" + biologicalSampleId
+			//	 + "\t" + biologicalSampleId
 			//	 + "\t" + biologicalModelId
 				 + "\t" + zygosity
 				 + "\t" + sex
@@ -172,11 +172,11 @@ public class ObservationDTO {
 	
 	public String getTabbedFields(){
 		String tabbed = "pipeline name" 
-				 + "\t pipeline stable id"
-				 + "\t procedure stable id"
-				 + "\t procedure name"
-				 + "\t parameter stable id"
-				 + "\t parameter name"
+				 + "\t pipelineStableId"
+				 + "\t procedureStableId"
+				 + "\t procedureName"
+				 + "\t parameterStableId"
+				 + "\t parameterName"
 			//	 + "\t pipeline id" 
 			//	 + "\t procedureId"
 			//	 + "\t parameterId"
@@ -187,7 +187,7 @@ public class ObservationDTO {
 			//	 + "\t experimentId"
 			//	 + "\t organisationId"
 			//	 + "\t observationType"
-				 + "\t organisation"
+				 + "\t phenotypingCenter"
 				 + "\t colonyId"
 				 + "\t dateOfExperiment"
 			//	 + "\t dateOfBirth"

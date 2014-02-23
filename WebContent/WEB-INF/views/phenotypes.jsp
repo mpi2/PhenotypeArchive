@@ -47,8 +47,11 @@
 	<jsp:body>
 
 	<div class="region region-content">
-		<div class="node node-gene">
-			<h1 class="title" id="top">Phenotype: ${phenotype.name} </h1>	  
+			<div class="block block-system">
+				<div class="content">
+					<div class="node node-gene">
+			<h1 class="title" id="top">Phenotype: ${phenotype.name} </h1>	 
+			
 				<div class="section">
 					<div class="inner">
 						<c:if test="${not empty phenotype.description}">
@@ -85,8 +88,9 @@
 							</div>
 						</c:if>
 						<p class="with-label"><span class="label">MGI MP browser</span><a href="http://www.informatics.jax.org/searches/Phat.cgi?id=${phenotype.id.accession}">${phenotype.id.accession}</a></p>
+					</div><!--  closing off inner here - but does this look correct in all situations- because of complicated looping rules above? jW -->
 					</div>
-				</div>
+				
 				
 				<c:if test="${genePercentage.getDisplay()}">
 					<div class="section collapsed open">
@@ -102,20 +106,25 @@
 							<!-- Graphs -->
 							<c:if test="${parametersAssociated.size() > 0}">
 								<div id="chartsHalf" class="half">
+								<c:if test="${parametersAssociated.size() > 1}">
+									<p> Select a different parameter <i class="fa fa-bar-chart-o" ></i>&nbsp; &nbsp;
+										<select onchange="ajaxToBe('${phenotype.id.accession}', this.options[this.selectedIndex].value);">
+											<c:forEach var="assocParam" items="${parametersAssociated}" varStatus="loop">
+												<option value="${assocParam}">${assocParam}</option>
+											</c:forEach>
+										</select>
+									</p>
+								</c:if>
+								<br/>
 	
 								<div id="chart-container">
 									<div id="single-chart-div" class="oChart" parameter="${parametersAssociated.get(0)}" mp="${phenotype.id.accession}">
 									</div>
 									<div id="spinner-overview-charts"><i class="fa fa-refresh fa-spin"></i></div>
 								</div>
-								<c:if test="${parametersAssociated.size() > 1}">
-									<ul>
-										<c:forEach var="assocParam" items="${parametersAssociated}" varStatus="loop">
-											<li> <a id='list${loop.index}' href="#" onclick="ajaxToBe('${phenotype.id.accession}', '${assocParam}');">${assocParam}</a></li>
-										</c:forEach>
-									</ul>
-								</c:if>
+								
 								<div id='chartFilters'></div>
+								
 							</div>
 						</c:if>
 						<div class="clear"></div>
@@ -130,7 +139,7 @@
 			    <span class="documentation" ><a href='' id='relatedMpPanel' class="fa fa-question-circle pull-right"></a></span> 
 			    </h2>
 				   
-					<div class="inner" style="display:block;">	 
+					<div class="inner">	 
 						<div id="phenotypesDiv">	
 							<div class="container span12">
 								<c:forEach var="filterParameters" items="${paramValues.fq}">
@@ -164,55 +173,72 @@
 							</c:if>
 						</div>
 					</div>
-	
+				</div><!-- end of section -->
+	<!-- example for images on phenotypes page: http://localhost:8080/phenotype-archive/phenotypes/MP:0000572 -->
 			<c:if test="${not empty images && fn:length(images) !=0}">
-				<div class="row-fluid dataset">
-					<h4 class="caption">Images <span class="documentation" ><a href='' id='imagePanel' class="fa fa-question-circle pull-right"></a></span></h4>
-						<div class="row-fluid">
-						<div class="container span12">
-							<div class="accordion" id="accordion1">
+				<div class="section">
+						<h2 class="title" id="section">Images <i class="fa fa-question-circle pull-right"></i></h2>
+						<div class="inner">			
+											<%-- <a href="${baseUrl}/images?phenotype_id=${phenotype_id}">[show all  ${numberFound} images]</a> --%>
 								<div class="accordion-group">
-									<div class="accordion-heading">
-										<a class="accordion-toggle" data-toggle="collapse" data-target="#pheno">Phenotype Associated Images <i class="icon-chevron-down pull-left"></i></a>
-									</div>
-									<div id="pheno" class="accordion-body collapse in">
-										<div class="accordion-inner">
-											<a href="${baseUrl}/images?phenotype_id=${phenotype_id}">[show all  ${numberFound} images]</a>
-					    					<ul>
-					    					<c:forEach var="doc" items="${images}">
-												<li class="span2"><a
-																href="${mediaBaseUrl}/${doc.fullResolutionFilePath}"><img
-																	src="${mediaBaseUrl}/${doc.smallThumbnailFilePath}" /></a>
-												<c:forEach var="maTerm" items="${doc.annotationTermName}"
-																	varStatus="loop">
-													${maTerm}<c:if test="${!loop.last}">
-																		<br />
-																	</c:if>
-												</c:forEach>
-												<c:if test="${not empty doc.genotype}">
-																	<br />${doc.genotype}</c:if>
-												<c:if test="${not empty doc.genotype}">
-																	<br />${doc.gender}</c:if>
-												<c:if test="${not empty doc.institute}">
-																	<c:forEach var="org" items="${doc.institute}">
-																		<br />${ org}</c:forEach>
-																</c:if> 
-												</li>
-											</c:forEach>
+										<div class="accordion-heading">
+												Phenotype Associated Images
+										</div>
+										<div  class="accordion-body">
+											<ul>
+												<c:forEach var="doc" items="${images}">
+		                                                                                    <li class="span2">
+													<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
+		                                                                                    </li>
+		    	  								</c:forEach>
 											</ul>
+											
+											<div class="clear"></div>
+												<c:if test="${entry.count>5}">
+												<p class="textright"><a href="${baseUrl}/images?phenotype_id=${phenotype_id}">show all  ${numberFound} images</a></p>
+												</c:if>
 										</div>
 									</div>
 								<!--  end of accordion -->
 								</div>
-							</div>
-						</div>
-					</div>	
-				</div>
-				<!--  end of phenotype box section -->
+					</div>	<!--  end of images section -->
 			</c:if>
+			
+			<%-- <c:if test="${not empty expressionFacets}">
+			<div class="section">
+				<h2 class="title" id="section-expression">Expression <i class="fa fa-question-circle pull-right"></i></h2>
+					<div class="inner">			
+					
+							<!-- thumbnail scroller markup begin -->
+			   						<c:forEach var="entry" items="${expressionFacets}" varStatus="status">
+		  							<div class="accordion-group">
+										<div class="accordion-heading">
+												${entry.name}  (${entry.count})
+										</div>
+											<div  class="accordion-body">
+									 			
+												<ul>
+												<c:forEach var="doc" items="${expFacetToDocs[entry.name]}">
+		                                                                                    <li class="span2">
+													<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
+		                                                                                    </li>
+		    	  								</c:forEach>
+												</ul>
+												<div class="clear"></div>
+												<c:if test="${entry.count>5}">
+												<p class="textright"><a href='${baseUrl}/images?gene_id=${acc}&q=expName:"Wholemount Expression"&fq=annotated_or_inferred_higherLevelMaTermName:"${entry.name}"'>[show all  ${entry.count} images]</a></p>
+												</c:if>
+											</div>
+									</div>
+								</c:forEach>	
+					</div>
+			</div>
+			</c:if> --%>
 		</div>
 	</div>
 </div>
+</div>
+
 </jsp:body>
 
 </t:genericpage>

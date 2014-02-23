@@ -343,6 +343,7 @@ tr.clickable:hover .fa-plus { color: #0978A1; }
 td .title               { font-size: 1.4em; margin-bottom: 0.5em; font-weight: 600; }
 td .title a             { text-decoration: none; }
 td .title a:hover       { text-decoration: underline; }
+td.centered             { text-align: center;}
 .registerforinterest    { white-space:nowrap; }
 tr .subinfo             { visibility: hidden; font-size: 0.9em; line-height: 1em; color: #aaa; }
 tr:hover .subinfo       { visibility: visible; }
@@ -524,9 +525,9 @@ span.status.done        { background: #0978A1 !important; }
 .accordion-group.open .accordion-heading.withColorWhenOpen { margin-bottom: 0.5em; background: #f4f4f4; }
 .accordion-heading:hover { color: #0978a1; text-decoration: underline; }
 .accordion-body         { padding: 0 0 1em 0; display: none; }
-/* .accordion-body .grid { display:block; } */
+/* .accordion-body .grid { display: block !important; } */
 .accordion-body ul      { padding: 0; }
-.accordion-body li      { float: left; width: 18%; padding: 1%; margin: 0; list-style: none; }
+.accordion-body li      { float: left; width: 18%; height: 300px; padding: 1%; margin: 0; list-style: none; }
 .accordion-body li img  { width: 100%; height: auto; }
 .caption                { font-size: 0.8em; text-align: center; }
 sup                     { text-decoration: none; position: relative; vertical-align: baseline; top: -0.5em; }

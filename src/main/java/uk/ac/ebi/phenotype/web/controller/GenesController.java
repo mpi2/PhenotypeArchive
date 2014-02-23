@@ -676,4 +676,16 @@ public class GenesController {
 		return "genomeBrowser";
 	}
 	
+    @RequestMapping("/genesAllele/{acc}")
+    public String genesAllele(
+       		@PathVariable String acc,
+			Model model,
+			HttpServletRequest request,
+			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
+                
+        List<Map<String, String>> constructs = solrIndex.getGeneAlleleInfo(acc);
+
+        model.addAttribute("alleleProducts", constructs);
+	    return "genesAllele";  
+        }   
 }

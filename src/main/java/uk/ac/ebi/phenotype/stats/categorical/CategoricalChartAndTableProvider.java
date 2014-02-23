@@ -278,9 +278,11 @@ public class CategoricalChartAndTableProvider {
 		
 		String chartId = "single-chart-div";//replace space in MRC Harwell with underscore so valid javascritp variable
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
+		List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaBox);
+		JSONArray colorArray = new JSONArray(colors);
 		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ " 
-//				+" colors:"+colorArray
-				+" chart: { renderTo: '"
+				+" colors:"+colorArray
+				+", chart: { renderTo: '"
 				+ chartId
 				+ "', type: 'column' }, title: { text: '"
 				+ WordUtils.capitalize(title)
@@ -290,6 +292,7 @@ public class CategoricalChartAndTableProvider {
 				+ "}, yAxis: { min: 0, title: { text: 'Percent Occurrance' } ,  labels: {       formatter: function() { return this.value +'%';   }  }},  plotOptions: { column: { stacking: 'percent' } }, series: "
 				+ seriesArray + " });  });";
 
+		
 		chartData.setChart(javascript);
 		chartData.setId(chartId);	
 		return javascript;
@@ -401,7 +404,8 @@ public class CategoricalChartAndTableProvider {
 		// categoricalBarCharts.add(javascript);
 		chartData.setChart(javascript);
 		chartData.setChartIdentifier(chartId);
-		
+
+		System.out.println("\n\n" + javascript);
 		return javascript;
 	}
 
@@ -433,14 +437,16 @@ public class CategoricalChartAndTableProvider {
 	}
 	
 	public List<String> getCategories(Parameter parameter) {
-		List<ParameterOption> options = parameter.getOptions();
-		List<String> categories = new ArrayList<String>();
-
-		for (ParameterOption option : options) {
-			categories.add(option.getName());
-		}
-
-		return categories;
+//		List<ParameterOption> options = parameter.getOptions();
+//		List<String> categories = new ArrayList<String>();
+//
+//		for (ParameterOption option : options) {
+//			categories.add(option.getName());
+//		}
+//		//exclude - "no data", "not defined" etc	
+//		List<String>okCategoriesList=CategoriesExclude.getInterfaceFreindlyCategories(categories);	
+//		return okCategoriesList;
+		return parameter.getCategoriesUserInterfaceFreindly();
 	}
 
 

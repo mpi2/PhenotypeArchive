@@ -1,5 +1,7 @@
 $(document).ready(function(){						
 	
+	
+	
 	// AJAX calls for the overview charts
 	$('.oChart').each(function(i, obj) {
 		$( '#spinner-overview-charts' ).show();

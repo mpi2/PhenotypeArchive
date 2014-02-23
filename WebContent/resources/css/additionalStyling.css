@@ -83,12 +83,12 @@ button.exportButton{
 .abnormalities .sprite_skeleton_phenotype { margin: 80px 0px 0px 40px; background-position: -40px -80px; }
 .abnormalities .sprite_immune_system_phenotype_or_hematopoietic_system_phenotype { margin: 80px 0px 0px 80px; background-position: -80px -80px; }
 .abnormalities .sprite_muscle_phenotype { margin: 80px 0px 0px 120px; background-position: -120px -80px; }
-.abnormalities .sprite_endocrine_exocrine_gland_phenotype { margin: 80px 0px 0px 160px; background-position: -160px -80px; }
+.abnormalities .sprite_integument_phenotype_or_pigmentation_phenotype { margin: 120px 0px 0px 120px; background-position: -120px -120px; }
 
 .abnormalities .sprite_craniofacial_phenotype { margin: 120px 0px 0px 0px; background-position: 0px -120px; }
 .abnormalities .sprite_hearing_vestibular_ear_phenotype { margin: 120px 0px 0px 40px; background-position: -40px -120px; }
 .abnormalities .sprite_taste_olfaction_phenotype { margin: 120px 0px 0px 80px; background-position: -80px -120px; }
-.abnormalities .sprite_integument_phenotype_or_pigmentation_phenotype { margin: 120px 0px 0px 120px; background-position: -120px -120px; }
+.abnormalities .sprite_endocrine_exocrine_gland_phenotype { margin: 80px 0px 0px 160px; background-position: -160px -80px; }
 .abnormalities .sprite_vision_eye_phenotype { margin: 120px 0px 0px 160px; background-position: -160px -120px; }
 
 #spin-overview-charts, #single-chart-div{
@@ -106,3 +106,14 @@ button.exportButton{
 }
 
 #single-chart-div{min-width: 400px; height: 400px; margin: 0 auto;}
+
+/* Graph filter */
+.filters                            { margin: 1em 0; padding: 1em; background: #f4f4f4; -moz-border-radius: 3px; -webkit-border-radius: 3px; -ms-border-radius: 3px; border-radius: 3px; }
+.filter                             { float: left; padding-right: 2em; display:inline-block;}
+.ftype                              { padding-left: 1em; cursor: pointer; }
+.ftype:before                       { position: absolute; font-family: 'FontAwesome'; content: "\f0da"; margin-left: -1em; }
+.filter.open .ftype:before          { content: "\f0d7"; }
+.filter .foptions                   { display: none; padding-right: 1em; max-height: 120px; overflow-y: auto; }
+.filter.open .foptions              { display: block; }
+.foptions ul                        { list-style: none; padding-left: 0.8em; }
+

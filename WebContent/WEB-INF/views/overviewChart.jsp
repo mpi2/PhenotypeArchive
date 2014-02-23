@@ -14,25 +14,24 @@
 			var checkedCenters = [];
 			var checkedSexes = [];
 			
-			var html = '<div class="tablefiltering filters"> 	<div class="tablefilter filter"> 	<div class="filtertype ftype">Center</div> 	<div class="filteroptions">	<ul>' ;
+			var html = '<div class="filters"> 	<div class="filter"> 	<div class="ftype">Center</div> 	<div class="foptions">	<ul>' ;
 			
 			for (var i = 0; i < centers.length; i ++){
 				html += '<li> <input id="' + centers[i] + '" type="checkbox" class="checkbox" array="centers"> ' +  centers[i] + '</li>';
 			}
 			
-			html += '</ul> </div> </div> <div class="tablefilter filter"> <div class="filtertype ftype">Sex</div> <div class="filteroptions"> <ul>';
+			html += '</ul> </div> </div> <div class="filter"> <div class="ftype">Sex</div> <div class="foptions"> <ul>';
 			
 			for (var i = 0; i < sexes.length; i ++){
 				html += '<li> <input id="' + sexes[i] + '" type="checkbox" class="checkbox" array="sexes"> ' + sexes[i] + '</li>';
 			}
-			html += '</ul> </div> </div> </div>';
+			html += '</ul> </div> </div> <div class="clear"></div> </div>';
 		
 			$("#chartFilters").html(html);
 			
 			// add open-close functionality
-			$('.filtertype').on('click',function() {
-				$(this).toggleClass('open'); 
-				$(this).next('.filteroptions').toggleClass('open'); 
+			$('.ftype').on('click',function() {
+				$(this).parent('.filter').toggleClass('open'); 
 			});
 			
 			// attach onClick functionality to the filters
