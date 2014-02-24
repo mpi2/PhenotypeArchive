@@ -676,7 +676,7 @@ public class Parameter extends PipelineEntry {
 		for (ParameterOption option : options) {
                     String label=option.getName();
                     //this is a hack as impress holds some numeric categories which shouldn't be????
-                    if(useDescription==true && !option.getDescription().equals("") && !option.getDescription().equals("")){
+                    if(useDescription==true && option.getDescription()!=null && !option.getDescription().equals("")){
                        label=option.getDescription();
                     }
 			categories.add(label);

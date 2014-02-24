@@ -126,7 +126,8 @@ public class ChartsController {
 	}
 
 	/**
-	 * This method should take in the parameters and then generate a skeleton
+	 * Would like to get rid of this method and just use charts as below
+         * This method should take in the parameters and then generate a skeleton
 	 * jsp page with urls that can be called by a jquery ajax requests for each
 	 * graph div and table div
 	 * 
@@ -165,53 +166,46 @@ public class ChartsController {
 			throw new GenomicFeatureNotFoundException("Gene " + acc
 					+ " can't be found.", acc);
 		}
-
-		// TODO: Implement control selection stragety by center
-		// ControlSelectionStrategy controlSelectionStrategy =
-		// experimentService.getControlSelectionStrategy(phenotypingCenter,
-		// strategies);
-		log.info(gene.toString());
-		model.addAttribute("gene", gene);
-
-		List<String> paramIds = getParamsAsList(parameterIds);
-		List<String> genderList = getParamsAsList(gender);
-		List<String> phenotypingCentersList=getParamsAsList(phenotypingCenter);
-		List<String> strainsList=getParamsAsList(strains);
-		List<String> metadataGroups=getParamsAsList(metadataGroup);
-		if (genderList.size() == 0) {// add them explicitly here so graphs urls
-										// are created seperately
-			genderList.add(SexType.male.name());
-			genderList.add(SexType.female.name());
-		}
-		List<String> zyList = getParamsAsList(zygosity);
-		if (zyList.isEmpty()) {
-			zyList.add(ZygosityType.homozygote.name());
-			zyList.add(ZygosityType.heterozygote.name());
-			zyList.add(ZygosityType.hemizygote.name());
-		}
-		
-		//List<Parameter> parameters = new ArrayList<>();
-
-		Set<String> allGraphUrlSet = new LinkedHashSet<String>();
-		for (String parameterId : paramIds) {
-
-			Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion(
-					parameterId, 1, 0);
-			if (parameter == null) {
-				throw new ParameterNotFoundException("Parameter " + parameterId
-						+ " can't be found.", parameterId);
-			}
-			// instead of an experiment list here we need just the outline of
-			// the experiments - how many, observation types
-			Set<String> graphUrlsForParam = graphUtils.getGraphUrls(acc,
-					parameter.getStableId(), genderList, zyList, phenotypingCentersList, strainsList, metadataGroups, scatter);
-			allGraphUrlSet.addAll(graphUrlsForParam);
-
-		}// end of parameterId iterations
-
-		model.addAttribute("allGraphUrlSet", allGraphUrlSet);
-		//model.addAttribute("parameters", parameters);
-		return "stats";
+                String []accessionsParams=new String[1];
+                accessionsParams[0]=acc;
+		return createCharts(accessionsParams, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, scatter);
+	}
+        
+        
+        /**
+	 * This method should take in the parameters and then generate a skeleton
+	 * jsp page with urls that can be called by a jquery ajax requests for each
+	 * graph div and table div
+	 * 
+	 * @param parameterIds
+	 * @param gender
+	 * @param zygosity
+	 * @param phenotypingCenter
+	 * @param strategies
+	 * @param acc
+	 * @param model
+	 * @return
+	 * @throws GenomicFeatureNotFoundException
+	 * @throws ParameterNotFoundException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 * @throws SolrServerException
+	 */
+	@RequestMapping("/charts")
+	public String charts(
+                        @RequestParam(required = false, value = "acc") String[] accessionsParams,
+			@RequestParam(required = false, value = "parameterId") String[] parameterIds,
+			@RequestParam(required = false, value = "gender") String[] gender,
+			@RequestParam(required = false, value = "zygosity") String[] zygosity,
+			@RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter,
+			@RequestParam(required = false, value = "strategy") String[] strategies,
+			@RequestParam(required = false, value = "strain") String[] strains,
+			@RequestParam(required = false, value = "metadata_group") String[] metadataGroup,
+			@RequestParam(required = false, value = "scatter") boolean scatter,
+			Model model)
+			throws GenomicFeatureNotFoundException, ParameterNotFoundException,
+			IOException, URISyntaxException, SolrServerException {
+		return createCharts(accessionsParams, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, scatter);
 	}
 
 	/**
@@ -236,24 +230,7 @@ public class ChartsController {
 	 */
 	@RequestMapping("/chart")
 	public String chart(
-			@RequestParam(required = true, value = "experimentNumber") String experimentNumber,// we
-																				// need
-																				// a
-																				// chartId
-																				// at
-																				// the
-																				// least
-																				// the
-																				// 1st
-																				// one
-																				// if
-																				// doing
-																				// seperate
-																				// ones
-																				// for
-																				// male
-																				// and
-																				// female
+			@RequestParam(required = true, value = "experimentNumber") String experimentNumber,// we																	// female
 			@RequestParam(required = false, value = "accession") String[] accession,
 			@RequestParam(required = false, value = "strain") String[] strain,
 			@RequestParam(required = false, value = "metadata_group") String[] metadataGroup,
@@ -472,5 +449,62 @@ public class ChartsController {
 		mv.addObject("type", "Parameter");
 		return mv;
 	}
+
+    private String createCharts(String[] accessionsParams, String[] parameterIds, String[] gender, String[] phenotypingCenter, String[] strains, String[] metadataGroup, String[] zygosity, Model model, boolean scatter) throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
+        GraphUtils graphUtils = new GraphUtils(experimentService);
+        List<String> geneIds = getParamsAsList(accessionsParams);
+        List<String> paramIds = getParamsAsList(parameterIds);
+        List<String> genderList = getParamsAsList(gender);
+        List<String> phenotypingCentersList=getParamsAsList(phenotypingCenter);
+        List<String> strainsList=getParamsAsList(strains);
+        List<String> metadataGroups=getParamsAsList(metadataGroup);
+        if (genderList.isEmpty()) {// add them explicitly here so graphs urls
+                                                                        // are created seperately
+                genderList.add(SexType.male.name());
+                genderList.add(SexType.female.name());
+        }
+        List<String> zyList = getParamsAsList(zygosity);
+        if (zyList.isEmpty()) {
+                zyList.add(ZygosityType.homozygote.name());
+                zyList.add(ZygosityType.heterozygote.name());
+                zyList.add(ZygosityType.hemizygote.name());
+        }
+        
+        //List<Parameter> parameters = new ArrayList<>();
+        
+        Set<String> allGraphUrlSet = new LinkedHashSet<>();
+       for(String geneId: geneIds){
+           GenomicFeature gene = genesDao.getGenomicFeatureByAccession(geneId);
+        if (gene == null) {
+                throw new GenomicFeatureNotFoundException("Gene " + geneId
+                                + " can't be found.", geneId);
+        }
+
+        // TODO: Implement control selection stragety by center
+        // ControlSelectionStrategy controlSelectionStrategy =
+        // experimentService.getControlSelectionStrategy(phenotypingCenter,
+        // strategies);
+        log.info(gene.toString());
+        model.addAttribute("gene", gene);
+        for (String parameterId : paramIds) {
+
+                Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion(
+                                parameterId, 1, 0);
+                if (parameter == null) {
+                        throw new ParameterNotFoundException("Parameter " + parameterId
+                                        + " can't be found.", parameterId);
+                }
+                // instead of an experiment list here we need just the outline of
+                // the experiments - how many, observation types
+                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId,
+                                parameter.getStableId(), genderList, zyList, phenotypingCentersList, strainsList, metadataGroups, scatter);
+                allGraphUrlSet.addAll(graphUrlsForParam);
+
+        }// end of parameterId iterations
+}//end of gene iterations
+        model.addAttribute("allGraphUrlSet", allGraphUrlSet);
+        //model.addAttribute("parameters", parameters);
+        return "stats";
+    }
 
 }
