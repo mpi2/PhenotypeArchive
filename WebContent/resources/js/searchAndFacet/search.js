@@ -41,7 +41,8 @@
 				q = '*:*';
 			}
 		}
-		q = replace(/+/g, '');
+		
+		q = q.replace(/\+/g, ' ');
 		q = decodeURI(q);
 		console.log('test q: '+ q);
 				
