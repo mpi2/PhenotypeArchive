@@ -71,8 +71,6 @@ public class OverviewChartsController {
 			String[] centerArray = (center != null) ? center.split(",") : null;
 			String[] sexArray = (sex != null) ? sex.split(",") : null;
 			model.addAttribute("chart", getDataOverviewChart(phenotype_id, model, parameterId, centerArray, sexArray));
-			System.out.println("GET CHART");
-			System.out.println(center + sex);
 			return "overviewChart";
 	}
 	
@@ -90,9 +88,7 @@ public class OverviewChartsController {
 			controlSet.setName("Control");
 			CategoricalSet mutantSet = os.getCategories(p, (ArrayList<String>) genes, "experimental", strains, center, sex);
 			mutantSet.setName("Mutant");
-			System.out.println(controlSet.getCount());
-			System.out.println(mutantSet.getCount());
-			chartRes = cctp.doCategoricalDataOverview(controlSet, mutantSet, model, p, p.getName()+" ("+parameter+")").get(0);
+			chartRes = cctp.doCategoricalDataOverview(controlSet, mutantSet, model, p).get(0);
 		}
 		else if ( p != null && Utilities.checkType(p).equals(ObservationType.time_series)){
 			genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
@@ -105,8 +101,7 @@ public class OverviewChartsController {
 		else if ( p != null && Utilities.checkType(p).equals(ObservationType.unidimensional)){
 			genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
 			StackedBarsData data = os.getUnidimensionalData(p, genes, strains, "experimental", center, sex);
-			String chartTitle = "Mean " +  p.getName() + " (" + p.getStableId()+")";
-			chartRes = uctp.getStackedHistogram(data, chartTitle, p);
+			chartRes = uctp.getStackedHistogram(data, p);
 		}
 		
 		if (chartRes != null && center == null && sex == null){ // we don't do a filtering

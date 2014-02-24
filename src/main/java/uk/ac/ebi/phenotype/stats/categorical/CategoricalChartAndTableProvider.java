@@ -191,13 +191,12 @@ public class CategoricalChartAndTableProvider {
 	public List<ChartData> doCategoricalDataOverview(CategoricalSet controlSet, 
 			CategoricalSet mutantSet,
 			Model model, 
-			Parameter parameter,
-			String chartTitle) throws SQLException{		
+			Parameter parameter) throws SQLException{		
 		// do the charts
 		ChartData chartData = new ChartData();
 		List<ChartData> categoricalResultAndCharts = new ArrayList<ChartData>();
 		if (mutantSet.getCount() > 0 && controlSet.getCount() > 0) {// if size is greater than one i.e. we have more than the control data then draw charts and tables
-			String chartNew = this.createCategoricalHighChartUsingObjects2( controlSet, mutantSet, model, parameter, chartData, chartTitle);
+			String chartNew = this.createCategoricalHighChartUsingObjects2( controlSet, mutantSet, model, parameter, chartData);
 			chartData.setChart(chartNew);
 			categoricalResultAndCharts.add(chartData);
 		}
@@ -209,13 +208,13 @@ public class CategoricalChartAndTableProvider {
 			CategoricalSet mutantSet,
 			Model model, 
 			Parameter parameter,
-			ChartData chartData, 
-			String chartTitle) throws SQLException {
+			ChartData chartData) throws SQLException {
 
 		// to not 0 index as using loop count in jsp
 		JSONArray seriesArray = new JSONArray();
 		JSONArray xAxisCategoriesArray = new JSONArray();
-		String title = chartTitle;
+		String title = parameter.getName();
+		String subtitle = parameter.getStableId();
 		String colorNormal = "#4572A7";
 		String colorAbnormal = "#AA4643";
 		String color = "";
@@ -286,12 +285,11 @@ public class CategoricalChartAndTableProvider {
 				+ chartId
 				+ "', type: 'column' }, title: { text: '"
 				+ WordUtils.capitalize(title)
-				+ "' }, credits: { enabled: false }, "
+				+ "' }, subtitle: { text:'" + subtitle + "'}, credits: { enabled: false }, "
 				+ "xAxis: { categories: "
 				+ xAxisCategoriesArray
 				+ "}, yAxis: { min: 0, title: { text: 'Percent Occurrance' } ,  labels: {       formatter: function() { return this.value +'%';   }  }},  plotOptions: { column: { stacking: 'percent' } }, series: "
 				+ seriesArray + " });  });";
-
 		
 		chartData.setChart(javascript);
 		chartData.setId(chartId);	
