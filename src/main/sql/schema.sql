@@ -267,15 +267,14 @@ CREATE TABLE synonym (
     id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     acc                       VARCHAR(20) NOT NULL,
     db_id                     INT(10) NOT NULL,
-    symbol                    TEXT NOT NULL,
+    symbol                    VARCHAR(8192) NOT NULL,
 
     PRIMARY KEY (id),
     KEY genomic_feature_idx (acc, db_id),
     KEY genomic_feature_acc_idx (acc)
+    KEY synonym_symbol_idx (symbol)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
-
-CREATE FULLTEXT INDEX synonym_symbol_idx ON synonym (symbol);
 
 /**
  * Genomic feature cross-reference from other datasources.
