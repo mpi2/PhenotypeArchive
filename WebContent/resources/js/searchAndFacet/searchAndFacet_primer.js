@@ -19,7 +19,7 @@
  */
 $(document).ready(function(){
 	'use strict';	
-	console.log('primer');
+	
 	var oHashParams = {};
 	
 	$('span.facetCount').text(''); // default when page loads

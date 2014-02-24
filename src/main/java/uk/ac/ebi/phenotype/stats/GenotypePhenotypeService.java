@@ -151,8 +151,7 @@ public class GenotypePhenotypeService {
 		// mpID might be in mp_id instead of top level field
 		if (result.size() == 0 || result == null)
 		//	result = runQuery("marker_accession_id:" + gene.replace(":", "\\:") + " AND mp_term_id:" + mpID.replace(":", "\\:"));
-			result = runQuery(GenotypePhenotypeField.MARKER_ACCESSION_ID + ":\"" + gene + "\" AND " + GenotypePhenotypeField.MP_TERM_ID + ":\"" + mpID + "\" AND -" 
-					+ GenotypePhenotypeField.RESOURCE_NAME + ":IMPC");
+			result = runQuery(GenotypePhenotypeField.MARKER_ACCESSION_ID + ":\"" + gene + "\" AND " + GenotypePhenotypeField.MP_TERM_ID + ":\"" + mpID + "\"");// AND -" + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC");
 		return result;
 	}
 	
@@ -172,7 +171,7 @@ public class GenotypePhenotypeService {
 	public HashMap<String, String> getTopLevelMPTerms(String gene) throws SolrServerException {
 		HashMap<String,String> tl = new HashMap<String,String>(); 
 //		SolrDocumentList result = runQuery("marker_accession_id:" + gene.replace(":", "\\:"));
-		SolrDocumentList result = runQuery( GenotypePhenotypeField.MARKER_ACCESSION_ID + ":\"" + gene + "\" AND -" + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC");
+		SolrDocumentList result = runQuery( GenotypePhenotypeField.MARKER_ACCESSION_ID + ":\"" + gene + "\"");// AND -" + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC");
 		if (result.size() > 0) {
 			for (int i = 0; i < result.size(); i++) {
 				SolrDocument doc = result.get(i);
@@ -267,8 +266,9 @@ public class GenotypePhenotypeService {
 
 		String solrUrl = solr.getBaseURL()
 				+ "/select/?q=" + GenotypePhenotypeField.MARKER_ACCESSION_ID + ":\""
-				+ accId
-				+ "\"&fq=-" + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC&rows=10000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=" 
+				+ accId+ "\""
+//				+ "&fq=-" + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC"
+				+ "&rows=10000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=" 
 				+ GenotypePhenotypeField.RESOURCE_FULLNAME 
 				+ "&facet.field=" + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_NAME + "";
 		if (queryString.startsWith("&")) {
@@ -288,8 +288,9 @@ public class GenotypePhenotypeService {
 				+ "/select/?q=(" + GenotypePhenotypeField.MP_TERM_ID + ":\""
 				+ phenotype_id
 				+ "\"+OR+" + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":\""
-				+ phenotype_id
-				+ "\")&fq=-" + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=" 
+				+ phenotype_id + "\")" 
+//				+ "&fq=-" + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC" +
+				+ "&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=" 
 				+ GenotypePhenotypeField.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeField.PROCEDURE_NAME+ "&facet.field=" 
 				+ GenotypePhenotypeField.MARKER_SYMBOL + "&facet.field="
 				+ GenotypePhenotypeField.MP_TERM_NAME + "";

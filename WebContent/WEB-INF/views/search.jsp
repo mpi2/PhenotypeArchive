@@ -192,7 +192,7 @@
         
          <script>        		
        	$(document).ready(function(){     		   		
-       		console.log('loaded: '+ ${q});
+       		
    			$.fn.qTip({'pageName':'search'		 					
    			});  			 						
    			

@@ -31,21 +31,21 @@
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
 		
 		var q = oUrlHashParams.q;
+				
 		if ( typeof q == 'undefined' ){
 			// check search kw
 			if ( window.location.search != '' ){				
-				q = window.location.search.replace(/&.+/, '').replace('?q=','');
+				q = window.location.search.replace(/&.+/, '').replace('?q=','');	
+				q = q.replace(/\+/g, ' ');
 				$('input#s').val(decodeURI(q));				
 			}
 			else {
 				q = '*:*';
 			}
 		}
-		
-		q = q.replace(/\+/g, ' ');
-		q = decodeURI(q);
-		console.log('test q: '+ q);
 				
+		q = decodeURI(q);
+					
 		if ( oUrlHashParams.fq ){		
 			jsonBase.geneFacet.filterParams = {'fq': $.fn.fieldNameMapping(oUrlHashParams.fq, 'gene')};
 		}	
