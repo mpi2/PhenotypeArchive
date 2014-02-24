@@ -29,7 +29,7 @@
 	var jsonBase = MPI2.searchAndFacetConfig.facetParams;
 	
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
-		
+		console.log('search js');
 		var q = oUrlHashParams.q;
 		if ( typeof q == 'undefined' ){
 			// check search kw
