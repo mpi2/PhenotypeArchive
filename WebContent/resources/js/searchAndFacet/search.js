@@ -51,7 +51,7 @@
 		oFacets.count = {};	
 		q = decodeURI(q);
 		jsonBase.geneFacet.srchParams.q = q;
-			  console.log($.extend({}, jsonBase.geneFacet.srchParams, jsonBase.geneFacet.filterParams)); 
+		// console.log($.extend({}, jsonBase.geneFacet.srchParams, jsonBase.geneFacet.filterParams)); 
 	 	// facet types are done sequencially; starting from gene		
 	    $.ajax({            	    
 	    		url: solrUrl + '/gene/select',	    	
@@ -61,7 +61,7 @@
 	       	    jsonp: 'json.wrf',
 	       	    timeout: 5000,
 	       	    success: function (geneResponse) {	  
-	       	    	console.log(geneResponse);
+	       	    	//console.log(geneResponse);
 	       	    	$('div.flist li#gene span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
 	       	    	oFacets.count.gene = geneResponse.response.numFound;	
 	       	    	_updateFacetCount('gene', geneResponse, facetMode);	       	    	
@@ -79,7 +79,7 @@
 		if ( fq ){		
 			jsonBase.mpFacet.filterParams = {'fq': $.fn.fieldNameMapping(fq, 'mp')};
 		}	
-		console.log($.extend({}, jsonBase.mpFacet.srchParams, jsonBase.mpFacet.filterParams)); 
+		
 		$.ajax({
     	    url: solrUrl + '/mp/select',
     	    data: $.extend({}, jsonBase.mpFacet.srchParams, jsonBase.mpFacet.filterParams),
