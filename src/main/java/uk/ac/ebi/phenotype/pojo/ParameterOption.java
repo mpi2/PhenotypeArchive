@@ -47,7 +47,7 @@ public class ParameterOption {
 	@Column(name = "name")
 	private String name;
 	
-	@Column(name = "description")	
+        @Column(name = "description")	
 	private String description;
 
 	/**

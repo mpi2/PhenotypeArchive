@@ -340,7 +340,7 @@ public class ChartsController {
 		System.out.println("experiment in chart method="+experiment);
 		
 		if (experiment!=null) {
-			 log.info("Experiment dto marker="+experiment.getFemaleControls());
+			// log.info("Experiment dto marker="+experiment.getFemaleControls());
 			// ESLIM_003_001_003 id=962 calorimetry data for time series graph
 			// new MGI:1926153
 			// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1926153?parameterId=ESLIM_003_001_003

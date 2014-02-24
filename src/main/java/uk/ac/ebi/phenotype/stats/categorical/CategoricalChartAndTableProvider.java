@@ -99,6 +99,7 @@ public class CategoricalChartAndTableProvider {
 							SexType docSexType = SexType.valueOf(control
 									.getSex());
 							String categoString =control.getCategory();
+							//System.out.println("category string="+categoString);
 							if (categoString.equals( category) && docSexType.equals(sexType)) {
 								controlCount++;
 							}
@@ -302,7 +303,7 @@ public class CategoricalChartAndTableProvider {
 	private String createCategoricalHighChartUsingObjects(String chartId,
 			CategoricalChartDataObject chartData, Parameter parameter,
 			 String organisation, String metadataGroup) throws SQLException {
-		System.out.println(chartData);
+		//System.out.println(chartData);
 
 		// int size=categoricalBarCharts.size()+1;//to know which div to render
 		// to not 0 index as using loop count in jsp
@@ -338,7 +339,6 @@ public class CategoricalChartAndTableProvider {
 		for (CategoricalSet catSet : catSets) {// loop through control, then hom, then het etc
 			xAxisCategoriesArray.put(catSet.getName());
 			for (CategoricalDataObject catObject : catSet.getCatObjects()) {// each cat object represents
-				System.out.println("catobject="+catObject);
 				List<Long> catData = categories.get(catObject.getCategory());
 				catData.add(catObject.getCount());
 			}
@@ -352,7 +352,7 @@ public class CategoricalChartAndTableProvider {
 				List<Long> data = (List<Long>) pairs.getValue();
 				JSONObject dataset1 = new JSONObject();// e.g. normal
 				dataset1.put("name", pairs.getKey());
-				System.out.println("paris key="+pairs.getKey());
+				//System.out.println("paris key="+pairs.getKey());
 				// dataset1.put("color", color);
 				JSONArray dataset = new JSONArray();
 
@@ -362,7 +362,7 @@ public class CategoricalChartAndTableProvider {
 //					} else {
 //						sex=SexType.male;
 //					}
-//					System.out.println("single value="+singleValue);
+//					//System.out.println("single value="+singleValue);
 					dataset.put(singleValue);
 					//dataset1.put("color", ChartColors.getRgbaString(sex, i, ChartColors.alphaScatter));
 					i++;
@@ -405,7 +405,7 @@ public class CategoricalChartAndTableProvider {
 		chartData.setChart(javascript);
 		chartData.setChartIdentifier(chartId);
 
-		System.out.println("\n\n" + javascript);
+		//System.out.println("\n\n" + javascript);
 		return javascript;
 	}
 

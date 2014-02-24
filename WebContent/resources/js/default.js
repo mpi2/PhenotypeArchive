@@ -135,6 +135,7 @@ function initFancybox() {
 	
 	$('.fancybox').fancybox({
 		beforeLoad : function(){
+			console.log('calling fancybox');
 			  var url= $(this.element).attr("fullRes");
 			  this.fullRes = url;
 			 },

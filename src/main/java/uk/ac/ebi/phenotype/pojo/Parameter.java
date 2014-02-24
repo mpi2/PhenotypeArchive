@@ -39,6 +39,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import org.apache.commons.lang.StringUtils;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -665,8 +666,20 @@ public class Parameter extends PipelineEntry {
 	public List<String> getCategoriesUserInterfaceFreindly(){
 		List<ParameterOption> options = this.getOptions();
 		List<String> categories = new ArrayList<String>();
+                boolean useDescription=false;
+                if(options.size()>0){
+                    String name=options.get(0).getName();
+                    if(StringUtils.isNumeric(name)){
+                        useDescription=true;
+                    }
+                }
 		for (ParameterOption option : options) {
-			categories.add(option.getName());
+                    String label=option.getName();
+                    //this is a hack as impress holds some numeric categories which shouldn't be????
+                    if(useDescription==true && !option.getDescription().equals("") && !option.getDescription().equals("")){
+                       label=option.getDescription();
+                    }
+			categories.add(label);
 		}
 		//exclude - "no data", "not defined" etc	
 		List<String>okCategoriesList=CategoriesExclude.getInterfaceFreindlyCategories(categories);	
