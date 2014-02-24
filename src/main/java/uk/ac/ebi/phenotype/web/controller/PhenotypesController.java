@@ -482,14 +482,16 @@ public class PhenotypesController {
 		return pgs;
 	}
 	
-	public List<String> getParameters(String mpId) throws SolrServerException {
-		List<String> res = new ArrayList<>();
+	public Map<String, String> getParameters(String mpId) throws SolrServerException {
+		Map<String, String> res = new HashMap<String, String>();
 		List<String> paramIds = pipelineDao.getParameterStableIdsByPhenotypeTerm(mpId);
 		for (String param : paramIds){
 			if (gpService.getGenesAssocByParamAndMp(param, mpId).size() > 0){
-				res.add(param);
+				Parameter p =  pipelineDao.getParameterByStableIdAndVersion(param, 1, 0);
+				res.put(param,p.getName());
 			}
 		}
+		System.out.println("-----------" + res);
 		return res;
 	}
 }
