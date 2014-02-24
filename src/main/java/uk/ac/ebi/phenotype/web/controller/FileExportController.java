@@ -668,10 +668,10 @@ public class FileExportController {
 			data.add(doc.getString("disease_id"));
 			data.add(doc.getString("disease_term"));
 			data.add(doc.getString("disease_source"));
-			data.add(doc.getString("human_curated").equals("1") ? "Yes" : "-");
-			data.add(doc.getString("mouse_curated").equals("1") ? "Yes" : "-");
-			data.add((doc.getString("impc_predicted").equals("1") || doc.getString("impc_predicted_in_locus").equals("1")) ? "Yes" : "-");
-			data.add((doc.getString("mgi_predicted").equals("1") || doc.getString("mgi_predicted_in_locus").equals("1")) ? "Yes" : "-");
+			data.add(doc.getString("human_curated"));
+			data.add(doc.getString("mouse_curated"));
+			data.add(doc.getString("impc_predicted"));
+			data.add(doc.getString("mgi_predicted"));
 						
 			rowData.add(StringUtils.join(data, "\t"));
 		}
