@@ -192,7 +192,7 @@
         
          <script>        		
        	$(document).ready(function(){     		   		
-       	
+       		console.log('loaded: '+ ${q});
    			$.fn.qTip({'pageName':'search'		 					
    			});  			 						
    			
@@ -264,7 +264,7 @@
     				console.log(oHashParams);
     				    			
     				var refreshFacet = oHashParams.coreName ? false : true;	    				
-					//$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, refreshFacet);
+					$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, refreshFacet);
     				
     				$.fn.loadDataTable(oHashParams);
     			}

@@ -41,7 +41,10 @@
 				q = '*:*';
 			}
 		}
-		
+		q = replace(/+/g, '');
+		q = decodeURI(q);
+		console.log('test q: '+ q);
+				
 		if ( oUrlHashParams.fq ){		
 			jsonBase.geneFacet.filterParams = {'fq': $.fn.fieldNameMapping(oUrlHashParams.fq, 'gene')};
 		}	
@@ -49,7 +52,7 @@
 		var facetMode = oUrlHashParams.facetName;	
 		var oFacets = {};
 		oFacets.count = {};	
-		q = decodeURI(q);
+		
 		jsonBase.geneFacet.srchParams.q = q;
 		// console.log($.extend({}, jsonBase.geneFacet.srchParams, jsonBase.geneFacet.filterParams)); 
 	 	// facet types are done sequencially; starting from gene		

@@ -380,8 +380,8 @@
     		'dataType': 'jsonp',
     		'jsonp': 'json.wrf',
     		'success': function(json) {
-    			console.log('disease: ');
-    			console.log(json);
+    			//console.log('disease: ');
+    			//console.log(json);
     			    			
     			// refresh disease facet
     			var oFacets = json.facet_counts.facet_fields;
@@ -1237,7 +1237,7 @@
                 // repopulate the filter                
                 $.fn.addFacetFilter(obj, oHashParams.q);                 
     		}    
-    		/*else {
+    		else {
     			var field = wantStr.replace(/\|.+/, '');
     			console.log(field);
     			var filterFacet = MPI2.searchAndFacetConfig.filterMapping[field].facet;
@@ -1248,7 +1248,7 @@
                 	console.log(oInput);
                 	$.fn.addFacetFilter(oInput, oHashParams.q);
                 }              
-    		}*/
+    		}
     	}    	
     	    	
     	if ( refreshFacet ){
