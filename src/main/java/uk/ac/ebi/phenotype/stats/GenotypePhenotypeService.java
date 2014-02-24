@@ -266,8 +266,8 @@ public class GenotypePhenotypeService {
 
 		String solrUrl = solr.getBaseURL()
 				+ "/select/?q=" + GenotypePhenotypeField.MARKER_ACCESSION_ID + ":\""
-				+ accId
-//				+ "\"&fq=-" + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC"
+				+ accId+ "\""
+//				+ "&fq=-" + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC"
 				+ "&rows=10000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=" 
 				+ GenotypePhenotypeField.RESOURCE_FULLNAME 
 				+ "&facet.field=" + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_NAME + "";
