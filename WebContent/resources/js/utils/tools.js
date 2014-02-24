@@ -31,10 +31,10 @@
 	$.fn.parseUrlFordTableAndFacetFiltering = function(thisWidget){
 		var self = thisWidget;
 		var facet = self.element.attr('id');	
-		//console.log(facet + ' widget loaded ...');
+		console.log(facet + ' widget loaded ...');
 				
 		var oHashParams;
-		
+		console.log(MPI2.searchAndFacetConfig);
 		if ( MPI2.searchAndFacetConfig.hasFilters ){
 			MPI2.searchAndFacetConfig.hasFilters = false;
 			oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
@@ -105,33 +105,37 @@
 		caller.click(function(){
 				
 			if ( caller.find('span.fcount').text() != 0 ){
-				console.log('widget expanded');
+				console.log(facet + ' widget expanded');
 				
 				MPI2.searchAndFacetConfig.widgetOpen = true;				
 				
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 				
-				// deals with user query
-				
+				// deals with user query				
 				if ( window.location.search != '' ){
-					oHashParams.q = window.location.search.replace('?q=', '');
-					oHashParams.fq = typeof oHashParams.fq == 'undefined' ? '' : oHashParams.fq;
+					oHashParams.q = window.location.search.replace('?q=', '');					
+					//oHashParams.fq = typeof oHashParams.fq == 'undefined' ? '' : oHashParams.fq;
+					oHashParams.fq = typeof oHashParams.fq == 'undefined' ? MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq : oHashParams.fq;
+					console.log(oHashParams);
 				}
 				
 				var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facet + 'Facet'].solrCoreName;				
 				var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';	
 				
 				if ( typeof oHashParams.q == 'undefined' ){
+					console.log('here-0');
 					var oHashParams = thisWidget.options.data.hashParams;							
 					window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
 				}
 				else {					
 					oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, facet);	
 										
-					if ( ! window.location.search.match(/q=/) ){											
+					if ( ! window.location.search.match(/q=/) ){
+						console.log('here');
 						window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
 					}
 					else {
+						console.log('here2');
 						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
 					}
 				}						
@@ -623,7 +627,7 @@
 		}
 		else if (fqStr.indexOf('expName:') != -1 && facet != 'images' ){						
 			oMapping = MPI2.searchAndFacetConfig.expName2ProcSidMapping;
-		}
+		}		
 		
 		for( var name in oMapping ){
 			fqStr = fqStr.replace(name, oMapping[name]);
@@ -641,10 +645,11 @@
 		}	
 		
 		if ( facet == 'gene'){
-			fqStr = fqStr.replace(' AND selected_top_level_ma_term:*', '').replace(' AND ontology_subset:*', '');
+			fqStr = fqStr.replace(' AND selected_top_level_ma_term:*', '').replace(' AND ontology_subset:*', '').replace('OR symbol:', 'OR marker_symbol:');
+			
 		}
-		else if (facet == 'images' ) {
-			fqStr = fqStr.replace(/ AND \(?ontology_subset:\*\)?/,'').replace(' AND selected_top_level_ma_term:*','');	
+		else if (facet == 'images' ) {			
+			fqStr = fqStr.replace(/( AND )?\(?ontology_subset:\*\)?/,'').replace(/( AND )?\(?selected_top_level_ma_term:\*\)?/,'');			                                                                        
 		}		
 		else if ( facet == 'ma' ){
 			fqStr.replace(' AND (ontology_subset:*)','');
@@ -656,9 +661,8 @@
 			fqStr = fqStr.replace(' AND selected_top_level_ma_term:*', '');
 		}
 		else if ( facet == 'mp' || facet == 'disease' ){
-			fqStr = fqStr.replace(' AND selected_top_level_ma_term:*', '');
-			//if (fqStr.indexOf(' AND ontology_subset:*') == -1 ){			
-			if (! / AND \(?ontology_subset:\*\)?/.exec(fqStr) && facet == 'mp' ){		
+			fqStr = fqStr.replace(' AND selected_top_level_ma_term:*', '');					
+			if (! /( AND )?\(?ontology_subset:\*\)?/.exec(fqStr) && facet == 'mp' ){	
 				fqStr += ' AND ontology_subset:*';
 			}	
 		}
@@ -1186,10 +1190,14 @@
    
     $.fn.parseUrlForFacetCheckboxAndTermHighlight = function(oHashParams, refreshFacet){	
     	var self = this;
-    	console.log('parsing url for filter and chkbox');
+    	console.log('parsing url for filter and chkbox:');
+    	console.log(oHashParams);
     	var facet = oHashParams.widgetName;    	
     	var fqStr = oHashParams.fq;
-    	fqStr = fqStr.replace(MPI2.searchAndFacetConfig.facetParams[facet].filterParams.fq, '').replace(/ AND /g, '');    	
+    	console.log('check fq: ' + fqStr);
+    	console.log('check1 fq: ' + fqStr.replace(MPI2.searchAndFacetConfig.facetParams[facet].filterParams.fq, ''));
+    	//fqStr = fqStr.replace(MPI2.searchAndFacetConfig.facetParams[facet].filterParams.fq, '').replace(/ AND /g, '');    
+    	console.log('check2 fq: ' + fqStr);
     	facet = facet.replace('Facet','');
     	
     	console.log(facet + ' ' + fqStr);

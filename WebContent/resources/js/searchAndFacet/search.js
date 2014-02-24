@@ -29,7 +29,7 @@
 	var jsonBase = MPI2.searchAndFacetConfig.facetParams;
 	
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
-				
+		
 		var q = oUrlHashParams.q;
 		if ( typeof q == 'undefined' ){
 			// check search kw
@@ -42,16 +42,21 @@
 			}
 		}
 		
+		if ( oUrlHashParams.fq ){		
+			jsonBase.geneFacet.filterParams = {'fq': $.fn.fieldNameMapping(oUrlHashParams.fq, 'gene')};
+		}	
+				
 		var facetMode = oUrlHashParams.facetName;	
 		var oFacets = {};
 		oFacets.count = {};	
 		q = decodeURI(q);
 		jsonBase.geneFacet.srchParams.q = q;
-				
+			  console.log($.extend({}, jsonBase.geneFacet.srchParams, jsonBase.geneFacet.filterParams)); 
 	 	// facet types are done sequencially; starting from gene		
 	    $.ajax({            	    
 	    		url: solrUrl + '/gene/select',	    	
-	       	    data: $.extend({}, jsonBase.geneFacet.srchParams, oUrlHashParams.fq ? jsonBase.geneFacet.filterParams = {'fq': oUrlHashParams.fq} : jsonBase.geneFacet.filterParams),	       	 
+	       	   // data: $.extend({}, jsonBase.geneFacet.srchParams, oUrlHashParams.fq ? jsonBase.geneFacet.filterParams = {'fq': oUrlHashParams.fq} : jsonBase.geneFacet.filterParams),
+	    		data: $.extend({}, jsonBase.geneFacet.srchParams, jsonBase.geneFacet.filterParams),
 	       	    dataType: 'jsonp',
 	       	    jsonp: 'json.wrf',
 	       	    timeout: 5000,
@@ -71,10 +76,13 @@
 	function _doMPAutoSuggest(geneResponse, q, oFacets, facetMode, fq){		
 		
 		jsonBase.mpFacet.srchParams.q = q;
-		
+		if ( fq ){		
+			jsonBase.mpFacet.filterParams = {'fq': $.fn.fieldNameMapping(fq, 'mp')};
+		}	
+		console.log($.extend({}, jsonBase.mpFacet.srchParams, jsonBase.mpFacet.filterParams)); 
 		$.ajax({
     	    url: solrUrl + '/mp/select',
-    	    data: $.extend({}, jsonBase.mpFacet.srchParams, fq ? jsonBase.mpFacet.filterParams = {'fq': fq} : jsonBase.mpFacet.filterParams),
+    	    data: $.extend({}, jsonBase.mpFacet.srchParams, jsonBase.mpFacet.filterParams),
     	    dataType: 'jsonp',
     	    jsonp: 'json.wrf',
     	    timeout: 5000,
@@ -93,12 +101,14 @@
 	function _doDiseaseAutoSuggest(geneResponse, mpResponse, q, oFacets, facetMode, fq){
 		
 		jsonBase.diseaseFacet.srchParams.q = q;		
-		jsonBase.diseaseFacet.srchParams.fq = fq ? fq : jsonBase.diseaseFacet.filterParams.fq;
-		
+		if ( fq ){		
+			jsonBase.diseaseFacet.filterParams = {'fq': $.fn.fieldNameMapping(fq, 'disease')};
+		}
+				
 		//console.log($.fn.stringifyJsonAsUrlParams(jsonBase.diseaseFacet.srchParams));
 		$.ajax({    	  
     	    url: solrUrl + '/disease/select',	
-    	    data: jsonBase.diseaseFacet.srchParams,
+    	    data: $.extend({}, jsonBase.diseaseFacet.srchParams, jsonBase.diseaseFacet.filterParams),
     	    dataType: 'jsonp',
     	    jsonp: 'json.wrf',
     	    timeout: 10000,
@@ -116,12 +126,13 @@
 	
 	function _doTissueAutoSuggest(geneResponse, mpResponse, diseaseResponse, q, oFacets, facetMode, fq){
 		jsonBase.maFacet.srchParams.q = q;	
-		jsonBase.maFacet.srchParams.sort = 'ma_term asc';
-		jsonBase.maFacet.srchParams.fq = fq ? fq : jsonBase.maFacet.filterParams.fq;
-				
+		jsonBase.maFacet.srchParams.sort = 'ma_term asc';		
+		if ( fq ){		
+			jsonBase.maFacet.filterParams = {'fq': $.fn.fieldNameMapping(fq, 'ma')};
+		}		
 		$.ajax({
     	    url: solrUrl + '/ma/select',    	    
-    	    data: jsonBase.maFacet.srchParams,
+    	    data: $.extend({}, jsonBase.maFacet.srchParams, jsonBase.maFacet.filterParams),
     	    dataType: 'jsonp',
     	    jsonp: 'json.wrf',
     	    timeout: 10000,
@@ -141,13 +152,13 @@
 	function _doPipelineAutoSuggest(geneResponse, mpResponse, diseaseResponse, maResponse, q, oFacets, facetMode, fq){
 		
 		jsonBase.pipelineFacet.srchParams.q = q;		
-		if (fq){
-			jsonBase.pipelineFacet.srchParams.fq = fq;
+		if ( fq ){		
+			jsonBase.pipelineFacet.filterParams = {'fq': $.fn.fieldNameMapping(fq, 'pipeline')};
 		}
 		
 		$.ajax({
     	    url: solrUrl + '/pipeline/select',    	   
-    	    data: jsonBase.pipelineFacet.srchParams,
+    	    data: $.extend({}, jsonBase.pipelineFacet.srchParams, jsonBase.pipelineFacet.filterParams),
     	    dataType: 'jsonp',
     	    jsonp: 'json.wrf',
     	    timeout: 5000,
@@ -165,12 +176,13 @@
 	
 	function _doImageAutosuggest(geneResponse, mpResponse, diseaseResponse, maResponse, pipelineResponse, q, oFacets, facetMode, fq){
 		
-		jsonBase.imagesFacet.srchParams.q = q;	
-		jsonBase.imagesFacet.srchParams.fq = fq ? fq : jsonBase.imagesFacet.filterParams.fq;
-		
+		jsonBase.imagesFacet.srchParams.q = q;		
+		if ( fq ){		
+			jsonBase.imagesFacet.filterParams = {'fq': $.fn.fieldNameMapping(fq, 'images')};
+		}
 		$.ajax({
     	    url: solrUrl + '/images/select',   
-    	    data: jsonBase.imagesFacet.srchParams,
+    	    data: $.extend({}, jsonBase.imagesFacet.srchParams, jsonBase.imagesFacet.filterParams),
     	    dataType: 'jsonp',
     	    jsonp: 'json.wrf',
     	    timeout: 5000,
