@@ -19,6 +19,8 @@ import uk.ac.ebi.phenotype.pojo.ZygosityType;
  *
  */
 public class ChartColors {
+    
+    public static final List<String> highDifferenceColors=java.util.Arrays.asList("239, 123, 11" ,  "9, 120, 161", "119, 119, 119",  "238, 238, 238","36, 139, 75", "191, 75, 50", "255, 201, 67", "191, 151, 50", "239, 123, 11" ,  "247, 157, 70", "247, 181, 117",  "191, 75, 50", "151, 51, 51");
 	//HEX #EF7B0B
 	//rgb(239, 123, 11)
 	public static final List<String>maleRgb=java.util.Arrays.asList("9, 120, 161" ,  "61, 167, 208", "100, 178, 208",  "3, 77, 105","36, 139, 75", "1, 121, 46", "51, 51, 51", "191, 151, 50");
@@ -72,6 +74,10 @@ public class ChartColors {
 		
 		return colorStrings;
 		
+	}
+        
+        public static List<String> getHighDifferenceColorsRgba(Double alpha) {
+		return highDifferenceColors;	
 	}
 
 	public static String getMutantColor(Double alpha) {

@@ -336,7 +336,6 @@ List<Float>dataFloats=new ArrayList<>();
 	}//end of scatter loop
 		List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaBox);
 		JSONArray colorArray = new JSONArray(colors);
-		System.out.println("min="+min+"  max="+max);
 		String chartString = " chart = new Highcharts.Chart({ " 
 				+" colors:"+colorArray
 				+", chart: { type: 'boxplot', renderTo: 'chart"
