@@ -43,7 +43,7 @@
 		}
 		
 		q = decodeURI(q);
-		console.log('test q: '+ q');
+		console.log('test q: '+ q);
 				
 		if ( oUrlHashParams.fq ){		
 			jsonBase.geneFacet.filterParams = {'fq': $.fn.fieldNameMapping(oUrlHashParams.fq, 'gene')};
