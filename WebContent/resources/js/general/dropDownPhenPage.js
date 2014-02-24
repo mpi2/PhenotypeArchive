@@ -7,7 +7,6 @@ $(document).ready(function(){
 		$( '#spinner-overview-charts' ).show();
 		var mp = $(this).attr('mp');
 		var id = $(this).attr('parameter');
-		$(this).html( "here: " + id  + " " + mp);	
 		var chartUrl = document.URL.split("/phenotypes/")[0];
 		chartUrl += "/overviewCharts/" + mp + "?parameter_id=" + id;
 		console.log("request uri = " + chartUrl);	
@@ -17,7 +16,8 @@ $(document).ready(function(){
 		})
 		.done(function( html ) {
 			$( '#spinner-overview-charts' ).hide();
-			$( '#single-chart-div' ).html( html );			
+			$( '#single-chart-div' ).html( html );		
+			$( '#single-chart-div' ).attr("parameter", id);
 		});
 	});	 
 				
@@ -273,7 +273,8 @@ function ajaxToBe(phenotype, parameter){
 	})
 	.done(function( html ) {
 		$( '#spinner-overview-charts' ).hide();
-	   $( '#single-chart-div' ).html( html );
+		$( '#single-chart-div' ).html( html );
+		$( '#single-chart-div' ).attr("parameter", parameter);
 	});
 	
 }

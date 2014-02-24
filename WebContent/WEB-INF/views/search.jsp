@@ -264,7 +264,7 @@
     				console.log(oHashParams);
     				    			
     				var refreshFacet = oHashParams.coreName ? false : true;	    				
-					$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, refreshFacet);
+					//$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, refreshFacet);
     				
     				$.fn.loadDataTable(oHashParams);
     			}

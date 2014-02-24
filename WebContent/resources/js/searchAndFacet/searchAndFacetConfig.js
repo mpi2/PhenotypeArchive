@@ -126,29 +126,37 @@ config.facetFilterLabel = {
 
 config.filterMapping = {
 		//gene
-		'imits_phenotype_complete|1':{'class':'inprogressphenotyping', 'facet':'gene'},
-		'imits_phenotype_started|1' : {'class':'phenotyping', 'facet':'gene'},
+		/*'imits_phenotype_complete|1':{'class':'inprogressphenotyping', 'facet':'gene'},		
+		'imits_phenotype_started|1' : {'class':'phenotyping', 'facet':'gene'},		
 		'imits_phenotype_status|Phenotype Attempt Registered' : {'class':'phenotyping', 'facet':'gene'},
 		'status|Mice Produced' : {'class':'production', 'facet':'gene'},		
 		'status|Assigned for Mouse Production and Phenotyping' : {'class':'production', 'facet':'gene'},
 		'status|ES Cells Produced' : {'class':'production', 'facet':'gene'},
 		'status|Assigned for ES Cell Production' : {'class':'production', 'facet':'gene'},
 		'status|Not Assigned for ES Cell Production' : {'class':'production', 'facet':'gene'},
+		'marker_type' : {'class':'marker_type', 'facet':'gene'},*/
+		
+		'imits_phenotype_complete':{'class':'inprogressphenotyping', 'facet':'gene'},		
+		'imits_phenotype_started' : {'class':'phenotyping', 'facet':'gene'},
+		'imits_phenotype_status' : {'class':'phenotyping', 'facet':'gene'},
+		'status' : {'class':'production', 'facet':'gene'},		
 		'marker_type' : {'class':'marker_type', 'facet':'gene'},
+		
 		
 		// mp, ma
 		'mp' : {'class':'', 'facet':'mp'},
 		'ma' : {'class':'', 'facet':'ma'},
+		'annotated_or_inferred_higherLevelMxTermName' : {'class':'', 'facet':'mp'},
 		
 		// disease
 		'disease_source' : {'class':'disease_source', 'facet':'disease'},
 		'disease_classes' : {'class':'disease_classes', 'facet':'disease'},
-		'human_curated|1' : {'class':'curated', 'facet':'disease'},
-		'mouse_curated|1' : {'class':'curated', 'facet':'disease'},
-		'impc_predicted|1' : {'class':'predicted', 'facet':'disease'},
-		'impc_predicted_in_locus|1' : {'class':'predicted', 'facet':'disease'},
-		'mgi_predicted|1' : {'class':'predicted', 'facet':'disease'},
-		'mgi_predicted_in_locus|1' : {'class':'predicted', 'facet':'disease'},
+		'human_curated' : {'class':'curated', 'facet':'disease'},
+		'mouse_curated' : {'class':'curated', 'facet':'disease'},
+		'impc_predicted' : {'class':'predicted', 'facet':'disease'},
+		'impc_predicted_in_locus' : {'class':'predicted', 'facet':'disease'},
+		'mgi_predicted' : {'class':'predicted', 'facet':'disease'},
+		'mgi_predicted_in_locus' : {'class':'predicted', 'facet':'disease'},
 		
 		// pipeline: using ajax		
 		
@@ -224,7 +232,7 @@ config.facetParams = {
 		subFacet_filter_params: '', // set by widget on the fly
 		breadCrumbLabel: 'Genes'		
 	 },	
-	 pipelineFacet: {		
+	 pipelineFacet: {	
 		 type: 'parameters',
 		 subFacetFqFields: 'procedure_stable_id', 		 
 		 solrCoreName: 'pipeline',			
@@ -236,8 +244,9 @@ config.facetParams = {
 		 wt: 'json',
 		 gridFields: 'parameter_name,procedure_name,pipeline_name',
 		 gridName: 'pipelineGrid',	
-		 filterParams:{'fq': 'pipeline_stable_id:IMPC_001'},
-		 breadCrumbLabel: 'Parameters',		 
+		 //filterParams:{'fq': 'pipeline_stable_id:IMPC_001'},
+		 breadCrumbLabel: 'Parameters',	
+		 filterParams: {fq:'pipeline_stable_id:*'},	 
 		 srchParams: $.extend({},				     
 					commonSolrParams    				
 					)					

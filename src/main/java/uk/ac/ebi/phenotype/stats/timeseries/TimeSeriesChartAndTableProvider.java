@@ -40,7 +40,7 @@ public class TimeSeriesChartAndTableProvider {
 			return new ChartData();
 		}
 
-		String title = p.getName() + " (" + p.getStableId() + ")";
+		String title = p.getName();
 		// create CharData
 		ChartData chartsNTablesForParameter = creatDiscretePointTimeSeriesChartOverview(
 				"1", title, lines, p.checkParameterUnit(1),
@@ -305,9 +305,6 @@ public class TimeSeriesChartAndTableProvider {
 		Set<Float> categoriesSet = new HashSet<Float>();
 		Float maxForChart = new Float(0);
 		Float minForChart = new Float(1000000000);
-		// { name: 'Confidence', type: 'errorbar', color: 'black', data: [ [7.5,
-		// 8.5], [2.8, 4], [1.5, 2.5], [3, 4.1], [6.5, 7.5], [3.3, 4.1], [4.8,
-		// 5.1], [2.2, 3.0], [5.1, 8] ] }
 
 		try {
 			int i = 0;
@@ -324,7 +321,7 @@ public class TimeSeriesChartAndTableProvider {
 
 				JSONObject errorBarsObject = null;
 				try {
-					errorBarsObject = new JSONObject();// "{ name: 'Confidence', type: 'errorbar', color: 'black', data: [ [7.5, 8.5], [2.8, 4], [1.5, 2.5], [3, 4.1], [6.5, 7.5], [3.3, 4.1], [4.8, 5.1], [2.2, 3.0], [5.1, 8] ] } ");
+					errorBarsObject = new JSONObject();
 					errorBarsObject.put("name", "Standard Deviation");
 					errorBarsObject.put("type", "errorbar");
 					errorBarsObject.put("color", colorString);
@@ -352,30 +349,14 @@ public class TimeSeriesChartAndTableProvider {
 
 				}
 				object.put("data", data);
-				// add a placholder string so we can add a tooltip method
-				// specifically for data that is not error bars later on in this
-				// code
 				String placeholderString = "placeholder";
 				object.put(placeholderString, placeholderString);
 				series.put(object);
-				// we now want to add different tooltips for thses data sets
-				// which we can't do for java json objects so we need to deal
-				// with strings sooner
-
 				series.put(errorBarsObject);
-				// System.out.println("object for point data="+object);
-				// System.out.println("errorbars="+errorBarsObject);
-				// if(i==0) {
-				// seriesString+=",";
-				// }
-				// seriesString+=","+object.toString()+","+errorBarsObject.toString();
-				// System.out.println("seriesString="+seriesString);
-				// categoriesMap.put(key);
 				i++;
 			}
 
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

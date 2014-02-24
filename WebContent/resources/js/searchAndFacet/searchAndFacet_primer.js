@@ -26,7 +26,7 @@ $(document).ready(function(){
 	
 	$('input#s').val('');  // clears input when pages loads
 	
-	// default search when search page loads
+	// default search when search page loadsconsole.log(result);
 	if ( /search\/?$/.exec(location.href) ){
 
 		// do default gene search by * when search page loads	

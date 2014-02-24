@@ -94,7 +94,7 @@
 	        		/*------------------------------------------------------------------------------------*/
 	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
 	    	    	/*------------------------------------------------------------------------------------*/	
-	        		if ( self.options.data.hashParams.fq.match(/.*/) ){   			
+	        		if ( self.options.data.hashParams.fq.match(/.*/) ){	        			
 	        			$.fn.parseUrlFordTableAndFacetFiltering(self);	        			
 	        		}	    			   			
 	    		}		

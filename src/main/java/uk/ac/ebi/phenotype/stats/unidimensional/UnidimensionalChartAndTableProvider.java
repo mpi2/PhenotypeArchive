@@ -398,11 +398,13 @@ List<Float>dataFloats=new ArrayList<>();
 		return chartAndTable;
 	}
 	
-	public ChartData getStackedHistogram(StackedBarsData map, String title, Parameter parameter){
+	public ChartData getStackedHistogram(StackedBarsData map, Parameter parameter){
 	//	http://jsfiddle.net/gh/get/jquery/1.9.1/highslide-software/highcharts.com/tree/master/samples/highcharts/demo/column-stacked/
 		if (map == null){
 			return new ChartData();
 		}
+		String title = parameter.getName();
+		String subtitle = parameter.getStableId();
 		String xLabel = parameter.getUnit();
 		ArrayList<Double> control  = map.getControlMutatns();
 		ArrayList<Double> mutant  = map.getPhenMutants();					
@@ -436,17 +438,15 @@ List<Float>dataFloats=new ArrayList<>();
 		for (double val : control)
 			if (val< min)
 				min = val;
-		// Example of clickable highcharts : 
 		// http://www.highcharts.com/demo/line-ajax
 		// http://jsfiddle.net/gh/get/jquery/1.7.2/highslide-software/highcharts.com/tree/master/samples/highcharts/plotoptions/series-point-events-click-column/
-		// AND THIS IS WHAT I NEED:
 		// http://jsfiddle.net/gh/get/jquery/1.7.2/highslide-software/highcharts.com/tree/master/samples/highcharts/xaxis/labels-formatter-linked/
 		String chartId = parameter.getStableId();
 		String yTitle = "Number of strains";
 		String javascript = "$(document).ready(function() {chart = new Highcharts.Chart({ colors:['rgba(239, 123, 11,0.7)','rgba(9, 120, 161,0.7)'], chart: {  type: 'column' , renderTo: 'single-chart-div'},"+
            " title: { text: '" + title + "' },"+
+           " subtitle: { text: '" + subtitle +"'}," +
            " credits: { enabled: false },"+
-    //       " xAxis: { categories: " + labels + ", labels: {rotation: -45} , title: { text: '" + xLabel + "'} },"+
     		" xAxis: { categories: " + labels + ", "
     				+ "labels: {formatter:function(){ return this.value.split('###')[0]; }, rotation: -45} , title: { text: '" + xLabel + "'} },"+
            " yAxis: { min: "+ min + ",  title: {  text: '"+yTitle+"'  }, stackLabels: { enabled: false}  }," +
@@ -460,8 +460,6 @@ List<Float>dataFloats=new ArrayList<>();
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setId(chartId);
-		System.out.println("... column-stacked with id " + chartId);
-		System.out.println("\n\n" + javascript);
 		return chartAndTable;	
 	}
 	
