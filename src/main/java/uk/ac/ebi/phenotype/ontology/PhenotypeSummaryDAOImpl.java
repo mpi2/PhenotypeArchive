@@ -65,8 +65,7 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 		if (resp.size() > 0) {
 			for (int i = 0; i < resp.size(); i++) {
 				SolrDocument doc = resp.get(i);
-				if (!doc.getFieldValue("resource_name").toString().equalsIgnoreCase("IMPC"))
-					data.add((String) doc.getFieldValue("resource_name"));
+				data.add((String) doc.getFieldValue("resource_name"));
 			}
 		}	
 		return data;
