@@ -307,14 +307,11 @@ public class ChartsController {
 			metaDataGroupString=metadataGroup[0];
 		}
 		
-		if(strain.length>0) {
-			
-		}
 		ExperimentDTO experiment = experimentService
 				.getSpecificExperimentDTO(parameter.getId(), accession[0],
 						genderList, zyList,phenotypingCenterId,
 						 (strain.length>0) ? strain[0] : null , (metadataGroup.length>0) ? metadataGroup[0] : null);
-		//System.out.println("experiment in chart method="+experiment);
+		System.out.println("experiment in chart method="+experiment);
 		
 		if (experiment!=null) {
 			// log.info("Experiment dto marker="+experiment.getFemaleControls());

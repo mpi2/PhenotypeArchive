@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.stats.graphs;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -27,6 +28,10 @@ public class GraphUtils {
             List <String>centersList=keyList.get(ObservationService.ExperimentField.PHENOTYPING_CENTER);
             List <String>strains=keyList.get(ObservationService.ExperimentField.STRAIN);
             List<String> metaDataGroupStrings=keyList.get(ObservationService.ExperimentField.METADATA_GROUP); 
+            if(metaDataGroupStrings==null){
+                metaDataGroupStrings=new ArrayList<String>();
+                metaDataGroupStrings.add("");
+            }
                 //for each parameter we want the unique set of urls to make ajax requests for experiments
                 String seperator="&";
                 String accessionAndParam="accession="+acc+seperator+"parameterId="+parameterStableId;

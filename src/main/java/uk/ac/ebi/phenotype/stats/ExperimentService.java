@@ -443,7 +443,7 @@ public class ExperimentService {
 			}
 			
 		}
-		if(experimentList.size()==0) {
+		if(experimentList.isEmpty()) {
 			return null;//return null if no experiments
 		}
 		if(experimentList.size()>1) {
