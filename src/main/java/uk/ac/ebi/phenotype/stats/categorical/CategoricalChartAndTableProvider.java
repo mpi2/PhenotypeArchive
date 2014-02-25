@@ -278,7 +278,7 @@ public class CategoricalChartAndTableProvider {
 		
 		String chartId = "single-chart-div";//replace space in MRC Harwell with underscore so valid javascritp variable
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
-		List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaBox);
+		List<String> colors=ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
 		JSONArray colorArray = new JSONArray(colors);
 		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ " 
 				+" colors:"+colorArray
@@ -378,7 +378,7 @@ public class CategoricalChartAndTableProvider {
                 //replace space in MRC Harwell with underscore so valid javascript variable
                 //String chartId = bm.getId() + sex.name()+organisation.replace(" ", "_")+"_"+metadataGroup;
 		
-		List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaBox);
+		List<String> colors=ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
 		JSONArray colorArray = new JSONArray(colors);
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
 		String javascript = "$(function () {  var chart_"
