@@ -350,34 +350,25 @@ public class FileExportController {
 			for (int i=0; i<docs.size(); i++) {			
 				List<String> data = new ArrayList<String>();
 				JSONObject doc = docs.getJSONObject(i);
-				if (!doc.getString("resource_fullname").equalsIgnoreCase("International Mouse Phenotyping Consortium")){
-					data.add(doc.getString("mp_term_name"));
-					if (doc.containsKey("allele_symbol"))
-						data.add(doc.getString("allele_symbol"));
-					else data.add("");
-					data.add(doc.getString("zygosity"));
-					data.add(doc.getString("sex"));
-					data.add(doc.getString("procedure_name") + " / " + doc.getString("parameter_name"));
-					data.add(doc.getString("resource_fullname"));
-					String graphUrl = "\"\"";
-					if ((doc.getString("resource_fullname")).equalsIgnoreCase("EuroPhenome")){ // only show links for Europhenome
-					// also don't show graph links for derived parameters
-					//		if (!pipe.getParameterByStableId(doc.getString("parameter_stable_id"), "").getDerivedFlag()){
-								graphUrl = request.getParameter("baseUrl").replace("/genes/", "/stats/genes/") + "?parameterId=" ;
-								graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
-								graphUrl += "&zygosity=" + doc.getString("zygosity");
-								if (doc.containsKey("phenotyping_center")){
-									graphUrl += "&phenotyping_center=" +doc.getString("phenotyping_center");
-								}
-					//		}
-					}
-					data.add(graphUrl);
-					String line = StringUtils.join(data, "\t");
-					if (!rowData.contains(line)){
-						rowData.add(line);
-					}else 
-		//				System.out.println("Duplicate row " + line);
-						;
+				data.add(doc.getString("mp_term_name"));
+				if (doc.containsKey("allele_symbol"))
+					data.add(doc.getString("allele_symbol"));
+				else data.add("");
+				data.add(doc.getString("zygosity"));
+				data.add(doc.getString("sex"));
+				data.add(doc.getString("procedure_name") + " / " + doc.getString("parameter_name"));
+				data.add(doc.getString("resource_fullname"));
+				String graphUrl = "\"\"";
+				graphUrl = request.getParameter("baseUrl").replace("/genes/", "/stats/genes/") + "?parameterId=" ;
+				graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
+				graphUrl += "&zygosity=" + doc.getString("zygosity");
+				if (doc.containsKey("phenotyping_center")){
+					graphUrl += "&phenotyping_center=" +doc.getString("phenotyping_center");
+				}
+				data.add(graphUrl);
+				String line = StringUtils.join(data, "\t");
+				if (!rowData.contains(line)){
+					rowData.add(line);
 				}
 			}
 		}
@@ -394,37 +385,31 @@ public class FileExportController {
 			for (int i=0; i<docs.size(); i++) {		
 				JSONObject doc = docs.getJSONObject(i);
 				// for some reason we need to filter out the IMPC entries.
-				if (!doc.getString("resource_fullname").equalsIgnoreCase("International Mouse Phenotyping Consortium")){
-					List<String> data = new ArrayList<String>();
-					data.add(doc.getString("marker_symbol"));
-					if (doc.containsKey("allele_symbol"))
-						data.add(doc.getString("allele_symbol"));
-					else data.add("");
-					data.add(doc.getString("zygosity"));
-					data.add(doc.getString("sex"));
-					if (isTopLevel)
-					{
-						data.add(doc.getString("mp_term_name") + " / " + doc.getString("parameter_name"));
-					}
-					else {
-						data.add(doc.getString("procedure_name") + " / " + doc.getString("parameter_name"));
-					}
-					data.add(doc.getString("resource_fullname"));
-					String graphUrl = "\"\"";
-					// TODO check, this might need to change
-					if ((doc.getString("resource_fullname")).equalsIgnoreCase("EuroPhenome")){ // only show links for Europhenome
-					//		if (!pipe.getParameterByStableId(doc.getString("parameter_stable_id"), "").getDerivedFlag()){
-								graphUrl = request.getParameter("baseUrl").replace("/phenotypes/", "/stats/genes/") + "?parameterId=" ;
-								graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
-								graphUrl += "&zygosity=" + doc.getString("zygosity") ;
-								if (doc.containsKey("phenotyping_center")){
-									graphUrl += "&phenotyping_center=" +doc.getString("phenotyping_center");
-								}
-					//		}
-					}
-					data.add(graphUrl);
-					rowData.add(StringUtils.join(data, "\t"));
+				
+				List<String> data = new ArrayList<String>();
+				data.add(doc.getString("marker_symbol"));
+				if (doc.containsKey("allele_symbol"))
+					data.add(doc.getString("allele_symbol"));
+				else data.add("");
+				data.add(doc.getString("zygosity"));
+				data.add(doc.getString("sex"));
+				if (isTopLevel)
+				{
+					data.add(doc.getString("mp_term_name") + " / " + doc.getString("parameter_name"));
 				}
+				else {
+					data.add(doc.getString("procedure_name") + " / " + doc.getString("parameter_name"));
+				}
+				data.add(doc.getString("resource_fullname"));
+				String graphUrl = "\"\"";
+				graphUrl = request.getParameter("baseUrl").replace("/phenotypes/", "/stats/genes/") + "?parameterId=" ;
+				graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
+				graphUrl += "&zygosity=" + doc.getString("zygosity") ;
+				if (doc.containsKey("phenotyping_center")){
+					graphUrl += "&phenotyping_center=" +doc.getString("phenotyping_center");
+				}
+				data.add(graphUrl);
+				rowData.add(StringUtils.join(data, "\t"));
 			}
 		}
 		return rowData;
