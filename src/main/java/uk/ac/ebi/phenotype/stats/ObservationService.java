@@ -1125,7 +1125,9 @@ public class ObservationService {
 			query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId);
 		}
 		
-		if(metadataGroup == null || metadataGroup.isEmpty()) {
+		if(metadataGroup == null){
+                }else if( metadataGroup.isEmpty())
+                 {
 			query.addFilterQuery(ExperimentField.METADATA_GROUP + ":\"\"");
 		} else {
 			query.addFilterQuery(ExperimentField.METADATA_GROUP + ":" + metadataGroup);
@@ -1211,7 +1213,9 @@ public class ObservationService {
 			.setRows(5000)
 		;
 
-		if(metadataGroup==null || metadataGroup.isEmpty()) {
+		if(metadataGroup==null) {
+                    // don't add a metadata group filter
+                } else if (metadataGroup.isEmpty()) {
 			query.addFilterQuery(ExperimentField.METADATA_GROUP + ":\"\"");
 		} else {
 			query.addFilterQuery(ExperimentField.METADATA_GROUP + ":" + metadataGroup);

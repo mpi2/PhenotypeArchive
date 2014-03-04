@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.stats.graphs;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -27,6 +28,10 @@ public class GraphUtils {
             List <String>centersList=keyList.get(ObservationService.ExperimentField.PHENOTYPING_CENTER);
             List <String>strains=keyList.get(ObservationService.ExperimentField.STRAIN);
             List<String> metaDataGroupStrings=keyList.get(ObservationService.ExperimentField.METADATA_GROUP); 
+//            if(metaDataGroupStrings==null){
+//                metaDataGroupStrings=new ArrayList<String>();
+//                metaDataGroupStrings.add("");
+//            }
                 //for each parameter we want the unique set of urls to make ajax requests for experiments
                 String seperator="&";
                 String accessionAndParam="accession="+acc+seperator+"parameterId="+parameterStableId;
@@ -55,11 +60,18 @@ public class GraphUtils {
             }
             for(String center:centersList) {
             	for(String strain:strains) {
-            		for(String metaGroup: metaDataGroupStrings) {
+            		if(metaDataGroupStrings!=null){
+                            for(String metaGroup: metaDataGroupStrings) {
             			
             			urls.add(accessionAndParam+zygosities+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+ObservationService.ExperimentField.METADATA_GROUP+"="+metaGroup);
             			
             		}
+                        }
+                        else{
+                            //if metadataGroup is null then don't add it to the request
+                            urls.add(accessionAndParam+zygosities+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator);
+            			
+                        }
             	}
             }
             for(String url:urls) {

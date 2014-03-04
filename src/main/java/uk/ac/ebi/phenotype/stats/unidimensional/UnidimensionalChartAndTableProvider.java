@@ -257,6 +257,10 @@ List<Float>dataFloats=new ArrayList<>();
 				}
 				
 				JSONArray boxPlot2DData = chartsSeriesElement.getBoxPlotArray();
+                                if(boxPlot2DData==null){
+                                    System.err.println("error no boxplot data for this chartSeriesElemen="+chartsSeriesElement.getName());
+                                    boxPlot2DData=new JSONArray();
+                                }
 				
 				String columnPadding="";
 				for(int i=0;i<column;i++) {
@@ -485,7 +489,7 @@ List<Float>dataFloats=new ArrayList<>();
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
 		// logger.debug("experiment="+experiment);
 		List<? extends StatisticalResult> results = experiment.getResults();
-		// logger.debug("result="+result);
+		logger.debug("result="+results);
 		List<UnidimensionalStatsObject> statsObjects = new ArrayList<UnidimensionalStatsObject>();
 	
 		for(SexType sexType: genderAndRawDataMap.keySet()){

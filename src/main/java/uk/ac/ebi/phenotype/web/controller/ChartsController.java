@@ -296,25 +296,16 @@ public class ChartsController {
 			}
 		}
 
-		
+		String metaDataGroupString=null;
+                if(metadataGroup!=null){
+                metaDataGroupString=(metadataGroup.length>0) ? metadataGroup[0] : null;
+                }
 		List<String> zyList = getParamsAsList(zygosity);
-		// List<ExperimentDTO> experimentList =
-		// experimentService.getExperimentDTO(parameterStableIds[0],
-		// accession[0], gender[0], zygosity[0], phenotypingCenterIdInt);
-		// TDO handle male and female appropriately
-		String metaDataGroupString=null;//when a param is empty it doesn't get an array so we can't access 0 so set it here in case
-		if(metadataGroup.length>0) {
-			metaDataGroupString=metadataGroup[0];
-		}
-		
-		if(strain.length>0) {
-			
-		}
 		ExperimentDTO experiment = experimentService
 				.getSpecificExperimentDTO(parameter.getId(), accession[0],
 						genderList, zyList,phenotypingCenterId,
-						 (strain.length>0) ? strain[0] : null , (metadataGroup.length>0) ? metadataGroup[0] : null);
-		//System.out.println("experiment in chart method="+experiment);
+						 (strain.length>0) ? strain[0] : null , metaDataGroupString);
+		System.out.println("experiment in chart method="+experiment);
 		
 		if (experiment!=null) {
 			// log.info("Experiment dto marker="+experiment.getFemaleControls());
