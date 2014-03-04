@@ -216,9 +216,6 @@ public class CategoricalChartAndTableProvider {
 		JSONArray xAxisCategoriesArray = new JSONArray();
 		String title = parameter.getName();
 		String subtitle = parameter.getStableId();
-		String colorNormal = "#4572A7";
-		String colorAbnormal = "#AA4643";
-		String color = "";
 
 		// get a list of unique categories
 		HashMap<String, List<Long>> categories = new LinkedHashMap<String, List<Long>>();// keep the order so we have normal first!
@@ -257,12 +254,6 @@ public class CategoricalChartAndTableProvider {
 				List<Long> data = (List<Long>) pairs.getValue();
 				JSONObject dataset1 = new JSONObject();// e.g. normal
 				dataset1.put("name", pairs.getKey());
-				if (i == 0) {
-					color = colorNormal;
-				} else {
-					color = colorAbnormal;
-				}
-				// dataset1.put("color", color);
 				JSONArray dataset = new JSONArray();
 
 				for (Long singleValue : data) {
@@ -278,7 +269,7 @@ public class CategoricalChartAndTableProvider {
 		
 		String chartId = "single-chart-div";//replace space in MRC Harwell with underscore so valid javascritp variable
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
-		List<String> colors=ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
+		List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaBox);
 		JSONArray colorArray = new JSONArray(colors);
 		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ " 
 				+" colors:"+colorArray
