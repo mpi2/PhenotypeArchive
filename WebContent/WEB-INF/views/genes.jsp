@@ -156,14 +156,16 @@
 								${gene.name}
 							</p>
 							
-							<p class="with-label no-margin">
-								<span class="label">Synonyms</span>
-								<c:forEach var="synonym" items="${gene.synonyms}" varStatus="loop">
-									${synonym.symbol}
-									<c:if test="${!loop.last}">, </c:if>
-									<c:if test="${loop.last}"></p></c:if>
-								</c:forEach>
-							
+							<c:if test="${!(empty gene.synonyms)}">
+								<p class="with-label no-margin">
+									<span class="label">Synonyms</span>
+									<c:forEach var="synonym" items="${gene.synonyms}" varStatus="loop">
+										${synonym.symbol}
+										<c:if test="${!loop.last}">, </c:if>
+										<c:if test="${loop.last}"></c:if>
+									</c:forEach>
+									</p>
+							</c:if>
 							
 							<p class="with-label">
 								<span class="label">MGI Id</span>
