@@ -226,19 +226,25 @@
 					<div class="abnormalities">
 						<div class="allicons"></div>
 						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
-							<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
-								<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-							</a>
+							<c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
+								<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
+									<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
+								</a>
+							</c:if>
 						</c:forEach>
 						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getFemalePhenotypes()}">
-							<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
-								<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-							</a>
+							<c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
+								<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
+									<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
+								</a>
+							</c:if>
 						</c:forEach>
 						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getMalePhenotypes()}">
-							<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
-								<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-							</a>
+							<c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
+								<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
+									<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
+								</a>
+							</c:if>
 						</c:forEach>
 					</div>
 		            
