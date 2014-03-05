@@ -23,8 +23,8 @@
 
 
 	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
-<jsp:attribute name="addToFooter">
-	<div class="region region-pinned">
+		<jsp:attribute name="addToFooter">
+			<div class="region region-pinned">
             
         <div id="flyingnavi" class="block">
             
@@ -43,7 +43,7 @@
         </div>
         
     </div>
-</jsp:attribute>
+		</jsp:attribute>
 	<jsp:body>
 
 	<div class="region region-content">
@@ -93,7 +93,7 @@
 				
 				
 				<c:if test="${genePercentage.getDisplay()}">
-					<div class="section collapsed open">
+					<div class="section">
 						<h2 class="title" id="data-summary">Phenotype associations stats <span class="documentation" ><a href='' id='phenotypeStatsPanel' class="fa fa-question-circle pull-right"></a></span> </h2>
 						<div class="inner">					
 							<!-- Phenotype Assoc. summary -->
