@@ -842,6 +842,8 @@ public class ObservationService {
 			String biologicalSample,  String[] center, String[] sex) throws SolrServerException {
 
 		List<Integer> res = new ArrayList<Integer>();
+		String urlParams = "";
+		
 		SolrQuery query = new SolrQuery().addFilterQuery(
 				ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":"
 						+ biologicalSample).addFilterQuery(
@@ -853,7 +855,10 @@ public class ObservationService {
 				+ StringUtils.join(strains.toArray(), "\" OR "
 						+ ExperimentField.STRAIN + ":\"") + "\")"
 				: ExperimentField.STRAIN + ":\"" + strains.get(0) + "\"";
-
+//		if (strains.size() > 0) {
+//			urlParams += urlParams += "&strain=" + StringUtils.join(strains.toArray(), "&strain=");
+//		}
+		
 		if (center != null && center.length > 0) {
 			q += " AND (";
 			q += (center.length > 1) ? ExperimentField.PHENOTYPING_CENTER
@@ -863,10 +868,12 @@ public class ObservationService {
 					: ExperimentField.PHENOTYPING_CENTER + ":\"" + center[0]
 							+ "\"";
 			q += ")";
+			urlParams += "&phenotyping_center=" + StringUtils.join(center, "&phenotyping_center=");
 		}
 
 		if (sex != null && sex.length == 1){
 			q += " AND " + ExperimentField.SEX + ":\"" + sex[0] + "\"";
+			urlParams += "&gender=" + sex[0];
 		}
 		
 		query.setQuery(q);
@@ -967,6 +974,12 @@ public class ObservationService {
 			}
 	//		System.out.println(" Mutants list " + phenMutants);
 	
+			// add the rest of parameters to the graph urls
+			for (int t = 0; t < controlGeneAcc.size(); t++){
+				controlGeneAcc.set(t, controlGeneAcc.get(t) + urlParams);
+				mutantGeneAcc.set(t, mutantGeneAcc.get(t) + urlParams);
+			}
+			
 			StackedBarsData data = new StackedBarsData();
 			data.setUpperBounds(upperBounds);
 			data.setControlGenes(controlGenes);

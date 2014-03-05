@@ -467,14 +467,16 @@ List<Float>dataFloats=new ArrayList<>();
            		+ "else return ''+  this.series.name +': '+ this.y + ' out of '+ this.point.stackTotal + '<br/>Genes: ' +  this.x.split('###')[2];}  }, " +
            " plotOptions: { column: {  stacking: 'normal',  dataLabels: { enabled: false} }, "
            		+ "series: { cursor: 'pointer', point: { events: { click: function() { "
+           		+ "var url = '';"
            			+ "if ('Mutant strains with no calls for this phenotype' === this.series.name) {"
-           				+ "var url = 'http://localhost:8080/phenotype-archive/charts?' + this.category.split('###')[3] + '&parameterId=" + parameter.getStableId() + "';"
-           				+ "window.open(url); "
+           				+ "url = 'http://localhost:8080/phenotype-archive/charts?' + this.category.split('###')[3];"
            			+ "} else {" 
-           				+ "var url = 'http://localhost:8080/phenotype-archive/charts?' + this.category.split('###')[4] + '&parameterId=" + parameter.getStableId() + "';"
-           				+ "window.open(url); "
-           			+ "} } } }" 
-           		+ "} }," +
+           				+ "var url = 'http://localhost:8080/phenotype-archive/charts?' + this.category.split('###')[4];"
+           			+ "} "
+           		+ "url += '&parameterId=" + parameter.getStableId() + "';"
+           		+ "window.open(url); "
+           		+ "} } } }" 
+           		+ "} ," +
            " series: [{ name: 'Mutant strains with this phenotype called',  data: " +  mutant + "  }, {name: 'Mutant strains with no calls for this phenotype', data: " + control + "}]" +  " });  }); ";
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
