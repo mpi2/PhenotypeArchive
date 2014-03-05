@@ -69,24 +69,21 @@ public class OverviewChartsController {
 		HttpServletRequest request,
 		RedirectAttributes attributes) throws SolrServerException, IOException, URISyntaxException, SQLException{
 		
-
-			String baseUrl = (String) request.getAttribute("baseUrl");
 			String[] centerArray = (center != null) ? center.split(",") : null;
 			String[] sexArray = (sex != null) ? sex.split(",") : null;
 			String[] allCentersArray = (allCenters != null) ? allCenters.split(",") : null;
 			
-			model.addAttribute("chart", getDataOverviewChart(phenotype_id, model, parameterId, centerArray, sexArray, allCentersArray, baseUrl));
+			model.addAttribute("chart", getDataOverviewChart(phenotype_id, model, parameterId, centerArray, sexArray, allCentersArray));
 			return "overviewChart";
 	}
 	
-	public ChartData getDataOverviewChart(String mpId, Model model, String parameter, String[] center, String[] sex, String [] allCentersArray, String baseUrl) throws SolrServerException, IOException, URISyntaxException, SQLException{
+	public ChartData getDataOverviewChart(String mpId, Model model, String parameter, String[] center, String[] sex, String [] allCentersArray) throws SolrServerException, IOException, URISyntaxException, SQLException{
 		
 		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
 		TimeSeriesChartAndTableProvider tstp = new TimeSeriesChartAndTableProvider();
 		UnidimensionalChartAndTableProvider uctp = new UnidimensionalChartAndTableProvider();
 		Parameter p = pipelineDao.getParameterByStableIdAndVersion(parameter, 1, 0);
 		String[] c = (center != null) ? center : allCentersArray;
-		System.out.println("----- " + c);
 		ChartData chartRes = null;
 		List<String> genes = null;
 		if(p != null && Utilities.checkType(p).equals(ObservationType.categorical)){
@@ -108,7 +105,7 @@ public class OverviewChartsController {
 		else if ( p != null && Utilities.checkType(p).equals(ObservationType.unidimensional)){
 			genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
 			StackedBarsData data = os.getUnidimensionalData(p, genes, strains, "experimental", c, sex);
-			chartRes = uctp.getStackedHistogram(data, p, baseUrl);
+			chartRes = uctp.getStackedHistogram(data, p);
 		}
 		
 		if (chartRes != null && center == null && sex == null){ // we don't do a filtering

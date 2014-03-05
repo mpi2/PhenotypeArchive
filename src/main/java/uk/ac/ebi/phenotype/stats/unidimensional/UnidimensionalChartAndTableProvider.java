@@ -401,7 +401,7 @@ List<Float>dataFloats=new ArrayList<>();
 		return chartAndTable;
 	}
 	
-	public ChartData getStackedHistogram(StackedBarsData map, Parameter parameter, String baseUrl){
+	public ChartData getStackedHistogram(StackedBarsData map, Parameter parameter){
 	//	http://jsfiddle.net/gh/get/jquery/1.9.1/highslide-software/highcharts.com/tree/master/samples/highcharts/demo/column-stacked/
 		if (map == null){
 			return new ChartData();
@@ -467,14 +467,15 @@ List<Float>dataFloats=new ArrayList<>();
            		+ "else return ''+  this.series.name +': '+ this.y + ' out of '+ this.point.stackTotal + '<br/>Genes: ' +  this.x.split('###')[2];}  }, " +
            " plotOptions: { column: {  stacking: 'normal',  dataLabels: { enabled: false} }, "
            		+ "series: { cursor: 'pointer', point: { events: { click: function() { "
-           		+ "var url = '';"
+           		+ "var url = document.URL.split('/phenotypes/')[0];"
            			+ "if ('Mutant strains with no calls for this phenotype' === this.series.name) {"
-           				+ "url = 'http://localhost:8080/phenotype-archive/charts?' + this.category.split('###')[3];"
+           				+ "url += '/charts?' + this.category.split('###')[3];"
            			+ "} else {" 
-           				+ "var url = 'http://localhost:8080/phenotype-archive/charts?' + this.category.split('###')[4];"
+           				+ "url += '/charts?' + this.category.split('###')[4];"
            			+ "} "
            		+ "url += '&parameterId=" + parameter.getStableId() + "';"
            		+ "window.open(url); "
+           		+ "console.log(url);"
            		+ "} } } }" 
            		+ "} ," +
            " series: [{ name: 'Mutant strains with this phenotype called',  data: " +  mutant + "  }, {name: 'Mutant strains with no calls for this phenotype', data: " + control + "}]" +  " });  }); ";
