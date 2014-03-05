@@ -401,7 +401,7 @@ List<Float>dataFloats=new ArrayList<>();
 		return chartAndTable;
 	}
 	
-	public ChartData getStackedHistogram(StackedBarsData map, Parameter parameter){
+	public ChartData getStackedHistogram(StackedBarsData map, Parameter parameter, String baseUrl){
 	//	http://jsfiddle.net/gh/get/jquery/1.9.1/highslide-software/highcharts.com/tree/master/samples/highcharts/demo/column-stacked/
 		if (map == null){
 			return new ChartData();
@@ -413,7 +413,9 @@ List<Float>dataFloats=new ArrayList<>();
 		ArrayList<Double> mutant  = map.getPhenMutants();					
 		ArrayList<String> labels = new ArrayList<String> (); 				
 		ArrayList<String> controlGenes = map.getControlGenes(); 				
-		ArrayList<String> mutantGenes = map.getMutantGenes(); 
+		ArrayList<String> mutantGenes = map.getMutantGenes(); 			
+		ArrayList<String> controlGenesUrl = map.getControlGeneAccesionIds(); 				
+		ArrayList<String> mutantGenesUrl = map.getMutantGeneAccesionIds(); 
 		DecimalFormat df = new DecimalFormat("#.##");
 		ArrayList<Double> upperBounds = map.getUpperBounds();
 		for (int i = 0; i < upperBounds.size(); i ++){
@@ -432,7 +434,7 @@ List<Float>dataFloats=new ArrayList<>();
 				controlG = controlG;
 			}
 			else controlG = c ;
-			labels.add("'" + df.format(upperBounds.get(i)) + "###" + controlG + "###" + mutantGenes.get(i) + "'");
+			labels.add("'" + df.format(upperBounds.get(i)) + "###" + controlG + "###" + mutantGenes.get(i) + "###" + controlGenesUrl.get(i) + "###" + mutantGenesUrl.get(i) + "'");
 		}
 		double min = 0; 
 		for (double val : mutant)
@@ -444,9 +446,14 @@ List<Float>dataFloats=new ArrayList<>();
 		// http://www.highcharts.com/demo/line-ajax
 		// http://jsfiddle.net/gh/get/jquery/1.7.2/highslide-software/highcharts.com/tree/master/samples/highcharts/plotoptions/series-point-events-click-column/
 		// http://jsfiddle.net/gh/get/jquery/1.7.2/highslide-software/highcharts.com/tree/master/samples/highcharts/xaxis/labels-formatter-linked/
+		ArrayList <String>  controlUrls = new ArrayList<>();
+		controlUrls.add("heere");
+		controlUrls.add("HERE TOO");
+		
 		String chartId = parameter.getStableId();
 		String yTitle = "Number of strains";
-		String javascript = "$(document).ready(function() {chart = new Highcharts.Chart({ colors:['rgba(239, 123, 11,0.7)','rgba(9, 120, 161,0.7)'], chart: {  type: 'column' , renderTo: 'single-chart-div'},"+
+		String javascript = "$(document).ready(function() {" 
+				+ "chart = new Highcharts.Chart({ colors:['rgba(239, 123, 11,0.7)','rgba(9, 120, 161,0.7)'], chart: {  type: 'column' , renderTo: 'single-chart-div'},"+
            " title: { text: '" + title + "' },"+
            " subtitle: { text: '" + subtitle +"'}," +
            " credits: { enabled: false },"+
@@ -458,11 +465,21 @@ List<Float>dataFloats=new ArrayList<>();
            		+ "if ('Mutant strains with no calls for this phenotype' === this.series.name )"
            		+ "return ''+  this.series.name +': '+ this.y + ' out of '+ this.point.stackTotal + '<br/>Genes: ' +  this.x.split('###')[1];  "
            		+ "else return ''+  this.series.name +': '+ this.y + ' out of '+ this.point.stackTotal + '<br/>Genes: ' +  this.x.split('###')[2];}  }, " +
-           " plotOptions: { column: {  stacking: 'normal',  dataLabels: { enabled: false} } }," +
+           " plotOptions: { column: {  stacking: 'normal',  dataLabels: { enabled: false} }, "
+           		+ "series: { cursor: 'pointer', point: { events: { click: function() { "
+           			+ "if ('Mutant strains with no calls for this phenotype' === this.series.name) {"
+           				+ "var url = 'http://localhost:8080/phenotype-archive/charts?' + this.category.split('###')[3] + '&parameterId=" + parameter.getStableId() + "';"
+           				+ "window.open(url); "
+           			+ "} else {" 
+           				+ "var url = 'http://localhost:8080/phenotype-archive/charts?' + this.category.split('###')[4] + '&parameterId=" + parameter.getStableId() + "';"
+           				+ "window.open(url); "
+           			+ "} } } }" 
+           		+ "} }," +
            " series: [{ name: 'Mutant strains with this phenotype called',  data: " +  mutant + "  }, {name: 'Mutant strains with no calls for this phenotype', data: " + control + "}]" +  " });  }); ";
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setId(chartId);
+		System.out.println(javascript);
 		return chartAndTable;	
 	}
 	

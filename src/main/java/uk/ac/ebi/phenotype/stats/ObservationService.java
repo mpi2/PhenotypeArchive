@@ -901,6 +901,9 @@ public class ObservationService {
 			meansArray[i] = sum / total;
 			i++;
 		}
+		
+		System.out.println("genesArray " + genesArray.length );
+		System.out.println("geneSymbolArray " + geneSymbolArray.length);
 
 		// we do the binning for all the data but fill the bins after that to
 		// keep tract of phenotype associations
@@ -908,6 +911,8 @@ public class ObservationService {
 				20);
 		ArrayList<String> mutantGenes = new ArrayList<String>();
 		ArrayList<String> controlGenes = new ArrayList<String>();
+		ArrayList<String> mutantGeneAcc = new ArrayList<String>();
+		ArrayList<String> controlGeneAcc = new ArrayList<String>();
 		ArrayList<Double> upperBounds = new ArrayList<Double>();
 		EmpiricalDistribution distribution = new EmpiricalDistribution(binCount);
 		if (meansArray.length > 0){
@@ -925,6 +930,8 @@ public class ObservationService {
 				phenMutants.add((double) 0);
 				controlGenes.add("");
 				mutantGenes.add("");
+				controlGeneAcc.add("");
+				mutantGeneAcc.add("");
 			}
 	
 			for (int j = 0; j < groups.size(); j++) {
@@ -936,19 +943,23 @@ public class ObservationService {
 					if (!genesString.contains(geneSymbolArray[j])){
 						if (genesString.equals("")){
 							mutantGenes.set(binIndex, geneSymbolArray[j]);
+							mutantGeneAcc.set(binIndex,  "acc="+genesArray[j]);
 						}
 						else {
 							mutantGenes.set(binIndex, genesString + ", " + geneSymbolArray[j]);
+							mutantGeneAcc.set(binIndex, mutantGeneAcc.get(binIndex) + "&acc="+ genesArray[j]);
 						}
 					}
 				} else { // treat as control because they don't have this phenotype association
 					String genesString = controlGenes.get(binIndex);
 					if (!genesString.contains(geneSymbolArray[j])){
 						if(genesString.equalsIgnoreCase("")){
-							controlGenes.set(binIndex, geneSymbolArray[j]);							
+							controlGenes.set(binIndex, geneSymbolArray[j]);	
+							controlGeneAcc.set(binIndex,  "acc="+genesArray[j]);	
 						}
 						else {
 							controlGenes.set(binIndex, genesString + ", " + geneSymbolArray[j]);
+							controlGeneAcc.set(binIndex, controlGeneAcc.get(binIndex) + "&acc="+  genesArray[j]);	
 						}
 					}
 					controlM.set(binIndex, 1 + controlM.get(binIndex));
@@ -962,6 +973,8 @@ public class ObservationService {
 			data.setControlMutatns(controlM);
 			data.setMutantGenes(mutantGenes);
 			data.setPhenMutants(phenMutants);
+			data.setControlGeneAccesionIds(controlGeneAcc);
+			data.setMutantGeneAccesionIds(mutantGeneAcc);
 			return data;
 		}
 		

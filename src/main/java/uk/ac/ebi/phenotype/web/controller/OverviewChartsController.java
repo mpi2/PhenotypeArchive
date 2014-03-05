@@ -68,13 +68,15 @@ public class OverviewChartsController {
 		HttpServletRequest request,
 		RedirectAttributes attributes) throws SolrServerException, IOException, URISyntaxException, SQLException{
 		
+
+			String baseUrl = (String) request.getAttribute("baseUrl");
 			String[] centerArray = (center != null) ? center.split(",") : null;
 			String[] sexArray = (sex != null) ? sex.split(",") : null;
-			model.addAttribute("chart", getDataOverviewChart(phenotype_id, model, parameterId, centerArray, sexArray));
+			model.addAttribute("chart", getDataOverviewChart(phenotype_id, model, parameterId, centerArray, sexArray, baseUrl));
 			return "overviewChart";
 	}
 	
-	public ChartData getDataOverviewChart(String mpId, Model model, String parameter, String[] center, String[] sex) throws SolrServerException, IOException, URISyntaxException, SQLException{
+	public ChartData getDataOverviewChart(String mpId, Model model, String parameter, String[] center, String[] sex, String baseUrl) throws SolrServerException, IOException, URISyntaxException, SQLException{
 		
 		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
 		TimeSeriesChartAndTableProvider tstp = new TimeSeriesChartAndTableProvider();
@@ -101,7 +103,7 @@ public class OverviewChartsController {
 		else if ( p != null && Utilities.checkType(p).equals(ObservationType.unidimensional)){
 			genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
 			StackedBarsData data = os.getUnidimensionalData(p, genes, strains, "experimental", center, sex);
-			chartRes = uctp.getStackedHistogram(data, p);
+			chartRes = uctp.getStackedHistogram(data, p, baseUrl);
 		}
 		
 		if (chartRes != null && center == null && sex == null){ // we don't do a filtering

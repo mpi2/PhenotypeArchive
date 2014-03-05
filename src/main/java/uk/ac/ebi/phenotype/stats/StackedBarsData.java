@@ -10,9 +10,25 @@ import java.util.ArrayList;
 public class StackedBarsData {
 	ArrayList<String> mutantGenes;
 	ArrayList<String> controlGenes;
+	ArrayList<String> mutantGeneAccesionIds;
+	ArrayList<String> controlGeneAccesionIds;
 	ArrayList<Double> upperBounds;
 	ArrayList<Double> controlMutatns;
 	ArrayList<Double> phenMutants;
+	
+	
+	public ArrayList<String> getMutantGeneAccesionIds() {
+		return mutantGeneAccesionIds;
+	}
+	public void setMutantGeneAccesionIds(ArrayList<String> mutantGeneAccesionIds) {
+		this.mutantGeneAccesionIds = mutantGeneAccesionIds;
+	}
+	public ArrayList<String> getControlGeneAccesionIds() {
+		return controlGeneAccesionIds;
+	}
+	public void setControlGeneAccesionIds(ArrayList<String> controlGeneAccesionIds) {
+		this.controlGeneAccesionIds = controlGeneAccesionIds;
+	}
 	public ArrayList<String> getMutantGenes() {
 		return mutantGenes;
 	}
