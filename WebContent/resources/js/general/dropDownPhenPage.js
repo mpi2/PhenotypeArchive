@@ -72,6 +72,7 @@ $(document).ready(function(){
 	}));
 
 	var mpId = window.location.href.split("/")[window.location.href.split("/").length-1];
+	mpId = mpId.split("#")[0];
 	var windowLocation = window.location; 
 	initFileExporter({
 		mpId: "\"" + mpId+ "\"",
