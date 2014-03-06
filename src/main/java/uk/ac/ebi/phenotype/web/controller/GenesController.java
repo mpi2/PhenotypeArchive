@@ -36,10 +36,13 @@ import net.sf.json.JSONObject;
 
 import org.antlr.grammar.v3.ANTLRv3Parser.finallyClause_return;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
 import org.hibernate.exception.JDBCConnectionException;
@@ -77,6 +80,7 @@ import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
 import uk.ac.ebi.phenotype.pojo.Xref;
+import uk.ac.ebi.phenotype.stats.GeneService;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
 
@@ -102,6 +106,10 @@ public class GenesController {
 
 	@Autowired
 	SolrIndex solrIndex;
+	
+
+	@Autowired
+	private GeneService geneService;
 
 	@Autowired
 	private PhenotypeSummaryDAO phenSummary;
@@ -306,9 +314,20 @@ public class GenesController {
 			model.addAttribute("countIKMCAllelesError", Boolean.TRUE);
 			e.printStackTrace();
 		}
+		
 		model.addAttribute("countIKMCAlleles", countIKMCAlleles);
 		log.debug("CHECK IKMC allele error : " + ikmcError);
 		log.debug("CHECK IKMC allele found : " + countIKMCAlleles);
+		
+		String prodStatusIcons = "<p>No status available </p>";
+		
+		try {
+			prodStatusIcons = geneService.getProductionStatusIcons(acc);
+			System.out.println("\t\t\t " + prodStatusIcons);
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+		model.addAttribute("prodStatusIcons" , prodStatusIcons);
 	}
 
 	/**
@@ -688,4 +707,5 @@ public class GenesController {
         model.addAttribute("alleleProducts", constructs);
 	    return "genesAllele";  
         }   
+    
 }

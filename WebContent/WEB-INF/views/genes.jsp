@@ -172,25 +172,11 @@
 								<a href="http://www.informatics.jax.org/marker/${gene.id.accession}">${gene.id.accession}</a>
 							</p>
 							
+							
 							<p class="with-label">
 								<span class="label">Status</span>
-								<c:choose>
-										<c:when test="${empty geneStatus}">
-												<div class="alert alert-error">
-									  				<strong>Error:</strong> Gene status currently unavailable.
-												</div>
-										</c:when>
-										<c:otherwise>
-											<c:if test="${fn:contains(geneStatus,'produced')}"> <a class="status done" data-hasqtip="37" oldtitle="${geneStatus}" title aria-describebody="qtip-37"></c:if>
-											<c:if test="${!fn:contains(geneStatus,'produced')}"> <a class="status inprogress" data-hasqtip="37" oldtitle="${geneStatus}" title aria-describebody="qtip-37"></c:if>
-											<span>ES Cell</span>
-											</a>
-									</c:otherwise>
-								</c:choose>
-								<c:if test="${not empty phenotypeStatus}">
-										TODO Phenotyping Status:
-									 	<button type="button" class="btn btn-info" disabled>${phenotypeStatus}</button>
-								</c:if>
+									${prodStatusIcons}
+								
 							</p>
 							
 							<p class="with-label">
