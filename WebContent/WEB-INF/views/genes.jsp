@@ -149,6 +149,9 @@
 										<p> <a class="btn" id='${registerButtonId}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
 									</c:otherwise>
 								</c:choose>
+								<c:if test="${orderPossible}">
+									<p> <a class="btn" href="#order"> <i class="fa fa-shopping-cart"></i> Order </a> </p>
+								</c:if>
 							</div>
 							
 							<p class="with-label no-margin">
@@ -409,15 +412,15 @@
 			</div>
 			</c:if>
 			       
-        <div class="section">
-		<h2 class="title documentation">ES Cell and Mouse Alleles  
-                        <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel' class="fa fa-question-circle pull-right" data-hasqtip="212" aria-describedby="qtip-212"></a>
-                </h2>
-		<div class="inner">
-                        <div id="allele"></div>
-                </div>
- 	</div>
-        </div> <!--end of node wrapper should be after all secions  -->
+      <div class="section" id="order">
+				<h2 class="title documentation">ES Cell and Mouse Alleles  
+           <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel' class="fa fa-question-circle pull-right" data-hasqtip="212" aria-describedby="qtip-212"></a>
+        </h2>
+				<div class="inner">
+           <div id="allele"></div>
+        </div>
+ 			</div>
+      </div> <!--end of node wrapper should be after all secions  -->
     </div>
     </div>
     </div>

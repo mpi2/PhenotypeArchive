@@ -44,13 +44,16 @@ public class GeneService {
 	}
 	
 	// returns ready formatted icons 
-    public String getProductionStatusIcons(String geneId) throws SolrServerException{		
+    public Map<String, String> getProductionStatus(String geneId) throws SolrServerException{		
     	
         SolrQuery query = new SolrQuery();
         query.setQuery("mgi_accession_id:\"" + geneId + "\"");
         QueryResponse response = solr.query(query);
     	SolrDocument doc = response.getResults().get(0);
-		String miceStatus = "";	
+		String miceStatus = "";					
+		String esCellStatus = "";	
+		Boolean order = false;
+		
 		try {		
 						
 			// mice production status
@@ -64,6 +67,7 @@ public class GeneService {
 			else if ( doc.containsKey("mi_allele_type") ){
 				// blue es cell status
 				miceStatus += parseAlleleType(doc, "done", "A");
+				order = true;
 			}
 			else if ( doc.containsKey("es_allele_name") && doc.containsKey("gene_type_status")  ){
 				if ( doc.getFieldValue("gene_type_status").toString().equals("Microinjection in progress") ){					
@@ -77,45 +81,35 @@ public class GeneService {
 			else if ( doc.containsKey("es_allele_name") && !doc.containsKey("gene_type_status") ){
 				// grey mice status: 
 				miceStatus += parseAlleleType(doc, "none", "A");  // mouse production planned	
-			}			
+			}	
 			
-		} catch (Exception e) {
-			log.error("Error getting ES cell/Mice status");
-			log.error(e.getLocalizedMessage());
-		}
-		
-		return fetchEsCellStatus(doc) + miceStatus;
-		
-	}
-    
-    private String fetchEsCellStatus(SolrDocument doc){
-		
-		String mgiId = doc.getFieldValue("mgi_accession_id").toString();
-				
-		String esCellStatus = "";	
-		
-		try {	
 			
 			// ES cell production status
+			
 			if ( doc.containsKey("es_allele_name") ){
-				// blue es cell status
+					// blue es cell status
 				esCellStatus = "<a class='status done' href='' oldtitle='ES Cells produced' title=''>"
 					   		 + " <span>ES cells</span>"
 					   		 + "</a>";
+				order = true;
 			}
 			else if ( !doc.containsKey("es_allele_name") && doc.containsKey("gene_type") ){		
 				esCellStatus = "<span class='status inprogress' oldtitle='ES cells production in progress' title=''>"
 						   	 +  "	<span>ES Cell</span>"
 						   	 +  "</span>";
 			}
-		}	
-		catch (Exception e) {
+			
+		} catch (Exception e) {
 			log.error("Error getting ES cell/Mice status");
 			log.error(e.getLocalizedMessage());
 		}
-			
-		return esCellStatus; 
+		HashMap<String, String> res =  new HashMap<>();
+		res.put("icons", esCellStatus + miceStatus);
+		res.put("orderPossible", order.toString());
+		return res;
+		
 	}
+ 
     
 	private String parseAlleleType(SolrDocument doc, String prodStatus, String type){		
 		

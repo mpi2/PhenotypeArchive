@@ -322,8 +322,10 @@ public class GenesController {
 		String prodStatusIcons = "<p>No status available </p>";
 		
 		try {
-			prodStatusIcons = geneService.getProductionStatusIcons(acc);
-			System.out.println("\t\t\t " + prodStatusIcons);
+
+			Map<String, String> prod = geneService.getProductionStatus(acc);
+			prodStatusIcons = prod.get("icons");
+			model.addAttribute("orderPossible" , prod.get("orderPossible"));
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
