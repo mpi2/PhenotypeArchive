@@ -2,6 +2,7 @@ package uk.ac.ebi.phenotype.stats;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,6 +44,41 @@ public class GeneService {
 		alleleTypes_pa.add("tm1e.1");
 	}
 	
+	private String derivePhenotypingStatus(SolrDocument doc){
+		
+		// Vivek email to ckchen on 07/02/14 11:57
+		List<String> phenos = new ArrayList<String>() {
+			  {
+				add("mi_phenotyping_status");
+				add("pa_phenotyping_status");				
+			   }
+		};
+		try {
+			for (String p : phenos) {
+			// Phenotyping complete			
+				if (doc.containsKey(p)) {
+					for (Object s : doc.getFieldValues(p)) {
+						if (s.toString().equals("Phenotyping Started") || s.toString().equals("Phenotyping Complete") ) {
+							return "available";
+						}
+					}
+				}
+			}	
+
+			// for legacy data: indexed through experiment core (so not want Sanger Gene or Allele cores)
+			if (doc.containsKey("hasQc")) {				
+				return "QCed data available";			
+			}
+		}		
+		catch (Exception e) {
+			log.error("Error getting phenotyping status");
+			log.error(e.getLocalizedMessage());
+		}
+				
+		return "";
+	}
+	
+	
 	// returns ready formatted icons 
     public Map<String, String> getProductionStatus(String geneId) throws SolrServerException{		
     	
@@ -52,10 +88,16 @@ public class GeneService {
     	SolrDocument doc = response.getResults().get(0);
 		String miceStatus = "";					
 		String esCellStatus = "";	
+		String phenStatus = "";
 		Boolean order = false;
 		
 		try {		
-						
+			
+			//phenotype status
+			
+			phenStatus = derivePhenotypingStatus(doc).equals("") ? "" : "<a class='status done'><span>phenotype data available</span></a>";
+			
+			
 			// mice production status
 			
 			// Mice: blue tm1.1/tm1b/tm1e.1 mice (depending on how many allele docs) 
@@ -104,7 +146,7 @@ public class GeneService {
 			log.error(e.getLocalizedMessage());
 		}
 		HashMap<String, String> res =  new HashMap<>();
-		res.put("icons", esCellStatus + miceStatus);
+		res.put("icons", esCellStatus + miceStatus + phenStatus);
 		res.put("orderPossible", order.toString());
 		return res;
 		
