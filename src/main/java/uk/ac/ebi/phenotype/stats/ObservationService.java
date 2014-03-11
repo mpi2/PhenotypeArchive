@@ -950,11 +950,11 @@ public class ObservationService {
 					if (!genesString.contains(geneSymbolArray[j])){
 						if (genesString.equals("")){
 							mutantGenes.set(binIndex, geneSymbolArray[j]);
-							mutantGeneAcc.set(binIndex,  "acc="+genesArray[j]);
+							mutantGeneAcc.set(binIndex,  "accession="+genesArray[j]);
 						}
 						else {
 							mutantGenes.set(binIndex, genesString + ", " + geneSymbolArray[j]);
-							mutantGeneAcc.set(binIndex, mutantGeneAcc.get(binIndex) + "&acc="+ genesArray[j]);
+							mutantGeneAcc.set(binIndex, mutantGeneAcc.get(binIndex) + "&accession="+ genesArray[j]);
 						}
 					}
 				} else { // treat as control because they don't have this phenotype association
@@ -962,11 +962,11 @@ public class ObservationService {
 					if (!genesString.contains(geneSymbolArray[j])){
 						if(genesString.equalsIgnoreCase("")){
 							controlGenes.set(binIndex, geneSymbolArray[j]);	
-							controlGeneAcc.set(binIndex,  "acc="+genesArray[j]);	
+							controlGeneAcc.set(binIndex,  "accession="+genesArray[j]);	
 						}
 						else {
 							controlGenes.set(binIndex, genesString + ", " + geneSymbolArray[j]);
-							controlGeneAcc.set(binIndex, controlGeneAcc.get(binIndex) + "&acc="+  genesArray[j]);	
+							controlGeneAcc.set(binIndex, controlGeneAcc.get(binIndex) + "&accession="+  genesArray[j]);	
 						}
 					}
 					controlM.set(binIndex, 1 + controlM.get(binIndex));

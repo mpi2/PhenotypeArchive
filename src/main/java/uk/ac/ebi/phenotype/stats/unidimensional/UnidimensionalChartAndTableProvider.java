@@ -447,8 +447,6 @@ List<Float>dataFloats=new ArrayList<>();
 		// http://jsfiddle.net/gh/get/jquery/1.7.2/highslide-software/highcharts.com/tree/master/samples/highcharts/plotoptions/series-point-events-click-column/
 		// http://jsfiddle.net/gh/get/jquery/1.7.2/highslide-software/highcharts.com/tree/master/samples/highcharts/xaxis/labels-formatter-linked/
 		ArrayList <String>  controlUrls = new ArrayList<>();
-		controlUrls.add("heere");
-		controlUrls.add("HERE TOO");
 		
 		String chartId = parameter.getStableId();
 		String yTitle = "Number of strains";

@@ -193,7 +193,7 @@ public class ChartsController {
 	 */
 	@RequestMapping("/charts")
 	public String charts(
-                        @RequestParam(required = false, value = "acc") String[] accessionsParams,
+                        @RequestParam(required = false, value = "accession") String[] accessionsParams,
 			@RequestParam(required = false, value = "parameterId") String[] parameterIds,
 			@RequestParam(required = false, value = "gender") String[] gender,
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
@@ -322,7 +322,6 @@ public class ChartsController {
 		String symbol=expBiologicalModel.getAlleles().get(0).getSymbol();
 		String geneticBackgroundString=expBiologicalModel.getGeneticBackground();
 			try {
-				
 				if(scatter) {
 					System.out.println("calling scatter!");
 					
