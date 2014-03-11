@@ -130,13 +130,13 @@ public class GeneService {
 			
 			if ( doc.containsKey("es_allele_name") ){
 					// blue es cell status
-				esCellStatus = "<a class='status done' href='' oldtitle='ES Cells produced' title=''>"
+				esCellStatus = "<a class='status done' href='' title='ES Cells produced' >"
 					   		 + " <span>ES cells</span>"
 					   		 + "</a>";
 				order = true;
 			}
 			else if ( !doc.containsKey("es_allele_name") && doc.containsKey("gene_type") ){		
-				esCellStatus = "<span class='status inprogress' oldtitle='ES cells production in progress' title=''>"
+				esCellStatus = "<span class='status inprogress' title='ES cells production in progress' >"
 						   	 +  "	<span>ES Cell</span>"
 						   	 +  "</span>";
 			}
@@ -188,7 +188,7 @@ public class GeneService {
 						seenMap.put(alleleType, seenMap.get(alleleType)+1);
 						//tm1seen++;
 						if ( seenMap.get(alleleType) == 1 ){
-							miceStr += "<span class='status " + prodStatus + "' oldtitle='" + hoverTxt + "' title=''>"
+							miceStr += "<span class='status " + prodStatus + "' title='" + hoverTxt + "' >"
 								+  "	<span>Mice<br>" + alleleType + "</span>"
 								+  "</span>";					
 							break;
@@ -211,7 +211,7 @@ public class GeneService {
 					if ( an.contains(alleleType+"(") ){					
 						seenMap.put(alleleType, seenMap.get(alleleType)+1);
 						if ( seenMap.get(alleleType) == 1 ){
-							miceStr += "<span class='status " + prodStatus + "' oldtitle='" + hoverTxt + "' title=''>"
+							miceStr += "<span class='status " + prodStatus + "' title='" + hoverTxt + "' >"
 									+  "	<span>Mice<br>" + alleleType + "</span>"
 									+  "</span>";	
 							break;
