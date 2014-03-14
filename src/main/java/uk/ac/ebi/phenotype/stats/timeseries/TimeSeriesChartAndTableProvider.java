@@ -308,17 +308,21 @@ public class TimeSeriesChartAndTableProvider {
 
 		try {
 			int i = 0;
-			for (String key : lines.keySet()) {// key is control hom or het
+			for (String key : lines.keySet()) {// key is line name or "Control"
+				
 				JSONObject object = new JSONObject();
 				JSONArray data = new JSONArray();
 				object.put("name", key);
-				SexType sexType=SexType.male;
-				if(key.contains("Female")) {
-					sexType=SexType.female;
+				
+				String colorString;
+				if (key.equalsIgnoreCase("Control")){
+					colorString = ChartColors.getDefaultControlColor(ChartColors.alphaScatter);
 				}
-				String colorString=ChartColors.getRgbaString(sexType, i, ChartColors.alphaScatter);
+				else {
+					colorString = ChartColors.getRgbaString(SexType.male, i, ChartColors.alphaScatter);
+				}
 				object.put("color", colorString);
-
+				
 				JSONObject errorBarsObject = null;
 				try {
 					errorBarsObject = new JSONObject();
@@ -327,7 +331,6 @@ public class TimeSeriesChartAndTableProvider {
 					errorBarsObject.put("color", colorString);
 
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 

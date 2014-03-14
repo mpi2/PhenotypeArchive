@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -96,8 +97,9 @@ public class OverviewChartsController {
 		}
 		else if ( p != null && Utilities.checkType(p).equals(ObservationType.time_series)){
 			genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
-			Map<String, List<DiscreteTimePoint>> data = os.getTimeSeriesMutantData(parameter, genes, strains, c, sex);
+			Map<String, List<DiscreteTimePoint>> data = new HashMap<String, List<DiscreteTimePoint>>(); 
 			data.put("Control", os.getTimeSeriesControlData(parameter, strains, c, sex));
+			data.putAll(os.getTimeSeriesMutantData(parameter, genes, strains, c, sex));
 			ChartData chart = tstp.doTimeSeriesOverviewData(data, p);
 			chart.setId(parameter);
 			chartRes = chart;

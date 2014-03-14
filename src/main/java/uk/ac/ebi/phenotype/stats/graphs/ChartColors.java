@@ -65,6 +65,10 @@ public class ChartColors {
 		return defaultColor;
 	}
 	
+	public static String getDefaultControlColor (Double alpha){
+		return "rgba("+femaleRgb.get(3)+"," +alpha+")";
+	}
+	
 	public static List<String> getFemaleMaleColorsRgba(Double alpha) {
 		List<String> colorStrings=new ArrayList<String>(); 
 		for(int i=0; i<ChartColors.maleRgb.size(); i++) {
