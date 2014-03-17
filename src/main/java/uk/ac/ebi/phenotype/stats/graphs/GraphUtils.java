@@ -59,7 +59,8 @@ public class GraphUtils {
             	accessionAndParam+=seperator+"scatter="+scatter;
             }
             //if not a phenotyping center returned in the keys for this gene and param then don't return a url
-            if(centersList==null) {
+            if(centersList==null||centersList.isEmpty()) {
+                System.out.println("no centers specified returning empty list");
             	return urls;
             }
             for(String center:centersList) {

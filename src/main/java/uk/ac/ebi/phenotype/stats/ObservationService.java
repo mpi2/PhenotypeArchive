@@ -118,23 +118,11 @@ public class ObservationService {
         query.setQuery("gene_accession:\""+mgiAccession+"\"");
         query.addFilterQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + parameterStableId);
               //  .addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":unidimensional")
-        if(phenotypingCenterParams!=null && phenotypingCenterParams.size()>0) {
-        	for(String phenotypingCenter: phenotypingCenterParams) {
-        	query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER + ":" +"\""+ phenotypingCenter+"\"");//need to comment center
-        	}
-        }
-        if(strainParams!=null && strainParams.size()>0) {
-        	for(String strain: strainParams) {
-        	query.addFilterQuery(ExperimentField.STRAIN + ":\"" + strain+"\"");
-        	}
-        }
-        
-        if(metaDataGroups!=null && metaDataGroups.size()>0) {
-        	for(String metaDataGroup: metaDataGroups) {
-        	query.addFilterQuery(ExperimentField.METADATA_GROUP + ":\"" + metaDataGroup+"\"");
-        	}
-        }
-        
+   
+        addMultipleFilters(phenotypingCenterParams, ExperimentField.PHENOTYPING_CENTER, query);
+        addMultipleFilters(strainParams, ExperimentField.STRAIN, query);
+        addMultipleFilters(metaDataGroups,ExperimentField.METADATA_GROUP, query);
+             
                query .setRows(0).addFacetField(ExperimentField.PHENOTYPING_CENTER);
                query .setRows(0).addFacetField(ExperimentField.STRAIN);
                query .setRows(0).addFacetField(ExperimentField.METADATA_GROUP);
@@ -167,6 +155,25 @@ public class ObservationService {
         System.out.println("experimentKeys="+map);
     	return map;
     }
+
+	private void addMultipleFilters(List<String> multipleOrParam, String fieldToFileter, SolrQuery query) {
+		if(multipleOrParam!=null && multipleOrParam.size()>0) {
+        	if(multipleOrParam.size()==1) {
+        		query.addFilterQuery(fieldToFileter + ":\"" + multipleOrParam.get(0)+"\"");
+        	}else {
+        		String strainOrString="(";
+        		for(String filterParam: multipleOrParam) {
+        				strainOrString+="\""+filterParam+"\"";
+        				if(multipleOrParam.indexOf(filterParam)<multipleOrParam.size()-1) {
+        					strainOrString+= " OR ";
+        				}else {
+        					strainOrString+= ")";
+        				}
+        		}
+        		query.addFilterQuery(fieldToFileter + ":" + strainOrString);
+        	}
+        }
+	}
 
     
     /**

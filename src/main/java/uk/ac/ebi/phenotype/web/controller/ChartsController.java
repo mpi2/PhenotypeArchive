@@ -205,6 +205,7 @@ public class ChartsController {
 			Model model)
 			throws GenomicFeatureNotFoundException, ParameterNotFoundException,
 			IOException, URISyntaxException, SolrServerException {
+		System.out.println("calling charts");
 		return createCharts(accessionsParams, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, scatter);
 	}
 
