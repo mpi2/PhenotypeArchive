@@ -224,7 +224,7 @@ public class DataTableController {
 				if (registerInterest.alreadyInterested(doc.getString("mgi_accession_id"))) {
 					String uinterest = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
 							+ "<i class='fa fa-sign-out'></i>"
-							+ "<a id='"+doc.getString("mgi_accession_id")+"' class='regInterest primary interest' href=''>Unregister interest</a>"
+							+ "<a id='"+doc.getString("mgi_accession_id")+"' class='regInterest primary interest' href=''>&nbsp;Unregister interest</a>"
 							+ "</div>";
 					
 					rowData.add(uinterest);					
@@ -233,7 +233,7 @@ public class DataTableController {
 				else {
 					String rinterest = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
 							+ "<i class='fa fa-sign-in'></i>"
-							+ "<a id='"+doc.getString("mgi_accession_id")+"' class='regInterest primary interest' href=''>Register interest</a>"
+							+ "<a id='"+doc.getString("mgi_accession_id")+"' class='regInterest primary interest' href=''>&nbsp;Register interest</a>"
 							+ "</div>";
 					
 					rowData.add(rinterest);					
@@ -243,7 +243,7 @@ public class DataTableController {
 			else {	
 				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
 								+ "<i class='fa fa-sign-in'></i>"
-								+ "<a class='regInterest' href='/user/register'>Interest</a>"
+								+ "<a class='regInterest' href='/user/register'>&nbsp;Interest</a>"
 								//+ "<a class='regInterest' href='#'>Interest</a>"
 								+ "</div>";
 				
