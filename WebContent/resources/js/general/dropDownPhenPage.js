@@ -23,9 +23,9 @@ $(document).ready(function(){
 				
 	// bubble popup for brief panel documentation
 	$.fn.qTip({
-		'pageName': 'phenotypes',
-		'textAlign': 'left',
-		'tip': 'topLeft'
+		'pageName': 'phenotypes',	
+		'tip': 'top right',
+		'corner' : 'right top'
 	});
 	
 	$( "#show_other_procedures" ).click(function() {
