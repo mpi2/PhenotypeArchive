@@ -1204,8 +1204,7 @@
     	//console.log(oHashParams);
     	var facet = oHashParams.widgetName;    	
     	var fqStr = oHashParams.fq;
-    	//console.log('check fq: ' + fqStr);
-    	//console.log('check1 fq: ' + fqStr.replace(MPI2.searchAndFacetConfig.facetParams[facet].filterParams.fq, ''));
+    	
     	//fqStr = fqStr.replace(MPI2.searchAndFacetConfig.facetParams[facet].filterParams.fq, '').replace(/ AND /g, '');    
     	
     	facet = facet.replace('Facet','');
