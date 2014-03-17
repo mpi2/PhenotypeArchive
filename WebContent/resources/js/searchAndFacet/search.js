@@ -31,23 +31,19 @@
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
 		
 		var q = oUrlHashParams.q;
-				
+		
 		if ( typeof q == 'undefined' ){
-			// check search kw
+			// check search kw						
 			if ( window.location.search != '' ){				
-				q = window.location.search.replace(/&.+/, '').replace('?q=','');	
-				q = q.replace(/\+/g, ' ');
+				q = window.location.search.replace(/&.+/, '').replace('?q=','');				
+				q = q.replace(/\+/g, ' ');				
 				$('input#s').val(decodeURI(q));				
 			}
 			else {
 				q = '*:*';
 			}
 		}
-		else if ( q == '' ){
-			// catches user hit enter on search input box of home page
-			q = '*:*';
-		}
-				
+						
 		q = decodeURI(q);
 		
 		if ( oUrlHashParams.fq ){		
