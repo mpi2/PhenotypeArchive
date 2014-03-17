@@ -68,7 +68,7 @@
 															</c:when>
 															<c:otherwise>
 																	<c:choose>
-																	<c:when test="${cellData.parameterId !=''}"><a href="${baseUrl}/stats/genes/${acc}?parameterId=${cellData.parameterId}"><button class="span12 btn btn_mini btn-danger" title="${cellData.dataString}">${shortString}</button></a>
+																	<c:when test="${cellData.parameterId !=''}"><a href="${baseUrl}/charts?accession=${acc}&parameterId=${cellData.parameterId}"><button class="span12 btn btn_mini btn-danger" title="${cellData.dataString}">${shortString}</button></a>
 																	</c:when>
 																	<c:otherwise>
 																	<c:if test="${cellData.dataString!=''}">

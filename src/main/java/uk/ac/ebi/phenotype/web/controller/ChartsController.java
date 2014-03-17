@@ -312,7 +312,7 @@ public class ChartsController {
 			// log.info("Experiment dto marker="+experiment.getFemaleControls());
 			// ESLIM_003_001_003 id=962 calorimetry data for time series graph
 			// new MGI:1926153
-			// http://localhost:8080/PhenotypeArchive/stats/genes/MGI:1926153?parameterId=ESLIM_003_001_003
+			// http://localhost:8080/PhenotypeArchive/charts?accession=/MGI:1926153&parameterId=ESLIM_003_001_003
 		String title=parameter.getName();
 		String xAxisTitle=xUnits;//set up some default strings here that most graphs will use?
 		String yAxisTitle= yUnits;
@@ -333,7 +333,7 @@ public class ChartsController {
 				switch (observationTypeForParam) {
 
 				 case unidimensional:
-				 //http://localhost:8080/phenotype-archive/stats/genes/MGI:1920000?parameterId=ESLIM_015_001_018
+				 //http://localhost:8080/phenotype-archive/charts?accession=/MGI:1920000&parameterId=ESLIM_015_001_018
 				
 					 unidimensionalChartDataSet =
 				 continousChartAndTableProvider.doUnidimensionalData(experiment,
@@ -414,7 +414,7 @@ public class ChartsController {
 		mv.addObject("errorMessage", exception.getMessage());
 		mv.addObject("acc", exception.getAcc());
 		mv.addObject("type", "MGI gene");
-		mv.addObject("exampleURI", "/stats/genes/MGI:104874");
+		mv.addObject("exampleURI", "/charts?accession=MGI:104874");
 		return mv;
 	}
 
@@ -427,7 +427,7 @@ public class ChartsController {
 		mv.addObject("type", "Parameter");
 		mv.addObject(
 				"exampleURI",
-				"/stats/genes/MGI:98373?parameterId=M-G-P_014_001_001&gender=male&zygosity=homozygote&phenotypingCenter=WTSI");
+				"/charts?accession=MGI:98373&parameterId=M-G-P_014_001_001&gender=male&zygosity=homozygote&phenotypingCenter=WTSI");
 		return mv;
 	}
 	

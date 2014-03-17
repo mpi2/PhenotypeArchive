@@ -67,7 +67,7 @@ public class CategoricalChartAndTableProvider {
 		
 		List<String> categories = this.getCategories(parameter);//loop through all the parameters no just ones with >0 result so use parameter rather than experiment
 		logger.debug("running categorical data");
-		//https://www.mousephenotype.org/data/stats/genes/MGI:98373?parameterId=M-G-P_014_001_009&zygosity=homozygote&phenotypingCenter=WTSI
+		//https://www.mousephenotype.org/data/charts?accession=MGI:98373?parameterId=M-G-P_014_001_009&zygosity=homozygote&phenotypingCenter=WTSI
 		
 			CategoricalResultAndCharts categoricalResultAndCharts = new CategoricalResultAndCharts();
 			categoricalResultAndCharts.setExperiment(experiment);
