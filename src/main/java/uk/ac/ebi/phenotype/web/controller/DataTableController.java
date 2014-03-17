@@ -224,7 +224,7 @@ public class DataTableController {
 				if (registerInterest.alreadyInterested(doc.getString("mgi_accession_id"))) {
 					String uinterest = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
 							+ "<i class='fa fa-sign-out'></i>"
-							+ "<a id='"+doc.getString("mgi_accession_id")+"' class='regInterest primary interest' href=''>Unregister interest</a>"
+							+ "<a id='"+doc.getString("mgi_accession_id")+"' class='regInterest primary interest' href=''>&nbsp;Unregister interest</a>"
 							+ "</div>";
 					
 					rowData.add(uinterest);					
@@ -233,7 +233,7 @@ public class DataTableController {
 				else {
 					String rinterest = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
 							+ "<i class='fa fa-sign-in'></i>"
-							+ "<a id='"+doc.getString("mgi_accession_id")+"' class='regInterest primary interest' href=''>Register interest</a>"
+							+ "<a id='"+doc.getString("mgi_accession_id")+"' class='regInterest primary interest' href=''>&nbsp;Register interest</a>"
 							+ "</div>";
 					
 					rowData.add(rinterest);					
@@ -243,7 +243,7 @@ public class DataTableController {
 			else {	
 				String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
 								+ "<i class='fa fa-sign-in'></i>"
-								+ "<a class='regInterest' href='/user/register'>Interest</a>"
+								+ "<a class='regInterest' href='/user/register'>&nbsp;Interest</a>"
 								//+ "<a class='regInterest' href='#'>Interest</a>"
 								+ "</div>";
 				
@@ -567,8 +567,9 @@ public class DataTableController {
 				String annots = "";
 				
 				String largeThumbNailPath = imgBaseUrl + doc.getString("largeThumbnailFilePath");
-				String img = "<img src='" +  imgBaseUrl + doc.getString("smallThumbnailFilePath") + "'/>";
-				String imgLink = "<a href='" + largeThumbNailPath +"'>" + img + "</a>";
+				String img = "<img src='" +  imgBaseUrl + doc.getString("smallThumbnailFilePath") + "'/>";				
+				String fullSizePath = largeThumbNailPath.replace("tn_large", "full");								
+				String imgLink = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath+ "'>" + img + "</a>";				
 				
 				try {
 					ArrayList<String> mp = new ArrayList<String>();
@@ -619,7 +620,7 @@ public class DataTableController {
 					
 					ArrayList<String> gene = fetchImgGeneAnnotations(doc, request);
 					if ( gene.size() > 0){						
-						annots += "<span class='imgAnnots'><span class='annotType'>Gene</span>: " + StringUtils.join(gene, ", ") + "</span>";
+						annots += "<span class='imgAnnots'><span class='annotType'>Gene</span>: " + StringUtils.join(gene, ",") + "</span>";
 					}
 									
 					rowData.add(annots);
@@ -688,10 +689,10 @@ public class DataTableController {
 
 					String imgCount = facets.get(i+1).toString();	
 					String unit = Integer.parseInt(imgCount) > 1 ? "images" : "image";	
-
+					
 					//String imgSubSetLink = "<a href='" + baseUrl+ "&fq=" + facetField + ":\"" + names[0] + "\"" + "'>" + imgCount + " " + unit+ "</a>";
 					String imgSubSetLink = "<a href='" + baseUrl+ " AND " + facetField + ":\"" + names[0] + "\"" + "'>" + imgCount + " " + unit+ "</a>";
-									
+								
 					rowData.add(displayAnnotName + " (" + imgSubSetLink + ")");
 					
 					// messy here, as ontodb (the latest term name info) may not have the terms in ann_annotation table
@@ -815,8 +816,9 @@ public class DataTableController {
 		for (int i = 0; i < dataLen; i++) {
 			JSONObject doc = docs.getJSONObject(i);
 			String largeThumbNailPath = mediaBaseUrl + "/" + doc.getString("largeThumbnailFilePath");
-			String img = "<img src='" + mediaBaseUrl + "/" + doc.getString("smallThumbnailFilePath") + "'/>";
-			String link = "<a href='" + largeThumbNailPath + "'>" + img + "</a>";
+			String fullSizePath = largeThumbNailPath.replace("tn_large", "full");
+			String img = "<img src='" + mediaBaseUrl + "/" + doc.getString("smallThumbnailFilePath") + "'/>";					
+			String link = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath + "'>" + img + "</a>";
 			imgPath.add(link);
 		}
 
