@@ -14,12 +14,11 @@
 
 	<h2 class="title documentation" id="section-associations"> 
 						Allele -
-						<t:formatAllele>${symbol}</t:formatAllele>
-						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;background	- ${geneticBackgroundString} ${phenotypingCenter} 
-						<a href="https://test.mousephenotype.org/data/documentation/graph-help.html" id='generalPanel'><i class="fa fa-question-circle pull-right" title="Overview help for graphs"></i></a>
-						<%-- <h2 class="title documentation" id="section-associations"> Phenotype associations for ${gene.symbol} <a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></h2> --%>
-					<!-- <i class="fa fa-question-circle pull-right" data-hasqtip="30" oldtitle="Brief info about this panel" title="" aria-describedby="qtip-30"> </i> -->
-					</h2>
+		<t:formatAllele>${symbol}</t:formatAllele>
+		<a href="https://test.mousephenotype.org/data/documentation/graph-help.html" id='generalPanel'><i class="fa fa-question-circle pull-right" title="Overview help for graphs"></i></a>
+	</h2>
+	<p>background	- ${geneticBackgroundString}</p>
+	<p> ${phenotypingCenter}</p> 
 					
 
 			<jsp:include page="scatterStatsFrag.jsp"/>
