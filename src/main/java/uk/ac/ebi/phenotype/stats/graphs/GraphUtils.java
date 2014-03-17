@@ -58,6 +58,10 @@ public class GraphUtils {
             if(scatter) {
             	accessionAndParam+=seperator+"scatter="+scatter;
             }
+            //if not a phenotyping center returned in the keys for this gene and param then don't return a url
+            if(centersList==null) {
+            	return urls;
+            }
             for(String center:centersList) {
             	for(String strain:strains) {
             		if(metaDataGroupStrings!=null){
