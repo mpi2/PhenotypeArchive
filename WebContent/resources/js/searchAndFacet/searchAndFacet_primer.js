@@ -28,11 +28,14 @@ $(document).ready(function(){
 	
 	// default search when search page loadsconsole.log(result);
 	if ( /search\/?$/.exec(location.href) ){
-
 		// do default gene search by * when search page loads	
 		oHashParams.q = '*:*';		
 		$.fn.fetchSolrFacetCount(oHashParams);
-	}	
+	}
+	else if ( window.location.search == '?q=' ){
+		// catches user hitting ENTER on search input box of homepage
+		document.location.href = baseUrl + '/search';		
+	}
 	else if ( location.href.indexOf('/search?q=') != -1 
 			|| location.href.indexOf('/search#q=*:*') != -1 
 			|| location.href.indexOf('/search#q=*') != -1 
