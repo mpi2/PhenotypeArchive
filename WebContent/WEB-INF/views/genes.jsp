@@ -86,7 +86,7 @@
 
                 'url': {
                     /* the base URL of the heatmap javascript source */
-                    'jssrc': '${drupalBaseUrl}/heatmap/js/',
+                    'jssrc': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
 
                     /* the base URL of the heatmap data source */
                     'json': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/',
