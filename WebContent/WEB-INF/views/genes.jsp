@@ -86,7 +86,7 @@
 
                 'url': {
                     /* the base URL of the heatmap javascript source */
-                    'jssrc': '${drupalBaseUrl}/heatmap/js/',
+                    'jssrc': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
 
                     /* the base URL of the heatmap data source */
                     'json': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/',
@@ -149,6 +149,9 @@
 										<p> <a class="btn" id='${registerButtonId}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
 									</c:otherwise>
 								</c:choose>
+								<c:if test="${orderPossible}">
+									<p> <a class="btn" href="#order"> <i class="fa fa-shopping-cart"></i> Order </a> </p>
+								</c:if>
 							</div>
 							
 							<p class="with-label no-margin">
@@ -156,39 +159,27 @@
 								${gene.name}
 							</p>
 							
-							<p class="with-label no-margin">
-								<span class="label">Synonyms</span>
-								<c:forEach var="synonym" items="${gene.synonyms}" varStatus="loop">
-									${synonym.symbol}
-									<c:if test="${!loop.last}">, </c:if>
-									<c:if test="${loop.last}"></p></c:if>
-								</c:forEach>
-							
+							<c:if test="${!(empty gene.synonyms)}">
+								<p class="with-label no-margin">
+									<span class="label">Synonyms</span>
+									<c:forEach var="synonym" items="${gene.synonyms}" varStatus="loop">
+										${synonym.symbol}
+										<c:if test="${!loop.last}">, </c:if>
+										<c:if test="${loop.last}"></c:if>
+									</c:forEach>
+									</p>
+							</c:if>
 							
 							<p class="with-label">
 								<span class="label">MGI Id</span>
 								<a href="http://www.informatics.jax.org/marker/${gene.id.accession}">${gene.id.accession}</a>
 							</p>
 							
+							
 							<p class="with-label">
 								<span class="label">Status</span>
-								<c:choose>
-										<c:when test="${empty geneStatus}">
-												<div class="alert alert-error">
-									  				<strong>Error:</strong> Gene status currently unavailable.
-												</div>
-										</c:when>
-										<c:otherwise>
-											<c:if test="${fn:contains(geneStatus,'produced')}"> <a class="status done" data-hasqtip="37" oldtitle="${geneStatus}" title aria-describebody="qtip-37"></c:if>
-											<c:if test="${!fn:contains(geneStatus,'produced')}"> <a class="status inprogress" data-hasqtip="37" oldtitle="${geneStatus}" title aria-describebody="qtip-37"></c:if>
-											<span>ES Cell</span>
-											</a>
-									</c:otherwise>
-								</c:choose>
-								<c:if test="${not empty phenotypeStatus}">
-										TODO Phenotyping Status:
-									 	<button type="button" class="btn btn-info" disabled>${phenotypeStatus}</button>
-								</c:if>
+									${prodStatusIcons}
+								
 							</p>
 							
 							<p class="with-label">
@@ -226,19 +217,25 @@
 					<div class="abnormalities">
 						<div class="allicons"></div>
 						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
-							<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
-								<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-							</a>
+							<c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
+								<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
+									<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
+								</a>
+							</c:if>
 						</c:forEach>
 						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getFemalePhenotypes()}">
-							<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
-								<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-							</a>
+							<c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
+								<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
+									<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
+								</a>
+							</c:if>
 						</c:forEach>
 						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getMalePhenotypes()}">
-							<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
-								<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-							</a>
+							<c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
+								<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
+									<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
+								</a>
+							</c:if>
 						</c:forEach>
 					</div>
 		            
@@ -415,15 +412,15 @@
 			</div>
 			</c:if>
 			       
-        <div class="section">
-		<h2 class="title documentation">ES Cell and Mouse Alleles  
-                        <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel' class="fa fa-question-circle pull-right" data-hasqtip="212" aria-describedby="qtip-212"></a>
-                </h2>
-		<div class="inner">
-                        <div id="allele"></div>
-                </div>
- 	</div>
-        </div> <!--end of node wrapper should be after all secions  -->
+      <div class="section" id="order">
+				<h2 class="title documentation">ES Cell and Mouse Alleles  
+           <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel' class="fa fa-question-circle pull-right" data-hasqtip="212" aria-describedby="qtip-212"></a>
+        </h2>
+				<div class="inner">
+           <div id="allele"></div>
+        </div>
+ 			</div>
+      </div> <!--end of node wrapper should be after all secions  -->
     </div>
     </div>
     </div>

@@ -49,6 +49,7 @@ $(document).ready(function(){
 	}));
 
 	var mgiGeneId = window.location.href.split("/")[window.location.href.split("/").length-1];
+	mgiGeneId = mgiGeneId.split("#")[0];
 	var windowLocation = window.location;
 
 	initFileExporter({

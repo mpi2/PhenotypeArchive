@@ -842,6 +842,8 @@ public class ObservationService {
 			String biologicalSample,  String[] center, String[] sex) throws SolrServerException {
 
 		List<Integer> res = new ArrayList<Integer>();
+		String urlParams = "";
+		
 		SolrQuery query = new SolrQuery().addFilterQuery(
 				ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":"
 						+ biologicalSample).addFilterQuery(
@@ -853,7 +855,10 @@ public class ObservationService {
 				+ StringUtils.join(strains.toArray(), "\" OR "
 						+ ExperimentField.STRAIN + ":\"") + "\")"
 				: ExperimentField.STRAIN + ":\"" + strains.get(0) + "\"";
-
+//		if (strains.size() > 0) {
+//			urlParams += urlParams += "&strain=" + StringUtils.join(strains.toArray(), "&strain=");
+//		}
+		
 		if (center != null && center.length > 0) {
 			q += " AND (";
 			q += (center.length > 1) ? ExperimentField.PHENOTYPING_CENTER
@@ -863,10 +868,12 @@ public class ObservationService {
 					: ExperimentField.PHENOTYPING_CENTER + ":\"" + center[0]
 							+ "\"";
 			q += ")";
+			urlParams += "&phenotyping_center=" + StringUtils.join(center, "&phenotyping_center=");
 		}
 
 		if (sex != null && sex.length == 1){
 			q += " AND " + ExperimentField.SEX + ":\"" + sex[0] + "\"";
+			urlParams += "&gender=" + sex[0];
 		}
 		
 		query.setQuery(q);
@@ -901,6 +908,9 @@ public class ObservationService {
 			meansArray[i] = sum / total;
 			i++;
 		}
+		
+		System.out.println("genesArray " + genesArray.length );
+		System.out.println("geneSymbolArray " + geneSymbolArray.length);
 
 		// we do the binning for all the data but fill the bins after that to
 		// keep tract of phenotype associations
@@ -908,6 +918,8 @@ public class ObservationService {
 				20);
 		ArrayList<String> mutantGenes = new ArrayList<String>();
 		ArrayList<String> controlGenes = new ArrayList<String>();
+		ArrayList<String> mutantGeneAcc = new ArrayList<String>();
+		ArrayList<String> controlGeneAcc = new ArrayList<String>();
 		ArrayList<Double> upperBounds = new ArrayList<Double>();
 		EmpiricalDistribution distribution = new EmpiricalDistribution(binCount);
 		if (meansArray.length > 0){
@@ -925,6 +937,8 @@ public class ObservationService {
 				phenMutants.add((double) 0);
 				controlGenes.add("");
 				mutantGenes.add("");
+				controlGeneAcc.add("");
+				mutantGeneAcc.add("");
 			}
 	
 			for (int j = 0; j < groups.size(); j++) {
@@ -936,19 +950,23 @@ public class ObservationService {
 					if (!genesString.contains(geneSymbolArray[j])){
 						if (genesString.equals("")){
 							mutantGenes.set(binIndex, geneSymbolArray[j]);
+							mutantGeneAcc.set(binIndex,  "accession="+genesArray[j]);
 						}
 						else {
 							mutantGenes.set(binIndex, genesString + ", " + geneSymbolArray[j]);
+							mutantGeneAcc.set(binIndex, mutantGeneAcc.get(binIndex) + "&accession="+ genesArray[j]);
 						}
 					}
 				} else { // treat as control because they don't have this phenotype association
 					String genesString = controlGenes.get(binIndex);
 					if (!genesString.contains(geneSymbolArray[j])){
 						if(genesString.equalsIgnoreCase("")){
-							controlGenes.set(binIndex, geneSymbolArray[j]);							
+							controlGenes.set(binIndex, geneSymbolArray[j]);	
+							controlGeneAcc.set(binIndex,  "accession="+genesArray[j]);	
 						}
 						else {
 							controlGenes.set(binIndex, genesString + ", " + geneSymbolArray[j]);
+							controlGeneAcc.set(binIndex, controlGeneAcc.get(binIndex) + "&accession="+  genesArray[j]);	
 						}
 					}
 					controlM.set(binIndex, 1 + controlM.get(binIndex));
@@ -956,12 +974,20 @@ public class ObservationService {
 			}
 	//		System.out.println(" Mutants list " + phenMutants);
 	
+			// add the rest of parameters to the graph urls
+			for (int t = 0; t < controlGeneAcc.size(); t++){
+				controlGeneAcc.set(t, controlGeneAcc.get(t) + urlParams);
+				mutantGeneAcc.set(t, mutantGeneAcc.get(t) + urlParams);
+			}
+			
 			StackedBarsData data = new StackedBarsData();
 			data.setUpperBounds(upperBounds);
 			data.setControlGenes(controlGenes);
 			data.setControlMutatns(controlM);
 			data.setMutantGenes(mutantGenes);
 			data.setPhenMutants(phenMutants);
+			data.setControlGeneAccesionIds(controlGeneAcc);
+			data.setMutantGeneAccesionIds(mutantGeneAcc);
 			return data;
 		}
 		

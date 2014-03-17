@@ -117,3 +117,6 @@ button.exportButton{
 .filter.open .foptions              { display: block; }
 .foptions ul                        { list-style: none; padding-left: 0.8em; }
 
+.status {
+	margin-right:5pt;
+}

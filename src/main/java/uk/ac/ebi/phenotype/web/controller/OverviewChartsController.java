@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -64,13 +65,18 @@ public class OverviewChartsController {
 		@RequestParam(required = true, value = "parameter_id") String parameterId,
 		@RequestParam(required = false, value = "center") String center,
 		@RequestParam(required = false, value = "sex") String sex,
+		@RequestParam(required = false, value = "all_centers") String allCenters,
 		Model model,
 		HttpServletRequest request,
 		RedirectAttributes attributes) throws SolrServerException, IOException, URISyntaxException, SQLException{
 		
 			String[] centerArray = (center != null) ? center.split(",") : null;
 			String[] sexArray = (sex != null) ? sex.split(",") : null;
-			model.addAttribute("chart", getDataOverviewChart(phenotype_id, model, parameterId, centerArray, sexArray));
+			String[] allCentersArray = (allCenters != null) ? allCenters.split(",") : null;
+
+			String[] centers = (centerArray != null) ? centerArray : allCentersArray;
+			
+			model.addAttribute("chart", getDataOverviewChart(phenotype_id, model, parameterId, centers, sexArray));
 			return "overviewChart";
 	}
 	
@@ -82,34 +88,50 @@ public class OverviewChartsController {
 		Parameter p = pipelineDao.getParameterByStableIdAndVersion(parameter, 1, 0);
 		ChartData chartRes = null;
 		List<String> genes = null;
-		if(p != null && Utilities.checkType(p).equals(ObservationType.categorical)){
+		String[] centerToFilter = center;
+		
+		if (p != null){
+
 			genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
-			CategoricalSet controlSet = os.getCategories(p, null , "control", strains, center, sex);
-			controlSet.setName("Control");
-			CategoricalSet mutantSet = os.getCategories(p, (ArrayList<String>) genes, "experimental", strains, center, sex);
-			mutantSet.setName("Mutant");
-			chartRes = cctp.doCategoricalDataOverview(controlSet, mutantSet, model, p).get(0);
-		}
-		else if ( p != null && Utilities.checkType(p).equals(ObservationType.time_series)){
-			genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
-			Map<String, List<DiscreteTimePoint>> data = os.getTimeSeriesMutantData(parameter, genes, strains, center, sex);
-			data.put("Control", os.getTimeSeriesControlData(parameter, strains, center, sex));
-			ChartData chart = tstp.doTimeSeriesOverviewData(data, p);
-			chart.setId(parameter);
-			chartRes = chart;
-		}
-		else if ( p != null && Utilities.checkType(p).equals(ObservationType.unidimensional)){
-			genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
-			StackedBarsData data = os.getUnidimensionalData(p, genes, strains, "experimental", center, sex);
-			chartRes = uctp.getStackedHistogram(data, p);
+		
+			if (centerToFilter == null) { // first time we load the page.
+				// We need to know centers for the controls, otherwise we show all controls
+				Set <String> tempCenters = os.getCenters(p, genes, strains, "experimental");
+				centerToFilter = tempCenters.toArray(new String[0]);
+			}
+			
+			if( Utilities.checkType(p).equals(ObservationType.categorical) ){
+				genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
+				CategoricalSet controlSet = os.getCategories(p, null , "control", strains, centerToFilter, sex);
+				controlSet.setName("Control");
+				CategoricalSet mutantSet = os.getCategories(p, (ArrayList<String>) genes, "experimental", strains, centerToFilter, sex);
+				mutantSet.setName("Mutant");
+				chartRes = cctp.doCategoricalDataOverview(controlSet, mutantSet, model, p).get(0);
+			}
+			
+			else if ( Utilities.checkType(p).equals(ObservationType.time_series) ){
+				Map<String, List<DiscreteTimePoint>> data = new HashMap<String, List<DiscreteTimePoint>>(); 
+				data.put("Control", os.getTimeSeriesControlData(parameter, strains, centerToFilter, sex));
+				data.putAll(os.getTimeSeriesMutantData(parameter, genes, strains, centerToFilter, sex));
+				ChartData chart = tstp.doTimeSeriesOverviewData(data, p);
+				chart.setId(parameter);
+				chartRes = chart;
+			}
+			
+			else if ( Utilities.checkType(p).equals(ObservationType.unidimensional) ){
+				genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
+				StackedBarsData data = os.getUnidimensionalData(p, genes, strains, "experimental", centerToFilter, sex);
+				chartRes = uctp.getStackedHistogram(data, p);
+			}
+			
+			if (chartRes != null && center == null && sex == null){ // we don't do a filtering
+				// we want to offer all filter values, not to eliminate males if we filtered on males
+				// plus we don't want to do another SolR call each time to get the same data
+				Set<String> centerFitlers =	os.getCenters(p, genes, strains, "experimental");
+				model.addAttribute("centerFilters", centerFitlers);
+			}
 		}
 		
-		if (chartRes != null && center == null && sex == null){ // we don't do a filtering
-			// we want to offer all filter values, not to eliminate males if we filtered on males
-			// plus we don't want to do another SolR call each time to get the same data
-			Set<String> centerFitlers =	os.getCenters(p, genes, strains, "experimental");
-			model.addAttribute("centerFilters", centerFitlers);
-		}
 		return chartRes;
 	}
 	

@@ -67,6 +67,7 @@
 					chartUrl += "/overviewCharts/" + mp + "?parameter_id=" + parameter;
 					if (checkedCenters.length != 0) chartUrl += "&center=" + checkedCenters.join();
 					if (checkedSexes.length != 0) chartUrl += "&sex=" + checkedSexes.join();
+					if (centers.length != 0)chartUrl += "&all_centers=" + centers.join();
 					$.ajax({
 					  url: chartUrl,
 					  cache: false

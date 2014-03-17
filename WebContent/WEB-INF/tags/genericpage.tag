@@ -73,8 +73,8 @@
 <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
 <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
 <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.css">
-<link href="${baseUrl}/css/default.css?cache=09-01-14" rel="stylesheet" type="text/css" />
-<link href="${baseUrl}/css/wdm.css?cache=09-01-14" rel="stylesheet" type="text/css" />
+<link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" />
+<link href="${baseUrl}/css/wdm.css" rel="stylesheet" type="text/css" />
 
 <!-- EBI CSS -->
 <!-- <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" /> -->
@@ -147,7 +147,7 @@ try {
 <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js'></script>
 <script type='text/javascript' src="${baseUrl}/js/general/toggle.js"></script> 
 		
-<script type="text/javascript" src="${baseUrl}/js/default.js?cache=09-01-14"></script>
+<script type="text/javascript" src="${baseUrl}/js/default.js"></script>
 
 <jsp:invoke fragment="header" />
 

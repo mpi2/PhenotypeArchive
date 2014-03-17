@@ -23,9 +23,9 @@ $(document).ready(function(){
 				
 	// bubble popup for brief panel documentation
 	$.fn.qTip({
-		'pageName': 'phenotypes',
-		'textAlign': 'left',
-		'tip': 'topLeft'
+		'pageName': 'phenotypes',	
+		'tip': 'top right',
+		'corner' : 'right top'
 	});
 	
 	$( "#show_other_procedures" ).click(function() {
@@ -72,6 +72,7 @@ $(document).ready(function(){
 	}));
 
 	var mpId = window.location.href.split("/")[window.location.href.split("/").length-1];
+	mpId = mpId.split("#")[0];
 	var windowLocation = window.location; 
 	initFileExporter({
 		mpId: "\"" + mpId+ "\"",

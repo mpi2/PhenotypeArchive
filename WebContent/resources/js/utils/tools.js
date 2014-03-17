@@ -932,7 +932,6 @@
 
 		// .documentation is applied to h2 and p
 		$('.documentation a').each(function(){	
-			
 			// now use id instead of class for better css logic
 			var key = $(this).attr('id');
 

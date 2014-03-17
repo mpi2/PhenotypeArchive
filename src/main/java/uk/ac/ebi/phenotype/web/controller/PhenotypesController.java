@@ -491,7 +491,6 @@ public class PhenotypesController {
 				res.put(param,p.getName());
 			}
 		}
-		System.out.println("-----------" + res);
 		return res;
 	}
 }

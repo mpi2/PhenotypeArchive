@@ -23,8 +23,8 @@
 
 
 	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
-<jsp:attribute name="addToFooter">
-	<div class="region region-pinned">
+		<jsp:attribute name="addToFooter">
+			<div class="region region-pinned">
             
         <div id="flyingnavi" class="block">
             
@@ -43,7 +43,7 @@
         </div>
         
     </div>
-</jsp:attribute>
+		</jsp:attribute>
 	<jsp:body>
 
 	<div class="region region-content">
@@ -68,10 +68,12 @@
 						<c:if test="${not empty procedures}">
 							<div class="with-label"> <span class="label">Procedure</span>
 								<ul>
+								<c:set var="count" value="0" scope="page"/>
 									<c:forEach var="procedure" items="${procedures}" varStatus="firstLoop">
  										<c:forEach var="pipeline" items="${procedure.pipelines}" varStatus="loop">
+ 											<c:set var="count" value="${count+1}" />
   											<li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.stableKey}">${procedure.name} (${pipeline.name})</a></li>
-	 											<c:if test="${firstLoop.count==3 && !(firstLoop.last && loop.last)}"><p ><a id='show_other_procedures'><i class="fa fa-caret-right"></i> more procedures</a></p> <div id="other_procedures"></c:if>
+	 											<c:if test="${count==3 && !(firstLoop.last && loop.last)}"><p ><a id='show_other_procedures'><i class="fa fa-caret-right"></i> more procedures</a></p> <div id="other_procedures"></c:if>
 												<c:if test="${firstLoop.last && loop.last && fn:length(procedures) >3}"></div></c:if>
 										</c:forEach>
 									</c:forEach>
@@ -93,7 +95,7 @@
 				
 				
 				<c:if test="${genePercentage.getDisplay()}">
-					<div class="section collapsed open">
+					<div class="section">
 						<h2 class="title" id="data-summary">Phenotype associations stats <span class="documentation" ><a href='' id='phenotypeStatsPanel' class="fa fa-question-circle pull-right"></a></span> </h2>
 						<div class="inner">					
 							<!-- Phenotype Assoc. summary -->
