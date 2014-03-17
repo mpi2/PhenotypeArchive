@@ -43,9 +43,13 @@
 				q = '*:*';
 			}
 		}
+		else if ( q == '' ){
+			// catches user hit enter on search input box of home page
+			q = '*:*';
+		}
 				
 		q = decodeURI(q);
-					
+		
 		if ( oUrlHashParams.fq ){		
 			jsonBase.geneFacet.filterParams = {'fq': $.fn.fieldNameMapping(oUrlHashParams.fq, 'gene')};
 		}	
