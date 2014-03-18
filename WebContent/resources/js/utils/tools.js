@@ -68,9 +68,10 @@
 		$.fn.loadDataTable(oHashParams);
 	}	
 	$.fn.initFacetToggles = function(facet){
+			
 		
 		// toggle Main Categories
-		$('div.flist li#' + facet + ' > .flabel').click(function() {			
+		/*$('div.flist li#' + facet + ' > .flabel').click(function() {			
 			if ($(this).parent('.fmcat').hasClass('open')) {
 				$(this).parent('.fmcat').removeClass('open');
 			} 
@@ -78,21 +79,36 @@
 				$('.fmcat').removeClass('open');
 				$(this).parent('.fmcat').addClass('open');
 			}
+		});*/
+		
+		$('div.flist li#' + facet).click(function() {			
+			if ($(this).hasClass('open')) {
+				$(this).removeClass('open');
+			} 
+			else {
+				$(this).removeClass('open');
+				$(this).addClass('open');
+			}
 		});
 		
 		// kick start itself (when initialized as above) if not yet
 		if ( ! $('div.flist li#' + facet).hasClass('open') ){
 			$('div.flist li#' + facet + ' > .flabel').click();
-		}			
+		}		
 		
 		// toggle Categorie Sections
-		$('div.flist li#' + facet).find('li.fcatsection:not(.inactive) .flabel').click(function() { 
+		/*$('div.flist li#' + facet).find('li.fcatsection:not(.inactive) .flabel').click(function() {			
 			$(this).parent('.fcatsection').toggleClass('open'); 
+		});*/
+		
+		$('div.flist li#' + facet).find('li.fcatsection:not(.inactive)').click(function(e) { 
+			e.stopPropagation();			
+			$(this).toggleClass('open'); 
 		});
 		
 		// make categories clickable (not only the checkbox itself)
-		$('div.flist li#' + facet).find('li.fcat .flabel').click(function() {
-				$(this).prev('input').trigger('click');
+		$('div.flist li#' + facet).find('li.fcat .flabel').click(function() {				
+			$(this).prev('input').trigger('click');
 		});			
 	};
 	
@@ -702,7 +718,7 @@
 	$.fn.composeFacetFilterControl = function(oChkbox, q){	
 	
 		var labels = oChkbox.attr('rel').split("|");
-		console.log(labels);
+	
 		var facet = labels[0];
 		var field = labels[1];
 		var value = labels[2];
