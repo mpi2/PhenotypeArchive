@@ -29,7 +29,7 @@
 		<!-- For all observations (data points) -->
 		<entity dataSource="komp2ds" transformer="script:getData,RegexTransformer" name="observation"
 			query="
-			SELECT o.biological_sample_id as bsid, CASE WHEN co.category IS NULL THEN NULL WHEN co.category REGEXP '[0-9]' THEN CONCAT_WS('_', o.parameter_id, 0+co.category) ELSE CONCAT_WS('_', o.parameter_id, co.category) END AS translate_category_id, o.parameter_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, o.*, co.category as raw_category, uo.data_point as unidimensional_data_point, mo.data_point as multidimensional_data_point, mo.order_index, mo.dimension, tso.data_point as time_series_data_point, tso.time_point, tso.discrete_point
+			SELECT o.biological_sample_id as bsid, CASE WHEN co.category IS NULL THEN NULL WHEN co.category REGEXP '[0-9]' THEN CONCAT_WS('_', o.parameter_id, 0+co.category) ELSE CONCAT_WS('_', o.parameter_id, co.category) END AS translate_category_id, o.parameter_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, o.*, co.category as raw_category, uo.data_point as unidimensional_data_point, mo.data_point as multidimensional_data_point, mo.order_index, mo.dimension, tso.data_point as time_series_data_point, tso.time_point, tso.discrete_point, pipe.name as pipeline_name, pipe.id as pipeline_id, pipe.stable_id as pipeline_stable_id
 			FROM observation o
 			LEFT OUTER JOIN categorical_observation co ON o.id=co.id
 			LEFT OUTER JOIN unidimensional_observation uo ON o.id=uo.id
@@ -37,11 +37,15 @@
 			LEFT OUTER JOIN time_series_observation tso ON o.id=tso.id
 			INNER JOIN experiment_observation eo ON eo.observation_id=o.id
 			INNER JOIN experiment e on eo.experiment_id=e.id
+			INNER JOIN phenotype_pipeline pipe on pipe.id = e.pipeline_id
 			WHERE o.missing = 0
 			">
 
 			<field column="id" name="id" />
 			<field column="observation_type" name="observation_type" />
+			<field column="pipeline_name" name="pipeline_name" />
+			<field column="pipeline_id" name="pipeline_id" />
+			<field column="pipeline_stable_id" name="pipeline_stable_id" />			
 
 			<entity name="biologicalData" processor="CachedSqlEntityProcessor"
 				query="SELECT bs.id, strain.strain_acc, bma.allele_acc as allele_accession, a.symbol as allele_symbol, bs.organisation_id, org.name, bs.sample_group, gf.acc as acc, ls.sex as sex, ls.colony_id, ls.zygosity, gf.symbol as symbol, bms.biological_model_id as bmid, ls.date_of_birth as birthdate, ls.colony_id, bs.external_id as external_sample_id
@@ -74,17 +78,12 @@
 			</entity>
 
 			<entity name="procedureData" processor="CachedSqlEntityProcessor"
-				query="SELECT param.id, pipe.name as pipeline_name, pipe.id as pipeline_id, pipe.stable_id as pipeline_stable_id, param.name as parameter_name, proc.name as procedure_name, proc.id as procedure_id, proc.stable_id as procedure_stable_id, param.stable_id as parameter_stable_id
+				query="SELECT param.id, param.name as parameter_name, proc.name as procedure_name, proc.id as procedure_id, proc.stable_id as procedure_stable_id, param.stable_id as parameter_stable_id
 					FROM phenotype_parameter param
 					INNER JOIN phenotype_procedure_parameter procparam ON procparam.parameter_id=param.id
 					INNER JOIN phenotype_procedure proc ON proc.id=procparam.procedure_id
-					INNER JOIN phenotype_pipeline_procedure pipeproc ON pipeproc.procedure_id=proc.id
-					INNER JOIN phenotype_pipeline pipe ON pipe.id=pipeproc.pipeline_id"
 					where="id=observation.parameter_id">
 
-				<field column="pipeline_name" name="pipeline_name" />
-				<field column="pipeline_id" name="pipeline_id" />
-				<field column="pipeline_stable_id" name="pipeline_stable_id" />
 				<field column="procedure_id" name="procedure_id" />
 				<field column="procedure_name" name="procedure_name" />
 				<field column="procedure_stable_id" name="procedure_stable_id" />
