@@ -17,8 +17,7 @@
 		<t:formatAllele>${symbol}</t:formatAllele>
 		<a href="https://test.mousephenotype.org/data/documentation/graph-help.html" id='generalPanel'><i class="fa fa-question-circle pull-right" title="Overview help for graphs"></i></a>
 	</h2>
-	<p>background	- ${geneticBackgroundString}</p>
-	<p> ${phenotypingCenter}</p> 
+	<p>Background	- ${geneticBackgroundString}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Phenotyping Center - ${phenotypingCenter}</p> 
 					
 
 			<jsp:include page="scatterStatsFrag.jsp"/>

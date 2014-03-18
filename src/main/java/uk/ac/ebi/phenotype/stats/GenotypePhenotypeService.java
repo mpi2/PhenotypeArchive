@@ -421,7 +421,7 @@ public class GenotypePhenotypeService {
 			String sex = phen.getString( GenotypePhenotypeField.SEX );
 			SexType sexType = SexType.valueOf(sex);
 			sum.setSex(sexType);
-			String provider = phen.getString(GenotypePhenotypeField.RESOURCE_FULLNAME);
+			String provider = phen.getString(GenotypePhenotypeField.RESOURCE_NAME);
 			Datasource datasource = new Datasource();
 			datasource.setName(provider);
 			sum.setDatasource(datasource);

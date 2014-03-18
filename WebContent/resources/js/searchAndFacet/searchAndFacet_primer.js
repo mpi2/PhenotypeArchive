@@ -62,9 +62,5 @@ $(document).ready(function(){
 	    		document.location.href = baseUrl + '/search?q=' + input; // handed over to hash change	    	
 	    	}
 	    }
-	}).click(function(){
-		$(this).val(''); // clears input 
-	});
-	
-	
+	})	
 });
