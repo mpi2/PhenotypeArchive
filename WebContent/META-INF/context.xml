@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Context path="/PhenotypeArchive">
+<Context path="/phenotype-archive">
   <ResourceLink global="jdbc/komp2DataSource" name="jdbc/komp2DataSource" type="javax.sql.DataSource"/>
   <ResourceLink global="jdbc/ontodbDataSource" name="jdbc/ontodbDataSource" type="javax.sql.DataSource"/>
 </Context>

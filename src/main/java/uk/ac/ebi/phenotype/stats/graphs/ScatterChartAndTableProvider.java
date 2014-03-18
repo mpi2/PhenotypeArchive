@@ -71,7 +71,7 @@ public class ScatterChartAndTableProvider {
 //			     +"        max: 18.05, "
 //			    +"         min: 15.9, "
 			    +"         title: { "
-			    +"             text: 'pg' "
+			    +"             text: '"+parameter.getUnit()+"' "
 			    +"           } "
 			    +"       }, "
 			   +"      credits: { "
