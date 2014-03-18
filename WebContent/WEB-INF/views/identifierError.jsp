@@ -15,13 +15,12 @@
 					<div class="node">
 						<h1>Oops! ${acc} is not a valid ${type} identifier.</h1>
 						<p class="lead">Example of a valid page: <a href="${baseUrl}${exampleURI}">${exampleURI}</a> </p>
-
-							<p><a href="${pageContext.request.contextPath}">Click here to search IMPC.</a></p>
-						</div>
+						<p><a href="${pageContext.request.contextPath}">Click here to search IMPC.</a></p>
+						<div class="clear"> </div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</jsp:body>
 	
-	</t:genericpage>
+</t:genericpage>
