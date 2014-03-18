@@ -761,7 +761,7 @@
 					$(this).find('.fcap').hide();
 					$(this).hide();
 				});
-				
+				alert('last facet: '+ facet);
 				var url;
 				
 				if ( window.location.search != '' ){
@@ -773,7 +773,8 @@
 				}
 				else {
 					// no search keyword					
-					window.history.pushState({},"", baseUrl + '/search');
+					var defaultFqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].fq;
+					window.history.pushState({},"", baseUrl + '/search#fq='+defaultFqStr+'&core='+facet);
 					//location.reload();
 					//var fqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;					
 					//url = baseUrl + '/search#fq=' + fqStr + '&core=' + facet;
