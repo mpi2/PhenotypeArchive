@@ -413,7 +413,7 @@
 			</c:if>
 			       
       <div class="section" id="order">
-				<h2 class="title documentation">Order Mouse and ES cells  
+				<h2 class="title documentation">Order Mouse and ES Cells  
            <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel' class="fa fa-question-circle pull-right" data-hasqtip="212" aria-describedby="qtip-212"></a>
         </h2>
 				<div class="inner">
