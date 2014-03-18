@@ -65,8 +65,8 @@
 						
 						<td style="text-align:center">
 						<!-- c:if test="${not phenotype.parameter.derivedFlag}"-->
-						<a href="${baseUrl}/charts?accession=${acc}&parameterId=${phenotype.parameter.stableId}
-						<c:if test="${fn:length(phenotype.sexes) eq 1}">&gender=${phenotype.sexes[0]}</c:if>&zygosity=${phenotype.zygosity}<c:if test="${phenotype.getPhenotypingCenter() != null}">&phenotyping_center=${phenotype.getPhenotypingCenter()}</c:if>" class="fancybox">
+						<a class="fancybox-media" href="${baseUrl}/charts?accession=${acc}&parameterId=${phenotype.parameter.stableId}
+						<c:if test="${fn:length(phenotype.sexes) eq 1}">&gender=${phenotype.sexes[0]}</c:if>&zygosity=${phenotype.zygosity}<c:if test="${phenotype.getPhenotypingCenter() != null}">&phenotyping_center=${phenotype.getPhenotypingCenter()}</c:if>">
 						<i class="fa fa-bar-chart-o" alt="Graphs" > </i></a>
 						<!-- /c:if-->
 						
@@ -77,9 +77,5 @@
 						</c:forEach>
 					</tbody>
 				</table>
-				<script>
-					$(document).ready(function(){	
-					});
-					
-						</script>
+				
 	<!-- /row -->

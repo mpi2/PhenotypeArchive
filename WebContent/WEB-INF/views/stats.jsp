@@ -19,14 +19,9 @@ $(document).ready(function(){
 	{
 		var graphUrl=$(this).attr('graphUrl');
 		var id=$(this).attr('id');
-		console.log('id='+id);
-		console.log("obj att"+$(this).attr('graphUrl'));
-		console.log("request uri="+document.URL);
-		
 		var chartUrl=graphUrl+'&experimentNumber='+id;
 			$.ajax({
 				  url: chartUrl,
-				  data:{"originalUrl":document.URL},
 				  cache: false
 			})
 				  .done(function( html ) {
