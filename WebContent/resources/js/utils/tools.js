@@ -122,6 +122,13 @@
 			if ( caller.find('span.fcount').text() != 0 ){
 				console.log(facet + ' widget expanded');
 				
+				// close all other non-selected facets
+				$('div.flist > ul li.fmcat').each(function(){
+					if ( $(this).attr('id') != facet ){
+						$(this).removeClass('open');
+					}
+				});				
+				
 				MPI2.searchAndFacetConfig.widgetOpen = true;
 				
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
@@ -1258,13 +1265,11 @@
     		}    
     		else {
     			var field = wantStr.replace(/\|.+/, '');
-    			console.log(field);
+    			
     			var filterFacet = MPI2.searchAndFacetConfig.filterMapping[field].facet;
-                console.log(filterFacet);
-                if ( facet != filterFacet ){
-                	console.log('need to do ' + filterFacet);
-                	var oInput = $('<input>').attr({'type':'checkbox', 'rel': filterFacet + '|'+ wantStr});
-                	console.log(oInput);
+                
+                if ( facet != filterFacet ){                	
+                	var oInput = $('<input>').attr({'type':'checkbox', 'rel': filterFacet + '|'+ wantStr});                	
                 	$.fn.addFacetFilter(oInput, oHashParams.q);
                 }              
     		}
