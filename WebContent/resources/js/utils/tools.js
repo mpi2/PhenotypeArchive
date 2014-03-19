@@ -67,8 +67,7 @@
 		}
 		$.fn.loadDataTable(oHashParams);
 	}	
-	$.fn.initFacetToggles = function(facet){
-			
+	$.fn.initFacetToggles = function(facet){			
 		
 		// toggle Main Categories
 		/*$('div.flist li#' + facet + ' > .flabel').click(function() {			
@@ -123,13 +122,18 @@
 			if ( caller.find('span.fcount').text() != 0 ){
 				console.log(facet + ' widget expanded');
 				
-				MPI2.searchAndFacetConfig.widgetOpen = true;				
+				MPI2.searchAndFacetConfig.widgetOpen = true;
 				
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 				
-				// deals with user query				
-				if ( window.location.search != '' ){
-					oHashParams.q = decodeURI(window.location.search.replace('?q=', ''));					
+				// deals with user query					
+				if ( window.location.search != '' ){				
+					oHashParams.q = decodeURI(window.location.search.replace('?q=', ''));
+					
+					// check if there is any filter checked, if not, we need to use default fq for the facet selected
+					if ( $('ul#facetFilter li.ftag').size() == 0 ){
+						oHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;						
+					}					
 					oHashParams.fq = typeof oHashParams.fq == 'undefined' ? MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq : oHashParams.fq;					
 				}
 				
@@ -761,7 +765,7 @@
 					$(this).find('.fcap').hide();
 					$(this).hide();
 				});
-				alert('last facet: '+ facet);
+				
 				var url;
 				
 				if ( window.location.search != '' ){
