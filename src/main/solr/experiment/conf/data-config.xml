@@ -81,7 +81,7 @@
 				query="SELECT param.id, param.name as parameter_name, proc.name as procedure_name, proc.id as procedure_id, proc.stable_id as procedure_stable_id, param.stable_id as parameter_stable_id
 					FROM phenotype_parameter param
 					INNER JOIN phenotype_procedure_parameter procparam ON procparam.parameter_id=param.id
-					INNER JOIN phenotype_procedure proc ON proc.id=procparam.procedure_id
+					INNER JOIN phenotype_procedure proc ON proc.id=procparam.procedure_id"
 					where="id=observation.parameter_id">
 
 				<field column="procedure_id" name="procedure_id" />
