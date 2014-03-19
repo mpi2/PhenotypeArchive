@@ -221,8 +221,8 @@
    				oHashParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;	                
 				oHashParams.widgetName += 'Facet';
    				
-				console.log(oHashParams);
-   				console.log('from widget open: '+ MPI2.searchAndFacetConfig.widgetOpen);
+				//console.log(oHashParams);
+   				//console.log('from widget open: '+ MPI2.searchAndFacetConfig.widgetOpen);
    				
    				if ( window.location.search.match(/q=/) ){   					
    					oHashParams.q = window.location.search.replace(/&.+/, '').replace('?q=','');
@@ -251,7 +251,7 @@
     							aFilters.push($(this).text());
     						});														
     						
-    						//console.log('filter: ' + aFilters );
+    						//console.log(oHashParams);		//console.log('filter: ' + aFilters );
     						oHashParams.filters = aFilters;
     						//oHashParams.facetName = facet + 'Facet';
     						oHashParams.facetName = facet;	    						
@@ -260,8 +260,8 @@
     				}
    				}
     			else {	    				   				  				
-    				console.log('back button');	    				
-    				console.log(oHashParams);
+    				//console.log('back button');	    				
+    				//console.log(oHashParams);
     				    			
     				var refreshFacet = oHashParams.coreName ? false : true;	    				
 					$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, refreshFacet);
