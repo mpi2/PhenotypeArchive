@@ -79,7 +79,7 @@ $(document).ready(function(){
 		</c:forEach>
 
 
-		<div class="section half">
+		<div class="section">
 			<div id="exportIconsDivGlobal"></div>
 		</div>
 		
@@ -94,6 +94,7 @@ $(document).ready(function(){
 									$('div#exportIconsDivGlobal').html(
 											$.fn.loadFileExporterUI({
 												label : 'Export data as: ',
+												textPos : "textleft",
 												formatSelector : {
 													TSV : 'tsv_phenoAssoc',
 													XLS : 'xls_phenoAssoc'

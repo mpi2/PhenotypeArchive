@@ -1112,8 +1112,9 @@
     
     $.fn.loadFileExporterUI = function(conf){
     	var oFormatSelector = conf.formatSelector;
-    	var label = conf.label;    	
-    	var iconDiv = $('<p></p>').attr({'class': 'textright'}).html(label + " &nbsp;");
+    	var label = conf.label;
+    	var textPos = conf.textPos;
+    	var iconDiv = $('<p></p>').attr({'class': textPos}).html(label + " &nbsp;");
     	var it = 0 ;
     	for ( var f in oFormatSelector ){
     		if (it++ > 0)
