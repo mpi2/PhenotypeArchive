@@ -208,6 +208,7 @@ public class FileExportController {
 					}
 					String s = (sex.equalsIgnoreCase("null")) ? null : sex;
 					dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, s, phenotypingCenterIds, zygList, strains);
+					System.out.println("\t\tdataRows : " + dataRows.size());
 				}
 			}
 		}
@@ -295,12 +296,21 @@ public class FileExportController {
 		System.out.println(" - - gender" + gender);
 		System.out.println(" - - phenotypingCenterId" + phenotypingCenterIds);
 		System.out.println(" - - zygosity" + zygosity);
-		
+		System.out.println();
 		List<String> rows = new ArrayList<String>();
 		SexType sex = null;
 		if (gender != null)
 			sex = SexType.valueOf(gender);
-		List<ExperimentDTO> experimentList = new ArrayList<ExperimentDTO> ();
+		if (phenotypingCenterIds.size() == 0){
+			phenotypingCenterIds.add(null);
+		}
+		if (strain.length == 0){
+			strain = new String[1];
+			strain[0] = null;
+		}
+		
+		List<ExperimentDTO> experimentList = new ArrayList<ExperimentDTO> ();		
+		
 	//	if (parameterStableId.contains("\t")){
 	//		String [] params = parameterStableId.split("\t");
 			for (int k = 0; k < parameterStableId.length; k++){

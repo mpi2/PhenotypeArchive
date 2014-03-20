@@ -52,31 +52,143 @@ $(document).ready(function(){
   </jsp:attribute>
 
 	<jsp:body>
-		<c:if test="${statsError}">
-					<div class="alert alert-error">
-						<strong>Error:</strong> An issue occurred processing the statistics for this page - results on this page maybe incorrect.
-					</div>
-		</c:if>
-		<c:if test="${noData}">
-					<div class="alert alert-error">
-						<strong>We don't appear to have any data for this query please try the europhenome graph link instead</strong>
-					</div>
-		</c:if>
+	
+	
+			<c:if test="${statsError}">
+						<div class="alert alert-error">
+							<strong>Error:</strong> An issue occurred processing the statistics for this page - results on this page maybe incorrect.
+						</div>
+			</c:if>
+			
+			<c:if test="${noData}">
+						<div class="alert alert-error">
+							<strong>We don't appear to have any data for this query please try the europhenome graph link instead</strong>
+						</div>
+			</c:if>
 		
 		 <c:forEach var="graphUrl" items="${allGraphUrlSet}" varStatus="graphUrlLoop">			
-  						
-  							
-  <div class="section">
-  			<div class="inner">
-  					<div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}"  id="${graphUrlLoop.count}">			
-  							<div id="spinner${graphUrlLoop.count}"><i class="fa fa-refresh fa-spin"></i></div>	
-  					</div>
-  			</div>
- </div>
-  			
-  								
+  								  							
+			  <div class="section">
+			  			<div class="inner">
+			  					<div class="chart" graphUrl="${baseUrl}/chart?${graphUrl}"  id="${graphUrlLoop.count}">			
+			  							<div id="spinner${graphUrlLoop.count}"><i class="fa fa-refresh fa-spin"></i></div>	
+			  					</div>
+			  			</div>
+			 </div>
   						
 		</c:forEach>
 
-    </jsp:body>
+
+		<div class="section half">
+			<div id="exportIconsDivGlobal"></div>
+		</div>
+		
+			
+		<script>
+			 				
+				$(document)
+						.ready(
+								function() {
+							//		alert("unidimensional");
+									$('div#exportIconsDivGlobal').html("");
+									$('div#exportIconsDivGlobal').html(
+											$.fn.loadFileExporterUI({
+												label : 'Export data as: ',
+												formatSelector : {
+													TSV : 'tsv_phenoAssoc',
+													XLS : 'xls_phenoAssoc'
+												},
+												class : 'fileIcon exportButton'
+											}));
+			
+									var params = window.location.href.split("/charts?")[1]; //.split("&");
+									var paramList = window.location.href.split("/charts?")[1].split("&");
+									var windowLocation = window.location;
+									var sex = (params.indexOf("gender\=") > 0) ? params.split("gender\=")[1].split("\&")[0] : null;
+									var paramIdList = [];
+									var mgiGeneId = [];
+									var phenotypingCenter = [];
+									var strains = [];
+									var zygosity = [];
+									for (var k = 0; k < paramList.length; k++){
+										if (paramList[k].indexOf("parameterId") >= 0){
+											paramIdList.push(paramList[k].replace("parameterId=", ""));
+											console.log ("parameter : " + paramList[k].replace("parameterId=", "") + " list is " + paramIdList);
+										}
+										else if (paramList[k].indexOf("accession") >= 0){
+											mgiGeneId.push(paramList[k].replace("accession=", ""));
+											console.log ("parameter : " + paramList[k].replace("accession=", "") + " list is " + mgiGeneId);
+										}
+										else if (paramList[k].indexOf("phenotyping_center") >= 0){
+											phenotypingCenter.push(paramList[k].replace("phenotyping_center=", ""));
+											console.log ("parameter : " + paramList[k].replace("phenotyping_center=", "") + " list is " + phenotypingCenter);
+										}
+										else if (paramList[k].indexOf("strain") >= 0){
+											strains.push(paramList[k].replace("strain=", ""));
+											console.log ("parameter : " + paramList[k].replace("strain=", "") + " list is " + strains);
+										}
+										else if (paramList[k].indexOf("zygosity") >= 0){
+											zygosity.push(paramList[k].replace("zygosity=", ""));
+											console.log ("parameter : " + paramList[k].replace("zygosity=", "") + " list is " + zygosity);
+										}
+									}
+									
+									initFileExporter({
+										mgiGeneId : mgiGeneId,
+										externalDbId : 3,
+										fileName : 'unidimensionalData_'
+												+ mgiGeneId[0].replace(/:/g, '_'),
+										solrCoreName : 'experiment',
+										dumpMode : 'all',
+										baseUrl : windowLocation,
+										parameterStableId : paramIdList,
+										zygosity: zygosity,
+										sex: sex,
+										strains: strains,
+										phenotypingCenter: phenotypingCenter,
+										page : "unidimensionalData",
+										gridFields : 'gene_accession,date_of_experiment,discrete_point,gene_symbol,data_point,zygosity,sex,date_of_birth,time_point',
+										params : ""
+									});
+			
+									function initFileExporter(conf) {
+										$('button.fileIcon')
+												.click(
+														function() {
+															var fileType = $(this).text();
+															var url = baseUrl + '/export';
+															var sInputs = '';
+															for ( var k in conf) {
+																	sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";
+															}
+															sInputs += "<input type='text' name='fileType' value='"
+																	+ fileType
+																			.toLowerCase()
+																	+ "'>";
+															var form = $("<form action='"+ url + "' method=get>"
+																	+ sInputs + "</form>");
+															_doDataExport(url, form);
+														});
+									}
+			
+									function _doDataExport(url, form) {
+										$
+												.ajax({
+													type : 'GET',
+													url : url,
+													cache : false,
+													data : $(form).serialize(),
+													success : function(data) {
+														$(form).appendTo('body').submit()
+																.remove();
+													},
+													error : function() {
+														alert("Oops, there is error during data export..");
+													}
+												});
+									}
+								});
+		</script>	
+ </jsp:body>
+    
 </t:genericpage>
