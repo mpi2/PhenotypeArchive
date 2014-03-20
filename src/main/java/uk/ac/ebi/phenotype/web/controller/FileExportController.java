@@ -105,7 +105,7 @@ public class FileExportController {
 		@RequestParam(value="mgiGeneId", required=false) String [] mgiGeneId,
 		@RequestParam(value="parameterStableId", required=false) String []parameterStableId, // should be filled for graph data export
 		@RequestParam(value="zygosity", required=false) String []zygosities, // should be filled for graph data export
-		@RequestParam(value="strain", required=false) String strain, // should be filled for graph data export
+		@RequestParam(value="strains", required=false) String[] strains, // should be filled for graph data export
 		@RequestParam(value="geneSymbol", required=false) String geneSymbol,			
 		@RequestParam(value="solrCoreName", required=false) String solrCoreName,
 		@RequestParam(value="params", required=false) String solrParams,
@@ -170,7 +170,8 @@ public class FileExportController {
 					if(zygosities!=null) {
 						zygList=Arrays.asList(zygosities);
 					}
-					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, phenotypingCenterIds, zygList, strain);
+					String s = (sex.equalsIgnoreCase("null")) ? null : sex;
+					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, s, phenotypingCenterIds, zygList, strains);
 				}
 				// Remove the title row (row 0) from the list and assign it to
 				// the string array for the spreadsheet
@@ -205,7 +206,8 @@ public class FileExportController {
 					if(zygosities!=null) {
 						zygList=Arrays.asList(zygosities);
 					}
-					dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, phenotypingCenterIds, zygList, strain);
+					String s = (sex.equalsIgnoreCase("null")) ? null : sex;
+					dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, s, phenotypingCenterIds, zygList, strains);
 				}
 			}
 		}
@@ -286,7 +288,7 @@ public class FileExportController {
 		return tableData;
 	}
 	
-	public List<String> composeExperimetDataExportRows(String[] parameterStableId, String[] geneAccession, String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity, String strain) throws SolrServerException, IOException, URISyntaxException, SQLException{
+	public List<String> composeExperimetDataExportRows(String[] parameterStableId, String[] geneAccession, String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity, String[] strain) throws SolrServerException, IOException, URISyntaxException, SQLException{
 
 		System.out.println(" - - parameterStableId" + parameterStableId);
 		System.out.println(" - - geneAccession" + geneAccession);
@@ -302,13 +304,17 @@ public class FileExportController {
 	//	if (parameterStableId.contains("\t")){
 	//		String [] params = parameterStableId.split("\t");
 			for (int k = 0; k < parameterStableId.length; k++){
-				for (int mgi_iterator = 0; mgi_iterator < geneAccession.length; mgi_iterator++){
+				for (int mgiI = 0; mgiI < geneAccession.length; mgiI++){
 					for (Integer pCenter : phenotypingCenterIds){
-						experimentList = experimentService.getExperimentDTO(parameterStableId[k], geneAccession[mgi_iterator], sex, pCenter, zygosity, strain);
-						for (ExperimentDTO experiment : experimentList) { 
-							rows.addAll(experiment.getTabbedToString(ppDAO)) ;
+						for (int strainI = 0; strainI < strain.length; strainI++){
+							experimentList = experimentService.getExperimentDTO(parameterStableId[k], geneAccession[mgiI], sex, pCenter, zygosity, strain[strainI]);
+							if (experimentList.size() > 0){
+								for (ExperimentDTO experiment : experimentList) { 
+									rows.addAll(experiment.getTabbedToString(ppDAO)) ;
+								}
+								rows.add("\n\n");
+							}
 						}
-						rows.add("\n");
 					}
 				}
 			}

@@ -185,6 +185,8 @@
 						var paramIdList = [];
 						var mgiGeneId = [];
 						var phenotypingCenter = [];
+						var strains = [];
+						var zygosity = [];
 						for (var k = 0; k < paramList.length; k++){
 							if (paramList[k].indexOf("parameterId") >= 0){
 								paramIdList.push(paramList[k].replace("parameterId=", ""));
@@ -198,10 +200,15 @@
 								phenotypingCenter.push(paramList[k].replace("phenotyping_center=", ""));
 								console.log ("parameter : " + paramList[k].replace("phenotyping_center=", "") + " list is " + phenotypingCenter);
 							}
+							else if (paramList[k].indexOf("strain") >= 0){
+								strains.push(paramList[k].replace("strain=", ""));
+								console.log ("parameter : " + paramList[k].replace("strain=", "") + " list is " + strains);
+							}
+							else if (paramList[k].indexOf("zygosity") >= 0){
+								zygosity.push(paramList[k].replace("zygosity=", ""));
+								console.log ("parameter : " + paramList[k].replace("zygosity=", "") + " list is " + zygosity);
+							}
 						}
-						var zygosity = null;
-						if (params.indexOf("zygosity\=") > 0)
-							zygosity = params.split("zygosity\=")[1].split("\&")[0];
 						
 						initFileExporter({
 							mgiGeneId : mgiGeneId,
@@ -214,6 +221,7 @@
 							parameterStableId : paramIdList,
 							zygosity: zygosity,
 							sex: sex,
+							strains: strains,
 							phenotypingCenter: phenotypingCenter,
 							page : "unidimensionalData",
 							gridFields : 'gene_accession,date_of_experiment,discrete_point,gene_symbol,data_point,zygosity,sex,date_of_birth,time_point',
