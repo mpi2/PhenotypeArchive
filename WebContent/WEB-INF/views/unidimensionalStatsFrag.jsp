@@ -178,17 +178,27 @@
 									class : 'fileIcon exportButton'
 								}));
 
-						var params = window.location.href.split("/")[window.location.href
-								.split("/").length - 1];
-						var mgiGeneId = params.split("accession\=")[1].split("\&")[0];
+						var params = window.location.href.split("/charts?")[1]; //.split("&");
+						var paramList = window.location.href.split("/charts?")[1].split("&");
 						var windowLocation = window.location;
-						var paramId = params.split("parameterId\=")[1].split("\&")[0];
-						var paramIdList = paramId;
 						var sex = (params.indexOf("gender\=") > 0) ? params.split("gender\=")[1].split("\&")[0] : null;
-	//					for (var k = 2; k < params.split("parameterId\=").length; k++){
-	//						paramIdList += "\t" + params.split("parameterId\=")[k].split("\&")[0];
-	//					}
-						var phenotypingCenter = (params.indexOf("phenotyping_center\=") > 0) ? params.split("phenotyping_center\=")[1].split("\&")[0] : null;
+						var paramIdList = [];
+						var mgiGeneId = [];
+						var phenotypingCenter = [];
+						for (var k = 0; k < paramList.length; k++){
+							if (paramList[k].indexOf("parameterId") >= 0){
+								paramIdList.push(paramList[k].replace("parameterId=", ""));
+								console.log ("parameter : " + paramList[k].replace("parameterId=", "") + " list is " + paramIdList);
+							}
+							else if (paramList[k].indexOf("accession") >= 0){
+								mgiGeneId.push(paramList[k].replace("accession=", ""));
+								console.log ("parameter : " + paramList[k].replace("accession=", "") + " list is " + mgiGeneId);
+							}
+							else if (paramList[k].indexOf("phenotyping_center") >= 0){
+								phenotypingCenter.push(paramList[k].replace("phenotyping_center=", ""));
+								console.log ("parameter : " + paramList[k].replace("phenotyping_center=", "") + " list is " + phenotypingCenter);
+							}
+						}
 						var zygosity = null;
 						if (params.indexOf("zygosity\=") > 0)
 							zygosity = params.split("zygosity\=")[1].split("\&")[0];
@@ -197,7 +207,7 @@
 							mgiGeneId : mgiGeneId,
 							externalDbId : 3,
 							fileName : 'unidimensionalData_'
-									+ mgiGeneId.replace(/:/g, '_'),
+									+ mgiGeneId[0].replace(/:/g, '_'),
 							solrCoreName : 'experiment',
 							dumpMode : 'all',
 							baseUrl : windowLocation,
@@ -207,13 +217,7 @@
 							phenotypingCenter: phenotypingCenter,
 							page : "unidimensionalData",
 							gridFields : 'gene_accession,date_of_experiment,discrete_point,gene_symbol,data_point,zygosity,sex,date_of_birth,time_point',
-							params : "qf=auto_suggest&defType=edismax&wt=json&q=*:*&fq=gene_accession:\""
-									+ mgiGeneId
-									+ "\"&fq=parameter_stable_id:\""
-									+ paramId
-									+ "\"&fq=phenotyping_center:\""
-									+ phenotypingCenter
-									+ "\""
+							params : ""
 						});
 
 						function initFileExporter(conf) {

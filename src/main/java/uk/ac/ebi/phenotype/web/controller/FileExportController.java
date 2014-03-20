@@ -102,8 +102,8 @@ public class FileExportController {
 		@RequestParam(value="panel", required=false) String panelName,			
 		@RequestParam(value="mpId", required=false) String mpId,
 		@RequestParam(value="mpTerm", required=false) String mpTerm,			
-		@RequestParam(value="mgiGeneId", required=false) String mgiGeneId,
-		@RequestParam(value="parameterStableId", required=false) String parameterStableId, // should be filled for graph data export
+		@RequestParam(value="mgiGeneId", required=false) String [] mgiGeneId,
+		@RequestParam(value="parameterStableId", required=false) String []parameterStableId, // should be filled for graph data export
 		@RequestParam(value="zygosity", required=false) String []zygosities, // should be filled for graph data export
 		@RequestParam(value="strain", required=false) String strain, // should be filled for graph data export
 		@RequestParam(value="geneSymbol", required=false) String geneSymbol,			
@@ -114,7 +114,7 @@ public class FileExportController {
 		@RequestParam(value="dumpMode", required=false) String dumpMode,	
 		@RequestParam(value="baseUrl", required=false) String baseUrl,	
 		@RequestParam(value="sex", required=false) String sex,
-		@RequestParam(value="phenotypingCenter", required=false) String phenotypingCenter,
+		@RequestParam(value="phenotypingCenter", required=false) String[] phenotypingCenter,
 		HttpSession session, 
 		HttpServletRequest request, 
 		HttpServletResponse response,
@@ -127,9 +127,11 @@ public class FileExportController {
 		// Default to exporting 10 rows
 		Integer length = 10;
 
-		Integer phenotypingCenterId = null;
+		ArrayList<Integer> phenotypingCenterIds = new ArrayList<>();
 		try {
-			phenotypingCenterId = organisationDao.getOrganisationByName(phenotypingCenter.replaceAll("%20", " " )).getId();
+			for (int i = 0; i < phenotypingCenter.length; i++ ){
+				phenotypingCenterIds.add(organisationDao.getOrganisationByName(phenotypingCenter[i].replaceAll("%20", " " )).getId());
+			}
 		} catch (NullPointerException e) {
 			log.error("Cannot find organisation ID for org with name " + phenotypingCenter);
 		}
@@ -149,7 +151,7 @@ public class FileExportController {
 				Wb = new ExcelWorkBook(fetchGeneVariantsTitles(), fetchGeneVariantsData(mpId, extDbId), sheetName);					
 			}
 			else if ( panelName.equals("phenoAssoc")){
-				Wb = new ExcelWorkBook(fetchPhenoAssocTitles(), fetchPhenoAssocData(mgiGeneId, extDbId), sheetName);					
+				Wb = new ExcelWorkBook(fetchPhenoAssocTitles(), fetchPhenoAssocData(mgiGeneId[0], extDbId), sheetName);					
 			}
 			else if ( !solrCoreName.isEmpty() ){					
 				if (dumpMode.equals("all")){
@@ -158,9 +160,9 @@ public class FileExportController {
 					length = 100000;
 				}
 													
-				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
 				List<String> rows;
 				if (!solrCoreName.equalsIgnoreCase("experiment")){
+					JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
 					rows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);
 				}
 				else{
@@ -168,7 +170,7 @@ public class FileExportController {
 					if(zygosities!=null) {
 						zygList=Arrays.asList(zygosities);
 					}
-					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, phenotypingCenterId, zygList, strain);
+					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, phenotypingCenterIds, zygList, strain);
 				}
 				// Remove the title row (row 0) from the list and assign it to
 				// the string array for the spreadsheet
@@ -186,7 +188,7 @@ public class FileExportController {
 				dataString = composeGeneVariantsTsvString(mpId, extDbId);
 			}
 			else if ( panelName.equals("phenoAssoc") ){				
-				dataString = composePhenoAssocTsvString(mgiGeneId, extDbId);
+				dataString = composePhenoAssocTsvString(mgiGeneId[0], extDbId);
 			}
 			else if ( !solrCoreName.isEmpty() ){
 
@@ -195,15 +197,15 @@ public class FileExportController {
 					length = 100000;
 				}
 
-				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
 				if (!solrCoreName.equalsIgnoreCase("experiment")){
+					JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
 					dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);}
 				else{
 					List<String> zygList=null;
 					if(zygosities!=null) {
 						zygList=Arrays.asList(zygosities);
 					}
-					dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, phenotypingCenterId, zygList, strain);
+					dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, phenotypingCenterIds, zygList, strain);
 				}
 			}
 		}
@@ -284,12 +286,12 @@ public class FileExportController {
 		return tableData;
 	}
 	
-	public List<String> composeExperimetDataExportRows(String parameterStableId, String geneAccession, String gender, Integer phenotypingCenterId, List<String> zygosity, String strain) throws SolrServerException, IOException, URISyntaxException, SQLException{
+	public List<String> composeExperimetDataExportRows(String[] parameterStableId, String[] geneAccession, String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity, String strain) throws SolrServerException, IOException, URISyntaxException, SQLException{
 
 		System.out.println(" - - parameterStableId" + parameterStableId);
 		System.out.println(" - - geneAccession" + geneAccession);
 		System.out.println(" - - gender" + gender);
-		System.out.println(" - - phenotypingCenterId" + phenotypingCenterId);
+		System.out.println(" - - phenotypingCenterId" + phenotypingCenterIds);
 		System.out.println(" - - zygosity" + zygosity);
 		
 		List<String> rows = new ArrayList<String>();
@@ -297,18 +299,20 @@ public class FileExportController {
 		if (gender != null)
 			sex = SexType.valueOf(gender);
 		List<ExperimentDTO> experimentList = new ArrayList<ExperimentDTO> ();
-		if (parameterStableId.contains("\t")){
-			String [] params = parameterStableId.split("\t");
-			for (int k = 0; k < params.length; k++){
-				experimentList = experimentService.getExperimentDTO(params[k], geneAccession, sex, phenotypingCenterId, zygosity, strain);
-				for (ExperimentDTO experiment : experimentList) { 
-					rows.addAll(experiment.getTabbedToString(ppDAO)) ;
+	//	if (parameterStableId.contains("\t")){
+	//		String [] params = parameterStableId.split("\t");
+			for (int k = 0; k < parameterStableId.length; k++){
+				for (int mgi_iterator = 0; mgi_iterator < geneAccession.length; mgi_iterator++){
+					for (Integer pCenter : phenotypingCenterIds){
+						experimentList = experimentService.getExperimentDTO(parameterStableId[k], geneAccession[mgi_iterator], sex, pCenter, zygosity, strain);
+						for (ExperimentDTO experiment : experimentList) { 
+							rows.addAll(experiment.getTabbedToString(ppDAO)) ;
+						}
+						rows.add("\n");
+					}
 				}
-				rows.add("\n");
-
-				System.out.println("Found tabs : " + experimentList.size());
 			}
-		}
+	/*	}
 		else {
 			experimentList = experimentService.getExperimentDTO(parameterStableId, geneAccession, sex, phenotypingCenterId, zygosity, strain);
 			System.out.println("e size " + experimentList.size());
@@ -317,7 +321,7 @@ public class FileExportController {
 			}
 			System.out.println(experimentList.size());
 		}
-		
+		*/
 		return rows;
 	}
 
