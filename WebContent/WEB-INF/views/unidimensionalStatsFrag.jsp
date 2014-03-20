@@ -180,14 +180,14 @@
 
 						var params = window.location.href.split("/")[window.location.href
 								.split("/").length - 1];
-						var mgiGeneId = params.split("\?")[0];
+						var mgiGeneId = params.split("accession\=")[1].split("\&")[0];
 						var windowLocation = window.location;
 						var paramId = params.split("parameterId\=")[1].split("\&")[0];
 						var paramIdList = paramId;
 						var sex = (params.indexOf("gender\=") > 0) ? params.split("gender\=")[1].split("\&")[0] : null;
-						for (var k = 2; k < params.split("parameterId\=").length; k++){
-							paramIdList += "\t" + params.split("parameterId\=")[k].split("\&")[0];
-						}
+	//					for (var k = 2; k < params.split("parameterId\=").length; k++){
+	//						paramIdList += "\t" + params.split("parameterId\=")[k].split("\&")[0];
+	//					}
 						var phenotypingCenter = (params.indexOf("phenotyping_center\=") > 0) ? params.split("phenotyping_center\=")[1].split("\&")[0] : null;
 						var zygosity = null;
 						if (params.indexOf("zygosity\=") > 0)

@@ -283,12 +283,12 @@ public class ObservationService {
                 .addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
                 .setStart(0).setRows(10000);
 
-        if (zygosities != null && zygosities.size()>0 && zygosities.size()!=3) {
+        if (zygosities != null && zygosities.size() > 0 && zygosities.size()!=3) {
         	if(zygosities.size()==2) {
         		query.addFilterQuery(ExperimentField.ZYGOSITY + ":(" + zygosities.get(0)+" OR "+zygosities.get(1)+")");
         	}else {
-        			
-        					query.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosities.get(0));//only option is one left
+        		if (!zygosities.get(0).equalsIgnoreCase("null"))
+        			query.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosities.get(0));//only option is one left
         			
         	}
         }
@@ -304,7 +304,11 @@ public class ObservationService {
         if(metaDataGroup!=null) {
         	query.addFilterQuery(ExperimentField.METADATA_GROUP + ":" + metaDataGroup);
         }
-
+// NOT : http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment/select?q=gene_accession%3AMGI%5C%3A88216&fq=parameter_id%3A2450&fq=zygosity%3Anull&fq=phenotyping_center_id%3A8&start=0&rows=10000
+//       http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment/select?q=gene_accession%3AMGI%5C%3A88216&fq=parameter_id%3A2450&fq=zygosity%3Anull&fq=phenotyping_center_id%3A8&fq=sex%3Amale&start=0&rows=10000
+// FINE: http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment/select?q=gene_accession%3AMGI%5C%3A88216&fq=parameter_id%3A2450&fq=zygosity%3Ahemizygote&fq=phenotyping_center_id%3A8&fq=sex%3Amale&start=0&rows=10000
+        System.out.println("--- Query: " + solr.getBaseURL() + "/select?" + query);
+        
         QueryResponse response = solr.query(query);
         resultsDTO = response.getBeans(ObservationDTO.class);
         return resultsDTO;

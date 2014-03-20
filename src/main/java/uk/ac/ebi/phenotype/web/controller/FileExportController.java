@@ -129,7 +129,7 @@ public class FileExportController {
 
 		Integer phenotypingCenterId = null;
 		try {
-			phenotypingCenterId = organisationDao.getOrganisationByName(phenotypingCenter).getId();
+			phenotypingCenterId = organisationDao.getOrganisationByName(phenotypingCenter.replaceAll("%20", " " )).getId();
 		} catch (NullPointerException e) {
 			log.error("Cannot find organisation ID for org with name " + phenotypingCenter);
 		}
@@ -285,6 +285,13 @@ public class FileExportController {
 	}
 	
 	public List<String> composeExperimetDataExportRows(String parameterStableId, String geneAccession, String gender, Integer phenotypingCenterId, List<String> zygosity, String strain) throws SolrServerException, IOException, URISyntaxException, SQLException{
+
+		System.out.println(" - - parameterStableId" + parameterStableId);
+		System.out.println(" - - geneAccession" + geneAccession);
+		System.out.println(" - - gender" + gender);
+		System.out.println(" - - phenotypingCenterId" + phenotypingCenterId);
+		System.out.println(" - - zygosity" + zygosity);
+		
 		List<String> rows = new ArrayList<String>();
 		SexType sex = null;
 		if (gender != null)
@@ -298,13 +305,17 @@ public class FileExportController {
 					rows.addAll(experiment.getTabbedToString(ppDAO)) ;
 				}
 				rows.add("\n");
+
+				System.out.println("Found tabs : " + experimentList.size());
 			}
 		}
 		else {
 			experimentList = experimentService.getExperimentDTO(parameterStableId, geneAccession, sex, phenotypingCenterId, zygosity, strain);
+			System.out.println("e size " + experimentList.size());
 			for (ExperimentDTO experiment : experimentList) { 
 				rows.addAll(experiment.getTabbedToString(ppDAO)) ;
 			}
+			System.out.println(experimentList.size());
 		}
 		
 		return rows;
