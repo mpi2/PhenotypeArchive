@@ -291,12 +291,6 @@ public class FileExportController {
 	
 	public List<String> composeExperimetDataExportRows(String[] parameterStableId, String[] geneAccession, String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity, String[] strain) throws SolrServerException, IOException, URISyntaxException, SQLException{
 
-		System.out.println(" - - parameterStableId" + parameterStableId);
-		System.out.println(" - - geneAccession" + geneAccession);
-		System.out.println(" - - gender" + gender);
-		System.out.println(" - - phenotypingCenterId" + phenotypingCenterIds);
-		System.out.println(" - - zygosity" + zygosity);
-		System.out.println();
 		List<String> rows = new ArrayList<String>();
 		SexType sex = null;
 		if (gender != null)
@@ -311,33 +305,21 @@ public class FileExportController {
 		
 		List<ExperimentDTO> experimentList = new ArrayList<ExperimentDTO> ();		
 		
-	//	if (parameterStableId.contains("\t")){
-	//		String [] params = parameterStableId.split("\t");
-			for (int k = 0; k < parameterStableId.length; k++){
-				for (int mgiI = 0; mgiI < geneAccession.length; mgiI++){
-					for (Integer pCenter : phenotypingCenterIds){
-						for (int strainI = 0; strainI < strain.length; strainI++){
-							experimentList = experimentService.getExperimentDTO(parameterStableId[k], geneAccession[mgiI], sex, pCenter, zygosity, strain[strainI]);
-							if (experimentList.size() > 0){
-								for (ExperimentDTO experiment : experimentList) { 
-									rows.addAll(experiment.getTabbedToString(ppDAO)) ;
-								}
-								rows.add("\n\n");
+		for (int k = 0; k < parameterStableId.length; k++){
+			for (int mgiI = 0; mgiI < geneAccession.length; mgiI++){
+				for (Integer pCenter : phenotypingCenterIds){
+					for (int strainI = 0; strainI < strain.length; strainI++){
+						experimentList = experimentService.getExperimentDTO(parameterStableId[k], geneAccession[mgiI], sex, pCenter, zygosity, strain[strainI]);
+						if (experimentList.size() > 0){
+							for (ExperimentDTO experiment : experimentList) { 
+								rows.addAll(experiment.getTabbedToString(ppDAO)) ;
 							}
+							rows.add("\n\n");
 						}
 					}
 				}
 			}
-	/*	}
-		else {
-			experimentList = experimentService.getExperimentDTO(parameterStableId, geneAccession, sex, phenotypingCenterId, zygosity, strain);
-			System.out.println("e size " + experimentList.size());
-			for (ExperimentDTO experiment : experimentList) { 
-				rows.addAll(experiment.getTabbedToString(ppDAO)) ;
-			}
-			System.out.println(experimentList.size());
 		}
-		*/
 		return rows;
 	}
 

@@ -69,7 +69,7 @@ public class ExperimentService {
 	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain, String metaDataGroup, Boolean includeResults) throws SolrServerException, IOException, URISyntaxException {
 	
 		List<ObservationDTO> observations = os.getExperimentalObservationsByParameterGeneAccZygosityOrganisationStrainSexAndMetaDataGroup(parameterId, geneAccession, zygosity, phenotypingCenterId, strain, sex, metaDataGroup);
-//		System.out.println("observations # " + observations);
+		System.out.println("observations # " + observations);
 		Map<String, ExperimentDTO> experimentsMap = new HashMap<>();
 		
 		for (ObservationDTO observation : observations) {

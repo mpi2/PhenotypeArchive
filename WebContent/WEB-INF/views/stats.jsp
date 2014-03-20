@@ -113,30 +113,25 @@ $(document).ready(function(){
 									for (var k = 0; k < paramList.length; k++){
 										if (paramList[k].indexOf("parameterId") >= 0){
 											paramIdList.push(paramList[k].replace("parameterId=", ""));
-											console.log ("parameter : " + paramList[k].replace("parameterId=", "") + " list is " + paramIdList);
 										}
 										else if (paramList[k].indexOf("accession") >= 0){
 											mgiGeneId.push(paramList[k].replace("accession=", ""));
-											console.log ("parameter : " + paramList[k].replace("accession=", "") + " list is " + mgiGeneId);
 										}
 										else if (paramList[k].indexOf("phenotyping_center") >= 0){
 											phenotypingCenter.push(paramList[k].replace("phenotyping_center=", ""));
-											console.log ("parameter : " + paramList[k].replace("phenotyping_center=", "") + " list is " + phenotypingCenter);
 										}
 										else if (paramList[k].indexOf("strain") >= 0){
 											strains.push(paramList[k].replace("strain=", ""));
-											console.log ("parameter : " + paramList[k].replace("strain=", "") + " list is " + strains);
 										}
 										else if (paramList[k].indexOf("zygosity") >= 0){
 											zygosity.push(paramList[k].replace("zygosity=", ""));
-											console.log ("parameter : " + paramList[k].replace("zygosity=", "") + " list is " + zygosity);
 										}
 									}
 									
 									initFileExporter({
 										mgiGeneId : mgiGeneId,
 										externalDbId : 3,
-										fileName : 'unidimensionalData_'
+										fileName : 'graphDataDump_'
 												+ mgiGeneId[0].replace(/:/g, '_'),
 										solrCoreName : 'experiment',
 										dumpMode : 'all',

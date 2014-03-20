@@ -16,7 +16,7 @@
    								$(function () {
    								   ${unidimensionalChartDataSet.chartData.chart}
 								</script>
-								<div class="section half"><a href="${acc}?${pageContext.request.queryString}&scatter=1">Graph by date</a></div><div class="section half"><div id="exportIconsDivUni"></div></div>
+								<div class="section half"><a href="${acc}?${pageContext.request.queryString}&scatter=1">Graph by date</a></div><div class="section half"></div>
 	
 		<table id="continuousTable">
 		<thead><tr>
