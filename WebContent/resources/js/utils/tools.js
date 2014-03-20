@@ -67,8 +67,7 @@
 		}
 		$.fn.loadDataTable(oHashParams);
 	}	
-	$.fn.initFacetToggles = function(facet){
-			
+	$.fn.initFacetToggles = function(facet){			
 		
 		// toggle Main Categories
 		/*$('div.flist li#' + facet + ' > .flabel').click(function() {			
@@ -123,13 +122,25 @@
 			if ( caller.find('span.fcount').text() != 0 ){
 				console.log(facet + ' widget expanded');
 				
-				MPI2.searchAndFacetConfig.widgetOpen = true;				
+				// close all other non-selected facets
+				$('div.flist > ul li.fmcat').each(function(){
+					if ( $(this).attr('id') != facet ){
+						$(this).removeClass('open');
+					}
+				});				
+				
+				MPI2.searchAndFacetConfig.widgetOpen = true;
 				
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 				
-				// deals with user query				
-				if ( window.location.search != '' ){
-					oHashParams.q = decodeURI(window.location.search.replace('?q=', ''));					
+				// deals with user query					
+				if ( window.location.search != '' ){				
+					oHashParams.q = decodeURI(window.location.search.replace('?q=', ''));
+					
+					// check if there is any filter checked, if not, we need to use default fq for the facet selected
+					if ( $('ul#facetFilter li.ftag').size() == 0 ){
+						oHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;						
+					}					
 					oHashParams.fq = typeof oHashParams.fq == 'undefined' ? MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq : oHashParams.fq;					
 				}
 				
@@ -773,7 +784,8 @@
 				}
 				else {
 					// no search keyword					
-					window.history.pushState({},"", baseUrl + '/search');
+					var defaultFqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].fq;
+					window.history.pushState({},"", baseUrl + '/search#fq='+defaultFqStr+'&core='+facet);
 					//location.reload();
 					//var fqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;					
 					//url = baseUrl + '/search#fq=' + fqStr + '&core=' + facet;
@@ -1253,13 +1265,11 @@
     		}    
     		else {
     			var field = wantStr.replace(/\|.+/, '');
-    			console.log(field);
+    			
     			var filterFacet = MPI2.searchAndFacetConfig.filterMapping[field].facet;
-                console.log(filterFacet);
-                if ( facet != filterFacet ){
-                	console.log('need to do ' + filterFacet);
-                	var oInput = $('<input>').attr({'type':'checkbox', 'rel': filterFacet + '|'+ wantStr});
-                	console.log(oInput);
+                
+                if ( facet != filterFacet ){                	
+                	var oInput = $('<input>').attr({'type':'checkbox', 'rel': filterFacet + '|'+ wantStr});                	
                 	$.fn.addFacetFilter(oInput, oHashParams.q);
                 }              
     		}
