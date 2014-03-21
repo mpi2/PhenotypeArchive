@@ -43,7 +43,14 @@
 					<div class="node node-gene">
 								<h1 class="title" id="top">Anatomy Term: ${anatomy.term}</h1>
 					
-
+<c:if test="${empty expressionImages && fn:length(anatomy.childTerms)==0}">
+	<div class="section">
+		<div class=inner>
+			<div class="alert alert-info">No data currently available
+			</div>
+		</div>
+	</div>
+</c:if>
 		<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
 	<div  class="section">
 		<!-- <h2 class="title">Expression Images<i class="fa fa-question-circle pull-right"></i></h2> -->
@@ -75,9 +82,9 @@
 	</div>
 	</c:if><!-- end of images lacz expression priority and xray maybe -->
 	
-	<c:if test="${not empty anatomy.mpTerms}">
+	<%-- spoke to terry and these need rethink in terms of MP associations <c:if test="${not empty anatomy.mpTerms}">
 		<div class="section">
-			<%-- <div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div> --%>
+			<div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
 			<h2 class="title" id="associated-phenotypes">Associated Phenotypes<i class="fa fa-question-circle pull-right"></i></h2>
 			<div class="inner">
 							
@@ -85,10 +92,10 @@
 				<table>
 				<tbody>
 					<tr>
-						<%-- <td>MP Terms:</td> --%>
+						<td>MP Terms:</td>
 						<c:forEach items="${anatomy.mpTerms}" var="mpTerm" varStatus="mpStatus">
 						<tr>
-						<td><a href="${baseUrl}/phenotypes/${anatomy.mpIds[mpStatus.index]}">${mpTerm}</a></td><%-- <td>${mpTerm}</td> --%>
+						<td><a href="${baseUrl}/phenotypes/${anatomy.mpIds[mpStatus.index]}">${mpTerm}</a></td><td>${mpTerm}</td>
 						</tr>
 						</c:forEach>
 					</tr>
@@ -99,7 +106,7 @@
 		</div>
 		
 	</div><!-- end of images lacz expression priority and xray maybe -->
-	</c:if>
+	</c:if> --%>
 	
 	<c:if test="${fn:length(anatomy.childTerms)>0 }">
 	<div class="section">
