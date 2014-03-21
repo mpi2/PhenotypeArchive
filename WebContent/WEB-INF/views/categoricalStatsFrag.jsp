@@ -14,7 +14,7 @@
    							</script>
 				
 					
-					
+					<div style="overflow:hidden; overflow-x: auto;">  
 					<table id="catTable">
  							<thead><tr>
  										
@@ -48,6 +48,7 @@
 							
 							</tbody>
  				</table>
+ 				</div><!--  end of div overflow auto for x axis scrollbars on table -->
  				</c:forEach>
 
 
