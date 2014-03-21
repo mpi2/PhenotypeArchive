@@ -774,22 +774,23 @@
 				});
 				
 				var url;
+				var defaultFqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].fq;
 				
 				if ( window.location.search != '' ){
 					//alert('search kw');
 					// has search keyword
-					url = baseUrl + '/search?q=' + q;
-					window.history.pushState({},"", url);// change browser url
-					//location.reload();	
+					url = baseUrl + '/search?q=' + q + '#fq='+ defaultFqStr + '&core='+facet;
+					//window.history.pushState({},"", url);// change browser url; not working with IE					
+					window.location.hash = url; // also works with IE										
 				}
-				else {
-					// no search keyword					
-					var defaultFqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].fq;
-					window.history.pushState({},"", baseUrl + '/search#fq='+defaultFqStr+'&core='+facet);
-					//location.reload();
-					//var fqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;					
-					//url = baseUrl + '/search#fq=' + fqStr + '&core=' + facet;
+				else {					
+					// no search keyword
 					
+					// this is ok, but not working with IE
+					//window.history.pushState({},"", baseUrl + '/search#fq='+defaultFqStr+'&core='+facet);
+					
+					// this also works with IE					
+					window.location.hash = baseUrl + '/search#fq='+defaultFqStr+'&core='+facet;
 				}
 				
 				//window.history.pushState({},"", url);// change browser url
@@ -798,15 +799,9 @@
 			else {
 				updateFacetUrlTable(q, facet);
 			}
-		}
-	
-		// update facet filter and compose solr query for result
-		/*var fqStr = _composeFilterStr(facet);
-		console.log(facet + ' :: ' + fqStr);
-		$.fn.setFacetCounts(q, fqStr, facet);
-		$.fn.fetchQueryResult(q, facet, fqStr);*/
-		
+		}	
 	}	
+	
 	function updateFacetUrlTable(q, facet){
 		// update facet filter and compose solr query for result
 		var fqStr = _composeFilterStr(facet);		
