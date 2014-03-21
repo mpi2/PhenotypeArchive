@@ -283,12 +283,12 @@ public class ObservationService {
                 .addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
                 .setStart(0).setRows(10000);
 
-        if (zygosities != null && zygosities.size()>0 && zygosities.size()!=3) {
+        if (zygosities != null && zygosities.size() > 0 && zygosities.size()!=3) {
         	if(zygosities.size()==2) {
         		query.addFilterQuery(ExperimentField.ZYGOSITY + ":(" + zygosities.get(0)+" OR "+zygosities.get(1)+")");
         	}else {
-        			
-        					query.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosities.get(0));//only option is one left
+        		if (!zygosities.get(0).equalsIgnoreCase("null"))
+        			query.addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosities.get(0));//only option is one left
         			
         	}
         }
@@ -304,7 +304,7 @@ public class ObservationService {
         if(metaDataGroup!=null) {
         	query.addFilterQuery(ExperimentField.METADATA_GROUP + ":" + metaDataGroup);
         }
-
+        
         QueryResponse response = solr.query(query);
         resultsDTO = response.getBeans(ObservationDTO.class);
         return resultsDTO;

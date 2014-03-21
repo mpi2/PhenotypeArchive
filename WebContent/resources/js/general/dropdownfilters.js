@@ -41,6 +41,7 @@ $(document).ready(function(){
 	
 	$('div#exportIconsDiv').append($.fn.loadFileExporterUI({
 		label: 'Export table as:',
+		textPos : "textright",
 		formatSelector: {
 			TSV: 'tsv_phenoAssoc',
 			XLS: 'xls_phenoAssoc'	    			 					
