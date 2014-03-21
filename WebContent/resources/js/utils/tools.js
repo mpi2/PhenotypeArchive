@@ -132,9 +132,13 @@
 				MPI2.searchAndFacetConfig.widgetOpen = true;
 				
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-				
-				// deals with user query					
-				if ( window.location.search != '' ){				
+								
+				if ( /search\/?$/.exec(location.href) ){
+					// no search params
+					oHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;					
+				}
+				else if ( window.location.search != '' ){
+					// deals with user query		
 					oHashParams.q = decodeURI(window.location.search.replace('?q=', ''));
 					
 					// check if there is any filter checked, if not, we need to use default fq for the facet selected
@@ -148,7 +152,7 @@
 				var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';	
 				
 				if ( typeof oHashParams.q == 'undefined' ){					
-					var oHashParams = thisWidget.options.data.hashParams;							
+					var oHashParams = thisWidget.options.data.hashParams;					
 					window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
 				}
 				else {					
@@ -727,7 +731,7 @@
 	}
 	
 	$.fn.composeFacetFilterControl = function(oChkbox, q){	
-	
+		
 		var labels = oChkbox.attr('rel').split("|");
 	
 		var facet = labels[0];
@@ -803,9 +807,10 @@
 	}	
 	
 	function updateFacetUrlTable(q, facet){
+		
 		// update facet filter and compose solr query for result
-		var fqStr = _composeFilterStr(facet);		
-		$.fn.setFacetCounts(q, fqStr, facet);
+		var fqStr = _composeFilterStr(facet);			
+		$.fn.setFacetCounts(q, fqStr, facet);		
 		$.fn.fetchQueryResult(q, facet, fqStr);
 	}
 	
@@ -900,8 +905,8 @@
 			$('ul#facetFilter li li a').each(function(){				
 				var aVals = $(this).attr('rel').split("|");		
 				var fqField = aVals[1];
-				var value =  aVals[2];
-						
+				var value =  aVals[2];					
+				
 				if ( fqField == 'procedure_stable_id' ){
 					var aV = value.split('___');
 					value = aV[1]; // procedure stable id					
@@ -915,6 +920,7 @@
 			if ( fqStr.indexOf('annotated_or_inferred_higherLevelMxTermName') != -1 ){			
 				fqStr += ' AND (ontology_subset:*)';
 			}	
+		
 			return fqStr;
 		}
 		else {		

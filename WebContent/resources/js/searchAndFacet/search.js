@@ -46,7 +46,7 @@
 						
 		q = decodeURI(q);
 		
-		if ( oUrlHashParams.fq ){		
+		if ( oUrlHashParams.fq ){			
 			jsonBase.geneFacet.filterParams = {'fq': $.fn.fieldNameMapping(oUrlHashParams.fq, 'gene')};
 		}	
 				
@@ -55,7 +55,7 @@
 		oFacets.count = {};	
 		
 		jsonBase.geneFacet.srchParams.q = q;
-		// console.log($.extend({}, jsonBase.geneFacet.srchParams, jsonBase.geneFacet.filterParams)); 
+		//console.log($.extend({}, jsonBase.geneFacet.srchParams, jsonBase.geneFacet.filterParams)); 
 	 	// facet types are done sequencially; starting from gene		
 	    $.ajax({            	    
 	    		url: solrUrl + '/gene/select',	    	
@@ -95,7 +95,7 @@
     	    	$('div.flist li#mp span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
        	    	oFacets.count.mp = mpResponse.response.numFound;       	    	
        	    	_updateFacetCount('mp', mpResponse, facetMode);	 
-    	    	_doDiseaseAutoSuggest(geneResponse, mpResponse, q, oFacets, facetMode,fq);  
+    	    	_doDiseaseAutoSuggest(geneResponse, mpResponse, q, oFacets, facetMode, fq);  
     	    },
     	    error: function (jqXHR, textStatus, errorThrown) {				         	        
 				$('div#facetSrchMsg').html('Error fetching data ...');
@@ -256,7 +256,7 @@
     	        	for ( var i=0; i< aCores.length; i++){
     	        		var core = aCores[i];
     	        		if ( oFacets.count[core] != 0 ){    	        	
-    	        			_prepareCores(core, q, oFacets);
+    	        			_prepareCores(core, q, oFacets, fq);
     	        		}
     	        	}    	        		        	
     	    	}   	    	
@@ -267,7 +267,7 @@
 		});
 	}
 		
-	function _prepareCores(core, q, oFacets){		
+	function _prepareCores(core, q, oFacets, fq){		
 		
 		var widgetName = core + 'Facet';		
 		
@@ -280,7 +280,7 @@
 				var hashParams = {};						
 				
 				//window.location.hash = $.fn.stringifyJsonAsUrlParams(hashParams);						
-				hashParams.fq = jsonBase[widgetName].fq;
+				hashParams.fq = fq ? fq : jsonBase[widgetName].fq; 
 	        	hashParams.widgetName = widgetName;
 	        	hashParams.q = q;
 	        	
