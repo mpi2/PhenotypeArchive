@@ -116,7 +116,7 @@
 		var facet = thisWidget.element.attr('id');		
 		var caller = thisWidget.element;    		
 		delete MPI2.searchAndFacetConfig.commonSolrParams.rows;
-		
+	
 		caller.click(function(){
 				
 			if ( caller.find('span.fcount').text() != 0 ){
@@ -754,6 +754,19 @@
 		}
 		else {	
 			//console.log('uncheck ' + facet);
+			
+			// select the facet that the unchecked filter belongs to			
+			$('div.flist li.fmcat').each(function(){				
+				if ( $(this).attr('id') != facet ){
+					$(this).removeClass('open');
+				}
+				else {
+					if ( !$(this).hasClass('open') ){
+						$('div.flist li#' + facet).click();
+					}
+				}
+			});				
+					
 			// uncheck checkbox with matching value		
 			$('ul#facetFilter li.ftag').each(function(){				
 				if ( $(this).find('a').attr('rel') == oChkbox.attr('rel') ){					
@@ -802,7 +815,7 @@
 			}
 			else {
 				updateFacetUrlTable(q, facet);
-			}
+			}			
 		}	
 	}	
 	
@@ -811,7 +824,7 @@
 		// update facet filter and compose solr query for result
 		var fqStr = _composeFilterStr(facet);			
 		$.fn.setFacetCounts(q, fqStr, facet);		
-		$.fn.fetchQueryResult(q, facet, fqStr);
+		$.fn.fetchQueryResult(q, facet, fqStr);		
 	}
 	
 	$.fn.removeFacetFilter = function(facet) { 
