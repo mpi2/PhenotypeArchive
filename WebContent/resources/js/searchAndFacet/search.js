@@ -44,9 +44,8 @@
 			}
 		}
 						
-		q = decodeURI(q);
-		
-		if ( oUrlHashParams.fq ){			
+		q = decodeURI(q);		
+		if ( typeof oUrlHashParams.coreName == 'undefined' && oUrlHashParams.fq ){			
 			jsonBase.geneFacet.filterParams = {'fq': $.fn.fieldNameMapping(oUrlHashParams.fq, 'gene')};
 		}	
 				
@@ -69,7 +68,7 @@
 	       	    	$('div.flist li#gene span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
 	       	    	oFacets.count.gene = geneResponse.response.numFound;	
 	       	    	_updateFacetCount('gene', geneResponse, facetMode);	       	    	
-	       	    	_doMPAutoSuggest(geneResponse, q, oFacets, facetMode, oUrlHashParams.fq);	            	    
+	       	    	_doMPAutoSuggest(geneResponse, q, oFacets, facetMode, oUrlHashParams.fq, oUrlHashParams.coreName);	            	    
 	       	    },
 	       	    error: function (jqXHR, textStatus, errorThrown) {	       	                	        
 	       	        $('div#facetSrchMsg').html('Error fetching data ...');
@@ -77,10 +76,10 @@
 	    });
 	}
 	
-	function _doMPAutoSuggest(geneResponse, q, oFacets, facetMode, fq){		
+	function _doMPAutoSuggest(geneResponse, q, oFacets, facetMode, fq, coreName){		
 		
 		jsonBase.mpFacet.srchParams.q = q;
-		if ( fq ){		
+		if ( typeof coreName == 'undefined' && fq ){		
 			jsonBase.mpFacet.filterParams = {'fq': $.fn.fieldNameMapping(fq, 'mp')};
 		}	
 		
@@ -102,10 +101,10 @@
 			}        	    
 		});  			
 	}   	
-	function _doDiseaseAutoSuggest(geneResponse, mpResponse, q, oFacets, facetMode, fq){
+	function _doDiseaseAutoSuggest(geneResponse, mpResponse, q, oFacets, facetMode, fq, coreName){
 		
 		jsonBase.diseaseFacet.srchParams.q = q;		
-		if ( fq ){		
+		if ( typeof coreName == 'undefined' && fq ){		
 			jsonBase.diseaseFacet.filterParams = {'fq': $.fn.fieldNameMapping(fq, 'disease')};
 		}
 				
@@ -128,10 +127,10 @@
 		});
 	}
 	
-	function _doTissueAutoSuggest(geneResponse, mpResponse, diseaseResponse, q, oFacets, facetMode, fq){
+	function _doTissueAutoSuggest(geneResponse, mpResponse, diseaseResponse, q, oFacets, facetMode, fq, coreName){
 		jsonBase.maFacet.srchParams.q = q;	
 		jsonBase.maFacet.srchParams.sort = 'ma_term asc';		
-		if ( fq ){		
+		if ( typeof coreName == 'undefined' && fq ){		
 			jsonBase.maFacet.filterParams = {'fq': $.fn.fieldNameMapping(fq, 'ma')};
 		}		
 		$.ajax({
@@ -145,7 +144,7 @@
     	    	$('div.flist li#ma span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.ma = maResponse.response.numFound;    	    	
     	    	_updateFacetCount('ma', maResponse, facetMode);	     	    	
-    	    	_doPipelineAutoSuggest(geneResponse, mpResponse, diseaseResponse, maResponse, q, oFacets, facetMode, fq);
+    	    	_doPipelineAutoSuggest(geneResponse, mpResponse, diseaseResponse, maResponse, q, oFacets, facetMode, fq, coreName);
     	    },
 			error: function (jqXHR, textStatus, errorThrown) {			       	        
 				$('div#facetSrchMsg').html('Error fetching data ...');
@@ -153,10 +152,10 @@
 		});
 	}
 		
-	function _doPipelineAutoSuggest(geneResponse, mpResponse, diseaseResponse, maResponse, q, oFacets, facetMode, fq){
+	function _doPipelineAutoSuggest(geneResponse, mpResponse, diseaseResponse, maResponse, q, oFacets, facetMode, fq, coreName){
 		
 		jsonBase.pipelineFacet.srchParams.q = q;		
-		if ( fq ){		
+		if ( typeof coreName == 'undefined' && fq ){		
 			jsonBase.pipelineFacet.filterParams = {'fq': $.fn.fieldNameMapping(fq, 'pipeline')};
 		}
 		
@@ -178,10 +177,10 @@
 		});
 	}
 	
-	function _doImageAutosuggest(geneResponse, mpResponse, diseaseResponse, maResponse, pipelineResponse, q, oFacets, facetMode, fq){
+	function _doImageAutosuggest(geneResponse, mpResponse, diseaseResponse, maResponse, pipelineResponse, q, oFacets, facetMode, fq, coreName){
 		
 		jsonBase.imagesFacet.srchParams.q = q;		
-		if ( fq ){		
+		if ( typeof coreName == 'undefined' && fq ){		
 			jsonBase.imagesFacet.filterParams = {'fq': $.fn.fieldNameMapping(fq, 'images')};
 		}
 		$.ajax({
