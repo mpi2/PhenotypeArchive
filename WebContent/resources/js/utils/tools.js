@@ -67,8 +67,7 @@
 		}
 		$.fn.loadDataTable(oHashParams);
 	}	
-	$.fn.initFacetToggles = function(facet){
-			
+	$.fn.initFacetToggles = function(facet){			
 		
 		// toggle Main Categories
 		/*$('div.flist li#' + facet + ' > .flabel').click(function() {			
@@ -123,13 +122,25 @@
 			if ( caller.find('span.fcount').text() != 0 ){
 				console.log(facet + ' widget expanded');
 				
-				MPI2.searchAndFacetConfig.widgetOpen = true;				
+				// close all other non-selected facets
+				$('div.flist > ul li.fmcat').each(function(){
+					if ( $(this).attr('id') != facet ){
+						$(this).removeClass('open');
+					}
+				});				
+				
+				MPI2.searchAndFacetConfig.widgetOpen = true;
 				
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 				
-				// deals with user query				
-				if ( window.location.search != '' ){
-					oHashParams.q = decodeURI(window.location.search.replace('?q=', ''));					
+				// deals with user query					
+				if ( window.location.search != '' ){				
+					oHashParams.q = decodeURI(window.location.search.replace('?q=', ''));
+					
+					// check if there is any filter checked, if not, we need to use default fq for the facet selected
+					if ( $('ul#facetFilter li.ftag').size() == 0 ){
+						oHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;						
+					}					
 					oHashParams.fq = typeof oHashParams.fq == 'undefined' ? MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq : oHashParams.fq;					
 				}
 				
@@ -763,21 +774,23 @@
 				});
 				
 				var url;
+				var defaultFqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].fq;
 				
 				if ( window.location.search != '' ){
 					//alert('search kw');
 					// has search keyword
-					url = baseUrl + '/search?q=' + q;
-					window.history.pushState({},"", url);// change browser url
-					//location.reload();	
+					url = baseUrl + '/search?q=' + q + '#fq='+ defaultFqStr + '&core='+facet;
+					//window.history.pushState({},"", url);// change browser url; not working with IE					
+					window.location.hash = url; // also works with IE										
 				}
-				else {
-					// no search keyword					
-					window.history.pushState({},"", baseUrl + '/search');
-					//location.reload();
-					//var fqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;					
-					//url = baseUrl + '/search#fq=' + fqStr + '&core=' + facet;
+				else {					
+					// no search keyword
 					
+					// this is ok, but not working with IE
+					//window.history.pushState({},"", baseUrl + '/search#fq='+defaultFqStr+'&core='+facet);
+					
+					// this also works with IE					
+					window.location.hash = baseUrl + '/search#fq='+defaultFqStr+'&core='+facet;
 				}
 				
 				//window.history.pushState({},"", url);// change browser url
@@ -786,15 +799,9 @@
 			else {
 				updateFacetUrlTable(q, facet);
 			}
-		}
-	
-		// update facet filter and compose solr query for result
-		/*var fqStr = _composeFilterStr(facet);
-		console.log(facet + ' :: ' + fqStr);
-		$.fn.setFacetCounts(q, fqStr, facet);
-		$.fn.fetchQueryResult(q, facet, fqStr);*/
-		
+		}	
 	}	
+	
 	function updateFacetUrlTable(q, facet){
 		// update facet filter and compose solr query for result
 		var fqStr = _composeFilterStr(facet);		
@@ -1100,8 +1107,9 @@
     
     $.fn.loadFileExporterUI = function(conf){
     	var oFormatSelector = conf.formatSelector;
-    	var label = conf.label;    	
-    	var iconDiv = $('<p></p>').attr({'class': 'textright'}).html(label + " &nbsp;");
+    	var label = conf.label;
+    	var textPos = conf.textPos;
+    	var iconDiv = $('<p></p>').attr({'class': textPos}).html(label + " &nbsp;");
     	var it = 0 ;
     	for ( var f in oFormatSelector ){
     		if (it++ > 0)
@@ -1253,13 +1261,11 @@
     		}    
     		else {
     			var field = wantStr.replace(/\|.+/, '');
-    			console.log(field);
+    			
     			var filterFacet = MPI2.searchAndFacetConfig.filterMapping[field].facet;
-                console.log(filterFacet);
-                if ( facet != filterFacet ){
-                	console.log('need to do ' + filterFacet);
-                	var oInput = $('<input>').attr({'type':'checkbox', 'rel': filterFacet + '|'+ wantStr});
-                	console.log(oInput);
+                
+                if ( facet != filterFacet ){                	
+                	var oInput = $('<input>').attr({'type':'checkbox', 'rel': filterFacet + '|'+ wantStr});                	
                 	$.fn.addFacetFilter(oInput, oHashParams.q);
                 }              
     		}

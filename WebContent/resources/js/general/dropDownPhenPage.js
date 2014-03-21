@@ -64,6 +64,7 @@ $(document).ready(function(){
 	//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
 	$('div#exportIconsDiv').html($.fn.loadFileExporterUI({
 		label: 'Export table as:',
+		textPos : "textright",
 		formatSelector: {
 			TSV: 'tsv_phenoAssoc',
 			XLS: 'xls_phenoAssoc'	    			 					

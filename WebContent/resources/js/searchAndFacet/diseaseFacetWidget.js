@@ -72,8 +72,7 @@
 	    },
 	    
 	    _displayDiseaseSubfacet: function(json){
-	    	console.log('disease: ');
-	    	console.log(json);
+	    	
 	    	var self = this;
 	    	var numFound = json.response.numFound;
 	    	var foundMatch = {'disease_source':0, 'disease_classes':0, 'curated':0, 'predicted':0};
