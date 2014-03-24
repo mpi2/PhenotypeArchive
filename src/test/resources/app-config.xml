@@ -18,8 +18,8 @@
 		<property name="locations">
 			<list>
 				<value>classpath:appConfig.properties</value>
-				<!-- <value>classpath:datasourcesConfig.properties</value> -->
 				<value>file:${user.home}/configfiles/datasourcesConfig.properties</value>
+				<!-- <value>classpath:datasourcesConfig.properties</value> -->
 			</list>
 		</property>
 	</bean>
