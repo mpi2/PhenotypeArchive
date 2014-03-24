@@ -155,7 +155,7 @@ public class ObservationDTO {
 			//	 + "\t" + timePoint
 			//	 + "\t" + discretePoint
 				 + "\t" + externalSampleId
-				 + "\t" + metadata
+				 + "\t\"" + metadata + "\"";
 				 ;
 		
 		if (observationType.equalsIgnoreCase("unidimensional")){
