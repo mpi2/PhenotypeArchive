@@ -18,8 +18,21 @@
 		<property name="locations">
 			<list>
 				<value>classpath:appConfig.properties</value>
+				<!-- <value>classpath:datasourcesConfig.properties</value> -->
+				<value>file:${user.home}/configfiles/datasourcesConfig.properties</value>
 			</list>
 		</property>
+	</bean>
+
+	<bean id="observationService" class="uk.ac.ebi.phenotype.stats.ObservationService">
+		<constructor-arg  value="${internalSolrUrl}/experiment" />
+	</bean>
+
+	<bean id="experimentService" class="uk.ac.ebi.phenotype.stats.ExperimentService">
+	</bean>
+	
+	<bean id="genotypePhenotypeService" class="uk.ac.ebi.phenotype.stats.GenotypePhenotypeService">
+		<constructor-arg  value="${internalSolrUrl}/genotype-phenotype" />
 	</bean>
 
 	<context:component-scan base-package="uk.ac.ebi" />
@@ -131,8 +144,9 @@
 	<!-- Translates Hibernate exceptions to Spring Data Access Exceptions -->
 	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
 
+	<!-- Creates a MySQL Datasource -->
 	<import resource="datasources-config.xml"/>
-	
+
 	<bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">
 		<property name="targetMapClass">
 			<value>java.util.HashMap</value>
