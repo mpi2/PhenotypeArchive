@@ -113,7 +113,6 @@ public class AnatomyController {
 	public String loadMaPage(@PathVariable String anatomy_id, Model model,
 			HttpServletRequest request, RedirectAttributes attributes)
 			throws SolrServerException, IOException, URISyntaxException {
-		System.out.println("calling anatomy page");
 		// http://www.informatics.jax.org/searches/AMA.cgi?id=MA:0002950
 		// right eye
 		Anatomy ma=JSONMAUtils.getMA(anatomy_id, config);

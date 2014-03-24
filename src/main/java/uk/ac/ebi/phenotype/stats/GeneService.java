@@ -29,6 +29,9 @@ public class GeneService {
 
 	private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 	
+	public GeneService() {
+		
+	}
 	public GeneService(String solrUrl){
 		solr = new HttpSolrServer(solrUrl);
 		
