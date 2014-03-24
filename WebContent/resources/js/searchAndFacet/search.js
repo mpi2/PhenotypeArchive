@@ -44,18 +44,18 @@
 			}
 		}
 						
-		q = decodeURI(q);
+		q = decodeURI(q);	
+		var facetMode = oUrlHashParams.facetName;
 		
-		if ( oUrlHashParams.fq ){		
+		if ( typeof facetMode != 'undefined' && oUrlHashParams.fq ){			
 			jsonBase.geneFacet.filterParams = {'fq': $.fn.fieldNameMapping(oUrlHashParams.fq, 'gene')};
 		}	
 				
-		var facetMode = oUrlHashParams.facetName;	
 		var oFacets = {};
 		oFacets.count = {};	
 		
 		jsonBase.geneFacet.srchParams.q = q;
-		// console.log($.extend({}, jsonBase.geneFacet.srchParams, jsonBase.geneFacet.filterParams)); 
+		//console.log($.extend({}, jsonBase.geneFacet.srchParams, jsonBase.geneFacet.filterParams)); 
 	 	// facet types are done sequencially; starting from gene		
 	    $.ajax({            	    
 	    		url: solrUrl + '/gene/select',	    	
@@ -80,7 +80,7 @@
 	function _doMPAutoSuggest(geneResponse, q, oFacets, facetMode, fq){		
 		
 		jsonBase.mpFacet.srchParams.q = q;
-		if ( fq ){		
+		if ( typeof facetMode != 'undefined' && fq ){		
 			jsonBase.mpFacet.filterParams = {'fq': $.fn.fieldNameMapping(fq, 'mp')};
 		}	
 		
@@ -95,7 +95,7 @@
     	    	$('div.flist li#mp span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
        	    	oFacets.count.mp = mpResponse.response.numFound;       	    	
        	    	_updateFacetCount('mp', mpResponse, facetMode);	 
-    	    	_doDiseaseAutoSuggest(geneResponse, mpResponse, q, oFacets, facetMode,fq);  
+    	    	_doDiseaseAutoSuggest(geneResponse, mpResponse, q, oFacets, facetMode, fq);  
     	    },
     	    error: function (jqXHR, textStatus, errorThrown) {				         	        
 				$('div#facetSrchMsg').html('Error fetching data ...');
@@ -105,7 +105,7 @@
 	function _doDiseaseAutoSuggest(geneResponse, mpResponse, q, oFacets, facetMode, fq){
 		
 		jsonBase.diseaseFacet.srchParams.q = q;		
-		if ( fq ){		
+		if ( typeof facetMode != 'undefined' && fq ){		
 			jsonBase.diseaseFacet.filterParams = {'fq': $.fn.fieldNameMapping(fq, 'disease')};
 		}
 				
@@ -130,10 +130,12 @@
 	
 	function _doTissueAutoSuggest(geneResponse, mpResponse, diseaseResponse, q, oFacets, facetMode, fq){
 		jsonBase.maFacet.srchParams.q = q;	
-		jsonBase.maFacet.srchParams.sort = 'ma_term asc';		
-		if ( fq ){		
+		jsonBase.maFacet.srchParams.sort = 'ma_term asc';
+				
+		if ( typeof facetMode != 'undefined' && fq ){		
 			jsonBase.maFacet.filterParams = {'fq': $.fn.fieldNameMapping(fq, 'ma')};
-		}		
+		}	
+		
 		$.ajax({
     	    url: solrUrl + '/ma/select',    	    
     	    data: $.extend({}, jsonBase.maFacet.srchParams, jsonBase.maFacet.filterParams),
@@ -156,7 +158,7 @@
 	function _doPipelineAutoSuggest(geneResponse, mpResponse, diseaseResponse, maResponse, q, oFacets, facetMode, fq){
 		
 		jsonBase.pipelineFacet.srchParams.q = q;		
-		if ( fq ){		
+		if ( typeof facetMode != 'undefined' && fq ){		
 			jsonBase.pipelineFacet.filterParams = {'fq': $.fn.fieldNameMapping(fq, 'pipeline')};
 		}
 		
@@ -181,7 +183,7 @@
 	function _doImageAutosuggest(geneResponse, mpResponse, diseaseResponse, maResponse, pipelineResponse, q, oFacets, facetMode, fq){
 		
 		jsonBase.imagesFacet.srchParams.q = q;		
-		if ( fq ){		
+		if ( typeof facetMode != 'undefined' && fq ){		
 			jsonBase.imagesFacet.filterParams = {'fq': $.fn.fieldNameMapping(fq, 'images')};
 		}
 		$.ajax({
@@ -256,7 +258,7 @@
     	        	for ( var i=0; i< aCores.length; i++){
     	        		var core = aCores[i];
     	        		if ( oFacets.count[core] != 0 ){    	        	
-    	        			_prepareCores(core, q, oFacets);
+    	        			_prepareCores(core, q, oFacets, fq, facetMode);
     	        		}
     	        	}    	        		        	
     	    	}   	    	
@@ -267,7 +269,7 @@
 		});
 	}
 		
-	function _prepareCores(core, q, oFacets){		
+	function _prepareCores(core, q, oFacets, fq, facetMode){		
 		
 		var widgetName = core + 'Facet';		
 		
@@ -279,8 +281,14 @@
 			if ( typeof $this.data(widgetName) === 'undefined' ){
 				var hashParams = {};						
 				
-				//window.location.hash = $.fn.stringifyJsonAsUrlParams(hashParams);						
-				hashParams.fq = jsonBase[widgetName].fq;
+				// core or facet?
+				if ( typeof facetMode != 'undefined' ){
+					hashParams.fq = fq ? fq : jsonBase[widgetName].fq; 
+				}
+				else {
+					hashParams.fq = jsonBase[widgetName].fq; 
+				}
+				
 	        	hashParams.widgetName = widgetName;
 	        	hashParams.q = q;
 	        	

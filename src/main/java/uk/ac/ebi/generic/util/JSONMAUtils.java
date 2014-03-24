@@ -18,6 +18,7 @@ public class JSONMAUtils {
 	public static  Anatomy getMA(String anatomy_id, Map<String, String> config) throws IOException, URISyntaxException {
 		//url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.mincount=1&facet.limit=-1";
 		String url=config.get("internalSolrUrl")+"/ma/select/?q=ma_id:\""+anatomy_id+"\"&wt=json&start=0&rows=6";
+		System.out.println("anatomy url="+url);
 		JSONObject result = JSONRestUtil.getResults(url);
 		//System.out.println(result.toString());
 		JSONArray maArray=JSONRestUtil.getDocArray(result);
@@ -28,27 +29,35 @@ public class JSONMAUtils {
 			System.err.println("something odd in that the maId doesn't equal the anatomy_id!");
 		}
 		Anatomy ma = new Anatomy(maIdString,maTerm) ;
-		if(maJson.containsKey("child_ma_term")) {
-			//we need to remove duplicates
-			Collection<String> childTermStrings=JSONArray.toCollection(maJson.getJSONArray("child_ma_term") , String.class);
-			childTermStrings=getDistinct(childTermStrings);
-			ma.setChildTerms(childTermStrings);
+	
+		if(maJson.containsKey("child_ma_idTerm")) {
+			Collection<String> idTerms=JSONArray.toCollection(maJson.getJSONArray("child_ma_idTerm") , String.class);
+			idTerms=getDistinct(idTerms);
+			List<String> ids=new ArrayList<>();
+			List<String> terms=new ArrayList<>();
+			for(String idTerm: idTerms) {
+				if(idTerm.contains("__")) {
+				String[] idToTerm = idTerm.split("__");
+				ids.add(idToTerm[0]);
+				terms.add(idToTerm[1]);
+				}else {
+					System.err.println("ma id to term expecting a double underscore but non present - please check what has changed in the solr ma core!!!!!!");
+				}
+			}
+			ma.setChildTerms(terms);
+			ma.setChildIds(ids);
 		}
-		if(maJson.containsKey("child_ma_id")) {
-			Collection<String> childIdStrings=JSONArray.toCollection(maJson.getJSONArray("child_ma_id") , String.class);
-			childIdStrings=getDistinct(childIdStrings);
-			ma.setChildIds(childIdStrings);
-		}
-		if(maJson.containsKey("ma_2_mp_id")) {
-			Collection<String> mpIds=JSONArray.toCollection(maJson.getJSONArray("ma_2_mp_id") , String.class);
-			mpIds=getDistinct(mpIds);
-			ma.setMpIds(mpIds);
-		}
-		if(maJson.containsKey("ma_2_mp_name")) {
-			Collection<String> mpIds=JSONArray.toCollection(maJson.getJSONArray("ma_2_mp_name") , String.class);
-			mpIds=getDistinct(mpIds);
-			ma.setMpTerms(mpIds);
-		}
+		//the fields below don't exist anymore in the schema - do we replace these with something or not??? JW
+//		if(maJson.containsKey("ma_2_mp_id")) {
+//			Collection<String> mpIds=JSONArray.toCollection(maJson.getJSONArray("ma_2_mp_id") , String.class);
+//			mpIds=getDistinct(mpIds);
+//			ma.setMpIds(mpIds);
+//		}
+//		if(maJson.containsKey("ma_2_mp_name")) {
+//			Collection<String> mpIds=JSONArray.toCollection(maJson.getJSONArray("ma_2_mp_name") , String.class);
+//			mpIds=getDistinct(mpIds);
+//			ma.setMpTerms(mpIds);
+//		}
 		return ma;
 	}
 
