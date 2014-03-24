@@ -372,7 +372,7 @@ public class FileExportController {
 				data.add(doc.getString("procedure_name") + " / " + doc.getString("parameter_name"));
 				data.add(doc.getString("resource_fullname"));
 				String graphUrl = "\"\"";
-				graphUrl = request.getParameter("baseUrl").replace("/genes/", "/charts/") + "?parameterId=" ;
+				graphUrl = request.getParameter("baseUrl").replace("/genes/", "/charts?accession=") + "&parameterId=" ;
 				graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
 				graphUrl += "&zygosity=" + doc.getString("zygosity");
 				if (doc.containsKey("phenotyping_center")){
