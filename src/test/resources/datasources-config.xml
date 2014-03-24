@@ -2,18 +2,10 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
-		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
+		xmlns:context="http://www.springframework.org/schema/context">
 
-    <!-- Replace the database placeholders -->
-    <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="locations">
-            <list>
-                <value>classpath:datasourcesConfig.properties</value>
-            </list>
-        </property>
-    </bean>
-
-	<!-- Creates a MySQL Datasource -->
+   	<!-- Creates a MySQL Datasource -->
 	<bean id="komp2DataSource" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
