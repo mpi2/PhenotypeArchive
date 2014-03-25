@@ -492,6 +492,7 @@ public class ObservationService {
         		ExperimentField.PROCEDURE_NAME + "," +
         		ExperimentField.PARAMETER_STABLE_ID + "," +
         		ExperimentField.PARAMETER_NAME + "," +
+        		ExperimentField.OBSERVATION_TYPE + "," +
         		ExperimentField.ZYGOSITY);
 
         QueryResponse response = solr.query(query);

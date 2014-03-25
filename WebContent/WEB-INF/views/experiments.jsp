@@ -48,7 +48,7 @@
 			<div class="block">
 				<div class="content">
 					<div class="node node-gene">
-						<h1 class="title" id="top">Gene: ${gene.symbol}  &nbsp;&nbsp; </h1>
+						<h1 class="title" id="top">Experimental Data for <t:formatAllele>${allele.symbol}</t:formatAllele>  &nbsp;&nbsp; </h1>
 
 				 				
 		
@@ -56,9 +56,9 @@
 		<!--  Phenotype Associations Panel -->
 		<div class="section">
 
-			<h2 class="title " id="section-associations"> Experimental data for ${gene.symbol} 
+			<h2 class="title " id="section-associations"> Phenotyped by ${phenotyping_center} (${pipeline.name})
 					<!-- <span class="documentation" > <a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span>-->
-					<span class="documentation" ><a href='' id='mpPanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
+					<span class="documentation" ><a href='' id='expPanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
 			</h2>		
 
 			<div class="inner">
@@ -87,6 +87,7 @@
 						<tr>
 							<th class="headerSort">Procedure</th>
 							<th class="headerSort">Parameter</th>
+							<th class="headerSort">Data type</th>
 							<th class="headerSort">Zygosity</th>
 							<th class="headerSort">Graph</th>
 						</tr>
@@ -96,6 +97,7 @@
 						<tr>
 						<td>${dataMap["procedure_name"]}</td>
 						<td>${dataMap["parameter_name"]}</td>
+						<td>${dataMap["observation_type"]}</td>
 						<td>${dataMap["zygosity"]}</td>
 						<td style="text-align:center">
 						<a href='${baseUrl}/charts?accession=${acc}&parameterId=${dataMap["parameter_stable_id"]}&zygosity=${dataMap["zygosity"]}&phenotyping_center=${phenotyping_center}'>

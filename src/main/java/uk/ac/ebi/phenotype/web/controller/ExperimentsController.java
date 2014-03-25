@@ -67,18 +67,22 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
+import uk.ac.ebi.phenotype.dao.AlleleDAO;
 import uk.ac.ebi.phenotype.dao.DatasourceDAO;
 import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.imits.ColonyStatus;
 import uk.ac.ebi.phenotype.data.imits.PhenotypeStatusDAO;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
+import uk.ac.ebi.phenotype.pojo.Allele;
 import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
+import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.Xref;
 import uk.ac.ebi.phenotype.stats.GeneService;
 import uk.ac.ebi.phenotype.stats.ObservationService;
@@ -90,13 +94,16 @@ import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
 public class ExperimentsController {
 
 	private final Logger log = LoggerFactory.getLogger(ExperimentsController.class);
-
-	@Autowired
-	private DatasourceDAO datasourceDao;
 	
 	@Autowired
 	private GenomicFeatureDAO genesDao;
+	
+	@Autowired
+	private AlleleDAO alleleDao;
 
+	@Autowired
+	private PhenotypePipelineDAO pipelineDao;
+	
 	@Autowired
 	SolrIndex solrIndex;
 	
@@ -141,6 +148,10 @@ public class ExperimentsController {
 			log.warn("Gene status for " + acc + " can't be found.");
 		}
 		
+		Allele allele = alleleDao.getAlleleByAccession(alleleAccession);
+		
+		Pipeline pipeline = pipelineDao.getPhenotypePipelineByStableId(pipelineStableId);
+		
 		List<Map<String,String>> mapList =  null;
 		
 		try {
@@ -152,7 +163,9 @@ public class ExperimentsController {
 		
 		model.addAttribute("mapList", mapList);
 		model.addAttribute("phenotyping_center", phenotypingCenter);
+		model.addAttribute("allele", allele);
 		model.addAttribute("gene", gene);
+		model.addAttribute("pipeline", pipeline);
 		model.addAttribute("request", request);
 		model.addAttribute("acc", acc);
 		
