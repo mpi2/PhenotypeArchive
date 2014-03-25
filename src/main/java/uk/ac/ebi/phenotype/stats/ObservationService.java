@@ -416,8 +416,10 @@ public class ObservationService {
                 .setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
                 .addFacetPivotField( // needs at least 2 fields
                 		ExperimentField.PIPELINE_STABLE_ID + "," +
+                		ExperimentField.PIPELINE_NAME + "," +
                 		ExperimentField.PHENOTYPING_CENTER + "," +
-                		ExperimentField.ALLELE_ACCESSION);  
+                		ExperimentField.ALLELE_ACCESSION + "," +
+                		ExperimentField.ALLELE_SYMBOL);  
 
         QueryResponse response = solr.query(query);
 
