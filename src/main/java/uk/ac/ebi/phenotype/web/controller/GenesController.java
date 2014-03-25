@@ -81,6 +81,7 @@ import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
 import uk.ac.ebi.phenotype.pojo.Xref;
 import uk.ac.ebi.phenotype.stats.GeneService;
+import uk.ac.ebi.phenotype.stats.ObservationService;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
 
@@ -110,6 +111,9 @@ public class GenesController {
 
 	@Autowired
 	private GeneService geneService;
+	
+	@Autowired
+	private ObservationService observationService;
 
 	@Autowired
 	private PhenotypeSummaryDAO phenSummary;
@@ -280,7 +284,19 @@ public class GenesController {
 		}
 		model.addAttribute("constructs", constructs);
 		
-
+		// Get list of triplets of pipeline, allele acc, phenotyping center
+		// to link to an experiment page will all data
+		try {
+			
+			List<Map<String,String>> dataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
+			model.addAttribute("dataMapList", dataMapList);
+			
+		} catch (SolrServerException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+	
+		
 		
 		//code for assessing if the person is logged in and if so have they registered interest in this gene or not?
 		registerInterest = new RegisterInterestDrupalSolr( config, request);
