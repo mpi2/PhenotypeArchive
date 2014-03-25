@@ -98,7 +98,7 @@
 						<td>${dataMap["parameter_name"]}</td>
 						<td>${dataMap["zygosity"]}</td>
 						<td style="text-align:center">
-						<a href='${baseUrl}/charts?accession=${acc}&parameterId=${dataMap["parameter_stable_id"]}&zygosity=${dataMap["zygosity"]}&phenotyping_center=${dataMap["phenotyping_center"]}'>
+						<a href='${baseUrl}/charts?accession=${acc}&parameterId=${dataMap["parameter_stable_id"]}&zygosity=${dataMap["zygosity"]}&phenotyping_center=${phenotyping_center}'>
 						<i class="fa fa-bar-chart-o" alt="Graphs" > </i></a>
 						</td>
 						</tr>

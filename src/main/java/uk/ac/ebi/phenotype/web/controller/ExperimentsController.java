@@ -151,7 +151,7 @@ public class ExperimentsController {
 		}
 		
 		model.addAttribute("mapList", mapList);
-
+		model.addAttribute("phenotyping_center", phenotypingCenter);
 		model.addAttribute("gene", gene);
 		model.addAttribute("request", request);
 		model.addAttribute("acc", acc);
