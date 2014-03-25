@@ -255,6 +255,7 @@ public class GenotypePhenotypeService {
 		String solrUrl = solr.getBaseURL();// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
 		solrUrl += "/select/?q=" + GenotypePhenotypeField.MARKER_ACCESSION_ID + ":\""
 				+ accession+"\""+"&fq=" + GenotypePhenotypeField.PARAMETER_STABLE_ID + ":"+parameterStableId+"&fq=" + GenotypePhenotypeField.STRAIN_ACCESSION_ID + ":\""+strainAccession+"\"&rows=10000000&version=2.2&start=0&indent=on&wt=json";
+		System.out.println("solr url for stats results="+solrUrl);
 		List<? extends StatisticalResult> statisticalResult = this.createStatsResultFromSolr(solrUrl, observationType);
 		return statisticalResult;
 	}
@@ -318,8 +319,8 @@ public class GenotypePhenotypeService {
 		JSONArray docs = resultsj.getJSONObject("response").getJSONArray("docs");
 		
 		if(observationType==ObservationType.unidimensional) {
-		UnidimensionalResult unidimensionalResult=new UnidimensionalResult();//dummy result just in case no other cases are met!
 		for (Object doc : docs) {
+			UnidimensionalResult unidimensionalResult=new UnidimensionalResult();//dummy result just in case no other cases are met------ no this needs to be set each time we create a new result for each doc!!!! JW
 			JSONObject phen = (JSONObject) doc;
 			String pValue = phen.getString( GenotypePhenotypeField.P_VALUE );
 			String sex = phen.getString( GenotypePhenotypeField.SEX );
