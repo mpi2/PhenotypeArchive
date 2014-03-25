@@ -1559,7 +1559,7 @@
 		
 		if ( facetDivId == 'imagesFacet' ) {
 			//oInfos.showImgView = true;	
-			oHashParams.showImgView = true;	
+			oHashParams.showImgView = false;			
 		}
 		
 		//oInfos.params = $.fn.stringifyJsonAsUrlParams(oParams);// + facetQryStr;
@@ -1602,14 +1602,20 @@
    		return imgViewSwitcher;
 	} 	
     
-    $.fn.setDefaultImgSwitcherConf = function(){
+    $.fn.setDefaultImgSwitcherConf_ori = function(){
     	var oConf = MPI2.searchAndFacetConfig.facetParams.imagesFacet;
     	oConf.imgViewSwitcherDisplay = 'Show Annotation View';
 		oConf.viewLabel = 'Image View: lists annotations to an image';
 		oConf.viewMode = 'imageView';
 		oConf.showImgView = true;		 
     }
-    
+    $.fn.setDefaultImgSwitcherConf = function(){
+    	var oConf = MPI2.searchAndFacetConfig.facetParams.imagesFacet;
+    	oConf.imgViewSwitcherDisplay = 'Show Image View';
+		oConf.viewLabel = 'Annotation View: groups images by annotation';
+		oConf.viewMode = 'annotView';
+		oConf.showImgView = false;		 
+    }
     $.fn.invokeDataTable = function(oInfos){   	   	
     	
     	var oDtable = $('table#' + oInfos.mode).dataTable({
@@ -1620,14 +1626,15 @@
     		"sDom": "<<'#exportSpinner'><'#tableTool'>r>t<<ip>>",    		
 			"sPaginationType": "bootstrap",    		
     		"fnDrawCallback": function( oSettings ) {  // when dataTable is loaded
-    			
+    			console.log(oSettings);
+    			//console.log(oDtable.fnGetData().length); // rows on current page
     			// bring in some control logic for image view switcher when dataTable is loaded
     			if ( oInfos.widgetName == 'imagesFacet' ){    				
     				$('span#imgViewSwitcher').click(function(){	
     		   			
     		   			var oConf = MPI2.searchAndFacetConfig.facetParams.imagesFacet;  
     		   			
-    		   			if ( oConf.imgViewSwitcherDisplay == 'Show Annotation View'){
+    		   			/*if ( oConf.imgViewSwitcherDisplay == 'Show Annotation View'){
     		   			
     		   				oConf.imgViewSwitcherDisplay = 'Show Image View'; 
     		   				oConf.viewLabel = 'Annotation View: groups images by annotation';    		   				
@@ -1638,6 +1645,19 @@
     		   			else {
     		   				$.fn.setDefaultImgSwitcherConf(); 
     		   				oInfos.showImgView = true;   		   				
+    		   			}*/
+    		   			
+    		   			if ( oConf.imgViewSwitcherDisplay == 'Show Image View'){
+        		   			
+    		   				oConf.imgViewSwitcherDisplay = 'Show Annotation View'; 
+    		   				oConf.viewLabel = 'Image View: lists annotations to an image';    		   				
+    		   				oConf.viewMode = 'imgView';    		   				
+    		   				oConf.showImgView = true;
+    		   				oInfos.showImgView = true; 
+    		   			}
+    		   			else {
+    		   				$.fn.setDefaultImgSwitcherConf(); 
+    		   				oInfos.showImgView = false;   		   				
     		   			}
     		   			
     		   			_prepare_resultMsg_and_dTableSkeleton(oInfos);
@@ -1648,7 +1668,7 @@
     			    			
     			displayDataTypeResultCount(oInfos, this.fnSettings().fnRecordsTotal());
     			    			    			
-    			// ie fix, as this style in CSS is not working for IE8 
+    			// IE fix, as this style in CSS is not working for IE8 
     			if ( $('table#geneGrid').size() == 1 ){
     				$('table#geneGrid th:nth-child(1)').width('45%');
     			}  						
@@ -1755,8 +1775,8 @@
 	        ]
     	});*/   
 
-    }  
-  
+    }  	 
+    
     function displayDataTypeResultCount(oInfos, count) {	
       
     	//var sFacet = typeof oInfos.solrCoreName !== 'undefined' ? oInfos.solrCoreName+'Facet' : oInfos.facetName;
@@ -1772,11 +1792,14 @@
 			
 			if ( MPI2.searchAndFacetConfig.facetParams.imagesFacet.showImgView ){
 	   			// record img count, as in annotation view, the count is number of annotations and not images
-				MPI2.searchAndFacetConfig.lastImgCount = count;
+				//MPI2.searchAndFacetConfig.lastImgCount = count;
 				$('span#resultCount span#annotCount').text('');
 				$('span#resultCount a').attr({'href':imgUrl}).text(txt);
 			}			
-			else {							
+			else {	
+													
+				MPI2.searchAndFacetConfig.lastImgCount = $('div.flist li#images > span.fcount').text();				
+				
 				$('span#annotCount').text(count + ' annotations / ');
 				txt = MPI2.searchAndFacetConfig.lastImgCount + ' ' + dataType;			
 				$('span#resultCount a').attr({'href':imgUrl}).text(txt);
