@@ -271,7 +271,7 @@ CREATE TABLE synonym (
 
     PRIMARY KEY (id),
     KEY genomic_feature_idx (acc, db_id),
-    KEY genomic_feature_acc_idx (acc)
+    KEY genomic_feature_acc_idx (acc),
     KEY synonym_symbol_idx (symbol)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
