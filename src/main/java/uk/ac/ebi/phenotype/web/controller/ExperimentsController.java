@@ -98,9 +98,6 @@ public class ExperimentsController {
 	private GenomicFeatureDAO genesDao;
 
 	@Autowired
-	private PhenotypeCallSummaryDAOReadOnly phenoDAO;
-
-	@Autowired
 	SolrIndex solrIndex;
 	
 	@Autowired
@@ -127,9 +124,6 @@ public class ExperimentsController {
 	public String rootForward() {
 		return "redirect:/search";
 	}
-
-
-	
 
 	@RequestMapping("/experiments/genes/{acc}")
 	public String genes(
@@ -199,17 +193,5 @@ public class ExperimentsController {
         return mv;
     }
 
-
-	/**
-	 * Display an identifier error page
-	 */
-	@RequestMapping("/identifierError")
-	public String identifierError(
-			@PathVariable String acc, 
-			Model model,
-			HttpServletRequest request,
-			RedirectAttributes attributes) {
-		return "identifierError";
-	}
     
 }
