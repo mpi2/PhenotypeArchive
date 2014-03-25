@@ -313,6 +313,20 @@
 						</div>
 					</div>
 					
+					<!-- Show list of links to data for every center/pipeline/allele combination -->
+					<c:if test="${!(empty dataMapList)}">
+					<p class="with-label no-margin">
+					See all data for:
+					<ul>				
+					<c:forEach var="dataMap" items="${dataMapList}" varStatus="loop">
+						<li><a href='${baseUrl}/experiments/genes/${acc}?allele_accession=${dataMap["allele_accession"]}&phenotyping_center=${dataMap["phenotyping_center"]}&pipeline_stable_id=${dataMap["pipeline_stable_id"]}'>${dataMap["allele_symbol"]} (${dataMap["phenotyping_center"]})</li>					
+					</c:forEach>
+					</ul>
+					</p>
+					</c:if>
+					<div>
+					</div>
+					
 				</c:when>
 				<c:otherwise>
 				<div class="alert alert-info">There is are currently no phenotype associations for the gene ${gene.symbol} </div>
