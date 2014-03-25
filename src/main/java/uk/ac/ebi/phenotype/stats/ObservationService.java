@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,9 +27,14 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.Group;
+import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.util.NamedList;
+import org.eclipse.jetty.util.log.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +53,8 @@ public class ObservationService {
     @Autowired
     PhenotypePipelineDAO parameterDAO;
 
+    private static final Logger LOG = LoggerFactory.getLogger(ObservationService.class);
+    
     // Definition of the solr fields
     public static final class ExperimentField {
 
@@ -386,6 +394,218 @@ public class ObservationService {
         return new ArrayList<>(parameterIds);
     }
 
+    
+    /**
+     * Return a list of a triplets of pipeline stable id, phenotyping center
+     * and allele accession
+ 
+     *
+     * @param genomicFeatureAcc a gene accession
+     * @return list of triplets
+     * @throws SolrServerException
+     */
+    public List<Map<String,String>> getDistinctPipelineAlleleCenterListByGeneAccession(String genomicFeatureAcc) throws SolrServerException {
+    	
+        List<Map<String,String>> results = new LinkedList<Map<String, String>>();
+
+        SolrQuery query = new SolrQuery()
+                .setQuery("*:*")
+                .addFilterQuery(ExperimentField.GENE_ACCESSION + ":" + "\""+genomicFeatureAcc+"\"")
+                .addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+                .setRows(0)
+                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
+                .addFacetPivotField( // needs at least 2 fields
+                		ExperimentField.PIPELINE_STABLE_ID + "," +
+                		ExperimentField.PHENOTYPING_CENTER + "," +
+                		ExperimentField.ALLELE_ACCESSION);  
+
+        QueryResponse response = solr.query(query);
+
+        NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
+
+        if (facetPivot != null && facetPivot.size() > 0) {
+        	for (int i = 0; i < facetPivot.size(); i++) {
+
+        		String name = facetPivot.getName(i); // in this case only one of them
+        		LOG.debug("facetPivot name" + name);
+        		List<PivotField> pivotResult = facetPivot.get(name);
+
+        		// iterate on results
+        		for (int j = 0; j < pivotResult.size(); j++) {
+
+        			// create a HashMap to store a new triplet of data
+        			
+        			PivotField pivotLevel = pivotResult.get(j);
+        			List<Map<String,String>> lmap = getLeveledFacetPivotValue(pivotLevel, null);
+        			results.addAll(lmap);
+        		}
+
+
+        	}
+        }
+
+        return results;
+    }
+    
+    /**
+     * Return a list of parameters measured for a particular pipeline, allele 
+     * and center combination. A list of filters (meaning restriction to some
+     * specific procedures is passed.
+     * @param genomicFeatureAcc a gene accession
+     * @return list of triplets
+     * @throws SolrServerException
+     */
+    public List<Map<String,String>> getDistinctParameterListByPipelineAlleleCenter(
+    		String pipelineStableId, 
+    		String alleleAccession,
+    		String phenotypingCenter,
+    		List<String> procedureFilters) throws SolrServerException {
+    	
+        SolrQuery query = new SolrQuery()
+                .setQuery("*:*")
+                .addFilterQuery(ExperimentField.PIPELINE_STABLE_ID + ":" + pipelineStableId)
+                .addFilterQuery(ExperimentField.PHENOTYPING_CENTER + ":" + phenotypingCenter)
+                .addFilterQuery(ExperimentField.ALLELE_ACCESSION + ":\"" + alleleAccession + "\"");
+        
+        int index = 0;
+        if (procedureFilters != null && procedureFilters.size() > 0) {
+        	StringBuilder queryBuilder = new StringBuilder(ExperimentField.PROCEDURE_STABLE_ID + ":(");
+        
+        	for (String procedureFilter: procedureFilters) {
+        		if (index == 0) {
+        			queryBuilder.append(procedureFilter);
+        		} else {
+        			queryBuilder.append(" OR " + procedureFilter);
+        		}
+        		index++;
+        	}
+        	queryBuilder.append(")");
+        	query.addFilterQuery(queryBuilder.toString());
+        }
+        
+        query.setRows(0)
+        .setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
+        .addFacetPivotField( // needs at least 2 fields
+        		ExperimentField.PROCEDURE_STABLE_ID + "," +
+        		ExperimentField.PROCEDURE_NAME + "," +
+        		ExperimentField.PARAMETER_STABLE_ID + "," +
+        		ExperimentField.PARAMETER_NAME + "," +
+        		ExperimentField.ZYGOSITY);
+
+        QueryResponse response = solr.query(query);
+
+        NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
+
+        List<Map<String,String>> results = new LinkedList<Map<String, String>>();
+        
+        if (facetPivot != null && facetPivot.size() > 0) {
+        	for (int i = 0; i < facetPivot.size(); i++) {
+
+        		String name = facetPivot.getName(i); // in this case only one of them
+        		System.out.println("facetPivot name" + name);
+        		
+        		List<PivotField> pivotResult = facetPivot.get(name);
+
+        		// iterate on results
+        		for (int j = 0; j < pivotResult.size(); j++) {
+        			
+        			// create a HashMap to store a new triplet of data
+        			PivotField pivotLevel = pivotResult.get(j);
+        			System.out.println("TEST " + pivotLevel.getField() + " " + pivotLevel.getCount());
+        			List<Map<String,String>> lmap = getLeveledFacetPivotValue(pivotLevel, null);
+        			results.addAll(lmap);
+        		}
+
+
+        	}
+        }
+
+        return results;
+    }
+    
+    /**
+     * Return a list of procedures effectively performed given pipeline stable id, 
+     * phenotyping center and allele accession
+     *
+     * @param genomicFeatureAcc a gene accession
+     * @return list of integer db keys of the parameter rows
+     * @throws SolrServerException
+     */
+    public List<String> getDistinctProcedureListByPipelineAlleleCenter(
+    		String pipelineStableId, 
+    		String alleleAccession,
+    		String phenotypingCenter) throws SolrServerException {
+    	
+        List<String> results = new LinkedList<String>();
+
+        SolrQuery query = new SolrQuery()
+                .setQuery("*:*")
+                .addFilterQuery(ExperimentField.PIPELINE_STABLE_ID + ":" + pipelineStableId)
+                .addFilterQuery(ExperimentField.PHENOTYPING_CENTER + ":" + phenotypingCenter)
+                .addFilterQuery(ExperimentField.ALLELE_ACCESSION + ":\"" + alleleAccession + "\"")
+                .setRows(0)
+                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
+                .addFacetField(ExperimentField.PROCEDURE_STABLE_ID);
+                
+
+        QueryResponse response = solr.query(query);
+        List<FacetField> fflist = response.getFacetFields();
+
+        for (FacetField ff : fflist) {
+
+            // If there are no face results, the values will be null
+            // skip this facet field in that case
+            if (ff.getValues() == null) {
+                continue;
+            }
+
+            for (Count c : ff.getValues()) {
+            	results.add(c.getName());
+            }
+        }
+
+        return results;
+    }    
+    
+    
+    /**
+     * Recursive method to fill a map with multiple combination of pivot fields.
+     * Each pivot level can have multiple children. Hence, each level should pass
+     * back to the caller a list of all possible combination
+     * 
+     * @param pivotLevel
+     * @param map
+     */
+    private List<Map<String, String>> getLeveledFacetPivotValue(PivotField pivotLevel, PivotField parentPivot) {
+    	
+    	List<Map<String, String>> results = new ArrayList<Map<String, String>>();
+    	
+    	List<PivotField> pivotResult = pivotLevel.getPivot();
+    	if (pivotResult != null) {
+    		for (int i = 0; i< pivotResult.size(); i++) {
+    			List<Map<String, String>> lmap = getLeveledFacetPivotValue(pivotResult.get(i), pivotLevel);
+    			// add the parent pivot
+    			if (parentPivot != null) {
+    				for (Map<String, String> map: lmap) {
+    					map.put(parentPivot.getField(), parentPivot.getValue().toString());
+    				}
+    			}
+    			results.addAll(lmap);
+    		}
+    	} else {
+    		Map<String, String> map = new HashMap<String, String>();
+    		map.put(pivotLevel.getField(), pivotLevel.getValue().toString());
+    		
+    		// add the parent pivot
+    		if (parentPivot != null) {
+    			map.put(parentPivot.getField(), parentPivot.getValue().toString());
+    		}
+    		results.add(map);
+    	}
+    	//
+    	return results;
+    }
+    
     /**
      * Return all the gene accession ids that have associated data for a given
      * organisation, strain, and zygosity
