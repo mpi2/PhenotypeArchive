@@ -56,120 +56,59 @@
 		<!--  Phenotype Associations Panel -->
 		<div class="section">
 
-			<h2 class="title " id="section-associations"> Phenotype associations for ${gene.symbol} 
+			<h2 class="title " id="section-associations"> Experimental data for ${gene.symbol} 
 					<!-- <span class="documentation" > <a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span>-->
 					<span class="documentation" ><a href='' id='mpPanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
 			</h2>		
 
 			<div class="inner">
-				<c:choose>
-				<c:when test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0 or phenotypeSummaryObjects.getFemalePhenotypes().size() > 0 or phenotypeSummaryObjects.getMalePhenotypes().size() > 0 }">
-					<div class="abnormalities">
-						<div class="allicons"></div>
-						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
-							<c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
-								<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
-									<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-								</a>
-							</c:if>
-						</c:forEach>
-						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getFemalePhenotypes()}">
-							<c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
-								<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
-									<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-								</a>
-							</c:if>
-						</c:forEach>
-						<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getMalePhenotypes()}">
-							<c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
-								<a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
-									<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-								</a>
-							</c:if>
-						</c:forEach>
-					</div>
-		            
-					<p> Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models. </p>
-				    <c:if test="${phenotypeSummaryObjects.getBothPhenotypes().size() > 0}">
-			        <p> <b>Both sexes</b> have the following phenotypic abnormalities</p>
-			        <ul>
-			         	<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
-			           	<li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> ${evidence} <c:if test="${!loop.last}">,&nbsp;</c:if>  </c:forEach> &nbsp;&nbsp;&nbsp; (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>    
-			          </c:forEach>
-			        </ul>
-		        </c:if>
-		                
-		        <c:if test="${phenotypeSummaryObjects.getFemalePhenotypes().size() > 0}">
-		        	<p> Following phenotypic abnormalities occured in <b>females</b> only</p>
-		        	<ul>
-			          <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getFemalePhenotypes()}"> 
-			          	<li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> ${evidence} <c:if test="${!loop.last}">,&nbsp;</c:if> </c:forEach> &nbsp;&nbsp;&nbsp; (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>                
-			          </c:forEach>
-		          </ul>
-		        </c:if>
-		                
-		        <c:if test="${phenotypeSummaryObjects.getMalePhenotypes().size() > 0}">
-		       		<p> Following phenotypic abnormalities occured in <b>males</b> only</p>
-		          	<ul>
-		            	<c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getMalePhenotypes()}">
-		              	<li><a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> ${evidence} <c:if test="${!loop.last}">,&nbsp;</c:if> </c:forEach> &nbsp;&nbsp;&nbsp;   (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>    
-		              </c:forEach>
-		            </ul>
-		        </c:if>
+
 		
-						<!-- Associations table -->
-						<h5>Filter this table</h5>
+			<!-- Associations table -->
+			<h5>Filter this table (to do)</h5>
+				
+	<c:set var="count" value="0" scope="page" />
+	<c:forEach var="dataMap" items="${mapList}" varStatus="status">
+			<c:set var="count" value="${count + 1}" scope="page"/>
+	</c:forEach>
+	<p class="resultCount">
+	Total number of results: ${count}
+	</p>
+
+	<script>
+	 var resTemp = document.getElementsByClassName("resultCount");
+	 if (resTemp.length > 1)
+		 resTemp[0].remove();
+	</script>
+	
+
+				<table id="experiments" class="table tableSorter">
+					<thead>
+						<tr>
+							<th class="headerSort">Procedure</th>
+							<th class="headerSort">Parameter</th>
+							<th class="headerSort">Zygosity</th>
+							<th class="headerSort">Graph</th>
+						</tr>
+					</thead>
+					<tbody>
+						<c:forEach var="dataMap" items="${mapList}" varStatus="status">
+						<tr>
+						<td>${dataMap["procedure_name"]}</td>
+						<td>${dataMap["parameter_name"]}</td>
+						<td>${dataMap["zygosity"]}</td>
+						<td style="text-align:center">
+						<a href='${baseUrl}/charts?accession=${acc}&parameterId=${dataMap["parameter_stable_id"]}&zygosity=${dataMap["zygosity"]}&phenotyping_center=${phenotyping_center}'>
+						<i class="fa fa-bar-chart-o" alt="Graphs" > </i></a>
+						</td>
+						</tr>
+						</c:forEach>
+					</tbody>
+				</table>				
 						   
 		        
-						<div class="row-fluid">
-							<div class="container span12">
-								<br/>	
-								<div class="row-fluid" id="phenotypesDiv">	
-									<div class="container span12">
-										<div id="filterParams" >
-											<c:forEach var="filterParameters" items="${paramValues.fq}">
-												${filterParameters}
-											</c:forEach>
-										</div> 
-									<c:if test="${not empty phenotypes}">
-											<form class="tablefiltering no-style" id="target" action="destination.html">
-												<c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
-													<select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
-														<c:forEach var="facet" items="${phenoFacet.value}">
-															<option>${facet.key}</option>
-														</c:forEach>
-													</select> 
-												</c:forEach>
-											<div class="clear"></div>
-											</form>
-											<div class="clear"></div>
-																				
-										<c:set var="count" value="0" scope="page" />
-										<c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
-											<c:forEach var="sex" items="${phenotype.sexes}"><c:set var="count" value="${count + 1}" scope="page"/></c:forEach>
-										</c:forEach>
-				
-										<jsp:include page="PhenoFrag.jsp"></jsp:include>
-										<div id="exportIconsDiv"></div>
-									</c:if>
-									
-									<!-- if no data to show -->
-									<c:if test="${empty phenotypes}">
-										<div class="alert alert-info">Pre QC data has been submitted for this gene. Once the QC process is finished phenotype associations stats will be made available.</div>
-									</c:if>
-									
-								</div>
-							</div>
-						</div>
-					</div>
-					
-				</c:when>
-				<c:otherwise>
-				<div class="alert alert-info">There is are currently no phenotype associations for the gene ${gene.symbol} </div>
-				</c:otherwise>
-				</c:choose>
 			</div>
-		</div> <!-- phenotype association and graphs -->
+		</div> <!-- parameter list -->
  
       </div> <!--end of node wrapper should be after all secions  -->
     </div>
