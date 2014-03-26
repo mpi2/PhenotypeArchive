@@ -138,6 +138,7 @@
         
          <script>        		
        	$(document).ready(function(){     		   		
+       		console.log('test login: ' + "${isLoggedIn}");
        		
    			$.fn.qTip({'pageName':'search'		 					
    			});  			 						

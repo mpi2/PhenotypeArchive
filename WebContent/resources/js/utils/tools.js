@@ -1691,11 +1691,11 @@
     						else {    							
     							// 3 labels (before login is 'Interest')
     							console.log('curr label:*'+ label+'*');
-    							console.log(label == 'Register interest');
-    							console.log(label == 'Unregister interest');
-    							if( label == 'Register interest' ) {
+    							console.log(label == '&nbsp;Register interest');
+    							console.log(label == '&nbsp;Unregister interest');
+    							if( label == '&nbsp;Register interest' ) {
     								console.log('test reg int button');
-    								regBtn.text('Unregister interest');    								    								
+    								regBtn.text('&nbsp;Unregister interest');    								    								
     								regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out')
     									.parent().attr('oldtitle', 'Unregister interest')
     									.qtip({       			
@@ -1704,9 +1704,9 @@
     				    					content: { text: $(this).attr('oldtitle')}
     				    					});	// refresh tooltip    								
     							} 
-    							else if (label == 'Unregister interest'){
+    							else if (label == '&nbsp;Unregister interest'){
     								console.log('test unreg int button');
-    								regBtn.text('Register interest');    								
+    								regBtn.text('&nbsp;Register interest');    								
     								regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in')
     									.parent().attr('oldtitle', 'Register interest')
     									.qtip({       			

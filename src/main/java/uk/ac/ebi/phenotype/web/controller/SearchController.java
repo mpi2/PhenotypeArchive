@@ -15,16 +15,21 @@
  */
 package uk.ac.ebi.phenotype.web.controller;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
+
 @Controller
 public class SearchController {
-	
+	private Map<String, String> config;
 	/**
 	 * redirect calls to the base url to the search page
 	 * 
@@ -57,7 +62,19 @@ public class SearchController {
 		model.addAttribute("q", q);
 		model.addAttribute("core", core);
 		model.addAttribute("fq", fq);
-
+		
+		try {
+			RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config, request);
+			if (registerInterest.loggedIn()) {
+				model.addAttribute("isLoggedIn", true);
+			}
+			else {
+				model.addAttribute("isLoggedIn", false);
+			}
+		}
+		catch(Exception e){
+			System.out.println("Failed to fetch info for register interest");
+		}
 		return "search";
 	}	
 }
