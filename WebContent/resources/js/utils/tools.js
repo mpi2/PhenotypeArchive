@@ -1673,6 +1673,10 @@
     				$('table#geneGrid th:nth-child(1)').width('45%');
     			}  						
     			
+    			// hide my-impc link if not logged in
+    			if ( ! MPI2.searchAndFacetConfig.isLoggedIn ){
+    				$('li a#my-impc').hide();
+    			} 
     			
     			$('a.interest').click(function(){
     				
@@ -1691,9 +1695,9 @@
     						else {    							
     							// 3 labels (before login is 'Interest')
     							console.log('curr label:*'+ label+'*');
-    							console.log(label == '&nbsp;Register interest');
-    							console.log(label == '&nbsp;Unregister interest');
-    							if( label == '&nbsp;Register interest' ) {
+    							console.log(label == ' Register interest');
+    							console.log(label == ' Unregister interest');
+    							if( label == ' Register interest' ) {
     								console.log('test reg int button');
     								regBtn.text('&nbsp;Unregister interest');    								    								
     								regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out')
@@ -1704,7 +1708,7 @@
     				    					content: { text: $(this).attr('oldtitle')}
     				    					});	// refresh tooltip    								
     							} 
-    							else if (label == '&nbsp;Unregister interest'){
+    							else if (label == ' Unregister interest'){
     								console.log('test unreg int button');
     								regBtn.text('&nbsp;Register interest');    								
     								regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in')

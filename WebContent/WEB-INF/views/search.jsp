@@ -138,7 +138,10 @@
         
          <script>        		
        	$(document).ready(function(){     		   		
-       		console.log('test login: ' + "${isLoggedIn}");
+       		console.log('test login: ' + "${q}");
+       		<c:if test="${not empty isLoggedIn}">
+       			MPI2.searchAndFacetConfig.isLoggedIn = true;
+       		</c:if>;
        		
    			$.fn.qTip({'pageName':'search'		 					
    			});  			 						
