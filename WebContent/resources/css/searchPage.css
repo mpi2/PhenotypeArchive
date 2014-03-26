@@ -205,3 +205,11 @@ span.status.done {
 th span.main                        { white-space:nowrap; }
 th span.sub                         { font-size: 0.8em; display: block;} 
 /* end of Disease search results */
+
+/* dataTable pagination styling */
+span.ellipse {
+	display: block;
+	padding-top: 10px;
+}
+
+
