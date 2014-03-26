@@ -1693,6 +1693,8 @@
     						else {    							
     							// 3 labels (before login is 'Interest')
     							console.log('curr label: '+ label);
+    							console.log(label == 'Register interest');
+    							console.log(label == 'Unregister interest');
     							if( label == 'Register interest' ) {
     								console.log('test reg int button');
     								regBtn.text('Unregister interest');    								    								
