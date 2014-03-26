@@ -1684,15 +1684,13 @@
     					url: '/toggleflagfromjs/' + mgiId,                       
     					success: function (response) {
     						console.log('success');
-    						function endsWith(str, suffix) {
-    							return str.indexOf(suffix, str.length - suffix.length) !== -1;
-                        	}
+    						
     						if(response === 'null') {
     							window.alert('Null error trying to register interest');
     						} 
     						else {    							
     							// 3 labels (before login is 'Interest')
-    							console.log('curr label: '+ label);
+    							console.log('curr label:*'+ label+'*');
     							console.log(label == 'Register interest');
     							console.log(label == 'Unregister interest');
     							if( label == 'Register interest' ) {
