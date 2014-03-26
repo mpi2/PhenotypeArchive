@@ -1676,7 +1676,7 @@
     			// hide my-impc link if not logged in
     			if ( ! MPI2.searchAndFacetConfig.isLoggedIn ){
     				$('li a#my-impc').hide();
-    			} 
+    			}    					
     			
     			$('a.interest').click(function(){
     				
@@ -1695,9 +1695,10 @@
     						else {    							
     							// 3 labels (before login is 'Interest')
     							console.log('curr label:*'+ label+'*');
-    							console.log(label == ' Register interest');
-    							console.log(label == ' Unregister interest');
-    							if( label == ' Register interest' ) {
+    							console.log(label == String.fromCharCode(160)+'Register interest');
+    							console.log(label == String.fromCharCode(160)+'Unregister interest');
+    							//compare using the actual raw character for &nbsp;
+    							if( label == String.fromCharCode(160)+'Register interest' ) {
     								console.log('test reg int button');
     								regBtn.text('&nbsp;Unregister interest');    								    								
     								regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out')
@@ -1708,7 +1709,7 @@
     				    					content: { text: $(this).attr('oldtitle')}
     				    					});	// refresh tooltip    								
     							} 
-    							else if (label == ' Unregister interest'){
+    							else if (label == String.fromCharCode(160)+'Unregister interest'){
     								console.log('test unreg int button');
     								regBtn.text('&nbsp;Register interest');    								
     								regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in')
