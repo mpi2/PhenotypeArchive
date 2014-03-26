@@ -125,7 +125,7 @@ table#imagesGrid th:nth-child(1) {
 
 /* table tool */
 div#tableTool {
-	font-size: 12px;
+	font-size: 14px;
 	position: relative;
 	top: -100px;
 	right: 0;	
