@@ -1688,13 +1688,9 @@
     							window.alert('Null error trying to register interest');
     						} 
     						else {    							
-    							// 3 labels (before login is 'Interest')
-    							console.log('curr label:*'+ label+'*');
-    							console.log(label == String.fromCharCode(160)+'Register interest');
-    							console.log(label == String.fromCharCode(160)+'Unregister interest');
+    							// 3 labels (before login is 'Interest')    							
     							//compare using the actual raw character for &nbsp;
-    							if( label == String.fromCharCode(160)+'Register interest' ) {
-    								console.log('test reg int button');
+    							if( label == String.fromCharCode(160)+'Register interest' ) {    								
     								regBtn.text(String.fromCharCode(160) + 'Unregister interest');    								    								
     								regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out')
     									.parent().attr('oldtitle', 'Unregister interest')
@@ -1704,8 +1700,7 @@
     				    					content: { text: $(this).attr('oldtitle')}
     				    					});	// refresh tooltip    								
     							} 
-    							else if (label == String.fromCharCode(160)+'Unregister interest'){
-    								console.log('test unreg int button');
+    							else if (label == String.fromCharCode(160)+'Unregister interest'){    							
     								regBtn.text(String.fromCharCode(160) + 'Register interest');    								
     								regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in')
     									.parent().attr('oldtitle', 'Register interest')

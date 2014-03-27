@@ -119,7 +119,7 @@
 					<div class="clear"></div>
 					<!-- facet filter block -->								
 					<!-- container to display dataTable -->									
-					<div class="HomepageTable" id="mpi2-seMPI2.searchAndFacetConfig.isLoggedIn arch"></div>				
+					<div class="HomepageTable" id="mpi2-search"></div>				
 				</div>
 			</div>
 		</div>		       

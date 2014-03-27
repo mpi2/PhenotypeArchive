@@ -1,6 +1,5 @@
 <%@tag description="Overall Page template" pageEncoding="UTF-8" 
 import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf.json.JSONArray"
-import="javax.annotation.Resource"
 import="uk.ac.ebi.generic.util.RegisterInterestDrupalSolr"
 %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
