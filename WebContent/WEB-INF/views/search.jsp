@@ -119,7 +119,7 @@
 					<div class="clear"></div>
 					<!-- facet filter block -->								
 					<!-- container to display dataTable -->									
-					<div class="HomepageTable" id="mpi2-search"></div>				
+					<div class="HomepageTable" id="mpi2-seMPI2.searchAndFacetConfig.isLoggedIn arch"></div>				
 				</div>
 			</div>
 		</div>		       
@@ -141,10 +141,8 @@
        		
        		// make "search" menu point active
        		$('nav#mn > ul > li:first-child').addClass('active');
-       		
-       		console.log('test login: ' + "${isLoggedIn}");
-       		<c:if test="${isLoggedIn}">
-       			console.log('is logged in')
+       		       		
+       		<c:if test="${isLoggedIn}">       			
        			MPI2.searchAndFacetConfig.isLoggedIn = true;
        		</c:if>;
        		

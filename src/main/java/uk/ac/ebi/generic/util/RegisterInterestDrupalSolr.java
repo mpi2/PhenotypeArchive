@@ -30,7 +30,12 @@ public class RegisterInterestDrupalSolr {
 		this.drupalBaseUrl = config.get("drupalBaseUrl");
 		this.drupalProxy = new DrupalHttpProxy(request);
 	}
+	public RegisterInterestDrupalSolr(HttpServletRequest request) {
+		this.drupalBaseUrl = (String)request.getAttribute("drupalBaseUrl");
+		this.drupalProxy = new DrupalHttpProxy(request);
+	}
 
+	
 	/**
 	 * is this user interested in the passed in gene
 	 * 

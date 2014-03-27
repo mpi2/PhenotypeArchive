@@ -1671,9 +1671,8 @@
     			// IE fix, as this style in CSS is not working for IE8 
     			if ( $('table#geneGrid').size() == 1 ){
     				$('table#geneGrid th:nth-child(1)').width('45%');
-    			}  						
-    							
-    			
+    			}		
+    			    			
     			$('a.interest').click(function(){
     				
     				var mgiId = $(this).attr('id');
