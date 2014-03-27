@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -93,6 +93,8 @@ public class AnatomyController {
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
+	
+	private static final int numberOfImagesToDisplay=5;
 
 	/**
 	 * Phenotype controller loads information required for displaying the
@@ -111,7 +113,6 @@ public class AnatomyController {
 	public String loadMaPage(@PathVariable String anatomy_id, Model model,
 			HttpServletRequest request, RedirectAttributes attributes)
 			throws SolrServerException, IOException, URISyntaxException {
-		System.out.println("calling anatomy page");
 		// http://www.informatics.jax.org/searches/AMA.cgi?id=MA:0002950
 		// right eye
 		Anatomy ma=JSONMAUtils.getMA(anatomy_id, config);
@@ -122,7 +123,7 @@ public class AnatomyController {
 
 		//get expression only images
 		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils
-				.getAnatomyAssociatedExpressionImages(anatomy_id, config);
+				.getAnatomyAssociatedExpressionImages(anatomy_id, config, numberOfImagesToDisplay);
 		int numberExpressionImagesFound = JSONRestUtil
 				.getNumberFoundFromJsonResponse(maAssociatedExpressionImagesResponse);
 		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject(

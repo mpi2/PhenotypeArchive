@@ -1,10 +1,37 @@
 $(document).ready(function(){						
-
+	
+	
+	
+	// AJAX calls for the overview charts
+	$('.oChart').each(function(i, obj) {
+		$( '#spinner-overview-charts' ).show();
+		var mp = $(this).attr('mp');
+		var id = $(this).attr('parameter');
+		var chartUrl = document.URL.split("/phenotypes/")[0];
+		chartUrl += "/overviewCharts/" + mp + "?parameter_id=" + id;
+		console.log("request uri = " + chartUrl);	
+		$.ajax({
+		  url: chartUrl,
+		  cache: false
+		})
+		.done(function( html ) {
+			$( '#spinner-overview-charts' ).hide();
+			$( '#single-chart-div' ).html( html );		
+			$( '#single-chart-div' ).attr("parameter", id);
+		});
+	});	 
+				
 	// bubble popup for brief panel documentation
 	$.fn.qTip({
-		'pageName': 'phenotypes',
-		'textAlign': 'left',
-		'tip': 'topRight'
+		'pageName': 'phenotypes',	
+		'tip': 'top right',
+		'corner' : 'right top'
+	});
+	
+	$( "#show_other_procedures" ).click(function() {
+		$( "#other_procedures" ).toggle( "slow", function() {
+		// Animation complete.
+		 });
 	});
 	
 	//function to fire off a refresh of a table and it's dropdown filters
@@ -35,16 +62,18 @@ $(document).ready(function(){
 	$('[rel=tooltip]').tooltip();
 
 	//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
-	$('div#exportIconsDiv').append($.fn.loadFileExporterUI({
+	$('div#exportIconsDiv').html($.fn.loadFileExporterUI({
 		label: 'Export table as:',
+		textPos : "textright",
 		formatSelector: {
 			TSV: 'tsv_phenoAssoc',
 			XLS: 'xls_phenoAssoc'	    			 					
 		},
-		class: 'fileIcon'
+		class: 'fileIcon exportButton'
 	}));
 
 	var mpId = window.location.href.split("/")[window.location.href.split("/").length-1];
+	mpId = mpId.split("#")[0];
 	var windowLocation = window.location; 
 	initFileExporter({
 		mpId: "\"" + mpId+ "\"",
@@ -73,8 +102,8 @@ $(document).ready(function(){
 			sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
 			var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");		
 			_doDataExport(url, form);
-			console.log(sInputs);
-		}).corner('6px');	 
+//			console.log(sInputs);
+		});	 
 	}  
 
 	 function _doDataExport(url, form){
@@ -140,8 +169,8 @@ $(document).ready(function(){
 		$(multipleSel).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
 			minWidth: 150, onItemClick: function(checkbox, selector){
 				var justChecked = checkbox.prop("checked");
-				console.log("justChecked="+justChecked);
-				console.log("checked="+ checkbox.val());
+//				console.log("justChecked="+justChecked);
+//				console.log("checked="+ checkbox.val());
 				var values = [];
 
 				for(var  i=0; i < selector.options.length; i++ ) {
@@ -167,14 +196,14 @@ $(document).ready(function(){
 				var ddI  = 1; 
 				for (var ii=0; ii<allDd.length; ii++) { 
 					if ($(allDd[ii]).attr('id') != multipleSel.attr('id')) {
-						console.log ("here " + allDd[ii].val() + " " + allDd[ii].attr('id'));
+//						console.log ("here " + allDd[ii].val() + " " + allDd[ii].attr('id'));
 						dd = new Object();
 						dd.name = allDd[ii].attr('id'); 
 						dd.array = allDd[ii].val() || []; 
 						dropdownsList[ddI++] = dd;
 					}
 				}
-				console.log("call with " + dropdownsList.length);
+//				console.log("call with " + dropdownsList.length);
 				refreshGenesPhenoFrag(dropdownsList);
 			}, textFormatFunction: function(options) {
 				var selectedOptions = options.filter(":selected");
@@ -212,12 +241,12 @@ $(document).ready(function(){
 	
 	function refreshGenesPhenoFrag(dropdownsList) {
 		var rootUrl=window.location.href;
-		console.log("genesPhenFrag method (refreshGenesPhenoFrag) called with "+dropdownsList.length);
+//		console.log("genesPhenFrag method (refreshGenesPhenoFrag) called with "+dropdownsList.length);
 		var newUrl=rootUrl.replace("phenotypes", "geneVariantsWithPhenotypeTable");
 		var output ='?';
 		selectedFilters = "";
 		for (var it = 0; it < dropdownsList.length; it++){
-			console.log(dropdownsList[it].array);
+//			console.log(dropdownsList[it].array);
 			if(dropdownsList[it].array.length == 1){//if only one entry for this parameter then don't use brackets and or
 				output += '&fq=' + dropdownsList[it].name + ':"' + dropdownsList[it].array+'"';
 				selectedFilters += '+AND+' + dropdownsList[it].name + ':"' + dropdownsList[it].array+'"';
@@ -234,3 +263,20 @@ $(document).ready(function(){
 });
 
 
+function ajaxToBe(phenotype, parameter){
+	$( '#spinner-overview-charts' ).show();
+	console.log('parameter_id='+parameter);
+	console.log("request uri="+document.URL);
+	var chartUrl = document.URL.split("/phenotypes/")[0];
+	chartUrl += "/overviewCharts/" + phenotype + "?parameter_id=" + parameter;
+	$.ajax({
+	  url: chartUrl,
+	  cache: false
+	})
+	.done(function( html ) {
+		$( '#spinner-overview-charts' ).hide();
+		$( '#single-chart-div' ).html( html );
+		$( '#single-chart-div' ).attr("parameter", parameter);
+	});
+	
+}

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -18,6 +18,7 @@
  */
 jQuery(document).ready(	function() {
 
+
 //code for setting ENU links on Gene Page	
 	
 	$.ajax({
@@ -35,7 +36,6 @@ jQuery(document).ready(	function() {
 	    	$('#enu').html(errorMsg);
 	    }
 	});
-
 
 
 });

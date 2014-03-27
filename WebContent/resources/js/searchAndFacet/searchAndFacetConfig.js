@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -31,6 +31,9 @@ if(typeof(window.MPI2) === 'undefined') {
 MPI2.searchAndFacetConfig = {};
 var config = MPI2.searchAndFacetConfig;
 
+config.isLoggedIn = false;
+config.widgetOpen = false;
+config.hasFilters = false;
 
 // on drupal side this is not available
 if ( typeof solrUrl == 'undefined' ){
@@ -95,9 +98,12 @@ config.procSid2ExpNameMapping = {
 config.facetFilterLabel = {
 	'phenotyping_center'         : 'phenotyping_center',
 	'production_center'          : 'production_center',
-	'imits_phenotype_complete'   : 'phenotyping_status',
-	'imits_phenotype_started'    : 'phenotyping_status',
-	'imits_phenotype_status'     : 'phenotyping_status',
+	//'imits_phenotype_complete'   : 'phenotyping_status',
+	//'imits_phenotype_started'    : 'phenotyping_status',
+	//'imits_phenotype_status'     : 'phenotyping_status',
+	'imits_phenotype_complete'   : 'phenotyping',
+	'imits_phenotype_started'    : 'phenotyping',
+	'imits_phenotype_status'     : 'phenotyping',
 	'status'                     : 'mouse_production_status',
 	'marker_type'                : 'gene_subtype',
 	'top_level_mp_term'          : 'top_level_term',
@@ -111,39 +117,47 @@ config.facetFilterLabel = {
 	'subtype'                    : 'gene_subtype',	
 	'disease_classes' 			 : 'disease_classification',
 	'disease_source'			 : 'disease_source',
-	'human_curated'              : 'human_data',
-	'mouse_curated'              : 'mouse_data',
-	'impc_predicted'             : 'IMPC_predicted',
-	'impc_predicted_in_locus'    : 'IMPC_predicted_in_locus',
-	'mgi_predicted'              : 'MGI_predicted',
-	'mgi_predicted_in_locus'     : 'MGI_predicted_in_locus'	
+	'human_curated'              : 'From human data (OMIM, Orphanet)',//'human_data',
+	'mouse_curated'              : 'From mouse data (MGI)', //'mouse_data',
+	'impc_predicted'             : 'From MGP data',//'IMPC_predicted',
+	'impc_predicted_in_locus'    : 'From MGP data in linkage locus',//'IMPC_predicted_in_locus',
+	'mgi_predicted'              : 'From MGI data',//'MGI_predicted',
+	'mgi_predicted_in_locus'     : 'From MGI data in linkage locus',//'MGI_predicted_in_locus'	
 };
 
 config.filterMapping = {
 		//gene
-		'imits_phenotype_complete|1':{'class':'phenotyping', 'facet':'gene'},
-		'imits_phenotype_started|1' : {'class':'phenotyping', 'facet':'gene'},
+		/*'imits_phenotype_complete|1':{'class':'inprogressphenotyping', 'facet':'gene'},		
+		'imits_phenotype_started|1' : {'class':'phenotyping', 'facet':'gene'},		
 		'imits_phenotype_status|Phenotype Attempt Registered' : {'class':'phenotyping', 'facet':'gene'},
 		'status|Mice Produced' : {'class':'production', 'facet':'gene'},		
 		'status|Assigned for Mouse Production and Phenotyping' : {'class':'production', 'facet':'gene'},
 		'status|ES Cells Produced' : {'class':'production', 'facet':'gene'},
 		'status|Assigned for ES Cell Production' : {'class':'production', 'facet':'gene'},
 		'status|Not Assigned for ES Cell Production' : {'class':'production', 'facet':'gene'},
+		'marker_type' : {'class':'marker_type', 'facet':'gene'},*/
+		
+		'imits_phenotype_complete':{'class':'inprogressphenotyping', 'facet':'gene'},		
+		'imits_phenotype_started' : {'class':'phenotyping', 'facet':'gene'},
+		'imits_phenotype_status' : {'class':'phenotyping', 'facet':'gene'},
+		'status' : {'class':'production', 'facet':'gene'},		
 		'marker_type' : {'class':'marker_type', 'facet':'gene'},
+		
 		
 		// mp, ma
 		'mp' : {'class':'', 'facet':'mp'},
 		'ma' : {'class':'', 'facet':'ma'},
+		'annotated_or_inferred_higherLevelMxTermName' : {'class':'', 'facet':'mp'},
 		
 		// disease
 		'disease_source' : {'class':'disease_source', 'facet':'disease'},
 		'disease_classes' : {'class':'disease_classes', 'facet':'disease'},
-		'human_curated|1' : {'class':'curated', 'facet':'disease'},
-		'mouse_curated|1' : {'class':'curated', 'facet':'disease'},
-		'impc_predicted|1' : {'class':'predicted', 'facet':'disease'},
-		'impc_predicted_in_locus|1' : {'class':'predicted', 'facet':'disease'},
-		'mgi_predicted|1' : {'class':'predicted', 'facet':'disease'},
-		'mgi_predicted_in_locus|1' : {'class':'predicted', 'facet':'disease'},
+		'human_curated' : {'class':'curated', 'facet':'disease'},
+		'mouse_curated' : {'class':'curated', 'facet':'disease'},
+		'impc_predicted' : {'class':'predicted', 'facet':'disease'},
+		'impc_predicted_in_locus' : {'class':'predicted', 'facet':'disease'},
+		'mgi_predicted' : {'class':'predicted', 'facet':'disease'},
+		'mgi_predicted_in_locus' : {'class':'predicted', 'facet':'disease'},
 		
 		// pipeline: using ajax		
 		
@@ -152,7 +166,6 @@ config.filterMapping = {
 		'imgMa' : {'class':'annotated_or_inferred_higherLevelMaTermName', 'facet':'images'},
 };
 
-config.lastCheckbox = null;
 var megaFacetFields = ['status', 'imits_phenotype_complete', 'imits_phenotype_started', 'imits_phenotype_status', 
                        'mgi_accession_id', 'marker_type', 'top_level_mp_term', 'mp_term', 
                        'inferred_selected_top_level_ma_term', 'inferred_ma_term', 
@@ -203,7 +216,7 @@ config.facetParams = {
 		subFacetFqFields: ['imits_phenotype_started', 'imits_phenotype_complete', 'imits_phenotype_status', 'status', 'marker_type'],			
 		solrCoreName: 'gene',			 
 		tableCols: 3, 	
-		tableHeader: "<thead><th>Gene</th><th>Mouse Production Status</th><th>Phenotyping Status</th><th>Register for Updates</th></thead>",
+		tableHeader: "<thead><th>Gene</th><th>Production Status</th><th>Phenotype Status</th><th></th></thead>",
 		fq: 'marker_type:* -marker_type:"heritable phenotypic marker"',//undefined,
 		//fq: 'marker_type:* -marker_type:"heritable phenotypic marker" (production_center:* AND phenotyping_center:*)',//undefined,
 		//centerFq: 'marker_type:* -marker_type:"heritable phenotypic marker" AND (production_center:* AND phenotyping_center:*)',
@@ -220,7 +233,7 @@ config.facetParams = {
 		subFacet_filter_params: '', // set by widget on the fly
 		breadCrumbLabel: 'Genes'		
 	 },	
-	 pipelineFacet: {		
+	 pipelineFacet: {	
 		 type: 'parameters',
 		 subFacetFqFields: 'procedure_stable_id', 		 
 		 solrCoreName: 'pipeline',			
@@ -232,8 +245,9 @@ config.facetParams = {
 		 wt: 'json',
 		 gridFields: 'parameter_name,procedure_name,pipeline_name',
 		 gridName: 'pipelineGrid',	
-		 filterParams:{'fq': 'pipeline_stable_id:IMPC_001'},
-		 breadCrumbLabel: 'Parameters',		 
+		 //filterParams:{'fq': 'pipeline_stable_id:IMPC_001'},
+		 breadCrumbLabel: 'Parameters',	
+		 filterParams: {fq:'pipeline_stable_id:*'},	 
 		 srchParams: $.extend({},				     
 					commonSolrParams    				
 					)					
@@ -254,7 +268,8 @@ config.facetParams = {
 		 topLevelName: '',
 		 ontology: 'mp',
 		 breadCrumbLabel: 'Phenotypes',		
-		 filterParams: {'fq': 'ontology_subset:IMPC_Terms'},
+		 //filterParams: {'fq': 'ontology_subset:IMPC_Terms'},
+		 filterParams: {'fq': 'ontology_subset:*'},
 		 srchParams: $.extend({},				
 					commonSolrParams,	 	
 					{'fl': 'mp_id,mp_term,mp_definition,top_level_mp_term,top_mp_term_id'})
@@ -277,7 +292,7 @@ config.facetParams = {
 		 ontology: 'ma',
 		 breadCrumbLabel: 'Anatomy',		 
 		 //filterParams: {'fq': "ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*", 'fl': 'ma_id,ma_term,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'},
-		 filterParams: {}, //'fq': 'ontology_subset:IMPC_Terms'},		 
+		 filterParams: {'fq': 'ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*'},		 
 		 srchParams: $.extend({},
 					commonSolrParams,
 					{'fl' : 'ma_id,ma_term,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'})		
@@ -287,7 +302,8 @@ config.facetParams = {
 		 subFacetFqFields: '',
 		 solrCoreName: 'disease', 
 		 tableCols: 1, 
-		 tableHeader: '<thead><th>Disease name</th><th>Source</th><th>Curated genes in human</th><th>Curated genes in mouse (MGI)</th><th>Candidate genes by phenotype (MGP)</th><th>Candidate genes by phenotype (MGI)</th></thead>', 
+		 tableHeader: '<thead><th>Disease</th><th>Source</th><th>Curated Genes</th><th><span class="main">Candidate Genes</span><span class="sub">by phenotype</span></th></thead>', 
+		 //tableHeader: '<thead><th>Disease</th><th>Source</th><th>Curated Genes</th><th>Candidate Genes</th></thead>', 
 		 subset: '',
 		 fq: 'type:disease',		
 		 wt: 'json',
@@ -315,11 +331,15 @@ config.facetParams = {
 		 gridFields: 'annotationTermId,annotationTermName,expName,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath',
 		 gridName: 'imagesGrid',
 		 topLevelName: '',
-		 imgViewSwitcherDisplay: 'Show Annotation View',
+		 /*imgViewSwitcherDisplay: 'Show Annotation View',
 		 viewLabel: 'Image View: lists annotations to an image',
 		 viewMode: 'imageView',
-		 forceReloadImageDataTable: false,
-		 showImgView: true,		 
+		 showImgView: true,	*/
+		 imgViewSwitcherDisplay: 'Show Image View',
+		 viewLabel: 'Annotation View: groups images by annotation',
+		 viewMode: 'annotView',
+		 showImgView: false,		 
+		 forceReloadImageDataTable: false,		 
 		 breadCrumbLabel: 'Images',
 		 filterParams: {//'fl' : 'annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath',
 			 	  'fq' : "(annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotated_or_inferred_higherLevelMpTermName:*)"},	

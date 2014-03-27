@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -20,6 +20,7 @@ import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -101,10 +102,10 @@ public class FileExportController {
 		@RequestParam(value="panel", required=false) String panelName,			
 		@RequestParam(value="mpId", required=false) String mpId,
 		@RequestParam(value="mpTerm", required=false) String mpTerm,			
-		@RequestParam(value="mgiGeneId", required=false) String mgiGeneId,
-		@RequestParam(value="parameterStableId", required=false) String parameterStableId, // should be filled for graph data export
-		@RequestParam(value="zygosity", required=false) String zygosity, // should be filled for graph data export
-		@RequestParam(value="strain", required=false) String strain, // should be filled for graph data export
+		@RequestParam(value="mgiGeneId", required=false) String [] mgiGeneId,
+		@RequestParam(value="parameterStableId", required=false) String []parameterStableId, // should be filled for graph data export
+		@RequestParam(value="zygosity", required=false) String []zygosities, // should be filled for graph data export
+		@RequestParam(value="strains", required=false) String[] strains, // should be filled for graph data export
 		@RequestParam(value="geneSymbol", required=false) String geneSymbol,			
 		@RequestParam(value="solrCoreName", required=false) String solrCoreName,
 		@RequestParam(value="params", required=false) String solrParams,
@@ -113,7 +114,7 @@ public class FileExportController {
 		@RequestParam(value="dumpMode", required=false) String dumpMode,	
 		@RequestParam(value="baseUrl", required=false) String baseUrl,	
 		@RequestParam(value="sex", required=false) String sex,
-		@RequestParam(value="phenotypingCenter", required=false) String phenotypingCenter,
+		@RequestParam(value="phenotypingCenter", required=false) String[] phenotypingCenter,
 		HttpSession session, 
 		HttpServletRequest request, 
 		HttpServletResponse response,
@@ -126,9 +127,11 @@ public class FileExportController {
 		// Default to exporting 10 rows
 		Integer length = 10;
 
-		Integer phenotypingCenterId = null;
+		ArrayList<Integer> phenotypingCenterIds = new ArrayList<>();
 		try {
-			phenotypingCenterId = organisationDao.getOrganisationByName(phenotypingCenter).getId();
+			for (int i = 0; i < phenotypingCenter.length; i++ ){
+				phenotypingCenterIds.add(organisationDao.getOrganisationByName(phenotypingCenter[i].replaceAll("%20", " " )).getId());
+			}
 		} catch (NullPointerException e) {
 			log.error("Cannot find organisation ID for org with name " + phenotypingCenter);
 		}
@@ -148,7 +151,7 @@ public class FileExportController {
 				Wb = new ExcelWorkBook(fetchGeneVariantsTitles(), fetchGeneVariantsData(mpId, extDbId), sheetName);					
 			}
 			else if ( panelName.equals("phenoAssoc")){
-				Wb = new ExcelWorkBook(fetchPhenoAssocTitles(), fetchPhenoAssocData(mgiGeneId, extDbId), sheetName);					
+				Wb = new ExcelWorkBook(fetchPhenoAssocTitles(), fetchPhenoAssocData(mgiGeneId[0], extDbId), sheetName);					
 			}
 			else if ( !solrCoreName.isEmpty() ){					
 				if (dumpMode.equals("all")){
@@ -157,14 +160,18 @@ public class FileExportController {
 					length = 100000;
 				}
 													
-				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
 				List<String> rows;
 				if (!solrCoreName.equalsIgnoreCase("experiment")){
+					JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
 					rows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);
 				}
 				else{
-					String zyg = (zygosity.equalsIgnoreCase("null")) ? null : zygosity; 
-					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, phenotypingCenterId, zyg, strain);
+					List<String> zygList=null;
+					if(zygosities!=null) {
+						zygList=Arrays.asList(zygosities);
+					}
+					String s = (sex.equalsIgnoreCase("null")) ? null : sex;
+					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, s, phenotypingCenterIds, zygList, strains);
 				}
 				// Remove the title row (row 0) from the list and assign it to
 				// the string array for the spreadsheet
@@ -182,7 +189,7 @@ public class FileExportController {
 				dataString = composeGeneVariantsTsvString(mpId, extDbId);
 			}
 			else if ( panelName.equals("phenoAssoc") ){				
-				dataString = composePhenoAssocTsvString(mgiGeneId, extDbId);
+				dataString = composePhenoAssocTsvString(mgiGeneId[0], extDbId);
 			}
 			else if ( !solrCoreName.isEmpty() ){
 
@@ -191,11 +198,17 @@ public class FileExportController {
 					length = 100000;
 				}
 
-				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
 				if (!solrCoreName.equalsIgnoreCase("experiment")){
+					JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
 					dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);}
 				else{
-					dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, (sex.equalsIgnoreCase("null")) ? null : sex, phenotypingCenterId, zygosity, strain);
+					List<String> zygList=null;
+					if(zygosities!=null) {
+						zygList=Arrays.asList(zygosities);
+					}
+					String s = (sex.equalsIgnoreCase("null")) ? null : sex;
+					dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, s, phenotypingCenterIds, zygList, strains);
+					System.out.println("\t\tdataRows : " + dataRows.size());
 				}
 			}
 		}
@@ -276,29 +289,37 @@ public class FileExportController {
 		return tableData;
 	}
 	
-	public List<String> composeExperimetDataExportRows(String parameterStableId, String geneAccession, String gender, Integer phenotypingCenterId, String zygosity, String strain) throws SolrServerException, IOException, URISyntaxException, SQLException{
+	public List<String> composeExperimetDataExportRows(String[] parameterStableId, String[] geneAccession, String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity, String[] strain) throws SolrServerException, IOException, URISyntaxException, SQLException{
+
 		List<String> rows = new ArrayList<String>();
 		SexType sex = null;
 		if (gender != null)
 			sex = SexType.valueOf(gender);
-		List<ExperimentDTO> experimentList = new ArrayList<ExperimentDTO> ();
-		if (parameterStableId.contains("\t")){
-			String [] params = parameterStableId.split("\t");
-			for (int k = 0; k < params.length; k++){
-				experimentList = experimentService.getExperimentDTO(params[k], geneAccession, sex, phenotypingCenterId, zygosity, strain);
-				for (ExperimentDTO experiment : experimentList) { 
-					rows.addAll(experiment.getTabbedToString(ppDAO)) ;
-				}
-				rows.add("\n");
-			}
+		if (phenotypingCenterIds.size() == 0){
+			phenotypingCenterIds.add(null);
 		}
-		else {
-			experimentList = experimentService.getExperimentDTO(parameterStableId, geneAccession, sex, phenotypingCenterId, zygosity, strain);
-			for (ExperimentDTO experiment : experimentList) { 
-				rows.addAll(experiment.getTabbedToString(ppDAO)) ;
-			}
+		if (strain.length == 0){
+			strain = new String[1];
+			strain[0] = null;
 		}
 		
+		List<ExperimentDTO> experimentList = new ArrayList<ExperimentDTO> ();		
+Integer pipelineId=0;
+		for (int k = 0; k < parameterStableId.length; k++){
+			for (int mgiI = 0; mgiI < geneAccession.length; mgiI++){
+				for (Integer pCenter : phenotypingCenterIds){
+					for (int strainI = 0; strainI < strain.length; strainI++){
+						experimentList = experimentService.getExperimentDTO(parameterStableId[k],pipelineId,  geneAccession[mgiI], sex, pCenter, zygosity, strain[strainI]);
+						if (experimentList.size() > 0){
+							for (ExperimentDTO experiment : experimentList) { 
+								rows.addAll(experiment.getTabbedToString(ppDAO)) ;
+							}
+							rows.add("\n\n");
+						}
+					}
+				}
+			}
+		}
 		return rows;
 	}
 
@@ -342,34 +363,25 @@ public class FileExportController {
 			for (int i=0; i<docs.size(); i++) {			
 				List<String> data = new ArrayList<String>();
 				JSONObject doc = docs.getJSONObject(i);
-				if (!doc.getString("resource_fullname").equalsIgnoreCase("International Mouse Phenotyping Consortium")){
-					data.add(doc.getString("mp_term_name"));
-					if (doc.containsKey("allele_symbol"))
-						data.add(doc.getString("allele_symbol"));
-					else data.add("");
-					data.add(doc.getString("zygosity"));
-					data.add(doc.getString("sex"));
-					data.add(doc.getString("procedure_name") + " / " + doc.getString("parameter_name"));
-					data.add(doc.getString("resource_fullname"));
-					String graphUrl = "\"\"";
-					if ((doc.getString("resource_fullname")).equalsIgnoreCase("EuroPhenome")){ // only show links for Europhenome
-					// also don't show graph links for derived parameters
-					//		if (!pipe.getParameterByStableId(doc.getString("parameter_stable_id"), "").getDerivedFlag()){
-								graphUrl = request.getParameter("baseUrl").replace("/genes/", "/stats/genes/") + "?parameterId=" ;
-								graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
-								graphUrl += "&zygosity=" + doc.getString("zygosity");
-								if (doc.containsKey("phenotyping_center")){
-									graphUrl += "&phenotyping_center=" +doc.getString("phenotyping_center");
-								}
-					//		}
-					}
-					data.add(graphUrl);
-					String line = StringUtils.join(data, "\t");
-					if (!rowData.contains(line)){
-						rowData.add(line);
-					}else 
-		//				System.out.println("Duplicate row " + line);
-						;
+				data.add(doc.getString("mp_term_name"));
+				if (doc.containsKey("allele_symbol"))
+					data.add(doc.getString("allele_symbol"));
+				else data.add("");
+				data.add(doc.getString("zygosity"));
+				data.add(doc.getString("sex"));
+				data.add(doc.getString("procedure_name") + " / " + doc.getString("parameter_name"));
+				data.add(doc.getString("resource_fullname"));
+				String graphUrl = "\"\"";
+				graphUrl = request.getParameter("baseUrl").replace("/genes/", "/charts?accession=") + "&parameterId=" ;
+				graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
+				graphUrl += "&zygosity=" + doc.getString("zygosity");
+				if (doc.containsKey("phenotyping_center")){
+					graphUrl += "&phenotyping_center=" +doc.getString("phenotyping_center");
+				}
+				data.add(graphUrl);
+				String line = StringUtils.join(data, "\t");
+				if (!rowData.contains(line)){
+					rowData.add(line);
 				}
 			}
 		}
@@ -386,37 +398,31 @@ public class FileExportController {
 			for (int i=0; i<docs.size(); i++) {		
 				JSONObject doc = docs.getJSONObject(i);
 				// for some reason we need to filter out the IMPC entries.
-				if (!doc.getString("resource_fullname").equalsIgnoreCase("International Mouse Phenotyping Consortium")){
-					List<String> data = new ArrayList<String>();
-					data.add(doc.getString("marker_symbol"));
-					if (doc.containsKey("allele_symbol"))
-						data.add(doc.getString("allele_symbol"));
-					else data.add("");
-					data.add(doc.getString("zygosity"));
-					data.add(doc.getString("sex"));
-					if (isTopLevel)
-					{
-						data.add(doc.getString("mp_term_name") + " / " + doc.getString("parameter_name"));
-					}
-					else {
-						data.add(doc.getString("procedure_name") + " / " + doc.getString("parameter_name"));
-					}
-					data.add(doc.getString("resource_fullname"));
-					String graphUrl = "\"\"";
-					// TODO check, this might need to change
-					if ((doc.getString("resource_fullname")).equalsIgnoreCase("EuroPhenome")){ // only show links for Europhenome
-					//		if (!pipe.getParameterByStableId(doc.getString("parameter_stable_id"), "").getDerivedFlag()){
-								graphUrl = request.getParameter("baseUrl").replace("/phenotypes/", "/stats/genes/") + "?parameterId=" ;
-								graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
-								graphUrl += "&zygosity=" + doc.getString("zygosity") ;
-								if (doc.containsKey("phenotyping_center")){
-									graphUrl += "&phenotyping_center=" +doc.getString("phenotyping_center");
-								}
-					//		}
-					}
-					data.add(graphUrl);
-					rowData.add(StringUtils.join(data, "\t"));
+				
+				List<String> data = new ArrayList<String>();
+				data.add(doc.getString("marker_symbol"));
+				if (doc.containsKey("allele_symbol"))
+					data.add(doc.getString("allele_symbol"));
+				else data.add("");
+				data.add(doc.getString("zygosity"));
+				data.add(doc.getString("sex"));
+				if (isTopLevel)
+				{
+					data.add(doc.getString("mp_term_name") + " / " + doc.getString("parameter_name"));
 				}
+				else {
+					data.add(doc.getString("procedure_name") + " / " + doc.getString("parameter_name"));
+				}
+				data.add(doc.getString("resource_fullname"));
+				String graphUrl = "\"\"";
+				graphUrl = request.getParameter("baseUrl").split("/phenotypes/")[0] + "/charts?accession=" + doc.getString("marker_accession_id") + "&parameterId=" ;
+				graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
+				graphUrl += "&zygosity=" + doc.getString("zygosity") ;
+				if (doc.containsKey("phenotyping_center")){
+					graphUrl += "&phenotyping_center=" +doc.getString("phenotyping_center");
+				}
+				data.add(graphUrl);
+				rowData.add(StringUtils.join(data, "\t"));
 			}
 		}
 		return rowData;
@@ -660,10 +666,10 @@ public class FileExportController {
 			data.add(doc.getString("disease_id"));
 			data.add(doc.getString("disease_term"));
 			data.add(doc.getString("disease_source"));
-			data.add(doc.getString("human_curated").equals("1") ? "Yes" : "-");
-			data.add(doc.getString("mouse_curated").equals("1") ? "Yes" : "-");
-			data.add((doc.getString("impc_predicted").equals("1") || doc.getString("impc_predicted_in_locus").equals("1")) ? "Yes" : "-");
-			data.add((doc.getString("mgi_predicted").equals("1") || doc.getString("mgi_predicted_in_locus").equals("1")) ? "Yes" : "-");
+			data.add(doc.getString("human_curated"));
+			data.add(doc.getString("mouse_curated"));
+			data.add(doc.getString("impc_predicted"));
+			data.add(doc.getString("mgi_predicted"));
 						
 			rowData.add(StringUtils.join(data, "\t"));
 		}

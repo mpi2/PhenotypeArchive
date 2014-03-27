@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -19,61 +19,48 @@
  */
 $(document).ready(function(){
 	'use strict';	
-		
+	
 	var oHashParams = {};
 	
 	$('span.facetCount').text(''); // default when page loads
 	
-	$('input#userInput').val('');  // clears input when pages loads
+	$('input#s').val('');  // clears input when pages loads
 	
-	// default search when search page loads
+	// default search when search page loadsconsole.log(result);
 	if ( /search\/?$/.exec(location.href) ){
-
 		// do default gene search by * when search page loads	
 		oHashParams.q = '*:*';		
 		$.fn.fetchSolrFacetCount(oHashParams);
-	}	
-	else if ( location.href.indexOf('/search#') != -1 ){		
-		// load page based on url hash parameters		
+	}
+	else if ( window.location.search == '?q=' ){
+		// catches user hitting ENTER on search input box of homepage
+		document.location.href = baseUrl + '/search';		
+	}
+	else if ( location.href.indexOf('/search?q=') != -1 
+			|| location.href.indexOf('/search#q=*:*') != -1 
+			|| location.href.indexOf('/search#q=*') != -1 
+			|| location.href.indexOf('/search#fq=') != -1 ){   	
+		// load page based on url hash parameters	
 		oHashParams = $.fn.parseHashString(window.location.hash.substring(1));		
 		$.fn.fetchSolrFacetCount(oHashParams);	
 	}
+	else {
+		// do not understand the url, redirect to error page
+		document.location.href = baseUrl + '/404.jsp';		
+	}
 	
 	// search via ENTER
-	$('input#userInput').keyup(function (e) {		
+	$('input#s').keyup(function (e) {		
 	    if (e.keyCode == 13) { // user hits enter
 	    	
-	    	var input = $('input#userInput').val();
+	    	var input = $('input#s').val();
 	    	//console.log('user input search: ' + input);
 	    	if (input == ''){
 	    		document.location.href = baseUrl + '/search';
 	    	}
-	    	else {
+	    	else {	    		
 	    		document.location.href = baseUrl + '/search?q=' + input; // handed over to hash change	    	
 	    	}
 	    }
-	}).click(function(){
-		$(this).val(''); // clears input 
-	});
-	
-	// search via button click
-	$('button#acSearch').click(function(){
-		
-		var input = $('input#userInput').val();
-		//console.log('button search in search and facet= ' + input);
-		if (input == ''){
-    		document.location.href = baseUrl + '/search';
-    	}
-    	else {
-    		document.location.href = baseUrl + '/search?q=' + input; // handed over to hash change 
-    	}		
-	});		
-
-	
-	// dynamically readjusted position of autosuggest dropdown list due to elastic design of page
-	window.jQuery(window).resize(function(){
-		var pos = window.jQuery('input#userInput').offset();     
-		window.jQuery('ul.ui-autocomplete').css({'position':'absolute', 'top': pos.top + 26, 'left': pos.left}); 
-	});
-	
+	})	
 });

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -120,6 +120,8 @@ public class PhenotypesController {
 	
 	@Autowired
 	GenotypePhenotypeService gpService;
+	
+	private static final int numberOfImagesToDisplay=5;
 
 	/**
 	 * Phenotype controller loads information required for displaying 
@@ -232,7 +234,7 @@ public class PhenotypesController {
 		model.addAttribute("siblings", mpSiblings);
 		model.addAttribute("synonyms", synonymTerms);
 		// Query the images for this phenotype
-		QueryResponse response=imagesSolrDao.getDocsForMpTerm(phenotype_id, 0, 6);
+		QueryResponse response=imagesSolrDao.getDocsForMpTerm(phenotype_id, 0, numberOfImagesToDisplay);
 		model.addAttribute("numberFound", response.getResults().getNumFound());
 		model.addAttribute("images", response.getResults());
 		//get a string, image map instead?
@@ -248,7 +250,9 @@ public class PhenotypesController {
 		model.addAttribute("procedures", procedures);
 		model.addAttribute("genePercentage", getPercentages(phenotype_id));
 		
-		model.addAttribute("overviewPhenCharts", getDataOverviewCharts(phenotype_id, model));
+		model.addAttribute("parametersAssociated", getParameters(phenotype_id));
+		//TODO move all getDataOverviewCharts to the OverviewChartsController
+//		model.addAttribute("overviewPhenCharts", getDataOverviewCharts(phenotype_id, model));
 		
 		return "phenotypes";
 	}
@@ -336,6 +340,9 @@ public class PhenotypesController {
 			if(pr.getGene().getSymbol().equals("Dll1"))System.out.println("phenotype row="+pr);
 		}
 		model.addAttribute("phenotypes", new ArrayList<PhenotypeRow>(phenotypes.keySet()));	
+//		System.out.println("\n\n" + solrIndex
+//				.getMpData(phenotype_id)
+//				.getJSONObject("response") );
 		JSONObject mpData = solrIndex
 				.getMpData(phenotype_id)
 				.getJSONObject("response")
@@ -349,8 +356,6 @@ public class PhenotypesController {
 		}
 		
 	}	
-
-
 	
 	@ExceptionHandler(OntologyTermNotFoundException.class)
 	public ModelAndView handleOntologyTermNotFoundException(OntologyTermNotFoundException exception) {
@@ -476,50 +481,16 @@ public class PhenotypesController {
 		
 		return pgs;
 	}
-
-	public List<ChartData> getDataOverviewCharts(String mpId, Model model) throws SolrServerException, IOException, URISyntaxException, SQLException{
-		
-		List<ChartData> chartsList = new ArrayList<>();//one object for each parameter
-		List<String> parameters = pipelineDao.getParameterStableIdsByPhenotypeTerm(mpId);
-		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
-		TimeSeriesChartAndTableProvider tstp = new TimeSeriesChartAndTableProvider();
-		UnidimensionalChartAndTableProvider uctp = new UnidimensionalChartAndTableProvider();
-		ArrayList<String> strains = new ArrayList<>();
-		strains.add("MGI:2159965");
-		strains.add("MGI:2164831");
-		for (String parameter : parameters) {
-			// get all genes associated with mpId because of parameter
-			Parameter p = pipelineDao.getParameterByStableIdAndVersion(parameter, 1, 0);
-			if(p != null && Utilities.checkType(p).equals(ObservationType.categorical)){
-				List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
-				if (genes.size() > 0){
-					CategoricalSet controlSet = os.getCategories(p, null , "control", strains);
-					controlSet.setName("Control");
-					CategoricalSet mutantSet = os.getCategories(p, (ArrayList<String>) genes, "experimental", strains);
-					mutantSet.setName("Mutant");
-					chartsList.addAll(cctp.doCategoricalDataOverview(controlSet, mutantSet, model, p, p.getName()+" ("+parameter+")"));
-				}
-			}
-			else if ( p != null && Utilities.checkType(p).equals(ObservationType.time_series)){
-				List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
-				if (genes.size() > 0){
-					Map<String, List<DiscreteTimePoint>> data = os.getTimeSeriesMutantData(parameter, genes, strains);
-					data.put("Control", os.getTimeSeriesControlData(parameter, strains));
-					chartsList.add(tstp.doTimeSeriesOverviewData(data, p));
-				}
-			}
-			else if ( p != null && Utilities.checkType(p).equals(ObservationType.unidimensional)){
-//				System.out.println("getting unidimensional data for :  " + p);
-				List<String> genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
-//				System.out.println(" genes for " + p + " " + genes);
-				if (genes.size() > 0){
-					Map<String, List<Double>> map = os.getUnidimensionalData(p, genes, strains, "experimental");
-					String chartTitle = "Mean " +  p.getName() + " (" + p.getStableId()+")";
-					//chartsList.add(uctp.getHistogram(labels, data, chartTitle));
-					chartsList.add(uctp.getStackedHistogram(map, chartTitle, p.getUnit()));
-				}
+	
+	public Map<String, String> getParameters(String mpId) throws SolrServerException {
+		Map<String, String> res = new HashMap<String, String>();
+		List<String> paramIds = pipelineDao.getParameterStableIdsByPhenotypeTerm(mpId);
+		for (String param : paramIds){
+			if (gpService.getGenesAssocByParamAndMp(param, mpId).size() > 0){
+				Parameter p =  pipelineDao.getParameterByStableIdAndVersion(param, 1, 0);
+				res.put(param,p.getName());
 			}
 		}
-		return chartsList;
+		return res;
 	}
 }

@@ -25,7 +25,7 @@ import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
 
 /**
  *
- * @author jj8
+ * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
  */
 
 @Controller
@@ -35,6 +35,15 @@ public class GeneController {
     
     @Autowired
     private PhenoDigmWebDao phenoDigmDao;
+    private double rawScoreCutoff = 1.97;
+    
+    public double getRawScoreCutoff() {
+        return rawScoreCutoff;
+    }
+
+    public void setRawScoreCutoff(double rawScoreCutoff) {
+        this.rawScoreCutoff = rawScoreCutoff;
+    }
     
     @RequestMapping("/phenodigm/gene")
     public String allGenes(Model model) {
@@ -55,33 +64,33 @@ public class GeneController {
         model.addAttribute("mgiId", mgiId);
         GeneIdentifier geneIdentifier = new GeneIdentifier(mgiId, mgiId);
         
-        Map<Gene, List<DiseaseAssociationSummary>> geneToDiseaseAssociationsMap = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier);
-        
-        List<DiseaseAssociationSummary> curatedAssociationSummaries = new ArrayList<DiseaseAssociationSummary>();
-        List<DiseaseAssociationSummary> phenotypeAssociationSummaries = new ArrayList<DiseaseAssociationSummary>();
-        
-        for (Gene gene : geneToDiseaseAssociationsMap.keySet()) {
+        Gene gene = phenoDigmDao.getGene(geneIdentifier);
+        logger.info("Found Gene: " + gene);
+        if (gene != null) {
             model.addAttribute("geneIdentifier", gene.getOrthologGeneId());
             model.addAttribute("humanOrtholog", gene.getHumanGeneId());
             logger.info(String.format("Found gene: %s %s", gene.getOrthologGeneId().getCompoundIdentifier(), gene.getOrthologGeneId().getGeneSymbol()));
-            List<DiseaseAssociationSummary> diseaseAssociationSummarys = geneToDiseaseAssociationsMap.get(gene);
-            
-            for (DiseaseAssociationSummary geneAssociationSummary : diseaseAssociationSummarys) {
-                AssociationSummary associationSummary = geneAssociationSummary.getAssociationSummary();
-                //always want the associations in the phenotypes list
-                if (associationSummary.getBestImpcScore() > 0.0 || associationSummary.getBestMgiScore() > 0.0) {
-                    phenotypeAssociationSummaries.add(geneAssociationSummary);
-                }
-                //but only the curated ones in the curated list...
-                if (associationSummary.isAssociatedInHuman() || associationSummary.isHasLiteratureEvidence()) {
-                   curatedAssociationSummaries.add(geneAssociationSummary);
-                }
+        } else {
+            model.addAttribute("geneIdentifier", geneIdentifier);
+            logger.info(String.format("No human ortholog found for gene: %s", geneIdentifier));                
+        }
+        
+        logger.info(String.format("%s - getting disease-gene associations using cutoff %s", geneIdentifier, rawScoreCutoff));
+        List<DiseaseAssociationSummary> diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
+        logger.info(String.format("%s - recieved %s disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size()));
+
+        List<DiseaseAssociationSummary> knownDiseaseAssociationSummaries = new ArrayList<>();
+        //add the known association summaries to a dedicated list for the top panel
+        for (DiseaseAssociationSummary diseaseAssociationSummary : diseaseAssociationSummarys) {
+            AssociationSummary associationSummary = diseaseAssociationSummary.getAssociationSummary();
+            if (associationSummary.isAssociatedInHuman()) {
+               knownDiseaseAssociationSummaries.add(diseaseAssociationSummary);
             }
         }
-            
-        model.addAttribute("curatedAssociations", curatedAssociationSummaries);         
-        model.addAttribute("phenotypeAssociations", phenotypeAssociationSummaries);
-       
+        model.addAttribute("knownDiseaseAssociationSummaries", knownDiseaseAssociationSummaries);                   
+        model.addAttribute("phenotypeAssociations", diseaseAssociationSummarys);
+        
+        logger.info("returning gene page for " + mgiId);
         return "phenodigm/gene";
     }
 }

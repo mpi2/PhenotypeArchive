@@ -25,6 +25,7 @@
 	<mvc:resources mapping="/js/**" location="/resources/js/" />
 	<mvc:resources mapping="/img/**" location="/resources/img/" />
     <mvc:resources mapping="/documentation/**" location="/resources/documentation/" />
+    <mvc:resources mapping="/dalliance/**" location="/resources/dalliance/" />
     
 	<context:component-scan base-package="uk.ac.ebi.phenotype.web.controller" />
 	<context:component-scan base-package="uk.ac.sanger.phenodigm2.controller" />

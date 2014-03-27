@@ -29,6 +29,7 @@
         <dataSource name="komp2ds" jndiName="java:comp/env/jdbc/komp2DataSource" />
         <dataSource name="ontods" jndiName="java:comp/env/jdbc/ontodbDataSource" />        
         <dataSource name="disease_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/disease/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+
         <dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 
 

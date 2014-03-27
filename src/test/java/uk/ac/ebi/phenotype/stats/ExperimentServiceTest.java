@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
+import uk.ac.ebi.phenotype.stats.graphs.GraphUtils;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:app-config.xml" })
 @TransactionConfiguration
@@ -31,12 +33,12 @@ public class ExperimentServiceTest {
 	@Ignore
 	@Test
 	public void testGetExperimentDTO() throws SolrServerException, IOException, URISyntaxException {
-		List<ExperimentDTO> exp = es.getExperimentDTO("ESLIM_001_001_158", "MGI:1920194");
+		List<ExperimentDTO> exp = es.getExperimentDTO("ESLIM_001_001_158", null, "MGI:1920194");
 		System.out.println(exp);
 		assertTrue(exp.size()>0);
 		System.out.println(exp.get(0));
 		
-		exp = es.getExperimentDTO(2043, "MGI:1349215");
+		exp = es.getExperimentDTO(2043, null, "MGI:1349215");
 		System.out.println(exp);
 		assertTrue(exp.size()>0);
 		System.out.println(exp.get(0));
@@ -45,7 +47,7 @@ public class ExperimentServiceTest {
 
 	@Test
 	public void testGetExperimentDTO2() throws SolrServerException, IOException, URISyntaxException {
-		List<ExperimentDTO> exp = es.getExperimentDTO("ESLIM_003_001_011", "MGI:1922257");
+		List<ExperimentDTO> exp = es.getExperimentDTO("ESLIM_003_001_011", null, "MGI:1922257");
 		System.out.println(exp);
 		assertTrue(exp.size()>0);
 		System.out.println(exp.get(0));
@@ -59,9 +61,10 @@ public class ExperimentServiceTest {
 		sexes.add(SexType.male.name());
 		List<String> zygs = new ArrayList<>();
 		zygs.add(ZygosityType.homozygote.name());
-        List<ExperimentDTO> experimentList = es.getExperimentDTO(1594, "MGI:1922257", sexes, zygs, 8);
-        System.out.println("EXP list is: "+experimentList);
-        System.out.println("Size is: "+experimentList.size());
+		Integer pipelineId=0;
+       // List<ExperimentDTO> experimentList = es.getExperimentDTO(1594, pipelineId, "MGI:1922257", sexes, zygs, 8);
+      //  System.out.println("EXP list is: "+experimentList);
+       // System.out.println("Size is: "+experimentList.size());
 
 
 	}
@@ -75,9 +78,22 @@ public class ExperimentServiceTest {
 
 		zygs.add(ZygosityType.heterozygote.name());
 
-		List<ExperimentDTO> experimentList = es.getExperimentDTO("ESLIM_011_001_004", "MGI:1928760", sexes, zygs, 8);
-        System.out.println("EXP list is: "+experimentList);
-        System.out.println("Size is: "+experimentList.size());
+		//List<ExperimentDTO> experimentList = es.getExperimentDTO("ESLIM_011_001_004", "MGI:1928760", sexes, zygs, 8);
+        //System.out.println("EXP list is: "+experimentList);
+        //System.out.println("Size is: "+experimentList.size());
 	}
+
+	
+/*	@Test
+	public void testGetGraphUrls() {
+		GraphUtils graphUtils=new GraphUtils(es);
+		try {
+			graphUtils.getGraphUrls("MGI:1922257", "ESLIM_003_001_004");
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+*/
 
 }

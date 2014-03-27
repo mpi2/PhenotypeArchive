@@ -1,14 +1,18 @@
 #ignore any files beginning with a .
 .*
+
 #exclude the built style and js files
 WebContent/resources/js/script.js
 WebContent/resources/js/script.min.js
 WebContent/resources/css/style.css
 WebContent/resources/css/style.min.css
+
 #ignore the target dir
 target/
+
 #ignore the bin dir
 bin/
+
 *.appConfig.properties
 *.svn
 *.class
@@ -27,3 +31,10 @@ bin/
 nb-configuration.xml
 /imits_allele_stats
 /bin
+
+#Ignore intellij config files
+/PhenotypeArchive.iml
+/.idea
+
+#Ignore datasource config file
+datasourcesConfig.properties

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -17,11 +17,6 @@
  * 
  */
 jQuery(document).ready(	function() {
-		
-$('.accordion').on('show hide', function(e){
-	console.log('firing toggle');
-    $(e.target).siblings('.accordion-heading').find('.accordion-toggle i').toggleClass('icon-chevron-down icon-chevron-right', 0);
-});
 
 $('a.interest').click(function(){
 	var mgiId = $(this).attr('id');
@@ -46,7 +41,7 @@ $('a.interest').click(function(){
 			}                         
         },
         error: function () {
-        	console.log('AJAX error requesting ENU data');                     
+        	console.log('error on registering interest');                     
         }
     });
 	return false;    		    	  

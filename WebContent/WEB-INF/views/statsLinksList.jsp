@@ -21,7 +21,7 @@ IMPC
     <jsp:body>
 <!--         main body content goes here -->
       <c:forEach var="row" items="${statsLinks}" varStatus="listLoop">
-	${listLoop.count}) <a href="${baseUrl}/stats/genes/${ row.accession}?parameterId=${row.paramStableId}">"${baseUrl}/stats/genes/${ row.accession}?parameterId=${row.paramStableId}"</a><br/>
+	${listLoop.count}) <a href="${baseUrl}/charts?accession=${ row.accession}&parameterId=${row.paramStableId}">"${baseUrl}/charts?accession=${ row.accession}?parameterId=${row.paramStableId}"</a><br/>
 	</c:forEach>
 	
 	

@@ -130,7 +130,14 @@ try {
 	var console = {};
 	console.log = console.error = console.info = console.debug = console.warn = console.trace = console.dir = console.dirxml = console.group = console.groupEnd = console.time = console.timeEnd = console.assert = console.profile = function() {};
 }
-</script>
+</script>var rv = -1; // default
+		 if (navigator.appName == 'Microsoft Internet Explorer') {
+		 var ua = navigator.userAgent;
+		 var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+		 if (re.exec(ua) != null)
+		 rv = parseFloat(RegExp.$1);
+		 }
+		 retur
 
 <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
 <!--[if lt IE 9]>
@@ -278,7 +285,7 @@ try {
 		});
 
 		// Message to IE users
-		$.fn.ieCheck();
+		//$.fn.ieCheck();
 	});	
 	</script>
 </body>

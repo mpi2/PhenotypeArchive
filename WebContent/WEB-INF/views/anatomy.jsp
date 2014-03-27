@@ -6,87 +6,61 @@
 <t:genericpage>
 
 	<jsp:attribute name="title">${anatomy.accession} (${anatomy.term}) | IMPC anatomy Information</jsp:attribute>
-
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&core=ma&fq=ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*">anatomy</a> &raquo; ${anatomy.term}</jsp:attribute>
-
+	 <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&core=ma&fq=ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*">anatomy</a> &raquo; ${anatomy.term}</jsp:attribute>
 <jsp:attribute name="header">
 </jsp:attribute>
-    <jsp:attribute name="footer">
-		<script src="${baseUrl}/js/general/toggle.js"></script>
+    <jsp:attribute name="addToFooter">
+		<div class="region region-pinned">
+            
+        <div id="flyingnavi" class="block">
+            
+            <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
+            
+            <ul>
+                <li><a href="#top">Anatomy Term</a></li>
+                <c:if test="${not empty anatomy.mpTerms}">
+                	<li><a href="#associated-phenotypes">Associated Phenotypes</a></li>
+                </c:if>
+                <c:if test="${fn:length(anatomy.childTerms)>0 }">
+                	<li><a href="#explore">Explore</a></li>
+                </c:if>
+            </ul>
+            
+            <div class="clear"></div>
+            
+        </div>
+        
+    </div>
 		
     </jsp:attribute>
 
+                
     <jsp:body>
-
-	<div class='topic'>Anatomy Term: ${anatomy.term}</div>
-	
-	<div class="row-fluid dataset">
-		<div class='documentation'><a href='' class='generalPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-		<div class="row-fluid">
-			<div class="container span12">
-						<div class="row-fluid">
-			<div class="container span6">
-			<table class="table table-striped">
-				<tbody>
-					<c:if test="${not empty anatomy}">
-					<tr>
-						<td>Anatomy:</td>
-						<td>					
-							<a href="${anatomy.mgiLinkString}">${anatomy.accession}</a>
-						</td>
-					</tr>
-						<%-- <tr>
-						<td>Definition:</td>
-						<td>${anatomy.description}</td>
-					</tr> --%>
+    
+ <div class="region region-content">
+			<div class="block block-system">
+				<div class="content">
+					<div class="node node-gene">
+								<h1 class="title" id="top">Anatomy Term: ${anatomy.term}</h1>
 					
-					</c:if>
-				</tbody>
-			</table>
-			</div>
-			<div class="container span5" id="ovRight">
-			<c:choose>
-    				<c:when test="${not empty exampleImages}">
-      				<div class="row-fluid">
-      								<div class="container span6">
-      										<img src="${mediaBaseUrl}/${exampleImages.control.smallThumbnailFilePath}"/>
-      										Control
-      								</div>
-      								<div class="container span6">
-      										<img src="${mediaBaseUrl}/${exampleImages.experimental.smallThumbnailFilePath}"/>
-      										<c:forEach var="sangerSymbol" items="${exampleImages.experimental.sangerSymbol}" varStatus="symbolStatus">
-												<c:if test="${not empty exampleImages.experimental.sangerSymbol}"><t:formatAllele>${sangerSymbol}</t:formatAllele><br /></c:if>
-												</c:forEach>
-      								</div>
-
-      				</div>
-    				</c:when>
-    				<c:otherwise>
-      				 <c:if test="${not empty expressionImages}"><img src="${mediaBaseUrl}/${expressionImages[0].smallThumbnailFilePath}"/>Random MA related image</c:if>
-      				  <c:if test="${(empty expressionImages) && (not empty images)}"><img src="${mediaBaseUrl}/${images[0].smallThumbnailFilePath}"/>Random MA related image</c:if>
-    				</c:otherwise>
-			</c:choose>
-	
+<c:if test="${empty expressionImages && fn:length(anatomy.childTerms)==0}">
+	<div class="section">
+		<div class=inner>
+			<div class="alert alert-info">No data currently available
 			</div>
 		</div>
 	</div>
-		</div>
-	</div>
-	
+</c:if>
 		<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
-	<div class="row-fluid dataset">
-		<div class='documentation'><a href='' class='expressionPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-		<h4 class="caption">Expression Images</h4>
-			<div class="row-fluid">
-			<div class="container span12">
-				<div class="accordion" id="accordion1">
-					<div class="accordion-group">
-						<div class="accordion-heading">
-							<a class="accordion-toggle" data-toggle="collapse" data-target="#expression">Expression Associated Images <i class="icon-chevron-down  pull-left" ></i></a>
-						</div>
-						<div id="expression" class="accordion-body collapse in">
-							<div class="accordion-inner">
-								<a href='${baseUrl}/images?anatomy_id=${anatomy.accession}&fq=expName:Wholemount Expression'>[show all  ${numberExpressionImagesFound} images]</a>
+	<div  class="section">
+		<!-- <h2 class="title">Expression Images<i class="fa fa-question-circle pull-right"></i></h2> -->
+				<div class="inner">		
+						 <div class="accordion-group">
+                        						<div class="accordion-heading">
+                        						Expression Associated Images 
+                        						</div>
+								<div class="accordion-body">
+								
 		    					<ul>
                                                             
 		    					<c:forEach var="doc" items="${expressionImages}">
@@ -96,48 +70,52 @@
                                                         </c:forEach>
                                                         
 								</ul>
+								<c:if test="${numberExpressionImagesFound>5}">
+                                        				<p class="textright">
+								<a href='${baseUrl}/images?anatomy_id=${anatomy.accession}&fq=expName:Wholemount Expression'><i class="fa fa-caret-right"></i>show all ${numberExpressionImagesFound} images</a>
+								</p>
+								</c:if>
 							</div>
 						</div>
 					<!--  end of accordion -->
 					</div>
-				</div>
-			</div>
-		</div>	
 	</div>
 	</c:if><!-- end of images lacz expression priority and xray maybe -->
 	
-	
-		<div class="row-fluid dataset">
+	<%-- spoke to terry and these need rethink in terms of MP associations <c:if test="${not empty anatomy.mpTerms}">
+		<div class="section">
 			<div class='documentation'><a href='' class='mpPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-			<h4 class="caption">Associated Phenotypes</h4>
-			<div class="row-fluid">
-				<div class="container span12">				
-				<c:if test="${not empty anatomy.mpTerms}">
-				<table class="table table-striped">
+			<h2 class="title" id="associated-phenotypes">Associated Phenotypes<i class="fa fa-question-circle pull-right"></i></h2>
+			<div class="inner">
+							
+				
+				<table>
 				<tbody>
 					<tr>
-						<%-- <td>MP Terms:</td> --%>
+						<td>MP Terms:</td>
 						<c:forEach items="${anatomy.mpTerms}" var="mpTerm" varStatus="mpStatus">
 						<tr>
-						<td><a href="${baseUrl}/phenotypes/${anatomy.mpIds[mpStatus.index]}">${mpTerm}</a></td><%-- <td>${mpTerm}</td> --%>
+						<td><a href="${baseUrl}/phenotypes/${anatomy.mpIds[mpStatus.index]}">${mpTerm}</a></td><td>${mpTerm}</td>
 						</tr>
 						</c:forEach>
 					</tr>
 					</tbody>
 					</table>
-					</c:if>
-				</div>
+					
+				
 		</div>
 		
 	</div><!-- end of images lacz expression priority and xray maybe -->
+	</c:if> --%>
 	
-	
-	<div class="row-fluid dataset">
-	<div class='documentation'><a href='' class='relatedMaPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div>
-				<h4 class="caption">Explore</h4>
-		<div class="row-fluid">				
-				<div class="container span12">				
-				<table class="table table-striped">
+	<c:if test="${fn:length(anatomy.childTerms)>0 }">
+	<div class="section">
+	<%-- <div class='documentation'><a href='' class='relatedMaPanel'><img src="${baseUrl}/img/info_20x20.png" /></a></div> --%>
+		<h2 class="title" id="explore">Explore<i class="fa fa-question-circle pull-right"></i></h2>
+				
+		<div class="inner">				
+					
+				<table>
 				<tbody>
 				<tr>
 						<td>Child Terms:</td>
@@ -150,12 +128,15 @@
 					</tr>
 					</tbody>
 					</table>
-					
-				</div>
 		</div>
 		
-	</div><!-- end of images lacz expression priority and xray maybe -->
-	
+	</div><!-- end of anatomy explore panel-->
+	</c:if>
+		</div>
+		</div>
+	</div>
+</div>
+		
 	<script>
 		$(document).ready(function(){						
 					

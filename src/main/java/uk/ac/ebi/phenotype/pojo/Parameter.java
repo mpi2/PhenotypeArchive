@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -39,9 +39,12 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import org.apache.commons.lang.StringUtils;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+
+import uk.ac.ebi.phenotype.stats.categorical.CategoriesExclude;
 
 @Entity
 @Table(name = "phenotype_parameter")
@@ -654,6 +657,33 @@ public class Parameter extends PipelineEntry {
 			return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * Use for use interface categories for categorical parameter- excludes things like "no data" "image only" and "not defined"
+	 * @return  usable categories List<String> which will be empty if not categorical
+	 */
+	public List<String> getCategoriesUserInterfaceFreindly(){
+		List<ParameterOption> options = this.getOptions();
+		List<String> categories = new ArrayList<String>();
+                boolean useDescription=false;
+                if(options.size()>0){
+                    String name=options.get(0).getName();
+                    if(StringUtils.isNumeric(name)){
+                        useDescription=true;
+                    }
+                }
+		for (ParameterOption option : options) {
+                    String label=option.getName();
+                    //this is a hack as impress holds some numeric categories which shouldn't be????
+                    if(useDescription==true && option.getDescription()!=null && !option.getDescription().equals("")){
+                       label=option.getDescription();
+                    }
+			categories.add(label);
+		}
+		//exclude - "no data", "not defined" etc	
+		List<String>okCategoriesList=CategoriesExclude.getInterfaceFreindlyCategories(categories);	
+		return okCategoriesList;
 	}
 	
 }

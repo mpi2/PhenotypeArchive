@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -25,43 +25,8 @@
      
     	_create: function(){
     		// execute only once 	
-    		var self = this;	
-    		var facetDivId = self.element.attr('id');
-    		var caller = self.element;
-    		delete MPI2.searchAndFacetConfig.commonSolrParams.rows;    	   		  		
-		
-			caller.find('div.facetCat').click(function(){
-				
-				if ( caller.find('span.facetCount').text() != '0' ){								
-					
-					var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facetDivId].solrCoreName;
-					
-					caller.parent().find('div.facetCat').removeClass('facetCatUp');
-					
-					if ( caller.find('.facetCatList').is(':visible') ){					
-						caller.parent().find('div.facetCatList').hide(); // collapse all other facets                     
-						caller.find('.facetCatList').hide(); // hide itself					
-					}
-					else {					
-						caller.parent().find('div.facetCatList').hide(); // collapse all other facets 
-						caller.find('.facetCatList').show(); // show itself					
-						$(this).addClass('facetCatUp');						
-						
-						var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));											
-						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, 'images');
-						var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';		
-						
-						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
-						if ( ! window.location.search.match(/q=/) ){
-							window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
-						}
-					}	
-				}	
-			});	
-			
-			// click on SUM facetCount to fetch results in grid: deprecated	
-    	},
- 	        	
+    		$.fn.widgetExpand(this);    		
+    	}, 	        	
 	    // want to use _init instead of _create to allow the widget being invoked each time by same element
 	    _init: function () {
 			var self = this;
@@ -97,17 +62,14 @@
   	    		'data': paramStr,  				
   	    		'dataType': 'jsonp',
   	    		'jsonp': 'json.wrf',	    		
-  	    		'success': function(json) {	 
+  	    		'success': function(json) {
   	    			
-      	    		$('div#imagesFacet span.facetCount').attr({title: 'total number of unique images'}).html(json.response.numFound);
-  	    		
-  	    			var table = $("<table id='imagesFacetTbl' class='facetTable'></table>");
   	    			
-  	    			var aFacetFields = json.facet_counts.facet_fields; // eg. expName, symbol..
-  	    			
+  	    			var foundMatch = {'Phenotype':0, 'Anatomy':0, 'Procedure':0, 'Gene':0};  	    			
+  	    			var aFacetFields = json.facet_counts.facet_fields; // eg. expName, symbol..  	    			
   	    			var aSubFacetNames = [];
   	    			
-  	    			// do some sorting for facet names, but put Phenotype on front of list
+  	    			// do some sorting for facet names, but put Phenotype subfacet on front of list
   	    			for ( var facetName in aFacetFields ){ 	
   	    				if (facetName != 'annotated_or_inferred_higherLevelMpTermName' ){
   	    					aSubFacetNames.push(facetName);
@@ -122,149 +84,74 @@
   	    								annotated_or_inferred_higherLevelMpTermName: 'Phenotype',
   	    					            subtype: 'Gene'
   	    								};	    			    			    			
-  	    				    			
-  	    			//for ( var facetName in aFacetFields ){ 	   
+  	    			    			
+  	    			   
   	    			for ( var n=0; n<aSubFacetNames.length; n++){
   	    				var facetName = aSubFacetNames[n];
+  	    				var label = displayLabel[facetName];  	    				
   	    				
+  	    				var thisFacetSect = $("<li class='fcatsection " + label + "'></li>");		 
+  	    				thisFacetSect.append($('<span></span>').attr({'class':'flabel'}).text(label));
+  	    				
+  	    				var thisUlContainer = $("<ul></ul>");
+  	    					
   	    				for ( var i=0; i<aFacetFields[facetName].length; i+=2){    					  					
   	    					
-  	    					var fieldName   = aFacetFields[facetName][i];
-  	    					var facetCount  = aFacetFields[facetName][i+1];  	    					
-  	    					var catLabel    = displayLabel[facetName];
-  	    					//console.log(fieldName + ' : '+ facetCount);
+  	    					var liContainer = $("<li></li>").attr({'class':'fcat ' + facetName});
   	    					
-  	    					var hiddenClass = facetName == 'annotated_or_inferred_higherLevelMpTermName' ? null : 'trHidden';  	    						
-  	    					var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i, 'class':'subFacet ' + hiddenClass + ' ' + facetName});
+  	    					var fieldName  = aFacetFields[facetName][i];  	    					
+  	    					var facetCount = aFacetFields[facetName][i+1];   	    					
+  	    					var label      = displayLabel[facetName];
+  	    					foundMatch[label]++;
   	    					
-  	    					//var tr = $('<tr></tr>').attr({'rel':fieldName, 'id':'topLevelImgTr'+i, 'class':'subFacet trHidden ' + facetName});
-  	    					//var displayName = facetName == 'annotated_or_inferred_higherLevelMpTermName' ? fieldName.replace(' phenotype', '') : fieldName;  	    					
-  	    					
-  	    					var td1 = $('<td></td>').attr({'class': 'imgSubfacet', 'rel': facetCount}).text(fieldName);  	    				
-  	    					var imgBaseUrl = baseUrl + "/images?";
-  	    					
-  		    	    		var params = "q=" + self.options.data.hashParams.q;
-  		    	    		//params += "&fq=annotationTermId:M*&q.option=AND&qf=" + queryParams.qf + "&defType=edismax&wt=json&fq=" + facetName + ":";	
-  		    	    		// here we take all images - ie, not filtering on having annotations or not
-  		    	    		params += "&q.option=AND&qf=" + queryParams.qf + "&defType=edismax&wt=json&fq=" + facetName + ":";	
-  		    	    		params += '"' + fieldName + '"';
-  		    	    				    	    			  
-  		    	    		var fqClass = facetName + ":" + '"' + fieldName + '"';
-  		    	    		
-  		    	    		var imgUrl = imgBaseUrl + params;	
-  		    	    		var catLabel2 = catLabel == 'Gene' ? 'gene subtype' : catLabel.toLowerCase();    	    		
-  		    	    		var infos = "{params:\"" + encodeURI(params) 
-  		    	    		          + "\", fullLink:\"" +  encodeURI(imgUrl) 
-  		    	    		          + "\",imgType:\"" + catLabel2
-  		    	    		         // + "\",facetParams:\"" + facetParams
-  		    	    		          + "\",imgSubName:\"" + fieldName
-  		    	    		          + "\", imgCount:\"" + facetCount
-  		    	    		          + "\", solrCoreName:\"" + 'images' 
-  		    	    	    		  +	"\", mode:\"" + 'imageGrid'
-  		    	    		          + "\"}";		    	    		
-  		    	    		   		
-  		    	    		var a = $('<a></a>').attr({'rel':infos, 'class':fqClass}).text(facetCount);
-  		    	    		var td2 = $('<td></td>').attr({'class': 'imgSubfacetCount'}).append(a);
-  		    	    		
-  		    	    		if ( i == 0 ){
-  		    	    			
-  	    						var catTr = $('<tr></tr>').attr({'class':'facetSubCat '+ facetName});  	
-  	    						var collapeClass = (facetName == 'annotated_or_inferred_higherLevelMpTermName') ? 'unCollapse' : null;
-  	    						
-  	    						var catTd = $('<td></td>').attr({'colspan':3, 'class':collapeClass}).text(catLabel);
-  	    						
-  	    						catTr.append(catTd);
-  	    						table.append(catTr); 
-  	    					}	
-  		    	    		
-  		    	    		var coreField = 'images|'+ facetName + '|' + fieldName + '|' + facetCount;	
-  		        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField, 'class':facetName}); 		    	    			    		
-  		        			var td0 = $('<td></td>').append(chkbox);
-  		    	    		table.append(tr.append(td0, td1, td2));		    	    		
+  		    	    		var coreField = 'images|'+ facetName + '|' + fieldName + '|' + facetCount + '|' + label;	
+  		        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField}); 	
+  		        			var flabel = $('<span></span>').attr({'class':'flabel'}).text(fieldName.replace(' phenotype', ''));
+  							var fcount = $('<span></span>').attr({'class':'fcount'}).text(facetCount);
+  							thisUlContainer.append(liContainer.append(chkbox, flabel, fcount));  							
   	    				}
-  	    			}	    				    	    	
-  	    			self._displayImageFacet(json, 'images', 'imagesFacet', table);
-  	    		  	    			
-  	    			// update facet count when filters applied
-  	    			if ( $('ul#facetFilter li li a').size() != 0 ){
-  	    				$.fn.fetchQueryResult(self.options.data.hashParams.q, 'images');
-  	    			}	
+  	    				
+  	    				thisFacetSect.append(thisUlContainer);
+  	    				$('div.flist li#images > ul').append(thisFacetSect);
+  	    			}	    			
+  	    			  	    			
+  	    			var selectorBase = "div.flist li#images";
+  		    		// collapse all subfacet first, then open the first one that has matches 
+  					$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');	    		
+  					$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
+  					
+  	    			$.fn.initFacetToggles('images');
   	    			
+  	    			// when facet widget is open, flag it so that we know there are existing filters 
+	    			// that need to be checked and highlighted
+	    			$.fn.checkAndHighlightSubfacetTerms();
+  	    			
+	  	      		$('li#images li.fcat input').click(function(){	    			
+	  	      			// // highlight the item in facet	    			
+	  	      			$(this).siblings('span.flabel').addClass('highlight');
+	  	  				$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
+	  	  			});
+	  	      		
+	  	    	    /*------------------------------------------------------------------------------------*/
+	  	  	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
+	  	  	    	/*------------------------------------------------------------------------------------*/ 
+	  	    	    		
+	  	      		if ( self.options.data.hashParams.fq.match(/.*/) ){ 	
+	  	      			$.fn.parseUrlFordTableAndFacetFiltering(self);	
+	  	      		}
+	  	    	    		
+  	    	    	// when last facet is done
+  	    	    	$('div#facetBrowser').html(MPI2.searchAndFacetConfig.endOfSearch);  	    			
   	    		}		
-  	    	});	    	
+	  	    });	    	
   	    },  	   
   	    
-  	    _displayImageFacet: function(json, coreName, facetDivId, table){
-  	    	var self = this;
-  	    	
-  	    	var solrBaseUrl = self.options.solrBaseURL_ebi + coreName + '/select';	    	
-  	    	
-  	    	if (json.response.numFound == 0 ){	    		
-      			table = null;
-      		}
-  	    	else {
-  	    		$('div#'+facetDivId+ ' .facetCatList').html(table);  
-  	    		
-  	    		table.find('input').click(function(){	
-  	    			
-  	    			$.fn.setDefaultImgSwitcherConf();
-  	    			
-  	    			// highlight the item in facet
-  	    			$(this).parent().parent().find('td.imgSubfacet').addClass('highlight');
-  	    			$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);
-  	    		});  
-  	    		
-  	    		// collapsable subfacet items
-  	    		table.find('tr.facetSubCat').click(function(){
-  	    		
-  	    			var facetName = $(this).attr('class').replace('facetSubCat ',''); 
-  	    			
-  	    			if ( $(this).find('td').hasClass('unCollapse')){  	    			
-  	    				// change arrow image
-  	    				$(this).find('td').removeClass('unCollapse');
-  	    				// hide all its members
-	  	    			$(this).siblings('tr.'+facetName).addClass('trHidden');
-  	    			}
-  	    			else {  	    			
-  	    				// refresh all to collapsed first
-	  	    			//table.find('tr.subFacet').addClass('trHidden');
-	  	    			//table.find('tr.facetSubCat td').removeClass('unCollapse'); 
-  	    				
-	  	    			// change arrow image and reveal all members of the clicked facet
-	  	    			$(this).find('td').addClass('unCollapse');
-	  	    			$(this).siblings('tr.'+facetName).removeClass('trHidden');
-  	    			}
-  	    		});
-  	    		
-  	    	}
-  	    	
-  	    	/*------------------------------------------------------------------------------------*/
-	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
-	    	/*------------------------------------------------------------------------------------*/ 
-  	    		
-    		if ( self.options.data.hashParams.fq.match(/.*/) ){ 	
-    			$.fn.setDefaultImgSwitcherConf();  
-    			
-    			var pageReload = true;  // this controls checking which subfacet to open (ie, show by priority) 		
-	    		
-	    		var oHashParams = self.options.data.hashParams;
-    			
-	    		$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, pageReload);	    	    		
-	    		// now load dataTable    		
-	    		$.fn.loadDataTable(oHashParams);
-    		}
-  	    		
-  	    	// when last facet is done
-  	    	$('div#facetBrowser').html(MPI2.searchAndFacetConfig.endOfSearch);
-  	    },	
-  	    
-	    destroy: function () {    	   
-	    	// does not generate selector class
-    	    // if using jQuery UI 1.8.x
-    	    $.Widget.prototype.destroy.call(this);
-    	    // if using jQuery UI 1.9.x
-    	    //this._destroy();
-    	}  
+  	    destroy: function () {    	   
+	    	//this.element.empty();
+	    	// does not generate selector class    	    
+	  	    //$.Widget.prototype.destroy.call(this);  // if using jQuery UI 1.8.x    	    
+	  	    this._destroy();                          // if using jQuery UI 1.9.x
+	  	}  
     });
 	
 }(jQuery));	

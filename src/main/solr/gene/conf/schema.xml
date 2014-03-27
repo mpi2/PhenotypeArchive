@@ -63,14 +63,7 @@ Licensed to the Apache Software Foundation (ASF) under one or more
          <filter class="solr.RemoveDuplicatesTokenFilterFactory"/> <!-- added -->
 
       </analyzer>
-		<field name="mi_allele_type" type="string" indexed="true" stored="true" multiValued="false"/>	
-		<field name="mi_allele_name" type="string" indexed="true" stored="true" multiValued="false"/>	
-		<field name="mi_phenotyping_status" type="string" indexed="true" stored="true" multiValued="false"/>
 		
-		<field name="pa_allele_type" type="string" indexed="true" stored="true" multiValued="false"/>	
-		<field name="pa_allele_name" type="string" indexed="true" stored="true" multiValued="false"/>	
-		<field name="pa_phenotyping_status" type="string" indexed="true" stored="true" multiValued="false"/>
-			
 
     </fieldType>
 
@@ -131,6 +124,7 @@ Licensed to the Apache Software Foundation (ASF) under one or more
         <field name="marker_name" type="text_general" indexed="true" stored="true" required="false" />
         <field name="marker_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="marker_type" type="string" indexed="true" stored="true" multiValued="false" />
+        <field name="marker_type_ori" type="string" indexed="true" stored="true" multiValued="false" />
         <field name="human_gene_symbol" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="imits_report_phenotyping_complete_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="imits_report_genotype_confirmed_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
@@ -163,7 +157,9 @@ Licensed to the Apache Software Foundation (ASF) under one or more
 		<field name="gene_type_status" type="string" indexed="true" stored="true" multiValued="false"/>
 		
 		<field name="es_allele_name" type="string" indexed="true" stored="true" multiValued="true"/>			
-			
+
+
+
 	<!-- annotated and inferred mp term -->
 
 	<field name="mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />

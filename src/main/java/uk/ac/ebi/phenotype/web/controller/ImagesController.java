@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -104,7 +104,7 @@ public class ImagesController {
 	@RequestMapping("/images*")
 	public String allImages(
 			@RequestParam(required = false, defaultValue = "0", value = "start") int start,
-			@RequestParam(required = false, defaultValue = "48", value = "length") int length,
+			@RequestParam(required = false, defaultValue = "25", value = "length") int length,
 			@RequestParam(required = false, defaultValue = "*:*", value = "q") String qIn,
 			@RequestParam(required = false, defaultValue = "", value = "phenotype_id") String mpId,
 			@RequestParam(required = false, defaultValue = "", value = "gene_id") String geneId,
@@ -127,7 +127,7 @@ public class ImagesController {
 	@RequestMapping("/imagesb*")
 	public String allImagesb(
 			@RequestParam(required = false, defaultValue = "0", value = "start") int start,
-			@RequestParam(required = false, defaultValue = "48", value = "length") int length,
+			@RequestParam(required = false, defaultValue = "25", value = "length") int length,
 			@RequestParam(required = false, defaultValue = "*:*", value = "q") String qIn,
 			@RequestParam(required = false, defaultValue = "", value = "phenotype_id") String mpId,
 			@RequestParam(required = false, defaultValue = "", value = "gene_id") String geneId,
@@ -170,7 +170,7 @@ public class ImagesController {
 
 		String queryString = request.getQueryString();
 		String startString = "0";
-		String rowsString = "24";//the number of images passed back for each solr request
+		String rowsString = "25";//the number of images passed back for each solr request
 		if (request.getParameter("start") != null) {
 			startString = request.getParameter("start");
 		}
