@@ -104,6 +104,13 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	}
 	
 	@Transactional(readOnly = true)
+	public Parameter getParameterByStableId(String stableId) {
+		return (Parameter) getCurrentSession().createQuery("from Parameter as p where p.stableId = ?")
+				.setString(0, stableId)
+				.uniqueResult();
+	}
+	
+	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<Parameter> getProcedureMetaDataParametersByStableIdAndVersion(String stableId, int majorVersion, int minorVersion) {
 		List<Parameter> parameters =   getCurrentSession().createQuery("select param from Parameter as param inner join param.procedure as proc where proc.stableId = ? and param.majorVersion = ? and param.minorVersion = ? and param.metaDataFlag = true")

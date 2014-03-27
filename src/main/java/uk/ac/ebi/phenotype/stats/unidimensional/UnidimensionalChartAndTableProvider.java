@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
+import org.hibernate.cfg.annotations.Nullability;
 import org.json.JSONArray;
 import org.springframework.stereotype.Service;
 
@@ -528,10 +529,9 @@ List<Float>dataFloats=new ArrayList<>();
 				tempStatsObject=genrateStats(experiment, tempStatsObject, mutants, zType,sexType);
 					
 			for (StatisticalResult result : results) {
-				System.out.println("sex is "+sexType);
-					if (result.getZygosityType().equals(zType)
-							&& result.getSexType().equals(sexType)) {
-						System.out.println("setting result for sex="+sexType+"   "+result);
+				UnidimensionalResult unidimensionalResult=(UnidimensionalResult) result;
+				System.out.println("sex is "+sexType+" | result sex type="+result.getSexType()+"pValue="+unidimensionalResult.getpValue()+"result zyg="+unidimensionalResult.getZygosityType()+"  ztype="+zType);
+					if (result.getZygosityType().equals(zType)) {
 						tempStatsObject.setResult((UnidimensionalResult) result);
 					}
 				}

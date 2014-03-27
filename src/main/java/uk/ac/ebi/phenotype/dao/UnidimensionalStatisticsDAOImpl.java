@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.coode.parsers.ManchesterOWLSyntaxAutoCompleteCombined_ManchesterOWLSyntaxAutoCompleteBase.incompleteAssertionAxiom_return;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -445,6 +446,31 @@ System.out.println(query);
 				.setInteger(1, controlBiologicalId)
 				.setInteger(2, biologicalId)
 				.list();
+	}
+	
+	private int getUnidimensionalResultIdFromStatsResultPhenotypeCallSummary(int id) throws SQLException {
+		
+		int result=-1;
+		String query = "SELECT unidimensional_result_id FROM komp2.stat_result_phenotype_call_summary where phenotype_call_summary_id= '"
+				+ id + "'";
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+
+			ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				result=resultSet.getInt(1);
+			}
+		}
+		return result;
+	}
+	
+	
+	public UnidimensionalResult getStatsForPhenotypeCallSummaryId(int phenotypeCallSummaryId) throws SQLException{
+		//get the id we need from the join table
+		int resultId=this.getUnidimensionalResultIdFromStatsResultPhenotypeCallSummary(phenotypeCallSummaryId);
+		System.out.println("result id from join table="+resultId);
+		//use the join table id to get the actual result
+		return (UnidimensionalResult) getCurrentSession().get(UnidimensionalResult.class,  resultId);
 	}
 
 }
