@@ -141,7 +141,7 @@
        		
        		// make "search" menu point active
        		$('nav#mn > ul > li:first-child').addClass('active');
-       		console.log('user logged in:' + isLoggedIn);
+       		console.log('user logged in:' + "${isLoggedIn}");
        		
        		<c:if test="${isLoggedIn}">       			
        			MPI2.searchAndFacetConfig.isLoggedIn = true;
