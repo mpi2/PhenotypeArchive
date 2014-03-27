@@ -62,7 +62,8 @@ public class SearchController {
 		model.addAttribute("q", q);
 		model.addAttribute("core", core);
 		model.addAttribute("fq", fq);
-		String isLoggedIn = "";
+		
+		boolean isLoggedIn = false;
 		try {
 			RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config, request);
 			if (registerInterest.loggedIn()) {

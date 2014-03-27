@@ -138,8 +138,9 @@
         
          <script>        		
        	$(document).ready(function(){     		   		
-       		console.log('test login: ' + "${q}");
-       		<c:if test="${not empty isLoggedIn}">
+       		console.log('test login: ' + "${isLoggedIn}");
+       		<c:if test="${isLoggedIn}">
+       			console.log('is logged in')
        			MPI2.searchAndFacetConfig.isLoggedIn = true;
        		</c:if>;
        		
