@@ -137,7 +137,11 @@
 	    </compress:html>        
         
          <script>        		
-       	$(document).ready(function(){     		   		
+       	$(document).ready(function(){ 
+       		
+       		// make "search" menu point active
+       		$('nav#mn > ul > li:first-child').addClass('active');
+       		
        		console.log('test login: ' + "${isLoggedIn}");
        		<c:if test="${isLoggedIn}">
        			console.log('is logged in')
