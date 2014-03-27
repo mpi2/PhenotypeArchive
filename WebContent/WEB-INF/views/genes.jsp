@@ -319,13 +319,11 @@
 					<p class="no-margin">Browse phenotype data for:</p>
 					<ul>				
 					<c:forEach var="dataMap" items="${dataMapList}" varStatus="loop">
-						<li><a href='${baseUrl}/experiments/genes/${acc}?allele_accession=<t:formatAllele>${dataMap["allele_accession"]}</t:formatAllele>&phenotyping_center=${dataMap["phenotyping_center"]}&pipeline_stable_id=${dataMap["pipeline_stable_id"]}'>${dataMap["allele_symbol"]} phenotyped by ${dataMap["phenotyping_center"]} (${dataMap["pipeline_name"]})</li>					
+						<li><a href='${baseUrl}/experiments/genes/${acc}?allele_accession=<t:formatAllele>${dataMap["allele_symbol"]}</t:formatAllele>&phenotyping_center=${dataMap["phenotyping_center"]}&pipeline_stable_id=${dataMap["pipeline_stable_id"]}'>${dataMap["allele_symbol"]} phenotyped by ${dataMap["phenotyping_center"]} (${dataMap["pipeline_name"]})</li>					
 					</c:forEach>
 					</ul>
 					</p>
 					</c:if>
-					<div>
-					</div>
 					
 				</c:when>
 				<c:otherwise>
