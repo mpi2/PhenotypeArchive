@@ -125,7 +125,7 @@ table#imagesGrid th:nth-child(1) {
 
 /* table tool */
 div#tableTool {
-	font-size: 12px;
+	font-size: 14px;
 	position: relative;
 	top: -100px;
 	right: 0;	
@@ -205,3 +205,11 @@ span.status.done {
 th span.main                        { white-space:nowrap; }
 th span.sub                         { font-size: 0.8em; display: block;} 
 /* end of Disease search results */
+
+/* dataTable pagination styling */
+span.ellipse {
+	display: block;
+	padding-top: 10px;
+}
+
+

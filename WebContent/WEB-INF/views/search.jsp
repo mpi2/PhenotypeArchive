@@ -35,61 +35,7 @@
             
         </div>
         
-    </div>
-	
-	
-	<!-- hash state: the url params will change when
-		(1) the facet count is clicked
-	    (2) the back or forward button is clicked
-	    The params are parsed to load dataTable -->
-	
-	<!-- <script type="text/javascript">
-	jQuery(document).ready(function($){	
-		
-		
-			$.fn.qTip({'pageName':'search',
-					'textAlign':'left',
-					'tip':'topLeft',
-					'posX':20,
-					'posY':0
-			});
-			
-			// non hash tag keyword query
-			<c:if test="${not empty q}">				
-				oHashParams = {};
-				oHashParams.q = "${q}";
-				$.fn.fetchSolrFacetCount(oHashParams);				
-			</c:if>;
-					
-			// hash tag query
-			// catch back/forward buttons and hash change: loada dataTable based on url params
-			$(window).bind("hashchange", function() {
-								
-				var url = $.param.fragment();				
-				//console.log('hash change URL: '+ '/search#' + url);
-				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-				
-				if ( typeof oHashParams.q === 'undefined' ){
-					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');					
-				}
-				
-				// search by keyword (user's input) has no fq in url when hash change is detected
-				if ( oHashParams.fq ){				
-					// back/forward button navigation: 
-					// make sure checkboxes are updated according to url
-					$.fn.removeFacetFilter(oHashParams.coreName);
-					//console.log(oHashParams.fq);					
-					var pageReload;  // this controls checking which subfacet to open (ie, show by priority). 
-									 // Set to undefined for no checking here, as we are now capturing hash change and not page reload
-					$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet', pageReload);				
-					
-					$.fn.loadDataTable(oHashParams.q, oHashParams.fq, oHashParams.coreName+'Facet'); 
-				}
-			});						
-			
-		});
-	</script>-->
-	<!-- end of hash state stuff -->	
+    </div>		
 	
 	</jsp:attribute>
 
@@ -192,6 +138,10 @@
         
          <script>        		
        	$(document).ready(function(){     		   		
+       		console.log('test login: ' + "${q}");
+       		<c:if test="${not empty isLoggedIn}">
+       			MPI2.searchAndFacetConfig.isLoggedIn = true;
+       		</c:if>;
        		
    			$.fn.qTip({'pageName':'search'		 					
    			});  			 						
