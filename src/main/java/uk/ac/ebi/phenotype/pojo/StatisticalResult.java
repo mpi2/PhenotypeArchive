@@ -48,6 +48,10 @@ public class StatisticalResult {
 	@OneToOne
 	@JoinColumn(name = "pipeline_id")
 	protected Pipeline pipeline;
+
+	@OneToOne
+	@JoinColumn(name = "project_id")
+	protected Project project;
 	
 	@Column(name = "control_selection_strategy", length=100)
 	private String controlSelectionStrategy;

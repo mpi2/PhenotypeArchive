@@ -44,7 +44,12 @@ public class ExperimentService {
 
 	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain)
 			throws SolrServerException, IOException, URISyntaxException {
-		return getExperimentDTO(parameterId, geneAccession, sex, phenotypingCenterId, zygosity, strain, Boolean.TRUE);
+		return getExperimentDTO(parameterId, null, geneAccession, sex, phenotypingCenterId, zygosity, strain, Boolean.TRUE);
+	}
+
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain)
+			throws SolrServerException, IOException, URISyntaxException {
+		return getExperimentDTO(parameterId, pipelineId, geneAccession, sex, phenotypingCenterId, zygosity, strain, Boolean.TRUE);
 	}
 
 	/**
@@ -61,9 +66,9 @@ public class ExperimentService {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain, Boolean includeResults) throws SolrServerException, IOException, URISyntaxException {
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain, Boolean includeResults) throws SolrServerException, IOException, URISyntaxException {
 	
-		List<ObservationDTO> observations = os.getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(parameterId, geneAccession, zygosity, phenotypingCenterId, strain, sex);
+		List<ObservationDTO> observations = os.getExperimentalUnidimensionalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSex(parameterId, pipelineId, geneAccession, zygosity, phenotypingCenterId, strain, sex);
 		
 		Map<String, ExperimentDTO> experimentsMap = new HashMap<>();
 		
@@ -76,6 +81,7 @@ public class ExperimentService {
 	    	// - organisation
 	    	// - strain
 	    	// - parameter
+	    	// - pipeline
 	    	// - gene
 			// - meatdata group
 	    	ExperimentDTO experiment;
@@ -83,6 +89,7 @@ public class ExperimentService {
 	    	String experimentKey = observation.getPhenotypingCenter()
 	    			+ observation.getStrain()
 	    			+ observation.getParameterStableId()
+	    			+ observation.getPipelineStableId()
 	    			+ observation.getGeneAccession() // TODO: should this be alleleAccession?
 	    			+ observation.getMetadataGroup();
 
