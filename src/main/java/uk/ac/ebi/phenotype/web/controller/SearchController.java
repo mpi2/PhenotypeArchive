@@ -17,6 +17,7 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Controller;
@@ -29,6 +30,8 @@ import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 
 @Controller
 public class SearchController {
+	
+	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 	/**
 	 * redirect calls to the base url to the search page
