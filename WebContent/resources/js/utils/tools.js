@@ -730,7 +730,7 @@
 		}
 	}
 	
-	$.fn.composeFacetFilterControl = function(oChkbox, q){	
+	$.fn.composeFacetFilterControl = function(oChkbox, q, mode){	
 		
 		var labels = oChkbox.attr('rel').split("|");
 	
@@ -753,20 +753,23 @@
 			updateFacetUrlTable(q, facet);	
 		}
 		else {	
-			//console.log('uncheck ' + facet);
+			console.log('uncheck ' + facet + ' by ' + mode);
 			
-			// select the facet that the unchecked filter belongs to			
-			$('div.flist li.fmcat').each(function(){				
-				if ( $(this).attr('id') != facet ){
-					$(this).removeClass('open');
-				}
-				else {
-					if ( !$(this).hasClass('open') ){
-						$('div.flist li#' + facet).click();
+			if ( mode == 'filter '){
+				// uncheck via filter and not checkbox
+				// select the facet that the unchecked filter belongs to			
+				$('div.flist li.fmcat').each(function(){				
+					if ( $(this).attr('id') != facet ){
+						$(this).removeClass('open');
 					}
-				}
-			});				
-					
+					else {
+						if ( !$(this).hasClass('open') ){
+							$('div.flist li#' + facet).click();
+						}
+					}
+				});				
+			}		
+			
 			// uncheck checkbox with matching value		
 			$('ul#facetFilter li.ftag').each(function(){				
 				if ( $(this).find('a').attr('rel') == oChkbox.attr('rel') ){					
@@ -965,7 +968,8 @@
 			oChkbox.attr("checked", false);			
 			oChkbox.siblings('span.flabel').removeClass('highlight');
 			filter.remove();
-			$.fn.composeFacetFilterControl(oChkbox, q);
+			var mode = 'filter';
+			$.fn.composeFacetFilterControl(oChkbox, q, mode);
 		});
 	}
 	
