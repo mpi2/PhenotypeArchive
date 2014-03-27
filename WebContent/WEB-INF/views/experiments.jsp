@@ -4,7 +4,7 @@
 
 <t:genericpage>
 	<jsp:attribute name="title">Gene details for ${gene.name}</jsp:attribute>
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#sort=marker_symbol asc&q=*:*&core=gene">Genes</a> &raquo; ${gene.symbol}</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; Experiments &nbsp;&raquo; Alleles &nbsp;&raquo;<t:formatAllele>${allele.symbol}</t:formatAllele></jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="gene-node no-sidebars small-header"></jsp:attribute>
 	<jsp:attribute name="addToFooter">
 	<!--  start of floating menu for genes page -->
@@ -15,8 +15,8 @@
             <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
             
             <ul>
-                <li><a href="#top">Gene</a></li>
-                <li><a href="#section-associations">Phenotype Associations</a></li><!--  always a section for this even if says no phenotypes found - do not putting in check here -->
+                <li><a href="#top">Allele</a></li>
+                <li><a href="#section-associations">Experimental Data</a></li><!--  always a section for this even if says no phenotypes found - do not putting in check here -->
             </ul>
             
             <div class="clear"></div>
@@ -53,7 +53,7 @@
 				 				
 		
 		
-		<!--  Phenotype Associations Panel -->
+		<!--  Experimental Data Panel -->
 		<div class="section">
 
 			<h2 class="title " id="section-associations"> Phenotyped by ${phenotyping_center} (${pipeline.name})
@@ -65,7 +65,7 @@
 
 		
 			<!-- Associations table -->
-			<h5>Filter this table (to do)</h5>
+			<!--  TODO <h5>Filter this table (to do)</h5>-->
 				
 	<c:set var="count" value="0" scope="page" />
 	<c:forEach var="dataMap" items="${mapList}" varStatus="status">
@@ -112,7 +112,7 @@
 			</div>
 		</div> <!-- parameter list -->
  
-      </div> <!--end of node wrapper should be after all secions  -->
+      </div> <!--end of node wrapper should be after all sections  -->
     </div>
     </div>
     </div>
