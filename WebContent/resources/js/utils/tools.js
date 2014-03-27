@@ -1624,9 +1624,9 @@
     		"bServerSide": true,	    		
     		//"sDom": "<'row-fluid'<'span6'><'span6'>>t<'row-fluid'<'span6'i><'span6'p>>",
     		"sDom": "<<'#exportSpinner'><'#tableTool'>r>t<<ip>>",    		
-			"sPaginationType": "bootstrap",    		
+			"sPaginationType": "bootstrap",		
     		"fnDrawCallback": function( oSettings ) {  // when dataTable is loaded
-    			console.log(oSettings);
+    			
     			//console.log(oDtable.fnGetData().length); // rows on current page
     			// bring in some control logic for image view switcher when dataTable is loaded
     			if ( oInfos.widgetName == 'imagesFacet' ){    				
@@ -1671,9 +1671,8 @@
     			// IE fix, as this style in CSS is not working for IE8 
     			if ( $('table#geneGrid').size() == 1 ){
     				$('table#geneGrid th:nth-child(1)').width('45%');
-    			}  						
-    			
-    			
+    			}		
+    			    			
     			$('a.interest').click(function(){
     				
     				var mgiId = $(this).attr('id');
@@ -1683,16 +1682,20 @@
     				$.ajax({
     					url: '/toggleflagfromjs/' + mgiId,                       
     					success: function (response) {
-    						function endsWith(str, suffix) {
-    							return str.indexOf(suffix, str.length - suffix.length) !== -1;
-                        	}
+    						console.log('success');
+    						
     						if(response === 'null') {
     							window.alert('Null error trying to register interest');
     						} 
     						else {    							
     							// 3 labels (before login is 'Interest')
-    							if( label == 'Register interest' ) {
-    								regBtn.text('Unregister interest');    								    								
+    							console.log('curr label:*'+ label+'*');
+    							console.log(label == String.fromCharCode(160)+'Register interest');
+    							console.log(label == String.fromCharCode(160)+'Unregister interest');
+    							//compare using the actual raw character for &nbsp;
+    							if( label == String.fromCharCode(160)+'Register interest' ) {
+    								console.log('test reg int button');
+    								regBtn.text(String.fromCharCode(160) + 'Unregister interest');    								    								
     								regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out')
     									.parent().attr('oldtitle', 'Unregister interest')
     									.qtip({       			
@@ -1701,8 +1704,9 @@
     				    					content: { text: $(this).attr('oldtitle')}
     				    					});	// refresh tooltip    								
     							} 
-    							else if (label == 'Unregister interest'){
-    								regBtn.text('Register interest');    								
+    							else if (label == String.fromCharCode(160)+'Unregister interest'){
+    								console.log('test unreg int button');
+    								regBtn.text(String.fromCharCode(160) + 'Register interest');    								
     								regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in')
     									.parent().attr('oldtitle', 'Register interest')
     									.qtip({       			
@@ -2240,7 +2244,7 @@ $.fn.dataTableExt.oApi.fnSearchHighlighting = function(oSettings) {
 };
 
 
-/* API method to get paging information */
+/* API method to get paging information for style bootstrap */
 $.fn.dataTableExt.oApi.fnPagingInfo = function ( oSettings ){		
 	return {
 		"iStart":         oSettings._iDisplayStart,
@@ -2272,13 +2276,16 @@ $.extend( $.fn.dataTableExt.oPagination, {
 					'</ul>'
 			);
 			var els = $('a', nPaging);
+			
 			$(els[0]).bind( 'click.DT', { action: "previous" }, fnClickHandler );
 			$(els[1]).bind( 'click.DT', { action: "next" }, fnClickHandler );
 		},
 
 		"fnUpdate": function ( oSettings, fnDraw ) {
+			
 			var iListLength = 5;
-			var oPaging = oSettings.oInstance.fnPagingInfo();
+			var oPaging = oSettings.oInstance.fnPagingInfo();			
+			var iListLength = 5; 
 			var an = oSettings.aanFeatures.p;
 			var i, j, sClass, iStart, iEnd, iHalf=Math.floor(iListLength/2);
 
@@ -2299,18 +2306,32 @@ $.extend( $.fn.dataTableExt.oPagination, {
 
 			for ( i=0, iLen=an.length ; i<iLen ; i++ ) {
 				// Remove the middle elements
+				
 				$('li:gt(0)', an[i]).filter(':not(:last)').remove();
-
+				
 				// Add the new list items and their event handlers
+				var iRef = 0;
 				for ( j=iStart ; j<=iEnd ; j++ ) {
+					iRef++;
 					sClass = (j==oPaging.iPage+1) ? 'class="active"' : '';
-					$('<li '+sClass+'><a href="#">'+j+'</a></li>')
-						.insertBefore( $('li:last', an[i])[0] )
-						.bind('click', function (e) {
-							e.preventDefault();
-							oSettings._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
-							fnDraw( oSettings );
-						} );
+					
+					// hacking for IMPC
+					var label;
+					if ( iRef == 4 ){	
+						label = "<span class='ellipse'>...</span>";
+						$('<li>'+label+'</li>').insertBefore( $('li:last', an[i])[0] );
+					}
+					else {
+						label = iRef == 5 ? oPaging.iTotalPages : j;						
+					
+						$('<li '+sClass+'><a href="#">'+label+'</a></li>')
+							.insertBefore( $('li:last', an[i])[0] )
+							.bind('click', function (e) {
+								e.preventDefault();
+								oSettings._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
+								fnDraw( oSettings );
+							} );						
+					}
 				}
 
 				// Add / remove disabled classes from the static elements
@@ -2373,4 +2394,3 @@ $.extend( $.fn.dataTableExt.oSort, {
         return ((a < b) ? 1 : ((a > b) ? -1 : 0));
     }
 } ); 
-

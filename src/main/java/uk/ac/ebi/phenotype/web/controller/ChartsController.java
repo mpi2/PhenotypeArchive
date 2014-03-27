@@ -254,8 +254,8 @@ public class ChartsController {
 		// parameter throw and exception if we do
 
 		// get the parameter internal int id as we dont' have it
-		Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion(
-				parameterIds[0], 1, 0);
+		Parameter parameter = pipelineDAO.getParameterByStableId(
+				parameterIds[0]);
 		if (parameter == null) {
 			throw new ParameterNotFoundException("Parameter " + parameterIds[0]
 					+ " can't be found.", parameterIds[0]);
@@ -479,8 +479,8 @@ public class ChartsController {
         model.addAttribute("gene", gene);
         for (String parameterId : paramIds) {
 
-                Parameter parameter = pipelineDAO.getParameterByStableIdAndVersion(
-                                parameterId, 1, 0);
+                Parameter parameter = pipelineDAO.getParameterByStableId(
+                                parameterId);
                 if (parameter == null) {
                         throw new ParameterNotFoundException("Parameter " + parameterId
                                         + " can't be found.", parameterId);

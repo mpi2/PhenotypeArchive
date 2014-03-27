@@ -64,4 +64,7 @@ public interface UnidimensionalStatisticsDAO extends StatisticsDAO {
 	public List<MouseDataPoint> getMutantDataPointsWithMouseName(SexType sex, ZygosityType zygosity, Parameter parameter,  Integer populationId);
 	public List<MouseDataPoint> getControlDataPointsWithMouseName(Integer populationId);
 
+	public UnidimensionalResult getStatsForPhenotypeCallSummaryId(
+			int phenotypeCallSummaryId) throws SQLException;
+
 }

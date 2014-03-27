@@ -313,7 +313,7 @@
 						</div>
 					</div>
 					
-					<!-- Show list of links to data for every center/pipeline/allele combination -->
+						<!-- Show list of links to data for every center/pipeline/allele combination -->
 					<c:if test="${!(empty dataMapList)}">
 					<p class="with-label no-margin">
 					<p class="no-margin">Browse phenotype data for:</p>

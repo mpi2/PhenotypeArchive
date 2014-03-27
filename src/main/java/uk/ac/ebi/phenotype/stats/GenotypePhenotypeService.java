@@ -13,6 +13,7 @@ import java.util.Set;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.antlr.grammar.v3.ANTLRv3Parser.finallyClause_return;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -70,6 +71,7 @@ public class GenotypePhenotypeService {
 		public final static String ALLELE_ACCESSION_ID = "allele_accession_id";//
 		public final static String STRAIN_ACCESSION_ID = "strain_accession_id"; //
 		public final static String P_VALUE = "p_value";//
+		public final static String PCS_ID="doc_id";// use doc_id which is the phenotype call summary Id..
 		public final static String RESOURCE_FULLNAME = "resource_fullname";//
 		public final static String MP_TERM_ID = "mp_term_id"; //
 		public final static String PROJECT_EXTERNAL_ID = "project_external_id";//
@@ -320,16 +322,18 @@ public class GenotypePhenotypeService {
 		
 		if(observationType==ObservationType.unidimensional) {
 		for (Object doc : docs) {
-			UnidimensionalResult unidimensionalResult=new UnidimensionalResult();//dummy result just in case no other cases are met------ no this needs to be set each time we create a new result for each doc!!!! JW
+			UnidimensionalResult unidimensionalResult=new UnidimensionalResult();
 			JSONObject phen = (JSONObject) doc;
 			String pValue = phen.getString( GenotypePhenotypeField.P_VALUE );
 			String sex = phen.getString( GenotypePhenotypeField.SEX );
 			String zygosity=phen.getString( GenotypePhenotypeField.ZYGOSITY );
 			String effectSize=phen.getString(GenotypePhenotypeField.EFFECT_SIZE);
+			String phenoCallSummaryId=phen.getString(GenotypePhenotypeField.PCS_ID);
 			
 			
 			//System.out.println("pValue="+pValue);
 			if(pValue!=null) {
+				unidimensionalResult.setId(Integer.parseInt(phenoCallSummaryId));//one id for each document and for each sex
 				unidimensionalResult.setpValue(Double.valueOf(pValue));
 				unidimensionalResult.setZygosityType(ZygosityType.valueOf(zygosity));
 				unidimensionalResult.setEffectSize(new Double(Double.valueOf(effectSize)));

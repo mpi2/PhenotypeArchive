@@ -80,6 +80,16 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	 */
 	public Parameter getParameterByStableIdAndVersion(String stableId, int majorVersion, int minorVersion);
 	
+	/**
+	 * Find a parameter by stable id only
+	 * It will return the latest version of the parameter
+	 * @param name the parameter stable id
+	 * @return the parameter
+	 */
+	public Parameter getParameterByStableId(String stableId);
+	
+	
+	
 	public List<Parameter> getProcedureMetaDataParametersByStableIdAndVersion(String stableId, int majorVersion, int minorVersion);
 	
 	public Set<Procedure> getProceduresByOntologyTerm(OntologyTerm term);

@@ -1,4 +1,8 @@
-<%@tag description="Overall Page template" pageEncoding="UTF-8" import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf.json.JSONArray"%>
+<%@tag description="Overall Page template" pageEncoding="UTF-8" 
+import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf.json.JSONArray"
+import="javax.annotation.Resource"
+import="uk.ac.ebi.generic.util.RegisterInterestDrupalSolr"
+%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
@@ -32,7 +36,20 @@
         url = url.replace("dev.", "test.");
 
         jspContext.setAttribute("menu", proxy.getDrupalMenu(url).getJSONArray("mainmenu"));
-        jspContext.setAttribute("usermenu", proxy.getDrupalMenu(url).getJSONArray("usermenu"));
+        jspContext.setAttribute("usermenu", proxy.getDrupalMenu(url).getJSONArray("usermenu"));                    
+        
+        /* Check if user is logged into Drupal */
+        RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(request);
+        boolean isLoggedIn = false;
+		try {		
+			if (registerInterest.loggedIn()) {
+				isLoggedIn = true;
+			}			
+		}
+		catch(Exception e){
+			System.out.println("Failed to fetch info for user login");
+		}
+		
 
 %>
 <%@attribute name="header" fragment="true"%>
