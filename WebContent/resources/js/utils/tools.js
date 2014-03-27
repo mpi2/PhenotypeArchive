@@ -1672,11 +1672,7 @@
     			if ( $('table#geneGrid').size() == 1 ){
     				$('table#geneGrid th:nth-child(1)').width('45%');
     			}  						
-    			
-    			// hide my-impc link if not logged in
-    			if ( ! MPI2.searchAndFacetConfig.isLoggedIn ){
-    				$('li a#my-impc').hide();
-    			}    					
+    							
     			
     			$('a.interest').click(function(){
     				
@@ -1700,7 +1696,7 @@
     							//compare using the actual raw character for &nbsp;
     							if( label == String.fromCharCode(160)+'Register interest' ) {
     								console.log('test reg int button');
-    								regBtn.text('&nbsp;Unregister interest');    								    								
+    								regBtn.text(String.fromCharCode(160) + 'Unregister interest');    								    								
     								regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out')
     									.parent().attr('oldtitle', 'Unregister interest')
     									.qtip({       			
@@ -1711,7 +1707,7 @@
     							} 
     							else if (label == String.fromCharCode(160)+'Unregister interest'){
     								console.log('test unreg int button');
-    								regBtn.text('&nbsp;Register interest');    								
+    								regBtn.text(String.fromCharCode(160) + 'Register interest');    								
     								regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in')
     									.parent().attr('oldtitle', 'Register interest')
     									.qtip({       			
