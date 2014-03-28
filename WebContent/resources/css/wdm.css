@@ -1,0 +1,78 @@
+/* external stylesheet from WDM */
+
+/* Margins of Headlines and more */
+p + h1                              { margin-top: 2em; }
+h1 + h2, h1 + h3, h1 + h4, h1 + h5,
+h2 + h3, h2 + h4, h2 + h5,
+h3 + h4, h3 + h5,
+h4 + h5                             { margin-top: 2em; }
+
+/* Additional css for the menu block module in the sidebar */
+.region-sidebar-second .block-menu-block .menu .menu            { margin-bottom: 1.5em; }
+.region-sidebar-second .block-menu-block .menu .menu li         { margin-left: 2.5em; }
+.region-sidebar-second .block-menu-block .menu .menu a          { padding-left: 0.5em; padding-top: 0.4em; padding-bottom: 0.4em; }
+
+/* Additional css for the main navigation */
+#mn li li.active-trail > a          { background: inherit; color: inherit; }
+
+/* */
+h1.title + .section .inner          { border-radius: 0 0 4px 4px; }
+
+/* Divs, which behave like a table (e.g. for search results) */
+div.row                             { padding: 2em 0; border-bottom: #eee 1px solid; }
+div.cell                            { float: left; }
+.row .subinfo                       { font-size: 0.9em; padding: 0 5px; line-height: 1em; color: #aaa; }
+
+/* Seach result page */
+.cell.c1                            { width: 10%; }
+.cell.c2                            { width: 20%; }
+.cell.c3                            { width: 30%; }
+.cell.c4                            { width: 40%; }
+.cell.c5                            { width: 50%; }
+.cell.c6                            { width: 60%; }
+.cell.c7                            { width: 70%; }
+.cell.c8                            { width: 80%; }
+.cell.c9                            { width: 90%; }
+.cell.c10                           { width: 100%; }
+.result                             { position: relative; }
+.result:before                      { display: block; font-size: 0.9em; line-height: 1.2em; position: absolute; right: 0px; top: 0px; color: #ccc; -moz-border-radius:  0 0 3px 3px; -webkit-border-radius: 0 0 3px 3px; -ms-border-radius: 0 0 3px 3px; border-radius: 0 0 3px 3px; }
+.generesult:before                  { content: 'gene'; }
+.phenoresult:before                 { content: 'phenotype'; }
+.imgresult:before                   { content: 'image'; }
+.cell .title                        { font-size: 1.4em; margin-bottom: 0.5em; font-weight: 600; }
+.cell .title a                      { text-decoration: none; }
+.cell .title a:hover                { text-decoration: underline; }
+
+/* Disease search results */
+.smalltitle a                       { text-decoration: none; }
+.smalltitle a:hover                 { text-decoration: underline; }
+a.status.small span, span.status.small span { height: 1.3em; }
+
+/* Table Headings */
+th span.main                        { display: block; white-space:nowrap; }
+th span.sub                         { font-size: 0.8em; }
+
+
+/* Password Strenght */
+.form-item-pass-pass2,
+.form-item-pass-pass1               { position: relative; }
+.password-strength                  { position: absolute; right: -200px; }
+.password-strength-text             { display: none; }
+.password-indicator                 { width: 100px; margin-top: 5px; }
+.indicator                          { height: 3px; background: #EF7B0B; }
+
+/* Bigger IMPC head */
+#header                             { padding: 1.5em 0; }
+#block-system-user-menu, #tn        { font-size: 12px; margin-top: -0.6em; }
+.front #header                      { padding: 1.5em 0 2.3em 0; }
+.front #mn                          { margin-top: 1.9em; }
+
+/* Graph filter */
+.filters                            { margin: 1em 0; padding: 1em; background: #f4f4f4; -moz-border-radius: 3px; -webkit-border-radius: 3px; -ms-border-radius: 3px; border-radius: 3px; }
+.filter                             { float: left; padding-right: 2em; }
+.ftype                              { padding-left: 1em; cursor: pointer; }
+.ftype:before                       { position: absolute; font-family: 'FontAwesome'; content: "\f0da"; margin-left: -1em; }
+.filter.open .ftype:before          { content: "\f0d7"; }
+.filter .foptions                   { display: none; padding-right: 1em; max-height: 120px; overflow-y: scroll; }
+.filter.open .foptions              { display: block; }
+.foptions ul                        { list-style: none; padding-left: 0.8em; }

@@ -1,0 +1,63 @@
+/* Heatmap Breadcrumb */
+.dcc-heatmap-toolbar-breadcrums { height: 2em; margin-bottom: 1em; }
+.dcc-heatmap-toolbar-breadcrums div { display: inline-block; float: left; height: 2em;  line-height: 2em; }
+
+.dcc-heatmap-toolbar-breadcrums .dcc-heatmap-breadcrum-help,
+.dcc-heatmap-toolbar-breadcrums .dcc-heatmap-breadcrum-mode-inactive,
+.dcc-heatmap-toolbar-breadcrums .dcc-heatmap-breadcrum-mode-active { float: right; cursor: pointer; }
+.dcc-heatmap-toolbar-breadcrums .dcc-heatmap-breadcrum-mode-inactive,
+.dcc-heatmap-toolbar-breadcrums .dcc-heatmap-breadcrum-mode-active { background: #eee; border-left: #ddd 1px solid; }
+.dcc-heatmap-toolbar-breadcrums .dcc-heatmap-breadcrum-mode-active { background: #666; color: #fff; }
+.dcc-heatmap-breadcrum-gene { background: #0978A1; color: #fff; padding: 0 0.5em; }
+.dcc-heatmap-breadcrum-gene-separator { width: 18px; background: url(../img/icon/progress_blue.png) center right no-repeat; }
+.dcc-heatmap-breadcrum-separator { width: 18px; background: url(../img/icon/progress_white.png) center right no-repeat; }
+.dcc-heatmap-breadcrum-item { border-top: #ddd 1px solid; border-bottom: #ddd 1px solid; padding: 0 0.5em 0 1.5em; margin-left: -1em; }
+
+/* Heatmap Tabs */
+.dcc-heatmap-tabs                   { margin: 3em 0 1em 0; border-bottom: #ddd 1px solid; }
+.dcc-heatmap-tabs ul                { }
+.dcc-heatmap-tabs li                { float: left; margin-right: 0.5em; list-style: none; margin-bottom: -1px; }
+.dcc-heatmap-tabs a                 { display: block; border: #ddd 1px solid; border-bottom: none; color: #666; padding: 0.4em 1em; margin-top: 0.2em; font-size: 1.3em; text-decoration: none; }
+.dcc-heatmap-tabs a:hover,
+.dcc-heatmap-tabs .active a         { background: #0978A1; border-color: #0978A1; color: #fff; padding-top: 0.5em; padding-bottom: 0.5em; margin-top: 0; }
+
+
+/* Heatmap Legend */
+.dcc-heatmap-toolbar-legends            { height: 1.1em; padding: 1em 0.5em;  margin-bottom: 1em; }
+.dcc-heatmap-toolbar-legend-nodata-colour,
+.dcc-heatmap-toolbar-legend-significant-colour,
+.dcc-heatmap-toolbar-legend-insignificant-colour { float: left; border: #ddd 1px solid; margin-right: 10px; width: 20px; height: 20px; background: #fff; }
+.dcc-heatmap-toolbar-legend     { float: left; width: 150px; }
+
+/* Heatmap Slider */
+.dcc-heatmap-toolbar-pvaluetools    { float: right; width: 350px; position: absolute; margin: -55px 0 0 480px; }
+#rangeinput                         { width: 100px; float: left; }
+#rangeslider                        { width: 200px; float: left; margin-top: 10px; margin-left: 20px; }
+#rangerefresh                       { position: absolute; cursor: pointer; margin: 11px 0 0 15px; }
+
+/* Heatmap Content */
+.dcc-heatmap-content                { margin-bottom: 1em; }
+.dcc-heatmap-content td, .dcc-heatmap-content th { padding: 0; font-size: inherit; font-weight: inherit; border: none; }
+.dcc-heatmap-content th     { font-weight: 600; }
+.clickable                { cursor: pointer; }
+.dcc-heatmap-content table { margin: 0; font-size: 0.8em; border: #ddd 1px solid; }
+.dcc-heatmap-content table + table { margin-top: 1em; }
+@media only screen and (min-width: 1450px) {
+    .dcc-heatmap-root table { font-size: 0.9em; }
+}
+.dcc-heatmap-section th { background: #eee; }
+.dcc-heatmap-section th,
+.dcc-heatmap-section td { padding: 0.5em 0; text-align: center; width: 16.5%; }
+.dcc-heatmap-section td + td { border-left: #ddd 1px solid; }
+td.dcc-heatmap-section-row-headers { font-weight: 600; }
+td.dcc-heatmap-nodata               { background: url(../img/bg/bg_stripes.png); }
+
+/* Rounded corners */
+.dcc-heatmap-toolbar-legend-nodata-colour,
+.dcc-heatmap-toolbar-legend-significant-colour,
+.dcc-heatmap-toolbar-legend-insignificant-colour,
+.dcc-heatmap-content table
+{ -webkit-border-radius: 4px; -moz-border-radius: 4px; -o-border-radius: 4px; -ms-border-radius: 4px; border-radius: 4px; }
+
+.dcc-heatmap-tabs a
+{ -webkit-border-radius: 4px 4px 0 0; -moz-border-radius: 4px 4px 0 0; -o-border-radius: 4px 4px 0 0; -ms-border-radius: 4px 4px 0 0; border-radius: 4px 4px 0 0; }

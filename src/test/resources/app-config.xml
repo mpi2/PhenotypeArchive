@@ -13,13 +13,13 @@
 		http://www.springframework.org/schema/context
 		http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
-	<!-- Define the global parameters used when deploying without maven -->
+<!-- Define the global parameters used when deploying without maven -->
 	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
 			<list>
 				<value>classpath:appConfig.properties</value>
-				<value>file:${user.home}/configfiles/datasourcesConfig.properties</value>
-				<!-- <value>classpath:datasourcesConfig.properties</value> -->
+			 <value>file:${user.home}/configfiles/datasourcesConfig.properties</value>
+
 			</list>
 		</property>
 	</bean>
@@ -41,7 +41,7 @@
 
 	<!-- Weaves in transactional advice around @Transactional methods -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
-
+	
 	<bean id="biologicalModelDAO" class="uk.ac.ebi.phenotype.dao.BiologicalModelDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
@@ -144,9 +144,6 @@
 	<!-- Translates Hibernate exceptions to Spring Data Access Exceptions -->
 	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
 
-	<!-- Creates a MySQL Datasource -->
-	<import resource="datasources-config.xml"/>
-
 	<bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">
 		<property name="targetMapClass">
 			<value>java.util.HashMap</value>
@@ -162,6 +159,15 @@
 				<entry key="liveSite" value="${liveSite}" />
 			</map>
 		</property>
+	</bean>
+	
+		<!-- Creates a MySQL Datasource -->
+	<bean id="komp2DataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="${komp2url}" />
+		<property name="username" value="${komp2username}" />
+		<property name="password" value="${komp2password}" />
 	</bean>
 
 </beans>

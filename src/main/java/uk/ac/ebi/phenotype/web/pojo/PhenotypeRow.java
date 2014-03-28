@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -49,6 +49,10 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 	private Procedure procedure;
 	private Parameter parameter;
 	private String dataSourceName;//to hold the name of the origin of the data e.g. Europhenome or WTSI Mouse Genetics Project
+
+	private Integer pipelineStableKey;
+	
+
 	/**
 	 * Returns a PhenotypeRow object with the original data provider link
 	 * populated.
@@ -268,6 +272,14 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 		}
 		return this.phenotypeTerm.getName().compareTo(o.phenotypeTerm.getName());
 		
+	}
+
+	public void setPipelineStableKey(Integer pipelineStableKey) {
+		this.pipelineStableKey=pipelineStableKey;
+		
+	}
+	public Integer getPipelineStableKey() {
+		return pipelineStableKey;
 	}
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -34,6 +34,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -126,7 +127,20 @@ public class PhenotypeCallSummary {
 	private Parameter parameter;
 
 	private String phenotypingCenter;
+
+	/**transient as setting this using solr not hibernate**/
+	@Transient
+	private Integer pipelineStableKey;
 	
+	
+	public Integer getPipelineStableKey() {
+		return pipelineStableKey;
+	}
+
+	public void setPipelineStableKey(Integer pipelineStableKey) {
+		this.pipelineStableKey = pipelineStableKey;
+	}
+
 	public PhenotypeCallSummary() {
 		
 	}

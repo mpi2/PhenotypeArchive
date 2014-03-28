@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -87,6 +87,16 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	 * @return the parameter
 	 */
 	public Parameter getParameterByStableIdAndVersion(String stableId, int majorVersion, int minorVersion);
+	
+	/**
+	 * Find a parameter by stable id only
+	 * It will return the latest version of the parameter
+	 * @param name the parameter stable id
+	 * @return the parameter
+	 */
+	public Parameter getParameterByStableId(String stableId);
+	
+	
 	
 	public List<Parameter> getProcedureMetaDataParametersByStableIdAndVersion(String stableId, int majorVersion, int minorVersion);
 	

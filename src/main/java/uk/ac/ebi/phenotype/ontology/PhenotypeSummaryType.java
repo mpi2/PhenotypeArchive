@@ -38,5 +38,23 @@ public class PhenotypeSummaryType {
 	public ArrayList<String> getDataSources() {
 		return new ArrayList<String>(dataSources);
 	}
-		
+	
+	public String getGroup(){// grouping of mp top level terms done by Terry
+		if (this.name.equalsIgnoreCase("immune system phenotype") || this.name.equalsIgnoreCase("hematopoietic system phenotype") ){
+			return "immune system phenotype or hematopoietic system phenotype";
+		}
+		else if (this.name.equalsIgnoreCase("behavior/neurological phenotype") || this.name.equalsIgnoreCase("nervous system phenotype") ){
+			return "behavior/neurological phenotype or nervous system phenotype";
+		}
+		else if (this.name.equalsIgnoreCase("digestive/alimentary phenotype") || this.name.equalsIgnoreCase("liver biliary system phenotype") ){
+			return "digestive/alimentary phenotype or liver/biliary system phenotype";
+		}
+		else if (this.name.equalsIgnoreCase("homeostasis/metabolism phenotype") || this.name.equalsIgnoreCase("adipose tissue phenotype") ){
+			return "homeostasis/metabolism phenotype or adipose tissue phenotype";
+		}
+		else if (this.name.equalsIgnoreCase("integument phenotype") || this.name.equalsIgnoreCase("pigmentation phenotype") ){
+			return "integument phenotype or pigmentation phenotype";
+		}
+		else return this.name;
+	}
 }

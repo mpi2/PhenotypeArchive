@@ -2,9 +2,14 @@
 <dataConfig>
 	
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />
+<!-- <<<<<<< HEAD -->
 	<dataSource name="ontodb" jndiName="java:comp/env/jdbc/ontodbDataSource" /> 
 	<dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />
     <dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>		
+<!-- =======
+	<dataSource name="ontodb" jndiName="java:comp/env/jdbc/ontodbDataSource" />
+	<dataSource name="phenodigmdb" jndiName="java:comp/env/jdbc/phenodigmDataSource" />
+>>>>>>> refs/remotes/origin/fixedNewDesign -->
 	<dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	  
 	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>       
 	

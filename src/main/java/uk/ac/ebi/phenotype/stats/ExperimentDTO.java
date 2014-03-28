@@ -117,7 +117,7 @@ public class ExperimentDTO {
         return this.getControls(SexType.male);
     }
 
-    private Set<ObservationDTO> getControls(SexType sex) {
+    public Set<ObservationDTO> getControls(SexType sex) {
 
         if (femaleControls == null || maleControls == null) {
             femaleControls = new HashSet<>();

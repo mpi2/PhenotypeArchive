@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -61,7 +61,7 @@ public class StatsPageTest {
 		String zygosity= "homozygote";
 		String geneSymbol = "Mysm1";
 		// <div class='topic'>Gene: Mysm1</div>
-		driver.get(baseUrl + "/data/stats/genes/" + mgiGeneAcc + "?parameterId=" + impressParameter + "&zygosity=" + zygosity);
+		driver.get(baseUrl + "/data/charts?accession=" + mgiGeneAcc + "&parameterId=" + impressParameter + "&zygosity=" + zygosity);
 		String title = driver.findElement(By.xpath("//div[contains(@class, 'topic')]")).getText();
 		assertEquals(title, "Gene: " + geneSymbol);
 	}
@@ -90,9 +90,9 @@ public class StatsPageTest {
 				String zygosity= docs.getJSONObject(i).getString("zygosity");
 				String geneSymbol = docs.getJSONObject(i).getString("geneSymbol");
 				
-				System.out.println(geneSymbol + "\t" + baseUrl + "/data/stats/genes/" + mgiGeneAcc + "?parameterId=" + impressParameter + "&zygosity=" + zygosity);
+				System.out.println(geneSymbol + "\t" + baseUrl + "/data/charts?accession=" + mgiGeneAcc + "?parameterId=" + impressParameter + "&zygosity=" + zygosity);
 	
-				driver.get(baseUrl + "/data/stats/genes/" + mgiGeneAcc + "?parameterId=" + impressParameter + "&zygosity=" + zygosity);
+				driver.get(baseUrl + "/data/charts?accession=" + mgiGeneAcc + "&parameterId=" + impressParameter + "&zygosity=" + zygosity);
 				String title = driver.findElement(By.xpath("//div[contains(@class, 'topic')]")).getText();
 				assertEquals(title, "Gene: " + geneSymbol);
 			}

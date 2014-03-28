@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -273,7 +273,9 @@ public class SolrIndex {
 		}
 
 		// if all the above fails: no phenotyping data yet
-		return "Not Applicable";
+		//return "Not Applicable";
+		return "";
+		
 	}
 
 	/**
@@ -774,6 +776,7 @@ public class SolrIndex {
                         
                         construct.put("markerSymbol", markerSymbol);
                         construct.put("product", product);
+                        construct.put("alleleType", alleleType);
                         construct.put("type", type);
                         construct.put("strainOfOrigin", strainOfOrigin);
                         construct.put("mgiAlleleName", mgiAlleleName);

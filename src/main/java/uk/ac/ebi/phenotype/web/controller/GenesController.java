@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -34,11 +34,15 @@ import javax.servlet.http.HttpServletRequest;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
+import org.antlr.grammar.v3.ANTLRv3Parser.finallyClause_return;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
 import org.hibernate.exception.JDBCConnectionException;
@@ -76,6 +80,8 @@ import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
 import uk.ac.ebi.phenotype.pojo.Xref;
+import uk.ac.ebi.phenotype.stats.GeneService;
+import uk.ac.ebi.phenotype.stats.ObservationService;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
 
@@ -101,6 +107,13 @@ public class GenesController {
 
 	@Autowired
 	SolrIndex solrIndex;
+	
+
+	@Autowired
+	private GeneService geneService;
+	
+	@Autowired
+	private ObservationService observationService;
 
 	@Autowired
 	private PhenotypeSummaryDAO phenSummary;
@@ -111,6 +124,8 @@ public class GenesController {
 
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
+	
+	private static final int numberOfImagesToDisplay=5;
 
 
 	/**
@@ -269,7 +284,19 @@ public class GenesController {
 		}
 		model.addAttribute("constructs", constructs);
 		
-
+		// Get list of triplets of pipeline, allele acc, phenotyping center
+		// to link to an experiment page will all data
+		try {
+			
+			List<Map<String,String>> dataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
+			model.addAttribute("dataMapList", dataMapList);
+			
+		} catch (SolrServerException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+	
+		
 		
 		//code for assessing if the person is logged in and if so have they registered interest in this gene or not?
 		registerInterest = new RegisterInterestDrupalSolr( config, request);
@@ -290,34 +317,6 @@ public class GenesController {
 		model.addAttribute("request", request);
 		model.addAttribute("acc", acc);
 
-		Datasource ensembl = datasourceDao.getDatasourceByShortName("Ensembl");
-		Datasource vega = datasourceDao.getDatasourceByShortName("VEGA");
-		Datasource ncbi = datasourceDao.getDatasourceByShortName("EntrezGene");
-		Datasource ccds = datasourceDao.getDatasourceByShortName("cCDS");
-
-		List<String> ensemblIds = new ArrayList<String>();
-		List<String> vegaIds = new ArrayList<String>();
-		List<String> ncbiIds = new ArrayList<String>();
-		List<String> ccdsIds = new ArrayList<String>();
-
-		List<Xref> xrefs = gene.getXrefs();
-		for(Xref xref:xrefs) {
-			if (xref.getXrefDatabaseId() == ensembl.getId()) {
-				ensemblIds.add(xref.getXrefAccession());
-			} else if (xref.getXrefDatabaseId() == vega.getId()) {
-				vegaIds.add(xref.getXrefAccession());
-			} else if (xref.getXrefDatabaseId() == ncbi.getId()) {
-				ncbiIds.add(xref.getXrefAccession());
-			} else if (xref.getXrefDatabaseId() == ccds.getId()) {
-				ccdsIds.add(xref.getXrefAccession());
-			}
-		}
-
-		model.addAttribute("ensemblIds", ensemblIds);
-		model.addAttribute("vegaIds", vegaIds);
-		model.addAttribute("ncbiIds", ncbiIds);
-		model.addAttribute("ccdsIds", ccdsIds);
-
 		// ES Cell and IKMC Allele check (Gautier)
 		
 		String solrCoreName = "allele";
@@ -331,9 +330,22 @@ public class GenesController {
 			model.addAttribute("countIKMCAllelesError", Boolean.TRUE);
 			e.printStackTrace();
 		}
+		
 		model.addAttribute("countIKMCAlleles", countIKMCAlleles);
 		log.debug("CHECK IKMC allele error : " + ikmcError);
 		log.debug("CHECK IKMC allele found : " + countIKMCAlleles);
+		
+		String prodStatusIcons = "<p>No status available </p>";
+		
+		try {
+
+			Map<String, String> prod = geneService.getProductionStatus(acc);
+			prodStatusIcons = prod.get("icons");
+			model.addAttribute("orderPossible" , prod.get("orderPossible"));
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+		model.addAttribute("prodStatusIcons" , prodStatusIcons);
 	}
 
 	/**
@@ -399,7 +411,7 @@ public class GenesController {
 			pr.setAllele(pcs.getAllele());
 			pr.setSexes(sex);
 			pr.setPhenotypeTerm(pcs.getPhenotypeTerm());
-
+			pr.setPipelineStableKey(pcs.getPipelineStableKey());
 			// zygosity representation depends on source of information
 			// we need to know what the data source is so we can generate appropriate link on the page
 			Datasource ds = pcs.getDatasource();
@@ -420,6 +432,7 @@ public class GenesController {
 			pr.setProjectId(pcs.getExternalId());
 			pr.setProcedure(pcs.getProcedure());
 			pr.setParameter(pcs.getParameter());
+			System.out.println("pipeline="+pcs.getPipeline());
 			if (pcs.getPhenotypingCenter() != null)
 				pr.setPhenotypingCenter(pcs.getPhenotypingCenter());
 			if(phenotypes.containsKey(pr)) {
@@ -490,7 +503,7 @@ public class GenesController {
 		for (FacetField facet : expressionfacets) {
 			if (facet.getValueCount() != 0) {
 				for (Count value : facet.getValues()) {
-					QueryResponse response = imagesSolrDao.getDocsForGeneWithFacetField(acc, "annotated_or_inferred_higherLevelMaTermName",value.getName(), "expName:\"Wholemount Expression\"", 0, 6);
+					QueryResponse response = imagesSolrDao.getDocsForGeneWithFacetField(acc, "annotated_or_inferred_higherLevelMaTermName",value.getName(), "expName:\"Wholemount Expression\"", 0, numberOfImagesToDisplay);
 					if(response != null) {
 						facetToDocs.put(value.getName(), response.getResults());
 					}
@@ -540,7 +553,7 @@ public class GenesController {
 					if(!count.getName().equals("Wholemount Expression")){
 
 						// get 5 images if available for this experiment type
-						QueryResponse response = imagesSolrDao.getDocsForGeneWithFacetField(acc, "expName", count.getName(),"", 0, 6);
+						QueryResponse response = imagesSolrDao.getDocsForGeneWithFacetField(acc, "expName", count.getName(),"", 0, numberOfImagesToDisplay);
 						if(response != null) {
 							facetToDocs.put(count.getName(), response.getResults());
 						}
@@ -629,6 +642,7 @@ public class GenesController {
 		return "identifierError";
 	}
 	
+	
 	/**
 	 * @throws IOException 
 	 */
@@ -653,16 +667,65 @@ public class GenesController {
 		return "genesEnuFrag";
 	}
 	
-        @RequestMapping("/genesAllele/{acc}")
-        public String genesAllele(
-        		@PathVariable String acc,
+
+	/**
+	 * @throws IOException 
+	 */
+	@RequestMapping("/genomeBrowser/{acc}")
+	public String genomeBrowser(
+			@PathVariable String acc,
+			Model model,
+			HttpServletRequest request,
+			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
+		System.out.println("genome browser called");
+		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
+		System.out.println("gene in browser="+gene);
+		if (gene == null) {
+			log.warn("Gene status for " + acc + " can't be found.");
+		}	
+		Datasource ensembl = datasourceDao.getDatasourceByShortName("Ensembl");
+		Datasource vega = datasourceDao.getDatasourceByShortName("VEGA");
+		Datasource ncbi = datasourceDao.getDatasourceByShortName("EntrezGene");
+		Datasource ccds = datasourceDao.getDatasourceByShortName("cCDS");
+
+		List<String> ensemblIds = new ArrayList<String>();
+		List<String> vegaIds = new ArrayList<String>();
+		List<String> ncbiIds = new ArrayList<String>();
+		List<String> ccdsIds = new ArrayList<String>();
+
+		List<Xref> xrefs = gene.getXrefs();
+		for(Xref xref:xrefs) {
+			if (xref.getXrefDatabaseId() == ensembl.getId()) {
+				ensemblIds.add(xref.getXrefAccession());
+			} else if (xref.getXrefDatabaseId() == vega.getId()) {
+				vegaIds.add(xref.getXrefAccession());
+			} else if (xref.getXrefDatabaseId() == ncbi.getId()) {
+				ncbiIds.add(xref.getXrefAccession());
+			} else if (xref.getXrefDatabaseId() == ccds.getId()) {
+				ccdsIds.add(xref.getXrefAccession());
+			}
+		}
+
+		model.addAttribute("ensemblIds", ensemblIds);
+		model.addAttribute("vegaIds", vegaIds);
+		model.addAttribute("ncbiIds", ncbiIds);
+		model.addAttribute("ccdsIds", ccdsIds);
+
+		model.addAttribute("gene",gene);
+		return "genomeBrowser";
+	}
+	
+    @RequestMapping("/genesAllele/{acc}")
+    public String genesAllele(
+       		@PathVariable String acc,
 			Model model,
 			HttpServletRequest request,
 			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
                 
-                List<Map<String, String>> constructs = solrIndex.getGeneAlleleInfo(acc);
+        List<Map<String, String>> constructs = solrIndex.getGeneAlleleInfo(acc);
 
-                model.addAttribute("alleleProducts", constructs);
-		return "genesAllele";  
+        model.addAttribute("alleleProducts", constructs);
+	    return "genesAllele";  
         }   
+    
 }

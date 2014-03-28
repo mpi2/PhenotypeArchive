@@ -2,12 +2,12 @@ $(document).ready(function(){
 
 	// bubble popup for brief panel documentation
 	$.fn.qTip({
-		'pageName': 'gene',
-		'textAlign': 'left',
-		'tip': 'topRight'
-	});					
-
-	//function to fire off a refresh of a table and it's dropdown filters
+		'pageName': 'gene',				
+		'tip': 'top right',
+		'corner' : 'right top'
+	});							
+	
+    //function to fire off a refresh of a table and it's dropdown filters
 
 	var selectedFilters = "";
 	var dropdownsList = new Array();
@@ -36,19 +36,21 @@ $(document).ready(function(){
 		              "bFilter":false
 	});
 
-	$('[rel=tooltip]').tooltip();
-
+	//$('[rel=tooltip]').tooltip();
 	//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
+	
 	$('div#exportIconsDiv').append($.fn.loadFileExporterUI({
 		label: 'Export table as:',
+		textPos : "textright",
 		formatSelector: {
 			TSV: 'tsv_phenoAssoc',
 			XLS: 'xls_phenoAssoc'	    			 					
 		},
-		class: 'fileIcon'
+		class: 'fileIcon exportButton'
 	}));
 
 	var mgiGeneId = window.location.href.split("/")[window.location.href.split("/").length-1];
+	mgiGeneId = mgiGeneId.split("#")[0];
 	var windowLocation = window.location;
 
 	initFileExporter({
@@ -77,7 +79,7 @@ $(document).ready(function(){
 			sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
 			var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");		
 			_doDataExport(url, form);
-		}).corner('6px');	 
+		}); 
 	}  
 
 	function _doDataExport(url, form){
@@ -138,8 +140,8 @@ $(document).ready(function(){
 		$(multipleSel).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
 			minWidth: 150, onItemClick: function(checkbox, selector){
 				var justChecked = checkbox.prop("checked");
-				console.log("justChecked="+justChecked);
-				console.log("checked="+ checkbox.val());
+//				console.log("justChecked="+justChecked);
+//				console.log("checked="+ checkbox.val());
 				var values = [];
 				for(var  i=0; i < selector.options.length; i++ ) {
 					if (selector.options[i].selected && (selector.options[i].value != "")) {
@@ -165,14 +167,14 @@ $(document).ready(function(){
 				var ddI  = 1; 
 				for (var ii=0; ii<allDd.length; ii++) { 
 					if ($(allDd[ii]).attr('id') != multipleSel.attr('id')) {
-						console.log ("here " + allDd[ii].val() + " " + allDd[ii].attr('id'));
+//						console.log ("here " + allDd[ii].val() + " " + allDd[ii].attr('id'));
 						dd = new Object();
 						dd.name = allDd[ii].attr('id'); 
 						dd.array = allDd[ii].val() || []; 
 						dropdownsList[ddI++] = dd;
 					}
 				}
-				console.log("call with " + dropdownsList.length);
+//				console.log("call with " + dropdownsList.length);
 				refreshGenesPhenoFrag(dropdownsList);
 			}, textFormatFunction: function(options) {
 				var selectedOptions = options.filter(":selected");
@@ -205,6 +207,7 @@ $(document).ready(function(){
 			}
 		} );
 	}
+	
 	//if filter parameters are already set then we need to set them as selected in the dropdowns
 	var previousParams = $("#filterParams").html();
 	
@@ -214,7 +217,7 @@ $(document).ready(function(){
 		var output ='?';
 		selectedFilters = "";
 		for (var it = 0; it < dropdownsList.length; it++){
-			console.log(dropdownsList[it].array);
+//			console.log(dropdownsList[it].array);
 			if(dropdownsList[it].array.length == 1){//if only one entry for this parameter then don't use brackets and or
 				output += '&fq=' + dropdownsList[it].name + ':"' + dropdownsList[it].array+'"';
 				selectedFilters += '+AND+' + dropdownsList[it].name + ':"' + dropdownsList[it].array+'"';
@@ -233,8 +236,11 @@ $(document).ready(function(){
 		//Do stuff when clicked
 		//the id is set as the field to be filtered on
 		//set the value of the current id of the trigger
-		var filter=$(this).attr("id");
-		$(allDropdowns[0]).val(filter);
+		
+		var filter=$(this).attr("id").replace("phenIconsBox_", "");
+		var values = filter.split(" or ");
+//		console.log ("filterTrigger" + values);
+		$(allDropdowns[0]).val(values);
 		$(allDropdowns[0]).dropdownchecklist("refresh");
 		$(allDropdowns[1]).val([]);
 		$(allDropdowns[1]).dropdownchecklist("refresh");
@@ -243,7 +249,7 @@ $(document).ready(function(){
 		var dd1 = new Object();
 		dd1.name = allDropdowns[0].attr("id");
 		dd1.array = new Array; // selected values
-		dd1.array.push(filter);
+		dd1.array = values;
 		dropdownsList[0] = dd1;
 		
 		var dd2 = new Object();

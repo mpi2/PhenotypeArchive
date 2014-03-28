@@ -1,0 +1,122 @@
+/* Additional styling written at EBI */
+
+/* hide pagination below tables on gene and phenotype pages */
+div#phenotypesDiv div.dataTables_paginate {display: none !important;}
+
+form.no-style{
+	border:none;
+	padding:none;
+}
+.filtersMoreLikeNicolas.open{
+	display: block; 
+	max-height:18em;
+}
+.filtertype_add{
+	white-space:nowrap;
+}
+.filtertype_add.open{
+	background:white;
+}
+.tablefilter_add{ 
+	width: 21%;	
+	text-wrap:none;
+}
+.filtertype:before { 
+	margin-right: 0.5em; 
+	}
+.filtersMoreLikeNicolas { 
+	margin-left: -2px; 
+	padding: 0.5em; 
+	border: #eee 1px solid; 
+	border-top: none; 
+	border-radius: 0 3px 3px 3px; 
+	-webkit-border-radius: 0 3px 3px 3px; 
+	-moz-border-radius: 0 3px 3px 3px; 
+	-ms-border-radius: 0 3px 3px 3px; 
+	-o-border-radius: 0 3px 3px 3px; 
+	overflow: auto;
+	display: none;
+	background: white;
+	min-width: 21%;
+	white-space:nowrap;
+}
+.ui-dropdownchecklist-item {
+	margin: 0.3em 0;
+	cursor: pointer !important;
+}
+.ui-dropdownchecklist-item label {
+	cursor: pointer;
+	}
+.ui-dropdownchecklist-item input[type="checkbox"] { 
+	margin-right: 0.5em; 
+	} 
+#other_procedures{
+ 	display:none;
+ }
+ 
+button.gridDump {
+	font-size: 11px;
+	background: none;
+	border: none;
+	color: #0978A1;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+button.exportButton{
+	font-size:14px;
+}
+
+.abnormalities .sprite_mortality_aging { margin: 0px 0px 0px 0px; background-position: 0px 0px; }
+.abnormalities .sprite_embryogenesis_phenotype { margin: 0px 0px 0px 40px; background-position: -40px 0px; }
+.abnormalities .sprite_reproductive_system_phenotype { margin: 0px 0px 0px 80px; background-position: -80px 0px; }
+.abnormalities .sprite_growth_size_phenotype { margin: 0px 0px 0px 120px; background-position: -120px 0px; }
+.abnormalities .sprite_homeostasis_metabolism_phenotype_or_adipose_tissue_phenotype { margin: 0px 0px 0px 160px; background-position: -160px 0px; }
+
+.abnormalities .sprite_behavior_neurological_phenotype_or_nervous_system_phenotype { margin: 40px 0px 0px 0px; background-position: 0px -40px; }
+.abnormalities .sprite_cardiovascular_system_phenotype { margin: 40px 0px 0px 40px; background-position: -40px -40px; }
+.abnormalities .sprite_respiratory_system_phenotype { margin: 40px 0px 0px 80px; background-position: -80px -40px; }
+.abnormalities .sprite_digestive_alimentary_phenotype_or_liver_biliary_system_phenotype { margin: 40px 0px 0px 120px; background-position: -120px -40px; }
+.abnormalities .sprite_renal_urinary_system_phenotype { margin: 40px 0px 0px 160px; background-position: -160px -40px; }
+
+.abnormalities .sprite_limbs_digits_tail_phenotype { margin: 80px 0px 0px 0px; background-position: 0px -80px; }
+.abnormalities .sprite_skeleton_phenotype { margin: 80px 0px 0px 40px; background-position: -40px -80px; }
+.abnormalities .sprite_immune_system_phenotype_or_hematopoietic_system_phenotype { margin: 80px 0px 0px 80px; background-position: -80px -80px; }
+.abnormalities .sprite_muscle_phenotype { margin: 80px 0px 0px 120px; background-position: -120px -80px; }
+.abnormalities .sprite_integument_phenotype_or_pigmentation_phenotype { margin: 80px 0px 0px 160px; background-position: -160px -80px; }
+
+.abnormalities .sprite_craniofacial_phenotype { margin: 120px 0px 0px 0px; background-position: 0px -120px; }
+.abnormalities .sprite_hearing_vestibular_ear_phenotype { margin: 120px 0px 0px 40px; background-position: -40px -120px; }
+.abnormalities .sprite_taste_olfaction_phenotype { margin: 120px 0px 0px 80px; background-position: -80px -120px; }
+.abnormalities .sprite_endocrine_exocrine_gland_phenotype { margin: 120px 0px 0px 120px; background-position: -120px -120px; }
+.abnormalities .sprite_vision_eye_phenotype { margin: 120px 0px 0px 160px; background-position: -160px -120px; }
+
+#spin-overview-charts, #single-chart-div{
+	width: 100%;
+	height: 400px;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+#chart-container {
+	width: 100%;
+ height: 400px;
+  position: relative;
+}
+
+#single-chart-div{min-width: 400px; height: 400px; margin: 0 auto;}
+
+/* Graph filter */
+.filters                            { margin: 1em 0; padding: 1em; background: #f4f4f4; -moz-border-radius: 3px; -webkit-border-radius: 3px; -ms-border-radius: 3px; border-radius: 3px; }
+.filter                             { float: left; padding-right: 2em; display:inline-block;}
+.ftype                              { padding-left: 1em; cursor: pointer; }
+.ftype:before                       { position: absolute; font-family: 'FontAwesome'; content: "\f0da"; margin-left: -1em; }
+.filter.open .ftype:before          { content: "\f0d7"; }
+.filter .foptions                   { display: none; padding-right: 1em; max-height: 120px; overflow-y: auto; }
+.filter.open .foptions              { display: block; }
+.foptions ul                        { list-style: none; padding-left: 0.8em; }
+
+.status {
+	margin-right:5pt;
+}

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2011-2013 EMBL - European Bioinformatics Institute
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -106,6 +106,13 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 				.setString(0, stableId)
 				.setInteger(1, majorVersion)
 				.setInteger(2, minorVersion)
+				.uniqueResult();
+	}
+	
+	@Transactional(readOnly = true)
+	public Parameter getParameterByStableId(String stableId) {
+		return (Parameter) getCurrentSession().createQuery("from Parameter as p where p.stableId = ?")
+				.setString(0, stableId)
 				.uniqueResult();
 	}
 	

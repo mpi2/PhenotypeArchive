@@ -13,17 +13,25 @@ import java.util.ResourceBundle.Control;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javassist.expr.NewArray;
+
+import org.antlr.grammar.v3.ANTLRv3Parser.throwsSpec_return;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.eclipse.jetty.util.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
+import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl;
+import uk.ac.ebi.phenotype.error.SpecificExperimentException;
 import uk.ac.ebi.phenotype.pojo.ControlStrategy;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.pojo.StatisticalResult;
+import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.stats.strategy.AllControlsStrategy;
 import uk.ac.ebi.phenotype.stats.strategy.ControlSelectionStrategy;
@@ -41,15 +49,14 @@ public class ExperimentService {
 	
 	@Autowired
 	private PhenotypeCallSummaryDAOReadOnly phenoDAO;
+	
+	@Autowired
+	private UnidimensionalStatisticsDAO unidimensionalStatisticsDAO;
 
-	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain)
-			throws SolrServerException, IOException, URISyntaxException {
-		return getExperimentDTO(parameterId, null, geneAccession, sex, phenotypingCenterId, zygosity, strain, Boolean.TRUE);
-	}
 
-	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain)
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain)
 			throws SolrServerException, IOException, URISyntaxException {
-		return getExperimentDTO(parameterId, pipelineId, geneAccession, sex, phenotypingCenterId, zygosity, strain, Boolean.TRUE);
+		return getExperimentDTO(parameterId, pipelineId, geneAccession, sex, phenotypingCenterId, zygosity, strain, null, Boolean.TRUE);
 	}
 
 	/**
@@ -60,16 +67,27 @@ public class ExperimentService {
 	 * @param phenotypingCenterId	null for any organisation
 	 * @param zygosity	 null for any zygosity	
 	 * @param strain	null for any strain
+<<<<<<< HEAD
 	 * @param phenotypingCenterId The database identifier of the center
 	 * @return list of experiment objects
+=======
+	 * @param metaDataString TODO
+	 * @param phenotypingCenter TODO
+	 * @return
+>>>>>>> refs/remotes/origin/fixedNewDesign
 	 * @throws SolrServerException
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain, Boolean includeResults) throws SolrServerException, IOException, URISyntaxException {
-	
-		List<ObservationDTO> observations = os.getExperimentalUnidimensionalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSex(parameterId, pipelineId, geneAccession, zygosity, phenotypingCenterId, strain, sex);
+
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain,String metaDataGroup, Boolean includeResults) throws SolrServerException, IOException, URISyntaxException {
+
+
+		List<ObservationDTO> observations = os.getExperimentalUnidimensionalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroup(parameterId, pipelineId, geneAccession, zygosity, phenotypingCenterId, strain, sex, metaDataGroup);
 		
+
+		//List<ObservationDTO> observations = os.getExperimentalObservationsByParameterGeneAccZygosityOrganisationStrainSexAndMetaDataGroup(parameterId, geneAccession, zygosity, phenotypingCenterId, strain, sex, metaDataGroup);
+		System.out.println("observations # " + observations);
 		Map<String, ExperimentDTO> experimentsMap = new HashMap<>();
 		
 		for (ObservationDTO observation : observations) {
@@ -144,10 +162,58 @@ public class ExperimentService {
 
      		// TODO: include allele
 
+//<<<<<<< HEAD
      		// The includeResults variable skips getting the results when 
      		// generating experimentsDTOs for calculating stats (performance)
+     		//if (experiment.getResults()==null && experiment.getExperimentalBiologicalModelId()!=null && includeResults) {
+     		//	experiment.setResults( phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), observation.getParameterStableId(), ObservationType.valueOf(observation.getObservationType()), observation.getStrain()));
+//=======
+     		// TODO: update to make use of the MP to result association
+     		// includeResults variable skips the results when gathering
+     		// experiments for calculating the results (performance)
      		if (experiment.getResults()==null && experiment.getExperimentalBiologicalModelId()!=null && includeResults) {
-     			experiment.setResults( phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), observation.getParameterStableId(), ObservationType.valueOf(observation.getObservationType()), observation.getStrain()));
+     			//this call to solr is fine if all we want is pValue and effect size, but for unidimensional data we need more stats info to populate the extra table so we need to make a db call instead for unidimensional
+     			List<? extends StatisticalResult> basicResults = phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), observation.getParameterStableId(), ObservationType.valueOf(observation.getObservationType()), observation.getStrain());
+     			//one doc_id for each sex result 
+     			//"doc_id":88370,= female and "doc_id":88371, male for one example
+     			//int phenotypeCallSummaryId=204749;
+     			List<UnidimensionalResult> populatedResults=new ArrayList<>();
+     			for(StatisticalResult basicResult: basicResults) {
+     			//get one for female and one for male if exist
+     			UnidimensionalResult unidimensionalResult=(UnidimensionalResult)basicResult;
+     			System.out.println("basic result PCSummary Id="+unidimensionalResult.getId()+" basic result sex type="+unidimensionalResult.getSexType()+" p value="+unidimensionalResult.getpValue());
+     			
+				try {
+					UnidimensionalResult result = unidimensionalStatisticsDAO.getStatsForPhenotypeCallSummaryId(unidimensionalResult.getId());
+					if(result!=null) {
+							//result.setSexType(unidimensionalResult.getSexType());//set the sextype from our already called solr result as it's not set by hibernate
+							result.setZygosityType(unidimensionalResult.getZygosityType());
+							System.out.println("result!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"+result);
+							populatedResults.add(result);
+					}
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+     					
+     			}
+     			if(populatedResults.size()==0) {
+     				System.out.println("resorting to basic stats result");
+     				experiment.setResults(basicResults);
+     			}else {
+     			experiment.setResults(populatedResults);
+     			}
+				//doc_id from above call is the phenotype_call_summary id
+     			//use this to get the correct stats result from the db
+     			// some dao .getStatsForPhenotypeCallSummaryId(14309);
+     			//note there will only be extra stats in the stat_result_phenotype_call_summary if the call is an impc one otherwise like this query it will be empty!
+     			//SELECT * FROM komp2.stat_result_phenotype_call_summary where phenotype_call_summary_id=88370;
+     			//# categorical_result_id, unidimensional_result_id, phenotype_call_summary_id
+     			//0, 204749, 88370
+     			
+     			//needs to get information from 
+     			
+//>>>>>>> refs/remotes/origin/fixedNewDesign
      		}
 	    	
 	    	if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.heterozygote)) {
@@ -261,6 +327,21 @@ public class ExperimentService {
 
 		    	    }
 
+					// If there is only 1 batch, the selection strategy is to
+					// try to use concurrent controls. If there is more than one
+					// batch, we fall back to baseline controls up until the
+					// date of the last experiment
+		    	    if (allBatches.size() == 1) {
+
+		    	    	experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
+
+		    	    } else {
+
+		    	    	experiment.setControlSelectionStrategy(ControlStrategy.baseline_all);
+
+		    	    }
+		    	    
+
 		    	    //
 		    	    // If one sex specified
 		    	    //
@@ -293,6 +374,22 @@ public class ExperimentService {
 		    	    	//
 		    	    	// Processing both sexes
 		    	    	//
+//<<<<<<< HEAD
+//=======
+//
+//		    			List<ObservationDTO> addingControls = new ArrayList<ObservationDTO>();
+//
+//	    	    		// DEFAULT
+//		    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all_until_last_experiment);
+//		    			addingControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, null, experiment.getMetadataGroup());
+//
+//		    			
+//		    			if (addingControls.size() <= MIN_CONTROLS) {
+//		    				// Not enough control data -- use baseline all
+//			    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all);
+//			    			addingControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, null, experiment.getMetadataGroup());
+//		    			}
+//>>>>>>> refs/remotes/origin/fixedNewDesign
 
 		    			if (allBatches.size()==1) {
 
@@ -320,6 +417,16 @@ public class ExperimentService {
 		    				controls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, null, experiment.getMetadataGroup());		    				
 
 		    			}
+//=======
+//			    			if (potentialMaleControls.size() >= MIN_CONTROLS && potentialFemaleControls.size() >= MIN_CONTROLS) {
+//			    				addingControls = potentialMaleControls;
+//			    				addingControls.addAll(potentialFemaleControls);
+//				    			experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
+//			    			}
+//		    			}
+//		
+//		    			controls.addAll(addingControls);
+//>>>>>>> refs/remotes/origin/fixedNewDesign
 		    	    }
 
 	    		} // End control selection
@@ -358,56 +465,76 @@ public class ExperimentService {
 	 * @throws URISyntaxException 
 	 * @throws IOException 
 	 */
-	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession) throws SolrServerException, IOException, URISyntaxException {
-		return getExperimentDTO(parameterId, geneAccession, null, null, null, null);
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession) throws SolrServerException, IOException, URISyntaxException {
+		return getExperimentDTO(parameterId, pipelineId,geneAccession, null, null, null, null);
 	}
 	
-	public List<ExperimentDTO> getExperimentDTO(String parameterStableId, String geneAccession) throws SolrServerException, IOException, URISyntaxException {
+	public List<ExperimentDTO> getExperimentDTO(String parameterStableId, Integer pipelineId, String geneAccession) throws SolrServerException, IOException, URISyntaxException {
 		Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameterStableId, 1, 0);
-		return getExperimentDTO(p.getId(), geneAccession);
+		return getExperimentDTO(p.getId(), pipelineId, geneAccession);
 	}
 	
-	public List<ExperimentDTO> getExperimentDTO(String parameterStableId, String geneAccession, String strain) throws SolrServerException, IOException, URISyntaxException {
+	public List<ExperimentDTO> getExperimentDTO(String parameterStableId,Integer pipelineId, String geneAccession, String strain) throws SolrServerException, IOException, URISyntaxException {
 		Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameterStableId, 1, 0);
-		return getExperimentDTO(p.getId(), geneAccession, null, null, null, strain);
+		return getExperimentDTO(p.getId(),pipelineId, geneAccession, null, null, null, strain);
 	}
 	
-	public List<ExperimentDTO> getExperimentDTO(String parameterStableId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
+	public List<ExperimentDTO> getExperimentDTO(String parameterStableId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
 		Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameterStableId, 1, 0);
-		return getExperimentDTO(p.getId(), geneAccession, sex, phenotypingCenterId, zygosity, strain);
+		System.out.println("--- getting p for : " + parameterStableId);
+		return getExperimentDTO(p.getId(),pipelineId, geneAccession, sex, phenotypingCenterId, zygosity, strain);
 	}
 
-	public List<ExperimentDTO> getExperimentDTO(String parameterStableId, String geneAccession,List<String> sexes, List<String> zygosity, Integer phenotypingCenterId)
-		throws SolrServerException, IOException, URISyntaxException {
-		Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameterStableId, 1, 0);
-		return getExperimentDTO(p.getId(), geneAccession, sexes, zygosity, phenotypingCenterId);
-	}
-
-
-	public List<ExperimentDTO> getExperimentDTO(Integer id, String acc,
-			List<String> genderList, List<String> zyList, Integer phenotypingCenterId) throws SolrServerException, IOException, URISyntaxException {
+	/**
+	 * Should only return 1 experimentDTO - returns null if none and exception if more than 1 - used by ajax charts
+	 * @param id
+	 * @param acc
+	 * @param genderList
+	 * @param zyList
+	 * @param phenotypingCenterId
+	 * @param strain
+	 * @param metadataGroup 
+	 * @return
+	 * @throws SolrServerException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 * @throws SpecificExperimentException 
+	 */
+	public ExperimentDTO getSpecificExperimentDTO(Integer id, int pipelineId,String acc,
+			List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain, String metadataGroup) throws SolrServerException, IOException, URISyntaxException, SpecificExperimentException {
 		List<ExperimentDTO> experimentList=new ArrayList<ExperimentDTO>();
-		
+		boolean includeResults=true;
 		if (genderList.isEmpty() || genderList.size()==2) {//if gender list is size 2 assume both sexes so no filter needed
+			 
 			
-			
-			if (zyList.isEmpty() || zyList.size()==2) {//if zygosity list is size 2 then no filter needed either
-				experimentList=this.getExperimentDTO(id, acc,  null, phenotypingCenterId, null, null);
+			if (zyList.isEmpty() || zyList.size()==3) {//if zygosity list is size 2 then no filter needed either
+				experimentList=this.getExperimentDTO(id, pipelineId, acc,  null, phenotypingCenterId, null, strain, metadataGroup, includeResults);
 			}else {
-				experimentList=this.getExperimentDTO(id, acc,  null, phenotypingCenterId, zyList.get(0), null);
+				experimentList=this.getExperimentDTO(id,pipelineId, acc,  null, phenotypingCenterId, zyList, strain, metadataGroup, includeResults);
 			}
 			
 		}else {
 			String gender=genderList.get(0);
-			if (zyList.isEmpty() || zyList.size()==2) {
-				experimentList=this.getExperimentDTO(id, acc, SexType.valueOf(gender), phenotypingCenterId, null, null);
+			if (zyList.isEmpty() || zyList.size()==3) {
+				experimentList=this.getExperimentDTO(id,pipelineId, acc, SexType.valueOf(gender), phenotypingCenterId, null, strain, metadataGroup, includeResults);
 			}else {
-				experimentList=this.getExperimentDTO(id, acc, SexType.valueOf(gender), phenotypingCenterId, zyList.get(0), null);
+				experimentList=this.getExperimentDTO(id, pipelineId, acc, SexType.valueOf(gender), phenotypingCenterId, zyList, strain, metadataGroup, includeResults);
 			}
 			
 		}
-		
-		return experimentList;
+		if(experimentList.isEmpty()) {
+			return null;//return null if no experiments
+		}
+		if(experimentList.size()>1) {
+			throw new SpecificExperimentException("too many experiments returned - should only be one from this method call");
+		}
+		return experimentList.get(0);
+	}
+	
+	
+	
+	public Map<String,List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> phenotypingCenter, List<String> strain, List<String> metaDataGroup) throws SolrServerException{
+	return 	os.getExperimentKeys(mgiAccession, parameterStableId, phenotypingCenter, strain, metaDataGroup);
 	}
 	
 	public String getCategoryLabels (int parameterId, String category) throws SQLException{
