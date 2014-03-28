@@ -431,7 +431,6 @@
     				
     				// do some accounting for matching subfacets
     				if ( subFacetName.indexOf('curated') != -1 ) {
-
     					for ( var cr=0; cr<oFacets[subFacetName].length; cr=cr+2){    						
     						if ( oFacets[subFacetName][cr] == 'true' ){ 
     							foundMatch.curated++;    				    							
@@ -440,7 +439,6 @@
     				}
     				else if ( subFacetName.indexOf('predicted') != -1 ){    					
     					for ( var pr=0; pr<oFacets[subFacetName].length; pr=pr+2){
-
     						if ( oFacets[subFacetName][pr] == 'true' ){ 					
     							foundMatch.predicted++;    							 							
     						}
@@ -732,7 +730,7 @@
 		}
 	}
 	
-	$.fn.composeFacetFilterControl = function(oChkbox, q){	
+	$.fn.composeFacetFilterControl = function(oChkbox, q, mode){	
 		
 		var labels = oChkbox.attr('rel').split("|");
 	
@@ -755,20 +753,23 @@
 			updateFacetUrlTable(q, facet);	
 		}
 		else {	
-			//console.log('uncheck ' + facet);
+			console.log('uncheck ' + facet + ' by ' + mode);
 			
-			// select the facet that the unchecked filter belongs to			
-			$('div.flist li.fmcat').each(function(){				
-				if ( $(this).attr('id') != facet ){
-					$(this).removeClass('open');
-				}
-				else {
-					if ( !$(this).hasClass('open') ){
-						$('div.flist li#' + facet).click();
+			if ( mode == 'filter '){
+				// uncheck via filter and not checkbox
+				// select the facet that the unchecked filter belongs to			
+				$('div.flist li.fmcat').each(function(){				
+					if ( $(this).attr('id') != facet ){
+						$(this).removeClass('open');
 					}
-				}
-			});				
-					
+					else {
+						if ( !$(this).hasClass('open') ){
+							$('div.flist li#' + facet).click();
+						}
+					}
+				});				
+			}		
+			
 			// uncheck checkbox with matching value		
 			$('ul#facetFilter li.ftag').each(function(){				
 				if ( $(this).find('a').attr('rel') == oChkbox.attr('rel') ){					
@@ -967,7 +968,8 @@
 			oChkbox.attr("checked", false);			
 			oChkbox.siblings('span.flabel').removeClass('highlight');
 			filter.remove();
-			$.fn.composeFacetFilterControl(oChkbox, q);
+			var mode = 'filter';
+			$.fn.composeFacetFilterControl(oChkbox, q, mode);
 		});
 	}
 	
@@ -1673,9 +1675,8 @@
     			// IE fix, as this style in CSS is not working for IE8 
     			if ( $('table#geneGrid').size() == 1 ){
     				$('table#geneGrid th:nth-child(1)').width('45%');
-    			}  						
-    							
-    			
+    			}		
+    			    			
     			$('a.interest').click(function(){
     				
     				var mgiId = $(this).attr('id');
@@ -1691,13 +1692,9 @@
     							window.alert('Null error trying to register interest');
     						} 
     						else {    							
-    							// 3 labels (before login is 'Interest')
-    							console.log('curr label:*'+ label+'*');
-    							console.log(label == String.fromCharCode(160)+'Register interest');
-    							console.log(label == String.fromCharCode(160)+'Unregister interest');
+    							// 3 labels (before login is 'Interest')    							
     							//compare using the actual raw character for &nbsp;
-    							if( label == String.fromCharCode(160)+'Register interest' ) {
-    								console.log('test reg int button');
+    							if( label == String.fromCharCode(160)+'Register interest' ) {    								
     								regBtn.text(String.fromCharCode(160) + 'Unregister interest');    								    								
     								regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out')
     									.parent().attr('oldtitle', 'Unregister interest')
@@ -1707,8 +1704,7 @@
     				    					content: { text: $(this).attr('oldtitle')}
     				    					});	// refresh tooltip    								
     							} 
-    							else if (label == String.fromCharCode(160)+'Unregister interest'){
-    								console.log('test unreg int button');
+    							else if (label == String.fromCharCode(160)+'Unregister interest'){    							
     								regBtn.text(String.fromCharCode(160) + 'Register interest');    								
     								regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in')
     									.parent().attr('oldtitle', 'Register interest')
