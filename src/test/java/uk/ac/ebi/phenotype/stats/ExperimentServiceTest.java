@@ -75,7 +75,7 @@ public class ExperimentServiceTest {
 
 		zygs.add(ZygosityType.heterozygote.name());
 
-		List<ExperimentDTO> experimentList = es.getExperimentDTO("ESLIM_011_001_004", "MGI:1922257", sexes, zygs, 8);
+		List<ExperimentDTO> experimentList = es.getExperimentDTO("ESLIM_011_001_004", "MGI:1928760", sexes, zygs, 8);
         System.out.println("EXP list is: "+experimentList);
         System.out.println("Size is: "+experimentList.size());
 	}

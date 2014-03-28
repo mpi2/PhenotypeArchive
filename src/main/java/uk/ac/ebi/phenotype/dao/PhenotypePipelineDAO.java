@@ -49,6 +49,14 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	public List<Pipeline> getAllPhenotypePipelines();
 
 	/**
+	 * Find a pipeline by its id.
+	 * It will return the latest version of the pipeline
+	 * @param id the pipeline id
+	 * @return the pipeline
+	 */
+	public Pipeline getPhenotypePipelineById(Integer id);
+
+	/**
 	 * Find a pipeline by its stable id.
 	 * It will return the latest version of the pipeline
 	 * @param name the pipeline stable id

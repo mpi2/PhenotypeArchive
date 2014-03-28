@@ -350,7 +350,7 @@ Licensed to the Apache Software Foundation (ASF) under one or more
 	<copyField source="top_level_mp_term" dest="annotated_or_inferred_higherLevelMpTermName" />
 
 	<copyField source="inferred_selected_top_level_ma_term" dest="annotated_or_inferred_higherLevelMxTermName" />
-        <copyField source="top_level_mp_term" dest="annotated_or_inferred_higherLevelMxTermName" />
+    <copyField source="top_level_mp_term" dest="annotated_or_inferred_higherLevelMxTermName" />
 
 
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
