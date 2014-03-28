@@ -44,7 +44,12 @@ public class ExperimentService {
 
 	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain)
 			throws SolrServerException, IOException, URISyntaxException {
-		return getExperimentDTO(parameterId, geneAccession, sex, phenotypingCenterId, zygosity, strain, Boolean.TRUE);
+		return getExperimentDTO(parameterId, null, geneAccession, sex, phenotypingCenterId, zygosity, strain, Boolean.TRUE);
+	}
+
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain)
+			throws SolrServerException, IOException, URISyntaxException {
+		return getExperimentDTO(parameterId, pipelineId, geneAccession, sex, phenotypingCenterId, zygosity, strain, Boolean.TRUE);
 	}
 
 	/**
@@ -55,15 +60,15 @@ public class ExperimentService {
 	 * @param phenotypingCenterId	null for any organisation
 	 * @param zygosity	 null for any zygosity	
 	 * @param strain	null for any strain
-	 * @param phenotypingCenter TODO
-	 * @return
+	 * @param phenotypingCenterId The database identifier of the center
+	 * @return list of experiment objects
 	 * @throws SolrServerException
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain, Boolean includeResults) throws SolrServerException, IOException, URISyntaxException {
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain, Boolean includeResults) throws SolrServerException, IOException, URISyntaxException {
 	
-		List<ObservationDTO> observations = os.getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(parameterId, geneAccession, zygosity, phenotypingCenterId, strain, sex);
+		List<ObservationDTO> observations = os.getExperimentalUnidimensionalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSex(parameterId, pipelineId, geneAccession, zygosity, phenotypingCenterId, strain, sex);
 		
 		Map<String, ExperimentDTO> experimentsMap = new HashMap<>();
 		
@@ -76,6 +81,7 @@ public class ExperimentService {
 	    	// - organisation
 	    	// - strain
 	    	// - parameter
+	    	// - pipeline
 	    	// - gene
 			// - meatdata group
 	    	ExperimentDTO experiment;
@@ -83,6 +89,7 @@ public class ExperimentService {
 	    	String experimentKey = observation.getPhenotypingCenter()
 	    			+ observation.getStrain()
 	    			+ observation.getParameterStableId()
+	    			+ observation.getPipelineStableId()
 	    			+ observation.getGeneAccession() // TODO: should this be alleleAccession?
 	    			+ observation.getMetadataGroup();
 
@@ -117,7 +124,6 @@ public class ExperimentService {
 	    		experiment.setParameterStableId(observation.getParameterStableId());
 	    	}
 
-	    	//TODO: Update to support multiple pipelines
 	    	if (experiment.getPipelineStableId() == null) {
 	    		experiment.setPipelineStableId(observation.getPipelineStableId());
 	    	}
@@ -138,9 +144,8 @@ public class ExperimentService {
 
      		// TODO: include allele
 
-     		// TODO: update to make use of the MP to result association
-     		// includeResults variable skips the results when gathering
-     		// experiments for calculating the results (performance)
+     		// The includeResults variable skips getting the results when 
+     		// generating experimentsDTOs for calculating stats (performance)
      		if (experiment.getResults()==null && experiment.getExperimentalBiologicalModelId()!=null && includeResults) {
      			experiment.setResults( phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), observation.getParameterStableId(), ObservationType.valueOf(observation.getObservationType()), observation.getStrain()));
      		}
@@ -160,13 +165,9 @@ public class ExperimentService {
 	    // Set to record the experiments that don't have control data
 	    Set<String> noControls = new HashSet<>();
 
-	    // TODO: Hom and Het probably need their own control groups
 	    // TODO: Update control selection strategy based on recommendation of 
 	    // stats working group
 
-	    // TODO: Male and female mutants for UNIDIMENSIONAL PARAMETERS 
-	    // must occur on the same day to be "in a same batch"
-	    
 	    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 	    // CONTROL SELECTION
 	    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -189,13 +190,6 @@ public class ExperimentService {
 	    		
 	    		experiment.setControls(new HashSet<ObservationDTO>());
 
-	    		String controlSex = null;
-	    		// we want single sex controls for unidimensional data with 1 sex parameter only 
-
-	    		if (sex != null){
-	    			controlSex = sex.toString();
-	    		}
-	    		
 	    		// ======================================
 	    		// CONTROL GROUP SELECTION STRATEGY
 	    		// 
@@ -206,6 +200,13 @@ public class ExperimentService {
 	    		//    Use concurrent controls when appropriate
 	    		//        Concurrent means all collected on the same day (ALL male/female controls/mutants)
 	    		// 
+	    		// Per discussion with Terry 2014-03-24
+	    		// - Categorical data
+	    		//    No change
+	    		// - Unidimensional data
+	    		//    Use concurrent controls when appropriate
+	    		//        Concurrent means all collected on the same day (ALL male/female controls/mutants)
+	    		//    Else, use all appropriate data for controls
 	    		// ======================================
 
 	    		List<ObservationDTO> controls = new ArrayList<ObservationDTO>();
@@ -214,6 +215,9 @@ public class ExperimentService {
 		    		// ======================================
 		    		// CATEGORICAL CONTROL SELECTION
 		    		// ======================================
+
+	    			// Use all appropriate controls for categorical data
+	    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all);
 
 		    	    if (experiment.getSexes()!=null) {
 
@@ -231,17 +235,17 @@ public class ExperimentService {
 		    			controls.addAll(os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, null, experiment.getMetadataGroup()));
 
 		    	    }
-	    			// Use all appropriate controls for categorical data
-	    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all);
 
 	    		} else {
 		    		// ======================================
 		    		// UNIDIMENSIONAL/TIMESERIES CONTROL SELECTION
 		    		// ======================================
 
-		    		Set<String> allBatches = new HashSet<String>();
+		    	    // Default to using all controls
+	    	    	experiment.setControlSelectionStrategy(ControlStrategy.baseline_all);
 
-		    		// Find the date of the last experiment
+		    		// Find the dates of the experiments
+		    		Set<String> allBatches = new HashSet<String>();
 		    		Date experimentDate = new Date(0L);
 		    	    for (ObservationDTO o : experiment.getMutants()) {
 
@@ -257,20 +261,6 @@ public class ExperimentService {
 
 		    	    }
 
-					// If there is only 1 batch, the selection strategy is to
-					// try to use concurrent controls. If there is more than one
-					// batch, we fall back to baseline controls up until the
-					// date of the last experiment
-		    	    if (allBatches.size() == 1) {
-
-		    	    	experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
-
-		    	    } else {
-
-		    	    	experiment.setControlSelectionStrategy(ControlStrategy.baseline_all_until_last_experiment);
-
-		    	    }
-		    	    
 		    	    //
 		    	    // If one sex specified
 		    	    //
@@ -278,36 +268,25 @@ public class ExperimentService {
 
 		    	    	for (SexType s : SexType.values()) {
 	
-			    			List<ObservationDTO> addingControls = new ArrayList<ObservationDTO>();
-
 			    			if( ! experiment.getSexes().contains(s)) {
 			    				continue;
 			    			}
 
-		    				// DEFAULT
-			    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all_until_last_experiment);
-			    			addingControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, s.name(), experiment.getMetadataGroup());
-
-			    			if (addingControls.size() <= MIN_CONTROLS) {
-			    				// Not enough control data -- use baseline all
-				    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all);
-				    			addingControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, s.name(), experiment.getMetadataGroup());
-			    			}
-
 			    			if (allBatches.size()==1) {
-				    			// If we have enough control data for this sex,
-			    				// use concurrent controls
+				    			// If we have enough control data in the same batch (same day)
+			    				// for this sex, then use concurrent controls
 
 			    				List<ObservationDTO> potentialControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, s.name(), experiment.getMetadataGroup());
 			
 				    			if (potentialControls.size() >= MIN_CONTROLS) {
-				    				addingControls = potentialControls;
+				    				controls = potentialControls;
 					    			experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
 				    			}
+			    			} else {
+				    			controls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, s.name(), experiment.getMetadataGroup());			    				
 			    			}
-			
-			    			controls.addAll(addingControls);
 			    	    }
+
 
 		    	    } else {
 		    	    	
@@ -315,36 +294,32 @@ public class ExperimentService {
 		    	    	// Processing both sexes
 		    	    	//
 
-		    			List<ObservationDTO> addingControls = new ArrayList<ObservationDTO>();
-
-	    	    		// DEFAULT
-		    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all_until_last_experiment);
-		    			addingControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, null, experiment.getMetadataGroup());
-
-		    			
-		    			if (addingControls.size() <= MIN_CONTROLS) {
-		    				// Not enough control data -- use baseline all
-			    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all);
-			    			addingControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, null, experiment.getMetadataGroup());
-		    			}
-
 		    			if (allBatches.size()==1) {
-			    			// Only if BOTH counts of male and 
-		    				// female controls are equal or more than MIN_CONTROLS
-		    				//  do we do concurrent controls
 
 		    				List<ObservationDTO> potentialMaleControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, SexType.male.name(), experiment.getMetadataGroup());
 		    				List<ObservationDTO> potentialFemaleControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, SexType.female.name(), experiment.getMetadataGroup());
 	
-			    			if (potentialMaleControls.size() >= MIN_CONTROLS && potentialFemaleControls.size() >= MIN_CONTROLS) {
-			    				addingControls = potentialMaleControls;
-			    				addingControls.addAll(potentialFemaleControls);
-				    			experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
-			    			}
-		    			}
-		
-		    			controls.addAll(addingControls);
+			    			// Only if BOTH counts of male and 
+		    				// female controls are equal or more than MIN_CONTROLS
+		    				//  do we do concurrent controls
 
+			    			if (potentialMaleControls.size() >= MIN_CONTROLS && potentialFemaleControls.size() >= MIN_CONTROLS) {
+
+			    				controls = potentialMaleControls;
+			    				controls.addAll(potentialFemaleControls);
+				    			experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
+
+			    			} else {
+
+			    				controls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, null, experiment.getMetadataGroup());		    				
+
+			    			}
+
+		    			} else {
+
+		    				controls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, null, experiment.getMetadataGroup());		    				
+
+		    			}
 		    	    }
 
 	    		} // End control selection

@@ -183,18 +183,23 @@
     <field name="imits_phenotype_status" type="string" indexed="true" multiValued="true"/>  
     
 	<!-- images core stuff -->	
-
-	<field name="expName"   type="string"   indexed="true"  stored="true"  multiValued="true" />
-	<field name="subtype"   type="string"   indexed="true"  stored="true"  multiValued="true" />
-	<field name="annotatedHigherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />
-	<field name="annotatedHigherLevelMpTermName" type="string" indexed="true" stored="true" multiValued="true" />
-	<field name="annotated_or_inferred_higherLevelMpTermName" type="string" indexed="true" stored="true" multiValued="true" />	
-	<field name="annotated_or_inferred_higherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />
-	<field name="annotated_or_inferred_higherLevelMxTermName" type="string" indexed="true" stored="true" multiValued="true" />  
-	<field name="allele_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="allele_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="strain_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="strain_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="expName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="expName_exp" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="subtype" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="symbol_gene" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="maTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="mpTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="annotationTermId" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="annotationTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="annotatedHigherLevelMaTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="annotatedHigherLevelMpTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferredHigherLevelMaTermId" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferredHigherLevelMaTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="annotated_or_inferred_higherLevelMaTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="annotated_or_inferred_higherLevelMpTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="annotated_or_inferred_higherLevelMxTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="largeThumbnailFilePath" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="smallThumbnailFilePath" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<!--  disease core stuff -->
 	<field name="type" type="string" indexed="true" stored="true"/>

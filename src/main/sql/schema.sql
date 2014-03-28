@@ -267,15 +267,14 @@ CREATE TABLE synonym (
     id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     acc                       VARCHAR(20) NOT NULL,
     db_id                     INT(10) NOT NULL,
-    symbol                    TEXT NOT NULL,
+    symbol                    VARCHAR(8192) NOT NULL,
 
     PRIMARY KEY (id),
     KEY genomic_feature_idx (acc, db_id),
-    KEY genomic_feature_acc_idx (acc)
+    KEY genomic_feature_acc_idx (acc),
+    KEY synonym_symbol_idx (symbol)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
-
-CREATE FULLTEXT INDEX synonym_symbol_idx ON synonym (symbol);
 
 /**
  * Genomic feature cross-reference from other datasources.
@@ -487,14 +486,18 @@ CREATE TABLE experiment (
     db_id                      INT(10) UNSIGNED NOT NULL,
     external_id                VARCHAR(50),
     date_of_experiment         TIMESTAMP NULL DEFAULT NULL,
-    organisation_id            INT(10) UNSIGNED NOT NULL,  
-    project_id                 INT(10) UNSIGNED NULL DEFAULT NULL,  
-    metadata_combined          TEXT,  
-    metadata_group             VARCHAR(50) DEFAULT '',  
+    organisation_id            INT(10) UNSIGNED NOT NULL,
+    project_id                 INT(10) UNSIGNED NULL DEFAULT NULL,
+    pipeline_id                INT(10) UNSIGNED NOT NULL,
+	pipeline_stable_id         VARCHAR(30) NOT NULL,
+    metadata_combined          TEXT,
+    metadata_group             VARCHAR(50) DEFAULT '',
     
     PRIMARY KEY(id),
     KEY external_db_idx(db_id),
-    KEY organisation_idx(organisation_id)
+    KEY organisation_idx(organisation_id),
+    KEY pipeline_idx(pipeline_id),
+	KEY pipeline_stable_idx(pipeline_stable_id)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
