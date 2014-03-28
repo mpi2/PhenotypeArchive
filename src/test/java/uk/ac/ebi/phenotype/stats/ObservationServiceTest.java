@@ -114,7 +114,7 @@ public class ObservationServiceTest {
 		List<String> metaDataGoupsList=Arrays.asList("a9dde727aa843954ce9e35ec95495025");
 		
 			try {
-				keys = os.getExperimentKeys("MGI:1924893","ESLIM_010_001_002", phenotypingCenterParamsList, strainStrings, metaDataGoupsList);
+				keys = os.getExperimentKeys("MGI:1924893","ESLIM_010_001_002", null, phenotypingCenterParamsList, strainStrings, metaDataGoupsList);
 			} catch (SolrServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
