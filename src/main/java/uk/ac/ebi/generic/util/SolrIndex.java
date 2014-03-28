@@ -638,6 +638,7 @@ public class SolrIndex {
 		
 		JSONArray esCellDocs = esCellJsonObject.getJSONObject("response").getJSONArray("docs");
 
+
 		if (esCellDocs.size() < 1) {
 			log.info("No EsCells returned for the query!");
 		}
@@ -776,7 +777,6 @@ public class SolrIndex {
                         
                         construct.put("markerSymbol", markerSymbol);
                         construct.put("product", product);
-                        construct.put("alleleType", alleleType);
                         construct.put("type", type);
                         construct.put("strainOfOrigin", strainOfOrigin);
                         construct.put("mgiAlleleName", mgiAlleleName);

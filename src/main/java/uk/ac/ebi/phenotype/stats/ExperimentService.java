@@ -58,6 +58,11 @@ public class ExperimentService {
 		return getExperimentDTO(parameterId, geneAccession, sex, phenotypingCenterId, zygosity, strain, null, Boolean.TRUE);
 	}
 
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain)
+			throws SolrServerException, IOException, URISyntaxException {
+		return getExperimentDTO(parameterId, geneAccession, sex, phenotypingCenterId, zygosity, strain, Boolean.TRUE);
+	}
+
 	/**
 	 * 
 	 * @param parameterId
@@ -73,10 +78,11 @@ public class ExperimentService {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain, String metaDataGroup, Boolean includeResults) throws SolrServerException, IOException, URISyntaxException {
+
+	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, String geneAccession, SexType sex, Integer phenotypingCenterId, String zygosity, String strain, Boolean includeResults) throws SolrServerException, IOException, URISyntaxException {
 	
-		List<ObservationDTO> observations = os.getExperimentalObservationsByParameterGeneAccZygosityOrganisationStrainSexAndMetaDataGroup(parameterId, geneAccession, zygosity, phenotypingCenterId, strain, sex, metaDataGroup);
-		System.out.println("observations # " + observations);
+		List<ObservationDTO> observations = os.getExperimentalUnidimensionalObservationsByParameterGeneAccZygosityOrganisationStrainSex(parameterId, geneAccession, zygosity, phenotypingCenterId, strain, sex);	
+
 		Map<String, ExperimentDTO> experimentsMap = new HashMap<>();
 		
 		for (ObservationDTO observation : observations) {
@@ -154,47 +160,9 @@ public class ExperimentService {
      		// includeResults variable skips the results when gathering
      		// experiments for calculating the results (performance)
      		if (experiment.getResults()==null && experiment.getExperimentalBiologicalModelId()!=null && includeResults) {
-     			//this call to solr is fine if all we want is pValue and effect size, but for unidimensional data we need more stats info to populate the extra table so we need to make a db call instead for unidimensional
-     			List<? extends StatisticalResult> basicResults = phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), observation.getParameterStableId(), ObservationType.valueOf(observation.getObservationType()), observation.getStrain());
-     			//one doc_id for each sex result 
-     			//"doc_id":88370,= female and "doc_id":88371, male for one example
-     			//int phenotypeCallSummaryId=204749;
-     			List<UnidimensionalResult> populatedResults=new ArrayList<>();
-     			for(StatisticalResult basicResult: basicResults) {
-     			//get one for female and one for male if exist
-     			UnidimensionalResult unidimensionalResult=(UnidimensionalResult)basicResult;
-     			System.out.println("basic result PCSummary Id="+unidimensionalResult.getId()+" basic result sex type="+unidimensionalResult.getSexType()+" p value="+unidimensionalResult.getpValue());
-     			
-				try {
-					UnidimensionalResult result = unidimensionalStatisticsDAO.getStatsForPhenotypeCallSummaryId(unidimensionalResult.getId());
-					if(result!=null) {
-							//result.setSexType(unidimensionalResult.getSexType());//set the sextype from our already called solr result as it's not set by hibernate
-							result.setZygosityType(unidimensionalResult.getZygosityType());
-							System.out.println("result!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"+result);
-							populatedResults.add(result);
-					}
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-     					
-     			}
-     			if(populatedResults.size()==0) {
-     				System.out.println("resorting to basic stats result");
-     				experiment.setResults(basicResults);
-     			}else {
-     			experiment.setResults(populatedResults);
-     			}
-				//doc_id from above call is the phenotype_call_summary id
-     			//use this to get the correct stats result from the db
-     			// some dao .getStatsForPhenotypeCallSummaryId(14309);
-     			//note there will only be extra stats in the stat_result_phenotype_call_summary if the call is an impc one otherwise like this query it will be empty!
-     			//SELECT * FROM komp2.stat_result_phenotype_call_summary where phenotype_call_summary_id=88370;
-     			//# categorical_result_id, unidimensional_result_id, phenotype_call_summary_id
-     			//0, 204749, 88370
-     			
-     			//needs to get information from 
-     			
+
+     			experiment.setResults( phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), observation.getParameterStableId(), ObservationType.valueOf(observation.getObservationType()), observation.getStrain()));
+
      		}
 	    	
 	    	if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.heterozygote)) {

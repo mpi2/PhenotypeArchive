@@ -2,8 +2,9 @@
 
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />
     <dataSource name="ontodb" jndiName="java:comp/env/jdbc/ontodbDataSource" />
-    <dataSource name="phenodigmdb" jndiName="java:comp/env/jdbc/phenodigmDataSource" />
-    <dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+    <dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />-
+    <dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>    	
+	<dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
     <dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>          
 
 	<document name="komp2_indexing">	
@@ -64,6 +65,30 @@
 				
 					<field column="gf_acc" name="mgi_accession_id" />
 
+					<!-- disease associated with this MP via this gene -->			
+					<entity dataSource="diseaseGenedb" name="dg" query="select disease_id from disease2Gene where mgi_id='${phenotype_call_summary.gf_acc}'">
+						<field column="disease_id" name="disease_id" />
+
+						<entity dataSource="phenodigm_core" name="ddoc" stream="true" url="q=disease_id:&quot;${dg.disease_id}&quot;&amp;fq=type:disease&amp;rows=9999999&amp;wt=normal"
+							processor="XPathEntityProcessor" forEach="/response/result/doc/"                
+							readTimeout="10000" connectionTimeout="10000" > 
+						                                    
+						    <field column="type" xpath="/response/result/doc/str[@name='type']" />           					
+						    <field column="disease_source" xpath="/response/result/doc/str[@name='disease_source']" /> 
+						    <field column="disease_term" xpath="/response/result/doc/str[@name='disease_term']" /> 
+						    <field column="disease_alts" xpath="/response/result/doc/arr[@name='disease_alts']/str" /> 
+						    <field column="disease_classes" xpath="/response/result/doc/arr[@name='disease_classes']/str" /> 
+						    <field column="human_curated" xpath="/response/result/doc/bool[@name='human_curated']" /> 
+						    <field column="mouse_curated" xpath="/response/result/doc/bool[@name='mouse_curated']" /> 
+						    <field column="mgi_predicted" xpath="/response/result/doc/bool[@name='mgi_predicted']" /> 
+						    <field column="impc_predicted" xpath="/response/result/doc/bool[@name='impc_predicted']" /> 
+						    <field column="mgi_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_predicted_in_locus']" /> 
+						    <field column="impc_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_predicted_in_locus']" /> 			
+							<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  
+						
+						</entity>
+					</entity>
+
 					<!-- other fields from gene core -->
 					<entity dataSource="gene2_core" name="doc" stream="true" url="q=${phenotype_call_summary.gf_acc}&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status,imits_phenotype_is_active&amp;rows=50000&amp;wt=normal"
 							processor="XPathEntityProcessor" forEach="/response/result/doc/" >			
@@ -88,7 +113,7 @@
 						<field column="imits_phenotype_allele_type" xpath="/response/result/doc/arr[@name='imits_phenotype_allele_type']/str" />
 						<field column="imits_phenotype_status" xpath="/response/result/doc/arr[@name='imits_phenotype_status']/str" />
 						<field column="imits_phenotype_is_active" xpath="/response/result/doc/arr[@name='imits_phenotype_is_active']/str" />				
-	
+					
 					</entity>
 
 					<!-- allele: currently NOT restricted to MGI alleles, ie, allele_db_id not restricted to 3 -->
@@ -129,30 +154,8 @@
 						<field column="stable_id" name="parameter_stable_id" />
 						<field column="stable_key" name="parameter_stable_key" />
 					</entity>
-
 				</entity>
-
-				<!-- disease to this MP -->
-				<entity dataSource="phenodigmdb" name="disease" transformer="RegexTransformer" query="select distinct 'disease' as type, ds.disease_id, ds.disease_term, ds.disease_alts, CASE ds.disease_classes when '' THEN 'unclassified' ELSE ds.disease_classes END as disease_classes, ds.human_curated, ds.mouse_curated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_predicted_in_locus from disease_summary ds, disease_mouse_genotype_associations dmga, mp_mouse_models mmm where ds.disease_id=dmga.disease_id and dmga.mouse_model_id=mmm.mouse_model_id and mmm.mp_id='${mp_mappings.term_id}'">       			
-			
-				    <field column="type" name="type"/>
-				    <field column="disease_id" name="disease_id"/>
-				    <field column="disease_source" regex="([A-Z]+):[0-9]+" sourceColName="disease_id"/>
-				    <field column="disease_term" name="disease_term"/>
-				    <field column="disease_alts" splitBy="\|" name="disease_alts"/>
-				    <field column="disease_classes" splitBy="," name="disease_classes"/>
-				    <field column="human_curated" name="human_curated"/>
-				    <field column="mouse_curated" name="mouse_curated"/>
-				    <field column="mgi_predicted" name="mgi_predicted"/>
-				    <field column="impc_predicted" name="impc_predicted"/>
-				    <field column="mgi_predicted_in_locus" name="mgi_predicted_in_locus"/>
-				    <field column="impc_predicted_in_locus" name="impc_predicted_in_locus"/>
-
-				    <entity dataSource="phenodigmdb" name="disease_phenotypes" query="select concat(dh.hp_id, '_' , hp.name) as phenotype from disease_hp dh join hp_term_infos hp on hp.term_id = dh.hp_id where dh.disease_id = '${disease.disease_id}';">
-				        <field column="phenotype" name="disease_human_phenotypes"/>
-				    </entity>
-				</entity>			
-
+				
             </entity>
  			
             <entity dataSource="ontodb" name="ma_node2term"

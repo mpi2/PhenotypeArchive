@@ -666,64 +666,19 @@ public class GenesController {
 		return "genesEnuFrag";
 	}
 	
-	/**
-	 * @throws IOException 
-	 */
-	@RequestMapping("/genomeBrowser/{acc}")
-	public String genomeBrowser(
-			@PathVariable String acc,
+
+        @RequestMapping("/genesAllele/{acc}")
+        public String genesAllele(
+        		@PathVariable String acc,
+
 			Model model,
 			HttpServletRequest request,
-			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
-		System.out.println("genome browser called");
-		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
-		System.out.println("gene in browser="+gene);
-		if (gene == null) {
-			log.warn("Gene status for " + acc + " can't be found.");
-		}	
-		Datasource ensembl = datasourceDao.getDatasourceByShortName("Ensembl");
-		Datasource vega = datasourceDao.getDatasourceByShortName("VEGA");
-		Datasource ncbi = datasourceDao.getDatasourceByShortName("EntrezGene");
-		Datasource ccds = datasourceDao.getDatasourceByShortName("cCDS");
+			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {                
 
-		List<String> ensemblIds = new ArrayList<String>();
-		List<String> vegaIds = new ArrayList<String>();
-		List<String> ncbiIds = new ArrayList<String>();
-		List<String> ccdsIds = new ArrayList<String>();
+                List<Map<String, String>> constructs = solrIndex.getGeneAlleleInfo(acc);
 
-		List<Xref> xrefs = gene.getXrefs();
-		for(Xref xref:xrefs) {
-			if (xref.getXrefDatabaseId() == ensembl.getId()) {
-				ensemblIds.add(xref.getXrefAccession());
-			} else if (xref.getXrefDatabaseId() == vega.getId()) {
-				vegaIds.add(xref.getXrefAccession());
-			} else if (xref.getXrefDatabaseId() == ncbi.getId()) {
-				ncbiIds.add(xref.getXrefAccession());
-			} else if (xref.getXrefDatabaseId() == ccds.getId()) {
-				ccdsIds.add(xref.getXrefAccession());
-			}
-		}
-
-		model.addAttribute("ensemblIds", ensemblIds);
-		model.addAttribute("vegaIds", vegaIds);
-		model.addAttribute("ncbiIds", ncbiIds);
-		model.addAttribute("ccdsIds", ccdsIds);
-
-		model.addAttribute("gene",gene);
-		return "genomeBrowser";
-	}
-	
-    @RequestMapping("/genesAllele/{acc}")
-    public String genesAllele(
-       		@PathVariable String acc,
-			Model model,
-			HttpServletRequest request,
-			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
-                
-        List<Map<String, String>> constructs = solrIndex.getGeneAlleleInfo(acc);
-
-        model.addAttribute("alleleProducts", constructs);
-	    return "genesAllele";  
+                model.addAttribute("alleleProducts", constructs);
+		return "genesAllele";  
         }   
-    
+
 }

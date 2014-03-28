@@ -102,32 +102,53 @@
 	
 
 	<jsp:attribute name="header">
-	
-		<!-- CSS Local Imports -->
-		<!-- link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css"/-->
-		
-		<!-- JavaScript Local Imports -->
-		<script src="${baseUrl}/js/general/enu.js"></script>
-		<script src="${baseUrl}/js/general/dropdownfilters.js"></script>
-		<script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
-		
-		
-		<script type="text/javascript">var gene_id = '${acc}';</script>
-		<style>
-		#svgHolder div div {z-index:100;}
-		</style>
-	
-		<c:if test="${phenotypeStarted}">
-	    <!--[if !IE]><!-->
-	    <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css"/>
-	    <!--<![endif]-->
-	    <!--[if IE 8]>
-	    <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmapIE8.1.3.1.css">
-	    <![endif]-->
-	    <!--[if gte IE 9]>
-	    <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css">
-	    <![endif]-->
-		</c:if>
+
+	<script type="text/javascript">var gene_id = '${acc}';</script>
+	<%-- <link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.standalone.css"/> --%>
+<link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css"/>
+<link rel="stylesheet" type="text/css" href="${baseUrl}/css/custom.css"/>
+	<script src="${baseUrl}/js/general/toggle.js"></script>
+	<script src="${baseUrl}/js/general/enu.js"></script>
+        <script src="${baseUrl}/js/general/allele.js"></script>
+<!-- <script src="http://dropdown-check-list.googlecode.com/svn/trunk/doc/jquery-ui-1.8.13.custom.min.js"></script> -->
+	<style>
+	/* Force allele table to not be like tables anymore for responsive layout */
+	@media only screen and (max-width: 800px) {
+		#allele_tracker_panel_results table,
+		#allele_tracker_panel_results thead,
+		#allele_tracker_panel_results tbody,
+		#allele_tracker_panel_results th,
+		#allele_tracker_panel_results td,
+		#allele_tracker_panel_results tr{display: block;}
+		#allele_tracker_panel_results thead tr {position: absolute;top: -9999px;left: -9999px;}
+		#allele_tracker_panel_results tr {border: 1px solid #ccc;}
+		#allele_tracker_panel_results td {border: none;border-bottom: 1px solid #eee;position: relative;padding-left: 50%;white-space: normal;text-align: left;}
+		#allele_tracker_panel_results td:before {position: absolute;top: 6px;left: 6px;width: 45%;padding-right: 10px;white-space: nowrap;text-align: left;font-weight: bold;}
+		#allele_tracker_panel_results td:before {content: attr(data-title);}
+		#allele_tracker_panel_results td:nth-of-type(1):before {content: "Product"}
+		#allele_tracker_panel_results td:nth-of-type(2):before {content: "Allele Type"}
+		#allele_tracker_panel_results td:nth-of-type(3):before {content: "Strain of Origin"}
+		#allele_tracker_panel_results td:nth-of-type(4):before {content: "MGI Allele Name"}
+		#allele_tracker_panel_results td:nth-of-type(5):before {content: "Allele Map"}
+		#allele_tracker_panel_results td:nth-of-type(6):before {content: "Allele Sequence"}
+		#allele_tracker_panel_results td:nth-of-type(7):before {content: "Order"}
+	}
+	#svgHolder div div {z-index:100;}
+	.ui-dropdownchecklist-selector > .ui-icon {margin-top:4px;}
+	.ui-dropdownchecklist-text {padding:2px;margin:0;}
+	</style>
+
+	<c:if test="${phenotypeStarted}">
+        <!--[if !IE]><!-->
+        <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css">
+        <!--<![endif]-->
+        <!--[if IE 8]>
+        <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmapIE8.1.3.1.css">
+        <![endif]-->
+        <!--[if gte IE 9]>
+        <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css">
+        <![endif]-->
+	</c:if>
         
   </jsp:attribute>
 
@@ -422,20 +443,24 @@
 								</c:forEach>	
 					</div>
 			</div>
-			</c:if>
-			       
-      <div class="section" id="order">
-				<h2 class="title documentation">Order Mouse and ES Cells  
-           <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel' class="fa fa-question-circle pull-right" data-hasqtip="212" aria-describedby="qtip-212"></a>
-        </h2>
-				<div class="inner">
-           <div id="allele"></div>
-        </div>
- 			</div>
-      </div> <!--end of node wrapper should be after all secions  -->
-    </div>
-    </div>
-    </div>
+
+		</div>
+	</div>
+	</c:if>
+	<!--/row-->
+
+        
+        <div class="section">
+        <!-- remove div --><div class="row-fluid dataset">
+            <div class="documentation"><a href="${baseUrl}/documentation/gene-help.html#alleles" class="allelePanel"><img src="${baseUrl}/img/info_20x20.png"></a></div>
+		<!-- <h2>--><h4 class="caption">ES Cell and Mouse Alleles  
+       <!--             <a href="${baseUrl}/documentation/gene-help.html#alleles" id='allelePanel'><i class="fa fa-question-circle pull-right" aria-describedby="qtip-26"></i></a>
+       -->
+                 <!-- </h2> --></h4>	
+		<div class="inner">
+                        <div id="allele"></div>
+        <!-- remove div --></div>
+	</div>
 
     </jsp:body>
   

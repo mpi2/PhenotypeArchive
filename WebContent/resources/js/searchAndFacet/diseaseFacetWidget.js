@@ -149,22 +149,26 @@
 			    			
 			    			var liContainer = $("<li></li>").attr({'class':'fcat ' + fq});
 			    			var dPositive = aData[i];
+
 			    			if ( dPositive == 'true' ){
+
 				    			var count = aData[i+1];
 				    			foundMatch[assoc]++;
 				    			
 				    			var diseaseFq = fq;
-				    			var coreField = 'disease|'+ diseaseFq + '|';		
-							    
-								var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + 'true' + '|' + count + '|' + assoc});								
-								var flabel = $('<span></span>').attr({'class':'flabel'}).text(thisSubfacet);
-								var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
-								liContainer.append(chkbox, flabel, fcount);	
-								thisUlContainer.append(liContainer);							
-			    			}				    			
-			    		}
-			    		thisFacetSect.append(thisUlContainer);
-			    		$('div.flist li#disease > ul').append(thisFacetSect);
+				    			var coreField = 'disease|'+ diseaseFq + '|';								    
+
+								var chkbox = $('<input></input>').attr({'class':assoc, 'type': 'checkbox', 'rel': coreField + 'true' + '|' + count});
+								var td0 = $('<td></td>').append(chkbox);
+								var trClass = assoc+'Tr';
+								var tr = $('<tr></tr>').attr({'class':'subFacet ' + trClass + ' ' + assoc});						
+								var td1 = $('<td></td>').attr({'class':trClass + ' ' + fq + ' diseaseSubfacet', 'rel':count}).text(thisSubfacet);
+								var link = $('<a></a>').attr({'rel': 'true', 'class': diseaseFq}).text(count);
+								var td2 = $('<td></td>').attr({'class':'diseaseSubfacetCount', 'rel':'true'}).append(link);					
+								
+								table.append(tr.append(td0, td1, td2));
+			    			}	
+			    		}	
 	    			}	
 	    		}	    		    		
 	    		   			

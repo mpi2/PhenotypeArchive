@@ -38,6 +38,13 @@ public class Experiment extends SourcedEntry {
 	@Column(name = "date_of_experiment")
 	private Date dateOfExperiment;
 	
+
+	@Column(name = "metadata_group")
+	private String metadataGroup;
+
+	@Column(name = "metadata_combined")
+	private String metadataCombined;
+	
 	@OneToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name="experiment_observation",
@@ -49,6 +56,17 @@ public class Experiment extends SourcedEntry {
 	@OneToOne
 	@JoinColumn(name = "organisation_id")
 	private Organisation organisation;
+
+	@OneToOne
+	@JoinColumn(name = "project_id")
+	private Project project;
+
+	public Project getProject() {
+		return project;
+	}
+	public void setProject(Project project) {
+		this.project = project;
+	}
 	
 	/**
 	 * @return the externalId
@@ -106,5 +124,18 @@ public class Experiment extends SourcedEntry {
 		this.organisation = organisation;
 	}
 	
-	
+
+	public String getMetadataGroup() {
+		return metadataGroup;
+	}
+	public void setMetadataGroup(String metadataGroup) {
+		this.metadataGroup = metadataGroup;
+	}
+	public String getMetadataCombined() {
+		return metadataCombined;
+	}
+	public void setMetadataCombined(String metadataCombined) {
+		this.metadataCombined = metadataCombined;
+	}
+
 }
