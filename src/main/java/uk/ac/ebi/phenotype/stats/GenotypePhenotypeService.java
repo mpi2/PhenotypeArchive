@@ -85,6 +85,7 @@ public class GenotypePhenotypeService {
 		public final static String PIPELINE_STABLE_ID = "pipeline_stable_id";		//
 		public final static String PIPELINE_STABLE_KEY = "pipeline_stable_key";		//
 		public final static String PIPELINE_NAME = "pipeline_name";		//
+		public static final String PIPE_STABLE_KEY = "pipeline_stable_key";
 	}
 	
 	public GenotypePhenotypeService(String solrUrl){
@@ -385,7 +386,7 @@ public class GenotypePhenotypeService {
 			String mpTerm = phen.getString( GenotypePhenotypeField.MP_TERM_NAME );
 			String mpId = phen.getString( GenotypePhenotypeField.MP_TERM_ID );
 			PhenotypeCallSummary sum = new PhenotypeCallSummary();
-
+			sum.setPipelineStableKey(phen.getInt(GenotypePhenotypeField.PIPE_STABLE_KEY));//"pipeline_stable_key"));
 			OntologyTerm phenotypeTerm = new OntologyTerm();
 			phenotypeTerm.setName(mpTerm);
 			phenotypeTerm.setDescription(mpTerm);

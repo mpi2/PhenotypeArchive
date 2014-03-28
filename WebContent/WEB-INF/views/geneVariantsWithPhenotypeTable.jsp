@@ -78,7 +78,7 @@
 						<!-- c:if test="${not phenotype.parameter.derivedFlag}"-->
 						<c:if test="${phenotype.dataSourceName ne 'MGP' }">
 							<a href="${baseUrl}/charts?accession=${phenotype.gene.id.accession}&parameterId=${phenotype.parameter.stableId}
-								<c:if test="${fn:length(phenotype.sexes) eq 1}">&gender=${phenotype.sexes[0]}</c:if>&zygosity=${phenotype.zygosity}<c:if test="${phenotype.getPhenotypingCenter() != null}">&phenotyping_center=${phenotype.getPhenotypingCenter()}</c:if>"  class="fancybox">
+								<c:if test="${fn:length(phenotype.sexes) eq 1}">&gender=${phenotype.sexes[0]}</c:if>&zygosity=${phenotype.zygosity}<c:if test="${phenotype.getPhenotypingCenter() != null}">&phenotyping_center=${phenotype.getPhenotypingCenter()}</c:if>&pipeline_stable_key=${phenotype.pipelineStableKey}"  class="fancybox">
 								<i class="fa fa-bar-chart-o" alt="Graphs" > </i>
 							</a>
 						</c:if>

@@ -299,7 +299,7 @@ public class PhenotypesController {
 			pr.setAllele(pcs.getAllele());
 			pr.setSexes(sex);
 			pr.setPhenotypeTerm(pcs.getPhenotypeTerm());
-
+			pr.setPipelineStableKey(pcs.getPipelineStableKey());
 			// zygosity representation depends on source of information
 			// we need to know what the data source is so we can generate appropriate link on the page
 			Datasource ds = pcs.getDatasource();

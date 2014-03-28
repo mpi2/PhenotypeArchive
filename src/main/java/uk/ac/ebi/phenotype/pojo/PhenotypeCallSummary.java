@@ -34,6 +34,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -126,7 +127,20 @@ public class PhenotypeCallSummary {
 	private Parameter parameter;
 
 	private String phenotypingCenter;
+
+	/**transient as setting this using solr not hibernate**/
+	@Transient
+	private Integer pipelineStableKey;
 	
+	
+	public Integer getPipelineStableKey() {
+		return pipelineStableKey;
+	}
+
+	public void setPipelineStableKey(Integer pipelineStableKey) {
+		this.pipelineStableKey = pipelineStableKey;
+	}
+
 	public PhenotypeCallSummary() {
 		
 	}

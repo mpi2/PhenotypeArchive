@@ -21,7 +21,7 @@ public class GraphUtils {
 		this.experimentService=experimentService;
 	}
 	public Set<String> getGraphUrls(String acc,
-			String parameterStableId, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList, List<String> strainsParams, List<String> metaDataGroup, boolean scatter) throws SolrServerException {
+			String parameterStableId, String pipelineStablekey, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList, List<String> strainsParams, List<String> metaDataGroup, boolean scatter) throws SolrServerException {
 		
 			Set<String>urls=new HashSet<String>(); //each url should be unique and so we use a set
 			Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameterStableId, phenotypingCentersList, strainsParams, metaDataGroup);
@@ -63,18 +63,22 @@ public class GraphUtils {
                 System.out.println("no centers specified returning empty list");
             	return urls;
             }
+            String pipelineStableKeySolrString="";
+            if(pipelineStablekey!=null && !pipelineStablekey.equals("")) {
+            	pipelineStableKeySolrString="&pipelineStableKey="+pipelineStablekey;
+            }
             for(String center:centersList) {
             	for(String strain:strains) {
             		if(metaDataGroupStrings!=null){
                             for(String metaGroup: metaDataGroupStrings) {
             			
-            			urls.add(accessionAndParam+zygosities+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+ObservationService.ExperimentField.METADATA_GROUP+"="+metaGroup);
+            			urls.add(accessionAndParam+zygosities+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+ObservationService.ExperimentField.METADATA_GROUP+"="+metaGroup+pipelineStableKeySolrString);
             			
             		}
                         }
                         else{
                             //if metadataGroup is null then don't add it to the request
-                            urls.add(accessionAndParam+zygosities+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator);
+                            urls.add(accessionAndParam+zygosities+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+pipelineStableKeySolrString);
             			
                         }
             	}

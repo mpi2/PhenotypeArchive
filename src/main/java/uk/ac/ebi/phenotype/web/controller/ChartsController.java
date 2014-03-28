@@ -125,52 +125,7 @@ public class ChartsController {
 		return "redirect:/search";
 	}
 
-	/**
-	 * Would like to get rid of this method and just use charts as below
-         * This method should take in the parameters and then generate a skeleton
-	 * jsp page with urls that can be called by a jquery ajax requests for each
-	 * graph div and table div
-	 * 
-	 * @param parameterIds
-	 * @param gender
-	 * @param zygosity
-	 * @param phenotypingCenter
-	 * @param strategies
-	 * @param acc
-	 * @param model
-	 * @return
-	 * @throws GenomicFeatureNotFoundException
-	 * @throws ParameterNotFoundException
-	 * @throws IOException
-	 * @throws URISyntaxException
-	 * @throws SolrServerException
-	 */
-	@RequestMapping("/stats/genes/{acc}")
-	public String statisticsGraphs(
-			@RequestParam(required = false, value = "parameterId") String[] parameterIds,
-			@RequestParam(required = false, value = "gender") String[] gender,
-			@RequestParam(required = false, value = "zygosity") String[] zygosity,
-			@RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter,
-			@RequestParam(required = false, value = "strategy") String[] strategies,
-			@RequestParam(required = false, value = "strain") String[] strains,
-			@RequestParam(required = false, value = "metadata_group") String[] metadataGroup,
-			@RequestParam(required = false, value = "scatter") boolean scatter,
-			@PathVariable String acc, Model model)
-			throws GenomicFeatureNotFoundException, ParameterNotFoundException,
-			IOException, URISyntaxException, SolrServerException {
-
-		GraphUtils graphUtils = new GraphUtils(experimentService);
-
-		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
-		if (gene == null) {
-			throw new GenomicFeatureNotFoundException("Gene " + acc
-					+ " can't be found.", acc);
-		}
-                String []accessionsParams=new String[1];
-                accessionsParams[0]=acc;
-		return createCharts(accessionsParams, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, scatter);
-	}
-        
+	      
         
         /**
 	 * This method should take in the parameters and then generate a skeleton
@@ -202,11 +157,12 @@ public class ChartsController {
 			@RequestParam(required = false, value = "strain") String[] strains,
 			@RequestParam(required = false, value = "metadata_group") String[] metadataGroup,
 			@RequestParam(required = false, value = "scatter") boolean scatter,
+			@RequestParam(required = false, value = "pipeline_stable_key") String  pipelineStableKey,
 			Model model)
 			throws GenomicFeatureNotFoundException, ParameterNotFoundException,
 			IOException, URISyntaxException, SolrServerException {
 		System.out.println("calling charts");
-		return createCharts(accessionsParams, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, scatter);
+		return createCharts(accessionsParams, pipelineStableKey,  parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, scatter);
 	}
 
 	/**
@@ -241,6 +197,7 @@ public class ChartsController {
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
 			@RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter,
 			@RequestParam(required = false, value = "strategy") String[] strategies,
+			@RequestParam(required = false, value = "pipeline_stable_key") String pipelineStableKey,
 			@RequestParam(required = false, value = "scatter") boolean scatter,
 			Model model) throws GenomicFeatureNotFoundException,
 			ParameterNotFoundException, IOException, URISyntaxException,
@@ -442,7 +399,7 @@ public class ChartsController {
 		return mv;
 	}
 
-    private String createCharts(String[] accessionsParams, String[] parameterIds, String[] gender, String[] phenotypingCenter, String[] strains, String[] metadataGroup, String[] zygosity, Model model, boolean scatter) throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
+    private String createCharts(String[] accessionsParams,String pipelineStableId, String[] parameterIds, String[] gender, String[] phenotypingCenter, String[] strains, String[] metadataGroup, String[] zygosity, Model model, boolean scatter) throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
         GraphUtils graphUtils = new GraphUtils(experimentService);
         List<String> geneIds = getParamsAsList(accessionsParams);
         List<String> paramIds = getParamsAsList(parameterIds);
@@ -489,7 +446,7 @@ public class ChartsController {
                 // instead of an experiment list here we need just the outline of
                 // the experiments - how many, observation types
                 Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId,
-                                parameter.getStableId(), genderList, zyList, phenotypingCentersList, strainsList, metadataGroups, scatter);
+                                parameter.getStableId(),pipelineStableId, genderList, zyList, phenotypingCentersList, strainsList, metadataGroups, scatter);
                 allGraphUrlSet.addAll(graphUrlsForParam);
 
         }// end of parameterId iterations
