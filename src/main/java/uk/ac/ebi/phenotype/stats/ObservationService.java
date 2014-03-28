@@ -111,7 +111,7 @@ public class ObservationService {
     }
 
     
-    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> phenotypingCenterParams, List<String> strainParams, List<String> metaDataGroups) throws SolrServerException{
+    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId,List<String> pipelineStableId, List<String> phenotypingCenterParams, List<String> strainParams, List<String> metaDataGroups) throws SolrServerException{
 //    	String experimentKey = observation.getPhenotypingCenter()
 //    			+ observation.getStrain()
 //    			+ observation.getParameterStableId()
@@ -130,14 +130,16 @@ public class ObservationService {
         addMultipleFilters(phenotypingCenterParams, ExperimentField.PHENOTYPING_CENTER, query);
         addMultipleFilters(strainParams, ExperimentField.STRAIN, query);
         addMultipleFilters(metaDataGroups,ExperimentField.METADATA_GROUP, query);
+        addMultipleFilters(pipelineStableId,ExperimentField.PIPELINE_STABLE_ID, query);
              
                query .setRows(0).addFacetField(ExperimentField.PHENOTYPING_CENTER);
                query .setRows(0).addFacetField(ExperimentField.STRAIN);
                query .setRows(0).addFacetField(ExperimentField.METADATA_GROUP);
+               query .setRows(0).addFacetField(ExperimentField.PIPELINE_STABLE_ID);
                query .setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
 
         QueryResponse response = solr.query(query);
-        System.out.println("query="+query);
+        System.out.println("experiment key query="+query);
         List<FacetField> fflist = response.getFacetFields();
 
         for (FacetField ff : fflist) {
@@ -474,7 +476,7 @@ public class ObservationService {
         if(metaDataGroup!=null) {
         	query.addFilterQuery(ExperimentField.METADATA_GROUP + ":" + metaDataGroup);
         }
-        
+        System.out.println("observation  service query="+query);
         QueryResponse response = solr.query(query);
         resultsDTO = response.getBeans(ObservationDTO.class);
         return resultsDTO;

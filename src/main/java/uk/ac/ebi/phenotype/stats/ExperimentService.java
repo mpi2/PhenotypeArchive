@@ -67,14 +67,10 @@ public class ExperimentService {
 	 * @param phenotypingCenterId	null for any organisation
 	 * @param zygosity	 null for any zygosity	
 	 * @param strain	null for any strain
-<<<<<<< HEAD
 	 * @param phenotypingCenterId The database identifier of the center
-	 * @return list of experiment objects
-=======
 	 * @param metaDataString TODO
 	 * @param phenotypingCenter TODO
-	 * @return
->>>>>>> refs/remotes/origin/fixedNewDesign
+	 * @return  list of experiment objects
 	 * @throws SolrServerException
 	 * @throws IOException
 	 * @throws URISyntaxException
@@ -178,25 +174,25 @@ public class ExperimentService {
      			//"doc_id":88370,= female and "doc_id":88371, male for one example
      			//int phenotypeCallSummaryId=204749;
      			List<UnidimensionalResult> populatedResults=new ArrayList<>();
-     			for(StatisticalResult basicResult: basicResults) {
-     			//get one for female and one for male if exist
-     			UnidimensionalResult unidimensionalResult=(UnidimensionalResult)basicResult;
-     			System.out.println("basic result PCSummary Id="+unidimensionalResult.getId()+" basic result sex type="+unidimensionalResult.getSexType()+" p value="+unidimensionalResult.getpValue());
-     			
-				try {
-					UnidimensionalResult result = unidimensionalStatisticsDAO.getStatsForPhenotypeCallSummaryId(unidimensionalResult.getId());
-					if(result!=null) {
-							//result.setSexType(unidimensionalResult.getSexType());//set the sextype from our already called solr result as it's not set by hibernate
-							result.setZygosityType(unidimensionalResult.getZygosityType());
-							System.out.println("result!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"+result);
-							populatedResults.add(result);
-					}
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-     					
-     			}
+//     			for(StatisticalResult basicResult: basicResults) {
+//     			//get one for female and one for male if exist
+//     			UnidimensionalResult unidimensionalResult=(UnidimensionalResult)basicResult;
+//     			System.out.println("basic result PCSummary Id="+unidimensionalResult.getId()+" basic result sex type="+unidimensionalResult.getSexType()+" p value="+unidimensionalResult.getpValue());
+//     			
+//				try {
+//					UnidimensionalResult result = unidimensionalStatisticsDAO.getStatsForPhenotypeCallSummaryId(unidimensionalResult.getId());
+//					if(result!=null) {
+//							//result.setSexType(unidimensionalResult.getSexType());//set the sextype from our already called solr result as it's not set by hibernate
+//							result.setZygosityType(unidimensionalResult.getZygosityType());
+//							System.out.println("result!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"+result);
+//							populatedResults.add(result);
+//					}
+//				} catch (SQLException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//     					
+//     			}
      			if(populatedResults.size()==0) {
      				System.out.println("resorting to basic stats result");
      				experiment.setResults(basicResults);
@@ -500,7 +496,7 @@ public class ExperimentService {
 	 * @throws URISyntaxException
 	 * @throws SpecificExperimentException 
 	 */
-	public ExperimentDTO getSpecificExperimentDTO(Integer id, int pipelineId,String acc,
+	public ExperimentDTO getSpecificExperimentDTO(Integer id, Integer pipelineId,String acc,
 			List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain, String metadataGroup) throws SolrServerException, IOException, URISyntaxException, SpecificExperimentException {
 		List<ExperimentDTO> experimentList=new ArrayList<ExperimentDTO>();
 		boolean includeResults=true;
@@ -533,8 +529,8 @@ public class ExperimentService {
 	
 	
 	
-	public Map<String,List<String>> getExperimentKeys(String mgiAccession, String parameterStableId, List<String> phenotypingCenter, List<String> strain, List<String> metaDataGroup) throws SolrServerException{
-	return 	os.getExperimentKeys(mgiAccession, parameterStableId, phenotypingCenter, strain, metaDataGroup);
+	public Map<String,List<String>> getExperimentKeys(String mgiAccession, String parameterStableIds, List<String> pipelineStableIds,  List<String> phenotypingCenter, List<String> strain, List<String> metaDataGroup) throws SolrServerException{
+	return 	os.getExperimentKeys(mgiAccession, parameterStableIds, pipelineStableIds, phenotypingCenter, strain, metaDataGroup);
 	}
 	
 	public String getCategoryLabels (int parameterId, String category) throws SQLException{

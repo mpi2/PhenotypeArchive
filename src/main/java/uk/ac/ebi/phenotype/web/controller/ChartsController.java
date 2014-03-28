@@ -196,7 +196,7 @@ public class ChartsController {
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
 			@RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter,
 			@RequestParam(required = false, value = "strategy") String[] strategies,
-			@RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableIds,
+			@RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableId,
 			@RequestParam(required = false, value = "scatter") boolean scatter,
 			Model model) throws GenomicFeatureNotFoundException,
 			ParameterNotFoundException, IOException, URISyntaxException,
@@ -258,7 +258,13 @@ public class ChartsController {
                 metaDataGroupString=(metadataGroup.length>0) ? metadataGroup[0] : null;
                 }
 		List<String> zyList = getParamsAsList(zygosity);
-		Integer pipelineId=0;
+		
+		Integer pipelineId=null;
+		if(pipelineStableId!=null && !pipelineStableId.equals("")) {
+		System.out.println("pipe stable id="+pipelineStableId);
+		pipelineId=pipelineDAO.getPhenotypePipelineByStableId(pipelineStableId).getId();//swap the human readable pipeline  id from the url to our internal id
+		System.out.println("internernal pipe id="+pipelineId);
+		}
 		ExperimentDTO experiment = experimentService
 				.getSpecificExperimentDTO(parameter.getId(),pipelineId,  accession[0],
 						genderList, zyList,phenotypingCenterId,
@@ -398,7 +404,7 @@ public class ChartsController {
 		return mv;
 	}
 
-    private String createCharts(String[] accessionsParams,String[] pipelineStableIds, String[] parameterIds, String[] gender, String[] phenotypingCenter, String[] strains, String[] metadataGroup, String[] zygosity, Model model, boolean scatter) throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
+    private String createCharts(String[] accessionsParams,String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter, String[] strains, String[] metadataGroup, String[] zygosity, Model model, boolean scatter) throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
         GraphUtils graphUtils = new GraphUtils(experimentService);
         List<String> geneIds = getParamsAsList(accessionsParams);
         List<String> paramIds = getParamsAsList(parameterIds);
@@ -406,6 +412,7 @@ public class ChartsController {
         List<String> phenotypingCentersList=getParamsAsList(phenotypingCenter);
         List<String> strainsList=getParamsAsList(strains);
         List<String> metadataGroups=getParamsAsList(metadataGroup);
+        List<String> pipelineStableIds=getParamsAsList(pipelineStableIdsArray);
         if (genderList.isEmpty()) {// add them explicitly here so graphs urls
                                                                         // are created seperately
                 genderList.add(SexType.male.name());

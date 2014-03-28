@@ -24,19 +24,15 @@
         jspContext.setAttribute("version", version);
 
         /*
-        Get the menu HTML from drupal, fallsback to a default menu when drupal
+        Get the menu JSON array from drupal, fallsback to a default menu when drupal
         cannot be contacted
-        */        
-        
+        */
         DrupalHttpProxy proxy = new DrupalHttpProxy(request);
         String url = (String)request.getAttribute("drupalBaseUrl");
-        //url = url.replace("dev.", "test.");        
-        
-        String content = proxy.getDrupalMenu(url);
-		String[] menus = content.split("MAIN\\*MENU\\*BELOW");                     
-      
-        jspContext.setAttribute("usermenu", menus[0]);
-        jspContext.setAttribute("menu", menus[1]);
+        url = url.replace("dev.", "test.");
+
+        jspContext.setAttribute("menu", proxy.getDrupalMenu(url).getJSONArray("mainmenu"));
+        jspContext.setAttribute("usermenu", proxy.getDrupalMenu(url).getJSONArray("usermenu"));
 
 %>
 <%@attribute name="header" fragment="true"%>
@@ -165,15 +161,44 @@ try {
 
  <div class="region region-header">
             
-            <div id="tn"><ul>${usermenu}</ul>               
+            <div id="tn">
+                <ul>
+                    <c:forEach var="menuitem" items="${usermenu}" varStatus="loop">
+<c:if test="${fn:containsIgnoreCase(menuitem.title, 'My IMPC')}"><li><a id="my-impc" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li></c:if>
+<c:if test="${fn:containsIgnoreCase(menuitem.title, 'Messages')}"><li><a id="messages" class="fa-envelope" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li></c:if>
+<c:if test="${fn:containsIgnoreCase(menuitem.title, 'Log out')}"><li><a id="logout" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li></c:if>
+<c:if test="${fn:containsIgnoreCase(menuitem.title, 'Login')}"><li><a id="login" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li></c:if>
+<c:if test="${fn:containsIgnoreCase(menuitem.title, 'Log in')}"><li><a id="login" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li></c:if>
+<c:if test="${fn:containsIgnoreCase(menuitem.title, 'Register')}"><li><a id="register" href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li></c:if>
+					<%-- </c:if> --%>
+					</c:forEach>
+                </ul>
             </div>
             
             <div id="logo">
                 <a href="${drupalBaseUrl}/"><img src="${baseUrl}/img/impc.png" alt="IMPC Logo" /></a>
                 <div id="logoslogan">International Mouse Phenotyping Consortium</div>
             </div>
-            <nav id="mn">${menu}</nav>
-				
+            
+						<nav id="mn">
+                <ul class="menu">
+                    <c:forEach var="menuitem" items="${menu}" varStatus="loop">
+                                        <c:if test="${(menuitem.below != null)}">
+                                        <li>
+                                                <a id="drop${loop.count}" data-target="#" href="${drupalBaseUrl}/${menuitem.href}">${menuitem.title} </a>
+                                                <ul>
+                                                        <c:forEach var="submenuitem" items="${menuitem.below}">
+                                                         	<li><a href="<c:if test="${not fn:contains(submenuitem.href,'http')}">${drupalBaseUrl}/</c:if>${submenuitem.href}">${submenuitem.title}</a></li>
+                                                      	</c:forEach>
+                                                </ul>
+                                        </li>
+                                        </c:if>
+                                        <c:if test="${menuitem.below == null}">
+                                        <li><a href="<c:if test="${not fn:contains(menuitem.href,'http')}">${drupalBaseUrl}/</c:if>${menuitem.href}">${menuitem.title}</a></li>
+                                        </c:if>
+                                        </c:forEach>
+						</ul>
+            </nav>
             <div class="clear"></div>        
         </div>        
 
@@ -247,5 +272,3 @@ try {
 	   
 	</div> <!-- wrapper -->
 </body>
-
-

@@ -21,10 +21,10 @@ public class GraphUtils {
 		this.experimentService=experimentService;
 	}
 	public Set<String> getGraphUrls(String acc,
-			String parameterStableId, String[] pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList, List<String> strainsParams, List<String> metaDataGroup, boolean scatter) throws SolrServerException {
+			String parameterStableId, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList, List<String> strainsParams, List<String> metaDataGroup, boolean scatter) throws SolrServerException {
 		
 			Set<String>urls=new HashSet<String>(); //each url should be unique and so we use a set
-			Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameterStableId, phenotypingCentersList, strainsParams, metaDataGroup);
+			Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameterStableId, pipelineStableIds, phenotypingCentersList, strainsParams, metaDataGroup);
             List <String>centersList=keyList.get(ObservationService.ExperimentField.PHENOTYPING_CENTER);
             List <String>strains=keyList.get(ObservationService.ExperimentField.STRAIN);
             List<String> metaDataGroupStrings=keyList.get(ObservationService.ExperimentField.METADATA_GROUP); 
@@ -64,11 +64,11 @@ public class GraphUtils {
             	return urls;
             }
             String pipelineStableIdsSolrString="";
-//            if(pipelineStableIds!=null && pipelineStableIds.length>0) {
-//            	for(String pipeStableId: pipelineStableIds) {
-//            	pipelineStableIdsSolrString=seperator+"pipeline_stable_id="+pipeStableId;
-//            	}
-//            }
+            if(pipelineStableIds!=null && !pipelineStableIds.isEmpty()) {
+            	for(String pipeStableId: pipelineStableIds) {
+            	pipelineStableIdsSolrString=seperator+"pipeline_stable_id="+pipeStableId;
+            	}
+            }
             for(String center:centersList) {
             	for(String strain:strains) {
             		if(metaDataGroupStrings!=null){
