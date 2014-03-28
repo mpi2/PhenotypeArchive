@@ -35,6 +35,7 @@ import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
+import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.Project;
 import uk.ac.ebi.phenotype.pojo.SexType;
@@ -85,7 +86,6 @@ public class GenotypePhenotypeService {
 		public final static String PIPELINE_STABLE_ID = "pipeline_stable_id";		//
 		public final static String PIPELINE_STABLE_KEY = "pipeline_stable_key";		//
 		public final static String PIPELINE_NAME = "pipeline_name";		//
-		public static final String PIPE_STABLE_KEY = "pipeline_stable_key";
 	}
 	
 	public GenotypePhenotypeService(String solrUrl){
@@ -386,7 +386,6 @@ public class GenotypePhenotypeService {
 			String mpTerm = phen.getString( GenotypePhenotypeField.MP_TERM_NAME );
 			String mpId = phen.getString( GenotypePhenotypeField.MP_TERM_ID );
 			PhenotypeCallSummary sum = new PhenotypeCallSummary();
-			sum.setPipelineStableKey(phen.getInt(GenotypePhenotypeField.PIPE_STABLE_KEY));//"pipeline_stable_key"));
 			OntologyTerm phenotypeTerm = new OntologyTerm();
 			phenotypeTerm.setName(mpTerm);
 			phenotypeTerm.setDescription(mpTerm);
@@ -442,8 +441,16 @@ public class GenotypePhenotypeService {
 			} else {
 				System.err.println("parameter_stable_id missing");
 			}
-
 			sum.setParameter(parameter);
+			
+			Pipeline pipeline=new Pipeline(); 
+			if (phen.containsKey( GenotypePhenotypeField.PARAMETER_STABLE_ID )) {
+				pipeline = pipelineDAO.getPhenotypePipelineByStableId(phen.getString(GenotypePhenotypeField.PIPELINE_STABLE_ID));
+			} else {
+				System.err.println("pipeline stable_id missing");
+			}
+			sum.setPipeline(pipeline);
+			
 			Project project = new Project();
 			project.setName(phen.getString( GenotypePhenotypeField.PROJECT_NAME ));
 			project.setDescription(phen.getString( GenotypePhenotypeField.PROJECT_FULLNAME )); // is this right for description? no other field in solr index!!!

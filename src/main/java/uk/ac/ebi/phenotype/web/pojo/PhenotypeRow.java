@@ -26,6 +26,7 @@ import uk.ac.ebi.phenotype.pojo.Allele;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
@@ -50,8 +51,58 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 	private Parameter parameter;
 	private String dataSourceName;//to hold the name of the origin of the data e.g. Europhenome or WTSI Mouse Genetics Project
 
-	private Integer pipelineStableKey;
+	private Pipeline pipeline;
 	
+	public Pipeline getPipeline() {
+		return pipeline;
+	}
+
+	public void setPipeline(Pipeline pipeline) {
+		this.pipeline = pipeline;
+	}
+
+	/**
+	 * Returns a PhenotypeRow object with the original data provider link
+	 * populated.
+	 * 
+	 * @param pr The original phenotype row object
+	 * @return
+	 */
+	public String getPhenotypeLink() {
+
+		String linkUrl="";
+
+		if(getDataSourceName().equals("EuroPhenome")){
+			String sex="";
+			if(getSexes().size()==2){
+				sex="Both-Split";
+			}else{
+				Iterator<String> iter = getSexes().iterator();
+				String first = (String) iter.next();
+				sex=WordUtils.capitalize(first);
+			}
+			try {
+				linkUrl="http://www.europhenome.org/databrowser/viewer.jsp?set=true&m=true&l="+getProjectId()+"&zygosity="+getRawZygosity()+"&x="+sex+"&p="+getProcedure().getStableId()+"&pid_"+getParameter().getStableId()+"=on&compareLines=View+Data";
+			} catch (NullPointerException e) {
+				log.error("Project: "+getProjectId());
+				log.error("Zygosity: "+getRawZygosity());
+				log.error("Procedure: "+getProcedure());
+				log.error("Parameter: "+getParameter());
+				linkUrl = "";
+			}
+		}
+
+		if(getDataSourceName().equals("WTSI Mouse Genetics Project")){
+			
+			if(getAllele()!=null  && getAllele().getGene()!=null){
+				linkUrl="http://www.sanger.ac.uk/mouseportal/search?query="+getAllele().getGene().getSymbol();
+			}
+
+		}
+
+		return linkUrl;
+	}
+
 	public String getPhenotypingCenter(){
 		return this.phenotypingCenter;
 	}
@@ -231,12 +282,6 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 		
 	}
 
-	public void setPipelineStableKey(Integer pipelineStableKey) {
-		this.pipelineStableKey=pipelineStableKey;
-		
-	}
-	public Integer getPipelineStableKey() {
-		return pipelineStableKey;
-	}
+	
 
 }

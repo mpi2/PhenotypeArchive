@@ -128,18 +128,6 @@ public class PhenotypeCallSummary {
 
 	private String phenotypingCenter;
 
-	/**transient as setting this using solr not hibernate**/
-	@Transient
-	private Integer pipelineStableKey;
-	
-	
-	public Integer getPipelineStableKey() {
-		return pipelineStableKey;
-	}
-
-	public void setPipelineStableKey(Integer pipelineStableKey) {
-		this.pipelineStableKey = pipelineStableKey;
-	}
 
 	public PhenotypeCallSummary() {
 		
