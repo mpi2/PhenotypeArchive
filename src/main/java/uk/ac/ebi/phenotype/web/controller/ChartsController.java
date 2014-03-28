@@ -260,9 +260,11 @@ public class ChartsController {
 		List<String> zyList = getParamsAsList(zygosity);
 		
 		Integer pipelineId=null;
+		Pipeline pipeline=new Pipeline();
 		if(pipelineStableId!=null && !pipelineStableId.equals("")) {
 		System.out.println("pipe stable id="+pipelineStableId);
-		pipelineId=pipelineDAO.getPhenotypePipelineByStableId(pipelineStableId).getId();//swap the human readable pipeline  id from the url to our internal id
+		pipeline=pipelineDAO.getPhenotypePipelineByStableId(pipelineStableId);
+		pipelineId=pipeline.getId();//swap the human readable pipeline  id from the url to our internal id
 		System.out.println("internernal pipe id="+pipelineId);
 		}
 		ExperimentDTO experiment = experimentService
@@ -337,6 +339,7 @@ public class ChartsController {
 				statsError = true;
 			}
 			
+			model.addAttribute("pipeline", pipeline);
 			model.addAttribute("allelicCompositionString", allelicCompositionString);
 			model.addAttribute("symbol", symbol);
 			model.addAttribute("geneticBackgroundString", geneticBackgroundString);
