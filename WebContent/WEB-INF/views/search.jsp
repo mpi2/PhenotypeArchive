@@ -140,11 +140,7 @@
        	$(document).ready(function(){ 
        		
        		// make "search" menu point active
-       		$('nav#mn ul.menu > li:first-child').addClass('active');
-       		       		
-       		<c:if test="${isLoggedIn}">       			
-       			MPI2.searchAndFacetConfig.isLoggedIn = true;
-       		</c:if>;
+       		$('nav#mn ul.menu > li:first-child').addClass('active');       		
        		
    			$.fn.qTip({'pageName':'search'		 					
    			});  			 						

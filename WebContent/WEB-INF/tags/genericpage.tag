@@ -1,6 +1,5 @@
 <%@tag description="Overall Page template" pageEncoding="UTF-8" 
 import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf.json.JSONArray"
-import="uk.ac.ebi.generic.util.RegisterInterestDrupalSolr"
 %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -45,7 +44,7 @@ import="uk.ac.ebi.generic.util.RegisterInterestDrupalSolr"
 		
         
         /* Check if user is logged into Drupal */
-        RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(request);
+        /*RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(request);
         boolean isLoggedIn = false;
 		try {		
 			if (registerInterest.loggedIn()) {
@@ -54,7 +53,7 @@ import="uk.ac.ebi.generic.util.RegisterInterestDrupalSolr"
 		}
 		catch(Exception e){
 			System.out.println("Failed to fetch info for user login");
-		}
+		}*/
 		
 
 %>
