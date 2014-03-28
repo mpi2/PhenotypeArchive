@@ -1210,9 +1210,9 @@ public class ObservationService {
 				+ StringUtils.join(strains.toArray(), "\" OR "
 						+ ExperimentField.STRAIN + ":\"") + "\")"
 				: ExperimentField.STRAIN + ":\"" + strains.get(0) + "\"";
-//		if (strains.size() > 0) {
-//			urlParams += urlParams += "&strain=" + StringUtils.join(strains.toArray(), "&strain=");
-//		}
+		if (strains.size() > 0) {
+			urlParams += urlParams += "&strain=" + StringUtils.join(strains.toArray(), "&strain=");
+		}
 		
 		if (center != null && center.length > 0) {
 			q += " AND (";
