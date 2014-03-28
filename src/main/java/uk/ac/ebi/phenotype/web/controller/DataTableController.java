@@ -745,7 +745,7 @@ public class DataTableController {
 			// disease source
 			String src = doc.getString("disease_source");
 			rowData.add(src);
-
+			
 			// curated data: human/mouse	
 			String human = "<span class='status done'>human</span>";
 			String mice  = "<span class='status done'>mice</span>";

@@ -3,7 +3,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
@@ -16,9 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
-
+import uk.ac.ebi.phenotype.stats.graphs.GraphUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:app-config.xml" })
@@ -53,31 +50,15 @@ public class ExperimentServiceTest {
 		
 	}
 	
-	@Test
-	public void testThisThing() throws SolrServerException, IOException, URISyntaxException {
-		List<String> sexes = new ArrayList<>();
-		sexes.add(SexType.male.name());
-		List<String> zygs = new ArrayList<>();
-		zygs.add(ZygosityType.homozygote.name());
-        List<ExperimentDTO> experimentList = es.getExperimentDTO(1594, "MGI:1922257", sexes, zygs, 8);
-        System.out.println("EXP list is: "+experimentList);
-        System.out.println("Size is: "+experimentList.size());
-
-
+/*	@Test
+	public void testGetGraphUrls() {
+		GraphUtils graphUtils=new GraphUtils(es);
+		try {
+			graphUtils.getGraphUrls("MGI:1922257", "ESLIM_003_001_004");
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
-
-	@Test
-	public void testControlSelectionStrategy() throws SolrServerException, IOException, URISyntaxException {
-
-		List<String> sexes = new ArrayList<>();
-
-		List<String> zygs = new ArrayList<>();
-
-		zygs.add(ZygosityType.heterozygote.name());
-
-		List<ExperimentDTO> experimentList = es.getExperimentDTO("ESLIM_011_001_004", "MGI:1928760", sexes, zygs, 8);
-        System.out.println("EXP list is: "+experimentList);
-        System.out.println("Size is: "+experimentList.size());
-	}
-
+*/
 }

@@ -41,6 +41,4 @@ public interface ProjectDAO extends HibernateDAO {
 	 * @return the project
 	 */
 	public Project getProjectByName(String name);
-
-	public Project getProjectById(Integer projectId);
 }

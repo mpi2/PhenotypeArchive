@@ -74,12 +74,6 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 		return (Pipeline) getCurrentSession().createQuery("from Pipeline as p where p.stableId = ?").setString(0, stableId).uniqueResult();
 	}
 
-	
-	@Transactional(readOnly = true)
-	public Pipeline getPhenotypePipelineById(Integer id) {
-		return (Pipeline) getCurrentSession().get(Pipeline.class, id);
-	}
-
 	@Transactional(readOnly = true)
 	public Pipeline getPhenotypePipelineByStableIdAndVersion(String stableId, int majorVersion, int minorVersion) {
 		Object o = getCurrentSession().createQuery("from Pipeline as p where p.stableId = ? and p.majorVersion = ? and p.minorVersion = ?")

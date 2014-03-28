@@ -431,18 +431,16 @@
     				
     				// do some accounting for matching subfacets
     				if ( subFacetName.indexOf('curated') != -1 ) {
-
-    					for ( var cr=0; cr<oFacets[subFacetName].length; cr=cr+2){
-    						if ( oFacets[subFacetName][cr] == 'true' ){
-    							foundMatch.curated++;    							
+    					for ( var cr=0; cr<oFacets[subFacetName].length; cr=cr+2){    						
+    						if ( oFacets[subFacetName][cr] == 'true' ){ 
+    							foundMatch.curated++;    				    							
     						}
     					}    					
     				}
     				else if ( subFacetName.indexOf('predicted') != -1 ){    					
     					for ( var pr=0; pr<oFacets[subFacetName].length; pr=pr+2){
-
-    						if ( oFacets[subFacetName][pr] == 'true' ){
-    							foundMatch.predicted++;    							
+    						if ( oFacets[subFacetName][pr] == 'true' ){ 					
+    							foundMatch.predicted++;    							 							
     						}
     					} 				
 					}

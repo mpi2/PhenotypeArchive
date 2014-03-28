@@ -1082,7 +1082,7 @@
 					to EBI servers for performance -->
 				<solrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
 				<internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
-				<drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
+				<drupalBaseUrl>https://test.mousephenotype.org</drupalBaseUrl>
 				<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
 				<liveSite>false</liveSite>
 			</properties>

@@ -23,7 +23,7 @@
    <fieldtype name="string"  class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
    <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
    <fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
-   <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"/>
+
 
     <!-- A general text field that has reasonable, generic
          cross-language defaults: it tokenizes with StandardTokenizer,
@@ -183,39 +183,19 @@
     <field name="imits_phenotype_status" type="string" indexed="true" multiValued="true"/>  
     
 	<!-- images core stuff -->	
-	<field name="expName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="expName_exp" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="subtype" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="symbol_gene" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="maTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="mpTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="annotationTermId" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="annotationTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="annotatedHigherLevelMaTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="annotatedHigherLevelMpTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="inferredHigherLevelMaTermId" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="inferredHigherLevelMaTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="annotated_or_inferred_higherLevelMaTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="annotated_or_inferred_higherLevelMpTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="annotated_or_inferred_higherLevelMxTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="largeThumbnailFilePath" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="smallThumbnailFilePath" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
-	<!--  disease core stuff -->
-	<field name="type" type="string" indexed="true" stored="true"/>
-	<field name="disease_id" type="string" indexed="true" stored="true" multiValued="false" /> 
-	<field name="disease_source" type="string" indexed="true" stored="true" multiValued="false" /> 
-	<field name="disease_term" type="text_en_splitting" indexed="true" stored="true"/>
-	<field name="disease_alts" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
-	<field name="disease_classes" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="disease_human_phenotypes" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
+	<field name="expName"   type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="subtype"   type="string"   indexed="true"  stored="true"  multiValued="true" />
+	<field name="annotatedHigherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="annotatedHigherLevelMpTermName" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="annotated_or_inferred_higherLevelMpTermName" type="string" indexed="true" stored="true" multiValued="true" />	
+	<field name="annotated_or_inferred_higherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="annotated_or_inferred_higherLevelMxTermName" type="string" indexed="true" stored="true" multiValued="true" />  
+	<field name="allele_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="allele_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="strain_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="strain_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
-	<field name="human_curated" type="boolean" indexed="true" stored="true"/>
-	<field name="mouse_curated" type="boolean" indexed="true" stored="true"/>
-	<field name="mgi_predicted" type="boolean" indexed="true" stored="true"/>
-	<field name="impc_predicted" type="boolean" indexed="true" stored="true"/>
-	<field name="mgi_predicted_in_locus" type="boolean" indexed="true" stored="true"/>
-	<field name="impc_predicted_in_locus" type="boolean" indexed="true" stored="true"/>   
 
     <!-- catchall field, containing all other searchable text fields (implemented
          via copyField further on in this schema  -->

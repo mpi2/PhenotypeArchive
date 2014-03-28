@@ -38,19 +38,6 @@ public class Experiment extends SourcedEntry {
 	@Column(name = "date_of_experiment")
 	private Date dateOfExperiment;
 	
-	@Column(name = "metadata_group")
-	private String metadataGroup;
-
-	@Column(name = "metadata_combined")
-	private String metadataCombined;
-	
-	@OneToOne
-	@JoinColumn(name = "pipeline_id")
-	private Pipeline pipeline;
-	
-	@Column(name = "pipeline_stable_id")	
-	private String pipelineStableId;	
-	
 	@OneToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name="experiment_observation",
@@ -62,42 +49,7 @@ public class Experiment extends SourcedEntry {
 	@OneToOne
 	@JoinColumn(name = "organisation_id")
 	private Organisation organisation;
-
-	@OneToOne
-	@JoinColumn(name = "project_id")
-	private Project project;
-
-	public Project getProject() {
-		return project;
-	}
-	public void setProject(Project project) {
-		this.project = project;
-	}
-		
-	/**
-	 * @return the pipeline
-	 */
-	public Pipeline getPipeline() {
-		return pipeline;
-	}
-	/**
-	 * @param pipeline the pipeline to set
-	 */
-	public void setPipeline(Pipeline pipeline) {
-		this.pipeline = pipeline;
-	}
-	/**
-	 * @return the pipelineStableId
-	 */
-	public String getPipelineStableId() {
-		return pipelineStableId;
-	}
-	/**
-	 * @param pipelineStableId the pipelineStableId to set
-	 */
-	public void setPipelineStableId(String pipelineStableId) {
-		this.pipelineStableId = pipelineStableId;
-	}
+	
 	/**
 	 * @return the externalId
 	 */
@@ -154,18 +106,5 @@ public class Experiment extends SourcedEntry {
 		this.organisation = organisation;
 	}
 	
-
-	public String getMetadataGroup() {
-		return metadataGroup;
-	}
-	public void setMetadataGroup(String metadataGroup) {
-		this.metadataGroup = metadataGroup;
-	}
-	public String getMetadataCombined() {
-		return metadataCombined;
-	}
-	public void setMetadataCombined(String metadataCombined) {
-		this.metadataCombined = metadataCombined;
-	}
-
+	
 }

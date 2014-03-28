@@ -1,4 +1,6 @@
-<%@tag description="Overall Page template" pageEncoding="UTF-8" import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf.json.JSONArray"%>
+<%@tag description="Overall Page template" pageEncoding="UTF-8" 
+import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf.json.JSONArray"
+%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
@@ -24,19 +26,18 @@
         jspContext.setAttribute("version", version);
 
         /*
-        Get the menu HTML from drupal, fallsback to a default menu when drupal
+        Get the menu JSON array from drupal, fallsback to a default menu when drupal
         cannot be contacted
-        */        
-        
+        */
         DrupalHttpProxy proxy = new DrupalHttpProxy(request);
         String url = (String)request.getAttribute("drupalBaseUrl");
-        //url = url.replace("dev.", "test.");        
-        
+        //url = url.replace("dev.", "test.");
+                
         String content = proxy.getDrupalMenu(url);
 		String[] menus = content.split("MAIN\\*MENU\\*BELOW");                     
       
         jspContext.setAttribute("usermenu", menus[0]);
-        jspContext.setAttribute("menu", menus[1]);
+        jspContext.setAttribute("menu", menus[1]);		    
 
 %>
 <%@attribute name="header" fragment="true"%>
@@ -165,15 +166,16 @@ try {
 
  <div class="region region-header">
             
-            <div id="tn"><ul>${usermenu}</ul>               
+            <div id="tn">
+                <ul>${usermenu}</ul>
             </div>
             
             <div id="logo">
                 <a href="${drupalBaseUrl}/"><img src="${baseUrl}/img/impc.png" alt="IMPC Logo" /></a>
                 <div id="logoslogan">International Mouse Phenotyping Consortium</div>
             </div>
-            <nav id="mn">${menu}</nav>
-				
+            
+				<nav id="mn">${menu}</nav>
             <div class="clear"></div>        
         </div>        
 
@@ -244,7 +246,11 @@ try {
 	    <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js'></script>     	    
 	    <script type='text/javascript' src='${baseUrl}/js/documentationConfig.js'></script>   	     
 	    
+	    <script type='text/javascript'>
+	    	$(document).ready(function(){
+	    			
+	    	});	    
+	    </script>  
 	   
 	</div> <!-- wrapper -->
 </body>
-

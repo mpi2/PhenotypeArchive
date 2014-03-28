@@ -8,15 +8,12 @@
         <thead>
                 <tr>
                         <th>Product</th>
-
-                        <th style="padding-left:10px">Type</th>
-                        <th style="padding-left:10px">Strain of Origin</th>
-                        <th style="padding-left:10px">MGI Allele Name</th>
-                        <th style="padding-left:10px">Allele Map</th>
-                        <th style="padding-left:10px">Allele Sequence</th>
-                        <th style="padding-left:10px">Product Details</th>
-                        <th style="padding-left:10px">Order</th>
-
+                        <th>Type</th>
+                        <th>Strain of Origin</th>
+                        <th>MGI Allele Name</th>
+                        <th>Allele Description</th>
+                        <th>Product Details</th>
+                        <th>Order</th>
                 </tr>
         </thead>
         <tbody>
@@ -24,19 +21,19 @@
                         <tr>
                         <c:choose>
                                 <c:when test='${alleleProduct["type"].equals("gene")}'>
-
-                                    <td colspan="8" align="center">Additional Targeting vectors are available for this gene - see links for details: ${alleleProduct["vectorProjectHtml"]}</td>                                  
+                                    <td class="centered" colspan="7">Additional Targeting vectors are available for this gene - see links for details: ${alleleProduct["vectorProjectHtml"]}</td>                                  
                                 </c:when>
                                 <c:otherwise>
                                         <td>${alleleProduct["product"]}</td>
-                                        <td style="padding-left:10px">${alleleProduct["alleleType"]}</td>
-                                        <td style="padding-left:10px">${alleleProduct["strainOfOrigin"]}</td>
-                                        <td style="padding-left:10px">${alleleProduct["mgiAlleleName"]}</td>
-                                        <td style="padding-left:10px"><div><a href="${alleleProduct['alleleMap']}?simple=true" target="_blank"><img width="400" src="${alleleProduct['alleleMap']}?simple=true" alt="allele image"></a></div></td>
-                                        <td style="padding-left:10px"><a href="${alleleProduct['alleleGenbankFile']}">Genbank File</a></td>
-                                        <td style="padding-left:10px"><a href="http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/${alleleProduct['ikmcProjectId']}">${alleleProduct["ikmcProjectId"]}</a></td>
-                                        <td style="padding-left:10px"><ul>${alleleProduct["orderHtml"]}</ul></td>
-
+                                        <td>${alleleProduct["alleleType"]}</td>
+                                        <td>${alleleProduct["strainOfOrigin"]}</td>
+                                        <td>${alleleProduct["mgiAlleleName"]}</td>
+                                        <td>
+                                            <div><a class="fancybox" target="_blank" href="${alleleProduct['alleleMap']}?simple=true" title="<a href='${alleleProduct['alleleMap']}?simple=true'>Download this image</a>"><i class="fa fa-th-list fa-lg"></i></a><span>&nbsp;&nbsp;image</span></div>
+                                            <div><a href="${alleleProduct['alleleGenbankFile']}"><i class="fa fa-file-text fa-lg"></i></a><span>&nbsp;&nbsp;&nbsp;genbank file</span></div>
+                                        </td>
+                                        <td><a href="http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/${alleleProduct['ikmcProjectId']}"><i class="fa fa-clipboard fa-lg"></i></a></td>
+                                        <td><ul>${alleleProduct["orderHtml"]}</ul></td>
                                 </c:otherwise>
                         </c:choose>
                         </tr>
@@ -44,6 +41,7 @@
                         
                 </c:forEach>
         </tbody>
+  
 
 </table>
 </c:when>

@@ -22,7 +22,7 @@
    <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
    <fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>   
    <fieldType name="float" class="solr.TrieFloatField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
-   <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"/>
+
     <!-- A general text field that has reasonable, generic
          cross-language defaults: it tokenizes with StandardTokenizer,
 	 removes stop words from case-insensitive "stopwords.txt"
@@ -177,12 +177,12 @@
 	<field name="disease_alts" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
 	<field name="disease_classes" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="disease_human_phenotypes" type="text_en_splitting" indexed="true" stored="true" multiValued="true"/>
-	<field name="human_curated" type="boolean" indexed="true" stored="true" multiValued="true" />
-	<field name="mouse_curated" type="boolean" indexed="true" stored="true" multiValued="true" />
-	<field name="mgi_predicted" type="boolean" indexed="true" stored="true" multiValued="true" />
-	<field name="impc_predicted" type="boolean" indexed="true" stored="true" multiValued="true" />
-	<field name="mgi_predicted_in_locus" type="boolean" indexed="true" stored="true" multiValued="true" />
-	<field name="impc_predicted_in_locus" type="boolean" indexed="true" stored="true" multiValued="true" />   
+	<field name="human_curated" type="int" indexed="true" stored="true" multiValued="true" />
+	<field name="mouse_curated" type="int" indexed="true" stored="true" multiValued="true" />
+	<field name="mgi_predicted" type="int" indexed="true" stored="true" multiValued="true" />
+	<field name="impc_predicted" type="int" indexed="true" stored="true" multiValued="true" />
+	<field name="mgi_predicted_in_locus" type="int" indexed="true" stored="true" multiValued="true" />
+	<field name="impc_predicted_in_locus" type="int" indexed="true" stored="true" multiValued="true" />   
 
 	<!-- images core stuff -->	
 	<field name="annotationTermId"   type="string"   indexed="true"  stored="true"  multiValued="true" />

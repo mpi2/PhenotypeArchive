@@ -63,7 +63,7 @@
 	
 		<!-- unidimensional/multidimensional/time series -->
 		<field name="data_point"      type="float" indexed="true" stored="true" multiValued="false" />
-
+	
 		<!-- multidimensional -->
 		<field name="order_index"     type="int"    indexed="true" stored="true" multiValued="false" /> 
 		<field name="dimension"       type="string" indexed="true" stored="true" multiValued="false" /> 
@@ -74,7 +74,6 @@
 	
 		<!-- categorical -->
 		<field name="category"        type="string" indexed="true" stored="true" multiValued="false" /> 
-		<field name="raw_category"    type="string" indexed="true" stored="true" multiValued="false" /> 
 
 		<!-- metadata -->
 		<field name="metadata"        type="string" indexed="true" stored="true" multiValued="true" /> 
