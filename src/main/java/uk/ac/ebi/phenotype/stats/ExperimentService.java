@@ -80,10 +80,6 @@ public class ExperimentService {
 
 
 		List<ObservationDTO> observations = os.getExperimentalUnidimensionalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroup(parameterId, pipelineId, geneAccession, zygosity, phenotypingCenterId, strain, sex, metaDataGroup);
-		
-
-		//List<ObservationDTO> observations = os.getExperimentalObservationsByParameterGeneAccZygosityOrganisationStrainSexAndMetaDataGroup(parameterId, geneAccession, zygosity, phenotypingCenterId, strain, sex, metaDataGroup);
-		System.out.println("observations # " + observations);
 		Map<String, ExperimentDTO> experimentsMap = new HashMap<>();
 		
 		for (ObservationDTO observation : observations) {
