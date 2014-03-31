@@ -25,40 +25,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 
 public class SolrUtils {
 
-	private static Logger logger = Logger.getLogger(SolrUtils.class);
-
-	public QueryResponse runSolrQuery(SolrServer server, String query,
-			String facetName, String facetValue, List<String> filterQuerys,
-			int start, int length) {
-
-		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.set("defType","edismax");//add this to mean no escaping of : or extra string manipulation needed
-		solrQuery.setQuery(query);
-		solrQuery.setStart(start);
-		solrQuery.setRows(length);
-		// solrQuery.setFields("id");
-
-		if(!facetName.equals("") && !facetValue.equals("")){
-		String facetQuery = facetName + ":" + facetValue;
-		solrQuery.addFilterQuery(facetQuery);
-		logger.debug("facet name and val====" + facetQuery);
-		}
-		// query.addSortField( "price", SolrQuery.ORDER.asc );
-		for (String filterQuery : filterQuerys) {
-			if (filterQuery != "") {
-				solrQuery.addFilterQuery(filterQuery);
-			}
-		}
-		QueryResponse rsp = null;
-		try {
-			rsp = server.query(solrQuery);
-		} catch (SolrServerException e) {
-			logger.info(e.getLocalizedMessage());
-		}
-		logger.debug("uri=" + rsp.getRequestUrl());
-		return rsp;
-	}
-
 	/**
 	 * Method to handle spaces within queries for solr requests via solrj
 	 * 
