@@ -472,7 +472,7 @@ List<Float>dataFloats=new ArrayList<>();
            			+ "} else {" 
            				+ "url += '/charts?' + this.category.split('###')[4];"
            			+ "} "
-           		+ "url += '&parameterId=" + parameter.getStableId() + "';"
+           		+ "url += '&parameter_stable_id=" + parameter.getStableId() + "';"
            		+ "window.open(url); "
            		+ "console.log(url);"
            		+ "} } } }" 

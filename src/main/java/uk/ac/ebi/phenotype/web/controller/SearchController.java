@@ -25,11 +25,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 
 @Controller
 public class SearchController {
-	private Map<String, String> config;
+	
 	/**
 	 * redirect calls to the base url to the search page
 	 * 
@@ -62,20 +61,7 @@ public class SearchController {
 		model.addAttribute("q", q);
 		model.addAttribute("core", core);
 		model.addAttribute("fq", fq);
-		
-		boolean isLoggedIn = false;
-		try {
-			RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config, request);
-			if (registerInterest.loggedIn()) {
-				model.addAttribute("isLoggedIn", true);
-			}
-			else {
-				model.addAttribute("isLoggedIn", isLoggedIn);
-			}
-		}
-		catch(Exception e){
-			System.out.println("Failed to fetch info for register interest");
-		}
+				
 		return "search";
 	}	
 }

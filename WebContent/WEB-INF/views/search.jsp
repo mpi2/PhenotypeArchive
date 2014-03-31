@@ -135,12 +135,14 @@
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script> 
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js'></script>		
 	    </compress:html>        
-        
+       
          <script>        		
-       	$(document).ready(function(){     		   		
-       		console.log('test login: ' + "${isLoggedIn}");
-       		<c:if test="${isLoggedIn}">
-       			console.log('is logged in')
+       	$(document).ready(function(){ 
+       		
+       		// make "search" menu point active
+       		$('nav#mn ul.menu > li:first-child').addClass('active');
+       		       		
+       		<c:if test="${isLoggedIn}">       			
        			MPI2.searchAndFacetConfig.isLoggedIn = true;
        		</c:if>;
        		
