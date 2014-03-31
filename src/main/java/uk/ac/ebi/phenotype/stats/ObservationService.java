@@ -470,7 +470,7 @@ public class ObservationService {
             query.addFilterQuery(ExperimentField.SEX + ":" + sex);
         }
         if(metaDataGroup!=null) {
-        	query.addFilterQuery(ExperimentField.METADATA_GROUP + ":" + metaDataGroup);
+        	query.addFilterQuery(ExperimentField.METADATA_GROUP + ":\"" + metaDataGroup + "\"");
         }
         System.out.println("observation  service query="+query);
         QueryResponse response = solr.query(query);
