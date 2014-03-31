@@ -51,7 +51,7 @@ public class PhenotypeCallSummary {
 	private Integer id;
 	
 	@Column(name = "external_id")
-	int externalId;
+	Integer externalId;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "sex")
@@ -126,6 +126,7 @@ public class PhenotypeCallSummary {
 	@JoinColumn(name = "parameter_id")
 	private Parameter parameter;
 
+	@Transient
 	private String phenotypingCenter;
 
 

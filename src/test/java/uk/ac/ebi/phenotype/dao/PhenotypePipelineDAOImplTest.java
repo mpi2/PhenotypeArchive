@@ -71,8 +71,8 @@ public class PhenotypePipelineDAOImplTest {
 	}
 
 	@Test
-	public void testGetProcedureByStableIdAndVersion() {
-		Procedure procedure = phenotypePipelineDAO.getProcedureByStableIdAndVersion("IMPC_BWT_001", 1, 0);
+	public void testGetProcedureByStableId() {
+		Procedure procedure = phenotypePipelineDAO.getProcedureByStableId("IMPC_BWT_001");
 		assertTrue(procedure != null);
 	}
 

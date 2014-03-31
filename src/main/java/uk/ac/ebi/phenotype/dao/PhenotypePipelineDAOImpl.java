@@ -100,6 +100,12 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 				.uniqueResult();
 	}
 	
+	public Procedure getProcedureByStableId(String stableId) {
+		return (Procedure) getCurrentSession().createQuery("from Procedure as p where p.stableId = ?")
+				.setString(0, stableId)
+				.uniqueResult();
+	}
+	
 	@Transactional(readOnly = true)
 	public Parameter getParameterByStableIdAndVersion(String stableId, int majorVersion, int minorVersion) {
 		return (Parameter) getCurrentSession().createQuery("from Parameter as p where p.stableId = ? and p.majorVersion = ? and p.minorVersion = ?")

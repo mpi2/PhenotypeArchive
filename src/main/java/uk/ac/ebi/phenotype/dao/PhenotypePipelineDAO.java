@@ -124,5 +124,7 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	public List<String> getCategoriesByParameterId(Integer id) throws SQLException;
 	
 	public String getCategoryDescription (int parameterId, String category) throws SQLException;
+
+	public Procedure getProcedureByStableId(String string);
 	
 }
