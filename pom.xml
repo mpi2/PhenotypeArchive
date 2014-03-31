@@ -890,6 +890,7 @@
 								<include>**/data/europhenome/*</include>
 								<include>**/data/impress/*</include>
 								<include>**/stats/**</include>
+								<include>**/phenotype/error/**</include>
 								<include>**/generic/util/*</include>
 								<include>**/web/util/*</include>
 							</includes>
