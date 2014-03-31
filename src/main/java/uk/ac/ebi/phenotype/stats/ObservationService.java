@@ -32,7 +32,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
-import org.eclipse.jetty.util.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,79 +110,76 @@ public class ObservationService {
     }
 
     
-    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableId,List<String> pipelineStableId, List<String> phenotypingCenterParams, List<String> strainParams, List<String> metaDataGroups) throws SolrServerException{
-//    	String experimentKey = observation.getPhenotypingCenter()
-//    			+ observation.getStrain()
-//    			+ observation.getParameterStableId()
-//    			+ observation.getGeneAccession()
-//    			+ observation.getMetadataGroup();
-		
-	Map<String, List<String>> map=new HashMap<String, List<String>>();
-	
-        Set<Integer> parameterIds = new HashSet<>();
+	public Map<String, List<String>> getExperimentKeys(String mgiAccession,
+			String parameterStableId, List<String> pipelineStableId,
+			List<String> phenotypingCenterParams, 
+			List<String> strainParams,
+			List<String> metaDataGroups) throws SolrServerException {
 
-        SolrQuery query = new SolrQuery();
-        query.setQuery("gene_accession:\""+mgiAccession+"\"");
-        query.addFilterQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + parameterStableId);
-              //  .addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":unidimensional")
-   
-        addMultipleFilters(phenotypingCenterParams, ExperimentField.PHENOTYPING_CENTER, query);
-        addMultipleFilters(strainParams, ExperimentField.STRAIN, query);
-        addMultipleFilters(metaDataGroups,ExperimentField.METADATA_GROUP, query);
-        addMultipleFilters(pipelineStableId,ExperimentField.PIPELINE_STABLE_ID, query);
-             
-               query .setRows(0).addFacetField(ExperimentField.PHENOTYPING_CENTER);
-               query .setRows(0).addFacetField(ExperimentField.STRAIN);
-               query .setRows(0).addFacetField(ExperimentField.METADATA_GROUP);
-               query .setRows(0).addFacetField(ExperimentField.PIPELINE_STABLE_ID);
-               query .setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
+		// Example of key
+		// String experimentKey = observation.getPhenotypingCenter()
+		// + observation.getStrain()
+		// + observation.getParameterStableId()
+		// + observation.getGeneAccession()
+		// + observation.getMetadataGroup();
 
-        QueryResponse response = solr.query(query);
-        System.out.println("experiment key query="+query);
-        List<FacetField> fflist = response.getFacetFields();
+		Map<String, List<String>> map = new HashMap<String, List<String>>();
 
-        for (FacetField ff : fflist) {
+		SolrQuery query = new SolrQuery();
 
-            // If there are no face results, the values will be null
-            // skip this facet field in that case
-//            if (ff.getValues() == null) {
-//                continue;
-//            }
+		query.setQuery("gene_accession:\"" + mgiAccession + "\"")
+			.addFilterQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + parameterStableId)
+			.addFacetField(ExperimentField.PHENOTYPING_CENTER)
+			.addFacetField(ExperimentField.STRAIN)
+			.addFacetField(ExperimentField.METADATA_GROUP)
+			.addFacetField(ExperimentField.PIPELINE_STABLE_ID)
+			.setRows(0)
+			.setFacet(true)
+			.setFacetMinCount(1)
+			.setFacetLimit(-1);
 
-            for (Count count : ff.getValues()) {
-               if(map.containsKey(ff.getName())) {
-            	   map.get(ff.getName()).add(count.getName());
-               }else {
-            	   List<String> newList=new ArrayList<String>();
-            	   newList.add(count.getName());
-            	   map.put(ff.getName(), newList);
-               }
-            	
-            }
-        }
+		if (phenotypingCenterParams!= null && !phenotypingCenterParams.isEmpty()){
+			query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER + ":(" + StringUtils.join(phenotypingCenterParams, " OR ") + ")");
+		}
 
-        //return new ArrayList<>(parameterIds);
-        System.out.println("experimentKeys="+map);
-    	return map;
-    }
+		if (strainParams!= null && !strainParams.isEmpty()){
+			query.addFilterQuery(ExperimentField.STRAIN + ":(" + StringUtils.join(strainParams, " OR ").replace(":", "\\:") + ")");
+		}
 
-	private void addMultipleFilters(List<String> multipleOrParam, String fieldToFileter, SolrQuery query) {
-		if(multipleOrParam!=null && multipleOrParam.size()>0) {
-        	if(multipleOrParam.size()==1) {
-        		query.addFilterQuery(fieldToFileter + ":\"" + multipleOrParam.get(0)+"\"");
-        	}else {
-        		String strainOrString="(";
-        		for(String filterParam: multipleOrParam) {
-        				strainOrString+="\""+filterParam+"\"";
-        				if(multipleOrParam.indexOf(filterParam)<multipleOrParam.size()-1) {
-        					strainOrString+= " OR ";
-        				}else {
-        					strainOrString+= ")";
-        				}
-        		}
-        		query.addFilterQuery(fieldToFileter + ":" + strainOrString);
-        	}
-        }
+		if (metaDataGroups!= null && !metaDataGroups.isEmpty()){
+			query.addFilterQuery(ExperimentField.METADATA_GROUP + ":(" + StringUtils.join(metaDataGroups, " OR ") + ")");
+		}
+
+		if (pipelineStableId!= null && !pipelineStableId.isEmpty()){
+			query.addFilterQuery(ExperimentField.PIPELINE_STABLE_ID + ":(" + StringUtils.join(pipelineStableId, " OR ") + ")");
+		}
+
+		QueryResponse response = solr.query(query);
+		LOG.info("experiment key query=" + query);
+		List<FacetField> fflist = response.getFacetFields();
+
+		for (FacetField ff : fflist) {
+
+			// If there are no face results, the values will be null
+			// skip this facet field in that case
+//			if (ff.getValues() == null) {
+//				continue;
+//			}
+
+			for (Count count : ff.getValues()) {
+				if (map.containsKey(ff.getName())) {
+					map.get(ff.getName()).add(count.getName());
+				} else {
+					List<String> newList = new ArrayList<String>();
+					newList.add(count.getName());
+					map.put(ff.getName(), newList);
+				}
+
+			}
+		}
+
+		LOG.info("experimentKeys=" + map);
+		return map;
 	}
 
     
@@ -317,19 +313,17 @@ public class ObservationService {
     }
 
     /**
-     * Return a list of a all data candidates for statistical analysis  
+     * Return a list of a all data candidates for deletion prior to 
+     * statistical analysis  
      *
      * @return list of maps of results
      * @throws SolrServerException
      */
     public List<Map<String,String>> getDistinctPipelineOrgParam() throws SolrServerException {
-    	
-        List<Map<String,String>> results = new LinkedList<Map<String, String>>();
 
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
                 .addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
-                .addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":categorical")
                 .setRows(0)
                 .setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
                 .addFacetPivotField( // needs at least 2 fields
@@ -348,7 +342,7 @@ public class ObservationService {
      * @return list of maps of results
      * @throws SolrServerException
      */
-    public List<Map<String,String>> getDistinctUnidimensionalPipelineOrgParamStrainZygosityGeneAccession() throws SolrServerException {
+    public List<Map<String,String>> getDistinctUnidimensionalPipelineOrgParamStrainZygosityGeneAccessionMetadata() throws SolrServerException {
 
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
@@ -362,6 +356,7 @@ public class ObservationService {
                 		ExperimentField.PARAMETER_ID + "," +
                 		ExperimentField.STRAIN + "," +
                 		ExperimentField.ZYGOSITY + "," +
+                		ExperimentField.METADATA_GROUP + "," +
                 		ExperimentField.GENE_ACCESSION);  
 
         QueryResponse response = solr.query(query);
@@ -376,7 +371,7 @@ public class ObservationService {
      * @return list of maps of results
      * @throws SolrServerException
      */
-    public List<Map<String,String>> getDistinctCategoricalPipelineOrgParamStrainZygositySexGeneAccession() throws SolrServerException {
+    public List<Map<String,String>> getDistinctCategoricalPipelineOrgParamStrainZygositySexGeneAccessionMetadata() throws SolrServerException {
     	
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
@@ -391,6 +386,7 @@ public class ObservationService {
                 		ExperimentField.STRAIN + "," +
                 		ExperimentField.ZYGOSITY + "," +
                 		ExperimentField.SEX + "," +
+                		ExperimentField.METADATA_GROUP + "," +
                 		ExperimentField.GENE_ACCESSION);  
 
         QueryResponse response = solr.query(query);
@@ -474,7 +470,7 @@ public class ObservationService {
             query.addFilterQuery(ExperimentField.SEX + ":" + sex);
         }
         if(metaDataGroup!=null) {
-        	query.addFilterQuery(ExperimentField.METADATA_GROUP + ":" + metaDataGroup);
+        	query.addFilterQuery(ExperimentField.METADATA_GROUP + ":\"" + metaDataGroup + "\"");
         }
         System.out.println("observation  service query="+query);
         QueryResponse response = solr.query(query);
