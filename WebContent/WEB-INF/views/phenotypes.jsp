@@ -105,7 +105,7 @@
 								<p class="padleft"><span class="bigger">${genePercentage.getFemalePercentage()}%</span> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </p>
 								<p class="padleft"><span class="bigger">${genePercentage.getMalePercentage()}%</span> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</p>
 							</div>					
-							<!-- Graphs -->
+							<!-- Overview Graphs -->
 							<c:if test="${parametersAssociated.size() > 0}">
 								<div id="chartsHalf" class="half">
 								<c:if test="${parametersAssociated.size() > 1}">

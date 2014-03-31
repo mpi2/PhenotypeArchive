@@ -11,6 +11,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -65,6 +66,7 @@ public class OverviewChartsController {
 		@RequestParam(required = true, value = "parameter_id") String parameterId,
 		@RequestParam(required = false, value = "center") String center,
 		@RequestParam(required = false, value = "sex") String sex,
+		@RequestParam(required = false, value = "source") String source,
 		@RequestParam(required = false, value = "all_centers") String allCenters,
 		Model model,
 		HttpServletRequest request,
@@ -72,15 +74,16 @@ public class OverviewChartsController {
 		
 			String[] centerArray = (center != null) ? center.split(",") : null;
 			String[] sexArray = (sex != null) ? sex.split(",") : null;
+			String[] sourceArray = (source != null) ? source.split(",") : null;
 			String[] allCentersArray = (allCenters != null) ? allCenters.split(",") : null;
 
 			String[] centers = (centerArray != null) ? centerArray : allCentersArray;
 			
-			model.addAttribute("chart", getDataOverviewChart(phenotype_id, model, parameterId, centers, sexArray));
+			model.addAttribute("chart", getDataOverviewChart(phenotype_id, model, parameterId, centers, sexArray, sourceArray));
 			return "overviewChart";
 	}
 	
-	public ChartData getDataOverviewChart(String mpId, Model model, String parameter, String[] center, String[] sex) throws SolrServerException, IOException, URISyntaxException, SQLException{
+	public ChartData getDataOverviewChart(String mpId, Model model, String parameter, String[] center, String[] sex, String[] source) throws SolrServerException, IOException, URISyntaxException, SQLException{
 		
 		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
 		TimeSeriesChartAndTableProvider tstp = new TimeSeriesChartAndTableProvider();
@@ -91,8 +94,8 @@ public class OverviewChartsController {
 		String[] centerToFilter = center;
 		
 		if (p != null){
-
-			genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
+						
+			genes = gpService.getGenesAssocByParamAndMp(parameter, mpId, source);
 		
 			if (centerToFilter == null) { // first time we load the page.
 				// We need to know centers for the controls, otherwise we show all controls
@@ -101,7 +104,6 @@ public class OverviewChartsController {
 			}
 			
 			if( Utilities.checkType(p).equals(ObservationType.categorical) ){
-				genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
 				CategoricalSet controlSet = os.getCategories(p, null , "control", strains, centerToFilter, sex);
 				controlSet.setName("Control");
 				CategoricalSet mutantSet = os.getCategories(p, (ArrayList<String>) genes, "experimental", strains, centerToFilter, sex);
@@ -119,7 +121,6 @@ public class OverviewChartsController {
 			}
 			
 			else if ( Utilities.checkType(p).equals(ObservationType.unidimensional) ){
-				genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
 				StackedBarsData data = os.getUnidimensionalData(p, genes, strains, "experimental", centerToFilter, sex);
 				chartRes = uctp.getStackedHistogram(data, p);
 			}
