@@ -110,10 +110,6 @@
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 
-	<bean id="labcodeDAO" class="uk.ac.ebi.phenotype.dao.LabcodeDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-
 	<bean id="projectDAO" class="uk.ac.ebi.phenotype.dao.ProjectDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
