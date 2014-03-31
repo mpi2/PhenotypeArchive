@@ -116,8 +116,10 @@ public class GenotypePhenotypeService {
 		.setQuery("(" + GenotypePhenotypeField.MP_TERM_ID + ":\"" + phenotype_id + "\" OR " + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":\"" + phenotype_id 
 				+ "\") AND (" + GenotypePhenotypeField.STRAIN_ACCESSION_ID + ":\"MGI:2159965\" OR " + GenotypePhenotypeField.STRAIN_ACCESSION_ID 
 				+ ":\"MGI:2164831\") AND " + GenotypePhenotypeField.PARAMETER_STABLE_ID + ":\"" + parameterStableId+"\"")
-		.setRows(10000);	
-		if (resource == null || resource.length == 0){
+		.setRows(10000);
+		if (resource != null)
+			System.out.println("\t Resource " + resource.length + " - " + StringUtils.join(resource, " OR "));
+		if (resource == null || resource.length == 0 || (resource.length == 1 && resource[0].equalsIgnoreCase(""))){
 			query.setFilterQueries("(" + GenotypePhenotypeField.RESOURCE_NAME + ":EuroPhenome OR " + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC)");
 		}
 		else query.setFilterQueries("(" + GenotypePhenotypeField.RESOURCE_NAME + ":" + StringUtils.join(resource, " OR " + GenotypePhenotypeField.RESOURCE_NAME + ":") + ")");
