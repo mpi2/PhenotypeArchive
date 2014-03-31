@@ -127,7 +127,8 @@ input.auto              { width: auto; }
 
 /* Topnavi */
 #block-system-user-menu,
-#tn                     { float: right; margin-top: -0.4em; line-height: 0.8em; font-size: 0.9em; color: #fff; }
+/*#tn                     { float: right; margin-top: -0.4em; line-height: 0.8em; font-size: 0.9em; color: #fff; }*/
+#tn                     { float: right; margin-top: -20px !important; font-size: 0.9em; color: #fff; } /* changed to match drupal page for usermenu top margin */
 #block-system-user-menu li,
 #tn li                  { float: left; margin-left: 2.5em; }
 #block-system-user-menu i,
