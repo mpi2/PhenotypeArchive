@@ -34,7 +34,7 @@ public class HibernateCoordinateSystemDAOTest extends AbstractTransactionalJUnit
 		assertNotNull("coordinateSystem should never be null", coordinateSystem);
 		assertEquals("wrong coordinateSystem", "chromosome", coordinateSystem.getName());
 		assertEquals("wrong coordinateSystem datasource","Mouse Genome Assembly", coordinateSystem.getDatasource().getName());
-		assertEquals("wrong coordinateSystem datasource","NCBI m38", coordinateSystem.getDatasource().getVersion());
+		assertEquals("wrong coordinateSystem datasource","GRCm38", coordinateSystem.getDatasource().getVersion());
 		assertEquals("wrong coordinateSystem strain", "C57BL/6J", coordinateSystem.getStrain().getName());
 
 	}

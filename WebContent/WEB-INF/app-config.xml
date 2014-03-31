@@ -110,10 +110,6 @@
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 
-	<bean id="labcodeDAO" class="uk.ac.ebi.phenotype.dao.LabcodeDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-
 	<bean id="projectDAO" class="uk.ac.ebi.phenotype.dao.ProjectDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
@@ -121,10 +117,6 @@
 	<bean id="organisationDAO" class="uk.ac.ebi.phenotype.dao.OrganisationDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>	
-	
-	<bean id="categoricalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.CategoricalStatisticsDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
 	
 	<bean id="unidimensionalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl">
 		<constructor-arg ref="sessionFactory" />

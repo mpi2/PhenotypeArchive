@@ -52,10 +52,6 @@
 		</bean>
 	</mvc:interceptors>
 
-	<!-- if you would not have used component scanning you would have had to 
-		wire up the controller yourself: <bean class="uk.ac.ebi.phenotype.web.controller.LabcodeController"> 
-		<constructor-arg ref="labcodeDAO"/> </bean> -->
-
 	<bean
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix" value="/WEB-INF/views/" />
