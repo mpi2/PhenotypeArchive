@@ -62,9 +62,9 @@
 				
 				
 			<%-- 	<c:if test="${fn:length(unidimensionalDataSet.allUnidimensionalResults)>0}"> --%>
-				<div class="section">
+				<%-- <div class="section">
 						<table>
-						<%-- ${fn:length(unidimensionalDataSet.allUnidimensionalResults)} --%>
+						${fn:length(unidimensionalDataSet.allUnidimensionalResults)}
 						
  							<c:forEach var="data" items="${unidimensionalDataSet.allUnidimensionalResults}">
  							<td>${data.significanceClassification}</td>
@@ -156,7 +156,7 @@
 						</c:forEach>
  	 					</table>
  	 					
- 				</div>
+ 				</div> --%>
  				
  				<%-- </c:if> --%>
  				
