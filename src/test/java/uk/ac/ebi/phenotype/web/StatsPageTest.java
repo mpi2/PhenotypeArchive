@@ -17,6 +17,7 @@
 package uk.ac.ebi.phenotype.web;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.concurrent.TimeUnit;
@@ -61,7 +62,7 @@ public class StatsPageTest {
 		String zygosity= "homozygote";
 		String geneSymbol = "Mysm1";
 		// <div class='topic'>Gene: Mysm1</div>
-		driver.get(baseUrl + "/data/charts?accession=" + mgiGeneAcc + "&parameterId=" + impressParameter + "&zygosity=" + zygosity);
+		driver.get(baseUrl + "/data/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity);
 		String title = driver.findElement(By.xpath("//div[contains(@class, 'topic')]")).getText();
 		assertEquals(title, "Gene: " + geneSymbol);
 	}
@@ -72,7 +73,7 @@ public class StatsPageTest {
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=biologicalSampleGroup%3A+%22experimental%22&fl=geneAccession,parameterStableId,zygosity,geneSymbol&rows=20&wt=json&indent=true&facet=on&&facet.pivot=geneAccession,parameterStableId,zygosity,geneSymbol
 		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=biologicalSampleGroup%3A+%22experimental%22&fl=geneAccession,parameterStableId,zygosity,geneSymbol&rows=20&wt=json&indent=true
 		
-		String newQueryString = "/experiment/select?q=biologicalSampleGroup%3A+%22experimental%22&fl=geneAccession,parameterStableId,zygosity,geneSymbol&rows=20&wt=json&indent=true";
+		String newQueryString = "/experiment/select?q=biological_sample_group%3A+%22experimental%22&fl=gene_accession,parameter_stable_id,zygosity,gene_symbol&rows=20&wt=json&indent=true";
 		int startIndex = 0;
 		int nbRows = 10;
 		newQueryString+="&start="+startIndex+"&rows="+nbRows;
@@ -84,17 +85,20 @@ public class StatsPageTest {
 		
 		if (docs != null) {
 			int size = docs.size();
-			for (int i=0; i<size; i++) {
-				String mgiGeneAcc = docs.getJSONObject(i).getString("geneAccession");
-				String impressParameter = docs.getJSONObject(i).getString("parameterStableId");
+			//all docs are the same for this at the mo so just try one - need to alter this to test different graph types categorical, unidimensional, time_series and scatter
+			for (int i=0; i<1; i++) {
+				String mgiGeneAcc = docs.getJSONObject(i).getString("gene_accession");
+				String impressParameter = docs.getJSONObject(i).getString("parameter_stable_id");
 				String zygosity= docs.getJSONObject(i).getString("zygosity");
-				String geneSymbol = docs.getJSONObject(i).getString("geneSymbol");
+				String geneSymbol = docs.getJSONObject(i).getString("gene_symbol");
 				
-				System.out.println(geneSymbol + "\t" + baseUrl + "/data/charts?accession=" + mgiGeneAcc + "?parameterId=" + impressParameter + "&zygosity=" + zygosity);
+				System.out.println(geneSymbol + "\t" + baseUrl + "/data/charts?accession=" + mgiGeneAcc + "?parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity);
 	
-				driver.get(baseUrl + "/data/charts?accession=" + mgiGeneAcc + "&parameterId=" + impressParameter + "&zygosity=" + zygosity);
-				String title = driver.findElement(By.xpath("//div[contains(@class, 'topic')]")).getText();
-				assertEquals(title, "Gene: " + geneSymbol);
+				driver.get(baseUrl + "/data/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity);
+				String title = driver.findElement(By.xpath("//*[contains(concat(\" \", normalize-space(@class), \" \"), \"title document\")]")).getText();
+				//for reasoning on xpath identifier see http://stackoverflow.com/questions/8808921/selecting-a-css-class-with-xpath
+				//*[contains(concat(" ", normalize-space(@class), " "), " foo ")]
+				assertTrue(title.contains(geneSymbol));
 			}
 		}
 		
