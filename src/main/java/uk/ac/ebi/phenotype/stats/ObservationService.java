@@ -32,7 +32,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
-import org.eclipse.jetty.util.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -479,81 +478,9 @@ public class ObservationService {
         return resultsDTO;
     }
 
-    /**
-     * Return all the parameter ids that have associated data for a given
-     * organisation
-     *
-     * @param organisationId the id of the organisation
-     * @return list of integer db keys of the parameter rows
-     * @throws SolrServerException
-     */
-    public List<Integer> getUnidimensionalParameterIdsWithObservationsByOrganisationId(
-            Integer organisationId) throws SolrServerException {
-        Set<Integer> parameterIds = new HashSet<>();
 
-        SolrQuery query = new SolrQuery()
-                .setQuery("*:*")
-                .addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
-                .addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":unidimensional")
-                .setRows(0).addFacetField(ExperimentField.PARAMETER_ID)
-                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
 
-        QueryResponse response = solr.query(query);
-        List<FacetField> fflist = response.getFacetFields();
 
-        for (FacetField ff : fflist) {
-
-            // If there are no face results, the values will be null
-            // skip this facet field in that case
-            if (ff.getValues() == null) {
-                continue;
-            }
-
-            for (Count c : ff.getValues()) {
-                parameterIds.add(Integer.parseInt(c.getName()));
-            }
-        }
-
-        return new ArrayList<>(parameterIds);
-    }
-
-    /**
-     * Return all the parameter ids that have associated data for a given
-     * organisation
-     *
-     * @param organisationId the id of the organisation
-     * @return list of integer db keys of the parameter rows
-     * @throws SolrServerException
-     */
-    public List<Integer> getCategoricalParameterIdsWithObservationsByOrganisationId(
-            Integer organisationId) throws SolrServerException {
-        Set<Integer> parameterIds = new HashSet<>();
-
-        SolrQuery query = new SolrQuery()
-                .setQuery("*:*")
-                .addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
-                .addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":categorical")
-                .setRows(0).addFacetField(ExperimentField.PARAMETER_ID)
-                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
-
-        QueryResponse response = solr.query(query);
-        List<FacetField> fflist = response.getFacetFields();
-
-        for (FacetField ff : fflist) {
-
-            // If there are no face results, the values will be null
-            // skip this facet field in that case
-            if (ff.getValues() == null) {
-                continue;
-            }
-
-            for (Count c : ff.getValues()) {
-                parameterIds.add(Integer.parseInt(c.getName()));
-            }
-        }
-
-        return new ArrayList<>(parameterIds);
-    }
 
     
     /**
@@ -731,172 +658,9 @@ public class ObservationService {
         return results;
     }    
     
-    /**
-     * Return all the gene accession ids that have associated data for a given
-     * organisation, strain, and zygosity
-     *
-     * @param parameterId the parameter DB id
-     * @param organisationId the id of the organisation
-     * @param strain the strain
-     * @param zygosity the zygosity
-     * @return list of gene accession ids
-     * @throws SolrServerException
-     */
-    public List<String> getAllGeneAccessionIdsByParameterIdOrganisationIdStrainZygosity(
-            Integer parameterId, Integer organisationId, String strain,
-            String zygosity) throws SolrServerException {
-        Set<String> genes = new HashSet<>();
 
-        SolrQuery query = new SolrQuery()
-                .setQuery("*:*")
-                .addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
-                .addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
-                .addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-                .addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
-                .addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
-                .setRows(0).addFacetField(ExperimentField.GENE_ACCESSION)
-                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
 
-        QueryResponse response = solr.query(query);
-        List<FacetField> fflist = response.getFacetFields();
 
-        for (FacetField ff : fflist) {
-
-            // If there are no face results, the values will be null
-            // skip this facet field in that case
-            if (ff.getValues() == null) {
-                continue;
-            }
-
-            for (Count c : ff.getValues()) {
-                genes.add(c.getName());
-            }
-        }
-
-        return new ArrayList<>(genes);
-    }
-
-    /**
-     * Return all the strain accession ids that have associated data for a given
-     * organisation ID and parameter ID
-     *
-     * @param organisationId the database id of the organisation
-     * @param parameterId the database id of the parameter
-     * @return list of strain accession ids
-     * @throws SolrServerException
-     */
-    public List<String> getStrainsByParameterIdOrganistionId(
-            Integer parameterId, Integer organisationId)
-            throws SolrServerException {
-        Set<String> strains = new HashSet<>();
-
-        SolrQuery query = new SolrQuery()
-                .setQuery("*:*")
-                .addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":"+ organisationId)
-                .addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-                .setRows(0).addFacetField(ExperimentField.STRAIN)
-                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
-
-        QueryResponse response = solr.query(query);
-        List<FacetField> fflist = response.getFacetFields();
-
-        for (FacetField ff : fflist) {
-
-            // If there are no face results, the values will be null
-            // skip this facet field in that case
-            if (ff.getValues() == null) {
-                continue;
-            }
-
-            for (Count c : ff.getValues()) {
-                strains.add(c.getName());
-            }
-        }
-
-        return new ArrayList<>(strains);
-
-    }
-
-    /**
-     * Return all the organisation ids that have associated observations
-     *
-     * @param organisation the name of the organisation
-     * @return list of organisation database ids
-     * @throws SolrServerException
-     */
-    public List<Integer> getAllOrganisationIdsWithObservations()
-            throws SolrServerException {
-        List<Integer> organisations = new ArrayList<Integer>();
-
-        SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0)
-                .addFacetField(ExperimentField.PHENOTYPING_CENTER_ID)
-                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1);
-
-        QueryResponse response = solr.query(query);
-        List<FacetField> fflist = response.getFacetFields();
-
-        for (FacetField ff : fflist) {
-
-            // If there are no face results, the values will be null
-            // skip this facet field in that case
-            if (ff.getValues() == null) {
-                continue;
-            }
-
-            for (Count c : ff.getValues()) {
-                organisations.add(Integer.parseInt(c.getName()));
-            }
-        }
-
-        return organisations;
-    }
-
-    /**
-     * Returns all Gene Accession Ids By ParameterId,  OrganisationId, Strain,
-     * Zygosity, and Sex
-     * 
-     * @param parameterId
-     * @param organisationId
-     * @param strain
-     * @param zygosity
-     * @param sex
-     * @return
-     * @throws SolrServerException 
-     */
-    public List<String> getAllGeneAccessionIdsByParameterIdOrganisationIdStrainZygositySex(
-            Integer parameterId, Integer organisationId, String strain,
-            String zygosity, String sex) throws SolrServerException {
-        Set<String> genes = new HashSet<>();
-
-        SolrQuery query = new SolrQuery()
-                .setQuery("*:*")
-                .addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP+ ":experimental")
-                .addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":"+ organisationId)
-                .addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-                .addFilterQuery(ExperimentField.STRAIN + ":"+ strain.replace(":", "\\:"))
-                .addFilterQuery(ExperimentField.ZYGOSITY + ":" + zygosity)
-                .addFilterQuery(ExperimentField.SEX + ":" + sex).setRows(0)
-                .addFacetField(ExperimentField.GENE_ACCESSION).setFacet(true)
-                .setFacetMinCount(1).setFacetLimit(-1);
-
-        QueryResponse response = solr.query(query);
-        List<FacetField> fflist = response.getFacetFields();
-
-        for (FacetField ff : fflist) {
-
-            // If there are no face results, the values will be null
-            // skip this facet field in that case
-            if (ff.getValues() == null) {
-                continue;
-            }
-
-            for (Count c : ff.getValues()) {
-                genes.add(c.getName());
-            }
-        }
-
-        return new ArrayList<>(genes);
-    }
 
 	// gets categorical data for graphs on phenotype page
 	public Map<String, List<DiscreteTimePoint>> getTimeSeriesMutantData(
@@ -1592,8 +1356,8 @@ public class ObservationService {
 		;
 
 		if(metadataGroup==null) {
-                    // don't add a metadata group filter
-                } else if (metadataGroup.isEmpty()) {
+			// don't add a metadata group filter
+		} else if (metadataGroup.isEmpty()) {
 			query.addFilterQuery(ExperimentField.METADATA_GROUP + ":\"\"");
 		} else {
 			query.addFilterQuery(ExperimentField.METADATA_GROUP + ":" + metadataGroup);

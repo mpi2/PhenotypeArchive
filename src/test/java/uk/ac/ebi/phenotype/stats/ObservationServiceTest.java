@@ -111,7 +111,7 @@ public class ObservationServiceTest {
 		//http://localhost:8080/phenotype-archivecharts?accession=MGI:1922257?parameterId=ESLIM_003_001_004&zygosity=homozygote
 		List<String> phenotypingCenterParamsList=Arrays.asList("WTSI");
 		List<String> strainStrings=Arrays.asList("MGI:2164831");
-		List<String> metaDataGoupsList=Arrays.asList("a9dde727aa843954ce9e35ec95495025");
+		List<String> metaDataGoupsList=Arrays.asList("\"\"");
 		List<String> pipelineIds=Arrays.asList("ESLIM_001");
 		
 			try {
@@ -122,27 +122,6 @@ public class ObservationServiceTest {
 			}
 		assertTrue(keys.size()>0);
 	}
-	
-	@Test
-	public void testGetAllGeneAccessionIdsByParameterIdOrganisationStrainZygosity() throws SolrServerException {
-		Parameter p = parameterDAO.getParameterByStableIdAndVersion("M-G-P_009_001_002", 1, 1);
-		List<String> genes = os.getAllGeneAccessionIdsByParameterIdOrganisationIdStrainZygosity(p.getId(), 3,"EUROCURATE1983", "homozygote");
-		assertTrue(genes.size()>0);
 
-	}
-	
-	@Test
-	public void testGetAllStrainsByParameterIdOrganistion() throws SolrServerException {
-		Parameter p = parameterDAO.getParameterByStableIdAndVersion("M-G-P_009_001_002", 1, 1);
-		List<String> strains = os.getStrainsByParameterIdOrganistionId(p.getId(), 3);
-		assertTrue(strains.size()>0);
-		
-	}
-	
-	@Test
-	public void testGetAllOrganisationIdsWithObservations() throws SolrServerException {
-		List<Integer> organisationIds = os.getAllOrganisationIdsWithObservations();
-		assertTrue(organisationIds.size()>0);
-	}
 
 }
