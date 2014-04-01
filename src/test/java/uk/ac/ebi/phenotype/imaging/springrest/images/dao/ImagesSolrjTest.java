@@ -62,7 +62,7 @@ public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTes
 	@Test
 	public void testGetExpressionFacetForGeneAccession() throws SolrServerException {
 		QueryResponse solrR = null;
-		solrR = imagesSolrDao.getExpressionFacetForGeneAccession("MGI:1933365");
+		solrR = imagesSolrDao.getExpressionFacetForGeneAccession("MGI:104874");
 		assertTrue(solrR.getFacetFields().size() > 0);
 	}
 	
