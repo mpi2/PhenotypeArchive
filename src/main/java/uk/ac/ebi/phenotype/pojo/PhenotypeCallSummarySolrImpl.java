@@ -25,7 +25,7 @@ public class PhenotypeCallSummarySolrImpl implements
 		PhenotypeCallSummaryDAOReadOnly {
 
 	@Autowired
-	GenotypePhenotypeService gpService;
+	GenotypePhenotypeService genotypePhenotypeService;
 	
 	private static final Logger log = Logger
 			.getLogger(PhenotypeCallSummarySolrImpl.class);
@@ -48,14 +48,14 @@ public class PhenotypeCallSummarySolrImpl implements
 			String phenotype_id, String queryString) throws IOException,
 			URISyntaxException {
 		// http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=mp_term_id:MP:0010025&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet=true&facet.field=resource_fullname&facet.field=top_level_mp_term_name&
-		return gpService.getMPCallByMPAccessionAndFilter(phenotype_id, queryString);
+		return genotypePhenotypeService.getMPCallByMPAccessionAndFilter(phenotype_id, queryString);
 	}
 
 	@Override
 	public PhenotypeFacetResult getPhenotypeCallByGeneAccessionAndFilter(
 			String accId, String filterString) throws IOException,
 			URISyntaxException {
-		return gpService.getMPByGeneAccessionAndFilter(accId, filterString);
+		return genotypePhenotypeService.getMPByGeneAccessionAndFilter(accId, filterString);
 	}
 
 	@Override
@@ -63,7 +63,7 @@ public class PhenotypeCallSummarySolrImpl implements
 			String accession, String parameterStableId,
 			ObservationType observationType, String strainAccession)
 			throws IOException, URISyntaxException {
-		return gpService.getStatsResultFor(accession, parameterStableId, observationType, strainAccession);
+		return genotypePhenotypeService.getStatsResultFor(accession, parameterStableId, observationType, strainAccession);
 	}
 	
 	

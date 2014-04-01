@@ -29,11 +29,6 @@ public class PhenotypeCallSummarySolrTest {
 
 	@Autowired
 	PhenotypeCallSummarySolrImpl dao;
-	
-	@Before
-	public void setUp() throws Exception {
-		 dao=new PhenotypeCallSummarySolrImpl();
-	}
 
 	@After
 	public void tearDown() throws Exception {
