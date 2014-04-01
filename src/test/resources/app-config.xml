@@ -104,7 +104,7 @@
 	</bean>
 
 	<bean id="imagesSolrDao" class="uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrJ">
-		<constructor-arg name="solrBaseUrl" value="http://wwwdev.ebi.ac.uk/mi/solr/images" />
+		<constructor-arg name="solrBaseUrl" value="${solrUrl}/images" />
 	</bean>
 	
 	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">

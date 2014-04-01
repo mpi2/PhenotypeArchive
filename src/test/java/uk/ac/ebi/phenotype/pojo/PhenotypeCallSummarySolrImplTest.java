@@ -30,15 +30,15 @@ public class PhenotypeCallSummarySolrImplTest {
 	public void tearDown() throws Exception {
 	}
 
-	@Test
-	public void testGetPhenotypeCallByGeneAccession() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetPhenotypeCallByMPAccession() {
-		fail("Not yet implemented");
-	}
+//	@Test
+//	public void testGetPhenotypeCallByGeneAccession() {
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	public void testGetPhenotypeCallByMPAccession() {
+//		fail("Not yet implemented");
+//	}
 
 	@Test
 	public void testGetPhenotypeCallByMPAccessionAndFilter() {
@@ -54,14 +54,14 @@ public class PhenotypeCallSummarySolrImplTest {
 		
 	}
 
-	@Test
-	public void testGetPhenotypeCallByGeneAccessionAndFilter() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetStatisticalResultFor() {
-		fail("Not yet implemented");
-	}
+//	@Test
+//	public void testGetPhenotypeCallByGeneAccessionAndFilter() {
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	public void testGetStatisticalResultFor() {
+//		fail("Not yet implemented");
+//	}
 
 }

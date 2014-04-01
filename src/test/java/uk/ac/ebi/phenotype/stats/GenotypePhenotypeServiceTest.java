@@ -14,14 +14,19 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAOImpl;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:app-config.xml" })
 public class GenotypePhenotypeServiceTest {
 
 	@Autowired
-	private GenotypePhenotypeService phenotypeSummary;
+	private GenotypePhenotypeService genotypePhenotypeService;
 	String testGene = "MGI:104874";
 		
 	@Test
@@ -29,7 +34,7 @@ public class GenotypePhenotypeServiceTest {
 		HashMap<String, String> summary;
 		
 		try {
-			summary = phenotypeSummary.getTopLevelMPTerms(testGene);	
+			summary = genotypePhenotypeService.getTopLevelMPTerms(testGene);	
 			System.out.println(summary);
 			assertTrue(summary.size() > 0);	// we're sure there are entries for gene Akt2
 			for (String id : summary.keySet()) { 
@@ -43,9 +48,9 @@ public class GenotypePhenotypeServiceTest {
 	@Test
 	public void testGetPhenotypesForTopLevelTerm() throws MalformedURLException, SolrServerException{
 		HashMap<String, String> summary;
-		summary = phenotypeSummary.getTopLevelMPTerms(testGene);	
+		summary = genotypePhenotypeService.getTopLevelMPTerms(testGene);	
 		for (String id: summary.keySet()){
-			SolrDocumentList resp = phenotypeSummary.getPhenotypesForTopLevelTerm(testGene, id);
+			SolrDocumentList resp = genotypePhenotypeService.getPhenotypesForTopLevelTerm(testGene, id);
 			assertTrue (resp != null);
 		}
 	}

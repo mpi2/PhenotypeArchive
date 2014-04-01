@@ -36,7 +36,7 @@ public class SolrUtils {
 
 		// Quote the ID if it hasn't been already
 		if (processedId.contains(":") && !processedId.contains("\\")) {
-			processedId = processedId.replace(":", "\\:");
+			processedId = "\"" + processedId + "\"";
 		}
 
 		// put quotes around any query that contains spaces

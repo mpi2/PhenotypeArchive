@@ -15,6 +15,7 @@
  */
 package uk.ac.ebi.phenotype.imaging.springrest.images.dao;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -115,11 +116,10 @@ public class ImagesSolrJ implements ImagesSolrDao {
 	private QueryResponse runFacetQuery(String query, String facetField, int start, int length, String filterQuery) throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery();
-
-		log.debug("solr query=" + query);
+		System.out.println("facet solr query=" + query);
 		solrQuery.setQuery(query);
 		solrQuery.setStart(start);
-		solrQuery.setRows(5);
+		solrQuery.setRows(length);
 		solrQuery.setFacet(true);
 		solrQuery.setFacetMinCount(1);
 		solrQuery.addFacetField(facetField);
@@ -134,17 +134,19 @@ public class ImagesSolrJ implements ImagesSolrDao {
 	public QueryResponse getExperimentalFacetForGeneAccession(String geneId) throws SolrServerException {
 		String processedGeneId = SolrUtils.processQuery(geneId);
 		QueryResponse solrResp = this.runFacetQuery("accession:"+processedGeneId,"expName", 0,1, "");
+		System.out.println("images solr expression response number docs="+solrResp.getResults().size());
 		return solrResp;
 	}
 	
 	@Override
 	public QueryResponse getExpressionFacetForGeneAccession(String geneId) throws SolrServerException {
 		String processedGeneId = SolrUtils.processQuery(geneId);
+		System.out.println("processedGeneId="+processedGeneId);
 		log.debug("eventually gene id will be here and we'll need an extra filter");
 		//changed facet field from annotated_or_inferred_higherLevelMaTermName to as old field not there anymore higherLevelMaTermName
-		QueryResponse solrResp = this.runFacetQuery("expName:"+"\"Wholemount Expression\"","annotated_or_inferred_higherLevelMaTermName", 0,1, "accession:"+processedGeneId);
+		QueryResponse solrResp = this.runFacetQuery("expName:"+"\"Wholemount Expression\"","annotated_or_inferred_higherLevelMaTermName", 0,5, "accession:"+processedGeneId);
 		
-		log.debug("uri="+solrResp.getRequestUrl());
+		System.out.println("expression uri="+solrResp);
 		return solrResp;
 	}
 	
