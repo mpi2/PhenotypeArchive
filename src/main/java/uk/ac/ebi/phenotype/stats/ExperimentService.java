@@ -13,17 +13,12 @@ import java.util.ResourceBundle.Control;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javassist.expr.NewArray;
 
-import org.antlr.grammar.v3.ANTLRv3Parser.throwsSpec_return;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.eclipse.jetty.util.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
-import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl;
 import uk.ac.ebi.phenotype.error.SpecificExperimentException;
 import uk.ac.ebi.phenotype.pojo.ControlStrategy;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
@@ -50,9 +45,6 @@ public class ExperimentService {
 	@Autowired
 	private PhenotypeCallSummaryDAOReadOnly phenoDAO;
 	
-	@Autowired
-	private UnidimensionalStatisticsDAO unidimensionalStatisticsDAO;
-
 
 	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain)
 			throws SolrServerException, IOException, URISyntaxException {

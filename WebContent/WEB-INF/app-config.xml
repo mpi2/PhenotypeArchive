@@ -117,14 +117,6 @@
 	<bean id="organisationDAO" class="uk.ac.ebi.phenotype.dao.OrganisationDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>	
-	
-	<bean id="unidimensionalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-	
-	<bean id="timeSeriesStatisticsDAO" class="uk.ac.ebi.phenotype.dao.TimeSeriesStatisticsDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
 
 	<!-- Spring annotated objects -->
 	<bean id="sessionFactory"

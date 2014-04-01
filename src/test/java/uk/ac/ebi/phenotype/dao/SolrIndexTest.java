@@ -44,7 +44,8 @@ public class SolrIndexTest {
 		
 		String accession="MGI:104874";
 		List<Map<String,String>> status = solrIndex.getProductionInfo(accession);
-		assertTrue("ES Cell".equals(status));
+		System.out.println(status);
+		assertTrue("ES Cell".equals(status.get(0).get("prodType")));
 	}
 	
 //	@Test
