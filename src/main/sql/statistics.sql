@@ -28,6 +28,8 @@ CREATE TABLE stats_categorical_results (
     PRIMARY KEY (id),
     KEY control_idx (control_id),
     KEY experimental_idx (experimental_id),
+    KEY organisation_idx (organisation_id),
+    KEY pipeline_idx (pipeline_id),
     KEY parameter_idx (parameter_id)
 	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
@@ -85,6 +87,8 @@ CREATE TABLE stats_unidimensional_results (
 	raw_output                       MEDIUMTEXT NULL,
 
 	PRIMARY KEY (id),
+    KEY organisation_idx (organisation_id),
+    KEY pipeline_idx (pipeline_id),
 	KEY parameter_idx (parameter_id)
 	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;

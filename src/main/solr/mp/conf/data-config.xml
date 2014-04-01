@@ -2,14 +2,9 @@
 <dataConfig>
 	
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />
-<!-- <<<<<<< HEAD -->
 	<dataSource name="ontodb" jndiName="java:comp/env/jdbc/ontodbDataSource" /> 
 	<dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />
-    <dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>		
-<!-- =======
-	<dataSource name="ontodb" jndiName="java:comp/env/jdbc/ontodbDataSource" />
-	<dataSource name="phenodigmdb" jndiName="java:comp/env/jdbc/phenodigmDataSource" />
->>>>>>> refs/remotes/origin/fixedNewDesign -->
+    <dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
 	<dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	  
 	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>       
 	
@@ -86,23 +81,21 @@
 			<entity dataSource="ontodb" name="mp_node2term3"
 				query="select distinct node_id from mp_node2term where term_id='${mp_term_infos.term_id}'">
 				<entity dataSource="ontodb" name="mp_parent_children" onError="continue"
-					query="select distinct parent_node_id, child_node_id from mp_parent_children where child_node_id=${mp_node2term3.node_id}">
-					<entity dataSource="ontodb" name="mp_parent_children"
-						query="select distinct child_node_id from mp_parent_children where parent_node_id=${mp_parent_children.parent_node_id}">
-						<entity dataSource="ontodb" name="mp_node2term"
-							query="select distinct term_id from mp_node2term where node_id=${mp_parent_children.child_node_id}">
+					query="select distinct child_node_id from mp_parent_children where parent_node_id=${mp_node2term3.node_id}">
+					
+					<entity dataSource="ontodb" name="mp_node2term"
+						query="select distinct term_id from mp_node2term where node_id=${mp_parent_children.child_node_id}">
 
-							<!-- only index child term that has mp annotation -->
-							<entity dataSource="komp2db" onError="continue" name="phenotype_call_summary"
-								query="select count(*) from phenotype_call_summary where mp_acc='${mp_node2term3.term_id}'">
-								<entity dataSource="ontodb" name="mp_term_infos3"
-									query="select distinct term_id, name, definition from mp_term_infos where term_id='${mp_node2term3.term_id}'">
-									<field column="term_id" name="child_mp_id" />
-									<field column="name" name="child_mp_term" />
-									<field column="definition" name="child_mp_definition" />
-								</entity>
+						<!-- only index child term that has mp annotation -->
+						<entity dataSource="komp2db" onError="continue" name="phenotype_call_summary"
+							query="select count(*) from phenotype_call_summary where mp_acc='${mp_node2term.term_id}'">
+							<entity dataSource="ontodb" name="mp_term_infos3"
+								query="select distinct term_id, name, definition from mp_term_infos where term_id='${mp_node2term.term_id}'">
+								<field column="term_id" name="child_mp_id" />
+								<field column="name" name="child_mp_term" />
+								<field column="definition" name="child_mp_definition" />
 							</entity>
-						</entity>
+						</entity>					
 					</entity>
 				</entity>
 			</entity>
