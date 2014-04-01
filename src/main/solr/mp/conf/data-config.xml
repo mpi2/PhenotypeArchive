@@ -83,14 +83,14 @@
 				<entity dataSource="ontodb" name="mp_parent_children" onError="continue"
 					query="select distinct child_node_id from mp_parent_children where parent_node_id=${mp_node2term3.node_id}">
 					
-					<entity dataSource="ontodb" name="mp_node2term"
+					<entity dataSource="ontodb" name="mp_node2term4"
 						query="select distinct term_id from mp_node2term where node_id=${mp_parent_children.child_node_id}">
 
 						<!-- only index child term that has mp annotation -->
 						<entity dataSource="komp2db" onError="continue" name="phenotype_call_summary"
-							query="select count(*) from phenotype_call_summary where mp_acc='${mp_node2term.term_id}'">
+							query="select count(*) from phenotype_call_summary where mp_acc='${mp_node2term4.term_id}'">
 							<entity dataSource="ontodb" name="mp_term_infos3"
-								query="select distinct term_id, name, definition from mp_term_infos where term_id='${mp_node2term.term_id}'">
+								query="select distinct term_id, name, definition from mp_term_infos where term_id='${mp_node2term4.term_id}'">
 								<field column="term_id" name="child_mp_id" />
 								<field column="name" name="child_mp_term" />
 								<field column="definition" name="child_mp_definition" />
