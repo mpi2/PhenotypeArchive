@@ -554,7 +554,7 @@ public class ObservationService {
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
                 .addFilterQuery(ExperimentField.PIPELINE_STABLE_ID + ":" + pipelineStableId)
-                .addFilterQuery(ExperimentField.PHENOTYPING_CENTER + ":" + phenotypingCenter)
+                .addFilterQuery(ExperimentField.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"")
                 .addFilterQuery(ExperimentField.ALLELE_ACCESSION + ":\"" + alleleAccession + "\"");
         
         int index = 0;

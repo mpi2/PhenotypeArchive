@@ -103,6 +103,29 @@ public class ObservationServiceTest {
 				e.printStackTrace();
 			}
 		assertTrue(dataset.size()>0);
+	}
+	@Test
+	public void testGetDistinctParameterListByPipelineAlleleCenterWithSpaceInName() {
+		
+		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1
+		List<Map<String,String>> dataset = null;
+		String phenotypingCenter = "MRC Harwell"; 
+		String pipelineStableId = "ESLIM_001";
+		String alleleAccession = "MGI:4435468";
+		
+			try {
+				dataset = os.getDistinctParameterListByPipelineAlleleCenter(pipelineStableId, alleleAccession, phenotypingCenter, null);
+				for (Map<String, String> map: dataset) {
+					for (String key: map.keySet()) {
+						System.out.println(key + ":" + map.get(key));
+					}
+					System.out.println();
+				}
+			} catch (SolrServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		assertTrue(dataset.size()>0);
 	}	
 	
 	@Test
