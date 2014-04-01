@@ -95,7 +95,7 @@ public class PhenotypeSummaryDAOTest  extends AbstractTransactionalJUnit4SpringC
 			for (String id : summary.keySet()) { 
 				assertTrue("MP top level id must start with \'MP\'", id.startsWith("MP"));	// these should be only MP ids, not something else
 				// check it is indeed a top level term
-				assertTrue("MP id returned as top level seems it is actually not top level: " + id , topLevelsMP.contains(id));
+				assertTrue(gene+" MP id returned as top level seems it is actually not top level: " + id , topLevelsMP.contains(id));
 			}
 			// test getPhenotypesForTopLevelTerm
 			for (String id: summary.keySet()){

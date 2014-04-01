@@ -159,14 +159,14 @@ public class PhenotypeCallSummary {
 	/**
 	 * @return the externalId
 	 */
-	public int getExternalId() {
+	public Integer getExternalId() {
 		return externalId;
 	}
 
 	/**
 	 * @param externalId the externalId to set
 	 */
-	public void setExternalId(int externalId) {
+	public void setExternalId(Integer externalId) {
 		this.externalId = externalId;
 	}
 
