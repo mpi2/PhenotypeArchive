@@ -216,7 +216,9 @@ public class DataTableController {
 			
 			// phenotyping status			
 			//String phenoStatus = solrIndex.deriveLatestPhenotypingStatus(doc).equals("") ? "" : "<a class='status done'><span>phenotype data available</span></a>";
-			String phenoStatus = derivePhenotypingStatus(doc).equals("") ? "" : "<a class='status done'><span>phenotype data available</span></a>";
+			String mgiId = doc.getString("mgi_accession_id");			
+			String geneLink = request.getAttribute("baseUrl") + "/genes/" + mgiId;		
+			String phenoStatus = derivePhenotypingStatus(doc).equals("") ? "" : "<a class='status done' href='" + geneLink + "'><span>phenotype data available</span></a>";
 			rowData.add(phenoStatus);
 			
 			// register of interest
@@ -308,7 +310,7 @@ public class DataTableController {
 			}
 			else if ( !doc.containsKey("es_allele_name") && doc.containsKey("gene_type") ){		
 				esCellStatus = "<span class='status inprogress' oldtitle='ES cells production in progress' title=''>"
-						   	 +  "	<span>ES Cell</span>"
+						   	 +  "	<span>ES Cells</span>"
 						   	 +  "</span>";
 			}
 		}	
@@ -328,17 +330,18 @@ public class DataTableController {
 						
 			// mice production status
 			
+			// Mice: blue tm1/tm1a/tm1e mice (depending on how many allele docs) 
+			if ( doc.containsKey("mi_allele_type") ){
+				// blue es cell status
+				miceStatus += parseAlleleType(doc, "done", "A");
+			}
 			// Mice: blue tm1.1/tm1b/tm1e.1 mice (depending on how many allele docs) 
 			if ( doc.containsKey("pa_allele_type") ){
 				// blue es cell status
 				miceStatus += parseAlleleType(doc, "done", "B");
 			}
-			// Mice: blue tm1/tm1a/tm1e mice (depending on how many allele docs) 
-			else if ( doc.containsKey("mi_allele_type") ){
-				// blue es cell status
-				miceStatus += parseAlleleType(doc, "done", "A");
-			}
-			else if ( doc.containsKey("es_allele_name") && doc.containsKey("gene_type_status")  ){
+			
+			if ( doc.containsKey("es_allele_name") && doc.containsKey("gene_type_status")  ){
 				if ( doc.getString("gene_type_status").equals("Microinjection in progress") ){					
 					// draw orange tm1/tm1a/tm1e mice with given alleles
 					miceStatus += parseAlleleType(doc, "inprogress", "A");					
