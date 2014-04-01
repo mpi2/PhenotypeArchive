@@ -429,7 +429,10 @@ public class GenesController {
 					"All" : pcs.getZygosity().toString();
 			pr.setRawZygosity(rawZygosity);
 			pr.setZygosity(pcs.getZygosity());
-			pr.setProjectId(pcs.getExternalId());
+			if(pcs.getExternalId()!=null) {
+				pr.setProjectId(pcs.getExternalId());
+			}
+			
 			pr.setProcedure(pcs.getProcedure());
 			pr.setParameter(pcs.getParameter());
 			if (pcs.getPhenotypingCenter() != null)
