@@ -133,16 +133,17 @@ public class ObservationServiceTest {
 		Map<String,List<String>> keys=null;
 		//http://localhost:8080/phenotype-archivecharts?accession=MGI:1922257?parameterId=ESLIM_003_001_004&zygosity=homozygote
 		List<String> phenotypingCenterParamsList=Arrays.asList("WTSI");
-		List<String> strainStrings=Arrays.asList("MGI:2164831");
-		List<String> metaDataGoupsList=Arrays.asList("\"\"");
+		List<String> strainStrings=Arrays.asList("MGPCURATE2");
+		List<String> metaDataGoupsList=Arrays.asList("45a983be46dc06a6a3ed8663d3d673ed");
 		List<String> pipelineIds=Arrays.asList("ESLIM_001");
 		
 			try {
-				keys = os.getExperimentKeys("MGI:1924893", "ESLIM_010_001_002", pipelineIds, phenotypingCenterParamsList, strainStrings, metaDataGoupsList);
+				keys = os.getExperimentKeys("MGI:104874", "ESLIM_005_001_005", pipelineIds, phenotypingCenterParamsList, strainStrings, metaDataGoupsList);
 			} catch (SolrServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			System.out.println("test result keys="+keys);
 		assertTrue(keys.size()>0);
 	}
 
