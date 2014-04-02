@@ -23,7 +23,7 @@ public class HibernateOrganisationDAOTest extends AbstractTransactionalJUnit4Spr
 	@Autowired
 	private OrganisationDAO organisationDAO;
 
-	@Test
+	
 	public void testGetOrganisation() throws UnsupportedEncodingException {
 		
 		Organisation organisation = organisationDAO.getOrganisationByName("Transgenose CNRS");
