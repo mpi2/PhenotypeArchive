@@ -314,7 +314,9 @@ public class PhenotypesController {
 					"All" : pcs.getZygosity().toString();
 			pr.setRawZygosity(rawZygosity);
 			pr.setZygosity(pcs.getZygosity());
+			if(pcs.getExternalId()!=null) {
 			pr.setProjectId(pcs.getExternalId());
+			}
 			pr.setProcedure(pcs.getProcedure());
 			pr.setParameter(pcs.getParameter());
 			if(phenotypes.containsKey(pr)) {
