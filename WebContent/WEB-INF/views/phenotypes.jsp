@@ -70,7 +70,7 @@
           };
           request.send(null);
       }
-      dcc_get(drupalBaseUrl + '/rest/ontology_tree/mpterm?mpTerm=MP:0003857', function(mpTerm) {
+      dcc_get(drupalBaseUrl + '/mp-heatmap/rest/ontology_tree/mpterm?mpTerm=MP:0003857', function(mpTerm) {
           var title = document.getElementById("phenodcc-heatmap-title");
           title.innerHTML = "<p>MP Term Name: "+mpTerm.mpTermName+"</p>";
       });	 
@@ -87,9 +87,9 @@
 	                        'annotationthreshold': 0.05,
 	                        'url': {
 	                            /* the base URL of the heatmap javascript source */
-	                            'jssrc': 'heatmap/js/',
+	                            'jssrc': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
 	                            /* the base URL of the heatmap data source */
-	                            'json': 'mp-heatmap/rest/',
+	                            'json': '${fn:replace(drupalBaseUrl, "https:", "")}/mp-heatmap/rest/',
 	                            /* function that generates target URL for data
 	                             * visualisation */
 	                            'viz': function(r, c) {
