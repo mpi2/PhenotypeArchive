@@ -168,6 +168,48 @@ public class Procedure extends PipelineEntry implements Comparable, Serializable
     }
 
     /**
+	 * @return the stage
+	 */
+	public String getStage() {
+		return stage;
+	}
+
+	/**
+	 * @param stage the stage to set
+	 */
+	public void setStage(String stage) {
+		this.stage = stage;
+	}
+
+	/**
+	 * @return the stageLabel
+	 */
+	public String getStageLabel() {
+		return stageLabel;
+	}
+
+	/**
+	 * @param stageLabel the stageLabel to set
+	 */
+	public void setStageLabel(String stageLabel) {
+		this.stageLabel = stageLabel;
+	}
+
+	/**
+	 * @return the level
+	 */
+	public String getLevel() {
+		return level;
+	}
+
+	/**
+	 * @param level the level to set
+	 */
+	public void setLevel(String level) {
+		this.level = level;
+	}
+
+	/**
      * @param pipeline the pipeline to set
      */
     public void setPipelines(Set<Pipeline> pipelines) {
