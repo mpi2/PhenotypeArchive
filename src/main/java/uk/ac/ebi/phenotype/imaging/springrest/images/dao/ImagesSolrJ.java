@@ -145,8 +145,6 @@ public class ImagesSolrJ implements ImagesSolrDao {
 		log.debug("eventually gene id will be here and we'll need an extra filter");
 		//changed facet field from annotated_or_inferred_higherLevelMaTermName to as old field not there anymore higherLevelMaTermName
 		QueryResponse solrResp = this.runFacetQuery("expName:"+"\"Wholemount Expression\"","annotated_or_inferred_higherLevelMaTermName", 0,5, "accession:"+processedGeneId);
-		
-		System.out.println("expression uri="+solrResp);
 		return solrResp;
 	}
 	

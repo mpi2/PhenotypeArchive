@@ -574,7 +574,7 @@
 						<skipTests>false</skipTests>
 						<testFailureIgnore>true</testFailureIgnore>
 						<excludes>
-							<exclude>**/integration/**</exclude>
+							<exclude>**PageTest.java</exclude>
 						</excludes>
 					</configuration>
 				</plugin>
@@ -865,7 +865,7 @@
 						<configuration>
 							<skipTests>true</skipTests>
 							<excludes>
-								<exclude>**/integration/**</exclude>
+								<exclude>**PageTest.java</exclude>
 							</excludes>
 						</configuration>
 					</plugin>
@@ -937,7 +937,7 @@
 						<configuration>
 							<skipTests>true</skipTests>
 							<excludes>
-								<exclude>**/integration/**</exclude>
+								<exclude>**PageTest.java</exclude>
 							</excludes>
 						</configuration>
 					</plugin>
@@ -1002,9 +1002,9 @@
 						<artifactId>maven-surefire-plugin</artifactId>
 						<version>2.4.2</version>
 						<configuration>
-							<skipTests>true</skipTests>
+							<skipTests>false</skipTests>
 							<excludes>
-								<exclude>**/integration/**</exclude>
+								<exclude>**PageTest.java</exclude>
 							</excludes>
 						</configuration>
 					</plugin>
@@ -1032,7 +1032,7 @@
 						<configuration>
 							<skipTests>false</skipTests>
 							<excludes>
-								<exclude>**/integration/**</exclude>
+								<exclude>**PageTest.java</exclude>
 							</excludes>
 						</configuration>
 					</plugin>
@@ -1062,9 +1062,9 @@
 						<artifactId>maven-surefire-plugin</artifactId>
 						<version>2.4.2</version>
 						<configuration>
-							<skipTests>true</skipTests>
+							<skipTests>false</skipTests>
 							<excludes>
-								<exclude>**/web/**</exclude>
+								<exclude>**PageTest.java</exclude>
 							</excludes>
 						</configuration>
 					</plugin>
@@ -1130,7 +1130,7 @@
 						<configuration>
 							<skipTests>true</skipTests>
 							<excludes>
-								<exclude>**/integration/**</exclude>
+								<exclude>**PageTest.java</exclude>
 							</excludes>
 						</configuration>
 					</plugin>
@@ -1163,7 +1163,7 @@
 						<configuration>
 							<skipTests>true</skipTests>
 							<excludes>
-								<exclude>**/integration/**</exclude>
+								<exclude>**PageTest.java</exclude>
 							</excludes>
 						</configuration>
 					</plugin>
@@ -1219,7 +1219,7 @@
 						<configuration>
 							<skipTests>true</skipTests>
 							<excludes>
-								<exclude>**/integration/**</exclude>
+								<exclude>**PageTest.java</exclude>
 							</excludes>
 						</configuration>
 					</plugin>
