@@ -11,7 +11,9 @@
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&core=mp&fq=ontology_subset:*">Phenotypes</a> &raquo; ${phenotype.name}</jsp:attribute>
 
 	<jsp:attribute name="header">
+
 	<!-- CSS Local Imports -->
+		<link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/mp-heatmap/heatmap/css/heatmap.css">
 		<!-- link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css" />
 		<link rel="stylesheet" type="text/css" href="${baseUrl}/css/custom.css" />
 		<style>
@@ -19,11 +21,20 @@
 			.ui-dropdownchecklist-text {padding:2px;margin:0;}
 		</style-->
 		<script type='text/javascript' src="${baseUrl}/js/general/dropDownPhenPage.js"></script>
+
+		
+		
+		<script type="text/javascript">
+			var phenotypeId = '${phenotype.id.accession}'; 
+			var drupalBaseUrl = '${drupalBaseUrl}';
+		</script>
+
 	</jsp:attribute>
 
 
 	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
-		<jsp:attribute name="addToFooter">
+	
+	<jsp:attribute name="addToFooter">
 			<div class="region region-pinned">
             
         <div id="flyingnavi" class="block">
@@ -43,7 +54,53 @@
         </div>
         
     </div>
-		</jsp:attribute>
+      
+		<script type="text/javascript" src="${drupalBaseUrl}/mp-heatmap/heatmap/js/heatmap.js"></script>  
+      <script>
+      function dcc_get(url, handler) {
+          var request = new XMLHttpRequest();
+          request.open('GET', url, true);
+          request.onreadystatechange = function(event) {
+              if (request.readyState == 4) {
+                  if (request.status == 200) {
+                      handler(JSON.parse(request.responseText));
+                  } else
+                      dcc_reportError('Unable to retrieve data from ' + url)
+              }
+          };
+          request.send(null);
+      }
+      dcc_get(drupalBaseUrl + '/rest/ontology_tree/mpterm?mpTerm=MP:0003857', function(mpTerm) {
+          var title = document.getElementById("phenodcc-heatmap-title");
+          title.innerHTML = "<p>MP Term Name: "+mpTerm.mpTermName+"</p>";
+      });	 
+      console.log("phenotypeId " + phenotypeId + ".")
+      console.log("drupalBaseUrl " + drupalBaseUrl + ".")
+	                    var heatmap = new dcc.PhenoHeatMap({
+	                        'container': 'phenodcc-heatmap-3',
+	                        'mode': 'exploration',
+	                        'format': {'column': function(datum) {
+	                                return datum.v;
+	                            }
+	                        },
+	                        'mpterm': phenotypeId,
+	                        'annotationthreshold': 0.05,
+	                        'url': {
+	                            /* the base URL of the heatmap javascript source */
+	                            'jssrc': 'heatmap/js/',
+	                            /* the base URL of the heatmap data source */
+	                            'json': 'mp-heatmap/rest/',
+	                            /* function that generates target URL for data
+	                             * visualisation */
+	                            'viz': function(r, c) {
+	                                return 'http://www.mousephenotype.org/phenoview?gid=' + r + '&qeid=' + c;
+	                            }
+	                        }
+	                    });
+	                    
+	        </script>   
+        
+	</jsp:attribute>
 	<jsp:body>
 
 	<div class="region region-content">
@@ -176,6 +233,19 @@
 						</div>
 					</div>
 				</div><!-- end of section -->
+				
+				
+				<div class="section">
+				
+					<h2 class="title" id="section">Gene phenotyping heatmap for ${phenotype.name} <i class="fa fa-question-circle pull-right"></i></h2>
+					<div class="inner">
+					<div id="phenodcc-heatmap-3"> </div>
+					
+					
+	        </div>
+				</div>
+				
+				
 	<!-- example for images on phenotypes page: http://localhost:8080/phenotype-archive/phenotypes/MP:0000572 -->
 			<c:if test="${not empty images && fn:length(images) !=0}">
 				<div class="section">
