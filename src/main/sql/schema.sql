@@ -780,6 +780,8 @@ CREATE TABLE phenotype_procedure (
     major_version             INT(10) NOT NULL DEFAULT 1,
     minor_version             INT(10) NOT NULL DEFAULT 0,
     is_mandatory              TINYINT(1) DEFAULT 0,
+    stage                     VARCHAR(20) DEFAULT "Adult",
+    stage_label               VARCHAR(20),
 
     PRIMARY KEY (id)
     
