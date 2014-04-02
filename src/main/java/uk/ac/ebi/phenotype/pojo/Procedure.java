@@ -92,6 +92,9 @@ public class Procedure extends PipelineEntry implements Comparable, Serializable
     @Column(name = "stage_label")
     private String stageLabel;
 
+    @Column(name = "level")
+    private String level;
+    
     public Procedure() {
         super();
     }
