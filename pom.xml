@@ -1062,9 +1062,9 @@
 						<artifactId>maven-surefire-plugin</artifactId>
 						<version>2.4.2</version>
 						<configuration>
-							<skipTests>true</skipTests>
+							<skipTests>false</skipTests>
 							<excludes>
-								<exclude>**/integration/**</exclude>
+								<exclude>**/phenotype/web/**</exclude>
 							</excludes>
 						</configuration>
 					</plugin>
