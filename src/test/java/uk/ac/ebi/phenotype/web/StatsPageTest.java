@@ -67,7 +67,7 @@ public class StatsPageTest {
 		assertEquals(title, "Gene: " + geneSymbol);
 	}
 
-	@Test
+	//@Test
 	public void testAllGraphs() throws Exception {
 
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=biologicalSampleGroup%3A+%22experimental%22&fl=geneAccession,parameterStableId,zygosity,geneSymbol&rows=20&wt=json&indent=true&facet=on&&facet.pivot=geneAccession,parameterStableId,zygosity,geneSymbol
