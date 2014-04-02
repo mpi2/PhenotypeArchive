@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>uk.ac.ebi.phenotype</groupId>
 	<artifactId>PhenotypeArchive</artifactId>
-	<version>0.4.0</version>
+	<version>0.4.4</version>
 	<packaging>war</packaging>
 	<name>EBI Phenotype Archive</name>
 	<description>EBI Phenotype Archive Project</description>
