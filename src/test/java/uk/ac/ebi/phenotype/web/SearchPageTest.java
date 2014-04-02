@@ -53,7 +53,7 @@ public class SearchPageTest {
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 	}
 	
-	@Test
+	//@Test
 	public void testExample() throws Exception {
 		// <span class="gSymbol">
 		String geneParameterSymbol = "Acp2";
@@ -63,7 +63,7 @@ public class SearchPageTest {
 		assertEquals(geneSymbol, geneParameterSymbol);
 	}
 
-	@Test
+	//@Test
 	public void testAllGeneSymbols() throws Exception {
 
 		String newQueryString = "/gene/select?q=marker_symbol:*&fl=marker_symbol&wt=json";
