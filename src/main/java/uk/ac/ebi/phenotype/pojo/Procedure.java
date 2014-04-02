@@ -85,7 +85,16 @@ public class Procedure extends PipelineEntry implements Comparable, Serializable
             inverseJoinColumns = @JoinColumn(name = "parameter_id")
     )
     private Set<Parameter> parameters;
+    
+    @Column(name = "stage")
+    private String stage;
+    
+    @Column(name = "stage_label")
+    private String stageLabel;
 
+    @Column(name = "level")
+    private String level;
+    
     public Procedure() {
         super();
     }
