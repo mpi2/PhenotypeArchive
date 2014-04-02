@@ -263,27 +263,6 @@ public class GenesController {
 			model.addAttribute("phenotypeStatus", phenotypeStatus);
 		}
 		
-		List<Map<String,String>> constructs=new ArrayList<Map<String,String>>();
-		Map<String, List<Map<String, String>>> providers=null;
-		//http://ikmc.vm.bytemark.co.uk:8983/solr/allele/search?json.wrf=jQuery181021836050949059427_1369411113212&bq=product_type%3A%22ES+Cell%22%5E100+type%3Ami_attempt%5E10&q=mgi_accession_id%3AMGI%3A104874&start=0&rows=100&hl=true&wt=json&_=1369411113318
-		//introduce a method here to get the table data for the constructs available and buy button.
-		try {
-			constructs=solrIndex.getProductionInfo(acc);
-			//look at the constructs to find the order urls then store them in a map with the full alleleName as the key
-			try {
-				providers=this.getProviders(constructs);
-				model.addAttribute("providers",providers);
-			} catch (org.json.JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		model.addAttribute("constructs", constructs);
-		
 		// Get list of triplets of pipeline, allele acc, phenotyping center
 		// to link to an experiment page will all data
 		try {
