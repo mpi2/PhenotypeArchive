@@ -707,25 +707,6 @@
 				</executions>
 			</plugin>
 			
-			<plugin>
-       			<groupId>org.codehaus.mojo</groupId>
-        		<artifactId>build-helper-maven-plugin</artifactId>
-        		<version>1.8</version>
-       			 <executions>
-          			<execution>
-            			<id>add-test-source</id>
-           				 <phase>generate-test-sources</phase>
-            				<goals>
-             					 <goal>add-test-source</goal>
-           					 </goals>
-            			<configuration>
-              				<sources>
-              					  <source>${project.basedir}/src/test/web</source>
-             				 </sources>
-            			</configuration>
-         			 </execution>
-        		</executions>
-      		</plugin>
 
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -1136,9 +1117,6 @@
 						<version>2.4.2</version>
 						<configuration>
 							<skipTests>false</skipTests>
-							 <includes>
-           							 <include>**PageTest.java</include>
-         					 </includes>
 						</configuration>
 					</plugin>
 
