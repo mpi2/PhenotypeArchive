@@ -63,7 +63,7 @@ public class StatsPageTest {
 		String geneSymbol = "Mysm1";
 		// <div class='topic'>Gene: Mysm1</div>
 		driver.get(baseUrl + "/data/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity);
-		String title = driver.findElement(By.xpath("//div[contains(@class, 'topic')]")).getText();
+		String title = driver.findElement(By.xpath("//*[contains(concat(\" \", normalize-space(@class), \" \"), \"title document\")]")).getText();
 		assertEquals(title, "Gene: " + geneSymbol);
 	}
 
