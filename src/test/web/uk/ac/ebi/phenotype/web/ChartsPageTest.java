@@ -89,11 +89,10 @@ public class ChartsPageTest {
 		String zygosity= "homozygote";
 		String geneSymbol = "Mysm1";
 		// <div class='topic'>Gene: Mysm1</div>
-		System.out.println("browser driver="+driver);
 		driver.get(baseUrl + "/data/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity);
-		WebElement title = driver.findElement(By.className("title document"));
+		String title = driver.findElement(By.xpath("//*[contains(concat(\" \", normalize-space(@class), \" \"), \"title document\")]")).getText();
 		System.out.println("title="+title+"  geneSymbol="+geneSymbol);
-		assertTrue(title.getText().contains(geneSymbol));
+		assertTrue(title.contains(geneSymbol));
 	}
 
 	@Test
@@ -122,7 +121,6 @@ public class ChartsPageTest {
 				String geneSymbol = docs.getJSONObject(i).getString("gene_symbol");
 				
 				System.out.println(geneSymbol + "\t" + baseUrl + "/data/charts?accession=" + mgiGeneAcc + "?parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity);
-	System.out.println(driver);
 				driver.get(baseUrl + "/data/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity);
 				String title = driver.findElement(By.xpath("//*[contains(concat(\" \", normalize-space(@class), \" \"), \"title document\")]")).getText();
 				//for reasoning on xpath identifier see http://stackoverflow.com/questions/8808921/selecting-a-css-class-with-xpath
