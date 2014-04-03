@@ -235,13 +235,11 @@
 				</div><!-- end of section -->
 				
 				
+				<!--  HEATMAP section -->
 				<div class="section">
-				
 					<h2 class="title" id="section">Gene phenotyping heatmap for ${phenotype.name} <i class="fa fa-question-circle pull-right"></i></h2>
-					<div class="inner">
-					<div id="phenodcc-heatmap-3"> </div>
-					
-					
+					<div class="inner" id="heatmap-container">
+						<div id="phenodcc-heatmap-3"> </div>							
 	        </div>
 				</div>
 				
