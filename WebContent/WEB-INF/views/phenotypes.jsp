@@ -8,7 +8,7 @@
 
 	<jsp:attribute name="title">${phenotype.id.accession} (${phenotype.name}) | IMPC Phenotype Information</jsp:attribute>
 	
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&core=mp&fq=ontology_subset:*">Phenotypes</a> &raquo; ${phenotype.name}</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#fq=ontology_subset:*&core=mp">Phenotypes</a> &raquo; ${phenotype.name}</jsp:attribute>
 
 	<jsp:attribute name="header">
 
@@ -235,13 +235,11 @@
 				</div><!-- end of section -->
 				
 				
+				<!--  HEATMAP section -->
 				<div class="section">
-				
 					<h2 class="title" id="section">Gene phenotyping heatmap for ${phenotype.name} <i class="fa fa-question-circle pull-right"></i></h2>
-					<div class="inner">
-					<div id="phenodcc-heatmap-3"> </div>
-					
-					
+					<div class="inner" id="heatmap-container">
+						<div id="phenodcc-heatmap-3"> </div>							
 	        </div>
 				</div>
 				

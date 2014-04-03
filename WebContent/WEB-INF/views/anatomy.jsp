@@ -6,7 +6,7 @@
 <t:genericpage>
 
 	<jsp:attribute name="title">${anatomy.accession} (${anatomy.term}) | IMPC anatomy Information</jsp:attribute>
-	 <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&core=ma&fq=ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*">anatomy</a> &raquo; ${anatomy.term}</jsp:attribute>
+	 <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#fq=ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*&core=ma">anatomy</a> &raquo; ${anatomy.term}</jsp:attribute>
 <jsp:attribute name="header">
 </jsp:attribute>
     <jsp:attribute name="addToFooter">
