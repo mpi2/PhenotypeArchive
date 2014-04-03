@@ -1117,9 +1117,9 @@
 						<version>2.4.2</version>
 						<configuration>
 							<skipTests>false</skipTests>
-							<excludes>
-								<exclude>**/test/java/**</exclude>
-							</excludes>
+							<includes>
+							<include>**/phenotype/web/**</include>
+							</includes>
 						</configuration>
 					</plugin>
 
