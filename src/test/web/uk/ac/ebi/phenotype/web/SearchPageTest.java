@@ -19,6 +19,10 @@ package uk.ac.ebi.phenotype.web;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.json.JSONArray;
@@ -27,9 +31,14 @@ import net.sf.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
 
@@ -38,20 +47,37 @@ import uk.ac.ebi.generic.util.JSONRestUtil;
  * Selenium test for gene query coverage ensuring the search result work for 
  * any gene symbol from the Solr core
  */
-
+@RunWith(value = Parameterized.class)
 public class SearchPageTest {
 	private WebDriver driver;
+	
 	private String baseUrl;
 	private String geneSolrUrl;
 	private StringBuffer verificationErrors = new StringBuffer();
+	
+	private static final String SELENIUM_SERVER_URL ="http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
 
 	@Before
 	public void setUp() throws Exception {
-		driver = new FirefoxDriver();
+		
 		baseUrl = "https://dev.mousephenotype.org";
-		geneSolrUrl = baseUrl + "/mi/impc/dev/solr";
-		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+		geneSolrUrl = baseUrl + "/mi/impc/dev/solr";	
+		
 	}
+	
+	
+	public SearchPageTest(DesiredCapabilities browser) throws MalformedURLException {
+		driver = new RemoteWebDriver(
+                new URL(SELENIUM_SERVER_URL), browser);
+	System.out.println("browser for testing is:"+browser);
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+	}
+	
+	@Parameters
+	 public static Collection<Object[]> data() {
+	   Object[][] data = new Object[][] { { DesiredCapabilities.firefox() }, { DesiredCapabilities.internetExplorer() }, { DesiredCapabilities.chrome() } };
+	   return Arrays.asList(data);
+	 }
 	
 	@Test
 	public void testExample() throws Exception {
@@ -68,7 +94,7 @@ public class SearchPageTest {
 
 		String newQueryString = "/gene/select?q=marker_symbol:*&fl=marker_symbol&wt=json";
 		int startIndex = 0;
-		int nbRows = 100;
+		int nbRows = 10;
 		newQueryString+="&start="+startIndex+"&rows="+nbRows;
 		System.out.println("newQueryString=" + newQueryString);
 
