@@ -137,7 +137,7 @@
 			<div class="block">
 				<div class="content">
 					<div class="node node-gene">
-						<h1 class="title" id="top">Gene: ${gene.symbol}  &nbsp;&nbsp; </h1>
+						<h1 class="title" id="top">Gene: ${gene.symbol}</h1>
 						<div class="section">
 							<div class="inner">
 							<!--  login interest button -->
