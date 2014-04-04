@@ -11,7 +11,7 @@
 <body>
 	<div id="wrap">
 		<div class="container">
-			<img src="${pageContext.request.contextPath}/img/impc.jpg">
+			<img src="${initParam['baseUrl']}/img/impc.jpg">
 			<div class="page-header">
 				<h1>Oops! An error has occurred.</h1>
 			</div>
