@@ -22,6 +22,7 @@ import static org.junit.Assert.fail;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -75,7 +76,7 @@ public class GenePageTest {
 		driver = new RemoteWebDriver(
                 new URL(SELENIUM_SERVER_URL), browser);
 	System.out.println("browser for testing is:"+browser);
-		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 	}
 	
 	@Parameters
@@ -93,14 +94,21 @@ public class GenePageTest {
 		String topTextString=driver.findElement(By.id("top")).getText();
 		System.out.println("top title="+topTextString);
 		assertTrue(topTextString.contains("Akt2"));
-		//ensure there is a register interest button which has the id of the gene mgi accession
-		//WebElement registerInterest=driver.findElement(By.id("MGI:104874"));//didn't work for some reason - what rubbish! - actually thats because it has id if you have already registered interest!
-		//WebElement regInterest = driver.findElement(By.xpath("//*[contains(concat(\" \", normalize-space(@id), \" \"), \"MGI:104874\")]"));
-		//System.out.println("register interest="+regInterest.getText());
-		//with-label no-margin
-		List<WebElement> webElements = driver.findElements(By.xpath("//*[contains(concat(\" \", normalize-space(@class), \" \"), \"title\")]"));
-		assertTrue(webElements.size()==5);//should be five sections visible for Akt2 which have title classes including the gene one at the top
-
+		
+		List<WebElement> sectionTitles = driver.findElements(By.xpath("//*[contains(concat(\" \", normalize-space(@class), \" \"), \"title\")]"));
+		assertTrue(sectionTitles.size()==5);//should be five sections visible for Akt2 which have title classes including the gene one at the top
+		String [] listOfSectionTitles= {"Gene: Akt2","Phenotype associations for Akt2","Phenotype Associated Images","Expression","Order Mouse and ES Cells"};
+		List<String> sectionTitleCheckFor=new ArrayList<String>(Arrays.asList(listOfSectionTitles));
+//		section titles=Gene: Akt2   
+//				section titles=Phenotype associations for Akt2
+//				section titles=Phenotype Associated Images
+//				section titles=Expression
+//				section titles=Order Mouse and ES Cells
+		for(WebElement webElement: sectionTitles) {
+			String text=webElement.getText();
+			System.out.println("section titles=|"+text+"|");
+			assertTrue(sectionTitleCheckFor.contains(text));
+		}
 		List<WebElement> buttons=driver.findElements(By.className("btn"));
 		assertTrue(buttons.size()>1);//should be at least 2 buttons "register interest" and "order"
 		for(WebElement webElement: buttons) {
@@ -115,14 +123,37 @@ public class GenePageTest {
 		assertTrue(abnormalities!=null);
 		
 		//top_level_mp_term_name check this filter exists
-		Select select = new Select(driver.findElement(By.id("top_level_mp_term_name")));
-		assertTrue(select.getOptions().size()==7);//currently 7 options exist for this gene
+		Select selectTopLevel = new Select(driver.findElement(By.id("top_level_mp_term_name")));
+		assertTrue(selectTopLevel.getOptions().size()==7);//currently 7 options exist for this gene
+		Select selectResource = new Select(driver.findElement(By.id("resource_fullname")));
+		assertTrue(selectResource.getOptions().size()==3);//currently 7 options exist for this gene
 //		select.deselectAll();
 //		select.selectByVisibleText("Edam");
 		
 		
 		//check we have the image sections we expect?
-		
+		//get the accordion headings seems the easiest way rather than complicated css
+		List<WebElement> accordions=driver.findElements(By.className("accordion-heading"));
+		System.out.println("accordions size="+accordions.size());
+		String [] listOfAccordionHeaders= {"Xray (167)","Tail Epidermis Wholemount (5)","Musculoskeletal System (2)","Nervous System (2)","Adipose Tissue (1)","Cardiovascular System (1)","Digestive System (1)","Integumental System (1)","Renal/urinary System (1)","Reproductive System (1)","Respiratory System (1)"};
+		List<String> accHeaderStrings=new ArrayList<String>(Arrays.asList(listOfAccordionHeaders));
+		for(WebElement webElement: accordions) {
+			String text=webElement.getText();
+			System.out.println("accordion heading text="+text);
+			assertTrue(accHeaderStrings.contains(text));
+		}
+		//currently this is what we have as accordion headers
+//		accordion heading text=Xray (167)
+//				accordion heading text=Tail Epidermis Wholemount (5)
+//				accordion heading text=Musculoskeletal System (2)
+//				accordion heading text=Nervous System (2)
+//				accordion heading text=Adipose Tissue (1)
+//				accordion heading text=Cardiovascular System (1)
+//				accordion heading text=Digestive System (1)
+//				accordion heading text=Integumental System (1)
+//				accordion heading text=Renal/urinary System (1)
+//				accordion heading text=Reproductive System (1)
+//				accordion heading text=Respiratory System (1)
 	}
 
 	@After
