@@ -71,18 +71,18 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
 
 <!-- css -->
 <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
-<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.slider.css">
-<!-- link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.theme.css"-->
-<link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
-<link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
-<link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.css">
-<link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" />
-<link href="${baseUrl}/css/wdm.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="${initParam['baseUrl']}/css/vendor/jquery.ui/jquery.ui.core.css">
+<link rel="stylesheet" href="${initParam['baseUrl']}/css/vendor/jquery.ui/jquery.ui.slider.css">
+<!-- link rel="stylesheet" href="${initParam['baseUrl']}/css/vendor/jquery.ui/jquery.ui.theme.css"-->
+<link rel="stylesheet" href="${initParam['baseUrl']}/css/vendor/font-awesome/font-awesome.min.css">
+<link rel="stylesheet" href="${initParam['baseUrl']}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
+<link rel="stylesheet" href="${initParam['baseUrl']}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.css">
+<link href="${initParam['baseUrl']}/css/default.css" rel="stylesheet" type="text/css" />
+<link href="${initParam['baseUrl']}/css/wdm.css" rel="stylesheet" type="text/css" />
 
 <!-- EBI CSS -->
-<!-- <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" /> -->
-<link href="${baseUrl}/css/additionalStyling.css" rel="stylesheet" type="text/css" />
+<!-- <link href="${initParam['baseUrl']}/css/searchPage.css" rel="stylesheet" type="text/css" /> -->
+<link href="${initParam['baseUrl']}/css/additionalStyling.css" rel="stylesheet" type="text/css" />
 
 
 <%--
@@ -98,7 +98,7 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", "${googleAnalytics}"]);_gaq.push
 </script-->
 
 <script>
-var baseUrl='${baseUrl}';
+var baseUrl='${initParam['baseUrl']}';
 var solrUrl='${solrUrl}';
 var drupalBaseUrl = "${drupalBaseUrl}";
 var mediaBaseUrl = "${mediaBaseUrl}";
@@ -130,28 +130,28 @@ try {
 <!-- NEW DESIGN JAVASCRIPT -->
 
 <!-- javascript -->
-<script type="text/javascript" src="${baseUrl}/js/head.min.js"></script>
+<script type="text/javascript" src="${initParam['baseUrl']}/js/head.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/jquery.dataTables.js'></script>
-<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/core.filter.js'></script>
-<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/TableTools.min.js'></script>
+<script type='text/javascript' src='${initParam['baseUrl']}/js/vendor/DataTables-1.9.4/jquery.dataTables.js'></script>
+<script type='text/javascript' src='${initParam['baseUrl']}/js/vendor/DataTables-1.9.4/core.filter.js'></script>
+<script type='text/javascript' src='${initParam['baseUrl']}/js/vendor/DataTables-1.9.4/TableTools.min.js'></script>
  <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
  <!--   
-<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.core.min.js"></script>
-<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.widget.min.js"></script>
-<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.mouse.min.js"></script>
-<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.ui.slider.min.js"></script>
+<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.ui.core.min.js"></script>
+<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.ui.widget.min.js"></script>
+<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.ui.mouse.min.js"></script>
+<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.ui.slider.min.js"></script>
 -->
 <!--[if lt IE 9 ]><script type="text/javascript" src="js/selectivizr-min.js"></script><![endif]-->
-<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.js"></script>
-<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.pack.js"></script>
-<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.tablesorter.min.js"></script>
-<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js'></script>
-<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js'></script>
-<script type='text/javascript' src='${baseUrl}/js/charts/exporting.js'></script>
-<script type='text/javascript' src="${baseUrl}/js/general/toggle.js"></script> 
+<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.js"></script>
+<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.pack.js"></script>
+<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.tablesorter.min.js"></script>
+<script type='text/javascript' src='${initParam['baseUrl']}/js/charts/highcharts.js'></script>
+<script type='text/javascript' src='${initParam['baseUrl']}/js/charts/highcharts-more.js'></script>
+<script type='text/javascript' src='${initParam['baseUrl']}/js/charts/exporting.js'></script>
+<script type='text/javascript' src="${initParam['baseUrl']}/js/general/toggle.js"></script> 
 		
-<script type="text/javascript" src="${baseUrl}/js/default.js"></script>
+<script type="text/javascript" src="${initParam['baseUrl']}/js/default.js"></script>
 
 <jsp:invoke fragment="header" />
 
@@ -170,7 +170,7 @@ try {
             </div>
             
             <div id="logo">
-                <a href="${drupalBaseUrl}/"><img src="${baseUrl}/img/impc.png" alt="IMPC Logo" /></a>
+                <a href="${drupalBaseUrl}/"><img src="${initParam['baseUrl']}/img/impc.png" alt="IMPC Logo" /></a>
                 <div id="logoslogan">International Mouse Phenotyping Consortium</div>
             </div>
             
@@ -182,7 +182,7 @@ try {
     
         <div id="main">
                 <div class="breadcrumb">
-                   <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invoke fragment="breadcrumb" /><%-- breadcrumbs here --%>   
+                   <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${initParam['baseUrl']}/search">Search</a><jsp:invoke fragment="breadcrumb" /><%-- breadcrumbs here --%>   
                 </div>        
                 <jsp:doBody />               
                         
@@ -193,7 +193,7 @@ try {
         <div class="centercontent">
            <div class="region region-footer">
 					   <div id="block-block-7" class="block block-block">
-								<div class="content"><img src="${baseUrl}/img/footerLogos.jpg" />
+								<div class="content"><img src="${initParam['baseUrl']}/img/footerLogos.jpg" />
 									 <div class="clear"></div>
 									 </div>  
 								</div>
@@ -239,11 +239,11 @@ try {
         
     </footer>
                     
-	    <!-- <script type="text/javascript" src='${baseUrl}/js/script.min.js' ></script>-->
+	    <!-- <script type="text/javascript" src='${initParam['baseUrl']}/js/script.min.js' ></script>-->
 	    	    
-	    <script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>                 
-	    <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js'></script>     	    
-	    <script type='text/javascript' src='${baseUrl}/js/documentationConfig.js'></script>   	     
+	    <script type='text/javascript' src='${initParam['baseUrl']}/js/utils/tools.js'></script>                 
+	    <script type='text/javascript' src='${initParam['baseUrl']}/js/general/ui.dropdownchecklist_modif.js'></script>     	    
+	    <script type='text/javascript' src='${initParam['baseUrl']}/js/documentationConfig.js'></script>   	     
 	    
 	    <script type='text/javascript'>
 	    	$(document).ready(function(){
