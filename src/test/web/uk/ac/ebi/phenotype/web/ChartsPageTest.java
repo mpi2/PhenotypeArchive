@@ -58,8 +58,8 @@ public class ChartsPageTest {
 	private String geneSolrUrl;
 	private StringBuffer verificationErrors = new StringBuffer();
 	
-	private static final String SELENIUM_SERVER_URL ="http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";//looks like we can use either "localhost:8080";  for local selinium or remote  "http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
-
+	private static final String SELENIUM_SERVER_URL ="http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
+	
 	@Before
 	public void setUp() throws Exception {
 		
