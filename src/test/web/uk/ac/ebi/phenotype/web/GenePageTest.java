@@ -99,11 +99,6 @@ public class GenePageTest {
 		assertTrue(sectionTitles.size()==5);//should be five sections visible for Akt2 which have title classes including the gene one at the top
 		String [] listOfSectionTitles= {"Gene: Akt2","Phenotype associations for Akt2","Phenotype Associated Images","Expression","Order Mouse and ES Cells"};
 		List<String> sectionTitleCheckFor=new ArrayList<String>(Arrays.asList(listOfSectionTitles));
-//		section titles=Gene: Akt2   
-//				section titles=Phenotype associations for Akt2
-//				section titles=Phenotype Associated Images
-//				section titles=Expression
-//				section titles=Order Mouse and ES Cells
 		for(WebElement webElement: sectionTitles) {
 			String text=webElement.getText();
 			System.out.println("section titles=|"+text+"|");
@@ -142,18 +137,10 @@ public class GenePageTest {
 			System.out.println("accordion heading text="+text);
 			assertTrue(accHeaderStrings.contains(text));
 		}
-		//currently this is what we have as accordion headers
-//		accordion heading text=Xray (167)
-//				accordion heading text=Tail Epidermis Wholemount (5)
-//				accordion heading text=Musculoskeletal System (2)
-//				accordion heading text=Nervous System (2)
-//				accordion heading text=Adipose Tissue (1)
-//				accordion heading text=Cardiovascular System (1)
-//				accordion heading text=Digestive System (1)
-//				accordion heading text=Integumental System (1)
-//				accordion heading text=Renal/urinary System (1)
-//				accordion heading text=Reproductive System (1)
-//				accordion heading text=Respiratory System (1)
+		
+		//test that the order mouse and es cells content from viveks team exists on the page
+		WebElement orderAlleleDiv=driver.findElement(By.id("allele"));//this div is in the ebi jsp which should be populated but without the ajax call success will be empty.
+		assertTrue(orderAlleleDiv.getText().length()>100);//check there is some content in the panel div
 	}
 
 	@After

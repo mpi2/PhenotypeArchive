@@ -195,7 +195,7 @@
 				<field column="maTermName" xpath="/response/result/doc/arr[@name='maTermName']/str" />
 				<field column="mpTermId" xpath="/response/result/doc/arr[@name='mpTermId']/str" />
 				<field column="mpTermName" xpath="/response/result/doc/arr[@name='mpTermName']/str" />
-<<<<<<< HEAD
+
 				-->			
 
 				<field column="phenotype_attempt_allele_status" name="phenotype_attempt_allele_status" />	
