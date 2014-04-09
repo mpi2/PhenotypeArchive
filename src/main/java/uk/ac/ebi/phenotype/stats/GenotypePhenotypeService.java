@@ -151,6 +151,23 @@ public class GenotypePhenotypeService {
 		return allGenes;
 	}
 	
+
+	public Set<String> getAllPhenotypes() throws SolrServerException{
+		
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery( GenotypePhenotypeField.MP_TERM_ID + ":*");
+		solrQuery.setRows(1000000);
+		solrQuery.setFields( GenotypePhenotypeField.MP_TERM_ID );
+		QueryResponse rsp = null;
+		rsp = solr.query(solrQuery);
+		SolrDocumentList res = rsp.getResults();
+		HashSet<String> allPhenotypes = new HashSet<String>();
+		for (SolrDocument doc: res){
+			allPhenotypes.add((String) doc.getFieldValue( GenotypePhenotypeField.MP_TERM_ID ));
+		}
+		return allPhenotypes;
+	}
+	
 	/*
 	 * Methods used by PhenotypeSummaryDAO
 	 */
