@@ -27,7 +27,7 @@ public class ColorCodingPalette {
 	// Palette (should be moved to another package)
 	static List<List<int[]>> rgbOrangeRedPalette = null;
 	
-	public static final float MIN_PVALUE = 0.0001f;
+	public static final double MIN_PVALUE = 0.0001f;
 	
 	static {
 		
@@ -131,14 +131,7 @@ public class ColorCodingPalette {
 		return palette;
 	}
 
-	/**
-	 * @param palette the palette to set
-	 */
-	public void setPalette(List<int[]> palette) {
-		this.palette = palette;
-	}
-
-	public void convertPvalueToColorIndex(List<Float> pValues, int maxColorIndex, double scale) {
+	public void convertPvalueToColorIndex(List<Double> pValues, int maxColorIndex, double scale) {
 		convertPvalueToColorIndex(pValues, maxColorIndex, scale, ColorCodingPalette.MIN_PVALUE);
 	}
 
@@ -159,12 +152,13 @@ public class ColorCodingPalette {
 	 * @param minimalPValue the minimal P-value we accept (to avoid infinity for
 	 * values close to zero like Monte Carlo process)
 	 */
-	public void convertPvalueToColorIndex(List<Float> pValues, int maxColorIndex, double scale, double minimalPValue){
+	public void convertPvalueToColorIndex(List<Double> pValues, int maxColorIndex, double scale, double minimalPValue){
 
 		// check p-values
 		Double apv[] = pValues.toArray(new Double[]{});
+		
 		// convert to color space
-		double[] colors = new double[apv.length];
+		colors = new double[apv.length];
 
 		// to scale from 0 to max color index
 		double maxColor = 0;
@@ -200,12 +194,12 @@ public class ColorCodingPalette {
 		//  list(col=round(color.vals), zlim=c(0, max.color.index/scale))
 	}
 
-	public List<int[]> getPalette(int nbColors) {
+	private List<int[]> getColorPalette(int nbColors) {
 		// default palette - 9 colors
-		if (nbColors-2 > 2 && nbColors-2 < 8) {
-			return rgbOrangeRedPalette.get(nbColors-2);
+		if (nbColors-3 >= 0 && nbColors-3 <= 6) {
+			return rgbOrangeRedPalette.get(nbColors-3);
 		}
-		return rgbOrangeRedPalette.get(1); // 3 colors
+		return rgbOrangeRedPalette.get(0); // 3 colors
 	}
 	
 	/**
@@ -215,9 +209,9 @@ public class ColorCodingPalette {
 	 * @param scale
 	 * @param minimalPValue
 	 */
-	public void generateColors(List<Float> pValues, int maxColorIndex, double scale, double minimalPValue) {
+	public void generateColors(List<Double> pValues, int maxColorIndex, double scale, double minimalPValue) {
 		
-		List<int[]> palette = getPalette(maxColorIndex);
+		palette = getColorPalette(maxColorIndex);
 		
 		  //enrich = obj@stats$setE.log2FC > 0
 		  
