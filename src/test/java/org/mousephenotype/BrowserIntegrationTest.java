@@ -45,7 +45,7 @@ public class BrowserIntegrationTest implements ApplicationContextAware {
 	}
 
 	@Test
-	@Ignore
+        @Ignore
 	public void testEya4GenePage() throws InterruptedException {
 
 		driver.get(URL + "/genes/MGI:1337104");
