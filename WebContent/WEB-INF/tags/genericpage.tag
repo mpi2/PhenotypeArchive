@@ -98,7 +98,7 @@ var _gaq = _gaq || [];_gaq.push(["_setAccount", "${googleAnalytics}"]);_gaq.push
 </script-->
 
 <script>
-var baseUrl='${initParam['baseUrl']}';
+var baseUrl="${initParam['baseUrl']}";
 var solrUrl='${solrUrl}';
 var drupalBaseUrl = "${drupalBaseUrl}";
 var mediaBaseUrl = "${mediaBaseUrl}";
@@ -132,9 +132,9 @@ try {
 <!-- javascript -->
 <script type="text/javascript" src="${initParam['baseUrl']}/js/head.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script type='text/javascript' src='${initParam['baseUrl']}/js/vendor/DataTables-1.9.4/jquery.dataTables.js'></script>
-<script type='text/javascript' src='${initParam['baseUrl']}/js/vendor/DataTables-1.9.4/core.filter.js'></script>
-<script type='text/javascript' src='${initParam['baseUrl']}/js/vendor/DataTables-1.9.4/TableTools.min.js'></script>
+<script type='text/javascript' src='${initParam["baseUrl"]}/js/vendor/DataTables-1.9.4/jquery.dataTables.js'></script>
+<script type='text/javascript' src='${initParam["baseUrl"]}/js/vendor/DataTables-1.9.4/core.filter.js'></script>
+<script type='text/javascript' src='${initParam["baseUrl"]}/js/vendor/DataTables-1.9.4/TableTools.min.js'></script>
  <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
  <!--   
 <script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.ui.core.min.js"></script>
@@ -146,9 +146,9 @@ try {
 <script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.js"></script>
 <script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.pack.js"></script>
 <script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.tablesorter.min.js"></script>
-<script type='text/javascript' src='${initParam['baseUrl']}/js/charts/highcharts.js'></script>
-<script type='text/javascript' src='${initParam['baseUrl']}/js/charts/highcharts-more.js'></script>
-<script type='text/javascript' src='${initParam['baseUrl']}/js/charts/exporting.js'></script>
+<script type='text/javascript' src='${initParam["baseUrl"]}/js/charts/highcharts.js'></script>
+<script type='text/javascript' src='${initParam["baseUrl"]}/js/charts/highcharts-more.js'></script>
+<script type='text/javascript' src='${initParam["baseUrl"]}/js/charts/exporting.js'></script>
 <script type='text/javascript' src="${initParam['baseUrl']}/js/general/toggle.js"></script> 
 		
 <script type="text/javascript" src="${initParam['baseUrl']}/js/default.js"></script>
@@ -241,9 +241,9 @@ try {
                     
 	    <!-- <script type="text/javascript" src='${initParam['baseUrl']}/js/script.min.js' ></script>-->
 	    	    
-	    <script type='text/javascript' src='${initParam['baseUrl']}/js/utils/tools.js'></script>                 
-	    <script type='text/javascript' src='${initParam['baseUrl']}/js/general/ui.dropdownchecklist_modif.js'></script>     	    
-	    <script type='text/javascript' src='${initParam['baseUrl']}/js/documentationConfig.js'></script>   	     
+	    <script type='text/javascript' src='${initParam["baseUrl"]}/js/utils/tools.js'></script>                 
+	    <script type='text/javascript' src='${initParam["baseUrl"]}/js/general/ui.dropdownchecklist_modif.js'></script>     	    
+	    <script type='text/javascript' src='${initParam["baseUrl"]}/js/documentationConfig.js'></script>   	     
 	    
 	    <script type='text/javascript'>
 	    	$(document).ready(function(){

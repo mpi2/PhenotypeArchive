@@ -38,3 +38,5 @@ nb-configuration.xml
 
 #Ignore datasource config file
 datasourcesConfig.properties
+/WebContent/WEB-INF/datasources-config.xml
+/nbactions.xml

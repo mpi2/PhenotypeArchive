@@ -162,7 +162,7 @@ public class DrupalHttpProxy extends HttpProxy {
 
 		//strip off the drupal <front> tag
 		content = content.replace("<front>", "");
-		System.out.println(content);
+//		System.out.println(content);
 		
 		return content;
 	}
