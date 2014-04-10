@@ -34,7 +34,7 @@
 		<hibernate.dialect>org.hibernate.dialect.MySQLDialect</hibernate.dialect>
 		<hibernate.version>3.6.10.Final</hibernate.version>
 		<servlet.api.version>2.3</servlet.api.version>
-		<selenium.version>2.37.1</selenium.version>
+		<selenium.version>2.41.0</selenium.version>
 		<baseUrl>/data</baseUrl>
 		<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
 			to EBI servers for performance -->
@@ -515,6 +515,16 @@
 			<artifactId>selenium-firefox-driver</artifactId>
 			<version>${selenium.version}</version>
 		</dependency>
+                <dependency>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-chrome-driver</artifactId>
+                    <version>${selenium.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-safari-driver</artifactId>
+                    <version>${selenium.version}</version>
+                </dependency>
 
 		<dependency>
 			<groupId>net.sf.alchim</groupId>
