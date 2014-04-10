@@ -23,6 +23,8 @@ package org.mousephenotype;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -36,25 +38,29 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.TestContextManager;
 import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
 
 /**
  *
  * @author mrelac
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+//@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(Parameterized.class)
 @ContextConfiguration(locations = { "classpath:app-config.xml" })
 public class GetAllPhenotypePagesTest implements ApplicationContextAware  {
 
@@ -67,18 +73,20 @@ public class GetAllPhenotypePagesTest implements ApplicationContextAware  {
     public final int MAX_MGI_LINK_CHECK_COUNT = 5;                              // -1 means test all links.
     public final int MAX_PHENOTYPE_TEST_PAGE_COUNT = -1;                        // -1 means test all pages.
     public DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private TestContextManager testContextManager;
+    private Process process = null;
     
     public static enum BrowserType {
-          FIREFOX
-        , CHROME
+          CHROME
+        , FIREFOX
         , SAFARI
     }
     
     @Autowired
     GenotypePhenotypeService genotypePhenotypeService;
     
-    public GetAllPhenotypePagesTest() {
-        browserType = BrowserType.FIREFOX;
+    public GetAllPhenotypePagesTest(BrowserType browserType) {
+        this.browserType = browserType;
     }
     
     @Override
@@ -86,37 +94,57 @@ public class GetAllPhenotypePagesTest implements ApplicationContextAware  {
         ac = applicationContext;
     }
 
+    @Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][] {
+          { BrowserType.CHROME  }
+        , { BrowserType.FIREFOX  }
+        , { BrowserType.SAFARI  }
+        });
+    }
     @Before
-    public void setup() {
-            @SuppressWarnings("unchecked")
-            Map<String,String> config = (Map<String, String>) ac.getBean("globalConfiguration");
-            host = "https://dev.mousephenotype.org";
-            baseUrl = host + config.get("baseUrl");
-            
-            switch (browserType) {
-                case FIREFOX:
-                    System.out.println("Using FIREFOX WebDriver.");
-                    driver = new FirefoxDriver();
-                    driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-                    break;
-                    
-                case SAFARI:
-                    System.out.println("Using SAFARI WebDriver.");
-                    driver = new SafariDriver();
-                    driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-                    break;
-                    
-                case CHROME:
-                    System.out.println("Using CHROME WebDriver.");
-                    driver = new ChromeDriver();
-                    driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-                    break;
-            }
+    public void setup() throws Exception {
+        this.testContextManager = new TestContextManager(getClass());
+        this.testContextManager.prepareTestInstance(this);
+        
+        @SuppressWarnings("unchecked")
+        Map<String,String> config = (Map<String, String>) ac.getBean("globalConfiguration");
+        host = "http://dev.mousephenotype.org";
+        baseUrl = host + config.get("baseUrl");
+
+        switch (browserType) {
+            case FIREFOX:
+                System.out.println("Using FIREFOX WebDriver.");
+                driver = new FirefoxDriver();
+                driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+                break;
+
+            case SAFARI:
+                System.out.println("Using SAFARI WebDriver.");
+                driver = new SafariDriver();
+                driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+                break;
+
+            case CHROME:
+                System.out.println("Using CHROME WebDriver.");
+                java.net.URL url = new java.net.URL("http://localhost:9515");
+                process = runChromeDriver("/Applications/selenium/chromedriver");
+                driver = new RemoteWebDriver(url, DesiredCapabilities.chrome());
+                driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+                break;
+        }
     }
 
     @After
     public void teardown() {
+        switch (browserType) {
+            case CHROME:
+                process.destroy();
+        }
+        
         driver.quit();
+        
+        
     }
     
     @BeforeClass
@@ -263,6 +291,23 @@ public class GetAllPhenotypePagesTest implements ApplicationContextAware  {
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
         }
+    }
+    
+    
+    // PRIVATE METHODS
+    
+    
+    private static Process runChromeDriver(String command) {
+        Process process = null;
+        
+        try {
+                process = Runtime.getRuntime().exec(command);
+
+        } catch (Exception e) {
+                e.printStackTrace();
+        }
+        
+        return process;
     }
 
 }
