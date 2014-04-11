@@ -208,15 +208,12 @@
 									<form class="tablefiltering no-style" id="target" action="www.google.com">
 											<c:forEach var="phenoFacet" items="${phenoFacets}"
 													varStatus="phenoFacetStatus">
-													<c:if
-														test="${!isImpcTerm || !(phenoFacet.key eq 'mp_term_name')}">
 													<select id="${phenoFacet.key}" class="impcdropdown"
 															multiple="multiple" title="Filter on ${phenoFacet.key}">
 														<c:forEach var="facet" items="${phenoFacet.value}">
 															<option>${facet.key}</option>
 														</c:forEach>
 													</select> 
-													</c:if>
 											</c:forEach>
 											
 											<div class="clear"></div>

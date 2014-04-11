@@ -26,12 +26,8 @@
 				<th>Allele</th>
 				<th>Zygosity</th>
 				<th>Sex</th>
-				<c:if test="${!isImpcTerm}">
-					<th>Phenotype / Parameter</th>
-				</c:if>
-				<c:if test="${isImpcTerm}">
-					<th>Procedure / Parameter</th>
-				</c:if>
+				<th>Phenotype </th>
+				<th>Procedure / Parameter</th>
 				<th>Source</th>
 				<th>Graph</th>
 			</tr>
@@ -55,13 +51,10 @@
 								<img alt="Female" src="${baseUrl}/img/female.jpg"/></c:if><c:if test="${sex == 'male'}"><c:set var="europhenome_gender" value="Male"/><img alt="Male" src="${baseUrl}/img/male.jpg"/></c:if></c:forEach>
 					</td>
 					
-					<c:if test="${!isImpcTerm}">
-						<td><a href="${baseUrl}/phenotypes/${phenotype.phenotypeTerm.id.accession}">${phenotype.phenotypeTerm.name}</a> / ${phenotype.parameter.name}</td>
-					</c:if>
-					
-					<c:if test="${isImpcTerm}">
-						<td>${phenotype.procedure.name} / ${phenotype.parameter.name}</td>
-					</c:if>	
+					<td><a href="${baseUrl}/phenotypes/${phenotype.phenotypeTerm.id.accession}">${phenotype.phenotypeTerm.name}</a> </td>
+				
+					<td>${phenotype.procedure.name} / ${phenotype.parameter.name}</td>
+				
 					
 					<td>
 						<c:choose>
