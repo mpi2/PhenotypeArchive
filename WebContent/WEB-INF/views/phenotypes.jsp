@@ -208,15 +208,12 @@
 									<form class="tablefiltering no-style" id="target" action="www.google.com">
 											<c:forEach var="phenoFacet" items="${phenoFacets}"
 													varStatus="phenoFacetStatus">
-													<c:if
-														test="${!isImpcTerm || !(phenoFacet.key eq 'mp_term_name')}">
 													<select id="${phenoFacet.key}" class="impcdropdown"
 															multiple="multiple" title="Filter on ${phenoFacet.key}">
 														<c:forEach var="facet" items="${phenoFacet.value}">
 															<option>${facet.key}</option>
 														</c:forEach>
 													</select> 
-													</c:if>
 											</c:forEach>
 											
 											<div class="clear"></div>
@@ -236,10 +233,12 @@
 				
 				
 				<!--  HEATMAP section -->
-				<div class="section">
-					<h2 class="title" id="section">Gene phenotyping heatmap for ${phenotype.name} <i class="fa fa-question-circle pull-right"></i></h2>
-					<div class="inner" id="heatmap-container">
-						<div id="phenodcc-heatmap-3"> </div>							
+				<div class="section" id="phenotypeHeatmapSection" >
+					<h2 class="title" id="heatmapGenePage">Gene phenotyping heatmap for ${phenotype.name} <i class="fa fa-question-circle pull-right"></i></h2>
+					<div class="inner" >
+						<div id="heatmap-container">
+							<div id="phenodcc-heatmap-3"> </div>
+							</div>							
 	        </div>
 				</div>
 				

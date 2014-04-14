@@ -481,7 +481,6 @@ List<Float>dataFloats=new ArrayList<>();
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setId(chartId);
-		System.out.println(javascript);
 		return chartAndTable;	
 	}
 	

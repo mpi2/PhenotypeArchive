@@ -38,21 +38,22 @@ $(document).ready(function(){
 	var selectedFilters = "";
 	var dropdownsList = new Array();
 	// use jquery DataTable for table searching/sorting/pagination
-	var aDataTblCols = [0,1,2,3,4,5,6];
+	var aDataTblCols = [0,1,2,3,4,5,6,7];
 	var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
 		"aoColumns": [
 		              { "sType": "html", "mRender":function( data, type, full ) {
 		            	  return (type === "filter") ? $(data).text() : data;
-		              }},
+		              	}},
 		              { "sType": "html", "mRender":function( data, type, full ) {
 		            	  return (type === "filter") ? $(data).text() : data;
-		              }},
+		              	}},
+		              { "sType": "string"},
 		              { "sType": "string"},
 		              { "sType": "string"},
 		              { "sType": "alt-string", "bSearchable" : false },
 		              /*  { "sType": "string"}, */
-		              { "sType": "html"}
-		              , { "sType": "string", "bSortable" : false }
+		              { "sType": "html"},
+		              { "sType": "string", "bSortable" : false }
 
 		              ],
 		              "bDestroy": true,
@@ -132,15 +133,15 @@ $(document).ready(function(){
 				"aoColumns": [
 				              { "sType": "html", "mRender":function( data, type, full ) {
 				            	  return (type === "filter") ? $(data).text() : data;
-				              }},
+				              	}},
 				              { "sType": "html", "mRender":function( data, type, full ) {
 				            	  return (type === "filter") ? $(data).text() : data;
-				              }},
+				              	}},
 				              { "sType": "string"},
 				              { "sType": "alt-string", "bSearchable" : false },
 				              /*  { "sType": "string"}, */
-				              { "sType": "html"}
-				              , { "sType": "string", "bSortable" : false }
+				              { "sType": "html"}, 
+				              { "sType": "string", "bSortable" : false }
 
 				              ],
 				              "bDestroy": true,

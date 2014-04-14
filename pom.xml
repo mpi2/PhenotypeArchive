@@ -35,7 +35,7 @@
 		<hibernate.version>3.6.10.Final</hibernate.version>
 		<servlet.api.version>2.3</servlet.api.version>
 		<selenium.version>2.37.1</selenium.version>
-		<baseUrl>/data</baseUrl>
+		<baseUrl>http://localhost:8080/phenotype-archive</baseUrl>
 		<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
 			to EBI servers for performance -->
 		<!-- <solrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</solrUrl>

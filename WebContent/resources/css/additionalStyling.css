@@ -129,3 +129,6 @@ button.exportButton{
     height: 600px;
     width: 800px
 }
+#phenotypeHeatmapSection{
+	width : 100%;
+}
