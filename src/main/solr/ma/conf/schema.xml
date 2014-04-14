@@ -146,30 +146,24 @@
   	<field name="go_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<!-- gene core stuff -->
-	<field name="marker_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="mgi_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />    
-    <field name="marker_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="marker_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="marker_type" type="string" indexed="true" stored="true" multiValued="true" />
-    <field name="human_gene_symbol" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="imits_report_phenotyping_complete_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />        
-    <field name="imits_report_genotype_confirmed_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />        
-    <field name="imits_report_mi_plan_status" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="imits_consortium" type="string" indexed="true" stored="true" required="false" multiValued="false" />
-    <field name="escell" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="ikmc_project" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="status" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="production_center" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="phenotyping_center" type="string" indexed="true" stored="true" required="false" multiValued="true" />        
-	<field name="imits_phenotype_started" type="string" indexed="true" multiValued="true"/>
-    <field name="imits_phenotype_complete" type="string" indexed="true" multiValued="true"/>
-    <field name="colony_prefix" type="string" indexed="true" stored="true" multiValued="true"/>
-    <field name="imits_phenotype_colony_name" type="string" indexed="true" multiValued="true"/>
-    <field name="imits_phenotype_allele_type" type="string" indexed="true" multiValued="true"/>
-    <field name="imits_phenotype_status" type="string" indexed="true" multiValued="true"/>
-    <field name="imits_phenotype_is_active" type="string" indexed="true" multiValued="true"/>
-	<field name="qcGene" type="string" indexed="false" stored="false" multiValued="false"/>
-	<field name="hasQc" type="int" indexed="true" stored="true" multiValued="false"/>	
+	<field name="mgi_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />		
+	<field name="marker_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />  
+	<field name="marker_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true"  />    
+	<field name="marker_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="marker_type" type="string" indexed="true" stored="true" multiValued="true" />  
+	<field name="human_gene_symbol" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
+	<!-- latest mouse status -->
+	<field name="status" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<!--  phenotyping status -->
+    <field name="imits_phenotype_started" type="string" indexed="true" multiValued="true"/>
+	<field name="imits_phenotype_complete" type="string" indexed="true" multiValued="true"/>	
+	<field name="imits_phenotype_status" type="string" indexed="true" multiValued="true"/>
+	<!-- centers -->
+	<field name="latest_production_centre" type="string" indexed="true" multiValued="true"/>
+	<field name="latest_phenotyping_centre" type="string" indexed="true" multiValued="true"/>
+	
+	<!-- allele level fields of a gene -->
+	<field name="allele_name" type="text_general" indexed="true" stored="true" multiValued="true"/>
 	
 	<!-- disease core stuff -->	
 	<field name="type" type="string" indexed="true" stored="true"  multiValued="true" />	
