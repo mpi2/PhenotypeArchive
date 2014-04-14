@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
 import uk.ac.ebi.phenotype.error.SpecificExperimentException;
 import uk.ac.ebi.phenotype.pojo.ControlStrategy;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
@@ -44,6 +45,9 @@ public class ExperimentService {
 	
 	@Autowired
 	private PhenotypeCallSummaryDAOReadOnly phenoDAO;
+	
+	@Autowired
+	private UnidimensionalStatisticsDAO unidimensionalStatisticsDAO;
 	
 
 	public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain)
@@ -162,25 +166,25 @@ public class ExperimentService {
      			//"doc_id":88370,= female and "doc_id":88371, male for one example
      			//int phenotypeCallSummaryId=204749;
      			List<UnidimensionalResult> populatedResults=new ArrayList<>();
-//     			for(StatisticalResult basicResult: basicResults) {
-//     			//get one for female and one for male if exist
-//     			UnidimensionalResult unidimensionalResult=(UnidimensionalResult)basicResult;
-//     			System.out.println("basic result PCSummary Id="+unidimensionalResult.getId()+" basic result sex type="+unidimensionalResult.getSexType()+" p value="+unidimensionalResult.getpValue());
-//     			
-//				try {
-//					UnidimensionalResult result = unidimensionalStatisticsDAO.getStatsForPhenotypeCallSummaryId(unidimensionalResult.getId());
-//					if(result!=null) {
-//							//result.setSexType(unidimensionalResult.getSexType());//set the sextype from our already called solr result as it's not set by hibernate
-//							result.setZygosityType(unidimensionalResult.getZygosityType());
-//							System.out.println("result!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"+result);
-//							populatedResults.add(result);
-//					}
-//				} catch (SQLException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//     					
-//     			}
+     			for(StatisticalResult basicResult: basicResults) {
+     			//get one for female and one for male if exist
+     			UnidimensionalResult unidimensionalResult=(UnidimensionalResult)basicResult;
+     			System.out.println("basic result PCSummary Id="+unidimensionalResult.getId()+" basic result sex type="+unidimensionalResult.getSexType()+" p value="+unidimensionalResult.getpValue());
+     			
+				try {
+					UnidimensionalResult result = unidimensionalStatisticsDAO.getStatsForPhenotypeCallSummaryId(unidimensionalResult.getId());
+					if(result!=null) {
+							//result.setSexType(unidimensionalResult.getSexType());//set the sextype from our already called solr result as it's not set by hibernate
+							result.setZygosityType(unidimensionalResult.getZygosityType());
+							System.out.println("result!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"+result);
+							populatedResults.add(result);
+					}
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+     					
+     			}
      			if(populatedResults.size()==0) {
      				System.out.println("resorting to basic stats result");
      				experiment.setResults(basicResults);

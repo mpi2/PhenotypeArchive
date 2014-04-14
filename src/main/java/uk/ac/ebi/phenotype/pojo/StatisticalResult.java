@@ -1,6 +1,7 @@
 package uk.ac.ebi.phenotype.pojo;
 
 import javax.persistence.Column;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -8,6 +9,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 @MappedSuperclass
 public class StatisticalResult {
@@ -45,11 +49,11 @@ public class StatisticalResult {
 	@JoinColumn(name = "parameter_id")
 	protected Parameter parameter;
 	
-	@OneToOne
+	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "pipeline_id")
 	protected Pipeline pipeline;
 
-	@OneToOne
+	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "project_id")
 	protected Project project;
 	
