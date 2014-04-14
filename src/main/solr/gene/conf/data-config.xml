@@ -4,6 +4,9 @@
 	        if (row.get('mgi_accession_id')){
 	        	row.put('dataType', 'gene');
 			}
+			if (row.get('latest_phenotype_status')){
+	        	row.put('imits_phenotype_status', row.get('latest_phenotype_status').toString());
+			}
 			return row;
 		}	    
 		function fetch_human_symbol(row){
@@ -100,7 +103,10 @@
 			<!-- imits info at gene level for phenotyping faceting -->						
 			<field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='latest_phenotype_started']" />
 			<field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='latest_phenotype_complete']" />
-			<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
+			
+			<!-- phenotyping status -->
+			<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
+			<field column="imits_phenotype_status" name="imits_phenotype_status" />
 
 			<!-- mouse status -->
 			<field column="latest_mouse_status" xpath="/response/result/doc/str[@name='latest_mouse_status']" />-->
