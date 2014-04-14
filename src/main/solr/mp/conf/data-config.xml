@@ -3,9 +3,8 @@
 	
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />
 	<dataSource name="ontodb" jndiName="java:comp/env/jdbc/ontodbDataSource" /> 
-	<dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />
-    <dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
-	<dataSource name="gene2_core" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8983/solr/gene2/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	  
+	<dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />  
+	<dataSource name="gene_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/gene/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	  
 	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>       
 	
 	<document name="docs">
@@ -126,55 +125,43 @@
 				
 				<field column="gf_acc" name="mgi_accession_id" />
 
-				<!-- disease associated with this MP via this gene -->			
-				<entity dataSource="diseaseGenedb" name="dg" query="select disease_id from disease2Gene where mgi_id='${phenotype_call_summary.gf_acc}'">
-					<field column="disease_id" name="disease_id" />
+				<!-- disease associated with this MP via this gene -->	
+				<entity dataSource="gene_core" name="doc" stream="true" url="q=mgi_accession_id:&quot;${phenotype_call_summary.gf_acc}&quot;&amp;rows=1&amp;wt=normal"
+					processor="XPathEntityProcessor" forEach="/response/result/doc/" >
+				         					
+				    <field column="disease_source" xpath="/response/result/doc/arr[@name='disease_source']/str" /> 
+				    <field column="disease_term" xpath="/response/result/doc/str[@name='disease_term']" /> 
+				    <field column="disease_alts" xpath="/response/result/doc/arr[@name='disease_alts']/str" /> 
+				    <field column="disease_classes" xpath="/response/result/doc/arr[@name='disease_classes']/str" /> 
+				    <field column="human_curated" xpath="/response/result/doc/bool[@name='human_curated']" /> 
+				    <field column="mouse_curated" xpath="/response/result/doc/bool[@name='mouse_curated']" /> 
+				    <field column="mgi_predicted" xpath="/response/result/doc/bool[@name='mgi_predicted']" /> 
+				    <field column="impc_predicted" xpath="/response/result/doc/bool[@name='impc_predicted']" /> 
+				    <field column="mgi_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_predicted_in_locus']" /> 
+				    <field column="impc_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_predicted_in_locus']" /> 			
+					<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  					
 
-					<entity dataSource="phenodigm_core" name="ddoc" stream="true" url="q=disease_id:&quot;${dg.disease_id}&quot;&amp;fq=type:disease&amp;rows=9999999&amp;wt=normal"
-						processor="XPathEntityProcessor" forEach="/response/result/doc/"                
-						readTimeout="10000" connectionTimeout="10000" > 
-					                                    
-					    <field column="type" xpath="/response/result/doc/str[@name='type']" />           					
-					    <field column="disease_source" xpath="/response/result/doc/str[@name='disease_source']" /> 
-					    <field column="disease_term" xpath="/response/result/doc/str[@name='disease_term']" /> 
-					    <field column="disease_alts" xpath="/response/result/doc/arr[@name='disease_alts']/str" /> 
-					    <field column="disease_classes" xpath="/response/result/doc/arr[@name='disease_classes']/str" /> 
-					    <field column="human_curated" xpath="/response/result/doc/bool[@name='human_curated']" /> 
-					    <field column="mouse_curated" xpath="/response/result/doc/bool[@name='mouse_curated']" /> 
-					    <field column="mgi_predicted" xpath="/response/result/doc/bool[@name='mgi_predicted']" /> 
-					    <field column="impc_predicted" xpath="/response/result/doc/bool[@name='impc_predicted']" /> 
-					    <field column="mgi_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_predicted_in_locus']" /> 
-					    <field column="impc_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_predicted_in_locus']" /> 			
-						<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  
-					
-					</entity>
-				</entity>
-
-				<!-- other fields from gene core -->
-				<entity dataSource="gene2_core" name="doc" stream="true" url="q=${phenotype_call_summary.gf_acc}&amp;fl=MGI,marker_symbol,marker_name,marker_synonym,marker_type,imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,imits_consortium,ikmc_project,latest_project_status,imits_phenotype_started,imits_phenotype_complete,colony_prefix,imits_phenotype_colony_name,imits_phenotype_allele_type,imits_phenotype_status,imits_phenotype_is_active&amp;rows=50000&amp;wt=normal"
-						processor="XPathEntityProcessor" forEach="/response/result/doc/" >			
-					
-					<field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />							
-					<field column="marker_name" xpath="/response/result/doc/arr[@name='marker_name']/str" />
-					<field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
-					<field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />
-
-					<field column="imits_report_phenotyping_complete_date" xpath="/response/result/doc/arr[@name='imits_report_phenotyping_complete_date']/str" />
-					<field column="imits_report_genotype_confirmed_date" xpath="/response/result/doc/arr[@name='imits_report_genotype_confirmed_date']/str" />
-					<field column="imits_report_mi_plan_status" xpath="/response/result/doc/arr[@name='imits_report_mi_plan_status']/str" />
-					<field column="escell" xpath="/response/result/doc/arr[@name='escell']/str" />
-					<field column="ikmc_project" splitBy="," xpath="/response/result/doc/arr[@name='ikmc_project']/str" />
-					<field column="imits_consortium" xpath="/response/result/doc/str[@name='imits_consortium']" />
-					<field column="status" xpath="/response/result/doc/str[@name='latest_project_status']" />
-					<field column="imits_phenotype_started" xpath="/response/result/doc/arr[@name='imits_phenotype_started']/str" />
-
-					<field column="imits_phenotype_complete" xpath="/response/result/doc/arr[@name='imits_phenotype_complete']/str" />
-					<field column="colony_prefix" xpath="/response/result/doc/arr[@name='colony_prefix']/str" />
-					<field column="imits_phenotype_colony_name" xpath="/response/result/doc/arr[@name='imits_phenotype_colony_name']/str" />
-					<field column="imits_phenotype_allele_type" xpath="/response/result/doc/arr[@name='imits_phenotype_allele_type']/str" />
-					<field column="imits_phenotype_status" xpath="/response/result/doc/arr[@name='imits_phenotype_status']/str" />
-					<field column="imits_phenotype_is_active" xpath="/response/result/doc/arr[@name='imits_phenotype_is_active']/str" />
-	
+					<!-- other gene related fields -->						
+					<field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />                                                        
+                    <field column="marker_name" xpath="/response/result/doc/str[@name='marker_name']" />
+                    <field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
+                    <field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />                                     
+                    <field column="human_gene_symbol" xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />
+                             
+                    <!-- latest project status (ES cells/mice production status) -->         
+                    <field column="status" xpath="/response/result/doc/str[@name='status']" />
+                    
+                    <!-- latest mice phenotyping status for faceting -->
+                    <field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='imits_phenotype_started']" />        
+                    <field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
+                  	<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
+                  
+                  	<!-- production/phenotyping centers -->
+					<field column="latest_production_centre" xpath="/response/result/doc/str[@name='latest_production_centre']" />
+					<field column="latest_phenotyping_centre" xpath="/response/result/doc/str[@name='latest_phenotyping_centre']" />
+						
+					<!-- alleles of a gene -->
+					<field column="allele_name" xpath="/response/result/doc/arr[@name='allele_name']/str" />	
 				</entity>
 
 				<!-- allele: currently NOT restricted to MGI alleles, ie, allele_db_id not restricted to 3 -->

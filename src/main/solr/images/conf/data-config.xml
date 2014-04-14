@@ -104,7 +104,7 @@
 								processor="XPathEntityProcessor" forEach="/response/result/doc/" >	
 						
 								<field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />                                                        
-			                    <field column="marker_name" xpath="/response/result/doc/arr[@name='marker_name']/str" />
+			                    <field column="marker_name" xpath="/response/result/doc/str[@name='marker_name']" />
 			                    <field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
 			                    <field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />                                     
 			                    <field column="human_gene_symbol" xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />
@@ -113,8 +113,8 @@
 			                    <field column="status" xpath="/response/result/doc/str[@name='status']" />
 			                    
 			                    <!-- latest mice phenotyping status for faceting -->
-			                    <field column="imits_phenotype_started" xpath="/response/result/doc/arr[@name='imits_phenotype_started']/str" />        
-			                    <field column="imits_phenotype_complete" xpath="/response/result/doc/arr[@name='imits_phenotype_complete']/str" />
+			                    <field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='imits_phenotype_started']" />        
+			                    <field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
 			                  	<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
 			                  
 			                  	<!-- production/phenotyping centers -->
