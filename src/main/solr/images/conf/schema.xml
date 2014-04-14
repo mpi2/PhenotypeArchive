@@ -254,7 +254,7 @@
 	<field name="latest_phenotyping_centre" type="string" indexed="true" multiValued="true"/>
 	
 	<!-- allele level fields of a gene -->
-	<field name="allele_name" type="text" indexed="true" stored="true" multiValued="true"/>
+	<field name="allele_name" type="text_general" indexed="true" stored="true" multiValued="true"/>
 		
 	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
 	<field name="text_search" type="text_general" indexed="true" stored="false" multiValued="true"/>   
