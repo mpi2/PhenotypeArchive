@@ -255,9 +255,7 @@
 	
 	<!-- allele level fields of a gene -->
 	<field name="allele_name" type="text" indexed="true" stored="true" multiValued="true"/>
-			
-										
-	<field name="text"   type="string"   indexed="true"  stored="true"  multiValued="true" />
+		
 	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
 	<field name="text_search" type="text_general" indexed="true" stored="false" multiValued="true"/>   
         
