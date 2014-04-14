@@ -62,7 +62,7 @@
 			<!-- <field column="COLONY_NAME" name="colonyName" />
 			<field column="AGE_IN_WEEKS" name="ageInWeeks" /> -->
 			
-			<!-- </entity>
+			<!-- </edata-config.xmlntity>
 			<entity dataSource="komp2ds" name="mouse" query="select * from ima_mouse_image_vw where id=${ima_image_record.FOREIGN_KEY_ID}">
 				<field column="ID" name="mouseId" /> -->
 				<!-- <field column="COLONY_NAME" name="colonyName" />-->
