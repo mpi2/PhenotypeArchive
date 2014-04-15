@@ -12,7 +12,7 @@
 		function fetch_human_symbol(row){
 			if ( row.get('mouse2human_symbol') ){				
 				aList = row.get('mouse2human_symbol').toString().split('___');			
-				row.put('human_gene_symbol', aList[1]);  						
+				row.put('human_gES Cell Targeting Confirmedene_symbol', aList[1]);  						
 				}              
 		
 	   		return row; 
@@ -99,6 +99,7 @@
 
 			<!-- latest es cells/mice/phenotyping/ status and centers info at gene level -->
 			<field column="latest_es_cell_status" xpath="/response/result/doc/str[@name='latest_es_cell_status']" />
+			
 			
 			<!-- imits info at gene level for phenotyping faceting -->						
 			<field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='latest_phenotype_started']" />

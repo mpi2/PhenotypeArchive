@@ -117,9 +117,9 @@
 								<field column="status" xpath="/response/result/doc/str[@name='status']" /> <!-- status name from Bill Skarnes and used at EBI -->	
 								
 								<!-- imits info at gene level for phenotyping faceting -->						
-								<field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='latest_phenotype_started']" />
-								<field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='latest_phenotype_complete']" />
-								<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />										
+								<field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='imits_phenotype_started']" />
+								<field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
+								<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']" />										
 								
 								<!-- production/phenotyping centers -->
 								<field column="latest_production_centre" xpath="/response/result/doc/str[@name='latest_production_centre']" />
