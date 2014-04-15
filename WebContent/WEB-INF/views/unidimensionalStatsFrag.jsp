@@ -87,48 +87,48 @@
  						<c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
  						<c:if test="${data.result!=null }">
  						<table>
- 						<tr><th>Stats Result Name</th><th>Value</th></tr>	
+ 						<tr><th>Model Fitting Estimates</th><th>Value</th></tr>	
  							<c:if test="${data.result.colonyId!=null}"><tr>
- 							<td>colonyId</td>
+ 							<td>Colony Id</td>
  							<td>${data.result.colonyId }</td>
  							</tr></c:if>
  							<c:if test="${data.result.experimentalZygosity!=null}"><tr>
- 							<td>experimentalZygosity</td>
+ 							<td>Experimental Zygosity</td>
  							<td>${data.result.experimentalZygosity}</td>
  							</tr></c:if>
  							<%-- <td>${data.result.mixedModel}</td> --%>
  							<c:if test="${data.result.dependantVariable!=null}"><tr>
- 							<td>dependantVariable</td>
+ 							<td>Dependant Variable</td>
  							<td>${data.result.dependantVariable}</td>
  							</tr></c:if>
- 							<c:if test="${data.result.batchSignificance!=null}"><tr><td>batchSignificance</td><td>${data.result.batchSignificance }</td></tr></c:if>
- 							<c:if test="${data.result.varianceSignificance!=null}"><tr><td>varianceSignificance</td><td>${data.result.varianceSignificance }</td></tr></c:if>
- 							<c:if test="${data.result.nullTestSignificance !=null}"><tr><td>nullTestSignificance</td><td>${data.result.nullTestSignificance }</td></tr></c:if>
- 							<c:if test="${data.result.genotypeParameterEstimate!=null}"><tr><td>genotypeParameterEstimate</td><td>${data.result.genotypeParameterEstimate }</td></tr></c:if>
- 							<c:if test="${data.result.genotypeStandardErrorEstimate!=null}"><tr><td>genotypeStandardErrorEstimate</td><td>${data.result.genotypeStandardErrorEstimate }</td></tr></c:if>
- 							<c:if test="${data.result.genotypeEffectPValue!=null}"><tr><td>genotypeEffectPValue</td><td>${data.result.genotypeEffectPValue}</td></tr></c:if>
- 							<c:if test="${data.result.genderParameterEstimate!=null}"><tr><td>genderParameterEstimate</td><td>${data.result.genderParameterEstimate }</td></tr></c:if>
- 							<c:if test="${data.result.genderStandardErrorEstimate!=null}"><tr><td>genderStandardErrorEstimate</td><td>${data.result.genderStandardErrorEstimate }</td></tr></c:if>
- 							<c:if test="${data.result.genderEffectPValue!=null}"><tr><td>genderEffectPValue</td><td>${data.result.genderEffectPValue}</td></tr></c:if>
- 							<c:if test="${data.result.weightParameterEstimate!=null}"><tr><td>weightParameterEstimate </td><td>${data.result.weightParameterEstimate }</td></tr></c:if>
- 							<c:if test="${data.result.weightStandardErrorEstimate!=null}"><tr><td>weightStandardErrorEstimate </td><td>${data.result.weightStandardErrorEstimate }</td></tr></c:if>
- 							<c:if test="${data.result.weightEffectPValue!=null}"><tr><td>weightEffectPValue </td><td>${data.result.weightEffectPValue }</td></tr></c:if>
- 							<c:if test="${data.result.gp1Genotype!=null}"><tr><td>gp1Genotype </td><td>${data.result.gp1Genotype }</td></tr></c:if>
- 							<c:if test="${data.result.gp1ResidualsNormalityTest!=null}"><tr><td>gp1ResidualsNormalityTest </td><td>${data.result.gp1ResidualsNormalityTest }</td></tr></c:if>
- 							<c:if test="${data.result.gp2Genotype!=null}"><tr><td>gp2Genotype </td><td>${data.result.gp2Genotype }</td></tr></c:if>
- 							<c:if test="${data.result.gp2ResidualsNormalityTest!=null}"><tr><td>gp2ResidualsNormalityTest </td><td>${data.result.gp2ResidualsNormalityTest }</td></tr></c:if>
- 							<c:if test="${data.result.blupsTest!=null}"><tr><td>blupsTest </td><td>${data.result.blupsTest }</td></tr></c:if>
- 							<c:if test="${data.result.rotatedResidualsNormalityTest !=null}"><tr><td>rotatedResidualsNormalityTest </td><td>${data.result.rotatedResidualsNormalityTest }</td></tr></c:if>
- 							<c:if test="${data.result.interceptEstimate!=null}"><tr><td>interceptEstimate </td><td>${data.result.interceptEstimate }</td></tr></c:if>
- 							<c:if test="${data.result.interceptEstimateStandardError!=null}"><tr><td>interceptEstimateStandardError </td><td>${data.result.interceptEstimateStandardError }</td></tr></c:if>
- 							<c:if test="${data.result.interactionSignificance!=null}"><tr><td>interactionSignificance </td><td>${data.result.interactionSignificance }</td></tr></c:if>
- 							<c:if test="${data.result.interactionEffectPValue!=null}"><tr><td>interactionEffectPValue </td><td>${data.result.interactionEffectPValue }</td></tr></c:if>
- 							<c:if test="${data.result.genderFemaleKoEstimate!=null}"><tr><td>genderFemaleKoEstimate </td><td>${data.result.genderFemaleKoEstimate }</td></tr></c:if>
- 							<c:if test="${data.result.genderFemaleKoStandardErrorEstimate!=null}"><tr><td>genderFemaleKoStandardErrorEstimate </td><td>${data.result.genderFemaleKoStandardErrorEstimate }</td></tr></c:if>
- 							<c:if test="${data.result.genderFemaleKoPValue!=null}"><tr><td>genderFemaleKoPValue </td><td>${data.result.genderFemaleKoPValue }</td></tr></c:if>
- 							<c:if test="${data.result.genderMaleKoEstimate!=null}"><tr><td>genderMaleKoEstimate </td><td>${data.result.genderMaleKoEstimate }</td></tr></c:if>
- 							<c:if test="${data.result.genderMaleKoStandardErrorEstimate!=null}"><tr><td>genderMaleKoStandardErrorEstimate </td><td>${data.result.genderMaleKoStandardErrorEstimate }</td></tr></c:if>
- 							<c:if test="${data.result.genderMaleKoPValue!=null}"><tr><td>genderMaleKoPValue </td><td>${data.result.genderMaleKoPValue }</td></tr></c:if>
+ 							<c:if test="${data.result.batchSignificance!=null}"><tr><td>Batch Significance</td><td>${data.result.batchSignificance }</td></tr></c:if>
+ 							<c:if test="${data.result.varianceSignificance!=null}"><tr><td>Variance Significance</td><td>${data.result.varianceSignificance }</td></tr></c:if>
+ 							<c:if test="${data.result.nullTestSignificance !=null}"><tr><td>Null Test Significance</td><td>${data.result.nullTestSignificance }</td></tr></c:if>
+ 							<c:if test="${data.result.genotypeParameterEstimate!=null}"><tr><td>Genotype Parameter Estimate</td><td>${data.result.genotypeParameterEstimate }</td></tr></c:if>
+ 							<c:if test="${data.result.genotypeStandardErrorEstimate!=null}"><tr><td>Genotype Standard Error Estimate</td><td>${data.result.genotypeStandardErrorEstimate }</td></tr></c:if>
+ 							<c:if test="${data.result.genotypeEffectPValue!=null}"><tr><td>Genotype Effect P Value</td><td>${data.result.genotypeEffectPValue}</td></tr></c:if>
+ 							<c:if test="${data.result.genderParameterEstimate!=null}"><tr><td>Gender Parameter Estimate</td><td>${data.result.genderParameterEstimate }</td></tr></c:if>
+ 							<c:if test="${data.result.genderStandardErrorEstimate!=null}"><tr><td>Gender Standard Error Estimate</td><td>${data.result.genderStandardErrorEstimate }</td></tr></c:if>
+ 							<c:if test="${data.result.genderEffectPValue!=null}"><tr><td>Gender Effect P Value</td><td>${data.result.genderEffectPValue}</td></tr></c:if>
+ 							<c:if test="${data.result.weightParameterEstimate!=null}"><tr><td>Weight Parameter Estimate </td><td>${data.result.weightParameterEstimate }</td></tr></c:if>
+ 							<c:if test="${data.result.weightStandardErrorEstimate!=null}"><tr><td>Weight Standard Error Estimate </td><td>${data.result.weightStandardErrorEstimate }</td></tr></c:if>
+ 							<c:if test="${data.result.weightEffectPValue!=null}"><tr><td>Weight Effect P Value </td><td>${data.result.weightEffectPValue }</td></tr></c:if>
+ 							<c:if test="${data.result.gp1Genotype!=null}"><tr><td>Gp 1 Genotype</td><td>${data.result.gp1Genotype }</td></tr></c:if>
+ 							<c:if test="${data.result.gp1ResidualsNormalityTest!=null}"><tr><td>Gp 1 Residuals Normality Test </td><td>${data.result.gp1ResidualsNormalityTest }</td></tr></c:if>
+ 							<c:if test="${data.result.gp2Genotype!=null}"><tr><td>Gp 2 Genotype</td><td>${data.result.gp2Genotype }</td></tr></c:if>
+ 							<c:if test="${data.result.gp2ResidualsNormalityTest!=null}"><tr><td>Gp 2 Residuals Normality Test </td><td>${data.result.gp2ResidualsNormalityTest }</td></tr></c:if>
+ 							<c:if test="${data.result.blupsTest!=null}"><tr><td>Blups Test </td><td>${data.result.blupsTest }</td></tr></c:if>
+ 							<c:if test="${data.result.rotatedResidualsNormalityTest !=null}"><tr><td>Rotated Residuals Normality Test </td><td>${data.result.rotatedResidualsNormalityTest }</td></tr></c:if>
+ 							<c:if test="${data.result.interceptEstimate!=null}"><tr><td>Intercept Estimate </td><td>${data.result.interceptEstimate }</td></tr></c:if>
+ 							<c:if test="${data.result.interceptEstimateStandardError!=null}"><tr><td>Intercept Estimate Standard Error </td><td>${data.result.interceptEstimateStandardError }</td></tr></c:if>
+ 							<c:if test="${data.result.interactionSignificance!=null}"><tr><td>Interaction Significance </td><td>${data.result.interactionSignificance }</td></tr></c:if>
+ 							<c:if test="${data.result.interactionEffectPValue!=null}"><tr><td>Interaction Effect P Value </td><td>${data.result.interactionEffectPValue }</td></tr></c:if>
+ 							<c:if test="${data.result.genderFemaleKoEstimate!=null}"><tr><td>Gender Female KO Estimate </td><td>${data.result.genderFemaleKoEstimate }</td></tr></c:if>
+ 							<c:if test="${data.result.genderFemaleKoStandardErrorEstimate!=null}"><tr><td>Gender Female Ko Standard Error Estimate </td><td>${data.result.genderFemaleKoStandardErrorEstimate }</td></tr></c:if>
+ 							<c:if test="${data.result.genderFemaleKoPValue!=null}"><tr><td>Gender Female KO P Value </td><td>${data.result.genderFemaleKoPValue }</td></tr></c:if>
+ 							<c:if test="${data.result.genderMaleKoEstimate!=null}"><tr><td>Gender Male KO Estimate </td><td>${data.result.genderMaleKoEstimate }</td></tr></c:if>
+ 							<c:if test="${data.result.genderMaleKoStandardErrorEstimate!=null}"><tr><td>Gender Male KO Standard Error Estimate </td><td>${data.result.genderMaleKoStandardErrorEstimate }</td></tr></c:if>
+ 							<c:if test="${data.result.genderMaleKoPValue!=null}"><tr><td>Gender Male KO P Value </td><td>${data.result.genderMaleKoPValue }</td></tr></c:if>
  							</table>
  	 					</c:if>	
  				</div>
