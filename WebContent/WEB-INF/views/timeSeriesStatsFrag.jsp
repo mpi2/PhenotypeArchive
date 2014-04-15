@@ -12,6 +12,17 @@
 		<script type="text/javascript">
 					${timeSeriesChartsAndTable.chart}
 		</script>
-		
+		<script>
+ 	$(document).ready(
+		function() {
+			
+			// bubble popup for brief panel documentation - added here as in stats page it doesn't work
+		 	$.fn.qTip({
+						'pageName': 'stats',
+						'textAlign': 'left',
+						'tip': 'topRight'
+			}); 
+ 					});
+</script>
 </c:if>
 	
