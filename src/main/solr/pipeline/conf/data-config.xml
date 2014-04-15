@@ -35,7 +35,7 @@
     ]]></script>
 
         <dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />     
-        <dataSource name="gene_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0:8090/build_indexes/gene/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>        
+        <dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>        
         <dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0:8090/build_indexes/mp/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
         <dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/> 
 	
@@ -101,7 +101,7 @@
 							<field column="gf_acc" name="mgi_accession_id" />
 
 							<!-- other fields from gene core -->
-							<entity dataSource="gene_core" name="doc" stream="true" url="q=mgi_accession_id:&quot;${phenotype_call_summary.gf_acc}&quot;&amp;wt=normal&amp;rows=1"		            
+							<entity dataSource="allele_core" name="doc" stream="true" url="q=mgi_accession_id:&quot;${phenotype_call_summary.gf_acc}&quot;&amp;wt=normal&amp;rows=1"		            
 				                processor="XPathEntityProcessor" forEach="/response/result/doc/"
 				                readTimeout="10000" connectionTimeout="10000" > 
 				

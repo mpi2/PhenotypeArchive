@@ -2,7 +2,7 @@
 
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />
     <dataSource name="ontodb" jndiName="java:comp/env/jdbc/ontodbDataSource" />  
-	<dataSource name="gene_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/gene/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
     <dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>          
 
 	<document name="komp2_indexing">	
@@ -64,7 +64,7 @@
 					<field column="gf_acc" name="mgi_accession_id" />				
 
 					<!-- disease associated with this MP via this gene -->	
-					<entity dataSource="gene_core" name="gdoc" stream="true" url="q=mgi_accession_id:&quot;${phenotype_call_summary.gf_acc}&quot;&amp;rows=1&amp;wt=normal"
+					<entity dataSource="allele_core" name="gdoc" stream="true" url="q=mgi_accession_id:&quot;${phenotype_call_summary.gf_acc}&quot;&amp;rows=1&amp;wt=normal"
 					
 						processor="XPathEntityProcessor" forEach="/response/result/doc/" >						
 						
