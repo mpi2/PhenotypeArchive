@@ -52,6 +52,10 @@
 	<bean id="observationService" class="uk.ac.ebi.phenotype.stats.ObservationService">
 		<constructor-arg  value="${internalSolrUrl}/experiment" />
 	</bean>
+	
+	<bean id="unidimensionalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl">
+ 		<constructor-arg ref="sessionFactory" />
+ 	</bean>
 
 	<bean id="experimentService" class="uk.ac.ebi.phenotype.stats.ExperimentService">
 	</bean>

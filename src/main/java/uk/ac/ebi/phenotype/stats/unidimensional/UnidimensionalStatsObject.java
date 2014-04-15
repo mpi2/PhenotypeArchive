@@ -95,7 +95,7 @@ public class UnidimensionalStatsObject {
 				+ zygosity + ", sexType=" + sexType + ", mean=" + mean
 				+ ", sd=" + sd + ", sampleSize=" + sampleSize
 				 + ", allele=" + allele
-				+ ", geneticBackground=" + geneticBackground + "]";
+				+ ", geneticBackground=" + geneticBackground + " result="+result+"]";
 	}
 
 }

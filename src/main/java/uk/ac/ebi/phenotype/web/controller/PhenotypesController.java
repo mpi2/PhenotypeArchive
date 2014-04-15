@@ -489,7 +489,7 @@ public class PhenotypesController {
 		List<String> paramIds = pipelineDao.getParameterStableIdsByPhenotypeTerm(mpId);
 		for (String param : paramIds){
 			if (gpService.getGenesAssocByParamAndMp(param, mpId, null).size() > 0){
-				Parameter p =  pipelineDao.getParameterByStableIdAndVersion(param, 1, 0);
+				Parameter p =  pipelineDao.getParameterByStableId(param);
 				res.put(param,p.getName());
 			}
 		}
