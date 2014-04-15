@@ -72,7 +72,7 @@
 	
    	<document name="docs">
 			
-		<entity dataSource="sanger_allele" name="doc" stream="true" url="q=marker_symbol:*&amp;fq=marker_type:*+AND+type:gene&amp;wt=normal&amp;rows=99999"		            
+		<entity dataSource="sanger_allele" name="doc" stream="true" url="q=mgi_accession_id:*&amp;fq=-marker_type:Pseudogene+AND+type:gene&amp;wt=normal&amp;rows=99999"		            
         	processor="XPathEntityProcessor" forEach="/response/result/doc/"
             readTimeout="10000" connectionTimeout="10000" transformer="script:set_dataType" >                      
 
