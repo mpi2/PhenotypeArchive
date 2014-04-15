@@ -60,12 +60,11 @@
 										</table>
 				
 				
-				some *** result should be here: ${unidimensionalChartDataSet.statsObjects[1].result}
+				<%-- some *** result should be here: ${unidimensionalChartDataSet.statsObjects[1].result} --%>
 			<c:if test="${fn:length(unidimensionalChartDataSet.statsObjects)>1}"> 
-			
-				<div class="section collapsed">
-				<h2 class="title">More Stats</h2>
-				<div class="inner">
+				
+				<p><a><i class="fa" id="toggle_table_button${experimentNumber}">More Statistics</i></a></p>
+				<div id="toggle_table${experimentNumber}">
 						<table>				
  							<c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
  									<c:choose>
@@ -131,9 +130,7 @@
  							<c:if test="${data.result.genderMaleKoStandardErrorEstimate!=null}"><tr><td>genderMaleKoStandardErrorEstimate </td><td>${data.result.genderMaleKoStandardErrorEstimate }</td></tr></c:if>
  							<c:if test="${data.result.genderMaleKoPValue!=null}"><tr><td>genderMaleKoPValue </td><td>${data.result.genderMaleKoPValue }</td></tr></c:if>
  							</table>
- 	 					</c:if>
-						
- 				</div>
+ 	 					</c:if>	
  				</div>
  				
  				<%-- </c:if> --%>
@@ -141,4 +138,17 @@
  		
  				</c:if>
  </c:if>
- 				
+ <script>
+ 	$(document).ready(
+		function() {
+ 	
+			console.log('document ready');
+			$( "#toggle_table${experimentNumber}" ).hide();//hide on load
+			$( "#toggle_table_button${experimentNumber}" ).toggleClass('fa-caret-right');//toggle the arrow on the link to point right as should be closed on init
+			$( "#toggle_table_button${experimentNumber}" ).click(function() {
+				console.log("click fired");
+										  $( "#toggle_table${experimentNumber}" ).toggle('slow');
+										  $( "#toggle_table_button${experimentNumber}" ).toggleClass('fa-caret-right').toggleClass('fa-caret-down');//remove right and put down or vica versa
+										});
+ 					});
+</script>
