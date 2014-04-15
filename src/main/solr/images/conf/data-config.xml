@@ -28,7 +28,7 @@
 
         <dataSource name="komp2ds" jndiName="java:comp/env/jdbc/komp2DataSource" />
         <dataSource name="ontods" jndiName="java:comp/env/jdbc/ontodbDataSource" />        
-		<dataSource name="gene_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/gene/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+		<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 	
 	<document name="komp2_indexing">
 		<!-- test with and IMA_IMAGE_RECORD.ID=70220 -->
@@ -100,7 +100,7 @@
 							</entity>
 
 							<!-- other gene core stuff -->							
-							<entity dataSource="gene_core" name="genedoc" stream="true" url="q=mgi_accession_id:&quot;${genomic_feature2.acc}&quot;&amp;rows=1&amp;wt=normal"
+							<entity dataSource="allele_core" name="genedoc" stream="true" url="q=mgi_accession_id:&quot;${genomic_feature2.acc}&quot;&amp;rows=1&amp;wt=normal"
 								processor="XPathEntityProcessor" forEach="/response/result/doc/" >	
 						
 								<field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />                                                        
