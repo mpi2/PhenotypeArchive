@@ -154,41 +154,46 @@ public class ExperimentService {
      		experiment.getSexes().add(SexType.valueOf(observation.getSex()));
 
      		// TODO: include allele
-
-//<<<<<<< HEAD
-     		// The includeResults variable skips getting the results when 
-     		// generating experimentsDTOs for calculating stats (performance)
-     		//if (experiment.getResults()==null && experiment.getExperimentalBiologicalModelId()!=null && includeResults) {
-     		//	experiment.setResults( phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), observation.getParameterStableId(), ObservationType.valueOf(observation.getObservationType()), observation.getStrain()));
-//=======
      		// TODO: update to make use of the MP to result association
      		// includeResults variable skips the results when gathering
      		// experiments for calculating the results (performance)
      		if (experiment.getResults()==null && experiment.getExperimentalBiologicalModelId()!=null && includeResults) {
      			//this call to solr is fine if all we want is pValue and effect size, but for unidimensional data we need more stats info to populate the extra table so we need to make a db call instead for unidimensional
      			List<? extends StatisticalResult> basicResults = phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), observation.getParameterStableId(), ObservationType.valueOf(observation.getObservationType()), observation.getStrain());
-     			//one doc_id for each sex result 
-     			//"doc_id":88370,= female and "doc_id":88371, male for one example
-     			//int phenotypeCallSummaryId=204749;
+     		
      			List<UnidimensionalResult> populatedResults=new ArrayList<>();
-     			for(StatisticalResult basicResult: basicResults) {
-     			//get one for female and one for male if exist
-     			UnidimensionalResult unidimensionalResult=(UnidimensionalResult)basicResult;
-     			System.out.println("basic result PCSummary Id="+unidimensionalResult.getId()+" basic result sex type="+unidimensionalResult.getSexType()+" p value="+unidimensionalResult.getpValue());
-     			
-				try {
-					UnidimensionalResult result = unidimensionalStatisticsDAO.getStatsForPhenotypeCallSummaryId(unidimensionalResult.getId());
-					if(result!=null) {
-							//result.setSexType(unidimensionalResult.getSexType());//set the sextype from our already called solr result as it's not set by hibernate
-							result.setZygosityType(unidimensionalResult.getZygosityType());
-							System.out.println("result!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"+result);
-							populatedResults.add(result);
+     			if(experiment.getObservationType()==ObservationType.unidimensional) {
+					for (StatisticalResult basicResult : basicResults) {
+						// get one for female and one for male if exist
+						UnidimensionalResult unidimensionalResult = (UnidimensionalResult) basicResult;
+						System.out.println("basic result PCSummary Id="
+								+ unidimensionalResult.getId()
+								+ " basic result sex type="
+								+ unidimensionalResult.getSexType()
+								+ " p value="
+								+ unidimensionalResult.getpValue());
+
+						try {
+							UnidimensionalResult result = unidimensionalStatisticsDAO
+									.getStatsForPhenotypeCallSummaryId(unidimensionalResult
+											.getId());
+							if (result != null) {
+								// result.setSexType(unidimensionalResult.getSexType());//set
+								// the sextype from our already called solr
+								// result as it's not set by hibernate
+								result.setZygosityType(unidimensionalResult
+										.getZygosityType());
+								System.out
+										.println("result!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+												+ result);
+								populatedResults.add(result);
+							}
+						} catch (SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
 					}
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-     					
      			}
      			if(populatedResults.size()==0) {
      				System.out.println("resorting to basic stats result");

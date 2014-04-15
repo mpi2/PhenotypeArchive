@@ -62,11 +62,11 @@
 				
 				<%-- some *** result should be here: ${unidimensionalChartDataSet.statsObjects[1].result} --%>
 			<c:if test="${fn:length(unidimensionalChartDataSet.statsObjects)>1}"> 
-				
+			<c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
+				<c:if test="${data.result.id!=null }">
 				<p><a><i class="fa" id="toggle_table_button${experimentNumber}">More Statistics</i></a></p>
 				<div id="toggle_table${experimentNumber}">
 						<table>				
- 							<c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
  									<c:choose>
           									<c:when test="${data.result.significanceClassification.text == 'Both genders equally' || data.result.significanceClassification.text == 'No significant change'  || data.result.significanceClassification.text == 'Can not differentiate genders' }">
           												<tr><th>Global Test</th><th>Significance/Classification</th><th>Effect</th></tr>
@@ -85,7 +85,6 @@
 						
 
  						<c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
- 						<c:if test="${data.result!=null }">
  						<table>
  						<tr><th>Model Fitting Estimates</th><th>Value</th></tr>	
  							<c:if test="${data.result.colonyId!=null}"><tr>
@@ -130,13 +129,10 @@
  							<c:if test="${data.result.genderMaleKoStandardErrorEstimate!=null}"><tr><td>Gender Male KO Standard Error Estimate </td><td>${data.result.genderMaleKoStandardErrorEstimate }</td></tr></c:if>
  							<c:if test="${data.result.genderMaleKoPValue!=null}"><tr><td>Gender Male KO P Value </td><td>${data.result.genderMaleKoPValue }</td></tr></c:if>
  							</table>
- 	 					</c:if>	
+ 	 					
  				</div>
- 				
- 				<%-- </c:if> --%>
- 				
- 		
- 				</c:if>
+ 				</c:if>	
+ 		</c:if>
  </c:if>
  <script>
  	$(document).ready(
@@ -150,5 +146,12 @@
 										  $( "#toggle_table${experimentNumber}" ).toggle('slow');
 										  $( "#toggle_table_button${experimentNumber}" ).toggleClass('fa-caret-right').toggleClass('fa-caret-down');//remove right and put down or vica versa
 										});
+			
+			// bubble popup for brief panel documentation - added here as in stats page it doesn't work
+		 	$.fn.qTip({
+						'pageName': 'stats',
+						'textAlign': 'left',
+						'tip': 'topRight'
+			}); 
  					});
 </script>
