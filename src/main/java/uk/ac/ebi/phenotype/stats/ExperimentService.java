@@ -15,6 +15,9 @@ import java.util.TreeSet;
 
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.eclipse.jetty.util.log.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +36,8 @@ import uk.ac.ebi.phenotype.stats.strategy.ControlSelectionStrategy;
 
 @Service
 public class ExperimentService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ExperimentService.class);
 
 	public static final Integer MIN_CONTROLS = 6;
 
@@ -310,20 +315,12 @@ public class ExperimentService {
 		    	    	}
 
 		    	    }
+	    	    	LOG.info("Number of batches: " + allBatches.size());
 
 					// If there is only 1 batch, the selection strategy is to
 					// try to use concurrent controls. If there is more than one
-					// batch, we fall back to baseline controls up until the
-					// date of the last experiment
-		    	    if (allBatches.size() == 1) {
-
-		    	    	experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
-
-		    	    } else {
-
-		    	    	experiment.setControlSelectionStrategy(ControlStrategy.baseline_all);
-
-		    	    }
+					// batch, we default to all controls
+	    	    	experiment.setControlSelectionStrategy(ControlStrategy.baseline_all);
 		    	    
 
 		    	    //
@@ -342,13 +339,26 @@ public class ExperimentService {
 			    				// for this sex, then use concurrent controls
 
 			    				List<ObservationDTO> potentialControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, s.name(), experiment.getMetadataGroup());
+				    	    	LOG.info("Number of potential controls for sex: " + s.name() + ": " + potentialControls.size());
 			
 				    			if (potentialControls.size() >= MIN_CONTROLS) {
+
 				    				controls = potentialControls;
 					    			experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
+					    	    	LOG.info("Setting concurrent controls for sex: " + s.name());
+
+				    			} else {
+
+				    				controls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, s.name(), experiment.getMetadataGroup());			    				
+					    	    	LOG.info("Using baseline controls for sex: " + s.name() + ", num controls: "+controls.size());
+
 				    			}
+
 			    			} else {
-				    			controls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, s.name(), experiment.getMetadataGroup());			    				
+				    			
+			    				controls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, s.name(), experiment.getMetadataGroup());			    				
+				    	    	LOG.info("Using baseline controls for sex: " + s.name() + ", num controls: "+controls.size());
+
 			    			}
 			    	    }
 
@@ -358,28 +368,15 @@ public class ExperimentService {
 		    	    	//
 		    	    	// Processing both sexes
 		    	    	//
-//<<<<<<< HEAD
-//=======
-//
-//		    			List<ObservationDTO> addingControls = new ArrayList<ObservationDTO>();
-//
-//	    	    		// DEFAULT
-//		    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all_until_last_experiment);
-//		    			addingControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, null, experiment.getMetadataGroup());
-//
-//		    			
-//		    			if (addingControls.size() <= MIN_CONTROLS) {
-//		    				// Not enough control data -- use baseline all
-//			    			experiment.setControlSelectionStrategy(ControlStrategy.baseline_all);
-//			    			addingControls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, null, experiment.getMetadataGroup());
-//		    			}
-//>>>>>>> refs/remotes/origin/fixedNewDesign
 
 		    			if (allBatches.size()==1) {
 
 		    				List<ObservationDTO> potentialMaleControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, SexType.male.name(), experiment.getMetadataGroup());
 		    				List<ObservationDTO> potentialFemaleControls = os.getConcurrentControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, experimentDate, SexType.female.name(), experiment.getMetadataGroup());
-	
+
+		    				LOG.info("Number of potential controls for males: " + potentialMaleControls.size());
+			    	    	LOG.info("Number of potential controls for females: " + potentialFemaleControls.size());
+
 			    			// Only if BOTH counts of male and 
 		    				// female controls are equal or more than MIN_CONTROLS
 		    				//  do we do concurrent controls
@@ -389,28 +386,22 @@ public class ExperimentService {
 			    				controls = potentialMaleControls;
 			    				controls.addAll(potentialFemaleControls);
 				    			experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
+				    	    	LOG.info("Setting concurrent controls");
 
 			    			} else {
 
 			    				controls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, null, experiment.getMetadataGroup());		    				
+				    	    	LOG.info("Using baseline controls, num controls: "+controls.size());
 
 			    			}
 
 		    			} else {
 
 		    				controls = os.getAllControlsBySex(parameterId, experiment.getStrain(), experimentOrganisationId, null, null, experiment.getMetadataGroup());		    				
+			    	    	LOG.info("Using baseline controls, num controls: "+controls.size());
 
 		    			}
-//=======
-//			    			if (potentialMaleControls.size() >= MIN_CONTROLS && potentialFemaleControls.size() >= MIN_CONTROLS) {
-//			    				addingControls = potentialMaleControls;
-//			    				addingControls.addAll(potentialFemaleControls);
-//				    			experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
-//			    			}
-//		    			}
-//		
-//		    			controls.addAll(addingControls);
-//>>>>>>> refs/remotes/origin/fixedNewDesign
+
 		    	    }
 
 	    		} // End control selection
