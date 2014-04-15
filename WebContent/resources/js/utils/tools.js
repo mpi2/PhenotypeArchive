@@ -184,8 +184,7 @@
 	$.fn.addFacetOpenCollapseLogic = function(foundMatch, selectorBase) {
 		var firstMatch = 0;	
 		
-		for ( var sub in foundMatch ){	
-			
+		for ( var sub in foundMatch ){			
 			if ( foundMatch[sub] != 0 ) {		
 				firstMatch++;
 				if ( firstMatch == 1 ){					
@@ -241,47 +240,104 @@
 		
 		var fqStr = $.fn.fieldNameMapping(fqStr, 'gene');
 		
-		var aFields = ['imits_phenotype_complete', 'imits_phenotype_started', 'imits_phenotype_status', 'status', 
-         'marker_type'];
+		var oFields = {'imits_phenotype_complete':{'class': 'phenotyping', 'label':'Complete'}, 
+					   'imits_phenotype_started':{'class': 'phenotyping', 'label':'Started'},  
+					   'imits_phenotype_status':{'class': 'phenotyping', 'label':'Attempt Registered'},  	
+		               'status':{'class':'production', 'label':''},		             
+		               'latest_production_centre':{'class':'latest_production_centre','label':''},
+		               'latest_phenotyping_centre':{'class':'latest_phenotyping_centre','label':''},
+		               'marker_type':{'class':'marker_type', 'label':''}
+		               };
+		
+		var aFields = [];
+		for (var f in oFields ){
+			aFields.push(f);
+		}		
 		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(aFields);
 		
         var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';
         paramStr += '&fq=' + fqStr + ' AND ' + MPI2.searchAndFacetConfig.facetParams.geneFacet.fq + fecetFieldsStr;        
-        //console.log('GENE: '+ paramStr);
+        console.log('GENE: '+ paramStr);
         
         $.ajax({ 	
-			'url': solrUrl + '/gene/select',    		
+			'url': solrUrl + '/gene/select',			
     		'data': paramStr,
     		'dataType': 'jsonp',
     		'jsonp': 'json.wrf',
     		'success': function(json) {
-    			//console.log('gene');
-    			//console.log(json);
+    			console.log('gene');
+    			console.log(json);
     			
-				var oFacets = json.facet_counts.facet_fields;					
+				var oFacets = json.facet_counts.facet_fields;
+			
 				var selectorBase = "div.flist li#gene";
 				_facetRefresh(json, selectorBase);				
 				
 				// collapse all subfacet first, then open the first one that has matches 
 				$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');
 								
-				var foundMatch = {'phenotyping':0, 'production':0, 'marker_type':0};
+				var foundMatch = {'phenotyping':0, 'production':0, 'latest_production_centre':0, 'latest_phenotyping_centre':0, 'marker_type':0};
 				
-				for (var n=0; n<aFields.length; n++){
-					
-					if ( aFields[n].match(/^imits_/) && oFacets[aFields[n]].length != 0 ){
+				for (var n=0; n<aFields.length; n++){					
+					if ( oFacets[aFields[n]].length != 0 ){						
+						foundMatch[oFields[aFields[n]]['class']]++;
+					}	
+					/*if ( aFields[n].match(/^imits_/) && oFacets[aFields[n]].length != 0 ){
 						foundMatch.phenotyping++;
 					}
 					else if ( aFields[n]=='status' && oFacets.status.length != 0 ){
 						foundMatch.production++;
 					}
+					else if ( aFields[n]=='latest_production_centre' && oFacets.marker_type.length != 0 ) {
+						foundMatch.marker_type++;
+					}
 					else if ( aFields[n]=='marker_type' && oFacets.marker_type.length != 0 ) {
 						foundMatch.marker_type++;
-					}					
-				}									
+					}*/
+					
+				}
+			
+				for ( var fld in oFacets ){
+					for (var i=0; i<oFacets[fld].length; i=i+2){
+						console.log('field: '+ fld);
+						var subFacetName = oFacets[fld][i];
+						console.log('sub facet name: '+ subFacetName);
+						if ( subFacetName != ''){ // skip solr field which value is an empty string
+							var className = oFields[fld]['class'];
+							console.log('classname: '+ className);
+							if ( className != 'phenotyping' ){
+								$(selectorBase + ' li.' + className + ' span.flabel').each(function(){							
+									if ( $(this).text() == subFacetName ){
+										$(this).siblings('span.fcount').text(oFacets[fld][i+1]);
+									}
+								});
+							}	
+							else {
+								if (subFacetName == '1'){						
+									$(selectorBase + ' li.' + className + ' span.flabel').each(function(){
+										if ( $(this).text() == 'Complete' && fld == 'imits_phenotype_complete' ){
+											$(this).siblings('span.fcount').text(oFacets[fld][i+1]);
+										}
+										else if ( $(this).text() == 'Started' && fld == 'imits_phenotype_started' ){
+											$(this).siblings('span.fcount').text(oFacets[fld][i+1]);
+										}
+									});
+								}
+								else if (subFacetName == 'Phenotype Attempt Registered'){
+									$(selectorBase + ' li.' + className + ' span.flabel').each(function(){
+										if ( $(this).text() == 'Attempt Registered' ){
+											$(this).siblings('span.fcount').text(oFacets[fld][i+1]);
+										}
+									});
+								}
+							}
+						}
+					}
+				}
+				
 								
 				// update subfacet counts with matches
-				for (var i=0; i<oFacets.status.length; i=i+2){			
+				/*for (var i=0; i<oFacets.status.length; i=i+2){			
 					var subFacetName = oFacets.status[i];
 					$(selectorBase + ' li.production span.flabel').each(function(){
 						if ( $(this).text() == subFacetName ){
@@ -297,8 +353,10 @@
 							$(this).siblings('span.fcount').text(oFacets.marker_type[i+1]);
 						}
 					});
-				}				
-				for (var i=0; i<oFacets.imits_phenotype_complete.length; i=i+2){
+				}	*/		
+				
+				// phenotyping status subfacet update
+				/*for (var i=0; i<oFacets.imits_phenotype_complete.length; i=i+2){
 					if (oFacets.imits_phenotype_complete[i] == '1'){
 						$(selectorBase + ' li.phenotyping span.flabel').each(function(){
 							if ( $(this).text() == 'Complete' ){
@@ -325,7 +383,7 @@
 							}
 						});
 					}
-				}
+				}*/
 					
 
 				$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);	
@@ -705,7 +763,7 @@
 	}
 	
 	$.fn.fetchFecetFieldsStr = function(aFacetFields){
-		var facetFieldsStr = '';;
+		var facetFieldsStr = '';
 		for ( var i=0; i<aFacetFields.length; i++){
 			facetFieldsStr += '&facet.field=' + aFacetFields[i];
 		}
@@ -872,6 +930,13 @@
 			else if ( value == 'Phenotype Attempt Registered' || field == 'status' || field == 'marker_type' ){
 				filterTxt = value.toLowerCase();
 			}
+			
+			if ( field == 'latest_production_centre' ){
+				filterTxt = 'mice produced at ' + value;
+			}
+			else if ( field == 'latest_phenotyping_centre' ){
+				filterTxt = 'mice phenotyped at ' + value;
+			}			
 		}
 		
 		var pipelineName, a;
