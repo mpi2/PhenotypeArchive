@@ -514,7 +514,7 @@ public class GenotypePhenotypeService {
 			int i = 0;
 			while (i + 1 < array.size()) {
 				String facetString = array.get(i).toString();
-				System.out.println("Fecet string : " + facetString + " count  " + array.getInt(i + 1));
+				//System.out.println("Fecet string : " + facetString + " count  " + array.getInt(i + 1));
 				int number = array.getInt(i + 1);
 				if (number != 0) {// only add if some counts to filter on!
 					map.put(facetString, number);
