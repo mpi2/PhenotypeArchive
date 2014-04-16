@@ -300,10 +300,10 @@ public class PhenotypesController {
 			pr.setSexes(sex);
 			pr.setPhenotypeTerm(pcs.getPhenotypeTerm());
 			pr.setPipeline(pcs.getPipeline());
+			pr.setPhenotypingCenter(pcs.getPhenotypingCenter());
 			// zygosity representation depends on source of information
 			// we need to know what the data source is so we can generate appropriate link on the page
 			Datasource ds = pcs.getDatasource();
-
 			// Defend in case the datasource is not loaded
 			String dataSourceName = (ds != null) ? dataSourceName = ds.getName() : "";
 			pr.setDataSourceName(dataSourceName);

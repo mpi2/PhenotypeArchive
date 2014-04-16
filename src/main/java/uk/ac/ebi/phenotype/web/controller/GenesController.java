@@ -360,8 +360,7 @@ public class GenesController {
 			
 			pr.setProcedure(pcs.getProcedure());
 			pr.setParameter(pcs.getParameter());
-			if (pcs.getPhenotypingCenter() != null)
-				pr.setPhenotypingCenter(pcs.getPhenotypingCenter());
+			pr.setPhenotypingCenter(pcs.getPhenotypingCenter());
 			if(phenotypes.containsKey(pr)) {
 				pr = phenotypes.get(pr);
 				TreeSet<String> sexes = new TreeSet<String>();

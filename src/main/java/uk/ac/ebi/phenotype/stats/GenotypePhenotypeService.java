@@ -416,6 +416,7 @@ public class GenotypePhenotypeService {
 			mpEntity.setAccession(mpId);
 			phenotypeTerm.setId(mpEntity);
 			sum.setPhenotypeTerm(phenotypeTerm);
+			sum.setPhenotypeingCenter(phen.getString( GenotypePhenotypeField.PHENOTYPING_CENTER ));
 			if (phen.containsKey( GenotypePhenotypeField.ALLELE_SYMBOL )) {
 				Allele allele = new Allele();
 				allele.setSymbol(phen.getString(GenotypePhenotypeField.ALLELE_SYMBOL ));
