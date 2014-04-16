@@ -195,23 +195,23 @@
 	<field name="smallThumbnailFilePath" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<!-- pipeline core stuff -->    
-	<field name="parameter_id" type="int" indexed="true" stored="true" required="false" multiValued="false"/>
-    <field name="parameter_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
-    <field name="parameter_name" type="string" indexed="true" stored="true" required="false" multiValued="false"/>		
-    <field name="parameter_stable_key" type="int" indexed="true" stored="true" required="false" multiValued="false"/>	
-    <field name="procedure_id" type="int" indexed="true" stored="true" required="false" multiValued="false"/>
-    <field name="procedure_stable_id" type="string" indexed="true" stored="true" required="false" />
-    <field name="procedure_name" type="string" indexed="true" stored="true" required="false" />
-	<field name="mapped_procedure_name" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
-    <field name="procedure_stable_key" type="int" indexed="true" stored="true" required="false" />
-	<field name="proc_name_id" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
-    <field name="proc_param_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
-    <field name="proc_param_name" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
-	<field name="pipeline_id" type="int" indexed="true" stored="true" required="false" multiValued="false"/>
-    <field name="pipeline_stable_id" type="string" indexed="true" stored="true" required="false" />
-    <field name="pipeline_name" type="string" indexed="true" stored="true" required="false" /> 
-    <field name="pipeline_stable_key" type="int" indexed="true" stored="true" required="false" /> 
-	<field name="pipe_proc_sid" type="string" indexed="true" stored="true" required="false" /> 
+	<field name="parameter_id" type="int" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="parameter_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="parameter_name" type="string" indexed="true" stored="true" required="false" multiValued="true"/>		
+    <field name="parameter_stable_key" type="int" indexed="true" stored="true" required="false" multiValued="true"/>	
+    <field name="procedure_id" type="int" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="procedure_stable_id" type="string" indexed="true" stored="true" required="true" />
+    <field name="procedure_name" type="string" indexed="true" stored="true" required="true" />
+	<field name="mapped_procedure_name" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="procedure_stable_key" type="int" indexed="true" stored="true" required="true" />
+	<field name="proc_name_id" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="proc_param_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="proc_param_name" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+	<field name="pipeline_id" type="int" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="pipeline_stable_id" type="string" indexed="true" stored="true" required="true" />
+    <field name="pipeline_name" type="string" indexed="true" stored="true" required="true" /> 
+    <field name="pipeline_stable_key" type="int" indexed="true" stored="true" required="true" /> 
+	<field name="pipe_proc_sid" type="string" indexed="true" stored="true" required="true" /> 
 	
 
 	<field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
