@@ -35,7 +35,6 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.stereotype.Service;
 
-import uk.ac.ebi.phenotype.data.imits.ColonyStatus;
 import uk.ac.ebi.phenotype.web.util.DrupalHttpProxy;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
@@ -476,96 +475,6 @@ public class SolrIndex {
 		}
 
 		return (JSONObject) JSONSerializer.toJSON(content);
-	}
-
-	/**
-	 * Returns a list of phenotype status for every allele in IMPC
-	 * 
-	 * @param accession
-	 *            the gene accession id to get the phenotype statuses for
-	 * @return a list of colony status objects
-	 * @throws IOException
-	 * @throws URISyntaxException
-	 */
-	public List<ColonyStatus> getGeneColonyStatus(String accession)
-			throws IOException, URISyntaxException {
-
-		String url = config.get("internalSolrUrl") + "/" + "gene" + "/select?"
-				+ "q=mgi_accession_id:" + accession.replace(":", "\\:")
-				+ "&wt=json";
-
-		log.info("url for geneDao=" + url);
-
-		JSONObject json = getResults(url);
-		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-
-		if (docs.size() > 1) {
-			log.error("Error, Only expecting 1 document from an accession/gene request");
-		}
-
-		// TODO
-		// query the allele core provided by vivek
-		// find the one with allele_name = 'GeneSymbol<sup>tm1a'
-		// and product_type = "Mouse"
-		// and mgi_accession_id accession
-		// e.g. Cib2<sup>tm1a(EUCOMM)Wtsi</sup>"
-		// this will be the reference to retrieve the other alleles
-
-		String tm1aAlleleName = "";
-
-		// Multiple alleles / multiple colonies
-
-		JSONArray colonies = docs.getJSONObject(0)
-				.getJSONArray("colony_prefix");
-		JSONArray phenotypeColonies = docs.getJSONObject(0).getJSONArray(
-				"imits_phenotype_colony_name");
-		JSONArray phenotypeAlleleTypes = docs.getJSONObject(0).getJSONArray(
-				"imits_phenotype_allele_type");
-		JSONArray phenotypeStarted = docs.getJSONObject(0).getJSONArray(
-				"imits_phenotype_started");
-		JSONArray phenotypeCompleted = docs.getJSONObject(0).getJSONArray(
-				"imits_phenotype_complete");
-		JSONArray phenotypeStatus = docs.getJSONObject(0).getJSONArray(
-				"imits_phenotype_status");
-
-		List<ColonyStatus> results = new ArrayList<ColonyStatus>();
-		log.debug("Gene " + accession + " contains " + phenotypeColonies.size()
-				+ " phenotyped colonies");
-		for (int cursor = 0; cursor < phenotypeColonies.size(); cursor++) {
-			String currentPhenotypeStatus = (phenotypeStatus.size() >= (cursor + 1)) ? phenotypeStatus
-					.getString(cursor) : "";
-			int phenotypeStartedValue = (phenotypeStarted.size() >= (cursor + 1)) ? phenotypeStarted
-					.getInt(cursor) : 0;
-			int phenotypeCompletedValue = (phenotypeCompleted.size() >= (cursor + 1)) ? phenotypeCompleted
-					.getInt(cursor) : 0;
-			String alleleType = (phenotypeAlleleTypes.size() >= (cursor + 1)) ? phenotypeAlleleTypes
-					.getString(cursor) : "";
-			log.debug(phenotypeColonies.getString(cursor) + " "
-					+ currentPhenotypeStatus);
-			// TODO add production status
-			ColonyStatus current = new ColonyStatus(
-					phenotypeColonies.getString(cursor),
-					currentPhenotypeStatus, "", alleleType,
-					phenotypeStartedValue, phenotypeCompletedValue);
-
-			// change the allele type
-			String currentAlleleName = tm1aAlleleName.replace("tm1a", "tm1"
-					+ alleleType);
-			// retrieve it from the allele core
-			// allele_name = currentAlleleName
-			// and product_type = "Mouse"
-			// and mgi_accession_id accession
-			// and get the strain name for this allele
-			// check the colony because multiple colonies could have been
-			// derived
-			String backgroundStrain = "";
-			current.setAlleleName(currentAlleleName);
-			current.setBackgroundStrain(backgroundStrain);
-
-			results.add(current);
-		}
-
-		return results;
 	}
 
 	/**
