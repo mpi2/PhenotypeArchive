@@ -145,6 +145,8 @@
 				<entry key="mediaBaseUrl" value="${mediaBaseUrl}" />
 				<entry key="googleAnalytics" value="${googleAnalytics}" />
 				<entry key="liveSite" value="${liveSite}" />
+                                <entry key="seleniumUrl" value="${seleniumUrl}" />
+                                <entry key="seleniumDrivers" value="${seleniumDrivers}" />
 			</map>
 		</property>
 	</bean>
