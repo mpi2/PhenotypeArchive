@@ -34,7 +34,10 @@
 		<hibernate.dialect>org.hibernate.dialect.MySQLDialect</hibernate.dialect>
 		<hibernate.version>3.6.10.Final</hibernate.version>
 		<servlet.api.version>2.3</servlet.api.version>
-		<selenium.version>2.37.1</selenium.version>
+                
+		<selenium.version>2.41.0</selenium.version>
+                <seleniumUrl>http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
+                
 		<baseUrl>http://localhost:8080/phenotype-archive</baseUrl>
 		<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
 			to EBI servers for performance -->
@@ -505,16 +508,31 @@
 		</dependency>
 
 		<!-- Selenium dependencies -->
-		<dependency>
-			<groupId>org.seleniumhq.selenium</groupId>
-			<artifactId>selenium-java</artifactId>
-			<version>${selenium.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.seleniumhq.selenium</groupId>
-			<artifactId>selenium-firefox-driver</artifactId>
-			<version>${selenium.version}</version>
-		</dependency>
+                <dependency>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-java</artifactId>
+                    <version>${selenium.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-firefox-driver</artifactId>
+                    <version>${selenium.version}</version>
+                </dependency>                
+                <dependency>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-chrome-driver</artifactId>
+                    <version>${selenium.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-safari-driver</artifactId>
+                    <version>${selenium.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-ie-driver</artifactId>
+                    <version>${selenium.version}</version>
+                </dependency>
 
 		<dependency>
 			<groupId>net.sf.alchim</groupId>
@@ -575,6 +593,7 @@
 						<testFailureIgnore>true</testFailureIgnore>
 						<excludes>
 							<exclude>**PageTest.java</exclude>
+                                                        <exclude>**/phenotype/web/**</exclude>
 						</excludes>
 					</configuration>
 				</plugin>
@@ -1075,58 +1094,59 @@
 
 		</profile>
 		
-		<profile>
-			<id>web-tests</id>
+                <profile>
+                    <id>web-tests</id>
 
-			<properties>
-				<baseUrl>/data</baseUrl>
-				<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
-					to EBI servers for performance -->
-				<solrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
-				<internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
-				<drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
-				<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
-				<liveSite>false</liveSite>
-			</properties>
+                    <properties>
+                        <baseUrl>/data</baseUrl>
+                        <!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
+                        to EBI servers for performance -->
+                        <solrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
+                        <internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
+                        <drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
+                        <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
+                        <seleniumUrl>http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
+                        <liveSite>false</liveSite>
+                    </properties>
 
 
-			<build>
-				<plugins>
-				<plugin>
-       			<groupId>org.codehaus.mojo</groupId>
-        		<artifactId>build-helper-maven-plugin</artifactId>
-        		<version>1.8</version>
-       			 <executions>
-          			<execution>
-            			<id>add-test-source</id>
-           				 <phase>generate-test-sources</phase>
-            				<goals>
-             					 <goal>add-test-source</goal>
-           					 </goals>
-            			<configuration>
-              				<sources>
-              					  <source>${project.basedir}/src/test/web</source>
-             				 </sources>
-            			</configuration>
-         			 </execution>
-        		</executions>
-      		</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<version>2.4.2</version>
-						<configuration>
-							<skipTests>false</skipTests>
-							<includes>
-							<include>**/phenotype/web/**</include>
-							</includes>
-						</configuration>
-					</plugin>
+                    <build>
+                        <plugins>
+                            <plugin>
+                                <groupId>org.codehaus.mojo</groupId>
+                                <artifactId>build-helper-maven-plugin</artifactId>
+                                <version>1.8</version>
+                                <executions>
+                                    <execution>
+                                        <id>add-test-source</id>
+                                        <phase>generate-test-sources</phase>
+                                        <goals>
+                                            <goal>add-test-source</goal>
+                                        </goals>
+                                        <configuration>
+                                            <sources>
+                                                <source>${project.basedir}/src/test/web</source>
+                                            </sources>
+                                        </configuration>
+                                    </execution>
+                                </executions>
+                            </plugin>
+                            <plugin>
+                                <groupId>org.apache.maven.plugins</groupId>
+                                <artifactId>maven-surefire-plugin</artifactId>
+                                <version>2.4.2</version>
+                                <configuration>
+                                    <skipTests>false</skipTests>
+                                    <includes>
+                                        <include>**/phenotype/web/**</include>
+                                    </includes>
+                                </configuration>
+                            </plugin>
 
-				</plugins>
-			</build>
+                        </plugins>
+                    </build>
 
-		</profile>
+                </profile>
 
 		<profile>
 			<id>external-test</id>
