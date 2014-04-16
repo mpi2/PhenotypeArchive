@@ -1,5 +1,7 @@
 package uk.ac.ebi.phenotype.stats.graphs;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,12 +71,19 @@ public class GraphUtils {
             	pipelineStableIdsSolrString=seperator+"pipeline_stable_id="+pipeStableId;
             	}
             }
+         
             for(String center:centersList) {
+            	try {
+					center=URLEncoder.encode(center, "UTF-8");//encode the phenotype center to get around harwell spaces
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             	for(String strain:strains) {
             		if(metaDataGroupStrings!=null){
                             for(String metaGroup: metaDataGroupStrings) {
             			
-            			urls.add(accessionAndParam+zygosities+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+ObservationService.ExperimentField.METADATA_GROUP+"="+metaGroup+pipelineStableIdsSolrString);
+            			urls.add(accessionAndParam+zygosities+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+""+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+ObservationService.ExperimentField.METADATA_GROUP+"="+metaGroup+pipelineStableIdsSolrString);
             			
             		}
                         }
