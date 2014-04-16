@@ -162,7 +162,7 @@ $(document).ready(function(){
 	// the phenptype dropdown should only be shown on the top level terms pages
 
 	createDropdown(allDropdowns[3].sort(), "Phenotype: All", allDropdowns);
-	createDropdown(allDropdowns[0],"Source: All", allDropdowns);
+	createDropdown(allDropdowns[0],"Analysis: All", allDropdowns);
 	createDropdown(allDropdowns[1], "Procedure: All", allDropdowns);
 	createDropdown(allDropdowns[2].sort(), "Gene: All", allDropdowns);
 
