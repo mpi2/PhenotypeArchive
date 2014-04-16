@@ -45,6 +45,7 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalDataObject;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
+import uk.ac.ebi.phenotype.web.controller.ChartsController;
 
 @Service
 public class ObservationService {
@@ -53,7 +54,6 @@ public class ObservationService {
     PhenotypePipelineDAO parameterDAO;
 
     private static final Logger LOG = LoggerFactory.getLogger(ObservationService.class);
-
     // Definition of the solr fields
     public static final class ExperimentField {
 
@@ -139,7 +139,13 @@ public class ObservationService {
 			.setFacetLimit(-1);
 
 		if (phenotypingCenterParams!= null && !phenotypingCenterParams.isEmpty()){
-			query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER + ":(" + StringUtils.join(phenotypingCenterParams, " OR ") + ")");
+			List<String>spaceSafeStringsList=new ArrayList<String>();//need to add " to ends of entries to cope with MRC Harwell with space in!
+			for(String pCenter: phenotypingCenterParams) {
+				if(!pCenter.endsWith("\"") && !pCenter.startsWith("\"")) {//check we haven't got speech marks already
+				spaceSafeStringsList.add("\""+pCenter+"\"");
+				}
+			}
+			query.addFilterQuery(ExperimentField.PHENOTYPING_CENTER + ":(" + StringUtils.join(spaceSafeStringsList, " OR ") + ")");
 		}
 
 		if (strainParams!= null && !strainParams.isEmpty()){
