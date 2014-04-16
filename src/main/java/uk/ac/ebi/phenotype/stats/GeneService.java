@@ -26,8 +26,6 @@ import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService.GenotypePhenotypeField
 public class GeneService {
 
 	private HttpSolrServer solr;
-	private ArrayList<String> alleleTypes_mi;
-	private ArrayList<String> alleleTypes_pa;
 
 	private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
@@ -38,16 +36,6 @@ public class GeneService {
 	public GeneService(String solrUrl) {
 		solr = new HttpSolrServer(solrUrl);
 
-		alleleTypes_mi = new ArrayList<>();
-		alleleTypes_pa = new ArrayList<>();
-
-		alleleTypes_mi.add("tm1");
-		alleleTypes_mi.add("tm1a");
-		alleleTypes_mi.add("tm1e");
-
-		alleleTypes_pa.add("tm1.1");
-		alleleTypes_pa.add("tm1b");
-		alleleTypes_pa.add("tm1e.1");
 	}
 
 	private String derivePhenotypingStatus(SolrDocument doc) {
@@ -177,80 +165,30 @@ public class GeneService {
 		
 	}
 
-	private String parseAlleleType(SolrDocument doc, String prodStatus,
-			String type) {
 
-		System.out.println("parseAlleleType with : \n \t\t" + prodStatus
-				+ "   " + type);
+	public Boolean checkPhenotypeStarted(String geneAcc) {
 
-		String miceStr = "";
-		String hoverTxt = null;
-		if (prodStatus.equals("done")) {
-			hoverTxt = "Mice produced";
-		} else if (prodStatus.equals("inprogress")) {
-			hoverTxt = "Mice production in progress";
-		} else if (prodStatus.equals("none")) {
-			hoverTxt = "Mice production planned";
-		}
-
-		// tm1/tm1a/tm1e mice
-		if (type.equals("A")) {
-
-			Map<String, Integer> seenMap = new HashMap<String, Integer>();
-			seenMap.put("tm1", 0);
-			seenMap.put("tm1a", 0);
-			seenMap.put("tm1e", 0);
-
-			for (String alleleType : alleleTypes_mi) {
-
-				String key = prodStatus.equals("inprogress") ? "es_allele_name"
-						: "mi_allele_name";
-
-				ArrayList<String> alleleNames = (ArrayList<String>) doc
-						.getFieldValue(key);
-				for (String an : alleleNames) {
-					if (an.contains(alleleType + "(")) {
-						seenMap.put(alleleType, seenMap.get(alleleType) + 1);
-						// tm1seen++;
-						if (seenMap.get(alleleType) == 1) {
-							miceStr += "<span class='status " + prodStatus
-									+ "' title='" + hoverTxt + "' >"
-									+ "	<span>Mice<br>" + alleleType
-									+ "</span>" + "</span>";
-							break;
-						}
+        SolrQuery query = new SolrQuery();
+        query.setQuery("mgi_accession_id:\"" + geneAcc + "\"");
+        
+        QueryResponse response;
+		try {
+			response = solr.query(query);
+		
+	    	SolrDocument doc = response.getResults().get(0);
+	    	// phenotype_status
+	    	if ( doc.containsKey("phenotype_status") ){
+				ArrayList<String> statuses = (ArrayList<String>) doc.getFieldValue("phenotype_status");
+				for (String status : statuses){
+					if (status.equalsIgnoreCase("Phenotyping Started")){
+						return true;
 					}
 				}
-			}
+	    	}
+	    } catch (SolrServerException e) {
+			e.printStackTrace();
 		}
-		// tm1.1/tm1b/tm1e.1 mice
-		else if (type.equals("B")) {
-
-			Map<String, Integer> seenMap = new HashMap<String, Integer>();
-			seenMap.put("tm1.1", 0);
-			seenMap.put("tm1b", 0);
-			seenMap.put("tm1e.1", 0);
-
-			for (String alleleType : alleleTypes_pa) {
-				ArrayList<String> alleleNames = (ArrayList<String>) doc
-						.getFieldValue("pa_allele_name");
-				for (String an : alleleNames) {
-					if (an.contains(alleleType + "(")) {
-						seenMap.put(alleleType, seenMap.get(alleleType) + 1);
-						if (seenMap.get(alleleType) == 1) {
-							miceStr += "<span class='status " + prodStatus
-									+ "' title='" + hoverTxt + "' >"
-									+ "	<span>Mice<br>" + alleleType
-									+ "</span>" + "</span>";
-							break;
-						}
-					}
-				}
-			}
-		}
-
-		System.out.println("\t\t miceStr : " + miceStr);
-		return miceStr;
+    	return false; 
 	}
-
+	
 }

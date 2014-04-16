@@ -207,63 +207,8 @@ public class GenesController {
 		} 
 
 		model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
-
-		/**
-		 * PHENOTYPE STATUS (IMITS BIOMART)
-		 */
-
-		// TODO: =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-		// TODO: BEGIN
-		// TODO: REPLACE THIS COMMENTED SECTION WITH NEW PHENOTYPE STATUS CALL
-		// TODO: =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 		
-//		
-//		List<ColonyStatus> allColonyStatus = new ArrayList<ColonyStatus>();
-//		boolean phenotypeStarted = false;
-//		String phenotypeStatus = null;
-//		
-//		
-//		
-//		try {
-//			/*
-//			 * TODO this should be done allele by allele
-//			 */
-//			
-//			//PhenotypeStatusDAO psDao = new SolrPhenotypeStatusDAOImpl();
-//			//allColonyStatus = solrIndex.getGeneColonyStatus(acc);
-//
-//			allColonyStatus = psDao.getColonyStatus(gene);
-//			
-//			/** check whether the phenotype has started */
-//			for (ColonyStatus st: allColonyStatus) {
-//				//System.out.println("allcolony status="+st.getAlleleName()+" "+st.getAlleleType()+" "+st.getBackgroundStrain()+" "+st.getPhenotypeCenter()+" "+st.getPhenotypeStatus()+" "+st.getProductionStatus());
-//				if (st.getPhenotypeStarted() == 1 && st.getPhenotypeCompleted() == 0) {
-//					phenotypeStarted = true;
-//				}
-//				if (st.getPhenotypeCompleted() == 1) {
-//					phenotypeStatus = "Complete";
-//				} else
-//				if (st.getPhenotypeStarted() == 1 && (phenotypeStatus == null || !phenotypeStatus.equals("Complete"))) {
-//					phenotypeStatus = "Started";
-//				} else 
-//				if (st.getPhenotypeStatus().equals("Phenotype Attempt Registered") && (phenotypeStatus == null || !phenotypeStatus.equals("Complete") || !phenotypeStatus.equals("Started"))) {
-//						phenotypeStatus = "Attempt Registered";
-//					}
-//			}
-//
-//
-//			log.info("geneStatus="+geneStatus);//doesn't fail if null
-//				
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		} finally {
-//			model.addAttribute("allColonyStatus", allColonyStatus);
-//			model.addAttribute("phenotypeStarted", new Boolean(phenotypeStarted));
-//		}
-		// TODO: =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-		// TODO: END 
-		// TODO: REPLACE THIS COMMENTED SECTION WITH NEW PHENOTYPE STATUS CALL
-		// TODO: =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+		model.addAttribute("phenotypeStarted", geneService.checkPhenotypeStarted( acc ));
 
 		
 		// Get list of triplets of pipeline, allele acc, phenotyping center
@@ -274,7 +219,6 @@ public class GenesController {
 			model.addAttribute("dataMapList", dataMapList);
 			
 		} catch (SolrServerException e2) {
-			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
 	

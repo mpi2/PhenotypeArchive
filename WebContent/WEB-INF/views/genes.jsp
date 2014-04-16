@@ -336,13 +336,7 @@
 				
 		<c:if test="${phenotypeStarted}">
 			<div class="section">
-			  <h2 class="title" id="heatmap">Pre-QC phenotype heatmap -
-					<c:forEach items="${allColonyStatus}" var="colonyStatus">
-						<c:if test="${colonyStatus.phenotypeStarted == 1}">
-							${colonyStatus.alleleName}<%-- </td><td>${colonyStatus.backgroundStrain}</td><td>${colonyStatus.phenotypeCenter}</td></tr> --%>
-						</c:if>
-					</c:forEach>	
-					<span class="documentation" ><a href='' id='mpPanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
+			  <h2 class="title" id="heatmap">Pre-QC phenotype heatmap <span class="documentation" ><a href='' id='mpPanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
 				</h2>
 				
 				<div class="inner">
