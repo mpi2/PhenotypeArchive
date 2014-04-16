@@ -62,11 +62,8 @@ public class DataTableController {
 	private SolrIndex solrIndex;
 
 	@Resource(name="globalConfiguration")
-	private Map<String, String> config;
-
-	private List<String> alleleTypes_mi = new ArrayList<String>();
-	private List<String> alleleTypes_pa = new ArrayList<String>();
-	
+	private Map<String, String> config;// mi_attempt, phenotype_attempt allele types
+		
 	
 	/**
 	 * <p>
@@ -180,16 +177,7 @@ public class DataTableController {
 	}
 
 	public String parseJsonforGeneDataTable(HttpServletRequest request, JSONObject json, String qryStr, String solrCoreName, List<String> filters){	
-		
-		// mi_attempt, phenotype_attempt allele types
-		alleleTypes_mi.add("tm1");
-		alleleTypes_mi.add("tm1a");
-		alleleTypes_mi.add("tm1e");		
-		
-		alleleTypes_pa.add("tm1.1");
-		alleleTypes_pa.add("tm1b");
-		alleleTypes_pa.add("tm1e.1");
-		
+				
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config, request);
 
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
@@ -284,40 +272,7 @@ public class DataTableController {
 				
 		return "";
 	}
-	public String derivePhenotypingStatusOri(JSONObject doc){
-		
-		// Vivek email to ckchen on 07/02/14 11:57
-		List<String> phenos = new ArrayList<String>() {
-			  {
-				add("mi_phenotyping_status");
-				add("pa_phenotyping_status");				
-			   }
-		};
-		try {
-			for (String p : phenos) {
-			// Phenotyping complete			
-				if (doc.containsKey(p)) {
-					JSONArray status = doc.getJSONArray(p);
-					for (Object s : status) {
-						if (s.toString().equals("Phenotyping Started") || s.toString().equals("Phenotyping Complete") ) {
-							return "available";
-						}
-					}
-				}
-			}	
-
-			// for legacy data: indexed through experiment core (so not want Sanger Gene or Allele cores)
-			if (doc.containsKey("hasQc")) {				
-				return "QCed data available";			
-			}
-		}		
-		catch (Exception e) {
-			log.error("Error getting phenotyping status");
-			log.error(e.getLocalizedMessage());
-		}
-				
-		return "";
-	}
+	
 	public String fetchEsCellStatus(JSONObject doc, HttpServletRequest request){
 		
 		String mgiId = doc.getString("mgi_accession_id");
@@ -353,36 +308,7 @@ public class DataTableController {
 			
 		return esCellStatus; 
 	}
-	public String fetchEsCellStatusOri(JSONObject doc, HttpServletRequest request){
 		
-		String mgiId = doc.getString("mgi_accession_id");
-		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;
-				
-		String esCellStatus = "";	
-		
-		try {	
-			
-			// ES cell production status
-			if ( doc.containsKey("es_allele_name") ){
-				// blue es cell status
-				esCellStatus = "<a class='status done' href='" + geneUrl + "' oldtitle='ES Cells produced' title=''>"
-					   		 + " <span>ES cells</span>"
-					   		 + "</a>";
-			}
-			else if ( !doc.containsKey("es_allele_name") && doc.containsKey("gene_type") ){		
-				esCellStatus = "<span class='status inprogress' oldtitle='ES cells production in progress' title=''>"
-						   	 +  "	<span>ES Cells</span>"
-						   	 +  "</span>";
-			}
-		}	
-		catch (Exception e) {
-			log.error("Error getting ES cell/Mice status");
-			log.error(e.getLocalizedMessage());
-		}
-			
-		return esCellStatus; 
-	}
-	
 	public String deriveProductionStatusForEsCellAndMice(JSONObject doc, HttpServletRequest request){		
 				
 		String esCellStatus = fetchEsCellStatus(doc, request);		
@@ -457,117 +383,7 @@ public class DataTableController {
 		return esCellStatus + miceStatus;
 		
 	}
-	public String deriveProductionStatusForEsCellAndMiceOri(JSONObject doc, HttpServletRequest request){		
-	
-		String esCellStatus = fetchEsCellStatus(doc, request);		
-		String miceStatus = "";	
-		try {		
-						
-			// mice production status
-			
-			// Mice: blue tm1/tm1a/tm1e mice (depending on how many allele docs) 
-			if ( doc.containsKey("mi_allele_type") ){
-				// blue es cell status
-				miceStatus += parseAlleleType(doc, "done", "A");
-			}
-			// Mice: blue tm1.1/tm1b/tm1e.1 mice (depending on how many allele docs) 
-			if ( doc.containsKey("pa_allele_type") ){
-				// blue es cell status
-				miceStatus += parseAlleleType(doc, "done", "B");
-			}
-			
-			if ( doc.containsKey("es_allele_name") && doc.containsKey("gene_type_status")  ){
-				if ( doc.getString("gene_type_status").equals("Microinjection in progress") ){					
-					// draw orange tm1/tm1a/tm1e mice with given alleles
-					miceStatus += parseAlleleType(doc, "inprogress", "A");					
-				}	
-				else if (doc.getString("gene_type_status").equals("") ){
-					miceStatus += parseAlleleType(doc, "none", "A");  // mouse production planned	
-				}
-			}
-			else if ( doc.containsKey("es_allele_name") && !doc.containsKey("gene_type_status") ){
-				// grey mice status: 
-				miceStatus += parseAlleleType(doc, "none", "A");  // mouse production planned	
-			}			
-			
-		} catch (Exception e) {
-			log.error("Error getting ES cell/Mice status");
-			log.error(e.getLocalizedMessage());
-		}
 		
-		return esCellStatus + miceStatus;
-		
-	}
-	
-	public String parseAlleleType(JSONObject doc, String prodStatus, String type){		
-		
-		String miceStr = "";			
-		String hoverTxt = null;		
-		if ( prodStatus.equals("done") ){
-			hoverTxt = "Mice produced";			
-		}
-		else  if (prodStatus.equals("inprogress") ) {
-			hoverTxt = "Mice production in progress";
-		}
-		else if ( prodStatus.equals("none") ){
-			hoverTxt = "Mice production planned";
-		}
-		
-		
-		//tm1/tm1a/tm1e mice	
-		if ( type.equals("A") ){	
-			
-			Map<String,Integer> seenMap = new HashMap<String,Integer>();	      
-			seenMap.put("tm1", 0);
-			seenMap.put("tm1a", 0);
-			seenMap.put("tm1e", 0);			
-			
-			for (String alleleType : alleleTypes_mi){	
-				
-				String key = prodStatus.equals("inprogress") ? "es_allele_name" : "mi_allele_name";				
-				
-				JSONArray alleleNames = doc.getJSONArray(key);
-				for (Object an : alleleNames) {				
-					if ( an.toString().contains(alleleType+"(") ){						
-						seenMap.put(alleleType, seenMap.get(alleleType)+1);
-						//tm1seen++;
-						if ( seenMap.get(alleleType) == 1 ){
-							miceStr += "<span class='status " + prodStatus + "' oldtitle='" + hoverTxt + "' title=''>"
-								+  "	<span>Mice<br>" + alleleType + "</span>"
-								+  "</span>";					
-							break;
-						}					
-					}
-				}	
-			}	
-		}
-		//tm1.1/tm1b/tm1e.1 mice	
-		else if ( type.equals("B") ){	
-			
-			Map<String,Integer> seenMap = new HashMap<String,Integer>();	      
-			seenMap.put("tm1.1", 0);
-			seenMap.put("tm1b", 0);
-			seenMap.put("tm1e.1", 0);
-			
-			for (String alleleType : alleleTypes_pa){	
-				
-				JSONArray alleleNames = doc.getJSONArray("pa_allele_name");
-				for (Object an : alleleNames) {				
-					if ( an.toString().contains(alleleType+"(") ){					
-						seenMap.put(alleleType, seenMap.get(alleleType)+1);
-						if ( seenMap.get(alleleType) == 1 ){
-							miceStr += "<span class='status " + prodStatus + "' oldtitle='" + hoverTxt + "' title=''>"
-									+  "	<span>Mice<br>" + alleleType + "</span>"
-									+  "</span>";	
-							break;
-						}	
-					}	
-				}				
-			}	
-		}		
-		
-		return miceStr;
-	}
 	public String parseJsonforProtocolDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters, int start){
 		
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");

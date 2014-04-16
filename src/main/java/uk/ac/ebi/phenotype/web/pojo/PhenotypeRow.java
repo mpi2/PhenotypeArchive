@@ -195,6 +195,7 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 		result = prime * result + ((allele == null) ? 0 : allele.hashCode());
 		result = prime * result + ((dataSourceName == null) ? 0 : dataSourceName.hashCode());
 		result = prime * result + ((phenotypeTerm == null) ? 0 : phenotypeTerm.hashCode());
+		result = prime * result + ((phenotypingCenter == null) ? 0 : phenotypingCenter.hashCode());
 		result = prime * result + ((zygosity == null) ? 0 : zygosity.hashCode());
 		if (gene != null) {
 			result = prime * result + ((parameter == null) ? 0 : parameter.hashCode());
@@ -249,6 +250,13 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 		} else if (!gene.equals(other.gene)) {
 			return false;
 		}
+		if (phenotypingCenter == null) {
+			if (other.phenotypingCenter != null) {
+				return false;
+			}
+		} else if (!phenotypingCenter.equals(other.phenotypingCenter)) {
+			return false;
+		}
 		if (phenotypeTerm == null) {
 			if (other.phenotypeTerm != null) {
 				return false;
@@ -270,7 +278,7 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 				+ ", zygosity=" + zygosity + ", rawZygosity=" + rawZygosity
 				+ ", projectId=" + projectId + ", procedure=" + procedure
 				+ ", parameter=" + parameter + ", dataSourceName="
-				+ dataSourceName + "]";
+				+ dataSourceName+ ", phenotypingCenter=" + phenotypingCenter + "]";
 	}
 
 	@Override

@@ -28,7 +28,8 @@
 				<th>Sex</th>
 				<th>Phenotype </th>
 				<th>Procedure / Parameter</th>
-				<th>Source</th>
+				<th>Phenotyping Center</th>
+				<th>Analysis</th>
 				<th>Graph</th>
 			</tr>
 		</thead>
@@ -55,6 +56,7 @@
 				
 					<td>${phenotype.procedure.name} / ${phenotype.parameter.name}</td>
 				
+					<td>${phenotype.phenotypingCenter}</td>
 					
 					<td>
 						<c:choose>

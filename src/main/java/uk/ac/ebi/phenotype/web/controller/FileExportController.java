@@ -56,6 +56,7 @@ import uk.ac.ebi.phenotype.pojo.PipelineSolrImpl;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 import uk.ac.ebi.phenotype.stats.ExperimentService;
+import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService.GenotypePhenotypeField;
 
 @Controller
 public class FileExportController {
@@ -304,7 +305,7 @@ public class FileExportController {
 		}
 		
 		List<ExperimentDTO> experimentList = new ArrayList<ExperimentDTO> ();		
-Integer pipelineId=0;
+		Integer pipelineId=0;
 		for (int k = 0; k < parameterStableId.length; k++){
 			for (int mgiI = 0; mgiI < geneAccession.length; mgiI++){
 				for (Integer pCenter : phenotypingCenterIds){
@@ -359,24 +360,25 @@ Integer pipelineId=0;
 		// from the phenotype core we export both the table on gene & phenotype page so we need to check on which file we are
 		
 		if (request.getParameter("page").equalsIgnoreCase("gene")){
-			rowData.add("Phenotype\tAllele\tZygosity\tSex\tProcedure / Parameter\tSource\tGraph"); 
+			rowData.add("Phenotype\tAllele\tZygosity\tSex\tProcedure / Parameter\tPhenotyping Center\tAnalysis\tGraph"); 
 			for (int i=0; i<docs.size(); i++) {			
 				List<String> data = new ArrayList<String>();
 				JSONObject doc = docs.getJSONObject(i);
-				data.add(doc.getString("mp_term_name"));
-				if (doc.containsKey("allele_symbol"))
-					data.add(doc.getString("allele_symbol"));
+				data.add(doc.getString(GenotypePhenotypeField.MP_TERM_NAME));
+				if (doc.containsKey(GenotypePhenotypeField.ALLELE_SYMBOL))
+					data.add(doc.getString(GenotypePhenotypeField.ALLELE_SYMBOL));
 				else data.add("");
-				data.add(doc.getString("zygosity"));
-				data.add(doc.getString("sex"));
-				data.add(doc.getString("procedure_name") + " / " + doc.getString("parameter_name"));
-				data.add(doc.getString("resource_fullname"));
+				data.add(doc.getString(GenotypePhenotypeField.ZYGOSITY));
+				data.add(doc.getString(GenotypePhenotypeField.SEX));
+				data.add(doc.getString(GenotypePhenotypeField.PROCEDURE_NAME) + " / " + doc.getString(GenotypePhenotypeField.PARAMETER_NAME));
+				data.add(doc.getString(GenotypePhenotypeField.PHENOTYPING_CENTER));
+				data.add(doc.getString(GenotypePhenotypeField.RESOURCE_NAME));
 				String graphUrl = "\"\"";
 				graphUrl = request.getParameter("baseUrl").replace("/genes/", "/charts?accession=") + "&parameterId=" ;
-				graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
-				graphUrl += "&zygosity=" + doc.getString("zygosity");
-				if (doc.containsKey("phenotyping_center")){
-					graphUrl += "&phenotyping_center=" +doc.getString("phenotyping_center");
+				graphUrl += doc.getString(GenotypePhenotypeField.PARAMETER_STABLE_ID) + "&gender=" + doc.getString(GenotypePhenotypeField.SEX);
+				graphUrl += "&zygosity=" + doc.getString(GenotypePhenotypeField.ZYGOSITY);
+				if (doc.containsKey(GenotypePhenotypeField.PHENOTYPING_CENTER)){
+					graphUrl += "&phenotyping_center=" +doc.getString(GenotypePhenotypeField.PHENOTYPING_CENTER);
 				}
 				data.add(graphUrl);
 				String line = StringUtils.join(data, "\t");
@@ -387,39 +389,30 @@ Integer pipelineId=0;
 		}
 		else if (request.getParameter("page").equalsIgnoreCase("phenotype")){
 			boolean isTopLevel = (!docs.getJSONObject(0).containsKey("top_level_mp_term_name"));
-			// table is different for top level terms and the rest
-			if (!isTopLevel){
-				// top_level ones don't have this field
-				rowData.add("Gene\tAllele\tZygosity\tSex\tProcedure / Parameter\tSource\tGraph"); 
-			}
-			else {
-				rowData.add("Gene\tAllele\tZygosity\tSex\tPhenotype / Parameter\tSource\tGraph"); 
-			}
+			
+			rowData.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure / Parameter\tPhenotyping Center\tAnalysis\tGraph"); 
+			
 			for (int i=0; i<docs.size(); i++) {		
 				JSONObject doc = docs.getJSONObject(i);
 				// for some reason we need to filter out the IMPC entries.
 				
 				List<String> data = new ArrayList<String>();
-				data.add(doc.getString("marker_symbol"));
-				if (doc.containsKey("allele_symbol"))
-					data.add(doc.getString("allele_symbol"));
+				data.add(doc.getString(GenotypePhenotypeField.MARKER_SYMBOL));
+				if (doc.containsKey(GenotypePhenotypeField.ALLELE_SYMBOL))
+					data.add(doc.getString(GenotypePhenotypeField.ALLELE_SYMBOL));
 				else data.add("");
-				data.add(doc.getString("zygosity"));
-				data.add(doc.getString("sex"));
-				if (isTopLevel)
-				{
-					data.add(doc.getString("mp_term_name") + " / " + doc.getString("parameter_name"));
-				}
-				else {
-					data.add(doc.getString("procedure_name") + " / " + doc.getString("parameter_name"));
-				}
-				data.add(doc.getString("resource_fullname"));
+				data.add(doc.getString(GenotypePhenotypeField.ZYGOSITY));
+				data.add(doc.getString(GenotypePhenotypeField.SEX));
+				data.add(doc.getString(GenotypePhenotypeField.MP_TERM_NAME));
+				data.add(doc.getString(GenotypePhenotypeField.PROCEDURE_NAME) + " / " + doc.getString(GenotypePhenotypeField.PARAMETER_NAME));
+				data.add(doc.getString(GenotypePhenotypeField.PHENOTYPING_CENTER));
+				data.add(doc.getString(GenotypePhenotypeField.RESOURCE_NAME));
 				String graphUrl = "\"\"";
-				graphUrl = request.getParameter("baseUrl").split("/phenotypes/")[0] + "/charts?accession=" + doc.getString("marker_accession_id") + "&parameterId=" ;
-				graphUrl += doc.getString("parameter_stable_id") + "&gender=" + doc.getString("sex");
-				graphUrl += "&zygosity=" + doc.getString("zygosity") ;
-				if (doc.containsKey("phenotyping_center")){
-					graphUrl += "&phenotyping_center=" +doc.getString("phenotyping_center");
+				graphUrl = request.getParameter("baseUrl").split("/phenotypes/")[0] + "/charts?accession=" + doc.getString(GenotypePhenotypeField.MARKER_ACCESSION_ID) + "&parameterId=" ;
+				graphUrl += doc.getString(GenotypePhenotypeField.PARAMETER_STABLE_ID) + "&gender=" + doc.getString(GenotypePhenotypeField.SEX);
+				graphUrl += "&zygosity=" + doc.getString(GenotypePhenotypeField.ZYGOSITY) ;
+				if (doc.containsKey(GenotypePhenotypeField.PHENOTYPING_CENTER)){
+					graphUrl += "&phenotyping_center=" +doc.getString(GenotypePhenotypeField.PHENOTYPING_CENTER);
 				}
 				data.add(graphUrl);
 				rowData.add(StringUtils.join(data, "\t"));

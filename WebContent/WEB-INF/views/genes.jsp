@@ -336,13 +336,7 @@
 				
 		<c:if test="${phenotypeStarted}">
 			<div class="section">
-			  <h2 class="title" id="heatmap">Pre-QC phenotype heatmap -
-					<c:forEach items="${allColonyStatus}" var="colonyStatus">
-						<c:if test="${colonyStatus.phenotypeStarted == 1}">
-							${colonyStatus.alleleName}<%-- </td><td>${colonyStatus.backgroundStrain}</td><td>${colonyStatus.phenotypeCenter}</td></tr> --%>
-						</c:if>
-					</c:forEach>	
-					<span class="documentation" ><a href='' id='mpPanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
+			  <h2 class="title" id="heatmap">Pre-QC phenotype heatmap <span class="documentation" ><a href='' id='mpPanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
 				</h2>
 				
 				<div class="inner">
@@ -364,7 +358,7 @@
 			</c:if>
 		
 			<!-- nicolas accordion for images here -->
-<c:if test="${not empty solrFacets}">
+			<c:if test="${not empty solrFacets}">
         		<div class="section">
                       <h2 class="title" id="section-images">Phenotype Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                        <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
@@ -392,7 +386,7 @@
                               
                            </div><!--  end of inner -->
          </div> <!-- end of section -->
-</c:if>			
+			</c:if>			
 					
 			<c:if test="${not empty expressionFacets}">
 			<div class="section">
