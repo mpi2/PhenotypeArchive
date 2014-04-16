@@ -30,6 +30,10 @@
 
 	<bean id="experimentService" class="uk.ac.ebi.phenotype.stats.ExperimentService">
 	</bean>
+
+    <bean id="unidimensionalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl">
+        <constructor-arg ref="sessionFactory" />
+    </bean>
 	
 	<bean id="genotypePhenotypeService" class="uk.ac.ebi.phenotype.stats.GenotypePhenotypeService">
 		<constructor-arg  value="${internalSolrUrl}/genotype-phenotype" />

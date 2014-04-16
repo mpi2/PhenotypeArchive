@@ -56,50 +56,40 @@
     </div>
       
 		<script type="text/javascript" src="${drupalBaseUrl}/mp-heatmap/heatmap/js/heatmap.js"></script>  
-      <script>
-      function dcc_get(url, handler) {
-          var request = new XMLHttpRequest();
-          request.open('GET', url, true);
-          request.onreadystatechange = function(event) {
-              if (request.readyState == 4) {
-                  if (request.status == 200) {
-                      handler(JSON.parse(request.responseText));
-                  } else
-                      dcc_reportError('Unable to retrieve data from ' + url)
-              }
-          };
-          request.send(null);
-      }
-      dcc_get(drupalBaseUrl + '/mp-heatmap/rest/ontology_tree/mpterm?mpTerm=MP:0003857', function(mpTerm) {
-          var title = document.getElementById("phenodcc-heatmap-title");
-          title.innerHTML = "<p>MP Term Name: "+mpTerm.mpTermName+"</p>";
-      });	 
-      console.log("phenotypeId " + phenotypeId + ".")
-      console.log("drupalBaseUrl " + drupalBaseUrl + ".")
-	                    var heatmap = new dcc.PhenoHeatMap({
-	                        'container': 'phenodcc-heatmap-3',
-	                        'mode': 'exploration',
-	                        'format': {'column': function(datum) {
-	                                return datum.v;
-	                            }
-	                        },
-	                        'mpterm': phenotypeId,
-	                        'annotationthreshold': 0.05,
-	                        'url': {
-	                            /* the base URL of the heatmap javascript source */
-	                            'jssrc': '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
-	                            /* the base URL of the heatmap data source */
-	                            'json': '${fn:replace(drupalBaseUrl, "https:", "")}/mp-heatmap/rest/',
-	                            /* function that generates target URL for data
-	                             * visualisation */
-	                            'viz': function(r, c) {
-	                                return 'http://www.mousephenotype.org/phenoview?gid=' + r + '&qeid=' + c;
-	                            }
-	                        }
-	                    });
-	                    
-	        </script>   
-        
+		
+		<script>
+			new dcc.PhenoHeatMap(
+					{
+						'container' : 'phenodcc-heatmap-3',
+						'mode' : 'exploration',
+						'format' : {
+							'column' : function(datum) {
+								return datum.m;
+							},
+							'row' : function(datum) {
+								return datum.v
+							}
+						},
+						'mpterm' : phenotypeId,
+						'annotationthreshold' : 0.001,
+						'url' : {
+							/* The base URL of the gene page*/
+							'genePageURL' : drupalBaseUrl + "/data/genes/",
+							/* the base URL of the heatmap javascript source */
+							/* the base URL of the heatmap javascript source */
+							'jssrc' : '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
+							/* the base URL of the heatmap data source */
+							'json' : '${fn:replace(drupalBaseUrl, "https:", "")}/mp-heatmap/rest/',
+							/* function that generates target URL for data
+							 * visualisation */
+							'viz' : function(r, c) {
+								return drupalBaseUrl + '/phenoview?gid=' + r
+										+ '&qeid=' + c;
+							}
+						}
+					});
+		</script>
+		
 	</jsp:attribute>
 	<jsp:body>
 
@@ -235,10 +225,10 @@
 				<!--  HEATMAP section -->
 				<div class="section" id="phenotypeHeatmapSection" >
 					<h2 class="title" id="heatmapGenePage">Gene phenotyping heatmap for ${phenotype.name} <i class="fa fa-question-circle pull-right"></i></h2>
-					<div class="inner" >
+					<div class="inner">
 						<div id="heatmap-container">
 							<div id="phenodcc-heatmap-3"> </div>
-							</div>							
+						</div>							
 	        </div>
 				</div>
 				

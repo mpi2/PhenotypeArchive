@@ -72,12 +72,12 @@
           												<tr><th>Global Test</th><th>Significance/Classification</th><th>Effect</th></tr>
           												<tr><td>${data.result.nullTestSignificance}</td><td>${data.result.significanceClassification.text}</td><td>${data.result.genotypeParameterEstimate}</td></tr></c:when>
          									<c:when test="${data.result.significanceClassification.text == 'Female only' || data.result.significanceClassification.text == 'Male only'  || data.result.significanceClassification.text == 'Different size females greater' || data.result.significanceClassification == 'Different size males greater' || data.result.significanceClassification == 'Female and male different directions'}">
-       													 <tr><th>Global Test</th><th>Significance/Classification</th><th>Gender</th><th>Effect</th><th>Gender Ko Standard Error Estimate </th></tr>
+       													 <tr><th>Global Test</th><th>Significance/Classification</th><th>Gender</th><th>Effect</th><th>Gender KO SE Estimate </th></tr>
        													 <tr>
        													 <td rowspan="2">${data.result.nullTestSignificance}</td>
        													 <td rowspan="2">${data.result.significanceClassification.text}</td>
-       													 <td>Female</td><td>${data.result.genderFemaleKoEstimate}</td><c:if test="${data.result.genderFemaleKoStandardErrorEstimate!=null}"><td>${data.result.genderFemaleKoStandardErrorEstimate }</td></c:if>
-       													 <tr><td> Male</td><td> ${data.result.genderMaleKoEstimate}</td><c:if test="${data.result.genderMaleKoStandardErrorEstimate!=null}"><td>${data.result.genderMaleKoStandardErrorEstimate }</td></c:if>
+       													 <td>Female</td><td>${data.result.genderFemaleKoEstimate}</td><c:if test="${data.result.genderFemaleKoStandardErrorEstimate!=null}"><td>&#177;${data.result.genderFemaleKoStandardErrorEstimate }</td></c:if>
+       													 <tr><td> Male</td><td> ${data.result.genderMaleKoEstimate}</td><c:if test="${data.result.genderMaleKoStandardErrorEstimate!=null}"><td>&#177;${data.result.genderMaleKoStandardErrorEstimate }</td></c:if>
        													 </tr>
        										</c:when>
 									</c:choose>
