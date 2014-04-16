@@ -123,12 +123,13 @@ button.exportButton{
 
 #heatmap-container {
     height: 600px;
-    width: 800px
+    width: 964px
 }
 #phenodcc-heatmap-3 {
     height: 600px;
-    width: 800px
+    width: 964px
 }
+
 #phenotypeHeatmapSection{
 	width : 100%;
 }
