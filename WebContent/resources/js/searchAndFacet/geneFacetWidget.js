@@ -72,7 +72,7 @@
 	    },
 	    
 	    _displayGeneSubTypeFacet: function(json){
-	    	console.log(json);
+	    	//console.log(json);
 	    	var self = this;
 	    	var numFound = json.response.numFound;
 	    	
