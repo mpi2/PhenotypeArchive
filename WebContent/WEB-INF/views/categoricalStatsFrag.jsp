@@ -51,5 +51,15 @@
  				</div><!--  end of div overflow auto for x axis scrollbars on table -->
  				</c:forEach>
 
-
-
+<script>
+ 	$(document).ready(
+		function() {
+			
+			// bubble popup for brief panel documentation - added here as in stats page it doesn't work
+		 	$.fn.qTip({
+						'pageName': 'stats',
+						'textAlign': 'left',
+						'tip': 'topRight'
+			}); 
+ 					});
+</script>

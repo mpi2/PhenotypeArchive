@@ -60,106 +60,89 @@
 										</table>
 				
 				
-				
-			<%-- 	<c:if test="${fn:length(unidimensionalDataSet.allUnidimensionalResults)>0}"> --%>
-				<%-- <div class="section">
-						<table>
-						${fn:length(unidimensionalDataSet.allUnidimensionalResults)}
-						
- 							<c:forEach var="data" items="${unidimensionalDataSet.allUnidimensionalResults}">
- 							<td>${data.significanceClassification}</td>
+				<%-- some *** result should be here: ${unidimensionalChartDataSet.statsObjects[1].result} --%>
+			<c:if test="${fn:length(unidimensionalChartDataSet.statsObjects)>1}"> 
+			<c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
+				<c:if test="${data.result.id!=null }">
+				<p><a><i class="fa" id="toggle_table_button${experimentNumber}">More Statistics</i></a></p>
+				<div id="toggle_table${experimentNumber}">
+						<table>				
  									<c:choose>
-          									<c:when test="${data.significanceClassification == 'both_equally' || data.significanceClassification == 'none'  || data.significanceClassification == 'cannot_classify' }">
+          									<c:when test="${data.result.significanceClassification.text == 'Both genders equally' || data.result.significanceClassification.text == 'No significant change'  || data.result.significanceClassification.text == 'Can not differentiate genders' }">
           												<tr><th>Global Test</th><th>Significance/Classification</th><th>Effect</th></tr>
-          												<tr><td>${data.nullTestSignificance}</td><td>${data.significanceClassification.text}</td><td>${data.genotypeParameterEstimate}</td></tr></c:when>
-         									<c:when test="${data.significanceClassification == 'female_only' || data.significanceClassification == 'male_only'  || data.significanceClassification == 'female_greater' || data.significanceClassification == 'male_greater' || data.significanceClassification == 'different_directions'}">
-       													 <tr><th>Global Test</th><th>Significance/Classification</th><th>Gender</th><th>Effect</th></tr>
+          												<tr><td>${data.result.nullTestSignificance}</td><td>${data.result.significanceClassification.text}</td><td>${data.result.genotypeParameterEstimate}</td></tr></c:when>
+         									<c:when test="${data.result.significanceClassification.text == 'Female only' || data.result.significanceClassification.text == 'Male only'  || data.result.significanceClassification.text == 'Different size females greater' || data.result.significanceClassification == 'Different size males greater' || data.result.significanceClassification == 'Female and male different directions'}">
+       													 <tr><th>Global Test</th><th>Significance/Classification</th><th>Gender</th><th>Effect</th><th>Gender KO SE Estimate </th></tr>
        													 <tr>
-       													 <td rowspan="2">${data.nullTestSignificance}</td>
-       													 <td rowspan="2">${data.significanceClassification.text}</td>
-       													 <td>Female</td><td>${data.genderFemaleKoEstimate}</td>
-       													 <tr><td> Male</td><td> ${data.genderMaleKoEstimate}</td></tr></c:when>
+       													 <td rowspan="2">${data.result.nullTestSignificance}</td>
+       													 <td rowspan="2">${data.result.significanceClassification.text}</td>
+       													 <td>Female</td><td>${data.result.genderFemaleKoEstimate}</td><c:if test="${data.result.genderFemaleKoStandardErrorEstimate!=null}"><td>&#177;${data.result.genderFemaleKoStandardErrorEstimate }</td></c:if>
+       													 <tr><td> Male</td><td> ${data.result.genderMaleKoEstimate}</td><c:if test="${data.result.genderMaleKoStandardErrorEstimate!=null}"><td>&#177;${data.result.genderMaleKoStandardErrorEstimate }</td></c:if>
+       													 </tr>
+       										</c:when>
 									</c:choose>
-									</c:forEach>
  	 							</table>
- 	 							
- 	 		<table>
-						<tr>
-						<th>colonyId</th>
-						<th>experimentalZygosity</th>
-						<th>mixedModel</th>
-						<th>dependantVariable</th>
-						<th>batchSignificance</th>
-						<th>varianceSignificance</th>
-						<th>nullTestSignificance</th>
-						<th>genotypeParameterEstimate</th>
-						<th>genotypeStandardErrorEstimate</th>
-						<th>genotypeEffectPValue</th>
-						<th>genderParameterEstimate</th>
-						<th>genderStandardErrorEstimate</th>
-						<th>genderEffectPValue</th>
-						<th>weightParameterEstimate</th>
-						<th>weightStandardErrorEstimate</th>
-						<th>weightEffectPValue</th>
-						<th>gp1Genotype</th>
-						<th>gp1ResidualsNormalityTest</th>
-						<th>gp2Genotype</th>
-						<th>gp2ResidualsNormalityTest</th>
-						<th>blupsTest</th>
-						<th>rotatedResidualsNormalityTest</th>
-						<th>interceptEstimate</th>
-						<th>interceptEstimateStandardError</th>
-						<th>interactionSignificance</th>
-						<th>interactionEffectPValue</th>
-						<th>genderFemaleKoEstimate</th>
-						<th>genderFemaleKoStandardErrorEstimate</th>
-						<th>genderFemaleKoPValue</th>
-						<th>genderMaleKoEstimate</th>
-						<th>genderMaleKoStandardErrorEstimate</th>
-						<th>genderMaleKoPValue</th>
-						</tr>
- 						<c:forEach var="data" items="${unidimensionalDataSet.allUnidimensionalResults}">
- 							<tr>
- 							<td>${data.colonyId }</td>
- 							<td>${data.experimentalZygosity}</td>
- 							<td>${data.mixedModel}</td>
- 							<td>${data.dependantVariable}</td>
- 							<td>${data.batchSignificance }</td>
- 							<td>${data.varianceSignificance }</td>
- 							<td>${data.nullTestSignificance }</td>
- 							<td>${data.genotypeParameterEstimate }</td>
- 							<td>${data.genotypeStandardErrorEstimate }</td>
- 							<td>${data.genotypeEffectPValue}</td>
- 							<td>${data.genderParameterEstimate }</td>
- 							<td>${data.genderStandardErrorEstimate }</td>
- 							<td>${data.genderEffectPValue}</td>
- 							<td>${data.weightParameterEstimate }</td>
- 							<td>${data.weightStandardErrorEstimate }</td>
- 							<td>${data.weightEffectPValue }</td>
- 							<td>${data.gp1Genotype }</td>
- 							<td>${data.gp1ResidualsNormalityTest }</td>
- 							<td>${data.gp2Genotype }</td>
- 							<td>${data.gp2ResidualsNormalityTest }</td>
- 							<td>${data.blupsTest }</td>
- 							<td>${data.rotatedResidualsNormalityTest }</td>
- 							<td>${data.interceptEstimate }</td>
- 							<td>${data.interceptEstimateStandardError }</td>
- 							<td>${data.interactionSignificance }</td>
- 							<td>${data.interactionEffectPValue }</td>
- 							<td>${data.genderFemaleKoEstimate }</td>
- 							<td>${data.genderFemaleKoStandardErrorEstimate }</td>
- 							<td>${data.genderFemaleKoPValue }</td>
- 							<td>${data.genderMaleKoEstimate }</td>
- 							<td>${data.genderMaleKoStandardErrorEstimate }</td>
- 							<td>${data.genderMaleKoPValue }</td>
- 							</tr>
-						</c:forEach>
- 	 					</table>
+						
+						<%-- <th>mixedModel</th> --%>
+						
+
+ 						<c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
+ 						<table>
+ 						<tr><th>Model Fitting Estimates</th><th>Value</th></tr>	
+ 							<%-- <c:if test="${data.result.colonyId!=null}"><tr><td>Colony Id</td><td>${data.result.colonyId }</td></tr></c:if> --%>
+ 							<%-- <c:if test="${data.result.experimentalZygosity!=null}"><tr><td>Experimental Zygosity</td><td>${data.result.experimentalZygosity}</td></tr></c:if> --%>
+ 							<%-- <td>${data.result.mixedModel}</td> --%>
+ 							<%-- <c:if test="${data.result.dependantVariable!=null}"><tr><td>Dependant Variable</td><td>${data.result.dependantVariable}</td></tr></c:if> --%>
+ 							<c:if test="${data.result.batchSignificance!=null}"><tr><td>Batch Significance</td><td>${data.result.batchSignificance }</td></tr></c:if>
+ 							<c:if test="${data.result.varianceSignificance!=null}"><tr><td>Variance Significance</td><td>${data.result.varianceSignificance }</td></tr></c:if>
+ 							<c:if test="${data.result.interactionEffectPValue!=null}"><tr><td>Interaction Effect P Value </td><td>${data.result.interactionEffectPValue }</td></tr></c:if>
+ 							<%-- <c:if test="${data.result.nullTestSignificance !=null}"><tr><td>Null Test Significance</td><td>${data.result.nullTestSignificance }</td></tr></c:if> --%>
+ 							<c:if test="${data.result.genderFemaleKoPValue!=null}"><tr><td>Gender Female KO P Value </td><td>${data.result.genderFemaleKoPValue }</td></tr></c:if>
+ 							<c:if test="${data.result.genotypeParameterEstimate!=null}"><tr><td>Genotype Parameter Estimate</td><td>${data.result.genotypeParameterEstimate }</td></tr></c:if>
+ 							<c:if test="${data.result.genotypeStandardErrorEstimate!=null}"><tr><td>Genotype Standard Error Estimate</td><td>${data.result.genotypeStandardErrorEstimate }</td></tr></c:if>
+ 							<c:if test="${data.result.genotypeEffectPValue!=null}"><tr><td>Genotype Effect P Value</td><td>${data.result.genotypeEffectPValue}</td></tr></c:if>
+ 							<c:if test="${data.result.genderParameterEstimate!=null}"><tr><td>Gender Parameter Estimate</td><td>${data.result.genderParameterEstimate }</td></tr></c:if>
+ 							<c:if test="${data.result.genderStandardErrorEstimate!=null}"><tr><td>Gender Standard Error Estimate</td><td>${data.result.genderStandardErrorEstimate }</td></tr></c:if>
+ 							<c:if test="${data.result.interceptEstimate!=null}"><tr><td>Intercept Estimate </td><td>${data.result.interceptEstimate }</td></tr></c:if>
+ 							<c:if test="${data.result.interceptEstimateStandardError!=null}"><tr><td>Intercept Estimate Standard Error </td><td>${data.result.interceptEstimateStandardError }</td></tr></c:if>
+ 							<c:if test="${data.result.genderMaleKoPValue!=null}"><tr><td>Gender Male KO P Value </td><td>${data.result.genderMaleKoPValue }</td></tr></c:if>
+ 							<!-- 10-15 --><c:if test="${data.result.genderEffectPValue!=null}"><tr><td>Gender Effect P Value</td><td>${data.result.genderEffectPValue}</td></tr></c:if>
+ 							<c:if test="${data.result.weightParameterEstimate!=null}"><tr><td>Weight Parameter Estimate </td><td>${data.result.weightParameterEstimate }</td></tr></c:if>
+ 							<c:if test="${data.result.weightStandardErrorEstimate!=null}"><tr><td>Weight Standard Error Estimate </td><td>${data.result.weightStandardErrorEstimate }</td></tr></c:if>
+ 							<c:if test="${data.result.weightEffectPValue!=null}"><tr><td>Weight Effect P Value </td><td>${data.result.weightEffectPValue }</td></tr></c:if>
+ 							<%-- <c:if test="${data.result.gp1Genotype!=null}"><tr><td>Gp 1 Genotype</td><td>${data.result.gp1Genotype }</td></tr></c:if> --%>
+ 							<%-- <c:if test="${data.result.gp1ResidualsNormalityTest!=null}"><tr><td>Gp 1 Residuals Normality Test </td><td>${data.result.gp1ResidualsNormalityTest }</td></tr></c:if>This one always fails so I wouldn't include due to large number of readings.  If you want to keep add WT residuals then you an lose row above - NC --%>
+ 							<%-- <c:if test="${data.result.gp2Genotype!=null}"><tr><td>Gp 2 Genotype</td><td>${data.result.gp2Genotype }</td></tr></c:if> --%>
+ 							<c:if test="${data.result.gp2ResidualsNormalityTest!=null}"><tr><td>KO Residuals Normality Tests</td><td>${data.result.gp2ResidualsNormalityTest }</td></tr></c:if><!-- relabel as KO residuals normality tests -->
+ 							<c:if test="${data.result.blupsTest!=null}"><tr><td>Blups Test </td><td>${data.result.blupsTest }</td></tr></c:if>
+ 							<c:if test="${data.result.rotatedResidualsNormalityTest !=null}"><tr><td>Rotated Residuals Normality Test </td><td>${data.result.rotatedResidualsNormalityTest }</td></tr></c:if>
+ 							<%-- <c:if test="${data.result.interactionSignificance!=null}"><tr><td>Interaction Significance </td><td>${data.result.interactionSignificance }</td></tr></c:if> do you need as next row gives detail>? - NK --%>
+ 							<%-- <c:if test="${data.result.genderFemaleKoEstimate!=null}"><tr><td>Gender Female KO Estimate </td><td>${data.result.genderFemaleKoEstimate }</td></tr></c:if> --%>
+ 							<%-- <c:if test="${data.result.genderMaleKoEstimate!=null}"><tr><td>Gender Male KO Estimate </td><td>${data.result.genderMaleKoEstimate }</td></tr></c:if> --%>
+ 							</table>
  	 					
- 				</div> --%>
- 				
- 				<%-- </c:if> --%>
- 				
- 		
- 				</c:if>
- 				
+ 				</div>
+ 				</c:if>	
+ 		</c:if>
+ </c:if>
+ <script>
+ 	$(document).ready(
+		function() {
+ 	
+			console.log('document ready');
+			$( "#toggle_table${experimentNumber}" ).hide();//hide on load
+			$( "#toggle_table_button${experimentNumber}" ).toggleClass('fa-caret-right');//toggle the arrow on the link to point right as should be closed on init
+			$( "#toggle_table_button${experimentNumber}" ).click(function() {
+				console.log("click fired");
+										  $( "#toggle_table${experimentNumber}" ).toggle('slow');
+										  $( "#toggle_table_button${experimentNumber}" ).toggleClass('fa-caret-right').toggleClass('fa-caret-down');//remove right and put down or vica versa
+										});
+			
+			// bubble popup for brief panel documentation - added here as in stats page it doesn't work
+		 	$.fn.qTip({
+						'pageName': 'stats',
+						'textAlign': 'left',
+						'tip': 'topRight'
+			}); 
+ 					});
+</script>

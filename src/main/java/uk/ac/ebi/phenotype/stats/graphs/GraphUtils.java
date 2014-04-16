@@ -93,13 +93,21 @@ public class GraphUtils {
 	}
 	
 	public static Map<String,String>getUsefulStrings(BiologicalModel expBiologicalModel) {
+		Map<String,String> usefulStrings=new HashMap<String, String>();
+		if(expBiologicalModel==null) {
+			usefulStrings.put("allelicComposition", "unknown");
+			usefulStrings.put("geneticBackground", "unknown");
+			usefulStrings.put("symbol", "unknown");
+		
+		}else {
 		String allelicCompositionString=expBiologicalModel.getAllelicComposition();
 		String symbol=expBiologicalModel.getAlleles().get(0).getSymbol();
 		String geneticBackgroundString=expBiologicalModel.getGeneticBackground();
-		Map<String,String> usefulStrings=new HashMap<String, String>();
+
 		usefulStrings.put("allelicComposition", allelicCompositionString);
 		usefulStrings.put("geneticBackground", geneticBackgroundString);
 		usefulStrings.put("symbol", symbol);
+		}
 		return usefulStrings;
 	}
 }

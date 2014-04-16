@@ -284,9 +284,14 @@ public class ChartsController {
 		//String subTitle=gender;
 		BiologicalModel expBiologicalModel=bmDAO.getBiologicalModelById(experiment.getExperimentalBiologicalModelId());
 		//use some sort of map to pass in these or helper method? so we don't have to redo title, subtitle for each one??
-		String allelicCompositionString=expBiologicalModel.getAllelicComposition();
-		String symbol=expBiologicalModel.getAlleles().get(0).getSymbol();
-		String geneticBackgroundString=expBiologicalModel.getGeneticBackground();
+		String allelicCompositionString="unknown";
+		String symbol="unknown";
+		String geneticBackgroundString="unknown";
+		if(expBiologicalModel!=null) {
+		allelicCompositionString=expBiologicalModel.getAllelicComposition();
+		symbol=expBiologicalModel.getAlleles().get(0).getSymbol();
+		geneticBackgroundString=expBiologicalModel.getGeneticBackground();
+		}
 			try {
 				if(scatter) {
 					System.out.println("calling scatter!");

@@ -130,24 +130,18 @@
 	<field name="marker_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="marker_type" type="string" indexed="true" stored="true" multiValued="true" />  
 	<field name="human_gene_symbol" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
-	<field name="imits_report_phenotyping_complete_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
-	<field name="imits_report_genotype_confirmed_date" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
-	<field name="imits_report_mi_plan_status" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="imits_consortium" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="escell" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
-	<field name="ikmc_project" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
+	<!-- latest mouse status -->
 	<field name="status" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="production_center" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
-	<field name="phenotyping_center" type="string" indexed="true" stored="true" required="false" multiValued="true" />    	
+	<!--  phenotyping status -->
     <field name="imits_phenotype_started" type="string" indexed="true" multiValued="true"/>
-	<field name="imits_phenotype_complete" type="string" indexed="true" multiValued="true"/>
-	<field name="colony_prefix" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="imits_phenotype_colony_name" type="string" indexed="true" multiValued="true"/>
-	<field name="imits_phenotype_allele_type" type="string" indexed="true" multiValued="true"/>
+	<field name="imits_phenotype_complete" type="string" indexed="true" multiValued="true"/>	
 	<field name="imits_phenotype_status" type="string" indexed="true" multiValued="true"/>
-	<field name="imits_phenotype_is_active" type="string" indexed="true" multiValued="true"/>
-    <field name="phenotyping_started_center" type="string" indexed="true" multiValued="true"/>					                 
-	<field name="phenotyping_attempt_registered_center" type="string" indexed="true" multiValued="true"/>
+	<!-- centers -->
+	<field name="latest_production_centre" type="string" indexed="true" multiValued="true"/>
+	<field name="latest_phenotyping_centre" type="string" indexed="true" multiValued="true"/> 
+	
+	<!-- allele level fields of a gene -->
+	<field name="allele_name" type="text_general" indexed="true" stored="true" multiValued="true"/>
 
 	<!-- annotated and inferred mp term -->
 	<field name="mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
@@ -201,23 +195,23 @@
 	<field name="smallThumbnailFilePath" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<!-- pipeline core stuff -->    
-	<field name="parameter_id" type="int" indexed="true" stored="true" required="false" multiValued="false"/>
-    <field name="parameter_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
-    <field name="parameter_name" type="string" indexed="true" stored="true" required="false" multiValued="false"/>		
-    <field name="parameter_stable_key" type="int" indexed="true" stored="true" required="false" multiValued="false"/>	
-    <field name="procedure_id" type="int" indexed="true" stored="true" required="false" multiValued="false"/>
-    <field name="procedure_stable_id" type="string" indexed="true" stored="true" required="false" />
-    <field name="procedure_name" type="string" indexed="true" stored="true" required="false" />
-	<field name="mapped_procedure_name" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
-    <field name="procedure_stable_key" type="int" indexed="true" stored="true" required="false" />
-	<field name="proc_name_id" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
-    <field name="proc_param_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
-    <field name="proc_param_name" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
-	<field name="pipeline_id" type="int" indexed="true" stored="true" required="false" multiValued="false"/>
-    <field name="pipeline_stable_id" type="string" indexed="true" stored="true" required="false" />
-    <field name="pipeline_name" type="string" indexed="true" stored="true" required="false" /> 
-    <field name="pipeline_stable_key" type="int" indexed="true" stored="true" required="false" /> 
-	<field name="pipe_proc_sid" type="string" indexed="true" stored="true" required="false" /> 
+	<field name="parameter_id" type="int" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="parameter_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="parameter_name" type="string" indexed="true" stored="true" required="false" multiValued="true"/>		
+    <field name="parameter_stable_key" type="int" indexed="true" stored="true" required="false" multiValued="true"/>	
+    <field name="procedure_id" type="int" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="procedure_stable_id" type="string" indexed="true" stored="true" required="true" />
+    <field name="procedure_name" type="string" indexed="true" stored="true" required="true" />
+	<field name="mapped_procedure_name" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="procedure_stable_key" type="int" indexed="true" stored="true" required="true" />
+	<field name="proc_name_id" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="proc_param_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="proc_param_name" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+	<field name="pipeline_id" type="int" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="pipeline_stable_id" type="string" indexed="true" stored="true" required="true" />
+    <field name="pipeline_name" type="string" indexed="true" stored="true" required="true" /> 
+    <field name="pipeline_stable_key" type="int" indexed="true" stored="true" required="true" /> 
+	<field name="pipe_proc_sid" type="string" indexed="true" stored="true" required="true" /> 
 	
 
 	<field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
@@ -370,10 +364,16 @@
 	<copyField source="disease_id" dest="auto_suggest"/>
 	<copyField source="disease_source" dest="auto_suggest"/>
 	<copyField source="disease_human_phenotypes" dest="auto_suggest"/>
-	
-	<copyField source="marker_symbol" dest="auto_suggest"/>
+		
 	<copyField source="mgi_accession_id" dest="auto_suggest"/>
-
+	<copyField source="marker_symbol" dest="auto_suggest"/> 
+	<copyField source="marker_name" dest="auto_suggest"/> 
+	<copyField source="marker_synonym" dest="auto_suggest"/>
+	<copyField source="human_gene_symbol" dest="auto_suggest"/>
+	<copyField source="latest_production_centre" dest="auto_suggest"/>
+	<copyField source="latest_phenotyping_centre" dest="auto_suggest"/>
+	<copyField source="allele_name" dest="auto_suggest"/> 
+	
 	<copyField source="top_level_mp_term" dest="annotated_or_inferred_higherLevelMxTermName" />
 
 

@@ -15,7 +15,7 @@ $(document).ready(function(){
 	/* var oDataTable = $('table#phenotypes').dataTable();
 						oDataTable.fnDestroy();  */
 	// use jquery DataTable for table searching/sorting/pagination
-	var aDataTblCols = [0,1,2,3,4,5,6];
+	var aDataTblCols = [0,1,2,3,4,5,6,7];
 	var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
 		"aoColumns": [
 		              { "sType": "html", "mRender":function( data, type, full ) {
@@ -27,9 +27,9 @@ $(document).ready(function(){
 		              { "sType": "string"},
 		              { "sType": "string"},
 		              { "sType": "alt-string", "bSearchable" : false },
-		              /*  { "sType": "string"}, */
-		              { "sType": "html"}
-		              , { "sType": "string", "bSortable" : false }
+		              { "sType": "string"},
+		              { "sType": "html"},
+		              { "sType": "string", "bSortable" : false }
 
 		              ],
 		              "bDestroy": true,
@@ -61,7 +61,7 @@ $(document).ready(function(){
 		dumpMode: 'all',
 		baseUrl: windowLocation,
 		page:"gene",
-		gridFields: 'marker_symbol,allele_symbol,zygosity,sex,procedure_name,resource_fullname,parameter_stable_id,phenotyping_center,marker_accession_id, parameter_name,parameter_name,mp_term_name',
+		gridFields: 'marker_symbol,allele_symbol,zygosity,sex,procedure_name,resource_name,parameter_stable_id,phenotyping_center,marker_accession_id, parameter_name,parameter_name,mp_term_name',
 		params: "qf=auto_suggest&defType=edismax&wt=json&rows=100000&q=*:*&fq=marker_accession_id:\"" + mgiGeneId +"\""
 	});
 
@@ -134,7 +134,7 @@ $(document).ready(function(){
 	allDropdowns[0] = $('#top_level_mp_term_name');
 	allDropdowns[1] = $('#resource_fullname');
 	createDropdown(allDropdowns[0],"Top level MP: All", allDropdowns);
-	createDropdown(allDropdowns[1], "Source: All", allDropdowns);
+	createDropdown(allDropdowns[1], "Analysis: All", allDropdowns);
 
 	function createDropdown(multipleSel, emptyText,  allDd){
 		$(multipleSel).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 

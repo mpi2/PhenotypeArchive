@@ -1243,9 +1243,9 @@ public class ObservationService {
 	 * @param parameterId
 	 * @param strain
 	 * @param organisationId
+	 * @param experimentDate date of experiment 
 	 * @param sex if null, both sexes are returned
 	 * @param metadataGroup when metadataGroup is empty string, force solr to search for metadata_group:""
-	 * @param experimentDate 
 	 * @return list of control observationDTOs that conform to the search criteria
 	 * @throws SolrServerException
 	 */

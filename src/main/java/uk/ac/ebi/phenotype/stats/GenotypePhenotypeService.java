@@ -416,6 +416,7 @@ public class GenotypePhenotypeService {
 			mpEntity.setAccession(mpId);
 			phenotypeTerm.setId(mpEntity);
 			sum.setPhenotypeTerm(phenotypeTerm);
+			sum.setPhenotypeingCenter(phen.getString( GenotypePhenotypeField.PHENOTYPING_CENTER ));
 			if (phen.containsKey( GenotypePhenotypeField.ALLELE_SYMBOL )) {
 				Allele allele = new Allele();
 				allele.setSymbol(phen.getString(GenotypePhenotypeField.ALLELE_SYMBOL ));
@@ -503,8 +504,8 @@ public class GenotypePhenotypeService {
 		// dropdowns/ checkboxes
 		JSONObject facets = results.getJSONObject("facet_counts")
 				.getJSONObject("facet_fields");
-		System.out.println("\n\nFacet count : " + results.getJSONObject("facet_counts")
-				.getJSONObject("facet_fields") );
+//		System.out.println("\n\nFacet count : " + results.getJSONObject("facet_counts")
+	//			.getJSONObject("facet_fields") );
 		Iterator<String> ite = facets.keys();
 		Map<String, Map<String, Integer>> dropdowns = new HashMap<String, Map<String, Integer>>();
 		while (ite.hasNext()) {
@@ -514,7 +515,7 @@ public class GenotypePhenotypeService {
 			int i = 0;
 			while (i + 1 < array.size()) {
 				String facetString = array.get(i).toString();
-				System.out.println("Fecet string : " + facetString + " count  " + array.getInt(i + 1));
+//				System.out.println("Fecet string : " + facetString + " count  " + array.getInt(i + 1));
 				int number = array.getInt(i + 1);
 				if (number != 0) {// only add if some counts to filter on!
 					map.put(facetString, number);

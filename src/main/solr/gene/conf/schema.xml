@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<schema name="gene core" version="1.1">
+<schema name="allele core" version="1.1">
   <types>
    <fieldtype name="string"  class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
    <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
@@ -146,6 +146,29 @@
 	<field name="phenotype_status" type="string" indexed="true" stored="true" multiValued="true"/>	
 	<field name="production_centre" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="phenotyping_centre" type="string" indexed="true" stored="true" multiValued="true"/>	
+	
+	<!-- annotated and inferred mp term -->
+	<field name="mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="mp_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="mp_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="mp_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<field name="annotated_or_inferred_higherLevelMpTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="annotated_or_inferred_higherLevelMxTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<!-- ontology subset of mp terms -->
+	<field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+
+	<!-- annotated and inferred ma term -->	
+	<field name="inferred_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_selected_top_level_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<field name="annotated_or_inferred_higherLevelMaTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<!--disease fields -->		
 	<field name="disease_id" type="string" indexed="true" stored="true" multiValued="true" />	
@@ -160,6 +183,22 @@
 	<field name="impc_predicted" type="boolean" indexed="true" stored="true" multiValued="true" />
 	<field name="mgi_predicted_in_locus" type="boolean" indexed="true" stored="true" multiValued="true" />
 	<field name="impc_predicted_in_locus" type="boolean" indexed="true" stored="true" multiValued="true" />
+		
+	<!-- pipeline stuff -->
+	<field name="pipeline_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="pipeline_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="procedure_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="procedure_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="parameter_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="parameter_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="proc_param_name" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="proc_param_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<!-- images annotated to a gene/mp/ma/procedure -->
+	<field name="expName" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="subtype" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="annotatedHigherLevelMaTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="annotatedHigherLevelMpTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<!-- for copyfield -->
 	<field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
@@ -184,7 +223,14 @@
 	<copyField source="human_gene_symbol" dest="auto_suggest"/>
 	<copyField source="latest_production_centre" dest="auto_suggest"/>
 	<copyField source="latest_phenotyping_centre" dest="auto_suggest"/>
-	<copyField source="allele_name" dest="auto_suggest"/> 	
+	<copyField source="allele_name" dest="auto_suggest"/> 
+	
+
+	<copyField source="inferred_selected_top_level_ma_term" dest="annotated_or_inferred_higherLevelMaTermName" />
+	<copyField source="top_level_mp_term" dest="annotated_or_inferred_higherLevelMpTermName" />
+
+	<copyField source="inferred_selected_top_level_ma_term" dest="annotated_or_inferred_higherLevelMxTermName" />
+    <copyField source="top_level_mp_term" dest="annotated_or_inferred_higherLevelMxTermName" />
 
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
 

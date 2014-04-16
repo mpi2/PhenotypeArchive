@@ -19,6 +19,8 @@
  */
 (function ($) {
 	'use strict';
+	 
+	console.log('solrUrl: ' + solrUrl);
     $.widget('MPI2.geneFacet', {
     	
 	    options: {},  
@@ -54,12 +56,12 @@
 				  + '&facet.field=status'
 				  + '&facet.field=imits_phenotype_started' 
 				  + '&facet.field=imits_phenotype_complete'
-				  + '&facet.field=imits_phenotype_status';
-				  //+ '&facet.field=production_center'
-				  //+ '&facet.field=phenotyping_center'
+				  + '&facet.field=imits_phenotype_status'	    	
+				  + '&facet.field=latest_production_centre'
+				  + '&facet.field=latest_phenotyping_centre';
 	    	
 	    	$.ajax({ 				 					
-	    		'url': solrUrl + '/gene/select',
+	    		'url': solrUrl + '/gene/select',	    		
 	    		'data': queryParamStr, 
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
@@ -70,14 +72,14 @@
 	    },
 	    
 	    _displayGeneSubTypeFacet: function(json){
-	    
+	    	console.log(json);
 	    	var self = this;
 	    	var numFound = json.response.numFound;
 	    	
 	    	/*-------------------------------------------------------*/
 	    	/* ------ displaying sidebar and update dataTable ------ */
 	    	/*-------------------------------------------------------*/	    	  	
-	    	var foundMatch = {'phenotyping':0,'production':0,'marker_type':0};
+	    	var foundMatch = {'phenotyping':0,'production':0, 'latest_production_centre':0, 'latest_phenotyping_centre':0, 'marker_type':0};
 	    	
 	    	if (numFound > 0){
 	    		
@@ -128,26 +130,7 @@
 					}					
 				}
 	    		phenoStatusSect.append(phenoUlContainer);
-	    		
-	    		// subfacet: IMPC mouse phenotyping centers
-	    		/*table.append($('<tr></tr>').attr({'class':'facetSubCat phenoCenterTrCap'}).append($('<td></td>').attr({'colspan':3}).text('IMPC Phenotyping Center')));
-	    		var phenoCenterFq = 'phenotyping_centersubFacetName';
-	    		var phenoCenterList = json.facet_counts['facet_fields'][phenoCenterFq];	    			
-    			if ( phenoCenterList.length != 0 ){    				
-    	    		for ( var i=0; i<phenoCenterList.length; i+=2 ){
-    	    			var center = phenoCenterList[i];
-    	    			var count = phenoCenterList[i+1];
-    	    			
-    	    			var coreField = 'gene|'+ phenoCenterFq + '|';	
-    	    			var chkbox = $('<input></input>').attr({'class':'phenoCenter', 'type': 'checkbox', 'rel': coreField + center + '|' + count});
-						var td0 = $('<td></td>').append(chkbox);
-						var tr = $('<tr></tr>').attr({'class':'subFacet phenoCenterTr'});						
-						var td1 = $('<td></td>').attr({'class':'phenoCenter geneSubfacet', 'rel':count}).text(center);
-						var link = $('<a></a>').attr({'rel': center, 'class': phenoCenterFq}).text(count);
-						var td2 = $('<td></td>').attr({'class':'geneSubfacetCount', 'rel':center}).append(link);
-						table.append(tr.append(td0, td1, td2));   	    			
-    	    		}    	    		
-    			}*/	    			    		
+	    		$('div.flist li#gene > ul').append(phenoStatusSect);	    		    				    		
 	    		
 	    		// subfacet: IMPC mouse production status   
 	    		var prodStatusSect = $("<li class='fcatsection production'></li>");		 
@@ -164,6 +147,7 @@
 	    		
 	    		var prodUlContainer = $("<ul></ul>");
 	    		
+	    		// status ordered in hierarchy
 				for ( var i=0; i<MPI2.searchAndFacetConfig.geneStatuses.length; i++ ){
 					var status = MPI2.searchAndFacetConfig.geneStatuses[i];
 					var count = status_count[MPI2.searchAndFacetConfig.geneStatuses[i]];					
@@ -182,29 +166,42 @@
 					}									
 				}	
 				prodStatusSect.append(prodUlContainer);
+				$('div.flist li#gene > ul').append(prodStatusSect);						
 				
-				// subfacet: IMPC mouse production centers
-	    		/*table.append($('<tr></tr>').attr({'class':'facetSubCat prodCenterTrCap'}).append($('<td></td>').attr({'colspan':3}).text('IMPC Mouse Production Center')));
-	    		var prodCenterFq = 'production_center';
-	    		var prodCenterList = json.facet_counts['facet_fields'][prodCenterFq];	    			
-    			if ( prodCenterList.length != 0 ){    				
-    	    		for ( var i=0; i<prodCenterList.length; i+=2 ){
-    	    			var center = prodCenterList[i];
-    	    			var count = prodCenterList[i+1];
-    	    			
-    	    			var coreField = 'gene|'+ prodCenterFq + '|';	
-    	    			var chkbox = $('<input></input>').attr({'class':'prodCenter', 'type': 'checkbox', 'rel': coreField + center + '|' + count});
-						var td0 = $('<td></td>').append(chkbox);
-			     
-
-			var tr = $('<tr></tr>').attr({'class':'subFacet prodCenterTr'});						
-						var td1 = $('<td></td>').attr({'class':'prodCenter ge#q=*:*&fq=(imits_phenotype_started:"1") AND (status:"Mice Produced")&facet=geneneSubfacet', 'rel':count}).text(center);
-						var link = $('<a></a>').attr({'rel': center, 'class': prodCenterFq}).text(count);
-						var td2 = $('<td></td>').attr({subFacetName'class':'geneSubfacetCount', 'rel':center}).append(link);
-						table.append(tr.append(td0, td1, td2));   	    			
-    	    		}    	    		
-    			}*/
-    			
+				// subfacet: IMPC mouse production/phenotyping centers
+				var centers = {
+						'productionCenter' : {'facet':'latest_production_centre', 'label':'IMPC Mouse Production Center'},
+						'phenotypingCenter' : {'facet':'latest_phenotyping_centre', 'label':'IMPC Mouse Phenotyping Center'}
+						};
+				for ( var c in centers ){
+				
+					var centerSect = $("<li class='fcatsection " + centers[c].facet + "'></li>");					
+		    		centerSect.append($('<span></span>').attr({'class':'flabel'}).text(centers[c].label));
+		    		
+		    		var center_facets = json.facet_counts['facet_fields'][centers[c].facet];
+		    		foundMatch[centers[c].facet] = center_facets.length;
+		    				    		
+		    		var centerUlContainer = $("<ul></ul>");
+		    		
+		    		for ( var i=0; i<center_facets.length; i+=2 ){ 
+						var center = center_facets[i];
+						var count = center_facets[i+1];
+						if ( center != '' ){ // skip solr field which value is an empty string
+							var liContainer = $("<li></li>").attr({'class':'fcat '+ centers[c].facet});
+							var coreField = 'gene|'+centers[c].facet+'|';
+							var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + center + '|' + count + '|'+centers[c].facet});
+							
+							liContainer.append(chkbox);
+							liContainer.append($('<span class="flabel">' + center + '</span>'));
+							liContainer.append($('<span class="fcount">' + count + '</span>'));
+							centerUlContainer.append(liContainer);		
+						}
+		    		}  
+		    		
+					centerSect.append(centerUlContainer);	
+					$('div.flist li#gene > ul').append(centerSect);			
+				}				
+				
 				// subfacet: IMPC gene subtype	    			
 	    		var subTypeSect = $("<li class='fcatsection marker_type'></li>");		 
 	    		subTypeSect.append($('<span></span>').attr({'class':'flabel'}).text('Subtype'));
@@ -236,10 +233,8 @@
 	    			subTypeUlContainer.append(unclassified);
 	    		}	    		
 	    		subTypeSect.append(subTypeUlContainer);
-	    		
-	    		// update all subfacet counts of this facet 
-	    		$('div.flist li#gene > ul').append(phenoStatusSect, prodStatusSect, subTypeSect);	
-	    		
+	    		$('div.flist li#gene > ul').append(subTypeSect);
+	    			    			    		
 	    		var selectorBase = "div.flist li#gene";
 	    		// collapse all subfacet first, then open the first one that has matches 
 				$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');	    		
