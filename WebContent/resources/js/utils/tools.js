@@ -201,16 +201,18 @@
 		
 		// make sure field mapping in url is correct with selected facet
 		fqStr = $.fn.fieldNameMapping(fqStr, facet);
-		
+		if ( q == '' || '*' ){
+			q = '*:*';
+		}		
 		// now update dataTable	 
 		window.location.hash = 'q=' + q + '&fq=' + fqStr + '&facet=' + facet;	 
 	};
 	
 	$.fn.setFacetCounts = function(q, fqStr, facet){
-		if ( q == '' ){
+		if ( q == '' || '*' ){
 			q = '*:*';
 		}
-		//console.log(q + " -- " +  fqStr + " -- " + facet);	
+		console.log(q + " -- " +  fqStr + " -- " + facet);	
 		
 		do_megaGene(q, fqStr);			
 		do_megaMp(q, fqStr);
@@ -299,12 +301,12 @@
 			
 				for ( var fld in oFacets ){
 					for (var i=0; i<oFacets[fld].length; i=i+2){
-						console.log('field: '+ fld);
+						
 						var subFacetName = oFacets[fld][i];
-						console.log('sub facet name: '+ subFacetName);
+					
 						if ( subFacetName != ''){ // skip solr field which value is an empty string
 							var className = oFields[fld]['class'];
-							console.log('classname: '+ className);
+							
 							if ( className != 'phenotyping' ){
 								$(selectorBase + ' li.' + className + ' span.flabel').each(function(){							
 									if ( $(this).text() == subFacetName ){
