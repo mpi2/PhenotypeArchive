@@ -189,12 +189,12 @@ public class ChartsController {
 	public String chart(
 			@RequestParam(required = true, value = "experimentNumber") String experimentNumber,// we																	// female
 			@RequestParam(required = false, value = "accession") String[] accession,
-			@RequestParam(required = false, value = "strain") String[] strain,
-			@RequestParam(required = false, value = "metadata_group") String[] metadataGroup,
-			@RequestParam(required = false, value = "parameter_stable_id") String[] parameterStableIds,
+			@RequestParam(required = false, value = "strain") String strain,
+			@RequestParam(required = false, value = "metadata_group") String metadataGroup,
+			@RequestParam(required = false, value = "parameter_stable_id") String parameterStableIds,
 			@RequestParam(required = false, value = "gender") String[] gender,//only have one gender per graph
 			@RequestParam(required = false, value = "zygosity") String[] zygosity,
-			@RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter,
+			@RequestParam(required = false, value = "phenotyping_center") String phenotypingCenter,
 			@RequestParam(required = false, value = "strategy") String[] strategies,
 			@RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableId,
 			@RequestParam(required = false, value = "scatter") boolean scatter,
@@ -211,10 +211,10 @@ public class ChartsController {
 
 		// get the parameter internal int id as we dont' have it
 		Parameter parameter = pipelineDAO.getParameterByStableId(
-				parameterStableIds[0]);
+				parameterStableIds);
 		if (parameter == null) {
-			throw new ParameterNotFoundException("Parameter " + parameterStableIds[0]
-					+ " can't be found.", parameterStableIds[0]);
+			throw new ParameterNotFoundException("Parameter " + parameterStableIds
+					+ " can't be found.", parameterStableIds);
 		}
 
 		String[] parameterUnits = parameter.checkParameterUnits();
@@ -241,12 +241,12 @@ public class ChartsController {
 		// Use the first phenotyping center passed in (ignore the others?)
 		// should only now be one center at this stage for one graph/experiment
 		// TODO put length check and exception here
-		List<String> phenotypingCenters = getParamsAsList(phenotypingCenter);
+//		List<String> phenotypingCenters = getParamsAsList(phenotypingCenter);
 		Integer phenotypingCenterId = null;
-		if (phenotypingCenters != null && phenotypingCenters.size() > 0) {
+		if (phenotypingCenter != null) {
 			try {
 				phenotypingCenterId = organisationDAO.getOrganisationByName(
-						phenotypingCenters.get(0)).getId();
+						phenotypingCenter).getId();
 			} catch (NullPointerException e) {
 				log.error("Cannot find center ID for organisation with name "
 						+ phenotypingCenter);
@@ -255,7 +255,7 @@ public class ChartsController {
 
 		String metaDataGroupString=null;
                 if(metadataGroup!=null){
-                metaDataGroupString=(metadataGroup.length>0) ? metadataGroup[0] : null;
+                metaDataGroupString= metadataGroup;
                 }
 		List<String> zyList = getParamsAsList(zygosity);
 		
@@ -270,7 +270,7 @@ public class ChartsController {
 		ExperimentDTO experiment = experimentService
 				.getSpecificExperimentDTO(parameter.getId(),pipelineId,  accession[0],
 						genderList, zyList,phenotypingCenterId,
-						 (strain.length>0) ? strain[0] : null , metaDataGroupString);
+						  strain , metaDataGroupString);
 		System.out.println("experiment in chart method="+experiment);
 		
 		if (experiment!=null) {
@@ -348,7 +348,7 @@ public class ChartsController {
 			model.addAttribute("allelicCompositionString", allelicCompositionString);
 			model.addAttribute("symbol", symbol);
 			model.addAttribute("geneticBackgroundString", geneticBackgroundString);
-			model.addAttribute("phenotypingCenter", phenotypingCenters.get(0));
+			model.addAttribute("phenotypingCenter", phenotypingCenter);
 			
 			model.addAttribute("experimentNumber", experimentNumber);
 			model.addAttribute("statsError", statsError);

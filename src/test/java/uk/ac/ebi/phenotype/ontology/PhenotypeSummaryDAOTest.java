@@ -67,9 +67,10 @@ public class PhenotypeSummaryDAOTest  extends AbstractTransactionalJUnit4SpringC
 		String gene = "ilincasMadeUpGene";
 		phenotypeSummary = new PhenotypeSummaryDAOImpl();
 		try {
-			assertFalse(phenotypeSummary.getSummaryObjects(gene).getBothPhenotypes().size() > 0 ||
-					phenotypeSummary.getSummaryObjects(gene).getMalePhenotypes().size() > 0 ||
-					phenotypeSummary.getSummaryObjects(gene).getFemalePhenotypes().size() > 0);
+			assertTrue(phenotypeSummary.getSummaryObjects(gene)==null);
+//			assertFalse(phenotypeSummary.getSummaryObjects(gene).getBothPhenotypes().size() > 0 ||
+//					phenotypeSummary.getSummaryObjects(gene).getMalePhenotypes().size() > 0 ||
+//					phenotypeSummary.getSummaryObjects(gene).getFemalePhenotypes().size() > 0);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -34,15 +34,11 @@ import javax.servlet.http.HttpServletRequest;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
-import org.antlr.grammar.v3.ANTLRv3Parser.finallyClause_return;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
 import org.hibernate.exception.JDBCConnectionException;
@@ -50,7 +46,6 @@ import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -69,8 +64,6 @@ import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.dao.DatasourceDAO;
 import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
-import uk.ac.ebi.phenotype.data.imits.ColonyStatus;
-import uk.ac.ebi.phenotype.data.imits.PhenotypeStatusDAO;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
@@ -118,10 +111,6 @@ public class GenesController {
 	@Autowired
 	private PhenotypeSummaryDAO phenSummary;
 	
-	@Autowired
-	@Qualifier("solr")
-	PhenotypeStatusDAO psDao;
-
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 	
@@ -216,52 +205,11 @@ public class GenesController {
 		} catch (Exception e){
 		e.printStackTrace();
 		} 
-		
-		/**
-		 * PHENOTYPE STATUS (IMITS BIOMART)
-		 */
-		
-		List<ColonyStatus> allColonyStatus = new ArrayList<ColonyStatus>();
-		boolean phenotypeStarted = false;
-		String phenotypeStatus = null;
-		
+
 		model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
 		
-		try {
-			/*
-			 * TODO this should be done allele by allele
-			 */
-			
-			//PhenotypeStatusDAO psDao = new SolrPhenotypeStatusDAOImpl();
-			//allColonyStatus = solrIndex.getGeneColonyStatus(acc);
-			allColonyStatus = psDao.getColonyStatus(gene);
-			
-			/** check whether the phenotype has started */
-			for (ColonyStatus st: allColonyStatus) {
-				//System.out.println("allcolony status="+st.getAlleleName()+" "+st.getAlleleType()+" "+st.getBackgroundStrain()+" "+st.getPhenotypeCenter()+" "+st.getPhenotypeStatus()+" "+st.getProductionStatus());
-				if (st.getPhenotypeStarted() == 1 && st.getPhenotypeCompleted() == 0) {
-					phenotypeStarted = true;
-				}
-				if (st.getPhenotypeCompleted() == 1) {
-					phenotypeStatus = "Complete";
-				} else
-				if (st.getPhenotypeStarted() == 1 && (phenotypeStatus == null || !phenotypeStatus.equals("Complete"))) {
-					phenotypeStatus = "Started";
-				} else 
-				if (st.getPhenotypeStatus().equals("Phenotype Attempt Registered") && (phenotypeStatus == null || !phenotypeStatus.equals("Complete") || !phenotypeStatus.equals("Started"))) {
-						phenotypeStatus = "Attempt Registered";
-					}
-			}
-			
-			log.info("geneStatus="+geneStatus);//doesn't fail if null
-				
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			model.addAttribute("allColonyStatus", allColonyStatus);
-			model.addAttribute("phenotypeStarted", new Boolean(phenotypeStarted));
-			model.addAttribute("phenotypeStatus", phenotypeStatus);
-		}
+		model.addAttribute("phenotypeStarted", geneService.checkPhenotypeStarted( acc ));
+
 		
 		// Get list of triplets of pipeline, allele acc, phenotyping center
 		// to link to an experiment page will all data
@@ -271,12 +219,10 @@ public class GenesController {
 			model.addAttribute("dataMapList", dataMapList);
 			
 		} catch (SolrServerException e2) {
-			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
 	
-		
-		
+			
 		//code for assessing if the person is logged in and if so have they registered interest in this gene or not?
 		registerInterest = new RegisterInterestDrupalSolr( config, request);
 		this.registerInterestState(acc, model);
@@ -414,8 +360,7 @@ public class GenesController {
 			
 			pr.setProcedure(pcs.getProcedure());
 			pr.setParameter(pcs.getParameter());
-			if (pcs.getPhenotypingCenter() != null)
-				pr.setPhenotypingCenter(pcs.getPhenotypingCenter());
+			pr.setPhenotypingCenter(pcs.getPhenotypingCenter());
 			if(phenotypes.containsKey(pr)) {
 				pr = phenotypes.get(pr);
 				TreeSet<String> sexes = new TreeSet<String>();

@@ -456,7 +456,7 @@ td.unCollapse:before,
 
 /* Table Filtering */
 .tablefiltering         { background: #eee; padding: 1em; margin: 1em 0; }
-.tablefilter            { display: inline-block; float: left; margin-right: 2em; border: #fff 1px solid; }
+.tablefilter            { display: inline-block; float: left; margin-right: 1.8em; border: #fff 1px solid; }
 .tablefilter:hover      { background: #fff; }
 .filtertype             { cursor: pointer; font-size: 1.2em; padding: 0.5em; }
 .filtertype:before      { font-family: "FontAwesome"; content: "\f0da"; }

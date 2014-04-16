@@ -63,7 +63,7 @@
 				<%-- some *** result should be here: ${unidimensionalChartDataSet.statsObjects[1].result} --%>
 			<c:if test="${fn:length(unidimensionalChartDataSet.statsObjects)>1}"> 
 			<c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
-				<c:if test="${data.result.id!=null }">
+				<c:if test="${data.result.blupsTest!=null }">
 				<p><a><i class="fa" id="toggle_table_button${experimentNumber}">More Statistics</i></a></p>
 				<div id="toggle_table${experimentNumber}">
 						<table>				
@@ -72,12 +72,12 @@
           												<tr><th>Global Test</th><th>Significance/Classification</th><th>Effect</th></tr>
           												<tr><td>${data.result.nullTestSignificance}</td><td>${data.result.significanceClassification.text}</td><td>${data.result.genotypeParameterEstimate}</td></tr></c:when>
          									<c:when test="${data.result.significanceClassification.text == 'Female only' || data.result.significanceClassification.text == 'Male only'  || data.result.significanceClassification.text == 'Different size females greater' || data.result.significanceClassification == 'Different size males greater' || data.result.significanceClassification == 'Female and male different directions'}">
-       													 <tr><th>Global Test</th><th>Significance/Classification</th><th>Gender</th><th>Effect</th><th>Gender KO SE Estimate </th></tr>
+       													 <tr><th>Global Test</th><th>Significance/Classification</th><th>Sex</th><th>Effect</th><th>Standard Error </th><th>P Value</th></tr>
        													 <tr>
        													 <td rowspan="2">${data.result.nullTestSignificance}</td>
        													 <td rowspan="2">${data.result.significanceClassification.text}</td>
-       													 <td>Female</td><td>${data.result.genderFemaleKoEstimate}</td><c:if test="${data.result.genderFemaleKoStandardErrorEstimate!=null}"><td>&#177;${data.result.genderFemaleKoStandardErrorEstimate }</td></c:if>
-       													 <tr><td> Male</td><td> ${data.result.genderMaleKoEstimate}</td><c:if test="${data.result.genderMaleKoStandardErrorEstimate!=null}"><td>&#177;${data.result.genderMaleKoStandardErrorEstimate }</td></c:if>
+       													 <td>Female</td><td>${data.result.genderFemaleKoEstimate}</td><c:if test="${data.result.genderFemaleKoStandardErrorEstimate!=null}"><td>&#177;${data.result.genderFemaleKoStandardErrorEstimate }</td></c:if><c:if test="${data.result.genderFemaleKoPValue!=null}"><td>${data.result.genderFemaleKoPValue }</td></c:if>
+       													 <tr><td> Male</td><td> ${data.result.genderMaleKoEstimate}</td><c:if test="${data.result.genderMaleKoStandardErrorEstimate!=null}"><td>&#177;${data.result.genderMaleKoStandardErrorEstimate }</td></c:if><c:if test="${data.result.genderMaleKoPValue!=null}"><td>${data.result.genderMaleKoPValue }</td></c:if>
        													 </tr>
        										</c:when>
 									</c:choose>
@@ -97,16 +97,16 @@
  							<c:if test="${data.result.varianceSignificance!=null}"><tr><td>Variance Significance</td><td>${data.result.varianceSignificance }</td></tr></c:if>
  							<c:if test="${data.result.interactionEffectPValue!=null}"><tr><td>Interaction Effect P Value </td><td>${data.result.interactionEffectPValue }</td></tr></c:if>
  							<%-- <c:if test="${data.result.nullTestSignificance !=null}"><tr><td>Null Test Significance</td><td>${data.result.nullTestSignificance }</td></tr></c:if> --%>
- 							<c:if test="${data.result.genderFemaleKoPValue!=null}"><tr><td>Gender Female KO P Value </td><td>${data.result.genderFemaleKoPValue }</td></tr></c:if>
  							<c:if test="${data.result.genotypeParameterEstimate!=null}"><tr><td>Genotype Parameter Estimate</td><td>${data.result.genotypeParameterEstimate }</td></tr></c:if>
  							<c:if test="${data.result.genotypeStandardErrorEstimate!=null}"><tr><td>Genotype Standard Error Estimate</td><td>${data.result.genotypeStandardErrorEstimate }</td></tr></c:if>
  							<c:if test="${data.result.genotypeEffectPValue!=null}"><tr><td>Genotype Effect P Value</td><td>${data.result.genotypeEffectPValue}</td></tr></c:if>
  							<c:if test="${data.result.genderParameterEstimate!=null}"><tr><td>Gender Parameter Estimate</td><td>${data.result.genderParameterEstimate }</td></tr></c:if>
  							<c:if test="${data.result.genderStandardErrorEstimate!=null}"><tr><td>Gender Standard Error Estimate</td><td>${data.result.genderStandardErrorEstimate }</td></tr></c:if>
+ 							<c:if test="${data.result.genderEffectPValue!=null}"><tr><td>Gender Effect P Value</td><td>${data.result.genderEffectPValue}</td></tr></c:if>
  							<c:if test="${data.result.interceptEstimate!=null}"><tr><td>Intercept Estimate </td><td>${data.result.interceptEstimate }</td></tr></c:if>
  							<c:if test="${data.result.interceptEstimateStandardError!=null}"><tr><td>Intercept Estimate Standard Error </td><td>${data.result.interceptEstimateStandardError }</td></tr></c:if>
  							<c:if test="${data.result.genderMaleKoPValue!=null}"><tr><td>Gender Male KO P Value </td><td>${data.result.genderMaleKoPValue }</td></tr></c:if>
- 							<!-- 10-15 --><c:if test="${data.result.genderEffectPValue!=null}"><tr><td>Gender Effect P Value</td><td>${data.result.genderEffectPValue}</td></tr></c:if>
+ 							<!-- 10-15 -->
  							<c:if test="${data.result.weightParameterEstimate!=null}"><tr><td>Weight Parameter Estimate </td><td>${data.result.weightParameterEstimate }</td></tr></c:if>
  							<c:if test="${data.result.weightStandardErrorEstimate!=null}"><tr><td>Weight Standard Error Estimate </td><td>${data.result.weightStandardErrorEstimate }</td></tr></c:if>
  							<c:if test="${data.result.weightEffectPValue!=null}"><tr><td>Weight Effect P Value </td><td>${data.result.weightEffectPValue }</td></tr></c:if>
