@@ -232,8 +232,7 @@
         <field name="date_of_experiment"      type="tdate"  indexed="true" stored="true" multiValued="false" />
 
         <!-- end of experiment data fields -->
-    
-        
+            
     <!-- gene core stuff -->
 	<field name="mgi_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />		
 	<field name="marker_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />  
@@ -253,6 +252,67 @@
 	
 	<!-- allele level fields of a gene -->
 	<field name="allele_name" type="text_general" indexed="true" stored="true" multiValued="true"/>
+	
+	<!-- disease fields for facet filtering -->
+	<field name="disease_source" type="string" indexed="true" stored="true" multiValued="true" /> 	
+	<field name="disease_classes" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="human_curated" type="boolean" indexed="true" stored="true" multiValued="true" />
+	<field name="mouse_curated" type="boolean" indexed="true" stored="true" multiValued="true" />
+	<field name="mgi_predicted" type="boolean" indexed="true" stored="true" multiValued="true" />
+	<field name="impc_predicted" type="boolean" indexed="true" stored="true" multiValued="true" />
+	<field name="mgi_predicted_in_locus" type="boolean" indexed="true" stored="true" multiValued="true" />
+	<field name="impc_predicted_in_locus" type="boolean" indexed="true" stored="true" multiValued="true" />   
+	
+	<!-- pipeline core stuff -->    
+	<field name="parameter_id" type="int" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="parameter_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="parameter_name" type="string" indexed="true" stored="true" required="false" multiValued="false"/>		
+    <field name="parameter_stable_key" type="int" indexed="true" stored="true" required="false" multiValued="false"/>	
+    <field name="procedure_id" type="int" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="procedure_stable_id" type="string" indexed="true" stored="true" required="false" />
+    <field name="procedure_name" type="string" indexed="true" stored="true" required="false" />
+	<field name="mapped_procedure_name" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="procedure_stable_key" type="int" indexed="true" stored="true" required="false" />
+	<field name="proc_name_id" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="proc_param_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="proc_param_name" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+	<field name="pipeline_id" type="int" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="pipeline_stable_id" type="string" indexed="true" stored="true" required="false" />
+    <field name="pipeline_name" type="string" indexed="true" stored="true" required="false" /> 
+    <field name="pipeline_stable_key" type="int" indexed="true" stored="true" required="false" /> 
+	<field name="pipe_proc_sid" type="string" indexed="true" stored="true" required="false" /> 
+	
+	<!-- annotated and inferred mp term -->
+	<field name="mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="mp_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="mp_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="mp_term_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="inferred_mp_definition" type="text_general" indexed="false" stored="true" required="false" multiValued="true" />	
+	<field name="inferred_top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_top_level_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_top_level_mp_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<!-- ontology subset of mp/ma terms -->
+	<field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<!-- annotated and inferred ma term -->
+	<field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="ma_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="selected_top_level_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="selected_top_level_ma_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="inferred_ma_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_selected_top_level_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_selected_top_level_ma_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	
 											
 	<field name="text"   type="string"   indexed="true"  stored="true"  multiValued="true" />
@@ -290,12 +350,10 @@
     <copyField source="annotatedHigherLevelMaTermId" dest="annotated_or_inferred_higherLevelMaTermId" />
     <copyField source="inferredHigherLevelMaTermId" dest="annotated_or_inferred_higherLevelMaTermId" />
 
-
 	<copyField source="annotatedHigherLevelMpTermName" dest="annotated_or_inferred_higherLevelMxTermName" />
     <copyField source="inferredHigherLevelMpTermName" dest="annotated_or_inferred_higherLevelMxTermName" />
     <copyField source="annotatedHigherLevelMaTermName" dest="annotated_or_inferred_higherLevelMxTermName" />
     <copyField source="inferredHigherLevelMaTermName" dest="annotated_or_inferred_higherLevelMxTermName" />
-
 
     <copyField source="symbol" dest="auto_suggest" />
     <copyField source="geneName" dest="auto_suggest" />
