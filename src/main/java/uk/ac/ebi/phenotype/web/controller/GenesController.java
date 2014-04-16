@@ -222,8 +222,7 @@ public class GenesController {
 			e2.printStackTrace();
 		}
 	
-		
-		
+			
 		//code for assessing if the person is logged in and if so have they registered interest in this gene or not?
 		registerInterest = new RegisterInterestDrupalSolr( config, request);
 		this.registerInterestState(acc, model);

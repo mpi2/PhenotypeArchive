@@ -304,7 +304,7 @@ public class FileExportController {
 		}
 		
 		List<ExperimentDTO> experimentList = new ArrayList<ExperimentDTO> ();		
-Integer pipelineId=0;
+		Integer pipelineId=0;
 		for (int k = 0; k < parameterStableId.length; k++){
 			for (int mgiI = 0; mgiI < geneAccession.length; mgiI++){
 				for (Integer pCenter : phenotypingCenterIds){
@@ -387,14 +387,9 @@ Integer pipelineId=0;
 		}
 		else if (request.getParameter("page").equalsIgnoreCase("phenotype")){
 			boolean isTopLevel = (!docs.getJSONObject(0).containsKey("top_level_mp_term_name"));
-			// table is different for top level terms and the rest
-			if (!isTopLevel){
-				// top_level ones don't have this field
-				rowData.add("Gene\tAllele\tZygosity\tSex\tProcedure / Parameter\tSource\tGraph"); 
-			}
-			else {
-				rowData.add("Gene\tAllele\tZygosity\tSex\tPhenotype / Parameter\tSource\tGraph"); 
-			}
+			
+			rowData.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure / Parameter\tSource\tGraph"); 
+			
 			for (int i=0; i<docs.size(); i++) {		
 				JSONObject doc = docs.getJSONObject(i);
 				// for some reason we need to filter out the IMPC entries.
@@ -406,13 +401,8 @@ Integer pipelineId=0;
 				else data.add("");
 				data.add(doc.getString("zygosity"));
 				data.add(doc.getString("sex"));
-				if (isTopLevel)
-				{
-					data.add(doc.getString("mp_term_name") + " / " + doc.getString("parameter_name"));
-				}
-				else {
-					data.add(doc.getString("procedure_name") + " / " + doc.getString("parameter_name"));
-				}
+				data.add(doc.getString("mp_term_name"));
+				data.add(doc.getString("procedure_name") + " / " + doc.getString("parameter_name"));
 				data.add(doc.getString("resource_fullname"));
 				String graphUrl = "\"\"";
 				graphUrl = request.getParameter("baseUrl").split("/phenotypes/")[0] + "/charts?accession=" + doc.getString("marker_accession_id") + "&parameterId=" ;
