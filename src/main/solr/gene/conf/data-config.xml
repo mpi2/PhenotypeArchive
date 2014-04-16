@@ -51,7 +51,7 @@
 					|| mouse_status == "Micro-injection in progress"
 					|| mouse_status == "Cre Excision Started" 
 					|| mouse_status == "Rederivation Complete"
-					|| mouse_status == "Rederivation Started" ){
+					|| mouse_status == "Rederivatlatestion Started" ){
 					mouse_status = "Assigned for Mouse Production and Phenotyping"; // orange 
 				}
 				else if (mouse_status == "Genotype confirmed"
@@ -99,14 +99,14 @@
 				<field column="latest_es_cell_status" xpath="/response/result/doc/str[@name='latest_es_cell_status']" />
 				
 				<!-- imits info at gene level for phenotyping faceting -->						
-				<field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='latest_phenotype_started']" />
-				<field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='latest_phenotype_complete']" />
-				<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
+				<field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='imits_phenotype_started']" />
+				<field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
+				<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
 
 				<!-- mouse status -->
 				<field column="latest_mouse_status" xpath="/response/result/doc/str[@name='latest_mouse_status']" />-->
 				<field column="latest_project_status" xpath="/response/result/doc/str[@name='latest_project_status']" />
-				<field column="status" xpath="/response/result/doc/str[@name='latest_project_status_legacy']" /> <!-- status name from Bill Skarnes and used at EBI -->	
+				<field column="status" xpath="/response/result/doc/str[@name='status']" /> <!-- status name from Bill Skarnes and used at EBI -->	
 	
 				<!-- phenotyping status -->
 				<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />

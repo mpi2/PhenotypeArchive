@@ -176,10 +176,10 @@ public class SolrIndex {
 		if (mode.equals("mpPage")) {
 			url += "q=" + query;
 			url += "&start=0&rows=0&wt=json&qf=auto_suggest&defType=edismax";
-		} else if (mode.equals("geneGrid")) {
+		} else if (mode.equals("geneGrid")) {			
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
 					+ iDisplayLength;
-//			System.out.println("GENE PARAMS: " + url);
+			System.out.println("GENE PARAMS: " + url);
 		} else if (mode.equals("pipelineGrid")) {
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
 					+ iDisplayLength;
@@ -207,7 +207,7 @@ public class SolrIndex {
 			url += "q=" + query;
 			url += "&start=0&rows=0&wt=json";
 //			System.out.println("IKMC ALLELE PARAMS: " + url);
-		} else if (mode.equals("all") || mode.equals("page") || mode.equals("")) {
+		} else if (mode.equals("all") || mode.equals("page") || mode.equals("")) { // download search page result
 			url += gridSolrParams;
 			if (core.equals("images") && !showImgView) {				
 				url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.mincount=1&facet.limit=-1";
@@ -548,7 +548,7 @@ public class SolrIndex {
 					currentPhenotypeStatus, "", alleleType,
 					phenotypeStartedValue, phenotypeCompletedValue);
 
-			// change theallele type
+			// change the allele type
 			String currentAlleleName = tm1aAlleleName.replace("tm1a", "tm1"
 					+ alleleType);
 			// retrieve it from the allele core
