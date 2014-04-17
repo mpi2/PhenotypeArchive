@@ -158,14 +158,32 @@ public class GenotypePhenotypeService {
 		solrQuery.setQuery( GenotypePhenotypeField.MP_TERM_ID + ":*");
 		solrQuery.setRows(1000000);
 		solrQuery.setFields( GenotypePhenotypeField.MP_TERM_ID );
-		QueryResponse rsp = null;
-		rsp = solr.query(solrQuery);
+		QueryResponse rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
-		HashSet<String> allPhenotypes = new HashSet<String>();
+		HashSet<String> allPhenotypes = new HashSet();
 		for (SolrDocument doc: res){
-			allPhenotypes.add((String) doc.getFieldValue( GenotypePhenotypeField.MP_TERM_ID ));
+                    allPhenotypes.add((String) doc.getFieldValue( GenotypePhenotypeField.MP_TERM_ID ));
 		}
 		return allPhenotypes;
+	}
+	
+
+	public Set<String> getAllTopLevelPhenotypes() throws SolrServerException{
+		
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery( GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":*");
+		solrQuery.setRows(1000000);
+		solrQuery.setFields( GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID );
+		QueryResponse rsp = solr.query(solrQuery);
+		SolrDocumentList res = rsp.getResults();
+		HashSet<String> allTopLevelPhenotypes = new HashSet();
+		for (SolrDocument doc: res){
+                    ArrayList<String> ids = (ArrayList<String>)doc.getFieldValue( GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID );
+                    for (String id : ids) {
+			allTopLevelPhenotypes.add(id);
+                    }
+		}
+		return allTopLevelPhenotypes;
 	}
 	
 	/*
