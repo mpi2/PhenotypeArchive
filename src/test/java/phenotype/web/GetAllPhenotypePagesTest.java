@@ -68,7 +68,7 @@ import org.springframework.test.context.ContextConfiguration;
 public class GetAllPhenotypePagesTest extends AbstractJunit4Tester {
     // These constants define the maximum number of iterations for each given test. -1 means iterate over all.
     public final int MAX_MGI_LINK_CHECK_COUNT = 5;                              // -1 means test all links.
-    public final int MAX_PHENOTYPE_TEST_PAGE_COUNT = 40;                        // -1 means test all pages.
+    public final int MAX_PHENOTYPE_TEST_PAGE_COUNT = -1;                        // -1 means test all pages.
     
     @Parameters
     public static Collection<Object[]> data() throws MalformedURLException {
