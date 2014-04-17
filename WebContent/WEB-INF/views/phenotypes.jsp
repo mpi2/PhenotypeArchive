@@ -226,9 +226,9 @@
 				<div class="section" id="phenotypeHeatmapSection" >
 					<h2 class="title" id="heatmapGenePage">Gene phenotyping heatmap for ${phenotype.name} <i class="fa fa-question-circle pull-right"></i></h2>
 					<div class="inner">
-						<div id="heatmap-container">
+						<!-- div id="heatmap-container"-->
 							<div id="phenodcc-heatmap-3"> </div>
-						</div>							
+						<!-- /div-->							
 	        </div>
 				</div>
 				

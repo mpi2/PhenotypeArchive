@@ -22,14 +22,11 @@ package phenotype.web;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
@@ -37,27 +34,16 @@ import org.junit.AfterClass;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Capabilities;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.safari.SafariDriver;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestContextManager;
-import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
 
 /**
  *
@@ -65,7 +51,9 @@ import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
  * 
  * Requirements for running these tests:
  * 1. Must have 'globalConfiguration' bean defined, typically found in WEB-INF/app-config.xml. This allows us to
- *    pick up Spring without having to use @RunWith(SpringJUnit4ClassRunner.class).
+ *    pick up Spring without having to use @RunWith(SpringJUnit4ClassRunner.class). Within that bean, the following
+ *    properties must be defined:
+ *    - 
  * 2. Must have the following properties defined in both the test and source copies of app-config.xml and appConfig.properties:
  * 2a.   baseUrl (the phenotype archive web applicatin instance. For DEV, it's http://dev.mousephenotype.org/data)
  * 2b.   seleniumUrl (the selenium WebServer server. Typically http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub, but can be easily changed)
@@ -77,34 +65,17 @@ import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
 //@RunWith(SpringJUnit4ClassRunner.class)
 @RunWith(Parameterized.class)
 @ContextConfiguration(locations = { "classpath:app-config.xml" })
-public class GetAllPhenotypePagesTest implements ApplicationContextAware {
-    private ApplicationContext ac;
-    
-    @Autowired
-    GenotypePhenotypeService genotypePhenotypeService;
-
-    private String baseUrl;
-    private WebDriver driver;
-    private boolean firstPass = true;
-    
-    public DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-    private TestContextManager testContextManager;
-    
+public class GetAllPhenotypePagesTest extends AbstractJunit4Tester {
     // These constants define the maximum number of iterations for each given test. -1 means iterate over all.
     public final int MAX_MGI_LINK_CHECK_COUNT = 5;                              // -1 means test all links.
-    public final int MAX_PHENOTYPE_TEST_PAGE_COUNT = 5;                        // -1 means test all pages.
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        ac = applicationContext;
-    }
-
+    public final int MAX_PHENOTYPE_TEST_PAGE_COUNT = -1;                        // -1 means test all pages.
+    
     @Parameters
     public static Collection<Object[]> data() throws MalformedURLException {
 String seleniumUrl = "http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
         Object[][] data = new Object[][]{
             { new RemoteWebDriver(new URL(seleniumUrl), DesiredCapabilities.chrome()) }
-          , { new RemoteWebDriver(new URL(seleniumUrl), DesiredCapabilities.firefox()) }
+//          , { new RemoteWebDriver(new URL(seleniumUrl), DesiredCapabilities.firefox()) }
  //         , { new RemoteWebDriver(new URL(seleniumUrl), DesiredCapabilities.internetExplorer()) }
 //          , { new RemoteWebDriver(new URL(seleniumUrl), DesiredCapabilities.safari()) }
         };
@@ -123,53 +94,14 @@ String seleniumUrl = "http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
      * @param driver the next parameterized driver instance
      * @throws Exception 
      */
-    public GetAllPhenotypePagesTest(WebDriver driver) throws Exception {
-        Capabilities caps = null;
-        
-        if (driver instanceof RemoteWebDriver) {
-            RemoteWebDriver remoteDriver = (RemoteWebDriver)driver;
-            caps = remoteDriver.getCapabilities();
-        } else if (driver instanceof ChromeDriver) {
-            ChromeDriver chromeDriver = (ChromeDriver)driver;
-            chromeDriver.getCapabilities();
-        } else if (driver instanceof FirefoxDriver) {
-            FirefoxDriver firefoxDriver = (FirefoxDriver)driver;
-            firefoxDriver.getCapabilities();
-        } else if (driver instanceof InternetExplorerDriver) {
-            InternetExplorerDriver internetExplorerDriver = (InternetExplorerDriver)driver;
-            internetExplorerDriver.getCapabilities();
-        } else if (driver instanceof SafariDriver) {
-            SafariDriver safariDriver = (SafariDriver)driver;
-            safariDriver.getCapabilities();
-        }
-        
-        if (caps != null) {
-            System.out.println("TESTING AGAINST " + caps.getBrowserName() + " version " + caps.getVersion() + " on platform " + caps.getPlatform().name());
-        }
-        
+    public GetAllPhenotypePagesTest(RemoteWebDriver driver) throws Exception {
         // If you need to close the browser, do it here before the driver is overwritten.
-        this.driver = driver;
+        
+        super(driver);      // Let the parent class initialise the driver and baseUrl.
     }
     
     @Before
     public void setup() {
-        // This code initializes Spring. Since we can't safely use 'this' in the
-        // constructor, we initialize Spring here, only once.
-        if (firstPass) {
-            // These two statements perform the work that @RunWith(SpringJUnit4ClassRunner.class) 
-            // used to perform (Parameterization now uses the RunWith instead)
-            this.testContextManager = new TestContextManager(getClass());
-            try {
-                this.testContextManager.prepareTestInstance(this);
-            } catch (Exception e) {
-                System.out.println("ERROR: prepareTestInstance call failed.");
-                throw new RuntimeException(e);
-            }
-
-            Map<String,String> config = (Map<String, String>) ac.getBean("globalConfiguration");
-            baseUrl = config.get("baseUrl");
-            firstPass = false;
-        }
     }
 
     @After
@@ -183,74 +115,9 @@ String seleniumUrl = "http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
     @AfterClass
     public static void tearDownClass() {
     }
-    
-    /**
-     * Fetches all phenotype IDs from the database and tests to make sure there
-     * is a page for each.
-     * 
-     * @throws SolrServerException 
-     */
-    @Test
-    public void pageForEveryPhenotypeTest() throws SolrServerException {
-        Set<String> phenotypeIds = genotypePhenotypeService.getAllPhenotypes();
-        String target = "";
-        List<String> errorList = new ArrayList();
-        List<String> successList = new ArrayList();
-        List<String> exceptionList = new ArrayList();
-        String message;
-        
-        System.out.println(dateFormat.format(new Date()) + ": pageForEveryPhenotypeTest started.");
-        
-        try {
-            // Loop through all phenotypes, testing each one for valid page load.
-            int i = 0;
-            for (String phenotypeId : phenotypeIds) {
-                if ((MAX_PHENOTYPE_TEST_PAGE_COUNT != -1) && (i++ >= MAX_PHENOTYPE_TEST_PAGE_COUNT)) {
-                    break;
-                }
-            
-                target = baseUrl + "/phenotypes/" + phenotypeId;
-                driver.get(target);
-                List<WebElement> phenotypeLinks = driver.findElements(By.cssSelector("div.inner a").linkText(phenotypeId));
-                if ( phenotypeLinks.isEmpty()) {
-                    message = "Expected page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-                    errorList.add(message);
-                } else {
-                    message = "SUCCESS: MP_TERM_ID " + phenotypeId + ". Target URL: " + target;
-                    successList.add(message);
-                }
-            }
-        } catch (Exception e) {
-            message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-            exceptionList.add(message);
-        }
-        
-        System.out.println(dateFormat.format(new Date()) + ": pageForEveryPhenotypeTest finished.");
-        
-        if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MP_TERM_ID records failed:");
-            for (String s : errorList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        if ( ! exceptionList.isEmpty()) {
-            System.out.println(errorList.size() + " MP_TERM_ID records caused exceptions to be thrown:");
-            for (String s : exceptionList) {
-                System.out.println("\t" + s);
-            }
-        }
-            
-        System.out.println(dateFormat.format(new Date()) + ": " + successList.size() + " MP_TERM_ID records processed successfully.\n\n");
-        
-        if (errorList.size() + exceptionList.size() > 0) {
-            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
-        }
-    }
 
     /**
-     * Fetches all phenotype IDs from the database and tests to make sure the
-     * link for each works.
+     * Checks the MGI links for the first MAX_MGI_LINK_CHECK_COUNT phenotype ids
      * 
      * @throws SolrServerException 
      */
@@ -320,6 +187,191 @@ String seleniumUrl = "http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
         }
             
         System.out.println(dateFormat.format(new Date()) + ": " + successList.size() + " MGI links processed successfully.\n\n");
+        
+        if (errorList.size() + exceptionList.size() > 0) {
+            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
+        }
+    }
+    
+    /**
+     * Fetches all phenotype IDs from the genotype-phenotype core and
+     * tests to make sure there is a page for each.
+     * 
+     * @throws SolrServerException 
+     */
+    @Test
+    public void testPageForEveryMPTermId() throws SolrServerException {
+        Set<String> phenotypeIds = genotypePhenotypeService.getAllPhenotypes();
+        String target = "";
+        List<String> errorList = new ArrayList();
+        List<String> successList = new ArrayList();
+        List<String> exceptionList = new ArrayList();
+        String message;
+        
+        System.out.println(dateFormat.format(new Date()) + ": testPageForEveryMPTermId started.");
+        
+        try {
+            // Loop through all phenotypes, testing each one for valid page load.
+            int i = 0;
+            for (String phenotypeId : phenotypeIds) {
+                if ((MAX_PHENOTYPE_TEST_PAGE_COUNT != -1) && (i++ >= MAX_PHENOTYPE_TEST_PAGE_COUNT)) {
+                    break;
+                }
+            
+                target = baseUrl + "/phenotypes/" + phenotypeId;
+                driver.get(target);
+                List<WebElement> mpTermIdLink = driver.findElements(By.cssSelector("div.inner a").linkText(phenotypeId));
+                if ( mpTermIdLink.isEmpty()) {
+                    message = "Expected page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
+                    errorList.add(message);
+                } else {
+                    message = "SUCCESS: MP_TERM_ID " + phenotypeId + ". Target URL: " + target;
+                    successList.add(message);
+                }
+            }
+        } catch (Exception e) {
+            message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+            exceptionList.add(message);
+        }
+        
+        System.out.println(dateFormat.format(new Date()) + ": testPageForEveryMPTermId finished.");
+        
+        if ( ! errorList.isEmpty()) {
+            System.out.println(errorList.size() + " MP_TERM_ID records failed:");
+            for (String s : errorList) {
+                System.out.println("\t" + s);
+            }
+        }
+        
+        if ( ! exceptionList.isEmpty()) {
+            System.out.println(errorList.size() + " MP_TERM_ID records caused exceptions to be thrown:");
+            for (String s : exceptionList) {
+                System.out.println("\t" + s);
+            }
+        }
+            
+        System.out.println(dateFormat.format(new Date()) + ": " + successList.size() + " MP_TERM_ID records processed successfully.\n\n");
+        
+        if (errorList.size() + exceptionList.size() > 0) {
+            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
+        }
+    }
+    
+    /**
+     * Fetches all top-level phenotype IDs from the genotype-phenotype core and
+     * tests to make sure there is a page for each.
+     * 
+     * @throws SolrServerException 
+     */
+    @Test
+    public void testPageForEveryTopLevelMPTermId() throws SolrServerException {
+        Set<String> phenotypeIds = genotypePhenotypeService.getAllTopLevelPhenotypes();
+        String target = "";
+        List<String> errorList = new ArrayList();
+        List<String> successList = new ArrayList();
+        List<String> exceptionList = new ArrayList();
+        String message;
+        
+        System.out.println(dateFormat.format(new Date()) + ": testPageForEveryTopLevelMPTermId started.");
+        
+        try {
+            // Loop through all phenotypes, testing each one for valid page load.
+            int i = 0;
+            for (String phenotypeId : phenotypeIds) {
+                if ((MAX_PHENOTYPE_TEST_PAGE_COUNT != -1) && (i++ >= MAX_PHENOTYPE_TEST_PAGE_COUNT)) {
+                    break;
+                }
+            
+                target = baseUrl + "/phenotypes/" + phenotypeId;
+                driver.get(target);
+                List<WebElement> topLevelMPTermIdLink = driver.findElements(By.cssSelector("div.inner a").linkText(phenotypeId));
+                if ( topLevelMPTermIdLink.isEmpty()) {
+                    message = "Expected page for TOP_LEVEL_MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
+                    errorList.add(message);
+                } else {
+                    message = "SUCCESS: TOP_LEVEL_MP_TERM_ID " + phenotypeId + ". Target URL: " + target;
+                    successList.add(message);
+                }
+            }
+        } catch (Exception e) {
+            message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+            exceptionList.add(message);
+        }
+        
+        System.out.println(dateFormat.format(new Date()) + ": testPageForEveryTopLevelMPTermId finished.");
+        
+        if ( ! errorList.isEmpty()) {
+            System.out.println(errorList.size() + " TOP_LEVEL_MP_TERM_ID records failed:");
+            for (String s : errorList) {
+                System.out.println("\t" + s);
+            }
+        }
+        
+        if ( ! exceptionList.isEmpty()) {
+            System.out.println(errorList.size() + " TOP_LEVEL_MP_TERM_ID records caused exceptions to be thrown:");
+            for (String s : exceptionList) {
+                System.out.println("\t" + s);
+            }
+        }
+            
+        System.out.println(dateFormat.format(new Date()) + ": " + successList.size() + " TOP_LEVEL_MP_TERM_ID records processed successfully.\n\n");
+        
+        if (errorList.size() + exceptionList.size() > 0) {
+            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
+        }
+    }
+    
+    /**
+     * Tests that a sensible page is returned for an invalid phenotype id.
+     * 
+     * @throws SolrServerException 
+     */
+    @Test
+@Ignore
+    public void testInvalidMpTermId() throws SolrServerException {
+        String target = "";
+        List<String> errorList = new ArrayList();
+        List<String> successList = new ArrayList();
+        List<String> exceptionList = new ArrayList();
+        String message;
+        String phenotypeId = "junkBadPhenotype";
+        final String EXPECTED_ERROR_MESSAGE = "junkBadPhenotype is not a valid mammalian phenotype identifier.";
+        
+        System.out.println(dateFormat.format(new Date()) + ": testInvalidMpTermId started.");
+        
+        try {
+            target = baseUrl + "/phenotypes/" + phenotypeId;
+            driver.get(target);
+            List<WebElement> topLevelMPTermIdLink = driver.findElements(By.partialLinkText("junkBadPhenotype"));
+            if ( topLevelMPTermIdLink.isEmpty()) {
+                message = "Expected error page for TOP_LEVEL_MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
+                errorList.add(message);
+            } else {
+                message = "SUCCESS: TOP_LEVEL_MP_TERM_ID " + phenotypeId + ". Target URL: " + target;
+                successList.add(message);
+            }
+        } catch (Exception e) {
+            message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+            exceptionList.add(message);
+        }
+        
+        System.out.println(dateFormat.format(new Date()) + ": testInvalidMpTermId finished.");
+        
+        if ( ! errorList.isEmpty()) {
+            System.out.println(errorList.size() + " TOP_LEVEL_MP_TERM_ID records failed:");
+            for (String s : errorList) {
+                System.out.println("\t" + s);
+            }
+        }
+        
+        if ( ! exceptionList.isEmpty()) {
+            System.out.println(errorList.size() + " TOP_LEVEL_MP_TERM_ID records caused exceptions to be thrown:");
+            for (String s : exceptionList) {
+                System.out.println("\t" + s);
+            }
+        }
+            
+        System.out.println(dateFormat.format(new Date()) + ": " + successList.size() + " TOP_LEVEL_MP_TERM_ID records processed successfully.\n\n");
         
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
