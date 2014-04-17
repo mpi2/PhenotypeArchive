@@ -24,7 +24,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.json.JSONArray;
@@ -59,22 +61,46 @@ public class SearchPageTest {
 	private String baseUrl;
 	private String solrPath;
 	private StringBuffer verificationErrors = new StringBuffer();
-	
 	private static final String SELENIUM_SERVER_URL ="http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
-
+	
+	private ArrayList<String> errLog = new ArrayList<String>();
+	private HashMap<String, String> params = new HashMap<String, String>();
+	private List<String> paramList = new ArrayList<String>();
+	
 	@Before
 	public void setUp() throws Exception {
 		
 		baseUrl = "https://dev.mousephenotype.org";
-		solrPath = baseUrl + "/mi/impc/dev/solr";	
+		solrPath = baseUrl + "/mi/impc/dev/solr";
+				
+		params.put("gene","fq=marker_type:* -marker_type:\"heritable phenotypic marker\"&core=gene");
+		params.put("mp", "fq=ontology_subset:*&core=mp");
+		params.put("disease", "fq=type:disease&core=disease");
+		params.put("ma", "fq=ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*&core=ma");
+		params.put("pipeline", "fq=pipeline_stable_id:*&core=pipeline");		
+		params.put("images", "fq=annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotated_or_inferred_higherLevelMpTermName:*&core=images");
 		
-	}
-	
+		String commonParam = "qf=auto_suggest&defType=edismax&wt=json&rows=0&q=*:*";		
+		final String geneParams      = "/gene/select?" + commonParam + "&" + params.get("gene");
+		final String mpParams        = "/mp/select?" + commonParam + "&" + params.get("mp");
+		final String diseaseParams   = "/disease/select?" + commonParam + "&" + params.get("disease");
+		final String maParams        = "/ma/select?" + commonParam + "&" + params.get("ma");
+		final String pipelineParams  = "/pipeline/select?" + commonParam + "&" + params.get("pipeline");
+		final String imagesParams    = "/images/select?" + commonParam + "&" + params.get("images");
+				
+		paramList.add(geneParams);
+		paramList.add(mpParams);
+		paramList.add(diseaseParams);
+		paramList.add(maParams);
+		paramList.add(pipelineParams);
+		paramList.add(imagesParams);
+		
+	}	
 	
 	public SearchPageTest(DesiredCapabilities browser) throws MalformedURLException {
 		driver = new RemoteWebDriver(
                 new URL(SELENIUM_SERVER_URL), browser);
-	System.out.println("browser for testing is:"+browser);
+		System.out.println("browser for testing is:"+browser);
 		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 	}
 	
@@ -89,11 +115,47 @@ public class SearchPageTest {
 		// <span class="gSymbol">
 		String geneParameterSymbol = "Acp2";
 		driver.get(baseUrl + "/data/search?q=" + geneParameterSymbol);
+		
 		// //li[contains(@class, 'ui-autocomplete')]/li[1]/a
 		String geneSymbol = driver.findElement(By.xpath("//span[contains(@class, 'gSymbol')]")).getText();
-		assertEquals(geneSymbol, geneParameterSymbol);
+		assertEquals(geneSymbol, geneParameterSymbol);		
 	}
-
+	/*
+	@Test
+	public void testTickingFacetFilters() throws Exception {
+		
+		for (Map.Entry entry : params.entrySet()) {		  
+		    		    
+		    String facet = entry.getKey().toString();
+		    String queryStr = baseUrl + "/data/search#" + entry.getValue();	
+		    //System.out.println(queryStr);
+		    driver.get(queryStr);		
+		
+			// first input element of a subfacet
+			new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.flist")));
+			String filterVals1 = driver.findElement(By.cssSelector("div.flist li#" + facet + " li.fcat input")).getAttribute("rel");
+			
+			String elem1 = "div.flist li#" + facet + " li.fcat input";
+			driver.findElement(By.cssSelector(elem1)).click();
+			if ( driver.findElement(By.cssSelector(elem1)).isSelected() ){
+				System.out.println(facet + " filter checked");
+			}
+			
+			String elem2 = "ul#facetFilter li li.ftag a";
+			String filterVals2 = driver.findElement(By.cssSelector(elem2)).getAttribute("rel");
+			
+			assertEquals(filterVals1, filterVals2);			
+			
+			// now tests unchecking filter also unchecks inputbox
+			driver.findElement(By.cssSelector(elem2)).click();
+			if ( ! driver.findElement(By.cssSelector(elem1)).isSelected() ){
+				System.out.println(facet + " filter unchecked");
+			}
+			
+			System.out.println(facet + " OK: behavioral test - input filter invokes filter listing");
+		}		
+	}
+		
 	@Test
 	public void testAllGeneSymbols() throws Exception {
 
@@ -109,14 +171,16 @@ public class SearchPageTest {
 			int size = docs.size();
 			for (int i=0; i<size; i++) {
 				String geneParameterSymbol = docs.getJSONObject(i).getString("marker_symbol");
-				System.out.println("Gene Symbol: " + geneParameterSymbol);
+				
 				driver.get(baseUrl + "/data/search?q=marker_symbol:\"" + geneParameterSymbol + "\"");
 				String geneSymbol = driver.findElement(By.xpath("//span[contains(@class, 'gSymbol')]")).getText();
 				assertEquals(geneSymbol, geneParameterSymbol);
+				System.out.println("OK querying by gene Symbol: " + geneParameterSymbol);
 			}
 		}
 	}
 	@Test
+	
 	public void testSelectedMgiIds() throws Exception {
 		
 		String newQueryString = "/gene/select?q=mgi_accession_id:*&fl=mgi_accession_id,marker_symbol&wt=json";
@@ -126,7 +190,7 @@ public class SearchPageTest {
 		System.out.println("newQueryString=" + newQueryString);
 
 		JSONObject geneResults = JSONRestUtil.getResults(solrPath + newQueryString);
-		JSONArray docs = JSONRestUtil.getDocArray(geneResults);
+		JSONArray docs = JSONRestUtil.getDocArray(baseUrl + params.get(core)geneResults);
 		if (docs != null) {
 			int size = docs.size();
 			for (int i=0; i<size; i++) {
@@ -142,64 +206,72 @@ public class SearchPageTest {
 	}
 	
 	@Test
+	public void testPhrase() throws Exception {
+				
+		driver.get(baseUrl + "/data/search?q=grip strength");	
+			
+		new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id("geneGrid_info"))); 
+		System.out.println("OK: checking phrease grip strength. Found: " + driver.findElement(By.cssSelector("span#resultCount a")).getText());
+	}
+	
+	@Test
+	public void testPhraseInQuotes() throws Exception {
+				
+		driver.get(baseUrl + "/data/search?q=\"zinc finger protein\"");	
+			
+		new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id("geneGrid_info"))); 
+		System.out.println("OK: query by phrease in quotes for \"zinc finger protein\". Found: " + driver.findElement(By.cssSelector("span#resultCount a")).getText());
+	}
+
+	@Test
 	public void testLeadingWildcard() throws Exception {
 				
 		driver.get(baseUrl + "/data/search?q=*rik");	
 			
 		new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id("geneGrid_info"))); 
-		System.out.println("wildcard check found: " + driver.findElement(By.cssSelector("span#resultCount a")).getText());
-					
-		
+		System.out.println("OK: query by leading wildcard for *rik. Found: " + driver.findElement(By.cssSelector("span#resultCount a")).getText());		
 	}
 	
 	@Test
-	public void testFacetCounts() throws Exception {
-		
-		String commonParam = "qf=auto_suggest&defType=edismax&wt=json&rows=0&q=*:*";
-		
-		final String geneParams      = "/gene/select?" + commonParam + "&fq=marker_type:* -marker_type:\"heritable phenotypic marker\"&core=gene";
-		final String mpParams        = "/mp/select?" + commonParam + "&fq=ontology_subset:*&core=mp";
-		final String diseaseParams   = "/disease/select?" + commonParam + "&fq=type:disease&core=disease";
-		final String maParams        = "/ma/select?" + commonParam + "&fq=ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*&core=ma";
-		final String pipelineParams  = "/pipeline/select?" + commonParam + "&fq=pipeline_stable_id:*&core=pipeline";
-		final String imagesParams    = "/images/select?" + commonParam + "&fq=annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotated_or_inferred_higherLevelMpTermName:*&core=images";
-		
-		List<String> paramList = new ArrayList<String>() {
-			  {
-				add(geneParams);
-				add(mpParams);
-				add(diseaseParams);
-				add(maParams);
-				add(pipelineParams);
-				add(imagesParams);
-			   }
-		};
-		
-		for (String s : paramList ){			
+	public void testTrailingWildcard() throws Exception {
+				
+		driver.get(baseUrl + "/data/search?q=hox*");	
+			
+		new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id("geneGrid_info"))); 
+		System.out.println("OK: query by trailing wildcard for hox*. Found: " + driver.findElement(By.cssSelector("span#resultCount a")).getText());		
+	}
+	*/
+	@Test
+	public void testFacetCounts() throws Exception {	
+				
+		for (String s : paramList ){	
+			
 			JSONObject geneResults = JSONRestUtil.getResults(solrPath + s);	
 			
-			int facetCountFromSolr = geneResults.getJSONObject("response").getInt("numFound");
+			int facetCountFromSolr = geneResults.getJSONObject("response").getInt("numFound");			
 			String core = geneResults.getJSONObject("responseHeader").getJSONObject("params").getString("core");
-			String fq = geneResults.getJSONObject("responseHeader").getJSONObject("params").getString("fq");
+			//String fq = geneResults.getJSONObject("responseHeader").getJSONObject("params").getString("fq");
+			System.out.println(core + " num found: "+ facetCountFromSolr);
 			
-			driver.get(baseUrl + "/data/search#fq=" + fq + "&core=" + core);
+			driver.get(baseUrl + "/data/search#" + params.get(core));
+			//System.out.println(baseUrl + "/data/search#" + params.get(core));
 			
-			// test facet panel loaded ok
-			System.out.println("current fq=" + fq + "&core=" + core);
+			// test facet panel loaded ok			
 			int facetCountFromPage = Integer.parseInt(driver.findElement(By.cssSelector("div.flist li#" + core + " span.fcount")).getText());
 			System.out.println("facet panel test for " + core + " core: " + facetCountFromSolr + " vs " + facetCountFromPage);
 			assertEquals(facetCountFromSolr, facetCountFromPage);
+			System.out.println("OK: facet counts for " + core);
 			
 			// wait for ajax response before doing the test
-			new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id("geneGrid_info")));
+			new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id(core+"Grid")));
 								
 			// test dataTable loaded ok			
-			System.out.println("facet count check found : " + driver.findElement(By.cssSelector("span#resultCount a")).getText());
+			//System.out.println("facet count check found : " + driver.findElement(By.cssSelector("span#resultCount a")).getText());
 			String[] parts = driver.findElement(By.cssSelector("span#resultCount a")).getText().split(" ");	
 			System.out.println("check: " + parts[0]);
-			int dataTalbeFoundCount = Integer.parseInt(parts[0]);			
-			System.out.println("table panel test for " + core + " core: " + facetCountFromSolr + " vs " + dataTalbeFoundCount);
+			int dataTalbeFoundCount = Integer.parseInt(parts[0]);				
 			assertEquals(facetCountFromSolr, dataTalbeFoundCount);
+			System.out.println("OK: comparing facet counts for " + core);			
 		}
 	}
 	
