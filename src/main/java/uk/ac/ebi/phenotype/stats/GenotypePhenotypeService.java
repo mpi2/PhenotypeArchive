@@ -461,7 +461,7 @@ public class GenotypePhenotypeService {
 			// "procedure_stable_key":"41",
 			Parameter parameter = new Parameter();
 			if (phen.containsKey( GenotypePhenotypeField.PARAMETER_STABLE_ID )) {
-				parameter = pipelineDAO.getParameterByStableIdAndVersion(phen.getString( GenotypePhenotypeField.PARAMETER_STABLE_ID ), 1, 0);
+				parameter = pipelineDAO.getParameterByStableId(phen.getString( GenotypePhenotypeField.PARAMETER_STABLE_ID ));
 			} else {
 				System.err.println("parameter_stable_id missing");
 			}
