@@ -65,7 +65,7 @@
 	       	    jsonp: 'json.wrf',
 	       	    timeout: 5000,
 	       	    success: function (geneResponse) {	  
-	       	    	console.log(geneResponse);
+	       	    	//console.log(geneResponse);
 	       	    	$('div.flist li#gene span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
 	       	    	oFacets.count.gene = geneResponse.response.numFound;	
 	       	    	_updateFacetCount('gene', geneResponse, facetMode);	       	    	

@@ -62,7 +62,7 @@ public class DataTableController {
 	private SolrIndex solrIndex;
 
 	@Resource(name="globalConfiguration")
-	private Map<String, String> config;// mi_attempt, phenotype_attempt allele types
+	private Map<String, String> config;
 		
 	
 	/**
@@ -355,24 +355,21 @@ public class DataTableController {
 						}						
 					}					
 				}	
-				// if no mice status found but there is already allele produced, mark it as "mice produced planned"
-				//if ( miceStatus.equals("") ){
-					for ( int j=0; j< alleleNames.size(); j++ ) {
-						String alleleName = alleleNames.get(j).toString();
-						if ( !alleleName.equals("") && !alleleName.equals("None") && mouseStatus.get(j).toString().equals("") ){	
-							Matcher matcher = pattern.matcher(alleleName);
-							//System.out.println(matcher.toString());
-								
-							if (matcher.find()) {
-								String alleleType = matcher.group(1);						
-								miceStatus += "<span class='status none' oldtitle='Mice production planned' title=''>"
-										+  "	<span>Mice<br>" + alleleType + "</span>"
-										+  "</span>";
-							}	
-						}						
-					}
-				//}
-				
+				// if no mice status found but there is already allele produced, mark it as "mice produced planned"				
+				for ( int j=0; j< alleleNames.size(); j++ ) {
+					String alleleName = alleleNames.get(j).toString();
+					if ( !alleleName.equals("") && !alleleName.equals("None") && mouseStatus.get(j).toString().equals("") ){	
+						Matcher matcher = pattern.matcher(alleleName);
+						//System.out.println(matcher.toString());
+							
+						if (matcher.find()) {
+							String alleleType = matcher.group(1);						
+							miceStatus += "<span class='status none' oldtitle='Mice production planned' title=''>"
+									+  "	<span>Mice<br>" + alleleType + "</span>"
+									+  "</span>";
+						}	
+					}						
+				}
 			}
 		} 
 		catch (Exception e) {
