@@ -48,6 +48,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import uk.ac.ebi.generic.util.ExcelWorkBook;
 import uk.ac.ebi.generic.util.SolrIndex;
+import uk.ac.ebi.phenotype.web.controller.DataTableController;
 import uk.ac.ebi.phenotype.dao.OrganisationDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
@@ -328,7 +329,7 @@ public class FileExportController {
 		List<String> rows = null;
 
 		if (solrCoreName.equals("gene") ){			
-			rows = composeGeneDataTableRows(json);
+			rows = composeGeneDataTableRows(json, request);
 		}
 		else if ( solrCoreName.equals("mp") ){			
 			rows = composeMpDataTableRows(json);
@@ -592,13 +593,14 @@ public class FileExportController {
 		}
 		return rowData;
 	}
-	private List<String> composeGeneDataTableRows(JSONObject json){
+	private List<String> composeGeneDataTableRows(JSONObject json, HttpServletRequest request){
 				
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");		
-				
-		List<String> rowData = new ArrayList<String>();
-		rowData.add("Marker symbol\tHuman ortholog\tMaker name\tSynonym\tMouse production status\tPhenotyping status"); // column names		
 		
+		List<String> rowData = new ArrayList<String>();
+				
+		rowData.add("Marker symbol\tHuman ortholog\tMaker name\tSynonym\tProduction status\tPhenotype status"); // column names		
+				
 		for (int i=0; i<docs.size(); i++) {			
 			List<String> data = new ArrayList<String>();
 			JSONObject doc = docs.getJSONObject(i);
@@ -620,9 +622,14 @@ public class FileExportController {
 			// Sanger problem, they should have use string for marker_name and not array
 			//data.add(doc.getJSONArray("marker_name").getString(0));
 			// now corrected using httpdatasource in dataImportHandler
-			data.add(doc.getString("marker_name"));
+			if ( doc.has("marker_name") ){
+				data.add(doc.getString("marker_name"));
+			}
+			else {
+				data.add("NA");				
+			}			
 			
-			if(doc.has("marker_synonym")) {
+			if( doc.has("marker_synonym") ) {
 				List<String> synData = new ArrayList<String>();
 				JSONArray syn = doc.getJSONArray("marker_synonym");
 				for(int s=0; s<syn.size();s++) {					
@@ -631,11 +638,13 @@ public class FileExportController {
 				data.add(StringUtils.join(synData, "|")); // use | as a multiValue separator in CSV output
 			}
 			else {
-				//data.add("NA");
+				data.add("NA");
 			}			
 			
-			// mouse production status
-			data.add(doc.getString("status"));			
+			// ES/Mice production status			
+			boolean toExport = true;
+			String prodStatus = solrIndex.deriveProductionStatusForEsCellAndMice(doc, request, toExport);	
+			data.add(prodStatus);
 			
 			// phenotyping status
 			data.add(solrIndex.deriveLatestPhenotypingStatus(doc));

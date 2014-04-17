@@ -221,7 +221,7 @@ config.facetParams = {
 		//centerFq: 'marker_type:* -marker_type:"heritable phenotypic marker" AND (production_center:* AND phenotyping_center:*)',
 		qf: "marker_symbol^100.0 human_gene_symbol^90.0 marker_name^10.0 allele_name^10 marker_synonym mgi_accession_id auto_suggest",
 		gridName: 'geneGrid',
-		gridFields: 'marker_symbol,marker_synonym,marker_name,status,human_gene_symbol', 
+		gridFields: '*', 
 		//filterParams: {fq:'marker_type:* -marker_type:"heritable phenotypic marker" (production_center:* AND phenotyping_center:*)',	
 		filterParams: {fq:'marker_type:* -marker_type:"heritable phenotypic marker"',	
 			      qf:"marker_symbol^100.0 human_gene_symbol^90.0 marker_name^10.0 marker_synonym mgi_accession_id auto_suggest",			     
@@ -231,7 +231,7 @@ config.facetParams = {
 					),
 		subFacet_filter_params: '', // set by widget on the fly
 		breadCrumbLabel: 'Genes'		
-	 },	
+	 },	 
 	 pipelineFacet: {	
 		 type: 'parameters',
 		 subFacetFqFields: 'procedure_stable_id', 		 
