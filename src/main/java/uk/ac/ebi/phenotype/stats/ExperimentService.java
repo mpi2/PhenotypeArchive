@@ -196,7 +196,7 @@ public class ExperimentService {
 					}
      			}
      			if(populatedResults.size()==0) {
-     				System.out.println("resorting to basic stats result");
+     				LOG.debug("resorting to basic stats result");
      				experiment.setResults(basicResults);
      			}else {
      			experiment.setResults(populatedResults);
