@@ -176,7 +176,7 @@ public class ScatterChartAndTableProvider {
 			int colorIndex=0;
 			try {
 				
-				controlJsonObject.put("name", sex+" "+"WT");
+				controlJsonObject.put("name", WordUtils.capitalize(sex.name())+" "+"WT");
 				
 				JSONObject markerObject=ChartColors.getMarkerJSONObject(sex, null);
 				controlJsonObject.put("marker", markerObject);
@@ -226,7 +226,7 @@ public class ScatterChartAndTableProvider {
 			for (ZygosityType zType : experiment.getZygosities()) {
 				colorIndex++;
 				try {
-					expZyg.put("name", sex+" "+zType);
+					expZyg.put("name", WordUtils.capitalize(sex.name())+" "+WordUtils.capitalize(zType.name()));
 					JSONObject markerObject=ChartColors.getMarkerJSONObject(sex, zType);
 					expZyg.put("marker", markerObject);
 					

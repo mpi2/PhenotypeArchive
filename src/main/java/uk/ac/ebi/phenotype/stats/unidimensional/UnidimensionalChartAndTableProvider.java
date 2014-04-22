@@ -530,7 +530,7 @@ List<Float>dataFloats=new ArrayList<>();
 					
 			for (StatisticalResult result : results) {
 				UnidimensionalResult unidimensionalResult=(UnidimensionalResult) result;
-				System.out.println("sex is "+sexType+" | result sex type="+result.getSexType()+"pValue="+unidimensionalResult.getpValue()+"result zyg="+unidimensionalResult.getZygosityType()+"  ztype="+zType);
+				//System.out.println("sex is "+sexType+" | result sex type="+result.getSexType()+"pValue="+unidimensionalResult.getpValue()+"result zyg="+unidimensionalResult.getZygosityType()+"  ztype="+zType);
 					if (result.getZygosityType().equals(zType)) {
 						tempStatsObject.setResult((UnidimensionalResult) result);
 					}
