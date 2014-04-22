@@ -15,7 +15,8 @@
 	<h2 class="title" id="section-associations"> 
 						Allele -
 		<t:formatAllele>${symbol}</t:formatAllele>
-		<span class="documentation" ><a href="" id='generalPanel' class="fa fa-question-circle pull-right" title="Overview help for graphs"></a></span>
+		<span class="documentation" ><a href="" id='generalPanel' class="fa fa-question-circle pull-right"></a></span>
+		
 	</h2>
 	
 	<p>Background	- ${geneticBackgroundString}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Phenotyping Center - ${phenotypingCenter}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pipeline - ${pipeline.name }</p> 

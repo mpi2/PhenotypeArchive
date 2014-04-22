@@ -18,9 +18,9 @@
 			
 			// bubble popup for brief panel documentation - added here as in stats page it doesn't work
 		 	$.fn.qTip({
-						'pageName': 'stats',
-						'textAlign': 'left',
-						'tip': 'topRight'
+						'pageName': 'stats',					
+						'tip': 'top right',
+						'corner' : 'right top'
 			}); 
  					});
 </script>

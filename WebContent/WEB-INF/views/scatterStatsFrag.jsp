@@ -30,13 +30,10 @@
 							  goBack();
 						});
 						
-						
-						
-			//			alert("scatter");
-						$.fn.qTip({
-							'pageName': 'scatter',
-							'textAlign': 'left',
-							'tip': 'topRight'
+				$.fn.qTip({
+							'pageName': 'stats',		
+							'tip': 'top right',
+							'corner' : 'right top'
 						});
 					});
 </script>
