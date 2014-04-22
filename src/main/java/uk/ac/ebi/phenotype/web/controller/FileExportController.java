@@ -311,11 +311,7 @@ public class FileExportController {
 		}
 		if (pipelineIds.size() == 0)
 			pipelineIds.add(null);
-		System.out.println(parameterStableId[0] );
-		System.out.println( "\t" + pipelineIds.get(0) + "\t" +   geneAccession[0] );
-		System.out.println("\t" +  sex + "\t" +  phenotypingCenterIds.get(0));
-		System.out.println("\t" +  zygosity + "\t" +  strain[0]);
-		
+			
 		List<ExperimentDTO> experimentList = new ArrayList<ExperimentDTO> ();	
 		for (int k = 0; k < parameterStableId.length; k++){
 			for (int mgiI = 0; mgiI < geneAccession.length; mgiI++){
@@ -323,7 +319,6 @@ public class FileExportController {
 					for (Integer pipelineId : pipelineIds){
 						for (int strainI = 0; strainI < strain.length; strainI++){
 							experimentList = experimentService.getExperimentDTO(parameterStableId[k], pipelineId,  geneAccession[mgiI], sex, pCenter, zygosity, strain[strainI]);
-							System.out.println(parameterStableId[k] + "\t" + pipelineId + "\t" +   geneAccession[mgiI] + "\t" +  sex + "\t" +  pCenter + "\t" +  zygosity + "\t" +  strain[strainI]);
 							if (experimentList.size() > 0){
 								for (ExperimentDTO experiment : experimentList) { 
 									rows.addAll(experiment.getTabbedToString(ppDAO)) ;
