@@ -104,9 +104,10 @@ $(document).ready(function(){
 									var phenotypingCenter = [];
 									var strains = [];
 									var zygosity = [];
+									var pipelineStableId = [];
 									for (var k = 0; k < paramList.length; k++){
-										if (paramList[k].indexOf("parameterId") >= 0){
-											paramIdList.push(paramList[k].replace("parameterId=", ""));
+										if (paramList[k].indexOf("parameter_stable_id") >= 0){
+											paramIdList.push(paramList[k].replace("parameter_stable_id=", ""));
 										}
 										else if (paramList[k].indexOf("accession") >= 0){
 											mgiGeneId.push(paramList[k].replace("accession=", ""));
@@ -120,6 +121,9 @@ $(document).ready(function(){
 										else if (paramList[k].indexOf("zygosity") >= 0){
 											zygosity.push(paramList[k].replace("zygosity=", ""));
 										}
+										else if (paramList[k].indexOf("pipeline_stable_id") >= 0){
+											pipelineStableId.push(paramList[k].replace("pipeline_stable_id=", ""));
+									}
 									}
 									
 									initFileExporter({
@@ -135,6 +139,7 @@ $(document).ready(function(){
 										sex: sex,
 										strains: strains,
 										phenotypingCenter: phenotypingCenter,
+										pipelineStableId: pipelineStableId,
 										page : "unidimensionalData",
 										gridFields : 'gene_accession,date_of_experiment,discrete_point,gene_symbol,data_point,zygosity,sex,date_of_birth,time_point',
 										params : ""

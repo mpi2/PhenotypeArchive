@@ -117,6 +117,7 @@ public class FileExportController {
 		@RequestParam(value="baseUrl", required=false) String baseUrl,	
 		@RequestParam(value="sex", required=false) String sex,
 		@RequestParam(value="phenotypingCenter", required=false) String[] phenotypingCenter,
+		@RequestParam(value="pipelineStableId", required=false) String[] pipelineStableId,
 		HttpSession session, 
 		HttpServletRequest request, 
 		HttpServletResponse response,
@@ -173,7 +174,7 @@ public class FileExportController {
 						zygList=Arrays.asList(zygosities);
 					}
 					String s = (sex.equalsIgnoreCase("null")) ? null : sex;
-					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, s, phenotypingCenterIds, zygList, strains);
+					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, s, phenotypingCenterIds, zygList, strains, pipelineStableId);
 				}
 				// Remove the title row (row 0) from the list and assign it to
 				// the string array for the spreadsheet
@@ -209,7 +210,7 @@ public class FileExportController {
 						zygList=Arrays.asList(zygosities);
 					}
 					String s = (sex.equalsIgnoreCase("null")) ? null : sex;
-					dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, s, phenotypingCenterIds, zygList, strains);
+					dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, s, phenotypingCenterIds, zygList, strains, pipelineStableId);
 					System.out.println("\t\tdataRows : " + dataRows.size());
 				}
 			}
@@ -291,7 +292,7 @@ public class FileExportController {
 		return tableData;
 	}
 	
-	public List<String> composeExperimetDataExportRows(String[] parameterStableId, String[] geneAccession, String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity, String[] strain) throws SolrServerException, IOException, URISyntaxException, SQLException{
+	public List<String> composeExperimetDataExportRows(String[] parameterStableId, String[] geneAccession, String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity, String[] strain, String[] pipelines) throws SolrServerException, IOException, URISyntaxException, SQLException{
 
 		List<String> rows = new ArrayList<String>();
 		SexType sex = null;
@@ -304,19 +305,31 @@ public class FileExportController {
 			strain = new String[1];
 			strain[0] = null;
 		}
+		ArrayList<Integer> pipelineIds = new ArrayList<>();
+		for (String pipe: pipelines){
+			pipelineIds.add(ppDAO.getPhenotypePipelineByStableId("ESLIM_002").getId());
+		}
+		if (pipelineIds.size() == 0)
+			pipelineIds.add(null);
+		System.out.println(parameterStableId[0] );
+		System.out.println( "\t" + pipelineIds.get(0) + "\t" +   geneAccession[0] );
+		System.out.println("\t" +  sex + "\t" +  phenotypingCenterIds.get(0));
+		System.out.println("\t" +  zygosity + "\t" +  strain[0]);
 		
-		List<ExperimentDTO> experimentList = new ArrayList<ExperimentDTO> ();		
-		Integer pipelineId=0;
+		List<ExperimentDTO> experimentList = new ArrayList<ExperimentDTO> ();	
 		for (int k = 0; k < parameterStableId.length; k++){
 			for (int mgiI = 0; mgiI < geneAccession.length; mgiI++){
 				for (Integer pCenter : phenotypingCenterIds){
-					for (int strainI = 0; strainI < strain.length; strainI++){
-						experimentList = experimentService.getExperimentDTO(parameterStableId[k],pipelineId,  geneAccession[mgiI], sex, pCenter, zygosity, strain[strainI]);
-						if (experimentList.size() > 0){
-							for (ExperimentDTO experiment : experimentList) { 
-								rows.addAll(experiment.getTabbedToString(ppDAO)) ;
+					for (Integer pipelineId : pipelineIds){
+						for (int strainI = 0; strainI < strain.length; strainI++){
+							experimentList = experimentService.getExperimentDTO(parameterStableId[k], pipelineId,  geneAccession[mgiI], sex, pCenter, zygosity, strain[strainI]);
+							System.out.println(parameterStableId[k] + "\t" + pipelineId + "\t" +   geneAccession[mgiI] + "\t" +  sex + "\t" +  pCenter + "\t" +  zygosity + "\t" +  strain[strainI]);
+							if (experimentList.size() > 0){
+								for (ExperimentDTO experiment : experimentList) { 
+									rows.addAll(experiment.getTabbedToString(ppDAO)) ;
+								}
+								rows.add("\n\n");
 							}
-							rows.add("\n\n");
 						}
 					}
 				}

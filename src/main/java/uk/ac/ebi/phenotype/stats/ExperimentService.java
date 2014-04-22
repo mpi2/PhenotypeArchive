@@ -83,6 +83,8 @@ public class ExperimentService {
 		List<ObservationDTO> observations = os.getExperimentalUnidimensionalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroup(parameterId, pipelineId, geneAccession, zygosity, phenotypingCenterId, strain, sex, metaDataGroup);
 		Map<String, ExperimentDTO> experimentsMap = new HashMap<>();
 		
+		System.out.println("\t\tgetExperimentDTO" + observations.size());
+		
 		for (ObservationDTO observation : observations) {
 
 	    	// collect all the strains, organisations, sexes, and zygosities 
