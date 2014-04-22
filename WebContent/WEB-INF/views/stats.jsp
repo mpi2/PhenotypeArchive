@@ -177,7 +177,7 @@ $(document).ready(function(){
 																.remove();
 													},
 													error : function() {
-														alert("Oops, there is error during data export..");
+							//							alert("Oops, there is error during data export..");
 													}
 												});
 									}
