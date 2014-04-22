@@ -1915,8 +1915,8 @@
     	    	
     	    	var iRowStart = iActivePage == 1 ? 0 : iActivePage*10-10;
     	    	//console.log('start: '+ iRowStart);
-    	    	var showImgView = $('div#resultMsg div#imgView').attr('rel') == 'imageView' ? true : false; 
-    	    	    	    	
+    	    	var showImgView = $('div#resultMsg div#imgView').attr('rel') == 'imgView' ? true : false;    	    		    	
+    	    	
     	    	$('button.gridDump').unbind('click');
     	    	$('button.gridDump').click(function(){  
     	    		
