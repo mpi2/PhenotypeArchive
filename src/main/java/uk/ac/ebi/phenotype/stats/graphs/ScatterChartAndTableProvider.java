@@ -55,7 +55,7 @@ public class ScatterChartAndTableProvider {
 			    +"         type: 'datetime',"
 			     +"        title: {"
 			      +"           enabled: true,"
-			      +"           text: 'Mouse' "
+			      +"           text: 'Date' "
 			      +"        }, "
 			      +"       labels: { "
 			      +"           rotation: -45, "
