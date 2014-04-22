@@ -66,8 +66,8 @@
 	<dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />	
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />	
 	<dataSource name="sanger_allele" type="HttpDataSource" baseUrl="http://ikmc.vm.bytemark.co.uk:8985/solr/ck/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
-   	<dataSource name="human2mouse_symbol_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_ci/human2mouse_symbol/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
-   	<dataSource name="experiment_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
+   	<dataSource name="human2mouse_symbol_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/human2mouse_symbol/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+   	<dataSource name="experiment_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/experiment/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
 	<dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
 	
    	<document name="docs">

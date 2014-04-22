@@ -477,7 +477,7 @@ public class FileExportController {
 			}
 		}
 		else {
-			System.out.println("MODE: imgview " + showImgView);
+			System.out.println("MODE: annotview " + showImgView);
 			// annotation view
 			// annotation view: images group by annotationTerm per row
 			rowData.add("Annotation_type\tAnnotation_name\tRelated_image_count\tUrl_to_images"); // column names	
