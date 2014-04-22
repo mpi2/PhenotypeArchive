@@ -71,7 +71,7 @@
           									<c:when test="${data.result.significanceClassification.text == 'Both genders equally' || data.result.significanceClassification.text == 'No significant change'  || data.result.significanceClassification.text == 'Can not differentiate genders' }">
           												<tr><th>Global Test</th><th>Significance/Classification</th><th>Effect</th></tr>
           												<tr><td>${data.result.nullTestSignificance}</td><td>${data.result.significanceClassification.text}</td><td>${data.result.genotypeParameterEstimate}</td></tr></c:when>
-         									<c:when test="${data.result.significanceClassification.text == 'Female only' || data.result.significanceClassification.text == 'Male only'  || data.result.significanceClassification.text == 'Different size females greater' || data.result.significanceClassification.text == 'Different size males greater' || data.result.significanceClassification == 'Female and male different directions'}">
+         									<c:when test="${data.result.significanceClassification.text == 'Female only' || data.result.significanceClassification.text == 'Male only'  || data.result.significanceClassification.text == 'Different size females greater' || data.result.significanceClassification.text == 'Different size males greater' || data.result.significanceClassification.text == 'Female and male different directions'}">
        													 <tr><th>Global Test</th><th>Significance/Classification</th><th>Sex</th><th>Effect</th><th>Standard Error </th><th>P Value</th></tr>
        													 <tr>
        													 <td rowspan="2">${data.result.nullTestSignificance}</td>
