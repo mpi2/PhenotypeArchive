@@ -3,20 +3,21 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <c:choose>
-										<c:when test="${emptyExperiment}">
-												<!-- <div class="alert alert-error">
-									  				<strong>Error:</strong> experiment empty
-												</div> -->
-										</c:when>
-										<c:otherwise>
+		<c:when test="${emptyExperiment}">
+				<!-- <div class="alert alert-error">
+		 				<strong>Error:</strong> experiment empty
+				</div> -->
+		</c:when>
+<c:otherwise>
 										
 									
 
-	<h2 class="title documentation" id="section-associations"> 
+	<h2 class="title" id="section-associations"> 
 						Allele -
 		<t:formatAllele>${symbol}</t:formatAllele>
-		<a href="" id='generalPanel'><i class="fa fa-question-circle pull-right" title="Overview help for graphs"></i></a>
+		<span class="documentation" ><a href="" id='generalPanel' class="fa fa-question-circle pull-right" title="Overview help for graphs"></a></span>
 	</h2>
+	
 	<p>Background	- ${geneticBackgroundString}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Phenotyping Center - ${phenotypingCenter}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pipeline - ${pipeline.name }</p> 
 					
 
