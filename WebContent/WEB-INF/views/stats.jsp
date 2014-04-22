@@ -37,14 +37,7 @@ $(document).ready(function(){
 			 
 	});	 
 	
-	
-	// bubble popup for brief panel documentation
- 	$.fn.qTip({
-				'pageName': 'stats',
-				'textAlign': 'left',
-				'tip': 'topRight'
-	}); 
-			
+		
 	
 });
 		 </script>
