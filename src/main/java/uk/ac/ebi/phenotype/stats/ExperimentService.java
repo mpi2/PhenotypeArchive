@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
 import uk.ac.ebi.phenotype.error.SpecificExperimentException;
@@ -124,6 +126,7 @@ public class ExperimentService {
 	    	}
 
 	    	if (experiment.getMetadataGroup() == null) {
+	    		LOG.debug("metaDataGroup in observation="+observation.getMetadataGroup());
 	    		experiment.setMetadataGroup(observation.getMetadataGroup());
 	    	}
 
@@ -172,6 +175,7 @@ public class ExperimentService {
 								+ unidimensionalResult.getSexType()
 								+ " p value="
 								+ unidimensionalResult.getpValue());
+						LOG.debug("basic result metadataGroup="+basicResult.getMetadataGroup());
 
 						try {
 							UnidimensionalResult result = unidimensionalStatisticsDAO
@@ -183,10 +187,13 @@ public class ExperimentService {
 								// result as it's not set by hibernate
 								result.setZygosityType(unidimensionalResult
 										.getZygosityType());
-								System.out
-										.println("result!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-												+ result);
+								LOG.debug("filter results on metadataGroup="+metaDataGroup+" result metadataGroup="+result.getMetadataGroup());
+//								System.out
+//										.println("result!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+//												+ result);
+								if(metaDataGroup.equals(result.getMetadataGroup())) {
 								populatedResults.add(result);
+								}
 							}
 						} catch (SQLException e) {
 							// TODO Auto-generated catch block
@@ -197,7 +204,12 @@ public class ExperimentService {
      			}
      			if(populatedResults.size()==0) {
      				LOG.debug("resorting to basic stats result");
+     				if(metaDataGroup.equals("") || metaDataGroup==null) {//if meta data group is specified the result we want can't be a basic result - so don't add a duff stats result to the experiment???
      				experiment.setResults(basicResults);
+     				}else {
+     					LOG.debug("metadataGroup is specified so not adding basic stats result!");
+     					experiment.setResults(Collections.emptyList());
+     				}
      			}else {
      			experiment.setResults(populatedResults);
      			}
