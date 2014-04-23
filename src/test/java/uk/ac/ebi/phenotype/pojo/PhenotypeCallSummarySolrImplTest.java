@@ -17,7 +17,7 @@ import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:app-config.xml" })
+@ContextConfiguration(locations = { "classpath:test-config.xml" })
 public class PhenotypeCallSummarySolrImplTest {
 
 	@Autowired

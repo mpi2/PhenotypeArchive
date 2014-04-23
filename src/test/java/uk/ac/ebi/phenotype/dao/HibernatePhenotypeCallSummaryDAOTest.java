@@ -11,7 +11,7 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 
-@ContextConfiguration(locations = { "classpath:app-config.xml" })
+@ContextConfiguration(locations = { "classpath:test-config.xml" })
 public class HibernatePhenotypeCallSummaryDAOTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 	@Autowired

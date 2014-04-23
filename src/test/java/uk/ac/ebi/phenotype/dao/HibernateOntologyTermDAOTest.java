@@ -41,7 +41,7 @@ import uk.ac.ebi.phenotype.pojo.Synonym;
  * Hibernate mapping is correct.
  */
 
-@ContextConfiguration( locations={ "classpath:app-config.xml" })
+@ContextConfiguration( locations={ "classpath:test-config.xml" })
 public class HibernateOntologyTermDAOTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 	@Autowired

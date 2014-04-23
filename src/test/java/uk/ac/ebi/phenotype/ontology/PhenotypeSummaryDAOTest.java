@@ -26,7 +26,7 @@ import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:app-config.xml" })
+@ContextConfiguration(locations = { "classpath:test-config.xml" })
 public class PhenotypeSummaryDAOTest  extends AbstractTransactionalJUnit4SpringContextTests{
 	
 
