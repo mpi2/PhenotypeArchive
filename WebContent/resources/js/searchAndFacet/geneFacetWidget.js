@@ -208,12 +208,13 @@
 	    		
 	    		var mkr_facets = json.facet_counts['facet_fields']['marker_type'];
 	    		foundMatch.marker_type = mkr_facets.length;
-	    		var unclassified;
+	    		var unclassified = [];
 	    		var subTypeUlContainer = $("<ul></ul>");
 	    		
 	    		for ( var i=0; i<mkr_facets.length; i+=2 ){		    			
 	    			var liContainer = $("<li></li>").attr({'class':'fcat marker_type'});
 					var type = mkr_facets[i];
+					console.log('type: '+ type);
 					var count = mkr_facets[i+1];	
 					var coreField = 'gene|marker_type|';						
 					var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + type + '|' + count + '|marker_type'});					
@@ -224,13 +225,15 @@
 						liContainer.append(chkbox, flabel, fcount);
 					}
 					else {					
-						unclassified = liContainer.append(chkbox, flabel, fcount);
+						unclassified.push(liContainer.append(chkbox, flabel, fcount));
 					}	
 					subTypeUlContainer.append(liContainer);				
 	    		} 
 	    			    		  
-	    		if (unclassified){	    		
-	    			subTypeUlContainer.append(unclassified);
+	    		if (unclassified.length > 0){	    		
+	    			for ( var i=0; i<unclassified.length; i++ ){
+	    				subTypeUlContainer.append(unclassified[i]);
+	    			}
 	    		}	    		
 	    		subTypeSect.append(subTypeUlContainer);
 	    		$('div.flist li#gene > ul').append(subTypeSect);
