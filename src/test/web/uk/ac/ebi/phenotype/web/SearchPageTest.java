@@ -146,7 +146,8 @@ public class SearchPageTest {
 		    String queryStr = baseUrl + "/data/search#" + entry.getValue();	
 		    //System.out.println(queryStr);
 		    driver.get(queryStr);		
-		
+		    driver.navigate().refresh();	
+		    
 			// first input element of a subfacet
 			new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.flist")));
 			String filterVals1 = driver.findElement(By.cssSelector("div.flist li#" + facet + " li.fcat input")).getAttribute("rel");
