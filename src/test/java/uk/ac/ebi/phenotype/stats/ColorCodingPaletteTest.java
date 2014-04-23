@@ -29,9 +29,9 @@ public class ColorCodingPaletteTest {
 			double minimalPValue = 0.005;
 			for (int maxColorIndex = 3; maxColorIndex <= 9; maxColorIndex++) {
 				ccp.generateColors(pValues, maxColorIndex, scale, minimalPValue);
-				System.out.println(maxColorIndex + " " + ccp.getPalette().size() + " " + ccp.getPalette().get(1).length);
+//				System.out.println(maxColorIndex + " " + ccp.getPalette().size() + " " + ccp.getPalette().get(1).length);
 				assertTrue(ccp.getPalette().size() == 3 && ccp.getPalette().get(1).length == maxColorIndex);
-				System.out.println(pValues.size() + " " + ccp.getColors().length);
+//				System.out.println(pValues.size() + " " + ccp.getColors().length);
 				assertTrue(ccp.getColors().length > 0 && ccp.getColors().length == pValues.size());
 			}
 		}

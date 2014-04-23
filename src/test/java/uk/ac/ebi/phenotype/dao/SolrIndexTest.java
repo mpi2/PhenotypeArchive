@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.generic.util.SolrIndex;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:app-config.xml" })
+@ContextConfiguration(locations = { "classpath:test-config.xml" })
 @TransactionConfiguration
 @Transactional
 public class SolrIndexTest {

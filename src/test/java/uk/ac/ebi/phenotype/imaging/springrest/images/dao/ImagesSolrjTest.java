@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
-@ContextConfiguration( locations={ "classpath:app-config.xml" })
+@ContextConfiguration( locations={ "classpath:test-config.xml" })
 public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTests{
 	
 	@Autowired

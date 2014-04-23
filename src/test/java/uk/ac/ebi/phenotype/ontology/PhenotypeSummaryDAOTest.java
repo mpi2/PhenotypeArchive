@@ -26,7 +26,7 @@ import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:app-config.xml" })
+@ContextConfiguration(locations = { "classpath:test-config.xml" })
 public class PhenotypeSummaryDAOTest  extends AbstractTransactionalJUnit4SpringContextTests{
 	
 
@@ -72,7 +72,7 @@ public class PhenotypeSummaryDAOTest  extends AbstractTransactionalJUnit4SpringC
 //					phenotypeSummary.getSummaryObjects(gene).getMalePhenotypes().size() > 0 ||
 //					phenotypeSummary.getSummaryObjects(gene).getFemalePhenotypes().size() > 0);
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 	}
 	

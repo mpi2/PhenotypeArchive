@@ -33,7 +33,7 @@ import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
  *
  * @author mrelac
  */
-@ContextConfiguration( locations={ "classpath:app-config.xml" })
+@ContextConfiguration( locations={ "classpath:test-config.xml" })
 public class GenotypePhenotypeServiceTest extends AbstractTransactionalJUnit4SpringContextTests {
     
     public GenotypePhenotypeServiceTest() {
