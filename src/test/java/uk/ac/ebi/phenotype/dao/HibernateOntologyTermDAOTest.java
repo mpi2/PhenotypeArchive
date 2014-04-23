@@ -41,7 +41,7 @@ import uk.ac.ebi.phenotype.pojo.Synonym;
  * Hibernate mapping is correct.
  */
 
-@ContextConfiguration( locations={ "classpath:app-config.xml" })
+@ContextConfiguration( locations={ "classpath:test-config.xml" })
 public class HibernateOntologyTermDAOTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 	@Autowired
@@ -50,7 +50,7 @@ public class HibernateOntologyTermDAOTest extends AbstractTransactionalJUnit4Spr
 	@Test
 	public void testGetAllOntologyTermsFromMGIGenomeType() {
 		List<OntologyTerm> ontologyTerms = ontologyTermDAO.getAllOntologyTermsByDatabaseId(2);
-		System.out.println(ontologyTerms.size());
+//		System.out.println(ontologyTerms.size());
 		assertTrue("Wrong number of ontologyTerms for MGI genome feature types", ontologyTerms.size() >= 39);
 	}
 	
@@ -82,9 +82,9 @@ public class HibernateOntologyTermDAOTest extends AbstractTransactionalJUnit4Spr
 		assertEquals("wrong ontologyTerm accession", "MP:0002098", ontologyTerm.getId().getAccession());
 		assertEquals("wrong ontologyTerm name ", "abnormal vibrissa morphology", ontologyTerm.getName());
 		assertEquals("wrong ontologyTerm description","any structural anomaly of the stiff hairs projecting from the face around the nose of most mammals which act as touch receptors", ontologyTerm.getDescription());
-		for (Synonym synonym: ontologyTerm.getSynonyms()) {
-			System.out.println("Synonym: " + synonym.getSymbol());
-		}
+//		for (Synonym synonym: ontologyTerm.getSynonyms()) {
+//			System.out.println("Synonym: " + synonym.getSymbol());
+//		}
 	}
 	
 	@Test
@@ -97,8 +97,8 @@ public class HibernateOntologyTermDAOTest extends AbstractTransactionalJUnit4Spr
 		assertEquals("wrong ontologyTerm accession", "MP:0002098", ontologyTerm.getId().getAccession());
 		assertEquals("wrong ontologyTerm name ", "abnormal vibrissa morphology", ontologyTerm.getName());
 		assertEquals("wrong ontologyTerm description","any structural anomaly of the stiff hairs projecting from the face around the nose of most mammals which act as touch receptors", ontologyTerm.getDescription());
-		for (Synonym synonym: ontologyTerm.getSynonyms()) {
-			System.out.println("Synonym: " + synonym.getSymbol());
-		}
+//		for (Synonym synonym: ontologyTerm.getSynonyms()) {
+//			System.out.println("Synonym: " + synonym.getSymbol());
+//		}
 	}
 }

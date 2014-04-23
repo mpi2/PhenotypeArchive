@@ -19,7 +19,7 @@ import uk.ac.ebi.phenotype.pojo.GenomicFeature;
  * Hibernate mapping is correct.
  */
 
-@ContextConfiguration( locations={ "classpath:app-config.xml" })
+@ContextConfiguration( locations={ "classpath:test-config.xml" })
 public class HibernateGenomicFeatureDAOTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 	@Autowired

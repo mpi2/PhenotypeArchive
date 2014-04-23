@@ -16,7 +16,7 @@ import uk.ac.ebi.phenotype.pojo.Strain;
  * Tests application behavior to verify the Hibernate mapping is correct.
  */
 
-@ContextConfiguration( locations={ "classpath:app-config.xml" })
+@ContextConfiguration( locations={ "classpath:test-config.xml" })
 public class HibernateStrainDAOTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 	@Autowired

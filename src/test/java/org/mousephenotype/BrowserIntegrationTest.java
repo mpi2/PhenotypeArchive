@@ -21,7 +21,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:app-config.xml" })
+@ContextConfiguration(locations = { "classpath:test-config.xml" })
 public class BrowserIntegrationTest implements ApplicationContextAware {
 
 	private ApplicationContext ac;

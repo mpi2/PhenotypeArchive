@@ -26,6 +26,7 @@ import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:app-config.xml" })
+
 public class ExperimentServiceTest {
 
 	@Autowired

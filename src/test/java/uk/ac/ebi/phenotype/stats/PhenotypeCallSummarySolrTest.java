@@ -22,7 +22,7 @@ import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolrImpl;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:app-config.xml" })
+@ContextConfiguration(locations = { "classpath:test-config.xml" })
 @TransactionConfiguration
 @Transactional
 public class PhenotypeCallSummarySolrTest {
