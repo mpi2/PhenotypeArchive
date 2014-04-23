@@ -21,11 +21,13 @@ import static org.junit.Assert.fail;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -34,11 +36,13 @@ import net.sf.json.JSONObject;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -61,18 +65,20 @@ public class SearchPageTest {
 	private String baseUrl;
 	private String solrPath;
 	private StringBuffer verificationErrors = new StringBuffer();
-	private static final String SELENIUM_SERVER_URL ="http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
+	private static final String SELENIUM_SERVER_URL ="http://mi-selenium-win.windows.ebi.ac.uk:4443/wd/hub";
 	
 	private ArrayList<String> errLog = new ArrayList<String>();
+	
 	private HashMap<String, String> params = new HashMap<String, String>();
 	private List<String> paramList = new ArrayList<String>();
+	private List<String> cores = new ArrayList<String>();
 	
 	@Before
 	public void setUp() throws Exception {
 		
-		baseUrl = "https://dev.mousephenotype.org";
+		baseUrl = "https://dev.mousephenotype.org";		
 		solrPath = baseUrl + "/mi/impc/dev/solr";
-				
+		
 		params.put("gene","fq=marker_type:* -marker_type:\"heritable phenotypic marker\"&core=gene");
 		params.put("mp", "fq=ontology_subset:*&core=mp");
 		params.put("disease", "fq=type:disease&core=disease");
@@ -95,6 +101,13 @@ public class SearchPageTest {
 		paramList.add(pipelineParams);
 		paramList.add(imagesParams);
 		
+		cores.add("gene");
+		cores.add("mp");
+		cores.add("disease");
+		cores.add("ma");
+		cores.add("pipeline");
+		cores.add("images");
+		
 	}	
 	
 	public SearchPageTest(DesiredCapabilities browser) throws MalformedURLException {
@@ -106,11 +119,13 @@ public class SearchPageTest {
 	
 	@Parameters
 	 public static Collection<Object[]> data() {
-	   Object[][] data = new Object[][] { { DesiredCapabilities.firefox() }, { DesiredCapabilities.internetExplorer() }, { DesiredCapabilities.chrome() } };
+	  // Object[][] data = new Object[][] { { DesiredCapabilities.firefox() }, { DesiredCapabilities.internetExplorer() }, { DesiredCapabilities.chrome() } };
+	   Object[][] data = new Object[][] { { DesiredCapabilities.firefox() }};
 	   return Arrays.asList(data);
 	 }
 	
 	@Test
+	@Ignore
 	public void testExample() throws Exception {
 		// <span class="gSymbol">
 		String geneParameterSymbol = "Acp2";
@@ -120,8 +135,9 @@ public class SearchPageTest {
 		String geneSymbol = driver.findElement(By.xpath("//span[contains(@class, 'gSymbol')]")).getText();
 		assertEquals(geneSymbol, geneParameterSymbol);		
 	}
-	/*
+	
 	@Test
+	@Ignore
 	public void testTickingFacetFilters() throws Exception {
 		
 		for (Map.Entry entry : params.entrySet()) {		  
@@ -146,7 +162,7 @@ public class SearchPageTest {
 			
 			assertEquals(filterVals1, filterVals2);			
 			
-			// now tests unchecking filter also unchecks inputbox
+			// now tests unchecking filemotionter also unchecks inputbox
 			driver.findElement(By.cssSelector(elem2)).click();
 			if ( ! driver.findElement(By.cssSelector(elem1)).isSelected() ){
 				System.out.println(facet + " filter unchecked");
@@ -157,6 +173,7 @@ public class SearchPageTest {
 	}
 		
 	@Test
+	@Ignore
 	public void testAllGeneSymbols() throws Exception {
 
 		String newQueryString = "/gene/select?q=marker_symbol:*&fl=marker_symbol&wt=json";
@@ -179,8 +196,9 @@ public class SearchPageTest {
 			}
 		}
 	}
-	@Test
 	
+	@Test	
+	@Ignore
 	public void testSelectedMgiIds() throws Exception {
 		
 		String newQueryString = "/gene/select?q=mgi_accession_id:*&fl=mgi_accession_id,marker_symbol&wt=json";
@@ -190,7 +208,9 @@ public class SearchPageTest {
 		System.out.println("newQueryString=" + newQueryString);
 
 		JSONObject geneResults = JSONRestUtil.getResults(solrPath + newQueryString);
-		JSONArray docs = JSONRestUtil.getDocArray(baseUrl + params.get(core)geneResults);
+		System.out.println(geneResults);
+		JSONArray docs = JSONRestUtil.getDocArray(geneResults);
+			
 		if (docs != null) {
 			int size = docs.size();
 			for (int i=0; i<size; i++) {
@@ -206,6 +226,7 @@ public class SearchPageTest {
 	}
 	
 	@Test
+	@Ignore
 	public void testPhrase() throws Exception {
 				
 		driver.get(baseUrl + "/data/search?q=grip strength");	
@@ -215,6 +236,7 @@ public class SearchPageTest {
 	}
 	
 	@Test
+	@Ignore
 	public void testPhraseInQuotes() throws Exception {
 				
 		driver.get(baseUrl + "/data/search?q=\"zinc finger protein\"");	
@@ -224,6 +246,7 @@ public class SearchPageTest {
 	}
 
 	@Test
+	@Ignore
 	public void testLeadingWildcard() throws Exception {
 				
 		driver.get(baseUrl + "/data/search?q=*rik");	
@@ -233,6 +256,7 @@ public class SearchPageTest {
 	}
 	
 	@Test
+	@Ignore
 	public void testTrailingWildcard() throws Exception {
 				
 		driver.get(baseUrl + "/data/search?q=hox*");	
@@ -240,8 +264,38 @@ public class SearchPageTest {
 		new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id("geneGrid_info"))); 
 		System.out.println("OK: query by trailing wildcard for hox*. Found: " + driver.findElement(By.cssSelector("span#resultCount a")).getText());		
 	}
-	*/
+	
 	@Test
+	//@Ignore
+	public void testPaginatino() throws Exception {	
+				
+		for (String core : cores ){		
+			System.out.println("TESTING core: "+ core);
+			//System.out.println(baseUrl + "/data/search#" + params.get(core));
+			
+			driver.get(baseUrl + "/data/search#" + params.get(core));		
+			driver.navigate().refresh();			
+			driver.findElement(By.xpath("//div[contains(@class, 'dataTables_paginate')]/descendant::li[a/text()='2']")).click();
+			
+			// wait for ajax call			
+			new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id(core+"Grid_info")));
+			String wantedElement = core.equals("images") ? "span#annotCount" : "span#resultCount a";
+			
+			//driver.findElement(By.xpath("//div[contains(@class, 'dataTables_paginate')]/descendant::li[a/text()='2']")).click();
+			//System.out.println("CHK1: " +  driver.findElement(By.cssSelector(wantedElement)).getText());
+			//System.out.println("CHK2: " +  driver.findElement(By.cssSelector("div#"+core+"Grid_info")).getText());			
+			String paginationInfo = driver.findElement(By.cssSelector("div#"+core+"Grid_info")).getText();
+								
+			String[] parts = driver.findElement(By.cssSelector(wantedElement)).getText().split(" ");			
+			int dataTalbeFoundCount = Integer.parseInt(parts[0]);
+					
+			assertEquals(paginationInfo, "Showing 11 to 20 of " + NumberFormat.getNumberInstance(Locale.US).format(dataTalbeFoundCount) + " entries");
+			System.out.println(core + " OK");		
+		}
+	}
+	
+	@Test
+	@Ignore
 	public void testFacetCounts() throws Exception {	
 				
 		for (String s : paramList ){	
@@ -253,22 +307,23 @@ public class SearchPageTest {
 			//String fq = geneResults.getJSONObject("responseHeader").getJSONObject("params").getString("fq");
 			System.out.println(core + " num found: "+ facetCountFromSolr);
 			
-			driver.get(baseUrl + "/data/search#" + params.get(core));
+			driver.get(baseUrl + "/data/search#" + params.get(core));	
+			driver.navigate().refresh();		
 			//System.out.println(baseUrl + "/data/search#" + params.get(core));
 			
 			// test facet panel loaded ok			
 			int facetCountFromPage = Integer.parseInt(driver.findElement(By.cssSelector("div.flist li#" + core + " span.fcount")).getText());
-			System.out.println("facet panel test for " + core + " core: " + facetCountFromSolr + " vs " + facetCountFromPage);
+			//System.out.println("facet panel test for " + core + " core: " + facetCountFromSolr + " vs " + facetCountFromPage);
 			assertEquals(facetCountFromSolr, facetCountFromPage);
-			System.out.println("OK: facet counts for " + core);
+			//System.out.println("OK: facet counts for " + core);
 			
 			// wait for ajax response before doing the test
-			new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id(core+"Grid")));
+			new WebDriverWait(driver, 45).until(ExpectedConditions.visibilityOfElementLocated(By.id(core+"Grid")));
 								
 			// test dataTable loaded ok			
 			//System.out.println("facet count check found : " + driver.findElement(By.cssSelector("span#resultCount a")).getText());
 			String[] parts = driver.findElement(By.cssSelector("span#resultCount a")).getText().split(" ");	
-			System.out.println("check: " + parts[0]);
+			//System.out.println("check: " + parts[0]);
 			int dataTalbeFoundCount = Integer.parseInt(parts[0]);				
 			assertEquals(facetCountFromSolr, dataTalbeFoundCount);
 			System.out.println("OK: comparing facet counts for " + core);			
