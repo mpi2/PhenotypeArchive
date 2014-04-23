@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import edu.emory.mathcs.backport.java.util.Collections;
+
 
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
@@ -268,7 +269,7 @@ public class ExperimentService {
 						experiment.setResults(basicResults);
 					} else {
 						LOG.debug("metadataGroup is specified so not adding basic stats result!");
-						experiment.setResults(Collections.emptyList());
+						experiment.setResults(Collections.EMPTY_LIST);
 					}
 				} else {
 					experiment.setResults(populatedResults);
