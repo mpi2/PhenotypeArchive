@@ -53,19 +53,19 @@
 		<level value="debug" />
 	</logger>
 	
-	<logger name="uk.ac.ebi.phenotype.pojo.StatisticalResult">
+	<!-- <logger name="uk.ac.ebi.phenotype.pojo.StatisticalResult">
 		<level value="debug" />
-	</logger>
-	<logger name="uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolrImpl">
+	</logger> -->
+	<!-- <logger name="uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolrImpl">
 		<level value="debug" />
-	</logger>
+	</logger> -->
 	 
 	 <logger name="uk.ac.ebi.phenotype.stats.ExperimentService">
 		<level value="debug" />
 	</logger>
-	<logger name="uk.ac.ebi.phenotype.stats.ObservationService">
+	<!-- <logger name="uk.ac.ebi.phenotype.stats.ObservationService">
 		<level value="debug" />
-	</logger>
+	</logger> -->
 	<!-- Root Logger -->
 	<root>
 		<priority value="warn" />

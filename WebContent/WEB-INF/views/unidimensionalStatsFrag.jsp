@@ -8,7 +8,7 @@
  --%>
  <!-- unidimensional here -->
  	<c:if test="${unidimensionalChartDataSet!=null}">
- 	
+ 	${unidimensionalChartDataSet.experiment.metadataGroup}
   					<div id="chart${experimentNumber}">
 								</div>
    								<script type="text/javascript">

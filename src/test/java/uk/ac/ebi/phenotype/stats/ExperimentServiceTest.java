@@ -1,4 +1,5 @@
 package uk.ac.ebi.phenotype.stats;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -15,21 +16,16 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.dao.OrganisationDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
-import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:app-config.xml" })
-@TransactionConfiguration
-@Transactional
 public class ExperimentServiceTest {
 
 	@Autowired
@@ -86,7 +82,64 @@ public class ExperimentServiceTest {
         System.out.println("Size is: "+experimentList.size());
 
 	}
+	
+	@Test
+	public void testGetExperimentWithAndWithoutResult() throws SolrServerException, IOException, URISyntaxException {
 
+		Logger.getRootLogger().setLevel(Level.INFO);
+
+		System.out.println("\ntestGetExperimentWithAndWithoutResult");
+		Parameter p = pDAO.getParameterByStableId("M-G-P_025_001_009");
+		Pipeline pipe = pDAO.getPhenotypePipelineByStableId("M-G-P_001");
+		Organisation org = orgDAO.getOrganisationByName("WTSI");
+		
+		List<String> zygs = new ArrayList<>();
+		zygs.add(ZygosityType.heterozygote.name());
+		List<ExperimentDTO> experimentList = es.getExperimentDTO(p.getId(), pipe.getId(), "MGI:97549", null, org.getId(), zygs, null, null, true);
+
+        System.out.println("EXP list is: "+experimentList);
+        System.out.println("Size is: "+experimentList.size());
+        assertTrue(experimentList.size()==2);
+   
+
+	}
+	
+	//metadataGroup=24446e53cb36f878658c6da33667433d has a significant p value and so the same call restricted by 
+	@Test
+	public void testGetExperimentWithMetadataGroupParamSpecified() throws SolrServerException, IOException, URISyntaxException {
+
+		Logger.getRootLogger().setLevel(Level.INFO);
+
+		System.out.println("\ntestGetExperimentWithAndWithoutResult");
+		Parameter p = pDAO.getParameterByStableId("M-G-P_025_001_009");
+		Pipeline pipe = pDAO.getPhenotypePipelineByStableId("M-G-P_001");
+		Organisation org = orgDAO.getOrganisationByName("WTSI");
+		
+		List<String> zygs = new ArrayList<>();
+		zygs.add(ZygosityType.heterozygote.name());
+		String metadataGroup="24446e53cb36f878658c6da33667433d";
+		List<ExperimentDTO> experimentList = es.getExperimentDTO(p.getId(), pipe.getId(), "MGI:97549", null, org.getId(), zygs, null, metadataGroup, true);
+
+        System.out.println("EXP list is: "+experimentList);
+        System.out.println("Size is: "+experimentList.size());
+        assertTrue(experimentList.size()==1);
+        String expResultsMetadataGroup=experimentList.get(0).getResults().get(0).getMetadataGroup();
+        System.out.println("expResultsMetadataGroup="+ expResultsMetadataGroup+" metadataGroup="+metadataGroup);
+        assertTrue(expResultsMetadataGroup.equals(metadataGroup));//check the stats results metadataGroup is correct
+        assertTrue(experimentList.get(0).getMetadataGroup().equals(metadataGroup));//check the experimental metadataGroup is correct as well
+        
+        String metadataGroup2="bb48f9ee812e01494f909eaf065997ea";
+		List<ExperimentDTO> experimentList2 = es.getExperimentDTO(p.getId(), pipe.getId(), "MGI:97549", null, org.getId(), zygs, null, metadataGroup2, true);
+
+        System.out.println("EXP list is: "+experimentList2);
+        System.out.println("Size is: "+experimentList2.size());
+        assertTrue(experimentList2.size()==1);
+        assertTrue(experimentList2.get(0).getResults().size()==0);//we have no stats results for this experiment as not sign p value so list should be empty
+        assertFalse(expResultsMetadataGroup.equals(metadataGroup2));
+    
+   
+
+	}
 	@Test
 	public void testControlSelectionStrategy() throws SolrServerException, IOException, URISyntaxException {
 
