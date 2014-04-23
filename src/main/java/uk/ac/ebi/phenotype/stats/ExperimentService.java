@@ -465,7 +465,8 @@ public class ExperimentService {
 	
 	public List<ExperimentDTO> getExperimentDTO(String parameterStableId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
 		Parameter p = parameterDAO.getParameterByStableId(parameterStableId);
-		System.out.println("--- getting p for : " + parameterStableId);
+		System.out.println("--- getting p for : " + parameterStableId  + " " +  pipelineId + " " + geneAccession + " " + sex + " " + phenotypingCenterId
+				 + " " + zygosity + " " + strain);
 		return getExperimentDTO(p.getId(),pipelineId, geneAccession, sex, phenotypingCenterId, zygosity, strain);
 	}
 

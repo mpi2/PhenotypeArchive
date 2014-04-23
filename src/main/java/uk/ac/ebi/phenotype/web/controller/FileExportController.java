@@ -174,7 +174,7 @@ public class FileExportController {
 						zygList=Arrays.asList(zygosities);
 					}
 					String s = (sex.equalsIgnoreCase("null")) ? null : sex;
-					rows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, s, phenotypingCenterIds, zygList, strains, pipelineStableId);
+					rows = composeExperimentDataExportRows(parameterStableId, mgiGeneId, s, phenotypingCenterIds, zygList, strains, pipelineStableId);
 				}
 				// Remove the title row (row 0) from the list and assign it to
 				// the string array for the spreadsheet
@@ -210,7 +210,7 @@ public class FileExportController {
 						zygList=Arrays.asList(zygosities);
 					}
 					String s = (sex.equalsIgnoreCase("null")) ? null : sex;
-					dataRows = composeExperimetDataExportRows(parameterStableId, mgiGeneId, s, phenotypingCenterIds, zygList, strains, pipelineStableId);
+					dataRows = composeExperimentDataExportRows(parameterStableId, mgiGeneId, s, phenotypingCenterIds, zygList, strains, pipelineStableId);
 					System.out.println("\t\tdataRows : " + dataRows.size());
 				}
 			}
@@ -292,7 +292,7 @@ public class FileExportController {
 		return tableData;
 	}
 	
-	public List<String> composeExperimetDataExportRows(String[] parameterStableId, String[] geneAccession, String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity, String[] strain, String[] pipelines) throws SolrServerException, IOException, URISyntaxException, SQLException{
+	public List<String> composeExperimentDataExportRows(String[] parameterStableId, String[] geneAccession, String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity, String[] strain, String[] pipelines) throws SolrServerException, IOException, URISyntaxException, SQLException{
 
 		List<String> rows = new ArrayList<String>();
 		SexType sex = null;
@@ -307,7 +307,7 @@ public class FileExportController {
 		}
 		ArrayList<Integer> pipelineIds = new ArrayList<>();
 		for (String pipe: pipelines){
-			pipelineIds.add(ppDAO.getPhenotypePipelineByStableId("ESLIM_002").getId());
+			pipelineIds.add(ppDAO.getPhenotypePipelineByStableId(pipe).getId());
 		}
 		if (pipelineIds.size() == 0)
 			pipelineIds.add(null);
