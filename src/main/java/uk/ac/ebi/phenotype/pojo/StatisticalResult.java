@@ -21,7 +21,7 @@ public class StatisticalResult {
 		return "StatisticalResult [id=" + id + ", controlBiologicalModel="
 				+ controlBiologicalModel + ", experimentalBiologicalModel="
 				+ experimentalBiologicalModel + ", organisation="
-				+ organisation + ", parameter=" + parameter + "]";
+				+ organisation + ", parameter=" + parameter +"metadataGroup="+metadataGroup+ "]";
 	}
 
 	/**
@@ -62,6 +62,9 @@ public class StatisticalResult {
 
 	@Column(name = "statistical_method", length=200)
 	private String statisticalMethod;
+	
+	@Column(name = "metadata_group", length=200)
+	private String metadataGroup;
 
 	@Column(name = "raw_output")
 	private String rawOutput;
@@ -160,6 +163,13 @@ public class StatisticalResult {
 		this.parameter = parameter;
 	}
 	
+	public String getMetadataGroup() {
+		return metadataGroup;
+	}
+
+	public void setMetadataGroup(String metadataGroup) {
+		this.metadataGroup = metadataGroup;
+	}
 	
 	
 

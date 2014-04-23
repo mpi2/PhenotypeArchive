@@ -20,11 +20,9 @@
 
 package phenotype.web;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -37,71 +35,61 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
 
 /**
  *
  * @author mrelac
  * 
- * Requirements for running these tests:
- * 1. Must have 'globalConfiguration' bean defined, typically found in WEB-INF/app-config.xml. This allows us to
- *    pick up Spring without having to use @RunWith(SpringJUnit4ClassRunner.class). Within that bean, the following
- *    properties must be defined:
- *    - 
- * 2. Must have the following properties defined in both the test and source copies of app-config.xml and appConfig.properties:
- * 2a.   baseUrl (the phenotype archive web applicatin instance. For DEV, it's http://dev.mousephenotype.org/data)
- * 2b.   seleniumUrl (the selenium WebServer server. Typically http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub, but can be easily changed)
- * 2c.   seleniumDrivers (the drivers you want the tests run against - e.g. chrome, firefox, iexplore, safari (case insensitive))
- * These properties must be defined in both the source and test app-config.xml and appConfig.properties files
- * (although only the test version's values are used).
+ * These are selenium-based JUnit web tests that are configured (via the pom.xml) not to
+ * run with the default profile because they take too long to complete. To run them, 
+ * use the 'web-tests' profile.
+ * 
+ * These selenium tests use selenium's WebDriver protocol and thus need a hub
+ * against which to run. The url for the hub is defined in the Test Packages
+ * /src/test/resources/testConfig.properties file (driven by /src/test/resources/test-config.xml).
+ * 
+ * To run these tests, edit /src/test/resources/testConfig.properties, making sure
+ * that the properties 'seleniumUrl' and 'desiredCapabilities' are defined. Consult
+ * /src/test/resources/test-config.xml for valid desiredCapabilities bean ids.
+ * 
+ * Examples:
+ *      seleniumUrl=http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub
+ *      desiredCapabilities=firefoxDesiredCapabilities
  */
 
-//@RunWith(SpringJUnit4ClassRunner.class)
-@RunWith(Parameterized.class)
-@ContextConfiguration(locations = { "classpath:app-config.xml" })
-public class GetAllPhenotypePagesTest extends AbstractJunit4Tester {
+@RunWith(SpringJUnit4ClassRunner.class)
+//@RunWith(Parameterized.class)
+@ContextConfiguration(locations = { "classpath:test-config.xml" })
+public class GetPhenotypePagesTest {
+    
+    @Autowired
+    protected GenotypePhenotypeService genotypePhenotypeService;
+    
+    @Autowired
+    protected String baseUrl;
+    
+    @Autowired
+    protected WebDriver driver;
+    
+    private static WebDriver staticDriver = null;
+    private static final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    
     // These constants define the maximum number of iterations for each given test. -1 means iterate over all.
     public final int MAX_MGI_LINK_CHECK_COUNT = 5;                              // -1 means test all links.
     public final int MAX_PHENOTYPE_TEST_PAGE_COUNT = -1;                        // -1 means test all pages.
-    
-    @Parameters
-    public static Collection<Object[]> data() throws MalformedURLException {
-String seleniumUrl = "http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
-        Object[][] data = new Object[][]{
-            { new RemoteWebDriver(new URL(seleniumUrl), DesiredCapabilities.chrome()) }
-//          , { new RemoteWebDriver(new URL(seleniumUrl), DesiredCapabilities.firefox()) }
- //         , { new RemoteWebDriver(new URL(seleniumUrl), DesiredCapabilities.internetExplorer()) }
-//          , { new RemoteWebDriver(new URL(seleniumUrl), DesiredCapabilities.safari()) }
-        };
-        return Arrays.asList(data);
-    }
 
-    /**
-     * This constructor gets called once before every new WebDriver parameter.
-     * JUnit doesn't provide a hook that is called after all of the tests [for
-     * one WebDriver] have been executed, so there is no handy place to close
-     * each browser after an execution of this test file for a given WebDriver.
-     * If you need to explicitly close the WebDriver browser window, you can
-     * test the 'driver' instance variable for null and, if it is not null, call
-     * driver.close().
-     * 
-     * @param driver the next parameterized driver instance
-     * @throws Exception 
-     */
-    public GetAllPhenotypePagesTest(RemoteWebDriver driver) throws Exception {
-        // If you need to close the browser, do it here before the driver is overwritten.
-        
-        super(driver);      // Let the parent class initialise the driver and baseUrl.
-    }
-    
     @Before
     public void setup() {
+        staticDriver = driver;
+        printTestEnvironment();
     }
 
     @After
@@ -114,8 +102,27 @@ String seleniumUrl = "http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
     
     @AfterClass
     public static void tearDownClass() {
+        if (staticDriver != null) {
+            staticDriver.close();
+        }
     }
-
+    
+    // PRIVATE METHODS
+    
+    private static void printTestEnvironment() {
+        String browserName = "<Unknown>";
+        String version = "<Unknown>";
+        String platform = "<Unknown>";
+        if (staticDriver instanceof RemoteWebDriver) {
+            RemoteWebDriver remoteWebDriver = (RemoteWebDriver)staticDriver;
+            browserName = remoteWebDriver.getCapabilities().getBrowserName();
+            version = remoteWebDriver.getCapabilities().getVersion();
+            platform = remoteWebDriver.getCapabilities().getPlatform().name();
+        }
+        
+        System.out.println("TESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
+    }
+    
     /**
      * Checks the MGI links for the first MAX_MGI_LINK_CHECK_COUNT phenotype ids
      * 
@@ -123,6 +130,7 @@ String seleniumUrl = "http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
      */
     @Test
     public void testMGILinksAreValid() throws SolrServerException {
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> phenotypeIds = genotypePhenotypeService.getAllPhenotypes();
         String target = "";
         List<String> errorList = new ArrayList();
@@ -142,6 +150,7 @@ String seleniumUrl = "http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
 
                 target = baseUrl + "/phenotypes/" + phenotypeId;
                 driver.get(target);
+                driver.navigate().refresh();
                 List<WebElement> phenotypeLinks = driver.findElements(By.cssSelector("div.inner a").linkText(phenotypeId));
                 if (phenotypeLinks.isEmpty()) {
                     message = "No page found for MP_TERM_ID " + phenotypeId + "(" + target + ")";
@@ -201,6 +210,7 @@ String seleniumUrl = "http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
      */
     @Test
     public void testPageForEveryMPTermId() throws SolrServerException {
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> phenotypeIds = genotypePhenotypeService.getAllPhenotypes();
         String target = "";
         List<String> errorList = new ArrayList();
@@ -220,6 +230,7 @@ String seleniumUrl = "http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
             
                 target = baseUrl + "/phenotypes/" + phenotypeId;
                 driver.get(target);
+                driver.navigate().refresh();
                 List<WebElement> mpTermIdLink = driver.findElements(By.cssSelector("div.inner a").linkText(phenotypeId));
                 if ( mpTermIdLink.isEmpty()) {
                     message = "Expected page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
@@ -265,6 +276,7 @@ String seleniumUrl = "http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
      */
     @Test
     public void testPageForEveryTopLevelMPTermId() throws SolrServerException {
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> phenotypeIds = genotypePhenotypeService.getAllTopLevelPhenotypes();
         String target = "";
         List<String> errorList = new ArrayList();
@@ -272,6 +284,7 @@ String seleniumUrl = "http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
         List<String> exceptionList = new ArrayList();
         String message;
         
+
         System.out.println(dateFormat.format(new Date()) + ": testPageForEveryTopLevelMPTermId started.");
         
         try {
@@ -284,6 +297,7 @@ String seleniumUrl = "http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
             
                 target = baseUrl + "/phenotypes/" + phenotypeId;
                 driver.get(target);
+                driver.navigate().refresh();
                 List<WebElement> topLevelMPTermIdLink = driver.findElements(By.cssSelector("div.inner a").linkText(phenotypeId));
                 if ( topLevelMPTermIdLink.isEmpty()) {
                     message = "Expected page for TOP_LEVEL_MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
@@ -296,7 +310,11 @@ String seleniumUrl = "http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
         } catch (Exception e) {
             message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
             exceptionList.add(message);
+            if (driver != null)
+                driver.quit();
         }
+        
+        
         
         System.out.println(dateFormat.format(new Date()) + ": testPageForEveryTopLevelMPTermId finished.");
         
@@ -327,28 +345,39 @@ String seleniumUrl = "http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
      * @throws SolrServerException 
      */
     @Test
-@Ignore
     public void testInvalidMpTermId() throws SolrServerException {
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String target = "";
         List<String> errorList = new ArrayList();
-        List<String> successList = new ArrayList();
         List<String> exceptionList = new ArrayList();
         String message;
         String phenotypeId = "junkBadPhenotype";
-        final String EXPECTED_ERROR_MESSAGE = "junkBadPhenotype is not a valid mammalian phenotype identifier.";
+        final String EXPECTED_ERROR_MESSAGE = "Oops! junkBadPhenotype is not a valid mammalian phenotype identifier.";
         
         System.out.println(dateFormat.format(new Date()) + ": testInvalidMpTermId started.");
         
         try {
             target = baseUrl + "/phenotypes/" + phenotypeId;
             driver.get(target);
-            List<WebElement> topLevelMPTermIdLink = driver.findElements(By.partialLinkText("junkBadPhenotype"));
-            if ( topLevelMPTermIdLink.isEmpty()) {
-                message = "Expected error page for TOP_LEVEL_MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
+            driver.navigate().refresh();
+            boolean found = false;
+            
+            List<WebElement> phenotypeLinks = driver.findElements(By.cssSelector("div.node h1"));
+            if (phenotypeLinks.isEmpty()) {
+                message = "No page found for MP_TERM_ID " + phenotypeId + "(" + target + ")";
                 errorList.add(message);
-            } else {
-                message = "SUCCESS: TOP_LEVEL_MP_TERM_ID " + phenotypeId + ". Target URL: " + target;
-                successList.add(message);
+            }
+
+            for (WebElement element : phenotypeLinks) {
+                if (element.getText().compareTo(EXPECTED_ERROR_MESSAGE) == 0) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if ( ! found) {
+                message = "Expected error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
+                errorList.add(message);
             }
         } catch (Exception e) {
             message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
@@ -358,24 +387,24 @@ String seleniumUrl = "http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
         System.out.println(dateFormat.format(new Date()) + ": testInvalidMpTermId finished.");
         
         if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " TOP_LEVEL_MP_TERM_ID records failed:");
+            System.out.println(errorList.size() + " MP_TERM_ID records failed:");
             for (String s : errorList) {
                 System.out.println("\t" + s);
             }
         }
         
         if ( ! exceptionList.isEmpty()) {
-            System.out.println(errorList.size() + " TOP_LEVEL_MP_TERM_ID records caused exceptions to be thrown:");
+            System.out.println(errorList.size() + " MP_TERM_ID records caused exceptions to be thrown:");
             for (String s : exceptionList) {
                 System.out.println("\t" + s);
             }
         }
-            
-        System.out.println(dateFormat.format(new Date()) + ": " + successList.size() + " TOP_LEVEL_MP_TERM_ID records processed successfully.\n\n");
         
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
         }
+        
+        System.out.println(dateFormat.format(new Date()) + ": 1 MP_TERM_ID record processed successfully.\n\n");
     }
 
 }

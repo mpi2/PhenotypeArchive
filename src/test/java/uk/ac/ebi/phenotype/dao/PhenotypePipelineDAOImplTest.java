@@ -23,7 +23,7 @@ import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.Procedure;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:app-config.xml" })
+@ContextConfiguration(locations = { "classpath:test-config.xml" })
 @TransactionConfiguration
 @Transactional
 public class PhenotypePipelineDAOImplTest {

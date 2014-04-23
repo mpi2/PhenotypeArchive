@@ -16,7 +16,7 @@ import uk.ac.ebi.phenotype.pojo.Datasource;
  * Hibernate mapping is correct.
  */
 
-@ContextConfiguration( locations={ "classpath:app-config.xml" })
+@ContextConfiguration( locations={ "classpath:test-config.xml" })
 public class HibernateDatasourceDAOTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 	@Autowired
