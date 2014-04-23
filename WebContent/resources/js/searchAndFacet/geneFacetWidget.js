@@ -19,8 +19,7 @@
  */
 (function ($) {
 	'use strict';
-	 
-	console.log('solrUrl: ' + solrUrl);
+		
     $.widget('MPI2.geneFacet', {
     	
 	    options: {},  

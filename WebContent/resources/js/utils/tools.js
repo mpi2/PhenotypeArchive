@@ -31,7 +31,7 @@
 	$.fn.parseUrlFordTableAndFacetFiltering = function(thisWidget){
 		var self = thisWidget;
 		var facet = self.element.attr('id');	
-		console.log(facet + ' widget loaded ...');
+		//console.log(facet + ' widget loaded ...');
 				
 		var oHashParams;
 		//console.log(MPI2.searchAndFacetConfig);
@@ -120,7 +120,7 @@
 		caller.click(function(){
 				
 			if ( caller.find('span.fcount').text() != 0 ){
-				console.log(facet + ' widget expanded');
+				//console.log(facet + ' widget expanded');
 				
 				// close all other non-selected facets
 				$('div.flist > ul li.fmcat').each(function(){

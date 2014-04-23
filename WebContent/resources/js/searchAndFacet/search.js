@@ -186,7 +186,7 @@
 		if ( typeof facetMode != 'undefined' && fq ){		
 			jsonBase.imagesFacet.filterParams = {'fq': $.fn.fieldNameMapping(fq, 'images')};
 		}
-		console.log($.fn.stringifyJsonAsUrlParams($.extend({}, jsonBase.imagesFacet.srchParams, jsonBase.imagesFacet.filterParams)));
+		//console.log($.fn.stringifyJsonAsUrlParams($.extend({}, jsonBase.imagesFacet.srchParams, jsonBase.imagesFacet.filterParams)));
 		
 		$.ajax({
     	    url: solrUrl + '/images/select',   
