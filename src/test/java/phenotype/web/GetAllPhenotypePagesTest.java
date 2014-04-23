@@ -81,11 +81,12 @@ public class GetAllPhenotypePagesTest {
     private static final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     
     public final int MAX_MGI_LINK_CHECK_COUNT = 5;                              // -1 means test all links.
-    public final int MAX_PHENOTYPE_TEST_PAGE_COUNT = 5;                        // -1 means test all pages.
+    public final int MAX_PHENOTYPE_TEST_PAGE_COUNT = -1;                        // -1 means test all pages.
 
     @Before
     public void setup() {
         staticDriver = driver;
+        printTestEnvironment();
     }
 
     @After
@@ -102,14 +103,29 @@ public class GetAllPhenotypePagesTest {
             staticDriver.close();
         }
     }
-
+    
+    // PRIVATE METHODS
+    
+    private static void printTestEnvironment() {
+        String browserName = "<Unknown>";
+        String version = "<Unknown>";
+        String platform = "<Unknown>";
+        if (staticDriver instanceof RemoteWebDriver) {
+            RemoteWebDriver remoteWebDriver = (RemoteWebDriver)staticDriver;
+            browserName = remoteWebDriver.getCapabilities().getBrowserName();
+            version = remoteWebDriver.getCapabilities().getVersion();
+            platform = remoteWebDriver.getCapabilities().getPlatform().name();
+        }
+        
+        System.out.println("TESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
+    }
+    
     /**
      * Checks the MGI links for the first MAX_MGI_LINK_CHECK_COUNT phenotype ids
      * 
      * @throws SolrServerException 
      */
     @Test
-@Ignore
     public void testMGILinksAreValid() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> phenotypeIds = genotypePhenotypeService.getAllPhenotypes();
@@ -189,7 +205,6 @@ public class GetAllPhenotypePagesTest {
      * @throws SolrServerException 
      */
     @Test
-@Ignore
     public void testPageForEveryMPTermId() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> phenotypeIds = genotypePhenotypeService.getAllPhenotypes();
@@ -324,7 +339,6 @@ public class GetAllPhenotypePagesTest {
      * @throws SolrServerException 
      */
     @Test
-@Ignore
     public void testInvalidMpTermId() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String target = "";
