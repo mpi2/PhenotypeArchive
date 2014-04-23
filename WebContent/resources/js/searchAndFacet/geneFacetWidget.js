@@ -220,7 +220,7 @@
 					var flabel = $('<span></span>').attr({'class':'flabel'}).text(type);
 					var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 					
-					if ( type != 'unclassified gene' ){						
+					if ( type != 'unclassified gene' && type != 'unclassified non-coding RNA gene' ){						
 						liContainer.append(chkbox, flabel, fcount);
 					}
 					else {					

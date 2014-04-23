@@ -166,7 +166,7 @@ public class ExperimentService {
 					for (StatisticalResult basicResult : basicResults) {
 						// get one for female and one for male if exist
 						UnidimensionalResult unidimensionalResult = (UnidimensionalResult) basicResult;
-						System.out.println("basic result PCSummary Id="
+						LOG.debug("basic result PCSummary Id="
 								+ unidimensionalResult.getId()
 								+ " basic result sex type="
 								+ unidimensionalResult.getSexType()
@@ -454,17 +454,17 @@ public class ExperimentService {
 	}
 	
 	public List<ExperimentDTO> getExperimentDTO(String parameterStableId, Integer pipelineId, String geneAccession) throws SolrServerException, IOException, URISyntaxException {
-		Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameterStableId, 1, 0);
+		Parameter p = parameterDAO.getParameterByStableId(parameterStableId);
 		return getExperimentDTO(p.getId(), pipelineId, geneAccession);
 	}
 	
 	public List<ExperimentDTO> getExperimentDTO(String parameterStableId,Integer pipelineId, String geneAccession, String strain) throws SolrServerException, IOException, URISyntaxException {
-		Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameterStableId, 1, 0);
+		Parameter p = parameterDAO.getParameterByStableId(parameterStableId);
 		return getExperimentDTO(p.getId(),pipelineId, geneAccession, null, null, null, strain);
 	}
 	
 	public List<ExperimentDTO> getExperimentDTO(String parameterStableId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
-		Parameter p = parameterDAO.getParameterByStableIdAndVersion(parameterStableId, 1, 0);
+		Parameter p = parameterDAO.getParameterByStableId(parameterStableId);
 		System.out.println("--- getting p for : " + parameterStableId);
 		return getExperimentDTO(p.getId(),pipelineId, geneAccession, sex, phenotypingCenterId, zygosity, strain);
 	}

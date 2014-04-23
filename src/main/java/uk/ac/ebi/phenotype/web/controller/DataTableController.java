@@ -60,7 +60,7 @@ public class DataTableController {
 
 	@Autowired
 	private SolrIndex solrIndex;
-
+	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 		
@@ -201,14 +201,15 @@ public class DataTableController {
 			rowData.add(geneInfo);
 
 			// ES cell/mice production status	
-			String prodStatus = deriveProductionStatusForEsCellAndMice(doc, request);			
+			boolean toExport = false;
+			String prodStatus = solrIndex.deriveProductionStatusForEsCellAndMice(doc, request, toExport);			
 			rowData.add(prodStatus);
 			
 			// phenotyping status			
 			//String phenoStatus = solrIndex.deriveLatestPhenotypingStatus(doc).equals("") ? "" : "<a class='status done'><span>phenotype data available</span></a>";
 			String mgiId = doc.getString("mgi_accession_id");			
 			String geneLink = request.getAttribute("baseUrl") + "/genes/" + mgiId;		
-			String phenoStatus = derivePhenotypingStatus(doc).equals("") ? "" : "<a class='status done' href='" + geneLink + "'><span>phenotype data available</span></a>";
+			String phenoStatus = solrIndex.deriveLatestPhenotypingStatus(doc).equals("NA") ? "" : "<a class='status done' href='" + geneLink + "'><span>phenotype data available</span></a>";
 			rowData.add(phenoStatus);
 			
 			// register of interest
@@ -248,139 +249,7 @@ public class DataTableController {
 		
 		return j.toString();	
 	}
-	public String derivePhenotypingStatus(JSONObject doc){
-				
-		final String field = "latest_phenotype_status";
-		try {	
-			// Phenotyping complete			
-			if ( doc.containsKey(field) && !doc.getString(field).equals("") ) {
-				String val = doc.getString(field);
-				if ( val.equals("Phenotyping Started") || val.equals("Phenotyping Complete") ) {
-					return "available";					
-				}
-			}		
-
-			// for legacy data: indexed through experiment core (so not want Sanger Gene or Allele cores)
-			if (doc.containsKey("hasQc")) {				
-				return "QCed data available";			
-			}
-		}		
-		catch (Exception e) {
-			log.error("Error getting phenotyping status");
-			log.error(e.getLocalizedMessage());
-		}
-				
-		return "";
-	}
-	
-	public String fetchEsCellStatus(JSONObject doc, HttpServletRequest request){
-		
-		String mgiId = doc.getString("mgi_accession_id");
-		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;
-				
-		String esCellStatus = "";	
-		
-		try {	
-			final String field = "latest_es_cell_status"; 
-			// ES cell production status
-			if ( doc.containsKey(field)  ){
-				// blue es cell status				
-				esCellStatus = doc.getString(field);
-				if ( esCellStatus.equals("ES Cell Targeting Confirmed") ){
-						esCellStatus = "<a class='status done' href='" + geneUrl + "' oldtitle='ES Cells produced' title=''>"
-									 + " <span>ES cells</span>"
-									 + "</a>";
-				}
-				else if ( esCellStatus.equals("ES Cell Production in Progress") ){
-						esCellStatus = "<span class='status inprogress' oldtitle='ES cells production in progress' title=''>"
-						   	 		 +  "	<span>ES Cells</span>"
-						   	 		 +  "</span>";
-				}
-				else {
-					esCellStatus = "";
-				}
-			}	
-		}	
-		catch (Exception e) {
-			log.error("Error getting ES cell/Mice status");
-			log.error(e.getLocalizedMessage());
-		}
 			
-		return esCellStatus; 
-	}
-		
-	public String deriveProductionStatusForEsCellAndMice(JSONObject doc, HttpServletRequest request){		
-				
-		String esCellStatus = fetchEsCellStatus(doc, request);		
-		String miceStatus = "";	
-		
-		String patternStr = "(tm.*)\\(.+\\).+"; // allele name pattern
-		Pattern pattern = Pattern.compile(patternStr);
-		
-		try {		
-						
-			// mice production status
-			
-			// Mice: blue tm1/tm1a/tm1e... mice (depending on how many allele docs) 
-			if ( doc.containsKey("mouse_status") ){
-				
-				JSONArray alleleNames = doc.getJSONArray("allele_name");
-				JSONArray mouseStatus = doc.getJSONArray("mouse_status");
-				
-				for ( int i=0; i< mouseStatus.size(); i++ ) {		
-					String mouseStatusStr = mouseStatus.get(i).toString();	
-					
-					if ( mouseStatusStr.equals("Mice Produced") ){
-						String alleleName = alleleNames.getString(i).toString();						
-						Matcher matcher = pattern.matcher(alleleName);
-						//System.out.println(matcher.toString());
-							
-						if (matcher.find()) {
-							String alleleType = matcher.group(1);						
-							miceStatus += "<span class='status done' oldtitle='" + mouseStatusStr + "' title=''>"
-									+  "	<span>Mice<br>" + alleleType + "</span>"
-									+  "</span>";
-						}
-					}
-					else if (mouseStatusStr.equals("Assigned for Mouse Production and Phenotyping") ){
-						String alleleName = alleleNames.getString(i).toString();						
-						Matcher matcher = pattern.matcher(alleleName);
-						//System.out.println(matcher.toString());
-							
-						if (matcher.find()) {
-							String alleleType = matcher.group(1);						
-							miceStatus += "<span class='status inprogress' oldtitle='Mice production in progress' title=''>"
-									+  "	<span>Mice<br>" + alleleType + "</span>"
-									+  "</span>";
-						}						
-					}					
-				}	
-				// if no mice status found but there is already allele produced, mark it as "mice produced planned"				
-				for ( int j=0; j< alleleNames.size(); j++ ) {
-					String alleleName = alleleNames.get(j).toString();
-					if ( !alleleName.equals("") && !alleleName.equals("None") && mouseStatus.get(j).toString().equals("") ){	
-						Matcher matcher = pattern.matcher(alleleName);
-						//System.out.println(matcher.toString());
-							
-						if (matcher.find()) {
-							String alleleType = matcher.group(1);						
-							miceStatus += "<span class='status none' oldtitle='Mice production planned' title=''>"
-									+  "	<span>Mice<br>" + alleleType + "</span>"
-									+  "</span>";
-						}	
-					}						
-				}
-			}
-		} 
-		catch (Exception e) {
-			log.error("Error getting ES cell/Mice status");
-			log.error(e.getLocalizedMessage());
-		}
-		
-		return esCellStatus + miceStatus;
-		
-	}
-		
 	public String parseJsonforProtocolDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters, int start){
 		
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");

@@ -1047,7 +1047,7 @@
 		$('.documentation a').each(function(){	
 			// now use id instead of class for better css logic
 			var key = $(this).attr('id');
-
+			
 			$(this).attr('href', MDOC[oConf.pageName][key+'DocUrl']);
 			$(this).qtip({				
 			 	content: {
@@ -1062,7 +1062,7 @@
 			    position: {
 			        my: typeof oConf.corner != undefined ? oConf.corner : 'right top'
 			    }			   
-			});			
+			});	
 		});
 	}
 	
@@ -1915,8 +1915,8 @@
     	    	
     	    	var iRowStart = iActivePage == 1 ? 0 : iActivePage*10-10;
     	    	//console.log('start: '+ iRowStart);
-    	    	var showImgView = $('div#resultMsg div#imgView').attr('rel') == 'imageView' ? true : false; 
-    	    	    	    	
+    	    	var showImgView = $('div#resultMsg div#imgView').attr('rel') == 'imgView' ? true : false;    	    		    	
+    	    	
     	    	$('button.gridDump').unbind('click');
     	    	$('button.gridDump').click(function(){  
     	    		

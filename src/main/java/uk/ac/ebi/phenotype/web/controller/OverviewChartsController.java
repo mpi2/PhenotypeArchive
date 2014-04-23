@@ -88,7 +88,7 @@ public class OverviewChartsController {
 		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
 		TimeSeriesChartAndTableProvider tstp = new TimeSeriesChartAndTableProvider();
 		UnidimensionalChartAndTableProvider uctp = new UnidimensionalChartAndTableProvider();
-		Parameter p = pipelineDao.getParameterByStableIdAndVersion(parameter, 1, 0);
+		Parameter p = pipelineDao.getParameterByStableId(parameter);
 		ChartData chartRes = null;
 		List<String> genes = null;
 		String[] centerToFilter = center;

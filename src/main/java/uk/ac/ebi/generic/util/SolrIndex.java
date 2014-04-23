@@ -22,13 +22,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
@@ -128,7 +132,7 @@ public class SolrIndex {
 		System.out.println("GRID SOLR PARAMS : " + gridSolrParams);
 		
 		if (core.equals("gene")) {			
-			gridFields += ",imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,ikmc_project,imits_phenotype_started,imits_phenotype_complete,imits_phenotype_status";
+			//gridFields += ",imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,ikmc_project,imits_phenotype_started,imits_phenotype_complete,imits_phenotype_status";
 		}
 
 		//String newgridSolrParams = gridSolrParams + "&rows=" + length
@@ -217,7 +221,145 @@ public class SolrIndex {
 		
 		return url;
 	}
-
+	
+	/**
+	 * Get the production status of ES cells/mice for a document.
+	 * 
+	 * @param doc
+	 *            represents a gene with imits status fields
+	 * @return the latest status at the gene level for ES cells and all statuses at the allele level for mice as a comma separated string
+	 */
+	public String deriveProductionStatusForEsCellAndMice(JSONObject doc, HttpServletRequest request, boolean toExport){		
+		
+		String esCellStatus = fetchEsCellStatus(doc, request, toExport);		
+		String miceStatus = "";		
+		final List<String> exportMiceStatus = new ArrayList<String>();
+		
+		String patternStr = "(tm.*)\\(.+\\).+"; // allele name pattern
+		Pattern pattern = Pattern.compile(patternStr);
+		
+		try {		
+						
+			// mice production status
+			
+			// Mice: blue tm1/tm1a/tm1e... mice (depending on how many allele docs) 
+			if ( doc.containsKey("mouse_status") ){
+				
+				JSONArray alleleNames = doc.getJSONArray("allele_name");
+				JSONArray mouseStatus = doc.getJSONArray("mouse_status");
+				
+				for ( int i=0; i< mouseStatus.size(); i++ ) {		
+					String mouseStatusStr = mouseStatus.get(i).toString();	
+					
+					if ( mouseStatusStr.equals("Mice Produced") ){
+						String alleleName = alleleNames.getString(i).toString();						
+						Matcher matcher = pattern.matcher(alleleName);
+						//System.out.println(matcher.toString());
+							
+						if (matcher.find()) {
+							String alleleType = matcher.group(1);						
+							miceStatus += "<span class='status done' oldtitle='" + mouseStatusStr + "' title=''>"
+									+  "	<span>Mice<br>" + alleleType + "</span>"
+									+  "</span>";
+							
+							exportMiceStatus.add(alleleType + " mice produced");
+						}
+					}
+					else if (mouseStatusStr.equals("Assigned for Mouse Production and Phenotyping") ){
+						String alleleName = alleleNames.getString(i).toString();						
+						Matcher matcher = pattern.matcher(alleleName);
+						//System.out.println(matcher.toString());
+							
+						if (matcher.find()) {
+							String alleleType = matcher.group(1);						
+							miceStatus += "<span class='status inprogress' oldtitle='Mice production in progress' title=''>"
+									+  "	<span>Mice<br>" + alleleType + "</span>"
+									+  "</span>";
+							exportMiceStatus.add(alleleType + " mice production in progress");
+						}						
+					}					
+				}	
+				// if no mice status found but there is already allele produced, mark it as "mice produced planned"				
+				for ( int j=0; j< alleleNames.size(); j++ ) {
+					String alleleName = alleleNames.get(j).toString();
+					if ( !alleleName.equals("") && !alleleName.equals("None") && mouseStatus.get(j).toString().equals("") ){	
+						Matcher matcher = pattern.matcher(alleleName);
+						//System.out.println(matcher.toString());
+							
+						if (matcher.find()) {
+							String alleleType = matcher.group(1);						
+							miceStatus += "<span class='status none' oldtitle='Mice production planned' title=''>"
+									+  "	<span>Mice<br>" + alleleType + "</span>"
+									+  "</span>";
+							
+							exportMiceStatus.add(alleleType + " mice production planned");
+						}	
+					}						
+				}
+			}
+		} 
+		catch (Exception e) {
+			log.error("Error getting ES cell/Mice status");
+			log.error(e.getLocalizedMessage());
+		}
+		
+		if ( toExport ){
+			exportMiceStatus.add(0, esCellStatus); // want to keep this at front
+			return StringUtils.join(exportMiceStatus, ", ");
+		}
+		return esCellStatus + miceStatus;
+		
+	}
+	/**
+	 * Get the latest production status of ES cells for a document.
+	 * 
+	 * @param doc
+	 *            represents a gene with imits status fields
+	 * @return the latest status at the gene level for ES cells as a string
+	 */
+	public String fetchEsCellStatus(JSONObject doc, HttpServletRequest request, boolean toExport){
+		
+		String mgiId = doc.getString("mgi_accession_id");
+		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;
+				
+		String esCellStatus = "";	
+		String exportEsCellStatus = "";	
+		try {	
+			final String field = "latest_es_cell_status"; 
+			// ES cell production status
+			if ( doc.containsKey(field)  ){
+				// blue es cell status				
+				esCellStatus = doc.getString(field);
+				if ( esCellStatus.equals("ES Cell Targeting Confirmed") ){
+						esCellStatus = "<a class='status done' href='" + geneUrl + "' oldtitle='ES Cells produced' title=''>"
+									 + " <span>ES cells</span>"
+									 + "</a>";
+						
+						exportEsCellStatus += "Es cells produced";
+				}
+				else if ( esCellStatus.equals("ES Cell Production in Progress") ){
+						esCellStatus = "<span class='status inprogress' oldtitle='ES cells production in progress' title=''>"
+						   	 		 +  "	<span>ES Cells</span>"
+						   	 		 +  "</span>";
+						
+						exportEsCellStatus += "Es cells production in progress";
+				}
+				else {
+					esCellStatus = "";
+					exportEsCellStatus = "No ES cell produced";
+				}
+			}	
+		}	
+		catch (Exception e) {
+			log.error("Error getting ES cell/Mice status");
+			log.error(e.getLocalizedMessage());
+		}
+			
+		if ( toExport ){
+			return exportEsCellStatus;
+		}
+		return esCellStatus; 
+	}
 	/**
 	 * Get the latest phenotyping status for a document.
 	 * 
@@ -226,7 +368,31 @@ public class SolrIndex {
 	 * @return the latest status (Complete or Started or Phenotype Attempt
 	 *         Registered) as appropriate for this gene
 	 */
-	public String deriveLatestPhenotypingStatus(JSONObject doc) {
+	public String deriveLatestPhenotypingStatus(JSONObject doc){
+			
+		final String field = "latest_phenotype_status";
+		try {	
+			// Phenotyping complete			
+			if ( doc.containsKey(field) && !doc.getString(field).equals("") ) {
+				String val = doc.getString(field);
+				if ( val.equals("Phenotyping Started") || val.equals("Phenotyping Complete") ) {
+					return "Available";					
+				}
+			}		
+	
+			// for legacy data: indexed through experiment core (so not want Sanger Gene or Allele cores)
+			if (doc.containsKey("hasQc")) {				
+				return "QCed data available";			
+			}
+		}		
+		catch (Exception e) {
+			log.error("Error getting phenotyping status");
+			log.error(e.getLocalizedMessage());
+		}
+			
+		return "NA";
+	}
+	/*public String deriveLatestPhenotypingStatus(JSONObject doc) {
 
 		// order of status: latest to oldest (IMPORTANT for deriving correct
 		// status)
@@ -275,7 +441,7 @@ public class SolrIndex {
 		//return "Not Applicable";
 		return "";
 		
-	}
+	}*/
 
 	/**
 	 * Generates a map of label, field, link representing a facet field
