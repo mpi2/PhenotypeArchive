@@ -260,12 +260,12 @@ public class GenesController {
 		log.debug("CHECK IKMC allele error : " + ikmcError);
 		log.debug("CHECK IKMC allele found : " + countIKMCAlleles);
 		
-		String prodStatusIcons = "<p>No status available </p>";
+		String prodStatusIcons = "Neither production nor phenotyping status available ";
 		
 		try {
 
 			Map<String, String> prod = geneService.getProductionStatus(acc);
-			prodStatusIcons = prod.get("icons");
+			prodStatusIcons = ( prod.get("icons").equalsIgnoreCase("") ) ? prodStatusIcons : prod.get("icons") ;
 			model.addAttribute("orderPossible" , prod.get("orderPossible"));
 		} catch (SolrServerException e) {
 			e.printStackTrace();

@@ -176,13 +176,12 @@
 								<a href="http://www.informatics.jax.org/marker/${gene.id.accession}">${gene.id.accession}</a>
 							</p>
 							
-							
+							<c:if test="${!(prodStatusIcons == '')}">
 							<p class="with-label">
 								<span class="label">Status</span>
 									${prodStatusIcons}
-								
 							</p>
-							
+							</c:if>
 							<p class="with-label">
 								<span class="label">ENSEMBL Links</span>
 								<a href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.id.accession}"><i class="fa fa-external-link"></i>&nbsp;Gene&nbsp;View</a>&nbsp;&nbsp;
