@@ -46,12 +46,12 @@ public class ObservationServiceTest {
 		String genomicFeatureAcc = "MGI:104874"; // Akt2
 			try {
 				dataset = os.getDistinctPipelineAlleleCenterListByGeneAccession(genomicFeatureAcc);
-				for (Map<String, String> map: dataset) {
-					for (String key: map.keySet()) {
-						System.out.println(key + ":" + map.get(key));
-					}
-					System.out.println();
-				}
+//				for (Map<String, String> map: dataset) {
+//					for (String key: map.keySet()) {
+//						System.out.println(key + ":" + map.get(key));
+//					}
+//					System.out.println();
+//				}
 			} catch (SolrServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -70,10 +70,10 @@ public class ObservationServiceTest {
 
 		try {
 			dataset = os.getDistinctProcedureListByPipelineAlleleCenter(pipelineStableId, alleleAccession, phenotypingCenter);
-			for (String key: dataset) {
-				System.out.println(key);
-
-			}
+//			for (String key: dataset) {
+//				System.out.println(key);
+//
+//			}
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -92,12 +92,12 @@ public class ObservationServiceTest {
 		
 			try {
 				dataset = os.getDistinctParameterListByPipelineAlleleCenter(pipelineStableId, alleleAccession, phenotypingCenter, null);
-				for (Map<String, String> map: dataset) {
-					for (String key: map.keySet()) {
-						System.out.println(key + ":" + map.get(key));
-					}
-					System.out.println();
-				}
+//				for (Map<String, String> map: dataset) {
+//					for (String key: map.keySet()) {
+//						System.out.println(key + ":" + map.get(key));
+//					}
+//					System.out.println();
+//				}
 			} catch (SolrServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -115,12 +115,12 @@ public class ObservationServiceTest {
 		
 			try {
 				dataset = os.getDistinctParameterListByPipelineAlleleCenter(pipelineStableId, alleleAccession, phenotypingCenter, null);
-				for (Map<String, String> map: dataset) {
-					for (String key: map.keySet()) {
-						System.out.println(key + ":" + map.get(key));
-					}
-					System.out.println();
-				}
+//				for (Map<String, String> map: dataset) {
+//					for (String key: map.keySet()) {
+//						System.out.println(key + ":" + map.get(key));
+//					}
+//					System.out.println();
+//				}
 			} catch (SolrServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -143,7 +143,7 @@ public class ObservationServiceTest {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			System.out.println("test result keys="+keys);
+//			System.out.println("test result keys="+keys);
 		assertTrue(keys.size()>0);
 	}
 

@@ -72,7 +72,7 @@ public class PhenotypeSummaryDAOTest  extends AbstractTransactionalJUnit4SpringC
 //					phenotypeSummary.getSummaryObjects(gene).getMalePhenotypes().size() > 0 ||
 //					phenotypeSummary.getSummaryObjects(gene).getFemalePhenotypes().size() > 0);
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 	}
 	
