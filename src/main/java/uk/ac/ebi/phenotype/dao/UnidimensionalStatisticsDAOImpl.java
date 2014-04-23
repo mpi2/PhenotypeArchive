@@ -468,7 +468,6 @@ System.out.println(query);
 	public UnidimensionalResult getStatsForPhenotypeCallSummaryId(int phenotypeCallSummaryId) throws SQLException{
 		//get the id we need from the join table
 		int resultId=this.getUnidimensionalResultIdFromStatsResultPhenotypeCallSummary(phenotypeCallSummaryId);
-		System.out.println("result id from join table="+resultId);
 		//use the join table id to get the actual result
 		return (UnidimensionalResult) getCurrentSession().get(UnidimensionalResult.class,  resultId);
 	}

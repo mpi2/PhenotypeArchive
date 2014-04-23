@@ -166,7 +166,7 @@ public class ExperimentService {
 					for (StatisticalResult basicResult : basicResults) {
 						// get one for female and one for male if exist
 						UnidimensionalResult unidimensionalResult = (UnidimensionalResult) basicResult;
-						System.out.println("basic result PCSummary Id="
+						LOG.debug("basic result PCSummary Id="
 								+ unidimensionalResult.getId()
 								+ " basic result sex type="
 								+ unidimensionalResult.getSexType()

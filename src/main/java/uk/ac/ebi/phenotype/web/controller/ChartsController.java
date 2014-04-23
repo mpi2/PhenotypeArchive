@@ -262,7 +262,7 @@ public class ChartsController {
 		Integer pipelineId=null;
 		Pipeline pipeline=new Pipeline();
 		if(pipelineStableId!=null && !pipelineStableId.equals("")) {
-		System.out.println("pipe stable id="+pipelineStableId);
+		log.debug("pipe stable id="+pipelineStableId);
 		pipeline=pipelineDAO.getPhenotypePipelineByStableId(pipelineStableId);
 		pipelineId=pipeline.getId();//swap the human readable pipeline  id from the url to our internal id
 		System.out.println("internernal pipe id="+pipelineId);

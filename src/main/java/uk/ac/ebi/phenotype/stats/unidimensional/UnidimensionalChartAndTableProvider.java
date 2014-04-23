@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.WordUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 import org.hibernate.cfg.annotations.Nullability;
@@ -215,7 +216,7 @@ List<Float>dataFloats=new ArrayList<>();
 		for(ChartsSeriesElement chartsSeriesElement: chartsSeriesElementsList){
 			//fist get the raw data for each column (only one column per data set at the moment as we will create both the scatter and boxplots here
 //			// Get a DescriptiveStatistics instance
-			String categoryString=chartsSeriesElement.getSexType().toString()+" "+chartsSeriesElement.getControlOrZygosityString();
+			String categoryString=WordUtils.capitalize(chartsSeriesElement.getSexType().toString())+" "+WordUtils.capitalize(chartsSeriesElement.getControlOrZygosityString());
 			categories.put(categoryString);
 			List<Float> listOfFloats= chartsSeriesElement.getOriginalData();
 			DescriptiveStatistics stats = new DescriptiveStatistics();
@@ -293,7 +294,7 @@ List<Float>dataFloats=new ArrayList<>();
 				
 		//loop over the chartSeries data and create scatters for each
 		for(ChartsSeriesElement chartsSeriesElement: chartsSeriesElementsList){
-					String categoryString=chartsSeriesElement.getSexType().toString()+" "+chartsSeriesElement.getControlOrZygosityString();
+					String categoryString=WordUtils.capitalize(chartsSeriesElement.getSexType().toString())+" "+WordUtils.capitalize(chartsSeriesElement.getControlOrZygosityString());
 				
 				//for the scatter loop over the original data and assign a column as the first element for each array
 			
@@ -529,7 +530,7 @@ List<Float>dataFloats=new ArrayList<>();
 					
 			for (StatisticalResult result : results) {
 				UnidimensionalResult unidimensionalResult=(UnidimensionalResult) result;
-				System.out.println("sex is "+sexType+" | result sex type="+result.getSexType()+"pValue="+unidimensionalResult.getpValue()+"result zyg="+unidimensionalResult.getZygosityType()+"  ztype="+zType);
+				//System.out.println("sex is "+sexType+" | result sex type="+result.getSexType()+"pValue="+unidimensionalResult.getpValue()+"result zyg="+unidimensionalResult.getZygosityType()+"  ztype="+zType);
 					if (result.getZygosityType().equals(zType)) {
 						tempStatsObject.setResult((UnidimensionalResult) result);
 					}
