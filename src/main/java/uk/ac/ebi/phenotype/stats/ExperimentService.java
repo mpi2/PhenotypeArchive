@@ -213,14 +213,14 @@ LOG.debug("metadataGroup parmeter is="+metaDataGroup);
 									.getStatsForPhenotypeCallSummaryId(unidimensionalResult
 											.getId());
 							if(result==null) {
-								System.out.println("no comprehensive result found for unidimensionalresult with id="+unidimensionalResult
+								LOG.debug("no comprehensive result found for unidimensionalresult with id="+unidimensionalResult
 											.getId());
 							}
 							if (result != null) {
 								// result.setSexType(unidimensionalResult.getSexType());//set
 								// the sextype from our already called solr
 								// result as it's not set by hibernate
-								System.out.println("yes result found for for unidimensionalresult with id="+unidimensionalResult
+								LOG.debug("yes result found for for unidimensionalresult with id="+unidimensionalResult
 											.getId());
 								result.setZygosityType(unidimensionalResult.getZygosityType());
 								if(experiment.getMetadataGroup()!=null && result.getMetadataGroup()!=null) {
@@ -241,12 +241,12 @@ LOG.debug("metadataGroup parmeter is="+metaDataGroup);
 				}
 				if (populatedResults.size() == 0) {
 					LOG.debug("resorting to basic stats result");
-					System.out.println("basic results size=" + basicResults.size());
+					//System.out.println("basic results size=" + basicResults.size());
 					for (StatisticalResult bR : basicResults) {
-						System.out.println("basic result metadataGroup=" + bR.getMetadataGroup());
+						//System.out.println("basic result metadataGroup=" + bR.getMetadataGroup());
 						if (experiment.getMetadataGroup().equals(bR)){
 							UnidimensionalResult uniTempResult=(UnidimensionalResult)bR;
-							LOG.debug("adding pValue from basic result="+uniTempResult.getpValue());
+							//LOG.debug("adding pValue from basic result="+uniTempResult.getpValue());
 							populatedResults.add((UnidimensionalResult)bR);	
 						}
 					}

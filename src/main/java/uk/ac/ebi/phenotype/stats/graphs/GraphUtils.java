@@ -11,14 +11,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.eclipse.jetty.util.log.Log;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.stats.ExperimentService;
 import uk.ac.ebi.phenotype.stats.ObservationService;
 
 public class GraphUtils {
-
+ 
+private static final Logger log = Logger.getLogger(GraphUtils.class);
 	ExperimentService experimentService;
 	public GraphUtils(ExperimentService experimentService) {
 		this.experimentService=experimentService;
@@ -26,11 +29,12 @@ public class GraphUtils {
 	public Set<String> getGraphUrls(String acc,
 			String parameterStableId, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList, List<String> strainsParams, List<String> metaDataGroup, boolean scatter) throws SolrServerException {
 		
-			Set<String>urls=new TreeSet<String>(); //each url should be unique and so we use a set
+			Set<String>urls=new LinkedHashSet<String>(); //each url should be unique and so we use a set
 			Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameterStableId, pipelineStableIds, phenotypingCentersList, strainsParams, metaDataGroup);
             List <String>centersList=keyList.get(ObservationService.ExperimentField.PHENOTYPING_CENTER);
             List <String>strains=keyList.get(ObservationService.ExperimentField.STRAIN);
             List<String> metaDataGroupStrings=keyList.get(ObservationService.ExperimentField.METADATA_GROUP); 
+            //System.out.println("metaDataGroupStrings"+metaDataGroupStrings);
 //            if(metaDataGroupStrings==null){
 //                metaDataGroupStrings=new ArrayList<String>();
 //                metaDataGroupStrings.add("");
@@ -63,7 +67,7 @@ public class GraphUtils {
             }
             //if not a phenotyping center returned in the keys for this gene and param then don't return a url
             if(centersList==null||centersList.isEmpty()) {
-                System.out.println("no centers specified returning empty list");
+                log.debug("no centers specified returning empty list");
             	return urls;
             }
             String pipelineStableIdsSolrString="";
@@ -95,9 +99,9 @@ public class GraphUtils {
                         }
             	}
             }
-            for(String url:urls) {
-            	System.out.println("graph url!!!="+url);
-            }
+//            for(String url:urls) {
+//            	System.out.println("graph url!!!="+url);
+//            }
             
             return urls;
 	}
