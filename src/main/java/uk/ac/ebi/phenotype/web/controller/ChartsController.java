@@ -305,11 +305,13 @@ public class ChartsController {
 				 case unidimensional:
 				 //http://localhost:8080/phenotype-archive/charts?accession=/MGI:1920000&parameterId=ESLIM_015_001_018
 				
+//					 if(experiment.getResults().size()!=0) {
 					 unidimensionalChartDataSet =
 				 continousChartAndTableProvider.doUnidimensionalData(experiment,
 						 experimentNumber, parameter,
 				 ChartType.UnidimensionalBoxPlot, false, xAxisTitle,expBiologicalModel);
 					model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+					// }
 				 break;
 				
 				case categorical:

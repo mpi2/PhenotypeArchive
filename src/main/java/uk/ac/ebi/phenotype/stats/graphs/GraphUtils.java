@@ -26,11 +26,12 @@ public class GraphUtils {
 	public Set<String> getGraphUrls(String acc,
 			String parameterStableId, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList, List<String> strainsParams, List<String> metaDataGroup, boolean scatter) throws SolrServerException {
 		
-			Set<String>urls=new TreeSet<String>(); //each url should be unique and so we use a set
+			Set<String>urls=new LinkedHashSet<String>(); //each url should be unique and so we use a set
 			Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameterStableId, pipelineStableIds, phenotypingCentersList, strainsParams, metaDataGroup);
             List <String>centersList=keyList.get(ObservationService.ExperimentField.PHENOTYPING_CENTER);
             List <String>strains=keyList.get(ObservationService.ExperimentField.STRAIN);
             List<String> metaDataGroupStrings=keyList.get(ObservationService.ExperimentField.METADATA_GROUP); 
+            System.out.println("metaDataGroupStrings"+metaDataGroupStrings);
 //            if(metaDataGroupStrings==null){
 //                metaDataGroupStrings=new ArrayList<String>();
 //                metaDataGroupStrings.add("");

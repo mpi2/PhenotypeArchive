@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -126,7 +127,7 @@ public class ObservationService {
 		// + observation.getGeneAccession()
 		// + observation.getMetadataGroup();
 
-		SortedMap<String, List<String>> map = new TreeMap<String, List<String>>();
+		Map<String, List<String>> map = new LinkedHashMap<>();
 
 		SolrQuery query = new SolrQuery();
 
