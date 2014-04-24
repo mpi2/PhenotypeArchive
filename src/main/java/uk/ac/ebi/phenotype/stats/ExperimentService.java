@@ -198,21 +198,12 @@ public class ExperimentService {
 								ObservationType.valueOf(observation
 										.getObservationType()), observation
 										.getStrain());
-				System.out.println("basic results size=" + basicResults.size());
-				for (StatisticalResult bR : basicResults) {
-					System.out.println("basic result=" + bR);
-				}
 				List<UnidimensionalResult> populatedResults = new ArrayList<>();
 				if (experiment.getObservationType() == ObservationType.unidimensional) {
 					for (StatisticalResult basicResult : basicResults) {
 						// get one for female and one for male if exist
 						UnidimensionalResult unidimensionalResult = (UnidimensionalResult) basicResult;
-						// LOG.debug("basic result PCSummary Id="
-						// + unidimensionalResult.getId()
-						// + " basic result sex type="
-						// + unidimensionalResult.getSexType()
-						// + " p value="
-						// + unidimensionalResult.getpValue());
+						 LOG.debug("basic result PCSummary Id="+ unidimensionalResult.getId() + " basic result sex type=" + unidimensionalResult.getSexType() + " p value=" + unidimensionalResult.getpValue());
 						// LOG.debug("basic result metadataGroup="+basicResult.getMetadataGroup());
 
 						try {
@@ -224,11 +215,13 @@ public class ExperimentService {
 								// the sextype from our already called solr
 								// result as it's not set by hibernate
 								result.setZygosityType(unidimensionalResult.getZygosityType());
-								if (metaDataGroup == null) {
-									populatedResults.add(result);
-								} else if (metaDataGroup.equals(result
+								if(experiment.getMetadataGroup()!=null && result.getMetadataGroup()!=null) {
+								 if (experiment.getMetadataGroup().equals(result
 										.getMetadataGroup())) {
+									 LOG.debug("metadata group in experiment and result are equal so adding "+metaDataGroup);
+									 LOG.debug("adding pValue from comprehensive result="+result.getpValue());
 									populatedResults.add(result);
+								}
 								}
 							}
 						} catch (SQLException e) {
@@ -240,40 +233,19 @@ public class ExperimentService {
 				}
 				if (populatedResults.size() == 0) {
 					LOG.debug("resorting to basic stats result");
-					if (metaDataGroup == null || metaDataGroup.equals("")) {// if
-																			// meta
-																			// data
-																			// group
-																			// is
-																			// specified
-																			// the
-																			// result
-																			// we
-																			// want
-																			// can't
-																			// be
-																			// a
-																			// basic
-																			// result
-																			// -
-																			// so
-																			// don't
-																			// add
-																			// a
-																			// duff
-																			// stats
-																			// result
-																			// to
-																			// the
-																			// experiment???
-						experiment.setResults(basicResults);
-					} else {
-						LOG.debug("metadataGroup is specified so not adding basic stats result!");
-						experiment.setResults(Collections.EMPTY_LIST);
+					System.out.println("basic results size=" + basicResults.size());
+					for (StatisticalResult bR : basicResults) {
+						System.out.println("basic result metadataGroup=" + bR.getMetadataGroup());
+						if (experiment.getMetadataGroup().equals(bR)){
+							UnidimensionalResult uniTempResult=(UnidimensionalResult)bR;
+							LOG.debug("adding pValue from basic result="+uniTempResult.getpValue());
+							populatedResults.add((UnidimensionalResult)bR);	
+						}
 					}
-				} else {
-					experiment.setResults(populatedResults);
 				}
+				
+					experiment.setResults(populatedResults);
+				
 				// doc_id from above call is the phenotype_call_summary id
 				// use this to get the correct stats result from the db
 				// some dao .getStatsForPhenotypeCallSummaryId(14309);
