@@ -137,7 +137,7 @@ public class SearchPageTest {
 	}
 	
 	@Test
-	@Ignore
+	//@Ignore
 	public void testTickingFacetFilters() throws Exception {
 		
 		for (Map.Entry entry : params.entrySet()) {		  
