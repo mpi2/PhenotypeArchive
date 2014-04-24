@@ -15,6 +15,8 @@
  */
 package uk.ac.ebi.generic.util;
 
+import java.util.Date;
+
 public class Tools {
 	// check a string contains only numbers
 	public static boolean isNumeric(String input) {
@@ -34,5 +36,26 @@ public class Tools {
 				.replace("/sup>", "</sup>");		
 	}
 	
-	
+        /**
+         * Given two dates (in any order), returns a <code>String</code> in the
+         * format "xxx days, yyy hours, zzz minutes, nnn seconds" that equals
+         * the absolute value of the time difference between the two days.
+         * @param date1 the first operand
+         * @param date2 the second operand
+         * @return a <code>String</code> in the format "xxx days, yyy hours,
+         *         zzz minutes" that equals the absolute value of the time
+         *         difference between the two days.
+         */
+	public static String dateDiff(Date date1, Date date2) {
+            long lower = Math.min(date1.getTime(), date2.getTime());
+            long upper = Math.max(date1.getTime(), date2.getTime());
+            long diff = upper - lower;
+            
+            long days = diff / (24 * 60 * 60 * 1000);
+            long hours = diff / (60 * 60 * 1000) % 24;
+            long minutes = diff / (60 * 1000) % 60;
+            long seconds = diff / 1000 % 60;
+            
+            return days + " days, " + hours + " hours " + minutes + " minutes, " + seconds + " seconds";
+        }
 }
