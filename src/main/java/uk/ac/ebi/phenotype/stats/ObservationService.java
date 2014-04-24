@@ -165,7 +165,7 @@ public class ObservationService {
 		}
 
 		QueryResponse response = solr.query(query);
-		System.out.println("experiment key query=" + query);
+		LOG.debug("experiment key query=" + query);
 		List<FacetField> fflist = response.getFacetFields();
 
 		for (FacetField ff : fflist) {

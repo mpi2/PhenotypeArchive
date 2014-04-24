@@ -271,7 +271,7 @@ public class ChartsController {
 				.getSpecificExperimentDTO(parameter.getId(),pipelineId,  accession[0],
 						genderList, zyList,phenotypingCenterId,
 						  strain , metaDataGroupString);
-		System.out.println("experiment in chart method="+experiment);
+		//System.out.println("experiment in chart method="+experiment);
 		
 		if (experiment!=null) {
 			// log.info("Experiment dto marker="+experiment.getFemaleControls());
