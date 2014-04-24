@@ -32,7 +32,6 @@ import org.junit.AfterClass;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
@@ -42,6 +41,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
 
 /**
@@ -79,8 +79,7 @@ public class GetPhenotypePagesTest {
     @Autowired
     protected WebDriver driver;
     
-    private static WebDriver staticDriver = null;
-    private static final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     
     // These constants define the maximum number of iterations for each given test. -1 means iterate over all.
     public final int MAX_MGI_LINK_CHECK_COUNT = 5;                              // -1 means test all links.
@@ -88,7 +87,6 @@ public class GetPhenotypePagesTest {
 
     @Before
     public void setup() {
-        staticDriver = driver;
         printTestEnvironment();
     }
 
@@ -102,19 +100,16 @@ public class GetPhenotypePagesTest {
     
     @AfterClass
     public static void tearDownClass() {
-        if (staticDriver != null) {
-            staticDriver.close();
-        }
     }
     
     // PRIVATE METHODS
     
-    private static void printTestEnvironment() {
+    private void printTestEnvironment() {
         String browserName = "<Unknown>";
         String version = "<Unknown>";
         String platform = "<Unknown>";
-        if (staticDriver instanceof RemoteWebDriver) {
-            RemoteWebDriver remoteWebDriver = (RemoteWebDriver)staticDriver;
+        if (driver instanceof RemoteWebDriver) {
+            RemoteWebDriver remoteWebDriver = (RemoteWebDriver)driver;
             browserName = remoteWebDriver.getCapabilities().getBrowserName();
             version = remoteWebDriver.getCapabilities().getVersion();
             platform = remoteWebDriver.getCapabilities().getPlatform().name();
@@ -137,8 +132,10 @@ public class GetPhenotypePagesTest {
         List<String> successList = new ArrayList();
         List<String> exceptionList = new ArrayList();
         String message;
+        Date start = new Date();
+        Date stop;
         
-        System.out.println(dateFormat.format(new Date()) + ": testMGILinksAreValid started.");
+        System.out.println(dateFormat.format(start) + ": testMGILinksAreValid started.");
         
         try {
             // Loop through first MAX_MGI_LINK_CHECK_COUNT phenotype MGI links, testing each one for valid page load.
@@ -194,8 +191,9 @@ public class GetPhenotypePagesTest {
                 System.out.println("\t" + s);
             }
         }
-            
-        System.out.println(dateFormat.format(new Date()) + ": " + successList.size() + " MGI links processed successfully.\n\n");
+        
+        stop = new Date();
+        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI links processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
         
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
@@ -217,8 +215,10 @@ public class GetPhenotypePagesTest {
         List<String> successList = new ArrayList();
         List<String> exceptionList = new ArrayList();
         String message;
+        Date start = new Date();
+        Date stop;
         
-        System.out.println(dateFormat.format(new Date()) + ": testPageForEveryMPTermId started.");
+        System.out.println(dateFormat.format(start) + ": testPageForEveryMPTermId started.");
         
         try {
             // Loop through all phenotypes, testing each one for valid page load.
@@ -260,8 +260,9 @@ public class GetPhenotypePagesTest {
                 System.out.println("\t" + s);
             }
         }
-            
-        System.out.println(dateFormat.format(new Date()) + ": " + successList.size() + " MP_TERM_ID records processed successfully.\n\n");
+        
+        stop = new Date();
+        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MP_TERM_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
         
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
@@ -283,9 +284,10 @@ public class GetPhenotypePagesTest {
         List<String> successList = new ArrayList();
         List<String> exceptionList = new ArrayList();
         String message;
-        
+        Date start = new Date();
+        Date stop;
 
-        System.out.println(dateFormat.format(new Date()) + ": testPageForEveryTopLevelMPTermId started.");
+        System.out.println(dateFormat.format(start) + ": testPageForEveryTopLevelMPTermId started.");
         
         try {
             // Loop through all phenotypes, testing each one for valid page load.
@@ -314,8 +316,6 @@ public class GetPhenotypePagesTest {
                 driver.quit();
         }
         
-        
-        
         System.out.println(dateFormat.format(new Date()) + ": testPageForEveryTopLevelMPTermId finished.");
         
         if ( ! errorList.isEmpty()) {
@@ -331,8 +331,9 @@ public class GetPhenotypePagesTest {
                 System.out.println("\t" + s);
             }
         }
-            
-        System.out.println(dateFormat.format(new Date()) + ": " + successList.size() + " TOP_LEVEL_MP_TERM_ID records processed successfully.\n\n");
+        
+        stop = new Date();
+        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " TOP_LEVEL_MP_TERM_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
         
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
@@ -351,10 +352,12 @@ public class GetPhenotypePagesTest {
         List<String> errorList = new ArrayList();
         List<String> exceptionList = new ArrayList();
         String message;
+        Date start = new Date();
+        Date stop;
         String phenotypeId = "junkBadPhenotype";
         final String EXPECTED_ERROR_MESSAGE = "Oops! junkBadPhenotype is not a valid mammalian phenotype identifier.";
         
-        System.out.println(dateFormat.format(new Date()) + ": testInvalidMpTermId started.");
+        System.out.println(dateFormat.format(start) + ": testInvalidMpTermId started.");
         
         try {
             target = baseUrl + "/phenotypes/" + phenotypeId;
@@ -384,7 +387,8 @@ public class GetPhenotypePagesTest {
             exceptionList.add(message);
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": testInvalidMpTermId finished.");
+        stop = new Date();
+        System.out.println(dateFormat.format(stop) + ": testInvalidMpTermId finished.");
         
         if ( ! errorList.isEmpty()) {
             System.out.println(errorList.size() + " MP_TERM_ID records failed:");
@@ -404,7 +408,7 @@ public class GetPhenotypePagesTest {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": 1 MP_TERM_ID record processed successfully.\n\n");
+        System.out.println(dateFormat.format(new Date()) + ": 1 invalid MP_TERM_ID record processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
     }
 
 }

@@ -54,23 +54,26 @@
 						<td>${phenotype.procedure.name} / ${phenotype.parameter.name}</td>
 						<td>${phenotype.phenotypingCenter} </td>
 						<td>
-						<c:choose>
-						<c:when test="${phenotype.phenotypeLink eq ''}">
 							${phenotype.dataSourceName}
-						</c:when>
-						<c:otherwise>
-						<a href="${phenotype.phenotypeLink }">${phenotype.dataSourceName}</a>
-						</c:otherwise>
-						</c:choose>
 						</td>
 						
 						
 						<td style="text-align:center">
 						<!-- c:if test="${not phenotype.parameter.derivedFlag}"-->
 						<c:if test="${phenotype.dataSourceName ne 'MGP' }">
-						<a href="${baseUrl}/charts?accession=${acc}&parameter_stable_id=${phenotype.parameter.stableId}
-						<c:if test="${fn:length(phenotype.sexes) eq 1}">&gender=${phenotype.sexes[0]}</c:if>&zygosity=${phenotype.zygosity}<c:if test="${phenotype.getPhenotypingCenter() != null}">&phenotyping_center=${phenotype.getPhenotypingCenter()}</c:if>&pipeline_stable_id=${phenotype.pipeline.stableId}">
-						<i class="fa fa-bar-chart-o" alt="Graphs" > </i></a>
+						<c:choose>
+								<c:when test="${phenotype.dataSourceName eq 'EuroPhenome'}">
+									<a href="${phenotype.phenotypeLink }"  class="fancybox">
+										<i class="fa fa-bar-chart-o" alt="Graphs" > </i>
+									</a>
+								</c:when>
+								<c:otherwise>
+									<a href="${baseUrl}/charts?accession=${acc}&parameter_stable_id=${phenotype.parameter.stableId}
+										<c:if test="${fn:length(phenotype.sexes) eq 1}">&gender=${phenotype.sexes[0]}</c:if>&zygosity=${phenotype.zygosity}<c:if test="${phenotype.getPhenotypingCenter() != null}">&phenotyping_center=${phenotype.getPhenotypingCenter()}</c:if>&pipeline_stable_id=${phenotype.pipeline.stableId}" class="fancybox">
+										<i class="fa fa-bar-chart-o" alt="Graphs" > </i>
+									</a>
+								</c:otherwise>
+							</c:choose>
 						</c:if>
 						
 						</td>
