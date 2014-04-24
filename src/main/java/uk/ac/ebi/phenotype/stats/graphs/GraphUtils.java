@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.solr.client.solrj.SolrServerException;
 
@@ -25,7 +26,7 @@ public class GraphUtils {
 	public Set<String> getGraphUrls(String acc,
 			String parameterStableId, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList, List<String> strainsParams, List<String> metaDataGroup, boolean scatter) throws SolrServerException {
 		
-			Set<String>urls=new HashSet<String>(); //each url should be unique and so we use a set
+			Set<String>urls=new TreeSet<String>(); //each url should be unique and so we use a set
 			Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameterStableId, pipelineStableIds, phenotypingCentersList, strainsParams, metaDataGroup);
             List <String>centersList=keyList.get(ObservationService.ExperimentField.PHENOTYPING_CENTER);
             List <String>strains=keyList.get(ObservationService.ExperimentField.STRAIN);
@@ -94,9 +95,9 @@ public class GraphUtils {
                         }
             	}
             }
-//            for(String url:urls) {
-//            	System.out.println("graph url!!!="+url);
-//            }
+            for(String url:urls) {
+            	System.out.println("graph url!!!="+url);
+            }
             
             return urls;
 	}

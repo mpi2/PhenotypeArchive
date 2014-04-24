@@ -14,6 +14,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import net.sf.json.JSONArray;
 
@@ -31,6 +33,7 @@ import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.util.NamedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,7 +126,7 @@ public class ObservationService {
 		// + observation.getGeneAccession()
 		// + observation.getMetadataGroup();
 
-		Map<String, List<String>> map = new HashMap<String, List<String>>();
+		SortedMap<String, List<String>> map = new TreeMap<String, List<String>>();
 
 		SolrQuery query = new SolrQuery();
 
@@ -136,7 +139,7 @@ public class ObservationService {
 			.setRows(0)
 			.setFacet(true)
 			.setFacetMinCount(1)
-			.setFacetLimit(-1);
+			.setFacetLimit(-1).setFacetSort(FacetParams.FACET_SORT_COUNT);
 
 		if (phenotypingCenterParams!= null && !phenotypingCenterParams.isEmpty()){
 			List<String>spaceSafeStringsList=new ArrayList<String>();//need to add " to ends of entries to cope with MRC Harwell with space in!
@@ -161,7 +164,7 @@ public class ObservationService {
 		}
 
 		QueryResponse response = solr.query(query);
-		LOG.info("experiment key query=" + query);
+		System.out.println("experiment key query=" + query);
 		List<FacetField> fflist = response.getFacetFields();
 
 		for (FacetField ff : fflist) {

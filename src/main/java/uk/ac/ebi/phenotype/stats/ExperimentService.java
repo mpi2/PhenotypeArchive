@@ -94,7 +94,7 @@ public class ExperimentService {
 			Integer phenotypingCenterId, List<String> zygosity, String strain,
 			String metaDataGroup, Boolean includeResults)
 			throws SolrServerException, IOException, URISyntaxException {
-
+LOG.debug("metadataGroup parmeter is="+metaDataGroup);
 		List<ObservationDTO> observations = os
 				.getExperimentalUnidimensionalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroup(
 						parameterId, pipelineId, geneAccession, zygosity,
@@ -198,6 +198,8 @@ public class ExperimentService {
 								ObservationType.valueOf(observation
 										.getObservationType()), observation
 										.getStrain());
+				System.out.println("basic results list size for experiment="+basicResults.size());
+				System.out.println("experiment id="+experiment.getExperimentId());
 				List<UnidimensionalResult> populatedResults = new ArrayList<>();
 				if (experiment.getObservationType() == ObservationType.unidimensional) {
 					for (StatisticalResult basicResult : basicResults) {
@@ -210,10 +212,16 @@ public class ExperimentService {
 							UnidimensionalResult result = unidimensionalStatisticsDAO
 									.getStatsForPhenotypeCallSummaryId(unidimensionalResult
 											.getId());
+							if(result==null) {
+								System.out.println("no comprehensive result found for unidimensionalresult with id="+unidimensionalResult
+											.getId());
+							}
 							if (result != null) {
 								// result.setSexType(unidimensionalResult.getSexType());//set
 								// the sextype from our already called solr
 								// result as it's not set by hibernate
+								System.out.println("yes result found for for unidimensionalresult with id="+unidimensionalResult
+											.getId());
 								result.setZygosityType(unidimensionalResult.getZygosityType());
 								if(experiment.getMetadataGroup()!=null && result.getMetadataGroup()!=null) {
 								 if (experiment.getMetadataGroup().equals(result
