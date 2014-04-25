@@ -48,7 +48,6 @@ public class TimeSeriesStats {
 			// Compute some statistics
 			double mean = stats.getMean();
 			double std = stats.getStandardDeviation();
-			double median = stats.getPercentile(50);
 			DiscreteTimePoint meanDataTimePoint = new DiscreteTimePoint(time,
 					new Float(mean), new Float(stats.getStandardDeviation()));
 			List<Float> errorPair = new ArrayList<>();

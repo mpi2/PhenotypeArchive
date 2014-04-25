@@ -30,6 +30,7 @@ import uk.ac.ebi.phenotype.stats.ChartUtils;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 import uk.ac.ebi.phenotype.stats.MouseDataPoint;
 import uk.ac.ebi.phenotype.stats.ObservationDTO;
+import uk.ac.ebi.phenotype.stats.PercentileComputation;
 import uk.ac.ebi.phenotype.stats.StackedBarsData;
 import uk.ac.ebi.phenotype.stats.graphs.ChartColors;
 import uk.ac.ebi.phenotype.stats.graphs.GraphUtils;
@@ -220,6 +221,8 @@ List<Float>dataFloats=new ArrayList<>();
 			categories.put(categoryString);
 			List<Float> listOfFloats= chartsSeriesElement.getOriginalData();
 			DescriptiveStatistics stats = new DescriptiveStatistics();
+//			stats.setPercentileImpl(new PercentileComputation());
+			
 			//load up the stats object
 			for (Float point : listOfFloats) {
 				stats.addValue(point);
@@ -227,16 +230,18 @@ List<Float>dataFloats=new ArrayList<>();
 				if(point < min)min=point;
 			}
 			
+			PercentileComputation pc = new PercentileComputation(listOfFloats);
+			
 			//get boxplot data here
 			// use the stats object to get the mean upper quartile etc
 				List<Float> wt1 = new ArrayList<Float>();
 				if (listOfFloats.size() > 0) {
 					// double lower = stats.getPercentile(25);
 					// double higher=stats.getPercentile(75);
-					double Q1 = ChartUtils.getDecimalAdjustedFloat(
-							new Float(stats.getPercentile(25)), decimalPlaces);
-					double Q3 = ChartUtils.getDecimalAdjustedFloat(
-							new Float(stats.getPercentile(75)), decimalPlaces);
+					double Q1 = ChartUtils.getDecimalAdjustedFloat(new Float(pc.getLowerQuartile()), decimalPlaces);
+//							new Float(stats.getPercentile(25)), decimalPlaces);
+					double Q3 = ChartUtils.getDecimalAdjustedFloat(new Float(pc.getUpperQuartile()), decimalPlaces);
+//							new Float(stats.getPercentile(75)), decimalPlaces);
 					double IQR = Q3 - Q1;
 	
 					Float minIQR = ChartUtils.getDecimalAdjustedFloat(new Float(Q1
@@ -380,7 +385,7 @@ List<Float>dataFloats=new ArrayList<>();
 			if (val< min)
 				min = val;
 		String chartId = "histogram" + values.hashCode();
-		String yTitle = "Number of strains";
+		String yTitle = "Number of lines";
 		String javascript = "$(function () {    var chart; $(document).ready(function() {chart = new Highcharts.Chart({ chart: {  type: 'column' , renderTo: '"
 				+ chartId
 				+ "'},"+
@@ -451,7 +456,7 @@ List<Float>dataFloats=new ArrayList<>();
 		ArrayList <String>  controlUrls = new ArrayList<>();
 		
 		String chartId = parameter.getStableId();
-		String yTitle = "Number of strains";
+		String yTitle = "Number of lines";
 		String javascript = "$(document).ready(function() {" 
 				+ "chart = new Highcharts.Chart({ colors:['rgba(239, 123, 11,0.7)','rgba(9, 120, 161,0.7)'], chart: {  type: 'column' , renderTo: 'single-chart-div'},"+
            " title: { text: '" + title + "' },"+
