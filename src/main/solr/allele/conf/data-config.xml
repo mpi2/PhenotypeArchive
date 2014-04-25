@@ -89,7 +89,7 @@
 
 			<!-- mouse to human gene symbol mapping: multiple human name can be mapped to one mouse symbol -->
 			<entity dataSource="human2mouse_symbol_core" name="symbol_mapping" stream="true"
-				url="q=${doc.marker_symbol}*&amp;wt=normal&amp;fl=mouse2human_symbol"
+				url="q=${doc.marker_symbol}&amp;wt=normal&amp;fl=mouse2human_symbol"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/"
 				transformer="script:fetch_human_symbol"  onError="continue" >
 
