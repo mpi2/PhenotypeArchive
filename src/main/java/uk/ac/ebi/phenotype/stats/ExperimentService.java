@@ -260,7 +260,7 @@ LOG.debug("metadataGroup parmeter is="+metaDataGroup);
 				// note there will only be extra stats in the
 				// stat_result_phenotype_call_summary if the call is an impc one
 				// otherwise like this query it will be empty!
-				// SELECT * FROM komp2.stat_result_phenotype_call_summary where
+				// SELECT * FROM Y.stat_result_phenotype_call_summary where
 				// phenotype_call_summary_id=88370;
 				// # categorical_result_id, unidimensional_result_id,
 				// phenotype_call_summary_id
