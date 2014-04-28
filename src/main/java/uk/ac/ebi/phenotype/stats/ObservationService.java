@@ -1008,6 +1008,7 @@ public class ObservationService {
 		query.setFields(ExperimentField.GENE_ACCESSION, ExperimentField.DATA_POINT, ExperimentField.GENE_SYMBOL);
 		query.set("group", true);
 		query.set("group.field", ExperimentField.COLONY_ID);
+		query.set("group.limit", 200);
 		// per group
 
 //		System.out.println("--- unidimensional : " + solr.getBaseURL() + "/select?" + query);
@@ -1031,6 +1032,7 @@ public class ObservationService {
 					ExperimentField.GENE_ACCESSION);
 			geneSymbolArray[i] = (String) resDocs.get(0).get(
 					ExperimentField.GENE_SYMBOL);
+			
 			meansArray[i] = sum / total;
 			i++;
 		}
