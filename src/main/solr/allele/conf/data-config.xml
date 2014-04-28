@@ -118,8 +118,8 @@
 			<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
 
 			<!-- production/phenotyping centers -->
-			<field column="latest_production_centre" xpath="/response/result/doc/str[@name='latest_production_centre']" />
-			<field column="latest_phenotyping_centre" xpath="/response/result/doc/str[@name='latest_phenotyping_centre']" />							                   	
+			<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
+			<field column="latest_phenotyping_centre" xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str" />							                   	
 				
 			<!-- es cells/mice/phenotyping/ status and centers info at allele level -->
 			<entity dataSource="sanger_allele" name="aldoc" stream="true" url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:allele&amp;rows=100&amp;wt=normal"

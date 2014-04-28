@@ -66,8 +66,8 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
                   	<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
                   
                   	<!-- production/phenotyping centers -->
-					<field column="latest_production_centre" xpath="/response/result/doc/str[@name='latest_production_centre']" />
-					<field column="latest_phenotyping_centre" xpath="/response/result/doc/str[@name='latest_phenotyping_centre']" />	
+					<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
+					<field column="latest_phenotyping_centre" xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str" />	
 					
 					<!-- alleles of a gene -->
 					<field column="allele_name" xpath="/response/result/doc/arr[@name='allele_name']/str" />
