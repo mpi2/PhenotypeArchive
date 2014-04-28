@@ -213,7 +213,7 @@
 	    		for ( var i=0; i<mkr_facets.length; i+=2 ){		    			
 	    			var liContainer = $("<li></li>").attr({'class':'fcat marker_type'});
 					var type = mkr_facets[i];
-					console.log('type: '+ type);
+					
 					var count = mkr_facets[i+1];	
 					var coreField = 'gene|marker_type|';						
 					var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + type + '|' + count + '|marker_type'});					

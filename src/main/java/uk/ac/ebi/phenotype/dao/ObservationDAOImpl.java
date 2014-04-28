@@ -622,8 +622,11 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 		}
 		
 		obs.setParameterStableId(parameter.getStableId());
-		//TODO set missing or ignore flag for observation if parameterStatus is not null here
+		//TODO set missing -> ignore flag
 		obs.setParameterStatus(parameterStatus);
+		if(parameterStatus!=null) {
+		obs.setMissingFlag(true);
+		}
 		return obs;
 	}
 

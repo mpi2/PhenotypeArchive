@@ -451,7 +451,7 @@ System.out.println(query);
 	private int getUnidimensionalResultIdFromStatsResultPhenotypeCallSummary(int id) throws SQLException {
 		
 		int result=-1;
-		String query = "SELECT unidimensional_result_id FROM komp2.stat_result_phenotype_call_summary where phenotype_call_summary_id= '"
+		String query = "SELECT unidimensional_result_id FROM stat_result_phenotype_call_summary where phenotype_call_summary_id= '"
 				+ id + "'";
 
 		try (PreparedStatement statement = getConnection().prepareStatement(query)) {

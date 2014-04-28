@@ -201,18 +201,23 @@
 		
 		// make sure field mapping in url is correct with selected facet
 		fqStr = $.fn.fieldNameMapping(fqStr, facet);
-		if ( q == '' || '*' ){
-			q = '*:*';
-		}		
+		
 		// now update dataTable	 
-		window.location.hash = 'q=' + q + '&fq=' + fqStr + '&facet=' + facet;	 
+		if ( q == '' || q == '*' ){
+			q = '*:*';
+			window.location.hash = 'q=' + q + '&fq=' + fqStr + '&facet=' + facet;
+		}		
+		else {		
+			window.location.hash = 'fq=' + fqStr + '&facet=' + facet;
+		}
 	};
 	
 	$.fn.setFacetCounts = function(q, fqStr, facet){
-		if ( q == '' || '*' ){
+		
+		if ( q == '' || q == '*' ){
 			q = '*:*';
 		}
-		console.log(q + " -- " +  fqStr + " -- " + facet);	
+		//console.log(q + " -- " +  fqStr + " -- " + facet);	
 		
 		do_megaGene(q, fqStr);			
 		do_megaMp(q, fqStr);
@@ -259,7 +264,7 @@
 		
         var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';
         paramStr += '&fq=' + fqStr + ' AND ' + MPI2.searchAndFacetConfig.facetParams.geneFacet.fq + fecetFieldsStr;        
-        console.log('GENE: '+ paramStr);
+        //console.log('GENE: '+ paramStr);
         
         $.ajax({ 	
 			'url': solrUrl + '/gene/select',			
@@ -267,8 +272,7 @@
     		'dataType': 'jsonp',
     		'jsonp': 'json.wrf',
     		'success': function(json) {
-    			console.log('gene');
-    			console.log(json);
+    			//console.log(json);
     			
 				var oFacets = json.facet_counts.facet_fields;
 			
@@ -857,10 +861,12 @@
 				var defaultFqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].fq;
 				
 				if ( window.location.search != '' ){
-					//alert('search kw');
+					
 					// has search keyword
-					url = baseUrl + '/search?q=' + q + '#fq='+ defaultFqStr + '&core='+facet;
-					//window.history.pushState({},"", url);// change browser url; not working with IE					
+					//url = baseUrl + '/search?q=' + q + '#fq='+ defaultFqStr + '&core='+facet;
+					url = 'fq='+ defaultFqStr + '&core='+facet;
+					//window.history.pushState({},"", url);// change browser url; not working with IE	
+					console.log('test: '+ url);
 					window.location.hash = url; // also works with IE										
 				}
 				else {					
@@ -870,13 +876,15 @@
 					//window.history.pushState({},"", baseUrl + '/search#fq='+defaultFqStr+'&core='+facet);
 					
 					// this also works with IE					
-					window.location.hash = baseUrl + '/search#fq='+defaultFqStr+'&core='+facet;
+					//window.location.hash = baseUrl + '/search#fq='+defaultFqStr+'&core='+facet;
+					window.location.hash = 'fq='+defaultFqStr+'&core='+facet;
+					
 				}
 				
 				//window.history.pushState({},"", url);// change browser url
 				location.reload();				
 			}
-			else {
+			else {			
 				updateFacetUrlTable(q, facet);
 			}			
 		}	
@@ -885,7 +893,8 @@
 	function updateFacetUrlTable(q, facet){
 		
 		// update facet filter and compose solr query for result
-		var fqStr = _composeFilterStr(facet);			
+		var fqStr = _composeFilterStr(facet);	
+				
 		$.fn.setFacetCounts(q, fqStr, facet);		
 		$.fn.fetchQueryResult(q, facet, fqStr);		
 	}
@@ -1313,7 +1322,7 @@
    
     $.fn.parseUrlForFacetCheckboxAndTermHighlight = function(oHashParams, refreshFacet){	
     	var self = this;
-    	console.log('parsing url for filter and chkbox:');
+    	//console.log('parsing url for filter and chkbox:');
     	//console.log(oHashParams);
     	var facet = oHashParams.widgetName;    	
     	var fqStr = oHashParams.fq;
