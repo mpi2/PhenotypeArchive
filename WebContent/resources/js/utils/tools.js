@@ -149,16 +149,19 @@
 				}
 				
 				var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facet + 'Facet'].solrCoreName;				
-				var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';	
-				if ( typeof oHashParams.q == 'undefined' ){	
-					oHashParams.q = '*:*';
+				var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';
+						
+				// no search kw
+				if ( typeof oHashParams.q == 'undefined' ){
+					if ( $('li.ftag').size() == 0 ){
+						var oHashParams = thisWidget.options.data.hashParams;									
+						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+					}
+					else {										
+						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, facet);
+						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+					}
 				}
-				
-				/*if ( typeof oHashParams.q == 'undefined' ){					
-					var oHashParams = thisWidget.options.data.hashParams;	
-					alert(oHashParams.fq);
-					window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
-				}*/
 				else {					
 					oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, facet);						
 					if ( ! window.location.search.match(/q=/) ){					
@@ -204,8 +207,7 @@
 		
 		// make sure field mapping in url is correct with selected facet
 		fqStr = $.fn.fieldNameMapping(fqStr, facet);
-		
-		console.log(fqStr);
+				
 		// now update dataTable	 
 		if ( q == '' || q == '*' ){
 			q = '*:*';
@@ -291,20 +293,7 @@
 				for (var n=0; n<aFields.length; n++){					
 					if ( oFacets[aFields[n]].length != 0 ){						
 						foundMatch[oFields[aFields[n]]['class']]++;
-					}	
-					/*if ( aFields[n].match(/^imits_/) && oFacets[aFields[n]].length != 0 ){
-						foundMatch.phenotyping++;
-					}
-					else if ( aFields[n]=='status' && oFacets.status.length != 0 ){
-						foundMatch.production++;
-					}
-					else if ( aFields[n]=='latest_production_centre' && oFacets.marker_type.length != 0 ) {
-						foundMatch.marker_type++;
-					}
-					else if ( aFields[n]=='marker_type' && oFacets.marker_type.length != 0 ) {
-						foundMatch.marker_type++;
-					}*/
-					
+					}					
 				}
 			
 				for ( var fld in oFacets ){
@@ -703,17 +692,7 @@
     		}
 		});		
 	}	
-	
-	/*$.fn.fqStrIgnore = function(fqStr, facet){
-		if ( /disease_source:|disease_classes:|_predicted\w*:|_curated\w*:/.exec(fqStr) ){
-			if ( facet == 'pipeline ' || facet == 'images' ){
-				return false;
-			}
-			
-		}
 		
-	}*/
-	
 	$.fn.fieldNameMapping = function(fqStr, facet){
 			
 		var oMapping;		
@@ -766,7 +745,10 @@
 			
 			if (! /( AND )?\(?ontology_subset:\*\)?/.exec(fqStr) && facet == 'mp' ){	
 				fqStr += ' AND ontology_subset:*';
-			}	
+			}
+			if ( /\(? AND ontology_subset:\*\)?/.exec(fqStr) && facet == 'disease' ){			
+				fqStr = fqStr.replace(' AND ontology_subset:*', '');			
+			}
 		}
 		
 		return decodeURI(fqStr);	
@@ -816,7 +798,7 @@
 			// show filter facet caption
 			thisLi.find('.fcap').show();
 			
-			// add filter
+			// add filter			
 			$.fn.addFacetFilter(oChkbox, q);			
 			updateFacetUrlTable(q, facet);	
 		}
@@ -2399,7 +2381,7 @@ $.extend( $.fn.dataTableExt.oPagination, {
 						sClass = (j==oPaging.iPage+1) ? 'class="active"' : '';
 												
 						if (j != oPaging.iTotalPages ){
-							console.log('j is: ' + j);						
+											
 							$('<li '+sClass+'><a href="#">'+j+'</a></li>')				
 							.insertBefore( $('li:last', an[i])[0] )
 							.bind('click', function (e) {
