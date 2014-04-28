@@ -1,1307 +1,1290 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>uk.ac.ebi.phenotype</groupId>
-	<artifactId>PhenotypeArchive</artifactId>
-	<version>0.4.4</version>
-	<packaging>war</packaging>
-	<name>EBI Phenotype Archive</name>
-	<description>EBI Phenotype Archive Project</description>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>uk.ac.ebi.phenotype</groupId>
+    <artifactId>PhenotypeArchive</artifactId>
+    <version>0.4.4</version>
+    <packaging>war</packaging>
+    <name>EBI Phenotype Archive</name>
+    <description>EBI Phenotype Archive Project</description>
 
 
-	<distributionManagement>
-		<repository>
-			<id>deployment</id>
-			<name>Internal Releases</name>
-			<url>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/repositories/releases/</url>
-		</repository>
-		<snapshotRepository>
-			<id>deployment</id>
-			<name>Internal Snapshot</name>
-			<url>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/repositories/snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
+    <distributionManagement>
+        <repository>
+            <id>deployment</id>
+            <name>Internal Releases</name>
+            <url>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>deployment</id>
+            <name>Internal Snapshot</name>
+            <url>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
-	<properties>
-		<maven.compiler.target>1.7</maven.compiler.target>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring.version>3.1.4.RELEASE</spring.version>
-		<slf4j.version>1.5.10</slf4j.version>
-		<java.version>1.7</java.version>
-		<junit.version>4.11</junit.version>
-		<hibernate.show_sql>true</hibernate.show_sql>
-		<hibernate.dialect>org.hibernate.dialect.MySQLDialect</hibernate.dialect>
-		<hibernate.version>3.6.10.Final</hibernate.version>
-		<servlet.api.version>2.3</servlet.api.version>
+    <properties>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.version>3.1.4.RELEASE</spring.version>
+        <slf4j.version>1.5.10</slf4j.version>
+        <java.version>1.7</java.version>
+        <junit.version>4.11</junit.version>
+        <hibernate.show_sql>true</hibernate.show_sql>
+        <hibernate.dialect>org.hibernate.dialect.MySQLDialect</hibernate.dialect>
+        <hibernate.version>3.6.10.Final</hibernate.version>
+        <servlet.api.version>2.3</servlet.api.version>
                 
-		<selenium.version>2.41.0</selenium.version>
-                <seleniumUrl>http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
+        <selenium.version>2.41.0</selenium.version>
+        <seleniumUrl>http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
                 
-		<baseUrl>http://localhost:8080/phenotype-archive</baseUrl>
-		<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
-			to EBI servers for performance -->
-		<!-- <solrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</solrUrl>
-		<internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</internalSolrUrl>-->
+        <baseUrl>http://localhost:8080/phenotype-archive</baseUrl>
+        <!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
+        to EBI servers for performance -->
+        <!-- <solrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</solrUrl>
+        <internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</internalSolrUrl>-->
 		
-		<solrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
-		<internalSolrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</internalSolrUrl>
+        <solrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
+        <internalSolrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</internalSolrUrl>
 		
-		<drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>	
+        <drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>	
 		
-		<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
-		<googleAnalytics></googleAnalytics>
-		<liveSite>false</liveSite>
-		<ebi.distrib.repository>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/groups/public</ebi.distrib.repository>
-		<phenodigm.solrserver>http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm</phenodigm.solrserver>
-	</properties>
-
-	<dependencies>
-
-
-
-		<!--Phenodigm disease pages dependencies -->
-		<dependency>
-			<groupId>uk.ac.sanger</groupId>
-			<artifactId>phenodigm2-core</artifactId>
-			<version>1.3</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-math3</artifactId>
-			<version>3.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.bbop</groupId>
-			<artifactId>OWLTools-Core</artifactId>
-			<version>0.2.1-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
-			<groupId>net.sourceforge.owlapi</groupId>
-			<artifactId>owlapi-distribution</artifactId>
-			<version>3.4.5</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.bbop</groupId>
-			<artifactId>OWLTools-Oort</artifactId>
-			<version>0.2.1-SNAPSHOT</version>
-		</dependency>
-
-
-		<dependency>
-			<groupId>se.jiderhamn</groupId>
-			<artifactId>classloader-leak-prevention</artifactId>
-			<version>1.7.0</version>
-			<exclusions>
-				<!-- Exclude el-api as it's provided by tomcat -->
-				<exclusion>
-					<groupId>javax.el</groupId>
-					<artifactId>el-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-math</artifactId>
-			<version>2.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.googlecode.htmlcompressor</groupId>
-			<artifactId>htmlcompressor</artifactId>
-			<version>1.4</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.samaxes.maven</groupId>
-			<artifactId>minify-maven-plugin</artifactId>
-			<version>1.7</version>
-		</dependency>
-
-		<!-- Maven's transitive dependency mechanism will take care of all required 
-			jars -->
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi-ooxml</artifactId>
-			<version>3.8</version>
-			<exclusions>
-				<!-- Exclude xml-apis as it's provided by tomcat -->
-				<exclusion>
-					<groupId>xml-apis</groupId>
-					<artifactId>xml-apis</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<!-- solrj used for getting results from solr and putting in the imaging 
-			rest results -->
-		<dependency>
-			<artifactId>solr-solrj</artifactId>
-			<groupId>org.apache.solr</groupId>
-			<version>4.4.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.21</version>
-		</dependency>
-
-		<!-- servlet API is provided by the container -->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>${servlet.api.version}</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<!-- Bean Validation Dependencies -->
-
-		<dependency>
-			<groupId>javax.validation</groupId>
-			<artifactId>validation-api</artifactId>
-			<version>1.0.0.GA</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-validator</artifactId>
-			<version>4.0.0.GA</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<!-- JPA Persistence Dependencies -->
-
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
-			<version>${hibernate.version}</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-			<version>${hibernate.version}</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hibernate.javax.persistence</groupId>
-			<artifactId>hibernate-jpa-2.0-api</artifactId>
-			<version>1.0.1.Final</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<!-- JSON Dependencies -->
-		<dependency>
-			<groupId>net.sf.json-lib</groupId>
-			<artifactId>json-lib</artifactId>
-			<version>2.2.3</version>
-		</dependency>
-
-		<!-- org.codehaus.jackson.jar org.codehaus.jackson.mapper.jar -->
-
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-jaxrs</artifactId>
-			<version>1.9.3</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<!-- ATOM dependencies -->
-		<dependency>
-			<groupId>net.java.dev.rome</groupId>
-			<artifactId>rome</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-
-		<!-- Spring Dependencies -->
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<version>${spring.version}</version>
-			<exclusions>
-				<!-- Exclude Commons Logging in favor of SLF4j -->
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webmvc</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-orm</artifactId>
-			<version>${spring.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context-support</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-oxm</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<version>${spring.version}</version>
-			<type>jar</type>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-aop</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-
-
-		<!-- DB Dependencies -->
-
-		<dependency>
-			<groupId>commons-dbcp</groupId>
-			<artifactId>commons-dbcp</artifactId>
-			<version>20030825.184428</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-pool</groupId>
-			<artifactId>commons-pool</artifactId>
-			<version>20030825.183949</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-net</groupId>
-			<artifactId>commons-net</artifactId>
-			<version>3.1</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-
-		<!-- A Java library for parsing command line options -->
-		<dependency>
-			<groupId>net.sf.jopt-simple</groupId>
-			<artifactId>jopt-simple</artifactId>
-			<version>4.3</version>
-		</dependency>
-
-		<!-- HTTP components Dependencies -->
-
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpcore</artifactId>
-			<version>4.3</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>4.3.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpmime</artifactId>
-			<version>4.3.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.james</groupId>
-			<artifactId>apache-mime4j</artifactId>
-			<version>0.5</version>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<!-- Axis2 dependencies -->
-		<dependency>
-			<groupId>org.apache.axis2</groupId>
-			<artifactId>axis2</artifactId>
-			<version>1.6.2</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.axis2</groupId>
-			<artifactId>axis2-transport-http</artifactId>
-			<version>1.6.2</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.axis2</groupId>
-			<artifactId>axis2-kernel</artifactId>
-			<version>1.6.2</version>
-			<exclusions>
-				<!-- Exclude servlet api -->
-				<exclusion>
-					<groupId>javax.servlet</groupId>
-					<artifactId>servlet-api</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.axis2</groupId>
-			<artifactId>axis2-transport-local</artifactId>
-			<version>1.6.2</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.ws.commons.axiom</groupId>
-			<artifactId>axiom-api</artifactId>
-			<version>1.2.13</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.ws.commons.axiom</groupId>
-			<artifactId>axiom-dom</artifactId>
-			<version>1.2.13</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.ws.commons.axiom</groupId>
-			<artifactId>axiom-impl</artifactId>
-			<version>1.2.13</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.neethi</groupId>
-			<artifactId>neethi</artifactId>
-			<version>3.0.2</version>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.1.1</version>
-			<exclusions>
-				<!-- Exclude servlet api -->
-				<exclusion>
-					<groupId>javax.servlet</groupId>
-					<artifactId>servlet-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>wsdl4j</groupId>
-			<artifactId>wsdl4j</artifactId>
-			<version>1.6.2</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.ws.commons.schema</groupId>
-			<artifactId>XmlSchema</artifactId>
-			<version>1.3.2</version>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-discovery</groupId>
-			<artifactId>commons-discovery</artifactId>
-			<version>0.4</version>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>javax.xml</groupId>
-			<artifactId>jaxrpc-api</artifactId>
-			<version>1.1</version>
-		</dependency>
-
-		<!-- View Dependencies -->
-		<dependency>
-			<groupId>taglibs</groupId>
-			<artifactId>standard</artifactId>
-			<version>1.1.2</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-
-
-		<!-- Test Dependencies -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>${junit.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<!-- logging -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jcl-over-slf4j</artifactId>
-			<version>${slf4j.version}</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>${slf4j.version}</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.sun.jdmk</groupId>
-					<artifactId>jmxtools</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jmx</groupId>
-					<artifactId>jmxri</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.jms</groupId>
-					<artifactId>jms</artifactId>
-				</exclusion>
-			</exclusions>
-			<scope>compile</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>jstl</groupId>
-			<artifactId>jstl</artifactId>
-			<version>1.2</version>
-		</dependency>
-
-		<!-- Selenium dependencies -->
-                <dependency>
-                    <groupId>org.seleniumhq.selenium</groupId>
-                    <artifactId>selenium-java</artifactId>
-                    <version>${selenium.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.seleniumhq.selenium</groupId>
-                    <artifactId>selenium-firefox-driver</artifactId>
-                    <version>${selenium.version}</version>
-                </dependency>                
-                <dependency>
-                    <groupId>org.seleniumhq.selenium</groupId>
-                    <artifactId>selenium-chrome-driver</artifactId>
-                    <version>${selenium.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.seleniumhq.selenium</groupId>
-                    <artifactId>selenium-safari-driver</artifactId>
-                    <version>${selenium.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.seleniumhq.selenium</groupId>
-                    <artifactId>selenium-ie-driver</artifactId>
-                    <version>${selenium.version}</version>
-                </dependency>
-
-		<dependency>
-			<groupId>net.sf.alchim</groupId>
-			<artifactId>yuicompressor-maven-plugin</artifactId>
-			<version>0.7.1</version>
-		</dependency>
-
-	</dependencies>
-
-
-	<repositories>
-		<!-- OWL TOOLS -->
-		<repository>
-			<id>BerkeleyBOP</id>
-			<name>Berkeley BOP maven repository</name>
-			<url>http://code.berkeleybop.org/maven/repository/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>BerkeleyBOPSnapshot</id>
-			<url>http://code.berkeleybop.org/maven/snapshot-repository/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-
-		<!-- JBoss Repository used for Java EE 6 pieces -->
-		<repository>
-			<id>repository.jboss.org</id>
-			<name>JBoss Repository</name>
-			<url>http://repository.jboss.org/nexus/content/groups/public-jboss/</url>
-		</repository>
-
-		<repository>
-			<id>org.springframework.maven.milestone</id>
-			<name>Spring Maven Milestone Repository</name>
-			<url>http://maven.springframework.org/milestone</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
-
-
-	<build>
-		<finalName>phenotype-archive</finalName>
-
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.4.2</version>
-					<configuration>
-						<skipTests>false</skipTests>
-						<testFailureIgnore>true</testFailureIgnore>
-						<excludes>
-							<exclude>**PageTest.java</exclude>
-                                                        <exclude>**/phenotype/web/**</exclude>
-						</excludes>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.codehaus.mojo</groupId>
-										<artifactId>gwt-maven-plugin</artifactId>
-										<versionRange>[2.4.0,)</versionRange>
-										<goals>
-											<goal>resources</goal>
-											<goal>compile</goal>
-											<goal>i18n</goal>
-											<goal>generateAsync</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<execute />
-									</action>
-								</pluginExecution>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.apache.maven.plugins</groupId>
-										<artifactId>maven-war-plugin</artifactId>
-										<!-- 2.1.1 copy the resources twice use 2.0.1 -->
-										<versionRange>[2.0.1,)</versionRange>
-										<goals>
-											<goal>exploded</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<execute />
-									</action>
-								</pluginExecution>
-
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.codehaus.mojo</groupId>
-										<artifactId>build-helper-maven-plugin</artifactId>
-										<versionRange>[1.7,)</versionRange>
-										<goals>
-											<goal>add-source</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<execute />
-									</action>
-								</pluginExecution>
-
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>com.google.code.maven-replacer-plugin</groupId>
-										<artifactId>replacer</artifactId>
-										<versionRange>[1.5.2,)</versionRange>
-										<goals>
-											<goal>replace</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<execute />
-									</action>
-								</pluginExecution>
-
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>com.samaxes.maven</groupId>
-										<artifactId>minify-maven-plugin</artifactId>
-										<versionRange>[1.0.0,)</versionRange>
-										<goals>
-											<goal>minify</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<execute>
-											<runOnIncremental>false</runOnIncremental>
-										</execute>
-									</action>
-								</pluginExecution>
-
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-
-				<plugin>
-					<groupId>com.samaxes.maven</groupId>
-					<artifactId>minify-maven-plugin</artifactId>
-					<version>1.7</version>
-				</plugin>
-
-			</plugins>
-		</pluginManagement>
-
-		<plugins>
-
-			<!-- Facilitates downloading source and javadoc in Eclipse -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<version>2.8</version>
-				<configuration>
-					<wtpversion>2.0</wtpversion>
-					<downloadSources>true</downloadSources>
-					<downloadJavadocs>true</downloadJavadocs>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.7</version>
-				<executions>
-					<execution>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>${project.basedir}/src/main/java</source>
-							</sources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+        <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
+        <googleAnalytics></googleAnalytics>
+        <liveSite>false</liveSite>
+        <ebi.distrib.repository>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/groups/public</ebi.distrib.repository>
+        <phenodigm.solrserver>http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm</phenodigm.solrserver>
+    </properties>
+
+    <dependencies>
+
+
+
+        <!--Phenodigm disease pages dependencies -->
+        <dependency>
+            <groupId>uk.ac.sanger</groupId>
+            <artifactId>phenodigm2-core</artifactId>
+            <version>1.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>3.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bbop</groupId>
+            <artifactId>OWLTools-Core</artifactId>
+            <version>0.2.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sourceforge.owlapi</groupId>
+            <artifactId>owlapi-distribution</artifactId>
+            <version>3.4.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bbop</groupId>
+            <artifactId>OWLTools-Oort</artifactId>
+            <version>0.2.1-SNAPSHOT</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>se.jiderhamn</groupId>
+            <artifactId>classloader-leak-prevention</artifactId>
+            <version>1.7.0</version>
+            <exclusions>
+                <!-- Exclude el-api as it's provided by tomcat -->
+                <exclusion>
+                    <groupId>javax.el</groupId>
+                    <artifactId>el-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math</artifactId>
+            <version>2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.googlecode.htmlcompressor</groupId>
+            <artifactId>htmlcompressor</artifactId>
+            <version>1.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.samaxes.maven</groupId>
+            <artifactId>minify-maven-plugin</artifactId>
+            <version>1.7</version>
+        </dependency>
+
+        <!-- Maven's transitive dependency mechanism will take care of all required 
+        jars -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>3.8</version>
+            <exclusions>
+                <!-- Exclude xml-apis as it's provided by tomcat -->
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- solrj used for getting results from solr and putting in the imaging 
+        rest results -->
+        <dependency>
+            <artifactId>solr-solrj</artifactId>
+            <groupId>org.apache.solr</groupId>
+            <version>4.4.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.21</version>
+        </dependency>
+
+        <!-- servlet API is provided by the container -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>${servlet.api.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Bean Validation Dependencies -->
+
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>1.0.0.GA</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>4.0.0.GA</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- JPA Persistence Dependencies -->
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>${hibernate.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${hibernate.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate.javax.persistence</groupId>
+            <artifactId>hibernate-jpa-2.0-api</artifactId>
+            <version>1.0.1.Final</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- JSON Dependencies -->
+        <dependency>
+            <groupId>net.sf.json-lib</groupId>
+            <artifactId>json-lib</artifactId>
+            <version>2.2.3</version>
+        </dependency>
+
+        <!-- org.codehaus.jackson.jar org.codehaus.jackson.mapper.jar -->
+
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-jaxrs</artifactId>
+            <version>1.9.3</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- ATOM dependencies -->
+        <dependency>
+            <groupId>net.java.dev.rome</groupId>
+            <artifactId>rome</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <!-- Spring Dependencies -->
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+            <exclusions>
+                <!-- Exclude Commons Logging in favor of SLF4j -->
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>${spring.version}</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-oxm</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+            <type>jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+
+        <!-- DB Dependencies -->
+
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+            <version>20030825.184428</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+            <version>20030825.183949</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>3.1</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- A Java library for parsing command line options -->
+        <dependency>
+            <groupId>net.sf.jopt-simple</groupId>
+            <artifactId>jopt-simple</artifactId>
+            <version>4.3</version>
+        </dependency>
+
+        <!-- HTTP components Dependencies -->
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>4.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.3.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>4.3.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.james</groupId>
+            <artifactId>apache-mime4j</artifactId>
+            <version>0.5</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Axis2 dependencies -->
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-transport-http</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-kernel</artifactId>
+            <version>1.6.2</version>
+            <exclusions>
+                <!-- Exclude servlet api -->
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-transport-local</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.ws.commons.axiom</groupId>
+            <artifactId>axiom-api</artifactId>
+            <version>1.2.13</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.ws.commons.axiom</groupId>
+            <artifactId>axiom-dom</artifactId>
+            <version>1.2.13</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.ws.commons.axiom</groupId>
+            <artifactId>axiom-impl</artifactId>
+            <version>1.2.13</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.neethi</groupId>
+            <artifactId>neethi</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1.1</version>
+            <exclusions>
+                <!-- Exclude servlet api -->
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.ws.commons.schema</groupId>
+            <artifactId>XmlSchema</artifactId>
+            <version>1.3.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-discovery</groupId>
+            <artifactId>commons-discovery</artifactId>
+            <version>0.4</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.xml</groupId>
+            <artifactId>jaxrpc-api</artifactId>
+            <version>1.1</version>
+        </dependency>
+
+        <!-- View Dependencies -->
+        <dependency>
+            <groupId>taglibs</groupId>
+            <artifactId>standard</artifactId>
+            <version>1.1.2</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.sun.jdmk</groupId>
+                    <artifactId>jmxtools</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.jmx</groupId>
+                    <artifactId>jmxri</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.jms</groupId>
+                    <artifactId>jms</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>jstl</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>
+
+        <!-- Selenium dependencies -->
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-firefox-driver</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>                
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-chrome-driver</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-safari-driver</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-ie-driver</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sf.alchim</groupId>
+            <artifactId>yuicompressor-maven-plugin</artifactId>
+            <version>0.7.1</version>
+        </dependency>
+
+    </dependencies>
+
+    <repositories>
+        <!-- OWL TOOLS -->
+        <repository>
+            <id>BerkeleyBOP</id>
+            <name>Berkeley BOP maven repository</name>
+            <url>http://code.berkeleybop.org/maven/repository/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>BerkeleyBOPSnapshot</id>
+            <url>http://code.berkeleybop.org/maven/snapshot-repository/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+
+        <!-- JBoss Repository used for Java EE 6 pieces -->
+        <repository>
+            <id>repository.jboss.org</id>
+            <name>JBoss Repository</name>
+            <url>http://repository.jboss.org/nexus/content/groups/public-jboss/</url>
+        </repository>
+
+        <repository>
+            <id>org.springframework.maven.milestone</id>
+            <name>Spring Maven Milestone Repository</name>
+            <url>http://maven.springframework.org/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <build>
+        <finalName>phenotype-archive</finalName>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.4.2</version>
+                    <configuration>
+                        <skipTests>false</skipTests>
+                        <testFailureIgnore>true</testFailureIgnore>
+                        <excludes>
+                            <exclude>**PageTest.java</exclude>
+                            <exclude>**/phenotype/web/**</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.codehaus.mojo</groupId>
+                                        <artifactId>gwt-maven-plugin</artifactId>
+                                        <versionRange>[2.4.0,)</versionRange>
+                                        <goals>
+                                            <goal>resources</goal>
+                                            <goal>compile</goal>
+                                            <goal>i18n</goal>
+                                            <goal>generateAsync</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <execute />
+                                    </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-war-plugin</artifactId>
+                                        <!-- 2.1.1 copy the resources twice use 2.0.1 -->
+                                        <versionRange>[2.0.1,)</versionRange>
+                                        <goals>
+                                            <goal>exploded</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <execute />
+                                    </action>
+                                </pluginExecution>
+
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.codehaus.mojo</groupId>
+                                        <artifactId>build-helper-maven-plugin</artifactId>
+                                        <versionRange>[1.7,)</versionRange>
+                                        <goals>
+                                            <goal>add-source</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <execute />
+                                    </action>
+                                </pluginExecution>
+
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>com.google.code.maven-replacer-plugin</groupId>
+                                        <artifactId>replacer</artifactId>
+                                        <versionRange>[1.5.2,)</versionRange>
+                                        <goals>
+                                            <goal>replace</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <execute />
+                                    </action>
+                                </pluginExecution>
+
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>com.samaxes.maven</groupId>
+                                        <artifactId>minify-maven-plugin</artifactId>
+                                        <versionRange>[1.0.0,)</versionRange>
+                                        <goals>
+                                            <goal>minify</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <execute>
+                                            <runOnIncremental>false</runOnIncremental>
+                                        </execute>
+                                    </action>
+                                </pluginExecution>
+
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>com.samaxes.maven</groupId>
+                    <artifactId>minify-maven-plugin</artifactId>
+                    <version>1.7</version>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+
+            <!-- Facilitates downloading source and javadoc in Eclipse -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-eclipse-plugin</artifactId>
+                <version>2.8</version>
+                <configuration>
+                    <wtpversion>2.0</wtpversion>
+                    <downloadSources>true</downloadSources>
+                    <downloadJavadocs>true</downloadJavadocs>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.basedir}/src/main/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 			
 
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>tomcat-maven-plugin</artifactId>
-				<version>1.1</version>
-				<configuration>
-					<path>/phenotype-archive</path>
-					<server>tomcat7</server>
-					<url>http://localhost:8080/manager/html</url>
-					<update>true</update>
-				</configuration>
-			</plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>tomcat-maven-plugin</artifactId>
+                <version>1.1</version>
+                <configuration>
+                    <path>/phenotype-archive</path>
+                    <server>tomcat7</server>
+                    <url>http://localhost:8080/manager/html</url>
+                    <update>true</update>
+                </configuration>
+            </plugin>
 
-			<!-- minify JS and CSS -->
+            <!-- minify JS and CSS -->
 
-			<plugin>
-				<groupId>com.samaxes.maven</groupId>
-				<artifactId>minify-maven-plugin</artifactId>
-				<!-- <version>1.7</version> -->
-				<executions>
-					<execution>
-						<id>default-minify</id>
-						<!-- process-resources won't work -->
-						<phase>process-resources</phase>
-						<!-- phase>process-resources</phase -->
-						<configuration>
-							<charset>utf-8</charset>
-							<jsEngine>yui</jsEngine>
-							<debug>true</debug>
-							<webappSourceDir>${basedir}/WebContent/resources/</webappSourceDir>
-							<webappTargetDir>${basedir}/WebContent/resources/</webappTargetDir>
-							<cssSourceDir>css</cssSourceDir>
-							<cssSourceFiles>
-								<cssSourceFile>searchAndFacet.css</cssSourceFile>
-								<cssSourceFile>vendor/DataTables-1.9.4/jquery.dataTables.css</cssSourceFile>
-								<cssSourceFile>vendor/DataTables-1.9.4/customDataTable.css</cssSourceFile>
-								<!-- catch all for us -->
-								<cssSourceFile>custom.css</cssSourceFile>
-							</cssSourceFiles>
-							<cssFinalFile>style.css</cssFinalFile>
-							<jsSourceDir>js</jsSourceDir>
-							<jsSourceFiles>
-								<jsSourceFile>documentationConfig.js</jsSourceFile>
-								<jsSourceFile>searchAndFacet/homepage_seach_button_enter.js</jsSourceFile>
-								<jsSourceFile>searchAndFacet/searchAndFacetConfig.js</jsSourceFile>
-								<jsSourceFile>vendor/DataTables-1.9.4/jquery.dataTables.js</jsSourceFile>
-								<jsSourceFile>vendor/DataTables-1.9.4/core.filter.js</jsSourceFile>
-								<jsSourceFile>vendor/DataTables-1.9.4/TableTools.min.js</jsSourceFile>
-								<jsSourceFile>utils/tools.js</jsSourceFile>
-								<jsSourceFile>searchAndFacet/geneFacetWidget.js</jsSourceFile>
-								<jsSourceFile>searchAndFacet/mpFacetWidget.js</jsSourceFile>
-								<jsSourceFile>searchAndFacet/maFacetWidget.js</jsSourceFile>
-								<jsSourceFile>searchAndFacet/pipelineFacetWidget.js</jsSourceFile>
-								<jsSourceFile>searchAndFacet/imagesFacetWidget.js</jsSourceFile>
-								<jsSourceFile>searchAndFacet/diseaseFacetWidget.js</jsSourceFile>
-								<jsSourceFile>searchAndFacet/search.js</jsSourceFile>
-								<jsSourceFile>searchAndFacet/searchAndFacet_primer.js</jsSourceFile>
-							</jsSourceFiles>
-							<jsFinalFile>script.js</jsFinalFile>
-						</configuration>
-						<goals>
-							<goal>minify</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+            <plugin>
+                <groupId>com.samaxes.maven</groupId>
+                <artifactId>minify-maven-plugin</artifactId>
+                <!-- <version>1.7</version> -->
+                <executions>
+                    <execution>
+                        <id>default-minify</id>
+                        <!-- process-resources won't work -->
+                        <phase>process-resources</phase>
+                        <!-- phase>process-resources</phase -->
+                        <configuration>
+                            <charset>utf-8</charset>
+                            <jsEngine>yui</jsEngine>
+                            <debug>true</debug>
+                            <webappSourceDir>${basedir}/WebContent/resources/</webappSourceDir>
+                            <webappTargetDir>${basedir}/WebContent/resources/</webappTargetDir>
+                            <cssSourceDir>css</cssSourceDir>
+                            <cssSourceFiles>
+                                <cssSourceFile>searchAndFacet.css</cssSourceFile>
+                                <cssSourceFile>vendor/DataTables-1.9.4/jquery.dataTables.css</cssSourceFile>
+                                <cssSourceFile>vendor/DataTables-1.9.4/customDataTable.css</cssSourceFile>
+                                <!-- catch all for us -->
+                                <cssSourceFile>custom.css</cssSourceFile>
+                            </cssSourceFiles>
+                            <cssFinalFile>style.css</cssFinalFile>
+                            <jsSourceDir>js</jsSourceDir>
+                            <jsSourceFiles>
+                                <jsSourceFile>documentationConfig.js</jsSourceFile>
+                                <jsSourceFile>searchAndFacet/homepage_seach_button_enter.js</jsSourceFile>
+                                <jsSourceFile>searchAndFacet/searchAndFacetConfig.js</jsSourceFile>
+                                <jsSourceFile>vendor/DataTables-1.9.4/jquery.dataTables.js</jsSourceFile>
+                                <jsSourceFile>vendor/DataTables-1.9.4/core.filter.js</jsSourceFile>
+                                <jsSourceFile>vendor/DataTables-1.9.4/TableTools.min.js</jsSourceFile>
+                                <jsSourceFile>utils/tools.js</jsSourceFile>
+                                <jsSourceFile>searchAndFacet/geneFacetWidget.js</jsSourceFile>
+                                <jsSourceFile>searchAndFacet/mpFacetWidget.js</jsSourceFile>
+                                <jsSourceFile>searchAndFacet/maFacetWidget.js</jsSourceFile>
+                                <jsSourceFile>searchAndFacet/pipelineFacetWidget.js</jsSourceFile>
+                                <jsSourceFile>searchAndFacet/imagesFacetWidget.js</jsSourceFile>
+                                <jsSourceFile>searchAndFacet/diseaseFacetWidget.js</jsSourceFile>
+                                <jsSourceFile>searchAndFacet/search.js</jsSourceFile>
+                                <jsSourceFile>searchAndFacet/searchAndFacet_primer.js</jsSourceFile>
+                            </jsSourceFiles>
+                            <jsFinalFile>script.js</jsFinalFile>
+                        </configuration>
+                        <goals>
+                            <goal>minify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<!-- 2.2 => 2.0.1 -->
-				<version>2.2</version>
-				<executions>
-					<!-- added for making the replace plugin run in the exploded phase -->
-					<execution>
-						<id>prepare-war</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>exploded</goal>
-						</goals>
-					</execution>
-				</executions>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <!-- 2.2 => 2.0.1 -->
+                <version>2.2</version>
+                <executions>
+                    <!-- added for making the replace plugin run in the exploded phase -->
+                    <execution>
+                        <id>prepare-war</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>exploded</goal>
+                        </goals>
+                    </execution>
+                </executions>
 
-				<configuration>
+                <configuration>
 
-					<!-- Overiddes default Maven configuration for Admin Tools -->
-					<warSourceDirectory>WebContent</warSourceDirectory>
+                    <!-- Overiddes default Maven configuration for Admin Tools -->
+                    <warSourceDirectory>WebContent</warSourceDirectory>
 
-					<!-- excluded because these resources are minified -->
-					<warSourceExcludes>
-						<!-- **/bootstrap.min.css ,**/bootstrap-responsive.min.css -->
-						**/vendor/DataTables-1.9.4/jquery.dataTables.css
-						,**/vendor/DataTables-1.9.4/customDataTable.css
-						<!-- **/searchAndFacet.css ,**/searchAndFacet/searchAndFacetConfig.js 
-							,**/vendor/DataTables-1.9.4/jquery.dataTables.js ,**/vendor/DataTables-1.9.4/core.filter.js 
-							,**/vendor/DataTables-1.9.4/TableTools.min.js ,**/utils/tools.js ,**/searchAndFacet/geneFacetWidget.js 
-							,**/searchAndFacet/mpFacetWidget.js ,**/searchAndFacet/pipelineFacetWidget.js 
-							,**/searchAndFacet/imagesFacetWidget.js ,**/searchAndFacet/search.js ,**/searchAndFacet/searchAndFacet_primer.js -->
-					</warSourceExcludes>
+                    <!-- excluded because these resources are minified -->
+                    <warSourceExcludes>
+                        <!-- **/bootstrap.min.css ,**/bootstrap-responsive.min.css -->
+                        **/vendor/DataTables-1.9.4/jquery.dataTables.css
+                        ,**/vendor/DataTables-1.9.4/customDataTable.css
+                        <!-- **/searchAndFacet.css ,**/searchAndFacet/searchAndFacetConfig.js 
+                        ,**/vendor/DataTables-1.9.4/jquery.dataTables.js ,**/vendor/DataTables-1.9.4/core.filter.js 
+                        ,**/vendor/DataTables-1.9.4/TableTools.min.js ,**/utils/tools.js ,**/searchAndFacet/geneFacetWidget.js 
+                        ,**/searchAndFacet/mpFacetWidget.js ,**/searchAndFacet/pipelineFacetWidget.js 
+                        ,**/searchAndFacet/imagesFacetWidget.js ,**/searchAndFacet/search.js ,**/searchAndFacet/searchAndFacet_primer.js -->
+                    </warSourceExcludes>
 
-					<webResources>
-						<resource>
-							<directory>${basedir}/WebContent/WEB-INF</directory>
-							<filtering>true</filtering>
-							<targetPath>WEB-INF</targetPath>
-							<includes>
-								<include>**/web.xml</include>
-								<include>**/app-config.xml</include>
-								<include>**/views/404.jsp</include>
-								<include>**/views/identifierError.jsp</include>
-							</includes>
-						</resource>
-					</webResources>
+                    <webResources>
+                        <resource>
+                            <directory>${basedir}/WebContent/WEB-INF</directory>
+                            <filtering>true</filtering>
+                            <targetPath>WEB-INF</targetPath>
+                            <includes>
+                                <include>**/web.xml</include>
+                                <include>**/app-config.xml</include>
+                                <include>**/views/404.jsp</include>
+                                <include>**/views/identifierError.jsp</include>
+                            </includes>
+                        </resource>
+                    </webResources>
 
-					<archive>
-						<addMavenDescriptor>true</addMavenDescriptor>
-						<manifest>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-						</manifest>
-					</archive>
+                    <archive>
+                        <addMavenDescriptor>true</addMavenDescriptor>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive>
 
-				</configuration>
-			</plugin>
+                </configuration>
+            </plugin>
 
-			<!-- Ensures we are compiling at 1.7 level -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
-				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
-					<excludes>
-						<exclude>${project.basedir}/src/test/java/**/*.java</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+            <!-- Ensures we are compiling at 1.7 level -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <excludes>
+                        <exclude>${project.basedir}/src/test/java/**/*.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
-	<profiles>
+    <profiles>
 
-		<profile>
-			<id>datamodel</id>
+        <profile>
+            <id>datamodel</id>
 
-			<properties>
-				<envClassifier>datamodel</envClassifier>
-			</properties>
+            <properties>
+                <envClassifier>datamodel</envClassifier>
+            </properties>
 
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<version>2.4.2</version>
-						<configuration>
-							<skipTests>true</skipTests>
-							<excludes>
-								<exclude>**PageTest.java</exclude>
-							</excludes>
-						</configuration>
-					</plugin>
-					<plugin>
-						<artifactId>maven-jar-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>make-jar</id>
-								<phase>compile</phase>
-								<goals>
-									<goal>jar</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.4.2</version>
+                        <configuration>
+                            <skipTests>true</skipTests>
+                            <excludes>
+                                <exclude>**PageTest.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>make-jar</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
 
-							<classifier>datamodel</classifier>
-							<includes>
-								<include>**/dao/*</include>
-								<include>**/pojo/*</include>
-								<include>**/phenotype/util/*</include>
-								<include>**/data/europhenome/*</include>
-								<include>**/data/impress/*</include>
-								<include>**/stats/**</include>
-								<include>**/phenotype/error/**</include>
-								<include>**/generic/util/*</include>
-								<include>**/web/util/*</include>
-							</includes>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-install-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>install-jar</id>
-								<phase>install</phase>
-								<goals>
-									<goal>install-file</goal>
-								</goals>
-								<configuration>
-									<generatePom>true</generatePom>
-									<packaging>jar</packaging>
-									<artifactId>${project.artifactId}</artifactId>
-									<groupId>${project.groupId}</groupId>
-									<version>${project.version}</version>
-									<file>${project.build.directory}/${project.build.finalName}-datamodel.jar</file>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-		<profile>
-			<id>imaging</id>
-
-			<properties>
-				<envClassifier>imaging</envClassifier>
-			</properties>
-
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<version>2.4.2</version>
-						<configuration>
-							<skipTests>true</skipTests>
-							<excludes>
-								<exclude>**PageTest.java</exclude>
-							</excludes>
-						</configuration>
-					</plugin>
-					<plugin>
-						<artifactId>maven-jar-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>make-jar</id>
-								<phase>compile</phase>
-								<goals>
-									<goal>jar</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-
-							<classifier>imaging</classifier>
-							<includes>
-								<include>**/imaging/**</include>
-							</includes>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-install-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>install-jar</id>
-								<phase>install</phase>
-								<goals>
-									<goal>install-file</goal>
-								</goals>
-								<configuration>
-									<generatePom>true</generatePom>
-									<packaging>jar</packaging>
-									<artifactId>${project.artifactId}</artifactId>
-									<groupId>${project.groupId}</groupId>
-									<version>${project.version}</version>
-									<file>${project.build.directory}/${project.build.finalName}-imaging.jar</file>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-		<profile>
-			<id>development</id>
-
-			<!-- Internal development uses the default POM properties -->
-			<properties>
-				<baseUrl>/data</baseUrl>
-				<internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
-				<liveSite>false</liveSite>
-			</properties>
-
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<version>2.4.2</version>
-						<configuration>
-							<skipTests>false</skipTests>
-							<excludes>
-								<exclude>**PageTest.java</exclude>
-							</excludes>
-						</configuration>
-					</plugin>
-
-				</plugins>
-			</build>
-		</profile>
-
-		<profile>
-			<id>test</id>
-
-			<!-- Internal development uses the default POM properties -->
-			<properties>
-				<baseUrl>/data</baseUrl>
-				<internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
-				<liveSite>false</liveSite>
-			</properties>
-
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<version>2.4.2</version>
-						<configuration>
-							<skipTests>false</skipTests>
-							<excludes>
-								<exclude>**PageTest.java</exclude>
-							</excludes>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-		<profile>
-			<id>external-dev</id>
-
-			<properties>
-				<baseUrl>/data</baseUrl>
-				<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
-					to EBI servers for performance -->
-				<solrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
-				<internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
-				<drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
-				<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
-				<liveSite>false</liveSite>
-			</properties>
-
-
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<version>2.4.2</version>
-						<configuration>
-							<skipTests>true</skipTests>
-							<excludes>
-								<exclude>**PageTest.java</exclude>
-							</excludes>
-						</configuration>
-					</plugin>
-
-				</plugins>
-			</build>
-
-		</profile>
-		
-                <profile>
-                    <id>web-tests</id>
-
-                    <properties>
-                        <baseUrl>/data</baseUrl>
-                        <!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
-                        to EBI servers for performance -->
-                        <solrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
-                        <internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
-                        <drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
-                        <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
-                        <seleniumUrl>http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
-                        <liveSite>false</liveSite>
-                    </properties>
-
-
-                    <build>
-                        <plugins>
-                            <plugin>
-                                <groupId>org.codehaus.mojo</groupId>
-                                <artifactId>build-helper-maven-plugin</artifactId>
-                                <version>1.8</version>
-                                <executions>
-                                    <execution>
-                                        <id>add-test-source</id>
-                                        <phase>generate-test-sources</phase>
-                                        <goals>
-                                            <goal>add-test-source</goal>
-                                        </goals>
-                                        <configuration>
-                                            <sources>
-                                                <source>${project.basedir}/src/test/web</source>
-                                            </sources>
-                                        </configuration>
-                                    </execution>
-                                </executions>
-                            </plugin>
-                            <plugin>
-                                <groupId>org.apache.maven.plugins</groupId>
-                                <artifactId>maven-surefire-plugin</artifactId>
-                                <version>2.4.2</version>
+                            <classifier>datamodel</classifier>
+                            <includes>
+                                <include>**/dao/*</include>
+                                <include>**/pojo/*</include>
+                                <include>**/phenotype/util/*</include>
+                                <include>**/data/europhenome/*</include>
+                                <include>**/data/impress/*</include>
+                                <include>**/stats/**</include>
+                                <include>**/phenotype/error/**</include>
+                                <include>**/generic/util/*</include>
+                                <include>**/web/util/*</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-install-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>install-jar</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>install-file</goal>
+                                </goals>
                                 <configuration>
-                                    <skipTests>false</skipTests>
-                                    <includes>
-                                        <include>**/phenotype/web/**</include>
-                                    </includes>
+                                    <generatePom>true</generatePom>
+                                    <packaging>jar</packaging>
+                                    <artifactId>${project.artifactId}</artifactId>
+                                    <groupId>${project.groupId}</groupId>
+                                    <version>${project.version}</version>
+                                    <file>${project.build.directory}/${project.build.finalName}-datamodel.jar</file>
                                 </configuration>
-                            </plugin>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
 
-                        </plugins>
-                    </build>
+        <profile>
+            <id>imaging</id>
 
-                </profile>
+            <properties>
+                <envClassifier>imaging</envClassifier>
+            </properties>
 
-		<profile>
-			<id>external-test</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.4.2</version>
+                        <configuration>
+                            <skipTests>true</skipTests>
+                            <excludes>
+                                <exclude>**PageTest.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>make-jar</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
 
-			<properties>
-				<baseUrl>/data</baseUrl>
-				<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
-					to EBI servers for performance -->
-				<solrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
-				<internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
-				<drupalBaseUrl>https://test.mousephenotype.org</drupalBaseUrl>
-				<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
-				<liveSite>false</liveSite>
-			</properties>
+                            <classifier>imaging</classifier>
+                            <includes>
+                                <include>**/imaging/**</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-install-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>install-jar</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>install-file</goal>
+                                </goals>
+                                <configuration>
+                                    <generatePom>true</generatePom>
+                                    <packaging>jar</packaging>
+                                    <artifactId>${project.artifactId}</artifactId>
+                                    <groupId>${project.groupId}</groupId>
+                                    <version>${project.version}</version>
+                                    <file>${project.build.directory}/${project.build.finalName}-imaging.jar</file>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
 
+        <profile>
+            <id>development</id>
 
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<version>2.4.2</version>
-						<configuration>
-							<skipTests>true</skipTests>
-							<excludes>
-								<exclude>**/web/**</exclude>
-							</excludes>
-						</configuration>
-					</plugin>
+            <!-- Internal development uses the default POM properties -->
+            <properties>
+                <baseUrl>/data</baseUrl>
+                <internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
+                <liveSite>false</liveSite>
+            </properties>
 
-				</plugins>
-			</build>
-		</profile>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.4.2</version>
+                        <configuration>
+                            <skipTests>false</skipTests>
+                            <excludes>
+                                <exclude>**PageTest.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
 
-		<profile>
-			<id>external-user</id>
+                </plugins>
+            </build>
+        </profile>
 
-			<properties>
-				<baseUrl>/data</baseUrl>
-				<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
-					to EBI servers for performance -->
-				<solrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
-				<internalSolrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</internalSolrUrl>
-				<drupalBaseUrl>http://localhost:8084</drupalBaseUrl>
-				<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
-				<liveSite>false</liveSite>
-			</properties>
+        <profile>
+            <id>test</id>
 
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<version>2.4.2</version>
-						<configuration>
-							<skipTests>true</skipTests>
-							<excludes>
-								<exclude>**PageTest.java</exclude>
-							</excludes>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
+            <!-- Internal development uses the default POM properties -->
+            <properties>
+                <baseUrl>/data</baseUrl>
+                <internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
+                <liveSite>false</liveSite>
+            </properties>
 
-		<profile>
-			<id>external-beta</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.4.2</version>
+                        <configuration>
+                            <skipTests>false</skipTests>
+                            <excludes>
+                                <exclude>**PageTest.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
 
-			<properties>
-				<baseUrl>/data</baseUrl>
-				<drupalBaseUrl>https://beta.mousephenotype.org</drupalBaseUrl>
-				<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
-					to EBI servers for performance -->
-				<solrUrl>https://www.ebi.ac.uk/mi/impc/beta/solr</solrUrl>
-				<internalSolrUrl>http://localhost:8090/mi/impc/beta/solr</internalSolrUrl>
-				<mediaBaseUrl>https://beta.mousephenotype.org/data/media</mediaBaseUrl>
-				<googleAnalytics>UA-33310077-1</googleAnalytics>
-				<liveSite>false</liveSite>
-			</properties>
+        <profile>
+            <id>external-dev</id>
 
-
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<version>2.4.2</version>
-						<configuration>
-							<skipTests>true</skipTests>
-							<excludes>
-								<exclude>**PageTest.java</exclude>
-							</excludes>
-						</configuration>
-					</plugin>
-					<!-- allows you to select derived on the target directory in eclipse 
-						so we dont have it polluting search etc and then this stops the target being 
-						overwritten and thus the setting reset all the time -->
-					<!-- http://stackoverflow.com/questions/283489/is-there-a-way-to-hide-maven-2-target-folder-in-eclipse-3 -->
-					<plugin>
-						<artifactId>maven-clean-plugin</artifactId>
-						<configuration>
-							<excludeDefaultDirectories>true</excludeDefaultDirectories>
-							<filesets>
-								<!-- delete directories that will be generated when you start the 
-									develpment server/client in eclipse -->
-								<fileset>
-									<directory>target</directory>
-									<includes>
-										<include>**/*</include>
-									</includes>
-								</fileset>
-							</filesets>
-						</configuration>
-					</plugin>
-
-				</plugins>
-			</build>
-
-		</profile>
-
-
-		<profile>
-			<id>live</id>
-
-			<properties>
-				<baseUrl>/data</baseUrl>
-				<drupalBaseUrl>https://www.mousephenotype.org</drupalBaseUrl>
-				<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
-					to EBI servers for performance -->
-				<solrUrl>https://www.ebi.ac.uk/mi/impc/solr</solrUrl>
-				<internalSolrUrl>http://localhost:8090/mi/impc/solr</internalSolrUrl>
-				<mediaBaseUrl>https://www.mousephenotype.org/data/media</mediaBaseUrl>
-				<googleAnalytics>UA-23433997-1</googleAnalytics>
-				<liveSite>true</liveSite>
-			</properties>
+            <properties>
+                <baseUrl>/data</baseUrl>
+                <!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
+                to EBI servers for performance -->
+                <solrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
+                <internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
+                <drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
+                <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
+                <liveSite>false</liveSite>
+            </properties>
 
 
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<version>2.4.2</version>
-						<configuration>
-							<skipTests>true</skipTests>
-							<excludes>
-								<exclude>**PageTest.java</exclude>
-							</excludes>
-						</configuration>
-					</plugin>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.4.2</version>
+                        <configuration>
+                            <skipTests>true</skipTests>
+                            <excludes>
+                                <exclude>**PageTest.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
 
-				</plugins>
-			</build>
+                </plugins>
+            </build>
 
-		</profile>
-	</profiles>
+        </profile>
+		
+        <profile>
+            <id>web-tests</id>
+
+            <properties>
+                <baseUrl>/data</baseUrl>
+                <!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
+                to EBI servers for performance -->
+                <solrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
+                <internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
+                <drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
+                <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
+                <seleniumUrl>http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
+                <liveSite>false</liveSite>
+            </properties>
+
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-surefire-plugin</artifactId>
+                            <version>2.4.2</version>
+                            <configuration>
+                                <skipTests>false</skipTests>
+                                <testFailureIgnore>true</testFailureIgnore>
+                                <includes>
+                                    <include>**PageTest.java</include>
+                                    <include>**/phenotype/web/**</include>
+                                </includes>
+                                <excludes>
+                                    <exclude></exclude>
+                                </excludes>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+
+        <profile>
+            <id>external-test</id>
+
+            <properties>
+                <baseUrl>/data</baseUrl>
+                <!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
+                to EBI servers for performance -->
+                <solrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
+                <internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
+                <drupalBaseUrl>https://test.mousephenotype.org</drupalBaseUrl>
+                <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
+                <liveSite>false</liveSite>
+            </properties>
+
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.4.2</version>
+                        <configuration>
+                            <skipTests>true</skipTests>
+                            <excludes>
+                                <exclude>**/web/**</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>external-user</id>
+
+            <properties>
+                <baseUrl>/data</baseUrl>
+                <!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
+                to EBI servers for performance -->
+                <solrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
+                <internalSolrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</internalSolrUrl>
+                <drupalBaseUrl>http://localhost:8084</drupalBaseUrl>
+                <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
+                <liveSite>false</liveSite>
+            </properties>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.4.2</version>
+                        <configuration>
+                            <skipTests>true</skipTests>
+                            <excludes>
+                                <exclude>**PageTest.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>external-beta</id>
+
+            <properties>
+                <baseUrl>/data</baseUrl>
+                <drupalBaseUrl>https://beta.mousephenotype.org</drupalBaseUrl>
+                <!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
+                to EBI servers for performance -->
+                <solrUrl>https://www.ebi.ac.uk/mi/impc/beta/solr</solrUrl>
+                <internalSolrUrl>http://localhost:8090/mi/impc/beta/solr</internalSolrUrl>
+                <mediaBaseUrl>https://beta.mousephenotype.org/data/media</mediaBaseUrl>
+                <googleAnalytics>UA-33310077-1</googleAnalytics>
+                <liveSite>false</liveSite>
+            </properties>
+
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.4.2</version>
+                        <configuration>
+                            <skipTests>true</skipTests>
+                            <excludes>
+                                <exclude>**PageTest.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                    <!-- allows you to select derived on the target directory in eclipse 
+                    so we dont have it polluting search etc and then this stops the target being 
+                    overwritten and thus the setting reset all the time -->
+                    <!-- http://stackoverflow.com/questions/283489/is-there-a-way-to-hide-maven-2-target-folder-in-eclipse-3 -->
+                    <plugin>
+                        <artifactId>maven-clean-plugin</artifactId>
+                        <configuration>
+                            <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                            <filesets>
+                                <!-- delete directories that will be generated when you start the 
+                                develpment server/client in eclipse -->
+                                <fileset>
+                                    <directory>target</directory>
+                                    <includes>
+                                        <include>**/*</include>
+                                    </includes>
+                                </fileset>
+                            </filesets>
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+            </build>
+
+        </profile>
+
+
+        <profile>
+            <id>live</id>
+
+            <properties>
+                <baseUrl>/data</baseUrl>
+                <drupalBaseUrl>https://www.mousephenotype.org</drupalBaseUrl>
+                <!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
+                to EBI servers for performance -->
+                <solrUrl>https://www.ebi.ac.uk/mi/impc/solr</solrUrl>
+                <internalSolrUrl>http://localhost:8090/mi/impc/solr</internalSolrUrl>
+                <mediaBaseUrl>https://www.mousephenotype.org/data/media</mediaBaseUrl>
+                <googleAnalytics>UA-23433997-1</googleAnalytics>
+                <liveSite>true</liveSite>
+            </properties>
+
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.4.2</version>
+                        <configuration>
+                            <skipTests>true</skipTests>
+                            <excludes>
+                                <exclude>**PageTest.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+            </build>
+
+        </profile>
+    </profiles>
 
 </project>
