@@ -120,7 +120,7 @@
 		caller.click(function(){
 				
 			if ( caller.find('span.fcount').text() != 0 ){
-				//console.log(facet + ' widget expanded');
+				console.log(facet + ' widget expanded');
 				
 				// close all other non-selected facets
 				$('div.flist > ul li.fmcat').each(function(){
@@ -149,16 +149,20 @@
 				}
 				
 				var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facet + 'Facet'].solrCoreName;				
-				var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';	
-				if ( typeof oHashParams.q == 'undefined' ){	
-					oHashParams.q = '*:*';
+				var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';
+						
+				// no search kw
+				if ( typeof oHashParams.q == 'undefined' ){
+					if ( $('li.ftag').size() == 0 ){
+						// check for filters
+						var oHashParams = thisWidget.options.data.hashParams;									
+						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+					}
+					else {										
+						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, facet);
+						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+					}
 				}
-				
-				/*if ( typeof oHashParams.q == 'undefined' ){					
-					var oHashParams = thisWidget.options.data.hashParams;	
-					alert(oHashParams.fq);
-					window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
-				}*/
 				else {					
 					oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, facet);						
 					if ( ! window.location.search.match(/q=/) ){					
@@ -204,8 +208,7 @@
 		
 		// make sure field mapping in url is correct with selected facet
 		fqStr = $.fn.fieldNameMapping(fqStr, facet);
-		
-		console.log(fqStr);
+				
 		// now update dataTable	 
 		if ( q == '' || q == '*' ){
 			q = '*:*';
@@ -291,20 +294,7 @@
 				for (var n=0; n<aFields.length; n++){					
 					if ( oFacets[aFields[n]].length != 0 ){						
 						foundMatch[oFields[aFields[n]]['class']]++;
-					}	
-					/*if ( aFields[n].match(/^imits_/) && oFacets[aFields[n]].length != 0 ){
-						foundMatch.phenotyping++;
-					}
-					else if ( aFields[n]=='status' && oFacets.status.length != 0 ){
-						foundMatch.production++;
-					}
-					else if ( aFields[n]=='latest_production_centre' && oFacets.marker_type.length != 0 ) {
-						foundMatch.marker_type++;
-					}
-					else if ( aFields[n]=='marker_type' && oFacets.marker_type.length != 0 ) {
-						foundMatch.marker_type++;
-					}*/
-					
+					}					
 				}
 			
 				for ( var fld in oFacets ){
@@ -703,17 +693,7 @@
     		}
 		});		
 	}	
-	
-	/*$.fn.fqStrIgnore = function(fqStr, facet){
-		if ( /disease_source:|disease_classes:|_predicted\w*:|_curated\w*:/.exec(fqStr) ){
-			if ( facet == 'pipeline ' || facet == 'images' ){
-				return false;
-			}
-			
-		}
 		
-	}*/
-	
 	$.fn.fieldNameMapping = function(fqStr, facet){
 			
 		var oMapping;		
@@ -766,7 +746,10 @@
 			
 			if (! /( AND )?\(?ontology_subset:\*\)?/.exec(fqStr) && facet == 'mp' ){	
 				fqStr += ' AND ontology_subset:*';
-			}	
+			}
+			if ( /\(? AND ontology_subset:\*\)?/.exec(fqStr) && facet == 'disease' ){			
+				fqStr = fqStr.replace(' AND ontology_subset:*', '');			
+			}
 		}
 		
 		return decodeURI(fqStr);	
@@ -816,7 +799,7 @@
 			// show filter facet caption
 			thisLi.find('.fcap').show();
 			
-			// add filter
+			// add filter			
 			$.fn.addFacetFilter(oChkbox, q);			
 			updateFacetUrlTable(q, facet);	
 		}
@@ -2448,77 +2431,7 @@ $.extend( $.fn.dataTableExt.oPagination, {
 			}
 		}
 } );
-/*
-		"fnUpdate": function ( oSettings, fnDraw ) {
-			
-			
-			var oPaging = oSettings.oInstance.fnPagingInfo();			
-			var iListLength = 5; 
-			var an = oSettings.aanFeatures.p;
-			var i, j, sClass, iStart, iEnd, iHalf=Math.floor(iListLength/2);
 
-			if ( oPaging.iTotalPages < iListLength) {
-				iStart = 1;
-				iEnd = oPaging.iTotalPages;
-			}
-			else if ( oPaging.iPage <= iHalf ) {
-				iStart = 1;
-				iEnd = iListLength;
-			} else if ( oPaging.iPage >= (oPaging.iTotalPages-iHalf) ) {
-				iStart = oPaging.iTotalPages - iListLength + 1;
-				iEnd = oPaging.iTotalPages;
-			} else {
-				iStart = oPaging.iPage - iHalf + 1;
-				iEnd = iStart + iListLength - 1;
-			}
-
-			for ( i=0, iLen=an.length ; i<iLen ; i++ ) {
-				// Remove the middle elements
-				
-				$('li:gt(0)', an[i]).filter(':not(:last)').remove();
-				
-				// Add the new list items and their event handlers
-				var iRef = 0;
-				for ( j=iStart ; j<=iEnd ; j++ ) {
-					iRef++;
-					sClass = (j==oPaging.iPage+1) ? 'class="active"' : '';
-					
-					// hacking for IMPC
-					var label;
-					if ( iRef == 4 ){	
-						label = "<span class='ellipse'>...</span>";
-						//$('<li>'+label+'</li>').insertBefore( $('li:last', an[i])[0] );
-					}
-					else {
-						label = iRef == 5 ? oPaging.iTotalPages : j;						
-					
-						$('<li '+sClass+'><a href="#">'+label+'</a></li>')
-							.insertBefore( $('li:last', an[i])[0] )
-							.bind('click', function (e) {
-								e.preventDefault();
-								oSettings._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
-								fnDraw( oSettings );
-							} );						
-					}
-				}
-
-				// Add / remove disabled classes from the static elements
-				if ( oPaging.iPage === 0 ) {
-					$('li:first', an[i]).addClass('disabled');
-				} else {
-					$('li:first', an[i]).removeClass('disabled');
-				}
-
-				if ( oPaging.iPage === oPaging.iTotalPages-1 || oPaging.iTotalPages === 0 ) {
-					$('li:last', an[i]).addClass('disabled');
-				} else {
-					$('li:last', an[i]).removeClass('disabled');
-				}
-			}
-		}
-	}
-} );
-*/
 //Set the classes that TableTools uses to something suitable for Bootstrap
 /*$.extend( true, $.fn.DataTable.TableTools.classes, {
 	"container": "btn-group",
