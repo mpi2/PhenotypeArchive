@@ -37,8 +37,6 @@ public class PercentileComputation{
 			lowerValues =  sortedValues.subList(0, n/2);
 			upperValues =  sortedValues.subList(n/2, n);
 		}
-		System.out.println("loer: " + lowerValues);
-		System.out.println("upper: " + upperValues);
 	}
 
 	//The lower quartile value is the median of the lower half of the data. The upper quartile value is the median of the upper half of the data.
