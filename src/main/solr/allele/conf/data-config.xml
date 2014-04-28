@@ -12,7 +12,7 @@
 		function fetch_human_symbol(row){
 			if ( row.get('mouse2human_symbol') ){				
 				aList = row.get('mouse2human_symbol').toString().split('___');			
-				row.put('human_gES Cell Targeting Confirmedene_symbol', aList[1]);  						
+				row.put('human_gene_symbol', aList[1]);  						
 				}              
 		
 	   		return row; 
@@ -89,7 +89,7 @@
 
 			<!-- mouse to human gene symbol mapping: multiple human name can be mapped to one mouse symbol -->
 			<entity dataSource="human2mouse_symbol_core" name="symbol_mapping" stream="true"
-				url="q=${doc.marker_symbol}*&amp;wt=normal&amp;fl=mouse2human_symbol"
+				url="q=mouse2human_symbol:${doc.marker_symbol}*&amp;wt=normal&amp;fl=mouse2human_symbol"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/"
 				transformer="script:fetch_human_symbol"  onError="continue" >
 
@@ -118,8 +118,8 @@
 			<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
 
 			<!-- production/phenotyping centers -->
-			<field column="latest_production_centre" xpath="/response/result/doc/str[@name='latest_production_centre']" />
-			<field column="latest_phenotyping_centre" xpath="/response/result/doc/str[@name='latest_phenotyping_centre']" />							                   	
+			<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
+			<field column="latest_phenotyping_centre" xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str" />							                   	
 				
 			<!-- es cells/mice/phenotyping/ status and centers info at allele level -->
 			<entity dataSource="sanger_allele" name="aldoc" stream="true" url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:allele&amp;rows=100&amp;wt=normal"

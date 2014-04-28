@@ -94,7 +94,7 @@ public class ExperimentService {
 			Integer phenotypingCenterId, List<String> zygosity, String strain,
 			String metaDataGroup, Boolean includeResults)
 			throws SolrServerException, IOException, URISyntaxException {
-
+LOG.debug("metadataGroup parmeter is="+metaDataGroup);
 		List<ObservationDTO> observations = os
 				.getExperimentalUnidimensionalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroup(
 						parameterId, pipelineId, geneAccession, zygosity,
@@ -198,6 +198,8 @@ public class ExperimentService {
 								ObservationType.valueOf(observation
 										.getObservationType()), observation
 										.getStrain());
+				System.out.println("basic results list size for experiment="+basicResults.size());
+				System.out.println("experiment id="+experiment.getExperimentId());
 				List<UnidimensionalResult> populatedResults = new ArrayList<>();
 				if (experiment.getObservationType() == ObservationType.unidimensional) {
 					for (StatisticalResult basicResult : basicResults) {
@@ -210,10 +212,16 @@ public class ExperimentService {
 							UnidimensionalResult result = unidimensionalStatisticsDAO
 									.getStatsForPhenotypeCallSummaryId(unidimensionalResult
 											.getId());
+							if(result==null) {
+								LOG.debug("no comprehensive result found for unidimensionalresult with id="+unidimensionalResult
+											.getId());
+							}
 							if (result != null) {
 								// result.setSexType(unidimensionalResult.getSexType());//set
 								// the sextype from our already called solr
 								// result as it's not set by hibernate
+								LOG.debug("yes result found for for unidimensionalresult with id="+unidimensionalResult
+											.getId());
 								result.setZygosityType(unidimensionalResult.getZygosityType());
 								if(experiment.getMetadataGroup()!=null && result.getMetadataGroup()!=null) {
 								 if (experiment.getMetadataGroup().equals(result
@@ -233,12 +241,12 @@ public class ExperimentService {
 				}
 				if (populatedResults.size() == 0) {
 					LOG.debug("resorting to basic stats result");
-					System.out.println("basic results size=" + basicResults.size());
+					//System.out.println("basic results size=" + basicResults.size());
 					for (StatisticalResult bR : basicResults) {
-						System.out.println("basic result metadataGroup=" + bR.getMetadataGroup());
+						//System.out.println("basic result metadataGroup=" + bR.getMetadataGroup());
 						if (experiment.getMetadataGroup().equals(bR)){
 							UnidimensionalResult uniTempResult=(UnidimensionalResult)bR;
-							LOG.debug("adding pValue from basic result="+uniTempResult.getpValue());
+							//LOG.debug("adding pValue from basic result="+uniTempResult.getpValue());
 							populatedResults.add((UnidimensionalResult)bR);	
 						}
 					}
@@ -252,7 +260,7 @@ public class ExperimentService {
 				// note there will only be extra stats in the
 				// stat_result_phenotype_call_summary if the call is an impc one
 				// otherwise like this query it will be empty!
-				// SELECT * FROM komp2.stat_result_phenotype_call_summary where
+				// SELECT * FROM Y.stat_result_phenotype_call_summary where
 				// phenotype_call_summary_id=88370;
 				// # categorical_result_id, unidimensional_result_id,
 				// phenotype_call_summary_id

@@ -130,11 +130,10 @@
 	<field name="latest_mouse_status" type="string" indexed="true" stored="true" multiValued="false"/>	
 	<field name="latest_phenotype_status" type="string" indexed="true" stored="true" multiValued="false"/>	
 	<field name="latest_project_status" type="string" indexed="true" stored="true" multiValued="false"/>	
-	<field name="latest_production_centre" type="string" indexed="true" stored="true" multiValued="false"/>	
-	<field name="latest_phenotyping_centre" type="string" indexed="true" stored="true" multiValued="false"/>
+	<field name="latest_production_centre" type="string" indexed="true" stored="true" multiValued="true"/>	
+	<field name="latest_phenotyping_centre" type="string" indexed="true" stored="true" multiValued="true"/>
 
-	<!--  gene has QC: ie, a record in experiment core -->
-	<field name="qcGene" type="string" indexed="false" stored="false" multiValued="false"/>
+	<!--  gene has QC: ie, a record in experiment core -->	
 	<field name="hasQc" type="int" indexed="true" stored="true" multiValued="false"/>	
 
 	<!-- allele level fields of a gene -->

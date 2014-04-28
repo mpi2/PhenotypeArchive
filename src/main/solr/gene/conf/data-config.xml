@@ -23,12 +23,7 @@
 		
 	   		return row; 
 		}
-		function hasQc(row){
-			if (row.get('qcGene')){
-				row.put('hasQc', 1); 
-			}									        		
-	   		return row; 
-		}
+		
 		// mapping for es cell/mouse/phenotyping statuses
 		function status_mapping(row){
 			if ( row.get('imits_es_cell_status') ){									
@@ -91,9 +86,8 @@
 				<field column="marker_name" xpath="/response/result/doc/str[@name='marker_name']" />
 									
 				<field column="human_gene_symbol" xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />			
-
-				<field column="qcGene" xpath="/response/result/doc/str[@name='qcGene']" />	
-				<field column="hasQc" xpath="/response/result/doc/str[@name='hasQc']" />
+				
+				<field column="hasQc" xpath="/response/result/doc/int[@name='hasQc']" />
 
 				<!-- latest es cells/mice/phenotyping/ status and centers info at gene level -->
 				<field column="latest_es_cell_status" xpath="/response/result/doc/str[@name='latest_es_cell_status']" />
@@ -112,8 +106,8 @@
 				<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
 
 				<!-- production/phenotyping centers -->
-				<field column="latest_production_centre" xpath="/response/result/doc/str[@name='latest_production_centre']" />
-				<field column="latest_phenotyping_centre" xpath="/response/result/doc/str[@name='latest_phenotyping_centre']" />	
+				<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
+				<field column="latest_phenotyping_centre" xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str" />	
 
 				<!-- alleles of a gene -->
 				<field column="allele_name" xpath="/response/result/doc/arr[@name='allele_name']/str" />					

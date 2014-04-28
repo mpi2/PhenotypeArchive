@@ -201,18 +201,23 @@
 		
 		// make sure field mapping in url is correct with selected facet
 		fqStr = $.fn.fieldNameMapping(fqStr, facet);
-		if ( q == '' || '*' ){
-			q = '*:*';
-		}		
+		
 		// now update dataTable	 
-		window.location.hash = 'q=' + q + '&fq=' + fqStr + '&facet=' + facet;	 
+		if ( q == '' || q == '*' ){
+			q = '*:*';
+			window.location.hash = 'q=' + q + '&fq=' + fqStr + '&facet=' + facet;
+		}		
+		else {		
+			window.location.hash = 'fq=' + fqStr + '&facet=' + facet;
+		}
 	};
 	
 	$.fn.setFacetCounts = function(q, fqStr, facet){
-		if ( q == '' || '*' ){
+		
+		if ( q == '' || q == '*' ){
 			q = '*:*';
 		}
-		console.log(q + " -- " +  fqStr + " -- " + facet);	
+		//console.log(q + " -- " +  fqStr + " -- " + facet);	
 		
 		do_megaGene(q, fqStr);			
 		do_megaMp(q, fqStr);
@@ -259,7 +264,7 @@
 		
         var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';
         paramStr += '&fq=' + fqStr + ' AND ' + MPI2.searchAndFacetConfig.facetParams.geneFacet.fq + fecetFieldsStr;        
-        console.log('GENE: '+ paramStr);
+        //console.log('GENE: '+ paramStr);
         
         $.ajax({ 	
 			'url': solrUrl + '/gene/select',			
@@ -267,8 +272,7 @@
     		'dataType': 'jsonp',
     		'jsonp': 'json.wrf',
     		'success': function(json) {
-    			console.log('gene');
-    			console.log(json);
+    			//console.log(json);
     			
 				var oFacets = json.facet_counts.facet_fields;
 			
@@ -857,10 +861,12 @@
 				var defaultFqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].fq;
 				
 				if ( window.location.search != '' ){
-					//alert('search kw');
+					
 					// has search keyword
-					url = baseUrl + '/search?q=' + q + '#fq='+ defaultFqStr + '&core='+facet;
-					//window.history.pushState({},"", url);// change browser url; not working with IE					
+					//url = baseUrl + '/search?q=' + q + '#fq='+ defaultFqStr + '&core='+facet;
+					url = 'fq='+ defaultFqStr + '&core='+facet;
+					//window.history.pushState({},"", url);// change browser url; not working with IE	
+					//console.log('test: '+ url);
 					window.location.hash = url; // also works with IE										
 				}
 				else {					
@@ -870,13 +876,15 @@
 					//window.history.pushState({},"", baseUrl + '/search#fq='+defaultFqStr+'&core='+facet);
 					
 					// this also works with IE					
-					window.location.hash = baseUrl + '/search#fq='+defaultFqStr+'&core='+facet;
+					//window.location.hash = baseUrl + '/search#fq='+defaultFqStr+'&core='+facet;
+					window.location.hash = 'fq='+defaultFqStr+'&core='+facet;
+					
 				}
 				
 				//window.history.pushState({},"", url);// change browser url
 				location.reload();				
 			}
-			else {
+			else {			
 				updateFacetUrlTable(q, facet);
 			}			
 		}	
@@ -885,7 +893,8 @@
 	function updateFacetUrlTable(q, facet){
 		
 		// update facet filter and compose solr query for result
-		var fqStr = _composeFilterStr(facet);			
+		var fqStr = _composeFilterStr(facet);	
+				
 		$.fn.setFacetCounts(q, fqStr, facet);		
 		$.fn.fetchQueryResult(q, facet, fqStr);		
 	}
@@ -1313,7 +1322,7 @@
    
     $.fn.parseUrlForFacetCheckboxAndTermHighlight = function(oHashParams, refreshFacet){	
     	var self = this;
-    	console.log('parsing url for filter and chkbox:');
+    	//console.log('parsing url for filter and chkbox:');
     	//console.log(oHashParams);
     	var facet = oHashParams.widgetName;    	
     	var fqStr = oHashParams.fq;
@@ -2346,10 +2355,99 @@ $.extend( $.fn.dataTableExt.oPagination, {
 			$(els[0]).bind( 'click.DT', { action: "previous" }, fnClickHandler );
 			$(els[1]).bind( 'click.DT', { action: "next" }, fnClickHandler );
 		},
+		
+		"fnUpdate": function ( oSettings, fnDraw ) {
+				var iListLength = 5;
+				var oPaging = oSettings.oInstance.fnPagingInfo();
+				var an = oSettings.aanFeatures.p;
+				var i, j, sClass, iStart, iEnd, iHalf=Math.floor(iListLength/2);
 
+				if ( oPaging.iTotalPages < iListLength) {
+					iStart = 1;
+					iEnd = oPaging.iTotalPages;
+				}
+				else if ( oPaging.iPage <= iHalf ) {
+					iStart = 1;
+					iEnd = iListLength;
+				} 
+				else if ( oPaging.iPage >= (oPaging.iTotalPages-iHalf) ) {
+					iStart = oPaging.iTotalPages - iListLength + 1;
+					iEnd = oPaging.iTotalPages;
+				} 
+				else {
+					iStart = oPaging.iPage - iHalf + 1;
+					iEnd = iStart + iListLength - 1;
+				}
+
+				
+				for ( i=0, iLen=an.length ; i<iLen ; i++ ) {
+					
+					// Remove the middle elements
+					$('li:gt(0)', an[i]).filter(':not(:last)').remove();
+	
+					// Add the new list items and their event handlers
+					
+					// modified for IMPC to show last page with '...' in front of it
+					// but omit '...' when last page is within last five pages
+					var count = 0;
+					for ( j=iStart ; j<=iEnd ; j++ ) {
+						count++;
+						sClass = (j==oPaging.iPage+1) ? 'class="active"' : '';
+						if (j != oPaging.iTotalPages ){
+													
+							$('<li '+sClass+'><a href="#">'+j+'</a></li>')				
+							.insertBefore( $('li:last', an[i])[0] )
+							.bind('click', function (e) {
+							e.preventDefault();
+							oSettings._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
+							fnDraw( oSettings );
+							} );							
+							
+							if (count==5){
+								$("<li><span class='ellipse'>...</span></li>")				
+								.insertBefore( $('li:last', an[i])[0] );							
+							
+								$('<li><a href="#">'+oPaging.iTotalPages+'</a></li>')				
+								.insertBefore( $('li:last', an[i])[0] ).bind('click', function (e) {
+									e.preventDefault();
+									oSettings._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
+									fnDraw( oSettings )});
+							
+							}
+						}
+						
+						if ( count == 5 && j == oPaging.iTotalPages ) {
+							$('<li '+sClass+'><a href="#">'+oPaging.iTotalPages+'</a></li>')							
+							.insertBefore( $('li:last', an[i])[0] ).bind('click', function (e) {								
+								e.preventDefault();
+								oSettings._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
+								fnDraw( oSettings )});
+						}							
+						
+					}									
+						
+					// Add / remove disabled classes from the static elements
+					if ( oPaging.iPage === 0 ) {
+						$('li:first', an[i]).addClass('disabled');
+					} 
+					else {
+						$('li:first', an[i]).removeClass('disabled');
+					}
+		
+					if ( oPaging.iPage === oPaging.iTotalPages-1 || oPaging.iTotalPages === 0 ) {
+						$('li:last', an[i]).addClass('disabled');
+					} 
+					else {
+						$('li:last', an[i]).removeClass('disabled');
+					}
+				}
+			}
+		}
+} );
+/*
 		"fnUpdate": function ( oSettings, fnDraw ) {
 			
-			var iListLength = 5;
+			
 			var oPaging = oSettings.oInstance.fnPagingInfo();			
 			var iListLength = 5; 
 			var an = oSettings.aanFeatures.p;
@@ -2385,7 +2483,7 @@ $.extend( $.fn.dataTableExt.oPagination, {
 					var label;
 					if ( iRef == 4 ){	
 						label = "<span class='ellipse'>...</span>";
-						$('<li>'+label+'</li>').insertBefore( $('li:last', an[i])[0] );
+						//$('<li>'+label+'</li>').insertBefore( $('li:last', an[i])[0] );
 					}
 					else {
 						label = iRef == 5 ? oPaging.iTotalPages : j;						
@@ -2416,7 +2514,7 @@ $.extend( $.fn.dataTableExt.oPagination, {
 		}
 	}
 } );
-
+*/
 //Set the classes that TableTools uses to something suitable for Bootstrap
 /*$.extend( true, $.fn.DataTable.TableTools.classes, {
 	"container": "btn-group",

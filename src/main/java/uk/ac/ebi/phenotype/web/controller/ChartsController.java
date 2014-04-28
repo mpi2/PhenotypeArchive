@@ -271,7 +271,7 @@ public class ChartsController {
 				.getSpecificExperimentDTO(parameter.getId(),pipelineId,  accession[0],
 						genderList, zyList,phenotypingCenterId,
 						  strain , metaDataGroupString);
-		System.out.println("experiment in chart method="+experiment);
+		//System.out.println("experiment in chart method="+experiment);
 		
 		if (experiment!=null) {
 			// log.info("Experiment dto marker="+experiment.getFemaleControls());
@@ -305,11 +305,13 @@ public class ChartsController {
 				 case unidimensional:
 				 //http://localhost:8080/phenotype-archive/charts?accession=/MGI:1920000&parameterId=ESLIM_015_001_018
 				
+//					 if(experiment.getResults().size()!=0) {
 					 unidimensionalChartDataSet =
 				 continousChartAndTableProvider.doUnidimensionalData(experiment,
 						 experimentNumber, parameter,
 				 ChartType.UnidimensionalBoxPlot, false, xAxisTitle,expBiologicalModel);
 					model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+					// }
 				 break;
 				
 				case categorical:
