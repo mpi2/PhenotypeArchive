@@ -1,27 +1,26 @@
 package uk.ac.ebi.phenotype.stats;
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import uk.ac.ebi.phenotype.dao.OrganisationDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
+import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -101,6 +100,32 @@ public class ExperimentServiceTest {
         System.out.println("EXP list is: "+experimentList);
         System.out.println("Size is: "+experimentList.size());
         assertTrue(experimentList.size()==2);
+   
+
+	}
+        
+        @Test
+	public void testGetCategoricalStatsResult() throws SolrServerException, IOException, URISyntaxException {
+
+		Logger.getRootLogger().setLevel(Level.INFO);
+
+		System.out.println("\ntestGetCategoricalStatsResult");
+		Parameter p = pDAO.getParameterByStableId("M-G-P_014_001_001");
+		Pipeline pipe = pDAO.getPhenotypePipelineByStableId("M-G-P_001");
+		Organisation org = orgDAO.getOrganisationByName("WTSI");
+		
+		List<String> zygs = new ArrayList<>();
+		zygs.add(ZygosityType.homozygote.name());
+		List<ExperimentDTO> experimentList = es.getExperimentDTO(p.getId(), pipe.getId(), "MGI:98373", null, org.getId(), zygs, null, "", true);
+
+        System.out.println("EXP list is: "+experimentList);
+        System.out.println("Size is: "+experimentList.size());
+        assertTrue(experimentList.size()==1);
+        System.out.println("Stats Result Size is: "+experimentList.get(0).getResults().size());
+        assertTrue(experimentList.get(0).getResults().size()>0);
+        for(StatisticalResult result: experimentList.get(0).getResults()){
+            System.out.println("result is: "+result);
+        }
    
 
 	}

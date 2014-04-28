@@ -13,19 +13,16 @@ import java.util.Map;
 import java.util.ResourceBundle.Control;
 import java.util.Set;
 import java.util.TreeSet;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.eclipse.jetty.util.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-
-
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
 import uk.ac.ebi.phenotype.error.SpecificExperimentException;
+import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.ControlStrategy;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
@@ -200,17 +197,19 @@ LOG.debug("metadataGroup parmeter is="+metaDataGroup);
 										.getStrain());
 				System.out.println("basic results list size for experiment="+basicResults.size());
 				System.out.println("experiment id="+experiment.getExperimentId());
-				List<UnidimensionalResult> populatedResults = new ArrayList<>();
+				List<StatisticalResult> populatedResults = new ArrayList<>();
+                                
+                                
 				if (experiment.getObservationType() == ObservationType.unidimensional) {
 					for (StatisticalResult basicResult : basicResults) {
 						// get one for female and one for male if exist
 						UnidimensionalResult unidimensionalResult = (UnidimensionalResult) basicResult;
 						 LOG.debug("basic result PCSummary Id="+ unidimensionalResult.getId() + " basic result sex type=" + unidimensionalResult.getSexType() + " p value=" + unidimensionalResult.getpValue());
 						// LOG.debug("basic result metadataGroup="+basicResult.getMetadataGroup());
-
+                                                 
 						try {
 							UnidimensionalResult result = unidimensionalStatisticsDAO
-									.getStatsForPhenotypeCallSummaryId(unidimensionalResult
+									.getUnidimensionalStatsForPhenotypeCallSummaryId(unidimensionalResult
 											.getId());
 							if(result==null) {
 								LOG.debug("no comprehensive result found for unidimensionalresult with id="+unidimensionalResult
@@ -239,18 +238,63 @@ LOG.debug("metadataGroup parmeter is="+metaDataGroup);
 
 					}
 				}
-				if (populatedResults.size() == 0) {
-					LOG.debug("resorting to basic stats result");
-					//System.out.println("basic results size=" + basicResults.size());
-					for (StatisticalResult bR : basicResults) {
-						//System.out.println("basic result metadataGroup=" + bR.getMetadataGroup());
-						if (experiment.getMetadataGroup().equals(bR)){
-							UnidimensionalResult uniTempResult=(UnidimensionalResult)bR;
-							//LOG.debug("adding pValue from basic result="+uniTempResult.getpValue());
-							populatedResults.add((UnidimensionalResult)bR);	
+                                if (experiment.getObservationType() == ObservationType.categorical) {
+					for (StatisticalResult basicResult : basicResults) {
+						// get one for female and one for male if exist
+						CategoricalResult categoricalResult = (CategoricalResult) basicResult;
+						 LOG.debug("basic result PCSummary Id="+ categoricalResult.getId() + " basic result sex type=" + categoricalResult.getSexType() + " p value=" + categoricalResult.getpValue());
+						// LOG.debug("basic result metadataGroup="+basicResult.getMetadataGroup());
+                                                //populatedResults.add(categoricalResult);
+						try {
+							CategoricalResult result = unidimensionalStatisticsDAO
+									.getCategoricalStatsForPhenotypeCallSummaryId(categoricalResult
+											.getId());
+							if(result==null) {
+								LOG.debug("no comprehensive result found for categoricalResult with id="+categoricalResult
+											.getId());
+							}
+							if (result != null) {
+								// result.setSexType(unidimensionalResult.getSexType());//set
+								// the sextype from our already called solr
+								// result as it's not set by hibernate
+								LOG.debug("yes result found for for categoricalResult with id="+categoricalResult
+											.getId());
+								result.setZygosityType(categoricalResult.getZygosityType());
+                                                                result.setSexType(categoricalResult.getExperimentalSex());//set the sexType here so it is set like it is when calling from solr
+                                                             
+                                                                System.out.println("result in expservice has sex before meatadat group filter of "+result.getSexType());
+								if(experiment.getMetadataGroup()!=null && result.getMetadataGroup()!=null) {
+								 if (experiment.getMetadataGroup().equals(result
+										.getMetadataGroup())) {
+									 LOG.debug("metadata group in experiment and result are equal so adding "+metaDataGroup);
+									 LOG.debug("adding pValue from comprehensive result="+result.getpValue());
+                                                                         System.out.println("sex of metadata match is="+result.getSexType());
+                                                                         result.setSexType(basicResult.getSexType());//this is horrible - how can we change this difference between hibernate way and solr way?
+									populatedResults.add(result);
+								}
+								}
+							}
+						} catch (SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
+
 					}
 				}
+//				if (populatedResults.isEmpty()) {
+//					LOG.debug("resorting to basic stats result");
+//					//System.out.println("basic results size=" + basicResults.size());
+//					for (StatisticalResult bR : basicResults) {
+//						//System.out.println("basic result metadataGroup=" + bR.getMetadataGroup());
+//						if (experiment.getMetadataGroup().equals(bR)){
+//							UnidimensionalResult uniTempResult=(UnidimensionalResult)bR;
+//							//LOG.debug("adding pValue from basic result="+uniTempResult.getpValue());
+//							populatedResults.add((UnidimensionalResult)bR);	
+//						}
+//					}
+//				}
+                                
+                                
 				
 					experiment.setResults(populatedResults);
 				

@@ -388,23 +388,26 @@ public class GenotypePhenotypeService {
 
 		
 		if(observationType==ObservationType.categorical) {
-			CategoricalResult catResult=new CategoricalResult();
+			
 			for (Object doc : docs) {
+                            CategoricalResult catResult=new CategoricalResult();
 				JSONObject phen = (JSONObject) doc;
 				//System.out.println("pValue="+pValue);
 				String pValue = phen.getString( GenotypePhenotypeField.P_VALUE );
 				String sex = phen.getString( GenotypePhenotypeField.SEX );
 				String zygosity=phen.getString( GenotypePhenotypeField.ZYGOSITY );
 				String effectSize=phen.getString(GenotypePhenotypeField.EFFECT_SIZE);
-				
+				String phenoCallSummaryId=phen.getString(GenotypePhenotypeField.PCS_ID);
 				
 				//System.out.println("pValue="+pValue);
-				if(pValue!=null) {
+				//if(pValue!=null) {
+                                    catResult.setId(Integer.parseInt(phenoCallSummaryId));//one id for each document and for each sex
 					catResult.setpValue(Double.valueOf(pValue));
 					catResult.setZygosityType(ZygosityType.valueOf(zygosity));
 					catResult.setEffectSize(new Double(Double.valueOf(effectSize)));
-					catResult.setSexType(SexType.valueOf(sex));
-				}
+					catResult.setSexType(SexType.valueOf(sex)); 
+                                        System.out.println("adding sex="+SexType.valueOf(sex));
+				//}
 				results.add(catResult);
 			}
 			return results;

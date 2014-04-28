@@ -8,6 +8,7 @@ import java.util.Set;
 import org.hibernate.HibernateException;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
+import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
@@ -64,7 +65,9 @@ public interface UnidimensionalStatisticsDAO extends StatisticsDAO {
 	public List<MouseDataPoint> getMutantDataPointsWithMouseName(SexType sex, ZygosityType zygosity, Parameter parameter,  Integer populationId);
 	public List<MouseDataPoint> getControlDataPointsWithMouseName(Integer populationId);
 
-	public UnidimensionalResult getStatsForPhenotypeCallSummaryId(
+	public UnidimensionalResult getUnidimensionalStatsForPhenotypeCallSummaryId(
 			int phenotypeCallSummaryId) throws SQLException;
+        
+        public CategoricalResult getCategoricalStatsForPhenotypeCallSummaryId(int phenotypeCallSummaryId) throws SQLException;
 
 }
