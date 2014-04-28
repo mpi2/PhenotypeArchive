@@ -268,7 +268,7 @@ LOG.debug("metadataGroup parmeter is="+metaDataGroup);
 										.getMetadataGroup())) {
 									 LOG.debug("metadata group in experiment and result are equal so adding "+metaDataGroup);
 									 LOG.debug("adding pValue from comprehensive result="+result.getpValue());
-                                                                         System.out.println("sex of metadata match is="+result.getSexType());
+                                                                         //System.out.println("sex of metadata match is="+result.getSexType());
                                                                          result.setSexType(basicResult.getSexType());//this is horrible - how can we change this difference between hibernate way and solr way?
 									populatedResults.add(result);
 								}

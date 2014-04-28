@@ -406,7 +406,7 @@ public class GenotypePhenotypeService {
 					catResult.setZygosityType(ZygosityType.valueOf(zygosity));
 					catResult.setEffectSize(new Double(Double.valueOf(effectSize)));
 					catResult.setSexType(SexType.valueOf(sex)); 
-                                        System.out.println("adding sex="+SexType.valueOf(sex));
+                                       // System.out.println("adding sex="+SexType.valueOf(sex));
 				//}
 				results.add(catResult);
 			}
