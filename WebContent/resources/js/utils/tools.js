@@ -24,7 +24,7 @@
 	$.fn.checkAndHighlightSubfacetTerms = function(){
 		if ( $('ul#facetFilter li.ftag a').size() != 0 ){	   
 			console.log('about to update facet count via filter settings ...');
-			console.log($(this).html());
+			
 			MPI2.searchAndFacetConfig.hasFilters = true;		    			
 		}
 	}
@@ -150,14 +150,17 @@
 				
 				var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facet + 'Facet'].solrCoreName;				
 				var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';	
-				
-				if ( typeof oHashParams.q == 'undefined' ){					
-					var oHashParams = thisWidget.options.data.hashParams;					
-					window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+				if ( typeof oHashParams.q == 'undefined' ){	
+					oHashParams.q = '*:*';
 				}
+				
+				/*if ( typeof oHashParams.q == 'undefined' ){					
+					var oHashParams = thisWidget.options.data.hashParams;	
+					alert(oHashParams.fq);
+					window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+				}*/
 				else {					
-					oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, facet);	
-										
+					oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, facet);						
 					if ( ! window.location.search.match(/q=/) ){					
 						window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
 					}
@@ -202,6 +205,7 @@
 		// make sure field mapping in url is correct with selected facet
 		fqStr = $.fn.fieldNameMapping(fqStr, facet);
 		
+		console.log(fqStr);
 		// now update dataTable	 
 		if ( q == '' || q == '*' ){
 			q = '*:*';
@@ -2355,10 +2359,99 @@ $.extend( $.fn.dataTableExt.oPagination, {
 			$(els[0]).bind( 'click.DT', { action: "previous" }, fnClickHandler );
 			$(els[1]).bind( 'click.DT', { action: "next" }, fnClickHandler );
 		},
+		
+		"fnUpdate": function ( oSettings, fnDraw ) {
+				var iListLength = 5;
+				var oPaging = oSettings.oInstance.fnPagingInfo();
+				var an = oSettings.aanFeatures.p;
+				var i, j, sClass, iStart, iEnd, iHalf=Math.floor(iListLength/2);
 
+				if ( oPaging.iTotalPages < iListLength) {
+					iStart = 1;
+					iEnd = oPaging.iTotalPages;
+				}
+				else if ( oPaging.iPage <= iHalf ) {
+					iStart = 1;
+					iEnd = iListLength;
+				} 
+				else if ( oPaging.iPage >= (oPaging.iTotalPages-iHalf) ) {
+					iStart = oPaging.iTotalPages - iListLength + 1;
+					iEnd = oPaging.iTotalPages;
+				} 
+				else {
+					iStart = oPaging.iPage - iHalf + 1;
+					iEnd = iStart + iListLength - 1;
+				}
+								
+				for ( i=0, iLen=an.length ; i<iLen ; i++ ) {
+					
+					// Remove the middle elements
+					$('li:gt(0)', an[i]).filter(':not(:last)').remove();
+	
+					// Add the new list items and their event handlers
+					
+					// modified for IMPC to show last page with '...' in front of it
+					// but omit '...' when last page is within last five pages
+					var count = 0;
+					for ( j=iStart ; j<=iEnd ; j++ ) {
+						
+						count++;
+						sClass = (j==oPaging.iPage+1) ? 'class="active"' : '';
+												
+						if (j != oPaging.iTotalPages ){
+											
+							$('<li '+sClass+'><a href="#">'+j+'</a></li>')				
+							.insertBefore( $('li:last', an[i])[0] )
+							.bind('click', function (e) {
+							e.preventDefault();
+							oSettings._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
+							fnDraw( oSettings );
+							} );							
+							
+							if (count==5){
+								$("<li><span class='ellipse'>...</span></li>")				
+								.insertBefore( $('li:last', an[i])[0] );							
+							
+								$('<li><a href="#">'+oPaging.iTotalPages+'</a></li>')				
+								.insertBefore( $('li:last', an[i])[0] ).bind('click', function (e) {
+									e.preventDefault();
+									oSettings._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
+									fnDraw( oSettings )});
+							
+							}
+						}
+												
+						if ( ( count == 5 || count == 1) && j == oPaging.iTotalPages ) {
+							$('<li '+sClass+'><a href="#">'+oPaging.iTotalPages+'</a></li>')							
+							.insertBefore( $('li:last', an[i])[0] ).bind('click', function (e) {								
+								e.preventDefault();
+								oSettings._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
+								fnDraw( oSettings )});
+						}
+					}									
+						
+					// Add / remove disabled classes from the static elements
+					if ( oPaging.iPage === 0 ) {
+						$('li:first', an[i]).addClass('disabled');
+					} 
+					else {
+						$('li:first', an[i]).removeClass('disabled');
+					}
+		
+					if ( oPaging.iPage === oPaging.iTotalPages-1 || oPaging.iTotalPages === 0 ) {
+						$('li:last', an[i]).addClass('disabled');
+					} 
+					else {
+						$('li:last', an[i]).removeClass('disabled');
+					}
+				}
+			}
+		}
+} );
+/*
 		"fnUpdate": function ( oSettings, fnDraw ) {
 			
-			var iListLength = 5;
+			
 			var oPaging = oSettings.oInstance.fnPagingInfo();			
 			var iListLength = 5; 
 			var an = oSettings.aanFeatures.p;
@@ -2394,7 +2487,7 @@ $.extend( $.fn.dataTableExt.oPagination, {
 					var label;
 					if ( iRef == 4 ){	
 						label = "<span class='ellipse'>...</span>";
-						$('<li>'+label+'</li>').insertBefore( $('li:last', an[i])[0] );
+						//$('<li>'+label+'</li>').insertBefore( $('li:last', an[i])[0] );
 					}
 					else {
 						label = iRef == 5 ? oPaging.iTotalPages : j;						
@@ -2425,7 +2518,7 @@ $.extend( $.fn.dataTableExt.oPagination, {
 		}
 	}
 } );
-
+*/
 //Set the classes that TableTools uses to something suitable for Bootstrap
 /*$.extend( true, $.fn.DataTable.TableTools.classes, {
 	"container": "btn-group",
