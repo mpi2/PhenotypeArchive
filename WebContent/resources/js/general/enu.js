@@ -22,12 +22,12 @@ jQuery(document).ready(	function() {
 //code for setting ENU links on Gene Page	
 	
 	$.ajax({
-		url: '../genesEnu/' + gene_id,    
-		timeout: 2000,
+		url: 'https://databases.apf.edu.au/mutations/snpRow/getSnpCount?mgiAccessionId=' + gene_id,    
+		timeout: 3000,
 		success: function (response) {
 			$('#enu').html(response);
-			console.log("success");
-			
+			console.log("success response="+response.count);
+			$('#enu').html('&nbsp&nbsp&nbsp<a href="https://databases.apf.edu.au/mutations/snpRow/list?mgiAccessionId='+gene_id+'">ENU('+response.count+')</a>');
 		}
 		,error: function(x, t, m) {
 	      //  if(t==="timeout") { 

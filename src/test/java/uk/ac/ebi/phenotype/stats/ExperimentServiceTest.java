@@ -121,11 +121,13 @@ public class ExperimentServiceTest {
         System.out.println("EXP list is: "+experimentList);
         System.out.println("Size is: "+experimentList.size());
         assertTrue(experimentList.size()==1);
+        //equivalent graph url is below
+        //http://localhost:8080/phenotype-archive/charts?accession=MGI:98373&parameter_stable_id=M-G-P_014_001_001&zygosity=homozygote&phenotyping_center=WTSI&pipeline_stable_id=M-G-P_001
         System.out.println("Stats Result Size is: "+experimentList.get(0).getResults().size());
-        assertTrue(experimentList.get(0).getResults().size()>0);
-        for(StatisticalResult result: experimentList.get(0).getResults()){
-            System.out.println("result is: "+result);
-        }
+        assertTrue(experimentList.get(0).getResults().size()==4);//should be 2  currently 4 until JM fixes stats code - should be one result for each sex for this gene and param
+//        for(StatisticalResult result: experimentList.get(0).getResults()){
+//            System.out.println("result is: "+result);
+//        }
    
 
 	}
