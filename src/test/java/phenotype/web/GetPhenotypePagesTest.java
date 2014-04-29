@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -41,6 +42,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static phenotype.web.GetGenePagesTest.staticDriver;
 import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
 
@@ -78,6 +80,10 @@ public class GetPhenotypePagesTest {
     
     @Autowired
     protected WebDriver driver;
+    static protected WebDriver staticDriver;
+    
+    @Autowired
+    protected String seleniumUrl;
     
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     
@@ -88,6 +94,7 @@ public class GetPhenotypePagesTest {
     @Before
     public void setup() {
         printTestEnvironment();
+        staticDriver = driver;
     }
 
     @After
@@ -100,6 +107,10 @@ public class GetPhenotypePagesTest {
     
     @AfterClass
     public static void tearDownClass() {
+        if (staticDriver != null) {
+            System.out.println("Closing driver.");
+            staticDriver.close();
+        }
     }
     
     // PRIVATE METHODS
@@ -115,6 +126,7 @@ public class GetPhenotypePagesTest {
             platform = remoteWebDriver.getCapabilities().getPlatform().name();
         }
         
+        System.out.println("seleniumUrl: " + seleniumUrl);
         System.out.println("TESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
     }
     
@@ -137,43 +149,44 @@ public class GetPhenotypePagesTest {
         
         System.out.println(dateFormat.format(start) + ": testMGILinksAreValid started.");
         
-        try {
-            // Loop through first MAX_MGI_LINK_CHECK_COUNT phenotype MGI links, testing each one for valid page load.
-            int i = 0;
-            for (String phenotypeId : phenotypeIds) {
-                if ((MAX_MGI_LINK_CHECK_COUNT != -1) && (i++ >= MAX_MGI_LINK_CHECK_COUNT)) {
-                    break;
-                }
+        // Loop through first MAX_MGI_LINK_CHECK_COUNT phenotype MGI links, testing each one for valid page load.
+        int i = 0;
+        for (String phenotypeId : phenotypeIds) {
+            if ((MAX_MGI_LINK_CHECK_COUNT != -1) && (i++ >= MAX_MGI_LINK_CHECK_COUNT)) {
+                break;
+            }
 
-                target = baseUrl + "/phenotypes/" + phenotypeId;
+            target = baseUrl + "/phenotypes/" + phenotypeId;
+            try {
+                driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
                 driver.get(target);
                 driver.navigate().refresh();
-                List<WebElement> phenotypeLinks = driver.findElements(By.cssSelector("div.inner a").linkText(phenotypeId));
-                if (phenotypeLinks.isEmpty()) {
-                    message = "No page found for MP_TERM_ID " + phenotypeId + "(" + target + ")";
-                    errorList.add(message);
-                    continue;
-                }
-                    
-                if (phenotypeLinks.size() != 1) {
-                    message = "Expected exactly 1 page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found " + phenotypeLinks.size();
-                    errorList.add(message);
-                }
-
-                phenotypeLinks.get(0).click();
-                String idString = "[" + phenotypeId + "]";
-                boolean found = driver.findElement(By.cssSelector("div[id='templateBodyInsert']")).getText().contains(idString);
-                if ( ! found) {
-                    message = "div id 'templateBodyInsert' not found.";
-                    errorList.add(message);
-                } else {
-                    message = "SUCCESS: MGI link OK for " + phenotypeId + ". Target URL: " + target;
-                    successList.add(message);
-                }
+            } catch (Exception e) {
+                message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+                exceptionList.add(message);
             }
-        } catch (Exception e) {
-            message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-            exceptionList.add(message);
+            List<WebElement> phenotypeLinks = driver.findElements(By.cssSelector("div.inner a").linkText(phenotypeId));
+            if (phenotypeLinks.isEmpty()) {
+                message = "No page found for MP_TERM_ID " + phenotypeId + "(" + target + ")";
+                errorList.add(message);
+                continue;
+            }
+
+            if (phenotypeLinks.size() != 1) {
+                message = "Expected exactly 1 page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found " + phenotypeLinks.size();
+                errorList.add(message);
+            }
+
+            phenotypeLinks.get(0).click();
+            String idString = "[" + phenotypeId + "]";
+            boolean found = driver.findElement(By.cssSelector("div[id='templateBodyInsert']")).getText().contains(idString);
+            if ( ! found) {
+                message = "div id 'templateBodyInsert' not found.";
+                errorList.add(message);
+            } else {
+                message = "SUCCESS: MGI link OK for " + phenotypeId + ". Target URL: " + target;
+                successList.add(message);
+            }
         }
         
         System.out.println(dateFormat.format(new Date()) + ": testMGILinksAreValid finished.");
@@ -220,29 +233,30 @@ public class GetPhenotypePagesTest {
         
         System.out.println(dateFormat.format(start) + ": testPageForEveryMPTermId started.");
         
-        try {
-            // Loop through all phenotypes, testing each one for valid page load.
-            int i = 0;
-            for (String phenotypeId : phenotypeIds) {
-                if ((MAX_PHENOTYPE_TEST_PAGE_COUNT != -1) && (i++ >= MAX_PHENOTYPE_TEST_PAGE_COUNT)) {
-                    break;
-                }
-            
-                target = baseUrl + "/phenotypes/" + phenotypeId;
+        // Loop through all phenotypes, testing each one for valid page load.
+        int i = 0;
+        for (String phenotypeId : phenotypeIds) {
+            if ((MAX_PHENOTYPE_TEST_PAGE_COUNT != -1) && (i++ >= MAX_PHENOTYPE_TEST_PAGE_COUNT)) {
+                break;
+            }
+
+            target = baseUrl + "/phenotypes/" + phenotypeId;
+            try {
+                driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
                 driver.get(target);
                 driver.navigate().refresh();
-                List<WebElement> mpTermIdLink = driver.findElements(By.cssSelector("div.inner a").linkText(phenotypeId));
-                if ( mpTermIdLink.isEmpty()) {
-                    message = "Expected page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-                    errorList.add(message);
-                } else {
-                    message = "SUCCESS: MP_TERM_ID " + phenotypeId + ". Target URL: " + target;
-                    successList.add(message);
-                }
+            } catch (Exception e) {
+                message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+                exceptionList.add(message);
             }
-        } catch (Exception e) {
-            message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-            exceptionList.add(message);
+            List<WebElement> mpTermIdLink = driver.findElements(By.cssSelector("div.inner a").linkText(phenotypeId));
+            if ( mpTermIdLink.isEmpty()) {
+                message = "Expected page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
+                errorList.add(message);
+            } else {
+                message = "SUCCESS: MP_TERM_ID " + phenotypeId + ". Target URL: " + target;
+                successList.add(message);
+            }
         }
         
         System.out.println(dateFormat.format(new Date()) + ": testPageForEveryMPTermId finished.");
@@ -255,7 +269,7 @@ public class GetPhenotypePagesTest {
         }
         
         if ( ! exceptionList.isEmpty()) {
-            System.out.println(errorList.size() + " MP_TERM_ID records caused exceptions to be thrown:");
+            System.out.println(exceptionList.size() + " MP_TERM_ID records caused exceptions to be thrown:");
             for (String s : exceptionList) {
                 System.out.println("\t" + s);
             }
@@ -289,31 +303,32 @@ public class GetPhenotypePagesTest {
 
         System.out.println(dateFormat.format(start) + ": testPageForEveryTopLevelMPTermId started.");
         
-        try {
-            // Loop through all phenotypes, testing each one for valid page load.
-            int i = 0;
-            for (String phenotypeId : phenotypeIds) {
-                if ((MAX_PHENOTYPE_TEST_PAGE_COUNT != -1) && (i++ >= MAX_PHENOTYPE_TEST_PAGE_COUNT)) {
-                    break;
-                }
-            
-                target = baseUrl + "/phenotypes/" + phenotypeId;
+
+        // Loop through all phenotypes, testing each one for valid page load.
+        int i = 0;
+        for (String phenotypeId : phenotypeIds) {
+            if ((MAX_PHENOTYPE_TEST_PAGE_COUNT != -1) && (i++ >= MAX_PHENOTYPE_TEST_PAGE_COUNT)) {
+                break;
+            }
+
+            target = baseUrl + "/phenotypes/" + phenotypeId;
+            try {
+                driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
                 driver.get(target);
                 driver.navigate().refresh();
-                List<WebElement> topLevelMPTermIdLink = driver.findElements(By.cssSelector("div.inner a").linkText(phenotypeId));
-                if ( topLevelMPTermIdLink.isEmpty()) {
-                    message = "Expected page for TOP_LEVEL_MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-                    errorList.add(message);
-                } else {
-                    message = "SUCCESS: TOP_LEVEL_MP_TERM_ID " + phenotypeId + ". Target URL: " + target;
-                    successList.add(message);
-                }
+            } catch (Exception e) {
+                message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+                exceptionList.add(message);
             }
-        } catch (Exception e) {
-            message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-            exceptionList.add(message);
-            if (driver != null)
-                driver.quit();
+
+            List<WebElement> topLevelMPTermIdLink = driver.findElements(By.cssSelector("div.inner a").linkText(phenotypeId));
+            if ( topLevelMPTermIdLink.isEmpty()) {
+                message = "Expected page for TOP_LEVEL_MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
+                errorList.add(message);
+            } else {
+                message = "SUCCESS: TOP_LEVEL_MP_TERM_ID " + phenotypeId + ". Target URL: " + target;
+                successList.add(message);
+            }
         }
         
         System.out.println(dateFormat.format(new Date()) + ": testPageForEveryTopLevelMPTermId finished.");
@@ -326,7 +341,7 @@ public class GetPhenotypePagesTest {
         }
         
         if ( ! exceptionList.isEmpty()) {
-            System.out.println(errorList.size() + " TOP_LEVEL_MP_TERM_ID records caused exceptions to be thrown:");
+            System.out.println(exceptionList.size() + " TOP_LEVEL_MP_TERM_ID records caused exceptions to be thrown:");
             for (String s : exceptionList) {
                 System.out.println("\t" + s);
             }
@@ -359,32 +374,33 @@ public class GetPhenotypePagesTest {
         
         System.out.println(dateFormat.format(start) + ": testInvalidMpTermId started.");
         
+        target = baseUrl + "/phenotypes/" + phenotypeId;
         try {
-            target = baseUrl + "/phenotypes/" + phenotypeId;
+            driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
             driver.get(target);
             driver.navigate().refresh();
-            boolean found = false;
-            
-            List<WebElement> phenotypeLinks = driver.findElements(By.cssSelector("div.node h1"));
-            if (phenotypeLinks.isEmpty()) {
-                message = "No page found for MP_TERM_ID " + phenotypeId + "(" + target + ")";
-                errorList.add(message);
-            }
-
-            for (WebElement element : phenotypeLinks) {
-                if (element.getText().compareTo(EXPECTED_ERROR_MESSAGE) == 0) {
-                    found = true;
-                    break;
-                }
-            }
-
-            if ( ! found) {
-                message = "Expected error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-                errorList.add(message);
-            }
         } catch (Exception e) {
             message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
             exceptionList.add(message);
+        }
+        boolean found = false;
+
+        List<WebElement> phenotypeLinks = driver.findElements(By.cssSelector("div.node h1"));
+        if (phenotypeLinks.isEmpty()) {
+            message = "No page found for MP_TERM_ID " + phenotypeId + "(" + target + ")";
+            errorList.add(message);
+        }
+
+        for (WebElement element : phenotypeLinks) {
+            if (element.getText().compareTo(EXPECTED_ERROR_MESSAGE) == 0) {
+                found = true;
+                break;
+            }
+        }
+
+        if ( ! found) {
+            message = "Expected error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
+            errorList.add(message);
         }
         
         stop = new Date();
@@ -398,7 +414,7 @@ public class GetPhenotypePagesTest {
         }
         
         if ( ! exceptionList.isEmpty()) {
-            System.out.println(errorList.size() + " MP_TERM_ID records caused exceptions to be thrown:");
+            System.out.println(exceptionList.size() + " MP_TERM_ID records caused exceptions to be thrown:");
             for (String s : exceptionList) {
                 System.out.println("\t" + s);
             }

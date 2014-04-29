@@ -809,8 +809,7 @@ public class ObservationService {
 		query.set("group", true);
 		query.set("fl", ExperimentField.DATA_POINT + ","
 				+ ExperimentField.DISCRETE_POINT);
-		query.set("group.limit", 100000); // number of documents to be returned
-											// per group
+		query.set("group.limit", 100000); // number of documents to be returned per group
 		query.set("sort", ExperimentField.DISCRETE_POINT + " asc");
 		query.setRows(10000);
 
@@ -820,15 +819,9 @@ public class ObservationService {
 		boolean rounding = false;
 		// decide if binning is needed i.e. is the increment points are too
 		// scattered, as for calorimetry
-		if (groups.size() > 30) { // arbitrary value, just piced it because it
-									// seems reasonable for the size of our
-									// graphs
+		if (groups.size() > 30) { // arbitrary value, just piced it because it seems reasonable for the size of our graphs
 			if (Float.valueOf(groups.get(groups.size() - 1).getGroupValue())
-					- Float.valueOf(groups.get(0).getGroupValue()) <= 30) { // then
-																			// rounding
-																			// will
-																			// be
-																			// enough
+					- Float.valueOf(groups.get(0).getGroupValue()) <= 30) { //then rounding will be enough
 				rounding = true;
 			}
 		}
@@ -857,13 +850,7 @@ public class ObservationService {
 							.getFieldValue(ExperimentField.DATA_POINT));
 				}
 				if (bin < discreteTime
-						|| groups.indexOf(gr) == groups.size() - 1) { // finished
-																		// the
-																		// groups
-																		// of
-																		// filled
-																		// the
-																		// bin
+						|| groups.indexOf(gr) == groups.size() - 1) { // finished the groups of filled the bin
 					float discreteDataPoint = sum / resDocs.getNumFound();
 					DiscreteTimePoint dp = new DiscreteTimePoint(
 							(float) discreteTime, discreteDataPoint, new Float(
@@ -1008,6 +995,7 @@ public class ObservationService {
 		query.setFields(ExperimentField.GENE_ACCESSION, ExperimentField.DATA_POINT, ExperimentField.GENE_SYMBOL);
 		query.set("group", true);
 		query.set("group.field", ExperimentField.COLONY_ID);
+		query.set("group.limit", 200);
 		// per group
 
 //		System.out.println("--- unidimensional : " + solr.getBaseURL() + "/select?" + query);
@@ -1031,6 +1019,7 @@ public class ObservationService {
 					ExperimentField.GENE_ACCESSION);
 			geneSymbolArray[i] = (String) resDocs.get(0).get(
 					ExperimentField.GENE_SYMBOL);
+			
 			meansArray[i] = sum / total;
 			i++;
 		}

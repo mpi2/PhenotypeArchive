@@ -151,7 +151,7 @@
         </property>
     </bean>
 
-    <bean id="seleniumUrl" class="java.net.URL">
+    <bean id="seleniumUrl" class="java.lang.String">
         <constructor-arg value="${seleniumUrl}"/>
     </bean>
     <bean id="baseUrl" class="java.lang.String">
