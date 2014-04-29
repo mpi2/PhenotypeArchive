@@ -179,8 +179,8 @@ public class GetGenePagesTest {
                 successList.add(message);
             }
             
-            if (i % 10 == 0)
-                System.out.println(i + " records processed so far.");
+            if (i % 1000 == 0)
+                System.out.println(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
         }
         
         System.out.println(dateFormat.format(new Date()) + ": testPageForGeneIds finished.");
