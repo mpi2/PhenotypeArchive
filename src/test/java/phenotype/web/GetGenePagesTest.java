@@ -85,7 +85,7 @@ public class GetGenePagesTest {
     protected String seleniumUrl;
     
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
-    private final int TIMEOUT_IN_SECONDS = 30;
+    private final int TIMEOUT_IN_SECONDS = 300;
     
     // These constants define the maximum number of iterations for each given test. -1 means iterate over all.
     public final int MAX_GENE_TEST_PAGE_COUNT = 5000;                           // -1 means test all pages.
