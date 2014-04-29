@@ -1,5 +1,9 @@
-/**
- * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ /**
+ * Copyright © 2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -13,57 +17,86 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package phenotype.web;
 
-package uk.ac.ebi.phenotype.web;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
+import org.junit.AfterClass;
+
+import static org.junit.Assert.*;
+
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
+import uk.ac.ebi.generic.util.Tools;
+import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
 
 /**
- * @author Gautier Koscielny
- * Selenium test for gene query coverage ensuring the search result work for 
- * any gene symbol from the Solr core
+ *
+ * @author ckchen@ebi.ac.uk (private methods)
+ * 
+ * Generic configuration based on Mike's settings as below:
+ * 
+ * These are selenium-based JUnit web tests that are configured (via the pom.xml) not to
+ * run with the default profile because they take too long to complete. To run them, 
+ * use the 'web-tests' profile.
+ * 
+ * These selenium tests use selenium's WebDriver protocol and thus need a hub
+ * against which to run. The url for the hub is defined in the Test Packages
+ * /src/test/resources/testConfig.properties file (driven by /src/test/resources/test-config.xml).
+ * 
+ * To run these tests, edit /src/test/resources/testConfig.properties, making sure
+ * that the properties 'seleniumUrl' and 'desiredCapabilities' are defined. Consult
+ * /src/test/resources/test-config.xml for valid desiredCapabilities bean ids.
+ * 
+ * Examples:
+ *      seleniumUrl=http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub
+ *      desiredCapabilities=firefoxDesiredCapabilities
  */
-@RunWith(value = Parameterized.class)
+
+@RunWith(SpringJUnit4ClassRunner.class)
+//@RunWith(Parameterized.class)
+@ContextConfiguration(locations = { "classpath:test-config.xml" })
 public class SearchPageTest {
-	private WebDriver driver;
-	
-	private String baseUrl;
-	private String solrPath;
+    
+    @Autowired
+    protected GenotypePhenotypeService genotypePhenotypeService;
+    
+    @Autowired
+    protected String baseUrl;
+    
+    @Autowired
+    protected WebDriver driver;
+    static protected WebDriver staticDriver;
+    private String solrPath;
 	private StringBuffer verificationErrors = new StringBuffer();
 	private static final String SELENIUM_SERVER_URL ="http://mi-selenium-win.windows.ebi.ac.uk:4443/wd/hub";
 	
@@ -72,11 +105,23 @@ public class SearchPageTest {
 	private HashMap<String, String> params = new HashMap<String, String>();
 	private List<String> paramList = new ArrayList<String>();
 	private List<String> cores = new ArrayList<String>();
-	
-	@Before
-	public void setUp() throws Exception {
-		
-		baseUrl = "https://dev.mousephenotype.org";		
+    
+    
+    @Autowired
+    protected String seleniumUrl;
+    
+    private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    
+    // These constants define the maximum number of iterations for each given test. -1 means iterate over all.
+    public final int MAX_GENE_TEST_PAGE_COUNT = 5000;                           // -1 means test all pages.
+
+	    
+    @Before
+    public void setup() {
+        printTestEnvironment();
+        staticDriver = driver;
+        
+        baseUrl = "https://dev.mousephenotype.org";		
 		solrPath = baseUrl + "/mi/impc/dev/solr";
 		
 		params.put("gene","fq=marker_type:* -marker_type:\"heritable phenotypic marker\"&core=gene");
@@ -107,36 +152,42 @@ public class SearchPageTest {
 		cores.add("ma");
 		cores.add("pipeline");
 		cores.add("images");
-		
-	}	
-	
-	public SearchPageTest(DesiredCapabilities browser) throws MalformedURLException {
-		driver = new RemoteWebDriver(
-                new URL(SELENIUM_SERVER_URL), browser);
-		System.out.println("browser for testing is:"+browser);
-		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-	}
-	
-	@Parameters
-	 public static Collection<Object[]> data() {
-	  // Object[][] data = new Object[][] { { DesiredCapabilities.firefox() }, { DesiredCapabilities.internetExplorer() }, { DesiredCapabilities.chrome() } };
-	   Object[][] data = new Object[][] { { DesiredCapabilities.firefox() }};
-	   return Arrays.asList(data);
-	 }
-	
-	@Test
-	@Ignore
-	public void testExample() throws Exception {
-		// <span class="gSymbol">
-		String geneParameterSymbol = "Acp2";
-		driver.get(baseUrl + "/data/search?q=" + geneParameterSymbol);
-		
-		// //li[contains(@class, 'ui-autocomplete')]/li[1]/a
-		String geneSymbol = driver.findElement(By.xpath("//span[contains(@class, 'gSymbol')]")).getText();
-		assertEquals(geneSymbol, geneParameterSymbol);		
-	}
-	
-	@Test
+    }
+    
+    @After
+    public void teardown() {
+    }
+    
+    @BeforeClass
+    public static void setUpClass() {
+    }
+    
+    @AfterClass
+    public static void tearDownClass() {
+//        if (staticDriver != null) {
+//            System.out.println("Closing driver.");
+//            staticDriver.close();
+//        }
+    }
+    
+    // PRIVATE METHODS
+    
+    private void printTestEnvironment() {
+        String browserName = "<Unknown>";
+        String version = "<Unknown>";
+        String platform = "<Unknown>";
+        if (driver instanceof RemoteWebDriver) {
+            RemoteWebDriver remoteWebDriver = (RemoteWebDriver)driver;
+            browserName = remoteWebDriver.getCapabilities().getBrowserName();
+            version = remoteWebDriver.getCapabilities().getVersion();
+            platform = remoteWebDriver.getCapabilities().getPlatform().name();
+        }
+        
+        System.out.println("seleniumUrl: " + seleniumUrl);
+        System.out.println("TESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
+    }
+    
+    @Test
 	@Ignore
 	public void testTickingFacetFilters() throws Exception {
 		
@@ -155,7 +206,7 @@ public class SearchPageTest {
 			String elem1 = "div.flist li#" + facet + " li.fcat input";
 			driver.findElement(By.cssSelector(elem1)).click();
 			if ( driver.findElement(By.cssSelector(elem1)).isSelected() ){
-				System.out.println(facet + " filter checked");
+				//System.out.println(facet + " filter checked");
 			}
 			
 			String elem2 = "ul#facetFilter li li.ftag a";
@@ -166,7 +217,7 @@ public class SearchPageTest {
 			// now tests unchecking filemotionter also unchecks inputbox
 			driver.findElement(By.cssSelector(elem2)).click();
 			if ( ! driver.findElement(By.cssSelector(elem1)).isSelected() ){
-				System.out.println(facet + " filter unchecked");
+				//System.out.println(facet + " filter unchecked");
 			}
 			
 			System.out.println(facet + " OK: behavioral test - input filter invokes filter listing");
@@ -174,7 +225,7 @@ public class SearchPageTest {
 	}
 		
 	@Test
-	@Ignore
+	//@Ignore
 	public void testAllGeneSymbols() throws Exception {
 
 		String newQueryString = "/gene/select?q=marker_symbol:*&fl=marker_symbol&wt=json";
@@ -199,7 +250,7 @@ public class SearchPageTest {
 	}
 	
 	@Test	
-	@Ignore
+	//@Ignore
 	public void testSelectedMgiIds() throws Exception {
 		
 		String newQueryString = "/gene/select?q=mgi_accession_id:*&fl=mgi_accession_id,marker_symbol&wt=json";
@@ -227,7 +278,7 @@ public class SearchPageTest {
 	}
 	
 	@Test
-	@Ignore
+	//@Ignore
 	public void testPhrase() throws Exception {
 				
 		driver.get(baseUrl + "/data/search?q=grip strength");	
@@ -237,7 +288,7 @@ public class SearchPageTest {
 	}
 	
 	@Test
-	@Ignore
+	//@Ignore
 	public void testPhraseInQuotes() throws Exception {
 				
 		driver.get(baseUrl + "/data/search?q=\"zinc finger protein\"");	
@@ -247,7 +298,7 @@ public class SearchPageTest {
 	}
 
 	@Test
-	@Ignore
+	//@Ignore
 	public void testLeadingWildcard() throws Exception {
 				
 		driver.get(baseUrl + "/data/search?q=*rik");	
@@ -257,7 +308,7 @@ public class SearchPageTest {
 	}
 	
 	@Test
-	@Ignore
+	//@Ignore
 	public void testTrailingWildcard() throws Exception {
 				
 		driver.get(baseUrl + "/data/search?q=hox*");	
@@ -267,12 +318,12 @@ public class SearchPageTest {
 	}
 	
 	@Test
-	@Ignore
+	//@Ignore
 	public void testPaginatino() throws Exception {	
 				
 		for (String core : cores ){		
 			System.out.println("TESTING core: "+ core);
-			//System.out.println(baseUrl + "/data/search#" + params.get(core));
+			System.out.println(baseUrl + "/data/search#" + params.get(core));
 			
 			driver.get(baseUrl + "/data/search#" + params.get(core));		
 			driver.navigate().refresh();			
@@ -296,7 +347,7 @@ public class SearchPageTest {
 	}
 	
 	@Test
-	@Ignore
+	//@Ignore
 	public void testFacetCounts() throws Exception {	
 				
 		for (String s : paramList ){	
@@ -330,13 +381,5 @@ public class SearchPageTest {
 			System.out.println("OK: comparing facet counts for " + core);			
 		}
 	}
-	
-	@After
-	public void tearDown() throws Exception {
-		driver.quit();
-		String verificationErrorString = verificationErrors.toString();
-		if (!"".equals(verificationErrorString)) {
-			fail(verificationErrorString);
-		}
-	}
+    
 }
