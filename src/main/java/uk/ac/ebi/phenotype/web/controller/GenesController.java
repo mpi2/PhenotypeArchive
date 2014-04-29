@@ -568,31 +568,6 @@ public class GenesController {
 		return "identifierError";
 	}
 	
-	
-	/**
-	 * @throws IOException 
-	 */
-	@RequestMapping("/genesEnu/{acc}")
-	public String genesEnuFrag(
-			@PathVariable String acc,
-			Model model,
-			HttpServletRequest request,
-			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
-		//just pass on any query string after the ? to the solr requesting object for now
-//		String queryString=request.getQueryString();
-//		processPhenotypes(acc, model, queryString);
-		//send a request to their web service https://databases.apf.edu.au/mutations/snpRow/getSnpCount?mgiAccessionId=MGI:1935228
-		String url="https://databases.apf.edu.au/mutations/snpRow/getSnpCount?mgiAccessionId="+acc;
-		JSONObject result = JSONRestUtil.getResults(url);
-		
-		int count=result.getInt("count");
-		//System.out.println("count="+count);
-
-	model.addAttribute("makeEnuLink",count);
-
-		return "genesEnuFrag";
-	}
-	
 
 	/**
 	 * @throws IOException 
