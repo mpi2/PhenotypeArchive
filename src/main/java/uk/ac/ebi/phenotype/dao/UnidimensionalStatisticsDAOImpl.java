@@ -11,15 +11,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
 import org.coode.parsers.ManchesterOWLSyntaxAutoCompleteCombined_ManchesterOWLSyntaxAutoCompleteBase.incompleteAssertionAxiom_return;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
-
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
+import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
@@ -464,12 +463,35 @@ System.out.println(query);
 		return result;
 	}
 	
-	
-	public UnidimensionalResult getStatsForPhenotypeCallSummaryId(int phenotypeCallSummaryId) throws SQLException{
+	@Override
+	public UnidimensionalResult getUnidimensionalStatsForPhenotypeCallSummaryId(int phenotypeCallSummaryId) throws SQLException{
 		//get the id we need from the join table
 		int resultId=this.getUnidimensionalResultIdFromStatsResultPhenotypeCallSummary(phenotypeCallSummaryId);
 		//use the join table id to get the actual result
 		return (UnidimensionalResult) getCurrentSession().get(UnidimensionalResult.class,  resultId);
 	}
+        @Override
+        public CategoricalResult getCategoricalStatsForPhenotypeCallSummaryId(int phenotypeCallSummaryId) throws SQLException{
+		//get the id we need from the join table
+		int resultId=this.getCategoricalResultIdFromStatsResultPhenotypeCallSummary(phenotypeCallSummaryId);
+		//use the join table id to get the actual result
+		return (CategoricalResult) getCurrentSession().get(CategoricalResult.class,  resultId);
+	}
+
+    private int getCategoricalResultIdFromStatsResultPhenotypeCallSummary(int id)throws SQLException{
+        //get the id we need from the join table
+		int result=-1;
+		String query = "SELECT categorical_result_id FROM stat_result_phenotype_call_summary where phenotype_call_summary_id= '"
+				+ id + "'";
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+
+			ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				result=resultSet.getInt(1);
+			}
+		}
+		return result;
+    }
 
 }

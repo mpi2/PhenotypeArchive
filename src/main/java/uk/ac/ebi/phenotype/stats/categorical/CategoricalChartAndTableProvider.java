@@ -144,6 +144,8 @@ public class CategoricalChartAndTableProvider {
 								expCatData.setCount(mutantCount);
 								CategoricalResult tempStatsResult=null;
 								for(StatisticalResult result: statsResults) {
+                                                                   // System.out.println("result.getZygosityType()!="+result.getZygosityType()+"  && result.getSexType()="+result.getSexType());
+                                                                    if(result.getZygosityType()!=null && result.getSexType()!=null) {
 									if(result.getZygosityType().equals(zType) && result.getSexType().equals(sexType)) {
 										expCatData.setResult((CategoricalResult)result);
 										result.setSexType(sexType);
@@ -151,6 +153,7 @@ public class CategoricalChartAndTableProvider {
 										tempStatsResult=(CategoricalResult)result;
 										//result.setControlBiologicalModel(controlBiologicalModel);
 									}
+                                                                    }
 								}
 								
 								// //TODO get multiple p values when necessary

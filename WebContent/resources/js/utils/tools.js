@@ -24,7 +24,7 @@
 	$.fn.checkAndHighlightSubfacetTerms = function(){
 		if ( $('ul#facetFilter li.ftag a').size() != 0 ){	   
 			console.log('about to update facet count via filter settings ...');
-			console.log($(this).html());
+			
 			MPI2.searchAndFacetConfig.hasFilters = true;		    			
 		}
 	}
@@ -120,7 +120,7 @@
 		caller.click(function(){
 				
 			if ( caller.find('span.fcount').text() != 0 ){
-				//console.log(facet + ' widget expanded');
+				console.log(facet + ' widget expanded');
 				
 				// close all other non-selected facets
 				$('div.flist > ul li.fmcat').each(function(){
@@ -149,15 +149,21 @@
 				}
 				
 				var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facet + 'Facet'].solrCoreName;				
-				var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';	
-				
-				if ( typeof oHashParams.q == 'undefined' ){					
-					var oHashParams = thisWidget.options.data.hashParams;					
-					window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+				var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';
+						
+				// no search kw
+				if ( typeof oHashParams.q == 'undefined' ){
+					if ( $('li.ftag').size() == 0 ){
+						var oHashParams = thisWidget.options.data.hashParams;									
+						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+					}
+					else {										
+						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, facet);
+						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
+					}
 				}
 				else {					
-					oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, facet);	
-										
+					oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, facet);						
 					if ( ! window.location.search.match(/q=/) ){					
 						window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
 					}
@@ -201,7 +207,7 @@
 		
 		// make sure field mapping in url is correct with selected facet
 		fqStr = $.fn.fieldNameMapping(fqStr, facet);
-		
+				
 		// now update dataTable	 
 		if ( q == '' || q == '*' ){
 			q = '*:*';
@@ -287,20 +293,7 @@
 				for (var n=0; n<aFields.length; n++){					
 					if ( oFacets[aFields[n]].length != 0 ){						
 						foundMatch[oFields[aFields[n]]['class']]++;
-					}	
-					/*if ( aFields[n].match(/^imits_/) && oFacets[aFields[n]].length != 0 ){
-						foundMatch.phenotyping++;
-					}
-					else if ( aFields[n]=='status' && oFacets.status.length != 0 ){
-						foundMatch.production++;
-					}
-					else if ( aFields[n]=='latest_production_centre' && oFacets.marker_type.length != 0 ) {
-						foundMatch.marker_type++;
-					}
-					else if ( aFields[n]=='marker_type' && oFacets.marker_type.length != 0 ) {
-						foundMatch.marker_type++;
-					}*/
-					
+					}					
 				}
 			
 				for ( var fld in oFacets ){
@@ -699,17 +692,7 @@
     		}
 		});		
 	}	
-	
-	/*$.fn.fqStrIgnore = function(fqStr, facet){
-		if ( /disease_source:|disease_classes:|_predicted\w*:|_curated\w*:/.exec(fqStr) ){
-			if ( facet == 'pipeline ' || facet == 'images' ){
-				return false;
-			}
-			
-		}
 		
-	}*/
-	
 	$.fn.fieldNameMapping = function(fqStr, facet){
 			
 		var oMapping;		
@@ -762,7 +745,10 @@
 			
 			if (! /( AND )?\(?ontology_subset:\*\)?/.exec(fqStr) && facet == 'mp' ){	
 				fqStr += ' AND ontology_subset:*';
-			}	
+			}
+			if ( /\(? AND ontology_subset:\*\)?/.exec(fqStr) && facet == 'disease' ){			
+				fqStr = fqStr.replace(' AND ontology_subset:*', '');			
+			}
 		}
 		
 		return decodeURI(fqStr);	
@@ -812,7 +798,7 @@
 			// show filter facet caption
 			thisLi.find('.fcap').show();
 			
-			// add filter
+			// add filter			
 			$.fn.addFacetFilter(oChkbox, q);			
 			updateFacetUrlTable(q, facet);	
 		}
@@ -2378,8 +2364,7 @@ $.extend( $.fn.dataTableExt.oPagination, {
 					iStart = oPaging.iPage - iHalf + 1;
 					iEnd = iStart + iListLength - 1;
 				}
-
-				
+								
 				for ( i=0, iLen=an.length ; i<iLen ; i++ ) {
 					
 					// Remove the middle elements
@@ -2391,10 +2376,12 @@ $.extend( $.fn.dataTableExt.oPagination, {
 					// but omit '...' when last page is within last five pages
 					var count = 0;
 					for ( j=iStart ; j<=iEnd ; j++ ) {
+						
 						count++;
 						sClass = (j==oPaging.iPage+1) ? 'class="active"' : '';
+												
 						if (j != oPaging.iTotalPages ){
-													
+											
 							$('<li '+sClass+'><a href="#">'+j+'</a></li>')				
 							.insertBefore( $('li:last', an[i])[0] )
 							.bind('click', function (e) {
@@ -2415,15 +2402,14 @@ $.extend( $.fn.dataTableExt.oPagination, {
 							
 							}
 						}
-						
-						if ( count == 5 && j == oPaging.iTotalPages ) {
+												
+						if ( ( count == 5 || count == 1) && j == oPaging.iTotalPages ) {
 							$('<li '+sClass+'><a href="#">'+oPaging.iTotalPages+'</a></li>')							
 							.insertBefore( $('li:last', an[i])[0] ).bind('click', function (e) {								
 								e.preventDefault();
 								oSettings._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
 								fnDraw( oSettings )});
-						}							
-						
+						}
 					}									
 						
 					// Add / remove disabled classes from the static elements

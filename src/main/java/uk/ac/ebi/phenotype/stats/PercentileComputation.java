@@ -18,12 +18,14 @@ public class PercentileComputation{
 
 	private List<Float> upperValues;
 	private List<Float> lowerValues;
+	private List<Float> values;
 	
 	public PercentileComputation(List<Float> val){
 		ArrayList <Float> sortedValues = (ArrayList<Float>)val;
 		Collections.sort(sortedValues);
 		upperValues = new ArrayList<>();
 		lowerValues = new ArrayList<>();
+		values = val;
 		// Use the median to divide the ordered data set into two halves. 
 		// If the median is a datum (as opposed to being the mean of the middle two data), include the median in both halves.
 		int n = sortedValues.size(); 
@@ -44,6 +46,10 @@ public class PercentileComputation{
 	
 	public float getLowerQuartile() {
 		return getMedian(lowerValues);
+	}
+	
+	public float getMedian(){
+		return getMedian(values);
 	}
 	
 	private Float getMedian(List<Float> list){
