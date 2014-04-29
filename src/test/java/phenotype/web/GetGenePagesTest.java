@@ -161,7 +161,7 @@ public class GetGenePagesTest {
             List<WebElement> mpTermIdLink;
 
             try {
-                driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
+                driver.manage().timeouts().setScriptTimeout(20, TimeUnit.SECONDS);
                 driver.get(target);
                 driver.navigate().refresh();
                 mpTermIdLink = driver.findElements(By.cssSelector("div.inner a").linkText(geneId));
