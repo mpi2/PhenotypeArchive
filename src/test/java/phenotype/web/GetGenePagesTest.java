@@ -84,6 +84,7 @@ public class GetGenePagesTest {
     protected String seleniumUrl;
     
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    private final int TIMEOUT_IN_SECONDS = 300;
     
     // These constants define the maximum number of iterations for each given test. -1 means iterate over all.
     public final int MAX_GENE_TEST_PAGE_COUNT = 5;                           // -1 means test all pages.
@@ -160,7 +161,7 @@ public class GetGenePagesTest {
             List<WebElement> mpTermIdLink;
 
             try {
-                driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
+                driver.manage().timeouts().setScriptTimeout(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
                 driver.get(target);
                 driver.navigate().refresh();
                 mpTermIdLink = driver.findElements(By.cssSelector("div.inner a").linkText(geneId));
@@ -227,7 +228,7 @@ public class GetGenePagesTest {
         
         try {
             target = baseUrl + "/genes/" + geneId;
-            driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
+            driver.manage().timeouts().setScriptTimeout(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
             driver.get(target);
             driver.navigate().refresh();
             boolean found = false;
