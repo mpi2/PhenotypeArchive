@@ -32,7 +32,7 @@ jQuery(document).ready(	function() {
 		,error: function(x, t, m) {
 	      //  if(t==="timeout") { 
 	        //log error to gene page so we know this is down not just 0.
-			var errorMsg='font color="red">Error trying to retrieve ENU Links( '+t+')</font>';
+			var errorMsg='<font color="red">Error trying to retrieve ENU Links( '+t+')</font>';
 	    	$('#enu').html(errorMsg);
 	    }
 	});

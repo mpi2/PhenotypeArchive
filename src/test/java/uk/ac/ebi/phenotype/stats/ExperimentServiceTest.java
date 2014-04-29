@@ -131,6 +131,36 @@ public class ExperimentServiceTest {
    
 
 	}
+        
+        //http://localhost:8080/phenotype-archive/charts?accession=MGI:2444584&parameter_stable_id=ESLIM_001_001_004&zygosity=homozygote
+        @Ignore //ignore until I get this working- no pipeline on graph!
+        @Test
+	public void testGetCategoricalStatsResult2() throws SolrServerException, IOException, URISyntaxException {
+
+		Logger.getRootLogger().setLevel(Level.INFO);
+
+		System.out.println("\ntestGetCategoricalStatsResult2");
+		Parameter p = pDAO.getParameterByStableId("ESLIM_001_001_004");
+		Pipeline pipe = pDAO.getPhenotypePipelineByStableId("MRC");
+		Organisation org = orgDAO.getOrganisationByName("MRC Harwell");
+		
+		List<String> zygs = new ArrayList<>();
+		zygs.add(ZygosityType.homozygote.name());
+		List<ExperimentDTO> experimentList = es.getExperimentDTO(p.getId(), 0, "MGI:2444584", null, null, zygs, null, "", true);
+
+        System.out.println("EXP list is: "+experimentList);
+        System.out.println("Size is: "+experimentList.size());
+        assertTrue(experimentList.size()==1);
+        //equivalent graph url is below
+        //http://localhost:8080/phenotype-archive/charts?accession=MGI:98373&parameter_stable_id=M-G-P_014_001_001&zygosity=homozygote&phenotyping_center=WTSI&pipeline_stable_id=M-G-P_001
+        System.out.println("Stats Result Size is: "+experimentList.get(0).getResults().size());
+        assertTrue(experimentList.get(0).getResults().size()==4);//should be 2  currently 4 until JM fixes stats code - should be one result for each sex for this gene and param
+//        for(StatisticalResult result: experimentList.get(0).getResults()){
+//            System.out.println("result is: "+result);
+//        }
+   
+
+	}
 	
 	//metadataGroup=24446e53cb36f878658c6da33667433d has a significant p value and so the same call restricted by 
 	@Test

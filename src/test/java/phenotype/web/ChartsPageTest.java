@@ -16,21 +16,27 @@
 
 package phenotype.web;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
+import javax.annotation.Resource;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -40,6 +46,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static phenotype.web.GetGenePagesTest.staticDriver;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
 
@@ -48,53 +58,98 @@ import uk.ac.ebi.generic.util.JSONRestUtil;
  * Selenium test for graph query coverage ensuring each graph display work for 
  * any given gene accession/parameter/zygosity from the Solr core
  */
-
-@RunWith(value = Parameterized.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:test-config.xml" })
 public class ChartsPageTest {
 	
-	private WebDriver driver;
-	
-	private String baseUrl;
-	private String geneSolrUrl;
-	private StringBuffer verificationErrors = new StringBuffer();
-	
-	private static final String SELENIUM_SERVER_URL ="http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
+    @Autowired
+    protected String baseUrl;
+    
+    @Autowired
+    protected WebDriver driver;
+    static protected WebDriver staticDriver;
+    
+    @Autowired
+    protected String seleniumUrl;
+    
+    @Resource(name="globalConfiguration")
+    private Map<String, String> config;
+    
+    
+    private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    //String baseUrl = "https://dev.mousephenotype.org";
+    
 	
 	@Before
 	public void setUp() throws Exception {
-		
-		baseUrl = "https://dev.mousephenotype.org";
-		geneSolrUrl = baseUrl + "/mi/impc/dev/solr";	
-		
+		printTestEnvironment();
+                staticDriver = driver;	
 	}
+        
+         private void printTestEnvironment() {
+        String browserName = "<Unknown>";
+        String version = "<Unknown>";
+        String platform = "<Unknown>";
+        if (driver instanceof RemoteWebDriver) {
+            RemoteWebDriver remoteWebDriver = (RemoteWebDriver)driver;
+            browserName = remoteWebDriver.getCapabilities().getBrowserName();
+            version = remoteWebDriver.getCapabilities().getVersion();
+            platform = remoteWebDriver.getCapabilities().getPlatform().name();
+        }
+        
+        System.out.println("seleniumUrl: " + seleniumUrl);
+        System.out.println("TESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
+    }
 	
-	public ChartsPageTest(DesiredCapabilities browser) throws MalformedURLException {
-		driver = new RemoteWebDriver(
-                new URL(SELENIUM_SERVER_URL), browser);
-	System.out.println("browser for testing is:"+browser);
-		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
-	}
 	
-	@Parameters
-	 public static Collection<Object[]> data() {
-	   Object[][] data = new Object[][] { { DesiredCapabilities.firefox() }, { DesiredCapabilities.internetExplorer() }, { DesiredCapabilities.chrome() } };
-	   return Arrays.asList(data);
-	 }
 	 
 	@Test
-	public void testExample() throws Exception {
+	public void testExampleCategorical() throws Exception {
 		// <span class="gSymbol">
-		String mgiGeneAcc = "MGI:2444584";
+
+                String mgiGeneAcc = "MGI:2444584";
 		String impressParameter = "ESLIM_001_001_004";
 		String zygosity= "homozygote";
 		String geneSymbol = "Mysm1";
+                driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
 		// <div class='topic'>Gene: Mysm1</div>
-		driver.get(baseUrl + "/data/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity);
-		String title = driver.findElement(By.xpath("//*[contains(concat(\" \", normalize-space(@class), \" \"), \"title document\")]")).getText();
-		System.out.println("title="+title+"  geneSymbol="+geneSymbol);
+                String tempUrl=baseUrl+"/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity;
+                System.out.println("tempUrl="+tempUrl);
+		driver.get(tempUrl);
+		String title = driver.findElement(By.className("title")).getText();
+                System.out.println("title="+title+"  geneSymbol="+geneSymbol);
 		assertTrue(title.contains(geneSymbol));
+
+                //test another example
+                //http://localhost:8080/phenotype-archive/charts?accession=MGI:2444584&parameter_stable_id=ESLIM_001_001_004&zygosity=homozygote
+                
+		
+	}
+        
+        @Test
+	public void testExampleCategorical2() throws Exception {
+		// <span class="gSymbol">
+
+                String mgiGeneAcc = "MGI:98373";
+		String impressParameter = "M-G-P_014_001_001";
+		String zygosity= "homozygote";
+		String geneSymbol = "Sparc";
+                driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+		// <div class='topic'>Gene: Mysm1</div>
+                String tempUrl=baseUrl+"/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity;
+                System.out.println("tempUrl="+tempUrl);
+		driver.get(tempUrl);
+		String title = driver.findElement(By.className("title")).getText();
+                System.out.println("title="+title+"  geneSymbol="+geneSymbol);
+		assertTrue(title.contains(geneSymbol));
+
+                //test another example
+                //http://localhost:8080/phenotype-archive/charts?accession=MGI:98373&parameter_stable_id=M-G-P_014_001_001&zygosity=homozygote&phenotyping_center=WTSI&pipeline_stable_id=M-G-P_001
+                
+		
 	}
 
+        @Ignore
 	@Test
 	public void testAllGraphs() throws Exception {
 
@@ -106,12 +161,13 @@ public class ChartsPageTest {
 		int nbRows = 10;
 		newQueryString+="&start="+startIndex+"&rows="+nbRows;
 		System.out.println("newQueryString=" + newQueryString);
-
-		JSONObject result = JSONRestUtil.getResults(geneSolrUrl + newQueryString);
+String url=config.get("internalSolrUrl")+ newQueryString;
+System.out.println("solr url="+url);
+JSONObject result = JSONRestUtil.getResults(url);
 		JSONArray docs = JSONRestUtil.getDocArray(result);
 		System.out.println(docs.size());
+		driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
 		
-		if (docs != null) {
 			int size = docs.size();
 			//all docs are the same for this at the mo so just try one - need to alter this to test different graph types categorical, unidimensional, time_series and scatter
 			for (int i=0; i<1; i++) {
@@ -119,24 +175,17 @@ public class ChartsPageTest {
 				String impressParameter = docs.getJSONObject(i).getString("parameter_stable_id");
 				String zygosity= docs.getJSONObject(i).getString("zygosity");
 				String geneSymbol = docs.getJSONObject(i).getString("gene_symbol");
-				
-				System.out.println(geneSymbol + "\t" + baseUrl + "/data/charts?accession=" + mgiGeneAcc + "?parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity);
-				driver.get(baseUrl + "/data/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity);
-				String title = driver.findElement(By.xpath("//*[contains(concat(\" \", normalize-space(@class), \" \"), \"title document\")]")).getText();
+				String graphUl=baseUrl + "/data/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity;
+				System.out.println(geneSymbol + "\t" + graphUl);
+				driver.get(graphUl);
+				String title = driver.findElement(By.className("title")).getText();
 				//for reasoning on xpath identifier see http://stackoverflow.com/questions/8808921/selecting-a-css-class-with-xpath
 				//*[contains(concat(" ", normalize-space(@class), " "), " foo ")]
 				assertTrue(title.contains(geneSymbol));
 			}
-		}
+		
 		
 	}
 
-	@After
-	public void tearDown() throws Exception {
-		driver.quit();
-		String verificationErrorString = verificationErrors.toString();
-		if (!"".equals(verificationErrorString)) {
-			fail(verificationErrorString);
-		}
-	}
+	
 }
