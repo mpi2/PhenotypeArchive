@@ -41,10 +41,6 @@ public class CategoricalResult extends StatisticalResult implements Serializable
 	private SexType controlSex;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "control_zygosity")
-	private ZygosityType controlZygosity;
-
-	@Enumerated(EnumType.STRING)
 	@Column(name = "experimental_sex")
 	private SexType experimentalSex;
 
@@ -77,20 +73,6 @@ public class CategoricalResult extends StatisticalResult implements Serializable
 	 */
 	public void setControlSex(SexType sex) {
 		this.controlSex = sex;
-	}
-
-	/**
-	 * @return the controlZygosity
-	 */
-	public ZygosityType getControlZygosity() {
-		return controlZygosity;
-	}
-
-	/**
-	 * @param controlZygosity the controlZygosity to set
-	 */
-	public void setControlZygosity(ZygosityType controlZygosity) {
-		this.controlZygosity = controlZygosity;
 	}
 
 	/**
@@ -196,8 +178,6 @@ public class CategoricalResult extends StatisticalResult implements Serializable
 						: controlBiologicalModel.hashCode());
 		result = prime * result
 				+ ((controlSex == null) ? 0 : controlSex.hashCode());
-		result = prime * result
-				+ ((controlZygosity == null) ? 0 : controlZygosity.hashCode());
 		result = prime
 				* result
 				+ ((experimentalBiologicalModel == null) ? 0
@@ -255,9 +235,6 @@ public class CategoricalResult extends StatisticalResult implements Serializable
 			return false;
 		}
 		if (controlSex != other.controlSex) {
-			return false;
-		}
-		if (controlZygosity != other.controlZygosity) {
 			return false;
 		}
 		if (experimentalBiologicalModel == null) {
@@ -318,8 +295,8 @@ public class CategoricalResult extends StatisticalResult implements Serializable
 	public String toString() {
 		return "CategoricalResult="+"catA="+categoryA+
 				" catB="+categoryB+" controlSex="+controlSex+
-				" controlZyg="+controlZygosity+" experimentalZyg="+
-				experimentalZygosity+"  experimentalSex="+experimentalSex+
+				" experimentalZyg="+experimentalZygosity+
+				" experimentalSex="+experimentalSex+
 				" pValue="+pValue+"  effectSize="+effectSize; 
 	}
 	

@@ -69,10 +69,6 @@
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
 
-	<listener>
-		<listener-class>uk.ac.ebi.phenotype.util.ContextFinalizer</listener-class>
-	</listener>
-
 	<servlet>
 		<servlet-name>PhenotypeArchive</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>

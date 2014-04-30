@@ -10,19 +10,8 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-
 @MappedSuperclass
 public class StatisticalResult {
-
-	@Override
-	public String toString() {
-		return "StatisticalResult [id=" + id + ", controlBiologicalModel="
-				+ controlBiologicalModel + ", experimentalBiologicalModel="
-				+ experimentalBiologicalModel + ", organisation="
-				+ organisation + ", parameter=" + parameter +"metadataGroup="+metadataGroup+ "]";
-	}
 
 	/**
 	 * MySQL auto increment
@@ -59,6 +48,18 @@ public class StatisticalResult {
 	
 	@Column(name = "control_selection_strategy", length=100)
 	private String controlSelectionStrategy;
+	
+	@Column(name="male_controls")
+	private Integer maleControls;
+
+	@Column(name="male_mutants")
+	private Integer maleMutants;
+
+	@Column(name="female_controls")
+	private Integer femaleControls;
+
+	@Column(name="female_mutants")
+	private Integer femaleMutants;
 
 	@Column(name = "statistical_method", length=200)
 	private String statisticalMethod;
@@ -75,13 +76,128 @@ public class StatisticalResult {
 	@Transient
 	private SexType sexType;
 	
-	
-	public SexType getSexType() {
-		return sexType;
+	@Transient
+	private ZygosityType zygosityType;
+
+	public Integer getId() {
+		return id;
 	}
 
-	public void setSexType(SexType sexType) {
-		this.sexType = sexType;
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public BiologicalModel getControlBiologicalModel() {
+		return controlBiologicalModel;
+	}
+
+	public void setControlBiologicalModel(BiologicalModel controlBiologicalModel) {
+		this.controlBiologicalModel = controlBiologicalModel;
+	}
+
+	public BiologicalModel getExperimentalBiologicalModel() {
+		return experimentalBiologicalModel;
+	}
+
+	public void setExperimentalBiologicalModel(
+			BiologicalModel experimentalBiologicalModel) {
+		this.experimentalBiologicalModel = experimentalBiologicalModel;
+	}
+
+	public Organisation getOrganisation() {
+		return organisation;
+	}
+
+	public void setOrganisation(Organisation organisation) {
+		this.organisation = organisation;
+	}
+
+	public Parameter getParameter() {
+		return parameter;
+	}
+
+	public void setParameter(Parameter parameter) {
+		this.parameter = parameter;
+	}
+
+	public Pipeline getPipeline() {
+		return pipeline;
+	}
+
+	public void setPipeline(Pipeline pipeline) {
+		this.pipeline = pipeline;
+	}
+
+	public Project getProject() {
+		return project;
+	}
+
+	public void setProject(Project project) {
+		this.project = project;
+	}
+
+	public String getControlSelectionStrategy() {
+		return controlSelectionStrategy;
+	}
+
+	public void setControlSelectionStrategy(String controlSelectionStrategy) {
+		this.controlSelectionStrategy = controlSelectionStrategy;
+	}
+
+	public Integer getMaleControls() {
+		return maleControls;
+	}
+
+	public void setMaleControls(Integer maleControls) {
+		this.maleControls = maleControls;
+	}
+
+	public Integer getMaleMutants() {
+		return maleMutants;
+	}
+
+	public void setMaleMutants(Integer maleMutants) {
+		this.maleMutants = maleMutants;
+	}
+
+	public Integer getFemaleControls() {
+		return femaleControls;
+	}
+
+	public void setFemaleControls(Integer femaleControls) {
+		this.femaleControls = femaleControls;
+	}
+
+	public Integer getFemaleMutants() {
+		return femaleMutants;
+	}
+
+	public void setFemaleMutants(Integer femaleMutants) {
+		this.femaleMutants = femaleMutants;
+	}
+
+	public String getStatisticalMethod() {
+		return statisticalMethod;
+	}
+
+	public void setStatisticalMethod(String statisticalMethod) {
+		this.statisticalMethod = statisticalMethod;
+	}
+
+	public String getMetadataGroup() {
+		return metadataGroup;
+	}
+
+	public void setMetadataGroup(String metadataGroup) {
+		this.metadataGroup = metadataGroup;
+	}
+
+	public String getRawOutput() {
+		return rawOutput;
+	}
+
+	public void setRawOutput(String rawOutput) {
+		this.rawOutput = rawOutput;
 	}
 
 	public Double getEffectSize() {
@@ -92,9 +208,14 @@ public class StatisticalResult {
 		this.effectSize = effectSize;
 	}
 
-	@Transient
-	ZygosityType zygosityType;
-	
+	public SexType getSexType() {
+		return sexType;
+	}
+
+	public void setSexType(SexType sexType) {
+		this.sexType = sexType;
+	}
+
 	public ZygosityType getZygosityType() {
 		return zygosityType;
 	}
@@ -103,73 +224,23 @@ public class StatisticalResult {
 		this.zygosityType = zygosityType;
 	}
 
-
-	/**
-	 * @return the experimentalBiologicalModel
-	 */
-	public BiologicalModel getExperimentalBiologicalModel() {
-		return experimentalBiologicalModel;
+	@Override
+	public String toString() {
+		return "StatisticalResult [id=" + id + ", controlBiologicalModel="
+				+ controlBiologicalModel + ", experimentalBiologicalModel="
+				+ experimentalBiologicalModel + ", organisation="
+				+ organisation + ", parameter=" + parameter + ", pipeline="
+				+ pipeline + ", project=" + project
+				+ ", controlSelectionStrategy=" + controlSelectionStrategy
+				+ ", maleControls=" + maleControls + ", maleMutants="
+				+ maleMutants + ", femaleControls=" + femaleControls
+				+ ", femaleMutants=" + femaleMutants + ", statisticalMethod="
+				+ statisticalMethod + ", metadataGroup=" + metadataGroup
+				+ ", rawOutput=" + rawOutput + ", effectSize=" + effectSize
+				+ ", sexType=" + sexType + ", zygosityType=" + zygosityType
+				+ "]";
 	}
 
-	/**
-	 * @param experimentalBiologicalModel
-	 *            the experimentalBiologicalModel to set
-	 */
-	public void setExperimentalBiologicalModel(BiologicalModel experimentalBiologicalModel) {
-		this.experimentalBiologicalModel = experimentalBiologicalModel;
-	}
-
-	/**
-	 * @return the controlBiologicalModel
-	 */
-	public BiologicalModel getControlBiologicalModel() {
-		return controlBiologicalModel;
-	}
-
-	/**
-	 * @param controlBiologicalModel
-	 *            the controlBiologicalModel to set
-	 */
-	public void setControlBiologicalModel(BiologicalModel controlBiologicalModel) {
-		this.controlBiologicalModel = controlBiologicalModel;
-	}
-
-	/**
-	 * @return the organisation
-	 */
-	public Organisation getOrganisation() {
-		return organisation;
-	}
-
-	/**
-	 * @param organisation the organisation to set
-	 */
-	public void setOrganisation(Organisation organisation) {
-		this.organisation = organisation;
-	}
-
-	/**
-	 * @return the parameter
-	 */
-	public Parameter getParameter() {
-		return parameter;
-	}
-
-	/**
-	 * @param parameter
-	 *            the parameter to set
-	 */
-	public void setParameter(Parameter parameter) {
-		this.parameter = parameter;
-	}
-	
-	public String getMetadataGroup() {
-		return metadataGroup;
-	}
-
-	public void setMetadataGroup(String metadataGroup) {
-		this.metadataGroup = metadataGroup;
-	}
 	
 
 }
