@@ -147,7 +147,8 @@ public class GetPhenotypePagesTest {
         Date start = new Date();
         Date stop;
         
-        System.out.println(dateFormat.format(start) + ": testMGILinksAreValid started.");
+        int targetCount = (MAX_MGI_LINK_CHECK_COUNT >= 0 ? MAX_MGI_LINK_CHECK_COUNT : phenotypeIds.size());
+        System.out.println(dateFormat.format(start) + ": testMGILinksAreValid started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
         
         // Loop through first MAX_MGI_LINK_CHECK_COUNT phenotype MGI links, testing each one for valid page load.
         int i = 0;
@@ -231,7 +232,8 @@ public class GetPhenotypePagesTest {
         Date start = new Date();
         Date stop;
         
-        System.out.println(dateFormat.format(start) + ": testPageForEveryMPTermId started.");
+        int targetCount = (MAX_PHENOTYPE_TEST_PAGE_COUNT >= 0 ? MAX_PHENOTYPE_TEST_PAGE_COUNT : phenotypeIds.size());
+        System.out.println(dateFormat.format(start) + ": testPageForEveryMPTermId started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
         
         // Loop through all phenotypes, testing each one for valid page load.
         int i = 0;
@@ -301,7 +303,8 @@ public class GetPhenotypePagesTest {
         Date start = new Date();
         Date stop;
 
-        System.out.println(dateFormat.format(start) + ": testPageForEveryTopLevelMPTermId started.");
+        int targetCount = (MAX_PHENOTYPE_TEST_PAGE_COUNT >= 0 ? MAX_PHENOTYPE_TEST_PAGE_COUNT : phenotypeIds.size());
+        System.out.println(dateFormat.format(start) + ": testPageForEveryTopLevelMPTermId started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
         
 
         // Loop through all phenotypes, testing each one for valid page load.
@@ -372,7 +375,7 @@ public class GetPhenotypePagesTest {
         String phenotypeId = "junkBadPhenotype";
         final String EXPECTED_ERROR_MESSAGE = "Oops! junkBadPhenotype is not a valid mammalian phenotype identifier.";
         
-        System.out.println(dateFormat.format(start) + ": testInvalidMpTermId started.");
+        System.out.println(dateFormat.format(start) + ": testInvalidMpTermId started. Expecting to process 1 of a total of 1 records.");
         
         target = baseUrl + "/phenotypes/" + phenotypeId;
         try {

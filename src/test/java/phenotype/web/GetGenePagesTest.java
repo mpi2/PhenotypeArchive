@@ -32,7 +32,6 @@ import org.junit.AfterClass;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
@@ -43,7 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.generic.util.Tools;
-import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.stats.GeneService;
 
 /**
  *
@@ -72,7 +71,7 @@ import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
 public class GetGenePagesTest {
     
     @Autowired
-    protected GenotypePhenotypeService genotypePhenotypeService;
+    protected GeneService geneService;
     
     @Autowired
     protected String baseUrl;
@@ -139,7 +138,7 @@ public class GetGenePagesTest {
     @Test
     public void testPageForGeneIds() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        Set<String> geneIds = genotypePhenotypeService.getAllGenes();
+        Set<String> geneIds = geneService.getAllGenes();
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -147,8 +146,9 @@ public class GetGenePagesTest {
         String message;
         Date start = new Date();
         Date stop;
-        
-        System.out.println(dateFormat.format(start) + ": testPageForGeneIds started.");
+
+        int targetCount = (MAX_GENE_TEST_PAGE_COUNT >= 0 ? MAX_GENE_TEST_PAGE_COUNT : geneIds.size());
+        System.out.println(dateFormat.format(start) + ": testPageForGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
         // Loop through all phenotypes, testing each one for valid page load.
         int i = 0;
@@ -173,10 +173,10 @@ public class GetGenePagesTest {
             }
 
             if ( mpTermIdLink.isEmpty()) {
-                message = "Expected page for MARKER_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
+                message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
             } else {
-                message = "SUCCESS: MARKER_ACCESSION_ID " + geneId + ". Target URL: " + target;
+                message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
                 successList.add(message);
             }
             
@@ -187,21 +187,21 @@ public class GetGenePagesTest {
         System.out.println(dateFormat.format(new Date()) + ": testPageForGeneIds finished.");
         
         if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MARKER_ACCESSION_ID records failed:");
+            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
             for (String s : errorList) {
                 System.out.println("\t" + s);
             }
         }
         
         if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MARKER_ACCESSION_ID records caused exceptions to be thrown:");
+            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
             for (String s : exceptionList) {
                 System.out.println("\t" + s);
             }
         }
         
         stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MARKER_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
+        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
         
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
@@ -236,7 +236,7 @@ public class GetGenePagesTest {
             
             List<WebElement> geneLinks = driver.findElements(By.cssSelector("div.node h1"));
             if (geneLinks.isEmpty()) {
-                message = "No page found for MARKER_ACCESSION_ID " + geneId + "(" + target + ")";
+                message = "No page found for MGI_ACCESSION_ID " + geneId + "(" + target + ")";
                 errorList.add(message);
             }
 
@@ -248,7 +248,7 @@ public class GetGenePagesTest {
             }
 
             if ( ! found) {
-                message = "Expected error page for MARKER_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
+                message = "Expected error page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
             }
         } catch (Exception e) {
@@ -260,14 +260,14 @@ public class GetGenePagesTest {
         System.out.println(dateFormat.format(stop) + ": testInvalidGeneId finished.");
         
         if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MARKER_ACCESSION_ID records failed:");
+            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
             for (String s : errorList) {
                 System.out.println("\t" + s);
             }
         }
         
         if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MARKER_ACCESSION_ID records caused exceptions to be thrown:");
+            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
             for (String s : exceptionList) {
                 System.out.println("\t" + s);
             }
@@ -277,7 +277,7 @@ public class GetGenePagesTest {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": 1 invalid MARKER_ACCESSION_ID record processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
+        System.out.println(dateFormat.format(new Date()) + ": 1 invalid MGI_ACCESSION_ID record processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
     }
     
 }
