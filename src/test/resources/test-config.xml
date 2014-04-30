@@ -37,6 +37,10 @@
         <constructor-arg ref="sessionFactory" />
     </bean>
 	
+    <bean id="geneService" class="uk.ac.ebi.phenotype.stats.GeneService">
+        <constructor-arg  value="${internalSolrUrl}/gene" />
+    </bean>
+	
     <bean id="genotypePhenotypeService" class="uk.ac.ebi.phenotype.stats.GenotypePhenotypeService">
         <constructor-arg  value="${internalSolrUrl}/genotype-phenotype" />
     </bean>

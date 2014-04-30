@@ -32,7 +32,6 @@ import org.junit.AfterClass;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
@@ -43,7 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.generic.util.Tools;
-import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.stats.GeneService;
 
 /**
  *
@@ -67,12 +66,11 @@ import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-//@RunWith(Parameterized.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })
 public class GetGenePagesTest {
     
     @Autowired
-    protected GenotypePhenotypeService genotypePhenotypeService;
+    protected GeneService geneService;
     
     @Autowired
     protected String baseUrl;
@@ -85,9 +83,10 @@ public class GetGenePagesTest {
     protected String seleniumUrl;
     
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    private final int TIMEOUT_IN_SECONDS = 300;
     
     // These constants define the maximum number of iterations for each given test. -1 means iterate over all.
-    public final int MAX_GENE_TEST_PAGE_COUNT = 5000;                           // -1 means test all pages.
+    public final int MAX_GENE_TEST_PAGE_COUNT = 5;                           // -1 means test all pages.
 
     @Before
     public void setup() {
@@ -138,7 +137,7 @@ public class GetGenePagesTest {
     @Test
     public void testPageForGeneIds() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        Set<String> geneIds = genotypePhenotypeService.getAllGenes();
+        Set<String> geneIds = geneService.getAllGenes();
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -146,8 +145,9 @@ public class GetGenePagesTest {
         String message;
         Date start = new Date();
         Date stop;
-        
-        System.out.println(dateFormat.format(start) + ": testPageForGeneIds started.");
+
+        int targetCount = (MAX_GENE_TEST_PAGE_COUNT >= 0 ? MAX_GENE_TEST_PAGE_COUNT : geneIds.size());
+        System.out.println(dateFormat.format(start) + ": testPageForGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
         // Loop through all phenotypes, testing each one for valid page load.
         int i = 0;
@@ -161,7 +161,7 @@ public class GetGenePagesTest {
             List<WebElement> mpTermIdLink;
 
             try {
-                driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
+                driver.manage().timeouts().setScriptTimeout(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
                 driver.get(target);
                 driver.navigate().refresh();
                 mpTermIdLink = driver.findElements(By.cssSelector("div.inner a").linkText(geneId));
@@ -172,35 +172,35 @@ public class GetGenePagesTest {
             }
 
             if ( mpTermIdLink.isEmpty()) {
-                message = "Expected page for MARKER_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
+                message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
             } else {
-                message = "SUCCESS: MARKER_ACCESSION_ID " + geneId + ". Target URL: " + target;
+                message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
                 successList.add(message);
             }
             
-            if (i % 10 == 0)
-                System.out.println(i + " records processed so far.");
+            if (i % 1000 == 0)
+                System.out.println(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
         }
         
         System.out.println(dateFormat.format(new Date()) + ": testPageForGeneIds finished.");
         
         if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MARKER_ACCESSION_ID records failed:");
+            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
             for (String s : errorList) {
                 System.out.println("\t" + s);
             }
         }
         
         if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MARKER_ACCESSION_ID records caused exceptions to be thrown:");
+            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
             for (String s : exceptionList) {
                 System.out.println("\t" + s);
             }
         }
         
         stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MARKER_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
+        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
         
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
@@ -228,14 +228,14 @@ public class GetGenePagesTest {
         
         try {
             target = baseUrl + "/genes/" + geneId;
-            driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
+            driver.manage().timeouts().setScriptTimeout(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
             driver.get(target);
             driver.navigate().refresh();
             boolean found = false;
             
             List<WebElement> geneLinks = driver.findElements(By.cssSelector("div.node h1"));
             if (geneLinks.isEmpty()) {
-                message = "No page found for MARKER_ACCESSION_ID " + geneId + "(" + target + ")";
+                message = "No page found for MGI_ACCESSION_ID " + geneId + "(" + target + ")";
                 errorList.add(message);
             }
 
@@ -247,7 +247,7 @@ public class GetGenePagesTest {
             }
 
             if ( ! found) {
-                message = "Expected error page for MARKER_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
+                message = "Expected error page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
             }
         } catch (Exception e) {
@@ -259,14 +259,14 @@ public class GetGenePagesTest {
         System.out.println(dateFormat.format(stop) + ": testInvalidGeneId finished.");
         
         if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MARKER_ACCESSION_ID records failed:");
+            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
             for (String s : errorList) {
                 System.out.println("\t" + s);
             }
         }
         
         if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MARKER_ACCESSION_ID records caused exceptions to be thrown:");
+            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
             for (String s : exceptionList) {
                 System.out.println("\t" + s);
             }
@@ -276,7 +276,7 @@ public class GetGenePagesTest {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": 1 invalid MARKER_ACCESSION_ID record processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
+        System.out.println(dateFormat.format(new Date()) + ": 1 invalid MGI_ACCESSION_ID record processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
     }
     
 }

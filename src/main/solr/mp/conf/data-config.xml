@@ -121,10 +121,11 @@
 
 			<!-- MGI genes annotated to this MP term which has pipeline/procedure and allele/strain infos -->
 			<entity dataSource="komp2db" name="phenotype_call_summary"
-				query="select distinct gf_acc, procedure_id, parameter_id, pipeline_id, allele_acc, strain_acc from phenotype_call_summary where mp_acc='${mp_term_infos.term_id}' and gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null">											
+				query="select distinct gf_acc, procedure_id, parameter_id, pipeline_id, allele_acc, strain_acc, p_value from phenotype_call_summary where mp_acc='${mp_term_infos.term_id}' and gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null">											
 				
 				<field column="gf_acc" name="mgi_accession_id" />
-
+				<field column="p_value" name="p_value" />	
+				
 				<!-- disease associated with this MP via this gene -->	
 				<entity dataSource="allele_core" name="doc" stream="true" url="q=mgi_accession_id:&quot;${phenotype_call_summary.gf_acc}&quot;&amp;rows=1&amp;wt=normal"
 					processor="XPathEntityProcessor" forEach="/response/result/doc/" >

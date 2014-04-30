@@ -1,27 +1,26 @@
 package uk.ac.ebi.phenotype.stats;
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import uk.ac.ebi.phenotype.dao.OrganisationDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
+import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -101,6 +100,64 @@ public class ExperimentServiceTest {
         System.out.println("EXP list is: "+experimentList);
         System.out.println("Size is: "+experimentList.size());
         assertTrue(experimentList.size()==2);
+   
+
+	}
+        
+        @Test
+	public void testGetCategoricalStatsResult() throws SolrServerException, IOException, URISyntaxException {
+
+		Logger.getRootLogger().setLevel(Level.INFO);
+
+		System.out.println("\ntestGetCategoricalStatsResult");
+		Parameter p = pDAO.getParameterByStableId("M-G-P_014_001_001");
+		Pipeline pipe = pDAO.getPhenotypePipelineByStableId("M-G-P_001");
+		Organisation org = orgDAO.getOrganisationByName("WTSI");
+		
+		List<String> zygs = new ArrayList<>();
+		zygs.add(ZygosityType.homozygote.name());
+		List<ExperimentDTO> experimentList = es.getExperimentDTO(p.getId(), pipe.getId(), "MGI:98373", null, org.getId(), zygs, null, "", true);
+
+        System.out.println("EXP list is: "+experimentList);
+        System.out.println("Size is: "+experimentList.size());
+        assertTrue(experimentList.size()==1);
+        //equivalent graph url is below
+        //http://localhost:8080/phenotype-archive/charts?accession=MGI:98373&parameter_stable_id=M-G-P_014_001_001&zygosity=homozygote&phenotyping_center=WTSI&pipeline_stable_id=M-G-P_001
+        System.out.println("Stats Result Size is: "+experimentList.get(0).getResults().size());
+        assertTrue(experimentList.get(0).getResults().size()==4);//should be 2  currently 4 until JM fixes stats code - should be one result for each sex for this gene and param
+//        for(StatisticalResult result: experimentList.get(0).getResults()){
+//            System.out.println("result is: "+result);
+//        }
+   
+
+	}
+        
+        //http://localhost:8080/phenotype-archive/charts?accession=MGI:2444584&parameter_stable_id=ESLIM_001_001_004&zygosity=homozygote
+        @Ignore //ignore until I get this working- no pipeline on graph!
+        @Test
+	public void testGetCategoricalStatsResult2() throws SolrServerException, IOException, URISyntaxException {
+
+		Logger.getRootLogger().setLevel(Level.INFO);
+
+		System.out.println("\ntestGetCategoricalStatsResult2");
+		Parameter p = pDAO.getParameterByStableId("ESLIM_001_001_004");
+		Pipeline pipe = pDAO.getPhenotypePipelineByStableId("MRC");
+		Organisation org = orgDAO.getOrganisationByName("MRC Harwell");
+		
+		List<String> zygs = new ArrayList<>();
+		zygs.add(ZygosityType.homozygote.name());
+		List<ExperimentDTO> experimentList = es.getExperimentDTO(p.getId(), 0, "MGI:2444584", null, null, zygs, null, "", true);
+
+        System.out.println("EXP list is: "+experimentList);
+        System.out.println("Size is: "+experimentList.size());
+        assertTrue(experimentList.size()==1);
+        //equivalent graph url is below
+        //http://localhost:8080/phenotype-archive/charts?accession=MGI:98373&parameter_stable_id=M-G-P_014_001_001&zygosity=homozygote&phenotyping_center=WTSI&pipeline_stable_id=M-G-P_001
+        System.out.println("Stats Result Size is: "+experimentList.get(0).getResults().size());
+        assertTrue(experimentList.get(0).getResults().size()==4);//should be 2  currently 4 until JM fixes stats code - should be one result for each sex for this gene and param
+//        for(StatisticalResult result: experimentList.get(0).getResults()){
+//            System.out.println("result is: "+result);
+//        }
    
 
 	}

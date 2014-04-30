@@ -482,7 +482,7 @@ public class ObservationService {
         if(metaDataGroup!=null) {
         	query.addFilterQuery(ExperimentField.METADATA_GROUP + ":\"" + metaDataGroup + "\"");
         }
-        LOG.debug("observation  service query = "+query);
+        System.out.println("observation  service query = "+query);
         QueryResponse response = solr.query(query);
         resultsDTO = response.getBeans(ObservationDTO.class);
         return resultsDTO;
@@ -809,8 +809,7 @@ public class ObservationService {
 		query.set("group", true);
 		query.set("fl", ExperimentField.DATA_POINT + ","
 				+ ExperimentField.DISCRETE_POINT);
-		query.set("group.limit", 100000); // number of documents to be returned
-											// per group
+		query.set("group.limit", 100000); // number of documents to be returned per group
 		query.set("sort", ExperimentField.DISCRETE_POINT + " asc");
 		query.setRows(10000);
 
@@ -820,15 +819,9 @@ public class ObservationService {
 		boolean rounding = false;
 		// decide if binning is needed i.e. is the increment points are too
 		// scattered, as for calorimetry
-		if (groups.size() > 30) { // arbitrary value, just piced it because it
-									// seems reasonable for the size of our
-									// graphs
+		if (groups.size() > 30) { // arbitrary value, just piced it because it seems reasonable for the size of our graphs
 			if (Float.valueOf(groups.get(groups.size() - 1).getGroupValue())
-					- Float.valueOf(groups.get(0).getGroupValue()) <= 30) { // then
-																			// rounding
-																			// will
-																			// be
-																			// enough
+					- Float.valueOf(groups.get(0).getGroupValue()) <= 30) { //then rounding will be enough
 				rounding = true;
 			}
 		}
@@ -857,13 +850,7 @@ public class ObservationService {
 							.getFieldValue(ExperimentField.DATA_POINT));
 				}
 				if (bin < discreteTime
-						|| groups.indexOf(gr) == groups.size() - 1) { // finished
-																		// the
-																		// groups
-																		// of
-																		// filled
-																		// the
-																		// bin
+						|| groups.indexOf(gr) == groups.size() - 1) { // finished the groups of filled the bin
 					float discreteDataPoint = sum / resDocs.getNumFound();
 					DiscreteTimePoint dp = new DiscreteTimePoint(
 							(float) discreteTime, discreteDataPoint, new Float(

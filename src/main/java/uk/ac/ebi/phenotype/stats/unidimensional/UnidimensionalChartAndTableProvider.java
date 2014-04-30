@@ -220,12 +220,10 @@ List<Float>dataFloats=new ArrayList<>();
 			String categoryString=WordUtils.capitalize(chartsSeriesElement.getSexType().toString())+" "+WordUtils.capitalize(chartsSeriesElement.getControlOrZygosityString());
 			categories.put(categoryString);
 			List<Float> listOfFloats= chartsSeriesElement.getOriginalData();
-			DescriptiveStatistics stats = new DescriptiveStatistics();
 //			stats.setPercentileImpl(new PercentileComputation());
 			
 			//load up the stats object
 			for (Float point : listOfFloats) {
-				stats.addValue(point);
 				if(point > max)max=point;
 				if(point < min)min=point;
 			}
@@ -252,7 +250,7 @@ List<Float>dataFloats=new ArrayList<>();
 					if(minIQR < min)min=minIQR;
 	
 					Float decFloat = ChartUtils.getDecimalAdjustedFloat(new Float(
-							stats.getMean()), decimalPlaces);
+							pc.getMedian()), decimalPlaces);
 					wt1.add(decFloat);// median
 					Float q3=new Float(Q3);
 					wt1.add(q3);// upper quartile

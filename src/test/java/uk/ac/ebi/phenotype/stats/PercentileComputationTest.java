@@ -69,7 +69,8 @@ public class PercentileComputationTest {
 		PercentileComputation pc = new PercentileComputation(testarray);
 		assertTrue((float)ChartUtils.getDecimalAdjustedFloat(pc.getLowerQuartile(),4) == (float)0.3314);
 		assertTrue((float)ChartUtils.getDecimalAdjustedFloat(pc.getUpperQuartile(),4) == (float)0.4346);
+		assertTrue((float)ChartUtils.getDecimalAdjustedFloat(pc.getMedian(),4) == (float)0.3675);
 	}
-	
+
 	
 }

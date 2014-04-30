@@ -260,17 +260,19 @@ public class ChartsController {
 		List<String> zyList = getParamsAsList(zygosity);
 		
 		Integer pipelineId=null;
-		Pipeline pipeline=new Pipeline();
+		Pipeline pipeline=null;
 		if(pipelineStableId!=null && !pipelineStableId.equals("")) {
 		log.debug("pipe stable id="+pipelineStableId);
 		pipeline=pipelineDAO.getPhenotypePipelineByStableId(pipelineStableId);
 		pipelineId=pipeline.getId();//swap the human readable pipeline  id from the url to our internal id
 		System.out.println("internernal pipe id="+pipelineId);
 		}
+           
 		ExperimentDTO experiment = experimentService
 				.getSpecificExperimentDTO(parameter.getId(),pipelineId,  accession[0],
 						genderList, zyList,phenotypingCenterId,
 						  strain , metaDataGroupString);
+              
 		//System.out.println("experiment in chart method="+experiment);
 		
 		if (experiment!=null) {
@@ -278,6 +280,10 @@ public class ChartsController {
 			// ESLIM_003_001_003 id=962 calorimetry data for time series graph
 			// new MGI:1926153
 			// http://localhost:8080/PhenotypeArchive/charts?accession=/MGI:1926153&parameterId=ESLIM_003_001_003
+                 if(pipeline==null){
+                    //if we don't already have the pipeline for this experiment from the url params lets get it via the experiment returned
+                    pipeline=pipelineDAO.getPhenotypePipelineByStableId(experiment.getPipelineStableId());                   
+                }
 		String title=parameter.getName();
 		String xAxisTitle=xUnits;//set up some default strings here that most graphs will use?
 		String yAxisTitle= yUnits;

@@ -171,6 +171,5 @@ public class StatisticalResult {
 		this.metadataGroup = metadataGroup;
 	}
 	
-	
 
 }
