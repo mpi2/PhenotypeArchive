@@ -147,7 +147,7 @@ public class GetGenePagesTest {
         Date start = new Date();
         Date stop;
 
-        int targetCount = (MAX_GENE_TEST_PAGE_COUNT >= 0 ? MAX_GENE_TEST_PAGE_COUNT : geneIds.size());
+        int targetCount = (MAX_GENE_TEST_PAGE_COUNT >= 0 ? Math.min(MAX_GENE_TEST_PAGE_COUNT, geneIds.size()) : geneIds.size());
         System.out.println(dateFormat.format(start) + ": testPageForGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
         // Loop through all phenotypes, testing each one for valid page load.
@@ -227,7 +227,7 @@ public class GetGenePagesTest {
         Date start = new Date();
         Date stop;
 
-        int targetCount = (MAX_GENE_TEST_PAGE_COUNT >= 0 ? MAX_GENE_TEST_PAGE_COUNT : geneIds.size());
+        int targetCount = (MAX_GENE_TEST_PAGE_COUNT >= 0 ? Math.min(MAX_GENE_TEST_PAGE_COUNT, geneIds.size()) : geneIds.size());
         System.out.println(dateFormat.format(start) + ": testPageForGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
         // Loop through all phenotypes, testing each one for valid page load.
