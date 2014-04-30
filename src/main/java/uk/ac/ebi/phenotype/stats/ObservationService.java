@@ -482,7 +482,7 @@ public class ObservationService {
         if(metaDataGroup!=null) {
         	query.addFilterQuery(ExperimentField.METADATA_GROUP + ":\"" + metaDataGroup + "\"");
         }
-        LOG.debug("observation  service query = "+query);
+        System.out.println("observation  service query = "+query);
         QueryResponse response = solr.query(query);
         resultsDTO = response.getBeans(ObservationDTO.class);
         return resultsDTO;
