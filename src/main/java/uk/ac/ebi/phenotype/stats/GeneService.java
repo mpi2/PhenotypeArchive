@@ -25,8 +25,14 @@ public class GeneService {
     private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
     public static final class GeneField {
-
+        public final static String PHENOTYPE_STATUS = "phenotype_status";
         public final static String MGI_ACCESSION_ID = "mgi_accession_id";
+        public final static String LATEST_PHENOTYPING_CENTRE = "latest_phenotyping_centre";
+    }
+    
+    public static final class GeneFieldValue {
+        public final static String PHENOTYPE_STATUS_STARTED = "Phenotyping Started";
+        public final static String PRODUCTION_CENTRE_WTSI = "WTSI";
     }
 
     public GeneService(String solrUrl) {
@@ -59,6 +65,32 @@ public class GeneService {
         }
 
         return "";
+    }
+
+    /**
+     * Return all genes in the gene core matching phenotypeStatus and productionCentre.
+     * @param phenotypeStatus phenotype status
+     * @param productionCentre production centre
+     * @return all genes in the gene core matching phenotypeStatus and productionCentre.
+     * @throws SolrServerException
+     */
+    public Set<String> getGenesByPhenotypeStatusAndProductionCentre(String phenotypeStatus, String productionCentre) throws SolrServerException {
+
+        SolrQuery solrQuery = new SolrQuery();
+        String queryString = "(" + GeneField.PHENOTYPE_STATUS + ":\"" + phenotypeStatus + "\") AND (" + GeneField.LATEST_PHENOTYPING_CENTRE + ":\"" + productionCentre + "\")";
+        solrQuery.setQuery(queryString);
+        solrQuery.setRows(1000000);
+        solrQuery.setFields(GeneField.MGI_ACCESSION_ID);
+        QueryResponse rsp = null;
+        rsp = solr.query(solrQuery);
+        SolrDocumentList res = rsp.getResults();
+        HashSet<String> allGenes = new HashSet<String>();
+        for (SolrDocument doc : res) {
+            allGenes.add((String) doc.getFieldValue(GeneField.MGI_ACCESSION_ID));
+        }
+        
+        log.debug("getGenesByPhenotypeStatusAndProductionCentre: solrQuery = " + queryString);
+        return allGenes;
     }
 
     /**
