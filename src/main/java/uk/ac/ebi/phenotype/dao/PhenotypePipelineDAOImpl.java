@@ -71,7 +71,6 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 
 	@Transactional(readOnly = true)
 	public Pipeline getPhenotypePipelineByStableId(String stableId) {
-            System.out.println("trying to get Pipeline from PhenotypePipelineImpl using stableId="+stableId);
 		return (Pipeline) getCurrentSession().createQuery("from Pipeline as p where p.stableId = ?").setString(0, stableId).uniqueResult();
 	}
 
