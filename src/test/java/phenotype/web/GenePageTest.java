@@ -16,88 +16,94 @@
 
 package phenotype.web;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
-import org.apache.zookeeper.Op.Check;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.Select;
-
-import uk.ac.ebi.generic.util.JSONRestUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
 
 /**
  * @author Gautier Koscielny
  * Selenium test for graph query coverage ensuring each graph display work for 
  * any given gene accession/parameter/zygosity from the Solr core
  */
-
-@RunWith(value = Parameterized.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:test-config.xml" })
 public class GenePageTest {
 	
-	private WebDriver driver;
-	
-	private String baseUrl;
-	private String geneSolrUrl;
-	private StringBuffer verificationErrors = new StringBuffer();
-	
-	private static final String SELENIUM_SERVER_URL ="http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub";
+    @Autowired
+    protected GenotypePhenotypeService genotypePhenotypeService;
+    
+    @Autowired
+    protected String baseUrl;
+    
+    @Autowired
+    protected WebDriver driver;
+    static protected WebDriver staticDriver;
+    
+    @Autowired
+    protected String seleniumUrl;
+    
+    private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    
 
 	@Before
 	public void setUp() throws Exception {
-		
-		baseUrl = "https://dev.mousephenotype.org";
-		geneSolrUrl = baseUrl + "/mi/impc/dev/solr";	
-		
+		printTestEnvironment();
+                staticDriver = driver;	
 	}
-	
-	public GenePageTest(DesiredCapabilities browser) throws MalformedURLException {
-		driver = new RemoteWebDriver(
-                new URL(SELENIUM_SERVER_URL), browser);
-	System.out.println("browser for testing is:"+browser);
-		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-	}
-	
-	@Parameters
-	 public static Collection<Object[]> data() {
-	   Object[][] data = new Object[][] { { DesiredCapabilities.firefox() }, { DesiredCapabilities.internetExplorer() }, { DesiredCapabilities.chrome() } };
-	   return Arrays.asList(data);
-	 }
+        
+         private void printTestEnvironment() {
+        String browserName = "<Unknown>";
+        String version = "<Unknown>";
+        String platform = "<Unknown>";
+            if (driver instanceof RemoteWebDriver) {
+                RemoteWebDriver remoteWebDriver = (RemoteWebDriver)driver;
+                browserName = remoteWebDriver.getCapabilities().getBrowserName();
+                version = remoteWebDriver.getCapabilities().getVersion();
+                platform = remoteWebDriver.getCapabilities().getPlatform().name();
+            }
+        
+        System.out.println("seleniumUrl: " + seleniumUrl);
+        System.out.println("TESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
+        }
 	 
 	@Test
 	public void testAkt2() throws Exception {
 		// <span class="gSymbol">
 		String mgiGeneAcc = "MGI:104874";
-		driver.get(baseUrl + "/data/genes/"+mgiGeneAcc);
+                String url=baseUrl + "/genes/"+mgiGeneAcc;
+                System.out.println("test Akt2 url="+url);
+                driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
+		driver.get(url);
 		//String title = driver.findElement(By.xpath("//*[contains(concat(\" \", normalize-space(@class), \" \"), \"title document\")]")).getText();
 		String topTextString=driver.findElement(By.id("top")).getText();
 		System.out.println("top title="+topTextString);
 		assertTrue(topTextString.contains("Akt2"));
+                Thread.currentThread().sleep(3000);
+                WebElement enu=driver.findElement(By.id("enu"));
+    
+                System.out.println("enu text="+enu.getText());
+                assertTrue(enu.getText().contains("ENU"));
 		
-		List<WebElement> sectionTitles = driver.findElements(By.xpath("//*[contains(concat(\" \", normalize-space(@class), \" \"), \"title\")]"));
-		assertTrue(sectionTitles.size()==5);//should be five sections visible for Akt2 which have title classes including the gene one at the top
-		String [] listOfSectionTitles= {"Gene: Akt2","Phenotype associations for Akt2","Phenotype Associated Images","Expression","Order Mouse and ES Cells"};
+		List<WebElement> sectionTitles = driver.findElements(By.className("title"));
+                System.out.println("section titles size="+sectionTitles.size());
+		assertTrue(sectionTitles.size()==6);//should be five sections visible for Akt2 which have title classes including the gene one at the top
+		String [] listOfSectionTitles= {"Gene: Akt2","Phenotype associations for Akt2","Phenotype Associated Images","Expression","Order Mouse and ES Cells","Pre-QC phenotype heatmap"};
 		List<String> sectionTitleCheckFor=new ArrayList<String>(Arrays.asList(listOfSectionTitles));
 		for(WebElement webElement: sectionTitles) {
 			String text=webElement.getText();
@@ -143,12 +149,8 @@ public class GenePageTest {
 		assertTrue(orderAlleleDiv.getText().length()>100);//check there is some content in the panel div
 	}
 
-	@After
-	public void tearDown() throws Exception {
-		driver.quit();
-		String verificationErrorString = verificationErrors.toString();
-		if (!"".equals(verificationErrorString)) {
-			fail(verificationErrorString);
-		}
-	}
+//	@After
+//	public void tearDown() throws Exception {
+//		driver.quit();
+//	}
 }
