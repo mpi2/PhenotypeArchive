@@ -190,7 +190,13 @@ public class SearchPageTest {
     @Test
 	@Ignore
 	public void testTickingFacetFilters() throws Exception {
-		
+    	System.out.println();
+    	System.out.println("-------------------------------------------");
+    	System.out.println("----- FACET CLICKING BEHAVIORAL TESTS -----");
+    	System.out.println("-------------------------------------------");
+    	System.out.println("   TESTING clicking on a facet checkbox will add a filter to the filter summary box");
+    	System.out.println("   TESTING removing a filter on the list will uncheck a corresponding checkbox");
+    	
 		for (Map.Entry entry : params.entrySet()) {		  
 		    		    
 		    String facet = entry.getKey().toString();
@@ -199,11 +205,12 @@ public class SearchPageTest {
 		    driver.get(queryStr);		
 		    driver.navigate().refresh();	
 		    
-			// first input element of a subfacet
+			// input element of a subfacet
+		    String elem1 = "div.flist li#" + facet + " li.fcat input";
 			new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.flist")));
-			String filterVals1 = driver.findElement(By.cssSelector("div.flist li#" + facet + " li.fcat input")).getAttribute("rel");
+			String filterVals1 = driver.findElement(By.cssSelector(elem1)).getAttribute("rel");
 			
-			String elem1 = "div.flist li#" + facet + " li.fcat input";
+			
 			driver.findElement(By.cssSelector(elem1)).click();
 			if ( driver.findElement(By.cssSelector(elem1)).isSelected() ){
 				//System.out.println(facet + " filter checked");
@@ -212,19 +219,21 @@ public class SearchPageTest {
 			String elem2 = "ul#facetFilter li li.ftag a";
 			String filterVals2 = driver.findElement(By.cssSelector(elem2)).getAttribute("rel");
 			
+			// compare input with filter on filter summary box
 			assertEquals(filterVals1, filterVals2);			
 			
-			// now tests unchecking filemotionter also unchecks inputbox
+			// now tests removing filter also unchecks inputbox
 			driver.findElement(By.cssSelector(elem2)).click();
 			if ( ! driver.findElement(By.cssSelector(elem1)).isSelected() ){
 				//System.out.println(facet + " filter unchecked");
 			}
 			
-			System.out.println(facet + " OK: behavioral test - input filter invokes filter listing");
-		}		
+			System.out.println("   " + facet + " OK");
+		}	
+		System.out.println();	
 	}
-		
-	@Test
+    
+    @Test
 	//@Ignore
 	public void testAllGeneSymbols() throws Exception {
 
@@ -235,50 +244,106 @@ public class SearchPageTest {
 		System.out.println("newQueryString=" + newQueryString);
 
 		JSONObject geneResults = JSONRestUtil.getResults(solrPath + newQueryString);
+		
 		JSONArray docs = JSONRestUtil.getDocArray(geneResults);
+		System.out.println(docs.size());
 		if (docs != null) {
 			int size = docs.size();
 			for (int i=0; i<size; i++) {
 				String geneParameterSymbol = docs.getJSONObject(i).getString("marker_symbol");
-				
+				System.out.println(geneParameterSymbol);
 				driver.get(baseUrl + "/data/search?q=marker_symbol:\"" + geneParameterSymbol + "\"");
+				driver.navigate().refresh();
+				
+				System.out.println(baseUrl + "/data/search?q=marker_symbol:\"" + geneParameterSymbol + "\"");	
 				String geneSymbol = driver.findElement(By.xpath("//span[contains(@class, 'gSymbol')]")).getText();
+				System.out.println(geneSymbol);
 				assertEquals(geneSymbol, geneParameterSymbol);
 				System.out.println("OK querying by gene Symbol: " + geneParameterSymbol);
 			}
 		}
-	}
-	
-	@Test	
-	//@Ignore
-	public void testSelectedMgiIds() throws Exception {
+	}	
+	@Test
+	@Ignore
+	public void testQueryingGeneSymbols() throws Exception {
+		System.out.println();
+		System.out.println("-------------------------------------------");
+    	System.out.println("-----     GENE SYMBOL QUERY TESTS     -----");
+    	System.out.println("-------------------------------------------");
+    	
+		String newQueryString = "/gene/select?q=marker_symbol:*&fl=marker_symbol&wt=json";
+		int startIndex = 0;
+		int nbRows = 30;
+		System.out.println("   TESTING " + nbRows + " genes");
 		
+		newQueryString+="&start="+startIndex+"&rows="+nbRows;
+		
+		JSONObject geneResults = JSONRestUtil.getResults(solrPath + newQueryString);
+		JSONArray docs = JSONRestUtil.getDocArray(geneResults);
+		
+		if (docs != null) {
+			int size = docs.size();
+			for (int i=0; i<size; i++) {
+				
+				String geneSymbol1 = docs.getJSONObject(i).getString("marker_symbol");
+				
+				driver.get(baseUrl + "/data/search?q=marker_symbol:\"" + geneSymbol1 + "\"");
+				driver.navigate().refresh();
+				
+				String geneSymbol2 = driver.findElement(By.xpath("//span[contains(@class, 'gSymbol')]")).getText();
+				
+				assertEquals(geneSymbol1, geneSymbol2);
+				System.out.println("   OK query gene Symbol: " + geneSymbol1);
+			}
+		}
+		System.out.println();
+	}
+		
+	@Test	
+	@Ignore
+	public void testSelectedMgiIds() throws Exception {
+		System.out.println();
+		System.out.println("-------------------------------------------");
+    	System.out.println("-----       MGI ID QUERY TESTS        -----");
+    	System.out.println("-------------------------------------------");
+    	
 		String newQueryString = "/gene/select?q=mgi_accession_id:*&fl=mgi_accession_id,marker_symbol&wt=json";
 		int startIndex = 0;
-		int nbRows = 1;
+		int nbRows = 30;
 		newQueryString+="&start="+startIndex+"&rows="+nbRows;
-		System.out.println("newQueryString=" + newQueryString);
+		//System.out.println("newQueryString=" + newQueryString);
 
-		JSONObject geneResults = JSONRestUtil.getResults(solrPath + newQueryString);
-		System.out.println(geneResults);
+		JSONObject geneResults = JSONRestUtil.getResults(solrPath + newQueryString);		
 		JSONArray docs = JSONRestUtil.getDocArray(geneResults);
 			
 		if (docs != null) {
 			int size = docs.size();
 			for (int i=0; i<size; i++) {
+				
 				String mgiId = docs.getJSONObject(i).getString("mgi_accession_id");
-				String symbol = docs.getJSONObject(i).getString("marker_symbol");				
+				String symbol = docs.getJSONObject(i).getString("marker_symbol");
+				//System.out.println(baseUrl + "/data/search?q=" + mgiId);
 				driver.get(baseUrl + "/data/search?q=" + mgiId);
-				//WebElement geneLink = driver.findElement(By.xpath("//a[@href='/data/genes/" + mgiId + "'"));				
+				driver.navigate().refresh();
+							
+				new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id("geneGrid"))); 
+				//WebElement geneLink = driver.findElement(By.xpath("//a[@href='/data/genes/" + mgiId + "'"));
+								
 				WebElement geneLink = driver.findElement(By.cssSelector("div.geneCol a").linkText(symbol)); 
-				assert(geneLink != null);	
-				System.out.println("OK: query by MGI accession id: " + mgiId);
+				
+				if (geneLink != null) {	
+					System.out.println("   OK: querying MGI accession id: " + mgiId);
+				}
+				else {
+					System.out.println("   FAILED: querying MGI accession id: " + mgiId);
+				}		
 			}
 		}
+		System.out.println();
 	}
 	
 	@Test
-	//@Ignore
+	@Ignore
 	public void testPhrase() throws Exception {
 				
 		driver.get(baseUrl + "/data/search?q=grip strength");	
@@ -288,7 +353,7 @@ public class SearchPageTest {
 	}
 	
 	@Test
-	//@Ignore
+	@Ignore
 	public void testPhraseInQuotes() throws Exception {
 				
 		driver.get(baseUrl + "/data/search?q=\"zinc finger protein\"");	
@@ -298,7 +363,7 @@ public class SearchPageTest {
 	}
 
 	@Test
-	//@Ignore
+	@Ignore
 	public void testLeadingWildcard() throws Exception {
 				
 		driver.get(baseUrl + "/data/search?q=*rik");	
@@ -308,7 +373,7 @@ public class SearchPageTest {
 	}
 	
 	@Test
-	//@Ignore
+	@Ignore
 	public void testTrailingWildcard() throws Exception {
 				
 		driver.get(baseUrl + "/data/search?q=hox*");	
@@ -318,7 +383,7 @@ public class SearchPageTest {
 	}
 	
 	@Test
-	//@Ignore
+	@Ignore
 	public void testPaginatino() throws Exception {	
 				
 		for (String core : cores ){		
@@ -347,7 +412,7 @@ public class SearchPageTest {
 	}
 	
 	@Test
-	//@Ignore
+	@Ignore
 	public void testFacetCounts() throws Exception {	
 				
 		for (String s : paramList ){	

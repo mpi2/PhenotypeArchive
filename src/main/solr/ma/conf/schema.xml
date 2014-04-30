@@ -146,6 +146,7 @@
   	<field name="go_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<!-- gene core stuff -->
+	<field name="p_value" type="float" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="mgi_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />		
 	<field name="marker_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />  
 	<field name="marker_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true"  />    

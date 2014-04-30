@@ -144,6 +144,7 @@
 	<field name="allele_name" type="text_general" indexed="true" stored="true" multiValued="true"/>
 
 	<!-- annotated and inferred mp term -->
+	<field name="p_value" type="float" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="mp_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />	
 	<field name="mp_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />

@@ -157,6 +157,7 @@ LOG.debug("metadataGroup parmeter is="+metaDataGroup);
 			}
 
 			if (experiment.getPipelineStableId() == null) {
+                            System.out.println("setting pipelinestabl="+observation.getPipelineStableId());
 				experiment.setPipelineStableId(observation
 						.getPipelineStableId());
 			}
