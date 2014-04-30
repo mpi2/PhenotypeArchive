@@ -147,7 +147,7 @@ public class GetPhenotypePagesTest {
         Date start = new Date();
         Date stop;
         
-        int targetCount = (MAX_MGI_LINK_CHECK_COUNT >= 0 ? MAX_MGI_LINK_CHECK_COUNT : phenotypeIds.size());
+        int targetCount = (MAX_MGI_LINK_CHECK_COUNT >= 0 ? Math.min(MAX_MGI_LINK_CHECK_COUNT, phenotypeIds.size()) : phenotypeIds.size());
         System.out.println(dateFormat.format(start) + ": testMGILinksAreValid started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
         
         // Loop through first MAX_MGI_LINK_CHECK_COUNT phenotype MGI links, testing each one for valid page load.
@@ -232,7 +232,7 @@ public class GetPhenotypePagesTest {
         Date start = new Date();
         Date stop;
         
-        int targetCount = (MAX_PHENOTYPE_TEST_PAGE_COUNT >= 0 ? MAX_PHENOTYPE_TEST_PAGE_COUNT : phenotypeIds.size());
+        int targetCount = (MAX_PHENOTYPE_TEST_PAGE_COUNT >= 0 ? Math.min(MAX_PHENOTYPE_TEST_PAGE_COUNT, phenotypeIds.size()) : phenotypeIds.size());
         System.out.println(dateFormat.format(start) + ": testPageForEveryMPTermId started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
         
         // Loop through all phenotypes, testing each one for valid page load.
@@ -303,7 +303,7 @@ public class GetPhenotypePagesTest {
         Date start = new Date();
         Date stop;
 
-        int targetCount = (MAX_PHENOTYPE_TEST_PAGE_COUNT >= 0 ? MAX_PHENOTYPE_TEST_PAGE_COUNT : phenotypeIds.size());
+        int targetCount = (MAX_PHENOTYPE_TEST_PAGE_COUNT >= 0 ? Math.min(MAX_PHENOTYPE_TEST_PAGE_COUNT, phenotypeIds.size()) : phenotypeIds.size());
         System.out.println(dateFormat.format(start) + ": testPageForEveryTopLevelMPTermId started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
         
 
