@@ -23,7 +23,7 @@ jQuery(document).ready(	function() {
 	
 	$.ajax({
 		url: 'https://databases.apf.edu.au/mutations/snpRow/getSnpCount?mgiAccessionId=' + gene_id,    
-		timeout: 3000,
+		timeout: 5000,
 		success: function (response) {
 			console.log("success response="+response.count);
                     if(response.count>0){
