@@ -25,9 +25,12 @@ jQuery(document).ready(	function() {
 		url: 'https://databases.apf.edu.au/mutations/snpRow/getSnpCount?mgiAccessionId=' + gene_id,    
 		timeout: 3000,
 		success: function (response) {
-			$('#enu').html(response);
 			console.log("success response="+response.count);
+                    if(response.count>0){
 			$('#enu').html('&nbsp&nbsp&nbsp<a href="https://databases.apf.edu.au/mutations/snpRow/list?mgiAccessionId='+gene_id+'">ENU('+response.count+')</a>');
+                    }else{
+                        $('#enu').html('');
+                    }
 		}
 		,error: function(x, t, m) {
 	      //  if(t==="timeout") { 
