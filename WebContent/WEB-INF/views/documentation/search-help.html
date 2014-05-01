@@ -1,0 +1,180 @@
+<!doctype html>
+<!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="en" class="no-js ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="en" class="no-js ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="en" class="no-js ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
+    <head>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=1024" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+        <title>International Mouse Phenotyping Consortium Documentation</title>
+
+        <!-- css -->
+        <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
+        <link type='text/css' rel='stylesheet' href='../css/vendor/font-awesome/font-awesome.min.css'  />
+        <link type='text/css' rel='stylesheet' href='../css/default.css'  />
+        <link type='text/css' rel='stylesheet' href='../css/wdm.css'  />
+        <script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script type="text/javascript" src="../js/helpDocLogo.js"></script>
+
+        <script type="text/javascript"> var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-23433997-1']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga = document.createElement('script');
+                ga.type = 'text/javascript';
+                ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+            })();
+        </script>
+
+    </head>
+
+    <body id="top" class="one-sidebar sidebar-first">
+        <div id="wrapper">
+
+            <header id="header">
+                <div class="region region-header">
+                    <div id="logo">
+                        <a href=""><img src="../img/impc.png" alt="IMPC Logo" /></a>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+            </header>        
+
+            <div id="main">
+
+                <!-- Breadcrumb -->
+                <div class="breadcrumb"><a href="/">Home</a> › <a href="index.html">Documentation</a> › Search</div>
+
+                <!-- Sidebar First -->
+                <div class="region region-sidebar-first">
+                    <div id="facet" class="block">
+                        <div class="head">Quick help links</div>
+                        <div class="content node">
+                            <ul>
+                                <li><a href="index.html">Overview</a></li>
+                                <li><a href="search-help.html">Search</a>
+                                    <ul>
+                                    	<li><a href="search-help.html#mainFaceting">Main data type browsing</a></li>
+                                    	<li><a href="search-help.html#subFaceting">Cross data type browsing</a></li>
+                                        <li>Quick Search
+                                            <ul>
+                                                <li><a href="search-help.html#quick_gene_srch">Quick Gene Search</a></li>
+                                                <li><a href="search-help.html#quick_pheno_srch">Quick Phenotype Search</a></li>
+                                                <li><a href="search-help.html#quick_disease_srch">Quick Disease Search</a></li>
+                                                <li><a href="search-help.html#quick_anatomy_srch">Quick Anatomy Search</a></li>
+                                                <li><a href="search-help.html#quick_param_srch">Quick Assay Search</a></li>								
+                                                <li><a href="search-help.html#quick_img_srch">Quick Image Search</a></li>					
+                                            </ul>						
+                                        </li>
+                                        
+                                        <li><a href="search-help.html#export">Data Export of Search Results</a></li>					
+                                    </ul>				
+                                </li>
+                                <li><a href="gene-help.html">Genes</span></a> </li>
+                                <li><a href="phenotype-help.html">Phenotypes</a> </li>
+                                <li><a href="disease-help.html">Diseases</a> </li>
+                                <li><a href="image-help.html">Images</a></li>
+                                <li><a href="statistics-help.html">Statistics</a> </li>
+                                <li><a href="graph-help.html">Graphs</a> </li>
+                                <li><a href="api-help.html">RESTful API</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Maincontent -->
+
+                <div class="region region-content">              
+
+                    <div class="block block-system">
+
+                        <div class="content node">
+
+                            <h3>Explore the diverse entry points to mouse phenotype data.</h3>
+							Currently IMPC portal supports 6 main data types on the search page.
+							Ie, Genes, Phenotypes, Diseases, Anatomy, Procedures and Images. 
+							These are the main facets designed for our facet search interface.<br>
+							Each main data type has sub data types which act as subfacet filters to allow for data filtering.<p>
+							
+							<h4><a name="mainFaceting" href='#'>Main data type browsing</a></h4>
+                            <div>Clicking on a main facet (eg, Genes, Diseases) without ticking its subfacet filter(s) will display all records of that data type.</div><br>
+                            <img src='img/main_data_type.png' /><p>
+
+							<h4><a name="subFaceting" href='#'>Cross data type browsing</a></h4>
+                            <div>By checking a checkbox (or subfacet filter), the main facet and subfacet counts of all 6 main data types will be updated accordingly.
+    						Eg. when 'Genes' main facet is expanded and 'Started' subfacet filter is checked, the main facet counts relevant to a main facet entail 
+    						how many phenotypes or diseases , for instance, are annotated to the genes with the IMPC phenotyping status marked as 'Started'.</div><br> 
+    						<img src='img/sub_data_type.png' /><p>
+    						<div>The subfacet counts of a main facet tell you which sub data type of a main facet is relevant to the 'Started' filter.<br>
+    						To see this, click on the 'Phenotypes' main facet, for example, to expand its subfacets.<br>
+    						Note that the 'Genes' main facet will then be closed.</div><br>
+    						<img src='img/phenotype_subfacets.png' /><p><p>
+    						<div>The ticked filter will also appear in a 'filter summary' box right below the big blue 'Filter your search' bar on top left corner of the search page.
+    						Now you should have seen 'Phenotyping started'.<br>
+    						There, you can also remove individual filter(s) - same as when you untick a checkbox of a subfacet - or remove all filters in one go with the 'Remove all facet filters' link.</div><p>
+                                                     
+                            
+                            <h4><a name="quick_gene_srch" href='#'>Quick Gene Search</a></h4>			
+                            <div>Type a gene symbol, gene ID, name or human orthologue into search box and returned results will returned relevant gene pages.
+                                <p>Eg. search by gene symbol "mtf1":
+                            </div><br>			
+                            <img src='img/quick_gene_search.png' /><p>
+
+                            <h4><a name="quick_pheno_srch" href='#'>Quick Phenotype Search</a></h4>
+                            <div>Type an abnormal phenotype or MP:ID, click on phenotype facet on the left panel, and the results grid will return relevant phenotype pages.
+                                <p>Eg. search by phenotype "glucose":<br>
+                            </div><br> 
+                            <img src='img/quick_phenotype_search.png' /><p>
+
+                            <h4><a name="quick_disease_srch" href='#'>Quick Disease Search</a></h4>
+                            <div>Type a (partial) disease name or ID (OMIM, Orphanet or DECIPHER), click on the disease facet and the the results grid will return relevant disease pages.
+                                <p>Eg. Search for "cardiac" diseases:<br>
+                            </div><br> 
+                            <img src='img/disease_search.png' /><p>
+
+                            <h4><a name="quick_anatomy_srch" href='#'>Quick Anatomy Search</a></h4>
+                            <div>Type an anatomical entity or MA:ID, click on the anatomy facet on the on the left panel, and the results grid will return relevant anatomy pages.
+                                <p>Eg. search by anatomy "eye":<br>
+                            </div><br> 
+                            <img src='img/quick_anatomy_search.jpg' /><p>
+
+                            <h4><a name="quick_param_srch" href='#'>Quick Assay Search</a></h4>
+                            <div>Type an assay, parameter or IMPReSS ID, click on the procedure facet on the left panel, and the results grid will return relevant parameter pages. 
+                                <p>Eg. search by parameter "grip strength":<br>
+                            </div><br> 
+                            <img src='img/quick_param_search.jpg' /><p>	
+
+
+                            <h4><a name="quick_img_srch" href='#'>Quick Image Search</a></h4>
+                            <div>Type a gene, phenotype, assay, or anatomical entity, click on the images facet on the left panel and the results grid will return relevant image pages.
+                                <p>By default, Image View will be displayed, where annotations to an image is enlisted.<p>Eg. search by phenotype "immune":<br>				
+                            </div><br> 
+                            <img src='img/quick_img_search.jpg' /><p>
+
+                            <p>To view images grouped by annotations, simply click on the "Show Annotation View" button to the top-right corner of the results grid. The label of the same button will then be switched to "Show Image View" so that you can toggle the views.</p><br>
+                            <img src='img/quick_img_search_annotView.jpg' /><p>
+                                                   
+
+                            <h4><a name="export" href='#'>Data Export of Search Results</a></h4>
+                            <div>Click on the export icon <img src='img/export.jpg' /> to the top-right corner of the results grid to expand or hide it. 
+                                When expanded, <img src='img/export_expanded.jpg' /><p><p>
+                                    click on either TSV (tab separated) or XLS (MS Excel) buttons for format of export. 
+                                <p>To limit the export data on current page only, choose the buttons of the "Current paginated entries in table", 
+                                    whereas "All entries in table" will export the whole search results".
+                                <br>A warning message dialog box will be displayed if the dataset is large and download can take longer depending on your network speed.</div>			
+
+                        </div>
+                    </div>	
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>
