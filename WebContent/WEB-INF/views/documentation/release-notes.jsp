@@ -4,7 +4,7 @@
 
 <t:genericpage>
 	<jsp:attribute name="title">International Mouse Phenotyping Consortium Documentation</jsp:attribute>
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search?q=*:*&core=gene">Genes</a> &raquo; ${gene.symbol}</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/documentation/index">Documentation</a></jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 	<jsp:attribute name="addToFooter">
 
@@ -21,9 +21,6 @@
         <div id="wrapper">
 
             <div id="main">
-
-                <!-- Breadcrumb -->
-                <div class="breadcrumb"><a href="/">Home</a> ? Documentation</div>
 
                 <!-- Sidebar First -->
                 <jsp:include page="doc-menu.jsp"></jsp:include>

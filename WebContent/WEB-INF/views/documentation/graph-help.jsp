@@ -4,7 +4,7 @@
 
 <t:genericpage>
 	<jsp:attribute name="title">International Mouse Phenotyping Consortium Documentation</jsp:attribute>
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search?q=*:*&core=gene">Genes</a> &raquo; ${gene.symbol}</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/documentation/index">Documentation</a></jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 	<jsp:attribute name="addToFooter">
 
@@ -21,10 +21,6 @@
         <div id="wrapper">
 
             <div id="main">
-
-                <!-- Breadcrumb -->
-                <div class="breadcrumb"><a href="/">Home</a> ? Documentation</div>
-
                 <!-- Sidebar First -->
                 <jsp:include page="doc-menu.jsp"></jsp:include>
 
@@ -49,7 +45,7 @@
                             <p>Graphs are interective so that you can adjust the view to your liking. Click on a legend will remove a set of data from the graph. This is especially useful if you wish to remove "noise" from a graph and focus on the control or experimental data. <img src="img/graph_legends.png"> 
                             </p>
 
-                            <p>After clicking on the control legend the male homozygote data has dissappeared:<img src="img/graph_no_control.png" alt="graph with no control here">
+                            <p>After clicking on the control legend the male homozygote data has dissappeared:<img src="/img/graph_no_control.png" alt="graph with no control here">
                             </p>
                             <p>Hovering over a data point or error bars displays extra information about the data point:<img src="img/graph_hover.png" alt="graph with a hovering over mouse label here">
                             </p>
@@ -98,10 +94,10 @@
                                 Currently 4 types of graph exist in the IMPC portal from the IMPC: 
                             </p>
                             <ol>
-                                <li><a href="graph-help.html#categorical_graphs">Categorical Bar Graphs</a></li>
-                                <li><a href="graph-help.html#undimensional_graphs">Unidimensional Scatter and Box Plot Graphs</a></li>
-                                <li><a href="graph-help.html#time_graphs">Time Series Graphs</a></li>
-                                <li><a href="graph-help.html#scatter_graphs">Scatter Plots Showing Data Grouped by Date</a></li>
+                                <li><a href="graph-help#categorical_graphs">Categorical Bar Graphs</a></li>
+                                <li><a href="graph-help#undimensional_graphs">Unidimensional Scatter and Box Plot Graphs</a></li>
+                                <li><a href="graph-help#time_graphs">Time Series Graphs</a></li>
+                                <li><a href="graph-help#scatter_graphs">Scatter Plots Showing Data Grouped by Date</a></li>
                             </ol>
 
                             <h3><a name="categorical_graphs" href='#'>Categorical Bar Graphs</a></h3>
