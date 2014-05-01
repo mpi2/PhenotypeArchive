@@ -50,7 +50,7 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 	private Procedure procedure;
 	private Parameter parameter;
 	private String dataSourceName;//to hold the name of the origin of the data e.g. Europhenome or WTSI Mouse Genetics Project
-
+	private String graphUrl;
 	private Pipeline pipeline;
 	
 	public Pipeline getPipeline() {
@@ -61,6 +61,41 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 		this.pipeline = pipeline;
 	}
 
+	public String getGraphUrl() {
+		return graphUrl;
+	}
+
+	public void setGraphUrl(String graphBaseUrl) {
+		this.graphUrl = buildGraphUrl(graphBaseUrl);
+	}
+
+	public String buildGraphUrl(String baseUrl){
+		String url = baseUrl;
+		System.out.println("BaseUrl: " + baseUrl);
+		if (dataSourceName.equalsIgnoreCase("EuroPhenome")){
+			System.out.println("Europhenome");
+			return getPhenotypeLink();
+		}
+		else {
+			url += "/charts?accession=" + gene.getId().getAccession() + "&zygosity=" + zygosity ;
+			if (parameter != null){
+				url += "&parameter_stable_id=" + parameter.getStableId();
+			}
+
+			if (pipeline != null){
+				url += "&pipeline_stable_id=" + pipeline.getStableId();
+			}
+			if (phenotypingCenter != null){
+				url += "&phenotyping_center=" + phenotypingCenter; 
+			}
+			if (sexes.size() == 1){
+				url += "&gender=" + sexes.get(0);
+			}
+		}
+		System.out.println(" > " + url);
+		return url;
+	}
+	
 	/**
 	 * Returns a PhenotypeRow object with the original data provider link
 	 * populated.

@@ -333,6 +333,7 @@ public class GenesController {
 			sex.add(pcs.getSex().toString());
 
 			PhenotypeRow pr = new PhenotypeRow();
+			pr.setGene(pcs.getGene());
 			pr.setAllele(pcs.getAllele());
 			pr.setSexes(sex);
 			pr.setPhenotypeTerm(pcs.getPhenotypeTerm());
@@ -368,7 +369,7 @@ public class GenesController {
 				sexes.add(pcs.getSex().toString());
 				pr.setSexes(new ArrayList<String>(sexes));
 			}
-
+			pr.setGraphUrl(config.get("baseUrl"));
 			phenotypes.put(pr, pr);
 		}
 		ArrayList<PhenotypeRow> l = new ArrayList<PhenotypeRow>(phenotypes.keySet());

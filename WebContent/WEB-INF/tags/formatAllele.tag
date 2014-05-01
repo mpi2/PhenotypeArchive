@@ -9,8 +9,6 @@ allele = allele.replaceAll(">", "##");
 
 allele = allele.replaceAll("££", "<sup>");
 allele = allele.replaceAll("##", "</sup>");
-
-allele = "<span class=\"smallerAlleleFont\">"+allele+"</span>";
 %>
 
 <%= allele %>
