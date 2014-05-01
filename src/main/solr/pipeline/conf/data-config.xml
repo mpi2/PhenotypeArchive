@@ -135,8 +135,7 @@
 							<entity dataSource="mp_core" name="mpCore" stream="true" url="q=mp_id:&quot;${phenotype_call_summary.mp_acc}&quot;&amp;wt=normal&amp;rows=99999"
 							processor="XPathEntityProcessor" forEach="/response/result/doc/" onError="continue"                                                     
 							readTimeout="10000" connectionTimeout="10000"  >
-
-								<field column="p_value" xpath="/response/result/doc/arr[@name='p_value']/float" />  
+								
 								<field column="mp_id" xpath="/response/result/doc/str[@name='mp_id']" />                                        
 								<field column="mp_term" xpath="/response/result/doc/str[@name='mp_term']" />
 								<field column="mp_definition" xpath="/response/result/doc/str[@name='mp_definition']" />                
