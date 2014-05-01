@@ -148,13 +148,7 @@
 					<field column="inferred_ma_id" xpath="/response/result/doc/arr[@name='inferred_ma_id']/str" />	
 					<field column="inferred_ma_term" xpath="/response/result/doc/arr[@name='inferred_ma_term']/str" />
 					<field column="inferred_selected_top_level_ma_id" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_id']/str" />
-					<field column="inferred_selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str" />			
-		
-					<entity dataSource="komp2db" name="phenotype_call_summary"
-						query="select distinct gf_acc, procedure_id, parameter_id, pipeline_id, allele_acc, strain_acc, p_value from phenotype_call_summary where mp_acc='${mpCore.mp_id}' and gf_db_id=3 and gf_acc='${doc.mgi_accession_id}' and allele_acc is not null and strain_acc is not null">											
-				
-						<field column="p_value" name="p_value" />
-					</entity>
+					<field column="inferred_selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str" />				
 		
 				</entity>
 

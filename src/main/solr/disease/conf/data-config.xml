@@ -72,8 +72,7 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
 					<!-- alleles of a gene -->
 					<field column="allele_name" xpath="/response/result/doc/arr[@name='allele_name']/str" />
 				 		
-					<!-- MP terms associated with this MGI gene -->     
-					<field column="p_value" xpath="/response/result/doc/arr[@name='p_value']/float" />                    
+					<!-- MP terms associated with this MGI gene -->					                 
                     <field column="mp_id" xpath="/response/result/doc/arr[@name='mp_id']/str" />                                        
                     <field column="mp_term" xpath="/response/result/doc/arr[@name='mp_term']/str" />
                     <field column="mp_definition" xpath="/response/result/doc/arr[@name='mp_definition']/str" />                
