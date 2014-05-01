@@ -173,6 +173,7 @@ public class GenesController {
 		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
 		if (gene == null) {
 			log.warn("Gene status for " + acc + " can't be found.");
+			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
 		}	
 		
 		/**

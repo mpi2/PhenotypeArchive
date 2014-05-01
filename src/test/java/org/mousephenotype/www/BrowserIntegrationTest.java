@@ -1,4 +1,4 @@
-package org.mousephenotype;
+package org.mousephenotype.www;
 
 import static org.junit.Assert.assertTrue;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package phenotype.web;
+package org.mousephenotype.www;
 
 
 import java.net.MalformedURLException;
@@ -49,7 +49,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static phenotype.web.GetGenePagesTest.staticDriver;
+import static org.mousephenotype.www.GetGenePagesTest.staticDriver;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
 

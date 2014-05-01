@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  /**
- * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
+ * Copyright © 2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License.  
@@ -17,14 +17,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package phenotype.web;
+package org.mousephenotype.www;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -33,6 +33,7 @@ import org.junit.AfterClass;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
@@ -42,9 +43,8 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static phenotype.web.GetGenePagesTest.staticDriver;
 import uk.ac.ebi.generic.util.Tools;
-import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.stats.GeneService;
 
 /**
  *
@@ -68,12 +68,11 @@ import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-//@RunWith(Parameterized.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })
-public class GetPhenotypePagesTest {
+public class GetGenePagesTest {
     
     @Autowired
-    protected GenotypePhenotypeService genotypePhenotypeService;
+    protected GeneService geneService;
     
     @Autowired
     protected String baseUrl;
@@ -86,10 +85,10 @@ public class GetPhenotypePagesTest {
     protected String seleniumUrl;
     
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    private final int TIMEOUT_IN_SECONDS = 300;
     
     // These constants define the maximum number of iterations for each given test. -1 means iterate over all.
-    public final int MAX_MGI_LINK_CHECK_COUNT = 5;                              // -1 means test all links.
-    public final int MAX_PHENOTYPE_TEST_PAGE_COUNT = -1;                        // -1 means test all pages.
+    public final int MAX_GENE_TEST_PAGE_COUNT = 5000;                           // -1 means test all pages.
 
     @Before
     public void setup() {
@@ -107,10 +106,10 @@ public class GetPhenotypePagesTest {
     
     @AfterClass
     public static void tearDownClass() {
-        if (staticDriver != null) {
-            System.out.println("Closing driver.");
-            staticDriver.close();
-        }
+//        if (staticDriver != null) {
+//            System.out.println("Closing driver.");
+//            staticDriver.close();
+//        }
     }
     
     // PRIVATE METHODS
@@ -129,16 +128,19 @@ public class GetPhenotypePagesTest {
         System.out.println("seleniumUrl: " + seleniumUrl);
         System.out.println("TESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
     }
-    
+
     /**
-     * Checks the MGI links for the first MAX_MGI_LINK_CHECK_COUNT phenotype ids
+     * Fetches all gene IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
+     * core and tests to make sure there is a page for each. Limit the test
+     * to the first MAX_GENE_TEST_PAGE_COUNT by setting it to the limit you want.
      * 
      * @throws SolrServerException 
      */
     @Test
-    public void testMGILinksAreValid() throws SolrServerException {
+    public void testRandomPageForGeneIds() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        Set<String> phenotypeIds = genotypePhenotypeService.getAllPhenotypes();
+        Set<String> geneIds = geneService.getAllGenes();
+        String[] geneIdArray = geneIds.toArray(new String[geneIds.size()]);
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -146,155 +148,89 @@ public class GetPhenotypePagesTest {
         String message;
         Date start = new Date();
         Date stop;
+
+        int targetCount = (MAX_GENE_TEST_PAGE_COUNT >= 0 ? Math.min(MAX_GENE_TEST_PAGE_COUNT, geneIds.size()) : geneIds.size());
+        System.out.println(dateFormat.format(start) + ": testRandomPageForGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
-        int targetCount = (MAX_MGI_LINK_CHECK_COUNT >= 0 ? Math.min(MAX_MGI_LINK_CHECK_COUNT, phenotypeIds.size()) : phenotypeIds.size());
-        System.out.println(dateFormat.format(start) + ": testMGILinksAreValid started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
-        
-        // Loop through first MAX_MGI_LINK_CHECK_COUNT phenotype MGI links, testing each one for valid page load.
+        // Loop through all phenotypes, testing each one for valid page load.
+        Random rand = new Random();
+        int max = geneIdArray.length;
+        int min = 0;
         int i = 0;
-        for (String phenotypeId : phenotypeIds) {
-            if ((MAX_MGI_LINK_CHECK_COUNT != -1) && (i++ >= MAX_MGI_LINK_CHECK_COUNT)) {
+        while (true) {
+            int index = rand.nextInt((max - min) + 1) + min;
+            String geneId = geneIdArray[index];
+            if (i < 10) {
+                System.out.println("gene[" + i + "]: " + geneId);
+            }
+            
+            if ((MAX_GENE_TEST_PAGE_COUNT != -1) && (i++ >= MAX_GENE_TEST_PAGE_COUNT)) {
                 break;
             }
 
-            target = baseUrl + "/phenotypes/" + phenotypeId;
+            target = baseUrl + "/genes/" + geneId;
+
+            List<WebElement> mpTermIdLink;
+
             try {
-                driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
+                driver.manage().timeouts().setScriptTimeout(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
                 driver.get(target);
                 driver.navigate().refresh();
+                mpTermIdLink = driver.findElements(By.cssSelector("div.inner a").linkText(geneId));
             } catch (Exception e) {
                 message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
                 exceptionList.add(message);
-            }
-            List<WebElement> phenotypeLinks = driver.findElements(By.cssSelector("div.inner a").linkText(phenotypeId));
-            if (phenotypeLinks.isEmpty()) {
-                message = "No page found for MP_TERM_ID " + phenotypeId + "(" + target + ")";
-                errorList.add(message);
                 continue;
             }
 
-            if (phenotypeLinks.size() != 1) {
-                message = "Expected exactly 1 page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found " + phenotypeLinks.size();
-                errorList.add(message);
-            }
-
-            phenotypeLinks.get(0).click();
-            String idString = "[" + phenotypeId + "]";
-            boolean found = driver.findElement(By.cssSelector("div[id='templateBodyInsert']")).getText().contains(idString);
-            if ( ! found) {
-                message = "div id 'templateBodyInsert' not found.";
-                errorList.add(message);
-            } else {
-                message = "SUCCESS: MGI link OK for " + phenotypeId + ". Target URL: " + target;
-                successList.add(message);
-            }
-        }
-        
-        System.out.println(dateFormat.format(new Date()) + ": testMGILinksAreValid finished.");
-        
-        if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MGI links failed:");
-            for (String s : errorList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MGI links caused exceptions to be thrown:");
-            for (String s : exceptionList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI links processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
-        
-        if (errorList.size() + exceptionList.size() > 0) {
-            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
-        }
-    }
-    
-    /**
-     * Fetches all phenotype IDs from the genotype-phenotype core and
-     * tests to make sure there is a page for each.
-     * 
-     * @throws SolrServerException 
-     */
-    @Test
-    public void testPageForEveryMPTermId() throws SolrServerException {
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        Set<String> phenotypeIds = genotypePhenotypeService.getAllPhenotypes();
-        String target = "";
-        List<String> errorList = new ArrayList();
-        List<String> successList = new ArrayList();
-        List<String> exceptionList = new ArrayList();
-        String message;
-        Date start = new Date();
-        Date stop;
-        
-        int targetCount = (MAX_PHENOTYPE_TEST_PAGE_COUNT >= 0 ? Math.min(MAX_PHENOTYPE_TEST_PAGE_COUNT, phenotypeIds.size()) : phenotypeIds.size());
-        System.out.println(dateFormat.format(start) + ": testPageForEveryMPTermId started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
-        
-        // Loop through all phenotypes, testing each one for valid page load.
-        int i = 0;
-        for (String phenotypeId : phenotypeIds) {
-            if ((MAX_PHENOTYPE_TEST_PAGE_COUNT != -1) && (i++ >= MAX_PHENOTYPE_TEST_PAGE_COUNT)) {
-                break;
-            }
-
-            target = baseUrl + "/phenotypes/" + phenotypeId;
-            try {
-                driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
-                driver.get(target);
-                driver.navigate().refresh();
-            } catch (Exception e) {
-                message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-                exceptionList.add(message);
-            }
-            List<WebElement> mpTermIdLink = driver.findElements(By.cssSelector("div.inner a").linkText(phenotypeId));
             if ( mpTermIdLink.isEmpty()) {
-                message = "Expected page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
+                message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
             } else {
-                message = "SUCCESS: MP_TERM_ID " + phenotypeId + ". Target URL: " + target;
+                message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
                 successList.add(message);
             }
+            
+            if (i % 1000 == 0)
+                System.out.println(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": testPageForEveryMPTermId finished.");
+        System.out.println(dateFormat.format(new Date()) + ": testRandomPageForGeneIds finished.");
         
         if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MP_TERM_ID records failed:");
+            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
             for (String s : errorList) {
                 System.out.println("\t" + s);
             }
         }
         
         if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MP_TERM_ID records caused exceptions to be thrown:");
+            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
             for (String s : exceptionList) {
                 System.out.println("\t" + s);
             }
         }
         
         stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MP_TERM_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
+        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
         
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
         }
     }
-    
+
     /**
-     * Fetches all top-level phenotype IDs from the genotype-phenotype core and
-     * tests to make sure there is a page for each.
+     * Fetches all gene IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
+     * core and tests to make sure there is a page for each. Limit the test
+     * to the first MAX_GENE_TEST_PAGE_COUNT by setting it to the limit you want.
      * 
      * @throws SolrServerException 
      */
     @Test
-    public void testPageForEveryTopLevelMPTermId() throws SolrServerException {
+@Ignore
+    public void testPageForGeneIds() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        Set<String> phenotypeIds = genotypePhenotypeService.getAllTopLevelPhenotypes();
+        Set<String> geneIds = geneService.getAllGenes();
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -303,55 +239,141 @@ public class GetPhenotypePagesTest {
         Date start = new Date();
         Date stop;
 
-        int targetCount = (MAX_PHENOTYPE_TEST_PAGE_COUNT >= 0 ? Math.min(MAX_PHENOTYPE_TEST_PAGE_COUNT, phenotypeIds.size()) : phenotypeIds.size());
-        System.out.println(dateFormat.format(start) + ": testPageForEveryTopLevelMPTermId started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
+        int targetCount = (MAX_GENE_TEST_PAGE_COUNT >= 0 ? Math.min(MAX_GENE_TEST_PAGE_COUNT, geneIds.size()) : geneIds.size());
+        System.out.println(dateFormat.format(start) + ": testPageForGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
-
         // Loop through all phenotypes, testing each one for valid page load.
         int i = 0;
-        for (String phenotypeId : phenotypeIds) {
-            if ((MAX_PHENOTYPE_TEST_PAGE_COUNT != -1) && (i++ >= MAX_PHENOTYPE_TEST_PAGE_COUNT)) {
+        for (String geneId : geneIds) {
+            if ((MAX_GENE_TEST_PAGE_COUNT != -1) && (i++ >= MAX_GENE_TEST_PAGE_COUNT)) {
                 break;
             }
 
-            target = baseUrl + "/phenotypes/" + phenotypeId;
+            target = baseUrl + "/genes/" + geneId;
+
+            List<WebElement> mpTermIdLink;
+
             try {
-                driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
+                driver.manage().timeouts().setScriptTimeout(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
                 driver.get(target);
                 driver.navigate().refresh();
+                mpTermIdLink = driver.findElements(By.cssSelector("div.inner a").linkText(geneId));
             } catch (Exception e) {
                 message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
                 exceptionList.add(message);
+                continue;
             }
 
-            List<WebElement> topLevelMPTermIdLink = driver.findElements(By.cssSelector("div.inner a").linkText(phenotypeId));
-            if ( topLevelMPTermIdLink.isEmpty()) {
-                message = "Expected page for TOP_LEVEL_MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
+            if ( mpTermIdLink.isEmpty()) {
+                message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
             } else {
-                message = "SUCCESS: TOP_LEVEL_MP_TERM_ID " + phenotypeId + ". Target URL: " + target;
+                message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
                 successList.add(message);
             }
+            
+            if (i % 1000 == 0)
+                System.out.println(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": testPageForEveryTopLevelMPTermId finished.");
+        System.out.println(dateFormat.format(new Date()) + ": testPageForGeneIds finished.");
         
         if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " TOP_LEVEL_MP_TERM_ID records failed:");
+            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
             for (String s : errorList) {
                 System.out.println("\t" + s);
             }
         }
         
         if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " TOP_LEVEL_MP_TERM_ID records caused exceptions to be thrown:");
+            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
             for (String s : exceptionList) {
                 System.out.println("\t" + s);
             }
         }
         
         stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " TOP_LEVEL_MP_TERM_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
+        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
+        
+        if (errorList.size() + exceptionList.size() > 0) {
+            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
+        }
+    }
+
+    /**
+     * Fetches all gene IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
+     * core and tests to make sure there is a page for each. Limit the test
+     * to the first MAX_GENE_TEST_PAGE_COUNT by setting it to the limit you want.
+     * 
+     * @throws SolrServerException 
+     */
+    @Test
+    public void testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI() throws SolrServerException {
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        Set<String> geneIds = geneService.getGenesByPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.PRODUCTION_CENTRE_WTSI);
+        String target = "";
+        List<String> errorList = new ArrayList();
+        List<String> successList = new ArrayList();
+        List<String> exceptionList = new ArrayList();
+        String message;
+        Date start = new Date();
+        Date stop;
+
+        int targetCount = (MAX_GENE_TEST_PAGE_COUNT >= 0 ? Math.min(MAX_GENE_TEST_PAGE_COUNT, geneIds.size()) : geneIds.size());
+        System.out.println(dateFormat.format(start) + ": testPageForGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
+        
+        // Loop through all phenotypes, testing each one for valid page load.
+        int i = 0;
+        for (String geneId : geneIds) {
+            if ((MAX_GENE_TEST_PAGE_COUNT != -1) && (i++ >= MAX_GENE_TEST_PAGE_COUNT)) {
+                break;
+            }
+
+            target = baseUrl + "/genes/" + geneId;
+
+            List<WebElement> mpTermIdLink;
+
+            try {
+                driver.manage().timeouts().setScriptTimeout(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+                driver.get(target);
+                driver.navigate().refresh();
+                mpTermIdLink = driver.findElements(By.cssSelector("div.inner a").linkText(geneId));
+            } catch (Exception e) {
+                message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+                exceptionList.add(message);
+                continue;
+            }
+
+            if ( mpTermIdLink.isEmpty()) {
+                message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
+                errorList.add(message);
+            } else {
+                message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
+                successList.add(message);
+            }
+            
+            if (i % 1000 == 0)
+                System.out.println(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
+        }
+        
+        System.out.println(dateFormat.format(new Date()) + ": testPageForGeneIds finished.");
+        
+        if ( ! errorList.isEmpty()) {
+            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
+            for (String s : errorList) {
+                System.out.println("\t" + s);
+            }
+        }
+        
+        if ( ! exceptionList.isEmpty()) {
+            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
+            for (String s : exceptionList) {
+                System.out.println("\t" + s);
+            }
+        }
+        
+        stop = new Date();
+        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
         
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
@@ -359,12 +381,12 @@ public class GetPhenotypePagesTest {
     }
     
     /**
-     * Tests that a sensible page is returned for an invalid phenotype id.
+     * Tests that a sensible page is returned for an invalid gene id.
      * 
      * @throws SolrServerException 
      */
     @Test
-    public void testInvalidMpTermId() throws SolrServerException {
+    public void testInvalidGeneId() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String target = "";
         List<String> errorList = new ArrayList();
@@ -372,52 +394,52 @@ public class GetPhenotypePagesTest {
         String message;
         Date start = new Date();
         Date stop;
-        String phenotypeId = "junkBadPhenotype";
-        final String EXPECTED_ERROR_MESSAGE = "Oops! junkBadPhenotype is not a valid mammalian phenotype identifier.";
+        String geneId = "junkBadGene";
+        final String EXPECTED_ERROR_MESSAGE = "Oops! junkBadGene is not a valid MGI gene identifier.";
         
-        System.out.println(dateFormat.format(start) + ": testInvalidMpTermId started. Expecting to process 1 of a total of 1 records.");
+        System.out.println(dateFormat.format(start) + ": testInvalidGeneId started.");
         
-        target = baseUrl + "/phenotypes/" + phenotypeId;
         try {
-            driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
+            target = baseUrl + "/genes/" + geneId;
+            driver.manage().timeouts().setScriptTimeout(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
             driver.get(target);
             driver.navigate().refresh();
+            boolean found = false;
+            
+            List<WebElement> geneLinks = driver.findElements(By.cssSelector("div.node h1"));
+            if (geneLinks.isEmpty()) {
+                message = "No page found for MGI_ACCESSION_ID " + geneId + "(" + target + ")";
+                errorList.add(message);
+            }
+
+            for (WebElement element : geneLinks) {
+                if (element.getText().compareTo(EXPECTED_ERROR_MESSAGE) == 0) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if ( ! found) {
+                message = "Expected error page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
+                errorList.add(message);
+            }
         } catch (Exception e) {
             message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
             exceptionList.add(message);
         }
-        boolean found = false;
-
-        List<WebElement> phenotypeLinks = driver.findElements(By.cssSelector("div.node h1"));
-        if (phenotypeLinks.isEmpty()) {
-            message = "No page found for MP_TERM_ID " + phenotypeId + "(" + target + ")";
-            errorList.add(message);
-        }
-
-        for (WebElement element : phenotypeLinks) {
-            if (element.getText().compareTo(EXPECTED_ERROR_MESSAGE) == 0) {
-                found = true;
-                break;
-            }
-        }
-
-        if ( ! found) {
-            message = "Expected error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-            errorList.add(message);
-        }
         
         stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": testInvalidMpTermId finished.");
+        System.out.println(dateFormat.format(stop) + ": testInvalidGeneId finished.");
         
         if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MP_TERM_ID records failed:");
+            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
             for (String s : errorList) {
                 System.out.println("\t" + s);
             }
         }
         
         if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MP_TERM_ID records caused exceptions to be thrown:");
+            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
             for (String s : exceptionList) {
                 System.out.println("\t" + s);
             }
@@ -427,7 +449,7 @@ public class GetPhenotypePagesTest {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": 1 invalid MP_TERM_ID record processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
+        System.out.println(dateFormat.format(new Date()) + ": 1 invalid MGI_ACCESSION_ID record processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
     }
-
+    
 }

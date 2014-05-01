@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package phenotype.web;
+package org.mousephenotype.www;
 
 import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;

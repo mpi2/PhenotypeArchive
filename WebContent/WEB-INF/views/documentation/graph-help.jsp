@@ -7,7 +7,7 @@
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/documentation/index">Documentation</a></jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 	<jsp:attribute name="addToFooter">
-
+<jsp:include page="doc-pinned-menu.jsp"></jsp:include>
 	</jsp:attribute>
 	
 
@@ -30,7 +30,7 @@
 
                     <div class="block block-system">
 
-                        <div class="content node">
+                        <div id="top" class="content node">
 
                             <h1>More information about the way IMPC uses graphs.</h1>
 
@@ -102,13 +102,12 @@
 
                             <h3><a name="categorical_graphs" href='#'>Categorical Bar Graphs</a></h3>
                             <img src="img/graph_categorical_normal.png">
-                            <p>Categorical graphs contain data where an observation can be categorised into one of two or more groups e.g. Abnormal Eye or Normal Eye. Graphs are presented as bar graphs with a table underneath. If IMPC data is available this will be displayed. Otherwise if data from Europhenome is available, the p values and max effects as determined by Europhenoome will be displayed. Note that these may not correlate exactly with the data displayed in the graphs although every attempt has been made to make them correlate.  (see <a href="statistics-help.html">statistic help</a> for more information).
+                            <p>Categorical graphs contain data where an observation can be categorised into one of two or more groups e.g. Abnormal Eye or Normal Eye. Graphs are presented as bar graphs with a table underneath. If IMPC data is available this will be displayed (see <a href="statistics-help.html">statistic help</a> for more information).
                             </p>
 
                             <h3><a name="undimensional_graphs" href='#'>Unidimensional Scatter and Box Plot Graphs</a></h3>
                             <img src="img/graph_box_normal.png">
-                            <p>Where an observation can be measured on a continuous basis (e.g. red blood cell counts or tail length), we display them in a mixed box and scatter plot. The first column contains a box plot for wild-type data and the second a scatter plot for that same wild type data. The third column is a box plot for homozygote or heterozygote data and the 4th will be
-                                a scatter plot for the same data. Hover over the box in the graph will show the basic statistics for that set of data: 
+                            <p>Where an observation can be measured on a continuous basis (e.g. red blood cell counts or tail length), we display them in a mixed box and scatter plot. The first columns contain box plots for Wild Type (control), Homozygote then Heterozygote mutants for female then the columns representing males. The second set of columns contain scatter plots for the same sets of data. Hover over the box in the graph will show the basic statistics for that set of data: 
                                 <img src="img/graph_box_with_labels.png">
                             </p>
 
