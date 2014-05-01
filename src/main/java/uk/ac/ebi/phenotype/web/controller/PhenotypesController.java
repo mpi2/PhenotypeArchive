@@ -298,7 +298,7 @@ public class PhenotypesController {
 			List<String> sex = new ArrayList<String>();
 			sex.add(pcs.getSex().toString());
 
-			PhenotypeRow pr = new PhenotypeRow(PhenotypeRowType.GENE_PAGE_ROW, pcs, config.get("baseUrl"));
+			PhenotypeRow pr = new PhenotypeRow( pcs, config.get("baseUrl"));
 			
 			// Collapse rows on sex
 			if(phenotypes.containsKey(pr)) {

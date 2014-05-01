@@ -74,45 +74,42 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 	
 	public PhenotypeRow(){};
 
-	public PhenotypeRow(PhenotypeRowType rowType, PhenotypeCallSummary pcs, String baseUrl){
-		if (rowType == PhenotypeRowType.GENE_PAGE_ROW){
-			System.out.println("\nDA\n\n");
-			List<String> sex = new ArrayList<String>();
-			sex.add(pcs.getSex().toString());
+	public PhenotypeRow(PhenotypeCallSummary pcs, String baseUrl){
+					
+		List<String> sex = new ArrayList<String>();
+		sex.add(pcs.getSex().toString());
 
-			this.setGene(pcs.getGene());
-			this.setAllele(pcs.getAllele());
-			this.setSexes(sex);
-			this.setPhenotypeTerm(pcs.getPhenotypeTerm());
-			this.setPipeline(pcs.getPipeline());
-			// zygosity representation depends on source of information
-			// we need to know what the data source is so we can generate appropriate link on the page
-			Datasource ds = pcs.getDatasource();
-			String dataSourceName = "";
+		this.setGene(pcs.getGene());
+		this.setAllele(pcs.getAllele());
+		this.setSexes(sex);
+		this.setPhenotypeTerm(pcs.getPhenotypeTerm());
+		this.setPipeline(pcs.getPipeline());
+		// zygosity representation depends on source of information
+		// we need to know what the data source is so we can generate appropriate link on the page
+		Datasource ds = pcs.getDatasource();
+		String dataSourceName = "";
 
-			// Defend in case the datasource is not loaded
-			if (ds != null) {
-				dataSourceName = ds.getName();
-			}
-			this.setDataSourceName(dataSourceName);
-
-			// this should be the fix but EuroPhenome is buggy
-			String rawZygosity = (dataSourceName.equals("EuroPhenome")) ? 
-					//Utilities.getZygosity(pcs.getZygosity()) : pcs.getZygosity().toString();
-					"All" : pcs.getZygosity().toString();
-			this.setRawZygosity(rawZygosity);
-			this.setZygosity(pcs.getZygosity());
-			if(pcs.getExternalId()!=null) {
-				this.setProjectId(pcs.getExternalId());
-			}
-			
-			this.setProcedure(pcs.getProcedure());
-			this.setParameter(pcs.getParameter());
-			this.setPhenotypingCenter(pcs.getPhenotypingCenter());
-			
-			this.setGraphUrl(baseUrl);
+		// Defend in case the datasource is not loaded
+		if (ds != null) {
+			dataSourceName = ds.getName();
 		}
-	
+		this.setDataSourceName(dataSourceName);
+		// this should be the fix but EuroPhenome is buggy
+		String rawZygosity = (dataSourceName.equals("EuroPhenome")) ? 
+				//Utilities.getZygosity(pcs.getZygosity()) : pcs.getZygosity().toString();
+				"All" : pcs.getZygosity().toString();
+		this.setRawZygosity(rawZygosity);
+		this.setZygosity(pcs.getZygosity());
+		if(pcs.getExternalId()!=null) {
+			this.setProjectId(pcs.getExternalId());
+		}
+		
+		this.setProcedure(pcs.getProcedure());
+		this.setParameter(pcs.getParameter());
+		this.setPhenotypingCenter(pcs.getPhenotypingCenter());
+			
+		this.setGraphUrl(baseUrl);
+			
 	}
 	
 	
@@ -385,6 +382,31 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 		
 	}
 
-	
+	public String toTabbedString(String targetPage){
+		
+		String res = "";
+		
+		if (targetPage.equalsIgnoreCase("gene")){
+			res = getPhenotypeTerm().getName() + "\t" 
+					+ getAllele().getSymbol() + "\t" 
+					+ getZygosity() + "\t" 
+					+ getSexes().get(0) + "\t"
+					+ getProcedure().getName() + " / " + getParameter().getName() + "\t" 
+					+ getPhenotypingCenter() + "\t" 
+					+ getDataSourceName() + "\t"
+					+ getGraphUrl() + "\n";	
+		}else if (targetPage.equalsIgnoreCase("phenotype")){
+			res = getGene().getSymbol() + "\t" 
+					+ getAllele().getSymbol() + "\t" 
+					+ getZygosity() + "\t" 
+					+ getSexes().get(0) + "\t"
+					+ getPhenotypeTerm().getName() + "\t" 
+					+ getProcedure().getName() + " / " + getParameter().getName() + "\t" 
+					+ getPhenotypingCenter() + "\t" 
+					+ getDataSourceName() + "\t"
+					+ getGraphUrl() + "\n";	
+		}
+		return res;
+	}
 
 }
