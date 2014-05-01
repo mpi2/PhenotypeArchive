@@ -192,7 +192,8 @@ public class FileExportController {
 				dataString = composeGeneVariantsTsvString(mpId, extDbId);
 			}
 			else if ( panelName.equals("phenoAssoc") ){				
-				dataString = composePhenoAssocTsvString(mgiGeneId[0], extDbId);
+//				dataString = composePhenoAssocTsvString(mgiGeneId[0], extDbId);
+				dataRows = composeDataRowGenePage(mgiGeneId[0]);
 			}
 			else if ( !solrCoreName.isEmpty() ){
 
@@ -806,4 +807,13 @@ public class FileExportController {
 		return StringUtils.join(rows, "\n");
 	}
 
+	private List<String> composeDataRowGenePage(String geneAcc){
+		List<String> res = new ArrayList<>();
+	//	for (Object pcs : phenotypeCallSummaryDAO){
+			
+	//	}
+		
+		return res;
+	}
+	
 }
