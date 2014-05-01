@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package phenotype.web;
+package org.mousephenotype.www;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -42,7 +42,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static phenotype.web.GetGenePagesTest.staticDriver;
+import static org.mousephenotype.www.GetGenePagesTest.staticDriver;
 import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
 
@@ -70,7 +70,7 @@ import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
 @RunWith(SpringJUnit4ClassRunner.class)
 //@RunWith(Parameterized.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })
-public class GetPhenotypePagesTest {
+public class PhenotypePagesTest {
     
     @Autowired
     protected GenotypePhenotypeService genotypePhenotypeService;

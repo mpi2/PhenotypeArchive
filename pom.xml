@@ -587,11 +587,11 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.15</version>
                     <configuration>
-                        <skipTests>true</skipTests>
+                        <skipTests>false</skipTests>
                         <testFailureIgnore>true</testFailureIgnore>
                         <excludes>
                             <exclude>**PageTest.java</exclude>
-                            <exclude>**/phenotype/web/**</exclude>
+                            <exclude>**/org/mousephenotype/www/**</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
@@ -884,6 +884,7 @@
                             <skipTests>true</skipTests>
                             <excludes>
                                 <exclude>**PageTest.java</exclude>
+                                <exclude>**/org/mousephenotype/www/**</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -956,6 +957,7 @@
                             <skipTests>true</skipTests>
                             <excludes>
                                 <exclude>**PageTest.java</exclude>
+                                <exclude>**/org/mousephenotype/www/**</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -1023,6 +1025,7 @@
                             <skipTests>false</skipTests>
                             <excludes>
                                 <exclude>**PageTest.java</exclude>
+                                <exclude>**/org/mousephenotype/www/**</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -1051,6 +1054,7 @@
                             <skipTests>false</skipTests>
                             <excludes>
                                 <exclude>**PageTest.java</exclude>
+                                <exclude>**/org/mousephenotype/www/**</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -1083,6 +1087,7 @@
                             <skipTests>true</skipTests>
                             <excludes>
                                 <exclude>**PageTest.java</exclude>
+                                <exclude>**/org/mousephenotype/www/**</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -1119,7 +1124,7 @@
                                 <testFailureIgnore>true</testFailureIgnore>
                                 <includes>
                                     <include>**PageTest.java</include>
-                                    <include>**/phenotype/web/**</include>
+                                    <include>**/org/mousephenotype/www/**</include>
                                 </includes>
                                 <excludes>
                                     <exclude></exclude>
@@ -1188,6 +1193,7 @@
                             <skipTests>true</skipTests>
                             <excludes>
                                 <exclude>**PageTest.java</exclude>
+                                <exclude>**/org/mousephenotype/www/**</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -1221,6 +1227,7 @@
                             <skipTests>true</skipTests>
                             <excludes>
                                 <exclude>**PageTest.java</exclude>
+                                <exclude>**/org/mousephenotype/www/**</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -1277,6 +1284,7 @@
                             <skipTests>true</skipTests>
                             <excludes>
                                 <exclude>**PageTest.java</exclude>
+                                <exclude>**/org/mousephenotype/www/**</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
