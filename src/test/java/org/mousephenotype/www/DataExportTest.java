@@ -17,17 +17,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package phenotype.web;
+package org.mousephenotype.www;
 
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.solr.client.solrj.SolrServerException;
@@ -35,12 +33,11 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -133,9 +130,17 @@ public class DataExportTest {
      * core and tests to make sure there is a page for each. Limit the test
      * to the first MAX_GENE_TEST_PAGE_COUNT by setting it to the limit you want.
      * 
+     * NOTE: This test currently only works on chrome. In order to run this test
+     * successfully, we need to clear the downloads folder first. A better solution
+     * is to find a way to programatically suppress the download dialog and later,
+     * when the test is complete, to remove the download file(s).
+     * 
+     * For now (01-May-2014) we shall mark this test @Ignore.
+     * 
      * @throws SolrServerException 
      */
     @Test
+@Ignore
     public void testPageForGeneIds() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String target = "";
