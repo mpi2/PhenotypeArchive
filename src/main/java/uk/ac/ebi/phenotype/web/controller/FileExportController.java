@@ -382,14 +382,16 @@ public class FileExportController {
 				data.add(doc.getString(GenotypePhenotypeField.PROCEDURE_NAME) + " / " + doc.getString(GenotypePhenotypeField.PARAMETER_NAME));
 				data.add(doc.getString(GenotypePhenotypeField.PHENOTYPING_CENTER));
 				data.add(doc.getString(GenotypePhenotypeField.RESOURCE_NAME));
+				
 				String graphUrl = "\"\"";
-				graphUrl = request.getParameter("baseUrl").replace("/genes/", "/charts?accession=") + "&parameterId=" ;
+				graphUrl = request.getParameter("baseUrl").replace("/genes/", "/charts?accession=") + "&parameter_stable_id=" ;
 				graphUrl += doc.getString(GenotypePhenotypeField.PARAMETER_STABLE_ID) + "&gender=" + doc.getString(GenotypePhenotypeField.SEX);
 				graphUrl += "&zygosity=" + doc.getString(GenotypePhenotypeField.ZYGOSITY);
 				if (doc.containsKey(GenotypePhenotypeField.PHENOTYPING_CENTER)){
 					graphUrl += "&phenotyping_center=" +doc.getString(GenotypePhenotypeField.PHENOTYPING_CENTER);
 				}
 				data.add(graphUrl);
+			
 				String line = StringUtils.join(data, "\t");
 				if (!rowData.contains(line)){
 					rowData.add(line);
@@ -417,7 +419,8 @@ public class FileExportController {
 				data.add(doc.getString(GenotypePhenotypeField.PHENOTYPING_CENTER));
 				data.add(doc.getString(GenotypePhenotypeField.RESOURCE_NAME));
 				String graphUrl = "\"\"";
-				graphUrl = request.getParameter("baseUrl").split("/phenotypes/")[0] + "/charts?accession=" + doc.getString(GenotypePhenotypeField.MARKER_ACCESSION_ID) + "&parameterId=" ;
+				graphUrl = request.getParameter("baseUrl").split("/phenotypes/")[0] + "/charts?accession=" + doc.getString(GenotypePhenotypeField.MARKER_ACCESSION_ID) 
+						+ "&parameter_stable_id=" ;
 				graphUrl += doc.getString(GenotypePhenotypeField.PARAMETER_STABLE_ID) + "&gender=" + doc.getString(GenotypePhenotypeField.SEX);
 				graphUrl += "&zygosity=" + doc.getString(GenotypePhenotypeField.ZYGOSITY) ;
 				if (doc.containsKey(GenotypePhenotypeField.PHENOTYPING_CENTER)){

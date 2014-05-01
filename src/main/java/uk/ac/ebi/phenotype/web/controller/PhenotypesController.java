@@ -121,6 +121,9 @@ public class PhenotypesController {
 	@Autowired
 	GenotypePhenotypeService gpService;
 	
+	@Resource(name="globalConfiguration")
+	private Map<String, String> config;
+	
 	private static final int numberOfImagesToDisplay=5;
 
 	/**
@@ -328,6 +331,7 @@ public class PhenotypesController {
 			}
 			if (pcs.getPhenotypingCenter() != null)
 				pr.setPhenotypingCenter(pcs.getPhenotypingCenter());
+			pr.setGraphUrl(config.get("baseUrl"));
 			if(pr.getParameter() != null && pr.getProcedure()!= null) {		
 				//if(pr.getGene().getSymbol().equals("Dll1")){
 				phenotypes.put(pr, pr);
