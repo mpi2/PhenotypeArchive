@@ -103,6 +103,37 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 			e.printStackTrace();
 		}
 		
+		
+		query = 
+				"SELECT param.stable_id AS param_stable_id,"
+				+ "c.null_test_significance AS p_value, 0 AS effect_size, "
+				+ "c.status AS status, c.statistical_method AS statistical_method " +
+				"FROM stats_unidimensional_results c JOIN phenotype_parameter param "
+				+ "ON param.id = c.parameter_id JOIN phenotype_pipeline pip "
+				+ "ON pip.id = c.pipeline_id JOIN biological_model_allele bma "
+				+ "ON bma.biological_model_id = c.experimental_id JOIN organisation o "
+				+ "ON o.id = c.organisation_id "
+				+ "WHERE pip.stable_id = ? AND o.name = ? AND bma.allele_acc = ? "
+				+ "ORDER by param.stable_id asc, c.null_test_significance desc";
+		
+		try (Connection connection = getConnection()) {
+			statement = connection.prepareStatement(query);
+			statement.setString(1, pipelineStableId);
+			statement.setString(2, phenotypingCenter);
+			statement.setString(3, alleleAccession);
+			resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				results.put(resultSet.getString("param_stable_id"), 
+							new StatisticalResultBean(
+									resultSet.getDouble("p_value"), 
+									resultSet.getDouble("effect_size"),
+									resultSet.getString("status"),
+									resultSet.getString("statistical_method")));
+			}
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
 		log.info("nb of results : " + results.size());
 		return results;
 	}
