@@ -89,7 +89,7 @@ public class GetGenePagesTest {
     private final int TIMEOUT_IN_SECONDS = 300;
     
     // These constants define the maximum number of iterations for each gi⁄™‹ﬁven test. -1 means iterate over all.
-    public final int MAX_GENE_TEST_PAGE_COUNT = 5000;                           // -1 means test all pages.
+    public final int MAX_GENE_TEST_PAGE_COUNT = -1;                           // -1 means test all pages.
 
     private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
     
@@ -215,6 +215,7 @@ public class GetGenePagesTest {
      * @throws SolrServerException 
      */
     @Test
+@Ignore
     public void testRandomPageForGeneIds() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> geneIds = geneService.getAllGenes();
@@ -305,7 +306,6 @@ public class GetGenePagesTest {
      * @throws SolrServerException 
      */
     @Test
-@Ignore
     public void testPageForGeneIds() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> geneIds = geneService.getAllGenes();
@@ -386,6 +386,7 @@ public class GetGenePagesTest {
      * @throws SolrServerException 
      */
     @Test
+@Ignore
     public void testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> geneIds = geneService.getGenesByPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.PRODUCTION_CENTRE_WTSI);
