@@ -59,9 +59,8 @@ $(document).ready(function(){
 		              "bDestroy": true,
 		              "bFilter":false
 	});
-
-	$('[rel=tooltip]').tooltip();
-
+	
+	
 	//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
 	$('div#exportIconsDiv').html($.fn.loadFileExporterUI({
 		label: 'Export table as:',

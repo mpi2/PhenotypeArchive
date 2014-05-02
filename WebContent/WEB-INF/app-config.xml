@@ -57,6 +57,10 @@
  		<constructor-arg ref="sessionFactory" />
  	</bean>
 
+	<bean id="statisticalResultDAO" class="uk.ac.ebi.phenotype.dao.StatisticalResultDAOImpl">
+ 		<constructor-arg ref="sessionFactory" />
+ 	</bean>
+
 	<bean id="experimentService" class="uk.ac.ebi.phenotype.stats.ExperimentService">
 	</bean>
 	

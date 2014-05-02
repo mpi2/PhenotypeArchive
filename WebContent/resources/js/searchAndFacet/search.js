@@ -29,7 +29,7 @@
 	var jsonBase = MPI2.searchAndFacetConfig.facetParams;
 	
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
-		
+			
 		var q = oUrlHashParams.q;
 		
 		if ( typeof q == 'undefined' ){
@@ -78,11 +78,13 @@
 	}
 	
 	function _doMPAutoSuggest(geneResponse, q, oFacets, facetMode, fq){		
-		
-		jsonBase.mpFacet.srchParams.q = q;
+				
+		jsonBase.mpFacet.srchParams.q = q;		
+				
 		if ( typeof facetMode != 'undefined' && fq ){		
 			jsonBase.mpFacet.filterParams = {'fq': $.fn.fieldNameMapping(fq, 'mp')};
-		}	
+		}
+		//console.log($.extend({}, jsonBase.mpFacet.srchParams, jsonBase.mpFacet.filterParams));		
 		
 		$.ajax({
     	    url: solrUrl + '/mp/select',

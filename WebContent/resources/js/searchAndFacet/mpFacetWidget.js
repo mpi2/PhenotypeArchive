@@ -38,9 +38,10 @@
 	    
 	    _initFacet: function(){
 	    	var self = this;
+	    	var fq = self.options.data.hashParams.fq;
 	    	
 	    	var queryParams = $.extend({}, {				
-				'fq': 'ontology_subset:*',
+				'fq': fq,
 				'rows': 0, // override default
 				'facet': 'on',								
 				'facet.mincount': 1,
