@@ -51,8 +51,8 @@ import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.Allele;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
-import uk.ac.ebi.phenotype.stats.GeneService;
-import uk.ac.ebi.phenotype.stats.ObservationService;
+import uk.ac.ebi.phenotype.service.GeneService;
+import uk.ac.ebi.phenotype.service.ObservationService;
 
 
 @Controller
