@@ -61,7 +61,7 @@ public class ExcelWorkBook {
     		for (int j = 0; j < tableData[i].length; j++) {  
     			Cell cell = row.createCell(j);   
     			cell.setCellValue((String)tableData[i][j]);  
-    			System.out.println((String)tableData[i][j]);
+ //   			System.out.println((String)tableData[i][j]);
     		}
     	}    
 	}

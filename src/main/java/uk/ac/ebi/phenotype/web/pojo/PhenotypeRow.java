@@ -15,27 +15,46 @@
  */
 package uk.ac.ebi.phenotype.web.pojo;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+
+import javax.annotation.Resource;
 
 import org.apache.commons.lang.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.ebi.phenotype.pojo.Allele;
+import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 
 /**
  * 
  * Represents a single row in a phenotype table
  * 
  */
+
+
+
 public class PhenotypeRow implements Comparable<PhenotypeRow>{
+
+	@Resource(name="globalConfiguration")
+	private Map<String, String> config;
+
+    public static enum PhenotypeRowType {
+        GENE_PAGE_ROW, PHENOTYPE_PAGE_ROW
+    }
+	
+	
 	
 	private final Logger log = LoggerFactory.getLogger(PhenotypeRow.class);
 
@@ -52,6 +71,47 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 	private String dataSourceName;//to hold the name of the origin of the data e.g. Europhenome or WTSI Mouse Genetics Project
 	private String graphUrl;
 	private Pipeline pipeline;
+	
+	public PhenotypeRow(){};
+
+	public PhenotypeRow(PhenotypeCallSummary pcs, String baseUrl){
+					
+		List<String> sex = new ArrayList<String>();
+		sex.add(pcs.getSex().toString());
+
+		this.setGene(pcs.getGene());
+		this.setAllele(pcs.getAllele());
+		this.setSexes(sex);
+		this.setPhenotypeTerm(pcs.getPhenotypeTerm());
+		this.setPipeline(pcs.getPipeline());
+		// zygosity representation depends on source of information
+		// we need to know what the data source is so we can generate appropriate link on the page
+		Datasource ds = pcs.getDatasource();
+		String dataSourceName = "";
+
+		// Defend in case the datasource is not loaded
+		if (ds != null) {
+			dataSourceName = ds.getName();
+		}
+		this.setDataSourceName(dataSourceName);
+		// this should be the fix but EuroPhenome is buggy
+		String rawZygosity = (dataSourceName.equals("EuroPhenome")) ? 
+				//Utilities.getZygosity(pcs.getZygosity()) : pcs.getZygosity().toString();
+				"All" : pcs.getZygosity().toString();
+		this.setRawZygosity(rawZygosity);
+		this.setZygosity(pcs.getZygosity());
+		if(pcs.getExternalId()!=null) {
+			this.setProjectId(pcs.getExternalId());
+		}
+		
+		this.setProcedure(pcs.getProcedure());
+		this.setParameter(pcs.getParameter());
+		this.setPhenotypingCenter(pcs.getPhenotypingCenter());
+			
+		this.setGraphUrl(baseUrl);
+			
+	}
+	
 	
 	public Pipeline getPipeline() {
 		return pipeline;
@@ -71,9 +131,7 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 
 	public String buildGraphUrl(String baseUrl){
 		String url = baseUrl;
-		System.out.println("BaseUrl: " + baseUrl);
 		if (dataSourceName.equalsIgnoreCase("EuroPhenome")){
-			System.out.println("Europhenome");
 			return getPhenotypeLink();
 		}
 		else {
@@ -92,7 +150,6 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 				url += "&gender=" + sexes.get(0);
 			}
 		}
-		System.out.println(" > " + url);
 		return url;
 	}
 	
@@ -325,6 +382,31 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 		
 	}
 
-	
+	public String toTabbedString(String targetPage){
+		
+		String res = "";
+		
+		if (targetPage.equalsIgnoreCase("gene")){
+			res = getPhenotypeTerm().getName() + "\t" 
+					+ getAllele().getSymbol() + "\t" 
+					+ getZygosity() + "\t" 
+					+ getSexes().get(0) + "\t"
+					+ getProcedure().getName() + " / " + getParameter().getName() + "\t" 
+					+ getPhenotypingCenter() + "\t" 
+					+ getDataSourceName() + "\t"
+					+ getGraphUrl() + "\n";	
+		}else if (targetPage.equalsIgnoreCase("phenotype")){
+			res = getGene().getSymbol() + "\t" 
+					+ getAllele().getSymbol() + "\t" 
+					+ getZygosity() + "\t" 
+					+ getSexes().get(0) + "\t"
+					+ getPhenotypeTerm().getName() + "\t" 
+					+ getProcedure().getName() + " / " + getParameter().getName() + "\t" 
+					+ getPhenotypingCenter() + "\t" 
+					+ getDataSourceName() + "\t"
+					+ getGraphUrl() + "\n";	
+		}
+		return res;
+	}
 
 }
