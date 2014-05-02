@@ -115,6 +115,30 @@ public class GeneService {
         return allGenes;
     }
 
+    /**
+     * Return all genes from the gene core whose MGI_ACCESSION_ID does not start
+     * with 'MGI'.
+     *
+     * @return all genes from the gene core whose MGI_ACCESSION_ID does not start
+     * with 'MGI'.
+     * @throws SolrServerException
+     */
+    public Set<String> getAllNonConformingGenes() throws SolrServerException {
+
+        SolrQuery solrQuery = new SolrQuery();
+        solrQuery.setQuery("-" + GeneField.MGI_ACCESSION_ID + ":MGI*");
+        solrQuery.setRows(1000000);
+        solrQuery.setFields(GeneField.MGI_ACCESSION_ID);
+        QueryResponse rsp = null;
+        rsp = solr.query(solrQuery);
+        SolrDocumentList res = rsp.getResults();
+        HashSet<String> allGenes = new HashSet<String>();
+        for (SolrDocument doc : res) {
+            allGenes.add((String) doc.getFieldValue(GeneField.MGI_ACCESSION_ID));
+        }
+        return allGenes;
+    }
+
     // returns ready formatted icons
     public Map<String, String> getProductionStatus(String geneId) throws SolrServerException {
 

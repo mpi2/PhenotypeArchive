@@ -32,7 +32,7 @@
 			<br >
 						<div class="clear"> </div>
 		<div class="container">
-			<p class="muted credit"><a href="${initParam['baseUrl']}/data/search">Click here to search IMPC.</a></p>
+			<p class="muted credit"><a href="${initParam['baseUrl']}/search">Click here to search IMPC.</a></p>
 		</div>						
 					</div>
 				</div>

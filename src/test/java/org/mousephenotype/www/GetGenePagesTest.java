@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -87,9 +88,11 @@ public class GetGenePagesTest {
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     private final int TIMEOUT_IN_SECONDS = 300;
     
-    // These constants define the maximum number of iterations for each given test. -1 means iterate over all.
-    public final int MAX_GENE_TEST_PAGE_COUNT = 5000;                           // -1 means test all pages.
+    // These constants define the maximum number of iterations for each gi⁄™‹ﬁven test. -1 means iterate over all.
+    public final int MAX_GENE_TEST_PAGE_COUNT = -1;                           // -1 means test all pages.
 
+    private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+    
     @Before
     public void setup() {
         printTestEnvironment();
@@ -130,6 +133,81 @@ public class GetGenePagesTest {
     }
 
     /**
+     * Finds all MGI_ACCESSION_IDs in the genotype-phenotype
+     * core that do not start with 'MGI'.
+     * 
+     * @throws SolrServerException 
+     */
+    @Test
+    public void testForBadGeneIds() throws SolrServerException {
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        Set<String> geneIds = geneService.getAllNonConformingGenes();
+        String target = "";
+        List<String> errorList = new ArrayList();
+        List<String> successList = new ArrayList();
+        List<String> exceptionList = new ArrayList();
+        String message;
+        Date start = new Date();
+        Date stop;
+
+        if (geneIds.isEmpty())
+            return;
+        
+        int targetCount = geneIds.size();
+        System.out.println(dateFormat.format(start) + ": testForBadGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
+        
+        // Loop through all non-conforming genes, testing each one for valid page load (they will likely fail).
+        int i = 0;
+        for (String geneId : geneIds) {
+            target = baseUrl + "/genes/" + geneId;
+
+            List<WebElement> mpTermIdLink;
+
+            try {
+                driver.manage().timeouts().setScriptTimeout(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+                driver.get(target);
+                driver.navigate().refresh();
+                mpTermIdLink = driver.findElements(By.cssSelector("div.inner a").linkText(geneId));
+            } catch (Exception e) {
+                message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+                exceptionList.add(message);
+                continue;
+            }
+
+            if ( mpTermIdLink.isEmpty()) {
+                message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
+                errorList.add(message);
+            } else {
+                message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
+                successList.add(message);
+            }
+        }
+        
+        System.out.println(dateFormat.format(new Date()) + ": testForBadGeneIds finished.");
+        
+        if ( ! errorList.isEmpty()) {
+            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
+            for (String s : errorList) {
+                System.out.println("\t" + s);
+            }
+        }
+        
+        if ( ! exceptionList.isEmpty()) {
+            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
+            for (String s : exceptionList) {
+                System.out.println("\t" + s);
+            }
+        }
+        
+        stop = new Date();
+        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".\n\n");
+        
+        if (errorList.size() + exceptionList.size() > 0) {
+            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
+        }
+    }
+
+    /**
      * Fetches all gene IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
      * core and tests to make sure there is a page for each. Limit the test
      * to the first MAX_GENE_TEST_PAGE_COUNT by setting it to the limit you want.
@@ -137,6 +215,7 @@ public class GetGenePagesTest {
      * @throws SolrServerException 
      */
     @Test
+@Ignore
     public void testRandomPageForGeneIds() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> geneIds = geneService.getAllGenes();
@@ -152,7 +231,7 @@ public class GetGenePagesTest {
         int targetCount = (MAX_GENE_TEST_PAGE_COUNT >= 0 ? Math.min(MAX_GENE_TEST_PAGE_COUNT, geneIds.size()) : geneIds.size());
         System.out.println(dateFormat.format(start) + ": testRandomPageForGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
-        // Loop through all phenotypes, testing each one for valid page load.
+        // Loop through all genes, testing each one for valid page load.
         Random rand = new Random();
         int max = geneIdArray.length;
         int min = 0;
@@ -227,7 +306,6 @@ public class GetGenePagesTest {
      * @throws SolrServerException 
      */
     @Test
-@Ignore
     public void testPageForGeneIds() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> geneIds = geneService.getAllGenes();
@@ -242,7 +320,7 @@ public class GetGenePagesTest {
         int targetCount = (MAX_GENE_TEST_PAGE_COUNT >= 0 ? Math.min(MAX_GENE_TEST_PAGE_COUNT, geneIds.size()) : geneIds.size());
         System.out.println(dateFormat.format(start) + ": testPageForGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
-        // Loop through all phenotypes, testing each one for valid page load.
+        // Loop through all genes, testing each one for valid page load.
         int i = 0;
         for (String geneId : geneIds) {
             if ((MAX_GENE_TEST_PAGE_COUNT != -1) && (i++ >= MAX_GENE_TEST_PAGE_COUNT)) {
@@ -308,6 +386,7 @@ public class GetGenePagesTest {
      * @throws SolrServerException 
      */
     @Test
+@Ignore
     public void testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> geneIds = geneService.getGenesByPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.PRODUCTION_CENTRE_WTSI);
@@ -322,7 +401,7 @@ public class GetGenePagesTest {
         int targetCount = (MAX_GENE_TEST_PAGE_COUNT >= 0 ? Math.min(MAX_GENE_TEST_PAGE_COUNT, geneIds.size()) : geneIds.size());
         System.out.println(dateFormat.format(start) + ": testPageForGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
-        // Loop through all phenotypes, testing each one for valid page load.
+        // Loop through all genes, testing each one for valid page load.
         int i = 0;
         for (String geneId : geneIds) {
             if ((MAX_GENE_TEST_PAGE_COUNT != -1) && (i++ >= MAX_GENE_TEST_PAGE_COUNT)) {
