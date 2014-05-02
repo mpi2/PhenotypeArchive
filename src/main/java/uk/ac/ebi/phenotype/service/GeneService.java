@@ -1,4 +1,4 @@
-package uk.ac.ebi.phenotype.stats;
+package uk.ac.ebi.phenotype.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;

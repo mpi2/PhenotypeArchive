@@ -27,11 +27,14 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
 import org.junit.AfterClass;
+
 import static org.junit.Assert.fail;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -44,8 +47,9 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import uk.ac.ebi.generic.util.Tools;
-import uk.ac.ebi.phenotype.stats.GeneService;
+import uk.ac.ebi.phenotype.service.GeneService;
 
 /**
  *

@@ -23,7 +23,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 @Service

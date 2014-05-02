@@ -33,9 +33,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
-import uk.ac.ebi.phenotype.stats.GeneService;
-import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
-import uk.ac.ebi.phenotype.stats.MpService;
+import uk.ac.ebi.phenotype.service.GeneService;
+import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.MpService;
 
 /**
  * @author ilinca

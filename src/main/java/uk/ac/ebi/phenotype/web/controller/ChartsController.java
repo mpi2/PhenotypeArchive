@@ -30,7 +30,6 @@ import java.util.Set;
 
 import org.apache.bcel.generic.IF_ACMPEQ;
 import org.apache.commons.lang.exception.ExceptionUtils;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.xmlbeans.impl.jam.mutable.MPackage;
 import org.json.JSONObject;
@@ -63,10 +62,10 @@ import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ChartType;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
-import uk.ac.ebi.phenotype.stats.ExperimentService;
 import uk.ac.ebi.phenotype.stats.PipelineProcedureData;
 import uk.ac.ebi.phenotype.stats.PipelineProcedureTablesCreator;
 import uk.ac.ebi.phenotype.stats.TableObject;

@@ -20,6 +20,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAOImpl;
+import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })

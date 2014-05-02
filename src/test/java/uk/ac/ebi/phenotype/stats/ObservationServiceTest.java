@@ -22,6 +22,7 @@ import uk.ac.ebi.phenotype.dao.OrganisationDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.service.ObservationService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })

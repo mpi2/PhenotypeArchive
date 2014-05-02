@@ -16,8 +16,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.eclipse.jetty.util.log.Log;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.stats.ExperimentService;
-import uk.ac.ebi.phenotype.stats.ObservationService;
+import uk.ac.ebi.phenotype.service.ExperimentService;
+import uk.ac.ebi.phenotype.service.ObservationService;
 
 public class GraphUtils {
  

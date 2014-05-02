@@ -1,4 +1,4 @@
-package uk.ac.ebi.phenotype.stats;
+package uk.ac.ebi.phenotype.service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -31,6 +31,8 @@ import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.stats.ExperimentDTO;
+import uk.ac.ebi.phenotype.stats.ObservationDTO;
 import uk.ac.ebi.phenotype.stats.strategy.AllControlsStrategy;
 import uk.ac.ebi.phenotype.stats.strategy.ControlSelectionStrategy;
 
