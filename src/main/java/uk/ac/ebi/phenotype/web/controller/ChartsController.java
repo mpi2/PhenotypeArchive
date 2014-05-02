@@ -162,7 +162,6 @@ public class ChartsController {
 			Model model)
 			throws GenomicFeatureNotFoundException, ParameterNotFoundException,
 			IOException, URISyntaxException, SolrServerException {
-		System.out.println("calling charts");
 		return createCharts(accessionsParams, pipelineStableIds,  parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, scatter, alleleAccession);
 	}
 
@@ -267,7 +266,6 @@ public class ChartsController {
 		log.debug("pipe stable id="+pipelineStableId);
 		pipeline=pipelineDAO.getPhenotypePipelineByStableId(pipelineStableId);
 		pipelineId=pipeline.getId();//swap the human readable pipeline  id from the url to our internal id
-		System.out.println("internernal pipe id="+pipelineId);
 		}
            
 		ExperimentDTO experiment = experimentService
@@ -301,9 +299,7 @@ public class ChartsController {
 		geneticBackgroundString=expBiologicalModel.getGeneticBackground();
 		}
 			try {
-				if(scatter) {
-					System.out.println("calling scatter!");
-					
+				if(scatter) {					
 					ScatterChartAndData scatterChartAndData=scatterChartAndTableProvider.doScatterData(experiment, parameter, experimentNumber, expBiologicalModel);
 					model.addAttribute("scatterChartAndData", scatterChartAndData);
 				}else {
