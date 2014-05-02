@@ -17,6 +17,7 @@
 package org.mousephenotype.www;
 
 import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +35,8 @@ import org.openqa.selenium.support.ui.Select;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
+
+import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 
 /**
  * @author Gautier Koscielny

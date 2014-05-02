@@ -57,7 +57,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.generic.util.Tools;
-import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 
 /**
  *

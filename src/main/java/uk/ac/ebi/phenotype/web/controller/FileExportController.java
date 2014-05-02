@@ -64,9 +64,9 @@ import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
 import uk.ac.ebi.phenotype.pojo.PipelineSolrImpl;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.service.ExperimentService;
+import uk.ac.ebi.phenotype.service.GenotypePhenotypeService.GenotypePhenotypeField;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
-import uk.ac.ebi.phenotype.stats.ExperimentService;
-import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService.GenotypePhenotypeField;
 
 @Controller
 public class FileExportController {

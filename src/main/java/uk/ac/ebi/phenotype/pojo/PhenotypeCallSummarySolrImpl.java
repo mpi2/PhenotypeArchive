@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import uk.ac.ebi.generic.util.JSONRestUtil;
-import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 
 public class PhenotypeCallSummarySolrImpl implements
