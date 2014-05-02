@@ -40,6 +40,7 @@ public class ExperimentDTO {
     private Integer experimentalBiologicalModelId;
     private Set<ObservationDTO> maleControls;
     private Set<ObservationDTO> femaleControls;
+    private String alleleAccession;
 
     public List<String> getTabbedToString(PhenotypePipelineDAO ppDAO) throws SQLException {
         List<String> rows = new ArrayList<String>();
@@ -404,6 +405,14 @@ public class ExperimentDTO {
      */
     public void setFemaleControls(Set<ObservationDTO> femaleControls) {
         this.femaleControls = femaleControls;
+    }
+    
+    public String getAlleleAccession() {
+        return this.alleleAccession;
+    }
+
+    public void setAlleleAccession(String alleleAccession) {
+        this.alleleAccession=alleleAccession;
     }
 
     @Override

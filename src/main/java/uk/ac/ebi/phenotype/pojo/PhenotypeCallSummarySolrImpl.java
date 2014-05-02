@@ -60,10 +60,9 @@ public class PhenotypeCallSummarySolrImpl implements
 
 	@Override
 	public List<? extends StatisticalResult> getStatisticalResultFor(
-			String accession, String parameterStableId,
-			ObservationType observationType, String strainAccession)
+                String accession, String parameterStableId, ObservationType observationType, String strainAccession, String alleleAccession)
 			throws IOException, URISyntaxException {
-		return genotypePhenotypeService.getStatsResultFor(accession, parameterStableId, observationType, strainAccession);
+		return genotypePhenotypeService.getStatsResultFor(accession, parameterStableId, observationType, strainAccession, alleleAccession);
 	}
 	
 	

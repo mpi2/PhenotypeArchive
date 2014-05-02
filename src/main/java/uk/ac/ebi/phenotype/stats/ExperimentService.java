@@ -156,6 +156,9 @@ public class ExperimentService {
             if (experiment.getExperimentalBiologicalModelId() == null) {
                 experiment.setExperimentalBiologicalModelId(observation.getBiologicalModelId());
             }
+             if (experiment.getAlleleAccession() == null) {
+                experiment.setAlleleAccession(observation.getAlleleAccession());
+            }
 
             experiment.getZygosities().add(ZygosityType.valueOf(observation.getZygosity()));
             experiment.getSexes().add(SexType.valueOf(observation.getSex()));
@@ -169,7 +172,7 @@ public class ExperimentService {
                 // size, but for unidimensional data we need more stats info to
                 // populate the extra table so we need to make a db call instead
                 // for unidimensional
-                List<? extends StatisticalResult> basicResults = phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), observation.getParameterStableId(), ObservationType.valueOf(observation.getObservationType()), observation.getStrain());
+                List<? extends StatisticalResult> basicResults = phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), observation.getParameterStableId(), ObservationType.valueOf(observation.getObservationType()), observation.getStrain(), alleleAccession);
                 LOG.debug("basic results list size for experiment=" + basicResults.size());
                 LOG.debug("experiment id=" + experiment.getExperimentId());
                 List<StatisticalResult> populatedResults = new ArrayList<>();
