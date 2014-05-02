@@ -35,6 +35,7 @@ private static final Logger log = Logger.getLogger(GraphUtils.class);
             List <String>strains=keyList.get(ObservationService.ExperimentField.STRAIN);
             List<String> metaDataGroupStrings=keyList.get(ObservationService.ExperimentField.METADATA_GROUP); 
             List<String> alleleAccessionStrings=keyList.get(ObservationService.ExperimentField.ALLELE_ACCESSION); 
+            List<String> pipelineStableIdStrings=keyList.get(ObservationService.ExperimentField.PIPELINE_STABLE_ID); 
             //System.out.println("metaDataGroupStrings"+metaDataGroupStrings);
 //            if(metaDataGroupStrings==null){
 //                metaDataGroupStrings=new ArrayList<String>();
@@ -72,13 +73,9 @@ private static final Logger log = Logger.getLogger(GraphUtils.class);
                 log.debug("no centers specified returning empty list");
             	return urls;
             }
-            String pipelineStableIdsSolrString="";
-            if(pipelineStableIds!=null && !pipelineStableIds.isEmpty()) {
-            	for(String pipeStableId: pipelineStableIds) {
-            	pipelineStableIdsSolrString=seperator+"pipeline_stable_id="+pipeStableId;
-            	}
-            }
-         
+            
+            
+         for(String pipeStableId: pipelineStableIdStrings) {
             for(String center:centersList) {
             	try {
 					center=URLEncoder.encode(center, "UTF-8");//encode the phenotype center to get around harwell spaces
@@ -92,18 +89,19 @@ private static final Logger log = Logger.getLogger(GraphUtils.class);
             		if(metaDataGroupStrings!=null){
                             for(String metaGroup: metaDataGroupStrings) {
             			
-            			urls.add(accessionAndParam+alleleAccessionString+zygosities+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+""+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+ObservationService.ExperimentField.METADATA_GROUP+"="+metaGroup+pipelineStableIdsSolrString);
+            			urls.add(accessionAndParam+alleleAccessionString+zygosities+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+""+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+ObservationService.ExperimentField.PIPELINE_STABLE_ID+":"+pipeStableId+seperator+ObservationService.ExperimentField.METADATA_GROUP+"="+metaGroup);
             			
             		}
                         }
                         else{
                             //if metadataGroup is null then don't add it to the request
-                            urls.add(accessionAndParam+alleleAccessionString+zygosities+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+pipelineStableIdsSolrString);
+                            urls.add(accessionAndParam+alleleAccessionString+zygosities+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+ObservationService.ExperimentField.PIPELINE_STABLE_ID+":"+pipeStableId);
             			
                         }
                     }
             	}
             }
+         }
 //            for(String url:urls) {
 //            	System.out.println("graph url!!!="+url);
 //            }
