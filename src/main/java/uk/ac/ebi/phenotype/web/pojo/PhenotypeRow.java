@@ -111,8 +111,7 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 		this.setGraphUrl(baseUrl);
 			
 	}
-	
-	
+		
 	public Pipeline getPipeline() {
 		return pipeline;
 	}
@@ -135,7 +134,7 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 			return getPhenotypeLink();
 		}
 		else {
-			url += "/charts?accession=" + gene.getId().getAccession() + "&zygosity=" + zygosity + "&allele=" + allele.getId().getAccession();
+			url += "/charts?accession=" + gene.getId().getAccession() + "&zygosity=" + zygosity + "&allele_accession=" + allele.getId().getAccession();
 			if (parameter != null){
 				url += "&parameter_stable_id=" + parameter.getStableId();
 			}

@@ -13,33 +13,33 @@
 		<jsp:attribute name="addToFooter">
 			 <script>
 			 //ajax chart caller code
-				$(document).ready(function(){				
-								    
-					$('.chart').each(function(i, obj) 
-					{
-						var graphUrl=$(this).attr('graphUrl');
-						var id=$(this).attr('id');
-						var chartUrl=graphUrl+'&experimentNumber='+id;
-							$.ajax({
-								  url: chartUrl,
-								  cache: false
-							})
-								  .done(function( html ) {
-								    $( '#'+ id ).append( html );
-								    $( '#spinner'+ id ).html('');
-								    if(html.search( 'section-associations' )===-1){//if this element not found in the html then no graph present so remove placeholder section
-								    	console.log('element found');
-								    	//$( '#'+ id ).html( '' ); 
-								    	 console.log('id='+$('#'+ id).parent().parent().html( '' ));
-								    }
-								    
-							});
-							 
-					});	 
-					
-						
-					
-				});
+$(document).ready(function(){				
+				    
+	$('.chart').each(function(i, obj) 
+	{
+		var graphUrl=$(this).attr('graphUrl');
+		var id=$(this).attr('id');
+		var chartUrl=graphUrl+'&experimentNumber='+id;
+			$.ajax({
+				  url: chartUrl,
+				  cache: false
+			})
+				  .done(function( html ) {
+				    $( '#'+ id ).append( html );
+				    $( '#spinner'+ id ).html('');
+				    if(html.search( 'section-associations' )===-1){//if this element not found in the html then no graph present so remove placeholder section
+				    	console.log('element found');
+				    	//$( '#'+ id ).html( '' ); 
+				    	 console.log('id='+$('#'+ id).parent().parent().html( '' ));
+				    }
+				    
+			});
+			 
+	});	 
+	
+		
+	
+});
 		 </script>
 		 
   </jsp:attribute>
