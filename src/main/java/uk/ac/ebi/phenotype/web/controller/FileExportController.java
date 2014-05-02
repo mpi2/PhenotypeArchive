@@ -270,20 +270,22 @@ public class FileExportController {
 		SexType sex = null;
 		if (gender != null)
 			sex = SexType.valueOf(gender);
-		if (phenotypingCenterIds.size() == 0){
+		if (phenotypingCenterIds == null || phenotypingCenterIds.size() == 0){
 			phenotypingCenterIds.add(null);
 		}
-		if (strain.length == 0){
+		if (strain == null || strain.length == 0){
 			strain = new String[1];
 			strain[0] = null;
 		}
-		if (allele.length == 0){
+		if (allele == null || allele.length == 0){
 			allele = new String[1];
 			allele[0] = null;
 		}
 		ArrayList<Integer> pipelineIds = new ArrayList<>();
-		for (String pipe: pipelines){
-			pipelineIds.add(ppDAO.getPhenotypePipelineByStableId(pipe).getId());
+		if (pipelines != null){
+			for (String pipe: pipelines){
+				pipelineIds.add(ppDAO.getPhenotypePipelineByStableId(pipe).getId());
+			}
 		}
 		if (pipelineIds.size() == 0)
 			pipelineIds.add(null);
