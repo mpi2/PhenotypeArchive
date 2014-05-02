@@ -115,6 +115,9 @@ public class ObservationDTO {
 
 	@Field("metadata")
 	private List<String> metadata;
+        
+        @Field("allele_accession")
+        private String alleleAccession;
 	
 
 	/**
@@ -736,6 +739,14 @@ public class ObservationDTO {
 	public void setMetadata(List<String> metadata) {
 		this.metadata = metadata;
 	}
+
+    public String getAlleleAccession() {
+        return this.alleleAccession;
+    }
+    
+    public void setAlleleAccession(String alleleAccession) {
+        this.alleleAccession=alleleAccession;
+    }
 
 	
 	

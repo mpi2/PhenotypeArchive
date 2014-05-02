@@ -158,11 +158,12 @@ public class ChartsController {
 			@RequestParam(required = false, value = "metadata_group") String[] metadataGroup,
 			@RequestParam(required = false, value = "scatter") boolean scatter,
 			@RequestParam(required = false, value = "pipeline_stable_id") String [] pipelineStableIds,
+                        @RequestParam(required = false, value = "allele_accession") String []alleleAccession,
 			Model model)
 			throws GenomicFeatureNotFoundException, ParameterNotFoundException,
 			IOException, URISyntaxException, SolrServerException {
 		System.out.println("calling charts");
-		return createCharts(accessionsParams, pipelineStableIds,  parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, scatter);
+		return createCharts(accessionsParams, pipelineStableIds,  parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, scatter, alleleAccession);
 	}
 
 	/**
@@ -190,6 +191,7 @@ public class ChartsController {
 			@RequestParam(required = true, value = "experimentNumber") String experimentNumber,// we																	// female
 			@RequestParam(required = false, value = "accession") String[] accession,
 			@RequestParam(required = false, value = "strain") String strain,
+                        @RequestParam(required = false, value = "allele_accession") String alleleAccession,
 			@RequestParam(required = false, value = "metadata_group") String metadataGroup,
 			@RequestParam(required = false, value = "parameter_stable_id") String parameterStableIds,
 			@RequestParam(required = false, value = "gender") String[] gender,//only have one gender per graph
@@ -271,7 +273,7 @@ public class ChartsController {
 		ExperimentDTO experiment = experimentService
 				.getSpecificExperimentDTO(parameter.getId(),pipelineId,  accession[0],
 						genderList, zyList,phenotypingCenterId,
-						  strain , metaDataGroupString);
+						  strain , metaDataGroupString, alleleAccession);
               
 		//System.out.println("experiment in chart method="+experiment);
 		
@@ -420,7 +422,7 @@ public class ChartsController {
 		return mv;
 	}
 
-    private String createCharts(String[] accessionsParams,String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter, String[] strains, String[] metadataGroup, String[] zygosity, Model model, boolean scatter) throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
+    private String createCharts(String[] accessionsParams,String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter, String[] strains, String[] metadataGroup, String[] zygosity, Model model, boolean scatter,String[] alleleAccession) throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
         GraphUtils graphUtils = new GraphUtils(experimentService);
         List<String> geneIds = getParamsAsList(accessionsParams);
         List<String> paramIds = getParamsAsList(parameterIds);
@@ -429,6 +431,7 @@ public class ChartsController {
         List<String> strainsList=getParamsAsList(strains);
         List<String> metadataGroups=getParamsAsList(metadataGroup);
         List<String> pipelineStableIds=getParamsAsList(pipelineStableIdsArray);
+        List<String> alleleAccessions=getParamsAsList(alleleAccession);
         if (genderList.isEmpty()) {// add them explicitly here so graphs urls
                                                                         // are created seperately
                 genderList.add(SexType.male.name());
@@ -468,7 +471,7 @@ public class ChartsController {
                 // instead of an experiment list here we need just the outline of
                 // the experiments - how many, observation types
                 Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId,
-                                parameter.getStableId(),pipelineStableIds, genderList, zyList, phenotypingCentersList, strainsList, metadataGroups, scatter);
+                                parameter.getStableId(),pipelineStableIds, genderList, zyList, phenotypingCentersList, strainsList, metadataGroups, scatter, alleleAccessions);
                 allGraphUrlSet.addAll(graphUrlsForParam);
 
         }// end of parameterId iterations

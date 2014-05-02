@@ -53,7 +53,7 @@ public class ExperimentService {
     private UnidimensionalStatisticsDAO unidimensionalStatisticsDAO;
 
     public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
-        return getExperimentDTO(parameterId, pipelineId, geneAccession, sex, phenotypingCenterId, zygosity, strain, null, Boolean.TRUE);
+        return getExperimentDTO(parameterId, pipelineId, geneAccession, sex, phenotypingCenterId, zygosity, strain, null, Boolean.TRUE, null);
     }
 
     /**
@@ -80,11 +80,11 @@ public class ExperimentService {
      * @throws URISyntaxException
      */
 
-    public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain, String metaDataGroup, Boolean includeResults) throws SolrServerException, IOException, URISyntaxException {
+    public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain, String metaDataGroup, Boolean includeResults, String alleleAccession) throws SolrServerException, IOException, URISyntaxException {
 
         LOG.debug("metadataGroup parmeter is=" + metaDataGroup);
 
-        List<ObservationDTO> observations = os.getExperimentalUnidimensionalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroup(parameterId, pipelineId, geneAccession, zygosity, phenotypingCenterId, strain, sex, metaDataGroup);
+        List<ObservationDTO> observations = os.getExperimentalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroupAndAlleleAccession(parameterId, pipelineId, geneAccession, zygosity, phenotypingCenterId, strain, sex, metaDataGroup, alleleAccession);
         Map<String, ExperimentDTO> experimentsMap = new HashMap<>();
 
         for (ObservationDTO observation : observations) {
@@ -101,11 +101,7 @@ public class ExperimentService {
             // - meatdata group
             ExperimentDTO experiment;
 
-            String experimentKey = observation.getPhenotypingCenter() + observation.getStrain() + observation.getParameterStableId() + observation.getPipelineStableId() + observation.getGeneAccession() // TODO:
-                                                                                                                                                                                                          // should
-                                                                                                                                                                                                          // this
-                                                                                                                                                                                                          // be
-                                                                                                                                                                                                          // alleleAccession?
+            String experimentKey = observation.getPhenotypingCenter() + observation.getStrain() + observation.getParameterStableId() + observation.getPipelineStableId() + observation.getGeneAccession() +observation.getAlleleAccession()
                     + observation.getMetadataGroup();
 
             if (experimentsMap.containsKey(experimentKey)) {
@@ -585,8 +581,8 @@ public class ExperimentService {
      * @throws URISyntaxException
      * @throws SpecificExperimentException
      */
-    public ExperimentDTO getSpecificExperimentDTO(Integer id, Integer pipelineId, String acc, List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain, String metadataGroup) throws SolrServerException, IOException, URISyntaxException, SpecificExperimentException {
-        List<ExperimentDTO> experimentList = new ArrayList<ExperimentDTO>();
+    public ExperimentDTO getSpecificExperimentDTO(Integer id, Integer pipelineId, String acc, List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException, URISyntaxException, SpecificExperimentException {
+        List<ExperimentDTO> experimentList = new ArrayList<>();
         boolean includeResults = true;
 
 
@@ -595,17 +591,17 @@ public class ExperimentService {
 
             // if zygosity list is size 3 then no filter needed either
             if (zyList.isEmpty() || zyList.size() == 3) {
-                experimentList = this.getExperimentDTO(id, pipelineId, acc, null, phenotypingCenterId, null, strain, metadataGroup, includeResults);
+                experimentList = this.getExperimentDTO(id, pipelineId, acc, null, phenotypingCenterId, null, strain, metadataGroup, includeResults, alleleAccession);
             } else {
-                experimentList = this.getExperimentDTO(id, pipelineId, acc, null, phenotypingCenterId, zyList, strain, metadataGroup, includeResults);
+                experimentList = this.getExperimentDTO(id, pipelineId, acc, null, phenotypingCenterId, zyList, strain, metadataGroup, includeResults, alleleAccession);
             }
 
         } else {
             String gender = genderList.get(0);
             if (zyList.isEmpty() || zyList.size() == 3) {
-                experimentList = this.getExperimentDTO(id, pipelineId, acc, SexType.valueOf(gender), phenotypingCenterId, null, strain, metadataGroup, includeResults);
+                experimentList = this.getExperimentDTO(id, pipelineId, acc, SexType.valueOf(gender), phenotypingCenterId, null, strain, metadataGroup, includeResults, alleleAccession);
             } else {
-                experimentList = this.getExperimentDTO(id, pipelineId, acc, SexType.valueOf(gender), phenotypingCenterId, zyList, strain, metadataGroup, includeResults);
+                experimentList = this.getExperimentDTO(id, pipelineId, acc, SexType.valueOf(gender), phenotypingCenterId, zyList, strain, metadataGroup, includeResults, alleleAccession);
             }
 
         }
@@ -618,8 +614,8 @@ public class ExperimentService {
         return experimentList.get(0);
     }
 
-    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableIds, List<String> pipelineStableIds, List<String> phenotypingCenter, List<String> strain, List<String> metaDataGroup) throws SolrServerException {
-        return os.getExperimentKeys(mgiAccession, parameterStableIds, pipelineStableIds, phenotypingCenter, strain, metaDataGroup);
+    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableIds, List<String> pipelineStableIds, List<String> phenotypingCenter, List<String> strain, List<String> metaDataGroup, List<String> alleleAccession) throws SolrServerException {
+        return os.getExperimentKeys(mgiAccession, parameterStableIds, pipelineStableIds, phenotypingCenter, strain, metaDataGroup, alleleAccession);
     }
 
     public String getCategoryLabels(int parameterId, String category) throws SQLException {

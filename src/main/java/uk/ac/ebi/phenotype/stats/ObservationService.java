@@ -119,7 +119,7 @@ public class ObservationService {
 			String parameterStableId, List<String> pipelineStableId,
 			List<String> phenotypingCenterParams, 
 			List<String> strainParams,
-			List<String> metaDataGroups) throws SolrServerException {
+			List<String> metaDataGroups, List<String> alleleAccessions) throws SolrServerException {
 
 		// Example of key
 		// String experimentKey = observation.getPhenotypingCenter()
@@ -138,6 +138,7 @@ public class ObservationService {
 			.addFacetField(ExperimentField.STRAIN)
 			.addFacetField(ExperimentField.METADATA_GROUP)
 			.addFacetField(ExperimentField.PIPELINE_STABLE_ID)
+                        .addFacetField(ExperimentField.ALLELE_ACCESSION)
 			.setRows(0)
 			.setFacet(true)
 			.setFacetMinCount(1)
@@ -164,6 +165,13 @@ public class ObservationService {
 		if (pipelineStableId!= null && !pipelineStableId.isEmpty()){
 			query.addFilterQuery(ExperimentField.PIPELINE_STABLE_ID + ":(" + StringUtils.join(pipelineStableId, " OR ") + ")");
 		}
+                
+                if(alleleAccessions!=null && !alleleAccessions.isEmpty()){
+                    String alleleFilter=ExperimentField.ALLELE_ACCESSION + ":(" + StringUtils.join(alleleAccessions, " OR ").replace(":", "\\:") + ")";
+                    LOG.debug("alleleFilter="+alleleFilter);
+                        query.addFilterQuery(alleleFilter);
+                    
+                }
 
 		QueryResponse response = solr.query(query);
 		LOG.debug("experiment key query=" + query);
@@ -444,11 +452,8 @@ public class ObservationService {
     	return results;
     }
 
-    public List<ObservationDTO> getExperimentalUnidimensionalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroup(
-            Integer parameterId, Integer pipelineId, String gene, List<String> zygosities,
-            Integer organisationId, String strain, SexType sex, String metaDataGroup
-
-    ) throws SolrServerException {
+    public List<ObservationDTO> getExperimentalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroupAndAlleleAccession(
+            Integer parameterId, Integer pipelineId, String gene, List<String> zygosities, Integer organisationId, String strain, SexType sex, String metaDataGroup, String alleleAccession) throws SolrServerException {
 
         List<ObservationDTO> resultsDTO;
         SolrQuery query = new SolrQuery()
@@ -482,6 +487,9 @@ public class ObservationService {
         }
         if(metaDataGroup!=null) {
         	query.addFilterQuery(ExperimentField.METADATA_GROUP + ":\"" + metaDataGroup + "\"");
+        }
+        if(alleleAccession!=null){
+            query.addFilterQuery(ExperimentField.ALLELE_ACCESSION + ":" + alleleAccession.replace(":", "\\:"));
         }
         LOG.debug("observation  service query = "+query);
         QueryResponse response = solr.query(query);
