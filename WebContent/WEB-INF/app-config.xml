@@ -71,6 +71,10 @@
 	<bean id="geneService" class="uk.ac.ebi.phenotype.stats.GeneService">
 		<constructor-arg  value="${internalSolrUrl}/gene" />
 	</bean>
+		
+	<bean id="mpService" class="uk.ac.ebi.phenotype.stats.MpService">
+		<constructor-arg  value="${internalSolrUrl}/mp" />
+	</bean>
 	
 	<bean id="biologicalModelDAO" class="uk.ac.ebi.phenotype.dao.BiologicalModelDAOImpl">
 		<constructor-arg ref="sessionFactory" />
