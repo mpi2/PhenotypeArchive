@@ -89,6 +89,7 @@
 							<th class="headerSort">Parameter</th>
 							<th class="headerSort">Data type</th>
 							<th class="headerSort">Zygosity</th>
+							<th class="headerSort">P-value</th>
 							<th class="headerSort">Graph</th>
 						</tr>
 					</thead>
@@ -99,6 +100,12 @@
 						<td>${dataMap["parameter_name"]}</td>
 						<td>${dataMap["observation_type"]}</td>
 						<td>${dataMap["zygosity"]}</td>
+						<td>
+						<c:set var="stableId" value="${dataMap['parameter_stable_id']}"/>
+						<c:if test="${ ! empty pvalues[stableId]}">
+						${pvalues[stableId].pValue}
+						</c:if>
+						</td>
 						<td style="text-align:center">
 						<a href='${baseUrl}/charts?accession=${acc}&parameter_stable_id=${dataMap["parameter_stable_id"]}&zygosity=${dataMap["zygosity"]}&phenotyping_center=${phenotyping_center}'>
 						<i class="fa fa-bar-chart-o" alt="Graphs" > </i></a>

@@ -41,9 +41,11 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.generic.util.SolrIndex;
+import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 import uk.ac.ebi.phenotype.dao.AlleleDAO;
 import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.dao.StatisticalResultDAO;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.Allele;
@@ -66,6 +68,9 @@ public class ExperimentsController {
 
 	@Autowired
 	private PhenotypePipelineDAO pipelineDao;
+	
+	@Autowired
+    private StatisticalResultDAO statisticalResultDAO;   
 	
 	@Autowired
 	SolrIndex solrIndex;
@@ -112,15 +117,24 @@ public class ExperimentsController {
 		Pipeline pipeline = pipelineDao.getPhenotypePipelineByStableId(pipelineStableId);
 		
 		List<Map<String,String>> mapList =  null;
+		Map<String, StatisticalResultBean> pvalues = null;
+		
 		
 		try {
 			mapList = observationService.getDistinctParameterListByPipelineAlleleCenter(pipelineStableId, alleleAccession, phenotypingCenter, null);
+			
+			// get all p-values for this allele/center/pipeline
+			 pvalues = statisticalResultDAO.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(
+						alleleAccession, phenotypingCenter, pipelineStableId);
+			 System.out.println(pvalues.size());
+			
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 		model.addAttribute("mapList", mapList);
+		model.addAttribute("pvalues", pvalues);
 		model.addAttribute("phenotyping_center", phenotypingCenter);
 		model.addAttribute("allele", allele);
 		model.addAttribute("gene", gene);

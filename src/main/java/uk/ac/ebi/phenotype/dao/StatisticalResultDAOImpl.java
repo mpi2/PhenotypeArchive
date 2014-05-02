@@ -20,13 +20,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.Parameter;
@@ -58,6 +61,53 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 		this.sessionFactory = sessionFactory;
 	}
 
+	@Override
+	@SuppressWarnings("unchecked")
+	@Transactional(readOnly = false)
+	public Map<String, StatisticalResultBean> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(
+			String alleleAccession, String phenotypingCenter,
+			String pipelineStableId) {
+		
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		Map<String, StatisticalResultBean> results = new HashMap<String, StatisticalResultBean>();
+		
+		// get all categorical parameter 
+		String query = 
+				"SELECT param.stable_id AS param_stable_id,"
+				+ "c.p_value AS p_value, c.effect_size AS effect_size, "
+				+ "c.status AS status, c.statistical_method AS statistical_method " +
+				"FROM stats_categorical_results c JOIN phenotype_parameter param "
+				+ "ON param.id = c.parameter_id JOIN phenotype_pipeline pip "
+				+ "ON pip.id = c.pipeline_id JOIN biological_model_allele bma "
+				+ "ON bma.biological_model_id = c.experimental_id JOIN organisation o "
+				+ "ON o.id = c.organisation_id "
+				+ "WHERE pip.stable_id = ? AND o.name = ? AND bma.allele_acc = ? "
+				+ "ORDER by param.stable_id asc, c.p_value desc";
+
+		try (Connection connection = getConnection()) {
+			statement = connection.prepareStatement(query);
+			statement.setString(1, pipelineStableId);
+			statement.setString(2, phenotypingCenter);
+			statement.setString(3, alleleAccession);
+			resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				results.put(resultSet.getString("param_stable_id"), 
+							new StatisticalResultBean(
+									resultSet.getDouble("p_value"), 
+									resultSet.getDouble("effect_size"),
+									resultSet.getString("status"),
+									resultSet.getString("statistical_method")));
+			}
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		log.info("nb of results : " + results.size());
+		return results;
+	}
+	
+	
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = false)

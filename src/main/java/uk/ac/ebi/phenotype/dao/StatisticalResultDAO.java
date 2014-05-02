@@ -17,6 +17,7 @@ package uk.ac.ebi.phenotype.dao;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
@@ -25,6 +26,7 @@ import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.stats.MouseDataPoint;
+import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 
 /**
  * 
@@ -39,6 +41,14 @@ import uk.ac.ebi.phenotype.stats.MouseDataPoint;
 
 public interface StatisticalResultDAO {
 
+	/**
+	 * Give an allele identifier,a phenotyping center and a pipeline stable id, 
+	 * returns a list of pValues and effect size for every parameter.
+	 * @return a map of pvalues and effect size for the given phenotyping pipeline
+	 */
+	public Map<String, StatisticalResultBean> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(
+			String alleleAccession, String phenotypingCenter, String pipelineStableId);
+	
 	/**
 	 * Given a procedure parameter and a biological model, returns a list of 
 	 * unidimensional results for this parameter and model. 
