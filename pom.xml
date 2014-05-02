@@ -47,6 +47,10 @@
         <solrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
         <internalSolrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</internalSolrUrl>
 		
+		<!-- for testing purpose -->
+		<!-- <solrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_ci</solrUrl>
+		</internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_ci</internalSolrUrl>-->
+		
         <drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>	
 		
         <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>

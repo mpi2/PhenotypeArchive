@@ -150,7 +150,8 @@
 				
 				var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facet + 'Facet'].solrCoreName;				
 				var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';
-						
+							
+				
 				// no search kw
 				if ( typeof oHashParams.q == 'undefined' ){
 					if ( $('li.ftag').size() == 0 ){
@@ -158,12 +159,14 @@
 						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
 					}
 					else {										
-						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, facet);
+						oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, facet);						
 						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
 					}
 				}
-				else {					
+				else {						
+					
 					oHashParams.fq = $.fn.fieldNameMapping(oHashParams.fq, facet);						
+					
 					if ( ! window.location.search.match(/q=/) ){					
 						window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
 					}
@@ -268,8 +271,9 @@
 		}		
 		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(aFields);
 		
-        var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';
-        paramStr += '&fq=' + fqStr + ' AND ' + MPI2.searchAndFacetConfig.facetParams.geneFacet.fq + fecetFieldsStr;        
+        var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';        
+        paramStr += '&fq=' + fqStr + ' AND ' + MPI2.searchAndFacetConfig.facetParams.geneFacet.fq + fecetFieldsStr;
+                
         //console.log('GENE: '+ paramStr);
         
         $.ajax({ 	
@@ -398,7 +402,7 @@
 	
 		var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';
         paramStr += '&fq=' + fqStr + fecetFieldsStr; 
-		
+		        
 		//console.log('MP: '+ paramStr);
 		$.ajax({ 	
 			'url': solrUrl + '/mp/select',    		
@@ -699,8 +703,7 @@
 		
 		if ( facet != 'images' ){			
 			fqStr = fqStr.replace('OR symbol:', 'OR marker_symbol:');			
-		}
-		
+		}		
 			
 		if ( fqStr.indexOf('procedure_stable_id:') != -1 && facet == 'images' ){		
 			oMapping = MPI2.searchAndFacetConfig.procSid2ExpNameMapping;			
@@ -725,11 +728,14 @@
 		}	
 		
 		if ( facet == 'gene'){
-			fqStr = fqStr.replace(' AND selected_top_level_ma_term:*', '').replace(' AND ontology_subset:*', '').replace('OR symbol:', 'OR marker_symbol:');
+			fqStr = fqStr.replace(' AND selected_top_level_ma_term:*', '')
+				.replace(' AND ontology_subset:*', '')
+				.replace('OR symbol:', 'OR marker_symbol:');
 			
 		}
 		else if (facet == 'images' ) {			
-			fqStr = fqStr.replace(/( AND )?\(?ontology_subset:\*\)?/,'').replace(/( AND )?\(?selected_top_level_ma_term:\*\)?/,'');			                                                                        
+			fqStr = fqStr.replace(/( AND )?\(?ontology_subset:\*\)?/,'')
+				.replace(/( AND )?\(?selected_top_level_ma_term:\*\)?/,'');						                                                                        
 		}		
 		else if ( facet == 'ma' ){
 			fqStr.replace(' AND (ontology_subset:*)','');
@@ -750,7 +756,7 @@
 				fqStr = fqStr.replace(' AND ontology_subset:*', '');			
 			}
 		}
-		
+				
 		return decodeURI(fqStr);	
 	}
 	
@@ -2379,7 +2385,7 @@ $.extend( $.fn.dataTableExt.oPagination, {
 						
 						count++;
 						sClass = (j==oPaging.iPage+1) ? 'class="active"' : '';
-												
+										
 						if (j != oPaging.iTotalPages ){
 											
 							$('<li '+sClass+'><a href="#">'+j+'</a></li>')				
@@ -2398,12 +2404,11 @@ $.extend( $.fn.dataTableExt.oPagination, {
 								.insertBefore( $('li:last', an[i])[0] ).bind('click', function (e) {
 									e.preventDefault();
 									oSettings._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
-									fnDraw( oSettings )});
-							
+									fnDraw( oSettings )});							
 							}
 						}
-												
-						if ( ( count == 5 || count == 1) && j == oPaging.iTotalPages ) {
+									
+						if (  count <= 5  && j == oPaging.iTotalPages ) {
 							$('<li '+sClass+'><a href="#">'+oPaging.iTotalPages+'</a></li>')							
 							.insertBefore( $('li:last', an[i])[0] ).bind('click', function (e) {								
 								e.preventDefault();
