@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.dao.StatisticalResultDAO;
 import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
 import uk.ac.ebi.phenotype.error.SpecificExperimentException;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
@@ -51,6 +52,9 @@ public class ExperimentService {
 
     @Autowired
     private UnidimensionalStatisticsDAO unidimensionalStatisticsDAO;
+    
+    @Autowired
+    private StatisticalResultDAO statisticalResultDAO;    
 
     public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
         return getExperimentDTO(parameterId, pipelineId, geneAccession, sex, phenotypingCenterId, zygosity, strain, null, Boolean.TRUE, null);
@@ -178,7 +182,7 @@ public class ExperimentService {
                         // LOG.debug("basic result metadataGroup="+basicResult.getMetadataGroup());
 
                         try {
-                            UnidimensionalResult result = unidimensionalStatisticsDAO.getUnidimensionalStatsForPhenotypeCallSummaryId(unidimensionalResult.getId());
+                            UnidimensionalResult result = statisticalResultDAO.getUnidimensionalStatsForPhenotypeCallSummaryId(unidimensionalResult.getId());
                             if (result == null) {
                                 LOG.debug("no comprehensive result found for unidimensionalresult with id=" + unidimensionalResult.getId());
                             }
@@ -211,7 +215,7 @@ public class ExperimentService {
                         // LOG.debug("basic result metadataGroup="+basicResult.getMetadataGroup());
                         // populatedResults.add(categoricalResult);
                         try {
-                            CategoricalResult result = unidimensionalStatisticsDAO.getCategoricalStatsForPhenotypeCallSummaryId(categoricalResult.getId());
+                            CategoricalResult result = statisticalResultDAO.getCategoricalStatsForPhenotypeCallSummaryId(categoricalResult.getId());
                             if (result == null) {
                                 LOG.debug("no comprehensive result found for categoricalResult with id=" + categoricalResult.getId());
                             }

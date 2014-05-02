@@ -8,7 +8,6 @@
     <name>EBI Phenotype Archive</name>
     <description>EBI Phenotype Archive Project</description>
 
-
     <distributionManagement>
         <repository>
             <id>deployment</id>
@@ -30,6 +29,7 @@
         <slf4j.version>1.5.10</slf4j.version>
         <java.version>1.7</java.version>
         <junit.version>4.11</junit.version>
+        <testng.version>6.8.8</testng.version>
         <hibernate.show_sql>true</hibernate.show_sql>
         <hibernate.dialect>org.hibernate.dialect.MySQLDialect</hibernate.dialect>
         <hibernate.version>3.6.10.Final</hibernate.version>
@@ -465,7 +465,15 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-
+        <!--
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
+            <scope>test</scope>
+        </dependency>
+        -->
+        
         <!-- logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -543,7 +551,7 @@
             <artifactId>yuicompressor-maven-plugin</artifactId>
             <version>0.7.1</version>
         </dependency>
-
+        
     </dependencies>
 
     <repositories>
@@ -580,7 +588,7 @@
             </snapshots>
         </repository>
     </repositories>
-
+    
     <build>
         <finalName>phenotype-archive</finalName>
 
@@ -593,6 +601,7 @@
                     <configuration>
                         <skipTests>true</skipTests>
                         <testFailureIgnore>true</testFailureIgnore>
+                        <failIfNoTests>false</failIfNoTests>
                         <excludes>
                             <exclude>**PageTest.java</exclude>
                             <exclude>**/org/mousephenotype/www/**</exclude>
@@ -865,10 +874,10 @@
                         <exclude>${project.basedir}/src/test/java/**/*.java</exclude>
                     </excludes>
                 </configuration>
-            </plugin>
+            </plugin>  
         </plugins>
     </build>
-
+  
     <profiles>
 
         <profile>
@@ -1126,6 +1135,7 @@
                             <configuration>
                                 <skipTests>false</skipTests>
                                 <testFailureIgnore>true</testFailureIgnore>
+                                <failIfNoTests>false</failIfNoTests>
                                 <includes>
                                     <include>**PageTest.java</include>
                                     <include>**/org/mousephenotype/www/**</include>
