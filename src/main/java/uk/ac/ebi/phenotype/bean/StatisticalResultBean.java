@@ -26,6 +26,7 @@ public class StatisticalResultBean {
 	private Double effectSize;
 	private String status;
 	private String method;
+	private double colorIndex;
 	
 	/**
 	 * @param pValue
@@ -89,6 +90,28 @@ public class StatisticalResultBean {
 	 */
 	public void setMethod(String method) {
 		this.method = method;
+	}
+
+	/**
+	 * @return the colorIndex
+	 */
+	public double getColorIndex() {
+		return colorIndex;
+	}
+
+	/**
+	 * @param colorIndex the colorIndex to set
+	 */
+	public void setColorIndex(double colorIndex) {
+		this.colorIndex = colorIndex;
+	}
+	
+	/**
+	 * Return a -Log10 value to generate a scale
+	 * @return -Math.log10(pValue)
+	 */
+	public double getLogValue() {
+		return -Math.log10(pValue);
 	}
 	
 	
