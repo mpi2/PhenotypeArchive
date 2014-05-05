@@ -61,6 +61,8 @@
 					<span class="documentation" ><a href='' id='expPanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
 			</h2>		
 
+			<jsp:include page="phenomeStatsFrag.jsp"/>
+			
 			<div class="inner">
 
 		
@@ -90,6 +92,7 @@
 							<th class="headerSort">Data type</th>
 							<th class="headerSort">Zygosity</th>
 							<th class="headerSort">P-value</th>
+							<th class="headerSort">Statistics</th>
 							<th class="headerSort">Graph</th>
 						</tr>
 					</thead>
@@ -100,10 +103,21 @@
 						<td>${dataMap["parameter_name"]}</td>
 						<td>${dataMap["observation_type"]}</td>
 						<td>${dataMap["zygosity"]}</td>
-						<td>
 						<c:set var="stableId" value="${dataMap['parameter_stable_id']}"/>
-						<c:if test="${ ! empty pvalues[stableId]}">
+						<c:choose>
+						<c:when test="${ ! empty pvalues[stableId]}">
+						<c:set var="paletteIndex" value="${pvalues[stableId].colorIndex}"/>
+						<c:set var="Rcolor" value="${palette[0][paletteIndex]}"/>
+						<c:set var="Gcolor" value="${palette[1][paletteIndex]}"/>
+						<c:set var="Bcolor" value="${palette[2][paletteIndex]}"/>
+						<td style="background-color:rgb(${Rcolor},${Gcolor},${Bcolor})">
 						${pvalues[stableId].pValue}
+						</td>
+						</c:when>
+						<c:otherwise><td></td></c:otherwise>
+						</c:choose>
+						<td><c:if test="${ ! empty pvalues[stableId] && ! pvalues[stableId].status eq 'Success'}">
+						Failed
 						</c:if>
 						</td>
 						<td style="text-align:center">
