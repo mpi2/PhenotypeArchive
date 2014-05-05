@@ -53,6 +53,7 @@ import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ObservationService;
+import uk.ac.ebi.phenotype.stats.ColorCodingPalette;
 
 
 @Controller
@@ -133,8 +134,12 @@ public class ExperimentsController {
 			e.printStackTrace();
 		}
 		
+		ColorCodingPalette colorCoding = new ColorCodingPalette();
+		double minimalPValue = 0.000001;
+		colorCoding.generateColors(pvalues, 9, 1, minimalPValue);
 		model.addAttribute("mapList", mapList);
 		model.addAttribute("pvalues", pvalues);
+		model.addAttribute("palette", colorCoding.getPalette());
 		model.addAttribute("phenotyping_center", phenotypingCenter);
 		model.addAttribute("allele", allele);
 		model.addAttribute("gene", gene);
@@ -144,9 +149,7 @@ public class ExperimentsController {
 		
 		return "experiments";
 	}
-	
-
-	
+		
 	/**
 	 * Error handler for gene not found
 	 * 
