@@ -54,6 +54,7 @@ import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.stats.ColorCodingPalette;
+import uk.ac.ebi.phenotype.stats.graphs.PhenomeChartProvider;
 
 
 @Controller
@@ -87,6 +88,8 @@ public class ExperimentsController {
 	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
+	
+	private PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();
 
 	/**
 	 * Runs when the request missing an accession ID. This redirects to the
@@ -137,9 +140,13 @@ public class ExperimentsController {
 		ColorCodingPalette colorCoding = new ColorCodingPalette();
 		double minimalPValue = 0.000001;
 		colorCoding.generateColors(pvalues, 9, 1, minimalPValue);
+		
+		String chart = phenomeChartProvider.generatePhenomeChart(alleleAccession, pvalues);
+		
 		model.addAttribute("mapList", mapList);
 		model.addAttribute("pvalues", pvalues);
 		model.addAttribute("palette", colorCoding.getPalette());
+		model.addAttribute("chart", chart);
 		model.addAttribute("phenotyping_center", phenotypingCenter);
 		model.addAttribute("allele", allele);
 		model.addAttribute("gene", gene);

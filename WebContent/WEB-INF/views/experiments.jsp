@@ -68,6 +68,12 @@
 		
 			<!-- Associations table -->
 			<h5>Filter this table (to do)</h5>
+				<c:if test="${chart != null}">
+	
+	<!-- phenome chart here -->
+  		<div id="chart${allele.id.accession}"></div>
+		<script type="text/javascript">${chart}</script>	
+	</c:if>
 				
 	<c:set var="count" value="0" scope="page" />
 	<c:forEach var="dataMap" items="${mapList}" varStatus="status">

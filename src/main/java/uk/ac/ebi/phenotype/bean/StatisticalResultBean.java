@@ -111,6 +111,9 @@ public class StatisticalResultBean {
 	 * @return -Math.log10(pValue)
 	 */
 	public double getLogValue() {
+		if (pValue < 1E-20) {
+			return -Math.log10(1E-20);
+		}
 		return -Math.log10(pValue);
 	}
 	
