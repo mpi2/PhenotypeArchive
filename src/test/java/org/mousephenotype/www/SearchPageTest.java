@@ -28,12 +28,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -105,8 +107,12 @@ public class SearchPageTest {
 	private HashMap<String, String> params = new HashMap<String, String>();
 	private List<String> paramList = new ArrayList<String>();
 	private List<String> cores = new ArrayList<String>();
-    
-    
+	private List<String> errorList = new ArrayList();
+	private List<String> successList = new ArrayList();
+	private static List<String> sumErrorList = new ArrayList();
+	private static List<String> sumSuccessList = new ArrayList();
+	private static String startTime;
+	
     @Autowired
     protected String seleniumUrl;
     
@@ -155,11 +161,14 @@ public class SearchPageTest {
     }
     
     @After
-    public void teardown() {
+    public void teardown() {    
     }
     
     @BeforeClass
     public static void setUpClass() {
+    	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); 	 
+ 	   	Date date = new Date();
+ 	   	startTime = dateFormat.format(date); 	  
     }
     
     @AfterClass
@@ -168,6 +177,20 @@ public class SearchPageTest {
 //            System.out.println("Closing driver.");
 //            staticDriver.close();
 //        }
+    	System.out.println();    	
+    	System.out.println("SEARCH PAGE" + String.format("%8s", "started") +  " at " + startTime);
+ 	   	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+ 	   	Date date = new Date();
+ 	   	String endTime = dateFormat.format(date); 	   	
+ 	   
+    	System.out.println("SEARCH PAGE" + String.format("%8s", "ended") +  " at " + endTime);
+    	if ( sumErrorList.size() > 0 ){
+    		System.out.println(StringUtils.join(sumErrorList, "\n"));
+    	}
+    	else {
+    		System.out.println("[SUCCESS] - ALL SEARCH PAGE TESTS OK");
+    	}
+    	
     }
     
     // PRIVATE METHODS
@@ -190,16 +213,20 @@ public class SearchPageTest {
     @Test
 	@Ignore
 	public void testTickingFacetFilters() throws Exception {
-    	System.out.println();
-    	System.out.println("-------------------------------------------");
-    	System.out.println("----- FACET CLICKING BEHAVIORAL TESTS -----");
-    	System.out.println("-------------------------------------------");
-    	System.out.println("   TESTING clicking on a facet checkbox will add a filter to the filter summary box");
-    	System.out.println("   TESTING removing a filter on the list will uncheck a corresponding checkbox");
+    	System.out.println();   
+    	String testName = "FACET CLICKING BEHAVIORAL TESTS";
+    	System.out.println("----- " + testName + " -----");
+       	System.out.println("TESTING clicking on a facet checkbox will add a filter to the filter summary box");
+    	System.out.println("TESTING removing a filter on the list will uncheck a corresponding checkbox");
     	
-		for (Map.Entry entry : params.entrySet()) {		  
-		    		    
-		    String facet = entry.getKey().toString();
+    	String message;
+    	successList.clear();
+    	errorList.clear();
+    	
+		for (Map.Entry entry : params.entrySet()) {	
+			String facet = entry.getKey().toString();
+			
+			   
 		    String queryStr = baseUrl + "/data/search#" + entry.getValue();	
 		    //System.out.println(queryStr);
 		    driver.get(queryStr);		
@@ -207,244 +234,373 @@ public class SearchPageTest {
 		    
 			// input element of a subfacet
 		    String elem1 = "div.flist li#" + facet + " li.fcat input";
-			new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.flist")));
-			String filterVals1 = driver.findElement(By.cssSelector(elem1)).getAttribute("rel");
-			
-			
+		    String filterVals1 = null;
+		    try {
+		    	new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.flist")));
+		    	filterVals1 = driver.findElement(By.cssSelector(elem1)).getAttribute("rel");
+		    }
+		    catch(Exception e){		    	
+		    	//System.out.println("   " + facet + " FAILED");
+				message = "Failed to find facet checkbox filter for " + facet + " facet on " + testName;	
+				//System.out.println("   " + message);
+				errorList.add(message);
+				continue;
+		    }
+			  
+		    
 			driver.findElement(By.cssSelector(elem1)).click();
-			if ( driver.findElement(By.cssSelector(elem1)).isSelected() ){
-				//System.out.println(facet + " filter checked");
-			}
-			
-			String elem2 = "ul#facetFilter li li.ftag a";
-			String filterVals2 = driver.findElement(By.cssSelector(elem2)).getAttribute("rel");
-			
-			// compare input with filter on filter summary box
-			assertEquals(filterVals1, filterVals2);			
-			
-			// now tests removing filter also unchecks inputbox
-			driver.findElement(By.cssSelector(elem2)).click();
 			if ( ! driver.findElement(By.cssSelector(elem1)).isSelected() ){
-				//System.out.println(facet + " filter unchecked");
+				//System.out.println(facet + " filter checked");
+				message = "Failed to check input filter for " + facet + " facet on " + testName;				
+				errorList.add(message);
 			}
 			
-			System.out.println("   " + facet + " OK");
+			String elem2 = "ul#facetFilter li li.ftag a"; 
+			String filterVals2 = null;
+			try {
+				filterVals2 = driver.findElement(By.cssSelector(elem2)).getAttribute("rel");
+			}
+			catch (Exception e){		    
+				message = "Failed to find filter on filter box for " + facet + " facet on " + testName;
+				//System.out.println("   " + message);
+				errorList.add(message);
+				continue;
+		    }
+			// compare input with filter on filter summary box
+			if ( filterVals1.equals(filterVals2) ){			
+			
+				// now tests removing filter also unchecks inputbox
+				driver.findElement(By.cssSelector(elem2)).click();
+				if ( ! driver.findElement(By.cssSelector(elem1)).isSelected() ){					
+					//System.out.println("   " + facet + " OK");
+					successList.add(facet);
+				}
+				else {
+					message = "Failed to uncheck input filter for " + facet + " facet on " + testName;
+					errorList.add(message);
+				}
+			}
+			else {				
+				message = "[FAILED]: " + facet + " facet on " +  testName;
+				errorList.add(message);
+				continue;
+			}
 		}	
 		System.out.println();	
-	}
-    
-    @Test
-	//@Ignore
-	public void testAllGeneSymbols() throws Exception {
-
-		String newQueryString = "/gene/select?q=marker_symbol:*&fl=marker_symbol&wt=json";
-		int startIndex = 0;
-		int nbRows = 10;
-		newQueryString+="&start="+startIndex+"&rows="+nbRows;
-		System.out.println("newQueryString=" + newQueryString);
-
-		JSONObject geneResults = JSONRestUtil.getResults(solrPath + newQueryString);
-		
-		JSONArray docs = JSONRestUtil.getDocArray(geneResults);
-		System.out.println(docs.size());
-		if (docs != null) {
-			int size = docs.size();
-			for (int i=0; i<size; i++) {
-				String geneParameterSymbol = docs.getJSONObject(i).getString("marker_symbol");
-				System.out.println(geneParameterSymbol);
-				driver.get(baseUrl + "/data/search?q=marker_symbol:\"" + geneParameterSymbol + "\"");
-				driver.navigate().refresh();
-				
-				System.out.println(baseUrl + "/data/search?q=marker_symbol:\"" + geneParameterSymbol + "\"");	
-				String geneSymbol = driver.findElement(By.xpath("//span[contains(@class, 'gSymbol')]")).getText();
-				System.out.println(geneSymbol);
-				assertEquals(geneSymbol, geneParameterSymbol);
-				System.out.println("OK querying by gene Symbol: " + geneParameterSymbol);
-			}
+		if ( successList.size() == params.size() ){
+			System.out.println("[PASSED] - " + testName);			
 		}
-	}	
+		else {
+			System.out.println("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
+			sumErrorList.add("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
+		}
+		System.out.println();
+	}
+      
 	@Test
 	@Ignore
-	public void testQueryingGeneSymbols() throws Exception {
-		System.out.println();
-		System.out.println("-------------------------------------------");
-    	System.out.println("-----     GENE SYMBOL QUERY TESTS     -----");
-    	System.out.println("-------------------------------------------");
+	public void testQueryingRandomGeneSymbols() throws Exception {
+		
+		String testName = "RANDOM GENE SYMBOL QUERY TESTS";
+		System.out.println();		
+    	System.out.println("----- " + testName + " -----");
+    	    	
+    	successList.clear();
+    	errorList.clear();
     	
-		String newQueryString = "/gene/select?q=marker_symbol:*&fl=marker_symbol&wt=json";
-		int startIndex = 0;
-		int nbRows = 30;
-		System.out.println("   TESTING " + nbRows + " genes");
+		String newQueryString = "/gene/select?q=marker_symbol:*&fq=-marker_symbol:CGI_* AND -marker_symbol:Gm*&fl=marker_symbol&wt=json";
+		Random rn = new Random();	
+		int startIndex = rn.nextInt(30000 - 0 + 1) + 1;
+		int nbRows = 10;
+		System.out.println("TESTING " + nbRows + " random gene symbols");
 		
 		newQueryString+="&start="+startIndex+"&rows="+nbRows;
+		
 		
 		JSONObject geneResults = JSONRestUtil.getResults(solrPath + newQueryString);
 		JSONArray docs = JSONRestUtil.getDocArray(geneResults);
 		
 		if (docs != null) {
-			int size = docs.size();
+			int size = docs.size();		
 			for (int i=0; i<size; i++) {
-				
+				int count = i+1;
 				String geneSymbol1 = docs.getJSONObject(i).getString("marker_symbol");
+				System.out.print("Testing symbol " + String.format("%3d", count) + ": "+ String.format("%-15s",geneSymbol1) + "\t=>\t");
 				
-				driver.get(baseUrl + "/data/search?q=marker_symbol:\"" + geneSymbol1 + "\"");
+				driver.get(baseUrl + "/data/search?q="+geneSymbol1);
 				driver.navigate().refresh();
 				
+				//new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.geneCol")));
+				new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.cssSelector("div.geneCol")));
 				String geneSymbol2 = driver.findElement(By.xpath("//span[contains(@class, 'gSymbol')]")).getText();
 				
-				assertEquals(geneSymbol1, geneSymbol2);
-				System.out.println("   OK query gene Symbol: " + geneSymbol1);
+				//System.out.println("symbol2: "+ geneSymbol2);
+				if ( geneSymbol1.equals(geneSymbol2) ){
+					System.out.println("OK");
+					successList.add(geneSymbol1);
+					//Thread.sleep(1000);
+				}
+				else {		
+					System.out.println("FAILED");
+					errorList.add(geneSymbol1);
+				}			
 			}
 		}
+		System.out.println();
+		if (successList.size() == nbRows ){
+			System.out.println("[PASSED] - " + testName);
+		}
+		else {
+			System.out.println("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));		
+			sumErrorList.add("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
+		}	
 		System.out.println();
 	}
 		
 	@Test	
 	@Ignore
-	public void testSelectedMgiIds() throws Exception {
+	public void testRandomMgiIds() throws Exception {
 		System.out.println();
-		System.out.println("-------------------------------------------");
-    	System.out.println("-----       MGI ID QUERY TESTS        -----");
-    	System.out.println("-------------------------------------------");
+		String testName = "RANDOM MGI ID QUERY TESTS";
+    	System.out.println("----- " + testName + " -----");
     	
-		String newQueryString = "/gene/select?q=mgi_accession_id:*&fl=mgi_accession_id,marker_symbol&wt=json";
-		int startIndex = 0;
+    	successList.clear();
+    	errorList.clear();
+    	
+		String newQueryString = "/gene/select?q=mgi_accession_id:*&fq=-marker_symbol:CGI_* AND -marker_symbol:Gm*&fl=mgi_accession_id,marker_symbol&wt=json";
+		Random rn = new Random();	
+		int startIndex = 4517;//rn.nextInt(30000 - 0 + 1) + 1;
 		int nbRows = 30;
 		newQueryString+="&start="+startIndex+"&rows="+nbRows;
 		//System.out.println("newQueryString=" + newQueryString);
-
+		System.out.println("TESTING " + nbRows + " random MGI IDs");
+		
 		JSONObject geneResults = JSONRestUtil.getResults(solrPath + newQueryString);		
 		JSONArray docs = JSONRestUtil.getDocArray(geneResults);
-			
+		
 		if (docs != null) {
 			int size = docs.size();
+			int count = 0;
 			for (int i=0; i<size; i++) {
 				
+				count = i+1;
 				String mgiId = docs.getJSONObject(i).getString("mgi_accession_id");
-				String symbol = docs.getJSONObject(i).getString("marker_symbol");
-				//System.out.println(baseUrl + "/data/search?q=" + mgiId);
+				String symbol = docs.getJSONObject(i).getString("marker_symbol");				
+				System.out.print("Testing MGI ID " + String.format("%3d", count) + ": "+ String.format("%-10s",mgiId) + "\t=>\t");
+				
 				driver.get(baseUrl + "/data/search?q=" + mgiId);
 				driver.navigate().refresh();
-							
-				new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id("geneGrid"))); 
-				//WebElement geneLink = driver.findElement(By.xpath("//a[@href='/data/genes/" + mgiId + "'"));
-								
-				WebElement geneLink = driver.findElement(By.cssSelector("div.geneCol a").linkText(symbol)); 
 				
-				if (geneLink != null) {	
-					System.out.println("   OK: querying MGI accession id: " + mgiId);
+				//new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id("div.geneCol"))); 
+				new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.cssSelector("div.geneCol")));
+				//WebElement geneLink = driver.findElement(By.xpath("//a[@href='/data/genes/" + mgiId + "'"));
+				WebElement geneLink = null;			
+				try {
+					geneLink = driver.findElement(By.cssSelector("div.geneCol a").linkText(symbol));
+					System.out.println("OK");
+					successList.add(mgiId);
+					//Thread.sleep(1000);
 				}
-				else {
-					System.out.println("   FAILED: querying MGI accession id: " + mgiId);
-				}		
+				catch(Exception e){					
+					System.out.println("FAILED");
+					errorList.add(mgiId);
+					continue;
+				}	
 			}
-		}
-		System.out.println();
+			System.out.println();
+			if (successList.size() == nbRows ){
+				System.out.println("[PASSED] - " + testName);
+			}
+			else {
+				System.out.println("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
+				sumErrorList.add("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
+			}
+			System.out.println();
+		}		
 	}
-	
+		
 	@Test
 	@Ignore
 	public void testPhrase() throws Exception {
-				
-		driver.get(baseUrl + "/data/search?q=grip strength");	
-			
-		new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id("geneGrid_info"))); 
-		System.out.println("OK: checking phrease grip strength. Found: " + driver.findElement(By.cssSelector("span#resultCount a")).getText());
+		specialStrQueryTest("PHRASE QUERY TESTS", "grip strength");		
 	}
 	
 	@Test
 	@Ignore
 	public void testPhraseInQuotes() throws Exception {
-				
-		driver.get(baseUrl + "/data/search?q=\"zinc finger protein\"");	
-			
-		new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id("geneGrid_info"))); 
-		System.out.println("OK: query by phrease in quotes for \"zinc finger protein\". Found: " + driver.findElement(By.cssSelector("span#resultCount a")).getText());
+		specialStrQueryTest("PHRASE IN QUOTES QUERY TESTS", "\"zinc finger protein\"");	
 	}
 
 	@Test
 	@Ignore
 	public void testLeadingWildcard() throws Exception {
-				
-		driver.get(baseUrl + "/data/search?q=*rik");	
-			
-		new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id("geneGrid_info"))); 
-		System.out.println("OK: query by leading wildcard for *rik. Found: " + driver.findElement(By.cssSelector("span#resultCount a")).getText());		
+		specialStrQueryTest("LEADING WILDCARD QUERY TESTS", "*rik");			
 	}
 	
 	@Test
 	@Ignore
 	public void testTrailingWildcard() throws Exception {
-				
-		driver.get(baseUrl + "/data/search?q=hox*");	
-			
-		new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id("geneGrid_info"))); 
-		System.out.println("OK: query by trailing wildcard for hox*. Found: " + driver.findElement(By.cssSelector("span#resultCount a")).getText());		
+		specialStrQueryTest("TRAILING WILDCARD QUERY TESTS", "hox*");			
 	}
-	
+		
 	@Test
 	@Ignore
-	public void testPaginatino() throws Exception {	
-				
+	public void testPagination() throws Exception {	
+		System.out.println();
+		String testName = "PAGINATION CLICK TESTS";
+    	System.out.println("----- " + testName + " -----");
+    	
+    	successList.clear();
+    	errorList.clear();
+    	
 		for (String core : cores ){		
 			System.out.println("TESTING core: "+ core);
 			System.out.println(baseUrl + "/data/search#" + params.get(core));
 			
 			driver.get(baseUrl + "/data/search#" + params.get(core));		
-			driver.navigate().refresh();			
-			driver.findElement(By.xpath("//div[contains(@class, 'dataTables_paginate')]/descendant::li[a/text()='2']")).click();
-			
-			// wait for ajax call			
-			new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id(core+"Grid_info")));
-			String wantedElement = core.equals("images") ? "span#annotCount" : "span#resultCount a";
-			
-			//driver.findElement(By.xpath("//div[contains(@class, 'dataTables_paginate')]/descendant::li[a/text()='2']")).click();
-			//System.out.println("CHK1: " +  driver.findElement(By.cssSelector(wantedElement)).getText());
-			//System.out.println("CHK2: " +  driver.findElement(By.cssSelector("div#"+core+"Grid_info")).getText());			
-			String paginationInfo = driver.findElement(By.cssSelector("div#"+core+"Grid_info")).getText();
-								
-			String[] parts = driver.findElement(By.cssSelector(wantedElement)).getText().split(" ");			
-			int dataTalbeFoundCount = Integer.parseInt(parts[0]);
-					
-			assertEquals(paginationInfo, "Showing 11 to 20 of " + NumberFormat.getNumberInstance(Locale.US).format(dataTalbeFoundCount) + " entries");
-			System.out.println(core + " OK");		
-		}
-	}
-	
-	@Test
-	@Ignore
-	public void testFacetCounts() throws Exception {	
+			driver.navigate().refresh();	
+
+			String paginationInfo = null;
+			String expectStr = null;
+						
+			try {
+				// wait for ajax call			
+				new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.id(core+"Grid_info")));			
+				//new WebDriverWait(driver, 25).until(ExpectedConditions.presenceOfElementLocated(By.id(core+"Grid_info")));
 				
+				String wantedPath = "//div[contains(@class, 'dataTables_paginate')]/descendant::li[a/text()='2']";		
+				//System.out.println("Expected text: " + driver.findElement(By.xpath(wantedPath)).getText());			
+					
+				WebElement pageLink = driver.findElement(By.xpath(wantedPath));
+				pageLink.click();
+				new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.id(core+"Grid")));	
+				
+				// move to its parent
+				WebElement liElem = driver.findElement(By.xpath("//div[contains(@class, 'dataTables_paginate')]/descendant::li[contains(@class, 'active')]"));
+				//System.out.println(liElem.getText());
+				if ( liElem.getText().equals("1") ){
+					System.out.println("click again");
+					pageLink.click(); // try again
+				}
+				
+				String wantedElement = core.equals("images") ? "span#annotCount" : "span#resultCount a";
+										
+				paginationInfo = driver.findElement(By.cssSelector("div#"+core+"Grid_info")).getText();
+				System.out.println(paginationInfo);					
+				String[] parts = driver.findElement(By.cssSelector(wantedElement)).getText().split(" ");			
+				int dataTalbeFoundCount = Integer.parseInt(parts[0]);
+							
+				expectStr = "Showing 11 to 20 of " + NumberFormat.getNumberInstance(Locale.US).format(dataTalbeFoundCount) + " entries";
+				System.out.println(expectStr);	
+			
+				if ( paginationInfo.equals(expectStr) ){
+					System.out.println(core + " OK");	
+					successList.add(core);					
+				}
+				else {
+					System.out.println(core + " FAILED");	
+					errorList.add(core);	
+				}
+				
+				//Thread.sleep(2000);
+			}
+			catch(Exception e){
+				System.out.println("Could not get " + core + " to work...");
+				continue;
+			}
+		}
+		
+		if (successList.size() == cores.size() ){
+			System.out.println("PASSED - " + testName);
+		}
+		else {
+			//System.out.println("FAILED - " + testName + "\n" + StringUtils.join(errorList, "\n"));
+			sumErrorList.add("FAILED - " + testName + "\n" + StringUtils.join(errorList, "\n"));
+		}
+	}		
+
+	@Test
+	//@Ignore
+	public void testFacetCounts() throws Exception {	
+		System.out.println();
+		String testName = "FACET COUNT TESTS";
+    	System.out.println("----- " + testName + " -----");
+    	
+    	successList.clear();
+    	errorList.clear();
+    	
 		for (String s : paramList ){	
 			
-			JSONObject geneResults = JSONRestUtil.getResults(solrPath + s);	
-			
-			int facetCountFromSolr = geneResults.getJSONObject("response").getInt("numFound");			
-			String core = geneResults.getJSONObject("responseHeader").getJSONObject("params").getString("core");
-			//String fq = geneResults.getJSONObject("responseHeader").getJSONObject("params").getString("fq");
-			System.out.println(core + " num found: "+ facetCountFromSolr);
-			
-			driver.get(baseUrl + "/data/search#" + params.get(core));	
-			driver.navigate().refresh();		
-			//System.out.println(baseUrl + "/data/search#" + params.get(core));
-			
-			// test facet panel loaded ok			
-			int facetCountFromPage = Integer.parseInt(driver.findElement(By.cssSelector("div.flist li#" + core + " span.fcount")).getText());
-			//System.out.println("facet panel test for " + core + " core: " + facetCountFromSolr + " vs " + facetCountFromPage);
-			assertEquals(facetCountFromSolr, facetCountFromPage);
-			//System.out.println("OK: facet counts for " + core);
-			
-			// wait for ajax response before doing the test
-			new WebDriverWait(driver, 45).until(ExpectedConditions.visibilityOfElementLocated(By.id(core+"Grid")));
-								
-			// test dataTable loaded ok			
-			//System.out.println("facet count check found : " + driver.findElement(By.cssSelector("span#resultCount a")).getText());
-			String[] parts = driver.findElement(By.cssSelector("span#resultCount a")).getText().split(" ");	
-			//System.out.println("check: " + parts[0]);
-			int dataTalbeFoundCount = Integer.parseInt(parts[0]);				
-			assertEquals(facetCountFromSolr, dataTalbeFoundCount);
-			System.out.println("OK: comparing facet counts for " + core);			
+			try {
+				JSONObject geneResults = JSONRestUtil.getResults(solrPath + s);	
+				
+				int facetCountFromSolr = geneResults.getJSONObject("response").getInt("numFound");			
+				String core = geneResults.getJSONObject("responseHeader").getJSONObject("params").getString("core");
+				//String fq = geneResults.getJSONObject("responseHeader").getJSONObject("params").getString("fq");
+				System.out.println(core + " num found: "+ facetCountFromSolr);
+				
+				driver.get(baseUrl + "/data/search#" + params.get(core));	
+				driver.navigate().refresh();		
+				//System.out.println(baseUrl + "/data/search#" + params.get(core));
+				
+				// test facet panel loaded ok			
+				int facetCountFromPage = Integer.parseInt(driver.findElement(By.cssSelector("div.flist li#" + core + " span.fcount")).getText());
+				System.out.println("facet panel test for " + core + " core: " + facetCountFromSolr + " vs " + facetCountFromPage);
+				assertEquals(facetCountFromSolr, facetCountFromPage);
+				System.out.println("OK: facet counts for " + core);
+				
+				// wait for ajax response before doing the test
+				new WebDriverWait(driver, 45).until(ExpectedConditions.visibilityOfElementLocated(By.id(core+"Grid")));
+									
+				// test dataTable loaded ok			
+				//System.out.println("facet count check found : " + driver.findElement(By.cssSelector("span#resultCount a")).getText());
+				String[] parts = driver.findElement(By.cssSelector("span#resultCount a")).getText().split(" ");	
+				//System.out.println("check: " + parts[0]);
+				int dataTalbeFoundCount = Integer.parseInt(parts[0]);				
+				
+				if ( facetCountFromSolr == dataTalbeFoundCount){
+					System.out.println("OK: comparing facet counts for " + core);
+					successList.add(core);	
+				}
+				else {
+					errorList.add(core);	
+				}
+			}
+			catch(Exception e){
+				System.out.println("Encountered inermitten error");
+			}
 		}
+				
+		if (successList.size() == paramList.size() ){
+			System.out.println("PASSED - " + testName);
+		}
+		else {
+			//System.out.println("FAILED - " + testName + "\n" + StringUtils.join(errorList, "\n"));
+			sumErrorList.add("FAILED - " + testName + "\n" + StringUtils.join(errorList, "\n"));
+		}
+		
+	}
+	
+	public void specialStrQueryTest(String testName, String qry) throws Exception {
+		System.out.println();		
+    	System.out.println("----- " + testName + " -----");
+    	
+    	successList.clear();
+    	errorList.clear();
+    	
+		driver.get(baseUrl + "/data/search?q=" + qry);	
+			
+		//new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id("geneGrid_info")));		
+		new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.id("geneGrid_info")));	
+		String foundMsg = driver.findElement(By.cssSelector("span#resultCount a")).getText();
+		if ( foundMsg.isEmpty() ){
+			System.out.println("[FAILED] - queried " + qry);
+			sumErrorList.add("[FAILED] - queried " + qry);
+		}
+		else {
+			System.out.println("[PASSED] - queried " + qry + ". Found " + foundMsg);
+		}
+		System.out.println();
 	}
     
 }
