@@ -60,8 +60,6 @@
 					<!-- <span class="documentation" > <a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span>-->
 					<span class="documentation" ><a href='' id='expPanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
 			</h2>		
-
-			<jsp:include page="phenomeStatsFrag.jsp"/>
 			
 			<div class="inner">
 
