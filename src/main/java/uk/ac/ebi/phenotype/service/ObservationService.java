@@ -363,7 +363,7 @@ public class ObservationService {
      * @return list of maps of results
      * @throws SolrServerException
      */
-    public List<Map<String,String>> getDistinctUnidimensionalPipelineOrgParamStrainZygosityGeneAccessionMetadata() throws SolrServerException {
+    public List<Map<String,String>> getDistinctUnidimensionalPipelineOrgParamStrainZygosityGeneAccessionAlleleAccessionMetadata() throws SolrServerException {
 
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
@@ -378,6 +378,7 @@ public class ObservationService {
                 		ExperimentField.STRAIN + "," +
                 		ExperimentField.ZYGOSITY + "," +
                 		ExperimentField.METADATA_GROUP + "," +
+                        ExperimentField.ALLELE_ACCESSION + "," +
                 		ExperimentField.GENE_ACCESSION);  
 
         QueryResponse response = solr.query(query);
@@ -392,7 +393,7 @@ public class ObservationService {
      * @return list of maps of results
      * @throws SolrServerException
      */
-    public List<Map<String,String>> getDistinctCategoricalPipelineOrgParamStrainZygositySexGeneAccessionMetadata() throws SolrServerException {
+    public List<Map<String,String>> getDistinctCategoricalPipelineOrgParamStrainZygositySexGeneAccessionAlleleAccessionMetadata() throws SolrServerException {
     	
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
@@ -408,6 +409,7 @@ public class ObservationService {
                 		ExperimentField.ZYGOSITY + "," +
                 		ExperimentField.SEX + "," +
                 		ExperimentField.METADATA_GROUP + "," +
+                        ExperimentField.ALLELE_ACCESSION + "," +
                 		ExperimentField.GENE_ACCESSION);  
 
         QueryResponse response = solr.query(query);
