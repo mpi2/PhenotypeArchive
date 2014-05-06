@@ -904,6 +904,7 @@
 
                             <classifier>datamodel</classifier>
                             <includes>
+                                <include>**/bean/*</include>
                                 <include>**/dao/*</include>
                                 <include>**/pojo/*</include>
                                 <include>**/phenotype/util/*</include>
