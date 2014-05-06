@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +52,8 @@ import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.Allele;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
+import uk.ac.ebi.phenotype.pojo.Procedure;
+import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.stats.ColorCodingPalette;
@@ -141,7 +144,10 @@ public class ExperimentsController {
 		double minimalPValue = 0.000001;
 		colorCoding.generateColors(pvalues, 9, 1, minimalPValue);
 		
-		String chart = phenomeChartProvider.generatePhenomeChart(alleleAccession, pvalues);
+		String chart = phenomeChartProvider.generatePhenomeChart(
+				alleleAccession, 
+				pvalues, 
+				pipeline);
 		
 		model.addAttribute("mapList", mapList);
 		model.addAttribute("pvalues", pvalues);

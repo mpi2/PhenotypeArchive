@@ -88,7 +88,7 @@
 	</script>
 	
 
-				<table id="experiments" class="table tableSorter">
+				<table id="strainPhenome">
 					<thead>
 						<tr>
 							<th class="headerSort">Procedure</th>
@@ -96,7 +96,7 @@
 							<th class="headerSort">Data type</th>
 							<th class="headerSort">Zygosity</th>
 							<th class="headerSort">P-value</th>
-							<th class="headerSort">Statistics</th>
+							<th class="headerSort">Status</th>
 							<th class="headerSort">Graph</th>
 						</tr>
 					</thead>
@@ -109,7 +109,7 @@
 						<td>${dataMap["zygosity"]}</td>
 						<c:set var="stableId" value="${dataMap['parameter_stable_id']}"/>
 						<c:choose>
-						<c:when test="${ ! empty pvalues[stableId]}">
+						<c:when test="${ ! empty pvalues[stableId] && pvalues[stableId].isSuccessful }">
 						<c:set var="paletteIndex" value="${pvalues[stableId].colorIndex}"/>
 						<c:set var="Rcolor" value="${palette[0][paletteIndex]}"/>
 						<c:set var="Gcolor" value="${palette[1][paletteIndex]}"/>
@@ -120,10 +120,7 @@
 						</c:when>
 						<c:otherwise><td></td></c:otherwise>
 						</c:choose>
-						<td><c:if test="${ ! empty pvalues[stableId] && ! pvalues[stableId].status eq 'Success'}">
-						Failed
-						</c:if>
-						</td>
+						<td>${pvalues[stableId].status}</td>
 						<td style="text-align:center">
 						<a href='${baseUrl}/charts?accession=${acc}&parameter_stable_id=${dataMap["parameter_stable_id"]}&zygosity=${dataMap["zygosity"]}&phenotyping_center=${phenotyping_center}'>
 						<i class="fa fa-bar-chart-o" alt="Graphs" > </i></a>

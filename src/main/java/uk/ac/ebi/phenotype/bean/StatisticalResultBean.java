@@ -117,6 +117,13 @@ public class StatisticalResultBean {
 		return -Math.log10(pValue);
 	}
 	
+	/**
+	 * Check whether the statistical call worked or failed.
+	 * @return a boolean indicated whether the status is equal to 'Success'
+	 */
+	public boolean getIsSuccessful() {
+		return status.equals("Success");
+	}
 	
 	/**
 	 * Effect size

@@ -36,6 +36,44 @@ $(document).ready(function(){
 		              "bFilter":false
 	});
 
+	// Sort the individual strainPhenome table
+	$.fn.dataTableExt.oSort['pvalues-asc']  = function(a,b) {
+		var x = 0;
+		var y = 0;
+		if (!a || !a.length) { a = 10; }
+		if (!b || !b.length) { b = 10; }
+		x = parseFloat( a );
+		y = parseFloat( b );
+		return ((x < y) ? -1 : ((x > y) ?  1 : 0));
+	};
+	
+	$.fn.dataTableExt.oSort['pvalues-desc']  = function(a,b) {
+		var x = 0;
+		var y = 0;
+		if (!a || !a.length) { a = 10; }
+		if (!b || !b.length) { b = 10; }
+		x = parseFloat( a );
+		y = parseFloat( b );
+		return ((x < y) ?  1 : ((x > y) ? -1 : 0));
+	};
+	
+	var oDataTable = $.fn.initDataTable($('table#strainPhenome'), {
+		"aoColumns": [
+		              { "sType": "string"},
+		              { "sType": "string"},		              
+		              { "sType": "string"},
+		              { "sType": "string"},
+		              { "sType": "pvalues" }, // or numeric
+		              { "sType": "string"},
+		              { "sType": "string", "bSortable" : false }
+
+		              ],
+		              "bDestroy": true,
+		              "bFilter":false
+	});
+	
+
+	
 	//$('[rel=tooltip]').tooltip();
 	//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
 	
