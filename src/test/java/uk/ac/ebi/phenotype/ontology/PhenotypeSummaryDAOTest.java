@@ -22,7 +22,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)

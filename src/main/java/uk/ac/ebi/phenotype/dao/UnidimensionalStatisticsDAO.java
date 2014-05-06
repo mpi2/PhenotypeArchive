@@ -8,17 +8,14 @@ import java.util.Set;
 import org.hibernate.HibernateException;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalRecordDTO;
-import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
-import uk.ac.ebi.phenotype.stats.MouseDataPoint;
 
 public interface UnidimensionalStatisticsDAO extends StatisticsDAO {
-
+        
 	public List<Float> getControlDataPointsForPopulation(Integer populationId) throws SQLException;
 
 	public List<Float> getMutantDataPoints(SexType sex, ZygosityType zygosity, Parameter parameter, Integer populationId) throws SQLException;
@@ -53,21 +50,6 @@ public interface UnidimensionalStatisticsDAO extends StatisticsDAO {
 	
 	public Map<String, Float> getMinAndMaxForParameter(String paramStableId) throws SQLException;
 
-	public List<UnidimensionalResult> getUnidimensionalResultByParameterAndBiologicalModel(
-			Parameter parameter, BiologicalModel controlBiologicalModel,
-			BiologicalModel biologicalModel);
-	
-	public List<UnidimensionalResult> getUnidimensionalResultByParameterIdAndBiologicalModelIds(
-			Integer parameter, Integer controlBiologicalId,
-			Integer biologicalId);
-	
-	
-	public List<MouseDataPoint> getMutantDataPointsWithMouseName(SexType sex, ZygosityType zygosity, Parameter parameter,  Integer populationId);
-	public List<MouseDataPoint> getControlDataPointsWithMouseName(Integer populationId);
 
-	public UnidimensionalResult getUnidimensionalStatsForPhenotypeCallSummaryId(
-			int phenotypeCallSummaryId) throws SQLException;
-        
-        public CategoricalResult getCategoricalStatsForPhenotypeCallSummaryId(int phenotypeCallSummaryId) throws SQLException;
 
 }

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,16 +42,22 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.generic.util.SolrIndex;
+import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 import uk.ac.ebi.phenotype.dao.AlleleDAO;
 import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.dao.StatisticalResultDAO;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.Allele;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
-import uk.ac.ebi.phenotype.stats.GeneService;
-import uk.ac.ebi.phenotype.stats.ObservationService;
+import uk.ac.ebi.phenotype.pojo.Procedure;
+import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.service.GeneService;
+import uk.ac.ebi.phenotype.service.ObservationService;
+import uk.ac.ebi.phenotype.stats.ColorCodingPalette;
+import uk.ac.ebi.phenotype.stats.graphs.PhenomeChartProvider;
 
 
 @Controller
@@ -68,6 +75,9 @@ public class ExperimentsController {
 	private PhenotypePipelineDAO pipelineDao;
 	
 	@Autowired
+    private StatisticalResultDAO statisticalResultDAO;   
+	
+	@Autowired
 	SolrIndex solrIndex;
 	
 	@Autowired
@@ -81,6 +91,8 @@ public class ExperimentsController {
 	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
+	
+	private PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();
 
 	/**
 	 * Runs when the request missing an accession ID. This redirects to the
@@ -112,15 +124,35 @@ public class ExperimentsController {
 		Pipeline pipeline = pipelineDao.getPhenotypePipelineByStableId(pipelineStableId);
 		
 		List<Map<String,String>> mapList =  null;
+		Map<String, StatisticalResultBean> pvalues = null;
+		
 		
 		try {
 			mapList = observationService.getDistinctParameterListByPipelineAlleleCenter(pipelineStableId, alleleAccession, phenotypingCenter, null);
+			
+			// get all p-values for this allele/center/pipeline
+			 pvalues = statisticalResultDAO.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(
+						alleleAccession, phenotypingCenter, pipelineStableId);
+			 System.out.println(pvalues.size());
+			
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
+		ColorCodingPalette colorCoding = new ColorCodingPalette();
+		double minimalPValue = 0.000001;
+		colorCoding.generateColors(pvalues, 9, 1, minimalPValue);
+		
+		String chart = phenomeChartProvider.generatePhenomeChart(
+				alleleAccession, 
+				pvalues, 
+				pipeline);
+		
 		model.addAttribute("mapList", mapList);
+		model.addAttribute("pvalues", pvalues);
+		model.addAttribute("palette", colorCoding.getPalette());
+		model.addAttribute("chart", chart);
 		model.addAttribute("phenotyping_center", phenotypingCenter);
 		model.addAttribute("allele", allele);
 		model.addAttribute("gene", gene);
@@ -130,9 +162,7 @@ public class ExperimentsController {
 		
 		return "experiments";
 	}
-	
-
-	
+		
 	/**
 	 * Error handler for gene not found
 	 * 

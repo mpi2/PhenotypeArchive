@@ -64,9 +64,9 @@ import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
 import uk.ac.ebi.phenotype.pojo.PipelineSolrImpl;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.service.ExperimentService;
+import uk.ac.ebi.phenotype.service.GenotypePhenotypeService.GenotypePhenotypeField;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
-import uk.ac.ebi.phenotype.stats.ExperimentService;
-import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService.GenotypePhenotypeField;
 
 @Controller
 public class FileExportController {
@@ -109,6 +109,7 @@ public class FileExportController {
 	
 	@RequestMapping(value="/export", method=RequestMethod.GET)	
 	public String exportTableAsExcelTsv(		
+		@RequestParam(value="allele", required=false) String[] allele,
 		@RequestParam(value="externalDbId", required=true) Integer extDbId,
 		@RequestParam(value="rowStart", required=false) Integer rowStart,
 		@RequestParam(value="fileType", required=true) String fileType,
@@ -168,7 +169,7 @@ public class FileExportController {
 					zygList=Arrays.asList(zygosities);
 				}
 				String s = (sex.equalsIgnoreCase("null")) ? null : sex;
-				dataRows = composeExperimentDataExportRows(parameterStableId, mgiGeneId, s, phenotypingCenterIds, zygList, strains, pipelineStableId);
+				dataRows = composeExperimentDataExportRows(parameterStableId, mgiGeneId, allele, s, phenotypingCenterIds, zygList, strains, pipelineStableId);
 			}
 			else if (solrCoreName.equalsIgnoreCase("genotype-phenotype")){
 				if (mgiGeneId !=null)
@@ -263,22 +264,28 @@ public class FileExportController {
 		return tableData;
 	}
 	
-	public List<String> composeExperimentDataExportRows(String[] parameterStableId, String[] geneAccession, String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity, String[] strain, String[] pipelines) throws SolrServerException, IOException, URISyntaxException, SQLException{
+	public List<String> composeExperimentDataExportRows(String[] parameterStableId, String[] geneAccession, String allele[], String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity, String[] strain, String[] pipelines) throws SolrServerException, IOException, URISyntaxException, SQLException{
 
 		List<String> rows = new ArrayList<String>();
 		SexType sex = null;
 		if (gender != null)
 			sex = SexType.valueOf(gender);
-		if (phenotypingCenterIds.size() == 0){
+		if (phenotypingCenterIds == null || phenotypingCenterIds.size() == 0){
 			phenotypingCenterIds.add(null);
 		}
-		if (strain.length == 0){
+		if (strain == null || strain.length == 0){
 			strain = new String[1];
 			strain[0] = null;
 		}
+		if (allele == null || allele.length == 0){
+			allele = new String[1];
+			allele[0] = null;
+		}
 		ArrayList<Integer> pipelineIds = new ArrayList<>();
-		for (String pipe: pipelines){
-			pipelineIds.add(ppDAO.getPhenotypePipelineByStableId(pipe).getId());
+		if (pipelines != null){
+			for (String pipe: pipelines){
+				pipelineIds.add(ppDAO.getPhenotypePipelineByStableId(pipe).getId());
+			}
 		}
 		if (pipelineIds.size() == 0)
 			pipelineIds.add(null);
@@ -289,12 +296,14 @@ public class FileExportController {
 				for (Integer pCenter : phenotypingCenterIds){
 					for (Integer pipelineId : pipelineIds){
 						for (int strainI = 0; strainI < strain.length; strainI++){
-							experimentList = experimentService.getExperimentDTO(parameterStableId[k], pipelineId,  geneAccession[mgiI], sex, pCenter, zygosity, strain[strainI]);
-							if (experimentList.size() > 0){
-								for (ExperimentDTO experiment : experimentList) { 
-									rows.addAll(experiment.getTabbedToString(ppDAO)) ;
+							for (int alleleI = 0; alleleI < allele.length; alleleI++){
+								experimentList = experimentService.getExperimentDTO(parameterStableId[k], pipelineId,  geneAccession[mgiI], sex, pCenter, zygosity, strain[strainI]);
+								if (experimentList.size() > 0){
+									for (ExperimentDTO experiment : experimentList) { 
+										rows.addAll(experiment.getTabbedToString(ppDAO)) ;
+									}
+									rows.add("\n\n");
 								}
-								rows.add("\n\n");
 							}
 						}
 					}

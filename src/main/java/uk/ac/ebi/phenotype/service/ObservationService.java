@@ -1,4 +1,4 @@
-package uk.ac.ebi.phenotype.stats;
+package uk.ac.ebi.phenotype.service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -48,6 +48,8 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.stats.ObservationDTO;
+import uk.ac.ebi.phenotype.stats.StackedBarsData;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalDataObject;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
 import uk.ac.ebi.phenotype.web.controller.ChartsController;
@@ -119,7 +121,7 @@ public class ObservationService {
 			String parameterStableId, List<String> pipelineStableId,
 			List<String> phenotypingCenterParams, 
 			List<String> strainParams,
-			List<String> metaDataGroups) throws SolrServerException {
+			List<String> metaDataGroups, List<String> alleleAccessions) throws SolrServerException {
 
 		// Example of key
 		// String experimentKey = observation.getPhenotypingCenter()
@@ -138,6 +140,7 @@ public class ObservationService {
 			.addFacetField(ExperimentField.STRAIN)
 			.addFacetField(ExperimentField.METADATA_GROUP)
 			.addFacetField(ExperimentField.PIPELINE_STABLE_ID)
+                        .addFacetField(ExperimentField.ALLELE_ACCESSION)
 			.setRows(0)
 			.setFacet(true)
 			.setFacetMinCount(1)
@@ -164,6 +167,13 @@ public class ObservationService {
 		if (pipelineStableId!= null && !pipelineStableId.isEmpty()){
 			query.addFilterQuery(ExperimentField.PIPELINE_STABLE_ID + ":(" + StringUtils.join(pipelineStableId, " OR ") + ")");
 		}
+                
+                if(alleleAccessions!=null && !alleleAccessions.isEmpty()){
+                    String alleleFilter=ExperimentField.ALLELE_ACCESSION + ":(" + StringUtils.join(alleleAccessions, " OR ").replace(":", "\\:") + ")";
+                    LOG.debug("alleleFilter="+alleleFilter);
+                        query.addFilterQuery(alleleFilter);
+                    
+                }
 
 		QueryResponse response = solr.query(query);
 		LOG.debug("experiment key query=" + query);
@@ -353,7 +363,7 @@ public class ObservationService {
      * @return list of maps of results
      * @throws SolrServerException
      */
-    public List<Map<String,String>> getDistinctUnidimensionalPipelineOrgParamStrainZygosityGeneAccessionMetadata() throws SolrServerException {
+    public List<Map<String,String>> getDistinctUnidimensionalPipelineOrgParamStrainZygosityGeneAccessionAlleleAccessionMetadata() throws SolrServerException {
 
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
@@ -368,6 +378,7 @@ public class ObservationService {
                 		ExperimentField.STRAIN + "," +
                 		ExperimentField.ZYGOSITY + "," +
                 		ExperimentField.METADATA_GROUP + "," +
+                        ExperimentField.ALLELE_ACCESSION + "," +
                 		ExperimentField.GENE_ACCESSION);  
 
         QueryResponse response = solr.query(query);
@@ -382,7 +393,7 @@ public class ObservationService {
      * @return list of maps of results
      * @throws SolrServerException
      */
-    public List<Map<String,String>> getDistinctCategoricalPipelineOrgParamStrainZygositySexGeneAccessionMetadata() throws SolrServerException {
+    public List<Map<String,String>> getDistinctCategoricalPipelineOrgParamStrainZygositySexGeneAccessionAlleleAccessionMetadata() throws SolrServerException {
     	
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
@@ -398,6 +409,7 @@ public class ObservationService {
                 		ExperimentField.ZYGOSITY + "," +
                 		ExperimentField.SEX + "," +
                 		ExperimentField.METADATA_GROUP + "," +
+                        ExperimentField.ALLELE_ACCESSION + "," +
                 		ExperimentField.GENE_ACCESSION);  
 
         QueryResponse response = solr.query(query);
@@ -444,11 +456,8 @@ public class ObservationService {
     	return results;
     }
 
-    public List<ObservationDTO> getExperimentalUnidimensionalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroup(
-            Integer parameterId, Integer pipelineId, String gene, List<String> zygosities,
-            Integer organisationId, String strain, SexType sex, String metaDataGroup
-
-    ) throws SolrServerException {
+    public List<ObservationDTO> getExperimentalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroupAndAlleleAccession(
+            Integer parameterId, Integer pipelineId, String gene, List<String> zygosities, Integer organisationId, String strain, SexType sex, String metaDataGroup, String alleleAccession) throws SolrServerException {
 
         List<ObservationDTO> resultsDTO;
         SolrQuery query = new SolrQuery()
@@ -482,6 +491,9 @@ public class ObservationService {
         }
         if(metaDataGroup!=null) {
         	query.addFilterQuery(ExperimentField.METADATA_GROUP + ":\"" + metaDataGroup + "\"");
+        }
+        if(alleleAccession!=null){
+            query.addFilterQuery(ExperimentField.ALLELE_ACCESSION + ":" + alleleAccession.replace(":", "\\:"));
         }
         LOG.debug("observation  service query = "+query);
         QueryResponse response = solr.query(query);

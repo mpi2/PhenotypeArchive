@@ -113,7 +113,7 @@
 
                             <h3><a name="time_graphs" href='#'>Time Series Graphs</a></h3>
                             <img src="img/graph_time_series.png">
-                            <p>Where an observation can be measured as a time series (e.g. cumulative food intake), we display the data in a line graph and scatter plot. The line graph will contain two lines, one each for wild-type and mutant data.  The data points displayed are the mean of all data collected at that timepoint and the whiskers indicate standard deviation.
+                            <p>Where an observation can be measured as a time series (e.g. mean blood glucose concentration), we display the data in a line graph and scatter plot. The line graph will contain lines for wild-type and mutant data for female and for males.  The data points displayed are the mean of all data collected at that timepoint and the whiskers indicate standard deviation.
                                 Hover over the points to see basic statistics about the data.  
 
                             <h3><a name="scatter_graphs" href='#'>Scatter Plots Showing Data grouped by Date</a></h3>

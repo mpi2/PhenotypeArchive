@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>uk.ac.ebi.phenotype</groupId>
     <artifactId>PhenotypeArchive</artifactId>
-    <version>0.4.4</version>
+    <version>0.4.5</version>
     <packaging>war</packaging>
     <name>EBI Phenotype Archive</name>
     <description>EBI Phenotype Archive Project</description>
@@ -46,10 +46,6 @@
 		
         <solrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
         <internalSolrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</internalSolrUrl>
-		
-		<!-- for testing purpose -->
-		<!-- <solrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_ci</solrUrl>
-		</internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_ci</internalSolrUrl>-->
 		
         <drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>	
 		
@@ -894,6 +890,7 @@
                     </plugin>
                     <plugin>
                         <artifactId>maven-jar-plugin</artifactId>
+                        <version>2.4</version>
                         <executions>
                             <execution>
                                 <id>make-jar</id>
@@ -907,12 +904,14 @@
 
                             <classifier>datamodel</classifier>
                             <includes>
+                                <include>**/bean/*</include>
                                 <include>**/dao/*</include>
                                 <include>**/pojo/*</include>
                                 <include>**/phenotype/util/*</include>
                                 <include>**/data/europhenome/*</include>
                                 <include>**/data/impress/*</include>
                                 <include>**/stats/**</include>
+                                <include>**/service/**</include>
                                 <include>**/phenotype/error/**</include>
                                 <include>**/generic/util/*</include>
                                 <include>**/web/util/*</include>
@@ -922,6 +921,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-install-plugin</artifactId>
+                        <version>2.5.1</version>
                         <executions>
                             <execution>
                                 <id>install-jar</id>
@@ -967,6 +967,7 @@
                     </plugin>
                     <plugin>
                         <artifactId>maven-jar-plugin</artifactId>
+                        <version>2.4</version>
                         <executions>
                             <execution>
                                 <id>make-jar</id>
@@ -987,6 +988,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-install-plugin</artifactId>
+                        <version>2.5.1</version>
                         <executions>
                             <execution>
                                 <id>install-jar</id>

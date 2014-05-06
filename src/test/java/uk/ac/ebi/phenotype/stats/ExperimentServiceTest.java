@@ -3,11 +3,12 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
+
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -15,6 +16,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import uk.ac.ebi.phenotype.dao.OrganisationDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.Organisation;
@@ -22,6 +24,7 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.service.ExperimentService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })
@@ -76,7 +79,7 @@ public class ExperimentServiceTest {
 		
 		List<String> zygs = new ArrayList<>();
 		zygs.add(ZygosityType.heterozygote.name());
-		List<ExperimentDTO> experimentList = es.getExperimentDTO(p.getId(), pipe.getId(), "MGI:2444584", null, org.getId(), zygs, "MGI:4830588", "9180596a255e4e612acae74beb22b506", false);
+		List<ExperimentDTO> experimentList = es.getExperimentDTO(p.getId(), pipe.getId(), "MGI:2444584", null, org.getId(), zygs, "MGI:4830588", "9180596a255e4e612acae74beb22b506", false, null);
 
         System.out.println("EXP list is: "+experimentList);
         System.out.println("Size is: "+experimentList.size());
@@ -95,7 +98,7 @@ public class ExperimentServiceTest {
 		
 		List<String> zygs = new ArrayList<>();
 		zygs.add(ZygosityType.heterozygote.name());
-		List<ExperimentDTO> experimentList = es.getExperimentDTO(p.getId(), pipe.getId(), "MGI:97549", null, org.getId(), zygs, null, null, true);
+		List<ExperimentDTO> experimentList = es.getExperimentDTO(p.getId(), pipe.getId(), "MGI:97549", null, org.getId(), zygs, null, null, true, null);
 
         System.out.println("EXP list is: "+experimentList);
         System.out.println("Size is: "+experimentList.size());
@@ -116,7 +119,7 @@ public class ExperimentServiceTest {
 		
 		List<String> zygs = new ArrayList<>();
 		zygs.add(ZygosityType.homozygote.name());
-		List<ExperimentDTO> experimentList = es.getExperimentDTO(p.getId(), pipe.getId(), "MGI:98373", null, org.getId(), zygs, null, "", true);
+		List<ExperimentDTO> experimentList = es.getExperimentDTO(p.getId(), pipe.getId(), "MGI:98373", null, org.getId(), zygs, null, "", true, null);
 
         System.out.println("EXP list is: "+experimentList);
         System.out.println("Size is: "+experimentList.size());
@@ -146,7 +149,7 @@ public class ExperimentServiceTest {
 		
 		List<String> zygs = new ArrayList<>();
 		zygs.add(ZygosityType.homozygote.name());
-		List<ExperimentDTO> experimentList = es.getExperimentDTO(p.getId(), 0, "MGI:2444584", null, null, zygs, null, "", true);
+		List<ExperimentDTO> experimentList = es.getExperimentDTO(p.getId(), 0, "MGI:2444584", null, null, zygs, null, "", true, null);
 
         System.out.println("EXP list is: "+experimentList);
         System.out.println("Size is: "+experimentList.size());
@@ -176,7 +179,7 @@ public class ExperimentServiceTest {
 		List<String> zygs = new ArrayList<>();
 		zygs.add(ZygosityType.heterozygote.name());
 		String metadataGroup="24446e53cb36f878658c6da33667433d";
-		List<ExperimentDTO> experimentList = es.getExperimentDTO(p.getId(), pipe.getId(), "MGI:97549", null, org.getId(), zygs, null, metadataGroup, true);
+		List<ExperimentDTO> experimentList = es.getExperimentDTO(p.getId(), pipe.getId(), "MGI:97549", null, org.getId(), zygs, null, metadataGroup, true, null);
 
         System.out.println("EXP list is: "+experimentList);
         System.out.println("Size is: "+experimentList.size());
@@ -187,7 +190,7 @@ public class ExperimentServiceTest {
         assertTrue(experimentList.get(0).getMetadataGroup().equals(metadataGroup));//check the experimental metadataGroup is correct as well
         
         String metadataGroup2="bb48f9ee812e01494f909eaf065997ea";
-		List<ExperimentDTO> experimentList2 = es.getExperimentDTO(p.getId(), pipe.getId(), "MGI:97549", null, org.getId(), zygs, null, metadataGroup2, true);
+		List<ExperimentDTO> experimentList2 = es.getExperimentDTO(p.getId(), pipe.getId(), "MGI:97549", null, org.getId(), zygs, null, metadataGroup2, true, null);
 
         System.out.println("EXP list is: "+experimentList2);
         System.out.println("Size is: "+experimentList2.size());

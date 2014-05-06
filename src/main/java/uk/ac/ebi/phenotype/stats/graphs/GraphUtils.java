@@ -16,8 +16,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.eclipse.jetty.util.log.Log;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.stats.ExperimentService;
-import uk.ac.ebi.phenotype.stats.ObservationService;
+import uk.ac.ebi.phenotype.service.ExperimentService;
+import uk.ac.ebi.phenotype.service.ObservationService;
 
 public class GraphUtils {
  
@@ -27,13 +27,15 @@ private static final Logger log = Logger.getLogger(GraphUtils.class);
 		this.experimentService=experimentService;
 	}
 	public Set<String> getGraphUrls(String acc,
-			String parameterStableId, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList, List<String> strainsParams, List<String> metaDataGroup, boolean scatter) throws SolrServerException {
+			String parameterStableId, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList, List<String> strainsParams, List<String> metaDataGroup, boolean scatter, List<String>alleleAccession) throws SolrServerException {
 		
 			Set<String>urls=new LinkedHashSet<String>(); //each url should be unique and so we use a set
-			Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameterStableId, pipelineStableIds, phenotypingCentersList, strainsParams, metaDataGroup);
+			Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameterStableId, pipelineStableIds, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession);
             List <String>centersList=keyList.get(ObservationService.ExperimentField.PHENOTYPING_CENTER);
             List <String>strains=keyList.get(ObservationService.ExperimentField.STRAIN);
             List<String> metaDataGroupStrings=keyList.get(ObservationService.ExperimentField.METADATA_GROUP); 
+            List<String> alleleAccessionStrings=keyList.get(ObservationService.ExperimentField.ALLELE_ACCESSION); 
+            List<String> pipelineStableIdStrings=keyList.get(ObservationService.ExperimentField.PIPELINE_STABLE_ID); 
             //System.out.println("metaDataGroupStrings"+metaDataGroupStrings);
 //            if(metaDataGroupStrings==null){
 //                metaDataGroupStrings=new ArrayList<String>();
@@ -42,6 +44,7 @@ private static final Logger log = Logger.getLogger(GraphUtils.class);
                 //for each parameter we want the unique set of urls to make ajax requests for experiments
                 String seperator="&";
                 String accessionAndParam="accession="+acc+seperator+"parameter_stable_id="+parameterStableId;
+                
                 //add  sex and zyg
                 String zygosities="";
                 String phenoCenterString="";
@@ -70,13 +73,9 @@ private static final Logger log = Logger.getLogger(GraphUtils.class);
                 log.debug("no centers specified returning empty list");
             	return urls;
             }
-            String pipelineStableIdsSolrString="";
-            if(pipelineStableIds!=null && !pipelineStableIds.isEmpty()) {
-            	for(String pipeStableId: pipelineStableIds) {
-            	pipelineStableIdsSolrString=seperator+"pipeline_stable_id="+pipeStableId;
-            	}
-            }
-         
+            
+            
+         for(String pipeStableId: pipelineStableIdStrings) {
             for(String center:centersList) {
             	try {
 					center=URLEncoder.encode(center, "UTF-8");//encode the phenotype center to get around harwell spaces
@@ -85,20 +84,24 @@ private static final Logger log = Logger.getLogger(GraphUtils.class);
 					e.printStackTrace();
 				}
             	for(String strain:strains) {
+                    for(String alleleAcc: alleleAccessionStrings){//one allele accession for each graph url created as part of unique key- pielineStableId as well?????
+                        String alleleAccessionString="&"+ObservationService.ExperimentField.ALLELE_ACCESSION+"="+alleleAcc;
             		if(metaDataGroupStrings!=null){
                             for(String metaGroup: metaDataGroupStrings) {
             			
-            			urls.add(accessionAndParam+zygosities+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+""+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+ObservationService.ExperimentField.METADATA_GROUP+"="+metaGroup+pipelineStableIdsSolrString);
+            			urls.add(accessionAndParam+alleleAccessionString+zygosities+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+""+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+ObservationService.ExperimentField.PIPELINE_STABLE_ID+":"+pipeStableId+seperator+ObservationService.ExperimentField.METADATA_GROUP+"="+metaGroup);
             			
             		}
                         }
                         else{
                             //if metadataGroup is null then don't add it to the request
-                            urls.add(accessionAndParam+zygosities+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+pipelineStableIdsSolrString);
+                            urls.add(accessionAndParam+alleleAccessionString+zygosities+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+ObservationService.ExperimentField.PIPELINE_STABLE_ID+":"+pipeStableId);
             			
                         }
+                    }
             	}
             }
+         }
 //            for(String url:urls) {
 //            	System.out.println("graph url!!!="+url);
 //            }
