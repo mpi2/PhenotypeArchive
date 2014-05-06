@@ -2,6 +2,7 @@ package uk.ac.ebi.phenotype.stats.graphs;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.WordUtils;
@@ -11,6 +12,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
+import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.Pipeline;
+import uk.ac.ebi.phenotype.pojo.Procedure;
 
 
 
@@ -20,7 +24,7 @@ public class PhenomeChartProvider {
 			.getLogger(PhenomeChartProvider.class);
 
 
-	public String createChart(String alleleAccession, JSONArray series) {
+	public String createChart(String alleleAccession, JSONArray series, JSONArray categories) {
 
 		String chartString="	$(function () { "
 				+"  phenomeChart = new Highcharts.Chart({ "
@@ -38,7 +42,7 @@ public class PhenomeChartProvider {
 			    +"        text: ' "+"Parameter by parameter"+" ' "
 			    +"    },"
 			    +"     xAxis: {"
-			    +"        type: 'category',"
+			    +"     categories: "+ categories.toString() + ","
 			    +"        title: {"
 			    +"           enabled: true,"
 			    +"           text: 'Parameters' "
@@ -56,7 +60,14 @@ public class PhenomeChartProvider {
 			    +"    yAxis: { "
 			    +"         title: { "
 			    +"             text: '"+"-Log10(p-value)"+"' "
-			    +"           } "
+			    +"           }, "
+			    + "plotLines : [{"
+				+ "value : " + -Math.log(10E-3) + ","
+				+ "color : 'green', "
+				+ "dashStyle : 'shortdash',"
+				+ "width : 2,"
+				+ "label : { text : 'Significance threshold 10E-3' }"
+				+ "}]"
 			    +"       }, "
 			    +"      credits: { "
 			    +"         enabled: false "
@@ -87,66 +98,87 @@ public class PhenomeChartProvider {
 		return chartString;
 	}
 
-	public String generatePhenomeChart(String alleleAccession, Map<String, StatisticalResultBean> statisticalResults) throws IOException,
-	URISyntaxException {
+	public String generatePhenomeChart(
+			String alleleAccession, Map<String, StatisticalResultBean> statisticalResults,
+			Pipeline pipeline) throws IOException,
+			URISyntaxException {
 
 		JSONArray series=new JSONArray();
 
-		JSONObject controlJsonObject=new JSONObject();
 
+		JSONArray categories = new JSONArray();
+		
 		try {
+			
+			int index = 0;
 
-			// Tooltip first for correct formatting
-/*	        tooltip: {
-		     
-		     headerFormat: '<b>{series.name}</b><br>',
-		     pointFormat: '{point.name}<br/>value: {point.y}'
-		                    },*/
-			
-			JSONObject tooltip=new JSONObject();
-			tooltip.put("headerFormat", "<b>{series.name}</b><br>");
-			tooltip.put("pointFormat", "{point.name}<br/>value: {point.y}");
-			controlJsonObject.put("tooltip", tooltip);
-			controlJsonObject.put("name", WordUtils.capitalize("parameters p-values"));
+			// Create a statistical series for every procedure in the pipeline
+			// Start from the pipeline so that there is no need to keep this 
+			// information from the caller side
+			// get All procedures and generate a Map Parameter => Procedure
+			Map<Parameter, Procedure> parametersToProcedure = new HashMap<Parameter, Procedure>();
+			Map<String, Parameter> parametersMap = new HashMap<String, Parameter>();
+			for (Procedure procedure: pipeline.getProcedures()) {
 
-			JSONArray dataArray=new JSONArray();
-			int index = 1;
-			
-/*			 data: [{
-			        name: 'IMPC_...',
-			        x: 1,
-			        y: 2
-			    }, {
-			        name: 'IMPC_...',
-			        x: 2,
-			        y: 5
-			    }]		*/	
-			
-			for (String parameterId: statisticalResults.keySet()) {
-				//JSONArray parameterAndValue = new JSONArray();
-				// [2,0.18801234239446038]
-				//parameterAndValue.put(index);
-				//parameterAndValue.put(statisticalResults.get(parameterId).getLogValue());
-				
-				//dataArray.put(parameterAndValue);
-				
-				JSONObject dataPoint=new JSONObject();
-				dataPoint.put("name", parameterId);
-				dataPoint.put("x", index);
-				dataPoint.put("y", statisticalResults.get(parameterId).getLogValue());
-				dataArray.put(dataPoint);
-				index++;
+				JSONObject scatterJsonObject=new JSONObject();
+				// Tooltip first for correct formatting
+				/*	        tooltip: {
+
+						     headerFormat: '<b>{series.name}</b><br>',
+						     pointFormat: '{point.name}<br/>value: {point.y}'
+						                    },*/
+
+				JSONObject tooltip=new JSONObject();
+				tooltip.put("headerFormat", "<b>{series.name}</b><br>");
+				tooltip.put("pointFormat", "{point.name}<br/>p-value: {point.pValue}");
+				scatterJsonObject.put("tooltip", tooltip);
+				scatterJsonObject.put("type", "scatter");
+				scatterJsonObject.put("name", procedure.getName());
+
+				JSONArray dataArray=new JSONArray();
+
+				// create a series here
+				for (Parameter parameter: procedure.getParameters()) {
+
+					/*			 data: [{
+						        name: 'IMPC_...',
+						        x: 1,
+						        y: 2
+						    }, {
+						        name: 'IMPC_...',
+						        x: 2,
+						        y: 5
+						    }]		*/	
+
+					if (statisticalResults.containsKey(parameter.getStableId()) && statisticalResults.get(parameter.getStableId()).getIsSuccessful() ) {
+
+						categories.put(parameter.getStableId());
+						
+						JSONObject dataPoint=new JSONObject();
+						dataPoint.put("name", parameter.getName());
+						dataPoint.put("stableId", parameter.getStableId());
+						dataPoint.put("x", index);
+						dataPoint.put("y", statisticalResults.get(parameter.getStableId()).getLogValue());
+						dataPoint.put("pValue", statisticalResults.get(parameter.getStableId()).getpValue());
+						dataArray.put(dataPoint);
+						index++;
+					}
+
+				}
+
+				if (dataArray.length() > 0) {
+					scatterJsonObject.put("data", dataArray);
+					series.put(scatterJsonObject);
+				}
 			}
-			controlJsonObject.put("data", dataArray);
-
+			
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		series.put(controlJsonObject);
 
-		String chartString=createChart(alleleAccession, series);
+		String chartString=createChart(alleleAccession, series, categories);
 
 		return chartString;
 	}
