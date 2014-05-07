@@ -26,11 +26,11 @@
         </property>
     </bean>
 
-    <bean id="observationService" class="uk.ac.ebi.phenotype.stats.ObservationService">
+    <bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
         <constructor-arg  value="${internalSolrUrl}/experiment" />
     </bean>
 
-    <bean id="experimentService" class="uk.ac.ebi.phenotype.stats.ExperimentService">
+    <bean id="experimentService" class="uk.ac.ebi.phenotype.service.ExperimentService">
     </bean>
 
     <bean id="unidimensionalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl">
@@ -41,16 +41,16 @@
             <constructor-arg ref="sessionFactory" />
     </bean>
 	
-    <bean id="geneService" class="uk.ac.ebi.phenotype.stats.GeneService">
+    <bean id="geneService" class="uk.ac.ebi.phenotype.service.GeneService">
         <constructor-arg  value="${internalSolrUrl}/gene" />
     </bean>
 	
-    <bean id="genotypePhenotypeService" class="uk.ac.ebi.phenotype.stats.GenotypePhenotypeService">
+    <bean id="genotypePhenotypeService" class="uk.ac.ebi.phenotype.service.GenotypePhenotypeService">
         <constructor-arg  value="${internalSolrUrl}/genotype-phenotype" />
     </bean>
     
     
-		<bean id="mpService" class="uk.ac.ebi.phenotype.stats.MpService">
+		<bean id="mpService" class="uk.ac.ebi.phenotype.service.MpService">
 				<constructor-arg  value="${internalSolrUrl}/mp" />
 		</bean>
 
