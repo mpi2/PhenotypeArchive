@@ -29,11 +29,11 @@
                                         <td>${alleleProduct["strainOfOrigin"]}</td>
                                         <td>${alleleProduct["mgiAlleleName"]}</td>
                                         <td>
-                                            <div><a class="fancybox" target="_blank" href="${alleleProduct['alleleMap']}?simple=true" title="<a href='${alleleProduct['alleleMap']}?simple=true'>Download this image</a>"><i class="fa fa-th-list fa-lg"></i></a><span>&nbsp;&nbsp;image</span></div>
-                                            <div><a href="${alleleProduct['alleleGenbankFile']}"><i class="fa fa-file-text fa-lg"></i></a><span>&nbsp;&nbsp;&nbsp;genbank file</span></div>
+                                            <div style="padding:3px;"><a class="fancybox" target="_blank" href="${alleleProduct['alleleMap']}?simple=true.jpg" title="<a href='${alleleProduct['alleleMap']}?simple=true.jpg'>Download this image</a>"><i class="fa fa-th-list fa-lg"></i></a><span>&nbsp;&nbsp;image</span></div>
+                                            <div style="padding:3px;"><a href="${alleleProduct['alleleGenbankFile']}"><i class="fa fa-file-text fa-lg"></i></a><span>&nbsp;&nbsp;&nbsp;genbank file</span></div>
                                         </td>
                                         <td><a href="http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/${alleleProduct['ikmcProjectId']}"><i class="fa fa-clipboard fa-lg"></i></a></td>
-                                        <td><ul>${alleleProduct["orderHtml"]}</ul></td>
+                                        <td>${alleleProduct["orderHtml"]}</td>
                                 </c:otherwise>
                         </c:choose>
                         </tr>
