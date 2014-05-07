@@ -4,40 +4,46 @@
 		<c:if test="${unidimensionalChartDataSet!=null}">
 		<table id="continuousTable">
 		<thead><tr>
-		<th>Line</th>
-		<th>Zygosity</th>
+		<th>Control/Hom/Het</th>
 			<th>Mean</th>
 			<th>SD</th>
-			<th>Sex</th>
 			<th>Count</th>
-			<th>Effect Size</th>
 			<th>pValue</th>
+			<th>Effect Size</th>
 		</tr></thead>
 		<tbody>									
 										
 										
 											<c:forEach var="statsObject" items="${unidimensionalChartDataSet.statsObjects}">
 												<tr>
-												<td>${statsObject.line}</td>
+												<td>
+												<c:choose>
+														<c:when test="${statsObject.sexType eq 'female'}">
+															Female
+														</c:when>
+														<c:when test="${statsObject.sexType eq 'male'}">
+															Male
+														</c:when>
+												</c:choose>
 												<c:choose>
 												<c:when test="${statsObject.line =='Control' }">
-												<td>NA</td>
+												Control
 												</c:when>
 												<c:when test="${statsObject.line !='Control' }">
-												<td>${statsObject.zygosity}</td>
+												${statsObject.zygosity}
 												</c:when>
 												</c:choose>
+												</td>
 												<td>${statsObject.mean}</td>
 												<td>${statsObject.sd}</td>
-												<td><c:choose><c:when test="${statsObject.sexType eq 'female'}"><img style="cursor:help;color:#D6247D;" rel="tooltip" data-placement="top" title="Female" alt="Female" src="${baseUrl}/img/female.jpg" /></c:when><c:otherwise><img style="cursor:help;color:#247DD6;" rel="tooltip" data-placement="top" title="Male" alt="Male" src="${baseUrl}/img/male.jpg" /></c:otherwise></c:choose></td>
 												<c:if test="${statsObject.sexType eq 'female'}">
 												<td>${statsObject.sampleSize}</td>
 												</c:if>
 												<c:if test="${statsObject.sexType eq 'male'}">
 												<td>${statsObject.sampleSize}</td>
 												</c:if>
-												<td>${statsObject.result.effectSize}</td>
 												<td>${statsObject.result.pValue}</td>
+												<td>${statsObject.result.effectSize}</td>
 												</tr>
 												</c:forEach>
 										</tbody>

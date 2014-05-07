@@ -288,7 +288,7 @@ List<Float>dataFloats=new ArrayList<>();
 																		// WT HOM etc
 				//get the color based on if mutant or WT based on terrys ticket MPII-504
 				String color=ChartColors.getMutantColor(ChartColors.alphaBox);
-				if(chartsSeriesElement.getControlOrZygosityString().equals("WT")) {
+				if(chartsSeriesElement.getControlOrZygosityString().equals("Control")) {
 					color=ChartColors.getWTColor(ChartColors.alphaScatter);
 				}
 				
@@ -363,9 +363,7 @@ List<Float>dataFloats=new ArrayList<>();
 				+ parameter.getName()
 				+ "' } , credits: { enabled: false },  subtitle: { text: '"
 				+ parameter.getStableId()
-				+ "', x: -20 }, legend: { enabled: false }, xAxis: {labels: { style:{ fontSize:"
-				+ axisFontSize
-				+ " }}, categories:  "
+				+ "', x: -20 }, legend: { enabled: false }, xAxis: { categories:  "
 				+ categories
 				+ " }, \n"
 				+
@@ -375,9 +373,7 @@ List<Float>dataFloats=new ArrayList<>();
 					+"},"
 				+ "yAxis: { " +
 				"max: "+max+",  min: "+min+","
-				+"labels: { style:{ fontSize:"
-				+ axisFontSize
-				+ " }},title: { text: '"
+				+"labels: { },title: { text: '"
 				+ yAxisTitle
 				+ "' } }, "
 				+ "\n series: ["+seriesData+"] }); });";

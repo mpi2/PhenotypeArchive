@@ -55,7 +55,7 @@ public class ChartsSeriesElement {
 	
 	String getControlOrZygosityString() {
 		if(zygosityType==null) {
-			return "WT";
+			return "Control";
 		}else {
 			return zygosityType.getName();
 		}
