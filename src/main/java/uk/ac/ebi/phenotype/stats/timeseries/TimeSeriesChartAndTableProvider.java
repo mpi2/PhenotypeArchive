@@ -125,7 +125,7 @@ public class TimeSeriesChartAndTableProvider {
 				chartNTableForParameter.setExperiment(experiment);
 
 			}
-
+		chartNTableForParameter.setLines(lines);
 		return chartNTableForParameter;
 	}
 
