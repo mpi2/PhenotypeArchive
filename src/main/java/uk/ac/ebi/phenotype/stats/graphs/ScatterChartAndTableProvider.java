@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
+import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
@@ -26,6 +27,8 @@ import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 import uk.ac.ebi.phenotype.stats.ObservationDTO;
 import uk.ac.ebi.phenotype.stats.timeseries.TimeSeriesStats;
+import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalChartAndTableProvider;
+import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalStatsObject;
 
 @Service
 public class ScatterChartAndTableProvider {
@@ -268,7 +271,11 @@ public class ScatterChartAndTableProvider {
 			String chartString=createScatter(experimentNumber, parameter, series);
 			scatterChartAndData.setChart(chartString);
 				
-
+			List<UnidimensionalStatsObject> unidimensionalStatsObjects=null;
+			if(experiment.getObservationType().equals(ObservationType.unidimensional)) {
+				unidimensionalStatsObjects = UnidimensionalChartAndTableProvider.createUnidimensionalStatsObjects(experiment, parameter, expBiologicalModel);
+				scatterChartAndData.setUnidimensionalStatsObjects(unidimensionalStatsObjects);
+			}
 		return scatterChartAndData;
 	}
 

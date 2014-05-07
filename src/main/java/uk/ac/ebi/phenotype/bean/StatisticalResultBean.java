@@ -122,7 +122,7 @@ public class StatisticalResultBean {
 	 * @return a boolean indicated whether the status is equal to 'Success'
 	 */
 	public boolean getIsSuccessful() {
-		return status.equals("Success");
+		return status!=null && status.equals("Success");
 	}
 	
 	/**

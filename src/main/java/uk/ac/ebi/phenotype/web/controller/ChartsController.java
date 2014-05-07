@@ -77,6 +77,7 @@ import uk.ac.ebi.phenotype.stats.graphs.ScatterChartAndTableProvider;
 import uk.ac.ebi.phenotype.stats.timeseries.TimeSeriesChartAndTableProvider;
 import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalChartAndTableProvider;
 import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalDataSet;
+import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalStatsObject;
 
 @Controller
 public class ChartsController {
@@ -301,6 +302,13 @@ public class ChartsController {
 				if(scatter) {					
 					ScatterChartAndData scatterChartAndData=scatterChartAndTableProvider.doScatterData(experiment, parameter, experimentNumber, expBiologicalModel);
 					model.addAttribute("scatterChartAndData", scatterChartAndData);
+					if(observationTypeForParam.equals(ObservationType.unidimensional)) {
+						//if unidimensional add the unidimensional data so we can create the tables
+						List<UnidimensionalStatsObject> unidimenStatsObjects = scatterChartAndData.getUnidimensionalStatsObjects();
+						unidimensionalChartDataSet=new UnidimensionalDataSet();
+						unidimensionalChartDataSet.setStatsObjects(unidimenStatsObjects);
+						model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+					}
 				}else {
 
 				switch (observationTypeForParam) {
