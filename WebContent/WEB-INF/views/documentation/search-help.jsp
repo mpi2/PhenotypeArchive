@@ -50,9 +50,9 @@
                             will be updated accordingly.<p><p>This is a powerful tool to find data in the portal.<p>
                             <h5>Some search examples:</h5>
                             <h6>(1) I want to find a list of genes whose mice phenotyping status have been marked as 'Started' and those mice were produced (production center) and phenotyped (phenotyping center) at the WTSI.</h6>
-                            First, click on the 'Genes' main facet to expand its subfacets (if not yet expanded). Then click the '<b>Started</b>' subfacet. 
-                            A '<b>phenotyping started</b>' filter will appear in the light gray filter summary box just under the big blue 'Filter your search' bar on top of the search facet interface.<img src='img/started_subfacet.png' /><p>
-                            To further filter these set of genes for their production/phenotyping centers, click to expand the '<b>IMPC Mouse Production Center</b>' subfacet. Then check the 'WTSI' checkbox. 
+                            First, click on the 'Genes' main facet to expand its subfacets (if not yet expanded). Then click the '<b>IMPC Phenotyping Status</b>' subfacet to expand its filters (if not yet expanded). Next check the '<b>Started</b>' subfacet filter. 
+                            A '<b>phenotyping started</b>' filter will appear in the light gray filter summary box just under the big blue 'Filter your search' bar on top of the search facet interface.<p><img src='img/started_subfacet.png' />
+                            <br>To further filter these set of genes for their production/phenotyping centers, click to expand the '<b>IMPC Mouse Production Center</b>' subfacet. Then check the 'WTSI' checkbox. 
                             Now a second filter '<b>mice produced at WTSI</b>' will be added to the filter summary box.<img src='img/prod_center_subfacet.png' /><p>Do the same for '<b>IMPC Mouse Phenotyping Center</b>' subfacet and check the 'WTSI' checkbox. 
                             You shall see a third filter '<b>mice phenotyped at WTSI</b>' in the filter summary box.<img src='img/pheno_center_subfacet.png' /><br>
                             The resulting gene list on the right of the search page will be what you are looking for.<p><img src='img/result1.png' /><p>  
