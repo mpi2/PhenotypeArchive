@@ -128,3 +128,7 @@ button.exportButton{
 #phenodcc-heatmap-3 {
     height: 600px;
 }
+.smallerAlleleFont{
+	font-size:80%;
+	color:#aaa;
+}

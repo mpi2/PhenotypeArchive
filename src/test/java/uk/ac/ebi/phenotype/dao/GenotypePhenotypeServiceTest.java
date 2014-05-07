@@ -21,13 +21,17 @@
 package uk.ac.ebi.phenotype.dao;
 
 import java.util.Set;
+
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
+
+import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 
 /**
  *

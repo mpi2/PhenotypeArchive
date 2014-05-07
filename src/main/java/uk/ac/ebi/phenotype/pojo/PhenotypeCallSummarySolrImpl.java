@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import uk.ac.ebi.generic.util.JSONRestUtil;
-import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 
 public class PhenotypeCallSummarySolrImpl implements
@@ -60,10 +60,9 @@ public class PhenotypeCallSummarySolrImpl implements
 
 	@Override
 	public List<? extends StatisticalResult> getStatisticalResultFor(
-			String accession, String parameterStableId,
-			ObservationType observationType, String strainAccession)
+                String accession, String parameterStableId, ObservationType observationType, String strainAccession, String alleleAccession)
 			throws IOException, URISyntaxException {
-		return genotypePhenotypeService.getStatsResultFor(accession, parameterStableId, observationType, strainAccession);
+		return genotypePhenotypeService.getStatsResultFor(accession, parameterStableId, observationType, strainAccession, alleleAccession);
 	}
 	
 	

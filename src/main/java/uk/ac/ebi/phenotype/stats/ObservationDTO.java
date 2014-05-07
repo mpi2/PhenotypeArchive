@@ -115,6 +115,9 @@ public class ObservationDTO {
 
 	@Field("metadata")
 	private List<String> metadata;
+        
+        @Field("allele_accession")
+        private String alleleAccession;
 	
 
 	/**
@@ -261,6 +264,24 @@ public class ObservationDTO {
 	public boolean isMutant() {
 		return this.group.equals("experimental");
 	}
+	
+	/**
+	 * 
+	 * @return key uniquely identifying the group in which the ObservationDTO object is analysed. A concatenation of phenotyping center, strain, allele, parameter, pipeline, zygosity, sex, metadata
+	 */
+	
+	public String getKey(){
+		return "[allele: " + this.getAlleleAccession()
+				+ " , strain :" + this.getStrain() 
+				+ " , phenotyping center :" + this.getPhenotypingCenter()
+				+ " , parameter :" + this.getParameterStableId()
+				+ " , pipeline :" + this.getPipelineStableId()
+				+ " , zygosity :" + this.getZygosity()
+				+ " , sex :" + this.getSex()
+				+ " , metadata :" + this.getMetadataGroup()
+				+ " ]";
+	}
+	
 
 	/**
 	 * end helper methods
@@ -736,6 +757,14 @@ public class ObservationDTO {
 	public void setMetadata(List<String> metadata) {
 		this.metadata = metadata;
 	}
+
+    public String getAlleleAccession() {
+        return this.alleleAccession;
+    }
+    
+    public void setAlleleAccession(String alleleAccession) {
+        this.alleleAccession=alleleAccession;
+    }
 
 	
 	

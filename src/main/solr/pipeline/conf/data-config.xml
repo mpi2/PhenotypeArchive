@@ -96,10 +96,10 @@
 						<!-- gene, MP annotated to this procedure -->
 						<!-- skip 'other phenotype' MP:0005395-->                                                                                       
 						<entity dataSource="komp2db" name="phenotype_call_summary"
-						query="select distinct gf_acc, mp_acc, allele_acc, strain_acc from phenotype_call_summary where gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null and parameter_id=${phenotype_parameter.id} and procedure_id=${phenotype_procedure.id} and pipeline_id=${phenotype_pipeline_procedure.pipeline_id} and mp_acc !='MP:0005395' and (parameter_id != 2256 and parameter_id != 1222 and parameter_id != 1225) "> 
+							query="select distinct gf_acc, mp_acc, allele_acc, strain_acc from phenotype_call_summary where gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null and parameter_id=${phenotype_parameter.id} and procedure_id=${phenotype_procedure.id} and pipeline_id=${phenotype_pipeline_procedure.pipeline_id} and mp_acc !='MP:0005395' and (parameter_id != 2256 and parameter_id != 1222 and parameter_id != 1225) "> 
 
-							<field column="gf_acc" name="mgi_accession_id" />
-
+							<field column="gf_acc" name="mgi_accession_id" />						
+							
 							<!-- other fields from gene core -->
 							<entity dataSource="allele_core" name="doc" stream="true" url="q=mgi_accession_id:&quot;${phenotype_call_summary.gf_acc}&quot;&amp;wt=normal&amp;rows=1"		            
 				                processor="XPathEntityProcessor" forEach="/response/result/doc/"
@@ -135,7 +135,7 @@
 							<entity dataSource="mp_core" name="mpCore" stream="true" url="q=mp_id:&quot;${phenotype_call_summary.mp_acc}&quot;&amp;wt=normal&amp;rows=99999"
 							processor="XPathEntityProcessor" forEach="/response/result/doc/" onError="continue"                                                     
 							readTimeout="10000" connectionTimeout="10000"  >
-
+								
 								<field column="mp_id" xpath="/response/result/doc/str[@name='mp_id']" />                                        
 								<field column="mp_term" xpath="/response/result/doc/str[@name='mp_term']" />
 								<field column="mp_definition" xpath="/response/result/doc/str[@name='mp_definition']" />                

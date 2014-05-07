@@ -1,4 +1,4 @@
-package uk.ac.ebi.phenotype.stats;
+package uk.ac.ebi.phenotype.service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -294,11 +294,11 @@ public class GenotypePhenotypeService {
 	/*
 	 * Methods used by PhenotypeCallSummarySolrImpl
 	 */
-	public List<? extends StatisticalResult> getStatsResultFor(String accession, String parameterStableId, ObservationType observationType, String strainAccession) throws IOException, URISyntaxException {
+	public List<? extends StatisticalResult> getStatsResultFor(String accession, String parameterStableId, ObservationType observationType, String strainAccession, String alleleAccession) throws IOException, URISyntaxException {
 		
 		String solrUrl = solr.getBaseURL();// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
 		solrUrl += "/select/?q=" + GenotypePhenotypeField.MARKER_ACCESSION_ID + ":\""
-				+ accession+"\""+"&fq=" + GenotypePhenotypeField.PARAMETER_STABLE_ID + ":"+parameterStableId+"&fq=" + GenotypePhenotypeField.STRAIN_ACCESSION_ID + ":\""+strainAccession+"\"&rows=10000000&version=2.2&start=0&indent=on&wt=json";
+				+ accession+"\""+"&fq=" + GenotypePhenotypeField.PARAMETER_STABLE_ID + ":"+parameterStableId+"&fq=" + GenotypePhenotypeField.STRAIN_ACCESSION_ID + ":\""+strainAccession+"\""+"&fq="+ GenotypePhenotypeField.ALLELE_ACCESSION_ID + ":\""+alleleAccession+"\"&rows=10000000&version=2.2&start=0&indent=on&wt=json";
 		System.out.println("solr url for stats results="+solrUrl);
 		List<? extends StatisticalResult> statisticalResult = this.createStatsResultFromSolr(solrUrl, observationType);
 		return statisticalResult;
@@ -388,23 +388,26 @@ public class GenotypePhenotypeService {
 
 		
 		if(observationType==ObservationType.categorical) {
-			CategoricalResult catResult=new CategoricalResult();
+			
 			for (Object doc : docs) {
+                            CategoricalResult catResult=new CategoricalResult();
 				JSONObject phen = (JSONObject) doc;
 				//System.out.println("pValue="+pValue);
 				String pValue = phen.getString( GenotypePhenotypeField.P_VALUE );
 				String sex = phen.getString( GenotypePhenotypeField.SEX );
 				String zygosity=phen.getString( GenotypePhenotypeField.ZYGOSITY );
 				String effectSize=phen.getString(GenotypePhenotypeField.EFFECT_SIZE);
-				
+				String phenoCallSummaryId=phen.getString(GenotypePhenotypeField.PCS_ID);
 				
 				//System.out.println("pValue="+pValue);
-				if(pValue!=null) {
+				//if(pValue!=null) {
+                                    catResult.setId(Integer.parseInt(phenoCallSummaryId));//one id for each document and for each sex
 					catResult.setpValue(Double.valueOf(pValue));
 					catResult.setZygosityType(ZygosityType.valueOf(zygosity));
 					catResult.setEffectSize(new Double(Double.valueOf(effectSize)));
-					catResult.setSexType(SexType.valueOf(sex));
-				}
+					catResult.setSexType(SexType.valueOf(sex)); 
+                                       // System.out.println("adding sex="+SexType.valueOf(sex));
+				//}
 				results.add(catResult);
 			}
 			return results;

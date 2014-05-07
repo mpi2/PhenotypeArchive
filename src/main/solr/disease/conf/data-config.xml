@@ -44,13 +44,13 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
 			
 			<!-- genes associated with this disease -->
 			<entity dataSource="diseaseGenedb" name="dg" query="select mgi_id from disease2Gene where disease_id='${ddoc.disease_id}'">
-				<field column="mgi_id" name="mgi_accession_id" />
+				<field column="mgi_id" name="mgi_accession_id" />				
 
 				<!-- genes associated with this disease -->
             	<entity dataSource="gene_core" name="gdoc" stream="true" url="q=mgi_accession_id:&quot;${dg.mgi_id}&quot;&amp;rows=1&amp;wt=normal"
 					processor="XPathEntityProcessor" forEach="/response/result/doc/"                
-					readTimeout="10000" connectionTimeout="10000"  >                                        
-    
+					readTimeout="10000" connectionTimeout="10000"  >					                               
+    				
                     <field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />                                                        
                     <field column="marker_name" xpath="/response/result/doc/str[@name='marker_name']" />
                     <field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
@@ -72,7 +72,7 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
 					<!-- alleles of a gene -->
 					<field column="allele_name" xpath="/response/result/doc/arr[@name='allele_name']/str" />
 				 		
-					<!-- MP terms associated with this MGI gene -->                                 
+					<!-- MP terms associated with this MGI gene -->					                 
                     <field column="mp_id" xpath="/response/result/doc/arr[@name='mp_id']/str" />                                        
                     <field column="mp_term" xpath="/response/result/doc/arr[@name='mp_term']/str" />
                     <field column="mp_definition" xpath="/response/result/doc/arr[@name='mp_definition']/str" />                

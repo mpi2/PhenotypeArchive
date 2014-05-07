@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>uk.ac.ebi.phenotype</groupId>
     <artifactId>PhenotypeArchive</artifactId>
-    <version>0.4.4</version>
+    <version>0.4.5</version>
     <packaging>war</packaging>
     <name>EBI Phenotype Archive</name>
     <description>EBI Phenotype Archive Project</description>
@@ -585,13 +585,13 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.4.2</version>
+                    <version>2.15</version>
                     <configuration>
-                        <skipTests>false</skipTests>
+                        <skipTests>true</skipTests>
                         <testFailureIgnore>true</testFailureIgnore>
                         <excludes>
                             <exclude>**PageTest.java</exclude>
-                            <exclude>**/phenotype/web/**</exclude>
+                            <exclude>**/org/mousephenotype/www/**</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
@@ -884,11 +884,13 @@
                             <skipTests>true</skipTests>
                             <excludes>
                                 <exclude>**PageTest.java</exclude>
+                                <exclude>**/org/mousephenotype/www/**</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
                     <plugin>
                         <artifactId>maven-jar-plugin</artifactId>
+                        <version>2.4</version>
                         <executions>
                             <execution>
                                 <id>make-jar</id>
@@ -902,12 +904,14 @@
 
                             <classifier>datamodel</classifier>
                             <includes>
+                                <include>**/bean/*</include>
                                 <include>**/dao/*</include>
                                 <include>**/pojo/*</include>
                                 <include>**/phenotype/util/*</include>
                                 <include>**/data/europhenome/*</include>
                                 <include>**/data/impress/*</include>
                                 <include>**/stats/**</include>
+                                <include>**/service/**</include>
                                 <include>**/phenotype/error/**</include>
                                 <include>**/generic/util/*</include>
                                 <include>**/web/util/*</include>
@@ -917,6 +921,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-install-plugin</artifactId>
+                        <version>2.5.1</version>
                         <executions>
                             <execution>
                                 <id>install-jar</id>
@@ -956,11 +961,13 @@
                             <skipTests>true</skipTests>
                             <excludes>
                                 <exclude>**PageTest.java</exclude>
+                                <exclude>**/org/mousephenotype/www/**</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
                     <plugin>
                         <artifactId>maven-jar-plugin</artifactId>
+                        <version>2.4</version>
                         <executions>
                             <execution>
                                 <id>make-jar</id>
@@ -981,6 +988,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-install-plugin</artifactId>
+                        <version>2.5.1</version>
                         <executions>
                             <execution>
                                 <id>install-jar</id>
@@ -1023,6 +1031,7 @@
                             <skipTests>false</skipTests>
                             <excludes>
                                 <exclude>**PageTest.java</exclude>
+                                <exclude>**/org/mousephenotype/www/**</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -1051,6 +1060,7 @@
                             <skipTests>false</skipTests>
                             <excludes>
                                 <exclude>**PageTest.java</exclude>
+                                <exclude>**/org/mousephenotype/www/**</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -1083,6 +1093,7 @@
                             <skipTests>true</skipTests>
                             <excludes>
                                 <exclude>**PageTest.java</exclude>
+                                <exclude>**/org/mousephenotype/www/**</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -1119,7 +1130,7 @@
                                 <testFailureIgnore>true</testFailureIgnore>
                                 <includes>
                                     <include>**PageTest.java</include>
-                                    <include>**/phenotype/web/**</include>
+                                    <include>**/org/mousephenotype/www/**</include>
                                 </includes>
                                 <excludes>
                                     <exclude></exclude>
@@ -1188,6 +1199,7 @@
                             <skipTests>true</skipTests>
                             <excludes>
                                 <exclude>**PageTest.java</exclude>
+                                <exclude>**/org/mousephenotype/www/**</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -1221,6 +1233,7 @@
                             <skipTests>true</skipTests>
                             <excludes>
                                 <exclude>**PageTest.java</exclude>
+                                <exclude>**/org/mousephenotype/www/**</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -1277,6 +1290,7 @@
                             <skipTests>true</skipTests>
                             <excludes>
                                 <exclude>**PageTest.java</exclude>
+                                <exclude>**/org/mousephenotype/www/**</exclude>
                             </excludes>
                         </configuration>
                     </plugin>

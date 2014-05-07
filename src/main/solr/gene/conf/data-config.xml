@@ -148,17 +148,18 @@
 					<field column="inferred_ma_id" xpath="/response/result/doc/arr[@name='inferred_ma_id']/str" />	
 					<field column="inferred_ma_term" xpath="/response/result/doc/arr[@name='inferred_ma_term']/str" />
 					<field column="inferred_selected_top_level_ma_id" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_id']/str" />
-					<field column="inferred_selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str" />			
+					<field column="inferred_selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str" />				
 		
 				</entity>
 
 				<!-- pipeline/procedure associated with this gene -->
-				<entity dataSource="komp2db" name="phenotype_call_summary" 
+				<entity dataSource="komp2db" name="phenotype_call_summary2" 
 					query="select distinct pipeline_id, procedure_id, parameter_id from phenotype_call_summary where gf_acc='${doc.mgi_accession_id}' and allele_acc is not null and strain_acc is not null">
-					<entity dataSource="pipeline_core" name="pipelineCore" stream="true" url="q=*&amp;fq=pipeline_id:${phenotype_call_summary.pipeline_id}%20AND%20procedure_id:${phenotype_call_summary.procedure_id}%20AND%20parameter_id:${phenotype_call_summary.parameter_id}&amp;wt=normal&amp;rows=999999"
+										
+					<entity dataSource="pipeline_core" name="pipelineCore" stream="true" url="q=*&amp;fq=pipeline_id:${phenotype_call_summary2.pipeline_id}%20AND%20procedure_id:${phenotype_call_summary2.procedure_id}%20AND%20parameter_id:${phenotype_call_summary2.parameter_id}&amp;wt=normal&amp;rows=999999"
 						processor="XPathEntityProcessor" forEach="/response/result/doc/"							
-						readTimeout="10000" connectionTimeout="10000"  onError="continue" >						
-
+						readTimeout="10000" connectionTimeout="10000"  onError="continue" >										
+						
 						<field column="pipeline_name" xpath="/response/result/doc/str[@name='pipeline_name']" />	
 						<field column="procedure_name" xpath="/response/result/doc/str[@name='procedure_name']" />	
 						<field column="parameter_name" xpath="/response/result/doc/str[@name='parameter_name']" />	

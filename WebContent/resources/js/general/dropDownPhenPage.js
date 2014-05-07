@@ -38,15 +38,15 @@ $(document).ready(function(){
 	var selectedFilters = "";
 	var dropdownsList = new Array();
 	// use jquery DataTable for table searching/sorting/pagination
-	var aDataTblCols = [0,1,2,3,4,5,6,7,8];
+	var aDataTblCols = [0,1,2,3,4,5,6,7];
 	var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
 		"aoColumns": [
 		              { "sType": "html", "mRender":function( data, type, full ) {
 		            	  return (type === "filter") ? $(data).text() : data;
 		              	}},
-		              { "sType": "html", "mRender":function( data, type, full ) {
-		            	  return (type === "filter") ? $(data).text() : data;
-		              	}},
+		      //        { "sType": "html", "mRender":function( data, type, full ) {
+		      //      	  return (type === "filter") ? $(data).text() : data;
+		      //        	}},
 		              { "sType": "string"},
 		              { "sType": "string"},
 		              { "sType": "string"},
@@ -59,9 +59,8 @@ $(document).ready(function(){
 		              "bDestroy": true,
 		              "bFilter":false
 	});
-
-	$('[rel=tooltip]').tooltip();
-
+	
+	
 	//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
 	$('div#exportIconsDiv').html($.fn.loadFileExporterUI({
 		label: 'Export table as:',

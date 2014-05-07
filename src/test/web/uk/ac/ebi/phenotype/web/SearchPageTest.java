@@ -125,7 +125,7 @@ public class SearchPageTest {
 	 }
 	
 	@Test
-	@Ignore
+	//@Ignore
 	public void testExample() throws Exception {
 		// <span class="gSymbol">
 		String geneParameterSymbol = "Acp2";
@@ -137,7 +137,7 @@ public class SearchPageTest {
 	}
 	
 	@Test
-	//@Ignore
+	@Ignore
 	public void testTickingFacetFilters() throws Exception {
 		
 		for (Map.Entry entry : params.entrySet()) {		  
@@ -155,7 +155,7 @@ public class SearchPageTest {
 			String elem1 = "div.flist li#" + facet + " li.fcat input";
 			driver.findElement(By.cssSelector(elem1)).click();
 			if ( driver.findElement(By.cssSelector(elem1)).isSelected() ){
-				System.out.println(facet + " filter checked");
+				//System.out.println(facet + " filter checked");
 			}
 			
 			String elem2 = "ul#facetFilter li li.ftag a";
@@ -166,7 +166,7 @@ public class SearchPageTest {
 			// now tests unchecking filemotionter also unchecks inputbox
 			driver.findElement(By.cssSelector(elem2)).click();
 			if ( ! driver.findElement(By.cssSelector(elem1)).isSelected() ){
-				System.out.println(facet + " filter unchecked");
+				//System.out.println(facet + " filter unchecked");
 			}
 			
 			System.out.println(facet + " OK: behavioral test - input filter invokes filter listing");
@@ -174,7 +174,7 @@ public class SearchPageTest {
 	}
 		
 	@Test
-	@Ignore
+	//@Ignore
 	public void testAllGeneSymbols() throws Exception {
 
 		String newQueryString = "/gene/select?q=marker_symbol:*&fl=marker_symbol&wt=json";
@@ -201,7 +201,7 @@ public class SearchPageTest {
 	@Test	
 	@Ignore
 	public void testSelectedMgiIds() throws Exception {
-		
+				
 		String newQueryString = "/gene/select?q=mgi_accession_id:*&fl=mgi_accession_id,marker_symbol&wt=json";
 		int startIndex = 0;
 		int nbRows = 1;
@@ -267,7 +267,7 @@ public class SearchPageTest {
 	}
 	
 	@Test
-	//@Ignore
+	@Ignore
 	public void testPaginatino() throws Exception {	
 				
 		for (String core : cores ){		

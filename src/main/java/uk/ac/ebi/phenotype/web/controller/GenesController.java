@@ -73,10 +73,11 @@ import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
 import uk.ac.ebi.phenotype.pojo.Xref;
-import uk.ac.ebi.phenotype.stats.GeneService;
-import uk.ac.ebi.phenotype.stats.ObservationService;
+import uk.ac.ebi.phenotype.service.GeneService;
+import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
+import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow.PhenotypeRowType;
 
 
 @Controller
@@ -172,6 +173,7 @@ public class GenesController {
 		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
 		if (gene == null) {
 			log.warn("Gene status for " + acc + " can't be found.");
+			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
 		}	
 		
 		/**
@@ -332,35 +334,9 @@ public class GenesController {
 			List<String> sex = new ArrayList<String>();
 			sex.add(pcs.getSex().toString());
 
-			PhenotypeRow pr = new PhenotypeRow();
-			pr.setAllele(pcs.getAllele());
-			pr.setSexes(sex);
-			pr.setPhenotypeTerm(pcs.getPhenotypeTerm());
-			pr.setPipeline(pcs.getPipeline());
-			// zygosity representation depends on source of information
-			// we need to know what the data source is so we can generate appropriate link on the page
-			Datasource ds = pcs.getDatasource();
-			String dataSourceName = "";
-
-			// Defend in case the datasource is not loaded
-			if (ds != null) {
-				dataSourceName = ds.getName();
-			}
-			pr.setDataSourceName(dataSourceName);
-
-			// this should be the fix but EuroPhenome is buggy
-			String rawZygosity = (dataSourceName.equals("EuroPhenome")) ? 
-					//Utilities.getZygosity(pcs.getZygosity()) : pcs.getZygosity().toString();
-					"All" : pcs.getZygosity().toString();
-			pr.setRawZygosity(rawZygosity);
-			pr.setZygosity(pcs.getZygosity());
-			if(pcs.getExternalId()!=null) {
-				pr.setProjectId(pcs.getExternalId());
-			}
+			PhenotypeRow pr = new PhenotypeRow( pcs, config.get("baseUrl"));
 			
-			pr.setProcedure(pcs.getProcedure());
-			pr.setParameter(pcs.getParameter());
-			pr.setPhenotypingCenter(pcs.getPhenotypingCenter());
+			// Collapse rows on sex
 			if(phenotypes.containsKey(pr)) {
 				pr = phenotypes.get(pr);
 				TreeSet<String> sexes = new TreeSet<String>();
@@ -368,7 +344,7 @@ public class GenesController {
 				sexes.add(pcs.getSex().toString());
 				pr.setSexes(new ArrayList<String>(sexes));
 			}
-
+			
 			phenotypes.put(pr, pr);
 		}
 		ArrayList<PhenotypeRow> l = new ArrayList<PhenotypeRow>(phenotypes.keySet());
@@ -566,31 +542,6 @@ public class GenesController {
 			HttpServletRequest request,
 			RedirectAttributes attributes) {
 		return "identifierError";
-	}
-	
-	
-	/**
-	 * @throws IOException 
-	 */
-	@RequestMapping("/genesEnu/{acc}")
-	public String genesEnuFrag(
-			@PathVariable String acc,
-			Model model,
-			HttpServletRequest request,
-			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
-		//just pass on any query string after the ? to the solr requesting object for now
-//		String queryString=request.getQueryString();
-//		processPhenotypes(acc, model, queryString);
-		//send a request to their web service https://databases.apf.edu.au/mutations/snpRow/getSnpCount?mgiAccessionId=MGI:1935228
-		String url="https://databases.apf.edu.au/mutations/snpRow/getSnpCount?mgiAccessionId="+acc;
-		JSONObject result = JSONRestUtil.getResults(url);
-		
-		int count=result.getInt("count");
-		//System.out.println("count="+count);
-
-	model.addAttribute("makeEnuLink",count);
-
-		return "genesEnuFrag";
 	}
 	
 

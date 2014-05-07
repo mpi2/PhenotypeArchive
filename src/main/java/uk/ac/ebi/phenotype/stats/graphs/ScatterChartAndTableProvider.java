@@ -235,9 +235,11 @@ public class ScatterChartAndTableProvider {
 					e1.printStackTrace();
 				}
 				Set<ObservationDTO> expObservationsSet = Collections.emptySet();
-				if (zType.equals(ZygosityType.heterozygote)
-						|| zType.equals(ZygosityType.hemizygote)) {
+				if (zType.equals(ZygosityType.heterozygote)) {
 					expObservationsSet = experiment.getHeterozygoteMutants();
+				}
+                                if (zType.equals(ZygosityType.hemizygote)) {
+					expObservationsSet = experiment.getHemizygoteMutants();
 				}
 				if (zType.equals(ZygosityType.homozygote)) {
 					expObservationsSet = experiment.getHomozygoteMutants();

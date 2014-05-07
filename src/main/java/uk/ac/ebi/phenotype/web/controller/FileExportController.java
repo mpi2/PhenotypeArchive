@@ -21,8 +21,11 @@ import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,12 +36,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.hibernate.HibernateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -48,16 +53,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import uk.ac.ebi.generic.util.ExcelWorkBook;
 import uk.ac.ebi.generic.util.SolrIndex;
+import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.controller.DataTableController;
+import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
+import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow.PhenotypeRowType;
 import uk.ac.ebi.phenotype.dao.OrganisationDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
+import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
 import uk.ac.ebi.phenotype.pojo.PipelineSolrImpl;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.service.ExperimentService;
+import uk.ac.ebi.phenotype.service.GenotypePhenotypeService.GenotypePhenotypeField;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
-import uk.ac.ebi.phenotype.stats.ExperimentService;
-import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService.GenotypePhenotypeField;
 
 @Controller
 public class FileExportController {
@@ -82,6 +91,9 @@ public class FileExportController {
 	@Autowired
 	OrganisationDAO organisationDao;
 
+	@Autowired
+	private PhenotypeCallSummaryDAOReadOnly phenoDAO;
+
 	private String tsvDelimiter = "\t";
 	//eg ESLIM_001_001_115
 	private String patternStr = "(.+_\\d+_\\d+_\\d+)";
@@ -97,6 +109,7 @@ public class FileExportController {
 	
 	@RequestMapping(value="/export", method=RequestMethod.GET)	
 	public String exportTableAsExcelTsv(		
+		@RequestParam(value="allele", required=false) String[] allele,
 		@RequestParam(value="externalDbId", required=true) Integer extDbId,
 		@RequestParam(value="rowStart", required=false) Integer rowStart,
 		@RequestParam(value="fileType", required=true) String fileType,
@@ -123,6 +136,7 @@ public class FileExportController {
 		HttpServletResponse response,
 		Model model
 		) throws Exception{	
+		
 		log.debug("solr params: " + solrParams);
 		Workbook wb = null;
 		String dataString = null;
@@ -141,78 +155,31 @@ public class FileExportController {
 		
 		panelName = panelName == null ? "" : panelName; 
 	
-		// Excel
-		if ( fileType.equals("xls") ){
-			
-			response.setContentType("application/vnd.ms-excel");					
-			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls" );
-			
-			String sheetName = fileName;
-			ExcelWorkBook Wb = null;
-			
-			if ( panelName.equals("geneVariants")){	
-				Wb = new ExcelWorkBook(fetchGeneVariantsTitles(), fetchGeneVariantsData(mpId, extDbId), sheetName);					
+		
+		if ( !solrCoreName.isEmpty() ){					
+			if (dumpMode.equals("all")){
+				rowStart = 0;
+				//length = parseMaxRow(solrParams); // this is the facetCount
+				length = 100000;
 			}
-			else if ( panelName.equals("phenoAssoc")){
-				Wb = new ExcelWorkBook(fetchPhenoAssocTitles(), fetchPhenoAssocData(mgiGeneId[0], extDbId), sheetName);					
+								
+			if (solrCoreName.equalsIgnoreCase("experiment")){
+				List<String> zygList=null;
+				if(zygosities!=null) {
+					zygList=Arrays.asList(zygosities);
+				}
+				String s = (sex.equalsIgnoreCase("null")) ? null : sex;
+				dataRows = composeExperimentDataExportRows(parameterStableId, mgiGeneId, allele, s, phenotypingCenterIds, zygList, strains, pipelineStableId);
 			}
-			else if ( !solrCoreName.isEmpty() ){					
-				if (dumpMode.equals("all")){
-					rowStart = 0;
-					//length = parseMaxRow(solrParams); // this is the facetCount
-					length = 100000;
-				}
-													
-				List<String> rows;
-				if (!solrCoreName.equalsIgnoreCase("experiment")){
-					JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
-					rows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);
-				}
-				else{
-					List<String> zygList=null;
-					if(zygosities!=null) {
-						zygList=Arrays.asList(zygosities);
-					}
-					String s = (sex.equalsIgnoreCase("null")) ? null : sex;
-					rows = composeExperimentDataExportRows(parameterStableId, mgiGeneId, s, phenotypingCenterIds, zygList, strains, pipelineStableId);
-				}
-				// Remove the title row (row 0) from the list and assign it to
-				// the string array for the spreadsheet
-				String[] titles = rows.remove(0).split("\t");				
-				Wb = new ExcelWorkBook(titles, composeXlsTableData(rows), sheetName);
+			else if (solrCoreName.equalsIgnoreCase("genotype-phenotype")){
+				if (mgiGeneId !=null)
+					dataRows = composeDataRowGeneOrPhenPage(mgiGeneId[0], request.getParameter("page"));
+				else if (mpId != null)
+					dataRows = composeDataRowGeneOrPhenPage(mpId, request.getParameter("page"));
 			}
-			
-			wb = Wb.fetchWorkBook();
-		}
-		else if ( fileType.equals("tsv") ){				
-			response.setContentType("text/tsv; charset=utf-8");					 
-			response.setHeader("Content-Disposition","attachment;filename=" + fileName + ".tsv");
-			
-			if ( panelName.equals("geneVariants") ){
-				dataString = composeGeneVariantsTsvString(mpId, extDbId);
-			}
-			else if ( panelName.equals("phenoAssoc") ){				
-				dataString = composePhenoAssocTsvString(mgiGeneId[0], extDbId);
-			}
-			else if ( !solrCoreName.isEmpty() ){
-
-				if (dumpMode.equals("all")){
-					rowStart = 0;
-					length = 100000;
-				}
-
-				if (!solrCoreName.equalsIgnoreCase("experiment")){
-					JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
-					dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);}
-				else{
-					List<String> zygList=null;
-					if(zygosities!=null) {
-						zygList=Arrays.asList(zygosities);
-					}
-					String s = (sex.equalsIgnoreCase("null")) ? null : sex;
-					dataRows = composeExperimentDataExportRows(parameterStableId, mgiGeneId, s, phenotypingCenterIds, zygList, strains, pipelineStableId);
-					System.out.println("\t\tdataRows : " + dataRows.size());
-				}
+			else{
+				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
+				dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);
 			}
 		}
 		
@@ -222,6 +189,9 @@ public class FileExportController {
 		try {				
 			
 			if ( fileType.equals("tsv") ){
+
+				response.setContentType("text/tsv; charset=utf-8");					 
+				response.setHeader("Content-Disposition","attachment;filename=" + fileName + ".tsv");
 				// ServletOutputStream output = response.getOutputStream();
 				  
 				// ckc note: switch to use getWriter() so that we don't get error like
@@ -232,23 +202,24 @@ public class FileExportController {
 				for (String line : dataRows){
 					output.println(line);
 				}
-//				StringBuffer sb = new StringBuffer();						
-//				sb.append(dataString);			
-				
-				/*
-				InputStream in = new ByteArrayInputStream(sb.toString().getBytes("UTF-8"));
-	 
-				byte[] outputByte = new byte[1024];
-				//copy binary content to output stream
-				while(in.read(outputByte, 0, 1024) != -1) {
-					output.write(outputByte, 0, 1024);
-				}
-				
-				in.close();			*/		
+	
 				output.flush();
 				output.close();
 			}
 			else if ( fileType.equals("xls") ) {	
+				
+				response.setContentType("application/vnd.ms-excel");					
+				response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls" );
+				
+				String sheetName = fileName;
+				ExcelWorkBook Wb = null;
+			
+				// Remove the title row (row 0) from the list and assign it to
+				// the string array for the spreadsheet
+				String[] titles = dataRows.remove(0).split("\t");				
+				Wb = new ExcelWorkBook(titles, composeXlsTableData(dataRows), sheetName);
+
+				wb = Wb.fetchWorkBook();
 				ServletOutputStream output = response.getOutputStream();
 				try {
 					wb.write(output);
@@ -289,25 +260,32 @@ public class FileExportController {
 				tableData[i][j] = colVals[j];
 			}
 		}
+		
 		return tableData;
 	}
 	
-	public List<String> composeExperimentDataExportRows(String[] parameterStableId, String[] geneAccession, String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity, String[] strain, String[] pipelines) throws SolrServerException, IOException, URISyntaxException, SQLException{
+	public List<String> composeExperimentDataExportRows(String[] parameterStableId, String[] geneAccession, String allele[], String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity, String[] strain, String[] pipelines) throws SolrServerException, IOException, URISyntaxException, SQLException{
 
 		List<String> rows = new ArrayList<String>();
 		SexType sex = null;
 		if (gender != null)
 			sex = SexType.valueOf(gender);
-		if (phenotypingCenterIds.size() == 0){
+		if (phenotypingCenterIds == null || phenotypingCenterIds.size() == 0){
 			phenotypingCenterIds.add(null);
 		}
-		if (strain.length == 0){
+		if (strain == null || strain.length == 0){
 			strain = new String[1];
 			strain[0] = null;
 		}
+		if (allele == null || allele.length == 0){
+			allele = new String[1];
+			allele[0] = null;
+		}
 		ArrayList<Integer> pipelineIds = new ArrayList<>();
-		for (String pipe: pipelines){
-			pipelineIds.add(ppDAO.getPhenotypePipelineByStableId(pipe).getId());
+		if (pipelines != null){
+			for (String pipe: pipelines){
+				pipelineIds.add(ppDAO.getPhenotypePipelineByStableId(pipe).getId());
+			}
 		}
 		if (pipelineIds.size() == 0)
 			pipelineIds.add(null);
@@ -318,12 +296,14 @@ public class FileExportController {
 				for (Integer pCenter : phenotypingCenterIds){
 					for (Integer pipelineId : pipelineIds){
 						for (int strainI = 0; strainI < strain.length; strainI++){
-							experimentList = experimentService.getExperimentDTO(parameterStableId[k], pipelineId,  geneAccession[mgiI], sex, pCenter, zygosity, strain[strainI]);
-							if (experimentList.size() > 0){
-								for (ExperimentDTO experiment : experimentList) { 
-									rows.addAll(experiment.getTabbedToString(ppDAO)) ;
+							for (int alleleI = 0; alleleI < allele.length; alleleI++){
+								experimentList = experimentService.getExperimentDTO(parameterStableId[k], pipelineId,  geneAccession[mgiI], sex, pCenter, zygosity, strain[strainI]);
+								if (experimentList.size() > 0){
+									for (ExperimentDTO experiment : experimentList) { 
+										rows.addAll(experiment.getTabbedToString(ppDAO)) ;
+									}
+									rows.add("\n\n");
 								}
-								rows.add("\n\n");
 							}
 						}
 					}
@@ -354,80 +334,7 @@ public class FileExportController {
 		else if ( solrCoreName.equals("disease") ){
 			rows = composeDiseaseDataTableRows(json);
 		}
-		else if ( solrCoreName.equals("genotype-phenotype") ){
-			rows = composeGPDataTableRows(json, request);
-		}
 		return rows;
-	}
-	
-	// Export for tables on gene  & phenotype page
-	private List<String> composeGPDataTableRows(JSONObject json, HttpServletRequest request){ 
-		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");	
-		List<String> rowData = new ArrayList<String>();
-		PipelineSolrImpl pipe = new PipelineSolrImpl();
-		// add respective table header 
-		// from the phenotype core we export both the table on gene & phenotype page so we need to check on which file we are
-		
-		if (request.getParameter("page").equalsIgnoreCase("gene")){
-			rowData.add("Phenotype\tAllele\tZygosity\tSex\tProcedure / Parameter\tPhenotyping Center\tAnalysis\tGraph"); 
-			for (int i=0; i<docs.size(); i++) {			
-				List<String> data = new ArrayList<String>();
-				JSONObject doc = docs.getJSONObject(i);
-				data.add(doc.getString(GenotypePhenotypeField.MP_TERM_NAME));
-				if (doc.containsKey(GenotypePhenotypeField.ALLELE_SYMBOL))
-					data.add(doc.getString(GenotypePhenotypeField.ALLELE_SYMBOL));
-				else data.add("");
-				data.add(doc.getString(GenotypePhenotypeField.ZYGOSITY));
-				data.add(doc.getString(GenotypePhenotypeField.SEX));
-				data.add(doc.getString(GenotypePhenotypeField.PROCEDURE_NAME) + " / " + doc.getString(GenotypePhenotypeField.PARAMETER_NAME));
-				data.add(doc.getString(GenotypePhenotypeField.PHENOTYPING_CENTER));
-				data.add(doc.getString(GenotypePhenotypeField.RESOURCE_NAME));
-				String graphUrl = "\"\"";
-				graphUrl = request.getParameter("baseUrl").replace("/genes/", "/charts?accession=") + "&parameterId=" ;
-				graphUrl += doc.getString(GenotypePhenotypeField.PARAMETER_STABLE_ID) + "&gender=" + doc.getString(GenotypePhenotypeField.SEX);
-				graphUrl += "&zygosity=" + doc.getString(GenotypePhenotypeField.ZYGOSITY);
-				if (doc.containsKey(GenotypePhenotypeField.PHENOTYPING_CENTER)){
-					graphUrl += "&phenotyping_center=" +doc.getString(GenotypePhenotypeField.PHENOTYPING_CENTER);
-				}
-				data.add(graphUrl);
-				String line = StringUtils.join(data, "\t");
-				if (!rowData.contains(line)){
-					rowData.add(line);
-				}
-			}
-		}
-		else if (request.getParameter("page").equalsIgnoreCase("phenotype")){
-			boolean isTopLevel = (!docs.getJSONObject(0).containsKey("top_level_mp_term_name"));
-			
-			rowData.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure / Parameter\tPhenotyping Center\tAnalysis\tGraph"); 
-			
-			for (int i=0; i<docs.size(); i++) {		
-				JSONObject doc = docs.getJSONObject(i);
-				// for some reason we need to filter out the IMPC entries.
-				
-				List<String> data = new ArrayList<String>();
-				data.add(doc.getString(GenotypePhenotypeField.MARKER_SYMBOL));
-				if (doc.containsKey(GenotypePhenotypeField.ALLELE_SYMBOL))
-					data.add(doc.getString(GenotypePhenotypeField.ALLELE_SYMBOL));
-				else data.add("");
-				data.add(doc.getString(GenotypePhenotypeField.ZYGOSITY));
-				data.add(doc.getString(GenotypePhenotypeField.SEX));
-				data.add(doc.getString(GenotypePhenotypeField.MP_TERM_NAME));
-				data.add(doc.getString(GenotypePhenotypeField.PROCEDURE_NAME) + " / " + doc.getString(GenotypePhenotypeField.PARAMETER_NAME));
-				data.add(doc.getString(GenotypePhenotypeField.PHENOTYPING_CENTER));
-				data.add(doc.getString(GenotypePhenotypeField.RESOURCE_NAME));
-				String graphUrl = "\"\"";
-				graphUrl = request.getParameter("baseUrl").split("/phenotypes/")[0] + "/charts?accession=" + doc.getString(GenotypePhenotypeField.MARKER_ACCESSION_ID) + "&parameterId=" ;
-				graphUrl += doc.getString(GenotypePhenotypeField.PARAMETER_STABLE_ID) + "&gender=" + doc.getString(GenotypePhenotypeField.SEX);
-				graphUrl += "&zygosity=" + doc.getString(GenotypePhenotypeField.ZYGOSITY) ;
-				if (doc.containsKey(GenotypePhenotypeField.PHENOTYPING_CENTER)){
-					graphUrl += "&phenotyping_center=" +doc.getString(GenotypePhenotypeField.PHENOTYPING_CENTER);
-				}
-				data.add(graphUrl);
-				rowData.add(StringUtils.join(data, "\t"));
-			}
-		}
-		return rowData;
 	}
 	
 	private List<String> composeProcedureDataTableRows(JSONObject json){
@@ -685,122 +592,85 @@ public class FileExportController {
 		}
 		return rowData;
 	}
+	
 
-	private String[] fetchGeneVariantsTitles(){		
-		String[] titles = {"Gene", "Allele Symbol", "Zygosity", "Sex", "Procedure", "Data"};		
-		return titles;
-	}
-	private String[] fetchPhenoAssocTitles(){
-		String[] titles = {"Phenotype", "Allele", "Zygosity", "Sex", "Data"};		
-		return titles;
-	}
-	private String[][] fetchPhenoAssocData(String mgiGeneId, int extDbId){
-		List<PhenotypeCallSummary> summaries = phenotypeCallSummaryDAO.getPhenotypeCallByAccession(mgiGeneId, extDbId);			
-		int rowNum = summaries.size();
-		String[][] tableData = new String[rowNum][5];	
-				
-		int i=0;		
-		for(PhenotypeCallSummary p : summaries){					
-			tableData[i][0] = p.getPhenotypeTerm().getName();
-			tableData[i][1] = p.getAllele().getSymbol();
-			tableData[i][2] = p.getZygosity().name();
-			tableData[i][3] = p.getSex().name();
-			tableData[i][4] = composeLegacyDataLink(p);			
-			i++;			
+	private List<String> composeDataRowGeneOrPhenPage(String id, String pageName){
+		
+		List<String> res = new ArrayList<>();
+		List<PhenotypeCallSummary> phenotypeList = new ArrayList<PhenotypeCallSummary>();
+		PhenotypeFacetResult phenoResult=null;
+		
+		if (pageName.equalsIgnoreCase("gene")){
+			
+			try {	
+				phenoResult = phenoDAO.getPhenotypeCallByGeneAccessionAndFilter(id, "");
+				phenotypeList=phenoResult.getPhenotypeCallSummaries();
+			} catch (HibernateException|JSONException e) {
+				log.error("ERROR GETTING PHENOTYPE LIST");
+				e.printStackTrace();
+				phenotypeList = new ArrayList<PhenotypeCallSummary>();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
+						
+			ArrayList<PhenotypeRow> phenotypes = new ArrayList<PhenotypeRow>(); 
+			
+			for (PhenotypeCallSummary pcs : phenotypeList) {	
+				// Use a tree set to maintain an alphabetical order (Female, Male)
+				List<String> sex = new ArrayList<String>();
+				sex.add(pcs.getSex().toString());	
+				PhenotypeRow pr = new PhenotypeRow( pcs, config.get("baseUrl"));
+				phenotypes.add(pr);
+			}
+						
+			Collections.sort(phenotypes); // sort in alpha order by MP term name
+			res.add("Phenotype\tAllele\tZygosity\tSex\tProcedure / Parameter\tPhenotyping Center\tAnalysis\tGraph");
+			for (PhenotypeRow pr : phenotypes){
+				res.add(pr.toTabbedString("gene"));
+			}		
+		
 		}
-		return tableData;
-	}
-	private String[][] fetchGeneVariantsData(String mpId, int extDbId){
 		
-		List<PhenotypeCallSummary> summaries = phenotypeCallSummaryDAO.getPhenotypeCallByMPAccession(mpId, extDbId);			
-		int rowNum = summaries.size();
-		String[][] tableData = new String[rowNum][6];	
-		
-		int i=0;		
-		for(PhenotypeCallSummary p : summaries){
-			
-			// only want phenotypes that link to a gene
-			if ( p.getGene() != null && p.getStrain() != null ){
-			
-				tableData[i][0] = p.getGene().getSymbol();
-				tableData[i][1] = p.getAllele().getSymbol();
-				tableData[i][2] = p.getZygosity().name();
-				tableData[i][3] = p.getSex().name();
-				tableData[i][4] = p.getProcedure().getName();
-				tableData[i][5] = composeLegacyDataLink(p);
-				i++;
+		else if (pageName.equalsIgnoreCase("phenotype")){
+
+			phenotypeList = new ArrayList<PhenotypeCallSummary>();
+
+			try {
+				phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(id.replaceAll("\"", ""), "");
+				phenotypeList = phenoResult.getPhenotypeCallSummaries();
+			} catch (HibernateException|JSONException e) {
+				log.error("ERROR GETTING PHENOTYPE LIST");
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
+	
+			ArrayList<PhenotypeRow> phenotypes = new ArrayList<PhenotypeRow>();
+			res.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure / Parameter\tPhenotyping Center\tAnalysis\tGraph"); 
+			for (PhenotypeCallSummary pcs : phenotypeList) {
+	
+				// Use a tree set to maintain an alphabetical order (Female, Male)
+				List<String> sex = new ArrayList<String>();
+				sex.add(pcs.getSex().toString());
+	
+				PhenotypeRow pr = new PhenotypeRow( pcs, config.get("baseUrl"));
+				
+				if(pr.getParameter() != null && pr.getProcedure()!= null) {		
+					phenotypes.add(pr);
+				}
+			}
+
+
+			Collections.sort(phenotypes); // sort in alpha order by gene symbol name
+			for (PhenotypeRow pr : phenotypes){
+				res.add(pr.toTabbedString("phenotype"));
 			}
 		}
-		return tableData;
-	}	
-	
-	private String composeGeneVariantsTsvString(String mpId, int extDbId){	
-		
-		List<String> rows = new ArrayList<String>();		
-		rows.add(StringUtils.join(fetchGeneVariantsTitles(), tsvDelimiter)); //"Gene, Allele Symbol, Zygosity, Sex, Procedure, Data");		
-		
-		List<PhenotypeCallSummary> summaries = phenotypeCallSummaryDAO.getPhenotypeCallByMPAccession(mpId, extDbId);
-		for(PhenotypeCallSummary p : summaries) {
-				
-			// only want phenotypes that link to a gene
-			if ( p.getGene() != null && p.getStrain() != null ){
-				List<String> data = new ArrayList<String>();			
-				data.add(p.getGene().getSymbol());
-				data.add(p.getAllele().getSymbol());
-				data.add(p.getZygosity().name());
-				data.add(p.getSex().name());
-				data.add(p.getProcedure().getName());
-								
-				// compose legacy data link
-				data.add(composeLegacyDataLink(p));	
-				
-				rows.add(StringUtils.join(data, tsvDelimiter));
-			}
-		}
-		
-		return StringUtils.join(rows, "\n");
+		return res;
 	}
 	
-	private String composeLegacyDataLink(PhenotypeCallSummary p){
-		String linkParam = "";
-		String extId = p.getExternalId() + "";
-		String sex = p.getSex().name();
-	
-		String procedure_sid = p.getProcedure().getStableId();
-		String parameter_sid = p.getParameter().getStableId();
-		Matcher matcher = this.pattern.matcher(parameter_sid);
-		
-		if (p.getDatasource().getName().equals("WTSI Mouse Genetics Project") && p.getGene() != null) {
-			linkParam = mgpBaseUrl + p.getGene().getSymbol();
-		} else if (matcher.find()) {
-			String params = "&l=" + extId + "&x=" + sex + "&p=" + procedure_sid + "&pid_" + matcher.group(1) + "=on";
-			linkParam = europhenomeBaseUrl + params;
-		} else {			
-			linkParam = "No link to legacy data";
-		}		
-	
-		return linkParam;
-	}
-	
-	private String composePhenoAssocTsvString(String mgiGeneId, int extDbId){	
-	
-		List<String> rows = new ArrayList<String>();		
-		rows.add(StringUtils.join(fetchPhenoAssocTitles(), tsvDelimiter)); //"Phenotype, Allele, Zygosity, Sex");
-				
-		List<PhenotypeCallSummary> summaries = phenotypeCallSummaryDAO.getPhenotypeCallByAccession(mgiGeneId, extDbId);
-		for(PhenotypeCallSummary p : summaries) {							
-			List<String> data = new ArrayList<String>();			
-			data.add(p.getPhenotypeTerm().getName());
-			data.add(p.getAllele().getSymbol());
-			data.add(p.getZygosity().name());
-			data.add(p.getSex().name());
-			
-			// compose legacy data link
-			data.add(composeLegacyDataLink(p));
-			
-			rows.add(StringUtils.join(data, tsvDelimiter));
-		}		
-		return StringUtils.join(rows, "\n");
-	}
-
 }

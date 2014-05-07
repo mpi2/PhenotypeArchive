@@ -75,12 +75,12 @@ import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
 import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.Synonym;
+import uk.ac.ebi.phenotype.service.ExperimentService;
+import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
-import uk.ac.ebi.phenotype.stats.ExperimentService;
-import uk.ac.ebi.phenotype.stats.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.stats.ObservationDTO;
-import uk.ac.ebi.phenotype.stats.ObservationService;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalChartAndTableProvider;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalResultAndCharts;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
@@ -89,6 +89,7 @@ import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalChartAndTableProvi
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
+import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow.PhenotypeRowType;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 @Controller
@@ -120,6 +121,9 @@ public class PhenotypesController {
 	
 	@Autowired
 	GenotypePhenotypeService gpService;
+	
+	@Resource(name="globalConfiguration")
+	private Map<String, String> config;
 	
 	private static final int numberOfImagesToDisplay=5;
 
@@ -294,31 +298,9 @@ public class PhenotypesController {
 			List<String> sex = new ArrayList<String>();
 			sex.add(pcs.getSex().toString());
 
-			PhenotypeRow pr = new PhenotypeRow();
-			pr.setGene(pcs.getGene());
-			pr.setAllele(pcs.getAllele());
-			pr.setSexes(sex);
-			pr.setPhenotypeTerm(pcs.getPhenotypeTerm());
-			pr.setPipeline(pcs.getPipeline());
-			pr.setPhenotypingCenter(pcs.getPhenotypingCenter());
-			// zygosity representation depends on source of information
-			// we need to know what the data source is so we can generate appropriate link on the page
-			Datasource ds = pcs.getDatasource();
-			// Defend in case the datasource is not loaded
-			String dataSourceName = (ds != null) ? dataSourceName = ds.getName() : "";
-			pr.setDataSourceName(dataSourceName);
-
-			// this should be the fix but EuroPhenome is buggy
-			String rawZygosity = (dataSourceName.equals("EuroPhenome")) ? 
-					//Utilities.getZygosity(pcs.getZygosity()) : pcs.getZygosity().toString();
-					"All" : pcs.getZygosity().toString();
-			pr.setRawZygosity(rawZygosity);
-			pr.setZygosity(pcs.getZygosity());
-			if(pcs.getExternalId()!=null) {
-			pr.setProjectId(pcs.getExternalId());
-			}
-			pr.setProcedure(pcs.getProcedure());
-			pr.setParameter(pcs.getParameter());
+			PhenotypeRow pr = new PhenotypeRow( pcs, config.get("baseUrl"));
+			
+			// Collapse rows on sex
 			if(phenotypes.containsKey(pr)) {
 				pr = phenotypes.get(pr);
 				TreeSet<String> sexes = new TreeSet<String>();
@@ -326,8 +308,7 @@ public class PhenotypesController {
 				sexes.add(pcs.getSex().toString());
 				pr.setSexes(new ArrayList<String>(sexes));
 			}
-			if (pcs.getPhenotypingCenter() != null)
-				pr.setPhenotypingCenter(pcs.getPhenotypingCenter());
+			
 			if(pr.getParameter() != null && pr.getProcedure()!= null) {		
 				//if(pr.getGene().getSymbol().equals("Dll1")){
 				phenotypes.put(pr, pr);

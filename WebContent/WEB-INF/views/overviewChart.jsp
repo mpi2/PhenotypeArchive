@@ -28,7 +28,7 @@
 				html += '<li> <input id="' + sexes[i] + '" type="checkbox" class="checkbox" array="sexes"> ' + sexes[i] + '</li>';
 			}
 
-			html += '</ul> </div> </div> <div class="filter"> <div class="ftype">Source</div> <div class="foptions"> <ul>';
+			html += '</ul> </div> </div> <div class="filter"> <div class="ftype">Analysis</div> <div class="foptions"> <ul>';
 			for (var i = 0; i < sources.length; i ++){
 				html += '<li> <input id="' + sources[i] + '" type="checkbox" class="checkbox" array="sources"> ' + sources[i] + '</li>';
 			}

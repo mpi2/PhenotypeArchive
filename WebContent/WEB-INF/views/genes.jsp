@@ -189,13 +189,8 @@
 								<a href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=601;db=core;g=${gene.id.accession}"><i class="fa fa-external-link"></i>&nbsp;Compara&nbsp;View</a> 
 							</p>
 							
-							<c:if test="${makeEnuLink>0}">
-								<p class="with-label no-margin" id="enu">
-									<span class="label">Other Links</span>
-									<a href="https://databases.apf.edu.au/mutations/snpRow/list?mgiAccessionId=${acc}">ENU (${makeEnuLink})</a>
-								</p>
-							</c:if>
-                             <p><a href="../genomeBrowser/${acc}" target="new"> Gene Browser</a></p>
+                                                        <p><a href="../genomeBrowser/${acc}" target="new"> Gene Browser</a><span id="enu"></span>
+                                                        </p>
                                     	
 						</div>	
 		
@@ -351,7 +346,7 @@
 					<p class="no-margin">Browse phenotype data for:</p>
 					<ul>				
 					<c:forEach var="dataMap" items="${dataMapList}" varStatus="loop">
-						<li><a href='${baseUrl}/experiments/genes/${acc}?allele_accession=<t:formatAllele>${dataMap["allele_accession"]}</t:formatAllele>&phenotyping_center=${dataMap["phenotyping_center"]}&pipeline_stable_id=${dataMap["pipeline_stable_id"]}'>${dataMap["allele_symbol"]} phenotyped by ${dataMap["phenotyping_center"]} (${dataMap["pipeline_name"]})</a></li>					
+						<li><a href='${baseUrl}/experiments/genes/${acc}?allele_accession=${dataMap["allele_accession"]}&phenotyping_center=${dataMap["phenotyping_center"]}&pipeline_stable_id=${dataMap["pipeline_stable_id"]}'><t:formatAllele>${dataMap["allele_symbol"]}</t:formatAllele></a> phenotyped by ${dataMap["phenotyping_center"]} (${dataMap["pipeline_name"]})</li>					
 					</c:forEach>
 					</ul>
 					</p>

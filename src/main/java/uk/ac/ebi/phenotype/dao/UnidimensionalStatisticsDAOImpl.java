@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.coode.parsers.ManchesterOWLSyntaxAutoCompleteCombined_ManchesterOWLSyntaxAutoCompleteBase.incompleteAssertionAxiom_return;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +23,7 @@ import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalRecordDTO;
-import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
-import uk.ac.ebi.phenotype.stats.MouseDataPoint;
 
 public class UnidimensionalStatisticsDAOImpl extends StatisticsDAOImpl implements UnidimensionalStatisticsDAO {
 
@@ -62,56 +59,6 @@ public class UnidimensionalStatisticsDAOImpl extends StatisticsDAOImpl implement
 			.list();
 		
 		
-	}
-	
-	@Transactional(readOnly = true)
-	public List<MouseDataPoint> getMutantDataPointsWithMouseName(SexType sex, ZygosityType zygosity, Parameter parameter,  Integer populationId){
-		
-	    PreparedStatement statement = null;
-	    ResultSet resultSet = null;
-		List<MouseDataPoint> mouseDataPoints = new ArrayList<MouseDataPoint>();
-
-		String query = "SELECT * FROM komp2.stats_mv_experimental_unidimensional_values vw, biological_sample bs where vw.sex=? AND vw.zygosity=? AND vw.parameter_id=?  AND vw.population_id=? and vw.biological_sample_id=bs.id";
-
-		try (Connection connection = getConnection()) {
-	        statement = connection.prepareStatement(query);
-	        statement.setString(1, sex.name());
-	        statement.setString(2, zygosity.getName());
-	        statement.setInt(3, parameter.getId());
-	        statement.setInt(4, populationId);
-	        resultSet = statement.executeQuery();
-			while (resultSet.next()) {
-				mouseDataPoints.add(new MouseDataPoint(resultSet.getString("external_id"), resultSet.getFloat("data_point")));
-			}
-		}catch (SQLException e) {
-			e.printStackTrace();
-		}
-		//SELECT * FROM komp2.stats_mv_experimental_unidimensional_values vw, biological_sample bs where vw.sex='male' AND vw.zygosity='heterozygote' AND vw.parameter_id=1268  AND vw.population_id=301919 and vw.biological_sample_id=bs.id;
-	return mouseDataPoints;
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Transactional(readOnly = true)
-	public List<MouseDataPoint> getControlDataPointsWithMouseName(Integer populationId){
-		
-	    PreparedStatement statement = null;
-	    ResultSet resultSet = null;
-		List<MouseDataPoint> mouseDataPoints = new ArrayList<MouseDataPoint>();
-
-		String query = "SELECT * FROM komp2.stats_mv_control_unidimensional_values vw, biological_sample bs where  vw.population_id=? and vw.biological_sample_id=bs.id";
-
-		try (Connection connection = getConnection()) {
-			 statement = connection.prepareStatement(query);
-	        statement.setInt(1, populationId);
-	        resultSet = statement.executeQuery();
-			while (resultSet.next()) {
-				mouseDataPoints.add(new MouseDataPoint(resultSet.getString("external_id"), resultSet.getFloat("data_point")));
-			}
-		}catch (SQLException e) {
-			e.printStackTrace();
-		}
-		//SELECT * FROM komp2.stats_mv_experimental_unidimensional_values vw, biological_sample bs where vw.sex='male' AND vw.zygosity='heterozygote' AND vw.parameter_id=1268  AND vw.population_id=301919 and vw.biological_sample_id=bs.id;
-	return mouseDataPoints;
 	}
 
 	@Transactional(readOnly = true)
@@ -154,16 +101,6 @@ public class UnidimensionalStatisticsDAOImpl extends StatisticsDAOImpl implement
 			.setLong(0, parameter.getId())
 			.setInteger(1, biologicalModel.getId())
 			.list();
-	}
-
-	public List<UnidimensionalResult> getUnidimensionalResultByParameterAndBiologicalModel(Parameter parameter, BiologicalModel controlBiologicalModel, BiologicalModel mutantBiologicalModel) {
-		return (List<UnidimensionalResult>) getCurrentSession().createQuery("from UnidimensionalResult u  WHERE parameter=? and control_id=? and experimental_id=?")
-			.setInteger(0, parameter.getId())
-			.setInteger(1, controlBiologicalModel.getId())
-			.setInteger(2, mutantBiologicalModel.getId())
-			.list();
-		
-		//select p from AnalysisPolicy p where exists elements(p.nodeIds)
 	}
 
 
@@ -435,41 +372,6 @@ System.out.println(query);
 		}
 
 		return resultsMap;
-	}
-
-	@Override
-	public List<UnidimensionalResult> getUnidimensionalResultByParameterIdAndBiologicalModelIds(
-			Integer parameterId, Integer controlBiologicalId,
-			Integer biologicalId) {
-		return (List<UnidimensionalResult>) getCurrentSession().createQuery("from UnidimensionalResult u  WHERE parameter=? and control_id=? and experimental_id=?")
-				.setInteger(0, parameterId)
-				.setInteger(1, controlBiologicalId)
-				.setInteger(2, biologicalId)
-				.list();
-	}
-	
-	private int getUnidimensionalResultIdFromStatsResultPhenotypeCallSummary(int id) throws SQLException {
-		
-		int result=-1;
-		String query = "SELECT unidimensional_result_id FROM stat_result_phenotype_call_summary where phenotype_call_summary_id= '"
-				+ id + "'";
-
-		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
-
-			ResultSet resultSet = statement.executeQuery();
-			while (resultSet.next()) {
-				result=resultSet.getInt(1);
-			}
-		}
-		return result;
-	}
-	
-	
-	public UnidimensionalResult getStatsForPhenotypeCallSummaryId(int phenotypeCallSummaryId) throws SQLException{
-		//get the id we need from the join table
-		int resultId=this.getUnidimensionalResultIdFromStatsResultPhenotypeCallSummary(phenotypeCallSummaryId);
-		//use the join table id to get the actual result
-		return (UnidimensionalResult) getCurrentSession().get(UnidimensionalResult.class,  resultId);
 	}
 
 }

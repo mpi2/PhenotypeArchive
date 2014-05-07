@@ -17,9 +17,13 @@ package uk.ac.ebi.phenotype.stats;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 
 /**
  * Generates a color palette given a set of p-values
+ * At the moment, there is only one palette available.
  */
 
 public class ColorCodingPalette {
@@ -131,8 +135,8 @@ public class ColorCodingPalette {
 		return palette;
 	}
 
-	public void convertPvalueToColorIndex(List<Double> pValues, int maxColorIndex, double scale) {
-		convertPvalueToColorIndex(pValues, maxColorIndex, scale, ColorCodingPalette.MIN_PVALUE);
+	public void convertPvaluesToColorIndex(List<Double> pValues, int maxColorIndex, double scale) {
+		convertPvaluesToColorIndex(pValues, maxColorIndex, scale, ColorCodingPalette.MIN_PVALUE);
 	}
 
 	/**
@@ -152,7 +156,7 @@ public class ColorCodingPalette {
 	 * @param minimalPValue the minimal P-value we accept (to avoid infinity for
 	 * values close to zero like Monte Carlo process)
 	 */
-	public void convertPvalueToColorIndex(List<Double> pValues, int maxColorIndex, double scale, double minimalPValue){
+	public void convertPvaluesToColorIndex(List<Double> pValues, int maxColorIndex, double scale, double minimalPValue){
 
 		// check p-values
 		Double apv[] = pValues.toArray(new Double[]{});
@@ -167,10 +171,10 @@ public class ColorCodingPalette {
 		for (int i = 0; i<apv.length; i++) {
 			if (apv[i] < minimalPValue) {
 				apv[i] = minimalPValue;
-				colors[i] = -Math.log10(apv[i]);
-				if (colors[i] > maxColor) {
-					maxColor = colors[i];
-				}
+			}
+			colors[i] = -Math.log10(apv[i]);
+			if (colors[i] > maxColor) {
+				maxColor = colors[i];
 			}
 		}
 
@@ -194,6 +198,48 @@ public class ColorCodingPalette {
 		//  list(col=round(color.vals), zlim=c(0, max.color.index/scale))
 	}
 
+	/**
+	 * Add a colorIndex to a set of statistical results
+	 * @param statisticalResults structure containing 
+	 * @param maxColorIndex
+	 * @param scale
+	 * @param minimalPValue
+	 */
+	private void addColorIndexToStatisticalResults(Map<String, StatisticalResultBean> statisticalResults, int maxColorIndex, double scale, double minimalPValue){
+
+		// to scale from 0 to max color index
+		double maxColor = 0;
+				
+		for (String parameterId: statisticalResults.keySet()) {
+			// OK, for this parameter, compute a color index
+			StatisticalResultBean statsResult = statisticalResults.get(parameterId);
+			double pValue = statsResult.getpValue();
+			if (pValue < minimalPValue) {
+				pValue = minimalPValue;
+			}
+			statsResult.setColorIndex(-Math.log10(pValue));
+			if (statsResult.getColorIndex() > maxColor) {
+				maxColor = statsResult.getColorIndex();
+			}
+		}
+		
+		if( scale == 0 ){
+			scale = maxColorIndex / maxColor; 
+		}
+		
+		// scale 
+		for (String parameterId: statisticalResults.keySet()) {
+			StatisticalResultBean statsResult = statisticalResults.get(parameterId);
+			statsResult.setColorIndex(statsResult.getColorIndex()*scale);
+			statsResult.setColorIndex(Math.round(statsResult.getColorIndex()));
+			// check whether any color is greater than the maxColorIndex
+			if (statsResult.getColorIndex() > maxColorIndex) {
+				statsResult.setColorIndex(maxColorIndex);
+			}
+		}
+			
+	}
+	
 	private List<int[]> getColorPalette(int nbColors) {
 		// default palette - 9 colors
 		if (nbColors-3 >= 0 && nbColors-3 <= 6) {
@@ -209,13 +255,31 @@ public class ColorCodingPalette {
 	 * @param scale
 	 * @param minimalPValue
 	 */
+	public void generateColors(Map<String, StatisticalResultBean> statisticalResults, int maxColorIndex, double scale, double minimalPValue) {
+		
+		palette = getColorPalette(maxColorIndex);
+		  
+		addColorIndexToStatisticalResults( 
+				statisticalResults, 
+				maxColorIndex, 
+				scale, 
+				minimalPValue);
+	}
+	
+	/**
+	 * All in one: given a set of p-value
+	 * @param pValues
+	 * @param maxColorIndex
+	 * @param scale
+	 * @param minimalPValue
+	 */
 	public void generateColors(List<Double> pValues, int maxColorIndex, double scale, double minimalPValue) {
 		
 		palette = getColorPalette(maxColorIndex);
 		
 		  //enrich = obj@stats$setE.log2FC > 0
 		  
-		convertPvalueToColorIndex( 
+		convertPvaluesToColorIndex( 
 				pValues, 
 				maxColorIndex, 
 				scale, 

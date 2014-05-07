@@ -22,17 +22,20 @@ jQuery(document).ready(	function() {
 //code for setting ENU links on Gene Page	
 	
 	$.ajax({
-		url: '../genesEnu/' + gene_id,    
-		timeout: 2000,
+		url: 'https://databases.apf.edu.au/mutations/snpRow/getSnpCount?mgiAccessionId=' + gene_id,    
+		timeout: 5000,
 		success: function (response) {
-			$('#enu').html(response);
-			console.log("success");
-			
+			console.log("success response="+response.count);
+                    if(response.count>0){
+			$('#enu').html('&nbsp&nbsp&nbsp<a href="https://databases.apf.edu.au/mutations/snpRow/list?mgiAccessionId='+gene_id+'">ENU('+response.count+')</a>');
+                    }else{
+                        $('#enu').html('');
+                    }
 		}
 		,error: function(x, t, m) {
 	      //  if(t==="timeout") { 
 	        //log error to gene page so we know this is down not just 0.
-			var errorMsg='<td>ENU Link:</td><td class="gene-data" id="enu_links"><font color="red"><font color="red">Error trying to retrieve ENU Links( '+t+')</font></td>';
+			var errorMsg='<font color="red">Error trying to retrieve ENU Links( '+t+')</font>';
 	    	$('#enu').html(errorMsg);
 	    }
 	});

@@ -105,6 +105,7 @@ $(document).ready(function(){
 									var strains = [];
 									var zygosity = [];
 									var pipelineStableId = [];
+									var allele = [];
 									for (var k = 0; k < paramList.length; k++){
 										if (paramList[k].indexOf("parameter_stable_id") >= 0){
 											paramIdList.push(paramList[k].replace("parameter_stable_id=", ""));
@@ -123,7 +124,10 @@ $(document).ready(function(){
 										}
 										else if (paramList[k].indexOf("pipeline_stable_id") >= 0){
 											pipelineStableId.push(paramList[k].replace("pipeline_stable_id=", ""));
-									}
+										}
+										else if (paramList[k].indexOf("allele_accession") >= 0){
+											allele.push(paramList[k].replace("allele_accession=", ""));
+										}
 									}
 									
 									initFileExporter({
@@ -137,6 +141,7 @@ $(document).ready(function(){
 										parameterStableId : paramIdList,
 										zygosity: zygosity,
 										sex: sex,
+										allele: allele,
 										strains: strains,
 										phenotypingCenter: phenotypingCenter,
 										pipelineStableId: pipelineStableId,
