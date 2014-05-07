@@ -890,6 +890,7 @@
                     </plugin>
                     <plugin>
                         <artifactId>maven-jar-plugin</artifactId>
+                        <version>2.4</version>
                         <executions>
                             <execution>
                                 <id>make-jar</id>
@@ -903,12 +904,14 @@
 
                             <classifier>datamodel</classifier>
                             <includes>
+                                <include>**/bean/*</include>
                                 <include>**/dao/*</include>
                                 <include>**/pojo/*</include>
                                 <include>**/phenotype/util/*</include>
                                 <include>**/data/europhenome/*</include>
                                 <include>**/data/impress/*</include>
                                 <include>**/stats/**</include>
+                                <include>**/service/**</include>
                                 <include>**/phenotype/error/**</include>
                                 <include>**/generic/util/*</include>
                                 <include>**/web/util/*</include>
@@ -918,6 +921,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-install-plugin</artifactId>
+                        <version>2.5.1</version>
                         <executions>
                             <execution>
                                 <id>install-jar</id>
@@ -963,6 +967,7 @@
                     </plugin>
                     <plugin>
                         <artifactId>maven-jar-plugin</artifactId>
+                        <version>2.4</version>
                         <executions>
                             <execution>
                                 <id>make-jar</id>
@@ -983,6 +988,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-install-plugin</artifactId>
+                        <version>2.5.1</version>
                         <executions>
                             <execution>
                                 <id>install-jar</id>

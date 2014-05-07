@@ -3,7 +3,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <t:genericpage>
-	<jsp:attribute name="title">Gene details for ${gene.name}</jsp:attribute>
+	<jsp:attribute name="title">Experiment details for ${allele.symbol}</jsp:attribute>
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#sort=marker_symbol asc&q=*:*&core=gene">Genes</a> &raquo; ${gene.symbol}</jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="gene-node no-sidebars small-header"></jsp:attribute>
 	<jsp:attribute name="addToFooter">
@@ -48,25 +48,20 @@
 			<div class="block">
 				<div class="content">
 					<div class="node node-gene">
-						<h1 class="title" id="top">Experimental Data for <t:formatAllele>${allele.symbol}</t:formatAllele>  &nbsp;&nbsp; </h1>
+						<h1 class="title" id="top"><t:formatAllele>${allele.symbol}</t:formatAllele> - ${phenotyping_center} - ${pipeline.name}&nbsp;&nbsp; </h1>
 
-				 				
-		
-		
 		<!--  Phenotype Associations Panel -->
 		<div class="section">
 
-			<h2 class="title " id="section-associations"> Phenotyped by ${phenotyping_center} (${pipeline.name})
+			<h2 class="title " id="section-associations">&nbsp;
 					<!-- <span class="documentation" > <a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span>-->
 					<span class="documentation" ><a href='' id='expPanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
 			</h2>		
 			
 			<div class="inner">
 
-		
 			<!-- Associations table -->
-			<h5>Filter this table (to do)</h5>
-				<c:if test="${chart != null}">
+			<c:if test="${chart != null}">
 	
 	<!-- phenome chart here -->
   		<div id="chart${allele.id.accession}"></div>
@@ -88,7 +83,7 @@
 	</script>
 	
 
-				<table id="experiments" class="table tableSorter">
+				<table id="strainPhenome">
 					<thead>
 						<tr>
 							<th class="headerSort">Procedure</th>
@@ -96,7 +91,7 @@
 							<th class="headerSort">Data type</th>
 							<th class="headerSort">Zygosity</th>
 							<th class="headerSort">P-value</th>
-							<th class="headerSort">Statistics</th>
+							<th class="headerSort">Status</th>
 							<th class="headerSort">Graph</th>
 						</tr>
 					</thead>
@@ -109,7 +104,7 @@
 						<td>${dataMap["zygosity"]}</td>
 						<c:set var="stableId" value="${dataMap['parameter_stable_id']}"/>
 						<c:choose>
-						<c:when test="${ ! empty pvalues[stableId]}">
+						<c:when test="${ ! empty pvalues[stableId] && pvalues[stableId].isSuccessful }">
 						<c:set var="paletteIndex" value="${pvalues[stableId].colorIndex}"/>
 						<c:set var="Rcolor" value="${palette[0][paletteIndex]}"/>
 						<c:set var="Gcolor" value="${palette[1][paletteIndex]}"/>
@@ -120,20 +115,15 @@
 						</c:when>
 						<c:otherwise><td></td></c:otherwise>
 						</c:choose>
-						<td><c:if test="${ ! empty pvalues[stableId] && ! pvalues[stableId].status eq 'Success'}">
-						Failed
-						</c:if>
-						</td>
+						<td>${pvalues[stableId].status}</td>
 						<td style="text-align:center">
-						<a href='${baseUrl}/charts?accession=${acc}&parameter_stable_id=${dataMap["parameter_stable_id"]}&zygosity=${dataMap["zygosity"]}&phenotyping_center=${phenotyping_center}'>
+						<a href='${baseUrl}/charts?accession=${acc}&allele_accession=${allele.id.accession}&parameter_stable_id=${dataMap["parameter_stable_id"]}&zygosity=${dataMap["zygosity"]}&phenotyping_center=${phenotyping_center}'>
 						<i class="fa fa-bar-chart-o" alt="Graphs" > </i></a>
 						</td>
 						</tr>
 						</c:forEach>
 					</tbody>
 				</table>				
-						   
-		        
 			</div>
 		</div> <!-- parameter list -->
  
