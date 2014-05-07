@@ -12,32 +12,10 @@
 			${scatterChartAndData.chart}
 		</script>	
                                 <div class="section half"><a id="goBack" >Box Plot / Time Series Graphs</a></div>	
-                                <div class="section"></div>
-                                
-                                <script>
-	$(document)
-			.ready(
-					function() {
-						
-						
-						//go back to original graphs functionality here
-						function goBack()
-						  {
-						  window.history.back()
-						  }
-						
-						$('#goBack').click(function() {
-							  goBack();
-						});
-						
-				$.fn.qTip({
-							'pageName': 'stats',		
-							'tip': 'top right',
-							'corner' : 'right top'
-						});
-					});
-</script>
-	
+                                <div class="section">
+                               
 	</c:if>
+	
+	<jsp:include page="unidimensionalTables.jsp"></jsp:include>
 	
 	
