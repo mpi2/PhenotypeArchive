@@ -1179,7 +1179,7 @@
             <id>external-user</id>
 
             <properties>
-                <baseUrl>/phenotype-archive</baseUrl>
+                <baseUrl>/data</baseUrl>
                 <!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
                 to EBI servers for performance -->
                 <solrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
