@@ -17,24 +17,19 @@
 package org.mousephenotype.www;
 
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import javax.annotation.Resource;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -86,8 +81,8 @@ public class ChartsPageTest {
             platform = remoteWebDriver.getCapabilities().getPlatform().name();
         }
         
+        System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
         System.out.println("seleniumUrl: " + seleniumUrl);
-        System.out.println("TESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
     }
 	
 	
@@ -135,28 +130,6 @@ public class ChartsPageTest {
                 //test another example
                 //http://localhost:8080/phenotype-archive/charts?accession=MGI:98373&parameter_stable_id=M-G-P_014_001_001&zygosity=homozygote&phenotyping_center=WTSI&pipeline_stable_id=M-G-P_001
                 
-		
-		//get the table data
-//		long end = System.currentTimeMillis() + 5000;
-//        while (System.currentTimeMillis() < end) {
-//            WebElement resultsDiv = driver.findElements(By.xpath("//table[@id='catTable']//tr"));
-//
-//            
-//          
-//    		// for every line, store both columns
-//    		for (WebElement row : resultsDiv) {
-//    		    WebElement key = row.findElement(By.xpath("./td[6]"));
-//    		    System.out.println("p value="+key.getText());
-//    		    
-//    		}
-//            // If results have been returned, the results are displayed in a drop down.
-//            if (resultsDiv.isDisplayed()) {
-//              break;
-//            }
-//        }
-		// gets all rows
-		
-		
 		
 	}
 
