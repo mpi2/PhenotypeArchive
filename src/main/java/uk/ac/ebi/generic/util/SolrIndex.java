@@ -835,7 +835,7 @@ public class SolrIndex {
                                 JSONArray orderUrlsArray = docs.getJSONObject(i).getJSONArray("order_from_urls");
                                 JSONArray orderNamesArray = docs.getJSONObject(i).getJSONArray("order_from_names");
                                 for (int j = 0; j < orderNamesArray.size() ; j++){
-                                        orderHtml += "<li><a href=" + orderUrlsArray.getString(j) + ">" + orderNamesArray.getString(j) + "</a></li>";
+                                    orderHtml += "<div style='padding:3px'><a class='btn' href=" + orderUrlsArray.getString(j) + "><i class='fa fa-shopping-cart'></i> " + orderNamesArray.getString(j) + "</a></div>";
                                 }
                         }
                         if (docs.getJSONObject(i).has("vector_project_ids")) {
