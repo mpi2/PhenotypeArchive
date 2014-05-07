@@ -115,7 +115,7 @@ List<Float>dataFloats=new ArrayList<>();
 					tempElement.setOriginalData(dataFloats);
 					//tempElement.setColumn(columnIndex);
 					chartsSeriesElementsList.add( tempElement);
-					rawData.add(controlCounts);
+					
 
 					for (ZygosityType zType : experiment.getZygosities()) {
 						
@@ -139,15 +139,13 @@ List<Float>dataFloats=new ArrayList<>();
 							tempElementExp.setZygosityType(zType);
 							tempElementExp.setOriginalData(mutantCounts);
 							chartsSeriesElementsList.add( tempElementExp);
-							rawData.add(mutantCounts);
+							
 					}
 					
 					genderAndRawDataMap.put(sexType, rawData);				
 					}//end of sextype loop
-					Map<String,String>usefulStrings=GraphUtils.getUsefulStrings(expBiologicalModel);
-					List<UnidimensionalStatsObject> unidimensionalStatsObject = produceUnidimensionalStatsData(
-							parameter,genderAndRawDataMap,
-							experiment, usefulStrings.get("allelicComposition"), usefulStrings.get("symbol"), usefulStrings.get("geneticBackground"));
+					List<UnidimensionalStatsObject> unidimensionalStatsObject = createUnidimensionalStatsObjects(
+							experiment, parameter, expBiologicalModel);
 					
 					unidimensionalStatsObjects
 					.addAll(unidimensionalStatsObject);
@@ -162,6 +160,18 @@ List<Float>dataFloats=new ArrayList<>();
 			unidimensionalDataSets.add(unidimensionalDataSet);
 		return unidimensionalDataSet;
 
+	}
+
+
+
+	public static  List<UnidimensionalStatsObject> createUnidimensionalStatsObjects(
+			ExperimentDTO experiment, Parameter parameter,
+			BiologicalModel expBiologicalModel) {
+		Map<String,String>usefulStrings=GraphUtils.getUsefulStrings(expBiologicalModel);
+		List<UnidimensionalStatsObject> unidimensionalStatsObject = produceUnidimensionalStatsData(
+				parameter,
+				experiment, usefulStrings.get("allelicComposition"), usefulStrings.get("symbol"), usefulStrings.get("geneticBackground"));
+		return unidimensionalStatsObject;
 	}
 
 	
@@ -505,16 +515,15 @@ List<Float>dataFloats=new ArrayList<>();
 	 * @param max
 	 * @return map containing min and max values
 	 */
-	private List<UnidimensionalStatsObject> produceUnidimensionalStatsData(
-			Parameter parameter, Map<SexType, List<List<Float>>> genderAndRawDataMap,
-			 ExperimentDTO experiment, String allelicCompositionString, String symbol, String geneticBackground) {
+	private static List<UnidimensionalStatsObject> produceUnidimensionalStatsData(
+			Parameter parameter, ExperimentDTO experiment, String allelicCompositionString, String symbol, String geneticBackground) {
 		// http://localhost:8080/phenotype-archive/stats/genes/MGI:1929878?parameterId=ESLIM_015_001_018
 		// logger.debug("experiment="+experiment);
 		List<? extends StatisticalResult> results = experiment.getResults();
 		logger.debug("result="+results);
 		List<UnidimensionalStatsObject> statsObjects = new ArrayList<UnidimensionalStatsObject>();
 	
-		for(SexType sexType: genderAndRawDataMap.keySet()){
+		for(SexType sexType: experiment.getSexes()){
 			
 			// Set up the controls data
 			UnidimensionalStatsObject wtStatsObject = new UnidimensionalStatsObject();
@@ -584,7 +593,7 @@ List<Float>dataFloats=new ArrayList<>();
 		return statsObjects;
 	}
 
-	private UnidimensionalStatsObject genrateStats(ExperimentDTO experiment,
+	private static UnidimensionalStatsObject genrateStats(ExperimentDTO experiment,
 			UnidimensionalStatsObject tempStatsObject,
 			Set<ObservationDTO> mutants, ZygosityType zygosity, SexType sexType) {
 		

@@ -21,14 +21,20 @@
 	
                     <p>Background	- ${geneticBackgroundString}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Phenotyping Center - ${phenotypingCenter}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<c:if test="${pipeline.name!=null}">Pipeline - ${pipeline.name }</c:if></p> 
 					
+<c:choose>
+			<c:when test="${param['scatter']==true}">
+					<jsp:include page="scatterStatsFrag.jsp"/>
+			</c:when>
+			<c:otherwise>
+					<jsp:include page="unidimensionalStatsFrag.jsp"/>
+			</c:otherwise>
+</c:choose> <!-- only show scatter if scatter else only show unidimensional - otherwise we get unidimensional tables showing twice on the same page -->
 
-			<jsp:include page="scatterStatsFrag.jsp"/>
-			
 			<jsp:include page="timeSeriesStatsFrag.jsp"/>
 			
 			<jsp:include page="categoricalStatsFrag.jsp"/>
 			
-			<jsp:include page="unidimensionalStatsFrag.jsp"/>
+			
 			
   			
 				
