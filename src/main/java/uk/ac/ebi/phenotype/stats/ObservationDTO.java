@@ -277,7 +277,6 @@ public class ObservationDTO {
 				+ " , parameter :" + this.getParameterStableId()
 				+ " , pipeline :" + this.getPipelineStableId()
 				+ " , zygosity :" + this.getZygosity()
-				+ " , sex :" + this.getSex()
 				+ " , metadata :" + this.getMetadataGroup()
 				+ " ]";
 	}

@@ -107,9 +107,8 @@ public class ExperimentService {
             // - meatdata group
             ExperimentDTO experiment;
 
-            String experimentKey = observation.getPhenotypingCenter() + observation.getStrain() + observation.getParameterStableId() + observation.getPipelineStableId() + observation.getGeneAccession() +observation.getAlleleAccession()
-                    + observation.getMetadataGroup();
-
+            String experimentKey = observation.getKey();
+            
             if (experimentsMap.containsKey(experimentKey)) {
                 experiment = experimentsMap.get(experimentKey);
             } else {
