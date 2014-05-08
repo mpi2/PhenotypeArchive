@@ -100,7 +100,7 @@ public class GenePageTest {
     
     // These constants define the maximum number of iterations for each given test. -1 means iterate over all.
     public final int MAX_GENE_TEST_PAGE_COUNT = 10;                             // -1 means test all pages.
-    private final int TIMEOUT_IN_SECONDS = 5;
+    private final int TIMEOUT_IN_SECONDS = 4;
     private final int THREAD_WAIT_IN_MILLISECONDS = 1000;
     
     // These variables define the actual number of iterations for each test that uses them.
@@ -268,7 +268,7 @@ public class GenePageTest {
                 log.info("gene[" + i + "]: " + geneId);
             }
             
-            if ((max_gene_test_page_count != -1) && (i++ >= max_gene_test_page_count)) {
+            if ((max_gene_test_page_count != -1) && (i >= max_gene_test_page_count)) {
                 break;
             }
 
@@ -294,6 +294,7 @@ public class GenePageTest {
                 successList.add(message);
             }
             
+            i++;
             if (i % 1000 == 0)
                 log.info(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
@@ -349,7 +350,7 @@ public class GenePageTest {
         // Loop through all genes, testing each one for valid page load.
         int i = 0;
         for (String geneId : geneIds) {
-            if ((max_gene_test_page_count != -1) && (i++ >= max_gene_test_page_count)) {
+            if ((max_gene_test_page_count != -1) && (i >= max_gene_test_page_count)) {
                 break;
             }
 
@@ -375,6 +376,7 @@ public class GenePageTest {
                 successList.add(message);
             }
             
+            i++;
             if (i % 1000 == 0)
                 log.info(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
@@ -452,7 +454,8 @@ public class GenePageTest {
                 successList.add(message);
             }
             
-            if (++i % 1000 == 0)
+            i++;
+            if (i % 1000 == 0)
                 log.info(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
         }
