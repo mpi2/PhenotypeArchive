@@ -23,7 +23,7 @@
                         <td>${lineKey}</td>
                         <c:forEach var="lineMap" items="${timeSeriesChartsAndTable.lines}" varStatus="column"> 
                          
-                            <td><c:if test="${lineMap.value[timeRow.index].discreteTime==lineKey}">${lineMap.value[timeRow.index].data}</td></c:if>
+                            <td><c:if test="${lineMap.value[timeRow.index].discreteTime==lineKey}">${lineMap.value[timeRow.index].data}(${lineMap.value[timeRow.index].count})</td></c:if>
                         
                         </c:forEach>
                     </tr>
