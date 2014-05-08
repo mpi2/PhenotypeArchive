@@ -316,7 +316,7 @@ public class SearchPageTest {
     }
 
     @Test
-    //@Ignore
+    ////@Ignore
     public void testQueryingRandomGeneSymbols() throws Exception {
         testCount++;
         String testName = "RANDOM GENE SYMBOL QUERY TESTS";
@@ -328,11 +328,11 @@ public class SearchPageTest {
 
         String newQueryString = "/gene/select?q=marker_symbol:*&fq=-marker_symbol:CGI_* AND -marker_symbol:Gm*&fl=marker_symbol&wt=json";
         Random rn = new Random();
-        int startIndex = rn.nextInt(30000 - 0 + 1) + 1;
-        int nbRows = 10;
+        int startIndex = rn.nextInt(40000 - 0 + 1) + 1;
+        int nbRows = 20;
         System.out.println("TESTING " + nbRows + " random gene symbols");
 
-newQueryString+="&start="+startIndex+"&rows="+nbRows;
+        newQueryString+="&start="+startIndex+"&rows="+nbRows;
 
 
         JSONObject geneResults = JSONRestUtil.getResults(internalSolrUrl + newQueryString);
@@ -350,8 +350,17 @@ newQueryString+="&start="+startIndex+"&rows="+nbRows;
 
                 //new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.geneCol")));
                 new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.cssSelector("div.geneCol")));
-                String geneSymbol2 = driver.findElement(By.xpath("//span[contains(@class, 'gSymbol')]")).getText();
-
+                //String geneSymbol2 = driver.findElement(By.xpath("//span[contains(@class, 'gSymbol')]")).getText();
+                
+                List<WebElement> elems = driver.findElements(By.xpath("//span[contains(@class, 'gSymbol')]"));
+                String geneSymbol2 = null;
+                for ( WebElement elem : elems ){
+                	if ( elem.getText().equals(geneSymbol1) ){
+                		geneSymbol2 = elem.getText();
+                		break;
+                	}
+                }
+                
                 //System.out.println("symbol2: "+ geneSymbol2);
                 if ( geneSymbol1.equals(geneSymbol2) ){
                     System.out.println("OK");
@@ -391,9 +400,9 @@ newQueryString+="&start="+startIndex+"&rows="+nbRows;
 
         String newQueryString = "/gene/select?q=mgi_accession_id:*&fq=-marker_symbol:CGI_* AND -marker_symbol:Gm*&fl=mgi_accession_id,marker_symbol&wt=json";
         Random rn = new Random();
-        int startIndex = 4517;//rn.nextInt(30000 - 0 + 1) + 1;
-        int nbRows = 30;
-newQueryString+="&start="+startIndex+"&rows="+nbRows;
+        int startIndex = rn.nextInt(40000 - 0 + 1) + 1;
+        int nbRows = 20;
+        newQueryString+="&start="+startIndex+"&rows="+nbRows;
         //System.out.println("newQueryString=" + newQueryString);
         System.out.println("TESTING " + nbRows + " random MGI IDs");
 
@@ -480,7 +489,7 @@ newQueryString+="&start="+startIndex+"&rows="+nbRows;
         errorList.clear();
 
         for (String core : cores ){
-            System.out.println("TESTING core: "+ core);
+        	System.out.println("TESTING core: "+ core);
             System.out.println(baseUrl + "/search#" + params.get(core));
 
             driver.get(baseUrl + "/search#" + params.get(core));
@@ -581,15 +590,15 @@ newQueryString+="&start="+startIndex+"&rows="+nbRows;
                 //System.out.println("OK: facet counts for " + core);
 
                 // wait for ajax response before doing the test
-                new WebDriverWait(driver, 45).until(ExpectedConditions.visibilityOfElementLocated(By.id(core+"Grid")));
+                new WebDriverWait(driver, 45).until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("span#resultCount a")));
 
                 // test dataTable loaded ok
                 //System.out.println("facet count check found : " + driver.findElement(By.cssSelector("span#resultCount a")).getText());
                 String[] parts = driver.findElement(By.cssSelector("span#resultCount a")).getText().split(" ");
                 //System.out.println("check: " + parts[0]);
-                int dataTalbeFoundCount = Integer.parseInt(parts[0]);
+                int dataTableFoundCount = Integer.parseInt(parts[0]);
 
-                if ( facetCountFromSolr == dataTalbeFoundCount){
+                if ( facetCountFromSolr == dataTableFoundCount){
                     System.out.println("OK: comparing facet counts for " + core);
                     successList.add(core);
                 }
