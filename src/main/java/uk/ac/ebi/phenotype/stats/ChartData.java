@@ -2,7 +2,8 @@ package uk.ac.ebi.phenotype.stats;
 
 import java.util.List;
 import java.util.Map;
-
+import java.util.Set;
+import java.util.TreeSet;
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 
@@ -93,5 +94,20 @@ public class ChartData {
 		this.lines=lines;
 		
 	}
+        
+        public Set<Float> getUniqueTimePoints(){
+            Set timeSet=new TreeSet();
+            for(String key: this.lines.keySet()){
+                List<DiscreteTimePoint> line = this.lines.get(key);
+                for(DiscreteTimePoint point: line){
+                    Float time = point.getDiscreteTime();
+                    if(!timeSet.contains(time)){
+                       timeSet.add(time);
+                    }
+                    
+                }
+            }
+            return timeSet;
+        }
 
 }
