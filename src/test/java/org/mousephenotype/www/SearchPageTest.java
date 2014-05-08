@@ -590,16 +590,15 @@ public class SearchPageTest {
                 //System.out.println("OK: facet counts for " + core);
 
                 // wait for ajax response before doing the test
-                new WebDriverWait(driver, 45).until(ExpectedConditions.visibilityOfElementLocated(By.id(core+"Grid")));
+                new WebDriverWait(driver, 45).until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("span#resultCount a")));
 
                 // test dataTable loaded ok
                 //System.out.println("facet count check found : " + driver.findElement(By.cssSelector("span#resultCount a")).getText());
                 String[] parts = driver.findElement(By.cssSelector("span#resultCount a")).getText().split(" ");
                 //System.out.println("check: " + parts[0]);
-                try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
-                int dataTalbeFoundCount = Integer.parseInt(parts[0]);
+                int dataTableFoundCount = Integer.parseInt(parts[0]);
 
-                if ( facetCountFromSolr == dataTalbeFoundCount){
+                if ( facetCountFromSolr == dataTableFoundCount){
                     System.out.println("OK: comparing facet counts for " + core);
                     successList.add(core);
                 }
