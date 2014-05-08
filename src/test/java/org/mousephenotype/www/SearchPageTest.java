@@ -226,7 +226,7 @@ public class SearchPageTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testTickingFacetFilters() throws Exception {
         testCount++;
         System.out.println();
@@ -328,11 +328,11 @@ public class SearchPageTest {
 
         String newQueryString = "/gene/select?q=marker_symbol:*&fq=-marker_symbol:CGI_* AND -marker_symbol:Gm*&fl=marker_symbol&wt=json";
         Random rn = new Random();
-        int startIndex = rn.nextInt(30000 - 0 + 1) + 1;
-        int nbRows = 10;
+        int startIndex = rn.nextInt(40000 - 0 + 1) + 1;
+        int nbRows = 20;
         System.out.println("TESTING " + nbRows + " random gene symbols");
 
-newQueryString+="&start="+startIndex+"&rows="+nbRows;
+        newQueryString+="&start="+startIndex+"&rows="+nbRows;
 
 
         JSONObject geneResults = JSONRestUtil.getResults(internalSolrUrl + newQueryString);
@@ -350,8 +350,17 @@ newQueryString+="&start="+startIndex+"&rows="+nbRows;
 
                 //new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.geneCol")));
                 new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.cssSelector("div.geneCol")));
-                String geneSymbol2 = driver.findElement(By.xpath("//span[contains(@class, 'gSymbol')]")).getText();
-
+                //String geneSymbol2 = driver.findElement(By.xpath("//span[contains(@class, 'gSymbol')]")).getText();
+                
+                List<WebElement> elems = driver.findElements(By.xpath("//span[contains(@class, 'gSymbol')]"));
+                String geneSymbol2 = null;
+                for ( WebElement elem : elems ){
+                	if ( elem.getText().equals(geneSymbol1) ){
+                		geneSymbol2 = elem.getText();
+                		break;
+                	}
+                }
+                
                 //System.out.println("symbol2: "+ geneSymbol2);
                 if ( geneSymbol1.equals(geneSymbol2) ){
                     System.out.println("OK");
@@ -379,7 +388,7 @@ newQueryString+="&start="+startIndex+"&rows="+nbRows;
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testRandomMgiIds() throws Exception {
         testCount++;
         System.out.println();
@@ -391,9 +400,9 @@ newQueryString+="&start="+startIndex+"&rows="+nbRows;
 
         String newQueryString = "/gene/select?q=mgi_accession_id:*&fq=-marker_symbol:CGI_* AND -marker_symbol:Gm*&fl=mgi_accession_id,marker_symbol&wt=json";
         Random rn = new Random();
-        int startIndex = 4517;//rn.nextInt(30000 - 0 + 1) + 1;
-        int nbRows = 30;
-newQueryString+="&start="+startIndex+"&rows="+nbRows;
+        int startIndex = rn.nextInt(40000 - 0 + 1) + 1;
+        int nbRows = 20;
+        newQueryString+="&start="+startIndex+"&rows="+nbRows;
         //System.out.println("newQueryString=" + newQueryString);
         System.out.println("TESTING " + nbRows + " random MGI IDs");
 
@@ -445,31 +454,31 @@ newQueryString+="&start="+startIndex+"&rows="+nbRows;
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testPhrase() throws Exception {
         specialStrQueryTest("PHRASE QUERY TESTS", "grip strength");
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testPhraseInQuotes() throws Exception {
         specialStrQueryTest("PHRASE IN QUOTES QUERY TESTS", "\"zinc finger protein\"");
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testLeadingWildcard() throws Exception {
         specialStrQueryTest("LEADING WILDCARD QUERY TESTS", "*rik");
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testTrailingWildcard() throws Exception {
         specialStrQueryTest("TRAILING WILDCARD QUERY TESTS", "hox*");
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testPagination() throws Exception {
         testCount++;
         System.out.println();
@@ -480,7 +489,7 @@ newQueryString+="&start="+startIndex+"&rows="+nbRows;
         errorList.clear();
 
         for (String core : cores ){
-            System.out.println("TESTING core: "+ core);
+        	System.out.println("TESTING core: "+ core);
             System.out.println(baseUrl + "/search#" + params.get(core));
 
             driver.get(baseUrl + "/search#" + params.get(core));
@@ -550,7 +559,7 @@ newQueryString+="&start="+startIndex+"&rows="+nbRows;
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testFacetCounts() throws Exception {
         testCount++;
         System.out.println();
