@@ -59,8 +59,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.generic.util.Tools;
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
-
+import uk.ac.ebi.phenotype.service.ObservationService;
 /**
  *
  * @author ckchen@ebi.ac.uk (private methods)
@@ -87,10 +86,7 @@ import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 @RunWith(SpringJUnit4ClassRunner.class)
 //@RunWith(Parameterized.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })
-public class SearchPageTest {
-    
-    @Autowired
-    protected GenotypePhenotypeService genotypePhenotypeService;
+public class SearchPageTest {    
     
     @Autowired
     protected String baseUrl;
@@ -112,6 +108,7 @@ public class SearchPageTest {
 	private static List<String> sumErrorList = new ArrayList();
 	private static List<String> sumSuccessList = new ArrayList();
 	private static String startTime;
+	private static int testCount;
 	
     @Autowired
     protected String seleniumUrl;
@@ -184,11 +181,16 @@ public class SearchPageTest {
  	   	String endTime = dateFormat.format(date); 	   	
  	   
     	System.out.println("SEARCH PAGE" + String.format("%8s", "ended") +  " at " + endTime);
+    	
     	if ( sumErrorList.size() > 0 ){
+    		System.out.println(sumErrorList.size() + " of " + testCount + " SEARCH PAGE TEST(s) FAILED");
     		System.out.println(StringUtils.join(sumErrorList, "\n"));
+    	}    	
+    	else if (sumSuccessList.size() == testCount ) {
+    		System.out.println("[SUCCESS] - ALL " + testCount + " SEARCH PAGE TESTS OK");
     	}
     	else {
-    		System.out.println("[SUCCESS] - ALL SEARCH PAGE TESTS OK");
+    		System.out.println("[FAILED] - SOME SEARCH PAGE TESTs NOT FINISHED");
     	}
     	
     }
@@ -211,8 +213,9 @@ public class SearchPageTest {
     }
     
     @Test
-	@Ignore
+	//@Ignore
 	public void testTickingFacetFilters() throws Exception {
+    	testCount++;
     	System.out.println();   
     	String testName = "FACET CLICKING BEHAVIORAL TESTS";
     	System.out.println("----- " + testName + " -----");
@@ -288,7 +291,8 @@ public class SearchPageTest {
 		}	
 		System.out.println();	
 		if ( successList.size() == params.size() ){
-			System.out.println("[PASSED] - " + testName);			
+			System.out.println("[PASSED] - " + testName);	
+			sumSuccessList.add("passed");
 		}
 		else {
 			System.out.println("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
@@ -298,9 +302,9 @@ public class SearchPageTest {
 	}
       
 	@Test
-	@Ignore
+	//@Ignore
 	public void testQueryingRandomGeneSymbols() throws Exception {
-		
+		testCount++;
 		String testName = "RANDOM GENE SYMBOL QUERY TESTS";
 		System.out.println();		
     	System.out.println("----- " + testName + " -----");
@@ -349,6 +353,7 @@ public class SearchPageTest {
 		System.out.println();
 		if (successList.size() == nbRows ){
 			System.out.println("[PASSED] - " + testName);
+			sumSuccessList.add("passed");
 		}
 		else {
 			System.out.println("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));		
@@ -358,8 +363,9 @@ public class SearchPageTest {
 	}
 		
 	@Test	
-	@Ignore
+	//@Ignore
 	public void testRandomMgiIds() throws Exception {
+		testCount++;
 		System.out.println();
 		String testName = "RANDOM MGI ID QUERY TESTS";
     	System.out.println("----- " + testName + " -----");
@@ -410,6 +416,7 @@ public class SearchPageTest {
 			System.out.println();
 			if (successList.size() == nbRows ){
 				System.out.println("[PASSED] - " + testName);
+				sumSuccessList.add("passed");
 			}
 			else {
 				System.out.println("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
@@ -420,32 +427,33 @@ public class SearchPageTest {
 	}
 		
 	@Test
-	@Ignore
-	public void testPhrase() throws Exception {
+	//@Ignore
+	public void testPhrase() throws Exception {		
 		specialStrQueryTest("PHRASE QUERY TESTS", "grip strength");		
 	}
 	
 	@Test
-	@Ignore
-	public void testPhraseInQuotes() throws Exception {
+	//@Ignore
+	public void testPhraseInQuotes() throws Exception {		
 		specialStrQueryTest("PHRASE IN QUOTES QUERY TESTS", "\"zinc finger protein\"");	
 	}
 
 	@Test
-	@Ignore
+	//@Ignore
 	public void testLeadingWildcard() throws Exception {
 		specialStrQueryTest("LEADING WILDCARD QUERY TESTS", "*rik");			
 	}
 	
 	@Test
-	@Ignore
+	//@Ignore
 	public void testTrailingWildcard() throws Exception {
 		specialStrQueryTest("TRAILING WILDCARD QUERY TESTS", "hox*");			
 	}
 		
 	@Test
-	@Ignore
+	//@Ignore
 	public void testPagination() throws Exception {	
+		testCount++;
 		System.out.println();
 		String testName = "PAGINATION CLICK TESTS";
     	System.out.println("----- " + testName + " -----");
@@ -511,17 +519,19 @@ public class SearchPageTest {
 		}
 		
 		if (successList.size() == cores.size() ){
-			System.out.println("PASSED - " + testName);
+			System.out.println("[PASSED] - " + testName);
+			sumSuccessList.add("passed");
 		}
 		else {
 			//System.out.println("FAILED - " + testName + "\n" + StringUtils.join(errorList, "\n"));
-			sumErrorList.add("FAILED - " + testName + "\n" + StringUtils.join(errorList, "\n"));
+			sumErrorList.add("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
 		}
 	}		
 
 	@Test
 	//@Ignore
-	public void testFacetCounts() throws Exception {	
+	public void testFacetCounts() throws Exception {
+		testCount++;
 		System.out.println();
 		String testName = "FACET COUNT TESTS";
     	System.out.println("----- " + testName + " -----");
@@ -537,7 +547,7 @@ public class SearchPageTest {
 				int facetCountFromSolr = geneResults.getJSONObject("response").getInt("numFound");			
 				String core = geneResults.getJSONObject("responseHeader").getJSONObject("params").getString("core");
 				//String fq = geneResults.getJSONObject("responseHeader").getJSONObject("params").getString("fq");
-				System.out.println(core + " num found: "+ facetCountFromSolr);
+				//System.out.println(core + " num found: "+ facetCountFromSolr);
 				
 				driver.get(baseUrl + "/data/search#" + params.get(core));	
 				driver.navigate().refresh();		
@@ -545,9 +555,9 @@ public class SearchPageTest {
 				
 				// test facet panel loaded ok			
 				int facetCountFromPage = Integer.parseInt(driver.findElement(By.cssSelector("div.flist li#" + core + " span.fcount")).getText());
-				System.out.println("facet panel test for " + core + " core: " + facetCountFromSolr + " vs " + facetCountFromPage);
+				//System.out.println("facet panel test for " + core + " core: " + facetCountFromSolr + " vs " + facetCountFromPage);
 				assertEquals(facetCountFromSolr, facetCountFromPage);
-				System.out.println("OK: facet counts for " + core);
+				//System.out.println("OK: facet counts for " + core);
 				
 				// wait for ajax response before doing the test
 				new WebDriverWait(driver, 45).until(ExpectedConditions.visibilityOfElementLocated(By.id(core+"Grid")));
@@ -572,16 +582,18 @@ public class SearchPageTest {
 		}
 				
 		if (successList.size() == paramList.size() ){
-			System.out.println("PASSED - " + testName);
+			System.out.println("[PASSED] - " + testName);
+			sumSuccessList.add("passed");
 		}
 		else {
 			//System.out.println("FAILED - " + testName + "\n" + StringUtils.join(errorList, "\n"));
-			sumErrorList.add("FAILED - " + testName + "\n" + StringUtils.join(errorList, "\n"));
+			sumErrorList.add("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
 		}
 		
 	}
 	
 	public void specialStrQueryTest(String testName, String qry) throws Exception {
+		testCount++;
 		System.out.println();		
     	System.out.println("----- " + testName + " -----");
     	
@@ -595,10 +607,11 @@ public class SearchPageTest {
 		String foundMsg = driver.findElement(By.cssSelector("span#resultCount a")).getText();
 		if ( foundMsg.isEmpty() ){
 			System.out.println("[FAILED] - queried " + qry);
-			sumErrorList.add("[FAILED] - queried " + qry);
+			sumErrorList.add("[FAILED] - queried " + qry);			
 		}
 		else {
 			System.out.println("[PASSED] - queried " + qry + ". Found " + foundMsg);
+			sumSuccessList.add("passed");
 		}
 		System.out.println();
 	}
