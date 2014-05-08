@@ -49,11 +49,10 @@
         <constructor-arg  value="${internalSolrUrl}/genotype-phenotype" />
     </bean>
     
-    
-		<bean id="mpService" class="uk.ac.ebi.phenotype.service.MpService">
-				<constructor-arg  value="${internalSolrUrl}/mp" />
-		</bean>
-
+    <bean id="mpService" class="uk.ac.ebi.phenotype.service.MpService">
+        <constructor-arg  value="${internalSolrUrl}/mp" />
+    </bean>
+                
     <context:component-scan base-package="uk.ac.ebi" />
 
     <context:annotation-config/>
@@ -170,6 +169,9 @@
     <bean id="baseUrl" class="java.lang.String">
         <constructor-arg value="${baseUrl}"/>
     </bean>
+    <bean id="internalSolrUrl" class="java.lang.String">
+        <constructor-arg value="${internalSolrUrl}"/>
+    </bean>
 
     <bean id="desiredCapabilities" class="org.openqa.selenium.remote.DesiredCapabilities" />
          
@@ -209,7 +211,7 @@
         </property>
     </bean>
 
-    <bean id="driver" class="org.openqa.selenium.remote.RemoteWebDriver">
+    <bean id="driver" class="org.openqa.selenium.remote.RemoteWebDriver" scope="prototype">
         <constructor-arg ref="seleniumUrl" />
         <constructor-arg ref="${desiredCapabilities}" />
     </bean>

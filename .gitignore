@@ -40,3 +40,4 @@ nb-configuration.xml
 datasourcesConfig.properties
 /WebContent/WEB-INF/datasources-config.xml
 /nbactions.xml
+/nbactions-web-tests.xml
