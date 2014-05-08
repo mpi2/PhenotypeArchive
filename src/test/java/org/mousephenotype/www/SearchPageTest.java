@@ -596,6 +596,7 @@ public class SearchPageTest {
                 //System.out.println("facet count check found : " + driver.findElement(By.cssSelector("span#resultCount a")).getText());
                 String[] parts = driver.findElement(By.cssSelector("span#resultCount a")).getText().split(" ");
                 //System.out.println("check: " + parts[0]);
+                try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
                 int dataTalbeFoundCount = Integer.parseInt(parts[0]);
 
                 if ( facetCountFromSolr == dataTalbeFoundCount){
