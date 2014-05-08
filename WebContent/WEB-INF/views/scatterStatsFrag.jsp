@@ -18,4 +18,27 @@
 	
 	<jsp:include page="unidimensionalTables.jsp"></jsp:include>
 	
+	 <script>
+	$(document)
+			.ready(
+					function() {
+						
+						
+						//go back to original graphs functionality here
+						function goBack()
+						  {
+						  window.history.back()
+						  }
+						
+						$('#goBack').click(function() {
+							  goBack();
+						});
+						
+				$.fn.qTip({
+							'pageName': 'stats',		
+							'tip': 'top right',
+							'corner' : 'right top'
+						});
+					});
+</script>
 	

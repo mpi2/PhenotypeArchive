@@ -1,5 +1,9 @@
 package uk.ac.ebi.phenotype.stats;
 
+import java.util.List;
+import java.util.Map;
+
+import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 
 public class ChartData {
@@ -10,7 +14,12 @@ public class ChartData {
 	private Float min = new Float(0);
 	private Float max = new Float(1000000000);
 	private String id;
+	private Map<String, List<DiscreteTimePoint>> lines;
 	
+	public Map<String, List<DiscreteTimePoint>> getLines() {
+		return lines;
+	}
+
 	public void setId(String id){
 		this.id = id;
 	}
@@ -78,6 +87,11 @@ public class ChartData {
 	 */
 	public void setExperiment(ExperimentDTO experiment) {
 		this.experiment = experiment;
+	}
+
+	public void setLines(Map<String, List<DiscreteTimePoint>> lines) {
+		this.lines=lines;
+		
 	}
 
 }

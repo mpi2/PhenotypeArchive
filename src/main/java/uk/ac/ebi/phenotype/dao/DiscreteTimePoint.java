@@ -10,6 +10,7 @@ import com.sun.xml.bind.api.impl.NameConverter.Standard;
 
 public class DiscreteTimePoint implements Comparable{
 	
+	private List<Float> rawData;
 	private List<Float> errorPair;//if this is the mean of a set we can store the error bars data and other data such as Standard Deviation etc?
 	
 	public List<Float> getErrorPair() {
@@ -22,12 +23,16 @@ public class DiscreteTimePoint implements Comparable{
 		this.discreteTime=discreteTime;
 		this.data=discreteDataPoint;
 	}
-	public DiscreteTimePoint(Float discreteTime, Float discreteDataPoint, Float standardDeviation){
+        public DiscreteTimePoint(Float discreteTime, Float discreteDataPoint, Float standardDeviation){
 		this(discreteTime, discreteDataPoint);
 		this.stdDeviation=standardDeviation;
 		errorPair=new ArrayList<Float>();
 		errorPair.add(this.data-this.stdDeviation);
 		errorPair.add(this.data+this.stdDeviation);
+        }
+	public DiscreteTimePoint(Float discreteTime, Float discreteDataPoint, Float standardDeviation, List<Float> rawData){
+		this(discreteTime, discreteDataPoint, standardDeviation);
+		this.rawData=rawData;
 	}
 	
 
