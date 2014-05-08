@@ -36,6 +36,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.By;
@@ -152,8 +153,8 @@ public class GenePageTest {
             platform = remoteWebDriver.getCapabilities().getPlatform().name();
         }
         
-        System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
-        System.out.println("seleniumUrl: " + seleniumUrl);
+        log.info("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
+        log.info("seleniumUrl: " + seleniumUrl);
     }
 
     /**
@@ -163,6 +164,7 @@ public class GenePageTest {
      * @throws SolrServerException 
      */
     @Test
+//@Ignore
     public void testForBadGeneIds() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> geneIds = geneService.getAllNonConformingGenes();
@@ -178,7 +180,7 @@ public class GenePageTest {
             return;
         
         int targetCount = geneIds.size();
-        System.out.println(dateFormat.format(start) + ": testForBadGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
+        log.info(dateFormat.format(start) + ": testForBadGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
         // Loop through all non-conforming genes, testing each one for valid page load (they will likely fail).
         for (String geneId : geneIds) {
@@ -206,24 +208,24 @@ public class GenePageTest {
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": testForBadGeneIds finished.");
+        log.info(dateFormat.format(new Date()) + ": testForBadGeneIds finished.");
         
         if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
+            log.info(errorList.size() + " MGI_ACCESSION_ID records failed:");
             for (String s : errorList) {
-                System.out.println("\t" + s);
+                log.info("\t" + s);
             }
         }
         
         if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
+            log.info(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
             for (String s : exceptionList) {
-                System.out.println("\t" + s);
+                log.info("\t" + s);
             }
         }
         
         stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
+        log.info(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
         
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
@@ -238,6 +240,7 @@ public class GenePageTest {
      * @throws SolrServerException 
      */
     @Test
+//@Ignore
     public void testRandomPageForGeneIds() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> geneIds = geneService.getAllGenes();
@@ -251,7 +254,7 @@ public class GenePageTest {
         Date stop;
 
         int targetCount = (max_gene_test_page_count >= 0 ? Math.min(max_gene_test_page_count, geneIds.size()) : geneIds.size());
-        System.out.println(dateFormat.format(start) + ": testRandomPageForGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
+        log.info(dateFormat.format(start) + ": testRandomPageForGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
         // Loop through all genes, testing each one for valid page load.
         Random rand = new Random();
@@ -262,7 +265,7 @@ public class GenePageTest {
             int index = rand.nextInt((max - min) + 1) + min;
             String geneId = geneIdArray[index];
             if (i < 10) {
-                System.out.println("gene[" + i + "]: " + geneId);
+                log.info("gene[" + i + "]: " + geneId);
             }
             
             if ((max_gene_test_page_count != -1) && (i++ >= max_gene_test_page_count)) {
@@ -292,28 +295,28 @@ public class GenePageTest {
             }
             
             if (i % 1000 == 0)
-                System.out.println(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
+                log.info(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": testRandomPageForGeneIds finished.");
+        log.info(dateFormat.format(new Date()) + ": testRandomPageForGeneIds finished.");
         
         if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
+            log.info(errorList.size() + " MGI_ACCESSION_ID records failed:");
             for (String s : errorList) {
-                System.out.println("\t" + s);
+                log.info("\t" + s);
             }
         }
         
         if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
+            log.info(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
             for (String s : exceptionList) {
-                System.out.println("\t" + s);
+                log.info("\t" + s);
             }
         }
         
         stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
+        log.info(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
         
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
@@ -328,6 +331,7 @@ public class GenePageTest {
      * @throws SolrServerException 
      */
     @Test
+//@Ignore
     public void testPageForGeneIds() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> geneIds = geneService.getAllGenes();
@@ -340,7 +344,7 @@ public class GenePageTest {
         Date stop;
 
         int targetCount = (max_gene_test_page_count >= 0 ? Math.min(max_gene_test_page_count, geneIds.size()) : geneIds.size());
-        System.out.println(dateFormat.format(start) + ": testPageForGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
+        log.info(dateFormat.format(start) + ": testPageForGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
         // Loop through all genes, testing each one for valid page load.
         int i = 0;
@@ -372,28 +376,28 @@ public class GenePageTest {
             }
             
             if (i % 1000 == 0)
-                System.out.println(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
+                log.info(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": testPageForGeneIds finished.");
+        log.info(dateFormat.format(new Date()) + ": testPageForGeneIds finished.");
         
         if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
+            log.info(errorList.size() + " MGI_ACCESSION_ID records failed:");
             for (String s : errorList) {
-                System.out.println("\t" + s);
+                log.info("\t" + s);
             }
         }
         
         if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
+            log.info(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
             for (String s : exceptionList) {
-                System.out.println("\t" + s);
+                log.info("\t" + s);
             }
         }
         
         stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
+        log.info(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
         
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
@@ -408,6 +412,7 @@ public class GenePageTest {
      * @throws SolrServerException 
      */
     @Test
+//@Ignore
     public void testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> geneIds = geneService.getGenesByPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.PRODUCTION_CENTRE_WTSI);
@@ -419,16 +424,12 @@ public class GenePageTest {
         Date start = new Date();
         Date stop;
         
-        int targetCount = (max_gene_test_page_count >= 0 ? Math.min(max_gene_test_page_count, geneIds.size()) : geneIds.size());
-        System.out.println(dateFormat.format(start) + ": testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
+        int targetCount = geneIds.size();
+        log.info(dateFormat.format(start) + ": testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
         // Loop through all genes, testing each one for valid page load.
         int i = 0;
         for (String geneId : geneIds) {
-            if ((max_gene_test_page_count != -1) && (i++ >= max_gene_test_page_count)) {
-                break;
-            }
-
             target = baseUrl + "/genes/" + geneId;
 
             WebElement mpTermIdLink = null;
@@ -451,29 +452,29 @@ public class GenePageTest {
                 successList.add(message);
             }
             
-            if (i % 1000 == 0)
-                System.out.println(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
+            if (++i % 1000 == 0)
+                log.info(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI finished.");
+        log.info(dateFormat.format(new Date()) + ": testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI finished.");
         
         if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
+            log.info(errorList.size() + " MGI_ACCESSION_ID records failed:");
             for (String s : errorList) {
-                System.out.println("\t" + s);
+                log.info("\t" + s);
             }
         }
         
         if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
+            log.info(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
             for (String s : exceptionList) {
-                System.out.println("\t" + s);
+                log.info("\t" + s);
             }
         }
         
         stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
+        log.info(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
         
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
@@ -486,6 +487,7 @@ public class GenePageTest {
      * @throws SolrServerException 
      */
     @Test
+//@Ignore
     public void testInvalidGeneId() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String target = "";
@@ -497,7 +499,7 @@ public class GenePageTest {
         String geneId = "junkBadGene";
         final String EXPECTED_ERROR_MESSAGE = "Oops! junkBadGene is not a valid MGI gene identifier.";
         
-        System.out.println(dateFormat.format(start) + ": testInvalidGeneId started.");
+        log.info(dateFormat.format(start) + ": testInvalidGeneId started.");
         
         boolean found = false;
         target = baseUrl + "/genes/" + geneId;
@@ -529,19 +531,19 @@ public class GenePageTest {
         }
         
         stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": testInvalidGeneId finished.");
+        log.info(dateFormat.format(stop) + ": testInvalidGeneId finished.");
         
         if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
+            log.info(errorList.size() + " MGI_ACCESSION_ID records failed:");
             for (String s : errorList) {
-                System.out.println("\t" + s);
+                log.info("\t" + s);
             }
         }
         
         if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
+            log.info(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
             for (String s : exceptionList) {
-                System.out.println("\t" + s);
+                log.info("\t" + s);
             }
         }
         
@@ -549,10 +551,11 @@ public class GenePageTest {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": 1 invalid MGI_ACCESSION_ID record processed successfully in " + Tools.dateDiff(start, stop) + ".");
+        log.info(dateFormat.format(new Date()) + ": 1 invalid MGI_ACCESSION_ID record processed successfully in " + Tools.dateDiff(start, stop) + ".");
     }
     
     @Test
+//@Ignore
     public void testAkt2() throws Exception {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Date start = new Date();
@@ -561,39 +564,39 @@ public class GenePageTest {
         String mgiGeneAcc = "MGI:104874";
         String url = baseUrl + "/genes/" + mgiGeneAcc;
         
-        System.out.println(dateFormat.format(start) + ": testAkt2 started. Expecting to process 1 record.");
+        log.info(dateFormat.format(start) + ": testAkt2 started. Expecting to process 1 record.");
         
-        log.debug("test Akt2 url=" + url);
+        log.info("test Akt2 url=" + url);
         driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
         driver.get(url);
         //String title = driver.findElement(By.xpath("//*[contains(concat(\" \", normalize-space(@class), \" \"), \"title document\")]")).getText();
         String topTextString = driver.findElement(By.id("top")).getText();
-        log.debug("top title=" + topTextString);
+        log.info("top title=" + topTextString);
         assertTrue(topTextString.contains("Akt2"));
         Thread.currentThread().sleep(3000);
         WebElement enu = driver.findElement(By.id("enu"));
 
-        log.debug("enu text=" + enu.getText());
+        log.info("enu text=" + enu.getText());
         assertTrue(enu.getText().contains("ENU"));
 
         List<WebElement> sectionTitles = driver.findElements(By.className("title"));
-        log.debug("section titles size=" + sectionTitles.size());
+        log.info("section titles size=" + sectionTitles.size());
         assertTrue(sectionTitles.size() == 6);//should be five sections visible for Akt2 which have title classes including the gene one at the top
         String[] listOfSectionTitles = {"Gene: Akt2", "Phenotype associations for Akt2", "Phenotype Associated Images", "Expression", "Order Mouse and ES Cells", "Pre-QC phenotype heatmap"};
         List<String> sectionTitleCheckFor = new ArrayList<String>(Arrays.asList(listOfSectionTitles));
         for (WebElement webElement : sectionTitles) {
             String text = webElement.getText();
-            log.debug("section titles=|" + text + "|");
+            log.info("section titles=|" + text + "|");
             assertTrue(sectionTitleCheckFor.contains(text));
         }
         List<WebElement> buttons = driver.findElements(By.className("btn"));
-        assertTrue(buttons.size() > 1);//should be at least 2 buttons "register interest" and "order"
+        assertTrue("Expected 3 buttons but found " + buttons.size(), buttons.size() > 1);//should be 3 buttons: 'Login to register interest', 'order', and 'KOMP'
         for (WebElement webElement : buttons) {
             String text = webElement.getText();
-            log.debug("button text=" + text);
-            assertTrue(text.equals("Login to register interest") || text.equals("Order"));
+            log.info("button text=" + text);
+            assertTrue(text.equals("Login to register interest") || text.equals("Order") || (text.equals("KOMP")));
         }
-
+        
         //check the phenotype associations box
         WebElement abnormalities = driver.findElement(By.className("abnormalities"));// we have abnormalities for akt2?
         assertTrue(abnormalities != null);
@@ -601,7 +604,8 @@ public class GenePageTest {
 
         //top_level_mp_term_name check this filter exists
         Select selectTopLevel = new Select(driver.findElement(By.id("top_level_mp_term_name")));
-        assertTrue(selectTopLevel.getOptions().size() == 7);//currently 7 options exist for this gene
+        int optionCount = selectTopLevel.getOptions().size();
+        assertTrue("Expected 7 options but found only " + optionCount, optionCount == 7);//currently 7 options exist for this gene
         Select selectResource = new Select(driver.findElement(By.id("resource_fullname")));
         assertTrue(selectResource.getOptions().size() == 3);//currently 7 options exist for this gene
 //		select.deselectAll();
@@ -610,12 +614,12 @@ public class GenePageTest {
 		//check we have the image sections we expect?
         //get the accordion headings seems the easiest way rather than complicated css
         List<WebElement> accordions = driver.findElements(By.className("accordion-heading"));
-        log.debug("accordions size=" + accordions.size());
+        log.info("accordions size=" + accordions.size());
         String[] listOfAccordionHeaders = {"Xray (167)", "Tail Epidermis Wholemount (5)", "Musculoskeletal System (2)", "Nervous System (2)", "Adipose Tissue (1)", "Cardiovascular System (1)", "Digestive System (1)", "Integumental System (1)", "Renal/urinary System (1)", "Reproductive System (1)", "Respiratory System (1)"};
         List<String> accHeaderStrings = new ArrayList(Arrays.asList(listOfAccordionHeaders));
         for (WebElement webElement : accordions) {
             String text = webElement.getText();
-            log.debug("accordion heading text=" + text);
+            log.info("accordion heading text=" + text);
             assertTrue(accHeaderStrings.contains(text));
         }
 
@@ -624,7 +628,7 @@ public class GenePageTest {
         assertTrue(orderAlleleDiv.getText().length() > 100);//check there is some content in the panel div
         
         stop = new Date();
-        System.out.println(dateFormat.format(new Date()) + ": 1 Akt2 record processed successfully in " + Tools.dateDiff(start, stop) + ".");
+        log.info(dateFormat.format(new Date()) + ": 1 Akt2 record processed successfully in " + Tools.dateDiff(start, stop) + ".");
     }
     
 }
