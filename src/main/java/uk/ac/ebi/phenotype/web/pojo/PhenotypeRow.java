@@ -145,9 +145,9 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 			if (phenotypingCenter != null){
 				url += "&phenotyping_center=" + phenotypingCenter; 
 			}
-			if (sexes.size() == 1){
-				url += "&gender=" + sexes.get(0);
-			}
+//			if (sexes.size() == 1){
+//				url += "&gender=" + sexes.get(0);
+//			}
 		}
 		return url;
 	}
