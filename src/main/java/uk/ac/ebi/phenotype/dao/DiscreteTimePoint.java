@@ -30,10 +30,10 @@ public class DiscreteTimePoint implements Comparable{
 		errorPair.add(this.data-this.stdDeviation);
 		errorPair.add(this.data+this.stdDeviation);
         }
-	public DiscreteTimePoint(Float discreteTime, Float discreteDataPoint, Float standardDeviation, List<Float> rawData){
-		this(discreteTime, discreteDataPoint, standardDeviation);
-		this.rawData=rawData;
-	}
+//	public DiscreteTimePoint(Float discreteTime, Float discreteDataPoint, Float standardDeviation, List<Float> rawData){
+//		this(discreteTime, discreteDataPoint, standardDeviation);
+//		this.rawData=rawData;
+//	}
 	
 
 private Float discreteTime;

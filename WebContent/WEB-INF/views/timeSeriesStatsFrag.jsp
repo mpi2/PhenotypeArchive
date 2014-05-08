@@ -7,7 +7,7 @@
 
 		<div id="timechart${experimentNumber}"> </div>
 		
-	 	<a href="${acc}?${pageContext.request.queryString}&scatter=1">Graph by date</a>lines = ${timeSeriesChartsAndTable.lines}
+	 	<a href="${acc}?${pageContext.request.queryString}&scatter=1">Graph by date</a>
 	 	
 		<script type="text/javascript">
 					${timeSeriesChartsAndTable.chart}

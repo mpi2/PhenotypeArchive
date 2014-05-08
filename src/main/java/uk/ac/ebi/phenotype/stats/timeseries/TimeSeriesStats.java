@@ -49,7 +49,7 @@ public class TimeSeriesStats {
 			double mean = stats.getMean();
 			double std = stats.getStandardDeviation();
 			DiscreteTimePoint meanDataTimePoint = new DiscreteTimePoint(time,
-					new Float(mean), new Float(stats.getStandardDeviation()), timeMap.get(time));
+					new Float(mean), new Float(stats.getStandardDeviation()));//, timeMap.get(time));
 			List<Float> errorPair = new ArrayList<>();
 
 			Float lower = new Float(mean - std);
