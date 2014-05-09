@@ -200,6 +200,7 @@ public class ExperimentService {
                                     if (experiment.getMetadataGroup().equals(result.getMetadataGroup())) {
                                         LOG.debug("metadata group in experiment and result are equal so adding " + metaDataGroup);
                                         LOG.debug("adding pValue from comprehensive result=" + result.getpValue());
+                                        result.setEffectSize(basicResult.getEffectSize());
                                         populatedResults.add(result);
                                     }
                                 }
