@@ -378,7 +378,7 @@ public class GenotypePhenotypeService {
 				unidimensionalResult.setId(Integer.parseInt(phenoCallSummaryId));//one id for each document and for each sex
 				unidimensionalResult.setpValue(Double.valueOf(pValue));
 				unidimensionalResult.setZygosityType(ZygosityType.valueOf(zygosity));
-				unidimensionalResult.setEffectSize(new Double(Double.valueOf(effectSize)));
+				unidimensionalResult.setEffectSize(new Double(effectSize));
 				unidimensionalResult.setSexType(SexType.valueOf(sex));
 			}
 			results.add(unidimensionalResult);

@@ -10,7 +10,15 @@ import com.sun.xml.bind.api.impl.NameConverter.Standard;
 
 public class DiscreteTimePoint implements Comparable{
 	
-	private List<Float> rawData;
+	private int  count;//store the number of data points that contributed to this point if the main data is a mean
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
 	private List<Float> errorPair;//if this is the mean of a set we can store the error bars data and other data such as Standard Deviation etc?
 	
 	public List<Float> getErrorPair() {
@@ -30,10 +38,10 @@ public class DiscreteTimePoint implements Comparable{
 		errorPair.add(this.data-this.stdDeviation);
 		errorPair.add(this.data+this.stdDeviation);
         }
-//	public DiscreteTimePoint(Float discreteTime, Float discreteDataPoint, Float standardDeviation, List<Float> rawData){
-//		this(discreteTime, discreteDataPoint, standardDeviation);
-//		this.rawData=rawData;
-//	}
+	public DiscreteTimePoint(Float discreteTime, Float discreteDataPoint, Float standardDeviation, Integer count){
+		this(discreteTime, discreteDataPoint, standardDeviation);
+		this.count=count;
+	}
 	
 
 private Float discreteTime;
