@@ -27,7 +27,7 @@
 							<th class="headerSort">Sex</th>
 							<th class="headerSort">Procedure / Parameter</th>
 							<th class="headerSort">Phenotyping Center</th> 
-							<th class="headerSort">Analysis</th>
+							<th class="headerSort">Source</th>
 							<th class="headerSort">Graph</th>
 						</tr>
 					</thead>
