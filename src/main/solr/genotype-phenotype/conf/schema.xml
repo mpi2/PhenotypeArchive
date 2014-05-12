@@ -102,9 +102,9 @@
 	<field name="top_level_mp_term_name" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="top_level_mp_term_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
 	<field name="top_level_mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
-	<field name="intermediate_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="intermediate_mp_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />	
-	<field name="intermediate_mp_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="intermediate_mp_term_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="intermediate_mp_term_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="intermediate_mp_term_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
 	<field name="intermediate_mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />		
 		
    	<field name="marker_symbol" type="string" indexed="true" stored="true" required="false" multiValued="false" />
