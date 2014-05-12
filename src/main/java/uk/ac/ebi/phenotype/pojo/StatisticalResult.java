@@ -13,38 +13,41 @@ import javax.persistence.Transient;
 @MappedSuperclass
 public class StatisticalResult {
 
-	/**
-	 * MySQL auto increment
-	 * GenerationType.AUTO won't work
-	 */
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name = "id")
-	protected Integer id;
-	
-	@OneToOne
-	@JoinColumn(name = "control_id")
-	protected BiologicalModel controlBiologicalModel;
+    /**
+     * MySQL auto increment GenerationType.AUTO won't work
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    protected Integer id;
 
-	@OneToOne
-	@JoinColumn(name = "experimental_id")
-	protected BiologicalModel experimentalBiologicalModel;
+    @OneToOne
+    @JoinColumn(name = "control_id")
+    protected BiologicalModel controlBiologicalModel;
 
-	@OneToOne
-	@JoinColumn(name = "organisation_id")
-	protected Organisation organisation;
+    @OneToOne
+    @JoinColumn(name = "experimental_id")
+    protected BiologicalModel experimentalBiologicalModel;
 
-	@OneToOne
-	@JoinColumn(name = "parameter_id")
-	protected Parameter parameter;
-	
-	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "pipeline_id")
-	protected Pipeline pipeline;
+    @OneToOne
+    @JoinColumn(name = "external_db_id")
+    private Datasource datasource;
 
-	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "project_id")
-	protected Project project;
+    @OneToOne
+    @JoinColumn(name = "organisation_id")
+    protected Organisation organisation;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    protected Project project;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pipeline_id")
+    protected Pipeline pipeline;
+
+    @OneToOne
+    @JoinColumn(name = "parameter_id")
+    protected Parameter parameter;
 
     @Column(name = "colony_id")
     private String colonyId;
@@ -52,220 +55,206 @@ public class StatisticalResult {
     @Column(name = "dependent_variable")
     private String dependentVariable;
 
-	@Column(name = "control_selection_strategy", length=100)
-	private String controlSelectionStrategy;
-	
-	@Column(name="male_controls")
-	private Integer maleControls;
+    @Column(name = "control_selection_strategy", length = 100)
+    private String controlSelectionStrategy;
 
-	@Column(name="male_mutants")
-	private Integer maleMutants;
+    @Column(name = "male_controls")
+    private Integer maleControls;
 
-	@Column(name="female_controls")
-	private Integer femaleControls;
+    @Column(name = "male_mutants")
+    private Integer maleMutants;
 
-	@Column(name="female_mutants")
-	private Integer femaleMutants;
+    @Column(name = "female_controls")
+    private Integer femaleControls;
 
-	@Column(name = "statistical_method", length=200)
-	private String statisticalMethod;
-	
-	@Column(name = "metadata_group", length=200)
-	private String metadataGroup;
+    @Column(name = "female_mutants")
+    private Integer femaleMutants;
 
-	@Column(name = "raw_output")
-	private String rawOutput;
+    @Column(name = "statistical_method", length = 200)
+    private String statisticalMethod;
 
-	@Transient
-	private Double effectSize;
-	
-	@Transient
-	private SexType sexType;
-	
-	@Transient
-	private ZygosityType zygosityType;
+    @Column(name = "metadata_group", length = 200)
+    private String metadataGroup;
 
-	public Integer getId() {
-		return id;
-	}
+    @Column(name = "raw_output")
+    private String rawOutput;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    @Transient
+    private Double effectSize;
 
-	public BiologicalModel getControlBiologicalModel() {
-		return controlBiologicalModel;
-	}
+    @Transient
+    private SexType sexType;
 
-	public void setControlBiologicalModel(BiologicalModel controlBiologicalModel) {
-		this.controlBiologicalModel = controlBiologicalModel;
-	}
+    @Transient
+    private ZygosityType zygosityType;
 
-	public BiologicalModel getExperimentalBiologicalModel() {
-		return experimentalBiologicalModel;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public void setExperimentalBiologicalModel(
-			BiologicalModel experimentalBiologicalModel) {
-		this.experimentalBiologicalModel = experimentalBiologicalModel;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public Organisation getOrganisation() {
-		return organisation;
-	}
+    public BiologicalModel getControlBiologicalModel() {
+        return controlBiologicalModel;
+    }
 
-	public void setOrganisation(Organisation organisation) {
-		this.organisation = organisation;
-	}
+    public void setControlBiologicalModel(BiologicalModel controlBiologicalModel) {
+        this.controlBiologicalModel = controlBiologicalModel;
+    }
 
-	public Parameter getParameter() {
-		return parameter;
-	}
+    public BiologicalModel getExperimentalBiologicalModel() {
+        return experimentalBiologicalModel;
+    }
 
-	public void setParameter(Parameter parameter) {
-		this.parameter = parameter;
-	}
+    public void setExperimentalBiologicalModel(
+            BiologicalModel experimentalBiologicalModel) {
+        this.experimentalBiologicalModel = experimentalBiologicalModel;
+    }
 
-	public Pipeline getPipeline() {
-		return pipeline;
-	}
+    public Organisation getOrganisation() {
+        return organisation;
+    }
 
-	public void setPipeline(Pipeline pipeline) {
-		this.pipeline = pipeline;
-	}
+    public void setOrganisation(Organisation organisation) {
+        this.organisation = organisation;
+    }
 
-	public Project getProject() {
-		return project;
-	}
+    public Parameter getParameter() {
+        return parameter;
+    }
 
-	public void setProject(Project project) {
-		this.project = project;
-	}
+    public void setParameter(Parameter parameter) {
+        this.parameter = parameter;
+    }
 
-	public String getControlSelectionStrategy() {
-		return controlSelectionStrategy;
-	}
+    public Pipeline getPipeline() {
+        return pipeline;
+    }
 
-	public void setControlSelectionStrategy(String controlSelectionStrategy) {
-		this.controlSelectionStrategy = controlSelectionStrategy;
-	}
+    public void setPipeline(Pipeline pipeline) {
+        this.pipeline = pipeline;
+    }
 
-	public Integer getMaleControls() {
-		return maleControls;
-	}
+    public Project getProject() {
+        return project;
+    }
 
-	public void setMaleControls(Integer maleControls) {
-		this.maleControls = maleControls;
-	}
+    public void setProject(Project project) {
+        this.project = project;
+    }
 
-	public Integer getMaleMutants() {
-		return maleMutants;
-	}
+    public String getControlSelectionStrategy() {
+        return controlSelectionStrategy;
+    }
 
-	public void setMaleMutants(Integer maleMutants) {
-		this.maleMutants = maleMutants;
-	}
+    public void setControlSelectionStrategy(String controlSelectionStrategy) {
+        this.controlSelectionStrategy = controlSelectionStrategy;
+    }
 
-	public Integer getFemaleControls() {
-		return femaleControls;
-	}
+    public Integer getMaleControls() {
+        return maleControls;
+    }
 
-	public void setFemaleControls(Integer femaleControls) {
-		this.femaleControls = femaleControls;
-	}
+    public void setMaleControls(Integer maleControls) {
+        this.maleControls = maleControls;
+    }
 
-	public Integer getFemaleMutants() {
-		return femaleMutants;
-	}
+    public Integer getMaleMutants() {
+        return maleMutants;
+    }
 
-	public void setFemaleMutants(Integer femaleMutants) {
-		this.femaleMutants = femaleMutants;
-	}
+    public void setMaleMutants(Integer maleMutants) {
+        this.maleMutants = maleMutants;
+    }
 
-	public String getStatisticalMethod() {
-		return statisticalMethod;
-	}
+    public Integer getFemaleControls() {
+        return femaleControls;
+    }
 
-	public void setStatisticalMethod(String statisticalMethod) {
-		this.statisticalMethod = statisticalMethod;
-	}
+    public void setFemaleControls(Integer femaleControls) {
+        this.femaleControls = femaleControls;
+    }
 
-	public String getMetadataGroup() {
-		return metadataGroup;
-	}
+    public Integer getFemaleMutants() {
+        return femaleMutants;
+    }
 
-	public void setMetadataGroup(String metadataGroup) {
-		this.metadataGroup = metadataGroup;
-	}
+    public void setFemaleMutants(Integer femaleMutants) {
+        this.femaleMutants = femaleMutants;
+    }
 
-	public String getRawOutput() {
-		return rawOutput;
-	}
+    public String getStatisticalMethod() {
+        return statisticalMethod;
+    }
 
-	public void setRawOutput(String rawOutput) {
-		this.rawOutput = rawOutput;
-	}
+    public void setStatisticalMethod(String statisticalMethod) {
+        this.statisticalMethod = statisticalMethod;
+    }
 
-	public Double getEffectSize() {
-		return effectSize;
-	}
+    public String getMetadataGroup() {
+        return metadataGroup;
+    }
 
-	public void setEffectSize(Double effectSize) {
-		this.effectSize = effectSize;
-	}
+    public void setMetadataGroup(String metadataGroup) {
+        this.metadataGroup = metadataGroup;
+    }
 
-	public SexType getSexType() {
-		return sexType;
-	}
+    public String getRawOutput() {
+        return rawOutput;
+    }
 
-	public void setSexType(SexType sexType) {
-		this.sexType = sexType;
-	}
+    public void setRawOutput(String rawOutput) {
+        this.rawOutput = rawOutput;
+    }
 
-	public ZygosityType getZygosityType() {
-		return zygosityType;
-	}
+    public Double getEffectSize() {
+        return effectSize;
+    }
 
-	public void setZygosityType(ZygosityType zygosityType) {
-		this.zygosityType = zygosityType;
-	}
+    public void setEffectSize(Double effectSize) {
+        this.effectSize = effectSize;
+    }
 
-	
+    public SexType getSexType() {
+        return sexType;
+    }
+
+    public void setSexType(SexType sexType) {
+        this.sexType = sexType;
+    }
+
+    public ZygosityType getZygosityType() {
+        return zygosityType;
+    }
+
+    public void setZygosityType(ZygosityType zygosityType) {
+        this.zygosityType = zygosityType;
+    }
+
     public String getColonyId() {
         return colonyId;
     }
-    
+
     public void setColonyId(String colonyId) {
         this.colonyId = colonyId;
     }
-    
+
     public String getDependentVariable() {
         return dependentVariable;
     }
-    
+
     public void setDependentVariable(String dependentVariable) {
         this.dependentVariable = dependentVariable;
     }
-	@Override
-	public String toString() {
-		return "StatisticalResult [id=" + id + ", controlBiologicalModel="
-				+ controlBiologicalModel + ", experimentalBiologicalModel="
-				+ experimentalBiologicalModel + ", organisation="
-				+ organisation + ", parameter=" + parameter + ", pipeline="
-				+ pipeline + ", project=" + project
-				+ ", controlSelectionStrategy=" + controlSelectionStrategy
-				+ ", maleControls=" + maleControls + ", maleMutants="
-				+ maleMutants + ", femaleControls=" + femaleControls
-				+ ", femaleMutants=" + femaleMutants + ", statisticalMethod="
-				+ statisticalMethod + ", metadataGroup=" + metadataGroup
-				+ ", rawOutput=" + rawOutput + ", effectSize=" + effectSize
-				+ ", sexType=" + sexType 
-				+ ", zygosityType=" + zygosityType
-                + ", colonyId=" + colonyId
-                + ", dependentVariable=" + dependentVariable
-				+ "]";
-	}
 
-	
+    public Datasource getDatasource() {
+        return datasource;
+    }
+
+    public void setDatasource(Datasource datasource) {
+        this.datasource = datasource;
+    }
 
 }
