@@ -45,7 +45,13 @@ public class StatisticalResult {
 	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "project_id")
 	protected Project project;
-	
+
+    @Column(name = "colony_id")
+    private String colonyId;
+
+    @Column(name = "dependent_variable")
+    private String dependentVariable;
+
 	@Column(name = "control_selection_strategy", length=100)
 	private String controlSelectionStrategy;
 	
@@ -224,6 +230,22 @@ public class StatisticalResult {
 		this.zygosityType = zygosityType;
 	}
 
+	
+    public String getColonyId() {
+        return colonyId;
+    }
+    
+    public void setColonyId(String colonyId) {
+        this.colonyId = colonyId;
+    }
+    
+    public String getDependentVariable() {
+        return dependentVariable;
+    }
+    
+    public void setDependentVariable(String dependentVariable) {
+        this.dependentVariable = dependentVariable;
+    }
 	@Override
 	public String toString() {
 		return "StatisticalResult [id=" + id + ", controlBiologicalModel="
@@ -237,7 +259,10 @@ public class StatisticalResult {
 				+ ", femaleMutants=" + femaleMutants + ", statisticalMethod="
 				+ statisticalMethod + ", metadataGroup=" + metadataGroup
 				+ ", rawOutput=" + rawOutput + ", effectSize=" + effectSize
-				+ ", sexType=" + sexType + ", zygosityType=" + zygosityType
+				+ ", sexType=" + sexType 
+				+ ", zygosityType=" + zygosityType
+                + ", colonyId=" + colonyId
+                + ", dependentVariable=" + dependentVariable
 				+ "]";
 	}
 
