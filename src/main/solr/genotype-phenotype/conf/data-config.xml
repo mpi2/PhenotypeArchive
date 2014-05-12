@@ -70,18 +70,45 @@
 				</entity>	
 				</entity -->
 				
-				<entity dataSource="ds2" name="mps" query="SELECT distinct top_level_node_id FROM `mp_node2term` mp , mp_node_top_level tl WHERE term_id='${phenotype_call.mp_term_id}' and mp.node_id=tl.node_id">
-						<field column="top_level_node_id" name="topLevel" />
+			<entity dataSource="ds2" name="mps" query="SELECT distinct top_level_node_id FROM `mp_node2term` mp , mp_node_top_level tl WHERE term_id='${phenotype_call.mp_term_id}' and mp.node_id=tl.node_id">
+				<field column="top_level_node_id" name="topLevel" />
 
-						<entity dataSource="ds2" name="mphigher"
-							query="SELECT mp.node_id, mp.term_id as mpTerm, inf.term_id, name, definition FROM `mp_node2term` mp , `mp_term_infos` inf WHERE mp.node_id=${mps.top_level_node_id} and inf.term_id=mp.term_id">
-							<field column="name" name="top_level_mp_term_name" />
-							<field column="mpTerm" name="top_level_mp_term_id" />
-							<field column="definition" name="top_level_mp_term_definition" />
-						</entity>
+				<entity dataSource="ds2" name="mphigher"
+					query="SELECT mp.node_id, mp.term_id as mpTerm, inf.term_id, name, definition FROM `mp_node2term` mp , `mp_term_infos` inf WHERE mp.node_id=${mps.top_level_node_id} and inf.term_id=mp.term_id">
+					<field column="name" name="top_level_mp_term_name" />
+					<field column="mpTerm" name="top_level_mp_term_id" />
+					<field column="definition" name="top_level_mp_term_definition" />
+					
+					<entity dataSource="ontodb" name="mphigherSyn" onError="continue"  
+						query="select * from mp_synonyms where term_id ='${mphigher.mpTerm}'">
+						
+						<field column="syn_name" name="top_level_mp_term_synonym" />						
+					
+					</entity>
+					
 				</entity>
+			</entity>
 				
+			<!-- intermediate MP terms of this MP term -->
+			<entity dataSource="ontodb" name="parents" onError="continue" 
+				query="select f.node_id as parent_node_id from mp_node2term nt, mp_node_subsumption_fullpath f where nt.node_id=f.child_node_id and nt.term_id='${phenotype_call.mp_term_id}'" >
 			
+				<entity dataSource="ontodb" name="parents2" onError="continue"  
+					query="select ti.* from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and nt.node_id=${parents.parent_node_id}">
+					
+					<field column="term_id" name="intermediate_mp_id" />
+					<field column="name" name="intermediate_mp_term" />
+					<field column="definition" name="intermediate_mp_definition" />				
+					
+					<entity dataSource="ontodb" name="parents2Syn" onError="continue"  
+						query="select * from mp_synonyms where term_id ='${parents2.term_id}'">
+						
+						<field column="syn_name" name="intermediate_mp_term_synonym" />						
+					
+					</entity>
+					
+				</entity>;
+			</entity>		
 								
 			<!-- Link to phenotype parameter -->
 			<entity dataSource="ds1" name="phenotype_parameter" query="select stable_id, name from phenotype_parameter where id=${phenotype_call.parameter_id}">
