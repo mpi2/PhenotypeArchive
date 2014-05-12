@@ -28,6 +28,15 @@
 	 removes stop words from case-insensitive "stopwords.txt"
 	 (empty by default), and down cases.  At query time only, it
 	 also applies synonyms. -->
+
+	<fieldType name="text" class="solr.TextField" positionIncrementGap="100">
+		<analyzer>
+			<tokenizer class="solr.WhitespaceTokenizerFactory"/>
+				<filter class="solr.LowerCaseFilterFactory"/>
+				<filter class="solr.SnowballPorterFilterFactory" language="English"/>
+		</analyzer>
+	</fieldType>
+
     <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
         <!--<tokenizer class="solr.StandardTokenizerFactory"/>-->
@@ -123,15 +132,25 @@
   <fields>  
 	<field name="_version_" type="long" indexed="true" stored="true"/> 
 	<field name="mp_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-	<field name="mp_term" type="text_general" indexed="true" stored="true" required="true" multiValued="false" />	
-	<field name="mp_definition" type="string" indexed="true" stored="true" required="false" multiValued="false" />	
-	<field name="mp_term_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-	
+	<field name="mp_term" type="text" indexed="true" stored="true" required="true" multiValued="false" />	
+	<field name="mp_definition" type="text" indexed="true" stored="true" required="false" multiValued="false" />	
+	<field name="mp_term_synonym" type="text" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<field name="child_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="child_mp_term" type="text" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="child_mp_definition" type="text" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="child_mp_term_synonym" type="text" indexed="true" stored="true" required="false" multiValued="true" />
+
 	<field name="intermediate_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="intermediate_mp_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />	
-	<field name="intermediate_mp_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
-	<field name="intermediate_mp_term_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="intermediate_mp_term" type="text" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="intermediate_mp_definition" type="text" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="intermediate_mp_term_synonym" type="text" indexed="true" stored="true" required="false" multiValued="true" />
 	
+	<field name="top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_term" type="text" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_definition" type="text" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_term_synonym" type="text" indexed="true" stored="true" required="false" multiValued="true" />
+
 	<field name="dataType" type="string" indexed="true" stored="true" required="true" multiValued="false" />  
 
 	<field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
@@ -245,11 +264,6 @@
 	<field name="parameter_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="parameter_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="parameter_stable_key" type="string" indexed="false" stored="true" required="false" multiValued="true" />
-
-	<field name="top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="top_level_mp_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="top_level_mp_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="top_level_mp_term_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 	
 	<field name="mp_idTermDef" type="string" indexed="true" stored="true" required="false" multiValued="true"  />
 	<field name="top2mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true"  />
@@ -259,7 +273,8 @@
 
 	<!-- catchall field, containing all other searchable text fields (implemented
 	via copyField further on in this schema  -->
-	<field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
+	<field name="text_general" type="text_general" indexed="true" stored="false" multiValued="true"/>
+	<field name="text" type="text" indexed="true" stored="false" multiValued="true"/>
 	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
 
 	<!-- catchall text field that indexes tokens both normally and in reverse for efficient
@@ -287,6 +302,14 @@
 	<copyField source="mp_term" dest="auto_suggest" />
 	<copyField source="mp_term_synonym" dest="auto_suggest" />   
 	<copyField source="mp_definition" dest="auto_suggest" />
+	
+	<copyField source="mp_term" dest="text" />
+	<copyField source="mp_term_synonym" dest="text" />   
+	<copyField source="mp_definition" dest="text" />
+
+	<copyField source="child_mp_term" dest="text" />
+	<copyField source="child_mp_term_synonym" dest="text" />   
+	<copyField source="child_mp_definition" dest="text" />
 
 	<copyField source="top_level_mp_id" dest="auto_suggest" />
 	<copyField source="top_level_mp_term" dest="auto_suggest" />
