@@ -96,9 +96,9 @@
 				<entity dataSource="ontodb" name="parents2" onError="continue"  
 					query="select ti.* from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and nt.node_id=${parents.parent_node_id}">
 					
-					<field column="term_id" name="intermediate_mp_id" />
-					<field column="name" name="intermediate_mp_term" />
-					<field column="definition" name="intermediate_mp_definition" />				
+					<field column="term_id" name="intermediate_mp_term_id" />
+					<field column="name" name="intermediate_mp_term_name" />
+					<field column="definition" name="intermediate_mp_term_definition" />				
 					
 					<entity dataSource="ontodb" name="parents2Syn" onError="continue"  
 						query="select * from mp_synonyms where term_id ='${parents2.term_id}'">
