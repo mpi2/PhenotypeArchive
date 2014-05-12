@@ -990,6 +990,7 @@ CREATE TABLE phenotype_call_summary (
     strain_db_id              INT(10),
     allele_acc                VARCHAR(20),
     allele_db_id              INT(10),
+	colony_id                 VARCHAR(200) NULL,
     sex                       ENUM('female', 'hermaphrodite', 'male'),
     zygosity                  ENUM('homozygote', 'heterozygote', 'hemizygote'),
     parameter_id              INT(10) UNSIGNED NOT NULL,
