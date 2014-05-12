@@ -79,7 +79,7 @@
 					<field column="mpTerm" name="top_level_mp_term_id" />
 					<field column="definition" name="top_level_mp_term_definition" />
 					
-					<entity dataSource="ontodb" name="mphigherSyn" onError="continue"  
+					<entity dataSource="ds2" name="mphigherSyn" onError="continue"  
 						query="select * from mp_synonyms where term_id ='${mphigher.mpTerm}'">
 						
 						<field column="syn_name" name="top_level_mp_term_synonym" />						
@@ -90,17 +90,17 @@
 			</entity>
 				
 			<!-- intermediate MP terms of this MP term -->
-			<entity dataSource="ontodb" name="parents" onError="continue" 
+			<entity dataSource="ds2" name="parents" onError="continue" 
 				query="select f.node_id as parent_node_id from mp_node2term nt, mp_node_subsumption_fullpath f where nt.node_id=f.child_node_id and nt.term_id='${phenotype_call.mp_term_id}'" >
 			
-				<entity dataSource="ontodb" name="parents2" onError="continue"  
+				<entity dataSource="ds2" name="parents2" onError="continue"  
 					query="select ti.* from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and nt.node_id=${parents.parent_node_id}">
 					
 					<field column="term_id" name="intermediate_mp_term_id" />
 					<field column="name" name="intermediate_mp_term_name" />
 					<field column="definition" name="intermediate_mp_term_definition" />				
 					
-					<entity dataSource="ontodb" name="parents2Syn" onError="continue"  
+					<entity dataSource="ds2" name="parents2Syn" onError="continue"  
 						query="select * from mp_synonyms where term_id ='${parents2.term_id}'">
 						
 						<field column="syn_name" name="intermediate_mp_term_synonym" />						

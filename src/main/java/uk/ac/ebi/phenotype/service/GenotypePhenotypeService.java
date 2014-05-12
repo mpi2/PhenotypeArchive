@@ -99,7 +99,7 @@ public class GenotypePhenotypeService {
 		//males only
 		SolrQuery q = new SolrQuery()
 		.setQuery("(" + GenotypePhenotypeField.MP_TERM_ID + ":\"" + phenotype_id + "\" OR " + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":\"" 
-//#MPII-741				+ phenotype_id + "\" OR " + GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID + ":\"" 
+				+ phenotype_id + "\" OR " + GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID + ":\"" 
 				+ phenotype_id + "\") AND (" + GenotypePhenotypeField.STRAIN_ACCESSION_ID + ":\"MGI:2159965\" OR " + GenotypePhenotypeField.STRAIN_ACCESSION_ID + ":\"MGI:2164831\")")
 		.setFilterQueries(GenotypePhenotypeField.RESOURCE_FULLNAME + ":EuroPhenome")
 		.setRows(10000);
@@ -117,7 +117,7 @@ public class GenotypePhenotypeService {
 		List<String> res = new ArrayList<String>();
 		SolrQuery query = new SolrQuery()
 		.setQuery("(" + GenotypePhenotypeField.MP_TERM_ID + ":\"" + phenotype_id + "\" OR " + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":\"" + phenotype_id 
-//#MPII-741				+ "\" OR " + GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID + ":\"" + phenotype_id 
+				+ "\" OR " + GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID + ":\"" + phenotype_id 
 				+ "\") AND (" + GenotypePhenotypeField.STRAIN_ACCESSION_ID + ":\"MGI:2159965\" OR " + GenotypePhenotypeField.STRAIN_ACCESSION_ID 
 				+ ":\"MGI:2164831\") AND " + GenotypePhenotypeField.PARAMETER_STABLE_ID + ":\"" + parameterStableId+"\"")
 		.setRows(10000);
@@ -338,7 +338,7 @@ public class GenotypePhenotypeService {
 				+ phenotype_id
 				+ "\"+OR+" + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":\""
 				+ phenotype_id 
-//#MPII-741				+ "\"+OR+" + GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID + ":\""
+				+ "\"+OR+" + GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID + ":\""
 				+ phenotype_id + "\")" 
 //				+ "&fq=-" + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC" +
 				+ "&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=" 

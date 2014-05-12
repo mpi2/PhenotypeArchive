@@ -253,7 +253,7 @@
 						+ '<a href="${baseUrl}/search?q=grip strength">grip strength</a>'
 						+ '- looking for a specific procedure'
 						+ '</p>'
-						+ '<h5>Prase query Example</h5>'
+						+ '<h5>Phrase query Example</h5>'
 						+ '<p>'
 						+ '<a href="${baseUrl}/search?q=&quot;zinc finger protein&quot;"">"zinc finger protein"</a>'
 						+ '- looking for genes whose product is zinc finger protein'
