@@ -1,7 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
  /**
  * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
  * 
@@ -147,8 +143,8 @@ public class PhenotypePageTest {
             platform = remoteWebDriver.getCapabilities().getPlatform().name();
         }
         
-        log.debug("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
-        log.debug("seleniumUrl: " + seleniumUrl);
+        System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
+        System.out.println("seleniumUrl: " + seleniumUrl);
     }
     
     /**
@@ -169,7 +165,7 @@ public class PhenotypePageTest {
         Date stop;
         
         int targetCount = (max_mgi_link_check_count >= 0 ? Math.min(max_mgi_link_check_count, phenotypeIds.size()) : phenotypeIds.size());
-        log.debug(dateFormat.format(start) + ": testMGILinksAreValid started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
+        System.out.println(dateFormat.format(start) + ": testMGILinksAreValid started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
         
         // Loop through first MAX_MGI_LINK_CHECK_COUNT phenotype MGI links, testing each one for valid page load.
         int i = 0;
@@ -209,24 +205,24 @@ public class PhenotypePageTest {
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
         }
           
-        log.debug(dateFormat.format(new Date()) + ": testMGILinksAreValid finished.");
+        System.out.println(dateFormat.format(new Date()) + ": testMGILinksAreValid finished.");
         
         if ( ! errorList.isEmpty()) {
-            log.debug(errorList.size() + " MGI links failed:");
+            System.out.println(errorList.size() + " MGI links failed:");
             for (String s : errorList) {
-                log.debug("\t" + s);
+                System.out.println("\t" + s);
             }
         }
         
         if ( ! exceptionList.isEmpty()) {
-            log.debug(exceptionList.size() + " MGI links caused exceptions to be thrown:");
+            System.out.println(exceptionList.size() + " MGI links caused exceptions to be thrown:");
             for (String s : exceptionList) {
-                log.debug("\t" + s);
+                System.out.println("\t" + s);
             }
         }
         
         stop = new Date();
-        log.debug(dateFormat.format(stop) + ": " + successList.size() + " MGI links processed successfully in " + Tools.dateDiff(start, stop) + ".");
+        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI links processed successfully in " + Tools.dateDiff(start, stop) + ".");
         
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
@@ -252,7 +248,7 @@ public class PhenotypePageTest {
         Date stop;
         
         int targetCount = (max_phenotype_test_page_count >= 0 ? Math.min(max_phenotype_test_page_count, phenotypeIds.size()) : phenotypeIds.size());
-        log.debug(dateFormat.format(start) + ": testPageForEveryMPTermId started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
+        System.out.println(dateFormat.format(start) + ": testPageForEveryMPTermId started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
         
         // Loop through the phenotypes, testing each one for valid page load.
         int i = 0;
@@ -282,24 +278,24 @@ public class PhenotypePageTest {
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
         }
         
-        log.debug(dateFormat.format(new Date()) + ": testPageForEveryMPTermId finished.");
+        System.out.println(dateFormat.format(new Date()) + ": testPageForEveryMPTermId finished.");
         
         if ( ! errorList.isEmpty()) {
-            log.debug(errorList.size() + " MP_TERM_ID records failed:");
+            System.out.println(errorList.size() + " MP_TERM_ID records failed:");
             for (String s : errorList) {
-                log.debug("\t" + s);
+                System.out.println("\t" + s);
             }
         }
         
         if ( ! exceptionList.isEmpty()) {
-            log.debug(exceptionList.size() + " MP_TERM_ID records caused exceptions to be thrown:");
+            System.out.println(exceptionList.size() + " MP_TERM_ID records caused exceptions to be thrown:");
             for (String s : exceptionList) {
-                log.debug("\t" + s);
+                System.out.println("\t" + s);
             }
         }
         
         stop = new Date();
-        log.debug(dateFormat.format(stop) + ": " + successList.size() + " MP_TERM_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
+        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MP_TERM_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
         
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
@@ -325,7 +321,7 @@ public class PhenotypePageTest {
         Date stop;
 
         int targetCount = (max_phenotype_test_page_count >= 0 ? Math.min(max_phenotype_test_page_count, phenotypeIds.size()) : phenotypeIds.size());
-        log.debug(dateFormat.format(start) + ": testPageForEveryTopLevelMPTermId started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
+        System.out.println(dateFormat.format(start) + ": testPageForEveryTopLevelMPTermId started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
         
         // Loop through all phenotypes, testing each one for valid page load.
         int i = 0;
@@ -355,24 +351,24 @@ public class PhenotypePageTest {
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
         }
         
-        log.debug(dateFormat.format(new Date()) + ": testPageForEveryTopLevelMPTermId finished.");
+        System.out.println(dateFormat.format(new Date()) + ": testPageForEveryTopLevelMPTermId finished.");
         
         if ( ! errorList.isEmpty()) {
-            log.debug(errorList.size() + " TOP_LEVEL_MP_TERM_ID records failed:");
+            System.out.println(errorList.size() + " TOP_LEVEL_MP_TERM_ID records failed:");
             for (String s : errorList) {
-                log.debug("\t" + s);
+                System.out.println("\t" + s);
             }
         }
         
         if ( ! exceptionList.isEmpty()) {
-            log.debug(exceptionList.size() + " TOP_LEVEL_MP_TERM_ID records caused exceptions to be thrown:");
+            System.out.println(exceptionList.size() + " TOP_LEVEL_MP_TERM_ID records caused exceptions to be thrown:");
             for (String s : exceptionList) {
-                log.debug("\t" + s);
+                System.out.println("\t" + s);
             }
         }
         
         stop = new Date();
-        log.debug(dateFormat.format(stop) + ": " + successList.size() + " TOP_LEVEL_MP_TERM_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
+        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " TOP_LEVEL_MP_TERM_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
         
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
@@ -396,7 +392,7 @@ public class PhenotypePageTest {
         String phenotypeId = "junkBadPhenotype";
         final String EXPECTED_ERROR_MESSAGE = "Oops! junkBadPhenotype is not a valid mammalian phenotype identifier.";
         
-        log.debug(dateFormat.format(start) + ": testInvalidMpTermId started. Expecting to process 1 of a total of 1 records.");
+        System.out.println(dateFormat.format(start) + ": testInvalidMpTermId started. Expecting to process 1 of a total of 1 records.");
         
         boolean found = false;
         target = baseUrl + "/phenotypes/" + phenotypeId;
@@ -426,19 +422,19 @@ public class PhenotypePageTest {
         }
         
         stop = new Date();
-        log.debug(dateFormat.format(stop) + ": testInvalidMpTermId finished.");
+        System.out.println(dateFormat.format(stop) + ": testInvalidMpTermId finished.");
         
         if ( ! errorList.isEmpty()) {
-            log.debug(errorList.size() + " MP_TERM_ID records failed:");
+            System.out.println(errorList.size() + " MP_TERM_ID records failed:");
             for (String s : errorList) {
-                log.debug("\t" + s);
+                System.out.println("\t" + s);
             }
         }
         
         if ( ! exceptionList.isEmpty()) {
-            log.debug(exceptionList.size() + " MP_TERM_ID records caused exceptions to be thrown:");
+            System.out.println(exceptionList.size() + " MP_TERM_ID records caused exceptions to be thrown:");
             for (String s : exceptionList) {
-                log.debug("\t" + s);
+                System.out.println("\t" + s);
             }
         }
         
@@ -446,7 +442,7 @@ public class PhenotypePageTest {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
         }
         
-        log.debug(dateFormat.format(new Date()) + ": 1 invalid MP_TERM_ID record processed successfully in " + Tools.dateDiff(start, stop) + ".");
+        System.out.println(dateFormat.format(new Date()) + ": 1 invalid MP_TERM_ID record processed successfully in " + Tools.dateDiff(start, stop) + ".");
     }
 
 }

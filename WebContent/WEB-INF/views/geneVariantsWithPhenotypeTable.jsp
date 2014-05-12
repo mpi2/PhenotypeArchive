@@ -28,7 +28,7 @@
 				<th>Phenotype </th>
 				<th>Procedure / Parameter</th>
 				<th>Phenotyping Center</th>
-				<th>Analysis</th>
+				<th>Source</th>
 				<th>Graph</th>
 			</tr>
 		</thead>
