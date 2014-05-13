@@ -28,7 +28,7 @@
 				<field column="smallThumbnailFilePath" xpath="/response/result/doc/str[@name='smallThumbnailFilePath']"/>
 				<field column="expName" xpath="/response/result/doc/arr[@name='expName']/str"/>
 				<field column="expName_exp" xpath="/response/result/doc/arr[@name='expName_exp']/str" />
-                                <field column="subtype" xpath="/response/result/doc/arr[@name='subtype']/str" />
+                <field column="subtype" xpath="/response/result/doc/arr[@name='subtype']/str" />
 				<field column="symbol_gene" xpath="/response/result/doc/arr[@name='symbol_gene']/str" />
 				<field column="inferredHigherLevelMaTermId" xpath="/response/result/doc/arr[@name='inferredHigherLevelMaTermId']/str" />
 				<field column="inferredHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='inferredHigherLevelMaTermName']/str" />	
@@ -55,32 +55,26 @@
 			<entity dataSource="ontodb" name="mp_dbxrefs"
 				query="select distinct xref_id from mp_dbxrefs where term_id='${mp_term_infos.term_id}' and xref_id like 'GO:%'">
 				<field column="xref_id" name="go_id" />
-			</entity>	
+			</entity>				
 
-			<!-- top level MP term of this MP term -->
+			<!-- top level MP term of this MP term -->						
 			<entity dataSource="ontodb" name="mp_node2term"
-				query="select distinct node_id from mp_node2term where term_id='${mp_term_infos.term_id}'">
-				<entity dataSource="ontodb" name="mp_node_top_level"
-					query="select distinct top_level_node_id from mp_node_top_level where node_id=${mp_node2term.node_id}">
-					<entity dataSource="ontodb" name="mp_node2term2"
-						query="select distinct term_id from mp_node2term where node_id=${mp_node_top_level.top_level_node_id}">
-						<entity dataSource="ontodb" name="mp_term_infos2"							
-							query="select term_id as top_level_mp_id, name as top_level_mp_term, definition from mp_term_infos where term_id='${mp_node2term2.term_id}' and term_id != 'MP:0000001'" >
-							<!-- do not want to include the root term -->
-							<field column="term_id" name="top_level_mp_id" />
-							<field column="name" name="top_level_mp_term" />
-							<field column="definition" name="top_level_mp_definition" />														
-                          
-						</entity>
+				query="select tl.top_level_node_id from mp_node_top_level tl, mp_node2term nt, mp_term_infos ti where ti.term_id='${mp_term_infos.term_id}' and ti.term_id=nt.term_id and nt.node_id=tl.node_id">
+				<entity dataSource="ontodb" name="toplevel" 
+					query="select ti.* from mp_node2term nt, mp_term_infos ti where nt.term_id=ti.term_id and nt.node_id=${mp_node2term.top_level_node_id}">
+
+						<field column="term_id" name="top_level_mp_id" />
+						<field column="name" name="top_level_mp_term" />
+						<field column="definition" name="top_level_mp_definition" />	
 						
 						<entity dataSource="ontodb" name="mp_term_infos2Syn" onError="continue"  
-							query="select * from mp_synonyms where term_id ='${mp_term_infos2.term_id}'">						
+							query="select * from mp_synonyms where term_id ='${toplevel.term_id}'">						
 							<field column="syn_name" name="top_level_mp_term_synonym" />
-						</entity>	
-					</entity>
+						</entity>						
+
 				</entity>
 			</entity>
-
+			
 			<!-- intermediate MP terms of this MP term -->
 			<entity dataSource="ontodb" name="parents" onError="continue" 
 				query="select f.node_id as parent_node_id from mp_node2term nt, mp_node_subsumption_fullpath f where nt.node_id=f.child_node_id and nt.term_id='${mp_term_infos.term_id}'" >
@@ -120,6 +114,13 @@
 								<field column="name" name="child_mp_term" />
 								<field column="definition" name="child_mp_definition" />
 							</entity>
+							<entity dataSource="ontodb" name="parents2Syn" onError="continue"  
+								query="select * from mp_synonyms where term_id ='${mp_term_infos3.term_id}'">
+						
+								<field column="syn_name" name="child_mp_term_synonym" />						
+					
+							</entity>
+
 						</entity>					
 					</entity>
 				</entity>
@@ -189,6 +190,7 @@
 					<!-- alleles of a gene -->
 					<field column="allele_name" xpath="/response/result/doc/arr[@name='allele_name']/str" />	
 				</entity>
+				
 			</entity>
 			
 
