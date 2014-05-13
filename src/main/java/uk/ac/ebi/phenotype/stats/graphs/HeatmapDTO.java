@@ -9,7 +9,7 @@ public class HeatmapDTO {
 	private String heatmapTitle;
 	private ArrayList<String> yLabels;
 	private ArrayList<String> xLabels;
-	private float[][][] data;
+	private ArrayList<ArrayList<Integer>> data;
 	
 	public String getHeatmapTitle() {
 		return heatmapTitle;
@@ -35,16 +35,34 @@ public class HeatmapDTO {
 	public void setxLabels(ArrayList<String> xLabels) {
 		this.xLabels = xLabels;
 	}
-	public float[][][] getData() {
+	public ArrayList<ArrayList<Integer>> getData() {
 		return data;
 	}
-	public void setData(float[][][] data) {
+	
+	public void setData(ArrayList<ArrayList<Integer>> dataRows) {
 		if (xLabels != null && yLabels != null){
-			if (data.length != xLabels.size() * yLabels.size()){
+			int size = 0;
+			for (ArrayList<Integer> row : dataRows){
+				size += row.size();
+			}
+			if (size != xLabels.size() * yLabels.size()){
 				throw new Error("Size of data array does not mach");
 			}
 			else{
-				this.data = data;
+				data = new ArrayList<>();
+				int y = 0;
+				for (ArrayList<Integer> row : dataRows){
+					int x = 0;
+					for (Integer val : row){
+						ArrayList<Integer> entry = new ArrayList<Integer>();
+						entry.add(x);
+						entry.add(y);
+						entry.add(val);
+						data.add(entry);
+						x++;
+					}
+					y++;
+				}
 			}
 		}
 		else {
