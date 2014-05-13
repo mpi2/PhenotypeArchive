@@ -65,7 +65,7 @@
 						${phenotype.dataSourceName}
 					</td>
 					
-                                        <td>${phenotype.prValue}</td>
+                                        <td>${phenotype.prValueAsString}</td>
                                         <td style="text-align:center">
 									<a href="${phenotype.graphUrl }"  class="fancybox">
 										<i class="fa fa-bar-chart-o" alt="Graphs" > </i>
@@ -78,7 +78,4 @@
 		</tbody>
 	
 	</table>
-	
-	
-	<script> $(document).ready(function(){ 	 }); </script>
 	

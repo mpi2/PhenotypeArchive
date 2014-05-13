@@ -4,21 +4,17 @@ $(document).ready(function(){
             var aDataTblCols = [0,1,2,3,4,5,6,7,8];
             var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
 		"aoColumns": [
-		              { "sType": "html", "mRender":function( data, type, full ) {
-		            	  return (type === "filter") ? $(data).text() : data;
-		              	}},
-		      //        { "sType": "html", "mRender":function( data, type, full ) {
-		      //      	  return (type === "filter") ? $(data).text() : data;
-		      //        	}},
+		              { "sType": "string"},
 		              { "sType": "string"},
 		              { "sType": "string"},
 		              { "sType": "string"},
 		              { "sType": "alt-string", "bSearchable" : false },
 		              { "sType": "string"},
 		              { "sType": "html"},
-                              { "sType": "string"},
+                              { "sType": "allnumeric", "aTargets": [ 3 ] },
 		              { "sType": "string", "bSortable" : false }
 		              ],
+                               "aaSorting": [[ 7, 'asc' ]],
 		              "bDestroy": true,
 		              "bFilter":false
             });
@@ -242,6 +238,8 @@ $(document).ready(function(){
 		}
 		newUrl+=output;
 		refreshPhenoTable(newUrl);
+                console.log('refresh genes PhenoFrag called woth new url='+newUrl);
+                //refreshPhenoTable(newUrl+'&sort=p_value%20asc');
 		return false;
 	}
 });
@@ -264,3 +262,23 @@ function ajaxToBe(phenotype, parameter){
 	});
 	
 }
+
+
+
+/* new sorting functions */
+jQuery.fn.dataTableExt.oSort['allnumeric-asc']  = function(a,b) {
+          var x = parseFloat(a);
+          var y = parseFloat(b);
+          return ((x < y) ? -1 : ((x > y) ?  1 : 0));
+        };
+ 
+jQuery.fn.dataTableExt.oSort['allnumeric-desc']  = function(a,b) {
+          var x = parseFloat(a);
+          var y = parseFloat(b);
+          return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
+        };
+ 
+/* pick the column to give the datatype 'allnumeric' too */
+$('#example').dataTable({
+          "aoColumnDefs": [{ "sType": "allnumeric"} ]
+} );
