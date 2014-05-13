@@ -502,6 +502,11 @@ public class GenotypePhenotypeService {
 			if (phen.containsKey( GenotypePhenotypeField.PROJECT_EXTERNAL_ID )) {
 				sum.setExternalId(phen.getInt( GenotypePhenotypeField.PROJECT_EXTERNAL_ID ));
 			}
+                        
+                        if (phen.containsKey( GenotypePhenotypeField.P_VALUE )) {
+				sum.setpValue(new Float(phen.getString(GenotypePhenotypeField.P_VALUE )));
+			}
+                        
 			sum.setProject(project);
 			// "procedure_stable_id":"77",
 			// "procedure_stable_key":"77",

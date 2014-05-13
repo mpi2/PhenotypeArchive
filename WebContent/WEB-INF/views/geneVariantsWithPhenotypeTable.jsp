@@ -65,13 +65,14 @@
 					</td>
 					
 					<td style="text-align:center">
-						<!-- c:if test="${not phenotype.parameter.derivedFlag}"-->
-						<c:if test="${phenotype.dataSourceName ne 'MGP' }">
+						
+						
 									<a href="${phenotype.graphUrl }"  class="fancybox">
 										<i class="fa fa-bar-chart-o" alt="Graphs" > </i>
-									</a>
-						</c:if>
+                                                                        </a>${phenotype.prValue}
+						
 					</td>
+                                        
 					
 				</tr>
 			</c:forEach>
