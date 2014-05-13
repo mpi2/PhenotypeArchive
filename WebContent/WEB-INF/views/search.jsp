@@ -170,11 +170,10 @@
    				}
    				
    				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-   				
+   				   				
    				oHashParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;	                
 				oHashParams.widgetName += 'Facet';
-   				
-				//console.log(oHashParams);
+								
    				//console.log('from widget open: '+ MPI2.searchAndFacetConfig.widgetOpen);
    				
    				if ( window.location.search.match(/q=/) ){   					
@@ -209,6 +208,7 @@
     						//oHashParams.facetName = facet + 'Facet';
     						oHashParams.facetName = facet;	    						
     					}
+    						
     					$.fn.loadDataTable(oHashParams);
     				}
    				}

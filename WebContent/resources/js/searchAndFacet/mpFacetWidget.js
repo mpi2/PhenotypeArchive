@@ -40,6 +40,9 @@
 	    	var self = this;
 	    	var fq = self.options.data.hashParams.fq;
 	    	
+	    	var oParams = {};		
+	        oParams = $.fn.getSolrRelevanceParams('mp', self.options.data.hashParams.q, oParams);
+	    	
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
 				'rows': 0, // override default
@@ -50,7 +53,7 @@
 				'facet.field': 'annotated_or_inferred_higherLevelMpTermName',
 				'facet.sort': 'index',						
 				'q.option': 'AND',
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams);			
+				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
 	    
 	    	$.ajax({	
 	    		'url': solrUrl + '/mp/select',
