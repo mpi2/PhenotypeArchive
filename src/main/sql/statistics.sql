@@ -10,7 +10,7 @@ CREATE TABLE stats_categorical_results (
     experimental_id            INT(10) UNSIGNED,
     experimental_sex           ENUM('female', 'hermaphrodite', 'male'),
     experimental_zygosity      ENUM('homozygote', 'heterozygote', 'hemizygote'),
-    external_db_id            INT(10),
+    external_db_id             INT(10),
     project_id                 INT(10) UNSIGNED NOT NULL,
     organisation_id            INT(10) UNSIGNED NOT NULL,
     pipeline_id                INT(10) UNSIGNED NOT NULL,
