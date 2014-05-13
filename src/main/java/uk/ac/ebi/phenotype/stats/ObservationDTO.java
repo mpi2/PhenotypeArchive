@@ -15,10 +15,16 @@ public class ObservationDTO {
     private Integer id;
 
     @Field("datasource_id")
-    private Integer datasourceId;
+    private Integer dataSourceId;
 
     @Field("datasource_name")
     private String dataSourceName;
+
+    @Field("project_id")
+    private Integer projectId;
+
+    @Field("project_name")
+    private String projectName;
 
     @Field("pipeline_name")
     private String pipelineName;
@@ -802,12 +808,12 @@ public class ObservationDTO {
         this.alleleAccession = alleleAccession;
     }
 
-    public Integer getDatasourceId() {
-        return datasourceId;
+    public Integer getDataSourceId() {
+        return dataSourceId;
     }
 
-    public void setDatasourceId(Integer datasourceId) {
-        this.datasourceId = datasourceId;
+    public void setDataSourceId(Integer dataSourceId) {
+        this.dataSourceId = dataSourceId;
     }
 
     public String getDataSourceName() {
