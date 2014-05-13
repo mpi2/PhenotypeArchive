@@ -10,6 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import uk.ac.ebi.phenotype.stats.graphs.HeatmapDTO;
+
 
 
 @Controller
@@ -20,9 +22,10 @@ public class HeatmapController {
 			HttpServletRequest request,
 			RedirectAttributes attributes){
 		System.out.println("getHeatmapJS");
-		
-		ArrayList<String> xAxis = new ArrayList<String>(Arrays.asList("Alexander", "Marie", "Maximilian", "Sophia", "Lukas", "Maria", "Leon", "Anna", "Tim", "Laura"));
-		ArrayList<String> yAxis = new ArrayList<String>(Arrays.asList("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"));
+			
+		HeatmapDTO hdto = new HeatmapDTO();
+		hdto.setxLabels(new ArrayList<String>(Arrays.asList("Alexander", "Marie", "Maximilian", "Sophia", "Lukas", "Maria", "Leon", "Anna", "Tim", "Laura")));
+		hdto.setyLabels(new ArrayList<String>(Arrays.asList("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")));
 		
 		String code = "";
 		
@@ -38,10 +41,10 @@ public class HeatmapController {
  "           text: 'Sales per employee per weekday'"+
  "       },"+
  "       xAxis: {"+
- "           categories: " + xAxis +
+ "           categories: " + hdto.getxLabelsToString() +
  "       },"+
  "       yAxis: {"+
- "           categories: " + yAxis + ","+
+ "           categories: " + hdto.getyLabelsToString() + ","+
  "         	 title: null"+
  "       },"+
  "       colorAxis: {"+

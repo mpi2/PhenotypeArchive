@@ -1,10 +1,14 @@
 package uk.ac.ebi.phenotype.stats.graphs;
 
+import java.util.ArrayList;
+
+import org.apache.commons.lang.StringUtils;
+
 public class HeatmapDTO {
 
 	private String heatmapTitle;
-	private String[] yLabels;
-	private String[] xLabels;
+	private ArrayList<String> yLabels;
+	private ArrayList<String> xLabels;
 	private float[][][] data;
 	
 	public String getHeatmapTitle() {
@@ -13,16 +17,22 @@ public class HeatmapDTO {
 	public void setHeatmapTitle(String heatmapTitle) {
 		this.heatmapTitle = heatmapTitle;
 	}
-	public String[] getyLabels() {
+	public ArrayList<String> getyLabels() {
 		return yLabels;
 	}
-	public void setyLabels(String[] yLabels) {
+	public void setyLabels(ArrayList<String> yLabels) {
 		this.yLabels = yLabels;
 	}
-	public String[] getxLabels() {
+	public ArrayList<String> getxLabels() {
 		return xLabels;
 	}
-	public void setxLabels(String[] xLabels) {
+	public String getxLabelsToString(){
+		return "['" + StringUtils.join(xLabels, "', '") + "']";
+	}
+	public String getyLabelsToString(){
+		return "['" + StringUtils.join(yLabels, "', '") + "']";
+	}
+	public void setxLabels(ArrayList<String> xLabels) {
 		this.xLabels = xLabels;
 	}
 	public float[][][] getData() {
@@ -30,7 +40,7 @@ public class HeatmapDTO {
 	}
 	public void setData(float[][][] data) {
 		if (xLabels != null && yLabels != null){
-			if (data.length != xLabels.length * yLabels.length){
+			if (data.length != xLabels.size() * yLabels.size()){
 				throw new Error("Size of data array does not mach");
 			}
 			else{
