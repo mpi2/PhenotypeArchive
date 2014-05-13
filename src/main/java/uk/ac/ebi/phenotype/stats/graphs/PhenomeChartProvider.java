@@ -66,7 +66,7 @@ public class PhenomeChartProvider {
 				+ "color : 'green', "
 				+ "dashStyle : 'shortdash',"
 				+ "width : 2,"
-				+ "label : { useHTML: true, text : 'Significance threshold 10<sup>-4</sup>' }"
+				+ "label : { useHTML: true, text : 'Significance threshold 1.00&#215;10<sup>-4</sup>' }"
 				+ "}]"
 			    +"       }, "
 			    +"      credits: { "
