@@ -11,11 +11,12 @@ $(document).ready(function(){
 
 	var selectedFilters = "";
 	var dropdownsList = new Array();
-
+        initGenePhenotypesTable();
 	/* var oDataTable = $('table#phenotypes').dataTable();
 						oDataTable.fnDestroy();  */
 	// use jquery DataTable for table searching/sorting/pagination
-	var aDataTblCols = [0,1,2,3,4,5,6,7];
+        function initGenePhenotypesTable(){
+	var aDataTblCols = [0,1,2,3,4,5,6,7,8];
 	var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
 		"aoColumns": [
 		              { "sType": "html", "mRender":function( data, type, full ) {
@@ -29,12 +30,15 @@ $(document).ready(function(){
 		              { "sType": "alt-string", "bSearchable" : false },
 		              { "sType": "string"},
 		              { "sType": "html"},
+                              { "sType": "allnumeric"},
 		              { "sType": "string", "bSortable" : false }
 
 		              ],
+                              "aaSorting": [[ 7, 'asc' ]],//sort on pValue first
 		              "bDestroy": true,
 		              "bFilter":false
 	});
+    }
 
 	// Sort the individual strainPhenome table
 	$.fn.dataTableExt.oSort['pvalues-asc']  = function(a,b) {
@@ -141,25 +145,7 @@ $(document).ready(function(){
 			cache: false
 		}).done(function( html ) {
 			$("#phenotypes_wrapper").html(html);//phenotypes wrapper div has been created by the original datatable so we need to replace this div with the new table and content
-			var aDataTblCols = [0,1,2,3,4,5];
-			var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
-				"aoColumns": [
-				              { "sType": "html", "mRender":function( data, type, full ) {
-				            	  return (type === "filter") ? $(data).text() : data;
-				              }},
-				              { "sType": "html", "mRender":function( data, type, full ) {
-				            	  return (type === "filter") ? $(data).text() : data;
-				              }},
-				              { "sType": "string"},
-				              { "sType": "alt-string", "bSearchable" : false },
-				              /*  { "sType": "string"}, */
-				              { "sType": "html"}
-				              , { "sType": "string", "bSortable" : false }
-
-				              ],
-				              "bDestroy": true,
-				              "bFilter":false
-			});
+			initGenePhenotypesTable();
 			//alert('calling new table in genes.jsp');
 		});
 	}
@@ -299,3 +285,18 @@ $(document).ready(function(){
 	});
 
 });
+
+
+ /* new sorting functions */
+//http://datatables.net/forums/discussion/5894/datatable-sorting-scientific-notation
+jQuery.fn.dataTableExt.oSort['allnumeric-asc']  = function(a,b) {
+          var x = parseFloat(a);
+          var y = parseFloat(b);
+          return ((x < y) ? -1 : ((x > y) ?  1 : 0));
+        };
+ 
+jQuery.fn.dataTableExt.oSort['allnumeric-desc']  = function(a,b) {
+          var x = parseFloat(a);
+          var y = parseFloat(b);
+          return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
+        };
