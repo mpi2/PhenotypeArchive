@@ -1,6 +1,28 @@
 $(document).ready(function(){						
 	
-	
+	function initPhenoDataTable(){
+            var aDataTblCols = [0,1,2,3,4,5,6,7,8];
+            var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
+		"aoColumns": [
+		              { "sType": "html", "mRender":function( data, type, full ) {
+		            	  return (type === "filter") ? $(data).text() : data;
+		              	}},
+		      //        { "sType": "html", "mRender":function( data, type, full ) {
+		      //      	  return (type === "filter") ? $(data).text() : data;
+		      //        	}},
+		              { "sType": "string"},
+		              { "sType": "string"},
+		              { "sType": "string"},
+		              { "sType": "alt-string", "bSearchable" : false },
+		              { "sType": "string"},
+		              { "sType": "html"},
+                              { "sType": "string"},
+		              { "sType": "string", "bSortable" : false }
+		              ],
+		              "bDestroy": true,
+		              "bFilter":false
+            });
+        }
 	
 	// AJAX calls for the overview charts
 	$('.oChart').each(function(i, obj) {
@@ -38,28 +60,7 @@ $(document).ready(function(){
 	var selectedFilters = "";
 	var dropdownsList = new Array();
 	// use jquery DataTable for table searching/sorting/pagination
-	var aDataTblCols = [0,1,2,3,4,5,6,7];
-	var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
-		"aoColumns": [
-		              { "sType": "html", "mRender":function( data, type, full ) {
-		            	  return (type === "filter") ? $(data).text() : data;
-		              	}},
-		      //        { "sType": "html", "mRender":function( data, type, full ) {
-		      //      	  return (type === "filter") ? $(data).text() : data;
-		      //        	}},
-		              { "sType": "string"},
-		              { "sType": "string"},
-		              { "sType": "string"},
-		              { "sType": "alt-string", "bSearchable" : false },
-		              { "sType": "string"},
-		              { "sType": "html"},
-		              { "sType": "string", "bSortable" : false }
-
-		              ],
-		              "bDestroy": true,
-		              "bFilter":false
-	});
-	
+        initPhenoDataTable();
 	
 	//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
 	$('div#exportIconsDiv').html($.fn.loadFileExporterUI({
@@ -126,26 +127,9 @@ $(document).ready(function(){
 			url: newUrl,
 			cache: false
 		}).done(function( html ) {
+                    console.log('refreshPhenotable called');
 			$("#phenotypes_wrapper").html(html);//phenotypes wrapper div has been created by the original datatable so we need to replace this div with the new table and content
-			var aDataTblCols = [0,1,2,3,4,5];
-			var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
-				"aoColumns": [
-				              { "sType": "html", "mRender":function( data, type, full ) {
-				            	  return (type === "filter") ? $(data).text() : data;
-				              	}},
-				              { "sType": "html", "mRender":function( data, type, full ) {
-				            	  return (type === "filter") ? $(data).text() : data;
-				              	}},
-				              { "sType": "string"},
-				              { "sType": "alt-string", "bSearchable" : false },
-				              /*  { "sType": "string"}, */
-				              { "sType": "html"}, 
-				              { "sType": "string", "bSortable" : false }
-
-				              ],
-				              "bDestroy": true,
-				              "bFilter":false
-			});
+			initPhenoDataTable();
 		});
 	}
 	//http://stackoverflow.com/questions/5990386/datatables-search-box-outside-datatable

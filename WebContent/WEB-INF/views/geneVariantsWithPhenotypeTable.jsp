@@ -29,6 +29,7 @@
 				<th>Procedure / Parameter</th>
 				<th>Phenotyping Center</th>
 				<th>Source</th>
+                                <th>pValue</th>
 				<th>Graph</th>
 			</tr>
 		</thead>
@@ -64,13 +65,11 @@
 						${phenotype.dataSourceName}
 					</td>
 					
-					<td style="text-align:center">
-						
-						
+                                        <td>${phenotype.prValue}</td>
+                                        <td style="text-align:center">
 									<a href="${phenotype.graphUrl }"  class="fancybox">
 										<i class="fa fa-bar-chart-o" alt="Graphs" > </i>
-                                                                        </a>${phenotype.prValue}
-						
+                                                                        </a>						
 					</td>
                                         
 					
