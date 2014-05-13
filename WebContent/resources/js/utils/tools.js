@@ -1557,7 +1557,7 @@
 				oParams.qf = 'mp_id';				
 			}
 			else if ( q.match(/^\*\w*|\w*\*$|^\*\w*\*$/) && q != '*:*'){				
-				oParams.bq='mp_term:'+q+'^1000';				
+				oParams.bq='mp_term:'+q.replace(/\*/g,'')+'^1000';				
 			}
 			else {			
 				oParams.pf='mp_term^1000 mp_term_synonym^500 mp_definition^100';					
