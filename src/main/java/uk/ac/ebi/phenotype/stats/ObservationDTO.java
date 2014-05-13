@@ -823,4 +823,20 @@ public class ObservationDTO {
     public void setDataSourceName(String dataSourceName) {
         this.dataSourceName = dataSourceName;
     }
+    
+    public Integer getProjectId() {
+        return projectId;
+    }
+    
+    public String getProjectName() {
+        return projectName;
+    }
+    
+    public void setProjectId(Integer projectId) {
+        this.projectId = projectId;
+    }
+    
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
 }
