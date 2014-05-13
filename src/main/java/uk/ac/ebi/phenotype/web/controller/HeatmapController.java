@@ -17,6 +17,10 @@ public class HeatmapController {
 			RedirectAttributes attributes){
 		System.out.println("getHeatmapJS");
 		
+		String [] xAxis = {"Alexander", "Marie", "Maximilian", "Sophia", "Lukas", "Maria", "Leon", "Anna", "Tim", "Laura"};
+		String [] yAxis = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
+		
+		
 		String code = "";
 		
 		code += "$(function () { "+
@@ -31,10 +35,10 @@ public class HeatmapController {
  "           text: 'Sales per employee per weekday'"+
  "       },"+
  "       xAxis: {"+
- "           categories: ['Alexander', 'Marie', 'Maximilian', 'Sophia', 'Lukas', 'Maria', 'Leon', 'Anna', 'Tim', 'Laura']"+
+ "           categories: " + xAxis +
  "       },"+
  "       yAxis: {"+
- "           categories: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],"+
+ "           categories: " + yAxis + ","+
  "         	 title: null"+
  "       },"+
  "       colorAxis: {"+
