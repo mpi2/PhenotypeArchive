@@ -39,6 +39,7 @@ public class HeatmapDTO {
 		return data;
 	}
 	
+	// TODO not tested
 	public void setData(ArrayList<ArrayList<Integer>> dataRows) {
 		if (xLabels != null && yLabels != null){
 			int size = 0;
