@@ -278,7 +278,3 @@ jQuery.fn.dataTableExt.oSort['allnumeric-desc']  = function(a,b) {
           return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
         };
  
-/* pick the column to give the datatype 'allnumeric' too */
-$('#example').dataTable({
-          "aoColumnDefs": [{ "sType": "allnumeric"} ]
-} );
