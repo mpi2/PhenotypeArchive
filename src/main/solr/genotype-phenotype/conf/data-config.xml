@@ -18,7 +18,7 @@
 				s.procedure_id as procedure_id, s.pipeline_id as pipeline_id, s.gf_acc as marker_accession_id, gf.symbol as marker_symbol, 
 				s.allele_acc as allele_accession_id, al.name as allele_name, al.symbol as allele_symbol, s.strain_acc as strain_accession_id, 
 				st.name as strain_name, s.sex as sex, s.zygosity as zygosity, p.name as project_name, p.fullname as project_fullname, 
-				s.mp_acc as mp_term_id, ot.name as mp_term_name, s.p_value as p_value, s.effect_size as effect_size, 
+				s.mp_acc as mp_term_id, ot.name as mp_term_name, s.p_value as p_value, s.effect_size as effect_size, s.colony_id,
 				db.name as resource_fullname, db.short_name as resource_name 
 			FROM phenotype_call_summary s 
 			INNER JOIN organisation o ON s.organisation_id = o.id 
@@ -43,6 +43,7 @@
 			<field column="effect_size" name="effect_size" />
 			<field column="marker_accession_id" name="marker_accession_id" />
 			<field column="marker_symbol" name="marker_symbol" />
+			<field column="colony_id" name="colony_id" />
 			<field column="allele_accession_id" name="allele_accession_id" />
 			<field column="allele_name" name="allele_name" />
 			<field column="allele_symbol" name="allele_symbol" />
