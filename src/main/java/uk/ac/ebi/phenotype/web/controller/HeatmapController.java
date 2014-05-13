@@ -27,18 +27,18 @@ public class HeatmapController {
 		hdto.setxLabels(new ArrayList<String>(Arrays.asList("Alexander", "Marie", "Maximilian", "Sophia", "Lukas", "Maria", "Leon", "Anna", "Tim", "Laura")));
 		hdto.setyLabels(new ArrayList<String>(Arrays.asList("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")));
 
-		ArrayList<ArrayList<Integer>> data = new ArrayList<>();
-		data.add(new ArrayList<Integer>(Arrays.asList(10, 92,35,72)));
-		data.add(new ArrayList<Integer>(Arrays.asList(19,58,15,132)));
-		hdto.setData(data); // TODO test setting the data from dto.
+//		ArrayList<ArrayList<Integer>> data = new ArrayList<>();
+//		data.add(new ArrayList<Integer>(Arrays.asList(10, 92,35,72)));
+//		data.add(new ArrayList<Integer>(Arrays.asList(19,58,15,132)));
+//		hdto.setData(data); // TODO test setting the data from dto.
 		
 		model.addAttribute("heatmapCode", fillHeatmap(hdto));
 		return "pageWithHeatmap";
 	}
 
+	
 	private String fillHeatmap(HeatmapDTO hDto){
-		
-			
+				
 		String code = "$(function () { "+
 	 "   $('#heatmapContainer1').highcharts({"+
 	 "       "+
