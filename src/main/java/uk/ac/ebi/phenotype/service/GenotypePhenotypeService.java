@@ -332,8 +332,8 @@ public class GenotypePhenotypeService {
 	public PhenotypeFacetResult getMPCallByMPAccessionAndFilter(
 			String phenotype_id, String queryString) throws IOException,
 			URISyntaxException {
-		// http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=mp_term_id:MP:0010025&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet=true&facet.field=resource_fullname&facet.field=top_level_mp_term_name&
-		String solrUrl = solr.getBaseURL()
+		// http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select/?q=(mp_term_id:"MP:0002896"+OR+top_level_mp_term_id:"MP:0002896"+OR+intermediate_mp_term_id:"MP:0002896")&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=resource_fullname&facet.field=procedure_name&facet.field=marker_symbol&facet.field=mp_term_name&
+            String solrUrl = solr.getBaseURL()
 				+ "/select/?q=(" + GenotypePhenotypeField.MP_TERM_ID + ":\""
 				+ phenotype_id
 				+ "\"+OR+" + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":\""
@@ -352,8 +352,9 @@ public class GenotypePhenotypeService {
 				// one to add to the already present solr query string
 			solrUrl += "&" + queryString;
 		}
+                solrUrl+="&sort=p_value%20asc";
 		// }
-
+System.out.println("solr url for sorting pvalues="+solrUrl);
 		return createPhenotypeResultFromSolrResponse(solrUrl);
 
 	}
@@ -508,6 +509,11 @@ public class GenotypePhenotypeService {
 			if (phen.containsKey( GenotypePhenotypeField.PROJECT_EXTERNAL_ID )) {
 				sum.setExternalId(phen.getInt( GenotypePhenotypeField.PROJECT_EXTERNAL_ID ));
 			}
+                        
+                        if (phen.containsKey( GenotypePhenotypeField.P_VALUE )) {
+				sum.setpValue(new Float(phen.getString(GenotypePhenotypeField.P_VALUE )));
+			}
+                        
 			sum.setProject(project);
 			// "procedure_stable_id":"77",
 			// "procedure_stable_key":"77",

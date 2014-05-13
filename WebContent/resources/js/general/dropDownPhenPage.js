@@ -1,6 +1,24 @@
 $(document).ready(function(){						
 	
-	
+	function initPhenoDataTable(){
+            var aDataTblCols = [0,1,2,3,4,5,6,7,8];
+            var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
+		"aoColumns": [
+		              { "sType": "string"},
+		              { "sType": "string"},
+		              { "sType": "string"},
+		              { "sType": "string"},
+		              { "sType": "alt-string", "bSearchable" : false },
+		              { "sType": "string"},
+		              { "sType": "html"},
+                              { "sType": "allnumeric", "aTargets": [ 3 ] },
+		              { "sType": "string", "bSortable" : false }
+		              ],
+                               "aaSorting": [[ 7, 'asc' ]],
+		              "bDestroy": true,
+		              "bFilter":false
+            });
+        }
 	
 	// AJAX calls for the overview charts
 	$('.oChart').each(function(i, obj) {
@@ -38,28 +56,7 @@ $(document).ready(function(){
 	var selectedFilters = "";
 	var dropdownsList = new Array();
 	// use jquery DataTable for table searching/sorting/pagination
-	var aDataTblCols = [0,1,2,3,4,5,6,7];
-	var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
-		"aoColumns": [
-		              { "sType": "html", "mRender":function( data, type, full ) {
-		            	  return (type === "filter") ? $(data).text() : data;
-		              	}},
-		      //        { "sType": "html", "mRender":function( data, type, full ) {
-		      //      	  return (type === "filter") ? $(data).text() : data;
-		      //        	}},
-		              { "sType": "string"},
-		              { "sType": "string"},
-		              { "sType": "string"},
-		              { "sType": "alt-string", "bSearchable" : false },
-		              { "sType": "string"},
-		              { "sType": "html"},
-		              { "sType": "string", "bSortable" : false }
-
-		              ],
-		              "bDestroy": true,
-		              "bFilter":false
-	});
-	
+        initPhenoDataTable();
 	
 	//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
 	$('div#exportIconsDiv').html($.fn.loadFileExporterUI({
@@ -126,26 +123,9 @@ $(document).ready(function(){
 			url: newUrl,
 			cache: false
 		}).done(function( html ) {
+                    console.log('refreshPhenotable called');
 			$("#phenotypes_wrapper").html(html);//phenotypes wrapper div has been created by the original datatable so we need to replace this div with the new table and content
-			var aDataTblCols = [0,1,2,3,4,5];
-			var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
-				"aoColumns": [
-				              { "sType": "html", "mRender":function( data, type, full ) {
-				            	  return (type === "filter") ? $(data).text() : data;
-				              	}},
-				              { "sType": "html", "mRender":function( data, type, full ) {
-				            	  return (type === "filter") ? $(data).text() : data;
-				              	}},
-				              { "sType": "string"},
-				              { "sType": "alt-string", "bSearchable" : false },
-				              /*  { "sType": "string"}, */
-				              { "sType": "html"}, 
-				              { "sType": "string", "bSortable" : false }
-
-				              ],
-				              "bDestroy": true,
-				              "bFilter":false
-			});
+			initPhenoDataTable();
 		});
 	}
 	//http://stackoverflow.com/questions/5990386/datatables-search-box-outside-datatable
@@ -161,7 +141,7 @@ $(document).ready(function(){
 	// the phenptype dropdown should only be shown on the top level terms pages
 
 	createDropdown(allDropdowns[3].sort(), "Phenotype: All", allDropdowns);
-	createDropdown(allDropdowns[0],"Analysis: All", allDropdowns);
+	createDropdown(allDropdowns[0],"Source: All", allDropdowns);
 	createDropdown(allDropdowns[1], "Procedure: All", allDropdowns);
 	createDropdown(allDropdowns[2].sort(), "Gene: All", allDropdowns);
 
@@ -258,6 +238,8 @@ $(document).ready(function(){
 		}
 		newUrl+=output;
 		refreshPhenoTable(newUrl);
+                console.log('refresh genes PhenoFrag called woth new url='+newUrl);
+                //refreshPhenoTable(newUrl+'&sort=p_value%20asc');
 		return false;
 	}
 });
@@ -280,3 +262,19 @@ function ajaxToBe(phenotype, parameter){
 	});
 	
 }
+
+
+
+/* new sorting functions */
+jQuery.fn.dataTableExt.oSort['allnumeric-asc']  = function(a,b) {
+          var x = parseFloat(a);
+          var y = parseFloat(b);
+          return ((x < y) ? -1 : ((x > y) ?  1 : 0));
+        };
+ 
+jQuery.fn.dataTableExt.oSort['allnumeric-desc']  = function(a,b) {
+          var x = parseFloat(a);
+          var y = parseFloat(b);
+          return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
+        };
+ 

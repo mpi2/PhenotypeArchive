@@ -84,11 +84,14 @@
 		if ( typeof facetMode != 'undefined' && fq ){		
 			jsonBase.mpFacet.filterParams = {'fq': $.fn.fieldNameMapping(fq, 'mp')};
 		}
-		//console.log($.extend({}, jsonBase.mpFacet.srchParams, jsonBase.mpFacet.filterParams));		
+		
+		var oParams = {};		
+        oParams = $.fn.getSolrRelevanceParams('mp', q, oParams);				
+		//console.log($.extend({}, jsonBase.mpFacet.srchParams, jsonBase.mpFacet.filterParams, oParams));		
 		
 		$.ajax({
     	    url: solrUrl + '/mp/select',
-    	    data: $.extend({}, jsonBase.mpFacet.srchParams, jsonBase.mpFacet.filterParams),
+    	    data: $.extend({}, jsonBase.mpFacet.srchParams, jsonBase.mpFacet.filterParams, oParams),
     	    dataType: 'jsonp',
     	    jsonp: 'json.wrf',
     	    timeout: 5000,

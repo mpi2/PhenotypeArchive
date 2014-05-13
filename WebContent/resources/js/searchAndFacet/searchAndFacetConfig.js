@@ -258,7 +258,8 @@ config.facetParams = {
 		 tableCols: 2, 
 		 tableHeader: '<thead><th>Phenotype</th><th>Definition</th></thead>', 
 		 subset: 'ontology_subset:*',
-		 fq: 'ontology_subset:*', 
+		 //fq: 'ontology_subset:*', 
+		 fq: '*:*', 
 		 qf: 'auto_suggest', 
 		 defType: 'edismax',
 		 wt: 'json',
@@ -268,10 +269,11 @@ config.facetParams = {
 		 ontology: 'mp',
 		 breadCrumbLabel: 'Phenotypes',		
 		 //filterParams: {'fq': 'ontology_subset:IMPC_Terms'},
-		 filterParams: {'fq': 'ontology_subset:*'},
+		 //filterParams: {'fq': 'ontology_subset:*'},
+		 filterParams: {'fq': '*:*'},
 		 srchParams: $.extend({},				
 					commonSolrParams,	 	
-					{'fl': 'mp_id,mp_term,mp_definition,top_level_mp_term,top_mp_term_id'})
+					{'fl': 'mp_id,mp_term,mp_definition,top_level_mp_term,top_mp_term_id,intermediate_mp_term,intermediate_mp_id,intermediate_mp_definition'})
 	 },	
 	 maFacet: {			    	
 		 type: 'tissues',

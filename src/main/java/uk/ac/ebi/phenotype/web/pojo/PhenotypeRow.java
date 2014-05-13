@@ -15,6 +15,8 @@
  */
 package uk.ac.ebi.phenotype.web.pojo;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -22,20 +24,18 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import javax.annotation.Resource;
-
 import org.apache.commons.lang.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import uk.ac.ebi.phenotype.pojo.Allele;
 import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 
 /**
  * 
@@ -49,6 +49,7 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
+
 
     public static enum PhenotypeRowType {
         GENE_PAGE_ROW, PHENOTYPE_PAGE_ROW
@@ -71,6 +72,7 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 	private String dataSourceName;//to hold the name of the origin of the data e.g. Europhenome or WTSI Mouse Genetics Project
 	private String graphUrl;
 	private Pipeline pipeline;
+        private Float pValue;
 	
 	public PhenotypeRow(){};
 
@@ -87,6 +89,8 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 		// zygosity representation depends on source of information
 		// we need to know what the data source is so we can generate appropriate link on the page
 		this.setDataSourceName(pcs.getProject().getName());
+                
+                this.pValue=pcs.getpValue();
 		// this should be the fix but EuroPhenome is buggy
 		String rawZygosity = (dataSourceName.equals("EuroPhenome")) ? 
 				//Utilities.getZygosity(pcs.getZygosity()) : pcs.getZygosity().toString();
@@ -105,6 +109,21 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 			
 	}
 		
+        public void setPValue(Float pValue) {
+            this.pValue=pValue;
+        }
+        public Float getPrValue(){
+            return this.pValue;
+        }
+        
+        public String getPrValueAsString(){
+            BigDecimal bd = new BigDecimal(this.pValue);
+            bd = bd.round(new MathContext(3));
+            double rounded = bd.doubleValue();
+            String result=Double.toString(rounded);
+            return result;
+        }
+    
 	public Pipeline getPipeline() {
 		return pipeline;
 	}
