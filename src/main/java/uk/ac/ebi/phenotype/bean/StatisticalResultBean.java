@@ -26,6 +26,12 @@ public class StatisticalResultBean {
 	private Double effectSize;
 	private String status;
 	private String method;
+	private String controlSex; // if relevant
+	int maleControls; 
+	int maleMutants;
+	int femaleControls;
+	int femaleMutants;
+	
 	private double colorIndex;
 	
 	/**
@@ -34,13 +40,24 @@ public class StatisticalResultBean {
 	 * @param status
 	 * @param method
 	 */
-	public StatisticalResultBean(double pValue, Double effectSize,
-			String status, String method) {
+	public StatisticalResultBean(
+			double pValue, Double effectSize,
+			String status, String method,
+			String controlSex, 
+			int maleControls, int maleMutants,
+			int femaleControls, int femaleMutants) {
+		
 		super();
 		this.pValue = pValue;
 		this.effectSize = effectSize;
 		this.status = status;
 		this.method = method;
+		this.controlSex = controlSex;
+		this.maleControls = maleControls;
+		this.maleMutants = maleMutants;
+		this.femaleControls = femaleControls;
+		this.femaleMutants = femaleMutants;
+		
 	}
 	
 	/**
@@ -90,6 +107,76 @@ public class StatisticalResultBean {
 	 */
 	public void setMethod(String method) {
 		this.method = method;
+	}	
+	
+	/**
+	 * @return the controlSex
+	 */
+	public String getControlSex() {
+		return controlSex;
+	}
+
+	/**
+	 * @param controlSex the controlSex to set
+	 */
+	public void setControlSex(String controlSex) {
+		this.controlSex = controlSex;
+	}
+
+	/**
+	 * @return the maleControls
+	 */
+	public int getMaleControls() {
+		return maleControls;
+	}
+
+	/**
+	 * @param maleControls the maleControls to set
+	 */
+	public void setMaleControls(int maleControls) {
+		this.maleControls = maleControls;
+	}
+
+	/**
+	 * @return the maleMutants
+	 */
+	public int getMaleMutants() {
+		return maleMutants;
+	}
+
+	/**
+	 * @param maleMutants the maleMutants to set
+	 */
+	public void setMaleMutants(int maleMutants) {
+		this.maleMutants = maleMutants;
+	}
+
+	/**
+	 * @return the femaleControls
+	 */
+	public int getFemaleControls() {
+		return femaleControls;
+	}
+
+	/**
+	 * @param femaleControls the femaleControls to set
+	 */
+	public void setFemaleControls(int femaleControls) {
+		this.femaleControls = femaleControls;
+	}
+
+	/**
+	 * @return the femaleMutants
+	 */
+	public int getFemaleMutants() {
+		return femaleMutants;
+	}
+
+	/**
+	 * @param femaleMutants the femaleMutants to set
+	 */
+	public void setFemaleMutants(int femaleMutants) {
+		this.femaleMutants = femaleMutants;
 	}
 
 	/**

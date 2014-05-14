@@ -4,7 +4,7 @@
 
 <t:genericpage>
 	<jsp:attribute name="title">Experiment details for ${allele.symbol}</jsp:attribute>
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#sort=marker_symbol asc&q=*:*&core=gene">Genes</a> &raquo; ${gene.symbol}</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; Alleles &raquo; <t:formatAllele>${allele.symbol}</t:formatAllele></jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="gene-node no-sidebars small-header"></jsp:attribute>
 	<jsp:attribute name="addToFooter">
 	<!--  start of floating menu for genes page -->
@@ -15,7 +15,7 @@
             <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
             
             <ul>
-                <li><a href="#top">Gene</a></li>
+                <li><a href="#top">Allele</a></li>
                 <li><a href="#section-associations">Phenotype Associations</a></li><!--  always a section for this even if says no phenotypes found - do not putting in check here -->
             </ul>
             
@@ -38,8 +38,8 @@
 		<script src="${baseUrl}/js/general/dropdownfilters.js"></script>
 		<script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
 		
-		
-		<script type="text/javascript">var gene_id = '${acc}';</script>
+		<!-- Why it is there? I don't know -->
+		<script type="text/javascript">var gene_id = '${allele.gene.id.accession}';</script>
         
   </jsp:attribute>
 
@@ -117,7 +117,7 @@
 						</c:choose>
 						<td>${pvalues[stableId].status}</td>
 						<td style="text-align:center">
-						<a href='${baseUrl}/charts?accession=${acc}&allele_accession=${allele.id.accession}&parameter_stable_id=${dataMap["parameter_stable_id"]}&zygosity=${dataMap["zygosity"]}&phenotyping_center=${phenotyping_center}'>
+						<a href='${baseUrl}/charts?accession=${allele.gene.id.accession}&allele_accession=${allele.id.accession}&parameter_stable_id=${dataMap["parameter_stable_id"]}&zygosity=${dataMap["zygosity"]}&phenotyping_center=${phenotyping_center}'>
 						<i class="fa fa-bar-chart-o" alt="Graphs" > </i></a>
 						</td>
 						</tr>

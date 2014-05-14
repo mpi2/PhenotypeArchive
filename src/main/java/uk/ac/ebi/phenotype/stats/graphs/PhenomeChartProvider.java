@@ -58,6 +58,7 @@ public class PhenomeChartProvider {
 			    +"      showLastLabel: true "
 			    +"  }, "
 			    +"    yAxis: { "
+			    //+"         min:"+ -Math.log(minimalPValue) + ","
 			    +"         title: { "
 			    +"             text: '"+"-Log10(p-value)"+"' "
 			    +"           }, "
