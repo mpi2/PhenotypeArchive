@@ -221,7 +221,76 @@ public class SolrIndex {
 		
 		return url;
 	}
-	
+	/**
+	 * Get the simplified production status of ES cells/mice for a document.
+	 * 
+	 * @param doc
+	 *            represents a gene with imits status fields
+	 * @return the latest status at the gene level for both ES cells and alleles
+	 */
+	public String deriveLatestProductionStatusForEsCellAndMice(JSONObject doc, HttpServletRequest request, boolean toExport){		
+		
+		String esCellStatus = fetchEsCellStatus(doc, request, toExport);		
+		String miceStatus = "";		
+		final List<String> exportMiceStatus = new ArrayList<String>();
+				
+		Map<String, String> sh = new HashMap<String, String>();
+				
+		try {		
+						
+			// mice production status			
+			// Mice: blue tm1/tm1a/tm1e... mice (depending on how many allele docs) 
+			if ( doc.containsKey("mouse_status") ){
+				
+				JSONArray alleleNames = doc.getJSONArray("allele_name");				
+				JSONArray mouseStatus = doc.getJSONArray("mouse_status");
+				
+				for ( int i=0; i< mouseStatus.size(); i++ ) {		
+					String mouseStatusStr = mouseStatus.get(i).toString();					
+					sh.put(mouseStatusStr, "yes");
+				}		
+								
+				// if no mice status found but there is already allele produced, mark it as "mice produced planned"				
+				for ( int j=0; j< alleleNames.size(); j++ ) {
+					String alleleName = alleleNames.get(j).toString();
+					if ( !alleleName.equals("") && !alleleName.equals("None") && mouseStatus.get(j).toString().equals("") ){	
+						sh.put("mice production planned", "yes");						
+					}				
+				}
+				
+				if ( sh.containsKey("Mice Produced") ){
+					miceStatus = "<a class='status done' oldtitle='Mice Produced' title=''>"
+							   +  "<span>Mice</span>"
+							   +  "</a>";
+						
+					exportMiceStatus.add("mice produced");
+				}
+				else if ( sh.containsKey("Assigned for Mouse Production and Phenotyping") ){
+					miceStatus = "<a class='status inprogress' oldtitle='Mice production in progress' title=''>"
+							   +  "<span>Mice</span>"
+							   +  "</a>";
+					exportMiceStatus.add("mice production in progress");
+				}
+				else if ( sh.containsKey("mice production planned") ){
+					miceStatus = "<a class='status none' oldtitle='Mice production planned' title=''>"
+							   +  "<span>Mice</span>"
+							   +  "</a>";
+					exportMiceStatus.add("mice production in progress");
+				}				
+			}
+		} 
+		catch (Exception e) {
+			log.error("Error getting ES cell/Mice status");
+			log.error(e.getLocalizedMessage());
+		}
+		
+		if ( toExport ){
+			exportMiceStatus.add(0, esCellStatus); // want to keep this at front
+			return StringUtils.join(exportMiceStatus, ", ");
+		}
+		return esCellStatus + miceStatus;
+		
+	}
 	/**
 	 * Get the production status of ES cells/mice for a document.
 	 * 
@@ -259,7 +328,7 @@ public class SolrIndex {
 						if (matcher.find()) {
 							String alleleType = matcher.group(1);						
 							miceStatus += "<span class='status done' oldtitle='" + mouseStatusStr + "' title=''>"
-									+  "	<span>Mice<br>" + alleleType + "</span>"
+									+  "<span>Mice<br>" + alleleType + "</span>"
 									+  "</span>";
 							
 							exportMiceStatus.add(alleleType + " mice produced");
@@ -273,7 +342,7 @@ public class SolrIndex {
 						if (matcher.find()) {
 							String alleleType = matcher.group(1);						
 							miceStatus += "<span class='status inprogress' oldtitle='Mice production in progress' title=''>"
-									+  "	<span>Mice<br>" + alleleType + "</span>"
+									+  "<span>Mice<br>" + alleleType + "</span>"
 									+  "</span>";
 							exportMiceStatus.add(alleleType + " mice production in progress");
 						}						
@@ -289,7 +358,7 @@ public class SolrIndex {
 						if (matcher.find()) {
 							String alleleType = matcher.group(1);						
 							miceStatus += "<span class='status none' oldtitle='Mice production planned' title=''>"
-									+  "	<span>Mice<br>" + alleleType + "</span>"
+									+  "<span>Mice<br>" + alleleType + "</span>"
 									+  "</span>";
 							
 							exportMiceStatus.add(alleleType + " mice production planned");

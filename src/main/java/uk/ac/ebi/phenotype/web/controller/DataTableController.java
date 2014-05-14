@@ -202,7 +202,7 @@ public class DataTableController {
 
 			// ES cell/mice production status	
 			boolean toExport = false;
-			String prodStatus = solrIndex.deriveProductionStatusForEsCellAndMice(doc, request, toExport);			
+			String prodStatus = solrIndex.deriveLatestProductionStatusForEsCellAndMice(doc, request, toExport);			
 			rowData.add(prodStatus);
 			
 			// phenotyping status			
