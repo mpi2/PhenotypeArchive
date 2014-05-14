@@ -142,10 +142,8 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 
 	public String buildGraphUrl(String baseUrl){
 		String url = baseUrl;
-		if (dataSourceName.equalsIgnoreCase("EuroPhenome")){
-			return getPhenotypeLink();
-		}
-		else {
+		
+		
 			url += "/charts?accession=" + gene.getId().getAccession() + "&zygosity=" + zygosity + "&allele_accession=" + allele.getId().getAccession();
 			if (parameter != null){
 				url += "&parameter_stable_id=" + parameter.getStableId();
@@ -160,7 +158,7 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 //			if (sexes.size() == 1){
 //				url += "&gender=" + sexes.get(0);
 //			}
-		}
+		
 		return url;
 	}
 	
