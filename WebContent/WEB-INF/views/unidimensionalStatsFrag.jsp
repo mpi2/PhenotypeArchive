@@ -4,7 +4,7 @@
 
  <!-- unidimensional here -->
  	<c:if test="${unidimensionalChartDataSet!=null}">
-            <c:if test="${unidimensionalChartDataSet.experiment.metadataGroup!=null}}">Metadata Group - ${unidimensionalChartDataSet.experiment.metadataGroup}</c:if>
+            <c:if test="${unidimensionalChartDataSet.experiment.metadataGroup!=null}">Metadata Group - ${unidimensionalChartDataSet.experiment.metadataGroup}</c:if>
   					<div id="chart${experimentNumber}">
 								</div>
    								<script type="text/javascript">

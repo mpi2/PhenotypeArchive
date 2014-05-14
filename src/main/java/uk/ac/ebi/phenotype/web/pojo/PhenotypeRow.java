@@ -161,48 +161,6 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 		
 		return url;
 	}
-	
-	/**
-	 * Returns a PhenotypeRow object with the original data provider link
-	 * populated.
-	 * 
-	 * @param pr The original phenotype row object
-	 * @return
-	 */
-	public String getPhenotypeLink() {
-
-		String linkUrl="";
-
-		if(getDataSourceName().equals("EuroPhenome")){
-			String sex="";
-			if(getSexes().size()==2){
-				sex="Both-Split";
-			}else{
-				Iterator<String> iter = getSexes().iterator();
-				String first = (String) iter.next();
-				sex=WordUtils.capitalize(first);
-			}
-			try {
-				linkUrl="http://www.europhenome.org/databrowser/viewer.jsp?set=true&m=true&l="+getProjectId()+"&zygosity="+getRawZygosity()+"&x="+sex+"&p="+getProcedure().getStableId()+"&pid_"+getParameter().getStableId()+"=on&compareLines=View+Data";
-			} catch (NullPointerException e) {
-				log.error("Project: "+getProjectId());
-				log.error("Zygosity: "+getRawZygosity());
-				log.error("Procedure: "+getProcedure());
-				log.error("Parameter: "+getParameter());
-				linkUrl = "";
-			}
-		}
-
-		if(getDataSourceName().equals("WTSI Mouse Genetics Project")){
-			
-			if(getAllele()!=null  && getAllele().getGene()!=null){
-				linkUrl="http://www.sanger.ac.uk/mouseportal/search?query="+getAllele().getGene().getSymbol();
-			}
-
-		}
-
-		return linkUrl;
-	}
 
 	public String getPhenotypingCenter(){
 		return this.phenotypingCenter;
