@@ -88,7 +88,7 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 		this.setPipeline(pcs.getPipeline());
 		// zygosity representation depends on source of information
 		// we need to know what the data source is so we can generate appropriate link on the page
-		this.setDataSourceName(pcs.getProject().getName());
+		this.setDataSourceName(pcs.getDatasource().getName());
                 
                 this.pValue=pcs.getpValue();
 		// this should be the fix but EuroPhenome is buggy
