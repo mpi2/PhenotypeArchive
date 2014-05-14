@@ -10,10 +10,7 @@
   </jsp:attribute>
 	
 	<jsp:body>
-		<div id="heatmapContainer1" style="min-width: 300px; max-width: 800px; height: 400px; margin: 1em auto"> </div>
-		<script type="text/javascript">
-					${heatmapCode}
-		</script>	
+		Heat Map as table here	
 	</jsp:body>
 	
 </t:genericpage>
