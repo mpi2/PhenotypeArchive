@@ -24,7 +24,7 @@ public class PhenomeChartProvider {
 			.getLogger(PhenomeChartProvider.class);
 
 
-	public String createChart(String alleleAccession, JSONArray series, JSONArray categories) {
+	public String createChart(String alleleAccession, double minimalPValue, JSONArray series, JSONArray categories) {
 
 		String chartString="	$(function () { "
 				+"  phenomeChart = new Highcharts.Chart({ "
@@ -62,11 +62,11 @@ public class PhenomeChartProvider {
 			    +"             text: '"+"-Log10(p-value)"+"' "
 			    +"           }, "
 			    + "plotLines : [{"
-				+ "value : " + -Math.log(10E-3) + ","
+				+ "value : " + -Math.log(minimalPValue) + ","
 				+ "color : 'green', "
 				+ "dashStyle : 'shortdash',"
 				+ "width : 2,"
-				+ "label : { text : 'Significance threshold 10E-3' }"
+				+ "label : { text : 'Significance threshold "+minimalPValue+"' }"
 				+ "}]"
 			    +"       }, "
 			    +"      credits: { "
@@ -100,11 +100,11 @@ public class PhenomeChartProvider {
 
 	public String generatePhenomeChart(
 			String alleleAccession, Map<String, StatisticalResultBean> statisticalResults,
+			double minimalPvalue,
 			Pipeline pipeline) throws IOException,
 			URISyntaxException {
 
 		JSONArray series=new JSONArray();
-
 
 		JSONArray categories = new JSONArray();
 		
@@ -129,8 +129,8 @@ public class PhenomeChartProvider {
 						                    },*/
 
 				JSONObject tooltip=new JSONObject();
-				tooltip.put("headerFormat", "<b>{series.name}</b><br>");
-				tooltip.put("pointFormat", "{point.name}<br/>p-value: {point.pValue}");
+				//tooltip.put("headerFormat", "<b>{point.name}</b><br>");
+				tooltip.put("pointFormat", "<b>{point.name}</b><br/>procedure: {series.name}<br/>p-value: {point.pValue}");
 				scatterJsonObject.put("tooltip", tooltip);
 				scatterJsonObject.put("type", "scatter");
 				scatterJsonObject.put("name", procedure.getName());
@@ -178,7 +178,7 @@ public class PhenomeChartProvider {
 		}
 
 
-		String chartString=createChart(alleleAccession, series, categories);
+		String chartString=createChart(alleleAccession, minimalPvalue, series, categories);
 
 		return chartString;
 	}

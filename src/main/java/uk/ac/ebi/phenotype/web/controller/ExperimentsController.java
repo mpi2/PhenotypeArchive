@@ -133,7 +133,6 @@ public class ExperimentsController {
 			// get all p-values for this allele/center/pipeline
 			 pvalues = statisticalResultDAO.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(
 						alleleAccession, phenotypingCenter, pipelineStableId);
-			 System.out.println(pvalues.size());
 			
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
@@ -141,12 +140,13 @@ public class ExperimentsController {
 		}
 		
 		ColorCodingPalette colorCoding = new ColorCodingPalette();
-		double minimalPValue = 0.000001;
+		double minimalPValue = 10E-4;
 		colorCoding.generateColors(pvalues, 9, 1, minimalPValue);
 		
 		String chart = phenomeChartProvider.generatePhenomeChart(
 				alleleAccession, 
-				pvalues, 
+				pvalues,
+				minimalPValue,
 				pipeline);
 		
 		model.addAttribute("mapList", mapList);
