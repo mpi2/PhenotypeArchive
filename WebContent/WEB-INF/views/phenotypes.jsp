@@ -8,7 +8,7 @@
 
 	<jsp:attribute name="title">${phenotype.id.accession} (${phenotype.name}) | IMPC Phenotype Information</jsp:attribute>
 	
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#fq=ontology_subset:*&core=mp">Phenotypes</a> &raquo; ${phenotype.name}</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#fq=*:*&core=mp">Phenotypes</a> &raquo; ${phenotype.name}</jsp:attribute>
 
 	<jsp:attribute name="header">
 
