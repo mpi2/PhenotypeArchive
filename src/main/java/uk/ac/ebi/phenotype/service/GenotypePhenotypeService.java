@@ -326,6 +326,7 @@ public class GenotypePhenotypeService {
 				// one to add to the already present solr query string
 			solrUrl += "&" + queryString;
 		}
+                solrUrl+="&sort=p_value%20asc";//sort by pValue by default so we get most sig calls at top of tables
 		return createPhenotypeResultFromSolrResponse(solrUrl);
 	}
 	

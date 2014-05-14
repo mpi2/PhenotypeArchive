@@ -14,7 +14,7 @@ $(document).ready(function(){
                               { "sType": "allnumeric", "aTargets": [ 3 ] },
 		              { "sType": "string", "bSortable" : false }
 		              ],
-                               "aaSorting": [[ 7, 'asc' ]],
+                               "aaSorting": [[ 7, 'asc' ]],//sort by the p value on init
 		              "bDestroy": true,
 		              "bFilter":false
             });
@@ -266,6 +266,7 @@ function ajaxToBe(phenotype, parameter){
 
 
 /* new sorting functions */
+//http://datatables.net/forums/discussion/5894/datatable-sorting-scientific-notation
 jQuery.fn.dataTableExt.oSort['allnumeric-asc']  = function(a,b) {
           var x = parseFloat(a);
           var y = parseFloat(b);
