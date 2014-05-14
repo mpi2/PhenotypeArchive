@@ -92,7 +92,7 @@
 				
 			<!-- intermediate MP terms of this MP term -->
 			<entity dataSource="ds2" name="parents" onError="continue" 
-				query="select f.node_id as parent_node_id from mp_node2term nt, mp_node_subsumption_fullpath f where nt.node_id=f.child_node_id and nt.term_id='${phenotype_call.mp_term_id}'" >
+				query="select f.node_id as parent_node_id from mp_node2term nt, mp_node_subsumption_fullpath f where nt.node_id=f.child_node_id and nt.term_id='${phenotype_call.mp_term_id}' and f.node_id != nt.node_id" >
 			
 				<entity dataSource="ds2" name="parents2" onError="continue"  
 					query="select ti.* from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and nt.node_id=${parents.parent_node_id}">
