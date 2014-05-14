@@ -28,7 +28,8 @@
 				<th>Phenotype </th>
 				<th>Procedure / Parameter</th>
 				<th>Phenotyping Center</th>
-				<th>Analysis</th>
+				<th>Source</th>
+                                <th>pValue</th>
 				<th>Graph</th>
 			</tr>
 		</thead>
@@ -64,21 +65,17 @@
 						${phenotype.dataSourceName}
 					</td>
 					
-					<td style="text-align:center">
-						<!-- c:if test="${not phenotype.parameter.derivedFlag}"-->
-						<c:if test="${phenotype.dataSourceName ne 'MGP' }">
+                                        <td>${phenotype.prValueAsString}</td>
+                                        <td style="text-align:center">
 									<a href="${phenotype.graphUrl }"  class="fancybox">
 										<i class="fa fa-bar-chart-o" alt="Graphs" > </i>
-									</a>
-						</c:if>
+                                                                        </a>						
 					</td>
+                                        
 					
 				</tr>
 			</c:forEach>
 		</tbody>
 	
 	</table>
-	
-	
-	<script> $(document).ready(function(){ 	 }); </script>
 	

@@ -46,6 +46,10 @@
 		<field name="date_of_birth"           type="tdate"  indexed="true" stored="true" multiValued="false" />
 		<field name="external_sample_id"      type="string" indexed="true" stored="true" multiValued="false" />
 
+		<field name="datasource_id"           type="int"    indexed="true" stored="true" multiValued="false" /> 
+		<field name="datasource_name"         type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="project_id"              type="int"    indexed="true" stored="true" multiValued="false" /> 
+		<field name="project_name"            type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="pipeline_id"             type="int"    indexed="true" stored="true" multiValued="false" /> 
 		<field name="pipeline_name"           type="string" indexed="true" stored="true" multiValued="false" /> 
 		<field name="pipeline_stable_id"      type="string" indexed="true" stored="true" multiValued="false" /> 

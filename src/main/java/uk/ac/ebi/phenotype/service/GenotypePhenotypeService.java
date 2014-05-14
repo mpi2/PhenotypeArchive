@@ -79,6 +79,8 @@ public class GenotypePhenotypeService {
 		public final static String PROJECT_EXTERNAL_ID = "project_external_id";//
 		public final static String TOP_LEVEL_MP_TERM_NAME = "top_level_mp_term_name";//
 		public final static String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";//
+		public final static String INTERMEDIATE_MP_TERM_NAME = "intermediate_mp_term_name";//
+		public final static String INTERMEDIATE_MP_TERM_ID = "intermediate_mp_term_id";//
 		public final static String PARAMETER_STABLE_ID = "parameter_stable_id";//
 		public final static String PARAMETER_NAME = "parameter_name";//
 		public final static String PROCEDURE_STABLE_ID = "procedure_stable_id";//
@@ -97,7 +99,8 @@ public class GenotypePhenotypeService {
 		//males only
 		SolrQuery q = new SolrQuery()
 		.setQuery("(" + GenotypePhenotypeField.MP_TERM_ID + ":\"" + phenotype_id + "\" OR " + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":\"" 
-		+ phenotype_id + "\") AND (" + GenotypePhenotypeField.STRAIN_ACCESSION_ID + ":\"MGI:2159965\" OR " + GenotypePhenotypeField.STRAIN_ACCESSION_ID + ":\"MGI:2164831\")")
+				+ phenotype_id + "\" OR " + GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID + ":\"" 
+				+ phenotype_id + "\") AND (" + GenotypePhenotypeField.STRAIN_ACCESSION_ID + ":\"MGI:2159965\" OR " + GenotypePhenotypeField.STRAIN_ACCESSION_ID + ":\"MGI:2164831\")")
 		.setFilterQueries(GenotypePhenotypeField.RESOURCE_FULLNAME + ":EuroPhenome")
 		.setRows(10000);
 		q.set("group.field", "" + GenotypePhenotypeField.MARKER_SYMBOL);
@@ -114,6 +117,7 @@ public class GenotypePhenotypeService {
 		List<String> res = new ArrayList<String>();
 		SolrQuery query = new SolrQuery()
 		.setQuery("(" + GenotypePhenotypeField.MP_TERM_ID + ":\"" + phenotype_id + "\" OR " + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":\"" + phenotype_id 
+				+ "\" OR " + GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID + ":\"" + phenotype_id 
 				+ "\") AND (" + GenotypePhenotypeField.STRAIN_ACCESSION_ID + ":\"MGI:2159965\" OR " + GenotypePhenotypeField.STRAIN_ACCESSION_ID 
 				+ ":\"MGI:2164831\") AND " + GenotypePhenotypeField.PARAMETER_STABLE_ID + ":\"" + parameterStableId+"\"")
 		.setRows(10000);
@@ -322,17 +326,20 @@ public class GenotypePhenotypeService {
 				// one to add to the already present solr query string
 			solrUrl += "&" + queryString;
 		}
+                solrUrl+="&sort=p_value%20asc";//sort by pValue by default so we get most sig calls at top of tables
 		return createPhenotypeResultFromSolrResponse(solrUrl);
 	}
 	
 	public PhenotypeFacetResult getMPCallByMPAccessionAndFilter(
 			String phenotype_id, String queryString) throws IOException,
 			URISyntaxException {
-		// http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=mp_term_id:MP:0010025&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet=true&facet.field=resource_fullname&facet.field=top_level_mp_term_name&
-		String solrUrl = solr.getBaseURL()
+		// http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select/?q=(mp_term_id:"MP:0002896"+OR+top_level_mp_term_id:"MP:0002896"+OR+intermediate_mp_term_id:"MP:0002896")&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=resource_fullname&facet.field=procedure_name&facet.field=marker_symbol&facet.field=mp_term_name&
+            String solrUrl = solr.getBaseURL()
 				+ "/select/?q=(" + GenotypePhenotypeField.MP_TERM_ID + ":\""
 				+ phenotype_id
 				+ "\"+OR+" + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":\""
+				+ phenotype_id 
+				+ "\"+OR+" + GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID + ":\""
 				+ phenotype_id + "\")" 
 //				+ "&fq=-" + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC" +
 				+ "&rows=1000000&version=2.2&start=0&indent=on&wt=json&facet=true&facet.field=" 
@@ -346,8 +353,9 @@ public class GenotypePhenotypeService {
 				// one to add to the already present solr query string
 			solrUrl += "&" + queryString;
 		}
+                solrUrl+="&sort=p_value%20asc";
 		// }
-
+System.out.println("solr url for sorting pvalues="+solrUrl);
 		return createPhenotypeResultFromSolrResponse(solrUrl);
 
 	}
@@ -378,7 +386,7 @@ public class GenotypePhenotypeService {
 				unidimensionalResult.setId(Integer.parseInt(phenoCallSummaryId));//one id for each document and for each sex
 				unidimensionalResult.setpValue(Double.valueOf(pValue));
 				unidimensionalResult.setZygosityType(ZygosityType.valueOf(zygosity));
-				unidimensionalResult.setEffectSize(new Double(Double.valueOf(effectSize)));
+				unidimensionalResult.setEffectSize(new Double(effectSize));
 				unidimensionalResult.setSexType(SexType.valueOf(sex));
 			}
 			results.add(unidimensionalResult);
@@ -502,6 +510,11 @@ public class GenotypePhenotypeService {
 			if (phen.containsKey( GenotypePhenotypeField.PROJECT_EXTERNAL_ID )) {
 				sum.setExternalId(phen.getInt( GenotypePhenotypeField.PROJECT_EXTERNAL_ID ));
 			}
+                        
+                        if (phen.containsKey( GenotypePhenotypeField.P_VALUE )) {
+				sum.setpValue(new Float(phen.getString(GenotypePhenotypeField.P_VALUE )));
+			}
+                        
 			sum.setProject(project);
 			// "procedure_stable_id":"77",
 			// "procedure_stable_key":"77",

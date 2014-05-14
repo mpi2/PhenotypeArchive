@@ -27,7 +27,7 @@
                 		<li><a href="#section-expression">Expression</a></li>
                 </c:if>
                 <c:if test="${!countIKMCAllelesError}">
-                		<li><a href="#section-alleles">ES Cell and Mouse Alleles</a></li>
+                		<li><a href="#order">Order Mouse and ES Cells</a></li>
                 </c:if>
             </ul>
             
@@ -336,7 +336,7 @@
 					
 				</c:when>
 				<c:otherwise>
-				<div class="alert alert-info">There is are currently no phenotype associations for the gene ${gene.symbol} </div>
+				<div class="alert alert-info">There are currently no phenotype associations for the gene ${gene.symbol} </div>
 				</c:otherwise>
 				</c:choose>
 				

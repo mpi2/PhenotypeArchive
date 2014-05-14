@@ -17,39 +17,23 @@
 package org.mousephenotype.www;
 
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Resource;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.junit.After;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import static org.mousephenotype.www.GetGenePagesTest.staticDriver;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
 
@@ -97,8 +81,8 @@ public class ChartsPageTest {
             platform = remoteWebDriver.getCapabilities().getPlatform().name();
         }
         
+        System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
         System.out.println("seleniumUrl: " + seleniumUrl);
-        System.out.println("TESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
     }
 	
 	

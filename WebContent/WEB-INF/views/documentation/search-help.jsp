@@ -32,31 +32,42 @@
                     <div class="block block-system">
 
                         <div id="top" class="content node">
-
                             
                             <h3>Explore the diverse entry points to mouse phenotype data.</h3>
 							Currently IMPC portal supports 6 main data types on the search page.
 							Ie, Genes, Phenotypes, Diseases, Anatomy, Procedures and Images. 
-							These are the main facets designed for our facet search interface.<br>
+							These are the main facets of the IMPC facet search interface.<br>
 							Each main data type has sub data types which act as subfacet filters to allow for data filtering.<p>
 							
 							<h4><a name="mainFaceting" href='#'>Main data type browsing</a></h4>
-                            <div>Clicking on a main facet (eg, Genes, Diseases) without ticking its subfacet filter(s) will display all records of that data type.</div><br>
+                            <div>Clicking on a main facet (eg, Genes, Phenotypes, Diseases) without ticking its subfacet filter(s) will display all records of that data type.
+                            The screenshot below shows the total number of genes in the portal.
+                            </div><br>
                             <img src='img/main_data_type.png' /><p>
 
 							<h4><a name="subFaceting" href='#'>Cross data type browsing</a></h4>
-                            <div>By checking a checkbox (or subfacet filter), the main facet and subfacet counts of all 6 main data types will be updated accordingly.
-    						Eg. when 'Genes' main facet is expanded and 'Started' subfacet filter is checked, the main facet counts relevant to a main facet entail 
-    						how many phenotypes or diseases , for instance, are annotated to the genes with the IMPC phenotyping status marked as 'Started'.</div><br> 
-    						<img src='img/sub_data_type.png' /><p>
-    						<div>The subfacet counts of a main facet tell you which sub data type of a main facet is relevant to the 'Started' filter.<br>
-    						To see this, click on the 'Phenotypes' main facet, for example, to expand its subfacets.<br>
-    						Note that the 'Genes' main facet will then be closed.</div><br>
-    						<img src='img/phenotype_subfacets.png' /><p><p>
-    						<div>The ticked filter will also appear in a 'filter summary' box right below the big blue 'Filter your search' bar on top left corner of the search page.
-    						Now you should have seen 'Phenotyping started'.<br>
-    						There, you can also remove individual filter(s) - same as when you untick a checkbox of a subfacet - or remove all filters in one go with the 'Remove all facet filters' link.</div><p>
-                                                     
+                            <div>By checking a checkbox (or subfacet filter, eg. when 'Genes' main facet is expanded and 'Started' subfacet is ticked), the data of each main facet and its subfacets will be filtered and the counts of all 6 main data types
+                            will be updated accordingly.<p><p>This is a powerful tool to find data in the portal.<p>
+                            <h5>Some search examples:</h5>
+                            <h6>(1) I want to find a list of genes whose mice phenotyping status have been marked as 'Started' and those mice were produced (production center) and phenotyped (phenotyping center) at the WTSI.</h6>
+                            First, click on the 'Genes' main facet to expand its subfacets (if not yet expanded). Then click the '<b>IMPC Phenotyping Status</b>' subfacet to expand its filters (if not yet expanded). Next check the '<b>Started</b>' subfacet filter. 
+                            A '<b>phenotyping started</b>' filter will appear in the light gray filter summary box just under the big blue 'Filter your search' bar on top of the search facet interface.<p><img src='img/started_subfacet.png' />
+                            <br>To further filter these set of genes for their production/phenotyping centers, click to expand the '<b>IMPC Mouse Production Center</b>' subfacet. Then check the 'WTSI' checkbox. 
+                            Now a second filter '<b>mice produced at WTSI</b>' will be added to the filter summary box.<img src='img/prod_center_subfacet.png' /><p>Do the same for '<b>IMPC Mouse Phenotyping Center</b>' subfacet and check the 'WTSI' checkbox. 
+                            You shall see a third filter '<b>mice phenotyped at WTSI</b>' in the filter summary box.<img src='img/pheno_center_subfacet.png' /><br>
+                            The resulting gene list on the right of the search page will be what you are looking for.<p><img src='img/result1.png' /><p>  
+                            <h6>(2) What are mouse genes from (1) above that have immune system phenotype and have OMIM phenotype annotations?</h6>
+                            With the 3 filters from (1) still in place, click on the 'Phenotypes' main facet to expand its subfacets and check '<b>immune system</b>' subfacet filter. 
+                            Notice that immune system filter is added to the filter summary box.<p><img src='img/immune_system_subfacet.png' /><p>
+                            Then click on the 'Disease' main facet and tick the '<b>OMIM</b>' checkbox from the expanded subfacets to add the 5th filter.
+                            The resulting gene list on the right of the search page will be what you are looking for.<img src='img/result2.png' />
+                            </div><br>
+                            <h6>(3) I want to remove a filter.</h6>  
+    						You can untick a checked checkbox from the subfacets or click on an individual filter in the summary filter box.<br>
+    						To remove all filters in one go, just click on the 'Remove all facet filters' link at bottom of the summary filter box.<p>
+    						<img src='img/remove_all_filters.png' />
+    						<p>
+                                                    
                             
                             <h4><a name="quick_gene_srch" href='#'>Quick Gene Search</a></h4>			
                             <div>Type a gene symbol, gene ID, name or human orthologue into search box and returned results will returned relevant gene pages.
@@ -91,17 +102,18 @@
 
                             <h4><a name="quick_img_srch" href='#'>Quick Image Search</a></h4>
                             <div>Type a gene, phenotype, assay, or anatomical entity, click on the images facet on the left panel and the results grid will return relevant image pages.
-                                <p>By default, Image View will be displayed, where annotations to an image is enlisted.<p>Eg. search by phenotype "immune":<br>				
+                                <p>By default, Annotation View will be displayed, where images are grouped by annotations.<p>Eg. search by phenotype "immune":<br>				
                             </div><br> 
-                            <img src='img/quick_img_search.jpg' /><p>
-
-                            <p>To view images grouped by annotations, simply click on the "Show Annotation View" button to the top-right corner of the results grid. The label of the same button will then be switched to "Show Image View" so that you can toggle the views.</p><br>
-                            <img src='img/quick_img_search_annotView.jpg' /><p>
-                                                   
+                           
+							<img src='img/quick_img_search_annotView.jpg' /><p>
+                            <p>To list annotations to an image, simply click on the "Show Image View" button to the top-right corner of the results grid. The label of the same button will then be switched to "Show Annotation View" so that you can toggle the views.</p><br>
+                            
+                                <img src='img/quick_img_search.jpg' /><p>                   
 
                             <h4><a name="export" href='#'>Data Export of Search Results</a></h4>
-                            <div>Click on the export icon <img src='img/export.jpg' /> to the top-right corner of the results grid to expand or hide it. 
-                                When expanded, <img src='img/export_expanded.jpg' /><p><p>
+                            <div>Click on the export icon <p><img src='img/export.jpg' />
+                            <br>to the top-right corner of the results grid to expand or hide it. 
+                                When expanded,<p> <img src='img/export_expanded.jpg' /><p><p>
                                     click on either TSV (tab separated) or XLS (MS Excel) buttons for format of export. 
                                 <p>To limit the export data on current page only, choose the buttons of the "Current paginated entries in table", 
                                     whereas "All entries in table" will export the whole search results".

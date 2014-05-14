@@ -107,9 +107,8 @@ public class ExperimentService {
             // - meatdata group
             ExperimentDTO experiment;
 
-            String experimentKey = observation.getPhenotypingCenter() + observation.getStrain() + observation.getParameterStableId() + observation.getPipelineStableId() + observation.getGeneAccession() +observation.getAlleleAccession()
-                    + observation.getMetadataGroup();
-
+            String experimentKey = observation.getKey();
+            
             if (experimentsMap.containsKey(experimentKey)) {
                 experiment = experimentsMap.get(experimentKey);
             } else {
@@ -201,6 +200,7 @@ public class ExperimentService {
                                     if (experiment.getMetadataGroup().equals(result.getMetadataGroup())) {
                                         LOG.debug("metadata group in experiment and result are equal so adding " + metaDataGroup);
                                         LOG.debug("adding pValue from comprehensive result=" + result.getpValue());
+                                        result.setEffectSize(basicResult.getEffectSize());
                                         populatedResults.add(result);
                                     }
                                 }
