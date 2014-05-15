@@ -305,8 +305,28 @@ public class DataTableController {
 			JSONObject doc = docs.getJSONObject(i);
 			String mpId = doc.getString("mp_id");
 			String mpTerm = doc.getString("mp_term");
-			String mpLink = "<a href='" + baseUrl + mpId + "'>" + mpTerm + "</a>";			
-			rowData.add(mpLink);
+			String mpLink = "<a href='" + baseUrl + mpId + "'>" + mpTerm + "</a>";	
+				
+			
+			
+			if ( doc.containsKey("mp_term_synonym") ){
+				List<String> mpSynonyms = doc.getJSONArray("mp_term_synonym");
+				List<String> prefixSyns = new ArrayList();
+				for ( String sn : mpSynonyms ){
+					prefixSyns.add("synonym: "+ sn);
+				}
+				
+				String mpCol = "<div class='mpCol'><div class='title'>" 
+						+ mpLink 
+						+ "</div>"
+						+ "<div class='subinfo'>" 
+						+  StringUtils.join(prefixSyns, "<br>") 
+						+ "</div>";
+				rowData.add(mpCol);
+			}
+			else {
+				rowData.add(mpLink);
+			}
 			
 			// some MP do not have definition
 			String mpDef = "not applicable";

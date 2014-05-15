@@ -9,13 +9,6 @@
 	<jsp:attribute name="header">
 	<style>
 	
-	/*.pagination {width:450px;}
-	.pagination, 
-	.pagination a, 
-	.pagination span { white-space:nowrap; font-size:0.95em; border:none; padding:0; margin:0;}
-	.pagination span.page-info { white-space:nowrap; border:none; padding:0; margin:0;}
-	.mpi2-grid {border: 0;}
-	div.last-search{margin-top:0;}*/
 	</style>
 	<link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" />
 	</jsp:attribute>
