@@ -11,7 +11,7 @@
 		<script type="text/javascript">
 			${scatterChartAndData.chart}
 		</script>	
-                                <div class="section half"><a id="goBack" >Box Plot / Time Series Graphs</a></div>	
+                                <div class="section half"><a id="goBack" >Box Plot / Time Series Graphs</a></div> <div class="section half"></div>	
                                 <div class="section">
                                
 	</c:if>
