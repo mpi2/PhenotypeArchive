@@ -205,21 +205,23 @@ public class ColorCodingPalette {
 	 * @param scale
 	 * @param minimalPValue
 	 */
-	private void addColorIndexToStatisticalResults(Map<String, StatisticalResultBean> statisticalResults, int maxColorIndex, double scale, double minimalPValue){
+	private void addColorIndexToStatisticalResults(Map<String, List<StatisticalResultBean>> statisticalResults, int maxColorIndex, double scale, double minimalPValue){
 
 		// to scale from 0 to max color index
 		double maxColor = 0;
 				
 		for (String parameterId: statisticalResults.keySet()) {
 			// OK, for this parameter, compute a color index
-			StatisticalResultBean statsResult = statisticalResults.get(parameterId);
-			double pValue = statsResult.getpValue();
-			if (pValue < minimalPValue) {
-				pValue = minimalPValue;
-			}
-			statsResult.setColorIndex(-Math.log10(pValue));
-			if (statsResult.getColorIndex() > maxColor) {
-				maxColor = statsResult.getColorIndex();
+			
+			for (StatisticalResultBean statsResult: statisticalResults.get(parameterId)) {
+				double pValue = statsResult.getpValue();
+				if (pValue < minimalPValue) {
+					pValue = minimalPValue;
+				}
+				statsResult.setColorIndex(-Math.log10(pValue));
+				if (statsResult.getColorIndex() > maxColor) {
+					maxColor = statsResult.getColorIndex();
+				}
 			}
 		}
 		
@@ -229,12 +231,13 @@ public class ColorCodingPalette {
 		
 		// scale 
 		for (String parameterId: statisticalResults.keySet()) {
-			StatisticalResultBean statsResult = statisticalResults.get(parameterId);
-			statsResult.setColorIndex(statsResult.getColorIndex()*scale);
-			statsResult.setColorIndex(Math.round(statsResult.getColorIndex()));
-			// check whether any color is greater than the maxColorIndex
-			if (statsResult.getColorIndex() > maxColorIndex) {
-				statsResult.setColorIndex(maxColorIndex);
+			for (StatisticalResultBean statsResult: statisticalResults.get(parameterId)) {
+				statsResult.setColorIndex(statsResult.getColorIndex()*scale);
+				statsResult.setColorIndex(Math.round(statsResult.getColorIndex()));
+				// check whether any color is greater than the maxColorIndex
+				if (statsResult.getColorIndex() > maxColorIndex) {
+					statsResult.setColorIndex(maxColorIndex);
+				}
 			}
 		}
 			
@@ -255,7 +258,7 @@ public class ColorCodingPalette {
 	 * @param scale
 	 * @param minimalPValue
 	 */
-	public void generateColors(Map<String, StatisticalResultBean> statisticalResults, int maxColorIndex, double scale, double minimalPValue) {
+	public void generateColors(Map<String, List<StatisticalResultBean>> statisticalResults, int maxColorIndex, double scale, double minimalPValue) {
 		
 		palette = getColorPalette(maxColorIndex);
 		  

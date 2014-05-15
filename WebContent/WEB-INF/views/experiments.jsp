@@ -88,8 +88,8 @@
 						<tr>
 							<th class="headerSort">Procedure</th>
 							<th class="headerSort">Parameter</th>
-							<th class="headerSort">Data type</th>
 							<th class="headerSort">Zygosity</th>
+							<th class="headerSort">Mutants</th>
 							<th class="headerSort">P-value</th>
 							<th class="headerSort">Status</th>
 							<th class="headerSort">Graph</th>
@@ -97,30 +97,47 @@
 					</thead>
 					<tbody>
 						<c:forEach var="dataMap" items="${mapList}" varStatus="status">
-						<tr>
-						<td>${dataMap["procedure_name"]}</td>
-						<td>${dataMap["parameter_name"]}</td>
-						<td>${dataMap["observation_type"]}</td>
-						<td>${dataMap["zygosity"]}</td>
-						<c:set var="stableId" value="${dataMap['parameter_stable_id']}"/>
+							<c:set var="stableId" value="${dataMap['parameter_stable_id']}"/>
+							<c:set var="stableIdpValuesMap" value="${pvaluesMap[stableId]}"/>
+							<c:forEach var="pValueItem" items="${stableIdpValuesMap}">
+								<c:if test="${pValueItem.zygosity == dataMap['zygosity']}">
+								<tr>
+								<td>${dataMap["procedure_name"]}</td>
+								<td>${dataMap["parameter_name"]}</td>
+								<td>${dataMap["zygosity"]}</td>
+						<!-- nb of mutants -->
 						<c:choose>
-						<c:when test="${ ! empty pvalues[stableId] && pvalues[stableId].isSuccessful }">
-						<c:set var="paletteIndex" value="${pvalues[stableId].colorIndex}"/>
+						<c:when test="${pValueItem.controlSex eq 'male'}">
+							<td>${pValueItem.maleMutants}m</td>
+						</c:when>
+						<c:when test="${pValueItem.controlSex eq 'female'}">
+							<td>${pValueItem.femaleMutants}f</td>
+						</c:when>
+						<c:otherwise>
+							<td>${pValueItem.femaleMutants}f:${pValueItem.maleMutants}m</td>
+						</c:otherwise>
+						</c:choose>
+						<!-- pValue -->
+						<c:choose>
+						<c:when test="${ ! empty pValueItem && pValueItem.isSuccessful }">
+						<c:set var="paletteIndex" value="${pValueItem.colorIndex}"/>
 						<c:set var="Rcolor" value="${palette[0][paletteIndex]}"/>
 						<c:set var="Gcolor" value="${palette[1][paletteIndex]}"/>
 						<c:set var="Bcolor" value="${palette[2][paletteIndex]}"/>
 						<td style="background-color:rgb(${Rcolor},${Gcolor},${Bcolor})">
-						${pvalues[stableId].pValue}
+						${pValueItem.pValue}
 						</td>
 						</c:when>
 						<c:otherwise><td></td></c:otherwise>
 						</c:choose>
-						<td>${pvalues[stableId].status}</td>
+						<td>${pValueItem.status}</td>
 						<td style="text-align:center">
-						<a href='${baseUrl}/charts?accession=${allele.gene.id.accession}&allele_accession=${allele.id.accession}&parameter_stable_id=${dataMap["parameter_stable_id"]}&zygosity=${dataMap["zygosity"]}&phenotyping_center=${phenotyping_center}'>
+						<a href='${baseUrl}/charts?accession=${allele.gene.id.accession}&allele_accession=${allele.id.accession}&parameter_stable_id=${stableId}&metadata_group=${pValueItem.metadataGroup}&zygosity=${dataMap["zygosity"]}&phenotyping_center=${phenotyping_center}'>
 						<i class="fa fa-bar-chart-o" alt="Graphs" > </i></a>
 						</td>
 						</tr>
+						</c:if>
+						</c:forEach>
 						</c:forEach>
 					</tbody>
 				</table>				
@@ -132,6 +149,16 @@
     </div>
     </div>
 
+	<script type="text/javascript">
+	$(document).ready(function() {
+		  var oTable = $('#strainPhenome').dataTable();
+
+		  // Sort immediately with p-value column starting with the lowest one
+		  oTable.fnSort( [ [4,'asc'] ] );
+		} );
+	
+	</script>
+	
     </jsp:body>
   
 </t:genericpage>
