@@ -3,8 +3,8 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <t:genericpage>
-	<jsp:attribute name="title">Experiment details for ${allele.symbol}</jsp:attribute>
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; Alleles &raquo; <t:formatAllele>${allele.symbol}</t:formatAllele></jsp:attribute>
+	<jsp:attribute name="title">Phenome Overview for ${param.phenotyping_center}</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; Phenome &raquo; ${param.phenotyping_center}</jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="gene-node no-sidebars small-header"></jsp:attribute>
 	<jsp:attribute name="addToFooter">
 	<!--  start of floating menu for genes page -->
@@ -15,7 +15,7 @@
             <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
             
             <ul>
-                <li><a href="#top">Allele</a></li>
+                <li><a href="#top">Phenotyping Center</a></li>
                 <li><a href="#section-associations">Phenotype Associations</a></li><!--  always a section for this even if says no phenotypes found - do not putting in check here -->
             </ul>
             
@@ -36,10 +36,6 @@
 		
 		<!-- JavaScript Local Imports -->
 		<script src="${baseUrl}/js/general/dropdownfilters.js"></script>
-		<script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
-		
-		<!-- Why it is there? I don't know -->
-		<script type="text/javascript">var gene_id = '${allele.gene.id.accession}';</script>
         
   </jsp:attribute>
 
@@ -48,7 +44,7 @@
 			<div class="block">
 				<div class="content">
 					<div class="node node-gene">
-						<h1 class="title" id="top"><t:formatAllele>${allele.symbol}</t:formatAllele> - ${phenotyping_center} - ${pipeline.name}&nbsp;&nbsp; </h1>
+						<h1 class="title" id="top">${param.phenotyping_center}&nbsp;&nbsp; </h1>
 
 		<!--  Phenotype Associations Panel -->
 		<div class="section">
@@ -59,17 +55,9 @@
 			</h2>		
 			
 			<div class="inner">
-
-			<!-- Associations table -->
-			<c:if test="${chart != null}">
-	
-	<!-- phenome chart here -->
-  		<div id="chart${allele.id.accession}"></div>
-		<script type="text/javascript">${chart}</script>	
-	</c:if>
 				
 	<c:set var="count" value="0" scope="page" />
-	<c:forEach var="dataMap" items="${mapList}" varStatus="status">
+	<c:forEach var="dataMap" items="${phenotypeCalls}" varStatus="status">
 			<c:set var="count" value="${count + 1}" scope="page"/>
 	</c:forEach>
 	<p class="resultCount">
@@ -82,62 +70,36 @@
 		 resTemp[0].remove();
 	</script>
 	
-
-				<table id="strainPhenome">
+				<table id="phenotypeCalls">
 					<thead>
 						<tr>
 							<th class="headerSort">Procedure</th>
 							<th class="headerSort">Parameter</th>
 							<th class="headerSort">Zygosity</th>
-							<th class="headerSort">Mutants</th>
-							<th class="headerSort">P Value</th>
-							<th class="headerSort">Status</th>
+							<th class="headerSort">Phenotype</th>
+							<th class="headerSort">P-value</th>
 							<th class="headerSort">Graph</th>
 						</tr>
 					</thead>
 					<tbody>
-						<c:forEach var="dataMap" items="${mapList}" varStatus="status">
-							<c:set var="stableId" value="${dataMap['parameter_stable_id']}"/>
-							<c:set var="stableIdpValuesMap" value="${pvaluesMap[stableId]}"/>
-							<c:forEach var="pValueItem" items="${stableIdpValuesMap}">
-								<c:if test="${pValueItem.zygosity == dataMap['zygosity']}">
+						<c:forEach var="phenotypeCall" items="${phenotypeCalls}" varStatus="status">
 								<tr>
-								<td>${dataMap["procedure_name"]}</td>
-								<td>${dataMap["parameter_name"]}</td>
-								<td>${dataMap["zygosity"]}</td>
-						<!-- nb of mutants -->
-						<c:choose>
-						<c:when test="${pValueItem.controlSex eq 'male'}">
-							<td>${pValueItem.maleMutants}m</td>
-						</c:when>
-						<c:when test="${pValueItem.controlSex eq 'female'}">
-							<td>${pValueItem.femaleMutants}f</td>
-						</c:when>
-						<c:otherwise>
-							<td>${pValueItem.femaleMutants}f:${pValueItem.maleMutants}m</td>
-						</c:otherwise>
-						</c:choose>
-						<!-- pValue -->
-						<c:choose>
-						<c:when test="${ ! empty pValueItem && pValueItem.isSuccessful }">
-						<c:set var="paletteIndex" value="${pValueItem.colorIndex}"/>
+								<td>${phenotypeCall.procedure.name}</td>
+								<td>${phenotypeCall.parameter.name}</td>
+								<td>${phenotypeCall.zygosity}</td>
+								<td>${phenotypeCall.phenotypeTerm.name}</td>
+						<c:set var="paletteIndex" value="${phenotypeCall.colorIndex}"/>
 						<c:set var="Rcolor" value="${palette[0][paletteIndex]}"/>
 						<c:set var="Gcolor" value="${palette[1][paletteIndex]}"/>
 						<c:set var="Bcolor" value="${palette[2][paletteIndex]}"/>
 						<td style="background-color:rgb(${Rcolor},${Gcolor},${Bcolor})">
-						${pValueItem.pValue}
+						${phenotypeCall.pValue}
 						</td>
-						</c:when>
-						<c:otherwise><td></td></c:otherwise>
-						</c:choose>
-						<td>${pValueItem.status}</td>
 						<td style="text-align:center">
-						<a href='${baseUrl}/charts?accession=${allele.gene.id.accession}&allele_accession=${allele.id.accession}&parameter_stable_id=${stableId}&metadata_group=${pValueItem.metadataGroup}&zygosity=${dataMap["zygosity"]}&phenotyping_center=${phenotyping_center}'>
+						<a href='${baseUrl}/charts?accession=${phenotypeCall.allele.gene.id.accession}&allele_accession=${phenotypeCall.allele.id.accession}&parameter_stable_id=${phenotypeCall.parameter.stableId}&zygosity=${phenotypeCall.zygosity}&phenotyping_center=${param.phenotyping_center}'>
 						<i class="fa fa-bar-chart-o" alt="Graphs" > </i></a>
 						</td>
 						</tr>
-						</c:if>
-						</c:forEach>
 						</c:forEach>
 					</tbody>
 				</table>				
@@ -149,7 +111,7 @@
     </div>
     </div>
 
-	<script type="text/javascript">
+<!--  <script type="text/javascript">
 	$(document).ready(function() {
 		  var oTable = $('#strainPhenome').dataTable();
 
@@ -157,7 +119,7 @@
 		  oTable.fnSort( [ [4,'asc'] ] );
 		} );
 	
-	</script>
+	</script>-->
 	
     </jsp:body>
   

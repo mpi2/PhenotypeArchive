@@ -61,14 +61,15 @@ $(document).ready(function(){
 		return ((x < y) ?  1 : ((x > y) ? -1 : 0));
 	};
 	
+	// the number of columns should be kept in sync in the JSP
 	var oDataTable = $.fn.initDataTable($('table#strainPhenome'), {
 		"aoColumns": [
-		              { "sType": "string"},
-		              { "sType": "string"},		              
-		              { "sType": "string"},
-		              { "sType": "string"},
+		              { "sType": "string" },
+		              { "sType": "string" },		              
+		              { "sType": "string" },
+		              { "sType": "string" },
 		              { "sType": "pvalues" }, // or numeric
-		              { "sType": "string"},
+		              { "sType": "string" },
 		              { "sType": "string", "bSortable" : false }
 
 		              ],

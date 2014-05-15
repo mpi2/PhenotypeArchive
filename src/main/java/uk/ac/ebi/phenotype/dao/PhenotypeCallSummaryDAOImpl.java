@@ -74,7 +74,16 @@ public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements Phe
 		return summaries;
 	}	
 	
-	
+	@Transactional(readOnly = true)
+	@SuppressWarnings("unchecked")
+	public List<PhenotypeCallSummary> getPhenotypeCallByPhenotypingCenterAndPipeline(String phenotypingCenter, String pipelineStableId) {
+		List<PhenotypeCallSummary> results = getCurrentSession().createQuery("from PhenotypeCallSummary as pheno where pheno.organisation.name = ? and pheno.pipeline.stableId = ? order by pheno.pValue asc")
+				.setString(0, phenotypingCenter)
+				.setString(1, pipelineStableId)
+				.list();
+		
+		return results;
+	}		
 	
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")

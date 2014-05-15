@@ -273,7 +273,7 @@ config.facetParams = {
 		 filterParams: {'fq': '*:*'},
 		 srchParams: $.extend({},				
 					commonSolrParams,	 	
-					{'fl': 'mp_id,mp_term,mp_definition,top_level_mp_term,top_mp_term_id,intermediate_mp_term,intermediate_mp_id,intermediate_mp_definition'})
+					{'fl': 'mp_id,mp_term,mp_term_synonym,mp_definition,top_level_mp_term,top_mp_term_id,intermediate_mp_term,intermediate_mp_id,intermediate_mp_definition'})
 	 },	
 	 maFacet: {			    	
 		 type: 'tissues',
