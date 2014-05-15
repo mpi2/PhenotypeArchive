@@ -343,10 +343,10 @@
 				<!-- Show list of links to data for every center/pipeline/allele combination -->
 				<c:if test="${!(empty dataMapList)}">
 					<p class="with-label no-margin">
-					<p class="no-margin">Browse phenotype data for:</p>
+					<p class="no-margin">Browse all phenotype data for:</p>
 					<ul>				
 					<c:forEach var="dataMap" items="${dataMapList}" varStatus="loop">
-						<li><a href='${baseUrl}/experiments/genes/${acc}?allele_accession=${dataMap["allele_accession"]}&phenotyping_center=${dataMap["phenotyping_center"]}&pipeline_stable_id=${dataMap["pipeline_stable_id"]}'><t:formatAllele>${dataMap["allele_symbol"]}</t:formatAllele></a> phenotyped by ${dataMap["phenotyping_center"]} (${dataMap["pipeline_name"]})</li>					
+						<li><a href='${baseUrl}/experiments/alleles/${dataMap["allele_accession"]}?phenotyping_center=${dataMap["phenotyping_center"]}&pipeline_stable_id=${dataMap["pipeline_stable_id"]}'><t:formatAllele>${dataMap["allele_symbol"]}</t:formatAllele></a> phenotyped by ${dataMap["phenotyping_center"]} (${dataMap["pipeline_name"]})</li>					
 					</c:forEach>
 					</ul>
 					</p>

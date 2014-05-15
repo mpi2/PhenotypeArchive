@@ -98,28 +98,24 @@ public class ExperimentsController {
 	 * Runs when the request missing an accession ID. This redirects to the
 	 * search page which defaults to showing all genes in the list
 	 */
-	@RequestMapping("/experiments/genes")
+	@RequestMapping("/experiments/alleles")
 	public String rootForward() {
 		return "redirect:/search";
 	}
 
-	@RequestMapping("/experiments/genes/{acc}")
+	@RequestMapping("/experiments/alleles/{alleleAccession}")
 	public String genes(
-			@PathVariable String acc,
+			@PathVariable String alleleAccession,
 			@RequestParam(required = true, value = "phenotyping_center") String phenotypingCenter,
 			@RequestParam(required = true, value = "pipeline_stable_id") String pipelineStableId,
-			@RequestParam(required = true, value = "allele_accession") String alleleAccession,
 			Model model,
 			HttpServletRequest request,
 			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
 		
-		// see if the gene exists first:
-		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
-		if (gene == null) {
-			log.warn("Gene status for " + acc + " can't be found.");
-		}
-		
 		Allele allele = alleleDao.getAlleleByAccession(alleleAccession);
+		if (allele == null) {
+			log.warn("Allele '" + alleleAccession + "' can't be found.");
+		}
 		
 		Pipeline pipeline = pipelineDao.getPhenotypePipelineByStableId(pipelineStableId);
 		
@@ -140,7 +136,7 @@ public class ExperimentsController {
 		}
 		
 		ColorCodingPalette colorCoding = new ColorCodingPalette();
-		double minimalPValue = 10E-4;
+		double minimalPValue = 1.00E-4;
 		colorCoding.generateColors(pvalues, 9, 1, minimalPValue);
 		
 		String chart = phenomeChartProvider.generatePhenomeChart(
@@ -155,10 +151,8 @@ public class ExperimentsController {
 		model.addAttribute("chart", chart);
 		model.addAttribute("phenotyping_center", phenotypingCenter);
 		model.addAttribute("allele", allele);
-		model.addAttribute("gene", gene);
 		model.addAttribute("pipeline", pipeline);
 		model.addAttribute("request", request);
-		model.addAttribute("acc", acc);
 		
 		return "experiments";
 	}
@@ -176,7 +170,7 @@ public class ExperimentsController {
         mv.addObject("errorMessage",exception.getMessage());
         mv.addObject("acc",exception.getAcc());
         mv.addObject("type","MGI gene");
-        mv.addObject("exampleURI", "/experiments/genes/MGI:104874");
+        mv.addObject("exampleURI", "/experiments/alleles/MGI:4436678?phenotyping_center=HMGU&pipeline_stable_id=ESLIM_001");
         return mv;
     }
 
