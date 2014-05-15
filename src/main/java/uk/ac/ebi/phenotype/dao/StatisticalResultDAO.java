@@ -40,10 +40,10 @@ import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
  */
 
 public interface StatisticalResultDAO {
-
+	
 	/**
-	 * Give an allele identifier,a phenotyping center and a pipeline stable id, 
-	 * returns a list of pValues and effect size for every parameter.
+	 * Given an allele identifier,a phenotyping center and a pipeline stable id, 
+	 * returns a Map of list of pValues and effect size for every parameter.
 	 * @return a map of pvalues and effect size for the given phenotyping pipeline
 	 */
 	public Map<String, List<StatisticalResultBean>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(

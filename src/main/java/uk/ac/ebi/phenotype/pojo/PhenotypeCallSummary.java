@@ -48,30 +48,30 @@ public class PhenotypeCallSummary {
 	@Id
 	@GeneratedValue
 	@Column(name = "id")
-	private Integer id;
+	protected Integer id;
 	
 	@Column(name = "external_id")
 	Integer externalId;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "sex")
-	private SexType sex;
+	protected SexType sex;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "zygosity")
-	private ZygosityType zygosity;
+	protected ZygosityType zygosity;
 
 	@OneToOne
 	@JoinColumn(name = "external_db_id")
-	private Datasource datasource;	
+	protected Datasource datasource;	
 	
 	@OneToOne
 	@JoinColumn(name = "project_id")
-	private Project project;	
+	protected Project project;	
 	
 	@OneToOne
 	@JoinColumn(name = "organisation_id")
-	private Organisation organisation;	
+	protected Organisation organisation;	
 	
 	@NotFound(action=NotFoundAction.IGNORE) // phenotype_call_summary.gf_acc maybe null
 	@OneToOne
@@ -79,7 +79,7 @@ public class PhenotypeCallSummary {
 	@JoinColumn(name = "gf_acc"),
 	@JoinColumn(name = "gf_db_id"),
 	})
-	private GenomicFeature gene;
+	protected GenomicFeature gene;
 	
 	@NotFound(action=NotFoundAction.IGNORE)
 	@OneToOne
@@ -87,13 +87,13 @@ public class PhenotypeCallSummary {
 	@JoinColumn(name = "mp_acc"),
 	@JoinColumn(name = "mp_db_id"),
 	})
-	private OntologyTerm phenotypeTerm;
+	protected OntologyTerm phenotypeTerm;
 	
 	@Column(name = "p_value")
-	private float pValue = 0;
+	protected float pValue = 0;
 
 	@Column(name = "effect_size")
-	private float effectSize = 0;
+	protected float effectSize = 0;
 	
 	@NotFound(action=NotFoundAction.IGNORE)
 	@OneToOne
@@ -101,35 +101,37 @@ public class PhenotypeCallSummary {
 	@JoinColumn(name = "strain_acc"),
 	@JoinColumn(name = "strain_db_id"),
 	})
-	private Strain strain;
+	protected Strain strain;
 	
 	@OneToOne
 	@JoinColumns({
 	@JoinColumn(name = "allele_acc"),
 	@JoinColumn(name = "allele_db_id"),
 	})
-	private Allele allele;
+	protected Allele allele;
 	
 	@OneToOne
 	@JoinColumn(name = "pipeline_id")
-	private Pipeline pipeline;
+	protected Pipeline pipeline;
 
 	@OneToOne(fetch=FetchType.EAGER)
 	@Fetch(FetchMode.SELECT)
 	@NotFound(action=NotFoundAction.IGNORE)
 	@JoinColumn(name = "procedure_id")
-	private Procedure procedure;
+	protected Procedure procedure;
 	
 	@OneToOne(fetch=FetchType.EAGER)
 	@Fetch(FetchMode.SELECT)
 	@NotFound(action=NotFoundAction.IGNORE)
 	@JoinColumn(name = "parameter_id")
-	private Parameter parameter;
+	protected Parameter parameter;
 
 	@Transient
-	private String phenotypingCenter;
+	protected String phenotypingCenter;
 
-
+	@Transient
+	private double colorIndex;
+	
 	public PhenotypeCallSummary() {
 		
 	}
@@ -366,5 +368,29 @@ public class PhenotypeCallSummary {
 		this.effectSize = effectSize;
 	}
 
+	/**
+	 * @return the colorIndex
+	 */
+	public double getColorIndex() {
+		return colorIndex;
+	}
+
+	/**
+	 * @param colorIndex the colorIndex to set
+	 */
+	public void setColorIndex(double colorIndex) {
+		this.colorIndex = colorIndex;
+	}
+	
+	/**
+	 * Return a -Log10 value to generate a scale
+	 * @return -Math.log10(pValue)
+	 */
+	public double getLogValue() {
+		if (pValue < 1E-20) {
+			return -Math.log10(1E-20);
+		}
+		return -Math.log10(pValue);
+	}	
 
 }

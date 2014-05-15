@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
+import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 
 /**
  * Generates a color palette given a set of p-values
@@ -242,6 +243,49 @@ public class ColorCodingPalette {
 		}
 			
 	}
+
+	/**
+	 * Add a colorIndex to a set of statistical results
+	 * @param statisticalResults structure containing 
+	 * @param maxColorIndex
+	 * @param scale
+	 * @param minimalPValue
+	 */
+	private void addColorIndexToStatisticalResults(List<PhenotypeCallSummary> phenotypeCalls, int maxColorIndex, double scale, double minimalPValue){
+
+		// to scale from 0 to max color index
+		double maxColor = 0;
+				
+		for (PhenotypeCallSummary call: phenotypeCalls) {
+			// OK, for this call, compute a color index
+			
+				double pValue = call.getpValue();
+				if (pValue < minimalPValue) {
+					pValue = minimalPValue;
+				}
+				
+				call.setColorIndex(-Math.log10(pValue));
+				if (call.getColorIndex() > maxColor) {
+					maxColor = call.getColorIndex();
+				}
+			}
+		
+		if( scale == 0 ){
+			scale = maxColorIndex / maxColor; 
+		}
+		
+		// scale 
+		
+		for (PhenotypeCallSummary call: phenotypeCalls) {
+			call.setColorIndex(call.getColorIndex()*scale);
+			call.setColorIndex(Math.round(call.getColorIndex()));
+				// check whether any color is greater than the maxColorIndex
+				if (call.getColorIndex() > maxColorIndex) {
+					call.setColorIndex(maxColorIndex);
+				}
+			}
+			
+	}	
 	
 	private List<int[]> getColorPalette(int nbColors) {
 		// default palette - 9 colors
@@ -264,6 +308,24 @@ public class ColorCodingPalette {
 		  
 		addColorIndexToStatisticalResults( 
 				statisticalResults, 
+				maxColorIndex, 
+				scale, 
+				minimalPValue);
+	}
+
+	/**
+	 * All in one: given a set of phenotype call summary
+	 * @param pValues
+	 * @param maxColorIndex
+	 * @param scale
+	 * @param minimalPValue
+	 */
+	public void generatePhenotypeCallSummaryColors(List<PhenotypeCallSummary> phenotypeCalls, int maxColorIndex, double scale, double minimalPValue) {
+		
+		palette = getColorPalette(maxColorIndex);
+		  
+		addColorIndexToStatisticalResults( 
+				phenotypeCalls, 
 				maxColorIndex, 
 				scale, 
 				minimalPValue);
