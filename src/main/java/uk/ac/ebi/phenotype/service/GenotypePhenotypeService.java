@@ -597,9 +597,10 @@ System.out.println("solr url for sorting pvalues="+solrUrl);
                 //System.out.println(doc.getFieldValues("p_value"));
                 if(paramMap.containsKey(doc.getFieldValue(GenotypePhenotypeField.PARAMETER_STABLE_ID))){
                     HeatMapCell cell=new HeatMapCell();
-                    System.out.println(doc.getFieldValues("p_value"));
-                    cell.setPValue(doc.getFieldValue("p_value"));
-                    //cell.setMpTermName(doc.getFieldValue("mp_term_name"));   
+                    String pvalue=(String)doc.getFieldValue("p_value");
+                    System.out.println(pvalue);
+                    cell.setpValue(new Float((String)doc.getFieldValue(pvalue)));
+                    cell.setMpTermName((String)doc.getFieldValue("mp_term_name"));   
                 }
             }
             return row;

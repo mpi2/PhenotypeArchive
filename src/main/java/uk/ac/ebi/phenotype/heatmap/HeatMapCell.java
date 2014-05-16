@@ -11,15 +11,19 @@ package uk.ac.ebi.phenotype.heatmap;
  * @author jwarren
  */
 public class HeatMapCell {
-    private Double pValue;
+    private Float pValue;
+
+    public Float getpValue() {
+        return pValue;
+    }
+
+    public void setpValue(Float pValue) {
+        this.pValue = pValue;
+    }
     private String mpTermName="";
 
     public String getMpTermName() {
         return mpTermName;
-    }
-
-    public void setpValue(Double pValue) {
-        this.pValue = pValue;
     }
 
     public void setMpTermName(String mpTermName) {
@@ -27,16 +31,6 @@ public class HeatMapCell {
     }
     
     
-    public Double getPValue(){
-        return this.pValue;
-    }
     
-    public void setPValue(Double pValue){
-        this.pValue=pValue;
-    }
-    
-
-    public void setPValue(Object fieldValue) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+   
 }

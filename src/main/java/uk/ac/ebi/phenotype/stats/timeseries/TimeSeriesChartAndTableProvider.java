@@ -271,8 +271,7 @@ public class TimeSeriesChartAndTableProvider {
 				+" chart: {  zoomType: 'x', renderTo: 'timechart"
 				+ expNumber
 				+ "', type: 'line', marginRight: 130, marginBottom: 50 }, title: { text: '"
-				+ WordUtils.capitalize(title)
-				+ "', x: -20  }, credits: { enabled: false },  subtitle: { text: '"
+				+ title				+ "', x: -20  }, credits: { enabled: false },  subtitle: { text: '"
 				+ parameter.getStableId()
 				+ "', x: -20 }, xAxis: { "
 				+ noDecimalsString
