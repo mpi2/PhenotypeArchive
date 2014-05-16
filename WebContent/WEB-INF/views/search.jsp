@@ -175,8 +175,7 @@
    				else if ( typeof oHashParams.q == 'undefined' ){
    					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');	    					
    				}
-   				
-   				console.log(oHashParams);
+   				   				
    				if ( MPI2.searchAndFacetConfig.widgetOpen ){
    					
    				
