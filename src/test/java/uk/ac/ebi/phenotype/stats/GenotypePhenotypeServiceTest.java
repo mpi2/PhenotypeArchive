@@ -1,8 +1,5 @@
 package uk.ac.ebi.phenotype.stats;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,6 +10,10 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,5 +56,11 @@ public class GenotypePhenotypeServiceTest {
 			assertTrue (resp != null);
 		}
 	}
+        
+        @Test
+        public void getResultsForGeneHeatMapTest(){
+            String accession="MGI:104874";
+            assertFalse(genotypePhenotypeService.getResultsForGeneHeatMap(accession).equals(""));
+        }
 		
 }

@@ -568,4 +568,12 @@ System.out.println("solr url for sorting pvalues="+solrUrl);
 	 * End of method for PhenotypeCallSummarySolrImpl
 	 */
 
+        public String getResultsForGeneHeatMap(String accession){
+//search by gene and a list of params            
+//http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select/?q=marker_accession_id:%22MGI:104874%22&fq=parameter_stable_id:(ESLIM_005_001_701%20OR%20ESLIM_021_001_003)&rows=10000000&version=2.2&start=0&indent=on&wt=json
+        //or search on gene and then loop through params to add the results if available order by ascending p value means we can just pick off the first entry for that param
+            //http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select/?q=marker_accession_id:%22MGI:104874%22&rows=10000000&version=2.2&start=0&indent=on&wt=json
+            
+            return "results should be here";
+        }
 }
