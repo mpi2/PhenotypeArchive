@@ -18,17 +18,15 @@ package uk.ac.ebi.phenotype.web.pojo;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 
 import javax.annotation.Resource;
-import org.apache.commons.lang.WordUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.ac.ebi.phenotype.pojo.Allele;
-import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Parameter;
