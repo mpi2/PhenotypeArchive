@@ -291,8 +291,7 @@ public class GraphTest {
 
     /**
      * Fetches all gene IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
-     * core and tests the graph links and pages. Limit the test to the first
-     * MAX_GENE_TEST_PAGE_COUNT by setting it to the limit you want.
+     * core and tests the graph links and pages.
      * 
      * @throws SolrServerException 
      */
@@ -302,8 +301,7 @@ public class GraphTest {
         final String testName = "testGraphPagesForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> geneIds = geneService.getGenesByPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.PRODUCTION_CENTRE_WTSI);
-        String[] geneIdArray = geneIds.toArray(new String[geneIds.size()]);
-        String target = "";
+        String target;
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
         List<String> exceptionList = new ArrayList();
@@ -311,13 +309,10 @@ public class GraphTest {
         Date start = new Date();
         Date stop;
 
-        int targetCount = (max_gene_test_page_count >= 0 ? Math.min(max_gene_test_page_count, geneIds.size()) : geneIds.size());
+        int targetCount = geneIds.size();
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
-        int max = geneIdArray.length;
-        int min = 0;
-        int allGenePagesCount = 0;                                  
-        int genePagesWithGraphsCount = 0;
+        int allGenePagesCount = 0;
         int graphPagesTestedCount = 0;
         int i = 0;
         for (String geneId : geneIds) {
@@ -325,10 +320,7 @@ public class GraphTest {
 //if (allGenePagesCount == 0) geneId = "MGI:2384936";     // categorical
 //if (allGenePagesCount == 2) geneId = "MGI:1924285";     // another unidimensional
 //if (allGenePagesCount == 2) timeseriesGraphUrl = "https://dev.mousephenotype.org/data/charts?accession=MGI:104874&allele_accession=EUROALL:19&parameter_stable_id=ESLIM_004_001_002&zygosity=heterozygote&phenotyping_center=WTSI";
-            if ((max_gene_test_page_count != -1) && (allGenePagesCount >= max_gene_test_page_count)) {
-                break;
-            }
-            
+
             target = baseUrl + "/genes/" + geneId;
 
             try {
@@ -374,8 +366,6 @@ public class GraphTest {
                 continue;
             }
 
-            genePagesWithGraphsCount++;
-            
             if ( ! exceptionList.isEmpty()) {
                 System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
                 for (String s : exceptionList) {
