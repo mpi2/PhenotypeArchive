@@ -175,9 +175,10 @@
    				else if ( typeof oHashParams.q == 'undefined' ){
    					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');	    					
    				}
-   				
-   				
+   				   				
    				if ( MPI2.searchAndFacetConfig.widgetOpen ){
+   					
+   				
    					MPI2.searchAndFacetConfig.widgetOpen = false;
    						    				
     				// search by keyword (user's input) has no fq in url when hash change is detected
@@ -209,7 +210,7 @@
     				//console.log('back button');	    				
     				//console.log(oHashParams);
     				    			
-    				var refreshFacet = oHashParams.coreName ? false : true;	    				
+    				var refreshFacet = oHashParams.coreName ? false : true;    				
 					$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, refreshFacet);
     				
     				$.fn.loadDataTable(oHashParams);
