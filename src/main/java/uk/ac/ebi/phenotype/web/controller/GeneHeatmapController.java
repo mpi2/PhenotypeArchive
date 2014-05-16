@@ -60,10 +60,15 @@ public class GeneHeatmapController {
                 //get a list of genes for the project - which will be the row headers
                 List<String> accessions=secondaryProjectDAO.getAccessionsBySecondaryProjectId(0);
                 //get a list of procedure-parameters for the project which will be the column headers
-                Set<Parameter> idgParameters=this.getIdgParameters();
+                List<String> idgParameters=this.getIdgParameters();
                 //mice produced and primary phenotype will be the first two coluns always?
-                for(Parameter param: idgParameters){
-                    System.out.println("param="+param.getName()+" desc="+param.getDescription()+" stable_id="+param.getStableId());
+                for(String param: idgParameters){
+                    System.out.println("param="+param);
+                }
+                for(String accession: accessions){
+                    
+                    //get a data structure with the gene accession,with parameter associated with a Value or status ie. not phenotyped, not significant
+                genotypePhenotypeService.getResultsForGeneHeatMap(accession,idgParameters );
                 }
                 //model.addAttribute("heatmapCode", fillHeatmap(hdto));
                
@@ -73,9 +78,9 @@ public class GeneHeatmapController {
              return "geneHeatMap";
 	}
 
-    private Set<Parameter> getIdgParameters() {
+    private List<String> getIdgParameters() {
         //for now lets just a get a list of parameters but eventuallly we'll need a specific list and store it in the db or flat file for pick up by jenkins?
-        Set<Parameter> parameters=new LinkedHashSet<>();
+        List<String> parameters=new ArrayList<>();
             List<Pipeline> pipelines = pDAO.getAllPhenotypePipelines();
             for(Pipeline pipeline:pipelines){
                 System.out.println("pipeline="+pipeline.getDescription());
@@ -87,7 +92,7 @@ public class GeneHeatmapController {
                     int j=0;
                     for(Parameter param: procedure.getParameters()){
                         System.out.println("param name="+param.getName());
-                        parameters.add(param);
+                        parameters.add(param.getStableId());
                         j++;
                         if(j>2)break;
                     }
