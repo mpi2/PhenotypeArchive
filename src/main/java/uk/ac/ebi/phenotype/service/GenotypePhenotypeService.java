@@ -308,6 +308,31 @@ public class GenotypePhenotypeService {
 		return statisticalResult;
 	}
 
+	/**
+	 * Returns a PhenotypeFacetResult object given a phenotyping center and a pipeline stable id
+	 * @param phenotypingCenter a short name for a phenotyping center
+	 * @param pipelineStableId a stable pipeline id
+	 * @return a PhenotypeFacetResult instance containing a list of PhenotypeCallSummary objects.
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	public PhenotypeFacetResult getPhenotypeFacetResultByPhenotypingCenterAndPipeline(String phenotypingCenter, String pipelineStableId) throws IOException, URISyntaxException {
+		
+		String solrUrl = solr.getBaseURL();// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
+		System.out.println("SOLR URL = " + solrUrl);
+		
+		solrUrl += "/select/?q=" + GenotypePhenotypeField.PHENOTYPING_CENTER + ":\""
+				+ phenotypingCenter+"\""+"&fq=" + GenotypePhenotypeField.PIPELINE_STABLE_ID + ":"+pipelineStableId
+				+ "&facet=true"
+				+ "&facet.field="+ GenotypePhenotypeField.RESOURCE_FULLNAME 
+				+ "&facet.field=" + GenotypePhenotypeField.PROCEDURE_NAME
+				+ "&facet.field=" + GenotypePhenotypeField.MARKER_SYMBOL
+				+ "&facet.field=" + GenotypePhenotypeField.MP_TERM_NAME 
+				+ "&sort=p_value%20asc"
+				+ "&rows=10000000&version=2.2&start=0&indent=on&wt=json";
+		System.out.println("SOLR URL = " + solrUrl);
+		return this.createPhenotypeResultFromSolrResponse(solrUrl);
+	}
 	
 	public PhenotypeFacetResult getMPByGeneAccessionAndFilter(
 			String accId, String queryString) throws IOException,
@@ -360,45 +385,44 @@ System.out.println("solr url for sorting pvalues="+solrUrl);
 
 	}
 	
-
 	private List<? extends StatisticalResult> createStatsResultFromSolr(String url, ObservationType observationType) throws IOException, URISyntaxException {
 		//need some way of determining what type of data and therefor what type of stats result object to create default to unidimensional for now
 		List<StatisticalResult> results=new ArrayList<>();
-//		StatisticalResult statisticalResult=new StatisticalResult();
-		
+		//		StatisticalResult statisticalResult=new StatisticalResult();
+
 		JSONObject resultsj = null;
 		resultsj = JSONRestUtil.getResults(url);
 		JSONArray docs = resultsj.getJSONObject("response").getJSONArray("docs");
-		
-		if(observationType==ObservationType.unidimensional) {
-		for (Object doc : docs) {
-			UnidimensionalResult unidimensionalResult=new UnidimensionalResult();
-			JSONObject phen = (JSONObject) doc;
-			String pValue = phen.getString( GenotypePhenotypeField.P_VALUE );
-			String sex = phen.getString( GenotypePhenotypeField.SEX );
-			String zygosity=phen.getString( GenotypePhenotypeField.ZYGOSITY );
-			String effectSize=phen.getString(GenotypePhenotypeField.EFFECT_SIZE);
-			String phenoCallSummaryId=phen.getString(GenotypePhenotypeField.PCS_ID);
-			
-			
-			//System.out.println("pValue="+pValue);
-			if(pValue!=null) {
-				unidimensionalResult.setId(Integer.parseInt(phenoCallSummaryId));//one id for each document and for each sex
-				unidimensionalResult.setpValue(Double.valueOf(pValue));
-				unidimensionalResult.setZygosityType(ZygosityType.valueOf(zygosity));
-				unidimensionalResult.setEffectSize(new Double(effectSize));
-				unidimensionalResult.setSexType(SexType.valueOf(sex));
-			}
-			results.add(unidimensionalResult);
-		}
-		return results;
-	}
 
-		
-		if(observationType==ObservationType.categorical) {
-			
+		if(observationType==ObservationType.unidimensional) {
 			for (Object doc : docs) {
-                            CategoricalResult catResult=new CategoricalResult();
+				UnidimensionalResult unidimensionalResult=new UnidimensionalResult();
+				JSONObject phen = (JSONObject) doc;
+				String pValue = phen.getString( GenotypePhenotypeField.P_VALUE );
+				String sex = phen.getString( GenotypePhenotypeField.SEX );
+				String zygosity=phen.getString( GenotypePhenotypeField.ZYGOSITY );
+				String effectSize=phen.getString(GenotypePhenotypeField.EFFECT_SIZE);
+				String phenoCallSummaryId=phen.getString(GenotypePhenotypeField.PCS_ID);
+
+
+				//System.out.println("pValue="+pValue);
+				if(pValue!=null) {
+					unidimensionalResult.setId(Integer.parseInt(phenoCallSummaryId));//one id for each document and for each sex
+					unidimensionalResult.setpValue(Double.valueOf(pValue));
+					unidimensionalResult.setZygosityType(ZygosityType.valueOf(zygosity));
+					unidimensionalResult.setEffectSize(new Double(effectSize));
+					unidimensionalResult.setSexType(SexType.valueOf(sex));
+				}
+				results.add(unidimensionalResult);
+			}
+			return results;
+		}
+
+
+		if(observationType==ObservationType.categorical) {
+
+			for (Object doc : docs) {
+				CategoricalResult catResult=new CategoricalResult();
 				JSONObject phen = (JSONObject) doc;
 				//System.out.println("pValue="+pValue);
 				String pValue = phen.getString( GenotypePhenotypeField.P_VALUE );
@@ -406,22 +430,22 @@ System.out.println("solr url for sorting pvalues="+solrUrl);
 				String zygosity=phen.getString( GenotypePhenotypeField.ZYGOSITY );
 				String effectSize=phen.getString(GenotypePhenotypeField.EFFECT_SIZE);
 				String phenoCallSummaryId=phen.getString(GenotypePhenotypeField.PCS_ID);
-				
+
 				//System.out.println("pValue="+pValue);
 				//if(pValue!=null) {
-                                    catResult.setId(Integer.parseInt(phenoCallSummaryId));//one id for each document and for each sex
-					catResult.setpValue(Double.valueOf(pValue));
-					catResult.setZygosityType(ZygosityType.valueOf(zygosity));
-					catResult.setEffectSize(new Double(Double.valueOf(effectSize)));
-					catResult.setSexType(SexType.valueOf(sex)); 
-                                       // System.out.println("adding sex="+SexType.valueOf(sex));
+				catResult.setId(Integer.parseInt(phenoCallSummaryId));//one id for each document and for each sex
+				catResult.setpValue(Double.valueOf(pValue));
+				catResult.setZygosityType(ZygosityType.valueOf(zygosity));
+				catResult.setEffectSize(new Double(Double.valueOf(effectSize)));
+				catResult.setSexType(SexType.valueOf(sex)); 
+				// System.out.println("adding sex="+SexType.valueOf(sex));
 				//}
 				results.add(catResult);
 			}
 			return results;
 		}
 		return results;
-		}
+	}
 
 		
 	private PhenotypeFacetResult createPhenotypeResultFromSolrResponse(
@@ -441,11 +465,29 @@ System.out.println("solr url for sorting pvalues="+solrUrl);
 			OntologyTerm phenotypeTerm = new OntologyTerm();
 			phenotypeTerm.setName(mpTerm);
 			phenotypeTerm.setDescription(mpTerm);
+
 			DatasourceEntityId mpEntity = new DatasourceEntityId();
 			mpEntity.setAccession(mpId);
 			phenotypeTerm.setId(mpEntity);
 			sum.setPhenotypeTerm(phenotypeTerm);
-			sum.setPhenotypeingCenter(phen.getString( GenotypePhenotypeField.PHENOTYPING_CENTER ));
+
+			// check the top level categories
+			JSONArray topLevelMpTermNames = phen.getJSONArray(GenotypePhenotypeField.TOP_LEVEL_MP_TERM_NAME);
+			JSONArray topLevelMpTermIDs = phen.getJSONArray(GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID);
+			List<OntologyTerm> topLevelPhenotypeTerms = new ArrayList<OntologyTerm>();
+			
+			for (int i=0; i<topLevelMpTermNames.size(); i++) {
+				OntologyTerm toplevelTerm = new OntologyTerm();
+				toplevelTerm.setName(topLevelMpTermNames.getString(i));
+				toplevelTerm.setDescription(topLevelMpTermNames.getString(i));
+				DatasourceEntityId tlmpEntity = new DatasourceEntityId();
+				tlmpEntity.setAccession(topLevelMpTermIDs.getString(i));
+				toplevelTerm.setId(tlmpEntity);
+				topLevelPhenotypeTerms.add(toplevelTerm);
+			}			
+			sum.setTopLevelPhenotypeTerms(topLevelPhenotypeTerms);
+			
+			sum.setPhenotypingCenter(phen.getString( GenotypePhenotypeField.PHENOTYPING_CENTER ));
 			if (phen.containsKey( GenotypePhenotypeField.ALLELE_SYMBOL )) {
 				Allele allele = new Allele();
 				allele.setSymbol(phen.getString(GenotypePhenotypeField.ALLELE_SYMBOL ));
@@ -468,7 +510,7 @@ System.out.println("solr url for sorting pvalues="+solrUrl);
 				sum.setGene(gf);
 			}
 			if (phen.containsKey(GenotypePhenotypeField.PHENOTYPING_CENTER )){
-				sum.setPhenotypeingCenter(phen.getString( GenotypePhenotypeField.PHENOTYPING_CENTER ));
+				sum.setPhenotypingCenter(phen.getString( GenotypePhenotypeField.PHENOTYPING_CENTER ));
 			}
 			// GenomicFeature gene=new GenomicFeature();
 			// gene.

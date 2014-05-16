@@ -29,6 +29,7 @@
 	</jsp:attribute>
 	
 
+
 	<jsp:attribute name="header">
 	
 		<!-- CSS Local Imports -->
@@ -56,6 +57,14 @@
 			
 			<div class="inner">
 				
+				
+			<!-- Associations table -->
+			<c:if test="${chart != null}">
+				<!-- phenome chart here -->
+  				<div id="chart${param.phenotyping_center}"></div>
+				<script type="text/javascript">${chart}</script>	
+			</c:if>	
+			
 	<c:set var="count" value="0" scope="page" />
 	<c:forEach var="dataMap" items="${phenotypeCalls}" varStatus="status">
 			<c:set var="count" value="${count + 1}" scope="page"/>
