@@ -1563,6 +1563,7 @@
 				oParams.pf='mp_term^1000 mp_term_synonym^500 mp_definition^100';					
 			}	
     	}
+    	
     	return oParams;
     }
     
