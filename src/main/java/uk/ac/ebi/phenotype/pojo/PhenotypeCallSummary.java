@@ -23,6 +23,8 @@ package uk.ac.ebi.phenotype.pojo;
  * @since February 2012
  */
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -43,7 +45,7 @@ import org.hibernate.annotations.NotFoundAction;
 
 @Entity
 @Table(name = "phenotype_call_summary")
-public class PhenotypeCallSummary {
+public class PhenotypeCallSummary implements StatisticalSignificance {
 
 	@Id
 	@GeneratedValue
@@ -90,10 +92,10 @@ public class PhenotypeCallSummary {
 	protected OntologyTerm phenotypeTerm;
 	
 	@Column(name = "p_value")
-	protected float pValue = 0;
+	protected double pValue = 0;
 
 	@Column(name = "effect_size")
-	protected float effectSize = 0;
+	protected double effectSize = 0;
 	
 	@NotFound(action=NotFoundAction.IGNORE)
 	@OneToOne
@@ -132,6 +134,9 @@ public class PhenotypeCallSummary {
 	@Transient
 	private double colorIndex;
 	
+	@Transient
+	private List<OntologyTerm> topLevelPhenotypeTerms;
+	
 	public PhenotypeCallSummary() {
 		
 	}
@@ -140,7 +145,7 @@ public class PhenotypeCallSummary {
 		return phenotypingCenter;
 	}
 	
-	public void setPhenotypeingCenter(String phenotypingCenter){
+	public void setPhenotypingCenter(String phenotypingCenter){
 		this.phenotypingCenter = phenotypingCenter;
 	}
 	
@@ -343,29 +348,43 @@ public class PhenotypeCallSummary {
 	/**
 	 * @return the pValue
 	 */
-	public float getpValue() {
+	public double getpValue() {
 		return pValue;
 	}
 
 	/**
 	 * @param pValue the pValue to set
 	 */
-	public void setpValue(float pValue) {
+	public void setpValue(double pValue) {
 		this.pValue = pValue;
 	}
 
 	/**
 	 * @return the effectSize
 	 */
-	public float getEffectSize() {
+	public double getEffectSize() {
 		return effectSize;
 	}
 
 	/**
 	 * @param effectSize the effectSize to set
 	 */
-	public void setEffectSize(float effectSize) {
+	public void setEffectSize(double effectSize) {
 		this.effectSize = effectSize;
+	}	
+	
+	/**
+	 * @return the topLevelPhenotypeTerms
+	 */
+	public List<OntologyTerm> getTopLevelPhenotypeTerms() {
+		return topLevelPhenotypeTerms;
+	}
+
+	/**
+	 * @param topLevelPhenotypeTerms the topLevelPhenotypeTerms to set
+	 */
+	public void setTopLevelPhenotypeTerms(List<OntologyTerm> topLevelPhenotypeTerms) {
+		this.topLevelPhenotypeTerms = topLevelPhenotypeTerms;
 	}
 
 	/**

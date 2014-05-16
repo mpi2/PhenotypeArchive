@@ -1007,6 +1007,8 @@ CREATE TABLE phenotype_call_summary (
     KEY parameter_call_idx (parameter_id),
     KEY procedure_call_idx (procedure_id),
     KEY pipeline_call_idx (pipeline_id),
+    KEY organisation_idx (pipeline_id, organisation_id),
+	KEY allele_idx (allele_acc, allele_db_id),
     KEY mp_call_idx (mp_acc)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
