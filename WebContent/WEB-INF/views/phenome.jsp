@@ -3,7 +3,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <t:genericpage>
-	<jsp:attribute name="title">Phenome Overview for ${param.phenotyping_center}</jsp:attribute>
+	<jsp:attribute name="title">Phenome Overview for all ${param.phenotyping_center} Strains (${param.pipeline_stable_id})</jsp:attribute>
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; Phenome &raquo; ${param.phenotyping_center}</jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="gene-node no-sidebars small-header"></jsp:attribute>
 	<jsp:attribute name="addToFooter">
@@ -45,7 +45,7 @@
 			<div class="block">
 				<div class="content">
 					<div class="node node-gene">
-						<h1 class="title" id="top">${param.phenotyping_center}&nbsp;&nbsp; </h1>
+						<h1 class="title" id="top">Significant MP calls for ${param.phenotyping_center} Strains (${param.pipeline_stable_id})&nbsp;&nbsp; </h1>
 
 		<!--  Phenotype Associations Panel -->
 		<div class="section">

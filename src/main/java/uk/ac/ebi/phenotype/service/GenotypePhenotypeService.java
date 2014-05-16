@@ -615,14 +615,15 @@ System.out.println("solr url for sorting pvalues="+solrUrl);
 
         public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, List<String> paramSetForProject){
             GeneRowForHeatMap row=new GeneRowForHeatMap(accession);
+            List<HeatMapCell> results=new ArrayList<HeatMapCell>();
 //search by gene and a list of params            
-//http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select/?q=marker_accession_id:%22MGI:104874%22&fq=parameter_stable_id:(ESLIM_005_001_701%20OR%20ESLIM_021_001_003)&rows=10000000&version=2.2&start=0&indent=on&wt=json
-        //or search on gene and then loop through params to add the results if available order by ascending p value means we can just pick off the first entry for that param
+      //or search on gene and then loop through params to add the results if available order by ascending p value means we can just pick off the first entry for that param
             //http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select/?q=marker_accession_id:%22MGI:104874%22&rows=10000000&version=2.2&start=0&indent=on&wt=json
             
-            Map<String,String> paramMap=new HashMap<>();//map to contain parameters with their associated status or pvalue as a string
+            Map<String,HeatMapCell> paramMap=new HashMap<>();//map to contain parameters with their associated status or pvalue as a string
             for(String paramId: paramSetForProject){
-                paramMap.put(paramId, "");
+                System.out.println("adding param to paramMap="+paramId);
+                paramMap.put(paramId,null);
             }
             
            SolrQuery q = new SolrQuery()
@@ -631,20 +632,27 @@ System.out.println("solr url for sorting pvalues="+solrUrl);
 		QueryResponse response=null;
             try {
                 response = solr.query(q);
+                results = response.getBeans(HeatMapCell.class);
+            for(HeatMapCell cell:results){
+                //System.out.println(doc.getFieldValues("p_value"));
+               
+                String paramStableId=cell.getParameterStableId();
+                System.out.println("comparing|"+paramStableId+"| with |"+cell.getParameterStableId()+"|");
+                //if(paramMap.containsKey(cell.getParameterStableId())){
+                System.out.println("cell mp Term name="+cell.getMpTermName());
+                System.out.println("cell p value="+cell.getpValue());
+                   System.out.println(cell.getpValue()+"found");
+                   //if(paramMap.get(paramStableId)==null){//not set already so set the value - first value as ordered by pValue is the one to get - ignore all others
+                       paramMap.put(paramStableId, cell);
+                   //}
+                //}
+            }
+            row.setParamToCellMap(paramMap);
             } catch (SolrServerException ex) {
                 Logger.getLogger(GenotypePhenotypeService.class.getName()).log(Level.SEVERE, null, ex);
             }
-            SolrDocumentList results = response.getResults();
-            for(SolrDocument doc:results){
-                //System.out.println(doc.getFieldValues("p_value"));
-                if(paramMap.containsKey(doc.getFieldValue(GenotypePhenotypeField.PARAMETER_STABLE_ID))){
-                    HeatMapCell cell=new HeatMapCell();
-                    String pvalue=(String)doc.getFieldValue("p_value");
-                    System.out.println(pvalue);
-                    cell.setpValue(new Float((String)doc.getFieldValue(pvalue)));
-                    cell.setMpTermName((String)doc.getFieldValue("mp_term_name"));   
-                }
-            }
+            
+            
             return row;
         }
 

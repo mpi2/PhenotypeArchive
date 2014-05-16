@@ -10,7 +10,20 @@
   </jsp:attribute>
 	
 	<jsp:body>
-		Heat Map as table here	
+		Heat Map as table here!!
+                <table>
+                <c:forEach items="${geneRows}" var="row">
+                <tr><td>${row.accession}</td>
+                    
+                    <c:forEach items="${parameters}" var="paramKey">
+                        
+                        <td>${paramHeader} ${row.paramToCellMap[paramKey].mpTermName}</td>
+                    </c:forEach>
+                </tr>
+                </c:forEach>
+                
+                </table>
+                
 	</jsp:body>
 	
 </t:genericpage>
