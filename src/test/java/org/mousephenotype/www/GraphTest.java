@@ -104,7 +104,7 @@ public class GraphTest {
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     
     // These constants define the maximum number of iterations for each given test. -1 means iterate over all.
-    public final int MAX_GENE_TEST_PAGE_COUNT = 1;                             // -1 means test all pages.
+    public final int MAX_GENE_TEST_PAGE_COUNT = 10;                             // -1 means test all pages.
     private final int TIMEOUT_IN_SECONDS = 4;
     private final int THREAD_WAIT_IN_MILLISECONDS = 1000;
     
@@ -322,7 +322,7 @@ public class GraphTest {
         int i = 0;
         for (String geneId : geneIds) {
 //if (allGenePagesCount == 0) geneId = "MGI:104874";      // undimensional
-if (allGenePagesCount == 0) geneId = "MGI:2384936";     // categorical
+//if (allGenePagesCount == 0) geneId = "MGI:2384936";     // categorical
 //if (allGenePagesCount == 2) geneId = "MGI:1924285";     // another unidimensional
 //if (allGenePagesCount == 2) timeseriesGraphUrl = "https://dev.mousephenotype.org/data/charts?accession=MGI:104874&allele_accession=EUROALL:19&parameter_stable_id=ESLIM_004_001_002&zygosity=heterozygote&phenotyping_center=WTSI";
             if ((max_gene_test_page_count != -1) && (allGenePagesCount >= max_gene_test_page_count)) {
