@@ -32,7 +32,7 @@
         <!-- Information about the SOLR document -->
         <field name="_version_"                   type="long"   indexed="true" stored="true"/>
 		<field name="id"                          type="int"    indexed="true" stored="true" multiValued="false" required="true"/>
-        <field name="unique_id"                   type="int"    indexed="true" stored="true" multiValued="false" required="true"/>
+        <field name="unique_id"                   type="string" indexed="true" stored="true" multiValued="false" required="true"/>
         <field name="data_type"                   type="string" indexed="true" stored="true" multiValued="false" />
 
         <!-- Information about the data being processed -->
