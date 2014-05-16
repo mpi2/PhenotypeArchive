@@ -90,7 +90,7 @@
 		        			var aVals = prFacets[f].split('___');
 		        			var pipeName = aVals[0];
 		        			var procedure_name = aVals[1];
-		        			var proSid = aVals[2];
+		        			var proSid = aVals[2].replace(/_\d+$/, '*');
 		        			var count = prFacets[f+1];
 		        			
 		        			//
