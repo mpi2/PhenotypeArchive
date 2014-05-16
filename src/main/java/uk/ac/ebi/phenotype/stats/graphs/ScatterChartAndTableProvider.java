@@ -49,7 +49,7 @@ public class ScatterChartAndTableProvider {
 			    
 			    +"     },"
 			      +"   title: {"
-			      +"       text: ' "+parameter.getName() 
+			      +"       text: ' "+parameter.getName()
 			      +"'    },"
 			    +"     subtitle: {"
 			     +"        text: ' "+parameter.getStableId()+" ' "
@@ -102,7 +102,7 @@ public class ScatterChartAndTableProvider {
 			          +"   }, "
 			    +"     tooltip: { "
 			   +"          formatter: function () { "
-			   +"              return '<b>' + this.series.name + '</b><br/>' + Highcharts.dateFormat('%e %b %Y', this.x) + ': ' + this.y + ' pg '; "
+			   +"              return '<b>' + this.series.name + '</b><br/>' + Highcharts.dateFormat('%e %b %Y', this.x) + ': ' + this.y + ' "+parameter.getUnit()+" '; "
 			   +"          } "
 			   +"      }, "
 			    +"     series: "+

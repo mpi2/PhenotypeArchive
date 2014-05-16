@@ -27,10 +27,12 @@ public class StatisticalResultBean {
 	private String status;
 	private String method;
 	private String controlSex; // if relevant
+	private String zygosity;
 	int maleControls; 
 	int maleMutants;
 	int femaleControls;
 	int femaleMutants;
+	String metadataGroup;
 	
 	private double colorIndex;
 	
@@ -44,8 +46,10 @@ public class StatisticalResultBean {
 			double pValue, Double effectSize,
 			String status, String method,
 			String controlSex, 
+			String zygosity,
 			int maleControls, int maleMutants,
-			int femaleControls, int femaleMutants) {
+			int femaleControls, int femaleMutants,
+			String metadataGroup) {
 		
 		super();
 		this.pValue = pValue;
@@ -53,10 +57,12 @@ public class StatisticalResultBean {
 		this.status = status;
 		this.method = method;
 		this.controlSex = controlSex;
+		this.zygosity = zygosity;
 		this.maleControls = maleControls;
 		this.maleMutants = maleMutants;
 		this.femaleControls = femaleControls;
 		this.femaleMutants = femaleMutants;
+		this.metadataGroup = metadataGroup;
 		
 	}
 	
@@ -121,6 +127,20 @@ public class StatisticalResultBean {
 	 */
 	public void setControlSex(String controlSex) {
 		this.controlSex = controlSex;
+	}	
+	
+	/**
+	 * @return the zygosity
+	 */
+	public String getZygosity() {
+		return zygosity;
+	}
+
+	/**
+	 * @param zygosity the zygosity to set
+	 */
+	public void setZygosity(String zygosity) {
+		this.zygosity = zygosity;
 	}
 
 	/**
@@ -193,6 +213,20 @@ public class StatisticalResultBean {
 		this.colorIndex = colorIndex;
 	}
 	
+	/**
+	 * @return the metadataGroup
+	 */
+	public String getMetadataGroup() {
+		return metadataGroup;
+	}
+
+	/**
+	 * @param metadataGroup the metadataGroup to set
+	 */
+	public void setMetadataGroup(String metadataGroup) {
+		this.metadataGroup = metadataGroup;
+	}
+
 	/**
 	 * Return a -Log10 value to generate a scale
 	 * @return -Math.log10(pValue)

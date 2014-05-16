@@ -50,6 +50,8 @@ public interface PhenotypeCallSummaryDAO extends HibernateDAO {
 	
 	public List<PhenotypeCallSummary> getPhenotypeCallByAccession(String accId);
 
+	public List<PhenotypeCallSummary> getPhenotypeCallByPhenotypingCenterAndPipeline(String phenotypingCenter, String pipelineStableId);
+
 	/**
 	 * Find all phenotype call summaries by MP accession id and external_db_id
 	 * @param accId the MP accession ID associated to the call

@@ -3,6 +3,7 @@ package uk.ac.ebi.phenotype.stats.graphs;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.WordUtils;
@@ -63,12 +64,12 @@ public class PhenomeChartProvider {
 			    +"             text: '"+"-Log10(p-value)"+"' "
 			    +"           }, "
 			    + "plotLines : [{"
-				+ "value : " + -Math.log(minimalPValue) + ","
-				+ "color : 'green', "
-				+ "dashStyle : 'shortdash',"
-				+ "width : 2,"
-				+ "label : { text : 'Significance threshold "+minimalPValue+"' }"
-				+ "}]"
+			    + "value : " + -Math.log10(minimalPValue) + ","
+			    + "color : 'green', "
+			    + "dashStyle : 'shortdash',"
+			    + "width : 2,"
+			    + "label : { text : 'Significance threshold " + minimalPValue + "' }"
+			    + "}]"
 			    +"       }, "
 			    +"      credits: { "
 			    +"         enabled: false "
@@ -100,7 +101,7 @@ public class PhenomeChartProvider {
 	}
 
 	public String generatePhenomeChart(
-			String alleleAccession, Map<String, StatisticalResultBean> statisticalResults,
+			String alleleAccession, Map<String, List<StatisticalResultBean>> statisticalResults,
 			double minimalPvalue,
 			Pipeline pipeline) throws IOException,
 			URISyntaxException {
@@ -108,9 +109,9 @@ public class PhenomeChartProvider {
 		JSONArray series=new JSONArray();
 
 		JSONArray categories = new JSONArray();
-		
+
 		try {
-			
+
 			int index = 0;
 
 			// Create a statistical series for every procedure in the pipeline
@@ -131,7 +132,7 @@ public class PhenomeChartProvider {
 
 				JSONObject tooltip=new JSONObject();
 				//tooltip.put("headerFormat", "<b>{point.name}</b><br>");
-				tooltip.put("pointFormat", "<b>{point.name}</b><br/>procedure: {series.name}<br/>p-value: {point.pValue}");
+				tooltip.put("pointFormat", "<b>{point.name}</b><br/>procedure: {series.name}<br/>sex: {point.controlSex}<br/>zygosity: {point.zygosity}<br/>mutants: {point.femaleMutants}f:{point.maleMutants}m<br/>metadata_group: {point.metadataGroup}<br/>p-value: {point.pValue}");
 				scatterJsonObject.put("tooltip", tooltip);
 				scatterJsonObject.put("type", "scatter");
 				scatterJsonObject.put("name", procedure.getName());
@@ -151,18 +152,38 @@ public class PhenomeChartProvider {
 						        y: 5
 						    }]		*/	
 
-					if (statisticalResults.containsKey(parameter.getStableId()) && statisticalResults.get(parameter.getStableId()).getIsSuccessful() ) {
+					if (statisticalResults.containsKey(parameter.getStableId())) {
 
-						categories.put(parameter.getStableId());
-						
-						JSONObject dataPoint=new JSONObject();
-						dataPoint.put("name", parameter.getName());
-						dataPoint.put("stableId", parameter.getStableId());
-						dataPoint.put("x", index);
-						dataPoint.put("y", statisticalResults.get(parameter.getStableId()).getLogValue());
-						dataPoint.put("pValue", statisticalResults.get(parameter.getStableId()).getpValue());
-						dataArray.put(dataPoint);
-						index++;
+						int resultIndex = 0;
+						for (StatisticalResultBean statsResult: statisticalResults.get(parameter.getStableId())) {
+
+							if ( statsResult.getIsSuccessful() ) {
+
+								// create the point first
+								JSONObject dataPoint=new JSONObject();
+								dataPoint.put("name", parameter.getName());
+								dataPoint.put("stableId", parameter.getStableId());
+								dataPoint.put("x", index);
+								dataPoint.put("y", statsResult.getLogValue());
+								dataPoint.put("pValue", statsResult.getpValue());
+								dataPoint.put("controlSex", statsResult.getControlSex());
+								dataPoint.put("zygosity", statsResult.getZygosity());
+								dataPoint.put("femaleMutants", statsResult.getFemaleMutants());
+								dataPoint.put("maleMutants", statsResult.getMaleMutants());
+								dataPoint.put("metadataGroup", statsResult.getMetadataGroup());
+								dataArray.put(dataPoint);
+
+
+								if (resultIndex == 0) {
+									categories.put(parameter.getStableId());
+									index++;
+								}
+
+								resultIndex++;
+
+
+							}
+						}
 					}
 
 				}
@@ -172,7 +193,7 @@ public class PhenomeChartProvider {
 					series.put(scatterJsonObject);
 				}
 			}
-			
+
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -9,13 +9,6 @@
 	<jsp:attribute name="header">
 	<style>
 	
-	/*.pagination {width:450px;}
-	.pagination, 
-	.pagination a, 
-	.pagination span { white-space:nowrap; font-size:0.95em; border:none; padding:0; margin:0;}
-	.pagination span.page-info { white-space:nowrap; border:none; padding:0; margin:0;}
-	.mpi2-grid {border: 0;}
-	div.last-search{margin-top:0;}*/
 	</style>
 	<link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" />
 	</jsp:attribute>
@@ -182,9 +175,10 @@
    				else if ( typeof oHashParams.q == 'undefined' ){
    					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');	    					
    				}
-   				
-   				
+   				   				
    				if ( MPI2.searchAndFacetConfig.widgetOpen ){
+   					
+   				
    					MPI2.searchAndFacetConfig.widgetOpen = false;
    						    				
     				// search by keyword (user's input) has no fq in url when hash change is detected
@@ -216,7 +210,7 @@
     				//console.log('back button');	    				
     				//console.log(oHashParams);
     				    			
-    				var refreshFacet = oHashParams.coreName ? false : true;	    				
+    				var refreshFacet = oHashParams.coreName ? false : true;    				
 					$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, refreshFacet);
     				
     				$.fn.loadDataTable(oHashParams);

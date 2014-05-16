@@ -690,7 +690,7 @@
 				//fqStr = fqStr.replace(' AND ontology_subset:*', '');			
 			}
 		}
-				
+		fqStr = fqStr.replace(/^\s*AND\s*/,'');
 		return decodeURI(fqStr);	
 	}
 	
@@ -937,10 +937,12 @@
 				
 				if ( fqField == 'procedure_stable_id' ){
 					var aV = value.split('___');
-					value = aV[1]; // procedure stable id					
+					value = aV[1]; // procedure stable id	
+					aStr.push('(' + fqField + ':' + value + ')');
 				}						
-				
-				aStr.push('(' + fqField + ':"' + value + '")');				
+				else {
+					aStr.push('(' + fqField + ':"' + value + '")');				
+				}
 			});
 			
 			var fqStr = aStr.join(' AND ');			
@@ -1269,10 +1271,10 @@
     	
     	//console.log(facet + ' ' + fqStr);
     	 
-		// unhightlight/uncheck all facets
+		// unhightlight/uncheck all facets: recompose filter (easier than incremental or decremental)
         $.fn.removeFacetFilter();
         
-		var pat = '(\\b\\w*\\b):"([a-zA-Z0-9_\/ ]*)"';		
+		var pat = '(\\b\\w*\\b):"?([a-zA-Z0-9_\/ ]*)"?';		
 		var regex = new RegExp(pat, "gi");		    	
 		var result;		
 		var wantStr;
@@ -1563,6 +1565,7 @@
 				oParams.pf='mp_term^1000 mp_term_synonym^500 mp_definition^100';					
 			}	
     	}
+    	
     	return oParams;
     }
     

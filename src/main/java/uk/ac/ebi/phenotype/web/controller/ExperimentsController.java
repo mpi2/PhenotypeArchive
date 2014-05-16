@@ -120,14 +120,14 @@ public class ExperimentsController {
 		Pipeline pipeline = pipelineDao.getPhenotypePipelineByStableId(pipelineStableId);
 		
 		List<Map<String,String>> mapList =  null;
-		Map<String, StatisticalResultBean> pvalues = null;
+		Map<String, List<StatisticalResultBean>> pvaluesMap = null;
 		
 		
 		try {
 			mapList = observationService.getDistinctParameterListByPipelineAlleleCenter(pipelineStableId, alleleAccession, phenotypingCenter, null);
 			
 			// get all p-values for this allele/center/pipeline
-			 pvalues = statisticalResultDAO.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(
+			 pvaluesMap = statisticalResultDAO.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(
 						alleleAccession, phenotypingCenter, pipelineStableId);
 			
 		} catch (SolrServerException e) {
@@ -137,16 +137,16 @@ public class ExperimentsController {
 		
 		ColorCodingPalette colorCoding = new ColorCodingPalette();
 		double minimalPValue = 1.00E-4;
-		colorCoding.generateColors(pvalues, 9, 1, minimalPValue);
+		colorCoding.generateColors(pvaluesMap, 9, 1, minimalPValue);
 		
 		String chart = phenomeChartProvider.generatePhenomeChart(
 				alleleAccession, 
-				pvalues,
+				pvaluesMap,
 				minimalPValue,
 				pipeline);
 		
 		model.addAttribute("mapList", mapList);
-		model.addAttribute("pvalues", pvalues);
+		model.addAttribute("pvaluesMap", pvaluesMap);
 		model.addAttribute("palette", colorCoding.getPalette());
 		model.addAttribute("chart", chart);
 		model.addAttribute("phenotyping_center", phenotypingCenter);

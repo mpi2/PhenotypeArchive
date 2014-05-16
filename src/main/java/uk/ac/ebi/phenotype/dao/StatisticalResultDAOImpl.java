@@ -64,27 +64,39 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 	@Override
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = false)
-	public Map<String, StatisticalResultBean> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(
+	public Map<String, List<StatisticalResultBean>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(
 			String alleleAccession, String phenotypingCenter,
 			String pipelineStableId) {
 		
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
-		Map<String, StatisticalResultBean> results = new HashMap<String, StatisticalResultBean>();
+		Map<String, List<StatisticalResultBean>> results = new HashMap<String, List<StatisticalResultBean>>();
 		
-		// get all categorical parameter 
+		/* 
+		 * get all categorical parameter:
+		 *   - ordered by parameter
+		 *   - one for each sex
+		 *   - with the most animals
+		 *   - with success first
+		 */
+		
 		String query = 
-				"SELECT param.stable_id AS param_stable_id,"
+				"SELECT param.stable_id AS param_stable_id, "
 				+ "c.p_value AS p_value, c.effect_size AS effect_size, "
 				+ "c.status AS status, c.statistical_method AS statistical_method, " 
-				+ "c.control_sex, c.male_controls, c.male_mutants, c.female_controls, c.female_mutants "
+				+ "c.control_sex AS control_sex, c.experimental_zygosity, "
+				+ "c.male_controls, c.male_mutants, c.female_controls, c.female_mutants, "
+				+ "c.metadata_group "
 				+ "FROM stats_categorical_results c JOIN phenotype_parameter param "
 				+ "ON param.id = c.parameter_id JOIN phenotype_pipeline pip "
 				+ "ON pip.id = c.pipeline_id JOIN biological_model_allele bma "
 				+ "ON bma.biological_model_id = c.experimental_id JOIN organisation o "
 				+ "ON o.id = c.organisation_id "
 				+ "WHERE pip.stable_id = ? AND o.name = ? AND bma.allele_acc = ? "
-				+ "ORDER by param.stable_id asc, c.status asc, c.p_value desc, c.male_mutants asc, c.female_mutants asc";
+				+ "ORDER by param.stable_id asc, c.status asc, c.p_value desc, "
+				+ "CASE c.control_sex "
+				+ " WHEN 'male' THEN c.male_mutants "
+				+ " WHEN 'female' THEN c.female_mutants END ASC";
 
 		try (Connection connection = getConnection()) {
 			statement = connection.prepareStatement(query);
@@ -93,17 +105,31 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 			statement.setString(3, alleleAccession);
 			resultSet = statement.executeQuery();
 			while (resultSet.next()) {
-				results.put(resultSet.getString("param_stable_id"), 
+				
+				String parameterStableId = resultSet.getString("param_stable_id");
+				List<StatisticalResultBean> lb = null;
+				
+				if (results.containsKey(parameterStableId)) {
+					lb = results.get(parameterStableId);
+				} else {
+					lb = new ArrayList<StatisticalResultBean>();
+					results.put(parameterStableId, lb);
+				} 
+				
+				lb.add(
 							new StatisticalResultBean(
 									resultSet.getDouble("p_value"), 
 									resultSet.getDouble("effect_size"),
 									resultSet.getString("status"),
 									resultSet.getString("statistical_method"),
 									resultSet.getString("control_sex"),
+									resultSet.getString("experimental_zygosity"),
 									resultSet.getInt("male_controls"),
 									resultSet.getInt("male_mutants"),
 									resultSet.getInt("female_controls"),
-									resultSet.getInt("female_mutants")));
+									resultSet.getInt("female_mutants"),
+									resultSet.getString("metadata_group"))
+					 );
 			}
 		}catch (SQLException e) {
 			e.printStackTrace();
@@ -115,7 +141,9 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 				+ "c.null_test_significance AS p_value, 0 AS effect_size, "
 				+ "c.status AS status, c.statistical_method AS statistical_method, "
 				// note that control_sex has no meaning in this case
-				+ "'male' as control_sex, c.male_controls, c.male_mutants, c.female_controls, c.female_mutants "
+				+ "'male' as control_sex, c.experimental_zygosity, "
+				+ "c.male_controls, c.male_mutants, c.female_controls, c.female_mutants, "
+				+ "c.metadata_group "
 				+ "FROM stats_unidimensional_results c JOIN phenotype_parameter param "
 				+ "ON param.id = c.parameter_id JOIN phenotype_pipeline pip "
 				+ "ON pip.id = c.pipeline_id JOIN biological_model_allele bma "
@@ -123,26 +151,47 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 				+ "ON o.id = c.organisation_id "
 				+ "WHERE pip.stable_id = ? AND o.name = ? AND bma.allele_acc = ? "
 				//+ "ORDER by param.stable_id asc, c.null_test_significance desc, c.male_mutants desc, c.female_mutants desc";
-				+ "ORDER by param.stable_id asc, c.status asc, c.male_mutants asc, c.female_mutants asc";
+				+ "ORDER by param.stable_id asc, c.status asc, c.null_test_significance desc, c.male_mutants asc, c.female_mutants asc";
+		
+		System.out.println(query);
 		
 		try (Connection connection = getConnection()) {
+			
 			statement = connection.prepareStatement(query);
 			statement.setString(1, pipelineStableId);
 			statement.setString(2, phenotypingCenter);
 			statement.setString(3, alleleAccession);
+			
 			resultSet = statement.executeQuery();
+			
 			while (resultSet.next()) {
-				results.put(resultSet.getString("param_stable_id"), 
+				
+				
+				String parameterStableId = resultSet.getString("param_stable_id");
+				List<StatisticalResultBean> lb = null;
+				
+				if (results.containsKey(parameterStableId)) {
+					lb = results.get(parameterStableId);
+				} else {
+					lb = new ArrayList<StatisticalResultBean>();
+					results.put(parameterStableId, lb);
+				} 
+				
+				lb.add(
 							new StatisticalResultBean(
 									resultSet.getDouble("p_value"), 
 									resultSet.getDouble("effect_size"),
 									resultSet.getString("status"),
 									resultSet.getString("statistical_method"),
-									resultSet.getString("control_sex"),
+									"both",
+									resultSet.getString("experimental_zygosity"),
 									resultSet.getInt("male_controls"),
 									resultSet.getInt("male_mutants"),
 									resultSet.getInt("female_controls"),
-									resultSet.getInt("female_mutants")));
+									resultSet.getInt("female_mutants"),
+									resultSet.getString("metadata_group"))
+					 );
+
 			}
 		}catch (SQLException e) {
 			e.printStackTrace();
