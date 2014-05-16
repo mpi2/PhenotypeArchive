@@ -72,7 +72,7 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 	private String dataSourceName;//to hold the name of the origin of the data e.g. Europhenome or WTSI Mouse Genetics Project
 	private String graphUrl;
 	private Pipeline pipeline;
-        private Float pValue;
+    private Double pValue;
 	
 	public PhenotypeRow(){};
 
@@ -109,10 +109,10 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 			
 	}
 		
-        public void setPValue(Float pValue) {
+        public void setPValue(Double pValue) {
             this.pValue=pValue;
         }
-        public Float getPrValue(){
+        public Double getPrValue(){
             return this.pValue;
         }
         
