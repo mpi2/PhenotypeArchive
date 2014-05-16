@@ -18,17 +18,15 @@ package uk.ac.ebi.phenotype.web.pojo;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 
 import javax.annotation.Resource;
-import org.apache.commons.lang.WordUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.ac.ebi.phenotype.pojo.Allele;
-import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Parameter;
@@ -72,7 +70,7 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 	private String dataSourceName;//to hold the name of the origin of the data e.g. Europhenome or WTSI Mouse Genetics Project
 	private String graphUrl;
 	private Pipeline pipeline;
-        private Float pValue;
+    private Double pValue;
 	
 	public PhenotypeRow(){};
 
@@ -109,10 +107,10 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 			
 	}
 		
-        public void setPValue(Float pValue) {
+        public void setPValue(Double pValue) {
             this.pValue=pValue;
         }
-        public Float getPrValue(){
+        public Double getPrValue(){
             return this.pValue;
         }
         

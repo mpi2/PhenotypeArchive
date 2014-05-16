@@ -139,7 +139,7 @@ public class ExperimentsController {
 		double minimalPValue = 1.00E-4;
 		colorCoding.generateColors(pvaluesMap, 9, 1, minimalPValue);
 		
-		String chart = phenomeChartProvider.generatePhenomeChart(
+		String chart = phenomeChartProvider.generatePvaluesOverviewChart(
 				alleleAccession, 
 				pvaluesMap,
 				minimalPValue,

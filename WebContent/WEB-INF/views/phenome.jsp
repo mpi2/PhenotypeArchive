@@ -3,7 +3,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <t:genericpage>
-	<jsp:attribute name="title">Phenome Overview for ${param.phenotyping_center}</jsp:attribute>
+	<jsp:attribute name="title">Phenome Overview for all ${param.phenotyping_center} Strains (${param.pipeline_stable_id})</jsp:attribute>
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; Phenome &raquo; ${param.phenotyping_center}</jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="gene-node no-sidebars small-header"></jsp:attribute>
 	<jsp:attribute name="addToFooter">
@@ -29,6 +29,7 @@
 	</jsp:attribute>
 	
 
+
 	<jsp:attribute name="header">
 	
 		<!-- CSS Local Imports -->
@@ -44,7 +45,7 @@
 			<div class="block">
 				<div class="content">
 					<div class="node node-gene">
-						<h1 class="title" id="top">${param.phenotyping_center}&nbsp;&nbsp; </h1>
+						<h1 class="title" id="top">Significant MP calls for ${param.phenotyping_center} Strains (${param.pipeline_stable_id})&nbsp;&nbsp; </h1>
 
 		<!--  Phenotype Associations Panel -->
 		<div class="section">
@@ -56,6 +57,14 @@
 			
 			<div class="inner">
 				
+				
+			<!-- Associations table -->
+			<c:if test="${chart != null}">
+				<!-- phenome chart here -->
+  				<div id="chart${param.phenotyping_center}"></div>
+				<script type="text/javascript">${chart}</script>	
+			</c:if>	
+			
 	<c:set var="count" value="0" scope="page" />
 	<c:forEach var="dataMap" items="${phenotypeCalls}" varStatus="status">
 			<c:set var="count" value="${count + 1}" scope="page"/>
