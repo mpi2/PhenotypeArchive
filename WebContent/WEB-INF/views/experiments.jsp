@@ -90,7 +90,7 @@
 							<th class="headerSort">Parameter</th>
 							<th class="headerSort">Zygosity</th>
 							<th class="headerSort">Mutants</th>
-							<th class="headerSort">P-value</th>
+							<th class="headerSort">P Value</th>
 							<th class="headerSort">Status</th>
 							<th class="headerSort">Graph</th>
 						</tr>

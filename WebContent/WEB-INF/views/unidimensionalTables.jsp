@@ -8,7 +8,7 @@
 			<th>Mean</th>
 			<th>SD</th>
 			<th>Count</th>
-			<th>pValue</th>
+			<th>P Value</th>
 			<th>Effect Size</th>
 		</tr></thead>
 		<tbody>									

@@ -63,6 +63,10 @@
     <bean id="biologicalModelDAO" class="uk.ac.ebi.phenotype.dao.BiologicalModelDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
+    
+    <bean id="secondaryProjectDAO" class="uk.ac.ebi.phenotype.dao.SecondaryProjectDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+    </bean>
 
     <bean id="observationDAO" class="uk.ac.ebi.phenotype.dao.ObservationDAOImpl">
         <constructor-arg ref="sessionFactory" />

@@ -384,8 +384,7 @@ public class CategoricalChartAndTableProvider {
 				+ ", chart: { renderTo: 'chart"
 				+ chartId
 				+ "', type: 'column' }, title: { text: '"
-				+ WordUtils.capitalize(title)
-				+ "' }, credits: { enabled: false }, subtitle: { text: '"
+				+ title				+ "' }, credits: { enabled: false }, subtitle: { text: '"
 				+  parameter.getStableId()
 				+ "', x: -20 }, xAxis: { categories: "
 				+ xAxisCategoriesArray

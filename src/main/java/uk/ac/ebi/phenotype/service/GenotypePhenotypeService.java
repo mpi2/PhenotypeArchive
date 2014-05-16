@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -44,6 +46,7 @@ import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
+import uk.ac.ebi.phenotype.heatmap.*;
 
 
 @Service
@@ -610,4 +613,40 @@ System.out.println("solr url for sorting pvalues="+solrUrl);
 	 * End of method for PhenotypeCallSummarySolrImpl
 	 */
 
+        public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, List<String> paramSetForProject){
+            GeneRowForHeatMap row=new GeneRowForHeatMap(accession);
+//search by gene and a list of params            
+//http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select/?q=marker_accession_id:%22MGI:104874%22&fq=parameter_stable_id:(ESLIM_005_001_701%20OR%20ESLIM_021_001_003)&rows=10000000&version=2.2&start=0&indent=on&wt=json
+        //or search on gene and then loop through params to add the results if available order by ascending p value means we can just pick off the first entry for that param
+            //http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select/?q=marker_accession_id:%22MGI:104874%22&rows=10000000&version=2.2&start=0&indent=on&wt=json
+            
+            Map<String,String> paramMap=new HashMap<>();//map to contain parameters with their associated status or pvalue as a string
+            for(String paramId: paramSetForProject){
+                paramMap.put(paramId, "");
+            }
+            
+           SolrQuery q = new SolrQuery()
+		.setQuery(GenotypePhenotypeField.MARKER_ACCESSION_ID + ":\"" + accession+"\"").setSort(GenotypePhenotypeField.P_VALUE, SolrQuery.ORDER.asc)
+		.setRows(10000);
+		QueryResponse response=null;
+            try {
+                response = solr.query(q);
+            } catch (SolrServerException ex) {
+                Logger.getLogger(GenotypePhenotypeService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            SolrDocumentList results = response.getResults();
+            for(SolrDocument doc:results){
+                //System.out.println(doc.getFieldValues("p_value"));
+                if(paramMap.containsKey(doc.getFieldValue(GenotypePhenotypeField.PARAMETER_STABLE_ID))){
+                    HeatMapCell cell=new HeatMapCell();
+                    String pvalue=(String)doc.getFieldValue("p_value");
+                    System.out.println(pvalue);
+                    cell.setpValue(new Float((String)doc.getFieldValue(pvalue)));
+                    cell.setMpTermName((String)doc.getFieldValue("mp_term_name"));   
+                }
+            }
+            return row;
+        }
+
+    
 }

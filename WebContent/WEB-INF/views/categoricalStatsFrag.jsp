@@ -24,7 +24,7 @@
 												<th>${categoryObject.category }</th>
 										</c:forEach>
 										<th>P Value</th>
-										<th>Max Effect</th>
+										<th>Effect Size</th>
 										</tr>	
 							</thead>	
 							<tbody>

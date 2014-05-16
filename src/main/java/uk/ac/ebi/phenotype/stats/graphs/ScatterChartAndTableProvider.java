@@ -49,7 +49,7 @@ public class ScatterChartAndTableProvider {
 			    
 			    +"     },"
 			      +"   title: {"
-			      +"       text: ' "+parameter.getName() 
+			      +"       text: ' "+parameter.getName()
 			      +"'    },"
 			    +"     subtitle: {"
 			     +"        text: ' "+parameter.getStableId()+" ' "

@@ -84,15 +84,22 @@
 		    			
 		        		var thisUlContainer = $("<ul></ul>");
 	    			
+		        		var procedureChkboxLblCnt = {};		        		
+		        		
 		        		for ( var f=0; f<prFacets.length; f+=2 ){ 		        			        			
 		        			var aVals = prFacets[f].split('___');
 		        			var pipeName = aVals[0];
 		        			var procedure_name = aVals[1];
-		        			var proSid = aVals[2];
+		        			var proSid = aVals[2].replace(/_\d+$/, '*');
 		        			var count = prFacets[f+1];
-		        					        			
+		        			
+		        			//
+		        			if ( typeof procedureChkboxLblCnt[pipeName] == 'undefined' ){
+		        				procedureChkboxLblCnt[pipeName] = {};
+		        			}
+		        					        					        			
 		        			if (pipeName == currPipe ){	
-		        				var pClass = 'procedure'+f + ' ' + proSid;
+		        				//var pClass = 'procedure'+f + ' ' + proSid;
 		        				var liContainer = $("<li></li>").attr({'class':'fcat ' + pipeClass});
 		        				//console.log(pipeName + ' --- ' + procedure_name + ' --- '+ paramCount);		        			      		
 			        			
@@ -100,16 +107,36 @@
 			        			
 			        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField, 'class':pipeClass});			        			
 			        			var flabel = $('<span></span>').attr({'class':'flabel'}).text(procedure_name);
-								var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
+								//var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 			        			
-			        			if ( currPipe != 'IMPC Pipeline' ){			        				
+								if ( typeof procedureChkboxLblCnt[pipeName][procedure_name] == 'undefined' ){									
+									procedureChkboxLblCnt[pipeName][procedure_name] = {};
+									procedureChkboxLblCnt[pipeName][procedure_name].chkbox = chkbox;
+									procedureChkboxLblCnt[pipeName][procedure_name].flabel = flabel;
+									procedureChkboxLblCnt[pipeName][procedure_name].fcount = 0;
+									procedureChkboxLblCnt[pipeName][procedure_name].pipeClass = pipeClass;
+								}
+								procedureChkboxLblCnt[pipeName][procedure_name].fcount += count;								
+		        			}	
+		        		}	        		   	
+		        		
+		        		for ( var pipeline in procedureChkboxLblCnt ){
+		        			for ( var procedure_name in procedureChkboxLblCnt[pipeline] ){
+		        				var pipeClass = procedureChkboxLblCnt[pipeline][procedure_name].pipeClass;
+		        				
+		        				var liContainer = $("<li></li>").attr({'class':'fcat ' + pipeClass});
+		        				var chkbox = procedureChkboxLblCnt[pipeline][procedure_name].chkbox;
+		        				var flabel = procedureChkboxLblCnt[pipeline][procedure_name].flabel;
+		        				var fcount = $('<span></span>').attr({'class':'fcount'}).text(
+		        					procedureChkboxLblCnt[pipeline][procedure_name].fcount);
+		        				
+		        				if ( pipeline != 'IMPC Pipeline' ){		        					
 			        				liContainer.append(chkbox, flabel, fcount);			        				
 			        			}
-			        			else {
-			        				impc = thisFacetSect.append(thisUlContainer.append(liContainer.append(chkbox, flabel, fcount)));
-			        				
-			        			}	
-			        			thisUlContainer.append(liContainer);
+		        				else {
+		        					impc = thisFacetSect.append(thisUlContainer.append(liContainer.append(chkbox, flabel, fcount)));
+		        				}
+		        				thisUlContainer.append(liContainer);
 		        			}		        			
 		        		}		        		
 		        		

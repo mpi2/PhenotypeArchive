@@ -79,6 +79,10 @@
 	<bean id="biologicalModelDAO" class="uk.ac.ebi.phenotype.dao.BiologicalModelDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
+        
+        <bean id="secondaryProjectDAO" class="uk.ac.ebi.phenotype.dao.SecondaryProjectDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
 
 	<bean id="phenotypeCallSummaryDAO" class="uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAOImpl">
 		<constructor-arg ref="sessionFactory" />
