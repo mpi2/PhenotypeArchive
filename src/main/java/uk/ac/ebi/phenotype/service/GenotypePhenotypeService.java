@@ -614,17 +614,18 @@ System.out.println("solr url for sorting pvalues="+solrUrl);
 	 * End of method for PhenotypeCallSummarySolrImpl
 	 */
 
-        public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, List<String> paramSetForProject){
+        public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, GenomicFeature gene, List<Parameter> parameters){
             GeneRowForHeatMap row=new GeneRowForHeatMap(accession);
+            row.setSymbol(gene.getSymbol());
             List<HeatMapCell> results=new ArrayList<HeatMapCell>();
 //search by gene and a list of params            
       //or search on gene and then loop through params to add the results if available order by ascending p value means we can just pick off the first entry for that param
             //http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select/?q=marker_accession_id:%22MGI:104874%22&rows=10000000&version=2.2&start=0&indent=on&wt=json
             
             Map<String,HeatMapCell> paramMap=new HashMap<>();//map to contain parameters with their associated status or pvalue as a string
-            for(String paramId: paramSetForProject){
-                System.out.println("adding param to paramMap="+paramId);
-                paramMap.put(paramId,null);
+            for(Parameter param: parameters){
+                //System.out.println("adding param to paramMap="+paramId);
+                paramMap.put(param.getStableId(),null);
             }
             
            SolrQuery q = new SolrQuery()
@@ -638,15 +639,15 @@ System.out.println("solr url for sorting pvalues="+solrUrl);
                 //System.out.println(doc.getFieldValues("p_value"));
                
                 String paramStableId=cell.getParameterStableId();
-                System.out.println("comparing|"+paramStableId+"| with |"+cell.getParameterStableId()+"|");
-                //if(paramMap.containsKey(cell.getParameterStableId())){
+                System.out.println("comparing"+cell.getParameterStableId()+"|");
+                if(paramMap.containsKey(cell.getParameterStableId())){
                 System.out.println("cell mp Term name="+cell.getMpTermName());
                 System.out.println("cell p value="+cell.getpValue());
                    System.out.println(cell.getpValue()+"found");
                    //if(paramMap.get(paramStableId)==null){//not set already so set the value - first value as ordered by pValue is the one to get - ignore all others
                        paramMap.put(paramStableId, cell);
                    //}
-                //}
+                }
             }
             row.setParamToCellMap(paramMap);
             } catch (SolrServerException ex) {
