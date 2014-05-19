@@ -250,8 +250,10 @@ public class GraphPage {
                 if (graphByDatePage == null) {
                     status.addFail("ERROR: Expected a summary page but found none. " + getUrl());
                 } else {
-                    if ( ! isSummaryEqual(graphByDatePage.getData())) {
-                        status.addFail("ERROR: this graph and its '" + GRAPH_BY_DATE + "' graph are not equal. This URL: " + url + "\n\t'" + GRAPH_BY_DATE + "' URL: " + graphByDatePage.getUrl());
+                    GraphParsingStatus tempStatus = new GraphParsingStatus();
+                    if ( ! isSummaryEqual(graphByDatePage.getData(), tempStatus)) {
+                        status.addFail("ERROR: this graph and its '" + GRAPH_BY_DATE + "' graph are not equal.\nThis URL: " + url + "\n'" + GRAPH_BY_DATE + "' URL: " + graphByDatePage.getUrl());
+                        status.addFail(tempStatus.getFailMessages());
                     }
                 }
             }
@@ -267,20 +269,24 @@ public class GraphPage {
      * @param otherData the other instance to compare against
      * @return true if they are all the same; false otherwise.
      */
-    private boolean isSummaryEqual(List<GraphRow> otherData) {
+    private boolean isSummaryEqual(List<GraphRow> otherData, GraphParsingStatus status) {
         if (data.size() != otherData.size())
             return false;
         
         for (int i = 0; i < data.size(); i++) {
             GraphRow row      = data.get(i);
             GraphRow otherRow = otherData.get(i);
-            if ((row.getHeading().size() != otherRow.getHeading().size()) || (row.getRow().size() != otherRow.getRow().size()))
+            if ((row.getHeading().size() != otherRow.getHeading().size()) || (row.getRow().size() != otherRow.getRow().size())) {
+                status.addFail("The number of heading and data columns does not match.");
                 return false;
+            }
             for (String cellHeading : row.getRow().keySet()) {
                 String value = row.getRow().get(cellHeading);
                 String otherValue = otherRow.getRow().get(cellHeading);
-                if (value.compareTo(otherValue) != 0)
+                if (value.compareTo(otherValue) != 0) {
+                    status.addFail("Mismatched values: " + value + ", " + otherValue);
                     return false;
+                }
             }
         }
         
