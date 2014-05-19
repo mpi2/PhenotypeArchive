@@ -46,7 +46,8 @@ import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
-import uk.ac.ebi.phenotype.heatmap.*;
+import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
+import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
 
 
 @Service

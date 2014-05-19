@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.dao.SecondaryProjectDAO;
-import uk.ac.ebi.phenotype.heatmap.GeneRowForHeatMap;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.PipelineSolrImpl;
@@ -28,6 +27,7 @@ import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 
 import uk.ac.ebi.phenotype.stats.graphs.HeatmapDTO;
+import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 
 
 
