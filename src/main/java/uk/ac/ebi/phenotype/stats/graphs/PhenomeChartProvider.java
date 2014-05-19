@@ -105,6 +105,16 @@ public class PhenomeChartProvider {
 		return chartString;
 	}
 
+	/**
+	 * Creates a highCharts Phenome summary view plotting p-values for every 
+	 * significant call for every strain from every IMPReSS parameter for a 
+	 * specific phenotyping center
+	 * @param phenotypingCenter the specific phenotyping center
+	 * @param minimalPValue set the minimal threshold
+	 * @param series series of categories to plot
+	 * @param categories list of categories (one for every MP term)
+	 * @return the chart to be displayed
+	 */
 	public String createPhenomeChart(String phenotypingCenter, double minimalPValue, JSONArray series, JSONArray categories) {
 
 		String chartString="	$(function () { "
@@ -140,7 +150,7 @@ public class PhenomeChartProvider {
 			    +"  }, "
 			    +"    yAxis: { "
 			    +            "min: 0,"
-			    +            "max: "+ -Math.log10(1E-20) + ","
+			    +            "max: "+ -Math.log10(1E-21) + ","
 			    +"         title: { "
 			    +"             text: '"+"-Log10(p-value)"+"' "
 			    +"           }, "
@@ -152,21 +162,44 @@ public class PhenomeChartProvider {
 			    +"        scatter: { "
 			    +"            marker: { "
 			    +"                radius: 5, "
-			    +"              states: { "
-			    +"                hover: { "
-			    +"                    enabled: true, "
-			    +"                   lineColor: 'rgb(100,100,100)' "
-			    +"               } "
-			    +"           } "
-			    +"       }, "
-			    +"       states: { "
-			    +"           hover: { "
-			    +"               marker: { "
-			    +"                   enabled: false "
-			    +"               } "
-			    +"           } "
-			    +"        } "
-			    +"     } "
+			    +"                states: { "
+			    +"                   hover: { "
+			    +"                      enabled: true, "
+			    +"                      lineColor: 'rgb(100,100,100)' "
+			    +"                   } "
+			    +"                } "			    
+			    +"            }, "
+			    +"            states: { "
+			    +"               hover: { "
+			    +"                  marker: { "
+			    +"                     enabled: false "
+			    +"                  } "
+			    +"              } "
+			    +"            }, \n"	    
+                +"            events: { "
+                +"               click: function(event) { "
+                +"                   $.fancybox.open([ "
+                + "                  {"
+                + "                     href : 'http://beta.mousephenotype.org/data/chart?accession=MGI:104874&parameter_stable_id=ESLIM_005_001_701&allele_accession=EUROALL:19&zygosity=homozygote&gender=male&gender=female&phenotyping_center=WTSI&strain=MGPCURATE2&pipeline_stable_id:ESLIM_001&metadata_group=45a983be46dc06a6a3ed8663d3d673ed&experimentNumber=1&_=1400515693876', "
+                + "                     title : '1st title'"
+                + "                  } "
+                + "                  ], "
+                +"                   { "
+                +"                     'maxWidth'          : 800, "
+        		+"                     'maxHeight'         : 600, "
+        		+"                     'fitToView'         : false, "                
+                +"                     'width'             : '75%',  "
+                +"                     'height'            : '75%',  "
+                +"                     'autoSize'          : false,  "
+                +"                     'transitionIn'      : 'none', "
+                +"                     'transitionOut'     : 'none', "
+                +"                     'type'              : 'iframe', "
+                +"                     scrolling           : 'auto' "
+                +"                  }); "
+                +"                  alert(event.point.geneSymbol); return false;"                
+                +"               } "
+			    +"           } \n" // events
+			    +"       } "                
 			    +"   }, "
 			    +"     series: "+ series.toString()
 			    +"    }); "
@@ -209,7 +242,7 @@ public class PhenomeChartProvider {
 
 						JSONObject tooltip=new JSONObject();
 						//tooltip.put("headerFormat", "<b>{point.name}</b><br>");
-						tooltip.put("pointFormat", "<b>{point.name}</b><br/>Top Level MP: {series.name}<br/>Gene: {point.geneSymbol}<br/>zygosity: {point.zygosity}<br/>p-value: {point.pValue}");
+						tooltip.put("pointFormat", "<b>{point.mp_term}</b><br/>Top Level MP: {series.name}<br/>Gene: {point.geneSymbol}<br/>Zygosity: {point.zygosity}<br/>p-value: {point.pValue}<br/>Effect size: {point.effectSize}");
 						scatterJsonObject.put("tooltip", tooltip);
 						scatterJsonObject.put("type", "scatter");
 						scatterJsonObject.put("name", topLevelName);
@@ -248,7 +281,7 @@ public class PhenomeChartProvider {
 
 					String topLevelName = topLevel.getName();
 					int firstDim = topLevelOntologyTermsList.indexOf(topLevelName);
-					System.out.println("FIRST DIM" + firstDim);
+					
 					// convert to position on x axis
 					int index = 0;
 					for (int i=0; i<=firstDim; i++) {
@@ -256,14 +289,15 @@ public class PhenomeChartProvider {
 								specificTermMatrix.get(topLevelOntologyTermsList.get(i)).size() :
 								specificTermMatrix.get(topLevelName).indexOf(call.getPhenotypeTerm().getName());	 
 					}
-					System.out.println("INDEX " + index);
 					
 					JSONObject dataPoint=new JSONObject();
 					dataPoint.put("name", (firstDim+1) +". " + call.getPhenotypeTerm().getName());
+					dataPoint.put("mp_term", call.getPhenotypeTerm().getName());
 					dataPoint.put("geneSymbol", call.getGene().getSymbol());
 					dataPoint.put("x", index);
-					dataPoint.put("y", call.getLogValue());
+					dataPoint.put("y", call.getLogValue() + addJitter(call.getEffectSize()));
 					dataPoint.put("pValue", call.getpValue());
+					dataPoint.put("effectSize", call.getEffectSize());
 					dataPoint.put("sex", call.getSex());
 					dataPoint.put("zygosity", call.getZygosity());	
 
@@ -322,7 +356,7 @@ public class PhenomeChartProvider {
 
 				JSONObject tooltip=new JSONObject();
 				//tooltip.put("headerFormat", "<b>{point.name}</b><br>");
-				tooltip.put("pointFormat", "<b>{point.name}</b><br/>procedure: {series.name}<br/>sex: {point.controlSex}<br/>zygosity: {point.zygosity}<br/>mutants: {point.femaleMutants}f:{point.maleMutants}m<br/>metadata_group: {point.metadataGroup}<br/>p-value: {point.pValue}");
+				tooltip.put("pointFormat", "<b>{point.name}</b><br/>procedure: {series.name}<br/>sex: {point.controlSex}<br/>zygosity: {point.zygosity}<br/>mutants: {point.femaleMutants}f:{point.maleMutants}m<br/>metadata_group: {point.metadataGroup}<br/>p-value: {point.pValue}<br/>Effect size: {point.effectSize}");
 				scatterJsonObject.put("tooltip", tooltip);
 				scatterJsonObject.put("type", "scatter");
 				scatterJsonObject.put("name", procedure.getName());
@@ -356,6 +390,7 @@ public class PhenomeChartProvider {
 								dataPoint.put("x", index);
 								dataPoint.put("y", statsResult.getLogValue());
 								dataPoint.put("pValue", statsResult.getpValue());
+								dataPoint.put("effectSize", statsResult.getEffectSize());
 								dataPoint.put("controlSex", statsResult.getControlSex());
 								dataPoint.put("zygosity", statsResult.getZygosity());
 								dataPoint.put("femaleMutants", statsResult.getFemaleMutants());
@@ -395,6 +430,19 @@ public class PhenomeChartProvider {
 		return chartString;
 	}
 
+	/**
+	 * Add jitter to a data point by capping the effect size between 0 and 0.8
+	 * @param effectSize the effect size associated to a MP call
+	 * @return a jittered value based on the effect size
+	 */
+	double addJitter(double effectSize) {
+		// cap to 0.8 max otherwise this means nothing
+		// 2 decimals
+		double scale = 8E-2;
+		boolean neg = (effectSize < 0);
+		return (((Math.abs(effectSize) >= 10) ? ((neg) ? -10 : 10) : effectSize) * scale);
+	}
+	
 	private JSONArray getSortedList(JSONArray array) throws JSONException {
 		List<JSONObject> list = new ArrayList<JSONObject>();
 		for (int i = 0; i < array.length(); i++) {

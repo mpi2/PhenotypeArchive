@@ -32,8 +32,8 @@
 	<fieldType name="text" class="solr.TextField" positionIncrementGap="100">
 		<analyzer>
 			<tokenizer class="solr.WhitespaceTokenizerFactory"/>
-				<filter class="solr.LowerCaseFilterFactory"/>
-				<filter class="solr.SnowballPorterFilterFactory" language="English"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+			<filter class="solr.SnowballPorterFilterFactory" language="English"/>
 		</analyzer>
 	</fieldType>
 
@@ -302,15 +302,7 @@
 	<copyField source="mp_term" dest="auto_suggest" />
 	<copyField source="mp_term_synonym" dest="auto_suggest" />   
 	<copyField source="mp_definition" dest="auto_suggest" />
-	
-	<copyField source="mp_term" dest="text" />
-	<copyField source="mp_term_synonym" dest="text" />   
-	<copyField source="mp_definition" dest="text" />
-
-	<copyField source="child_mp_term" dest="text" />
-	<copyField source="child_mp_term_synonym" dest="text" />   
-	<copyField source="child_mp_definition" dest="text" />
-
+		
 	<copyField source="top_level_mp_id" dest="auto_suggest" />
 	<copyField source="top_level_mp_term" dest="auto_suggest" />
 	<copyField source="top_level_mp_definition" dest="auto_suggest" />
@@ -321,10 +313,11 @@
 	<copyField source="intermediate_mp_term" dest="auto_suggest" />
 	<copyField source="intermediate_mp_definition" dest="auto_suggest" />	
 	<copyField source="intermediate_mp_term_synonym" dest="auto_suggest" />
-	
-	<copyField source="sibling_mp_id" dest="auto_suggest" />
-	<copyField source="sibling_mp_term" dest="auto_suggest" />
-	<copyField source="sibling_mp_definition" dest="auto_suggest" />	
+
+	<copyField source="child_mp_id" dest="auto_suggest" />
+	<copyField source="child_mp_term" dest="auto_suggest" />
+	<copyField source="child_mp_definition" dest="auto_suggest" />	
+	<copyField source="child_mp_term_synonym" dest="auto_suggest" />
 
 	<copyField source="ma_id" dest="auto_suggest" />
 	<copyField source="ma_term" dest="auto_suggest" />
