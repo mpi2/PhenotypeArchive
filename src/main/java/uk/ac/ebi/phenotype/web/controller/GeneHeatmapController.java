@@ -27,6 +27,7 @@ import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 
 import uk.ac.ebi.phenotype.stats.graphs.HeatmapDTO;
+import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 
 
 
@@ -54,27 +55,30 @@ public class GeneHeatmapController {
                 Model model,
 			HttpServletRequest request,
 			RedirectAttributes attributes){
+             List<GeneRowForHeatMap>geneRows=new ArrayList<>();
+             List<String> parameters=this.getIdgParameters();
             try {
                 System.out.println("getGeneHeatMap called");
+               
                 //System.out.println("accession for sec project="+accessions);
                 //get a list of genes for the project - which will be the row headers
                 List<String> accessions=secondaryProjectDAO.getAccessionsBySecondaryProjectId(0);
                 //get a list of procedure-parameters for the project which will be the column headers
-                List<String> idgParameters=this.getIdgParameters();
+                
                 //mice produced and primary phenotype will be the first two coluns always?
-                for(String param: idgParameters){
-                    System.out.println("param="+param);
-                }
                 for(String accession: accessions){
                     
                     //get a data structure with the gene accession,with parameter associated with a Value or status ie. not phenotyped, not significant
-                genotypePhenotypeService.getResultsForGeneHeatMap(accession,idgParameters );
+                    GeneRowForHeatMap row = genotypePhenotypeService.getResultsForGeneHeatMap(accession,parameters );
+                    geneRows.add(row);
                 }
                 //model.addAttribute("heatmapCode", fillHeatmap(hdto));
                
             } catch (SQLException ex) {
                 Logger.getLogger(GeneHeatmapController.class.getName()).log(Level.SEVERE, null, ex);
             }
+            model.addAttribute("geneRows", geneRows);
+            model.addAttribute("parameters", parameters);
              return "geneHeatMap";
 	}
 

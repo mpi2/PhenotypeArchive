@@ -69,6 +69,11 @@ public class GraphParsingStatus {
         fail++;
         total++;
     }
+    public void addFail(List<String> failMessages) {
+        this.failMessages.addAll(failMessages);
+        fail += failMessages.size();
+        total += failMessages.size();
+    }
 
     public void addPass(String passMessage) {
         this.passMessages.add(passMessage);

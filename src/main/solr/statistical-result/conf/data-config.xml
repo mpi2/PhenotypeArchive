@@ -1,0 +1,285 @@
+<dataConfig>
+
+    <script>
+        <![CDATA[
+		function getData(row) {
+			if (row.get('data_type') == 'categorical') {
+				row.put('p_value', row.get('categorical_p_value'));
+				row.put('effect_size', row.get('categorical_effect_size'));
+
+				var arr = new java.util.ArrayList();
+
+                var categories_a = row.get('category_a');
+                var pieces_a = categories_a.split('|');
+
+                if(typeof pieces_a != 'undefined') {
+    				for (var i=0; i<pieces_a.length; i++) {
+    					arr.add(pieces_a[i]);
+    				}
+    			}
+
+                var categories_b = row.get('category_b');
+                var pieces_b = categories_b.split('|');
+
+                if(typeof pieces_b != 'undefined') {
+    				for (var i=0; i<pieces_b.length; i++) {
+    					arr.add(pieces_b[i]);
+    				}
+    			}
+
+				row.put('categories', arr);
+
+			} else if (row.get('data_type') == 'unidimensional') {
+				row.put('p_value', row.get('null_test_significance'));
+
+				/* TODO: DO EFFECT SIZE CALCULATION */
+				row.put('effect_size', row.get('Data Import Handler TODO'));
+
+			}
+
+			return row;
+		}
+
+	]]>
+    </script>
+
+    <dataSource name="komp2ds" jndiName="java:comp/env/jdbc/komp2DataSource" batchSize="-1" readOnly="true"/>
+	<dataSource name="ontodbds" jndiName="java:comp/env/jdbc/ontodbDataSource" /> 
+
+
+    <document name="statistical_results_indexing">
+
+        <!-- For all observations (data points) -->
+        <entity dataSource="komp2ds" transformer="script:getData" name="stats_result"
+                query="(SELECT
+                        CONCAT(dependent_variable, '_', id) as doc_id,
+                        'continuous' AS data_type, id, control_id, 
+                        experimental_id, NULL AS sex, experimental_zygosity,
+                        external_db_id, project_id, organisation_id,
+                        pipeline_id, parameter_id, colony_id,
+                        dependent_variable, control_selection_strategy, male_controls,
+                        male_mutants, female_controls, female_mutants,
+                        metadata_group, statistical_method, status,
+                        NULL AS category_a, NULL AS category_b, NULL AS categorical_p_value,
+                        NULL AS categorical_effect_size, 'Suppressed' AS raw_output, batch_significance,
+                        variance_significance, null_test_significance, genotype_parameter_estimate,
+                        genotype_stderr_estimate, genotype_effect_pvalue, gender_parameter_estimate,
+                        gender_stderr_estimate, gender_effect_pvalue, weight_parameter_estimate,
+                        weight_stderr_estimate, weight_effect_pvalue, gp1_genotype,
+                        gp1_residuals_normality_test, gp2_genotype, gp2_residuals_normality_test,
+                        blups_test, rotated_residuals_normality_test, intercept_estimate,
+                        intercept_stderr_estimate, interaction_significance, interaction_effect_pvalue,
+                        gender_female_ko_estimate, gender_female_ko_stderr_estimate, gender_female_ko_pvalue,
+                        gender_male_ko_estimate, gender_male_ko_stderr_estimate, gender_male_ko_pvalue,
+                        classification_tag, additional_information
+                    FROM stats_unidimensional_results)
+                    UNION ALL
+                        (SELECT
+                        CONCAT(dependent_variable, '_', id) as doc_id,
+                        'categorical' AS data_type, id, control_id,
+                        experimental_id, experimental_sex as sex, experimental_zygosity,
+                        external_db_id, project_id, organisation_id,
+                        pipeline_id, parameter_id, colony_id,
+                        dependent_variable, control_selection_strategy, male_controls,
+                        male_mutants, female_controls, female_mutants,
+                        metadata_group, statistical_method, status,
+                        category_a, category_b, p_value as categorical_p_value,
+                        effect_size AS categorical_effect_size, 'Suppressed' AS raw_output, NULL AS batch_significance,
+                        NULL AS variance_significance, NULL AS null_test_significance, NULL AS genotype_parameter_estimate,
+                        NULL AS genotype_stderr_estimate, NULL AS genotype_effect_pvalue, NULL AS gender_parameter_estimate,
+                        NULL AS gender_stderr_estimate, NULL AS gender_effect_pvalue, NULL AS weight_parameter_estimate,
+                        NULL AS weight_stderr_estimate, NULL AS weight_effect_pvalue, NULL AS gp1_genotype,
+                        NULL AS gp1_residuals_normality_test, NULL AS gp2_genotype, NULL AS gp2_residuals_normality_test,
+                        NULL AS blups_test, NULL AS rotated_residuals_normality_test, NULL AS intercept_estimate,
+                        NULL AS intercept_stderr_estimate, NULL AS interaction_significance, NULL AS interaction_effect_pvalue,
+                        NULL AS gender_female_ko_estimate, NULL AS gender_female_ko_stderr_estimate, NULL AS gender_female_ko_pvalue,
+                        NULL AS gender_male_ko_estimate, NULL AS gender_male_ko_stderr_estimate, NULL AS gender_male_ko_pvalue,
+                        NULL AS classification_tag, NULL AS additional_information
+                    FROM stats_categorical_results)
+    			">
+
+            <field name="doc_id" column="doc_id"/>
+            <field name="db_id" column="id"/>
+            <field name="data_type" column="data_type"/>
+            <field name="colony_id" column="colony_id"/>
+            <field name="zygosity" column="experimental_zygosity"/>
+            <field name="control_selection_method" column="control_selection_strategy"/>
+            <field name="dependent_variable" column="dependent_variable"/>
+            <field name="metadata_group" column="metadata_group"/>
+
+            <!-- Information about the raw data -->
+            <field name="control_biological_model_id" column="control_id" />
+            <field name="mutant_biological_model_id"  column="experimental_id" />
+            <field name="male_control_count"          column="male_controls" />
+            <field name="male_mutant_count"           column="male_mutants" />
+            <field name="female_control_count"        column="female_controls" />
+            <field name="female_mutant_count"         column="female_mutants" />
+
+            <!-- Information about the calculation -->
+            <field name="statistical_method"          column="statistical_method" />
+            <field name="status"                      column="status" />
+            <field name="additional_information"      column="additional_information" />
+            <field name="raw_output"                  column="raw_output" />
+            <field name="p_value"                     column="p_value" />
+            <field name="effect_size"                 column="effect_size" />
+            <field name="mp_term"                     column="mp_term" />
+
+            <!-- Categorical statistics  -->
+            <field name="control_sex"                 column="control_sex" />
+            <field name="mutant_sex"                  column="experimental_sex" />
+            <field name="categories"                  column="categories" />
+            <field name="categorical_p_value"         column="categorical_p_value" />
+            <field name="categorical_effect_size"     column="categorical_effect_size" />
+
+            <!-- Continuous statistics -->
+            <field name="batch_significant"           column="batch_significance" />
+            <field name="variance_significant"        column="variance_significance" />
+            <field name="null_test_p_value"           column="null_test_significance" />
+            <field name="genotype_effect_p_value"     column="genotype_effect_pvalue" />
+            <field name="genotype_effect_stderr_estimate" column="genotype_stderr_estimate" />
+            <field name="genotype_effect_parameter_estimate" column="genotype_parameter_estimate" />
+            <field name="sex_effect_p_value"          column="gender_effect_pvalue" />
+            <field name="sex_effect_stderr_estimate"  column="gender_stderr_estimate" />
+            <field name="sex_effect_parameter_estimate" column="gender_parameter_estimate" />
+            <field name="weight_effect_p_value"       column="weight_effect_pvalue" />
+            <field name="weight_effect_stderr_estimate" column="weight_stderr_estimate" />
+            <field name="weight_effect_parameter_estimate" column="weight_parameter_estimate" />
+            <field name="group_1_genotype"            column="gp1_genotype" />
+            <field name="group_1_residuals_normality_test" column="gp1_residuals_normality_test" />
+            <field name="group_2_genotype"            column="gp2_genotype" />
+            <field name="group_2_residuals_normality_test" column="gp2_residuals_normality_test" />
+            <field name="blups_test"                  column="blups_test" />
+            <field name="rotated_residuals_test"      column="rotated_residuals_normality_test" />
+            <field name="intercept_estimate"          column="intercept_estimate" />
+            <field name="intercept_estimate_stderr_estimate" column="intercept_stderr_estimate" />
+            <field name="interaction_significant"     column="interaction_significance" />
+            <field name="interaction_effect_p_value"  column="interaction_effect_pvalue" />
+            <field name="female_ko_effect_p_value"    column="gender_female_ko_pvalue" />
+            <field name="female_ko_effect_stderr_estimate" column="gender_female_ko_stderr_estimate" />
+            <field name="female_ko_parameter_estimate" column="gender_female_ko_estimate" />
+            <field name="male_ko_effect_p_value"      column="gender_male_ko_pvalue" />
+            <field name="male_ko_effect_stderr_estimate" column="gender_male_ko_stderr_estimate" />
+            <field name="male_ko_parameter_estimate"  column="gender_male_ko_estimate" />
+            <field name="classification_tag"          column="classification_tag" />
+
+
+            <!-- Data source -->
+            <entity name="reSource" processor="CachedSqlEntityProcessor" onError="continue"
+                    query="SELECT id, name as fullname, short_name FROM external_db"
+                    where="id=stats_result.external_db_id">
+                <field name="resource_name" column="short_name"/>
+                <field name="resource_fullname" column="fullname"/>
+                <field name="resource_id" column="id"/>
+            </entity>
+
+            <!-- Project -->
+            <entity name="project" processor="CachedSqlEntityProcessor"
+                    query="SELECT id, name FROM project"
+                    where="id=stats_result.project_id">
+                <field name="project_name" column="name"/>
+                <field name="project_id" column="id"/>
+            </entity>
+
+            <!-- Phenotyping center -->
+            <entity name="phenotypingCenter" processor="CachedSqlEntityProcessor"
+                    query="SELECT id, name FROM organisation"
+                    where="id=stats_result.organisation_id">
+                <field name="phenotyping_center" column="name"/>
+                <field name="phenotyping_center_id" column="id"/>
+            </entity>
+
+            <!-- Pipeline -->
+            <entity name="pipeline" processor="CachedSqlEntityProcessor"
+                    query="SELECT id, stable_id, stable_key, name FROM phenotype_pipeline"
+                    where="id=stats_result.pipeline_id">
+                <field name="pipeline_stable_id" column="stable_id"/>
+                <field name="pipeline_stable_key" column="stable_key"/>
+                <field name="pipeline_name" column="name"/>
+                <field name="pipeline_id" column="id"/>
+            </entity>
+
+            <!-- Procedure -->
+            <entity name="procedure" processor="CachedSqlEntityProcessor" onError="continue"
+                    query="SELECT id, stable_id, stable_key, name FROM phenotype_procedure"
+                    where="id=stats_result.procedure_id">
+                <field name="procedure_stable_id" column="stable_id"/>
+                <field name="procedure_stable_key" column="stable_key"/>
+                <field name="procedure_name" column="name"/>
+                <field name="procedure_id" column="id"/>
+            </entity>
+
+            <!-- Parameter -->
+            <entity name="parameter" processor="CachedSqlEntityProcessor"
+                    query="SELECT id, stable_id, stable_key, name FROM phenotype_parameter"
+                    where="id=stats_result.parameter_id">
+                <field name="parameter_stable_id" column="stable_id"/>
+                <field name="parameter_stable_key" column="stable_key"/>
+                <field name="parameter_name" column="name"/>
+                <field name="parameter_id" column="id"/>
+            </entity>
+
+            <!-- Gene and allele information -->
+            <entity name="biologicalData" processor="CachedSqlEntityProcessor"
+                    query="SELECT bm.id, strain.name as strain_name, strain.acc as strain_accession_id, bma.allele_acc as allele_accession, a.symbol as allele_symbol, a.name as allele_name, gf.acc as acc, gf.symbol as symbol
+                        FROM biological_model bm
+                        INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bm.id
+                        INNER JOIN strain on (strain.acc=bmstrain.strain_acc AND strain.db_id=bmstrain.strain_db_id)
+                        LEFT OUTER JOIN biological_model_genomic_feature bmgf ON bmgf.biological_model_id=bm.id
+                        LEFT OUTER JOIN biological_model_allele bma ON bma.biological_model_id=bm.id
+                        LEFT OUTER JOIN allele a ON (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id)
+                        LEFT OUTER JOIN genomic_feature gf ON gf.acc=bmgf.gf_acc"
+                    where="id=stats_result.experimental_id">
+
+                <field name="marker_accession_id" column="acc"/>
+                <field name="marker_symbol" column="symbol"/>
+                <field name="allele_accession_id" column="allele_accession"/>
+                <field name="allele_symbol" column="allele_symbol"/>
+                <field name="allele_name" column="allele_name"/>
+                <field name="strain_name" column="strain_name"/>
+                <field name="strain_accession_id" column="strain_accession_id" />
+
+            </entity>
+
+			<entity dataSource="ontodbds" name="mps" processor="CachedSqlEntityProcessor"
+				query="SELECT distinct top_level_node_id FROM `mp_node2term` mp , mp_node_top_level tl WHERE term_id='${stats_result.mp_acc}' and mp.node_id=tl.node_id">
+
+				<field column="top_level_node_id" name="topLevel" />
+
+				<entity dataSource="ontodbds" name="mphigher" processor="CachedSqlEntityProcessor"
+					query="SELECT mp.node_id, mp.term_id as mpTerm, inf.term_id, name, definition FROM `mp_node2term` mp , `mp_term_infos` inf WHERE mp.node_id=${mps.top_level_node_id} and inf.term_id=mp.term_id">
+
+					<field column="name" name="top_level_mp_term_name" />
+					<field column="mpTerm" name="top_level_mp_term_id" />
+					<field column="definition" name="top_level_mp_term_definition" />
+					
+					<entity dataSource="ontodbds" name="mphigherSyn" onError="continue" processor="CachedSqlEntityProcessor"
+						query="select * from mp_synonyms where term_id ='${mphigher.mpTerm}'">
+						<field column="syn_name" name="top_level_mp_term_synonym" />						
+					</entity>
+				</entity>
+			</entity>
+				
+			<!-- intermediate MP terms of this MP term -->
+			<entity dataSource="ontodbds" name="parents" onError="continue" processor="CachedSqlEntityProcessor"
+				query="select f.node_id as parent_node_id from mp_node2term nt, mp_node_subsumption_fullpath f where nt.node_id=f.child_node_id and nt.term_id='${stats_result.mp_acc}' and f.node_id != nt.node_id" >
+			
+				<entity dataSource="ontodbds" name="parents2" onError="continue" processor="CachedSqlEntityProcessor"
+					query="select ti.* from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and nt.node_id=${parents.parent_node_id}">
+					
+					<field column="term_id" name="intermediate_mp_term_id" />
+					<field column="name" name="intermediate_mp_term_name" />
+					<field column="definition" name="intermediate_mp_term_definition" />				
+					
+					<entity dataSource="ontodbds" name="parents2Syn" onError="continue" processor="CachedSqlEntityProcessor"
+						query="select * from mp_synonyms where term_id ='${parents2.term_id}'">
+						<field column="syn_name" name="intermediate_mp_term_synonym" />						
+					</entity>
+				</entity>
+
+			</entity>		
+
+        </entity>
+
+    </document>
+
+</dataConfig>

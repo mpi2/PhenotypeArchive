@@ -340,7 +340,7 @@ public class ObservationService {
      * @return list of maps of results
      * @throws SolrServerException
      */
-    public List<Map<String,String>> getDistinctPipelineOrgParam() throws SolrServerException {
+    public List<Map<String,String>> getDistinctOrganisaionPipelineProcedureParameter() throws SolrServerException {
 
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
@@ -350,6 +350,7 @@ public class ObservationService {
                 .addFacetPivotField( // needs at least 2 fields
                 		ExperimentField.PHENOTYPING_CENTER_ID + "," +
                 		ExperimentField.PIPELINE_ID + "," +
+                        ExperimentField.PROCEDURE_ID + "," +
                 		ExperimentField.PARAMETER_ID);  
 
         QueryResponse response = solr.query(query);
@@ -363,7 +364,7 @@ public class ObservationService {
      * @return list of maps of results
      * @throws SolrServerException
      */
-    public List<Map<String,String>> getDistinctUnidimensionalPipelineOrgParamStrainZygosityGeneAccessionAlleleAccessionMetadata() throws SolrServerException {
+    public List<Map<String,String>> getDistinctUnidimensionalOrgPipelineProcParamStrainZygosityGeneAccessionAlleleAccessionMetadata() throws SolrServerException {
 
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
@@ -374,6 +375,7 @@ public class ObservationService {
                 .addFacetPivotField( // needs at least 2 fields
                 		ExperimentField.PHENOTYPING_CENTER_ID + "," +
                 		ExperimentField.PIPELINE_ID + "," +
+                        ExperimentField.PROCEDURE_ID + "," +
                 		ExperimentField.PARAMETER_ID + "," +
                 		ExperimentField.STRAIN + "," +
                 		ExperimentField.ZYGOSITY + "," +
@@ -393,7 +395,7 @@ public class ObservationService {
      * @return list of maps of results
      * @throws SolrServerException
      */
-    public List<Map<String,String>> getDistinctCategoricalPipelineOrgParamStrainZygositySexGeneAccessionAlleleAccessionMetadata() throws SolrServerException {
+    public List<Map<String,String>> getDistinctCategoricalOrgPipelineProcParamStrainZygositySexGeneAccessionAlleleAccessionMetadata() throws SolrServerException {
     	
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
@@ -404,6 +406,7 @@ public class ObservationService {
                 .addFacetPivotField( // needs at least 2 fields
                 		ExperimentField.PHENOTYPING_CENTER_ID + "," +
                 		ExperimentField.PIPELINE_ID + "," +
+                        ExperimentField.PROCEDURE_ID + "," +
                 		ExperimentField.PARAMETER_ID + "," +
                 		ExperimentField.STRAIN + "," +
                 		ExperimentField.ZYGOSITY + "," +

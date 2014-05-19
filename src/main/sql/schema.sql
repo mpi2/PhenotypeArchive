@@ -490,6 +490,8 @@ CREATE TABLE experiment (
     project_id                 INT(10) UNSIGNED NULL DEFAULT NULL,
     pipeline_id                INT(10) UNSIGNED NOT NULL,
 	pipeline_stable_id         VARCHAR(30) NOT NULL,
+    procedure_id               INT(10) UNSIGNED NOT NULL,
+	procedure_stable_id        VARCHAR(30) NOT NULL,
     metadata_combined          TEXT,
     metadata_group             VARCHAR(50) DEFAULT '',
     
@@ -497,7 +499,9 @@ CREATE TABLE experiment (
     KEY external_db_idx(db_id),
     KEY organisation_idx(organisation_id),
     KEY pipeline_idx(pipeline_id),
-	KEY pipeline_stable_idx(pipeline_stable_id)
+	KEY pipeline_stable_idx(pipeline_stable_id),
+    KEY procedure_idx(procedure_id),
+	KEY procedure_stable_idx(procedure_stable_id)
     
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
