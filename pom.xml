@@ -908,6 +908,7 @@
                                 <include>**/dao/*</include>
                                 <include>**/pojo/*</include>
                                 <include>**/phenotype/util/*</include>
+                                <include>**/phenotype/imaging/**</include>
                                 <include>**/data/europhenome/*</include>
                                 <include>**/data/impress/*</include>
                                 <include>**/stats/**</include>

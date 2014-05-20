@@ -148,5 +148,37 @@ public class ObservationServiceTest {
 		assertTrue(keys.size()>0);
 	}
 
+	@Test
+	public void testGetDistinctUnidimensionalPipelineOrgParamStrainZygosityGeneAccessionAlleleAccessionMetadata() throws SolrServerException {
+	    
+	    Parameter p = parameterDAO.getParameterByStableId("IMPC_CBC_003_001");
+	    
+        List<Map<String, String>> keys = os.getDistinctUnidimensionalPipelineOrgParamStrainZygosityGeneAccessionAlleleAccessionMetadata();
+        boolean success = false;
+        for (Map<String, String> key : keys) {
+            if(! key.get("parameter_id").equals(p.getId())) {
+                break;
+            }
+            if(! key.get("zygosity").equals("homozygote")) {
+                break;
+            }
+            if(! key.get("gene_accession").equals("MGI:1931838")) {
+                break;
+            }
+            if(! key.get("pipeline_id").equals("8")) {
+                break;
+            }
+            if(! key.get("phenotyping_center_id").equals("3")) {
+                break;
+            }
+            
+            
+            success = true;
+            System.out.println(key);
+            break;
+        }
+
+        assert(success);
+	}
 
 }

@@ -56,7 +56,7 @@
         <entity dataSource="komp2ds" transformer="script:getData" name="stats_result"
                 query="(SELECT
                         CONCAT(dependent_variable, '_', id) as doc_id,
-                        'continuous' AS data_type, id, control_id, 
+                        'unidimensional' AS data_type, id, control_id, 
                         experimental_id, NULL AS sex, experimental_zygosity,
                         external_db_id, project_id, organisation_id,
                         pipeline_id, parameter_id, colony_id,
