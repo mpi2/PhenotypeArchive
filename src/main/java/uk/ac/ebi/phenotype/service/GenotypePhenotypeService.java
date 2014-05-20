@@ -673,6 +673,8 @@ public class GenotypePhenotypeService {
                        if(row.getLowestPValue()>cell.getpValue()){
                     	   row.setLowestPValue(cell.getpValue());
                        }
+                       row.setMiceProduced(true);//if we have a p value for a gene then we must have mice and primary phenotype
+                       row.setPrimaryPhenotype(true);
                 }
             }
             

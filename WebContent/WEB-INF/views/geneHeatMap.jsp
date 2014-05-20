@@ -36,16 +36,16 @@
                 </thead>
                 <c:forEach items="${geneRows}" var="row">
                 <tr><td>${row.symbol}</td>
-                <td>
-                	<c:if test="${row.miceProduced}">Y</c:if>
-                	<c:if test="${!row.miceProduced}">N</c:if>
-                </td>
-                <td>
-                	<c:if test="${row.primaryPhenotype}">Y</c:if>
-               		<c:if test="${!row.primaryPhenotype}">N</c:if>
-                </td>  
+               
+                	<c:if test="${row.miceProduced}"><td style="background-color:rgb(61, 167, 208)">Y</td></c:if>
+                	<c:if test="${!row.miceProduced}"><td style="background-color:rgb(3, 77, 105)">N</td></c:if>
+                
+               
+                	<c:if test="${row.primaryPhenotype}"><td style="background-color:rgb(61, 167, 208)">Y</td></c:if>
+               		<c:if test="${!row.primaryPhenotype}"><td style="background-color:rgb(3, 77, 105)">N</td></c:if>
+                 
                     <c:forEach items="${parameters}" var="paramKey"> 
-                        <td  <c:if test="${row.paramToCellMap[paramKey.stableId].pValue!=null}">style="background-color:rgb(252,141,89)"</c:if><c:if test="${row.paramToCellMap[paramKey.stableId].pValue==null}">style="background-color: rgb(119, 119, 119)"</c:if>><%-- ${row.paramToCellMap[paramKey.stableId].mpTermName} --%>${row.paramToCellMap[paramKey.stableId].pValue}</td>
+                        <td  <c:if test="${row.paramToCellMap[paramKey.stableId].pValue!=null}">style="background-color:rgb(247, 157, 70)"</c:if><c:if test="${row.paramToCellMap[paramKey.stableId].pValue==null}">style="background-color: rgb(119, 119, 119)"</c:if>><%-- ${row.paramToCellMap[paramKey.stableId].mpTermName} --%>${row.paramToCellMap[paramKey.stableId].pValue}</td>
                     </c:forEach>
                 </tr>
                 </c:forEach>
