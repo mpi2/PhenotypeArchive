@@ -19,13 +19,18 @@
     			}
 
                 var categories_b = row.get('category_b');
-                var pieces_b = categories_b.split('|');
 
-                if(typeof pieces_b != 'undefined') {
-    				for (var i=0; i<pieces_b.length; i++) {
-    					arr.add(pieces_b[i]);
-    				}
-    			}
+				// If categories_b is defined, split and add them to the 
+				// categories
+                if(typeof categories_b != 'undefined') {
+	                var pieces_b = categories_b.split('|');
+	
+	                if(typeof pieces_b != 'undefined') {
+	    				for (var i=0; i<pieces_b.length; i++) {
+	    					arr.add(pieces_b[i]);
+	    				}
+	    			}
+	    		}
 
 				row.put('categories', arr);
 
