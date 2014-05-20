@@ -81,7 +81,7 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 		 */
 		
 		String query = 
-				"SELECT param.stable_id AS param_stable_id, "
+				"SELECT param.stable_id AS parameter_stable_id, "
 				+ "c.p_value AS p_value, c.effect_size AS effect_size, "
 				+ "c.status AS status, c.statistical_method AS statistical_method, " 
 				+ "c.control_sex AS control_sex, c.experimental_zygosity, "
@@ -106,7 +106,7 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 			resultSet = statement.executeQuery();
 			while (resultSet.next()) {
 				
-				String parameterStableId = resultSet.getString("param_stable_id");
+				String parameterStableId = resultSet.getString("parameter_stable_id");
 				List<StatisticalResultBean> lb = null;
 				
 				if (results.containsKey(parameterStableId)) {
@@ -137,7 +137,7 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 		
 		
 		query = 
-				"SELECT param.stable_id AS param_stable_id,"
+				"SELECT param.stable_id AS parameter_stable_id,"
 				+ "c.null_test_significance AS p_value, 0 AS effect_size, "
 				+ "c.status AS status, c.statistical_method AS statistical_method, "
 				// note that control_sex has no meaning in this case
@@ -167,7 +167,7 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 			while (resultSet.next()) {
 				
 				
-				String parameterStableId = resultSet.getString("param_stable_id");
+				String parameterStableId = resultSet.getString("parameter_stable_id");
 				List<StatisticalResultBean> lb = null;
 				
 				if (results.containsKey(parameterStableId)) {
@@ -197,6 +197,7 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 			e.printStackTrace();
 		}
 		
+		System.out.println("nb of results : " + results.size());
 		log.info("nb of results : " + results.size());
 		return results;
 	}

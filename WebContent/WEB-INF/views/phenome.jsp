@@ -95,6 +95,7 @@
 				<table id="phenotypeCalls">
 					<thead>
 						<tr>
+							<th class="headerSort">Gene / Allele</th>
 							<th class="headerSort">Procedure</th>
 							<th class="headerSort">Parameter</th>
 							<th class="headerSort">Zygosity</th>
@@ -107,6 +108,9 @@
 						<c:forEach var="phenotypeCall" items="${phenotypeCalls}"
 											varStatus="status">
 								<tr>
+								<td><a href="${baseUrl}/genes/${phenotypeCall.gene.id.accession}">${phenotypeCall.gene.symbol}</a><br/> 
+									<span class="smallerAlleleFont"><t:formatAllele>${phenotypeCall.allele.symbol}</t:formatAllele></span> 
+								</td>
 								<td>${phenotypeCall.procedure.name}</td>
 								<td>${phenotypeCall.parameter.name}</td>
 								<td>${phenotypeCall.zygosity}</td>

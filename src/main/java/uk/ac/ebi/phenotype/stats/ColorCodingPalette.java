@@ -32,7 +32,8 @@ public class ColorCodingPalette {
 	// Palette (should be moved to another package)
 	static List<List<int[]>> rgbOrangeRedPalette = null;
 	
-	public static final double MIN_PVALUE = 0.0001f;
+	public static final int NB_COLOR_MIN = 3;
+	public static final int NB_COLOR_MAX = 9;
 	
 	static {
 		
@@ -137,7 +138,7 @@ public class ColorCodingPalette {
 	}
 
 	public void convertPvaluesToColorIndex(List<Double> pValues, int maxColorIndex, double scale) {
-		convertPvaluesToColorIndex(pValues, maxColorIndex, scale, ColorCodingPalette.MIN_PVALUE);
+		convertPvaluesToColorIndex(pValues, maxColorIndex, scale, Constants.SIGNIFICANT_P_VALUE);
 	}
 
 	/**
@@ -289,7 +290,7 @@ public class ColorCodingPalette {
 	
 	private List<int[]> getColorPalette(int nbColors) {
 		// default palette - 9 colors
-		if (nbColors-3 >= 0 && nbColors-3 <= 6) {
+		if (nbColors >= NB_COLOR_MIN && nbColors <= NB_COLOR_MAX) {
 			return rgbOrangeRedPalette.get(nbColors-3);
 		}
 		return rgbOrangeRedPalette.get(0); // 3 colors

@@ -609,6 +609,8 @@ public class ObservationService {
         		ExperimentField.OBSERVATION_TYPE + "," +
         		ExperimentField.ZYGOSITY);
 
+        System.out.println(query.toString());
+        
         QueryResponse response = solr.query(query);
 
         NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
