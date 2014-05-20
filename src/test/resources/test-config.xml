@@ -58,6 +58,7 @@
     </bean>
                 
     <context:component-scan base-package="uk.ac.ebi" />
+    <context:component-scan base-package="org.mousephenotype.www" />
 
     <context:annotation-config/>
 
@@ -170,6 +171,10 @@
             </map>
         </property>
     </bean>
+    
+    <util:properties id="testIterationsHash" location="classpath:testIterations.properties" />
+    
+    <bean id="testUtils" class="org.mousephenotype.www.testing.model.TestUtils" />
 
     <bean id="seleniumUrl" class="java.lang.String">
         <constructor-arg value="${seleniumUrl}"/>
