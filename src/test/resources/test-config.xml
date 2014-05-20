@@ -49,6 +49,10 @@
         <constructor-arg  value="${internalSolrUrl}/genotype-phenotype" />
     </bean>
     
+    <bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
+		<constructor-arg  value="${internalSolrUrl}/statistical-result" />
+	</bean>
+    
     <bean id="mpService" class="uk.ac.ebi.phenotype.service.MpService">
         <constructor-arg  value="${internalSolrUrl}/mp" />
     </bean>
