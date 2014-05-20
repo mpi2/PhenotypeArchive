@@ -28,7 +28,7 @@
 							<th class="headerSort">Procedure / Parameter</th>
 							<th class="headerSort">Phenotyping Center</th> 
 							<th class="headerSort">Source</th>
-                                                        <th>pValue</th>
+                                                        <th>P Value</th>
 							<th class="headerSort">Graph</th>
 						</tr>
 					</thead>
