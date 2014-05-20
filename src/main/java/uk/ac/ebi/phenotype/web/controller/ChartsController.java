@@ -199,6 +199,7 @@ public class ChartsController {
 			@RequestParam(required = false, value = "strategy") String[] strategies,
 			@RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableId,
 			@RequestParam(required = false, value = "scatter") boolean scatter,
+			@RequestParam(required = false, value = "standAlone") boolean standAlone,
 			Model model) throws GenomicFeatureNotFoundException,
 			ParameterNotFoundException, IOException, URISyntaxException,
 			SolrServerException,  SpecificExperimentException {
