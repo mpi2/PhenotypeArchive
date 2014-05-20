@@ -194,6 +194,25 @@ public class GenotypePhenotypeService {
 		return allTopLevelPhenotypes;
 	}
 
+
+	public Set<String> getAllIntermediateLevelPhenotypes() throws SolrServerException{
+
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery( GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID + ":*");
+		solrQuery.setRows(1000000);
+		solrQuery.setFields( GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID );
+		QueryResponse rsp = solr.query(solrQuery);
+		SolrDocumentList res = rsp.getResults();
+		HashSet<String> allIntermediateLevelPhenotypes = new HashSet();
+		for (SolrDocument doc: res){
+			ArrayList<String> ids = (ArrayList<String>)doc.getFieldValue( GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID );
+			for (String id : ids) {
+				allIntermediateLevelPhenotypes.add(id);
+			}
+		}
+		return allIntermediateLevelPhenotypes;
+	}
+
 	/*
 	 * Methods used by PhenotypeSummaryDAO
 	 */

@@ -296,7 +296,7 @@ config.facetParams = {
 		 filterParams: {'fq': 'ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*'},		 
 		 srchParams: $.extend({},
 					commonSolrParams,
-					{'fl' : 'ma_id,ma_term,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'})		
+					{'fl' : 'ma_id,ma_term,ma_term_synonym,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'})		
 	 },	 
 	 diseaseFacet: {			    	
 		 type: 'diseases',
