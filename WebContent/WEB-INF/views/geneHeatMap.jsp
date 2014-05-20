@@ -9,15 +9,15 @@
 	<link type='text/css' rel='stylesheet' href='${baseUrl}/css/additionalStyling.css'  />
 		<script type='text/javascript'  src="http://code.highcharts.com/modules/heatmap.js"></script><!-- this will need to be local as https causes highcharts to fail otherwise as insecure content error-->
  <script>$(function() {
-    var header_height = 0;
-    $('vertical_header').each(function() {
-        if ($(this).outerWidth() > header_height) header_height = $(this).outerWidth();
-        $(this).width($(this).height());
-    });
+	    var header_height = 0;
+	    $('table th span').each(function() {
+	        if ($(this).outerWidth() > header_height) header_height = $(this).outerWidth();
+	        $(this).width($(this).height());
+	    });
 
-    $('table th').height(header_height);
-    
-});
+	    $('table th').height(header_height);
+	    
+	});
  </script>
  
   </jsp:attribute>
@@ -26,16 +26,26 @@
                 <table>
                 <thead>
                 <tr> 
-                <th><span class="vertical_header">Gene</span></th>
+                <th><span>Gene</span></th>
+                <th><span>Mice Produced</span></th>
+                <th><span>Primary Phenotype</span></th>
                 	<c:forEach items="${parameters}" var="phenoParam">
-                		<th><span class="vertical_header">${phenoParam.name}</span></th>
+                		<th><span>${phenoParam.name}</span></th>
                 	</c:forEach>
                 </tr>
                 </thead>
                 <c:forEach items="${geneRows}" var="row">
-                <tr><td>${row.symbol}</td>  
+                <tr><td>${row.symbol}</td>
+                <td>
+                	<c:if test="${row.miceProduced}">Y</c:if>
+                	<c:if test="${!row.miceProduced}">N</c:if>
+                </td>
+                <td>
+                	<c:if test="${row.primaryPhenotype}">Y</c:if>
+               		<c:if test="${!row.primaryPhenotype}">N</c:if>
+                </td>  
                     <c:forEach items="${parameters}" var="paramKey"> 
-                        <td  <c:if test="${row.paramToCellMap[paramKey.stableId].pValue!=null}">style="background-color:rgb(252,141,89)"</c:if>><%-- ${row.paramToCellMap[paramKey.stableId].mpTermName} --%>${row.paramToCellMap[paramKey.stableId].pValue}</td>
+                        <td  <c:if test="${row.paramToCellMap[paramKey.stableId].pValue!=null}">style="background-color:rgb(252,141,89)"</c:if><c:if test="${row.paramToCellMap[paramKey.stableId].pValue==null}">style="background-color: rgb(119, 119, 119)"</c:if>><%-- ${row.paramToCellMap[paramKey.stableId].mpTermName} --%>${row.paramToCellMap[paramKey.stableId].pValue}</td>
                     </c:forEach>
                 </tr>
                 </c:forEach>

@@ -18,7 +18,26 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
 
     private String accession="";
     private String symbol="";
-    public String getSymbol() {
+    private Boolean miceProduced=false;
+    private Boolean primaryPhenotype=false;
+    
+    public Boolean getMiceProduced() {
+		return miceProduced;
+	}
+
+	public void setMiceProduced(Boolean miceProduced) {
+		this.miceProduced = miceProduced;
+	}
+
+	public Boolean getPrimaryPhenotype() {
+		return primaryPhenotype;
+	}
+
+	public void setPrimaryPhenotype(Boolean primaryPhenotype) {
+		this.primaryPhenotype = primaryPhenotype;
+	}
+
+	public String getSymbol() {
 		return symbol;
 	}
 

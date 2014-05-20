@@ -76,7 +76,7 @@ public class GeneHeatmapController {
                 //accessions=accessions.subList(0, 10);
                 //get a list of procedure-parameters for the project which will be the column headers
                 accessions.add(0, "MGI:104874");//replace first one with our favourite gene akt2 for testing
-                //accessions=accessions.subList(0, 10);
+                accessions=accessions.subList(0, 10);
                 //mice produced and primary phenotype will be the first two coluns always?
                 for(String accession: accessions){
                     //System.out.println("accession="+accession);

@@ -133,7 +133,22 @@ button.exportButton{
 	color:#aaa;
 }
 
-.vertical_header {
+td{
+	border:1px solid #efefef;
+	padding: 0.5em 0.7em 0.5em 0.2em; word-wrap: break-word;
+	width: 10px;
+}
+table, tr, td, th {
+ border:1px solid #efefef;
+ word-wrap: break-word;
+ text-align: center;
+}
+
+th {
+    vertical-align: bottom;
+}
+
+th span {
   margin-bottom: 10px;
   padding: 0 .5em;
   writing-mode: tb-rl;
