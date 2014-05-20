@@ -1,7 +1,7 @@
 <dataConfig>
 
-    <script>
-        <![CDATA[
+	<script>
+	<![CDATA[
 		function getData(row) {
 			if (row.get('data_type') == 'categorical') {
 				row.put('p_value', row.get('categorical_p_value'));
@@ -9,28 +9,27 @@
 
 				var arr = new java.util.ArrayList();
 
-                var categories_a = row.get('category_a');
-                var pieces_a = categories_a.split('|');
+				var categories_a = row.get('category_a');
+				if(typeof categories_a != 'undefined' && categories_a != null) {
+					var pieces_a = categories_a.split('|');
 
-                if(typeof pieces_a != 'undefined') {
-    				for (var i=0; i<pieces_a.length; i++) {
-    					arr.add(pieces_a[i]);
-    				}
-    			}
+					if(typeof pieces_a != 'undefined') {
+						for (var i=0; i<pieces_a.length; i++) {
+							arr.add(pieces_a[i]);
+						}
+					}
+				}
 
-                var categories_b = row.get('category_b');
-
-				// If categories_b is defined, split and add them to the 
-				// categories
-                if(typeof categories_b != 'undefined') {
-	                var pieces_b = categories_b.split('|');
+				var categories_b = row.get('category_b');
+				if(typeof categories_b != 'undefined') {
+					var pieces_b = categories_b.split('|');
 	
-	                if(typeof pieces_b != 'undefined') {
-	    				for (var i=0; i<pieces_b.length; i++) {
-	    					arr.add(pieces_b[i]);
-	    				}
-	    			}
-	    		}
+					if(typeof pieces_b != 'undefined') {
+						for (var i=0; i<pieces_b.length; i++) {
+							arr.add(pieces_b[i]);
+						}
+					}
+				}
 
 				row.put('categories', arr);
 
@@ -44,9 +43,8 @@
 
 			return row;
 		}
-
 	]]>
-    </script>
+	</script>
 
     <dataSource name="komp2ds" jndiName="java:comp/env/jdbc/komp2DataSource" batchSize="-1" readOnly="true"/>
 	<dataSource name="ontodbds" jndiName="java:comp/env/jdbc/ontodbDataSource" /> 
