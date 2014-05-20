@@ -18,34 +18,37 @@
  * limitations under the License.
  */
 
-
-
-package org.mousephenotype.www.model;
+package org.mousephenotype.www.testing.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.mousephenotype.www.exception.NoGraphException;
+import org.mousephenotype.www.testing.exception.NoGraphException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.pojo.SexGrouping;
 import uk.ac.ebi.phenotype.util.Utils;
 
 /**
  *
  * @author mrelac
  * 
- * This class encapsulates the code and data necessary to represent a gene page
- * against which selenium web tests may interact. It consists primarily of a
- * parser and a validator. The parser serves up interesting parts of the gene page
- * in a data grid for easy comparison and validation of values. The validator
- * runs validation rules against the parsed values to compare expected results
- * to actual results.
+ * This abstract class encapsulates the code and data necessary to represent
+ * the common parts of both a gene page (/genes/MGI:xxx) and a phenotype page
+ * (/phenotypes/MP:xxxx), against which selenium web tests may interact. It
+ * consists primarily of a parser and a validator. The parser serves up
+ * interesting parts of the gene page in a data grid for easy comparison and
+ * validation of values. The validator runs validation rules against the parsed
+ * values to compare expected results to actual results.
+ * 
+ * Since both pages are almost identical and differ only in their column layout,
+ * they can be easily tested and verified by this class.
  */
-public class GenePage {
-    private List<GeneRow> data;
+public class GenePhenotypePage {
+    private List<GenePhenotypeRow> data;
     private final WebDriver driver;
     private final long timeoutInSeconds;
     private final PhenotypePipelineDAO phenotypePipelineDAO;
@@ -57,7 +60,7 @@ public class GenePage {
     private final String NO_PHENO_ASSOCIATIONS = "There are currently no phenotype associations for the gene";
     private final String RESULT_TEXT_DISCARD = "Total number of results: ";
     
-    public GenePage(WebDriver driver, long timeoutInSeconds, PhenotypePipelineDAO phenotypePipelineDAO) {
+    public GenePhenotypePage(WebDriver driver, long timeoutInSeconds, PhenotypePipelineDAO phenotypePipelineDAO) {
         this.data = new ArrayList();
         this.driver = driver;
         this.timeoutInSeconds = timeoutInSeconds;
@@ -88,7 +91,15 @@ public class GenePage {
      * any failure counts and messages.
      */
     public GraphParsingStatus parse(GraphParsingStatus status) {
-        hasPhenotypeAssociations =  ! (driver.findElement(By.cssSelector("div.inner div.alert")).getText().contains(NO_PHENO_ASSOCIATIONS));
+        try {
+            long shortTimeoutInSeconds = 1;
+            
+            // Look for the 'No Phenotypes' message. If found, 'hasPhenotypeAssociations' is true; otherwise, it is false.
+            hasPhenotypeAssociations =  ! (new WebDriverWait(driver, shortTimeoutInSeconds))
+                    .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner div.alert"))).getText().contains(NO_PHENO_ASSOCIATIONS);
+        } catch (Exception e) {
+            hasPhenotypeAssociations = true;
+        }
         
         if (hasPhenotypeAssociations) {
             // Populate resultCount from the 'Total number of results' tag on the page.
@@ -104,15 +115,18 @@ public class GenePage {
                 status.addFail("Expected to find result count but didn't.");
             }
             
-            // Loop through all of the tr objects for this gene, gathering the data.
             try {
                 WebElement phenotypesTable = (new WebDriverWait(driver, timeoutInSeconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("table#phenotypes tbody")));
+                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("table#phenotypes")));
+                
+                // Grab the headings.
+                List<WebElement> headings = phenotypesTable.findElements(By.cssSelector("thead tr th"));
                     
+                // Loop through all of the tr objects for this page, gathering the data.
                 data = new ArrayList();
-                for (WebElement phenotypesRow : phenotypesTable.findElements(By.cssSelector("tr"))) {
-                    List<WebElement> weList = phenotypesRow.findElements(By.cssSelector("td"));
-                    data.add(new GeneRow(weList));
+                for (WebElement phenotypesRow : phenotypesTable.findElements(By.cssSelector("tbody tr"))) {
+                    List<WebElement> dataRow = phenotypesRow.findElements(By.cssSelector("td"));
+                    data.add(new GenePhenotypeRow(headings, dataRow));
                 }
             } catch (NoGraphException nge) {
                 status.addFail("Error while trying to find and parse the phenotypes HTML table:\n" + nge.getLocalizedMessage());
@@ -121,9 +135,9 @@ public class GenePage {
         
         return status;
     }
-    
+
     /**
-     * Validates this <code>GenePage</code> instance
+     * Validates this <code>GenePhenotypePage</code> instance
      * @return a new <code>GraphParsingStatus</code> status instance containing
      * failure counts and messages.
      */
@@ -132,7 +146,7 @@ public class GenePage {
     }
     
     /**
-     * Validates this <code>GenePage</code> instance, using the caller-provided
+     * Validates this <code>GenePhenotypePage</code> instance, using the caller-provided
      * status instance
      * @param status caller-supplied status instance to be used
      * @return the passed-in <code>GraphParsingStatus</code> status, updated with
@@ -141,11 +155,11 @@ public class GenePage {
     public final GraphParsingStatus validate(GraphParsingStatus status) {
         // Verify that every data row has a valid graph link, then validate each link. Count the Sex icons along the way for later check.
         int sexIconCount = 0;
-        for (GeneRow row : data) {
+        for (GenePhenotypeRow row : data) {
             // Count the Sex icons.
-            if ((row.getSex() == GeneRow.Sex.MALE) || (row.getSex() == GeneRow.Sex.FEMALE))
+            if ((row.getSexGrouping() == SexGrouping.male) || (row.getSexGrouping() == SexGrouping.female))
                 sexIconCount++;
-            else if (row.getSex() == GeneRow.Sex.BOTH)
+            else if (row.getSexGrouping() == SexGrouping.both)
                 sexIconCount += 2;
             
             // Validate the graph link.
@@ -175,7 +189,7 @@ public class GenePage {
         return resultCount;
     }
 
-    public List<GeneRow> getData() {
+    public List<GenePhenotypeRow> getData() {
         return data;
     }
 

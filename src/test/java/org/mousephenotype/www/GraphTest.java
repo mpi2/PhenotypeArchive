@@ -41,8 +41,8 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.www.model.GenePage;
-import org.mousephenotype.www.model.GraphParsingStatus;
+import org.mousephenotype.www.testing.model.GenePhenotypePage;
+import org.mousephenotype.www.testing.model.GraphParsingStatus;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
@@ -56,6 +56,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.service.GeneService;
+import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.util.Utils;
 
 /**
@@ -90,6 +91,9 @@ public class GraphTest {
     protected GeneService geneService;
     
     @Autowired
+    protected GenotypePhenotypeService genotypePhenotypeService;
+    
+    @Autowired
     protected String baseUrl;
     
     @Autowired
@@ -104,7 +108,7 @@ public class GraphTest {
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     
     // These constants define the maximum number of iterations for each given test. -1 means iterate over all.
-    public final int MAX_GENE_TEST_PAGE_COUNT = 10;                             // -1 means test all pages.
+    public final int MAX_GENE_TEST_PAGE_COUNT = 2;                             // -1 means test all pages.
     private final int TIMEOUT_IN_SECONDS = 4;
     private final int THREAD_WAIT_IN_MILLISECONDS = 1000;
     
@@ -145,8 +149,6 @@ public class GraphTest {
     public static void tearDownClass() {
     }
     
-    // PRIVATE METHODS
-    
     private void printTestEnvironment() {
         String browserName = "<Unknown>";
         String version = "<Unknown>";
@@ -172,7 +174,7 @@ public class GraphTest {
      * @throws SolrServerException 
      */
     @Test
-@Ignore
+//@Ignore
     public void testRandomGraphsByGene() throws SolrServerException {
         final String testName = "testRandomGraphsByGene";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
@@ -214,11 +216,11 @@ public class GraphTest {
                 (new WebDriverWait(driver, timeoutInSeconds))
                         .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(geneId)));
                 
-                GenePage genePage = new GenePage(driver, timeoutInSeconds, phenotypePipelineDAO);
-                GraphParsingStatus status = genePage.parse();
+                GenePhenotypePage page = new GenePhenotypePage(driver, timeoutInSeconds, phenotypePipelineDAO);
+                GraphParsingStatus status = page.parse();
                 
                 // Skip over genes with no pheno association. They have no graph links to check.
-                if ( ! genePage.hasPhenotypeAssociations()) {
+                if ( ! page.hasPhenotypeAssociations()) {
                     try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
                     continue;
                 }
@@ -229,13 +231,13 @@ public class GraphTest {
                     System.out.println("gene[" + allGenePagesCount + "]: " + geneId);
                 }
                 
-                genePage.validate(status);
+                page.validate(status);
                 
                 if (status.getPass() > 0) {
                     successList.add("SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target);
                 }
                 if (status.getFail() > 0) {
-                    System.out.println(status.getFail() + " graphs failed for gene " + genePage.getUrl() + ":");
+                    System.out.println(status.getFail() + " graphs failed for gene " + page.getUrl());
                     for (String s : status.getFailMessages()) {
                         System.out.println("\t" + s);
                     }
@@ -290,6 +292,129 @@ public class GraphTest {
     }
 
     /**
+     * Fetches all phenotype IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
+     * core and tests the graph links and pages.
+     * 
+     * @throws SolrServerException 
+     */
+    @Test
+//@Ignore
+    public void testRandomGraphsByPhenotype() throws SolrServerException {
+        final String testName = "testRandomGraphsByPhenotype";
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        Set<String> phenotypeIds = genotypePhenotypeService.getAllPhenotypes();
+        String[] phenotypeIdArray = phenotypeIds.toArray(new String[phenotypeIds.size()]);
+        String target;
+        List<String> errorList = new ArrayList();
+        List<String> successList = new ArrayList();
+        List<String> exceptionList = new ArrayList();
+        String message;
+        Date start = new Date();
+        Date stop;
+        
+        int targetCount = (max_gene_test_page_count >= 0 ? Math.min(max_gene_test_page_count, phenotypeIds.size()) : phenotypeIds.size());
+        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
+        
+        // Loop through the genes, testing each one with an IMPC graph for valid page load.
+        Random rand = new Random();
+        int max = phenotypeIds.size();
+        int min = 0;
+        int allPagesCount = 0;
+        int graphPagesTestedCount = 0;
+        while (true) {
+            int index = rand.nextInt((max - min) + 1) + min;
+            String phenotypeId = phenotypeIdArray[index];
+//if (allPagesCount == 0) phenotypeId = "MP:0010119";      // undimensional
+//if (allPagesCount == 1) phenotypeId = "MP:0002092";      // categorical
+//if (allGenePagesCount == 0) geneId = "MGI:104874";
+//if (allGenePagesCount == 1) geneId = "MGI:1924285";
+//if (allGenePagesCount == 2) timeseriesGraphUrl = "https://dev.mousephenotype.org/data/charts?accession=MGI:104874&allele_accession=EUROALL:19&parameter_stable_id=ESLIM_004_001_002&zygosity=heterozygote&phenotyping_center=WTSI";
+            if ((max_gene_test_page_count != -1) && (allPagesCount >= max_gene_test_page_count)) {
+                break;
+            }
+            
+            target = baseUrl + "/phenotypes/" + phenotypeId;
+
+            try {
+                // Get the page.
+                driver.get(target);
+                (new WebDriverWait(driver, timeoutInSeconds))
+                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
+                
+                GenePhenotypePage page = new GenePhenotypePage(driver, timeoutInSeconds, phenotypePipelineDAO);
+                GraphParsingStatus status = page.parse();
+                
+                // Skip over pages with no pheno association. They have no graph links to check.
+                if ( ! page.hasPhenotypeAssociations()) {
+                    try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+                    continue;
+                }
+                
+                allPagesCount++;
+                
+                if (allPagesCount < 10) {
+                    System.out.println("phenotype page[" + allPagesCount + "]: " + phenotypeId);
+                }
+                
+                page.validate(status);
+                
+                if (status.getPass() > 0) {
+                    successList.add("SUCCESS: MGI_ACCESSION_ID " + phenotypeId + ". Target URL: " + target);
+                }
+                if (status.getFail() > 0) {
+                    System.out.println(status.getFail() + " graphs failed for phenotype page " + page.getUrl());
+                    for (String s : status.getFailMessages()) {
+                        System.out.println("\t" + s);
+                    }
+                    errorList.add("FAIL: MGI_ACCESSION_ID " + phenotypeId + ". Target URL: " + target);
+                }
+                graphPagesTestedCount += status.getTotal();
+            } catch (NoSuchElementException | TimeoutException te) {
+                message = "Expected page for MGI_ACCESSION_ID " + phenotypeId + "(" + target + ") but found none.";
+                errorList.add(message);
+            }  catch (Exception e) {
+                message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+                exceptionList.add(message);
+                continue;
+            }
+
+            if ( ! exceptionList.isEmpty()) {
+                System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
+                for (String s : exceptionList) {
+                    System.out.println("\t" + s);
+                }
+            }
+            
+            if (allPagesCount % 100 == 0)
+                System.out.println(dateFormat.format(new Date()) + ": " + allPagesCount + " records processed so far.");
+            try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+        }
+        
+        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
+        
+        if ( ! errorList.isEmpty()) {
+            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
+            for (String s : errorList) {
+                System.out.println("\t" + s);
+            }
+        }
+        
+        if ( ! exceptionList.isEmpty()) {
+            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
+            for (String s : exceptionList) {
+                System.out.println("\t" + s);
+            }
+        }
+        
+        stop = new Date();
+        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records with " + graphPagesTestedCount + " graphs processed successfully in " + Tools.dateDiff(start, stop) + ".");
+        
+        if (errorList.size() + exceptionList.size() > 0) {
+            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
+        }
+    }
+
+    /**
      * Fetches all gene IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
      * core and tests the graph links and pages.
      * 
@@ -312,45 +437,44 @@ public class GraphTest {
         int targetCount = geneIds.size();
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
-        int allGenePagesCount = 0;
+        int allPagesCount = 0;
         int graphPagesTestedCount = 0;
-        int i = 0;
         for (String geneId : geneIds) {
-//if (allGenePagesCount == 0) geneId = "MGI:104874";      // undimensional
-//if (allGenePagesCount == 0) geneId = "MGI:2384936";     // categorical
-//if (allGenePagesCount == 2) geneId = "MGI:1924285";     // another unidimensional
-//if (allGenePagesCount == 2) timeseriesGraphUrl = "https://dev.mousephenotype.org/data/charts?accession=MGI:104874&allele_accession=EUROALL:19&parameter_stable_id=ESLIM_004_001_002&zygosity=heterozygote&phenotyping_center=WTSI";
+//if (allPagesCount == 0) geneId = "MGI:104874";      // undimensional
+//if (allPagesCount == 1) geneId = "MGI:2384936";     // categorical
+//if (allPagesCount == 2) geneId = "MGI:1924285";     // another unidimensional
+//if (allPagesCount == 2) timeseriesGraphUrl = "https://dev.mousephenotype.org/data/charts?accession=MGI:104874&allele_accession=EUROALL:19&parameter_stable_id=ESLIM_004_001_002&zygosity=heterozygote&phenotyping_center=WTSI";
 
             target = baseUrl + "/genes/" + geneId;
 
             try {
-                // Get the gene page.
+                // Get the page.
                 driver.get(target);
                 (new WebDriverWait(driver, timeoutInSeconds))
                         .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(geneId)));
                 
-                GenePage genePage = new GenePage(driver, timeoutInSeconds, phenotypePipelineDAO);
-                GraphParsingStatus status = genePage.parse();
+                GenePhenotypePage page = new GenePhenotypePage(driver, timeoutInSeconds, phenotypePipelineDAO);
+                GraphParsingStatus status = page.parse();
                 
                 // Skip over genes with no pheno association. They have no graph links to check.
-                if ( ! genePage.hasPhenotypeAssociations()) {
+                if ( ! page.hasPhenotypeAssociations()) {
                     try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
                     continue;
                 }
                 
-                allGenePagesCount++;
+                allPagesCount++;
                 
-                if (allGenePagesCount < 10) {
-                    System.out.println("gene[" + allGenePagesCount + "]: " + geneId);
+                if (allPagesCount < 10) {
+                    System.out.println("page[" + allPagesCount + "]: " + geneId);
                 }
                 
-                genePage.validate(status);
+                page.validate(status);
                 
                 if (status.getPass() > 0) {
                     successList.add("SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target);
                 }
                 if (status.getFail() > 0) {
-                    System.out.println(status.getFail() + " graphs failed for gene " + genePage.getUrl() + ":");
+                    System.out.println(status.getFail() + " graphs failed for gene page " + page.getUrl());
                     for (String s : status.getFailMessages()) {
                         System.out.println("\t" + s);
                     }
@@ -373,8 +497,8 @@ public class GraphTest {
                 }
             }
             
-            if (allGenePagesCount % 100 == 0)
-                System.out.println(dateFormat.format(new Date()) + ": " + allGenePagesCount + " records processed so far.");
+            if (allPagesCount % 100 == 0)
+                System.out.println(dateFormat.format(new Date()) + ": " + allPagesCount + " records processed so far.");
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
         }
         

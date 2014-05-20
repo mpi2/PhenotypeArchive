@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.mousephenotype.www.model;
+package org.mousephenotype.www.testing.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -117,7 +117,11 @@ public class GraphPage {
      */
     public GraphParsingStatus parse(GraphParsingStatus status) {
         // Save title.
-        title = driver.findElement(By.cssSelector("h2#section-associations")).getText();
+        try {
+            title = driver.findElement(By.cssSelector("h2#section-associations")).getText();
+        } catch (Exception e) {
+            status.addFail("ERROR: parse() unable to get 'Allele' title.");
+        }
         
         // Save parameter and parameterStableId.
         List<WebElement> textElementList = driver.findElements(By.cssSelector("div[id*='chart'] text.highcharts-title"));
