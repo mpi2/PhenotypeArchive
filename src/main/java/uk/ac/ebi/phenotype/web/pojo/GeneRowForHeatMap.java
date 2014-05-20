@@ -50,22 +50,14 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
     }
     
     public int compareTo(GeneRowForHeatMap compareRow) {
-    	 
 		Float compareQuantity =  compareRow.getLowestPValue(); 
- 
-		//ascending order
 		if(this.lowestPValue>compareQuantity){
 			return 1;
 		}
 		if(this.lowestPValue<compareQuantity){
 			return -1;
 		}
-		
 		return 0;
- 
-		//descending order
-		//return compareQuantity - this.quantity;
- 
 	}
 
 	public Float getLowestPValue() {
