@@ -617,7 +617,11 @@ public class GenotypePhenotypeService {
 	 */
         public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, GenomicFeature gene, List<Parameter> parameters){
             GeneRowForHeatMap row=new GeneRowForHeatMap(accession);
-            row.setSymbol(gene.getSymbol());
+            if(gene!=null){
+            	row.setSymbol(gene.getSymbol());
+            }else{
+            	System.err.println("error no symbol for gene "+accession);
+            }
             List<HeatMapCell> results=new ArrayList<HeatMapCell>();
 //search by gene and a list of params            
       //or search on gene and then loop through params to add the results if available order by ascending p value means we can just pick off the first entry for that param
@@ -641,16 +645,18 @@ public class GenotypePhenotypeService {
                 //System.out.println(doc.getFieldValues("p_value"));
                
                 String paramStableId=cell.getParameterStableId();
-                System.out.println("comparing"+cell.getParameterStableId()+"|");
+                //System.out.println("comparing"+cell.getParameterStableId()+"|");
                 if(paramMap.containsKey(cell.getParameterStableId())){
                 System.out.println("cell mp Term name="+cell.getMpTermName());
                 System.out.println("cell p value="+cell.getpValue());
                    System.out.println(cell.getpValue()+"found");
-                   //if(paramMap.get(paramStableId)==null){//not set already so set the value - first value as ordered by pValue is the one to get - ignore all others
                        paramMap.put(paramStableId, cell);
-                   //}
+                       if(row.getLowestPValue()>cell.getpValue()){
+                    	   row.setLowestPValue(cell.getpValue());
+                       }
                 }
             }
+            
             row.setParamToCellMap(paramMap);
             } catch (SolrServerException ex) {
                 Logger.getLogger(GenotypePhenotypeService.class.getName()).log(Level.SEVERE, null, ex);

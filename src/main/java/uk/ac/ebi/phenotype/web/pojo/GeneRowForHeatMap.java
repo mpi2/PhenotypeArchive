@@ -14,7 +14,7 @@ import uk.ac.ebi.phenotype.service.*;
  *
  * @author jwarren
  */
-public class GeneRowForHeatMap {
+public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
 
     private String accession="";
     private String symbol="";
@@ -27,6 +27,7 @@ public class GeneRowForHeatMap {
 	}
 
 	Map<String, HeatMapCell> paramToCellMap=new HashMap<>();
+	private Float lowestPValue=new Float(1000000);//just large number so we don't get null pointers
 
     public Map<String, HeatMapCell> getParamToCellMap() {
         return paramToCellMap;
@@ -48,6 +49,33 @@ public class GeneRowForHeatMap {
        this.paramToCellMap.put(cell.getParameterStableId(), cell);
     }
     
+    public int compareTo(GeneRowForHeatMap compareRow) {
+    	 
+		Float compareQuantity =  compareRow.getLowestPValue(); 
+ 
+		//ascending order
+		if(this.lowestPValue>compareQuantity){
+			return 1;
+		}
+		if(this.lowestPValue<compareQuantity){
+			return -1;
+		}
+		
+		return 0;
+ 
+		//descending order
+		//return compareQuantity - this.quantity;
+ 
+	}
+
+	public Float getLowestPValue() {
+		return this.lowestPValue;
+		
+	}
+
+	public void setLowestPValue(Float getpValue) {
+		this.lowestPValue=getpValue;
+	}	
     
     
     
