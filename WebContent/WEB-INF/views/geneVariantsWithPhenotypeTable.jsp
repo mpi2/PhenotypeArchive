@@ -29,7 +29,7 @@
 				<th>Procedure / Parameter</th>
 				<th>Phenotyping Center</th>
 				<th>Source</th>
-                                <th>pValue</th>
+                                <th>P Value</th>
 				<th>Graph</th>
 			</tr>
 		</thead>

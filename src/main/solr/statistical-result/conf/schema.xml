@@ -31,23 +31,53 @@
 
         <!-- Information about the SOLR document -->
         <field name="_version_"                   type="long"   indexed="true" stored="true"/>
-		<field name="id"                          type="int"    indexed="true" stored="true" multiValued="false" required="true"/>
-        <field name="unique_id"                   type="string" indexed="true" stored="true" multiValued="false" required="true"/>
+        <field name="doc_id"                      type="string" indexed="true" stored="true" multiValued="false" required="true"/>
+		<field name="db_id"                       type="int"    indexed="true" stored="true" multiValued="false" required="true"/>
         <field name="data_type"                   type="string" indexed="true" stored="true" multiValued="false" />
 
+        <!-- Information about the MP term -->
+        <field name="mp_term_id"                  type="string" indexed="true" stored="true" required="false" multiValued="false" />	
+        <field name="mp_term_name"                type="string" indexed="true" stored="true" required="false" multiValued="false" />
+        <field name="top_level_mp_term_id"        type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+        <field name="top_level_mp_term_name"      type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="top_level_mp_term_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+        <field name="top_level_mp_term_synonym"   type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+        <field name="intermediate_mp_term_id"     type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="intermediate_mp_term_name"   type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+        <field name="intermediate_mp_term_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+        <field name="intermediate_mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />		
+        
         <!-- Information about the data being processed -->
-        <field name="datasource_name"             type="string" indexed="true" stored="true" multiValued="false" />
+        <field name="resource_name"               type="string" indexed="true" stored="true" multiValued="false" />
+        <field name="resource_fullname"           type="string" indexed="true" stored="true" multiValued="false" />
+        <field name="resource_id"                 type="int" indexed="true" stored="true" multiValued="false" />
         <field name="project_name"                type="string" indexed="true" stored="true" multiValued="false" />
-        <field name="phenotyping_center_name"     type="string" indexed="true" stored="true" multiValued="false" />
+        <field name="phenotyping_center"          type="string" indexed="true" stored="true" multiValued="false" />
+
+        <field name="pipeline_stable_id"          type="string" indexed="true" stored="true" required="false" multiValued="false" />
+        <field name="pipeline_stable_key"         type="string" indexed="false" stored="true" required="false" multiValued="false" />
         <field name="pipeline_name"               type="string" indexed="true" stored="true" multiValued="false" />
+        <field name="pipeline_id"                 type="int" indexed="true" stored="true" multiValued="false" />
+
+        <field name="procedure_stable_id"         type="string" indexed="true" stored="true" required="false" multiValued="false" />
+        <field name="procedure_stable_key"        type="string" indexed="false" stored="true" required="false" multiValued="false" />
         <field name="procedure_name"              type="string" indexed="true" stored="true" multiValued="false" />
+        <field name="procedure_id"                type="int" indexed="true" stored="true" multiValued="false" />
+
+        <field name="parameter_stable_id"         type="string" indexed="true" stored="true" required="false" multiValued="false" />
+        <field name="parameter_stable_key"        type="string" indexed="false" stored="true" required="false" multiValued="false" />
         <field name="parameter_name"              type="string" indexed="true" stored="true" multiValued="false" />
+        <field name="parameter_id"                type="int" indexed="true" stored="true" multiValued="false" />
+
         <field name="colony_id"                   type="string" indexed="true" stored="true" multiValued="false" />
-        <field name="gene_accession_id"           type="string" indexed="true" stored="true" multiValued="false" />
-        <field name="gene_symbol"                 type="string" indexed="true" stored="true" multiValued="false" />
-        <field name="allele_accession_id"         type="string" indexed="true" stored="true" multiValued="false" />
+        <field name="marker_symbol"               type="string" indexed="true" stored="true" multiValued="false" />
+        <field name="marker_accession_id"         type="string" indexed="true" stored="true" multiValued="false" />
         <field name="allele_symbol"               type="string" indexed="true" stored="true" multiValued="false" />
-        <field name="background_strain"           type="string" indexed="true" stored="true" multiValued="false" />
+        <field name="allele_name"                 type="string" indexed="true" stored="true" required="false" multiValued="false" />
+        <field name="allele_accession_id"         type="string" indexed="true" stored="true" multiValued="false" />
+        <field name="strain_name"                 type="string" indexed="true" stored="true" multiValued="false" />
+        <field name="strain_accession_id"         type="string" indexed="true" stored="true" required="false" multiValued="false" />
+        <field name="sex"                         type="string" indexed="true" stored="true" multiValued="false" />
         <field name="zygosity"                    type="string" indexed="true" stored="true" multiValued="false" />
         <field name="control_selection_method"    type="string" indexed="true" stored="true" multiValued="false" />
         <field name="dependent_variable"          type="string" indexed="true" stored="true" multiValued="false" />
@@ -68,11 +98,8 @@
         <field name="raw_output"                  type="string" indexed="true" stored="true" multiValued="false" />
         <field name="p_value"                     type="float" indexed="true" stored="true" multiValued="false" />
         <field name="effect_size"                 type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="mp_term"                     type="string" indexed="true" stored="true" multiValued="false" />
 
         <!-- Categorical statistics  -->
-        <field name="control_sex"                 type="string" indexed="true" stored="true" multiValued="false" />
-        <field name="mutant_sex"                  type="string" indexed="true" stored="true" multiValued="false" />
         <field name="categories"                  type="string" indexed="true" stored="true" multiValued="true" />
         <field name="categorical_p_value"         type="float" indexed="true" stored="true" multiValued="false" />
         <field name="categorical_effect_size"     type="float" indexed="true" stored="true" multiValued="false" />
@@ -111,10 +138,10 @@
 
     </fields>
 
-	<uniqueKey>unique_id</uniqueKey>
+	<uniqueKey>doc_id</uniqueKey>
 
 	<!-- field for the QueryParser to use when an explicit fieldname is absent -->
-	<defaultSearchField>id</defaultSearchField>
+	<defaultSearchField>parameter_name</defaultSearchField>
 
 	<!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
 	<solrQueryParser defaultOperator="OR"/>

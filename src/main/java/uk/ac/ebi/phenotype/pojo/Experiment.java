@@ -27,145 +27,179 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-
 @Entity
 @Table(name = "experiment")
 public class Experiment extends SourcedEntry {
 
-	@Column(name = "external_id")
-	private String externalId;
-	
-	@Column(name = "date_of_experiment")
-	private Date dateOfExperiment;
-	
-	@Column(name = "metadata_group")
-	private String metadataGroup;
+    @Column(name = "external_id")
+    private String externalId;
 
-	@Column(name = "metadata_combined")
-	private String metadataCombined;
-	
-	@OneToOne
-	@JoinColumn(name = "pipeline_id")
-	private Pipeline pipeline;
-	
-	@Column(name = "pipeline_stable_id")	
-	private String pipelineStableId;	
-	
-	@OneToMany(cascade = CascadeType.ALL)
+    @Column(name = "date_of_experiment")
+    private Date dateOfExperiment;
+
+    @Column(name = "metadata_group")
+    private String metadataGroup;
+
+    @Column(name = "metadata_combined")
+    private String metadataCombined;
+
+    @OneToOne
+    @JoinColumn(name = "pipeline_id")
+    private Pipeline pipeline;
+
+    @Column(name = "pipeline_stable_id")
+    private String pipelineStableId;
+
+    @OneToOne
+    @JoinColumn(name = "procedure_id")
+    private Procedure procedure;
+
+    @Column(name = "procedure_stable_id")
+    private String procedureStableId;
+
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinTable(
-            name="experiment_observation",
-            joinColumns = @JoinColumn( name="experiment_id"),
-            inverseJoinColumns = @JoinColumn( name="observation_id")
-    )
-	private List<Observation> observations;
+            name = "experiment_observation",
+            joinColumns = @JoinColumn(name = "experiment_id"),
+            inverseJoinColumns = @JoinColumn(name = "observation_id"))
+    private List<Observation> observations;
 
-	@OneToOne
-	@JoinColumn(name = "organisation_id")
-	private Organisation organisation;
+    @OneToOne
+    @JoinColumn(name = "organisation_id")
+    private Organisation organisation;
 
-	@OneToOne
-	@JoinColumn(name = "project_id")
-	private Project project;
+    @OneToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
 
-	public Project getProject() {
-		return project;
-	}
-	public void setProject(Project project) {
-		this.project = project;
-	}
-		
-	/**
-	 * @return the pipeline
-	 */
-	public Pipeline getPipeline() {
-		return pipeline;
-	}
-	/**
-	 * @param pipeline the pipeline to set
-	 */
-	public void setPipeline(Pipeline pipeline) {
-		this.pipeline = pipeline;
-	}
-	/**
-	 * @return the pipelineStableId
-	 */
-	public String getPipelineStableId() {
-		return pipelineStableId;
-	}
-	/**
-	 * @param pipelineStableId the pipelineStableId to set
-	 */
-	public void setPipelineStableId(String pipelineStableId) {
-		this.pipelineStableId = pipelineStableId;
-	}
-	/**
-	 * @return the externalId
-	 */
-	public String getExternalId() {
-		return externalId;
-	}
+    public Project getProject() {
+        return project;
+    }
 
-	/**
-	 * @param externalId the externalId to set
-	 */
-	public void setExternalId(String externalId) {
-		this.externalId = externalId;
-	}
+    public void setProject(Project project) {
+        this.project = project;
+    }
 
-	/**
-	 * @return the dateOfExperiment
-	 */
-	public Date getDateOfExperiment() {
-		return dateOfExperiment;
-	}
+    /**
+     * @return the pipeline
+     */
+    public Pipeline getPipeline() {
+        return pipeline;
+    }
 
-	/**
-	 * @param dateOfExperiment the dateOfExperiment to set
-	 */
-	public void setDateOfExperiment(Date dateOfExperiment) {
-		this.dateOfExperiment = dateOfExperiment;
-	}
+    /**
+     * @param pipeline
+     *            the pipeline to set
+     */
+    public void setPipeline(Pipeline pipeline) {
+        this.pipeline = pipeline;
+    }
 
-	/**
-	 * @return the observations
-	 */
-	public List<Observation> getObservations() {
-		return observations;
-	}
+    /**
+     * @return the pipelineStableId
+     */
+    public String getPipelineStableId() {
+        return pipelineStableId;
+    }
 
-	/**
-	 * @param observations the observations to set
-	 */
-	public void setObservations(List<Observation> observations) {
-		this.observations = observations;
-	}
+    /**
+     * @param pipelineStableId
+     *            the pipelineStableId to set
+     */
+    public void setPipelineStableId(String pipelineStableId) {
+        this.pipelineStableId = pipelineStableId;
+    }
 
-	/**
-	 * @return the organisation
-	 */
-	public Organisation getOrganisation() {
-		return organisation;
-	}
+    public Procedure getProcedure() {
+        return procedure;
+    }
 
-	/**
-	 * @param organisation the organisation to set
-	 */
-	public void setOrganisation(Organisation organisation) {
-		this.organisation = organisation;
-	}
-	
+    public String getProcedureStableId() {
+        return procedureStableId;
+    }
 
-	public String getMetadataGroup() {
-		return metadataGroup;
-	}
-	public void setMetadataGroup(String metadataGroup) {
-		this.metadataGroup = metadataGroup;
-	}
-	public String getMetadataCombined() {
-		return metadataCombined;
-	}
-	public void setMetadataCombined(String metadataCombined) {
-		this.metadataCombined = metadataCombined;
-	}
+    public void setProcedure(Procedure procedure) {
+        this.procedure = procedure;
+    }
+
+    public void setProcedureStableId(String procedureStableId) {
+        this.procedureStableId = procedureStableId;
+    }
+
+    /**
+     * @return the externalId
+     */
+    public String getExternalId() {
+        return externalId;
+    }
+
+    /**
+     * @param externalId
+     *            the externalId to set
+     */
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
+    }
+
+    /**
+     * @return the dateOfExperiment
+     */
+    public Date getDateOfExperiment() {
+        return dateOfExperiment;
+    }
+
+    /**
+     * @param dateOfExperiment
+     *            the dateOfExperiment to set
+     */
+    public void setDateOfExperiment(Date dateOfExperiment) {
+        this.dateOfExperiment = dateOfExperiment;
+    }
+
+    /**
+     * @return the observations
+     */
+    public List<Observation> getObservations() {
+        return observations;
+    }
+
+    /**
+     * @param observations
+     *            the observations to set
+     */
+    public void setObservations(List<Observation> observations) {
+        this.observations = observations;
+    }
+
+    /**
+     * @return the organisation
+     */
+    public Organisation getOrganisation() {
+        return organisation;
+    }
+
+    /**
+     * @param organisation
+     *            the organisation to set
+     */
+    public void setOrganisation(Organisation organisation) {
+        this.organisation = organisation;
+    }
+
+    public String getMetadataGroup() {
+        return metadataGroup;
+    }
+
+    public void setMetadataGroup(String metadataGroup) {
+        this.metadataGroup = metadataGroup;
+    }
+
+    public String getMetadataCombined() {
+        return metadataCombined;
+    }
+
+    public void setMetadataCombined(String metadataCombined) {
+        this.metadataCombined = metadataCombined;
+    }
 
 }

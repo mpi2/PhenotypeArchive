@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package uk.ac.ebi.phenotype.heatmap;
+package uk.ac.ebi.phenotype.web.pojo;
 
 import org.apache.solr.client.solrj.beans.Field;
 

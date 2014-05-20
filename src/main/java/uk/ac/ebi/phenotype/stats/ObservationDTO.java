@@ -289,6 +289,7 @@ public class ObservationDTO {
                 + " , strain :" + this.getStrain()
                 + " , phenotyping center :" + this.getPhenotypingCenter()
                 + " , parameter :" + this.getParameterStableId()
+                + " , procedure :" + this.getProcedureStableId()
                 + " , pipeline :" + this.getPipelineStableId()
                 + " , zygosity :" + this.getZygosity()
                 + " , metadata :" + this.getMetadataGroup()

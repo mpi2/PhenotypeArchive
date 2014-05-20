@@ -132,3 +132,14 @@ button.exportButton{
 	font-size:80%;
 	color:#aaa;
 }
+
+.vertical_header {
+  margin-bottom: 10px;
+  padding: 0 .5em;
+  writing-mode: tb-rl;
+  filter: flipv fliph;
+  -webkit-transform:rotate(-90deg);
+  -moz-transform:rotate(-90deg);
+  white-space:nowrap; 
+  display:block;
+}
