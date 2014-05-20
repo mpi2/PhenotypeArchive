@@ -179,7 +179,7 @@ public class DataTableController {
 	public String parseJsonforGeneDataTable(HttpServletRequest request, JSONObject json, String qryStr, String solrCoreName, List<String> filters){	
 				
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config, request);
-
+		
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
 				
@@ -196,7 +196,7 @@ public class DataTableController {
 			List<String> rowData = new ArrayList<String>();
 
 			JSONObject doc = docs.getJSONObject(i);
-						
+				
 			String geneInfo = concateGeneInfo(doc, json, qryStr, request);
 			rowData.add(geneInfo);
 
@@ -305,9 +305,7 @@ public class DataTableController {
 			JSONObject doc = docs.getJSONObject(i);
 			String mpId = doc.getString("mp_id");
 			String mpTerm = doc.getString("mp_term");
-			String mpLink = "<a href='" + baseUrl + mpId + "'>" + mpTerm + "</a>";	
-				
-			
+			String mpLink = "<a href='" + baseUrl + mpId + "'>" + mpTerm + "</a>";							
 			
 			if ( doc.containsKey("mp_term_synonym") ){
 				List<String> mpSynonyms = doc.getJSONArray("mp_term_synonym");
@@ -364,7 +362,25 @@ public class DataTableController {
                 String maId = doc.getString("ma_id");
                 String maTerm = doc.getString("ma_term");
                 String maLink = "<a href='" + baseUrl + maId + "'>" + maTerm + "</a>";                        
-                rowData.add(maLink);
+                                
+                if ( doc.containsKey("ma_term_synonym") ){
+    				List<String> maSynonyms = doc.getJSONArray("ma_term_synonym");
+    				List<String> prefixSyns = new ArrayList();
+    				for ( String sn : maSynonyms ){
+    					prefixSyns.add("synonym: "+ sn);
+    				}
+    				
+    				String maCol = "<div class='maCol'><div class='title'>" 
+    						+ maLink 
+    						+ "</div>"
+    						+ "<div class='subinfo'>" 
+    						+  StringUtils.join(prefixSyns, "<br>") 
+    						+ "</div>";
+    				rowData.add(maCol);
+    			}
+    			else {
+    				rowData.add(maLink);
+    			}
                 
                 // some MP do not have definition
                 /*String mpDef = "not applicable";
@@ -403,7 +419,7 @@ public class DataTableController {
 			for (int i=0; i<docs.size(); i++){
 				
 				List<String> rowData = new ArrayList<String>();
-				JSONObject doc = docs.getJSONObject(i);				
+				JSONObject doc = docs.getJSONObject(i);					
 				String annots = "";
 				
 				String largeThumbNailPath = imgBaseUrl + doc.getString("largeThumbnailFilePath");
@@ -421,7 +437,7 @@ public class DataTableController {
 					if (doc.has("annotationTermId")) {
 						JSONArray termIds   = doc.getJSONArray("annotationTermId");
 						JSONArray termNames = doc.getJSONArray("annotationTermName");
-						for( Object s : termIds ){				
+						for( Object s : termIds ){														
 							if ( s.toString().contains("MA")){
 								log.debug(i + " - MA: " + termNames.get(counter).toString());
 								String name = termNames.get(counter).toString();
@@ -430,7 +446,7 @@ public class DataTableController {
 							}
 							else if ( s.toString().contains("MP") ){
 								log.debug(i+ " - MP: " + termNames.get(counter).toString());
-								log.debug(i+ " - MP: " + termIds.get(counter).toString());
+								log.debug(i+ " - MP: " + termIds.get(counter).toString());								
 								String mpid = termIds.get(counter).toString();							
 								String name = termNames.get(counter).toString();							
 								String url = request.getAttribute("baseUrl") + "/phenotypes/" + mpid;
