@@ -57,6 +57,7 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.stats.ColorCodingPalette;
+import uk.ac.ebi.phenotype.stats.Constants;
 import uk.ac.ebi.phenotype.stats.graphs.PhenomeChartProvider;
 
 
@@ -128,7 +129,9 @@ public class ExperimentsController {
 			
 			// get all p-values for this allele/center/pipeline
 			 pvaluesMap = statisticalResultDAO.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(
-						alleleAccession, phenotypingCenter, pipelineStableId);
+						alleleAccession, 
+						phenotypingCenter, 
+						pipelineStableId);
 			
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
@@ -136,13 +139,16 @@ public class ExperimentsController {
 		}
 		
 		ColorCodingPalette colorCoding = new ColorCodingPalette();
-		double minimalPValue = 1.00E-4;
-		colorCoding.generateColors(pvaluesMap, 9, 1, minimalPValue);
+		colorCoding.generateColors(
+				pvaluesMap, 
+				ColorCodingPalette.NB_COLOR_MAX, 
+				1, 
+				Constants.SIGNIFICANT_P_VALUE);
 		
 		String chart = phenomeChartProvider.generatePvaluesOverviewChart(
 				alleleAccession, 
 				pvaluesMap,
-				minimalPValue,
+				Constants.SIGNIFICANT_P_VALUE,
 				pipeline);
 		
 		model.addAttribute("mapList", mapList);

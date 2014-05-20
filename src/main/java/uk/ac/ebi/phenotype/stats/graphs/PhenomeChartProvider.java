@@ -21,6 +21,7 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.Procedure;
+import uk.ac.ebi.phenotype.stats.Constants;
 
 
 
@@ -66,7 +67,7 @@ public class PhenomeChartProvider {
 			    +"    yAxis: { "
 			    //+"         min:"+ -Math.log(minimalPValue) + ","
 			    +"         title: { "
-			    +"             text: '"+"-Log10(p-value)"+"' "
+			    +"             text: '"+ Constants.MINUS_LOG10_HTML + "(p-value)"+"' "
 			    +"           }, "
 			    + "plotLines : [{"
 			    + "value : " + -Math.log10(minimalPValue) + ","
@@ -152,7 +153,7 @@ public class PhenomeChartProvider {
 			    +            "min: 0,"
 			    +            "max: "+ -Math.log10(1E-21) + ","
 			    +"         title: { "
-			    +"             text: '"+"-Log10(p-value)"+"' "
+			    +"             text: '" + Constants.MINUS_LOG10_HTML + "(p-value)"+"' "
 			    +"           }, "
 			    +"       }, "
 			    +"      credits: { "
@@ -178,25 +179,28 @@ public class PhenomeChartProvider {
 			    +"            }, \n"	    
                 +"            events: { "
                 +"               click: function(event) { "
+                +"                   var sexString = (event.point.sex == \"both\") ? '&gender=male&gender=female' : '&gender=' + event.point.sex; "
                 +"                   $.fancybox.open([ "
                 + "                  {"
-                + "                     href : 'http://beta.mousephenotype.org/data/chart?accession=MGI:104874&parameter_stable_id=ESLIM_005_001_701&allele_accession=EUROALL:19&zygosity=homozygote&gender=male&gender=female&phenotyping_center=WTSI&strain=MGPCURATE2&pipeline_stable_id:ESLIM_001&metadata_group=45a983be46dc06a6a3ed8663d3d673ed&experimentNumber=1&_=1400515693876', "
-                + "                     title : '1st title'"
+                + "                     href : base_url + '/charts?accession=' + event.point.geneAccession +"
+                + "'&parameter_stable_id=' + event.point.parameter_stable_id + '&allele_accession=' + event.point.alleleAccession + "
+                + "'&zygosity=' + event.point.zygosity + sexString + '&phenotyping_center=' + event.point.phenotyping_center + "
+                + "'&pipeline_stable_id=' + event.point.pipeline_stable_id + '&bare=true', "
+                + "                     title : event.point.geneAccession "
                 + "                  } "
                 + "                  ], "
                 +"                   { "
-                +"                     'maxWidth'          : 800, "
-        		+"                     'maxHeight'         : 600, "
+                +"                     'maxWidth'          : 1000, " // 980 too narrow
+        		+"                     'maxHeight'         : 900, "
         		+"                     'fitToView'         : false, "                
-                +"                     'width'             : '75%',  "
-                +"                     'height'            : '75%',  "
+                +"                     'width'             : '100%',  "
+                +"                     'height'            : '85%',  "
                 +"                     'autoSize'          : false,  "
                 +"                     'transitionIn'      : 'none', "
                 +"                     'transitionOut'     : 'none', "
                 +"                     'type'              : 'iframe', "
                 +"                     scrolling           : 'auto' "
-                +"                  }); "
-                +"                  alert(event.point.geneSymbol); return false;"                
+                +"                  }); "             
                 +"               } "
 			    +"           } \n" // events
 			    +"       } "                
@@ -294,6 +298,11 @@ public class PhenomeChartProvider {
 					dataPoint.put("name", (firstDim+1) +". " + call.getPhenotypeTerm().getName());
 					dataPoint.put("mp_term", call.getPhenotypeTerm().getName());
 					dataPoint.put("geneSymbol", call.getGene().getSymbol());
+					dataPoint.put("geneAccession", call.getGene().getId().getAccession());
+					dataPoint.put("alleleAccession", call.getAllele().getId().getAccession());
+					dataPoint.put("parameter_stable_id", call.getParameter().getStableId());
+					dataPoint.put("pipeline_stable_id", call.getPipeline().getStableId());
+					dataPoint.put("phenotyping_center", phenotypingCenter);
 					dataPoint.put("x", index);
 					dataPoint.put("y", call.getLogValue() + addJitter(call.getEffectSize()));
 					dataPoint.put("pValue", call.getpValue());
