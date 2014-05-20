@@ -20,7 +20,7 @@
 
 
 
-package org.mousephenotype.www.exception;
+package org.mousephenotype.www.testing.exception;
 
 /**
  *

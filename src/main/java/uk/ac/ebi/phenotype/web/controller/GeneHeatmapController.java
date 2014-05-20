@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+
 import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.dao.SecondaryProjectDAO;
@@ -75,10 +77,10 @@ public class GeneHeatmapController {
                 //accessions=accessions.subList(0, 10);
                 //get a list of procedure-parameters for the project which will be the column headers
                 accessions.add(0, "MGI:104874");//replace first one with our favourite gene akt2 for testing
-                accessions=accessions.subList(0, 10);
+                //accessions=accessions.subList(0, 10);
                 //mice produced and primary phenotype will be the first two coluns always?
                 for(String accession: accessions){
-                    System.out.println("accession="+accession);
+                    //System.out.println("accession="+accession);
                     GenomicFeature gene=genesDao.getGenomicFeatureByAccession(accession);
                     //get a data structure with the gene accession,with parameter associated with a Value or status ie. not phenotyped, not significant
                     GeneRowForHeatMap row = genotypePhenotypeService.getResultsForGeneHeatMap(accession, gene,parameters );
@@ -89,6 +91,7 @@ public class GeneHeatmapController {
             } catch (SQLException ex) {
                 Logger.getLogger(GeneHeatmapController.class.getName()).log(Level.SEVERE, null, ex);
             }
+            Collections.sort(geneRows);
             model.addAttribute("geneRows", geneRows);
             model.addAttribute("parameters", parameters);
              return "geneHeatMap";

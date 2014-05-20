@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.mousephenotype.www.model;
+package org.mousephenotype.www.testing.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
