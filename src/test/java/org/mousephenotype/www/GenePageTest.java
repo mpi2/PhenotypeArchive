@@ -35,6 +35,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
@@ -92,16 +93,14 @@ public class GenePageTest {
     @Autowired
     protected String seleniumUrl;
     
+    @Autowired
+    protected TestUtils testUtils;
+    
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     
-    // These constants define the maximum number of iterations for each given test. -1 means iterate over all.
-    public final int MAX_GENE_TEST_PAGE_COUNT = 10;                             // -1 means test all pages.
     private final int TIMEOUT_IN_SECONDS = 4;
     private final int THREAD_WAIT_IN_MILLISECONDS = 1000;
     
-    // These variables define the actual number of iterations for each test that uses them.
-    // They use default values defined above but may be overridden on the command line using -Dxxx.
-    private int max_gene_test_page_count = MAX_GENE_TEST_PAGE_COUNT;
     private int timeout_in_seconds = TIMEOUT_IN_SECONDS;
     private int thread_wait_in_ms = THREAD_WAIT_IN_MILLISECONDS;
 
@@ -109,8 +108,6 @@ public class GenePageTest {
     
     @Before
     public void setup() {
-        if (Utils.tryParseInt(System.getProperty("MAX_GENE_TEST_PAGE_COUNT")) != null)
-            max_gene_test_page_count = Utils.tryParseInt(System.getProperty("MAX_GENE_TEST_PAGE_COUNT"));
         if (Utils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
             timeout_in_seconds = Utils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS"));
         if (Utils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
@@ -162,6 +159,7 @@ public class GenePageTest {
     @Test
 //@Ignore
     public void testForBadGeneIds() throws SolrServerException {
+        String testName = "testForBadGeneIds";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> geneIds = geneService.getAllNonConformingGenes();
         String target = "";
@@ -175,11 +173,17 @@ public class GenePageTest {
         if (geneIds.isEmpty())
             return;
         
-        int targetCount = geneIds.size();
-        System.out.println(dateFormat.format(start) + ": testForBadGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
+        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
+        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
         // Loop through all non-conforming genes, testing each one for valid page load (they will likely fail).
+        int i = 0;
         for (String geneId : geneIds) {
+            if (i >= targetCount) {
+                break;
+            }
+            i++;
+            
             target = baseUrl + "/genes/" + geneId;
 
             WebElement mpTermIdLink = null;
@@ -204,7 +208,7 @@ public class GenePageTest {
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": testForBadGeneIds finished.");
+        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
         
         if ( ! errorList.isEmpty()) {
             System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
@@ -230,14 +234,16 @@ public class GenePageTest {
 
     /**
      * Fetches all gene IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
-     * core and tests to make sure there is a page for each. Limit the test
-     * to the first MAX_GENE_TEST_PAGE_COUNT by setting it to the limit you want.
+     * core and tests to make sure there is a page for each. Limit the test by
+     * adding a value to testIterations.properties with the test name on the
+     * left and the number of iterations on the right (-1 means run all).
      * 
      * @throws SolrServerException 
      */
     @Test
 //@Ignore
     public void testRandomPageForGeneIds() throws SolrServerException {
+        String testName = "testRandomPageForGeneIds";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> geneIds = geneService.getAllGenes();
         String[] geneIdArray = geneIds.toArray(new String[geneIds.size()]);
@@ -249,8 +255,8 @@ public class GenePageTest {
         Date start = new Date();
         Date stop;
 
-        int targetCount = (max_gene_test_page_count >= 0 ? Math.min(max_gene_test_page_count, geneIds.size()) : geneIds.size());
-        System.out.println(dateFormat.format(start) + ": testRandomPageForGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
+        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
+        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
         // Loop through all genes, testing each one for valid page load.
         Random rand = new Random();
@@ -260,13 +266,11 @@ public class GenePageTest {
         while (true) {
             int index = rand.nextInt((max - min) + 1) + min;
             String geneId = geneIdArray[index];
-            if (i < 10) {
-                System.out.println("gene[" + i + "]: " + geneId);
-            }
-            
-            if ((max_gene_test_page_count != -1) && (i >= max_gene_test_page_count)) {
+            System.out.println("gene[" + i + "]: " + geneId);
+            if (i >= targetCount) {
                 break;
             }
+            i++;
 
             target = baseUrl + "/genes/" + geneId;
 
@@ -290,13 +294,12 @@ public class GenePageTest {
                 successList.add(message);
             }
             
-            i++;
             if (i % 1000 == 0)
                 System.out.println(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": testRandomPageForGeneIds finished.");
+        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
         
         if ( ! errorList.isEmpty()) {
             System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
@@ -330,6 +333,7 @@ public class GenePageTest {
     @Test
 //@Ignore
     public void testPageForGeneIds() throws SolrServerException {
+        String testName = "testPageForGeneIds";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> geneIds = geneService.getAllGenes();
         String target = "";
@@ -340,15 +344,16 @@ public class GenePageTest {
         Date start = new Date();
         Date stop;
 
-        int targetCount = (max_gene_test_page_count >= 0 ? Math.min(max_gene_test_page_count, geneIds.size()) : geneIds.size());
-        System.out.println(dateFormat.format(start) + ": testPageForGeneIds started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
+        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
+        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
         // Loop through all genes, testing each one for valid page load.
         int i = 0;
         for (String geneId : geneIds) {
-            if ((max_gene_test_page_count != -1) && (i >= max_gene_test_page_count)) {
+            if (i >= targetCount) {
                 break;
             }
+            i++;
 
             target = baseUrl + "/genes/" + geneId;
 
@@ -378,7 +383,7 @@ public class GenePageTest {
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": testPageForGeneIds finished.");
+        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
         
         if ( ! errorList.isEmpty()) {
             System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
@@ -412,6 +417,7 @@ public class GenePageTest {
     @Test
 //@Ignore
     public void testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI() throws SolrServerException {
+        String testName = "testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Set<String> geneIds = geneService.getGenesByPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.PRODUCTION_CENTRE_WTSI);
         String target = "";
@@ -422,12 +428,17 @@ public class GenePageTest {
         Date start = new Date();
         Date stop;
         
-        int targetCount = geneIds.size();
-        System.out.println(dateFormat.format(start) + ": testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
+        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
+        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
         // Loop through all genes, testing each one for valid page load.
         int i = 0;
         for (String geneId : geneIds) {
+            if (i >= targetCount) {
+                break;
+            }
+            i++;
+            
             target = baseUrl + "/genes/" + geneId;
 
             WebElement mpTermIdLink = null;
@@ -450,13 +461,12 @@ public class GenePageTest {
                 successList.add(message);
             }
             
-            i++;
             if (i % 1000 == 0)
                 System.out.println(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI finished.");
+        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
         
         if ( ! errorList.isEmpty()) {
             System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");

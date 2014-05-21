@@ -43,6 +43,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.GenePhenotypePage;
 import org.mousephenotype.www.testing.model.GraphParsingStatus;
+import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
@@ -105,16 +106,14 @@ public class GraphTest {
     @Autowired
     private PhenotypePipelineDAO phenotypePipelineDAO;
     
+    @Autowired
+    protected TestUtils testUtils;
+    
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     
-    // These constants define the maximum number of iterations for each given test. -1 means iterate over all.
-    public final int MAX_GENE_TEST_PAGE_COUNT = 2;                             // -1 means test all pages.
     private final int TIMEOUT_IN_SECONDS = 4;
     private final int THREAD_WAIT_IN_MILLISECONDS = 1000;
     
-    // These variables define the actual number of iterations for each test that uses them.
-    // They use default values defined above but may be overridden on the command line using -Dxxx.
-    private int max_gene_test_page_count = MAX_GENE_TEST_PAGE_COUNT;
     private int timeoutInSeconds = TIMEOUT_IN_SECONDS;
     private int thread_wait_in_ms = THREAD_WAIT_IN_MILLISECONDS;
 
@@ -122,8 +121,6 @@ public class GraphTest {
 
     @Before
     public void setup() {
-        if (Utils.tryParseInt(System.getProperty("MAX_GENE_TEST_PAGE_COUNT")) != null)
-            max_gene_test_page_count = Utils.tryParseInt(System.getProperty("MAX_GENE_TEST_PAGE_COUNT"));
         if (Utils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
             timeoutInSeconds = Utils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS"));
         if (Utils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
@@ -188,25 +185,27 @@ public class GraphTest {
         Date start = new Date();
         Date stop;
 
-        int targetCount = (max_gene_test_page_count >= 0 ? Math.min(max_gene_test_page_count, geneIds.size()) : geneIds.size());
+        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
         // Loop through the genes, testing each one with an IMPC graph for valid page load.
         Random rand = new Random();
         int max = geneIdArray.length;
         int min = 0;
-        int allGenePagesCount = 0;                                  
-        int genePagesWithGraphsCount = 0;
+        int allGenePagesCount = 0;
         int graphPagesTestedCount = 0;
+        
+        int i = 0;
         while (true) {
             int index = rand.nextInt((max - min) + 1) + min;
             String geneId = geneIdArray[index];
 //if (allGenePagesCount == 0) geneId = "MGI:104874";
 //if (allGenePagesCount == 1) geneId = "MGI:1924285";
 //if (allGenePagesCount == 2) timeseriesGraphUrl = "https://dev.mousephenotype.org/data/charts?accession=MGI:104874&allele_accession=EUROALL:19&parameter_stable_id=ESLIM_004_001_002&zygosity=heterozygote&phenotyping_center=WTSI";
-            if ((max_gene_test_page_count != -1) && (allGenePagesCount >= max_gene_test_page_count)) {
+            if (i >= targetCount) {
                 break;
             }
+            i++;
             
             target = baseUrl + "/genes/" + geneId;
 
@@ -253,8 +252,6 @@ public class GraphTest {
                 continue;
             }
 
-            genePagesWithGraphsCount++;
-            
             if ( ! exceptionList.isEmpty()) {
                 System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
                 for (String s : exceptionList) {
@@ -312,7 +309,7 @@ public class GraphTest {
         Date start = new Date();
         Date stop;
         
-        int targetCount = (max_gene_test_page_count >= 0 ? Math.min(max_gene_test_page_count, phenotypeIds.size()) : phenotypeIds.size());
+        int targetCount = testUtils.getTargetCount(testName, phenotypeIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
         
         // Loop through the genes, testing each one with an IMPC graph for valid page load.
@@ -321,6 +318,8 @@ public class GraphTest {
         int min = 0;
         int allPagesCount = 0;
         int graphPagesTestedCount = 0;
+        
+        int i = 0;
         while (true) {
             int index = rand.nextInt((max - min) + 1) + min;
             String phenotypeId = phenotypeIdArray[index];
@@ -329,9 +328,10 @@ public class GraphTest {
 //if (allGenePagesCount == 0) geneId = "MGI:104874";
 //if (allGenePagesCount == 1) geneId = "MGI:1924285";
 //if (allGenePagesCount == 2) timeseriesGraphUrl = "https://dev.mousephenotype.org/data/charts?accession=MGI:104874&allele_accession=EUROALL:19&parameter_stable_id=ESLIM_004_001_002&zygosity=heterozygote&phenotyping_center=WTSI";
-            if ((max_gene_test_page_count != -1) && (allPagesCount >= max_gene_test_page_count)) {
+            if (i >= targetCount) {
                 break;
             }
+            i++;
             
             target = baseUrl + "/phenotypes/" + phenotypeId;
 
@@ -439,12 +439,17 @@ public class GraphTest {
         
         int allPagesCount = 0;
         int graphPagesTestedCount = 0;
+        int i = 0;
         for (String geneId : geneIds) {
 //if (allPagesCount == 0) geneId = "MGI:104874";      // undimensional
 //if (allPagesCount == 1) geneId = "MGI:2384936";     // categorical
 //if (allPagesCount == 2) geneId = "MGI:1924285";     // another unidimensional
 //if (allPagesCount == 2) timeseriesGraphUrl = "https://dev.mousephenotype.org/data/charts?accession=MGI:104874&allele_accession=EUROALL:19&parameter_stable_id=ESLIM_004_001_002&zygosity=heterozygote&phenotyping_center=WTSI";
-
+            if (i >= targetCount) {
+                break;
+            }
+            i++;
+            
             target = baseUrl + "/genes/" + geneId;
 
             try {

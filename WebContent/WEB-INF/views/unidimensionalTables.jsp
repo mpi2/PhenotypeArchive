@@ -2,14 +2,44 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 		<c:if test="${unidimensionalChartDataSet!=null}">
+		
+				<c:if test="${fn:length(unidimensionalChartDataSet.statsObjects)>1}"> 
+			<c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
+				<c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
+				
+				
+						<table>				
+ 									<c:choose>
+          									<c:when test="${data.result.significanceClassification.text == 'Both genders equally' || data.result.significanceClassification.text == 'No significant change'  || data.result.significanceClassification.text == 'Can not differentiate genders' }">
+          												<tr><th>Global Test</th><th>Significance/Classification</th><th>Effect</th></tr>
+          												<tr><td>${data.result.nullTestSignificance}</td><td>${data.result.significanceClassification.text}</td><td>${data.result.genotypeParameterEstimate}</td></tr></c:when>
+         									<c:when test="${data.result.significanceClassification.text == 'Female only' || data.result.significanceClassification.text == 'Male only'  || data.result.significanceClassification.text == 'Different size females greater' || data.result.significanceClassification.text == 'Different size males greater' || data.result.significanceClassification.text == 'Female and male different directions'}">
+       													 <tr><th>Global Test</th><th>Significance/Classification</th><th>Sex</th><th>Effect</th><th>Standard Error </th><th>P Value</th></tr>
+       													 <tr>
+       													 <td rowspan="2">${data.result.nullTestSignificance}</td>
+       													 <td rowspan="2">${data.result.significanceClassification.text}</td>
+       													 <td>Female</td><td>${data.result.genderFemaleKoEstimate}</td><c:if test="${data.result.genderFemaleKoStandardErrorEstimate!=null}"><td>&#177;${data.result.genderFemaleKoStandardErrorEstimate }</td></c:if><c:if test="${data.result.genderFemaleKoPValue!=null}"><td>${data.result.genderFemaleKoPValue }</td></c:if>
+       													 <tr><td> Male</td><td> ${data.result.genderMaleKoEstimate}</td><c:if test="${data.result.genderMaleKoStandardErrorEstimate!=null}"><td>&#177;${data.result.genderMaleKoStandardErrorEstimate }</td></c:if><c:if test="${data.result.genderMaleKoPValue!=null}"><td>${data.result.genderMaleKoPValue }</td></c:if>
+       													 </tr>
+       										</c:when>
+									</c:choose>
+ 	 							</table>
+						
+						<%-- <th>mixedModel</th> --%>
+						
+
+ 						
+ 	 					
+ 				
+ 				</c:if>	
+ 		</c:if>	
 		<table id="continuousTable">
 		<thead><tr>
 		<th>Control/Hom/Het</th>
 			<th>Mean</th>
 			<th>SD</th>
 			<th>Count</th>
-			<th>P Value</th>
-			<th>Effect Size</th>
+			
 		</tr></thead>
 		<tbody>									
 										
@@ -42,8 +72,7 @@
 												<c:if test="${statsObject.sexType eq 'male'}">
 												<td>${statsObject.sampleSize}</td>
 												</c:if>
-												<td>${statsObject.result.pValue}</td>
-												<td>${statsObject.result.effectSize}</td>
+												
 												</tr>
 												</c:forEach>
 										</tbody>
@@ -56,22 +85,7 @@
 				<c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
 				<p><a><i class="fa" id="toggle_table_button${experimentNumber}">More Statistics</i></a></p>
 				<div id="toggle_table${experimentNumber}">
-						<table>				
- 									<c:choose>
-          									<c:when test="${data.result.significanceClassification.text == 'Both genders equally' || data.result.significanceClassification.text == 'No significant change'  || data.result.significanceClassification.text == 'Can not differentiate genders' }">
-          												<tr><th>Global Test</th><th>Significance/Classification</th><th>Effect</th></tr>
-          												<tr><td>${data.result.nullTestSignificance}</td><td>${data.result.significanceClassification.text}</td><td>${data.result.genotypeParameterEstimate}</td></tr></c:when>
-         									<c:when test="${data.result.significanceClassification.text == 'Female only' || data.result.significanceClassification.text == 'Male only'  || data.result.significanceClassification.text == 'Different size females greater' || data.result.significanceClassification.text == 'Different size males greater' || data.result.significanceClassification.text == 'Female and male different directions'}">
-       													 <tr><th>Global Test</th><th>Significance/Classification</th><th>Sex</th><th>Effect</th><th>Standard Error </th><th>P Value</th></tr>
-       													 <tr>
-       													 <td rowspan="2">${data.result.nullTestSignificance}</td>
-       													 <td rowspan="2">${data.result.significanceClassification.text}</td>
-       													 <td>Female</td><td>${data.result.genderFemaleKoEstimate}</td><c:if test="${data.result.genderFemaleKoStandardErrorEstimate!=null}"><td>&#177;${data.result.genderFemaleKoStandardErrorEstimate }</td></c:if><c:if test="${data.result.genderFemaleKoPValue!=null}"><td>${data.result.genderFemaleKoPValue }</td></c:if>
-       													 <tr><td> Male</td><td> ${data.result.genderMaleKoEstimate}</td><c:if test="${data.result.genderMaleKoStandardErrorEstimate!=null}"><td>&#177;${data.result.genderMaleKoStandardErrorEstimate }</td></c:if><c:if test="${data.result.genderMaleKoPValue!=null}"><td>${data.result.genderMaleKoPValue }</td></c:if>
-       													 </tr>
-       										</c:when>
-									</c:choose>
- 	 							</table>
+						
 						
 						<%-- <th>mixedModel</th> --%>
 						
