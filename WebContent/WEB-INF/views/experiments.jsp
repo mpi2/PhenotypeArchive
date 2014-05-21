@@ -72,7 +72,7 @@
 	<c:forEach var="dataMap" items="${mapList}" varStatus="status">
 		<c:set var="stableId" value="${dataMap['parameter_stable_id']}"/>
 		<c:set var="stableIdpValuesMap" value="${pvaluesMap[stableId]}"/>
-		<c:set var="count" value="${count + stableIdpValuesMap.size}" scope="page"/>
+		<c:set var="count" value="${count + fn:length(stableIdpValuesMap)}" scope="page"/>
 	</c:forEach>
 	<p class="resultCount">
 	Total number of results: ${count}
