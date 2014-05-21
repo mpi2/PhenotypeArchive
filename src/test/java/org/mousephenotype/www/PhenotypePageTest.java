@@ -91,12 +91,9 @@ public class PhenotypePageTest {
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
     
-    // These constants define the default number of iterations for each that uses them. -1 means iterate over all.
     private final int TIMEOUT_IN_SECONDS = 4;
     private final int THREAD_WAIT_IN_MILLISECONDS = 1000;
 
-    // These variables define the actual number of iterations for each test that uses them.
-    // They use default values defined above but may be overridden on the command line using -Dxxx.
     private int timeout_in_seconds = TIMEOUT_IN_SECONDS;
     private int thread_wait_in_ms = THREAD_WAIT_IN_MILLISECONDS;
     
@@ -171,7 +168,7 @@ public class PhenotypePageTest {
             }
             i++;
             
-            WebElement phenotypeLink = null;
+            WebElement phenotypeLink;
             boolean found = false;
             target = baseUrl + "/phenotypes/" + phenotypeId;
             try {
