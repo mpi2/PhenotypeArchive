@@ -23,6 +23,7 @@ import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.stats.ColorCodingPalette;
+import uk.ac.ebi.phenotype.stats.Constants;
 import uk.ac.ebi.phenotype.stats.graphs.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 
@@ -55,14 +56,18 @@ public class PhenomeStatsController {
 		PhenotypeFacetResult results = genotypePhenotypeService.getPhenotypeFacetResultByPhenotypingCenterAndPipeline(phenotypingCenter, pipelineStableId);
 		
 		ColorCodingPalette colorCoding = new ColorCodingPalette();
-		double minimalPValue = 1.00E-4;
-		colorCoding.generatePhenotypeCallSummaryColors(results.getPhenotypeCallSummaries(), 9, 1, minimalPValue);
+
+		colorCoding.generatePhenotypeCallSummaryColors(
+				results.getPhenotypeCallSummaries(),
+				ColorCodingPalette.NB_COLOR_MAX, 
+				1, 
+				Constants.SIGNIFICANT_P_VALUE);
 		
 		// generate a chart
 		String chart = phenomeChartProvider.generatePhenomeChart(
 				results.getPhenotypeCallSummaries(),
 				phenotypingCenter,
-				minimalPValue);
+				Constants.SIGNIFICANT_P_VALUE);
 		
 		model.addAttribute("phenotypeCalls", results.getPhenotypeCallSummaries());
 		model.addAttribute("palette", colorCoding.getPalette());

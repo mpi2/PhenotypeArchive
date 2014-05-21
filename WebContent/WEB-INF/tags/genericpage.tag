@@ -158,87 +158,101 @@ try {
 
 </head>
 
+
 <jsp:invoke fragment="bodyTag"/>
 	<div id="wrapper">
-	 <header id="header">
-     
+	<c:choose>
+	<c:when test="${param['bare'] == null}">
 
- <div class="region region-header">
-            
-            <div id="tn">
-                <ul>${usermenu}</ul>
-            </div>
-            
-            <div id="logo">
-                <a href="${drupalBaseUrl}/"><img src="${initParam['baseUrl']}/img/impc.png" alt="IMPC Logo" /></a>
-                <div id="logoslogan">International Mouse Phenotyping Consortium</div>
-            </div>
-            
+		<header id="header">
+			<div class="region region-header">
+
+				<div id="tn">
+					<ul>${usermenu}</ul>
+				</div>
+
+				<div id="logo">
+					<a href="${drupalBaseUrl}/"><img src="${initParam['baseUrl']}/img/impc.png" alt="IMPC Logo" /></a>
+					<div id="logoslogan">International Mouse Phenotyping Consortium</div>
+				</div>
+
 				<nav id="mn">${menu}</nav>
-            <div class="clear"></div>        
-        </div>        
+				<div class="clear"></div>
+			</div>
+		</header>
 
-    </header>   
-    
-        <div id="main">
-                <div class="breadcrumb">
-                   <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${initParam['baseUrl']}/search">Search</a><jsp:invoke fragment="breadcrumb" /><%-- breadcrumbs here --%>   
-                </div>        
-                <jsp:doBody />               
-                        
-		     </div><!-- /main -->
+		<div id="main">
+			<div class="breadcrumb">
+				<a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${initParam['baseUrl']}/search">Search</a><jsp:invokefragment="breadcrumb" /><%-- breadcrumbs here --%>
+			</div>
+			<jsp:doBody />
+		</div>
+		<!-- /main -->
 
-    <footer id="footer">
-    
-        <div class="centercontent">
-           <div class="region region-footer">
-					   <div id="block-block-7" class="block block-block">
-								<div class="content"><img src="${initParam['baseUrl']}/img/footerLogos.jpg" />
-									 <div class="clear"></div>
-									 </div>  
-								</div>
-						  </div>
-        </div>
-       
-        <div id="footerline">
-            
-            <div class="centercontent">
-                
-                <div id="footersitemap" class="twothird left">&nbsp;</div>
-                <div class="onethird right">
-                    
-                    <div id="vnavi">                    
-                        <ul>
-                            <li>Version: <c:out value="${version}" escapeXml="false"/></li>
-                            <li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/LICENSE">License</a></li>
-                            <li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/CHANGES">Changelog</a></li>
-                        </ul>
-                    </div>
-                    <div class="clear"></div>
-                    
-                    <p class="textright">&copy; 2014 IMPC &middot; International Mouse Phenotyping Consortium</p>
-                    
-                    <div id="fn">
-                        <ul>
-                            <li><a href="#">Imprint</a></li>
-                            <li><a href="#">Legal notices</a></li>
-                        </ul>
-                    </div>
-                    <div class="clear"></div>
-                    
-                </div>
-                
-                    
-                <div class="clear"></div>
-            
-            </div>
+		<footer id="footer">
+
+		<div class="centercontent">
+			<div class="region region-footer">
+				<div id="block-block-7" class="block block-block">
+					<div class="content">
+						<img src="${initParam['baseUrl']}/img/footerLogos.jpg" />
+						<div class="clear"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="footerline">
+
+		<div class="centercontent">
+
+		<div id="footersitemap" class="twothird left">&nbsp;</div>
+		<div class="onethird right">
+
+			<div id="vnavi">
+				<ul>
+					<li>Version: <c:out value="${version}" escapeXml="false" /></li>
+					<li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/LICENSE">License</a></li>
+					<li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/CHANGES">Changelog</a></li>
+				</ul>
+			</div>
+			
+			<div class="clear"></div>
+
+			<p class="textright">&copy; 2014 IMPC &middot; International Mouse Phenotyping Consortium</p>
+
+			<div id="fn">
+				<ul>
+					<li><a href="#">Imprint</a></li>
+					<li><a href="#">Legal notices</a></li>
+				</ul>
+			</div>
+			<div class="clear"></div>
+
+		</div>
+
+		<div class="clear"></div>
+
+		</div>
+
+		</div>
+
+		<jsp:invoke fragment="addToFooter"/>
         
-        </div>
-        
-        <jsp:invoke fragment="addToFooter"/>
-        
-    </footer>
-                    
+    	</footer>
+             
+	</c:when>
+	<c:otherwise>
+		<div id="main">
+			<jsp:doBody />
+		</div>
+		<!-- /main -->
+		<footer id="footer">
+			<jsp:invoke fragment="addToFooter"/>
+    	</footer>
+	</c:otherwise>
+	</c:choose>
+
 	    <!-- <script type="text/javascript" src='${initParam['baseUrl']}/js/script.min.js' ></script>-->
 	    	    
 	    <script type='text/javascript' src='${initParam["baseUrl"]}/js/utils/tools.js'></script>                 
@@ -253,3 +267,4 @@ try {
 	   
 	</div> <!-- wrapper -->
 </body>
+

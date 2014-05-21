@@ -8,11 +8,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,6 +31,7 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.PipelineSolrImpl;
 import uk.ac.ebi.phenotype.pojo.Procedure;
+import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 
 import uk.ac.ebi.phenotype.stats.ColorCodingPalette;
@@ -51,6 +55,9 @@ public class GeneHeatmapController {
          
     @Autowired
     private GenomicFeatureDAO genesDao;
+    
+    @Autowired
+    private GeneService genesService;
 
 	/**
          * 
@@ -83,6 +90,13 @@ public class GeneHeatmapController {
                     GenomicFeature gene=genesDao.getGenomicFeatureByAccession(accession);
                     //get a data structure with the gene accession,with parameter associated with a Value or status ie. not phenotyped, not significant
                     GeneRowForHeatMap row = genotypePhenotypeService.getResultsForGeneHeatMap(accession, gene,parameters );
+                    if(!row.getMiceProduced()){
+                    	//if no  p value found then look at the geneService to find out if started or not
+                    	
+							Boolean phenotypingStarted = genesService.checkPhenotypeStarted(accession);
+							System.out.println("phenotypingStarted="+phenotypingStarted);
+						row.setPrimaryPhenotype(phenotypingStarted);
+                    }
                     geneRows.add(row);
                 }
                 //model.addAttribute("heatmapCode", fillHeatmap(hdto));
