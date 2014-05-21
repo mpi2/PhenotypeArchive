@@ -249,9 +249,16 @@
 						+ '</p>'
 						+ '<h5>Phrase query Example</h5>'
 						+ '<p>'
-						+ '<a href="${baseUrl}/search?q=&quot;zinc finger protein&quot;"">"zinc finger protein"</a>'
+						+ '<a href="${baseUrl}/search?q=zinc finger protein">zinc finger protein</a>'
 						+ '- looking for genes whose product is zinc finger protein'
+						+ '</p>'
+						+ '<h5>Phrase wildcard query Example</h5>'
+						+ '<p>'
+						+ '<a href="${baseUrl}/search?q=abnormal phy*">abnormal phy*</a>'
+						+ '- can look for phenotypes that contain abnormal phenotype or abnormal physiology.<br>'
+						+ 'Supported queries are a mixture of word with *, eg. abn* immune phy*.<br>NOTE that leading wildcard, eg. *abnormal is not supported.'
 						+ '</p>';
+						
 					
             // initialze search example qTip with close button and proper positioning
             $("a#searchExample").qtip({            	   
