@@ -124,7 +124,7 @@
 						</td>
 						<td style="text-align: center">
 						<a
-													href='${baseUrl}/charts?accession=${phenotypeCall.allele.gene.id.accession}&allele_accession=${phenotypeCall.allele.id.accession}&parameter_stable_id=${phenotypeCall.parameter.stableId}&zygosity=${phenotypeCall.zygosity}&phenotyping_center=${param.phenotyping_center}'>
+													href='${baseUrl}/charts?accession=${phenotypeCall.gene.id.accession}&allele_accession=${phenotypeCall.allele.id.accession}&parameter_stable_id=${phenotypeCall.parameter.stableId}&zygosity=${phenotypeCall.zygosity}&phenotyping_center=${param.phenotyping_center}'>
 						<i class="fa fa-bar-chart-o" alt="Graphs"> </i>
 												</a>
 						</td>
