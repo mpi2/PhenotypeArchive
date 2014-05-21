@@ -105,7 +105,7 @@
       and back compatibility is not guaranteed.  Names with both leading and
       trailing underscores (e.g. _version_) are reserved.
    -->
-
+	<field name="_version_" type="long" indexed="true" stored="true"/> 
 	<!--disease fields-->
 	<field name="type" type="string" indexed="true" stored="true"/>	
 	<field name="dataType" type="string" indexed="true" stored="true" required="true" multiValued="false" />  
