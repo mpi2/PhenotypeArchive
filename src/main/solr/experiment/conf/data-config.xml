@@ -29,7 +29,20 @@
 		<!-- For all observations (data points) -->
 		<entity dataSource="komp2ds" transformer="script:getData,RegexTransformer" name="observation"
 			query="
-			SELECT e.project_id as project_id, o.db_id as datasource_id, o.biological_sample_id as bsid, CASE WHEN co.category IS NULL THEN NULL WHEN co.category REGEXP '[0-9]' THEN CONCAT_WS('_', o.parameter_id, 0+co.category) ELSE CONCAT_WS('_', o.parameter_id, co.category) END AS translate_category_id, o.parameter_id, e.procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, o.*, co.category as raw_category, uo.data_point as unidimensional_data_point, mo.data_point as multidimensional_data_point, mo.order_index, mo.dimension, tso.data_point as time_series_data_point, tso.time_point, tso.discrete_point, pipe.name as pipeline_name, pipe.id as pipeline_id, pipe.stable_id as pipeline_stable_id
+			SELECT o.db_id as datasource_id, o.biological_sample_id as bsid, 
+			CASE WHEN co.category IS NULL THEN NULL WHEN co.category REGEXP '[0-9]' THEN CONCAT_WS('_', o.parameter_id, 0+co.category) ELSE CONCAT_WS('_', o.parameter_id, co.category) END AS translate_category_id, 
+			e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, o.parameter_id as parameter_id, 
+			e.date_of_experiment, e.external_id, e.id as experiment_id, 
+			e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, 
+			o.*, 
+			co.category as raw_category, 
+			uo.data_point as unidimensional_data_point, 
+			mo.data_point as multidimensional_data_point, 
+			mo.order_index, 
+			mo.dimension, 
+			tso.data_point as time_series_data_point, 
+			tso.time_point, 
+			tso.discrete_point
 			FROM observation o
 			LEFT OUTER JOIN categorical_observation co ON o.id=co.id
 			LEFT OUTER JOIN unidimensional_observation uo ON o.id=uo.id
@@ -37,7 +50,6 @@
 			LEFT OUTER JOIN time_series_observation tso ON o.id=tso.id
 			INNER JOIN experiment_observation eo ON eo.observation_id=o.id
 			INNER JOIN experiment e on eo.experiment_id=e.id
-			INNER JOIN phenotype_pipeline pipe on pipe.id = e.pipeline_id
 			WHERE o.missing = 0
 			">
 
@@ -45,31 +57,70 @@
 			<field column="datasource_id" name="datasource_id" />
 			<field column="project_id" name="project_id" />
 			<field column="observation_type" name="observation_type" />
-			<field column="pipeline_name" name="pipeline_name" />
-			<field column="pipeline_id" name="pipeline_id" />
-			<field column="pipeline_stable_id" name="pipeline_stable_id" />			
+			<field column="external_sample_id" name="external_sample_id" />
 
-			<field column="procedure_name" name="procedure_name" />
-			<field column="procedure_id" name="procedure_id" />
-			<field column="procedure_stable_id" name="procedure_stable_id" />			
+			<field column="experiment_id" name="experiment_id" />
+			<field column="external_id" name="experiment_source_id" />
+			<field column="date_of_experiment" name="date_of_experiment" />
 
-			<entity name="datasourceData" processor="CachedSqlEntityProcessor"
-				query="SELECT id, short_name as datasource_name FROM external_db"
-				where="id=observation.datasource_id">
+			<field column="raw_category" name="raw_category" />
+			<field column="data_point" name="data_point" />
+			<field column="order_index" name="order_index" />
+			<field column="dimension" name="dimension" />
+			<field column="time_point" name="time_point" />
+			<field column="discrete_point" name="discrete_point" />
+
+			<!-- metadata group and calculate metadata -->
+			<field column="metadata_group" name="metadata_group" />
+			<field column="metadata" sourceColName="metadata_combined" splitBy="::" />
+
+			<entity name="datasourceData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache"
+				query="SELECT id as datasource_id, short_name as datasource_name FROM external_db"
+				where="datasource_id=observation.datasource_id">
 
 				<field column="datasource_name" name="datasource_name" />
 	
 			</entity>
 
-			<entity name="projectData" processor="CachedSqlEntityProcessor"
-				query="SELECT id, name as project_name FROM project"
-				where="id=observation.project_id">
+			<entity name="projectData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache"
+				query="SELECT id as project_id, name as project_name FROM project"
+				where="project_id=observation.project_id">
 
 				<field column="project_name" name="project_name" />
 	
 			</entity>
 
-			<entity name="biologicalData" processor="CachedSqlEntityProcessor"
+			<entity name="pipelineData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache" onError="continue"
+				query="SELECT id as pipeline_id, name as pipeline_name, stable_id as pipeline_stable_id FROM phenotype_pipeline"
+				where="pipeline_id=observation.pipeline_id">
+
+				<field column="pipeline_id" name="pipeline_id" />
+				<field column="pipeline_name" name="pipeline_name" />
+				<field column="pipeline_stable_id" name="pipeline_stable_id" />
+	
+			</entity>
+
+			<entity name="procedureData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache" onError="continue"
+				query="SELECT id as procedure_id, name as procedure_name, stable_id as procedure_stable_id FROM phenotype_procedure"
+				where="procedure_id=observation.procedure_id">
+
+				<field column="procedure_id" name="procedure_id" />
+				<field column="procedure_name" name="procedure_name" />
+				<field column="procedure_stable_id" name="procedure_stable_id" />
+	
+			</entity>
+
+			<entity name="parameterData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache"
+				query="SELECT id as parameter_id, name as parameter_name, stable_id as parameter_stable_id FROM phenotype_parameter"
+				where="parameter_id=observation.parameter_id">
+
+				<field column="parameter_id" name="parameter_id" />
+				<field column="parameter_name" name="parameter_name" />
+				<field column="parameter_stable_id" name="parameter_stable_id" />
+	
+			</entity>
+
+			<entity name="biologicalData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache"
 				query="SELECT bs.id, strain.strain_acc, bma.allele_acc as allele_accession, a.symbol as allele_symbol, bs.organisation_id, org.name, bs.sample_group, gf.acc as acc, ls.sex as sex, ls.colony_id, ls.zygosity, gf.symbol as symbol, bms.biological_model_id as bmid, ls.date_of_birth as birthdate, ls.colony_id, bs.external_id as external_sample_id
 				FROM biological_sample bs
 				INNER JOIN organisation org ON bs.organisation_id=org.id
@@ -99,29 +150,7 @@
 	
 			</entity>
 
-			<entity name="procedureData" processor="CachedSqlEntityProcessor" onError="continue"
-				query="SELECT id, name, stable_id FROM phenotype_procedure"
-				where="id=observation.procedure_id">
-
-				<field column="procedure_id" name="id" />
-				<field column="procedure_name" name="name" />
-				<field column="procedure_stable_id" name="stable_id" />
-	
-			</entity>
-
-			<entity name="parameterData" processor="CachedSqlEntityProcessor"
-				query="SELECT id, name, stable_id FROM phenotype_parameter"
-				where="id=observation.parameter_id">
-
-				<field column="parameter_id" name="id" />
-				<field column="parameter_name" name="name" />
-				<field column="parameter_stable_id" name="stable_id" />
-	
-			</entity>
-
-			<field column="external_sample_id" name="external_sample_id" />
-
-			<entity name="categoricalTranslate" processor="CachedSqlEntityProcessor"
+			<entity name="categoricalTranslate" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache"
 				query="select CONCAT_WS('_', pp.id, ppo.name) as id, 
 					CASE (ppo.name NOT REGEXP '^[a-zA-Z]') 
 					WHEN 0 
@@ -141,22 +170,6 @@
 				<field column="category" name="category" />
 			</entity>
 
-			<field column="raw_category" name="raw_category" />
-			<field column="data_point" name="data_point" />
-			<field column="order_index" name="order_index" />
-			<field column="dimension" name="dimension" />
-			<field column="time_point" name="time_point" />
-			<field column="discrete_point" name="discrete_point" />
-
-			<field column="experiment_id" name="experiment_id" />
-			<field column="external_id" name="experiment_source_id" />
-			<field column="date_of_experiment" name="date_of_experiment" />
-
-
-			<!-- metadata and calculate metadata group -->
-			<field column="metadata_group" name="metadata_group" />
-			<field column="metadata" sourceColName="metadata_combined" splitBy="::" />
-
 			<!-- NOTE ** ALERT ** NOTE ** ALERT ** CAUTION 
 				
 				The outer entity will short circuit executing 
@@ -168,7 +181,7 @@
 
 			CAUTION ** ALERT ** NOTE ** ALERT ** NOTE -->
 
-			<entity name="protect" processor="CachedSqlEntityProcessor"
+			<entity name="protect" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache"
 				query="SELECT 1 FROM (SELECT 1) a where '${observation.observation_type}' = 'image_record'" >
 				<entity dataSource="komp2ds" name="imageRecord" onError="skip" 
 					query="SELECT iro.file_type, iro.full_resolution_file_path, iro.large_thumbnail_file_path, iro.small_thumbnail_file_path
