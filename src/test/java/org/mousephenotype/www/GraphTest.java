@@ -295,7 +295,7 @@ public class GraphTest {
      * @throws SolrServerException 
      */
     @Test
-//@Ignore
+@Ignore
     public void testRandomGraphsByPhenotype() throws SolrServerException {
         final String testName = "testRandomGraphsByPhenotype";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
