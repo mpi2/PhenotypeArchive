@@ -91,30 +91,30 @@
 			</entity>
 
 			<entity name="pipelineData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache" onError="continue"
-				query="SELECT id, name as pipeline_name, stable_id as pipeline_stable_id FROM phenotype_pipeline"
+				query="SELECT id as pipeline_id, name as pipeline_name, stable_id as pipeline_stable_id FROM phenotype_pipeline"
 				where="id=observation.pipeline_id">
 
-				<field column="pipeline_id" name="id" />
+				<field column="pipeline_id" name="pipeline_id" />
 				<field column="pipeline_name" name="pipeline_name" />
 				<field column="pipeline_stable_id" name="pipeline_stable_id" />
 	
 			</entity>
 
 			<entity name="procedureData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache" onError="continue"
-				query="SELECT id, name as procedure_name, stable_id as procedure_stable_id FROM phenotype_procedure"
+				query="SELECT id as procedure_id, name as procedure_name, stable_id as procedure_stable_id FROM phenotype_procedure"
 				where="id=observation.procedure_id">
 
-				<field column="procedure_id" name="id" />
+				<field column="procedure_id" name="procedure_id" />
 				<field column="procedure_name" name="procedure_name" />
 				<field column="procedure_stable_id" name="procedure_stable_id" />
 	
 			</entity>
 
 			<entity name="parameterData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache"
-				query="SELECT id, name as parameter_name, stable_id as parameter_stable_id FROM phenotype_parameter"
+				query="SELECT id as parameter_id, name as parameter_name, stable_id as parameter_stable_id FROM phenotype_parameter"
 				where="id=observation.parameter_id">
 
-				<field column="parameter_id" name="id" />
+				<field column="parameter_id" name="parameter_id" />
 				<field column="parameter_name" name="parameter_name" />
 				<field column="parameter_stable_id" name="parameter_stable_id" />
 	
