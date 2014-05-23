@@ -75,16 +75,16 @@
 			<field column="metadata" sourceColName="metadata_combined" splitBy="::" />
 
 			<entity name="datasourceData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache"
-				query="SELECT id, short_name as datasource_name FROM external_db"
-				where="id=observation.datasource_id">
+				query="SELECT id as datasource_id, short_name as datasource_name FROM external_db"
+				where="datasource_id=observation.datasource_id">
 
 				<field column="datasource_name" name="datasource_name" />
 	
 			</entity>
 
 			<entity name="projectData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache"
-				query="SELECT id, name as project_name FROM project"
-				where="id=observation.project_id">
+				query="SELECT id as project_id, name as project_name FROM project"
+				where="project_id=observation.project_id">
 
 				<field column="project_name" name="project_name" />
 	
@@ -92,7 +92,7 @@
 
 			<entity name="pipelineData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache" onError="continue"
 				query="SELECT id as pipeline_id, name as pipeline_name, stable_id as pipeline_stable_id FROM phenotype_pipeline"
-				where="id=observation.pipeline_id">
+				where="pipeline_id=observation.pipeline_id">
 
 				<field column="pipeline_id" name="pipeline_id" />
 				<field column="pipeline_name" name="pipeline_name" />
@@ -102,7 +102,7 @@
 
 			<entity name="procedureData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache" onError="continue"
 				query="SELECT id as procedure_id, name as procedure_name, stable_id as procedure_stable_id FROM phenotype_procedure"
-				where="id=observation.procedure_id">
+				where="procedure_id=observation.procedure_id">
 
 				<field column="procedure_id" name="procedure_id" />
 				<field column="procedure_name" name="procedure_name" />
@@ -112,7 +112,7 @@
 
 			<entity name="parameterData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache"
 				query="SELECT id as parameter_id, name as parameter_name, stable_id as parameter_stable_id FROM phenotype_parameter"
-				where="id=observation.parameter_id">
+				where="parameter_id=observation.parameter_id">
 
 				<field column="parameter_id" name="parameter_id" />
 				<field column="parameter_name" name="parameter_name" />
