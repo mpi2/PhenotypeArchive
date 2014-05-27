@@ -250,7 +250,7 @@ public class ObservationService {
     /**
      * construct a query to get all observations for a given combination of
      * pipeline, parameter, gene, zygosity, organisation and strain
-     *
+     * 
      * @param parameterId
      * @param geneAcc
      * @param zygosity
@@ -268,79 +268,81 @@ public class ObservationService {
         return new SolrQuery()
                 .setQuery(
                         "((" + ExperimentField.GENE_ACCESSION + ":"
-                        + geneAcc.replace(":", "\\:") + " AND "
-                        + ExperimentField.ZYGOSITY + ":" + zygosity
-                        + ") OR "
-                        + ExperimentField.BIOLOGICAL_SAMPLE_GROUP
-                        + ":control) ")
+                                + geneAcc.replace(":", "\\:") + " AND "
+                                + ExperimentField.ZYGOSITY + ":" + zygosity
+                                + ") OR "
+                                + ExperimentField.BIOLOGICAL_SAMPLE_GROUP
+                                + ":control) ")
                 .addFilterQuery(ExperimentField.PARAMETER_ID + ":" + parameterId)
-                .addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":"+ organisationId)
-                .addFilterQuery(ExperimentField.STRAIN + ":"+ strain.replace(":", "\\:"))
+                .addFilterQuery(ExperimentField.PHENOTYPING_CENTER_ID + ":" + organisationId)
+                .addFilterQuery(ExperimentField.STRAIN + ":" + strain.replace(":", "\\:"))
                 .addFilterQuery(ExperimentField.SEX + ":" + sex).setStart(0)
                 .setRows(10000);
     }
 
     public String getQueryStringByParameterGeneAccZygosityOrganisationStrainSex(
-            Integer parameterId, String geneAcc, 
+            Integer parameterId, String geneAcc,
             String zygosity, Integer organisationId, String strain, SexType sex)
             throws SolrServerException {
 
         return getSolrQueryByParameterGeneAccZygosityOrganisationStrainSex(parameterId, geneAcc, zygosity, organisationId, strain, sex.name()).toString();
-    
+
     }
 
     public List<ObservationDTO> getObservationsByParameterGeneAccZygosityOrganisationStrainSex(
-            Integer parameterId, String gene, 
+            Integer parameterId, String gene,
             String zygosity, Integer organisationId, String strain, SexType sex)
             throws SolrServerException {
 
         SolrQuery query = getSolrQueryByParameterGeneAccZygosityOrganisationStrainSex(parameterId, gene, zygosity, organisationId, strain, sex.name());
 
         return solr.query(query).getBeans(ObservationDTO.class);
-    
+
     }
-    
+
     /**
      * Unwrap results from a facet pivot solr query and return the flattened
      * list of maps of results
      * 
-     * @param response list of maps
+     * @param response
+     *            list of maps
      * @return
      */
-    public List<Map<String,String>> getFacetPivotResults(QueryResponse response) {
-        List<Map<String,String>> results = new LinkedList<Map<String, String>>();
+    public List<Map<String, String>> getFacetPivotResults(QueryResponse response) {
+        List<Map<String, String>> results = new LinkedList<Map<String, String>>();
         NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
 
         if (facetPivot != null && facetPivot.size() > 0) {
-        	for (int i = 0; i < facetPivot.size(); i++) {
+            for (int i = 0; i < facetPivot.size(); i++) {
 
-        		String name = facetPivot.getName(i); // in this case only one of them
-        		LOG.debug("facetPivot name" + name);
-        		List<PivotField> pivotResult = facetPivot.get(name);
+                String name = facetPivot.getName(i); // in this case only one of
+                                                     // them
+                LOG.debug("facetPivot name" + name);
+                List<PivotField> pivotResult = facetPivot.get(name);
 
-        		// iterate on results
-        		for (int j = 0; j < pivotResult.size(); j++) {
+                // iterate on results
+                for (int j = 0; j < pivotResult.size(); j++) {
 
-        			// create a HashMap to store a new triplet of data
-        			
-        			PivotField pivotLevel = pivotResult.get(j);
-        			List<Map<String,String>> lmap = getLeveledFacetPivotValue(pivotLevel, null);
-        			results.addAll(lmap);
-        		}
-        	}
+                    // create a HashMap to store a new triplet of data
+
+                    PivotField pivotLevel = pivotResult.get(j);
+                    List<Map<String, String>> lmap = getLeveledFacetPivotValue(pivotLevel, null);
+                    results.addAll(lmap);
+                }
+            }
         }
 
         return results;
     }
 
     /**
-     * Return a list of a all data candidates for deletion prior to 
-     * statistical analysis  
-     *
+     * Return a list of a all data candidates for deletion prior to statistical
+     * analysis
+     * 
      * @return list of maps of results
      * @throws SolrServerException
      */
-    public List<Map<String,String>> getDistinctOrganisaionPipelineProcedureParameter() throws SolrServerException {
+    public List<Map<String, String>> getDistinctOrganisaionPipelineParameter() throws SolrServerException {
 
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
@@ -348,10 +350,9 @@ public class ObservationService {
                 .setRows(0)
                 .setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
                 .addFacetPivotField( // needs at least 2 fields
-                		ExperimentField.PHENOTYPING_CENTER_ID + "," +
-                		ExperimentField.PIPELINE_ID + "," +
-                        ExperimentField.PROCEDURE_ID + "," +
-                		ExperimentField.PARAMETER_ID);  
+                ExperimentField.PHENOTYPING_CENTER_ID + "," +
+                        ExperimentField.PIPELINE_ID + "," +
+                        ExperimentField.PARAMETER_ID);
 
         QueryResponse response = solr.query(query);
 
@@ -359,12 +360,149 @@ public class ObservationService {
     }
 
     /**
-     * Return a list of a all unidimensional data candidates for statistical analysis  
-     *
+     * Return a list of a all unidimensional data candidates for statistical
+     * analysis for a specific procedure
+     * 
      * @return list of maps of results
      * @throws SolrServerException
      */
-    public List<Map<String,String>> getDistinctUnidimensionalOrgPipelineProcParamStrainZygosityGeneAccessionAlleleAccessionMetadata() throws SolrServerException {
+    public List<Map<String, String>> getDistinctUnidimensionalOrgPipelineParamStrainZygosityGeneAccessionAlleleAccessionMetadataByProcedure(String procedureStableId) throws SolrServerException {
+
+        SolrQuery query = new SolrQuery()
+                .setQuery(ExperimentField.PROCEDURE_STABLE_ID + ":" + procedureStableId)
+                .addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+                .addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":unidimensional")
+                .setRows(0)
+                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
+                .addFacetPivotField( // needs at least 2 fields
+                ExperimentField.PHENOTYPING_CENTER_ID + "," +
+                        ExperimentField.PIPELINE_ID + "," +
+                        ExperimentField.PARAMETER_ID + "," +
+                        ExperimentField.STRAIN + "," +
+                        ExperimentField.ZYGOSITY + "," +
+                        ExperimentField.METADATA_GROUP + "," +
+                        ExperimentField.ALLELE_ACCESSION + "," +
+                        ExperimentField.GENE_ACCESSION);
+
+        QueryResponse response = solr.query(query);
+
+        return getFacetPivotResults(response);
+
+    }
+
+    /**
+     * Return a list of a all unidimensional data candidates for statistical
+     * analysis for all specified procedures
+     * 
+     * @return list of maps of results
+     * @throws SolrServerException
+     */
+    public List<Map<String, String>> getDistinctUnidimensionalOrgPipelineParamStrainZygosityGeneAccessionAlleleAccessionMetadataByProcedure(List<String> procedureStableIds) throws SolrServerException {
+
+        // Build the SOLR query string
+        String field = ExperimentField.PROCEDURE_STABLE_ID;
+        String q = (procedureStableIds.size() > 1) ?
+                "(" + field + ":\"" + StringUtils.join(procedureStableIds.toArray(), "\" OR " + field + ":\"") + "\")" :
+                field + ":\"" + procedureStableIds.get(0) + "\"";
+
+        SolrQuery query = new SolrQuery()
+                .setQuery(q)
+                .addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+                .addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":unidimensional")
+                .setRows(0)
+                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
+                .addFacetPivotField( // needs at least 2 fields
+                ExperimentField.PHENOTYPING_CENTER_ID + "," +
+                        ExperimentField.PIPELINE_ID + "," +
+                        ExperimentField.PARAMETER_ID + "," +
+                        ExperimentField.STRAIN + "," +
+                        ExperimentField.ZYGOSITY + "," +
+                        ExperimentField.METADATA_GROUP + "," +
+                        ExperimentField.ALLELE_ACCESSION + "," +
+                        ExperimentField.GENE_ACCESSION);
+
+        QueryResponse response = solr.query(query);
+
+        return getFacetPivotResults(response);
+
+    }
+
+    /**
+     * Return a list of a all unidimensional data candidates for statistical
+     * analysis for all specified parameter
+     * 
+     * @return list of maps of results
+     * @throws SolrServerException
+     */
+    public List<Map<String, String>> getDistinctUnidimensionalOrgPipelineParamStrainZygosityGeneAccessionAlleleAccessionMetadataByParameter(List<String> parameterStableIds) throws SolrServerException {
+
+        // Build the SOLR query string
+        String field = ExperimentField.PARAMETER_STABLE_ID;
+        String q = (parameterStableIds.size() > 1) ?
+                "(" + field + ":\"" + StringUtils.join(parameterStableIds.toArray(), "\" OR " + field + ":\"") + "\")" :
+                field + ":\"" + parameterStableIds.get(0) + "\"";
+
+        SolrQuery query = new SolrQuery()
+                .setQuery(q)
+                .addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+                .addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":unidimensional")
+                .setRows(0)
+                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
+                .addFacetPivotField( // needs at least 2 fields
+                ExperimentField.PHENOTYPING_CENTER_ID + "," +
+                        ExperimentField.PIPELINE_ID + "," +
+                        ExperimentField.PARAMETER_ID + "," +
+                        ExperimentField.STRAIN + "," +
+                        ExperimentField.ZYGOSITY + "," +
+                        ExperimentField.METADATA_GROUP + "," +
+                        ExperimentField.ALLELE_ACCESSION + "," +
+                        ExperimentField.GENE_ACCESSION);
+
+        QueryResponse response = solr.query(query);
+
+        return getFacetPivotResults(response);
+
+    }
+
+    /**
+     * Return a list of a all unidimensional data candidates for statistical
+     * analysis for a specific parameter
+     * 
+     * @return list of maps of results
+     * @throws SolrServerException
+     */
+    public List<Map<String, String>> getDistinctUnidimensionalOrgPipelineParamStrainZygosityGeneAccessionAlleleAccessionMetadataByParameter(String parameterStableId) throws SolrServerException {
+
+        SolrQuery query = new SolrQuery()
+                .setQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + parameterStableId)
+                .addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+                .addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":unidimensional")
+                .setRows(0)
+                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
+                .addFacetPivotField( // needs at least 2 fields
+                ExperimentField.PHENOTYPING_CENTER_ID + "," +
+                        ExperimentField.PIPELINE_ID + "," +
+                        ExperimentField.PARAMETER_ID + "," +
+                        ExperimentField.STRAIN + "," +
+                        ExperimentField.ZYGOSITY + "," +
+                        ExperimentField.METADATA_GROUP + "," +
+                        ExperimentField.ALLELE_ACCESSION + "," +
+                        ExperimentField.GENE_ACCESSION);
+
+        QueryResponse response = solr.query(query);
+
+        return getFacetPivotResults(response);
+
+    }
+
+    /**
+     * Return a list of a all unidimensional data candidates for statistical
+     * analysis
+     * 
+     * @return list of maps of results
+     * @throws SolrServerException
+     */
+    public List<Map<String, String>> getDistinctUnidimensionalOrgPipelineParamStrainZygosityGeneAccessionAlleleAccessionMetadata() throws SolrServerException {
 
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
@@ -373,15 +511,14 @@ public class ObservationService {
                 .setRows(0)
                 .setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
                 .addFacetPivotField( // needs at least 2 fields
-                		ExperimentField.PHENOTYPING_CENTER_ID + "," +
-                		ExperimentField.PIPELINE_ID + "," +
-                        ExperimentField.PROCEDURE_ID + "," +
-                		ExperimentField.PARAMETER_ID + "," +
-                		ExperimentField.STRAIN + "," +
-                		ExperimentField.ZYGOSITY + "," +
-                		ExperimentField.METADATA_GROUP + "," +
+                ExperimentField.PHENOTYPING_CENTER_ID + "," +
+                        ExperimentField.PIPELINE_ID + "," +
+                        ExperimentField.PARAMETER_ID + "," +
+                        ExperimentField.STRAIN + "," +
+                        ExperimentField.ZYGOSITY + "," +
+                        ExperimentField.METADATA_GROUP + "," +
                         ExperimentField.ALLELE_ACCESSION + "," +
-                		ExperimentField.GENE_ACCESSION);  
+                        ExperimentField.GENE_ACCESSION);
 
         QueryResponse response = solr.query(query);
 
@@ -390,13 +527,13 @@ public class ObservationService {
     }
 
     /**
-     * Return a list of a all data candidates for statistical analysis  
-     *
+     * Return a list of a all data candidates for statistical analysis
+     * 
      * @return list of maps of results
      * @throws SolrServerException
      */
-    public List<Map<String,String>> getDistinctCategoricalOrgPipelineProcParamStrainZygositySexGeneAccessionAlleleAccessionMetadata() throws SolrServerException {
-    	
+    public List<Map<String, String>> getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata() throws SolrServerException {
+
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
                 .addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
@@ -404,59 +541,58 @@ public class ObservationService {
                 .setRows(0)
                 .setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
                 .addFacetPivotField( // needs at least 2 fields
-                		ExperimentField.PHENOTYPING_CENTER_ID + "," +
-                		ExperimentField.PIPELINE_ID + "," +
-                        ExperimentField.PROCEDURE_ID + "," +
-                		ExperimentField.PARAMETER_ID + "," +
-                		ExperimentField.STRAIN + "," +
-                		ExperimentField.ZYGOSITY + "," +
-                		ExperimentField.SEX + "," +
-                		ExperimentField.METADATA_GROUP + "," +
+                ExperimentField.PHENOTYPING_CENTER_ID + "," +
+                        ExperimentField.PIPELINE_ID + "," +
+                        ExperimentField.PARAMETER_ID + "," +
+                        ExperimentField.STRAIN + "," +
+                        ExperimentField.ZYGOSITY + "," +
+                        ExperimentField.SEX + "," +
+                        ExperimentField.METADATA_GROUP + "," +
                         ExperimentField.ALLELE_ACCESSION + "," +
-                		ExperimentField.GENE_ACCESSION);  
+                        ExperimentField.GENE_ACCESSION);
 
         QueryResponse response = solr.query(query);
 
         return getFacetPivotResults(response);
 
     }
-    
+
     /**
      * Recursive method to fill a map with multiple combination of pivot fields.
-     * Each pivot level can have multiple children. Hence, each level should pass
-     * back to the caller a list of all possible combination
+     * Each pivot level can have multiple children. Hence, each level should
+     * pass back to the caller a list of all possible combination
      * 
      * @param pivotLevel
      * @param map
      */
     private List<Map<String, String>> getLeveledFacetPivotValue(PivotField pivotLevel, PivotField parentPivot) {
-    	
-    	List<Map<String, String>> results = new ArrayList<Map<String, String>>();
-    	
-    	List<PivotField> pivotResult = pivotLevel.getPivot();
-    	if (pivotResult != null) {
-    		for (int i = 0; i< pivotResult.size(); i++) {
-    			List<Map<String, String>> lmap = getLeveledFacetPivotValue(pivotResult.get(i), pivotLevel);
-    			// add the parent pivot
-    			if (parentPivot != null) {
-    				for (Map<String, String> map: lmap) {
-    					map.put(parentPivot.getField(), parentPivot.getValue().toString());
-    				}
-    			}
-    			results.addAll(lmap);
-    		}
-    	} else {
-    		Map<String, String> map = new HashMap<String, String>();
-    		map.put(pivotLevel.getField(), pivotLevel.getValue().toString());
-    		
-    		// add the parent pivot
-    		if (parentPivot != null) {
-    			map.put(parentPivot.getField(), parentPivot.getValue().toString());
-    		}
-    		results.add(map);
-    	}
-    	//
-    	return results;
+
+        List<Map<String, String>> results = new ArrayList<Map<String, String>>();
+
+        List<PivotField> pivotResult = pivotLevel.getPivot();
+        if (pivotResult != null) {
+            for (int i = 0; i < pivotResult.size(); i++) {
+                List<Map<String, String>> lmap = getLeveledFacetPivotValue(pivotResult.get(i), pivotLevel);
+                // add the parent pivot
+                if (parentPivot != null) {
+                    for (Map<String, String> map : lmap) {
+                        map.put(parentPivot.getField(), parentPivot.getValue().toString());
+                    }
+                }
+                results.addAll(lmap);
+            }
+        } else {
+            Map<String, String> map = new HashMap<String, String>();
+            map.put(pivotLevel.getField(), pivotLevel.getValue().toString());
+
+            // add the parent pivot
+            if (parentPivot != null) {
+                map.put(parentPivot.getField(), parentPivot.getValue().toString());
+            }
+            results.add(map);
+        }
+        //
+        return results;
     }
 
     public List<ObservationDTO> getExperimentalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroupAndAlleleAccession(
@@ -703,12 +839,9 @@ public class ObservationService {
 				.addFilterQuery(
 						ExperimentField.PARAMETER_STABLE_ID + ":" + parameter);
 
-		String q = (strains.size() > 1) ? "("
-				+ ExperimentField.STRAIN
-				+ ":\""
-				+ StringUtils.join(strains.toArray(), "\" OR "
-						+ ExperimentField.STRAIN + ":\"") + "\")"
-				: ExperimentField.STRAIN + ":\"" + strains.get(0) + "\"";
+        String q = (strains.size() > 1) ? 
+                "(" + ExperimentField.STRAIN+ ":\"" + StringUtils.join(strains.toArray(), "\" OR " + ExperimentField.STRAIN + ":\"") + "\")" : 
+                    ExperimentField.STRAIN + ":\"" + strains.get(0) + "\"";
 
 		if (genes != null && genes.size() > 0) {
 			q += " AND (";
