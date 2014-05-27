@@ -1669,6 +1669,10 @@
     	oParams['hl.fl'] = '*';    	
 		
 		// bq, qf, pf for solr result relevance 
+    	if ( facetDivId == 'geneFacet' ){
+    		oParams.qf = MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams.qf;
+		}	
+    	
 		if ( facetDivId == 'mpFacet' ){
 			oParams = $.fn.getSolrRelevanceParams('mp', oHashParams.q, oParams);
 		}					
