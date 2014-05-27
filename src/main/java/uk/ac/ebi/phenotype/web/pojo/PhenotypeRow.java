@@ -356,7 +356,7 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 					+ getAllele().getSymbol() + "\t" 
 					+ getZygosity() + "\t" 
 					+ getSexes().get(0) + "\t"
-					+ getProcedure().getName() + " / " + getParameter().getName() + "\t" 
+					+ getProcedure().getName() + " | " + getParameter().getName() + "\t" 
 					+ getPhenotypingCenter() + "\t" 
 					+ getDataSourceName() + "\t"
 					+ getGraphUrl() + "\n";	
@@ -366,7 +366,7 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 					+ getZygosity() + "\t" 
 					+ getSexes().get(0) + "\t"
 					+ getPhenotypeTerm().getName() + "\t" 
-					+ getProcedure().getName() + " / " + getParameter().getName() + "\t" 
+					+ getProcedure().getName() + " | " + getParameter().getName() + "\t" 
 					+ getPhenotypingCenter() + "\t" 
 					+ getDataSourceName() + "\t"
 					+ getGraphUrl() + "\n";	

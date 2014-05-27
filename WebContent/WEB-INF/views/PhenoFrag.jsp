@@ -25,7 +25,7 @@
 							<th class="headerSort">Allele</th>
 							<th class="headerSort">Zygosity</th>
 							<th class="headerSort">Sex</th>
-							<th class="headerSort">Procedure / Parameter</th>
+							<th class="headerSort">Procedure | Parameter</th>
 							<th class="headerSort">Phenotyping Center</th> 
 							<th class="headerSort">Source</th>
                                                         <th>P Value</th>
@@ -52,7 +52,7 @@
 							</c:forEach>
 						</td>
 						
-						<td>${phenotype.procedure.name} / ${phenotype.parameter.name}</td>
+						<td>${phenotype.procedure.name} | ${phenotype.parameter.name}</td>
 						<td>${phenotype.phenotypingCenter} </td>
 						<td>
 							${phenotype.dataSourceName}

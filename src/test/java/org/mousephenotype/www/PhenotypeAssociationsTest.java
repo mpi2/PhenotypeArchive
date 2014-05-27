@@ -241,7 +241,6 @@ System.out.println("gene[" + i + "]: " + geneId);
         }  catch (Exception e) {
             message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
             exceptionList.add(message);
-            return;
         }
     }
     
