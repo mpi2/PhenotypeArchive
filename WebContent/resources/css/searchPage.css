@@ -1,3 +1,23 @@
+/* autocomplete drop down ul */
+ul.ui-autocomplete {
+	background-color: white;
+	border: 1px solid #0978A1;
+	padding: 10px 15px;
+	z-index: 999;
+	
+}
+ul.ui-autocomplete li a {
+	display: block;
+	text-decoration: none;
+}
+ul.ui-autocomplete li a:hover {
+	background-color: #F0F0F0 !important;
+	border: none;		
+}
+
+b.sugTerm {
+	color: #0978A1;
+}
 /* New Facet Block without IDs */
 div.ffilter {
 	display: none; /*default, appears only when filter is added */

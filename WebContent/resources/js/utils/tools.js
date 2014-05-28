@@ -1674,7 +1674,6 @@
     		oParams.qf = MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams.qf;
     	}
     	
-
 		if ( facetDivId == 'mpFacet' ){
 			oParams = $.fn.getSolrRelevanceParams('mp', oHashParams.q, oParams);
 		}					
@@ -2598,3 +2597,12 @@ $.extend( $.fn.dataTableExt.oSort, {
         return ((a < b) ? 1 : ((a > b) ? -1 : 0));
     }
 } ); 
+
+//fix jQuery UIs autocomplete width
+$.extend($.ui.autocomplete.prototype.options, {
+	open: function(event, ui) {
+		$(this).autocomplete("widget").css({
+            "width": ($(this).width() + "px")
+        });
+    }
+});
