@@ -183,10 +183,13 @@
 	       				//console.log(this.value + ' vs ' + ui.item.label);
 	       				var oriText = $(ui.item.label).text();
 	       				var facet = $(ui.item.label).attr('class');
-	       				//$('input#s').val(oriText);
-	       				$('input#s').val("");
+	       				
 	       				// handed over to hash change to fetch for result
-	       				document.location.href = baseUrl + '/search?q=' + oriText + '&facet=' + facet; 			       			
+	       				document.location.href = baseUrl + '/search?q=' + oriText + '#facet=' + facet; 	
+	       				
+	       				// prevents escaped html tag displayed in input box
+	       				event.preventDefault(); return false; 
+	       				
 	       			},
 	       			open: function(event, ui) {
 	       				//fix jQuery UIs autocomplete width

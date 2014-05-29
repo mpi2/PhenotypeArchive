@@ -11,8 +11,7 @@ ul.ui-autocomplete li a {
 	text-decoration: none;
 }
 ul.ui-autocomplete li a:hover {
-	background-color: #F0F0F0 !important;
-	border: none;		
+	background-color: #D4D4D4 !important;	
 }
 
 b.sugTerm {
@@ -237,3 +236,7 @@ div.mpCol div.title a, div.maCol div.title a {
 	font-size: 16px !important;
 	text-decoration: underline !important;
 }	
+span#dnld {
+        font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif !important;
+        color: #0978A1;
+}

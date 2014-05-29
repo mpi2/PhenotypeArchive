@@ -41,7 +41,8 @@ $(document).ready(function(){
 			|| location.href.indexOf('/search#q=*') != -1 
 			|| location.href.indexOf('/search#fq=') != -1 ){   	
 		// load page based on url hash parameters	
-		oHashParams = $.fn.parseHashString(window.location.hash.substring(1));		
+		
+		oHashParams = $.fn.parseHashString(window.location.hash.substring(1));			
 		$.fn.fetchSolrFacetCount(oHashParams);	
 	}
 	else {
