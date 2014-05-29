@@ -121,12 +121,13 @@
 			</entity>
 
 			<entity name="biologicalData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache"
-				query="SELECT bs.id, strain.strain_acc, strain.name as strain_name, bma.allele_acc as allele_accession, a.symbol as allele_symbol, bs.organisation_id, org.name, bs.sample_group, gf.acc as acc, ls.sex as sex, ls.colony_id, ls.zygosity, gf.symbol as symbol, bms.biological_model_id as bmid, ls.date_of_birth as birthdate, ls.colony_id, bs.external_id as external_sample_id
+				query="SELECT bs.id, strain.acc as strain_acc, strain.name as strain_name, bma.allele_acc as allele_accession, a.symbol as allele_symbol, bs.organisation_id, org.name, bs.sample_group, gf.acc as acc, ls.sex as sex, ls.colony_id, ls.zygosity, gf.symbol as symbol, bms.biological_model_id as bmid, ls.date_of_birth as birthdate, ls.colony_id, bs.external_id as external_sample_id
 				FROM biological_sample bs
 				INNER JOIN organisation org ON bs.organisation_id=org.id
 				INNER JOIN live_sample ls ON bs.id=ls.id
 				INNER JOIN biological_model_sample bms ON bs.id=bms.biological_sample_id
-				INNER JOIN biological_model_strain strain ON strain.biological_model_id=bms.biological_model_id
+				INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bms.biological_model_id
+				INNER JOIN strain strain ON strain.acc=bmstrain.strain_acc
 				LEFT OUTER JOIN biological_model_genomic_feature bmgf ON bmgf.biological_model_id=bms.biological_model_id
 				LEFT OUTER JOIN biological_model_allele bma ON bma.biological_model_id=bms.biological_model_id
 				LEFT OUTER JOIN allele a ON (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id)
