@@ -263,12 +263,6 @@
 
 					<field column="name" name="top_level_mp_term_name" />
 					<field column="mpTerm" name="top_level_mp_term_id" />
-					<field column="definition" name="top_level_mp_term_definition" />
-					
-					<entity dataSource="ontodbds" name="mphigherSyn" onError="continue" processor="CachedSqlEntityProcessor"
-						query="select * from mp_synonyms where term_id ='${mphigher.mpTerm}'">
-						<field column="syn_name" name="top_level_mp_term_synonym" />						
-					</entity>
 				</entity>
 			</entity>
 				
@@ -281,12 +275,6 @@
 					
 					<field column="term_id" name="intermediate_mp_term_id" />
 					<field column="name" name="intermediate_mp_term_name" />
-					<field column="definition" name="intermediate_mp_term_definition" />				
-					
-					<entity dataSource="ontodbds" name="parents2Syn" onError="continue" processor="CachedSqlEntityProcessor"
-						query="select * from mp_synonyms where term_id ='${parents2.term_id}'">
-						<field column="syn_name" name="intermediate_mp_term_synonym" />						
-					</entity>
 				</entity>
 
 			</entity>		

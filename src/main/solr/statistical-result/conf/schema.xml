@@ -40,12 +40,8 @@
         <field name="mp_term_name"                type="string" indexed="true" stored="true" required="false" multiValued="false" />
         <field name="top_level_mp_term_id"        type="string" indexed="true" stored="true" required="false" multiValued="true" />	
         <field name="top_level_mp_term_name"      type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="top_level_mp_term_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
-        <field name="top_level_mp_term_synonym"   type="string" indexed="true" stored="true" required="false" multiValued="true" />	
         <field name="intermediate_mp_term_id"     type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="intermediate_mp_term_name"   type="string" indexed="true" stored="true" required="false" multiValued="true" />	
-        <field name="intermediate_mp_term_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
-        <field name="intermediate_mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />		
         
         <!-- Information about the data being processed -->
         <field name="resource_name"               type="string" indexed="true" stored="true" multiValued="false" />
