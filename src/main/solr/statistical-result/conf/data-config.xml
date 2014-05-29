@@ -11,22 +11,26 @@
 
 				var categories_a = row.get('category_a');
 				if(typeof categories_a != 'undefined' && categories_a != null) {
-					var pieces_a = categories_a.split('|');
+					var pieces_a = categories_a.toString().trim().split('\\\|');
 
 					if(typeof pieces_a != 'undefined') {
 						for (var i=0; i<pieces_a.length; i++) {
-							arr.add(pieces_a[i]);
+							if (pieces_a[i] != "") {
+								arr.add(pieces_a[i]);
+							}
 						}
 					}
 				}
 
 				var categories_b = row.get('category_b');
 				if(typeof categories_b != 'undefined' && categories_b != null) {
-					var pieces_b = categories_b.split('|');
+					var pieces_b = categories_b.toString().trim().split('\\\|');
 	
 					if(typeof pieces_b != 'undefined') {
 						for (var i=0; i<pieces_b.length; i++) {
-							arr.add(pieces_b[i]);
+							if (pieces_b[i] != "") {
+								arr.add(pieces_b[i]);
+							}
 						}
 					}
 				}
@@ -36,8 +40,13 @@
 			} else if (row.get('data_type') == 'unidimensional') {
 				row.put('p_value', row.get('null_test_significance'));
 
-				/* TODO: DO EFFECT SIZE CALCULATION */
-				row.put('effect_size', row.get('Data Import Handler TODO'));
+				/* UNIDIMENSIONAL EFFECT SIZE CALCULATION */
+				var effect_size = Math.abs(row.get('genotype_parameter_estimate'));
+				if (typeof effect_size == undefined || effect_size == null) {
+					effect_size = Math.max(Math.abs(row.get('gender_male_ko_estimate')), Math.abs(row.get('gender_female_ko_estimate')));
+				}
+				
+				row.put('effect_size', effect_size);
 
 			}
 
@@ -45,6 +54,7 @@
 		}
 	]]>
 	</script>
+
 
     <dataSource name="komp2ds" jndiName="java:comp/env/jdbc/komp2DataSource" batchSize="-1" readOnly="true"/>
 	<dataSource name="ontodbds" jndiName="java:comp/env/jdbc/ontodbDataSource" /> 

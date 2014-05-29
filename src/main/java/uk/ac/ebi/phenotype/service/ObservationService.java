@@ -67,9 +67,9 @@ public class ObservationService {
         public final static String ID = "id";
         public final static String PHENOTYPING_CENTER = "phenotyping_center";
         public final static String PHENOTYPING_CENTER_ID = "phenotyping_center_id";
-        public final static String GENE_ACCESSION = "gene_accession";
+        public final static String GENE_ACCESSION = "gene_accession_id";
         public final static String GENE_SYMBOL = "gene_symbol";
-        public final static String ALLELE_ACCESSION = "allele_accession";
+        public final static String ALLELE_ACCESSION = "allele_accession_id";
         public final static String ALLELE_SYMBOL = "allele_symbol";
         public final static String ZYGOSITY = "zygosity";
         public final static String SEX = "sex";
@@ -134,7 +134,7 @@ public class ObservationService {
 
 		SolrQuery query = new SolrQuery();
 
-		query.setQuery("gene_accession:\"" + mgiAccession + "\"")
+		query.setQuery(ExperimentField.GENE_ACCESSION + ":\"" + mgiAccession + "\"")
 			.addFilterQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + parameterStableId)
 			.addFacetField(ExperimentField.PHENOTYPING_CENTER)
 			.addFacetField(ExperimentField.STRAIN)

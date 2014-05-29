@@ -121,7 +121,7 @@
 			</entity>
 
 			<entity name="biologicalData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache"
-				query="SELECT bs.id, strain.strain_acc, bma.allele_acc as allele_accession, a.symbol as allele_symbol, bs.organisation_id, org.name, bs.sample_group, gf.acc as acc, ls.sex as sex, ls.colony_id, ls.zygosity, gf.symbol as symbol, bms.biological_model_id as bmid, ls.date_of_birth as birthdate, ls.colony_id, bs.external_id as external_sample_id
+				query="SELECT bs.id, strain.strain_acc, strain.name as strain_name, bma.allele_acc as allele_accession, a.symbol as allele_symbol, bs.organisation_id, org.name, bs.sample_group, gf.acc as acc, ls.sex as sex, ls.colony_id, ls.zygosity, gf.symbol as symbol, bms.biological_model_id as bmid, ls.date_of_birth as birthdate, ls.colony_id, bs.external_id as external_sample_id
 				FROM biological_sample bs
 				INNER JOIN organisation org ON bs.organisation_id=org.id
 				INNER JOIN live_sample ls ON bs.id=ls.id
@@ -135,11 +135,12 @@
 
 				<field column="bmid" name="biological_model_id" />
 				<field column="biological_sample_id" name="biological_sample_id" />
-				<field column="acc" name="gene_accession" />
-				<field column="allele_accession" name="allele_accession" />
+				<field column="acc" name="gene_accession_id" />
+				<field column="allele_accession" name="allele_accession_id" />
 				<field column="allele_symbol" name="allele_symbol" />
 				<field column="symbol" name="gene_symbol" />
-				<field column="strain_acc" name="strain" />
+				<field column="strain_acc" name="strain_accession_id" />
+				<field column="strain_name" name="strain_name" />
 				<field column="organisation_id" name="phenotyping_center_id" />
 				<field column="name" name="phenotyping_center" />
 				<field column="zygosity" name="zygosity" />
