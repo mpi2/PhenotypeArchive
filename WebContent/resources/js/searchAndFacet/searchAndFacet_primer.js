@@ -60,7 +60,8 @@ $(document).ready(function(){
 	    		document.location.href = baseUrl + '/search';
 	    	}
 	    	else {	    		
-	    		document.location.href = baseUrl + '/search?q=' + input; // handed over to hash change	    	
+	    		document.location.href = baseUrl + '/search?q=' + input + '#facet=' + MPI2.searchAndFacetConfig.matchedFacet; // handed over to hash change	    	
+	    		//document.location.href = baseUrl + '/search?q=' + input;
 	    	}
 	    }
 	})	

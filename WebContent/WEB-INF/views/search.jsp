@@ -146,6 +146,8 @@
 			       				q: request.term
 		       				},
 			       			success: function( data ) {
+			       				
+			       				MPI2.searchAndFacetConfig.matchedFacet = false; // reset
 			       				var docs = data.response.docs;	
 			       				//console.log(docs);
 			       				var aKV = [];
@@ -160,9 +162,15 @@
 			       							var term = docs[i][key].toString().toLowerCase();	
 			       							var re = new RegExp("(" + request.term + ")", "gi") ;			       				 			
 			       				 			var newTerm = term.replace(re,"<b class='sugTerm'>$1</b>");
-			       				 			
+			       				 						       				 			
 			       							aKV.push("<span class='" + facet + "'>" + newTerm + "</span>");
 			       							
+			       							if (i == 0){
+			       								// take the first found in autosuggest and open that facet
+			       								MPI2.searchAndFacetConfig.matchedFacet = facet;
+			       								console.log('matched facet: '+ facet);
+			       							}
+													       							
 			       							//aKV.push(newTerm);
 			       							//console.log(key + ' --- ' + docs[i][key]);
 			       						}	

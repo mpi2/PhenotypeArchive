@@ -31,6 +31,7 @@ if(typeof(window.MPI2) === 'undefined') {
 MPI2.searchAndFacetConfig = {};
 var config = MPI2.searchAndFacetConfig;
 
+config.matchedFacet = false;
 config.widgetOpen = false;
 config.hasFilters = false;
 
