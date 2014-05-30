@@ -434,17 +434,18 @@ public class GraphTest {
         Date start = new Date();
         Date stop;
 
-        int targetCount = geneIds.size();
+        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
         int allPagesCount = 0;
         int graphPagesTestedCount = 0;
         int i = 0;
         for (String geneId : geneIds) {
-//if (allPagesCount == 0) geneId = "MGI:104874";      // undimensional
+//if (allPagesCount == 0) geneId = "MGI:104874";      // unidimensional
+//if (allPagesCount == 0) geneId = "MGI:3028035";     // unidimensional
 //if (allPagesCount == 1) geneId = "MGI:2384936";     // categorical
 //if (allPagesCount == 2) geneId = "MGI:1924285";     // another unidimensional
-//if (allPagesCount == 2) timeseriesGraphUrl = "https://dev.mousephenotype.org/data/charts?accession=MGI:104874&allele_accession=EUROALL:19&parameter_stable_id=ESLIM_004_001_002&zygosity=heterozygote&phenotyping_center=WTSI";
+//if (allPagesCount == 3) timeseriesGraphUrl = "https://dev.mousephenotype.org/data/charts?accession=MGI:104874&allele_accession=EUROALL:19&parameter_stable_id=ESLIM_004_001_002&zygosity=heterozygote&phenotyping_center=WTSI";
             if (i >= targetCount) {
                 break;
             }
