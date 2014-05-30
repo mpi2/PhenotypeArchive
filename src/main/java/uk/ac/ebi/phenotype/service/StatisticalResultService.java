@@ -163,15 +163,18 @@ public class StatisticalResultService {
     
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
-            .addFilterQuery(StatisticalResultField.ALLELE_ACCESSION_ID + ":" + alleleAccession)
-            .addFilterQuery(StatisticalResultField.STRAIN_ACCESSION_ID + ":" + strain)
-            .addFilterQuery(StatisticalResultField.PHENOTYPING_CENTER + ":" + phenotypingCenter)
+            .addFilterQuery(StatisticalResultField.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"")
+            .addFilterQuery(StatisticalResultField.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"")
             .addFilterQuery(StatisticalResultField.PIPELINE_STABLE_ID + ":" + pipelineStableId)
             .addFilterQuery(StatisticalResultField.PARAMETER_STABLE_ID + ":" + parameterStableId)
             .addFilterQuery(StatisticalResultField.ZYGOSITY + ":" + zygosity.name())
             .setStart(0)
             .setRows(10)
         ;
+
+        if(strain != null) {
+            query.addFilterQuery(StatisticalResultField.STRAIN_ACCESSION_ID + ":\"" + strain + "\"");
+        }
 
         if(sex != null) {
             query.addFilterQuery(ExperimentField.SEX + ":" + sex);
