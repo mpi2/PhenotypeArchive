@@ -22,7 +22,7 @@ public class AutosuggestIndexer {
 
 	public static void main(String[] args) throws IOException, SolrServerException {
 		
-		ApplicationContext applicationContext = new ClassPathXmlApplicationContext("WebContent/WEB-INF/app-config.xml"); 
+		ApplicationContext applicationContext = new ClassPathXmlApplicationContext("app-config.xml"); 
 		Map<String, String> config = (Map<String, String>)applicationContext.getBean("globalConfiguration");
 		
 		String solrUrl = config.get("solrUrl");
