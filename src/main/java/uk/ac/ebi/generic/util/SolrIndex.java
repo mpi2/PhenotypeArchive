@@ -400,10 +400,10 @@ public class SolrIndex {
 				// blue es cell status				
 				esCellStatus = doc.getString(field);
 				if ( esCellStatus.equals("ES Cell Targeting Confirmed") ){
-						esCellStatus = "<a class='status done' href='" + geneUrl + "' oldtitle='ES Cells produced' title=''>"
+						esCellStatus = "<a id='status_done_999' class='status done' href='" + geneUrl + "' title='' data-mgiId='" + mgiId + "'>"
 									 + " <span>ES cells</span>"
-									 + "</a>";
-						
+                                                    + "</a>";
+
 						exportEsCellStatus += "Es cells produced";
 				}
 				else if ( esCellStatus.equals("ES Cell Production in Progress") ){

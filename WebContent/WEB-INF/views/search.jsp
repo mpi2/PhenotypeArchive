@@ -267,9 +267,32 @@
    			    		   adjust: {x: -360, y: 0}
    			    }
             });
-                        
+
+            var toolTipBlurb = 
+                '<h5 id="samplesrch">Cib2<sup>tm1a(EUCOMM)Wtsi</sup> Summary</h5>' +
+                '<h5>Knockout First, reporter-tagged insertion</h5>' +
+                '<p><b>There are mice for this allele <a title="Dummy order link!" href="http://www.google.com">ORDER</a>, <a title="Dummy details link!" href="http://www.google.com">DETAILS</a></b></p>' +
+                '<p><b>There are ES cells for this allele <a title="Dummy order link!" href="http://www.google.com">ORDER</a>, <a title="Dummy details link!" href="http://www.google.com">DETAILS</a></b></p>'
+                ;                              
+                                        
+            // TODO: this is just a blag - put it somewhere sensible!
+
+            setTimeout(function(){
+                 console.log("setTimeout...");
+                 $("a#status_done_999[data-mgiId='MGI:1929293']").qtip({            	   
+                        hide: true,
+                                content: {
+                                        text: toolTipBlurb,
+                                        title: {'button': 'close'}
+                                },		 	
+                                style: {
+                                        classes: 'qtipimpc'			 		
+                                }
+                    });
+             }, 3000);
+
             // Message to IE users
-            //$.fn.ieCheck();
+            //$.fn.ieCheck();    
         });        
         </script>
 			
