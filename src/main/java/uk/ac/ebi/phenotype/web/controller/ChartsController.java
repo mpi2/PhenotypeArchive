@@ -189,8 +189,8 @@ public class ChartsController {
 	public String chart(
 			@RequestParam(required = true, value = "experimentNumber") String experimentNumber,// we																	// female
 			@RequestParam(required = false, value = "accession") String[] accession,
-			@RequestParam(required = false, value = "strain") String strain,
-                        @RequestParam(required = false, value = "allele_accession") String alleleAccession,
+			@RequestParam(required = false, value = "strain_accession_id") String strain,
+                        @RequestParam(required = false, value = "allele_accession_id") String alleleAccession,
 			@RequestParam(required = false, value = "metadata_group") String metadataGroup,
 			@RequestParam(required = false, value = "parameter_stable_id") String parameterStableIds,
 			@RequestParam(required = false, value = "gender") String[] gender,//only have one gender per graph
@@ -199,6 +199,7 @@ public class ChartsController {
 			@RequestParam(required = false, value = "strategy") String[] strategies,
 			@RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableId,
 			@RequestParam(required = false, value = "scatter") boolean scatter,
+			@RequestParam(required = false, value = "standAlone") boolean standAlone,
 			Model model) throws GenomicFeatureNotFoundException,
 			ParameterNotFoundException, IOException, URISyntaxException,
 			SolrServerException,  SpecificExperimentException {

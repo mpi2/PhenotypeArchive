@@ -70,7 +70,9 @@
 				
 	<c:set var="count" value="0" scope="page" />
 	<c:forEach var="dataMap" items="${mapList}" varStatus="status">
-			<c:set var="count" value="${count + 1}" scope="page"/>
+		<c:set var="stableId" value="${dataMap['parameter_stable_id']}"/>
+		<c:set var="stableIdpValuesMap" value="${pvaluesMap[stableId]}"/>
+		<c:set var="count" value="${count + fn:length(stableIdpValuesMap)}" scope="page"/>
 	</c:forEach>
 	<p class="resultCount">
 	Total number of results: ${count}
@@ -83,7 +85,7 @@
 	</script>
 	
 
-				<table id="strainPhenome">
+				<table id="strainPvalues">
 					<thead>
 						<tr>
 							<th class="headerSort">Procedure</th>

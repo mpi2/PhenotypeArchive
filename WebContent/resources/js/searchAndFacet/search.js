@@ -32,6 +32,12 @@
 			
 		var q = oUrlHashParams.q;
 		
+		// for match text highlighting
+		/*var hlParams = {};
+		hlParams.hl = 'true';
+		hlParams['hl.snippets']=100; // otherwise only one in each field is return, and 100 should be enough to catch all for synonyms field, etc    	    	
+		hlParams['hl.fl'] = '*';    		
+		*/
 		if ( typeof q == 'undefined' ){
 			// check search kw						
 			if ( window.location.search != '' ){				

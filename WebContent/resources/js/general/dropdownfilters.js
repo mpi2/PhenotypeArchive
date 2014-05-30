@@ -64,6 +64,7 @@ $(document).ready(function(){
 	// the number of columns should be kept in sync in the JSP
 	var oDataTable = $.fn.initDataTable($('table#strainPhenome'), {
 		"aoColumns": [
+		              { "sType": "string" },		              
 		              { "sType": "string" },
 		              { "sType": "string" },		              
 		              { "sType": "string" },
@@ -77,7 +78,21 @@ $(document).ready(function(){
 		              "bFilter":false
 	});
 	
+	// the number of columns should be kept in sync in the JSP
+	var oDataTable = $.fn.initDataTable($('table#strainPvalues'), {
+		"aoColumns": [	              
+		              { "sType": "string" },
+		              { "sType": "string" },		              
+		              { "sType": "string" },
+		              { "sType": "string" },
+		              { "sType": "pvalues" }, // or numeric
+		              { "sType": "string" },
+		              { "sType": "string", "bSortable" : false }
 
+		              ],
+		              "bDestroy": true,
+		              "bFilter":false
+	});
 	
 	//$('[rel=tooltip]').tooltip();
 	//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);

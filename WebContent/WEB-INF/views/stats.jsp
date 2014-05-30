@@ -146,7 +146,7 @@ $(document).ready(function(){
 										phenotypingCenter: phenotypingCenter,
 										pipelineStableId: pipelineStableId,
 										page : "unidimensionalData",
-										gridFields : 'gene_accession,date_of_experiment,discrete_point,gene_symbol,data_point,zygosity,sex,date_of_birth,time_point',
+										gridFields : '',
 										params : ""
 									});
 			

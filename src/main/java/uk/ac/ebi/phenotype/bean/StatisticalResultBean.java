@@ -15,15 +15,17 @@
  */
 package uk.ac.ebi.phenotype.bean;
 
+import uk.ac.ebi.phenotype.pojo.StatisticalSignificance;
+
 /**
  * Lightweight representation of a statistical object containing 3 attributes, 
  * namely the pvalue, and effect size
  */
 
-public class StatisticalResultBean {
+public class StatisticalResultBean implements StatisticalSignificance {
 
 	private double pValue;
-	private Double effectSize;
+	private double effectSize;
 	private String status;
 	private String method;
 	private String controlSex; // if relevant
@@ -43,7 +45,7 @@ public class StatisticalResultBean {
 	 * @param method
 	 */
 	public StatisticalResultBean(
-			double pValue, Double effectSize,
+			double pValue, double effectSize,
 			String status, String method,
 			String controlSex, 
 			String zygosity,
@@ -81,13 +83,13 @@ public class StatisticalResultBean {
 	/**
 	 * @return the effectSize
 	 */
-	public Double getEffectSize() {
+	public double getEffectSize() {
 		return effectSize;
 	}
 	/**
 	 * @param effectSize the effectSize to set
 	 */
-	public void setEffectSize(Double effectSize) {
+	public void setEffectSize(double effectSize) {
 		this.effectSize = effectSize;
 	}
 	/**

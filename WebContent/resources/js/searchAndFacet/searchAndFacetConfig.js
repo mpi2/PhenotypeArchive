@@ -219,7 +219,7 @@ config.facetParams = {
 		fq: 'marker_type:* -marker_type:"heritable phenotypic marker"',//undefined,
 		//fq: 'marker_type:* -marker_type:"heritable phenotypic marker" (production_center:* AND phenotyping_center:*)',//undefined,
 		//centerFq: 'marker_type:* -marker_type:"heritable phenotypic marker" AND (production_center:* AND phenotyping_center:*)',
-		qf: "marker_symbol^100.0 human_gene_symbol^90.0 marker_name^10.0 allele_name^10 marker_synonym mgi_accession_id auto_suggest",
+		qf: "marker_symbol^100.0 human_gene_symbol^90.0 marker_name^10.0 marker_synonym mgi_accession_id auto_suggest",
 		gridName: 'geneGrid',
 		gridFields: '*', 
 		//filterParams: {fq:'marker_type:* -marker_type:"heritable phenotypic marker" (production_center:* AND phenotyping_center:*)',	
@@ -296,7 +296,7 @@ config.facetParams = {
 		 filterParams: {'fq': 'ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*'},		 
 		 srchParams: $.extend({},
 					commonSolrParams,
-					{'fl' : 'ma_id,ma_term,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'})		
+					{'fl' : 'ma_id,ma_term,ma_term_synonym,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'})		
 	 },	 
 	 diseaseFacet: {			    	
 		 type: 'diseases',

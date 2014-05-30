@@ -55,8 +55,12 @@ public class ExperimentService {
     @Autowired
     private UnidimensionalStatisticsDAO unidimensionalStatisticsDAO;
     
+//    @Autowired
+//    private StatisticalResultDAO statisticalResultDAO;
+    
     @Autowired
-    private StatisticalResultDAO statisticalResultDAO;    
+    private StatisticalResultService statisticalResultService;
+
 
     public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
         return getExperimentDTO(parameterId, pipelineId, geneAccession, sex, phenotypingCenterId, zygosity, strain, null, Boolean.TRUE, null);
@@ -70,7 +74,7 @@ public class ExperimentService {
      *            null for both sexes
      * @param phenotypingCenterId
      *            null for any organisation
-     * @param zygosity
+     * @param zygosities
      *            null for any zygosity
      * @param strain
      *            null for any strain
@@ -86,11 +90,11 @@ public class ExperimentService {
      * @throws URISyntaxException
      */
 
-    public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain, String metaDataGroup, Boolean includeResults, String alleleAccession) throws SolrServerException, IOException, URISyntaxException {
+    public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosities, String strain, String metaDataGroup, Boolean includeResults, String alleleAccession) throws SolrServerException, IOException, URISyntaxException {
 
         LOG.debug("metadataGroup parmeter is=" + metaDataGroup);
 
-        List<ObservationDTO> observations = os.getExperimentalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroupAndAlleleAccession(parameterId, pipelineId, geneAccession, zygosity, phenotypingCenterId, strain, sex, metaDataGroup, alleleAccession);
+        List<ObservationDTO> observations = os.getExperimentalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroupAndAlleleAccession(parameterId, pipelineId, geneAccession, zygosities, phenotypingCenterId, strain, sex, metaDataGroup, alleleAccession);
         Map<String, ExperimentDTO> experimentsMap = new HashMap<>();
 
         for (ObservationDTO observation : observations) {
@@ -164,153 +168,21 @@ public class ExperimentService {
             experiment.getZygosities().add(ZygosityType.valueOf(observation.getZygosity()));
             experiment.getSexes().add(SexType.valueOf(observation.getSex()));
 
-            // TODO: include allele
-            // TODO: update to make use of the MP to result association
             // includeResults variable skips the results when gathering
             // experiments for calculating the results (performance)
-            if (experiment.getResults() == null && experiment.getExperimentalBiologicalModelId() != null && includeResults) {
-                // this call to solr is fine if all we want is pValue and effect
-                // size, but for unidimensional data we need more stats info to
-                // populate the extra table so we need to make a db call instead
-                // for unidimensional
-                List<? extends StatisticalResult> basicResults = phenoDAO.getStatisticalResultFor(observation.getGeneAccession(), observation.getParameterStableId(), ObservationType.valueOf(observation.getObservationType()), observation.getStrain(), alleleAccession);
-                LOG.debug("basic results list size for experiment=" + basicResults.size());
-                LOG.debug("experiment id=" + experiment.getExperimentId());
-                List<StatisticalResult> populatedResults = new ArrayList<>();
+            if (experiment.getResults() == null && experiment.getExperimentalBiologicalModelId() != null && includeResults
+                    ) {
+                
+                String phenotypingCenter = observation.getPhenotypingCenter();
+                String parameterStableId = observation.getParameterStableId();
+                String pipelineStableId = observation.getPipelineStableId();
+                ObservationType statisticalType = experiment.getObservationType();
+                ZygosityType zygosity = ZygosityType.valueOf(observation.getZygosity());
 
-                if (experiment.getObservationType() == ObservationType.unidimensional) {
-                    for (StatisticalResult basicResult : basicResults) {
-                        // get one for female and one for male if exist
-                        UnidimensionalResult unidimensionalResult = (UnidimensionalResult) basicResult;
-                        LOG.debug("basic result PCSummary Id=" + unidimensionalResult.getId() + " basic result sex type=" + unidimensionalResult.getSexType() + " p value=" + unidimensionalResult.getpValue());
-                        // LOG.debug("basic result metadataGroup="+basicResult.getMetadataGroup());
+                List<? extends StatisticalResult> results = statisticalResultService.getStatisticalResult(alleleAccession, strain, phenotypingCenter, pipelineStableId, parameterStableId, metaDataGroup, zygosity, sex, statisticalType);
 
-                        try {
-                            UnidimensionalResult result = statisticalResultDAO.getUnidimensionalStatsForPhenotypeCallSummaryId(unidimensionalResult.getId());
-                            if (result == null) {
-                                LOG.debug("no comprehensive result found for unidimensionalresult with id=" + unidimensionalResult.getId());
-                            }
-                            if (result != null) {
-                                // result.setSexType(unidimensionalResult.getSexType());//set
-                                // the sextype from our already called solr
-                                // result as it's not set by hibernate
-                                LOG.debug("yes result found for for unidimensionalresult with id=" + unidimensionalResult.getId());
-                                result.setZygosityType(unidimensionalResult.getZygosityType());
-                                if (experiment.getMetadataGroup() != null && result.getMetadataGroup() != null) {
-                                    if (experiment.getMetadataGroup().equals(result.getMetadataGroup())) {
-                                        LOG.debug("metadata group in experiment and result are equal so adding " + metaDataGroup);
-                                        LOG.debug("adding pValue from comprehensive result=" + result.getpValue());
-                                        result.setEffectSize(basicResult.getEffectSize());
-                                        populatedResults.add(result);
-                                    }
-                                }
-                            }
-                        } catch (SQLException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
+                experiment.setResults(results);
 
-                    }
-                }
-                if (experiment.getObservationType() == ObservationType.categorical) {
-                    for (StatisticalResult basicResult : basicResults) {
-                        // get one for female and one for male if exist
-                        CategoricalResult categoricalResult = (CategoricalResult) basicResult;
-                        LOG.debug("basic result PCSummary Id=" + categoricalResult.getId() + " basic result sex type=" + categoricalResult.getSexType() + " p value=" + categoricalResult.getpValue());
-                        // LOG.debug("basic result metadataGroup="+basicResult.getMetadataGroup());
-                        // populatedResults.add(categoricalResult);
-                        try {
-                            CategoricalResult result = statisticalResultDAO.getCategoricalStatsForPhenotypeCallSummaryId(categoricalResult.getId());
-                            if (result == null) {
-                                LOG.debug("no comprehensive result found for categoricalResult with id=" + categoricalResult.getId());
-                            }
-                            if (result != null) {
-                                // result.setSexType(unidimensionalResult.getSexType());//set
-                                // the sextype from our already called solr
-                                // result as it's not set by hibernate
-                                LOG.debug("yes result found for for categoricalResult with id=" + categoricalResult.getId());
-                                result.setZygosityType(categoricalResult.getZygosityType());
-                                result.setSexType(categoricalResult.getExperimentalSex());// set
-                                                                                          // the
-                                                                                          // sexType
-                                                                                          // here
-                                                                                          // so
-                                                                                          // it
-                                                                                          // is
-                                                                                          // set
-                                                                                          // like
-                                                                                          // it
-                                                                                          // is
-                                                                                          // when
-                                                                                          // calling
-                                                                                          // from
-                                                                                          // solr
-
-                                LOG.debug("result in expservice has sex before meatadat group filter of " + result.getSexType());
-                                if (experiment.getMetadataGroup() != null && result.getMetadataGroup() != null) {
-                                    if (experiment.getMetadataGroup().equals(result.getMetadataGroup())) {
-                                        LOG.debug("metadata group in experiment and result are equal so adding " + metaDataGroup);
-                                        LOG.debug("adding pValue from comprehensive result=" + result.getpValue());
-                                        // System.out.println("sex of metadata match is="+result.getSexType());
-                                        result.setSexType(basicResult.getSexType());// this
-                                                                                    // is
-                                                                                    // horrible
-                                                                                    // -
-                                                                                    // how
-                                                                                    // can
-                                                                                    // we
-                                                                                    // change
-                                                                                    // this
-                                                                                    // difference
-                                                                                    // between
-                                                                                    // hibernate
-                                                                                    // way
-                                                                                    // and
-                                                                                    // solr
-                                                                                    // way?
-                                        populatedResults.add(result);
-                                    }
-                                }
-                            }
-                        } catch (SQLException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-
-                    }
-                }
-                // if (populatedResults.isEmpty()) {
-                // LOG.debug("resorting to basic stats result");
-                // //System.out.println("basic results size=" +
-                // basicResults.size());
-                // for (StatisticalResult bR : basicResults) {
-                // //System.out.println("basic result metadataGroup=" +
-                // bR.getMetadataGroup());
-                // if (experiment.getMetadataGroup().equals(bR)){
-                // UnidimensionalResult uniTempResult=(UnidimensionalResult)bR;
-                // //LOG.debug("adding pValue from basic result="+uniTempResult.getpValue());
-                // populatedResults.add((UnidimensionalResult)bR);
-                // }
-                // }
-                // }
-
-                experiment.setResults(populatedResults);
-
-                // doc_id from above call is the phenotype_call_summary id
-                // use this to get the correct stats result from the db
-                // some dao .getStatsForPhenotypeCallSummaryId(14309);
-                // note there will only be extra stats in the
-                // stat_result_phenotype_call_summary if the call is an impc one
-                // otherwise like this query it will be empty!
-                // SELECT * FROM Y.stat_result_phenotype_call_summary where
-                // phenotype_call_summary_id=88370;
-                // # categorical_result_id, unidimensional_result_id,
-                // phenotype_call_summary_id
-                // 0, 204749, 88370
-
-                // needs to get information from
-
-                // >>>>>>> refs/remotes/origin/fixedNewDesign
             }
 
             if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.heterozygote)) {

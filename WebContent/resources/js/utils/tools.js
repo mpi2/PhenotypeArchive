@@ -690,7 +690,7 @@
 				//fqStr = fqStr.replace(' AND ontology_subset:*', '');			
 			}
 		}
-				
+		fqStr = fqStr.replace(/^\s*AND\s*/,'');
 		return decodeURI(fqStr);	
 	}
 	
@@ -937,10 +937,12 @@
 				
 				if ( fqField == 'procedure_stable_id' ){
 					var aV = value.split('___');
-					value = aV[1]; // procedure stable id					
+					value = aV[1]; // procedure stable id	
+					aStr.push('(' + fqField + ':' + value + ')');
 				}						
-				
-				aStr.push('(' + fqField + ':"' + value + '")');				
+				else {
+					aStr.push('(' + fqField + ':"' + value + '")');				
+				}
 			});
 			
 			var fqStr = aStr.join(' AND ');			
@@ -1269,10 +1271,10 @@
     	
     	//console.log(facet + ' ' + fqStr);
     	 
-		// unhightlight/uncheck all facets
+		// unhightlight/uncheck all facets: recompose filter (easier than incremental or decremental)
         $.fn.removeFacetFilter();
         
-		var pat = '(\\b\\w*\\b):"([a-zA-Z0-9_\/ ]*)"';		
+		var pat = '(\\b\\w*\\b):"?([a-zA-Z0-9_\/ ]*)"?';		
 		var regex = new RegExp(pat, "gi");		    	
 		var result;		
 		var wantStr;
@@ -1551,19 +1553,94 @@
     }   
     
     $.fn.getSolrRelevanceParams = function(facet, q, oParams){
-    	if ( facet == 'mp' ){
+    	
+    	var wildCardStr = /^\*\w*$|^\w*\*$|^\*\w*\*$/;
+    	if ( facet == 'gene' ){
+    		if ( q.match(/^MGI:\d*$/i) ){
+    			oParams.q = q.toUpperCase();
+    			oParams.qf = 'mgi_accession_id';				
+    		}
+    		else if ( q.match(wildCardStr) && q != '*:*'){	
+				oParams.bq='marker_symbol:'     +q.replace(/\*/g,'')+'^1000'
+						  +'human_gene_symbol:' +q.replace(/\*/g,'')+'^800'
+						  +'marker_synonym:'    +q.replace(/\*/g,'')+'^700'
+						  +'marker_name:'       +q.replace(/\*/g,'')+'^500';
+			}	
+    		else {
+    			oParams.pf='marker_symbol^1000 human_gene_symbol^800 marker_synonym^700 marker_name^500'; 
+    		}
+    	}
+    	if ( facet == 'mp' ){    		
 			if ( q.match(/^MP:\d*$/i) ){
 				oParams.q = q.toUpperCase();
 				oParams.qf = 'mp_id';				
 			}
-			else if ( q.match(/^\*\w*|\w*\*$|^\*\w*\*$/) && q != '*:*'){				
-				oParams.bq='mp_term:'+q.replace(/\*/g,'')+'^1000';				
-			}
-			else {			
+			//else if ( q.match(/^\*\w*|\w*\*$|^\*\w*\*$/) && q != '*:*'){
+			else if ( q.match(wildCardStr) && q != '*:*'){	
+				oParams.bq='mp_term:'         +q.replace(/\*/g,'')+'^1000'
+					      +'mp_term_synonym:' +q.replace(/\*/g,'')+'^500'
+					      +'mp_definition:'   +q.replace(/\*/g,'')+'^100';				
+			}			
+			else {	
+				// does not seem to take effect if complexphrase is in use
 				oParams.pf='mp_term^1000 mp_term_synonym^500 mp_definition^100';					
 			}	
     	}
+    	else if ( facet == 'disease' ){
+    		if ( q.match(wildCardStr) && q != '*:*'){	
+				oParams.bq='disease_term:'             +q.replace(/\*/g,'')+'^1000'
+						  +'disease_alts:'             +q.replace(/\*/g,'')+'^700'
+						  +'disease_human_phenotypes:' +q.replace(/\*/g,'')+'^500'						  
+						  +'disease_source:'           +q.replace(/\*/g,'')+'^200';
+			}	
+    		else {
+    			oParams.pf='disease_term^1000 disease_alts^700 disease_human_phenotypes^500 disease_source^200'; 
+    		}
+    	}
+    	if ( facet == 'ma' ){    		
+			if ( q.match(/^MA:\d*$/i) ){
+				oParams.q = q.toUpperCase();
+				oParams.qf = 'ma_id';				
+			}
+			//else if ( q.match(/^\*\w*|\w*\*$|^\*\w*\*$/) && q != '*:*'){
+			else if ( q.match(wildCardStr) && q != '*:*'){			
+				oParams.bq='ma_term:'         +q.replace(/\*/g,'')+'^1000'
+				          +'ma_term_synonym:' +q.replace(/\*/g,'')+'^500';			   			
+			}			
+			else {	
+				// does not seem to take effect if complexphrase is in use
+				oParams.pf='ma_term^1000 ma_term_synonym^500';					
+			}	
+    	}
+    	if ( facet == 'pipeline' ){    		
+			if ( q.match(wildCardStr) && q != '*:*'){	
+				oParams.bq='parameter_name: '+q.replace(/\*/g,'')+'^1000'
+					      +'procedure_name: '+q.replace(/\*/g,'')+'^500';				
+			}			
+			else {	
+				// does not seem to take effect if complexphrase is in use
+				oParams.pf='parameter_name^1000 procedure_name^500';					
+			}	
+    	}
+    	if ( facet == 'images' ){    		
+			if ( q.match(wildCardStr) && q != '*:*'){	
+				oParams.bq='annotationTermName: '+q.replace(/\*/g,'')+'^500'
+					      +'expName: '+q.replace(/\*/g,'')+'^500';
+						  +'symbol: '+q.replace(/\*/g,'')+'^500';
+			}			
+			else {	
+				// does not seem to take effect if complexphrase is in use
+				oParams.pf='annotationTermName^500 expName^500 symbol^500';					
+			}	
+    	}
     	
+    	// applied to all facets
+    	//if ( q.match(/^(\w+?\*\s+?){1,}(\w+?\*)?$/) ){
+    	if ( q.indexOf(' ') != -1 && q.indexOf('*') != -1 ){	
+		 	// a slop of 15 should be enough to account for the usual word length of mp term: let's try this for now
+		 	// NOTE: w/0 slop, the ranking is weird in many cases 			 
+			oParams.q='{!complexphrase}auto_suggest:"' + q + '"~15'; 
+    	}
     	return oParams;
     }
     
@@ -1587,7 +1664,17 @@
 		oParams.fq = encodeURI(oHashParams.fq);				
 		oParams.rows = 10;
 		
+		oParams.hl = 'true';
+    	oParams['hl.snippets']=100; // otherwise only one in each field is return, and 100 should be enough to catch all for synonyms field, etc    	    	
+    	oParams['hl.fl'] = '*';    	
+		
 		// bq, qf, pf for solr result relevance 
+
+    	if ( facetDivId == 'geneFacet' ){
+    		oParams.qf = MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams.qf;
+    	}
+    	
+
 		if ( facetDivId == 'mpFacet' ){
 			oParams = $.fn.getSolrRelevanceParams('mp', oHashParams.q, oParams);
 		}					

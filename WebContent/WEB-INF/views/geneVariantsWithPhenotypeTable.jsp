@@ -26,10 +26,10 @@
 				<th>Zygosity</th>
 				<th>Sex</th>
 				<th>Phenotype </th>
-				<th>Procedure / Parameter</th>
+				<th>Procedure | Parameter</th>
 				<th>Phenotyping Center</th>
 				<th>Source</th>
-                                <th>pValue</th>
+                                <th>P Value</th>
 				<th>Graph</th>
 			</tr>
 		</thead>
@@ -57,7 +57,7 @@
 					
 					<td><a href="${baseUrl}/phenotypes/${phenotype.phenotypeTerm.id.accession}">${phenotype.phenotypeTerm.name}</a> </td>
 				
-					<td>${phenotype.procedure.name} / ${phenotype.parameter.name}</td>
+					<td>${phenotype.procedure.name} | ${phenotype.parameter.name}</td>
 				
 					<td>${phenotype.phenotypingCenter}</td>
 					

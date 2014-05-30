@@ -49,11 +49,16 @@
         <constructor-arg  value="${internalSolrUrl}/genotype-phenotype" />
     </bean>
     
+    <bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
+		<constructor-arg  value="${internalSolrUrl}/statistical-result" />
+	</bean>
+    
     <bean id="mpService" class="uk.ac.ebi.phenotype.service.MpService">
         <constructor-arg  value="${internalSolrUrl}/mp" />
     </bean>
                 
     <context:component-scan base-package="uk.ac.ebi" />
+    <context:component-scan base-package="org.mousephenotype.www" />
 
     <context:annotation-config/>
 
@@ -62,6 +67,10 @@
 	
     <bean id="biologicalModelDAO" class="uk.ac.ebi.phenotype.dao.BiologicalModelDAOImpl">
         <constructor-arg ref="sessionFactory" />
+    </bean>
+    
+    <bean id="secondaryProjectDAO" class="uk.ac.ebi.phenotype.dao.SecondaryProjectDAOImpl">
+		<constructor-arg ref="sessionFactory" />
     </bean>
 
     <bean id="observationDAO" class="uk.ac.ebi.phenotype.dao.ObservationDAOImpl">
@@ -162,6 +171,10 @@
             </map>
         </property>
     </bean>
+    
+    <util:properties id="testIterationsHash" location="classpath:testIterations.properties" />
+    
+    <bean id="testUtils" class="org.mousephenotype.www.testing.model.TestUtils" />
 
     <bean id="seleniumUrl" class="java.lang.String">
         <constructor-arg value="${seleniumUrl}"/>

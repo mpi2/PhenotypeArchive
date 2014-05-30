@@ -42,7 +42,7 @@ public class ObservationServiceTest {
 	@Test
 	public void testGetDistinctPipelineAlleleCenterListByGeneAccession() {
 		
-		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1
+		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1
 		List<Map<String,String>> dataset = null;
 		String genomicFeatureAcc = "MGI:104874"; // Akt2
 			try {
@@ -63,7 +63,7 @@ public class ObservationServiceTest {
 	@Test
 	public void testGetDistinctProcedureListByPipelineAlleleCenter() {
 
-		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1
+		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1
 		List<String> dataset = null;
 		String phenotypingCenter = "WTSI"; 
 		String pipelineStableId = "ESLIM_001";
@@ -85,7 +85,7 @@ public class ObservationServiceTest {
 	@Test
 	public void testGetDistinctParameterListByPipelineAlleleCenter() {
 		
-		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1
+		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1
 		List<Map<String,String>> dataset = null;
 		String phenotypingCenter = "WTSI"; 
 		String pipelineStableId = "ESLIM_001";
@@ -108,7 +108,7 @@ public class ObservationServiceTest {
 	@Test
 	public void testGetDistinctParameterListByPipelineAlleleCenterWithSpaceInName() {
 		
-		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1
+		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1
 		List<Map<String,String>> dataset = null;
 		String phenotypingCenter = "MRC Harwell"; 
 		String pipelineStableId = "ESLIM_001";

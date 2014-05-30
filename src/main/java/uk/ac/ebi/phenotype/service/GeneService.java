@@ -243,7 +243,7 @@ public class GeneService {
         QueryResponse response;
         try {
             response = solr.query(query);
-
+            if(response.getResults().size()>0){//check we have results before we try and access them
             SolrDocument doc = response.getResults().get(0);
             // phenotype_status
             if (doc.containsKey("phenotype_status")) {
@@ -253,6 +253,7 @@ public class GeneService {
                         return true;
                     }
                 }
+            }
             }
         } catch (SolrServerException e) {
             e.printStackTrace();
