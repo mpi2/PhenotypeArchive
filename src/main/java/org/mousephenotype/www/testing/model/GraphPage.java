@@ -20,7 +20,6 @@
 
 package org.mousephenotype.www.testing.model;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -35,9 +34,12 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
 /**
  *
  * @author mrelac
+ * 
+ * This class encapsulates the code and data necessary to represent the important
+ * components of a graph page.
  */
 public class GraphPage {
-    private List<GraphRow> data;
+    private GraphTable graphTable;
     private final WebDriver driver;
     private final long timeoutInSeconds;
     private final PhenotypePipelineDAO phenotypePipelineDAO;
@@ -53,7 +55,6 @@ public class GraphPage {
     private final String GRAPH_BY_DATE = "Graph by date";
     
     public GraphPage(WebDriver driver, long timeoutInSeconds, PhenotypePipelineDAO phenotypePipelineDAO) {
-        this.data = new ArrayList();
         this.driver = driver;
         this.timeoutInSeconds = timeoutInSeconds;
         this.phenotypePipelineDAO = phenotypePipelineDAO;
@@ -64,10 +65,6 @@ public class GraphPage {
         this.parameterStableId = null;
         this.graphByDateHref = null;
         this.parameterObject = null;
-    }
-
-    public List<GraphRow> getData() {
-        return data;
     }
 
     public long getTimeoutInSeconds() {
@@ -136,44 +133,27 @@ public class GraphPage {
         if ( ! otherLinksList.isEmpty())
             graphByDateHref = otherLinksList.get(0).getAttribute("href");
         
-        // Determine if there is a summary table, and if so, add its data.
-        //     Unidimensionals have a table with id "continuousTable", and a scatter link
-        //         with a table with id "continuousTable".
-        //     Categoricals have a table with id "catTable" and do not have a scatter link.
-        //     Timeseries do not have a summary table.
-        WebElement summaryTable = null;
-        // Unidimensional (and Scatter view).
-        List<WebElement> uniTableList = driver.findElements(By.cssSelector("table#continuousTable"));
-        if ( ! uniTableList.isEmpty()) {
-            summaryTable = uniTableList.get(0);
-        }
-        // Categorical
-        List<WebElement> catTableList = driver.findElements(By.cssSelector("table#catTable"));
-        if ( ! catTableList.isEmpty()) {
-            summaryTable = catTableList.get(0);
-        }
-        
         // Use the parameterStableId to get the Parameter object.
         parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
-
-        if (summaryTable != null) {
-            List<WebElement> weHeaderTr = summaryTable.findElements(By.cssSelector("thead tr th"));
-            if ( ! weHeaderTr.isEmpty()) {
-                data = new ArrayList();
-                List<WebElement> weTrList = summaryTable.findElements(By.cssSelector("tbody tr"));
-                for (WebElement summaryRow : weTrList) {
-                    List<WebElement> weValueTr = summaryRow.findElements(By.cssSelector("td"));
-                    data.add(new GraphRow(weHeaderTr, weValueTr));
-                }
-            }
-        }
         
         // Set the graph type from the parameterDAO.
         observationType = Utilities.checkType(parameterObject, parameterObject.getDatatype());
         
+        // Determine if there is a summary table, and if so, add its data.
+        // Summary tables are identified by the table class 'globalTest'.
+        WebElement summaryTable = null;
+        // Unidimensional (and Scatter view).
+        List<WebElement> uniTableList = driver.findElements(By.cssSelector("table.globalTest"));
+        if ( ! uniTableList.isEmpty()) {
+            summaryTable = uniTableList.get(0);
+        }
+        if (summaryTable != null) {
+            graphTable = new GraphTable(summaryTable, driver.getCurrentUrl());
+        }
+        
         return status;
     }
-
+    
     /**
      * Validates this <code>GraphPage</code> instance
      * @return a new <code>GraphParsingStatus</code> status instance containing
@@ -205,20 +185,11 @@ public class GraphPage {
             status.addFail("ERROR: parameter name mismatch. parameter on graph: '" + parameter + "'. from parameterDAO: " + parameterObject.getName() + ": " + getUrl());
         }
         
-        // If there is a summary table (i.e. data is not null/empty), verify:
-        //   1) that there is at least 1 p-value, and
-        //   2) that there is an Effect Size for each p-value.
-        int pvalueCount = 0;
-        if (data != null) {
-            for (GraphRow row : data) {
-                row.validate(status);
-                pvalueCount += row.getPvalueCount();
-            }
+        // If there is a summary table (i.e. data is not null/empty), validate it.
+        if (graphTable != null) {
+            graphTable.validate(status);
         }
-        if (pvalueCount == 0) {
-            status.addFail("ERROR: Expected at least 1 " + GraphRow.PVALUE_HEADING + " but none were found. URL: " + getUrl());
-        }
-        
+
         // If this is a Time Series graph or a Unidimensional graph, there must be a 'Graph by date' link.
         // Invoke it, parse it, and compare the two title, parameter, and parameterStableId values. You can't
         // check the Box Plot link because there is no href - just an id named 'goBack'.
@@ -254,47 +225,14 @@ public class GraphPage {
                 if (graphByDatePage == null) {
                     status.addFail("ERROR: Expected a summary page but found none. " + getUrl());
                 } else {
-                    GraphParsingStatus tempStatus = new GraphParsingStatus();
-                    if ( ! isSummaryEqual(graphByDatePage.getData(), tempStatus)) {
+                    if ( ! graphTable.isEqual(graphByDatePage.graphTable)) {
                         status.addFail("ERROR: this graph and its '" + GRAPH_BY_DATE + "' graph are not equal.\nThis URL: " + url + "\n'" + GRAPH_BY_DATE + "' URL: " + graphByDatePage.getUrl());
-                        status.addFail(tempStatus.getFailMessages());
                     }
                 }
             }
         }
         
         return status;
-    }
-    
-    /**
-     * Compares the row, column count, and data values of this data instance
-     * with <code>otherData</code>. Returns true if they are all the same;
-     * false otherwise.
-     * @param otherData the other instance to compare against
-     * @return true if they are all the same; false otherwise.
-     */
-    private boolean isSummaryEqual(List<GraphRow> otherData, GraphParsingStatus status) {
-        if (data.size() != otherData.size())
-            return false;
-        
-        for (int i = 0; i < data.size(); i++) {
-            GraphRow row      = data.get(i);
-            GraphRow otherRow = otherData.get(i);
-            if ((row.getHeading().size() != otherRow.getHeading().size()) || (row.getRow().size() != otherRow.getRow().size())) {
-                status.addFail("The number of heading and data columns does not match.");
-                return false;
-            }
-            for (String cellHeading : row.getRow().keySet()) {
-                String value = row.getRow().get(cellHeading);
-                String otherValue = otherRow.getRow().get(cellHeading);
-                if (value.compareTo(otherValue) != 0) {
-                    status.addFail("Mismatched values: " + value + ", " + otherValue);
-                    return false;
-                }
-            }
-        }
-        
-        return true;
     }
     
 }
