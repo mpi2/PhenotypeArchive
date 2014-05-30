@@ -49,7 +49,7 @@
 						<c:when
 							test="${data.result.significanceClassification.text == 'Female only' || data.result.significanceClassification.text == 'Male only'  || data.result.significanceClassification.text == 'Different size females greater' || data.result.significanceClassification.text == 'Different size males greater' || data.result.significanceClassification.text == 'Female and male different directions'}">
 							<tr>
-								<td rowspan="2" class="globalTestValue">${data.result.nullTestSignificance}</td>
+								<td rowspan="2" class="globalTestValue"><t:formatScientific>${data.result.nullTestSignificance}</t:formatScientific></td>
 								<td rowspan="2">${data.result.significanceClassification.text}</td>
 								<td>Female</td>
 								<td class="effect"><t:formatScientific>${data.result.genderFemaleKoEstimate}</t:formatScientific></td>
@@ -284,9 +284,8 @@
 					$("#toggle_table_button${experimentNumber}").toggleClass('fa-caret-right');
 					$("#toggle_table_button${experimentNumber}").click(
 							function() {
-								console.log("cli   ck fired");
-								$("#toggle_table${experimentNumber}").togg
-								le('slow');
+								console.log("click fired");
+								$("#toggle_table${experimentNumber}").toggle('slow');
 								$("#toggle_table_button${experimentNumber}")
 										.toggleClass('fa-caret-right')
 										.toggleClass('fa-caret-down');//remove right and put down or vica versa
