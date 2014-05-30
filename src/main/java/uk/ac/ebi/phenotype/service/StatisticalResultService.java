@@ -11,8 +11,14 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import uk.ac.ebi.phenotype.dao.BiologicalModelDAO;
+import uk.ac.ebi.phenotype.dao.DatasourceDAO;
+import uk.ac.ebi.phenotype.dao.OrganisationDAO;
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.dao.ProjectDAO;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
@@ -23,12 +29,28 @@ import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService.GenotypePhenotypeField;
 import uk.ac.ebi.phenotype.service.ObservationService.ExperimentField;
+import uk.ac.ebi.phenotype.stats.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
 
 @Service
 public class StatisticalResultService {
 
+    @Autowired
+    BiologicalModelDAO bmDAO;
+    
+    @Autowired
+    DatasourceDAO datasourceDAO;
+    
+    @Autowired
+    OrganisationDAO organisationDAO;
+    
+    @Autowired
+    PhenotypePipelineDAO pDAO;
+    
+    @Autowired
+    ProjectDAO projectDAO;
+    
     private HttpSolrServer solr;
 
     private static final Logger LOG = LoggerFactory.getLogger(StatisticalResultService.class);
@@ -157,7 +179,7 @@ public class StatisticalResultService {
             SexType sex, 
             ObservationType statisticalType) throws SolrServerException {
 
-        List<? extends StatisticalResult> results = new ArrayList<>();
+        List<StatisticalResult> results = new ArrayList<>();
 
         QueryResponse response = new QueryResponse();
     
@@ -189,17 +211,116 @@ public class StatisticalResultService {
         }
 
         response = solr.query(query);
+        List<StatisticalResultDTO> solrResults = response.getBeans(StatisticalResultDTO.class);
+
         if (statisticalType == ObservationType.unidimensional) {
-            results = (List<? extends StatisticalResult>) response.getBeans(UnidimensionalResult.class);
+
+            for (StatisticalResultDTO solrResult : solrResults) {
+                results.add(translateStatisticalResultToUnidimensionalResult(solrResult));
+            }
+
         } else if (statisticalType == ObservationType.categorical) {
-            results = (List<? extends StatisticalResult>) response.getBeans(CategoricalResult.class);
+
+            for (StatisticalResultDTO solrResult : solrResults) {
+                results.add(translateStatisticalResultToCategoricalResult(solrResult));
+            }
+
         }
         
         return results;
     }
 
 
-    
+    protected UnidimensionalResult translateStatisticalResultToUnidimensionalResult(StatisticalResultDTO result) {
+        UnidimensionalResult r = new UnidimensionalResult();
+        
+        if(result.getBatchSignificant()!=null) r.setBatchSignificance(Boolean.valueOf(result.getBatchSignificant()));
+        if(result.getBlupsTest()!= null) r.setBlupsTest(new Double(result.getBlupsTest()));
+        r.setColonyId(result.getColonyId());
+        if(result.getControlBiologicalModelId()!= null) r.setControlBiologicalModel(bmDAO.getBiologicalModelById(result.getControlBiologicalModelId()));
+        r.setControlSelectionStrategy(result.getControlSelectionMethod());
+        if(result.getResourceId()!= null) r.setDatasource(datasourceDAO.getDatasourceById(result.getResourceId()));
+        r.setDependentVariable(result.getDependentVariable());
+        if(result.getEffectSize()!= null) r.setEffectSize(new Double(result.getEffectSize()));
+        if(result.getMutantBiologicalModelId()!= null) r.setExperimentalBiologicalModel(bmDAO.getBiologicalModelById(result.getMutantBiologicalModelId()));
+        if(result.getZygosity()!= null) r.setExperimentalZygosity(ZygosityType.valueOf(result.getZygosity()));
+        r.setFemaleControls(result.getFemaleControlCount());
+        r.setFemaleMutants(result.getFemaleMutantCount());
+        if(result.getGenotypeEffectPValue()!= null) r.setGenderEffectPValue(new Double(result.getGenotypeEffectPValue()));
+        if(result.getFemaleKoParameterEstimate()!= null) r.setGenderFemaleKoEstimate(new Double(result.getFemaleKoParameterEstimate()));
+        if(result.getFemaleKoEffectPValue()!= null) r.setGenderFemaleKoPValue(new Double(result.getFemaleKoEffectPValue()));
+        if(result.getFemaleKoEffectStderrEstimate()!= null) r.setGenderFemaleKoStandardErrorEstimate(new Double(result.getFemaleKoEffectStderrEstimate()));
+        if(result.getMaleKoParameterEstimate()!= null) r.setGenderMaleKoEstimate(new Double(result.getMaleKoParameterEstimate()));
+        if(result.getMaleKoEffectPValue()!= null) r.setGenderMaleKoPValue(new Double(result.getMaleKoEffectPValue()));
+        if(result.getMaleKoEffectStderrEstimate()!= null) r.setGenderMaleKoStandardErrorEstimate(new Double(result.getMaleKoEffectStderrEstimate()));
+        if(result.getSexEffectParameterEstimate()!= null) r.setGenderParameterEstimate(new Double(result.getSexEffectParameterEstimate()));
+        if(result.getSexEffectStderrEstimate()!= null) r.setGenderStandardErrorEstimate(new Double(result.getSexEffectStderrEstimate()));
+        if(result.getGenotypeEffectPValue()!= null) r.setGenotypeEffectPValue(new Double(result.getGenotypeEffectPValue()));
+        if(result.getGenotypeEffectParameterEstimate()!= null) r.setGenotypeParameterEstimate(new Double(result.getGenotypeEffectParameterEstimate()));
+        if(result.getGenotypeEffectStderrEstimate()!= null) r.setGenotypeStandardErrorEstimate(new Double(result.getGenotypeEffectStderrEstimate()));
+        r.setGp1Genotype(result.getGroup1Genotype());
+        if(result.getGroup1ResidualsNormalityTest()!= null) r.setGp1ResidualsNormalityTest(new Double(result.getGroup1ResidualsNormalityTest()));
+        r.setGp2Genotype(result.getGroup2Genotype());
+        if(result.getGroup2ResidualsNormalityTest()!= null) r.setGp2ResidualsNormalityTest(new Double(result.getGroup2ResidualsNormalityTest()));
+        r.setId(result.getDbId());
+        if(result.getInteractionEffectPValue()!= null) r.setInteractionEffectPValue(new Double(result.getInteractionEffectPValue()));
+        r.setInteractionSignificance(result.getInteractionSignificant());
+        if(result.getInterceptEstimate()!= null) r.setInterceptEstimate(new Double(result.getInterceptEstimate()));
+        if(result.getInterceptEstimateStderrEstimate()!= null) r.setInterceptEstimateStandardError(new Double(result.getInterceptEstimateStderrEstimate()));
+        r.setMaleControls(result.getMaleControlCount());
+        r.setMaleMutants(result.getMaleMutantCount()); 
+        r.setMetadataGroup(result.getMetadataGroup());
+        if(result.getNullTestPValue()!= null) r.setNullTestSignificance(new Double(result.getNullTestPValue()));
+        if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationDAO.getOrganisationByName(result.getPhenotypingCenter()));
+        if(result.getParameterStableId()!= null) r.setParameter(pDAO.getParameterByStableId(result.getParameterStableId()));
+        if(result.getPipelineStableId()!= null) r.setPipeline(pDAO.getPhenotypePipelineByStableId(result.getPipelineStableId()));
+        if(result.getProjectName()!= null) r.setProject(projectDAO.getProjectByName(result.getProjectName()));
+        if(result.getpValue()!= null) r.setpValue(new Double(result.getpValue()));
+        r.setRawOutput(result.getRawOutput());
+        if(result.getRotatedResidualsTest()!= null) r.setRotatedResidualsNormalityTest(new Double(result.getRotatedResidualsTest()));
+        if(result.getSex()!= null) r.setSexType(SexType.valueOf(result.getSex()));
+        r.setStatisticalMethod(result.getStatisticalMethod());
+        r.setVarianceSignificance(result.getVarianceSignificant());
+        if(result.getWeightEffectPValue()!= null) r.setWeightEffectPValue(new Double(result.getWeightEffectPValue()));
+        if(result.getWeightEffectParameterEstimate()!= null) r.setWeightParameterEstimate(new Double(result.getWeightEffectParameterEstimate()));
+        if(result.getWeightEffectStderrEstimate()!= null) r.setWeightStandardErrorEstimate(new Double(result.getWeightEffectStderrEstimate()));
+        if(result.getZygosity()!= null) r.setZygosityType(ZygosityType.valueOf(result.getZygosity()));
+
+        return r;
+    }
+
+    protected CategoricalResult translateStatisticalResultToCategoricalResult(StatisticalResultDTO result) {
+        CategoricalResult r = new CategoricalResult();
+        r.setColonyId(result.getColonyId());
+        if(result.getControlBiologicalModelId()!= null) r.setControlBiologicalModel(bmDAO.getBiologicalModelById(result.getControlBiologicalModelId()));
+        r.setControlSelectionStrategy(result.getControlSelectionMethod());
+        if(result.getResourceId()!= null) r.setDatasource(datasourceDAO.getDatasourceById(result.getResourceId()));
+        r.setDependentVariable(result.getDependentVariable());
+        if(result.getEffectSize()!= null) r.setEffectSize(new Double(result.getEffectSize()));
+        if(result.getMutantBiologicalModelId()!= null) r.setExperimentalBiologicalModel(bmDAO.getBiologicalModelById(result.getMutantBiologicalModelId()));
+        if(result.getZygosity()!= null) r.setExperimentalZygosity(ZygosityType.valueOf(result.getZygosity()));
+        r.setFemaleControls(result.getFemaleControlCount());
+        r.setFemaleMutants(result.getFemaleMutantCount());
+        r.setMaleControls(result.getMaleControlCount());
+        r.setMaleMutants(result.getMaleMutantCount()); 
+        r.setMetadataGroup(result.getMetadataGroup());
+        if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationDAO.getOrganisationByName(result.getPhenotypingCenter()));
+        if(result.getParameterStableId()!= null) r.setParameter(pDAO.getParameterByStableId(result.getParameterStableId()));
+        if(result.getPipelineStableId()!= null) r.setPipeline(pDAO.getPhenotypePipelineByStableId(result.getPipelineStableId()));
+        if(result.getProjectName()!= null) r.setProject(projectDAO.getProjectByName(result.getProjectName()));
+        if(result.getpValue()!= null) r.setpValue(new Double(result.getpValue()));
+        r.setRawOutput(result.getRawOutput());
+        if(result.getSex()!= null) r.setSexType(SexType.valueOf(result.getSex()));
+        r.setStatisticalMethod(result.getStatisticalMethod());
+        if(result.getZygosity()!= null) r.setZygosityType(ZygosityType.valueOf(result.getZygosity()));
+        r.setCategoryA(result.getCategories());
+        if(result.getSex()!= null) r.setControlSex(SexType.valueOf(result.getSex()));
+        r.setEffectSize(result.getEffectSize());
+        if(result.getSex()!= null) r.setExperimentalSex(SexType.valueOf(result.getSex()));
+
+        return r;
+    }
+
     
     // ***************************************************************//
     // DO WE NEED THIS ANYMORE?
