@@ -61,7 +61,7 @@ public class GenePhenotypeRow {
     private final String ALLELE       = "Allele";                               // genes page
     private final String ZYGOSITY     = "Zygosity";                             // genes page & phenotypes page
     private final String SEX_GROUPING = "Sex";                                  // genes page & phenotypes page
-    private final String PROCEDURE    = "Procedure / Parameter";                // genes page & phenotypes page
+    private final String PROCEDURE    = "Procedure | Parameter";                // genes page & phenotypes page
     private final String CENTER       = "Phenotyping Center";                   // genes page & phenotypes page
     private final String SOURCE       = "Source";                               // genes page & phenotypes page
     private final String PVALUE       = "P Value";                              // genes page & phenotypes page
@@ -152,7 +152,7 @@ public class GenePhenotypeRow {
         }
         
         if (getProcedureIndex() != null) {
-            String[] procedureArray = webElements.get(getProcedureIndex()).getText().split(" / ");
+            String[] procedureArray = webElements.get(getProcedureIndex()).getText().split(" | ");
             procedure = procedureArray[0].trim();
             parameter = procedureArray[1].trim();
         }

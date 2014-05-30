@@ -13,7 +13,7 @@
                         <th>MGI Allele Name</th>
                         <th>Allele Description</th>
                         <th>Product Details</th>
-                        <th>Order</th>
+                        <th>Order / Contact</th>
                 </tr>
         </thead>
         <tbody>
