@@ -11,7 +11,9 @@ Double value = Double.parseDouble(num);
 
 NumberFormat formatter =  new DecimalFormat("0.#####E0");
 
-String textout = formatter.format(value);
+String textout = String.format("%1.5G",value).replace("E", " &#215; 10<sup>") + "</sup>";
+
+textout = String.format("%1.5G",value);
 %>
 
 <%= textout %>
