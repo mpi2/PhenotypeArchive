@@ -173,7 +173,6 @@ public class GenePhenotypePage {
                 graphPage.validate(status);
             } catch (Exception e) {
                 status.addFail("Couldn't load graph. " + row.toString() + "\nReason: " + e.getLocalizedMessage());
-                continue;
             }
         }
         

@@ -47,8 +47,11 @@ public class ObservationDTO {
     @Field("parameter_id")
     private Integer parameterId;
 
-    @Field("strain")
-    private String strain;
+    @Field("strain_accession_id")
+    private String strainAccessionId;
+
+    @Field("strain_name")
+    private String strainName;
 
     @Field("experiment_source_id")
     private String experimentSourceId;
@@ -56,7 +59,7 @@ public class ObservationDTO {
     @Field("gene_symbol")
     private String geneSymbol;
 
-    @Field("gene_accession")
+    @Field("gene_accession_id")
     private String geneAccession;
 
     @Field("experiment_id")
@@ -128,7 +131,7 @@ public class ObservationDTO {
     @Field("metadata")
     private List<String> metadata;
 
-    @Field("allele_accession")
+    @Field("allele_accession_id")
     private String alleleAccession;
 
     /**
@@ -147,7 +150,7 @@ public class ObservationDTO {
                 // + "\t" + pipelineId
                 // + "\t" + procedureId
                 // + "\t" + parameterId
-                + "\t" + strain
+                + "\t" + strainAccessionId
                 // + "\t" + experimentSourceId
                 + "\t" + geneSymbol
                 + "\t" + geneAccession
@@ -195,7 +198,7 @@ public class ObservationDTO {
                 // + "\t pipeline id"
                 // + "\t procedureId"
                 // + "\t parameterId"
-                + "\t strain"
+                + "\t strainAccessionId"
                 // + "\t experimentSourceId"
                 + "\t geneSymbol"
                 + "\t geneAccession"
@@ -281,15 +284,14 @@ public class ObservationDTO {
      * 
      * @return key uniquely identifying the group in which the ObservationDTO
      *         object is analysed. A concatenation of phenotyping center,
-     *         strain, allele, parameter, pipeline, zygosity, sex, metadata
+     *         strainAccessionId, allele, parameter, pipeline, zygosity, sex, metadata
      */
 
     public String getKey() {
         return "[allele: " + this.getAlleleAccession()
-                + " , strain :" + this.getStrain()
+                + " , strainAccessionId :" + this.getStrain()
                 + " , phenotyping center :" + this.getPhenotypingCenter()
                 + " , parameter :" + this.getParameterStableId()
-                + " , procedure :" + this.getProcedureStableId()
                 + " , pipeline :" + this.getPipelineStableId()
                 + " , zygosity :" + this.getZygosity()
                 + " , metadata :" + this.getMetadataGroup()
@@ -442,18 +444,18 @@ public class ObservationDTO {
     }
 
     /**
-     * @return the strain
+     * @return the strainAccessionId
      */
     public String getStrain() {
-        return strain;
+        return strainAccessionId;
     }
 
     /**
-     * @param strain
-     *            the strain to set
+     * @param strainAccessionId
+     *            the strainAccessionId to set
      */
     public void setStrain(String strain) {
-        this.strain = strain;
+        this.strainAccessionId = strain;
     }
 
     /**

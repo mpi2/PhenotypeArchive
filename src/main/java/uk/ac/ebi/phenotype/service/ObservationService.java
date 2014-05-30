@@ -15,8 +15,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import net.sf.json.JSONArray;
 
@@ -36,7 +34,6 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.util.NamedList;
-import org.eclipse.jetty.util.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +49,6 @@ import uk.ac.ebi.phenotype.stats.ObservationDTO;
 import uk.ac.ebi.phenotype.stats.StackedBarsData;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalDataObject;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
-import uk.ac.ebi.phenotype.web.controller.ChartsController;
 
 @Service
 public class ObservationService {
@@ -67,16 +63,17 @@ public class ObservationService {
         public final static String ID = "id";
         public final static String PHENOTYPING_CENTER = "phenotyping_center";
         public final static String PHENOTYPING_CENTER_ID = "phenotyping_center_id";
-        public final static String GENE_ACCESSION = "gene_accession";
+        public final static String GENE_ACCESSION = "gene_accession_id";
         public final static String GENE_SYMBOL = "gene_symbol";
-        public final static String ALLELE_ACCESSION = "allele_accession";
+        public final static String ALLELE_ACCESSION = "allele_accession_id";
         public final static String ALLELE_SYMBOL = "allele_symbol";
         public final static String ZYGOSITY = "zygosity";
         public final static String SEX = "sex";
         public final static String BIOLOGICAL_MODEL_ID = "biological_model_id";
         public final static String BIOLOGICAL_SAMPLE_ID = "biological_sample_id";
         public final static String BIOLOGICAL_SAMPLE_GROUP = "biological_sample_group";
-        public final static String STRAIN = "strain";
+        public final static String STRAIN = "strain_accession_id";
+        public final static String STRAIN_NAME = "strain_name";
         public final static String PIPELINE_NAME = "pipeline_name";
         public final static String PIPELINE_ID = "pipeline_id";
         public final static String PIPELINE_STABLE_ID = "pipeline_stable_id";
@@ -134,7 +131,7 @@ public class ObservationService {
 
 		SolrQuery query = new SolrQuery();
 
-		query.setQuery("gene_accession:\"" + mgiAccession + "\"")
+		query.setQuery(ExperimentField.GENE_ACCESSION + ":\"" + mgiAccession + "\"")
 			.addFilterQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + parameterStableId)
 			.addFacetField(ExperimentField.PHENOTYPING_CENTER)
 			.addFacetField(ExperimentField.STRAIN)

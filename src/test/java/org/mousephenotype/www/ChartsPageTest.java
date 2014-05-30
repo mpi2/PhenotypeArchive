@@ -140,7 +140,7 @@ public class ChartsPageTest {
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=biologicalSampleGroup%3A+%22experimental%22&fl=geneAccession,parameterStableId,zygosity,geneSymbol&rows=20&wt=json&indent=true&facet=on&&facet.pivot=geneAccession,parameterStableId,zygosity,geneSymbol
 		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=biologicalSampleGroup%3A+%22experimental%22&fl=geneAccession,parameterStableId,zygosity,geneSymbol&rows=20&wt=json&indent=true
 		
-		String newQueryString = "/experiment/select?q=biological_sample_group%3A+%22experimental%22&fl=gene_accession,parameter_stable_id,zygosity,gene_symbol&rows=20&wt=json&indent=true";
+		String newQueryString = "/experiment/select?q=biological_sample_group%3A+%22experimental%22&fl=gene_accession_id,parameter_stable_id,zygosity,gene_symbol&rows=20&wt=json&indent=true";
 		int startIndex = 0;
 		int nbRows = 10;
 		newQueryString+="&start="+startIndex+"&rows="+nbRows;
@@ -155,7 +155,7 @@ JSONObject result = JSONRestUtil.getResults(url);
 			int size = docs.size();
 			//all docs are the same for this at the mo so just try one - need to alter this to test different graph types categorical, unidimensional, time_series and scatter
 			for (int i=0; i<1; i++) {
-				String mgiGeneAcc = docs.getJSONObject(i).getString("gene_accession");
+				String mgiGeneAcc = docs.getJSONObject(i).getString("gene_accession_id");
 				String impressParameter = docs.getJSONObject(i).getString("parameter_stable_id");
 				String zygosity= docs.getJSONObject(i).getString("zygosity");
 				String geneSymbol = docs.getJSONObject(i).getString("gene_symbol");
