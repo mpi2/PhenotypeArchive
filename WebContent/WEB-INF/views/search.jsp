@@ -139,7 +139,8 @@
 	       		$( "input#s" ).autocomplete({
 	       			source: function( request, response ) {
 		       			$.ajax({
-			       			url: "${solrUrl}/autosuggest/select?wt=json&qf=auto_suggest&defType=edismax",
+			       			//url: "${solrUrl}/autosuggest/select?wt=json&qf=auto_suggest&defType=edismax",
+			       			url: "http://localhost:8983/solr/autosuggest/select?wt=json&qf=auto_suggest&defType=edismax",		
 			       			dataType: "jsonp",
 			       			'jsonp': 'json.wrf',
 			       			data: {
@@ -164,17 +165,12 @@
 			       				 			var newTerm = term.replace(re,"<b class='sugTerm'>$1</b>");
 			       				 						       				 			
 			       							aKV.push("<span class='" + facet + "'>" + newTerm + "</span>");
-			       							
+			       							console.log('facet: ' +  facet);
 			       							if (i == 0){
 			       								// take the first found in autosuggest and open that facet
-			       								MPI2.searchAndFacetConfig.matchedFacet = facet;
-			       								console.log('matched facet: '+ facet);
+			       								MPI2.searchAndFacetConfig.matchedFacet = facet;			       							
 			       							}
-													       							
-			       							//aKV.push(newTerm);
-			       							//console.log(key + ' --- ' + docs[i][key]);
-			       						}	
-			       						
+			       						}
 			       					}
 			       				}
 			       				response( aKV );			       				
@@ -192,7 +188,7 @@
 	       				var oriText = $(ui.item.label).text();
 	       				var facet = $(ui.item.label).attr('class');
 	       				
-	       				// handed over to hash change to fetch for result
+	       				// handed over to hash change to fetch for results	       				
 	       				document.location.href = baseUrl + '/search?q=' + oriText + '#facet=' + facet; 	
 	       				
 	       				// prevents escaped html tag displayed in input box
