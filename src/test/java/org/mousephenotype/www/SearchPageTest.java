@@ -224,9 +224,30 @@ public class SearchPageTest {
         System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
         System.out.println("seleniumUrl: " + seleniumUrl);
     }
-
+    
+    
     @Test
     //@Ignore
+    private void autosuggestTest() throws Exception {
+    	// test that there is a dropdown when at least 3 letters with match are entered into the input box
+    	 testCount++;
+         System.out.println();
+         String testName = "AUTOSUGGEST DROPDOWN LIST TEST";
+         System.out.println("----- " + testName + " -----");
+
+         successList.clear();
+         errorList.clear();
+         
+         String queryStr = baseUrl + "/search";
+         //System.out.println(queryStr);
+         driver.get(queryStr);
+         driver.navigate().refresh();
+       
+    }
+    
+    
+    @Test
+    @Ignore
     public void testTickingFacetFilters() throws Exception {
         testCount++;
         System.out.println();
@@ -316,7 +337,7 @@ public class SearchPageTest {
     }
 
     @Test
-    ////@Ignore
+    //@Ignore
     public void testQueryingRandomGeneSymbols() throws Exception {
         testCount++;
         String testName = "RANDOM GENE SYMBOL QUERY TESTS";
@@ -388,7 +409,7 @@ public class SearchPageTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testRandomMgiIds() throws Exception {
         testCount++;
         System.out.println();
@@ -454,31 +475,31 @@ public class SearchPageTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testPhrase() throws Exception {
         specialStrQueryTest("PHRASE QUERY TESTS", "grip strength");
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testPhraseInQuotes() throws Exception {
         specialStrQueryTest("PHRASE IN QUOTES QUERY TESTS", "\"zinc finger protein\"");
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testLeadingWildcard() throws Exception {
         specialStrQueryTest("LEADING WILDCARD QUERY TESTS", "*rik");
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testTrailingWildcard() throws Exception {
         specialStrQueryTest("TRAILING WILDCARD QUERY TESTS", "hox*");
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testPagination() throws Exception {
         testCount++;
         System.out.println();
@@ -559,7 +580,7 @@ public class SearchPageTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testFacetCounts() throws Exception {
         testCount++;
         System.out.println();
