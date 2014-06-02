@@ -1172,9 +1172,6 @@ public class ObservationService {
 			i++;
 		}
 		
-		System.out.println("genesArray " + genesArray.length );
-		System.out.println("geneSymbolArray " + geneSymbolArray.length);
-
 		// we do the binning for all the data but fill the bins after that to
 		// keep tract of phenotype associations
 		int binCount = Math.min((int) Math.floor((double) groups.size() / 2),

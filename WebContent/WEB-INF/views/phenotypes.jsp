@@ -159,7 +159,7 @@
 									<p> Select a parameter <i class="fa fa-bar-chart-o" ></i>&nbsp; &nbsp;
 										<select onchange="ajaxToBe('${phenotype.id.accession}', this.options[this.selectedIndex].value);">
 											<c:forEach var="assocParam" items="${parametersAssociated.keySet().toArray()}" varStatus="loop">
-												<option value="${assocParam}">${parametersAssociated.get(assocParam)}</option>
+												<option value="${assocParam}">${parametersAssociated.get(assocParam)} (${assocParam})</option>
 											</c:forEach>
 										</select>
 									</p>

@@ -247,8 +247,6 @@ $(document).ready(function(){
 
 function ajaxToBe(phenotype, parameter){
 	$( '#spinner-overview-charts' ).show();
-	console.log('parameter_id='+parameter);
-	console.log("request uri="+document.URL);
 	var chartUrl = document.URL.split("/phenotypes/")[0];
 	chartUrl += "/overviewCharts/" + phenotype + "?parameter_id=" + parameter;
 	$.ajax({
