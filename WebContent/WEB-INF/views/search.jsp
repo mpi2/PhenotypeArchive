@@ -139,7 +139,7 @@
 	       		$( "input#s" ).autocomplete({
 	       			source: function( request, response ) {
 		       			$.ajax({
-			       			url: "http://localhost:8983/solr/autosuggest/select?wt=json&qf=auto_suggest&defType=edismax",
+			       			url: baseUrl + "/autosuggest/select?wt=json&qf=auto_suggest&defType=edismax",
 			       			dataType: "jsonp",
 			       			'jsonp': 'json.wrf',
 			       			data: {
