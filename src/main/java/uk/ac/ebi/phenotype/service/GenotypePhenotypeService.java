@@ -105,7 +105,6 @@ public class GenotypePhenotypeService {
 		.setQuery("(" + GenotypePhenotypeField.MP_TERM_ID + ":\"" + phenotype_id + "\" OR " + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":\"" 
 				+ phenotype_id + "\" OR " + GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID + ":\"" 
 				+ phenotype_id + "\") AND (" + GenotypePhenotypeField.STRAIN_ACCESSION_ID + ":\"MGI:2159965\" OR " + GenotypePhenotypeField.STRAIN_ACCESSION_ID + ":\"MGI:2164831\")")
-				.setFilterQueries(GenotypePhenotypeField.RESOURCE_FULLNAME + ":EuroPhenome")
 				.setRows(10000);
 		q.set("group.field", "" + GenotypePhenotypeField.MARKER_SYMBOL);
 		q.set("group", true);
@@ -117,7 +116,7 @@ public class GenotypePhenotypeService {
 	}
 
 
-	public List<String> getGenesAssocByParamAndMp (String parameterStableId, String phenotype_id, String[] resource) throws SolrServerException{
+	public List<String> getGenesAssocByParamAndMp (String parameterStableId, String phenotype_id) throws SolrServerException{
 		List<String> res = new ArrayList<String>();
 		SolrQuery query = new SolrQuery()
 		.setQuery("(" + GenotypePhenotypeField.MP_TERM_ID + ":\"" + phenotype_id + "\" OR " + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":\"" + phenotype_id 
@@ -125,12 +124,6 @@ public class GenotypePhenotypeService {
 				+ "\") AND (" + GenotypePhenotypeField.STRAIN_ACCESSION_ID + ":\"MGI:2159965\" OR " + GenotypePhenotypeField.STRAIN_ACCESSION_ID 
 				+ ":\"MGI:2164831\") AND " + GenotypePhenotypeField.PARAMETER_STABLE_ID + ":\"" + parameterStableId+"\"")
 				.setRows(10000);
-		if (resource != null)
-			System.out.println("\t Resource " + resource.length + " - " + StringUtils.join(resource, " OR "));
-		if (resource == null || resource.length == 0 || (resource.length == 1 && resource[0].equalsIgnoreCase(""))){
-			query.setFilterQueries("(" + GenotypePhenotypeField.RESOURCE_NAME + ":EuroPhenome OR " + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC)");
-		}
-		else query.setFilterQueries("(" + GenotypePhenotypeField.RESOURCE_NAME + ":" + StringUtils.join(resource, " OR " + GenotypePhenotypeField.RESOURCE_NAME + ":") + ")");
 		query.set("group.field", GenotypePhenotypeField.MARKER_ACCESSION_ID );
 		query.set("group", true);
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();

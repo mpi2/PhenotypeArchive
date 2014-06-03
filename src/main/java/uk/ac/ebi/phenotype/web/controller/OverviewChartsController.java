@@ -66,7 +66,6 @@ public class OverviewChartsController {
 		@RequestParam(required = true, value = "parameter_id") String parameterId,
 		@RequestParam(required = false, value = "center") String center,
 		@RequestParam(required = false, value = "sex") String sex,
-		@RequestParam(required = false, value = "source") String source,
 		@RequestParam(required = false, value = "all_centers") String allCenters,
 		Model model,
 		HttpServletRequest request,
@@ -74,16 +73,15 @@ public class OverviewChartsController {
 		
 			String[] centerArray = (center != null) ? center.split(",") : null;
 			String[] sexArray = (sex != null) ? sex.split(",") : null;
-			String[] sourceArray = (source != null) ? source.split(",") : null;
 			String[] allCentersArray = (allCenters != null) ? allCenters.split(",") : null;
 
 			String[] centers = (centerArray != null) ? centerArray : allCentersArray;
 			
-			model.addAttribute("chart", getDataOverviewChart(phenotype_id, model, parameterId, centers, sexArray, sourceArray));
+			model.addAttribute("chart", getDataOverviewChart(phenotype_id, model, parameterId, centers, sexArray));
 			return "overviewChart";
 	}
 	
-	public ChartData getDataOverviewChart(String mpId, Model model, String parameter, String[] center, String[] sex, String[] source) throws SolrServerException, IOException, URISyntaxException, SQLException{
+	public ChartData getDataOverviewChart(String mpId, Model model, String parameter, String[] center, String[] sex) throws SolrServerException, IOException, URISyntaxException, SQLException{
 		
 		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
 		TimeSeriesChartAndTableProvider tstp = new TimeSeriesChartAndTableProvider();
@@ -95,7 +93,7 @@ public class OverviewChartsController {
 		
 		if (p != null){
 						
-			genes = gpService.getGenesAssocByParamAndMp(parameter, mpId, source);
+			genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
 		
 			if (centerToFilter == null) { // first time we load the page.
 				// We need to know centers for the controls, otherwise we show all controls
