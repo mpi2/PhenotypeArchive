@@ -59,9 +59,11 @@ $(document).ready(function(){
 	    	if (input == ''){
 	    		document.location.href = baseUrl + '/search';
 	    	}
-	    	else {	    		
+	    	else if (! MPI2.searchAndFacetConfig.matchedFacet){
+	    		document.location.href = baseUrl + '/search?q=' + input;
+	    	}
+	    	else {	
 	    		document.location.href = baseUrl + '/search?q=' + input + '#facet=' + MPI2.searchAndFacetConfig.matchedFacet; // handed over to hash change	    	
-	    		//document.location.href = baseUrl + '/search?q=' + input;
 	    	}
 	    }
 	})	
