@@ -580,6 +580,16 @@
     <build>
         <finalName>phenotype-archive</finalName>
 
+		<!-- Include the spring app-config in the classpath -->
+		<resources>
+			<resource>
+				<directory>${basedir}/WebContent/WEB-INF</directory>
+				<includes>
+					<include>app-config.xml</include>
+				</includes>
+        	</resource>
+		</resources>
+
         <pluginManagement>
             <plugins>
                 <plugin>
