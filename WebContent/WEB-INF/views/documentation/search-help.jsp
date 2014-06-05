@@ -67,8 +67,13 @@
     						To remove all filters in one go, just click on the 'Remove all facet filters' link at bottom of the summary filter box.<p>
     						<img src='img/remove_all_filters.png' />
     						<p>
+                                  
+                            <h4><a name="autosuggest_srch" href='#'>Auto-suggest Support for Keyword Search</a></h4>			
+                            <div>Type at least 3 letters will invoke a drop-down list of terms related to your search keyword. The most relevant terms will be placed on top of the list. You can select the term in the list by either UP/DOWN keys on the keyboard or mouse-over and hit ENTER. 
+                                
+                            </div><br>			
+                            <img src='img/autosuggest_search.png' /><p>      
                                                     
-                            
                             <h4><a name="quick_gene_srch" href='#'>Quick Gene Search</a></h4>			
                             <div>Type a gene symbol, gene ID, name or human orthologue into search box and returned results will returned relevant gene pages.
                                 <p>Eg. search by gene symbol "mtf1":
