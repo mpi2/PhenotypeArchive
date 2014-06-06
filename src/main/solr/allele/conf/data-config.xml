@@ -10,6 +10,7 @@
 			return row;
 		}	    
 		function fetch_human_symbol(row){
+			
 			if ( row.get('mouse2human_symbol') ){				
 				aList = row.get('mouse2human_symbol').toString().split('___');	
 				if (row.get('marker_symbol') && row.get('marker_symbol').toString() == aList[0] ){		
