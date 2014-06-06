@@ -40,11 +40,6 @@
 	
 	<c:if test="${phenotypeStarted}">
 	<script type="text/javascript" src="${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js"></script>
-	<!--[if IE 8]>
-        <script type="text/javascript">
-        dcc.ie8 = true;
-        </script>
-	<![endif]-->  
     <!--[if !IE]><!-->
     <script>
         dcc.heatmapUrlGenerator = function(genotype_id, type) {
@@ -52,13 +47,6 @@
         };
     </script>
     <!--<![endif]-->
-    <!--[if lt IE 9]>
-    <script>
-        dcc.heatmapUrlGenerator = function(genotype_id, type) {
-           return '${drupalBaseUrl}/phenotypedata?g=' + genotype_id + '&t=' + type + '&w=all';
-        };
-    </script>
-    <![endif]-->
     <!--[if gte IE 9]>
     <script>
         dcc.heatmapUrlGenerator = function(genotype_id, type) {
