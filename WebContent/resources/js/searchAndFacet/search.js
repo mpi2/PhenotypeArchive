@@ -51,6 +51,7 @@
 		}
 						
 		q = decodeURI(q);	
+		
 		var facetMode = oUrlHashParams.facetName;
 		
 		if ( typeof facetMode != 'undefined' && oUrlHashParams.fq ){			
@@ -214,6 +215,7 @@
     	    	 * gene -> mp -> ma -> pipeline -> images -> disease
     	    	 * ie, fetch facet full result for that facet and display only facet count for the rest of the facets 
     	    	 * Other facet results will be fetched on demand */
+    	    	
     	    	var hashParams = $.fn.parseHashString(window.location.hash.substring(1));    	    	
     	    	    	    	
     	    	var coreName, facetName;
@@ -223,6 +225,9 @@
     	    	}
     	    	else if (hashParams.facetName ){
     	    		facetName = hashParams.facetName;    	    		
+    	    	}
+    	    	else if ( facetMode ){    	    		
+    	    		facetName = facetMode;    	    		
     	    	}
     	    	else {
     	    		coreName = _setSearchMode(oFacets.count);

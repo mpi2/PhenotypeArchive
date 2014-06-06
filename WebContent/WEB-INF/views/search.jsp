@@ -99,7 +99,10 @@
 						<div id="bigsearchbox" class="block">
 							<div class="content">								
 								<p><i id="sicon" class="fa fa-search"></i>
-									<input id="s" type="text" value="" placeholder="Search">
+									<!-- <input id="s" type="text" value="" placeholder="Search">-->
+									<div class="ui-widget">
+										<input id="s">
+									</div>
 								</p>									
 							</div>
 						</div>
@@ -130,7 +133,87 @@
 	    </compress:html>        
        
          <script>        		
-       	$(document).ready(function(){ 
+       	$(document).ready(function(){
+       	
+       		$(function() {
+	       		$( "input#s" ).autocomplete({
+	       			source: function( request, response ) {
+		       			$.ajax({
+			       			url: "${solrUrl}/autosuggest/select?wt=json&qf=auto_suggest&defType=edismax",				       			
+			       			dataType: "jsonp",
+			       			'jsonp': 'json.wrf',
+			       			data: {
+			       				q: request.term
+		       				},
+			       			success: function( data ) {
+			       				
+			       				MPI2.searchAndFacetConfig.matchedFacet = false; // reset
+			       				var docs = data.response.docs;	
+			       				//console.log(docs);
+			       				var aKV = [];
+			       				for ( var i=0; i<docs.length; i++ ){
+			       					for ( key in docs[i] ){
+			       						//console.log('key: '+key);	
+			       						var facet;
+			       						if ( key == 'docType' ){	
+			       							facet = docs[i][key].toString();
+			       						}
+			       						else {	
+			       							var term = docs[i][key].toString().toLowerCase();	
+			       							var re = new RegExp("(" + request.term + ")", "gi") ;			       				 			
+			       				 			var newTerm = term.replace(re,"<b class='sugTerm'>$1</b>");
+			       				 						       				 			
+			       							aKV.push("<span class='" + facet + "'>" + newTerm + "</span>");
+			       							//console.log('facet: ' +  facet);
+			       							if (i == 0){
+			       								// take the first found in autosuggest and open that facet
+			       								MPI2.searchAndFacetConfig.matchedFacet = facet;			       							
+			       							}
+			       						}
+			       					}
+			       				}
+			       				response( aKV );			       				
+			       			}
+		       			});
+	       			},
+	       			focus: function (event, ui) {
+	       		       this.value = $(ui.item.label).text();
+	       		       event.preventDefault(); // Prevent the default focus behavior.
+	       			},
+	       			minLength: 3,
+	       			select: function( event, ui ) {
+	       				// select by mouse click
+	       				//console.log(this.value + ' vs ' + ui.item.label);
+	       				var oriText = $(ui.item.label).text();
+	       				var facet = $(ui.item.label).attr('class');
+	       				
+	       				// handed over to hash change to fetch for results	       				
+	       				document.location.href = baseUrl + '/search?q=' + oriText + '#facet=' + facet; 	
+	       				
+	       				// prevents escaped html tag displayed in input box
+	       				event.preventDefault(); return false; 
+	       				
+	       			},
+	       			open: function(event, ui) {
+	       				//fix jQuery UIs autocomplete width
+	       				$(this).autocomplete("widget").css({
+	       			    	"width": ($(this).width() + "px")
+	       			    });
+	       			   				
+	       				$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );	       				
+	       			},
+	       			close: function() {
+	       				$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+	       			}
+	       		}).data("ui-autocomplete")._renderItem = function( ul, item) { // prevents HTML tags being escaped
+       				return $( "<li></li>" ) 
+     				  .data( "item.autocomplete", item )
+     				  .append( $( "<a></a>" ).html( item.label ) )
+     				  .appendTo( ul );
+     			};
+       		});
+       		
+       	 	
        		
        		// make "search" menu point active
        		$('nav#mn ul.menu > li:first-child').addClass('active');

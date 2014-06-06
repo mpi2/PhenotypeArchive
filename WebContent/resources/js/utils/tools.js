@@ -132,7 +132,8 @@
 				MPI2.searchAndFacetConfig.widgetOpen = true;
 				
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-								
+				
+				
 				if ( /search\/?$/.exec(location.href) ){
 					// no search params					
 					if ( typeof MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams != 'undefined' ){
@@ -146,8 +147,10 @@
 					// check if there is any filter checked, if not, we need to use default fq for the facet selected
 					if ( $('ul#facetFilter li.ftag').size() == 0 ){
 						oHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;						
-					}					
+					}		
+					
 					oHashParams.fq = typeof oHashParams.fq == 'undefined' ? MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq : oHashParams.fq;					
+					
 				}
 				
 				var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facet + 'Facet'].solrCoreName;				
@@ -171,7 +174,7 @@
 					if ( ! window.location.search.match(/q=/) ){					
 						window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  solrCoreName;
 					}
-					else {					
+					else {						
 						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
 					}
 				}						
@@ -1674,7 +1677,6 @@
     		oParams.qf = MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams.qf;
     	}
     	
-
 		if ( facetDivId == 'mpFacet' ){
 			oParams = $.fn.getSolrRelevanceParams('mp', oHashParams.q, oParams);
 		}					
@@ -1941,7 +1943,7 @@
     	$('div#toolBox').remove();
     
     	//var saveTool = $("<div id='saveTable'></div>").html("Download table <img src='"+baseUrl+"/img/floppy.png' />");//.corner("4px");    	
-    	var saveTool = $("<div id='saveTable'></div>").html("<span class='fa fa-download'>&nbsp;Download</span>");//.corner("4px");    	
+    	var saveTool = $("<div id='saveTable'></div>").html("<span class='fa fa-download'>&nbsp;<span id='dnld'>Download</span></span>");//.corner("4px");    	
     	
     	var toolBox = fetchSaveTableGui();
     	
@@ -2598,3 +2600,12 @@ $.extend( $.fn.dataTableExt.oSort, {
         return ((a < b) ? 1 : ((a > b) ? -1 : 0));
     }
 } ); 
+
+//fix jQuery UIs autocomplete width
+$.extend($.ui.autocomplete.prototype.options, {
+	open: function(event, ui) {
+		$(this).autocomplete("widget").css({
+            "width": ($(this).width() + "px")
+        });
+    }
+});
