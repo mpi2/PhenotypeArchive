@@ -2,13 +2,14 @@
 <!-- url="ftp://ftp.informatics.jax.org/pub/reports/HMD_HumanPhenotype.rpt" -->
 <!-- URLDataSource does not supporting proxy for now -->
 
+
 <dataConfig>
 	<script type='text/javascript'><![CDATA[ 
-	function concat_symbols(row) {
+	function parse_symbols(row) {
             var rawLine = row.get("rawLine")
 	    aList = rawLine.toString().split("\t");
-	    row.put('mouse2human_symbol', aList[3] + '___' + aList[0]);  
-           
+	    row.put('mouse_symbol', aList[3]);  
+           row.put('human_symbol', aList[0]);
             return row;
         }	
     ]]></script>
@@ -16,17 +17,17 @@
 
         <document name="docs">
 
-            <entity name="symbol_mapping"
-				dataSource="mgi_symbol_mapping"
-				stream="true"
-				processor="LineEntityProcessor"			
-				url="/nfs/web-hx/webadmin/tomcat/bases/mouseinformatics/solr_home_phenotypes_test/datafiles/HMD_HumanPhenotype.rpt" 		
-				transformer="script:concat_symbols"				
+                <entity name="symbol_mapping"
+			dataSource="mgi_symbol_mapping"
+			stream="true"
+			processor="LineEntityProcessor"						
+			url="/nfs/web-hx/webadmin/tomcat/bases/mouseinformatics/solr_home_phenotypes_test/datafiles/HMD_HumanPhenotype.rpt" 		
+			transformer="script:parse_symbols"	
 			>
   			
-				<field column="mouse2human_symbol" name="mouse2human_symbol"/>
-
-			</entity>
+			<field column="mouse_symbol" name="mouse_symbol"/>
+			<field column="human_symbol" name="human_symbol" />
+		</entity>
 
         </document>   
     

@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<schema name="gene core" version="1.1">
+<schema name="human2mouse_symbol core" version="1.1">
   <types>
    <fieldtype name="string"  class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
    <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
@@ -52,36 +52,20 @@
       </analyzer>
     </fieldType>
 
-    <!-- to be used for autosuggest -->    
-    <fieldType name="text_ngram" class="solr.TextField">
-        <analyzer type="index">
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>         
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25" side="front"/>        
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false" />
-        </analyzer>
-        <analyzer type="query"> 
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
-        <!--<filter class="solr.KStemFilterFactory"/> -->
-        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/> 
-        </analyzer>
-    </fieldType>  
-
   </types>
 
   <fields>  
     <field name="_version_" type="long" indexed="true" stored="true"/>                 
-    <field name="mouse2human_symbol" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+    <field name="mouse_symbol" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+	<field name="human_symbol" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
-    <field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
+ 
  </fields>
 
  <!-- Field to use to determine and enforce document uniqueness. 
       Unless this field is marked with required="false", it will be a required field
    -->
- <uniqueKey>mouse2human_symbol</uniqueKey>
+ <!--<uniqueKey></uniqueKey>-->
 
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
  <defaultSearchField>text</defaultSearchField>
@@ -92,3 +76,4 @@
  <solrQueryParser defaultOperator="OR"/>
 
 </schema>
+
