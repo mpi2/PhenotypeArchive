@@ -174,7 +174,7 @@ $(document).ready(function(){
 	allDropdowns[0] = $('#top_level_mp_term_name');
 	allDropdowns[1] = $('#resource_fullname');
 	createDropdown(allDropdowns[0],"Top level MP: All", allDropdowns);
-	createDropdown(allDropdowns[1], "Analysis: All", allDropdowns);
+	createDropdown(allDropdowns[1], "Source: All", allDropdowns);
 
 	function createDropdown(multipleSel, emptyText,  allDd){
 		$(multipleSel).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
