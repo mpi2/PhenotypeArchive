@@ -144,10 +144,22 @@
             
           		<div class="inner">
 			<h3>Summary</h3>
-<!--			<p>${type}</p>-->
-                        <p>Knockout First, reporter-tagged deletion</p>
-			<p>${status} <a href="${orderLink}">ORDER</a>, <a href="${detailsLink}">DETAILS</a></p>
-			<p>There are ES cells for this allele <a href="${orderLink}">ORDER</a>, <a href="${detailsLink}">DETAILS</a></p>
+
+                        
+                        <p>${allele_description}</p>
+
+
+
+                
+            <c:if test="${not empty statuses}">
+                <c:forEach var="status" items="${statuses}" varStatus="statusx">
+                    <p>${status['TEXT']} <a href="${status['ORDER']}">ORDER</a>, <a href="${status['DETAILS']}">DETAILS</a></p>
+                </c:forEach>	
+            </c:if>			
+                
+                
+                
+                
 		</div>
 	</div>
 
@@ -156,7 +168,7 @@
 			<h3>Allele Maps</h3>
                         
         <div>
-<img src="http://www.mousephenotype.org/imits/targ_rep/alleles/11268/allele-image" width="930px">        
+            <img src="${map_image}" width="930px">        
         </div>
                         
                         
@@ -177,10 +189,33 @@
                         
 <p class="with-label no-margin">
 <span class="label">Genome Browsers</span>
-<a href="http://www.ensembl.org/Mus_musculus/Location/View?r=9:54544794-54560218;&contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=normal,contig=normal,ruler=normal,scalebar=normal" target="_blank" class="ensembl_link">Ensembl (mouse)</a> - <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&ikmc=pack&ensGene=pack&position=chr9:54544794-54560218" target="_blank" class="ucsc_link">UCSC (mouse)</a>
+
+<!--<a href="http://www.ensembl.org/Mus_musculus/Location/View?r=9:54544794-54560218;&contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=normal,contig=normal,ruler=normal,scalebar=normal" target="_blank" class="ensembl_link">Ensembl (mouse)</a> - 
+<a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&ikmc=pack&ensGene=pack&position=chr9:54544794-54560218" target="_blank" class="ucsc_link">UCSC (mouse)</a>-->
+
+
+
+            <c:if test="${not empty browsers}">
+                <c:forEach var="browser" items="${browsers}" varStatus="browsersx">
+                    <a href="${browser['url']}" target="_blank" class="ensembl_link">${browser['browser']}</a>&nbsp;&nbsp;&nbsp;
+                </c:forEach>	
+            </c:if>			
+
+
+
 </p>
 <p class="with-label no-margin">
-<span class="label">Tools</span><a href="http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=EPD0337_2_D04&iframe=true&width=100%&height=100%" target="_blank" class="ext_link">Southern Blot Tool</a> - <a href="/martsearch_ikmc_project/martsearch/ikmc_project/41713/pcr_primers?iframe=true&width=60%25&height=60%25" target="_blank" class="ext_link">LRPCR Genotyping Primers</a>
+<span class="label">Tools</span>
+
+<!--<a href="http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=EPD0337_2_D04&iframe=true&width=100%&height=100%" target="_blank" class="ext_link">Southern Blot Tool</a> - 
+<a href="/martsearch_ikmc_project/martsearch/ikmc_project/41713/pcr_primers?iframe=true&width=60%25&height=60%25" target="_blank" class="ext_link">LRPCR Genotyping Primers</a>-->
+
+            <c:if test="${not empty tools}">
+                <c:forEach var="tool" items="${tools}" varStatus="toolsx">
+                    <a href="${tool['url']}" target="_blank" class="ensembl_link">${tool['tool']}</a>&nbsp;&nbsp;&nbsp;
+                </c:forEach>	
+            </c:if>			
+
 </p>
 
         </br>
