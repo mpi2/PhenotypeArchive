@@ -8,21 +8,13 @@
 		}	
 	     
 	   	// mark Gm16379 as marker_type:pseudogene	       
-		function make_pseudogene(row){
+		/*function make_pseudogene(row){
 			if ( row.get('marker_symbol').toString() == 'Gm16379' ){
 	        		row.put('marker_type', 'pseudogene');
 	        }	                		               
 	        
 	        return row;
-        }
-		function fetch_human_symbol(row){
-			if ( row.get('mouse2human_symbol') ){				
-				aList = row.get('mouse2human_symbol').toString().split('___');			
-				row.put('human_gene_symbol', aList[1]);  						
-				}              
-		
-	   		return row; 
-		}
+        }*/
 		
 		// mapping for es cell/mouse/phenotyping statuses
 		function status_mapping(row){
@@ -65,8 +57,7 @@
 		<dataSource name="diseaseGenedb" jndiName="java:comp/env/jdbc/diseaseGeneDataSource" />	
 		<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />		
  		<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
-    	<dataSource name="human2mouse_symbol_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes_ci/human2mouse_symbol/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
-      	<dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/mp/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
+     	<dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/mp/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
 		<dataSource name="pipeline_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/pipeline/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>    
 		<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
 	
