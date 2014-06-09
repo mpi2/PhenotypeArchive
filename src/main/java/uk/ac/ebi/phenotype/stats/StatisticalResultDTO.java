@@ -1,5 +1,7 @@
 package uk.ac.ebi.phenotype.stats;
 
+import java.util.List;
+
 import org.apache.solr.client.solrj.beans.Field;
 
 
@@ -159,7 +161,7 @@ public class StatisticalResultDTO {
     private Float effectSize;
 
     @Field("categories")
-    private String categories;
+    private List<String> categories;
 
     @Field("categorical_p_value")
     private Float categoricalPValue;
@@ -765,12 +767,12 @@ public class StatisticalResultDTO {
     }
 
     
-    public String getCategories() {
+    public List<String> getCategories() {
         return categories;
     }
 
     
-    public void setCategories(String categories) {
+    public void setCategories(List<String> categories) {
         this.categories = categories;
     }
 

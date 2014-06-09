@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -313,7 +314,7 @@ public class StatisticalResultService {
         if(result.getSex()!= null) r.setSexType(SexType.valueOf(result.getSex()));
         r.setStatisticalMethod(result.getStatisticalMethod());
         if(result.getZygosity()!= null) r.setZygosityType(ZygosityType.valueOf(result.getZygosity()));
-        r.setCategoryA(result.getCategories());
+        r.setCategoryA(StringUtils.join(result.getCategories(), "|"));
         if(result.getSex()!= null) r.setControlSex(SexType.valueOf(result.getSex()));
         r.setEffectSize(result.getEffectSize());
         if(result.getSex()!= null) r.setExperimentalSex(SexType.valueOf(result.getSex()));
