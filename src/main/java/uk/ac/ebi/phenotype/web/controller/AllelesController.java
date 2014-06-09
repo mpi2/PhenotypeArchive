@@ -15,14 +15,17 @@
  */
 package uk.ac.ebi.phenotype.web.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -30,8 +33,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import java.util.List;
-import java.util.ArrayList;
+import org.yaml.snakeyaml.Yaml;
 
 @Controller
 public class AllelesController {
@@ -39,9 +41,9 @@ public class AllelesController {
     private final Logger log = LoggerFactory.getLogger(AllelesController.class);
 
     public List<Map<String, String>> getStatuses() {
-        List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> list = new ArrayList<>();
 
-        Map<String, String> status_mice = new HashMap<String, String>();
+        Map<String, String> status_mice = new HashMap<>();
 
         status_mice.put("TEXT", "There are mice for this allele");
         status_mice.put("ORDER", "http://www.sanger.ac.uk");
@@ -49,7 +51,7 @@ public class AllelesController {
 
         list.add(status_mice);
 
-        Map<String, String> status_cells = new HashMap<String, String>();
+        Map<String, String> status_cells = new HashMap<>();
 
         status_cells.put("TEXT", "There are ES cells for this allele");
         status_cells.put("ORDER", "http://www.google.com");
@@ -60,36 +62,17 @@ public class AllelesController {
         return list;
     }
 
-//    public Map<String, Map<String, String>> getStatuses() {
-//        Map<String, String> status_mice = new HashMap<String, String>();
-//
-//        status_mice.put("order", "http://www.sanger.ac.uk");
-//        status_mice.put("details", "http://www.sanger.ac.uk");
-//
-//        Map<String, Map<String, String>> statuses = new HashMap<String, Map<String, String>>();
-//
-//        statuses.put("mice", status_mice);
-//
-//        Map<String, String> status_cells = new HashMap<String, String>();
-//
-//        status_cells.put("order", "http://www.google.com");
-//        status_cells.put("details", "http://www.google.com");
-//
-//        statuses.put("cells", status_cells);
-//
-//        return statuses;
-//    }
     public List<Map<String, String>> getBrowsers() {
-        List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> list = new ArrayList<>();
 
-        Map<String, String> browsers = new HashMap<String, String>();
+        Map<String, String> browsers = new HashMap<>();
 
         browsers.put("browser", "Ensembl (mouse)");
         browsers.put("url", "http://www.ensembl.org/Mus_musculus/Location/View?r=9:54544794-54560…c.uk/das/ikmc_products=normal,contig=normal,ruler=normal,scalebar=normal");
 
         list.add(browsers);
 
-        Map<String, String> browsers2 = new HashMap<String, String>();
+        Map<String, String> browsers2 = new HashMap<>();
 
         browsers2.put("browser", "UCSC (mouse)");
         browsers2.put("url", "http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&ikmc=pack&ensGene=pack&position=chr9:54544794-54560218");
@@ -99,29 +82,87 @@ public class AllelesController {
         return list;
     }
 
-    public List<Map<String, String>> getTools() {
-        List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+//    public List<Map<String, String>> getTools() {
+//        List<Map<String, String>> list = new ArrayList<>();
+//
+//        Map<String, String> items = new HashMap<>();
+//
+//        items.put("tool", "Southern Blot Tool");
+//        items.put("url", "http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=EPD0337_2_D04&iframe=true&width=100%&height=100%");
+//
+//        list.add(items);
+//
+//        return list;
+//    }
 
-        Map<String, String> items = new HashMap<String, String>();
+    public List<Map<String, String>> getMice() {
+        List<Map<String, String>> list = new ArrayList<>();
 
-        items.put("tool", "Southern Blot Tool");
-        items.put("url", "http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=EPD0337_2_D04&iframe=true&width=100%&height=100%");
+        Map<String, String> items = new HashMap<>();
+
+        items.put("genetic_background", "C57BL/6NTac;C57BL/6NTac;C57BL/6N-Atm1Brd/a");
+        items.put("production_centre", "Harwell");
+        items.put("es_cell", "EPD0337_2_D04");
+        items.put("qc_data",  "what?");
+        items.put("southern_tool", 
+                "http://www.sanger.ac.uk|http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=EPD0337_2_D04&iframe=true&width=100%&height=100%");
+        items.put("order_url", "http://www.emmanet.org/mutant_types.php?keyword=Cib2");
+        items.put("order_name", "EMMA");
+
+        list.add(items);
+        
+//        log.info("getMice()");
+//        log.info(list.toString());
+
+        return list;
+    }
+    
+//Genetic background	
+//ES Cell Clone	
+//Targeting Vector	
+//QC Data / Southern tool	
+//Genotyping Primers	
+//ORDER
+
+    public List<Map<String, String>> getEsCells() {
+        List<Map<String, String>> list = new ArrayList<>();
+
+        Map<String, String> items = new HashMap<>();
+
+        items.put("genetic_background", "C57BL/6NTac;C57BL/6NTac;C57BL/6N-Atm1Brd/a");
+        items.put("es_cell_clone", "EPD0337_2_D04");
+        items.put("targeting_vector", "PG00073_Z_5_H01");
+        items.put("qc_data",  "what?");
+        items.put("southern_tool", 
+                "http://www.sanger.ac.uk|http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=EPD0337_2_D04&iframe=true&width=100%&height=100%");
+        items.put("genotyping_primers", "C57BL/6NTac;C57BL/6NTac;C57BL/6N-Atm1Brd/a");
+        items.put("order_url", "http://www.emmanet.org/mutant_types.php?keyword=Cib2");
+        items.put("order_name", "EMMA");
 
         list.add(items);
 
         return list;
     }
 
-    public List<Map<String, String>> getMice() {
-        List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+//Design Oligos	
+//Targeting Vector	
+//Cassette	
+//Backbone	
+//Genbank File	
+//Order
+    
+    public List<Map<String, String>> getTargetingVectors() {
+        List<Map<String, String>> list = new ArrayList<>();
 
-        Map<String, String> items = new HashMap<String, String>();
+        Map<String, String> items = new HashMap<>();
 
-        items.put("Genetic background", "C57BL/6NTac;C57BL/6NTac;C57BL/6N-Atm1Brd/a");
-        items.put("Production Centre", "Harwell");
-        items.put("ES Cell", "EPD0337_2_D04");
-        items.put("QC Data / Southern tool", "http://www.sanger.ac.uk|http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=EPD0337_2_D04&iframe=true&width=100%&height=100%");
-        items.put("order", "http://www.emmanet.org/mutant_types.php?keyword=Cib2");
+        items.put("design_oligos_url", "http://www.sanger.ac.uk/htgt/htgt2/design/designedit/refresh_design?design_id=48714");
+        items.put("targeting_vector", "PG00073_Z_5_H01");
+        items.put("cassette", "L1L2_Bact_P");
+        items.put("backbone", "L3L4_pD223_DTA_spec");
+        items.put("genbank_file", "http://www.sanger.ac.uk");
+        items.put("order_url", "http://www.eummcr.org/order?add=MGI:1929293&material=vectors");
+        items.put("order_name", "EUMMCR");
 
         list.add(items);
 
@@ -134,10 +175,12 @@ public class AllelesController {
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException {
+        
+        log.info("#### AllelesController::alleles");
 
         model.addAttribute("allele_description", "Knockout First, reporter-tagged deletion");
 
-        model.addAttribute("symbol", "Cib2<sup>tm1b(EUCOMM)Wtsi</sup>");
+        model.addAttribute("symbol", "Cib2<sup>tm1a(EUCOMM)Wtsi</sup>");
 
         model.addAttribute("type", "Cre-excised Reporter-tagged deletion (tm1b)");
 
@@ -145,16 +188,38 @@ public class AllelesController {
 
         model.addAttribute("genbank", "https://www.i-dcc.org/imits/targ_rep/alleles/11268/escell-clone-cre-genbank-file");
 
-        model.addAttribute("mutagenesis_blurb", "mutagenesis blurb");
+        model.addAttribute("mutagenesis_url", "http://google.com");
 
         model.addAttribute("map_image", "http://www.mousephenotype.org/imits/targ_rep/alleles/11268/allele-image");
 
         model.addAttribute("browsers", getBrowsers());
 
-        model.addAttribute("tools", getTools());
+      //  model.addAttribute("tools", getTools());
 
         model.addAttribute("mice", getMice());
+        
+        model.addAttribute("es_cells", getEsCells());     
+        
+        model.addAttribute("targeting_vectors", getTargetingVectors());        
+        
+//        PrintWriter out = new PrintWriter("/tmp/yaml_test.yml");
+//    Yaml yaml = new Yaml();
+//    String output = yaml.dump(getMice());
+//        
+//        out.println(output);
+//        out.close();
+        
+Yaml yaml = new Yaml();
+//    String output = yaml.dump(model.asMap());
+//        FileUtils.writeStringToFile(new File("/tmp/yaml_test.yml"), output);
+    
 
+        Map<String, Object> list = new HashMap<>();
+        list.put("MGI:1929293", model.asMap());
+    String output = yaml.dump(list);
+        FileUtils.writeStringToFile(new File("/tmp/yaml_test.yml"), output);
+
+    
         return "alleles";
     }
 

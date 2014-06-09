@@ -153,7 +153,18 @@
                 
             <c:if test="${not empty statuses}">
                 <c:forEach var="status" items="${statuses}" varStatus="statusx">
-                    <p>${status['TEXT']} <a href="${status['ORDER']}">ORDER</a>, <a href="${status['DETAILS']}">DETAILS</a></p>
+                    <p>${status['TEXT']}                         
+                        <c:if test="${not empty status['ORDER']}">
+                            <a href="${status['ORDER']}">ORDER</a>&nbsp;
+                        </c:if>
+
+                        <c:if test="${not empty status['CONTACT']}">
+                            <a href="${status['CONTACT']}">ORDER</a>&nbsp;
+                        </c:if>
+
+                        <c:if test="${not empty status['DETAILS']}">
+                            <a href="${status['DETAILS']}">DETAILS</a></p>
+                        </c:if>
                 </c:forEach>	
             </c:if>			
                 
@@ -173,52 +184,38 @@
                         
                         
                         
-                        
-                        <div style="padding:3px;">
-                            <a href="${genbank}}">
-                                <i class="fa fa-file-text fa-lg"></i>
-                            </a>
-                            <span>&nbsp;&nbsp;&nbsp;genbank file</span>
-                        </div>
-                                
-                </br>
+        <table>         
+            <tr>
+            <td>   
+                <span>
+    <a href="${genbank}}">
+        <i class="fa fa-file-text fa-lg"></i>
+    </a>
+        </span>
+    <span>&nbsp;&nbsp;&nbsp;genbank file</span>
+            </td>
 
-<!--			<h4>Mutagenesis Predictions</h4>-->
-                                
-                        <p>${mutagenesis_blurb}</p>
-                        
-<p class="with-label no-margin">
+            <td>     
+                <a href="${mutagenesis_url}">Mutagenesis Prediction</a>                    
+            </td>
+
+            <td>       
+                
 <span class="label">Genome Browsers</span>
 
-<!--<a href="http://www.ensembl.org/Mus_musculus/Location/View?r=9:54544794-54560218;&contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=normal,contig=normal,ruler=normal,scalebar=normal" target="_blank" class="ensembl_link">Ensembl (mouse)</a> - 
-<a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&ikmc=pack&ensGene=pack&position=chr9:54544794-54560218" target="_blank" class="ucsc_link">UCSC (mouse)</a>-->
+<c:if test="${not empty browsers}">
+    <c:forEach var="browser" items="${browsers}" varStatus="browsersx">
+        <a href="${browser['url']}" target="_blank" class="ensembl_link">${browser['browser']}</a>&nbsp;&nbsp;&nbsp;
+    </c:forEach>	
+</c:if>	
 
+            </td>
+            </tr>
+        </table>
+        
+                                
+                       
 
-
-            <c:if test="${not empty browsers}">
-                <c:forEach var="browser" items="${browsers}" varStatus="browsersx">
-                    <a href="${browser['url']}" target="_blank" class="ensembl_link">${browser['browser']}</a>&nbsp;&nbsp;&nbsp;
-                </c:forEach>	
-            </c:if>			
-
-
-
-</p>
-<p class="with-label no-margin">
-<span class="label">Tools</span>
-
-<!--<a href="http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=EPD0337_2_D04&iframe=true&width=100%&height=100%" target="_blank" class="ext_link">Southern Blot Tool</a> - 
-<a href="/martsearch_ikmc_project/martsearch/ikmc_project/41713/pcr_primers?iframe=true&width=60%25&height=60%25" target="_blank" class="ext_link">LRPCR Genotyping Primers</a>-->
-
-            <c:if test="${not empty tools}">
-                <c:forEach var="tool" items="${tools}" varStatus="toolsx">
-                    <a href="${tool['url']}" target="_blank" class="ensembl_link">${tool['tool']}</a>&nbsp;&nbsp;&nbsp;
-                </c:forEach>	
-            </c:if>			
-
-</p>
-
-        </br>
         
         
         
@@ -232,59 +229,51 @@
 		</div>
 	</div>
 
-	<div class="section">
-		<div class="inner">
-			<h3>Mice</h3>
-                        
-                        
-              <div class="dataset_content">
-  <table>
-    <thead>
-      <tr>
-        <th>Genetic background</th>
-
-        <th>Production Centre</th>
-
-        <th>ES Cell</th>
-
-        <th>QC  Data / Southern tool</th>
-
-        <th>Order</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      
-      <tr>
-        <td>C57BL/6NTac;C57BL/6NTac;C57BL/6N-A<sup>tm1Brd</sup>/a</td>
-        
-        <td>Harwell</td>
-
-        <td>EPD0337_2_D04</td>
-
-        <td><a href="http://www.sanger.ac.uk">link</a></td>
-
-        <td><a class="btn" href="http://www.emmanet.org/mutant_types.php?keyword=Cib2"> <i class="fa fa-shopping-cart"></i> EMMA </a></td>
-      </tr>
-
-    </tbody>
-  </table>
-
-                 
-      
-  <div class="clear"></div>
-</div>
-          
                         
                         
                         
-                        
-                        
-                        
-                        
-		</div>
-	</div>
+<c:if test="${not empty mice}">
+    <div class="section">
+        <div class="inner">
+        <h3>Mice</h3>
+        <div class="dataset_content">
+            <table>
+            <thead>
+            <tr>
+                <th>Genetic background</th>
+                <th>Production Centre</th>
+                <th>ES Cell</th>
+                <th>QC Data / Southern tool</th>
+                <th>Order</th>
+            </tr>
+            </thead>
+            <tbody>               
+                
+            <c:forEach var="mouse" items="${mice}" varStatus="micex">
 
+            <tr>
+                <td>${mouse['genetic_background']}</td>
+                <td>${mouse['production_centre']}</td>
+                <td>${mouse['es_cell']}</td>
+                <td><a href="${mouse['qc_data']}">QC Data</a> / <a href="${mouse['southern_tool']}">Southern tool</a></td>
+                <td><a class="btn" href="${mouse['order_url']}"> <i class="fa fa-shopping-cart"></i> ${mouse['order_name']} </a></td>
+            </tr>
+            
+            </c:forEach>	
+            
+            </tbody>
+            </table>
+            <div class="clear"></div>
+        </div>
+        </div>
+    </div>
+</c:if>
+
+                        
+                        
+                        
+<c:if test="${not empty es_cells}">
+                        
 	<div class="section">
 		<div class="inner">
 			<h3>ES Cells</h3>
@@ -293,37 +282,28 @@
   <table>
     <thead>
       <tr>
-
         <th>Genetic background</th>
-
         <th>ES Cell Clone</th>
-
         <th>Targeting Vector</th>
-
         <th>QC  Data / Southern tool</th>
-
         <th>Genotyping Primers</th>
-
-        <th>ORDER</th>
-
+        <th>Order</th>
       </tr>
     </thead>
 
     <tbody>
 
+            <c:forEach var="es_cell" items="${es_cells}" varStatus="es_cellsx">
       <tr>
-        <td>what?</td>
-
-        <td>whatever</td>
-
-        <td>whatever</td>
-
-        <td>whatever</td>
-        
-        <td>whatever</td>
-        
-        <td><a class="btn" href="http://www.emmanet.org/mutant_types.php?keyword=Cib2"> <i class="fa fa-shopping-cart"></i> whoever </a></td>
+        <td>${es_cell['genetic_background']}</td>
+        <td>${es_cell['es_cell_clone']}</td>
+        <td>${es_cell['targeting_vector']}</td>
+        <td><a href="${es_cell['qc_data']}">QC Data</a> / <a href="${es_cell['southern_tool']}">Southern tool</a></td>
+        <td>${es_cell['genotyping_primers']}</td>
+        <td><a class="btn" href="${es_cell['order_url']}"> <i class="fa fa-shopping-cart"></i> ${es_cell['order_name']} </a></td>
       </tr>
+
+                  </c:forEach>	
 
     </tbody>
   </table>
@@ -338,7 +318,13 @@
                         
 		</div>
 	</div>
+</c:if>
 
+                        
+                        
+                        
+<c:if test="${not empty targeting_vectors}">
+                        
 	<div class="section">
 		<div class="inner">
 			<h3>Targeting Vectors</h3>
@@ -354,26 +340,35 @@
         <th>Cassette</th>
         <th>Backbone</th>
         <th>Genbank File</th>
-        <th>ORDER</th>
+        <th>Order</th>
 
       </tr>
     </thead>
 
     <tbody>
 
+      <c:forEach var="targeting_vector" items="${targeting_vectors}" varStatus="targeting_vectorsx">
       <tr>
-        <td>whatever</td>
-
-        <td>whatever</td>
-
-        <td>whatever</td>
-
-        <td>whatever</td>
-
-        <td>whatever</td>
-
-        <td><a class="btn" href="http://www.emmanet.org/mutant_types.php?keyword=Cib2"> <i class="fa fa-shopping-cart"></i> whoever </a></td>
+          
+          <td style="text-align: center;">
+              <a href="${targeting_vector['design_oligos']}" target="_blank"><i class="fa fa-pencil-square-o fa-2x"></i></a>
+            </td>
+          
+        <td>${targeting_vector['targeting_vector']}</td>
+        <td>${targeting_vector['cassette']}</td>
+        <td>${targeting_vector['backbone']}</td>
+        
+        <td>
+        <span>
+    <a href="${targeting_vector['genbank_file']}}">
+        <i class="fa fa-file-text fa-lg"></i>
+    </a>
+        </span>
+        </td>
+        
+        <td><a class="btn" href="${targeting_vector['order_url']}"> <i class="fa fa-shopping-cart"></i> ${targeting_vector['order_name']} </a></td>
       </tr>
+      </c:forEach>	
 
     </tbody>
   </table>
@@ -389,7 +384,12 @@
                         
 		</div>
 	</div>
+</c:if>
 
+                        
+                        
+                        
+                        
 </jsp:body>
   
 </t:genericpage>
