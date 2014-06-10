@@ -68,6 +68,9 @@
 	    	    	
 	    	    	// top level MP terms
 	    	    	for ( var i=0;  i<aTopLevelCount.length; i+=2 ){	    		
+	    	    		if (aTopLevelCount[i] == 'mammalian phenotype'){
+	    	    			continue;
+	    	    		}
 	    	    		
 	    	    		var liContainer = $("<li></li>").attr({'class':'fcat'});
 	        				        			
