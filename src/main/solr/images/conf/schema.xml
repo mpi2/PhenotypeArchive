@@ -331,13 +331,11 @@
     <copyField source="annotatedHigherLevelMpTermId" dest="annotated_or_inferred_higherLevelMpTermId" />
     <copyField source="inferredHigherLevelMpTermId" dest="annotated_or_inferred_higherLevelMpTermId" />
     <copyField source="annotatedHigherLevelMaTermId" dest="annotated_or_inferred_higherLevelMaTermId" />
-    <copyField source="inferredHigherLevelMaTermId" dest="annotated_or_inferred_higherLevelMaTermId" />
 
 	<copyField source="annotatedHigherLevelMpTermName" dest="annotated_or_inferred_higherLevelMxTermName" />
     <copyField source="inferredHigherLevelMpTermName" dest="annotated_or_inferred_higherLevelMxTermName" />
     <copyField source="annotatedHigherLevelMaTermName" dest="annotated_or_inferred_higherLevelMxTermName" />
-    <copyField source="inferredHigherLevelMaTermName" dest="annotated_or_inferred_higherLevelMxTermName" />
-
+ 
     <copyField source="symbol" dest="auto_suggest" />
     <copyField source="geneName" dest="auto_suggest" />
     <copyField source="geneSynonyms" dest="auto_suggest" />
