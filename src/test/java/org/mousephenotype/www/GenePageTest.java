@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
@@ -32,7 +31,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.TestUtils;
@@ -41,14 +39,12 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.util.Utils;
 
@@ -96,8 +92,6 @@ public class GenePageTest {
     @Autowired
     protected TestUtils testUtils;
     
-    private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
-    
     private final int TIMEOUT_IN_SECONDS = 4;
     private final int THREAD_WAIT_IN_MILLISECONDS = 1000;
     
@@ -113,7 +107,7 @@ public class GenePageTest {
         if (Utils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             thread_wait_in_ms = Utils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
         
-        printTestEnvironment();
+        TestUtils.printTestEnvironment(driver, seleniumUrl);
         driver.navigate().refresh();
         try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
     }
@@ -133,23 +127,6 @@ public class GenePageTest {
     public static void tearDownClass() {
     }
     
-    // PRIVATE METHODS
-    
-    private void printTestEnvironment() {
-        String browserName = "<Unknown>";
-        String version = "<Unknown>";
-        String platform = "<Unknown>";
-        if (driver instanceof RemoteWebDriver) {
-            RemoteWebDriver remoteWebDriver = (RemoteWebDriver)driver;
-            browserName = remoteWebDriver.getCapabilities().getBrowserName();
-            version = remoteWebDriver.getCapabilities().getVersion();
-            platform = remoteWebDriver.getCapabilities().getPlatform().name();
-        }
-        
-        System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
-        System.out.println("seleniumUrl: " + seleniumUrl);
-    }
-
     /**
      * Finds all MGI_ACCESSION_IDs in the genotype-phenotype
      * core that do not start with 'MGI'.
@@ -160,7 +137,7 @@ public class GenePageTest {
 //@Ignore
     public void testForBadGeneIds() throws SolrServerException {
         String testName = "testForBadGeneIds";
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         Set<String> geneIds = geneService.getAllNonConformingGenes();
         String target = "";
         List<String> errorList = new ArrayList();
@@ -168,11 +145,7 @@ public class GenePageTest {
         List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
-        Date stop;
 
-        if (geneIds.isEmpty())
-            return;
-        
         int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
@@ -186,12 +159,10 @@ public class GenePageTest {
             
             target = baseUrl + "/genes/" + geneId;
 
-            WebElement mpTermIdLink = null;
-
             try {
                 driver.get(target);
-                mpTermIdLink = (new WebDriverWait(driver, timeout_in_seconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(geneId)));
+                (new WebDriverWait(driver, timeout_in_seconds))
+                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
@@ -201,35 +172,12 @@ public class GenePageTest {
                 continue;
             }
 
-            if (mpTermIdLink != null) {
-                message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
-                successList.add(message);
-            }
+            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
+            successList.add(message);
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
-        
-        if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
-            for (String s : errorList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
-            for (String s : exceptionList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
-        
-        if (errorList.size() + exceptionList.size() > 0) {
-            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
-        }
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount);
     }
 
     /**
@@ -244,7 +192,7 @@ public class GenePageTest {
 //@Ignore
     public void testRandomPageForGeneIds() throws SolrServerException {
         String testName = "testRandomPageForGeneIds";
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         Set<String> geneIds = geneService.getAllGenes();
         String[] geneIdArray = geneIds.toArray(new String[geneIds.size()]);
         String target = "";
@@ -253,7 +201,6 @@ public class GenePageTest {
         List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
-        Date stop;
 
         int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
@@ -266,61 +213,34 @@ public class GenePageTest {
         while (true) {
             int index = rand.nextInt((max - min) + 1) + min;
             String geneId = geneIdArray[index];
-            System.out.println("gene[" + i + "]: " + geneId);
             if (i >= targetCount) {
                 break;
             }
             i++;
-
+            
             target = baseUrl + "/genes/" + geneId;
-
-            WebElement mpTermIdLink = null;
-
+            
+            System.out.println("gene[" + i + "]: " + geneId);
+            
             try {
                 driver.get(target);
-                mpTermIdLink = (new WebDriverWait(driver, timeout_in_seconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(geneId)));
+                (new WebDriverWait(driver, timeout_in_seconds))
+                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
             }  catch (Exception e) {
                 message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
                 exceptionList.add(message);
-                continue;
             }
 
-            if (mpTermIdLink != null) {
-                message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
-                successList.add(message);
-            }
+            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
+            successList.add(message);
             
-            if (i % 1000 == 0)
-                System.out.println(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
-        
-        if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
-            for (String s : errorList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
-            for (String s : exceptionList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
-        
-        if (errorList.size() + exceptionList.size() > 0) {
-            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
-        }
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount);
     }
 
     /**
@@ -334,7 +254,7 @@ public class GenePageTest {
 //@Ignore
     public void testPageForGeneIds() throws SolrServerException {
         String testName = "testPageForGeneIds";
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         Set<String> geneIds = geneService.getAllGenes();
         String target = "";
         List<String> errorList = new ArrayList();
@@ -342,7 +262,6 @@ public class GenePageTest {
         List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
-        Date stop;
 
         int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
@@ -357,12 +276,10 @@ public class GenePageTest {
 
             target = baseUrl + "/genes/" + geneId;
 
-            WebElement mpTermIdLink = null;
-
             try {
                 driver.get(target);
-                mpTermIdLink = (new WebDriverWait(driver, timeout_in_seconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(geneId)));
+                (new WebDriverWait(driver, timeout_in_seconds))
+                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
@@ -372,39 +289,13 @@ public class GenePageTest {
                 continue;
             }
 
-            if (mpTermIdLink != null) {
-                message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
-                successList.add(message);
-            }
+            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
+            successList.add(message);
             
-            i++;
-            if (i % 1000 == 0)
-                System.out.println(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
-        
-        if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
-            for (String s : errorList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
-            for (String s : exceptionList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
-        
-        if (errorList.size() + exceptionList.size() > 0) {
-            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
-        }
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount);
     }
 
     /**
@@ -418,7 +309,7 @@ public class GenePageTest {
 //@Ignore
     public void testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI";
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         Set<String> geneIds = geneService.getGenesByPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.PRODUCTION_CENTRE_WTSI);
         String target = "";
         List<String> errorList = new ArrayList();
@@ -426,7 +317,6 @@ public class GenePageTest {
         List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
-        Date stop;
         
         int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
@@ -441,12 +331,11 @@ public class GenePageTest {
             
             target = baseUrl + "/genes/" + geneId;
 
-            WebElement mpTermIdLink = null;
-
+            // Wait for page to load.
             try {
                 driver.get(target);
-                mpTermIdLink = (new WebDriverWait(driver, timeout_in_seconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(geneId)));
+                (new WebDriverWait(driver, timeout_in_seconds))
+                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
@@ -455,39 +344,14 @@ public class GenePageTest {
                 exceptionList.add(message);
                 continue;
             }
-
-            if (mpTermIdLink != null) {
-                message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
-                successList.add(message);
-            }
             
-            if (i % 1000 == 0)
-                System.out.println(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
+            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
+            successList.add(message);
+            
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
-        
-        if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
-            for (String s : errorList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
-            for (String s : exceptionList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
-        
-        if (errorList.size() + exceptionList.size() > 0) {
-            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
-        }
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount);
     }
     
     /**
@@ -498,17 +362,19 @@ public class GenePageTest {
     @Test
 //@Ignore
     public void testInvalidGeneId() throws SolrServerException {
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
+        String testName = "testInvalidGeneId";
         String target = "";
+        int targetCount = 1;
         List<String> errorList = new ArrayList();
+        List<String> successList = new ArrayList();
         List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
-        Date stop;
         String geneId = "junkBadGene";
         final String EXPECTED_ERROR_MESSAGE = "Oops! junkBadGene is not a valid MGI gene identifier.";
         
-        System.out.println(dateFormat.format(start) + ": testInvalidGeneId started.");
+        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of 1 records.");
         
         boolean found = false;
         target = baseUrl + "/genes/" + geneId;
@@ -539,105 +405,149 @@ public class GenePageTest {
             exceptionList.add(message);
         }
         
-        stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": testInvalidGeneId finished.");
-        
-        if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
-            for (String s : errorList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
-            for (String s : exceptionList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        if (errorList.size() + exceptionList.size() > 0) {
-            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
-        }
-        
-        System.out.println(dateFormat.format(new Date()) + ": 1 invalid MGI_ACCESSION_ID record processed successfully in " + Tools.dateDiff(start, stop) + ".");
+        message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
+        successList.add(message);
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount);
     }
     
     @Test
 //@Ignore
     public void testAkt2() throws Exception {
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
+        String testName = "testAkt2";
+        int targetCount = 1;
+        List<String> errorList = new ArrayList();
+        List<String> successList = new ArrayList();
+        List<String> exceptionList = new ArrayList();
+        String message;
         Date start = new Date();
-        Date stop;
-        // <span class="gSymbol">
-        String mgiGeneAcc = "MGI:104874";
-        String url = baseUrl + "/genes/" + mgiGeneAcc;
         
-        System.out.println(dateFormat.format(start) + ": testAkt2 started. Expecting to process 1 record.");
+        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of 1 records.");
         
-        System.out.println("test Akt2 url=" + url);
-        driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
-        driver.get(url);
-        //String title = driver.findElement(By.xpath("//*[contains(concat(\" \", normalize-space(@class), \" \"), \"title document\")]")).getText();
-        String topTextString = driver.findElement(By.id("top")).getText();
-        System.out.println("top title=" + topTextString);
-        assertTrue(topTextString.contains("Akt2"));
-        Thread.currentThread().sleep(3000);
-        WebElement enu = driver.findElement(By.id("enu"));
-
-        System.out.println("enu text=" + enu.getText());
-        assertTrue(enu.getText().contains("ENU"));
-
-        List<WebElement> sectionTitles = driver.findElements(By.className("title"));
-        System.out.println("section titles size=" + sectionTitles.size());
-        assertTrue(sectionTitles.size() == 6);//should be five sections visible for Akt2 which have title classes including the gene one at the top
-        String[] listOfSectionTitles = {"Gene: Akt2", "Phenotype associations for Akt2", "Phenotype Associated Images", "Expression", "Order Mouse and ES Cells", "Pre-QC phenotype heatmap"};
-        List<String> sectionTitleCheckFor = new ArrayList<String>(Arrays.asList(listOfSectionTitles));
-        for (WebElement webElement : sectionTitles) {
-            String text = webElement.getText();
-            System.out.println("section titles=|" + text + "|");
-            assertTrue(sectionTitleCheckFor.contains(text));
+        String geneId = "MGI:104874";
+        String target = baseUrl + "/genes/" + geneId;
+        System.out.println("test Akt2 url =\t" + target);
+        
+        // Wait for page to load.
+        try {
+            driver.get(target);
+            (new WebDriverWait(driver, timeout_in_seconds))
+                    .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+        } catch (NoSuchElementException | TimeoutException te) {
+            message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
+            errorList.add(message);
+        } catch (Exception e) {
+            message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+            exceptionList.add(message);
         }
+        
+        // Title
+        assertTrue("Expected top id title 'Akt2'", driver.findElement(By.id("top")).getText().contains("Akt2"));
+        
+        // Section titles (e.g. 'Gene: Akt2', 'Phenotype associations for Akt2', 'Pre-QC phenotype heatmap', etc.)
+        List<WebElement> sections = driver.findElements(By.className("title"));
+        // ... count
+        if (sections.size() != 6) {
+            System.out.println("section titles size=" + sections.size());
+            fail("Expected 6 section titles but found " + sections.size() + ".");
+        }
+        // ... Section titles
+        String[] sectionTitlesArray = {"Gene: Akt2", "Phenotype associations for Akt2", "Phenotype Associated Images", "Expression", "Order Mouse and ES Cells", "Pre-QC phenotype heatmap"};
+        List<String> sectionTitles = new ArrayList(Arrays.asList(sectionTitlesArray));
+        for (WebElement webElement : sections) {
+            String text = webElement.getText();
+            if ( ! sectionTitles.contains(text)) {
+                fail("Expected section named '" + text + "' but wasn't found.");
+            }
+        }
+        
+        // Buttons
         List<WebElement> buttons = driver.findElements(By.className("btn"));
-        assertTrue("Expected 3 buttons but found " + buttons.size(), buttons.size() > 1);//should be 3 buttons: 'Login to register interest', 'order', and 'KOMP'
+        // ... count
+        if (buttons.size() != 3) {
+            fail("Expected 3 buttons but found " + buttons.size());
+        }
+        // ... Button text
+        String[] buttonTitlesArray = { "Login to register interest", "Order", "KOMP" };
+        List<String> buttonTitles = new ArrayList(Arrays.asList(buttonTitlesArray));
         for (WebElement webElement : buttons) {
-            String text = webElement.getText();
-            System.out.println("button text=" + text);
-            assertTrue(text.equals("Login to register interest") || text.equals("Order") || (text.equals("KOMP")));
+            String buttonText = webElement.getText();
+            if ( ! buttonTitles.contains(buttonText)) {
+                fail("Expected button with title '" + buttonText + "' but none was found.");
+            }
         }
         
-        //check the phenotype associations box
-        WebElement abnormalities = driver.findElement(By.className("abnormalities"));// we have abnormalities for akt2?
-        assertTrue(abnormalities != null);
-        assertTrue(abnormalities.findElements(By.className("filterTrigger")).size() > 4);//check the size filterTrigger class elements - which equates to the ass phenotypes
-
-        //top_level_mp_term_name check this filter exists
+        // Phenotype association icons
+        WebElement abnormalities = driver.findElement(By.className("abnormalities"));
+        List<WebElement> anchors = abnormalities.findElements(By.className("filterTrigger"));
+        // ... count
+        if (anchors.size() != 5) {
+            fail("Expected 5 'abnormalities' icons but found " + anchors.size());
+        }
+        // ids
+        String[] iconIdsArray = { "phenIconsBox_skeleton phenotype"
+                                , "phenIconsBox_behavior/neurological phenotype or nervous system phenotype"
+                                , "phenIconsBox_homeostasis/metabolism phenotype or adipose tissue phenotype"
+                                , "phenIconsBox_immune system phenotype or hematopoietic system phenotype"
+                                , "phenIconsBox_growth/size/body phenotype" };
+        List<String> iconIds = new ArrayList(Arrays.asList(iconIdsArray));
+        for (WebElement webElement : anchors) {
+            String id = webElement.getAttribute("id");
+            if ( ! iconIds.contains(id)) {
+                fail("Expected abnormalities icon with id '" + id + "' but none was found.");
+            }
+        }
+        
+        // "Top level MP: All" drop-down
         Select selectTopLevel = new Select(driver.findElement(By.id("top_level_mp_term_name")));
-        int optionCount = selectTopLevel.getOptions().size();
-        assertTrue("Expected 7 options but found only " + optionCount, optionCount == 7);//currently 7 options exist for this gene
-        Select selectResource = new Select(driver.findElement(By.id("resource_fullname")));
-        assertTrue(selectResource.getOptions().size() == 3);//currently 7 options exist for this gene
-//		select.deselectAll();
-//		select.selectByVisibleText("Edam");
+        // ... count
+        if (selectTopLevel.getOptions().size() != 5) {
+            fail("Expected 5 \"Top level MP: All\" options but found " + selectTopLevel.getOptions().size() + ".");
+        }
+        // ... values
+        String[] topLevelValuesArray = { "behavior/neurological phenotype"
+                                       , "growth/size/body phenotype"
+                                       , "hematopoietic system phenotype"
+                                       , "homeostasis/metabolism phenotype"
+                                       , "skeleton phenotype"  };
+        List<String> topLevelValues = new ArrayList(Arrays.asList(topLevelValuesArray));
+        for (WebElement option : selectTopLevel.getOptions()) {
+            if ( ! topLevelValues.contains(option.getAttribute("value")))
+                fail ("Expected Top level MP: All option \"" + option.getAttribute("value") + "\" but none was found.");
+        }
 
-		//check we have the image sections we expect?
-        //get the accordion headings seems the easiest way rather than complicated css
-        List<WebElement> accordions = driver.findElements(By.className("accordion-heading"));
-        System.out.println("accordions size=" + accordions.size());
-        String[] listOfAccordionHeaders = {"Xray (167)", "Tail Epidermis Wholemount (5)", "Musculoskeletal System (2)", "Nervous System (2)", "Adipose Tissue (1)", "Cardiovascular System (1)", "Digestive System (1)", "Integumental System (1)", "Renal/urinary System (1)", "Reproductive System (1)", "Respiratory System (1)"};
-        List<String> accHeaderStrings = new ArrayList(Arrays.asList(listOfAccordionHeaders));
-        for (WebElement webElement : accordions) {
+        // Phenotype Associated Images and Expression sections
+        List<WebElement> imagesAndExpression = driver.findElements(By.className("accordion-heading"));
+        // ... count
+        if (imagesAndExpression.size() != 11) {
+            fail("Expected 2 \"Phenotype Associated Images\" values and 9 \"Expression\" values (11 total) but found " + imagesAndExpression.size());
+        }
+        // ... values
+        String[] phenotypeAssociatedImagesArray = {
+                  "Xray (167)"
+                , "Tail Epidermis Wholemount (5)"
+                , "Musculoskeletal System (2)"
+                , "Nervous System (2)"
+                , "Adipose Tissue (1)"
+                , "Cardiovascular System (1)"
+                , "Digestive System (1)"
+                , "Integumental System (1)"
+                , "Renal/urinary System (1)"
+                , "Reproductive System (1)"
+                , "Respiratory System (1)"};
+        List<String> accHeaderStrings = new ArrayList(Arrays.asList(phenotypeAssociatedImagesArray));
+        for (WebElement webElement : imagesAndExpression) {
             String text = webElement.getText();
-            System.out.println("accordion heading text=" + text);
-            assertTrue(accHeaderStrings.contains(text));
+            assertTrue("Expected Phenotype Associated Images / Expression value \"" + text + "\" but none was found", accHeaderStrings.contains(text));
         }
 
         //test that the order mouse and es cells content from viveks team exists on the page
         WebElement orderAlleleDiv = driver.findElement(By.id("allele"));//this div is in the ebi jsp which should be populated but without the ajax call success will be empty.
         assertTrue(orderAlleleDiv.getText().length() > 100);//check there is some content in the panel div
         
-        stop = new Date();
-        System.out.println(dateFormat.format(new Date()) + ": 1 Akt2 record processed successfully in " + Tools.dateDiff(start, stop) + ".");
+        message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
+        successList.add(message);
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount);
     }
     
 }
