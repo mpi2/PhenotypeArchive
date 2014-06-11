@@ -157,9 +157,6 @@
 	<field name="top_level_mp_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="top_level_mp_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
-	<field name="annotated_or_inferred_higherLevelMpTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="annotated_or_inferred_higherLevelMxTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-
 	<!-- ontology subset of mp terms -->
 	<field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
 
@@ -226,12 +223,8 @@
 	<copyField source="latest_phenotyping_centre" dest="auto_suggest"/>
 	<copyField source="allele_name" dest="auto_suggest"/> 
 	
-
 	<copyField source="inferred_selected_top_level_ma_term" dest="annotated_or_inferred_higherLevelMaTermName" />
-	<copyField source="top_level_mp_term" dest="annotated_or_inferred_higherLevelMpTermName" />
-
-	<copyField source="inferred_selected_top_level_ma_term" dest="annotated_or_inferred_higherLevelMxTermName" />
-    <copyField source="top_level_mp_term" dest="annotated_or_inferred_higherLevelMxTermName" />
+	<copyField source="top_level_mp_term" dest="annotatedHigherLevelMpTermName" />
 
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
 
