@@ -204,8 +204,7 @@
 	<field name="inferredHigherLevelMaTermId" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="inferredHigherLevelMaTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="annotated_or_inferred_higherLevelMaTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="annotated_or_inferred_higherLevelMpTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="annotated_or_inferred_higherLevelMxTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
 	<field name="largeThumbnailFilePath" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="smallThumbnailFilePath" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
@@ -258,8 +257,8 @@
    	<copyField source="procedure_name"  dest="auto_suggest" />
 	<copyField source="pipeline_stable_id" dest="auto_suggest" />
    	<copyField source="pipeline_name"  dest="auto_suggest" />
-	<copyField source="top_level_mp_term"  dest="annotated_or_inferred_higherLevelMxTermName" />
-	<copyField source="inferred_selected_top_level_ma_term"  dest="annotated_or_inferred_higherLevelMxTermName" />
+	<copyField source="top_level_mp_term"  dest="annotatedHigherLevelMpTermName" />
+	<copyField source="inferred_selected_top_level_ma_term"  dest="annotated_or_inferred_higherLevelMaTermName" />
 
 </schema>
 
