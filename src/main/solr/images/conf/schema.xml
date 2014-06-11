@@ -159,8 +159,7 @@
         
         <field name="inferredHigherLevelMaTermId" type="string"   indexed="true"  stored="true"  multiValued="true" />
         <field name="inferredHigherLevelMaTermName" type="string"   indexed="true"  stored="true"  multiValued="true" />    
-        <field name="inferredHigherLevelMpTermId" type="string"   indexed="true"  stored="true"  multiValued="true" />
-        <field name="inferredHigherLevelMpTermName" type="string"   indexed="true"  stored="true"  multiValued="true" />    
+     
      
         <field name="annotated_or_inferred_higherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />
 
@@ -269,12 +268,7 @@
 	<field name="top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="top_level_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="top_level_mp_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="inferred_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="inferred_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
-	<field name="inferred_mp_definition" type="text_general" indexed="false" stored="true" required="false" multiValued="true" />	
-	<field name="inferred_top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="inferred_top_level_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="inferred_top_level_mp_definition" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	
 
 	<!-- ontology subset of mp/ma terms -->
 	<field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
@@ -320,11 +314,11 @@
     <copyField source="annotatedHigherLevelMpTermName" dest="auto_suggest" />
 
     <copyField source="annotatedHigherLevelMpTermName" dest="annotated_or_inferred_higherLevelMpTermName" />
-    <copyField source="inferredHigherLevelMpTermName" dest="annotated_or_inferred_higherLevelMpTermName" />
+    
     <copyField source="annotatedHigherLevelMaTermName" dest="annotated_or_inferred_higherLevelMaTermName" />
 
     <copyField source="annotatedHigherLevelMpTermId" dest="annotated_or_inferred_higherLevelMpTermId" />
-    <copyField source="inferredHigherLevelMpTermId" dest="annotated_or_inferred_higherLevelMpTermId" />
+   
     <copyField source="annotatedHigherLevelMaTermId" dest="annotated_or_inferred_higherLevelMaTermId" />
 
 		<!-- copyField source="annotatedHigherLevelMpTermName" dest="annotated_or_inferred_higherLevelMxTermName" />
