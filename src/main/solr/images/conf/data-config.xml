@@ -231,11 +231,6 @@
 							<field column="name" name="inferredMpTermName" />
 						</entity>
 
-						<entity dataSource="ontods" name="mp2ma2" query="select distinct lm.top_level_term_id, ti.name from ma_node_2_selected_top_level_mapping lm, ma_term_infos ti where lm.top_level_term_id = ti.term_id and lm.node_id in (select distinct t.node_id from ma_node2term t, mp_mappings m where m.mapped_term_id = t.term_id and m.term_id='${mpAnnotations.TERM_ID}')">
-							<field column="top_level_term_id" name="inferredHigherLevelMaTermId" />
-							<field column="name" name="inferredHigherLevelMaTermName" />						
-						</entity> 
-
 						<entity dataSource="ontods" name="mphigher"
 							query="SELECT mp.node_id, mp.term_id as mpTerm, inf.term_id, name FROM `mp_node2term` mp , `mp_term_infos` inf WHERE mp.node_id=${mps.top_level_node_id} and inf.term_id=mp.term_id">
 							<field column="name" name="annotatedHigherLevelMpTermName" />

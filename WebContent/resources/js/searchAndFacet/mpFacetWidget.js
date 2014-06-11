@@ -68,9 +68,11 @@
 	    	    	
 	    	    	// top level MP terms
 	    	    	for ( var i=0;  i<aTopLevelCount.length; i+=2 ){	    		
-	    	    		
+	    	    		if ( aTopLevelCount[i] == 'mammalian phenotype'){
+	    	    			continue;
+	    	    		}
 	    	    		var liContainer = $("<li></li>").attr({'class':'fcat'});
-	        				        			
+	        				        		
 	        			var count = aTopLevelCount[i+1];						
 	        			var coreField = 'mp|annotated_or_inferred_higherLevelMxTermName|' + aTopLevelCount[i] + '|' + count;
 						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});

@@ -143,12 +143,7 @@
 								<field column="top_level_mp_id" xpath="/response/result/doc/arr[@name='top_level_mp_id']/str" />
 								<field column="top_level_mp_term" xpath="/response/result/doc/arr[@name='top_level_mp_term']/str" />                                            
 								<field column="top_level_mp_definition" xpath="/response/result/doc/arr[@name='top_level_mp_definition']/str" />                                        
-								<!-- MA: inferred from MP -->
-								<field column="inferred_ma_id" xpath="/response/result/doc/arr[@name='inferred_ma_id']/str" />  
-								<field column="inferred_ma_term" xpath="/response/result/doc/arr[@name='inferred_ma_term']/str" />
-								<field column="inferred_selected_top_level_ma_id" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_id']/str" />
-								<field column="inferred_selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str" />
-								</entity>                       
+							</entity>                       
 
 							<!-- disease to this MP ?? -->                                          
 
