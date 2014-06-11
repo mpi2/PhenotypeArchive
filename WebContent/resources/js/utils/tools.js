@@ -481,7 +481,7 @@
 		var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';
         paramStr += '&fq=' + fqStr + fecetFieldsStr;		
 				
-		//console.log('MA: '+ paramStr);
+		console.log('MA: '+ paramStr);
 		$.ajax({ 	
 			'url': solrUrl + '/ma/select',
     		'data': paramStr,
@@ -679,6 +679,11 @@
 			if (fqStr.indexOf(' AND selected_top_level_ma_term:*') == -1 ){
 				fqStr += ' AND selected_top_level_ma_term:*';
 			}
+			if ( fqStr.indexOf('annotated_or_inferred_higherLevelMpTermName') != -1 ){
+				console.log('here');
+				fqStr = fqStr.replace(/ phenotype/g,'');
+			}
+			console.log('****: '+ fqStr);
 		}
 		else if ( facet == 'pipeline' ){
 			fqStr = fqStr.replace(' AND selected_top_level_ma_term:*', '');
