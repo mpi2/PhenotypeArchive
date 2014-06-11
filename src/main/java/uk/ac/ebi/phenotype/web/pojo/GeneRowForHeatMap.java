@@ -18,14 +18,14 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
 
     private String accession="";
     private String symbol="";
-    private Boolean miceProduced=false;
+    private String miceProduced="No";//not boolean as 3 states No, Yes, In progress - could have an enum I guess?
     private Boolean primaryPhenotype=false;
     
-    public Boolean getMiceProduced() {
+    public String getMiceProduced() {
 		return miceProduced;
 	}
 
-	public void setMiceProduced(Boolean miceProduced) {
+	public void setMiceProduced(String miceProduced) {
 		this.miceProduced = miceProduced;
 	}
 

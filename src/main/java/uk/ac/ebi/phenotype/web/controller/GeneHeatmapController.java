@@ -1,63 +1,37 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.dao.SecondaryProjectDAO;
-import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.Pipeline;
-import uk.ac.ebi.phenotype.pojo.PipelineSolrImpl;
-import uk.ac.ebi.phenotype.pojo.Procedure;
-import uk.ac.ebi.phenotype.service.GeneService;
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
-
-import uk.ac.ebi.phenotype.stats.ColorCodingPalette;
-import uk.ac.ebi.phenotype.stats.graphs.HeatmapDTO;
+import uk.ac.ebi.phenotype.web.pojo.BasicBean;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
-import uk.ac.sanger.phenodigm2.model.Gene;
 
 
 
 @Controller
 public class GeneHeatmapController {
     
-        @Autowired
-	private SecondaryProjectDAO secondaryProjectDAO;
-        
-        @Autowired
-	private PhenotypePipelineDAO pDAO;
-        
-         @Autowired
-	private GenotypePhenotypeService genotypePhenotypeService;
-         
     @Autowired
-    private GenomicFeatureDAO genesDao;
+    @Qualifier("idg")  
+	private SecondaryProjectDAO idgSecondaryProjectDAO; 
     
-    @Autowired
-    private GeneService genesService;
+//    @Autowired
+//    @Qualifier("3I")  
+//	private SecondaryProjectDAO threeISecondaryProjectDAO;  
+    
 
 	/**
          * 
@@ -66,92 +40,31 @@ public class GeneHeatmapController {
          * @param request
          * @param attributes
          * @return 
+	 * @throws SolrServerException 
          */
 	@RequestMapping("/geneHeatMap")
-	public String getHeatmapJS(@RequestParam(required = false, value = "project") String[] project,
+	public String getHeatmapJS(@RequestParam(required = false, value = "project") String project,
                 Model model,
 			HttpServletRequest request,
-			RedirectAttributes attributes){
-             List<GeneRowForHeatMap>geneRows=new ArrayList<>();
-             List<Parameter> parameters=this.getIdgParameters();
-            try {
-                System.out.println("getGeneHeatMap called");
-               
-                //System.out.println("accession for sec project="+accessions);
-                //get a list of genes for the project - which will be the row headers
-                List<String> accessions=secondaryProjectDAO.getAccessionsBySecondaryProjectId(0);
-                //accessions=accessions.subList(0, 10);
-                //get a list of procedure-parameters for the project which will be the column headers
-                //accessions.add(0, "MGI:104874");//replace first one with our favourite gene akt2 for testing
-                //accessions=accessions.subList(0, 10);
-                //mice produced and primary phenotype will be the first two coluns always?
-                for(String accession: accessions){
-                    //System.out.println("accession="+accession);
-                    GenomicFeature gene=genesDao.getGenomicFeatureByAccession(accession);
-                    //get a data structure with the gene accession,with parameter associated with a Value or status ie. not phenotyped, not significant
-                    GeneRowForHeatMap row = genotypePhenotypeService.getResultsForGeneHeatMap(accession, gene,parameters );
-                    if(!row.getMiceProduced()){
-                    	//if no  p value found then look at the geneService to find out if started or not
-                    	
-							Boolean phenotypingStarted = genesService.checkPhenotypeStarted(accession);
-							System.out.println("phenotypingStarted="+phenotypingStarted);
-						row.setPrimaryPhenotype(phenotypingStarted);
-                    }
-                    geneRows.add(row);
-                }
-                //model.addAttribute("heatmapCode", fillHeatmap(hdto));
-               
-            } catch (SQLException ex) {
-                Logger.getLogger(GeneHeatmapController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            Collections.sort(geneRows);
+			RedirectAttributes attributes) throws SolrServerException{
+		System.out.println("calling heatmap controller method");
+		SecondaryProjectDAO secondaryProjectDAO=this.getSecondaryProjectDao(project);
+             List<GeneRowForHeatMap> geneRows = secondaryProjectDAO.getGeneRowsForHeatMap();
+             List<BasicBean> parameters = secondaryProjectDAO.getXAxisForHeatMap();
             model.addAttribute("geneRows", geneRows);
             model.addAttribute("parameters", parameters);
              return "geneHeatMap";
 	}
 
-    private List<Parameter> getIdgParameters() {
-        //for now lets just a get a list of parameters but eventuallly we'll need a specific list and store it in the db or flat file for pick up by jenkins?
-    	
-      List<String> paramStableIds=new ArrayList<>();
-      paramStableIds.add("ESLIM_022_001_707");
-      paramStableIds.add("ESLIM_022_001_708");
-      paramStableIds.add("ESLIM_005_001_001");
-      paramStableIds.add("ESLIM_020_001_001");
-      paramStableIds.add("ESLIM_021_001_003");
-      
-     List<Parameter> parameters=new ArrayList<>();
-      for(String paramStableId: paramStableIds){
-          //System.out.println("param name="+param.getName());
-         Parameter  param= pDAO.getParameterByStableId(paramStableId);
-         if(param!=null){
-        	 parameters.add(param);
-         }
-          //paramStableIds.add(param.getStableId());
-         
-         
-      }
-//           List<Pipeline> pipelines = pDAO.getAllPhenotypePipelines();
-//            for(Pipeline pipeline:pipelines){
-//                System.out.println("pipeline="+pipeline.getDescription());
-//                Set<Procedure> procedures = pipeline.getProcedures();
-//                //this is example so just get first param for each procedure
-//               int i=0;
-//                for(Procedure procedure: procedures){
-//                    System.out.println("procedure="+procedure.getName());
-//                    int j=0;
-//                    for(Parameter param: procedure.getParameters()){
-//                        System.out.println("param name="+param.getName());
-//                        parameters.add(param.getStableId());
-//                        j++;
-//                        if(j>1)break;
-//                    }
-//                    i++;
-//                    if(i>1)break;
-//                }
-//            }
-       
-        return parameters;
-    }
+
+	private SecondaryProjectDAO getSecondaryProjectDao(String project) {
+		if(project.equalsIgnoreCase("idg")){
+			return idgSecondaryProjectDAO;
+		}
+//		if(project.equalsIgnoreCase("3I")){
+//			return threeISecondaryProjectDAO;
+//		}
+		return null;
+	}
 
 }

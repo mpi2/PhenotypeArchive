@@ -46,6 +46,7 @@ import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
+import uk.ac.ebi.phenotype.web.pojo.BasicBean;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
 
@@ -186,6 +187,7 @@ public class GenotypePhenotypeService {
 		}
 		return allTopLevelPhenotypes;
 	}
+	
 
 
 	public Set<String> getAllIntermediateLevelPhenotypes() throws SolrServerException{
@@ -627,7 +629,7 @@ public class GenotypePhenotypeService {
 	/*
 	 * End of method for PhenotypeCallSummarySolrImpl
 	 */
-        public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, GenomicFeature gene, List<Parameter> parameters){
+        public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, GenomicFeature gene, List<BasicBean> parameters){
             GeneRowForHeatMap row=new GeneRowForHeatMap(accession);
             if(gene!=null){
             	row.setSymbol(gene.getSymbol());
@@ -640,16 +642,16 @@ public class GenotypePhenotypeService {
             //http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select/?q=marker_accession_id:%22MGI:104874%22&rows=10000000&version=2.2&start=0&indent=on&wt=json
             
             Map<String,HeatMapCell> paramMap=new HashMap<>();//map to contain parameters with their associated status or pvalue as a string
-            for(Parameter param: parameters){
-                //System.out.println("adding param to paramMap="+paramId);
-                paramMap.put(param.getStableId(),null);
+            for(BasicBean param: parameters){
+                //System.out.println("adding param to paramMap="+param.getId());
+                paramMap.put(param.getId(),null);
             }
             
            SolrQuery q = new SolrQuery()
 		.setQuery(GenotypePhenotypeField.MARKER_ACCESSION_ID + ":\"" + accession+"\"").setSort(GenotypePhenotypeField.P_VALUE, SolrQuery.ORDER.asc)
 		.setRows(10000);
 		QueryResponse response=null;
-
+System.out.println("query for mp and p values="+q);
             try {
                 response = solr.query(q);
                 results = response.getBeans(HeatMapCell.class);
@@ -666,8 +668,7 @@ public class GenotypePhenotypeService {
                        if(row.getLowestPValue()>cell.getpValue()){
                     	   row.setLowestPValue(cell.getpValue());
                        }
-                       row.setMiceProduced(true);//if we have a p value for a gene then we must have mice and primary phenotype
-                       row.setPrimaryPhenotype(true);
+                       
                 }
             }
             

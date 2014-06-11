@@ -92,7 +92,7 @@ public class GenotypePhenotypeServiceTest {
             GenomicFeature gf=new GenomicFeature();
             gf.setSymbol("AKT2");
             //gf.setAccession();
-            GeneRowForHeatMap row = genotypePhenotypeService.getResultsForGeneHeatMap(accession,gf,  parameters);
+            GeneRowForHeatMap row = genotypePhenotypeService.getResultsForGeneHeatMap(accession,gf,  paramIds);
             assertTrue(row.getAccession().equals(accession));
             assertFalse(row.getParamToCellMap().get("ESLIM_022_001_707").getMpTermName().equals(""));
             assertFalse(row.getParamToCellMap().get("ESLIM_022_001_707").getpValue()==null);
