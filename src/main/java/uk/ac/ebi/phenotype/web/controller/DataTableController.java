@@ -505,7 +505,7 @@ public class DataTableController {
 			// annotation view: images group by annotationTerm per row
 			
 			String fqStr = fqOri;		
-			if ( fqStr.equals("&fq=annotationTermId:M*%20OR%20expName:*%20OR%20symbol:*%20OR%20annotated_or_inferred_higherLevelMaTermName:*%20OR%20annotated_or_inferred_higherLevelMpTermName:*") ){				
+			if ( fqStr.equals("&fq=annotationTermId:M*%20OR%20expName:*%20OR%20symbol:*%20OR%20annotated_or_inferred_higherLevelMaTermName:*%20OR%20annotatedHigherLevelMpTermName:*") ){				
 				solrParams = solrParams.replace(fqOri, "");	
 				fqStr = "";
 			}

@@ -50,7 +50,6 @@
 				'facet.mincount': 1,
 				'facet.limit': -1,
 				//'facet.field': 'top_level_mp_term',
-				//'facet.field': 'annotated_or_inferred_higherLevelMpTermName',
 				'facet.field': 'annotatedHigherLevelMpTermName',
 				'facet.sort': 'index',						
 				'q.option': 'AND',
@@ -64,9 +63,7 @@
 	    		'success': function(json) {
 	    			//console.log(json);
 	    				    	    	
-	    	    	//var aTopLevelCount = json.facet_counts.facet_fields['annotated_or_inferred_higherLevelMpTermName'];	
-	    	    	var aTopLevelCount = json.facet_counts.facet_fields['annotatedHigherLevelMpTermName'];	
-	    	    	//var aTopLevelCount = json.facet_counts.facet_fields['top_level_mp_term'];	 
+	    	    	var aTopLevelCount = json.facet_counts.facet_fields['annotatedHigherLevelMpTermName'];	    	    
 	    	    	var mpUlContainer = $("<ul></ul>");
 	    	    	
 	    	    	// top level MP terms
@@ -78,7 +75,6 @@
 	        				        		
 	        			var count = aTopLevelCount[i+1];						
 	        			var coreField = 'mp|annotatedHigherLevelMpTermName|' + aTopLevelCount[i] + '|' + count;
-	        			//var coreField = 'mp|top_level_mp_term|' + aTopLevelCount[i] + '|' + count;
 						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});
 							    	    		
 	    	    		var flabel = $('<span></span>').attr({'class':'flabel'}).text(aTopLevelCount[i].replace(' phenotype', ''));

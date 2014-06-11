@@ -358,7 +358,7 @@
 		
 		var oParams = {};
 		oParams.fq = $.fn.fieldNameMapping(fqStr, 'mp');		
-		oParams = $.fn.fetchFecetFieldsObj(['annotated_or_inferred_higherLevelMpTermName'], oParams);		
+		oParams = $.fn.fetchFecetFieldsObj(['annotatedHigherLevelMpTermName'], oParams);		
 		oParams = $.extend({}, MPI2.searchAndFacetConfig.facetParams.mpFacet.srchParams,oParams);		
 		oParams = $.fn.getSolrRelevanceParams('mp', q, oParams);
 				        
@@ -379,9 +379,9 @@
     			var selectorBase = "div.flist li#mp";
 				_facetRefresh(json, selectorBase); 
 				
-				for (var i=0; i<oFacets.annotated_or_inferred_higherLevelMpTermName.length; i=i+2){    			
-    				var facetName = oFacets.annotated_or_inferred_higherLevelMpTermName[i];    				   				   				
-    				var facetCount = oFacets.annotated_or_inferred_higherLevelMpTermName[i+1];
+				for (var i=0; i<oFacets.annotatedHigherLevelMpTermName.length; i=i+2){    			
+    				var facetName = oFacets.annotatedHigherLevelMpTermName[i];    				   				   				
+    				var facetCount = oFacets.annotatedHigherLevelMpTermName[i+1];
     			
     				$(selectorBase + ' li.fcat input').each(function(){
     					var aTxt = $(this).attr('rel').split('|');    					
@@ -481,7 +481,7 @@
 		var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';
         paramStr += '&fq=' + fqStr + fecetFieldsStr;		
 				
-		console.log('MA: '+ paramStr);
+		//console.log('MA: '+ paramStr);
 		$.ajax({ 	
 			'url': solrUrl + '/ma/select',
     		'data': paramStr,
@@ -584,7 +584,7 @@
 		
 		// image expName <-> pipeline procedure stable id mapping	
 		fqStr = $.fn.fieldNameMapping(fqStr, 'images');		
-		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['annotated_or_inferred_higherLevelMpTermName', 'annotated_or_inferred_higherLevelMaTermName', 'expName', 'subtype']);		
+		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['annotatedHigherLevelMpTermName', 'annotated_or_inferred_higherLevelMaTermName', 'expName', 'subtype']);		
 		
 		var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';
         paramStr += '&fq=' + fqStr + fecetFieldsStr;
@@ -608,7 +608,7 @@
     			$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout')    			  			
 				var foundMatch = {'Phenotype':0, 'Anatomy':0, 'Procedure':0, 'Gene':0};
     			
-    			var aSubFacets = {'annotated_or_inferred_higherLevelMpTermName':'Phenotype',
+    			var aSubFacets = {'annotatedHigherLevelMpTermName':'Phenotype',
     							  'annotated_or_inferred_higherLevelMaTermName':'Anatomy',
     							  'expName':'Procedure',
     							  'subtype':'Gene'}; 
@@ -679,11 +679,9 @@
 			if (fqStr.indexOf(' AND selected_top_level_ma_term:*') == -1 ){
 				fqStr += ' AND selected_top_level_ma_term:*';
 			}
-			if ( fqStr.indexOf('annotated_or_inferred_higherLevelMpTermName') != -1 ){
-				console.log('here');
-				fqStr = fqStr.replace(/ phenotype/g,'');
+			if (fqStr.indexOf('annotatedHigherLevelMpTermName') != -1 ){
+				fqStr = fqStr.replace(/ phenotype/g,'').replace(/annotatedHigherLevelMpTermName/g,'annotated_or_inferred_higherLevelMaTermName');
 			}
-			console.log('****: '+ fqStr);
 		}
 		else if ( facet == 'pipeline' ){
 			fqStr = fqStr.replace(' AND selected_top_level_ma_term:*', '');
@@ -1393,7 +1391,7 @@
     				if ( wantStr.match(/mortality\/aging/) || wantStr.match(/^annotated_or_inferred_higherLevelMxTermName|.+phenotype$/) ){    			
     					oMapping = MPI2.searchAndFacetConfig.filterMapping['mp'];
     				}
-    				else if ( wantStr.match(/^annotated_or_inferred_higherLevelMpTermName/) ){    			
+    				else if ( wantStr.match(/^annotatedHigherLevelMpTermName/) ){    			
     					oMapping = MPI2.searchAndFacetConfig.filterMapping['imgMp'];
     				}
     				else if ( wantStr.match(/^annotated_or_inferred_higherLevelMaTermName/) ){    			
@@ -1478,7 +1476,7 @@
     		} 
     		else if (facet == 'imagesFacet' ){    		
     			// open pipeline IMPC subfacet by default  
-    			//fcatsection = 'annotated_or_inferred_higherLevelMpTermName';
+    			//fcatsection = 'annotatedHigherLevelMpTermName';
     			fcatsection = 'mp';
     		}
     		//_arrowSwitch(fcatsection); 
