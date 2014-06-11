@@ -53,7 +53,7 @@
   	    	
   	    	var paramStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
   	    		+ "&facet.field=expName"
-  	    		+ "&facet.field=annotated_or_inferred_higherLevelMpTermName"
+  	    		+ "&facet.field=annotatedHigherLevelMpTermName"
   	    		+ "&facet.field=annotated_or_inferred_higherLevelMaTermName"
   	    		+ "&facet.field=subtype"
   	    		    	
@@ -71,17 +71,17 @@
   	    			
   	    			// do some sorting for facet names, but put Phenotype subfacet on front of list
   	    			for ( var facetName in aFacetFields ){ 	
-  	    				if (facetName != 'annotated_or_inferred_higherLevelMpTermName' ){
+  	    				if (facetName != 'annotatedHigherLevelMpTermName' ){
   	    					aSubFacetNames.push(facetName);
   	    				}
   	    			}	
   	    			aSubFacetNames.sort();
-  	    			aSubFacetNames.unshift('annotated_or_inferred_higherLevelMpTermName');
+  	    			aSubFacetNames.unshift('annotatedHigherLevelMpTermName');
   	    			  	    			
   	    			var displayLabel = {
   	    								annotated_or_inferred_higherLevelMaTermName: 'Anatomy',
   	    								expName : 'Procedure',	    					            
-  	    								annotated_or_inferred_higherLevelMpTermName: 'Phenotype',
+  	    								annotatedHigherLevelMpTermName: 'Phenotype',
   	    					            subtype: 'Gene'
   	    								};	    			    			    			
   	    			    			

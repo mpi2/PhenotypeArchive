@@ -86,8 +86,7 @@
 	    			// that need to be checked and highlighted
 	    			$.fn.checkAndHighlightSubfacetTerms();
 	        		
-	        		$('li#ma li.fcat input').click(function(){	
-	        			$('div.flist li#ma').click();
+	        		$('li#ma li.fcat input').click(function(){	    			
 	        			// // highlight the item in facet	    			
 	        			$(this).siblings('span.flabel').addClass('highlight');
 	    				$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
