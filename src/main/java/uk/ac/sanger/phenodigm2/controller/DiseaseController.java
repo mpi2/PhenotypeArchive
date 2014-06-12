@@ -43,7 +43,7 @@ public class DiseaseController {
         this.rawScoreCutoff = rawScoreCutoff;
     }
     
-    @RequestMapping(value = "phenodigm/disease")
+    @RequestMapping(value = "/disease")
     public String allDiseases(Model model) {
         logger.info("Making page for all diseases");
 
@@ -53,10 +53,10 @@ public class DiseaseController {
 
         logger.info(String.format("Found %d diseases", allDiseases.size()));
 
-        return "phenodigm/diseases";
+        return "diseases";
     }
 
-    @RequestMapping(value = "phenodigm/disease/{diseaseId}")
+    @RequestMapping(value = "/disease/{diseaseId}")
     public String disease(@PathVariable("diseaseId") String diseaseId, Model model) {
 
         logger.info("Making disease page for " + diseaseId);

@@ -27,10 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
@@ -78,6 +76,12 @@ import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow.PhenotypeRowType;
+import uk.ac.sanger.phenodigm2.controller.GeneController;
+import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
+import uk.ac.sanger.phenodigm2.model.Gene;
+import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
+import uk.ac.sanger.phenodigm2.web.AssociationSummary;
+import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
 
 
 @Controller
@@ -244,6 +248,9 @@ public class GenesController {
 		model.addAttribute("request", request);
 		model.addAttribute("acc", acc);
 
+                //add in the disease predictions from phenodigm
+                processDisease(acc, model);
+                
 		// ES Cell and IKMC Allele check (Gautier)
 		
 		String solrCoreName = "allele";
@@ -604,5 +611,49 @@ public class GenesController {
         model.addAttribute("alleleProducts", constructs);
 	    return "genesAllele";  
         }   
+
+    @Autowired
+    private PhenoDigmWebDao phenoDigmDao;
+    private final double rawScoreCutoff = 1.97;
+    
+    /**
+     * Adds disease-related info to the model from Phenodigm.
+     * @param acc
+     * @param model 
+     */
+    private void processDisease(String acc, Model model) {
+        String mgiId = acc;
+        log.info("Adding disease info to gene page {}", mgiId);
+        model.addAttribute("mgiId", mgiId);
+        GeneIdentifier geneIdentifier = new GeneIdentifier(mgiId, mgiId);
+        
+        Gene gene = phenoDigmDao.getGene(geneIdentifier);
+        log.info("Found Gene: " + gene);
+        if (gene != null) {
+            model.addAttribute("geneIdentifier", gene.getOrthologGeneId());
+            model.addAttribute("humanOrtholog", gene.getHumanGeneId());
+            log.info("Found gene: {} {}", gene.getOrthologGeneId().getCompoundIdentifier(), gene.getOrthologGeneId().getGeneSymbol());
+        } else {
+            model.addAttribute("geneIdentifier", geneIdentifier);
+            log.info("No human ortholog found for gene: {}", geneIdentifier);                
+        }
+        
+        log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
+        List<DiseaseAssociationSummary> diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
+        log.info("{} - recieved {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
+
+//        List<DiseaseAssociationSummary> knownDiseaseAssociationSummaries = new ArrayList<>();
+//        //add the known association summaries to a dedicated list for the top panel
+//        for (DiseaseAssociationSummary diseaseAssociationSummary : diseaseAssociationSummarys) {
+//            AssociationSummary associationSummary = diseaseAssociationSummary.getAssociationSummary();
+//            if (associationSummary.isAssociatedInHuman()) {
+//               knownDiseaseAssociationSummaries.add(diseaseAssociationSummary);
+//            }
+//        }
+//        model.addAttribute("knownDiseaseAssociationSummaries", knownDiseaseAssociationSummaries);                   
+        model.addAttribute("diseaseAssociations", diseaseAssociationSummarys);
+        
+        log.info("Added {} disease associations for gene {} to model", diseaseAssociationSummarys.size(), mgiId);
+    }
     
 }
