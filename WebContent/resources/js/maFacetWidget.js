@@ -69,7 +69,7 @@
 	    	    		var liContainer = $("<li></li>").attr({'class':'fcat'});	    	    	
 	        		
 	        			var count = aTopLevelCount[i+1];	        				
-	        			var coreField = 'ma|annotated_or_inferred_higherLevelMxTermName|' + aTopLevelCount[i] + '|' + count;	
+	        			var coreField = 'ma|annotated_or_inferred_higherLevelMaTermName|' + aTopLevelCount[i] + '|' + count;	
 	        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});
 	        			var flabel = $('<span></span>').attr({'class':'flabel'}).text(aTopLevelCount[i]);
 						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);

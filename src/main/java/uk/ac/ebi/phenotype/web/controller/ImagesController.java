@@ -80,7 +80,7 @@ public class ImagesController {
 		{
 			put("expName", "Procedure");
 			put("annotated_or_inferred_higherLevelMaTermName", "Anatomy");
-			put("annotated_or_inferred_higherLevelMpTermName", "Phenotype group");
+			put("annotatedHigherLevelMpTermName", "Phenotype group");
 			put("annotationTermId", "Annotation term");
 			put("subtype", "Type");
 			put("accession", "Accession");
@@ -155,7 +155,7 @@ public class ImagesController {
 		else {
 			queryString+= " AND search keyword: \"\""; 
 		}
-		queryString=queryString.replace("annotated_or_inferred_higherLevelMpTermName", "phenotype");
+		queryString=queryString.replace("annotatedHigherLevelMpTermName", "phenotype");
 		queryString=queryString.replace("annotated_or_inferred_higherLevelMaTermName", "anatomy");
 		queryString=queryString.replace("expName", "procedure");
 		queryString=queryString.replace("subtype", "gene_subtype");
