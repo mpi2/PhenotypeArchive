@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+//import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -82,19 +83,6 @@ public class AllelesController {
         return list;
     }
 
-//    public List<Map<String, String>> getTools() {
-//        List<Map<String, String>> list = new ArrayList<>();
-//
-//        Map<String, String> items = new HashMap<>();
-//
-//        items.put("tool", "Southern Blot Tool");
-//        items.put("url", "http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=EPD0337_2_D04&iframe=true&width=100%&height=100%");
-//
-//        list.add(items);
-//
-//        return list;
-//    }
-
     public List<Map<String, String>> getMice() {
         List<Map<String, String>> list = new ArrayList<>();
 
@@ -103,26 +91,15 @@ public class AllelesController {
         items.put("genetic_background", "C57BL/6NTac;C57BL/6NTac;C57BL/6N-Atm1Brd/a");
         items.put("production_centre", "Harwell");
         items.put("es_cell", "EPD0337_2_D04");
-        items.put("qc_data",  "what?");
-        items.put("southern_tool", 
+        items.put("southern_tool",
                 "http://www.sanger.ac.uk|http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=EPD0337_2_D04&iframe=true&width=100%&height=100%");
         items.put("order_url", "http://www.emmanet.org/mutant_types.php?keyword=Cib2");
         items.put("order_name", "EMMA");
 
         list.add(items);
-        
-//        log.info("getMice()");
-//        log.info(list.toString());
 
         return list;
     }
-    
-//Genetic background	
-//ES Cell Clone	
-//Targeting Vector	
-//QC Data / Southern tool	
-//Genotyping Primers	
-//ORDER
 
     public List<Map<String, String>> getEsCells() {
         List<Map<String, String>> list = new ArrayList<>();
@@ -132,8 +109,7 @@ public class AllelesController {
         items.put("genetic_background", "C57BL/6NTac;C57BL/6NTac;C57BL/6N-Atm1Brd/a");
         items.put("es_cell_clone", "EPD0337_2_D04");
         items.put("targeting_vector", "PG00073_Z_5_H01");
-        items.put("qc_data",  "what?");
-        items.put("southern_tool", 
+        items.put("southern_tool",
                 "http://www.sanger.ac.uk|http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=EPD0337_2_D04&iframe=true&width=100%&height=100%");
         items.put("genotyping_primers", "C57BL/6NTac;C57BL/6NTac;C57BL/6N-Atm1Brd/a");
         items.put("order_url", "http://www.emmanet.org/mutant_types.php?keyword=Cib2");
@@ -144,13 +120,6 @@ public class AllelesController {
         return list;
     }
 
-//Design Oligos	
-//Targeting Vector	
-//Cassette	
-//Backbone	
-//Genbank File	
-//Order
-    
     public List<Map<String, String>> getTargetingVectors() {
         List<Map<String, String>> list = new ArrayList<>();
 
@@ -168,14 +137,67 @@ public class AllelesController {
 
         return list;
     }
-
+   
     @RequestMapping("/alleles/{acc}")
     public String alleles(
             @PathVariable String acc,
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException {
+
+        log.info("#### AllelesController::alleles");
         
+        String path = request.getContextPath();
+        log.error("#### path: " + path);
+
+        Yaml yaml = new Yaml();
+        String content = FileUtils.readFileToString(new File("/tmp/yaml_test.yml"));
+        Map<String, Object> list = (Map<String, Object>) yaml.load(content);
+        
+        Map<String, Object> list2 = (Map<String, Object>)list.get(acc);
+
+        model.addAttribute("allele_description", list2.get("allele_description"));
+
+        model.addAttribute("symbol", list2.get("symbol"));
+
+        model.addAttribute("type", list2.get("type"));
+
+        model.addAttribute("statuses", (List<Map<String, String>>)list2.get("statuses"));
+
+        model.addAttribute("genbank", list2.get("genbank"));
+
+        model.addAttribute("mutagenesis_url", list2.get("mutagenesis_url"));
+
+        model.addAttribute("map_image", list2.get("map_image"));
+
+        model.addAttribute("browsers", (List<Map<String, String>>)list2.get("browsers"));
+
+        model.addAttribute("mice", (List<Map<String, String>>)list2.get("mice"));
+        
+        model.addAttribute("mice_in_progress", (List<Map<String, String>>)list2.get("mice_in_progress"));
+
+        model.addAttribute("es_cells", (List<Map<String, String>>)list2.get("es_cells"));
+
+        model.addAttribute("targeting_vectors", (List<Map<String, String>>)list2.get("targeting_vectors"));
+        
+        model.addAttribute("mice_blurb", list2.get("mice_blurb"));
+
+//        Yaml yaml = new Yaml();
+//        Map<String, Object> list = new HashMap<>();
+//        list.put("MGI:1929293", model.asMap());
+//        String output = yaml.dump(list);
+//        FileUtils.writeStringToFile(new File("/tmp/yaml_test.yml"), output);
+
+        return "alleles";
+    }    
+    
+   // @RequestMapping("/alleles/{acc}")
+    public String alleles_old(
+            @PathVariable String acc,
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException {
+
         log.info("#### AllelesController::alleles");
 
         model.addAttribute("allele_description", "Knockout First, reporter-tagged deletion");
@@ -194,32 +216,21 @@ public class AllelesController {
 
         model.addAttribute("browsers", getBrowsers());
 
-      //  model.addAttribute("tools", getTools());
-
         model.addAttribute("mice", getMice());
-        
-        model.addAttribute("es_cells", getEsCells());     
-        
-        model.addAttribute("targeting_vectors", getTargetingVectors());        
-        
-//        PrintWriter out = new PrintWriter("/tmp/yaml_test.yml");
-//    Yaml yaml = new Yaml();
-//    String output = yaml.dump(getMice());
-//        
-//        out.println(output);
-//        out.close();
-        
-Yaml yaml = new Yaml();
-//    String output = yaml.dump(model.asMap());
-//        FileUtils.writeStringToFile(new File("/tmp/yaml_test.yml"), output);
-    
+
+        model.addAttribute("es_cells", getEsCells());
+
+        model.addAttribute("targeting_vectors", getTargetingVectors());
+
+        model.addAttribute("mice_blurb", "Mice");
+
+        Yaml yaml = new Yaml();
 
         Map<String, Object> list = new HashMap<>();
         list.put("MGI:1929293", model.asMap());
-    String output = yaml.dump(list);
+        String output = yaml.dump(list);
         FileUtils.writeStringToFile(new File("/tmp/yaml_test.yml"), output);
 
-    
         return "alleles";
     }
 

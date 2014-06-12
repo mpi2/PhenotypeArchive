@@ -96,8 +96,23 @@
                 }
             });
     </script>
-    </c:if>
     
+    </c:if>
+
+   <!--     <script>
+        
+    $( "#image" ).toggle( "slide" );
+
+    $( document ).ready(function() {
+            console.log( "ready!" );
+             setTimeout(function(){
+                 console.log( "timeout!" );
+                 $( "#image" ).toggle( "slide", { direction: "up" }, 2000 );
+             }, 3000);
+        });        
+        
+    </script>   -->
+
 	</jsp:attribute>
 	
 
@@ -146,11 +161,11 @@
 			<h3>Summary</h3>
 
                         
+                <div style="font-size: 120%; ">
                         <p>${allele_description}</p>
 
 
 
-                
             <c:if test="${not empty statuses}">
                 <c:forEach var="status" items="${statuses}" varStatus="statusx">
                     <p>${status['TEXT']}                         
@@ -167,7 +182,7 @@
                         </c:if>
                 </c:forEach>	
             </c:if>			
-                
+                </div>
                 
                 
                 
@@ -178,13 +193,13 @@
 		<div class="inner">
 			<h3>Allele Maps</h3>
                         
-        <div>
+        <div id="image">
             <img src="${map_image}" width="930px">        
         </div>
                         
                         
                         
-        <table>         
+        <table style="font-size: 150%; ">         
             <tr>
             <td>   
                 <span>
@@ -196,19 +211,21 @@
             </td>
 
             <td>     
-                <a href="${mutagenesis_url}">Mutagenesis Prediction</a>                    
+                <c:if test="${not empty mutagenesis_url}">
+                    <a href="${mutagenesis_url}">Mutagenesis Prediction</a>     
+                </c:if>	
             </td>
 
             <td>       
                 
-<span class="label">Genome Browsers</span>
-
+<div style="text-align: center;">Genome Browsers</div>
+<div style="text-align: center;">
 <c:if test="${not empty browsers}">
     <c:forEach var="browser" items="${browsers}" varStatus="browsersx">
         <a href="${browser['url']}" target="_blank" class="ensembl_link">${browser['browser']}</a>&nbsp;&nbsp;&nbsp;
     </c:forEach>	
 </c:if>	
-
+</div>
             </td>
             </tr>
         </table>
@@ -229,12 +246,66 @@
 		</div>
 	</div>
 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+<c:if test="${not empty mice_in_progress}">
+    <div class="section">
+        <div class="inner" style="background-color: #FFE0B2 !important;">
+        <h3>Mice - in progress</h3>
+        <div class="dataset_content">
+            <table>
+            <thead>
+            <tr>
+                <th>Genetic background</th>
+                <th>Production Centre</th>
+                <th>ES Cell</th>
+                <th>Status / Dates</th>
+                <th>Full production details</th>
+                <th>Contact</th>
+            </tr>
+            </thead>
+            <tbody>               
+                
+            <c:forEach var="mouse" items="${mice_in_progress}" varStatus="micex">
+
+            <tr>
+                <td>${mouse['genetic_background']}</td>
+                <td>${mouse['production_centre']}</td>
+                <td>${mouse['es_cell']}</td>
+                <td>${mouse['status_dates']}</td>
+                <td style="text-align: center;"><a href="${mouse['production_detail_url']}">link</a></td>
+                <td><a class="btn" href="${mouse['contact_url']}"> <i class="fa fa-shopping-cart"></i> ${mouse['contact_name']} </a></td>
+            </tr>
+            
+            </c:forEach>	
+            
+            </tbody>
+            </table>
+            <div class="clear"></div>
+        </div>
+        </div>
+    </div>
+</c:if>
+        
+        
+        
+        
+        
+        
+        
                         
                         
                         
 <c:if test="${not empty mice}">
     <div class="section">
-        <div class="inner">
+        <div class="inner" style="background-color: #E0F9FF !important;">
         <h3>Mice</h3>
         <div class="dataset_content">
             <table>
@@ -255,7 +326,7 @@
                 <td>${mouse['genetic_background']}</td>
                 <td>${mouse['production_centre']}</td>
                 <td>${mouse['es_cell']}</td>
-                <td><a href="${mouse['qc_data']}">QC Data</a> / <a href="${mouse['southern_tool']}">Southern tool</a></td>
+                <td style="text-align: center;"><a href="${mouse['southern_tool']}">Southern tool</a></td>
                 <td><a class="btn" href="${mouse['order_url']}"> <i class="fa fa-shopping-cart"></i> ${mouse['order_name']} </a></td>
             </tr>
             
@@ -275,7 +346,7 @@
 <c:if test="${not empty es_cells}">
                         
 	<div class="section">
-		<div class="inner">
+		<div class="inner" style="background-color: #E0F9FF !important;">
 			<h3>ES Cells</h3>
                         
 <div class="dataset_content">
@@ -298,7 +369,7 @@
         <td>${es_cell['genetic_background']}</td>
         <td>${es_cell['es_cell_clone']}</td>
         <td>${es_cell['targeting_vector']}</td>
-        <td><a href="${es_cell['qc_data']}">QC Data</a> / <a href="${es_cell['southern_tool']}">Southern tool</a></td>
+        <td style="text-align: center;"><a href="${es_cell['southern_tool']}">Southern tool</a></td>
         <td>${es_cell['genotyping_primers']}</td>
         <td><a class="btn" href="${es_cell['order_url']}"> <i class="fa fa-shopping-cart"></i> ${es_cell['order_name']} </a></td>
       </tr>
@@ -326,7 +397,7 @@
 <c:if test="${not empty targeting_vectors}">
                         
 	<div class="section">
-		<div class="inner">
+		<div class="inner" style="background-color: #E0F9FF !important;">
 			<h3>Targeting Vectors</h3>
                         
                         
@@ -358,7 +429,7 @@
         <td>${targeting_vector['cassette']}</td>
         <td>${targeting_vector['backbone']}</td>
         
-        <td>
+        <td style="text-align: center;">
         <span>
     <a href="${targeting_vector['genbank_file']}}">
         <i class="fa fa-file-text fa-lg"></i>

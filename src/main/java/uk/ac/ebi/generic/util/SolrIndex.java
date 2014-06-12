@@ -970,4 +970,103 @@ public class SolrIndex {
 		return map;
 	}
 
+        public List<Map<String, String>> getGeneAllele2Info(String accession) throws IOException, URISyntaxException {
+            
+            String url = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele2/search?q=mgi_accession_id:"
+                        + accession.replace(":", "\\:")
+                        + "&start=0&rows=100&hl=true&wt=json";
+
+            log.info("url for getGeneAllele2Info=" + url);
+
+            JSONObject jsonObject = getResults(url);
+            
+            //int numFound = Integer.parseInt(jsonObject.getJSONObject("response").getString("numFound"));
+
+            JSONArray docs = jsonObject.getJSONObject("response").getJSONArray("docs");
+
+            if (docs.size() < 1) {
+                log.info("No rows returned for the query!");
+                return null;
+            }
+            
+            String[] stringArray = new String[]{"mgi_accession_id","marker_symbol","marker_type","feature_type","latest_project_status","latest_phenotype_started","latest_phenotype_complete",
+                "latest_phenotype_status","latest_es_cell_status","latest_mouse_status","latest_project_status_legacy"};
+            
+            List<Map<String, String>> genes = new ArrayList<>();
+
+            for (Object doc : docs) {
+                JSONObject jsonObject = (JSONObject) doc;
+
+                HashMap<String, String> map = new HashMap<>();
+                
+                for(String s : stringArray) {
+                    String o = jsonObject.getString(s);
+                    map.put(s, o);
+                }
+
+                if (jsonObject.has("allele_type")) {
+                    if (jsonObject.getString("allele_type").equals("Conditional Ready")){
+                        map.put("alleleType", "Knockout First, Reporter-tagged insertion with conditional potential");
+                    }
+                    else if (jsonObject.getString("allele_type").equals("Deletion")){
+                        map.put("alleleType", "Reporter-Tagged Deletion");
+                    }
+                }
+
+                genes.add(map);
+            }
+
+            return genes;
+        }
+
+        public List<Map<String, Object>> getGeneProductInfo(String accession) throws IOException, URISyntaxException {
+            
+            String url = "http://ikmc.vm.bytemark.co.uk:8983/solr/product/search?q=mgi_accession_id:"
+                        + accession.replace(":", "\\:")
+                        + "&start=0&rows=100&hl=true&wt=json";
+
+            log.info("url for getGeneProductInfo=" + url);
+
+            JSONObject jsonObject = getResults(url);
+            
+            //int numFound = Integer.parseInt(jsonObject.getJSONObject("response").getString("numFound"));
+
+            JSONArray docs = jsonObject.getJSONObject("response").getJSONArray("docs");
+
+            if (docs.size() < 1) {
+                log.info("No rows returned for the query!");
+                return null;
+            }
+            
+            String[] stringArray = new String[]{"marker_symbol","marker_type","mgi_accession_id","allele_type","allele_name","type","type_of_microinjection","status","production_centre","es_cell_name",
+                "parent_es_cell_line","vector_name","vector_type","order_names"};
+            
+            String[] multiValued = new String[]{"order_links","other_links","colony_names","genetic_background"};
+            
+            List<Map<String, Object>> genes = new ArrayList<>();
+
+            for (Object doc : docs) {
+                JSONObject jsonObject = (JSONObject) doc;
+
+                HashMap<String, Object> map = new HashMap<>();
+                
+                for(String s : stringArray) {
+                    String o = jsonObject.getString(s);
+                    map.put(s, o);
+                }
+
+                for(String s : multiValued) {
+                    List<String> ss = new ArrayList<>();
+                    JSONArray array = jsonObject.getJSONArray(s);
+                    for (int k = 0; k < array.size() ; k++){
+                        ss.add(array.getString(k));
+                    }
+                    map.put(s, ss);
+                }
+                
+                genes.add(map);
+            }
+
+            return genes;
+        }
 }
