@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>uk.ac.ebi.phenotype</groupId>
     <artifactId>PhenotypeArchive</artifactId>
-    <version>0.4.5</version>
+    <version>1.0.0</version>
     <packaging>war</packaging>
     <name>EBI Phenotype Archive</name>
     <description>EBI Phenotype Archive Project</description>
@@ -907,6 +907,7 @@
                                 <include>**/bean/*</include>
                                 <include>**/dao/*</include>
                                 <include>**/pojo/*</include>
+                                <include>**/phenotype/data/imits/*</include>
                                 <include>**/phenotype/util/*</include>
                                 <include>**/phenotype/imaging/**</include>
                                 <include>**/data/europhenome/*</include>

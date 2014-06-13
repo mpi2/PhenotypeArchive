@@ -554,6 +554,31 @@ public class ObservationService {
 
     }
 
+    public List<Map<String, String>> getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadataByParameter(String parameterStableId) throws SolrServerException {
+
+        SolrQuery query = new SolrQuery()
+                .setQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + parameterStableId)
+                .addFilterQuery(ExperimentField.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+                .addFilterQuery(ExperimentField.OBSERVATION_TYPE + ":categorical")
+                .setRows(0)
+                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
+                .addFacetPivotField( // needs at least 2 fields
+                ExperimentField.PHENOTYPING_CENTER_ID + "," +
+                        ExperimentField.PIPELINE_ID + "," +
+                        ExperimentField.PARAMETER_ID + "," +
+                        ExperimentField.STRAIN + "," +
+                        ExperimentField.ZYGOSITY + "," +
+                        ExperimentField.SEX + "," +
+                        ExperimentField.METADATA_GROUP + "," +
+                        ExperimentField.ALLELE_ACCESSION + "," +
+                        ExperimentField.GENE_ACCESSION);
+
+        QueryResponse response = solr.query(query);
+
+        return getFacetPivotResults(response);
+
+    }
+
     /**
      * Recursive method to fill a map with multiple combination of pivot fields.
      * Each pivot level can have multiple children. Hence, each level should
