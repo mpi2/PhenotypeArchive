@@ -3,7 +3,7 @@ package uk.ac.ebi.phenotype.data.imits;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class Utils {
+public final class EncodedOrganisationConversionMap {
 
     public static Map<String, String> imitsCenters = new HashMap<String, String>();
     public static Map<String, String> dccCenterMap = new HashMap<String, String>();
