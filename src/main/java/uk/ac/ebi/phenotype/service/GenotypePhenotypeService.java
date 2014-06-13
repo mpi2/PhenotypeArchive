@@ -759,50 +759,29 @@ public class GenotypePhenotypeService {
 		} else {
 			System.err.println("error no symbol for gene " + accession);
 		}
-		// search by gene and a list of params
-		// or search on gene and then loop through params to add the results if
-		// available order by ascending p value means we can just pick off the
-		// first entry for that param
-		// http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select/?q=marker_accession_id:%22MGI:104874%22&rows=10000000&version=2.2&start=0&indent=on&wt=json
-
-		Map<String, HeatMapCell> paramMap = new HashMap<>();// map to contain
-															// parameters with
-															// their associated
-															// status or pvalue
-															// as a string
+		
+		Map<String, HeatMapCell> xAxisToCellMap = new HashMap<>();
 		for (BasicBean xAxisBean : xAxisBeans) {
 			HeatMapCell cell = new HeatMapCell();
 			if (geneToTopLevelMpMap.containsKey(accession)) {
 				List<String> mps = geneToTopLevelMpMap.get(accession);
-				// cell.setLabel(xAxisBean.getName());
+				 //cell.setLabel("No Phenotype Detected");
 				if (mps != null && !mps.isEmpty()) {
 					if (mps.contains(xAxisBean.getId())) {
 						cell.setxAxisKey(xAxisBean.getId());
 						System.out.println("setting label="
 								+ xAxisBean.getName());
-						cell.setLabel("Data Available");// do
-																			// we
-																			// need
-																			// mp
-																			// term
-																			// -
-						// need more phenotype
-						// detected, no
-						// phenotype detected,
-						// No data available
-
+						cell.setLabel("Data Available");
 					}
-				
-				
 
 			}
 		} else {
 			// if no doc found for the gene then no data available
 			cell.setLabel("No Data Available");
 		}
-			paramMap.put(xAxisBean.getId(), cell);
+			xAxisToCellMap.put(xAxisBean.getId(), cell);
 		}
-		row.setXAxisToCellMap(paramMap);
+		row.setXAxisToCellMap(xAxisToCellMap);
 
 		return row;
 	}

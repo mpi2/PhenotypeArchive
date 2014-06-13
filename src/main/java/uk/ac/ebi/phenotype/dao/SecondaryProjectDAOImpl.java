@@ -98,9 +98,9 @@ class SecondaryProjectIdgImpl extends HibernateDAOImpl implements
 			Set<String> accessions = this.getAccessionsBySecondaryProjectId(0);
 			Map<String,String> geneToMouseStatusMap=genesService.getProductionStatusForGeneSet(accessions);
 			Map<String,List<String>> geneToTopLevelMpMap=genesService.getTopLevelMpForGeneSet(accessions);
-			for(String key: geneToMouseStatusMap.keySet()){
-				System.out.println("key="+key+"  value="+geneToMouseStatusMap.get(key));
-			}
+//			for(String key: geneToMouseStatusMap.keySet()){
+//				System.out.println("key="+key+"  value="+geneToMouseStatusMap.get(key));
+//			}
 			for (String accession : accessions) {
 				// System.out.println("accession="+accession);
 				GenomicFeature gene = genesDao
@@ -110,7 +110,11 @@ class SecondaryProjectIdgImpl extends HibernateDAOImpl implements
 				// significant
 				GeneRowForHeatMap row = genotypePhenotypeService
 						.getResultsForGeneHeatMap(accession, gene, parameters, geneToTopLevelMpMap);
+				if(geneToMouseStatusMap.containsKey(accession)){
 				row.setMiceProduced(geneToMouseStatusMap.get(accession));
+				}else{
+					row.setMiceProduced("No");//if not contained in map just set no to mice produced
+				}
 				geneRows.add(row);
 			}
 			// model.addAttribute("heatmapCode", fillHeatmap(hdto));
