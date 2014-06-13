@@ -146,7 +146,7 @@ public class SearchPageTest {
         params.put("disease", "fq=type:disease&core=disease");
         params.put("ma", "fq=ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*&core=ma");
         params.put("pipeline", "fq=pipeline_stable_id:*&core=pipeline");
-        params.put("images", "fq=annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotated_or_inferred_higherLevelMpTermName:*&core=images");
+        params.put("images", "fq=annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotatedHigherLevelMpTermName:*&core=images");
 
         String commonParam = "qf=auto_suggest&defType=edismax&wt=json&rows=0&q=*:*";
         final String geneParams      = "/gene/select?" + commonParam + "&" + params.get("gene");
