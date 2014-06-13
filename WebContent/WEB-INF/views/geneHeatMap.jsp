@@ -29,8 +29,8 @@
                 <th><span>Gene</span></th>
                 <th><span>Mice Produced</span></th>
                 <%-- <th><span>Primary Phenotype</span></th> --%>
-                	<c:forEach items="${parameters}" var="phenoParam">
-                		<th><span>${phenoParam.name}</span></th>
+                	<c:forEach items="${xAxisBeans}" var="xAxisBean">
+                		<th><span>${xAxisBean.name}</span></th>
                 	</c:forEach>
                 </tr>
                 </thead>
@@ -44,9 +44,10 @@
                 	<%-- <c:if test="${row.primaryPhenotype}"><td style="background-color:rgb(61, 167, 208)">Y</td></c:if>
                		<c:if test="${!row.primaryPhenotype}"><td style="background-color:rgb(3, 77, 105)">N</td></c:if>
                   --%>
-                    <c:forEach items="${parameters}" var="paramKey"> 
-                        <td  <c:if test="${row.paramToCellMap[paramKey].pValue!=null}">style="background-color:rgb(247, 157, 70)"</c:if><c:if test="${row.paramToCellMap[paramKey].pValue==null}">style="background-color: rgb(119, 119, 119)"</c:if>><%-- ${row.paramToCellMap[paramKey.stableId].mpTermName} --%>${row.paramToCellMap[paramKey].pValue}</td>
-                    </c:forEach>
+                    <c:forEach items="${xAxisBeans}" var="xAxisBean"> 
+                    <td>${row.XAxisToCellMap[xAxisBean.id].label}</td>
+                        <%-- <td  <c:if test="${row.XAxisToCellMap[paramKey].label!=''}">style="background-color:rgb(247, 157, 70)"</c:if><c:if test="${row.XAxisToCellMap[paramKey].label==''}">style="background-color: rgb(119, 119, 119)"</c:if>>${row.xAxisToCellMap[paramKey.stableId].label}${row.XAxisToCellMap[paramKey].id}</td>
+                    --%> </c:forEach>
                 </tr>
                 </c:forEach>
                 

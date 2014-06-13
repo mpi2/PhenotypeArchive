@@ -109,7 +109,7 @@ class SecondaryProjectIdgImpl extends HibernateDAOImpl implements
 				// associated with a Value or status ie. not phenotyped, not
 				// significant
 				GeneRowForHeatMap row = genotypePhenotypeService
-						.getResultsForGeneHeatMap(accession, gene, parameters);
+						.getResultsForGeneHeatMap(accession, gene, parameters, geneToTopLevelMpMap);
 				row.setMiceProduced(geneToMouseStatusMap.get(accession));
 				geneRows.add(row);
 			}

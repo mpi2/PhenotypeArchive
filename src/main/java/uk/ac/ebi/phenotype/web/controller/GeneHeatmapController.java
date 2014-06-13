@@ -50,9 +50,9 @@ public class GeneHeatmapController {
 		System.out.println("calling heatmap controller method");
 		SecondaryProjectDAO secondaryProjectDAO=this.getSecondaryProjectDao(project);
              List<GeneRowForHeatMap> geneRows = secondaryProjectDAO.getGeneRowsForHeatMap();
-             List<BasicBean> parameters = secondaryProjectDAO.getXAxisForHeatMap();
+             List<BasicBean> xAxisBeans = secondaryProjectDAO.getXAxisForHeatMap();
             model.addAttribute("geneRows", geneRows);
-            model.addAttribute("parameters", parameters);
+            model.addAttribute("xAxisBeans", xAxisBeans);
              return "geneHeatMap";
 	}
 

@@ -94,9 +94,9 @@ public class GenotypePhenotypeServiceTest {
             //gf.setAccession();
             GeneRowForHeatMap row = genotypePhenotypeService.getResultsForGeneHeatMap(accession,gf,  paramIds);
             assertTrue(row.getAccession().equals(accession));
-            assertFalse(row.getParamToCellMap().get("ESLIM_022_001_707").getMpTermName().equals(""));
-            assertFalse(row.getParamToCellMap().get("ESLIM_022_001_707").getpValue()==null);
-            assertTrue(row.getParamToCellMap().get("ESLIM_022_001_707").getpValue() < new Float(1));//this should have a significant p value or does at the moment of writing this test
+            assertFalse(row.getXAxisToCellMap().get("ESLIM_022_001_707").getMpTermName().equals(""));
+            assertFalse(row.getXAxisToCellMap().get("ESLIM_022_001_707").getpValue()==null);
+            assertTrue(row.getXAxisToCellMap().get("ESLIM_022_001_707").getpValue() < new Float(1));//this should have a significant p value or does at the moment of writing this test
             //http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select/?q=marker_accession_id:%22MGI:104874%22&rows=10000000&version=2.2&start=0&indent=on&wt=json&sort=p_value%20asc
         }
 		

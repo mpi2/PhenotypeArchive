@@ -361,20 +361,20 @@ public class StatisticalResultService {
             for (HeatMapCell cell : results) {
                 // System.out.println(doc.getFieldValues("p_value"));
 
-                String paramStableId = cell.getParameterStableId();
+                String paramStableId = cell.getxAxisKey();
                 // System.out.println("comparing"+cell.getParameterStableId()+"|");
-                if (paramMap.containsKey(cell.getParameterStableId())) {
-                    System.out.println("cell mp Term name=" + cell.getMpTermName());
-                    System.out.println("cell p value=" + cell.getpValue());
-                    System.out.println(cell.getpValue() + "found");
+                if (paramMap.containsKey(cell.getxAxisKey())) {
+                    System.out.println("cell mp Term name=" + cell.getLabel());
+                    System.out.println("cell p value=" + cell.getFloatValue());
+                    System.out.println(cell.getFloatValue() + "found");
                     paramMap.put(paramStableId, cell);
-                    if (row.getLowestPValue() > cell.getpValue()) {
-                        row.setLowestPValue(cell.getpValue());
+                    if (row.getLowestPValue() > cell.getFloatValue()) {
+                        row.setLowestPValue(cell.getFloatValue());
                     }
                 }
             }
 
-            row.setParamToCellMap(paramMap);
+            row.setXAxisToCellMap(paramMap);
         } catch (SolrServerException ex) {
             LOG.error(ex.getMessage());
         }
