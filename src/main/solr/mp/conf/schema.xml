@@ -161,7 +161,7 @@
 	<field name="inferred_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="inferred_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="inferred_selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="inferred_selected_top_level_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="inferred_selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
 
 	<field name="go_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
@@ -274,7 +274,7 @@
 	<!-- catchall text field that indexes tokens both normally and in reverse for efficient
 	leading wildcard queries. -->
 	<field name="text_rev" type="text_general_rev" indexed="true" stored="false" multiValued="true"/>
-   
+   	<field name="selected_top_level_ma_term" type="string" indexed="true" stored="false" multiValued="true" />	
  </fields>
 
 	<uniqueKey>mp_id</uniqueKey>
