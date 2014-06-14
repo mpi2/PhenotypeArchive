@@ -320,7 +320,7 @@
 	<copyField source="inferred_selected_top_level_ma_id" dest="auto_suggest" />
 	<copyField source="inferred_selected_top_level_ma_term" dest="auto_suggest" />	
 	<copyField source="inferred_selected_top_level_ma_term" dest="annotated_or_inferred_higherLevelMaTermName" />
-
+	<copyField source="inferred_selected_top_level_ma_term" dest="selected_top_level_ma_term" />
 
 	<copyField source="allele_id" dest="auto_suggest" />
 	<copyField source="allele_symbol" dest="auto_suggest" /> 
