@@ -28,11 +28,8 @@
             </entity>
 
             <!-- MA to MP mapping based on MP to MA bridg file prepared by Terry with MP slim -->
-            <!-- the group decided not to do this on 20140523 -->
-            
-                
-               
- 			
+            <!-- the group decided not to do this on 20140523: MA has no quality component in EQ model -->
+           
             <entity dataSource="ontodb" name="ma_node2term"
             	query="select node_id from ma_node2term where term_id='${ma_term_infos.term_id}'">
 
@@ -76,7 +73,8 @@
 				<field column="annotationTermId" xpath="/response/result/doc/arr[@name='annotationTermId']/str" />			
 				<field column="maTermId" xpath="/response/result/doc/arr[@name='mpTermId']/str" />
 				<field column="maTermName" xpath="/response/result/doc/arr[@name='mpTermName']/str" />
-				<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />				
+				<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />	
+							
 			</entity>
 
              <!-- top level term and/or top level term from part_of relationship of a given anatomy term id -->
@@ -92,18 +90,6 @@
            					<field column="name" name="top_level_ma_term" />            				
 						</entity>
 					</entity>
-					<!-- continue with null value for top_level_id from part_of relationship 
-					<entity  dataSource="ontodb" name="ma_node_top_level_part_of"  onError="continue" 
-                        query="select top_level_node_id from ma_node_top_level_part_of where node_id=${ma_node_top_level.node_id}" >
-						<entity  dataSource="ontodb" name="ma_node2term" onError="continue"
-                            query="select term_id from ma_node2term where node_id=${ma_node_top_level_part_of.top_level_node_id}" >				
-                        	<entity  dataSource="ontodb" name="ma_term_infos" onError="continue"
-                                query="select term_id, name from ma_term_infos where term_id='${ma_node2term.term_id}'" >
-								<field column="term_id" name="top_level_ma_id_part_of" />
-           						<field column="name" name="top_level_ma_term_part_of" />            					
-							</entity>
-						</entity>
-					</entity>-->
 				</entity>			
 			</entity>
 		</entity>	
