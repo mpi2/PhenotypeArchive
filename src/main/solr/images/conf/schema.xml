@@ -292,8 +292,6 @@
 	<field name="text"   type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
 	<field name="text_search" type="text_general" indexed="true" stored="false" multiValued="true"/>   
-
-    <field name="top_level_mp_term" type="string" indexed="true" stored="false" multiValued="true"/>/>
    	
  </fields>
 
