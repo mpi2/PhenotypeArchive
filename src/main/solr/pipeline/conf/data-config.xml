@@ -57,7 +57,6 @@
 					<field column="id" name="procedure_id" />                               
 					<field column="stable_id" name="procedure_stable_id" />
 
-
 					<field column="name" name="procedure_name" />
 					<field column="proc_name_id" name="proc_name_id" />
 
