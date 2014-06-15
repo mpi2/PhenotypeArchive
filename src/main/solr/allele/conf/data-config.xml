@@ -136,10 +136,10 @@
 
 			<!-- check if this gene has been indexed in experiment core, if yes we treat phenotyping status as available -->
 			<entity dataSource="experiment_core" name="qcCheck" stream="true"  onError="continue"
-				url="q=gene_accession:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;fl=gene_accession&amp;rows=1"
+				url="q=gene_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;fl=gene_accession_id&amp;rows=1"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/" transformer="script:hasQc" >				
 
-				<field column="qcGene" xpath="/response/result/doc/str[@name='gene_accession']" />	
+				<field column="qcGene" xpath="/response/result/doc/str[@name='gene_accession_id']" />	
 				<field column="hasQc" name="hasQc" />		
 			</entity>			
 			
