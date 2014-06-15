@@ -37,10 +37,8 @@
                         <div id="top" class="content node">
         
                             
-<div>
-    <div>
 
-        <h3>REST API documentation for IMPC and Legacy experimental raw data access</h3>
+        <h1>REST API documentation for IMPC and Legacy experimental raw data access</h1>
 
         <p>The experimental data set contains data observations from experiments conducted for the Europhenome project (see <a href="http://www.europhenome.org">http://www.europhenome.org</a>) and for the International Mouse Phenotype Consortium (IMPC) project (see <a href="http://www.mousephenotype.org">http://www.mousephenotype.org</a>). A record in this resource represents a single data point for an experiment. The list of experiments performed are documented in the International Mouse Phenotyping Resource of Standardised Screens (IMPREeSS, see <a href="http://www.mousephenotype.org/impress">http://www.mousephenotype.org/impress</a>). Individual data points are associated to an IMPReSS <strong>Parameter</strong>. Parameters are organised into Procedures. Procedures are organised into Pipelines.</p>
 
@@ -230,8 +228,6 @@
 <span class="s1">'http://www.ebi.ac.uk/mi/impc/solr/experiment/select?q=phenotyping_center:%22MRC%20Harwell%22%20AND%20pipeline_name:%22EUMODIC%20Pipeline%201%22%20AND%20observation_type:unidimensional&amp;wt=json&amp;indent=true'</span>
 </pre>
 
-        </div>
-    </div>                            
                             
                         </div><%-- end of content div--%>
                     </div>
