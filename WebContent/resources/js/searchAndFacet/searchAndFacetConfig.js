@@ -33,7 +33,6 @@ var config = MPI2.searchAndFacetConfig;
 
 config.matchedFacet = false;
 config.widgetOpen = false;
-config.hasFilters = false;
 
 // on drupal side this is not available
 if ( typeof solrUrl == 'undefined' ){
@@ -44,12 +43,7 @@ if ( typeof baseUrl == 'undefined' ){
 	baseUrl = '/data';
 }
 
-config.cores = ['gene', 'mp', 'disease', 'ma', 'pipeline', 'images'];
-config.restfulPrefix = {
-		'gene' : 'genes',
-		'mp'   : 'phenotypes',
-		'ma'   : 'anatomy'		
-};
+config.megaCores = ['gene', 'mp', 'disease', 'ma', 'pipeline', 'images'];
 
 config.geneStatuses = ['Phenotype Data Available',
                'Mice Produced',
@@ -69,38 +63,49 @@ config.phenotypingStatusFq2Label = {
 		'imits_phenotype_started'  : 'Started',
 		'imits_phenotype_status'   : 'Attempt Registered'
 };
+/*
 
-config.subType2MarkerTypeMapping = {
-		'subtype' : 'marker_type'
-}
-config.markerType2SubTypeMapping = {
-		'marker_type' : 'subtype'
-}
 config.expName2ProcSidMapping = {
-		'Dysmorphology' : 'IMPC_CSD_002',
-		'Eye Morphology' : 'IMPC_EYE_001',
-		'Flow Cytometry' : 'IMPC_FAC_001',
-		'Histology Slide' : 'IMPC_HIS_001',
-		'Wholemount Expression' : 'IMPC_ALZ_001',
-		'Xray' : 'IMPC_XRY_001',				
+		'Dysmorphology' : 'IMPC_CSD*',
+		'Eye Morphology' : 'IMPC_EYE*',
+		'Flow Cytometry' : 'IMPC_FAC*',
+		'Histology Slide' : 'IMPC_HIS*',
+		'Wholemount Expression' : 'IMPC_ALZ*',
+		'Xray' : 'IMPC_XRY*',				
 		'expName:' : 'procedure_stable_id:'				
 };	
 config.procSid2ExpNameMapping = {
-		'IMPC_CSD_002' : 'Dysmorphology',
-		'IMPC_EYE_001' : 'Eye Morphology',
-		'IMPC_FAC_001' : 'Flow Cytometry',
-		'IMPC_HIS_001' : 'Histology Slide',
-		'IMPC_ALZ_001' : 'Wholemount Expression',
-		'IMPC_XRY_001' : 'Xray',				
+		'IMPC_CSD*' : 'Dysmorphology',
+		'IMPC_EYE*' : 'Eye Morphology',
+		'IMPC_FAC*' : 'Flow Cytometry',
+		'IMPC_HIS*' : 'Histology Slide',
+		'IMPC_ALZ*' : 'Wholemount Expression',
+		'IMPC_XRY*' : 'Xray',				
 		'procedure_stable_id:' : 'expName:' 				
 };	
+*/
 
+config.qfield2facet = {
+	'imits_phenotype_complete'   : 'gene',
+	'imits_phenotype_started'    : 'gene',
+	'imits_phenotype_status'     : 'gene',
+	'status'                     : 'gene',
+	'marker_type'                : 'gene',
+	'top_level_mp_term'          : 'mp',
+	'selected_top_level_ma_term' : 'ma',
+	'procedure_stable_id'        : 'pipeline',
+	'disease_classes' 			 : 'disease',
+	'disease_source'			 : 'disease',
+	'human_curated'              : 'disease',
+	'mouse_curated'              : 'disease', 
+	'impc_predicted'             : 'disease',
+	'impc_predicted_in_locus'    : 'disease',
+	'mgi_predicted'              : 'disease',
+	'mgi_predicted_in_locus'     : 'disease'
+}
 config.facetFilterLabel = {
 	'phenotyping_center'         : 'phenotyping_center',
 	'production_center'          : 'production_center',
-	//'imits_phenotype_complete'   : 'phenotyping_status',
-	//'imits_phenotype_started'    : 'phenotyping_status',
-	//'imits_phenotype_status'     : 'phenotyping_status',
 	'imits_phenotype_complete'   : 'phenotyping',
 	'imits_phenotype_started'    : 'phenotyping',
 	'imits_phenotype_status'     : 'phenotyping',
@@ -124,48 +129,7 @@ config.facetFilterLabel = {
 	'mgi_predicted'              : 'From MGI data',//'MGI_predicted',
 	'mgi_predicted_in_locus'     : 'From MGI data in linkage locus',//'MGI_predicted_in_locus'	
 };
-
-config.filterMapping = {
-		//gene
-		/*'imits_phenotype_complete|1':{'class':'inprogressphenotyping', 'facet':'gene'},		
-		'imits_phenotype_started|1' : {'class':'phenotyping', 'facet':'gene'},		
-		'imits_phenotype_status|Phenotype Attempt Registered' : {'class':'phenotyping', 'facet':'gene'},
-		'status|Mice Produced' : {'class':'production', 'facet':'gene'},		
-		'status|Assigned for Mouse Production and Phenotyping' : {'class':'production', 'facet':'gene'},
-		'status|ES Cells Produced' : {'class':'production', 'facet':'gene'},
-		'status|Assigned for ES Cell Production' : {'class':'production', 'facet':'gene'},
-		'status|Not Assigned for ES Cell Production' : {'class':'production', 'facet':'gene'},
-		'marker_type' : {'class':'marker_type', 'facet':'gene'},*/
-		
-		'imits_phenotype_complete':{'class':'inprogressphenotyping', 'facet':'gene'},		
-		'imits_phenotype_started' : {'class':'phenotyping', 'facet':'gene'},
-		'imits_phenotype_status' : {'class':'phenotyping', 'facet':'gene'},
-		'status' : {'class':'production', 'facet':'gene'},		
-		'marker_type' : {'class':'marker_type', 'facet':'gene'},
-		
-		
-		// mp, ma
-		'mp' : {'class':'', 'facet':'mp'},
-		'ma' : {'class':'', 'facet':'ma'},
-		'annotated_or_inferred_higherLevelMxTermName' : {'class':'', 'facet':'mp'},
-		
-		// disease
-		'disease_source' : {'class':'disease_source', 'facet':'disease'},
-		'disease_classes' : {'class':'disease_classes', 'facet':'disease'},
-		'human_curated' : {'class':'curated', 'facet':'disease'},
-		'mouse_curated' : {'class':'curated', 'facet':'disease'},
-		'impc_predicted' : {'class':'predicted', 'facet':'disease'},
-		'impc_predicted_in_locus' : {'class':'predicted', 'facet':'disease'},
-		'mgi_predicted' : {'class':'predicted', 'facet':'disease'},
-		'mgi_predicted_in_locus' : {'class':'predicted', 'facet':'disease'},
-		
-		// pipeline: using ajax		
-		
-		// images
-		'imgMp' : {'class':'annotatedHigherLevelMpTermName', 'facet':'images'},
-		'imgMa' : {'class':'annotated_or_inferred_higherLevelMaTermName', 'facet':'images'},
-};
-
+/*
 var megaFacetFields = ['status', 'imits_phenotype_complete', 'imits_phenotype_started', 'imits_phenotype_status', 
                        'mgi_accession_id', 'marker_type', 'top_level_mp_term', 'mp_term', 
                        'inferred_selected_top_level_ma_term', 'inferred_ma_term', 
@@ -174,7 +138,10 @@ var facetFieldsStr = '';
 for ( var i=0; i<megaFacetFields.length; i++){
 	facetFieldsStr += '&facet.field=' + megaFacetFields[i];
 }
+*/
+/*
 var facetMod = "&facet=on&facet.limit=-1&facet.mincount=1";
+
 config.mega = {};
 config.mega.facetParams = facetMod + facetFieldsStr;
 config.mega.Facets = {
@@ -186,6 +153,7 @@ config.mega.Facets = {
 //config.solrBaseURL_bytemark = 'http://dev.mousephenotype.org/bytemark/solr/';
 config.solrBaseURL_bytemark = solrUrl + '/';
 config.solrBaseURL_ebi = solrUrl + '/';
+*/
 
 config.searchSpin = "<img src='img/loading_small.gif' />";
 config.spinner = "<img src='img/loading_small.gif' /> Processing search ...";

@@ -39,7 +39,7 @@
 	    _initFacet: function(){
 	    	var self = this;
 	    	var fq = self.options.data.hashParams.fq;
-	    	
+	    	var facetField = 'top_level_mp_term';
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('mp', self.options.data.hashParams.q, oParams);
 	    	
@@ -49,8 +49,8 @@
 				'facet': 'on',								
 				'facet.mincount': 1,
 				'facet.limit': -1,
-				//'facet.field': 'top_level_mp_term',
-				'facet.field': 'annotatedHigherLevelMpTermName',
+				'facet.field': facetField,
+				//'facet.field': 'annotatedHigherLevelMpTermName',
 				'facet.sort': 'index',						
 				'q.option': 'AND',
 				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
@@ -63,7 +63,8 @@
 	    		'success': function(json) {
 	    			//console.log(json);
 	    				    	    	
-	    	    	var aTopLevelCount = json.facet_counts.facet_fields['annotatedHigherLevelMpTermName'];	    	    
+	    	    	//var aTopLevelCount = json.facet_counts.facet_fields['annotatedHigherLevelMpTermName'];	 
+	    	    	var aTopLevelCount = json.facet_counts.facet_fields[facetField];
 	    	    	var mpUlContainer = $("<ul></ul>");
 	    	    	
 	    	    	// top level MP terms
@@ -74,7 +75,8 @@
 	    	    		var liContainer = $("<li></li>").attr({'class':'fcat'});
 	        				        		
 	        			var count = aTopLevelCount[i+1];						
-	        			var coreField = 'mp|annotatedHigherLevelMpTermName|' + aTopLevelCount[i] + '|' + count;
+	        			//var coreField = 'mp|annotatedHigherLevelMpTermName|' + aTopLevelCount[i] + '|' + count;
+	        			var coreField = 'mp|' + facetField + '|' + aTopLevelCount[i] + '|' + count;
 						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});
 							    	    		
 	    	    		var flabel = $('<span></span>').attr({'class':'flabel'}).text(aTopLevelCount[i].replace(' phenotype', ''));
@@ -87,23 +89,18 @@
 	        		$('div.flist li#mp > ul').append(mpUlContainer);  
 	        		$.fn.initFacetToggles('mp');
 	        		
-	        		// when facet widget is open, flag it so that we know there are existing filters 
-	    			// that need to be checked and highlighted
-	    			$.fn.checkAndHighlightSubfacetTerms();
-	        		
 	        		$('li#mp li.fcat input').click(function(){	
 	        			$('div.flist li#mp').click();
 	        			// // highlight the item in facet	    			
 	        			$(this).siblings('span.flabel').addClass('highlight');
-	    				$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
+	    				$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 	    			});    		
 	        		
-	        		/*------------------------------------------------------------------------------------*/
-	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
-	    	    	/*------------------------------------------------------------------------------------*/	
-	        		if ( self.options.data.hashParams.fq.match(/.*/) ){	        			
-	        			$.fn.parseUrlFordTableAndFacetFiltering(self);	        			
-	        		}	    			   			
+	        		/*--------------------------------------------------------------------------------------------------------------------------*/
+	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
+	    	    	/*--------------------------------------------------------------------------------------------------------------------------*/	
+	    	    	
+	    	    	$.fn.parseUrl_consturctFilters_loadDataTable(self);			   			
 	    		}		
 	    	});		    	
 	    },	   
