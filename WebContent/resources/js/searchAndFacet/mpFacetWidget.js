@@ -89,10 +89,6 @@
 	        		$('div.flist li#mp > ul').append(mpUlContainer);  
 	        		$.fn.initFacetToggles('mp');
 	        		
-	        		// when facet widget is open, flag it so that we know there are existing filters 
-	    			// that need to be checked and highlighted
-	    			//$.fn.checkAndHighlightSubfacetTerms();
-	        		
 	        		$('li#mp li.fcat input').click(function(){	
 	        			$('div.flist li#mp').click();
 	        			// // highlight the item in facet	    			

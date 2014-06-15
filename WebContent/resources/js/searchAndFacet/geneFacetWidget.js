@@ -243,10 +243,6 @@
 	    		$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
 	    			    		
 	    		$.fn.initFacetToggles('gene');
-	    			    		
-	    		// when facet widget is open, flag it so that we know there are existing filters 
-    			// that need to be checked and highlighted
-    			//$.fn.checkAndHighlightSubfacetTerms();	    		
 	    		
 	    		$('li#gene li.fcat input').click(function(){	    			
 	    			// // highlight the item in facet	    			

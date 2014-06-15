@@ -126,10 +126,6 @@
   					
   	    			$.fn.initFacetToggles('images');
   	    			
-  	    			// when facet widget is open, flag it so that we know there are existing filters 
-	    			// that need to be checked and highlighted
-	    			//$.fn.checkAndHighlightSubfacetTerms();
-  	    			
 	  	      		$('li#images li.fcat input').click(function(){	    			
 	  	      			// // highlight the item in facet	    			
 	  	      			$(this).siblings('span.flabel').addClass('highlight');
