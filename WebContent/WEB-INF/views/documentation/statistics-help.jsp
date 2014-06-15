@@ -52,7 +52,7 @@
                             <p>
                             All analysis frameworks output a statistical significance measure, 
                             an effect size measure, model diagnostics (when appropriate), 
-                            and <a href="${baseUrl}/documentation/graph-help">graphical visualisation</>.
+                            and <a href="${baseUrl}/documentation/graph-help">graphical visualisation</a>.
                             </p>
                             
                             <p>
@@ -95,7 +95,7 @@
 
                             <p>
                             If PhenStat assumptions about the data are not met, a second attempt at analyzing the data
-                            will be attempted -- a Mann–Whitney U Rank Sum test.
+                            will be attempted -- a Mann-Whitney U Rank Sum test.
                             </p>
                             
                             
