@@ -52,10 +52,16 @@
   				}, MPI2.searchAndFacetConfig.commonSolrParams);  	    	  	    	
   	    	
   	    	var paramStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
-  	    		+ "&facet.field=expName"
-  	    		+ "&facet.field=annotatedHigherLevelMpTermName"
-  	    		+ "&facet.field=annotated_or_inferred_higherLevelMaTermName"
-  	    		+ "&facet.field=subtype"
+  	    		//+ "&facet.field=expName"
+  	    		//+ "&facet.field=annotatedHigherLevelMpTermName"
+  	    		//+ "&facet.field=annotated_or_inferred_higherLevelMaTermName"
+  	    		//+ "&facet.field=subtype"
+  	    	
+  	    		// using copyFields so that solr query field is consistent across facets
+  	    		+ "&facet.field=procedure_name"
+  	    		+ "&facet.field=top_level_mp_term"
+  	    		+ "&facet.field=selected_top_level_ma_term"
+  	    		+ "&facet.field=marker_type"
   	    		    	
   	    	$.ajax({	
   	    		'url': solrUrl + '/images/select',  	    		
@@ -66,23 +72,21 @@
   	    			
   	    			
   	    			var foundMatch = {'Phenotype':0, 'Anatomy':0, 'Procedure':0, 'Gene':0};  	    			
-  	    			var aFacetFields = json.facet_counts.facet_fields; // eg. expName, symbol..  	    			
-  	    			var aSubFacetNames = [];
+  	    			var aFacetFields = json.facet_counts.facet_fields; // eg. expName, symbol..  	
   	    			
-  	    			// do some sorting for facet names, but put Phenotype subfacet on front of list
-  	    			for ( var facetName in aFacetFields ){ 	
-  	    				if (facetName != 'annotatedHigherLevelMpTermName' ){
-  	    					aSubFacetNames.push(facetName);
-  	    				}
-  	    			}	
-  	    			aSubFacetNames.sort();
-  	    			aSubFacetNames.unshift('annotatedHigherLevelMpTermName');
-  	    			  	    			
+  	    			// appearance order of subfacets
+  	    			var aSubFacetNames = ['top_level_mp_term','selected_top_level_ma_term','procedure_name','marker_type'];
+  	    			
   	    			var displayLabel = {
-  	    								annotated_or_inferred_higherLevelMaTermName: 'Anatomy',
+  	    								/*annotated_or_inferred_higherLevelMaTermName: 'Anatomy',
   	    								expName : 'Procedure',	    					            
   	    								annotatedHigherLevelMpTermName: 'Phenotype',
   	    					            subtype: 'Gene'
+  	    					            */
+  	    					            top_level_mp_term: 'Phenotype',
+  	    								procedure_name : 'Procedure',	    					            
+  	    								selected_top_level_ma_term: 'Anatomy',
+  	    					            marker_type: 'Gene'
   	    								};	    			    			    			
   	    			    			
   	    			   
@@ -124,21 +128,19 @@
   	    			
   	    			// when facet widget is open, flag it so that we know there are existing filters 
 	    			// that need to be checked and highlighted
-	    			$.fn.checkAndHighlightSubfacetTerms();
+	    			//$.fn.checkAndHighlightSubfacetTerms();
   	    			
 	  	      		$('li#images li.fcat input').click(function(){	    			
 	  	      			// // highlight the item in facet	    			
 	  	      			$(this).siblings('span.flabel').addClass('highlight');
-	  	  				$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
+	  	  				$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 	  	  			});
 	  	      		
-	  	    	    /*------------------------------------------------------------------------------------*/
-	  	  	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
-	  	  	    	/*------------------------------------------------------------------------------------*/ 
-	  	    	    		
-	  	      		if ( self.options.data.hashParams.fq.match(/.*/) ){ 	
-	  	      			$.fn.parseUrlFordTableAndFacetFiltering(self);	
-	  	      		}
+	  	      		/*--------------------------------------------------------------------------------------------------------------------------*/
+	  		    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
+	  		    	/*--------------------------------------------------------------------------------------------------------------------------*/	
+	  		    	
+	  		    	$.fn.parseUrl_consturctFilters_loadDataTable(self);
 	  	    	    		
   	    	    	// when last facet is done
   	    	    	$('div#facetBrowser').html(MPI2.searchAndFacetConfig.endOfSearch);  	    			

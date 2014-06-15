@@ -177,52 +177,20 @@
 	    		$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
     			
     			$.fn.initFacetToggles('disease');
-    			
-    			// when facet widget is open, flag it so that we know there are existing filters 
-    			// that need to be checked and highlighted
-    			$.fn.checkAndHighlightSubfacetTerms();
 	    			    			    		
 	    		$('li#disease li.fcat input').click(function(){	    			
 	    			// // highlight the item in facet	    			
 	    			$(this).siblings('span.flabel').addClass('highlight');
-					$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
+					$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 				});   			
     				  		
     		}
 	    	
-	    	/*--------------------------console.log('inside here');	----------------------------------------------------------*/
-	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
-	    	/*------------------------------------------------------------------------------------*/	
+	    	/*--------------------------------------------------------------------------------------------------------------------------*/
+	    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
+	    	/*--------------------------------------------------------------------------------------------------------------------------*/	
 	    	
-	    	
-	    	if ( self.options.data.hashParams.fq.match(/.*/) ){	
-	    		$.fn.parseUrlFordTableAndFacetFiltering(self);
-	    		/*console.log('disease widget loaded ...');
-    			var oHashParams;
-    			if ( MPI2.searchAndFacetConfig.hasFilters ){
-	    			MPI2.searchAndFacetConfig.hasFilters = false;
-	    			oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-	    			oHashParams.widgetName = oHashParams.facetName + 'Facet';
-	    		}
-	    		else {    	    			
-	    			self.options.data.hashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');
-	    			oHashParams = self.options.data.hashParams;
-	    		}	
-    			
-    			console.log(oHashParams);
-    			if ( oHashParams.coreName ){
-    				$.fn.loadDataTable(oHashParams);
-    			}
-    			else if (oHashParams.facetName ) {
-    				$.fn.loadDataTable(oHashParams);
-        			console.log('disease widget open check: ' + MPI2.searchAndFacetConfig.widgetOpen);
-        			    		    		    		    		
-    		    	var refreshFacet = true;
-    		    	$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, refreshFacet);
-    		    	
-    			}*/
-	    		
-    		}
+	    	$.fn.parseUrl_consturctFilters_loadDataTable(self);
 	    },	       
 	  
 	    destroy: function () {    	   

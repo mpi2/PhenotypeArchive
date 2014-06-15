@@ -285,16 +285,13 @@
     						//oHashParams.facetName = facet + 'Facet';
     						oHashParams.facetName = facet;	    						
     					}
-    						
+    					
     					$.fn.loadDataTable(oHashParams);
     				}
    				}
     			else {	    				   				  				
     				//console.log('back button');	    				
     				//console.log(oHashParams);
-    				    			
-    				var refreshFacet = oHashParams.coreName ? false : true;    				
-					$.fn.parseUrlForFacetCheckboxAndTermHighlight(oHashParams, refreshFacet);
     				
     				$.fn.loadDataTable(oHashParams);
     			}
