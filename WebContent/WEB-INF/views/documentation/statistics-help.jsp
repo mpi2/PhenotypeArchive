@@ -45,7 +45,15 @@
                             that alleviates manual intervention is required.</p>
                             
                             <p>The IMPC uses multiple methods for analysing the data produced by phenotyping centers.
-                            The pipeline has been formalized into an R package called <a href="http://bioconductor.org/packages/release/bioc/html/PhenStat.html">PhenStat</a></p>.
+                            The pipeline has been formalized into an R package called 
+                            <a href="http://bioconductor.org/packages/release/bioc/html/PhenStat.html">PhenStat</a>.
+                            </p>
+
+                            <p>
+                            All analysis frameworks output a statistical significance measure, 
+                            an effect size measure, model diagnostics (when appropriate), 
+                            and <a href="${baseUrl}/documentation/graph-help">graphical visualisation</>.
+                            </p>
                             
                             <p>
                             The PhenStat package provides statistical methods for 
@@ -77,7 +85,14 @@
                             	Assume batch is normally distributed with defined variance.
                             	</small></p>
                             </blockquote>
- 
+                            
+                            <p>
+                            The Mixed Model framework is an iterative process to select the 
+                            best model for the data which considers both the best modelling 
+                            approach (mixed model or general linear regression) 
+                            and which factors to include in the model.
+                            </p>
+
                             <p>
                             If PhenStat assumptions about the data are not met, a second attempt at analyzing the data
                             will be attempted -- a Mann–Whitney U Rank Sum test.
