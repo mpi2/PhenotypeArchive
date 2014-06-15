@@ -59,10 +59,10 @@
     <dependencies>
 
         <dependency>
-    <groupId>org.yaml</groupId>
-    <artifactId>snakeyaml</artifactId>
-    <version>1.14-SNAPSHOT</version>
-  </dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.14-SNAPSHOT</version>
+        </dependency>
 
         <!--Phenodigm disease pages dependencies -->
         <dependency>
@@ -561,11 +561,12 @@
     </dependencies>
 
    <repositories>
-         <repository>
-    <id>Sonatype-public</id>
-    <name>SnakeYAML repository</name>
-    <url>http://oss.sonatype.org/content/groups/public/</url>
-  </repository>
+       
+        <repository>
+            <id>Sonatype-public</id>
+            <name>SnakeYAML repository</name>
+            <url>http://oss.sonatype.org/content/groups/public/</url>
+        </repository>
   
         <!-- OWL TOOLS -->
         <repository>

@@ -147,11 +147,13 @@ public class AllelesController {
 
         log.info("#### AllelesController::alleles");
         
-        String path = request.getContextPath();
-        log.error("#### path: " + path);
+       // String path = request.getContextPath();
+       // log.error("#### path: " + path);
+        
+       log.error("#### Working Directory = " + System.getProperty("user.dir"));
 
         Yaml yaml = new Yaml();
-        String content = FileUtils.readFileToString(new File("/tmp/yaml_test.yml"));
+        String content = FileUtils.readFileToString(new File("/var/tmp/yaml_test.yml"));
         Map<String, Object> list = (Map<String, Object>) yaml.load(content);
         
         Map<String, Object> list2 = (Map<String, Object>)list.get(acc);
@@ -182,11 +184,13 @@ public class AllelesController {
         
         model.addAttribute("mice_blurb", list2.get("mice_blurb"));
 
+        model.addAttribute("tools", (List<Map<String, String>>)list2.get("tools"));
+
 //        Yaml yaml = new Yaml();
 //        Map<String, Object> list = new HashMap<>();
 //        list.put("MGI:1929293", model.asMap());
 //        String output = yaml.dump(list);
-//        FileUtils.writeStringToFile(new File("/tmp/yaml_test.yml"), output);
+//        FileUtils.writeStringToFile(new File("/var/tmp/yaml_test.yml"), output);
 
         return "alleles";
     }    
@@ -229,7 +233,7 @@ public class AllelesController {
         Map<String, Object> list = new HashMap<>();
         list.put("MGI:1929293", model.asMap());
         String output = yaml.dump(list);
-        FileUtils.writeStringToFile(new File("/tmp/yaml_test.yml"), output);
+        FileUtils.writeStringToFile(new File("/var/tmp/yaml_test.yml"), output);
 
         return "alleles";
     }

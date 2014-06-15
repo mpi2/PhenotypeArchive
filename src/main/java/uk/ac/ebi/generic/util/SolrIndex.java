@@ -978,11 +978,11 @@ public class SolrIndex {
 
             log.info("url for getGeneAllele2Info=" + url);
 
-            JSONObject jsonObject = getResults(url);
+            JSONObject jsonObject1 = getResults(url);
             
             //int numFound = Integer.parseInt(jsonObject.getJSONObject("response").getString("numFound"));
 
-            JSONArray docs = jsonObject.getJSONObject("response").getJSONArray("docs");
+            JSONArray docs = jsonObject1.getJSONObject("response").getJSONArray("docs");
 
             if (docs.size() < 1) {
                 log.info("No rows returned for the query!");
@@ -995,20 +995,20 @@ public class SolrIndex {
             List<Map<String, String>> genes = new ArrayList<>();
 
             for (Object doc : docs) {
-                JSONObject jsonObject = (JSONObject) doc;
+                JSONObject jsonObject2 = (JSONObject) doc;
 
                 HashMap<String, String> map = new HashMap<>();
                 
                 for(String s : stringArray) {
-                    String o = jsonObject.getString(s);
+                    String o = jsonObject2.getString(s);
                     map.put(s, o);
                 }
 
-                if (jsonObject.has("allele_type")) {
-                    if (jsonObject.getString("allele_type").equals("Conditional Ready")){
+                if (jsonObject2.has("allele_type")) {
+                    if (jsonObject2.getString("allele_type").equals("Conditional Ready")){
                         map.put("alleleType", "Knockout First, Reporter-tagged insertion with conditional potential");
                     }
-                    else if (jsonObject.getString("allele_type").equals("Deletion")){
+                    else if (jsonObject2.getString("allele_type").equals("Deletion")){
                         map.put("alleleType", "Reporter-Tagged Deletion");
                     }
                 }
@@ -1027,11 +1027,11 @@ public class SolrIndex {
 
             log.info("url for getGeneProductInfo=" + url);
 
-            JSONObject jsonObject = getResults(url);
+            JSONObject jsonObject1 = getResults(url);
             
             //int numFound = Integer.parseInt(jsonObject.getJSONObject("response").getString("numFound"));
 
-            JSONArray docs = jsonObject.getJSONObject("response").getJSONArray("docs");
+            JSONArray docs = jsonObject1.getJSONObject("response").getJSONArray("docs");
 
             if (docs.size() < 1) {
                 log.info("No rows returned for the query!");
@@ -1046,18 +1046,18 @@ public class SolrIndex {
             List<Map<String, Object>> genes = new ArrayList<>();
 
             for (Object doc : docs) {
-                JSONObject jsonObject = (JSONObject) doc;
+                JSONObject jsonObject2 = (JSONObject) doc;
 
                 HashMap<String, Object> map = new HashMap<>();
                 
                 for(String s : stringArray) {
-                    String o = jsonObject.getString(s);
+                    String o = jsonObject2.getString(s);
                     map.put(s, o);
                 }
 
                 for(String s : multiValued) {
                     List<String> ss = new ArrayList<>();
-                    JSONArray array = jsonObject.getJSONArray(s);
+                    JSONArray array = jsonObject2.getJSONArray(s);
                     for (int k = 0; k < array.size() ; k++){
                         ss.add(array.getString(k));
                     }

@@ -149,45 +149,48 @@
 
 	<jsp:body>
 
-                        <h1 class="title" id="top">${symbol}</h1>
+<h1 class="title" id="top">${symbol}</h1>
+
+</br>
+
+
+
+
+<div class="section">
+    <div class="inner">
+    <h3>Summary</h3>
+    <div style="font-size: 120%; font-weight: bold;">
+        <p>${allele_description}</p>
+        <c:if test="${not empty statuses}">
+          <c:forEach var="status" items="${statuses}" varStatus="statusx">
+            <p>${status['TEXT']}                         
+            <c:if test="${not empty status['ORDER']}">
+              <td><a class="btn" href="${status['ORDER']}"> <i class="fa fa-shopping-cart"></i> ORDER </a></td>
+            </c:if>
+            <c:if test="${not empty status['CONTACT']}">
+              <!-- TODO: turn orange-->
+              <td><a class="btn" href="${status['CONTACT']}"> <i class="fa fa-shopping-cart"></i> CONTACT </a></td>
+            </c:if>
+            <c:if test="${not empty status['DETAILS']}">
+              <td><a class="btn" href="${status['DETAILS']}"> <i class="fa fa-shopping-cart"></i> DETAILS </a></td>
+            </p>
+            </c:if>
+        </c:forEach>	
+        </c:if>			
+    </div>
+    </div>
+</div>
+
+
+
+
                         
-                        </br>
-
-	<div class="section">
-            
                         
-            
-          		<div class="inner">
-			<h3>Summary</h3>
-
                         
-                <div style="font-size: 120%; ">
-                        <p>${allele_description}</p>
-
-
-
-            <c:if test="${not empty statuses}">
-                <c:forEach var="status" items="${statuses}" varStatus="statusx">
-                    <p>${status['TEXT']}                         
-                        <c:if test="${not empty status['ORDER']}">
-                            <a href="${status['ORDER']}">ORDER</a>&nbsp;
-                        </c:if>
-
-                        <c:if test="${not empty status['CONTACT']}">
-                            <a href="${status['CONTACT']}">ORDER</a>&nbsp;
-                        </c:if>
-
-                        <c:if test="${not empty status['DETAILS']}">
-                            <a href="${status['DETAILS']}">DETAILS</a></p>
-                        </c:if>
-                </c:forEach>	
-            </c:if>			
-                </div>
-                
-                
-                
-		</div>
-	</div>
+                        
+                        
+                        
+                        
 
 	<div class="section">
 		<div class="inner">
@@ -197,7 +200,11 @@
             <img src="${map_image}" width="930px">        
         </div>
                         
-                        
+
+        
+        
+        
+        
                         
         <table style="font-size: 150%; ">         
             <tr>
@@ -227,6 +234,11 @@
 </c:if>	
 </div>
             </td>
+            
+    <c:forEach var="tool" items="${tools}" varStatus="toolsx">
+            <td><a href="${tool['url']}">${tool['name']}</a></td>
+    </c:forEach>	
+            
             </tr>
         </table>
         
@@ -326,8 +338,8 @@
                 <td>${mouse['genetic_background']}</td>
                 <td>${mouse['production_centre']}</td>
                 <td>${mouse['es_cell']}</td>
-                <td style="text-align: center;"><a href="${mouse['southern_tool']}">Southern tool</a></td>
-                <td><a class="btn" href="${mouse['order_url']}"> <i class="fa fa-shopping-cart"></i> ${mouse['order_name']} </a></td>
+                <td style="text-align: center;"><a href="${mouse['qc_data']}">QC data</a> / <a href="${mouse['southern_tool']}">Southern tool</a></td>
+                <td><a class="btn" href="${mouse['order_url']}"> <i class="fa fa-shopping-cart"></i> ${mouse['order_name']}</a></td>
             </tr>
             
             </c:forEach>	
@@ -357,7 +369,7 @@
         <th>ES Cell Clone</th>
         <th>Targeting Vector</th>
         <th>QC  Data / Southern tool</th>
-        <th>Genotyping Primers</th>
+        <th>ES Cell strain / parental cell line</th>
         <th>Order</th>
       </tr>
     </thead>
@@ -369,8 +381,10 @@
         <td>${es_cell['genetic_background']}</td>
         <td>${es_cell['es_cell_clone']}</td>
         <td>${es_cell['targeting_vector']}</td>
-        <td style="text-align: center;"><a href="${es_cell['southern_tool']}">Southern tool</a></td>
-        <td>${es_cell['genotyping_primers']}</td>
+        <td style="text-align: center;"><a href="${es_cell['qc_data']}">QC data</a> / <a href="${es_cell['southern_tool']}">Southern tool</a></td>
+        
+        <td>${es_cell['es_cell_strain']} / ${es_cell['parental_cell_line']}</td>
+        
         <td><a class="btn" href="${es_cell['order_url']}"> <i class="fa fa-shopping-cart"></i> ${es_cell['order_name']} </a></td>
       </tr>
 
