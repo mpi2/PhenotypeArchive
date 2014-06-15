@@ -146,7 +146,7 @@ public class SearchPageTest {
         params.put("disease", "fq=type:disease&core=disease");
         params.put("ma", "fq=ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*&core=ma");
         params.put("pipeline", "fq=pipeline_stable_id:*&core=pipeline");
-        params.put("images", "fq=annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotated_or_inferred_higherLevelMpTermName:*&core=images");
+        params.put("images", "fq=annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotatedHigherLevelMpTermName:*&core=images");
 
         String commonParam = "qf=auto_suggest&defType=edismax&wt=json&rows=0&q=*:*";
         final String geneParams      = "/gene/select?" + commonParam + "&" + params.get("gene");
@@ -224,7 +224,40 @@ public class SearchPageTest {
         System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
         System.out.println("seleniumUrl: " + seleniumUrl);
     }
+    
+    
+    @Test
+    ////@Ignore
+    public void autosuggestTest() throws Exception {
+    	// test that there is a dropdown when at least 3 letters with match are entered into the input box
+    	 testCount++;
+         System.out.println();
+         String testName = "AUTOSUGGEST DROPDOWN LIST TEST";
+         System.out.println("----- " + testName + " -----");
 
+         String queryStr = baseUrl + "/search";
+         //System.out.println(queryStr);
+         driver.get(queryStr);
+         driver.navigate().refresh();
+         String testKw = "mast";
+         driver.findElement(By.cssSelector("input#s")).sendKeys(testKw);
+         Thread.sleep(2000); // wait until the dropdown list pops up
+         
+         int numTerms = driver.findElements(By.cssSelector("ul.ui-autocomplete li")).size();
+         if ( numTerms > 0){        	 
+        	 System.out.println("[PASSED] - " + testName);
+        	 System.out.println("Test keyword " + testKw + " found " + numTerms + " suggested terms");
+             sumSuccessList.add("passed");
+         }
+         else {
+        	 String msg = "[FAILED] - " + testName + "\n" + "Test keyword: " + testKw + "\n";
+        	 System.out.println(msg);
+             sumErrorList.add(msg);
+             fail("There was one error");         
+         }
+    }
+    
+    
     @Test
     //@Ignore
     public void testTickingFacetFilters() throws Exception {
@@ -232,7 +265,7 @@ public class SearchPageTest {
         System.out.println();
         String testName = "FACET CLICKING BEHAVIORAL TESTS";
         System.out.println("----- " + testName + " -----");
-           System.out.println("TESTING clicking on a facet checkbox will add a filter to the filter summary box");
+        System.out.println("TESTING clicking on a facet checkbox will add a filter to the filter summary box");
         System.out.println("TESTING removing a filter on the list will uncheck a corresponding checkbox");
 
         String message;
@@ -316,7 +349,7 @@ public class SearchPageTest {
     }
 
     @Test
-    ////@Ignore
+    //@Ignore
     public void testQueryingRandomGeneSymbols() throws Exception {
         testCount++;
         String testName = "RANDOM GENE SYMBOL QUERY TESTS";

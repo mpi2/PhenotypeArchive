@@ -31,6 +31,7 @@ if(typeof(window.MPI2) === 'undefined') {
 MPI2.searchAndFacetConfig = {};
 var config = MPI2.searchAndFacetConfig;
 
+config.matchedFacet = false;
 config.widgetOpen = false;
 config.hasFilters = false;
 
@@ -111,7 +112,7 @@ config.facetFilterLabel = {
 	'ma'					     : 'anatomy',
 	'annotated_or_inferred_higherLevelMaTermName' : 'anatomy',
 	'mp'      					 : 'phenotype',
-	'annotated_or_inferred_higherLevelMpTermName' : 'phenotype',
+	'annotatedHigherLevelMpTermName' : 'phenotype',
 	'expName'                    : 'procedure',
 	'subtype'                    : 'gene_subtype',	
 	'disease_classes' 			 : 'disease_classification',
@@ -161,7 +162,7 @@ config.filterMapping = {
 		// pipeline: using ajax		
 		
 		// images
-		'imgMp' : {'class':'annotated_or_inferred_higherLevelMpTermName', 'facet':'images'},
+		'imgMp' : {'class':'annotatedHigherLevelMpTermName', 'facet':'images'},
 		'imgMa' : {'class':'annotated_or_inferred_higherLevelMaTermName', 'facet':'images'},
 };
 
@@ -321,11 +322,11 @@ config.facetParams = {
 	 
 	 imagesFacet: {		
 		 type: 'images',		 
-		 subFacetFqFields: ['expName', 'annotated_or_inferred_higherLevelMaTermName', 'annotated_or_inferred_higherLevelMpTermName', 'subtype'],
+		 subFacetFqFields: ['expName', 'annotated_or_inferred_higherLevelMaTermName', 'annotatedHigherLevelMpTermName', 'subtype'],
 		 solrCoreName: 'images',
 		 tableCols: 2, 
 		 tableHeader: '<thead><th>Name</th><th>Example Images</th></thead>', 
-		 fq: 'annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotated_or_inferred_higherLevelMpTermName:*',		
+		 fq: 'annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotatedHigherLevelMpTermName:*',		
 		 qf: 'auto_suggest', 
 		 defType: 'edismax',
 		 wt: 'json',
@@ -343,7 +344,7 @@ config.facetParams = {
 		 forceReloadImageDataTable: false,		 
 		 breadCrumbLabel: 'Images',
 		 filterParams: {//'fl' : 'annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath',
-			 	  'fq' : "(annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotated_or_inferred_higherLevelMpTermName:*)"},	
+			 	  'fq' : "(annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotatedHigherLevelMpTermName:*)"},	
 	 	 srchParams: $.extend({},
 				commonSolrParams				
 				)

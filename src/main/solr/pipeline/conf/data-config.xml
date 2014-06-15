@@ -39,7 +39,7 @@
         <dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0:8090/build_indexes/mp/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
         <dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/> 
 	
-	<document name="mega_pipeline_indexing">
+		<document name="mega_pipeline_indexing">
 
 		<!-- IMPC pipeline -->
 		<!-- test with id 3318 -->
@@ -57,7 +57,6 @@
 					<field column="id" name="procedure_id" />                               
 					<field column="stable_id" name="procedure_stable_id" />
 
-
 					<field column="name" name="procedure_name" />
 					<field column="proc_name_id" name="proc_name_id" />
 
@@ -65,7 +64,7 @@
 
 					<field column="stable_key" name="procedure_stable_key" />
 
-					<entity dataSource="komp2db" name="phenotype_parameter2" query="select concat('${phenotype_procedure.name}', '___', name) as proc_param_name, concat('${phenotype_procedure.stable_id}', '___', stable_id) as proc_param_stable_id, stable_id, name, stable_key from phenotype_parameter where id=${phenotype_procedure_parameter.parameter_id}">
+					<entity dataSource="komp2db" name="phenotype_parameter2" query="select concat('${phenotype_procedure.name}', '___', name) as proc_param_name, concat('${phenotype_procedure.stable_id}', '___', stable_id) as proc_param_stable_id, stable_id, name, stable_key from phenotype_parameter where id=${phenotype_procedure_parameter.parameter_id}" onError="continue">
 						<field column="proc_param_stable_id" name="proc_param_stable_id" />
 						<field column="proc_param_name" name="proc_param_name" />                                               
 					</entity>
@@ -96,13 +95,15 @@
 						<!-- gene, MP annotated to this procedure -->
 						<!-- skip 'other phenotype' MP:0005395-->                                                                                       
 						<entity dataSource="komp2db" name="phenotype_call_summary"
-							query="select distinct gf_acc, mp_acc, allele_acc, strain_acc from phenotype_call_summary where gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null and parameter_id=${phenotype_parameter.id} and procedure_id=${phenotype_procedure.id} and pipeline_id=${phenotype_pipeline_procedure.pipeline_id} and mp_acc !='MP:0005395' and (parameter_id != 2256 and parameter_id != 1222 and parameter_id != 1225) "> 
+							query="select distinct gf_acc, mp_acc, allele_acc, strain_acc from phenotype_call_summary where gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null and parameter_id=${phenotype_parameter.id} and procedure_id=${phenotype_procedure.id} and pipeline_id=${phenotype_pipeline_procedure.pipeline_id} and mp_acc !='MP:0005395'" onError="continue">
+
+<!--> and (parameter_id != 2256 and parameter_id != 1222 and parameter_id != 1225) "> -->
 
 							<field column="gf_acc" name="mgi_accession_id" />						
 							
 							<!-- other fields from gene core -->
 							<entity dataSource="allele_core" name="doc" stream="true" url="q=mgi_accession_id:&quot;${phenotype_call_summary.gf_acc}&quot;&amp;wt=normal&amp;rows=1"		            
-				                processor="XPathEntityProcessor" forEach="/response/result/doc/"
+				                processor="XPathEntityProcessor" forEach="/response/result/doc/" onError="continue"
 				                readTimeout="10000" connectionTimeout="10000" > 
 				
 								<field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" /> 
@@ -143,12 +144,7 @@
 								<field column="top_level_mp_id" xpath="/response/result/doc/arr[@name='top_level_mp_id']/str" />
 								<field column="top_level_mp_term" xpath="/response/result/doc/arr[@name='top_level_mp_term']/str" />                                            
 								<field column="top_level_mp_definition" xpath="/response/result/doc/arr[@name='top_level_mp_definition']/str" />                                        
-								<!-- MA: inferred from MP -->
-								<field column="inferred_ma_id" xpath="/response/result/doc/arr[@name='inferred_ma_id']/str" />  
-								<field column="inferred_ma_term" xpath="/response/result/doc/arr[@name='inferred_ma_term']/str" />
-								<field column="inferred_selected_top_level_ma_id" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_id']/str" />
-								<field column="inferred_selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str" />
-								</entity>                       
+							</entity>                       
 
 							<!-- disease to this MP ?? -->                                          
 
@@ -160,3 +156,4 @@
 
 </document>     
 </dataConfig>
+

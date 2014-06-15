@@ -18,14 +18,14 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
 
     private String accession="";
     private String symbol="";
-    private Boolean miceProduced=false;
+    private String miceProduced="No";//not boolean as 3 states No, Yes, In progress - could have an enum I guess?
     private Boolean primaryPhenotype=false;
     
-    public Boolean getMiceProduced() {
+    public String getMiceProduced() {
 		return miceProduced;
 	}
 
-	public void setMiceProduced(Boolean miceProduced) {
+	public void setMiceProduced(String miceProduced) {
 		this.miceProduced = miceProduced;
 	}
 
@@ -45,15 +45,15 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
 		this.symbol = symbol;
 	}
 
-	Map<String, HeatMapCell> paramToCellMap=new HashMap<>();
+	Map<String, HeatMapCell> xAxisToCellMap=new HashMap<>();
 	private Float lowestPValue=new Float(1000000);//just large number so we don't get null pointers
 
-    public Map<String, HeatMapCell> getParamToCellMap() {
-        return paramToCellMap;
+    public Map<String, HeatMapCell> getXAxisToCellMap() {
+        return xAxisToCellMap;
     }
 
-    public void setParamToCellMap(Map<String, HeatMapCell> paramToCellMap) {
-        this.paramToCellMap = paramToCellMap;
+    public void setXAxisToCellMap(Map<String, HeatMapCell> paramToCellMap) {
+        this.xAxisToCellMap = paramToCellMap;
     }
 
     public GeneRowForHeatMap(String accession){
@@ -65,7 +65,7 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
     }
 
     public void add(HeatMapCell cell) {
-       this.paramToCellMap.put(cell.getParameterStableId(), cell);
+       this.xAxisToCellMap.put(cell.getxAxisKey(), cell);
     }
     
     public int compareTo(GeneRowForHeatMap compareRow) {

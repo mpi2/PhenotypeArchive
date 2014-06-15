@@ -170,7 +170,7 @@
 				// subfacet: IMPC mouse production/phenotyping centers
 				var centers = {
 						'productionCenter' : {'facet':'latest_production_centre', 'label':'IMPC Mouse Production Center'},
-						'phenotypingCenter' : {'facet':'latest_phenotyping_centre', 'label':'IMPC Mouse Phenotyping Center'}
+						'phenotypingCenter' : {'facet':'latest_phenotyping_centre', 'label':'IMPC Mouse Phenotype Center'}
 						};
 				for ( var c in centers ){
 				

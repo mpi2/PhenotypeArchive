@@ -41,7 +41,8 @@ $(document).ready(function(){
 			|| location.href.indexOf('/search#q=*') != -1 
 			|| location.href.indexOf('/search#fq=') != -1 ){   	
 		// load page based on url hash parameters	
-		oHashParams = $.fn.parseHashString(window.location.hash.substring(1));		
+		
+		oHashParams = $.fn.parseHashString(window.location.hash.substring(1));			
 		$.fn.fetchSolrFacetCount(oHashParams);	
 	}
 	else {
@@ -58,8 +59,11 @@ $(document).ready(function(){
 	    	if (input == ''){
 	    		document.location.href = baseUrl + '/search';
 	    	}
-	    	else {	    		
-	    		document.location.href = baseUrl + '/search?q=' + input; // handed over to hash change	    	
+	    	else if (! MPI2.searchAndFacetConfig.matchedFacet){
+	    		document.location.href = baseUrl + '/search?q=' + input;
+	    	}
+	    	else {	
+	    		document.location.href = baseUrl + '/search?q=' + input + '#facet=' + MPI2.searchAndFacetConfig.matchedFacet; // handed over to hash change	    	
 	    	}
 	    }
 	})	

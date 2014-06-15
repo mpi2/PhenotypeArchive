@@ -11,7 +11,6 @@
 			c = c.replace("]", "").replace("[", "");
 			var centers = c.split(', ');
 			var sexes = ["male" , "female"];
-			var sources = ["EuroPhenome", "IMPC"];
 			var checkedCenters = [];
 			var checkedSexes = [];
 			var checkedSources = [];
@@ -28,11 +27,6 @@
 				html += '<li> <input id="' + sexes[i] + '" type="checkbox" class="checkbox" array="sexes"> ' + sexes[i] + '</li>';
 			}
 
-			html += '</ul> </div> </div> <div class="filter"> <div class="ftype">Analysis</div> <div class="foptions"> <ul>';
-			for (var i = 0; i < sources.length; i ++){
-				html += '<li> <input id="' + sources[i] + '" type="checkbox" class="checkbox" array="sources"> ' + sources[i] + '</li>';
-			}
-			
 			html += '</ul> </div> </div> <div class="clear"></div> </div>';
 		
 			$("#chartFilters").html(html);
@@ -52,9 +46,6 @@
 						if ($(this).attr('array') === 'sexes'){
 							checkedSexes.push($(this).attr('id'));
 						}
-						if ($(this).attr('array') === 'sources'){
-							checkedSources.push($(this).attr('id'));
-						}
 					}
 				  else{
 						// remove from array
@@ -66,10 +57,6 @@
 							var index = checkedSexes.indexOf($(this).attr('id'));
 							checkedSexes.splice(index,1);
 						}
-						if ($(this).attr('array') === 'sources'){
-							var index = checkedSources.indexOf($(this).attr('id'));
-							checkedSources.splice(index,1);
-						};
 					}
 				  
 				  // in any case call ajax to filter chart  
@@ -83,7 +70,6 @@
 					if (checkedCenters.length != 0) chartUrl += "&center=" + checkedCenters.join();
 					if (checkedSexes.length != 0) chartUrl += "&sex=" + checkedSexes.join();
 					if (centers.length != 0)chartUrl += "&all_centers=" + centers.join();
-					if (sources.length != 0)chartUrl += "&source=" + checkedSources.join();
 					$.ajax({
 					  url: chartUrl,
 					  cache: false

@@ -42,9 +42,8 @@ public class Tools {
          * the absolute value of the time difference between the two days.
          * @param date1 the first operand
          * @param date2 the second operand
-         * @return a <code>String</code> in the format "xxx days, yyy hours,
-         *         zzz minutes" that equals the absolute value of the time
-         *         difference between the two days.
+         * @return a <code>String</code> in the format "dd:hh:mm:ss" that equals the
+         * absolute value of the time difference between the two date.
          */
 	public static String dateDiff(Date date1, Date date2) {
             long lower = Math.min(date1.getTime(), date2.getTime());
@@ -56,6 +55,6 @@ public class Tools {
             long minutes = diff / (60 * 1000) % 60;
             long seconds = diff / 1000 % 60;
             
-            return days + " days, " + hours + " hours " + minutes + " minutes, " + seconds + " seconds";
+            return String.format("%02d:%02d:%02d:%02d", days, hours, minutes, seconds);
         }
 }

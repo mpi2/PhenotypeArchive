@@ -310,15 +310,19 @@ public class DataTableController {
 			if ( doc.containsKey("mp_term_synonym") ){
 				List<String> mpSynonyms = doc.getJSONArray("mp_term_synonym");
 				List<String> prefixSyns = new ArrayList();
+				int count = 0;
 				for ( String sn : mpSynonyms ){
-					prefixSyns.add("synonym: "+ sn);
+					count++;
+					//prefixSyns.add("synonym: "+ sn);
+					sn = count == 1 ? sn : "&nbsp;&nbsp;&nbsp;" + sn;
+					prefixSyns.add(sn);
 				}
 				
 				String mpCol = "<div class='mpCol'><div class='title'>" 
 						+ mpLink 
 						+ "</div>"
 						+ "<div class='subinfo'>" 
-						+  StringUtils.join(prefixSyns, "<br>") 
+						+ "<b>synonym</b>: " + StringUtils.join(prefixSyns, ",<br>") 
 						+ "</div>";
 				rowData.add(mpCol);
 			}
@@ -327,7 +331,7 @@ public class DataTableController {
 			}
 			
 			// some MP do not have definition
-			String mpDef = "not applicable";
+			String mpDef = "No definition data available";
 			try {
 				mpDef = doc.getString("mp_definition");
 			} 
@@ -366,15 +370,19 @@ public class DataTableController {
                 if ( doc.containsKey("ma_term_synonym") ){
     				List<String> maSynonyms = doc.getJSONArray("ma_term_synonym");
     				List<String> prefixSyns = new ArrayList();
+    				int count = 0;
     				for ( String sn : maSynonyms ){
-    					prefixSyns.add("synonym: "+ sn);
+    					count++;
+    					//prefixSyns.add("synonym: "+ sn);
+    					sn = count == 1 ? sn : "&nbsp;&nbsp;&nbsp;" + sn;
+    					prefixSyns.add(sn);
     				}
     				
     				String maCol = "<div class='maCol'><div class='title'>" 
     						+ maLink 
     						+ "</div>"
     						+ "<div class='subinfo'>" 
-    						+  StringUtils.join(prefixSyns, "<br>") 
+    						+  "<b>synonym: " + StringUtils.join(prefixSyns, ",<br>") 
     						+ "</div>";
     				rowData.add(maCol);
     			}
@@ -497,7 +505,7 @@ public class DataTableController {
 			// annotation view: images group by annotationTerm per row
 			
 			String fqStr = fqOri;		
-			if ( fqStr.equals("&fq=annotationTermId:M*%20OR%20expName:*%20OR%20symbol:*%20OR%20annotated_or_inferred_higherLevelMaTermName:*%20OR%20annotated_or_inferred_higherLevelMpTermName:*") ){				
+			if ( fqStr.equals("&fq=annotationTermId:M*%20OR%20expName:*%20OR%20symbol:*%20OR%20annotated_or_inferred_higherLevelMaTermName:*%20OR%20annotatedHigherLevelMpTermName:*") ){				
 				solrParams = solrParams.replace(fqOri, "");	
 				fqStr = "";
 			}

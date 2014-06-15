@@ -132,12 +132,6 @@
     <field name="child_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />							
     <field name="child_ma_idTerm" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
-	<field name="inferred_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="inferred_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" /> 
-  	<field name="inferred_mp_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" /> 
-	<field name="inferred_top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="inferred_top_level_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />   	
-	<field name="inferred_top_level_mp_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />   
 
   	<field name="top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />   
@@ -188,10 +182,10 @@
 	<field name="name"   type="string"   indexed="true"  stored="true"  multiValued="true" /> 
 	<field name="accession"   type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="expName"   type="string"   indexed="true"  stored="true"  multiValued="true" />	
+
 	<field name="largeThumbnailFilePath" type="string"   indexed="false"  stored="true"/>	
 	<field name="smallThumbnailFilePath" type="string"   indexed="true"  stored="true"/>	
-	<field name="inferredMpTermId" type="string" indexed="true" stored="true" multiValued="true" />
-	<field name="inferredMpTermName" type="string" indexed="true" stored="true" multiValued="true" />
+	
 	<field name="inferredMaTermId" type="string" indexed="true" stored="true" multiValued="true" />
 	<field name="inferredMaTermName" type="string" indexed="true" stored="true" multiValued="true" />	
 	<field name="annotatedHigherLevelMaTermId" type="string" indexed="true" stored="true" multiValued="true" />	
@@ -200,15 +194,9 @@
 	<field name="annotatedHigherLevelMpTermName" type="string" indexed="true" stored="true" multiValued="true" />	
 	<field name="inferredHigherLevelMaTermId" type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="inferredHigherLevelMaTermName" type="string"   indexed="true"  stored="true"  multiValued="true" />	
-	<field name="inferredHigherLevelMpTermId" type="string"   indexed="true"  stored="true"  multiValued="true" />
-	<field name="inferredHigherLevelMpTermName" type="string"   indexed="true"  stored="true"  multiValued="true" />	
-	<field name="annotated_or_inferred_higherLevelMpTermName" type="string" indexed="true" stored="true" multiValued="true" />	
+	
 	<field name="annotated_or_inferred_higherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />
-
-	<field name="annotated_or_inferred_higherLevelMpTermId" type="string" indexed="true" stored="true" multiValued="true" />	
 	<field name="annotated_or_inferred_higherLevelMaTermId" type="string" indexed="true" stored="true" multiValued="true" />
-
-	<field name="annotated_or_inferred_higherLevelMxTermName" type="string" indexed="true" stored="true" multiValued="true" />    
 
 	<field name="symbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="sangerSymbol"  type="string"   indexed="true"  stored="true"  multiValued="true" />
@@ -280,11 +268,10 @@
     <copyField source="selected_top_level_ma_term" dest="auto_suggest" />
     <copyField source="selected_top_level_ma_id" dest="auto_suggest" />
 
-	<copyField source="inferred_top_level_mp_term" dest="annotated_or_inferred_higherLevelMpTermName" />
+	
 	<copyField source="selected_top_level_ma_term" dest="annotated_or_inferred_higherLevelMaTermName" />	
 
-	<copyField source="inferred_top_level_mp_term" dest="annotated_or_inferred_higherLevelMxTermName" />
-    <copyField source="selected_top_level_ma_term" dest="annotated_or_inferred_higherLevelMxTermName" />
+
 
 
 

@@ -1,5 +1,5 @@
 <dataConfig>
-
+	
 	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />
     <dataSource name="ontodb" jndiName="java:comp/env/jdbc/ontodbDataSource" />  
 	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
@@ -10,7 +10,7 @@
 		<!-- IMPC pipeline -->							
         <!-- MA term has no definition -->
 		<!-- selected MA top levels: 'MA:0000009','MA:0000020','MA:0002450','MA:0000010', 'MA:0002506','MA:0002431','MA:0000012','MA:0002411','MA:0000007','MA:0002711','MA:0000014','MA:0002418','MA:0000016','MA:0000325','MA:0000326','MA:0000327','MA:0000004' -->
-        <entity dataSource="ontodb" name="ma_term_infos" query="select 'ma' as dataType, term_id, name from ma_term_infos where term_id != 'MA:0000001'" >			
+        <entity dataSource="ontodb" name="ma_term_infos" query="select 'ma' as dataType, term_id, name from ma_term_infos where term_id != 'MA:0000001'" onError="continue">			
 
      		<field column="dataType" name="dataType" />	
 			<field column="term_id" name="ma_id" />
@@ -28,11 +28,8 @@
             </entity>
 
             <!-- MA to MP mapping based on MP to MA bridg file prepared by Terry with MP slim -->
-            <!-- the group decided not to do this on 20140523 -->
-            
-                
-               
- 			
+            <!-- the group decided not to do this on 20140523: MA has no quality component in EQ model -->
+           
             <entity dataSource="ontodb" name="ma_node2term"
             	query="select node_id from ma_node2term where term_id='${ma_term_infos.term_id}'">
 
@@ -63,20 +60,45 @@
 			<!-- images annotated to this MA -->
 			<entity dataSource="images_core" name="imgCore" stream="true" url="q=maTermId:&quot;${ma_term_infos.term_id}&quot;&amp;wt=normal&amp;rows=999999"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/"							
-				readTimeout="10000" connectionTimeout="10000"  >
+				readTimeout="10000" connectionTimeout="10000" >
 			
 				<field column="largeThumbnailFilePath" xpath="/response/result/doc/str[@name='largeThumbnailFilePath']"/>
 				<field column="smallThumbnailFilePath" xpath="/response/result/doc/str[@name='smallThumbnailFilePath']"/>
+				<field column="procedure_name" xpath="/response/result/doc/arr[@name='procedure_name']/str"/>
 				<field column="expName" xpath="/response/result/doc/arr[@name='expName']/str"/>
 				<field column="expName_exp" xpath="/response/result/doc/arr[@name='expName_exp']/str" />
 				<field column="symbol_gene" xpath="/response/result/doc/arr[@name='symbol_gene']/str" />
+
+				<!-- genes annotated to this MA through images -->       
+				<field column="marker_symbol" xpath="/response/result/doc/arr[@name='marker_symbol']/str" />  
+                <field column="marker_name" xpath="/response/result/doc/arr[@name='marker_name']/str" />
+                <field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
+                <field column="marker_type" xpath="/response/result/doc/arr[@name='marker_type']/str" />                                     
+                <field column="human_gene_symbol" xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />
+                         
+                <!-- latest project status (ES cells/mice production status) -->         
+                <field column="status" xpath="/response/result/doc/arr[@name='status']/str" />
+                
+                <!-- latest mice phenotyping status for faceting -->
+                <field column="imits_phenotype_started" xpath="/response/result/doc/arr[@name='imits_phenotype_started']/str" />        
+                <field column="imits_phenotype_complete" xpath="/response/result/doc/arr[@name='imits_phenotype_complete']/str" />
+              	<field column="imits_phenotype_status" xpath="/response/result/doc/arr[@name='imits_phenotype_status']/str" />
+              
+              	<!-- production/phenotyping centers -->
+				<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
+				<field column="latest_phenotyping_centre" xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str" />												
+												
+				<!-- alleles of a gene -->
+				<field column="allele_name" xpath="/response/result/doc/arr[@name='allele_name']/str" />								
+				
 				<field column="inferredHigherLevelMpTermId" xpath="/response/result/doc/arr[@name='inferredHigherLevelMpTermId']/str" />
 				<field column="inferredHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='inferredHigherLevelMpTermName']/str" />	
 				<field column="annotationTermName" xpath="/response/result/doc/arr[@name='annotationTermName']/str" />
 				<field column="annotationTermId" xpath="/response/result/doc/arr[@name='annotationTermId']/str" />			
 				<field column="maTermId" xpath="/response/result/doc/arr[@name='mpTermId']/str" />
 				<field column="maTermName" xpath="/response/result/doc/arr[@name='mpTermName']/str" />
-				<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />				
+				<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />	
+							
 			</entity>
 
              <!-- top level term and/or top level term from part_of relationship of a given anatomy term id -->
@@ -92,22 +114,9 @@
            					<field column="name" name="top_level_ma_term" />            				
 						</entity>
 					</entity>
-					<!-- continue with null value for top_level_id from part_of relationship 
-					<entity  dataSource="ontodb" name="ma_node_top_level_part_of"  onError="continue" 
-                        query="select top_level_node_id from ma_node_top_level_part_of where node_id=${ma_node_top_level.node_id}" >
-						<entity  dataSource="ontodb" name="ma_node2term" onError="continue"
-                            query="select term_id from ma_node2term where node_id=${ma_node_top_level_part_of.top_level_node_id}" >				
-                        	<entity  dataSource="ontodb" name="ma_term_infos" onError="continue"
-                                query="select term_id, name from ma_term_infos where term_id='${ma_node2term.term_id}'" >
-								<field column="term_id" name="top_level_ma_id_part_of" />
-           						<field column="name" name="top_level_ma_term_part_of" />            					
-							</entity>
-						</entity>
-					</entity>-->
 				</entity>			
 			</entity>
 		</entity>	
 	</document>
 
 </dataConfig>
-	

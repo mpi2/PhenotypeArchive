@@ -469,7 +469,7 @@ public class PhenotypesController {
 		Map<String, String> res = new HashMap<String, String>();
 		List<String> paramIds = pipelineDao.getParameterStableIdsByPhenotypeTerm(mpId);
 		for (String param : paramIds){
-			if (gpService.getGenesAssocByParamAndMp(param, mpId, null).size() > 0){
+			if (gpService.getGenesAssocByParamAndMp(param, mpId).size() > 0){
 				Parameter p =  pipelineDao.getParameterByStableId(param);
 				res.put(param,p.getName());
 			}

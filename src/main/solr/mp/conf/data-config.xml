@@ -61,11 +61,13 @@
 			<entity dataSource="ontodb" name="mp_node2term"
 				query="select tl.top_level_node_id from mp_node_top_level tl, mp_node2term nt, mp_term_infos ti where ti.term_id='${mp_term_infos.term_id}' and ti.term_id=nt.term_id and nt.node_id=tl.node_id">
 				<entity dataSource="ontodb" name="toplevel" 
-					query="select ti.* from mp_node2term nt, mp_term_infos ti where nt.term_id=ti.term_id and nt.node_id=${mp_node2term.top_level_node_id}">
+					query="select ti.*, concat(ti.name, '___', ti.term_id) as top_level_mp_term_id from mp_node2term nt, mp_term_infos ti where nt.term_id=ti.term_id and nt.node_id=${mp_node2term.top_level_node_id}"
+					>
 
 						<field column="term_id" name="top_level_mp_id" />
 						<field column="name" name="top_level_mp_term" />
 						<field column="definition" name="top_level_mp_definition" />	
+						<field column="top_level_mp_term_Id" name ="top_level_mp_term_Id" />
 						
 						<entity dataSource="ontodb" name="mp_term_infos2Syn" onError="continue"  
 							query="select * from mp_synonyms where term_id ='${toplevel.term_id}'">						

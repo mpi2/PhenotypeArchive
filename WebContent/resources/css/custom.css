@@ -381,3 +381,23 @@ div.ui-dropdownchecklist-dropcontainer {
 	float: left;
 	width: 50%;
 }
+
+// Scrollable divs for code example blocks.
+.highlight {
+    background: #ffffff;
+}
+.highlight pre {
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    font-size: 13px;
+    line-height: 19px;
+    overflow: auto;
+    padding: 6px 10px;
+    border-radius: 3px;
+}
+.highlight .se {
+    color: #dd1144;
+}
+.highlight .s1 {
+    color: #dd1144;
+}

@@ -12,10 +12,15 @@ import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.stereotype.Service;
+
+import uk.ac.ebi.phenotype.service.GenotypePhenotypeService.GenotypePhenotypeField;
+import uk.ac.ebi.phenotype.web.pojo.BasicBean;
 
 @Service
 public class MpService {
@@ -24,6 +29,7 @@ public class MpService {
 
     private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
+    private static String TOP_LEVEL_MP_TERM="top_level_mp_term";
     public static final class MpField {
         public final static String MP_TERM_ID = "mp_id";
     }
@@ -52,5 +58,35 @@ public class MpService {
         }
         return allPhenotypes;
     }
+    
+    public Set<BasicBean> getAllTopLevelPhenotypesAsBasicBeans() throws SolrServerException{
+    	
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.addFacetField( "top_level_mp_term_id");
+		solrQuery.setRows(0);
+		QueryResponse rsp = solr.query(solrQuery);
+		System.out.println("solr query in basicbean="+solrQuery);
+		SolrDocumentList res = rsp.getResults();
+		
+		HashSet<BasicBean> allTopLevelPhenotypes = new HashSet();
+		for (FacetField ff:rsp.getFacetFields()){
+			System.out.println("count name="+ff.getName());
+			for(Count count: ff.getValues()){
+				System.out.println("count Name="+count.getName());
+				String mpArray[]=count.getName().split("___");
+				BasicBean bean=new BasicBean();
+				bean.setName(mpArray[0]);
+				bean.setId(mpArray[1]);
+				allTopLevelPhenotypes.add(bean);
+			}
+			//ArrayList<String> names = (ArrayList<String>)doc.getFieldValue( GenotypePhenotypeField.MP_TERM_NAME );
+//			for (String id : ids) {
+//				BasicBean bean=new BasicBean();
+//				bean.setId(id);
+//				allTopLevelPhenotypes.add(bean);
+//			}
+		}
+		return allTopLevelPhenotypes;
+	}
 
 }

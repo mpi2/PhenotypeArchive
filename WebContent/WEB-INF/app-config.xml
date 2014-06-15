@@ -85,9 +85,9 @@
 		<constructor-arg ref="sessionFactory" />
 	</bean>
         
-        <bean id="secondaryProjectDAO" class="uk.ac.ebi.phenotype.dao.SecondaryProjectDAOImpl">
+        <!-- <bean id="secondaryProjectDAO" class="uk.ac.ebi.phenotype.dao.SecondaryProjectDAOImpl">
 		<constructor-arg ref="sessionFactory" />
-	</bean>
+	</bean> -->
 
 	<bean id="phenotypeCallSummaryDAO" class="uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAOImpl">
 		<constructor-arg ref="sessionFactory" />
@@ -137,6 +137,15 @@
 
 	<bean id="organisationDAO" class="uk.ac.ebi.phenotype.dao.OrganisationDAOImpl">
 		<constructor-arg ref="sessionFactory" />
+	</bean>	
+	
+	<bean id="idg" class="uk.ac.ebi.phenotype.dao.SecondaryProjectIdgImpl">
+		<constructor-arg ref="sessionFactory" />
+		<!-- <constructor-arg ref="geneService" />
+		<constructor-arg ref="genomicFeatureDAO" />
+		<constructor-arg ref="genotypePhenotypeService"/>
+		<constructor-arg ref="phenotypePipelineDAO"/> -->
+		
 	</bean>	
 
 	<!-- Spring annotated objects -->

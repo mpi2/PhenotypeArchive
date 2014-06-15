@@ -22,12 +22,19 @@
 
 package org.mousephenotype.www.testing.model;
 
+import static com.thoughtworks.selenium.SeleneseTestBase.fail;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.util.Utils;
 
 /**
@@ -46,6 +53,7 @@ import uk.ac.ebi.phenotype.util.Utils;
 @Component
 public class TestUtils {
     public final int DEFAULT_COUNT = 10;
+    public final static String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     
     @Resource(name="testIterationsHash")
     Map<String, String> testIterationsHash;
@@ -136,5 +144,65 @@ public class TestUtils {
         }
         
         return true;
+    }
+    
+    /**
+     * Given an initialized <code>WebDriver</code> instance and a selenium URL,
+     * prints the test environment for the test associated with <code>driver<code>.
+     * @param driver the initialized <code>WebDriver</code> instance
+     * @param seleniumUrl the Selenium URL
+     */
+    public static void printTestEnvironment(WebDriver driver, String seleniumUrl) {
+        String browserName = "<Unknown>";
+        String version = "<Unknown>";
+        String platform = "<Unknown>";
+        if (driver instanceof RemoteWebDriver) {
+            RemoteWebDriver remoteWebDriver = (RemoteWebDriver)driver;
+            browserName = remoteWebDriver.getCapabilities().getBrowserName();
+            version = remoteWebDriver.getCapabilities().getVersion();
+            platform = remoteWebDriver.getCapabilities().getPlatform().name();
+        }
+        
+        System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
+        System.out.println("seleniumUrl: " + seleniumUrl);
+    }
+    
+    /**
+     * Given a test name, test start time, error list, exception list, success list,
+     * and total number of expected records to be processed, writes the given
+     * information to stdout.
+     * 
+     * @param testName the test name (must not be null)
+     * @param start the test start time (must not be null)
+     * @param errorList the error list (must not be null)
+     * @param exceptionList the exception list (must not be null)
+     * @param successList the success list (must not be null)
+     * @param totalRecords the total number of expected records to process
+     */
+    public static void printEpilogue(String testName, Date start, List<String> errorList, List<String> exceptionList, List<String> successList, int totalRecords) {
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
+        Date stop;
+        
+        if ( ! errorList.isEmpty()) {
+            System.out.println(errorList.size() + " records failed:");
+            for (String s : errorList) {
+                System.out.println("\t" + s);
+            }
+        }
+        
+        if ( ! exceptionList.isEmpty()) {
+            System.out.println(exceptionList.size() + " records caused exceptions to be thrown:");
+            for (String s : exceptionList) {
+                System.out.println("\t" + s);
+            }
+        }
+        
+        stop = new Date();
+        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " of " + totalRecords + " records successfully processed in " + Tools.dateDiff(start, stop) + ".");
+        
+        if (errorList.size() + exceptionList.size() > 0) {
+            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
+        }
     }
 }

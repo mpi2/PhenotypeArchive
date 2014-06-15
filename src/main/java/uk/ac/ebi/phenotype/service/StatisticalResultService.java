@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -313,7 +314,7 @@ public class StatisticalResultService {
         if(result.getSex()!= null) r.setSexType(SexType.valueOf(result.getSex()));
         r.setStatisticalMethod(result.getStatisticalMethod());
         if(result.getZygosity()!= null) r.setZygosityType(ZygosityType.valueOf(result.getZygosity()));
-        r.setCategoryA(result.getCategories());
+        r.setCategoryA(StringUtils.join(result.getCategories(), "|"));
         if(result.getSex()!= null) r.setControlSex(SexType.valueOf(result.getSex()));
         r.setEffectSize(result.getEffectSize());
         if(result.getSex()!= null) r.setExperimentalSex(SexType.valueOf(result.getSex()));
@@ -360,20 +361,20 @@ public class StatisticalResultService {
             for (HeatMapCell cell : results) {
                 // System.out.println(doc.getFieldValues("p_value"));
 
-                String paramStableId = cell.getParameterStableId();
+                String paramStableId = cell.getxAxisKey();
                 // System.out.println("comparing"+cell.getParameterStableId()+"|");
-                if (paramMap.containsKey(cell.getParameterStableId())) {
-                    System.out.println("cell mp Term name=" + cell.getMpTermName());
-                    System.out.println("cell p value=" + cell.getpValue());
-                    System.out.println(cell.getpValue() + "found");
+                if (paramMap.containsKey(cell.getxAxisKey())) {
+                    System.out.println("cell mp Term name=" + cell.getLabel());
+                    System.out.println("cell p value=" + cell.getFloatValue());
+                    System.out.println(cell.getFloatValue() + "found");
                     paramMap.put(paramStableId, cell);
-                    if (row.getLowestPValue() > cell.getpValue()) {
-                        row.setLowestPValue(cell.getpValue());
+                    if (row.getLowestPValue() > cell.getFloatValue()) {
+                        row.setLowestPValue(cell.getFloatValue());
                     }
                 }
             }
 
-            row.setParamToCellMap(paramMap);
+            row.setXAxisToCellMap(paramMap);
         } catch (SolrServerException ex) {
             LOG.error(ex.getMessage());
         }

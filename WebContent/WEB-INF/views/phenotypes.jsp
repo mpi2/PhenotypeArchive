@@ -147,7 +147,7 @@
 						<div class="inner">					
 							<!-- Phenotype Assoc. summary -->
 							<div class="half">
-								<p> <span class="muchbigger">${genePercentage.getTotalPercentage()}%</span> of tested genes with null mutations on a B6N genetic background have a phenotype association to ${phenotype.name} (source: EuroPhenome)
+								<p> <span class="muchbigger">${genePercentage.getTotalPercentage()}%</span> of tested genes with null mutations on a B6N genetic background have a phenotype association to ${phenotype.name}
 									(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
 								<p class="padleft"><span class="bigger">${genePercentage.getFemalePercentage()}%</span> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </p>
 								<p class="padleft"><span class="bigger">${genePercentage.getMalePercentage()}%</span> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</p>
@@ -159,7 +159,7 @@
 									<p> Select a parameter <i class="fa fa-bar-chart-o" ></i>&nbsp; &nbsp;
 										<select onchange="ajaxToBe('${phenotype.id.accession}', this.options[this.selectedIndex].value);">
 											<c:forEach var="assocParam" items="${parametersAssociated.keySet().toArray()}" varStatus="loop">
-												<option value="${assocParam}">${parametersAssociated.get(assocParam)}</option>
+												<option value="${assocParam}">${parametersAssociated.get(assocParam)} (${assocParam})</option>
 											</c:forEach>
 										</select>
 									</p>

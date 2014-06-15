@@ -9,14 +9,7 @@
 			}
 			return row;
 		}	    
-		function fetch_human_symbol(row){
-			if ( row.get('mouse2human_symbol') ){				
-				aList = row.get('mouse2human_symbol').toString().split('___');			
-				row.put('human_gene_symbol', aList[1]);  						
-				}              
 		
-	   		return row; 
-		}
 		function hasQc(row){
 			if (row.get('qcGene')){
 				row.put('hasQc', 1); 
@@ -89,14 +82,13 @@
 
 			<!-- mouse to human gene symbol mapping: multiple human name can be mapped to one mouse symbol -->
 			<entity dataSource="human2mouse_symbol_core" name="symbol_mapping" stream="true"
-				url="q=mouse2human_symbol:${doc.marker_symbol}*&amp;wt=normal&amp;fl=mouse2human_symbol"
+				url="q=mouse_symbol:${doc.marker_symbol}&amp;wt=normal&amp;fl=human_symbol"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/"
-				transformer="script:fetch_human_symbol"  onError="continue" >
-
-				<field column="mouse2human_symbol" xpath="/response/result/doc/str[@name='mouse2human_symbol']" />
-				<field column="human_gene_symbol" name="human_gene_symbol" />
+			 	onError="continue" >
+				
+				<field column="human_gene_symbol" xpath="/response/result/doc/str[@name='human_symbol']" />
+				
 			</entity>
-
 			<!-- latest es cells/mice/phenotyping/ status and centers info at gene level -->
 			<field column="latest_es_cell_status" xpath="/response/result/doc/str[@name='latest_es_cell_status']" />
 			
@@ -144,10 +136,10 @@
 
 			<!-- check if this gene has been indexed in experiment core, if yes we treat phenotyping status as available -->
 			<entity dataSource="experiment_core" name="qcCheck" stream="true"  onError="continue"
-				url="q=gene_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;fl=gene_accession_id&amp;rows=1"
+				url="q=gene_accession:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;fl=gene_accession&amp;rows=1"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/" transformer="script:hasQc" >				
 
-				<field column="qcGene" xpath="/response/result/doc/str[@name='gene_accession_id']" />	
+				<field column="qcGene" xpath="/response/result/doc/str[@name='gene_accession']" />	
 				<field column="hasQc" name="hasQc" />		
 			</entity>			
 			

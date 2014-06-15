@@ -22,12 +22,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
@@ -50,57 +47,155 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import uk.ac.ebi.generic.util.ExcelWorkBook;
 import uk.ac.ebi.generic.util.SolrIndex;
-import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
-import uk.ac.ebi.phenotype.web.controller.DataTableController;
-import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
-import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow.PhenotypeRowType;
+import uk.ac.ebi.phenotype.dao.AlleleDAO;
 import uk.ac.ebi.phenotype.dao.OrganisationDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.dao.StrainDAO;
+import uk.ac.ebi.phenotype.pojo.Allele;
+import uk.ac.ebi.phenotype.pojo.Organisation;
+import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
-import uk.ac.ebi.phenotype.pojo.PipelineSolrImpl;
+import uk.ac.ebi.phenotype.pojo.Pipeline;
+import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.pojo.Strain;
 import uk.ac.ebi.phenotype.service.ExperimentService;
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService.GenotypePhenotypeField;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
+import uk.ac.ebi.phenotype.stats.ObservationDTO;
+import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
+import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
 
 @Controller
 public class FileExportController {
 
-	private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+    private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
-	@Autowired
-	public PhenotypeCallSummaryDAO phenotypeCallSummaryDAO;
+    @Autowired
+    public PhenotypeCallSummaryDAO phenotypeCallSummaryDAO;
 
-	@Autowired
-	private SolrIndex solrIndex;
+    @Autowired
+    private SolrIndex solrIndex;
 
-	@Autowired
-	private PhenotypePipelineDAO ppDAO;
-	
-	@Resource(name="globalConfiguration")
-	private Map<String, String> config;
+    @Autowired
+    private PhenotypePipelineDAO ppDAO;
 
-	@Autowired
-	private ExperimentService experimentService;
-	
-	@Autowired
-	OrganisationDAO organisationDao;
+    @Resource(name = "globalConfiguration")
+    private Map<String, String> config;
 
-	@Autowired
-	private PhenotypeCallSummaryDAOReadOnly phenoDAO;
+    @Autowired
+    private ExperimentService experimentService;
 
-	private String tsvDelimiter = "\t";
-	//eg ESLIM_001_001_115
-	private String patternStr = "(.+_\\d+_\\d+_\\d+)";
-	private Pattern pattern = Pattern.compile(patternStr);
-	private String europhenomeBaseUrl = "http://www.europhenome.org/databrowser/viewer.jsp?set=true&m=true&zygosity=All&compareLines=View+Data";
-	private String mgpBaseUrl = "http://www.sanger.ac.uk/mouseportal/search?query=";
-	
+    @Autowired
+    OrganisationDAO organisationDao;
+
+    @Autowired
+    StrainDAO strainDAO;
+
+    @Autowired
+    AlleleDAO alleleDAO;
+
+    @Autowired
+    private PhenotypeCallSummaryDAOReadOnly phenoDAO;
+
+    
+    /**
+     * Return a TSV formatted response which contains all datapoints
+     * @param phenotypingCenterParameter
+     * @param pipelineStableId
+     * @param procedureStableId
+     * @param parameterStableId
+     * @param alleleAccession
+     * @param sexesParameter
+     * @param zygositiesParameter
+     * @param strainParameter
+     * @return
+     * @throws SolrServerException
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    @ResponseBody
+    @RequestMapping(value = "/exportraw", method = RequestMethod.GET)
+    public String getExperimentalData(
+            @RequestParam(value = "phenotyping_center", required = true) String phenotypingCenterParameter,
+            @RequestParam(value = "pipeline_stable_id", required = true) String pipelineStableId,
+            @RequestParam(value = "procedure_stable_id", required = true) String procedureStableId,
+            @RequestParam(value = "parameter_stable_id", required = true) String parameterStableId,
+            @RequestParam(value = "allele_accession", required = true) String alleleAccession,
+            @RequestParam(value = "sex", required = false) String[] sexesParameter,
+            @RequestParam(value = "zygosity", required = false) String[] zygositiesParameter,
+            @RequestParam(value = "strain", required = false) String strainParameter
+            ) throws SolrServerException, IOException, URISyntaxException {
+
+        Organisation phenotypingCenter = organisationDao.getOrganisationByName(phenotypingCenterParameter);
+        Pipeline pipeline = ppDAO.getPhenotypePipelineByStableId(pipelineStableId);
+        Parameter parameter = ppDAO.getParameterByStableId(parameterStableId);
+        Allele allele = alleleDAO.getAlleleByAccession(alleleAccession);
+        SexType sex = (sexesParameter !=null && sexesParameter.length > 1) ? SexType.valueOf(sexesParameter[0]) : null;
+        List<String> zygosities = (zygositiesParameter==null) ? null : Arrays.asList(zygositiesParameter);
+        String center = phenotypingCenter.getName();
+        Integer centerId = phenotypingCenter.getId();
+        String geneAcc = allele.getGene().getId().getAccession();
+        String alleleAcc = allele.getId().getAccession();
+
+        String strainAccession = null;
+        if (strainParameter != null) {
+            Strain s = strainDAO.getStrainByName(strainParameter);
+            if (s != null) {
+                strainAccession = s.getId().getAccession();
+            }
+        }
+
+        List<ExperimentDTO> experiments = experimentService.getExperimentDTO(parameter.getId(), pipeline.getId(), geneAcc, sex, centerId, zygosities, strainAccession, null, Boolean.FALSE, alleleAcc);
+        
+        List<String> rows = new ArrayList<>();
+        rows.add(StringUtils.join(new String[] { "Experiment", "Center", "Pipeline", "Procedure", "Parameter", "Strain", "Gene", "Allele", "MetadataGroup", "Zygosity", "Sex", "AssayDate", "Value" }, "\t"));
+        
+        Integer i=1;
+        
+        for (ExperimentDTO experiment : experiments) {
+
+            // Adding all data points to the export
+            Set<ObservationDTO> observations = experiment.getControls();
+            observations.addAll(experiment.getMutants());
+
+            for (ObservationDTO observation : observations) {
+                List<String> row = new ArrayList<>();
+                row.add("Exp"+i.toString());
+                row.add(center);
+                row.add(pipelineStableId);
+                row.add(procedureStableId);
+                row.add(parameterStableId);
+                row.add(observation.getStrain());
+                row.add((observation.getObservationType().equals("control"))?"+/+":geneAcc);
+                row.add((observation.getObservationType().equals("control"))?"+/+":alleleAcc);
+                row.add(observation.getMetadataGroup());
+                row.add(observation.getZygosity());
+                row.add(observation.getSex());
+                row.add(observation.getDateOfExperimentString());
+                
+                String dataValue = observation.getCategory();
+                if(dataValue==null) {
+                    dataValue = observation.getDataPoint().toString();
+                }
+                
+                row.add(dataValue);
+
+                rows.add(StringUtils.join(row, "\t"));
+            }
+            
+            // Next experiment
+            i++;
+        }
+
+        return StringUtils.join(rows, "\n");
+    }
+
 	/**
 	 * <p>Export table as TSV or Excel file.</p>
 	 * @param model
