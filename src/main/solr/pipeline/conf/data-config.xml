@@ -39,7 +39,100 @@
         <dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0:8090/build_indexes/mp/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
         <dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/> 
 	
-		<document name="mega_pipeline_indexing">
+	<dataConfig>
+	<script type='text/javascript'><![CDATA[
+	
+		function fetch_human_symbol(row){
+			if ( row.get('mouse2human_symbol') ){				
+				aList = row.get('mouse2human_symbol').toString().split('___');				
+				row.put('human_gene_symbol', aList[1].replace(']',''));  						
+				}              
+		
+	   		return row; 
+		}
+
+		function procedure_mapping(row){
+			if ( row.get('name') ){				
+				name = row.get('name').toString().replace("&", encodeURIComponent('&'));				
+
+				// impress procedure name to sanger experiment name mapping
+				mapping = {
+					'Adult LacZ' : 'Wholemount Expression',
+					'FACS Analysis' : 'Flow Cytometry',
+					'Histopathology' : 'Histology Slide',
+					'X-ray' : 'Xray',
+					'X-ray Imaging' : 'Xray',
+					'Combined SHIRPA and Dysmorphology' : 'Embryo Dysmorphology'				
+				};
+
+				name = mapping[name] == null ? name : mapping[name];
+				row.put('mapped_procedure_name', encodeURI(name));  						
+			}              
+		
+	   		return row; 
+		}	
+
+    ]]></script>
+
+	<!--<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />
+	<dataSource name="ontods" jndiName="java:comp/env/jdbc/ontodbDataSource" />-->
+	<!--<dataSource 
+		name="komp2db"
+		type="JdbcDataSource"
+   		driver="com.mysql.jdbc.Driver"
+  		url="jdbc:mysql://localhost:3306/komp2?autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull"
+   		user="root" 
+   		password="a"/>
+
+	<dataSource 
+		name="ontodb"
+		type="JdbcDataSource"
+   		driver="com.mysql.jdbc.Driver"
+  		url="jdbc:mysql://localhost:3306/ontodb_komp2"
+   		user="root" 
+   		password="a"/>
+
+	<dataSource 
+		name="phenodigmdb"
+		type="JdbcDataSource"
+   		driver="com.mysql.jdbc.Driver"
+  		url="jdbc:mysql://localhost:3306/phenodigm_impc_dev"
+   		user="root" 
+   		password="a"/> 
+-->
+<dataSource 
+		name="komp2db"
+		type="JdbcDataSource"
+   		driver="com.mysql.jdbc.Driver"
+  		url="jdbc:mysql://mysql-mi-dev.ebi.ac.uk:4356/komp2"
+   		user="admin" 
+   		password="jL2VEcq6"/>
+
+		<dataSource 
+		name="ontodb"
+		type="JdbcDataSource"
+   		driver="com.mysql.jdbc.Driver"
+  		url="jdbc:mysql://mysql-mi-dev.ebi.ac.uk:4356/ontodb_komp2"
+   		user="admin" 
+   		password="jL2VEcq6"/>
+
+	<dataSource 
+		name="diseaseGenedb"
+		type="JdbcDataSource"
+   		driver="com.mysql.jdbc.Driver"
+  		url="jdbc:mysql://mysql-mi-dev.ebi.ac.uk:4356/diseaseGene"
+   		user="admin" 
+   		password="jL2VEcq6"/>
+
+	<!--<dataSource name="mp_core" type="HttpDataSource" baseUrl="http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/mp/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://localhost:8983/solr/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>-->
+
+ 	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>        
+    <dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0:8090/build_indexes/mp/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+    <dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/> 
+	
+  	<document name="mega_pipeline_indexing">
 
 		<!-- IMPC pipeline -->
 		<!-- test with id 3318 -->
@@ -53,7 +146,9 @@
 
 			<entity dataSource="komp2db" name="phenotype_procedure_parameter" query="select procedure_id, parameter_id from phenotype_procedure_parameter where parameter_id=${phenotype_parameter.id}">
 
-				<entity dataSource="komp2db" name="phenotype_procedure" transformer="script:procedure_mapping" query="select id , stable_id, name, stable_key, concat(name, '___', stable_id) as proc_name_id from phenotype_procedure where id=${phenotype_procedure_parameter.procedure_id}">
+				<entity dataSource="komp2db" processor="CachedSqlEntityProcessor" name="phenotype_procedure" transformer="script:procedure_mapping" 
+					query="select id, stable_id, name, stable_key, concat(name, '___', stable_id) as proc_name_id from phenotype_procedure"
+					where="id=phenotype_procedure_parameter.procedure_id">
 					<field column="id" name="procedure_id" />                               
 					<field column="stable_id" name="procedure_stable_id" />
 
@@ -64,13 +159,15 @@
 
 					<field column="stable_key" name="procedure_stable_key" />
 
-					<entity dataSource="komp2db" name="phenotype_parameter2" query="select concat('${phenotype_procedure.name}', '___', name) as proc_param_name, concat('${phenotype_procedure.stable_id}', '___', stable_id) as proc_param_stable_id, stable_id, name, stable_key from phenotype_parameter where id=${phenotype_procedure_parameter.parameter_id}" onError="continue">
+					<entity dataSource="komp2db" processor="CachedSqlEntityProcessor" name="phenotype_parameter2" query="select pp.id as pp2_id, concat(pproc.name, '___', pp.name) as proc_param_name, concat(pproc.stable_id, '___', pp.stable_id) as proc_param_stable_id from phenotype_parameter pp inner join phenotype_procedure_parameter ppp on ppp.parameter_id=pp.id inner join phenotype_procedure pproc on pproc.id=ppp.procedure_id"
+						where="pp2_id=phenotype_procedure_parameter.parameter_id" onError="continue">
+
 						<field column="proc_param_stable_id" name="proc_param_stable_id" />
 						<field column="proc_param_name" name="proc_param_name" />                                               
-					</entity>
+					</entity>	
 
 					<!-- images annotated to this procedure -->
-					<entity dataSource="images_core" name="imgCore" stream="true" url="q=expName:&quot;${phenotype_procedure.mapped_procedure_name}&quot;&amp;wt=normal&amp;rows=999999" onError="continue"
+					<!--<entity dataSource="images_core" name="imgCore" stream="true" url="q=expName:&quot;${phenotype_procedure.mapped_procedure_name}&quot;&amp;wt=normal&amp;rows=999999" onError="continue"
 					processor="XPathEntityProcessor" forEach="/response/result/doc/"                                                        
 					readTimeout="10000" connectionTimeout="10000" >                                                                  
 
@@ -80,7 +177,7 @@
 						<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
 
 					</entity>
-
+				-->
 					<entity dataSource="komp2db" name="phenotype_pipeline_procedure" query="select pipeline_id from phenotype_pipeline_procedure where procedure_id=${phenotype_procedure.id}">
 						<field column="pipeline_id" name="pipeline_id" />
 						
@@ -156,4 +253,3 @@
 
 </document>     
 </dataConfig>
-
