@@ -159,7 +159,7 @@
 <div class="section">
     <div class="inner">
     <h3>Summary</h3>
-    <div style="font-size: 120%; font-weight: bold;">
+    <div style="font-size: 110%; font-weight: bold;">
         <p>${allele_description}</p>
         <c:if test="${not empty statuses}">
           <c:forEach var="status" items="${statuses}" varStatus="statusx">
@@ -394,7 +394,13 @@
         
         <td>${es_cell['es_cell_strain']} / ${es_cell['parental_cell_line']}</td>
         
-        <td><a class="btn" href="${es_cell['order_url']}"> <i class="fa fa-shopping-cart"></i> ${es_cell['order_name']} </a></td>
+                <td>
+                    <c:forEach var="order" items="${es_cell['orders']}" varStatus="ordersx">
+                        <a class="btn" href="${order['url']}"> <i class="fa fa-shopping-cart"></i> ${order['name']}</a>
+                    </c:forEach>	
+                </td>
+
+
       </tr>
 
                   </c:forEach>	
@@ -402,9 +408,9 @@
     </tbody>
   </table>
 
-         <p class="textright">
+<!--         <p class="textright">
         <a class="products_toggle toggle-close">show all 14 ES Cells</a>
-      </p>
+      </p>-->
 
   <div class="clear"></div>
 </div>
@@ -467,10 +473,10 @@
     </tbody>
   </table>
 
-     <p class="textright">
+<!--     <p class="textright">
         <a class="products_toggle toggle-close">show all 5 targeting vectors</a>
       </p>
-      
+      -->
   <div class="clear"></div>
 </div>
                         

@@ -187,8 +187,10 @@ public class AllelesController {
         
         model.addAttribute("mice_in_progress", (List<Map<String, String>>)list2.get("mice_in_progress"));
 
-        model.addAttribute("es_cells", (List<Map<String, String>>)list2.get("es_cells"));
+        //model.addAttribute("es_cells", (List<Map<String, String>>)list2.get("es_cells"));
 
+        model.addAttribute("es_cells", constructs.get("es_cells"));
+        
         model.addAttribute("targeting_vectors", (List<Map<String, String>>)list2.get("targeting_vectors"));
         
         model.addAttribute("mice_blurb", list2.get("mice_blurb"));
