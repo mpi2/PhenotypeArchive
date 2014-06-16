@@ -345,7 +345,8 @@
 				
 		<c:if test="${phenotypeStarted}">
 			<div class="section">
-			  <h2 class="title" id="heatmap">Pre-QC phenotype heatmap <span class="documentation" ><a href='' id='mpPanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
+			  <h2 class="title" id="heatmap">Pre-QC phenotype heatmap <span class="documentation" >
+						<span class="documentation" ><a href='' id='heatmapPanel' class="fa fa-question-circle pull-right"></a></span> 
 				</h2>
 				
 				<div class="inner">

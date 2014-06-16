@@ -46,10 +46,12 @@ MDOC.gene = {
 		'mpPanelDocUrl'        : baseUrl + '/documentation/gene-help#phenotypes',
 		'imagePanel'           : '<p>Images associated to this gene.  Note that the phenotype associations made in some of the image descriptions have not been verified for accuracy.</p><p>Click the help icon for more detail.</p>',
 		'imagePanelDocUrl'     : baseUrl + '/documentation/gene-help#phenotype-images',
-		'expressionPanel'      : '<p>Expression images associated to this gene.',
+		'expressionPanel'      : '<p>Expression images associated to this gene.</p>',
 		'expressionPanelDocUrl': baseUrl + '/documentation/gene-help#expression-images',
 		'allelePanel'          : '<p>Alleles and ES cells of this gene produced from the IKMC project.  When available to order a link to the correspondiong repository will be included.</p><p>Click the help icon for more detail.</p>',
-		'allelePanelDocUrl'    : baseUrl + '/documentation/gene-help#alleles'
+		'allelePanelDocUrl'    : baseUrl + '/documentation/gene-help#alleles',
+		'heatmapPanel'		   : '<p>For details about the heatmap please click.</p>',
+		'heatmapPanelDocUrl'   : baseUrl + '/documentation/gene-help#pre-qc'
 };
 MDOC.phenotypes = {
 		'generalPanel'         : "<p> Phenotype details panel.<p> <p>Click the help icon for more detail.</p>",
