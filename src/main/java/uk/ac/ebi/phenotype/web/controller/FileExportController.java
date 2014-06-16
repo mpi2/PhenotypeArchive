@@ -716,7 +716,7 @@ public class FileExportController {
 				// Use a tree set to maintain an alphabetical order (Female, Male)
 				List<String> sex = new ArrayList<String>();
 				sex.add(pcs.getSex().toString());	
-				PhenotypeRow pr = new PhenotypeRow( pcs, config.get("drupalBaseUrl"));
+				PhenotypeRow pr = new PhenotypeRow( pcs, config.get("drupalBaseUrl")+"/data");
 				phenotypes.add(pr);
 			}
 						
@@ -752,7 +752,7 @@ public class FileExportController {
 				List<String> sex = new ArrayList<String>();
 				sex.add(pcs.getSex().toString());
 	
-				PhenotypeRow pr = new PhenotypeRow( pcs, config.get("drupalBaseUrl"));
+				PhenotypeRow pr = new PhenotypeRow( pcs, config.get("drupalBaseUrl") + "/data");
 				
 				if(pr.getParameter() != null && pr.getProcedure()!= null) {		
 					phenotypes.add(pr);
