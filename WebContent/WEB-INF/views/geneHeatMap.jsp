@@ -2,10 +2,7 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
-<t:genericpage>
 
-	<jsp:attribute name="bodyTag"><body  class="chartpage no-sidebars small-header"></jsp:attribute>
-	<jsp:attribute name="header">
 	<link type='text/css' rel='stylesheet' href='${baseUrl}/css/geneHeatmapStyling.css'  />
 		<script type='text/javascript'  src="http://code.highcharts.com/modules/heatmap.js"></script><!-- this will need to be local as https causes highcharts to fail otherwise as insecure content error-->
  <script>$(function() {
@@ -20,9 +17,6 @@
 	});
  </script>
  
-  </jsp:attribute>
-	
-	<jsp:body>
 	
 	<div id="legend">
 	<table>
@@ -62,8 +56,4 @@
                 
                 </table>
                 
-	</jsp:body>
-	
-	
-	
-</t:genericpage>
+
