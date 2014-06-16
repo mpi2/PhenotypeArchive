@@ -159,7 +159,7 @@ public class ImagesController {
 		queryString=queryString.replace("annotated_or_inferred_higherLevelMaTermName", "anatomy");
 		queryString=queryString.replace("expName", "procedure");
 		queryString=queryString.replace("subtype", "gene_subtype");
-	
+	System.out.println("query string="+queryString);
 		model.addAttribute("breadcrumbText", queryString);
 
 		return "imagesb";
@@ -263,9 +263,10 @@ public class ImagesController {
 			GenomicFeature gf = gfDAO.getGenomicFeatureByAccessionAndDbId(
 					geneId, 3);
 			String value = gf.getSymbol();
-			String geneBc = "<a href='" + baseUrl + "/genes/" + geneId + "'>"
-					+ gf.getSymbol() + "</a>";
-			breadcrumbs.add("gene: \"" + geneBc + "\"");
+//			String geneBc = "<a href='" + baseUrl + "/genes/" + geneId + "'>"
+//					+ gf.getSymbol() + "</a>";
+//			breadcrumbs.add("gene: \"" + geneBc + "\"");
+			breadcrumbs.add("gene: \"" + geneId + "\"");
 		}
 
 		if (!mpId.equals("")) {
