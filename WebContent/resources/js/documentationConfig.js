@@ -70,3 +70,16 @@ MDOC.stats = {
 		'generalPanel'         : '<p>Details about the graphs.</p> <p>Click the help icon for more detail.</p>',
 		'generalPanelDocUrl'   : baseUrl + '/documentation/graph-help'
 };
+
+MDOC.alleles = {
+		'generalPanel'         : '<p>Details about the graphs.</p> <p>Click the help icon for more detail.</p>',
+		'generalPanelDocUrl'   : baseUrl + '/documentation/graph-help'
+};
+
+MDOC.phenome = {
+		'phenomePanel'         : '<p>Details about the graph.</p> <p>Click the help icon for more detail.</p>',
+		'phenomePanelDocUrl'   : baseUrl + '/documentation/phenome-help'
+};
+
+
+

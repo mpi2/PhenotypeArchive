@@ -87,7 +87,7 @@
                             <h3><a name="phenotype-table" href='#'>Gene Phenotype Table</a></h3>
 
                             <p>The phenotype table lists the individual phenotypes associated to this gene through a specific allele.  If both sexes are associated, then both are shown on the same row indicated by the male / female icons (<img src="img/both-sexes-icon.png" />).</p>
-                            <img src="img/gene-phenotype-table.png" alt="" />
+                            <img src="img/phenome-hyperlink.png" alt="" />
 
 
                             <h3><a name="phenotype-filtering" href='#'>Gene Phenotype Filtering</a></h3>
@@ -110,8 +110,14 @@
                                 In the export file however we export all lines separately, to allow easier further processing of the data. This holds for both XLS and TSV files.
                             </p>
 
+                            <h3><a name="phenotype-phenome-hyperlink" href='#'>Browse all phenotype data for a gene</a></h3>
 
-														<h3><a name="pre-qc" href='#'>Pre-QC Phenotype Heatmap</a></h3>
+                            <p>Access to the details of the statistical analysis is provided below the phenotype table in a list starting with <strong>Browse all phenotype data</strong>.
+                            This provides access to all statistical results for a mutant line whether significant or not. This also provides access to a 'phenome' view of all the significant 
+                            calls for all the mutant lines for a specific phenotyping center. This link is providing by clicking on the text <strong>MP calls for all strains</strong>.</p>
+                            <img src="img/phenome-hyperlink.png" alt="" />
+
+							<h3><a name="pre-qc" href='#'>Pre-QC Phenotype Heatmap</a></h3>
 
                             <p>When there is data available, but not yet complete, from the IMPC resource, the Pre-QC panel will appear.  The pre QC panel shows a heatmap of the results of preliminary analysis on data that has been collected by the IMPC production centers to date, but is not yet complete. In order to be marked Complete, 7 males and 7 females must complete all core screens required by the IMPC pipeline.
                             </p>
