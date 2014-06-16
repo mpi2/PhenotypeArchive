@@ -36,26 +36,79 @@
                             <h3>More information about the way IMPC uses statistics.</h3>
 
                             <h4>IMPC statistics</h4>
+                            
+                            <p>
+                            High-throughput phenotyping generates large volumes of varied data including 
+                            both categorical and continuous data. Operational and cost constraints can 
+                            lead to a work-flow that precludes traditional analysis methods. Furthermore, 
+                            for a high throughput environment, a robust automated statistical pipeline 
+                            that alleviates manual intervention is required.</p>
+                            
+                            <p>The IMPC uses multiple methods for analysing the data produced by phenotyping centers.
+                            The pipeline has been formalized into an R package called 
+                            <a href="http://bioconductor.org/packages/release/bioc/html/PhenStat.html">PhenStat</a>.
+                            </p>
+
+                            <p>
+                            All analysis frameworks output a statistical significance measure, 
+                            an effect size measure, model diagnostics (when appropriate), 
+                            and <a href="${baseUrl}/documentation/graph-help">graphical visualisation</a>.
+                            </p>
+                            
+                            <p>
+                            The PhenStat package provides statistical methods for 
+                            the identification of abnormal phenotypes with an emphasize on high-throughput dataflows. 
+                            The package contains:</p>
+                            <ul>
+	                            <li>dataset checks and cleaning in preparation for the analysis</li> 
+	                            <li>2 statistical frameworks for phenodeviant identification
+		                            <ul>
+			                            <li>Fisher's Exact test for Categorical data</li>
+			                            <li>Linear Mixed Model for continuous</li>
+		                            </ul>
+	                            </li>
+	                            <li> and additional functions that help to decide the correct method for analysis.</li>
+                            </ul>
+                            
+                            <p>
+                            Mixed Models framework assumes that base line values of 
+                            dependent variable are normally distributed but batch (assay date) 
+                            adds noise and models variables accordingly in 
+                            order to separate the batch and the genotype. Model 
+                            optimisation starting with:</p>
+
+                            <blockquote>
+                            	<strong><i>Y = Genotype + Sex + Genotype∗Sex + Weight + (1|Batch)</i></strong>
+                            	<p><small>
+                            	Weight is an optional parameter.<br />
+                            	Genotype∗Sex is sometimes called the "interaction term" in PhenStat.<br />
+                            	Assume batch is normally distributed with defined variance.
+                            	</small></p>
+                            </blockquote>
+                            
+                            <p>
+                            The Mixed Model framework is an iterative process to select the 
+                            best model for the data which considers both the best modelling 
+                            approach (mixed model or general linear regression) 
+                            and which factors to include in the model.
+                            </p>
+
+                            <p>
+                            If PhenStat assumptions about the data are not met, a second attempt at analyzing the data
+                            will be attempted -- a Mann-Whitney U Rank Sum test.
+                            </p>
+                            
+                            
 
                             <p>The IMPC uses a variety of statistical methods for making phenotype calls, including:</p>
 
                             <ul>
                                 <li><a href="https://en.wikipedia.org/wiki/Fisher%27s_exact_test"><strong>Fisher's Exact test</strong></a> - for categorical data parameters</li>
                                 <li><a href="https://en.wikipedia.org/wiki/Mixed_model"><strong>Mixed Model</strong></a> - for continuous data parameters which include random effects </li>
-                                <li><a href="https://en.wikipedia.org/wiki/Linear_model"><strong>Linear Model</strong></a> - for continuous data parameters when mixed model doesn't apply</li>
+                                <li><a href="https://en.wikipedia.org/wiki/Linear_model"><strong>Linear Model</strong></a> - for continuous data parameters when random effects are not significant</li>
+                                <li><a href="https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test"><strong>Mann–Whitney U Rank sum test</strong></a> - for continuous data parameters when conditions for mixed model are not appropriate</li>
                             </ul>
-                            <p> Further documentation will be available as part of an upcoming statistical Bioconducter package </p>
 
-                            <h4>Europhenome statistics</h4>
-
-                            <p>Europhenome data is analyzed using a variety of statistical methods for making phenotype calls, including:</p>
-
-                            <ul>
-                                <li><a href="http://europhenome.org/databrowser/significanceCatagorical.jsp"><strong>Pearson's chi-square test</strong></a> - for categorical data parameters</li>
-                                <li><a href="http://europhenome.org/databrowser/significanceReference.jsp"><strong>Reference Range</strong></a> - for continuous data parameters</li>
-                                <li><a href="http://europhenome.org/databrowser/significance1DT.jsp"><strong>Student's T test</strong></a> - for continuous data parameters </li>
-                                <li><a href="http://europhenome.org/databrowser/significance1D.jsp"><strong>Rank sum (Mann-Whitney U test)</strong></a> - for continuous data parameters</li>
-                            </ul>
                            
 
                         </div><%-- end of content div--%>

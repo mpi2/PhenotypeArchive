@@ -243,25 +243,19 @@
 	    		$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
 	    			    		
 	    		$.fn.initFacetToggles('gene');
-	    			    		
-	    		// when facet widget is open, flag it so that we know there are existing filters 
-    			// that need to be checked and highlighted
-    			$.fn.checkAndHighlightSubfacetTerms();	    		
 	    		
 	    		$('li#gene li.fcat input').click(function(){	    			
 	    			// // highlight the item in facet	    			
 	    			$(this).siblings('span.flabel').addClass('highlight');
-					$.fn.composeFacetFilterControl($(this), self.options.data.hashParams.q);					
+					$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 				});	    		
     		}
 	    	
-	    	/*------------------------------------------------------------------------------------*/
-	    	/* ------ when search page loads, the URL params are parsed to load dataTable  ------ */
-	    	/*------------------------------------------------------------------------------------*/	
-
-	    	if ( self.options.data.hashParams.fq.match(/.*/) ){	
-	    		$.fn.parseUrlFordTableAndFacetFiltering(self);	    		
-    		}
+	    	/*--------------------------------------------------------------------------------------------------------------------------*/
+	    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
+	    	/*--------------------------------------------------------------------------------------------------------------------------*/	
+	    	
+	    	$.fn.parseUrl_consturctFilters_loadDataTable(self);
 	    },	       
 	  
 	    destroy: function () {    	   

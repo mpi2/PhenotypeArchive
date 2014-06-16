@@ -31,7 +31,7 @@
 	    _init: function () {
 			var self = this;
 			
-			self._initFacet();			
+			self._initFacet();	
 			$.fn.openFacet(self.options.data.core);			
 	    },
 	    
@@ -98,7 +98,7 @@
 	    	    	/*------------------------------------------------------------------------------------*/	
 	        		
 	        		if ( self.options.data.hashParams.fq.match(/.*/) ){	
-	        			$.fn.parseUrlFordTableAndFacetFiltering(self);	    	    		
+	        			$.fn.loadDataTableByUrl(self);	    	    		
 	        		}
 	    			
 	    		}		
