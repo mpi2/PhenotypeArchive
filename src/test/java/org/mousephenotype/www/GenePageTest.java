@@ -31,6 +31,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.TestUtils;
@@ -158,6 +159,7 @@ public class GenePageTest {
             i++;
             
             target = baseUrl + "/genes/" + geneId;
+            System.out.println("gene[" + i + "] URL: " + target);
 
             try {
                 driver.get(target);
@@ -172,12 +174,12 @@ public class GenePageTest {
                 continue;
             }
 
-            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
+            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
             successList.add(message);
             try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
         }
         
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount);
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
     }
 
     /**
@@ -204,7 +206,7 @@ public class GenePageTest {
 
         int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
-        
+            
         // Loop through all genes, testing each one for valid page load.
         Random rand = new Random();
         int max = geneIdArray.length;
@@ -219,8 +221,7 @@ public class GenePageTest {
             i++;
             
             target = baseUrl + "/genes/" + geneId;
-            
-            System.out.println("gene[" + i + "]: " + geneId);
+            System.out.println("gene[" + i + "] URL: " + target);
             
             try {
                 driver.get(target);
@@ -229,18 +230,22 @@ public class GenePageTest {
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
+                TestUtils.sleep(thread_wait_in_ms);
+                continue;
             }  catch (Exception e) {
                 message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
                 exceptionList.add(message);
+                TestUtils.sleep(thread_wait_in_ms);
+                continue;
             }
 
-            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
+            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
             successList.add(message);
             
-            try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+            TestUtils.sleep(thread_wait_in_ms);
         }
         
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount);
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
     }
 
     /**
@@ -275,6 +280,7 @@ public class GenePageTest {
             i++;
 
             target = baseUrl + "/genes/" + geneId;
+            System.out.println("gene[" + i + "] URL: " + target);
 
             try {
                 driver.get(target);
@@ -283,19 +289,22 @@ public class GenePageTest {
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
+                TestUtils.sleep(thread_wait_in_ms);
+                continue;
             } catch (Exception e) {
                 message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
                 exceptionList.add(message);
+                TestUtils.sleep(thread_wait_in_ms);
                 continue;
             }
 
-            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
+            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
             successList.add(message);
             
-            try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+            TestUtils.sleep(thread_wait_in_ms);
         }
         
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount);
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
     }
 
     /**
@@ -306,7 +315,7 @@ public class GenePageTest {
      * @throws SolrServerException 
      */
     @Test
-//@Ignore
+@Ignore
     public void testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI";
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
@@ -330,6 +339,7 @@ public class GenePageTest {
             i++;
             
             target = baseUrl + "/genes/" + geneId;
+            System.out.println("gene[" + i + "] URL: " + target);
 
             // Wait for page to load.
             try {
@@ -339,19 +349,22 @@ public class GenePageTest {
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
+                TestUtils.sleep(thread_wait_in_ms);
+                continue;
             } catch (Exception e) {
                 message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
                 exceptionList.add(message);
+                TestUtils.sleep(thread_wait_in_ms);
                 continue;
             }
             
-            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
+            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
             successList.add(message);
             
-            try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+            TestUtils.sleep(thread_wait_in_ms);
         }
         
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount);
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
     }
     
     /**
@@ -378,6 +391,7 @@ public class GenePageTest {
         
         boolean found = false;
         target = baseUrl + "/genes/" + geneId;
+        System.out.println("URL: " + target);
             
         try {
             driver.get(target);
@@ -405,9 +419,9 @@ public class GenePageTest {
             exceptionList.add(message);
         }
         
-        message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
+        message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
         successList.add(message);
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount);
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, 1);
     }
     
     @Test
@@ -426,7 +440,7 @@ public class GenePageTest {
         
         String geneId = "MGI:104874";
         String target = baseUrl + "/genes/" + geneId;
-        System.out.println("test Akt2 url =\t" + target);
+        System.out.println("URL: " + target);
         
         // Wait for page to load.
         try {
@@ -545,9 +559,9 @@ public class GenePageTest {
         WebElement orderAlleleDiv = driver.findElement(By.id("allele"));//this div is in the ebi jsp which should be populated but without the ajax call success will be empty.
         assertTrue(orderAlleleDiv.getText().length() > 100);//check there is some content in the panel div
         
-        message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". Target URL: " + target;
+        message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
         successList.add(message);
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount);
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, 1);
     }
     
 }

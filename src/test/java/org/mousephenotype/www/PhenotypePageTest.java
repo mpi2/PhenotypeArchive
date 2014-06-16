@@ -29,7 +29,6 @@ import org.junit.AfterClass;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.TestUtils;
@@ -38,7 +37,6 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,7 +102,8 @@ public class PhenotypePageTest {
         if (Utils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             thread_wait_in_ms = Utils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
         
-        printTestEnvironment();
+        TestUtils.printTestEnvironment(driver, seleniumUrl);
+        
         driver.navigate().refresh();
         try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
     }
@@ -124,21 +123,6 @@ public class PhenotypePageTest {
     public static void tearDownClass() {
     }
     
-    private void printTestEnvironment() {
-        String browserName = "<Unknown>";
-        String version = "<Unknown>";
-        String platform = "<Unknown>";
-        if (driver instanceof RemoteWebDriver) {
-            RemoteWebDriver remoteWebDriver = (RemoteWebDriver)driver;
-            browserName = remoteWebDriver.getCapabilities().getBrowserName();
-            version = remoteWebDriver.getCapabilities().getVersion();
-            platform = remoteWebDriver.getCapabilities().getPlatform().name();
-        }
-        
-        System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
-        System.out.println("seleniumUrl: " + seleniumUrl);
-    }
-    
     /**
      * Checks the MGI links for the first MAX_MGI_LINK_CHECK_COUNT phenotype ids
      * 
@@ -155,7 +139,6 @@ public class PhenotypePageTest {
         List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
-        Date stop;
         
         int targetCount = testUtils.getTargetCount(testName, phenotypeIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
@@ -170,7 +153,10 @@ public class PhenotypePageTest {
             
             WebElement phenotypeLink;
             boolean found = false;
+            
             target = baseUrl + "/phenotypes/" + phenotypeId;
+            System.out.println("phenotype[" + i + "] URL: " + target);
+            
             try {
                 driver.get(target);
                 phenotypeLink = (new WebDriverWait(driver, timeout_in_seconds))
@@ -178,6 +164,7 @@ public class PhenotypePageTest {
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
                 errorList.add(message);
+                TestUtils.sleep(thread_wait_in_ms);
                 continue;
             }
             try {
@@ -193,34 +180,14 @@ public class PhenotypePageTest {
                 message = "div id 'templateBodyInsert' not found.";
                 errorList.add(message);
             } else {
-                message = "SUCCESS: MGI link OK for " + phenotypeId + ". Target URL: " + target;
+                message = "SUCCESS: MGI link OK for " + phenotypeId + ". URL: " + target;
                 successList.add(message);
             }
-            try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
-        }
-          
-        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
-        
-        if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MGI links failed:");
-            for (String s : errorList) {
-                System.out.println("\t" + s);
-            }
+            
+            TestUtils.sleep(thread_wait_in_ms);
         }
         
-        if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MGI links caused exceptions to be thrown:");
-            for (String s : exceptionList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI links processed successfully in " + Tools.dateDiff(start, stop) + ".");
-        
-        if (errorList.size() + exceptionList.size() > 0) {
-            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
-        }
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, phenotypeIds.size());
     }
     
     /**
@@ -240,7 +207,6 @@ public class PhenotypePageTest {
         List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
-        Date stop;
         
         int targetCount = testUtils.getTargetCount(testName, phenotypeIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
@@ -254,7 +220,10 @@ public class PhenotypePageTest {
             i++;
 
             WebElement phenotypeLink = null;
+            
             target = baseUrl + "/phenotypes/" + phenotypeId;
+            System.out.println("phenotype[" + i + "] URL: " + target);
+            
             try {
                 driver.get(target);
                 phenotypeLink = (new WebDriverWait(driver, timeout_in_seconds))
@@ -268,34 +237,14 @@ public class PhenotypePageTest {
                 message = "Expected page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
                 errorList.add(message);
             } else {
-                message = "SUCCESS: MP_TERM_ID " + phenotypeId + ". Target URL: " + target;
+                message = "SUCCESS: MP_TERM_ID " + phenotypeId + ". URL: " + target;
                 successList.add(message);
             }
-            try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+            
+            TestUtils.sleep(thread_wait_in_ms);
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
-        
-        if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MP_TERM_ID records failed:");
-            for (String s : errorList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MP_TERM_ID records caused exceptions to be thrown:");
-            for (String s : exceptionList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MP_TERM_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
-        
-        if (errorList.size() + exceptionList.size() > 0) {
-            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
-        }
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, phenotypeIds.size());
     }
     
     /**
@@ -315,7 +264,6 @@ public class PhenotypePageTest {
         List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
-        Date stop;
 
         int targetCount = testUtils.getTargetCount(testName, phenotypeIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
@@ -329,7 +277,10 @@ public class PhenotypePageTest {
             i++;
 
             WebElement topLevelPhenotypeLink = null;
+            
             target = baseUrl + "/phenotypes/" + phenotypeId;
+            System.out.println("phenotype[" + i + "] URL: " + target);
+            
             try {
                 driver.get(target);
                 topLevelPhenotypeLink = (new WebDriverWait(driver, timeout_in_seconds))
@@ -343,34 +294,14 @@ public class PhenotypePageTest {
                 message = "Expected page for TOP_LEVEL_MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
                     errorList.add(message);
             } else {
-            message = "SUCCESS: TOP_LEVEL_MP_TERM_ID " + phenotypeId + ". Target URL: " + target;
+                message = "SUCCESS: TOP_LEVEL_MP_TERM_ID " + phenotypeId + ". URL: " + target;
                 successList.add(message);
             }
-            try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+            
+            TestUtils.sleep(thread_wait_in_ms);
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
-        
-        if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " TOP_LEVEL_MP_TERM_ID records failed:");
-            for (String s : errorList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " TOP_LEVEL_MP_TERM_ID records caused exceptions to be thrown:");
-            for (String s : exceptionList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " TOP_LEVEL_MP_TERM_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
-        
-        if (errorList.size() + exceptionList.size() > 0) {
-            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
-        }
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, phenotypeIds.size());
     }
     
     /**
@@ -390,7 +321,6 @@ public class PhenotypePageTest {
         List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
-        Date stop;
 
         int targetCount = testUtils.getTargetCount(testName, phenotypeIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
@@ -404,7 +334,10 @@ public class PhenotypePageTest {
             i++;
 
             WebElement intermediateLevelPhenotypeLink = null;
+            
             target = baseUrl + "/phenotypes/" + phenotypeId;
+            System.out.println("phenotype[" + i + "] URL: " + target);
+            
             try {
                 driver.get(target);
                 intermediateLevelPhenotypeLink = (new WebDriverWait(driver, timeout_in_seconds))
@@ -418,34 +351,14 @@ public class PhenotypePageTest {
                 message = "Expected page for INTERMEDIATE_MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
                     errorList.add(message);
             } else {
-            message = "SUCCESS: INTERMEDIATE_MP_TERM_ID " + phenotypeId + ". Target URL: " + target;
+                message = "SUCCESS: INTERMEDIATE_MP_TERM_ID " + phenotypeId + ". URL: " + target;
                 successList.add(message);
             }
-            try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+            
+            TestUtils.sleep(thread_wait_in_ms);
         }
         
-        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
-        
-        if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " INTERMEDIATE_MP_TERM_ID records failed:");
-            for (String s : errorList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " INTERMEDIATE_MP_TERM_ID records caused exceptions to be thrown:");
-            for (String s : exceptionList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " INTERMEDIATE_MP_TERM_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
-        
-        if (errorList.size() + exceptionList.size() > 0) {
-            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
-        }
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, phenotypeIds.size());
     }
     
     /**

@@ -37,7 +37,6 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,7 +113,8 @@ public class PhenotypeAssociationsTest {
         if (Utils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             thread_wait_in_ms = Utils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
         
-        printTestEnvironment();
+        TestUtils.printTestEnvironment(driver, seleniumUrl);
+        
         driver.navigate().refresh();
         try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
     }
@@ -134,23 +134,6 @@ public class PhenotypeAssociationsTest {
     public static void tearDownClass() {
     }
     
-    // PRIVATE METHODS
-    
-    private void printTestEnvironment() {
-        String browserName = "<Unknown>";
-        String version = "<Unknown>";
-        String platform = "<Unknown>";
-        if (driver instanceof RemoteWebDriver) {
-            RemoteWebDriver remoteWebDriver = (RemoteWebDriver)driver;
-            browserName = remoteWebDriver.getCapabilities().getBrowserName();
-            version = remoteWebDriver.getCapabilities().getVersion();
-            platform = remoteWebDriver.getCapabilities().getPlatform().name();
-        }
-        
-        System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
-        System.out.println("seleniumUrl: " + seleniumUrl);
-    }
-
     /**
      * Fetches all gene IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
      * core and tests to make sure there is a page for each. Limit the test by
@@ -180,26 +163,29 @@ public class PhenotypeAssociationsTest {
             int index = rand.nextInt((max - min) + 1) + min;
             String geneId = geneIdArray[index];
 // if (i == 0) geneId = "MGI:104874";
- if (i == 0) geneId = "MGI:2443601";        // This one doesn't exist.
-System.out.println("gene[" + i + "]: " + geneId);
+// if (i == 0) geneId = "MGI:2443601";        // This one doesn't exist.
+//System.out.println("gene[" + i + "]: " + geneId);
             if (i >= targetCount) {
                 break;
             }
             i++;
             
-            processRow(geneId);
+            processRow(geneId, i);
 
             if (i % 1000 == 0)
                 System.out.println(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
-            try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+            
+            TestUtils.sleep(thread_wait_in_ms);
         }
         
         printSummary(testName, start);
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
     }
     
-    private void processRow(String geneId) {
+    private void processRow(String geneId, int index) {
         String message;
         String target = baseUrl + "/genes/" + geneId;
+        System.out.println("gene[" + index + "] URL: " + target);
 
         int sumOfPhenotypeCounts = 0;
         int expectedMinimumResultCount = -1;
