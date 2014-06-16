@@ -195,7 +195,7 @@
 									${filterParameters}
 								</c:forEach>
 								<c:if test="${not empty phenotypes}">
-									<form class="tablefiltering no-style" id="target" action="www.google.com">
+									<form class="tablefiltering no-style" id="target" action="">
 											<c:forEach var="phenoFacet" items="${phenoFacets}"
 													varStatus="phenoFacetStatus">
 													<select id="${phenoFacet.key}" class="impcdropdown"
@@ -225,7 +225,7 @@
 				<!--  HEATMAP section -->
 				<div class="section" id="phenotypeHeatmapSection" >
 					<h2 class="title" id="heatmapGenePage">Gene phenotyping heatmap for ${phenotype.name} 
-						<span class="documentation" ><a href='' id='pre-qc' class="fa fa-question-circle pull-right"></a></span> 
+						<span class="documentation" ><a href='https://www.mousephenotype.org/heatmap/manual.html' id='pre-qc' class="fa fa-question-circle pull-right"></a></span> 
 					</h2>
 					<div class="inner">
 						<!-- div id="heatmap-container"-->

@@ -41,7 +41,8 @@ form.no-style{
 	white-space:nowrap;
 }
 .ui-dropdownchecklist-item {
-	margin: 0.3em 0;
+	margin: 0;
+	padding: 0.3em 0;
 	cursor: pointer !important;
 }
 .ui-dropdownchecklist-item label {
