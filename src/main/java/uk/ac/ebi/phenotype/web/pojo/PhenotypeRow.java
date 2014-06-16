@@ -369,7 +369,7 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 					+ getProcedure().getName() + " | " + getParameter().getName() + "\t" 
 					+ getPhenotypingCenter() + "\t" 
 					+ getDataSourceName() + "\t"
-					+ getGraphUrl() + "\n";	
+					+ getGraphUrl() ;	
 		}
 		return res;
 	}
