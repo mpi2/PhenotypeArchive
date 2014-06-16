@@ -58,11 +58,9 @@
 
 		<!--  Phenotype Associations Panel -->
 		<div class="section">
-
-			<h2 class="title " id="section-associations">&nbsp;
-					<!-- <span class="documentation" > <a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span>-->
-					<span class="documentation"><a href='' id='expPanel'
-									class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
+				
+			<h2 class="title" id="section-associations">&nbsp;
+					<span class="documentation"><a href='' id='phenomePanel' class="fa fa-question-circle pull-right"></a></span>
 			</h2>		
 			
 			<div class="inner">
@@ -72,7 +70,7 @@
 			<c:if test="${chart != null}">
 				<!-- phenome chart here -->
   				<div id="chart${param.phenotyping_center}">
-  				<a class="various" id="iframe" data-fancybox-type="iframe">Iframe</a></div>
+  				<!--  <a class="various" id="iframe" data-fancybox-type="iframe">Iframe</a></div> -->
 				<script type="text/javascript">
 					${chart}
 				</script>	
