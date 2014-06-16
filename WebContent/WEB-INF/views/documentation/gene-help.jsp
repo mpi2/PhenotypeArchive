@@ -96,7 +96,7 @@
                             <img src="img/gene-phenotype-filter.png" alt="Filter be top level MP term" />
 
 
-                            <h3><a name="phenotype-download" href='#'>Gene Ohenotype Download</a></h3>
+                            <h3><a name="phenotype-download" href='#'>Gene Phenotype Download</a></h3>
 
                             <p>The results in the table may be downloaded for further processing.  The resulting download respects all filters that have been applied to the data.</p>
                             <p>We offer 2 export options for the data in the table: </p>
