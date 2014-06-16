@@ -325,6 +325,7 @@
 				</c:when>
 				<c:otherwise>
 				<div class="alert alert-info">There are currently no phenotype associations for the gene ${gene.symbol} </div>
+				</br>
 				</c:otherwise>
 				</c:choose>
 				
