@@ -33,13 +33,17 @@
                         <div id="top" class="content node">
 
                            <h3>More information about the IMPC RESTful API.</h3>
+                           
+                           <p>The IMPC offers the following RESTful APIs for consuming data:
 
                             <h4><a name="genetype-phenotype" href='#'>Genotype-Phenotype API</a></h4>
-                            <p>Please see the comprehensive <a href="https://github.com/mpi2/PhenotypeArchive/wiki/Genotype-associated-Phenotype-calls-REST-API">Genotype-Phenotype API documentation</a> </p>
+                            <p>Please see the <a href="genotype-phenotype-api-help">Genotype-Phenotype API documentation</a> </p>
 
                             <h4><a name="experiment" href='#'>Experimental observation API</a></h4>
-                            <p>Please see the comprehensive <a href="https://github.com/mpi2/PhenotypeArchive/wiki/Experimental-data-REST-API">Experimental observation API documentation</a> </p>
+                            <p>Please see the <a href="experimental-api-help">Experimental observation API documentation</a> </p>
 
+                            <h4><a name="experiment" href='#'>Statistical results API</a></h4>
+                            <p>Please see the <a href="statistical-results-api-help">Statistical results API documentation</a> </p>
 
                         </div><%-- end of content div--%>
                     </div>
