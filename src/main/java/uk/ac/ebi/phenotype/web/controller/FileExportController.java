@@ -268,9 +268,9 @@ public class FileExportController {
 			}
 			else if (solrCoreName.equalsIgnoreCase("genotype-phenotype")){
 				if (mgiGeneId !=null)
-					dataRows = composeDataRowGeneOrPhenPage(mgiGeneId[0], request.getParameter("page"), request.getServerName());
+					dataRows = composeDataRowGeneOrPhenPage(mgiGeneId[0], request.getParameter("page"));
 				else if (mpId != null)
-					dataRows = composeDataRowGeneOrPhenPage(mpId, request.getParameter("page"), request.getServerName());
+					dataRows = composeDataRowGeneOrPhenPage(mpId, request.getParameter("page"));
 			}
 			else{
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
@@ -689,7 +689,7 @@ public class FileExportController {
 	}
 	
 
-	private List<String> composeDataRowGeneOrPhenPage(String id, String pageName, String host){
+	private List<String> composeDataRowGeneOrPhenPage(String id, String pageName){
 		
 		List<String> res = new ArrayList<>();
 		List<PhenotypeCallSummary> phenotypeList = new ArrayList<PhenotypeCallSummary>();
@@ -716,7 +716,7 @@ public class FileExportController {
 				// Use a tree set to maintain an alphabetical order (Female, Male)
 				List<String> sex = new ArrayList<String>();
 				sex.add(pcs.getSex().toString());	
-				PhenotypeRow pr = new PhenotypeRow( pcs, host+"*****/"+config.get("baseUrl"));
+				PhenotypeRow pr = new PhenotypeRow( pcs, config.get("drupalBaseUrl"));
 				phenotypes.add(pr);
 			}
 						
@@ -752,7 +752,7 @@ public class FileExportController {
 				List<String> sex = new ArrayList<String>();
 				sex.add(pcs.getSex().toString());
 	
-				PhenotypeRow pr = new PhenotypeRow( pcs, host+"*******/"+config.get("baseUrl"));
+				PhenotypeRow pr = new PhenotypeRow( pcs, config.get("drupalBaseUrl"));
 				
 				if(pr.getParameter() != null && pr.getProcedure()!= null) {		
 					phenotypes.add(pr);
