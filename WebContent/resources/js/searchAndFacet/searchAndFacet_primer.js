@@ -43,6 +43,9 @@ $(document).ready(function(){
 		// load page based on url hash parameters	
 		
 		oHashParams = $.fn.parseHashString(window.location.hash.substring(1));	
+		if (typeof oHashParams.fq == 'undefined'){
+			oHashParams.noFq = true;
+		}
 		$.fn.fetchSolrFacetCount(oHashParams);	
 	}
 	else {
