@@ -126,31 +126,33 @@
 
 	<%-- some *** result should be here: ${unidimensionalChartDataSet.statsObjects[1].result} --%>
 	<c:if test="${fn:length(unidimensionalChartDataSet.statsObjects)>1}">
-		<c:set var="data"
-			value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
-		<c:if
-			test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
+
+		<c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
+
+		<c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
+
 			<p>
-				<a><i class="fa" id="toggle_table_button${experimentNumber}">More
-						Statistics</i></a>
+				<a><i class="fa" id="toggle_table_button${experimentNumber}">More Statistics</i></a>
 			</p>
+
 			<div id="toggle_table${experimentNumber}">
 
-
-				<%-- <th>mixedModel</th> --%>
-
-
-				<c:set var="data"
-					value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
+				<c:if test="${data.result.colonyId!=null}"><!-- Colony Id: ${data.result.colonyId } --></c:if>
 				<table>
 					<tr>
 						<th>Model Fitting Estimates</th>
 						<th>Value</th>
 					</tr>
-					<%-- <c:if test="${data.result.colonyId!=null}"><tr><td>Colony Id</td><td>${data.result.colonyId }</td></tr></c:if> --%>
 					<%-- <c:if test="${data.result.experimentalZygosity!=null}"><tr><td>Experimental Zygosity</td><td>${data.result.experimentalZygosity}</td></tr></c:if> --%>
 					<%-- <td>${data.result.mixedModel}</td> --%>
+					<%-- <c:if test="${data.result.colonyId!=null}"><tr><td>Colony Id</td><td>${data.result.colonyId }</td></tr></c:if> --%>
 					<%-- <c:if test="${data.result.dependantVariable!=null}"><tr><td>Dependant Variable</td><td>${data.result.dependantVariable}</td></tr></c:if> --%>
+					<c:if test="${data.result.statisticalMethod!=null}">
+						<tr>
+							<td>Statistical method</td>
+							<td>${data.result.statisticalMethod}</td>
+						</tr>
+					</c:if>
 					<c:if test="${data.result.batchSignificance!=null}">
 						<tr>
 							<td>Batch Significance</td>
