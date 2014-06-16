@@ -9,6 +9,7 @@
 	<jsp:attribute name="title">IDG | IMPC Project Information</jsp:attribute>
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
 			href="${baseUrl}/IDG">anatomy</a> &raquo; IDG</jsp:attribute>
+			<jsp:attribute name="bodyTag"><body  class="chartpage no-sidebars small-header"></jsp:attribute>
 	<jsp:attribute name="header">
 </jsp:attribute>
 	<jsp:attribute name="addToFooter">
@@ -45,7 +46,20 @@
 					<div class=inner>
 							<p><b>Illuminating the Druggable Genome (IDG)</b> is an NIH Common Fund project focused on collecting, integrating and making available biological data on approx 300 genes that have been identified as potenital therapeutic targets. KOMP2 - funded IMPC Centers are creating where possible knockout mouse strains for this consortium.
 							</p>
-							<div id="geneHeatmap">
+					</div>
+				</div>
+				
+				<div class="section">
+				<h2 class="title">Gene to MP Term Heat Map</h2>
+					<div class=inner>
+					<div id="legend">
+						<table>
+							<tr>
+								<td>Key:</td><td>Phenotype Detected:</td><td style="background-color:rgb(191, 75, 50)"></td><td>No Phenotype Detected:</td><td style="background-color: rgb(119, 119, 119)"></td>
+							</tr>
+						</table>
+					</div>
+							<div id="geneHeatmap" style="overflow:hidden; overflow-x: auto;">
 							</div>
 					</div>
 				</div>

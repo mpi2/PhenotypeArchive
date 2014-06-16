@@ -17,15 +17,6 @@
 	});
  </script>
  
-	
-	<div id="legend">
-	<table>
-	<tr>
-	<td>Key:</td><td>Phenotype Detected:</td><td style="background-color:rgb(191, 75, 50)"></td><td>No Phenotype Detected:</td><td style="background-color: rgb(119, 119, 119)"></td>
-	</tr>
-	</table>
-	</div>
-	
                 <table>
                 <thead>
                 <tr> 
