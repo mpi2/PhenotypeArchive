@@ -777,7 +777,7 @@ public class GenotypePhenotypeService {
 			}
 		} else {
 			// if no doc found for the gene then no data available
-			cell.setLabel("No Data Available");
+			//cell.setLabel("No Data Available");
 		}
 			xAxisToCellMap.put(xAxisBean.getId(), cell);
 		}
