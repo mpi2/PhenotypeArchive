@@ -546,7 +546,7 @@
 
     </dependencies>
 
-   <repositories>
+    <repositories>
        
         <repository>
             <id>Sonatype-public</id>

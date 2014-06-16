@@ -1018,10 +1018,55 @@ public class SolrIndex {
 
             return genes;
         }
+        
+        private Map<String, Object> getGeneProductInfoMice(JSONObject jsonObject2) throws IOException, URISyntaxException {
+           // List<Map<String, Object>> mice = new ArrayList<>();
 
-        public List<Map<String, Object>> getGeneProductInfo(String accession) throws IOException, URISyntaxException {
+            String type = jsonObject2.getString("type");
+
+            if(!type.equals("mouse")) {
+                return null;
+            }
             
-            String url = "http://ikmc.vm.bytemark.co.uk:8983/solr/product/search?q=mgi_accession_id:"
+            HashMap<String, Object> map2 = new HashMap<>();
+            HashMap<String, Object> map3 = new HashMap<>();
+            List<Map<String, Object>> orders = new ArrayList<>();
+
+            JSONArray array_order_names = jsonObject2.getJSONArray("order_names");
+            JSONArray array_order_links = jsonObject2.getJSONArray("order_links");
+            for (int k = 0; k < array_order_names.size() ; k++){
+                map3.put("name", array_order_names.getString(k));
+                map3.put("url", array_order_links.getString(k));
+            }
+
+            orders.add(map3);
+            map2.put("orders", orders);
+            map2.put("production_centre", jsonObject2.getString("production_centre"));
+
+            JSONArray array_background_colony_strain = jsonObject2.getJSONArray("genetic_info");
+            for(Object o : array_background_colony_strain)
+            {
+                  String s = (String)o;
+                  Pattern pattern = Pattern.compile("background_colony_strain:(.+)");
+                  Matcher matcher = pattern.matcher(s);
+                  if (matcher.find())
+                  {
+                      map2.put("genetic_background", matcher.group(1));
+                      break;
+                  }
+            }
+
+            map2.put("es_cell", jsonObject2.getString("associated_product_es_cell_name"));
+            map2.put("qc_data", "placeholder");
+            map2.put("southern_tool", "placeholder");
+           // mice.add(map2);
+            
+            return map2;
+        }
+        
+        public Map<String, Object> getGeneProductInfo(String accession) throws IOException, URISyntaxException {
+            
+            String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/product/search?q=mgi_accession_id:"
                         + accession.replace(":", "\\:")
                         + "&start=0&rows=100&hl=true&wt=json";
 
@@ -1029,43 +1074,25 @@ public class SolrIndex {
 
             JSONObject jsonObject1 = getResults(url);
             
-            //int numFound = Integer.parseInt(jsonObject.getJSONObject("response").getString("numFound"));
-
             JSONArray docs = jsonObject1.getJSONObject("response").getJSONArray("docs");
 
             if (docs.size() < 1) {
                 log.info("No rows returned for the query!");
                 return null;
             }
-            
-            String[] stringArray = new String[]{"marker_symbol","marker_type","mgi_accession_id","allele_type","allele_name","type","type_of_microinjection","status","production_centre","es_cell_name",
-                "parent_es_cell_line","vector_name","vector_type","order_names"};
-            
-            String[] multiValued = new String[]{"order_links","other_links","colony_names","genetic_background"};
-            
-            List<Map<String, Object>> genes = new ArrayList<>();
+             
+            Map<String, Object> genes = new HashMap<>();
+            List<Map<String, Object>> mice = new ArrayList<>();
 
             for (Object doc : docs) {
                 JSONObject jsonObject2 = (JSONObject) doc;
 
-                HashMap<String, Object> map = new HashMap<>();
-                
-                for(String s : stringArray) {
-                    String o = jsonObject2.getString(s);
-                    map.put(s, o);
+                if(jsonObject2.getString("type").equals("mouse")) {
+                    mice.add(getGeneProductInfoMice(jsonObject2));
                 }
-
-                for(String s : multiValued) {
-                    List<String> ss = new ArrayList<>();
-                    JSONArray array = jsonObject2.getJSONArray(s);
-                    for (int k = 0; k < array.size() ; k++){
-                        ss.add(array.getString(k));
-                    }
-                    map.put(s, ss);
-                }
-                
-                genes.add(map);
             }
+            
+            genes.put("mice", mice);
 
             return genes;
         }

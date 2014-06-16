@@ -29,17 +29,22 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.yaml.snakeyaml.Yaml;
+import uk.ac.ebi.generic.util.SolrIndex;
 
 @Controller
 public class AllelesController {
 
     private final Logger log = LoggerFactory.getLogger(AllelesController.class);
+
+    @Autowired
+    SolrIndex solrIndex;
 
     public List<Map<String, String>> getStatuses() {
         List<Map<String, String>> list = new ArrayList<>();
@@ -152,6 +157,8 @@ public class AllelesController {
         
        log.error("#### Working Directory = " + System.getProperty("user.dir"));
 
+        Map<String, Object> constructs = solrIndex.getGeneProductInfo(acc);
+
         Yaml yaml = new Yaml();
         String content = FileUtils.readFileToString(new File("/var/tmp/yaml_test.yml"));
         Map<String, Object> list = (Map<String, Object>) yaml.load(content);
@@ -174,7 +181,9 @@ public class AllelesController {
 
         model.addAttribute("browsers", (List<Map<String, String>>)list2.get("browsers"));
 
-        model.addAttribute("mice", (List<Map<String, String>>)list2.get("mice"));
+        //model.addAttribute("mice", (List<Map<String, String>>)list2.get("mice"));
+        
+        model.addAttribute("mice", constructs.get("mice"));
         
         model.addAttribute("mice_in_progress", (List<Map<String, String>>)list2.get("mice_in_progress"));
 

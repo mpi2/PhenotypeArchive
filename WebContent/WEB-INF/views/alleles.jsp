@@ -339,7 +339,16 @@
                 <td>${mouse['production_centre']}</td>
                 <td>${mouse['es_cell']}</td>
                 <td style="text-align: center;"><a href="${mouse['qc_data']}">QC data</a> / <a href="${mouse['southern_tool']}">Southern tool</a></td>
-                <td><a class="btn" href="${mouse['order_url']}"> <i class="fa fa-shopping-cart"></i> ${mouse['order_name']}</a></td>
+                
+                
+                <td>
+                    <c:forEach var="order" items="${mouse['orders']}" varStatus="ordersx">
+                        <a class="btn" href="${order['url']}"> <i class="fa fa-shopping-cart"></i> ${order['name']}</a>
+                    </c:forEach>	
+                </td>
+                
+                
+                
             </tr>
             
             </c:forEach>	
