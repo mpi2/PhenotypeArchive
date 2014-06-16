@@ -371,7 +371,7 @@
 			<!-- nicolas accordion for images here -->
 			<c:if test="${not empty solrFacets}">
         		<div class="section">
-                      <h2 class="title" id="section-images">Phenotype Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                      <h2 class="title" id="section-images">Phenotype Associated Images<span class="documentation" ><a href='' id='imagePanel' class="fa fa-question-circle pull-right"></a></span></h2>
                        <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
                 		<div class="inner">
                       				<c:forEach var="entry" items="${solrFacets}" varStatus="status">
@@ -401,7 +401,7 @@
 					
 			<c:if test="${not empty expressionFacets}">
 			<div class="section">
-				<h2 class="title" id="section-expression">Expression <i class="fa fa-question-circle pull-right"></i></h2>
+				<h2 class="title" id="section-expression">Expression <span class="documentation" ><a href='' id='expressionPanel' class="fa fa-question-circle pull-right"></a></span></h2>
 					<div class="inner">			
 					
 							<!-- thumbnail scroller markup begin -->

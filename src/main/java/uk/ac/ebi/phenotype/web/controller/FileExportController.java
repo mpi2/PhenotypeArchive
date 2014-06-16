@@ -716,12 +716,12 @@ public class FileExportController {
 				// Use a tree set to maintain an alphabetical order (Female, Male)
 				List<String> sex = new ArrayList<String>();
 				sex.add(pcs.getSex().toString());	
-				PhenotypeRow pr = new PhenotypeRow( pcs, config.get("baseUrl"));
+				PhenotypeRow pr = new PhenotypeRow( pcs, config.get("drupalBaseUrl")+"/data");
 				phenotypes.add(pr);
 			}
 						
 			Collections.sort(phenotypes); // sort in alpha order by MP term name
-			res.add("Phenotype\tAllele\tZygosity\tSex\tProcedure / Parameter\tPhenotyping Center\tAnalysis\tGraph");
+			res.add("Phenotype\tAllele\tZygosity\tSex\tProcedure / Parameter\tPhenotyping Center\tSource\tGraph");
 			for (PhenotypeRow pr : phenotypes){
 				res.add(pr.toTabbedString("gene"));
 			}		
@@ -745,14 +745,14 @@ public class FileExportController {
 			}
 	
 			ArrayList<PhenotypeRow> phenotypes = new ArrayList<PhenotypeRow>();
-			res.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure / Parameter\tPhenotyping Center\tAnalysis\tGraph"); 
+			res.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure / Parameter\tPhenotyping Center\tSource\tGraph"); 
 			for (PhenotypeCallSummary pcs : phenotypeList) {
 	
 				// Use a tree set to maintain an alphabetical order (Female, Male)
 				List<String> sex = new ArrayList<String>();
 				sex.add(pcs.getSex().toString());
 	
-				PhenotypeRow pr = new PhenotypeRow( pcs, config.get("baseUrl"));
+				PhenotypeRow pr = new PhenotypeRow( pcs, config.get("drupalBaseUrl") + "/data");
 				
 				if(pr.getParameter() != null && pr.getProcedure()!= null) {		
 					phenotypes.add(pr);

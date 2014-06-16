@@ -1171,7 +1171,7 @@ public class ObservationService {
 		query.set("group.limit", 200);
 		// per group
 
-//		System.out.println("--- unidimensional : " + solr.getBaseURL() + "/select?" + query);
+		System.out.println("--- unidimensional : " + solr.getBaseURL() + "/select?" + query);
 		
 		// for each colony get the mean & put it in the array of data to plot
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
@@ -1192,7 +1192,8 @@ public class ObservationService {
 					ExperimentField.GENE_ACCESSION);
 			geneSymbolArray[i] = (String) resDocs.get(0).get(
 					ExperimentField.GENE_SYMBOL);
-			
+			System.out.println("--- - " + resDocs.get(0).get(
+					ExperimentField.GENE_SYMBOL));
 			meansArray[i] = sum / total;
 			i++;
 		}
