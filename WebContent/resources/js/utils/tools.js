@@ -24,8 +24,8 @@
 	
 	$.fn.parseUrl_consturctFilters_loadDataTable = function(widget){
 		
-		// if url contains solr fq filters, parse them and tick checkbox of checkbox filters to create summary facet filters
-		if ( widget.options.data.hashParams.fq.match(/(.*)/) ){
+		// if url contains solr fq (non-default ones) filters, parse them and tick checkbox of checkbox filters to create summary facet filters
+		if ( widget.options.data.hashParams.fq.match(/(.*)/) && !widget.options.data.hashParams.noFq ){
 			
 			// only deals with facet=xxx, not core=xxx
 			if ( typeof widget.options.data.core == 'undefined' ){
@@ -53,8 +53,9 @@
 					}
 				}
 			}
-			$.fn.loadDataTable(widget.options.data.hashParams);
+			
 		}
+		$.fn.loadDataTable(widget.options.data.hashParams);
 	}
 	
 	$.fn.initFacetToggles = function(facet){			

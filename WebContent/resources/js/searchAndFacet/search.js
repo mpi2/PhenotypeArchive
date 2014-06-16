@@ -75,7 +75,7 @@
 	       	    	$('div.flist li#gene span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
 	       	    	oFacets.count.gene = geneResponse.response.numFound;	
 	       	    	_updateFacetCount('gene', geneResponse, facetMode);	       	    	
-	       	    	_doMPAutoSuggest(geneResponse, q, oFacets, facetMode, oUrlHashParams.fq);	            	    
+	       	    	_doMPAutoSuggest(geneResponse, q, oFacets, facetMode, oUrlHashParams);	            	    
 	       	    },
 	       	    error: function (jqXHR, textStatus, errorThrown) {	       	                	        
 	       	        $('div#facetSrchMsg').html('Error fetching data ...');
@@ -83,11 +83,11 @@
 	    });
 	}
 	
-	function _doMPAutoSuggest(geneResponse, q, oFacets, facetMode, fq){		
+	function _doMPAutoSuggest(geneResponse, q, oFacets, facetMode, oUrlHashParams){		
 				
 		jsonBase.mpFacet.srchParams.q = q;		
-		if ( typeof fq != 'undefined' ){
-			jsonBase.mpFacet.filterParams = {'fq': fq};
+		if ( typeof oUrlHashParams.fq != 'undefined' ){
+			jsonBase.mpFacet.filterParams = {'fq': oUrlHashParams.fq};
 		}
 		
 		var oParams = {};		
@@ -105,18 +105,18 @@
     	    	$('div.flist li#mp span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
        	    	oFacets.count.mp = mpResponse.response.numFound;       	    	
        	    	_updateFacetCount('mp', mpResponse, facetMode);	 
-    	    	_doDiseaseAutoSuggest(geneResponse, mpResponse, q, oFacets, facetMode, fq);  
+    	    	_doDiseaseAutoSuggest(geneResponse, mpResponse, q, oFacets, facetMode, oUrlHashParams);  
     	    },
     	    error: function (jqXHR, textStatus, errorThrown) {				         	        
 				$('div#facetSrchMsg').html('Error fetching data ...');
 			}        	    
 		});  			
 	}   	
-	function _doDiseaseAutoSuggest(geneResponse, mpResponse, q, oFacets, facetMode, fq){
+	function _doDiseaseAutoSuggest(geneResponse, mpResponse, q, oFacets, facetMode, oUrlHashParams){
 		
 		jsonBase.diseaseFacet.srchParams.q = q;		
-		if ( typeof fq != 'undefined' ){
-			jsonBase.diseaseFacet.filterParams = {'fq': fq};
+		if ( typeof oUrlHashParams.fq != 'undefined' ){
+			jsonBase.diseaseFacet.filterParams = {'fq': oUrlHashParams.fq};
 		}	
 		//console.log($.fn.stringifyJsonAsUrlParams(jsonBase.diseaseFacet.srchParams));
 		$.ajax({    	  
@@ -129,7 +129,7 @@
     	    	$('div.flist li#disease span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.disease = diseaseResponse.response.numFound;    	    	
     	    	_updateFacetCount('disease', diseaseResponse, facetMode);	 
-    	    	_doTissueAutoSuggest(geneResponse, mpResponse, diseaseResponse, q, oFacets, facetMode, fq);    	    	
+    	    	_doTissueAutoSuggest(geneResponse, mpResponse, diseaseResponse, q, oFacets, facetMode, oUrlHashParams);    	    	
     	    },
 			error: function (jqXHR, textStatus, errorThrown) {			       	        
 				$('div#facetSrchMsg').html('Error fetching data ...');
@@ -137,11 +137,11 @@
 		});
 	}
 	
-	function _doTissueAutoSuggest(geneResponse, mpResponse, diseaseResponse, q, oFacets, facetMode, fq){
+	function _doTissueAutoSuggest(geneResponse, mpResponse, diseaseResponse, q, oFacets, facetMode, oUrlHashParams){
 		jsonBase.maFacet.srchParams.q = q;	
 		jsonBase.maFacet.srchParams.sort = 'ma_term asc';
-		if ( typeof fq != 'undefined' ){
-			jsonBase.maFacet.filterParams = {'fq': fq};
+		if ( typeof oUrlHashParams.fq != 'undefined' ){
+			jsonBase.maFacet.filterParams = {'fq': oUrlHashParams.fq};
 		}
 		
 		$.ajax({
@@ -155,7 +155,7 @@
     	    	$('div.flist li#ma span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.ma = maResponse.response.numFound;    	    	
     	    	_updateFacetCount('ma', maResponse, facetMode);	     	    	
-    	    	_doPipelineAutoSuggest(geneResponse, mpResponse, diseaseResponse, maResponse, q, oFacets, facetMode, fq);
+    	    	_doPipelineAutoSuggest(geneResponse, mpResponse, diseaseResponse, maResponse, q, oFacets, facetMode, oUrlHashParams);
     	    },
 			error: function (jqXHR, textStatus, errorThrown) {			       	        
 				$('div#facetSrchMsg').html('Error fetching data ...');
@@ -163,11 +163,11 @@
 		});
 	}
 		
-	function _doPipelineAutoSuggest(geneResponse, mpResponse, diseaseResponse, maResponse, q, oFacets, facetMode, fq){
+	function _doPipelineAutoSuggest(geneResponse, mpResponse, diseaseResponse, maResponse, q, oFacets, facetMode, oUrlHashParams){
 		
 		jsonBase.pipelineFacet.srchParams.q = q;		
-		if ( typeof fq != 'undefined' ){
-			jsonBase.pipelineFacet.filterParams = {'fq': fq};
+		if ( typeof oUrlHashParams.fq != 'undefined' ){
+			jsonBase.pipelineFacet.filterParams = {'fq': oUrlHashParams.fq};
 		}
 		$.ajax({
     	    url: solrUrl + '/pipeline/select',    	   
@@ -179,7 +179,7 @@
     	    	$('div.flist li#pipeline span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.pipeline = pipelineResponse.response.numFound;    	    	
     	    	_updateFacetCount('pipeline', pipelineResponse, facetMode);	 
-    	    	_doImageAutosuggest(geneResponse, mpResponse, diseaseResponse, maResponse, pipelineResponse, q, oFacets, facetMode, fq); 
+    	    	_doImageAutosuggest(geneResponse, mpResponse, diseaseResponse, maResponse, pipelineResponse, q, oFacets, facetMode, oUrlHashParams); 
     	    },
 			error: function (jqXHR, textStatus, errorThrown) {			        	        
 				$('div#facetSrchMsg').html('Error fetching data ...');
@@ -187,11 +187,11 @@
 		});
 	}
 	
-	function _doImageAutosuggest(geneResponse, mpResponse, diseaseResponse, maResponse, pipelineResponse, q, oFacets, facetMode, fq){
+	function _doImageAutosuggest(geneResponse, mpResponse, diseaseResponse, maResponse, pipelineResponse, q, oFacets, facetMode, oUrlHashParams){
 		
 		jsonBase.imagesFacet.srchParams.q = q;		
-		if ( typeof fq != 'undefined' ){
-			jsonBase.imagesFacet.filterParams = {'fq': fq};
+		if ( typeof oUrlHashParams.fq != 'undefined' ){
+			jsonBase.imagesFacet.filterParams = {'fq': oUrlHashParams.fq};
 		}
 		//console.log($.fn.stringifyJsonAsUrlParams($.extend({}, jsonBase.imagesFacet.srchParams, jsonBase.imagesFacet.filterParams)));
 		
@@ -244,7 +244,8 @@
     	        	hashParams.fq = hashParams.fq ? hashParams.fq : jsonBase[widgetName].fq;    	        	    	        	
     	        	hashParams.widgetName = widgetName;
     	        	hashParams.q = q;
-    	        	     	
+    	        	hashParams.noFq = oUrlHashParams.noFq;
+    	        	
     	        	window.jQuery('li#' + thisCore)[widgetName]({
     					data: {	   							 
     							core: coreName,    							
@@ -271,7 +272,7 @@
     	        	for ( var i=0; i< aCores.length; i++){
     	        		var core = aCores[i];
     	        		if ( oFacets.count[core] != 0 ){    	        	
-    	        			_prepareCores(core, q, oFacets, fq, facetMode);
+    	        			_prepareCores(core, q, oFacets, oUrlHashParams.fq, facetMode);
     	        		}
     	        	} 
     	        	// restore the spliced core when done
