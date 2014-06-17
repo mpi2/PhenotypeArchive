@@ -29,7 +29,7 @@
 	var jsonBase = MPI2.searchAndFacetConfig.facetParams;
 	
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
-			
+		//console.log(oUrlHashParams);	
 		var q = oUrlHashParams.q;
 		
 		// for match text highlighting

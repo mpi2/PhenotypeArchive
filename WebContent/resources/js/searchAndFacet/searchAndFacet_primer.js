@@ -46,6 +46,7 @@ $(document).ready(function(){
 		if (typeof oHashParams.fq == 'undefined'){
 			oHashParams.noFq = true;
 		}
+		
 		$.fn.fetchSolrFacetCount(oHashParams);	
 	}
 	else {
@@ -58,7 +59,8 @@ $(document).ready(function(){
 	    if (e.keyCode == 13) { // user hits enter
 	    	
 	    	var input = $('input#s').val();
-	    	//console.log('user input search: ' + input);
+	  
+	    	//alert('user input search: ' + input);
 	    	if (input == ''){
 	    		document.location.href = baseUrl + '/search';
 	    	}
