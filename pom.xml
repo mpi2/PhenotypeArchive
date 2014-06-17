@@ -1115,7 +1115,7 @@
 				<internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
 				<drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
 				<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
-				<seleniumUrl>http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
+				<seleniumUrl>http://mi-selenium-mac.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
 				<liveSite>false</liveSite>
 			</properties>
 
@@ -1154,7 +1154,7 @@
 				<internalSolrUrl>http://localhost:8090/mi/impc/beta/solr</internalSolrUrl>
 				<drupalBaseUrl>https://beta.mousephenotype.org</drupalBaseUrl>
 				<mediaBaseUrl>https://beta.mousephenotype.org/data/media</mediaBaseUrl>
-				<seleniumUrl>http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
+				<seleniumUrl>http://mi-selenium-mac.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
 				<liveSite>false</liveSite>
 			</properties>
 
