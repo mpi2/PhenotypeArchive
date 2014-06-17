@@ -18,7 +18,7 @@
 					title="scroll to top"></i></a>
             
             <ul>
-                <li><a href="#top">Phenotyping Center</a></li>
+                <li><a href="#top">Phenome Overview</a></li>
                 <li><a href="#section-associations">Phenotype Associations</a></li>
 					<!--  always a section for this even if says no phenotypes found - do not putting in check here -->
             </ul>
@@ -70,7 +70,7 @@
 			<c:if test="${chart != null}">
 				<!-- phenome chart here -->
   				<div id="chart${param.phenotyping_center}">
-  				<!--  <a class="various" id="iframe" data-fancybox-type="iframe">Iframe</a></div> -->
+  				<a class="various" id="iframe" data-fancybox-type="iframe"></a></div>
 				<script type="text/javascript">
 					${chart}
 				</script>	
