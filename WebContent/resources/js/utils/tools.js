@@ -34,12 +34,22 @@
 				
 				for ( var i=0; i<aFqs.length; i++ ){
 					var aVals = aFqs[i].split(':');
+					console.log(aVals[1]);
 					var qField = aVals[0].replace('(','');
+					console.log(qField);
 					if ( typeof MPI2.searchAndFacetConfig.qfield2facet[qField] ){
 						var kv = aFqs[i].replace(':','|').replace(/\(|\)|"/g,'');
 						
+						var pipeVal;
+						if ( qField == 'procedure_stable_id' ){
+							pipeVal = aVals[1];
+							pipeVal = pipeVal.replace(')','');
+							kv = pipeVal;
+						}
+						
 						var oInput = $('div.flist li.fcat').find('input[rel*="'+ kv +'"]');
-						if (oInput.length != 0 ){	
+						//if (oInput.length != 0 && !oInput.is(':checked') ){	
+						if (oInput.length != 0 ){
 							oInput.click(); // tick checkbox               
 			    		}	
 			    		else { 
@@ -111,7 +121,7 @@
 		caller.click(function(){
 			
 			if ( caller.find('span.fcount').text() != 0 ){
-				//console.log(facet + ' widget expanded');
+				console.log(facet + ' widget expanded');
 				
 				// close all other non-selected facets
 				$('div.flist > ul li.fmcat').each(function(){
@@ -233,10 +243,12 @@
 	
 	function FacetCountsUpdater(oConf){	
 		
+		
 		var facet       = oConf.facet;
 		var fqStr       = oConf.fqStr;
 		var q           = oConf.q;
 		var thisSolrUrl = solrUrl + '/' + facet + '/select'; 
+		MPI2.searchAndFacetConfig.currentFq = fqStr;
 		
 		this.updateFacetCounts = function(){
 			switch(facet) {
@@ -654,7 +666,15 @@
 	    		var qField = aVals[1];
 	    		var qVal   = aVals[2];
 	    		
-	    		aFilters.push('(' + qField + ':"' + qVal + '")');
+	    		if (facet == 'pipeline' ){
+	    			console.log( qField + ':"' + qVal )
+	    			var aParts = qVal.split('___');
+	    			qVal = aParts[1].replace(/"/g, '');
+	    			aFilters.push('(' + qField + ':' + qVal + ')');
+	    		}
+	    		else {
+	    			aFilters.push('(' + qField + ':"' + qVal + '")');
+	    		}
 	    	});
 			return $.fn.getUnique(aFilters);
 		};
@@ -675,6 +695,7 @@
 			
 			// use AND as default operator for multiple filters
 	    	var sSolrFilter = parseSummeryFacetFiltersForSolr_fq().join(' AND ');
+	    	
 	    	window.location.hash = '#fq=' + sSolrFilter + '&facet=' + this.facet;
 	    	return sSolrFilter;
 		};

@@ -231,7 +231,8 @@
 	
 	<copyField source="annotatedHigherLevelMpTermName" dest="top_level_mp_term" />	
 	<copyField source="subtype" dest="marker_type" />	
-		
+	<copyField source="expName" dest="procedure_name" />
+	
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
 
  <solrQueryParser defaultOperator="OR"/>

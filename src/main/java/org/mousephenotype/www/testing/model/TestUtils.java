@@ -178,8 +178,9 @@ public class TestUtils {
      * @param exceptionList the exception list (must not be null)
      * @param successList the success list (must not be null)
      * @param totalRecords the total number of expected records to process
+     * @param totalPossible the total number of possible records to process
      */
-    public static void printEpilogue(String testName, Date start, List<String> errorList, List<String> exceptionList, List<String> successList, int totalRecords) {
+    public static void printEpilogue(String testName, Date start, List<String> errorList, List<String> exceptionList, List<String> successList, int totalRecords, int totalPossible) {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
         Date stop;
@@ -199,10 +200,19 @@ public class TestUtils {
         }
         
         stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " of " + totalRecords + " records successfully processed in " + Tools.dateDiff(start, stop) + ".");
+        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " of " + totalRecords + " (" + totalPossible + ") records successfully processed in " + Tools.dateDiff(start, stop) + ".");
         
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
         }
+    }
+    
+    /**
+     * Sleeps the thread for <code>thread_wait_in_ms</code> milliseconds.
+     * 
+     * @param thread_wait_in_ms length of time, in milliseconds, to sleep.
+     */
+    public static void sleep(long thread_wait_in_ms) {
+            try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
     }
 }

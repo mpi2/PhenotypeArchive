@@ -47,6 +47,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -136,7 +137,8 @@ public class SearchPageTest {
         if (Utils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             thread_wait_in_ms = Utils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
         
-        printTestEnvironment();
+        TestUtils.printTestEnvironment(driver, seleniumUrl);
+        
         driver.navigate().refresh();
         driver.manage().timeouts().setScriptTimeout(timeout_in_seconds, TimeUnit.SECONDS);
         try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
@@ -208,31 +210,13 @@ public class SearchPageTest {
 
     }
 
-    // PRIVATE METHODS
-
-    private void printTestEnvironment() {
-        String browserName = "<Unknown>";
-        String version = "<Unknown>";
-        String platform = "<Unknown>";
-        if (driver instanceof RemoteWebDriver) {
-            RemoteWebDriver remoteWebDriver = (RemoteWebDriver)driver;
-            browserName = remoteWebDriver.getCapabilities().getBrowserName();
-            version = remoteWebDriver.getCapabilities().getVersion();
-            platform = remoteWebDriver.getCapabilities().getPlatform().name();
-        }
-        
-        System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
-        System.out.println("seleniumUrl: " + seleniumUrl);
-    }
-    
-    
     @Test
     ////@Ignore
     public void autosuggestTest() throws Exception {
     	// test that there is a dropdown when at least 3 letters with match are entered into the input box
     	 testCount++;
          System.out.println();
-         String testName = "AUTOSUGGEST DROPDOWN LIST TEST";
+         String testName = "autosuggestTest";
          System.out.println("----- " + testName + " -----");
 
          String queryStr = baseUrl + "/search";
@@ -263,7 +247,7 @@ public class SearchPageTest {
     public void testTickingFacetFilters() throws Exception {
         testCount++;
         System.out.println();
-        String testName = "FACET CLICKING BEHAVIORAL TESTS";
+        String testName = "testTickingFacetFilters";
         System.out.println("----- " + testName + " -----");
         System.out.println("TESTING clicking on a facet checkbox will add a filter to the filter summary box");
         System.out.println("TESTING removing a filter on the list will uncheck a corresponding checkbox");
@@ -352,7 +336,7 @@ public class SearchPageTest {
     //@Ignore
     public void testQueryingRandomGeneSymbols() throws Exception {
         testCount++;
-        String testName = "RANDOM GENE SYMBOL QUERY TESTS";
+        String testName = "testQueryingRandomGeneSymbols";
         System.out.println();
         System.out.println("----- " + testName + " -----");
 
@@ -425,7 +409,7 @@ public class SearchPageTest {
     public void testRandomMgiIds() throws Exception {
         testCount++;
         System.out.println();
-        String testName = "RANDOM MGI ID QUERY TESTS";
+        String testName = "testRandomMgiIds";
         System.out.println("----- " + testName + " -----");
 
         successList.clear();
@@ -489,25 +473,25 @@ public class SearchPageTest {
     @Test
     //@Ignore
     public void testPhrase() throws Exception {
-        specialStrQueryTest("PHRASE QUERY TESTS", "grip strength");
+        specialStrQueryTest("testPhrase", "grip strength");
     }
 
     @Test
     //@Ignore
     public void testPhraseInQuotes() throws Exception {
-        specialStrQueryTest("PHRASE IN QUOTES QUERY TESTS", "\"zinc finger protein\"");
+        specialStrQueryTest("testPhraseInQuotes", "\"zinc finger protein\"");
     }
 
     @Test
     //@Ignore
     public void testLeadingWildcard() throws Exception {
-        specialStrQueryTest("LEADING WILDCARD QUERY TESTS", "*rik");
+        specialStrQueryTest("testLeadingWildcard", "*rik");
     }
 
     @Test
     //@Ignore
     public void testTrailingWildcard() throws Exception {
-        specialStrQueryTest("TRAILING WILDCARD QUERY TESTS", "hox*");
+        specialStrQueryTest("testTrailingWildcard", "hox*");
     }
 
     @Test
@@ -515,7 +499,7 @@ public class SearchPageTest {
     public void testPagination() throws Exception {
         testCount++;
         System.out.println();
-        String testName = "PAGINATION CLICK TESTS";
+        String testName = "testPagination";
         System.out.println("----- " + testName + " -----");
 
         successList.clear();
@@ -596,7 +580,7 @@ public class SearchPageTest {
     public void testFacetCounts() throws Exception {
         testCount++;
         System.out.println();
-        String testName = "FACET COUNT TESTS";
+        String testName = "testFacetCounts";
         System.out.println("----- " + testName + " -----");
 
         successList.clear();

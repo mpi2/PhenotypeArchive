@@ -38,7 +38,6 @@ import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
 import org.junit.AfterClass;
-import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -49,13 +48,11 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.util.Utils;
 
@@ -117,7 +114,8 @@ public class PhenotypePageStatistics {
         if (Utils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             thread_wait_in_ms = Utils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
         
-        printTestEnvironment();
+        TestUtils.printTestEnvironment(driver, seleniumUrl);
+        
         driver.navigate().refresh();
         try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
     }
@@ -135,21 +133,6 @@ public class PhenotypePageStatistics {
     
     @AfterClass
     public static void tearDownClass() {
-    }
-    
-    private void printTestEnvironment() {
-        String browserName = "<Unknown>";
-        String version = "<Unknown>";
-        String platform = "<Unknown>";
-        if (driver instanceof RemoteWebDriver) {
-            RemoteWebDriver remoteWebDriver = (RemoteWebDriver)driver;
-            browserName = remoteWebDriver.getCapabilities().getBrowserName();
-            version = remoteWebDriver.getCapabilities().getVersion();
-            platform = remoteWebDriver.getCapabilities().getPlatform().name();
-        }
-        
-        System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
-        System.out.println("seleniumUrl: " + seleniumUrl);
     }
     
     /**
@@ -193,7 +176,10 @@ public class PhenotypePageStatistics {
             
             boolean found = false;
 //if (i == 1) phenotypeId = "MP:0001304";
+            
             target = baseUrl + "/phenotypes/" + phenotypeId;
+            System.out.println("phenotype[" + i + "] URL: " + target);
+            
             try {
                 driver.get(target);
                 (new WebDriverWait(driver, timeout_in_seconds))
@@ -249,27 +235,9 @@ public class PhenotypePageStatistics {
                 message = "SUCCESS: MGI link OK for " + phenotypeId + ". Target URL: " + target;
                 successList.add(message);
             }
-            try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+            
+            TestUtils.sleep(thread_wait_in_ms);
         }
-          
-        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
-        
-        if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MGI links failed:");
-            for (String s : errorList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MGI links caused exceptions to be thrown:");
-            for (String s : exceptionList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI links processed successfully in " + Tools.dateDiff(start, stop) + ".");
 
         System.out.println("\nPhenotype pages with tables but no images: " + pagesWithPhenotypeTableCount);
         for (String s : phenotypeTableOnly) {
@@ -288,16 +256,13 @@ public class PhenotypePageStatistics {
         System.out.println();
         
         if ( ! urlsWithNeitherPhenotypeTableNorImage.isEmpty()) {
-            System.out.println("WARNING: The following urls had neither phenotype table nor images:");
+            System.out.println("WARNING: The following " + urlsWithNeitherPhenotypeTableNorImage.size() + " results had neither phenotype table nor images:");
             for (String s : urlsWithNeitherPhenotypeTableNorImage) {
                 System.out.println("\t" + s);
             }
         }
-        System.out.println();
         
-        if (errorList.size() + exceptionList.size() > 0) {
-            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
-        }
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, phenotypeIds.size());
     }
 
 }
