@@ -372,6 +372,7 @@ public class PhenotypePageTest {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String target = "";
         List<String> errorList = new ArrayList();
+        List<String> successList = new ArrayList();
         List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
@@ -406,30 +407,12 @@ public class PhenotypePageTest {
         if ( ! found) {
             message = "Expected error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
             errorList.add(message);
+        } else {
+            message = "SUCCESS: INTERMEDIATE_MP_TERM_ID " + phenotypeId + ". URL: " + target;
+            successList.add(message);
         }
         
-        stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + testName + " finished.");
-        
-        if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MP_TERM_ID records failed:");
-            for (String s : errorList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MP_TERM_ID records caused exceptions to be thrown:");
-            for (String s : exceptionList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        if (errorList.size() + exceptionList.size() > 0) {
-            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
-        }
-        
-        System.out.println(dateFormat.format(new Date()) + ": 1 invalid MP_TERM_ID record processed successfully in " + Tools.dateDiff(start, stop) + ".");
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
     }
 
 }

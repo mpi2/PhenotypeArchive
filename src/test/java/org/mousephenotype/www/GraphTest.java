@@ -278,17 +278,16 @@ public class GraphTest {
         Random rand = new Random();
         int max = phenotypeIds.size();
         int min = 0;
-        int allPagesCount = 0;
         
         int i = 0;
         while (true) {
             int index = rand.nextInt((max - min) + 1) + min;
             String phenotypeId = phenotypeIdArray[index];
-//if (allPagesCount == 0) phenotypeId = "MP:0010119";      // undimensional
-//if (allPagesCount == 1) phenotypeId = "MP:0002092";      // categorical
-//if (allGenePagesCount == 0) geneId = "MGI:104874";
-//if (allGenePagesCount == 1) geneId = "MGI:1924285";
-//if (allGenePagesCount == 2) timeseriesGraphUrl = "https://dev.mousephenotype.org/data/charts?accession=MGI:104874&allele_accession=EUROALL:19&parameter_stable_id=ESLIM_004_001_002&zygosity=heterozygote&phenotyping_center=WTSI";
+//if (i == 0) phenotypeId = "MP:0010119";      // undimensional
+//if (i == 1) phenotypeId = "MP:0002092";      // categorical
+//if (i == 0) geneId = "MGI:104874";
+//if (i == 1) geneId = "MGI:1924285";
+//if (i == 2) timeseriesGraphUrl = "https://dev.mousephenotype.org/data/charts?accession=MGI:104874&allele_accession=EUROALL:19&parameter_stable_id=ESLIM_004_001_002&zygosity=heterozygote&phenotyping_center=WTSI";
             if (i >= targetCount) {
                 break;
             }
@@ -310,12 +309,6 @@ public class GraphTest {
                 if ( ! page.hasPhenotypeAssociations()) {
                     TestUtils.sleep(thread_wait_in_ms);
                     continue;
-                }
-                
-                allPagesCount++;
-                
-                if (allPagesCount < 10) {
-                    System.out.println("phenotype page[" + allPagesCount + "]: " + phenotypeId);
                 }
                 
                 page.validate(status);
@@ -349,9 +342,6 @@ public class GraphTest {
                 }
             }
             
-            if (allPagesCount % 100 == 0)
-                System.out.println(dateFormat.format(new Date()) + ": " + allPagesCount + " records processed so far.");
-            
             TestUtils.sleep(thread_wait_in_ms);
         }
         
@@ -380,14 +370,13 @@ public class GraphTest {
         int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
-        int allPagesCount = 0;
         int i = 0;
         for (String geneId : geneIds) {
-//if (allPagesCount == 0) geneId = "MGI:104874";      // unidimensional
-//if (allPagesCount == 0) geneId = "MGI:3028035";     // unidimensional
-//if (allPagesCount == 1) geneId = "MGI:2384936";     // categorical
-//if (allPagesCount == 2) geneId = "MGI:1924285";     // another unidimensional
-//if (allPagesCount == 3) timeseriesGraphUrl = "https://dev.mousephenotype.org/data/charts?accession=MGI:104874&allele_accession=EUROALL:19&parameter_stable_id=ESLIM_004_001_002&zygosity=heterozygote&phenotyping_center=WTSI";
+//if (i == 0) geneId = "MGI:104874";      // unidimensional
+//if (i == 0) geneId = "MGI:3028035";     // unidimensional
+//if (i == 1) geneId = "MGI:2384936";     // categorical
+//if (i == 2) geneId = "MGI:1924285";     // another unidimensional
+//if (i == 3) timeseriesGraphUrl = "https://dev.mousephenotype.org/data/charts?accession=MGI:104874&allele_accession=EUROALL:19&parameter_stable_id=ESLIM_004_001_002&zygosity=heterozygote&phenotyping_center=WTSI";
             if (i >= targetCount) {
                 break;
             }
@@ -409,12 +398,6 @@ public class GraphTest {
                 if ( ! page.hasPhenotypeAssociations()) {
                     TestUtils.sleep(thread_wait_in_ms);
                     continue;
-                }
-                
-                allPagesCount++;
-                
-                if (allPagesCount < 10) {
-                    System.out.println("page[" + allPagesCount + "]: " + geneId);
                 }
                 
                 page.validate(status);
@@ -447,9 +430,6 @@ public class GraphTest {
                     System.out.println("\t" + s);
                 }
             }
-            
-            if (allPagesCount % 100 == 0)
-                System.out.println(dateFormat.format(new Date()) + ": " + allPagesCount + " records processed so far.");
             
             TestUtils.sleep(thread_wait_in_ms);
         }

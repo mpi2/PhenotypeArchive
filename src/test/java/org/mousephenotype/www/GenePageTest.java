@@ -315,7 +315,7 @@ public class GenePageTest {
      * @throws SolrServerException 
      */
     @Test
-@Ignore
+//@Ignore
     public void testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI";
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
