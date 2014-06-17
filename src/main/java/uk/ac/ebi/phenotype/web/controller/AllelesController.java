@@ -46,102 +46,102 @@ public class AllelesController {
     @Autowired
     SolrIndex solrIndex;
 
-    public List<Map<String, String>> getStatuses() {
-        List<Map<String, String>> list = new ArrayList<>();
-
-        Map<String, String> status_mice = new HashMap<>();
-
-        status_mice.put("TEXT", "There are mice for this allele");
-        status_mice.put("ORDER", "http://www.sanger.ac.uk");
-        status_mice.put("DETAILS", "http://www.sanger.ac.uk");
-
-        list.add(status_mice);
-
-        Map<String, String> status_cells = new HashMap<>();
-
-        status_cells.put("TEXT", "There are ES cells for this allele");
-        status_cells.put("ORDER", "http://www.google.com");
-        status_cells.put("DETAILS", "http://www.google.com");
-
-        list.add(status_cells);
-
-        return list;
-    }
-
-    public List<Map<String, String>> getBrowsers() {
-        List<Map<String, String>> list = new ArrayList<>();
-
-        Map<String, String> browsers = new HashMap<>();
-
-        browsers.put("browser", "Ensembl (mouse)");
-        browsers.put("url", "http://www.ensembl.org/Mus_musculus/Location/View?r=9:54544794-54560…c.uk/das/ikmc_products=normal,contig=normal,ruler=normal,scalebar=normal");
-
-        list.add(browsers);
-
-        Map<String, String> browsers2 = new HashMap<>();
-
-        browsers2.put("browser", "UCSC (mouse)");
-        browsers2.put("url", "http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&ikmc=pack&ensGene=pack&position=chr9:54544794-54560218");
-
-        list.add(browsers2);
-
-        return list;
-    }
-
-    public List<Map<String, String>> getMice() {
-        List<Map<String, String>> list = new ArrayList<>();
-
-        Map<String, String> items = new HashMap<>();
-
-        items.put("genetic_background", "C57BL/6NTac;C57BL/6NTac;C57BL/6N-Atm1Brd/a");
-        items.put("production_centre", "Harwell");
-        items.put("es_cell", "EPD0337_2_D04");
-        items.put("southern_tool",
-                "http://www.sanger.ac.uk|http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=EPD0337_2_D04&iframe=true&width=100%&height=100%");
-        items.put("order_url", "http://www.emmanet.org/mutant_types.php?keyword=Cib2");
-        items.put("order_name", "EMMA");
-
-        list.add(items);
-
-        return list;
-    }
-
-    public List<Map<String, String>> getEsCells() {
-        List<Map<String, String>> list = new ArrayList<>();
-
-        Map<String, String> items = new HashMap<>();
-
-        items.put("genetic_background", "C57BL/6NTac;C57BL/6NTac;C57BL/6N-Atm1Brd/a");
-        items.put("es_cell_clone", "EPD0337_2_D04");
-        items.put("targeting_vector", "PG00073_Z_5_H01");
-        items.put("southern_tool",
-                "http://www.sanger.ac.uk|http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=EPD0337_2_D04&iframe=true&width=100%&height=100%");
-        items.put("genotyping_primers", "C57BL/6NTac;C57BL/6NTac;C57BL/6N-Atm1Brd/a");
-        items.put("order_url", "http://www.emmanet.org/mutant_types.php?keyword=Cib2");
-        items.put("order_name", "EMMA");
-
-        list.add(items);
-
-        return list;
-    }
-
-    public List<Map<String, String>> getTargetingVectors() {
-        List<Map<String, String>> list = new ArrayList<>();
-
-        Map<String, String> items = new HashMap<>();
-
-        items.put("design_oligos_url", "http://www.sanger.ac.uk/htgt/htgt2/design/designedit/refresh_design?design_id=48714");
-        items.put("targeting_vector", "PG00073_Z_5_H01");
-        items.put("cassette", "L1L2_Bact_P");
-        items.put("backbone", "L3L4_pD223_DTA_spec");
-        items.put("genbank_file", "http://www.sanger.ac.uk");
-        items.put("order_url", "http://www.eummcr.org/order?add=MGI:1929293&material=vectors");
-        items.put("order_name", "EUMMCR");
-
-        list.add(items);
-
-        return list;
-    }
+//    public List<Map<String, String>> getStatuses() {
+//        List<Map<String, String>> list = new ArrayList<>();
+//
+//        Map<String, String> status_mice = new HashMap<>();
+//
+//        status_mice.put("TEXT", "There are mice for this allele");
+//        status_mice.put("ORDER", "http://www.sanger.ac.uk");
+//        status_mice.put("DETAILS", "http://www.sanger.ac.uk");
+//
+//        list.add(status_mice);
+//
+//        Map<String, String> status_cells = new HashMap<>();
+//
+//        status_cells.put("TEXT", "There are ES cells for this allele");
+//        status_cells.put("ORDER", "http://www.google.com");
+//        status_cells.put("DETAILS", "http://www.google.com");
+//
+//        list.add(status_cells);
+//
+//        return list;
+//    }
+//
+//    public List<Map<String, String>> getBrowsers() {
+//        List<Map<String, String>> list = new ArrayList<>();
+//
+//        Map<String, String> browsers = new HashMap<>();
+//
+//        browsers.put("browser", "Ensembl (mouse)");
+//        browsers.put("url", "http://www.ensembl.org/Mus_musculus/Location/View?r=9:54544794-54560…c.uk/das/ikmc_products=normal,contig=normal,ruler=normal,scalebar=normal");
+//
+//        list.add(browsers);
+//
+//        Map<String, String> browsers2 = new HashMap<>();
+//
+//        browsers2.put("browser", "UCSC (mouse)");
+//        browsers2.put("url", "http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&ikmc=pack&ensGene=pack&position=chr9:54544794-54560218");
+//
+//        list.add(browsers2);
+//
+//        return list;
+//    }
+//
+//    public List<Map<String, String>> getMice() {
+//        List<Map<String, String>> list = new ArrayList<>();
+//
+//        Map<String, String> items = new HashMap<>();
+//
+//        items.put("genetic_background", "C57BL/6NTac;C57BL/6NTac;C57BL/6N-Atm1Brd/a");
+//        items.put("production_centre", "Harwell");
+//        items.put("es_cell", "EPD0337_2_D04");
+//        items.put("southern_tool",
+//                "http://www.sanger.ac.uk|http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=EPD0337_2_D04&iframe=true&width=100%&height=100%");
+//        items.put("order_url", "http://www.emmanet.org/mutant_types.php?keyword=Cib2");
+//        items.put("order_name", "EMMA");
+//
+//        list.add(items);
+//
+//        return list;
+//    }
+//
+//    public List<Map<String, String>> getEsCells() {
+//        List<Map<String, String>> list = new ArrayList<>();
+//
+//        Map<String, String> items = new HashMap<>();
+//
+//        items.put("genetic_background", "C57BL/6NTac;C57BL/6NTac;C57BL/6N-Atm1Brd/a");
+//        items.put("es_cell_clone", "EPD0337_2_D04");
+//        items.put("targeting_vector", "PG00073_Z_5_H01");
+//        items.put("southern_tool",
+//                "http://www.sanger.ac.uk|http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=EPD0337_2_D04&iframe=true&width=100%&height=100%");
+//        items.put("genotyping_primers", "C57BL/6NTac;C57BL/6NTac;C57BL/6N-Atm1Brd/a");
+//        items.put("order_url", "http://www.emmanet.org/mutant_types.php?keyword=Cib2");
+//        items.put("order_name", "EMMA");
+//
+//        list.add(items);
+//
+//        return list;
+//    }
+//
+//    public List<Map<String, String>> getTargetingVectors() {
+//        List<Map<String, String>> list = new ArrayList<>();
+//
+//        Map<String, String> items = new HashMap<>();
+//
+//        items.put("design_oligos_url", "http://www.sanger.ac.uk/htgt/htgt2/design/designedit/refresh_design?design_id=48714");
+//        items.put("targeting_vector", "PG00073_Z_5_H01");
+//        items.put("cassette", "L1L2_Bact_P");
+//        items.put("backbone", "L3L4_pD223_DTA_spec");
+//        items.put("genbank_file", "http://www.sanger.ac.uk");
+//        items.put("order_url", "http://www.eummcr.org/order?add=MGI:1929293&material=vectors");
+//        items.put("order_name", "EUMMCR");
+//
+//        list.add(items);
+//
+//        return list;
+//    }
    
     @RequestMapping("/alleles/{acc}")
     public String alleles(
@@ -191,8 +191,10 @@ public class AllelesController {
 
         model.addAttribute("es_cells", constructs.get("es_cells"));
         
-        model.addAttribute("targeting_vectors", (List<Map<String, String>>)list2.get("targeting_vectors"));
-        
+      //  model.addAttribute("targeting_vectors", (List<Map<String, String>>)list2.get("targeting_vectors"));
+
+        model.addAttribute("targeting_vectors", constructs.get("targeting_vectors"));
+
         model.addAttribute("mice_blurb", list2.get("mice_blurb"));
 
         model.addAttribute("tools", (List<Map<String, String>>)list2.get("tools"));
@@ -206,47 +208,47 @@ public class AllelesController {
         return "alleles";
     }    
     
-   // @RequestMapping("/alleles/{acc}")
-    public String alleles_old(
-            @PathVariable String acc,
-            Model model,
-            HttpServletRequest request,
-            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException {
-
-        log.info("#### AllelesController::alleles");
-
-        model.addAttribute("allele_description", "Knockout First, reporter-tagged deletion");
-
-        model.addAttribute("symbol", "Cib2<sup>tm1a(EUCOMM)Wtsi</sup>");
-
-        model.addAttribute("type", "Cre-excised Reporter-tagged deletion (tm1b)");
-
-        model.addAttribute("statuses", getStatuses());
-
-        model.addAttribute("genbank", "https://www.i-dcc.org/imits/targ_rep/alleles/11268/escell-clone-cre-genbank-file");
-
-        model.addAttribute("mutagenesis_url", "http://google.com");
-
-        model.addAttribute("map_image", "http://www.mousephenotype.org/imits/targ_rep/alleles/11268/allele-image");
-
-        model.addAttribute("browsers", getBrowsers());
-
-        model.addAttribute("mice", getMice());
-
-        model.addAttribute("es_cells", getEsCells());
-
-        model.addAttribute("targeting_vectors", getTargetingVectors());
-
-        model.addAttribute("mice_blurb", "Mice");
-
-        Yaml yaml = new Yaml();
-
-        Map<String, Object> list = new HashMap<>();
-        list.put("MGI:1929293", model.asMap());
-        String output = yaml.dump(list);
-        FileUtils.writeStringToFile(new File("/var/tmp/yaml_test.yml"), output);
-
-        return "alleles";
-    }
+//   // @RequestMapping("/alleles/{acc}")
+//    public String alleles_old(
+//            @PathVariable String acc,
+//            Model model,
+//            HttpServletRequest request,
+//            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException {
+//
+//        log.info("#### AllelesController::alleles");
+//
+//        model.addAttribute("allele_description", "Knockout First, reporter-tagged deletion");
+//
+//        model.addAttribute("symbol", "Cib2<sup>tm1a(EUCOMM)Wtsi</sup>");
+//
+//        model.addAttribute("type", "Cre-excised Reporter-tagged deletion (tm1b)");
+//
+//        model.addAttribute("statuses", getStatuses());
+//
+//        model.addAttribute("genbank", "https://www.i-dcc.org/imits/targ_rep/alleles/11268/escell-clone-cre-genbank-file");
+//
+//        model.addAttribute("mutagenesis_url", "http://google.com");
+//
+//        model.addAttribute("map_image", "http://www.mousephenotype.org/imits/targ_rep/alleles/11268/allele-image");
+//
+//        model.addAttribute("browsers", getBrowsers());
+//
+//        model.addAttribute("mice", getMice());
+//
+//        model.addAttribute("es_cells", getEsCells());
+//
+//        model.addAttribute("targeting_vectors", getTargetingVectors());
+//
+//        model.addAttribute("mice_blurb", "Mice");
+//
+//        Yaml yaml = new Yaml();
+//
+//        Map<String, Object> list = new HashMap<>();
+//        list.put("MGI:1929293", model.asMap());
+//        String output = yaml.dump(list);
+//        FileUtils.writeStringToFile(new File("/var/tmp/yaml_test.yml"), output);
+//
+//        return "alleles";
+//    }
 
 }

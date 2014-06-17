@@ -206,7 +206,7 @@
         
         
                         
-        <table style="font-size: 150%; ">         
+        <table style="font-size: 120%; ">         
             <tr>
             <td>   
                 <span>
@@ -466,7 +466,15 @@
         </span>
         </td>
         
-        <td><a class="btn" href="${targeting_vector['order_url']}"> <i class="fa fa-shopping-cart"></i> ${targeting_vector['order_name']} </a></td>
+
+        <td>
+             <c:forEach var="order" items="${targeting_vector['orders']}" varStatus="ordersx">
+                 <a class="btn" href="${order['url']}"> <i class="fa fa-shopping-cart"></i> ${order['name']}</a>
+             </c:forEach>	
+         </td>
+
+
+
       </tr>
       </c:forEach>	
 
