@@ -90,7 +90,7 @@
 	        		$.fn.initFacetToggles('mp');
 	        		
 	        		$('li#mp li.fcat input').click(function(){	
-	        			$('div.flist li#mp').click();
+	        			
 	        			// // highlight the item in facet	    			
 	        			$(this).siblings('span.flabel').addClass('highlight');
 	    				$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
