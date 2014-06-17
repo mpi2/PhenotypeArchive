@@ -335,7 +335,7 @@ public class GeneService {
 					//model.addAttribute("orderPossible" , prod.get("orderPossible"));
 				
 				//model.addAttribute("prodStatusIcons" , prodStatusIcons);
-					System.out.println(prodStatusIcons);
+					//System.out.println(prodStatusIcons);
 					geneToStatusMap.put(accession,prodStatusIcons);
 							
 			}

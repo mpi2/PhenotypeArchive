@@ -762,16 +762,18 @@ public class GenotypePhenotypeService {
 		
 		Map<String, HeatMapCell> xAxisToCellMap = new HashMap<>();
 		for (BasicBean xAxisBean : xAxisBeans) {
-			HeatMapCell cell = new HeatMapCell();
+			
 			if (geneToTopLevelMpMap.containsKey(accession)) {
+				HeatMapCell cell = new HeatMapCell();
 				List<String> mps = geneToTopLevelMpMap.get(accession);
 				 //cell.setLabel("No Phenotype Detected");
 				if (mps != null && !mps.isEmpty()) {
 					if (mps.contains(xAxisBean.getId())) {
 						cell.setxAxisKey(xAxisBean.getId());
-						System.out.println("setting label="
-								+ xAxisBean.getName());
+						//System.out.println("setting label="
+						//		+ xAxisBean.getName());
 						cell.setLabel("Data Available");
+						xAxisToCellMap.put(xAxisBean.getId(), cell);
 					}
 
 			}
@@ -779,7 +781,7 @@ public class GenotypePhenotypeService {
 			// if no doc found for the gene then no data available
 			//cell.setLabel("No Data Available");
 		}
-			xAxisToCellMap.put(xAxisBean.getId(), cell);
+			
 		}
 		row.setXAxisToCellMap(xAxisToCellMap);
 

@@ -70,7 +70,7 @@ public class MpService {
 		
 		HashSet<BasicBean> allTopLevelPhenotypes = new HashSet();
 		for (FacetField ff:rsp.getFacetFields()){
-			System.out.println("count name="+ff.getName());
+			//System.out.println("count name="+ff.getName());
 			for(Count count: ff.getValues()){
 				System.out.println("count Name="+count.getName());
 				String mpArray[]=count.getName().split("___");

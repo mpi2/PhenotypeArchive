@@ -37,7 +37,7 @@
                   --%>
                     <c:forEach items="${xAxisBeans}" var="xAxisBean"> 
                    <%--  <td>${row.XAxisToCellMap[xAxisBean.id].label}</td> --%>
-                         <td  <c:if test="${row.XAxisToCellMap[xAxisBean.id].label!=''}">style="background-color:rgb(191, 75, 50)"</c:if><c:if test="${row.XAxisToCellMap[xAxisBean.id].label==''}">style="background-color: rgb(119, 119, 119)"</c:if> title="${xAxisBean.name}"><%-- ${row.XAxisToCellMap[xAxisBean.id].label} --%></td>
+                         <td  <c:if test="${row.XAxisToCellMap[xAxisBean.id].label eq 'Data Available'}">style="background-color:rgb(191, 75, 50)"</c:if><c:if test="${!row.XAxisToCellMap[xAxisBean.id].label}">style="background-color: rgb(119, 119, 119)"</c:if> title="${xAxisBean.name}"> ${row.XAxisToCellMap[xAxisBean.id].label} </td>
                      </c:forEach>
                 </tr>
                 </c:forEach>
