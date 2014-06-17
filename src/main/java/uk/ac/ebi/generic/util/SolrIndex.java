@@ -35,8 +35,8 @@ import net.sf.json.JSONSerializer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
+//import org.apache.solr.common.SolrDocument;
+//import org.apache.solr.common.SolrDocumentList;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.web.util.DrupalHttpProxy;
@@ -959,8 +959,13 @@ public class SolrIndex {
 
     private static final String NOT_FOUND = "NOT-FOUND";
     private static final String NOT_COMPLETE = "placeholder";
-
+    private static final String NOT_AVAILABLE = "not-available";
+    
     private String getGeneProductInfoArrayEntry2(String key, JSONArray item) throws IOException, URISyntaxException {
+        if(item == null) {
+            return null;
+        }
+        
         for (Object o : item) {
             String s = (String) o;
             Pattern pattern = Pattern.compile(key + ":(.+)");
@@ -975,6 +980,11 @@ public class SolrIndex {
     private List<Map<String, Object>> getGeneProductInfoOrderInfo(JSONObject jsonObject2) throws IOException, URISyntaxException {
         List<Map<String, Object>> orders = new ArrayList<>();
         HashMap<String, Object> map3 = new HashMap<>();
+        
+        if(!jsonObject2.has("order_names") || !jsonObject2.has("order_links")) {
+            return null;
+        }       
+        
         JSONArray array_order_names = jsonObject2.getJSONArray("order_names");
         JSONArray array_order_links = jsonObject2.getJSONArray("order_links");
         for (int k = 0; k < array_order_names.size(); k++) {
@@ -1004,7 +1014,9 @@ public class SolrIndex {
 
         String background_colony_strain = getGeneProductInfoArrayEntry2("background_colony_strain", jsonObject2.getJSONArray("genetic_info"));
 
-        if (background_colony_strain != null) {
+        map2.put("genetic_background", NOT_AVAILABLE);
+
+        if (background_colony_strain != null && background_colony_strain.length() > 0) {
             map2.put("genetic_background", background_colony_strain);
         }
 
@@ -1041,7 +1053,7 @@ public class SolrIndex {
 
         map2.put("es_cell_clone", jsonObject2.getString("name"));
         
-        String targeting_vectors = StringUtils.join(jsonObject2.getJSONArray("associated_products_vector_names"), ", ");
+        String targeting_vectors = jsonObject2.getString("associated_product_vector_name");        
         
         map2.put("targeting_vector", targeting_vectors);
 

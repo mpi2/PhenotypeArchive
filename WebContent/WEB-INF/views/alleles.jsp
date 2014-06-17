@@ -266,7 +266,7 @@
         
         
         
-        
+<!--        
 <c:if test="${not empty mice_in_progress}">
     <div class="section">
         <div class="inner" style="background-color: #FFE0B2 !important;">
@@ -305,14 +305,72 @@
         </div>
     </div>
 </c:if>
+        -->
+        
+                 <style>
+             .toggle_open, .toggle_closed {
+                padding-left: 16px;
+                padding-top: 2px;
+                padding-bottom: 2px;
+             }
+             .toggle_open {
+                background:url(http://www.mousephenotype.org/martsearch_ikmc_project/images/silk/bullet_arrow_up.png) no-repeat 0 center;
+             }
+             .toggle_closed {
+                background:url(http://www.mousephenotype.org/martsearch_ikmc_project/images/silk/bullet_arrow_right.png) no-repeat 0 center;
+             }
+         </style>
+
         
         
         
+<script>
+//    $(function(){
+//        //$(".products_toggle").on({'click':function(event){
+//        $("#mouse_table_toggle").on({'click':function(event){
+//        event.preventDefault();
+//        //$(this).closest("tr.main").nextUntil("tr.main").toggle("fast");
+//        //alert("toggle!");
+//        //$("#mouse_table tbody tr .rest").toggle("fast");
+//        $("#mouse_table .rest").toggle("fast");
+//        }});
+//    });
+    
+    function toggleTable(id) {
+        $("#" + id + "_toggle").on({'click':function(event){
+        event.preventDefault();
+        $("#" + id + " .rest").toggle("fast");
+//        $("#" + id + "_toggle").css("padding-left", "16px");
+//        $("#" + id + "_toggle").css("padding-top", "2px");
+//        $("#" + id + "_toggle").css("padding-bottom", "2px");
+        //$("#" + id + "_toggle").css("background", "url(http://www.mousephenotype.org/martsearch_ikmc_project/images/silk/bullet_arrow_up.png) no-repeat 0 center");
+        
+        
+        //console.log(event);
+        
+        if($("#" + id + "_toggle").hasClass("toggle_closed")) {
+            $("#" + id + "_toggle").removeClass("toggle_closed");
+            $("#" + id + "_toggle").addClass("toggle_open");
+        }
+        else {
+            $("#" + id + "_toggle").removeClass("toggle_open");
+            $("#" + id + "_toggle").addClass("toggle_closed");
+        }
         
         
         
-        
-                        
+        //bullet_arrow_up
+        //bullet_arrow_right
+        }});
+    }
+
+    $(function(){
+        toggleTable("mouse_table");
+        toggleTable("es_cell_table");
+        toggleTable("targeting_vector_table");
+    });
+
+</script>
                         
                         
 <c:if test="${not empty mice}">
@@ -320,7 +378,7 @@
         <div class="inner" style="background-color: #E0F9FF !important;">
         <h3>Mice</h3>
         <div class="dataset_content">
-            <table>
+            <table id="mouse_table">
             <thead>
             <tr>
                 <th>Genetic background</th>
@@ -330,11 +388,18 @@
                 <th>Order</th>
             </tr>
             </thead>
-            <tbody>               
+            <tbody class="products">               
                 
             <c:forEach var="mouse" items="${mice}" varStatus="micex">
 
-            <tr>
+                <c:if test="${micex.getIndex() == 0}">
+                    <tr class="first">
+                </c:if>
+
+                <c:if test="${micex.getIndex() > 0}">
+                    <tr class="rest" style="display:none;">
+                </c:if>
+                
                 <td>${mouse['genetic_background']}</td>
                 <td>${mouse['production_centre']}</td>
                 <td>${mouse['es_cell']}</td>
@@ -355,6 +420,11 @@
             
             </tbody>
             </table>
+            
+            <p class="textright">
+                <a id="mouse_table_toggle" class="toggle_closed">Show all Mice</a>
+            </p>
+            
             <div class="clear"></div>
         </div>
         </div>
@@ -371,7 +441,7 @@
 			<h3>ES Cells</h3>
                         
 <div class="dataset_content">
-  <table>
+  <table id="es_cell_table">
     <thead>
       <tr>
         <th>Genetic background</th>
@@ -386,7 +456,17 @@
     <tbody>
 
             <c:forEach var="es_cell" items="${es_cells}" varStatus="es_cellsx">
-      <tr>
+
+                <c:if test="${es_cellsx.getIndex() == 0}">
+                    <tr class="first">
+                </c:if>
+
+                <c:if test="${es_cellsx.getIndex() > 0}">
+                    <tr class="rest" style="display:none;">
+                </c:if>
+            
+            
+            
         <td>${es_cell['genetic_background']}</td>
         <td>${es_cell['es_cell_clone']}</td>
         <td>${es_cell['targeting_vector']}</td>
@@ -408,9 +488,9 @@
     </tbody>
   </table>
 
-<!--         <p class="textright">
-        <a class="products_toggle toggle-close">show all 14 ES Cells</a>
-      </p>-->
+            <p class="textright">
+                <a id="es_cell_table_toggle" class="toggle_closed">Show all ES Cells</a>
+            </p>
 
   <div class="clear"></div>
 </div>
@@ -431,7 +511,7 @@
                         
                         
 <div class="dataset_content">
-  <table>
+  <table id="targeting_vector_table">
     <thead>
       <tr>
         
@@ -448,7 +528,14 @@
     <tbody>
 
       <c:forEach var="targeting_vector" items="${targeting_vectors}" varStatus="targeting_vectorsx">
-      <tr>
+
+                <c:if test="${targeting_vectorsx.getIndex() == 0}">
+                    <tr class="first">
+                </c:if>
+
+                <c:if test="${targeting_vectorsx.getIndex() > 0}">
+                    <tr class="rest" style="display:none;">
+                </c:if>
           
           <td style="text-align: center;">
               <a href="${targeting_vector['design_oligos']}" target="_blank"><i class="fa fa-pencil-square-o fa-2x"></i></a>
@@ -481,11 +568,11 @@
     </tbody>
   </table>
 
-<!--     <p class="textright">
-        <a class="products_toggle toggle-close">show all 5 targeting vectors</a>
-      </p>
-      -->
-  <div class="clear"></div>
+            <p class="textright">
+                <a id="targeting_vector_table_toggle" class="toggle_closed">Show all Targeting Vectors</a>
+            </p>
+
+            <div class="clear"></div>
 </div>
                         
                         
