@@ -34,9 +34,9 @@
 				
 				for ( var i=0; i<aFqs.length; i++ ){
 					var aVals = aFqs[i].split(':');
-					console.log(aVals[1]);
+					//console.log(aVals[1]);
 					var qField = aVals[0].replace('(','');
-					console.log(qField);
+					//console.log(qField);
 					if ( typeof MPI2.searchAndFacetConfig.qfield2facet[qField] ){
 						var kv = aFqs[i].replace(':','|').replace(/\(|\)|"/g,'');
 						
@@ -58,7 +58,7 @@
 			    			//console.log(relStr);
 			    			oInput = $('<input></input>').attr({'type':'checkbox','rel':relStr}).prop('checked', true);
 			    			
-			    			$.fn.composeSummaryFilters(oInput, q);
+			    			//$.fn.composeSummaryFilters(oInput, q);
 			    		}
 					}
 				}
@@ -739,13 +739,24 @@
 			var display = MPI2.searchAndFacetConfig.facetFilterLabel[qField];
 			
 			if ( qValue == 1 ){
-				qValue = qField == 'imits_phenotype_started' ? 'Started' : 'Yes';		
+				if (qField == 'imits_phenotype_started'){
+					qValue = 'Started'; 
+				}
+				else  if (qField == 'imits_phenotype_complete'){
+					qValue = 'Complete'; 
+				}
+				else {
+					qValue = 'Yes';	
+				}
 			}	
 			
 			var filterTxt = qValue;
 			if ( facet == 'gene' ){
 				if ( qValue == 'Started'  ){
 					filterTxt = 'phenotyping started'; 
+				}
+				if ( qValue == 'Complete'  ){
+					filterTxt = 'phenotyping complete'; 
 				}
 				else if ( qValue == 'Phenotype Attempt Registered' || qField == 'status' || qField == 'marker_type' ){
 					filterTxt = qValue.toLowerCase();

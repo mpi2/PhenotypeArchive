@@ -37,7 +37,8 @@
 	    
 		_initFacet: function(){			
 	    	var self = this;
-	    	    	
+	    	
+	    	var currentFq = {'fq' : MPI2.searchAndFacetConfig.currentFq};
 	    	var queryParams = $.extend({}, { 
 				'rows': 0,
 				'type': 'disease',
@@ -47,7 +48,8 @@
 				'facet.sort': 'count',					
 	    		'q': self.options.data.hashParams.q},
 	    		MPI2.searchAndFacetConfig.commonSolrParams,
-	    		MPI2.searchAndFacetConfig.facetParams.diseaseFacet.filterParams
+	    		MPI2.searchAndFacetConfig.currentFq ? currentFq :
+	    			MPI2.searchAndFacetConfig.facetParams.diseaseFacet.filterParams
 	    	);    	   	
 	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
@@ -65,7 +67,9 @@
 	    		'data': queryParamStr, 
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
-	    		'success': function(json) {	  	    		
+	    		'success': function(json) {	 
+	    			//console.log(MPI2.searchAndFacetConfig.currentFq);
+	    			//console.log(json);
 	    			self._displayDiseaseSubfacet(json);	    				
 	    		}		
 	    	});	    	

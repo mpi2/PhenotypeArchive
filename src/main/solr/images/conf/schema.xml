@@ -139,7 +139,8 @@
         <field name="annotationTermId"   type="string"   indexed="true"  stored="true"  multiValued="true" />
         <field name="annotationTermName"   type="string"   indexed="true"  stored="true"  multiValued="true" />
         <field name="name"   type="string"   indexed="true"  stored="true"  multiValued="false" /> 
-        <field name="accession"   type="string"   indexed="true"  stored="true"  multiValued="true" />
+        <field name="accession"   type="string"   indexed="true"  stored="true"  multiValued="false" />
+        <field name="allele_accession"   type="string"   indexed="true"  stored="true"  multiValued="false" />
         <field name="expName"   type="string"   indexed="true"  stored="true"  multiValued="true" />
         <field name="procedure_name"   type="string"   indexed="true"  stored="true"  multiValued="true" />	
         <field name="expDescription"   type="string"   indexed="true"  stored="true"  multiValued="true" />
