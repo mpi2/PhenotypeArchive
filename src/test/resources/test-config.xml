@@ -27,7 +27,7 @@
     </bean>
 
     <bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
-        <constructor-arg  value="${internalSolrUrl}/experiment" />
+        <constructor-arg  value="${solrUrl}/experiment" />
     </bean>
 
     <bean id="experimentService" class="uk.ac.ebi.phenotype.service.ExperimentService">
@@ -42,19 +42,19 @@
     </bean>
 	
     <bean id="geneService" class="uk.ac.ebi.phenotype.service.GeneService">
-        <constructor-arg  value="${internalSolrUrl}/gene" />
+        <constructor-arg  value="${solrUrl}/gene" />
     </bean>
 	
     <bean id="genotypePhenotypeService" class="uk.ac.ebi.phenotype.service.GenotypePhenotypeService">
-        <constructor-arg  value="${internalSolrUrl}/genotype-phenotype" />
+        <constructor-arg  value="${solrUrl}/genotype-phenotype" />
     </bean>
     
     <bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
-		<constructor-arg  value="${internalSolrUrl}/statistical-result" />
+		<constructor-arg  value="${solrUrl}/statistical-result" />
 	</bean>
     
     <bean id="mpService" class="uk.ac.ebi.phenotype.service.MpService">
-        <constructor-arg  value="${internalSolrUrl}/mp" />
+        <constructor-arg  value="${solrUrl}/mp" />
     </bean>
                 
     <context:component-scan base-package="uk.ac.ebi" />
@@ -173,7 +173,7 @@
                 <entry key="baseUrl" value="${baseUrl}" />
                 <entry key="drupalBaseUrl" value="${drupalBaseUrl}" />
                 <entry key="solrUrl" value="${solrUrl}" />
-                <entry key="internalSolrUrl" value="${internalSolrUrl}" />
+                <entry key="solrUrl" value="${solrUrl}" />
                 <entry key="mediaBaseUrl" value="${mediaBaseUrl}" />
                 <entry key="googleAnalytics" value="${googleAnalytics}" />
                 <entry key="liveSite" value="${liveSite}" />
@@ -191,8 +191,8 @@
     <bean id="baseUrl" class="java.lang.String">
         <constructor-arg value="${baseUrl}"/>
     </bean>
-    <bean id="internalSolrUrl" class="java.lang.String">
-        <constructor-arg value="${internalSolrUrl}"/>
+    <bean id="solrUrl" class="java.lang.String">
+        <constructor-arg value="${solrUrl}"/>
     </bean>
 
     <bean id="desiredCapabilities" class="org.openqa.selenium.remote.DesiredCapabilities" />

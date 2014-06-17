@@ -99,7 +99,7 @@ public class SearchPageTest {
     protected String seleniumUrl;
     
     @Autowired
-    protected String internalSolrUrl;
+    protected String solrUrl;
     
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     
@@ -352,7 +352,7 @@ public class SearchPageTest {
         newQueryString+="&start="+startIndex+"&rows="+nbRows;
 
 
-        JSONObject geneResults = JSONRestUtil.getResults(internalSolrUrl + newQueryString);
+        JSONObject geneResults = JSONRestUtil.getResults(solrUrl + newQueryString);
         JSONArray docs = JSONRestUtil.getDocArray(geneResults);
 
         if (docs != null) {
@@ -423,7 +423,7 @@ public class SearchPageTest {
         //System.out.println("newQueryString=" + newQueryString);
         System.out.println("TESTING " + nbRows + " random MGI IDs");
 
-        JSONObject geneResults = JSONRestUtil.getResults(internalSolrUrl + newQueryString);
+        JSONObject geneResults = JSONRestUtil.getResults(solrUrl + newQueryString);
         JSONArray docs = JSONRestUtil.getDocArray(geneResults);
 
         if (docs != null) {
@@ -589,7 +589,7 @@ public class SearchPageTest {
         for (String s : paramList ){
 
             try {
-                JSONObject geneResults = JSONRestUtil.getResults(internalSolrUrl + s);
+                JSONObject geneResults = JSONRestUtil.getResults(solrUrl + s);
 
                 int facetCountFromSolr = geneResults.getJSONObject("response").getInt("numFound");
                 String core = geneResults.getJSONObject("responseHeader").getJSONObject("params").getString("core");
