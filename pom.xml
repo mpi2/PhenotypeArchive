@@ -1106,7 +1106,7 @@
         </profile>
 		
         <profile>
-            <id>web-tests</id>
+            <id>dev-web-tests</id>
 
             <properties>
                 <baseUrl>/data</baseUrl>
@@ -1116,6 +1116,45 @@
                 <internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
                 <drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
                 <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
+                <seleniumUrl>http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
+                <liveSite>false</liveSite>
+            </properties>
+
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-surefire-plugin</artifactId>
+                            <version>2.4.2</version>
+                            <configuration>
+                                <skipTests>false</skipTests>
+                                <testFailureIgnore>true</testFailureIgnore>
+                                <includes>
+                                    <include>**PageTest.java</include>
+                                    <include>**/org/mousephenotype/www/**</include>
+                                </includes>
+                                <excludes>
+                                    <exclude></exclude>
+                                </excludes>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        
+         <profile>
+            <id>beta-web-tests</id>
+
+            <properties>
+                <baseUrl>/data</baseUrl>
+                <!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
+                to EBI servers for performance -->
+                <solrUrl>https://www.ebi.ac.uk/mi/impc/beta/solr</solrUrl>
+                <internalSolrUrl>http://localhost:8090/mi/impc/beta/solr</internalSolrUrl>
+                <drupalBaseUrl>https://beta.mousephenotype.org</drupalBaseUrl>
+                <mediaBaseUrl>https://beta.mousephenotype.org/data/media</mediaBaseUrl>
                 <seleniumUrl>http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
                 <liveSite>false</liveSite>
             </properties>

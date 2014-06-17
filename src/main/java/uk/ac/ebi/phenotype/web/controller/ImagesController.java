@@ -159,7 +159,6 @@ public class ImagesController {
 		queryString=queryString.replace("annotated_or_inferred_higherLevelMaTermName", "anatomy");
 		queryString=queryString.replace("expName", "procedure");
 		queryString=queryString.replace("subtype", "gene_subtype");
-	
 		model.addAttribute("breadcrumbText", queryString);
 
 		return "imagesb";
@@ -263,9 +262,10 @@ public class ImagesController {
 			GenomicFeature gf = gfDAO.getGenomicFeatureByAccessionAndDbId(
 					geneId, 3);
 			String value = gf.getSymbol();
-			String geneBc = "<a href='" + baseUrl + "/genes/" + geneId + "'>"
-					+ gf.getSymbol() + "</a>";
-			breadcrumbs.add("gene: \"" + geneBc + "\"");
+//			String geneBc = "<a href='" + baseUrl + "/genes/" + geneId + "'>"
+//					+ gf.getSymbol() + "</a>";
+//			breadcrumbs.add("gene: \"" + geneBc + "\"");
+			breadcrumbs.add("gene: \"" + geneId + "\"");
 		}
 
 		if (!mpId.equals("")) {
@@ -356,7 +356,7 @@ public class ImagesController {
 		QueryResponse imageDocs = null;
 		String filterQueries = "";
 		for (String field : filterField) {
-			System.out.println("filterField in controller=" + field);
+			//System.out.println("filterField in controller=" + field);
 			filterQueries += "&fq=" + field;
 		}
 		java.util.List<String> filterList = Arrays.asList(filterField);
@@ -378,7 +378,7 @@ public class ImagesController {
 			queryTerms = maId;
 			q = "annotationTermId:" + maId.replace("MA:", "MA\\:");
 			queryTerms = otDAO.getOntologyTermByAccession(maId).getName();
-			System.out.println("query term set to:" + queryTerms);
+			//System.out.println("query term set to:" + queryTerms);
 		}
 
 		if (mpId.equals("") && geneId.equals("") && maId.equals("")) {
@@ -397,14 +397,14 @@ public class ImagesController {
 
 		}
 
-		System.out.println("q=" + q);
+		//System.out.println("q=" + q);
 
 		imageDocs = imagesSolrDao.getFilteredDocsForQuery(q, filterList, qf,
 				defType, start, length);
 		if (imageDocs != null) {
 			model.addAttribute("images", imageDocs.getResults());
-			System.out.println("image count="
-					+ imageDocs.getResults().getNumFound());
+//			System.out.println("image count="
+//					+ imageDocs.getResults().getNumFound());
 			model.addAttribute("imageCount", imageDocs.getResults()
 					.getNumFound());
 			model.addAttribute("q", q);

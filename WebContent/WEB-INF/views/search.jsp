@@ -135,6 +135,7 @@
          <script>        		
        	$(document).ready(function(){
        	
+       		// autosuggest 
        		$(function() {
 	       		$( "input#s" ).autocomplete({
 	       			source: function( request, response ) {
@@ -163,7 +164,7 @@
 			       							var re = new RegExp("(" + request.term + ")", "gi") ;			       				 			
 			       				 			var newTerm = term.replace(re,"<b class='sugTerm'>$1</b>");
 			       				 						       				 			
-			       							aKV.push("<span class='" + facet + "'>" + newTerm + "</span>");
+			       							aKV.push("<span class='sugSpan " + facet + "'>" + newTerm + "</span>");
 			       							//console.log('facet: ' +  facet);
 			       							if (i == 0){
 			       								// take the first found in autosuggest and open that facet

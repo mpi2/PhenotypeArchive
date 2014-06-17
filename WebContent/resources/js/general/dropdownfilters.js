@@ -27,7 +27,7 @@ $(document).ready(function(){
 		              }},
 		              { "sType": "string"},
 		              { "sType": "string"},
-		              { "sType": "alt-string", "bSearchable" : false },
+		              { "sType": "string"},
 		              { "sType": "string"},
 		              { "sType": "html"},
                               { "sType": "allnumeric"},

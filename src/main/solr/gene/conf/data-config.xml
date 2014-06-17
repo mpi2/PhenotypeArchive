@@ -63,7 +63,7 @@
 	
         <document name="docs">
 			
-			<entity dataSource="allele_core" name="doc" stream="true" url="q=mgi_accession_id:*&amp;wt=normal&amp;rows=99999"		            
+			<entity dataSource="allele_core" name="doc" stream="true" url="q=mgi_accession_id:*&amp;wt=normal&amp;rows=99999"
                 processor="XPathEntityProcessor" forEach="/response/result/doc/"
                 readTimeout="10000" connectionTimeout="10000" transformer="script:set_dataType" >                      
 
@@ -84,12 +84,12 @@
 				<field column="latest_es_cell_status" xpath="/response/result/doc/str[@name='latest_es_cell_status']" />
 				
 				<!-- imits info at gene level for phenotyping faceting -->						
-				<field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='imits_phenotype_started']" />
+				<field column="imits_phenotype_started"  xpath="/response/result/doc/str[@name='imits_phenotype_started']" />
 				<field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
-				<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
+				<field column="imits_phenotype_status"   xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
 
 				<!-- mouse status -->
-				<field column="latest_mouse_status" xpath="/response/result/doc/str[@name='latest_mouse_status']" />-->
+				<field column="latest_mouse_status" xpath="/response/result/doc/str[@name='latest_mouse_status']" />
 				<field column="latest_project_status" xpath="/response/result/doc/str[@name='latest_project_status']" />
 				<field column="status" xpath="/response/result/doc/str[@name='status']" /> <!-- status name from Bill Skarnes and used at EBI -->	
 	
@@ -163,6 +163,7 @@
 				</entity>	
 
 				<!-- images annotated to this gene -->
+				<!--  
 				<entity dataSource="images_core" name="imgCore" stream="true" url="q=accession:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;rows=999999"
 					processor="XPathEntityProcessor" forEach="/response/result/doc/"							
 					readTimeout="10000" connectionTimeout="10000" onError="continue" >
@@ -172,7 +173,7 @@
 					<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />
 					<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />					
 				</entity>
-
+				-->
 		</entity>		
     </document>       
 </dataConfig>

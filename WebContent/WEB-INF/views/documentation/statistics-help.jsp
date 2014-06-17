@@ -43,10 +43,20 @@
                             lead to a work-flow that precludes traditional analysis methods. Furthermore, 
                             for a high throughput environment, a robust automated statistical pipeline 
                             that alleviates manual intervention is required.</p>
+
+                            <p>The IMPC uses a variety of statistical methods for making phenotype calls, including:</p>
+
+                            <ul>
+                                <li><a href="https://en.wikipedia.org/wiki/Fisher%27s_exact_test"><strong>Fisher's Exact test</strong></a> - for categorical data parameters</li>
+                                <li><a href="https://en.wikipedia.org/wiki/Mixed_model"><strong>Mixed Model</strong></a> - for continuous data parameters which include random effects </li>
+                                <li><a href="https://en.wikipedia.org/wiki/Linear_model"><strong>Linear Model</strong></a> - for continuous data parameters when random effects are not significant</li>
+                                <li><a href="https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test"><strong>Mann–Whitney U Rank sum test</strong></a> - for continuous data parameters when conditions for mixed model are not appropriate</li>
+                            </ul>
                             
-                            <p>The IMPC uses multiple methods for analysing the data produced by phenotyping centers.
-                            The pipeline has been formalized into an R package called 
-                            <a href="http://bioconductor.org/packages/release/bioc/html/PhenStat.html">PhenStat</a>.
+                            <p>
+                            The Mixed model and Fisher's Exact methods used have been formalized into an R package called 
+                            <a href="http://bioconductor.org/packages/release/bioc/html/PhenStat.html">PhenStat</a>.  
+                            See the <a href="http://bioconductor.org/packages/release/bioc/vignettes/PhenStat/inst/doc/PhenStatUsersGuide.pdf">complete PhenStat user's guide</a>.
                             </p>
 
                             <p>
@@ -98,18 +108,7 @@
                             will be attempted -- a Mann-Whitney U Rank Sum test.
                             </p>
                             
-                            
 
-                            <p>The IMPC uses a variety of statistical methods for making phenotype calls, including:</p>
-
-                            <ul>
-                                <li><a href="https://en.wikipedia.org/wiki/Fisher%27s_exact_test"><strong>Fisher's Exact test</strong></a> - for categorical data parameters</li>
-                                <li><a href="https://en.wikipedia.org/wiki/Mixed_model"><strong>Mixed Model</strong></a> - for continuous data parameters which include random effects </li>
-                                <li><a href="https://en.wikipedia.org/wiki/Linear_model"><strong>Linear Model</strong></a> - for continuous data parameters when random effects are not significant</li>
-                                <li><a href="https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test"><strong>Mann–Whitney U Rank sum test</strong></a> - for continuous data parameters when conditions for mixed model are not appropriate</li>
-                            </ul>
-
-                           
 
                         </div><%-- end of content div--%>
                     </div>

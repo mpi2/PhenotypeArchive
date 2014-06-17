@@ -325,6 +325,7 @@
 				</c:when>
 				<c:otherwise>
 				<div class="alert alert-info">There are currently no phenotype associations for the gene ${gene.symbol} </div>
+				</br>
 				</c:otherwise>
 				</c:choose>
 				
@@ -345,7 +346,8 @@
 				
 		<c:if test="${phenotypeStarted}">
 			<div class="section">
-			  <h2 class="title" id="heatmap">Pre-QC phenotype heatmap <span class="documentation" ><a href='' id='mpPanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
+			  <h2 class="title" id="heatmap">Pre-QC phenotype heatmap <span class="documentation" >
+						<span class="documentation" ><a href='' id='heatmapPanel' class="fa fa-question-circle pull-right"></a></span> 
 				</h2>
 				
 				<div class="inner">
@@ -369,7 +371,7 @@
 			<!-- nicolas accordion for images here -->
 			<c:if test="${not empty solrFacets}">
         		<div class="section">
-                      <h2 class="title" id="section-images">Phenotype Associated Images <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                      <h2 class="title" id="section-images">Phenotype Associated Images<span class="documentation" ><a href='' id='imagePanel' class="fa fa-question-circle pull-right"></a></span></h2>
                        <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
                 		<div class="inner">
                       				<c:forEach var="entry" items="${solrFacets}" varStatus="status">
@@ -399,7 +401,7 @@
 					
 			<c:if test="${not empty expressionFacets}">
 			<div class="section">
-				<h2 class="title" id="section-expression">Expression <i class="fa fa-question-circle pull-right"></i></h2>
+				<h2 class="title" id="section-expression">Expression <span class="documentation" ><a href='' id='expressionPanel' class="fa fa-question-circle pull-right"></a></span></h2>
 					<div class="inner">			
 					
 							<!-- thumbnail scroller markup begin -->

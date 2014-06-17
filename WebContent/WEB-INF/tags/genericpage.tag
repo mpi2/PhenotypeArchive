@@ -73,7 +73,6 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
 <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" href="${initParam['baseUrl']}/css/vendor/jquery.ui/jquery.ui.core.css">
 <link rel="stylesheet" href="${initParam['baseUrl']}/css/vendor/jquery.ui/jquery.ui.slider.css">
-<link rel="stylesheet" href="${initParam['baseUrl']}/css/vendor/jquery.ui/jquery.ui.theme.css">
 <link rel="stylesheet" href="${initParam['baseUrl']}/css/vendor/font-awesome/font-awesome.min.css">
 <link rel="stylesheet" href="${initParam['baseUrl']}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
 <link rel="stylesheet" href="${initParam['baseUrl']}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.css">

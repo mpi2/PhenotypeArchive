@@ -70,7 +70,7 @@ class SecondaryProjectIdgImpl extends HibernateDAOImpl implements
 		Set<String> accessions = new TreeSet<>();
 
 		String query = "select * from genes_secondary_project where secondary_project_id="
-				+ projectId;
+				+ projectId+" limit 10";
 
 		try (PreparedStatement statement = getConnection().prepareStatement(
 				query)) {

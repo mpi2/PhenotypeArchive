@@ -13,7 +13,9 @@ ul.ui-autocomplete li a {
 ul.ui-autocomplete li a:hover {
 	background-color: #D4D4D4 !important;	
 }
-
+span.sugSpan {
+	color: black;
+}
 b.sugTerm {
 	color: #0978A1;
 }
