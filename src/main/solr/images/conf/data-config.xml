@@ -58,12 +58,12 @@
 			<!-- new table -->
 			<!-- IMPC_MOUSE_ALLELE_MV -->
 			<entity dataSource="komp2ds" name="mouse" query="select * from IMPC_MOUSE_ALLELE_MV where MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}">
-			<field column="MOUSE_ID" name="mouseId" />
-			<!-- <field column="COLONY_NAME" name="colonyName" />
-			<field column="AGE_IN_WEEKS" name="ageInWeeks" /> -->
+				<field column="MOUSE_ID" name="mouseId" />
+				<!-- <field column="COLONY_NAME" name="colonyName" />
+				<field column="AGE_IN_WEEKS" name="ageInWeeks" /> -->
 			
-			<!-- </edata-config.xmlntity>
-			<entity dataSource="komp2ds" name="mouse" query="select * from ima_mouse_image_vw where id=${ima_image_record.FOREIGN_KEY_ID}">
+				<!-- </edata-config.xmlntity>
+				<entity dataSource="komp2ds" name="mouse" query="select * from ima_mouse_image_vw where id=${ima_image_record.FOREIGN_KEY_ID}">
 				<field column="ID" name="mouseId" /> -->
 				<!-- <field column="COLONY_NAME" name="colonyName" />-->
 				<field column="AGE_IN_WEEKS" name="ageInWeeks" />
@@ -82,7 +82,7 @@
 							get it from our main mpi2 db at the moment as well- this sanger tables are 
 							temporary for demo purposes??? -->
 						<field column="symbol" name="sangerSymbol" />
-						<field column="acc" name="accession" />
+						<field column="acc" name="allele_accession" />
 
 						<entity dataSource="komp2ds" name="genomic_feature2" query="select * from `genomic_feature` where acc='${alleleMpi.gf_acc}' and db_id=${alleleMpi.gf_db_id}">
 							<field column="symbol" name="symbol" />
