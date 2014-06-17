@@ -210,7 +210,8 @@ try {
 
 			<div id="vnavi">
 				<ul>
-					<li>Version: <c:out value="${version}" escapeXml="false" /></li>
+					<li><a href="${drupalBaseUrl}/data/release">Release: <c:out value="${version}" escapeXml="false" /></a></li>
+					<li><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/">Ftp</a></li>
 					<li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/LICENSE">License</a></li>
 					<li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/CHANGES">Changelog</a></li>
 				</ul>
