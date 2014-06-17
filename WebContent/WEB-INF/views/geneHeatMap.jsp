@@ -31,10 +31,7 @@
                 <c:forEach items="${geneRows}" var="row">
                 <tr><td>${row.symbol}</td>
                
-                	<c:if test="${row.miceProduced eq 'No'}"><td style="background-color:rgb(3, 77, 105)">${row.miceProduced}</td></c:if>
-                	<c:if test="${row.miceProduced eq 'In Progress'}"><td style="background-color:rgb(61, 167, 208)">${row.miceProduced}</td></c:if>
-                	<c:if test="${row.miceProduced eq 'Yes'}"><td style="background-color:rgb(247, 157, 70)">${row.miceProduced}</td></c:if>
-               
+                	<td style="background-color:rgb(3, 77, 105)">${row.miceProduced}</td>
                 	<%-- <c:if test="${row.primaryPhenotype}"><td style="background-color:rgb(61, 167, 208)">Y</td></c:if>
                		<c:if test="${!row.primaryPhenotype}"><td style="background-color:rgb(3, 77, 105)">N</td></c:if>
                   --%>
