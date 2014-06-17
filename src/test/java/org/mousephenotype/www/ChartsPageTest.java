@@ -145,7 +145,7 @@ public class ChartsPageTest {
 		int nbRows = 10;
 		newQueryString+="&start="+startIndex+"&rows="+nbRows;
 		System.out.println("newQueryString=" + newQueryString);
-String url=config.get("internalSolrUrl")+ newQueryString;
+String url=config.get("solrUrl")+ newQueryString;
 System.out.println("solr url="+url);
 JSONObject result = JSONRestUtil.getResults(url);
 		JSONArray docs = JSONRestUtil.getDocArray(result);
