@@ -1108,7 +1108,7 @@
 			<id>dev-web-tests</id>
 
 			<properties>
-				<baseUrl>/data</baseUrl>
+				<baseUrl>http://dev.mousephenotype.org/data</baseUrl>
 				<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
 					to EBI servers for performance -->
 				<solrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
@@ -1147,7 +1147,7 @@
 			<id>beta-web-tests</id>
 
 			<properties>
-				<baseUrl>/data</baseUrl>
+				<baseUrl>http://beta.mousephenotype.org/data</baseUrl>
 				<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
 					to EBI servers for performance -->
 				<solrUrl>https://www.ebi.ac.uk/mi/impc/beta/solr</solrUrl>
