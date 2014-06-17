@@ -39,13 +39,20 @@
 	<div class="block block-system">
 		<div class="content">
 			<div class="node node-gene">
-								<h1 class="title" id="top">Interest Group: IDG</h1>
+								<h1 class="title" id="top">Project Page: IDG</h1>
 					
 
 				<div class="section">
 					<div class=inner>
-							<p><b>Illuminating the Druggable Genome (IDG)</b> is an NIH Common Fund project focused on collecting, integrating and making available biological data on approx 300 genes that have been identified as potenital therapeutic targets. KOMP2 - funded IMPC Centers are creating where possible knockout mouse strains for this consortium.
+							<div class="floatright">
+								<img src="../img/idgLogo.png" height="85" width="130">
+							</div>
+							<p>
+							<b>Illuminating the Druggable Genome (IDG)</b> is an NIH Common Fund project focused on collecting, integrating and making available biological data on approx 300 genes that have been identified as potenital therapeutic targets. KOMP2 - funded IMPC Centers are creating where possible knockout mouse strains for this consortium.
 							</p>
+							 
+							
+							
 					</div>
 				</div>
 				

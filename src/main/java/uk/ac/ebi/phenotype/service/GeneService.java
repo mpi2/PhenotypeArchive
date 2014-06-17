@@ -169,6 +169,11 @@ public class GeneService {
 		query.setQuery("mgi_accession_id:\"" + geneId + "\"");
 		QueryResponse response = solr.query(query);
 		SolrDocument doc = response.getResults().get(0);
+		return getStatusFromDoc(doc);
+
+	}
+
+	private Map<String, String> getStatusFromDoc(SolrDocument doc) {
 		String miceStatus = "";
 		String esCellStatus = "";
 		String phenStatus = "";
@@ -263,7 +268,6 @@ public class GeneService {
 		res.put("icons", esCellStatus + miceStatus + phenStatus);
 		res.put("orderPossible", order.toString());
 		return res;
-
 	}
 
 	public Boolean checkPhenotypeStarted(String geneAcc) {
@@ -320,11 +324,23 @@ public class GeneService {
 			String accession = (String)doc.getFieldValue(GeneField.MGI_ACCESSION_ID);//each doc should have an accession
 			if (doc.containsKey(GeneField.LATEST_MOUSE_STATUS)) {
 				String field = (String)doc.getFieldValue(GeneField.LATEST_MOUSE_STATUS);
-				productionStatus=this.getMouseProducedForGene(field);
+				//productionStatus=this.getMouseProducedForGene(field);
+				
+				String prodStatusIcons = "Neither production nor phenotyping status available ";
+				
+				
+
+					Map<String, String> prod = this.getProductionStatus(accession);
+					prodStatusIcons = ( prod.get("icons").equalsIgnoreCase("") ) ? prodStatusIcons : prod.get("icons") ;
+					//model.addAttribute("orderPossible" , prod.get("orderPossible"));
+				
+				//model.addAttribute("prodStatusIcons" , prodStatusIcons);
+					System.out.println(prodStatusIcons);
+					geneToStatusMap.put(accession,prodStatusIcons);
+							
 			}
 			
-			System.out.println(productionStatus);
-			geneToStatusMap.put(accession,productionStatus);
+			
 		}
 		return geneToStatusMap;
 	}
