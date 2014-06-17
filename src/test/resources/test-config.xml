@@ -19,7 +19,7 @@
     <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
             <list>
-                <!-- <value>classpath:testConfig.properties</value> -->
+              	<value>classpath:testConfig.properties</value>
                 <value>file:${user.home}/configfiles/datasourcesConfig.properties</value>
 
             </list>
