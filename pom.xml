@@ -579,7 +579,12 @@
 
     <build>
         <finalName>phenotype-archive</finalName>
-
+		<resources>
+			<resource>
+			<directory>src/test/resources</directory>
+			<filtering>true</filtering>
+			</resource>
+		</resources>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -1160,6 +1165,15 @@
             </properties>
 
             <build>
+            <resources>
+			<resource>
+			<directory>src/test/resources</directory>
+                            <filtering>true</filtering>
+                            <includes>
+                                <include>**/test-config.xml</include>
+                            </includes>
+			</resource>
+			</resources>
                 <pluginManagement>
                     <plugins>
                         <plugin>
