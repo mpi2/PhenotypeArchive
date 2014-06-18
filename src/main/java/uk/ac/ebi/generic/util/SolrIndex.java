@@ -910,39 +910,46 @@ public class SolrIndex {
         return map;
     }
 
-//    public List<Map<String, String>> getGeneAllele2Info(String accession) throws IOException, URISyntaxException {
-//
-//        String url = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele2/search?q=mgi_accession_id:"
-//                + accession.replace(":", "\\:")
-//                + "&start=0&rows=100&hl=true&wt=json";
-//
-//        log.info("url for getGeneAllele2Info=" + url);
-//
-//        JSONObject jsonObject1 = getResults(url);
-//
-//            //int numFound = Integer.parseInt(jsonObject.getJSONObject("response").getString("numFound"));
-//        JSONArray docs = jsonObject1.getJSONObject("response").getJSONArray("docs");
-//
-//        if (docs.size() < 1) {
-//            log.info("No rows returned for the query!");
-//            return null;
-//        }
-//
-//        String[] stringArray = new String[]{"mgi_accession_id", "marker_symbol", "marker_type", "feature_type", "latest_project_status", "latest_phenotype_started", "latest_phenotype_complete",
-//            "latest_phenotype_status", "latest_es_cell_status", "latest_mouse_status", "latest_project_status_legacy"};
-//
-//        List<Map<String, String>> genes = new ArrayList<>();
-//
-//        for (Object doc : docs) {
-//            JSONObject jsonObject2 = (JSONObject) doc;
-//
-//            HashMap<String, String> map = new HashMap<>();
-//
-//            for (String s : stringArray) {
-//                String o = jsonObject2.getString(s);
-//                map.put(s, o);
-//            }
-//
+    public List<Map<String, String>> getGeneAllele2Info(String accession, String allele_name) throws IOException, URISyntaxException {
+
+        String url = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele2/search?q=mgi_accession_id:"
+                + accession.replace(":", "\\:")
+                + " allele_name:\"" + allele_name + "\""
+                + "&start=0&rows=100&hl=true&wt=json";
+
+        log.info("#### url for getGeneAllele2Info=" + url);
+
+        JSONObject jsonObject1 = getResults(url);
+
+        JSONArray docs = jsonObject1.getJSONObject("response").getJSONArray("docs");
+
+        if (docs.size() < 1) {
+            log.info("#### No rows returned for the query!");
+            return null;
+        }
+
+       
+        String[] stringArray = new String[]{"mgi_accession_id", "marker_symbol", "marker_type", "feature_type", "latest_project_status", 
+            "latest_phenotype_started", "latest_phenotype_complete",
+            "latest_phenotype_status", "latest_es_cell_status", "latest_mouse_status", "latest_project_status_legacy",
+            "es_cell_status",  "mouse_status", "phenotype_status", "production_centre", "phenotyping_centre", "allele_name",
+            "allele_type", "type"
+        };
+
+        List<Map<String, String>> genes = new ArrayList<>();
+
+        for (Object doc : docs) {
+            JSONObject jsonObject2 = (JSONObject) doc;
+
+            HashMap<String, String> map = new HashMap<>();
+
+            for (String s : stringArray) {
+                if(jsonObject2.has(s)) {
+                    String o = jsonObject2.getString(s);
+                    map.put(s, o);
+                }
+            }
+
 //            if (jsonObject2.has("allele_type")) {
 //                if (jsonObject2.getString("allele_type").equals("Conditional Ready")) {
 //                    map.put("alleleType", "Knockout First, Reporter-tagged insertion with conditional potential");
@@ -950,18 +957,18 @@ public class SolrIndex {
 //                    map.put("alleleType", "Reporter-Tagged Deletion");
 //                }
 //            }
-//
-//            genes.add(map);
-//        }
-//
-//        return genes;
-//    }
+
+            genes.add(map);
+        }
+
+        return genes;
+    }
 
     private static final String NOT_FOUND = "NOT-FOUND";
     private static final String NOT_COMPLETE = "placeholder";
-    private static final String NOT_AVAILABLE = "not-available";
+    //private static final String NOT_AVAILABLE = "not-available";
     
-    private String getGeneProductInfoArrayEntry2(String key, JSONArray item) throws IOException, URISyntaxException {
+    private String getGeneProductInfoArrayEntry(String key, JSONArray item) throws IOException, URISyntaxException {
         if(item == null) {
             return null;
         }
@@ -1012,13 +1019,13 @@ public class SolrIndex {
 
         map2.put("production_centre", jsonObject2.getString("production_centre"));
 
-        String background_colony_strain = getGeneProductInfoArrayEntry2("background_colony_strain", jsonObject2.getJSONArray("genetic_info"));
+        String background_colony_strain = getGeneProductInfoArrayEntry("background_colony_strain", jsonObject2.getJSONArray("genetic_info"));
 
-        map2.put("genetic_background", NOT_AVAILABLE);
+       // map2.put("genetic_background", NOT_AVAILABLE);
 
-        if (background_colony_strain != null && background_colony_strain.length() > 0) {
+      //  if (background_colony_strain != null && background_colony_strain.length() > 0) {
             map2.put("genetic_background", background_colony_strain);
-        }
+      //  }
 
         String es_cell = jsonObject2.getString("associated_product_es_cell_name");
         if (es_cell.length() < 1) {
@@ -1045,20 +1052,24 @@ public class SolrIndex {
         HashMap<String, Object> map2 = new HashMap<>();
         map2.put("orders", getGeneProductInfoOrderInfo(jsonObject2));
         
-        String parental_cell_line = getGeneProductInfoArrayEntry2("parent_es_cell_line", jsonObject2.getJSONArray("genetic_info"));
+        String parental_cell_line = getGeneProductInfoArrayEntry("parent_es_cell_line", jsonObject2.getJSONArray("genetic_info"));
 
         if (parental_cell_line != null) {
             map2.put("parental_cell_line", parental_cell_line);
         }
 
+        String strain = getGeneProductInfoArrayEntry("strain", jsonObject2.getJSONArray("genetic_info"));
+
+        if (strain != null) {
+            map2.put("es_cell_strain", strain);        
+            map2.put("genetic_background", strain);
+        }
+        
         map2.put("es_cell_clone", jsonObject2.getString("name"));
         
         String targeting_vectors = jsonObject2.getString("associated_product_vector_name");        
         
         map2.put("targeting_vector", targeting_vectors);
-
-        map2.put("es_cell_strain", NOT_COMPLETE);        
-        map2.put("genetic_background", NOT_COMPLETE);
 
         map2.put("southern_tool", "http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name="+jsonObject2.getString("name")+"&iframe=true&width=100%&height=100%");
         
@@ -1066,33 +1077,7 @@ public class SolrIndex {
 
         return map2;
     }
-    
-//{
-//        "marker_symbol":"Cib2",
-//        "mgi_accession_id":"MGI:1929293",
-//        "allele_type":"a",
-//        "allele_name":"tm1a(EUCOMM)",
-//        "type":"targeting_vector",
-//        "name":"PG00073_Z_3_H01",
-//        "production_pipeline":"EUCOMM",
-//        "production_completed":"true",
-//        "status":"Targeting Vector Produced",
-//        "order_links":[
-//          "http://www.eummcr.org/order?add=MGI:1929293&material=es_cells"],
-//        "order_names":[
-//          "EUMMCR"],
-//        "genetic_info":[
-//          "cassette:L1L2_Bact_P",
-//          "cassette_type:Promotor Driven",
-//          "backbone:L3L4_pD223_DTA_spec"],
-//        "score":8.002149},    
-
-//    : PG00073_Z_5_H01, 
-    //: 'http://www.sanger.ac.uk',
-//    : 'http://www.sanger.ac.uk/htgt/htgt2/design/designedit/refresh_design?design_id=48714',
-    //: L1L2_Bact_P,
-//    : L3L4_pD223_DTA_spec}
-    
+   
     private Map<String, Object> getGeneProductInfoTargetingVectors(JSONObject jsonObject2) throws IOException, URISyntaxException {
             if (!jsonObject2.getString("type").equals("targeting_vector")) {
                 return null;
@@ -1101,12 +1086,12 @@ public class SolrIndex {
         HashMap<String, Object> map2 = new HashMap<>();
         map2.put("orders", getGeneProductInfoOrderInfo(jsonObject2));
 
-        String cassette = getGeneProductInfoArrayEntry2("cassette", jsonObject2.getJSONArray("genetic_info"));
+        String cassette = getGeneProductInfoArrayEntry("cassette", jsonObject2.getJSONArray("genetic_info"));
         map2.put("cassette", cassette);
 
         map2.put("targeting_vector", jsonObject2.getString("name"));
         
-        String backbone = getGeneProductInfoArrayEntry2("backbone", jsonObject2.getJSONArray("genetic_info"));
+        String backbone = getGeneProductInfoArrayEntry("backbone", jsonObject2.getJSONArray("genetic_info"));
         map2.put("backbone", backbone);
         
         
@@ -1117,20 +1102,21 @@ public class SolrIndex {
                 return map2;
     }
 
-    public Map<String, Object> getGeneProductInfo(String accession) throws IOException, URISyntaxException {
+    public Map<String, Object> getGeneProductInfo(String accession, String allele_name) throws IOException, URISyntaxException {
 
         String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/product/search?q=mgi_accession_id:"
                 + accession.replace(":", "\\:")
+                + " allele_name:\"" + allele_name + "\""
                 + "&start=0&rows=100&hl=true&wt=json";
 
-        log.info("url for getGeneProductInfo=" + url);
+        log.info("#### url for getGeneProductInfo=" + url);
 
         JSONObject jsonObject1 = getResults(url);
 
         JSONArray docs = jsonObject1.getJSONObject("response").getJSONArray("docs");
 
         if (docs.size() < 1) {
-            log.info("No rows returned for the query!");
+            log.info("#### No rows returned for the query!");
             return null;
         }
 
@@ -1159,6 +1145,36 @@ public class SolrIndex {
         genes.put("mice", mice);
         genes.put("es_cells", es_cells);
         genes.put("targeting_vectors", targeting_vectors);
+
+        List<Map<String, String>> constructs2 = getGeneAllele2Info(accession, allele_name);
+        log.info("#### constructs2: " + constructs2.toString()); 
+        
+        List<HashMap<String, Object>> summaries = new ArrayList<>();
+
+        for(Map<String, String> item : constructs2) {
+            HashMap<String, Object> summary = new HashMap<>();
+            summary.put("marker_symbol", item.get("marker_symbol"));
+//            summary.put("phenotype_status", item.get("phenotype_status"));
+//            summary.put("es_cell_status", item.get("es_cell_status"));
+//            summary.put("mouse_status", item.get("mouse_status"));
+            summary.put("name", item.get("marker_symbol" + "<sup>" + item.get("allele_name") + "</sup>"));
+        }
+
+//    allele_description
+//    symbol
+//    type
+//    statuses
+//    genbank
+//    mutagenesis_url
+//    map_image
+//    browsers
+//    tools
+
+
+
+        genes.put("summary", summaries);
+
+        log.info("#### summaries: " + summaries.toString()); 
 
         return genes;
     }
