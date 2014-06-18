@@ -253,6 +253,7 @@
 	<field name="allele_name" type="text_general" indexed="true" stored="true" multiValued="true"/>
 	
 	<!-- disease fields for facet filtering -->
+	<field name="type" type="string" indexed="true" stored="true"/>	
 	<field name="disease_source" type="string" indexed="true" stored="true" multiValued="true" /> 	
 	<field name="disease_classes" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="human_curated" type="boolean" indexed="true" stored="true" multiValued="true" />

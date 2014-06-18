@@ -135,6 +135,10 @@
          <script>        		
        	$(document).ready(function(){
        	
+       		$('a#searchExample').mouseover(function(){
+       			return false;
+       		})
+       		
        		// autosuggest 
        		$(function() {
 	       		$( "input#s" ).autocomplete({
@@ -164,7 +168,7 @@
 			       							var re = new RegExp("(" + request.term + ")", "gi") ;			       				 			
 			       				 			var newTerm = term.replace(re,"<b class='sugTerm'>$1</b>");
 			       				 						       				 			
-			       							aKV.push("<span class='sugSpan " + facet + "'>" + newTerm + "</span>");
+			       							aKV.push("<span class='" + facet + "'>" + newTerm + "</span>");
 			       							//console.log('facet: ' +  facet);
 			       							if (i == 0){
 			       								// take the first found in autosuggest and open that facet
@@ -395,7 +399,10 @@
    			    },
    			    position: {my: 'left top',
    			    		   adjust: {x: -360, y: 0}
-   			    }
+   			    },
+   			 	show: {
+   					event: 'click' //override the default mouseover
+   				}
             });
                         
             // Message to IE users
