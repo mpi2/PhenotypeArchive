@@ -70,9 +70,12 @@ public class Observation extends SourcedEntry {
 	@Column(name = "population_id")
 	private int populationId;
 	
-	@Column(name = "parameter_status")
-	private String parameterStatus;
-	
+    @Column(name = "parameter_status")
+    private String parameterStatus;
+    
+    @Column(name = "parameter_status_message")
+    private String parameterStatusMessage;
+    
 	
 	public String getParameterStatus() {
 		return parameterStatus;
@@ -183,6 +186,16 @@ public class Observation extends SourcedEntry {
 	public void setParameterStableId(String parameterStableId) {
 		this.parameterStableId = parameterStableId;
 	}
+
+    
+    public String getParameterStatusMessage() {
+        return parameterStatusMessage;
+    }
+
+    
+    public void setParameterStatusMessage(String parameterStatusMessage) {
+        this.parameterStatusMessage = parameterStatusMessage;
+    }
 	
 	
 	
