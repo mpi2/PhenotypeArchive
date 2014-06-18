@@ -22,21 +22,21 @@
  */
 (function($){		
 	
-	$.fn.parseUrl_consturctFilters_loadDataTable = function(widget){
+	$.fn.parseUrl_constructFilters_loadDataTable = function(oConf){
 		
 		// if url contains solr fq (non-default ones) filters, parse them and tick checkbox of checkbox filters to create summary facet filters
-		if ( widget.options.data.hashParams.fq.match(/(.*)/) && !widget.options.data.hashParams.noFq ){
+		if ( oConf.fq.match(/(.*)/) && !oConf.noFq ){
 			
 			// only deals with facet=xxx, not core=xxx
-			if ( typeof widget.options.data.core == 'undefined' ){
-				var aFqs  = widget.options.data.hashParams.fq.split(' AND ');
-				var q     = widget.options.data.hashParams.q;
+			if ( typeof oConf.core == 'undefined' ){
+				var aFqs  = oConf.fq.split(' AND ');
+				var q     = oConf.q;
 				
 				for ( var i=0; i<aFqs.length; i++ ){
 					var aVals = aFqs[i].split(':');
-					//console.log(aVals[1]);
+					//console.log('val : '+ aVals[1]);
 					var qField = aVals[0].replace('(','');
-					//console.log(qField);
+					//console.log('field : '+ qField);
 					if ( typeof MPI2.searchAndFacetConfig.qfield2facet[qField] ){
 						var kv = aFqs[i].replace(':','|').replace(/\(|\)|"/g,'');
 						
@@ -55,17 +55,18 @@
 			    		else { 
 			    			var facet = MPI2.searchAndFacetConfig.qfield2facet[qField];
 			    			var relStr = facet + '|' + kv;
-			    			//console.log(relStr);
+			    			//console.log('hidden: '+ relStr);
 			    			oInput = $('<input></input>').attr({'type':'checkbox','rel':relStr}).prop('checked', true);
 			    			
-			    			//$.fn.composeSummaryFilters(oInput, q);
+			    			
+			    			$.fn.composeSummaryFilters(oInput, q);
 			    		}
 					}
 				}
 			}
-			
 		}
-		$.fn.loadDataTable(widget.options.data.hashParams);
+		
+		$.fn.loadDataTable(oConf);
 	}
 	
 	$.fn.initFacetToggles = function(facet){			
@@ -121,14 +122,14 @@
 		caller.click(function(){
 			
 			if ( caller.find('span.fcount').text() != 0 ){
-				console.log(facet + ' widget expanded');
+				//console.log(facet + ' widget expanded : '+ MPI2.searchAndFacetConfig.widgetOpen);
 				
 				// close all other non-selected facets
 				$('div.flist > ul li.fmcat').each(function(){
 					if ( $(this).attr('id') != facet ){
 						$(this).removeClass('open');
 					}
-				});				
+				});	
 				
 				MPI2.searchAndFacetConfig.widgetOpen = true;
 				
@@ -696,7 +697,9 @@
 			// use AND as default operator for multiple filters
 	    	var sSolrFilter = parseSummeryFacetFiltersForSolr_fq().join(' AND ');
 	    	
+	    	MPI2.searchAndFacetConfig.filterChange = true;
 	    	window.location.hash = '#fq=' + sSolrFilter + '&facet=' + this.facet;
+
 	    	return sSolrFilter;
 		};
 		
@@ -704,6 +707,7 @@
 			var facet = this.facet;
 			
 			console.log('uncheck checkFilter of ' + facet + ' facet');
+			MPI2.searchAndFacetConfig.filterChange = true;
 			
 			// uncheck checkbox with matching value		
 			$('ul#facetFilter li.' + facet + ' li.ftag').each(function(){	
@@ -720,6 +724,8 @@
 		};
 		
 		this.add = function(){
+			//console.log('added Filter of ' + this.facet + ' facet');
+			MPI2.searchAndFacetConfig.filterChange = true;
 			
 			var aVals = oChkbox.attr('rel').split("|");
 			
@@ -800,6 +806,62 @@
 			uncheck_summary_facet_filter(this);
 		};	
 	}
+
+	function uncheck_summary_facet_filter(oFilter) {
+		
+		var oChkbox = oFilter.checkbox;
+		var facet     = oFilter.facet;
+		var q         = oFilter.q;
+		var filter    = oFilter.filter
+		
+		filter.click(function(){
+			
+			// remove checkbox filter highlight			
+			oChkbox.prop('checked', false).siblings('span.flabel').removeClass('highlight');			
+			filter.remove();
+			
+			if ($('ul#facetFilter li.'+ facet + ' li.ftag').size() == 0  ){
+				// remove caption
+				$('ul#facetFilter li.'+ facet + ' span.fcap').hide();
+			}
+			
+			// any other summary filters left?
+			if ( $('ul#facetFilter li.ftag').size() == 0 ){
+				
+				// if there is no summary filter at all, refresh url	
+				
+				var url;
+				var defaultFqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].fq;
+				
+				if ( window.location.search != '' ){
+					
+					// has search keyword
+					//url = baseUrl + '/search?q=' + q + '#fq='+ defaultFqStr + '&core='+facet;
+					url = 'fq='+ defaultFqStr + '&core='+facet;
+					//window.history.pushState({},"", url);// change browser url; not working with IE	
+					//console.log('test: '+ url);
+					window.location.hash = url; // also works with IE										
+				}
+				else {					
+					// no search keyword
+					
+					// this is ok, but not working with IE
+					//window.history.pushState({},"", baseUrl + '/search#fq='+defaultFqStr+'&core='+facet);
+					
+					// this also works with IE					
+					window.location.hash = 'fq='+defaultFqStr+'&core='+facet;					
+				}
+				
+				//window.history.pushState({},"", url);// change browser url
+				location.reload();								
+			}
+			else {
+				// if there is still summary filter: update url and facet counts
+				var solrFqStr = oFilter.updateUrl();	
+				oFilter.updateFacetCounts(solrFqStr);
+			}
+		});
+	}		
 	
 	function _composeFilterStr(facet, field, value){	
 		
@@ -850,65 +912,6 @@
 		}		
 	}
 		
-	function uncheck_summary_facet_filter(oFilter) {
-		
-		var oChkbox = oFilter.checkbox;
-		var facet     = oFilter.facet;
-		var q         = oFilter.q;
-		var filter    = oFilter.filter
-		
-		filter.click(function(){
-			oChkbox.attr("checked", false);			
-			oChkbox.siblings('span.flabel').removeClass('highlight');
-			
-			$('ul#facetFilter li.'+ facet).find(filter).remove();
-			
-			// when all filters are unchecked, hide facet filter container and reload current url (for current facet)	
-			
-			if ($('ul#facetFilter li.'+ facet + ' li.ftag').size() == 0  ){
-				// remove caption
-				$('ul#facetFilter li.'+ facet + ' span.fcap').hide();
-			}
-			
-			if ( $('ul#facetFilter li.ftag').size() == 0 ){
-			
-				// if there is no summary filter at all
-				// refresh url	
-				
-				var url;
-				var defaultFqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].fq;
-				
-				if ( window.location.search != '' ){
-					
-					// has search keyword
-					//url = baseUrl + '/search?q=' + q + '#fq='+ defaultFqStr + '&core='+facet;
-					url = 'fq='+ defaultFqStr + '&core='+facet;
-					//window.history.pushState({},"", url);// change browser url; not working with IE	
-					//console.log('test: '+ url);
-					window.location.hash = url; // also works with IE										
-				}
-				else {					
-					// no search keyword
-					
-					// this is ok, but not working with IE
-					//window.history.pushState({},"", baseUrl + '/search#fq='+defaultFqStr+'&core='+facet);
-					
-					// this also works with IE					
-					//window.location.hash = baseUrl + '/search#fq='+defaultFqStr+'&core='+facet;
-					window.location.hash = 'fq='+defaultFqStr+'&core='+facet;
-					
-				}
-				
-				//window.history.pushState({},"", url);// change browser url
-				location.reload();								
-			}
-			else {
-				// if there is still summary filter: update url and facet counts
-				var solrFqStr = oFilter.updateUrl();				
-				oFilter.updateFacetCounts(solrFqStr);
-			}
-		});
-	}		
 	
 	$.fn.qTip = function(oConf){
 		// pageName: gene | mp | ma

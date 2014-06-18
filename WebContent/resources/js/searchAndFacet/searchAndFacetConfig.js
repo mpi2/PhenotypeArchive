@@ -31,9 +31,28 @@ if(typeof(window.MPI2) === 'undefined') {
 MPI2.searchAndFacetConfig = {};
 var config = MPI2.searchAndFacetConfig;
 
-config.currentFq = false;
+config.currentFq    = false;
 config.matchedFacet = false;
-config.widgetOpen = false;
+config.widgetOpen   = false;
+config.pageReload   = false;
+config.filterChange = false;
+config.backButton   = false;
+
+config.searchSpin = "<img src='img/loading_small.gif' />";
+config.spinner = "<img src='img/loading_small.gif' /> Processing search ...";
+config.spinnerExport = "<img src='img/loading_sm_tickFilterCheckBox('mp');	all.gif' /> Processing data for export, please do not interrupt ... ";
+config.endOfSearch = "Search result";
+
+//custom 404 page does not know about baseUrl
+var path = window.location.pathname.replace(/^\//,"");
+path = '/' + path.substring(0, path.indexOf('/'));
+//var trailingPath = '/searchAndFacet';
+var trailingPath = '/search';
+var trailingPathDataTable = '/dataTable';
+
+config.pathname = typeof baseUrl == 'undefined' ? path + trailingPath : baseUrl + trailingPath;
+config.dataTablePath = typeof baseUrl == 'undefined' ? path + trailingPathDataTable : baseUrl + trailingPathDataTable;
+
 
 // on drupal side this is not available
 if ( typeof solrUrl == 'undefined' ){
@@ -130,46 +149,6 @@ config.facetFilterLabel = {
 	'mgi_predicted'              : 'From MGI data',//'MGI_predicted',
 	'mgi_predicted_in_locus'     : 'From MGI data in linkage locus',//'MGI_predicted_in_locus'	
 };
-/*
-var megaFacetFields = ['status', 'imits_phenotype_complete', 'imits_phenotype_started', 'imits_phenotype_status', 
-                       'mgi_accession_id', 'marker_type', 'top_level_mp_term', 'mp_term', 
-                       'inferred_selected_top_level_ma_term', 'inferred_ma_term', 
-                       'procedure_name'];
-var facetFieldsStr = '';
-for ( var i=0; i<megaFacetFields.length; i++){
-	facetFieldsStr += '&facet.field=' + megaFacetFields[i];
-}
-*/
-/*
-var facetMod = "&facet=on&facet.limit=-1&facet.mincount=1";
-
-config.mega = {};
-config.mega.facetParams = facetMod + facetFieldsStr;
-config.mega.Facets = {
-	//'mpFacet' : '&facet.field=top_mp_term_id&facet.field=top2mp_id&facet.field=top2mp_term&facet.field=top2mp_def&facet.field=top2mp_idTermDef' + facetMod
-	'mpFacet' : '&facet.field=top_mp_term_id&facet.field=top2mp_idTermDef&facet.field=mp_idTermDef' + facetMod
-};
-//MPI2.searchAndFacetConfig.mega.Facets
-//console.log(config.mega.facetParams);
-//config.solrBaseURL_bytemark = 'http://dev.mousephenotype.org/bytemark/solr/';
-config.solrBaseURL_bytemark = solrUrl + '/';
-config.solrBaseURL_ebi = solrUrl + '/';
-*/
-
-config.searchSpin = "<img src='img/loading_small.gif' />";
-config.spinner = "<img src='img/loading_small.gif' /> Processing search ...";
-config.spinnerExport = "<img src='img/loading_sm_tickFilterCheckBox('mp');	all.gif' /> Processing data for export, please do not interrupt ... ";
-config.endOfSearch = "Search result";
-
-// custom 404 page does not know about baseUrl
-var path = window.location.pathname.replace(/^\//,"");
-path = '/' + path.substring(0, path.indexOf('/'));
-//var trailingPath = '/searchAndFacet';
-var trailingPath = '/search';
-var trailingPathDataTable = '/dataTable';
-
-config.pathname = typeof baseUrl == 'undefined' ? path + trailingPath : baseUrl + trailingPath;
-config.dataTablePath = typeof baseUrl == 'undefined' ? path + trailingPathDataTable : baseUrl + trailingPathDataTable;
 
 var commonSolrParams = {					
 		'qf': 'auto_suggest',

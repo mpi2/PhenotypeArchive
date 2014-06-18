@@ -126,6 +126,7 @@
     	    jsonp: 'json.wrf',
     	    timeout: 10000,
     	    success: function (diseaseResponse) { 
+    	    	//console.log(diseaseResponse);
     	    	$('div.flist li#disease span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.disease = diseaseResponse.response.numFound;    	    	
     	    	_updateFacetCount('disease', diseaseResponse, facetMode);	 
@@ -151,7 +152,7 @@
     	    jsonp: 'json.wrf',
     	    timeout: 10000,
     	    success: function (maResponse) {    	    	   	    	    		    	   	    	
-    			
+    	    	//console.log(maResponse);
     	    	$('div.flist li#ma span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.ma = maResponse.response.numFound;    	    	
     	    	_updateFacetCount('ma', maResponse, facetMode);	     	    	
@@ -175,7 +176,8 @@
     	    dataType: 'jsonp',
     	    jsonp: 'json.wrf',
     	    timeout: 5000,
-    	    success: function (pipelineResponse) {    	    	
+    	    success: function (pipelineResponse) {  
+    	    	//console.log(pipelineResponse);
     	    	$('div.flist li#pipeline span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.pipeline = pipelineResponse.response.numFound;    	    	
     	    	_updateFacetCount('pipeline', pipelineResponse, facetMode);	 
@@ -202,6 +204,7 @@
     	    jsonp: 'json.wrf',
     	    timeout: 5000,
     	    success: function (imagesResponse) {  
+    	    	//console.log(imagesResponse);
     	    	$('div.flist li#images span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.images = imagesResponse.response.numFound;    	    	
     	    	_updateFacetCount('images', imagesResponse, facetMode);	 
