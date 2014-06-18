@@ -94,7 +94,7 @@ public class TestUtils {
         if (targetCount == -1)
             targetCount = set.size();
         
-        return targetCount;
+        return Math.min(targetCount, set.size());
     }
     
     /**

@@ -94,7 +94,7 @@ public class GenePhenotypePage {
         try {
             long shortTimeoutInSeconds = 1;
             
-            // Look for the 'No Phenotypes' message. If found, 'hasPhenotypeAssociations' is true; otherwise, it is false.
+            // Look for the 'No Phenotypes' message. If found, 'hasPhenotypeAssociations' is false; otherwise, it is true.
             hasPhenotypeAssociations =  ! (new WebDriverWait(driver, shortTimeoutInSeconds))
                     .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner div.alert"))).getText().contains(NO_PHENO_ASSOCIATIONS);
         } catch (Exception e) {
