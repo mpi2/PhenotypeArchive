@@ -80,6 +80,7 @@ DROP TABLE IF EXISTS image_record_observation;
 DROP TABLE IF EXISTS dimension;
 DROP TABLE IF EXISTS parameter_association;
 DROP TABLE IF EXISTS procedure_meta_data;
+DROP TABLE IF EXISTS genes_secondary_project;
 
 /**
  * Contains meta information about the database like
@@ -1086,5 +1087,11 @@ CREATE TABLE procedure_meta_data (
 	KEY procedure_meta_data_parameter_idx (parameter_id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
+
+
+CREATE TABLE `genes_secondary_project` (
+  `acc` varchar(20) NOT NULL,
+  `secondary_project_id` varchar(20) NOT NULL
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
