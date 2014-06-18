@@ -135,6 +135,10 @@
          <script>        		
        	$(document).ready(function(){
        	
+       		$('a#searchExample').mouseover(function(){
+       			return false;
+       		})
+       		
        		// autosuggest 
        		$(function() {
 	       		$( "input#s" ).autocomplete({
@@ -395,7 +399,10 @@
    			    },
    			    position: {my: 'left top',
    			    		   adjust: {x: -360, y: 0}
-   			    }
+   			    },
+   			 	show: {
+   					event: 'click' //override the default mouseover
+   				}
             });
                         
             // Message to IE users
