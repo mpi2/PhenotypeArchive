@@ -109,6 +109,7 @@
 				<field column="phenotyping_centre" xpath="/response/result/doc/arr[@name='phenotyping_centre']/str" /> 
 					
 				<!-- disease associated with this gene -->
+				<field column="type" xpath="/response/result/doc/str[@name='type']" /> 
 				<field column="disease_source" xpath="/response/result/doc/arr[@name='disease_source']/str" /> 
 				<field column="disease_term" xpath="/response/result/doc/arr[@name='disease_term']/str" /> 
 				<field column="disease_alts" xpath="/response/result/doc/arr[@name='disease_alts']/str" /> 
