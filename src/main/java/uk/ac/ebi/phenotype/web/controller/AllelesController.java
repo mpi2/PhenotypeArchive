@@ -46,18 +46,25 @@ public class AllelesController {
     @Autowired
     SolrIndex solrIndex;
    
-    //@RequestMapping("/alleles/{acc}/{symbol}")
-    @RequestMapping("/alleles/{acc}")
+    @RequestMapping("/alleles/{acc}/{allele_name}")
     public String alleles(
             @PathVariable String acc,
-            //@PathVariable String symbol,
+            @PathVariable String allele_name,
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException {
 
         log.info("#### AllelesController::alleles");
+        log.info("#### acc: " + acc);
+        log.info("#### allele_name: " + allele_name);
+                
+        Map<String, Object> constructs = solrIndex.getGeneProductInfo(acc, allele_name);
+      //  log.info("#### constructs: " + constructs.toString());
+
+        if(constructs == null) {
+            return "alleles";
+        }
         
-        Map<String, Object> constructs = solrIndex.getGeneProductInfo(acc);
         model.addAttribute("mice", constructs.get("mice"));
         model.addAttribute("es_cells", constructs.get("es_cells"));
         model.addAttribute("targeting_vectors", constructs.get("targeting_vectors"));
