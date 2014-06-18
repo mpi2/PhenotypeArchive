@@ -26,6 +26,7 @@ public final class EncodedOrganisationConversionMap {
         dccCenterMap.put("H", "MRC Harwell");
         dccCenterMap.put("J", "JAX");
         dccCenterMap.put("UCD", "UC Davis");
+        dccCenterMap.put("GMC", "HMGU");
 
     }
 

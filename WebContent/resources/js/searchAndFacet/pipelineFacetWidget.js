@@ -162,8 +162,11 @@
 		    		/*--------------------------------------------------------------------------------------------------------------------------*/
 			    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
 			    	/*--------------------------------------------------------------------------------------------------------------------------*/	
+		    		
+		    		var oConf = self.options.data.hashParams;
+			    	oConf.core = self.options.data.core;
 			    	
-			    	$.fn.parseUrl_consturctFilters_loadDataTable(self);
+			    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);
 	    		}	    		
 	    	});	    	
 	    },	   

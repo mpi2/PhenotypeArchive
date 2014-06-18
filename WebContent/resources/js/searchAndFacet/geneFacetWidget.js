@@ -254,8 +254,12 @@
 	    	/*--------------------------------------------------------------------------------------------------------------------------*/
 	    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
 	    	/*--------------------------------------------------------------------------------------------------------------------------*/	
+	    	console.log('****page load for gene facet');
 	    	
-	    	$.fn.parseUrl_consturctFilters_loadDataTable(self);
+	    	var oConf = self.options.data.hashParams;
+	    	oConf.core = self.options.data.core;
+	    	console.log(oConf);
+	    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);
 	    },	       
 	  
 	    destroy: function () {    	   

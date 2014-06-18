@@ -620,13 +620,26 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 
 			obs = textObservation;
 		}
-		
-		obs.setParameterStableId(parameter.getStableId());
-		//TODO set missing -> ignore flag
-		obs.setParameterStatus(parameterStatus);
-		if(parameterStatus!=null) {
-		obs.setMissingFlag(true);
-		}
+
+        obs.setParameterStableId(parameter.getStableId());        
+
+        // Add the status code to the observation if there is one
+        if(parameterStatus!=null) {
+
+            String code = parameterStatus.substring(0, parameterStatus.indexOf(":"));
+
+            obs.setParameterStatus(code);
+            obs.setMissingFlag(true);
+
+            if(parameterStatus.toString().contains(":")) {
+    
+                String message = parameterStatus.substring(parameterStatus.indexOf(":"), parameterStatus.length());
+                obs.setParameterStatusMessage(message);
+    
+            }
+
+        }
+
 		return obs;
 	}
 

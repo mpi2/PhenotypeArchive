@@ -215,7 +215,6 @@
        		});
        		
        	 	
-       		
        		// make "search" menu point active
        		$('nav#mn ul.menu > li:first-child').addClass('active');
        		       		
@@ -247,7 +246,7 @@
    				}
    				
    				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-   				   				
+   				//console.log(oHashParams);   				
    				oHashParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;	                
 				oHashParams.widgetName += 'Facet';
 								
@@ -259,21 +258,41 @@
    				else if ( typeof oHashParams.q == 'undefined' ){
    					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');	    					
    				}
-   				   				
-   				if ( MPI2.searchAndFacetConfig.widgetOpen ){
-   					
+   				   	
+   				//console.log(oHashParams)
    				
-   					MPI2.searchAndFacetConfig.widgetOpen = false;
+   				/* deals with 4 events here:
+   				 	1. widget facet open
+   					2. page reload
+   					3. added/removed filter
+   					4. back button
+   					*/
+   				if ( MPI2.searchAndFacetConfig.filterChange ){
+    				console.log('added or removed a filter');
+    				MPI2.searchAndFacetConfig.filterChange = false;
+    				
+    				// MA,MP facet stays open when adding/removing filters
+    				$('li#mp.fmcat, li#ma.fmcat').each(function(){
+    					if (oHashParams.facetName == $(this).attr('id')) {
+    						$(this).addClass('open');
+    					}
+    				});
+    				
+    				$.fn.loadDataTable(oHashParams);
+    			}
+   				
+   				else if ( MPI2.searchAndFacetConfig.widgetOpen ){
+   					console.log('widget facet open');
+   					MPI2.searchAndFacetConfig.widgetOpen = false; // reset
    						    				
     				// search by keyword (user's input) has no fq in url when hash change is detected
     				if ( oHashParams.fq ){			
     					
     					if ( oHashParams.coreName ){	    						
-    						$.fn.removeFacetFilter();
     						oHashParams.coreName += 'Facet'; 					
     					}
     					else {						
-    						// parse selected checkbox(es) of this facet
+    						// parse summary facet filters 
     						var facet = oHashParams.facetName;
     						var aFilters = [];
     						//$('ul#facetFilter li.' + facet + ' li a').each(function(){
@@ -289,13 +308,35 @@
     					
     					$.fn.loadDataTable(oHashParams);
     				}
-   				}
-    			else {	    				   				  				
-    				//console.log('back button');	    				
+   				}    			
+    			
+    			else {
+    				// back button event
+    				console.log('page reload event');	
     				//console.log(oHashParams);
     				
     				$.fn.loadDataTable(oHashParams);
+    				// need to reconstruct filters from url
+    				/*var oConf = {};
+			    	oConf.q    = oHashParams.q;
+			    	oConf.fq   = oHashParams.fq;
+			    	oConf.noFq = typeof oHashParams.fq == 'undefined' ? true : false;
+			    	oConf.core = oHashParams.coreName; 
+			    	oConf.backButton = true;
+			    	
+	    			$.fn.parseUrl_constructFilters_loadDataTable(oConf);
+	    			*/
+	    			// remove all previous filers
+    				//$('ul#facetFilter li.ftag').remove();
+    				// remove caption
+    				//$('ul#facetFilter li span.fcap').hide();
+    				
+    			
+	    			//window.location.reload();
+    				
     			}
+   				
+   					
    			});		
     						
     						

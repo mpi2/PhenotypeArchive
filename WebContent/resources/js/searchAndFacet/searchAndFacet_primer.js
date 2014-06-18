@@ -19,7 +19,9 @@
  */
 $(document).ready(function(){
 	'use strict';	
-		
+	
+	MPI2.searchAndFacetConfig.pageReload = true;
+	//alert('page loaded - primer');	
 	var oHashParams = {};
 	
 	$('span.facetCount').text(''); // default when page loads
@@ -46,6 +48,7 @@ $(document).ready(function(){
 		if (typeof oHashParams.fq == 'undefined'){
 			oHashParams.noFq = true;
 		}
+		//console.log(oHashParams);
 		
 		$.fn.fetchSolrFacetCount(oHashParams);	
 	}
@@ -71,5 +74,5 @@ $(document).ready(function(){
 	    		document.location.href = baseUrl + '/search?q=' + input + '#facet=' + MPI2.searchAndFacetConfig.matchedFacet; // handed over to hash change	    	
 	    	}
 	    }
-	})	
+	});
 });

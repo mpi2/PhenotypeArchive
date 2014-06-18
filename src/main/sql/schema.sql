@@ -80,6 +80,7 @@ DROP TABLE IF EXISTS image_record_observation;
 DROP TABLE IF EXISTS dimension;
 DROP TABLE IF EXISTS parameter_association;
 DROP TABLE IF EXISTS procedure_meta_data;
+DROP TABLE IF EXISTS genes_secondary_project;
 
 /**
  * Contains meta information about the database like
@@ -485,6 +486,7 @@ CREATE TABLE experiment (
     id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     db_id                      INT(10) UNSIGNED NOT NULL,
     external_id                VARCHAR(100),
+    sequence_id                VARCHAR(100) NULL DEFAULT NULL,
     date_of_experiment         TIMESTAMP NULL DEFAULT NULL,
     organisation_id            INT(10) UNSIGNED NOT NULL,
     project_id                 INT(10) UNSIGNED NULL DEFAULT NULL,
@@ -494,7 +496,9 @@ CREATE TABLE experiment (
 	procedure_stable_id        VARCHAR(30) NOT NULL,
     metadata_combined          TEXT,
     metadata_group             VARCHAR(50) DEFAULT '',
-    
+	procedure_status           VARCHAR(50) DEFAULT NULL,
+	procedure_status_message   VARCHAR(450) DEFAULT NULL,
+
     PRIMARY KEY(id),
     KEY external_db_idx(db_id),
     KEY organisation_idx(organisation_id),
@@ -540,7 +544,9 @@ CREATE TABLE observation (
 	population_id              INT(10) UNSIGNED NOT NULL,
 	observation_type           enum('categorical', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text'),
 	missing                    TINYINT(1) DEFAULT 0,
-	parameter_status varchar(450) DEFAULT NULL,
+	parameter_status           VARCHAR(50) DEFAULT NULL,
+	parameter_status_message   VARCHAR(450) DEFAULT NULL,
+
 	PRIMARY KEY(id),
 	KEY biological_sample_idx(biological_sample_id),
 	KEY parameter_idx(parameter_id),
@@ -1086,5 +1092,11 @@ CREATE TABLE procedure_meta_data (
 	KEY procedure_meta_data_parameter_idx (parameter_id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
+
+
+CREATE TABLE `genes_secondary_project` (
+  `acc` varchar(20) NOT NULL,
+  `secondary_project_id` varchar(20) NOT NULL
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
