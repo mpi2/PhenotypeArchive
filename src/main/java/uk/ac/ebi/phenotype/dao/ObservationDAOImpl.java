@@ -630,7 +630,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 
             if(code.contains(":")) {
     
-                String message = code.substring(code.indexOf(":"), code.length());
+                String message = code.substring(code.indexOf(":")+1, code.length());
                 obs.setParameterStatusMessage(message);
 
                 code = code.substring(0, code.indexOf(":"));
