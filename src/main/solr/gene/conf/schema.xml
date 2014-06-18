@@ -168,7 +168,8 @@
 
 	<field name="annotated_or_inferred_higherLevelMaTermName" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
-	<!--disease fields -->		
+	<!--disease fields -->	
+	<field name="type" type="string" indexed="true" stored="true"/>	
 	<field name="disease_id" type="string" indexed="true" stored="true" multiValued="true" />	
 	<field name="disease_source" type="string" indexed="true" stored="true" multiValued="true" />
 	<field name="disease_term" type="text_general" indexed="true" stored="true" multiValued="true" />
