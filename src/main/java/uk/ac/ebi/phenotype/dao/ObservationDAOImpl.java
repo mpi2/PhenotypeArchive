@@ -626,21 +626,24 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
         // Add the status code to the observation if there is one
         if(parameterStatus!=null) {
 
-            String code = parameterStatus.substring(0, parameterStatus.indexOf(":"));
+            String code = parameterStatus;
+
+            if(code.contains(":")) {
+    
+                String message = code.substring(code.indexOf(":"), code.length());
+                obs.setParameterStatusMessage(message);
+
+                code = code.substring(0, code.indexOf(":"));
+
+            }
 
             obs.setParameterStatus(code);
             obs.setMissingFlag(true);
 
-            if(parameterStatus.toString().contains(":")) {
-    
-                String message = parameterStatus.substring(parameterStatus.indexOf(":"), parameterStatus.length());
-                obs.setParameterStatusMessage(message);
-    
-            }
-
         }
 
 		return obs;
+		
 	}
 
 	@Transactional(readOnly = false)
