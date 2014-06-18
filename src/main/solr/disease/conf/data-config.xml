@@ -69,6 +69,9 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
 					<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
 					<field column="latest_phenotyping_centre" xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str" />	
 					
+					<!-- phenotyping status -->
+					<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
+					
 					<!-- alleles of a gene -->
 					<field column="allele_name" xpath="/response/result/doc/arr[@name='allele_name']/str" />
 				 		
