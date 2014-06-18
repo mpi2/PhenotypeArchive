@@ -1108,14 +1108,14 @@
 			<id>dev-web-tests</id>
 
 			<properties>
-				<baseUrl>/data</baseUrl>
+				<baseUrl>http://dev.mousephenotype.org/data</baseUrl>
 				<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
 					to EBI servers for performance -->
 				<solrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
 				<internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
 				<drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
 				<mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
-				<seleniumUrl>http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
+				<seleniumUrl>http://mi-selenium-mac.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
 				<liveSite>false</liveSite>
 			</properties>
 
@@ -1147,14 +1147,14 @@
 			<id>beta-web-tests</id>
 
 			<properties>
-				<baseUrl>/data</baseUrl>
+				<baseUrl>http://beta.mousephenotype.org/data</baseUrl>
 				<!-- The solrUrl bypasses the proxy at mousephenotype.org and goes directly 
 					to EBI servers for performance -->
 				<solrUrl>https://www.ebi.ac.uk/mi/impc/beta/solr</solrUrl>
 				<internalSolrUrl>http://localhost:8090/mi/impc/beta/solr</internalSolrUrl>
 				<drupalBaseUrl>https://beta.mousephenotype.org</drupalBaseUrl>
 				<mediaBaseUrl>https://beta.mousephenotype.org/data/media</mediaBaseUrl>
-				<seleniumUrl>http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
+				<seleniumUrl>http://mi-selenium-mac.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
 				<liveSite>false</liveSite>
 			</properties>
 

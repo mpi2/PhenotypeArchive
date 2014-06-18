@@ -22,7 +22,7 @@ import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
  */
 public interface SecondaryProjectDAO {
 
-    Set<String> getAccessionsBySecondaryProjectId(int projectId)throws SQLException;
+    Set<String> getAccessionsBySecondaryProjectId(String projectId)throws SQLException;
     
     List<GeneRowForHeatMap> getGeneRowsForHeatMap() throws SolrServerException;
     

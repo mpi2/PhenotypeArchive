@@ -31,16 +31,13 @@
                 <c:forEach items="${geneRows}" var="row">
                 <tr><td>${row.symbol}</td>
                
-                	<c:if test="${row.miceProduced eq 'No'}"><td style="background-color:rgb(3, 77, 105)">${row.miceProduced}</td></c:if>
-                	<c:if test="${row.miceProduced eq 'In Progress'}"><td style="background-color:rgb(61, 167, 208)">${row.miceProduced}</td></c:if>
-                	<c:if test="${row.miceProduced eq 'Yes'}"><td style="background-color:rgb(247, 157, 70)">${row.miceProduced}</td></c:if>
-               
+                	<td style="background-color:rgb(3, 77, 105)">${row.miceProduced}</td>
                 	<%-- <c:if test="${row.primaryPhenotype}"><td style="background-color:rgb(61, 167, 208)">Y</td></c:if>
                		<c:if test="${!row.primaryPhenotype}"><td style="background-color:rgb(3, 77, 105)">N</td></c:if>
                   --%>
                     <c:forEach items="${xAxisBeans}" var="xAxisBean"> 
                    <%--  <td>${row.XAxisToCellMap[xAxisBean.id].label}</td> --%>
-                         <td  <c:if test="${row.XAxisToCellMap[xAxisBean.id].label!=''}">style="background-color:rgb(191, 75, 50)"</c:if><c:if test="${row.XAxisToCellMap[xAxisBean.id].label==''}">style="background-color: rgb(119, 119, 119)"</c:if> title="${xAxisBean.name}"><%-- ${row.XAxisToCellMap[xAxisBean.id].label} --%></td>
+                         <td  <c:if test="${row.XAxisToCellMap[xAxisBean.id].label eq 'Data Available'}">style="background-color:rgb(191, 75, 50)"</c:if><c:if test="${!row.XAxisToCellMap[xAxisBean.id].label}">style="background-color: rgb(119, 119, 119)"</c:if> title="${xAxisBean.name}"> <%-- ${row.XAxisToCellMap[xAxisBean.id].label} --%> </td>
                      </c:forEach>
                 </tr>
                 </c:forEach>

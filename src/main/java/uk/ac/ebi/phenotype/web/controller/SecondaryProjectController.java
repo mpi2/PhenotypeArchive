@@ -80,7 +80,7 @@ public class SecondaryProjectController {
 	
 	
 	@RequestMapping(value = "/secondaryproject/{id}", method = RequestMethod.GET)
-	public String loadMaPage(@PathVariable String id, Model model,
+	public String loadSeondaryProjectPage(@PathVariable String id, Model model,
 			HttpServletRequest request, RedirectAttributes attributes)
 			throws SolrServerException, IOException, URISyntaxException {
 		System.out.println("calling secondary project id="+id);

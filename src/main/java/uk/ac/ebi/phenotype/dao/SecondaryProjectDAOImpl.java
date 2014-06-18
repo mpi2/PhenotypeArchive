@@ -65,12 +65,12 @@ class SecondaryProjectIdgImpl extends HibernateDAOImpl implements
 	}
 
 	@Override
-	public Set<String> getAccessionsBySecondaryProjectId(int projectId)
+	public Set<String> getAccessionsBySecondaryProjectId(String projectId)
 			throws SQLException {
 		Set<String> accessions = new TreeSet<>();
 
 		String query = "select * from genes_secondary_project where secondary_project_id="
-				+ projectId+" limit 10";
+				+"\""+ projectId+"\"";//+" limit 10";
 
 		try (PreparedStatement statement = getConnection().prepareStatement(
 				query)) {
@@ -81,8 +81,8 @@ class SecondaryProjectIdgImpl extends HibernateDAOImpl implements
 				accessions.add(result);
 			}
 		}
-		accessions.add("MGI:104874");//just for testing as no others seem to have mice produced so far for idg
-		accessions.add("MGI:2683087");
+//		accessions.add("MGI:104874");//just for testing as no others seem to have mice produced so far for idg
+//		accessions.add("MGI:2683087");
 		return accessions;
 	}
 
@@ -95,7 +95,7 @@ class SecondaryProjectIdgImpl extends HibernateDAOImpl implements
 			System.out.println("getGeneHeatMap called");
 			// get a list of genes for the project - which will be the row
 			// headers
-			Set<String> accessions = this.getAccessionsBySecondaryProjectId(0);
+			Set<String> accessions = this.getAccessionsBySecondaryProjectId("idg");
 			Map<String,String> geneToMouseStatusMap=genesService.getProductionStatusForGeneSet(accessions);
 			Map<String,List<String>> geneToTopLevelMpMap=genesService.getTopLevelMpForGeneSet(accessions);
 //			for(String key: geneToMouseStatusMap.keySet()){
