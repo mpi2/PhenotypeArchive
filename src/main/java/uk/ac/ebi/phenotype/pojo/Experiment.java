@@ -34,6 +34,9 @@ public class Experiment extends SourcedEntry {
     @Column(name = "external_id")
     private String externalId;
 
+    @Column(name = "sequence_id")
+    private String sequenceId;
+
     @Column(name = "date_of_experiment")
     private Date dateOfExperiment;
 
@@ -42,6 +45,13 @@ public class Experiment extends SourcedEntry {
 
     @Column(name = "metadata_combined")
     private String metadataCombined;
+
+    @Column(name = "procedure_status")
+    private String procedureStatus;
+
+    @Column(name = "procedure_status_message")
+    private String procedureStatusMessage;
+
 
     @OneToOne
     @JoinColumn(name = "pipeline_id")
@@ -80,6 +90,31 @@ public class Experiment extends SourcedEntry {
         this.project = project;
     }
 
+    
+    public String getSequenceId() {
+        return sequenceId;
+    }
+    
+    public void setSequenceId(String sequenceId) {
+        this.sequenceId = sequenceId;
+    }
+    
+    public String getProcedureStatus() {
+        return procedureStatus;
+    }
+    
+    public String getProcedureStatusMessage() {
+        return procedureStatusMessage;
+    }
+    
+    public void setProcedureStatus(String procedureStatus) {
+        this.procedureStatus = procedureStatus;
+    }
+    
+    public void setProcedureStatusMessage(String procedureStatusMessage) {
+        this.procedureStatusMessage = procedureStatusMessage;
+    }
+    
     /**
      * @return the pipeline
      */
