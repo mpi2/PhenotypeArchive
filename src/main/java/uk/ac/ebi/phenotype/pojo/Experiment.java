@@ -34,6 +34,9 @@ public class Experiment extends SourcedEntry {
     @Column(name = "external_id")
     private String externalId;
 
+    @Column(name = "sequence_id")
+    private String sequenceId;
+
     @Column(name = "date_of_experiment")
     private Date dateOfExperiment;
 
@@ -87,6 +90,14 @@ public class Experiment extends SourcedEntry {
         this.project = project;
     }
 
+    
+    public String getSequenceId() {
+        return sequenceId;
+    }
+    
+    public void setSequenceId(String sequenceId) {
+        this.sequenceId = sequenceId;
+    }
     
     public String getProcedureStatus() {
         return procedureStatus;

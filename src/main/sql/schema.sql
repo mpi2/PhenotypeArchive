@@ -485,6 +485,7 @@ CREATE TABLE experiment (
     id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     db_id                      INT(10) UNSIGNED NOT NULL,
     external_id                VARCHAR(100),
+    sequence_id                VARCHAR(100),
     date_of_experiment         TIMESTAMP NULL DEFAULT NULL,
     organisation_id            INT(10) UNSIGNED NOT NULL,
     project_id                 INT(10) UNSIGNED NULL DEFAULT NULL,
