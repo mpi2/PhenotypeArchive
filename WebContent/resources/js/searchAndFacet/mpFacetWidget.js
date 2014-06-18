@@ -90,17 +90,19 @@
 	        		$.fn.initFacetToggles('mp');
 	        		
 	        		$('li#mp li.fcat input').click(function(){	
-	        			
 	        			// // highlight the item in facet	    			
 	        			$(this).siblings('span.flabel').addClass('highlight');
 	    				$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 	    			});    		
-	        		
+	        		 
 	        		/*--------------------------------------------------------------------------------------------------------------------------*/
 	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
 	    	    	/*--------------------------------------------------------------------------------------------------------------------------*/	
+	        		console.log('****page load for mp facet');
+	        		var oConf = self.options.data.hashParams;
+	    	    	oConf.core = self.options.data.core;
 	    	    	
-	    	    	$.fn.parseUrl_consturctFilters_loadDataTable(self);			   			
+	    	    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);		   			
 	    		}		
 	    	});		    	
 	    },	   
