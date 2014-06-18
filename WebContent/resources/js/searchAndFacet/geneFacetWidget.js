@@ -50,12 +50,20 @@
 	    		MPI2.searchAndFacetConfig.facetParams.geneFacet.filterParams
 	    	);    	   	
 	    	
+	    	// facet on latest_phenotype_status 
+	    	/*
+	    	<int name="Phenotype Attempt Registered">1362</int>
+	    	<int name="Phenotyping Started">586</int>
+	    	<int name="Phenotyping Complete">288</int>
+	    	*/
+	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
 	    		  + '&facet.field=marker_type'
 				  + '&facet.field=status'
-				  + '&facet.field=imits_phenotype_started' 
-				  + '&facet.field=imits_phenotype_complete'
-				  + '&facet.field=imits_phenotype_status'	    	
+				 // + '&facet.field=imits_phenotype_started' 
+				 // + '&facet.field=imits_phenotype_complete'
+				 // + '&facet.field=imits_phenotype_status'	
+				  + '&facet.field=latest_phenotype_status'	// use this field instead of the above three
 				  + '&facet.field=latest_production_centre'
 				  + '&facet.field=latest_phenotyping_centre';
 	    	
@@ -87,26 +95,32 @@
 	    		phenoStatusSect.append($('<span></span>').attr({'class':'flabel'}).text('IMPC Phenotyping Status'));	    		
 	    		
 	    		var pheno_count = {};
-	    		var aImitsPhenos = {'imits_phenotype_complete':'Complete', 
-	    							'imits_phenotype_started':'Started', 
-	    							'imits_phenotype_status':'Attempt Registered'};
 	    		
+	    		var aImitsPhenos = {'Phenotyping Complete':'Complete', 
+						'Phenotyping Started':'Started', 
+						'Phenotype Attempt Registered':'Attempt Registered'};
+	    		
+	    		var phenoStatusFacetField = 'latest_phenotype_status';
 	    		var phenoCount = 0;
-	    		for (var key in aImitsPhenos ){	    			
-	    			var phenoFieldList = json.facet_counts['facet_fields'][key];	
-	    			
-	    			if ( phenoFieldList.length != 0 ){
-	    				phenoCount = 1;
-	    				foundMatch.phenotyping++;
-	    	    		for ( var j=0; j<phenoFieldList.length; j+=2 ){
-	    	    			// skip status '0'	    	    			
-	    	    			if ( phenoFieldList[j] == 'Phenotype Attempt Registered' || phenoFieldList[j] == 1 ){
-	    						pheno_count[aImitsPhenos[key]] = phenoFieldList[j+1];
-	    	    			}	    	    			
-	    	    		} 
-	    			} 
-	    		}
-	    			    		
+	    		
+    			var phenoFieldList = json.facet_counts['facet_fields'][phenoStatusFacetField];	
+    			
+    			if ( phenoFieldList.length != 0 ){
+    				phenoCount = 1;
+    				foundMatch.phenotyping++;
+    	    		for ( var j=0; j<phenoFieldList.length; j+=2 ){
+    	    			// only want these statuses	 
+    	    			
+    	    			var fieldName = phenoFieldList[j];
+    	    			if (fieldName == 'Phenotype Attempt Registered' ||
+    	    				fieldName == 'Phenotyping Started' ||
+    	    				fieldName == 'Phenotyping Complete' ){
+    	    				
+    	    				pheno_count[aImitsPhenos[fieldName]] = phenoFieldList[j+1];
+    	    			}
+    	    		} 
+    			} 
+	    		
 	    		var phenoUlContainer = $("<ul></ul>");
 	    		
 	    		var aPhenos = ['Complete', 'Started', 'Attempt Registered'];	    		
@@ -254,11 +268,11 @@
 	    	/*--------------------------------------------------------------------------------------------------------------------------*/
 	    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
 	    	/*--------------------------------------------------------------------------------------------------------------------------*/	
-	    	console.log('****page load for gene facet');
+	    	//console.log('****page load for gene facet');
 	    	
 	    	var oConf = self.options.data.hashParams;
 	    	oConf.core = self.options.data.core;
-	    	console.log(oConf);
+	    	//console.log(oConf);
 	    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);
 	    },	       
 	  
