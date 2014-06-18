@@ -24,13 +24,12 @@
 
 package org.mousephenotype.www;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
-import java.util.Set;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
@@ -155,10 +154,8 @@ public class GraphTest {
      * 
      * @param testName the test name
      * @param geneIds  the set of gene ids
-     * @param useRandom if true, a the geneIds are randomized; otherwise, they are not.
      */
-    private void process(String testName, Set<String> geneIds, boolean useRandom) {
-        String[] geneIdArray = geneIds.toArray(new String[geneIds.size()]);
+    private void process(String testName, List<String> geneIds) {
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -173,14 +170,9 @@ public class GraphTest {
         System.out.println("Each processed row that is displayed is guaranteed to have phenotype associations.");
         
         // Loop through the genes, testing each one with an IMPC graph for valid page load.
-        Random rand = new Random();
-        int max = geneIdArray.length;
-        int min = 0;
-        
         int graphsWithGenePagesCount = 0;
-        for (int i = 0; i < geneIdArray.length; i++) {
-            int index = (useRandom ? rand.nextInt((max - min) + 1) + min : i);
-            String geneId = geneIdArray[index];
+        int i = 0;
+        for (String geneId : geneIds) {
 //if (i == 0) geneId = "MGI:104874";    // Akt2
 //if (i == 1) geneId = "MGI:3643284";   // Is valid gene for which there is no page.
 //if (i == 1) geneId = "MGI:1924285";
@@ -190,7 +182,8 @@ public class GraphTest {
             }
             
             target = baseUrl + "/genes/" + geneId;
-
+            i++;
+            
             try {
                 // Get the gene page.
                 driver.get(target);
@@ -261,8 +254,9 @@ public class GraphTest {
     public void testRandomGraphsByPhenotype() throws SolrServerException {
         final String testName = "testRandomGraphsByPhenotype";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        Set<String> phenotypeIds = genotypePhenotypeService.getAllPhenotypes();
-        String[] phenotypeIdArray = phenotypeIds.toArray(new String[phenotypeIds.size()]);
+        List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllPhenotypes());
+        Collections.shuffle(phenotypeIds);                                      // Randomize the collection.
+        
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -274,20 +268,13 @@ public class GraphTest {
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
         
         // Loop through the genes, testing each one with an IMPC graph for valid page load.
-        Random rand = new Random();
-        int max = phenotypeIdArray.length;
-        int min = 0;
-        
         int i = 0;
-        while (true) {
-            int index = rand.nextInt((max - min) + 1) + min;
-            String phenotypeId = phenotypeIdArray[index];
+        for (String phenotypeId : phenotypeIds) {
 
 //if (i == 0) phenotypeId = "MP:0010119";      // undimensional
 //if (i == 1) phenotypeId = "MP:0002092";      // categorical
-            if (i >= targetCount) {
+            if (targetCount >= i)
                 break;
-            }
             i++;
             
             target = baseUrl + "/phenotypes/" + phenotypeId;
@@ -353,9 +340,11 @@ public class GraphTest {
 //@Ignore
     public void testRandomGraphsByGene() throws SolrServerException {
         final String testName = "testRandomGraphsByGene";
-        Set<String> geneIds = geneService.getAllGenes();
-        boolean useRandom = true;
-        process(testName, geneIds, useRandom);
+        
+        List<String> geneIds = new ArrayList(geneService.getAllGenes());
+        Collections.shuffle(geneIds);
+        
+        process(testName, geneIds);
     }
 
     /**
@@ -368,9 +357,10 @@ public class GraphTest {
 // @Ignore
     public void testGraphPagesForGenesByPhenotypeStatusStartedAndProductionCentreWTSI() throws SolrServerException {
         final String testName = "testGraphPagesForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI";
-        Set<String> geneIds = geneService.getGenesByPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.PRODUCTION_CENTRE_WTSI);
-        boolean useRandom = false;
-        process(testName, geneIds, useRandom);
+
+        List<String> geneIds = new ArrayList(geneService.getGenesByPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.PRODUCTION_CENTRE_WTSI));
+        
+        process(testName, geneIds);
     }
     
 }
