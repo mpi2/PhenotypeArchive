@@ -72,7 +72,7 @@ public class MpService {
 		for (FacetField ff:rsp.getFacetFields()){
 			//System.out.println("count name="+ff.getName());
 			for(Count count: ff.getValues()){
-				System.out.println("count Name="+count.getName());
+				//System.out.println("count Name="+count.getName());
 				String mpArray[]=count.getName().split("___");
 				BasicBean bean=new BasicBean();
 				bean.setName(mpArray[0]);

@@ -9,7 +9,8 @@
 	    var header_height = 0;
 	    $('table th span').each(function() {
 	        if ($(this).outerWidth() > header_height) header_height = $(this).outerWidth();
-	        $(this).width($(this).height());
+	        //console.log('setting this width to '+$(this).height());
+	        $(this).width($(this).height()* 0.05);
 	    });
 
 	    $('table th').height(header_height);
@@ -20,11 +21,11 @@
                 <table>
                 <thead>
                 <tr> 
-                <th><span>Gene</span></th>
+                <th class="gene-heatmap-header"><span>Gene</span></th>
                 <th><span>Mice Produced</span></th>
                 <%-- <th><span>Primary Phenotype</span></th> --%>
                 	<c:forEach items="${xAxisBeans}" var="xAxisBean">
-                		<th><span>${xAxisBean.name}</span></th>
+                		<th title="${xAxisBean.name}"><span>${xAxisBean.name}</span></th>
                 	</c:forEach>
                 </tr>
                 </thead>
