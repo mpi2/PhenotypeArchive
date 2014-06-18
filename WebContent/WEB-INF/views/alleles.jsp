@@ -351,10 +351,18 @@
         if($("#" + id + "_toggle").hasClass("toggle_closed")) {
             $("#" + id + "_toggle").removeClass("toggle_closed");
             $("#" + id + "_toggle").addClass("toggle_open");
+            var type = $( "#" + id + "_toggle" ).data( "type" );
+            var count = $( "#" + id + "_toggle" ).data( "count" );
+            $("#" + id + "_toggle").text("Hide " + type);
         }
         else {
             $("#" + id + "_toggle").removeClass("toggle_open");
             $("#" + id + "_toggle").addClass("toggle_closed");
+            //var text = $("#" + id + "_toggle").text();
+            //$("#" + id + "_toggle[data-type]").
+            var type = $( "#" + id + "_toggle" ).data( "type" );
+            var count = $( "#" + id + "_toggle" ).data( "count" );
+            $("#" + id + "_toggle").text("Show all " + count + " " + type);
         }
         
         
@@ -421,9 +429,11 @@
             </tbody>
             </table>
             
+        <c:if test="${mice.size() > 1}">
             <p class="textright">
-                <a id="mouse_table_toggle" class="toggle_closed">Show all Mice</a>
+                <a id="mouse_table_toggle" data-count='${mice.size()}' data-type='Mice' class="toggle_closed">Show all ${mice.size()} Mice</a>
             </p>
+        </c:if>
             
             <div class="clear"></div>
         </div>
@@ -488,9 +498,11 @@
     </tbody>
   </table>
 
+        <c:if test="${es_cells.size() > 1}">
             <p class="textright">
-                <a id="es_cell_table_toggle" class="toggle_closed">Show all ES Cells</a>
+                <a id="es_cell_table_toggle" data-count='${es_cells.size()}' data-type='ES Cells' class="toggle_closed">Show all ${es_cells.size()} ES Cells</a>
             </p>
+        </c:if>
 
   <div class="clear"></div>
 </div>
@@ -568,9 +580,11 @@
     </tbody>
   </table>
 
+        <c:if test="${targeting_vectors.size() > 1}">
             <p class="textright">
-                <a id="targeting_vector_table_toggle" class="toggle_closed">Show all Targeting Vectors</a>
+                <a id="targeting_vector_table_toggle" data-count='${mice.size()}' data-type='Targeting Vectors' class="toggle_closed">Show all ${targeting_vectors.size()} Targeting Vectors</a>
             </p>
+        </c:if>
 
             <div class="clear"></div>
 </div>
