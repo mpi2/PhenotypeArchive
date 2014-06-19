@@ -38,7 +38,8 @@
 					
 					var qVal = aVals[1];
 					var qField = aVals[0];
-					
+					var facet = MPI2.searchAndFacetConfig.qfield2facet[qField];
+					//console.log(qField + ' -- '+ qVal);
 					if ( typeof MPI2.searchAndFacetConfig.qfield2facet[qField] ){
 						//var kv = aFqs[i].replace(':','|').replace(/\(|\)|"/g,'');
 						
@@ -49,15 +50,24 @@
 						else if (qField == 'latest_phenotype_status'){
 							kv = MPI2.searchAndFacetConfig.phenotypingVal2Field[qVal];
 						}
+						else {
+							kv = qField + '|' + qVal;
+						}
 						
 						var oInput = $('div.flist li.fcat').find('input[rel*="'+ kv +'"]');
 						//if (oInput.length != 0 && !oInput.is(':checked') ){	
 						if (oInput.length != 0 ){
-							oInput.click(); // tick checkbox               
+							
+							oInput.click(); // tick checkbox   
+							
+							// open the facet if not
+							if ( !$('div.flist > ul li#'+ facet).hasClass('open') ){
+								$('div.flist > ul li#'+ facet).click();
+							}
 			    		}	
 			    		else {
-			    			var facet = MPI2.searchAndFacetConfig.qfield2facet[qField];
-			    			var relStr = facet + '|' + qField + '|' + qVal;
+			    			
+			    			var relStr = facet + '|' + kv;
 			    			//console.log('hidden: '+ relStr);
 			    			oInput = $('<input></input>').attr({'type':'checkbox','rel':relStr}).prop('checked', true);
 			    			

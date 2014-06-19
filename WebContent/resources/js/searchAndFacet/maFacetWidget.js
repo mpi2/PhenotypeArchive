@@ -97,6 +97,7 @@
 	    	    	
 	        		var oConf = self.options.data.hashParams;
 	    	    	oConf.core = self.options.data.core;
+	    	    	console.log(oConf);
 	    	    	
 	    	    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);
 	    			
