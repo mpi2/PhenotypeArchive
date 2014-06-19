@@ -15,13 +15,12 @@
  */
 package org.mousephenotype.www;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
-import java.util.Set;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
@@ -147,24 +146,21 @@ public class PhenotypeAssociationsTest {
     public void testTotalsCountRandom() throws SolrServerException {
         String testName = "testTotalsCountRandom";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        Set<String> geneIds = geneService.getAllGenes();
-        String[] geneIdArray = geneIds.toArray(new String[geneIds.size()]);
+//        Set<String> geneIds = geneService.getAllGenes();
+//        String[] geneIdArray = geneIds.toArray(new String[geneIds.size()]);
+        List<String> geneIds = new ArrayList(geneService.getAllGenes());
+        Collections.shuffle(geneIds);                                      // Randomize the collection.
+        
         Date start = new Date();
 
         int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
         // Loop through all genes, testing each one for valid page load.
-        Random rand = new Random();
-        int max = geneIdArray.length;
-        int min = 0;
         int i = 0;
-        while (true) {
-            int index = rand.nextInt((max - min) + 1) + min;
-            String geneId = geneIdArray[index];
+        for (String geneId : geneIds) {
 // if (i == 0) geneId = "MGI:104874";
 // if (i == 0) geneId = "MGI:2443601";        // This one doesn't exist.
-//System.out.println("gene[" + i + "]: " + geneId);
             if (i >= targetCount) {
                 break;
             }
@@ -172,9 +168,6 @@ public class PhenotypeAssociationsTest {
             
             processRow(geneId, i);
 
-            if (i % 1000 == 0)
-                System.out.println(dateFormat.format(new Date()) + ": " + i + " records processed so far.");
-            
             TestUtils.sleep(thread_wait_in_ms);
         }
         
