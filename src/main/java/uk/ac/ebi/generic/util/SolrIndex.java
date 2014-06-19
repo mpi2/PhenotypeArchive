@@ -912,9 +912,14 @@ public class SolrIndex {
 
     public List<Map<String, String>> getGeneAllele2Info(String accession, String allele_name) throws IOException, URISyntaxException {
 
-        String url = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele2/search?q=mgi_accession_id:"
+        String qallele_name = "";
+        if(allele_name != null) {
+            qallele_name = " allele_name:\"" + allele_name + "\"";            
+        }
+        
+        String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/allele2/search?q=mgi_accession_id:"
                 + accession.replace(":", "\\:")
-                + " allele_name:\"" + allele_name + "\""
+                + qallele_name
                 + "&start=0&rows=100&hl=true&wt=json";
 
         log.info("#### url for getGeneAllele2Info=" + url);
@@ -928,12 +933,14 @@ public class SolrIndex {
             return null;
         }
 
+//        "genbank_file":"https://www.mousephenotype.org/imits/targ_rep/alleles/190/escell_clone_cre_genbank_file",
+//        "allele_image":"https://www.mousephenotype.org/imits/targ_rep/alleles/190/allele_image_cre",
        
         String[] stringArray = new String[]{"mgi_accession_id", "marker_symbol", "marker_type", "feature_type", "latest_project_status", 
             "latest_phenotype_started", "latest_phenotype_complete",
             "latest_phenotype_status", "latest_es_cell_status", "latest_mouse_status", "latest_project_status_legacy",
             "es_cell_status",  "mouse_status", "phenotype_status", "production_centre", "phenotyping_centre", "allele_name",
-            "allele_type", "type"
+            "allele_type", "type", "genbank_file", "allele_image"
         };
 
         List<Map<String, String>> genes = new ArrayList<>();
@@ -1039,9 +1046,28 @@ public class SolrIndex {
             map2.put("southern_tool", "http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name="+es_cell+"&iframe=true&width=100%&height=100%");
         }
         
+        map2.put("production_completed", jsonObject2.getString("production_completed"));
+
+        log.info("#### MOUSE production_completed:" + map2.get("production_completed"));
+        
         return map2;
     }
+    
+    // see https://www.mousephenotype.org/martsearch_ikmc_project/aboutkompstrategies
 
+    private Map<String, String> getGeneProductInfoTypeMapping() {
+        Map<String, String> map = new HashMap<>();
+        map.put("1a", "KO first allele (reporter-tagged insertion allele)");
+        map.put("1b", "Reporter-tagged deletion allele (post-Cre)");
+        map.put("1c", "Conditional allele (post-Flp)");
+        map.put("1d", "Deletion allele (post-Flp and Cre with no reporter)");
+        map.put("1e", "targeted, non-conditional allele");
+        map.put("1", "Reporter-tagged deletion allele (with selection cassette)");
+        map.put("1.1", "Reporter-tagged deletion allele (post Cre, with no selection cassette)");
+        map.put("1.2", "Reporter-tagged deletion allele (post Flp, with no reporter and selection cassette)");
+        return map;
+    }
+    
     private Map<String, Object> getGeneProductInfoEsCells(JSONObject jsonObject2) throws IOException, URISyntaxException {
         String type = jsonObject2.getString("type");
 
@@ -1075,13 +1101,15 @@ public class SolrIndex {
         
         map2.put("qc_data", NOT_COMPLETE);
 
+        map2.put("production_completed", jsonObject2.getString("production_completed"));
+
         return map2;
     }
    
     private Map<String, Object> getGeneProductInfoTargetingVectors(JSONObject jsonObject2) throws IOException, URISyntaxException {
-            if (!jsonObject2.getString("type").equals("targeting_vector")) {
-                return null;
-            }
+        if (!jsonObject2.getString("type").equals("targeting_vector")) {
+            return null;
+        }
                 
         HashMap<String, Object> map2 = new HashMap<>();
         map2.put("orders", getGeneProductInfoOrderInfo(jsonObject2));
@@ -1094,19 +1122,35 @@ public class SolrIndex {
         String backbone = getGeneProductInfoArrayEntry("backbone", jsonObject2.getJSONArray("genetic_info"));
         map2.put("backbone", backbone);
         
+        map2.put("production_completed", jsonObject2.getString("production_completed"));
+
+        String genbank_file_url = getGeneProductInfoArrayEntry("genbank_file", jsonObject2.getJSONArray("other_links"));
+        if (genbank_file_url != null) {
+            map2.put("genbank_file_url", genbank_file_url);
+        }
+
+        log.info("#### url for genbank_file_url:" + genbank_file_url);
+
+        String design_oligos_url = getGeneProductInfoArrayEntry("design_link", jsonObject2.getJSONArray("other_links"));
+        if (genbank_file_url != null) {
+            map2.put("design_oligos_url", design_oligos_url);
+        }
+
+        log.info("#### url for design_oligos_url:" + design_oligos_url);
         
-        map2.put("genbank_file", NOT_COMPLETE);
-        map2.put("design_oligos_url", NOT_COMPLETE);
-                
-                
-                return map2;
+        return map2;
     }
 
-    public Map<String, Object> getGeneProductInfo(String accession, String allele_name) throws IOException, URISyntaxException {
+    public Map<String, Object> getGeneProductInfo(String accession, String allele_name) throws IOException, URISyntaxException, Exception {
 
-        String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/product/search?q=mgi_accession_id:"
+        String qallele_name = "";
+        if(allele_name != null) {
+            qallele_name = " allele_name:\"" + allele_name + "\"";            
+        }
+        
+            String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/product/search?q=mgi_accession_id:"
                 + accession.replace(":", "\\:")
-                + " allele_name:\"" + allele_name + "\""
+                + qallele_name
                 + "&start=0&rows=100&hl=true&wt=json";
 
         log.info("#### url for getGeneProductInfo=" + url);
@@ -1124,13 +1168,18 @@ public class SolrIndex {
         List<Map<String, Object>> mice = new ArrayList<>();
         List<Map<String, Object>> es_cells = new ArrayList<>();
         List<Map<String, Object>> targeting_vectors = new ArrayList<>();
+        boolean mice_complete = true;
 
         for (Object doc : docs) {
             JSONObject jsonObject2 = (JSONObject) doc;
             String type = jsonObject2.getString("type");
 
             if (type.equals("mouse")) {
-                mice.add(getGeneProductInfoMice(jsonObject2));
+                Map<String, Object> mouse = getGeneProductInfoMice(jsonObject2);
+                if(mouse.get("production_completed") == "false") {
+                    mice_complete = false;
+                }
+                mice.add(mouse);
             }
 
             if (type.equals("es_cell")) {
@@ -1150,6 +1199,8 @@ public class SolrIndex {
         log.info("#### constructs2: " + constructs2.toString()); 
         
         List<HashMap<String, Object>> summaries = new ArrayList<>();
+        
+        Map<String, String> mapping = getGeneProductInfoTypeMapping();
 
         for(Map<String, String> item : constructs2) {
             HashMap<String, Object> summary = new HashMap<>();
@@ -1157,23 +1208,81 @@ public class SolrIndex {
 //            summary.put("phenotype_status", item.get("phenotype_status"));
 //            summary.put("es_cell_status", item.get("es_cell_status"));
 //            summary.put("mouse_status", item.get("mouse_status"));
-            summary.put("name", item.get("marker_symbol" + "<sup>" + item.get("allele_name") + "</sup>"));
+            summary.put("symbol", item.get("marker_symbol") + "<sup>" + item.get("allele_name") + "</sup>");
+//            complete 
+            // "genbank_file", "allele_image"
+            summary.put("genbank", item.get("genbank_file"));
+            summary.put("map_image", item.get("allele_image"));
+            summary.put("allele_description", mapping.get("1" + item.get("allele_type")));
+
+            
+            
+            
+            
+            summary.put("mutagenesis_url", "http://www.google.com");    // FIX-ME!
+            
+            
+//  statuses:
+//  - {DETAILS: 'http://www.sanger.ac.uk', TEXT: There are mice for this allele, ORDER: 'http://www.sanger.ac.uk'}
+//  - {DETAILS: 'http://www.google.com', TEXT: There are ES cells for this allele, ORDER: 'http://www.google.com'}
+            
+            HashMap<String, Object> map2 = new HashMap<>();
+            map2.put("DETAILS", "http://www.sanger.ac.uk");
+            map2.put("TEXT", "There are mice for this allele");
+            map2.put("ORDER", "http://www.sanger.ac.uk");
+            List<HashMap<String, Object>> list2 = new ArrayList<>();
+            list2.add(map2);
+
+            summary.put("statuses", list2);    // FIX-ME!
+            
+//  browsers:
+//  - {browser: Ensembl (mouse), url: 'http://www.ensembl.org/Mus_musculus/Location/View?r=9:54544794-54560…c.uk/das/ikmc_products=normal,contig=normal,ruler=normal,scalebar=normal'}
+//  - {browser: UCSC (mouse), url: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&ikmc=pack&ensGene=pack&position=chr9:54544794-54560218'}
+
+            HashMap<String, Object> map3 = new HashMap<>();
+            map3.put("browser", "Ensembl (mouse)");
+            map3.put("url", "http://www.ensembl.org/Mus_musculus/Location/View?r=9:54544794-54560…c.uk/das/ikmc_products=normal,contig=normal,ruler=normal,scalebar=normal");
+            List<HashMap<String, Object>> list3 = new ArrayList<>();
+            list3.add(map3);
+            
+            summary.put("browsers", list3);    // FIX-ME!
+            
+//  tools:
+//  - {name: Genotyping primers, url: 'http://www.google.com'}
+//  - {name: TAQMan LOA primers, url: 'http://www.google.com'}
+            
+            HashMap<String, Object> map4 = new HashMap<>();
+            map4.put("name", "Genotyping primers");
+            map4.put("url", "http://www.google.com");
+            List<HashMap<String, Object>> list4 = new ArrayList<>();
+            list4.add(map4);
+            
+            summary.put("tools", list4);    // FIX-ME!
+
+            
+            
+            
+            
+            
+            summaries.add(summary);
         }
 
-//    allele_description
-//    symbol
-//    type
-//    statuses
-//    genbank
-//    mutagenesis_url
-//    map_image
-//    browsers
 //    tools
+        
+        
+        
+        
+    //    genes.put("mice_complete", mice_complete);
+        
+        if(summaries.size() > 1) {
+            log.error("######## invalid count for summary!"); 
+           // throw new Exception("#### invalid count for summary!");
+        }
 
-
-
-        genes.put("summary", summaries);
-
+        if(summaries.size() > 0) {
+            genes.put("summary", summaries.get(0));
+        }
+        
         log.info("#### summaries: " + summaries.toString()); 
 
         return genes;

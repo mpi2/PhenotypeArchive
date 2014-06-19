@@ -45,14 +45,32 @@ public class AllelesController {
 
     @Autowired
     SolrIndex solrIndex;
-   
+
+    @RequestMapping("/alleles/{acc}")
+    public String alleles1(
+            @PathVariable String acc,
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+        return allelesCommon(acc, null, model, request, attributes);
+    }
+    
     @RequestMapping("/alleles/{acc}/{allele_name}")
-    public String alleles(
+    public String alleles2(
             @PathVariable String acc,
             @PathVariable String allele_name,
             Model model,
             HttpServletRequest request,
-            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException {
+            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+        return allelesCommon(acc, allele_name, model, request, attributes);
+    }
+    
+    public String allelesCommon(
+            String acc,
+            String allele_name,
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
 
         log.info("#### AllelesController::alleles");
         log.info("#### acc: " + acc);
@@ -68,32 +86,33 @@ public class AllelesController {
         model.addAttribute("mice", constructs.get("mice"));
         model.addAttribute("es_cells", constructs.get("es_cells"));
         model.addAttribute("targeting_vectors", constructs.get("targeting_vectors"));
+        model.addAttribute("summary", constructs.get("summary"));
 
-        Yaml yaml = new Yaml();
-        String content = FileUtils.readFileToString(new File("/var/tmp/yaml_test.yml"));
-        Map<String, Object> list = (Map<String, Object>) yaml.load(content);
+//        Yaml yaml = new Yaml();
+//        String content = FileUtils.readFileToString(new File("/var/tmp/yaml_test.yml"));
+//        Map<String, Object> list = (Map<String, Object>) yaml.load(content);
+//        
+//        Map<String, Object> list2 = (Map<String, Object>)list.get(acc);
+
+      //  model.addAttribute("allele_description", list2.get("allele_description"));
+
+       // model.addAttribute("symbol", list2.get("symbol"));
+
+       // model.addAttribute("type", list2.get("type"));
+
+       // model.addAttribute("statuses", (List<Map<String, String>>)list2.get("statuses"));
+
+       // model.addAttribute("genbank", list2.get("genbank"));
+
+       // model.addAttribute("mutagenesis_url", list2.get("mutagenesis_url"));
+
+       // model.addAttribute("map_image", list2.get("map_image"));
+
+      //  model.addAttribute("browsers", (List<Map<String, String>>)list2.get("browsers"));        
         
-        Map<String, Object> list2 = (Map<String, Object>)list.get(acc);
+      //  model.addAttribute("mice_in_progress", (List<Map<String, String>>)list2.get("mice_in_progress"));        
 
-        model.addAttribute("allele_description", list2.get("allele_description"));
-
-        model.addAttribute("symbol", list2.get("symbol"));
-
-        model.addAttribute("type", list2.get("type"));
-
-        model.addAttribute("statuses", (List<Map<String, String>>)list2.get("statuses"));
-
-        model.addAttribute("genbank", list2.get("genbank"));
-
-        model.addAttribute("mutagenesis_url", list2.get("mutagenesis_url"));
-
-        model.addAttribute("map_image", list2.get("map_image"));
-
-        model.addAttribute("browsers", (List<Map<String, String>>)list2.get("browsers"));        
-        
-        model.addAttribute("mice_in_progress", (List<Map<String, String>>)list2.get("mice_in_progress"));        
-
-        model.addAttribute("tools", (List<Map<String, String>>)list2.get("tools"));
+      //  model.addAttribute("tools", (List<Map<String, String>>)list2.get("tools"));
 
         return "alleles";
     }    

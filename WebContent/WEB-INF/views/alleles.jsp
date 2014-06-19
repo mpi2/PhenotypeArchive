@@ -149,7 +149,7 @@
 
 	<jsp:body>
 
-<h1 class="title" id="top">${symbol}</h1>
+<h1 class="title" id="top">${summary['symbol']}</h1>
 
 </br>
 
@@ -160,9 +160,9 @@
     <div class="inner">
     <h3>Summary</h3>
     <div style="font-size: 110%; font-weight: bold;">
-        <p>${allele_description}</p>
+        <p>${summary['allele_description']}</p>
         <c:if test="${not empty statuses}">
-          <c:forEach var="status" items="${statuses}" varStatus="statusx">
+          <c:forEach var="status" items="${summary['statuses']}" varStatus="statusx">
             <p>${status['TEXT']}                         
             <c:if test="${not empty status['ORDER']}">
               <td><a class="btn" href="${status['ORDER']}"> <i class="fa fa-shopping-cart"></i> ORDER </a></td>
@@ -197,7 +197,7 @@
 			<h3>Allele Maps</h3>
                         
         <div id="image">
-            <img src="${map_image}" width="930px">        
+            <img src="${summary['map_image']}" width="930px">        
         </div>
                         
 
@@ -210,7 +210,7 @@
             <tr>
             <td>   
                 <span>
-    <a href="${genbank}}">
+    <a href="${summary['genbank']}">
         <i class="fa fa-file-text fa-lg"></i>
     </a>
         </span>
@@ -219,7 +219,7 @@
 
             <td>     
                 <c:if test="${not empty mutagenesis_url}">
-                    <a href="${mutagenesis_url}">Mutagenesis Prediction</a>     
+                    <a href="${summary['mutagenesis_url']}">Mutagenesis Prediction</a>     
                 </c:if>	
             </td>
 
@@ -228,14 +228,14 @@
 <div style="text-align: center;">Genome Browsers</div>
 <div style="text-align: center;">
 <c:if test="${not empty browsers}">
-    <c:forEach var="browser" items="${browsers}" varStatus="browsersx">
+    <c:forEach var="browser" items="${summary['browsers']}" varStatus="browsersx">
         <a href="${browser['url']}" target="_blank" class="ensembl_link">${browser['browser']}</a>&nbsp;&nbsp;&nbsp;
     </c:forEach>	
 </c:if>	
 </div>
             </td>
             
-    <c:forEach var="tool" items="${tools}" varStatus="toolsx">
+    <c:forEach var="tool" items="${summary['tools']}" varStatus="toolsx">
             <td><a href="${tool['url']}">${tool['name']}</a></td>
     </c:forEach>	
             
@@ -383,7 +383,7 @@
                         
 <c:if test="${not empty mice}">
     <div class="section">
-        <div class="inner" style="background-color: #E0F9FF !important;">
+        <div class="inner">
         <h3>Mice</h3>
         <div class="dataset_content">
             <table id="mouse_table">
@@ -399,13 +399,27 @@
             <tbody class="products">               
                 
             <c:forEach var="mouse" items="${mice}" varStatus="micex">
-
-                <c:if test="${micex.getIndex() == 0}">
-                    <tr class="first">
+                
+                <c:if test="${micex.getIndex() == 0}">                    
+                        
+                    <c:if test="${mouse['production_completed'] == 'true'}">
+                        <tr class="first" style="background-color: #E0F9FF !important;">
+                    </c:if>
+                    <c:if test="${mouse['production_completed'] == 'false'}">
+                        <tr class="first" style="background-color: #FFE0B2 !important;">
+                    </c:if>
+                        
                 </c:if>
 
                 <c:if test="${micex.getIndex() > 0}">
-                    <tr class="rest" style="display:none;">
+                
+                    <c:if test="${mouse['production_completed'] == 'true'}">
+                        <tr class="rest" style="display:none;background-color: #E0F9FF !important;">
+                    </c:if>
+                    <c:if test="${mouse['production_completed'] == 'false'}">
+                        <tr class="rest" style="display:none;background-color: #FFE0B2 !important;">
+                    </c:if>
+                
                 </c:if>
                 
                 <td>${mouse['genetic_background']}</td>
@@ -447,7 +461,7 @@
 <c:if test="${not empty es_cells}">
                         
 	<div class="section">
-		<div class="inner" style="background-color: #E0F9FF !important;">
+		<div class="inner">
 			<h3>ES Cells</h3>
                         
 <div class="dataset_content">
@@ -468,11 +482,25 @@
             <c:forEach var="es_cell" items="${es_cells}" varStatus="es_cellsx">
 
                 <c:if test="${es_cellsx.getIndex() == 0}">
-                    <tr class="first">
+                        
+                    <c:if test="${es_cell['production_completed'] == 'true'}">
+                        <tr class="first" style="background-color: #E0F9FF !important;">
+                    </c:if>
+                    <c:if test="${es_cell['production_completed'] == 'false'}">
+                        <tr class="first" style="background-color: #FFE0B2 !important;">
+                    </c:if>                        
+                        
                 </c:if>
 
                 <c:if test="${es_cellsx.getIndex() > 0}">
-                    <tr class="rest" style="display:none;">
+
+                    <c:if test="${es_cell['production_completed'] == 'true'}">
+                        <tr class="rest" style="display:none;background-color: #E0F9FF !important;">
+                    </c:if>
+                    <c:if test="${es_cell['production_completed'] == 'false'}">
+                        <tr class="rest" style="display:none;background-color: #FFE0B2 !important;">
+                    </c:if>                        
+
                 </c:if>
             
             
@@ -518,7 +546,7 @@
 <c:if test="${not empty targeting_vectors}">
                         
 	<div class="section">
-		<div class="inner" style="background-color: #E0F9FF !important;">
+		<div class="inner">
 			<h3>Targeting Vectors</h3>
                         
                         
@@ -542,27 +570,49 @@
       <c:forEach var="targeting_vector" items="${targeting_vectors}" varStatus="targeting_vectorsx">
 
                 <c:if test="${targeting_vectorsx.getIndex() == 0}">
-                    <tr class="first">
+
+                    <c:if test="${targeting_vector['production_completed'] == 'true'}">
+                        <tr class="first" style="background-color: #E0F9FF !important;">
+                    </c:if>
+                    <c:if test="${targeting_vector['production_completed'] == 'false'}">
+                        <tr class="first" style="background-color: #FFE0B2 !important;">
+                    </c:if>                        
+
                 </c:if>
 
                 <c:if test="${targeting_vectorsx.getIndex() > 0}">
-                    <tr class="rest" style="display:none;">
+
+                    <c:if test="${targeting_vector['production_completed'] == 'true'}">
+                        <tr class="rest" style="display:none;background-color: #E0F9FF !important;">
+                    </c:if>
+                    <c:if test="${targeting_vector['production_completed'] == 'false'}">
+                        <tr class="rest" style="display:none;background-color: #FFE0B2 !important;">
+                    </c:if>                        
+                    
                 </c:if>
           
           <td style="text-align: center;">
-              <a href="${targeting_vector['design_oligos']}" target="_blank"><i class="fa fa-pencil-square-o fa-2x"></i></a>
+            <span>
+                <c:if test="${not empty targeting_vector['design_oligos_url']}">
+                    <a href="${targeting_vector['design_oligos_url']}" target="_blank"><i class="fa fa-pencil-square-o fa-2x"></i></a>
+                </c:if>
+            </span>
             </td>
           
         <td>${targeting_vector['targeting_vector']}</td>
         <td>${targeting_vector['cassette']}</td>
         <td>${targeting_vector['backbone']}</td>
         
+        
+        
         <td style="text-align: center;">
-        <span>
-    <a href="${targeting_vector['genbank_file']}}">
-        <i class="fa fa-file-text fa-lg"></i>
-    </a>
-        </span>
+            <span>
+                <c:if test="${not empty targeting_vector['genbank_file_url']}">
+                    <a href="${targeting_vector['genbank_file_url']}">
+                        <i class="fa fa-file-text fa-lg"></i>
+                    </a>
+                </c:if>
+            </span>
         </td>
         
 
