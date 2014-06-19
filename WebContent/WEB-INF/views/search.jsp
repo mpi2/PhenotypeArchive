@@ -317,7 +317,7 @@
     			else {
     				// back button event
     				console.log('page reload event');	
-    				//console.log(oHashParams);
+    				console.log(oHashParams);
     				
     				$.fn.loadDataTable(oHashParams);
     				// need to reconstruct filters from url

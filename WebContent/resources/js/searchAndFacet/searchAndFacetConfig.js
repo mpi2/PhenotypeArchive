@@ -278,11 +278,12 @@ config.facetParams = {
 	 
 	 imagesFacet: {		
 		 type: 'images',		 
-		 subFacetFqFields: ['expName', 'annotated_or_inferred_higherLevelMaTermName', 'annotatedHigherLevelMpTermName', 'subtype'],
+		 subFacetFqFields: ['procedure_name', 'top_level_mp_term', 'selected_top_level_ma_term', 'marker_type'],
 		 solrCoreName: 'images',
 		 tableCols: 2, 
 		 tableHeader: '<thead><th>Name</th><th>Example Images</th></thead>', 
-		 fq: 'annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotatedHigherLevelMpTermName:*',		
+		 //fq: 'annotationTermId:M* OR expName:* OR symbol:*',	
+		 fq: 'top_level_mp_term:* OR selected_top_level_ma_term:* OR procedure_name:* OR marker_symbol:*',
 		 qf: 'auto_suggest', 
 		 defType: 'edismax',
 		 wt: 'json',
@@ -300,7 +301,7 @@ config.facetParams = {
 		 forceReloadImageDataTable: false,		 
 		 breadCrumbLabel: 'Images',
 		 filterParams: {//'fl' : 'annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath',
-			 	  'fq' : "(annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotatedHigherLevelMpTermName:*)"},	
+			 	  'fq' : "(top_level_mp_term:* OR selected_top_level_ma_term:* OR procedure_name:* OR marker_symbol:*)"},	
 	 	 srchParams: $.extend({},
 				commonSolrParams				
 				)

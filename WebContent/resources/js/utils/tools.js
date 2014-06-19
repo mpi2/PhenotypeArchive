@@ -155,7 +155,7 @@
 				MPI2.searchAndFacetConfig.widgetOpen = true;
 				
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-			
+							
 				if ( /search\/?$/.exec(location.href) ){
 					// no search params					
 					if ( typeof MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams != 'undefined' ){
@@ -189,9 +189,13 @@
 					});	
 				}
 				
-				var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facet + 'Facet'].solrCoreName;				
+				var solrCoreName = MPI2.searchAndFacetConfig.facetParams[facet + 'Facet'].solrCoreName;	
+				
+				// when we have filters to deal with, we there is &facet=xxx in the url
 				var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';					
-								
+							
+				//alert(mode);
+				
 				if ( typeof oHashParams.q == 'undefined' ){
 					// no search kw
 					if ( $('li.ftag').size() == 0 ){
@@ -209,7 +213,7 @@
 					else {		
 						window.location.hash = 'fq=' + oHashParams.fq + mode +  solrCoreName;
 					}
-				}						
+				}	
 			}
 		});		
 	};
@@ -1453,7 +1457,12 @@
 		//oInfos.dataTablePath = MPI2.searchAndFacetConfig.dataTablePath;
     	oHashParams.dataTablePath = MPI2.searchAndFacetConfig.dataTablePath;
 		
-		var oParams = MPI2.searchAndFacetConfig.facetParams[facetDivId].srchParams;		
+		var oParams = MPI2.searchAndFacetConfig.facetParams[facetDivId].srchParams;
+		if ( typeof oHashParams.fq == 'undefined' ){
+			// get default
+			oHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
+		}
+		
 		oParams.fq = encodeURI(oHashParams.fq);				
 		oParams.rows = 10;
 		
