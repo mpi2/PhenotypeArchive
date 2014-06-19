@@ -330,6 +330,7 @@
     <copyField source="subtype" dest="marker_type" />
     <copyField source="annotatedHigherLevelMaTermName" dest="selected_top_level_ma_term" />
     <copyField source="annotatedHigherLevelMpTermName" dest="top_level_mp_term" />
+    <copyField source="symbol" dest="marker_symbol" />
     <copyField source="symbol" dest="auto_suggest" />
     <copyField source="geneName" dest="auto_suggest" />
     <copyField source="geneSynonyms" dest="auto_suggest" />
