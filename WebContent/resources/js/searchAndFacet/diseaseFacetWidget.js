@@ -37,7 +37,7 @@
 	    
 		_initFacet: function(){			
 	    	var self = this;
-	    	
+	    	/*
 	    	var currentFq = {'fq' : MPI2.searchAndFacetConfig.currentFq};
 	    	var queryParams = $.extend({}, { 
 				'rows': 0,
@@ -51,6 +51,23 @@
 	    		MPI2.searchAndFacetConfig.currentFq ? currentFq :
 	    			MPI2.searchAndFacetConfig.facetParams.diseaseFacet.filterParams
 	    	);    	   	
+	    	*/
+	    	
+	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
+	    			: self.options.data.hashParams.fq;
+	    	
+	    	var oParams = {};		
+	        oParams = $.fn.getSolrRelevanceParams('disease', self.options.data.hashParams.q, oParams);
+	    	
+	    	var queryParams = $.extend({}, {				
+				'fq': fq,
+				'rows': 0, // override default
+				'type': 'disease',
+				'facet': 'on',								
+				'facet.mincount': 1,
+				'facet.limit': -1,
+				'facet.sort': 'count',						
+				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
 	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
 	    					  + '&facet.field=disease_classes'

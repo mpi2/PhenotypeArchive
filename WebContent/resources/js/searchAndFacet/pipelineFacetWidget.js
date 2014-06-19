@@ -39,8 +39,8 @@
 	    _initFacet: function(){
 	   
 	    	var self = this;
-	    	var aProcedure_names = [];	    	
-	    	  	
+	    	    	
+	    	/*  	
 	    	var queryParams = $.extend({}, {	    		  		
 	    		//'fq': 'pipeline_stable_id:IMPC_001',
 	    		'fq': self.options.data.hashParams.fq,
@@ -51,6 +51,21 @@
 				'facet.sort': 'index',			
 				//'fl': 'parameter_name,parameter_stable_key,parameter_stable_id,procedure_name,procedure_stable_key,procedure_stable_id',				
 				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams);	    		    	
+	    	*/
+	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
+	    			: self.options.data.hashParams.fq;
+	    	
+	    	var oParams = {};		
+	        oParams = $.fn.getSolrRelevanceParams('pipeline', self.options.data.hashParams.q, oParams);
+	    	
+	    	var queryParams = $.extend({}, {				
+				'fq': fq,
+				'rows': 0, // override default
+				'facet': 'on',								
+				'facet.mincount': 1,
+				'facet.limit': -1,
+				'facet.sort': 'index',						
+				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
 	    	
 	    	//console.log(queryParams);	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams)	    				

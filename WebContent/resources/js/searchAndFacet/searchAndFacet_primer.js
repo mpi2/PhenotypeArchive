@@ -43,7 +43,7 @@ $(document).ready(function(){
 			|| location.href.indexOf('/search#q=*') != -1 
 			|| location.href.indexOf('/search#fq=') != -1 ){   	
 		// load page based on url hash parameters	
-		
+		//alert('here')
 		oHashParams = $.fn.parseHashString(window.location.hash.substring(1));	
 		if (typeof oHashParams.fq == 'undefined'){
 			oHashParams.noFq = true;
@@ -62,8 +62,9 @@ $(document).ready(function(){
 	    if (e.keyCode == 13) { // user hits enter
 	    	
 	    	var input = $('input#s').val();
-	  
+	    	
 	    	//alert('user input search: ' + input);
+	    	
 	    	if (input == ''){
 	    		document.location.href = baseUrl + '/search';
 	    	}

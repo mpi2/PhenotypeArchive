@@ -39,7 +39,7 @@
 	    		    
   	    	var self = this;  	    	
   	    		    	
-  	    	var queryParams = $.extend({}, {							
+  	    	/*var queryParams = $.extend({}, {							
   				'rows': 0,
   				'facet': 'on',								
   				'facet.mincount': 1,
@@ -50,6 +50,24 @@
   				'q.option': 'AND',				
   				'q': self.options.data.hashParams.q 				
   				}, MPI2.searchAndFacetConfig.commonSolrParams);  	    	  	    	
+  	    	
+  	    	*/
+  	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
+	    			: self.options.data.hashParams.fq;
+	    	
+	    	var oParams = {};		
+	        oParams = $.fn.getSolrRelevanceParams('images', self.options.data.hashParams.q, oParams);
+	    	
+	    	var queryParams = $.extend({}, {				
+				'fq': fq,
+				'rows': 0, // override default
+				'type': 'disease',
+				'facet': 'on',								
+				'facet.mincount': 1,
+				'facet.limit': -1,
+				'facet.sort': 'index',	
+				'fl': 'annotationTermId,annotationTermName,expName,symbol',
+				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
   	    	
   	    	var paramStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
   	    		//+ "&facet.field=expName"
@@ -135,12 +153,13 @@
 	  	      		/*--------------------------------------------------------------------------------------------------------------------------*/
 	  		    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
 	  		    	/*--------------------------------------------------------------------------------------------------------------------------*/	
-	  		    	
+	  	      		//console.log('****page load for iamges facet');
 		  	      	var oConf = self.options.data.hashParams;
 			    	oConf.core = self.options.data.core;
+			    	//console.log(oConf);
 			    	
 			    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);
-	  	    	    		
+			    	
   	    	    	// when last facet is done
   	    	    	$('div#facetBrowser').html(MPI2.searchAndFacetConfig.endOfSearch);  	    			
   	    		}		
