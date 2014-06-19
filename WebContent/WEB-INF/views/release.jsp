@@ -30,7 +30,7 @@
                 <li><a href="#top">Release Notes</a></li>
                 <li><a href="#new-features">Highlights</a></li>
                 <li><a href="#data_reports">Data Reports</a></li>
-                <li><a href="#phenome-links">Phenotypes</a></li>
+                <li><a href="#phenome-links">Phenotype Associations</a></li>
                 <li><a href="#statistical-analysis">Statistical Analysis</a></li>
             </ul>
             
