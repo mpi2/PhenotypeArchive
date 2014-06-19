@@ -25,11 +25,11 @@ package org.mousephenotype.www.testing.model;
 import static com.thoughtworks.selenium.SeleneseTestBase.fail;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.Resource;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -175,9 +175,9 @@ public class TestUtils {
      * 
      * @param testName the test name (must not be null)
      * @param start the test start time (must not be null)
-     * @param errorList the error list (must not be null)
-     * @param exceptionList the exception list (must not be null)
-     * @param successList the success list (must not be null)
+     * @param errorList the error list
+     * @param exceptionList the exception list
+     * @param successList the success list
      * @param totalRecords the total number of expected records to process
      * @param totalPossible the total number of possible records to process
      */
@@ -185,6 +185,10 @@ public class TestUtils {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
         Date stop;
+        
+        if (errorList == null) errorList = new ArrayList();
+        if (exceptionList == null) exceptionList = new ArrayList();
+        if (successList == null) successList = new ArrayList();
         
         if ( ! errorList.isEmpty()) {
             System.out.println(errorList.size() + " records failed:");
