@@ -41,3 +41,4 @@ datasourcesConfig.properties
 /WebContent/WEB-INF/datasources-config.xml
 /nbactions.xml
 /nbactions-web-tests.xml
+/nbactions-beta-web-tests.xml
