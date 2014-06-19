@@ -48,7 +48,7 @@
 							kv = qVal;
 						}
 						else if (qField == 'latest_phenotype_status'){
-							kv = MPI2.searchAndFacetConfig.phenotypingVal2Field[qVal];
+							kv = MPI2.searchAndFacetConfig.phenotypingVal2Field[qVal] + '|' + qVal;
 						}
 						else {
 							kv = qField + '|' + qVal;
@@ -153,6 +153,7 @@
 		caller.click(function(){
 			
 			if ( caller.find('span.fcount').text() != 0 ){
+				MPI2.searchAndFacetConfig.widgetOpen = true;
 				//console.log(facet + ' widget expanded : '+ MPI2.searchAndFacetConfig.widgetOpen);
 				
 				// close all other non-selected facets
@@ -162,7 +163,6 @@
 					}
 				});	
 				
-				MPI2.searchAndFacetConfig.widgetOpen = true;
 				
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 							
