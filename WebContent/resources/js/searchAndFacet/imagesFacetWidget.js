@@ -135,12 +135,13 @@
 	  	      		/*--------------------------------------------------------------------------------------------------------------------------*/
 	  		    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
 	  		    	/*--------------------------------------------------------------------------------------------------------------------------*/	
-	  		    	
+	  	      		//console.log('****page load for iamges facet');
 		  	      	var oConf = self.options.data.hashParams;
 			    	oConf.core = self.options.data.core;
+			    	//console.log(oConf);
 			    	
 			    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);
-	  	    	    		
+			    	
   	    	    	// when last facet is done
   	    	    	$('div#facetBrowser').html(MPI2.searchAndFacetConfig.endOfSearch);  	    			
   	    		}		

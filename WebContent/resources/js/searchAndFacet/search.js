@@ -56,7 +56,8 @@
 				
 		var oFacets = {};
 		oFacets.count = {};	
-		if ( typeof oUrlHashParams.fq != 'undefined' ){
+	
+		if ( typeof oUrlHashParams.fq != 'undefined' && typeof oUrlHashParams.coreName == 'undefined' ){
 			jsonBase.geneFacet.filterParams = {'fq': oUrlHashParams.fq};
 		}
 		
@@ -85,8 +86,9 @@
 	
 	function _doMPAutoSuggest(geneResponse, q, oFacets, facetMode, oUrlHashParams){		
 				
-		jsonBase.mpFacet.srchParams.q = q;		
-		if ( typeof oUrlHashParams.fq != 'undefined' ){
+		jsonBase.mpFacet.srchParams.q = q;	
+		
+		if ( typeof oUrlHashParams.fq != 'undefined' && typeof oUrlHashParams.coreName == 'undefined' ){
 			jsonBase.mpFacet.filterParams = {'fq': oUrlHashParams.fq};
 		}
 		
@@ -115,7 +117,7 @@
 	function _doDiseaseAutoSuggest(geneResponse, mpResponse, q, oFacets, facetMode, oUrlHashParams){
 		
 		jsonBase.diseaseFacet.srchParams.q = q;		
-		if ( typeof oUrlHashParams.fq != 'undefined' ){
+		if ( typeof oUrlHashParams.fq != 'undefined' && typeof oUrlHashParams.coreName == 'undefined' ){
 			jsonBase.diseaseFacet.filterParams = {'fq': oUrlHashParams.fq};
 		}	
 		//console.log($.fn.stringifyJsonAsUrlParams(jsonBase.diseaseFacet.srchParams));
@@ -141,7 +143,7 @@
 	function _doTissueAutoSuggest(geneResponse, mpResponse, diseaseResponse, q, oFacets, facetMode, oUrlHashParams){
 		jsonBase.maFacet.srchParams.q = q;	
 		jsonBase.maFacet.srchParams.sort = 'ma_term asc';
-		if ( typeof oUrlHashParams.fq != 'undefined' ){
+		if ( typeof oUrlHashParams.fq != 'undefined' && typeof oUrlHashParams.coreName == 'undefined' ){
 			jsonBase.maFacet.filterParams = {'fq': oUrlHashParams.fq};
 		}
 		
@@ -167,9 +169,10 @@
 	function _doPipelineAutoSuggest(geneResponse, mpResponse, diseaseResponse, maResponse, q, oFacets, facetMode, oUrlHashParams){
 		
 		jsonBase.pipelineFacet.srchParams.q = q;		
-		if ( typeof oUrlHashParams.fq != 'undefined' ){
+		if ( typeof oUrlHashParams.fq != 'undefined' && typeof oUrlHashParams.coreName == 'undefined' ){
 			jsonBase.pipelineFacet.filterParams = {'fq': oUrlHashParams.fq};
 		}
+		//console.log($.extend({}, jsonBase.pipelineFacet.srchParams, jsonBase.pipelineFacet.filterParams));
 		$.ajax({
     	    url: solrUrl + '/pipeline/select',    	   
     	    data: $.extend({}, jsonBase.pipelineFacet.srchParams, jsonBase.pipelineFacet.filterParams),
@@ -192,7 +195,7 @@
 	function _doImageAutosuggest(geneResponse, mpResponse, diseaseResponse, maResponse, pipelineResponse, q, oFacets, facetMode, oUrlHashParams){
 		
 		jsonBase.imagesFacet.srchParams.q = q;		
-		if ( typeof oUrlHashParams.fq != 'undefined' ){
+		if ( typeof oUrlHashParams.fq != 'undefined' && typeof oUrlHashParams.coreName == 'undefined' ){
 			jsonBase.imagesFacet.filterParams = {'fq': oUrlHashParams.fq};
 		}
 		//console.log($.fn.stringifyJsonAsUrlParams($.extend({}, jsonBase.imagesFacet.srchParams, jsonBase.imagesFacet.filterParams)));
