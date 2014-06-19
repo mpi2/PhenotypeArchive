@@ -40,7 +40,7 @@ config.backButton   = false;
 
 config.searchSpin = "<img src='img/loading_small.gif' />";
 config.spinner = "<img src='img/loading_small.gif' /> Processing search ...";
-config.spinnerExport = "<img src='img/loading_sm_tickFilterCheckBox('mp');	all.gif' /> Processing data for export, please do not interrupt ... ";
+config.spinnerExport = "<img src='img/loading_small.gif' /> Processing data for export, please do not interrupt ... ";
 config.endOfSearch = "Search result";
 
 //custom 404 page does not know about baseUrl
@@ -73,10 +73,15 @@ config.geneStatuses = ['Phenotype Data Available',
                'Not Assigned for ES Cell Production'];
 
 config.phenotypingStatuses = {
-	'Complete':{'fq':'imits_phenotype_complete','val':1}, 
-    'Started':{'fq':'imits_phenotype_started','val':1}, 
+	'Complete':{'fq':'imits_phenotype_complete','val':'Phenotyping Complete'}, 
+    'Started':{'fq':'imits_phenotype_started','val':'Phenotyping Started'}, 
     'Attempt Registered':{'fq':'imits_phenotype_status', 'val':'Phenotype Attempt Registered'}
 };
+config.phenotypingVal2Field = {
+		'Phenotyping Complete'        :'imits_phenotype_complete', 
+	    'Phenotyping Started'         :'imits_phenotype_started', 
+	    'Phenotype Attempt Registered':'imits_phenotype_status'
+	};
 
 config.phenotypingStatusFq2Label = {
 		'imits_phenotype_complete' : 'Complete',
@@ -106,9 +111,12 @@ config.procSid2ExpNameMapping = {
 */
 
 config.qfield2facet = {
-	'imits_phenotype_complete'   : 'gene',
-	'imits_phenotype_started'    : 'gene',
-	'imits_phenotype_status'     : 'gene',
+	//'imits_phenotype_complete'   : 'gene',
+	//'imits_phenotype_started'    : 'gene',
+	//'imits_phenotype_status'     : 'gene',
+	'latest_phenotyping_centre'   : 'gene',	
+	'latest_production_centre'   : 'gene',	
+	'latest_phenotype_status'    : 'gene',
 	'status'                     : 'gene',
 	'marker_type'                : 'gene',
 	'top_level_mp_term'          : 'mp',
