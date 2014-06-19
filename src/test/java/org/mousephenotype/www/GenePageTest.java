@@ -15,13 +15,13 @@
  */
 package org.mousephenotype.www;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -31,7 +31,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.TestUtils;
@@ -195,8 +194,9 @@ public class GenePageTest {
     public void testRandomPageForGeneIds() throws SolrServerException {
         String testName = "testRandomPageForGeneIds";
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
-        Set<String> geneIds = geneService.getAllGenes();
-        String[] geneIdArray = geneIds.toArray(new String[geneIds.size()]);
+        List<String> geneIds = new ArrayList(geneService.getAllGenes());
+        Collections.shuffle(geneIds);                                      // Randomize the collection.
+        
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -208,13 +208,8 @@ public class GenePageTest {
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
             
         // Loop through all genes, testing each one for valid page load.
-        Random rand = new Random();
-        int max = geneIdArray.length;
-        int min = 0;
         int i = 0;
-        while (true) {
-            int index = rand.nextInt((max - min) + 1) + min;
-            String geneId = geneIdArray[index];
+        for (String geneId : geneIds) {
             if (i >= targetCount) {
                 break;
             }

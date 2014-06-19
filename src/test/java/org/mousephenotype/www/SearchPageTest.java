@@ -29,14 +29,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
 import org.junit.AfterClass;
 
@@ -49,9 +47,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,8 +57,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
-import uk.ac.ebi.generic.util.Tools;
-import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.util.Utils;
 /**
  *
@@ -211,7 +207,7 @@ public class SearchPageTest {
     }
 
     @Test
-    ////@Ignore
+    //@Ignore
     public void autosuggestTest() throws Exception {
     	// test that there is a dropdown when at least 3 letters with match are entered into the input box
     	 testCount++;
@@ -241,7 +237,6 @@ public class SearchPageTest {
          }
     }
     
-    
     @Test
     //@Ignore
     public void testTickingFacetFilters() throws Exception {
@@ -255,12 +250,13 @@ public class SearchPageTest {
         String message;
         successList.clear();
         errorList.clear();
-
+        String queryStr = "";
+        
         for (Map.Entry entry : params.entrySet()) {
             String facet = entry.getKey().toString();
 
 
-            String queryStr = baseUrl + "/search#" + entry.getValue();
+            queryStr = baseUrl + "/search#" + entry.getValue();
             //System.out.println(queryStr);
             driver.get(queryStr);
             driver.navigate().refresh();
@@ -273,9 +269,8 @@ public class SearchPageTest {
                 filterVals1 = driver.findElement(By.cssSelector(elem1)).getAttribute("rel");
             }
             catch(Exception e){
-                //System.out.println("   " + facet + " FAILED");
-                message = "Failed to find facet checkbox filter for " + facet + " facet on " + testName;
-                //System.out.println("   " + message);
+                message = "Failed to find facet checkbox filter for " + facet + " facet on " + testName
+                        + ":\n\tURL: " + queryStr + "\n\telem1 = " + elem1;
                 errorList.add(message);
                 continue;
             }
@@ -339,6 +334,7 @@ public class SearchPageTest {
         String testName = "testQueryingRandomGeneSymbols";
         System.out.println();
         System.out.println("----- " + testName + " -----");
+        Date start = new Date();
 
         successList.clear();
         errorList.clear();
@@ -399,7 +395,9 @@ public class SearchPageTest {
         else {
             System.out.println("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
             sumErrorList.add("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
+            TestUtils.printEpilogue(testName, start, errorList, null, successList, 1,  1);
             fail("There were " + sumErrorList.size() + " errors.");
+            
         }
         System.out.println();
     }
@@ -501,23 +499,27 @@ public class SearchPageTest {
         System.out.println();
         String testName = "testPagination";
         System.out.println("----- " + testName + " -----");
+        String url;
 
         successList.clear();
         errorList.clear();
-
+        
         for (String core : cores ){
         	System.out.println("TESTING core: "+ core);
             System.out.println(baseUrl + "/search#" + params.get(core));
 
-            driver.get(baseUrl + "/search#" + params.get(core));
+            url = baseUrl + "/search#" + params.get(core);
+            driver.get(url);
             driver.navigate().refresh();
 
             String paginationInfo = null;
             String expectStr = null;
-
+            String waitingForElement = "";
+            
             try {
                 // wait for ajax call
-                new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.id(core+"Grid_info")));
+                waitingForElement = core + "Grid_info";
+                new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.id(waitingForElement)));
                 //new WebDriverWait(driver, 25).until(ExpectedConditions.presenceOfElementLocated(By.id(core+"Grid_info")));
 
                 String wantedPath = "//div[contains(@class, 'dataTables_paginate')]/descendant::li[a/text()='2']";
@@ -526,7 +528,6 @@ public class SearchPageTest {
                 WebElement pageLink = driver.findElement(By.xpath(wantedPath));
                 pageLink.click();
                 
-                Thread.sleep(thread_wait_in_ms);
                 new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.id(core+"Grid")));
 
                 // move to its parent
@@ -558,6 +559,12 @@ public class SearchPageTest {
 
                 // try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
             }
+            catch (TimeoutException te) {
+                String message = "Failed to load page."
+                        + ":\n\tURL: " + url + "\n\twaitingForElement = " + waitingForElement;
+                errorList.add(message);
+                continue;
+            }
             catch(Exception e){
                 e.printStackTrace();
                 sumErrorList.add("EXCEPTION in testPagination() for " + core + ": " + e.getLocalizedMessage());
@@ -582,7 +589,8 @@ public class SearchPageTest {
         System.out.println();
         String testName = "testFacetCounts";
         System.out.println("----- " + testName + " -----");
-
+        Date start = new Date();
+        
         successList.clear();
         errorList.clear();
 
@@ -600,14 +608,14 @@ public class SearchPageTest {
                 driver.navigate().refresh();
                 //System.out.println(baseUrl + "/search#" + params.get(core));
 
+                // wait for ajax response before doing the test
+                new WebDriverWait(driver, 45).until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("span#resultCount a")));
+
                 // test facet panel loaded ok
                 int facetCountFromPage = Integer.parseInt(driver.findElement(By.cssSelector("div.flist li#" + core + " span.fcount")).getText());
                 //System.out.println("facet panel test for " + core + " core: " + facetCountFromSolr + " vs " + facetCountFromPage);
                 assertEquals(facetCountFromSolr, facetCountFromPage);
                 //System.out.println("OK: facet counts for " + core);
-
-                // wait for ajax response before doing the test
-                new WebDriverWait(driver, 45).until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("span#resultCount a")));
 
                 // test dataTable loaded ok
                 //System.out.println("facet count check found : " + driver.findElement(By.cssSelector("span#resultCount a")).getText());
@@ -635,8 +643,8 @@ public class SearchPageTest {
             sumSuccessList.add("passed");
         }
         else {
-            //System.out.println("FAILED - " + testName + "\n" + StringUtils.join(errorList, "\n"));
             sumErrorList.add("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
+            TestUtils.printEpilogue(testName, start, errorList, null, successList, paramList.size(), paramList.size());
             fail("There were " + sumErrorList.size() + " errors.");
         }
 

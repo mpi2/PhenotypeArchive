@@ -50,7 +50,7 @@
                                 <li><a href="https://en.wikipedia.org/wiki/Fisher%27s_exact_test"><strong>Fisher's Exact test</strong></a> - for categorical data parameters</li>
                                 <li><a href="https://en.wikipedia.org/wiki/Mixed_model"><strong>Mixed Model</strong></a> - for continuous data parameters which include random effects </li>
                                 <li><a href="https://en.wikipedia.org/wiki/Linear_model"><strong>Linear Model</strong></a> - for continuous data parameters when random effects are not significant</li>
-                                <li><a href="https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test"><strong>Mann-€“Whitney U Rank sum test</strong></a> - for continuous data parameters when conditions for mixed model are not appropriate</li>
+                                <li><a href="https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U"><strong>Mann-Whitney U Rank sum test</strong></a> - for continuous data parameters when conditions for mixed model are not appropriate</li>
                             </ul>
                             
                             <p>

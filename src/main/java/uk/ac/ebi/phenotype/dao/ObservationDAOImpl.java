@@ -30,7 +30,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
@@ -620,14 +622,22 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 
 			obs = textObservation;
 		}
-		
-		obs.setParameterStableId(parameter.getStableId());
-		//TODO set missing -> ignore flag
-		obs.setParameterStatus(parameterStatus);
-		if(parameterStatus!=null) {
-		obs.setMissingFlag(true);
-		}
+
+        obs.setParameterStableId(parameter.getStableId());        
+
+        // Add the status code to the observation if there is one
+        if(parameterStatus!=null) {
+
+            Map<String, String> pStatMap = getParameterStatusAndMessage(parameterStatus);
+
+            obs.setParameterStatus(pStatMap.get("status"));
+            obs.setParameterStatusMessage(pStatMap.get("message"));
+            obs.setMissingFlag(true);
+
+        }
+
 		return obs;
+		
 	}
 
 	@Transactional(readOnly = false)
@@ -672,9 +682,44 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 		obs.setSample(sample);
 		obs.setType(observationType);
 		obs.setParameterStableId(parameter.getStableId());
-		obs.setParameterStatus(parameterStatus);
-		
+
+		// Add the status code to the observation if there is one
+        if(parameterStatus!=null) {
+            
+            Map<String, String> pStatMap = getParameterStatusAndMessage(parameterStatus);
+
+            obs.setParameterStatus(pStatMap.get("status"));
+            obs.setParameterStatusMessage(pStatMap.get("message"));
+            obs.setMissingFlag(true);
+
+        }
+
 		return obs;
 	}
 
+	public static Map<String, String> getParameterStatusAndMessage(String parameterStatus) {
+
+	    Map<String, String> pStatusMap = new HashMap<>();
+        pStatusMap.put("message", null);
+        pStatusMap.put("status", null);
+	    
+       // Add the status code to the observation if there is one
+        if(parameterStatus != null) {
+
+            String code = parameterStatus;
+
+            if(code.contains(":")) {
+    
+                String message = code.substring(code.indexOf(":")+1, code.length()).trim();
+                pStatusMap.put("message", message);
+
+                code = code.substring(0, code.indexOf(":"));
+                pStatusMap.put("status", code);
+
+            }
+        }
+        
+        return pStatusMap;
+	}
+	
 }

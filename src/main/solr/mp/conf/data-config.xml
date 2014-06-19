@@ -157,7 +157,8 @@
 				<!-- disease associated with this MP via this gene -->	
 				<entity dataSource="allele_core" name="doc" stream="true" url="q=mgi_accession_id:&quot;${phenotype_call_summary2.gf_acc}&quot;&amp;rows=1&amp;wt=normal"
 					processor="XPathEntityProcessor" forEach="/response/result/doc/" >
-				         					
+					
+				    <field column="type" xpath="/response/result/doc/str[@name='type']" /> 				
 				    <field column="disease_source" xpath="/response/result/doc/arr[@name='disease_source']/str" /> 
 				    <field column="disease_term" xpath="/response/result/doc/str[@name='disease_term']" /> 
 				    <field column="disease_alts" xpath="/response/result/doc/arr[@name='disease_alts']/str" /> 
@@ -179,6 +180,9 @@
                              
                     <!-- latest project status (ES cells/mice production status) -->         
                     <field column="status" xpath="/response/result/doc/str[@name='status']" />
+                    
+                    <!-- phenotyping status -->
+					<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
                     
                     <!-- latest mice phenotyping status for faceting -->
                     <field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='imits_phenotype_started']" />        
