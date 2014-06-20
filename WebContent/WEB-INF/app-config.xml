@@ -193,6 +193,7 @@
 		</property>
 		<property name="sourceMap">
 			<map key-type="java.lang.String" value-type="java.lang.String">
+				<entry key="version" value="${pom.version}" />
 				<entry key="baseUrl" value="${baseUrl}" />
 				<entry key="drupalBaseUrl" value="${drupalBaseUrl}" />
 				<entry key="solrUrl" value="${solrUrl}" />

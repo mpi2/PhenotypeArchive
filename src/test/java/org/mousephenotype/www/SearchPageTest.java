@@ -47,6 +47,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -120,6 +121,7 @@ public class SearchPageTest {
     private List<String> paramList = new ArrayList<String>();
     private List<String> cores = new ArrayList<String>();
     private List<String> errorList = new ArrayList();
+    private List<String> exceptionList = new ArrayList();
     private List<String> successList = new ArrayList();
     private static List<String> sumErrorList = new ArrayList();
     private static List<String> sumSuccessList = new ArrayList();
@@ -140,11 +142,11 @@ public class SearchPageTest {
         try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
 
         params.put("gene","fq=marker_type:* -marker_type:\"heritable phenotypic marker\"&core=gene");
-        params.put("mp", "fq=ontology_subset:*&core=mp");
+        params.put("mp", "fq=*:*&core=mp");
         params.put("disease", "fq=type:disease&core=disease");
         params.put("ma", "fq=ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*&core=ma");
         params.put("pipeline", "fq=pipeline_stable_id:*&core=pipeline");
-        params.put("images", "fq=annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotatedHigherLevelMpTermName:*&core=images");
+        params.put("images", "fq=annotationTermId:M* OR expName:* OR symbol:*&core=images");
 
         String commonParam = "qf=auto_suggest&defType=edismax&wt=json&rows=0&q=*:*";
         final String geneParams      = "/gene/select?" + commonParam + "&" + params.get("gene");
@@ -500,86 +502,63 @@ public class SearchPageTest {
         String testName = "testPagination";
         System.out.println("----- " + testName + " -----");
         String url;
+        String message;
+        String expectedElement = "";
+        final String showing_1 = "Showing 1 to 10 of";
+        final String showing_11 = "Showing 11 to 20 of";
+        String actualResult = "";
+        Date start = new Date();
 
         successList.clear();
         errorList.clear();
+        exceptionList.clear();
         
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
         for (String core : cores ){
-        	System.out.println("TESTING core: "+ core);
-            System.out.println(baseUrl + "/search#" + params.get(core));
-
             url = baseUrl + "/search#" + params.get(core);
-            driver.get(url);
-            driver.navigate().refresh();
-
-            String paginationInfo = null;
-            String expectStr = null;
-            String waitingForElement = "";
-            
             try {
-                // wait for ajax call
-                waitingForElement = core + "Grid_info";
-                new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.id(waitingForElement)));
-                //new WebDriverWait(driver, 25).until(ExpectedConditions.presenceOfElementLocated(By.id(core+"Grid_info")));
-
-                String wantedPath = "//div[contains(@class, 'dataTables_paginate')]/descendant::li[a/text()='2']";
-                //System.out.println("Expected text: " + driver.findElement(By.xpath(wantedPath)).getText());
-
-                WebElement pageLink = driver.findElement(By.xpath(wantedPath));
-                pageLink.click();
+                driver.navigate().refresh();
+                driver.get(url);
+                expectedElement = "div#" + core + "Grid_info";
                 
-                new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.id(core+"Grid")));
-
-                // move to its parent
-                WebElement liElem = driver.findElement(By.xpath("//div[contains(@class, 'dataTables_paginate')]/descendant::li[contains(@class, 'active')]"));
-                //System.out.println(liElem.getText());
-                if ( liElem.getText().equals("1") ){
-                    System.out.println("click again");
-                    pageLink.click(); // try again
-                }
-
-                String wantedElement = core.equals("images") ? "span#annotCount" : "span#resultCount a";
-
-                paginationInfo = driver.findElement(By.cssSelector("div#"+core+"Grid_info")).getText();
-                System.out.println(paginationInfo);
-                String[] parts = driver.findElement(By.cssSelector(wantedElement)).getText().split(" ");
-                int dataTalbeFoundCount = Integer.parseInt(parts[0]);
-
-                expectStr = "Showing 11 to 20 of " + NumberFormat.getNumberInstance(Locale.US).format(dataTalbeFoundCount) + " entries";
-                System.out.println(expectStr);
-
-                if ( paginationInfo.equals(expectStr) ){
-                    System.out.println(core + " OK");
-                    successList.add(core);
-                }
-                else {
-                    System.out.println(core + " FAILED");
-                    errorList.add(core);
-                }
-
-                // try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
-            }
-            catch (TimeoutException te) {
-                String message = "Failed to load page."
-                        + ":\n\tURL: " + url + "\n\twaitingForElement = " + waitingForElement;
+                // Wait for gene page to load, then click the page '2' link.
+                wait.until(ExpectedConditions.textToBePresentInElementLocated(By.cssSelector(expectedElement), showing_1));
+                driver.findElement(By.cssSelector("div.dataTables_paginate a").linkText("2")).click();
+                
+                // Wait for the 2nd page to load, then check for the expectedResult.
+                wait.until(ExpectedConditions.textToBePresentInElementLocated(By.cssSelector(expectedElement), showing_11));
+//                String s = (new WebDriverWait(driver, timeout_in_seconds))
+//                                      .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(expectedElement))).getText();
+//                System.out.println("***************************************************************************** s = " + s);
+                message = "Success: found '" + showing_11 + "'";
+                successList.add(message);
+            } catch (NoSuchElementException | TimeoutException te) {
+                message = "ERROR: expectedElement = '" + expectedElement + "'. URL = " + url
+                        + "\n\texpected result = '" + showing_11 + "'"
+                        + "\n\tactualResult    = '" + actualResult + "'";
                 errorList.add(message);
+                TestUtils.sleep(thread_wait_in_ms);
+                continue;
+            }  catch (Exception e) {
+                message = "EXCEPTION processing target URL " + url + ": " + e.getLocalizedMessage();
+                exceptionList.add(message);
+                TestUtils.sleep(thread_wait_in_ms);
                 continue;
             }
-            catch(Exception e){
-                e.printStackTrace();
-                sumErrorList.add("EXCEPTION in testPagination() for " + core + ": " + e.getLocalizedMessage());
-            }
+            
+            TestUtils.sleep(thread_wait_in_ms);
         }
-
-        if (successList.size() == cores.size() ){
-            System.out.println("[PASSED] - " + testName);
-            sumSuccessList.add("passed");
-        }
-        else {
-            //System.out.println("FAILED - " + testName + "\n" + StringUtils.join(errorList, "\n"));
+        
+        if ((errorList.size() > 0) || (exceptionList.size() > 0)) {
             sumErrorList.add("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
             fail("There were " + sumErrorList.size() + " errors.");
         }
+        else {
+            System.out.println("[PASSED] - " + testName);
+            sumSuccessList.add("passed");
+        }
+        
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, cores.size(), cores.size());
     }
 
     @Test
@@ -604,7 +583,8 @@ public class SearchPageTest {
                 //String fq = geneResults.getJSONObject("responseHeader").getJSONObject("params").getString("fq");
                 //System.out.println(core + " num found: "+ facetCountFromSolr);
 
-                driver.get(baseUrl + "/search#" + params.get(core));
+                String url = baseUrl + "/search#" + params.get(core);
+                driver.get(url);
                 driver.navigate().refresh();
                 //System.out.println(baseUrl + "/search#" + params.get(core));
 
@@ -614,7 +594,8 @@ public class SearchPageTest {
                 // test facet panel loaded ok
                 int facetCountFromPage = Integer.parseInt(driver.findElement(By.cssSelector("div.flist li#" + core + " span.fcount")).getText());
                 //System.out.println("facet panel test for " + core + " core: " + facetCountFromSolr + " vs " + facetCountFromPage);
-                assertEquals(facetCountFromSolr, facetCountFromPage);
+                String message = "URL: " + url;
+                assertEquals(message, facetCountFromSolr, facetCountFromPage);
                 //System.out.println("OK: facet counts for " + core);
 
                 // test dataTable loaded ok

@@ -43,12 +43,11 @@
 					if ( typeof MPI2.searchAndFacetConfig.qfield2facet[qField] ){
 						//var kv = aFqs[i].replace(':','|').replace(/\(|\)|"/g,'');
 						
-						
-						if ( qField == 'procedure_stable_id' ){
-							kv = qVal;
-						}
-						else if (qField == 'latest_phenotype_status'){
+						if (qField == 'latest_phenotype_status'){
 							kv = MPI2.searchAndFacetConfig.phenotypingVal2Field[qVal] + '|' + qVal;
+						}
+						else if (qField == 'procedure_stable_id'){
+							kv = qVal;
 						}
 						else {
 							kv = qField + '|' + qVal;
@@ -66,12 +65,33 @@
 							}
 			    		}	
 			    		else {
-			    			
-			    			var relStr = facet + '|' + kv;
-			    			//console.log('hidden: '+ relStr);
-			    			oInput = $('<input></input>').attr({'type':'checkbox','rel':relStr}).prop('checked', true);
-			    			
-			    			$.fn.composeSummaryFilters(oInput, q);
+			    			// create matching checkbox facet filter in unopened facets
+			    			if (qField == 'procedure_stable_id'){
+			    				// fetch procedure_name by procedure_stable_id (*)
+			    				$.ajax({ 	
+					    			'url': solrUrl + '/pipeline/select',		
+					        		'data': 'rows=1&wt=json&fl=procedure_name,pipeline_name&q=procedure_stable_id:' + qVal,
+					        		'dataType': 'jsonp',
+					        		'jsonp': 'json.wrf',
+					        		'success': function(json) {
+					        			
+					        			var procedure_name =json.response.docs[0].procedure_name;
+					        			var className = json.response.docs[0].pipeline_name.replace(/ /g, '_');
+					        			var relStr = facet + '|' + qField + '|' +  procedure_name + '___'+ qVal;
+						    			//console.log('hidden: '+ relStr);
+						    			oInput = $('<input></input>').attr({'class':className,'type':'checkbox','rel':relStr}).prop('checked', true);
+						    			
+						    			$.fn.composeSummaryFilters(oInput, q);
+					        		}		
+			    				});
+			    			}
+			    			else {
+				    			var relStr = facet + '|' + kv;
+				    			//console.log('hidden: '+ relStr);
+				    			oInput = $('<input></input>').attr({'type':'checkbox','rel':relStr}).prop('checked', true);
+				    			
+				    			$.fn.composeSummaryFilters(oInput, q);
+			    			}
 			    		}
 					}
 				}

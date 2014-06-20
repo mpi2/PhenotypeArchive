@@ -205,7 +205,7 @@ config.facetParams = {
 		 breadCrumbLabel: 'Parameters',	
 		 filterParams: {fq:'pipeline_stable_id:*'},	 
 		 srchParams: $.extend({},				     
-					commonSolrParams    				
+					commonSolrParams, {'fl': 'parameter_name,procedure_name,procedure_stable_key,pipeline_name'}   				
 					)					
 	 },	
 	 mpFacet: {	

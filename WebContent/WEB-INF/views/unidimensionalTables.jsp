@@ -42,7 +42,11 @@
 								<td class="globalTestValue"><t:formatScientific>${data.result.nullTestSignificance}</t:formatScientific></td>
 								<td>${data.result.significanceClassification.text}</td>
 								<td class="effect"><t:formatScientific>${data.result.genotypeParameterEstimate}</t:formatScientific></td>
-								<td>&#177;<t:formatScientific>${data.result.genotypeStandardErrorEstimate}</t:formatScientific></td>
+								<td>
+									<c:if test="${data.result.genotypeStandardErrorEstimate!=null}">
+										&#177;
+									</c:if>
+								<t:formatScientific>${data.result.genotypeStandardErrorEstimate}</t:formatScientific></td>
 								<td class="pvalue"><t:formatScientific>${data.result.genotypeEffectPValue }</t:formatScientific></td>
 							</tr>
 						</c:when>
