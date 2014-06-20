@@ -20,7 +20,7 @@
 			.ui-dropdownchecklist-selector > .ui-icon {margin-top:4px;}
 			.ui-dropdownchecklist-text {padding:2px;margin:0;}
 		</style-->
-		<script type='text/javascript' src="${baseUrl}/js/general/dropDownPhenPage.js"></script>
+		<script type='text/javascript' src="${baseUrl}/js/general/dropDownPhenPage.js?v=${version}"></script>
 
 		
 		
