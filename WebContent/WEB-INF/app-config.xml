@@ -61,6 +61,10 @@
  		<constructor-arg ref="sessionFactory" />
  	</bean>
 
+	<bean id="releaseDAO" class="uk.ac.ebi.phenotype.dao.AnalyticsDAOImpl">
+ 		<constructor-arg ref="sessionFactory" />
+ 	</bean>
+ 	
 	<bean id="experimentService" class="uk.ac.ebi.phenotype.service.ExperimentService">
 	</bean>
 	

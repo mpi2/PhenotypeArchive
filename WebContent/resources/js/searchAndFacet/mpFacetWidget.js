@@ -38,11 +38,14 @@
 	    
 	    _initFacet: function(){
 	    	var self = this;
-	    	var fq = self.options.data.hashParams.fq;
+	    	
+	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
+	    			: self.options.data.hashParams.fq;
+	    	
 	    	var facetField = 'top_level_mp_term';
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('mp', self.options.data.hashParams.q, oParams);
-	    	
+	    	//console.log(self.options.data.hashParams.q);
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
 				'rows': 0, // override default
@@ -98,7 +101,7 @@
 	        		/*--------------------------------------------------------------------------------------------------------------------------*/
 	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
 	    	    	/*--------------------------------------------------------------------------------------------------------------------------*/	
-	        		console.log('****page load for mp facet');
+	        		//console.log('****page load for mp facet');
 	        		var oConf = self.options.data.hashParams;
 	    	    	oConf.core = self.options.data.core;
 	    	    	

@@ -253,7 +253,8 @@ public class SolrIndex {
 				// if no mice status found but there is already allele produced, mark it as "mice produced planned"				
 				for ( int j=0; j< alleleNames.size(); j++ ) {
 					String alleleName = alleleNames.get(j).toString();
-					if ( !alleleName.equals("") && !alleleName.equals("None") && mouseStatus.get(j).toString().equals("") ){	
+					//System.out.println("allele: " + alleleName);
+					if ( !alleleName.equals("") && !alleleName.equals("None") && !alleleName.contains("tm1e") && mouseStatus.get(j).toString().equals("") ){	
 						sh.put("mice production planned", "yes");						
 					}				
 				}
