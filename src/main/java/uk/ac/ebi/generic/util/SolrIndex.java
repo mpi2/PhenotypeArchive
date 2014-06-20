@@ -1226,11 +1226,11 @@ public class SolrIndex {
 //  - {DETAILS: 'http://www.sanger.ac.uk', TEXT: There are mice for this allele, ORDER: 'http://www.sanger.ac.uk'}
 //  - {DETAILS: 'http://www.google.com', TEXT: There are ES cells for this allele, ORDER: 'http://www.google.com'}
             
-            HashMap<String, Object> map2 = new HashMap<>();
+            HashMap<String, String> map2 = new HashMap<>();
             map2.put("DETAILS", "http://www.sanger.ac.uk");
             map2.put("TEXT", "There are mice for this allele");
             map2.put("ORDER", "http://www.sanger.ac.uk");
-            List<HashMap<String, Object>> list2 = new ArrayList<>();
+            List<HashMap<String, String>> list2 = new ArrayList<>();
             list2.add(map2);
 
             summary.put("statuses", list2);    // FIX-ME!
@@ -1239,10 +1239,10 @@ public class SolrIndex {
 //  - {browser: Ensembl (mouse), url: 'http://www.ensembl.org/Mus_musculus/Location/View?r=9:54544794-54560…c.uk/das/ikmc_products=normal,contig=normal,ruler=normal,scalebar=normal'}
 //  - {browser: UCSC (mouse), url: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&ikmc=pack&ensGene=pack&position=chr9:54544794-54560218'}
 
-            HashMap<String, Object> map3 = new HashMap<>();
+            HashMap<String, String> map3 = new HashMap<>();
             map3.put("browser", "Ensembl (mouse)");
             map3.put("url", "http://www.ensembl.org/Mus_musculus/Location/View?r=9:54544794-54560…c.uk/das/ikmc_products=normal,contig=normal,ruler=normal,scalebar=normal");
-            List<HashMap<String, Object>> list3 = new ArrayList<>();
+            List<HashMap<String, String>> list3 = new ArrayList<>();
             list3.add(map3);
             
             summary.put("browsers", list3);    // FIX-ME!
@@ -1251,10 +1251,10 @@ public class SolrIndex {
 //  - {name: Genotyping primers, url: 'http://www.google.com'}
 //  - {name: TAQMan LOA primers, url: 'http://www.google.com'}
             
-            HashMap<String, Object> map4 = new HashMap<>();
+            HashMap<String, String> map4 = new HashMap<>();
             map4.put("name", "Genotyping primers");
             map4.put("url", "http://www.google.com");
-            List<HashMap<String, Object>> list4 = new ArrayList<>();
+            List<HashMap<String, String>> list4 = new ArrayList<>();
             list4.add(map4);
             
             summary.put("tools", list4);    // FIX-ME!
