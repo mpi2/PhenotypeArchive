@@ -6,14 +6,19 @@ import="java.text.NumberFormat,java.text.DecimalFormat"
 <jsp:doBody var="theBody"/>
 
 <%
+
+String textout ="";
 String num = (String) jspContext.getAttribute("theBody");
+if(num !=null && !num.equals("")){
 Double value = Double.parseDouble(num);
 
 NumberFormat formatter =  new DecimalFormat("0.#####E0");
 
-String textout = String.format("%1.5G",value).replace("E", " &#215; 10<sup>") + "</sup>";
+textout = String.format("%1.5G",value).replace("E", " &#215; 10<sup>") + "</sup>";
 
 textout = String.format("%1.5G",value);
+}
+	
 %>
 
 <%= textout %>
