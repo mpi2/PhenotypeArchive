@@ -21,10 +21,7 @@ public interface PhenotypeSummaryDAO {
 	// Returns a string concatenation of all data sources for a given set
 	public abstract HashSet<String> getDataSourcesForPhenotypesSet(
 			SolrDocumentList resp);
-	
-	public abstract String getSummary (
-			String gene) throws SolrServerException ;
-	
+		
 	public abstract PhenotypeSummaryBySex getSummaryObjects(String gene) throws Exception;
 	
 }

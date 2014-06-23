@@ -230,11 +230,23 @@ public class GenotypePhenotypeService {
 
 	public SolrDocumentList getPhenotypesForTopLevelTerm(String gene,
 			String mpID) throws SolrServerException {
-		SolrDocumentList result = runQuery(GenotypePhenotypeField.MARKER_ACCESSION_ID
-				+ ":\""
-				+ gene
-				+ "\" AND "
-				+ GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID
+		
+		String query;
+		if (gene.equalsIgnoreCase("*")){
+			query = GenotypePhenotypeField.MARKER_ACCESSION_ID
+					+ ":"
+					+ gene
+					+ " AND ";
+		}
+		else {
+			query = GenotypePhenotypeField.MARKER_ACCESSION_ID
+					+ ":\""
+					+ gene
+					+ "\" AND ";
+			
+		}
+		
+		SolrDocumentList result = runQuery(query + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID
 				+ ":\""
 				+ mpID
 				+ "\"");
@@ -242,9 +254,7 @@ public class GenotypePhenotypeService {
 		if (result.size() == 0 || result == null)
 			// result = runQuery("marker_accession_id:" + gene.replace(":",
 			// "\\:") + " AND mp_term_id:" + mpID.replace(":", "\\:"));
-			result = runQuery(GenotypePhenotypeField.MARKER_ACCESSION_ID
-					+ ":\"" + gene + "\" AND "
-					+ GenotypePhenotypeField.MP_TERM_ID + ":\"" + mpID + "\"");// AND
+			result = runQuery(query + GenotypePhenotypeField.MP_TERM_ID + ":\"" + mpID + "\"");// AND
 																				// -" + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC");
 		return result;
 	}
@@ -269,9 +279,13 @@ public class GenotypePhenotypeService {
 		HashMap<String, String> tl = new HashMap<String, String>();
 		// SolrDocumentList result = runQuery("marker_accession_id:" +
 		// gene.replace(":", "\\:"));
-		SolrDocumentList result = runQuery(GenotypePhenotypeField.MARKER_ACCESSION_ID
-				+ ":\"" + gene + "\"");// AND
-										// -" + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC");
+		SolrDocumentList result;
+		if (gene.equalsIgnoreCase("*")){
+			result = runQuery(GenotypePhenotypeField.MARKER_ACCESSION_ID + ":" + gene);
+		} else {
+			result = runQuery(GenotypePhenotypeField.MARKER_ACCESSION_ID + ":\"" + gene + "\"");			
+		}
+		
 		if (result.size() > 0) {
 			for (int i = 0; i < result.size(); i++) {
 				SolrDocument doc = result.get(i);
@@ -669,17 +683,7 @@ public class GenotypePhenotypeService {
 			Project project = new Project();
 			project.setName(phen.getString(GenotypePhenotypeField.PROJECT_NAME));
 			project.setDescription(phen
-					.getString(GenotypePhenotypeField.PROJECT_FULLNAME)); // is
-																			// this
-																			// right
-																			// for
-																			// description?
-																			// no
-																			// other
-																			// field
-																			// in
-																			// solr
-																			// index!!!
+					.getString(GenotypePhenotypeField.PROJECT_FULLNAME)); // is this right for description? no other field in solr index!!!
 			if (phen.containsKey(GenotypePhenotypeField.PROJECT_EXTERNAL_ID)) {
 				sum.setExternalId(phen
 						.getInt(GenotypePhenotypeField.PROJECT_EXTERNAL_ID));

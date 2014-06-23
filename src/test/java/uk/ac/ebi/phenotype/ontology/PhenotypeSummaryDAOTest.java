@@ -36,7 +36,22 @@ public class PhenotypeSummaryDAOTest  extends AbstractTransactionalJUnit4SpringC
 	GenotypePhenotypeService gpService;
 	String testGene = "MGI:104874";
 	
-	@Test
+	@Test 
+	public void testPhenotypeSummaryForAllGenes(){
+		System.out.println( ">> testPhenotypeSummaryForAllGenes");
+		try {
+			System.out.println(phenotypeSummary.getSummaryObjects("*").getFemalePhenotypes().size());
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}
+		System.out.println(">> done.");
+	}
+	
+
+//	@Test
 	public void testGetSexesRepresentationForPhenotypesSet() throws MalformedURLException, SolrServerException{
 		HashMap<String, String> summary;
 		summary = gpService.getTopLevelMPTerms(testGene);	
@@ -50,7 +65,7 @@ public class PhenotypeSummaryDAOTest  extends AbstractTransactionalJUnit4SpringC
 		
 	}
 
-	@Test
+//	@Test
 	public void testGetDataSourcesForPhenotypesSet() throws MalformedURLException, SolrServerException{
 		HashMap<String, String> summary;
 		summary = gpService.getTopLevelMPTerms(testGene);	
@@ -61,7 +76,7 @@ public class PhenotypeSummaryDAOTest  extends AbstractTransactionalJUnit4SpringC
 		}
 	}
 	
-	@Test
+//	@Test
 	public void testNonExistingGeneName() throws SolrServerException, MalformedURLException{
 		System.out.println("Testing inexisting gene name...");
 		String gene = "ilincasMadeUpGene";
