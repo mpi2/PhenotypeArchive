@@ -88,6 +88,8 @@ public class AllelesController {
         model.addAttribute("targeting_vectors", constructs.get("targeting_vectors"));
         model.addAttribute("summary", constructs.get("summary"));
 
+        log.info("#### summary: " + constructs.get("summary"));
+        
 //        Yaml yaml = new Yaml();
 //        String content = FileUtils.readFileToString(new File("/var/tmp/yaml_test.yml"));
 //        Map<String, Object> list = (Map<String, Object>) yaml.load(content);
