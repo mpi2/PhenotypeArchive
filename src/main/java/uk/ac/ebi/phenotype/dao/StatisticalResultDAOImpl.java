@@ -136,6 +136,19 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 		}
 		
 		
+		/**
+		 * Get all continuous parameters:
+		 * - MM 
+		 * - Rank Sum test
+		 * To be able to achieve that, we need to separate the queries
+		 */
+		
+		String rankSumTest = "Wilcoxon rank sum test with continuity correction";
+		
+		/**
+		 * Mixed model
+		 */
+		
 		query = 
 				"SELECT param.stable_id AS parameter_stable_id,"
 				+ "c.null_test_significance AS p_value, 0 AS effect_size, "
@@ -149,7 +162,8 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 				+ "ON pip.id = c.pipeline_id JOIN biological_model_allele bma "
 				+ "ON bma.biological_model_id = c.experimental_id JOIN organisation o "
 				+ "ON o.id = c.organisation_id "
-				+ "WHERE pip.stable_id = ? AND o.name = ? AND bma.allele_acc = ? "
+				+ "WHERE c.statistical_method <> ?"
+				+ " AND pip.stable_id = ? AND o.name = ? AND bma.allele_acc = ? "
 				//+ "ORDER by param.stable_id asc, c.null_test_significance desc, c.male_mutants desc, c.female_mutants desc";
 				+ "ORDER by param.stable_id asc, c.status asc, c.null_test_significance desc, c.male_mutants asc, c.female_mutants asc";
 		
@@ -158,9 +172,10 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 		try (Connection connection = getConnection()) {
 			
 			statement = connection.prepareStatement(query);
-			statement.setString(1, pipelineStableId);
-			statement.setString(2, phenotypingCenter);
-			statement.setString(3, alleleAccession);
+			statement.setString(1, rankSumTest);
+			statement.setString(2, pipelineStableId);
+			statement.setString(3, phenotypingCenter);
+			statement.setString(4, alleleAccession);
 			
 			resultSet = statement.executeQuery();
 			
@@ -193,6 +208,75 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 					 );
 
 			}
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+			/*
+			 * Wilcoxon Rank Sum test 
+			 */
+			
+			query = 
+					"SELECT param.stable_id AS parameter_stable_id,"
+					+ "LEAST(c.gender_female_ko_pvalue, c.gender_male_ko_pvalue) AS p_value, "
+					+ "0 AS effect_size, "
+					+ "c.status AS status, c.statistical_method AS statistical_method, "
+					// note that control_sex has no meaning in this case
+					+ "'male' as control_sex, c.experimental_zygosity, "
+					+ "c.male_controls, c.male_mutants, c.female_controls, c.female_mutants, "
+					+ "c.metadata_group "
+					+ "FROM stats_unidimensional_results c JOIN phenotype_parameter param "
+					+ "ON param.id = c.parameter_id JOIN phenotype_pipeline pip "
+					+ "ON pip.id = c.pipeline_id JOIN biological_model_allele bma "
+					+ "ON bma.biological_model_id = c.experimental_id JOIN organisation o "
+					+ "ON o.id = c.organisation_id "
+					+ "WHERE c.statistical_method = ?"
+					+ " AND pip.stable_id = ? AND o.name = ? AND bma.allele_acc = ? "
+					//+ "ORDER by param.stable_id asc, c.null_test_significance desc, c.male_mutants desc, c.female_mutants desc";
+					+ "ORDER by param.stable_id asc, c.status asc, c.null_test_significance desc, c.male_mutants asc, c.female_mutants asc";
+			
+			System.out.println(query);
+			
+			try (Connection connection = getConnection()) {
+				
+				statement = connection.prepareStatement(query);
+				statement.setString(1, rankSumTest);
+				statement.setString(2, pipelineStableId);
+				statement.setString(3, phenotypingCenter);
+				statement.setString(4, alleleAccession);
+				
+				resultSet = statement.executeQuery();
+				
+				while (resultSet.next()) {
+					
+					
+					String parameterStableId = resultSet.getString("parameter_stable_id");
+					List<StatisticalResultBean> lb = null;
+					
+					if (results.containsKey(parameterStableId)) {
+						lb = results.get(parameterStableId);
+					} else {
+						lb = new ArrayList<StatisticalResultBean>();
+						results.put(parameterStableId, lb);
+					} 
+					
+					lb.add(
+								new StatisticalResultBean(
+										resultSet.getDouble("p_value"), 
+										resultSet.getDouble("effect_size"),
+										resultSet.getString("status"),
+										resultSet.getString("statistical_method"),
+										"both",
+										resultSet.getString("experimental_zygosity"),
+										resultSet.getInt("male_controls"),
+										resultSet.getInt("male_mutants"),
+										resultSet.getInt("female_controls"),
+										resultSet.getInt("female_mutants"),
+										resultSet.getString("metadata_group"))
+						 );
+
+				}			
+			
 		}catch (SQLException e) {
 			e.printStackTrace();
 		}

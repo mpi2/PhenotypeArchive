@@ -1,6 +1,7 @@
 package uk.ac.ebi.phenotype.web.util;
 
 import java.util.Map;
+import java.util.Properties;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -54,7 +55,15 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 		}
 
 
-		request.setAttribute("drupalBaseUrl", config.get("drupalBaseUrl"));
+        request.setAttribute("version", config.get("version"));
+
+        if(config.get("liveSite").equals("false")) {
+            // If development mode, always get the js files by setting
+            // a different version on each pageload
+            request.setAttribute("version", System.currentTimeMillis());
+        }
+
+        request.setAttribute("drupalBaseUrl", config.get("drupalBaseUrl"));
 		request.setAttribute("mediaBaseUrl", config.get("mediaBaseUrl"));
 		request.setAttribute("solrUrl",config.get("solrUrl"));
 		request.setAttribute("internalSolrUrl",config.get("internalSolrUrl"));

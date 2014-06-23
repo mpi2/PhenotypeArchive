@@ -7,23 +7,6 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
 <%@ taglib uri="http://htmlcompressor.googlecode.com/taglib/compressor" prefix="compress" %>
 
 <%
-        /*
-        This block sets the version number to be displayed in the footer
-        by reading it from the Implemtation-Version in the manifest. That
-        gets set by Maven whenever the app is deployed and the version number
-        is the same as in the POM. Overridden for DEV,BETA, and local (non-maven)
-        deployments.
-        */
-        Properties prop = new Properties();
-        prop.load( application.getResourceAsStream("/META-INF/MANIFEST.MF"));
-        String version = prop.getProperty("Implementation-Version");
-        if (request.getRequestURL().toString().toLowerCase().contains("beta")) {
-                version = "<span class='label label-important'>BETA</span>";
-        }
-        if (request.getRequestURL().toString().toLowerCase().contains("dev") || version == null) {
-                version = "<span class='label label-important'>development</span>";
-        }
-        jspContext.setAttribute("version", version);
 
         /*
         Get the menu JSON array from drupal, fallsback to a default menu when drupal
@@ -129,28 +112,23 @@ try {
 <!-- NEW DESIGN JAVASCRIPT -->
 
 <!-- javascript -->
-<script type="text/javascript" src="${initParam['baseUrl']}/js/head.min.js"></script>
+<script type="text/javascript" src="${initParam['baseUrl']}/js/head.min.js?v=${version}"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script type='text/javascript' src='${initParam["baseUrl"]}/js/vendor/DataTables-1.9.4/jquery.dataTables.js'></script>
-<script type='text/javascript' src='${initParam["baseUrl"]}/js/vendor/DataTables-1.9.4/core.filter.js'></script>
-<script type='text/javascript' src='${initParam["baseUrl"]}/js/vendor/DataTables-1.9.4/TableTools.min.js'></script>
- <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
- <!--   
-<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.ui.core.min.js"></script>
-<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.ui.widget.min.js"></script>
-<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.ui.mouse.min.js"></script>
-<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.ui.slider.min.js"></script>
--->
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<script type='text/javascript' src='${initParam["baseUrl"]}/js/vendor/DataTables-1.9.4/jquery.dataTables.js?v=${version}'></script>
+<script type='text/javascript' src='${initParam["baseUrl"]}/js/vendor/DataTables-1.9.4/core.filter.js?v=${version}'></script>
+<script type='text/javascript' src='${initParam["baseUrl"]}/js/vendor/DataTables-1.9.4/TableTools.min.js?v=${version}'></script>
+
 <!--[if lt IE 9 ]><script type="text/javascript" src="js/selectivizr-min.js"></script><![endif]-->
-<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.js"></script>
-<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.pack.js"></script>
-<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.tablesorter.min.js"></script>
-<script type='text/javascript' src='${initParam["baseUrl"]}/js/charts/highcharts.js'></script>
-<script type='text/javascript' src='${initParam["baseUrl"]}/js/charts/highcharts-more.js'></script>
-<script type='text/javascript' src='${initParam["baseUrl"]}/js/charts/exporting.js'></script>
-<script type='text/javascript' src="${initParam['baseUrl']}/js/general/toggle.js"></script> 
+<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.js?v=${version}"></script>
+<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.pack.js?v=${version}"></script>
+<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.tablesorter.min.js?v=${version}"></script>
+<script type='text/javascript' src='${initParam["baseUrl"]}/js/charts/highcharts.js?v=${version}'></script>
+<script type='text/javascript' src='${initParam["baseUrl"]}/js/charts/highcharts-more.js?v=${version}'></script>
+<script type='text/javascript' src='${initParam["baseUrl"]}/js/charts/exporting.js?v=${version}'></script>
+<script type='text/javascript' src="${initParam['baseUrl']}/js/general/toggle.js?v=${version}"></script> 
 		
-<script type="text/javascript" src="${initParam['baseUrl']}/js/default.js"></script>
+<script type="text/javascript" src="${initParam['baseUrl']}/js/default.js?v=${version}"></script>
 
 <jsp:invoke fragment="header" />
 
@@ -253,11 +231,11 @@ try {
 	</c:otherwise>
 	</c:choose>
 
-	    <!-- <script type="text/javascript" src='${initParam['baseUrl']}/js/script.min.js' ></script>-->
+	    <!-- <script type="text/javascript" src='${initParam['baseUrl']}/js/script.min.js?v=${version}' ></script>-->
 	    	    
-	    <script type='text/javascript' src='${initParam["baseUrl"]}/js/utils/tools.js'></script>                 
-	    <script type='text/javascript' src='${initParam["baseUrl"]}/js/general/ui.dropdownchecklist_modif.js'></script>     	    
-	    <script type='text/javascript' src='${initParam["baseUrl"]}/js/documentationConfig.js'></script>   	     
+	    <script type='text/javascript' src='${initParam["baseUrl"]}/js/utils/tools.js?v=${version}'></script>                 
+	    <script type='text/javascript' src='${initParam["baseUrl"]}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>     	    
+	    <script type='text/javascript' src='${initParam["baseUrl"]}/js/documentationConfig.js?v=${version}'></script>
 	    
 	    <script type='text/javascript'>
 	    	$(document).ready(function(){

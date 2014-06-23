@@ -18,8 +18,8 @@
 		.thumbnail p{line-height:0.75em;}
 		</style>
 
-		<script src="${baseUrl}/js/vendor/jquery.autopager-1.0.0.js"></script>
-		<script src="${baseUrl}/js/imaging/imageUtils.js"></script>
+		<script src="${baseUrl}/js/vendor/jquery.autopager-1.0.0.js?v=${version}"></script>
+		<script src="${baseUrl}/js/imaging/imageUtils.js?v=${version}"></script>
     </jsp:attribute>
 
 	<jsp:attribute name="addToFooter">
