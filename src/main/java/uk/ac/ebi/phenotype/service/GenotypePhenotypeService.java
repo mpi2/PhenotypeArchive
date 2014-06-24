@@ -519,9 +519,8 @@ public class GenotypePhenotypeService {
 				// System.out.println("pValue="+pValue);
 				if (pValue != null) {
 					unidimensionalResult.setId(Integer
-							.parseInt(phenoCallSummaryId));// one id for each
-															// document and for
-															// each sex
+							.parseInt(phenoCallSummaryId));
+					// one id for each document and for each sex
 					unidimensionalResult.setpValue(Double.valueOf(pValue));
 					unidimensionalResult.setZygosityType(ZygosityType
 							.valueOf(zygosity));
@@ -550,14 +549,8 @@ public class GenotypePhenotypeService {
 
 				// System.out.println("pValue="+pValue);
 				// if(pValue!=null) {
-				catResult.setId(Integer.parseInt(phenoCallSummaryId));// one id
-																		// for
-																		// each
-																		// document
-																		// and
-																		// for
-																		// each
-																		// sex
+				catResult.setId(Integer.parseInt(phenoCallSummaryId));
+				// one id for each document and for each sex
 				catResult.setpValue(Double.valueOf(pValue));
 				catResult.setZygosityType(ZygosityType.valueOf(zygosity));
 				catResult.setEffectSize(new Double(Double.valueOf(effectSize)));

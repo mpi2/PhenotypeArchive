@@ -29,9 +29,11 @@ public class MpService {
 
     private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
-    private static String TOP_LEVEL_MP_TERM="top_level_mp_term";
+
     public static final class MpField {
         public final static String MP_TERM_ID = "mp_id";
+        private static String TOP_LEVEL_MP_TERM = "top_level_mp_term";
+        private static String CHILD_MP_ID = "child_mp_id";
     }
     
     public MpService(String solrUrl) {
@@ -89,4 +91,26 @@ public class MpService {
 		return allTopLevelPhenotypes;
 	}
 
+    public ArrayList<String> getChildrenFor(String mpId) throws SolrServerException{
+    
+    	SolrQuery solrQuery = new SolrQuery();
+    	solrQuery.setQuery(MpField.MP_TERM_ID + ":\"" + mpId + "\"");
+    	solrQuery.setFields(MpField.CHILD_MP_ID);
+		QueryResponse rsp = solr.query(solrQuery);
+		SolrDocumentList res = rsp.getResults();
+		
+		System.out.println(solr.getBaseURL() + "/select?" + solrQuery);
+		ArrayList<String> children = new ArrayList<String>();
+		
+        for (SolrDocument doc : res) {
+        	System.out.println(doc);
+        	if (doc.containsKey(MpField.CHILD_MP_ID)){
+        		for (Object child: doc.getFieldValues(MpField.CHILD_MP_ID)){
+        			children.add((String)child);
+        		}
+        	}
+        }
+        return children;
+    }
+    
 }

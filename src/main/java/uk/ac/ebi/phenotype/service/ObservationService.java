@@ -1192,8 +1192,6 @@ public class ObservationService {
 					ExperimentField.GENE_ACCESSION);
 			geneSymbolArray[i] = (String) resDocs.get(0).get(
 					ExperimentField.GENE_SYMBOL);
-			System.out.println("--- - " + resDocs.get(0).get(
-					ExperimentField.GENE_SYMBOL));
 			meansArray[i] = sum / total;
 			i++;
 		}
@@ -1372,9 +1370,10 @@ public class ObservationService {
 		return resSet;
 	}
 
-	public int getTestedGenes(String phenotypeId, String sex,
+	public int getTestedGenes(String sex,
 			List<String> parameters) throws SolrServerException {
-
+		
+		System.out.println("::::::::::::: Getting tested genes for : "+ parameters.size() + parameters.get(0));
 		List<String> genes = new ArrayList<String>();
 		for (String parameter : parameters) {
 			SolrQuery query = new SolrQuery()
@@ -1393,7 +1392,7 @@ public class ObservationService {
 			}
 			// I need to add the genes to a hash in case some come up multiple
 			// times from different parameters
-			// System.out.println("=====" + solr.getBaseURL() + query);
+			System.out.println("=====" + solr.getBaseURL() + query);
 			List<Group> groups = solr.query(query).getGroupResponse()
 					.getValues().get(0).getValues();
 			for (Group gr : groups) {

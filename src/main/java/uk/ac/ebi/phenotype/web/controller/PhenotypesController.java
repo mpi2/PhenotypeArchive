@@ -77,6 +77,7 @@ import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.Synonym;
 import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ExperimentDTO;
@@ -118,9 +119,12 @@ public class PhenotypesController {
 
 	@Autowired
 	private ExperimentService experimentService;
-	
+
 	@Autowired
 	GenotypePhenotypeService gpService;
+	
+	@Autowired
+	MpService mpService;
 	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
@@ -435,28 +439,28 @@ public class PhenotypesController {
 		int total = 0;
 		int nominator = 0;
 		
-		List<String> parameters = pipelineDao.getParameterStableIdsByPhenotypeTerm(phenotype_id);
+		List<String> parameters = new ArrayList<>(getParameterStableIdsByPhenotypeAndChildren(phenotype_id));
 		// males & females	
 		nominator = gpService.getGenesBy(phenotype_id, null).size();
- 		total = os.getTestedGenes(phenotype_id, null, parameters);
+ 		total = os.getTestedGenes(null, parameters);
  		pgs.setTotalPercentage(100*(float)nominator/(float)total);
 		pgs.setTotalGenesAssociated(nominator);
 		pgs.setTotalGenesTested(total);
-
+		System.out.println("   - - - - Total : " + nominator + " out of " + total);
 		boolean display = (total > 0 && nominator > 0) ? true : false;
 		pgs.setDisplay(display);		
 
 		if (display){
 			//females only
 			nominator = gpService.getGenesBy(phenotype_id, "female").size();
-			total = os.getTestedGenes(phenotype_id, "female", parameters);
+			total = os.getTestedGenes("female", parameters);
 			pgs.setFemalePercentage(100*(float)nominator/(float)total);
 			pgs.setFemaleGenesAssociated(nominator);
 			pgs.setFemaleGenesTested(total);
 
 			//males only
 			nominator = gpService.getGenesBy(phenotype_id, "male").size();
-			total = os.getTestedGenes(phenotype_id, "male", parameters);
+			total = os.getTestedGenes("male", parameters);
 			pgs.setMalePercentage(100*(float)nominator/(float)total);
 			pgs.setMaleGenesAssociated(nominator);
 			pgs.setMaleGenesTested(total);
@@ -467,12 +471,34 @@ public class PhenotypesController {
 	
 	public Map<String, String> getParameters(String mpId) throws SolrServerException {
 		Map<String, String> res = new HashMap<String, String>();
-		List<String> paramIds = pipelineDao.getParameterStableIdsByPhenotypeTerm(mpId);
+		HashSet<String> paramIds = getParameterStableIdsByPhenotypeAndChildren(mpId);
 		for (String param : paramIds){
 			if (gpService.getGenesAssocByParamAndMp(param, mpId).size() > 0){
 				Parameter p =  pipelineDao.getParameterByStableId(param);
 				res.put(param,p.getName());
 			}
+		}
+		return res;
+	}
+	
+	/**
+	 * 
+	 * @param mpTermId
+	 * @return List of all parameters associated to the mp term or any of it's children (based on the slim only)
+	 */
+	public HashSet<String> getParameterStableIdsByPhenotypeAndChildren(String mpTermId) {
+		HashSet<String> res = new HashSet<>();
+		ArrayList<String> mpIds;
+		try {
+			mpIds = mpService.getChildrenFor(mpTermId);
+			System.out.println("  --  " + mpTermId + " has " + mpIds.size()+ "  and res is " + res.size());
+			res.addAll(pipelineDao.getParameterStableIdsByPhenotypeTerm(mpTermId));
+			for(String mp : mpIds){
+				System.out.println("  --  " + mp + " has " + pipelineDao.getParameterStableIdsByPhenotypeTerm(mp).size() + "  and res is " + res.size());
+				res.addAll(pipelineDao.getParameterStableIdsByPhenotypeTerm(mp));
+			}
+		} catch (SolrServerException e) {
+			e.printStackTrace();
 		}
 		return res;
 	}
