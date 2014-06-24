@@ -40,6 +40,11 @@
 		
 		<!-- Why it is there? I don't know -->
 		<script type="text/javascript">var gene_id = '${allele.gene.id.accession}';</script>
+		
+		<!-- Assign this as a variable for other components -->
+		<script type="text/javascript">
+			var base_url = '${baseUrl}';
+		</script>
         
   </jsp:attribute>
 
@@ -92,6 +97,7 @@
 							<th class="headerSort">Parameter</th>
 							<th class="headerSort">Zygosity</th>
 							<th class="headerSort">Mutants</th>
+							<th class="headerSort">Statistical</br>Method</th>
 							<th class="headerSort">P Value</th>
 							<th class="headerSort">Status</th>
 							<th class="headerSort">Graph</th>
@@ -119,6 +125,8 @@
 							<td>${pValueItem.femaleMutants}f:${pValueItem.maleMutants}m</td>
 						</c:otherwise>
 						</c:choose>
+						<!-- Statistical Method -->
+								<td>${pValueItem.statisticalMethod}</td>
 						<!-- pValue -->
 						<c:choose>
 						<c:when test="${ ! empty pValueItem && pValueItem.isSuccessful }">
@@ -153,10 +161,10 @@
 
 	<script type="text/javascript">
 	$(document).ready(function() {
-		  var oTable = $('#strainPhenome').dataTable();
+		  var oTable = $('#strainPvalues').dataTable();
 
 		  // Sort immediately with p-value column starting with the lowest one
-		  oTable.fnSort( [ [4,'asc'] ] );
+		  oTable.fnSort( [ [5,'asc'] ] );
 		} );
 	
 	</script>
