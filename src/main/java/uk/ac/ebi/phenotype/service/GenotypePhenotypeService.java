@@ -116,9 +116,11 @@ public class GenotypePhenotypeService {
 						+ ":\"MGI:2164831\")").setRows(10000);
 		q.set("group.field", "" + GenotypePhenotypeField.MARKER_SYMBOL);
 		q.set("group", true);
+		q.set("group.limit", 0);
 		if (sex != null) {
 			q.addFilterQuery(GenotypePhenotypeField.SEX + ":" + sex);
 		}
+		System.out.println("++++++++++  " + solr.getBaseURL() + "/select?"+ q);
 		QueryResponse results = solr.query(q);
 		return results.getGroupResponse().getValues().get(0).getValues();
 	}
