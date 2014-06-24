@@ -50,7 +50,7 @@ public class GenotypePhenotypeServiceTest extends AbstractTransactionalJUnit4Spr
     public void testGetAllPhenotypes() throws SolrServerException {
         System.out.println("run testGetAllPhenotypes");
         
-        Set<String> phenotypes = pgService.getAllPhenotypes();
+        Set<String> phenotypes = pgService.getAllPhenotypesWithGeneAssociations();
         
         if (phenotypes == null) {
             fail("GenotypePhenotypeService.getAllPhenotypes() returned null!");
