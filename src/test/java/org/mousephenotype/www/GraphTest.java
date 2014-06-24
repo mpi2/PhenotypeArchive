@@ -254,7 +254,7 @@ public class GraphTest {
     public void testRandomGraphsByPhenotype() throws SolrServerException {
         final String testName = "testRandomGraphsByPhenotype";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllPhenotypes());
+        List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllPhenotypesWithGeneAssociations());
         Collections.shuffle(phenotypeIds);                                      // Randomize the collection.
         
         String target = "";
@@ -358,7 +358,7 @@ public class GraphTest {
     public void testGraphPagesForGenesByPhenotypeStatusStartedAndProductionCentreWTSI() throws SolrServerException {
         final String testName = "testGraphPagesForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI";
 
-        List<String> geneIds = new ArrayList(geneService.getGenesByPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.PRODUCTION_CENTRE_WTSI));
+        List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI));
         
         process(testName, geneIds);
     }
