@@ -61,7 +61,16 @@ public class PhenotypeGeneSummaryDTO {
 	}
 	public void setDisplay(boolean display) {
 		this.display = display;
+	}	
+	public String getPieChartCode() {
+		return pieChartCode;
 	}
+	public void setPieChartCode(String pieChartCode) {
+		this.pieChartCode = pieChartCode;
+	}
+
+
+	private String pieChartCode;
 	
 	private boolean display;
 	

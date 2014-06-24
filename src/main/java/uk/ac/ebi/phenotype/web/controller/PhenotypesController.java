@@ -466,7 +466,29 @@ public class PhenotypesController {
 			pgs.setMaleGenesTested(total);
 		}
 		
+		pgs.setPieChartCode(getPiechart(10, 23, 25, 522));
 		return pgs;
+	}
+	
+	protected String getPiechart(int maleOnly, int femaleOnly, int both, int total){
+		String chart = "$(function () { $('#pieChart').highcharts({ "
+				 + " chart: { plotBackgroundColor: null, plotShadow: false }, "
+				 + " title: {  text: '' }, "
+				 + " credits: { enabled: false }, "
+				 + " tooltip: {  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'  },"
+				 + " plotOptions: { pie: { allowPointSelect: true, cursor: 'pointer'," 
+				 	+ " dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.percentage:.1f} %',"
+				 		+ " style: { color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black' }"
+				 	+ "  }"
+				 + "  } },"
+			+ " series: [{  type: 'pie',   name: '',  "
+			+ "data: [ { name: 'Female only', y: " + femaleOnly + ", sliced: true, selected: true }, "
+			+ "{ name: 'Male only', y: " + maleOnly + ", sliced: true, selected: true }, "
+			+ "{ name: 'Both sexes', y: " + both + ", sliced: true, selected: true }, "
+			+ "['Phenotype not present', " + (total- maleOnly - femaleOnly - both) + " ] ]  }]"
+		+" }); });";
+		
+		return chart;
 	}
 	
 	public Map<String, String> getParameters(String mpId) throws SolrServerException {
