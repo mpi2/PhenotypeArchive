@@ -201,7 +201,7 @@ public class GenesController {
 		PhenotypeSummaryBySex phenotypeSummaryObjects = null;
 
 		try {
-		model.addAttribute("phenotypeSummary", phenSummary.getSummary(acc));
+//		model.addAttribute("phenotypeSummary", phenSummary.getSummary(acc));
 		phenotypeSummaryObjects =  phenSummary.getSummaryObjects(acc);
 		model.addAttribute("phenotypeSummaryObjects",phenotypeSummaryObjects);
 		} catch (Exception e){

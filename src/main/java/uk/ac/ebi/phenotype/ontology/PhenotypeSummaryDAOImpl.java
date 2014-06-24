@@ -42,6 +42,7 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 	public String getSexesRepresentationForPhenotypesSet(SolrDocumentList resp) {
 		String resume = ""; 
 		if (resp.size() > 0) {
+			System.out.println("size > 0");
 			for (int i = 0; i < resp.size(); i++) {
 				SolrDocument doc = resp.get(i);
 				if ("male".equalsIgnoreCase((String) doc.getFieldValue("sex")))
@@ -70,50 +71,17 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 		}	
 		return data;
 	}
-
-	@Override
-	public String getSummary(String gene) throws SolrServerException {
-		HashMap<String, String> summary = gpService.getTopLevelMPTerms(gene);	
-		String res = "Phenotype Summary based on automated MP annotations supported by experiments from ";
-		res += getDataSourcesForPhenotypesSet(gpService.getPgehnotypes(gene));
-		res +=" on knockout mouse models\n\n";
-		String m = "";
-		String f = "";
-		String mf = ""; 
-		
-		for (String id: summary.keySet()){
-			SolrDocumentList resp = gpService.getPhenotypesForTopLevelTerm(gene, id);
-			String sex = getSexesRepresentationForPhenotypesSet(resp);
-			if (sex.equals("male"))
-				m += " " + summary.get(id) + " ("+id+"), in data from " + 
-						getDataSourcesForPhenotypesSet(resp) + "\t" + "(" + resp.getNumFound() + ")\n";
-			else if (sex.equals("female"))
-				f += " " + summary.get(id) + " ("+id+"), in data from " + 
-						getDataSourcesForPhenotypesSet(resp) + "\t" + "(" + resp.getNumFound() + ")\n";
-			else mf += " " + summary.get(id) + " ("+id+"), in data from " + 
-					getDataSourcesForPhenotypesSet(resp) + "\t" + "(" + resp.getNumFound() + ")\n";
-	//		res += summary.get(id) + " ("+id+") appears in " +  sex + ", in data from " + 
-	//				getDataSourcesForPhenotypesSet(resp) + "\t" + "(" + resp.getNumFound() + ")\n";
-		}
-		if (!mf.equalsIgnoreCase("")){
-			res += "Both sexes have the following phenotypic abnormalities\n" + mf;
-		}
-		if (!f.equalsIgnoreCase("")){
-			res += "Following phenotypic abnormalities occured in females only\n" + f;
-		}
-		if (!m.equalsIgnoreCase("")){
-			res += "Following phenotypic abnormalities occured in males only\n" + m;
-		}
-		return res;
-	}
 	
 	@Override
 	public PhenotypeSummaryBySex getSummaryObjects(String gene) throws Exception{
 		PhenotypeSummaryBySex res = new PhenotypeSummaryBySex();
-		HashMap<String, String> summary = gpService.getTopLevelMPTerms(gene);		
+		HashMap<String, String> summary = gpService.getTopLevelMPTerms(gene);	
+		System.out.println("Here are the top level terms : " + summary.keySet());
 		for (String id: summary.keySet()){
 			SolrDocumentList resp = gpService.getPhenotypesForTopLevelTerm(gene, id);
+			System.out.println("Num found: " + resp.getNumFound());
 			String sex = getSexesRepresentationForPhenotypesSet(resp);
+			System.out.println("Sex: " + sex);
 			HashSet<String> ds = getDataSourcesForPhenotypesSet(resp);
 			long n = resp.getNumFound();
 			PhenotypeSummaryType phen = new PhenotypeSummaryType(id, summary.get(id), sex, n, ds);

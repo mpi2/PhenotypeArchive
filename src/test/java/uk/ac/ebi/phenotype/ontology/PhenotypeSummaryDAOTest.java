@@ -36,6 +36,21 @@ public class PhenotypeSummaryDAOTest  extends AbstractTransactionalJUnit4SpringC
 	GenotypePhenotypeService gpService;
 	String testGene = "MGI:104874";
 	
+//	@Test 
+	public void testPhenotypeSummaryForAllGenes(){
+		System.out.println( ">> testPhenotypeSummaryForAllGenes");
+		try {
+			System.out.println(phenotypeSummary.getSummaryObjects("*").getFemalePhenotypes().size());
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}
+		System.out.println(">> done.");
+	}
+	
+
 	@Test
 	public void testGetSexesRepresentationForPhenotypesSet() throws MalformedURLException, SolrServerException{
 		HashMap<String, String> summary;

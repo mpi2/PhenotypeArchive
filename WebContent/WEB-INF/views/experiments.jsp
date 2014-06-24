@@ -35,8 +35,8 @@
 		<!-- link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css"/-->
 		
 		<!-- JavaScript Local Imports -->
-		<script src="${baseUrl}/js/general/dropdownfilters.js"></script>
-		<script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
+		<script type="text/javascript" src="${baseUrl}/js/general/dropdownfilters.js?v=${version}"></script>
+		<script type="text/javascript" src="${baseUrl}/js/general/allele.js?v=${version}"></script>
 		
 		<!-- Why it is there? I don't know -->
 		<script type="text/javascript">var gene_id = '${allele.gene.id.accession}';</script>

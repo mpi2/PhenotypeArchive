@@ -1,5 +1,7 @@
 package uk.ac.ebi.phenotype.web.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -54,7 +56,15 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 		}
 
 
-		request.setAttribute("drupalBaseUrl", config.get("drupalBaseUrl"));
+        request.setAttribute("version", config.get("version"));
+
+        if(config.get("liveSite").equals("false")) {
+            // If DEV or BETA, refresh the cache daily
+            String dateStamp = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
+            request.setAttribute("version", dateStamp);
+        }
+
+        request.setAttribute("drupalBaseUrl", config.get("drupalBaseUrl"));
 		request.setAttribute("mediaBaseUrl", config.get("mediaBaseUrl"));
 		request.setAttribute("solrUrl",config.get("solrUrl"));
 		request.setAttribute("internalSolrUrl",config.get("internalSolrUrl"));

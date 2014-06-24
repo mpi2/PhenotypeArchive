@@ -86,9 +86,8 @@
 		<field name="metadata_group"  type="string" indexed="true" stored="true" multiValued="false" /> 
 		
 		<!-- images -->
-		<field name="full_resolution_file_path" type="string" indexed="true" stored="true" multiValued="false" />
-		<field name="large_thumbnail_file_path" type="string" indexed="true" stored="true" multiValued="false" />
-		<field name="small_thumbnail_file_path" type="string" indexed="true" stored="true" multiValued="false" />
+		<field name="download_file_path" type="string" indexed="true" stored="true" multiValued="false" />
+		<field name="file_type"       type="string" indexed="true" stored="true" multiValued="false" />
 
 	</fields>
 

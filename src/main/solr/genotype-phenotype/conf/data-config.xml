@@ -99,7 +99,7 @@
 					
 					<field column="term_id" name="intermediate_mp_term_id" />
 					<field column="name" name="intermediate_mp_term_name" />
-					<field column="definition" name="intermediate_mp_term_definition" />				
+					<!-- <field column="definition" name="intermediate_mp_term_definition" />	-->			
 					
 					<entity dataSource="ds2" name="parents2Syn" onError="continue"  
 						query="select * from mp_synonyms where term_id ='${parents2.term_id}'">
