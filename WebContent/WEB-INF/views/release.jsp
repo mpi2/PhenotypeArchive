@@ -227,15 +227,24 @@
 							<h3>Phenotype Associations Overview</h3>
 							<p>We provide a 'phenome' overview of statistically significant calls. 
 							By following the links below, you'll access the details of the phenotype calls for each center.</p>
-							<ul>
+							<table>
+							  <thead>
+								<tr>
+								<th class="headerSort">Phenotyping Center</th>
+								<th class="headerSort">Significant MP Calls</th>
+								<th class="headerSort">Pipeline</th>
+								</tr>
+							</thead>
+							<tbody>
 							<c:forEach var="center" items="${phenotypingCenters}">
 							<c:set var="centerMapKey" value="phenotype_pipelines_${center}" />
 							<c:set var="pipelines" value="${metaInfo[centerMapKey]}" />
 							<c:forEach var="pipeline" items="${fn:split(pipelines, ',')}">
-							<li>${center}:&nbsp;<a href="${baseUrl}/phenome?phenotyping_center=${center}&pipeline_stable_id=${pipeline}">Browse all significant MP calls</a> (pipeline ${pipeline})</a></li>
+							<tr><td>${center}</td><td><a href="${baseUrl}/phenome?phenotyping_center=${center}&pipeline_stable_id=${pipeline}">Browse</td><td>${pipeline}</td></tr>
 							</c:forEach>
 							</c:forEach>
-							</ul>
+							</tbody>
+							</table>
 							</div>
 						</div>
 					</div>

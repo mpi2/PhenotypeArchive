@@ -30,7 +30,7 @@ $(document).ready(function(){
 		              { "sType": "string"},
 		              { "sType": "string"},
 		              { "sType": "html"},
-                              { "sType": "allnumeric"},
+                      { "sType": "allnumeric"},
 		              { "sType": "string", "bSortable" : false }
 
 		              ],
@@ -40,7 +40,7 @@ $(document).ready(function(){
 	});
     }
 
-	// Sort the individual strainPhenome table
+	// Sort the individual table containing p-values
 	$.fn.dataTableExt.oSort['pvalues-asc']  = function(a,b) {
 		var x = 0;
 		var y = 0;
@@ -69,6 +69,7 @@ $(document).ready(function(){
 		              { "sType": "string" },		              
 		              { "sType": "string" },
 		              { "sType": "string" },
+		             // { "sType": "string" }, // Statistical Method			              
 		              { "sType": "pvalues" }, // or numeric
 		              { "sType": "string" },
 		              { "sType": "string", "bSortable" : false }
@@ -85,6 +86,7 @@ $(document).ready(function(){
 		              { "sType": "string" },		              
 		              { "sType": "string" },
 		              { "sType": "string" },
+		              { "sType": "string" }, // Statistical Method		              
 		              { "sType": "pvalues" }, // or numeric
 		              { "sType": "string" },
 		              { "sType": "string", "bSortable" : false }

@@ -27,7 +27,7 @@ public class StatisticalResultBean implements StatisticalSignificance {
 	private double pValue;
 	private double effectSize;
 	private String status;
-	private String method;
+	private String statisticalMethod;
 	private String controlSex; // if relevant
 	private String zygosity;
 	int maleControls; 
@@ -42,7 +42,7 @@ public class StatisticalResultBean implements StatisticalSignificance {
 	 * @param pValue
 	 * @param effectSize
 	 * @param status
-	 * @param method
+	 * @param statisticalMethod
 	 */
 	public StatisticalResultBean(
 			double pValue, double effectSize,
@@ -57,7 +57,7 @@ public class StatisticalResultBean implements StatisticalSignificance {
 		this.pValue = pValue;
 		this.effectSize = effectSize;
 		this.status = status;
-		this.method = method;
+		this.statisticalMethod = method;
 		this.controlSex = controlSex;
 		this.zygosity = zygosity;
 		this.maleControls = maleControls;
@@ -105,16 +105,16 @@ public class StatisticalResultBean implements StatisticalSignificance {
 		this.status = status;
 	}
 	/**
-	 * @return the method
+	 * @return the statisticalMethod
 	 */
-	public String getMethod() {
-		return method;
+	public String getStatisticalMethod() {
+		return statisticalMethod;
 	}
 	/**
-	 * @param method the method to set
+	 * @param statisticalMethod the statisticalMethod to set
 	 */
-	public void setMethod(String method) {
-		this.method = method;
+	public void setStatisticalMethod(String method) {
+		this.statisticalMethod = method;
 	}	
 	
 	/**
