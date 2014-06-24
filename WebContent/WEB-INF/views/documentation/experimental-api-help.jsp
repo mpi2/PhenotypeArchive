@@ -99,7 +99,17 @@
                 <tr>
                     <td>biological_sample_group</td>
                     <td>string</td>
-                    <td>indicating if the specimen was a member of the control group or the experimental group</td>
+                    <td>indicating if the specimen was a member of the control group or the experimental group (also see metadata_group)</td>
+                </tr>
+                <tr>
+                    <td>metadata_group</td>
+                    <td>string</td>
+                    <td>a string indicating a group of experimental and control mice that have the same metadata (see also biological_sample_group)</td>
+                </tr>
+                <tr>
+                    <td>metadata</td>
+                    <td>list of strings</td>
+                    <td>list showing all relevant metadata in effect when the data was collected</td>
                 </tr>
                 <tr>
                     <td>strain_accession_id</td>
