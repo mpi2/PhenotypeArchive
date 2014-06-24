@@ -91,12 +91,11 @@ public class GenePhenotypePage {
      * any failure counts and messages.
      */
     public GraphParsingStatus parse(GraphParsingStatus status) {
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         try {
-            long shortTimeoutInSeconds = 1;
             
             // Look for the 'No Phenotypes' message. If found, 'hasPhenotypeAssociations' is false; otherwise, it is true.
-            hasPhenotypeAssociations =  ! (new WebDriverWait(driver, shortTimeoutInSeconds))
-                    .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner div.alert"))).getText().contains(NO_PHENO_ASSOCIATIONS);
+            hasPhenotypeAssociations =  ! wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner div.alert"))).getText().contains(NO_PHENO_ASSOCIATIONS);
         } catch (Exception e) {
             hasPhenotypeAssociations = true;
         }
@@ -104,8 +103,7 @@ public class GenePhenotypePage {
         if (hasPhenotypeAssociations) {
             // Populate resultCount from the 'Total number of results' tag on the page.
             try {
-                String sResultCount = (new WebDriverWait(driver, timeoutInSeconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("p.resultCount"))).getText().replace(RESULT_TEXT_DISCARD, "");
+                String sResultCount = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("p.resultCount"))).getText().replace(RESULT_TEXT_DISCARD, "");
                 Integer niResultCount = Utils.tryParseInt(sResultCount);
                 if (niResultCount == null) {
                     status.addFail("Failed to convert result count '" + sResultCount + "' to integer.");
@@ -116,8 +114,7 @@ public class GenePhenotypePage {
             }
             
             try {
-                WebElement phenotypesTable = (new WebDriverWait(driver, timeoutInSeconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("table#phenotypes")));
+                WebElement phenotypesTable = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("table#phenotypes")));
                 
                 // Grab the headings.
                 List<WebElement> headings = phenotypesTable.findElements(By.cssSelector("thead tr th"));
@@ -138,23 +135,29 @@ public class GenePhenotypePage {
 
     /**
      * Validates this <code>GenePhenotypePage</code> instance
+     * @param isGraphRequired if true, at least one graph is required, and the
+     *        test will fail if a gene has none. If false, no graph is required.
      * @return a new <code>GraphParsingStatus</code> status instance containing
      * failure counts and messages.
      */
-    public final GraphParsingStatus validate() {
-        return validate(new GraphParsingStatus());
+    public final GraphParsingStatus validate(boolean isGraphRequired) {
+        return validate(new GraphParsingStatus(), isGraphRequired);
     }
     
     /**
      * Validates this <code>GenePhenotypePage</code> instance, using the caller-provided
      * status instance
      * @param status caller-supplied status instance to be used
+     * @param isGraphRequired if true, at least one graph is required, and the
+     *        test will fail if a gene has none. If false, no graph is required.
      * @return the passed-in <code>GraphParsingStatus</code> status, updated with
      * any failure counts and messages.
      */
-    public final GraphParsingStatus validate(GraphParsingStatus status) {
+    public final GraphParsingStatus validate(GraphParsingStatus status, boolean isGraphRequired) {
         // Verify that every data row has a valid graph link, then validate each link. Count the Sex icons along the way for later check.
         int sexIconCount = 0;
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+        int i = 0;
         for (GenePhenotypeRow row : data) {
             // Count the Sex icons.
             if ((row.getSexGrouping() == SexGrouping.male) || (row.getSexGrouping() == SexGrouping.female))
@@ -166,11 +169,11 @@ public class GenePhenotypePage {
             status = row.validate(status);
             try {
                 driver.get(row.getGraphHref());
-                (new WebDriverWait(driver, timeoutInSeconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("h2#section-associations"))).getText().contains("Allele");
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("h2#section-associations"))).getText().contains("Allele");
                 GraphPage graphPage = new GraphPage(driver, timeoutInSeconds, phenotypePipelineDAO);
                 graphPage.parse(status);
                 graphPage.validate(status);
+                i++;
             } catch (Exception e) {
                 status.addFail("Couldn't load graph. " + row.toString() + "\nReason: " + e.getLocalizedMessage());
             }
@@ -179,6 +182,13 @@ public class GenePhenotypePage {
         // Verify resultCount on page against the phenotype table's count of Sex icons.
         if (sexIconCount != resultCount) {
             status.addFail("Result counts don't match. Result count = " + resultCount + " but Sex icon count = " + sexIconCount);
+        }
+        
+        // If a graph is required (implying that a gene association is required) and there are none, log an error.
+        if ((isGraphRequired) && (i <= 0)) {
+            String message = "ERROR: expected phenotype association but none found for URL " + this.getUrl();
+            status.addFail(message);
+            TestUtils.sleep(timeoutInSeconds);
         }
         
         return status;

@@ -53,6 +53,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.service.GeneService;
+import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.util.Utils;
 
@@ -86,6 +87,9 @@ public class GraphTest {
    
     @Autowired
     protected GeneService geneService;
+    
+    @Autowired
+    protected MpService mpService;
     
     @Autowired
     protected GenotypePhenotypeService genotypePhenotypeService;
@@ -154,8 +158,10 @@ public class GraphTest {
      * 
      * @param testName the test name
      * @param geneIds  the set of gene ids
+     * @param isGraphRequired if true, at least one graph is required, and the
+     *        test will fail if a gene has none. If false, no graph is required.
      */
-    private void process(String testName, List<String> geneIds) {
+    private void process(String testName, List<String> geneIds, boolean isGraphRequired) {
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -166,11 +172,16 @@ public class GraphTest {
 
         int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
-        System.out.println("Some of these genes might have no phenotype associations; thus the resulting processed row count may be less than expected.");
-        System.out.println("Each processed row that is displayed is guaranteed to have phenotype associations.");
+        if (isGraphRequired) {
+            System.out.println("Expecting each gene to have a phenotype association.");
+        } else {
+            System.out.println("Some of these genes might have no phenotype associations; thus the resulting processed row count may be less than expected.");
+            System.out.println("Each processed row that is displayed is guaranteed to have phenotype associations.");
+        }
         
         // Loop through the genes, testing each one with an IMPC graph for valid page load.
         int graphsWithGenePagesCount = 0;
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
         int i = 0;
         for (String geneId : geneIds) {
 //if (i == 0) geneId = "MGI:104874";    // Akt2
@@ -187,23 +198,15 @@ public class GraphTest {
             try {
                 // Get the gene page.
                 driver.get(target);
-                (new WebDriverWait(driver, timeout_in_seconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
                 
                 GenePhenotypePage page = new GenePhenotypePage(driver, timeout_in_seconds, phenotypePipelineDAO);
                 GraphParsingStatus status = page.parse();
                 
-                // Skip over genes with no pheno association. They have no graph links to check.
-                if ( ! page.hasPhenotypeAssociations()) {
-//                    System.out.println("gene[" + i + "] URL: " + target + " - SKIPPED (no graphs)");
-                    TestUtils.sleep(thread_wait_in_ms);
-                    continue;
-                }
-            
                 graphsWithGenePagesCount++;
                 System.out.println("gene[" + graphsWithGenePagesCount + "]  (" + i + ") URL: " + target);
                 
-                page.validate(status);
+                page.validate(status, isGraphRequired);
                 
                 if (status.getFail() > 0) {
                     System.out.println(status.getFail() + " graphs failed for gene " + page.getUrl());
@@ -244,18 +247,20 @@ public class GraphTest {
     
     
     /**
-     * Fetches all phenotype IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
-     * core and tests the graph links and pages.
+     * Fetches  a random selection of all phenotype IDs (MARKER_ACCESSION_ID)
+     * from the mp core and tests the graph links and pages. It is expected that
+     * each row has one or more graphs. Fail the test if there are none.
      * 
      * @throws SolrServerException 
      */
     @Test
-//@Ignore
+@Ignore
     public void testRandomGraphsByPhenotype() throws SolrServerException {
         final String testName = "testRandomGraphsByPhenotype";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllPhenotypesWithGeneAssociations());
+        List<String> phenotypeIds = new ArrayList(mpService.getAllPhenotypes());
         Collections.shuffle(phenotypeIds);                                      // Randomize the collection.
+        boolean isGraphRequired = true;                                         // There must be at least 1 graph.
         
         String target = "";
         List<String> errorList = new ArrayList();
@@ -268,12 +273,13 @@ public class GraphTest {
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
         
         // Loop through the genes, testing each one with an IMPC graph for valid page load.
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
         int i = 0;
         for (String phenotypeId : phenotypeIds) {
 
 //if (i == 0) phenotypeId = "MP:0010119";      // undimensional
 //if (i == 1) phenotypeId = "MP:0002092";      // categorical
-            if (targetCount >= i)
+            if (i >= targetCount)
                 break;
             i++;
             
@@ -283,15 +289,14 @@ public class GraphTest {
                 // 
                 // Get the phenotype page.
                 driver.get(target);
-                (new WebDriverWait(driver, timeout_in_seconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("table#phenotypes")));
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("table#phenotypes")));
                 
                 GenePhenotypePage page = new GenePhenotypePage(driver, timeout_in_seconds, phenotypePipelineDAO);
                 GraphParsingStatus status = page.parse();
                 
                 System.out.println("gene[" + i + "] URL: " + target);
                 
-                page.validate(status);
+                page.validate(status, isGraphRequired);
                 
                 if (status.getFail() > 0) {
                     System.out.println(status.getFail() + " graphs failed for gene " + page.getUrl());
@@ -328,39 +333,102 @@ public class GraphTest {
     }
     
     /**
-     * Selects a random selection of gene pages by gene ID (count configurable
-     * by the system property MAX_GENE_TEST_PAGE_COUNT). For each such gene page
-     * this test looks for graph links matching Analysis type 'IMPC' and, for
-     * each such link found, clicks the link, validating that each link shows
-     * a valid graph page
+     * Fetches  a random selection of all gene IDs from the genoPheno core and
+     * tests the graph links and pages. It is expected that each row has one or
+     * more graphs. Fail the test if there are none.
+     * 
+     * @throws SolrServerException 
+     */
+    @Test
+@Ignore
+    public void testRandomGraphsByGene() throws SolrServerException {
+        final String testName = "testRandomGraphsByGene";
+        boolean isGraphRequired = true;                                         // There must be at least 1 graph.
+        
+        List<String> geneIds = new ArrayList(genotypePhenotypeService.getAllGenesWithPhenotypeAssociations());
+        Collections.shuffle(geneIds);
+        
+        process(testName, geneIds, isGraphRequired);
+    }
+
+    /**
+     * Fetches all gene IDs (MARKER_ACCESSION_ID) from the gene core with 
+     * phenotype status 'Complete' and phenotype centre 'WTSI' and tests the
+     * graph links and pages. Limit the test by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the number
+     * of iterations as the rvalue.
      * 
      * @throws SolrServerException 
      */
     @Test
 //@Ignore
-    public void testRandomGraphsByGene() throws SolrServerException {
-        final String testName = "testRandomGraphsByGene";
-        
-        List<String> geneIds = new ArrayList(geneService.getAllGenes());
-        Collections.shuffle(geneIds);
-        
-        process(testName, geneIds);
-    }
+    public void testGraphPagesForGenesByLatestPhenotypeStatusCompleteAndPhenotypeCentreWTSI() throws SolrServerException {
+        final String testName = "testGraphPagesForGenesByLatestPhenotypeStatusCompleteAndPhenotypeCentreWTSI";
+        boolean isGraphRequired = false;                                        // No graphs are required.
 
+        List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI));
+        
+        process(testName, geneIds, isGraphRequired);
+    }
+ 
     /**
-     * Fetches all gene IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
-     * core and tests the graph links and pages.
+     * Fetches all gene IDs (MARKER_ACCESSION_ID) from the gene core with 
+     * phenotype status 'Complete' and production centre 'WTSI' and tests the
+     * graph links and pages. Limit the test by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the number
+     * of iterations as the rvalue.
      * 
      * @throws SolrServerException 
      */
     @Test
-// @Ignore
-    public void testGraphPagesForGenesByPhenotypeStatusStartedAndProductionCentreWTSI() throws SolrServerException {
-        final String testName = "testGraphPagesForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI";
+//@Ignore
+    public void testGraphPagesForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI() throws SolrServerException {
+        final String testName = "testGraphPagesForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI";
+        boolean isGraphRequired = false;                                        // No graphs are required.
+
+        List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI));
+        
+        process(testName, geneIds, isGraphRequired);
+    }
+    
+    /**
+     * Fetches all gene IDs (MARKER_ACCESSION_ID) from the gene core with 
+     * phenotype status 'Started' and phenotype centre 'WTSI' and tests the
+     * graph links and pages. Limit the test by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the number
+     * of iterations as the rvalue.
+     * 
+     * @throws SolrServerException 
+     */
+    @Test
+//@Ignore
+    public void testGraphPagesForGenesByLatestPhenotypeStatusStartedAndPhenotypeCentreWTSI() throws SolrServerException {
+        final String testName = "testGraphPagesForGenesByLatestPhenotypeStatusStartedAndPhenotypeCentreWTSI";
+        boolean isGraphRequired = false;                                        // No graphs are required.
+
+        List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI));
+        
+        process(testName, geneIds, isGraphRequired);
+    }
+ 
+    /**
+     * Fetches all gene IDs (MARKER_ACCESSION_ID) from the gene core with 
+     * phenotype status 'Started' and production centre 'WTSI' and tests the
+     * graph links and pages. Limit the test by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the number
+     * of iterations as the rvalue.
+     * 
+     * @throws SolrServerException 
+     */
+    @Test
+//@Ignore
+    public void testGraphPagesForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI() throws SolrServerException {
+        final String testName = "testGraphPagesForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI";
+        boolean isGraphRequired = false;                                        // No graphs are required.
 
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI));
         
-        process(testName, geneIds);
+        process(testName, geneIds, isGraphRequired);
     }
     
 }

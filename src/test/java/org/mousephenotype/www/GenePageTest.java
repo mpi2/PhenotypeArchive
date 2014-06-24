@@ -152,6 +152,7 @@ public class GenePageTest {
             
         // Loop through all genes, testing each one for valid page load.
         int i = 0;
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
         for (String geneId : geneIds) {
             if (i >= targetCount) {
                 break;
@@ -163,8 +164,7 @@ public class GenePageTest {
             
             try {
                 driver.get(target);
-                (new WebDriverWait(driver, timeout_in_seconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
@@ -277,6 +277,7 @@ public class GenePageTest {
         
         // Loop through all non-conforming genes, testing each one for valid page load (they will likely fail).
         int i = 0;
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
         for (String geneId : geneIds) {
             if (i >= targetCount) {
                 break;
@@ -288,8 +289,7 @@ public class GenePageTest {
 
             try {
                 driver.get(target);
-                (new WebDriverWait(driver, timeout_in_seconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
@@ -371,6 +371,7 @@ public class GenePageTest {
         
         // Loop through all genes, testing each one for valid page load.
         int i = 0;
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
         for (String geneId : geneIds) {
             if (i >= targetCount) {
                 break;
@@ -383,8 +384,7 @@ public class GenePageTest {
             // Wait for page to load.
             try {
                 driver.get(target);
-                (new WebDriverWait(driver, timeout_in_seconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
@@ -507,6 +507,7 @@ public class GenePageTest {
         
         // Loop through all genes, testing each one for valid page load.
         int i = 0;
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
         for (String geneId : geneIds) {
             if (i >= targetCount) {
                 break;
@@ -519,8 +520,7 @@ public class GenePageTest {
             // Wait for page to load.
             try {
                 driver.get(target);
-                (new WebDriverWait(driver, timeout_in_seconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
@@ -575,6 +575,7 @@ public class GenePageTest {
         
         // Loop through all genes, testing each one for valid page load.
         int i = 0;
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
         for (String geneId : geneIds) {
             if (i >= targetCount) {
                 break;
@@ -587,8 +588,7 @@ public class GenePageTest {
             // Wait for page to load.
             try {
                 driver.get(target);
-                (new WebDriverWait(driver, timeout_in_seconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
