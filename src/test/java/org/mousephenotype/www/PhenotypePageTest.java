@@ -28,6 +28,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.TestUtils;
@@ -42,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.util.Utils;
 
 /**
@@ -71,6 +73,9 @@ public class PhenotypePageTest {
     
     @Autowired
     protected GenotypePhenotypeService genotypePhenotypeService;
+    
+    @Autowired
+    protected MpService mpService;
     
     @Autowired
     protected String baseUrl;
@@ -127,10 +132,10 @@ public class PhenotypePageTest {
      * @throws SolrServerException 
      */
     @Test
-    public void testMGILinksAreValid() throws SolrServerException {
+    public void testMGI_MPLinksAreValid() throws SolrServerException {
         String testName = "testMGILinksAreValid";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        Set<String> phenotypeIds = genotypePhenotypeService.getAllPhenotypes();
+        Set<String> phenotypeIds = genotypePhenotypeService.getAllPhenotypesWithGeneAssociations();
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -198,7 +203,7 @@ public class PhenotypePageTest {
     public void testPageForEveryMPTermId() throws SolrServerException {
         String testName = "testPageForEveryMPTermId";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        Set<String> phenotypeIds = genotypePhenotypeService.getAllPhenotypes();
+        Set<String> phenotypeIds = mpService.getAllPhenotypes();
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -251,6 +256,7 @@ public class PhenotypePageTest {
      * 
      * @throws SolrServerException 
      */
+@Ignore
     @Test
     public void testPageForEveryTopLevelMPTermId() throws SolrServerException {
         String testName = "testPageForEveryTopLevelMPTermId";
@@ -308,6 +314,7 @@ public class PhenotypePageTest {
      * 
      * @throws SolrServerException 
      */
+@Ignore
     @Test
     public void testPageForEveryIntermediateLevelMPTermId() throws SolrServerException {
         String testName = "testPageForEveryIntermediateLevelMPTermId";
@@ -364,6 +371,7 @@ public class PhenotypePageTest {
      * 
      * @throws SolrServerException 
      */
+@Ignore
     @Test
     public void testInvalidMpTermId() throws SolrServerException {
         String testName = "testInvalidMpTermId";
