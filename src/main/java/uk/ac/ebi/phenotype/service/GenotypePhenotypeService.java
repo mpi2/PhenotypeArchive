@@ -812,13 +812,13 @@ public class GenotypePhenotypeService {
 						cell.setStatus("No MP");
 					}
 				}else{
-					System.err.println("mps are null or empty");
+					//System.err.println("mps are null or empty");
 					cell.setStatus("No MP");
 				}
 			} else {
 				// if no doc found for the gene then no data available
 				cell.setStatus("No Data Available");
-				System.err.println("!!!!!!!!!!!!!!NO top level found for gene");
+				//System.err.println("!!!!!!!!!!!!!!NO top level found for gene");
 			}
 			xAxisToCellMap.put(xAxisBean.getId(), cell);
 		}

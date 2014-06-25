@@ -45,7 +45,7 @@
                          	<c:when test="${row.XAxisToCellMap[xAxisBean.id].status eq 'No MP'}">style="background-color: rgb(119, 119, 119)"</c:when>
                          </c:choose>
                          
-                          title="${xAxisBean.name}">${row.XAxisToCellMap[xAxisBean.id].status}</td>
+                          title="${xAxisBean.name}"><%-- ${row.XAxisToCellMap[xAxisBean.id].status} --%></td>
                      </c:forEach>
                 </tr>
                 </c:forEach>

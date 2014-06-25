@@ -118,7 +118,7 @@ class SecondaryProjectIdgImpl extends HibernateDAOImpl implements
 								geneToTopLevelMpMap);
 				if (geneToMouseStatusMap.containsKey(accession)) {
 					row.setMiceProduced(geneToMouseStatusMap.get(accession));
-					System.out.println("Mice produced=|"+row.getMiceProduced()+"|");
+					//System.out.println("Mice produced=|"+row.getMiceProduced()+"|");
 					if (row.getMiceProduced().equals("Neither production nor phenotyping status available ")) {//note the space on the end - why we should have enums
 						for (HeatMapCell cell : row.getXAxisToCellMap()
 								.values()) {
