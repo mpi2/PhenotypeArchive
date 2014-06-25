@@ -701,7 +701,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 
 	    Map<String, String> pStatusMap = new HashMap<>();
         pStatusMap.put("message", null);
-        pStatusMap.put("status", null);
+        pStatusMap.put("status", parameterStatus);
 	    
        // Add the status code to the observation if there is one
         if(parameterStatus != null) {

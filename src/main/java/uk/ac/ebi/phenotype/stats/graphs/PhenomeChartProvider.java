@@ -16,6 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
+import uk.ac.ebi.phenotype.pojo.Allele;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
@@ -31,104 +32,110 @@ public class PhenomeChartProvider {
 			.getLogger(PhenomeChartProvider.class);
 
 
-	public String createPvaluesOverviewChart(String alleleAccession, double minimalPValue, JSONArray series, JSONArray categories) {
+	public String createPvaluesOverviewChart(String alleleAccession, double minimalPValue, String pointFormat, JSONArray series, JSONArray categories) throws JSONException {
 
-		String chartString="	$(function () { "
-				+"  pvaluesOverviewChart = new Highcharts.Chart({ "
-				+"     chart: {"
-				+"renderTo: 'chart"
-				+ alleleAccession+"',"
-				+"         type: 'scatter',"
-				+"         zoomType: 'xy',"
-				+"         height: 800"
-			    +"     },"
-			    +"   title: {"
-			    +"       text: ' "+"P-values Overview" 
-			    +"'    },"
-			    +"     subtitle: {"
-			    +"        text: ' "+"Parameter by parameter"+" ' "
-			    +"    },"
-			    +"     xAxis: {"
-			    +"     categories: "+ categories.toString() + ","
-			    +"        title: {"
-			    +"           enabled: true,"
-			    +"           text: 'Parameters' "
-			    +"        }, "
-			    +"       labels: { "
-			    +"           rotation: -90, "
-			    +"           align: 'right', "
-			    +"           style: { "
-			    +"              fontSize: '11px', "
-			    +"              fontFamily: 'Verdana, sans-serif' "
-			    +"         } "
-			    +"     }, "
-			    +"      showLastLabel: true "
-			    +"  }, "
-			    +"    yAxis: { "
+		String chartString="	$(function () { \n"
+				+"  pvaluesOverviewChart = new Highcharts.Chart({ \n"
+				+"     chart: {\n"
+				+"renderTo: 'chart" + alleleAccession+ "',\n"
+				+"         type: 'scatter',\n"
+				+"         zoomType: 'xy',\n"
+				+"         height: 800\n"
+			    +"     },\n"
+			    +"   title: {\n"
+			    +"        text: ' "+"P-values Overview' \n"
+			    +"    },\n"
+			    +"     subtitle: {\n"
+			    +"        text: 'Parameter by parameter' \n"
+			    +"    },\n"
+			    +"     xAxis: {\n"
+			    +"     categories: "+ categories.toString() + ",\n"
+			    +"        title: {\n"
+			    +"           enabled: true,\n"
+			    +"           text: 'Parameters' \n"
+			    +"        }, \n"
+			    +"       labels: { \n"
+			    +"           rotation: -90, \n"
+			    +"           align: 'right', \n"
+			    +"           style: { \n"
+			    +"              fontSize: '11px', \n"
+			    +"              fontFamily: 'Verdana, sans-serif' \n"
+			    +"         } \n"
+			    +"     }, \n"
+			    +"      showLastLabel: true \n"
+			    +"  }, \n"
+			    +"    yAxis: { \n"
 			    //+"         min:"+ -Math.log(minimalPValue) + ","
-			    +"         title: { "
-			    +"             text: '"+ Constants.MINUS_LOG10_HTML + "(p-value)"+"' "
-			    +"           }, "
-			    + "plotLines : [{"
-			    + "value : " + -Math.log10(minimalPValue) + ","
-			    + "color : 'green', "
-			    + "dashStyle : 'shortdash',"
-			    + "width : 2,"
-			    + "label : { text : 'Significance threshold " + minimalPValue + "' }"
-			    + "}]"
-			    +"       }, "
-			    +"      credits: { "
-			    +"         enabled: false "
-			    +"      }, "
-			    +"      plotOptions: { "
-			    +"        scatter: { "
-			    +"            marker: { "
-			    +"                radius: 5, "
-			    +"                states: { "
-			    +"                   hover: { "
-			    +"                      enabled: true, "
-			    +"                      lineColor: 'rgb(100,100,100)' "
-			    +"                   } "
-			    +"                } "			    
-			    +"            }, "
-			    +"            states: { "
-			    +"               hover: { "
-			    +"                  marker: { "
-			    +"                     enabled: false "
-			    +"                  } "
-			    +"              } "
-			    +"            }, \n"	    
-                +"            events: { "
-                +"               click: function(event) { "
-                +"                   var sexString = (event.point.sex == \"both\") ? '&gender=male&gender=female' : '&gender=' + event.point.sex; "
-                +"                   $.fancybox.open([ "
-                + "                  {"
-                + "                     href : base_url + '/charts?accession=' + event.point.geneAccession +"
+			    +"         title: { \n"
+			    +"             text: '"+ Constants.MINUS_LOG10_HTML + "(p-value)"+"' \n"
+			    +"           }, \n"
+			    + "plotLines : [{\n"
+			    + "value : " + -Math.log10(minimalPValue) + ",\n"
+			    + "color : 'green', \n"
+			    + "dashStyle : 'shortdash',\n"
+			    + "width : 2,\n"
+			    + "label : { text : 'Significance threshold " + minimalPValue + "' }\n"
+			    + "}]\n"
+			    +"       }, \n"
+			    +"      credits: { \n"
+			    +"         enabled: false \n"
+			    +"      }, \n"
+			    + "     tooltip: {\n"
+			    + "        headerFormat: '<span style=\"font-size:10px\">{point.name}</span><table>',\n" 
+			    + "        pointFormat: '"+ pointFormat +"',\n"
+			    + "        footerFormat: '</table>',\n"
+			    + "        shared: 'true',\n"
+			    + "        useHTML: 'true',\n"
+			    + "     }, \n"
+			    +"      plotOptions: { \n"
+			    +"        scatter: { \n"
+			    +"            marker: { \n"
+			    +"                radius: 5, \n"
+			    +"                states: { \n"
+			    +"                   hover: { \n"
+			    +"                      enabled: true, \n"
+			    +"                      lineColor: 'rgb(100,100,100)' \n"
+			    +"                   } \n"
+			    +"                } \n"	    
+			    +"            }, \n"
+			    +"            states: { \n"
+			    +"               hover: { \n"
+			    +"                  marker: { \n"
+			    +"                     enabled: false \n"
+			    +"                  } \n"
+			    +"              } \n"
+			    +"            }, \n\n"	    
+                +"            events: { \n"
+                +"               click: function(event) { \n"
+                +"                   //var sexString = (event.point.sex == \"both\") ? '&gender=male&gender=female' : '&gender=' + event.point.sex; \n"
+                +"                   $.fancybox.open([ \n"
+                + "                  {\n"
+                + "                     href : base_url + '/charts?accession=' + event.point.geneAccession + "
                 + "'&parameter_stable_id=' + event.point.parameter_stable_id + '&allele_accession=' + event.point.alleleAccession + "
-                + "'&zygosity=' + event.point.zygosity + sexString + '&phenotyping_center=' + event.point.phenotyping_center + "
-                + "'&pipeline_stable_id=' + event.point.pipeline_stable_id + '&bare=true', "
-                + "                     title : event.point.geneAccession "
-                + "                  } "
-                + "                  ], "
-                +"                   { "
-                +"                     'maxWidth'          : 1000, " // 980 too narrow
-        		+"                     'maxHeight'         : 900, "
-        		+"                     'fitToView'         : false, "                
-                +"                     'width'             : '100%',  "
-                +"                     'height'            : '85%',  "
-                +"                     'autoSize'          : false,  "
-                +"                     'transitionIn'      : 'none', "
-                +"                     'transitionOut'     : 'none', "
-                +"                     'type'              : 'iframe', "
-                +"                     scrolling           : 'auto' "
-                +"                  }); "             
-                +"               } "
+                + "'&zygosity=' + event.point.zygosity + '&phenotyping_center=' + event.point.phenotyping_center + "
+                + "'&pipeline_stable_id=' + event.point.pipeline_stable_id + '&bare=true', \n"
+                + "                     title : event.point.geneAccession \n"
+                + "                  } \n"
+                + "                  ], \n"
+                +"                   { \n"
+                +"                     'maxWidth'          : 1000, \n" // 980 too narrow
+        		+"                     'maxHeight'         : 900, \n"
+        		+"                     'fitToView'         : false, \n"                
+                +"                     'width'             : '100%',  \n"
+                +"                     'height'            : '85%',  \n"
+                +"                     'autoSize'          : false,  \n"
+                +"                     'transitionIn'      : 'none', \n"
+                +"                     'transitionOut'     : 'none', \n"
+                +"                     'type'              : 'iframe', \n"
+                +"                     scrolling           : 'auto' \n"
+                +"                  }); \n"
+                +"               } \n"
 			    +"           } \n" // events
-			    +"       } "                
-			    +"   }, "
-			    +"     series: "+ series.toString()
-			    +"    }); "
-			    +"	}); ";
+			    +"       } \n"                
+			    +"   }, \n"
+			    +"     series: "+ series.toString() + "\n"
+			    +"    }); \n"
+			    +"	}); \n";
 		return chartString;
 	}
 
@@ -141,99 +148,106 @@ public class PhenomeChartProvider {
 	 * @param series series of categories to plot
 	 * @param categories list of categories (one for every MP term)
 	 * @return the chart to be displayed
+	 * @throws JSONException 
 	 */
-	public String createPhenomeChart(String phenotypingCenter, double minimalPValue, JSONArray series, JSONArray categories) {
+	public String createPhenomeChart(String phenotypingCenter, double minimalPValue, String pointFormat, JSONArray series, JSONArray categories) throws JSONException {
 
-		String chartString="	$(function () { "
-				+"  phenomeChart = new Highcharts.Chart({ "
-				+"     chart: {"
-				+"renderTo: 'chart"
-				+ phenotypingCenter+"',"
-				+"         type: 'scatter',"
-				+"         zoomType: 'xy',"
-				+"         height: 800"
-			    +"     },"
-			    +"   title: {"
-			    +"       text: ' "+"Significant MP calls" 
-			    +"'    },"
-			    +"     subtitle: {"
-			    +"        text: ' "+"by Top Level MP Categories"+" ' "
-			    +"    },"
-			    +"     xAxis: {"
-			    +"     categories: "+ categories.toString() + ","
-			    +"        title: {"
-			    +"           enabled: true,"
-			    +"           text: 'Top Level Mammalian Phenotype Ontology Terms' "
-			    +"        }, "
-			    +"       labels: { "
-			    +"           rotation: -90, "
-			    +"           align: 'right', "
-			    +"           style: { "
-			    +"              fontSize: '10px', "
-			    +"              fontFamily: 'Verdana, sans-serif' "
-			    +"         } "
-			    +"     }, "
-			    +"      showLastLabel: true "
-			    +"  }, "
-			    +"    yAxis: { "
-			    +            "min: 0,"
-			    +            "max: "+ -Math.log10(1E-21) + ","
-			    +"         title: { "
-			    +"             text: '" + Constants.MINUS_LOG10_HTML + "(p-value)"+"' "
-			    +"           }, "
-			    +"       }, "
-			    +"      credits: { "
-			    +"         enabled: false "
-			    +"      }, "
-			    +"      plotOptions: { "
-			    +"        scatter: { "
-			    +"            marker: { "
-			    +"                radius: 5, "
-			    +"                states: { "
-			    +"                   hover: { "
-			    +"                      enabled: true, "
-			    +"                      lineColor: 'rgb(100,100,100)' "
-			    +"                   } "
-			    +"                } "			    
-			    +"            }, "
-			    +"            states: { "
-			    +"               hover: { "
-			    +"                  marker: { "
-			    +"                     enabled: false "
-			    +"                  } "
-			    +"              } "
+		String chartString="	$(function () { \n"
+				+"  phenomeChart = new Highcharts.Chart({ \n"
+				+"     chart: {\n"
+				+"renderTo: 'chart" + phenotypingCenter +"',\n"
+				+"         type: 'scatter',\n"
+				+"         zoomType: 'xy',\n"
+				+"         height: 800\n"
+			    +"     },\n"
+			    +"   title: {\n"
+			    +"       text: 'Significant MP calls'\n"
+			    +"    },\n"
+			    +"     subtitle: {\n"
+			    +"        text: 'by Top Level MP Categories'\n"
+			    +"    },\n"
+			    +"     xAxis: {\n"
+			    +"     categories: "+ categories.toString() + ",\n"
+			    +"        title: {\n"
+			    +"           enabled: true,\n"
+			    +"           text: 'Top Level Mammalian Phenotype Ontology Terms' \n"
+			    +"        }, \n"
+			    +"       labels: { \n"
+			    +"           rotation: -90, \n"
+			    +"           align: 'right', \n"
+			    +"           style: { \n"
+			    +"              fontSize: '10px', \n"
+			    +"              fontFamily: 'Verdana, sans-serif' \n"
+			    +"         } \n"
+			    +"     }, \n"
+			    +"      showLastLabel: true \n"
+			    +"  }, \n"
+			    +"    yAxis: { \n"
+			    +            "min: 0,\n"
+			    +            "max: "+ -Math.log10(1E-21) + ",\n"
+			    +"         title: { \n"
+			    +"             text: '" + Constants.MINUS_LOG10_HTML + "(p-value)"+"' \n"
+			    +"           }, \n"
+			    +"       }, \n"
+			    +"      credits: { \n"
+			    +"         enabled: false \n"
+			    +"      }, \n"
+			    + "     tooltip: {\n"
+			    + "        headerFormat: '<span style=\"font-size:10px\">{point.name}</span><table>',\n" 
+			    + "        pointFormat: '"+ pointFormat +"',\n"
+			    + "        footerFormat: '</table>',\n"
+			    + "        shared: 'true',\n"
+			    + "        useHTML: 'true',\n"
+			    + "     }, \n"		    
+			    +"      plotOptions: { \n"
+			    +"        scatter: { \n"
+			    +"            marker: { \n"
+			    +"                radius: 5, \n"
+			    +"                states: { \n"
+			    +"                   hover: { \n"
+			    +"                      enabled: true, \n"
+			    +"                      lineColor: 'rgb(100,100,100)' \n"
+			    +"                   } \n"
+			    +"                } \n"			    
+			    +"            }, \n"
+			    +"            states: { \n"
+			    +"               hover: { \n"
+			    +"                  marker: { \n"
+			    +"                     enabled: false \n"
+			    +"                  } \n"
+			    +"              } \n"
 			    +"            }, \n"	    
-                +"            events: { "
-                +"               click: function(event) { "
-                +"                   var sexString = (event.point.sex == \"both\") ? '&gender=male&gender=female' : '&gender=' + event.point.sex; "
-                +"                   $.fancybox.open([ "
-                + "                  {"
+                +"            events: { \n"
+                +"               click: function(event) { \n"
+                +"                   //var sexString = (event.point.sex == \"both\") ? '&gender=male&gender=female' : '&gender=' + event.point.sex; \n"
+                +"                   $.fancybox.open([ \n"
+                + "                  {\n"
                 + "                     href : base_url + '/charts?accession=' + event.point.geneAccession +"
                 + "'&parameter_stable_id=' + event.point.parameter_stable_id + '&allele_accession=' + event.point.alleleAccession + "
-                + "'&zygosity=' + event.point.zygosity + sexString + '&phenotyping_center=' + event.point.phenotyping_center + "
-                + "'&pipeline_stable_id=' + event.point.pipeline_stable_id + '&bare=true', "
-                + "                     title : event.point.geneAccession "
-                + "                  } "
-                + "                  ], "
-                +"                   { "
-                +"                     'maxWidth'          : 1000, " // 980 too narrow
-        		+"                     'maxHeight'         : 900, "
-        		+"                     'fitToView'         : false, "                
-                +"                     'width'             : '100%',  "
-                +"                     'height'            : '85%',  "
-                +"                     'autoSize'          : false,  "
-                +"                     'transitionIn'      : 'none', "
-                +"                     'transitionOut'     : 'none', "
-                +"                     'type'              : 'iframe', "
-                +"                     scrolling           : 'auto' "
-                +"                  }); "             
-                +"               } "
+                + "'&zygosity=' + event.point.zygosity + '&phenotyping_center=' + event.point.phenotyping_center + "
+                + "'&pipeline_stable_id=' + event.point.pipeline_stable_id + '&bare=true', \n"
+                + "                     title : event.point.geneAccession \n"
+                + "                  } \n"
+                + "                  ], \n"
+                +"                   { \n"
+                +"                     'maxWidth'          : 1000, \n" // 980 too narrow
+        		+"                     'maxHeight'         : 900, \n"
+        		+"                     'fitToView'         : false, \n"                
+                +"                     'width'             : '100%',  \n"
+                +"                     'height'            : '85%',  \n"
+                +"                     'autoSize'          : false,  \n"
+                +"                     'transitionIn'      : 'none', \n"
+                +"                     'transitionOut'     : 'none', \n"
+                +"                     'type'              : 'iframe', \n"
+                +"                     scrolling           : 'auto' \n"
+                +"                  }); \n"
+                +"               } \n"
 			    +"           } \n" // events
-			    +"       } "                
-			    +"   }, "
-			    +"     series: "+ series.toString()
-			    +"    }); "
-			    +"	}); ";
+			    +"       } \n"                
+			    +"   }, \n"
+			    +"     series: "+ series.toString() + "\n"
+			    +"    }); \n"
+			    +"	}); \n";
 		return chartString;
 	}
 
@@ -243,6 +257,8 @@ public class PhenomeChartProvider {
 			double minimalPvalue) throws IOException,
 			URISyntaxException {
 
+		String chartString = null;
+		
 		JSONArray series = new JSONArray();
 
 		JSONArray categories = new JSONArray();
@@ -253,6 +269,16 @@ public class PhenomeChartProvider {
 
 		try {
 
+			// build tooltip
+			StringBuilder pointFormat = new StringBuilder();
+
+			pointFormat.append("<tr><td style=\"color:{series.color};padding:0\">Top Level MP: {series.name}</td></tr>");
+			pointFormat.append("<tr><td style=\"padding:0\">MP Term: {point.mp_term}</td></tr>");
+			pointFormat.append("<tr><td style=\"padding:0\">Gene: {point.geneSymbol}</td></tr>");
+			pointFormat.append("<tr><td style=\"padding:0\">Zygosity: {point.zygosity}</td></tr>");
+			pointFormat.append("<tr><td style=\"padding:0\">P-value: {point.pValue}</td></tr>");
+			pointFormat.append("<tr><td style=\"padding:0\">Effect size: {point.effectSize}</td></tr>");
+			
 			// first grab all categories and associated terms
 			
 			for (PhenotypeCallSummary call: calls) {
@@ -270,10 +296,6 @@ public class PhenomeChartProvider {
 						JSONObject scatterJsonObject = new JSONObject();
 						seriesMap.put(topLevelName, scatterJsonObject);
 
-						JSONObject tooltip=new JSONObject();
-						//tooltip.put("headerFormat", "<b>{point.name}</b><br>");
-						tooltip.put("pointFormat", "<b>{point.mp_term}</b><br/>Top Level MP: {series.name}<br/>Gene: {point.geneSymbol}<br/>Zygosity: {point.zygosity}<br/>p-value: {point.pValue}<br/>Effect size: {point.effectSize}");
-						scatterJsonObject.put("tooltip", tooltip);
 						scatterJsonObject.put("type", "scatter");
 						scatterJsonObject.put("name", topLevelName);
 
@@ -348,31 +370,57 @@ public class PhenomeChartProvider {
 				seriesMap.get(topLevelName).put("data", this.getSortedList(array));
 			}
 
+			chartString=createPhenomeChart(phenotypingCenter, minimalPvalue, pointFormat.toString(), series, categories);
+			
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-
-		String chartString=createPhenomeChart(phenotypingCenter, minimalPvalue, series, categories);
-
 		return chartString;
 	}
 
+	/**
+	 * 
+	 * @param alleleAccession
+	 * @param statisticalResults
+	 * @param minimalPvalue
+	 * @param pipeline
+	 * @return
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	public String generatePvaluesOverviewChart(
-			String alleleAccession, Map<String, List<StatisticalResultBean>> statisticalResults,
+			Allele allele, 
+			Map<String, List<StatisticalResultBean>> statisticalResults,
 			double minimalPvalue,
-			Pipeline pipeline) throws IOException,
+			Pipeline pipeline,
+			String phenotypingCenter) throws IOException,
 			URISyntaxException {
 
+		String chartString = null;
+		
 		JSONArray series=new JSONArray();
 
 		JSONArray categories = new JSONArray();
-
+		
 		try {
 
 			int index = 0;
 
+			// build tooltip
+			
+			StringBuilder pointFormat = new StringBuilder();
+			
+			pointFormat.append("<tr><td style=\"color:{series.color};padding:0\">procedure: {series.name}</td></tr>");
+			pointFormat.append("<tr><td style=\"padding:0\">sex: {point.controlSex}</td></tr>");
+			pointFormat.append("<tr><td style=\"padding:0\">zygosity: {point.zygosity}</td></tr>");
+			pointFormat.append("<tr><td style=\"padding:0\">mutants: {point.femaleMutants}f:{point.maleMutants}m</td></tr>");
+			pointFormat.append("<tr><td style=\"padding:0\">metadata_group: {point.metadataGroup}</td></tr>");
+			pointFormat.append("<tr><td style=\"padding:0\">p-value: {point.pValue}</td></tr>");
+			pointFormat.append("<tr><td style=\"padding:0\">Effect size: {point.effectSize}</td></tr>");
+			
+			
 			// Create a statistical series for every procedure in the pipeline
 			// Start from the pipeline so that there is no need to keep this 
 			// information from the caller side
@@ -389,10 +437,6 @@ public class PhenomeChartProvider {
 						     pointFormat: '{point.name}<br/>value: {point.y}'
 						                    },*/
 
-				JSONObject tooltip=new JSONObject();
-				//tooltip.put("headerFormat", "<b>{point.name}</b><br>");
-				tooltip.put("pointFormat", "<b>{point.name}</b><br/>procedure: {series.name}<br/>sex: {point.controlSex}<br/>zygosity: {point.zygosity}<br/>mutants: {point.femaleMutants}f:{point.maleMutants}m<br/>metadata_group: {point.metadataGroup}<br/>p-value: {point.pValue}<br/>Effect size: {point.effectSize}");
-				scatterJsonObject.put("tooltip", tooltip);
 				scatterJsonObject.put("type", "scatter");
 				scatterJsonObject.put("name", procedure.getName());
 
@@ -421,19 +465,26 @@ public class PhenomeChartProvider {
 								// create the point first
 								JSONObject dataPoint=new JSONObject();
 								dataPoint.put("name", parameter.getName());
-								dataPoint.put("stableId", parameter.getStableId());
+								dataPoint.put("parameter_stable_id", parameter.getStableId());
+								dataPoint.put("pipeline_stable_id", pipeline.getStableId());
+								
+								dataPoint.put("geneAccession", allele.getGene().getId().getAccession());
+								dataPoint.put("alleleAccession", allele.getId().getAccession());
+								
+								dataPoint.put("phenotyping_center", phenotypingCenter);
+								
 								dataPoint.put("x", index);
 								dataPoint.put("y", statsResult.getLogValue());
 								dataPoint.put("pValue", statsResult.getpValue());
 								dataPoint.put("effectSize", statsResult.getEffectSize());
-								dataPoint.put("controlSex", statsResult.getControlSex());
+								
+								dataPoint.put("sex", statsResult.getControlSex());
 								dataPoint.put("zygosity", statsResult.getZygosity());
 								// maybe change for the complete object here
 								dataPoint.put("femaleMutants", statsResult.getFemaleMutants());
 								dataPoint.put("maleMutants", statsResult.getMaleMutants());
 								dataPoint.put("metadataGroup", statsResult.getMetadataGroup());
 								dataArray.put(dataPoint);
-
 
 								if (resultIndex == 0) {
 									categories.put(parameter.getStableId());
@@ -455,13 +506,17 @@ public class PhenomeChartProvider {
 				}
 			}
 
+			chartString=createPvaluesOverviewChart(
+					allele.getId().getAccession(), // used for chart ID
+					minimalPvalue, 
+					pointFormat.toString(), 
+					series, 
+					categories);
+			
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-
-		String chartString=createPvaluesOverviewChart(alleleAccession, minimalPvalue, series, categories);
 
 		return chartString;
 	}

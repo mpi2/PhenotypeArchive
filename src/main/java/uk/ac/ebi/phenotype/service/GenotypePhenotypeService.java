@@ -151,7 +151,14 @@ public class GenotypePhenotypeService {
 		return res;
 	}
 
-	public Set<String> getAllGenes() throws SolrServerException {
+        /**
+         * Returns a set of MARKER_ACCESSION_ID strings of all genes that have
+         * phenotype associations.
+         * @return a set of MARKER_ACCESSION_ID strings of all genes that have
+         * phenotype associations.
+         * @throws SolrServerException 
+         */
+	public Set<String> getAllGenesWithPhenotypeAssociations() throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(GenotypePhenotypeField.MARKER_ACCESSION_ID + ":*");
@@ -168,8 +175,14 @@ public class GenotypePhenotypeService {
 		return allGenes;
 	}
 
-	public Set<String> getAllPhenotypes() throws SolrServerException {
-
+        /**
+         * Returns a set of MP_TERM_ID strings of all phenotypes that have gene
+         * associations.
+         * @return a set of MP_TERM_ID strings of all phenotypes that have gene
+         * associations.
+         * @throws SolrServerException 
+         */
+	public Set<String> getAllPhenotypesWithGeneAssociations() throws SolrServerException {
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(GenotypePhenotypeField.MP_TERM_ID + ":*");
 		solrQuery.setRows(1000000);
@@ -181,47 +194,58 @@ public class GenotypePhenotypeService {
 			allPhenotypes.add((String) doc
 					.getFieldValue(GenotypePhenotypeField.MP_TERM_ID));
 		}
+                
 		return allPhenotypes;
 	}
-
+        
+        /**
+         * Returns a set of MP_TERM_ID strings of all top-level phenotypes.
+         * @return a set of MP_TERM_ID strings of all top-level phenotypes.
+         * @throws SolrServerException 
+         */
 	public Set<String> getAllTopLevelPhenotypes() throws SolrServerException {
+            SolrQuery solrQuery = new SolrQuery();
+            solrQuery.setQuery(GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":*");
+            solrQuery.setRows(1000000);
+            solrQuery.setFields(GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID);
+            QueryResponse rsp = solr.query(solrQuery);
+            SolrDocumentList res = rsp.getResults();
+            HashSet<String> allTopLevelPhenotypes = new HashSet();
+            for (SolrDocument doc : res) {
+                    ArrayList<String> ids = (ArrayList<String>) doc
+                                    .getFieldValue(GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID);
+                    for (String id : ids) {
+                            allTopLevelPhenotypes.add(id);
+                    }
+            }
 
-		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery(GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":*");
-		solrQuery.setRows(1000000);
-		solrQuery.setFields(GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID);
-		QueryResponse rsp = solr.query(solrQuery);
-		SolrDocumentList res = rsp.getResults();
-		HashSet<String> allTopLevelPhenotypes = new HashSet();
-		for (SolrDocument doc : res) {
-			ArrayList<String> ids = (ArrayList<String>) doc
-					.getFieldValue(GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID);
-			for (String id : ids) {
-				allTopLevelPhenotypes.add(id);
-			}
-		}
-		return allTopLevelPhenotypes;
+            return allTopLevelPhenotypes;
 	}
 
+        /**
+         * Returns a set of MP_TERM_ID strings of all intermediate-level phenotypes.
+         * @return a set of MP_TERM_ID strings of all intermediate-level phenotypes.
+         * @throws SolrServerException 
+         */
 	public Set<String> getAllIntermediateLevelPhenotypes()
-			throws SolrServerException {
+                    throws SolrServerException {
+            SolrQuery solrQuery = new SolrQuery();
+            solrQuery.setQuery(GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID
+                            + ":*");
+            solrQuery.setRows(1000000);
+            solrQuery.setFields(GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID);
+            QueryResponse rsp = solr.query(solrQuery);
+            SolrDocumentList res = rsp.getResults();
+            HashSet<String> allIntermediateLevelPhenotypes = new HashSet();
+            for (SolrDocument doc : res) {
+                    ArrayList<String> ids = (ArrayList<String>) doc
+                                    .getFieldValue(GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID);
+                    for (String id : ids) {
+                            allIntermediateLevelPhenotypes.add(id);
+                    }
+            }
 
-		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery(GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID
-				+ ":*");
-		solrQuery.setRows(1000000);
-		solrQuery.setFields(GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID);
-		QueryResponse rsp = solr.query(solrQuery);
-		SolrDocumentList res = rsp.getResults();
-		HashSet<String> allIntermediateLevelPhenotypes = new HashSet();
-		for (SolrDocument doc : res) {
-			ArrayList<String> ids = (ArrayList<String>) doc
-					.getFieldValue(GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID);
-			for (String id : ids) {
-				allIntermediateLevelPhenotypes.add(id);
-			}
-		}
-		return allIntermediateLevelPhenotypes;
+            return allIntermediateLevelPhenotypes;
 	}
 
 	/*
@@ -230,11 +254,23 @@ public class GenotypePhenotypeService {
 
 	public SolrDocumentList getPhenotypesForTopLevelTerm(String gene,
 			String mpID) throws SolrServerException {
-		SolrDocumentList result = runQuery(GenotypePhenotypeField.MARKER_ACCESSION_ID
-				+ ":\""
-				+ gene
-				+ "\" AND "
-				+ GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID
+		
+		String query;
+		if (gene.equalsIgnoreCase("*")){
+			query = GenotypePhenotypeField.MARKER_ACCESSION_ID
+					+ ":"
+					+ gene
+					+ " AND ";
+		}
+		else {
+			query = GenotypePhenotypeField.MARKER_ACCESSION_ID
+					+ ":\""
+					+ gene
+					+ "\" AND ";
+			
+		}
+		
+		SolrDocumentList result = runQuery(query + GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID
 				+ ":\""
 				+ mpID
 				+ "\"");
@@ -242,9 +278,7 @@ public class GenotypePhenotypeService {
 		if (result.size() == 0 || result == null)
 			// result = runQuery("marker_accession_id:" + gene.replace(":",
 			// "\\:") + " AND mp_term_id:" + mpID.replace(":", "\\:"));
-			result = runQuery(GenotypePhenotypeField.MARKER_ACCESSION_ID
-					+ ":\"" + gene + "\" AND "
-					+ GenotypePhenotypeField.MP_TERM_ID + ":\"" + mpID + "\"");// AND
+			result = runQuery(query + GenotypePhenotypeField.MP_TERM_ID + ":\"" + mpID + "\"");// AND
 																				// -" + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC");
 		return result;
 	}
@@ -269,9 +303,13 @@ public class GenotypePhenotypeService {
 		HashMap<String, String> tl = new HashMap<String, String>();
 		// SolrDocumentList result = runQuery("marker_accession_id:" +
 		// gene.replace(":", "\\:"));
-		SolrDocumentList result = runQuery(GenotypePhenotypeField.MARKER_ACCESSION_ID
-				+ ":\"" + gene + "\"");// AND
-										// -" + GenotypePhenotypeField.RESOURCE_NAME + ":IMPC");
+		SolrDocumentList result;
+		if (gene.equalsIgnoreCase("*")){
+			result = runQuery(GenotypePhenotypeField.MARKER_ACCESSION_ID + ":" + gene);
+		} else {
+			result = runQuery(GenotypePhenotypeField.MARKER_ACCESSION_ID + ":\"" + gene + "\"");			
+		}
+		
 		if (result.size() > 0) {
 			for (int i = 0; i < result.size(); i++) {
 				SolrDocument doc = result.get(i);
@@ -669,17 +707,7 @@ public class GenotypePhenotypeService {
 			Project project = new Project();
 			project.setName(phen.getString(GenotypePhenotypeField.PROJECT_NAME));
 			project.setDescription(phen
-					.getString(GenotypePhenotypeField.PROJECT_FULLNAME)); // is
-																			// this
-																			// right
-																			// for
-																			// description?
-																			// no
-																			// other
-																			// field
-																			// in
-																			// solr
-																			// index!!!
+					.getString(GenotypePhenotypeField.PROJECT_FULLNAME)); // is this right for description? no other field in solr index!!!
 			if (phen.containsKey(GenotypePhenotypeField.PROJECT_EXTERNAL_ID)) {
 				sum.setExternalId(phen
 						.getInt(GenotypePhenotypeField.PROJECT_EXTERNAL_ID));

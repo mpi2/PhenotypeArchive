@@ -186,14 +186,12 @@
 			<entity name="protect" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache"
 				query="SELECT 1 FROM (SELECT 1) a where '${observation.observation_type}' = 'image_record'" >
 				<entity dataSource="komp2ds" name="imageRecord" onError="skip" 
-					query="SELECT iro.file_type, iro.full_resolution_file_path, iro.large_thumbnail_file_path, iro.small_thumbnail_file_path
+					query="SELECT iro.file_type, iro.download_file_path
                        FROM image_record_observation iro
                        WHERE iro.id=${observation.id}
 						">
-					<field column="full_resolution_file_path" name="full_resolution_file_path" />
-					<field column="large_thumbnail_file_path" name="large_thumbnail_file_path" />
-					<field column="small_thumbnail_file_path" name="small_thumbnail_file_path" />
 					<field column="file_type" name="file_type" />
+					<field column="download_file_path" name="download_file_path" />
 				</entity>
 			</entity>
  

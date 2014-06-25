@@ -27,10 +27,12 @@ import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.TestUtils;
@@ -127,6 +129,130 @@ public class GenePageTest {
     public static void tearDownClass() {
     }
     
+
+    // PRIVATE METHODS
+    
+    
+    private void geneIdsTest(String testName, boolean isRandom) throws SolrServerException {
+        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
+        List<String> geneIds = new ArrayList(geneService.getAllGenes());
+        
+        if (isRandom)
+            Collections.shuffle(geneIds);                                       // Randomize the collection.
+        
+        String target = "";
+        List<String> errorList = new ArrayList();
+        List<String> successList = new ArrayList();
+        List<String> exceptionList = new ArrayList();
+        String message;
+        Date start = new Date();
+
+        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
+        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
+            
+        // Loop through all genes, testing each one for valid page load.
+        int i = 0;
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        for (String geneId : geneIds) {
+            if (i >= targetCount) {
+                break;
+            }
+            i++;
+            
+            target = baseUrl + "/genes/" + geneId;
+            System.out.println("gene[" + i + "] URL: " + target);
+            
+            try {
+                driver.get(target);
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+            } catch (NoSuchElementException | TimeoutException te) {
+                message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
+                errorList.add(message);
+                TestUtils.sleep(thread_wait_in_ms);
+                continue;
+            }  catch (Exception e) {
+                message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+                exceptionList.add(message);
+                TestUtils.sleep(thread_wait_in_ms);
+                continue;
+            }
+
+            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
+            successList.add(message);
+            
+            TestUtils.sleep(thread_wait_in_ms);
+        }
+        
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
+    }
+    
+    private void tick(String phenoStatus, String prodCentre, String phenoCentre) {
+        // If no parameters were specified, set target to the default search page.
+        String target = baseUrl + "/search";
+        String fields = "";
+        if ( ! ((phenoStatus == null) && (prodCentre == null) && (phenoCentre == null))) {
+            target += "#fq=";
+            if (phenoStatus != null) {
+                switch(phenoStatus) {
+                    case "Complete":
+                        fields += "(latest_phenotype_status:\"Phenotyping Complete\")";
+                        break;
+
+                    case "Started":
+                        fields += "(latest_phenotype_status:\"Phenotyping Started\")";
+                        break;
+
+                    case "Attempt Registered":
+                        fields += "(latest_phenotype_status:\"Phenotype Attempt Registered\")";
+                        break;
+                        
+                    default:
+                        throw new RuntimeException("tick(): unknown phenotyping status '" + phenoStatus + "'.");
+                }
+            }
+            
+            if (prodCentre != null) {
+                if ( ! fields.isEmpty()) {
+                    fields += " AND ";
+                fields += "(latest_production_centre:\"" + prodCentre + "\")";
+                }
+            }
+            
+            if (phenoCentre != null) {
+                if ( ! fields.isEmpty()) {
+                    fields += " AND ";
+                fields += "(latest_phenotyping_centre:\"" + phenoCentre + "\")";
+                }
+            }
+            
+            target += fields + "&facet=gene";
+        }
+            
+        driver.get(target);
+                
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        String xpathSelector = "//span[@id=\"resultCount\"]/a";
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpathSelector)));
+    }
+    
+    /**
+     * Given that the current page is the gene search page, returns the number
+     * sandwiched between the 'Found' and 'genes' terms; e.g., given the string
+     * 'Found 5 genes', returns the number 5. Returns 0 if there is no number
+     * or no such formatted string.
+     * @return gene count if found; 0 otherwise
+     */
+    private int getGeneCount() {
+        WebElement element = driver.findElement(By.xpath("//div[@id=\"resultMsg\"]/span[@id=\"resultCount\"]/a"));
+        
+        String s = element.getText().replace(" genes", "");
+        Integer i = Utils.tryParseInt(s);
+        return (i == null ? 0 : i);
+    }
+    
+    // TESTS
+    
+    
     /**
      * Finds all MGI_ACCESSION_IDs in the genotype-phenotype
      * core that do not start with 'MGI'.
@@ -134,7 +260,7 @@ public class GenePageTest {
      * @throws SolrServerException 
      */
     @Test
-//@Ignore
+@Ignore
     public void testForBadGeneIds() throws SolrServerException {
         String testName = "testForBadGeneIds";
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
@@ -151,6 +277,7 @@ public class GenePageTest {
         
         // Loop through all non-conforming genes, testing each one for valid page load (they will likely fail).
         int i = 0;
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
         for (String geneId : geneIds) {
             if (i >= targetCount) {
                 break;
@@ -162,8 +289,7 @@ public class GenePageTest {
 
             try {
                 driver.get(target);
-                (new WebDriverWait(driver, timeout_in_seconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
@@ -190,57 +316,11 @@ public class GenePageTest {
      * @throws SolrServerException 
      */
     @Test
-//@Ignore
+@Ignore
     public void testRandomPageForGeneIds() throws SolrServerException {
         String testName = "testRandomPageForGeneIds";
-        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
-        List<String> geneIds = new ArrayList(geneService.getAllGenes());
-        Collections.shuffle(geneIds);                                      // Randomize the collection.
-        
-        String target = "";
-        List<String> errorList = new ArrayList();
-        List<String> successList = new ArrayList();
-        List<String> exceptionList = new ArrayList();
-        String message;
-        Date start = new Date();
-
-        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
-            
-        // Loop through all genes, testing each one for valid page load.
-        int i = 0;
-        for (String geneId : geneIds) {
-            if (i >= targetCount) {
-                break;
-            }
-            i++;
-            
-            target = baseUrl + "/genes/" + geneId;
-            System.out.println("gene[" + i + "] URL: " + target);
-            
-            try {
-                driver.get(target);
-                (new WebDriverWait(driver, timeout_in_seconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
-            } catch (NoSuchElementException | TimeoutException te) {
-                message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
-                errorList.add(message);
-                TestUtils.sleep(thread_wait_in_ms);
-                continue;
-            }  catch (Exception e) {
-                message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-                exceptionList.add(message);
-                TestUtils.sleep(thread_wait_in_ms);
-                continue;
-            }
-
-            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
-            successList.add(message);
-            
-            TestUtils.sleep(thread_wait_in_ms);
-        }
-        
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
+        boolean isRandom = true;
+        geneIdsTest(testName, isRandom);
     }
 
     /**
@@ -251,36 +331,60 @@ public class GenePageTest {
      * @throws SolrServerException 
      */
     @Test
-//@Ignore
+@Ignore
     public void testPageForGeneIds() throws SolrServerException {
         String testName = "testPageForGeneIds";
+        boolean isRandom = false;
+        geneIdsTest(testName, isRandom);
+    }
+
+    /**
+     * Fetches all gene IDs (MARKER_ACCESSION_ID) from the gene core with 
+     * phenotype status 'started' and phenotype centre 'WTSI' and tests to
+     * make sure there is a page for each. Limit the test by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the number
+     * of iterations as the rvalue.
+     * 
+     * @throws SolrServerException 
+     */
+    @Test
+//@Ignore
+    public void testPageForGenesByLatestPhenotypeStatusStartedAndPhenotypeCentreWTSI() throws SolrServerException {
+        String testName = "testPageForGenesByLatestPhenotypeStatusStartedAndPhenotypeCentreWTSI";
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
-        Set<String> geneIds = geneService.getAllGenes();
+        Set<String> geneIds = geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI);
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
         List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
-
+        
         int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
+        // Check that the count of fetched genes looks correct by ticking the appropriate boxes for this test and comparing
+        // the result against the number of gene rows.
+        tick("Started", null, GeneService.GeneFieldValue.CENTRE_WTSI);
+        int geneCount = getGeneCount();
+        assertEquals(geneCount, geneIds.size());
+        
         // Loop through all genes, testing each one for valid page load.
         int i = 0;
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
         for (String geneId : geneIds) {
             if (i >= targetCount) {
                 break;
             }
             i++;
-
+            
             target = baseUrl + "/genes/" + geneId;
             System.out.println("gene[" + i + "] URL: " + target);
 
+            // Wait for page to load.
             try {
                 driver.get(target);
-                (new WebDriverWait(driver, timeout_in_seconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
@@ -292,7 +396,7 @@ public class GenePageTest {
                 TestUtils.sleep(thread_wait_in_ms);
                 continue;
             }
-
+            
             message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
             successList.add(message);
             
@@ -303,18 +407,20 @@ public class GenePageTest {
     }
 
     /**
-     * Fetches all gene IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
-     * core and tests to make sure there is a page for each. Limit the test
-     * to the first MAX_GENE_TEST_PAGE_COUNT by setting it to the limit you want.
+     * Fetches all gene IDs (MARKER_ACCESSION_ID) from the gene core with 
+     * phenotype status 'started' and production centre 'WTSI' and tests to
+     * make sure there is a page for each. Limit the test by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the number
+     * of iterations as the rvalue.
      * 
      * @throws SolrServerException 
      */
     @Test
 //@Ignore
-    public void testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI() throws SolrServerException {
-        String testName = "testPageForGenesByPhenotypeStatusCompletedAndProductionCentreWTSI";
+    public void testPageForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI() throws SolrServerException {
+        String testName = "testPageForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI";
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
-        Set<String> geneIds = geneService.getGenesByPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.PRODUCTION_CENTRE_WTSI);
+        Set<String> geneIds = geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI);
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -324,8 +430,15 @@ public class GenePageTest {
         
         int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
+
+        // Check that the count of fetched genes looks correct by ticking the appropriate boxes for this test and comparing
+        // the result against the number of gene rows.
+        tick("Started", GeneService.GeneFieldValue.CENTRE_WTSI, null);
+        int geneCount = getGeneCount();
+        assertEquals(geneCount, geneIds.size());
         
         // Loop through all genes, testing each one for valid page load.
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
         int i = 0;
         for (String geneId : geneIds) {
             if (i >= targetCount) {
@@ -339,8 +452,143 @@ public class GenePageTest {
             // Wait for page to load.
             try {
                 driver.get(target);
-                (new WebDriverWait(driver, timeout_in_seconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+            } catch (NoSuchElementException | TimeoutException te) {
+                message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
+                errorList.add(message);
+                TestUtils.sleep(thread_wait_in_ms);
+                continue;
+            } catch (Exception e) {
+                message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+                exceptionList.add(message);
+                TestUtils.sleep(thread_wait_in_ms);
+                continue;
+            }
+            
+            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
+            successList.add(message);
+            
+            TestUtils.sleep(thread_wait_in_ms);
+        }
+        
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
+    }
+    
+    /**
+     * Fetches all gene IDs (MARKER_ACCESSION_ID) from the gene core with 
+     * phenotype status 'complete' and phenotype centre 'WTSI' and tests to
+     * make sure there is a page for each. Limit the test by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the number
+     * of iterations as the rvalue.
+     * 
+     * @throws SolrServerException 
+     */
+    @Test
+//@Ignore
+    public void testPageForGenesByLatestPhenotypeStatusCompleteAndPhenotypeCentreWTSI() throws SolrServerException {
+        String testName = "testPageForGenesByLatestPhenotypeStatusCompleteAndPhenotypeCentreWTSI";
+        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
+        Set<String> geneIds = geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI);
+        String target = "";
+        List<String> errorList = new ArrayList();
+        List<String> successList = new ArrayList();
+        List<String> exceptionList = new ArrayList();
+        String message;
+        Date start = new Date();
+        
+        // Check that the count of fetched genes looks correct by ticking the appropriate boxes for this test and comparing
+        // the result against the number of gene rows.
+        tick("Complete", null, GeneService.GeneFieldValue.CENTRE_WTSI);
+        int geneCount = getGeneCount();
+        assertEquals(geneCount, geneIds.size());
+        
+        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
+        System.out.println(dateFormat.format(start) + ": " + testName + " complete. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
+        
+        // Loop through all genes, testing each one for valid page load.
+        int i = 0;
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        for (String geneId : geneIds) {
+            if (i >= targetCount) {
+                break;
+            }
+            i++;
+            
+            target = baseUrl + "/genes/" + geneId;
+            System.out.println("gene[" + i + "] URL: " + target);
+
+            // Wait for page to load.
+            try {
+                driver.get(target);
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+            } catch (NoSuchElementException | TimeoutException te) {
+                message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
+                errorList.add(message);
+                TestUtils.sleep(thread_wait_in_ms);
+                continue;
+            } catch (Exception e) {
+                message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+                exceptionList.add(message);
+                TestUtils.sleep(thread_wait_in_ms);
+                continue;
+            }
+            
+            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
+            successList.add(message);
+            
+            TestUtils.sleep(thread_wait_in_ms);
+        }
+        
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
+    }
+
+    /**
+     * Fetches all gene IDs (MARKER_ACCESSION_ID) from the gene core with 
+     * phenotype status 'complete' and production centre 'WTSI' and tests to
+     * make sure there is a page for each. Limit the test by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the number
+     * of iterations as the rvalue.
+     * 
+     * @throws SolrServerException 
+     */
+    @Test
+//@Ignore
+    public void testPageForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI() throws SolrServerException {
+        String testName = "testPageForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI";
+        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
+        Set<String> geneIds = geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI);
+        String target = "";
+        List<String> errorList = new ArrayList();
+        List<String> successList = new ArrayList();
+        List<String> exceptionList = new ArrayList();
+        String message;
+        Date start = new Date();
+        
+        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
+        System.out.println(dateFormat.format(start) + ": " + testName + " complete. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
+        
+        // Check that the count of fetched genes looks correct by ticking the appropriate boxes for this test and comparing
+        // the result against the number of gene rows.
+        tick("Complete", GeneService.GeneFieldValue.CENTRE_WTSI, null);
+        int geneCount = getGeneCount();
+        assertEquals(geneCount, geneIds.size());
+        
+        // Loop through all genes, testing each one for valid page load.
+        int i = 0;
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        for (String geneId : geneIds) {
+            if (i >= targetCount) {
+                break;
+            }
+            i++;
+            
+            target = baseUrl + "/genes/" + geneId;
+            System.out.println("gene[" + i + "] URL: " + target);
+
+            // Wait for page to load.
+            try {
+                driver.get(target);
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 errorList.add(message);
@@ -368,7 +616,7 @@ public class GenePageTest {
      * @throws SolrServerException 
      */
     @Test
-//@Ignore
+@Ignore
     public void testInvalidGeneId() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         String testName = "testInvalidGeneId";
@@ -420,7 +668,7 @@ public class GenePageTest {
     }
     
     @Test
-//@Ignore
+@Ignore
     public void testAkt2() throws Exception {
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         String testName = "testAkt2";
@@ -559,4 +807,6 @@ public class GenePageTest {
         TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, 1);
     }
     
+
 }
+    

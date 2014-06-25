@@ -1,7 +1,8 @@
 package uk.ac.ebi.phenotype.web.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -58,9 +59,9 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
         request.setAttribute("version", config.get("version"));
 
         if(config.get("liveSite").equals("false")) {
-            // If development mode, always get the js files by setting
-            // a different version on each pageload
-            request.setAttribute("version", System.currentTimeMillis());
+            // If DEV or BETA, refresh the cache daily
+            String dateStamp = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
+            request.setAttribute("version", dateStamp);
         }
 
         request.setAttribute("drupalBaseUrl", config.get("drupalBaseUrl"));

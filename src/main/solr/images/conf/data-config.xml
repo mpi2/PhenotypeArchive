@@ -30,35 +30,6 @@
         <dataSource name="ontods" jndiName="java:comp/env/jdbc/ontodbDataSource" />        
 		<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
 	
-	<document name="komp2_indexing">
-		<!-- test with and IMA_IMAGE_RECORD.ID=70220 -->
-		<!-- IMPC images (filter out the mouse necropsy images) -->
-		<entity dataSource="komp2ds" name="ima_image_record"
-			query="SELECT o.db_id as datasource_id, o.biological_sample_id as bsid, 
-			e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, o.parameter_id as parameter_id, 
-			e.date_of_experiment, e.external_id, e.id as experiment_id, 
-			e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, 
-			o.*, 
-			iro.download_file_path as download_file_path, 
-			iro.file_type, 
-			iro.large_thumbnail_file_path,
-			iro.increment_value,
-			iro.organisation_id
-			FROM observation o
-			LEFT OUTER JOIN image_record_observation iro ON o.id=iro.id
-			INNER JOIN experiment_observation eo ON eo.observation_id=o.id
-			INNER JOIN experiment e on eo.experiment_id=e.id
-			WHERE o.missing = 0 and observation_type="image_record" limit 100;">
-
-			<field column="id" name="id" />
-			<field column="dataType" name="dataType"/>
-			
-	</entity>
-	</document>
-	
-	
-	
-	
 	
 	<document name="komp2_indexing">
 		<!-- test with and IMA_IMAGE_RECORD.ID=70220 -->
