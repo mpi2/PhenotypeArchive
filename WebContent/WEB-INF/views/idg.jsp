@@ -8,7 +8,7 @@
 
 	<jsp:attribute name="title">IDG | IMPC Project Information</jsp:attribute>
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
-			href="${baseUrl}/IDG">anatomy</a> &raquo; IDG</jsp:attribute>
+			href="${baseUrl}/IDG">IDG</a> &raquo; IDG</jsp:attribute>
 			<jsp:attribute name="bodyTag"><body  class="chartpage no-sidebars small-header"></jsp:attribute>
 	<jsp:attribute name="header">
 </jsp:attribute>
@@ -45,7 +45,7 @@
 				<div class="section">
 					<div class=inner>
 							<div class="floatright">
-								<img src="../img/idgLogo.png" height="85" width="130">
+								<img src="${baseUrl}/img/idgLogo.png" height="85" width="130">
 							</div>
 							<p>
 							<b>Illuminating the Druggable Genome (IDG)</b> is an NIH Common Fund project focused on collecting, integrating and making available biological data on approx 300 genes that have been identified as potenital therapeutic targets. KOMP2 - funded IMPC Centers are creating where possible knockout mouse strains for this consortium.

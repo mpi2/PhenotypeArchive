@@ -156,7 +156,7 @@ public class ChartsController {
             @RequestParam(required = false, value = "metadata_group") String[] metadataGroup,
             @RequestParam(required = false, value = "scatter") boolean scatter,
             @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds,
-            @RequestParam(required = false, value = "allele_accession") String[] alleleAccession,
+            @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession,
             Model model)
             throws GenomicFeatureNotFoundException, ParameterNotFoundException,
             IOException, URISyntaxException, SolrServerException {
