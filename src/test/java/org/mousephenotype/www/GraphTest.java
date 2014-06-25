@@ -247,19 +247,22 @@ public class GraphTest {
     
     
     /**
-     * Fetches  a random selection of all phenotype IDs (MARKER_ACCESSION_ID)
-     * from the mp core and tests the graph links and pages. It is expected that
-     * each row has one or more graphs. Fail the test if there are none.
+     * Fetches all phenotype IDs (MARKER_ACCESSION_ID) from the mp core and tests
+     * the graph links and pages. It is expected that each row has one or more
+     * graphs. Fail the test if there are none.
+     * 
+     * <p><em>Limit the number of test iterations by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the
+     * number of iterations as the rvalue. -1 means run all iterations.</em></p>
      * 
      * @throws SolrServerException 
      */
     @Test
-@Ignore
-    public void testRandomGraphsByPhenotype() throws SolrServerException {
-        final String testName = "testRandomGraphsByPhenotype";
+//@Ignore
+    public void testGraphsByPhenotype() throws SolrServerException {
+        final String testName = "testGraphsByPhenotype";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         List<String> phenotypeIds = new ArrayList(mpService.getAllPhenotypes());
-        Collections.shuffle(phenotypeIds);                                      // Randomize the collection.
         boolean isGraphRequired = true;                                         // There must be at least 1 graph.
         
         String target = "";
@@ -333,16 +336,18 @@ public class GraphTest {
     }
     
     /**
-     * Fetches  a random selection of all gene IDs from the genoPheno core and
-     * tests the graph links and pages. It is expected that each row has one or
-     * more graphs. Fail the test if there are none.
+     * Fetches all gene IDs from the genoPheno core and tests the graph links and pages.
+     * 
+     * <p><em>Limit the number of test iterations by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the
+     * number of iterations as the rvalue. -1 means run all iterations.</em></p>
      * 
      * @throws SolrServerException 
      */
     @Test
-@Ignore
-    public void testRandomGraphsByGene() throws SolrServerException {
-        final String testName = "testRandomGraphsByGene";
+//@Ignore
+    public void testGraphsByGene() throws SolrServerException {
+        final String testName = "testGraphsByGene";
         boolean isGraphRequired = true;                                         // There must be at least 1 graph.
         
         List<String> geneIds = new ArrayList(genotypePhenotypeService.getAllGenesWithPhenotypeAssociations());
@@ -354,9 +359,11 @@ public class GraphTest {
     /**
      * Fetches all gene IDs (MARKER_ACCESSION_ID) from the gene core with 
      * phenotype status 'Complete' and phenotype centre 'WTSI' and tests the
-     * graph links and pages. Limit the test by adding an entry to
-     * testIterations.properties with this test's name as the lvalue and the number
-     * of iterations as the rvalue.
+     * graph links and pages.
+     * 
+     * <p><em>Limit the number of test iterations by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the
+     * number of iterations as the rvalue. -1 means run all iterations.</em></p>
      * 
      * @throws SolrServerException 
      */

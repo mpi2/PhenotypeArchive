@@ -27,6 +27,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,8 @@ public class TestUtils {
     
     /**
      * Return target count prioritized as follows:
+     * <p><b>NOTE: If the returned target size is less than the collection size,
+     * the collection is shuffled (i.e. randomized)</b></p>
      * <ul>
      * <li>if there is a system property matching <i>testMethodName</i>, that value is used</li>
      * <li>else if <i>testMethodName</i> appears in the <code>testIterations.properties</code> file, that value is used</li>
@@ -73,7 +76,7 @@ public class TestUtils {
      *                     and no match was found for <i>testMethodName</i> in <code>testIterations.properties</code>
      * @return target count
      */
-    public int getTargetCount(String testMethodName, Collection<String> collection, Integer defaultCount) {
+    public int getTargetCount(String testMethodName, List<String> collection, Integer defaultCount) {
         Integer targetCount = null;
         
         if (defaultCount != null)
@@ -94,6 +97,12 @@ public class TestUtils {
         
         if (targetCount == -1)
             targetCount = collection.size();
+        
+        // If targetCount is less than the collection, randomize the collection.
+        if (targetCount < collection.size()) {
+            Collections.shuffle(collection);
+            System.out.println("Randomizing collection.");
+        }
         
         return Math.min(targetCount, collection.size());
     }

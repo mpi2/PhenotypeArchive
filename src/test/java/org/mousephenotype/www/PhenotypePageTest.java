@@ -21,7 +21,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
@@ -128,14 +127,22 @@ public class PhenotypePageTest {
     
     /**
      * Checks the MGI links for the first MAX_MGI_LINK_CHECK_COUNT phenotype ids
+     * Fetches all gene IDs (MARKER_ACCESSION_ID) with phenotype associations
+     * from the genotype-phenotype core and tests to make sure there is an MGI
+     * link for each.
+     * 
+     * <p><em>Limit the number of test iterations by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the
+     * number of iterations as the rvalue. -1 means run all iterations.</em></p>
      * 
      * @throws SolrServerException 
      */
     @Test
+//@Ignore
     public void testMGI_MPLinksAreValid() throws SolrServerException {
-        String testName = "testMGILinksAreValid";
+        String testName = "testMGI_MPLinksAreValid";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        Set<String> phenotypeIds = genotypePhenotypeService.getAllPhenotypesWithGeneAssociations();
+        List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllPhenotypesWithGeneAssociations());
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -195,15 +202,20 @@ public class PhenotypePageTest {
     
     /**
      * Fetches all phenotype IDs from the genotype-phenotype core and
-     * tests to make sure there is a page for each.
+     * tests to make sure there is a valid phenotype page for each.
+     * 
+     * <p><em>Limit the number of test iterations by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the
+     * number of iterations as the rvalue. -1 means run all iterations.</em></p>
      * 
      * @throws SolrServerException 
      */
     @Test
+//@Ignore
     public void testPageForEveryMPTermId() throws SolrServerException {
         String testName = "testPageForEveryMPTermId";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        Set<String> phenotypeIds = mpService.getAllPhenotypes();
+        List<String> phenotypeIds = new ArrayList(mpService.getAllPhenotypes());
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -214,7 +226,7 @@ public class PhenotypePageTest {
         int targetCount = testUtils.getTargetCount(testName, phenotypeIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
         
-        // Loop through the phenotypes, testing each one for valid page load.
+        // Loop through the phenotype pages, testing each one for valid page load.
         int i = 0;
         for (String phenotypeId : phenotypeIds) {
             if (i >= targetCount) {
@@ -252,16 +264,20 @@ public class PhenotypePageTest {
     
     /**
      * Fetches all top-level phenotype IDs from the genotype-phenotype core and
-     * tests to make sure there is a page for each.
+     * tests to make sure there is a valid phenotype page for each.
+     * 
+     * <p><em>Limit the number of test iterations by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the
+     * number of iterations as the rvalue. -1 means run all iterations.</em></p>
      * 
      * @throws SolrServerException 
      */
-@Ignore
     @Test
+//@Ignore
     public void testPageForEveryTopLevelMPTermId() throws SolrServerException {
         String testName = "testPageForEveryTopLevelMPTermId";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        Set<String> phenotypeIds = genotypePhenotypeService.getAllTopLevelPhenotypes();
+        List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllTopLevelPhenotypes());
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -309,17 +325,21 @@ public class PhenotypePageTest {
     }
     
     /**
-     * Fetches all intermediate-level phenotype IDs from the genotype-phenotype core and
-     * tests to make sure there is a page for each.
+     * Fetches all intermediate-level phenotype IDs from the genotype-phenotype
+     * core and tests to make sure there is a valid phenotype page for each.
+     * 
+     * <p><em>Limit the number of test iterations by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the
+     * number of iterations as the rvalue. -1 means run all iterations.</em></p>
      * 
      * @throws SolrServerException 
      */
-@Ignore
     @Test
+//@Ignore
     public void testPageForEveryIntermediateLevelMPTermId() throws SolrServerException {
         String testName = "testPageForEveryIntermediateLevelMPTermId";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        Set<String> phenotypeIds = genotypePhenotypeService.getAllIntermediateLevelPhenotypes();
+        List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllIntermediateLevelPhenotypes());
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -371,7 +391,7 @@ public class PhenotypePageTest {
      * 
      * @throws SolrServerException 
      */
-@Ignore
+//@Ignore
     @Test
     public void testInvalidMpTermId() throws SolrServerException {
         String testName = "testInvalidMpTermId";

@@ -133,12 +133,9 @@ public class GenePageTest {
     // PRIVATE METHODS
     
     
-    private void geneIdsTest(String testName, boolean isRandom) throws SolrServerException {
+    private void geneIdsTest(String testName) throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         List<String> geneIds = new ArrayList(geneService.getAllGenes());
-        
-        if (isRandom)
-            Collections.shuffle(geneIds);                                       // Randomize the collection.
         
         String target = "";
         List<String> errorList = new ArrayList();
@@ -250,6 +247,7 @@ public class GenePageTest {
         return (i == null ? 0 : i);
     }
     
+    
     // TESTS
     
     
@@ -257,14 +255,18 @@ public class GenePageTest {
      * Finds all MGI_ACCESSION_IDs in the genotype-phenotype
      * core that do not start with 'MGI'.
      * 
+     * <p><em>Limit the number of test iterations by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the
+     * number of iterations as the rvalue. -1 means run all iterations.</em></p>
+     * 
      * @throws SolrServerException 
      */
     @Test
-@Ignore
+//@Ignore
     public void testForBadGeneIds() throws SolrServerException {
         String testName = "testForBadGeneIds";
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
-        Set<String> geneIds = geneService.getAllNonConformingGenes();
+        List<String> geneIds = new ArrayList(geneService.getAllNonConformingGenes());
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -309,41 +311,29 @@ public class GenePageTest {
 
     /**
      * Fetches all gene IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
-     * core and tests to make sure there is a page for each. Limit the test by
-     * adding a value to testIterations.properties with the test name on the
-     * left and the number of iterations on the right (-1 means run all).
+     * core and tests to make sure there is a page for each.
+     * 
+     * <p><em>Limit the number of test iterations by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the
+     * number of iterations as the rvalue. -1 means run all iterations.</em></p>
      * 
      * @throws SolrServerException 
      */
     @Test
-@Ignore
-    public void testRandomPageForGeneIds() throws SolrServerException {
-        String testName = "testRandomPageForGeneIds";
-        boolean isRandom = true;
-        geneIdsTest(testName, isRandom);
-    }
-
-    /**
-     * Fetches all gene IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
-     * core and tests to make sure there is a page for each. Limit the test
-     * to the first MAX_GENE_TEST_PAGE_COUNT by setting it to the limit you want.
-     * 
-     * @throws SolrServerException 
-     */
-    @Test
-@Ignore
+//@Ignore
     public void testPageForGeneIds() throws SolrServerException {
         String testName = "testPageForGeneIds";
-        boolean isRandom = false;
-        geneIdsTest(testName, isRandom);
+        geneIdsTest(testName);
     }
 
     /**
      * Fetches all gene IDs (MARKER_ACCESSION_ID) from the gene core with 
      * phenotype status 'started' and phenotype centre 'WTSI' and tests to
-     * make sure there is a page for each. Limit the test by adding an entry to
-     * testIterations.properties with this test's name as the lvalue and the number
-     * of iterations as the rvalue.
+     * make sure there is a page for each.
+     * 
+     * <p><em>Limit the number of test iterations by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the
+     * number of iterations as the rvalue. -1 means run all iterations.</em></p>
      * 
      * @throws SolrServerException 
      */
@@ -352,7 +342,7 @@ public class GenePageTest {
     public void testPageForGenesByLatestPhenotypeStatusStartedAndPhenotypeCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByLatestPhenotypeStatusStartedAndPhenotypeCentreWTSI";
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
-        Set<String> geneIds = geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI);
+        List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI));
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -409,9 +399,11 @@ public class GenePageTest {
     /**
      * Fetches all gene IDs (MARKER_ACCESSION_ID) from the gene core with 
      * phenotype status 'started' and production centre 'WTSI' and tests to
-     * make sure there is a page for each. Limit the test by adding an entry to
-     * testIterations.properties with this test's name as the lvalue and the number
-     * of iterations as the rvalue.
+     * make sure there is a page for each.
+     * 
+     * <p><em>Limit the number of test iterations by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the
+     * number of iterations as the rvalue. -1 means run all iterations.</em></p>
      * 
      * @throws SolrServerException 
      */
@@ -420,7 +412,7 @@ public class GenePageTest {
     public void testPageForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI";
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
-        Set<String> geneIds = geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI);
+        List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI));
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -477,9 +469,11 @@ public class GenePageTest {
     /**
      * Fetches all gene IDs (MARKER_ACCESSION_ID) from the gene core with 
      * phenotype status 'complete' and phenotype centre 'WTSI' and tests to
-     * make sure there is a page for each. Limit the test by adding an entry to
-     * testIterations.properties with this test's name as the lvalue and the number
-     * of iterations as the rvalue.
+     * make sure there is a page for each.
+     * 
+     * <p><em>Limit the number of test iterations by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the
+     * number of iterations as the rvalue. -1 means run all iterations.</em></p>
      * 
      * @throws SolrServerException 
      */
@@ -488,7 +482,7 @@ public class GenePageTest {
     public void testPageForGenesByLatestPhenotypeStatusCompleteAndPhenotypeCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByLatestPhenotypeStatusCompleteAndPhenotypeCentreWTSI";
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
-        Set<String> geneIds = geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI);
+        List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI));
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -545,9 +539,11 @@ public class GenePageTest {
     /**
      * Fetches all gene IDs (MARKER_ACCESSION_ID) from the gene core with 
      * phenotype status 'complete' and production centre 'WTSI' and tests to
-     * make sure there is a page for each. Limit the test by adding an entry to
-     * testIterations.properties with this test's name as the lvalue and the number
-     * of iterations as the rvalue.
+     * make sure there is a page for each.
+     * 
+     * <p><em>Limit the number of test iterations by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the
+     * number of iterations as the rvalue. -1 means run all iterations.</em></p>
      * 
      * @throws SolrServerException 
      */
@@ -556,7 +552,7 @@ public class GenePageTest {
     public void testPageForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI";
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
-        Set<String> geneIds = geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI);
+        List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI));
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
@@ -616,7 +612,7 @@ public class GenePageTest {
      * @throws SolrServerException 
      */
     @Test
-@Ignore
+//@Ignore
     public void testInvalidGeneId() throws SolrServerException {
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         String testName = "testInvalidGeneId";
@@ -668,7 +664,7 @@ public class GenePageTest {
     }
     
     @Test
-@Ignore
+//@Ignore
     public void testAkt2() throws Exception {
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         String testName = "testAkt2";
