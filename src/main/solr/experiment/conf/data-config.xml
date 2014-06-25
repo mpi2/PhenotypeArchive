@@ -127,7 +127,7 @@
 			</entity>
 
 			<entity name="biologicalData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache"
-				query="SELECT bs.id, bs.organisation_id, org.name, bs.sample_group, bs.external_id as external_sample_id,
+				query="SELECT bs.id as bio_samp_id, bs.organisation_id, org.name, bs.sample_group, bs.external_id as external_sample_id,
 				ls.date_of_birth as birthdate, ls.colony_id, ls.sex as sex, ls.colony_id, ls.zygosity, 
 				bms.biological_model_id as bmid,
 				strain.acc as strain_acc, strain.name as strain_name, 
@@ -143,7 +143,7 @@
 				LEFT OUTER JOIN biological_model_allele bma ON bma.biological_model_id=bms.biological_model_id
 				LEFT OUTER JOIN allele a ON (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id)
 				LEFT OUTER JOIN genomic_feature gf ON gf.acc=bmgf.gf_acc"
-				where="id=observation.bsid">
+				where="bio_samp_id=observation.bsid">
 
 				<field column="bmid" name="biological_model_id" />
 				<field column="biological_sample_id" name="biological_sample_id" />
