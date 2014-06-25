@@ -110,4 +110,11 @@ public interface ObservationDAO extends HibernateDAO {
 
 	public List<String> getAllGeneAccessionIdsByParameterIdOrganisationStrainZygositySex(Integer parameterId, Organisation organisation, String strain, ZygosityType zygosity, SexType sex) throws SQLException;
 	
+    /**
+     * Fetch count of records NOT missing but with not null/empty parameter_status or parameter_status_message.
+     * @return count, interesting fields
+     * @throws SQLException 
+     */
+    public List<String[]> getNotMissingNotEmpty() throws SQLException;
+        
 }

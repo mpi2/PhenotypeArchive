@@ -721,5 +721,55 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
         
         return pStatusMap;
 	}
+        
+
+    /**
+     * Fetch count of records NOT missing but with not null/empty parameter_status or parameter_status_message.
+     * @return count, interesting fields
+     * @throws SQLException 
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<String[]> getNotMissingNotEmpty() throws SQLException {
+        List<String[]> data = new ArrayList();
+        Object o;
+
+        String query = "SELECT\n"
+                + "  o.missing\n"
+                + ", COUNT(*) AS notMissingCount\n"
+                + ", e.organisation_id\n"
+                + ", o.observation_type\n"
+                + ", o.parameter_status\n"
+                + ", o.parameter_status_message\n"
+                + "FROM observation o\n"
+                + "JOIN experiment_observation eo ON eo.observation_id = o.id\n"
+                + "JOIN experiment e ON e.id = eo.experiment_id\n"
+                + "WHERE (missing = 0)  AND (((TRIM(IFNULL(parameter_status, ''))) != '')\n"
+                + "   OR (TRIM(IFNULL(parameter_status_message, '')) != ''))\n"
+                + "GROUP BY observation_type, e.organisation_id\n"
+                + "ORDER BY e.organisation_id limit 1000000\n";
+
+        try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                String[] row = new String[6];
+                row[0] = resultSet.getString("missing");
+                row[1] = Long.toString(resultSet.getLong("notMissingCount"));
+                row[2] = resultSet.getString("organisation_id");
+                row[3] = resultSet.getString("observation_type");
+                o = resultSet.getObject("parameter_status");
+                row[4] = (String)(o == null ? "<null>" : o);
+                o = resultSet.getObject("parameter_status_message");
+                row[5] = (String)(o == null ? "<null>" : o);
+                data.add(row);
+            }
+        }
+
+        return data;
+    }
+        
+        
+        
+        
 	
 }
