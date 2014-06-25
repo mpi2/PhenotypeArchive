@@ -6,6 +6,7 @@
 
 package uk.ac.ebi.phenotype.web.pojo;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import uk.ac.ebi.phenotype.service.*;
@@ -69,12 +70,33 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
     }
     
     public int compareTo(GeneRowForHeatMap compareRow) {
-		int compareQuantity =  compareRow.getXAxisToCellMap().size(); 
-		if(this.xAxisToCellMap.size()>compareQuantity){
+		int compareNumberOfMps =  0;
+		compareRow.getXAxisToCellMap().size();
+		Collection<HeatMapCell> compareValues = compareRow.getXAxisToCellMap().values();
+		for(HeatMapCell cell:compareValues){
+			if(cell.getStatus().equals("Data Available"))compareNumberOfMps++;
+		}
+		Collection<HeatMapCell> values = this.xAxisToCellMap.values();
+		int thisNumberOfMps=0;
+		for(HeatMapCell cell:values){
+			if(cell.getStatus().equals("Data Available"))thisNumberOfMps++;
+		}
+		if(thisNumberOfMps>compareNumberOfMps){
 			return -1;
 		}
-		if(this.xAxisToCellMap.size()<compareQuantity){
+		if(thisNumberOfMps<compareNumberOfMps){
 			return 1;
+		}
+		if(thisNumberOfMps==0 && compareNumberOfMps==0){
+			//compare if they have No Data Available as there first result
+			HeatMapCell compareCell = compareRow.getXAxisToCellMap().entrySet().iterator().next().getValue();
+			HeatMapCell thisCell = (HeatMapCell)this.getXAxisToCellMap().entrySet().iterator().next().getValue();
+			if(!thisCell.getStatus().equals("No Data Available") && compareCell.getStatus().equals("No Data Available")){
+				return -1;
+			}
+			if(thisCell.getStatus().equals("No Data Available") && !compareCell.getStatus().equals("No Data Available")){
+				return 1;
+			}
 		}
 //		Float compareQuantity =  compareRow.getLowestPValue(); 
 //		if(this.lowestPValue>compareQuantity){

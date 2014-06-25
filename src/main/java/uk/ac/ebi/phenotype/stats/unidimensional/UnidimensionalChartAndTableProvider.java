@@ -119,7 +119,6 @@ List<Float>dataFloats=new ArrayList<>();
 
 					for (ZygosityType zType : experiment.getZygosities()) {
 						
-
 							// loop over all the experimental docs and get all
 							// that apply to current loop parameters
 							List<Float> mutantCounts = new ArrayList<Float>();

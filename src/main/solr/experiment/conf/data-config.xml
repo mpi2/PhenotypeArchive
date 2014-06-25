@@ -42,12 +42,15 @@
 			mo.dimension, 
 			tso.data_point as time_series_data_point, 
 			tso.time_point, 
-			tso.discrete_point
+			tso.discrete_point,
+			iro.file_type,
+			iro.download_file_path
 			FROM observation o
 			LEFT OUTER JOIN categorical_observation co ON o.id=co.id
 			LEFT OUTER JOIN unidimensional_observation uo ON o.id=uo.id
 			LEFT OUTER JOIN multidimensional_observation mo ON o.id=mo.id
 			LEFT OUTER JOIN time_series_observation tso ON o.id=tso.id
+			LEFT OUTER JOIN image_record_observation iro ON o.id=iro.id
 			INNER JOIN experiment_observation eo ON eo.observation_id=o.id
 			INNER JOIN experiment e on eo.experiment_id=e.id
 			WHERE o.missing = 0
@@ -74,6 +77,9 @@
 			<field column="metadata_group" name="metadata_group" />
 			<field column="metadata" sourceColName="metadata_combined" splitBy="::" />
 
+			<field column="file_type" name="file_type" />
+			<field column="download_file_path" name="download_file_path" />
+ 
 			<entity name="datasourceData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache"
 				query="SELECT id as datasource_id, short_name as datasource_name FROM external_db"
 				where="datasource_id=observation.datasource_id">
@@ -121,7 +127,12 @@
 			</entity>
 
 			<entity name="biologicalData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache"
-				query="SELECT bs.id, strain.acc as strain_acc, strain.name as strain_name, bma.allele_acc as allele_accession, a.symbol as allele_symbol, bs.organisation_id, org.name, bs.sample_group, gf.acc as acc, ls.sex as sex, ls.colony_id, ls.zygosity, gf.symbol as symbol, bms.biological_model_id as bmid, ls.date_of_birth as birthdate, ls.colony_id, bs.external_id as external_sample_id
+				query="SELECT bs.id, bs.organisation_id, org.name, bs.sample_group, bs.external_id as external_sample_id,
+				ls.date_of_birth as birthdate, ls.colony_id, ls.sex as sex, ls.colony_id, ls.zygosity, 
+				bms.biological_model_id as bmid,
+				strain.acc as strain_acc, strain.name as strain_name, 
+				CASE WHEN bma.allele_acc LIKE 'IMPC%' THEN NULL ELSE bma.allele_acc END as allele_accession, a.symbol as allele_symbol, 
+				gf.acc as acc, gf.symbol as symbol 
 				FROM biological_sample bs
 				INNER JOIN organisation org ON bs.organisation_id=org.id
 				INNER JOIN live_sample ls ON bs.id=ls.id
@@ -172,29 +183,6 @@
 				<field column="category" name="category" />
 			</entity>
 
-			<!-- NOTE ** ALERT ** NOTE ** ALERT ** CAUTION 
-				
-				The outer entity will short circuit executing 
-				the inner entity when observation.id is not defined, 
-				otherwise it will execute the inner entity.
-				
-				Essentially, this will only run the query when the 
-				observation is an image_record_observation.
-
-			CAUTION ** ALERT ** NOTE ** ALERT ** NOTE -->
-
-			<entity name="protect" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache"
-				query="SELECT 1 FROM (SELECT 1) a where '${observation.observation_type}' = 'image_record'" >
-				<entity dataSource="komp2ds" name="imageRecord" onError="skip" 
-					query="SELECT iro.file_type, iro.download_file_path
-                       FROM image_record_observation iro
-                       WHERE iro.id=${observation.id}
-						">
-					<field column="file_type" name="file_type" />
-					<field column="download_file_path" name="download_file_path" />
-				</entity>
-			</entity>
- 
 		</entity>
 
 	</document>
