@@ -24,6 +24,7 @@
 
 package org.mousephenotype.www;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
 import edu.emory.mathcs.backport.java.util.Collections;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -209,7 +210,7 @@ public class GraphTest {
                 page.validate(status, isGraphRequired);
                 
                 if (status.getFail() > 0) {
-                    System.out.println(status.getFail() + " graphs failed for gene " + page.getUrl());
+                    System.out.println("Graph failed for gene " + page.getUrl());
                     for (String s : status.getFailMessages()) {
                         System.out.println("\t" + s);
                     }
@@ -434,6 +435,24 @@ public class GraphTest {
         boolean isGraphRequired = false;                                        // No graphs are required.
 
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI));
+        
+        process(testName, geneIds, isGraphRequired);
+    }
+
+    /**
+     * This test is a catch-all for graph tests that have previously failed
+     * validation, offering a place to re-test specific genes.
+     * 
+     * @throws SolrServerException 
+     */
+    @Test
+//@Ignore
+    public void testKnownBadGenes() throws SolrServerException {
+        final String testName = "testKnownBadGenes";
+        boolean isGraphRequired = false;                                        // No graphs are required.
+
+        List<String> geneIds = new ArrayList();
+        geneIds.add("MGI:3036236");
         
         process(testName, geneIds, isGraphRequired);
     }
