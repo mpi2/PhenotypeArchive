@@ -202,7 +202,72 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 		
 		return results;
 	}
-	
+
+	@Override
+	public List<AggregateCountXYBean> getHistoricalData(String propertyKey) {
+			
+			PreparedStatement statement = null;
+			ResultSet resultSet = null;
+			List<AggregateCountXYBean> results = new ArrayList<AggregateCountXYBean>();
+			
+			try (Connection connection = getConnection()) {
+				
+				statement = connection.prepareStatement("SELECT property_value, property_key, data_release_version FROM meta_history WHERE property_key = ? ORDER BY data_release_version ASC");
+				statement.setString(1, propertyKey);
+				resultSet = statement.executeQuery();
+				
+				while (resultSet.next()) {
+					
+					results.add(new AggregateCountXYBean(
+							resultSet.getInt(1), 
+							resultSet.getString(2),
+							resultSet.getString(2),
+							null,
+							resultSet.getString(3),
+							resultSet.getString(3), 
+							null
+							));
+				}
+				statement.close();
+				
+			}catch (SQLException e) {
+				e.printStackTrace();
+				
+			}
+			
+			return results;
+		}
+
+	@Override
+	public List<String> getReleases(String excludeRelease) {
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		List<String> results = new ArrayList<String>();
+		
+		try (Connection connection = getConnection()) {
+			
+			if (excludeRelease != null) {
+				statement = connection.prepareStatement("SELECT DISTINCT data_release_version FROM meta_history WHERE data_release_version <> ? ORDER BY data_release_version ASC");
+				statement.setString(1, excludeRelease);
+			} else {
+				statement = connection.prepareStatement("SELECT DISTINCT data_release_version FROM meta_history ORDER BY data_release_version ASC");
+			}
+				resultSet = statement.executeQuery();
+			
+			while (resultSet.next()) {
+				
+				results.add(resultSet.getString(1));
+
+			}
+			statement.close();
+			
+		}catch (SQLException e) {
+			e.printStackTrace();
+			
+		}
+		
+		return results;
+	}
 	
 	
 }
