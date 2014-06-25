@@ -18,7 +18,7 @@
  */
 jQuery(document).ready(	function() {
 
-//code for setting ENU links on Gene Page	
+//code for setting allele links on Gene Page	
 	
 	$.ajax({
 		url: '../genesAllele/' + gene_id,    
@@ -35,6 +35,35 @@ jQuery(document).ready(	function() {
 	    }
 	});
 
+        $('.qcData').each(function(){
+            var type = $(this).data("type");
+            var name = $(this).data("name");
+            var url = '../../qc_data/' + type + '/' + name;
+        	$.ajax({
+		    url: url,    
+		    timeout: 2000,
+                    context: this,
+		    success: function (response) {
+			$(this).html(response);
+			
+		    }
+		    ,error: function(x, t, m) {
+			var errorMsg='<td>QC Data Link:</td><td class="gene-data" id="allele_links"><font color="red"><font color="red">Error trying to retrieve QC Data infomation</font></td>';
+	    	        $(this).html(errorMsg);
+	            }
+	        });
+        });
 
+        $(".hasTooltip").each(function(){
+            $(this).qtip({
+                content: {text: $(this).next('div')},
+                position: {
+			my: 'top middle',
+			at: 'bottom middle'
+			},
+                style: { classes: 'ui-tooltip-wideimage'
+                     }
+            });
+        });
 
 });

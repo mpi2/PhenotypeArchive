@@ -51,6 +51,7 @@
             return '${drupalBaseUrl}/phenoview?gid=' + genotype_id + '&qeid=' + type;
         };
     </script>
+
     <!--<![endif]-->
     <!--[if lt IE 9]>
     <script>
@@ -126,6 +127,7 @@
 		<script src="${baseUrl}/js/general/enu.js"></script>
 		<script src="${baseUrl}/js/general/dropdownfilters.js"></script>
 		<script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
+                <link rel="stylesheet" type="text/css" href="${baseUrl}/css/widetooltip.css"/>
 		
 		
 		<script type="text/javascript">var gene_id = '${acc}';</script>
@@ -425,9 +427,11 @@
                 <td>${mouse['genetic_background']}</td>
                 <td>${mouse['production_centre']}</td>
                 <td>${mouse['es_cell']}</td>
-                <td style="text-align: center;"><a href="${mouse['qc_data']}">QC data</a> / <a href="${mouse['southern_tool']}">Southern tool</a></td>
-                
-                
+                <td style="text-align: center;"><a class="hasTooltip">QC data</a>
+                <div class="hidden">
+                    <div class="qcData" data-type="mouse" data-name="BL3546"></div>
+                </div>
+                / <a href="${mouse['southern_tool']}">Southern tool</a></td>
                 <td>
                     <c:forEach var="order" items="${mouse['orders']}" varStatus="ordersx">
                         <a class="btn" href="${order['url']}"> <i class="fa fa-shopping-cart"></i> ${order['name']}</a>
@@ -508,7 +512,11 @@
         <td>${es_cell['genetic_background']}</td>
         <td>${es_cell['es_cell_clone']}</td>
         <td>${es_cell['targeting_vector']}</td>
-        <td style="text-align: center;"><a href="${es_cell['qc_data']}">QC data</a> / <a href="${es_cell['southern_tool']}">Southern tool</a></td>
+        <td style="text-align: center;"><a class="hasTooltip">QC data</a>
+            <div class="hidden">
+                <div class="qcData" data-type="es_cell" data-name="BL3546"></div>
+            </div>            
+            / <a href="${es_cell['southern_tool']}">Southern tool</a></td>
         
         <td>${es_cell['es_cell_strain']} / ${es_cell['parental_cell_line']}</td>
         

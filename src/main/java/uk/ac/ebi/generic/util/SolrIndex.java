@@ -878,6 +878,65 @@ public class SolrIndex {
         return construct;
     }
 
+    public HashMap<String, HashMap<String, List<String>>>  getAlleleQcInfo(String type, String name)
+        throws IOException, URISyntaxException {
+
+        String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/product/search?q=name:"
+                + name
+                + " AND type:"
+                + type
+                + "&start=0&rows=100&hl=true&wt=json";
+
+        log.info("url for productQc=" + url);
+
+        JSONObject jsonObject = getResults(url);
+        int numberFound = Integer.parseInt(jsonObject.getJSONObject("response").getString("numFound"));
+
+        JSONArray docs = jsonObject.getJSONObject("response").getJSONArray("docs");
+        HashMap<String, HashMap<String, List<String>>> construct = new HashMap<String, HashMap<String, List<String>>>();
+
+        if (docs.size() < 1) {
+            log.info("No " + type + "found with a name equal to " + name);
+        } 
+        else {
+        try {
+            if (docs.getJSONObject(0).has("qc_data") && docs.getJSONObject(0).getString("qc_data").length() > 0) {
+                construct = extractQcData(docs , 0);
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            }            
+        }
+        return construct;
+    }
+    
+    private HashMap<String, HashMap<String, List<String>>> extractQcData(JSONArray docs, int i) {
+        HashMap<String, HashMap<String, List<String>>> deep = new HashMap<String, HashMap<String, List<String>>>();
+        
+        String[] qc;
+        qc = new String[3];
+        String qc_group;
+        String qc_type;
+        String qc_result;
+        
+        JSONArray qcDataArray = docs.getJSONObject(i).getJSONArray("qc_data");
+        for (int j = 0; j < qcDataArray.size(); j++) {
+            qc = qcDataArray.getString(j).split(":");
+            qc_group = qc[0];
+            qc_type = qc[1];
+            qc_result = qc[2];
+            if (!deep.containsKey(qc_group)){
+                deep.put(qc_group, new HashMap<String, List<String>>());
+                deep.get(qc_group).put("fieldNames", new ArrayList());
+                deep.get(qc_group).put("values", new ArrayList());
+            }
+            deep.get(qc_group).get("fieldNames").add(qc_type);
+            deep.get(qc_group).get("values").add(qc_result);
+        }
+        return deep;
+    }
+            
     public JSONObject getImageInfo(int imageId) throws SolrServerException,
             IOException, URISyntaxException {
 
