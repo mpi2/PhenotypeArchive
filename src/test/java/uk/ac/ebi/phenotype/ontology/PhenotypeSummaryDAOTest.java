@@ -105,7 +105,7 @@ public class PhenotypeSummaryDAOTest  extends AbstractTransactionalJUnit4SpringC
 //		// put the genes in a hashSet to get rid of duplicates
 //		
 //		HashMap<String, String> summary;
-//		for (String gene: gpService.getAllGenes()){
+//		for (String gene: gpService.getAllGenesWithPhenotypeAssociations()){
 //			System.out.println("Test gene: " + gene);			
 //			//test getTopLevelMPTerms
 //			summary = gpService.getTopLevelMPTerms(gene);	

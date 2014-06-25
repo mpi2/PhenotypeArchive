@@ -57,7 +57,7 @@ public class CoreTests extends AbstractTransactionalJUnit4SpringContextTests {
     public void testAllGPGenesInGeneCore() throws SolrServerException {
     	System.out.println("Test if all genes in genotype-phenotype core are indexed in the gene core.");
          
-        Set<String> gpGenes = gpService.getAllGenes();
+        Set<String> gpGenes = gpService.getAllGenesWithPhenotypeAssociations();
         
         Set<String> gGenes = gService.getAllGenes();
         
@@ -77,7 +77,7 @@ public class CoreTests extends AbstractTransactionalJUnit4SpringContextTests {
     public void testAllGPPhenotypeInMP() throws SolrServerException {
     	System.out.println("Test if all phenotypes in genotype-phenotype core are indexed in the mp core.");
          
-        Set<String> gpPhen = gpService.getAllPhenotypes();
+        Set<String> gpPhen = gpService.getAllPhenotypesWithGeneAssociations();
         
         Set<String> mpPhen = mpService.getAllPhenotypes();
         

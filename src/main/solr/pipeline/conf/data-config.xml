@@ -1,62 +1,63 @@
-	<dataConfig>
-        <script type='text/javascript'><![CDATA[
-        
-                function fetch_human_symbol(row){
-                        if ( row.get('mouse2human_symbol') ){                           
-                                aList = row.get('mouse2human_symbol').toString().split('___');                          
-                                row.put('human_gene_symbol', aList[1].replace(']',''));                                                 
-                                }              
-                
-                        return row; 
-                }
-
-                function procedure_mapping(row){
-                        if ( row.get('name') ){                         
-                                name = row.get('name').toString().replace("&", encodeURIComponent('&'));                                
-
-                                // do something name mapping here before we have the right data
-                                mapping = {
-                                        
-                                        'Adult LacZ' : 'Wholemount Expression',
-                                        'FACS Analysis' : 'Flow Cytometry',
-                                        'Histopathology' : 'Histology Slide',
-                                        'X-ray' : 'Xray',
-                                        'X-ray Imaging' : 'Xray',
-                                        'Combined SHIRPA and Dysmorphology' : 'Embryo Dysmorphology'
-                                };
-
-                                name = mapping[name] == null ? name : mapping[name];
-                                row.put('mapped_procedure_name', encodeURI(name));                                              
-                        }              
-                
-                        return row; 
-                }       
-
-    ]]></script>
-
-        <dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />     
-        <dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>        
-        <dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0:8090/build_indexes/mp/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
-        <dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/> 
+<dataConfig>
+	<script type='text/javascript'><![CDATA[
 	
-			<document name="mega_pipeline_indexing">
+	        function procedure_mapping(row){
+	                if ( row.get('name') ){                         
+	                        name = row.get('name').toString().replace("&", encodeURIComponent('&'));                                
+	
+	                        // do something name mapping here before we have the right data
+	                        mapping = {
+	                                
+	                                'Adult LacZ' : 'Wholemount Expression',
+	                                'FACS Analysis' : 'Flow Cytometry',
+	                                'Histopathology' : 'Histology Slide',
+	                                'X-ray' : 'Xray',
+	                                'X-ray Imaging' : 'Xray',
+	                                'Combined SHIRPA and Dysmorphology' : 'Embryo Dysmorphology'
+	                        };
+	
+	                        name = mapping[name] == null ? name : mapping[name];
+	                        row.put('mapped_procedure_name', encodeURI(name));                                              
+	                }              
+	        
+	                return row; 
+	        }       
+	
+	]]></script>
 
-			<!-- IMPC pipeline -->
-			<!-- test with id 3318 -->
-			<entity dataSource="komp2db" name="phenotype_parameter" query="select 'pipeline' as dataType, id, stable_id, name, stable_key from phenotype_parameter">
-			
-				<field column="dataType" name="dataType" />
-				<field column="id" name="parameter_id" />
-				<field column="stable_id" name="parameter_stable_id" />
-				<field column="name" name="parameter_name" />
-				<field column="stable_key" name="parameter_stable_key" />
-			
-			<entity dataSource="komp2db" name="phenotype_procedure_parameter" query="select procedure_id, parameter_id from phenotype_procedure_parameter where parameter_id=${phenotype_parameter.id}">
-			
-				<entity dataSource="komp2db" name="phenotype_procedure" transformer="script:procedure_mapping" query="select id , stable_id, name, stable_key, concat(name, '___', stable_id) as proc_name_id from phenotype_procedure where id=${phenotype_procedure_parameter.procedure_id}">
-					<field column="id" name="procedure_id" />
-					<field column="stable_id" name="procedure_stable_id" />
+	<dataSource name="komp2db" jndiName="java:comp/env/jdbc/komp2DataSource" />     
+	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>        
+	<dataSource name="mp_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0:8090/build_indexes/mp/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
+	<dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/> 
+	
+	<document name="mega_pipeline_indexing">
+
+		<!-- IMPC pipeline -->
+		<!-- test with id 3318 -->
+		<entity dataSource="komp2db" name="phenotype_parameter" 
+			query="select 'pipeline' as dataType, id, stable_id, name, stable_key from phenotype_parameter">
+		
+			<field column="dataType" name="dataType" />
+			<field column="id" name="parameter_id" />
+			<field column="stable_id" name="parameter_stable_id" />
+			<field column="name" name="parameter_name" />
+			<field column="stable_key" name="parameter_stable_key" />
+		
+			<entity dataSource="komp2db" name="phenotype_procedure_parameter" 
+				processor="CachedSqlEntityProcessor" 
+				onError="continue"
+				query="select procedure_id, parameter_id from phenotype_procedure_parameter"
+				where="parameter_id=phenotype_parameter.id">
+				
+				<entity dataSource="komp2db" name="phenotype_procedure" 
+					transformer="script:procedure_mapping" 
+					processor="CachedSqlEntityProcessor" 
+					onError="continue"
+					query="select id as pproc_id, stable_id, name, stable_key, concat(name, '___', stable_id) as proc_name_id from phenotype_procedure"
+					where="pproc_id=phenotype_procedure_parameter.procedure_id">
 					
+					<field column="pproc_id" name="procedure_id" />
+					<field column="stable_id" name="procedure_stable_id" />
 					
 					<field column="name" name="procedure_name" />
 					<field column="proc_name_id" name="proc_name_id" />
@@ -65,102 +66,125 @@
 					
 					<field column="stable_key" name="procedure_stable_key" />
 				
-					<entity dataSource="komp2db" name="phenotype_parameter2" query="select concat('${phenotype_procedure.name}', '___', name) as proc_param_name, concat('${phenotype_procedure.stable_id}', '___', stable_id) as proc_param_stable_id, stable_id, name, stable_key from phenotype_parameter where id=${phenotype_procedure_parameter.parameter_id}">
+					<entity dataSource="komp2db" name="phenotype_parameter2" 
+						processor="CachedSqlEntityProcessor" 
+						onError="continue"
+						query="select pp.id as pp_id, concat(pproc.name, '___', pp.name) as proc_param_name, concat(pproc.stable_id, '___', pp.stable_id) as proc_param_stable_id, pp.stable_id, pp.name, pp.stable_key from phenotype_parameter pp inner join phenotype_procedure_parameter ppp on pp.id=ppp.parameter_id inner join phenotype_procedure pproc on ppp.procedure_id=pproc.id"
+						where="pp_id=phenotype_procedure_parameter.parameter_id">
+			
+			
 						<field column="proc_param_stable_id" name="proc_param_stable_id" />
 						<field column="proc_param_name" name="proc_param_name" />
 					</entity>
 
 					<!-- images annotated to this procedure -->
 					<!--<entity dataSource="images_core" name="imgCore" stream="true" url="q=expName:&quot;${phenotype_procedure.mapped_procedure_name}&quot;&amp;wt=normal&amp;rows=999999" onError="continue"
-					processor="XPathEntityProcessor" forEach="/response/result/doc/"
-					readTimeout="10000" connectionTimeout="10000" >
-					
-					<field column="expName" xpath="/response/result/doc/arr[@name='expName']/str"/>
-					<field column="subtype" xpath="/response/result/doc/arr[@name='subtype']/str" />
-					<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />
-					<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
+						processor="XPathEntityProcessor" forEach="/response/result/doc/"
+						readTimeout="10000" connectionTimeout="10000" >
+						
+						<field column="expName" xpath="/response/result/doc/arr[@name='expName']/str"/>
+						<field column="subtype" xpath="/response/result/doc/arr[@name='subtype']/str" />
+						<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />
+						<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
 					
 					</entity>
 					-->
 
-					<entity dataSource="komp2db" name="phenotype_pipeline_procedure" query="select pipeline_id from phenotype_pipeline_procedure where procedure_id=${phenotype_procedure.id}">
-						<field column="pipeline_id" name="pipeline_id" />
+					<!-- only want IMPress related pipeline -->
+					<entity dataSource="komp2db" name="phenotype_pipeline_procedure" 
+						processor="CachedSqlEntityProcessor" 
+						query="select pproc.id as pproc_id, ppipe.name as pipe_name, ppipe.id as pipe_id, ppipe.stable_id as pipe_stable_id, ppipe.stable_key as pipe_stable_key, concat(ppipe.name, '___', pproc.name, '___', pproc.stable_id) as pipe_proc_sid from phenotype_procedure pproc inner join phenotype_pipeline_procedure ppproc on pproc.id=ppproc.procedure_id inner join phenotype_pipeline ppipe on ppproc.pipeline_id=ppipe.id where ppipe.db_id=6" 
+						where="pproc_id=phenotype_procedure.pproc_id">
 						
-						<!-- only want IMPress related pipeline -->
-						<entity dataSource="komp2db" name="phenotype_pipeline" onError="continue" query="select stable_id, name, stable_key, concat(name, '___', '${phenotype_procedure.name}', '___', '${phenotype_procedure.stable_id}') as pipe_proc_sid from phenotype_pipeline where id=${phenotype_pipeline_procedure.pipeline_id} and db_id=6">
-						<field column="stable_id" name="pipeline_stable_id" />
-						<field column="name" name="pipeline_name" />
-						<field column="stable_key" name="pipeline_stable_key" />
+						<field column="pipe_id" name="pipeline_id" />
+						<field column="pipe_stable_id" name="pipeline_stable_id" />
+						<field column="pipe_name" name="pipeline_name" />
+						<field column="pipe_stable_key" name="pipeline_stable_key" />
 						<field column="pipe_proc_sid" name="pipe_proc_sid" />
-					</entity>
-
-					<!-- gene, MP annotated to this procedure -->
-					<!-- skip 'other phenotype' MP:0005395-->
-					<entity dataSource="komp2db" name="phenotype_call_summary"
-						query="select distinct gf_acc, mp_acc, allele_acc, strain_acc from phenotype_call_summary where gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null and parameter_id=${phenotype_parameter.id} and procedure_id=${phenotype_procedure.id} and pipeline_id=${phenotype_pipeline_procedure.pipeline_id} and mp_acc !='MP:0005395' and (parameter_id != 2256 and parameter_id != 1222 and parameter_id != 1225) ">
-					
-						<field column="gf_acc" name="mgi_accession_id" />	
-
-						<!-- other fields from gene core -->
-						<entity dataSource="allele_core" name="doc" stream="true" url="q=mgi_accession_id:&quot;${phenotype_call_summary.gf_acc}&quot;&amp;wt=normal&amp;rows=1"	
-						processor="XPathEntityProcessor" forEach="/response/result/doc/"
-						readTimeout="10000" connectionTimeout="10000" >
 						
-							<field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />
-							<field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />
-							
-							<field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
-							<field column="marker_name" xpath="/response/result/doc/str[@name='marker_name']" />
-							
-							<field column="human_gene_symbol" xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />
-							
-							<!-- latest es cells/mice/phenotyping/ status and centers info at gene level -->
-							<field column="status" xpath="/response/result/doc/str[@name='status']" /> <!-- status name from Bill Skarnes and used at EBI -->	
-							
-							<!-- imits info at gene level for phenotyping faceting -->	
-							<field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='imits_phenotype_started']" />
-							<field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
-							<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']" />	
-							
-							<!-- production/phenotyping centers -->
-							<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
-							<field column="latest_phenotyping_centre" xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str" />	
-							
-							<!-- phenotyping status -->
-							<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
-							
-							<!-- alleles of a gene -->
-							<field column="allele_name" xpath="/response/result/doc/arr[@name='allele_name']/str" />	
-
-							<!-- disease annotated to this gene: ?? -->
-						</entity>
-
-						<!-- MP annotated to this parameter -->
-						<entity dataSource="mp_core" name="mpCore" stream="true" url="q=mp_id:&quot;${phenotype_call_summary.mp_acc}&quot;&amp;wt=normal&amp;rows=99999"
-						processor="XPathEntityProcessor" forEach="/response/result/doc/" onError="continue"
-						readTimeout="10000" connectionTimeout="10000" >
+						<entity dataSource="komp2db" name="paramProcPipe" 
+							query="select concat(${phenotype_parameter.id},'_',${phenotype_pipeline_procedure.pproc_id},'_',${phenotype_pipeline_procedure.pipe_id}) as ididid">
 						
-						<field column="mp_id" xpath="/response/result/doc/str[@name='mp_id']" />
-						<field column="mp_term" xpath="/response/result/doc/str[@name='mp_term']" />
-						<field column="mp_definition" xpath="/response/result/doc/str[@name='mp_definition']" />
-						<field column="mp_term_synonym" xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" /> <field column="ontology_subset" xpath="/response/result/doc/arr[@name='ontology_subset']/str" />
-						<field column="top_level_mp_id" xpath="/response/result/doc/arr[@name='top_level_mp_id']/str" />
-						<field column="top_level_mp_term" xpath="/response/result/doc/arr[@name='top_level_mp_term']/str" />
-						<field column="top_level_mp_definition" xpath="/response/result/doc/arr[@name='top_level_mp_definition']/str" />
-						<!-- MA: inferred from MP -->
-						<field column="inferred_ma_id" xpath="/response/result/doc/arr[@name='inferred_ma_id']/str" />
-						<field column="inferred_ma_term" xpath="/response/result/doc/arr[@name='inferred_ma_term']/str" />
-						<field column="inferred_selected_top_level_ma_id" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_id']/str" />
-						<field column="inferred_selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str" />
-						</entity>
+							<field column="ididid" name="ididid" />
+							
+							<!-- gene, MP annotated to this procedure -->
+							
+							<entity dataSource="komp2db" name="phenotype_call_summary" 
+								processor="CachedSqlEntityProcessor" 
+								query="select distinct concat(s.parameter_id,'_',s.procedure_id,'_',s.pipeline_id) as pppIds, s.gf_acc, s.mp_acc, s.parameter_id as pp_parameter_id, s.procedure_id as pproc_procedure_id, s.pipeline_id as ppipe_pipeline_id, s.allele_acc, s.strain_acc from phenotype_parameter pp INNER JOIN phenotype_procedure_parameter ppp on pp.id=ppp.parameter_id INNER JOIN phenotype_procedure pproc on ppp.procedure_id=pproc.id INNER JOIN phenotype_pipeline_procedure ppproc on pproc.id=ppproc.procedure_id INNER JOIN phenotype_pipeline ppipe on ppproc.pipeline_id=ppipe.id inner join phenotype_call_summary s on ppipe.id=s.pipeline_id and pproc.id=s.procedure_id and pp.id=s.parameter_id"
+								where="pppIds=paramProcPipe.ididid">
+								
+								<field column="gf_acc" name="mgi_accession_id" />	
+								
+								<!-- other fields from gene core -->
+								<entity dataSource="allele_core" name="gdoc" 
+									stream="true" 
+									url="q=mgi_accession_id:&quot;${phenotype_call_summary.gf_acc}&quot;&amp;wt=normal&amp;rows=1"	
+									processor="XPathEntityProcessor" 
+									forEach="/response/result/doc/"
+									readTimeout="10000" connectionTimeout="10000" >
+									
+									<field column="marker_type" xpath="/response/result/doc/str[@name='marker_type']" />
+									<field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />
+									
+									<field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
+									<field column="marker_name" xpath="/response/result/doc/str[@name='marker_name']" />
+									
+									<field column="human_gene_symbol" xpath="/response/result/doc/arr[@name='human_gene_symbol']/str" />
+									
+									<!-- latest es cells/mice/phenotyping/ status and centers info at gene level -->
+									<field column="status" xpath="/response/result/doc/str[@name='status']" /> <!-- status name from Bill Skarnes and used at EBI -->	
+									
+									<!-- imits info at gene level for phenotyping faceting -->	
+									<field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='imits_phenotype_started']" />
+									<field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
+									<field column="imits_phenotype_status" xpath="/response/result/doc/str[@name='imits_phenotype_status']" />	
+									
+									<!-- production/phenotyping centers -->
+									<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
+									<field column="latest_phenotyping_centre" xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str" />	
+									
+									<!-- phenotyping status -->
+									<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
+									
+									<!-- alleles of a gene -->
+									<field column="allele_name" xpath="/response/result/doc/arr[@name='allele_name']/str" />	
+		
+									<!-- disease annotated to this gene: ?? -->
+								</entity>
 
-				<!-- disease to this MP ?? -->
-				
-				</entity><!-- end of entiry name="phenotype_call_summary" -->
-				</entity> <!-- end of entity name="phenotype_pipeline_procedure" -->
+								<!-- MP annotated to this parameter -->
+								<entity dataSource="mp_core" name="mpCore" 
+									stream="true" 
+									url="q=mp_id:&quot;${phenotype_call_summary.mp_acc}&quot;&amp;wt=normal&amp;rows=99999"
+									processor="XPathEntityProcessor" 
+									forEach="/response/result/doc/" 
+									onError="continue"
+									readTimeout="10000" connectionTimeout="10000" >
+								
+									<field column="mp_id" xpath="/response/result/doc/str[@name='mp_id']" />
+									<field column="mp_term" xpath="/response/result/doc/str[@name='mp_term']" />
+									<field column="mp_definition" xpath="/response/result/doc/str[@name='mp_definition']" />
+									<field column="mp_term_synonym" xpath="/response/result/doc/arr[@name='mp_term_synonym']/str" /> <field column="ontology_subset" xpath="/response/result/doc/arr[@name='ontology_subset']/str" />
+									<field column="top_level_mp_id" xpath="/response/result/doc/arr[@name='top_level_mp_id']/str" />
+									<field column="top_level_mp_term" xpath="/response/result/doc/arr[@name='top_level_mp_term']/str" />
+									<field column="top_level_mp_definition" xpath="/response/result/doc/arr[@name='top_level_mp_definition']/str" />
+									<!-- MA: inferred from MP -->
+									<field column="inferred_ma_id" xpath="/response/result/doc/arr[@name='inferred_ma_id']/str" />
+									<field column="inferred_ma_term" xpath="/response/result/doc/arr[@name='inferred_ma_term']/str" />
+									<field column="inferred_selected_top_level_ma_id" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_id']/str" />
+									<field column="inferred_selected_top_level_ma_term" xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str" />
+								</entity>
+									
+							</entity>
+						
+						</entity>
+						
+					</entity><!-- end of entity name="phenotype_pipeline_procedure" -->
+						
 				</entity> <!-- end of entity name="phenotype_procedure" -->
-				</entity> <!-- end of entity name="phenotype_procedure_parameter" -->
-				</entity> <!-- end of entity name="phenotype_parameter" -->
+			</entity> <!-- end of entity name="phenotype_procedure_parameter" -->
+		</entity> <!-- end of entity name="phenotype_parameter" -->
 
-</document>
+	</document>
 </dataConfig>

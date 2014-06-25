@@ -113,7 +113,10 @@ public class ExperimentsController {
 			HttpServletRequest request,
 			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
 		
+		// retrieve the Allele from the database
+		
 		Allele allele = alleleDao.getAlleleByAccession(alleleAccession);
+		
 		if (allele == null) {
 			log.warn("Allele '" + alleleAccession + "' can't be found.");
 		}
@@ -146,10 +149,11 @@ public class ExperimentsController {
 				Constants.SIGNIFICANT_P_VALUE);
 		
 		String chart = phenomeChartProvider.generatePvaluesOverviewChart(
-				alleleAccession, 
+				allele, 
 				pvaluesMap,
 				Constants.SIGNIFICANT_P_VALUE,
-				pipeline);
+				pipeline,
+				phenotypingCenter);
 		
 		model.addAttribute("mapList", mapList);
 		model.addAttribute("pvaluesMap", pvaluesMap);

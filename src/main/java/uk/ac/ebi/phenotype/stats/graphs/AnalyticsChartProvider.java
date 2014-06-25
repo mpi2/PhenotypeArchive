@@ -28,7 +28,8 @@ public class AnalyticsChartProvider {
 			"$(function () {\n"+
 		    "    $('#"+ containerId +"').highcharts({\n"+
 		    "        chart: {\n"+
-		    "            type: 'column'\n"+
+		    "            type: 'column',\n"+
+		    "            height: 800\n"+
 		    "        },\n"+
 		    "        title: {\n"+
 		    "            text: '"+title+"'\n"+
@@ -37,8 +38,17 @@ public class AnalyticsChartProvider {
 		    "            text: \""+subTitle+"\"\n"+
 		    "       },\n"+
 		    "        xAxis: {\n"+
-		    "            categories: "+ categories.toString() +"\n"+
-		    "        },\n"+
+		    "            categories: "+ categories.toString() +",\n"+
+			"            labels: { \n"+
+			"               rotation: -90, \n"+
+			"               align: 'right', \n"+
+			"               style: { \n"+
+			"                  fontSize: '11px', \n"+
+			"                  fontFamily: 'Verdana, sans-serif' \n"+
+			"               } \n"+
+			"            }, \n"+
+			"            showLastLabel: true \n"+ 
+			"        },\n"+
 		    "        yAxis: {\n"+
 		    "            min: 0,\n"+
 		    "            title: {\n"+
