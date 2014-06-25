@@ -63,12 +63,34 @@ public class PhenotypeGeneSummaryDTO {
 		this.display = display;
 	}	
 	public String getPieChartCode() {
-		return pieChartCode;
+		if (pieChartCode != null){
+			return pieChartCode;
+		}else {
+			return  getPiechart(getMaleOnlyNumber(), getFemaleOnlyNumber(), getBothNumber(), getTotalGenesTested());
+		}
 	}
-	public void setPieChartCode(String pieChartCode) {
-		this.pieChartCode = pieChartCode;
+	public void fillPieChartCode() {
+		this.pieChartCode = getPiechart(getMaleOnlyNumber(), getFemaleOnlyNumber(), getBothNumber(), getTotalGenesTested());
 	}
-
+	public int getFemaleOnlyNumber() {
+		return femaleOnlyNumber;
+	}
+	public void setFemaleOnlyNumber(int femaleOnlyNumber) {
+		this.femaleOnlyNumber = femaleOnlyNumber;
+	}
+	public int getMaleOnlyNumber() {
+		return maleOnlyNumber;
+	}
+	public void setMaleOnlyNumber(int maleOnlyNumber) {
+		this.maleOnlyNumber = maleOnlyNumber;
+	}
+	public int getBothNumber() {
+		return bothNumber;
+	}
+	public void setBothNumber(int bothNumber) {
+		this.bothNumber = bothNumber;
+	}
+	
 
 	private String pieChartCode;
 	
@@ -85,5 +107,32 @@ public class PhenotypeGeneSummaryDTO {
 	private int maleGenesAssociated;
 	private int femaleGenesAssociated;
 	private int totalGenesAssociated;
+	
+	private int femaleOnlyNumber; // with phenotype
+	private int maleOnlyNumber;
+	private int bothNumber;
+	
+
+	protected String getPiechart(int maleOnly, int femaleOnly, int both, int total){
+		String chart = "$(function () { $('#pieChart').highcharts({ "
+				 + " chart: { plotBackgroundColor: null, plotShadow: false }, "
+				 + " title: {  text: '' }, "
+				 + " credits: { enabled: false }, "
+				 + " tooltip: {  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'},"
+				 + " plotOptions: { pie: { allowPointSelect: true, cursor: 'pointer'," 
+				 	+ " dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.percentage:.1f} %',"
+				 		+ " style: { color: '#666' }"
+				 	+ "  }"
+				 + "  } },"
+			+ " series: [{  type: 'pie',   name: '',  "
+			+ "data: [ { name: 'Female only', y: " + femaleOnly + ", sliced: true, selected: true }, "
+				+ "{ name: 'Male only', y: " + maleOnly + ", sliced: true, selected: true }, "
+				+ "{ name: 'Both sexes', y: " + both + ", sliced: true, selected: true }, "
+			+ "['Phenotype not present', " + (total- maleOnly - femaleOnly - both) + " ] ]  }]"
+		+" }); });";
+		
+		return chart;
+	}
+	
 	
 }

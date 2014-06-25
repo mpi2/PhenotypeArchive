@@ -450,45 +450,43 @@ public class PhenotypesController {
 		boolean display = (total > 0 && nominator > 0) ? true : false;
 		pgs.setDisplay(display);		
 
+		List<String> genesFemalePhenotype = new ArrayList<>();
+		List<String> genesMalePhenotype = new ArrayList<>();
+		List<String> genesBothPhenotype = new ArrayList<>();
+		
 		if (display){
 			//females only
-			nominator = gpService.getGenesBy(phenotype_id, "female").size();
+			for (Group g : gpService.getGenesBy(phenotype_id, "female")){
+				genesFemalePhenotype.add((String)g.getGroupValue());
+			}
+			nominator = genesFemalePhenotype.size();
 			total = os.getTestedGenes("female", parameters);
 			pgs.setFemalePercentage(100*(float)nominator/(float)total);
 			pgs.setFemaleGenesAssociated(nominator);
 			pgs.setFemaleGenesTested(total);
 
 			//males only
-			nominator = gpService.getGenesBy(phenotype_id, "male").size();
+			for(Group g : gpService.getGenesBy(phenotype_id, "male")){			
+				genesMalePhenotype.add(g.getGroupValue()) ;
+			}
+			nominator = genesMalePhenotype.size();
 			total = os.getTestedGenes("male", parameters);
 			pgs.setMalePercentage(100*(float)nominator/(float)total);
 			pgs.setMaleGenesAssociated(nominator);
 			pgs.setMaleGenesTested(total);
 		}
 		
-		pgs.setPieChartCode(getPiechart(10, 23, 25, 522));
+		genesBothPhenotype = new ArrayList<String>(genesFemalePhenotype);
+		genesBothPhenotype.retainAll(genesMalePhenotype);
+		// We want genes with phenotype ONLY in females (not in males too
+		genesFemalePhenotype.removeAll(genesBothPhenotype);
+		// same for males
+		genesMalePhenotype.removeAll(genesBothPhenotype);
+		pgs.setBothNumber(genesBothPhenotype.size());
+		pgs.setFemaleOnlyNumber(genesFemalePhenotype.size());
+		pgs.setMaleOnlyNumber(genesMalePhenotype.size());
+		pgs.fillPieChartCode();
 		return pgs;
-	}
-	
-	protected String getPiechart(int maleOnly, int femaleOnly, int both, int total){
-		String chart = "$(function () { $('#pieChart').highcharts({ "
-				 + " chart: { plotBackgroundColor: null, plotShadow: false }, "
-				 + " title: {  text: '' }, "
-				 + " credits: { enabled: false }, "
-				 + " tooltip: {  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'  },"
-				 + " plotOptions: { pie: { allowPointSelect: true, cursor: 'pointer'," 
-				 	+ " dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.percentage:.1f} %',"
-				 		+ " style: { color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black' }"
-				 	+ "  }"
-				 + "  } },"
-			+ " series: [{  type: 'pie',   name: '',  "
-			+ "data: [ { name: 'Female only', y: " + femaleOnly + ", sliced: true, selected: true }, "
-			+ "{ name: 'Male only', y: " + maleOnly + ", sliced: true, selected: true }, "
-			+ "{ name: 'Both sexes', y: " + both + ", sliced: true, selected: true }, "
-			+ "['Phenotype not present', " + (total- maleOnly - femaleOnly - both) + " ] ]  }]"
-		+" }); });";
-		
-		return chart;
 	}
 	
 	public Map<String, String> getParameters(String mpId) throws SolrServerException {
