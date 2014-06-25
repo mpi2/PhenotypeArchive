@@ -97,6 +97,7 @@
 							<th class="headerSort">Procedure</th>
 							<th class="headerSort">Parameter</th>
 							<th class="headerSort">Zygosity</th>
+							<th class="headerSort">Sex</th>
 							<th class="headerSort">Phenotype</th>						
 							<th class="headerSort">P-value</th>
 							<th class="headerSort">Graph</th>
@@ -112,6 +113,14 @@
 								<td>${phenotypeCall.procedure.name}</td>
 								<td>${phenotypeCall.parameter.name}</td>
 								<td>${phenotypeCall.zygosity}</td>
+								<td>
+								<c:if test="${phenotypeCall.sex == 'female'}">
+								<c:set var="europhenome_gender" value="Female"/><img alt="Female" src="${baseUrl}/img/female.jpg" />
+								</c:if>
+								<c:if test="${phenotypeCall.sex == 'male'}">
+									<c:set var="europhenome_gender" value="Male"/><img alt="Male" src="${baseUrl}/img/male.jpg" />
+								</c:if>
+								</td>
 								<td>${phenotypeCall.phenotypeTerm.name}</td>
 						<c:set var="paletteIndex" value="${phenotypeCall.colorIndex}" />
 						<c:set var="Rcolor" value="${palette[0][paletteIndex]}" />

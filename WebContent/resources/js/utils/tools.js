@@ -158,7 +158,7 @@
 
 		});
 		
-		// make categories clickable (not only the checkbox itself)
+		// make categories clickable (not only the parseUrl_constructFilters_loadDataTablecheckbox itself)
 		$('div.flist li#' + facet).find('li.fcat .flabel').click(function() {				
 			$(this).prev('input').trigger('click');
 		});			
@@ -169,7 +169,7 @@
 		var facet = thisWidget.element.attr('id');		
 		var caller = thisWidget.element;    		
 		delete MPI2.searchAndFacetConfig.commonSolrParams.rows;
-	
+		
 		caller.click(function(){
 			
 			if ( caller.find('span.fcount').text() != 0 ){
@@ -1530,7 +1530,13 @@
 		
 		$.fn.updateBreadCrumb(oVal.solrCoreName);		
 		$.fn.openFacet(oVal.solrCoreName);	
-				
+			
+		// so that when there 
+		if ( (typeof oHashParams.core != 'undefined' && oHashParams.core == 'gene') ||
+			 (typeof oHashParams.coreName != 'undefined' && oHashParams.coreName == 'geneFacet') ){
+			oHashParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
+		}
+		
 		$.fn.invokeDataTable(oHashParams);
 		
     }   

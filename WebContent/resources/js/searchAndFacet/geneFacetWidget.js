@@ -25,7 +25,9 @@
 	    options: {},  
 	    
     	_create: function(){
+    		var self = this;
     		// execute only once 
+    		
     		$.fn.widgetExpand(this);    		
     	},
     	 	        	
@@ -38,7 +40,7 @@
 	    
 		_initFacet: function(){
 	    	var self = this;
-	    	    	
+	    	 	
 	    	/*var queryParams = $.extend({}, { 
 				'rows': 0,
 				'facet': 'on',								
@@ -84,6 +86,7 @@
 				  + '&facet.field=latest_production_centre'
 				  + '&facet.field=latest_phenotyping_centre';
 	    	
+	    	//console.log('GENE: '+ queryParamStr);
 	    	$.ajax({ 				 					
 	    		'url': solrUrl + '/gene/select',	    		
 	    		'data': queryParamStr, 
@@ -114,8 +117,8 @@
 	    		var pheno_count = {};
 	    		
 	    		var aImitsPhenos = {'Phenotyping Complete':'Complete', 
-						'Phenotyping Started':'Started', 
-						'Phenotype Attempt Registered':'Attempt Registered'};
+									'Phenotyping Started':'Started', 
+									'Phenotype Attempt Registered':'Attempt Registered'};
 	    		
 	    		var phenoStatusFacetField = 'latest_phenotype_status';
 	    		var phenoCount = 0;
@@ -290,10 +293,7 @@
 	    	var oConf = self.options.data.hashParams;
 	    	oConf.core = self.options.data.core;
 	    	
-	    	//console.log(oConf);
-	    	
 	    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);
-	    		
 	    	
 	    },	       
 	  

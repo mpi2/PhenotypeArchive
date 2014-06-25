@@ -212,7 +212,7 @@ public class GraphPage {
                 if ( ! parameter.contains(graphByDatePage.getParameter())) {
                     status.addFail("ERROR: Expected parameter '" + parameter + "' but found '" + graphByDatePage.getParameter() + "'.");
                 }
-                if (title.compareTo(graphByDatePage.getTitle()) != 0) {
+                if (parameterStableId.compareTo(graphByDatePage.getParameterStableId()) != 0) {
                     status.addFail("ERROR: Expected parameterStableId '" + parameterStableId + "' but found '" + graphByDatePage.getParameterStableId() + "'.");
                 }
             } catch (Exception e) {
