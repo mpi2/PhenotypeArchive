@@ -51,7 +51,7 @@ import uk.ac.ebi.phenotype.stats.categorical.CategoricalDataObject;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
 
 @Service
-public class ObservationService {
+public class ObservationService extends BasicService {
 
     @Autowired
     PhenotypePipelineDAO parameterDAO;
@@ -297,40 +297,7 @@ public class ObservationService {
 
     }
 
-    /**
-     * Unwrap results from a facet pivot solr query and return the flattened
-     * list of maps of results
-     * 
-     * @param response
-     *            list of maps
-     * @return
-     */
-    public List<Map<String, String>> getFacetPivotResults(QueryResponse response) {
-        List<Map<String, String>> results = new LinkedList<Map<String, String>>();
-        NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
 
-        if (facetPivot != null && facetPivot.size() > 0) {
-            for (int i = 0; i < facetPivot.size(); i++) {
-
-                String name = facetPivot.getName(i); // in this case only one of
-                                                     // them
-                LOG.debug("facetPivot name" + name);
-                List<PivotField> pivotResult = facetPivot.get(name);
-
-                // iterate on results
-                for (int j = 0; j < pivotResult.size(); j++) {
-
-                    // create a HashMap to store a new triplet of data
-
-                    PivotField pivotLevel = pivotResult.get(j);
-                    List<Map<String, String>> lmap = getLeveledFacetPivotValue(pivotLevel, null);
-                    results.addAll(lmap);
-                }
-            }
-        }
-
-        return results;
-    }
 
     /**
      * Return a list of a all data candidates for deletion prior to statistical
@@ -577,44 +544,6 @@ public class ObservationService {
 
         return getFacetPivotResults(response);
 
-    }
-
-    /**
-     * Recursive method to fill a map with multiple combination of pivot fields.
-     * Each pivot level can have multiple children. Hence, each level should
-     * pass back to the caller a list of all possible combination
-     * 
-     * @param pivotLevel
-     * @param map
-     */
-    private List<Map<String, String>> getLeveledFacetPivotValue(PivotField pivotLevel, PivotField parentPivot) {
-
-        List<Map<String, String>> results = new ArrayList<Map<String, String>>();
-
-        List<PivotField> pivotResult = pivotLevel.getPivot();
-        if (pivotResult != null) {
-            for (int i = 0; i < pivotResult.size(); i++) {
-                List<Map<String, String>> lmap = getLeveledFacetPivotValue(pivotResult.get(i), pivotLevel);
-                // add the parent pivot
-                if (parentPivot != null) {
-                    for (Map<String, String> map : lmap) {
-                        map.put(parentPivot.getField(), parentPivot.getValue().toString());
-                    }
-                }
-                results.addAll(lmap);
-            }
-        } else {
-            Map<String, String> map = new HashMap<String, String>();
-            map.put(pivotLevel.getField(), pivotLevel.getValue().toString());
-
-            // add the parent pivot
-            if (parentPivot != null) {
-                map.put(parentPivot.getField(), parentPivot.getValue().toString());
-            }
-            results.add(map);
-        }
-        //
-        return results;
     }
 
     public List<ObservationDTO> getExperimentalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroupAndAlleleAccession(
