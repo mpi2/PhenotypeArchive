@@ -12,15 +12,16 @@
 		<!-- term infos: ID, name, definition -->
 
 		<entity dataSource="ontodb" name="mp_term_infos"			
-			query="select 'mp' as dataType, term_id, name, definition from mp_term_infos where term_id !='MP:0000001'">
+			query="select 'mp' as dataType, ti.term_id, ti.name, ti.definition, nt.node_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'">
 
 			<field column="dataType" name="dataType"/>
 			<field column="term_id" name="mp_id" />
 			<field column="name" name="mp_term" />
-			<field column="definition" name="mp_definition" />		
+			<field column="definition" name="mp_definition" />	
+			<field column="node_id" name="mp_node_id" />		
 
 			<!-- images annotated to this MP -->
-			<entity dataSource="images_core" name="imgCore" stream="true" url="q=mpTermId:&quot;${mp_term_infos.term_id}&quot;&amp;wt=normal&amp;rows=999999"
+		  	<entity dataSource="images_core" name="imgCore" stream="true" url="q=mpTermId:&quot;${mp_term_infos.term_id}&quot;&amp;wt=normal&amp;rows=999999"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/"							
 				readTimeout="10000" connectionTimeout="10000"  >
 			
@@ -38,124 +39,157 @@
 				<field column="mpTermName" xpath="/response/result/doc/arr[@name='mpTermName']/str" />
 				<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
 			</entity>
-
+		
 			<!-- subset of this MP term: parsed from obo file -->
 			<entity dataSource="ontodb" name="mp_term_subsets"
-				query="select subset from mp_term_subsets where term_id='${mp_term_infos.term_id}'">
+				processor="CachedSqlEntityProcessor" 
+				query="select subset from mp_term_subsets"
+				where="term_id=mp_term_infos.term_id">
+				
 				<field column="subset" name="ontology_subset" />
 			</entity>
 
 			<!-- synonym of this MP term -->
 			<entity dataSource="ontodb" name="mp_synonyms"
-				query="select distinct syn_name from mp_synonyms where term_id = '${mp_term_infos.term_id}'">
+				processor="CachedSqlEntityProcessor" 
+				query="select distinct syn_name from mp_synonyms"
+				where="term_id=mp_term_infos.term_id">
+				
 				<field column="syn_name" name="mp_term_synonym" />
 			</entity>
 
 			<!-- GO association of MP term -->
 			<entity dataSource="ontodb" name="mp_dbxrefs"
-				query="select distinct xref_id from mp_dbxrefs where term_id='${mp_term_infos.term_id}' and xref_id like 'GO:%'">
+				query="select distinct x.xref_id, ti.term_id from mp_dbxrefs x inner join mp_term_infos ti on x.term_id=ti.term_id and x.xref_id like 'GO:%'"
+				where="term_id=mp_term_infos.term_id">
 				<field column="xref_id" name="go_id" />
 			</entity>				
 
-			<!-- top level MP term of this MP term -->						
-			<entity dataSource="ontodb" name="mp_node2term"
-				query="select tl.top_level_node_id from mp_node_top_level tl, mp_node2term nt, mp_term_infos ti where ti.term_id='${mp_term_infos.term_id}' and ti.term_id=nt.term_id and nt.node_id=tl.node_id">
-				<entity dataSource="ontodb" name="toplevel" 
-					query="select ti.*, concat(ti.name, '___', ti.term_id) as top_level_mp_term_id from mp_node2term nt, mp_term_infos ti where nt.term_id=ti.term_id and nt.node_id=${mp_node2term.top_level_node_id}"
-					>
-
-						<field column="term_id" name="top_level_mp_id" />
-						<field column="name" name="top_level_mp_term" />
-						<field column="definition" name="top_level_mp_definition" />	
-						<field column="top_level_mp_term_Id" name ="top_level_mp_term_Id" />
-						
-						<entity dataSource="ontodb" name="mp_term_infos2Syn" onError="continue"  
-							query="select * from mp_synonyms where term_id ='${toplevel.term_id}'">						
-							<field column="syn_name" name="top_level_mp_term_synonym" />
-						</entity>						
-
-				</entity>
-			</entity>
-			
+			<!-- top level MP term of this MP term -->		
+			<entity dataSource="ontodb" name="mpTopLevel"
+				processor="CachedSqlEntityProcessor" 
+				query="select lv.node_id as mp_node_id, ti.term_id, ti.name, ti.definition, concat(ti.name, '___', ti.term_id) as top_level_mp_term_id from mp_node_top_level lv inner join mp_node2term nt on lv.top_level_node_id=nt.node_id inner join mp_term_infos ti on nt.term_id=ti.term_id and ti.term_id!='MP:0000001'"
+				where="mp_node_id=mp_term_infos.node_id">
+				
+				<field column="term_id" name="top_level_mp_id" />
+				<field column="name" name="top_level_mp_term" />
+				<!-- <field column="definition" name="top_level_mp_definition" />	-->
+				<field column="top_level_mp_term_Id" name ="top_level_mp_term_Id" />
+				
+				<entity dataSource="ontodb" name="mp_term_infos2Syn" 
+					onError="continue"  
+					processor="CachedSqlEntityProcessor"
+					query="select * from mp_synonyms"
+					where="term_id=mpTopLevel.term_id">
+											
+					<field column="syn_name" name="top_level_mp_term_synonym" />
+					
+				</entity>	
+			</entity>			
+		
 			<!-- intermediate MP terms of this MP term -->
-			<entity dataSource="ontodb" name="parents" onError="continue" 
-				query="select f.node_id as parent_node_id from mp_node2term nt, mp_node_subsumption_fullpath f where nt.node_id=f.child_node_id and nt.term_id='${mp_term_infos.term_id}' and f.node_id != nt.node_id" >
 			
-				<entity dataSource="ontodb" name="parents2" onError="continue"  
-					query="select ti.* from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and nt.node_id=${parents.parent_node_id}">
-					
-					<field column="term_id" name="intermediate_mp_id" />
-					<field column="name" name="intermediate_mp_term" />
-					<field column="definition" name="intermediate_mp_definition" />				
-					
-					<entity dataSource="ontodb" name="parents2Syn" onError="continue"  
-						query="select * from mp_synonyms where term_id ='${parents2.term_id}'">
-						
+			<entity dataSource="ontodb" name="intermediates" 
+				processor="CachedSqlEntityProcessor" 
+				onError="continue" 
+				query="select node_id, child_node_id from mp_node_subsumption_fullpath"
+				where="child_node_id=mp_term_infos.node_id">
+				
+				<entity dataSource="ontodb" name="mpTermNode"	
+					processor="CachedSqlEntityProcessor" 
+					onError="continue" 		
+					query="select nt.node_id, ti.term_id, ti.name, ti.definition from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'"
+					where="node_id=intermediates.node_id">
+				
+					<field column="term_id"    name="intermediate_mp_id" />
+					<field column="name"       name="intermediate_mp_term" />
+					<!-- <field column="definition" name="intermediate_mp_definition" />	-->
+				
+					<!--  separate this query from the above to avoid duplicates rows of the above three fields as a term can have multiple syn -->
+					<entity dataSource="ontodb" name="parents2Syn" 
+						processor="CachedSqlEntityProcessor" 
+						onError="continue"  
+						query="select term_id, syn_name from mp_synonyms"
+						where="term_id=intermediates.term_id">
+							
 						<field column="syn_name" name="intermediate_mp_term_synonym" />						
-					
-					</entity>
-					
-				</entity>;
-			</entity>		
-
-			<!-- child MP term of this MP term -->
-			<entity dataSource="ontodb" name="mp_node2term3"
-				query="select distinct node_id from mp_node2term where term_id='${mp_term_infos.term_id}'">
-				<entity dataSource="ontodb" name="mp_parent_children" onError="continue"
-					query="select distinct child_node_id from mp_parent_children where parent_node_id=${mp_node2term3.node_id}">
-					
-					<entity dataSource="ontodb" name="mp_node2term4"
-						query="select distinct term_id from mp_node2term where node_id=${mp_parent_children.child_node_id}">
-
-						<!-- only index child term that has mp annotation -->
-						<entity dataSource="komp2db" onError="continue" name="phenotype_call_summary"
-							query="select count(*) from phenotype_call_summary where mp_acc='${mp_node2term4.term_id}'">
-							<entity dataSource="ontodb" name="mp_term_infos3"
-								query="select distinct term_id, name, definition from mp_term_infos where term_id='${mp_node2term4.term_id}'">
-								<field column="term_id" name="child_mp_id" />
-								<field column="name" name="child_mp_term" />
-								<field column="definition" name="child_mp_definition" />
-							</entity>
-							<entity dataSource="ontodb" name="parents2Syn" onError="continue"  
-								query="select * from mp_synonyms where term_id ='${mp_term_infos3.term_id}'">
 						
-								<field column="syn_name" name="child_mp_term_synonym" />						
+					</entity>
 					
-							</entity>
-
-						</entity>					
+				</entity>
+			</entity>	
+			
+			<!-- child MP term of this MP term -->
+			
+			<entity dataSource="ontodb" name="allChildren" 
+				processor="CachedSqlEntityProcessor" 
+				onError="continue" 
+				query="select node_id, child_node_id from mp_node_subsumption_fullpath"
+				where="node_id=mp_term_infos.node_id">
+				
+				<entity dataSource="ontodb" name="mpTermNode2"	
+					processor="CachedSqlEntityProcessor" 
+					onError="continue" 		
+					query="select nt.node_id, ti.term_id, ti.name, ti.definition from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'"
+					where="node_id=allChildren.child_node_id">
+					
+					<field column="term_id"    name="child_mp_id" />
+					<field column="name"       name="child_mp_term" />
+				<!-- <field column="definition" name="child_mp_definition" />	-->
+				
+					<!--  separate this query from the above to avoid duplicates rows of the above three fields as a term can have multiple syn -->
+					<entity dataSource="ontodb" name="parents2Syn2" 
+						processor="CachedSqlEntityProcessor" 
+						onError="continue"  
+						query="select term_id, syn_name from mp_synonyms"
+						where="term_id=allChildren.term_id">
+							
+						<field column="syn_name" name="child_mp_term_synonym" />						
+						
 					</entity>
 				</entity>
-			</entity>
-
+			</entity>	
+			
 			<!-- MP -> MA relationship; MA term has no definition -->
-			<entity dataSource="ontodb" name="mp_mappings" onError="continue"
-				query="select distinct mapped_term_id from mp_mappings where term_id='${mp_term_infos.term_id}' and ontology='MA'">
-				<field column="mapped_term_id" name="ma_id" />
-				<field column="mapped_term_id" name="inferred_ma_id" />
-				<entity dataSource="ontodb" name="ma_term_infos"
-					query="select name from ma_term_infos where term_id='${mp_mappings.mapped_term_id}'">
-					<field column="name" name="ma_term" />
-					<field column="name" name="inferred_ma_term" />
-				</entity>
+			<entity dataSource="ontodb" name="mp_mappings" 
+				processor="CachedSqlEntityProcessor" 
+				onError="continue"
+				query="select mp.term_id, ti.term_id as ma_term_id, ti.name as ma_term_name from mp_mappings mp inner join ma_term_infos ti on mp.mapped_term_id=ti.term_id and mp.ontology='MA'"
+				where="term_id=mp_term_infos.term_id">
+				
+				<field column="ma_term_id" name="ma_id" />
+				<field column="ma_term_id" name="inferred_ma_id" />
+				
+				<field column="ma_term_name" name="ma_term" />
+				<field column="ma_term_name" name="inferred_ma_term" />
 				
 				<!-- selected higher level backtrace of this MA term -->           
 				<entity dataSource="ontodb" name="ma_node_2_selected_top_level_mapping" 
-					query="select distinct ti.term_id, ti.name  from ma_node2term nt, ma_node_2_selected_top_level_mapping m, ma_term_infos ti where nt.node_id=m.node_id and m.top_level_term_id=ti.term_id and nt.term_id='${mp_mappings.mapped_term_id}'">;
+					processor="CachedSqlEntityProcessor" 
+					onError="continue"
+					query="select distinct ti.term_id, ti.name from ma_node2term nt, ma_node_2_selected_top_level_mapping m, ma_term_infos ti where nt.node_id=m.node_id and m.top_level_term_id=ti.term_id"
+					where="term_id=mp_mappings.ma_term_id">
+				
 					<field column="term_id" name="inferred_selected_top_level_ma_id" />
 					<field column="name" name="inferred_selected_top_level_ma_term" /> 								
-				</entity>						      											
+				
+				</entity>	
 			</entity>
-			
+				
 			<!-- MGI genes annotated to this MP term which has pipeline/procedure and allele/strain infos -->
-			<!--  p_value 0.0001 is applied for filtering -->
-			<entity dataSource="komp2db" name="phenotype_call_summary2"
-				query="select distinct gf_acc, procedure_id, parameter_id, pipeline_id, allele_acc, strain_acc, p_value from phenotype_call_summary where mp_acc='${mp_term_infos.term_id}' and p_value &lt;= 0.0001 and gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null">											
+			<!--  p_value <= 0.0001 is applied for filtering -->
+		
+			<entity dataSource="komp2db" name="phenotype_call_summary1"
+				processor="CachedSqlEntityProcessor" 
+				onError="continue"
+				query="select distinct gf_acc, mp_acc, parameter_id, procedure_id, pipeline_id, allele_acc, strain_acc from phenotype_call_summary where p_value &lt;= 0.0001 and gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null"									
+				where="mp_acc=mp_term_infos.term_id">
 				
-				<field column="gf_acc" name="mgi_accession_id" />				
-				
+				<field column="gf_acc" name="mgi_accession_id" />	
+							
 				<!-- disease associated with this MP via this gene -->	
-				<entity dataSource="allele_core" name="doc" stream="true" url="q=mgi_accession_id:&quot;${phenotype_call_summary2.gf_acc}&quot;&amp;rows=1&amp;wt=normal"
+				
+				<entity dataSource="allele_core" name="doc" stream="true" url="q=mgi_accession_id:&quot;${phenotype_call_summary1.gf_acc}&quot;&amp;rows=1&amp;wt=normal"
 					processor="XPathEntityProcessor" forEach="/response/result/doc/" >
 					
 				    <field column="type" xpath="/response/result/doc/str[@name='type']" /> 				
@@ -197,53 +231,61 @@
 					<field column="allele_name" xpath="/response/result/doc/arr[@name='allele_name']/str" />	
 				</entity>
 				
-			</entity>
+			</entity>	
 			
-
 			<!-- pipeline/procedure and allele/strain annotated to this MP term -->
-			<!--  no p_value applied here: only for gene -->
-			<entity dataSource="komp2db" name="phenotype_call_summary"
-				query="select distinct gf_acc, procedure_id, parameter_id, pipeline_id, allele_acc, strain_acc from phenotype_call_summary where mp_acc='${mp_term_infos.term_id}' and gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null">											
-						
+			<!--  NO p_value applied here: only for gene -->
+			
+			<entity dataSource="komp2db" name="phenotype_call_summary2"
+				processor="CachedSqlEntityProcessor" 
+				onError="continue"
+				query="select distinct gf_acc, mp_acc, parameter_id, procedure_id, pipeline_id, concat(parameter_id,'_',procedure_id,'_',pipeline_id) as ididid, allele_acc, strain_acc from phenotype_call_summary where gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null"									
+				where="mp_acc=mp_term_infos.term_id">
+
 				<!-- allele: currently NOT restricted to MGI alleles, ie, allele_db_id not restricted to 3 -->
 				<!-- index will be problematic if phenotype_call_summary.allele_acc and phenotype_call_summary.gf_acc do not have an entry in komp2.allele table -->
-				<entity dataSource="komp2db" name="allele"
+				<!--  <entity dataSource="komp2db" name="allele"
 					query="select distinct symbol, acc from allele where acc='${phenotype_call_summary.allele_acc}' and gf_acc='${phenotype_call_summary.gf_acc}'">
 					<field column="symbol" name="allele_symbol" />
 					<field column="acc" name="allele_id" />
 				</entity>
-
+				-->
+				
 				<!-- strain -->
 				<entity dataSource="komp2db" name="strain"
-					query="select distinct name, acc from strain where acc='${phenotype_call_summary.strain_acc}' and db_id=3">
+					processor="CachedSqlEntityProcessor" 
+					onError="continue"
+					query="select distinct name, acc from strain where db_id=3"
+					where="acc=phenotype_call_summary2.strain_acc">
+					
 					<field column="name" name="strain_name" />
 					<field column="acc" name="strain_id" />
 				</entity>
-
-				<!-- pipeline -->
-				<entity dataSource="komp2db" name="phenotype_pipeline"
-					query="select distinct stable_id, name, stable_key from phenotype_pipeline where id=${phenotype_call_summary.pipeline_id}">
-					<field column="stable_id" name="pipeline_stable_id" />
-					<field column="name" name="pipeline_name" />
-					<field column="stable_key" name="pipeline_stable_key" />
+				
+				
+				<!-- parameter/procedure/pipeline -->
+				<entity dataSource="komp2db" name="paramProcPipe"
+					processor="CachedSqlEntityProcessor" 
+					onError="continue"
+					query="select concat(pp.id,'_',pproc.id,'_',ppipe.id) as ididid, pp.name as parameter_name, pp.stable_key as parameter_stable_key, pp.stable_id as parameter_stable_id, pproc.name as procedure_name, pproc.stable_key as procedure_stable_key, pproc.stable_id as procedure_stable_id, ppipe.name as pipeline_name, ppipe.stable_key as pipeline_key, ppipe.stable_id as pipeline_stable_id from phenotype_parameter pp inner join phenotype_procedure_parameter ppp on pp.id=ppp.parameter_id inner join phenotype_procedure pproc on ppp.procedure_id=pproc.id inner join phenotype_pipeline_procedure ppproc on pproc.id=ppproc.procedure_id inner join phenotype_pipeline ppipe on ppproc.pipeline_id=ppipe.id"
+					where="ididid=phenotype_call_summary2.ididid">
+					
+					<field column="parameter_name"       name="parameter_name" />
+					<field column="parameter_stable_id"  name="parameter_stable_id" />
+					<field column="parameter_stable_key" name="parameter_stable_key" />
+					
+					<field column="procedure_name"       name="procedure_name" />
+					<field column="procedure_stable_id"  name="procedure_stable_id" />
+					<field column="procedure_stable_key" name="procedure_stable_key" />
+					
+					<field column="pipeline_name"        name="pipeline_name" />
+					<field column="pipeline_stable_id"   name="pipeline_stable_id" />
+					<field column="pipeline_stable_key"  name="pipeline_stable_key" />
 				</entity>
-
-				<!-- procedure of pipeline -->
-				<entity dataSource="komp2db" name="phenotype_procedure"
-					query="select distinct name, stable_id, stable_key from phenotype_procedure where id = ${phenotype_call_summary.procedure_id}">
-					<field column="name" name="procedure_name" />
-					<field column="stable_id" name="procedure_stable_id" />
-					<field column="stable_key" name="procedure_stable_key" />
-				</entity>
-
-				<!-- parameter of pipeline -->
-				<entity dataSource="komp2db" name="phenotype_parameter"
-					query="select distinct name, stable_id, stable_key from phenotype_parameter where id=${phenotype_call_summary.parameter_id}">
-					<field column="name" name="parameter_name" />
-					<field column="stable_id" name="parameter_stable_id" />
-					<field column="stable_key" name="parameter_stable_key" />
-				</entity>
-			</entity>
+				
+				
+			</entity>	
+			
 		</entity>
 	</document>
 
