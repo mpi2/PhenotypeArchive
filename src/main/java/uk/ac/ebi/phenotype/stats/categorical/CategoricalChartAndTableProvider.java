@@ -274,16 +274,16 @@ public class CategoricalChartAndTableProvider {
 		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
 		JSONArray colorArray = new JSONArray(colors);
 		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ " 
-				+" colors:"+colorArray
-				+", chart: { renderTo: '"
-				+ chartId
-				+ "', type: 'column' }, title: { text: '"
-				+ WordUtils.capitalize(title)
-				+ "' }, subtitle: { text:'" + subtitle + "'}, credits: { enabled: false }, "
-				+ "xAxis: { categories: "
-				+ xAxisCategoriesArray
-				+ "}, yAxis: { min: 0, title: { text: 'Percent Occurrance' } ,  labels: {       formatter: function() { return this.value +'%';   }  }},  plotOptions: { column: { stacking: 'percent' } }, series: "
-				+ seriesArray + " });  });";
+				+ "colors:"+colorArray+", "
+				+ "tooltip: {  pointFormat: '{series.name}: <b>{point.y}</b>'},"
+				+ "chart: { renderTo: '"+ chartId + "', type: 'column' }, "
+				+ "title: { text: '" + WordUtils.capitalize(title) + "' }, "
+				+ "subtitle: { text:'" + subtitle + "'}, credits: { enabled: false }, "
+				+ "xAxis: { categories: " + xAxisCategoriesArray	+ "}, "
+				+ "yAxis: { min: 0, title: { text: 'Percent Occurrance' } ,  "
+					+ "labels: {       formatter: function() { return this.value +'%';   }  }  },  "
+				+ "plotOptions: { column: { stacking: 'percent' } }, "
+				+ "series: " + seriesArray + " });  });";
 		
 		chartData.setChart(javascript);
 		chartData.setId(chartId);	

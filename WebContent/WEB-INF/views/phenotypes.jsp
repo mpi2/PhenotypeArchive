@@ -151,6 +151,11 @@
 									(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
 								<p class="padleft"><span class="bigger">${genePercentage.getFemalePercentage()}%</span> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </p>
 								<p class="padleft"><span class="bigger">${genePercentage.getMalePercentage()}%</span> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</p>
+								<div id="pieChart">
+										<script type="text/javascript">
+											${genePercentage.getPieChartCode()}
+										</script>
+								</div>
 							</div>					
 							<!-- Overview Graphs -->
 							<c:if test="${parametersAssociated.size() > 0}">
