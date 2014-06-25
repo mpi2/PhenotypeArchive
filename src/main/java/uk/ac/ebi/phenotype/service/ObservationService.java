@@ -51,7 +51,7 @@ import uk.ac.ebi.phenotype.stats.categorical.CategoricalDataObject;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
 
 @Service
-public class ObservationService {
+public class ObservationService extends BasicService {
 
     @Autowired
     PhenotypePipelineDAO parameterDAO;
@@ -297,40 +297,7 @@ public class ObservationService {
 
     }
 
-    /**
-     * Unwrap results from a facet pivot solr query and return the flattened
-     * list of maps of results
-     * 
-     * @param response
-     *            list of maps
-     * @return
-     */
-    public List<Map<String, String>> getFacetPivotResults(QueryResponse response) {
-        List<Map<String, String>> results = new LinkedList<Map<String, String>>();
-        NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
 
-        if (facetPivot != null && facetPivot.size() > 0) {
-            for (int i = 0; i < facetPivot.size(); i++) {
-
-                String name = facetPivot.getName(i); // in this case only one of
-                                                     // them
-                LOG.debug("facetPivot name" + name);
-                List<PivotField> pivotResult = facetPivot.get(name);
-
-                // iterate on results
-                for (int j = 0; j < pivotResult.size(); j++) {
-
-                    // create a HashMap to store a new triplet of data
-
-                    PivotField pivotLevel = pivotResult.get(j);
-                    List<Map<String, String>> lmap = getLeveledFacetPivotValue(pivotLevel, null);
-                    results.addAll(lmap);
-                }
-            }
-        }
-
-        return results;
-    }
 
     /**
      * Return a list of a all data candidates for deletion prior to statistical
@@ -577,44 +544,6 @@ public class ObservationService {
 
         return getFacetPivotResults(response);
 
-    }
-
-    /**
-     * Recursive method to fill a map with multiple combination of pivot fields.
-     * Each pivot level can have multiple children. Hence, each level should
-     * pass back to the caller a list of all possible combination
-     * 
-     * @param pivotLevel
-     * @param map
-     */
-    private List<Map<String, String>> getLeveledFacetPivotValue(PivotField pivotLevel, PivotField parentPivot) {
-
-        List<Map<String, String>> results = new ArrayList<Map<String, String>>();
-
-        List<PivotField> pivotResult = pivotLevel.getPivot();
-        if (pivotResult != null) {
-            for (int i = 0; i < pivotResult.size(); i++) {
-                List<Map<String, String>> lmap = getLeveledFacetPivotValue(pivotResult.get(i), pivotLevel);
-                // add the parent pivot
-                if (parentPivot != null) {
-                    for (Map<String, String> map : lmap) {
-                        map.put(parentPivot.getField(), parentPivot.getValue().toString());
-                    }
-                }
-                results.addAll(lmap);
-            }
-        } else {
-            Map<String, String> map = new HashMap<String, String>();
-            map.put(pivotLevel.getField(), pivotLevel.getValue().toString());
-
-            // add the parent pivot
-            if (parentPivot != null) {
-                map.put(parentPivot.getField(), parentPivot.getValue().toString());
-            }
-            results.add(map);
-        }
-        //
-        return results;
     }
 
     public List<ObservationDTO> getExperimentalObservationsByParameterPipelineGeneAccZygosityOrganisationStrainSexSexAndMetaDataGroupAndAlleleAccession(
@@ -1192,8 +1121,6 @@ public class ObservationService {
 					ExperimentField.GENE_ACCESSION);
 			geneSymbolArray[i] = (String) resDocs.get(0).get(
 					ExperimentField.GENE_SYMBOL);
-			System.out.println("--- - " + resDocs.get(0).get(
-					ExperimentField.GENE_SYMBOL));
 			meansArray[i] = sum / total;
 			i++;
 		}
@@ -1372,35 +1299,37 @@ public class ObservationService {
 		return resSet;
 	}
 
-	public int getTestedGenes(String phenotypeId, String sex,
+	public int getTestedGenes(String sex,
 			List<String> parameters) throws SolrServerException {
-
-		List<String> genes = new ArrayList<String>();
-		for (String parameter : parameters) {
-			SolrQuery query = new SolrQuery()
-					.setQuery(
-							ExperimentField.PARAMETER_STABLE_ID + ":"
-									+ parameter)
+		
+		System.out.println("::::::::::::: Getting tested genes for : "+ parameters.size() + parameters.get(0));
+		HashSet<String> genes = new HashSet<String>();
+		int i = 0;
+		while (i < parameters.size()) {
+			// Add no more than 10 params at the time so the url doesn't get too long
+			String parameter = parameters.get(i++);
+			String query = "("+ExperimentField.PARAMETER_STABLE_ID + ":" + parameter;
+			while (i%15 != 0 && i < parameters.size()){
+				parameter = parameters.get(i++);
+				query += " OR " + ExperimentField.PARAMETER_STABLE_ID + ":" + parameter;
+			}
+			query += ")";
+			
+			SolrQuery q = new SolrQuery().setQuery(query)
 					.addField(ExperimentField.GENE_ACCESSION)
-					.setFilterQueries(
-							ExperimentField.STRAIN + ":\"MGI:2159965\" OR "
-									+ ExperimentField.STRAIN
-									+ ":\"MGI:2164831\"").setRows(10000);
-			query.set("group.field", ExperimentField.GENE_ACCESSION);
-			query.set("group", true);
+					.setFilterQueries(ExperimentField.STRAIN + ":\"MGI:2159965\" OR " + ExperimentField.STRAIN + ":\"MGI:2164831\"").setRows(10000);
+			q.set("group.field", ExperimentField.GENE_ACCESSION);
+			q.set("group", true);
 			if (sex != null) {
-				query.addFilterQuery(ExperimentField.SEX + ":" + sex);
+				q.addFilterQuery(ExperimentField.SEX + ":" + sex);
 			}
 			// I need to add the genes to a hash in case some come up multiple
 			// times from different parameters
-			// System.out.println("=====" + solr.getBaseURL() + query);
-			List<Group> groups = solr.query(query).getGroupResponse()
-					.getValues().get(0).getValues();
+			System.out.println("=====" + solr.getBaseURL() + "/select?"+ q);
+			List<Group> groups = solr.query(q).getGroupResponse().getValues().get(0).getValues();
 			for (Group gr : groups) {
 				// System.out.println(gr.getGroupValue());
-				if (!genes.contains((String) gr.getGroupValue())) {
-					genes.add((String) gr.getGroupValue());
-				}
+				genes.add((String) gr.getGroupValue());
 			}
 		}
 		return genes.size();

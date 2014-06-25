@@ -30,6 +30,7 @@ import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.web.controller.GeneHeatmapController;
 import uk.ac.ebi.phenotype.web.pojo.BasicBean;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
+import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
 
 /**
  * 
@@ -38,19 +39,18 @@ import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 class SecondaryProjectIdgImpl extends HibernateDAOImpl implements
 		SecondaryProjectDAO {
 
-	 
-    @Autowired
-    private GeneService genesService;
-    
+	@Autowired
+	private GeneService genesService;
+
 	@Autowired
 	private GenomicFeatureDAO genesDao;
 
 	@Autowired
 	private GenotypePhenotypeService genotypePhenotypeService;
-	
-	 @Autowired
-	 private  MpService mpService;
-	
+
+	@Autowired
+	private MpService mpService;
+
 	@Autowired
 	private PhenotypePipelineDAO pDAO;
 
@@ -70,7 +70,7 @@ class SecondaryProjectIdgImpl extends HibernateDAOImpl implements
 		Set<String> accessions = new TreeSet<>();
 
 		String query = "select * from genes_secondary_project where secondary_project_id="
-				+"\""+ projectId+"\"";//+" limit 10";
+				+ "\"" + projectId + "\"";// +" limit 10";
 
 		try (PreparedStatement statement = getConnection().prepareStatement(
 				query)) {
@@ -81,26 +81,31 @@ class SecondaryProjectIdgImpl extends HibernateDAOImpl implements
 				accessions.add(result);
 			}
 		}
-//		accessions.add("MGI:104874");//just for testing as no others seem to have mice produced so far for idg
-//		accessions.add("MGI:2683087");
+		// accessions.add("MGI:104874");//just for testing as no others seem to
+		// have mice produced so far for idg
+		// accessions.add("MGI:2683087");
 		return accessions;
 	}
 
 	@Override
-	public List<GeneRowForHeatMap> getGeneRowsForHeatMap() throws SolrServerException {
+	public List<GeneRowForHeatMap> getGeneRowsForHeatMap()
+			throws SolrServerException {
 		List<GeneRowForHeatMap> geneRows = new ArrayList<>();
 		List<BasicBean> parameters = this.getXAxisForHeatMap();
-		
+
 		try {
 			System.out.println("getGeneHeatMap called");
 			// get a list of genes for the project - which will be the row
 			// headers
-			Set<String> accessions = this.getAccessionsBySecondaryProjectId("idg");
-			Map<String,String> geneToMouseStatusMap=genesService.getProductionStatusForGeneSet(accessions);
-			Map<String,List<String>> geneToTopLevelMpMap=genesService.getTopLevelMpForGeneSet(accessions);
-//			for(String key: geneToMouseStatusMap.keySet()){
-//				System.out.println("key="+key+"  value="+geneToMouseStatusMap.get(key));
-//			}
+			Set<String> accessions = this
+					.getAccessionsBySecondaryProjectId("idg");
+			Map<String, String> geneToMouseStatusMap = genesService
+					.getProductionStatusForGeneSet(accessions);
+			Map<String, List<String>> geneToTopLevelMpMap = genesService
+					.getTopLevelMpForGeneSet(accessions);
+			// for(String key: geneToMouseStatusMap.keySet()){
+			// System.out.println("key="+key+"  value="+geneToMouseStatusMap.get(key));
+			// }
 			for (String accession : accessions) {
 				// System.out.println("accession="+accession);
 				GenomicFeature gene = genesDao
@@ -109,11 +114,21 @@ class SecondaryProjectIdgImpl extends HibernateDAOImpl implements
 				// associated with a Value or status ie. not phenotyped, not
 				// significant
 				GeneRowForHeatMap row = genotypePhenotypeService
-						.getResultsForGeneHeatMap(accession, gene, parameters, geneToTopLevelMpMap);
-				if(geneToMouseStatusMap.containsKey(accession)){
-				row.setMiceProduced(geneToMouseStatusMap.get(accession));
-				}else{
-					row.setMiceProduced("No");//if not contained in map just set no to mice produced
+						.getResultsForGeneHeatMap(accession, gene, parameters,
+								geneToTopLevelMpMap);
+				if (geneToMouseStatusMap.containsKey(accession)) {
+					row.setMiceProduced(geneToMouseStatusMap.get(accession));
+					//System.out.println("Mice produced=|"+row.getMiceProduced()+"|");
+					if (row.getMiceProduced().equals("Neither production nor phenotyping status available ")) {//note the space on the end - why we should have enums
+						for (HeatMapCell cell : row.getXAxisToCellMap()
+								.values()) {
+							// set all the cells to No Data Available
+							cell.setStatus("No Data Available");
+						}
+					}
+				} else {
+					row.setMiceProduced("No");// if not contained in map just
+												// set no to mice produced
 				}
 				geneRows.add(row);
 			}
@@ -129,14 +144,15 @@ class SecondaryProjectIdgImpl extends HibernateDAOImpl implements
 
 	@Override
 	public List<BasicBean> getXAxisForHeatMap() {
-		List<BasicBean> mp=new ArrayList<>();
-	     try {
-			Set<BasicBean> topLevelPhenotypes = mpService.getAllTopLevelPhenotypesAsBasicBeans();
-			 mp.addAll(topLevelPhenotypes);
+		List<BasicBean> mp = new ArrayList<>();
+		try {
+			Set<BasicBean> topLevelPhenotypes = mpService
+					.getAllTopLevelPhenotypesAsBasicBeans();
+			mp.addAll(topLevelPhenotypes);
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}  
-	       return mp;
+		}
+		return mp;
 	}
 }
