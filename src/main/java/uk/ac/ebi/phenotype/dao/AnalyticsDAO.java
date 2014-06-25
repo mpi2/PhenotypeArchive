@@ -56,4 +56,16 @@ public interface AnalyticsDAO {
 	 */
 	List<AggregateCountXYBean> getPValueDistribution(String dataType, String statisticalMethod);
 	
+	/**
+	 * Get historical data from release to release
+	 * @param propertyKey which variable to look at 
+	 * @return a list of points for this variable ordered by release date
+	 */
+	List<AggregateCountXYBean> getHistoricalData(String propertyKey);
+	
+	/**
+	 * List all releases
+	 * @return a list of releases
+	 */
+	List<String> getReleases(String excludeRelease);
 }
