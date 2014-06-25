@@ -33,7 +33,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
@@ -145,7 +144,7 @@ public class PhenotypePageStatistics {
     public void testCollectTableAndImageStatistics() throws SolrServerException {
         String testName = "testCollectTableAndImageStatistics";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        Set<String> phenotypeIds = mpService.getAllPhenotypes();
+        List<String> phenotypeIds = new ArrayList(mpService.getAllPhenotypes());
         String target = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();

@@ -286,7 +286,8 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 
 		return parameters;
 	}
-
+	
+	
 	@Override
 	public List<String> getParameterStableIdsByPhenotypeTerm(String mpTermId) {
 		

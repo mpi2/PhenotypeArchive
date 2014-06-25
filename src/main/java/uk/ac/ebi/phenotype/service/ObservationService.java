@@ -1192,8 +1192,6 @@ public class ObservationService {
 					ExperimentField.GENE_ACCESSION);
 			geneSymbolArray[i] = (String) resDocs.get(0).get(
 					ExperimentField.GENE_SYMBOL);
-			System.out.println("--- - " + resDocs.get(0).get(
-					ExperimentField.GENE_SYMBOL));
 			meansArray[i] = sum / total;
 			i++;
 		}
@@ -1372,35 +1370,37 @@ public class ObservationService {
 		return resSet;
 	}
 
-	public int getTestedGenes(String phenotypeId, String sex,
+	public int getTestedGenes(String sex,
 			List<String> parameters) throws SolrServerException {
-
-		List<String> genes = new ArrayList<String>();
-		for (String parameter : parameters) {
-			SolrQuery query = new SolrQuery()
-					.setQuery(
-							ExperimentField.PARAMETER_STABLE_ID + ":"
-									+ parameter)
+		
+		System.out.println("::::::::::::: Getting tested genes for : "+ parameters.size() + parameters.get(0));
+		HashSet<String> genes = new HashSet<String>();
+		int i = 0;
+		while (i < parameters.size()) {
+			// Add no more than 10 params at the time so the url doesn't get too long
+			String parameter = parameters.get(i++);
+			String query = "("+ExperimentField.PARAMETER_STABLE_ID + ":" + parameter;
+			while (i%15 != 0 && i < parameters.size()){
+				parameter = parameters.get(i++);
+				query += " OR " + ExperimentField.PARAMETER_STABLE_ID + ":" + parameter;
+			}
+			query += ")";
+			
+			SolrQuery q = new SolrQuery().setQuery(query)
 					.addField(ExperimentField.GENE_ACCESSION)
-					.setFilterQueries(
-							ExperimentField.STRAIN + ":\"MGI:2159965\" OR "
-									+ ExperimentField.STRAIN
-									+ ":\"MGI:2164831\"").setRows(10000);
-			query.set("group.field", ExperimentField.GENE_ACCESSION);
-			query.set("group", true);
+					.setFilterQueries(ExperimentField.STRAIN + ":\"MGI:2159965\" OR " + ExperimentField.STRAIN + ":\"MGI:2164831\"").setRows(10000);
+			q.set("group.field", ExperimentField.GENE_ACCESSION);
+			q.set("group", true);
 			if (sex != null) {
-				query.addFilterQuery(ExperimentField.SEX + ":" + sex);
+				q.addFilterQuery(ExperimentField.SEX + ":" + sex);
 			}
 			// I need to add the genes to a hash in case some come up multiple
 			// times from different parameters
-			// System.out.println("=====" + solr.getBaseURL() + query);
-			List<Group> groups = solr.query(query).getGroupResponse()
-					.getValues().get(0).getValues();
+			System.out.println("=====" + solr.getBaseURL() + "/select?"+ q);
+			List<Group> groups = solr.query(q).getGroupResponse().getValues().get(0).getValues();
 			for (Group gr : groups) {
 				// System.out.println(gr.getGroupValue());
-				if (!genes.contains((String) gr.getGroupValue())) {
-					genes.add((String) gr.getGroupValue());
-				}
+				genes.add((String) gr.getGroupValue());
 			}
 		}
 		return genes.size();

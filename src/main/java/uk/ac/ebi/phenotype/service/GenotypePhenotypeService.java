@@ -116,9 +116,11 @@ public class GenotypePhenotypeService {
 						+ ":\"MGI:2164831\")").setRows(10000);
 		q.set("group.field", "" + GenotypePhenotypeField.MARKER_SYMBOL);
 		q.set("group", true);
+		q.set("group.limit", 0);
 		if (sex != null) {
 			q.addFilterQuery(GenotypePhenotypeField.SEX + ":" + sex);
 		}
+		System.out.println("++++++++++  " + solr.getBaseURL() + "/select?"+ q);
 		QueryResponse results = solr.query(q);
 		return results.getGroupResponse().getValues().get(0).getValues();
 	}
@@ -546,9 +548,8 @@ public class GenotypePhenotypeService {
 				// System.out.println("pValue="+pValue);
 				if (pValue != null) {
 					unidimensionalResult.setId(Integer
-							.parseInt(phenoCallSummaryId));// one id for each
-															// document and for
-															// each sex
+							.parseInt(phenoCallSummaryId));
+					// one id for each document and for each sex
 					unidimensionalResult.setpValue(Double.valueOf(pValue));
 					unidimensionalResult.setZygosityType(ZygosityType
 							.valueOf(zygosity));
@@ -577,14 +578,8 @@ public class GenotypePhenotypeService {
 
 				// System.out.println("pValue="+pValue);
 				// if(pValue!=null) {
-				catResult.setId(Integer.parseInt(phenoCallSummaryId));// one id
-																		// for
-																		// each
-																		// document
-																		// and
-																		// for
-																		// each
-																		// sex
+				catResult.setId(Integer.parseInt(phenoCallSummaryId));
+				// one id for each document and for each sex
 				catResult.setpValue(Double.valueOf(pValue));
 				catResult.setZygosityType(ZygosityType.valueOf(zygosity));
 				catResult.setEffectSize(new Double(Double.valueOf(effectSize)));
