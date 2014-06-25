@@ -579,6 +579,10 @@ public class GenotypePhenotypeService {
 			mpEntity.setAccession(mpId);
 			phenotypeTerm.setId(mpEntity);
 			sum.setPhenotypeTerm(phenotypeTerm);
+                        
+                        if(!phen.has(GenotypePhenotypeField.TOP_LEVEL_MP_TERM_NAME)) {
+                            continue;
+                        }
 
 			// check the top level categories
 			JSONArray topLevelMpTermNames = phen

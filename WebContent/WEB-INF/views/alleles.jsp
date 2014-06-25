@@ -3,7 +3,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <t:genericpage>
-	<jsp:attribute name="title">Gene details for ${gene.name}</jsp:attribute>
+	<jsp:attribute name="title">Allele details for ${summary['symbol']}</jsp:attribute>
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search?q=*:*&core=gene">Genes</a> &raquo; ${gene.symbol}</jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="gene-node no-sidebars small-header"></jsp:attribute>
 	<jsp:attribute name="addToFooter">
@@ -159,23 +159,37 @@
 <div class="section">
     <div class="inner">
     <h3>Summary</h3>
-    <div style="font-size: 110%; font-weight: bold;">
+    <div style="font-size: 115%; font-weight: bold;">
         <p>${summary['allele_description']}</p>
         <c:if test="${not empty summary['statuses']}">
+            
+            <table>
           <c:forEach var="status" items="${summary['statuses']}" varStatus="statusx">
-            <p>${status['TEXT']}                         
+              
+              <tr>
+                  <td>${status['TEXT']}</td>
+                  
+                  <td>
+<div style="font-size: 115%; font-weight: bold;">                      
             <c:if test="${not empty status['ORDER']}">
-              <td><a class="btn" href="${status['ORDER']}"> <i class="fa fa-shopping-cart"></i> ORDER </a></td>
+              <a class="btn btn-lg" href="${status['ORDER']}"> <i class="fa fa-shopping-cart"></i> ORDER </a>
+            </c:if>
+            <c:if test="${not empty status['DETAILS']}">
+              <a class="btn btn-lg" href="${status['DETAILS']}"> <i class="fa  fa-info "></i> DETAILS </a>
             </c:if>
             <c:if test="${not empty status['CONTACT']}">
               <!-- TODO: turn orange-->
-              <td><a class="btn" href="${status['CONTACT']}"> <i class="fa  fa-envelope-square"></i> CONTACT </a></td>
+              <a class="btn btn-lg" href="${status['CONTACT']}"> <i class="fa  fa-envelope"></i> CONTACT </a>
             </c:if>
-            <c:if test="${not empty status['DETAILS']}">
-              <td><a class="btn" href="${status['DETAILS']}"> <i class="fa  fa-info "></i> DETAILS </a></td>
-            </p>
-            </c:if>
+</div>
+          </td>
+          
+<!--                  <td>${status['TEXT2']}</td>-->
+              
+          </tr>
         </c:forEach>	
+            <table>
+            
         </c:if>			
     </div>
     </div>
@@ -210,16 +224,13 @@
             <tr>
             <td>   
                 <span>
-    <a href="${summary['genbank']}">
-        <i class="fa fa-file-text fa-lg"></i>
-    </a>
-        </span>
-    <span>&nbsp;&nbsp;&nbsp;genbank file</span>
+                    <a class="btn" href="${summary['genbank']}"><i class="fa fa-info"></i> Genbank file</a>
+                </span>
             </td>
 
             <td>     
                 <c:if test="${not empty summary['mutagenesis_url']}">
-                    <a href="${summary['mutagenesis_url']}">Mutagenesis Prediction</a>     
+                    <a class="btn" href="${summary['mutagenesis_url']}"> <i class="fa fa-info"></i> Mutagenesis Prediction </a>
                 </c:if>	
             </td>
 
@@ -228,13 +239,13 @@
 
             <td>     
                 <c:if test="${not empty summary['southern_tool']}">
-                    <a href="${summary['southern_tool']}">Southern Tool</a>     
+                    <a class="btn" href="${summary['southern_tool']}"> <i class="fa fa-info"></i> Southern Tool </a>
                 </c:if>	
             </td>
 
             <td>     
                 <c:if test="${not empty summary['lrpcr_genotyping_primers']}">
-                    <a href="${summary['lrpcr_genotyping_primers']}">LRPCR Genotyping Primers</a>     
+                    <a class="btn" href="${summary['lrpcr_genotyping_primers']}"> <i class="fa fa-info"></i> LRPCR Genotyping Primers </a>
                 </c:if>	
             </td>
 
@@ -246,30 +257,34 @@
 
             <td>       
                 
-<div style="text-align: center;">Genome Browsers</div>
 <div style="text-align: center;">
 <c:if test="${not empty summary['browsers']}">
     <c:forEach var="browser" items="${summary['browsers']}" varStatus="browsersx">
-        <a href="${browser['url']}" target="_blank" class="ensembl_link">${browser['browser']}</a>&nbsp;&nbsp;&nbsp;
+        <a class="btn" href="${browser['url']}"> <i class="fa fa-info"></i> ${browser['browser']} </a> <br/>
     </c:forEach>	
 </c:if>	
 </div>
             </td>
-        
-            <td>
-<div style="text-align: center;">Tools</div>
-<div style="text-align: center;">
-    <c:forEach var="tool" items="${summary['tools']}" varStatus="toolsx">
-        <a href="${tool['url']}">${tool['name']}</a><br/>
-    </c:forEach>	
-        </div>
-            </td>
-            
+                    
             </tr>
         </table>
         
                                 
                        
+        <table>
+            <tr>
+            <c:if test="${not empty summary['tools']}">
+            <td>
+                <div style="text-align: center;">Tools</div>
+                    <div style="text-align: center;">
+                    <c:forEach var="tool" items="${summary['tools']}" varStatus="toolsx">
+                        <a href="${tool['url']}">${tool['name']}</a><br/>
+                    </c:forEach>	
+                </div>
+            </td>
+            </c:if>
+            </tr>
+        </table>
 
         
         

@@ -15,10 +15,10 @@
  */
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.File;
+//import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-//import java.nio.charset.StandardCharsets;
+import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +34,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.yaml.snakeyaml.Yaml;
 import uk.ac.ebi.generic.util.SolrIndex;
 
 @Controller
@@ -45,7 +43,45 @@ public class AllelesController {
 
     @Autowired
     SolrIndex solrIndex;
+    
+    private HashMap<String, String> makeItem(String marker_symbol, String allele_name, String mgi_accession_id) {
+        HashMap<String, String> map = new HashMap<>();        
+        map.put("marker_symbol", marker_symbol);
+        map.put("allele_name", allele_name);
+        map.put("allele_name_e", URLEncoder.encode(allele_name));
+        map.put("mgi_accession_id", mgi_accession_id);
+        map.put("solr_product", "http://ikmc.vm.bytemark.co.uk:8985/solr/product/select?indent=on&version=2.2&q=" +
+                "marker_symbol:" + marker_symbol +
+                "&fq=&start=0&rows=10&fl=*%2Cscore&wt=json&explainOther=&hl.fl=");
+        map.put("solr_allele2", "http://ikmc.vm.bytemark.co.uk:8985/solr/allele2/select?indent=on&version=2.2&q=" +
+                "marker_symbol:" + marker_symbol +
+                "&fq=&start=0&rows=10&fl=*%2Cscore&wt=json&explainOther=&hl.fl=");
+        return map;
+    }
 
+    @RequestMapping("/alleles/")
+    public String alleles1(
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+        
+        List<Map<String, String>> list = new ArrayList<>();
+        
+        list.add(makeItem("Foxj3", "tm1a(EUCOMM)Wtsi", "MGI:2443432"));        
+        list.add(makeItem("Foxj3", "tm1b(EUCOMM)Wtsi", "MGI:2443432"));
+        list.add(makeItem("Foxj3", "tm1e(EUCOMM)Wtsi", "MGI:2443432"));
+
+        list.add(makeItem("Cib2", "tm1a(EUCOMM)Wtsi", "MGI:1929293"));
+        list.add(makeItem("Cib2", "tm1e(EUCOMM)Wtsi", "MGI:1929293"));
+
+        list.add(makeItem("Nxn", "tm1a", "MGI:109331"));
+        list.add(makeItem("Nxn", "tm1a(EUCOMM)Wtsi", "MGI:109331"));
+
+        model.addAttribute("list", list);
+
+        return "alleles_list";
+    }
+    
     @RequestMapping("/alleles/{acc}")
     public String alleles1(
             @PathVariable String acc,
