@@ -127,7 +127,7 @@
 			</entity>
 
 			<entity name="biologicalData" processor="SqlEntityProcessor" cacheImpl="SortedMapBackedCache"
-				query="SELECT bs.id as bio_samp_id, bs.organisation_id, org.name, bs.sample_group, bs.external_id as external_sample_id,
+				query="SELECT bs.id as bio_samp_id, bs.organisation_id as phenotyping_center_id, org.name as phenotyping_center_name, bs.sample_group, bs.external_id as external_sample_id,
 				ls.date_of_birth as birthdate, ls.colony_id, ls.sex as sex, ls.colony_id, ls.zygosity, 
 				bms.biological_model_id as bmid,
 				strain.acc as strain_acc, strain.name as strain_name, 
@@ -153,8 +153,8 @@
 				<field column="symbol" name="gene_symbol" />
 				<field column="strain_acc" name="strain_accession_id" />
 				<field column="strain_name" name="strain_name" />
-				<field column="organisation_id" name="phenotyping_center_id" />
-				<field column="name" name="phenotyping_center" />
+				<field column="phenotyping_center_id" name="phenotyping_center_id" />
+				<field column="phenotyping_center_name" name="phenotyping_center" />
 				<field column="zygosity" name="zygosity" />
 				<field column="birthdate" name="date_of_birth" />
 				<field column="sex" name="sex" />
