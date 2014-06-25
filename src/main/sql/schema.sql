@@ -24,6 +24,7 @@ SET collation_connection = utf8_general_ci;
 -- Drop all the tables if they exist
 --
 DROP TABLE IF EXISTS meta_info;
+DROP TABLE IF EXISTS meta_history;
 DROP TABLE IF EXISTS allele;
 DROP TABLE IF EXISTS biological_model;
 DROP TABLE IF EXISTS biological_model_allele;
@@ -100,6 +101,23 @@ CREATE TABLE meta_info (
     KEY value_idx (property_value)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+/**
+ * Contains meta information from release to release to keep track of 
+ * Numbers through time
+ */
+CREATE TABLE meta_history (
+	id                          INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	property_key                VARCHAR(255) NOT NULL DEFAULT '',
+	property_value              VARCHAR(255) NOT NULL DEFAULT '',
+	data_release_version        VARCHAR(10) NOT NULL,
+
+    PRIMARY KEY (id),
+    KEY value_idx (property_value),
+    KEY version_idx (data_release_version)
+
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
     
 /**
 @table project

@@ -182,7 +182,7 @@ config.facetParams = {
 		//filterParams: {fq:'marker_type:* -marker_type:"heritable phenotypic marker" (production_center:* AND phenotyping_center:*)',	
 		filterParams: {fq:'marker_type:* -marker_type:"heritable phenotypic marker"',	
 			      qf:"marker_symbol^100.0 human_gene_symbol^90.0 marker_name^10.0 marker_synonym mgi_accession_id auto_suggest",			     
-			      bq:'marker_type:"protein coding gene"^100'},
+			      bq:'latest_phenotype_status:"Phenotyping Complete"^200 marker_type:"protein coding gene"^100'},
 		srchParams : $.extend({},				
 				 	commonSolrParams	 	
 					),

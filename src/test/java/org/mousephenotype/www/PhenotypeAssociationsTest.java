@@ -15,7 +15,6 @@
  */
 package org.mousephenotype.www;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,7 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.generic.util.Tools;
-import uk.ac.ebi.phenotype.service.GeneService;
+import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.util.Utils;
 
 /**
@@ -75,7 +74,7 @@ import uk.ac.ebi.phenotype.util.Utils;
 public class PhenotypeAssociationsTest {
     
     @Autowired
-    protected GeneService geneService;
+    protected GenotypePhenotypeService genotypePhenotypeService;
     
     @Autowired
     protected String baseUrl;
@@ -135,21 +134,23 @@ public class PhenotypeAssociationsTest {
     
     /**
      * Fetches all gene IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
-     * core and tests to make sure there is a page for each. Limit the test by
-     * adding a value to testIterations.properties with the test name on the
-     * left and the number of iterations on the right (-1 means run all).
+     * core and tests to make sure:
+     * <ul><li>this page has phenotype associations</li>
+     * <li>the expected result count is less than or equal to the sum of the
+     * phenotype link counts</li></ul>
+     * 
+     * <p><em>Limit the number of test iterations by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the
+     * number of iterations as the rvalue. -1 means run all iterations.</em></p>
      * 
      * @throws SolrServerException 
      */
     @Test
 //@Ignore
-    public void testTotalsCountRandom() throws SolrServerException {
-        String testName = "testTotalsCountRandom";
+    public void testTotalsCount() throws SolrServerException {
+        String testName = "testTotalsCount";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-//        Set<String> geneIds = geneService.getAllGenes();
-//        String[] geneIdArray = geneIds.toArray(new String[geneIds.size()]);
-        List<String> geneIds = new ArrayList(geneService.getAllGenes());
-        Collections.shuffle(geneIds);                                      // Randomize the collection.
+        List<String> geneIds = new ArrayList(genotypePhenotypeService.getAllGenesWithPhenotypeAssociations());
         
         Date start = new Date();
 
@@ -189,8 +190,10 @@ public class PhenotypeAssociationsTest {
             
             // Make sure this page has phenotype associations.
             List<WebElement> phenotypeAssociationElements = driver.findElements(By.cssSelector("div.inner ul li a.filterTrigger"));
-            if ((phenotypeAssociationElements == null) || (phenotypeAssociationElements.isEmpty()))
+            if ((phenotypeAssociationElements == null) || (phenotypeAssociationElements.isEmpty())) {
+                errorList.add("ERROR: Expected phenotype association but none was found");
                 return;         // This gene page has no phenotype associations.
+            }
             
             // Get the expected result count.
             List<WebElement> resultElements = driver.findElements(By.cssSelector("p.resultCount"));

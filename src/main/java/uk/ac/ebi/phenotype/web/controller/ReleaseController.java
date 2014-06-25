@@ -132,7 +132,42 @@ public class ReleaseController {
 			}
 		}
 		
+		/**
+		 * Get Historical trends
+		 */
+		
+		List<String> allReleases = analyticsDAO.getReleases(null);
+		
+		String[] trendsVariables = new String[] {"statistically_significant_calls", "phenotyped_genes", "phenotyped_lines"};
+		Map<String, List<AggregateCountXYBean>> trendsMap = new HashMap<String, List<AggregateCountXYBean>>();
+		for (int i=0; i<trendsVariables.length; i++) {
+			trendsMap.put(trendsVariables[i], analyticsDAO.getHistoricalData(trendsVariables[i]));
+		}
+		
+		String trendsChart = chartsProvider.generateHistoryTrendsChart(trendsMap, allReleases, "Genes/Mutant Lines/MP Calls", "Release by Release", "Genes/Mutant Lines", "Phenotype Calls", true, "trendsChart");
+		
+		Map<String, List<AggregateCountXYBean>> datapointsTrendsMap = new HashMap<String, List<AggregateCountXYBean>>();
+		String[] status = new String[] {"QC_passed", "QC_failed", "issues"};
+		
+		for (int i=0; i<dataTypes.length; i++) {
+			for (int j=0; j<status.length; j++) {
+				String propertyKey = dataTypes[i]+"_datapoints_"+status[j];
+				List<AggregateCountXYBean> dataPoints = analyticsDAO.getHistoricalData(propertyKey);
+				//if (beans.size() > 0) {
+					datapointsTrendsMap.put(propertyKey, dataPoints);
+				//}
+			}
+		}
+		
+		String datapointsTrendsChart = chartsProvider.generateHistoryTrendsChart(datapointsTrendsMap, allReleases, "Data points", "", "Data points", null, false, "datapointsTrendsChart");
+		
+		/**
+		 * Get all former releases: releases but the current one
+		 */
+		List<String> releases = analyticsDAO.getReleases(metaInfo.get("data_release_version"));
+		
 		model.addAttribute("metaInfo", metaInfo);
+		model.addAttribute("releases", releases);
 		model.addAttribute("phenotypingCenters", phenotypingCenters);
 		model.addAttribute("dataTypes", dataTypes);
 		model.addAttribute("qcTypes", qcTypes);
@@ -142,6 +177,8 @@ public class ReleaseController {
 		model.addAttribute("lineProcedureChart", lineProcedureChart);
 		model.addAttribute("callProcedureChart", callProcedureChart);
 		model.addAttribute("distributionCharts", distributionCharts);
+		model.addAttribute("trendsChart", trendsChart);
+		model.addAttribute("datapointsTrendsChart", datapointsTrendsChart);
 		
 		return null;
 	}

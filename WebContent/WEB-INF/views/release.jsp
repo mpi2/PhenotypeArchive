@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
 <%@ taglib prefix='fn' uri='http://java.sun.com/jsp/jstl/functions'%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <t:genericpage>
 
@@ -32,6 +33,7 @@
                 <li><a href="#data_reports">Data Reports</a></li>
                 <li><a href="#phenome-links">Phenotype Associations</a></li>
                 <li><a href="#statistical-analysis">Statistical Analysis</a></li>
+                <li><a href="#trends">History</a></li>
             </ul>
             
             <div class="clear"></div>
@@ -76,9 +78,9 @@
 							<div class="half">
 							<div class="with-label"> <span class="label">Summary</span>
 								<ul>
-								<li>Number of phenotyped genes:&nbsp;${metaInfo["phenotyped_genes"]}</li>
-								<li>Number of phenotyped mutant lines:&nbsp;${metaInfo["phenotyped_lines"]}</li>
-								<li>Number of phenotype calls:&nbsp;${metaInfo["statistically_significant_calls"]}</li>
+								<li>Number of phenotyped genes:&nbsp;<fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo['phenotyped_genes']}"/></li>
+								<li>Number of phenotyped mutant lines:&nbsp;<fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo['phenotyped_lines']}"/></li>
+								<li>Number of phenotype calls:&nbsp;<fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo['statistically_significant_calls']}"/></li>
 								</ul>
 							</div>
 							</br>
@@ -141,9 +143,9 @@
 						<c:set var="mutant_specimens" value="mutant_specimens_${center}" />
 						<tr>
 							<td>${center}</td>
-							<td>${metaInfo[phenotyped_lines]}</td>
-							<td>${metaInfo[control_specimens]}</td>
-							<td>${metaInfo[mutant_specimens]}</td>
+							<td><fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo[phenotyped_lines]}"/></td>
+							<td><fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo[control_specimens]}"/></td>
+							<td><fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo[mutant_specimens]}"/></td>
 						</tr>
 						</c:forEach>
 					</tbody>
@@ -154,23 +156,28 @@
 						<thead>
 						<tr>
 							<th class="headerSort">Data Type</th>
-							<th class="headerSort">QC Status</th>
-							<th class="headerSort">Data Points</th>
+							<c:forEach var="qcType" items="${qcTypes}">
+							<th class="headerSort">${fn:replace(qcType, '_', ' ')}</th>
+							</c:forEach>
 						</tr>
 					</thead>
 					<tbody>
-						<c:forEach var="qcType" items="${qcTypes}">
 						<c:forEach var="dataType" items="${dataTypes}">
+						<tr><td>${fn:replace(dataType, '_', ' ')}</td>
+						<c:forEach var="qcType" items="${qcTypes}">
 						<c:set var="qcKey" value="${dataType}_datapoints_${qcType}" />
 						<c:set var="qcValue" value="${metaInfo[qcKey]}" />
-						<c:if test="${qcValue != null && qcValue != ''}">
-						<tr>
-							<td>${dataType}</td>
-							<td>${qcType}</td>
-							<td>${qcValue}<c:if test="${qcType != 'QC_passed'}"><sup>*</sup></c:if></td>
-						</tr>
-						</c:if>
+						<td>
+						<c:choose>
+						<c:when test="${qcValue != null && qcValue != ''}">
+						<fmt:formatNumber type="number" maxFractionDigits="3" value="${qcValue}" />
+						<c:if test="${qcType != 'QC_passed'}"><sup>*</sup></c:if>
+						</c:when>
+						<c:otherwise>0</c:otherwise>
+						</c:choose>
+						</td>
 						</c:forEach>
+						</tr>
 						</c:forEach>
 					</tbody>
 					</table>
@@ -295,6 +302,35 @@
 						</div>
 					</div>
 				</div><!-- end of section -->
+				
+				<div class="section">
+				
+			    <h2 class="title" id="trends">History</h2>
+				   
+					<div class="inner">	 
+						<div id="phenotypesDiv">	
+							<div class="container span12">				
+									<h3>Trends</h3>
+					<div id="trendsChart">
+					<script type="text/javascript">
+						${trendsChart}
+					</script>
+					</div>
+					<div id="datapointsTrendsChart">
+					<script type="text/javascript">
+						${datapointsTrendsChart}
+					</script>
+					</div>
+					<h3>Previous Releases</h3>
+					<ul>
+					<c:forEach var="release" items="${releases}">
+					<li><a href="${baseUrl}/release_notes/IMPC_Release_Notes_${release}.html">Release ${release} notes</a></li>
+					</c:forEach>
+					</ul>
+							</div>
+						</div>
+					</div>
+				</div><!-- end of section -->				
 				
 		</div>
 	</div>
