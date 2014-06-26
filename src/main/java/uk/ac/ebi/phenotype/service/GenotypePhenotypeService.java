@@ -1,3 +1,18 @@
+/**
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License.  
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package uk.ac.ebi.phenotype.service;
 
 import java.io.IOException;
@@ -45,13 +60,14 @@ import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.service.ObservationService.ExperimentField;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.pojo.BasicBean;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
 
 @Service
-public class GenotypePhenotypeService {
+public class GenotypePhenotypeService extends BasicService {
 
 	@Autowired
 	PhenotypePipelineDAO pipelineDAO;
@@ -73,6 +89,7 @@ public class GenotypePhenotypeService {
 		public final static String MP_TERM_NAME = "mp_term_name"; //
 		public final static String RESOURCE_NAME = "resource_name"; //
 		public final static String DOC_ID = "doc_id";//
+		public final static String COLONY_ID = "colony_id";//
 		public final static String ALLELE_ACCESSION_ID = "allele_accession_id";//
 		public final static String STRAIN_ACCESSION_ID = "strain_accession_id"; //
 		public final static String P_VALUE = "p_value";//
@@ -100,6 +117,60 @@ public class GenotypePhenotypeService {
 		solr = new HttpSolrServer(solrUrl);
 	}
 
+	/**
+	 * Returns a list of a all colonies 
+	 * @param phenotypeResourceName 
+	 * @return
+	 * @throws SolrServerException
+	 */
+    public List<Map<String, String>> getAllTopLevelsByPhenotypingCenterAndColonies(String phenotypeResourceName) throws SolrServerException {
+
+        SolrQuery query = new SolrQuery()
+                .setQuery("*:*")
+                .addFilterQuery(GenotypePhenotypeField.RESOURCE_NAME + ":"+phenotypeResourceName)
+                .setRows(0)
+                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
+                .addFacetPivotField( // needs at least 2 fields
+                		GenotypePhenotypeField.PHENOTYPING_CENTER + "," +
+                		GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + "," +
+                		GenotypePhenotypeField.TOP_LEVEL_MP_TERM_NAME + "," +                		
+                		GenotypePhenotypeField.COLONY_ID + "," +
+                		GenotypePhenotypeField.MARKER_SYMBOL + "," +
+                		GenotypePhenotypeField.MARKER_ACCESSION_ID
+                        );
+
+        QueryResponse response = solr.query(query);
+
+        // keep count by level
+        return getFacetPivotResults(response, true);
+
+    }
+    
+
+    public List<Map<String, String>> getAllIntermediateLevelsByPhenotypingCenterAndColonies(String phenotypeResourceName) throws SolrServerException {
+
+        SolrQuery query = new SolrQuery()
+                .setQuery("*:*")
+                .addFilterQuery(GenotypePhenotypeField.RESOURCE_NAME + ":"+phenotypeResourceName)
+                .setRows(0)
+                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
+                .addFacetPivotField( // needs at least 2 fields
+                		GenotypePhenotypeField.PHENOTYPING_CENTER + "," +
+                		GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID + "," +
+                		GenotypePhenotypeField.INTERMEDIATE_MP_TERM_NAME + "," +                		
+                		GenotypePhenotypeField.COLONY_ID + "," +
+                		GenotypePhenotypeField.MARKER_SYMBOL + "," +
+                		GenotypePhenotypeField.MARKER_ACCESSION_ID
+                        );
+
+        QueryResponse response = solr.query(query);
+
+        // keep count by level
+        return getFacetPivotResults(response, true);
+
+    }
+    
+	
 	public List<Group> getGenesBy(String phenotype_id, String sex)
 			throws SolrServerException {
 		// males only
