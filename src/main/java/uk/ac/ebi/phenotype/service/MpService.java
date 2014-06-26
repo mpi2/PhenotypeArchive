@@ -2,6 +2,7 @@ package uk.ac.ebi.phenotype.service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -65,23 +66,16 @@ public class MpService {
 		System.out.println("solr query in basicbean="+solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		
-		HashSet<BasicBean> allTopLevelPhenotypes = new HashSet();
+		HashSet<BasicBean> allTopLevelPhenotypes = new LinkedHashSet();
 		for (FacetField ff:rsp.getFacetFields()){
-			//System.out.println("count name="+ff.getName());
 			for(Count count: ff.getValues()){
-				//System.out.println("count Name="+count.getName());
 				String mpArray[]=count.getName().split("___");
 				BasicBean bean=new BasicBean();
 				bean.setName(mpArray[0]);
 				bean.setId(mpArray[1]);
 				allTopLevelPhenotypes.add(bean);
 			}
-			//ArrayList<String> names = (ArrayList<String>)doc.getFieldValue( GenotypePhenotypeField.MP_TERM_NAME );
-//			for (String id : ids) {
-//				BasicBean bean=new BasicBean();
-//				bean.setId(id);
-//				allTopLevelPhenotypes.add(bean);
-//			}
+			
 		}
 		return allTopLevelPhenotypes;
 	}
