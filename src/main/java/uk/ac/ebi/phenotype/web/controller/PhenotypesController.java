@@ -446,7 +446,6 @@ public class PhenotypesController {
  		pgs.setTotalPercentage(100*(float)nominator/(float)total);
 		pgs.setTotalGenesAssociated(nominator);
 		pgs.setTotalGenesTested(total);
-		System.out.println("   - - - - Total : " + nominator + " out of " + total);
 		boolean display = (total > 0 && nominator > 0) ? true : false;
 		pgs.setDisplay(display);		
 
@@ -511,10 +510,8 @@ public class PhenotypesController {
 		ArrayList<String> mpIds;
 		try {
 			mpIds = mpService.getChildrenFor(mpTermId);
-			System.out.println("  --  " + mpTermId + " has " + mpIds.size()+ "  and res is " + res.size());
 			res.addAll(pipelineDao.getParameterStableIdsByPhenotypeTerm(mpTermId));
 			for(String mp : mpIds){
-				System.out.println("  --  " + mp + " has " + pipelineDao.getParameterStableIdsByPhenotypeTerm(mp).size() + "  and res is " + res.size());
 				res.addAll(pipelineDao.getParameterStableIdsByPhenotypeTerm(mp));
 			}
 		} catch (SolrServerException e) {

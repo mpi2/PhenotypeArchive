@@ -441,7 +441,6 @@ List<Float>dataFloats=new ArrayList<>();
 						len = 0;
 					}
 				}
-				controlG = controlG;
 			}
 			else controlG = c ;
 			labels.add("'" + df.format(upperBounds.get(i)) + "###" + controlG + "###" + mutantGenes.get(i) + "###" + controlGenesUrl.get(i) + "###" + mutantGenesUrl.get(i) + "'");

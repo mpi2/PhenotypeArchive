@@ -40,6 +40,8 @@ public class ChartColors {
 	private static String wtColor="239, 123, 11";
 	private static String mutantColor="9, 120, 161";
 	
+	
+	
 	/**
 	 * get a string to represent rgba for highcharts for either sex and choose your alpha (opacity) 0.0-1.0
 	 * @param sexType
@@ -79,9 +81,18 @@ public class ChartColors {
 		return colorStrings;
 		
 	}
-        
-        public static List<String> getHighDifferenceColorsRgba(Double alpha) {	
-                List<String> colorStrings=new ArrayList<String>(); 
+    
+	public static List<String> getMaleColorsRgba(Double alpha) {
+		List<String> colorStrings = new ArrayList<String>();
+		for (String colorString : ChartColors.maleRgb) {
+			colorStrings.add("rgba(" + colorString + "," + alpha + ")");
+		}
+
+		return colorStrings;
+	}
+	
+	public static List<String> getHighDifferenceColorsRgba(Double alpha) {	
+        List<String> colorStrings=new ArrayList<String>(); 
 		for(String colorString:ChartColors.highDifferenceColors) {
 			colorStrings.add("rgba("+colorString+"," +alpha+")");
 		}
