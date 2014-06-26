@@ -256,6 +256,7 @@ public class PhenotypePageStatistics {
         
         if ( ! urlsWithNeitherPhenotypeTableNorImage.isEmpty()) {
             System.out.println("WARNING: The following " + urlsWithNeitherPhenotypeTableNorImage.size() + " results had neither phenotype table nor images:");
+            System.out.println("WARNING: Phenotype pages with neither phenotype table nor images: " + urlsWithNeitherPhenotypeTableNorImage.size());
             for (String s : urlsWithNeitherPhenotypeTableNorImage) {
                 System.out.println("\t" + s);
             }
