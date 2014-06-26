@@ -24,9 +24,9 @@ import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
 import org.junit.AfterClass;
-import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.TestUtils;
@@ -40,7 +40,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.util.Utils;
 
@@ -132,51 +131,11 @@ public class PhenotypeAssociationsTest {
     public static void tearDownClass() {
     }
     
-    /**
-     * Fetches all gene IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
-     * core and tests to make sure:
-     * <ul><li>this page has phenotype associations</li>
-     * <li>the expected result count is less than or equal to the sum of the
-     * phenotype link counts</li></ul>
-     * 
-     * <p><em>Limit the number of test iterations by adding an entry to
-     * testIterations.properties with this test's name as the lvalue and the
-     * number of iterations as the rvalue. -1 means run all iterations.</em></p>
-     * 
-     * @throws SolrServerException 
-     */
-    @Test
-//@Ignore
-    public void testTotalsCount() throws SolrServerException {
-        String testName = "testTotalsCount";
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        List<String> geneIds = new ArrayList(genotypePhenotypeService.getAllGenesWithPhenotypeAssociations());
-        
-        Date start = new Date();
-
-        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
-        
-        // Loop through all genes, testing each one for valid page load.
-        int i = 0;
-        for (String geneId : geneIds) {
-// if (i == 0) geneId = "MGI:104874";
-// if (i == 0) geneId = "MGI:2443601";        // This one doesn't exist.
-            if (i >= targetCount) {
-                break;
-            }
-            i++;
-            
-            processRow(geneId, i);
-
-            TestUtils.sleep(thread_wait_in_ms);
-        }
-        
-        printSummary(testName, start);
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
-    }
     
-    private void processRow(String geneId, int index) {
+    // PRIVATE METHODS
+    
+    
+    private void processRow(WebDriverWait wait, String geneId, int index) {
         String message;
         String target = baseUrl + "/genes/" + geneId;
         System.out.println("gene[" + index + "] URL: " + target);
@@ -185,8 +144,7 @@ public class PhenotypeAssociationsTest {
         int expectedMinimumResultCount = -1;
         try {
             driver.get(target);
-            (new WebDriverWait(driver, timeout_in_seconds))
-                    .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("h1#top")));
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("h1#top")));
             
             // Make sure this page has phenotype associations.
             List<WebElement> phenotypeAssociationElements = driver.findElements(By.cssSelector("div.inner ul li a.filterTrigger"));
@@ -226,42 +184,52 @@ public class PhenotypeAssociationsTest {
         }
     }
     
-    private void printSummary(String testName, Date start) {
+    
+    // TESTS
+    
+    
+    /**
+     * Fetches all gene IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
+     * core and tests to make sure:
+     * <ul><li>this page has phenotype associations</li>
+     * <li>the expected result count is less than or equal to the sum of the
+     * phenotype link counts</li></ul>
+     * 
+     * <p><em>Limit the number of test iterations by adding an entry to
+     * testIterations.properties with this test's name as the lvalue and the
+     * number of iterations as the rvalue. -1 means run all iterations.</em></p>
+     * 
+     * @throws SolrServerException 
+     */
+    @Test
+//@Ignore
+    public void testTotalsCount() throws SolrServerException {
+        String testName = "testTotalsCount";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        List<String> geneIds = new ArrayList(genotypePhenotypeService.getAllGenesWithPhenotypeAssociations());
         
-        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
+        Date start = new Date();
+
+        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
+        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
-        if ( ! errorList.isEmpty()) {
-            System.out.println(errorList.size() + " MGI_ACCESSION_ID records failed:");
-            for (String s : errorList) {
-                System.out.println("\t" + s);
+        // Loop through all genes, testing each one for valid page load.
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        int i = 0;
+        for (String geneId : geneIds) {
+// if (i == 0) geneId = "MGI:104874";
+// if (i == 0) geneId = "MGI:2443601";        // This one doesn't exist.
+            if (i >= targetCount) {
+                break;
             }
+            i++;
+            
+            processRow(wait, geneId, i);
+            
+            TestUtils.sleep(thread_wait_in_ms);
         }
         
-        if ( ! exceptionList.isEmpty()) {
-            System.out.println(exceptionList.size() + " MGI_ACCESSION_ID records caused exceptions to be thrown:");
-            for (String s : exceptionList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        if ( ! successList.isEmpty()) {
-            System.out.println(successList.size() + " SUCCESSFUL RECORDS PROCESSED:");
-            for (String s : successList) {
-                System.out.println("\t" + s);
-            }
-        }
-        
-        Date stop = new Date();
-        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " MGI_ACCESSION_ID records processed successfully in " + Tools.dateDiff(start, stop) + ".");
-        
-        if (errorList.size() + exceptionList.size() > 0) {
-            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
-        }
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
     }
-    
-    
-    
- 
     
 }

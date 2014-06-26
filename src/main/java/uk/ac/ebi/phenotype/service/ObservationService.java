@@ -1,3 +1,18 @@
+/**
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License.  
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package uk.ac.ebi.phenotype.service;
 
 import java.io.IOException;
@@ -320,7 +335,7 @@ public class ObservationService extends BasicService {
 
         QueryResponse response = solr.query(query);
 
-        return getFacetPivotResults(response);
+        return getFacetPivotResults(response, false);
     }
 
     /**
@@ -350,7 +365,7 @@ public class ObservationService extends BasicService {
 
         QueryResponse response = solr.query(query);
 
-        return getFacetPivotResults(response);
+        return getFacetPivotResults(response, false);
 
     }
 
@@ -387,7 +402,7 @@ public class ObservationService extends BasicService {
 
         QueryResponse response = solr.query(query);
 
-        return getFacetPivotResults(response);
+        return getFacetPivotResults(response, false);
 
     }
 
@@ -424,7 +439,7 @@ public class ObservationService extends BasicService {
 
         QueryResponse response = solr.query(query);
 
-        return getFacetPivotResults(response);
+        return getFacetPivotResults(response, false);
 
     }
 
@@ -455,7 +470,7 @@ public class ObservationService extends BasicService {
 
         QueryResponse response = solr.query(query);
 
-        return getFacetPivotResults(response);
+        return getFacetPivotResults(response, false);
 
     }
 
@@ -486,7 +501,7 @@ public class ObservationService extends BasicService {
 
         QueryResponse response = solr.query(query);
 
-        return getFacetPivotResults(response);
+        return getFacetPivotResults(response, false);
 
     }
 
@@ -517,7 +532,7 @@ public class ObservationService extends BasicService {
 
         QueryResponse response = solr.query(query);
 
-        return getFacetPivotResults(response);
+        return getFacetPivotResults(response, false);
 
     }
 
@@ -542,7 +557,7 @@ public class ObservationService extends BasicService {
 
         QueryResponse response = solr.query(query);
 
-        return getFacetPivotResults(response);
+        return getFacetPivotResults(response, false);
 
     }
 
@@ -639,7 +654,7 @@ public class ObservationService extends BasicService {
         			// create a HashMap to store a new triplet of data
         			
         			PivotField pivotLevel = pivotResult.get(j);
-        			List<Map<String,String>> lmap = getLeveledFacetPivotValue(pivotLevel, null);
+        			List<Map<String,String>> lmap = getLeveledFacetPivotValue(pivotLevel, null, false);
         			results.addAll(lmap);
         		}
 
@@ -653,7 +668,7 @@ public class ObservationService extends BasicService {
     /**
      * Return a list of parameters measured for a particular pipeline, allele 
      * and center combination. A list of filters (meaning restriction to some
-     * specific procedures is passed.
+     * specific procedures is passed).
      * @param genomicFeatureAcc a gene accession
      * @return list of triplets
      * @throws SolrServerException
@@ -718,7 +733,7 @@ public class ObservationService extends BasicService {
         			// create a HashMap to store a new triplet of data
         			PivotField pivotLevel = pivotResult.get(j);
         			System.out.println("TEST " + pivotLevel.getField() + " " + pivotLevel.getCount());
-        			List<Map<String,String>> lmap = getLeveledFacetPivotValue(pivotLevel, null);
+        			List<Map<String,String>> lmap = getLeveledFacetPivotValue(pivotLevel, null, false);
         			results.addAll(lmap);
         		}
 

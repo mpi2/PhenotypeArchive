@@ -41,18 +41,21 @@ public class BasicService {
      * @param pivotLevel
      * @param map
      */
-    protected List<Map<String, String>> getLeveledFacetPivotValue(PivotField pivotLevel, PivotField parentPivot) {
+    protected List<Map<String, String>> getLeveledFacetPivotValue(PivotField pivotLevel, PivotField parentPivot, boolean keepCount) {
 
         List<Map<String, String>> results = new ArrayList<Map<String, String>>();
 
         List<PivotField> pivotResult = pivotLevel.getPivot();
         if (pivotResult != null) {
             for (int i = 0; i < pivotResult.size(); i++) {
-                List<Map<String, String>> lmap = getLeveledFacetPivotValue(pivotResult.get(i), pivotLevel);
+                List<Map<String, String>> lmap = getLeveledFacetPivotValue(pivotResult.get(i), pivotLevel, keepCount);
+                
                 // add the parent pivot
                 if (parentPivot != null) {
                     for (Map<String, String> map : lmap) {
                         map.put(parentPivot.getField(), parentPivot.getValue().toString());
+                        if (keepCount)
+                        	map.put(parentPivot.getField() + "_count", new Integer(parentPivot.getCount()).toString());
                     }
                 }
                 results.addAll(lmap);
@@ -60,10 +63,13 @@ public class BasicService {
         } else {
             Map<String, String> map = new HashMap<String, String>();
             map.put(pivotLevel.getField(), pivotLevel.getValue().toString());
-
+            if (keepCount)
+            	map.put(pivotLevel.getField() + "_count", new Integer(pivotLevel.getCount()).toString());
             // add the parent pivot
             if (parentPivot != null) {
                 map.put(parentPivot.getField(), parentPivot.getValue().toString());
+                if (keepCount)
+                	map.put(parentPivot.getField() + "_count", new Integer(parentPivot.getCount()).toString());
             }
             results.add(map);
         }
@@ -80,7 +86,7 @@ public class BasicService {
      *            list of maps
      * @return
      */
-    protected List<Map<String, String>> getFacetPivotResults(QueryResponse response) {
+    protected List<Map<String, String>> getFacetPivotResults(QueryResponse response, boolean keepCount) {
         List<Map<String, String>> results = new LinkedList<Map<String, String>>();
         NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
 
@@ -98,7 +104,7 @@ public class BasicService {
                     // create a HashMap to store a new triplet of data
 
                     PivotField pivotLevel = pivotResult.get(j);
-                    List<Map<String, String>> lmap = getLeveledFacetPivotValue(pivotLevel, null);
+                    List<Map<String, String>> lmap = getLeveledFacetPivotValue(pivotLevel, null, keepCount);
                     results.addAll(lmap);
                 }
             }
