@@ -7,35 +7,7 @@
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search?q=*:*&core=gene">Genes</a> &raquo; ${gene.symbol}</jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="gene-node no-sidebars small-header"></jsp:attribute>
 	<jsp:attribute name="addToFooter">
-	<!--  start of floating menu for genes page -->
-	<div class="region region-pinnedzzz">
-            
-        <div id="flyingnavizzz" class="block">
-            
-            <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
-            
-            <ul>
-                <li><a href="#top">Gene</a></li>
-                <li><a href="#section-associations">Phenotype Associations</a></li><!--  always a section for this even if says no phenotypes found - do not putting in check here -->
-                <c:if test="${phenotypeStarted}">
-                		<li><a href="#heatmap">Heatmap</a></li>
-                </c:if>
-                <c:if test="${not empty solrFacets}">
-                		<li><a href="#section-images">Associated Images</a></li>
-                </c:if>
-                <c:if test="${not empty expressionFacets}">
-                		<li><a href="#section-expression">Expression</a></li>
-                </c:if>
-                <c:if test="${!countIKMCAllelesError}">
-                		<li><a href="#order">Order Mouse and ES Cells</a></li>
-                </c:if>
-            </ul>
-            
-            <div class="clear"></div>
-            
-        </div>
-        
-    </div>
+	
 	<!--  end of floating menu for genes page -->
 	
 	<c:if test="${phenotypeStarted}">
@@ -155,22 +127,23 @@
 
 
 
+<c:if test="${not empty summary}">
 
 <div class="section">
     <div class="inner">
     <h3>Summary</h3>
-    <div style="font-size: 115%; font-weight: bold;">
+    <div style="font-size: 150%; font-weight: bold;">
         <p>${summary['allele_description']}</p>
         <c:if test="${not empty summary['statuses']}">
             
             <table>
           <c:forEach var="status" items="${summary['statuses']}" varStatus="statusx">
               
-              <tr>
-                  <td>${status['TEXT']}</td>
+              <tr style="background-color: ${status['COLOUR']} !important;">
+                  <td style="width:30%">${status['TEXT']}</td>
                   
                   <td>
-<div style="font-size: 115%; font-weight: bold;">                      
+<!--<div style="font-size: 150%; font-weight: bold;">                      -->
             <c:if test="${not empty status['ORDER']}">
               <a class="btn btn-lg" href="${status['ORDER']}"> <i class="fa fa-shopping-cart"></i> ORDER </a>
             </c:if>
@@ -181,8 +154,9 @@
               <!-- TODO: turn orange-->
               <a class="btn btn-lg" href="${status['CONTACT']}"> <i class="fa  fa-envelope"></i> CONTACT </a>
             </c:if>
-</div>
+<!--</div>-->
           </td>
+          
           
 <!--                  <td>${status['TEXT2']}</td>-->
               
@@ -198,7 +172,9 @@
 
 
 
-                        
+        <style>
+            .btn              { text-decoration: none !important; color: #fff !important; background-color: #0978a1 !important; }
+        </style>
                         
                         
                         
@@ -208,7 +184,7 @@
 
 	<div class="section">
 		<div class="inner">
-			<h3>Allele Maps</h3>
+			<h3>Allele Map</h3>
                         
         <div id="image">
             <img src="${summary['map_image']}" width="930px">        
@@ -220,7 +196,8 @@
         
         
                         
-        <table style="font-size: 120%; ">         
+<!--        <table style="font-size: 150%; font-weight: bold;">         -->
+        <table >         
             <tr>
             <td>   
                 <span>
@@ -234,15 +211,27 @@
                 </c:if>	
             </td>
 
-
-
-
             <td>     
                 <c:if test="${not empty summary['southern_tool']}">
                     <a class="btn" href="${summary['southern_tool']}"> <i class="fa fa-info"></i> Southern Tool </a>
+                    
+<!--                    <div class="btn-group">
+                        <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">Action <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Action</a></li>
+                            <li><a href="#">Another action</a></li>
+                            <li class="divider"></li>
+                            <li><a href="#">Separated link</a></li>
+                        </ul>
+                    </div>                    -->
+                    
+                    
                 </c:if>	
             </td>
-
+            </tr>
+            
+            
+            <tr>
             <td>     
                 <c:if test="${not empty summary['lrpcr_genotyping_primers']}">
                     <a class="btn" href="${summary['lrpcr_genotyping_primers']}"> <i class="fa fa-info"></i> LRPCR Genotyping Primers </a>
@@ -257,13 +246,13 @@
 
             <td>       
                 
-<div style="text-align: center;">
 <c:if test="${not empty summary['browsers']}">
     <c:forEach var="browser" items="${summary['browsers']}" varStatus="browsersx">
         <a class="btn" href="${browser['url']}"> <i class="fa fa-info"></i> ${browser['browser']} </a> <br/>
     </c:forEach>	
 </c:if>	
-</div>
+                    </td>
+                <td>
             </td>
                     
             </tr>
@@ -298,8 +287,9 @@
         
 		</div>
 	</div>
+                </div>
 
-        
+                </c:if>    
         
         
         
@@ -389,7 +379,7 @@
             <table id="mouse_table">
             <thead>
             <tr>
-                <th>Genetic background</th>
+                <th>Genetic Background</th>
                 <th>Production Centre</th>
                 <th>ES Cell</th>
                 <th>QC Data</th>
@@ -471,7 +461,7 @@
         <th>ES Cell Clone</th>
         <th>Targeting Vector</th>
         <th>QC  Data</th>
-        <th>ES Cell strain / parental cell line</th>
+        <th>ES Cell strain / Parental Cell Line</th>
         <th>Order</th>
       </tr>
     </thead>
@@ -508,7 +498,7 @@
         <td>${es_cell['targeting_vector']}</td>
         <td style="text-align: center;"><a href="${es_cell['qc_data']}">QC data</a></td>
         
-        <td>${es_cell['es_cell_strain']} / ${es_cell['parental_cell_line']}</td>
+        <td style="text-align: center;">${es_cell['es_cell_strain']} / ${es_cell['parental_cell_line']}</td>
         
                 <td>
                     <c:forEach var="order" items="${es_cell['orders']}" varStatus="ordersx">
@@ -558,6 +548,7 @@
         <th>Cassette</th>
         <th>Backbone</th>
         <th>Genbank File</th>
+        <th>Allele Image</th>
         <th>Order</th>
 
       </tr>
@@ -613,6 +604,15 @@
             </span>
         </td>
         
+        <td style="text-align: center;">
+            <span>
+                <c:if test="${not empty targeting_vector['genbank_file_url']}">
+                    <a href="${targeting_vector['genbank_file_url']}">
+                        <i class="fa fa-file-text fa-lg"></i>
+                    </a>
+                </c:if>
+            </span>
+        </td>
 
         <td>
              <c:forEach var="order" items="${targeting_vector['orders']}" varStatus="ordersx">

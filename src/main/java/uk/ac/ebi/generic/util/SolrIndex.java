@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -40,7 +41,7 @@ import uk.ac.ebi.phenotype.web.util.HttpProxy;
 @Service
 public class SolrIndex {
 
-    private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+    private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
@@ -890,7 +891,6 @@ public class SolrIndex {
 
         JSONObject imageInfo = docs.getJSONObject(0);
         return imageInfo;
-
     }
 
     public Map<String, JSONObject> getExampleImages(int controlImageId,
@@ -919,10 +919,7 @@ public class SolrIndex {
             log.info("#### No rows returned for the query!");
             return null;
         }
-
-//        "genbank_file":"https://www.mousephenotype.org/imits/targ_rep/alleles/190/escell_clone_cre_genbank_file",
-//        "allele_image":"https://www.mousephenotype.org/imits/targ_rep/alleles/190/allele_image_cre",
-       
+      
         String[] stringArray = new String[]{"mgi_accession_id", "marker_symbol", "marker_type", "feature_type", "latest_project_status", 
             "latest_phenotype_started", "latest_phenotype_complete",
             "latest_phenotype_status", "latest_es_cell_status", "latest_mouse_status", "latest_project_status_legacy",
@@ -944,14 +941,6 @@ public class SolrIndex {
                 }
             }
 
-//            if (jsonObject2.has("allele_type")) {
-//                if (jsonObject2.getString("allele_type").equals("Conditional Ready")) {
-//                    map.put("alleleType", "Knockout First, Reporter-tagged insertion with conditional potential");
-//                } else if (jsonObject2.getString("allele_type").equals("Deletion")) {
-//                    map.put("alleleType", "Reporter-Tagged Deletion");
-//                }
-//            }
-
             genes.add(map);
         }
 
@@ -960,7 +949,6 @@ public class SolrIndex {
 
     private static final String NOT_FOUND = "NOT-FOUND";
     private static final String NOT_COMPLETE = "placeholder";
-    //private static final String NOT_AVAILABLE = "not-available";
     
     private String getGeneProductInfoArrayEntry(String key, JSONArray item) throws IOException, URISyntaxException {
         if(item == null) {
@@ -1024,7 +1012,6 @@ public class SolrIndex {
         for (int k = 0; k < array_order_names.size(); k++) {
             String name = array_order_names.getString(k);
             if (name.equals("NULL")) {
-              //  name = NOT_FOUND;
                 name = "Order";
             }
             map3.put("name", name);
@@ -1050,23 +1037,30 @@ public class SolrIndex {
 
         String background_colony_strain = getGeneProductInfoArrayEntry("background_colony_strain", jsonObject2.getJSONArray("genetic_info"));
 
-       // map2.put("genetic_background", NOT_AVAILABLE);
-
-      //  if (background_colony_strain != null && background_colony_strain.length() > 0) {
-            map2.put("genetic_background", background_colony_strain);
-      //  }
-
+        map2.put("genetic_background", background_colony_strain);        
+        
+        String associated_product_colony_name = "";
+        if(jsonObject2.has("associated_product_es_cell_name")) {
+            associated_product_colony_name = jsonObject2.getString("associated_product_colony_name");
+            map2.put("associated_product_colony_name", associated_product_colony_name);
+        }        
+        
         String es_cell = NOT_FOUND;
         map2.put("associated_product_es_cell_name", "");
         if(jsonObject2.has("associated_product_es_cell_name")) {
             es_cell = jsonObject2.getString("associated_product_es_cell_name");
             map2.put("associated_product_es_cell_name", es_cell);
         }
+        
+        if(es_cell.length() < 1) {
+            es_cell = associated_product_colony_name;
+        }
+        
         map2.put("es_cell", es_cell);
         
         map2.put("associated_product_vector_name", "");
         if(jsonObject2.has("associated_product_vector_name")) {
-            map2.put("associated_product_vector_name", jsonObject2.getString("associated_product_es_cell_name"));
+            map2.put("associated_product_vector_name", jsonObject2.getString("associated_product_vector_name"));
         }
 
         map2.put("qc_data", NOT_COMPLETE);
@@ -1083,16 +1077,15 @@ public class SolrIndex {
 
         map2.put("production_graph", production_graph);
         
-        map2.put("_status", jsonObject2.getString("status"));
-        
-        
+        map2.put("_status", jsonObject2.getString("status"));        
         
         return map2;
     }
     
     // see https://www.mousephenotype.org/martsearch_ikmc_project/aboutkompstrategies
 
-    private Map<String, String> getGeneProductInfoTypeMapping() {
+    private static final Map<String, String> productMap;
+    static {
         Map<String, String> map = new HashMap<>();
         map.put("1a", "KO first allele (reporter-tagged insertion allele)");
         map.put("1b", "Reporter-tagged deletion allele (post-Cre)");
@@ -1102,8 +1095,8 @@ public class SolrIndex {
         map.put("1", "Reporter-tagged deletion allele (with selection cassette)");
         map.put("1.1", "Reporter-tagged deletion allele (post Cre, with no selection cassette)");
         map.put("1.2", "Reporter-tagged deletion allele (post Flp, with no reporter and selection cassette)");
-        return map;
-    }
+        productMap = Collections.unmodifiableMap(map);
+    }        
     
     private Map<String, Object> getGeneProductInfoEsCells(JSONObject jsonObject2) throws IOException, URISyntaxException {
         String type = jsonObject2.getString("type");
@@ -1176,60 +1169,35 @@ public class SolrIndex {
         }
 
         map2.put("name", jsonObject2.getString("name"));
-
-        //log.info("#### url for design_oligos_url:" + design_oligos_url);
         
         return map2;
     }
-
-//  tools:
-//  - {name: Genotyping primers, url: 'http://www.google.com'}
-//  - {name: TAQMan LOA primers, url: 'http://www.google.com'}
     
-    private List<HashMap<String, String>> getGeneProductInfoTools(String accession, String allele_name) {
-        List<HashMap<String, String>> list4 = new ArrayList<>();
-        HashMap<String, String> map5 = new HashMap<>();
-        map5.put("name", "product-core-mouse");
-        HashMap<String, String> params1 = new HashMap<>();
-        params1.put("mgi_accession_id", accession);
-        if(allele_name != null) {
-            params1.put("allele_name", allele_name);
-        }
-        params1.put("type", "mouse");
-        map5.put("url", getGeneProductCoreUrl2(params1) + "&indent=on");
-        list4.add(map5);
-        HashMap<String, String> map4 = new HashMap<>();
-        map4.put("name", "allele-core");
-        map4.put("url", getGeneAlleleCoreUrl(accession, allele_name) + "&indent=on");
-        list4.add(map4);
-        return list4;
-    }
+//    private List<HashMap<String, String>> getGeneProductInfoTools(String accession, String allele_name) {
+//        List<HashMap<String, String>> list4 = new ArrayList<>();
+//        HashMap<String, String> map5 = new HashMap<>();
+//        map5.put("name", "product-core-mouse");
+//        HashMap<String, String> params1 = new HashMap<>();
+//        params1.put("mgi_accession_id", accession);
+//        if(allele_name != null) {
+//            params1.put("allele_name", allele_name);
+//        }
+//        params1.put("type", "mouse");
+//        map5.put("url", getGeneProductCoreUrl2(params1) + "&indent=on");
+//        list4.add(map5);
+//        HashMap<String, String> map4 = new HashMap<>();
+//        map4.put("name", "allele-core");
+//        map4.put("url", getGeneAlleleCoreUrl(accession, allele_name) + "&indent=on");
+//        list4.add(map4);
+//        return list4;
+//    }
 
-// OLD:
-    
-//There are mice for this allele ORDER DETAILS
-//• OR
-//-­‐-­‐-­‐-­‐
-//There is mouse produc0on for this allele: Chimeras obtained at BCM CONTACT DETAILS
-//• OR
-//-­‐-­‐-­‐
-//There is no mouse produc0on for this allele EXPRESS INTEREST
-//• There are ES cells for this allele ORDER DETAILS
-//• OR
-//-­‐-­‐-­‐
-//There are ES cells in produc0on for this allele CONTACT DETAILS
-//• OR
-//-­‐-­‐-­‐
-//There are no ES cells in produc+on for this allele EXPRESS INTEREST            
-
-    // NEW:    
-    
     private static final Map<String, String> phraseMap;
     static {
         Map<String, String> pMap = new HashMap<>();
         pMap.put("mice", "There are mice");
-        pMap.put("mice-prod", "There is mice production");
-        pMap.put("no-mice-prod", "There is no mice production");
+        pMap.put("mice-prod", "There is mouse production");
+        pMap.put("no-mice-prod", "There is no mouse production");
 
         pMap.put("cells", "There are cells");
         pMap.put("cells-prod", "There is cell production");
@@ -1244,15 +1212,7 @@ public class SolrIndex {
         return list1;
     }
 
-//    private boolean listHasItem(List<HashMap<String, String>> list, HashMap<String, String> target) {
-//        for(HashMap<String, String> item : list) {
-//            for(String key : item.keySet()) {
-//                if(!target.containsKey(key) || ! target.get(key).equals(target))                
-//            }
-//        }
-//        return false;
-//    }
-        
+       
     private Map<String, Object> getGeneProductInfoRejig(Map<String, Object> genes) {
         List<Map<String, Object>> mice = (List<Map<String, Object>>)genes.get("mice");
         List<Map<String, Object>> es_cells = (List<Map<String, Object>>)genes.get("es_cells");
@@ -1309,6 +1269,7 @@ public class SolrIndex {
 
                         log.info("#### associated_product_vector_name: " + mouse.get("associated_product_vector_name")); 
                         log.info("#### name: " + targeting_vector.get("name")); 
+                        log.info("#### targeting_vector: " + targeting_vector.get("targeting_vector")); 
 
                         if(mouse.get("associated_product_vector_name").equals(targeting_vector.get("name"))) {
                             vectors_new.add(targeting_vector);
@@ -1322,28 +1283,138 @@ public class SolrIndex {
             genes.put("mice", mice_new);
             genes.put("es_cells", cells_new);
             genes.put("targeting_vectors", vectors_new);
+            
+//            summary.put("statuses", getGeneProductInfoStatuses(genes));
+//            genes.put("summary", summaries.get(0));
         }
         
         return genes;
     }
     
-        private List<HashMap<String, String>> getGeneProductInfoStatusesMouse(Map<String, Object> genes) {
+    private Map<String, Object> getGeneProductInfoRejig2(Map<String, Object> genes) {
+        List<Map<String, Object>> mice = (List<Map<String, Object>>)genes.get("mice");
+        List<Map<String, Object>> es_cells = (List<Map<String, Object>>)genes.get("es_cells");
+        List<Map<String, Object>> targeting_vectors = (List<Map<String, Object>>)genes.get("targeting_vectors");
+       
+        if(mice != null) {
+            log.info("#### mice.size(): " + mice.size()); 
+        }
+        if(targeting_vectors != null) {
+            log.info("#### es_cells.size(): " + es_cells.size()); 
+        }
+        if(es_cells != null) {
+            log.info("#### targeting_vectors.size(): " + targeting_vectors.size()); 
+        }
+        
+        List<Map<String, Object>> mice_new = new ArrayList<>();
+        List<Map<String, Object>> cells_new = new ArrayList<>();
+        List<Map<String, Object>> vectors_new = new ArrayList<>();
+        
+        log.info("#### before: mice.size(): " + mice.size()); 
+
+        Iterator<Map<String, Object>> i0 = mice.iterator();
+        while (i0.hasNext()) {
+           Map<String, Object> mouse = i0.next(); // must be called before you can call i.remove()
+           if(mouse.get("production_completed") == "true") {
+              mice_new.add(mouse);
+              i0.remove();
+            }
+        }
+
+        log.info("#### mice_new.size(): " + mice_new.size()); 
+        log.info("#### after: mice.size(): " + mice.size()); 
+
+        if(mice_new.size() > 0 && es_cells != null) {
+            
+            log.info("#### do cells"); 
+            
+            for(Map<String, Object> mouse : mice_new) {
+                log.info("#### mouse: " + mouse.toString()); 
+
+                    Iterator<Map<String, Object>> i1 = es_cells.iterator();
+                    while (i1.hasNext()) {
+                        Map<String, Object> es_cell = i1.next(); 
+
+                        if(mouse.containsKey("associated_product_es_cell_name")) {
+                        
+                        log.info("#### associated_product_es_cell_name: " + mouse.get("associated_product_es_cell_name")); 
+                        log.info("#### name: " + es_cell.get("name")); 
+                        
+                        if(mouse.get("associated_product_es_cell_name").equals(es_cell.get("name"))) {
+                            cells_new.add(es_cell);
+                            i1.remove();
+                        }
+                    }
+                }                
+            }            
+        }
+        
+        if(mice_new.size() > 0 && targeting_vectors != null) {
+
+            log.info("#### do vectors"); 
+
+            for(Map<String, Object> mouse : mice_new) {
+                log.info("#### mouse: " + mouse.toString()); 
+                
+                   Iterator<Map<String, Object>> i2 = targeting_vectors.iterator();
+                    while (i2.hasNext()) {
+                       Map<String, Object> targeting_vector = i2.next(); 
+                
+                        if(mouse.containsKey("associated_product_vector_name")) {
+                            log.info("#### associated_product_vector_name: " + mouse.get("associated_product_vector_name")); 
+                            log.info("#### name: " + targeting_vector.get("name")); 
+                            log.info("#### targeting_vector: " + targeting_vector.get("targeting_vector")); 
+
+                            if(mouse.get("associated_product_vector_name").equals(targeting_vector.get("name"))) {
+                                vectors_new.add(targeting_vector);
+                                i2.remove();
+                            }
+                        }
+                }                
+            }            
+        }
+        
+        if(mice_new.size() > 0) {
+            log.info("#### end: mice: " + mice.size()); 
+            log.info("#### end: mice_new: " + mice_new.size()); 
+            mice_new.addAll(mice);
+            log.info("#### done: mice_new: " + mice_new.size()); 
+            genes.put("mice", mice_new);
+
+            log.info("#### end: es_cells: " + es_cells.size()); 
+            log.info("#### end: cells_new: " + cells_new.size()); 
+            cells_new.addAll(es_cells);
+            log.info("#### done: cells_new: " + cells_new.size()); 
+            genes.put("es_cells", cells_new);
+
+            log.info("#### end: targeting_vectors: " + targeting_vectors.size()); 
+            log.info("#### end: vectors_new: " + vectors_new.size()); 
+            vectors_new.addAll(targeting_vectors);
+            log.info("#### done: vectors_new: " + vectors_new.size()); 
+            genes.put("targeting_vectors", vectors_new);
+            
+//            summary.put("statuses", getGeneProductInfoStatuses(genes));
+//            genes.put("summary", summaries.get(0));
+        }
+        
+        return genes;
+    }
+
+    private List<HashMap<String, String>> getGeneProductInfoStatusesMouse(Map<String, Object> genes) {
         
         List<Map<String, Object>> mice = (List<Map<String, Object>>)genes.get("mice");
             
         List<HashMap<String, String>> listFound = new ArrayList<>();
         List<HashMap<String, String>> listNotFound = new ArrayList<>();
-        List<HashMap<String, String>> listAll = new ArrayList<>();
+      //  List<HashMap<String, String>> listAll = new ArrayList<>();
         
-        //String mice_complete = mice.get("mice_complete");
-        //boolean found = false
-
         for(Map<String, Object> mouse : mice) {
             if(mouse.get("production_completed") == "true") {       // && mice.get("mice_complete")) {
                 HashMap<String, String> map2 = new HashMap<>();
                 map2.put("DETAILS", mouse.get("production_graph").toString());
                 map2.put("TEXT", phraseMap.get("mice"));
                 map2.put("TEXT2", mouse.get("_status").toString() + " (" + mouse.get("production_completed").toString() + ")");
+                map2.put("COLOUR", "#E0F9FF");
 
                 List<Map<String, Object>> orders = (List<Map<String, Object>>) mouse.get("orders");
 
@@ -1353,21 +1424,14 @@ public class SolrIndex {
                     }
                 }
 
-//                List<Map<String, Object>> contacts = (List<Map<String, Object>>) mouse.get("contacts");
-//
-//                if(contacts != null) {
-//                    for(Map<String, Object> contact : contacts) {                
-//                        map2.put("CONTACT", contact.get("url").toString());
-//                    }
-//                }
-
                 listFound.add(map2);
-                listAll.add(map2);                
+              //  listAll.add(map2);                
             }
             else {
                 HashMap<String, String> map2 = new HashMap<>();
                 map2.put("TEXT", phraseMap.get("mice-prod"));
                 map2.put("TEXT2", mouse.get("_status").toString() + " (" + mouse.get("production_completed").toString() + ")");
+                map2.put("COLOUR", "#FFE0B2");
 
                 List<Map<String, Object>> contacts = (List<Map<String, Object>>) mouse.get("contacts");
 
@@ -1378,20 +1442,16 @@ public class SolrIndex {
                 }
                 
                 listNotFound.add(map2);
-                listAll.add(map2);
+               // listAll.add(map2);
             }
         }
-        
-//        if(listAll.size() > 0) {
-//            return listAll;
-//        }
 
         if(listFound.size() > 0) {
-            return listFound.subList(0, 1);
+            return listFound.subList(0, 1); // TODO: fix me!
         }
 
         if(listNotFound.size() > 0) {
-            return listNotFound.subList(0, 1);
+            return listNotFound.subList(0, 1); // TODO: fix me!
         }
 
         HashMap<String, String> map2 = new HashMap<>();
@@ -1407,47 +1467,29 @@ public class SolrIndex {
             
         List<HashMap<String, String>> listFound = new ArrayList<>();
         List<HashMap<String, String>> listNotFound = new ArrayList<>();
-        List<HashMap<String, String>> listAll = new ArrayList<>();
+        //List<HashMap<String, String>> listAll = new ArrayList<>();
         
-        //String mice_complete = mice.get("mice_complete");
-        //boolean found = false
-        
-        //HashMap<String, String> foundMap = new HashMap<>();
-
         for(Map<String, Object> es_cell : es_cells) {
             if(es_cell.get("production_completed") == "true") {       // && mice.get("mice_complete")) {
                 HashMap<String, String> map2 = new HashMap<>();
                 map2.put("TEXT", phraseMap.get("cells"));
+                map2.put("COLOUR", "#E0F9FF");
 
                 List<Map<String, Object>> orders = (List<Map<String, Object>>) es_cell.get("orders");
 
                 if(orders != null) {
                     for(Map<String, Object> order : orders) {            
-                      //  if(!foundMap.containsKey("ORDER_" + order.get("url").toString())) {
-                      //      foundMap.put("ORDER_" + order.get("url").toString(), "done");
-                        
-                        //if(map2.containsKey("ORDER") && map2.)
-                        
-                            map2.put("ORDER", order.get("url").toString());
-                      //  }
+                        map2.put("ORDER", order.get("url").toString());
                     }
                 }
 
-//                List<Map<String, Object>> contacts = (List<Map<String, Object>>) es_cell.get("contacts");
-//
-//                if(contacts != null) {
-//                    for(Map<String, Object> contact : contacts) {                
-//                        map2.put("CONTACT", contact.get("url").toString());
-//                    }
-//                }
-
                 listFound.add(map2);
-                listAll.add(map2);                
- //               break;
+              //  listAll.add(map2);                
             }
             else {
                 HashMap<String, String> map2 = new HashMap<>();
                 map2.put("TEXT", phraseMap.get("cell-prod"));
+                map2.put("COLOUR", "#FFE0B2");
 
                 List<Map<String, Object>> contacts = (List<Map<String, Object>>) es_cell.get("contacts");
 
@@ -1458,17 +1500,16 @@ public class SolrIndex {
                 }
                 
                 listNotFound.add(map2);
-                listAll.add(map2);
-//                break;
+              //  listAll.add(map2);
             }
         }
         
         if(listFound.size() > 0) {
-            return listFound.subList(0, 1);
+            return listFound.subList(0, 1); // TODO: fix me!
         }
 
         if(listNotFound.size() > 0) {
-            return listNotFound.subList(0, 1);
+            return listNotFound.subList(0, 1); // TODO: fix me!
         }
 
         HashMap<String, String> map2 = new HashMap<>();
@@ -1478,59 +1519,6 @@ public class SolrIndex {
         return listNotFound;
     }
     
-//    private List<HashMap<String, String>> getGeneProductInfoStatuses_old(List<Map<String, Object>> mice) {
-//            
-////  statuses:
-////  - {DETAILS: 'http://www.sanger.ac.uk', TEXT: There are mice for this allele, ORDER: 'http://www.sanger.ac.uk'}
-////  - {DETAILS: 'http://www.google.com', TEXT: There are ES cells for this allele, ORDER: 'http://www.google.com'}
-//            
-////            HashMap<String, String> map2 = new HashMap<>();
-////            
-////            map2.put("DETAILS", "http://www.sanger.ac.uk");
-////            map2.put("TEXT", "There are mice for this allele");
-////            map2.put("ORDER", "http://www.sanger.ac.uk");
-////            List<HashMap<String, String>> list2 = new ArrayList<>();
-////            list2.add(map2);
-////
-////            summary.put("statuses", list2);    // FIX-ME!
-//            
-//            List<HashMap<String, String>> list2 = new ArrayList<>();
-//            
-//            for(Map<String, Object> mouse : mice) {
-//
-//            if(mouse.get("production_completed") == "true") {       // && mouse.get("status") == "Genotype confirmed") {
-//                HashMap<String, String> map2 = new HashMap<>();
-//                map2.put("DETAILS", mouse.get("production_graph").toString());
-//                map2.put("TEXT", "There are mice for this allele");
-//                
-//                List<Map<String, Object>> orders = (List<Map<String, Object>>) mouse.get("orders");
-//                
-//                if(orders != null) {
-//                    for(Map<String, Object> order : orders) {                
-//                        map2.put("ORDER", order.get("url").toString());
-//                   //     break;
-//                    }
-//                }
-//                
-//                list2.add(map2);
-//             //   break;
-//            }
-////            else if(!mice_complete) {
-////                HashMap<String, String> map2 = new HashMap<>();
-////                map2.put("TEXT", "There are mice for this allele");
-////                list2.add(map2);
-////            }
-//            else {
-//                HashMap<String, String> map2 = new HashMap<>();
-//                map2.put("TEXT", "Status not determined!");
-//                list2.add(map2);
-//            //    break;
-//            }
-//            }
-//
-//            return list2;
-//    }
-
     private String getGeneAlleleCoreUrl2(HashMap<String, String> params) {
         List<String> qparams = new ArrayList<>();
         for(String s : params.keySet()) {
@@ -1560,15 +1548,38 @@ public class SolrIndex {
         return url;
     }
 
-    private String getGeneProductCoreUrl2(HashMap<String, String> params) {
+    private String getGeneProductCoreUrl2(Map<String, String> params) {
         List<String> qparams = new ArrayList<>();
         for(String s : params.keySet()) {
+            if(s.equals("multi")) {
+                qparams.add(params.get(s));
+                continue;
+            }
             qparams.add(s + ":" + params.get(s).replace(":", "\\:"));
         }
         
         String qs = StringUtils.join(qparams, " ");
                 
         String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/product/search?q="
+            + qs
+            + "&start=0&rows=100&hl=true&wt=json";
+        
+            return url;
+    }
+
+    private String getGeneProductCoreUrl3(Map<String, String> params) {
+        List<String> qparams = new ArrayList<>();
+        for(String s : params.keySet()) {
+            if(s.equals("multi")) {
+                qparams.add(params.get(s));
+                continue;
+            }
+            qparams.add(s + ":" + params.get(s).replace(":", "\\:"));
+        }
+        
+        String qs = StringUtils.join(qparams, " ");
+                
+        String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/product/select?q="
             + qs
             + "&start=0&rows=100&hl=true&wt=json";
         
@@ -1589,7 +1600,7 @@ public class SolrIndex {
             return url;
     }
     
-    public Map<String, Object> getGeneProductInfo(String accession, String allele_name) throws IOException, URISyntaxException, Exception {
+    public Map<String, Object> getGeneProductInfo(String accession, String allele_name, boolean debug) throws IOException, URISyntaxException, Exception {
         
         String url = getGeneProductCoreUrl(accession, allele_name);
 
@@ -1608,18 +1619,15 @@ public class SolrIndex {
         List<Map<String, Object>> mice = new ArrayList<>();
         List<Map<String, Object>> es_cells = new ArrayList<>();
         List<Map<String, Object>> targeting_vectors = new ArrayList<>();
-      //  boolean mice_complete = false;
+        
+        int targeting_vector_counter = 0;
 
         for (Object doc : docs) {
             JSONObject jsonObject2 = (JSONObject) doc;
             String type = jsonObject2.getString("type");
 
             if (type.equals("mouse")) {
-                Map<String, Object> mouse = getGeneProductInfoMice(jsonObject2);
-//                if(mouse.get("production_completed") == "true") {
-//                    mice_complete = true;
-//                }
-                mice.add(mouse);
+                mice.add(getGeneProductInfoMice(jsonObject2));
             }
 
             if (type.equals("es_cell")) {
@@ -1627,63 +1635,39 @@ public class SolrIndex {
             }
 
             if (type.equals("targeting_vector")) {
+                targeting_vector_counter += 1;
                 targeting_vectors.add(getGeneProductInfoTargetingVectors(jsonObject2));
             }
         }
 
+        log.info("#### getGeneProductInfo: mice.size(): " + mice.size());
+        log.info("#### getGeneProductInfo: es_cells.size(): " + es_cells.size());
+        log.info("#### getGeneProductInfo: targeting_vectors.size(): " + targeting_vectors.size() +" - targeting_vector_counter: " + targeting_vector_counter);
+        
         genes.put("mice", mice);
         genes.put("es_cells", es_cells);
         genes.put("targeting_vectors", targeting_vectors);
-   //     genes.put("mice_complete", mice_complete);
 
         List<Map<String, String>> constructs2 = getGeneAllele2Info(accession, allele_name);
-      //  log.info("#### constructs2: " + constructs2.toString()); 
         
         List<HashMap<String, Object>> summaries = new ArrayList<>();
         
-        Map<String, String> mapping = getGeneProductInfoTypeMapping();
-
         if(constructs2 != null) {
         for(Map<String, String> item : constructs2) {
             HashMap<String, Object> summary = new HashMap<>();
             summary.put("marker_symbol", item.get("marker_symbol"));
-//            summary.put("phenotype_status", item.get("phenotype_status"));
-//            summary.put("es_cell_status", item.get("es_cell_status"));
-//            summary.put("mouse_status", item.get("mouse_status"));
             summary.put("symbol", item.get("marker_symbol") + "<sup>" + item.get("allele_name") + "</sup>");
-//            complete 
-            // "genbank_file", "allele_image"
             summary.put("genbank", item.get("genbank_file"));
             summary.put("map_image", item.get("allele_image") + "?simple=true");
-            summary.put("allele_description", mapping.get("1" + item.get("allele_type")));
-
-            
+            summary.put("allele_description", productMap.get("1" + item.get("allele_type")));
             
             summary.put("southern_tool", "http://www.google.com");
             
-            //LRPCR Genotyping Primers
             summary.put("lrpcr_genotyping_primers", "http://www.google.com");
-            
-            
+
             summary.put("mutagenesis_url", "http://www.google.com");    // FIX-ME!
             
-
             summary.put("statuses", getGeneProductInfoStatuses(genes));    // FIX-ME!                
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-//  browsers:
-//  - {browser: Ensembl (mouse), url: 'http://www.ensembl.org/Mus_musculus/Location/View?r=9:54544794-54560…c.uk/das/ikmc_products=normal,contig=normal,ruler=normal,scalebar=normal'}
-//  - {browser: UCSC (mouse), url: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&ikmc=pack&ensGene=pack&position=chr9:54544794-54560218'}
 
             HashMap<String, String> map3 = new HashMap<>();
             map3.put("browser", "Ensembl");
@@ -1693,41 +1677,13 @@ public class SolrIndex {
             
             summary.put("browsers", list3);    // FIX-ME!
             
-//  tools:
-//  - {name: Genotyping primers, url: 'http://www.google.com'}
-//  - {name: TAQMan LOA primers, url: 'http://www.google.com'}
-            
-//            HashMap<String, String> map4 = new HashMap<>();
-//            map4.put("name", "Genotyping primers");
-//            map4.put("url", "http://www.google.com");
-//            List<HashMap<String, String>> list4 = new ArrayList<>();
-//            list4.add(map4);
-            
-          
-            
-            
-            
-            
            // summary.put("tools", getGeneProductInfoTools(accession, allele_name));    // FIX-ME!
-
-            
-            
-            
-            
-            
             summaries.add(summary);
         }
         }
-
-//    tools
-        
-        
-        
-        
-        
+      
         if(summaries.size() > 1) {
             log.error("######## invalid count for summary!"); 
-           // throw new Exception("#### invalid count for summary!");
         }
 
         if(summaries.size() > 0) {
@@ -1736,8 +1692,89 @@ public class SolrIndex {
         
         log.info("#### summaries: " + summaries.toString()); 
         
-        genes = getGeneProductInfoRejig(genes);
+        if(!debug) {
+            genes = getGeneProductInfoRejig2(genes);
+        }
 
         return genes;
+    }
+        
+    public List<Map<String, Object>> getProductGeneDetails(String acc) throws IOException, URISyntaxException {
+        String url = getGeneProductCoreUrl(acc, null);
+
+        log.info("#### url for solr=" + url);
+
+        JSONObject jsonObject1 = getResults(url);        
+
+        JSONArray docs = jsonObject1.getJSONObject("response").getJSONArray("docs");
+
+        if (docs.size() < 1) {
+            log.info("#### No rows returned for the query!");
+            return null;
+        }
+        
+        List<Map<String, Object>> list = new ArrayList<>();
+
+        Map<String, String> clashes = new HashMap<>();
+
+        for (Object doc : docs) {
+            JSONObject jsonObject2 = (JSONObject) doc;
+            String type = jsonObject2.getString("type");
+
+            if (type.equals("mouse")) {
+                Map<String, Object> hash = new HashMap<>();
+                String key = jsonObject2.get("marker_symbol") + "_" + jsonObject2.get("allele_name") + "_" + jsonObject2.get("mgi_accession_id");
+                if(clashes.containsKey(key)) {
+                    continue;
+                }
+                clashes.put(key, "found");
+                hash.put("marker_symbol", jsonObject2.get("marker_symbol"));            
+                hash.put("allele_name", jsonObject2.get("allele_name"));            
+                hash.put("mgi_accession_id", jsonObject2.get("mgi_accession_id"));     
+                list.add(hash);
+            }
+        }
+        
+        return list;
+    }
+
+    public List<Map<String, Object>> getProductGeneDetails(Map<String, String> params) throws IOException, URISyntaxException {
+        
+        String url = getGeneProductCoreUrl3(params);
+
+        log.info("#### url for solr=" + url);
+
+        JSONObject jsonObject1 = getResults(url);        
+
+        JSONArray docs = jsonObject1.getJSONObject("response").getJSONArray("docs");
+
+        if (docs.size() < 1) {
+            log.info("#### No rows returned for the query!");
+            return null;
+        }
+        
+        List<Map<String, Object>> list = new ArrayList<>();
+
+        Map<String, String> clashes = new HashMap<>();
+
+        for (Object doc : docs) {
+            JSONObject jsonObject2 = (JSONObject) doc;
+            String type = jsonObject2.getString("type");
+
+            if (type.equals("mouse")) {
+                Map<String, Object> hash = new HashMap<>();
+                String key = jsonObject2.get("marker_symbol") + "_" + jsonObject2.get("allele_name") + "_" + jsonObject2.get("mgi_accession_id");
+                if(clashes.containsKey(key)) {
+                    continue;
+                }
+                clashes.put(key, "found");
+                hash.put("marker_symbol", jsonObject2.get("marker_symbol"));            
+                hash.put("allele_name", jsonObject2.get("allele_name"));            
+                hash.put("mgi_accession_id", jsonObject2.get("mgi_accession_id"));     
+                list.add(hash);
+            }
+        }
+        
+        return list;
     }
 }
