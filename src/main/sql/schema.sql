@@ -25,6 +25,7 @@ SET collation_connection = utf8_general_ci;
 --
 DROP TABLE IF EXISTS meta_info;
 DROP TABLE IF EXISTS meta_history;
+DROP TABLE IF EXISTS analytics_mp_calls;
 DROP TABLE IF EXISTS allele;
 DROP TABLE IF EXISTS biological_model;
 DROP TABLE IF EXISTS biological_model_allele;
@@ -118,7 +119,29 @@ CREATE TABLE meta_history (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
-    
+
+CREATE TABLE analytics_mp_calls (
+	id                          INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	phenotyping_center          VARCHAR(255) NOT NULL DEFAULT '',
+	phenotyping_center_count    INT(10) UNSIGNED NOT NULL,
+	marker_symbol               VARCHAR(255) NOT NULL DEFAULT '',
+	marker_accession_id         VARCHAR(255) NOT NULL DEFAULT '',
+	marker_count                INT(10) UNSIGNED NOT NULL,
+	colony_id                   VARCHAR(255) NOT NULL DEFAULT '',
+	colony_count                INT(10) UNSIGNED NOT NULL,
+	mp_term_id                  VARCHAR(255) NOT NULL DEFAULT '',
+	mp_term_name                VARCHAR(255) NOT NULL DEFAULT '',
+	mp_term_count               INT(10) UNSIGNED NOT NULL,
+	mp_term_type                ENUM('top_level', 'intermediate', 'leaf'),
+	
+	PRIMARY KEY (id),
+    KEY center_idx (phenotyping_center,phenotyping_center_count),
+    KEY marker_idx (marker_accession_id, marker_count),
+    KEY colony_idx (colony_id, colony_count),
+    KEY mp_idx (mp_term_id, mp_term_count, mp_term_type)
+	
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
 /**
 @table project
 @desc This table stores information about each phenotyping project
