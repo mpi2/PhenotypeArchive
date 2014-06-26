@@ -1432,6 +1432,7 @@ public class SolrIndex {
                 map2.put("TEXT", phraseMap.get("mice-prod"));
                 map2.put("TEXT2", mouse.get("_status").toString() + " (" + mouse.get("production_completed").toString() + ")");
                 map2.put("COLOUR", "#FFE0B2");
+                map2.put("DETAILS", mouse.get("production_graph").toString());
 
                 List<Map<String, Object>> contacts = (List<Map<String, Object>>) mouse.get("contacts");
 

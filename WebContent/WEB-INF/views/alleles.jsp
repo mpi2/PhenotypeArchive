@@ -71,20 +71,6 @@
     
     </c:if>
 
-   <!--     <script>
-        
-    $( "#image" ).toggle( "slide" );
-
-    $( document ).ready(function() {
-            console.log( "ready!" );
-             setTimeout(function(){
-                 console.log( "timeout!" );
-                 $( "#image" ).toggle( "slide", { direction: "up" }, 2000 );
-             }, 3000);
-        });        
-        
-    </script>   -->
-
 	</jsp:attribute>
 	
 
@@ -147,12 +133,12 @@
             <c:if test="${not empty status['ORDER']}">
               <a class="btn btn-lg" href="${status['ORDER']}"> <i class="fa fa-shopping-cart"></i> ORDER </a>
             </c:if>
-            <c:if test="${not empty status['DETAILS']}">
-              <a class="btn btn-lg" href="${status['DETAILS']}"> <i class="fa  fa-info "></i> DETAILS </a>
-            </c:if>
             <c:if test="${not empty status['CONTACT']}">
               <!-- TODO: turn orange-->
               <a class="btn btn-lg" href="${status['CONTACT']}"> <i class="fa  fa-envelope"></i> CONTACT </a>
+            </c:if>
+            <c:if test="${not empty status['DETAILS']}">
+              <a class="btn btn-lg" href="${status['DETAILS']}"> <i class="fa  fa-info "></i> DETAILS </a>
             </c:if>
 <!--</div>-->
           </td>

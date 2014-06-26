@@ -73,6 +73,7 @@ public class AllelesController {
         targetList.add("marker_symbol:Cbx1");
         targetList.add("marker_symbol:Zfp111");
         targetList.add("marker_symbol:Arhgef6");        
+        targetList.add("marker_symbol:Heyl");        
 
         String qs = StringUtils.join(targetList, " OR ");
 
