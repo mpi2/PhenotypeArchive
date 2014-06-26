@@ -133,7 +133,7 @@ public class ReleaseController {
 		}
 		
 		/**
-		 * Get Historical trends
+		 * Get Historical trends release by release
 		 */
 		
 		List<String> allReleases = analyticsDAO.getReleases(null);
@@ -162,6 +162,24 @@ public class ReleaseController {
 		String datapointsTrendsChart = chartsProvider.generateHistoryTrendsChart(datapointsTrendsMap, allReleases, "Data points", "", "Data points", null, false, "datapointsTrendsChart");
 		
 		/**
+		 * Drill down by top level phenotypes
+		 */
+		
+		String topLevelsMPs = metaInfo.get("top_level_mps");
+		String[] topLevelsMPsArray = topLevelsMPs.split(",");
+		// List all categories name
+		Map<String, String> topLevelsNames = new HashMap<String, String>();
+		
+		Map<String, List<AggregateCountXYBean>> topLevelMap = new HashMap<String, List<AggregateCountXYBean>>();
+		for (int i=0; i<topLevelsMPsArray.length; i++) {
+			topLevelsNames.put(topLevelsMPsArray[i], metaInfo.get("top_level_"+topLevelsMPsArray[i]));
+			topLevelMap.put(metaInfo.get("top_level_"+topLevelsMPsArray[i]), analyticsDAO.getHistoricalData("top_level_"+topLevelsMPsArray[i]+"_calls"));
+		}
+		
+		String topLevelTrendsChart = chartsProvider.generateHistoryTrendsChart(topLevelMap, allReleases, "Top Level Phenotypes", "", "MP Calls", null, false, "topLevelTrendsChart");
+		
+		
+		/**
 		 * Get all former releases: releases but the current one
 		 */
 		List<String> releases = analyticsDAO.getReleases(metaInfo.get("data_release_version"));
@@ -179,6 +197,7 @@ public class ReleaseController {
 		model.addAttribute("distributionCharts", distributionCharts);
 		model.addAttribute("trendsChart", trendsChart);
 		model.addAttribute("datapointsTrendsChart", datapointsTrendsChart);
+		model.addAttribute("topLevelTrendsChart", topLevelTrendsChart);
 		
 		return null;
 	}
