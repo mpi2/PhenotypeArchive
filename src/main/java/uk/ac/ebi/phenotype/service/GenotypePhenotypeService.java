@@ -286,7 +286,7 @@ public class GenotypePhenotypeService {
 		return result;
 	}
 
-	public SolrDocumentList getPgehnotypes(String gene)
+	public SolrDocumentList getPhenotypes(String gene)
 			throws SolrServerException {
 		SolrDocumentList result = runQuery(GenotypePhenotypeField.MARKER_ACCESSION_ID
 				+ ":\"" + gene + "\"");
