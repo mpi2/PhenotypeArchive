@@ -150,6 +150,20 @@ public class GenotypePhenotypeService extends BasicService {
         	String markerSymbol = (String) doc.getFieldValue(GenotypePhenotypeField.MARKER_SYMBOL);
         	String markerAccession = (String) doc.getFieldValue(GenotypePhenotypeField.MARKER_ACCESSION_ID);
 
+        	if (mpTermAcc.equals(GenotypePhenotypeField.MP_TERM_ID)) {
+        		
+        		Map<String, String> r = new HashMap<String, String>();
+            	r.put(GenotypePhenotypeField.PHENOTYPING_CENTER, phenotypingCenter);
+            	r.put(GenotypePhenotypeField.COLONY_ID, colonyID);
+            	r.put(GenotypePhenotypeField.MARKER_SYMBOL, markerSymbol);
+            	r.put(GenotypePhenotypeField.MARKER_ACCESSION_ID, markerAccession);
+        		r.put(mpTermAcc, (String) doc.getFieldValue(GenotypePhenotypeField.MP_TERM_ID));
+        		r.put(mpTermName, (String) doc.getFieldValue(GenotypePhenotypeField.MP_TERM_NAME));
+        		
+        		lmap.add(r);
+        		
+        	} else {
+        
         	ArrayList<String> mpTermIds = (ArrayList<String>) doc.getFieldValue(mpTermAcc);
         	ArrayList<String> mpTermNames = (ArrayList<String>) doc.getFieldValue(mpTermName);
         	
@@ -163,6 +177,7 @@ public class GenotypePhenotypeService extends BasicService {
         		r.put(mpTermAcc, mpTermIds.get(i));
         		r.put(mpTermName, mpTermNames.get(i));
         		lmap.add(r);
+        	}
         	}
         }
         
