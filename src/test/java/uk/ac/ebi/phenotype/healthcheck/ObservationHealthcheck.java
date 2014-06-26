@@ -25,6 +25,9 @@
 package uk.ac.ebi.phenotype.healthcheck;
 
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -66,6 +69,7 @@ import uk.ac.ebi.phenotype.dao.ObservationDAO;
 @TransactionConfiguration
 @Transactional
 public class ObservationHealthcheck {
+    private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
 
     public ObservationHealthcheck() {
     }
@@ -97,15 +101,22 @@ public class ObservationHealthcheck {
      * @throws SQLException
      */
     @Test
+//@Ignore
     public void testMissingIsZero() throws SQLException {
+        String testName = "testMissingIsZero";
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        Date start = new Date();
         List<String[]> data = observationDAO.getNotMissingNotEmpty();
+        System.out.println(dateFormat.format(start) + ": " + testName + " started.");
         if ( ! data.isEmpty()) {
-            System.out.println("WARNING:");
+            System.out.println("WARNING: there were " + data.size() + " parameter values for not-missing data");
             System.out.printf("%10s %10s %15s %20s %-50s %-100s\n", "missing", "count", "organisation_id", "observation_type", "parameter_status", "parameter_status_message");
             for (String[] s : data) {
                 System.out.printf("%10s %10s %15s %20s %-50s %-100s\n", s[0], s[1], s[2], s[3], s[4], s[5]);
             }
             fail("There were parameter values for not-missing data");
+        } else {
+            System.out.println("SUCCESS: " + testName);
         }
     }
     
@@ -115,11 +126,52 @@ public class ObservationHealthcheck {
      * table, describing the reason the data is missing. This field must not be
      * null/empty. Issue a warning if it is. The <code>parameter_status_message</code>
      * may or may not be empty.
+     * @throws SQLException
      */
     @Test
-@Ignore
-    public void testMissingIsOne() {
-        
+//@Ignore
+    public void testMissingIsOne() throws SQLException {
+        String testName = "testMissingIsOne";
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        Date start = new Date();
+        List<String[]> data = observationDAO.getMissingEmpty();
+        System.out.println(dateFormat.format(start) + ": " + testName + " started.");
+        if ( ! data.isEmpty()) {
+            System.out.println("ERROR: there were null/empty parameter values for missing data:");
+            System.out.printf("%10s %10s %15s %20s %-50s %-100s\n", "missing", "count", "organisation_id", "observation_type", "parameter_status", "parameter_status_message");
+            for (String[] s : data) {
+                System.out.printf("%10s %10s %15s %20s %-50s %-100s\n", s[0], s[1], s[2], s[3], s[4], s[5]);
+            }
+            fail("There were null/empty parameter values for missing data");
+        } else {
+            System.out.println("SUCCESS: " + testName);
+        }
+    }
+    
+    /**
+     * This test fetches the list of observation.parameter_status that is not in
+     * IMPC ontology_term.acc and prints out the information necessary to resolve
+     * the missing terms.
+     * @throws SQLException
+     */
+    @Test
+// @Ignore
+    public void testMissingParameterStatusFromOntologyTerm() throws SQLException {
+        String testName = "testMissingParameterStatusFromOntologyTerm";
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        Date start = new Date();
+        List<String[]> data = observationDAO.getMissingOntologyTerms();
+        System.out.println(dateFormat.format(start) + ": " + testName + " started.");
+        if ( ! data.isEmpty()) {
+            System.out.println("ERROR: there are ontology.parameter_status terms that do not exist in ontology_term.acc:");
+            System.out.printf("%50s %10s %15s %20s\n", "parameter_status", "acc", "organisation_id", "observation_type");
+            for (String[] s : data) {
+                System.out.printf("%50s %10s %15s %20s\n", s[0], s[1], s[2], s[3]);
+            }
+            fail("There are ontology.parameter_status terms that do not exist in ontology_term.acc");
+        } else {
+            System.out.println("SUCCESS: " + testName);
+        }
     }
 
 }

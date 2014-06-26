@@ -116,5 +116,19 @@ public interface ObservationDAO extends HibernateDAO {
      * @throws SQLException 
      */
     public List<String[]> getNotMissingNotEmpty() throws SQLException;
+    
+    /**
+     * Fetch count of records missing that have a null/empty parameter_status.
+     * @return count, interesting fields
+     * @throws SQLException 
+     */
+    public List<String[]> getMissingEmpty() throws SQLException;
+
+    /**
+     * Fetch list of observation.parameter_status that is not in IMPC ontology_term.acc.
+     * @return list of missing ontology_term.acc used by observation.parameter_status
+     * @throws SQLException 
+     */
+    public List<String[]> getMissingOntologyTerms() throws SQLException;
         
 }
