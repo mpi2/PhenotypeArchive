@@ -123,7 +123,7 @@ public class GenotypePhenotypeService extends BasicService {
 	 * @return
 	 * @throws SolrServerException
 	 */
-    public List<Map<String, String>> getAllTopLevelsByPhenotypingCenterAndColonies(String phenotypeResourceName) throws SolrServerException {
+    public List<Map<String, String>> getAllTopMPLevelsByPhenotypingCenterAndColonies(String phenotypeResourceName) throws SolrServerException {
 
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
@@ -147,7 +147,7 @@ public class GenotypePhenotypeService extends BasicService {
     }
     
 
-    public List<Map<String, String>> getAllIntermediateLevelsByPhenotypingCenterAndColonies(String phenotypeResourceName) throws SolrServerException {
+    public List<Map<String, String>> getAllIntermediateMPLevelsByPhenotypingCenterAndColonies(String phenotypeResourceName) throws SolrServerException {
 
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
@@ -170,7 +170,29 @@ public class GenotypePhenotypeService extends BasicService {
 
     }
     
-	
+    public List<Map<String, String>> getAllMPLeavesByPhenotypingCenterAndColonies(String phenotypeResourceName) throws SolrServerException {
+
+        SolrQuery query = new SolrQuery()
+                .setQuery("*:*")
+                .addFilterQuery(GenotypePhenotypeField.RESOURCE_NAME + ":"+phenotypeResourceName)
+                .setRows(0)
+                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
+                .addFacetPivotField( // needs at least 2 fields
+                		GenotypePhenotypeField.PHENOTYPING_CENTER + "," +
+                		GenotypePhenotypeField.MP_TERM_ID + "," +
+                		GenotypePhenotypeField.MP_TERM_NAME + "," +                		
+                		GenotypePhenotypeField.COLONY_ID + "," +
+                		GenotypePhenotypeField.MARKER_SYMBOL + "," +
+                		GenotypePhenotypeField.MARKER_ACCESSION_ID
+                        );
+
+        QueryResponse response = solr.query(query);
+
+        // keep count by level
+        return getFacetPivotResults(response, true);
+
+    }
+    
 	public List<Group> getGenesBy(String phenotype_id, String sex)
 			throws SolrServerException {
 		// males only
