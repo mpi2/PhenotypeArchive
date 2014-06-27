@@ -208,7 +208,6 @@ public class GenotypePhenotypeService extends BasicService {
 		if (sex != null) {
 			q.addFilterQuery(GenotypePhenotypeField.SEX + ":" + sex);
 		}
-		System.out.println("++++++++++  " + solr.getBaseURL() + "/select?"+ q);
 		QueryResponse results = solr.query(q);
 		return results.getGroupResponse().getValues().get(0).getValues();
 	}

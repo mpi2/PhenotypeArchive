@@ -442,11 +442,13 @@ public class PhenotypesController {
 		List<String> parameters = new ArrayList<>(getParameterStableIdsByPhenotypeAndChildren(phenotype_id));
 		// males & females	
 		nominator = gpService.getGenesBy(phenotype_id, null).size();
+		Long time = System.currentTimeMillis();
  		total = os.getTestedGenes(null, parameters);
+ 		Long totalTime = System.currentTimeMillis() - time;
+ 		System.out.println("\tComputed tested genes in " + totalTime);
  		pgs.setTotalPercentage(100*(float)nominator/(float)total);
 		pgs.setTotalGenesAssociated(nominator);
 		pgs.setTotalGenesTested(total);
-		System.out.println("   - - - - Total : " + nominator + " out of " + total);
 		boolean display = (total > 0 && nominator > 0) ? true : false;
 		pgs.setDisplay(display);		
 
@@ -460,7 +462,10 @@ public class PhenotypesController {
 				genesFemalePhenotype.add((String)g.getGroupValue());
 			}
 			nominator = genesFemalePhenotype.size();
+			time = System.currentTimeMillis();
 			total = os.getTestedGenes("female", parameters);
+	 		System.out.println("\tComputed tested genes for females in " + (System.currentTimeMillis() - time));
+	 		totalTime +=  System.currentTimeMillis() - time;
 			pgs.setFemalePercentage(100*(float)nominator/(float)total);
 			pgs.setFemaleGenesAssociated(nominator);
 			pgs.setFemaleGenesTested(total);
@@ -470,7 +475,10 @@ public class PhenotypesController {
 				genesMalePhenotype.add(g.getGroupValue()) ;
 			}
 			nominator = genesMalePhenotype.size();
+			time = System.currentTimeMillis();
 			total = os.getTestedGenes("male", parameters);
+	 		System.out.println("\tComputed tested genes for males in " + (System.currentTimeMillis() - time));
+	 		totalTime +=  System.currentTimeMillis() - time;
 			pgs.setMalePercentage(100*(float)nominator/(float)total);
 			pgs.setMaleGenesAssociated(nominator);
 			pgs.setMaleGenesTested(total);
@@ -486,12 +494,16 @@ public class PhenotypesController {
 		pgs.setFemaleOnlyNumber(genesFemalePhenotype.size());
 		pgs.setMaleOnlyNumber(genesMalePhenotype.size());
 		pgs.fillPieChartCode();
+		
+		System.out.println("\t\t\t >>  \t Total time for tested genes queries \n \t>> " + totalTime);
+		
 		return pgs;
 	}
 	
 	public Map<String, String> getParameters(String mpId) throws SolrServerException {
 		Map<String, String> res = new HashMap<String, String>();
-		HashSet<String> paramIds = getParameterStableIdsByPhenotypeAndChildren(mpId);
+		List<String> paramIds = new ArrayList(getParameterStableIdsByPhenotypeAndChildren(mpId));
+		Collections.sort(paramIds);
 		for (String param : paramIds){
 			if (gpService.getGenesAssocByParamAndMp(param, mpId).size() > 0){
 				Parameter p =  pipelineDao.getParameterByStableId(param);
@@ -511,10 +523,8 @@ public class PhenotypesController {
 		ArrayList<String> mpIds;
 		try {
 			mpIds = mpService.getChildrenFor(mpTermId);
-			System.out.println("  --  " + mpTermId + " has " + mpIds.size()+ "  and res is " + res.size());
 			res.addAll(pipelineDao.getParameterStableIdsByPhenotypeTerm(mpTermId));
 			for(String mp : mpIds){
-				System.out.println("  --  " + mp + " has " + pipelineDao.getParameterStableIdsByPhenotypeTerm(mp).size() + "  and res is " + res.size());
 				res.addAll(pipelineDao.getParameterStableIdsByPhenotypeTerm(mp));
 			}
 		} catch (SolrServerException e) {
