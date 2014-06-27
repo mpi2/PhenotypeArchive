@@ -103,11 +103,10 @@ public class MpService {
 		QueryResponse rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		
-		System.out.println(solr.getBaseURL() + "/select?" + solrQuery);
+//		System.out.println("Solr URL to getChildrenFor: " + solr.getBaseURL() + "/select?" + solrQuery);
 		ArrayList<String> children = new ArrayList<String>();
 		
         for (SolrDocument doc : res) {
-        	System.out.println(doc);
         	if (doc.containsKey(MpField.CHILD_MP_ID)){
         		for (Object child: doc.getFieldValues(MpField.CHILD_MP_ID)){
         			children.add((String)child);
