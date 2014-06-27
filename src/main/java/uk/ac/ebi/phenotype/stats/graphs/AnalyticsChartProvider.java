@@ -345,7 +345,9 @@ public class AnalyticsChartProvider {
 				containerJsonObject.put("data", dataArray);
 				System.out.println(trendProperty + " " +  trendsSeriesTypes.get(trendProperty));
 				containerJsonObject.put("type", trendsSeriesTypes.get(trendProperty));
-				containerJsonObject.put("name", trendsSeriesNames.get(trendProperty));
+				String name = (trendsSeriesNames.containsKey(trendProperty)) ? trendsSeriesNames.get(trendProperty) : trendProperty;
+				containerJsonObject.put("name", name);
+				
 				
 				if (trendProperty.equals("statistically_significant_calls")) {
 					containerJsonObject.put("yAxis", 1);

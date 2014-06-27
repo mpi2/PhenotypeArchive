@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
@@ -13,6 +14,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertFalse;
@@ -23,17 +25,19 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAOImpl;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.GenotypePhenotypeService.GenotypePhenotypeField;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -47,7 +51,7 @@ public class GenotypePhenotypeServiceTest {
          @Autowired
 	private PhenotypePipelineDAO pDAO;
 		
-	@Test
+	//@Test
 	public void testGetTopLevelMPTerms() throws MalformedURLException {
 		HashMap<String, String> summary;
 		
@@ -63,7 +67,7 @@ public class GenotypePhenotypeServiceTest {
 		}
 	}
 	
-	@Test
+	//@Test
 	public void testGetPhenotypesForTopLevelTerm() throws MalformedURLException, SolrServerException{
 		HashMap<String, String> summary;
 		summary = genotypePhenotypeService.getTopLevelMPTerms(testGene);	
@@ -72,7 +76,71 @@ public class GenotypePhenotypeServiceTest {
 			assertTrue (resp != null);
 		}
 	}
+	
+	@Test
+	public void testGetAllTopLevelsByPhenotypingCenterAndColonies() {
+
+		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1
+		List<Map<String,String>> dataset = null;
+		String resource = "IMPC";
+		try {
+			dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeField.TOP_LEVEL_MP_TERM_NAME);
+			for (Map<String, String> map: dataset) {
+				for (String key: map.keySet()) {
+					System.out.println(key + ":" + map.get(key));
+				}
+				System.out.println();
+			}
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		assertTrue(dataset.size()>0);
+	}
+	
+	@Test
+	public void testGetIntermediateTopLevelsByPhenotypingCenterAndColonies() {
+
+		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1
+		List<Map<String,String>> dataset = null;
+		String resource = "IMPC";
+		try {
+			dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID, GenotypePhenotypeField.INTERMEDIATE_MP_TERM_NAME);
+			for (Map<String, String> map: dataset) {
+				for (String key: map.keySet()) {
+					System.out.println(key + ":" + map.get(key));
+				}
+				System.out.println();
+			}
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		assertTrue(dataset.size()>0);
+	}	
         
+	
+	@Test
+	public void testGetAllMPLeavesByPhenotypingCenterAndColonies() {
+
+		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id%3A%22MGI%3A104874%22%20AND%20biological_sample_group:experimental&wt=json&start=0&rows=0&indent=true&facet=true&facet.pivot=pipeline_id,phenotyping_center,allele_accession&facet.limit=-1
+		List<Map<String,String>> dataset = null;
+		String resource = "IMPC";
+		try {
+			dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeField.MP_TERM_ID, GenotypePhenotypeField.MP_TERM_NAME);
+			for (Map<String, String> map: dataset) {
+				for (String key: map.keySet()) {
+					System.out.println(key + ":" + map.get(key));
+				}
+				System.out.println();
+			}
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		assertTrue(dataset.size()>0);
+	}	
+	
 //        @Test
 //        public void getResultsForGeneHeatMapTest(){
 //            String accession="MGI:104874";

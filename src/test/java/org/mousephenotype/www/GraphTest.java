@@ -24,7 +24,6 @@
 
 package org.mousephenotype.www;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import edu.emory.mathcs.backport.java.util.Collections;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -389,7 +388,7 @@ public class GraphTest {
      * @throws SolrServerException 
      */
     @Test
-//@Ignore
+@Ignore
     public void testGraphPagesForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI() throws SolrServerException {
         final String testName = "testGraphPagesForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI";
         boolean isGraphRequired = false;                                        // No graphs are required.
@@ -429,7 +428,7 @@ public class GraphTest {
      * @throws SolrServerException 
      */
     @Test
-//@Ignore
+@Ignore
     public void testGraphPagesForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI() throws SolrServerException {
         final String testName = "testGraphPagesForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI";
         boolean isGraphRequired = false;                                        // No graphs are required.
@@ -453,6 +452,7 @@ public class GraphTest {
 
         List<String> geneIds = new ArrayList();
         geneIds.add("MGI:3036236");
+        geneIds.add("MGI:1316742");
         
         process(testName, geneIds, isGraphRequired);
     }

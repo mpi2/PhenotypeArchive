@@ -1,7 +1,23 @@
+/**
+ * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License.  
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package uk.ac.ebi.phenotype.service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -65,23 +81,16 @@ public class MpService {
 		System.out.println("solr query in basicbean="+solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		
-		HashSet<BasicBean> allTopLevelPhenotypes = new HashSet();
+		HashSet<BasicBean> allTopLevelPhenotypes = new LinkedHashSet();
 		for (FacetField ff:rsp.getFacetFields()){
-			//System.out.println("count name="+ff.getName());
 			for(Count count: ff.getValues()){
-				//System.out.println("count Name="+count.getName());
 				String mpArray[]=count.getName().split("___");
 				BasicBean bean=new BasicBean();
 				bean.setName(mpArray[0]);
 				bean.setId(mpArray[1]);
 				allTopLevelPhenotypes.add(bean);
 			}
-			//ArrayList<String> names = (ArrayList<String>)doc.getFieldValue( GenotypePhenotypeField.MP_TERM_NAME );
-//			for (String id : ids) {
-//				BasicBean bean=new BasicBean();
-//				bean.setId(id);
-//				allTopLevelPhenotypes.add(bean);
-//			}
+			
 		}
 		return allTopLevelPhenotypes;
 	}
