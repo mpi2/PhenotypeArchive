@@ -710,8 +710,6 @@ public class ObservationService extends BasicService {
         		ExperimentField.PARAMETER_NAME + "," +
         		ExperimentField.OBSERVATION_TYPE + "," +
         		ExperimentField.ZYGOSITY);
-
-        System.out.println(query.toString());
         
         QueryResponse response = solr.query(query);
 
@@ -723,7 +721,6 @@ public class ObservationService extends BasicService {
         	for (int i = 0; i < facetPivot.size(); i++) {
 
         		String name = facetPivot.getName(i); // in this case only one of them
-        		System.out.println("facetPivot name" + name);
         		
         		List<PivotField> pivotResult = facetPivot.get(name);
 
@@ -732,7 +729,6 @@ public class ObservationService extends BasicService {
         			
         			// create a HashMap to store a new triplet of data
         			PivotField pivotLevel = pivotResult.get(j);
-        			System.out.println("TEST " + pivotLevel.getField() + " " + pivotLevel.getCount());
         			List<Map<String,String>> lmap = getLeveledFacetPivotValue(pivotLevel, null, false);
         			results.addAll(lmap);
         		}
@@ -1115,7 +1111,7 @@ public class ObservationService extends BasicService {
 		query.set("group.limit", 200);
 		// per group
 
-		System.out.println("--- unidimensional : " + solr.getBaseURL() + "/select?" + query);
+//		System.out.println("--- unidimensional : " + solr.getBaseURL() + "/select?" + query);
 		
 		// for each colony get the mean & put it in the array of data to plot
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
@@ -1317,7 +1313,6 @@ public class ObservationService extends BasicService {
 	public int getTestedGenes(String sex,
 			List<String> parameters) throws SolrServerException {
 		
-		System.out.println("::::::::::::: Getting tested genes for : "+ parameters.size() + parameters.get(0));
 		HashSet<String> genes = new HashSet<String>();
 		int i = 0;
 		while (i < parameters.size()) {
@@ -1340,7 +1335,6 @@ public class ObservationService extends BasicService {
 			}
 			// I need to add the genes to a hash in case some come up multiple
 			// times from different parameters
-			System.out.println("=====" + solr.getBaseURL() + "/select?"+ q);
 			List<Group> groups = solr.query(q).getGroupResponse().getValues().get(0).getValues();
 			for (Group gr : groups) {
 				// System.out.println(gr.getGroupValue());

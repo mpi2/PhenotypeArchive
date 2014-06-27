@@ -321,6 +321,11 @@
 						${datapointsTrendsChart}
 					</script>
 					</div>
+					<div id="topLevelTrendsChart">
+					<script type="text/javascript">
+						${topLevelTrendsChart}
+					</script>
+					</div>
 					<h3>Previous Releases</h3>
 					<ul>
 					<c:forEach var="release" items="${releases}">
