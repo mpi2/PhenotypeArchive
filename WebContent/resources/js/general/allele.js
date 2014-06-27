@@ -38,7 +38,9 @@ jQuery(document).ready(	function() {
         $('.qcData').each(function(){
             var type = $(this).data("type");
             var name = $(this).data("name");
-            var url = '../../qc_data/' + type + '/' + name;
+            var alleleType = $(this).data("alleletype");
+      
+            var url = '../../qc_data/' + alleleType + '/' + type + '/' + name;
         	$.ajax({
 		    url: url,    
 		    timeout: 2000,
