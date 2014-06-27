@@ -1309,8 +1309,21 @@ public class ObservationService extends BasicService {
 		}
 		return resSet;
 	}
+	
+	
+	public HashMap<String, ArrayList<String>> getParameterToGeneMap(SexType sex) throws SolrServerException{
+		System.out.println("in getParameterToGeneMap");
+		HashMap<String, ArrayList<String>> res = new HashMap<>();
+		SolrQuery q = new SolrQuery().setQuery(ExperimentField.SEX + ":" + sex.name()).setRows(1);
+		q.set("fecet.pivot", ExperimentField.PARAMETER_STABLE_ID + "," + ExperimentField.GENE_ACCESSION);
+		q.set("facet", true);
+		QueryResponse response = solr.query(q);
+		System.out.println("--------" + response.getFacetPivot());
+		return res;
+	}
+	
 
-	public int getTestedGenes(String sex,
+	public Set<String> getTestedGenes(String sex,
 			List<String> parameters) throws SolrServerException {
 		
 		HashSet<String> genes = new HashSet<String>();
@@ -1343,7 +1356,7 @@ public class ObservationService extends BasicService {
 				genes.add((String) gr.getGroupValue());
 			}
 		}
-		return genes.size();
+		return genes;
 	}
 
 	/**
