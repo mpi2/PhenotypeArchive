@@ -74,26 +74,20 @@ public class AllelesController {
         params1.put("type", "targeting_vector");
         map.put("solr_product_targeting_vector", solrIndex.getGeneProductCoreUrl2(params1));
         
-        map.put("solr_allele2", "http://ikmc.vm.bytemark.co.uk:8985/solr/allele2/select?indent=on&version=2.2&q=" +
-                "marker_symbol:" + marker_symbol +
-                "&fq=&start=0&rows=10&fl=*%2Cscore&wt=json&explainOther=&hl.fl=&indent=on");
-
-        map.put("solr_allele2_alleles", "http://ikmc.vm.bytemark.co.uk:8985/solr/allele2/select?indent=on&version=2.2&q=" +
-                "marker_symbol:" + marker_symbol +
-                "type:allele" + 
-                "&fq=&start=0&rows=10&fl=*%2Cscore&wt=json&explainOther=&hl.fl=&indent=on");
-
-        map.put("solr_allele2_genes", "http://ikmc.vm.bytemark.co.uk:8985/solr/allele2/select?indent=on&version=2.2&q=" +
-                "marker_symbol:" + marker_symbol +
-                "type:gene" + 
-                "&fq=&start=0&rows=10&fl=*%2Cscore&wt=json&explainOther=&hl.fl=&indent=on");
+        String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/allele2/select?indent=on&version=2.2&q=" +
+                "TEMPLATE" +
+                "&fq=&start=0&rows=10&fl=*%2Cscore&wt=json&explainOther=&hl.fl=&indent=on";
+        
+        map.put("solr_allele2", url.replace("TEMPLATE", "marker_symbol:" + marker_symbol));
+        map.put("solr_allele2_alleles", url.replace("TEMPLATE", "marker_symbol:" + marker_symbol +  " type:allele"));
+        map.put("solr_allele2_genes", url.replace("TEMPLATE", "marker_symbol:" + marker_symbol +  " type:gene"));
 
         log.info("#### makeItem: map: " + map.toString());
 
         return map;
     }
 
-    @RequestMapping("/alleles/")
+    @RequestMapping("/alleles")
     public String alleles0(
             Model model,
             HttpServletRequest request,
@@ -139,7 +133,7 @@ public class AllelesController {
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
 
         log.info("#### alleles1...");
-
+        
         if(acc.length() == 1) {
             HashMap<String, String> params1 = new HashMap<>();
 
@@ -183,6 +177,19 @@ public class AllelesController {
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+        
+        if(allele_name.equals("mutagenesis_url")) {
+            model.addAttribute("message", "Mutagenesis not yet implemented!");
+            log.info("#### alleles2: mutagenesis_url");
+            return "alleles_list";
+        }
+
+        if(allele_name.equals("lrpcr_genotyping_primers")) {
+            model.addAttribute("message", "lrpcr genotyping primers not yet implemented!");
+            log.info("#### alleles2: lrpcr_genotyping_primers");
+            return "alleles_list";
+        }
+
         return allelesCommon(acc, allele_name, model, request, attributes, false);
     }
     

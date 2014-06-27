@@ -10,6 +10,12 @@
 
 </br>                        
 
+        <c:if test="${not empty message}">
+            <div style="font-size: 120%;">
+                <p>${message}</p>
+            </div>
+        </c:if>
+
 <div style="font-size: 120%;">
 
     <table>

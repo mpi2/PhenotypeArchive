@@ -198,7 +198,7 @@ public class SolrIndex2 {
         map2.put("genetic_background", background_colony_strain);        
         
         String associated_product_colony_name = "";
-        if(jsonObject2.has("associated_product_es_cell_name")) {
+        if(jsonObject2.has("associated_product_colony_name")) {
             associated_product_colony_name = jsonObject2.getString("associated_product_colony_name");
             map2.put("associated_product_colony_name", associated_product_colony_name);
         }        
@@ -322,11 +322,17 @@ public class SolrIndex2 {
         log.info("#### url for genbank_file_url:" + genbank_file_url);
 
         String design_oligos_url = getGeneProductInfoArrayEntry("design_link", jsonObject2.getJSONArray("other_links"));
-        if (genbank_file_url != null) {
+        if (design_oligos_url != null) {
             map2.put("design_oligos_url", design_oligos_url);
         }
 
         map2.put("name", jsonObject2.getString("name"));
+        
+        //http://www.mousephenotype.org/imits/targ_rep/alleles/903/vector-image
+        String allele_image = getGeneProductInfoArrayEntry("allele_image", jsonObject2.getJSONArray("other_links"));
+        if (allele_image != null) {
+            map2.put("allele_image", allele_image);
+        }
         
         return map2;
     }
@@ -825,12 +831,27 @@ public class SolrIndex2 {
             summary.put("genbank", item.get("genbank_file"));
             summary.put("map_image", item.get("allele_image") + "?simple=true");
             summary.put("allele_description", productMap.get("1" + item.get("allele_type")));
+                        
+            List<String> southern_tools = new ArrayList<>();
+            for(Map<String, Object> mouse : mice) {
+                
+                if(mouse.containsKey("associated_product_es_cell_name")) {
+                    String st = "http://www.sanger.ac.uk/htgt/htgt2/tools/restrictionenzymes?es_clone_name=" +
+                    mouse.get("associated_product_es_cell_name") + 
+                    "&iframe=true&width=100%&height=100%";
+                    southern_tools.add(st);
+                    log.info("#### getGeneProductInfo: southern_tool: " + st.toString());
+                }
+                summary.put("southern_tools", southern_tools);
+            }
             
-            summary.put("southern_tool", "http://www.google.com");
+            if(southern_tools.size() > 0) {
+                summary.put("southern_tool", southern_tools.get(0));
+            }
             
-            summary.put("lrpcr_genotyping_primers", "http://www.google.com");
+            summary.put("lrpcr_genotyping_primers", "lrpcr_genotyping_primers");
 
-            summary.put("mutagenesis_url", "http://www.google.com");    // FIX-ME!
+            summary.put("mutagenesis_url", "mutagenesis_url");    // FIX-ME!
             
             summary.put("statuses", getGeneProductInfoStatuses(genes));    // FIX-ME!                
 

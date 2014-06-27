@@ -562,8 +562,8 @@
         
         <td style="text-align: center;">
             <span>
-                <c:if test="${not empty targeting_vector['genbank_file_url']}">
-                    <a href="${targeting_vector['genbank_file_url']}">
+                <c:if test="${not empty targeting_vector['allele_image']}">
+                    <a href="${targeting_vector['allele_image']}">
                         <i class="fa fa-file-text fa-lg"></i>
                     </a>
                 </c:if>
