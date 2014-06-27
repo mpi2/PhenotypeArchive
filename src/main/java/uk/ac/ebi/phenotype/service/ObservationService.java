@@ -1333,6 +1333,8 @@ public class ObservationService extends BasicService {
 			if (sex != null) {
 				q.addFilterQuery(ExperimentField.SEX + ":" + sex);
 			}
+//			
+//			System.out.println("Solr url for getTestedGenes " + solr.getBaseURL() + "/select?" + q);
 			// I need to add the genes to a hash in case some come up multiple
 			// times from different parameters
 			List<Group> groups = solr.query(q).getGroupResponse().getValues().get(0).getValues();

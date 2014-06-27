@@ -103,7 +103,7 @@ public class MpService {
 		QueryResponse rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		
-		System.out.println("Solr URL to getChildrenFor: " + solr.getBaseURL() + "/select?" + solrQuery);
+//		System.out.println("Solr URL to getChildrenFor: " + solr.getBaseURL() + "/select?" + solrQuery);
 		ArrayList<String> children = new ArrayList<String>();
 		
         for (SolrDocument doc : res) {
