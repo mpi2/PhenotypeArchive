@@ -29,8 +29,9 @@ public class ParameterToGeneMap {
 		// for all parameters
 		try {
 			System.out.println("Getting each sex. Observation service != null  " + (observationService != null));
-			maleParamToGene = observationService.getParameterToGeneMap(SexType.male);
-			femaleParamToGene = observationService.getParameterToGeneMap(SexType.female);
+			System.out.println(" NOTE NOTE NOTE: Commented out for the moment to get the webapp to work. sorry :(  -jm");
+			//maleParamToGene = observationService.getParameterToGeneMap(SexType.male);
+			//femaleParamToGene = observationService.getParameterToGeneMap(SexType.female);
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 			System.out.println("Error");
