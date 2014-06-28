@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.stereotype.Repository;
 
+import java.lang.NullPointerException;
+
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.ObservationService;
 
@@ -29,10 +31,12 @@ public class ParameterToGeneMap {
 		// for all parameters
 		try {
 			System.out.println("Getting each sex. Observation service != null  " + (observationService != null));
-			System.out.println(" NOTE NOTE NOTE: Commented out for the moment to get the webapp to work. sorry :(  -jm");
-			//maleParamToGene = observationService.getParameterToGeneMap(SexType.male);
-			//femaleParamToGene = observationService.getParameterToGeneMap(SexType.female);
-		} catch (SolrServerException e) {
+
+			System.out.println(" NOTE NOTE NOTE: Caught null pointer exception -jm");
+
+			maleParamToGene = observationService.getParameterToGeneMap(SexType.male);
+			femaleParamToGene = observationService.getParameterToGeneMap(SexType.female);
+		} catch (SolrServerException | NullPointerException e) {
 			e.printStackTrace();
 			System.out.println("Error");
 		}
