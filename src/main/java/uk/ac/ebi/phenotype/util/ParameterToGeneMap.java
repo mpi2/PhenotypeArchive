@@ -3,6 +3,8 @@ package uk.ac.ebi.phenotype.util;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.stereotype.Repository;
 
@@ -19,6 +21,7 @@ public class ParameterToGeneMap {
 	HashMap<String , ArrayList<String>> maleParamToGene = new HashMap<>();
 	HashMap<String , ArrayList<String>> femaleParamToGene = new HashMap<>();
 
+	@Autowired
 	private ObservationService observationService;
 	
 	public ParameterToGeneMap(){
