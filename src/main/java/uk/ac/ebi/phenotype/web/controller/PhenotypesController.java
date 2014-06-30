@@ -16,14 +16,10 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.Proxy;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,9 +37,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.hibernate.HibernateException;
@@ -60,38 +54,26 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.generic.util.SolrIndex;
-import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
-import uk.ac.ebi.phenotype.pojo.Datasource;
-import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
 import uk.ac.ebi.phenotype.pojo.Procedure;
+import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.Synonym;
 import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.service.ObservationService;
-import uk.ac.ebi.phenotype.stats.ChartData;
-import uk.ac.ebi.phenotype.stats.ExperimentDTO;
-import uk.ac.ebi.phenotype.stats.ObservationDTO;
-import uk.ac.ebi.phenotype.stats.categorical.CategoricalChartAndTableProvider;
-import uk.ac.ebi.phenotype.stats.categorical.CategoricalResultAndCharts;
-import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
-import uk.ac.ebi.phenotype.stats.timeseries.TimeSeriesChartAndTableProvider;
-import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalChartAndTableProvider;
+import uk.ac.ebi.phenotype.util.ParameterToGeneMap;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
-import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow.PhenotypeRowType;
-import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 @Controller
 public class PhenotypesController {
@@ -125,6 +107,9 @@ public class PhenotypesController {
 	
 	@Autowired
 	MpService mpService;
+	
+	@Autowired 
+	ParameterToGeneMap ptgm;
 	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
@@ -444,6 +429,7 @@ public class PhenotypesController {
 		nominator = gpService.getGenesBy(phenotype_id, null).size();
 		Long time = System.currentTimeMillis();
  		total = os.getTestedGenes(null, parameters).size();
+//		total = ptgm.getTestedGenesByParameterSex(parameters, null, os).size();
  		Long totalTime = System.currentTimeMillis() - time;
  		System.out.println("\tComputed tested genes in " + totalTime);
  		pgs.setTotalPercentage(100*(float)nominator/(float)total);
@@ -464,6 +450,7 @@ public class PhenotypesController {
 			nominator = genesFemalePhenotype.size();
 			time = System.currentTimeMillis();
 			total = os.getTestedGenes("female", parameters).size();
+//			total = ptgm.getTestedGenesByParameterSex(parameters, SexType.female, os).size();
 	 		System.out.println("\tComputed tested genes for females in " + (System.currentTimeMillis() - time));
 	 		totalTime +=  System.currentTimeMillis() - time;
 			pgs.setFemalePercentage(100*(float)nominator/(float)total);
@@ -477,6 +464,7 @@ public class PhenotypesController {
 			nominator = genesMalePhenotype.size();
 			time = System.currentTimeMillis();
 			total = os.getTestedGenes("male", parameters).size();
+//			total = ptgm.getTestedGenesByParameterSex(parameters, SexType.male, os).size();
 	 		System.out.println("\tComputed tested genes for males in " + (System.currentTimeMillis() - time));
 	 		totalTime +=  System.currentTimeMillis() - time;
 			pgs.setMalePercentage(100*(float)nominator/(float)total);

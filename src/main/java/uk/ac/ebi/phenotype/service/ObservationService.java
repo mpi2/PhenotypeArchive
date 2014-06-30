@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import net.sf.json.JSONArray;
@@ -49,6 +50,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.util.NamedList;
+import org.eclipse.jetty.util.ajax.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1315,10 +1317,21 @@ public class ObservationService extends BasicService {
 		System.out.println("in getParameterToGeneMap");
 		HashMap<String, ArrayList<String>> res = new HashMap<>();
 		SolrQuery q = new SolrQuery().setQuery(ExperimentField.SEX + ":" + sex.name()).setRows(1);
-		q.set("fecet.pivot", ExperimentField.PARAMETER_STABLE_ID + "," + ExperimentField.GENE_ACCESSION);
+		q.set("facet.pivot", ExperimentField.PARAMETER_STABLE_ID + "," + ExperimentField.GENE_ACCESSION);
 		q.set("facet", true);
 		QueryResponse response = solr.query(q);
-		System.out.println("--------" + response.getFacetPivot());
+		System.out.println( " Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
+		NamedList<List<PivotField>> facets = response.getFacetPivot();
+		for (PivotField f : facets.get("parameter_stable_id,gene_accession_id")){
+			ArrayList<String> genes = new ArrayList<>();
+			for (PivotField pf : f.getPivot()){
+				genes.add(pf.getValue().toString());
+			}
+			res.put(f.getValue().toString(), genes);
+			System.out.println(f.getField() + "  " + f.getValue() + " - " + f.getCount() + f.getPivot());
+		}
+//		System.out.println("--------" + response.getFacetPivot());
+		System.out.println("DONE");
 		return res;
 	}
 	

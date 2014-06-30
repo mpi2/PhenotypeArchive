@@ -2,13 +2,12 @@ package uk.ac.ebi.phenotype.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.stereotype.Repository;
-
-import java.lang.NullPointerException;
 
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.ObservationService;
@@ -20,40 +19,58 @@ public class ParameterToGeneMap {
  * HashMap <parameter_stable_id, ArrayList<marker_accession_id>
  */
 
-	HashMap<String , ArrayList<String>> maleParamToGene = new HashMap<>();
-	HashMap<String , ArrayList<String>> femaleParamToGene = new HashMap<>();
+	HashMap<String , ArrayList<String>> maleParamToGene = null;
+	HashMap<String , ArrayList<String>> femaleParamToGene = null;
 
-	@Autowired
-	private ObservationService observationService;
-	
+
 	public ParameterToGeneMap(){
+	}
+
+	public void fillMaps(ObservationService observationService){
 		System.out.println("initializing...");
 		// for all parameters
 		try {
 			System.out.println("Getting each sex. Observation service != null  " + (observationService != null));
 
-			System.out.println(" NOTE NOTE NOTE: Caught null pointer exception -jm");
-
 			maleParamToGene = observationService.getParameterToGeneMap(SexType.male);
 			femaleParamToGene = observationService.getParameterToGeneMap(SexType.female);
-		} catch (SolrServerException | NullPointerException e) {
+		} catch (SolrServerException e) {
 			e.printStackTrace();
 			System.out.println("Error");
 		}
 	}
 	
-	public HashMap<String , ArrayList<String>> getMaleMap(){
+	public HashMap<String , ArrayList<String>> getMaleMap(ObservationService observationService){
+		if (maleParamToGene == null){
+			fillMaps(observationService);
+		}
+			
 		return maleParamToGene;
 	}
 
-	public ObservationService getObservationService() {
-		return observationService;
+	
+	public HashMap<String , ArrayList<String>> getFemaleMap(ObservationService observationService){
+		if (femaleParamToGene == null){
+			fillMaps(observationService);
+		}
+		return femaleParamToGene;
 	}
-
-	public void setObservationService(ObservationService observationService) {
-		this.observationService = observationService;
+	
+	public Set<String> getTestedGenesByParameterSex( List<String> parameters, SexType sex, ObservationService observationService){
+		HashSet<String> res = new HashSet<>();
+		if (maleParamToGene == null || femaleParamToGene == null){
+			fillMaps(observationService);
+		}
+		if (sex == null || sex.equals(SexType.female) ){
+			for (String p : parameters){
+				res.addAll(femaleParamToGene.get(p));
+			}
+		}
+		if (sex == null || sex.equals(SexType.male) ) {
+			for (String p : parameters){
+				res.addAll(maleParamToGene.get(p));
+			}
+		}
+		return res; 
 	}
-	
-	
-	
 }

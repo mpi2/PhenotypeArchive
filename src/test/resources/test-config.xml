@@ -29,7 +29,6 @@
         </property>
     </bean>
     
-    <bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap"></bean>
 
     <bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
         <constructor-arg  value="${solrUrl}/experiment" />
