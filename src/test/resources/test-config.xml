@@ -15,6 +15,9 @@
 		http://www.springframework.org/schema/context/spring-context-3.0.xsd
                 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
 
+
+	<context:component-scan base-package="uk.ac.ebi" />
+
     <!-- Define the global parameters used when deploying without maven -->
     <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
@@ -25,6 +28,8 @@
             </list>
         </property>
     </bean>
+    
+    <bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap"></bean>
 
     <bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
         <constructor-arg  value="${solrUrl}/experiment" />
