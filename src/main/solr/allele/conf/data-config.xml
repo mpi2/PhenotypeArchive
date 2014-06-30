@@ -1,14 +1,5 @@
 <dataConfig>
 	<script type='text/javascript'><![CDATA[
-		function set_dataType(row) {
-	        if (row.get('mgi_accession_id')){
-	        	row.put('dataType', 'gene');
-			}
-			if (row.get('latest_phenotype_status')){
-	        	row.put('imits_phenotype_status', row.get('latest_phenotype_status').toString());
-			}
-			return row;
-		}	    
 		
 		function hasQc(row){
 			if (row.get('qcGene')){
@@ -17,7 +8,15 @@
 	   		return row; 
 		}
 		// mapping for es cell/mouse/phenotyping statuses
-		function status_mapping(row){
+		function mapping(row){
+			if (row.get('mgi_accession_id')){
+	        	row.put('dataType', 'gene');
+			}
+			if (row.get('latest_phenotype_status')){
+	        	row.put('imits_phenotype_status', row.get('latest_phenotype_status').toString());
+			}
+		
+		
 			if ( row.get('imits_es_cell_status') ){									
 				es_cell_status = row.get('imits_es_cell_status').toString();					
 				if ( es_cell_status == "No ES Cell Production" ){
@@ -32,8 +31,20 @@
 							
 				row.put('es_cell_status', es_cell_status);
 			}
-			if ( row.get('imits_mouse_status') ){
-				mouse_status = row.get('imits_mouse_status').toString();				
+			if ( row.get('imits_mouse_status') || row.get('gene_latest_mouse_status') ){
+			
+				mouse_status = null;
+				field = null;
+				
+				if ( row.get('imits_mouse_status') ){
+					mouse_status = row.get('imits_mouse_status').toString();
+					field = 'mouse_status';	
+				}
+				else if ( row.get('gene_latest_mouse_status') ){
+					mouse_status = row.get('gene_latest_mouse_status').toString();
+					field = 'latest_mouse_status';
+				}				
+			
 				if ( mouse_status == "Chimeras obtained" 
 					|| mouse_status == "Micro-injection in progress"
 					|| mouse_status == "Cre Excision Started" 
@@ -45,8 +56,9 @@
 					|| mouse_status == "Cre Excision Complete" 
 					|| mouse_status == "Phenotype Attempt Registered" ){
 					mouse_status = "Mice Produced"; // blue
-				}				
-				row.put('mouse_status', mouse_status);
+				}	
+					
+				row.put(field, mouse_status);
 			}			
 			
 	   		return row; 
@@ -63,11 +75,11 @@
    	<dataSource name="experiment_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/experiment/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
 	<dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
 	
-   	<document name="docs">
+    <document name="docs">
 			
 		<entity dataSource="sanger_allele" name="doc" stream="true" url="q=mgi_accession_id:*&amp;fq=-marker_type:Pseudogene+AND+type:gene&amp;wt=normal&amp;rows=99999"		            
         	processor="XPathEntityProcessor" forEach="/response/result/doc/"
-            readTimeout="10000" connectionTimeout="10000" transformer="script:set_dataType" >                      
+            readTimeout="10000" connectionTimeout="10000" transformer="script:mapping" >                      
 
 			<field column="mgi_accession_id" xpath="/response/result/doc/str[@name='mgi_accession_id']" />
 			<field column="dataType" name="dataType"/>	
@@ -82,7 +94,7 @@
 
 			<!-- mouse to human gene symbol mapping: multiple human name can be mapped to one mouse symbol -->
 			<entity dataSource="human2mouse_symbol_core" name="symbol_mapping" stream="true"
-				url="q=mouse_symbol:${doc.marker_symbol}&amp;wt=normal&amp;fl=human_symbol"
+				url="q=mouse_symbol:&quot;${doc.marker_symbol}&quot;&amp;wt=normal&amp;fl=human_symbol"
 				processor="XPathEntityProcessor" forEach="/response/result/doc/"
 			 	onError="continue" >
 				
@@ -102,9 +114,10 @@
 			<field column="imits_phenotype_status" name="imits_phenotype_status" />
 
 			<!-- mouse status -->
-			<field column="latest_mouse_status" xpath="/response/result/doc/str[@name='latest_mouse_status']" />-->
+			<field column="gene_latest_mouse_status" xpath="/response/result/doc/str[@name='latest_mouse_status']" />
+			<field column="latest_mouse_status" name="latest_mouse_status" />
 			<field column="latest_project_status" xpath="/response/result/doc/str[@name='latest_project_status']" />
-			<field column="status" xpath="/response/result/doc/str[@name='latest_project_status_legacy']" /> <!-- status name from Bill Skarnes and used at EBI -->	
+			<!-- <field column="status" xpath="/response/result/doc/str[@name='latest_project_status_legacy']" /> --> <!-- status name from Bill Skarnes and used at EBI -->	
 
 			<!-- production/phenotyping centers -->
 			<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
@@ -114,7 +127,7 @@
 			<entity dataSource="sanger_allele" name="aldoc" stream="true" url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:allele&amp;rows=100&amp;wt=normal"
        			processor="XPathEntityProcessor" forEach="/response/result/doc/"
          			readTimeout="10000" connectionTimeout="10000"
-				transformer="script:status_mapping" onError="continue" >
+				transformer="script:mapping" onError="continue" >
 
 				<field column="allele_name" xpath="/response/result/doc/str[@name='allele_name']" />
 
@@ -165,3 +178,4 @@
 		</entity>
 	</document>
 </dataConfig>
+  
