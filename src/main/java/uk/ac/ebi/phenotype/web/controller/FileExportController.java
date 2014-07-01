@@ -172,9 +172,9 @@ public class FileExportController {
                 row.add(procedureStableId);
                 row.add(parameterStableId);
                 row.add(observation.getStrain());
-                row.add(observation.getColonyId());
-                row.add((observation.getGroup().equals("control"))?"+/+":geneAcc);
-                row.add((observation.getGroup().equals("control"))?"+/+":alleleAcc);
+                row.add((observation.getGroup().equals("control"))?"+/+":observation.getColonyId());
+                row.add((observation.getGroup().equals("control"))?"\"\"":geneAcc);
+                row.add((observation.getGroup().equals("control"))?"\"\"":alleleAcc);
                 row.add((observation.getMetadataGroup()!=null && !observation.getMetadataGroup().isEmpty()) ? observation.getMetadataGroup():"\"\"");
                 row.add((observation.getZygosity() != null && !observation.getZygosity().isEmpty()) ? observation.getZygosity():"\"\"");
                 row.add(observation.getSex());
