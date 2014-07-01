@@ -41,4 +41,11 @@ public interface DataReader {
     public void open() throws IOException;
     public void close() throws IOException;
     public List<String> getLine() throws IOException;
+    public DataType getType();
+    
+    public enum DataType {
+        TSV,
+        XLS
+    }
+    
 }

@@ -109,6 +109,15 @@ public class DataReaderXls implements DataReader {
         return line;
     }
     
+    /**
+     * Returns the data type
+     * @return the data type
+     */
+    @Override
+    public DataType getType() {
+        return DataType.XLS;
+    }
+    
     // GETTERS
     
     
