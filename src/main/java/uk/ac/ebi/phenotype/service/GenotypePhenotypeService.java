@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.service;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -123,75 +124,69 @@ public class GenotypePhenotypeService extends BasicService {
 	 * @return
 	 * @throws SolrServerException
 	 */
-    public List<Map<String, String>> getAllTopMPLevelsByPhenotypingCenterAndColonies(String phenotypeResourceName) throws SolrServerException {
+    public List<Map<String, String>> getAllMPByPhenotypingCenterAndColonies(String phenotypeResourceName, String mpTermAcc, String mpTermName) throws SolrServerException {
 
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
                 .addFilterQuery(GenotypePhenotypeField.RESOURCE_NAME + ":"+phenotypeResourceName)
-                .setRows(0)
-                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
-                .addFacetPivotField( // needs at least 2 fields
-                		GenotypePhenotypeField.PHENOTYPING_CENTER + "," +
-                		GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + "," +
-                		GenotypePhenotypeField.TOP_LEVEL_MP_TERM_NAME + "," +                		
-                		GenotypePhenotypeField.COLONY_ID + "," +
-                		GenotypePhenotypeField.MARKER_SYMBOL + "," +
-                		GenotypePhenotypeField.MARKER_ACCESSION_ID
-                        );
+                .setRows(MAX_NB_DOCS)
+                .setFields(
+                		GenotypePhenotypeField.PHENOTYPING_CENTER+","+
+                		mpTermAcc+","+
+                		mpTermName+","+
+                		GenotypePhenotypeField.COLONY_ID+","+
+                		GenotypePhenotypeField.MARKER_SYMBOL+","+
+                		GenotypePhenotypeField.MARKER_ACCESSION_ID);
 
         QueryResponse response = solr.query(query);
+        SolrDocumentList results = response.getResults();
+        
+        List<Map<String, String>> lmap = new ArrayList<Map<String, String>>();
+        
+        for (SolrDocument doc : results) {
+        	
+        	String phenotypingCenter = (String) doc.getFieldValue(GenotypePhenotypeField.PHENOTYPING_CENTER);
+        	String colonyID = (String) doc.getFieldValue(GenotypePhenotypeField.COLONY_ID);
+        	String markerSymbol = (String) doc.getFieldValue(GenotypePhenotypeField.MARKER_SYMBOL);
+        	String markerAccession = (String) doc.getFieldValue(GenotypePhenotypeField.MARKER_ACCESSION_ID);
 
-        // keep count by level
-        return getFacetPivotResults(response, true);
+        	if (mpTermAcc.equals(GenotypePhenotypeField.MP_TERM_ID)) {
+        		
+        		Map<String, String> r = new HashMap<String, String>();
+            	r.put(GenotypePhenotypeField.PHENOTYPING_CENTER, phenotypingCenter);
+            	r.put(GenotypePhenotypeField.COLONY_ID, colonyID);
+            	r.put(GenotypePhenotypeField.MARKER_SYMBOL, markerSymbol);
+            	r.put(GenotypePhenotypeField.MARKER_ACCESSION_ID, markerAccession);
+        		r.put(mpTermAcc, (String) doc.getFieldValue(GenotypePhenotypeField.MP_TERM_ID));
+        		r.put(mpTermName, (String) doc.getFieldValue(GenotypePhenotypeField.MP_TERM_NAME));
+        		
+        		lmap.add(r);
+        		
+        	} else {
+        
+        	ArrayList<String> mpTermIds = (ArrayList<String>) doc.getFieldValue(mpTermAcc);
+        	ArrayList<String> mpTermNames = (ArrayList<String>) doc.getFieldValue(mpTermName);
+        	
+        	
+        	for (int i=0; i<mpTermIds.size();i++) {
+            	Map<String, String> r = new HashMap<String, String>();
+            	r.put(GenotypePhenotypeField.PHENOTYPING_CENTER, phenotypingCenter);
+            	r.put(GenotypePhenotypeField.COLONY_ID, colonyID);
+            	r.put(GenotypePhenotypeField.MARKER_SYMBOL, markerSymbol);
+            	r.put(GenotypePhenotypeField.MARKER_ACCESSION_ID, markerAccession);
+        		r.put(mpTermAcc, mpTermIds.get(i));
+        		r.put(mpTermName, mpTermNames.get(i));
+        		lmap.add(r);
+        	}
+        	}
+        }
+        
+        return lmap;
 
     }
     
 
-    public List<Map<String, String>> getAllIntermediateMPLevelsByPhenotypingCenterAndColonies(String phenotypeResourceName) throws SolrServerException {
-
-        SolrQuery query = new SolrQuery()
-                .setQuery("*:*")
-                .addFilterQuery(GenotypePhenotypeField.RESOURCE_NAME + ":"+phenotypeResourceName)
-                .setRows(0)
-                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
-                .addFacetPivotField( // needs at least 2 fields
-                		GenotypePhenotypeField.PHENOTYPING_CENTER + "," +
-                		GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID + "," +
-                		GenotypePhenotypeField.INTERMEDIATE_MP_TERM_NAME + "," +                		
-                		GenotypePhenotypeField.COLONY_ID + "," +
-                		GenotypePhenotypeField.MARKER_SYMBOL + "," +
-                		GenotypePhenotypeField.MARKER_ACCESSION_ID
-                        );
-
-        QueryResponse response = solr.query(query);
-
-        // keep count by level
-        return getFacetPivotResults(response, true);
-
-    }
-    
-    public List<Map<String, String>> getAllMPLeavesByPhenotypingCenterAndColonies(String phenotypeResourceName) throws SolrServerException {
-
-        SolrQuery query = new SolrQuery()
-                .setQuery("*:*")
-                .addFilterQuery(GenotypePhenotypeField.RESOURCE_NAME + ":"+phenotypeResourceName)
-                .setRows(0)
-                .setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
-                .addFacetPivotField( // needs at least 2 fields
-                		GenotypePhenotypeField.PHENOTYPING_CENTER + "," +
-                		GenotypePhenotypeField.MP_TERM_ID + "," +
-                		GenotypePhenotypeField.MP_TERM_NAME + "," +                		
-                		GenotypePhenotypeField.COLONY_ID + "," +
-                		GenotypePhenotypeField.MARKER_SYMBOL + "," +
-                		GenotypePhenotypeField.MARKER_ACCESSION_ID
-                        );
-
-        QueryResponse response = solr.query(query);
-
-        // keep count by level
-        return getFacetPivotResults(response, true);
-
-    }
+ 
     
 	public List<Group> getGenesBy(String phenotype_id, String sex)
 			throws SolrServerException {
@@ -213,7 +208,6 @@ public class GenotypePhenotypeService extends BasicService {
 		if (sex != null) {
 			q.addFilterQuery(GenotypePhenotypeField.SEX + ":" + sex);
 		}
-		System.out.println("++++++++++  " + solr.getBaseURL() + "/select?"+ q);
 		QueryResponse results = solr.query(q);
 		return results.getGroupResponse().getValues().get(0).getValues();
 	}

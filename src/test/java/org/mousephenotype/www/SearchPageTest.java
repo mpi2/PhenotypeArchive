@@ -40,6 +40,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.TestUtils;
@@ -205,6 +206,39 @@ public class SearchPageTest {
 
     }
 
+    
+    // PRIVATE METHODS
+    
+
+    private void specialStrQueryTest(String testName, String qry) throws Exception {
+        testCount++;
+        System.out.println();
+        System.out.println("----- " + testName + " -----");
+
+        successList.clear();
+        errorList.clear();
+
+        driver.get(baseUrl + "/search?q=" + qry);
+
+        //new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id("geneGrid_info")));
+        new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.id("geneGrid_info")));
+        String foundMsg = driver.findElement(By.cssSelector("span#resultCount a")).getText();
+        if ( foundMsg.isEmpty() ){
+            System.out.println("[FAILED] - queried " + qry);
+            sumErrorList.add("[FAILED] - queried " + qry);
+            fail("There were " + sumErrorList.size() + " errors.");
+        }
+        else {
+            System.out.println("[PASSED] - queried " + qry + ". Found " + foundMsg);
+            sumSuccessList.add("passed");
+        }
+        System.out.println();
+    }
+    
+    
+    // TESTS
+    
+    
     @Test
     //@Ignore
     public void autosuggestTest() throws Exception {
@@ -625,32 +659,46 @@ public class SearchPageTest {
             TestUtils.printEpilogue(testName, start, errorList, null, successList, paramList.size(), paramList.size());
             fail("There were " + sumErrorList.size() + " errors.");
         }
-
     }
 
-    public void specialStrQueryTest(String testName, String qry) throws Exception {
-        testCount++;
-        System.out.println();
-        System.out.println("----- " + testName + " -----");
-
+    /**
+     * Test for Jira bug MPII-806: from the search page, searching for the characters
+     * "fasting glu" should augosuggest 'fasting glucose'. Click on 'fasting glucose'
+     * and verify that the correct phenotype page appears.
+     * @throws Exception 
+     */
+    @Test
+    //@Ignore
+    public void testJiraMPII_806() throws Exception {
+        Date start = new Date();
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
         successList.clear();
         errorList.clear();
-
-        driver.get(baseUrl + "/search?q=" + qry);
-
-        //new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id("geneGrid_info")));
-        new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.id("geneGrid_info")));
-        String foundMsg = driver.findElement(By.cssSelector("span#resultCount a")).getText();
-        if ( foundMsg.isEmpty() ){
-            System.out.println("[FAILED] - queried " + qry);
-            sumErrorList.add("[FAILED] - queried " + qry);
-            fail("There were " + sumErrorList.size() + " errors.");
-        }
-        else {
-            System.out.println("[PASSED] - queried " + qry + ". Found " + foundMsg);
-            sumSuccessList.add("passed");
-        }
+        testCount++;
         System.out.println();
+        String testName = "testJiraMPII_806";
+        System.out.println("----- " + testName + " -----");
+
+         String queryStr = baseUrl + "/search";
+         driver.get(queryStr);
+         driver.navigate().refresh();
+         String characters = "fasting glu";
+         driver.findElement(By.cssSelector("input#s")).sendKeys(characters);
+         
+         // Wait for dropdown list to appear with 'blood glucose'.
+        String xpathSelector = "//ul[@id=\"ui-id-1\"]/li/a";
+        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpathSelector)));
+        if (element.getText().compareTo("fasting glucose") != 0) {
+            errorList.add("ERROR: Expected 'fasting glucose' but found '" + element.getText() + "'");
+        } else {
+            element.click();
+            element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='resultMsg']")));
+            if (element.getText().contains("Found") == false) {
+                errorList.add("ERROR: Expected 'Found xxx genes' message. Text = '" + element.getText() + "'");
+            }
+        }
+        
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
     }
 
 } 

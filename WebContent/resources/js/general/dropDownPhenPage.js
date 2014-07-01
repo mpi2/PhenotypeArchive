@@ -101,7 +101,9 @@ $(document).ready(function(){
 					sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>"; 
 			}
 			sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
-			var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");		
+			var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");			
+			var comment = document.createComment(url + '?' + $(form).serialize());
+			$('div#exportIconsDiv').append(comment);	
 			_doDataExport(url, form);
 //			console.log(sInputs);
 		});	 

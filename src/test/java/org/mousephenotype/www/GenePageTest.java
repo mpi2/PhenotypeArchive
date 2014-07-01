@@ -15,14 +15,12 @@
  */
 package org.mousephenotype.www;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
@@ -303,7 +301,7 @@ public class GenePageTest {
 
             message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
             successList.add(message);
-            try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+            TestUtils.sleep(thread_wait_in_ms);
         }
         
         TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());

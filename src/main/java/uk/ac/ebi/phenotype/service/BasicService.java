@@ -32,6 +32,9 @@ import org.slf4j.LoggerFactory;
 public class BasicService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BasicService.class);
+    
+	
+	protected static final int MAX_NB_DOCS = 1000000;
 	
     /**
      * Recursive method to fill a map with multiple combination of pivot fields.

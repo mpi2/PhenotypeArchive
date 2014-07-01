@@ -37,6 +37,7 @@ import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAOImpl;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.service.GenotypePhenotypeService.GenotypePhenotypeField;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -50,7 +51,7 @@ public class GenotypePhenotypeServiceTest {
          @Autowired
 	private PhenotypePipelineDAO pDAO;
 		
-	@Test
+	//@Test
 	public void testGetTopLevelMPTerms() throws MalformedURLException {
 		HashMap<String, String> summary;
 		
@@ -66,7 +67,7 @@ public class GenotypePhenotypeServiceTest {
 		}
 	}
 	
-	@Test
+	//@Test
 	public void testGetPhenotypesForTopLevelTerm() throws MalformedURLException, SolrServerException{
 		HashMap<String, String> summary;
 		summary = genotypePhenotypeService.getTopLevelMPTerms(testGene);	
@@ -83,7 +84,7 @@ public class GenotypePhenotypeServiceTest {
 		List<Map<String,String>> dataset = null;
 		String resource = "IMPC";
 		try {
-			dataset = genotypePhenotypeService.getAllTopMPLevelsByPhenotypingCenterAndColonies(resource);
+			dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeField.TOP_LEVEL_MP_TERM_NAME);
 			for (Map<String, String> map: dataset) {
 				for (String key: map.keySet()) {
 					System.out.println(key + ":" + map.get(key));
@@ -104,7 +105,7 @@ public class GenotypePhenotypeServiceTest {
 		List<Map<String,String>> dataset = null;
 		String resource = "IMPC";
 		try {
-			dataset = genotypePhenotypeService.getAllIntermediateMPLevelsByPhenotypingCenterAndColonies(resource);
+			dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID, GenotypePhenotypeField.INTERMEDIATE_MP_TERM_NAME);
 			for (Map<String, String> map: dataset) {
 				for (String key: map.keySet()) {
 					System.out.println(key + ":" + map.get(key));
@@ -126,7 +127,7 @@ public class GenotypePhenotypeServiceTest {
 		List<Map<String,String>> dataset = null;
 		String resource = "IMPC";
 		try {
-			dataset = genotypePhenotypeService.getAllMPLeavesByPhenotypingCenterAndColonies(resource);
+			dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource, GenotypePhenotypeField.MP_TERM_ID, GenotypePhenotypeField.MP_TERM_NAME);
 			for (Map<String, String> map: dataset) {
 				for (String key: map.keySet()) {
 					System.out.println(key + ":" + map.get(key));
