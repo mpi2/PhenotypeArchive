@@ -53,6 +53,7 @@
 		<constructor-arg  value="${internalSolrUrl}/experiment" />
 	</bean>
 	
+		
 	<bean id="unidimensionalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl">
  		<constructor-arg ref="sessionFactory" />
  	</bean>
@@ -204,4 +205,8 @@
 			</map>
 		</property>
 	</bean>
+	
+	
+	
+	<bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap"></bean>
 </beans>
