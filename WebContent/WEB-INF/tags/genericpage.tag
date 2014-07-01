@@ -75,7 +75,7 @@ See: http://stackoverflow.com/questions/1321878/how-to-prevent-favicon-ico-reque
 
 
 <script>
-console.log('runnning analytics');
+//console.log('runnning analytics');
 var baseUrl="${initParam['baseUrl']}";
 var ourGoogleToken='UA-23433997-1';
 /* code to change the tokens based on which we are on dev, beta or liveconsole.log('baseUrl='+baseUrl);
