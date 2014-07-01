@@ -186,7 +186,7 @@ public class FileExportController {
                 
                 row.add(dataValue);
 
-                rows.add(StringUtils.join(row, "\t"));
+                rows.add(StringUtils.join(row, ", "));
             }
             
             // Next experiment
