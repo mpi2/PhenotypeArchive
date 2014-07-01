@@ -174,8 +174,8 @@ public class FileExportController {
                 row.add(observation.getStrain());
                 row.add((observation.getObservationType().equals("control"))?"+/+":geneAcc);
                 row.add((observation.getObservationType().equals("control"))?"+/+":alleleAcc);
-                row.add(observation.getMetadataGroup().isEmpty()?"\"\"":observation.getMetadataGroup());
-                row.add(observation.getZygosity().isEmpty()?"\"\"":observation.getZygosity());
+                row.add((observation.getMetadataGroup()!=null && !observation.getMetadataGroup().isEmpty()) ? observation.getMetadataGroup():"\"\"");
+                row.add((observation.getZygosity() != null && !observation.getZygosity().isEmpty()) ? observation.getZygosity():"\"\"");
                 row.add(observation.getSex());
                 row.add(observation.getDateOfExperimentString());
                 
