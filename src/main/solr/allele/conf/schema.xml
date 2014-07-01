@@ -126,7 +126,8 @@
 	<field name="imits_phenotype_complete" type="string" indexed="true" stored="true" multiValued="false"/>
 	<field name="imits_phenotype_status" type="string" indexed="true" stored="true" multiValued="false"/>	
 	<field name="status" type="string" indexed="true" stored="true" multiValued="false"/>
-	<field name="latest_es_cell_status" type="string" indexed="true" stored="true" multiValued="false"/>	
+	<field name="latest_es_cell_status" type="string" indexed="true" stored="true" multiValued="false"/>
+	<field name="gene_latest_mouse_status" type="string" indexed="true" stored="true" multiValued="false"/>			
 	<field name="latest_mouse_status" type="string" indexed="true" stored="true" multiValued="false"/>	
 	<field name="latest_phenotype_status" type="string" indexed="true" stored="true" multiValued="false"/>	
 	<field name="latest_project_status" type="string" indexed="true" stored="true" multiValued="false"/>	
@@ -186,7 +187,8 @@
 	<copyField source="latest_production_centre" dest="auto_suggest"/>
 	<copyField source="latest_phenotyping_centre" dest="auto_suggest"/>
 	<copyField source="allele_name" dest="auto_suggest"/> 	
-
+	<copyField source="latest_mouse_status" dest="status"/> 
+	
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
 
  <solrQueryParser defaultOperator="OR"/>

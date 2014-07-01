@@ -34,6 +34,9 @@ public class ParameterToGeneMap {
 
 			maleParamToGene = observationService.getParameterToGeneMap(SexType.male);
 			femaleParamToGene = observationService.getParameterToGeneMap(SexType.female);
+
+			System.out.println("> Finished filling " + (maleParamToGene != null));
+			System.out.println("> Finished filling " + (femaleParamToGene != null));
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 			System.out.println("Error");
@@ -61,8 +64,10 @@ public class ParameterToGeneMap {
 		if (maleParamToGene == null || femaleParamToGene == null){
 			fillMaps(observationService);
 		}
+		System.out.println("\n\n\n" + femaleParamToGene.keySet());
 		if (sex == null || sex.equals(SexType.female) ){
 			for (String p : parameters){
+				System.out.println(">" + p);
 				res.addAll(femaleParamToGene.get(p));
 			}
 		}

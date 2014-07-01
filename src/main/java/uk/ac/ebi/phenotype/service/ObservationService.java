@@ -1317,19 +1317,30 @@ public class ObservationService extends BasicService {
 		System.out.println("in getParameterToGeneMap");
 		HashMap<String, ArrayList<String>> res = new HashMap<>();
 		SolrQuery q = new SolrQuery().setQuery(ExperimentField.SEX + ":" + sex.name()).setRows(1);
-		q.set("facet.pivot", ExperimentField.PARAMETER_STABLE_ID + "," + ExperimentField.GENE_ACCESSION);
+		q.set("facet.field", ExperimentField.PARAMETER_STABLE_ID);
 		q.set("facet", true);
+		q.set("facet.limit", -1); // we want all facets
 		QueryResponse response = solr.query(q);
 		System.out.println( " Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
-		NamedList<List<PivotField>> facets = response.getFacetPivot();
-		for (PivotField f : facets.get("parameter_stable_id,gene_accession_id")){
+		// get all parameters we have data for
+		System.out.println(response.getFacetFields() + "\n>> facet fields");
+		for ( FacetField parameter : response.getFacetFields()){
+			SolrQuery query = new SolrQuery().setQuery(ExperimentField.SEX + ":" + sex.name()).setRows(1);
+			query.setFilterQueries(ExperimentField.PARAMETER_STABLE_ID + ":" + parameter);
+			query.set("facet.field", ExperimentField.GENE_ACCESSION);
+			query.set("facet", true);
+			query.set("facet.limit", -1); // we want all facets
+			QueryResponse response2 = solr.query(query);
 			ArrayList<String> genes = new ArrayList<>();
-			for (PivotField pf : f.getPivot()){
-				genes.add(pf.getValue().toString());
+			for (PivotField gene : response2.getFacetPivot().get(ExperimentField.GENE_ACCESSION)){
+				genes.add(gene.getValue().toString());	
+				System.out.println(gene.getValue().toString());
 			}
-			res.put(f.getValue().toString(), genes);
-			System.out.println(f.getField() + "  " + f.getValue() + " - " + f.getCount() + f.getPivot());
+
+//			res.put(parameter.getValue().toString(), genes);
 		}
+		// for each parameter fill list of genes
+		
 //		System.out.println("--------" + response.getFacetPivot());
 		System.out.println("DONE");
 		return res;
