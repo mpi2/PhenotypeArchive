@@ -428,7 +428,13 @@ public class PhenotypesController {
 		// males & females	
 		nominator = gpService.getGenesBy(phenotype_id, null).size();
 		Long time = System.currentTimeMillis();
- 		total = os.getTestedGenes(null, parameters).size();
+ 		
+ 		Set<String> genesTotal1 = os.getTestedGenes(null, parameters);
+ 		Set<String> genesTotal2 = ptgm.getTestedGenesByParameterSex(parameters, null, os);
+ 		total = genesTotal2 .size();
+ 		genesTotal2.removeAll(genesTotal1);
+// 		System.out.println("\nLeft with " + genesTotal2.size() + "\n" + genesTotal2);
+ 		
 //		total = ptgm.getTestedGenesByParameterSex(parameters, null, os).size();
  		Long totalTime = System.currentTimeMillis() - time;
  		System.out.println("\tComputed tested genes in " + totalTime);
@@ -449,8 +455,8 @@ public class PhenotypesController {
 			}
 			nominator = genesFemalePhenotype.size();
 			time = System.currentTimeMillis();
-			total = os.getTestedGenes("female", parameters).size();
-//			total = ptgm.getTestedGenesByParameterSex(parameters, SexType.female, os).size();
+//			total = os.getTestedGenes("female", parameters).size();
+			total = ptgm.getTestedGenesByParameterSex(parameters, SexType.female, os).size();
 	 		System.out.println("\tComputed tested genes for females in " + (System.currentTimeMillis() - time));
 	 		totalTime +=  System.currentTimeMillis() - time;
 			pgs.setFemalePercentage(100*(float)nominator/(float)total);
@@ -463,8 +469,8 @@ public class PhenotypesController {
 			}
 			nominator = genesMalePhenotype.size();
 			time = System.currentTimeMillis();
-			total = os.getTestedGenes("male", parameters).size();
-//			total = ptgm.getTestedGenesByParameterSex(parameters, SexType.male, os).size();
+//			total = os.getTestedGenes("male", parameters).size();
+			total = ptgm.getTestedGenesByParameterSex(parameters, SexType.male, os).size();
 	 		System.out.println("\tComputed tested genes for males in " + (System.currentTimeMillis() - time));
 	 		totalTime +=  System.currentTimeMillis() - time;
 			pgs.setMalePercentage(100*(float)nominator/(float)total);
@@ -483,7 +489,8 @@ public class PhenotypesController {
 		pgs.setMaleOnlyNumber(genesMalePhenotype.size());
 		pgs.fillPieChartCode();
 		
-		System.out.println("\t\t\t >>  \t Total time for tested genes queries \n \t>> " + totalTime);
+		System.out.println("\tTotal time for tested genes queries: " + totalTime);
+//		System.out.println(">Parameters \n " + parameters);
 		
 		return pgs;
 	}
