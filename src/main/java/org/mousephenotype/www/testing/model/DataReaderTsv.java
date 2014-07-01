@@ -87,6 +87,15 @@ public class DataReaderTsv implements DataReader {
         return new ArrayList(Arrays.asList(sLine.split("\t")));
     }
     
+    /**
+     * Returns the data type
+     * @return the data type
+     */
+    @Override
+    public DataType getType() {
+        return DataType.TSV;
+    }
+    
     
     // GETTERS
     

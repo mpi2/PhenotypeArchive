@@ -74,7 +74,34 @@ See: http://stackoverflow.com/questions/1321878/how-to-prevent-favicon-ico-reque
 <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 
 
+<script>
+//console.log('runnning analytics');
+var baseUrl="${initParam['baseUrl']}";
+var ourGoogleToken='UA-23433997-1';
+/* code to change the tokens based on which we are on dev, beta or liveconsole.log('baseUrl='+baseUrl);
 
+if(baseUrl.indexOf("localhost") > -1){
+	console.log('is local');
+	ourGoogleToken='';
+}
+if(baseUrl.indexOf("dev") > -1){
+	console.log('is dev');
+}
+if(baseUrl.indexOf("beta") > -1){
+	console.log('is beta');
+}
+if(baseUrl.indexOf("www") > -1){
+	console.log('is live');
+} */
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+ (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ ga('create', 'UA-23433997-1', 'auto');
+ ga('send', 'pageview');
+
+</script>
 <!-- script type="text/javascript">
 var _gaq = _gaq || [];_gaq.push(["_setAccount", "${googleAnalytics}"]);_gaq.push(["_trackPageview"]);(function() {var ga = document.createElement("script");ga.type = "text/javascript";ga.async = true;ga.src = "${drupalBaseUrl}/sites/mousephenotype.org/files/googleanalytics/ga.js?mjafjk";var s = document.getElementsByTagName("script")[0];s.parentNode.insertBefore(ga, s);})();
 </script-->
