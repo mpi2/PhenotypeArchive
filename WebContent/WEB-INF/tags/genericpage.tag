@@ -75,7 +75,7 @@ See: http://stackoverflow.com/questions/1321878/how-to-prevent-favicon-ico-reque
 
 
 <script>
-console.log('runnning analytics');
+//console.log('runnning analytics');
 var baseUrl="${initParam['baseUrl']}";
 var ourGoogleToken='UA-23433997-1';
 /* code to change the tokens based on which we are on dev, beta or liveconsole.log('baseUrl='+baseUrl);
@@ -215,7 +215,7 @@ try {
 
 			<div id="vnavi">
 				<ul>
-					<li><a href="${drupalBaseUrl}/data/release">Release: <c:out value="1.0" escapeXml="false" /></a></li>
+					<li><a href="${drupalBaseUrl}/data/release">Release: <c:out value="1.1" escapeXml="false" /></a></li>
 					<li><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/">Ftp</a></li>
 					<li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/LICENSE">License</a></li>
 					<li><a href="http://raw.github.com/mpi2/PhenotypeArchive/master/CHANGES">Changelog</a></li>
