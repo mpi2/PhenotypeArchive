@@ -722,7 +722,7 @@ public class FileExportController {
 			}
 						
 			Collections.sort(phenotypes); // sort in alpha order by MP term name
-			res.add("Phenotype\tAllele\tZygosity\tSex\tProcedure / Parameter\tPhenotyping Center\tSource\tP Value\tGraph");
+			res.add("Phenotype\tAllele\tZygosity\tSex\tProcedure | Parameter\tPhenotyping Center\tSource\tP Value\tGraph");
 			for (PhenotypeRow pr : phenotypes){
 				res.add(pr.toTabbedString("gene"));
 			}		
@@ -746,7 +746,7 @@ public class FileExportController {
 			}
 	
 			ArrayList<PhenotypeRow> phenotypes = new ArrayList<PhenotypeRow>();
-			res.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure / Parameter\tPhenotyping Center\tSource\tP Value\tGraph"); 
+			res.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure | Parameter\tPhenotyping Center\tSource\tP Value\tGraph"); 
 			for (PhenotypeCallSummary pcs : phenotypeList) {
 	
 				// Use a tree set to maintain an alphabetical order (Female, Male)
