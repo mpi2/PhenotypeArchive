@@ -219,7 +219,7 @@ public class FileExportController {
 		@RequestParam(value="strains", required=false) String[] strains, // should be filled for graph data export
 		@RequestParam(value="geneSymbol", required=false) String geneSymbol,			
 		@RequestParam(value="solrCoreName", required=false) String solrCoreName,
-		@RequestParam(value="params", required=false) String solrParams,
+		@RequestParam(value="params", required=false) String solrFilters,
 		@RequestParam(value="gridFields", required=false) String gridFields,		
 		@RequestParam(value="showImgView", required=false, defaultValue="false") boolean showImgView,		
 		@RequestParam(value="dumpMode", required=false) String dumpMode,	
@@ -233,7 +233,7 @@ public class FileExportController {
 		Model model
 		) throws Exception{	
 		
-		log.debug("solr params: " + solrParams);
+		log.debug("solr params: " + solrFilters);
 		Workbook wb = null;
 		String dataString = null;
 		List<String> dataRows = new ArrayList<String> ();
@@ -269,13 +269,13 @@ public class FileExportController {
 			}
 			else if (solrCoreName.equalsIgnoreCase("genotype-phenotype")){
 				if (mgiGeneId !=null)
-					dataRows = composeDataRowGeneOrPhenPage(mgiGeneId[0], request.getParameter("page"));
+					dataRows = composeDataRowGeneOrPhenPage(mgiGeneId[0], request.getParameter("page"), solrFilters);
 				else if (mpId != null)
-					dataRows = composeDataRowGeneOrPhenPage(mpId, request.getParameter("page"));
+					dataRows = composeDataRowGeneOrPhenPage(mpId, request.getParameter("page"), solrFilters);
 			}
 			else{
-				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
-				dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);
+				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length);
+				dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrFilters, request);
 			}
 		}
 		
@@ -690,7 +690,7 @@ public class FileExportController {
 	}
 	
 
-	private List<String> composeDataRowGeneOrPhenPage(String id, String pageName){
+	private List<String> composeDataRowGeneOrPhenPage(String id, String pageName, String filters){
 		
 		List<String> res = new ArrayList<>();
 		List<PhenotypeCallSummary> phenotypeList = new ArrayList<PhenotypeCallSummary>();
@@ -699,7 +699,7 @@ public class FileExportController {
 		if (pageName.equalsIgnoreCase("gene")){
 			
 			try {	
-				phenoResult = phenoDAO.getPhenotypeCallByGeneAccessionAndFilter(id, "");
+				phenoResult = phenoDAO.getPhenotypeCallByGeneAccessionAndFilter(id, filters);
 				phenotypeList=phenoResult.getPhenotypeCallSummaries();
 			} catch (HibernateException|JSONException e) {
 				log.error("ERROR GETTING PHENOTYPE LIST");
@@ -734,7 +734,7 @@ public class FileExportController {
 			phenotypeList = new ArrayList<PhenotypeCallSummary>();
 
 			try {
-				phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(id.replaceAll("\"", ""), "");
+				phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(id.replaceAll("\"", ""), filters);
 				phenotypeList = phenoResult.getPhenotypeCallSummaries();
 			} catch (HibernateException|JSONException e) {
 				log.error("ERROR GETTING PHENOTYPE LIST");

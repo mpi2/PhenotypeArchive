@@ -147,10 +147,13 @@ $(document).ready(function(){
             var url = baseUrl + '/export';	 
             var sInputs = '';
             for ( var k in conf ){
-                    if (k === "params")
-                            sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + selectedFilters + "'>";	 
-                    else 
-                            sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>"; 
+                    if (k === "params"){
+                            sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + selectedFilters + "'>";
+                            alert("here " + selectedFilters);
+            		}
+                    else {
+                           sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";
+                    }
             }
             sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
             var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");
