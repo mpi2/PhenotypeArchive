@@ -359,6 +359,7 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 					+ getProcedure().getName() + " | " + getParameter().getName() + "\t" 
 					+ getPhenotypingCenter() + "\t" 
 					+ getDataSourceName() + "\t"
+					+ getPrValueAsString() + "\t"
 					+ getGraphUrl() + "\n";	
 		}else if (targetPage.equalsIgnoreCase("phenotype")){
 			res = getGene().getSymbol() + "\t" 
@@ -369,6 +370,7 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 					+ getProcedure().getName() + " | " + getParameter().getName() + "\t" 
 					+ getPhenotypingCenter() + "\t" 
 					+ getDataSourceName() + "\t"
+					+ getPrValueAsString() + "\t"
 					+ getGraphUrl() ;	
 		}
 		return res;
