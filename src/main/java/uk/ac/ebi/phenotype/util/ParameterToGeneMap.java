@@ -23,11 +23,15 @@ public class ParameterToGeneMap {
 	HashMap<String , ArrayList<String>> femaleParamToGene = null;
 
 
+	public ParameterToGeneMap(ObservationService os){
+		fillMaps(os);
+	}
+	
 	public ParameterToGeneMap(){
 	}
-
+	
 	public void fillMaps(ObservationService observationService){
-		System.out.println("initializing...");
+		System.out.println("Initializing ParameterToGeneMap. This will take a while...");
 		// for all parameters
 		try {
 			maleParamToGene = observationService.getParameterToGeneMap(SexType.male);
@@ -54,11 +58,8 @@ public class ParameterToGeneMap {
 		return femaleParamToGene;
 	}
 	
-	public Set<String> getTestedGenesByParameterSex( List<String> parameters, SexType sex, ObservationService observationService){
+	public Set<String> getTestedGenes( List<String> parameters, SexType sex){
 		HashSet<String> res = new HashSet<>();
-		if (maleParamToGene == null || femaleParamToGene == null){
-			fillMaps(observationService);
-		}
 		if (sex == null || sex.equals(SexType.female) ){
 			for (String p : parameters){
 				if (femaleParamToGene.containsKey(p)){
