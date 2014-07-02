@@ -206,7 +206,4 @@
 		</property>
 	</bean>
 	
-	
-	
-	<bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap"></bean>
 </beans>

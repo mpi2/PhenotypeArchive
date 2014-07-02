@@ -107,10 +107,7 @@ public class PhenotypesController {
 	
 	@Autowired
 	MpService mpService;
-	
-	@Autowired 
-	ParameterToGeneMap ptgm;
-	
+		
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 	
@@ -429,13 +426,9 @@ public class PhenotypesController {
 		nominator = gpService.getGenesBy(phenotype_id, null).size();
 		Long time = System.currentTimeMillis();
  		
- 		Set<String> genesTotal1 = os.getTestedGenes(null, parameters);
- 		Set<String> genesTotal2 = ptgm.getTestedGenesByParameterSex(parameters, null, os);
- 		total = genesTotal2 .size();
- 		genesTotal2.removeAll(genesTotal1);
-// 		System.out.println("\nLeft with " + genesTotal2.size() + "\n" + genesTotal2);
- 		
-//		total = ptgm.getTestedGenesByParameterSex(parameters, null, os).size();
+
+// 		total = os.getTestedGenes(null, parameters).size();
+		total = os.getTestedGenesByParameterSex(parameters, null).size();
  		Long totalTime = System.currentTimeMillis() - time;
  		System.out.println("\tComputed tested genes in " + totalTime);
  		pgs.setTotalPercentage(100*(float)nominator/(float)total);
@@ -456,7 +449,7 @@ public class PhenotypesController {
 			nominator = genesFemalePhenotype.size();
 			time = System.currentTimeMillis();
 //			total = os.getTestedGenes("female", parameters).size();
-			total = ptgm.getTestedGenesByParameterSex(parameters, SexType.female, os).size();
+			total = os.getTestedGenesByParameterSex(parameters, SexType.female).size();
 	 		System.out.println("\tComputed tested genes for females in " + (System.currentTimeMillis() - time));
 	 		totalTime +=  System.currentTimeMillis() - time;
 			pgs.setFemalePercentage(100*(float)nominator/(float)total);
@@ -470,7 +463,7 @@ public class PhenotypesController {
 			nominator = genesMalePhenotype.size();
 			time = System.currentTimeMillis();
 //			total = os.getTestedGenes("male", parameters).size();
-			total = ptgm.getTestedGenesByParameterSex(parameters, SexType.male, os).size();
+			total = os.getTestedGenesByParameterSex(parameters, SexType.male).size();
 	 		System.out.println("\tComputed tested genes for males in " + (System.currentTimeMillis() - time));
 	 		totalTime +=  System.currentTimeMillis() - time;
 			pgs.setMalePercentage(100*(float)nominator/(float)total);

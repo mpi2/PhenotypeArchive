@@ -66,6 +66,7 @@ import uk.ac.ebi.phenotype.stats.ObservationDTO;
 import uk.ac.ebi.phenotype.stats.StackedBarsData;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalDataObject;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
+import uk.ac.ebi.phenotype.util.ParameterToGeneMap;
 
 @Service
 public class ObservationService extends BasicService {
@@ -120,14 +121,18 @@ public class ObservationService extends BasicService {
     }
 
     private final HttpSolrServer solr;
+    
+    private ParameterToGeneMap ptgm;
 
     public ObservationService() {
         String solrURL = "http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment"; //default
         solr = new HttpSolrServer(solrURL);
+        ptgm = new ParameterToGeneMap(this);
     }
 
     public ObservationService(String solrUrl) {
         solr = new HttpSolrServer(solrUrl);
+        ptgm = new ParameterToGeneMap(this);
     }
 
     
@@ -1314,7 +1319,6 @@ public class ObservationService extends BasicService {
 	
 	
 	public HashMap<String, ArrayList<String>> getParameterToGeneMap(SexType sex) throws SolrServerException{
-		System.out.println("in getParameterToGeneMap");
 		HashMap<String, ArrayList<String>> res = new HashMap<>();
 		SolrQuery q = new SolrQuery().setQuery(ExperimentField.SEX + ":" + sex.name()).setRows(1);
 		q.setFilterQueries(ExperimentField.STRAIN + ":\"MGI:2159965\" OR " + ExperimentField.STRAIN + ":\"MGI:2164831\"");
@@ -1325,7 +1329,6 @@ public class ObservationService extends BasicService {
 		System.out.println( " Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
 		// get all parameters we have data for
 		for ( Count parameter : response.getFacetField(ExperimentField.PARAMETER_STABLE_ID).getValues()){
-			System.out.println("\t\tparameter: " + parameter.getName() + "  " + parameter.getCount());
 			if (parameter.getCount() > 0){
 				SolrQuery query = new SolrQuery().setQuery(ExperimentField.SEX + ":" + sex.name()).setRows(1);
 				query.setFilterQueries(ExperimentField.PARAMETER_STABLE_ID + ":" + parameter.getName());
@@ -1521,4 +1524,8 @@ public class ObservationService extends BasicService {
 		return results;
 	}
 
+	public Set<String> getTestedGenesByParameterSex(List<String> parameters, SexType sex){
+		return ptgm.getTestedGenes(parameters, sex);
+	}
+	
 }
