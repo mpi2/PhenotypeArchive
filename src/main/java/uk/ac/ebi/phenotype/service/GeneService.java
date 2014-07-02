@@ -326,6 +326,103 @@ public class GeneService {
 		res.put("orderPossible", order.toString());
 		return res;
 	}
+	
+//	private Map<String, String> getStatusFromDoc(SolrDocument doc) {
+//		String miceStatus = "";
+//		String esCellStatus = "";
+//		String phenStatus = "";
+//		Boolean order = false;
+//
+//		try {
+//
+//			/* ******** phenotype status ******** */
+//			phenStatus = derivePhenotypingStatus(doc).equals("") ? ""
+//					: "<a class='status done' title='Scroll down for phenotype associations.'><span>phenotype data available</span></a>";
+//
+//			/* ******** mice production status ******** */
+//			String patternStr = "(tm.*)\\(.+\\).+"; // allele name pattern
+//			Pattern pattern = Pattern.compile(patternStr);
+//
+//			// Mice: blue tm1/tm1a/tm1e... mice (depending on how many allele
+//			// docs)
+//			if (doc.containsKey("mouse_status")) {
+//
+//				ArrayList<String> alleleNames = (ArrayList<String>) doc
+//						.getFieldValue("allele_name");
+//				ArrayList<String> mouseStatus = (ArrayList<String>) doc
+//						.getFieldValue("mouse_status");
+//
+//				for (int i = 0; i < mouseStatus.size(); i++) {
+//					String mouseStatusStr = mouseStatus.get(i).toString();
+//
+//					if (mouseStatusStr.equals("Mice Produced")) {
+//						String alleleName = alleleNames.get(i).toString();
+//						Matcher matcher = pattern.matcher(alleleName);
+//						if (matcher.find()) {
+//							String alleleType = matcher.group(1);
+//							miceStatus += "<span class='status done' title='"
+//									+ mouseStatusStr + "' >"
+//									+ "	<span>Mice<br>" + alleleType
+//									+ "</span>" + "</span>";
+//						}
+//						order = true;
+//					} else if (mouseStatusStr
+//							.equals("Assigned for Mouse Production and Phenotyping")) {
+//						String alleleName = alleleNames.get(i).toString();
+//						Matcher matcher = pattern.matcher(alleleName);
+//						if (matcher.find()) {
+//							String alleleType = matcher.group(1);
+//							miceStatus += "<span class='status inprogress' title='Mice production in progress' >"
+//									+ "	<span>Mice<br>"
+//									+ alleleType
+//									+ "</span>" + "</span>";
+//						}
+//					}
+//				}
+//				// if no mice status found but there is already allele produced,
+//				// mark it as "mice produced planned"
+//				for (int j = 0; j < alleleNames.size(); j++) {
+//					String alleleName = alleleNames.get(j).toString();
+//					if (!alleleName.equals("") && !alleleName.equals("None")
+//							&& mouseStatus.get(j).toString().equals("")) {
+//						Matcher matcher = pattern.matcher(alleleName);
+//						if (matcher.find()) {
+//							String alleleType = matcher.group(1);
+//							miceStatus += "<span class='status none' title='Mice production planned' >"
+//									+ "	<span>Mice<br>"
+//									+ alleleType
+//									+ "</span>" + "</span>";
+//						}
+//					}
+//				}
+//
+//			}
+//
+//			/* ******** ES cell production status ******** */
+//			String field = "latest_es_cell_status";
+//			if (doc.containsKey(field)) {
+//				// blue es cell status
+//				String text = doc.getFirstValue(field).toString();
+//				if (text.equals("ES Cell Targeting Confirmed")) {
+//					esCellStatus = "<a class='status done' href='' title='ES Cells produced' >"
+//							+ " <span>ES cells</span>" + "</a>";
+//					order = true;
+//				} else if (text.equals("ES Cell Production in Progress")) {
+//					esCellStatus = "<span class='status inprogress' title='ES cells production in progress' >"
+//							+ "	<span>ES Cell</span>" + "</span>";
+//				}
+//
+//			}
+//
+//		} catch (Exception e) {
+//			log.error("Error getting ES cell/Mice status");
+//			log.error(e.getLocalizedMessage());
+//		}
+//		HashMap<String, String> res = new HashMap<>();
+//		res.put("icons", esCellStatus + miceStatus + phenStatus);
+//		res.put("orderPossible", order.toString());
+//		return res;
+//	}
 
 	public Boolean checkPhenotypeStarted(String geneAcc) {
 
