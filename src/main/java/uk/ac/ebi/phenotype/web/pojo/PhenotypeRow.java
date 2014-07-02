@@ -360,7 +360,7 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 					+ getPhenotypingCenter() + "\t" 
 					+ getDataSourceName() + "\t"
 					+ getPrValueAsString() + "\t"
-					+ getGraphUrl() + "\n";	
+					+ getGraphUrl();	
 		}else if (targetPage.equalsIgnoreCase("phenotype")){
 			res = getGene().getSymbol() + "\t" 
 					+ getAllele().getSymbol() + "\t" 
@@ -371,7 +371,7 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 					+ getPhenotypingCenter() + "\t" 
 					+ getDataSourceName() + "\t"
 					+ getPrValueAsString() + "\t"
-					+ getGraphUrl() ;	
+					+ getGraphUrl();	
 		}
 		return res;
 	}
