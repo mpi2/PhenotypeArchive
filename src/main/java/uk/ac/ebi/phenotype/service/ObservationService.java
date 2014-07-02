@@ -125,9 +125,7 @@ public class ObservationService extends BasicService {
     private ParameterToGeneMap ptgm;
 
     public ObservationService() {
-        String solrURL = "http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment"; //default
-        solr = new HttpSolrServer(solrURL);
-        ptgm = new ParameterToGeneMap(this);
+        this("http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment"); //default
     }
 
     public ObservationService(String solrUrl) {
