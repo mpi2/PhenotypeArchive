@@ -66,8 +66,10 @@ public class DataReaderTsv implements DataReader {
      */
     @Override
     public void close() throws IOException {
-        bufferedReader.close();
-        bufferedReader = null;
+        if (bufferedReader != null) {
+            bufferedReader.close();
+            bufferedReader = null;
+        }
     }
     
     /**

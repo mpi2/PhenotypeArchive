@@ -41,7 +41,6 @@ import org.mousephenotype.www.testing.model.DataReaderTsv;
 import org.mousephenotype.www.testing.model.DataReaderXls;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
@@ -81,7 +80,6 @@ public class DataExportTest {
     
     @Autowired
     protected GenotypePhenotypeService genotypePhenotypeService;
-    
 
     @Autowired
     protected String baseUrl;
@@ -102,6 +100,8 @@ public class DataExportTest {
     private int thread_wait_in_ms = THREAD_WAIT_IN_MILLISECONDS;
 
     private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+    
+    private final int PHENOTYPE_TABLE_COLUMN_COUNT = 9;
     
     @Before
     public void setup() {
@@ -162,6 +162,14 @@ public class DataExportTest {
             for (int colIndex = 0; colIndex < pageData[rowIndex].length; colIndex++) {
                 String pageCell = pageData[rowIndex][colIndex];
                 String downloadCell = downloadData[rowIndex][colIndex];
+                if ((pageCell == null) && (downloadCell == null))
+                    continue;                                                   // both values are null (and equal).
+                if ((pageCell == null) || (downloadCell == null)) {
+                    colErrors = new String[] { "[" + rowIndex + "][" + colIndex + "]", (pageCell == null ? "<null>" : pageCell), (downloadCell == null ? "<null>" : downloadCell) };
+                    rowErrors.add(colErrors);
+                    errorCount++;
+                    continue;
+                }
                 if (pageCell.compareTo(downloadCell) != 0) {
                     colErrors = new String[] { "[" + rowIndex + "][" + colIndex + "]", pageCell, downloadCell };
                     rowErrors.add(colErrors);
@@ -190,7 +198,7 @@ public class DataExportTest {
      * Returns <code>maxRows</code> rows of data from the stream created by 
      * invoking <code>target</code>. Supported stream formats are defined in
      * the public enum <code>DataReader.DataType</code>.
-     * @param wait valid <code>WebDriverWait</code> instance
+     * 
      * @param target target url that points to the desired gene page
      * @param maxRows the maximum number of phenotype table rows to return, including
      * any headings.
@@ -228,6 +236,40 @@ public class DataExportTest {
         
         return data;
     }
+    
+    /**
+     * Returns the number of lines in the stream identified by <code>target</code>,
+     * including headings.
+     * 
+     * @param target target url that points to the desired gene page
+     * @return the number of lines in the stream identified by <code>target</code>,
+     * including headings.
+     */
+    private int getDownloadDataLineCount(String target) {
+        int lineCount = 0;
+        DataReader dataReader = null;
+        try {
+            URL url = new URL(target);
+            dataReader = DataReaderFactory.create(url);
+            dataReader.open();
+            List<String> line;
+            
+            while ((line = dataReader.getLine()) != null) {
+                lineCount++;
+            }
+        } catch (IOException e) {
+            System.out.println("EXCEPTION: " + e.getLocalizedMessage());
+        } finally {
+            try {
+                if (dataReader != null)
+                    dataReader.close();
+            } catch (IOException e) {
+                System.out.println("EXCEPTION: " + e.getLocalizedMessage());
+            }
+        }
+        
+        return lineCount;
+    }
 
     /**
      * Pulls <code>maxRows</code> rows of data from the gene page's 'phenotypes'
@@ -241,12 +283,12 @@ public class DataExportTest {
      * @throws NoSuchElementException
      * @throws TimeoutException 
      */
-    private String[][] getGenePageData(WebDriverWait wait, String target, int maxRows) /*throws NoSuchElementException, TimeoutException*/ {
+    private String[][] getGenePageData(WebDriverWait wait, String target, int maxRows) {
         String[][] data = new String[maxRows][9];
         
         // Load and wait for page.
         driver.get(target);
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='exportIconsDiv'][@data-exporturl]")));
         List<WebElement> rowElements;
         for (int rowIndex = 0; rowIndex < maxRows; rowIndex++) {
             if (rowIndex == 0) {
@@ -255,13 +297,65 @@ public class DataExportTest {
                 rowElements = driver.findElements(By.xpath("//table[@id='phenotypes']/tbody/tr/*"));
             }
             
-            for (int colIndex = 0; colIndex < rowElements.size(); colIndex++) {
+            for (int colIndex = 0; colIndex < PHENOTYPE_TABLE_COLUMN_COUNT; colIndex++) {
+                if (colIndex >= rowElements.size()) {
+                    throw new RuntimeException("EXCEPTION: Expected " + PHENOTYPE_TABLE_COLUMN_COUNT + " columns but found " + colIndex + 1
+                                               + ". URL: " + target);
+                }
+                
                 WebElement e = rowElements.get(colIndex);
                 data[rowIndex][colIndex] = e.getText();
             }
         }
         
         return data;
+    }
+    
+    /**
+     * Returns the number of record counts in error (either 0 or 1).
+     * NOTE: tsv files contain a single-line heading and an extra blank line
+     * after every non-heading line, neither of which is included in the results
+     * count.
+     * 
+     * @param wait A valid <code>WebDriverWait</code> instance
+     * @param genePageTarget the gene page url
+     * @param downloadTargetTsv the target tsv url
+     * @return the number of record counts in error (either 0 or 1).
+     */
+    private int tsvRecordCountsInError(WebDriverWait wait, String genePageTarget, String downloadTargetTsv) {
+        int errorCount = 0;
+        int resultsCount = TestUtils.getGenePhenotypeResultsCount(wait);
+        resultsCount = (resultsCount * 2) + 1;                                  // Add a line for the heading and one for every non-heading line.
+        int downloadDataLineCount = getDownloadDataLineCount(downloadTargetTsv);
+        if (resultsCount != downloadDataLineCount) {
+            errorCount++;
+            System.out.println("ERROR: gene page result count (" + resultsCount + ") is not equal to TSV download data line count (" + downloadDataLineCount + ").\n URL: " + genePageTarget);
+        }
+        
+        return errorCount;
+    }
+    
+    /**
+     * Returns the number of record counts in error (either 0 or 1).
+     * NOTE: xls files contain a single-line heading, which is not contained in
+     * the results count.
+     * 
+     * @param wait A valid <code>WebDriverWait</code> instance
+     * @param genePageTarget the gene page url
+     * @param downloadTargetXls the target xls url
+     * @return the number of record counts in error (either 0 or 1).
+     */
+    private int xlsRecordCountsInError(WebDriverWait wait, String genePageTarget, String downloadTargetXls) {
+        int errorCount = 0;
+        int resultsCount = TestUtils.getGenePhenotypeResultsCount(wait);
+        resultsCount++;                                                         // Add 1 for the heading.
+        int downloadDataLineCount = getDownloadDataLineCount(downloadTargetXls);
+        if (resultsCount != downloadDataLineCount) {
+            errorCount++;
+            System.out.println("ERROR: gene page result count (" + resultsCount + ") is not equal to TSV download data line count (" + downloadDataLineCount + ").\n URL: " + genePageTarget);
+        }
+        
+        return errorCount;
     }
     
     
@@ -426,18 +520,18 @@ target = "http://dev.mousephenotype.org/data/export?mpId=%22MP%3A0005266%22&exte
     }
     
     @Test
-    public void testGeneDownloads() {
+    public void testGeneDownloads() throws SolrServerException {
         String testName = "testGeneDownloads";
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
-        List<String> geneIds = new ArrayList();
+        List<String> geneIds = new ArrayList(genotypePhenotypeService.getAllGenesWithPhenotypeAssociations());
         String genePageTarget = "";
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
         List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
+        int errorCount = 0;
         
-geneIds.add("MGI:1921354");
         int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
         
@@ -445,12 +539,6 @@ geneIds.add("MGI:1921354");
         int i = 0;
         WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
         
-        
-        
-        
-        
-        
-        int errorCount = 0;
         for (String geneId : geneIds) {
             if (i >= targetCount) {
                 break;
@@ -458,38 +546,27 @@ geneIds.add("MGI:1921354");
             i++;
             
             genePageTarget = baseUrl + "/genes/" + geneId;
-System.out.println("gene[" + i + "] URL: " + genePageTarget);
+            System.out.println("gene[" + i + "] URL: " + genePageTarget);
 
             String[][] pageData = getGenePageData(wait, genePageTarget, 2);
-            
-            
-            
-            
-            
-            
-//	if (driver instanceof JavascriptExecutor) {
-//		((JavascriptExecutor) driver).executeScript("hello();");
-//		((JavascriptExecutor) driver).executeScript("return geneId;");
-//	}
-        
-        
-        
-        
-        
-        
-String downloadTarget = "http://dev.mousephenotype.org/data/export?mpId=%22MP%3A0005266%22&externalDbId=3&fileName=gene_variants_with_phen_MP_0005266&solrCoreName=genotype-phenotype&dumpMode=all&baseUrl=http%3A%2F%2Fdev.mousephenotype.org%2Fdata%2Fphenotypes%2FMP%3A0005266&page=phenotype&gridFields=marker_symbol%2Callele_symbol%2Czygosity%2Csex%2Cprocedure_name%2Cresource_name%2Cphenotyping_center%2Cparameter_stable_id%2Cmp_term_name%2Cmarker_accession_id%2C+parameter_name&params=qf%3Dauto_suggest%26defType%3Dedismax%26wt%3Djson%26rows%3D100000%26q%3D*%3A*%26fq%3D(mp_term_id%3A%22MP%3A0005266%22%2BOR%2Btop_level_mp_term_id%3A%22MP%3A0005266%22)&fileType=tsv&_=1403882094799";
-            String[][] downloadData = getDownloadData(downloadTarget, 2);
-            errorCount += compareLineToTable(pageData, downloadData, errorList, genePageTarget, downloadTarget);
 
-downloadTarget = "http://dev.mousephenotype.org/data/export?mpId=%22MP%3A0005266%22&externalDbId=3&fileName=gene_variants_with_phen_MP_0005266&solrCoreName=genotype-phenotype&dumpMode=all&baseUrl=http%3A%2F%2Fdev.mousephenotype.org%2Fdata%2Fphenotypes%2FMP%3A0005266&page=phenotype&gridFields=marker_symbol%2Callele_symbol%2Czygosity%2Csex%2Cprocedure_name%2Cresource_name%2Cphenotyping_center%2Cparameter_stable_id%2Cmp_term_name%2Cmarker_accession_id%2C+parameter_name&params=qf%3Dauto_suggest%26defType%3Dedismax%26wt%3Djson%26rows%3D100000%26q%3D*%3A*%26fq%3D(mp_term_id%3A%22MP%3A0005266%22%2BOR%2Btop_level_mp_term_id%3A%22MP%3A0005266%22)&fileType=xls&_=1403882094801 ";
-            downloadData = getDownloadData(downloadTarget, 2);
-            errorCount += compareLineToTable(pageData, downloadData, errorList, genePageTarget, downloadTarget);
+            String dataExportUrl = driver.findElement(By.xpath("//div[@id='exportIconsDiv']")).getAttribute("data-exporturl");
+        
+            List<String> localErrorList = new ArrayList();
+            String downloadTargetTsv = baseUrl.replace("/data", "") + dataExportUrl + "tsv";
+            String[][] downloadData = getDownloadData(downloadTargetTsv, 2);
+            errorCount += compareLineToTable(pageData, downloadData, localErrorList, genePageTarget, downloadTargetTsv);
+            errorCount += tsvRecordCountsInError(wait, genePageTarget, downloadTargetTsv);
             
-            if (errorList.isEmpty()) {
+            String downloadTargetXls = baseUrl.replace("/data", "") + dataExportUrl + "xls";
+            downloadData = getDownloadData(downloadTargetXls, 2);
+            errorCount += compareLineToTable(pageData, downloadData, localErrorList, genePageTarget, downloadTargetXls);
+            errorCount += xlsRecordCountsInError(wait, genePageTarget, downloadTargetXls);
+            
+            if (errorCount == 0) {
                 message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + genePageTarget;
                 successList.add(message);
             } else {
-                errorList.clear();
                 errorList.add("ERROR: gene id " + geneId + ": mismatch between gene page and download.");
             }
             

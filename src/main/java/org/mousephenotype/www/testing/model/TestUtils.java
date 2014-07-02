@@ -31,9 +31,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.util.Utils;
@@ -58,6 +61,23 @@ public class TestUtils {
     
     @Resource(name="testIterationsHash")
     Map<String, String> testIterationsHash;
+    
+    /**
+     * Given that the current page is the gene page with phenotype mappings (i.e.
+     * there is an html table with id='phenotypes'), returns the number
+     * the 'Total number of results:' string; e.g., given the string
+     * 'Total number of results: 34', returns the number 34. Returns 0 if there
+     * is no number or no such formatted string.
+     * @param wait A valid <code>WebDriverWait</code> instance
+     * @return phenotype table results count if found; 0 otherwise
+     */
+    public static int getGenePhenotypeResultsCount(WebDriverWait wait) {
+        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']")));
+        
+        String s = element.getText().replace("Total number of results: ", "");
+        Integer i = Utils.tryParseInt(s);
+        return (i == null ? 0 : i);
+    }
     
     /**
      * Return target count prioritized as follows:
