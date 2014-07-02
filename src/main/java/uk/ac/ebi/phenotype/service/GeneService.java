@@ -441,7 +441,7 @@ public class GeneService {
 					ArrayList<String> statuses = (ArrayList<String>) doc
 							.getFieldValue("phenotype_status");
 					for (String status : statuses) {
-						if (status.equalsIgnoreCase("Phenotyping Started")) {
+						if (status.equalsIgnoreCase("Phenotyping Started") || status.equalsIgnoreCase("Phenotyping Complete")) {
 							return true;
 						}
 					}

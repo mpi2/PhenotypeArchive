@@ -1317,27 +1317,32 @@ public class ObservationService extends BasicService {
 		System.out.println("in getParameterToGeneMap");
 		HashMap<String, ArrayList<String>> res = new HashMap<>();
 		SolrQuery q = new SolrQuery().setQuery(ExperimentField.SEX + ":" + sex.name()).setRows(1);
+		q.setFilterQueries(ExperimentField.STRAIN + ":\"MGI:2159965\" OR " + ExperimentField.STRAIN + ":\"MGI:2164831\"");
 		q.set("facet.field", ExperimentField.PARAMETER_STABLE_ID);
 		q.set("facet", true);
 		q.set("facet.limit", -1); // we want all facets
 		QueryResponse response = solr.query(q);
 		System.out.println( " Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
 		// get all parameters we have data for
-		System.out.println(response.getFacetFields() + "\n>> facet fields");
-		for ( FacetField parameter : response.getFacetFields()){
-			SolrQuery query = new SolrQuery().setQuery(ExperimentField.SEX + ":" + sex.name()).setRows(1);
-			query.setFilterQueries(ExperimentField.PARAMETER_STABLE_ID + ":" + parameter);
-			query.set("facet.field", ExperimentField.GENE_ACCESSION);
-			query.set("facet", true);
-			query.set("facet.limit", -1); // we want all facets
-			QueryResponse response2 = solr.query(query);
-			ArrayList<String> genes = new ArrayList<>();
-			for (PivotField gene : response2.getFacetPivot().get(ExperimentField.GENE_ACCESSION)){
-				genes.add(gene.getValue().toString());	
-				System.out.println(gene.getValue().toString());
+		for ( Count parameter : response.getFacetField(ExperimentField.PARAMETER_STABLE_ID).getValues()){
+			System.out.println("\t\tparameter: " + parameter.getName() + "  " + parameter.getCount());
+			if (parameter.getCount() > 0){
+				SolrQuery query = new SolrQuery().setQuery(ExperimentField.SEX + ":" + sex.name()).setRows(1);
+				query.setFilterQueries(ExperimentField.PARAMETER_STABLE_ID + ":" + parameter.getName());
+				query.setFilterQueries(ExperimentField.STRAIN + ":\"MGI:2159965\" OR " + ExperimentField.STRAIN + ":\"MGI:2164831\"");
+				query.set("facet.field", ExperimentField.GENE_ACCESSION);
+				query.set("facet", true);
+				query.set("facet.limit", -1); // we want all facets
+				QueryResponse response2 = solr.query(query);
+				ArrayList<String> genes = new ArrayList<>();
+				for (Count gene : response2.getFacetField(ExperimentField.GENE_ACCESSION).getValues()){
+					if (gene.getCount()>0){
+						genes.add(gene.getName());
+					}
+				}
+	
+				res.put(parameter.getName(), genes);
 			}
-
-//			res.put(parameter.getValue().toString(), genes);
 		}
 		// for each parameter fill list of genes
 		
@@ -1364,7 +1369,7 @@ public class ObservationService extends BasicService {
 			
 			SolrQuery q = new SolrQuery().setQuery(query)
 					.addField(ExperimentField.GENE_ACCESSION)
-					.setFilterQueries(ExperimentField.STRAIN + ":\"MGI:2159965\" OR " + ExperimentField.STRAIN + ":\"MGI:2164831\"").setRows(10000);
+					.setFilterQueries(ExperimentField.STRAIN + ":\"MGI:2159965\" OR " + ExperimentField.STRAIN + ":\"MGI:2164831\"").setRows(-1);
 			q.set("group.field", ExperimentField.GENE_ACCESSION);
 			q.set("group", true);
 			if (sex != null) {

@@ -154,7 +154,7 @@ public class FileExportController {
         List<ExperimentDTO> experiments = experimentService.getExperimentDTO(parameter.getId(), pipeline.getId(), geneAcc, sex, centerId, zygosities, strainAccession, null, Boolean.FALSE, alleleAcc);
         
         List<String> rows = new ArrayList<>();
-        rows.add(StringUtils.join(new String[] { "Experiment", "Center", "Pipeline", "Procedure", "Parameter", "Strain", "Gene", "Allele", "MetadataGroup", "Zygosity", "Sex", "AssayDate", "Value" }, "\t"));
+        rows.add(StringUtils.join(new String[] { "Experiment", "Center", "Pipeline", "Procedure", "Parameter", "Strain", "Colony", "Gene", "Allele", "MetadataGroup", "Zygosity", "Sex", "AssayDate", "Value" }, ", "));
         
         Integer i=1;
         
@@ -172,10 +172,11 @@ public class FileExportController {
                 row.add(procedureStableId);
                 row.add(parameterStableId);
                 row.add(observation.getStrain());
-                row.add((observation.getObservationType().equals("control"))?"+/+":geneAcc);
-                row.add((observation.getObservationType().equals("control"))?"+/+":alleleAcc);
-                row.add(observation.getMetadataGroup());
-                row.add(observation.getZygosity());
+                row.add((observation.getGroup().equals("control"))?"+/+":observation.getColonyId());
+                row.add((observation.getGroup().equals("control"))?"\"\"":geneAcc);
+                row.add((observation.getGroup().equals("control"))?"\"\"":alleleAcc);
+                row.add((observation.getMetadataGroup()!=null && !observation.getMetadataGroup().isEmpty()) ? observation.getMetadataGroup():"\"\"");
+                row.add((observation.getZygosity() != null && !observation.getZygosity().isEmpty()) ? observation.getZygosity():"\"\"");
                 row.add(observation.getSex());
                 row.add(observation.getDateOfExperimentString());
                 
@@ -186,7 +187,7 @@ public class FileExportController {
                 
                 row.add(dataValue);
 
-                rows.add(StringUtils.join(row, "\t"));
+                rows.add(StringUtils.join(row, ", "));
             }
             
             // Next experiment
