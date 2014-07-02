@@ -17,8 +17,19 @@
 			}
 		
 		
-			if ( row.get('imits_es_cell_status') ){									
-				es_cell_status = row.get('imits_es_cell_status').toString();					
+			if ( row.get('imits_es_cell_status') || row.get('gene_latest_es_cell_status') ){	
+				es_cell_status = null;	
+				field = null;
+				
+				if ( row.get('imits_es_cell_status') ){
+					es_cell_status = row.get('imits_es_cell_status').toString();
+					field = 'es_cell_status';	
+				}
+				else if ( row.get('gene_latest_es_cell_status') ){
+					es_cell_status = row.get('gene_latest_es_cell_status').toString();
+					field = 'latest_es_cell_status';
+				}					
+												
 				if ( es_cell_status == "No ES Cell Production" ){
 					es_cell_status = "Not Assigned for ES Cell Production";
 				}
@@ -29,7 +40,7 @@
 					es_cell_status = "ES Cells Produced";
 				}
 							
-				row.put('es_cell_status', es_cell_status);
+				row.put(field, es_cell_status);
 			}
 			if ( row.get('imits_mouse_status') || row.get('gene_latest_mouse_status') ){
 			
@@ -102,8 +113,8 @@
 				
 			</entity>
 			<!-- latest es cells/mice/phenotyping/ status and centers info at gene level -->
-			<field column="latest_es_cell_status" xpath="/response/result/doc/str[@name='latest_es_cell_status']" />
-			
+			<field column="gene_latest_es_cell_status" xpath="/response/result/doc/str[@name='latest_es_cell_status']" />
+			<field column="latest_es_cell_status" name="latest_es_cell_status" />
 			
 			<!-- imits info at gene level for phenotyping faceting -->						
 			<field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='latest_phenotype_started']" />
