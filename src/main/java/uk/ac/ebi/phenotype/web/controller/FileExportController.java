@@ -721,7 +721,7 @@ public class FileExportController {
 				phenotypes.add(pr);
 			}
 						
-			Collections.sort(phenotypes); // sort in alpha order by MP term name
+//			Collections.sort(phenotypes); // sort in alpha order by MP term name
 			res.add("Phenotype\tAllele\tZygosity\tSex\tProcedure | Parameter\tPhenotyping Center\tSource\tP Value\tGraph");
 			for (PhenotypeRow pr : phenotypes){
 				res.add(pr.toTabbedString("gene"));
@@ -761,7 +761,7 @@ public class FileExportController {
 			}
 
 
-			Collections.sort(phenotypes); // sort in alpha order by gene symbol name
+//			Collections.sort(phenotypes); // sort in alpha order by gene symbol name
 			for (PhenotypeRow pr : phenotypes){
 				res.add(pr.toTabbedString("phenotype"));
 			}
