@@ -149,7 +149,6 @@ $(document).ready(function(){
             for ( var k in conf ){
                     if (k === "params"){
                             sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + selectedFilters + "'>";
-                            alert("here " + selectedFilters);
             		}
                     else {
                            sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";
