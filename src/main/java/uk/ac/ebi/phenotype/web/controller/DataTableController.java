@@ -208,8 +208,19 @@ public class DataTableController {
 			// phenotyping status			
 			//String phenoStatus = solrIndex.deriveLatestPhenotypingStatus(doc).equals("") ? "" : "<a class='status done'><span>phenotype data available</span></a>";
 			String mgiId = doc.getString("mgi_accession_id");			
-			String geneLink = request.getAttribute("baseUrl") + "/genes/" + mgiId;		
-			String phenoStatus = solrIndex.deriveLatestPhenotypingStatus(doc).equals("NA") ? "" : "<a class='status done' href='" + geneLink + "'><span>phenotype data available</span></a>";
+			String geneLink = request.getAttribute("baseUrl") + "/genes/" + mgiId;	
+			
+			String phenoStatus = null;
+			if ( solrIndex.deriveLatestPhenotypingStatus(doc).equals("NA") ){
+				phenoStatus = "";
+			}
+			else if ( solrIndex.deriveLatestPhenotypingStatus(doc).equals("QC") ){
+				phenoStatus = "<a class='status qc' href='" + geneLink + "'><span>pre-QC data available</span></a>";
+			}
+			else {
+				phenoStatus = "<a class='status done' href='" + geneLink + "'><span>phenotype data available</span></a>";
+			}
+			
 			rowData.add(phenoStatus);
 			
 			// register of interest

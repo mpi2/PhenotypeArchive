@@ -16,41 +16,6 @@
 	        return row;
         }*/
 		
-		// mapping for es cell/mouse/phenotyping statuses
-		function status_mapping(row){
-			if ( row.get('imits_es_cell_status') ){									
-				es_cell_status = row.get('imits_es_cell_status').toString();					
-				if ( es_cell_status == "No ES Cell Production" ){
-					es_cell_status = "Not Assigned for ES Cell Production";
-				}
-				else if ( es_cell_status == "ES Cell Production in Progress" ){
-					es_cell_status = "Assigned for ES Cell Production";
-				}
-				else if ( es_cell_status == "ES Cell Targeting Confirmed" ){
-					es_cell_status = "ES Cells Produced";
-				}
-							
-				row.put('es_cell_status', es_cell_status);
-			}
-			if ( row.get('imits_mouse_status') ){
-				mouse_status = row.get('imits_mouse_status').toString();				
-				if ( mouse_status == "Chimeras obtained" 
-					|| mouse_status == "Micro-injection in progress"
-					|| mouse_status == "Cre Excision Started" 
-					|| mouse_status == "Rederivation Complete"
-					|| mouse_status == "Rederivatlatestion Started" ){
-					mouse_status = "Assigned for Mouse Production and Phenotyping"; // orange 
-				}
-				else if (mouse_status == "Genotype confirmed"
-					|| mouse_status == "Cre Excision Complete" 
-					|| mouse_status == "Phenotype Attempt Registered" ){
-					mouse_status = "Mice Produced"; // blue
-				}				
-				row.put('mouse_status', mouse_status);
-			}			
-			
-	   		return row; 
-		}
 
     ]]></script>
 	
@@ -88,7 +53,7 @@
 				<field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='imits_phenotype_complete']" />
 				<field column="imits_phenotype_status"   xpath="/response/result/doc/str[@name='imits_phenotype_status']" />
 
-				<!-- mouse status -->
+				<!-- mouse status -->				
 				<field column="latest_mouse_status" xpath="/response/result/doc/str[@name='latest_mouse_status']" />
 				<field column="latest_project_status" xpath="/response/result/doc/str[@name='latest_project_status']" />
 				<field column="status" xpath="/response/result/doc/str[@name='status']" /> <!-- status name from Bill Skarnes and used at EBI -->	

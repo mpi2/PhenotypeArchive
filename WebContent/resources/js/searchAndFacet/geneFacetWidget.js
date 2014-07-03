@@ -63,7 +63,7 @@
 				'fq': fq,
 				'rows': 0, // override default
 				'facet': 'on',								
-				'facet.mincount': 1,
+				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
 				'facet.sort': 'count',						
 				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);	
@@ -148,15 +148,16 @@
 					var phenotypingStatusFq = MPI2.searchAndFacetConfig.phenotypingStatuses[aPhenos[i]].fq;
 					var phenotypingStatusVal = MPI2.searchAndFacetConfig.phenotypingStatuses[aPhenos[i]].val; 
 					var count = pheno_count[aPhenos[i]];
-									
+					var isGrayout = count == 0 ? 'grayout' : '';
+					
 					if ( count !== undefined ){
 						
 						var liContainer = $("<li></li>").attr({'class':'fcat phenotyping'});
 						
 						var coreField = 'gene|'+ phenotypingStatusFq + '|';						
 						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + phenotypingStatusVal + '|' + count + '|phenotyping'});
-						var flabel = $('<span></span>').attr({'class':'flabel'}).text(aPhenos[i]);
-						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
+						var flabel = $('<span></span>').attr({'class':'flabel ' + isGrayout}).text(aPhenos[i]);
+						var fcount = $('<span></span>').attr({'class':'fcount ' + isGrayout}).text(count);
 						
 						liContainer.append(chkbox, flabel, fcount);						
 						phenoUlContainer.append(liContainer);
@@ -184,6 +185,7 @@
 				for ( var i=0; i<MPI2.searchAndFacetConfig.geneStatuses.length; i++ ){
 					var status = MPI2.searchAndFacetConfig.geneStatuses[i];
 					var count = status_count[MPI2.searchAndFacetConfig.geneStatuses[i]];					
+					var isGrayout = count == 0 ? 'grayout' : '';
 					
 					if ( count !== undefined ){
 						var liContainer = $("<li></li>").attr({'class':'fcat production'});
@@ -192,8 +194,8 @@
 						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + status + '|' + count + '|production'});
 						
 						liContainer.append(chkbox);
-						liContainer.append($('<span class="flabel">' +status + '</span>'));
-						liContainer.append($('<span class="fcount">' + count + '</span>'));
+						liContainer.append($('<span class="flabel ' + isGrayout + '">' +status + '</span>'));
+						liContainer.append($('<span class="fcount ' + isGrayout + '">' + count + '</span>'));
 						prodUlContainer.append(liContainer);
 						
 					}									
@@ -219,14 +221,16 @@
 		    		for ( var i=0; i<center_facets.length; i+=2 ){ 
 						var center = center_facets[i];
 						var count = center_facets[i+1];
+						
 						if ( center != '' ){ // skip solr field which value is an empty string
 							var liContainer = $("<li></li>").attr({'class':'fcat '+ centers[c].facet});
 							var coreField = 'gene|'+centers[c].facet+'|';
 							var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + center + '|' + count + '|'+centers[c].facet});
+							var isGrayout = count == 0 ? 'grayout' : '';
 							
 							liContainer.append(chkbox);
-							liContainer.append($('<span class="flabel">' + center + '</span>'));
-							liContainer.append($('<span class="fcount">' + count + '</span>'));
+							liContainer.append($('<span class="flabel ' + isGrayout + '">' + center + '</span>'));
+							liContainer.append($('<span class="fcount ' + isGrayout + '">' + count + '</span>'));
 							centerUlContainer.append(liContainer);		
 						}
 		    		}  
@@ -249,7 +253,10 @@
 					var type = mkr_facets[i];
 					
 					var count = mkr_facets[i+1];	
-					var coreField = 'gene|marker_type|';						
+					var coreField = 'gene|marker_type|';	
+					var isGrayout = count == 0 ? 'grayout' : '';
+					liContainer.addClass(isGrayout);
+					
 					var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + type + '|' + count + '|marker_type'});					
 					var flabel = $('<span></span>').attr({'class':'flabel'}).text(type);
 					var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
@@ -272,13 +279,20 @@
 	    		$('div.flist li#gene > ul').append(subTypeSect);
 	    			    			    		
 	    		var selectorBase = "div.flist li#gene";
+	    		
+	    		// subfacet opening/closing behavior
 	    		// collapse all subfacet first, then open the first one that has matches 
 				$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');	    		
 	    		$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
-	    			    		
+	    		
+	    		// change cursor for grayout filter
+    			$.fn.cursorUpdate('gene', 'not-allowed');
+    							
+	    		
 	    		$.fn.initFacetToggles('gene');
 	    		
-	    		$('li#gene li.fcat input').click(function(){	    			
+	    		$('li#gene li.fcat input').click(function(){
+	    			
 	    			// // highlight the item in facet	    			
 	    			$(this).siblings('span.flabel').addClass('highlight');
 					$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);

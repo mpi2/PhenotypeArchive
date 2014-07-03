@@ -62,7 +62,7 @@
 				'fq': fq,
 				'rows': 0, // override default
 				'facet': 'on',								
-				'facet.mincount': 1,
+				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
 				'facet.sort': 'index',						
 				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
@@ -101,6 +101,7 @@
 	    			
 		        		var procedureChkboxLblCnt = {};		        		
 		        		
+
 		        		for ( var f=0; f<prFacets.length; f+=2 ){ 		        			        			
 		        			var aVals = prFacets[f].split('___');
 		        			var pipeName = aVals[0];
@@ -130,6 +131,7 @@
 									procedureChkboxLblCnt[pipeName][procedure_name].flabel = flabel;
 									procedureChkboxLblCnt[pipeName][procedure_name].fcount = 0;
 									procedureChkboxLblCnt[pipeName][procedure_name].pipeClass = pipeClass;
+									
 								}
 								procedureChkboxLblCnt[pipeName][procedure_name].fcount += count;								
 		        			}	
@@ -139,12 +141,19 @@
 		        			for ( var procedure_name in procedureChkboxLblCnt[pipeline] ){
 		        				var pipeClass = procedureChkboxLblCnt[pipeline][procedure_name].pipeClass;
 		        				
+		    	    			//$.fn.cursorUpdate(self.options.data.hashParams.widgetName, 'pointer');
+		    	    			
+		        				var isGrayout = procedureChkboxLblCnt[pipeline][procedure_name].fcount == 0 ? 'grayout' : '';
+		        				
 		        				var liContainer = $("<li></li>").attr({'class':'fcat ' + pipeClass});
+		        				liContainer.addClass(isGrayout);
+		        				
 		        				var chkbox = procedureChkboxLblCnt[pipeline][procedure_name].chkbox;
 		        				var flabel = procedureChkboxLblCnt[pipeline][procedure_name].flabel;
+		        				
 		        				var fcount = $('<span></span>').attr({'class':'fcount'}).text(
 		        					procedureChkboxLblCnt[pipeline][procedure_name].fcount);
-		        				
+		        						        				
 		        				if ( pipeline != 'IMPC Pipeline' ){		        					
 			        				liContainer.append(chkbox, flabel, fcount);			        				
 			        			}
@@ -165,10 +174,14 @@
 
 	    			// IMPC pipeline is open and rest of pipeline subfacets are collapsed by default    			
 	    			$('div.flist li#pipeline > ul li:nth-child(1)').addClass('open');	    		
-	    				    			
+	    				
+	    			// change cursor for grayout filter
+	    			$.fn.cursorUpdate('pipeline', 'not-allowed');
+	    			
 	    			$.fn.initFacetToggles('pipeline');	    			
 	    			
-		    		$('li#pipeline li.fcat input').click(function(){	    			
+		    		$('li#pipeline li.fcat input').click(function(){	
+		    			
 		    			// // highlight the item in facet	    			
 		    			$(this).siblings('span.flabel').addClass('highlight');
 						$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);

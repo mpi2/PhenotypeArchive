@@ -50,7 +50,7 @@
 				'fq': fq,
 				'rows': 0, // override default
 				'facet': 'on',								
-				'facet.mincount': 1,
+				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
 				'facet.field': facetField,
 				//'facet.field': 'annotatedHigherLevelMpTermName',
@@ -75,24 +75,32 @@
 	    	    		if ( aTopLevelCount[i] == 'mammalian phenotype'){
 	    	    			continue;
 	    	    		}
-	    	    		var liContainer = $("<li></li>").attr({'class':'fcat'});
-	        				        		
-	        			var count = aTopLevelCount[i+1];						
+	        		
+	        			var count = aTopLevelCount[i+1];	
+	        			var isGrayout = count == 0 ? 'grayout' : '';
+	        			
+	        			var liContainer = $("<li></li>").attr({'class':'fcat ' + isGrayout});
+	        			
 	        			//var coreField = 'mp|annotatedHigherLevelMpTermName|' + aTopLevelCount[i] + '|' + count;
 	        			var coreField = 'mp|' + facetField + '|' + aTopLevelCount[i] + '|' + count;
 						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});
-							    	    		
+							    	    
 	    	    		var flabel = $('<span></span>').attr({'class':'flabel'}).text(aTopLevelCount[i].replace(' phenotype', ''));
 						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 						liContainer.append(chkbox, flabel, fcount);
+						
 						mpUlContainer.append(liContainer);
 	    	    	}    		    	    	
 	    	    		    			 
 	    			// update all subfacet counts of this facet 
-	        		$('div.flist li#mp > ul').append(mpUlContainer);  
+	        		$('div.flist li#mp > ul').append(mpUlContainer); 
+	        		
+	        		$.fn.cursorUpdate('mp', 'not-allowed');
+	        		
 	        		$.fn.initFacetToggles('mp');
 	        		
 	        		$('li#mp li.fcat input').click(function(){	
+	        			
 	        			// // highlight the item in facet	    			
 	        			$(this).siblings('span.flabel').addClass('highlight');
 	    				$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
