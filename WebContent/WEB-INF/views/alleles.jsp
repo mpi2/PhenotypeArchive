@@ -7,6 +7,7 @@
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search?q=*:*&core=gene">Genes</a> &raquo; ${gene.symbol}</jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="gene-node no-sidebars small-header"></jsp:attribute>
 	<jsp:attribute name="addToFooter">
+
 	<!--  start of floating menu for genes page -->
 	<div class="region region-pinnedzzz">
 
@@ -36,6 +37,7 @@
         </div>
 
     </div>
+
 	<!--  end of floating menu for genes page -->
 
 	<c:if test="${phenotypeStarted}">
@@ -114,6 +116,7 @@
 
     </script>   -->
 
+
 	</jsp:attribute>
 
 
@@ -157,11 +160,12 @@
 
 
 
+<c:if test="${not empty summary}">
 
 <div class="section">
     <div class="inner">
     <h3>Summary</h3>
-    <div style="font-size: 115%; font-weight: bold;">
+    <div style="font-size: 150%; font-weight: bold;">
         <p>${summary['allele_description']}</p>
         <c:if test="${not empty summary['statuses']}">
 
@@ -173,17 +177,18 @@
 
                   <td>
 <div style="font-size: 115%; font-weight: bold;">
+
             <c:if test="${not empty status['ORDER']}">
               <a class="btn btn-lg" href="${status['ORDER']}"> <i class="fa fa-shopping-cart"></i> ORDER </a>
-            </c:if>
-            <c:if test="${not empty status['DETAILS']}">
-              <a class="btn btn-lg" href="${status['DETAILS']}"> <i class="fa  fa-info "></i> DETAILS </a>
             </c:if>
             <c:if test="${not empty status['CONTACT']}">
               <!-- TODO: turn orange-->
               <a class="btn btn-lg" href="${status['CONTACT']}"> <i class="fa  fa-envelope"></i> CONTACT </a>
             </c:if>
-</div>
+            <c:if test="${not empty status['DETAILS']}">
+              <a class="btn btn-lg" href="${status['DETAILS']}"> <i class="fa  fa-info "></i> DETAILS </a>
+            </c:if>
+<!--</div>-->
           </td>
 
 <!--                  <td>${status['TEXT2']}</td>-->
@@ -202,15 +207,10 @@
 
 
 
-
-
-
-
-
-
 	<div class="section">
 		<div class="inner">
 			<h3>Allele Maps</h3>
+
 
         <div id="image">
             <img src="${summary['map_image']}" width="930px">
@@ -222,7 +222,9 @@
 
 
 
+
         <table style="font-size: 120%; ">
+
             <tr>
             <td>
                 <span>
@@ -239,6 +241,7 @@
 
 
 
+
             <td>
                 <c:if test="${not empty summary['southern_tool']}">
                     <a class="btn" href="${summary['southern_tool']}"> <i class="fa fa-info"></i> Southern Tool </a>
@@ -246,6 +249,7 @@
             </td>
 
             <td>
+
                 <c:if test="${not empty summary['lrpcr_genotyping_primers']}">
                     <a class="btn" href="${summary['lrpcr_genotyping_primers']}"> <i class="fa fa-info"></i> LRPCR Genotyping Primers </a>
                 </c:if>
@@ -266,6 +270,7 @@
     </c:forEach>
 </c:if>
 </div>
+
             </td>
 
             </tr>
@@ -300,13 +305,7 @@
 
 		</div>
 	</div>
-
-
-
-
-
-
-
+                </div>
 
 
                  <style>
@@ -391,7 +390,7 @@
             <table id="mouse_table">
             <thead>
             <tr>
-                <th>Genetic background</th>
+                <th>Genetic Background</th>
                 <th>Production Centre</th>
                 <th>ES Cell</th>
                 <th>QC Data</th>
@@ -475,7 +474,7 @@
         <th>ES Cell Clone</th>
         <th>Targeting Vector</th>
         <th>QC  Data</th>
-        <th>ES Cell strain / parental cell line</th>
+        <th>ES Cell strain / Parental Cell Line</th>
         <th>Order</th>
       </tr>
     </thead>
@@ -510,12 +509,14 @@
 
         <td>${es_cell['es_cell_clone']}</td>
         <td>${es_cell['targeting_vector']}</td>
+
         <td><a class="hasTooltip" href="${baseUrl}/qc_data/${es_cell['allele_type']}/es_cell/${es_cell['es_cell_clone']}">QC data</a>
             <div class="hidden">
                 <div class="qcData" data-type="es_cell" data-name="${es_cell['es_cell_clone']}" data-alleletype="${es_cell['allele_type']}"></div>
             </div>
         </td>
         <td>${es_cell['es_cell_strain']} / ${es_cell['parental_cell_line']}</td>
+
 
                 <td>
                     <c:forEach var="order" items="${es_cell['orders']}" varStatus="ordersx">
@@ -565,6 +566,7 @@
         <th>Cassette</th>
         <th>Backbone</th>
         <th>Genbank File</th>
+        <th>Allele Image</th>
         <th>Order</th>
 
       </tr>
