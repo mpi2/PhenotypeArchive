@@ -452,7 +452,7 @@ public class SolrIndex {
 	
 			// for legacy data: indexed through experiment core (so not want Sanger Gene or Allele cores)
 			if (doc.containsKey("hasQc")) {				
-				return "QCed data available";			
+				return "QC";			
 			}
 		}		
 		catch (Exception e) {
