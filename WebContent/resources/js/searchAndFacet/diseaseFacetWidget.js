@@ -64,7 +64,7 @@
 				'rows': 0, // override default
 				'type': 'disease',
 				'facet': 'on',								
-				'facet.mincount': 1,
+				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
 				'facet.sort': 'count',						
 				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
@@ -128,10 +128,14 @@
 		    			var diseaseFq = fq;
 		    			var coreField = 'disease|'+ diseaseFq + '|';		
 		    			var trClass = fq+'Tr';
+		    			var isGrayout = count == 0 ? 'grayout' : '';
+		    			liContainer.addClass(isGrayout);
+		    			
 						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + subFacetName + '|' + count + '|' +fq});						
 						var flabel = $('<span></span>').attr({'class':'flabel'}).text(subFacetName);
 						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 						
+	    	   
 						if ( subFacetName != 'unclassified' ){							
 							liContainer.append(chkbox, flabel, fcount);
 						}
@@ -172,6 +176,10 @@
 			    			var dPositive = aData[i];
 			    			if ( dPositive == 'true' ){
 				    			var count = aData[i+1];
+				    			var isGrayout = count == 0 ? 'grayout' : '';
+				    			
+				    			liContainer.addClass(isGrayout);
+				    			
 				    			foundMatch[assoc]++;
 				    			
 				    			var diseaseFq = fq;
@@ -188,18 +196,26 @@
 
 	    			}	
 	    		}	    		    		
-	    		   			
+	    		
+	    		// no actions allowed when facet count is zero
+    			$.fn.cursorUpdate('disease', 'not-allowed');
+    			
     			// disease_source is open and rest of disease subfacets are collapsed by default    			
     			$('div.flist li#disease > ul li:nth-child(1)').addClass('open');    			  						
 	    		
     			var selectorBase = "div.flist li#disease";
 	    		// collapse all subfacet first, then open the first one that has matches 
 				$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');	    		
-	    		$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
+	    		
+				// change cursor for grayout filter
+    			$.fn.cursorUpdate('disease', 'not-allowed');
+    							
+				$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
     			
     			$.fn.initFacetToggles('disease');
 	    			    			    		
-	    		$('li#disease li.fcat input').click(function(){	    			
+	    		$('li#disease li.fcat input').click(function(){	 
+	    			
 	    			// // highlight the item in facet	    			
 	    			$(this).siblings('span.flabel').addClass('highlight');
 					$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);

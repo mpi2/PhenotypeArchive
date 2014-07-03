@@ -62,6 +62,9 @@ div#facetSrchMsg {
 .grayout {
 	color: #CCCCCC;
 }
+li.fcat.grayout, li.fcat input.grayout {
+	cursor: not-allowed;
+}
 
 /* facet - categories */
 li.fcat                                 { margin: 0; font-size: 0.9em; line-height: 1.3em; }
@@ -221,6 +224,7 @@ span.status.done {
 	padding: 0.1em 0.4em;
 	cursor: default !important;
 }
+a.status.qc, span.status.qc        { background: gray !important; }
 
 /* Table Headings */
 th span.main                        { white-space:nowrap; }

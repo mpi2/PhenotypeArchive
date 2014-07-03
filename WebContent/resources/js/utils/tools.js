@@ -104,7 +104,8 @@
 	$.fn.initFacetToggles = function(facet){			
 		
 		// toggle Main Categories
-		/*$('div.flist li#' + facet + ' > .flabel').click(function() {			
+		/*$('div.flist li#' + facet + ' > .flabel').click(function() {	
+			alert('1');
 			if ($(this).parent('.fmcat').hasClass('open')) {
 				$(this).parent('.fmcat').removeClass('open');
 			} 
@@ -112,9 +113,10 @@
 				$('.fmcat').removeClass('open');
 				$(this).parent('.fmcat').addClass('open');
 			}
-		});*/
-		
-		$('div.flist li#' + facet).click(function() {			
+		});
+		*/
+		$('div.flist li#' + facet).click(function() {
+			//alert('2');
 			if ($(this).hasClass('open')) {
 				$(this).removeClass('open');
 			} 
@@ -123,9 +125,11 @@
 				$(this).addClass('open');
 			}
 		});
+			
 		
 		// kick start itself (when initialized as above) if not yet
 		if ( ! $('div.flist li#' + facet).hasClass('open') ){
+			//alert('3');
 			$('div.flist li#' + facet + ' > .flabel').click();
 		}		
 		
@@ -137,8 +141,13 @@
 		
 		
 		
-		$('div.flist li#' + facet).find('li.fcatsection:not(.inactive)').click(function(e) { 
-		//$('div.flist li#' + facet).find('li.fcatsection').click(function(e) { 	
+		//$('div.flist li#' + facet).find('li.fcatsection:not(.inactive)').click(function(e) { 
+			//alert('4');
+			//alert($('div.flist li#' + facet).find('li.fcatsection').attr('class'));
+		$('div.flist li#' + facet).find('li.fcatsection').click(function(e) { 	
+			//alert('4');
+			//alert($('div.flist li#' + facet).find('li.fcatsection').attr('class'));
+			//alert(MPI2.searchAndFacetConfig.filterChange);
 			// when subfacet opens, tick checkbox facet filter if there is matching summary facet filter (created from url on page load)
 			if ($('ul#facetFilter li.'+ facet + ' li.ftag').size() != 0  ){
 				$('ul#facetFilter li.ftag a').each(function(){
@@ -153,15 +162,30 @@
 				});	
 			}
 			
-			e.stopPropagation();			
-			$(this).toggleClass('open'); 
+			e.stopPropagation();	
+			if ( MPI2.searchAndFacetConfig.filterChange ){
+				MPI2.searchAndFacetConfig.filterChange = false; // reset, as this is used as a checkpoint for opening/closing a subfacet
+			}
+			else {
+				$(this).toggleClass('open'); 
+			}
 
 		});
 		
-		// make categories clickable (not only the parseUrl_constructFilters_loadDataTablecheckbox itself)
-		$('div.flist li#' + facet).find('li.fcat .flabel').click(function() {				
-			$(this).prev('input').trigger('click');
-		});			
+		// make filter li clickable
+		$('div.flist li#' + facet).find('li.fcat .flabel').click(function() {	
+			if ( $(this).next('span.fcount').text() == 0 ){
+				return false;
+			}
+			else {
+				$(this).prev('input').trigger('click');
+			}
+		});		
+		
+		// stop facet count from bubbling up
+		$('div.flist li#' + facet).find('li.fcat .fcount').click(function(e) {
+			e.stopPropagation();	
+		});
 	};
 	
 	$.fn.widgetExpand = function(thisWidget){
@@ -274,7 +298,7 @@
 				// remove grayout for other subfacet(s) with match
 				$(selectorBase + ' li.fcatsection.' + sub).removeClass('grayout');
 			}
-		}		
+		}	
 	}
 	
 	
@@ -283,7 +307,7 @@
 		for ( var i=0; i<aFacetFields.length; i++){
 			facetFieldsStr += '&facet.field=' + aFacetFields[i];
 		}
-		return facetFieldsStr + "&facet=on&facet.limit=-1&facet.mincount=1&rows=0";
+		return facetFieldsStr + "&facet=on&facet.limit=-1&rows=0";
 	}
 	$.fn.fetchFecetFieldsObj = function(aFacetFields, oParams){		
 		var facetFields = [];
@@ -292,13 +316,23 @@
 		}
 		oParams.facet='on';
 		oParams['facet.limit']=-1;
-		oParams['facet.mincount']=1;
+		//oParams['facet.mincount']=1;  // also want zero ones
 		oParams['facet.field'] = facetFields.join(',');
 		return oParams;
 	}
 	
-	function FacetCountsUpdater(oConf){	
+	$.fn.cursorUpdate = function(core, mode){
 		
+		//console.log('core: '+ core + ' mode: ' + mode);
+		var sClass = mode == 'pointer' ? ' li.fcat' : ' li.fcat.grayout';
+		//console.log('selector: '+ ' li#' + core + sClass + ' input')
+		$('div.flist li#' + core + sClass).css('cursor', mode);
+		
+		var state = mode == 'pointer' ? false : true;
+		$('div.flist li#' + core + sClass + ' input').prop('disabled', state).css('cursor', mode);
+	}
+	
+	function FacetCountsUpdater(oConf){	
 		
 		var facet       = oConf.facet;
 		var fqStr       = oConf.fqStr;
@@ -346,8 +380,11 @@
 		    				_facetRefresh(json, selectorBase);				
 		    				
 		    				// collapse all subfacet first, then open the first one that has matches 
-		    				$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');
-		    								
+		    				//$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');
+		    					
+		    				// restore cursor behavior
+							$.fn.cursorUpdate(facet, 'pointer');
+							
 		    				var foundMatch = {'phenotyping':0, 'production':0, 'latest_production_centre':0, 'latest_phenotyping_centre':0, 'marker_type':0};
 		    				
 		    				for (var n=0; n<aFields.length; n++){					
@@ -360,6 +397,9 @@
 		    					for (var i=0; i<oFacets[fld].length; i=i+2){
 		    						
 		    						var subFacetName = oFacets[fld][i];
+		    						var facetCount = oFacets[fld][i+1];
+		    						var isGrayout = facetCount == 0 ? 'grayout' : '';
+		    						
 		    						
 		    						if ( subFacetName != ''){ // skip solr field which value is an empty string
 		    							var className = oFields[fld]['class'];
@@ -367,7 +407,9 @@
 		    							if ( className != 'phenotyping' ){
 		    								$(selectorBase + ' li.' + className + ' span.flabel').each(function(){							
 		    									if ( $(this).text() == subFacetName ){
-		    										$(this).siblings('span.fcount').text(oFacets[fld][i+1]);
+		    										
+		    										$(this).parent().remove('grayout').addClass(isGrayout);
+		    										$(this).siblings('span.fcount').text(facetCount);
 		    									}
 		    								});
 		    							}	
@@ -396,8 +438,10 @@
 	    			    	    				subFacetName == 'Phenotyping Complete' ){
 	    			    	    				
 	    			    	    				$(selectorBase + ' li.fcat.' + className + ' span.flabel').each(function(){
+	    			    	    					
 	    			    	    					if (subFacetName == MPI2.searchAndFacetConfig.phenotypingStatuses[$(this).text()].val){
-	    			    	    						$(this).siblings('span.fcount').text(oFacets[fld][i+1]);
+	    			    	    						$(this).parent().remove('grayout').addClass(isGrayout);
+	    			    	    						$(this).siblings('span.fcount').text(facetCount);
 	    			    	    					}
 		    									});
 	    			    	    			}
@@ -406,8 +450,8 @@
 		    					}
 		    				}
 		    				
-	
-		    				$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);				
+		    				$.fn.cursorUpdate(facet, 'not-allowed');	
+		    				//$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);				
 		        		}
 		            });
 		    		
@@ -440,18 +484,24 @@
 			    			var selectorBase = "div.flist li#mp";
 							_facetRefresh(json, selectorBase); 
 							
+							// restore cursor behavior
+							$.fn.cursorUpdate(facet, 'pointer');
+							
 			    			for (var i=0; i<oFacets[facetField].length; i=i+2){    			
-			        				var facetName = oFacets[facetField][i];    				   				   				
-			        				var facetCount = oFacets[facetField][i+1];
+			        			var facetName = oFacets[facetField][i];    				   				   				
+			        			var facetCount = oFacets[facetField][i+1];
 			        			
-			    				$(selectorBase + ' li.fcat input').each(function(){
-			    					var aTxt = $(this).attr('rel').split('|');    					
-			    					if ( aTxt[2] == facetName ){    					
-			    						$(this).siblings('span.fcount').text(facetCount);
-			    					}
-			    				});    						
-			    			}   			
-			    					
+			        			var isGrayout = facetCount == 0 ? 'grayout' : '';
+			        			
+			        			//console.log(facetName + ' -- ' + facetCount + ' --- ' + isGrayout);
+			        			var elem = $(selectorBase + ' li.fcat input[rel*="' + facetName + '"]');	
+			        			
+		        				elem.siblings('span.fcount').text(facetCount);			        			
+			        			elem.parent().removeClass('grayout').addClass(isGrayout);
+			        			//console.log(facetName + ' -- ' + facetCount + ' --- ' + elem.parent().attr('class'));						
+			    			} 
+			    			$.fn.cursorUpdate(facet, 'not-allowed');
+			    			
 			    		}
 					});		
 			    }
@@ -466,7 +516,7 @@
 			        paramStr += '&fq=' + fqStr + fecetFieldsStr;
 			        
 					//console.log('DISEASE: '+ paramStr + fecetFieldsStr);
-							
+			        
 					$.ajax({ 	
 						'url': thisSolrUrl,
 			    		'data': paramStr + fecetFieldsStr,
@@ -482,8 +532,11 @@
 							_facetRefresh(json, selectorBase); 
 							
 			    			// collapse all subfacet first, then open the first one that has matches 
-							$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');
-			    			    			
+							//$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');
+			    			   
+							// restore original cursor behavior
+							$.fn.cursorUpdate(facet, 'pointer');
+							
 			    			// subfacets: source/classification/curated/predicted
 							var foundMatch = {'disease_source':0, 'disease_classes':0, 'curated':0, 'predicted':0};
 			    			
@@ -516,21 +569,27 @@
 				    				var label = oFacets[subFacetName][j];    				 				   				
 				    				var facetCount = oFacets[subFacetName][j+1];
 				    				//console.log(label + ' ---:'+facetCount + ' >> ' + subFacetName);    				
+				    				var isGrayout = facetCount == 0 ? 'grayout' : '';
 				    				
-				    				$(selectorBase + ' li.' + subFacetName).each(function(){	
-				    					if (subFacetName.match(/_curated|_predicted/) && label =='true' ){
+				    				$(selectorBase + ' li.' + subFacetName).each(function(){
+				    					
+				    					if (subFacetName.match(/_curated|_predicted/) && label =='true' ){				    						
 				    						$(this).find('span.fcount').text(facetCount);
+				    						$(this).removeClass('grayout').addClass(isGrayout);
 				    					}
 				    					else {
 				    						if ( $(this).find('span.flabel').text() == label ){    					
 				    							$(this).find('span.fcount').text(facetCount);
+				    							$(this).removeClass('grayout').addClass(isGrayout);
 				    						}
+				    						
 				    					}
 				    				});   	    				
 			    				}   			
 			    			}
-			    			    
-			    			$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);    			
+			    			 			    		
+    		    			$.fn.cursorUpdate(facet, 'not-allowed');
+			    				
 			    		}
 					});		
 			    }
@@ -558,16 +617,36 @@
 			    			var selectorBase = "div.flist li#ma";
 							_facetRefresh(json, selectorBase); 
 							
-			    			for (var i=0; i<oFacets[facetField].length; i=i+2){    			
-			        				var facetName = oFacets[facetField][i];    				   				   				
-			        				var facetCount = oFacets[facetField][i+1];
+			    			/*for (var i=0; i<oFacets[facetField].length; i=i+2){    			
+		        				var facetName = oFacets[facetField][i];    				   				   				
+		        				var facetCount = oFacets[facetField][i+1];
+		        				
 			    				$(selectorBase + ' li.fcat input').each(function(){
 			    					var aTxt = $(this).attr('rel').split('|');    					
 			    					if ( aTxt[2] == facetName ){    					
 			    						$(this).siblings('span.fcount').text(facetCount);
 			    					}
 			    				});    						
-			    			}    	   			
+			    			}  */
+			    			
+							// restore original cursor behavior
+							$.fn.cursorUpdate(facet, 'pointer');
+							
+			    			for (var i=0; i<oFacets[facetField].length; i=i+2){    			
+			        			var facetName = oFacets[facetField][i];    				   				   				
+			        			var facetCount = oFacets[facetField][i+1];
+			        			
+			        			var isGrayout = facetCount == 0 ? 'grayout' : '';
+			        			
+			        			//console.log(facetName + ' -- ' + facetCount + ' --- ' + isGrayout);
+			        			var elem = $(selectorBase + ' li.fcat input[rel*="' + facetName + '"]');	
+			        			
+		        				elem.siblings('span.fcount').text(facetCount);			        			
+			        			elem.parent().removeClass('grayout').addClass(isGrayout);
+			        									
+			    			} 
+			    			$.fn.cursorUpdate(facet, 'not-allowed');
+			    			
 			    		}
 					});		
 			    }
@@ -596,8 +675,11 @@
 							_facetRefresh(json, selectorBase); 
 															
 							// close/grayout all subfacets by default
-			    			$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout')
+			    			//$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout')
 			    			
+							// restore original cursor behavior
+							$.fn.cursorUpdate(facet, 'pointer');							
+							
 							var plFacets = json.facet_counts['facet_fields']['pipeline_name'];	    			
 			    			var prFacets = json.facet_counts['facet_fields']['pipe_proc_sid'];
 			    			
@@ -612,10 +694,13 @@
 				        			var procedure_name = aVals[1];
 				        			var proSid = aVals[2];
 				        			var paramCount = prFacets[f+1];
-				        					        			
+				        			var isGrayout = paramCount == 0 ? 'grayout' : '';		
+				        			
 				        			if (pipeName == currPipe ){	
-				    					$(selectorBase + ' li.' + pipeClass).each(function(){	    					    					
-					    					if ( $(this).find('span.flabel').text() == procedure_name ){    					
+				    					$(selectorBase + ' li.' + pipeClass).each(function(){	
+				    						//console.log($(this));
+					    					if ( $(this).find('span.flabel').text() == procedure_name ){  
+					    						$(this).removeClass('grayout').addClass(isGrayout);
 					    						$(this).find('span.fcount').text(paramCount);
 					    					}
 					    				}); 
@@ -636,6 +721,8 @@
 									}						
 								});	
 							}
+							
+							$.fn.cursorUpdate(facet, 'not-allowed');
 						}
 					});		
 			    }
@@ -664,7 +751,11 @@
 							_facetRefresh(json, selectorBase); 
 							
 							// close/grayout all subfacets by default
-			    			$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout')    			  			
+			    			//$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout')    
+							
+							// restore original cursor behavior
+							$.fn.cursorUpdate(facet, 'pointer');							
+							
 							var foundMatch = {'Phenotype':0, 'Anatomy':0, 'Procedure':0, 'Gene':0};
 			    			
 			    			var oSubFacets = {
@@ -684,23 +775,30 @@
 				    				var facetName = oFacets[facetStr][j];	    								   				
 				    				var facetCount = oFacets[facetStr][j+1];	    				 				
 				    				foundMatch[oSubFacets[facetStr]]++;
+				    				var isGrayout = facetCount == 0 ? 'grayout' : '';	
 				    				
+				    				// look for exact matching as there are mp and ma which are similar in some cases 
 				    				$(selectorBase + ' li.'+ facetStr).each(function(){
+				    					
 				    					var aData = $(this).find('input').attr('rel').split('|');	    				
 				    					if ( aData[2] == facetName ){
 				    						$(this).find('span.fcount').text(facetCount);
+				    						$(this).removeClass('grayout').addClass(isGrayout);
 				    					}
-				    				});	    				
+				    				});
+				    				
+				    				    				
 				    			}	    			
 			    			}
-			    			$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
+			    			
+							$.fn.cursorUpdate(facet, 'not-allowed');	
+			    			//$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
 			    		}
 					});		
 			    }
 			    break;
 			    
-			    default:
-			          {}
+			    default:{}
 			} 			
 		};
 	}
@@ -812,10 +910,8 @@
 				$('div.ffilter').show();			
 			}
 			
-			// show filter facet caption
+			// show summary filter facet caption
 			thisLi.find('.fcap').show();
-			
-			//var display = MPI2.searchAndFacetConfig.facetFilterLabel[qField];
 			
 			if ( qValue == 1 ){
 				/*if (qField == 'imits_phenotype_started'){
@@ -828,7 +924,7 @@
 				qValue = 'Yes';	// some disease fields
 				
 			}	
-			
+		
 			var filterTxt = qValue;
 			if ( facet == 'gene' ){
 				if ( qValue == 'Started'  ){
@@ -871,12 +967,15 @@
 			thisLi.append(ul);	
 			thisLi.show();
 			
+			//alert('1: ' +MPI2.searchAndFacetConfig.filterChange);
 			// update url when new filter is added
 			var fqStr = this.updateUrl();
+			//alert('2: ' +MPI2.searchAndFacetConfig.filterChange);
 			this.updateFacetCounts(fqStr);
-			
+			//alert('3: ' +MPI2.searchAndFacetConfig.filterChange);
 			// callback for uncheck sumary filter
-			uncheck_summary_facet_filter(this);
+			uncheck_summary_facet_filter(this);		
+			//alert('4: ' +MPI2.searchAndFacetConfig.filterChange);
 		};	
 	}
 
@@ -890,7 +989,8 @@
 		filter.click(function(){
 			
 			// remove checkbox filter highlight			
-			oChkbox.prop('checked', false).siblings('span.flabel').removeClass('highlight');			
+			oChkbox.prop('checked', false).siblings('span.flabel').removeClass('highlight');
+			
 			filter.remove();
 			
 			if ($('ul#facetFilter li.'+ facet + ' li.ftag').size() == 0  ){
@@ -1802,7 +1902,7 @@
     	    	
     	    	var iRowStart = iActivePage == 1 ? 0 : iActivePage*10-10;
     	    	//console.log('start: '+ iRowStart);
-    	    	var showImgView = $('div#resultMsg div#imgView').attr('rel') == 'imgView' ? true : false;    	    		    	
+    	     	var showImgView = $('div#resultMsg div#imgView').attr('rel') == 'imgView' ? true : false;    	    		    	
     	    	
     	    	$('button.gridDump').unbind('click');
     	    	$('button.gridDump').click(function(){  
