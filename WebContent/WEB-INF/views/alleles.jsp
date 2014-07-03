@@ -54,6 +54,7 @@
 		<script src="${baseUrl}/js/general/enu.js"></script>
 		<script src="${baseUrl}/js/general/dropdownfilters.js"></script>
 		<script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
+                <link rel="stylesheet" type="text/css" href="${baseUrl}/css/widetooltip.css"/>
 		
 		
 		<script type="text/javascript">var gene_id = '${acc}';</script>
@@ -131,13 +132,7 @@
         <style>
             .btn              { text-decoration: none !important; color: #fff !important; background-color: #0978a1 !important; }
         </style>
-                        
-                        
-                        
-                        
-                        
-                        
-
+ 
 	<div class="section">
 		<div class="inner">
 			<h3>Allele Map</h3>
@@ -145,12 +140,6 @@
         <div id="image">
             <img src="${summary['map_image']}" width="930px">        
         </div>
-                        
-
-        
-        
-        
-        
                         
 <!--        <table style="font-size: 150%; font-weight: bold;">         -->
         <table >         
@@ -231,28 +220,12 @@
             </tr>
         </table>
 
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
 		</div>
 	</div>
                 </div>
 
                 </c:if>    
-        
-        
-        
-        
-        
-        
-        
+
                  <style>
              .toggle_open, .toggle_closed {
                 padding-left: 16px;
@@ -371,9 +344,11 @@
                 <td>${mouse['genetic_background']}</td>
                 <td>${mouse['production_centre']}</td>
                 <td>${mouse['es_cell']}</td>
-                <td style="text-align: center;"><a href="${mouse['qc_data']}">QC data</a></td>
-                
-                
+                <td><a class="hasTooltip" href="${baseUrl}/qc_data/${mouse['allele_type']}/mouse/${mouse['colony_name']}">QC data</a>
+                    <div class="hidden">
+                        <div class="qcData" data-type="mouse" data-name="${mouse['colony_name']}" data-alleletype="${mouse['allele_type']}"></div>
+                    </div>
+                </td>
                 <td>
                     <c:forEach var="order" items="${mouse['orders']}" varStatus="ordersx">
                         <a class="btn" href="${order['url']}"> <i class="fa fa-shopping-cart"></i> ${order['name']}</a>
@@ -452,7 +427,11 @@
             
         <td>${es_cell['es_cell_clone']}</td>
         <td>${es_cell['targeting_vector']}</td>
-        <td style="text-align: center;"><a href="${es_cell['qc_data']}">QC data</a></td>
+        <td><a class="hasTooltip" href="${baseUrl}/qc_data/${es_cell['allele_type']}/es_cell/${es_cell['es_cell_clone']}">QC data</a>
+            <div class="hidden">
+                <div class="qcData" data-type="es_cell" data-name="${es_cell['es_cell_clone']}" data-alleletype="${es_cell['allele_type']}"></div>
+            </div>
+        </td>
         
         <td style="text-align: center;">${es_cell['es_cell_strain']} / ${es_cell['parental_cell_line']}</td>
         

@@ -34,7 +34,38 @@ jQuery(document).ready(	function() {
 	    	$('#allele').html(errorMsg);
 	    }
 	});
+        
+        $('.qcData').each(function(){
+            var type = $(this).data("type");
+            var name = $(this).data("name");
+            var alleleType = $(this).data("alleletype");
+      
+            var url = '../../qc_data/' + alleleType + '/' + type + '/' + name;
+        	$.ajax({
+		    url: url,    
+		    timeout: 2000,
+                    context: this,
+		    success: function (response) {
+			$(this).html(response);
 
+		    }
+		    ,error: function(x, t, m) {
+			var errorMsg='<td>QC Data Link:</td><td class="gene-data" id="allele_links"><font color="red"><font color="red">Error trying to retrieve QC Data infomation</font></td>';
+	    	        $(this).html(errorMsg);
+	            }
+	        });
+        });
 
+        $(".hasTooltip").each(function(){
+            $(this).qtip({
+                content: {text: $(this).next('div')},
+                position: {
+			my: 'top middle',
+			at: 'bottom middle'
+			},
+                style: { classes: 'ui-tooltip-wideimage'
+                     }
+            });
+        });
 
 });

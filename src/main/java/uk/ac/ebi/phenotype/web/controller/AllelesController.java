@@ -87,6 +87,20 @@ public class AllelesController {
         return map;
     }
 
+    @RequestMapping("/qc_data/{alleleType}/{type}/{name}")
+    public String qcData(
+            @PathVariable String alleleType,
+            @PathVariable String type,
+            @PathVariable String name,
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+
+            HashMap<String, HashMap<String, List<String>>> constructs = solrIndex.getAlleleQcInfo(alleleType, type, name);
+            model.addAttribute("qcData", constructs);
+            return "qcData";
+    }
+    
     @RequestMapping("/alleles")
     public String alleles0(
             Model model,
