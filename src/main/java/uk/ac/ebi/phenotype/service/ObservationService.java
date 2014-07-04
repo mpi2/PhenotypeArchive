@@ -29,8 +29,10 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import net.sf.json.JSONArray;
 
@@ -50,10 +52,12 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.util.NamedList;
-import org.eclipse.jetty.util.ajax.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
@@ -68,6 +72,7 @@ import uk.ac.ebi.phenotype.stats.categorical.CategoricalDataObject;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
 import uk.ac.ebi.phenotype.util.ParameterToGeneMap;
 
+@EnableAsync
 @Service
 public class ObservationService extends BasicService {
 
@@ -119,7 +124,7 @@ public class ObservationService extends BasicService {
         public final static String METADATA = "metadata";
         public final static String METADATA_GROUP = "metadata_group";
     }
-
+    
     private final HttpSolrServer solr;
     
     private ParameterToGeneMap ptgm;
@@ -870,7 +875,6 @@ public class ObservationService extends BasicService {
 							discreteDataPoint, new Float(
 									stats.getStandardDeviation()));
 					List<Float> errorPair = new ArrayList<>();
-					double std = stats.getStandardDeviation();
 					Float lower = new Float(discreteDataPoint);
 					Float higher = new Float(discreteDataPoint);
 					errorPair.add(lower);
@@ -1052,7 +1056,7 @@ public class ObservationService extends BasicService {
 		}
 		
 		query.setQuery(q);
-		query.setRows(1000000);
+		query.setRows(-1);
 		// query.set("sort", ExperimentField.DATA_POINT + " asc");
 		query.setFields(ExperimentField.GENE_ACCESSION, ExperimentField.DATA_POINT);
 		query.set("group", true);
@@ -1072,7 +1076,6 @@ public class ObservationService extends BasicService {
 			List<String> genes, ArrayList<String> strains,
 			String biologicalSample,  String[] center, String[] sex) throws SolrServerException {
 
-		List<Integer> res = new ArrayList<Integer>();
 		String urlParams = "";
 		
 		SolrQuery query = new SolrQuery().addFilterQuery(
@@ -1113,7 +1116,7 @@ public class ObservationService extends BasicService {
 		query.setFields(ExperimentField.GENE_ACCESSION, ExperimentField.DATA_POINT, ExperimentField.GENE_SYMBOL);
 		query.set("group", true);
 		query.set("group.field", ExperimentField.COLONY_ID);
-		query.set("group.limit", 200);
+		query.set("group.limit", -1);
 		// per group
 
 //		System.out.println("--- unidimensional : " + solr.getBaseURL() + "/select?" + query);
@@ -1153,7 +1156,6 @@ public class ObservationService extends BasicService {
 		EmpiricalDistribution distribution = new EmpiricalDistribution(binCount);
 		if (meansArray.length > 0){
 			distribution.load(meansArray);
-			int k = 0;
 			for (double bound : distribution.getUpperBounds())
 				upperBounds.add(bound);
 			// we we need to distribute the control mutants and the
@@ -1315,44 +1317,77 @@ public class ObservationService extends BasicService {
 		return resSet;
 	}
 	
-	
-	public HashMap<String, ArrayList<String>> getParameterToGeneMap(SexType sex) throws SolrServerException{
-		HashMap<String, ArrayList<String>> res = new HashMap<>();
+	/**
+	 * This map is needed for the summary on phenotype pages (the percentages & pie chart). It takes a long time to load so it does it asynchronously.
+	 * @param sex
+	 * @return Map < String parameterStableId , ArrayList<String geneMgiIdWithParameterXMeasured>>
+	 * @throws SolrServerException
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 * @author tudose
+	 */
+	public Map<String, ArrayList<String>> getParameterToGeneMap(SexType sex) throws SolrServerException, InterruptedException, ExecutionException{
+		Map<String, ArrayList<String>> res = new ConcurrentHashMap<>();
+		Map<String, Future<ArrayList<String>>> temp = new ConcurrentHashMap<>();
+		Long time = System.currentTimeMillis();
+		
+		// Solr call
 		SolrQuery q = new SolrQuery().setQuery(ExperimentField.SEX + ":" + sex.name()).setRows(1);
 		q.setFilterQueries(ExperimentField.STRAIN + ":\"MGI:2159965\" OR " + ExperimentField.STRAIN + ":\"MGI:2164831\"");
 		q.set("facet.field", ExperimentField.PARAMETER_STABLE_ID);
 		q.set("facet", true);
 		q.set("facet.limit", -1); // we want all facets
-		QueryResponse response = solr.query(q);
+		QueryResponse response = solr.query(q);		
 		System.out.println( " Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
+		
 		// get all parameters we have data for
 		for ( Count parameter : response.getFacetField(ExperimentField.PARAMETER_STABLE_ID).getValues()){
+			// fill genes for each of them
 			if (parameter.getCount() > 0){
-				SolrQuery query = new SolrQuery().setQuery(ExperimentField.SEX + ":" + sex.name()).setRows(1);
-				query.setFilterQueries(ExperimentField.PARAMETER_STABLE_ID + ":" + parameter.getName());
-				query.setFilterQueries(ExperimentField.STRAIN + ":\"MGI:2159965\" OR " + ExperimentField.STRAIN + ":\"MGI:2164831\"");
-				query.set("facet.field", ExperimentField.GENE_ACCESSION);
-				query.set("facet", true);
-				query.set("facet.limit", -1); // we want all facets
-				QueryResponse response2 = solr.query(query);
-				ArrayList<String> genes = new ArrayList<>();
-				for (Count gene : response2.getFacetField(ExperimentField.GENE_ACCESSION).getValues()){
-					if (gene.getCount()>0){
-						genes.add(gene.getName());
-					}
-				}
-	
-				res.put(parameter.getName(), genes);
+			    temp.put(parameter.getName(), getAllGenesWithMeasuresForParameter(parameter.getName(), sex));
 			}
 		}
-		// for each parameter fill list of genes
 		
-//		System.out.println("--------" + response.getFacetPivot());
-		System.out.println("DONE");
+		for (String param : temp.keySet()){
+			res.put(param, temp.get(param).get());
+		}
+		
+		System.out.println("Done in " + (System.currentTimeMillis() - time));
 		return res;
 	}
 	
-
+	/**
+	 * Asychronous method to get all genes with a given parameter measured. [NOTE] Fiters on B6N background!
+	 * @param parameterStableId
+	 * @param sex (null if both sexes wanted)
+	 * @return  
+	 * @throws SolrServerException
+	 * @author tudose
+	 */
+	@Async
+	public Future<ArrayList<String>> getAllGenesWithMeasuresForParameter (String parameterStableId, SexType sex) throws SolrServerException{
+		SolrQuery query;
+		if (sex != null)
+			query = new SolrQuery().setQuery(ExperimentField.SEX + ":" + sex.name()).setRows(1);
+		else {
+			query = new SolrQuery().setQuery("*:*");			
+		}
+		query.setFilterQueries(ExperimentField.PARAMETER_STABLE_ID + ":" + parameterStableId);
+		query.setFilterQueries(ExperimentField.STRAIN + ":\"MGI:2159965\" OR " + ExperimentField.STRAIN + ":\"MGI:2164831\"");
+		query.set("facet.field", ExperimentField.GENE_ACCESSION);
+		query.set("facet", true);
+		query.set("facet.limit", -1); // we want all facets
+		QueryResponse response2 = solr.query(query);
+		ArrayList<String> genes = new ArrayList<>();
+		for (Count gene : response2.getFacetField(ExperimentField.GENE_ACCESSION).getValues()){
+			if (gene.getCount()>0){
+				genes.add(gene.getName());
+			}
+		}
+		return new AsyncResult<>(genes);
+	}
+	
+	
 	public Set<String> getTestedGenes(String sex,
 			List<String> parameters) throws SolrServerException {
 		
@@ -1523,7 +1558,7 @@ public class ObservationService extends BasicService {
 	}
 
 	public Set<String> getTestedGenesByParameterSex(List<String> parameters, SexType sex){
-		return ptgm.getTestedGenes(parameters, sex);
+		return ptgm.getTestedGenes(parameters, sex, this);
 	}
 	
 }

@@ -227,7 +227,7 @@ public class GenotypePhenotypeService extends BasicService {
 						+ GenotypePhenotypeField.STRAIN_ACCESSION_ID
 						+ ":\"MGI:2164831\") AND "
 						+ GenotypePhenotypeField.PARAMETER_STABLE_ID + ":\""
-						+ parameterStableId + "\"").setRows(10000);
+						+ parameterStableId + "\"").setRows(-1);
 		query.set("group.field", GenotypePhenotypeField.MARKER_ACCESSION_ID);
 		query.set("group", true);
 		List<Group> groups = solr.query(query).getGroupResponse().getValues()

@@ -37,6 +37,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -52,6 +53,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.ctc.wstx.util.StringUtil;
 
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
@@ -488,16 +491,34 @@ public class PhenotypesController {
 		return pgs;
 	}
 	
+	/**
+	 * 
+	 * @param mpId
+	 * @return List of parameters that might lead to an association to the given phenotype term or any of it's children
+	 * @throws SolrServerException
+	 */
 	public Map<String, String> getParameters(String mpId) throws SolrServerException {
 		Map<String, String> res = new HashMap<String, String>();
-		List<String> paramIds = new ArrayList(getParameterStableIdsByPhenotypeAndChildren(mpId));
+		List<String> paramIds = new ArrayList<String>(getParameterStableIdsByPhenotypeAndChildren(mpId));
 		Collections.sort(paramIds);
 		for (String param : paramIds){
 			if (gpService.getGenesAssocByParamAndMp(param, mpId).size() > 0){
 				Parameter p =  pipelineDao.getParameterByStableId(param);
 				res.put(param,p.getName());
+			}else {
+				ArrayList<String> children = mpService.getChildrenFor(mpId);
+				for (String child : children){
+					if (param.equalsIgnoreCase("IMPC_CSD_051_002"))
+						System.out.println(">>> " + child + "\t" + gpService.getGenesAssocByParamAndMp(param, child).size());
+					if (gpService.getGenesAssocByParamAndMp(param, child).size() > 0){
+						Parameter p =  pipelineDao.getParameterByStableId(param);
+						res.put(param,p.getName());
+						break;
+					}
+				}
 			}
 		}
+		System.out.println("parameter list has " + res.size());
 		return res;
 	}
 	
