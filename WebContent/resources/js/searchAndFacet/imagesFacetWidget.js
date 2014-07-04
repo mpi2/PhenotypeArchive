@@ -63,7 +63,7 @@
 				'rows': 0, // override default
 				'type': 'disease',
 				'facet': 'on',								
-				'facet.mincount': 1,
+				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
 				'facet.sort': 'index',	
 				'fl': 'annotationTermId,annotationTermName,expName,symbol',
@@ -122,14 +122,17 @@
   	    					var liContainer = $("<li></li>").attr({'class':'fcat ' + facetName});
   	    					
   	    					var fieldName  = aFacetFields[facetName][i];  	    					
-  	    					var facetCount = aFacetFields[facetName][i+1];   	    					
+  	    					var count = aFacetFields[facetName][i+1];   	    					
   	    					var label      = displayLabel[facetName];
   	    					foundMatch[label]++;
   	    					
-  		    	    		var coreField = 'images|'+ facetName + '|' + fieldName + '|' + facetCount + '|' + label;	
+  	    					var isGrayout = count == 0 ? 'grayout' : '';
+  	    					liContainer.addClass(isGrayout);
+  	    					
+  		    	    		var coreField = 'images|'+ facetName + '|' + fieldName + '|' + count + '|' + label;	
   		        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField}); 	
   		        			var flabel = $('<span></span>').attr({'class':'flabel'}).text(fieldName.replace(' phenotype', ''));
-  							var fcount = $('<span></span>').attr({'class':'fcount'}).text(facetCount);
+  							var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
   							thisUlContainer.append(liContainer.append(chkbox, flabel, fcount));  							
   	    				}
   	    				
@@ -142,10 +145,14 @@
   					$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');	    		
   					$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
   					
+  	    			// change cursor for grayout filter
+	    			$.fn.cursorUpdate('images', 'not-allowed');
+  	    			
   	    			$.fn.initFacetToggles('images');
   	    			
-	  	      		$('li#images li.fcat input').click(function(){	    			
-	  	      			// // highlight the item in facet	    			
+	  	      		$('li#images li.fcat input').click(function(){	 
+		  	      		
+		  	      		// highlight the item in facet	    			
 	  	      			$(this).siblings('span.flabel').addClass('highlight');
 	  	  				$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 	  	  			});

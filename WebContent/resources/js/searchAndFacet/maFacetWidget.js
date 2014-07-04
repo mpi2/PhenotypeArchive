@@ -62,7 +62,7 @@
 				'fq': fq,
 				'rows': 0, // override default
 				'facet': 'on',								
-				'facet.mincount': 1,
+				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
 				'facet.field': facetField,
 				//'facet.field': 'annotatedHigherLevelMpTermName',
@@ -92,6 +92,9 @@
 	        		
 	        			var count = aTopLevelCount[i+1];	        				
 	        			var coreField = 'ma|'+ facetField + '|' + aTopLevelCount[i] + '|' + count;	
+	        			var isGrayout = count == 0 ? 'grayout' : '';
+	        			liContainer.addClass(isGrayout);
+	        			
 	        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});
 	        			var flabel = $('<span></span>').attr({'class':'flabel'}).text(aTopLevelCount[i]);
 						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
@@ -100,7 +103,10 @@
 	    	    	}    	
 	    	    		    			
 	    			// update all subfacet counts of this facet 
-	        		$('div.flist li#ma > ul').append(maUlContainer);	        		        		
+	        		$('div.flist li#ma > ul').append(maUlContainer);
+	        		
+	        		// change cursor for grayout filter
+	    			$.fn.cursorUpdate('ma', 'not-allowed');
 	        		
 	        		$.fn.initFacetToggles('ma');
 	        		

@@ -273,13 +273,17 @@
    					*/
    				if ( MPI2.searchAndFacetConfig.filterChange ){
     				console.log('added or removed a filter');
-    				MPI2.searchAndFacetConfig.filterChange = false;
+    				//MPI2.searchAndFacetConfig.filterChange = false;
     				
     				// MA,MP facet stays open when adding/removing filters
     				$('li#mp.fmcat, li#ma.fmcat').each(function(){
+    				//$('li.fmcat').each(function(){	
+    				
     					if (oHashParams.facetName == $(this).attr('id')) {
     						$(this).addClass('open');
+    						MPI2.searchAndFacetConfig.filterChange = false;
     					}
+    					
     				});
     				
     				$.fn.loadDataTable(oHashParams);

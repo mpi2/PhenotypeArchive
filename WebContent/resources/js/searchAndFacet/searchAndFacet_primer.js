@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * searchAndFacet_primer: callbacks for the autocomplete and sidebar widgets
- * see: autocompleteWidget.js and sideBarFacetWidget.js
+ * searchAndFacet_primer: entry point to handle url and load search results
  * 
  */
 $(document).ready(function(){
 	'use strict';	
 	
 	MPI2.searchAndFacetConfig.pageReload = true;
-	//alert('page loaded - primer');	
+	
 	var oHashParams = {};
 	
 	$('span.facetCount').text(''); // default when page loads
@@ -42,8 +41,9 @@ $(document).ready(function(){
 			|| location.href.indexOf('/search#q=*:*') != -1 
 			|| location.href.indexOf('/search#q=*') != -1 
 			|| location.href.indexOf('/search#fq=') != -1 ){   	
+		
 		// load page based on url hash parameters	
-		//alert('here')
+		
 		oHashParams = $.fn.parseHashString(window.location.hash.substring(1));	
 		if (typeof oHashParams.fq == 'undefined'){
 			oHashParams.noFq = true;
@@ -62,8 +62,6 @@ $(document).ready(function(){
 	    if (e.keyCode == 13) { // user hits enter
 	    	
 	    	var input = $('input#s').val();
-	    	
-	    	//alert('user input search: ' + input);
 	    	
 	    	if (input == ''){
 	    		document.location.href = baseUrl + '/search';

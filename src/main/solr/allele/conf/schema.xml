@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<schema name="gene core" version="1.1">
+<schema name="allele core" version="1.1">
   <types>
    <fieldtype name="string"  class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
    <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
@@ -125,10 +125,16 @@
    	<field name="imits_phenotype_started" type="string" indexed="true" stored="true" multiValued="false"/>
 	<field name="imits_phenotype_complete" type="string" indexed="true" stored="true" multiValued="false"/>
 	<field name="imits_phenotype_status" type="string" indexed="true" stored="true" multiValued="false"/>	
+	
 	<field name="status" type="string" indexed="true" stored="true" multiValued="false"/>
-	<field name="latest_es_cell_status" type="string" indexed="true" stored="true" multiValued="false"/>
-	<field name="gene_latest_mouse_status" type="string" indexed="true" stored="true" multiValued="false"/>			
+	<field name="latest_production_status" type="string" indexed="true" stored="true" multiValued="false"/>
+	
+	<field name="gene_latest_es_cell_status" type="string" indexed="true" stored="true" multiValued="false"/>	
+	<field name="latest_es_cell_status" type="string" indexed="true" stored="true" multiValued="false"/>	
+	
+	<field name="gene_latest_mouse_status" type="string" indexed="true" stored="true" multiValued="false"/>	
 	<field name="latest_mouse_status" type="string" indexed="true" stored="true" multiValued="false"/>	
+	
 	<field name="latest_phenotype_status" type="string" indexed="true" stored="true" multiValued="false"/>	
 	<field name="latest_project_status" type="string" indexed="true" stored="true" multiValued="false"/>	
 	<field name="latest_production_centre" type="string" indexed="true" stored="true" multiValued="true"/>	
@@ -187,7 +193,7 @@
 	<copyField source="latest_production_centre" dest="auto_suggest"/>
 	<copyField source="latest_phenotyping_centre" dest="auto_suggest"/>
 	<copyField source="allele_name" dest="auto_suggest"/> 	
-	<copyField source="latest_mouse_status" dest="status"/> 
+	<copyField source="latest_production_status" dest="status"/> 
 	
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
 

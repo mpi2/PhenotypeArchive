@@ -32,13 +32,10 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.DataReader;
 import org.mousephenotype.www.testing.model.DataReaderFactory;
-import org.mousephenotype.www.testing.model.DataReaderTsv;
-import org.mousephenotype.www.testing.model.DataReaderXls;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -103,6 +100,11 @@ public class DataExportTest {
     
     private final int PHENOTYPE_TABLE_COLUMN_COUNT = 9;
     
+    // 0-relative html phenotype table column indexes
+    private final int COLUMN_INDEX_ALLELE     = 1;
+    private final int COLUMN_INDEX_SEX        = 3;
+    private final int COLUMN_INDEX_GRAPH_LINK = 8;
+    
     @Before
     public void setup() {
         if (Utils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
@@ -137,6 +139,15 @@ public class DataExportTest {
     /**
      * Compares <code>genePageData</code> with <code>downloadData</code>, adding
      * any errors to <code>errorList</code>.
+     * 
+     * NOTE: All flavours of the download stream need some special modifications
+     * for comparison testing:
+     * <ul><li>The 'Allele' column needs to have &lt; and &lt; characters stripped,
+     * as they never exist in the gene page</li>
+     * <li>When comparing the graph url, start with the first occurrence of
+     * "/charts'. When testing on localhost, baseUrl is the localhost url, but
+     * the download stream has a dev url (for historical, complicated reasons).</li></ul>
+     * 
      * @param pageData the page data operand
      * @param downloadData the download data operand
      * @param errorList A place to log errors
@@ -170,6 +181,26 @@ public class DataExportTest {
                     errorCount++;
                     continue;
                 }
+                
+                if (rowIndex > 0) {                                             // If this is a non-header row ...
+                    if (colIndex == COLUMN_INDEX_GRAPH_LINK) {                  // ... if this is a graph url column, remove everything before the
+                        int idx = pageCell.indexOf("/charts");                  // ... '/charts' part of the url on both components to be compared.
+                        
+                        String deletePart = pageCell.substring(0, idx);
+                        pageCell = pageCell.replaceFirst(deletePart, "");
+
+                        idx = downloadCell.indexOf("/charts");
+                        deletePart = downloadCell.substring(0, idx);
+                        downloadCell = downloadCell.replaceFirst(deletePart, "");
+                    }
+                    
+                    if (colIndex == COLUMN_INDEX_ALLELE) {
+                        downloadCell = downloadCell                             // ... Remove the '<' and '>' from the download cell.
+                                .replace("<", "")
+                                .replace(">", "");
+                    }
+                }
+                
                 if (pageCell.compareTo(downloadCell) != 0) {
                     colErrors = new String[] { "[" + rowIndex + "][" + colIndex + "]", pageCell, downloadCell };
                     rowErrors.add(colErrors);
@@ -303,53 +334,47 @@ public class DataExportTest {
                                                + ". URL: " + target);
                 }
                 
-                WebElement e = rowElements.get(colIndex);
-                data[rowIndex][colIndex] = e.getText();
+                WebElement tdElement = rowElements.get(colIndex);
+                
+                if (rowIndex == 0) {
+                    data[rowIndex][colIndex] = tdElement.getText();
+                } else {
+                    // If this is not the heading row, determine the correct strings for sex and graph link.
+                    switch(colIndex) {
+                        case COLUMN_INDEX_SEX:                                      // Translate the male/female symbol into a string.
+                            data[rowIndex][colIndex] = tdElement.findElement(By.xpath("img[@alt='Male' or @alt='Female']")).getAttribute("alt").toLowerCase();
+                            break;
+
+                        case COLUMN_INDEX_GRAPH_LINK:                               // Extract the graph url from the <a> anchor.
+                            data[rowIndex][colIndex] = tdElement.findElement(By.xpath("a")).getAttribute("href");
+                            break;
+
+                        default:
+                            data[rowIndex][colIndex] = tdElement.getText();
+                            break;
+                    }
+                }
             }
         }
         
         return data;
     }
-    
+
     /**
      * Returns the number of record counts in error (either 0 or 1).
-     * NOTE: tsv files contain a single-line heading and an extra blank line
-     * after every non-heading line, neither of which is included in the results
-     * count.
+     * NOTE: Both tsv and xls files contain a single-line heading, which is not
+     * contained in the results count. The test must adjust for this difference.
      * 
      * @param wait A valid <code>WebDriverWait</code> instance
      * @param genePageTarget the gene page url
-     * @param downloadTargetTsv the target tsv url
+     * @param downloadTarget the target xls url
      * @return the number of record counts in error (either 0 or 1).
      */
-    private int tsvRecordCountsInError(WebDriverWait wait, String genePageTarget, String downloadTargetTsv) {
-        int errorCount = 0;
-        int resultsCount = TestUtils.getGenePhenotypeResultsCount(wait);
-        resultsCount = (resultsCount * 2) + 1;                                  // Add a line for the heading and one for every non-heading line.
-        int downloadDataLineCount = getDownloadDataLineCount(downloadTargetTsv);
-        if (resultsCount != downloadDataLineCount) {
-            errorCount++;
-            System.out.println("ERROR: gene page result count (" + resultsCount + ") is not equal to TSV download data line count (" + downloadDataLineCount + ").\n URL: " + genePageTarget);
-        }
-        
-        return errorCount;
-    }
-    
-    /**
-     * Returns the number of record counts in error (either 0 or 1).
-     * NOTE: xls files contain a single-line heading, which is not contained in
-     * the results count.
-     * 
-     * @param wait A valid <code>WebDriverWait</code> instance
-     * @param genePageTarget the gene page url
-     * @param downloadTargetXls the target xls url
-     * @return the number of record counts in error (either 0 or 1).
-     */
-    private int xlsRecordCountsInError(WebDriverWait wait, String genePageTarget, String downloadTargetXls) {
+    private int recordCountsInError(WebDriverWait wait, String genePageTarget, String downloadTarget) {
         int errorCount = 0;
         int resultsCount = TestUtils.getGenePhenotypeResultsCount(wait);
         resultsCount++;                                                         // Add 1 for the heading.
-        int downloadDataLineCount = getDownloadDataLineCount(downloadTargetXls);
+        int downloadDataLineCount = getDownloadDataLineCount(downloadTarget);
         if (resultsCount != downloadDataLineCount) {
             errorCount++;
             System.out.println("ERROR: gene page result count (" + resultsCount + ") is not equal to TSV download data line count (" + downloadDataLineCount + ").\n URL: " + genePageTarget);
@@ -361,163 +386,6 @@ public class DataExportTest {
     
     // TESTS
     
-    
-    /**
-     * Fetches all gene IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
-     * core and tests to make sure there is a page for each. Limit the test
-     * to the first MAX_GENE_TEST_PAGE_COUNT by setting it to the limit you want.
-     * 
-     * NOTE: This test currently only works on chrome. In order to run this test
-     * successfully, we need to clear the downloads folder first. A better solution
-     * is to find a way to programatically suppress the download dialog and later,
-     * when the test is complete, to remove the download file(s).
-     * 
-     * For now (01-May-2014) we shall mark this test @Ignore.
-     * 
-     * @throws SolrServerException 
-     */
-    @Test
-@Ignore
-    public void testDownloadTsv() throws SolrServerException {
-        String testName = "testDownloadTsv";
-        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
-        List<String> geneIds = new ArrayList();
-        String target = "";
-        List<String> errorList = new ArrayList();
-        List<String> successList = new ArrayList();
-        List<String> exceptionList = new ArrayList();
-        String message;
-        Date start = new Date();
-        DataReader dataReader = null;
-        
-geneIds.add("MGI:1921354");
-        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
-        
-        // Loop through all genes, testing each one for valid page load.
-        int i = 0;
-        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
-        for (String geneId : geneIds) {
-            if (i >= targetCount) {
-                break;
-            }
-            i++;
-            
-            target = baseUrl + "/genes/" + geneId;
-target = "http://dev.mousephenotype.org/data/export?mpId=%22MP%3A0005266%22&externalDbId=3&fileName=gene_variants_with_phen_MP_0005266&solrCoreName=genotype-phenotype&dumpMode=all&baseUrl=http%3A%2F%2Fdev.mousephenotype.org%2Fdata%2Fphenotypes%2FMP%3A0005266&page=phenotype&gridFields=marker_symbol%2Callele_symbol%2Czygosity%2Csex%2Cprocedure_name%2Cresource_name%2Cphenotyping_center%2Cparameter_stable_id%2Cmp_term_name%2Cmarker_accession_id%2C+parameter_name&params=qf%3Dauto_suggest%26defType%3Dedismax%26wt%3Djson%26rows%3D100000%26q%3D*%3A*%26fq%3D(mp_term_id%3A%22MP%3A0005266%22%2BOR%2Btop_level_mp_term_id%3A%22MP%3A0005266%22)&fileType=tsv&_=1403882094799";
-
-            System.out.println("gene[" + i + "] URL: " + target);
-
-            try {
-                URL url = new URL(target);
-                dataReader = new DataReaderTsv(url);
-                dataReader.open();
-                List<String> line;
-                while ((line = dataReader.getLine()) != null) {
-                    for (int index = 0; index < line.size(); index++) {
-                        if (index > 0)
-                            System.out.print("\t");
-                        System.out.print(line.get(index));
-                    }
-                    System.out.println();
-                }
-            } catch (IOException e) {
-                System.out.println("EXCEPTION: " + e.getLocalizedMessage());
-            } finally {
-                try {
-                    if (dataReader != null)
-                        dataReader.close();
-                } catch (IOException e) {
-                    System.out.println("EXCEPTION: " + e.getLocalizedMessage());
-                }
-            }
-            
-            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
-            successList.add(message);
-            
-            TestUtils.sleep(thread_wait_in_ms);
-        }
-        
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
-    }
-    
-    /**
-     * Fetches all gene IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
-     * core and tests to make sure there is a page for each. Limit the test
-     * to the first MAX_GENE_TEST_PAGE_COUNT by setting it to the limit you want.
-     * 
-     * NOTE: This test currently only works on chrome. In order to run this test
-     * successfully, we need to clear the downloads folder first. A better solution
-     * is to find a way to programatically suppress the download dialog and later,
-     * when the test is complete, to remove the download file(s).
-     * 
-     * For now (01-May-2014) we shall mark this test @Ignore.
-     * 
-     * @throws SolrServerException 
-     */
-    @Test
-@Ignore
-    public void testDownloadXls() {
-        String testName = "testDownloadXls";
-        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
-        List<String> geneIds = new ArrayList();
-        String target = "";
-        List<String> errorList = new ArrayList();
-        List<String> successList = new ArrayList();
-        List<String> exceptionList = new ArrayList();
-        String message;
-        Date start = new Date();
-        DataReader dataReader = null;
-        
-geneIds.add("MGI:1921354");
-        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
-        
-        // Loop through all genes, testing each one for valid page load.
-        int i = 0;
-        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
-        for (String geneId : geneIds) {
-            if (i >= targetCount) {
-                break;
-            }
-            i++;
-            
-            target = baseUrl + "/genes/" + geneId;
-target = "http://dev.mousephenotype.org/data/export?mpId=%22MP%3A0005266%22&externalDbId=3&fileName=gene_variants_with_phen_MP_0005266&solrCoreName=genotype-phenotype&dumpMode=all&baseUrl=http%3A%2F%2Fdev.mousephenotype.org%2Fdata%2Fphenotypes%2FMP%3A0005266&page=phenotype&gridFields=marker_symbol%2Callele_symbol%2Czygosity%2Csex%2Cprocedure_name%2Cresource_name%2Cphenotyping_center%2Cparameter_stable_id%2Cmp_term_name%2Cmarker_accession_id%2C+parameter_name&params=qf%3Dauto_suggest%26defType%3Dedismax%26wt%3Djson%26rows%3D100000%26q%3D*%3A*%26fq%3D(mp_term_id%3A%22MP%3A0005266%22%2BOR%2Btop_level_mp_term_id%3A%22MP%3A0005266%22)&fileType=xls&_=1403882094801 ";
-            System.out.println("gene[" + i + "] URL: " + target);
-
-            try {
-                URL url = new URL(target);
-                dataReader = new DataReaderXls(url);
-                dataReader.open();
-                List<String> line;
-                while ((line = dataReader.getLine()) != null) {
-                    for (int index = 0; index < line.size(); index++) {
-                        if (index > 0)
-                            System.out.print("\t");
-                        System.out.print(line.get(index));
-                    }
-                    System.out.println();
-                }
-            } catch (IOException e) {
-                System.out.println("EXCEPTION: " + e.getLocalizedMessage());
-            } finally {
-                try {
-                    if (dataReader != null)
-                        dataReader.close();
-                } catch (IOException e) {
-                    System.out.println("EXCEPTION: " + e.getLocalizedMessage());
-                }
-            }
-            
-            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
-            successList.add(message);
-            
-            TestUtils.sleep(thread_wait_in_ms);
-        }
-        
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
-    }
     
     @Test
     public void testGeneDownloads() throws SolrServerException {
@@ -554,14 +422,16 @@ target = "http://dev.mousephenotype.org/data/export?mpId=%22MP%3A0005266%22&exte
         
             List<String> localErrorList = new ArrayList();
             String downloadTargetTsv = baseUrl.replace("/data", "") + dataExportUrl + "tsv";
+downloadTargetTsv = downloadTargetTsv.replaceFirst("http://localhost:8080/phenotype-archive", "");
             String[][] downloadData = getDownloadData(downloadTargetTsv, 2);
             errorCount += compareLineToTable(pageData, downloadData, localErrorList, genePageTarget, downloadTargetTsv);
-            errorCount += tsvRecordCountsInError(wait, genePageTarget, downloadTargetTsv);
+            errorCount += recordCountsInError(wait, genePageTarget, downloadTargetTsv);
             
             String downloadTargetXls = baseUrl.replace("/data", "") + dataExportUrl + "xls";
+downloadTargetXls = downloadTargetXls.replaceFirst("http://localhost:8080/phenotype-archive", "");
             downloadData = getDownloadData(downloadTargetXls, 2);
             errorCount += compareLineToTable(pageData, downloadData, localErrorList, genePageTarget, downloadTargetXls);
-            errorCount += xlsRecordCountsInError(wait, genePageTarget, downloadTargetXls);
+            errorCount += recordCountsInError(wait, genePageTarget, downloadTargetXls);
             
             if (errorCount == 0) {
                 message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + genePageTarget;
@@ -575,6 +445,5 @@ target = "http://dev.mousephenotype.org/data/export?mpId=%22MP%3A0005266%22&exte
         
         TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
     }
-    
     
 }
