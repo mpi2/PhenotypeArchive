@@ -1105,13 +1105,12 @@ public class ObservationService extends BasicService {
 			urlParams += "&phenotyping_center=" + StringUtils.join(center, "&phenotyping_center=");
 		}
 		
-		//Commenting out sex param as graphs don't seem to work with it any more (tables don't load properly) July 4th, 2014
-/*
 		if (sex != null && sex.length == 1){
 			q += " AND " + ExperimentField.SEX + ":\"" + sex[0] + "\"";
-			urlParams += "&gender=" + sex[0];
+			// Commenting out sex param as graphs don't seem to work with it any more (tables don't load properly) July 4th, 2014
+//			urlParams += "&gender=" + sex[0];
 		}
-	*/	
+		
 		query.setQuery(q);
 		query.setRows(1000000);
 		query.set("sort", ExperimentField.DATA_POINT + " asc");
