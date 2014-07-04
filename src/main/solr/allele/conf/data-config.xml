@@ -62,13 +62,14 @@
 				}				
 			
 				if ( mouse_status == "Chimeras obtained" 
-					|| mouse_status == "Micro-injection in progress"
-					|| mouse_status == "Cre Excision Started" 
-					|| mouse_status == "Rederivation Complete"
-					|| mouse_status == "Rederivation Started" ){
+					|| mouse_status == "Micro-injection in progress" ){
 					mouse_status = "Assigned for Mouse Production and Phenotyping"; // orange 
 				}
-				else if (mouse_status == "Genotype confirmed"
+				else if (
+					mouse_status == "Cre Excision Started" 
+					|| mouse_status == "Rederivation Complete"
+					|| mouse_status == "Rederivation Started"
+					|| mouse_status == "Genotype confirmed"
 					|| mouse_status == "Cre Excision Complete" 
 					|| mouse_status == "Phenotype Attempt Registered" ){
 					mouse_status = "Mice Produced"; // blue
