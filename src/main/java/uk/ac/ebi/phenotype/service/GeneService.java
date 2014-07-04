@@ -282,22 +282,6 @@ public class GeneService {
 						}
 					}
 				}
-				// if no mice status found but there is already allele produced,
-				// mark it as "mice produced planned"
-				for (int j = 0; j < alleleNames.size(); j++) {
-					String alleleName = alleleNames.get(j).toString();
-					if (!alleleName.equals("") && !alleleName.equals("None")
-							&& mouseStatus.get(j).toString().equals("")) {
-						Matcher matcher = pattern.matcher(alleleName);
-						if (matcher.find()) {
-							String alleleType = matcher.group(1);
-							miceStatus += "<span class='status none' title='Mice production planned' >"
-									+ "	<span>Mice<br>"
-									+ alleleType
-									+ "</span>" + "</span>";
-						}
-					}
-				}
 
 			}
 

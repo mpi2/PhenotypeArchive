@@ -25,12 +25,10 @@ public class ParameterToGeneMap {
 
 
 	public ParameterToGeneMap(ObservationService os){
-		System.out.println("\n\n passed the observation map\n");
 		fillMaps(os);
 	}
 	
 	public ParameterToGeneMap(){
-		System.out.println("\n\nNo OS\n");
 	}
 	
 	private void fillMaps(ObservationService observationService){
