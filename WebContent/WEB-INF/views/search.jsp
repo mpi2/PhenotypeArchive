@@ -157,18 +157,31 @@
 			       				//console.log(docs);
 			       				var aKV = [];
 			       				for ( var i=0; i<docs.length; i++ ){
+			       					
 			       					for ( key in docs[i] ){
-			       						//console.log('key: '+key);	
+			       						
 			       						var facet;
 			       						if ( key == 'docType' ){	
 			       							facet = docs[i][key].toString();
 			       						}
 			       						else {	
 			       							var term = docs[i][key].toString().toLowerCase();	
-			       							var re = new RegExp("(" + request.term + ")", "gi") ;			       				 			
-			       				 			var newTerm = term.replace(re,"<b class='sugTerm'>$1</b>");
-			       				 						       				 			
-			       							aKV.push("<span class='" + facet + "'>" + newTerm + "</span>");
+			       							var termHl = term;
+			       							//var re = new RegExp("(" + request.term + ")", "gi") ;			       				 			
+			       				 			//var newTerm = term.replace(re,"<b class='sugTerm'>$1</b>");
+			       				 			
+			       				 			var parts = $('input#s').val().trim(' ').split(' ');
+			       				 			
+			       				 			//var re = new RegExp("(" + request.term + ")", "gi") ;
+			       				 			for ( var p=0; p<parts.length; p++){
+			       				 				var part = parts[p];
+			       				 				
+			       				 				// only want to match whole word
+			       				 				var re = new RegExp("(\\b" + part + "\\b)", "gi");			       				 				
+			       				 				termHl = termHl.replace(re,"<b class='sugTerm'>$1</b>")
+			       				  			}
+			       				 				       				 						       				 			
+			       							aKV.push("<span class='" + facet + "'>" + "<span class='dtype'>"+ facet + ' : </span>' + termHl + "</span>");
 			       							//console.log('facet: ' +  facet);
 			       							if (i == 0){
 			       								// take the first found in autosuggest and open that facet
@@ -182,18 +195,19 @@
 		       			});
 	       			},
 	       			focus: function (event, ui) {
-	       		       this.value = $(ui.item.label).text();
+	       		       this.value = $(ui.item.label).text().replace(/<\/?span>|^\w* : /g,'');
 	       		       event.preventDefault(); // Prevent the default focus behavior.
 	       			},
 	       			minLength: 3,
 	       			select: function( event, ui ) {
-	       				// select by mouse click
+	       				// select by mouse / KB
 	       				//console.log(this.value + ' vs ' + ui.item.label);
-	       				var oriText = $(ui.item.label).text();
+	       				//var oriText = $(ui.item.label).text();
+	       				
 	       				var facet = $(ui.item.label).attr('class');
 	       				
-	       				// handed over to hash change to fetch for results	       				
-	       				document.location.href = baseUrl + '/search?q=' + oriText + '#facet=' + facet; 	
+	       				// handed over to hash change to fetch for results	 				
+	       				document.location.href = baseUrl + '/search?q=' + this.value + '#facet=' + facet; 	
 	       				
 	       				// prevents escaped html tag displayed in input box
 	       				event.preventDefault(); return false; 
