@@ -74,6 +74,7 @@ import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.util.ParameterStableIdComparator;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
+import uk.ac.ebi.phenotype.util.ProcedureComparator;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
 
 @Controller
@@ -236,7 +237,8 @@ public class PhenotypesController {
 
 		model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
 		
-		TreeSet<Procedure> procedures = new TreeSet<Procedure>(pipelineDao.getProceduresByOntologyTerm(oTerm));
+		List<Procedure> procedures = new ArrayList<Procedure>(pipelineDao.getProceduresByOntologyTerm(oTerm));
+		Collections.sort(procedures, new ProcedureComparator());
 		model.addAttribute("phenotype", oTerm);
 		model.addAttribute("procedures", procedures);
 		model.addAttribute("genePercentage", getPercentages(phenotype_id));
