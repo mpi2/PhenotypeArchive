@@ -1,4 +1,4 @@
-package uk.ac.ebi.phenotype.stats;
+package uk.ac.ebi.phenotype.service;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
