@@ -46,26 +46,8 @@ public class ParameterToGeneMap {
 		}
 	}
 	
-	public Map<String , ArrayList<String>> getMaleMap(ObservationService observationService){
-		if (maleParamToGene == null){
-			fillMaps(observationService);
-		}
-		return maleParamToGene;
-	}
-
-	
-	public Map<String , ArrayList<String>> getFemaleMap(ObservationService observationService){
-		if (femaleParamToGene == null){
-			fillMaps(observationService);
-		}
-		return femaleParamToGene;
-	}
-	
 	public Set<String> getTestedGenes( List<String> parameters, SexType sex, ObservationService os){
 		HashSet<String> res = new HashSet<>();
-		if (femaleParamToGene == null || maleParamToGene == null){
-			fillMaps(os);
-		}
 		if (sex == null || sex.equals(SexType.female) ){
 			for (String p : parameters){
 				if (femaleParamToGene.containsKey(p)){

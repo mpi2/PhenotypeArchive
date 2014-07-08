@@ -1120,7 +1120,7 @@ public class ObservationService extends BasicService {
 		query.set("group.limit", -1);
 		// per group
 
-//		System.out.println("--- unidimensional : " + solr.getBaseURL() + "/select?" + query);
+		System.out.println("--- unidimensional : " + solr.getBaseURL() + "/select?" + query);
 		
 		// for each colony get the mean & put it in the array of data to plot
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
