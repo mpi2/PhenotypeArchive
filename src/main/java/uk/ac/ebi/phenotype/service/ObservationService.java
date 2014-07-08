@@ -1348,7 +1348,6 @@ public class ObservationService extends BasicService {
 		for ( Count parameter : response.getFacetField(ExperimentField.PARAMETER_STABLE_ID).getValues()){
 			// fill genes for each of them
 			if (parameter.getCount() > 0){
-			    System.out.println(pmapService);
 			    temp.put(parameter.getName(), pmapService.getAllGenesWithMeasuresForParameter(parameter.getName(), sex));
 			}
 		}
