@@ -1110,7 +1110,7 @@ public class ObservationService extends BasicService {
 		
 		if (sex != null && sex.length == 1){
 			q += " AND " + ExperimentField.SEX + ":\"" + sex[0] + "\"";
-			// Commenting out sex param as graphs don't seem to work with it any more (tables don't load properly) July 4th, 2014
+			// Commenting out sex param as graphs don't seem to work with it any more (tables don't load properly)  -  July 4th, 2014
 //			urlParams += "&gender=" + sex[0];
 		}
 		
@@ -1123,7 +1123,7 @@ public class ObservationService extends BasicService {
 		query.set("group.limit", 300); // how many docs in a group. Since we do unidimensional data, we won't have morw than 300 measures for one animal & one parameter
 		// per group
 
-		System.out.println("--- unidimensional : " + solr.getBaseURL() + "/select?" + query);
+//		System.out.println("--- unidimensional : " + solr.getBaseURL() + "/select?" + query);
 		
 		// for each colony get the mean & put it in the array of data to plot
 		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
