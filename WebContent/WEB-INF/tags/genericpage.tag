@@ -85,33 +85,34 @@ var solrUrl='${solrUrl}';
 var drupalBaseUrl = "${drupalBaseUrl}";
 var mediaBaseUrl = "${mediaBaseUrl}";
 
-var ourGoogleToken='UA-23433997-1';
-/* code to track if live
-}*/
-if(baseUrl.indexOf("www") > -1){
-	
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-		 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-		 ga('create', 'UA-23433997-1', 'auto');
-		 ga('send', 'pageview');
-
-} 
 <%--
 Some browsers do not provide a console object see:
 http://stackoverflow.com/questions/690251/what-happened-to-console-log-in-ie8
 http://digitalize.ca/2010/04/javascript-tip-save-me-from-console-log-errors/
+// In case we forget to take out console statements. IE fails otherwise
 --%>
-//In case we forget to take out console statements. IE becomes very unhappy when we forget. Let's not make IE unhappy
 try {
-        console.log(" ");
+  console.log(" ");
 } catch(err) {
-        var console = {};
-        console.log = console.error = console.info = console.debug = console.warn = console.trace = console.dir = console.dirxml = console.group = console.groupEnd = console.time = console.timeEnd = console.assert = console.profile = function() {};
+  var console = {};
+  console.log = console.error = console.info = console.debug = console.warn = console.trace = console.dir = console.dirxml = console.group = console.groupEnd = console.time = console.timeEnd = console.assert = console.profile = function() {};
 }
 </script>
+
+<%--
+Include google tracking code on live site
+--%>
+<c:if test="${liveSite}">
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-23433997-1', 'auto');
+ga('send', 'pageview');
+</script>
+</c:if>
 
 <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
 <!--[if lt IE 9]>
