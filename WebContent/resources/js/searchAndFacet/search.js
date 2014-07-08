@@ -19,14 +19,16 @@
  */
 
 (function($){	
+	var jsonBase = MPI2.searchAndFacetConfig.facetParams;
 	
 	function _updateFacetCount(facet, facetResponse, facetMode){		
 		//var num = facetMode ? '' : facetResponse.response.numFound;
 		num = facetResponse.response.numFound;		
 		$('div.flist li#' + facet + ' span.fcount').html(num);		
+		
+		var freezeMode = num == 0 ? true : false;
+		$.fn.freezeFacet($('li#' + facet + '.fmcat'), freezeMode);	
 	}
-	
-	var jsonBase = MPI2.searchAndFacetConfig.facetParams;
 	
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
 		//console.log(oUrlHashParams);	
@@ -141,8 +143,10 @@
 	}
 	
 	function _doTissueAutoSuggest(geneResponse, mpResponse, diseaseResponse, q, oFacets, facetMode, oUrlHashParams){
+		
 		jsonBase.maFacet.srchParams.q = q;	
 		jsonBase.maFacet.srchParams.sort = 'ma_term asc';
+		
 		if ( typeof oUrlHashParams.fq != 'undefined' && typeof oUrlHashParams.coreName == 'undefined' ){
 			jsonBase.maFacet.filterParams = {'fq': oUrlHashParams.fq};
 		}
@@ -159,6 +163,7 @@
     	    	oFacets.count.ma = maResponse.response.numFound;    	    	
     	    	_updateFacetCount('ma', maResponse, facetMode);	     	    	
     	    	_doPipelineAutoSuggest(geneResponse, mpResponse, diseaseResponse, maResponse, q, oFacets, facetMode, oUrlHashParams);
+ 
     	    },
 			error: function (jqXHR, textStatus, errorThrown) {			       	        
 				$('div#facetSrchMsg').html('Error fetching data ...');

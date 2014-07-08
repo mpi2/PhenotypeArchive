@@ -115,9 +115,11 @@
 			}
 		});
 		*/
-		$('div.flist li#' + facet).click(function() {
-			//alert('2');
-			if ($(this).hasClass('open')) {
+		$('div.flist >ul li#' + facet).click(function() {
+			if ( $(this).find('span.fcount').text() == 0 ){
+				return false; // for facet having no matches, a click does nothing
+			}
+			else if ($(this).hasClass('open')) {
 				$(this).removeClass('open');
 			} 
 			else {
@@ -140,14 +142,8 @@
 		});*/
 		
 		
-		
-		//$('div.flist li#' + facet).find('li.fcatsection:not(.inactive)').click(function(e) { 
-			//alert('4');
-			//alert($('div.flist li#' + facet).find('li.fcatsection').attr('class'));
-		$('div.flist li#' + facet).find('li.fcatsection').click(function(e) { 	
-			//alert('4');
-			//alert($('div.flist li#' + facet).find('li.fcatsection').attr('class'));
-			//alert(MPI2.searchAndFacetConfig.filterChange);
+		$('div.flist ul li#' + facet).find('li.fcatsection').click(function(e) { 	
+			
 			// when subfacet opens, tick checkbox facet filter if there is matching summary facet filter (created from url on page load)
 			if ($('ul#facetFilter li.'+ facet + ' li.ftag').size() != 0  ){
 				$('ul#facetFilter li.ftag a').each(function(){
@@ -162,10 +158,14 @@
 				});	
 			}
 			
-			e.stopPropagation();	
-			if ( MPI2.searchAndFacetConfig.filterChange ){
-				MPI2.searchAndFacetConfig.filterChange = false; // reset, as this is used as a checkpoint for opening/closing a subfacet
+			e.stopPropagation();
+			
+			if ( $(this).parent().parent().find('span.fcount').text() == 0 ){
+				return false; // for facet having no matches, a click does nothing
 			}
+			else if ( MPI2.searchAndFacetConfig.filterChange ){
+				MPI2.searchAndFacetConfig.filterChange = false; // reset, as this is used as a checkpoint for opening/closing a subfacet
+			}			
 			else {
 				$(this).toggleClass('open'); 
 			}
@@ -196,17 +196,17 @@
 		
 		caller.click(function(){
 			
-			if ( caller.find('span.fcount').text() != 0 ){
+			if ( caller.find('span.fcount').text() != 0 ){ // initial state (lives until widget is refreshed)
 				MPI2.searchAndFacetConfig.widgetOpen = true;
 				//console.log(facet + ' widget expanded : '+ MPI2.searchAndFacetConfig.widgetOpen);
 				
 				// close all other non-selected facets
-				$('div.flist > ul li.fmcat').each(function(){
+				/*$('div.flist > ul li.fmcat').each(function(){
 					if ( $(this).attr('id') != facet ){
 						$(this).removeClass('open');
 					}
 				});	
-				
+				*/
 				
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
 							
@@ -269,6 +269,11 @@
 					}
 				}	
 			}
+			else {
+				
+				console.log('facet click on zero');
+				//$(this).addClass('open');
+			}
 		});		
 	};
 	
@@ -278,12 +283,29 @@
 		var fcount = json.response.numFound;
 		$(selectorBase + ' > span.fcount').text(fcount);    			
 		
+		
+		var freezeMode = fcount == 0 ? true : false;
+		$.fn.freezeFacet($(selectorBase), freezeMode);
+		
 		// set all subfacet counts to zero first and then update only those matching facets
 		$(selectorBase).find('li.fcat span.fcount').each(function(){
 			$(this).text('0');
 		});					
 	};
 		
+	$.fn.freezeFacet = function(obj, freezeMode){
+		if ( freezeMode ){
+			obj.css('cursor', 'not-allowed');
+			obj.find('li.fcatsection').css('cursor', 'not-allowed');
+			obj.find('span').addClass('grayout');
+		}
+		else {
+			obj.css('cursor', 'pointer');
+			obj.find('li.fcatsection').css('cursor', 'pointer');
+			obj.find('span').removeClass('grayout');
+		}
+	}
+	
 	$.fn.addFacetOpenCollapseLogic = function(foundMatch, selectorBase) {
 		var firstMatch = 0;	
 		
@@ -330,6 +352,7 @@
 		
 		var state = mode == 'pointer' ? false : true;
 		$('div.flist li#' + core + sClass + ' input').prop('disabled', state).css('cursor', mode);
+				
 	}
 	
 	function FacetCountsUpdater(oConf){	
@@ -475,8 +498,8 @@
 			    		'dataType': 'jsonp',
 			    		'jsonp': 'json.wrf',
 			    		'success': function(json) {
-			    			//console.log('mp: ');	
-			    			//console.log(json);
+			    			console.log('mp: ');	
+			    			console.log(json);
 			    			
 			    			// refresh phenotype facet
 			    			var oFacets = json.facet_counts.facet_fields;   				
@@ -967,15 +990,14 @@
 			thisLi.append(ul);	
 			thisLi.show();
 			
-			//alert('1: ' +MPI2.searchAndFacetConfig.filterChange);
+			
 			// update url when new filter is added
-			var fqStr = this.updateUrl();
-			//alert('2: ' +MPI2.searchAndFacetConfig.filterChange);
+			var fqStr = this.updateUrl();			
 			this.updateFacetCounts(fqStr);
-			//alert('3: ' +MPI2.searchAndFacetConfig.filterChange);
+			
 			// callback for uncheck sumary filter
 			uncheck_summary_facet_filter(this);		
-			//alert('4: ' +MPI2.searchAndFacetConfig.filterChange);
+			
 		};	
 	}
 

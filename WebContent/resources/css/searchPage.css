@@ -13,6 +13,9 @@ ul.ui-autocomplete li a {
 ul.ui-autocomplete li a:hover {
 	background-color: #D4D4D4 !important;	
 }
+span.ui-helper-hidden-accessible {
+	font-size: 14px;
+}
 span.gene, span.mp, span.ma, span.disease {
 	color: black;
 }
@@ -41,6 +44,7 @@ div#facetSrchMsg {
 
 /* facet - main categories */
 .fmcat > .flabel                        { color: #0978A1; font-size: 1.4em; font-weight: 300; }
+.fmcat > .flabel.grayout				{ color: #cccccc; }	
 .fmcat                                  { margin: 1em 0; }
 .fmcat:before                           { font-family: 'FontAwesome'; content: "\f0da"; color: #0978A1; margin-right: 0.5em; }
 .fmcat.open:before                      { content: "\f0d7"; }
@@ -245,4 +249,7 @@ div.mpCol div.title a, div.maCol div.title a {
 span#dnld {
         font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif !important;
         color: #0978A1;
+}
+span.dtype {
+	color: gray;
 }
