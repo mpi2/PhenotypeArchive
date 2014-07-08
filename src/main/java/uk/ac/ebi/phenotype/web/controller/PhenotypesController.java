@@ -236,14 +236,18 @@ public class PhenotypesController {
 		processPhenotypes(phenotype_id, "", model);
 
 		model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
-		
 		List<Procedure> procedures = new ArrayList<Procedure>(pipelineDao.getProceduresByOntologyTerm(oTerm));
 		Collections.sort(procedures, new ProcedureComparator());
-		model.addAttribute("phenotype", oTerm);
 		model.addAttribute("procedures", procedures);
-		model.addAttribute("genePercentage", getPercentages(phenotype_id));
+		model.addAttribute("phenotype", oTerm);
 		
+		long time = System.currentTimeMillis();
+		model.addAttribute("genePercentage", getPercentages(phenotype_id));
+		System.out.println("\nTime loading percentages: " + (System.currentTimeMillis() - time));
+	
+		time = System.currentTimeMillis();
 		model.addAttribute("parametersAssociated", getParameters(phenotype_id));
+		System.out.println("\nTime loading parametersAssociated: " + (System.currentTimeMillis() - time));
 		
 		return "phenotypes";
 	}
@@ -486,34 +490,20 @@ public class PhenotypesController {
 	 */
 	public Map<String, String> getParameters(String mpId) throws SolrServerException {
 		TreeMap<String, String> res = new TreeMap<String, String>(new ParameterStableIdComparator());
-		List<String> paramIds = new ArrayList<String>(getParameterStableIdsByPhenotypeAndChildren(mpId));
-		Collections.sort(paramIds, new ParameterStableIdComparator());
+		ArrayList<Parameter> parameters = gpService.getParametersForPhenotype(mpId);		
 		
-		for (String param : paramIds){
-			if (gpService.getGenesAssocByParamAndMp(param, mpId).size() > 0){
-				Parameter p =  pipelineDao.getParameterByStableId(param);
-				res.put(param,p.getName());
-			}else {
-				ArrayList<String> children = mpService.getChildrenFor(mpId);
-				for (String child : children){
-					if (gpService.getGenesAssocByParamAndMp(param, child).size() > 0){
-						Parameter p =  pipelineDao.getParameterByStableId(param);
-						res.put(param,p.getName());
-						System.out.println("\t>> " + param);
-						break;
-					}
-				}
-			}
+		for (Parameter param : parameters){
+			res.put(param.getStableId(), param.getName());
 		}
 		
-		System.out.println("parameter list has " + paramIds);
+		System.out.println("parameter list has " + parameters);
 		return res;
 	}
 	
 	/**
 	 * 
 	 * @param mpTermId
-	 * @return List of all parameters associated to the mp term or any of it's children (based on the slim only)
+	 * @return List of all parameters that may lead to associations to the MP term or any of it's children (based on the slim only)
 	 */
 	public HashSet<String> getParameterStableIdsByPhenotypeAndChildren(String mpTermId) {
 		HashSet<String> res = new HashSet<>();

@@ -38,6 +38,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -186,18 +187,51 @@ public class GenotypePhenotypeService extends BasicService {
     }
     
 
- 
+    /**
+     * 
+     * @param mpId
+     * @return List of parameters that led to at least one association to the given parameter or some class in its subtree
+     * @throws SolrServerException
+     * @author tudose
+     */
+    public ArrayList<Parameter> getParametersForPhenotype(String mpId) throws SolrServerException{
+    	ArrayList<Parameter>res = new ArrayList<>();
+    	SolrQuery q = new SolrQuery().setQuery(
+				"(" + GenotypePhenotypeField.MP_TERM_ID + ":\"" + mpId
+						+ "\" OR "
+						+ GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":\""
+						+ mpId + "\" OR "
+						+ GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID
+						+ ":\"" + mpId + "\") AND ("
+						+ GenotypePhenotypeField.STRAIN_ACCESSION_ID
+						+ ":\"MGI:2159965\" OR "
+						+ GenotypePhenotypeField.STRAIN_ACCESSION_ID
+						+ ":\"MGI:2164831\")").setRows(0);
+		q.set("facet.field", "" + GenotypePhenotypeField.PARAMETER_STABLE_ID);
+		q.set("facet", true);
+		q.set("facet.limit", -1);
+		q.set("facet.mincount", 1);
+		QueryResponse response = solr.query(q);
+		for ( Count parameter : response.getFacetField(GenotypePhenotypeField.PARAMETER_STABLE_ID).getValues()){
+			// fill genes for each of them
+			// if (parameter.getCount() > 0){
+			    res.add(pipelineDAO.getParameterByStableId(parameter.getName()));
+			//}
+		}
+		return res;
+    }
     
-	public List<Group> getGenesBy(String phenotype_id, String sex)
+    
+	public List<Group> getGenesBy(String mpId, String sex)
 			throws SolrServerException {
 		// males only
 		SolrQuery q = new SolrQuery().setQuery(
-				"(" + GenotypePhenotypeField.MP_TERM_ID + ":\"" + phenotype_id
+				"(" + GenotypePhenotypeField.MP_TERM_ID + ":\"" + mpId
 						+ "\" OR "
 						+ GenotypePhenotypeField.TOP_LEVEL_MP_TERM_ID + ":\""
-						+ phenotype_id + "\" OR "
+						+ mpId + "\" OR "
 						+ GenotypePhenotypeField.INTERMEDIATE_MP_TERM_ID
-						+ ":\"" + phenotype_id + "\") AND ("
+						+ ":\"" + mpId + "\") AND ("
 						+ GenotypePhenotypeField.STRAIN_ACCESSION_ID
 						+ ":\"MGI:2159965\" OR "
 						+ GenotypePhenotypeField.STRAIN_ACCESSION_ID
