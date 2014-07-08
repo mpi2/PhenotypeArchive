@@ -1112,12 +1112,12 @@ public class ObservationService extends BasicService {
 		}
 		
 		query.setQuery(q);
-		query.setRows(1000000);
+		query.setRows(-1);
 		query.set("sort", ExperimentField.DATA_POINT + " asc");
 		query.setFields(ExperimentField.GENE_ACCESSION, ExperimentField.DATA_POINT, ExperimentField.GENE_SYMBOL);
 		query.set("group", true);
 		query.set("group.field", ExperimentField.COLONY_ID);
-		query.set("group.limit", -1);
+		query.set("group.limit", 300); // how many docs in a group. Since we do unidimensional data, we won't have morw than 300 measures for one animal & one parameter
 		// per group
 
 		System.out.println("--- unidimensional : " + solr.getBaseURL() + "/select?" + query);
