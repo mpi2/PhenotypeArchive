@@ -34,6 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import javax.annotation.Resource;
+
 import net.sf.json.JSONArray;
 
 import org.apache.commons.lang.StringUtils;
@@ -55,9 +57,7 @@ import org.apache.solr.common.util.NamedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
-import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
@@ -72,12 +72,18 @@ import uk.ac.ebi.phenotype.stats.categorical.CategoricalDataObject;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
 import uk.ac.ebi.phenotype.util.ParameterToGeneMap;
 
-@EnableAsync
 @Service
 public class ObservationService extends BasicService {
 
     @Autowired
     PhenotypePipelineDAO parameterDAO;
+    
+    @Autowired
+    @Qualifier("mapService")
+    ParameterMapService pmapService;
+
+    @Autowired
+    ParameterToGeneMap ptgm;
 
     private static final Logger LOG = LoggerFactory.getLogger(ObservationService.class);
     // Definition of the solr fields
@@ -127,15 +133,12 @@ public class ObservationService extends BasicService {
     
     private final HttpSolrServer solr;
     
-    private ParameterToGeneMap ptgm;
-
     public ObservationService() {
         this("http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment"); //default
     }
 
     public ObservationService(String solrUrl) {
         solr = new HttpSolrServer(solrUrl);
-        ptgm = new ParameterToGeneMap(this);
     }
 
     
@@ -1345,7 +1348,8 @@ public class ObservationService extends BasicService {
 		for ( Count parameter : response.getFacetField(ExperimentField.PARAMETER_STABLE_ID).getValues()){
 			// fill genes for each of them
 			if (parameter.getCount() > 0){
-			    temp.put(parameter.getName(), getAllGenesWithMeasuresForParameter(parameter.getName(), sex));
+			    System.out.println(pmapService);
+			    temp.put(parameter.getName(), pmapService.getAllGenesWithMeasuresForParameter(parameter.getName(), sex));
 			}
 		}
 		
@@ -1356,38 +1360,7 @@ public class ObservationService extends BasicService {
 		System.out.println("Done in " + (System.currentTimeMillis() - time));
 		return res;
 	}
-	
-	/**
-	 * Asychronous method to get all genes with a given parameter measured. [NOTE] Fiters on B6N background!
-	 * @param parameterStableId
-	 * @param sex (null if both sexes wanted)
-	 * @return  
-	 * @throws SolrServerException
-	 * @author tudose
-	 */
-	@Async
-	public Future<ArrayList<String>> getAllGenesWithMeasuresForParameter (String parameterStableId, SexType sex) throws SolrServerException{
-		SolrQuery query;
-		if (sex != null)
-			query = new SolrQuery().setQuery(ExperimentField.SEX + ":" + sex.name()).setRows(1);
-		else {
-			query = new SolrQuery().setQuery("*:*");			
-		}
-		query.setFilterQueries(ExperimentField.PARAMETER_STABLE_ID + ":" + parameterStableId);
-		query.setFilterQueries(ExperimentField.STRAIN + ":\"MGI:2159965\" OR " + ExperimentField.STRAIN + ":\"MGI:2164831\"");
-		query.set("facet.field", ExperimentField.GENE_ACCESSION);
-		query.set("facet", true);
-		query.set("facet.limit", -1); // we want all facets
-		QueryResponse response2 = solr.query(query);
-		ArrayList<String> genes = new ArrayList<>();
-		for (Count gene : response2.getFacetField(ExperimentField.GENE_ACCESSION).getValues()){
-			if (gene.getCount()>0){
-				genes.add(gene.getName());
-			}
-		}
-		return new AsyncResult<>(genes);
-	}
-	
+		
 	
 	public Set<String> getTestedGenes(String sex,
 			List<String> parameters) throws SolrServerException {
@@ -1559,7 +1532,7 @@ public class ObservationService extends BasicService {
 	}
 
 	public Set<String> getTestedGenesByParameterSex(List<String> parameters, SexType sex){
-		return ptgm.getTestedGenes(parameters, sex, this);
+		return ptgm.getTestedGenes(parameters, sex);
 	}
 	
 }

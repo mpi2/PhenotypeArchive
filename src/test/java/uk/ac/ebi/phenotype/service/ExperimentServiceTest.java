@@ -1,4 +1,4 @@
-package uk.ac.ebi.phenotype.stats;
+package uk.ac.ebi.phenotype.service;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -22,9 +22,11 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.Organisation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.Pipeline;
+import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.ExperimentService;
+import uk.ac.ebi.phenotype.stats.ExperimentDTO;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })
@@ -215,17 +217,22 @@ public class ExperimentServiceTest {
         //System.out.println("Size is: "+experimentList.size());
 	}
 
-	
-/*	@Test
-	public void testGetGraphUrls() {
-		GraphUtils graphUtils=new GraphUtils(es);
-		try {
-			graphUtils.getGraphUrls("MGI:1922257", "ESLIM_003_001_004");
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	@Test
+	public void testGetExperimentDTOWithNullAlleleAccession() throws SolrServerException, IOException, URISyntaxException {
+
+	    Logger.getRootLogger().setLevel(Level.TRACE);
+
+        System.out.println("\ntestGetExperimentWithAndWithoutResult");
+        Parameter p = pDAO.getParameterByStableId("IMPC_CSD_029_001");
+        Pipeline pipe = pDAO.getPhenotypePipelineByStableId("ICS_001");
+        Organisation org = orgDAO.getOrganisationByName("ICS");
+        
+        List<String> zygs = new ArrayList<>();
+        zygs.add(ZygosityType.homozygote.name());
+        String metadataGroup="96db0da3e0c423e1647b6bbe48c6fb6d";
+	    List<ExperimentDTO> experiments = es.getExperimentDTO(p.getId(), pipe.getId(), "MGI:1914982", null, org.getId(), zygs, "MGI:2164831", metadataGroup, Boolean.FALSE, null);
+	    System.out.println(experiments);
+
 	}
-*/
 
 }
