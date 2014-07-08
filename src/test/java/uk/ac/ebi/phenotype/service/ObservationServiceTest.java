@@ -13,18 +13,18 @@ public class ObservationServiceTest {
 
     private ObservationService os = new ObservationService();
  
-    @Test
-    public void testGetAllGenesWithMeasuresForParameter(){
-    	Future<ArrayList<String>> res = null;
-        System.out.println("About to run...");
-        try{
-        	res = os.getAllGenesWithMeasuresForParameter("ESLIM_003_001_011", null);
-        	System.out.println("And the result of get() is " + res.get());
-        }catch(Exception e){
-        	e.printStackTrace();
-        }
-        Assert.assertTrue(res != null);
- 
-    }
+//    @Test
+//    public void testGetAllGenesWithMeasuresForParameter(){
+//    	Future<ArrayList<String>> res = null;
+//        System.out.println("About to run...");
+//        try{
+//        	res = os.getAllGenesWithMeasuresForParameter("ESLIM_003_001_011", null);
+//        	System.out.println("And the result of get() is " + res.get());
+//        }catch(Exception e){
+//        	e.printStackTrace();
+//        }
+//        Assert.assertTrue(res != null);
+// 
+//    }
 	
 }
