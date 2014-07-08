@@ -215,7 +215,7 @@ public class DataTableController {
 				phenoStatus = "";
 			}
 			else if ( solrIndex.deriveLatestPhenotypingStatus(doc).equals("QC") ){
-				phenoStatus = "<a class='status qc' href='" + geneLink + "'><span>pre-QC data available</span></a>";
+				phenoStatus = "<a class='status qc' href='" + geneLink + "'><span>legacy data available</span></a>";
 			}
 			else {
 				phenoStatus = "<a class='status done' href='" + geneLink + "'><span>phenotype data available</span></a>";
