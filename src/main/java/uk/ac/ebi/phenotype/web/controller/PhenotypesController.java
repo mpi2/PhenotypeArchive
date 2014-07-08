@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -70,6 +71,7 @@ import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.service.ObservationService;
+import uk.ac.ebi.phenotype.util.ParameterStableIdComparator;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
@@ -240,8 +242,6 @@ public class PhenotypesController {
 		model.addAttribute("genePercentage", getPercentages(phenotype_id));
 		
 		model.addAttribute("parametersAssociated", getParameters(phenotype_id));
-		//TODO move all getDataOverviewCharts to the OverviewChartsController
-//		model.addAttribute("overviewPhenCharts", getDataOverviewCharts(phenotype_id, model));
 		
 		return "phenotypes";
 	}
@@ -483,9 +483,10 @@ public class PhenotypesController {
 	 * @throws SolrServerException
 	 */
 	public Map<String, String> getParameters(String mpId) throws SolrServerException {
-		Map<String, String> res = new HashMap<String, String>();
+		TreeMap<String, String> res = new TreeMap<String, String>(new ParameterStableIdComparator());
 		List<String> paramIds = new ArrayList<String>(getParameterStableIdsByPhenotypeAndChildren(mpId));
-		Collections.sort(paramIds);
+		Collections.sort(paramIds, new ParameterStableIdComparator());
+		
 		for (String param : paramIds){
 			if (gpService.getGenesAssocByParamAndMp(param, mpId).size() > 0){
 				Parameter p =  pipelineDao.getParameterByStableId(param);
@@ -493,17 +494,17 @@ public class PhenotypesController {
 			}else {
 				ArrayList<String> children = mpService.getChildrenFor(mpId);
 				for (String child : children){
-					if (param.equalsIgnoreCase("IMPC_CSD_051_002"))
-						System.out.println(">>> " + child + "\t" + gpService.getGenesAssocByParamAndMp(param, child).size());
 					if (gpService.getGenesAssocByParamAndMp(param, child).size() > 0){
 						Parameter p =  pipelineDao.getParameterByStableId(param);
 						res.put(param,p.getName());
+						System.out.println("\t>> " + param);
 						break;
 					}
 				}
 			}
 		}
-		System.out.println("parameter list has " + res.size());
+		
+		System.out.println("parameter list has " + paramIds);
 		return res;
 	}
 	

@@ -38,7 +38,6 @@ public class ParameterMapService {
      */
     @Async
     public Future<ArrayList<String>> getAllGenesWithMeasuresForParameter (String parameterStableId, SexType sex) throws SolrServerException{
-        String threadName = Thread.currentThread().getName(); 
         SolrQuery query;
         if (sex != null)
             query = new SolrQuery().setQuery(ExperimentField.SEX + ":" + sex.name()).setRows(1);
