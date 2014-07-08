@@ -131,7 +131,7 @@ public class PhenotypeGeneSummaryDTO {
 				 + " credits: { enabled: false }, "
 				 + " tooltip: {  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'},"
 				 + " plotOptions: { "
-				 	+ "pie: { allowPointSelect: true, cursor: 'pointer', dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.percentage:.1f} %', style: { color: '#666' }  }  },"
+				 	+ "pie: { size: 200, allowPointSelect: true, cursor: 'pointer', dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.percentage:.1f} %', style: { color: '#666' }  }  },"
 				 	+ "series: {  dataLabels: {  enabled: true, format: '{point.name}: {point.percentage:.1f}%'} }"
 				 + " },"
 			+ " series: [{  type: 'pie',   name: '',  "
