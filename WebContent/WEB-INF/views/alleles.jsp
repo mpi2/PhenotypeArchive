@@ -391,7 +391,7 @@
       <tr>
         <th>ES Cell Clone</th>
         <th>Targeting Vector</th>
-        <th>QC  Data</th>
+        <th>QC Data</th>
         <th>ES Cell strain / Parental Cell Line</th>
         <th>Order</th>
       </tr>
