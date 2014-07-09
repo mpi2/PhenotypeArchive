@@ -166,8 +166,7 @@ public class GenotypePhenotypeService extends BasicService {
         	} else {
         
         	ArrayList<String> mpTermIds = (ArrayList<String>) doc.getFieldValue(mpTermAcc);
-        	ArrayList<String> mpTermNames = (ArrayList<String>) doc.getFieldValue(mpTermName);
-        	
+        	ArrayList<String> mpTermNames = (ArrayList<String>) doc.getFieldValue(mpTermName);        	
         	
         	for (int i=0; i<mpTermIds.size();i++) {
             	Map<String, String> r = new HashMap<String, String>();

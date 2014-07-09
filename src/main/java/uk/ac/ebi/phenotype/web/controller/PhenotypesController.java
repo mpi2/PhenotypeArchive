@@ -21,13 +21,13 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -71,7 +71,7 @@ import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.service.ObservationService;
-import uk.ac.ebi.phenotype.util.ParameterStableIdComparator;
+import uk.ac.ebi.phenotype.util.ParameterComparator;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
 import uk.ac.ebi.phenotype.util.ProcedureComparator;
@@ -243,11 +243,11 @@ public class PhenotypesController {
 		
 		long time = System.currentTimeMillis();
 		model.addAttribute("genePercentage", getPercentages(phenotype_id));
-		System.out.println("\nTime loading percentages: " + (System.currentTimeMillis() - time));
+		log.info("\tTime loading percentages: " + (System.currentTimeMillis() - time) + "ms");
 	
 		time = System.currentTimeMillis();
 		model.addAttribute("parametersAssociated", getParameters(phenotype_id));
-		System.out.println("\nTime loading parametersAssociated: " + (System.currentTimeMillis() - time));
+		log.info("\tTime loading parametersAssociated: " + (System.currentTimeMillis() - time) + "ms");
 		
 		return "phenotypes";
 	}
@@ -280,6 +280,8 @@ public class PhenotypesController {
 			phenotypeList = new ArrayList<PhenotypeCallSummary>();
 		}
 
+		long time = System.currentTimeMillis();
+		
 		// This is a map because we need to support lookups
 		Map<PhenotypeRow,PhenotypeRow> phenotypes = new HashMap<PhenotypeRow,PhenotypeRow>(); 
 		
@@ -300,23 +302,24 @@ public class PhenotypesController {
 				pr.setSexes(new ArrayList<String>(sexes));
 			}
 			
-			if(pr.getParameter() != null && pr.getProcedure()!= null) {		
-				//if(pr.getGene().getSymbol().equals("Dll1")){
+			if(pr.getParameter() != null && pr.getProcedure()!= null) {
 				phenotypes.put(pr, pr);
-				//}
 			}
 		}
 		
 		List <PhenotypeRow> list=new ArrayList<PhenotypeRow>(phenotypes.keySet());
 		Collections.sort(list);
+		
 		//Map names=new 
 		for(PhenotypeRow pr: list){
 			if(pr.getGene().getSymbol().equals("Dll1"))System.out.println("phenotype row="+pr);
 		}
 		model.addAttribute("phenotypes", new ArrayList<PhenotypeRow>(phenotypes.keySet()));	
-//		System.out.println("\n\n" + solrIndex
-//				.getMpData(phenotype_id)
-//				.getJSONObject("response") );
+
+		log.info("\tTime loading association table objects: " + (System.currentTimeMillis() - time) + "ms");
+		
+		time = System.currentTimeMillis();
+		
 		JSONObject mpData = solrIndex
 				.getMpData(phenotype_id)
 				.getJSONObject("response")
@@ -325,9 +328,11 @@ public class PhenotypesController {
 		if (mpData.containsKey("ontology_subset")){
 			model.addAttribute("isImpcTerm", mpData.getJSONArray("ontology_subset").contains("IMPC_Terms"));
 		}
+		
 		else {
 			model.addAttribute("isImpcTerm", false);
 		}
+		log.info("\tTime loading phenotype informaition: " + (System.currentTimeMillis() - time) + "ms");
 		
 	}	
 	
@@ -488,16 +493,12 @@ public class PhenotypesController {
 	 * @return List of parameters that might lead to an association to the given phenotype term or any of it's children
 	 * @throws SolrServerException
 	 */
-	public Map<String, String> getParameters(String mpId) throws SolrServerException {
-		TreeMap<String, String> res = new TreeMap<String, String>(new ParameterStableIdComparator());
-		ArrayList<Parameter> parameters = gpService.getParametersForPhenotype(mpId);		
+	public List<Parameter> getParameters(String mpId) throws SolrServerException {
+		List<Parameter> parameters = gpService.getParametersForPhenotype(mpId);		
 		
-		for (Parameter param : parameters){
-			res.put(param.getStableId(), param.getName());
-		}
+		Collections.sort(parameters, new ParameterComparator());
 		
-		System.out.println("parameter list has " + parameters);
-		return res;
+		return parameters;
 	}
 	
 	/**

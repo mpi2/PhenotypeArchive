@@ -235,7 +235,6 @@ public class FileExportController {
 		
 		log.debug("solr params: " + solrFilters);
 		Workbook wb = null;
-		String dataString = null;
 		List<String> dataRows = new ArrayList<String> ();
 		// Default to exporting 10 rows
 		Integer length = 10;
