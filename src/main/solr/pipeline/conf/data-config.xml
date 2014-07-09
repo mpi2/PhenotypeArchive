@@ -78,9 +78,10 @@
 					</entity>
 
 					<!-- images annotated to this procedure -->
+					<!-- parameter_stable_id M-G-P_006_001_005 is taking forever to complete
 					<entity dataSource="images_core" name="imgCore" 
 						stream="true" 
-						url="q=expName:&quot;${phenotype_procedure.mapped_procedure_name}&quot;&amp;wt=normal&amp;rows=999999" 
+						url="q=expName:&quot;${phenotype_procedure.mapped_procedure_name}&quot;&amp;wt=normal&amp;rows=99999999" 
 						onError="continue"
 						processor="XPathEntityProcessor" 
 						forEach="/response/result/doc/"
@@ -93,7 +94,7 @@
 						<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
 					
 					</entity>
-					
+					-->
 
 					<!-- only want IMPress related pipeline -->
 					<entity dataSource="komp2db" name="phenotype_pipeline_procedure" 
