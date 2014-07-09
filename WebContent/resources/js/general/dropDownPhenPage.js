@@ -80,19 +80,16 @@ $(document).ready(function(){
 	initFileExporter();
 
 	function initFileExporter() {
-            var conf = {
-		mpId: "\"" + mpId+ "\"",
-		externalDbId: 3,
-		fileName: 'gene_variants_with_phen_'+mpId.replace(/:/g,'_'),
-		solrCoreName: 'genotype-phenotype',
-		dumpMode: 'all',
-		baseUrl: windowLocation,
-		page:"phenotype",
-		gridFields: 'marker_symbol,allele_symbol,zygosity,sex,procedure_name,resource_name,phenotyping_center,parameter_stable_id,mp_term_name,marker_accession_id, parameter_name',
-		//TODO add here filter params too
-//		params: "qf=auto_suggest&defType=edismax&wt=json&rows=100000&q=*:*&fq=(mp_term_id:\"" + mpId + "&" + dropdownsList[0].name+':(\"' + dropdownsList[0].array.join("\"OR\"") + '\")&' + dropdownsList[1].name+':(\"' + dropdownsList[1].array.join("\"OR\"") + '\")&' + dropdownsList[2].name+':(\"' + dropdownsList[2].array.join("\"OR\"") + '\")' +  "\")"
-		params: "qf=auto_suggest&defType=edismax&wt=json&rows=100000&q=*:*&fq=(mp_term_id:\"" + mpId + "\"+OR+top_level_mp_term_id:\"" + mpId + "\")"
-            };
+		var conf = {
+			mpId: "\"" + mpId+ "\"",
+			externalDbId: 3,
+			fileName: 'gene_variants_with_phen_'+mpId.replace(/:/g,'_'),
+			solrCoreName: 'genotype-phenotype',
+			dumpMode: 'all',
+			baseUrl: windowLocation,
+			page:"phenotype",
+			params: ""
+           };
             
             var exportObj = buildExportUrl(conf);                                   // Build the export url, page url, and form strings.
             $('div#exportIconsDiv').attr("data-exporturl", exportObj.exportUrl);    // Initialize the url.
@@ -113,10 +110,13 @@ $(document).ready(function(){
             var url = baseUrl + '/export';	 
             var sInputs = '';
             for ( var k in conf ){
-                    if (k === "params")
-                            sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + selectedFilters + "'>";	 
-                    else 
-                            sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>"; 
+                    if (k === "params"){
+                            sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + selectedFilters + "'>";
+                            alert("Da");
+                    }
+                    else {
+                            sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";
+                    }
             }
             sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
             var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");	
@@ -254,18 +254,15 @@ $(document).ready(function(){
 		for (var it = 0; it < dropdownsList.length; it++){
 //			console.log(dropdownsList[it].array);
 			if(dropdownsList[it].array.length == 1){//if only one entry for this parameter then don't use brackets and or
-				output += '&fq=' + dropdownsList[it].name + ':"' + dropdownsList[it].array+'"';
-				selectedFilters += '+AND+' + dropdownsList[it].name + ':"' + dropdownsList[it].array+'"';
+				selectedFilters += '&fq=' + dropdownsList[it].name + ':"' + dropdownsList[it].array+'"';
 			} 
 			if(dropdownsList[it].array.length > 1)	{
-				output += '&fq='+dropdownsList[it].name+':(\"' + dropdownsList[it].array.join("\"OR\"") + '\")';
-				selectedFilters += '+AND+'+dropdownsList[it].name+':(\"' + dropdownsList[it].array.join("\"OR\"") + '\")'; 
+				selectedFilters += '&fq='+dropdownsList[it].name+':(\"' + dropdownsList[it].array.join("\"OR\"") + '\")';
 			}			    			 
 		}
-		newUrl+=output;
+		newUrl+=output + selectedFilters;
 		refreshPhenoTable(newUrl);
-                console.log('refresh genes PhenoFrag called woth new url='+newUrl);
-                //refreshPhenoTable(newUrl+'&sort=p_value%20asc');
+        console.log('refresh genes PhenoFrag called woth new url='+newUrl);
 		return false;
 	}
 });
