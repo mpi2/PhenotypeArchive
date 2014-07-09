@@ -136,17 +136,23 @@
 				
 				</entity>
 				-->	
-				<!--  
-				<entity dataSource="images_core" name="imgCore" stream="true" url="q=accession:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;rows=999999"
-					processor="XPathEntityProcessor" forEach="/response/result/doc/"							
-					readTimeout="10000" connectionTimeout="10000" onError="continue" >
-	
-					<field column="expName" xpath="/response/result/doc/arr[@name='expName']/str"/>
-					<field column="subtype" xpath="/response/result/doc/arr[@name='subtype']/str" />
-					<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />
-					<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />					
-				</entity>
-				-->
+				  
+				<entity dataSource="images_core" name="imgCore" 
+					stream="true" 
+					url="q=accession:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;fl=expName,subtype,annotatedHigherLevelMaTermName,annotatedHigherLevelMpTermName&amp;rows=999999"
+					processor="XPathEntityProcessor" 
+					forEach="/response/result/doc/"							
+					readTimeout="10000" 
+					connectionTimeout="10000" 
+					onError="continue" >
+ 
+				<field column="expName" xpath="/response/result/doc/arr[@name='expName']/str" />
+				<field column="subtype" xpath="/response/result/doc/arr[@name='subtype']/str" />
+				<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />
+				<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />		
+							
+			</entity>
+				
 		</entity>		
     </document>       
 </dataConfig>

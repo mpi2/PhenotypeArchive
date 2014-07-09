@@ -58,9 +58,13 @@
       		</entity>          
 			
 			<!-- images annotated to this MA -->
-			<entity dataSource="images_core" name="imgCore" stream="true" url="q=maTermId:&quot;${ma_term_infos.term_id}&quot;&amp;wt=normal&amp;rows=999999"
-				processor="XPathEntityProcessor" forEach="/response/result/doc/"							
-				readTimeout="10000" connectionTimeout="10000" >
+			<entity dataSource="images_core" name="imgCore" 
+				stream="true" 
+				url="q=maTermId:&quot;${ma_term_infos.term_id}&quot;&amp;wt=normal&amp;rows=999999"
+				processor="XPathEntityProcessor" 
+				forEach="/response/result/doc/"							
+				readTimeout="10000" 
+				connectionTimeout="10000" >
 			
 				<field column="largeThumbnailFilePath" xpath="/response/result/doc/str[@name='largeThumbnailFilePath']"/>
 				<field column="smallThumbnailFilePath" xpath="/response/result/doc/str[@name='smallThumbnailFilePath']"/>
@@ -68,6 +72,8 @@
 				<field column="expName" xpath="/response/result/doc/arr[@name='expName']/str"/>
 				<field column="expName_exp" xpath="/response/result/doc/arr[@name='expName_exp']/str" />
 				<field column="symbol_gene" xpath="/response/result/doc/arr[@name='symbol_gene']/str" />
+				<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
+				<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />
 
 				<!-- genes annotated to this MA through images -->       
 				<field column="marker_symbol" xpath="/response/result/doc/arr[@name='marker_symbol']/str" />  
@@ -94,14 +100,7 @@
 				<!-- alleles of a gene -->
 				<field column="allele_name" xpath="/response/result/doc/arr[@name='allele_name']/str" />								
 				
-				<field column="inferredHigherLevelMpTermId" xpath="/response/result/doc/arr[@name='inferredHigherLevelMpTermId']/str" />
-				<field column="inferredHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='inferredHigherLevelMpTermName']/str" />	
-				<field column="annotationTermName" xpath="/response/result/doc/arr[@name='annotationTermName']/str" />
-				<field column="annotationTermId" xpath="/response/result/doc/arr[@name='annotationTermId']/str" />			
-				<field column="maTermId" xpath="/response/result/doc/arr[@name='mpTermId']/str" />
-				<field column="maTermName" xpath="/response/result/doc/arr[@name='mpTermName']/str" />
-				<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />	
-							
+						
 			</entity>
 
              <!-- top level term and/or top level term from part_of relationship of a given anatomy term id -->

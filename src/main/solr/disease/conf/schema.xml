@@ -216,6 +216,12 @@
 	<!-- for fields that will be auto_suggest-searched -->
 	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
 
+	<field name="img_marker_type" type="string" indexed="true" stored="false" multiValued="true"/>
+	<field name="img_procedure_name" type="string" indexed="true" stored="false" multiValued="true"/>
+	<field name="img_top_level_mp_term" type="string" indexed="true" stored="false" multiValued="true"/>
+	<field name="img_selected_top_level_ma_term" type="string" indexed="true" stored="false" multiValued="true"/>
+	
+
 
    <!-- Common metadata fields, named specifically to match up with
      SolrCell metadata when parsing rich documents such as Word, PDF.
@@ -372,6 +378,12 @@
 	
 	<copyField source="top_level_mp_term" dest="annotatedHigherLevelMpTermName" />
 
+	<copyField source="subtype" dest="img_marker_type" /> 	
+	<copyField source="expName" dest="img_procedure_name" /> 
+	<copyField source="annotatedHigherLevelMaTermName" dest="img_selected_top_level_ma_term" /> 	
+	<copyField source="annotatedHigherLevelMpTermName" dest="img_top_level_mp_term" /> 	
+
+	
 
    <!-- Copy the price into a currency enabled field (default USD) -->
    <!--<copyField source="price" dest="price_c"/>-->
