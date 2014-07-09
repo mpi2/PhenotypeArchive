@@ -42,6 +42,8 @@ public interface DataReader {
     public void close() throws IOException;
     public List<String> getLine() throws IOException;
     public DataType getType();
+    public String[][] getData(int maxRows);
+    public int lineCount();
     
     public enum DataType {
         TSV,
