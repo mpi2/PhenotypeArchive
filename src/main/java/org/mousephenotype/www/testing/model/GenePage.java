@@ -53,27 +53,6 @@ public class GenePage {
     }
     
     /**
-     * 
-     * @param maxRows the number of data rows to return
-     * @return the first <code>maxRows</code> of data from the phenotype HTML table.
-     */
-    public String[][] getPhenotypeTableData(int maxRows) {
-        PhenotypeTableGene ptGene = new PhenotypeTableGene();
-        return ptGene.getData(driver, wait, genePageTarget, maxRows);
-    }
-    
-    /**
-     * @return the number at the end of the gene page string 'Total number of results: xxxx'
-     */
-    public final int getResultsCount() {
-        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']")));
-        String s = element.getText().replace("Total number of results: ", "");
-        Integer i = Utils.tryParseInt(s);
-        
-        return (i == null ? 0 : i);
-    }
-    
-    /**
      * Compares <code>genePageData</code> with <code>downloadData</code>, adding
      * any errors to <code>errorList</code>.
      * 
@@ -92,6 +71,7 @@ public class GenePage {
     public PageStatus compare(String[][] downloadData, String downloadTarget) {
         PageStatus status = new PageStatus();
         String[][] pageData = getPhenotypeTableData(downloadData.length);
+        DownloadStructureGene dsGene = new DownloadStructureGene();
         
         if (pageData.length != downloadData.length) {
             status.addFail("ERROR: the number of page data rows (" + pageData.length + ") does not match the number of download rows (" + downloadData.length + ").");
@@ -101,29 +81,26 @@ public class GenePage {
         ArrayList<String[]> rowErrors = new ArrayList();
         
         int errorCount = 0;
-        for (int rowIndex = 0; rowIndex < pageData.length; rowIndex++) {
-            if (pageData[rowIndex].length != downloadData[rowIndex].length) {
-                status.addFail("ERROR: the number of page columns in row " + rowIndex + " (" + pageData[rowIndex].length + ") does not match the number of download columns (" + downloadData[rowIndex].length + ")");
-                return status;
-            }
-            
+        for (int rowIndexPage = 0; rowIndexPage < pageData.length; rowIndexPage++) {
             String[] colErrors;
             
-            for (int colIndex = 0; colIndex < pageData[rowIndex].length; colIndex++) {
-                String pageCell = pageData[rowIndex][colIndex].trim();          // Ignore leading/trailing whitespace.
-                String downloadCell = downloadData[rowIndex][colIndex].trim();  // Ignore leading/trailing whitespace.
+            for (int colIndexPage = 0; colIndexPage < pageData[rowIndexPage].length; colIndexPage++) {
+                String pageCell = pageData[rowIndexPage][colIndexPage].trim();                  // Ignore leading/trailing whitespace.
+                int downloadCellIindex = dsGene.getColIndex(colIndexPage);                      // Given the page column index, look up the download column index.
+                String downloadCell = downloadData[rowIndexPage][downloadCellIindex].trim();    // Ignore leading/trailing whitespace.
                 if ((pageCell == null) && (downloadCell == null))
                     continue;                                                   // both values are null (and equal).
                 if ((pageCell == null) || (downloadCell == null)) {
-                    colErrors = new String[] { "[" + rowIndex + "][" + colIndex + "]", (pageCell == null ? "<null>" : pageCell), (downloadCell == null ? "<null>" : downloadCell) };
+                    colErrors = new String[] { "[" + rowIndexPage + "][" + colIndexPage + "]", (pageCell == null ? "<null>" : pageCell), (downloadCell == null ? "<null>" : downloadCell) };
                     rowErrors.add(colErrors);
                     errorCount++;
                     continue;
                 }
                 
-                if (rowIndex > 0) {                                             // If this is a non-header row ...
+                if (rowIndexPage > 0) {                                         // If this is a non-header row ...
                     PhenotypeTableGene ptGene = new PhenotypeTableGene();
-                    if (colIndex == ptGene.getColIndexGraph()) {                // ... if this is a graph url column, remove everything before the
+        
+                    if (colIndexPage == ptGene.getColIndexGraph()) {            // ... if this is a graph url column, remove everything before the
                         int idx = pageCell.indexOf("/charts");                  //     '/charts' part of the url on both components to be compared.
                         
                         String deletePart = pageCell.substring(0, idx);
@@ -134,7 +111,7 @@ public class GenePage {
                         downloadCell = downloadCell.replaceFirst(deletePart, "");
                     }
                     
-                    if (colIndex == ptGene.getColIndexAllele()) {
+                    if (colIndexPage == ptGene.getColIndexAllele()) {
                         downloadCell = downloadCell                             // ... Remove the '<' and '>' from the download cell.
                                 .replace("<", "")
                                 .replace(">", "");
@@ -142,7 +119,7 @@ public class GenePage {
                 }
                 
                 if (pageCell.compareTo(downloadCell) != 0) {
-                    colErrors = new String[] { "[" + rowIndex + "][" + colIndex + "]", "'" + pageCell + "'", "'" + downloadCell + "'" };
+                    colErrors = new String[] { "[" + rowIndexPage + "][" + colIndexPage + "]", "'" + pageCell + "'", "'" + downloadCell + "'" };
                     rowErrors.add(colErrors);
                     errorCount++;
                 }
@@ -163,6 +140,27 @@ public class GenePage {
         }
         
         return status;
+    }
+    
+    /**
+     * 
+     * @param maxRows the number of data rows to return
+     * @return the first <code>maxRows</code> of data from the phenotype HTML table.
+     */
+    public String[][] getPhenotypeTableData(int maxRows) {
+        PhenotypeTableGene ptGene = new PhenotypeTableGene();
+        return ptGene.getData(driver, wait, genePageTarget, maxRows);
+    }
+    
+    /**
+     * @return the number at the end of the gene page string 'Total number of results: xxxx'
+     */
+    public final int getResultsCount() {
+        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']")));
+        String s = element.getText().replace("Total number of results: ", "");
+        Integer i = Utils.tryParseInt(s);
+        
+        return (i == null ? 0 : i);
     }
     
     
