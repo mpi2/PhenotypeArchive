@@ -282,8 +282,7 @@
 
 	<copyField source="subtype" dest="img_marker_type" /> 	
 	<copyField source="expName" dest="img_procedure_name" /> 
-	<copyField source="annotatedHigherLevelMaTermName" dest="img_selected_top_level_ma_term" /> 	
-	<copyField source="annotatedHigherLevelMpTermName" dest="img_top_level_mp_term" /> 	
+	<copyField source="top_level_mp_term" dest="img_selected_top_level_ma_term" /> 	
 
 
 </schema>

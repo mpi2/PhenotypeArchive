@@ -66,15 +66,11 @@
 				readTimeout="10000" 
 				connectionTimeout="10000" >
 			
-				<field column="largeThumbnailFilePath" xpath="/response/result/doc/str[@name='largeThumbnailFilePath']"/>
-				<field column="smallThumbnailFilePath" xpath="/response/result/doc/str[@name='smallThumbnailFilePath']"/>
 				<field column="procedure_name" xpath="/response/result/doc/arr[@name='procedure_name']/str"/>
 				<field column="expName" xpath="/response/result/doc/arr[@name='expName']/str"/>
 				<field column="expName_exp" xpath="/response/result/doc/arr[@name='expName_exp']/str" />
 				<field column="symbol_gene" xpath="/response/result/doc/arr[@name='symbol_gene']/str" />
-				<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
-				<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />
-
+				
 				<!-- genes annotated to this MA through images -->       
 				<field column="marker_symbol" xpath="/response/result/doc/arr[@name='marker_symbol']/str" />  
                 <field column="marker_name" xpath="/response/result/doc/arr[@name='marker_name']/str" />
