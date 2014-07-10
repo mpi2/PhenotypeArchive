@@ -23,11 +23,12 @@ import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+//import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import net.sf.json.JSON;
+//import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
@@ -191,40 +192,209 @@ public class AllelesController {
         return "alleles_list";
     }
 
-    public JSONArray getMutagenesisDetails(
+//    def calculate_mutagenesis_prediction_stats( transcripts )
+//      MartSearch::Controller.instance().logger.debug("[MartSearch::ProjectUtils] ::calculate_mutagenesis_prediction_stats - running calculate_mutagenesis_prediction_stats()")
+//
+//      count = {
+//        :wt_transcripts                 => 0,
+//        :wt_non_coding_transcripts      => 0,
+//        :wt_proteien_coding_transcripts => 0,
+//        :mut_nmd_transcripts            => 0,
+//        :mut_coding_transcripts         => 0,
+//        :mut_nmd_rescue_transcripts     => 0
+//      }
+//
+//      transcripts.each do |transcript|
+//        count[:wt_transcripts] += 1
+//        if transcript[:biotype].eql?('protein_coding')
+//          count[:wt_proteien_coding_transcripts] += 1
+//          count[:mut_nmd_transcripts]            += 1 if transcript[:floxed_transcript_description] =~ /^No protein product \(NMD\)/
+//          count[:mut_coding_transcripts]         += 1 if transcript[:floxed_transcript_description] =~ /^No protein product \(NMD\)/ or transcript[:floxed_transcript_description] !~ /^No protein product^/
+//          count[:mut_nmd_rescue_transcripts]     += 1 if transcript[:floxed_transcript_description] =~ /^Possible NMD rescue/
+//        end
+//      end
+//
+//      count[:wt_non_coding_transcripts] = count[:wt_transcripts] - count[:wt_proteien_coding_transcripts]
+//
+//      MartSearch::Controller.instance().logger.debug("[MartSearch::ProjectUtils] ::calculate_mutagenesis_prediction_stats - running calculate_mutagenesis_prediction_stats() - DONE")
+//
+//      return count
+//    end
+    private Map<String, Integer> getMutagenesisStats(JSONArray transcripts) {
+        
+        if(transcripts == null) {
+            return null;
+        }
+        
+        Map<String, Integer> map = new HashMap<>();
+        map.put("wt_transcripts", 0);
+        map.put("wt_non_coding_transcripts", 0);
+        map.put("wt_proteien_coding_transcripts", 0);
+        map.put("mut_nmd_transcripts", 0);
+        map.put("mut_coding_transcripts", 0);
+        map.put("mut_nmd_rescue_transcripts", 0);
+
+        for (Object o : transcripts) {
+            JSONObject o2 = (JSONObject) o;
+            map.put("wt_proteien_coding_transcripts", map.get("wt_proteien_coding_transcripts") + 1);
+            if (o2.has("biotype") && o2.getString("biotype").equals("protein_coding")) {
+                map.put("wt_transcripts", map.get("wt_transcripts") + 1);
+
+                if (o2.getString("floxed_transcript_description").matches("^No protein product \\(NMD\\)")) {
+                    map.put("mut_nmd_transcripts", map.get("mut_nmd_transcripts") + 1);
+                }
+
+                if (o2.getString("floxed_transcript_description").matches("^No protein product \\(NMD\\)")
+                        || o2.getString("floxed_transcript_description").matches("^No protein product")) {
+                    map.put("mut_coding_transcripts", map.get("mut_coding_transcripts") + 1);
+                }
+
+                if (o2.getString("floxed_transcript_description").matches("^Possible NMD rescue")) {
+                    map.put("mut_nmd_rescue_transcripts", map.get("mut_nmd_rescue_transcripts") + 1);
+                }
+            }
+            map.put("wt_non_coding_transcripts", map.get("wt_transcripts") - map.get("wt_proteien_coding_transcripts"));
+        }
+        return map;
+    }
+
+//    tm1a: KO first allele (reporter-tagged insertion allele)
+//    tm1b: Reporter-tagged deletion allele (post-Cre)
+//    tm1c: Conditional allele (post-Flp)
+//    tm1d: Deletion allele (post-Flp and Cre with no reporter)
+//    tm1e: targeted, non-conditional allele
+//    tm1: Reporter-tagged deletion allele (with selection cassette)
+//    tm1.1: Reporter-tagged deletion allele (post Cre, with no selection cassette)
+//    tm1.2: Reporter-tagged deletion allele (post Flp, with no reporter and selection cassette)
+//
+//      This gene has <%= counts[:wt_transcripts] %> wild type transcripts,
+//      of which <%= counts[:wt_proteien_coding_transcripts] %> are protein-coding.
+//      Following removal of the floxed region, <%= counts[:mut_coding_transcripts] %>
+//      <% if counts[:mut_coding_transcripts] == 1 %>transcript is<% else %>transcripts are<% end %>
+//      <strong>predicted</strong> to produce a truncated protein product of which
+//      <%= counts[:mut_nmd_transcripts] %> may be subject to non-sense mediated decay (NMD).
+//
+//      <% if counts[:mut_nmd_rescue_transcripts] > 0 %>
+//        <strong>NOTE:</strong> Of the <%= counts[:wt_non_coding_transcripts] %> non-coding wild type transcripts,
+//        <%= counts[:mut_nmd_rescue_transcripts] %> are possibly subject to NMD rescue in the mutant.
+//      <% end %>
+//
+//      <% if @data[:allele_design_type] == 'Deletion' %>
+//        This mutation is of type '<%= @data[:allele_design_type] %>' (more information on IKMC alleles can be found
+//        <a href="http://www.knockoutmouse.org/about/targeting-strategies">here</a>). The table below
+//        shows the <strong>predicted</strong> structure of the gene transcripts.
+//        Click the 'view' button for each transcript to see the full prediction for that transcript.
+//      <% else %>
+//        The original allele for this mutation is of type '<%= @data[:allele_design_type] %>'. The table below
+//        shows the <strong>predicted</strong> structure of the gene transcripts after application of Flp and Cre
+//        (forming a '<%= allele_type('tm1d') %>' allele - more information on IKMC alleles can be found
+//        <a href="http://www.knockoutmouse.org/about/targeting-strategies">here</a>).
+//        Click the 'view' button for each transcript to see the full prediction for that transcript.
+//      <% end %>
+//    tm1a: KO first allele (reporter-tagged insertion allele)
+//    tm1b: Reporter-tagged deletion allele (post-Cre)
+//    tm1c: Conditional allele (post-Flp)
+//    tm1d: Deletion allele (post-Flp and Cre with no reporter)
+//    tm1e: targeted, non-conditional allele
+//    tm1: Reporter-tagged deletion allele (with selection cassette)
+//    tm1.1: Reporter-tagged deletion allele (post Cre, with no selection cassette)
+//    tm1.2: Reporter-tagged deletion allele (post Flp, with no reporter and selection cassette)
+//    public static final String[] DELETE_VALUES = new String[]{"tm1b", "tm1d", "tm1", "tm1.1", "tm1.2"};
+//
+//    private boolean isDeleted(String type) {
+//        return Arrays.asList(DELETE_VALUES).contains(type);
+//    }
+
+    private String getMutagenesisBlurb(Map<String, Integer> stats) {
+        
+        if(stats == null) {
+            return null;
+        }
+
+        String s
+                = "This gene has " + stats.get("wt_transcripts") + " wild type transcripts, "
+                + "of which " + stats.get("wt_proteien_coding_transcripts") + " are protein-coding. "
+                + "Following removal of the floxed region, " + stats.get("mut_coding_transcripts") + " ";
+
+        if (stats.get("mut_coding_transcripts") == 1) {
+            s += "transcript is ";
+        } else {
+            s += "transcripts are ";
+        }
+
+        s += "<strong>predicted</strong> to produce a truncated protein product of which "
+                + stats.get("mut_nmd_transcripts") + " may be subject to non-sense mediated decay (NMD).";
+
+        if (stats.get("mut_nmd_rescue_transcripts") > 0) {
+            s += "<strong>NOTE:</strong> Of the " + stats.get("wt_non_coding_transcripts") + " non-coding wild type transcripts, "
+                    + stats.get("mut_nmd_rescue_transcripts") + " are possibly subject to NMD rescue in the mutant.";
+        }
+
+        // <% if @data[:allele_design_type] == 'Deletion' %>
+        // TODO: we need allele_design_type from somewhere
+        String tbd = "<strong><span style='color:red'>TBD</span></strong>";
+
+        if (false) {
+            s += "This mutation is of type 'Deletion' (more information on IKMC alleles can be found "
+                    + "<a href=\"http://www.knockoutmouse.org/about/targeting-strategies\">here</a>). The table below "
+                    + "shows the <strong>predicted</strong> structure of the gene transcripts. "
+                    + "Click the 'view' button for each transcript to see the full prediction for that transcript. ";
+        } else {
+            s += "The original allele for this mutation is of type '" + tbd + "'. The table below "
+                    + "shows the <strong>predicted</strong> structure of the gene transcripts after application of Flp and Cre "
+                    + "(forming a " + tbd + " allele - more information on IKMC alleles can be found "
+                    + "<a href=\"http://www.knockoutmouse.org/about/targeting-strategies\">here</a>). "
+                    + "Click the 'view' button for each transcript to see the full prediction for that transcript. ";
+
+//                    "<br/><br/><strong><span style='color:red'>Note that TBD indicates a place-holder</span></strong>";
+        }
+
+        return s;
+    }
+
+    private JSONArray getMutagenesisDetails(
             String acc,
-            String allele_name) throws MalformedURLException, IOException, URISyntaxException {
+            String allele_name,
+            String projectId) throws MalformedURLException, IOException, URISyntaxException {
 
         // TODO: fix me!
+        //String url = "http://www.sanger.ac.uk/htgt/htgt2/tools/mutagenesis_prediction/project/35505/detail";
         String url = "http://www.sanger.ac.uk/htgt/htgt2/tools/mutagenesis_prediction/project/35505/detail";
 
+        if (projectId != null) {
+            url = "http://www.sanger.ac.uk/htgt/htgt2/tools/mutagenesis_prediction/project/" + projectId + "/detail";
+        }
+
         HttpProxy proxy = new HttpProxy();
-        String content = proxy.getContent(new URL(url));
+        String content = "";
+
+        try {
+            content = proxy.getContent(new URL(url));
+        } catch (Exception name) {
+            log.error("#### getMutagenesisDetails: " + name);
+            return null;
+        }
 
         log.info("#### content: " + content);
 
         JSONArray json = (JSONArray) JSONSerializer.toJSON(content);
 
-        Map<String, String> mapper = new HashMap<String, String>();
+        Map<String, String> mapper = new HashMap<>();
         mapper.put("UC", "UTR + start codon + CDS");
         mapper.put("CU", "CDS + stop codon + UTR");
         mapper.put("C", "CDS");
         mapper.put("U", "UTR");
 
-        for (int i = 0; i < json.size(); i++) {
-            JSONObject o = (JSONObject) json.get(i);
-
+        for (Object json1 : json) {
+            JSONObject o = (JSONObject) json1;
             log.info("#### o: " + o);
-
             if (o.has("floxed_transcript_translation")) {
                 String floxed_transcript_translation = o.getString("floxed_transcript_translation");
-                log.info("#### 1: floxed_transcript_translation: " + floxed_transcript_translation);
+                //      log.info("#### 1: floxed_transcript_translation: " + floxed_transcript_translation);
                 o.put("floxed_transcript_translation", floxed_transcript_translation.trim());
-                log.info("#### 2: floxed_transcript_translation: " + floxed_transcript_translation);
+                //      log.info("#### 2: floxed_transcript_translation: " + floxed_transcript_translation);
             }
-
             if (o.has("exons")) {
-
                 JSONArray exons = o.getJSONArray("exons");
                 for (Object exon : exons) {
                     JSONObject o2 = (JSONObject) exon;
@@ -240,8 +410,8 @@ public class AllelesController {
                     }
                     if (o2.has("domains")) {
                         JSONArray domains = o2.getJSONArray("domains");
-                        for (int k = 0; k < domains.size(); k++) {
-                            JSONObject o3 = (JSONObject) domains.get(k);
+                        for (Object domain : domains) {
+                            JSONObject o3 = (JSONObject) domain;
                             JSONArray amino_acids = o3.getJSONArray("amino_acids");
                             String amino_acid_1 = amino_acids.size() > 1 ? amino_acids.getString(0) : "";
                             String amino_acid_2 = amino_acids.size() > 1 ? amino_acids.getString(1) : "";
@@ -267,9 +437,13 @@ public class AllelesController {
             model.addAttribute("message", "Mutagenesis not yet implemented!");
             log.info("#### alleles2: mutagenesis_url");
 
-            JSONArray mutagenesis = getMutagenesisDetails(acc, allele_name);
+            JSONArray mutagenesis = getMutagenesisDetails(acc, allele_name, null);
+            Map<String, Integer> stats = getMutagenesisStats(mutagenesis);
+            String blurb = getMutagenesisBlurb(stats);
 
             model.addAttribute("mutagenesis", mutagenesis);
+            model.addAttribute("mutagenesis_stats", stats);
+            model.addAttribute("mutagenesis_blurb", blurb);
 
             log.info("#### mutagenesis: " + mutagenesis);
 
@@ -324,4 +498,33 @@ public class AllelesController {
         return "alleles";
     }
 
+    @RequestMapping("/mutagenesis/{projectId}")
+    public String mutagenesis_project(
+            @PathVariable String projectId,
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+
+        JSONArray mutagenesis = getMutagenesisDetails(null, null, projectId);
+        Map<String, Integer> stats = getMutagenesisStats(mutagenesis);
+        String blurb = getMutagenesisBlurb(stats);
+
+        model.addAttribute("mutagenesis", mutagenesis);
+        model.addAttribute("mutagenesis_stats", stats);
+        model.addAttribute("mutagenesis_blurb", blurb);
+
+        log.info("#### mutagenesis: " + mutagenesis);
+
+        return "mutagenesis_url";
+    }
+
+    @RequestMapping("/mutagenesis")
+    public String mutagenesis(
+            @PathVariable String projectId,
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+
+        return "mutagenesis_url";
+    }
 }

@@ -31,7 +31,14 @@
                 $( this ).hide();
                 $( this ).removeClass("toggle_open");
                 $( this ).addClass("toggle_closed");
+              //  $( this ).text("view");
             });
+            
+            $("[id*=toggle_closed_detail_]").each(function( index ) {
+                 $( this ).text("view");
+                 $( this ).removeClass("toggle_open");
+                 $( this ).addClass("toggle_closed_detail");
+            });         
             
             $('html, body').animate({ scrollTop: 0 }, 0);
           }
@@ -42,10 +49,10 @@
     function toggleTableDetails() {
         $(".toggle_closed_detail").each(function( index ) {
             var anchor = $( this );
-            console.log( index + ": " + $( this ).text() + " - " + $( this ));
+          //  console.log( index + ": " + $( this ).text() + " - " + $( this ));
             $( this ).on({'click':function(event){
-               event.preventDefault();
-               $( "#hide_target_" + index ).toggle();               
+             //  $( "#hide_target_" + index ).attr('colspan',4);
+               $( "#hide_target_" + index ).toggle();     
 
                 if(anchor.hasClass("toggle_closed_detail")) {
                     anchor.removeClass("toggle_closed_detail");
@@ -58,7 +65,8 @@
                     $( this ).text("view");
                 }
 
-            //   alert("#hide_target_" + index);
+               //alert("#hide_target_" + index);
+               event.preventDefault();
             }});
         });
     }
@@ -116,16 +124,34 @@
   	font-style: italic;
   	color: #333;
 }    
+        .border, .border th, .border td, td.border {
+                border: 1px solid #999 !important;
+        }
     </style>
         
 <h1 class="title" id="top">Mutagenesis</h1>
 
+<c:if test="${empty mutagenesis}"> 
+    <br/>
+    <br/>
+    <p style="font-size: 250%;">Nothing found!</p>
+</c:if>
+
+<c:if test="${not empty mutagenesis}"> 
+
 <div style="font-size: 100%;height:5000px;">
+    
+    <br/>
+    <br/>
+    <p>${mutagenesis_blurb}</p>
 
     <table id="mutagenesis_table" class="border">
         
+        
+        
+        
       <thead>
-        <tr>
+        <tr style="background-color:rgb(204, 204, 204);">
         <th>Ensembl transcript id</th>
         <th>Ensembl Biotype</th>
         <th>Floxed transcript description</th>
@@ -137,11 +163,11 @@
     <c:forEach var="item" items="${mutagenesis}" varStatus="listx">
 
         <c:if test="${listx.getIndex() == 0}">                    
-            <tr class="first">
+            <tr class="first" style="background-color: #E0F9FF !important;">
         </c:if>                    
 
         <c:if test="${listx.getIndex() > 0}">                    
-            <tr class="rest" style="display:none;">
+            <tr class="rest" style="display:none;background-color: #E0F9FF !important;">
         </c:if>                    
 
             <td>${item['ensembl_transcript_id']}</td>
@@ -157,25 +183,23 @@
 
                 <td>
         <c:if test="${item['exons'].size() > 0}">                    
-            <a class="toggle_closed_detail">view</a>
+            <a id="toggle_closed_detail_${listx.getIndex()}" class="toggle_closed_detail">view</a>
         </c:if>
             </td>
             
         </tr>
 
             
-        <c:if test="${listx.getIndex() == 0}">                    
             <tr class="details">
-        </c:if>                    
             
             <td colspan="4" style="display:none;" id="hide_target_${listx.getIndex()}" class="hide_target">
 
-                <p style="margin: 5px 0;">
+                <span style="margin: 5px 0;">
                     <strong>Predicted translation:</strong>
-<pre style="margin: 3px 0;">
+<p style="margin: 3px 0;word-break:break-all;">
 ${item['floxed_transcript_translation']}
-</pre>
-                </p>
+</p>
+                </span>
                 
                 <table width="100%" style="margin-bottom:5px;">
                 <thead>
@@ -255,6 +279,8 @@ ${item['floxed_transcript_translation']}
    
 </div>
 
+</c:if>
+        
 </jsp:body>
   
 </t:genericpage>
