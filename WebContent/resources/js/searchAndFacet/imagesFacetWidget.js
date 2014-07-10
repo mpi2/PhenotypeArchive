@@ -38,20 +38,6 @@
 	    _initFacet: function(){	   
 	    		    
   	    	var self = this;  	    	
-  	    		    	
-  	    	/*var queryParams = $.extend({}, {							
-  				'rows': 0,
-  				'facet': 'on',								
-  				'facet.mincount': 1,
-  				'facet.limit': -1,				
-  				'facet.sort': 'index',
-  				'fl': 'annotationTermId,annotationTermName,expName,symbol',
-  				//'fq': "annotationTermId:M* OR symbol_gene:*",  // images that have annotations only
-  				'q.option': 'AND',				
-  				'q': self.options.data.hashParams.q 				
-  				}, MPI2.searchAndFacetConfig.commonSolrParams);  	    	  	    	
-  	    	
-  	    	*/
   	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
 	    			: self.options.data.hashParams.fq;
 	    	
@@ -76,10 +62,10 @@
   	    		//+ "&facet.field=subtype"
   	    	
   	    		// using copyFields so that solr query field is consistent across facets
-  	    		+ "&facet.field=procedure_name"
-  	    		+ "&facet.field=top_level_mp_term"
-  	    		+ "&facet.field=selected_top_level_ma_term"
-  	    		+ "&facet.field=marker_type"
+  	    		+ "&facet.field=img_procedure_name"
+  	    		+ "&facet.field=img_top_level_mp_term"
+  	    		+ "&facet.field=img_selected_top_level_ma_term"
+  	    		+ "&facet.field=img_marker_type"
   	    		    	
   	    	$.ajax({	
   	    		'url': solrUrl + '/images/select',  	    		
@@ -88,12 +74,12 @@
   	    		'jsonp': 'json.wrf',	    		
   	    		'success': function(json) {
   	    			
-  	    			
+  	    			console.log(json);
   	    			var foundMatch = {'Phenotype':0, 'Anatomy':0, 'Procedure':0, 'Gene':0};  	    			
   	    			var aFacetFields = json.facet_counts.facet_fields; // eg. expName, symbol..  	
   	    			
   	    			// appearance order of subfacets
-  	    			var aSubFacetNames = ['top_level_mp_term','selected_top_level_ma_term','procedure_name','marker_type'];
+  	    			var aSubFacetNames = ['img_top_level_mp_term','img_selected_top_level_ma_term','img_procedure_name','img_marker_type'];
   	    			
   	    			var displayLabel = {
   	    								/*annotated_or_inferred_higherLevelMaTermName: 'Anatomy',
@@ -101,11 +87,11 @@
   	    								annotatedHigherLevelMpTermName: 'Phenotype',
   	    					            subtype: 'Gene'
   	    					            */
-  	    					            top_level_mp_term: 'Phenotype',
-  	    								procedure_name : 'Procedure',	    					            
-  	    								selected_top_level_ma_term: 'Anatomy',
-  	    					            marker_type: 'Gene'
-  	    								};	    			    			    			
+  	    					img_top_level_mp_term: 'Phenotype',
+  	    					img_procedure_name : 'Procedure',	    					            
+  	    					img_selected_top_level_ma_term: 'Anatomy',
+  	    					img_marker_type: 'Gene'
+  	    			};	    			    			    			
   	    			    			
   	    			   
   	    			for ( var n=0; n<aSubFacetNames.length; n++){
@@ -127,7 +113,7 @@
   	    					foundMatch[label]++;
   	    					
   	    					var isGrayout = count == 0 ? 'grayout' : '';
-  	    					liContainer.addClass(isGrayout);
+  	    					liContainer.removeClass('grayout').addClass(isGrayout);
   	    					
   		    	    		var coreField = 'images|'+ facetName + '|' + fieldName + '|' + count + '|' + label;	
   		        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField}); 	

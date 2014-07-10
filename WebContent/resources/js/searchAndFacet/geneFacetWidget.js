@@ -156,8 +156,9 @@
 						
 						var coreField = 'gene|'+ phenotypingStatusFq + '|';						
 						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + phenotypingStatusVal + '|' + count + '|phenotyping'});
-						var flabel = $('<span></span>').attr({'class':'flabel ' + isGrayout}).text(aPhenos[i]);
-						var fcount = $('<span></span>').attr({'class':'fcount ' + isGrayout}).text(count);
+						liContainer.removeClass('grayout').addClass(isGrayout);
+						var flabel = $('<span></span>').attr({'class':'flabel'}).text(aPhenos[i]);
+						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 						
 						liContainer.append(chkbox, flabel, fcount);						
 						phenoUlContainer.append(liContainer);
@@ -192,10 +193,11 @@
 						
 						var coreField = 'gene|status|';
 						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + status + '|' + count + '|production'});
+						liContainer.removeClass('grayout').addClass(isGrayout);
 						
 						liContainer.append(chkbox);
-						liContainer.append($('<span class="flabel ' + isGrayout + '">' +status + '</span>'));
-						liContainer.append($('<span class="fcount ' + isGrayout + '">' + count + '</span>'));
+						liContainer.append($('<span class="flabel">' +status + '</span>'));
+						liContainer.append($('<span class="fcount">' + count + '</span>'));
 						prodUlContainer.append(liContainer);
 						
 					}									
@@ -227,10 +229,11 @@
 							var coreField = 'gene|'+centers[c].facet+'|';
 							var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + center + '|' + count + '|'+centers[c].facet});
 							var isGrayout = count == 0 ? 'grayout' : '';
+							liContainer.removeClass('grayout').addClass(isGrayout);	
 							
 							liContainer.append(chkbox);
-							liContainer.append($('<span class="flabel ' + isGrayout + '">' + center + '</span>'));
-							liContainer.append($('<span class="fcount ' + isGrayout + '">' + count + '</span>'));
+							liContainer.append($('<span class="flabel">' + center + '</span>'));
+							liContainer.append($('<span class="fcount">' + count + '</span>'));
 							centerUlContainer.append(liContainer);		
 						}
 		    		}  
@@ -255,9 +258,9 @@
 					var count = mkr_facets[i+1];	
 					var coreField = 'gene|marker_type|';	
 					var isGrayout = count == 0 ? 'grayout' : '';
-					liContainer.addClass(isGrayout);
+					liContainer.removeClass('grayout').addClass(isGrayout);
 					
-					var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + type + '|' + count + '|marker_type'});					
+					var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + type + '|' + count + '|marker_type'});
 					var flabel = $('<span></span>').attr({'class':'flabel'}).text(type);
 					var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 					

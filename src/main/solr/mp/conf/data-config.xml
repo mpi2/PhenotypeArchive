@@ -27,8 +27,11 @@
 				
 				<field column="expName" xpath="/response/result/doc/arr[@name='expName']/str"/>
                 <field column="subtype" xpath="/response/result/doc/arr[@name='subtype']/str" />
-				<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
-				<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />
+                <!-- for association with an image annotated to this MP term, simply use the higher level mp term of this MP 
+                	to link to the img_top_level_mp_term field of the images core
+                	as an image can be annotated to multiple mp terms which has nothing to do with this MP term
+		  			so a copy field in schema does the trick -->
+		  	
 			</entity>
 		
 			<!-- subset of this MP term: parsed from obo file -->
