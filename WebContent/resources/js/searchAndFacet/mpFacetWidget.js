@@ -79,7 +79,8 @@
 	        			var count = aTopLevelCount[i+1];	
 	        			var isGrayout = count == 0 ? 'grayout' : '';
 	        			
-	        			var liContainer = $("<li></li>").attr({'class':'fcat ' + isGrayout});
+	        			var liContainer = $("<li></li>").attr({'class':'fcat'});
+	        			liContainer.removeClass('grayout').addClass(isGrayout);
 	        			
 	        			//var coreField = 'mp|annotatedHigherLevelMpTermName|' + aTopLevelCount[i] + '|' + count;
 	        			var coreField = 'mp|' + facetField + '|' + aTopLevelCount[i] + '|' + count;
