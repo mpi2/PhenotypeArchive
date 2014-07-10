@@ -462,6 +462,7 @@ public class AllelesController {
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
 
         List<Map<String, String>> list = new ArrayList<>();
+        addMutagenesisExample(list, "Cbx1", "35505");
         addMutagenesisExample(list, "Zfp111", "79288");
         addMutagenesisExample(list, "Foxj3", "77075");
         addMutagenesisExample(list, "Heyl", "24190");
