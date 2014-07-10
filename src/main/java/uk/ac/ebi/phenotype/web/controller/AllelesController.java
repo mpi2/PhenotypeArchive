@@ -192,34 +192,6 @@ public class AllelesController {
         return "alleles_list";
     }
 
-//    def calculate_mutagenesis_prediction_stats( transcripts )
-//      MartSearch::Controller.instance().logger.debug("[MartSearch::ProjectUtils] ::calculate_mutagenesis_prediction_stats - running calculate_mutagenesis_prediction_stats()")
-//
-//      count = {
-//        :wt_transcripts                 => 0,
-//        :wt_non_coding_transcripts      => 0,
-//        :wt_proteien_coding_transcripts => 0,
-//        :mut_nmd_transcripts            => 0,
-//        :mut_coding_transcripts         => 0,
-//        :mut_nmd_rescue_transcripts     => 0
-//      }
-//
-//      transcripts.each do |transcript|
-//        count[:wt_transcripts] += 1
-//        if transcript[:biotype].eql?('protein_coding')
-//          count[:wt_proteien_coding_transcripts] += 1
-//          count[:mut_nmd_transcripts]            += 1 if transcript[:floxed_transcript_description] =~ /^No protein product \(NMD\)/
-//          count[:mut_coding_transcripts]         += 1 if transcript[:floxed_transcript_description] =~ /^No protein product \(NMD\)/ or transcript[:floxed_transcript_description] !~ /^No protein product^/
-//          count[:mut_nmd_rescue_transcripts]     += 1 if transcript[:floxed_transcript_description] =~ /^Possible NMD rescue/
-//        end
-//      end
-//
-//      count[:wt_non_coding_transcripts] = count[:wt_transcripts] - count[:wt_proteien_coding_transcripts]
-//
-//      MartSearch::Controller.instance().logger.debug("[MartSearch::ProjectUtils] ::calculate_mutagenesis_prediction_stats - running calculate_mutagenesis_prediction_stats() - DONE")
-//
-//      return count
-//    end
     private Map<String, Integer> getMutagenesisStats(JSONArray transcripts) {
         
         if(transcripts == null) {
@@ -257,53 +229,6 @@ public class AllelesController {
         }
         return map;
     }
-
-//    tm1a: KO first allele (reporter-tagged insertion allele)
-//    tm1b: Reporter-tagged deletion allele (post-Cre)
-//    tm1c: Conditional allele (post-Flp)
-//    tm1d: Deletion allele (post-Flp and Cre with no reporter)
-//    tm1e: targeted, non-conditional allele
-//    tm1: Reporter-tagged deletion allele (with selection cassette)
-//    tm1.1: Reporter-tagged deletion allele (post Cre, with no selection cassette)
-//    tm1.2: Reporter-tagged deletion allele (post Flp, with no reporter and selection cassette)
-//
-//      This gene has <%= counts[:wt_transcripts] %> wild type transcripts,
-//      of which <%= counts[:wt_proteien_coding_transcripts] %> are protein-coding.
-//      Following removal of the floxed region, <%= counts[:mut_coding_transcripts] %>
-//      <% if counts[:mut_coding_transcripts] == 1 %>transcript is<% else %>transcripts are<% end %>
-//      <strong>predicted</strong> to produce a truncated protein product of which
-//      <%= counts[:mut_nmd_transcripts] %> may be subject to non-sense mediated decay (NMD).
-//
-//      <% if counts[:mut_nmd_rescue_transcripts] > 0 %>
-//        <strong>NOTE:</strong> Of the <%= counts[:wt_non_coding_transcripts] %> non-coding wild type transcripts,
-//        <%= counts[:mut_nmd_rescue_transcripts] %> are possibly subject to NMD rescue in the mutant.
-//      <% end %>
-//
-//      <% if @data[:allele_design_type] == 'Deletion' %>
-//        This mutation is of type '<%= @data[:allele_design_type] %>' (more information on IKMC alleles can be found
-//        <a href="http://www.knockoutmouse.org/about/targeting-strategies">here</a>). The table below
-//        shows the <strong>predicted</strong> structure of the gene transcripts.
-//        Click the 'view' button for each transcript to see the full prediction for that transcript.
-//      <% else %>
-//        The original allele for this mutation is of type '<%= @data[:allele_design_type] %>'. The table below
-//        shows the <strong>predicted</strong> structure of the gene transcripts after application of Flp and Cre
-//        (forming a '<%= allele_type('tm1d') %>' allele - more information on IKMC alleles can be found
-//        <a href="http://www.knockoutmouse.org/about/targeting-strategies">here</a>).
-//        Click the 'view' button for each transcript to see the full prediction for that transcript.
-//      <% end %>
-//    tm1a: KO first allele (reporter-tagged insertion allele)
-//    tm1b: Reporter-tagged deletion allele (post-Cre)
-//    tm1c: Conditional allele (post-Flp)
-//    tm1d: Deletion allele (post-Flp and Cre with no reporter)
-//    tm1e: targeted, non-conditional allele
-//    tm1: Reporter-tagged deletion allele (with selection cassette)
-//    tm1.1: Reporter-tagged deletion allele (post Cre, with no selection cassette)
-//    tm1.2: Reporter-tagged deletion allele (post Flp, with no reporter and selection cassette)
-//    public static final String[] DELETE_VALUES = new String[]{"tm1b", "tm1d", "tm1", "tm1.1", "tm1.2"};
-//
-//    private boolean isDeleted(String type) {
-//        return Arrays.asList(DELETE_VALUES).contains(type);
-//    }
 
     private String getMutagenesisBlurb(Map<String, Integer> stats) {
         
@@ -518,13 +443,33 @@ public class AllelesController {
         return "mutagenesis_url";
     }
 
+    private void addMutagenesisExample(List<Map<String, String>> list, String key, String value) {
+        Map<String, String> item = new HashMap<>();
+        String url = "http://www.sanger.ac.uk/htgt/htgt2/tools/mutagenesis_prediction/project/" + value + "/detail";
+        String url2 = "/phenotype-archive/mutagenesis/" + value;
+        item.put("name", key); 
+        item.put("url", url2); 
+        item.put("htgt_url", url); 
+        item.put("project", value); 
+        item.put("old_url", "http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/" + value); 
+        list.add(item);
+    }
+
     @RequestMapping("/mutagenesis")
     public String mutagenesis(
-            @PathVariable String projectId,
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
 
+        List<Map<String, String>> list = new ArrayList<>();
+        addMutagenesisExample(list, "Zfp111", "79288");
+        addMutagenesisExample(list, "Foxj3", "77075");
+        addMutagenesisExample(list, "Heyl", "24190");
+        addMutagenesisExample(list, "Nxn", "36851");
+        addMutagenesisExample(list, "Cib2", "41713");
+        addMutagenesisExample(list, "Arhgef6", "36825");
+        addMutagenesisExample(list, "Morn1", "82621");
+        model.addAttribute("mutagenesis_examples", list);
         return "mutagenesis_url";
     }
 }

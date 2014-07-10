@@ -131,7 +131,19 @@
         
 <h1 class="title" id="top">Mutagenesis</h1>
 
-<c:if test="${empty mutagenesis}"> 
+<c:if test="${not empty mutagenesis_examples}"> 
+    <br/>
+    <br/>
+    <div style="font-size: 150%;">
+    <c:forEach var="example" items="${mutagenesis_examples}" varStatus="mutagenesis_examplesx">
+        <a target="_blank" href="${example['url']}">${example['name']} (${example['project']})</a>&nbsp;&nbsp;&nbsp;&nbsp;
+        <a target="_blank" href="${example['old_url']}">original</a>
+        <br/><br/>
+    </c:forEach>
+    </div>
+</c:if>
+
+<c:if test="${empty mutagenesis and empty mutagenesis_examples}"> 
     <br/>
     <br/>
     <p style="font-size: 250%;">Nothing found!</p>
@@ -203,10 +215,12 @@ ${item['floxed_transcript_translation']}
                 
                 <table width="100%" style="margin-bottom:5px;">
                 <thead>
+                    <tr style="background-color:rgb(204, 204, 204);">
                     <th>Ensembl Exon ID</th>
                     <th>Pfam Domains</th>
                     <th>WildType</th>
                     <th>Floxed</th>
+                    </tr>
                 </thead>
                     <tbody>
 
@@ -225,7 +239,7 @@ ${item['floxed_transcript_translation']}
                                         <a href="http://www.ebi.ac.uk/interpro/ISearch?query=${domain['interpro_ac']}">${domain['domains_ex']}</a>
                                     </c:if>                                          
                                     
-                                    <br/>
+                                    |
                                 </c:forEach>
                             
                             </td>
@@ -247,17 +261,17 @@ ${item['floxed_transcript_translation']}
                 </table>
                 
                 
-                <table>
-  <tr>
-    <td style="border: none !important"><strong>Legend:</strong></td>
-    <td style="border: none !important" class="exon_upstream"></td>
-    <td style="border: none !important">in&nbsp;frame</td>
-    <td style="border: none !important" class="exon_deleted"></td>
-    <td style="border: none !important">deleted</td>
-    <td style="border: none !important" class="exon_frameshifted"></td>
-    <td style="border: none !important">frameshifted</td>
-  </tr>
-</table>
+    <table>
+        <tr>
+            <td style="border: none !important"><strong>Legend:</strong></td>
+            <td style="border: none !important" class="exon_upstream"></td>
+            <td style="border: none !important">in&nbsp;frame</td>
+            <td style="border: none !important" class="exon_deleted"></td>
+            <td style="border: none !important">deleted</td>
+            <td style="border: none !important" class="exon_frameshifted"></td>
+            <td style="border: none !important">frameshifted</td>
+        </tr>
+    </table>
 
                 
                 

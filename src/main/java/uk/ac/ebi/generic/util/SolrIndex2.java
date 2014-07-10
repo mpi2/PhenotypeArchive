@@ -782,15 +782,6 @@ public class SolrIndex2 {
         
             return url;
     }
-
-//    tm1a: KO first allele (reporter-tagged insertion allele)
-//    tm1b: Reporter-tagged deletion allele (post-Cre)
-//    tm1c: Conditional allele (post-Flp)
-//    tm1d: Deletion allele (post-Flp and Cre with no reporter)
-//    tm1e: targeted, non-conditional allele
-//    tm1: Reporter-tagged deletion allele (with selection cassette)
-//    tm1.1: Reporter-tagged deletion allele (post Cre, with no selection cassette)
-//    tm1.2: Reporter-tagged deletion allele (post Flp, with no reporter and selection cassette)
     
     public static final String[] DELETE_VALUES = new String[]{"1b", "1d", "1", "1.1", "1.2"};
 
