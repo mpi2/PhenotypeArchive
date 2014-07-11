@@ -34,8 +34,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import javax.annotation.Resource;
-
 import net.sf.json.JSONArray;
 
 import org.apache.commons.lang.StringUtils;
@@ -54,11 +52,9 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.util.NamedList;
-import org.neo4j.cypher.internal.compiler.v2_1.planner.logical.steps.uniqueIndexSeekLeafPlanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
