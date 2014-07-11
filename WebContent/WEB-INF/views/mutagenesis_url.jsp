@@ -49,10 +49,17 @@
     function toggleTableDetails() {
         $(".toggle_closed_detail").each(function( index ) {
             var anchor = $( this );
+            
+         //   alert("add index " + index);            
+            
           //  console.log( index + ": " + $( this ).text() + " - " + $( this ));
             $( this ).on({'click':function(event){
              //  $( "#hide_target_" + index ).attr('colspan',4);
-               $( "#hide_target_" + index ).toggle();     
+             
+               var count = $( this ).data( "count" );             
+             
+               //$( "#hide_target_" + index ).toggle();     
+               $( "#hide_target_" + count ).toggle();     
 
                 if(anchor.hasClass("toggle_closed_detail")) {
                     anchor.removeClass("toggle_closed_detail");
@@ -65,7 +72,8 @@
                     $( this ).text("view");
                 }
 
-               //alert("#hide_target_" + index);
+            //   alert("#hide_target_" + index);
+            
                event.preventDefault();
             }});
         });
@@ -195,7 +203,7 @@
 
                 <td>
         <c:if test="${item['exons'].size() > 0}">                    
-            <a id="toggle_closed_detail_${listx.getIndex()}" class="toggle_closed_detail">view</a>
+            <a id="toggle_closed_detail_${listx.getIndex()}" class="toggle_closed_detail" data-count="${listx.getIndex()}">view</a>
         </c:if>
             </td>
             
@@ -261,7 +269,8 @@ ${item['floxed_transcript_translation']}
                 </table>
                 
                 
-    <table>
+    <table style="margin: auto !important;">
+    <tbody>
         <tr>
             <td style="border: none !important"><strong>Legend:</strong></td>
             <td style="border: none !important" class="exon_upstream"></td>
@@ -271,6 +280,7 @@ ${item['floxed_transcript_translation']}
             <td style="border: none !important" class="exon_frameshifted"></td>
             <td style="border: none !important">frameshifted</td>
         </tr>
+    </tbody>
     </table>
 
                 

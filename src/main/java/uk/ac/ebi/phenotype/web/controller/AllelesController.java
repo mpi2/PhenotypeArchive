@@ -193,11 +193,11 @@ public class AllelesController {
     }
 
     private Map<String, Integer> getMutagenesisStats(JSONArray transcripts) {
-        
-        if(transcripts == null) {
+
+        if (transcripts == null) {
             return null;
         }
-        
+
         Map<String, Integer> map = new HashMap<>();
         map.put("wt_transcripts", 0);
         map.put("wt_non_coding_transcripts", 0);
@@ -231,8 +231,8 @@ public class AllelesController {
     }
 
     private String getMutagenesisBlurb(Map<String, Integer> stats) {
-        
-        if(stats == null) {
+
+        if (stats == null) {
             return null;
         }
 
@@ -295,8 +295,8 @@ public class AllelesController {
 
         try {
             content = proxy.getContent(new URL(url));
-        } catch (Exception name) {
-            log.error("#### getMutagenesisDetails: " + name);
+        } catch (IOException | URISyntaxException ex) {
+            log.error("#### getMutagenesisDetails: " + ex);
             return null;
         }
 
@@ -376,8 +376,13 @@ public class AllelesController {
         }
 
         if (allele_name.equals("lrpcr_genotyping_primers")) {
-            model.addAttribute("message", "lrpcr genotyping primers not yet implemented!");
+            //model.addAttribute("message", "lrpcr genotyping primers not yet implemented!");
             log.info("#### alleles2: lrpcr_genotyping_primers");
+            
+            JSONObject object = getPcrDetails(acc, allele_name, false, null);
+            
+            model.addAttribute("lrpcr", object);
+            
             return "alleles_list";
         }
 
@@ -447,11 +452,11 @@ public class AllelesController {
         Map<String, String> item = new HashMap<>();
         String url = "http://www.sanger.ac.uk/htgt/htgt2/tools/mutagenesis_prediction/project/" + value + "/detail";
         String url2 = "/phenotype-archive/mutagenesis/" + value;
-        item.put("name", key); 
-        item.put("url", url2); 
-        item.put("htgt_url", url); 
-        item.put("project", value); 
-        item.put("old_url", "http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/" + value); 
+        item.put("name", key);
+        item.put("url", url2);
+        item.put("htgt_url", url);
+        item.put("project", value);
+        item.put("old_url", "http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/" + value);
         list.add(item);
     }
 
@@ -473,4 +478,106 @@ public class AllelesController {
         model.addAttribute("mutagenesis_examples", list);
         return "mutagenesis_url";
     }
+
+//    def get_pcr_primers( project_id, data )
+//      MartSearch::Controller.instance().logger.debug("[MartSearch::ProjectUtils] ::get_pcr_primers - running get_pcr_primers( '#{project_id}' )")
+//
+//      result  = { :data => {}, :error => {} }
+//      message = "There was a problem retrieving pcr primers for this project.  As a result this data will not be available on the page.  Please try refreshing your browser or come back in 10 minutes to obtain this data."
+//      begin
+//        if data[:ikmc_project] == 'mirKO'
+//          design_id = data[:targeting_vectors][0][:design_id]
+//          if design_id.nil?
+//            raise Exception.new("Could not find design_id for project")
+//          end
+//          MartSearch::Controller.instance().logger.debug("[MartSearch::ProjectUtils] :: get_pcr_primer mirKO sponsor, design = #{design_id} ")
+//          uri = URI.parse( "http://www.sanger.ac.uk/htgt/htgt2/tools/genotypingprimers/mirko_primers/#{design_id}" )
+//        else
+//          uri = URI.parse( "http://www.sanger.ac.uk/htgt/htgt2/tools/genotypingprimers/#{project_id}" )
+//        end
+//        http_client = build_http_client()
+//        response    = nil
+//
+//        http_client.start( uri.host, uri.port ) do |http|
+//          http.read_timeout = 10
+//          http.open_timeout = 10
+//          response          = http.request( Net::HTTP::Get.new(uri.request_uri) )
+//        end
+//
+//        raise Exception.new("PCR primer data unavailable.") unless response.code.to_i == 200
+//
+//        raw_primer_data = JSON.parse( response.body ).recursively_symbolize_keys!
+//        result[:data]   = process_pcr_primers( raw_primer_data )
+//      rescue JSON::ParserError => error
+//        result[:error] = {
+//          :text  => message,
+//          :error => "Problem parsing the JSON returned.",
+//          :type  => error.class
+//        }
+//      rescue Exception => error
+//        result[:error] = {
+//          :text  => message,
+//          :error => error.to_s,
+//          :type  => error.class
+//        }
+//      end
+//
+//      MartSearch::Controller.instance().logger.debug("[MartSearch::ProjectUtils] ::get_pcr_primers - running get_pcr_primers( '#{project_id}' ) - DONE")
+//
+//      return result
+//    end
+    private JSONObject getPcrDetails(
+            String acc,
+            String allele_name,
+            boolean isMirko,
+            String projectId) throws MalformedURLException, IOException, URISyntaxException {
+
+        // TODO: fix me!
+        String url = "http://www.sanger.ac.uk/htgt/htgt2/tools/genotypingprimers/35505";
+
+        if (projectId != null) {
+            url = "http://www.sanger.ac.uk/htgt/htgt2/tools/genotypingprimers/" + projectId;
+        }
+
+        HttpProxy proxy = new HttpProxy();
+        String content = "";
+
+        try {
+            content = proxy.getContent(new URL(url));
+        } catch (IOException | URISyntaxException ex) {
+            log.error("#### getPcrDetails: " + ex);
+            return null;
+        }
+
+        log.info("#### getPcrDetails: " + content);
+
+        JSONObject jsonObject;
+
+        try {
+            jsonObject = (JSONObject) JSONSerializer.toJSON(content);
+        } catch (Exception ex) {
+            log.error("#### getPcrDetails: " + ex);
+            return null;
+        }
+
+        return jsonObject;
+    }
+
+    //@RequestMapping("/lrpcr_genotyping_primers/{projectId}")
+    @RequestMapping("/lrpcr_genotyping_primers")
+    public String lrpcr_genotyping_primers_project(
+          //  @PathVariable String projectId,
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+
+        log.info("#### lrpcr_genotyping_primers_project");
+
+        JSONObject object = getPcrDetails(null, null, false, null);
+
+        model.addAttribute("lrpcr", object);
+
+        return "lrpcr_genotyping_primers";
+    }
+    
 }
