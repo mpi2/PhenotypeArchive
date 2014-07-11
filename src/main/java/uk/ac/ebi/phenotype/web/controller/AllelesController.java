@@ -191,7 +191,55 @@ public class AllelesController {
 
         return "alleles_list";
     }
-
+    
+    // see http://stackoverflow.com/questions/81346/most-efficient-way-to-increment-a-map-value-in-java
+    
+//    private Map<String, Integer> getMutagenesisStats(JSONArray transcripts) {
+//
+//        class MutableInt {
+//            int value = 0;
+//            public void increment () { ++value; }
+//            public int  get ()       { return value; }
+//            public void  set (int newValue)       { value = newValue; }
+//        }
+//        
+//        if (transcripts == null) {
+//            return null;
+//        }
+//
+//        Map<String, MutableInt> map = new HashMap<>();
+//        map.put("wt_transcripts", new MutableInt());
+//        map.put("wt_non_coding_transcripts", new MutableInt());
+//        map.put("wt_protein_coding_transcripts", new MutableInt());
+//        map.put("mut_nmd_transcripts", new MutableInt());
+//        map.put("mut_coding_transcripts", new MutableInt());
+//        map.put("mut_nmd_rescue_transcripts", new MutableInt());
+//
+//        for (Object o : transcripts) {
+//            JSONObject o2 = (JSONObject) o;
+//            map.get("wt_protein_coding_transcripts").increment();
+//            if (o2.has("biotype") && o2.getString("biotype").equals("protein_coding")) {
+//                map.get("wt_transcripts").increment();
+//
+//                if (o2.getString("floxed_transcript_description").matches("^No protein product \\(NMD\\)")) {
+//                    map.get("mut_nmd_transcripts").increment();
+//                }
+//
+//                if (o2.getString("floxed_transcript_description").matches("^No protein product \\(NMD\\)")
+//                        || o2.getString("floxed_transcript_description").matches("^No protein product")) {
+//                    map.get("mut_coding_transcripts").increment();
+//                }
+//
+//                if (o2.getString("floxed_transcript_description").matches("^Possible NMD rescue")) {
+//                    map.get("mut_nmd_rescue_transcripts").increment();
+//                }
+//            }
+//                    map.get("wt_non_coding_transcripts").increment();
+//            map.get("wt_non_coding_transcripts").set(map.get("wt_transcripts").get() - map.get("wt_protein_coding_transcripts").get());
+//        }
+//        return map;
+//    }
+    
     private Map<String, Integer> getMutagenesisStats(JSONArray transcripts) {
 
         if (transcripts == null) {
@@ -201,14 +249,14 @@ public class AllelesController {
         Map<String, Integer> map = new HashMap<>();
         map.put("wt_transcripts", 0);
         map.put("wt_non_coding_transcripts", 0);
-        map.put("wt_proteien_coding_transcripts", 0);
+        map.put("wt_protein_coding_transcripts", 0);
         map.put("mut_nmd_transcripts", 0);
         map.put("mut_coding_transcripts", 0);
         map.put("mut_nmd_rescue_transcripts", 0);
 
         for (Object o : transcripts) {
             JSONObject o2 = (JSONObject) o;
-            map.put("wt_proteien_coding_transcripts", map.get("wt_proteien_coding_transcripts") + 1);
+            map.put("wt_protein_coding_transcripts", map.get("wt_protein_coding_transcripts") + 1);
             if (o2.has("biotype") && o2.getString("biotype").equals("protein_coding")) {
                 map.put("wt_transcripts", map.get("wt_transcripts") + 1);
 
@@ -225,10 +273,12 @@ public class AllelesController {
                     map.put("mut_nmd_rescue_transcripts", map.get("mut_nmd_rescue_transcripts") + 1);
                 }
             }
-            map.put("wt_non_coding_transcripts", map.get("wt_transcripts") - map.get("wt_proteien_coding_transcripts"));
+            map.put("wt_non_coding_transcripts", map.get("wt_transcripts") - map.get("wt_protein_coding_transcripts"));
         }
         return map;
     }
+
+    // TODO: fix dodgy routine returning html!
 
     private String getMutagenesisBlurb(Map<String, Integer> stats) {
 
@@ -238,7 +288,7 @@ public class AllelesController {
 
         String s
                 = "This gene has " + stats.get("wt_transcripts") + " wild type transcripts, "
-                + "of which " + stats.get("wt_proteien_coding_transcripts") + " are protein-coding. "
+                + "of which " + stats.get("wt_protein_coding_transcripts") + " are protein-coding. "
                 + "Following removal of the floxed region, " + stats.get("mut_coding_transcripts") + " ";
 
         if (stats.get("mut_coding_transcripts") == 1) {
@@ -270,8 +320,6 @@ public class AllelesController {
                     + "(forming a " + tbd + " allele - more information on IKMC alleles can be found "
                     + "<a href=\"http://www.knockoutmouse.org/about/targeting-strategies\">here</a>). "
                     + "Click the 'view' button for each transcript to see the full prediction for that transcript. ";
-
-//                    "<br/><br/><strong><span style='color:red'>Note that TBD indicates a place-holder</span></strong>";
         }
 
         return s;
@@ -283,7 +331,6 @@ public class AllelesController {
             String projectId) throws MalformedURLException, IOException, URISyntaxException {
 
         // TODO: fix me!
-        //String url = "http://www.sanger.ac.uk/htgt/htgt2/tools/mutagenesis_prediction/project/35505/detail";
         String url = "http://www.sanger.ac.uk/htgt/htgt2/tools/mutagenesis_prediction/project/35505/detail";
 
         if (projectId != null) {
@@ -375,7 +422,6 @@ public class AllelesController {
         }
 
         if (allele_name.equals("lrpcr_genotyping_primers")) {
-            //model.addAttribute("message", "lrpcr genotyping primers not yet implemented!");
             log.info("#### alleles2: lrpcr_genotyping_primers");
             
             JSONObject object = getPcrDetails(acc, allele_name, false, null);
@@ -478,53 +524,6 @@ public class AllelesController {
         return "mutagenesis";
     }
 
-//    def get_pcr_primers( project_id, data )
-//      MartSearch::Controller.instance().logger.debug("[MartSearch::ProjectUtils] ::get_pcr_primers - running get_pcr_primers( '#{project_id}' )")
-//
-//      result  = { :data => {}, :error => {} }
-//      message = "There was a problem retrieving pcr primers for this project.  As a result this data will not be available on the page.  Please try refreshing your browser or come back in 10 minutes to obtain this data."
-//      begin
-//        if data[:ikmc_project] == 'mirKO'
-//          design_id = data[:targeting_vectors][0][:design_id]
-//          if design_id.nil?
-//            raise Exception.new("Could not find design_id for project")
-//          end
-//          MartSearch::Controller.instance().logger.debug("[MartSearch::ProjectUtils] :: get_pcr_primer mirKO sponsor, design = #{design_id} ")
-//          uri = URI.parse( "http://www.sanger.ac.uk/htgt/htgt2/tools/genotypingprimers/mirko_primers/#{design_id}" )
-//        else
-//          uri = URI.parse( "http://www.sanger.ac.uk/htgt/htgt2/tools/genotypingprimers/#{project_id}" )
-//        end
-//        http_client = build_http_client()
-//        response    = nil
-//
-//        http_client.start( uri.host, uri.port ) do |http|
-//          http.read_timeout = 10
-//          http.open_timeout = 10
-//          response          = http.request( Net::HTTP::Get.new(uri.request_uri) )
-//        end
-//
-//        raise Exception.new("PCR primer data unavailable.") unless response.code.to_i == 200
-//
-//        raw_primer_data = JSON.parse( response.body ).recursively_symbolize_keys!
-//        result[:data]   = process_pcr_primers( raw_primer_data )
-//      rescue JSON::ParserError => error
-//        result[:error] = {
-//          :text  => message,
-//          :error => "Problem parsing the JSON returned.",
-//          :type  => error.class
-//        }
-//      rescue Exception => error
-//        result[:error] = {
-//          :text  => message,
-//          :error => error.to_s,
-//          :type  => error.class
-//        }
-//      end
-//
-//      MartSearch::Controller.instance().logger.debug("[MartSearch::ProjectUtils] ::get_pcr_primers - running get_pcr_primers( '#{project_id}' ) - DONE")
-//
-//      return result
-//    end
     private JSONObject getPcrDetails(
             String acc,
             String allele_name,
