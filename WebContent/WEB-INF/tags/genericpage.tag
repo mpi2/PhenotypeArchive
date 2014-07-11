@@ -127,17 +127,17 @@ ga('send', 'pageview');
 <script type="text/javascript" src="${baseUrl}/js/head.min.js?v=${version}"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-<script type='text/javascript' src='${initParam["baseUrl"]}/js/vendor/DataTables-1.9.4/jquery.dataTables.js?v=${version}'></script>
-<script type='text/javascript' src='${initParam["baseUrl"]}/js/vendor/DataTables-1.9.4/core.filter.js?v=${version}'></script>
-<script type='text/javascript' src='${initParam["baseUrl"]}/js/vendor/DataTables-1.9.4/TableTools.min.js?v=${version}'></script>
+<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/jquery.dataTables.js?v=${version}'></script>
+<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/core.filter.js?v=${version}'></script>
+<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/TableTools.min.js?v=${version}'></script>
 
 <!--[if lt IE 9 ]><script type="text/javascript" src="js/selectivizr-min.js"></script><![endif]-->
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.js?v=${version}"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.pack.js?v=${version}"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.tablesorter.min.js?v=${version}"></script>
-<script type='text/javascript' src='${initParam["baseUrl"]}/js/charts/highcharts.js?v=${version}'></script>
-<script type='text/javascript' src='${initParam["baseUrl"]}/js/charts/highcharts-more.js?v=${version}'></script>
-<script type='text/javascript' src='${initParam["baseUrl"]}/js/charts/exporting.js?v=${version}'></script>
+<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
+<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
+<script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
 <script type='text/javascript' src="${baseUrl}/js/general/toggle.js?v=${version}"></script> 
 		
 <script type="text/javascript" src="${baseUrl}/js/default.js?v=${version}"></script>
@@ -246,9 +246,9 @@ ga('send', 'pageview');
 
 	    <!-- <script type="text/javascript" src='${baseUrl}/js/script.min.js?v=${version}' ></script>-->
 	    	    
-	    <script type='text/javascript' src='${initParam["baseUrl"]}/js/utils/tools.js?v=${version}'></script>                 
-	    <script type='text/javascript' src='${initParam["baseUrl"]}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>     	    
-	    <script type='text/javascript' src='${initParam["baseUrl"]}/js/documentationConfig.js?v=${version}'></script>
+	    <script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>                 
+	    <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>     	    
+	    <script type='text/javascript' src='${baseUrl}/js/documentationConfig.js?v=${version}'></script>
 	    
 	    <script type='text/javascript'>
 	    	$(document).ready(function(){
