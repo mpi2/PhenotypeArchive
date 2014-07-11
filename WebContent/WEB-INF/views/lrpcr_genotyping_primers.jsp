@@ -7,49 +7,25 @@
 <jsp:body>      
 
 <style type="text/css">
-table.sample {
-	border-width: 1px;
-	border-spacing: 2px;
-	border-style: outset;
-	border-color: gray;
-	border-collapse: separate;
-	background-color: white;
-}
-table.sample th {
-	border-width: 1px;
-	padding: 1px;
-	border-style: inset;
-	border-color: gray;
-	background-color: white;
-}
-table.sample td {
-	border-width: 1px;
-	padding: 1px;
-	border-style: inset;
-	border-color: gray;
-	background-color: white;
-}
+    table.lrpcr {
+        width:50%; 
+        margin-left:0%; 
+        margin-right:50%;
 
-table.sample3 {
-    width:50%; 
-    margin-left:0%; 
-    margin-right:50%;
-
-    border-width: 1px;
-    border-spacing: 2px;
-    border-style: outset;
-    border-color: gray;
-    border-collapse: separate;
-    background-color: white;
-}
-table.sample3 td {
-    margin-bottom:0;
-    border-width: 1px;
-    border-style: inset;
-    border-color: gray;
-    vertical-align: middle;
-}
-
+        border-width: 1px;
+        border-spacing: 2px;
+        border-style: outset;
+        border-color: gray;
+        border-collapse: separate;
+        background-color: white;
+    }
+    table.lrpcr td {
+        margin-bottom:0;
+        border-width: 1px;
+        border-style: inset;
+        border-color: gray;
+        vertical-align: middle;
+    }
 </style>
 
     <h1 class="title" id="top">LRPCR Genotyping Primers</h1>
@@ -63,7 +39,7 @@ table.sample3 td {
     <c:if test="${not empty lrpcr}"> 
 
     <div id="content">
-<table class="sample3">
+<table class="lrpcr">
     <tbody>
      <tr>
       <td style="background-color: rgb(204, 204, 204);">5' Universal (LAR3)</td>

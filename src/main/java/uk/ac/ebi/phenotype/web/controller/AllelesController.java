@@ -360,7 +360,6 @@ public class AllelesController {
 
         if (allele_name.equals("mutagenesis_url")) {
             model.addAttribute("message", "Mutagenesis not yet implemented!");
-            log.info("#### alleles2: mutagenesis_url");
 
             JSONArray mutagenesis = getMutagenesisDetails(acc, allele_name, null);
             Map<String, Integer> stats = getMutagenesisStats(mutagenesis);
@@ -372,7 +371,7 @@ public class AllelesController {
 
             log.info("#### mutagenesis: " + mutagenesis);
 
-            return "mutagenesis_url";
+            return "mutagenesis";
         }
 
         if (allele_name.equals("lrpcr_genotyping_primers")) {
@@ -445,7 +444,7 @@ public class AllelesController {
 
         log.info("#### mutagenesis: " + mutagenesis);
 
-        return "mutagenesis_url";
+        return "mutagenesis";
     }
 
     private void addMutagenesisExample(List<Map<String, String>> list, String key, String value) {
@@ -476,7 +475,7 @@ public class AllelesController {
         addMutagenesisExample(list, "Arhgef6", "36825");
         addMutagenesisExample(list, "Morn1", "82621");
         model.addAttribute("mutagenesis_examples", list);
-        return "mutagenesis_url";
+        return "mutagenesis";
     }
 
 //    def get_pcr_primers( project_id, data )
