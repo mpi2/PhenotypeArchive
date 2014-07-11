@@ -9,12 +9,10 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.ObservationService;
 
-@Service
 public class ParameterToGeneMap {
 
     @Autowired
