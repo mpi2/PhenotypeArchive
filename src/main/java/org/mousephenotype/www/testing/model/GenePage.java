@@ -37,17 +37,10 @@ import uk.ac.ebi.phenotype.util.Utils;
  * This class encapsulates the code and data necessary to represent a Phenotype
  * Archive gene page for Selenium testing.
  */
-public class GenePage {
-    private final String genePageTarget;
-    private final WebDriverWait wait;
-    private final WebDriver driver;
-    private final String geneId;
+public class GenePage extends WebPageImpl {
     
     public GenePage(WebDriver driver, WebDriverWait wait, String genePageTarget, String geneId) {
-        this.driver = driver;
-        this.wait = wait;
-        this.genePageTarget = genePageTarget;
-        this.geneId = geneId;
+        super(driver, wait, genePageTarget, geneId);
         
         load();
     }
@@ -68,13 +61,14 @@ public class GenePage {
      * @param downloadTarget The download target url (for informational purposes)
      * @return the number of records in error
      */
+    @Override
     public PageStatus compare(String[][] downloadData, String downloadTarget) {
         PageStatus status = new PageStatus();
         String[][] pageData = getPhenotypeTableData(downloadData.length);
         DownloadStructureGene dsGene = new DownloadStructureGene();
         
         if (pageData.length != downloadData.length) {
-            status.addFail("ERROR: the number of page data rows (" + pageData.length + ") does not match the number of download rows (" + downloadData.length + ").");
+            status.addError("ERROR: the number of page data rows (" + pageData.length + ") does not match the number of download rows (" + downloadData.length + ").");
             return status;
         }
         
@@ -128,7 +122,7 @@ public class GenePage {
         
         if ( ! rowErrors.isEmpty()) {
             System.out.println("\n" + errorCount + " errors:");
-            System.out.println("GENE PAGE DATA: " + genePageTarget);
+            System.out.println("GENE PAGE DATA: " + pageTarget);
             System.out.println("DOWNLOAD DATA:  " + downloadTarget);
             System.out.println();
             String format = "%-15s   %-50s   %-50s\n";
@@ -136,25 +130,37 @@ public class GenePage {
             for (String[] row : rowErrors) {
                 System.out.printf(format, row[0], row[1], row[2]);
             }
-            status.addFail("Mismatch.");
+            status.addError("Mismatch.");
         }
         
         return status;
     }
     
     /**
-     * 
-     * @param maxRows the number of data rows to return
-     * @return the first <code>maxRows</code> of data from the phenotype HTML table.
+     * @return the gene page's target download url base (identified by a div
+     * containing the 'data-exporturl' attribute).
      */
-    public String[][] getPhenotypeTableData(int maxRows) {
+    @Override
+    public String getDownloadTargetUrlBase() {
+        return driver.findElement(By.xpath("//div[@id='exportIconsDiv']")).getAttribute("data-exporturl");
+    }
+    
+
+    /**
+     * Get the gene page's html phenotype table data
+     * @param numRows the number of rows of data to fetch
+     * @return the html phenotype table data, in a 2-d array of <code>String</code>
+     */
+    @Override
+    public String[][] getPhenotypeTableData(int numRows) {
         PhenotypeTableGene ptGene = new PhenotypeTableGene();
-        return ptGene.getData(driver, wait, genePageTarget, maxRows);
+        return ptGene.getData(driver, wait, pageTarget, numRows);
     }
     
     /**
      * @return the number at the end of the gene page string 'Total number of results: xxxx'
      */
+    @Override
     public final int getResultsCount() {
         WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']")));
         String s = element.getText().replace("Total number of results: ", "");
@@ -178,14 +184,14 @@ public class GenePage {
         
         // Wait for page to load.
         try {
-            driver.get(genePageTarget);
+            driver.get(pageTarget);
             wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
         } catch (NoSuchElementException | TimeoutException te ) {
-            message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + genePageTarget + ") but found none.";
-            status.addFail(message);
+            message = "Expected page for MGI_ACCESSION_ID " + id + "(" + pageTarget + ") but found none.";
+            status.addError(message);
         } catch (Exception e) {
-            message = "EXCEPTION processing target URL " + genePageTarget + ": " + e.getLocalizedMessage();
-            status.addFail(message);
+            message = "EXCEPTION processing target URL " + pageTarget + ": " + e.getLocalizedMessage();
+            status.addError(message);
         }
         
         return status;

@@ -28,51 +28,82 @@ import java.util.List;
  * @author mrelac
  * 
  * This class encapsulates the code and data necessary to represent a page status
- * for Selenium testing purposes. Use this class to accumulate fail messages and
- * counts for later presentation to the testing interface.
+ * for Selenium testing purposes. Use this class to accumulate error and warning
+ * messages for later presentation to the testing interface.
  * 
  */
 public class PageStatus {
-    private final List<String> failMessages;
-    private Status status;
+    private final List<String> errorMessages;
+    private final List<String> warningMessages;
 
     public PageStatus() {
-        failMessages = new ArrayList();
-        status = Status.OK;
+        errorMessages = new ArrayList();
+        warningMessages = new ArrayList();
     }
 
-    public List<String> getFailMessages() {
-        return failMessages;
+    public List<String> getErrorMessages() {
+        return errorMessages;
     }
 
-    public void addFail(String failMessage) {
-        this.failMessages.add(failMessage);
-        status = Status.FAIL;
+    public List<String> getWarningMessages() {
+        return warningMessages;
+    }
+
+    public void addError(String errorMessage) {
+        this.errorMessages.add(errorMessage);
     }
     
-    public void addFail(List<String> failMessages) {
-        this.failMessages.addAll(failMessages);
-        status = Status.FAIL;
+    public void addError(List<String> errorMessages) {
+        this.errorMessages.addAll(errorMessages);
+    }
+
+    public void addWarning(String warningMessage) {
+        this.warningMessages.add(warningMessage);
+    }
+    
+    public void addWarning(List<String> warningMessage) {
+        this.warningMessages.addAll(warningMessage);
+    }
+    
+    public boolean hasErrors() {
+        return (errorMessages.size() > 0);
+    }
+    
+    public boolean hasWarnings() {
+        return (warningMessages.size() > 0);
     }
 
     @Override
     public String toString() {
-        return "total fail messages: " + failMessages.size();
+        return "total fail messages: " + errorMessages.size();
     }
 
     /**
-     * Returns all of the fail messages in a String, each message terminated
+     * @return  All of the error messages in a String, each message terminated
      * with a newline, suitable for display. Returns an empty string if there
-     * are no fail messages.
-     * 
-     * @return  all of the fail messages in a String, each message terminated
-     * with a newline, suitable for display. Returns an empty string if there
-     * are no fail messages.
+     * are no error messages.
      */
-    public String toStringFailMessages() {
+    public String toStringErrorMessages() {
         StringBuilder sb = new StringBuilder();
-        if (failMessages != null) {
-            for (String s : failMessages) {
+        if (errorMessages != null) {
+            for (String s : errorMessages) {
+                sb.append(s);
+                sb.append("\n");
+            }
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * @return  All of the warning messages in a String, each message terminated
+     * with a newline, suitable for display. Returns an empty string if there
+     * are no warning messages.
+     */
+    public String toStringWarningMessages() {
+        StringBuilder sb = new StringBuilder();
+        if (warningMessages != null) {
+            for (String s : warningMessages) {
                 sb.append(s);
                 sb.append("\n");
             }
@@ -84,18 +115,4 @@ public class PageStatus {
     
     // GETTERS AND SETTERS
     
-    
-    public Status getStatus() {
-        return status;
-    }
-    
-    
-    // PUBLIC INNER CLASSES
-    
-    
-    public enum Status {
-        OK,
-        FAIL
-    }
-
 }
