@@ -23,9 +23,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.ebi.phenotype.pojo.Allele;
 import uk.ac.ebi.phenotype.pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
@@ -53,10 +50,6 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
         GENE_PAGE_ROW, PHENOTYPE_PAGE_ROW
     }
 	
-	
-	
-	private final Logger log = LoggerFactory.getLogger(PhenotypeRow.class);
-
 	private OntologyTerm phenotypeTerm;
 	private GenomicFeature gene;
 	private Allele allele;
@@ -107,20 +100,21 @@ public class PhenotypeRow implements Comparable<PhenotypeRow>{
 			
 	}
 		
-        public void setPValue(Double pValue) {
-            this.pValue=pValue;
-        }
-        public Double getPrValue(){
-            return this.pValue;
-        }
+	public void setPValue(Double pValue) {
+        this.pValue=pValue;
+    }
+	
+    public Double getPrValue(){
+        return this.pValue;
+    }
         
-        public String getPrValueAsString(){
-            BigDecimal bd = new BigDecimal(this.pValue);
-            bd = bd.round(new MathContext(3));
-            double rounded = bd.doubleValue();
-            String result=Double.toString(rounded);
-            return result;
-        }
+    public String getPrValueAsString(){
+        BigDecimal bd = new BigDecimal(this.pValue);
+        bd = bd.round(new MathContext(3));
+        double rounded = bd.doubleValue();
+        String result=Double.toString(rounded);
+        return result;
+    }
     
 	public Pipeline getPipeline() {
 		return pipeline;
