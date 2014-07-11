@@ -36,7 +36,7 @@ import uk.ac.ebi.phenotype.util.Utils;
  *
  * @author mrelac
  * 
- * This abstract class encapsulates the code and data necessary to represent
+ * This class encapsulates the code and data necessary to represent
  * the common parts of both a gene page (/genes/MGI:xxx) and a phenotype page
  * (/phenotypes/MP:xxxx), against which selenium web tests may interact. It
  * consists primarily of a parser and a validator. The parser serves up

@@ -222,8 +222,6 @@
 	<field name="annotatedHigherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />
 	<field name="annotatedHigherLevelMpTermId" type="string" indexed="true" stored="true" multiValued="true" />
 	<field name="annotatedHigherLevelMpTermName" type="string" indexed="true" stored="true" multiValued="true" />	
-	<field name="inferredHigherLevelMaTermId" type="string"   indexed="true"  stored="true"  multiValued="true" />
-	<field name="inferredHigherLevelMaTermName" type="string"   indexed="true"  stored="true"  multiValued="true" />	
 	
 	<field name="annotated_or_inferred_higherLevelMaTermName" type="string" indexed="true" stored="true" multiValued="true" />
 	<field name="annotated_or_inferred_higherLevelMaTermId" type="string" indexed="true" stored="true" multiValued="true" />
@@ -277,6 +275,13 @@
 	leading wildcard queries. -->
 	<field name="text_rev" type="text_general_rev" indexed="true" stored="false" multiValued="true"/>
    	<field name="selected_top_level_ma_term" type="string" indexed="true" stored="false" multiValued="true" />	
+   
+   	<field name="img_marker_type" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="img_procedure_name" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="img_top_level_mp_term" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="img_selected_top_level_ma_term" type="string" indexed="true" stored="true" multiValued="true"/>
+	
+   	
  </fields>
 
 	<uniqueKey>mp_id</uniqueKey>
@@ -343,5 +348,10 @@
 
 	<copyField source="parameter_stable_id" dest="auto_suggest" /> 
 	<copyField source="parameter_name" dest="auto_suggest" /> 	
+
+	<copyField source="marker_type" dest="img_marker_type" /> 	
+	<copyField source="procedure_name" dest="img_procedure_name" /> 
+	<copyField source="top_level_mp_term" dest="img_top_level_mp_term" /> 	
+	
 	
 </schema>

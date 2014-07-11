@@ -1,8 +1,8 @@
-/*
+/**
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
- /**
+/**
  * Copyright © 2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
@@ -20,34 +20,26 @@
 
 package org.mousephenotype.www.testing.model;
 
-import java.io.IOException;
-import java.util.List;
-
 /**
  *
  * @author mrelac
  * 
- * This interface defines a contract for implementing a data reader that can
- * read URL-originated streams. Since plain-text streams such as comma- and tab-
- * separated formats can be very different from Excel streams in their command-set,
- * this interface aims to describe a consistent, easy-to-use, and easy-to-maintain
- * and enhance approach.
- * 
- * New stream types can be easily implemented by simply implementing these
- * methods.
- * 
+ * The download streams for gene, pheno, and graph pages are similar in a
+ * general way but differ in column name, placement, and count. This interface
+ * defines the contract for column indexes common to all download streams.
+ * Instantiated subclasses provide the implementations and may add additional
+ * column index getters.
  */
-public interface DataReader {
-    public void open() throws IOException;
-    public void close() throws IOException;
-    public List<String> getLine() throws IOException;
-    public DataType getType();
-    public String[][] getData(int maxRows);
-    public int lineCount();
-    
-    public enum DataType {
-        TSV,
-        XLS
-    }
-    
+public interface DownloadStructure {
+    public int getColIndexPhenotype();
+    public int getColIndexAllele();
+    public int getColIndexZygosity();
+    public int getColIndexSex();
+    public int getColIndexProcedureParameter();
+    public int getColIndexPhenotypingCenter();
+    public int getColIndexSource();
+    public int getColIndexPvalue();
+    public int getColIndexGraph();
+    public int getColumnCount();
+    public int getColIndex(int tableIndex);
 }

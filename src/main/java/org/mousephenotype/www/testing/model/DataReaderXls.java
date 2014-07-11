@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-
-
 package org.mousephenotype.www.testing.model;
 
 import java.io.IOException;
@@ -41,9 +39,9 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
  * 
  * This <code>DataReader</code> implementation handles Microsoft Excel streams.
  */
-public class DataReaderXls implements DataReader {
+public class DataReaderXls extends DataReaderImpl {
+    
     private Iterator<Row> rowIterator = null;
-    private final URL url;
     Workbook workbook;
     
     /**
@@ -53,7 +51,7 @@ public class DataReaderXls implements DataReader {
      * @param url The url defining the input stream
      */
     public DataReaderXls(URL url) {
-        this.url = url;
+        super(url);
     }
     
     /**
@@ -128,6 +126,5 @@ public class DataReaderXls implements DataReader {
     public URL getUrl() {
         return url;
     }
-    
     
 }

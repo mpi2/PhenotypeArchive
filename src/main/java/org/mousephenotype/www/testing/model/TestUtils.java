@@ -63,23 +63,6 @@ public class TestUtils {
     Map<String, String> testIterationsHash;
     
     /**
-     * Given that the current page is the gene page with phenotype mappings (i.e.
-     * there is an html table with id='phenotypes'), returns the number
-     * the 'Total number of results:' string; e.g., given the string
-     * 'Total number of results: 34', returns the number 34. Returns 0 if there
-     * is no number or no such formatted string.
-     * @param wait A valid <code>WebDriverWait</code> instance
-     * @return phenotype table results count if found; 0 otherwise
-     */
-    public static int getGenePhenotypeResultsCount(WebDriverWait wait) {
-        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']")));
-        
-        String s = element.getText().replace("Total number of results: ", "");
-        Integer i = Utils.tryParseInt(s);
-        return (i == null ? 0 : i);
-    }
-    
-    /**
      * Return target count prioritized as follows:
      * <p><b>NOTE: If the returned target size is less than the collection size,
      * the collection is shuffled (i.e. randomized)</b></p>

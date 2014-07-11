@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-
-
 package org.mousephenotype.www.testing.model;
 
 import java.util.ArrayList;
@@ -30,64 +28,36 @@ import java.util.List;
  * @author mrelac
  * 
  * This class encapsulates the code and data necessary to represent a page status
- * for Selenium testing purposes. Use this class to accumulate fail messages
+ * for Selenium testing purposes. Use this class to accumulate fail messages and
+ * counts for later presentation to the testing interface.
  * 
  */
-public class GraphParsingStatus {
-    private int fail;
-    private int pass;
-    private int total;
+public class PageStatus {
     private final List<String> failMessages;
-    private final List<String> passMessages;
+    private Status status;
 
-    public GraphParsingStatus() {
-        total = 0;
-        pass = 0;
-        fail = 0;
+    public PageStatus() {
         failMessages = new ArrayList();
-        passMessages = new ArrayList();
-    }
-
-    public int getFail() {
-        return fail;
-    }
-
-    public int getPass() {
-        return pass;
-    }
-
-    public int getTotal() {
-        return total;
+        status = Status.OK;
     }
 
     public List<String> getFailMessages() {
         return failMessages;
     }
 
-    public List<String> getPassMessages() {
-        return passMessages;
-    }
-
     public void addFail(String failMessage) {
         this.failMessages.add(failMessage);
-        fail++;
-        total++;
+        status = Status.FAIL;
     }
+    
     public void addFail(List<String> failMessages) {
         this.failMessages.addAll(failMessages);
-        fail += failMessages.size();
-        total += failMessages.size();
-    }
-
-    public void addPass(String passMessage) {
-        this.passMessages.add(passMessage);
-        pass++;
-        total++;
+        status = Status.FAIL;
     }
 
     @Override
     public String toString() {
-        return "total graph links: " + total + " (" + pass + " pass, " + fail + " fail)";
+        return "total fail messages: " + failMessages.size();
     }
 
     /**
@@ -110,25 +80,22 @@ public class GraphParsingStatus {
 
         return sb.toString();
     }
-
-    /**
-     * Returns all of the pass messages in a String, each message terminated
-     * with a newline, suitable for display. Returns an empty string if there
-     * are no pass messages.
-     * 
-     * @return  all of the pass messages in a String, each message terminated
-     * with a newline, suitable for display. Returns an empty string if there
-     * are no pass messages.
-     */
-    public String toStringPassMessages() {
-        StringBuilder sb = new StringBuilder();
-        if (passMessages != null) {
-            for (String s : passMessages) {
-                sb.append(s);
-                sb.append("\n");
-            }
-        }
-
-        return sb.toString();
+    
+    
+    // GETTERS AND SETTERS
+    
+    
+    public Status getStatus() {
+        return status;
     }
+    
+    
+    // PUBLIC INNER CLASSES
+    
+    
+    public enum Status {
+        OK,
+        FAIL
+    }
+
 }

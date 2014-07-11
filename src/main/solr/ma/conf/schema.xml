@@ -244,6 +244,13 @@
    <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
    <field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
    
+   <field name="img_marker_type" type="string" indexed="true" stored="false" multiValued="true"/>
+	<field name="img_procedure_name" type="string" indexed="true" stored="false" multiValued="true"/>
+	<field name="img_top_level_mp_term" type="string" indexed="true" stored="false" multiValued="true"/>
+	<field name="img_selected_top_level_ma_term" type="string" indexed="true" stored="false" multiValued="true"/>
+	
+   
+   
  </fields>
 
     <uniqueKey>ma_id</uniqueKey>
@@ -273,8 +280,9 @@
 	
 	<copyField source="selected_top_level_ma_term" dest="annotated_or_inferred_higherLevelMaTermName" />	
 
-
-
+	<copyField source="marker_type" dest="img_marker_type" /> 	
+	<copyField source="procedure_name" dest="img_procedure_name" /> 
+	<copyField source="top_level_mp_term" dest="img_selected_top_level_ma_term" /> 	
 
 
 </schema>
