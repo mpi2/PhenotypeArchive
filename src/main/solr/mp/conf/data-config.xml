@@ -40,7 +40,7 @@
 			<!-- synonym of this MP term -->
 			<entity dataSource="ontodb" name="mp_synonyms"
 				processor="CachedSqlEntityProcessor" 
-				query="select distinct syn_name from mp_synonyms"
+				query="select term_id, syn_name from mp_synonyms"
 				where="term_id=mp_term_infos.term_id">
 				
 				<field column="syn_name" name="mp_term_synonym" />

@@ -150,6 +150,18 @@
 			 	as an image can be annotated to multiple mp/ma/marker_type/procedure terms which 
 			 	has nothing to do with this gene
 			 -->
+		  	<entity dataSource="images_core" name="imgCore" 
+					stream="true" 
+					url="q=accession:&quot;${doc.mgi_accession_id}&quot;&amp;fl=annotatedHigherLevelMaTermName,annotatedHigherLevelMpTermName&amp;wt=normal&amp;rows=999999999"
+					processor="XPathEntityProcessor" 
+					forEach="/response/result/doc/"							
+					readTimeout="10000" 
+					connectionTimeout="10000"  
+					onError="continue" >	
+					
+					<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />
+					<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
+		  	</entity>
 		  
 		</entity>		
     </document>       

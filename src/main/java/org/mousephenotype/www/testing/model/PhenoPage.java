@@ -39,17 +39,10 @@ import uk.ac.ebi.phenotype.util.Utils;
  * This class encapsulates the code and data necessary to represent a Phenotype
  * Archive phenotype page for Selenium testing.
  */
-public class PhenoPage {
-    private final String phenoPageTarget;
-    private final WebDriverWait wait;
-    private final WebDriver driver;
-    private final String phenoId;
+public class PhenoPage extends WebPageImpl {
     
-    public PhenoPage(WebDriver driver, WebDriverWait wait, String phenoPageTarget, String phenoId) {
-        this.driver = driver;
-        this.wait = wait;
-        this.phenoPageTarget = phenoPageTarget;
-        this.phenoId = phenoId;
+    public PhenoPage(WebDriver driver, WebDriverWait wait, String genePageTarget, String geneId) {
+        super(driver, wait, genePageTarget, geneId);
         
         load();
     }
@@ -70,6 +63,7 @@ public class PhenoPage {
      * @param downloadTarget The download target url (for informational purposes)
      * @return the number of records in error
      */
+    @Override
     public PageStatus compare(String[][] downloadData, String downloadTarget) {
         PageStatus status = new PageStatus();
         String[][] pageData = getPhenotypeTableData(downloadData.length);
@@ -77,7 +71,7 @@ public class PhenoPage {
         PhenotypeTablePheno ptPheno = new PhenotypeTablePheno();
         
         if (pageData.length != downloadData.length) {
-            status.addFail("ERROR: the number of page data rows (" + pageData.length + ") does not match the number of download rows (" + downloadData.length + ").");
+            status.addError("ERROR: the number of page data rows (" + pageData.length + ") does not match the number of download rows (" + downloadData.length + ").");
             return status;
         }
         
@@ -132,7 +126,7 @@ public class PhenoPage {
         
         if ( ! rowErrors.isEmpty()) {
             System.out.println("\n" + errorCount + " errors:");
-            System.out.println("PHENO PAGE DATA: " + phenoPageTarget);
+            System.out.println("PHENO PAGE DATA: " + pageTarget);
             System.out.println("DOWNLOAD DATA:   " + downloadTarget);
             System.out.println();
             String format = "%-20s   %-50s   %-50s\n";
@@ -140,20 +134,36 @@ public class PhenoPage {
             for (String[] row : rowErrors) {
                 System.out.printf(format, row[0], row[1], row[2]);
             }
-            status.addFail("Mismatch.");
+            status.addError("Mismatch.");
         }
         
         return status;
     }
     
-    public String[][] getPhenotypeTableData(int maxRows) {
+    /**
+     * @return the gene page's target download url base (identified by a div
+     * containing the 'data-exporturl' attribute).
+     */
+    @Override
+    public String getDownloadTargetUrlBase() {
+        return driver.findElement(By.xpath("//div[@id='exportIconsDiv']")).getAttribute("data-exporturl");
+    }
+    
+    /**
+     * Get the pheno page's html phenotype table data
+     * @param numRows the number of rows of data to fetch
+     * @return the html phenotype table data, in a 2-d array of <code>String</code>
+     */
+    @Override
+    public String[][] getPhenotypeTableData(int numRows) {
         PhenotypeTablePheno ptPheno = new PhenotypeTablePheno();
-        return ptPheno.getData(driver, wait, phenoPageTarget, maxRows);
+        return ptPheno.getData(driver, wait, pageTarget, numRows);
     }
     
     /**
      * @return the number at the end of the pheno page string 'Total number of results: xxxx'
      */
+    @Override
     public final int getResultsCount() {
         WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']")));
         String s = element.getText().replace("Total number of results: ", "");
@@ -172,14 +182,14 @@ public class PhenoPage {
         
         // Wait for page to load.
         try {
-            driver.get(phenoPageTarget);
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenoId)));
+            driver.get(pageTarget);
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(id)));
         } catch (NoSuchElementException | TimeoutException te ) {
-            message = "Expected page for MP_TERM_ID " + phenoId + "(" + phenoPageTarget + ") but found none.";
-            status.addFail(message);
+            message = "Expected page for MP_TERM_ID " + id + "(" + pageTarget + ") but found none.";
+            status.addError(message);
         } catch (Exception e) {
-            message = "EXCEPTION processing target URL " + phenoPageTarget + ": " + e.getLocalizedMessage();
-            status.addFail(message);
+            message = "EXCEPTION processing target URL " + pageTarget + ": " + e.getLocalizedMessage();
+            status.addError(message);
         }
         
         return status;

@@ -19,7 +19,6 @@
  */
 package org.mousephenotype.www;
 
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,15 +33,10 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.www.testing.model.DataReaderTsv;
-import org.mousephenotype.www.testing.model.DataReaderXls;
 import org.mousephenotype.www.testing.model.GenePage;
 import org.mousephenotype.www.testing.model.PageStatus;
 import org.mousephenotype.www.testing.model.PhenoPage;
 import org.mousephenotype.www.testing.model.TestUtils;
-import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -142,17 +136,18 @@ public class DataExportTest {
      * @throws SolrServerException 
      */
     @Test
-//@Ignore
+@Ignore
     public void testGeneDownloads() throws SolrServerException {
         String testName = "testGeneDownloads";
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         List<String> geneIds = new ArrayList(genotypePhenotypeService.getAllGenesWithPhenotypeAssociations());
-        String target = "";
+        String target;
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
         List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
+        PageStatus status;
         
         int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
@@ -170,69 +165,17 @@ public class DataExportTest {
             int errorCount = 0;
             target = baseUrl + "/genes/" + geneId;
             System.out.println("gene[" + i + "] URL: " + target);
-            String downloadTargetUrlBase;
             
-            try {
-                GenePage genePage = new GenePage(driver, wait, target, geneId); // Load the page.
-                int pageResultsCount = genePage.getResultsCount();              // Get the results count off the page (does NOT include headings).
-                downloadTargetUrlBase = driver.findElement(By.xpath("//div[@id='exportIconsDiv']")).getAttribute("data-exporturl");
-                
-                // Test the TSV. Remove the extra '/data' from the downloadTargetUrlBase and append the 'tsv' filetype.
-                String downloadTargetTsv = baseUrl.replace("/data", "") + downloadTargetUrlBase + "tsv";
-downloadTargetTsv = downloadTargetTsv.replaceFirst("http://localhost:8080/phenotype-archive", "");          // Hack used when running on localhost.
-                
-                // Get the download stream and statistics for the TSV stream.
-                URL url = new URL(downloadTargetTsv);
-                DataReaderTsv dataReaderTsv = new DataReaderTsv(url);
-                
-                // Check that the phenotypes table line count <= the download stream line count.
-                int downloadDataLineCount = dataReaderTsv.lineCount() - 1;      // subtract 1 from download row count to account for heading.
-                if (pageResultsCount > downloadDataLineCount) {
-                    errorCount++;
-                    System.out.println("ERROR: gene page results count (" + (pageResultsCount) + ") is greater than the TSV download data line count (" + downloadDataLineCount + ").\n URL: " + target);
-                }
-                
-                // Check that the phenotypes table data equals the download stream data.
-                String[][] downloadData = dataReaderTsv.getData(2);
-                PageStatus status = genePage.compare(downloadData, downloadTargetTsv);
-                if (status.getStatus() != PageStatus.Status.OK) {
-                    System.out.println(status.toStringFailMessages());
-                    errorCount++;
-                }
-                
-                // Test the XLS. Remove the extra '/data' from the downloadTargetUrlBase and append the 'xls' filetype.
-                String downloadTargetXls = baseUrl.replace("/data", "") + downloadTargetUrlBase + "xls";
-downloadTargetXls = downloadTargetXls.replaceFirst("http://localhost:8080/phenotype-archive", "");          // Hack used when running on localhost.
-                
-                // Get the download stream and statistics for the TSV stream.
-                url = new URL(downloadTargetXls);
-                DataReaderXls dataReaderXls = new DataReaderXls(url);
-                
-                // Check that the phenotypes table line count <= the download stream line count.
-                downloadDataLineCount = dataReaderXls.lineCount() - 1;          // subtract 1 from download row count to account for heading.
-                if (pageResultsCount > downloadDataLineCount) {
-                    errorCount++;
-                    System.out.println("ERROR: gene page results count (" + (pageResultsCount) + ") is greater than the XLS download data line count (" + downloadDataLineCount + ").\n URL: " + target);
-                }
-                
-                // Check that the phenotypes table data equals the download stream data.
-                downloadData = dataReaderXls.getData(2);
-                status = genePage.compare(downloadData, downloadTargetXls);
-                if (status.getStatus() != PageStatus.Status.OK) {
-                    status.addFail(status.getFailMessages());
-                }
-            } catch (NoSuchElementException | TimeoutException te) {
-                message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
-                errorList.add(message);
-                TestUtils.sleep(thread_wait_in_ms);
-                continue;
-            }  catch (Exception e) {
-                message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-                exceptionList.add(message);
-                TestUtils.sleep(thread_wait_in_ms);
-                continue;
+            GenePage genePage = new GenePage(driver, wait, target, geneId); // Load the page.
+            status = genePage.testDownload(baseUrl);                        // Test the download links.
+            if (status.hasWarnings()) {
+                System.out.println(status.toStringWarningMessages());
             }
-            
+            if (status.hasErrors()) {
+                System.out.println(status.toStringErrorMessages());
+                errorCount++;
+            }
+
             if (errorCount == 0) {
                 message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
                 successList.add(message);
@@ -251,17 +194,17 @@ downloadTargetXls = downloadTargetXls.replaceFirst("http://localhost:8080/phenot
      * @throws SolrServerException 
      */
     @Test
-//@Ignore
+@Ignore
     public void testPhenoDownloads() throws SolrServerException {
         String testName = "testPhenoDownloads";
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         List<String> phenoIds = new ArrayList(mpService.getAllPhenotypes());
-        String target = "";
+        String target;
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
-        List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
+        PageStatus status;
         
         int targetCount = testUtils.getTargetCount(testName, phenoIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " Expecting to process " + targetCount + " of a total of " + phenoIds.size() + " records.");
@@ -275,76 +218,21 @@ downloadTargetXls = downloadTargetXls.replaceFirst("http://localhost:8080/phenot
                 break;
             }
             i++;
-//if (i == 1) phenoId = "MP:0003947";
-//if (i == 2) phenoId = "MP:0000685";
-//if (i == 3) phenoId = "MP:0005278";
-//if (i == 4) phenoId = "MP:0005316";
+            
             int errorCount = 0;
             target = baseUrl + "/phenotypes/" + phenoId;
             System.out.println("pheno[" + i + "] URL: " + target);
-            String downloadTargetUrlBase;
             
-            try {
-                PhenoPage phenoPage = new PhenoPage(driver, wait, target, phenoId); // Load the page.
-                int pageResultsCount = phenoPage.getResultsCount();              // Get the results count off the page (does NOT include headings).
-                downloadTargetUrlBase = driver.findElement(By.xpath("//div[@id='exportIconsDiv']")).getAttribute("data-exporturl");
-                
-                // Test the TSV. Remove the extra '/data' from the downloadTargetUrlBase and append the 'tsv' filetype.
-                String downloadTargetTsv = baseUrl.replace("/data", "") + downloadTargetUrlBase + "tsv";
-downloadTargetTsv = downloadTargetTsv.replaceFirst("http://localhost:8080/phenotype-archive", "");          // Hack used when running on localhost.
-                
-                // Get the download stream and statistics for the TSV stream.
-                URL url = new URL(downloadTargetTsv);
-                DataReaderTsv dataReaderTsv = new DataReaderTsv(url);
-                
-                // Check that the phenotypes table line count <= the download stream line count.
-                int downloadDataLineCount = dataReaderTsv.lineCount() - 1;      // subtract 1 from download row count to account for heading.
-                if (pageResultsCount > downloadDataLineCount) {
-                    errorCount++;
-                    System.out.println("ERROR: phenotype page results count (" + (pageResultsCount) + ") is is greater than the TSV download data line count (" + downloadDataLineCount + ").\n URL: " + target);
-                }
-                
-                // Check that the phenotypes table data equals the download stream data.
-                String[][] downloadData = dataReaderTsv.getData(2);
-                PageStatus status = phenoPage.compare(downloadData, downloadTargetTsv);
-                if (status.getStatus() != PageStatus.Status.OK) {
-                    System.out.println(status.toStringFailMessages());
-                    errorCount++;
-                }
-                
-                // Test the XLS. Remove the extra '/data' from the downloadTargetUrlBase and append the 'xls' filetype.
-                String downloadTargetXls = baseUrl.replace("/data", "") + downloadTargetUrlBase + "xls";
-downloadTargetXls = downloadTargetXls.replaceFirst("http://localhost:8080/phenotype-archive", "");          // Hack used when running on localhost.
-                
-                // Get the download stream and statistics for the TSV stream.
-                url = new URL(downloadTargetXls);
-                DataReaderXls dataReaderXls = new DataReaderXls(url);
-                
-                // Check that the phenotypes table line count <= the download stream line count.
-                downloadDataLineCount = dataReaderXls.lineCount() - 1;          // subtract 1 from download row count to account for heading.
-                if (pageResultsCount > downloadDataLineCount) {
-                    errorCount++;
-                    System.out.println("ERROR: phenotype page results count (" + (pageResultsCount) + ") is greater than the XLS download data line count (" + downloadDataLineCount + ").\n URL: " + target);
-                }
-                
-                // Check that the phenotypes table data equals the download stream data.
-                downloadData = dataReaderXls.getData(2);
-                status = phenoPage.compare(downloadData, downloadTargetXls);
-                if (status.getStatus() != PageStatus.Status.OK) {
-                    status.addFail(status.getFailMessages());
-                }
-            } catch (NoSuchElementException | TimeoutException te) {
-                message = "Expected page for MP_TERM_ID " + phenoId + "(" + target + ") but found none.";
-                errorList.add(message);
-                TestUtils.sleep(thread_wait_in_ms);
-                continue;
-            }  catch (Exception e) {
-                message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-                exceptionList.add(message);
-                TestUtils.sleep(thread_wait_in_ms);
-                continue;
+            PhenoPage phenoPage = new PhenoPage(driver, wait, target, phenoId); // Load the page.
+            status = phenoPage.testDownload(baseUrl);                           // Test the download links.
+            if (status.hasWarnings()) {
+                System.out.println(status.toStringWarningMessages());
             }
-            
+            if (status.hasErrors()) {
+                System.out.println(status.toStringErrorMessages());
+                errorCount++;
+            }
+
             if (errorCount == 0) {
                 message = "SUCCESS: MP_TERM_ID " + phenoId + ". URL: " + target;
                 successList.add(message);
@@ -355,7 +243,64 @@ downloadTargetXls = downloadTargetXls.replaceFirst("http://localhost:8080/phenot
             TestUtils.sleep(thread_wait_in_ms);
         }
         
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, phenoIds.size());
+        TestUtils.printEpilogue(testName, start, errorList, null, successList, targetCount, phenoIds.size());
     }
+    
+    /**
+     * Test downloads from the graphs page.
+     * @throws SolrServerException 
+     */
+    @Test
+//@Ignore
+    public void testGraphDownloads() throws SolrServerException {
+        String testName = "testGraphDownloads";
+        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
+        List<String> phenoIds = new ArrayList(mpService.getAllPhenotypes());
+        String target;
+        List<String> errorList = new ArrayList();
+        List<String> successList = new ArrayList();
+        String message;
+        Date start = new Date();
+        PageStatus status;
+        
+        int targetCount = testUtils.getTargetCount(testName, phenoIds, 10);
+        System.out.println(dateFormat.format(start) + ": " + testName + " Expecting to process " + targetCount + " of a total of " + phenoIds.size() + " records.");
+        
+        // Loop through all phenotypes, testing each tsv and xls download link.
+        int i = 0;
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        
+        for (String phenoId : phenoIds) {
+            if (i >= targetCount) {
+                break;
+            }
+            i++;
+            
+            int errorCount = 0;
+            target = baseUrl + "/phenotypes/" + phenoId;
+            System.out.println("pheno[" + i + "] URL: " + target);
+            
+            PhenoPage phenoPage = new PhenoPage(driver, wait, target, phenoId); // Load the page.
+            status = phenoPage.testDownload(baseUrl);                           // Test the download links.
+            if (status.hasWarnings()) {
+                System.out.println(status.toStringWarningMessages());
+            }
+            if (status.hasErrors()) {
+                System.out.println(status.toStringErrorMessages());
+                errorCount++;
+            }
 
+            if (errorCount == 0) {
+                message = "SUCCESS: MP_TERM_ID " + phenoId + ". URL: " + target;
+                successList.add(message);
+            } else {
+                errorList.add("ERROR: pheno id " + phenoId + ": mismatch between pheno page and download.");
+            }
+            
+            TestUtils.sleep(thread_wait_in_ms);
+        }
+        
+        TestUtils.printEpilogue(testName, start, errorList, null, successList, targetCount, phenoIds.size());
+    }
+    
 }
