@@ -79,7 +79,6 @@ public class ObservationService extends BasicService {
     PhenotypePipelineDAO parameterDAO;
     
     @Autowired
-    @Qualifier("mapService")
     ParameterMapService pmapService;
 
     @Autowired
