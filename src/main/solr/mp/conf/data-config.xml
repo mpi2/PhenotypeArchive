@@ -21,18 +21,12 @@
 			<field column="node_id" name="mp_node_id" />		
 
 			<!-- images annotated to this MP -->
-		  	<entity dataSource="images_core" name="imgCore" stream="true" url="q=mpTermId:&quot;${mp_term_infos.term_id}&quot;&amp;wt=normal&amp;rows=999999"
-				processor="XPathEntityProcessor" forEach="/response/result/doc/"							
-				readTimeout="10000" connectionTimeout="10000"  >
-				
-				<field column="expName" xpath="/response/result/doc/arr[@name='expName']/str"/>
-                <field column="subtype" xpath="/response/result/doc/arr[@name='subtype']/str" />
-                <!-- for association with an image annotated to this MP term, simply use the higher level mp term of this MP 
+            <!-- for association with an image annotated to this MP term, simply use the higher level mp term of this MP 
                 	to link to the img_top_level_mp_term field of the images core
                 	as an image can be annotated to multiple mp terms which has nothing to do with this MP term
-		  			so a copy field in schema does the trick -->
+		  			so a copy field in schema does the trick 
+		  	-->
 		  	
-			</entity>
 		
 			<!-- subset of this MP term: parsed from obo file -->
 			<entity dataSource="ontodb" name="mp_term_subsets"

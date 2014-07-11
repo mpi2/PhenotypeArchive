@@ -349,8 +349,9 @@
 	<copyField source="parameter_stable_id" dest="auto_suggest" /> 
 	<copyField source="parameter_name" dest="auto_suggest" /> 	
 
-	<copyField source="subtype" dest="img_marker_type" /> 	
-	<copyField source="expName" dest="img_procedure_name" /> 
+	<copyField source="marker_type" dest="img_marker_type" /> 	
+	<copyField source="procedure_name" dest="img_procedure_name" /> 
 	<copyField source="top_level_mp_term" dest="img_top_level_mp_term" /> 	
+	
 	
 </schema>

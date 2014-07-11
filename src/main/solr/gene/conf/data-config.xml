@@ -145,28 +145,24 @@
 			
 			
 			<!-- images annotated to this gene -->
-			<!-- <entity dataSource="komp2db" name="imgId_gfacc" processor="CachedSqlEntityProcessor"
-				query="select distinct r.id, a.gf_acc from IMA_IMAGE_RECORD r, IMPC_MOUSE_ALLELE_MV m, allele a where r.FOREIGN_KEY_ID=m.MOUSE_ID and m.ALLELE=a.symbol">
-			
-			</entity>
-			-->	
-			
-			<entity dataSource="images_core" name="imgCore" 
-				stream="true" 
-				url="q=accession:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;fl=expName,subtype,annotatedHigherLevelMaTermName,annotatedHigherLevelMpTermName&amp;rows=999999"
-				processor="XPathEntityProcessor" 
-				forEach="/response/result/doc/"							
-				readTimeout="10000" 
-				connectionTimeout="10000" 
-				onError="continue" >
- 
-				<field column="expName" xpath="/response/result/doc/arr[@name='expName']/str" />
-				<field column="subtype" xpath="/response/result/doc/arr[@name='subtype']/str" />
-				<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />
-				<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />		
-							
-			</entity>
-			
+			<!-- for association with an image annotated to this gene term, simply use copy fields
+				for top_level_mp/ma, procedure_name, marker_type of this gene in the schema
+			 	as an image can be annotated to multiple mp/ma/marker_type/procedure terms which 
+			 	has nothing to do with this gene
+			 -->
+		  	<entity dataSource="images_core" name="imgCore" 
+					stream="true" 
+					url="q=accession:&quot;${doc.mgi_accession_id}&quot;&amp;fl=annotatedHigherLevelMaTermName,annotatedHigherLevelMpTermName&amp;wt=normal&amp;rows=999999999"
+					processor="XPathEntityProcessor" 
+					forEach="/response/result/doc/"							
+					readTimeout="10000" 
+					connectionTimeout="10000"  
+					onError="continue" >	
+					
+					<field column="annotatedHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMaTermName']/str" />
+					<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
+		  	</entity>
+		  
 		</entity>		
     </document>       
 </dataConfig>
