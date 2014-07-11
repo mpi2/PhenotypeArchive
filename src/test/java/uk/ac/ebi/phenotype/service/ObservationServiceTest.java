@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.constraints.AssertTrue;
+
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import uk.ac.ebi.phenotype.dao.OrganisationDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.pojo.ObservationType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })
@@ -158,6 +161,15 @@ public class ObservationServiceTest {
         
     }
 
+    
+    @Test
+    public void testGetObservationTypeForParameterStableId(){
+    	try {
+			assertTrue(os.getObservationTypeForParameterStableId("GMC_920_001_009") == ObservationType.unidimensional);
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+    }
  
 //    @Test
 //    public void testGetAllGenesWithMeasuresForParameter(){
