@@ -133,6 +133,9 @@ public class ObservationDTO {
 
     @Field("allele_accession_id")
     private String alleleAccession;
+    
+    @Field("allele_symbol")
+    private String alleleSymbol;
 
     /**
      * helper methods
@@ -151,9 +154,12 @@ public class ObservationDTO {
                 // + "\t" + procedureId
                 // + "\t" + parameterId
                 + "\t" + strainAccessionId
+                + "\t" + strainName
                 // + "\t" + experimentSourceId
                 + "\t" + geneSymbol
                 + "\t" + geneAccession
+                + "\t" + alleleSymbol
+                + "\t" + alleleAccession
                 // + "\t" + experimentId
                 // + "\t" + organisationId
                 // + "\t" + observationType
@@ -173,7 +179,8 @@ public class ObservationDTO {
                 // + "\t" + timePoint
                 // + "\t" + discretePoint
                 + "\t" + externalSampleId
-                + "\t\"" + metadata + "\"";
+                + "\t\"" + metadata + "\""
+                +"\t" + metadataGroup;
         ;
 
         if (observationType.equalsIgnoreCase("unidimensional")) {
@@ -199,9 +206,12 @@ public class ObservationDTO {
                 // + "\t procedureId"
                 // + "\t parameterId"
                 + "\t strainAccessionId"
+                + "\t strainName"
                 // + "\t experimentSourceId"
                 + "\t geneSymbol"
                 + "\t geneAccession"
+                + "\t alleleSymbol"
+                + "\t alleleAccession"
                 // + "\t experimentId"
                 // + "\t organisationId"
                 // + "\t observationType"
@@ -221,7 +231,8 @@ public class ObservationDTO {
                 // + "\t timePoint"
                 // + "\t discretePoint"
                 + "\t externalSampleId"
-                + "\t metadata";
+                + "\t metadata"
+                + "\t metadataGroup";
         if (observationType.equalsIgnoreCase("unidimensional")) {
             tabbed += "\t" + "dataPoint";
         }
@@ -795,7 +806,31 @@ public class ObservationDTO {
         return metadata;
     }
 
-    /**
+    public String getStrainAccessionId() {
+		return strainAccessionId;
+	}
+
+	public void setStrainAccessionId(String strainAccessionId) {
+		this.strainAccessionId = strainAccessionId;
+	}
+
+	public String getStrainName() {
+		return strainName;
+	}
+
+	public void setStrainName(String strainName) {
+		this.strainName = strainName;
+	}
+
+	public String getAlleleSymbol() {
+		return alleleSymbol;
+	}
+
+	public void setAlleleSymbol(String alleleSymbol) {
+		this.alleleSymbol = alleleSymbol;
+	}
+
+	/**
      * @param metadata
      *            the metadata to set
      */
