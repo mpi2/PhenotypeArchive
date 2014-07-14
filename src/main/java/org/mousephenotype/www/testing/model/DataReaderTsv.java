@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-
-
 package org.mousephenotype.www.testing.model;
 
 import java.io.BufferedReader;
@@ -29,6 +27,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.mousephenotype.www.testing.model.DataReader.DataType;
 
 /**
  *
@@ -36,8 +35,7 @@ import java.util.List;
  * 
  * This <code>DataReader</code> implementation handles tab-separated streams.
  */
-public class DataReaderTsv implements DataReader {
-    private final URL url;
+public class DataReaderTsv extends DataReaderImpl {
     private BufferedReader bufferedReader = null;
     
     /**
@@ -47,7 +45,7 @@ public class DataReaderTsv implements DataReader {
      * @param url The url defining the input stream
      */
     public DataReaderTsv(URL url) {
-        this.url = url;
+        super(url);
     }
     
     /**
@@ -57,6 +55,17 @@ public class DataReaderTsv implements DataReader {
     @Override
     public void open() throws IOException {
         bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
+        
+        // Test experience has shown that sometimes this method returns before the
+        // stream is ready to be read, which causes HTTP response code 503
+        // (server not ready).
+        // Make sure we can read from the stream first, including a sensible timeout (10 seconds max).
+        for (int i = 0; i < 20; i++) {
+            if ( ! bufferedReader.ready())
+                TestUtils.sleep(500);           // sleep for 500 ms.
+            else
+                return;
+        }
     }
     
     /**
@@ -109,6 +118,5 @@ public class DataReaderTsv implements DataReader {
     public URL getUrl() {
         return url;
     }
-    
     
 }

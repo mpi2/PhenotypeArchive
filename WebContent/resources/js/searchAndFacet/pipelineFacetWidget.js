@@ -146,7 +146,7 @@
 		        				var isGrayout = procedureChkboxLblCnt[pipeline][procedure_name].fcount == 0 ? 'grayout' : '';
 		        				
 		        				var liContainer = $("<li></li>").attr({'class':'fcat ' + pipeClass});
-		        				liContainer.addClass(isGrayout);
+		        				liContainer.removeClass('grayout').addClass(isGrayout);
 		        				
 		        				var chkbox = procedureChkboxLblCnt[pipeline][procedure_name].chkbox;
 		        				var flabel = procedureChkboxLblCnt[pipeline][procedure_name].flabel;

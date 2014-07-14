@@ -422,16 +422,15 @@
 		    						var subFacetName = oFacets[fld][i];
 		    						var facetCount = oFacets[fld][i+1];
 		    						var isGrayout = facetCount == 0 ? 'grayout' : '';
-		    						
-		    						
+		    								    						
 		    						if ( subFacetName != ''){ // skip solr field which value is an empty string
 		    							var className = oFields[fld]['class'];
 		    							
 		    							if ( className != 'phenotyping' ){
 		    								$(selectorBase + ' li.' + className + ' span.flabel').each(function(){							
 		    									if ( $(this).text() == subFacetName ){
-		    										
-		    										$(this).parent().remove('grayout').addClass(isGrayout);
+		    												    										
+		    										$(this).parent().removeClass('grayout').addClass(isGrayout);
 		    										$(this).siblings('span.fcount').text(facetCount);
 		    									}
 		    								});
@@ -463,7 +462,8 @@
 	    			    	    				$(selectorBase + ' li.fcat.' + className + ' span.flabel').each(function(){
 	    			    	    					
 	    			    	    					if (subFacetName == MPI2.searchAndFacetConfig.phenotypingStatuses[$(this).text()].val){
-	    			    	    						$(this).parent().remove('grayout').addClass(isGrayout);
+	    			    	    						
+	    			    	    						$(this).parent().removeClass('grayout').addClass(isGrayout);
 	    			    	    						$(this).siblings('span.fcount').text(facetCount);
 	    			    	    					}
 		    									});
@@ -498,8 +498,8 @@
 			    		'dataType': 'jsonp',
 			    		'jsonp': 'json.wrf',
 			    		'success': function(json) {
-			    			console.log('mp: ');	
-			    			console.log(json);
+			    			//console.log('mp: ');	
+			    			//console.log(json);
 			    			
 			    			// refresh phenotype facet
 			    			var oFacets = json.facet_counts.facet_fields;   				

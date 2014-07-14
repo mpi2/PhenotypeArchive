@@ -163,8 +163,8 @@
 								<c:if test="${parametersAssociated.size() > 1}">
 									<p> Select a parameter <i class="fa fa-bar-chart-o" ></i>&nbsp; &nbsp;
 										<select onchange="ajaxToBe('${phenotype.id.accession}', this.options[this.selectedIndex].value);">
-											<c:forEach var="assocParam" items="${parametersAssociated.keySet().toArray()}" varStatus="loop">
-												<option value="${assocParam}">${parametersAssociated.get(assocParam)} (${assocParam})</option>
+											<c:forEach var="assocParam" items="${parametersAssociated}" varStatus="loop">
+												<option value="${assocParam}">${assocParam.getName()} (${assocParam.getStableId()})</option>
 											</c:forEach>
 										</select>
 									</p>
@@ -172,7 +172,7 @@
 								<br/>
 	
 								<div id="chart-container">
-									<div id="single-chart-div" class="oChart" parameter="${parametersAssociated.keySet().iterator().next()}" mp="${phenotype.id.accession}">
+									<div id="single-chart-div" class="oChart" parameter="${parametersAssociated.get(0).getStableId()}" mp="${phenotype.id.accession}">
 									</div>
 									<div id="spinner-overview-charts"><i class="fa fa-refresh fa-spin"></i></div>
 								</div>

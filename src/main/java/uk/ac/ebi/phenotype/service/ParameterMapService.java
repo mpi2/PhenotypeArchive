@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.ObservationService.ExperimentField;
 
-@Service
 public class ParameterMapService {
 
     private final HttpSolrServer solr;

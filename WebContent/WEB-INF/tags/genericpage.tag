@@ -19,7 +19,10 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
 		String[] menus = content.split("MAIN\\*MENU\\*BELOW");                     
       
         jspContext.setAttribute("usermenu", menus[0]);
-        jspContext.setAttribute("menu", menus[1]);		    
+        jspContext.setAttribute("menu", menus[1]);		
+                
+        String baseUrl = (request.getAttribute("baseUrl") != null && ! ((String)request.getAttribute("baseUrl")).isEmpty()) ? (String)request.getAttribute("baseUrl") : (String) application.getInitParameter("baseUrl");
+        jspContext.setAttribute("baseUrl", baseUrl);
 
 %>
 <%@attribute name="header" fragment="true"%>
@@ -54,17 +57,17 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
 
 <!-- css -->
 <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" href="${initParam['baseUrl']}/css/vendor/jquery.ui/jquery.ui.core.css">
-<link rel="stylesheet" href="${initParam['baseUrl']}/css/vendor/jquery.ui/jquery.ui.slider.css">
-<link rel="stylesheet" href="${initParam['baseUrl']}/css/vendor/font-awesome/font-awesome.min.css">
-<link rel="stylesheet" href="${initParam['baseUrl']}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
-<link rel="stylesheet" href="${initParam['baseUrl']}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.css">
-<link href="${initParam['baseUrl']}/css/default.css" rel="stylesheet" type="text/css" />
-<link href="${initParam['baseUrl']}/css/wdm.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css">
+<link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.slider.css">
+<link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css">
+<link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
+<link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.css">
+<link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" />
+<link href="${baseUrl}/css/wdm.css" rel="stylesheet" type="text/css" />
 
 <!-- EBI CSS -->
-<!-- <link href="${initParam['baseUrl']}/css/searchPage.css" rel="stylesheet" type="text/css" /> -->
-<link href="${initParam['baseUrl']}/css/additionalStyling.css" rel="stylesheet" type="text/css" />
+<!-- <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" /> -->
+<link href="${baseUrl}/css/additionalStyling.css" rel="stylesheet" type="text/css" />
 
 
 <%--
@@ -74,7 +77,7 @@ See: http://stackoverflow.com/questions/1321878/how-to-prevent-favicon-ico-reque
 <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 
 <script>
-var baseUrl="${initParam['baseUrl']}";
+var baseUrl="${baseUrl}";
 var solrUrl='${solrUrl}';
 var drupalBaseUrl = "${drupalBaseUrl}";
 var mediaBaseUrl = "${mediaBaseUrl}";
@@ -121,23 +124,23 @@ ga('send', 'pageview');
 <!-- NEW DESIGN JAVASCRIPT -->
 
 <!-- javascript -->
-<script type="text/javascript" src="${initParam['baseUrl']}/js/head.min.js?v=${version}"></script>
+<script type="text/javascript" src="${baseUrl}/js/head.min.js?v=${version}"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-<script type='text/javascript' src='${initParam["baseUrl"]}/js/vendor/DataTables-1.9.4/jquery.dataTables.js?v=${version}'></script>
-<script type='text/javascript' src='${initParam["baseUrl"]}/js/vendor/DataTables-1.9.4/core.filter.js?v=${version}'></script>
-<script type='text/javascript' src='${initParam["baseUrl"]}/js/vendor/DataTables-1.9.4/TableTools.min.js?v=${version}'></script>
+<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/jquery.dataTables.js?v=${version}'></script>
+<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/core.filter.js?v=${version}'></script>
+<script type='text/javascript' src='${baseUrl}/js/vendor/DataTables-1.9.4/TableTools.min.js?v=${version}'></script>
 
 <!--[if lt IE 9 ]><script type="text/javascript" src="js/selectivizr-min.js"></script><![endif]-->
-<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.js?v=${version}"></script>
-<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.pack.js?v=${version}"></script>
-<script type="text/javascript" src="${initParam['baseUrl']}/js/vendor/jquery/jquery.tablesorter.min.js?v=${version}"></script>
-<script type='text/javascript' src='${initParam["baseUrl"]}/js/charts/highcharts.js?v=${version}'></script>
-<script type='text/javascript' src='${initParam["baseUrl"]}/js/charts/highcharts-more.js?v=${version}'></script>
-<script type='text/javascript' src='${initParam["baseUrl"]}/js/charts/exporting.js?v=${version}'></script>
-<script type='text/javascript' src="${initParam['baseUrl']}/js/general/toggle.js?v=${version}"></script> 
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.js?v=${version}"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.pack.js?v=${version}"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.tablesorter.min.js?v=${version}"></script>
+<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
+<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
+<script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
+<script type='text/javascript' src="${baseUrl}/js/general/toggle.js?v=${version}"></script> 
 		
-<script type="text/javascript" src="${initParam['baseUrl']}/js/default.js?v=${version}"></script>
+<script type="text/javascript" src="${baseUrl}/js/default.js?v=${version}"></script>
 
 <jsp:invoke fragment="header" />
 
@@ -146,6 +149,7 @@ ga('send', 'pageview');
 
 
 <jsp:invoke fragment="bodyTag"/>
+
 	<div id="wrapper">
 	<c:choose>
 	<c:when test="${param['bare'] == null}">
@@ -158,7 +162,7 @@ ga('send', 'pageview');
 				</div>
 
 				<div id="logo">
-					<a href="${drupalBaseUrl}/"><img src="${initParam['baseUrl']}/img/impc.png" alt="IMPC Logo" /></a>
+					<a href="${drupalBaseUrl}/"><img src="${baseUrl}/img/impc.png" alt="IMPC Logo" /></a>
 					<div id="logoslogan">International Mouse Phenotyping Consortium</div>
 				</div>
 
@@ -169,7 +173,7 @@ ga('send', 'pageview');
 
 		<div id="main">
 			<div class="breadcrumb">
-				<a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${initParam['baseUrl']}/search">Search</a><jsp:invokefragment="breadcrumb" /><%-- breadcrumbs here --%>
+				<a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invokefragment="breadcrumb" /><%-- breadcrumbs here --%>
 			</div>
 			<jsp:doBody />
 		</div>
@@ -181,7 +185,7 @@ ga('send', 'pageview');
 			<div class="region region-footer">
 				<div id="block-block-7" class="block block-block">
 					<div class="content">
-						<img src="${initParam['baseUrl']}/img/footerLogos.jpg" />
+						<img src="${baseUrl}/img/footerLogos.jpg" />
 						<div class="clear"></div>
 					</div>
 				</div>
@@ -240,11 +244,11 @@ ga('send', 'pageview');
 	</c:otherwise>
 	</c:choose>
 
-	    <!-- <script type="text/javascript" src='${initParam['baseUrl']}/js/script.min.js?v=${version}' ></script>-->
+	    <!-- <script type="text/javascript" src='${baseUrl}/js/script.min.js?v=${version}' ></script>-->
 	    	    
-	    <script type='text/javascript' src='${initParam["baseUrl"]}/js/utils/tools.js?v=${version}'></script>                 
-	    <script type='text/javascript' src='${initParam["baseUrl"]}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>     	    
-	    <script type='text/javascript' src='${initParam["baseUrl"]}/js/documentationConfig.js?v=${version}'></script>
+	    <script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>                 
+	    <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>     	    
+	    <script type='text/javascript' src='${baseUrl}/js/documentationConfig.js?v=${version}'></script>
 	    
 	    <script type='text/javascript'>
 	    	$(document).ready(function(){

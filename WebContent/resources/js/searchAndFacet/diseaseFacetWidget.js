@@ -129,7 +129,7 @@
 		    			var coreField = 'disease|'+ diseaseFq + '|';		
 		    			var trClass = fq+'Tr';
 		    			var isGrayout = count == 0 ? 'grayout' : '';
-		    			liContainer.addClass(isGrayout);
+		    			liContainer.removeClass('grayout').addClass(isGrayout);
 		    			
 						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + subFacetName + '|' + count + '|' +fq});						
 						var flabel = $('<span></span>').attr({'class':'flabel'}).text(subFacetName);
@@ -178,7 +178,7 @@
 				    			var count = aData[i+1];
 				    			var isGrayout = count == 0 ? 'grayout' : '';
 				    			
-				    			liContainer.addClass(isGrayout);
+				    			liContainer.removeClass('grayout').addClass(isGrayout);
 				    			
 				    			foundMatch[assoc]++;
 				    			

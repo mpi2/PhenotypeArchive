@@ -93,7 +93,7 @@
 	        			var count = aTopLevelCount[i+1];	        				
 	        			var coreField = 'ma|'+ facetField + '|' + aTopLevelCount[i] + '|' + count;	
 	        			var isGrayout = count == 0 ? 'grayout' : '';
-	        			liContainer.addClass(isGrayout);
+	        			liContainer.removeClass('grayout').addClass(isGrayout);
 	        			
 	        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});
 	        			var flabel = $('<span></span>').attr({'class':'flabel'}).text(aTopLevelCount[i]);
