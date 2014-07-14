@@ -2,8 +2,8 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
-import omero.*;
-import omero.api.ServiceFactoryPrx;
+//import omero.*;
+//import omero.api.ServiceFactoryPrx;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.stereotype.Controller;
@@ -11,8 +11,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import Glacier2.CannotCreateSessionException;
-import Glacier2.PermissionDeniedException;
+//import Glacier2.CannotCreateSessionException;
+//import Glacier2.PermissionDeniedException;
 
 @Controller
 public class ImpcImagesController {
