@@ -100,9 +100,14 @@
 	
   <document name="docs">
 			
-		<entity dataSource="sanger_allele" name="doc" stream="true" url="q=mgi_accession_id:*&amp;fq=feature_type:*+AND+-feature_type:Pseudogene+AND+-feature_type:&quot;heritable+phenotypic+marker&quot;+AND+type:gene&amp;wt=normal&amp;rows=99999"
-        	processor="XPathEntityProcessor" forEach="/response/result/doc/"
-            readTimeout="10000" connectionTimeout="10000" transformer="script:mapping" >                      
+		<entity dataSource="sanger_allele" name="doc" 
+			stream="true" 
+			url="q=mgi_accession_id:*&amp;fq=feature_type:*+AND+-feature_type:Pseudogene+AND+-feature_type:&quot;heritable+phenotypic+marker&quot;+AND+type:gene&amp;wt=normal&amp;rows=99999"
+        	processor="XPathEntityProcessor" 
+        	forEach="/response/result/doc/"
+            readTimeout="10000" 
+            connectionTimeout="10000" 
+            transformer="script:mapping" >                      
 
 			<field column="mgi_accession_id" xpath="/response/result/doc/str[@name='mgi_accession_id']" />
 			<field column="dataType" name="dataType"/>	
@@ -111,14 +116,17 @@
              	
 			<entity dataSource="komp2db" name="gene_name_sym" 
 				query="select s.symbol as marker_synonym, gf.name as marker_name from synonym s, genomic_feature gf where s.acc=gf.acc and gf. acc='${doc.mgi_accession_id}'">
+			
 				<field column="marker_synonym" name="marker_synonym" />
 				<field column="marker_name" name="marker_name" />
 			</entity>	
 
 			<!-- mouse to human gene symbol mapping: multiple human name can be mapped to one mouse symbol -->
-			<entity dataSource="human2mouse_symbol_core" name="symbol_mapping" stream="true"
+			<entity dataSource="human2mouse_symbol_core" name="symbol_mapping" 
+				stream="true"
 				url="q=mouse_symbol:&quot;${doc.marker_symbol}&quot;&amp;wt=normal&amp;fl=human_symbol"
-				processor="XPathEntityProcessor" forEach="/response/result/doc/"
+				processor="XPathEntityProcessor" 
+				forEach="/response/result/doc/"
 			 	onError="continue" >
 				
 				<field column="human_gene_symbol" xpath="/response/result/doc/str[@name='human_symbol']" />
@@ -151,10 +159,15 @@
 			<field column="latest_phenotyping_centre" xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str" />							                   	
 				
 			<!-- es cells/mice/phenotyping/ status and centers info at allele level -->
-			<entity dataSource="sanger_allele" name="aldoc" stream="true" url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:allele&amp;rows=100&amp;wt=normal"
-       			processor="XPathEntityProcessor" forEach="/response/result/doc/"
-         			readTimeout="10000" connectionTimeout="10000"
-				transformer="script:mapping" onError="continue" >
+			<entity dataSource="sanger_allele" name="aldoc" 
+				stream="true" 
+				url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:allele&amp;rows=100&amp;wt=normal"
+       			processor="XPathEntityProcessor" 
+       			forEach="/response/result/doc/"
+         		readTimeout="10000" 
+         		connectionTimeout="10000"
+				transformer="script:mapping" 
+				onError="continue" >
 
 				<field column="allele_name" xpath="/response/result/doc/str[@name='allele_name']" />
 
@@ -172,21 +185,32 @@
 			</entity>
 
 			<!-- check if this gene has been indexed in experiment core, if yes we treat phenotyping status as available -->
-			<entity dataSource="experiment_core" name="qcCheck" stream="true"  onError="continue"
+			<entity dataSource="experiment_core" name="qcCheck" 
+				stream="true"  
+				onError="continue"
 				url="q=gene_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;fl=gene_accession_id&amp;rows=1"
-				processor="XPathEntityProcessor" forEach="/response/result/doc/" transformer="script:hasQc" >				
+				processor="XPathEntityProcessor" 
+				forEach="/response/result/doc/" 
+				transformer="script:hasQc" >				
 
 				<field column="qcGene" xpath="/response/result/doc/str[@name='gene_accession_id']" />	
 				<field column="hasQc" name="hasQc" />		
 			</entity>			
 			
 			<!-- disease associated with this gene -->			
-			<entity dataSource="diseaseGenedb" name="dg" query="select disease_id from disease2Gene where mgi_id='${doc.mgi_accession_id}'">
+			<entity dataSource="diseaseGenedb" name="dg" 
+				query="select disease_id from disease2Gene where mgi_id='${doc.mgi_accession_id}'">
+				
 				<field column="disease_id" name="disease_id" />
 
-				<entity dataSource="phenodigm_core" name="ddoc" stream="true" url="q=disease_id:&quot;${dg.disease_id}&quot;&amp;fq=type:disease&amp;rows=9999999&amp;wt=normal"
-					processor="XPathEntityProcessor" forEach="/response/result/doc/"                
-					readTimeout="10000" connectionTimeout="10000" onError="continue"> 	
+				<entity dataSource="phenodigm_core" name="ddoc" 
+					stream="true" 
+					url="q=disease_id:&quot;${dg.disease_id}&quot;&amp;fq=type:disease&amp;rows=9999999&amp;wt=normal"
+					processor="XPathEntityProcessor" 
+					forEach="/response/result/doc/"                
+					readTimeout="10000" 
+					connectionTimeout="10000" 
+					onError="continue"> 	
 													                        
 					<field column="type" xpath="/response/result/doc/str[@name='type']" /> 				
 					<field column="disease_source" xpath="/response/result/doc/str[@name='disease_source']" /> 
