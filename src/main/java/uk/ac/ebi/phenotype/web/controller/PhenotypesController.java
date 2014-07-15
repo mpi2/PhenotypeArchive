@@ -490,7 +490,7 @@ public class PhenotypesController {
 	/**
 	 * 
 	 * @param mpId
-	 * @return List of parameters that might lead to an association to the given phenotype term or any of it's children
+	 * @return List of parameters that led to an association to the given phenotype term or any of it's children
 	 * @throws SolrServerException
 	 */
 	public List<Parameter> getParameters(String mpId) throws SolrServerException {
