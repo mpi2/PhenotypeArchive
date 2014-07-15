@@ -46,7 +46,7 @@
                                 <li>Links to different view of the gene in the Ensembl genome browser: 
                                     <strong>Gene view</strong> links to the browser centered on the gene, 
                                     <strong>Location view</strong> links to a view of the chromosome,
-                                    <strong>Compara view</strong> links to the Ensembl compara view for this gene</li>
+                                    <strong>Comparative Genomics view</strong> links to the Ensembl compara view for this gene</li>
                                 <li>ENU link to the ENU mutant library at the Australian Phenomics Facility</li>   
                             </ul>
                             <img src="img/gene-details.png" />
