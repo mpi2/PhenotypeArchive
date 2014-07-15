@@ -25,7 +25,7 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
       	
   		<entity dataSource="phenodigm_core" name="ddoc" stream="true" url="q=*:*&amp;fq=type:disease&amp;rows=9999999"
     		processor="XPathEntityProcessor" forEach="/response/result/doc/"                
-    		readTimeout="10000" connectionTimeout="10000" transformer="script:set_dataType" > 
+    		readTimeout="40000" connectionTimeout="10000" transformer="script:set_dataType" > 
 
             <field column="disease_id" xpath="/response/result/doc/str[@name='disease_id']" />                                   
             <field column="type" xpath="/response/result/doc/str[@name='type']" />           
