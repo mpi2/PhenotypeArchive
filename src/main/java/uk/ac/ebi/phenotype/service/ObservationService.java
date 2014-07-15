@@ -34,8 +34,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import javax.annotation.Resource;
-
 import net.sf.json.JSONArray;
 
 import org.apache.commons.lang.StringUtils;
@@ -57,7 +55,6 @@ import org.apache.solr.common.util.NamedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
@@ -1358,7 +1355,37 @@ public class ObservationService extends BasicService {
 		System.out.println("Done in " + (System.currentTimeMillis() - time));
 		return res;
 	}
+	
+	public ObservationType getObservationTypeForParameterStableId(String paramStableId) throws SolrServerException{
+		SolrQuery q = new SolrQuery().setQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + paramStableId);
+		q.set("rows", 1);
+		QueryResponse response = solr.query(q);	
+		String type = (String)response.getResults().get(0).getFieldValue(ExperimentField.OBSERVATION_TYPE);
 		
+		if (type.equalsIgnoreCase(ObservationType.unidimensional.toString()))
+			return ObservationType.unidimensional;
+
+		if (type.equalsIgnoreCase(ObservationType.categorical.toString()))
+			return ObservationType.categorical;
+		
+		if (type.equalsIgnoreCase(ObservationType.time_series.toString()))
+			return ObservationType.time_series;
+		
+		if (type.equalsIgnoreCase(ObservationType.image_record.toString()))
+			return ObservationType.image_record;
+		
+		if (type.equalsIgnoreCase(ObservationType.metadata.toString()))
+			return ObservationType.metadata;
+		
+		if (type.equalsIgnoreCase(ObservationType.multidimensional.toString()))
+			return ObservationType.multidimensional;
+
+		if (type.equalsIgnoreCase(ObservationType.text.toString()))
+			return ObservationType.text;
+		
+		return null;
+	}
+	
 	
 	public Set<String> getTestedGenes(String sex,
 			List<String> parameters) throws SolrServerException {
