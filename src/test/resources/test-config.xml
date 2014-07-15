@@ -47,8 +47,8 @@
             <constructor-arg value="${internalSolrUrl}/experiment" />
     </bean>
 
-    <bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap" init-method="fillMaps" />
-
+    <bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap"  />
+ 
     <bean id="releaseDAO" class="uk.ac.ebi.phenotype.dao.AnalyticsDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>

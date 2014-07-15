@@ -43,10 +43,10 @@ public class ParameterToGeneMap {
     }
 
     public Map<String, ArrayList<String>> getMaleMap() {
-        if (maleParamToGene == null) {
+        //if (maleParamToGene == null) {
             fillMaps();
-        }
-        return maleParamToGene;
+        //}
+        return null;
     }
 
 	public ParameterToGeneMap(ObservationService os){

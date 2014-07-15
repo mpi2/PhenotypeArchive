@@ -28,6 +28,7 @@ import java.util.List;
 import uk.ac.ebi.phenotype.pojo.BiologicalSample;
 import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.Experiment;
+import uk.ac.ebi.phenotype.pojo.ImageRecordObservation;
 import uk.ac.ebi.phenotype.pojo.Observation;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Organisation;
@@ -95,6 +96,7 @@ public interface ObservationDAO extends HibernateDAO {
 	public List<Integer> getAllCategoricalParameterIdsWithObservationsByOrganisation(Organisation organisation) throws SQLException;
 
 	public List<Observation> getAllObservationsByParameter(Parameter parameter);
+	public List<ImageRecordObservation> getAllImageObservations();
 
 	public List<String> getAllGeneAccessionIdsByParameterOrganisationStrainZygositySex(Parameter parameter, Organisation organisation, String strain, ZygosityType zygosity, SexType sex) throws SQLException;
 
@@ -130,5 +132,7 @@ public interface ObservationDAO extends HibernateDAO {
      * @throws SQLException 
      */
     public List<String[]> getMissingOntologyTerms() throws SQLException;
+    
+    
         
 }
