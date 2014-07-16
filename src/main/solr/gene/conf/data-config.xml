@@ -145,11 +145,7 @@
 			
 			
 			<!-- images annotated to this gene -->
-			<!-- for association with an image annotated to this gene term, simply use copy fields
-				for top_level_mp/ma, procedure_name, marker_type of this gene in the schema
-			 	as an image can be annotated to multiple mp/ma/marker_type/procedure terms which 
-			 	has nothing to do with this gene
-			 -->
+			
 		  	<entity dataSource="images_core" name="imgCore" 
 					stream="true" 
 					url="q=accession:&quot;${doc.mgi_accession_id}&quot;&amp;fl=annotatedHigherLevelMaTermName,annotatedHigherLevelMpTermName&amp;wt=normal&amp;rows=999999999"

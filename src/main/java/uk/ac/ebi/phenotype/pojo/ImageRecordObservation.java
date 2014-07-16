@@ -15,6 +15,7 @@
  */
 package uk.ac.ebi.phenotype.pojo;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
@@ -24,9 +25,16 @@ import javax.persistence.Table;
 @Table(name = "image_record_observation")
 public class ImageRecordObservation extends Observation {
 
-	//@OneToOne
-	//@JoinColumn(name = "image_record_id")
-	//private ImageRecord imageRecord;
+	@Column(name = "download_file_Path")
+	private String downloadFilePath;
 
+	public String getDownloadFilePath() {
+		return downloadFilePath;
+	}
+
+	public void setDownloadFilePath(String downloadFilePath) {
+		this.downloadFilePath = downloadFilePath;
+	}
+	
 
 }

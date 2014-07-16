@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.solr.client.solrj.beans.Field;
 
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.service.ObservationService.ExperimentField;
 
 public class ObservationDTO {
 
@@ -137,7 +138,11 @@ public class ObservationDTO {
     @Field("allele_symbol")
     private String alleleSymbol;
 
-    /**
+    @Field(ExperimentField.DOWNLOAD_FILE_PATH)
+    private String downloadFilePath;
+    
+
+	/**
      * helper methods
      * 
      * @throws SQLException
@@ -877,4 +882,14 @@ public class ObservationDTO {
     public void setProjectName(String projectName) {
         this.projectName = projectName;
     }
+    
+    public String getDownloadFilePath() {
+    	
+		return downloadFilePath;
+	}
+
+	public void setDownloadFilePath(String downloadFilePath) {
+	
+		this.downloadFilePath = downloadFilePath;
+	}
 }

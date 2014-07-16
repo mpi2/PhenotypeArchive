@@ -125,6 +125,7 @@ public class ObservationService extends BasicService {
         public final static String VALUE = "value";
         public final static String METADATA = "metadata";
         public final static String METADATA_GROUP = "metadata_group";
+		public static final String DOWNLOAD_FILE_PATH = "download_file_path";
     }
     
     private final HttpSolrServer solr;
@@ -1559,5 +1560,24 @@ public class ObservationService extends BasicService {
 	public Set<String> getTestedGenesByParameterSex(List<String> parameters, SexType sex){
 		return ptgm.getTestedGenes(parameters, sex);
 	}
+	
+	public List<ObservationDTO> getAllImageRecordObservations()
+            throws SolrServerException {
+
+        SolrQuery query = getIMageRecordSolrQueryByParameter();
+
+        return solr.query(query).getBeans(ObservationDTO.class);
+
+    }
+	 public SolrQuery getIMageRecordSolrQueryByParameter()
+	            throws SolrServerException {
+
+	        return new SolrQuery()
+	                .setQuery(
+	                        "observation_type:image_record")	                                
+	                .addFilterQuery(ExperimentField.DOWNLOAD_FILE_PATH + ":" + "*mousephenotype.org*")
+	                .setRows(10000);
+	    }
+
 	
 }
