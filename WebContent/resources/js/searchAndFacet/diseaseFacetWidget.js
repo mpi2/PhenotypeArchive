@@ -37,21 +37,6 @@
 	    
 		_initFacet: function(){			
 	    	var self = this;
-	    	/*
-	    	var currentFq = {'fq' : MPI2.searchAndFacetConfig.currentFq};
-	    	var queryParams = $.extend({}, { 
-				'rows': 0,
-				'type': 'disease',
-				'facet': 'on',								
-				'facet.mincount': 1,
-				'facet.limit': -1,								
-				'facet.sort': 'count',					
-	    		'q': self.options.data.hashParams.q},
-	    		MPI2.searchAndFacetConfig.commonSolrParams,
-	    		MPI2.searchAndFacetConfig.currentFq ? currentFq :
-	    			MPI2.searchAndFacetConfig.facetParams.diseaseFacet.filterParams
-	    	);    	   	
-	    	*/
 	    	
 	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
 	    			: self.options.data.hashParams.fq;
@@ -206,31 +191,25 @@
     			var selectorBase = "div.flist li#disease";
 	    		// collapse all subfacet first, then open the first one that has matches 
 				$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');	    		
-	    		
+				$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
+				
 				// change cursor for grayout filter
     			$.fn.cursorUpdate('disease', 'not-allowed');
-    							
-				$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
-    			
+    			    			
     			$.fn.initFacetToggles('disease');
 	    			    			    		
 	    		$('li#disease li.fcat input').click(function(){	 
 	    			
 	    			// // highlight the item in facet	    			
 	    			$(this).siblings('span.flabel').addClass('highlight');
+	    			MPI2.searchAndFacetConfig.update.update.filterAdded = true;
 					$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
-				});   			
-    				  		
+				});  
+
+	    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
+	    			$.fn.process_kwSearch(self);
+	    		}	
     		}
-	    	
-	    	/*--------------------------------------------------------------------------------------------------------------------------*/
-	    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
-	    	/*--------------------------------------------------------------------------------------------------------------------------*/	
-	    	
-	    	var oConf = self.options.data.hashParams;
-	    	oConf.core = self.options.data.core;
-	    	
-	    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);
 	    },	       
 	  
 	    destroy: function () {    	   

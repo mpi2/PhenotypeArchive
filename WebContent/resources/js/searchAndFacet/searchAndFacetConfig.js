@@ -33,10 +33,19 @@ var config = MPI2.searchAndFacetConfig;
 
 config.currentFq    = false;
 config.matchedFacet = false;
-config.widgetOpen   = false;
-config.pageReload   = false;
-config.filterChange = false;
-config.backButton   = false;
+
+config.update = {};
+config.update.filterObj = [];
+config.update.widgetOpen   = false;
+config.update.pageReload   = false;
+config.update.hashChange 	= false;
+config.update.rebuildSummaryFilterCount = 0;
+config.update.resetSummaryFacet = false;
+config.update.filterAdded = false;
+config.update.filterChange = false;
+config.update.dataTableLoaded  = false;
+config.update.dataTableLoading = false;
+config.update.kwSearch = false;
 
 config.searchSpin = "<img src='img/loading_small.gif' />";
 config.spinner = "<img src='img/loading_small.gif' /> Processing search ...";
@@ -111,9 +120,6 @@ config.procSid2ExpNameMapping = {
 */
 
 config.qfield2facet = {
-	//'imits_phenotype_complete'   : 'gene',
-	//'imits_phenotype_started'    : 'gene',
-	//'imits_phenotype_status'     : 'gene',
 	'latest_phenotyping_centre'   : 'gene',	
 	'latest_production_centre'   : 'gene',	
 	'latest_phenotype_status'    : 'gene',
@@ -129,7 +135,11 @@ config.qfield2facet = {
 	'impc_predicted'             : 'disease',
 	'impc_predicted_in_locus'    : 'disease',
 	'mgi_predicted'              : 'disease',
-	'mgi_predicted_in_locus'     : 'disease'
+	'mgi_predicted_in_locus'     : 'disease',
+	'img_marker_type'                : 'images',
+	'img_top_level_mp_term'          : 'images',
+	'img_selected_top_level_ma_term' : 'images',
+	'img_procedure_stable_id'        : 'images'
 }
 config.facetFilterLabel = {
 	'phenotyping_center'         : 'phenotyping_center',
@@ -173,18 +183,20 @@ config.facetParams = {
 		solrCoreName: 'gene',			 
 		tableCols: 3, 	
 		tableHeader: "<thead><th>Gene</th><th>Production Status</th><th>Phenotype Status</th><th></th></thead>",		
-		fq: 'marker_type:* -marker_type:"heritable phenotypic marker"',//undefined,
+		fq: '*:*',
+		//fq: 'marker_type:* -marker_type:"heritable phenotypic marker"',//undefined,
 		//fq: 'marker_type:* -marker_type:"heritable phenotypic marker" (production_center:* AND phenotyping_center:*)',//undefined,
 		//centerFq: 'marker_type:* -marker_type:"heritable phenotypic marker" AND (production_center:* AND phenotyping_center:*)',
 		qf: "marker_symbol^100.0 human_gene_symbol^90.0 marker_name^10.0 marker_synonym mgi_accession_id auto_suggest",
 		gridName: 'geneGrid',
 		gridFields: '*', 
 		//filterParams: {fq:'marker_type:* -marker_type:"heritable phenotypic marker" (production_center:* AND phenotyping_center:*)',	
-		filterParams: {fq:'marker_type:* -marker_type:"heritable phenotypic marker"',	
+		filterParams: {fq:'*:*',	
 			      qf:"marker_symbol^100.0 human_gene_symbol^90.0 marker_name^10.0 marker_synonym mgi_accession_id auto_suggest",			     
 			      bq:'latest_phenotype_status:"Phenotyping Complete"^200 marker_type:"protein coding gene"^100'},
 		srchParams : $.extend({},				
-				 	commonSolrParams	 	
+				 	commonSolrParams,
+				 	{'fl': 'marker_symbol,mgi_accession_id,marker_synonym,marker_name,marker_type,human_gene_symbol,latest_es_cell_status,latest_production_status,latest_phenotype_status,status,es_cell_status,mouse_status,allele_name'} 	 	
 					),
 		subFacet_filter_params: '', // set by widget on the fly
 		breadCrumbLabel: 'Genes'		
@@ -239,7 +251,8 @@ config.facetParams = {
 		 tableCols: 1, 
 		 tableHeader: '<thead><th>Anatomy</th></thead>', 
 		 subset: 'ontology_subset:IMPC_Terms',
-		 fq: 'ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*', 
+		 fq: 'selected_top_level_ma_term:*', 
+		 //fq: 'ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*', 
 		 //fq: 'ontology_subset:IMPC_Terms',
 		 qf: 'auto_suggest', 
 		 defType: 'edismax',
@@ -250,7 +263,8 @@ config.facetParams = {
 		 ontology: 'ma',
 		 breadCrumbLabel: 'Anatomy',		 
 		 //filterParams: {'fq': "ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*", 'fl': 'ma_id,ma_term,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'},
-		 filterParams: {'fq': 'ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*'},		 
+		 //filterParams: {'fq': 'ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*'},
+		 filterParams: {'fq': 'selected_top_level_ma_term:*'},	
 		 srchParams: $.extend({},
 					commonSolrParams,
 					{'fl' : 'ma_id,ma_term,ma_term_synonym,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'})		
