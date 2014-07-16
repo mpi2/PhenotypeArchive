@@ -202,7 +202,7 @@
 	    			
 	    			// // highlight the item in facet	    			
 	    			$(this).siblings('span.flabel').addClass('highlight');
-	    			MPI2.searchAndFacetConfig.update.update.filterAdded = true;
+	    			MPI2.searchAndFacetConfig.update.filterAdded = true;
 					$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 				});  
 
