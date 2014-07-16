@@ -271,7 +271,6 @@ function ajaxToBe(phenotype, parameter){
 	$( '#spinner-overview-charts' ).show();
 	var chartUrl = document.URL.split("/phenotypes/")[0];
 	chartUrl += "/overviewCharts/" + phenotype + "?parameter_id=" + parameter;
-	console.log("parameter id " + parameter )
 	$.ajax({
 	  url: chartUrl,
 	  cache: false
