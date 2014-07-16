@@ -18,6 +18,7 @@ package uk.ac.ebi.generic.util;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -258,11 +259,49 @@ public class SolrIndex2 {
         productMap = Collections.unmodifiableMap(map);
     }        
 
+    private static final Map<String, String> productMap2;
+    static {
+        Map<String, String> map = new HashMap<>();
+        map.put("1a", "Knockout First, Reporter-tagged insertion with conditional potential");
+        map.put("1b", "Knockout-First, Post-Cre - Reporter Tagged Deletion");
+        map.put("1c", "Knockout-First, Post-Flp - Conditional");
+        map.put("1d", "Knockout-First, Post-Flp and Cre - Deletion, No Reporter");
+        map.put("1e", "Targeted Non-Conditional");
+        map.put("1", "Reporter-tagged deletion");
+        map.put("1.1", "Reporter-tagged deletion");
+        map.put("1.2", "Reporter-tagged deletion");
+        productMap2 = Collections.unmodifiableMap(map);
+    }        
+
+//        type = case allele_symbol
+//        when /tm\d+a/ then "";
+//        when /tm\d+b/ then ""
+//        when /tm\d+c/ then ""
+//        when /tm\d+d/ then ""
+//        when /tm\d+e/ then ""
+//        else
+//
+//        if /tm\d+\(/ =~ allele_symbol && ! design_type
+//          "Reporter-Tagged Deletion"
+//        else
+//
+//        case design_type
+//        when nil          then ""
+//        when /Cre Knock In/i  then "Cre Knock In"
+//        when /Deletion/i  then "Reporter-Tagged Deletion"  
+
     private String getAlleleDescription(String type) {
         if(!productMap.containsKey(type)) {
             return "";
         }
         return productMap.get(type);
+    }
+    
+    private String getAlleleDescription2(String type) {
+        if(!productMap2.containsKey(type)) {
+            return "";
+        }
+        return productMap2.get(type);
     }
     
     private Map<String, Object> getGeneProductInfoEsCells(JSONObject jsonObject2) throws IOException, URISyntaxException {
@@ -367,6 +406,26 @@ public class SolrIndex2 {
 //        return list4;
 //    }
 
+    
+    
+//        type = case allele_symbol
+//        when /tm\d+a/ then "Knockout First, Reporter-tagged insertion with conditional potential";
+//        when /tm\d+b/ then "Knockout-First, Post-Cre - Reporter Tagged Deletion"
+//        when /tm\d+c/ then "Knockout-First, Post-Flp - Conditional"
+//        when /tm\d+d/ then "Knockout-First, Post-Flp and Cre - Deletion, No Reporter"
+//        when /tm\d+e/ then "Targeted Non-Conditional"
+//        else
+//
+//        if /tm\d+\(/ =~ allele_symbol && ! design_type
+//          "Reporter-Tagged Deletion"
+//        else
+//
+//        case design_type
+//        when nil          then ""
+//        when /Cre Knock In/i  then "Cre Knock In"
+//        when /Deletion/i  then "Reporter-Tagged Deletion"  
+    
+    
     private static final Map<String, String> phraseMap;
     static {
         Map<String, String> pMap = new HashMap<>();
@@ -785,8 +844,8 @@ public class SolrIndex2 {
     
     public static final String[] DELETE_VALUES = new String[]{"1b", "1d", "1", "1.1", "1.2"};
 
-    private boolean isDeleted(String type) {
-        return Arrays.asList(DELETE_VALUES).contains(type);
+    private String isDeleted(String type) {
+        return Arrays.asList(DELETE_VALUES).contains(type) ? "true" : "false";
     }
     
     public Map<String, Object> getGeneProductInfo(String accession, String allele_name, boolean debug) throws IOException, URISyntaxException, Exception {
@@ -846,9 +905,11 @@ public class SolrIndex2 {
             HashMap<String, Object> summary = new HashMap<>();
             summary.put("marker_symbol", item.get("marker_symbol"));
             summary.put("symbol", item.get("marker_symbol") + "<sup>" + item.get("allele_name") + "</sup>");
+            summary.put("allele_name", item.get("allele_name"));
             summary.put("genbank", item.get("genbank_file"));
             summary.put("map_image", item.get("allele_image") + "?simple=true");
             summary.put("allele_description", getAlleleDescription("1" + item.get("allele_type")));
+            summary.put("allele_description_1b", getAlleleDescription("1b"));
             summary.put("is_deleted", isDeleted("1" + item.get("allele_type")));
                         
             List<String> southern_tools = new ArrayList<>();
@@ -868,11 +929,11 @@ public class SolrIndex2 {
                 summary.put("southern_tool", southern_tools.get(0));
             }
             
-            summary.put("lrpcr_genotyping_primers", "lrpcr_genotyping_primers");
+            summary.put("lrpcr_genotyping_primers", "/phenotype-archive/lrpcr/" + URLEncoder.encode(accession) + "/" + URLEncoder.encode(allele_name));
 
-            summary.put("mutagenesis_url", "mutagenesis_url");    // FIX-ME!
-            
-            summary.put("statuses", getGeneProductInfoStatuses(genes));    // FIX-ME!                
+            summary.put("mutagenesis_url", "/phenotype-archive/mutagenesis/" + URLEncoder.encode(accession) + "/" + URLEncoder.encode(allele_name));
+                        
+            summary.put("statuses", getGeneProductInfoStatuses(genes));    // TODO: FIX-ME!                
 
             HashMap<String, String> map3 = new HashMap<>();
             map3.put("browser", "Ensembl");
@@ -880,9 +941,8 @@ public class SolrIndex2 {
             List<HashMap<String, String>> list3 = new ArrayList<>();
             list3.add(map3);
             
-            summary.put("browsers", list3);    // FIX-ME!
+            summary.put("browsers", list3);    // TODO: FIX-ME!
             
-           // summary.put("tools", getGeneProductInfoTools(accession, allele_name));    // FIX-ME!
             summaries.add(summary);
         }
         }
@@ -1045,5 +1105,37 @@ public class SolrIndex2 {
             deep.get(qc_group).get("values").add(qc_result);
         }
         return deep;
+    }
+    
+    public String getGeneAlleleProject(String alleleName)
+                throws IOException, URISyntaxException {
+
+        String url = "http://ikmc.vm.bytemark.co.uk:8983/solr/allele/search?q=allele_name:"
+                        + URLEncoder.encode(alleleName)
+                        + " AND product_type:Mouse"
+                        + "&start=0&rows=100&hl=true&wt=json";
+
+        log.info("url for getGeneAlleleInfo=" + url);
+
+        JSONObject jsonObject = getResults(url);
+        //int numberFound = Integer.parseInt(jsonObject.getJSONObject("response").getString("numFound"));
+
+        JSONArray docs = jsonObject.getJSONObject("response").getJSONArray("docs");
+
+        if (docs.size() < 1) {
+            log.info("No Mice returned for the query!");
+            return null;
+        }
+
+        log.info("#### getGeneAlleleInfo: " + docs);
+        
+        JSONObject doc = (JSONObject)docs.get(0);
+        
+        JSONArray project_ids = doc.getJSONArray("project_ids");
+        
+        if(project_ids.size() > 0) {
+            return (String)project_ids.get(0);
+        }
+        return null;
     }
 }

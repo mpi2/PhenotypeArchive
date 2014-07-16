@@ -23,12 +23,11 @@ import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-//import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-//import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
@@ -41,6 +40,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+//import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
@@ -50,7 +50,8 @@ public class AllelesController {
     private final Logger log = LoggerFactory.getLogger(AllelesController.class);
 
     @Autowired
-    SolrIndex2 solrIndex;
+    //SolrIndex solrIndex;
+    SolrIndex2 solrIndex2;
 
     private HashMap<String, String> makeItem(String marker_symbol, String allele_name, String mgi_accession_id) {
         HashMap<String, String> map = new HashMap<>();
@@ -68,19 +69,19 @@ public class AllelesController {
         params1.put("allele_name", allele_name);
         params1.put("marker_symbol", marker_symbol);
         params1.put("type", "mouse");
-        map.put("solr_product_mouse", solrIndex.getGeneProductCoreUrl2(params1));
+        map.put("solr_product_mouse", solrIndex2.getGeneProductCoreUrl2(params1));
 
         params1 = new HashMap<>();
         params1.put("allele_name", allele_name);
         params1.put("marker_symbol", marker_symbol);
         params1.put("type", "es_cell");
-        map.put("solr_product_es_cell", solrIndex.getGeneProductCoreUrl2(params1));
+        map.put("solr_product_es_cell", solrIndex2.getGeneProductCoreUrl2(params1));
 
         params1 = new HashMap<>();
         params1.put("allele_name", allele_name);
         params1.put("marker_symbol", marker_symbol);
         params1.put("type", "targeting_vector");
-        map.put("solr_product_targeting_vector", solrIndex.getGeneProductCoreUrl2(params1));
+        map.put("solr_product_targeting_vector", solrIndex2.getGeneProductCoreUrl2(params1));
 
         String url = "http://ikmc.vm.bytemark.co.uk:8985/solr/allele2/select?indent=on&version=2.2&q="
                 + "TEMPLATE"
@@ -104,7 +105,7 @@ public class AllelesController {
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
 
-        HashMap<String, HashMap<String, List<String>>> constructs = solrIndex.getAlleleQcInfo(alleleType, type, name);
+        HashMap<String, HashMap<String, List<String>>> constructs = solrIndex2.getAlleleQcInfo(alleleType, type, name);
         model.addAttribute("qcData", constructs);
         return "qcData";
     }
@@ -118,6 +119,7 @@ public class AllelesController {
         log.info("#### alleles0...");
 
         List<String> targetList = new ArrayList<>();
+        targetList.add("marker_symbol:Art4");
         targetList.add("marker_symbol:Foxj3");
         targetList.add("marker_symbol:Cib2");
         targetList.add("marker_symbol:Nxn");
@@ -135,7 +137,7 @@ public class AllelesController {
 
         params1.put("multi", qs2);
 
-        List<Map<String, Object>> list1 = solrIndex.getProductGeneDetails(params1);
+        List<Map<String, Object>> list1 = solrIndex2.getProductGeneDetails(params1);
         List<Map<String, String>> list = new ArrayList<>();
 
         for (Map<String, Object> item : list1) {
@@ -162,7 +164,7 @@ public class AllelesController {
             params1.put("allele_type", acc);
             params1.put("type", "mouse");
 
-            List<Map<String, Object>> list1 = solrIndex.getProductGeneDetails(params1);
+            List<Map<String, Object>> list1 = solrIndex2.getProductGeneDetails(params1);
             List<Map<String, String>> list = new ArrayList<>();
 
             if (list1 != null && !list1.isEmpty()) {
@@ -178,7 +180,7 @@ public class AllelesController {
             return "alleles_list";
         }
 
-        List<Map<String, Object>> list1 = solrIndex.getProductGeneDetails(acc);
+        List<Map<String, Object>> list1 = solrIndex2.getProductGeneDetails(acc);
         List<Map<String, String>> list = new ArrayList<>();
 
         if (list1 != null) {
@@ -191,9 +193,8 @@ public class AllelesController {
 
         return "alleles_list";
     }
-    
+
     // see http://stackoverflow.com/questions/81346/most-efficient-way-to-increment-a-map-value-in-java
-    
 //    private Map<String, Integer> getMutagenesisStats(JSONArray transcripts) {
 //
 //        class MutableInt {
@@ -239,7 +240,34 @@ public class AllelesController {
 //        }
 //        return map;
 //    }
-    
+//    def calculate_mutagenesis_prediction_stats( transcripts )
+//      MartSearch::Controller.instance().logger.debug("[MartSearch::ProjectUtils] ::calculate_mutagenesis_prediction_stats - running calculate_mutagenesis_prediction_stats()")
+//
+//      count = {
+//        :wt_transcripts                 => 0,
+//        :wt_non_coding_transcripts      => 0,
+//        :wt_proteien_coding_transcripts => 0,
+//        :mut_nmd_transcripts            => 0,
+//        :mut_coding_transcripts         => 0,
+//        :mut_nmd_rescue_transcripts     => 0
+//      }
+//
+//      transcripts.each do |transcript|
+//        count[:wt_transcripts] += 1
+//        if transcript[:biotype].eql?('protein_coding')
+//          count[:wt_proteien_coding_transcripts] += 1
+//          count[:mut_nmd_transcripts]            += 1 if transcript[:floxed_transcript_description] =~ /^No protein product \(NMD\)/
+//          count[:mut_coding_transcripts]         += 1 if transcript[:floxed_transcript_description] =~ /^No protein product \(NMD\)/ or transcript[:floxed_transcript_description] !~ /^No protein product^/
+//          count[:mut_nmd_rescue_transcripts]     += 1 if transcript[:floxed_transcript_description] =~ /^Possible NMD rescue/
+//        end
+//      end
+//
+//      count[:wt_non_coding_transcripts] = count[:wt_transcripts] - count[:wt_proteien_coding_transcripts]
+//
+//      MartSearch::Controller.instance().logger.debug("[MartSearch::ProjectUtils] ::calculate_mutagenesis_prediction_stats - running calculate_mutagenesis_prediction_stats() - DONE")
+//
+//      return count
+//    end
     private Map<String, Integer> getMutagenesisStats(JSONArray transcripts) {
 
         if (transcripts == null) {
@@ -256,16 +284,18 @@ public class AllelesController {
 
         for (Object o : transcripts) {
             JSONObject o2 = (JSONObject) o;
-            map.put("wt_protein_coding_transcripts", map.get("wt_protein_coding_transcripts") + 1);
+            map.put("wt_transcripts", map.get("wt_transcripts") + 1);
             if (o2.has("biotype") && o2.getString("biotype").equals("protein_coding")) {
-                map.put("wt_transcripts", map.get("wt_transcripts") + 1);
+                map.put("wt_protein_coding_transcripts", map.get("wt_protein_coding_transcripts") + 1);
 
                 if (o2.getString("floxed_transcript_description").matches("^No protein product \\(NMD\\)")) {
                     map.put("mut_nmd_transcripts", map.get("mut_nmd_transcripts") + 1);
                 }
 
-                if (o2.getString("floxed_transcript_description").matches("^No protein product \\(NMD\\)")
-                        || o2.getString("floxed_transcript_description").matches("^No protein product")) {
+                //          count[:mut_coding_transcripts]         += 1 
+                //if transcript[:floxed_transcript_description] =~ /^No protein product \(NMD\)/ or transcript[:floxed_transcript_description] !~ /^No protein product^/
+                if (o2.getString("floxed_transcript_description").matches("^No protein product .NMD.")
+                        || !o2.getString("floxed_transcript_description").matches("^No protein product")) {
                     map.put("mut_coding_transcripts", map.get("mut_coding_transcripts") + 1);
                 }
 
@@ -278,9 +308,35 @@ public class AllelesController {
         return map;
     }
 
+    //    <% counts = @data[:mutagenesis_predictions][:statistics] %>
+    //    <p>
+    //    This gene has <%= counts[:wt_transcripts] %> wild type transcripts,
+    //    of which <%= counts[:wt_proteien_coding_transcripts] %> are protein-coding.
+    //    Following removal of the floxed region, <%= counts[:mut_coding_transcripts] %>
+    //    <% if counts[:mut_coding_transcripts] == 1 %>transcript is<% else %>transcripts are<% end %>
+    //    <strong>predicted</strong> to produce a truncated protein product of which
+    //    <%= counts[:mut_nmd_transcripts] %> may be subject to non-sense mediated decay (NMD).
+    //
+    //    <% if counts[:mut_nmd_rescue_transcripts] > 0 %>
+    //    <strong>NOTE:</strong> Of the <%= counts[:wt_non_coding_transcripts] %> non-coding wild type transcripts,
+    //    <%= counts[:mut_nmd_rescue_transcripts] %> are possibly subject to NMD rescue in the mutant.
+    //    <% end %>
+    //
+    //    <% if @data[:allele_design_type] == 'Deletion' %>
+    //    This mutation is of type '<%= @data[:allele_design_type] %>' (more information on IKMC alleles can be found
+    //    <a href="http://www.knockoutmouse.org/about/targeting-strategies">here</a>). The table below
+    //    shows the <strong>predicted</strong> structure of the gene transcripts.
+    //    Click the 'view' button for each transcript to see the full prediction for that transcript.
+    //    <% else %>
+    //    The original allele for this mutation is of type '<%= @data[:allele_design_type] %>'. The table below
+    //    shows the <strong>predicted</strong> structure of the gene transcripts after application of Flp and Cre
+    //    (forming a '<%= allele_type('tm1d') %>' allele - more information on IKMC alleles can be found
+    //    <a href="http://www.knockoutmouse.org/about/targeting-strategies">here</a>).
+    //    Click the 'view' button for each transcript to see the full prediction for that transcript.
+    //    <% end %>
+    //    </p>
     // TODO: fix dodgy routine returning html!
-
-    private String getMutagenesisBlurb(Map<String, Integer> stats) {
+    private String getMutagenesisBlurb(Map<String, Integer> stats, HashMap<String, Object> summary) {
 
         if (stats == null) {
             return null;
@@ -305,19 +361,15 @@ public class AllelesController {
                     + stats.get("mut_nmd_rescue_transcripts") + " are possibly subject to NMD rescue in the mutant.";
         }
 
-        // <% if @data[:allele_design_type] == 'Deletion' %>
-        // TODO: we need allele_design_type from somewhere
-        String tbd = "<strong><span style='color:red'>TBD</span></strong>";
-
-        if (false) {
+        if (summary.get("is_deleted").equals("true")) {
             s += "This mutation is of type 'Deletion' (more information on IKMC alleles can be found "
                     + "<a href=\"http://www.knockoutmouse.org/about/targeting-strategies\">here</a>). The table below "
                     + "shows the <strong>predicted</strong> structure of the gene transcripts. "
                     + "Click the 'view' button for each transcript to see the full prediction for that transcript. ";
         } else {
-            s += "The original allele for this mutation is of type '" + tbd + "'. The table below "
+            s += " The original allele for this mutation is of type '" + summary.get("allele_description").toString() + "'. The table below "
                     + "shows the <strong>predicted</strong> structure of the gene transcripts after application of Flp and Cre "
-                    + "(forming a " + tbd + " allele - more information on IKMC alleles can be found "
+                    + "(forming a " + summary.get("allele_description_1b").toString() + " allele - more information on IKMC alleles can be found "
                     + "<a href=\"http://www.knockoutmouse.org/about/targeting-strategies\">here</a>). "
                     + "Click the 'view' button for each transcript to see the full prediction for that transcript. ";
         }
@@ -410,7 +462,7 @@ public class AllelesController {
 
             JSONArray mutagenesis = getMutagenesisDetails(acc, allele_name, null);
             Map<String, Integer> stats = getMutagenesisStats(mutagenesis);
-            String blurb = getMutagenesisBlurb(stats);
+            String blurb = getMutagenesisBlurb(stats, null);
 
             model.addAttribute("mutagenesis", mutagenesis);
             model.addAttribute("mutagenesis_stats", stats);
@@ -423,11 +475,11 @@ public class AllelesController {
 
         if (allele_name.equals("lrpcr_genotyping_primers")) {
             log.info("#### alleles2: lrpcr_genotyping_primers");
-            
+
             JSONObject object = getPcrDetails(acc, allele_name, false, null);
-            
+
             model.addAttribute("lrpcr", object);
-            
+
             return "alleles_list";
         }
 
@@ -457,7 +509,7 @@ public class AllelesController {
         log.info("#### acc: " + acc);
         log.info("#### allele_name: " + allele_name);
 
-        Map<String, Object> constructs = solrIndex.getGeneProductInfo(acc, allele_name, debug);
+        Map<String, Object> constructs = solrIndex2.getGeneProductInfo(acc, allele_name, debug);
 
         if (constructs == null) {
             return "alleles";
@@ -482,7 +534,7 @@ public class AllelesController {
 
         JSONArray mutagenesis = getMutagenesisDetails(null, null, projectId);
         Map<String, Integer> stats = getMutagenesisStats(mutagenesis);
-        String blurb = getMutagenesisBlurb(stats);
+        String blurb = getMutagenesisBlurb(stats, null);
 
         model.addAttribute("mutagenesis", mutagenesis);
         model.addAttribute("mutagenesis_stats", stats);
@@ -512,6 +564,7 @@ public class AllelesController {
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
 
         List<Map<String, String>> list = new ArrayList<>();
+        addMutagenesisExample(list, "Art4", "39216");
         addMutagenesisExample(list, "Cbx1", "35505");
         addMutagenesisExample(list, "Zfp111", "79288");
         addMutagenesisExample(list, "Foxj3", "77075");
@@ -563,13 +616,13 @@ public class AllelesController {
 
     //@RequestMapping("/lrpcr_genotyping_primers/{projectId}")
     @RequestMapping("/lrpcr_genotyping_primers")
-    public String lrpcr_genotyping_primers_project(
-          //  @PathVariable String projectId,
+    public String lrpcr_genotyping_primers(
+            //  @PathVariable String projectId,
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
 
-        log.info("#### lrpcr_genotyping_primers_project");
+        log.info("#### lrpcr_genotyping_primers");
 
         JSONObject object = getPcrDetails(null, null, false, null);
 
@@ -577,5 +630,236 @@ public class AllelesController {
 
         return "lrpcr_genotyping_primers";
     }
-    
+
+    @RequestMapping("/lrpcr_genotyping_primers/{projectId}")
+    public String lrpcr_genotyping_primers_project(
+            @PathVariable String projectId,
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+
+        log.info("#### lrpcr_genotyping_primers_project");
+
+        JSONObject object = getPcrDetails(null, null, false, projectId);
+
+        model.addAttribute("lrpcr", object);
+
+        return "lrpcr_genotyping_primers";
+    }
+
+//    @RequestMapping("/mutagenesis/{acc}/{allele_name}")
+//    public String mutagenesis_project_type(
+//            @PathVariable String acc,
+//            @PathVariable String allele_name,
+//            Model model,
+//            HttpServletRequest request,
+//            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+//
+//        log.info("#### mutagenesis_project_type");
+//        
+//        Map<String, Object> products = solrIndex2.getGeneProductInfo(acc, allele_name, false);
+//
+//        if (products == null) {
+//            return "mutagenesis";
+//        }
+//
+//        model.addAttribute("mice", products.get("mice"));
+//        model.addAttribute("es_cells", products.get("es_cells"));
+//        model.addAttribute("targeting_vectors", products.get("targeting_vectors"));
+//        model.addAttribute("summary", products.get("summary"));
+//        
+//        HashMap<String, Object> summary = (HashMap<String, Object>)products.get("summary");
+//        
+//        String projectId = null;
+//        if(summary != null) {
+//            String key = summary.get("marker_symbol").toString() + summary.get("allele_name").toString();
+//             if(symbolMap.containsKey(key)) {
+//                 projectId = symbolMap.get(key);
+//             }
+//        }       
+//        
+//        JSONArray mutagenesis = getMutagenesisDetails(null, null, projectId);
+//        Map<String, Integer> stats = getMutagenesisStats(mutagenesis);
+//        String blurb = getMutagenesisBlurb(stats, (HashMap<String, Object>)products.get("summary"));
+//
+//        model.addAttribute("mutagenesis", mutagenesis);
+//        model.addAttribute("mutagenesis_stats", stats);
+//        model.addAttribute("mutagenesis_blurb", blurb);
+//        
+//        if(summary != null && projectId != null) {
+//            model.addAttribute("mutagenesis_title", summary.get("symbol") + " Mutagenesis");
+//        }
+//        else {
+//            model.addAttribute("mutagenesis_title", "Mutagenesis  (default)");
+//        }
+//
+//        log.info("#### mutagenesis: " + mutagenesis);
+//
+//        return "mutagenesis";
+//    }
+//     private static final Map<String, String> symbolMap;
+//    static {
+//        Map<String, String> map = new HashMap<>();
+//        map.put("Zfp111tm1a(KOMP)Wtsi", "79288");
+//        map.put("Zfp111tm1b(KOMP)Wtsi", "79288");
+//        map.put("Zfp111tm1e(KOMP)Wtsi", "79288");
+//        map.put("Foxj3tm1a(EUCOMM)Wtsi", "77075");
+//        map.put("Art4tm1a(KOMP)Wtsi", "39216");
+//        map.put("Cib2tm1b(EUCOMM)Wtsi", "41713");
+//        map.put("Cib2tm1a(EUCOMM)Wtsi", "41713");
+//        map.put("Cib2tm1(KOMP)Vlcg", "VG15151");
+//        map.put("Heyltm1b(KOMP)Wtsi", "24190");
+//        map.put("Heyltm1a(KOMP)Wtsi", "24190");
+//        map.put("Nxnl1tm1a(KOMP)Wtsi", "66532");
+//        map.put("Nxnl1tm2a(EUCOMM)Wtsi", "118731");
+//        map.put("Morn1tm1a(EUCOMM)Wtsi", "82621");
+//        map.put("Cbx1tm1a(EUCOMM)Wtsi", "35505");
+//        map.put("Cbx1tm1(KOMP)Vlcg", "VG19239");
+//        map.put("Arhgef6tm2e(EUCOMM)Wtsi", "36825");
+//        map.put("Arhgef6tm2a(EUCOMM)Wtsi", "36825");
+//        symbolMap = Collections.unmodifiableMap(map);
+//    }        
+    @RequestMapping("/lrpcr/{acc}/{allele_name}")
+    public String lrpcr_acc_allele(
+            @PathVariable String acc,
+            @PathVariable String allele_name,
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+
+        log.info("#### lrpcr_acc_allele");
+
+        Map<String, Object> products = solrIndex2.getGeneProductInfo(acc, allele_name, false);
+
+        if (products == null) {
+            return "lrpcr_genotyping_primers";
+        }
+
+        model.addAttribute("mice", products.get("mice"));
+        model.addAttribute("es_cells", products.get("es_cells"));
+        model.addAttribute("targeting_vectors", products.get("targeting_vectors"));
+        model.addAttribute("summary", products.get("summary"));
+
+        HashMap<String, Object> summary = (HashMap<String, Object>) products.get("summary");
+
+        String projectId = getProjectId(summary.get("symbol").toString());
+
+        JSONObject object = getPcrDetails(null, null, false, projectId);
+        model.addAttribute("lrpcr", object);
+
+        if (projectId != null) {
+            model.addAttribute("lrpcr_title", summary.get("symbol") + " LRPCR Genotyping Primers");
+        } else {
+            model.addAttribute("lrpcr_title", "LRPCR Genotyping Primers (default)");
+        }
+
+        return "lrpcr_genotyping_primers";
+    }
+
+//    public String lrpcr_acc_allele_1(
+//            @PathVariable String acc,
+//            @PathVariable String allele_name,
+//            Model model,
+//            HttpServletRequest request,
+//            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+//
+//        log.info("#### lrpcr_acc_allele");
+//
+////        JSONArray mutagenesis = getMutagenesisDetails(null, null, null);
+////        Map<String, Integer> stats = getMutagenesisStats(mutagenesis);     
+//                
+//        Map<String, Object> products = solrIndex2.getGeneProductInfo(acc, allele_name, false);
+//
+//        if (products == null) {
+//            return "lrpcr_genotyping_primers";
+//        }
+//
+//        model.addAttribute("mice", products.get("mice"));
+//        model.addAttribute("es_cells", products.get("es_cells"));
+//        model.addAttribute("targeting_vectors", products.get("targeting_vectors"));
+//        model.addAttribute("summary", products.get("summary"));
+//        
+////        //String type = "tm1b";
+////        String blurb = getMutagenesisBlurb(stats, (HashMap<String, Object>)products.get("summary"));
+////
+////        model.addAttribute("mutagenesis", mutagenesis);
+////        model.addAttribute("mutagenesis_stats", stats);
+////        model.addAttribute("mutagenesis_blurb", blurb);
+//        
+//        HashMap<String, Object> summary = (HashMap<String, Object>)products.get("summary");
+//
+//        String projectId = null;
+//        if(summary != null) {
+//            String key = summary.get("marker_symbol").toString() + summary.get("allele_name").toString();
+//             if(symbolMap.containsKey(key)) {
+//                 projectId = symbolMap.get(key);
+//             }
+//         }
+//
+//        JSONObject object = getPcrDetails(null, null, false, projectId);
+//        model.addAttribute("lrpcr", object);
+//        
+//        if(summary != null && projectId != null) {
+//            model.addAttribute("lrpcr_title", summary.get("symbol") + " LRPCR Genotyping Primers");
+//        }
+//        else {
+//        //    List<Map<String, String>> results = solrIndex2.getGeneAlleleInfo(summary.get("symbol").toString());
+//            model.addAttribute("lrpcr_title", "LRPCR Genotyping Primers (default)");
+//        }
+//
+//        return "lrpcr_genotyping_primers";
+//    }
+    private String getProjectId(String alleleName) throws IOException, URISyntaxException {
+        String projectId = null;
+        String geneAlleleProject = solrIndex2.getGeneAlleleProject(alleleName);
+
+        if (geneAlleleProject != null) {
+            projectId = geneAlleleProject;
+        }
+        return projectId;
+    }
+
+    @RequestMapping("/mutagenesis/{acc}/{allele_name}")
+    public String mutagenesis_project_type(
+            @PathVariable String acc,
+            @PathVariable String allele_name,
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+
+        log.info("#### mutagenesis_project_type");
+
+        Map<String, Object> products = solrIndex2.getGeneProductInfo(acc, allele_name, false);
+
+        if (products == null) {
+            return "mutagenesis";
+        }
+
+        model.addAttribute("mice", products.get("mice"));
+        model.addAttribute("es_cells", products.get("es_cells"));
+        model.addAttribute("targeting_vectors", products.get("targeting_vectors"));
+        model.addAttribute("summary", products.get("summary"));
+
+        HashMap<String, Object> summary = (HashMap<String, Object>) products.get("summary");
+
+        String projectId = getProjectId(summary.get("symbol").toString());
+
+        JSONArray mutagenesis = getMutagenesisDetails(null, null, projectId);
+        Map<String, Integer> stats = getMutagenesisStats(mutagenesis);
+        String blurb = getMutagenesisBlurb(stats, (HashMap<String, Object>) products.get("summary"));
+
+        model.addAttribute("mutagenesis", mutagenesis);
+        model.addAttribute("mutagenesis_stats", stats);
+        model.addAttribute("mutagenesis_blurb", blurb); // TODO: rename me
+
+        if (projectId != null) {
+            model.addAttribute("mutagenesis_title", summary.get("symbol") + " Mutagenesis");
+        } else {
+            model.addAttribute("mutagenesis_title", "Mutagenesis  (default)");
+        }
+
+        log.info("#### mutagenesis: " + mutagenesis);
+
+        return "mutagenesis";
+    }
 }

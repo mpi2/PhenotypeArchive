@@ -137,7 +137,7 @@
         }
     </style>
         
-<h1 class="title" id="top">Mutagenesis</h1>
+<h1 class="title" id="top">${mutagenesis_title}</h1>
 
 <c:if test="${not empty mutagenesis_examples}"> 
     <br/>
