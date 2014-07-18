@@ -16,9 +16,10 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
         String url = (String)request.getAttribute("drupalBaseUrl");
                      
         String content = proxy.getDrupalMenu(url);
-		String[] menus = content.split("MAIN\\*MENU\\*BELOW");                     
-      
-        jspContext.setAttribute("usermenu", menus[0]);
+        String[] menus = content.split("MAIN\\*MENU\\*BELOW");                     
+
+        String usermenu = menus[0].replace("current=menudisplaycombinedrendered", "destination="+request.getAttribute("javax.servlet.forward.request_uri")+"?"+request.getQueryString());
+        jspContext.setAttribute("usermenu", usermenu);
         jspContext.setAttribute("menu", menus[1]);		
                 
         String baseUrl = (request.getAttribute("baseUrl") != null && ! ((String)request.getAttribute("baseUrl")).isEmpty()) ? (String)request.getAttribute("baseUrl") : (String) application.getInitParameter("baseUrl");
