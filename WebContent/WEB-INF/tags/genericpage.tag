@@ -16,20 +16,24 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
         String url = (String)request.getAttribute("drupalBaseUrl");
                      
         String content = proxy.getDrupalMenu(url);
-        String[] menus = content.split("MAIN\\*MENU\\*BELOW");                     
+        String[] menus = content.split("MAIN\\*MENU\\*BELOW");
 
+        String baseUrl = (request.getAttribute("baseUrl") != null && ! ((String)request.getAttribute("baseUrl")).isEmpty()) ? (String)request.getAttribute("baseUrl") : (String) application.getInitParameter("baseUrl");
+        jspContext.setAttribute("baseUrl", baseUrl);
 
         // Use the drupal destination parameter to redirect back to this page
         // after logging in
-        String usermenu = menus[0].replace("current=menudisplaycombinedrendered", "destination="+request.getAttribute("javax.servlet.forward.request_uri"));
-        usermenu = usermenu.replace(request.getContextPath(), baseUrl.substring(1));
-        usermenu += (request.getQueryString()!=null) ? "?"+request.getQueryString() : "";
+        String dest = (String)request.getAttribute("javax.servlet.forward.request_uri");
+        if(request.getQueryString()!=null) {
+        	dest += "?"+request.getQueryString();        	
+        }
+
+        String usermenu = menus[0]
+        	.replace("current=menudisplaycombinedrendered", "destination="+dest)
+			.replace(request.getContextPath(), baseUrl.substring(1));
 
         jspContext.setAttribute("usermenu", usermenu);
-        jspContext.setAttribute("menu", menus[1]);		
-                
-        String baseUrl = (request.getAttribute("baseUrl") != null && ! ((String)request.getAttribute("baseUrl")).isEmpty()) ? (String)request.getAttribute("baseUrl") : (String) application.getInitParameter("baseUrl");
-        jspContext.setAttribute("baseUrl", baseUrl);
+        jspContext.setAttribute("menu", menus[1]);
 
 %>
 <%@attribute name="header" fragment="true"%>
