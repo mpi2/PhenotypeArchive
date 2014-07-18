@@ -4,10 +4,13 @@
 <c:if test="${unidimensionalChartDataSet!=null}">
 
 	<c:if test="${fn:length(unidimensionalChartDataSet.statsObjects)>1}">
-		<c:set var="data"
-			value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
-		<c:if
-			test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
+		<c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
+
+
+		<%-- Display result of a mixed model calculation --%>
+
+		<c:if test="${data.result.statisticalMethod!=null and  data.result.statisticalMethod!='Wilcoxon rank sum test with continuity correction'}">
+		<c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
 			<table id="globalTest">
 				<thead>
 					<tr>
@@ -281,6 +284,109 @@
 			</div>
 		</c:if>
 	</c:if>
+	</c:if>
+
+
+
+
+		<%-- Display result of a wilcoxon calculation --%>
+
+		<c:if test="${data.result.statisticalMethod!=null and data.result.statisticalMethod=='Wilcoxon rank sum test with continuity correction'}">
+			<table id="globalTest">
+				<thead>
+					<tr>
+						<th>Sex</th>
+						<th>P Value</th>
+						<th>Effect size</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="toggle_table_covariate_details">
+						<td>Female</td>
+						<c:if test="${data.result.genderFemaleKoPValue!=null}">
+							<td class="pvalue"><t:formatScientific>${data.result.genderFemaleKoPValue }</t:formatScientific></td>
+						</c:if>
+						<td class="effect"><t:formatScientific>${data.result.genderFemaleKoEstimate}</t:formatScientific></td>
+					</tr>
+					<tr>
+						<td>Male</td>
+						<c:if test="${data.result.genderMaleKoPValue!=null}">
+							<td class="pvalue"><t:formatScientific>${data.result.genderMaleKoPValue }</t:formatScientific></td>
+						</c:if>
+						<td class="effect"><t:formatScientific>${data.result.genderMaleKoEstimate}</t:formatScientific></td>
+					</tr>
+				</tbody>
+			</table>
+	<table id="continuousTable">
+		<thead>
+			<tr>
+				<th>Control/Hom/Het</th>
+				<th>Mean</th>
+				<th>SD</th>
+				<th>Count</th>
+			</tr>
+		</thead>
+		<tbody>
+
+
+			<c:forEach var="statsObject"
+				items="${unidimensionalChartDataSet.statsObjects}">
+				<tr>
+					<td><c:choose>
+							<c:when test="${statsObject.sexType eq 'female'}">
+                                Female
+                            </c:when>
+							<c:when test="${statsObject.sexType eq 'male'}">
+                                Male
+                            </c:when>
+						</c:choose> <c:choose>
+							<c:when test="${statsObject.line =='Control' }">
+                                Control
+                            </c:when>
+							<c:when test="${statsObject.line !='Control' }">
+                                ${statsObject.zygosity}
+                            </c:when>
+						</c:choose></td>
+					<td>${statsObject.mean}</td>
+					<td>${statsObject.sd}</td>
+					<c:if test="${statsObject.sexType eq 'female'}">
+						<td>${statsObject.sampleSize}</td>
+					</c:if>
+					<c:if test="${statsObject.sexType eq 'male'}">
+						<td>${statsObject.sampleSize}</td>
+					</c:if>
+
+				</tr>
+			</c:forEach>
+		</tbody>
+	</table>
+
+	<c:if test="${fn:length(unidimensionalChartDataSet.statsObjects)>1}">
+
+		<c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
+
+
+		<div>
+
+			<c:if test="${data.result.colonyId!=null}"><!-- Colony Id: ${data.result.colonyId } --></c:if>
+			<table>
+				<tr>
+					<th>Model Fitting Estimates</th>
+					<th>Value</th>
+				</tr>
+				<tr>
+					<td>Statistical method</td>
+					<td>${data.result.statisticalMethod}</td>
+				</tr>
+
+			</table>
+
+		</div>
+	</c:if>
+	</c:if>
+
+
+
 
 	<script>
 		$(document).ready(
