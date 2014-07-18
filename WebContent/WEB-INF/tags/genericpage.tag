@@ -18,7 +18,13 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
         String content = proxy.getDrupalMenu(url);
         String[] menus = content.split("MAIN\\*MENU\\*BELOW");                     
 
-        String usermenu = menus[0].replace("current=menudisplaycombinedrendered", "destination="+request.getAttribute("javax.servlet.forward.request_uri")+"?"+request.getQueryString());
+
+        // Use the drupal destination parameter to redirect back to this page
+        // after logging in
+        String usermenu = menus[0].replace("current=menudisplaycombinedrendered", "destination="+request.getAttribute("javax.servlet.forward.request_uri"));
+        usermenu = usermenu.replace(request.getContextPath(), baseUrl.substring(1));
+        usermenu += (request.getQueryString()!=null) ? "?"+request.getQueryString() : "";
+
         jspContext.setAttribute("usermenu", usermenu);
         jspContext.setAttribute("menu", menus[1]);		
                 
