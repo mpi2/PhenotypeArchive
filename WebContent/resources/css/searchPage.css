@@ -13,6 +13,11 @@ ul.ui-autocomplete li a {
 ul.ui-autocomplete li a:hover {
 	background-color: #D4D4D4 !important;	
 }
+span#rmFilters {
+	color: #0978A1;
+	padding-right: 5px;
+}
+
 span.ui-helper-hidden-accessible {
 	font-size: 14px;
 }
@@ -155,7 +160,7 @@ table#imagesGrid th:nth-child(1) {
 div#tableTool {
 	font-size: 14px;
 	position: relative;
-	top: -100px;
+	top: -120px;
 	right: 0;	
 }
 div#saveTable {
@@ -235,6 +240,9 @@ th span.main                        { white-space:nowrap; }
 th span.sub                         { font-size: 0.8em; display: block;} 
 /* end of Disease search results */
 
+div.dataTable {
+			margin-top: 20px !important;
+}
 /* dataTable pagination styling */
 span.ellipse {
 	display: block;
