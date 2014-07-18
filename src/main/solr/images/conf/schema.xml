@@ -297,7 +297,11 @@
 	<field name="img_marker_type" type="string" indexed="true" stored="false" multiValued="true"/>
 	<field name="img_procedure_name" type="string" indexed="true" stored="false" multiValued="true"/>
 	<field name="img_top_level_mp_term" type="string" indexed="true" stored="false" multiValued="true"/>
-	<field name="img_selected_top_level_ma_term" type="string" indexed="true" stored="false" multiValued="true"/>  
+	<field name="img_selected_top_level_ma_term" type="string" indexed="true" stored="false" multiValued="true"/> 
+	
+	
+	<field name="datasource_id"           type="int"    indexed="true" stored="true" multiValued="false" /> 
+	<field name="datasource_name"         type="string" indexed="true" stored="true" multiValued="false" />  
    	
  </fields>
 
