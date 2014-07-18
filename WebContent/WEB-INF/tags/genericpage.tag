@@ -1,5 +1,5 @@
 <%@tag description="Overall Page template" pageEncoding="UTF-8" 
-import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf.json.JSONArray"
+import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf.json.JSONArray,java.net.URLEncoder"
 %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -25,7 +25,7 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
         // after logging in
         String dest = (String)request.getAttribute("javax.servlet.forward.request_uri");
         if(request.getQueryString()!=null) {
-        	dest += "?"+request.getQueryString().replace("&", "&amp;");        	
+        	dest += URLEncoder.encode("?"+request.getQueryString());        	
         }
 
         String usermenu = menus[0]
