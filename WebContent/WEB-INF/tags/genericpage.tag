@@ -25,7 +25,7 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
         // after logging in
         String dest = (String)request.getAttribute("javax.servlet.forward.request_uri");
         if(request.getQueryString()!=null) {
-        	dest += "?"+request.getQueryString();        	
+        	dest += "?"+request.getQueryString().replace("&", "&amp;");        	
         }
 
         String usermenu = menus[0]
