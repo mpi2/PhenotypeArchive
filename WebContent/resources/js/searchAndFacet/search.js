@@ -58,10 +58,19 @@
 				
 		var oFacets = {};
 		oFacets.count = {};	
-	
-		if ( typeof oUrlHashParams.fq != 'undefined' && typeof oUrlHashParams.coreName == 'undefined' ){
-			jsonBase.geneFacet.filterParams = {'fq': oUrlHashParams.fq};
+		
+		if ( typeof oUrlHashParams.fq != 'undefined' ){
+			oUrlHashParams.oriFq = oUrlHashParams.fq;
+			oUrlHashParams.fq = oUrlHashParams.fq.replace(/img_/g, '');
+			
+			if (  typeof oUrlHashParams.coreName == 'undefined' ){
+				jsonBase.geneFacet.filterParams = {'fq': oUrlHashParams.fq};
+			}
 		}
+		
+		/*if ( typeof oUrlHashParams.fq != 'undefined' && typeof oUrlHashParams.coreName == 'undefined' ){
+			jsonBase.geneFacet.filterParams = {'fq': oUrlHashParams.fq};
+		}*/
 		
 		jsonBase.geneFacet.srchParams.q = q;
 		//console.log($.extend({}, jsonBase.geneFacet.srchParams, jsonBase.geneFacet.filterParams)); 
@@ -213,6 +222,7 @@
     	    timeout: 5000,
     	    success: function (imagesResponse) {  
     	    	//console.log(imagesResponse);
+    	    	
     	    	$('div.flist li#images span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.images = imagesResponse.response.numFound;    	    	
     	    	_updateFacetCount('images', imagesResponse, facetMode);	 
@@ -222,11 +232,12 @@
     	    	 * ie, fetch facet full result for that facet and display only facet count for the rest of the facets 
     	    	 * Other facet results will be fetched on demand */
     	    	
-    	    	var hashParams = $.fn.parseHashString(window.location.hash.substring(1));    	    	
-    	    	    	    	
+    	    	//var hashParams = $.fn.parseHashString(window.location.hash.substring(1));   
+    	    	//console.log(hashParams);	  
+    
     	    	var coreName, facetName;
     	    	
-    	    	if ( hashParams.coreName ){
+    	    	/*if ( hashParams.coreName ){
     	    		coreName = hashParams.coreName;
     	    	}
     	    	else if (hashParams.facetName ){
@@ -237,7 +248,20 @@
     	    	}
     	    	else {
     	    		coreName = _setSearchMode(oFacets.count);
-    	    	}    	    	   	    	
+    	    	} */   
+    	    	
+    	    	if ( oUrlHashParams.coreName ){
+    	    		coreName = oUrlHashParams.coreName;
+    	    	}
+    	    	else if (oUrlHashParams.facetName ){
+    	    		facetName = oUrlHashParams.facetName;    	    		
+    	    	}
+    	    	else if ( facetMode ){    	    		
+    	    		facetName = facetMode;    	    		
+    	    	}
+    	    	else {
+    	    		coreName = _setSearchMode(oFacets.count);
+    	    	}   
     	    	
     	    	$('div#facetSrchMsg').html('&nbsp;');
     	    	
@@ -248,21 +272,29 @@
     	    	else {    	    	    		
     	        	// remove all previous facet results before loading new facet results
     	    		var thisCore = coreName ? coreName : facetName; 
+    	    		
     	        	$('li.fmcat > ul').html(''); 
     	        	
     	        	//var widgetName = coreName+'Facet'; 
     	        	var widgetName = thisCore+'Facet';    
-    	        	hashParams.fq = hashParams.fq ? hashParams.fq : jsonBase[widgetName].fq;    	        	    	        	
+    	        	/*hashParams.fq = hashParams.fq ? hashParams.fq : jsonBase[widgetName].fq;    	        	    	        	
     	        	hashParams.widgetName = widgetName;
     	        	hashParams.q = q;
     	        	hashParams.noFq = oUrlHashParams.noFq;
+    	        	*/
+    	        	oUrlHashParams.fq = oUrlHashParams.fq ? oUrlHashParams.fq : jsonBase[widgetName].fq; 
+    	        	oUrlHashParams.oriFq = oUrlHashParams.oriFq ? oUrlHashParams.oriFq : jsonBase[widgetName].fq; 
+    	        	oUrlHashParams.widgetName = widgetName;
+    	        	oUrlHashParams.q = q;
+    	        	//hashParams.noFq = oUrlHashParams.noFq;
     	        	
     	        	window.jQuery('li#' + thisCore)[widgetName]({
     					data: {	   							 
     							core: coreName,    							
     							//qf: jsonBase[widgetName].qf,
     							facetCount: oFacets.count[thisCore],
-    							hashParams: hashParams
+    							//hashParams: hashParams
+    							hashParams: oUrlHashParams
     							},
     			        geneGridElem: 'div#mpi2-search'			                                      
     				});
@@ -282,9 +314,9 @@
     	        	
     	        	for ( var i=0; i< aCores.length; i++){
     	        		var core = aCores[i];
-    	        		if ( oFacets.count[core] != 0 ){    	        	
+    	        		//if ( oFacets.count[core] != 0 ){    	        	
     	        			_prepareCores(core, q, oFacets, oUrlHashParams.fq, facetMode);
-    	        		}
+    	        		//}
     	        	} 
     	        	// restore the spliced core when done
     	        	aCores.push(thisCore);
@@ -297,7 +329,6 @@
 	}
 		
 	function _prepareCores(core, q, oFacets, fq, facetMode){		
-		
 		var widgetName = core + 'Facet';		
 		
 		window.jQuery('li#' + core).click(function(){
@@ -318,8 +349,8 @@
 				
 	        	hashParams.widgetName = widgetName;
 	        	hashParams.q = q;
-	        	
-				//if ( $this.find('.facetCatList').html() == '' && $this.find('span.facetCount').text() != '0' ){
+
+	        	//if ( $this.find('.facetCatList').html() == '' && $this.find('span.facetCount').text() != '0' ){
 				if ( $this.find('ul').html() == '' && $this.find('span.fcount').text() != '0' ){	
 					$this[widgetName]({  
 						data: {							 

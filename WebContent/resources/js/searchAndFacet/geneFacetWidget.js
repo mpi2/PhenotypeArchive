@@ -280,7 +280,8 @@
 	    		}	    		
 	    		subTypeSect.append(subTypeUlContainer);
 	    		$('div.flist li#gene > ul').append(subTypeSect);
-	    			    			    		
+	    		$.fn.initFacetToggles('gene');
+	    		
 	    		var selectorBase = "div.flist li#gene";
 	    		
 	    		// subfacet opening/closing behavior
@@ -290,28 +291,21 @@
 	    		
 	    		// change cursor for grayout filter
     			$.fn.cursorUpdate('gene', 'not-allowed');
-    							
-	    		
-	    		$.fn.initFacetToggles('gene');
-	    		
+    			
 	    		$('li#gene li.fcat input').click(function(){
 	    			
 	    			// // highlight the item in facet	    			
 	    			$(this).siblings('span.flabel').addClass('highlight');
+	    			
+	    			MPI2.searchAndFacetConfig.update.filterAdded = true;
 					$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
-				});	    		
+				});	 
+	    		
+	    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
+	    			$.fn.process_kwSearch(self);
+	    		}	
+	    		
     		}
-	    	
-	    	/*--------------------------------------------------------------------------------------------------------------------------*/
-	    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
-	    	/*--------------------------------------------------------------------------------------------------------------------------*/	
-	    	//console.log('****page load for gene facet');
-	    	
-	    	var oConf = self.options.data.hashParams;
-	    	oConf.core = self.options.data.core;
-	    	
-	    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);
-	    	
 	    },	       
 	  
 	    destroy: function () {    	   
