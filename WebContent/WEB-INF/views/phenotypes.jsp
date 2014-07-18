@@ -47,6 +47,7 @@
                 		<li><a href="#data-summary">Phenotype Association Stats</a></li>
                 </c:if>
                 <li><a href="#gene-variants">Gene Variants</a></li><!-- message comes up in this section so dont' check here -->
+                <li><a href="#phenotypeHeatmapSection">Heatmap</a></li>
             </ul>
             
             <div class="clear"></div>
