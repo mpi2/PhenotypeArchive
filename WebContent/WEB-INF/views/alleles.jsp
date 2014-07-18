@@ -78,7 +78,7 @@
 
 	<jsp:body>
 
-<h1 class="title" id="top">${summary['symbol']}</h1>
+<h1 class="title" id="top">${title}</h1>
 
 </br>
 
@@ -89,7 +89,7 @@
 <div class="section">
     <div class="inner">
     <h3>Summary</h3>
-    <div style="font-size: 150%; font-weight: bold;">
+    <div style="font-size: 110%; font-weight: bold;">
         <p>${summary['allele_description']}</p>
         <c:if test="${not empty summary['statuses']}">
             
@@ -100,7 +100,6 @@
                   <td style="width:30%">${status['TEXT']}</td>
                   
                   <td>
-<!--<div style="font-size: 150%; font-weight: bold;">                      -->
             <c:if test="${not empty status['ORDER']}">
               <a class="btn btn-lg" href="${status['ORDER']}"> <i class="fa fa-shopping-cart"></i> ORDER </a>
             </c:if>
@@ -133,6 +132,7 @@
             .btn              { text-decoration: none !important; color: #fff !important; background-color: #0978a1 !important; }
         </style>
  
+        <c:if test="${not empty summary['map_image']}">
 	<div class="section">
 		<div class="inner">
 			<h3>Allele Map</h3>
@@ -140,13 +140,16 @@
         <div id="image">
             <img src="${summary['map_image']}" width="930px">        
         </div>
+        </c:if>
                         
-<!--        <table style="font-size: 150%; font-weight: bold;">         -->
+        <c:if test="${not empty summary['buttons']}">
         <table >         
             <tr>
             <td>   
                 <span>
+                <c:if test="${not empty summary['genbank']}">
                     <a class="btn" href="${summary['genbank']}"><i class="fa fa-info"></i> Genbank file</a>
+                </c:if>
                 </span>
             </td>
 
@@ -159,50 +162,29 @@
             <td>     
                 <c:if test="${not empty summary['southern_tool']}">
                     <a class="btn" href="${summary['southern_tool']}"> <i class="fa fa-info"></i> Southern Tool </a>
-                    
-<!--                    <div class="btn-group">
-                        <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">Action <span class="caret"></span></button>
-                        <ul class="dropdown-menu">
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li class="divider"></li>
-                            <li><a href="#">Separated link</a></li>
-                        </ul>
-                    </div>                    -->
-                    
-                    
                 </c:if>	
             </td>
-            </tr>
-            
-            
+            </tr>           
             <tr>
             <td>     
                 <c:if test="${not empty summary['lrpcr_genotyping_primers']}">
                     <a class="btn" href="${summary['lrpcr_genotyping_primers']}"> <i class="fa fa-info"></i> LRPCR Genotyping Primers </a>
                 </c:if>	
             </td>
-
-
-
-
-
-
-
             <td>       
                 
-<c:if test="${not empty summary['browsers']}">
-    <c:forEach var="browser" items="${summary['browsers']}" varStatus="browsersx">
-        <a class="btn" href="${browser['url']}"> <i class="fa fa-info"></i> ${browser['browser']} </a> <br/>
-    </c:forEach>	
-</c:if>	
+            <c:if test="${not empty summary['browsers']}">
+                <c:forEach var="browser" items="${summary['browsers']}" varStatus="browsersx">
+                    <a class="btn" href="${browser['url']}"> <i class="fa fa-info"></i> ${browser['browser']} </a> <br/>
+                </c:forEach>	
+            </c:if>	
                     </td>
                 <td>
             </td>
                     
             </tr>
         </table>
-        
+        </c:if>
                                 
                        
         <table>

@@ -40,7 +40,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-//import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
@@ -50,7 +49,6 @@ public class AllelesController {
     private final Logger log = LoggerFactory.getLogger(AllelesController.class);
 
     @Autowired
-    //SolrIndex solrIndex;
     SolrIndex2 solrIndex2;
 
     private HashMap<String, String> makeItem(String marker_symbol, String allele_name, String mgi_accession_id) {
@@ -158,27 +156,27 @@ public class AllelesController {
 
         log.info("#### alleles1...");
 
-        if (acc.length() == 1) {
-            HashMap<String, String> params1 = new HashMap<>();
-
-            params1.put("allele_type", acc);
-            params1.put("type", "mouse");
-
-            List<Map<String, Object>> list1 = solrIndex2.getProductGeneDetails(params1);
-            List<Map<String, String>> list = new ArrayList<>();
-
-            if (list1 != null && !list1.isEmpty()) {
-                list1 = list1.subList(0, 50);
-
-                for (Map<String, Object> item : list1) {
-                    list.add(makeItem((String) item.get("marker_symbol"), (String) item.get("allele_name"), (String) item.get("mgi_accession_id")));
-                }
-
-                model.addAttribute("list", list);
-            }
-
-            return "alleles_list";
-        }
+//        if (acc.length() == 1) {
+//            HashMap<String, String> params1 = new HashMap<>();
+//
+//            params1.put("allele_type", acc);
+//            params1.put("type", "mouse");
+//
+//            List<Map<String, Object>> list1 = solrIndex2.getProductGeneDetails(params1);
+//            List<Map<String, String>> list = new ArrayList<>();
+//
+//            if (list1 != null && !list1.isEmpty()) {
+//                list1 = list1.subList(0, 50);
+//
+//                for (Map<String, Object> item : list1) {
+//                    list.add(makeItem((String) item.get("marker_symbol"), (String) item.get("allele_name"), (String) item.get("mgi_accession_id")));
+//                }
+//
+//                model.addAttribute("list", list);
+//            }
+//
+//            return "alleles_list";
+//        }
 
         List<Map<String, Object>> list1 = solrIndex2.getProductGeneDetails(acc);
         List<Map<String, String>> list = new ArrayList<>();
@@ -189,85 +187,14 @@ public class AllelesController {
             }
         }
 
+        log.info("#### alleles1: list1: " + list1);
+
         model.addAttribute("list", list);
 
         return "alleles_list";
     }
 
     // see http://stackoverflow.com/questions/81346/most-efficient-way-to-increment-a-map-value-in-java
-//    private Map<String, Integer> getMutagenesisStats(JSONArray transcripts) {
-//
-//        class MutableInt {
-//            int value = 0;
-//            public void increment () { ++value; }
-//            public int  get ()       { return value; }
-//            public void  set (int newValue)       { value = newValue; }
-//        }
-//        
-//        if (transcripts == null) {
-//            return null;
-//        }
-//
-//        Map<String, MutableInt> map = new HashMap<>();
-//        map.put("wt_transcripts", new MutableInt());
-//        map.put("wt_non_coding_transcripts", new MutableInt());
-//        map.put("wt_protein_coding_transcripts", new MutableInt());
-//        map.put("mut_nmd_transcripts", new MutableInt());
-//        map.put("mut_coding_transcripts", new MutableInt());
-//        map.put("mut_nmd_rescue_transcripts", new MutableInt());
-//
-//        for (Object o : transcripts) {
-//            JSONObject o2 = (JSONObject) o;
-//            map.get("wt_protein_coding_transcripts").increment();
-//            if (o2.has("biotype") && o2.getString("biotype").equals("protein_coding")) {
-//                map.get("wt_transcripts").increment();
-//
-//                if (o2.getString("floxed_transcript_description").matches("^No protein product \\(NMD\\)")) {
-//                    map.get("mut_nmd_transcripts").increment();
-//                }
-//
-//                if (o2.getString("floxed_transcript_description").matches("^No protein product \\(NMD\\)")
-//                        || o2.getString("floxed_transcript_description").matches("^No protein product")) {
-//                    map.get("mut_coding_transcripts").increment();
-//                }
-//
-//                if (o2.getString("floxed_transcript_description").matches("^Possible NMD rescue")) {
-//                    map.get("mut_nmd_rescue_transcripts").increment();
-//                }
-//            }
-//                    map.get("wt_non_coding_transcripts").increment();
-//            map.get("wt_non_coding_transcripts").set(map.get("wt_transcripts").get() - map.get("wt_protein_coding_transcripts").get());
-//        }
-//        return map;
-//    }
-//    def calculate_mutagenesis_prediction_stats( transcripts )
-//      MartSearch::Controller.instance().logger.debug("[MartSearch::ProjectUtils] ::calculate_mutagenesis_prediction_stats - running calculate_mutagenesis_prediction_stats()")
-//
-//      count = {
-//        :wt_transcripts                 => 0,
-//        :wt_non_coding_transcripts      => 0,
-//        :wt_proteien_coding_transcripts => 0,
-//        :mut_nmd_transcripts            => 0,
-//        :mut_coding_transcripts         => 0,
-//        :mut_nmd_rescue_transcripts     => 0
-//      }
-//
-//      transcripts.each do |transcript|
-//        count[:wt_transcripts] += 1
-//        if transcript[:biotype].eql?('protein_coding')
-//          count[:wt_proteien_coding_transcripts] += 1
-//          count[:mut_nmd_transcripts]            += 1 if transcript[:floxed_transcript_description] =~ /^No protein product \(NMD\)/
-//          count[:mut_coding_transcripts]         += 1 if transcript[:floxed_transcript_description] =~ /^No protein product \(NMD\)/ or transcript[:floxed_transcript_description] !~ /^No protein product^/
-//          count[:mut_nmd_rescue_transcripts]     += 1 if transcript[:floxed_transcript_description] =~ /^Possible NMD rescue/
-//        end
-//      end
-//
-//      count[:wt_non_coding_transcripts] = count[:wt_transcripts] - count[:wt_proteien_coding_transcripts]
-//
-//      MartSearch::Controller.instance().logger.debug("[MartSearch::ProjectUtils] ::calculate_mutagenesis_prediction_stats - running calculate_mutagenesis_prediction_stats() - DONE")
-//
-//      return count
-//    end
     private Map<String, Integer> getMutagenesisStats(JSONArray transcripts) {
 
         if (transcripts == null) {
@@ -292,8 +219,6 @@ public class AllelesController {
                     map.put("mut_nmd_transcripts", map.get("mut_nmd_transcripts") + 1);
                 }
 
-                //          count[:mut_coding_transcripts]         += 1 
-                //if transcript[:floxed_transcript_description] =~ /^No protein product \(NMD\)/ or transcript[:floxed_transcript_description] !~ /^No protein product^/
                 if (o2.getString("floxed_transcript_description").matches("^No protein product .NMD.")
                         || !o2.getString("floxed_transcript_description").matches("^No protein product")) {
                     map.put("mut_coding_transcripts", map.get("mut_coding_transcripts") + 1);
@@ -308,33 +233,6 @@ public class AllelesController {
         return map;
     }
 
-    //    <% counts = @data[:mutagenesis_predictions][:statistics] %>
-    //    <p>
-    //    This gene has <%= counts[:wt_transcripts] %> wild type transcripts,
-    //    of which <%= counts[:wt_proteien_coding_transcripts] %> are protein-coding.
-    //    Following removal of the floxed region, <%= counts[:mut_coding_transcripts] %>
-    //    <% if counts[:mut_coding_transcripts] == 1 %>transcript is<% else %>transcripts are<% end %>
-    //    <strong>predicted</strong> to produce a truncated protein product of which
-    //    <%= counts[:mut_nmd_transcripts] %> may be subject to non-sense mediated decay (NMD).
-    //
-    //    <% if counts[:mut_nmd_rescue_transcripts] > 0 %>
-    //    <strong>NOTE:</strong> Of the <%= counts[:wt_non_coding_transcripts] %> non-coding wild type transcripts,
-    //    <%= counts[:mut_nmd_rescue_transcripts] %> are possibly subject to NMD rescue in the mutant.
-    //    <% end %>
-    //
-    //    <% if @data[:allele_design_type] == 'Deletion' %>
-    //    This mutation is of type '<%= @data[:allele_design_type] %>' (more information on IKMC alleles can be found
-    //    <a href="http://www.knockoutmouse.org/about/targeting-strategies">here</a>). The table below
-    //    shows the <strong>predicted</strong> structure of the gene transcripts.
-    //    Click the 'view' button for each transcript to see the full prediction for that transcript.
-    //    <% else %>
-    //    The original allele for this mutation is of type '<%= @data[:allele_design_type] %>'. The table below
-    //    shows the <strong>predicted</strong> structure of the gene transcripts after application of Flp and Cre
-    //    (forming a '<%= allele_type('tm1d') %>' allele - more information on IKMC alleles can be found
-    //    <a href="http://www.knockoutmouse.org/about/targeting-strategies">here</a>).
-    //    Click the 'view' button for each transcript to see the full prediction for that transcript.
-    //    <% end %>
-    //    </p>
     // TODO: fix dodgy routine returning html!
     private String getMutagenesisBlurb(Map<String, Integer> stats, HashMap<String, Object> summary) {
 
@@ -382,12 +280,11 @@ public class AllelesController {
             String allele_name,
             String projectId) throws MalformedURLException, IOException, URISyntaxException {
 
-        // TODO: fix me!
-        String url = "http://www.sanger.ac.uk/htgt/htgt2/tools/mutagenesis_prediction/project/35505/detail";
-
-        if (projectId != null) {
-            url = "http://www.sanger.ac.uk/htgt/htgt2/tools/mutagenesis_prediction/project/" + projectId + "/detail";
+        if (projectId == null) {
+            return null;
         }
+
+        String url = "http://www.sanger.ac.uk/htgt/htgt2/tools/mutagenesis_prediction/project/" + projectId + "/detail";
 
         HttpProxy proxy = new HttpProxy();
         String content = "";
@@ -414,9 +311,7 @@ public class AllelesController {
             log.info("#### o: " + o);
             if (o.has("floxed_transcript_translation")) {
                 String floxed_transcript_translation = o.getString("floxed_transcript_translation");
-                //      log.info("#### 1: floxed_transcript_translation: " + floxed_transcript_translation);
                 o.put("floxed_transcript_translation", floxed_transcript_translation.trim());
-                //      log.info("#### 2: floxed_transcript_translation: " + floxed_transcript_translation);
             }
             if (o.has("exons")) {
                 JSONArray exons = o.getJSONArray("exons");
@@ -457,31 +352,31 @@ public class AllelesController {
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
 
-        if (allele_name.equals("mutagenesis_url")) {
-            model.addAttribute("message", "Mutagenesis not yet implemented!");
+//        if (allele_name.equals("mutagenesis_url")) {
+//            model.addAttribute("message", "Mutagenesis not yet implemented!");
+//
+//            JSONArray mutagenesis = getMutagenesisDetails(acc, allele_name, null);
+//            Map<String, Integer> stats = getMutagenesisStats(mutagenesis);
+//            String blurb = getMutagenesisBlurb(stats, null);
+//
+//            model.addAttribute("mutagenesis", mutagenesis);
+//            model.addAttribute("mutagenesis_stats", stats);
+//            model.addAttribute("mutagenesis_blurb", blurb);
+//
+//            log.info("#### mutagenesis: " + mutagenesis);
+//
+//            return "mutagenesis";
+//        }
 
-            JSONArray mutagenesis = getMutagenesisDetails(acc, allele_name, null);
-            Map<String, Integer> stats = getMutagenesisStats(mutagenesis);
-            String blurb = getMutagenesisBlurb(stats, null);
-
-            model.addAttribute("mutagenesis", mutagenesis);
-            model.addAttribute("mutagenesis_stats", stats);
-            model.addAttribute("mutagenesis_blurb", blurb);
-
-            log.info("#### mutagenesis: " + mutagenesis);
-
-            return "mutagenesis";
-        }
-
-        if (allele_name.equals("lrpcr_genotyping_primers")) {
-            log.info("#### alleles2: lrpcr_genotyping_primers");
-
-            JSONObject object = getPcrDetails(acc, allele_name, false, null);
-
-            model.addAttribute("lrpcr", object);
-
-            return "alleles_list";
-        }
+//        if (allele_name.equals("lrpcr_genotyping_primers")) {
+//            log.info("#### alleles2: lrpcr_genotyping_primers");
+//
+//            JSONObject object = getPcrDetails(false, null);
+//
+//            model.addAttribute("lrpcr", object);
+//
+//            return "alleles_list";
+//        }
 
         return allelesCommon(acc, allele_name, model, request, attributes, false);
     }
@@ -520,7 +415,13 @@ public class AllelesController {
         model.addAttribute("targeting_vectors", constructs.get("targeting_vectors"));
         model.addAttribute("summary", constructs.get("summary"));
 
+        model.addAttribute("title", constructs.get("title"));
+
+        log.info("#### mice: " + constructs.get("mice"));
+        log.info("#### es_cells: " + constructs.get("es_cells"));
+        log.info("#### targeting_vectors: " + constructs.get("targeting_vectors"));
         log.info("#### summary: " + constructs.get("summary"));
+        log.info("#### title: " + constructs.get("title"));
 
         return "alleles";
     }
@@ -576,18 +477,19 @@ public class AllelesController {
         model.addAttribute("mutagenesis_examples", list);
         return "mutagenesis";
     }
-
+    
     private JSONObject getPcrDetails(
-            String acc,
-            String allele_name,
             boolean isMirko,
-            String projectId) throws MalformedURLException, IOException, URISyntaxException {
+            String id) throws MalformedURLException, IOException, URISyntaxException {
 
-        // TODO: fix me!
-        String url = "http://www.sanger.ac.uk/htgt/htgt2/tools/genotypingprimers/35505";
+        if (id == null) {
+            return null;
+        }
 
-        if (projectId != null) {
-            url = "http://www.sanger.ac.uk/htgt/htgt2/tools/genotypingprimers/" + projectId;
+        String url = "http://www.sanger.ac.uk/htgt/htgt2/tools/genotypingprimers/" + id;
+        
+        if(isMirko) {
+            url = "http://www.sanger.ac.uk/htgt/htgt2/tools/genotypingprimers/mirko_primers/" + id;
         }
 
         HttpProxy proxy = new HttpProxy();
@@ -614,111 +516,37 @@ public class AllelesController {
         return jsonObject;
     }
 
-    //@RequestMapping("/lrpcr_genotyping_primers/{projectId}")
-    @RequestMapping("/lrpcr_genotyping_primers")
-    public String lrpcr_genotyping_primers(
-            //  @PathVariable String projectId,
-            Model model,
-            HttpServletRequest request,
-            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
-
-        log.info("#### lrpcr_genotyping_primers");
-
-        JSONObject object = getPcrDetails(null, null, false, null);
-
-        model.addAttribute("lrpcr", object);
-
-        return "lrpcr_genotyping_primers";
-    }
-
-    @RequestMapping("/lrpcr_genotyping_primers/{projectId}")
-    public String lrpcr_genotyping_primers_project(
-            @PathVariable String projectId,
-            Model model,
-            HttpServletRequest request,
-            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
-
-        log.info("#### lrpcr_genotyping_primers_project");
-
-        JSONObject object = getPcrDetails(null, null, false, projectId);
-
-        model.addAttribute("lrpcr", object);
-
-        return "lrpcr_genotyping_primers";
-    }
-
-//    @RequestMapping("/mutagenesis/{acc}/{allele_name}")
-//    public String mutagenesis_project_type(
-//            @PathVariable String acc,
-//            @PathVariable String allele_name,
+//    @xRequestMapping("/lrpcr_genotyping_primers")
+//    public String lrpcr_genotyping_primers(
 //            Model model,
 //            HttpServletRequest request,
 //            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
 //
-//        log.info("#### mutagenesis_project_type");
-//        
-//        Map<String, Object> products = solrIndex2.getGeneProductInfo(acc, allele_name, false);
+//        log.info("#### lrpcr_genotyping_primers");
 //
-//        if (products == null) {
-//            return "mutagenesis";
-//        }
+//        JSONObject object = getPcrDetails(false, null);
 //
-//        model.addAttribute("mice", products.get("mice"));
-//        model.addAttribute("es_cells", products.get("es_cells"));
-//        model.addAttribute("targeting_vectors", products.get("targeting_vectors"));
-//        model.addAttribute("summary", products.get("summary"));
-//        
-//        HashMap<String, Object> summary = (HashMap<String, Object>)products.get("summary");
-//        
-//        String projectId = null;
-//        if(summary != null) {
-//            String key = summary.get("marker_symbol").toString() + summary.get("allele_name").toString();
-//             if(symbolMap.containsKey(key)) {
-//                 projectId = symbolMap.get(key);
-//             }
-//        }       
-//        
-//        JSONArray mutagenesis = getMutagenesisDetails(null, null, projectId);
-//        Map<String, Integer> stats = getMutagenesisStats(mutagenesis);
-//        String blurb = getMutagenesisBlurb(stats, (HashMap<String, Object>)products.get("summary"));
+//        model.addAttribute("lrpcr", object);
 //
-//        model.addAttribute("mutagenesis", mutagenesis);
-//        model.addAttribute("mutagenesis_stats", stats);
-//        model.addAttribute("mutagenesis_blurb", blurb);
-//        
-//        if(summary != null && projectId != null) {
-//            model.addAttribute("mutagenesis_title", summary.get("symbol") + " Mutagenesis");
-//        }
-//        else {
-//            model.addAttribute("mutagenesis_title", "Mutagenesis  (default)");
-//        }
-//
-//        log.info("#### mutagenesis: " + mutagenesis);
-//
-//        return "mutagenesis";
+//        return "lrpcr_genotyping_primers";
 //    }
-//     private static final Map<String, String> symbolMap;
-//    static {
-//        Map<String, String> map = new HashMap<>();
-//        map.put("Zfp111tm1a(KOMP)Wtsi", "79288");
-//        map.put("Zfp111tm1b(KOMP)Wtsi", "79288");
-//        map.put("Zfp111tm1e(KOMP)Wtsi", "79288");
-//        map.put("Foxj3tm1a(EUCOMM)Wtsi", "77075");
-//        map.put("Art4tm1a(KOMP)Wtsi", "39216");
-//        map.put("Cib2tm1b(EUCOMM)Wtsi", "41713");
-//        map.put("Cib2tm1a(EUCOMM)Wtsi", "41713");
-//        map.put("Cib2tm1(KOMP)Vlcg", "VG15151");
-//        map.put("Heyltm1b(KOMP)Wtsi", "24190");
-//        map.put("Heyltm1a(KOMP)Wtsi", "24190");
-//        map.put("Nxnl1tm1a(KOMP)Wtsi", "66532");
-//        map.put("Nxnl1tm2a(EUCOMM)Wtsi", "118731");
-//        map.put("Morn1tm1a(EUCOMM)Wtsi", "82621");
-//        map.put("Cbx1tm1a(EUCOMM)Wtsi", "35505");
-//        map.put("Cbx1tm1(KOMP)Vlcg", "VG19239");
-//        map.put("Arhgef6tm2e(EUCOMM)Wtsi", "36825");
-//        map.put("Arhgef6tm2a(EUCOMM)Wtsi", "36825");
-//        symbolMap = Collections.unmodifiableMap(map);
-//    }        
+
+//    @xRequestMapping("/lrpcr_genotyping_primers/{projectId}")
+//    public String lrpcr_genotyping_primers_project(
+//            @PathVariable String projectId,
+//            Model model,
+//            HttpServletRequest request,
+//            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+//
+//        log.info("#### lrpcr_genotyping_primers_project");
+//
+//        JSONObject object = getPcrDetails(false, projectId);
+//
+//        model.addAttribute("lrpcr", object);
+//
+//        return "lrpcr_genotyping_primers";
+//    }
+
     @RequestMapping("/lrpcr/{acc}/{allele_name}")
     public String lrpcr_acc_allele(
             @PathVariable String acc,
@@ -741,82 +569,30 @@ public class AllelesController {
         model.addAttribute("summary", products.get("summary"));
 
         HashMap<String, Object> summary = (HashMap<String, Object>) products.get("summary");
+        
+        boolean isMirko = solrIndex2.isMirko(acc, allele_name);
+        
+        String id = null;
+        
+        if(isMirko) {
+            id = solrIndex2.getDesign(acc, allele_name);
+        }
+        else {
+            id = solrIndex2.getProject(acc, allele_name);
+        }
+        
+        //String projectId = solrIndex2.getProject(acc, allele_name);
 
-        String projectId = getProjectId(summary.get("symbol").toString());
-
-        JSONObject object = getPcrDetails(null, null, false, projectId);
+        JSONObject object = getPcrDetails(isMirko, id);
         model.addAttribute("lrpcr", object);
 
-        if (projectId != null) {
+        if (id != null) {
             model.addAttribute("lrpcr_title", summary.get("symbol") + " LRPCR Genotyping Primers");
         } else {
-            model.addAttribute("lrpcr_title", "LRPCR Genotyping Primers (default)");
+            model.addAttribute("lrpcr_title", "LRPCR Genotyping Primers not available");
         }
 
         return "lrpcr_genotyping_primers";
-    }
-
-//    public String lrpcr_acc_allele_1(
-//            @PathVariable String acc,
-//            @PathVariable String allele_name,
-//            Model model,
-//            HttpServletRequest request,
-//            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
-//
-//        log.info("#### lrpcr_acc_allele");
-//
-////        JSONArray mutagenesis = getMutagenesisDetails(null, null, null);
-////        Map<String, Integer> stats = getMutagenesisStats(mutagenesis);     
-//                
-//        Map<String, Object> products = solrIndex2.getGeneProductInfo(acc, allele_name, false);
-//
-//        if (products == null) {
-//            return "lrpcr_genotyping_primers";
-//        }
-//
-//        model.addAttribute("mice", products.get("mice"));
-//        model.addAttribute("es_cells", products.get("es_cells"));
-//        model.addAttribute("targeting_vectors", products.get("targeting_vectors"));
-//        model.addAttribute("summary", products.get("summary"));
-//        
-////        //String type = "tm1b";
-////        String blurb = getMutagenesisBlurb(stats, (HashMap<String, Object>)products.get("summary"));
-////
-////        model.addAttribute("mutagenesis", mutagenesis);
-////        model.addAttribute("mutagenesis_stats", stats);
-////        model.addAttribute("mutagenesis_blurb", blurb);
-//        
-//        HashMap<String, Object> summary = (HashMap<String, Object>)products.get("summary");
-//
-//        String projectId = null;
-//        if(summary != null) {
-//            String key = summary.get("marker_symbol").toString() + summary.get("allele_name").toString();
-//             if(symbolMap.containsKey(key)) {
-//                 projectId = symbolMap.get(key);
-//             }
-//         }
-//
-//        JSONObject object = getPcrDetails(null, null, false, projectId);
-//        model.addAttribute("lrpcr", object);
-//        
-//        if(summary != null && projectId != null) {
-//            model.addAttribute("lrpcr_title", summary.get("symbol") + " LRPCR Genotyping Primers");
-//        }
-//        else {
-//        //    List<Map<String, String>> results = solrIndex2.getGeneAlleleInfo(summary.get("symbol").toString());
-//            model.addAttribute("lrpcr_title", "LRPCR Genotyping Primers (default)");
-//        }
-//
-//        return "lrpcr_genotyping_primers";
-//    }
-    private String getProjectId(String alleleName) throws IOException, URISyntaxException {
-        String projectId = null;
-        String geneAlleleProject = solrIndex2.getGeneAlleleProject(alleleName);
-
-        if (geneAlleleProject != null) {
-            projectId = geneAlleleProject;
-        }
-        return projectId;
     }
 
     @RequestMapping("/mutagenesis/{acc}/{allele_name}")
@@ -842,7 +618,7 @@ public class AllelesController {
 
         HashMap<String, Object> summary = (HashMap<String, Object>) products.get("summary");
 
-        String projectId = getProjectId(summary.get("symbol").toString());
+        String projectId = solrIndex2.getProject(acc, allele_name);
 
         JSONArray mutagenesis = getMutagenesisDetails(null, null, projectId);
         Map<String, Integer> stats = getMutagenesisStats(mutagenesis);
@@ -853,13 +629,23 @@ public class AllelesController {
         model.addAttribute("mutagenesis_blurb", blurb); // TODO: rename me
 
         if (projectId != null) {
-            model.addAttribute("mutagenesis_title", summary.get("symbol") + " Mutagenesis");
+            model.addAttribute("mutagenesis_title", summary.get("symbol") + " Mutagenesis Prediction");
         } else {
-            model.addAttribute("mutagenesis_title", "Mutagenesis  (default)");
+            model.addAttribute("mutagenesis_title", "Mutagenesis Prediction not available");
         }
 
         log.info("#### mutagenesis: " + mutagenesis);
 
         return "mutagenesis";
     }
+    
+//    private String getProjectId(String acc, String alleleName) throws IOException, URISyntaxException {
+//        String projectId = solrIndex2.getProject(acc, alleleName);
+//
+////        if (projectId == null) {
+////            return null;
+////        }
+//        
+//        return projectId;
+//    }
 }

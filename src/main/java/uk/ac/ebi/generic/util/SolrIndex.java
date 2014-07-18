@@ -858,7 +858,11 @@ public class SolrIndex {
                         String orderHtml = "";
                         String vectorProjectIds = "";
                         String vectorProjectHtml = "";
+                        String mgi_accession_id = "";
                                 
+			if (docs.getJSONObject(i).has("mgi_accession_id")) {
+                                mgi_accession_id = docs.getJSONObject(i).getString("mgi_accession_id");
+			}
 			if (docs.getJSONObject(i).has("marker_symbol")) {
                                 markerSymbol = docs.getJSONObject(i).getString("marker_symbol");
 			}
@@ -916,9 +920,9 @@ public class SolrIndex {
                                 for (int k = 0; k < vectorProjectsArray.size() ; k++){
                                         vectorProjectHtml += "<a href=http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/" + vectorProjectsArray.getString(k) + ">" + vectorProjectsArray.getString(k) + "</a> ";
                                 }
-			} 
+			}                         
                         
-                        
+                        construct.put("mgi_accession_id", mgi_accession_id);
                         construct.put("markerSymbol", markerSymbol);
                         construct.put("product", product);
                         construct.put("alleleType", alleleType);
