@@ -40,19 +40,8 @@
 	    
 		_initFacet: function(){
 	    	var self = this;
-	    	 	
-	    	/*var queryParams = $.extend({}, { 
-				'rows': 0,
-				'facet': 'on',								
-				'facet.mincount': 1,
-				'facet.limit': -1,							
-				'facet.sort': 'count',					
-	    		'q': self.options.data.hashParams.q},
-	    		MPI2.searchAndFacetConfig.commonSolrParams,
-	    		MPI2.searchAndFacetConfig.facetParams.geneFacet.filterParams
-	    	);    	   	
-	    	*/
 	    
+	    	//console.log('current fq: '+MPI2.searchAndFacetConfig.currentFq);
 	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
 	    			: self.options.data.hashParams.fq;
 	    	
@@ -87,6 +76,7 @@
 				  + '&facet.field=latest_phenotyping_centre';
 	    	
 	    	//console.log('GENE: '+ queryParamStr);
+	    	
 	    	$.ajax({ 				 					
 	    		'url': solrUrl + '/gene/select',	    		
 	    		'data': queryParamStr, 
@@ -302,6 +292,7 @@
 				});	 
 	    		
 	    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
+	    			alert('gene kw search');
 	    			$.fn.process_kwSearch(self);
 	    		}	
 	    		

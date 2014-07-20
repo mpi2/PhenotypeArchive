@@ -43,17 +43,24 @@
 		if ( typeof q == 'undefined' ){
 			// check search kw						
 			if ( window.location.search != '' ){				
-				q = window.location.search.replace(/&.+/, '').replace('?q=','');				
+				q = $.fn.fetchQueryStr();				
 				q = q.replace(/\+/g, ' ');				
-				$('input#s').val(decodeURI(q));				
+				//$('input#s').val(decodeURI(q));	
+				
 			}
 			else {
 				q = '*:*';
 			}
 		}
 						
-		q = decodeURI(q);	
+		q = decodeURI(q);
+		if ( q != '*:*' ){
+			$('input#s').val(q);
+		}
 		
+		// set this depending on query
+		q = $.fn.setSolrComplexPhraseQuery(q); 
+
 		var facetMode = oUrlHashParams.facetName;
 				
 		var oFacets = {};
@@ -68,13 +75,10 @@
 			}
 		}
 		
-		/*if ( typeof oUrlHashParams.fq != 'undefined' && typeof oUrlHashParams.coreName == 'undefined' ){
-			jsonBase.geneFacet.filterParams = {'fq': oUrlHashParams.fq};
-		}*/
-		
 		jsonBase.geneFacet.srchParams.q = q;
 		//console.log($.extend({}, jsonBase.geneFacet.srchParams, jsonBase.geneFacet.filterParams)); 
-	 	// facet types are done sequencially; starting from gene		
+	 	
+		// facet types are done sequencially; starting from gene		
 	    $.ajax({            	    
 	    		url: solrUrl + '/gene/select',	    		
 	       	   // data: $.extend({}, jsonBase.geneFacet.srchParams, oUrlHashParams.fq ? jsonBase.geneFacet.filterParams = {'fq': oUrlHashParams.fq} : jsonBase.geneFacet.filterParams),
@@ -104,7 +108,6 @@
 		}
 		
 		var oParams = {};		
-        oParams = $.fn.getSolrRelevanceParams('mp', q, oParams);				
 		//console.log($.extend({}, jsonBase.mpFacet.srchParams, jsonBase.mpFacet.filterParams, oParams));		
 		
 		$.ajax({
@@ -232,24 +235,7 @@
     	    	 * ie, fetch facet full result for that facet and display only facet count for the rest of the facets 
     	    	 * Other facet results will be fetched on demand */
     	    	
-    	    	//var hashParams = $.fn.parseHashString(window.location.hash.substring(1));   
-    	    	//console.log(hashParams);	  
-    
     	    	var coreName, facetName;
-    	    	
-    	    	/*if ( hashParams.coreName ){
-    	    		coreName = hashParams.coreName;
-    	    	}
-    	    	else if (hashParams.facetName ){
-    	    		facetName = hashParams.facetName;    	    		
-    	    	}
-    	    	else if ( facetMode ){    	    		
-    	    		facetName = facetMode;    	    		
-    	    	}
-    	    	else {
-    	    		coreName = _setSearchMode(oFacets.count);
-    	    	} */   
-    	    	
     	    	if ( oUrlHashParams.coreName ){
     	    		coreName = oUrlHashParams.coreName;
     	    	}
@@ -277,17 +263,14 @@
     	        	
     	        	//var widgetName = coreName+'Facet'; 
     	        	var widgetName = thisCore+'Facet';    
-    	        	/*hashParams.fq = hashParams.fq ? hashParams.fq : jsonBase[widgetName].fq;    	        	    	        	
-    	        	hashParams.widgetName = widgetName;
-    	        	hashParams.q = q;
-    	        	hashParams.noFq = oUrlHashParams.noFq;
-    	        	*/
+    	        	
     	        	oUrlHashParams.fq = oUrlHashParams.fq ? oUrlHashParams.fq : jsonBase[widgetName].fq; 
     	        	oUrlHashParams.oriFq = oUrlHashParams.oriFq ? oUrlHashParams.oriFq : jsonBase[widgetName].fq; 
     	        	oUrlHashParams.widgetName = widgetName;
     	        	oUrlHashParams.q = q;
     	        	//hashParams.noFq = oUrlHashParams.noFq;
-    	        	
+    	      
+    	        	//console.log(oUrlHashParams);
     	        	window.jQuery('li#' + thisCore)[widgetName]({
     					data: {	   							 
     							core: coreName,    							

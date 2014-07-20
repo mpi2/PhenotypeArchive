@@ -228,7 +228,7 @@ public class SolrIndex {
 	 *            represents a gene with imits status fields
 	 * @return the latest status at the gene level for both ES cells and alleles
 	 */
-	public String deriveLatestProductionStatusForEsCellAndMice(JSONObject doc, HttpServletRequest request, boolean toExport){		
+	public String deriveLatestProductionStatusForEsCellAndMice(JSONObject doc, HttpServletRequest request, boolean toExport, String geneLink){		
 		
 		String esCellStatus = fetchEsCellStatus(doc, request, toExport);		
 		String miceStatus = "";		
@@ -260,7 +260,7 @@ public class SolrIndex {
 				}
 				
 				if ( sh.containsKey("Mice Produced") ){
-					miceStatus = "<a class='status done' oldtitle='Mice Produced' title=''>"
+					miceStatus = "<a class='status done' oldtitle='Mice Produced' title='' href='" + geneLink + "#order'>"
 							   +  "<span>Mice</span>"
 							   +  "</a>";
 						

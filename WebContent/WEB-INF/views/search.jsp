@@ -46,7 +46,8 @@
 							<li class="has-sub pipeline"><span class='fcap'>Pipeline</span></li>
 							<li class="has-sub images"><span class='fcap'>Images</span></li>					
 						</ul>
-						<div id="resetFilter"><a href="${baseUrl}/search">Remove all facet filters</a></div>
+					
+						<div id="resetFilter"><span id='rmFilters'>Remove all facet filters</span></div>
 					</div>
 										
 					<p class='documentation title textright'>
@@ -109,7 +110,7 @@
 					</div>
 					
 					<div class="textright">
-						<a id = 'searchExample' class="">View example search</a>						
+						<a id="searchExample" class="">View example search</a>						
 					</div>	
 					
 					<div class="clear"></div>
@@ -129,12 +130,102 @@
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/diseaseFacetWidget.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js'></script> 
-			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacet_primer.js?v=${version}'></script>		
 	    </compress:html>        
        
          <script>        		
        	$(document).ready(function(){
-       	
+       		'use strict';	
+       		//console.log('reload');
+       		// back button will not see this js
+       		MPI2.searchAndFacetConfig.update.pageReload = true;
+       		
+       		//console.log('reload');
+       		$('span.facetCount').text(''); // default when page loads
+       		$('input#s').val('');  // clears input when pages loads
+       			
+       		// default search when search page loads
+       		if ( /search\/?$/.exec(location.href) ){
+       			//console.log('default search load')
+       			// do default gene search by * when search page loads	
+       			// handed over to no hash change code below
+       		} 
+       		else if ( window.location.search == '?q=' ){
+       			// catches user hitting ENTER on search input box of homepage
+       			document.location.href = baseUrl + '/search';		
+       		}
+       		else if ( location.href.indexOf('/search?q=') != -1 
+       				|| location.href.indexOf('/search#q=*:*') != -1 
+       				|| location.href.indexOf('/search#q=*') != -1 
+       				|| location.href.indexOf('/search#fq=') != -1 ){   	
+       			
+       			// load page based on url hash parameters	
+       			$('input#s').val(decodeURI($.fn.fetchQueryStr()));
+       			
+       			oHashParams = $.fn.parseHashString(window.location.hash.substring(1));	
+       			if (typeof oHashParams.fq == 'undefined'){
+       				oHashParams.noFq = true;
+       			}
+       			//console.log(oHashParams);
+       			
+       			$.fn.fetchSolrFacetCount(oHashParams);	
+       		}
+       		else {
+       			// do not understand the url, redirect to error page
+       			document.location.href = baseUrl + '/404.jsp';		
+       		}
+       		
+       		// search via ENTER
+       		$('input#s').keyup(function (e) {		
+       		    if (e.keyCode == 13) { // user hits enter
+       		    	//alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
+       		    	var input = $('input#s').val().trim();
+       		    
+       		    	MPI2.searchAndFacetConfig.update.kwSearch = true;
+       		    	
+       		    	if (input == ''){
+       		    		
+       		    		// if there is no existing facet filter, reload with q
+       		    		if ( $('ul#facetFilter li.ftag').size() == 0 ){
+       		    			//baseUrl + '/search?q=' + input;
+       		    			document.location.href = baseUrl + '/search';
+       		    		}
+       		    		else {
+       		    			window.location.search = "q=*:*";
+       		    		}
+       		    	}
+       		    	else if (! MPI2.searchAndFacetConfig.matchedFacet){
+       		    		// user hits enter before autosuggest pops up	
+       		    		// ie, facet info is unknown
+       		    		//alert('enter-2');
+       		    		//document.location.href = baseUrl + '/search?q=' + input;
+       		    		window.location.search = 'q=' + input;
+       		    		
+       		    		// if there is no existing facet filter, reload with q
+       		    		if ( $('ul#facetFilter li.ftag').size() == 0 ){
+       		    			baseUrl + '/search?q=' + input;
+       		    		}
+       		    		// handed over to hash change code
+       		    	}
+       		    	else {	
+       		    		//alert('enter-3');
+       		    		window.location.search = 'q=' + input;
+       		    		window.location.hash = 'facet=' + MPI2.searchAndFacetConfig.matchedFacet;
+       		    	}
+       		    }
+       		});
+
+       		$('span#rmFilters').click(function(){
+       			if ( window.location.search != '' ){
+       				// need to include search keyword in query when all filters are removed 
+       				$('ul#facetFilter li.ftag a').each(function(){
+    					$(this).click();
+    				});	 
+       			}
+       			else {
+       				document.location.href = baseUrl + '/search';
+       			}
+       		});
+       		
        		$('a#searchExample').mouseover(function(){
        			return false;
        		})
@@ -142,11 +233,6 @@
        		// autosuggest 
        		$(function() {
 	       		$( "input#s" ).autocomplete({
-	       		/*  highlight: function(match, keywords) {
-	       	        keywords = keywords.split(' ').join('|');
-	       	        return match.replace(new RegExp("("+keywords+")", "gi"),'<b>$1</b>');
-	       	    }	,
-	       		 */
 	       			source: function( request, response ) {
 		       			$.ajax({
 			       			url: "${solrUrl}/autosuggest/select?wt=json&qf=auto_suggest&defType=edismax",				       			
@@ -159,11 +245,10 @@
 
 			       				MPI2.searchAndFacetConfig.matchedFacet = false; // reset
 			       				var docs = data.response.docs;	
-			       				//console.log(docs);
 			       				var aKV = [];
 			       				for ( var i=0; i<docs.length; i++ ){
 			       					
-			       					for ( key in docs[i] ){
+			       					for ( var key in docs[i] ){
 			       						
 			       						var facet;
 			       						if ( key == 'docType' ){	
@@ -174,7 +259,17 @@
 			       							var termHl = term;
 			       							
 			       							// highlight multiple matches (partial matches) while users typing in search keyword(s)
-			       							var termStr = $('input#s').val().trim(' ').split(' ').join('|');
+			       							
+			       							/* --- deals with wildcard in query --- */
+			       							
+			       							// this won't work
+			       							//var termStr = $.ui.autocomplete.escapeRegex($('input#s').val().trim(' ').split(' ').join('|'));
+			       							
+			       							// this works: let jquery autocomplet UI handles the wildcard
+			       							var termStr = $('input#s').val().trim(' ').split(' ').join('|').replace(/\*/g, ''); 
+			       							
+			       							/* --- endl of deals with wildcard in query --- */
+			       							
 			       							var re = new RegExp("(" + termStr + ")", "gi") ;
 			       							var termHl = termHl.replace(re,"<b class='sugTerm'>$1</b>");
 			       							aKV.push("<span class='" + facet + "'>" + "<span class='dtype'>"+ facet + ' : </span>' + termHl + "</span>");
@@ -229,15 +324,16 @@
        		});
        		
        	 	
-       		// make "search" menu point active
+       		// make "search" menu point active (highlighted)
        		$('nav#mn ul.menu > li:first-child').addClass('active');
        		       		
        		<c:if test="${isLoggedIn}">       			
        			MPI2.searchAndFacetConfig.isLoggedIn = true;
        		</c:if>;
        		
-   			$.fn.qTip({'pageName':'search'		 					
-   			});  			 						
+   			$.fn.qTip(
+   				{'pageName':'search'}		 					
+   			);  			 						
    			
    			// non hash tag keyword query
    			<c:if test="${not empty q}">				
@@ -251,116 +347,101 @@
    			$(window).bind("hashchange", function() {
    				
    				MPI2.searchAndFacetConfig.update.hashChange = true;
-   				//console.log('hash change');
+   				//var url = $.param.fragment();	 // not working with jQuery 10.0.1
+   				var url = $(location).attr('hash');		
    				
-   				if ( !MPI2.searchAndFacetConfig.update.dataTableLoading ){
+   				//console.log('hash change URL: '+ '/search' + url);
+   				var oHashParams = _process_hash();
    				
-	   				//var url = $.param.fragment();	 // not working with jQuery 10.0.1
-	   				var url = $(location).attr('hash');		
-	   				//MPI2.searchAndFacetConfig.update.dataTableLoaded = false;
-	   				//console.log('hash change URL: '+ '/search' + url);
-	   				
-	   				if ( /search\/?$/.exec(location.href) ){
-	   					// reload page
-	   					window.location.reload();
-	   				}
-	   				
-	   				var oHashParams = _process_hash();
-	   				
-	   				//console.log(oHashParams)
-	   				
-	   				
-	   				/* deals with 3 events here:
-	   				 	1. widget facet open
-	   					2. back button
-	   					3. added/removed filter   				
-	   					*/
-	   				if ( MPI2.searchAndFacetConfig.update.filterChange ){
-	    				//console.log('added or removed a filter');
-	    				MPI2.searchAndFacetConfig.update.filterChange = false;
-	    				
-	    				// MA,MP facet stays open when adding/removing filters
-	    				$('li#mp.fmcat, li#ma.fmcat').each(function(){
-	    				//$('li.fmcat').each(function(){	
-	    				
-	    					if (oHashParams.facetName == $(this).attr('id')) {
-	    						$(this).addClass('open');
-	    						MPI2.searchAndFacetConfig.update.filterChange = false;
-	    					}
-	    					
-	    				});
-	    				//console.log('0. widget open: '+MPI2.searchAndFacetConfig.update.widgetOpen);
-	    				$.fn.loadDataTable(oHashParams);
-	    				
-	    			}
-	   				
-	    			else if ( MPI2.searchAndFacetConfig.update.widgetOpen ){
-	   					//console.log('1. widget facet open');
-	   					MPI2.searchAndFacetConfig.update.widgetOpen = false; // reset
-	   					
-	   					
-	    				// search by keyword (user's input) has no fq in url when hash change is detected
-	    				if ( oHashParams.fq ){			
-	    					
-	    					if ( oHashParams.coreName ){	    						
-	    						oHashParams.coreName += 'Facet'; 					
-	    					}
-	    					else {						
-	    						// parse summary facet filters 
-	    						var facet = oHashParams.facetName;
-	    						var aFilters = [];
-	    						//$('ul#facetFilter li.' + facet + ' li a').each(function(){
-	    						$('ul#facetFilter li.ftag a').each(function(){							
-	    							aFilters.push($(this).text());
-	    						});														
-	    						
-	    						//console.log(oHashParams);		//console.log('filter: ' + aFilters );
-	    						oHashParams.filters = aFilters;
-	    						//oHashParams.facetName = facet + 'Facet';
-	    						oHashParams.facetName = facet;	    						
-	    					}
-	    					
-	    					$.fn.loadDataTable(oHashParams);
-	    					//console.log('2. widget open: '+MPI2.searchAndFacetConfig.update.widgetOpen);
-	    				}
-	   				} 
-					else if ( !MPI2.searchAndFacetConfig.update.pageReload ){
-	    				//console.log('back button event');
-	    				rebuildFilters(oHashParams); 
-					}
-					else if ( MPI2.searchAndFacetConfig.update.pageReload ){
-	    				//console.log('page reload!!!');
-					}	
-   				}
+   				//console.log(oHashParams)
+   				
+   				/* deals with 3 events here:
+   				 	1. widget facet open
+   					2. back button
+   					3. added/removed filter   				
+   					*/
+   				if ( MPI2.searchAndFacetConfig.update.filterChange ){
+    				//console.log('added or removed a filter');
+    				MPI2.searchAndFacetConfig.update.filterChange = false;
+    				
+    				// MA,MP facet stays open when adding/removing filters
+    				$('li#mp.fmcat, li#ma.fmcat').each(function(){
+    				
+    					if (oHashParams.facetName == $(this).attr('id')) {
+    						$(this).addClass('open');
+    						MPI2.searchAndFacetConfig.update.filterChange = false;
+    					}
+    				});
+    				
+    				$.fn.loadDataTable(oHashParams);
+    			}
+   				
+    			else if ( MPI2.searchAndFacetConfig.update.widgetOpen ){
+   					//console.log('1. widget facet open');
+   					MPI2.searchAndFacetConfig.update.widgetOpen = false; // reset
+   					
+    				// search by keyword (user's input) has no fq in url when hash change is detected
+    				if ( oHashParams.fq ){			
+    					
+    					if ( oHashParams.coreName ){	    						
+    						oHashParams.coreName += 'Facet'; 					
+    					}
+    					else {						
+    						// parse summary facet filters 
+    						var facet = oHashParams.facetName;
+    						var aFilters = [];
+    						$('ul#facetFilter li.ftag a').each(function(){							
+    							aFilters.push($(this).text());
+    						});														
+    						
+    						//console.log(oHashParams);		
+    						//oHashParams.filters = aFilters;
+
+    						oHashParams.facetName = facet;	    						
+    					}
+    					
+    					$.fn.loadDataTable(oHashParams);
+    				}
+   				} 
+				else if ( !MPI2.searchAndFacetConfig.update.pageReload ){
+    				//console.log('back button event');
+    				if ( /search\/?$/.test(window.location.href) ){
+        				// when the url become ..../search
+    					document.location.href = baseUrl + '/search';
+        			}
+    				else {
+    					rebuildFilters(oHashParams); 
+    				}
+				}
+				else if ( MPI2.searchAndFacetConfig.update.pageReload ){
+    				console.log('page reload!!!');
+				}	
    			});		
-	    						
     		if ( ! MPI2.searchAndFacetConfig.update.hashChange ){
     			//console.log('page reload: no hash change detected')
 
     			var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
     			//console.log(oHashParams);
+    			
     			if ( window.location.search != '' ){
     				// qrey value of q
-    				oHashParams.q = window.location.search.replace('?q=','');
+    				oHashParams.q = $.fn.fetchQueryStr();
     			}
     			
-    			if ( $.isEmptyObject(oHashParams || typeof oHashParams.coreName != 'undefined' ) ){
+    			//if ( $.isEmptyObject(oHashParams || typeof oHashParams.coreName != 'undefined' ) ){
+    			if ( $.isEmptyObject(oHashParams) ){
     				//console.log('case core');	
-    				// ignore search page default load: /search or /search?
-    						
+    				// search page default load: /search or /search?
+    				$.fn.fetchSolrFacetCount(oHashParams);		
     			}
     			else {
-    				//console.log('rebuild here')
+    				console.log('rebuild here')
     				rebuildFilters(oHashParams);    			
     			}
     		}
     		
-    		function rebuildFilters(oHashParams){
-    		
-    			MPI2.searchAndFacetConfig.update.resetSummaryFacet = true; 
-				MPI2.searchAndFacetConfig.update.filterAdded = false;
-
-				$('ul#facetFilter li.ftag').each(function(){
+    		function removeAllFilters(){
+    			 $('ul#facetFilter li.ftag').each(function(){
 					$(this).parent().remove();
 					
 				});	 
@@ -370,9 +451,17 @@
 				// uncheck all filter checkbox
 				$('div.flist li.fcat input:checked:enabled').each(function(){
 					$(this).prop('checked', false).siblings('span.flabel').removeClass('highlight');
-				});
+				});	 
 				
-				//console.log('matched facet: '+ MPI2.searchAndFacetConfig.matchedFacet);
+    		}
+    		
+    		function rebuildFilters(oHashParams){
+    		
+    			MPI2.searchAndFacetConfig.update.resetSummaryFacet = true; 
+				MPI2.searchAndFacetConfig.update.filterAdded = false;
+
+				removeAllFilters();
+				
 				oHashParams.q = typeof oHashParams.q == 'undefined' ? '*:*' : oHashParams.q;
 		    	oHashParams.noFq = typeof oHashParams.fq == 'undefined' ? true : false;
 		    	
@@ -383,23 +472,27 @@
 		    		oHashParams.widgetName = oHashParams.facetName + 'Facet';
 		    	}
 		    	
-		    	oHashParams.fq = typeof oHashParams.fq == 'undefined' ? 
-		    			MPI2.searchAndFacetConfig.facetParams[oHashParams.widgetName].fq :
-		    				oHashParams.fq;
-		    			
-		    	oHashParams.oriFq = oHashParams.fq; 
-		    	
-				//console.log(oHashParams);
-				$.fn.parseUrl_constructFilters_loadDataTable(oHashParams);
+		    	if ( typeof oHashParams.widgetName == 'undefined'){
+		    		$.fn.fetchSolrFacetCount(oHashParams);					
+				}
+				else {
+			    	oHashParams.fq = typeof oHashParams.fq == 'undefined' ? 
+			    			MPI2.searchAndFacetConfig.facetParams[oHashParams.widgetName].fq :
+			    				oHashParams.fq;
+			    			
+			    	oHashParams.oriFq = oHashParams.fq; 
+			    	
+					//console.log(oHashParams);
+				
+					$.fn.parseUrl_constructFilters_loadDataTable(oHashParams);
+				}	
     		}
     		
     		function _process_hash(){
-    			//console.log(window.location);
-    			//console.log(typeof window.location.hash);
     			var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
     			//console.log(oHashParams);
     			
-    			if ( window.location.search != '' && typeof window.location.hash == '' ){
+    			if ( window.location.search != '' && window.location.hash == '' ){
     				// has q only, no hash string
     				//console.log('has q')
     			}
@@ -410,8 +503,6 @@
     				oHashParams.widgetName = oHashParams.coreName + 'Facet';
     			}
     			else {
-    			
-					//console.log(oHashParams);
 	
 					// img_ prefix is to for fields marker_type, procedure_id, top_level_mp_term and selected_top_level_ma_term
 	   				// from images core. This is shown on the url and used to rebuild facet filters 
@@ -424,15 +515,9 @@
 	   				
 	   				oHashParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;	                
 					oHashParams.widgetName += 'Facet';
+	   				oHashParams.q = window.location.search != '' ? $.fn.fetchQueryStr() : '*:*';
 					
-	   				if ( window.location.search.match(/q=/) ){   					
-	   					oHashParams.q = window.location.search.replace(/&.+/, '').replace('?q=','');
-	   				}
-	   				else if ( typeof oHashParams.q == 'undefined' ){
-	   					oHashParams.q = window.location.search == '' ? '*:*' : window.location.search.replace('?q=', '');	    					
-	   				}
     			}	
-    			
     			return oHashParams;
    			}
    							
