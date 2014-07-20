@@ -421,8 +421,7 @@
 		
 		var facet = oConf.facet;
 		var fqStr = oConf.fqStr;
-		var q     = $.fn.setSolrComplexPhraseQuery(oConf.q);
-
+		var q = oConf.q;
 		var thisSolrUrl = solrUrl + '/' + facet + '/select'; 
 		MPI2.searchAndFacetConfig.currentFq = fqStr;
 		
