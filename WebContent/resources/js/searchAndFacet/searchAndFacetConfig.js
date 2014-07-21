@@ -196,7 +196,7 @@ config.facetParams = {
 			      bq:'latest_phenotype_status:"Phenotyping Complete"^200 marker_type:"protein coding gene"^100'},
 		srchParams : $.extend({},				
 				 	commonSolrParams,
-				 	{'fl': 'marker_symbol,mgi_accession_id,marker_synonym,marker_name,marker_type,human_gene_symbol,latest_es_cell_status,latest_production_status,latest_phenotype_status,status,es_cell_status,mouse_status,allele_name'} 	 	
+				 	{'fl': 'hasQc,marker_symbol,mgi_accession_id,marker_synonym,marker_name,marker_type,human_gene_symbol,latest_es_cell_status,latest_production_status,latest_phenotype_status,status,es_cell_status,mouse_status,allele_name'} 	 	
 					),
 		subFacet_filter_params: '', // set by widget on the fly
 		breadCrumbLabel: 'Genes'		

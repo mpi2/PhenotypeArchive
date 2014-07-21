@@ -435,7 +435,7 @@
     				$.fn.fetchSolrFacetCount(oHashParams);		
     			}
     			else {
-    				console.log('rebuild here')
+    				//console.log('rebuild here')
     				rebuildFilters(oHashParams);    			
     			}
     		}

@@ -439,7 +439,7 @@ public class SolrIndex {
 	 *         Registered) as appropriate for this gene
 	 */
 	public String deriveLatestPhenotypingStatus(JSONObject doc){
-			
+
 		final String field = "latest_phenotype_status";
 		try {	
 			// Phenotyping complete			
