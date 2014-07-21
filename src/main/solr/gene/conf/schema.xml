@@ -133,7 +133,8 @@
 	<field name="latest_project_status" type="string" indexed="true" stored="true" multiValued="false"/>	
 	<field name="latest_production_centre" type="string" indexed="true" stored="true" multiValued="true"/>	
 	<field name="latest_phenotyping_centre" type="string" indexed="true" stored="true" multiValued="true"/>
-
+ 	<field name="disease_human_phenotypes" type="string" indexed="true" stored="true" multiValued="true"/>	 
+	
 	<!--  gene has QC: ie, a record in experiment core -->	
 	<field name="hasQc" type="int" indexed="true" stored="true" multiValued="false"/>	
 
