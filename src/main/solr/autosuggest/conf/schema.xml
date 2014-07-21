@@ -106,8 +106,8 @@
 	<field name="disease_human_phenotypes" type="string" indexed="true" stored="true" multiValued="true"/>	 
 	
 	<!--  ma fields -->
-	<field name="ma_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="ma_term" type="string" indexed="true" stored="true" required="true" multiValued="false" />	   
+	<field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="false" />	   
     <field name="ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />   
    
     <field name="child_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
