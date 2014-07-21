@@ -166,7 +166,6 @@
        				oHashParams.noFq = true;
        			}
        			//console.log(oHashParams);
-       			
        			$.fn.fetchSolrFacetCount(oHashParams);	
        		}
        		else {
@@ -414,7 +413,7 @@
     				}
 				}
 				else if ( MPI2.searchAndFacetConfig.update.pageReload ){
-    				console.log('page reload!!!');
+    				//console.log('page reload!!!');
 				}	
    			});		
     		if ( ! MPI2.searchAndFacetConfig.update.hashChange ){
@@ -441,6 +440,7 @@
     		}
     		
     		function removeAllFilters(){
+    		
     			 $('ul#facetFilter li.ftag').each(function(){
 					$(this).parent().remove();
 					
@@ -452,7 +452,6 @@
 				$('div.flist li.fcat input:checked:enabled').each(function(){
 					$(this).prop('checked', false).siblings('span.flabel').removeClass('highlight');
 				});	 
-				
     		}
     		
     		function rebuildFilters(oHashParams){

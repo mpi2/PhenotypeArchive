@@ -44,7 +44,6 @@ config.update.resetSummaryFacet = false;
 config.update.filterAdded = false;
 config.update.filterChange = false;
 config.update.dataTableLoaded  = false;
-config.update.dataTableLoading = false;
 config.update.kwSearch = false;
 
 config.searchSpin = "<img src='img/loading_small.gif' />";

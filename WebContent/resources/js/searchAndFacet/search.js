@@ -32,6 +32,7 @@
 	
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
 		//console.log(oUrlHashParams);	
+		//console.log('search.js: ln 35');
 		var q = oUrlHashParams.q;
 		
 		// for match text highlighting
@@ -269,7 +270,7 @@
     	        	oUrlHashParams.widgetName = widgetName;
     	        	oUrlHashParams.q = q;
     	        	//hashParams.noFq = oUrlHashParams.noFq;
-    	      
+    	        	//alert("search.js: ln 273");
     	        	//console.log(oUrlHashParams);
     	        	window.jQuery('li#' + thisCore)[widgetName]({
     					data: {	   							 

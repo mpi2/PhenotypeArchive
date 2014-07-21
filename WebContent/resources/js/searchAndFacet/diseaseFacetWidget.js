@@ -51,8 +51,8 @@
 				'facet': 'on',								
 				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
-				'facet.sort': 'count',						
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
+				'facet.sort': 'count'					
+				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
 	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
 	    					  + '&facet.field=disease_classes'
@@ -206,9 +206,9 @@
 					$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 				});  
 
-	    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
-	    			$.fn.process_kwSearch(self);
-	    		}	
+//	    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
+//	    			$.fn.process_kwSearch(self);
+//	    		}	
     		}
 	    },	       
 	  

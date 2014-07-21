@@ -46,16 +46,16 @@
 	    			: self.options.data.hashParams.fq;
 	    	
 	    	var oParams = {};		
-	        oParams = $.fn.getSolrRelevanceParams('gene', self.options.data.hashParams.q, oParams);
-	    	
+	        oParams = $.fn.getSolrRelevanceParams('gene', self.options.data.hashParams.q, oParams); // has q 
+	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
 				'rows': 0, // override default
 				'facet': 'on',								
 				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
-				'facet.sort': 'count',						
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);	
+				'facet.sort': 'count'						
+				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);	
 	    	
 	    	
 	    	// facet on latest_phenotype_status 
@@ -291,10 +291,10 @@
 					$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 				});	 
 	    		
-	    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
-	    			alert('gene kw search');
-	    			$.fn.process_kwSearch(self);
-	    		}	
+//	    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
+//	    			alert('gene kw search');
+//	    			$.fn.process_kwSearch(self);
+//	    		}	
 	    		
     		}
 	    },	       

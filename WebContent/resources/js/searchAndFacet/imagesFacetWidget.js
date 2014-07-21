@@ -52,8 +52,8 @@
 				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
 				'facet.sort': 'index',	
-				'fl': 'annotationTermId,annotationTermName,expName,symbol',
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
+				'fl': 'annotationTermId,annotationTermName,expName,symbol'
+				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
   	    	
   	    	var paramStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
   	    		//+ "&facet.field=expName"
@@ -144,9 +144,9 @@
 	  	  			});
 
 
-		    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
-		    			$.fn.process_kwSearch(self);
-		    		}	
+//		    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
+//		    			$.fn.process_kwSearch(self);
+//		    		}	
 		    		
 	  	      		// when last facet is done
   	    	    	$('div#facetBrowser').html(MPI2.searchAndFacetConfig.endOfSearch);  	    			

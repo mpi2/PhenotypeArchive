@@ -176,9 +176,9 @@
 						$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 					});	
 
-		    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
-		    			$.fn.process_kwSearch(self);
-		    		}	
+//		    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
+//		    			$.fn.process_kwSearch(self);
+//		    		}	
 	    		}	    		
 	    	});	    	
 	    },	   

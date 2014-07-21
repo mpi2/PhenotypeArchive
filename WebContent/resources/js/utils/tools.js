@@ -124,8 +124,8 @@
 			}	
 		}
 		
+		
 		MPI2.searchAndFacetConfig.update.filterChange = false;
-		MPI2.searchAndFacetConfig.update.dataTableLoading = true;
 	
 		$.fn.loadDataTable(oConf1);
 	};
@@ -397,6 +397,7 @@
 	}
 	
 	$.fn.setSolrComplexPhraseQuery = function(q){
+		
 		if ( typeof q == 'undefined' ){
 			q = '*:*';
 		}
@@ -414,6 +415,7 @@
 			
 			return q;
 		}
+	
 		return q;
 	};
 	
@@ -484,7 +486,7 @@
 		    						var subFacetName = oFacets[fld][i];
 		    						var facetCount = oFacets[fld][i+1];
 		    						var isGrayout = facetCount == 0 ? 'grayout' : '';
-		    								    						
+		    								    
 		    						if ( subFacetName != ''){ // skip solr field which value is an empty string
 		    							var className = oFields[fld]['class'];
 		    							
@@ -503,9 +505,8 @@
 	    			    	    				subFacetName == 'Phenotyping Complete' ){
 	    			    	    				
 	    			    	    				$(selectorBase + ' li.fcat.' + className + ' span.flabel').each(function(){
-	    			    	    					
+
 	    			    	    					if (subFacetName == MPI2.searchAndFacetConfig.phenotypingStatuses[$(this).text()].val){
-	    			    	    						
 	    			    	    						$(this).parent().removeClass('grayout').addClass(isGrayout);
 	    			    	    						$(this).siblings('span.fcount').text(facetCount);
 	    			    	    					}
@@ -868,7 +869,7 @@
 		if ( MPI2.searchAndFacetConfig.update.resetSummaryFacet ){
 			//console.log("reset facet summary: true");
 			MPI2.searchAndFacetConfig.update.filterAdded = false;
-			//MPI2.searchAndFacetConfig.update.filterObj = [];
+			MPI2.searchAndFacetConfig.update.filterObj = [];
 		}
 		if (MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount > 0 ||
 				MPI2.searchAndFacetConfig.update.filterAdded ){
@@ -1508,7 +1509,7 @@
     }   
     
     $.fn.getSolrRelevanceParams = function(facet, q, oParams){
-    	
+
     	var wildCardStr = /^\*\w*$|^\w*\*$|^\*\w*\*$/;
     	if ( facet == 'gene' ){
     		if ( q.match(/^MGI:\d*$/i) ){
@@ -1541,7 +1542,7 @@
 				oParams.pf='mp_term^1000 mp_term_synonym^500 mp_definition^100';					
 			}	
     	}
-    	else if ( facet == 'disease' ){
+    	if ( facet == 'disease' ){
     		if ( q.match(wildCardStr) && q != '*:*'){	
 				oParams.bq='disease_term:'             +q.replace(/\*/g,'')+'^1000'
 						  +' disease_alts:'             +q.replace(/\*/g,'')+'^700'
@@ -1552,6 +1553,7 @@
     			oParams.pf='disease_term^1000 disease_alts^700 disease_human_phenotypes^500 disease_source^200'; 
     		}
     	}
+    	
     	if ( facet == 'ma' ){    		
 			if ( q.match(/^MA:\d*$/i) ){
 				oParams.q = q.toUpperCase();
@@ -1590,7 +1592,7 @@
     	}
     	
     	// applied to all facets
-    	oParams.q = $.fn.setSolrComplexPhraseQuery(oParams.q);
+    	oParams.q = $.fn.setSolrComplexPhraseQuery(q);
     	
     	return oParams;
     }
@@ -1753,7 +1755,6 @@
     			displayDataTypeResultCount(oInfos, this.fnSettings().fnRecordsTotal());
     			    
     			var configs = MPI2.searchAndFacetConfig.update;
-    			configs.dataTableLoading = false;
     			configs.dataTableLoaded = true;
     			
    				configs.filterObj = [];
