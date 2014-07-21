@@ -158,17 +158,17 @@
 	<copyField source="top_level_mp_term" dest="auto_suggest" />
 	<copyField source="top_level_mp_term_synonym" dest="auto_suggest" />
 	
-	<field source="ma_id" dest="auto_suggest" />
-    <field source="ma_term" dest="auto_suggest" />	   
-    <field source="ma_term_synonym" dest="auto_suggest" />   
+	<copyField source="ma_id" dest="auto_suggest" />
+    <copyField source="ma_term" dest="auto_suggest" />	   
+    <copyField source="ma_term_synonym" dest="auto_suggest" />   
    
-    <field source="child_ma_id" dest="auto_suggest" />
-    <field source="child_ma_term" dest="auto_suggest" />							
-    <field source="child_ma_idTerm" dest="auto_suggest" />
-	<field source="disease_human_phenotypes" dest="auto_suggest" />
+    <copyField source="child_ma_id" dest="auto_suggest" />
+    <copyField source="child_ma_term" dest="auto_suggest" />							
+    <copyField source="child_ma_idTerm" dest="auto_suggest" />
+	<copyField source="disease_human_phenotypes" dest="auto_suggest" />
 	
-	<field source="selected_top_level_ma_id" dest="auto_suggest" />
-    <field source="selected_top_level_ma_term" dest="auto_suggest" /> 
+	<copyField source="selected_top_level_ma_id" dest="auto_suggest" />
+    <copyField source="selected_top_level_ma_term" dest="auto_suggest" /> 
   
 	<copyField source="disease_id" dest="auto_suggest"/>
 	<copyField source="disease_term" dest="auto_suggest"/>
