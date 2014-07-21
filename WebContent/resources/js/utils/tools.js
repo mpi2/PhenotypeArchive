@@ -320,18 +320,18 @@
 	
 	function _facetRefresh(json, selectorBase){			  			
 							    			
-		// refresh mp facet sum count				
+		// refresh main facet sum count				
 		var fcount = json.response.numFound;
 		$(selectorBase + ' > span.fcount').text(fcount);    			
-		
-		
+	
 		var freezeMode = fcount == 0 ? true : false;
 		$.fn.freezeFacet($(selectorBase), freezeMode);
 		
 		// set all subfacet counts to zero first and then update only those matching facets
 		$(selectorBase).find('li.fcat span.fcount').each(function(){
 			$(this).text('0');
-		});					
+		});
+		
 	};
 		
 	$.fn.freezeFacet = function(obj, freezeMode){
@@ -864,6 +864,17 @@
 		};
 	}
 	
+	$.fn.showNotFoundMsg = function(){
+		var q = decodeURI($.fn.fetchQueryStr());
+	
+		var filter = '';		
+		if ( $('ul#facetFilter li.ftag').size() > 0 ){
+			filter += " AND the selected filter(s)";
+		}
+		$('div#mpi2-search').html('INFO: Search keyword "' + q + '"' + filter + ' returned no entry in the database');    	    	    	    		
+			
+	};
+	
 	$.fn.composeSummaryFilters = function(oChkbox, q){	
 		
 		if ( MPI2.searchAndFacetConfig.update.resetSummaryFacet ){
@@ -934,7 +945,7 @@
 				var oConf = {'facet':cores[i], 'fqStr':solrFqStr, 'q':q};
 				var facetCountsUpdater = new FacetCountsUpdater(oConf);
 				facetCountsUpdater.updateFacetCounts();
-			}		
+			}
 		};
 		
 		this.updateUrl = function(solrFqStr){

@@ -32,7 +32,6 @@
 	
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
 		//console.log(oUrlHashParams);	
-		//console.log('search.js: ln 35');
 		var q = oUrlHashParams.q;
 		
 		// for match text highlighting
@@ -252,15 +251,15 @@
     	    	
     	    	$('div#facetSrchMsg').html('&nbsp;');
     	    	
-    	    	if ( ! coreName && ! facetName ){
-    	    		// nothing found    	    		   	    	
-    	    		$('div#mpi2-search').html('INFO: Search keyword "' + decodeURI(q) + '" has returned no entry in the database');    	    	    	    		
+    	    	if ( ! _setSearchMode(oFacets.count) ){
+    	    		// nothing found    
+    	    		$.fn.showNotFoundMsg();
     	    	}
     	    	else {    	    	    		
     	        	// remove all previous facet results before loading new facet results
     	    		var thisCore = coreName ? coreName : facetName; 
-    	    		
-    	        	$('li.fmcat > ul').html(''); 
+    	        	
+    	    		$('li.fmcat > ul').html(''); 
     	        	
     	        	//var widgetName = coreName+'Facet'; 
     	        	var widgetName = thisCore+'Facet';    
@@ -269,15 +268,11 @@
     	        	oUrlHashParams.oriFq = oUrlHashParams.oriFq ? oUrlHashParams.oriFq : jsonBase[widgetName].fq; 
     	        	oUrlHashParams.widgetName = widgetName;
     	        	oUrlHashParams.q = q;
-    	        	//hashParams.noFq = oUrlHashParams.noFq;
-    	        	//alert("search.js: ln 273");
-    	        	//console.log(oUrlHashParams);
+
     	        	window.jQuery('li#' + thisCore)[widgetName]({
     					data: {	   							 
-    							core: coreName,    							
-    							//qf: jsonBase[widgetName].qf,
+    							core: thisCore,    							
     							facetCount: oFacets.count[thisCore],
-    							//hashParams: hashParams
     							hashParams: oUrlHashParams
     							},
     			        geneGridElem: 'div#mpi2-search'			                                      
@@ -287,7 +282,6 @@
     	        	var aCores = MPI2.searchAndFacetConfig.megaCores;
     	        	
     	        	//delete active core, no need to invoke again  
-    	        	
     	        	var index;// = aCores.indexOf(coreName);
     	        	for ( var i=0; i< aCores.length; i++){
     	        		if (aCores[i] == thisCore ){
