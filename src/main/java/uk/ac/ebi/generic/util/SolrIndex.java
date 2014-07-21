@@ -388,7 +388,6 @@ public class SolrIndex {
 	 * @return the latest status at the gene level for ES cells as a string
 	 */
 	public String fetchEsCellStatus(JSONObject doc, HttpServletRequest request, boolean toExport){
-		
 		String mgiId = doc.getString("mgi_accession_id");
 		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;
 				
@@ -400,19 +399,19 @@ public class SolrIndex {
 			if ( doc.containsKey(field)  ){
 				// blue es cell status				
 				esCellStatus = doc.getString(field);
-				if ( esCellStatus.equals("ES Cell Targeting Confirmed") ){
+				if ( esCellStatus.equals("ES Cells Produced") ){
 						esCellStatus = "<a class='status done' href='" + geneUrl + "' oldtitle='ES Cells produced' title=''>"
-									 + " <span>ES cells</span>"
+									 + " <span>ES Cells</span>"
 									 + "</a>";
 						
-						exportEsCellStatus += "Es cells produced";
+						exportEsCellStatus += "ES cells produced";
 				}
-				else if ( esCellStatus.equals("ES Cell Production in Progress") ){
+				else if ( esCellStatus.equals("Assigned for ES Cell Production") ){
 						esCellStatus = "<span class='status inprogress' oldtitle='ES cells production in progress' title=''>"
 						   	 		 +  "	<span>ES Cells</span>"
 						   	 		 +  "</span>";
 						
-						exportEsCellStatus += "Es cells production in progress";
+						exportEsCellStatus += "ES cells production in progress";
 				}
 				else {
 					esCellStatus = "";
