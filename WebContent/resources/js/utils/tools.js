@@ -403,6 +403,11 @@
 		}
 		q = decodeURI(q);
 		
+		// catches user typing ' instead of " for phrase search
+		if ( /^'.+'$/.test(q) ){
+			q = q.replace(/^'|'$/g,'"');
+		}
+		
 		if ( ( /\s/.test(q) && /\*/.test(q) ) || /^".+"$/.test(q)  ){
 			//console.log('phrase search')
 			
@@ -415,7 +420,6 @@
 			
 			return q;
 		}
-	
 		return q;
 	};
 	
@@ -1602,9 +1606,6 @@
 			}	
     	}
     	
-    	// applied to all facets
-    	oParams.q = $.fn.setSolrComplexPhraseQuery(q);
-    	
     	return oParams;
     }
     
@@ -1650,6 +1651,7 @@
     	
     	oHashParams.qOri = oHashParams.q
     	oParams = $.fn.getSolrRelevanceParams(coreName, oHashParams.q, oParams);
+    	oParams.q = $.fn.setSolrComplexPhraseQuery(oHashParams.q);
     	
 		if ( facetDivId == 'imagesFacet' ) {
 			//oInfos.showImgView = true;	// don't want to show imgView as default

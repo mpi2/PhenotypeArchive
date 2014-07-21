@@ -265,7 +265,7 @@
 			       							//var termStr = $.ui.autocomplete.escapeRegex($('input#s').val().trim(' ').split(' ').join('|'));
 			       							
 			       							// this works: let jquery autocomplet UI handles the wildcard
-			       							var termStr = $('input#s').val().trim(' ').split(' ').join('|').replace(/\*/g, ''); 
+			       							var termStr = $('input#s').val().trim(' ').split(' ').join('|').replace(/\*|"|'/g, ''); 
 			       							
 			       							/* --- endl of deals with wildcard in query --- */
 			       							
@@ -349,7 +349,7 @@
    				//var url = $.param.fragment();	 // not working with jQuery 10.0.1
    				var url = $(location).attr('hash');		
    				
-   				console.log('hash change URL: '+ '/search' + url);
+   				//console.log('hash change URL: '+ '/search' + url);
    				var oHashParams = _process_hash();
    				
    				//console.log(oHashParams)
@@ -360,7 +360,7 @@
    					3. added/removed filter   				
    					*/
    				if ( MPI2.searchAndFacetConfig.update.filterChange ){
-    				console.log('added or removed a filter');
+    				//console.log('added or removed a filter');
     				MPI2.searchAndFacetConfig.update.filterChange = false;
     				
     				// MA,MP facet stays open when adding/removing filters
@@ -426,7 +426,7 @@
 				
    			});		
     		if ( ! MPI2.searchAndFacetConfig.update.hashChange ){
-    			console.log('page reload: no hash change detected')
+    			//console.log('page reload: no hash change detected')
 
     			var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
     			//console.log(oHashParams);
@@ -472,7 +472,7 @@
 				
 				oHashParams.q = typeof oHashParams.q == 'undefined' ? '*:*' : oHashParams.q;
 		    	oHashParams.noFq = typeof oHashParams.fq == 'undefined' ? true : false;
-		    	
+		    	//console.log(oHashParams);
 		    	if ( typeof oHashParams.coreName != 'undefined' ){
 		    		oHashParams.widgetName = oHashParams.coreName + 'Facet';
 		    	}
@@ -481,7 +481,8 @@
 		    	}
 		    	
 		    	if ( typeof oHashParams.widgetName == 'undefined'){
-		    		$.fn.fetchSolrFacetCount(oHashParams);					
+		    		//$.fn.fetchSolrFacetCount(oHashParams);
+		    		// do nothing
 				}
 				else {
 			    	oHashParams.fq = typeof oHashParams.fq == 'undefined' ? 

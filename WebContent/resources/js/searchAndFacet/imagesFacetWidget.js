@@ -52,6 +52,7 @@
 				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
 				'facet.sort': 'index',	
+				'q' : self.options.data.hashParams.q,
 				'fl': 'annotationTermId,annotationTermName,expName,symbol'
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
   	    	

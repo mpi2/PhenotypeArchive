@@ -55,7 +55,8 @@
 				'facet.field': facetField,
 				//'facet.field': 'annotatedHigherLevelMpTermName',
 				'facet.sort': 'index',						
-				'q.option': 'AND'
+				'q.option': 'AND',
+				'q' : self.options.data.hashParams.q
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
 	    
 	    	$.ajax({	
