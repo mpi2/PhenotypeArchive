@@ -233,7 +233,7 @@ span.status.done {
 	padding: 0.1em 0.4em;
 	cursor: default !important;
 }
-a.status.qc, span.status.qc        { background:#14CC28 !important; }
+a.status.qc, span.status.qc        { background:gray !important; }
 
 /* Table Headings */
 th span.main                        { white-space:nowrap; }
