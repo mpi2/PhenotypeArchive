@@ -93,32 +93,97 @@
         <p>${summary['allele_description']}</p>
         <c:if test="${not empty summary['statuses']}">
             
-            <table>
-          <c:forEach var="status" items="${summary['statuses']}" varStatus="statusx">
-              
-              <tr style="background-color: ${status['COLOUR']} !important;">
-                  <td style="width:30%">${status['TEXT']}</td>
-                  
-                  <td>
-            <c:if test="${not empty status['ORDER']}">
-              <a class="btn btn-lg" href="${status['ORDER']}"> <i class="fa fa-shopping-cart"></i> ORDER </a>
+            
+            
+            
+        <c:choose>
+        <c:when test="${false}">
+            
+            <h5 style="color:red">OLD</h5>
+
+        <table>
+            <c:forEach var="status" items="${summary['statuses']}" varStatus="statusx">
+                <tr style="background-color: ${status['COLOUR']} !important;">
+                    <td style="width:30%">${status['TEXT']}</td>
+                    <td>
+                    <c:if test="${not empty status['ORDER']}">
+                    <a class="btn btn-lg" href="${status['ORDER']}"> <i class="fa fa-shopping-cart"></i> ORDER </a>
+                    </c:if>
+                    <c:if test="${not empty status['CONTACT']}">
+                    <!-- TODO: turn orange-->
+                    <a class="btn btn-lg" href="${status['CONTACT']}"> <i class="fa  fa-envelope"></i> CONTACT </a>
+                    </c:if>
+                    <c:if test="${not empty status['DETAILS']}">
+                    <a class="btn btn-lg" href="${status['DETAILS']}"> <i class="fa  fa-info "></i> DETAILS </a>
+                    </c:if>
+                </td>
+                </tr>
+            </c:forEach>	
+        <table>
+            
+        </c:when>
+        <c:otherwise>
+
+            <!-- 
+INFO : uk.ac.ebi.generic.util.SolrIndex2 - #### getGeneProductInfo: status_mice: {details={https://www.mousephenotype.org/imits/open/genes/7492/network_graph=1}, COLOUR=#E0F9FF, TEXT=There are mice, orders={}}
+INFO : uk.ac.ebi.generic.util.SolrIndex2 - #### getGeneProductInfo: status_es_cells: {COLOUR=#E0F9FF, TEXT=There are cells, orders=[http://www.komp.org/]}
+            -->
+            
+        <table>
+            <c:if test="${not empty summary['status_mice']}">
+
+                <tr style="background-color: ${summary['status_mice']['COLOUR']} !important;">
+
+                    <td style="width:30%">${summary['status_mice']['TEXT']}</td>
+
+                    <td>
+                    <c:forEach var="order" items="${summary['status_mice']['orders']}" varStatus="statusx">
+                        <a class="btn btn-lg" href="${order}"> <i class="fa fa-shopping-cart"></i> ORDER </a>
+                    </c:forEach>
+                    <c:forEach var="contact" items="${summary['status_mice']['contacts']}" varStatus="statusx">
+                        <a class="btn btn-lg" href="${contact}"> <i class="fa  fa-envelope"></i> CONTACT </a>
+                    </c:forEach>
+                    <c:forEach var="detail" items="${summary['status_mice']['details']}" varStatus="statusx">
+                        <a class="btn btn-lg" href="${detail}"> <i class="fa  fa-info "></i> DETAILS </a>
+                    </c:forEach>
+                    </td>        
+
+                </tr>
+            
             </c:if>
-            <c:if test="${not empty status['CONTACT']}">
-              <!-- TODO: turn orange-->
-              <a class="btn btn-lg" href="${status['CONTACT']}"> <i class="fa  fa-envelope"></i> CONTACT </a>
+
+            <c:if test="${not empty summary['status_es_cells']}">
+
+                <tr style="background-color: ${summary['status_es_cells']['COLOUR']} !important;">
+
+                    <td style="width:30%">${summary['status_es_cells']['TEXT']}</td>
+
+                    <td>
+                    <c:forEach var="order" items="${summary['status_es_cells']['orders']}" varStatus="statusx">
+                        <a class="btn btn-lg" href="${order}"> <i class="fa fa-shopping-cart"></i> ORDER </a>
+                    </c:forEach>
+                    <c:forEach var="contact" items="${summary['status_es_cells']['contacts']}" varStatus="statusx">
+                        <a class="btn btn-lg" href="${contact}"> <i class="fa  fa-envelope"></i> CONTACT </a>
+                    </c:forEach>
+                    <c:forEach var="detail" items="${summary['status_es_cells']['details']}" varStatus="statusx">
+                        <a class="btn btn-lg" href="${detail}"> <i class="fa  fa-envelope"></i> DETAILS </a>
+                    </c:forEach>
+                    </td>        
+
+                </tr>
+            
             </c:if>
-            <c:if test="${not empty status['DETAILS']}">
-              <a class="btn btn-lg" href="${status['DETAILS']}"> <i class="fa  fa-info "></i> DETAILS </a>
-            </c:if>
-<!--</div>-->
-          </td>
-          
-          
-<!--                  <td>${status['TEXT2']}</td>-->
-              
-          </tr>
-        </c:forEach>	
-            <table>
+        <table>
+                        
+        </c:otherwise>
+        </c:choose>            
+            
+            
+            
+            
+            
+            
+            
             
         </c:if>			
     </div>
@@ -130,6 +195,7 @@
 
         <style>
             .btn              { text-decoration: none !important; color: #fff !important; background-color: #0978a1 !important; }
+            .disabled         { text-decoration: none !important; color: #aaa !important; background-color: #9CC9D9 !important; cursor:default !important; }
         </style>
  
         <c:if test="${not empty summary['map_image']}">
@@ -175,7 +241,7 @@
                 
             <c:if test="${not empty summary['browsers']}">
                 <c:forEach var="browser" items="${summary['browsers']}" varStatus="browsersx">
-                    <a class="btn" href="${browser['url']}"> <i class="fa fa-info"></i> ${browser['browser']} </a> <br/>
+                    <a class="btn disabled" href="${browser['url']}"> <i class="fa fa-info"></i> ${browser['browser']} </a> <br/>
                 </c:forEach>	
             </c:if>	
                     </td>
@@ -185,6 +251,13 @@
             </tr>
         </table>
         </c:if>
+                        
+<!--                        <script>
+                            $(function(){
+                                $('#browser_id').addClass('disabled'); // Disables visually
+                                $('#browser_id').prop('disabled', true); // Disables visually + functionally
+                            });
+                        </script>-->
                                 
                        
         <table>
