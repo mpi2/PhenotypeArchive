@@ -233,7 +233,7 @@ span.status.done {
 	padding: 0.1em 0.4em;
 	cursor: default !important;
 }
-a.status.qc, span.status.qc        { background: gray !important; }
+a.status.qc, span.status.qc        { background:gray !important; }
 
 /* Table Headings */
 th span.main                        { white-space:nowrap; }
@@ -241,7 +241,7 @@ th span.sub                         { font-size: 0.8em; display: block;}
 /* end of Disease search results */
 
 div.dataTable {
-			margin-top: 20px !important;
+	margin-top: 20px !important;
 }
 /* dataTable pagination styling */
 span.ellipse {
@@ -260,4 +260,7 @@ span#dnld {
 }
 span.dtype {
 	color: gray;
+}
+span.subMatch {
+	color: #0978A1;
 }

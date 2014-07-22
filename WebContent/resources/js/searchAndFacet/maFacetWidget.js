@@ -55,7 +55,8 @@
 				//'facet.field': 'annotatedHigherLevelMpTermName',
 				'facet.sort': 'index',						
 				'q.option': 'AND',
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
+				'q' : self.options.data.hashParams.q
+				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
 	    	
 	    	
 	    	$.ajax({	
@@ -105,10 +106,9 @@
 	    				$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 	    			});   
 	        		
-
-		    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
-		    			$.fn.process_kwSearch(self);
-		    		}	
+//		    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
+//		    			$.fn.process_kwSearch(self);
+//		    		}	
 	    		}		
 	    	});		    	
 	    	

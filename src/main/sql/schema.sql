@@ -1080,7 +1080,7 @@ CREATE TABLE image_record_observation (
 	file_type varchar(45) DEFAULT NULL,
 	media_sample_local_id varchar(45) DEFAULT NULL,
 	media_section_id varchar(45) DEFAULT NULL,
-	`omero_id` int(11) DEFAULT NULL,
+	omero_id int(11) DEFAULT NULL,
 	PRIMARY KEY (id)
 	
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
