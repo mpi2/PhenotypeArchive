@@ -6,224 +6,293 @@ import org.apache.solr.client.solrj.beans.Field;
 
 public class GeneDTO {
 
+	public static final String DATA_TYPE = "dataType";
+	public static final String MGI_ACCESSION_ID = "mgi_accession_id";
+	public static final String MARKER_SYMBOL = "marker_symbol";
+	public static final String HUMAN_GENE_SYMBOL = "human_gene_symbol";
+	public static final String MARKER_NAME = "marker_name";
+	public static final String MARKER_SYNONYM = "marker_synonym";
+	public static final String MARKER_TYPE = "marker_type";
+	public static final String IMITS_PHENOTYPE_STARTED = "imits_phenotype_started";
+	public static final String IMITS_PHENOTYPE_COMPLETE = "imits_phenotype_complete";
+	public static final String IMITS_PHENOTYPE_STATUS = "imits_phenotype_status";
+	public static final String STATUS = "status";
+	public static final String LATEST_ES_CELL_STATUS = "latest_es_cell_status";
+	public static final String LATEST_MOUSE_STATUS = "latest_mouse_status";
+	public static final String LATEST_PHENOTYPE_STATUS = "latest_phenotype_status";
+	public static final String LATEST_PROJECT_STATUS = "latest_project_status";
+	public static final String LATEST_PRODUCTION_CENTRE = "latest_production_centre";
+	public static final String LATEST_PHENOTYPING_CENTRE = "latest_phenotyping_centre";
+	public static final String DISEASE_HUMAN_PHENOTYPES = "disease_human_phenotypes";
+	public static final String HAS_QC = "hasQc";
+	public static final String ALLELE_NAME = "allele_name";
+	public static final String IMITS_ES_CELL_STATUS = "imits_es_cell_status";
+	public static final String ES_CELL_STATUS = "es_cell_status";
+	public static final String IMITS_MOUSE_STATUS = "imits_mouse_status";
+	public static final String MOUSE_STATUS = "mouse_status";
+	public static final String PHENOTYPE_STATUS = "phenotype_status";
+	public static final String PRODUCTION_CENTRE = "production_centre";
+	public static final String PHENOTYPING_CENTRE = "phenotyping_centre";
+	public static final String P_VALUE = "p_value";
+	public static final String MP_ID = "mp_id";
+	public static final String MP_TERM = "mp_term";
+	public static final String MP_DEFINITION = "mp_definition";
+	public static final String MP_SYNONYM = "mp_synonym";
+	public static final String TOP_LEVEL_MP_ID = "top_level_mp_id";
+	public static final String TOP_LEVEL_MP_TERM = "top_level_mp_term";
+	public static final String TOP_LEVEL_MP_DEFINITION = "top_level_mp_definition";
+	public static final String ONTOLOGY_SUBSET = "ontology_subset";
+	public static final String INFERRED_MA_ID = "inferred_ma_id";
+	public static final String INFERRED_MA_TERM = "inferred_ma_term";
+	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_ID = "inferred_selected_top_level_ma_id";
+	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM = "inferred_selected_top_level_ma_term";
+	public static final String TYPE = "type";
+	public static final String DISEASE_ID = "disease_id";
+	public static final String DISEASE_SOURCE = "disease_source";
+	public static final String DISEASE_TERM = "disease_term";
+	public static final String DISEASE_ALTS = "disease_alts";
+	public static final String DISEASE_CLASSES = "disease_classes";
+	public static final String DISEASE__HUMAN_PHENOTYPES = "disease__human_phenotypes";
+	public static final String HUMAN_CURATED = "human_curated";
+	public static final String MOUSE_CURATED = "mouse_curated";
+	public static final String MGI_PREDICTED = "mgi_predicted";
+	public static final String IMPC_PREDICTED = "impc_predicted";
+	public static final String MGI_PREDICTED_IN_LOCUS = "mgi_predicted_in_locus";
+	public static final String IMPC_PREDICTED_IN_LOCUS = "impc_predicted_in_locus";
+	public static final String PIPELINE_NAME = "pipeline_name";
+	public static final String PIPELINE_STABLE_ID = "pipeline_stable_id";
+	public static final String PROCEDURE_NAME = "procedure_name";
+	public static final String PROCEDURE_STABLE_ID = "procedure_stable_id";
+	public static final String PARAMETER_NAME = "parameter_name";
+	public static final String PARAMETER_STABLE_ID = "parameter_stable_id";
+	public static final String PROC_PARAM_NAME = "proc_param_name";
+	public static final String PROC_PARAM_STABLE_ID = "proc_param_stable_id";
+	public static final String EXPNAME = "expName";
+	public static final String SUBTYPE = "subtype";
+	public static final String ANNOTATEDHIGHERLEVELMATERMNAME = "annotatedHigherLevelMaTermName";
+	public static final String ANNOTATEDHIGHERLEVELMPTERMNAME = "annotatedHigherLevelMpTermName";
+	public static final String TEXT = "text";
+	public static final String AUTO_SUGGEST = "auto_suggest";
+	public static final String SELECTED_TOP_LEVEL_MA_TERM = "selected_top_level_ma_term";
+	
 	// <!-- gene level fields -->
 
-	@Field("dataType")
+	@Field(DATA_TYPE)
 	String dataType;
 
-	@Field("mgi_accession_id")
+	@Field(MGI_ACCESSION_ID)
 	String mgiAccessionId;
 
-	@Field("marker_symbol")
+	@Field(MARKER_SYMBOL)
 	String markerSymbol;
 
-	@Field("human_gene_symbol")
+	@Field(HUMAN_GENE_SYMBOL)
 	List<String> humanGeneSymbol;
 
-	@Field("marker_name")
+	@Field(MARKER_NAME)
 	String markerName;
 
-	@Field("marker_synonym")
+	@Field(MARKER_SYNONYM)
 	List<String> markerSynonym;
 
-	@Field("marker_type")
+	@Field(MARKER_TYPE)
 	String markerType;
 
-	@Field("imits_phenotype_started")
+	@Field(IMITS_PHENOTYPE_STARTED)
 	String imitsPhenotypeStarted;
 
-	@Field("imits_phenotype_complete")
+	@Field(IMITS_PHENOTYPE_COMPLETE)
 	String imitsPhenotypeComplete;
 
-	@Field("imits_phenotype_status")
+	@Field(IMITS_PHENOTYPE_STATUS)
 	String imitsPhenotypeStatus;
 
-	@Field("status")
+	@Field(STATUS)
 	String status;
 
-	@Field("latest_es_cell_status")
+	@Field(LATEST_ES_CELL_STATUS)
 	String latestEsCellStatus;
 
-	@Field("latest_mouse_status")
+	@Field(LATEST_MOUSE_STATUS)
 	String latestMouseStatus;
 
-	@Field("latest_phenotype_status")
+	@Field(LATEST_PHENOTYPE_STATUS)
 	String latestPhenotypeStatus;
 
-	@Field("latest_project_status")
+	@Field(LATEST_PROJECT_STATUS)
 	String latestProjectStatus;
 
-	@Field("latest_production_centre")
+	@Field(LATEST_PRODUCTION_CENTRE)
 	List<String> latestProductionCentre;
 
-	@Field("latest_phenotyping_centre")
+	@Field(LATEST_PHENOTYPING_CENTRE)
 	List<String> latestPhenotypingCentre;
 
-	@Field("disease_human_phenotypes")
+	@Field(DISEASE_HUMAN_PHENOTYPES)
 	List<String> diseaseHumanPhenotypes;
 
 	// <!-- gene has QC: ie, a record in experiment core -->
 
-	@Field("hasQc")
+	@Field(HAS_QC)
 	Integer hasQc;
 
 	// <!-- allele level fields of a gene -->
 
-	@Field("allele_name")
+	@Field(ALLELE_NAME)
 	List<String> alleleName;
 
-	@Field("imits_es_cell_status")
+	@Field(IMITS_ES_CELL_STATUS)
 	String imitsEsCellStatus;
 
-	@Field("es_cell_status")
+	@Field(ES_CELL_STATUS)
 	List<String> esCellStatus;
 
-	@Field("imits_mouse_status")
+	@Field(IMITS_MOUSE_STATUS)
 	String imitsMouseStatus;
 
-	@Field("mouse_status")
+	@Field(MOUSE_STATUS)
 	List<String> mouseStatus;
 
-	@Field("phenotype_status")
+	@Field(PHENOTYPE_STATUS)
 	List<String> phenotypeStatus;
 
-	@Field("production_centre")
+	@Field(PRODUCTION_CENTRE)
 	List<String> productionCentre;
 
-	@Field("phenotyping_centre")
+	@Field(PHENOTYPING_CENTRE)
 	List<String> phenotypingCentre;
 
 	// <!-- annotated and inferred mp term -->
 
-	@Field("p_value")
+	@Field(P_VALUE)
 	float p_value;
 
-	@Field("mp_id")
+	@Field(MP_ID)
 	List<String> mpId;
 
-	@Field("mp_term")
+	@Field(MP_TERM)
 	List<String> mpTerm;
 
-	@Field("mp_definition")
+	@Field(MP_DEFINITION)
 	List<String> mpDefinition;
 
-	@Field("mp_synonym")
+	@Field(MP_SYNONYM)
 	List<String> mpSynonym;
 
-	@Field("top_level_mp_id")
+	@Field(TOP_LEVEL_MP_ID)
 	List<String> topLevelMpId;
 
-	@Field("top_level_mp_term")
+	@Field(TOP_LEVEL_MP_TERM)
 	List<String> topLevelMpTerm;
 
-	@Field("top_level_mp_definition")
+	@Field(TOP_LEVEL_MP_DEFINITION)
 	List<String> topLevelMpDefinition;
 
 	// <!-- ontology subset of mp terms -->
 
-	@Field("ontology_subset")
+	@Field(ONTOLOGY_SUBSET)
 	List<String> ontologySubset;
 
 	// <!-- annotated and inferred ma term -->
 
-	@Field("inferred_ma_id")
+	@Field(INFERRED_MA_ID)
 	List<String> inferredMaId;
 
-	@Field("inferred_ma_term")
+	@Field(INFERRED_MA_TERM)
 	List<String> inferredMaTerm;
 
-	@Field("inferred_selected_top_level_ma_id")
+	@Field(INFERRED_SELECTED_TOP_LEVEL_MA_ID)
 	List<String> inferredSelectedTopLevelMaId;
 
-	@Field("inferred_selected_top_level_ma_term")
+	@Field(INFERRED_SELECTED_TOP_LEVEL_MA_TERM)
 	List<String> inferredSelectedTopLevelMaTerm;
 
 	// <!--disease fields -->
 
-	@Field("type")
+	@Field(TYPE)
 	List<String> type;
 
-	@Field("disease_id")
+	@Field(DISEASE_ID)
 	List<String> diseaseId;
 
-	@Field("disease_source")
+	@Field(DISEASE_SOURCE)
 	List<String> diseaseSource;
 
-	@Field("disease_term")
+	@Field(DISEASE_TERM)
 	List<String> diseaseTerm;
 
-	@Field("disease_alts")
+	@Field(DISEASE_ALTS)
 	List<String> diseaseAlts;
 
-	@Field("disease_classes")
+	@Field(DISEASE_CLASSES)
 	List<String> diseaseClasses;
 
-	@Field("human_curated")
+	@Field(HUMAN_CURATED)
 	List<Boolean> humanCurated;
 
-	@Field("mouse_curated")
+	@Field(MOUSE_CURATED)
 	List<Boolean> mouseCurated;
 
-	@Field("mgi_predicted")
+	@Field(MGI_PREDICTED)
 	List<Boolean> mgiPredicted;
 
-	@Field("impc_predicted")
+	@Field(IMPC_PREDICTED)
 	List<Boolean> impcPredicted;
 
-	@Field("mgi_predicted_in_locus")
+	@Field(MGI_PREDICTED_IN_LOCUS)
 	List<Boolean> mgiPredictedInLocus;
 
-	@Field("impc_predicted_in_locus")
+	@Field(IMPC_PREDICTED_IN_LOCUS)
 	List<Boolean> impcPredictedInLocus;
 
 	// <!-- pipeline stuff -->
 
-	@Field("pipeline_name")
+	@Field(PIPELINE_NAME)
 	List<String> pipelineName;
 
-	@Field("pipeline_stable_id")
+	@Field(PIPELINE_STABLE_ID)
 	List<String> pipelineStableId;
 
-	@Field("procedure_name")
+	@Field(PROCEDURE_NAME)
 	List<String> procedureName;
 
-	@Field("procedure_stable_id")
+	@Field(PROCEDURE_STABLE_ID)
 	List<String> procedureStableId;
 
-	@Field("parameter_name")
+	@Field(PARAMETER_NAME)
 	List<String> parameterName;
 
-	@Field("parameter_stable_id")
+	@Field(PARAMETER_STABLE_ID)
 	List<String> parameterStableId;
 
-	@Field("proc_param_name")
+	@Field(PROC_PARAM_NAME)
 	List<String> procParamName;
 
-	@Field("proc_param_stable_id")
+	@Field(PROC_PARAM_STABLE_ID)
 	List<String> procParamStableId;
 
 	// <!-- images annotated to a gene/mp/ma/procedure -->
 
-	@Field("expName")
+	@Field(EXPNAME)
 	List<String> expName;
 
-	@Field("subtype")
+	@Field(SUBTYPE)
 	List<String> subtype;
 
-	@Field("annotatedHigherLevelMaTermName")
+	@Field(ANNOTATEDHIGHERLEVELMATERMNAME)
 	List<String> annotatedHigherLevelMaTermName;
 
-	@Field("annotatedHigherLevelMpTermName")
+	@Field(ANNOTATEDHIGHERLEVELMPTERMNAME)
 	List<String> annotatedHigherLevelMpTermName;
 
 	// <!-- for copyfield -->
-	@Field("text")
+	@Field(TEXT)
 	List<String> text;
 
-	@Field("auto_suggest")
+	@Field(AUTO_SUGGEST)
 	List<String> autoSuggest;
 
-	@Field("selected_top_level_ma_term")
+	@Field(SELECTED_TOP_LEVEL_MA_TERM)
 	List<String> selectedTopLevelMaTerm;
 
 
