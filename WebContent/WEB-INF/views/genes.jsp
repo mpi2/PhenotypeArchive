@@ -26,6 +26,9 @@
                             <c:if test="${not empty expressionFacets}">
                             <li><a href="#section-expression">Expression</a></li>
                             </c:if>
+                            <c:if test="${not empty diseaseAssociations}">
+                            <li><a href="#section-disease">Potential Disease Models</a></li>
+                            </c:if>
                             <c:if test="${!countIKMCAllelesError}">
                             <li><a href="#order">Order Mouse and ES Cells</a></li>
                             </c:if>
@@ -421,138 +424,78 @@
                                 </div>
                             </c:if>
 
-                                <script type="text/javascript">
-                                                function getDiseaseAssociations(clicked) {
+                <!--Disease Panel-->
+                            <c:if test="${not empty diseaseAssociations}">                 
+                                <div class="section">
+                                    <h2 class="title" id="section-disease">Potential Disease Models 
+                                        <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
+                                        <span class="documentation">
+                                            <a href='${baseUrl}/documentation/disease-help.html#details' class="mpPanel">
+                                                <i class="fa fa-question-circle pull-right"></i>
+                                            </a>
+                                        </span>
+                                    </h2>
+                                    <div class="inner">
+                                        <!--The following diseases are associated with ${gene.symbol} by phenotypic similarity-->
+                                        <table id="diseaseTable" class="table tableSorter">
+                                            <thead>
+                                                <tr>
+                                                    <th><span class="main">Disease Name</span></th>
+                                                    <th><span class="main">Source</span></th>
+                                                    <th>Disease Gene Ortholog</th>
+                                                    <th>Syntenic Disease Locus</th>
+                                                    <th>Mouse Literature Evidence (MGI)</th>
+                                                    <th><span class="main">MGI</span><span class="sub">Mouse Phenotype Evidence (Phenodigm)</span></th>
+                                                    <th><span class="main">IMPC</span><span class="sub">Mouse Phenotype Evidence (Phenodigm)</span></th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>                        
+                                            <tbody>
+                                                <c:forEach var="association" items="${diseaseAssociations}" varStatus="loop">
+                                                    <c:set var="associationSummary" value="${association.associationSummary}"></c:set>
+                                                    <tr id="${disease.diseaseIdentifier.databaseAcc}" targetRowId="P${geneIdentifier.databaseAcc}_${association.diseaseIdentifier.databaseAcc}" requestpagetype= "gene" geneid="${geneIdentifier.compoundIdentifier}" diseaseid="${association.diseaseIdentifier.compoundIdentifier}">
+                                                        <!--Disease Name-->
+                                                        <td><a href="${baseUrl}/disease/${association.diseaseIdentifier}">${association.diseaseTerm}</a></td>
+                                                        <!--Source-->
+                                                        <td>
+                                                            <a id="diseaseId" href="${association.diseaseIdentifier.externalUri}">${association.diseaseIdentifier}</a>
+                                                        </td>
+                                                        <!--Associated in Human --> 
+                                                        <td>
+                                                            <c:if test="${associationSummary.associatedInHuman}">Yes</c:if>
+                                                            </td>  
+                                                            <!--In syntenic disease locus - Yes or empty-->
+                                                            <td>
+                                                            <c:if test="${associationSummary.inLocus}">
+                                                                Yes
+                                                            </c:if>
+                                                        </td>
+                                                        <!--Mouse Literature Evidence (MGI) - Yes or empty-->
+                                                        <td>
+                                                            <c:if test="${associationSummary.hasLiteratureEvidence}">Yes</c:if>
+                                                            </td>                                    
 
-                                                    var targetRowId = $(clicked).attr("targetRowId");
-                                                    var targetRow = $('#' + targetRowId);
-                                                    var geneId = $(clicked).attr("geneid");
-                                                    var diseaseId = $(clicked).attr("diseaseid");
-                                                    var requestPageType = $(clicked).attr("requestpagetype");
-                                                    console.log(requestPageType + " page getDiseaseAssociations for: " + geneId + " " + diseaseId);
-
-                                                    var uri = "${baseUrl}/phenodigm/diseaseGeneAssociations";
-                                                    $.get(uri, {
-                                                        geneId: geneId,
-                                                        diseaseId: diseaseId,
-                                                        requestPageType: requestPageType
-                                                    }, function(response) {
-                                                        //                    console.log(response);
-                                                        //add the response html to the target row
-                                                        $(targetRow).html(response);
-                                                        //change the clicked row icon to an minus sign
-                                                        $(clicked).find("td#toggleButton i").removeClass("fa-plus-square").addClass("fa-minus-square");
-                                                    });
-                                                }
-                                                ;
-
-                                                /*
-                                                 * Toggles the row icon between a "fa-minus-square" and a "fa-plus-square".
-                                                 */
-                                                function toggleRowIcon(row) {
-                                                    var rowOpen = $(row).find("td#toggleButton i").hasClass("fa-minus-square");
-                                                    if (rowOpen) {
-                                                        $(row).find("td#toggleButton i").removeClass("fa-minus-square").addClass("fa-plus-square");
-                                                    }
-                                                    else {
-                                                        $(row).find("td#toggleButton i").removeClass("fa-plus-square").addClass("fa-minus-square");
-                                                    }
-                                                }
-                                                ;
-                                            </script>
-
-                                            <script type="text/javascript">
-                                                $(document).ready(function() {
-                                                    $("#diseaseTable tr:odd").addClass("odd");
-                                                    $("#diseaseTable tr:not(.odd)").hide();
-                                                    $("#diseaseTable tr:first-child").show();
-
-                                                    $("#diseaseTable tr.odd").click(function() {
-                                                        $(this).next("tr").toggle();
-                                                        if ($(this).next("tr").find("td").length === 0) {
-                                                            getDiseaseAssociations($(this));
-                                                        }
-                                                        toggleRowIcon($(this));
-                                                    });
-                                                });
-                                            </script>
-                                            
-                            <div class="section" id="disease">
-                                <h2 class="title" id="potential-disease-models">Potential Disease Models 
-                                    <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
-                                    <span class="documentation">
-                                        <a href='${baseUrl}/documentation/disease-help.html#details' class="mpPanel">
-                                            <i class="fa fa-question-circle pull-right"></i>
-                                        </a>
-                                    </span>
-                                </h2>
-                                <div class="inner">
-                                    <c:choose>
-                                        <c:when test="${empty diseaseAssociations}">
-                                            No diseases are known or predicted to be associated with ${gene.symbol}.
-                                        </c:when>
-                                        <c:otherwise>
-                                            <!--The following diseases are associated with ${gene.symbol} by phenotypic similarity-->
-                                            <table id="diseaseTable" class="table tableSorter">
-                                                <thead>
-                                                    <tr>
-                                                        <th><span class="main">Disease Name</span></th>
-                                                        <th><span class="main">Source</span></th>
-                                                        <th>Disease Gene Ortholog</th>
-                                                        <th>Syntenic Disease Locus</th>
-                                                        <th>Mouse Literature Evidence (MGI)</th>
-                                                        <th><span class="main">MGI</span><span class="sub">Mouse Phenotype Evidence (Phenodigm)</span></th>
-                                                        <th><span class="main">IMPC</span><span class="sub">Mouse Phenotype Evidence (Phenodigm)</span></th>
-                                                        <th></th>
+                                                            <!--Mouse Phenotype Evidence (Phenodigm)-->
+                                                            <td>
+                                                            <c:if test="${0.0 != associationSummary.bestModScore}">
+                                                                <b style="color:#EF7B0B">${associationSummary.bestModScore}</b>   
+                                                            </c:if>   
+                                                        </td>
+                                                        <td>
+                                                            <c:if test="${0.0 != associationSummary.bestHtpcScore}">
+                                                                <b style="color:#EF7B0B">${associationSummary.bestHtpcScore}</b>
+                                                            </c:if>                                        
+                                                        </td>
+                                                        <td id="toggleButton" title="Click to display phenotype terms"><i class="fa fa-plus-square"></i></td>
                                                     </tr>
-                                                </thead>                        
-                                                <tbody>
-                                                    <c:forEach var="association" items="${diseaseAssociations}" varStatus="loop">
-                                                        <c:set var="associationSummary" value="${association.associationSummary}"></c:set>
-                                                        <tr id="${disease.diseaseIdentifier.databaseAcc}" targetRowId="P${geneIdentifier.databaseAcc}_${association.diseaseIdentifier.databaseAcc}" requestpagetype= "gene" geneid="${geneIdentifier.compoundIdentifier}" diseaseid="${association.diseaseIdentifier.compoundIdentifier}">
-                                                            <!--Disease Name-->
-                                                            <td><a href="${baseUrl}/disease/${association.diseaseIdentifier}">${association.diseaseTerm}</a></td>
-                                                            <!--Source-->
-                                                            <td>
-                                                                <a id="diseaseId" href="${association.diseaseIdentifier.externalUri}">${association.diseaseIdentifier}</a>
-                                                            </td>
-                                                            <!--Associated in Human --> 
-                                                            <td>
-                                                                <c:if test="${associationSummary.associatedInHuman}">Yes</c:if>
-                                                                </td>  
-                                                                <!--In syntenic disease locus - Yes or empty-->
-                                                                <td>
-                                                                <c:if test="${associationSummary.inLocus}">
-                                                                    Yes
-                                                                </c:if>
-                                                            </td>
-                                                            <!--Mouse Literature Evidence (MGI) - Yes or empty-->
-                                                            <td>
-                                                                <c:if test="${associationSummary.hasLiteratureEvidence}">Yes</c:if>
-                                                                </td>                                    
-
-                                                                <!--Mouse Phenotype Evidence (Phenodigm)-->
-                                                                <td>
-                                                                <c:if test="${0.0 != associationSummary.bestModScore}">
-                                                                    <b style="color:#EF7B0B">${associationSummary.bestModScore}</b>   
-                                                                </c:if>   
-                                                            </td>
-                                                            <td>
-                                                                <c:if test="${0.0 != associationSummary.bestHtpcScore}">
-                                                                    <b style="color:#EF7B0B">${associationSummary.bestHtpcScore}</b>
-                                                                </c:if>                                        
-                                                            </td>
-                                                            <td id="toggleButton" title="Click to display phenotype terms"><i class="fa fa-plus-square"></i></td>
-                                                        </tr>
-                                                        <tr id="P${geneIdentifier.databaseAcc}_${association.diseaseIdentifier.databaseAcc}">                                      
-                                                        </tr>
-                                                    </c:forEach>
-                                                </tbody>
-                                            </table>
-                                        </c:otherwise>
-                                    </c:choose>
+                                                    <tr id="P${geneIdentifier.databaseAcc}_${association.diseaseIdentifier.databaseAcc}">                                      
+                                                    </tr>
+                                                </c:forEach>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                            </div>
+                            </c:if>
 
                             <div class="section" id="order">
                                 <h2 class="title documentation">Order Mouse and ES Cells  
@@ -567,7 +510,61 @@
                 </div>
             </div>
 
+            <script type="text/javascript">
+                function getDiseaseAssociations(clicked) {
 
+                    var targetRowId = $(clicked).attr("targetRowId");
+                    var targetRow = $('#' + targetRowId);
+                    var geneId = $(clicked).attr("geneid");
+                    var diseaseId = $(clicked).attr("diseaseid");
+                    var requestPageType = $(clicked).attr("requestpagetype");
+                    console.log(requestPageType + " page getDiseaseAssociations for: " + geneId + " " + diseaseId);
+
+                    var uri = "${baseUrl}/phenodigm/diseaseGeneAssociations";
+                    $.get(uri, {
+                        geneId: geneId,
+                        diseaseId: diseaseId,
+                        requestPageType: requestPageType
+                    }, function(response) {
+                        //                    console.log(response);
+                        //add the response html to the target row
+                        $(targetRow).html(response);
+                        //change the clicked row icon to an minus sign
+                        $(clicked).find("td#toggleButton i").removeClass("fa-plus-square").addClass("fa-minus-square");
+                    });
+                }
+                ;
+
+                /*
+                 * Toggles the row icon between a "fa-minus-square" and a "fa-plus-square".
+                 */
+                function toggleRowIcon(row) {
+                    var rowOpen = $(row).find("td#toggleButton i").hasClass("fa-minus-square");
+                    if (rowOpen) {
+                        $(row).find("td#toggleButton i").removeClass("fa-minus-square").addClass("fa-plus-square");
+                    }
+                    else {
+                        $(row).find("td#toggleButton i").removeClass("fa-plus-square").addClass("fa-minus-square");
+                    }
+                }
+                ;
+            </script>
+
+            <script type="text/javascript">
+                $(document).ready(function() {
+                    $("#diseaseTable tr:odd").addClass("odd");
+                    $("#diseaseTable tr:not(.odd)").hide();
+                    $("#diseaseTable tr:first-child").show();
+
+                    $("#diseaseTable tr.odd").click(function() {
+                        $(this).next("tr").toggle();
+                        if ($(this).next("tr").find("td").length === 0) {
+                            getDiseaseAssociations($(this));
+                        }
+                        toggleRowIcon($(this));
+                    });
+                });
+            </script>
         </jsp:body>
 
     </t:genericpage>
