@@ -12,6 +12,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
+import uk.ac.ebi.phenotype.pojo.ImageRecordObservation;
+import uk.ac.ebi.phenotype.pojo.Observation;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -27,6 +29,15 @@ public class ObservationDAOImplTest {
 	public void testGetAllParametersWithObservations() {
 		List<Parameter> parameters = observationDAO.getAllParametersWithObservations();
 		assertTrue("There must be at least 20 parameters loaded", 20 < parameters.size());
+	}
+	
+	@Test
+	public void testGetAllImageObservations() {
+		List<ImageRecordObservation> imageObservations = observationDAO.getAllImageObservations();
+		for(ImageRecordObservation obs: imageObservations){
+			System.out.println("observation="+obs.getDownloadFilePath());
+		}
+		
 	}
 
 }

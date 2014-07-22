@@ -659,7 +659,6 @@ public class SearchPageTest {
             TestUtils.printEpilogue(testName, start, errorList, null, successList, paramList.size(), paramList.size());
             fail("There were " + sumErrorList.size() + " errors.");
         }
-
     }
 
     /**

@@ -37,21 +37,6 @@
 	    
 		_initFacet: function(){			
 	    	var self = this;
-	    	/*
-	    	var currentFq = {'fq' : MPI2.searchAndFacetConfig.currentFq};
-	    	var queryParams = $.extend({}, { 
-				'rows': 0,
-				'type': 'disease',
-				'facet': 'on',								
-				'facet.mincount': 1,
-				'facet.limit': -1,								
-				'facet.sort': 'count',					
-	    		'q': self.options.data.hashParams.q},
-	    		MPI2.searchAndFacetConfig.commonSolrParams,
-	    		MPI2.searchAndFacetConfig.currentFq ? currentFq :
-	    			MPI2.searchAndFacetConfig.facetParams.diseaseFacet.filterParams
-	    	);    	   	
-	    	*/
 	    	
 	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
 	    			: self.options.data.hashParams.fq;
@@ -64,10 +49,11 @@
 				'rows': 0, // override default
 				'type': 'disease',
 				'facet': 'on',								
-				'facet.mincount': 1,
+				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
-				'facet.sort': 'count',						
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
+				'facet.sort': 'count',
+				'q' : self.options.data.hashParams.q
+				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
 	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
 	    					  + '&facet.field=disease_classes'
@@ -128,10 +114,14 @@
 		    			var diseaseFq = fq;
 		    			var coreField = 'disease|'+ diseaseFq + '|';		
 		    			var trClass = fq+'Tr';
+		    			var isGrayout = count == 0 ? 'grayout' : '';
+		    			liContainer.removeClass('grayout').addClass(isGrayout);
+		    			
 						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + subFacetName + '|' + count + '|' +fq});						
 						var flabel = $('<span></span>').attr({'class':'flabel'}).text(subFacetName);
 						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 						
+	    	   
 						if ( subFacetName != 'unclassified' ){							
 							liContainer.append(chkbox, flabel, fcount);
 						}
@@ -172,6 +162,10 @@
 			    			var dPositive = aData[i];
 			    			if ( dPositive == 'true' ){
 				    			var count = aData[i+1];
+				    			var isGrayout = count == 0 ? 'grayout' : '';
+				    			
+				    			liContainer.removeClass('grayout').addClass(isGrayout);
+				    			
 				    			foundMatch[assoc]++;
 				    			
 				    			var diseaseFq = fq;
@@ -188,33 +182,35 @@
 
 	    			}	
 	    		}	    		    		
-	    		   			
+	    		
+	    		// no actions allowed when facet count is zero
+    			$.fn.cursorUpdate('disease', 'not-allowed');
+    			
     			// disease_source is open and rest of disease subfacets are collapsed by default    			
     			$('div.flist li#disease > ul li:nth-child(1)').addClass('open');    			  						
 	    		
     			var selectorBase = "div.flist li#disease";
 	    		// collapse all subfacet first, then open the first one that has matches 
 				$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');	    		
-	    		$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
-    			
+				$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
+				
+				// change cursor for grayout filter
+    			$.fn.cursorUpdate('disease', 'not-allowed');
+    			    			
     			$.fn.initFacetToggles('disease');
 	    			    			    		
-	    		$('li#disease li.fcat input').click(function(){	    			
+	    		$('li#disease li.fcat input').click(function(){	 
+	    			
 	    			// // highlight the item in facet	    			
 	    			$(this).siblings('span.flabel').addClass('highlight');
+	    			MPI2.searchAndFacetConfig.update.filterAdded = true;
 					$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
-				});   			
-    				  		
+				});  
+
+//	    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
+//	    			$.fn.process_kwSearch(self);
+//	    		}	
     		}
-	    	
-	    	/*--------------------------------------------------------------------------------------------------------------------------*/
-	    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
-	    	/*--------------------------------------------------------------------------------------------------------------------------*/	
-	    	
-	    	var oConf = self.options.data.hashParams;
-	    	oConf.core = self.options.data.core;
-	    	
-	    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);
 	    },	       
 	  
 	    destroy: function () {    	   

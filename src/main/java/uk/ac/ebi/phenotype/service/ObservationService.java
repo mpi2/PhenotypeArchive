@@ -30,6 +30,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import net.sf.json.JSONArray;
 
@@ -64,12 +67,19 @@ import uk.ac.ebi.phenotype.stats.ObservationDTO;
 import uk.ac.ebi.phenotype.stats.StackedBarsData;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalDataObject;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
+import uk.ac.ebi.phenotype.util.ParameterToGeneMap;
 
 @Service
 public class ObservationService extends BasicService {
 
     @Autowired
     PhenotypePipelineDAO parameterDAO;
+    
+    @Autowired
+    ParameterMapService pmapService;
+
+    @Autowired
+    ParameterToGeneMap ptgm;
 
     private static final Logger LOG = LoggerFactory.getLogger(ObservationService.class);
     // Definition of the solr fields
@@ -115,13 +125,13 @@ public class ObservationService extends BasicService {
         public final static String VALUE = "value";
         public final static String METADATA = "metadata";
         public final static String METADATA_GROUP = "metadata_group";
+		public static final String DOWNLOAD_FILE_PATH = "download_file_path";
     }
-
+    
     private final HttpSolrServer solr;
-
+    
     public ObservationService() {
-        String solrURL = "http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment"; //default
-        solr = new HttpSolrServer(solrURL);
+        this("http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment"); //default
     }
 
     public ObservationService(String solrUrl) {
@@ -865,7 +875,6 @@ public class ObservationService extends BasicService {
 							discreteDataPoint, new Float(
 									stats.getStandardDeviation()));
 					List<Float> errorPair = new ArrayList<>();
-					double std = stats.getStandardDeviation();
 					Float lower = new Float(discreteDataPoint);
 					Float higher = new Float(discreteDataPoint);
 					errorPair.add(lower);
@@ -1047,7 +1056,7 @@ public class ObservationService extends BasicService {
 		}
 		
 		query.setQuery(q);
-		query.setRows(1000000);
+		query.setRows(-1);
 		// query.set("sort", ExperimentField.DATA_POINT + " asc");
 		query.setFields(ExperimentField.GENE_ACCESSION, ExperimentField.DATA_POINT);
 		query.set("group", true);
@@ -1067,7 +1076,6 @@ public class ObservationService extends BasicService {
 			List<String> genes, ArrayList<String> strains,
 			String biologicalSample,  String[] center, String[] sex) throws SolrServerException {
 
-		List<Integer> res = new ArrayList<Integer>();
 		String urlParams = "";
 		
 		SolrQuery query = new SolrQuery().addFilterQuery(
@@ -1096,19 +1104,20 @@ public class ObservationService extends BasicService {
 			q += ")";
 			urlParams += "&phenotyping_center=" + StringUtils.join(center, "&phenotyping_center=");
 		}
-
+		
 		if (sex != null && sex.length == 1){
 			q += " AND " + ExperimentField.SEX + ":\"" + sex[0] + "\"";
-			urlParams += "&gender=" + sex[0];
+			// Commenting out sex param as graphs don't seem to work with it any more (tables don't load properly)  -  July 4th, 2014
+//			urlParams += "&gender=" + sex[0];
 		}
 		
 		query.setQuery(q);
-		query.setRows(1000000);
+		query.setRows(-1);
 		query.set("sort", ExperimentField.DATA_POINT + " asc");
 		query.setFields(ExperimentField.GENE_ACCESSION, ExperimentField.DATA_POINT, ExperimentField.GENE_SYMBOL);
 		query.set("group", true);
 		query.set("group.field", ExperimentField.COLONY_ID);
-		query.set("group.limit", 200);
+		query.set("group.limit", 300); // how many docs in a group. Since we do unidimensional data, we won't have morw than 300 measures for one animal & one parameter
 		// per group
 
 //		System.out.println("--- unidimensional : " + solr.getBaseURL() + "/select?" + query);
@@ -1148,7 +1157,6 @@ public class ObservationService extends BasicService {
 		EmpiricalDistribution distribution = new EmpiricalDistribution(binCount);
 		if (meansArray.length > 0){
 			distribution.load(meansArray);
-			int k = 0;
 			for (double bound : distribution.getUpperBounds())
 				upperBounds.add(bound);
 			// we we need to distribute the control mutants and the
@@ -1309,8 +1317,78 @@ public class ObservationService extends BasicService {
 		}
 		return resSet;
 	}
+	
+	/**
+	 * This map is needed for the summary on phenotype pages (the percentages & pie chart). It takes a long time to load so it does it asynchronously.
+	 * @param sex
+	 * @return Map < String parameterStableId , ArrayList<String geneMgiIdWithParameterXMeasured>>
+	 * @throws SolrServerException
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 * @author tudose
+	 */
+	public Map<String, ArrayList<String>> getParameterToGeneMap(SexType sex) throws SolrServerException, InterruptedException, ExecutionException{
+		Map<String, ArrayList<String>> res = new ConcurrentHashMap<>();
+		Map<String, Future<ArrayList<String>>> temp = new ConcurrentHashMap<>();
+		Long time = System.currentTimeMillis();
+		
+		// Solr call
+		SolrQuery q = new SolrQuery().setQuery(ExperimentField.SEX + ":" + sex.name()).setRows(1);
+		q.setFilterQueries(ExperimentField.STRAIN + ":\"MGI:2159965\" OR " + ExperimentField.STRAIN + ":\"MGI:2164831\"");
+		q.set("facet.field", ExperimentField.PARAMETER_STABLE_ID);
+		q.set("facet", true);
+		q.set("facet.limit", -1); // we want all facets
+		QueryResponse response = solr.query(q);		
+		System.out.println( " Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
+		
+		// get all parameters we have data for
+		for ( Count parameter : response.getFacetField(ExperimentField.PARAMETER_STABLE_ID).getValues()){
+			// fill genes for each of them
+			if (parameter.getCount() > 0){
+			    temp.put(parameter.getName(), pmapService.getAllGenesWithMeasuresForParameter(parameter.getName(), sex));
+			}
+		}
+		
+		for (String param : temp.keySet()){
+			res.put(param, temp.get(param).get());
+		}
+		
+		System.out.println("Done in " + (System.currentTimeMillis() - time));
+		return res;
+	}
+	
+	public ObservationType getObservationTypeForParameterStableId(String paramStableId) throws SolrServerException{
+		SolrQuery q = new SolrQuery().setQuery(ExperimentField.PARAMETER_STABLE_ID + ":" + paramStableId);
+		q.set("rows", 1);
+		QueryResponse response = solr.query(q);	
+		String type = (String)response.getResults().get(0).getFieldValue(ExperimentField.OBSERVATION_TYPE);
+		
+		if (type.equalsIgnoreCase(ObservationType.unidimensional.toString()))
+			return ObservationType.unidimensional;
 
-	public int getTestedGenes(String sex,
+		if (type.equalsIgnoreCase(ObservationType.categorical.toString()))
+			return ObservationType.categorical;
+		
+		if (type.equalsIgnoreCase(ObservationType.time_series.toString()))
+			return ObservationType.time_series;
+		
+		if (type.equalsIgnoreCase(ObservationType.image_record.toString()))
+			return ObservationType.image_record;
+		
+		if (type.equalsIgnoreCase(ObservationType.metadata.toString()))
+			return ObservationType.metadata;
+		
+		if (type.equalsIgnoreCase(ObservationType.multidimensional.toString()))
+			return ObservationType.multidimensional;
+
+		if (type.equalsIgnoreCase(ObservationType.text.toString()))
+			return ObservationType.text;
+		
+		return null;
+	}
+	
+	
+	public Set<String> getTestedGenes(String sex,
 			List<String> parameters) throws SolrServerException {
 		
 		HashSet<String> genes = new HashSet<String>();
@@ -1327,12 +1405,14 @@ public class ObservationService extends BasicService {
 			
 			SolrQuery q = new SolrQuery().setQuery(query)
 					.addField(ExperimentField.GENE_ACCESSION)
-					.setFilterQueries(ExperimentField.STRAIN + ":\"MGI:2159965\" OR " + ExperimentField.STRAIN + ":\"MGI:2164831\"").setRows(10000);
+					.setFilterQueries(ExperimentField.STRAIN + ":\"MGI:2159965\" OR " + ExperimentField.STRAIN + ":\"MGI:2164831\"").setRows(-1);
 			q.set("group.field", ExperimentField.GENE_ACCESSION);
 			q.set("group", true);
 			if (sex != null) {
 				q.addFilterQuery(ExperimentField.SEX + ":" + sex);
 			}
+//			
+//			System.out.println("Solr url for getTestedGenes " + solr.getBaseURL() + "/select?" + q);
 			// I need to add the genes to a hash in case some come up multiple
 			// times from different parameters
 			List<Group> groups = solr.query(q).getGroupResponse().getValues().get(0).getValues();
@@ -1341,7 +1421,7 @@ public class ObservationService extends BasicService {
 				genes.add((String) gr.getGroupValue());
 			}
 		}
-		return genes.size();
+		return genes;
 	}
 
 	/**
@@ -1477,4 +1557,27 @@ public class ObservationService extends BasicService {
 		return results;
 	}
 
+	public Set<String> getTestedGenesByParameterSex(List<String> parameters, SexType sex){
+		return ptgm.getTestedGenes(parameters, sex);
+	}
+	
+	public List<ObservationDTO> getAllImageRecordObservations()
+            throws SolrServerException {
+
+        SolrQuery query = getIMageRecordSolrQueryByParameter();
+
+        return solr.query(query).getBeans(ObservationDTO.class);
+
+    }
+	 public SolrQuery getIMageRecordSolrQueryByParameter()
+	            throws SolrServerException {
+
+	        return new SolrQuery()
+	                .setQuery(
+	                        "observation_type:image_record")	                                
+	                .addFilterQuery(ExperimentField.DOWNLOAD_FILE_PATH + ":" + "*mousephenotype.org*")
+	                .setRows(10000);
+	    }
+
+	
 }

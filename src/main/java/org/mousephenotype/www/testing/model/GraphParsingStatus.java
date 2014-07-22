@@ -28,6 +28,10 @@ import java.util.List;
 /**
  *
  * @author mrelac
+ * 
+ * This class encapsulates the code and data necessary to represent a page status
+ * for Selenium testing purposes. Use this class to accumulate fail messages
+ * 
  */
 public class GraphParsingStatus {
     private int fail;

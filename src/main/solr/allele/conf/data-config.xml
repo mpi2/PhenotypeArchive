@@ -1,14 +1,6 @@
 <dataConfig>
+
 	<script type='text/javascript'><![CDATA[
-		function set_dataType(row) {
-	        if (row.get('mgi_accession_id')){
-	        	row.put('dataType', 'gene');
-			}
-			if (row.get('latest_phenotype_status')){
-	        	row.put('imits_phenotype_status', row.get('latest_phenotype_status').toString());
-			}
-			return row;
-		}	    
 		
 		function hasQc(row){
 			if (row.get('qcGene')){
@@ -17,9 +9,28 @@
 	   		return row; 
 		}
 		// mapping for es cell/mouse/phenotyping statuses
-		function status_mapping(row){
-			if ( row.get('imits_es_cell_status') ){									
-				es_cell_status = row.get('imits_es_cell_status').toString();					
+		function mapping(row){
+			if (row.get('mgi_accession_id')){
+	        	row.put('dataType', 'gene');
+			}
+			if (row.get('latest_phenotype_status')){
+	        	row.put('imits_phenotype_status', row.get('latest_phenotype_status').toString());
+			}
+		
+		
+			if ( row.get('imits_es_cell_status') || row.get('gene_latest_es_cell_status') ){	
+				es_cell_status = null;	
+				field = null;
+				
+				if ( row.get('imits_es_cell_status') ){
+					es_cell_status = row.get('imits_es_cell_status').toString();
+					field = 'es_cell_status';	
+				}
+				else if ( row.get('gene_latest_es_cell_status') ){
+					es_cell_status = row.get('gene_latest_es_cell_status').toString();
+					field = 'latest_es_cell_status';
+				}					
+												
 				if ( es_cell_status == "No ES Cell Production" ){
 					es_cell_status = "Not Assigned for ES Cell Production";
 				}
@@ -30,24 +41,48 @@
 					es_cell_status = "ES Cells Produced";
 				}
 							
-				row.put('es_cell_status', es_cell_status);
+				if ( field == 'latest_es_cell_status' && es_cell_status != ''){
+					row.put('latest_production_status', es_cell_status);
+				}			
+							
+				row.put(field, es_cell_status);
 			}
-			if ( row.get('imits_mouse_status') ){
-				mouse_status = row.get('imits_mouse_status').toString();				
+			if ( row.get('imits_mouse_status') || row.get('gene_latest_mouse_status') ){
+			
+				mouse_status = null;
+				field = null;
+				
+				if ( row.get('imits_mouse_status') ){
+					mouse_status = row.get('imits_mouse_status').toString();
+					field = 'mouse_status';	
+				}
+				else if ( row.get('gene_latest_mouse_status') ){
+					mouse_status = row.get('gene_latest_mouse_status').toString();
+					field = 'latest_mouse_status';
+				}				
+			
 				if ( mouse_status == "Chimeras obtained" 
-					|| mouse_status == "Micro-injection in progress"
-					|| mouse_status == "Cre Excision Started" 
-					|| mouse_status == "Rederivation Complete"
-					|| mouse_status == "Rederivation Started" ){
+					|| mouse_status == "Micro-injection in progress" ){
 					mouse_status = "Assigned for Mouse Production and Phenotyping"; // orange 
 				}
-				else if (mouse_status == "Genotype confirmed"
+				else if (
+					mouse_status == "Cre Excision Started" 
+					|| mouse_status == "Rederivation Complete"
+					|| mouse_status == "Rederivation Started"
+					|| mouse_status == "Genotype confirmed"
 					|| mouse_status == "Cre Excision Complete" 
 					|| mouse_status == "Phenotype Attempt Registered" ){
 					mouse_status = "Mice Produced"; // blue
-				}				
-				row.put('mouse_status', mouse_status);
+				}	
+					
+				if ( field == 'latest_mouse_status' && mouse_status != '' ){
+					row.put('latest_production_status', mouse_status);
+				}		
+					
+				row.put(field, mouse_status);
 			}			
+			
+			
 			
 	   		return row; 
 		}
@@ -63,11 +98,16 @@
    	<dataSource name="experiment_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/experiment/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>	
 	<dataSource name="phenodigm_core" type="HttpDataSource" baseUrl="http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm/select?" encoding="UTF-8" connectionTimeout="10000" readTimeout="10000"/>
 	
-   	<document name="docs">
+  <document name="docs">
 			
-		<entity dataSource="sanger_allele" name="doc" stream="true" url="q=mgi_accession_id:*&amp;fq=-marker_type:Pseudogene+AND+type:gene&amp;wt=normal&amp;rows=99999"		            
-        	processor="XPathEntityProcessor" forEach="/response/result/doc/"
-            readTimeout="10000" connectionTimeout="10000" transformer="script:set_dataType" >                      
+		<entity dataSource="sanger_allele" name="doc" 
+			stream="true" 
+			url="q=mgi_accession_id:*&amp;fq=feature_type:*+AND+-feature_type:Pseudogene+AND+-feature_type:&quot;heritable+phenotypic+marker&quot;+AND+type:gene&amp;wt=normal&amp;rows=99999"
+        	processor="XPathEntityProcessor" 
+        	forEach="/response/result/doc/"
+            readTimeout="10000" 
+            connectionTimeout="10000" 
+            transformer="script:mapping" >                      
 
 			<field column="mgi_accession_id" xpath="/response/result/doc/str[@name='mgi_accession_id']" />
 			<field column="dataType" name="dataType"/>	
@@ -76,23 +116,35 @@
              	
 			<entity dataSource="komp2db" name="gene_name_sym" 
 				query="select s.symbol as marker_synonym, gf.name as marker_name from synonym s, genomic_feature gf where s.acc=gf.acc and gf. acc='${doc.mgi_accession_id}'">
+			
 				<field column="marker_synonym" name="marker_synonym" />
 				<field column="marker_name" name="marker_name" />
 			</entity>	
 
 			<!-- mouse to human gene symbol mapping: multiple human name can be mapped to one mouse symbol -->
-			<entity dataSource="human2mouse_symbol_core" name="symbol_mapping" stream="true"
-				url="q=mouse_symbol:${doc.marker_symbol}&amp;wt=normal&amp;fl=human_symbol"
-				processor="XPathEntityProcessor" forEach="/response/result/doc/"
+			<entity dataSource="human2mouse_symbol_core" name="symbol_mapping" 
+				stream="true"
+				url="q=mouse_symbol:&quot;${doc.marker_symbol}&quot;&amp;wt=normal&amp;fl=human_symbol"
+				processor="XPathEntityProcessor" 
+				forEach="/response/result/doc/"
 			 	onError="continue" >
 				
 				<field column="human_gene_symbol" xpath="/response/result/doc/str[@name='human_symbol']" />
 				
 			</entity>
 			<!-- latest es cells/mice/phenotyping/ status and centers info at gene level -->
-			<field column="latest_es_cell_status" xpath="/response/result/doc/str[@name='latest_es_cell_status']" />
+			<field column="gene_latest_es_cell_status" xpath="/response/result/doc/str[@name='latest_es_cell_status']" />
+			<field column="latest_es_cell_status" name="latest_es_cell_status" />
 			
+			<!-- mouse status -->
+			<field column="gene_latest_mouse_status" xpath="/response/result/doc/str[@name='latest_mouse_status']" />
+			<field column="latest_mouse_status" name="latest_mouse_status" />
+			<field column="latest_project_status" xpath="/response/result/doc/str[@name='latest_project_status']" />
 			
+			<field column="latest_production_status" name="latest_production_status" />
+			
+			<!-- <field column="status" xpath="/response/result/doc/str[@name='latest_project_status_legacy']" /> --> <!-- status name from Bill Skarnes and used at EBI -->	
+						
 			<!-- imits info at gene level for phenotyping faceting -->						
 			<field column="imits_phenotype_started" xpath="/response/result/doc/str[@name='latest_phenotype_started']" />
 			<field column="imits_phenotype_complete" xpath="/response/result/doc/str[@name='latest_phenotype_complete']" />
@@ -101,20 +153,21 @@
 			<field column="latest_phenotype_status" xpath="/response/result/doc/str[@name='latest_phenotype_status']" />
 			<field column="imits_phenotype_status" name="imits_phenotype_status" />
 
-			<!-- mouse status -->
-			<field column="latest_mouse_status" xpath="/response/result/doc/str[@name='latest_mouse_status']" />-->
-			<field column="latest_project_status" xpath="/response/result/doc/str[@name='latest_project_status']" />
-			<field column="status" xpath="/response/result/doc/str[@name='latest_project_status_legacy']" /> <!-- status name from Bill Skarnes and used at EBI -->	
-
+			
 			<!-- production/phenotyping centers -->
 			<field column="latest_production_centre" xpath="/response/result/doc/arr[@name='latest_production_centre']/str" />
 			<field column="latest_phenotyping_centre" xpath="/response/result/doc/arr[@name='latest_phenotyping_centre']/str" />							                   	
 				
 			<!-- es cells/mice/phenotyping/ status and centers info at allele level -->
-			<entity dataSource="sanger_allele" name="aldoc" stream="true" url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:allele&amp;rows=100&amp;wt=normal"
-       			processor="XPathEntityProcessor" forEach="/response/result/doc/"
-         			readTimeout="10000" connectionTimeout="10000"
-				transformer="script:status_mapping" onError="continue" >
+			<entity dataSource="sanger_allele" name="aldoc" 
+				stream="true" 
+				url="q=mgi_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;fq=type:allele&amp;rows=100&amp;wt=normal"
+       			processor="XPathEntityProcessor" 
+       			forEach="/response/result/doc/"
+         		readTimeout="10000" 
+         		connectionTimeout="10000"
+				transformer="script:mapping" 
+				onError="continue" >
 
 				<field column="allele_name" xpath="/response/result/doc/str[@name='allele_name']" />
 
@@ -132,21 +185,32 @@
 			</entity>
 
 			<!-- check if this gene has been indexed in experiment core, if yes we treat phenotyping status as available -->
-			<entity dataSource="experiment_core" name="qcCheck" stream="true"  onError="continue"
+			<entity dataSource="experiment_core" name="qcCheck" 
+				stream="true"  
+				onError="continue"
 				url="q=gene_accession_id:&quot;${doc.mgi_accession_id}&quot;&amp;wt=normal&amp;fl=gene_accession_id&amp;rows=1"
-				processor="XPathEntityProcessor" forEach="/response/result/doc/" transformer="script:hasQc" >				
+				processor="XPathEntityProcessor" 
+				forEach="/response/result/doc/" 
+				transformer="script:hasQc" >				
 
 				<field column="qcGene" xpath="/response/result/doc/str[@name='gene_accession_id']" />	
 				<field column="hasQc" name="hasQc" />		
 			</entity>			
 			
 			<!-- disease associated with this gene -->			
-			<entity dataSource="diseaseGenedb" name="dg" query="select disease_id from disease2Gene where mgi_id='${doc.mgi_accession_id}'">
+			<entity dataSource="diseaseGenedb" name="dg" 
+				query="select disease_id from disease2Gene where mgi_id='${doc.mgi_accession_id}'">
+				
 				<field column="disease_id" name="disease_id" />
 
-				<entity dataSource="phenodigm_core" name="ddoc" stream="true" url="q=disease_id:&quot;${dg.disease_id}&quot;&amp;fq=type:disease&amp;rows=9999999&amp;wt=normal"
-					processor="XPathEntityProcessor" forEach="/response/result/doc/"                
-					readTimeout="10000" connectionTimeout="10000" onError="continue"> 	
+				<entity dataSource="phenodigm_core" name="ddoc" 
+					stream="true" 
+					url="q=disease_id:&quot;${dg.disease_id}&quot;&amp;fq=type:disease&amp;rows=9999999&amp;wt=normal"
+					processor="XPathEntityProcessor" 
+					forEach="/response/result/doc/"                
+					readTimeout="10000" 
+					connectionTimeout="10000" 
+					onError="continue"> 	
 													                        
 					<field column="type" xpath="/response/result/doc/str[@name='type']" /> 				
 					<field column="disease_source" xpath="/response/result/doc/str[@name='disease_source']" /> 
@@ -165,3 +229,4 @@
 		</entity>
 	</document>
 </dataConfig>
+  

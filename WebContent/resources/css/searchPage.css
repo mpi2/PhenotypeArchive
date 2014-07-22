@@ -13,6 +13,14 @@ ul.ui-autocomplete li a {
 ul.ui-autocomplete li a:hover {
 	background-color: #D4D4D4 !important;	
 }
+span#rmFilters {
+	color: #0978A1;
+	padding-right: 5px;
+}
+
+span.ui-helper-hidden-accessible {
+	font-size: 14px;
+}
 span.gene, span.mp, span.ma, span.disease {
 	color: black;
 }
@@ -41,6 +49,7 @@ div#facetSrchMsg {
 
 /* facet - main categories */
 .fmcat > .flabel                        { color: #0978A1; font-size: 1.4em; font-weight: 300; }
+.fmcat > .flabel.grayout				{ color: #cccccc; }	
 .fmcat                                  { margin: 1em 0; }
 .fmcat:before                           { font-family: 'FontAwesome'; content: "\f0da"; color: #0978A1; margin-right: 0.5em; }
 .fmcat.open:before                      { content: "\f0d7"; }
@@ -61,6 +70,9 @@ div#facetSrchMsg {
 .fcatsection.inactive                   { color: #bbb; }
 .grayout {
 	color: #CCCCCC;
+}
+li.fcat.grayout, li.fcat input.grayout {
+	cursor: not-allowed;
 }
 
 /* facet - categories */
@@ -148,7 +160,7 @@ table#imagesGrid th:nth-child(1) {
 div#tableTool {
 	font-size: 14px;
 	position: relative;
-	top: -100px;
+	top: -120px;
 	right: 0;	
 }
 div#saveTable {
@@ -221,12 +233,16 @@ span.status.done {
 	padding: 0.1em 0.4em;
 	cursor: default !important;
 }
+a.status.qc, span.status.qc        { background:gray !important; }
 
 /* Table Headings */
 th span.main                        { white-space:nowrap; }
 th span.sub                         { font-size: 0.8em; display: block;} 
 /* end of Disease search results */
 
+div.dataTable {
+	margin-top: 20px !important;
+}
 /* dataTable pagination styling */
 span.ellipse {
 	display: block;
@@ -241,4 +257,10 @@ div.mpCol div.title a, div.maCol div.title a {
 span#dnld {
         font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif !important;
         color: #0978A1;
+}
+span.dtype {
+	color: gray;
+}
+span.subMatch {
+	color: #0978A1;
 }

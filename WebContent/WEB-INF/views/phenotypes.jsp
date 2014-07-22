@@ -47,6 +47,7 @@
                 		<li><a href="#data-summary">Phenotype Association Stats</a></li>
                 </c:if>
                 <li><a href="#gene-variants">Gene Variants</a></li><!-- message comes up in this section so dont' check here -->
+                <li><a href="#phenotypeHeatmapSection">Heatmap</a></li>
             </ul>
             
             <div class="clear"></div>
@@ -163,8 +164,8 @@
 								<c:if test="${parametersAssociated.size() > 1}">
 									<p> Select a parameter <i class="fa fa-bar-chart-o" ></i>&nbsp; &nbsp;
 										<select onchange="ajaxToBe('${phenotype.id.accession}', this.options[this.selectedIndex].value);">
-											<c:forEach var="assocParam" items="${parametersAssociated.keySet().toArray()}" varStatus="loop">
-												<option value="${assocParam}">${parametersAssociated.get(assocParam)} (${assocParam})</option>
+											<c:forEach var="assocParam" items="${parametersAssociated}" varStatus="loop">
+												<option value="${assocParam.getStableId()}">${assocParam.getName()} (${assocParam.getStableId()})</option>
 											</c:forEach>
 										</select>
 									</p>
@@ -172,7 +173,7 @@
 								<br/>
 	
 								<div id="chart-container">
-									<div id="single-chart-div" class="oChart" parameter="${parametersAssociated.keySet().iterator().next()}" mp="${phenotype.id.accession}">
+									<div id="single-chart-div" class="oChart" parameter="${parametersAssociated.get(0).getStableId()}" mp="${phenotype.id.accession}">
 									</div>
 									<div id="spinner-overview-charts"><i class="fa fa-refresh fa-spin"></i></div>
 								</div>

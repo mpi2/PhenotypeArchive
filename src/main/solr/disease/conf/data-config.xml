@@ -25,7 +25,7 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
       	
   		<entity dataSource="phenodigm_core" name="ddoc" stream="true" url="q=*:*&amp;fq=type:disease&amp;rows=9999999"
     		processor="XPathEntityProcessor" forEach="/response/result/doc/"                
-    		readTimeout="10000" connectionTimeout="10000" transformer="script:set_dataType" > 
+    		readTimeout="40000" connectionTimeout="10000" transformer="script:set_dataType" > 
 
             <field column="disease_id" xpath="/response/result/doc/str[@name='disease_id']" />                                   
             <field column="type" xpath="/response/result/doc/str[@name='type']" />           
@@ -43,7 +43,12 @@ rated, ds.mgi_predicted, ds.impc_predicted, ds.mgi_predicted_in_locus, ds.impc_p
 			<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  			
 			
 			<!-- genes associated with this disease -->
-			<entity dataSource="diseaseGenedb" name="dg" query="select mgi_id from disease2Gene where disease_id='${ddoc.disease_id}'">
+			<entity dataSource="diseaseGenedb" name="dg" 
+				processor="CachedSqlEntityProcessor" 
+				onError="continue"
+				query="select mgi_id, disease_id from disease2Gene"
+				where="disease_id=ddoc.disease_id">
+			
 				<field column="mgi_id" name="mgi_accession_id" />				
 
 				<!-- genes associated with this disease -->

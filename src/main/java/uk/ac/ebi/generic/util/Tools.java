@@ -15,7 +15,12 @@
  */
 package uk.ac.ebi.generic.util;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang.StringUtils;
 
 public class Tools {
 	// check a string contains only numbers
@@ -56,5 +61,23 @@ public class Tools {
             long seconds = diff / 1000 % 60;
             
             return String.format("%02d:%02d:%02d:%02d", days, hours, minutes, seconds);
-        }
+	}
+	
+	public static String highlightMatchedStrIfFound(String qry, String target, String selector, String cssClass) {
+		// the works for multiple words in the qry; it will match multiple places in the target string
+		String kw;
+		if ( qry.equals("*:*") ) {
+			return target;	
+		}
+		else if ( qry.startsWith("%22") && qry.endsWith("%22") ) {
+			kw = qry.replaceAll("%22|\\*", "").replaceAll("%20"," ");
+		}
+		else {
+			kw = StringUtils.join(qry.split("%20"), "|").replaceAll("\\*","");
+		}
+		//System.out.println("-------" + qry + " vs " + kw);
+		// (?im) at the beginning of the regex turns on CASE_INSENSITIVE and MULTILINE modes.
+		// $0 in the replacement string is a placeholder whatever the regex matched in this iteration. 
+		return target.replaceAll("(?im)"+kw, "<" + selector + " class='" + cssClass + "'>$0" + "</" + selector + ">");
+	}
 }

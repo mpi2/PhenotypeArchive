@@ -154,7 +154,7 @@ public class FileExportController {
         List<ExperimentDTO> experiments = experimentService.getExperimentDTO(parameter.getId(), pipeline.getId(), geneAcc, sex, centerId, zygosities, strainAccession, null, Boolean.FALSE, alleleAcc);
         
         List<String> rows = new ArrayList<>();
-        rows.add(StringUtils.join(new String[] { "Experiment", "Center", "Pipeline", "Procedure", "Parameter", "Strain", "Gene", "Allele", "MetadataGroup", "Zygosity", "Sex", "AssayDate", "Value" }, "\t"));
+        rows.add(StringUtils.join(new String[] { "Experiment", "Center", "Pipeline", "Procedure", "Parameter", "Strain", "Colony", "Gene", "Allele", "MetadataGroup", "Zygosity", "Sex", "AssayDate", "Value" }, ", "));
         
         Integer i=1;
         
@@ -172,10 +172,11 @@ public class FileExportController {
                 row.add(procedureStableId);
                 row.add(parameterStableId);
                 row.add(observation.getStrain());
-                row.add((observation.getObservationType().equals("control"))?"+/+":geneAcc);
-                row.add((observation.getObservationType().equals("control"))?"+/+":alleleAcc);
-                row.add(observation.getMetadataGroup());
-                row.add(observation.getZygosity());
+                row.add((observation.getGroup().equals("control"))?"+/+":observation.getColonyId());
+                row.add((observation.getGroup().equals("control"))?"\"\"":geneAcc);
+                row.add((observation.getGroup().equals("control"))?"\"\"":alleleAcc);
+                row.add((observation.getMetadataGroup()!=null && !observation.getMetadataGroup().isEmpty()) ? observation.getMetadataGroup():"\"\"");
+                row.add((observation.getZygosity() != null && !observation.getZygosity().isEmpty()) ? observation.getZygosity():"\"\"");
                 row.add(observation.getSex());
                 row.add(observation.getDateOfExperimentString());
                 
@@ -186,7 +187,7 @@ public class FileExportController {
                 
                 row.add(dataValue);
 
-                rows.add(StringUtils.join(row, "\t"));
+                rows.add(StringUtils.join(row, ", "));
             }
             
             // Next experiment
@@ -218,7 +219,7 @@ public class FileExportController {
 		@RequestParam(value="strains", required=false) String[] strains, // should be filled for graph data export
 		@RequestParam(value="geneSymbol", required=false) String geneSymbol,			
 		@RequestParam(value="solrCoreName", required=false) String solrCoreName,
-		@RequestParam(value="params", required=false) String solrParams,
+		@RequestParam(value="params", required=false) String solrFilters,
 		@RequestParam(value="gridFields", required=false) String gridFields,		
 		@RequestParam(value="showImgView", required=false, defaultValue="false") boolean showImgView,		
 		@RequestParam(value="dumpMode", required=false) String dumpMode,	
@@ -232,9 +233,8 @@ public class FileExportController {
 		Model model
 		) throws Exception{	
 		
-		log.debug("solr params: " + solrParams);
+		log.debug("solr params: " + solrFilters);
 		Workbook wb = null;
-		String dataString = null;
 		List<String> dataRows = new ArrayList<String> ();
 		// Default to exporting 10 rows
 		Integer length = 10;
@@ -268,13 +268,13 @@ public class FileExportController {
 			}
 			else if (solrCoreName.equalsIgnoreCase("genotype-phenotype")){
 				if (mgiGeneId !=null)
-					dataRows = composeDataRowGeneOrPhenPage(mgiGeneId[0], request.getParameter("page"));
+					dataRows = composeDataRowGeneOrPhenPage(mgiGeneId[0], request.getParameter("page"), solrFilters);
 				else if (mpId != null)
-					dataRows = composeDataRowGeneOrPhenPage(mpId, request.getParameter("page"));
+					dataRows = composeDataRowGeneOrPhenPage(mpId, request.getParameter("page"), solrFilters);
 			}
 			else{
-				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrParams, gridFields, rowStart, length);
-				dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrParams, request);
+				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart, length);
+				dataRows = composeDataTableExportRows(solrCoreName, json, rowStart, length, showImgView, solrFilters, request);
 			}
 		}
 		
@@ -329,6 +329,7 @@ public class FileExportController {
 		}
 		return null;		
 	}
+	
 	private int parseMaxRow(String solrParams){		
 		String[] paramsList = solrParams.split("&"); 
 		int facetCount = 0;
@@ -689,7 +690,7 @@ public class FileExportController {
 	}
 	
 
-	private List<String> composeDataRowGeneOrPhenPage(String id, String pageName){
+	private List<String> composeDataRowGeneOrPhenPage(String id, String pageName, String filters){
 		
 		List<String> res = new ArrayList<>();
 		List<PhenotypeCallSummary> phenotypeList = new ArrayList<PhenotypeCallSummary>();
@@ -698,7 +699,7 @@ public class FileExportController {
 		if (pageName.equalsIgnoreCase("gene")){
 			
 			try {	
-				phenoResult = phenoDAO.getPhenotypeCallByGeneAccessionAndFilter(id, "");
+				phenoResult = phenoDAO.getPhenotypeCallByGeneAccessionAndFilter(id, filters);
 				phenotypeList=phenoResult.getPhenotypeCallSummaries();
 			} catch (HibernateException|JSONException e) {
 				log.error("ERROR GETTING PHENOTYPE LIST");
@@ -720,8 +721,8 @@ public class FileExportController {
 				phenotypes.add(pr);
 			}
 						
-			Collections.sort(phenotypes); // sort in alpha order by MP term name
-			res.add("Phenotype\tAllele\tZygosity\tSex\tProcedure / Parameter\tPhenotyping Center\tSource\tGraph");
+//			Collections.sort(phenotypes); // sort in alpha order by MP term name
+			res.add("Phenotype\tAllele\tZygosity\tSex\tProcedure | Parameter\tPhenotyping Center\tSource\tP Value\tGraph");
 			for (PhenotypeRow pr : phenotypes){
 				res.add(pr.toTabbedString("gene"));
 			}		
@@ -733,7 +734,7 @@ public class FileExportController {
 			phenotypeList = new ArrayList<PhenotypeCallSummary>();
 
 			try {
-				phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(id.replaceAll("\"", ""), "");
+				phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(id.replaceAll("\"", ""), filters);
 				phenotypeList = phenoResult.getPhenotypeCallSummaries();
 			} catch (HibernateException|JSONException e) {
 				log.error("ERROR GETTING PHENOTYPE LIST");
@@ -745,7 +746,7 @@ public class FileExportController {
 			}
 	
 			ArrayList<PhenotypeRow> phenotypes = new ArrayList<PhenotypeRow>();
-			res.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure / Parameter\tPhenotyping Center\tSource\tGraph"); 
+			res.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure | Parameter\tPhenotyping Center\tSource\tP Value\tGraph"); 
 			for (PhenotypeCallSummary pcs : phenotypeList) {
 	
 				// Use a tree set to maintain an alphabetical order (Female, Male)
@@ -760,7 +761,7 @@ public class FileExportController {
 			}
 
 
-			Collections.sort(phenotypes); // sort in alpha order by gene symbol name
+//			Collections.sort(phenotypes); // sort in alpha order by gene symbol name
 			for (PhenotypeRow pr : phenotypes){
 				res.add(pr.toTabbedString("phenotype"));
 			}

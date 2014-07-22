@@ -50,13 +50,14 @@
 				'fq': fq,
 				'rows': 0, // override default
 				'facet': 'on',								
-				'facet.mincount': 1,
+				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
 				'facet.field': facetField,
 				//'facet.field': 'annotatedHigherLevelMpTermName',
 				'facet.sort': 'index',						
 				'q.option': 'AND',
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
+				'q' : self.options.data.hashParams.q
+				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
 	    
 	    	$.ajax({	
 	    		'url': solrUrl + '/mp/select',
@@ -75,38 +76,43 @@
 	    	    		if ( aTopLevelCount[i] == 'mammalian phenotype'){
 	    	    			continue;
 	    	    		}
-	    	    		var liContainer = $("<li></li>").attr({'class':'fcat'});
-	        				        		
-	        			var count = aTopLevelCount[i+1];						
+	        		
+	        			var count = aTopLevelCount[i+1];	
+	        			var isGrayout = count == 0 ? 'grayout' : '';
+	        			
+	        			var liContainer = $("<li></li>").attr({'class':'fcat'});
+	        			liContainer.removeClass('grayout').addClass(isGrayout);
+	        			
 	        			//var coreField = 'mp|annotatedHigherLevelMpTermName|' + aTopLevelCount[i] + '|' + count;
 	        			var coreField = 'mp|' + facetField + '|' + aTopLevelCount[i] + '|' + count;
 						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});
-							    	    		
+							    	    
 	    	    		var flabel = $('<span></span>').attr({'class':'flabel'}).text(aTopLevelCount[i].replace(' phenotype', ''));
 						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 						liContainer.append(chkbox, flabel, fcount);
+						
 						mpUlContainer.append(liContainer);
 	    	    	}    		    	    	
 	    	    		    			 
 	    			// update all subfacet counts of this facet 
-	        		$('div.flist li#mp > ul').append(mpUlContainer);  
+	        		$('div.flist li#mp > ul').append(mpUlContainer); 
+	        		
+	        		$.fn.cursorUpdate('mp', 'not-allowed');
+	        		
 	        		$.fn.initFacetToggles('mp');
 	        		
 	        		$('li#mp li.fcat input').click(function(){	
+	        			
 	        			// // highlight the item in facet	    			
 	        			$(this).siblings('span.flabel').addClass('highlight');
+	        			MPI2.searchAndFacetConfig.update.filterAdded = true;
 	    				$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
-	    			});    		
-	        		 
-	        		/*--------------------------------------------------------------------------------------------------------------------------*/
-	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
-	    	    	/*--------------------------------------------------------------------------------------------------------------------------*/	
-	        		//console.log('****page load for mp facet');
-	        		var oConf = self.options.data.hashParams;
-	    	    	oConf.core = self.options.data.core;
-	    	    	
-	    	    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);		   			
-	    		}		
+	    			});  
+	        		
+//		    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
+//		    			$.fn.process_kwSearch(self);
+//		    		}	
+	    		}
 	    	});		    	
 	    },	   
 	    

@@ -38,19 +38,6 @@
 	    _initFacet: function(){
 	    	var self = this;    	
 	    	
-	    	/*var queryParams = $.extend({}, {				
-		    	'fq': MPI2.searchAndFacetConfig.facetParams.maFacet.fq,
-				'rows': 0, // override default
-				'facet': 'on',								
-				'facet.mincount': 1,
-				'facet.limit': -1,
-				'facet.field': fecetField,
-				//'facet.field': 'annotated_or_inferred_higherLevelMaTermName',
-				'facet.sort': 'index',						
-				'q.option': 'AND',
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams);
-	    		*/    
-	    	
 	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
 	    			: self.options.data.hashParams.fq;
 	    	
@@ -62,13 +49,14 @@
 				'fq': fq,
 				'rows': 0, // override default
 				'facet': 'on',								
-				'facet.mincount': 1,
+				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
 				'facet.field': facetField,
 				//'facet.field': 'annotatedHigherLevelMpTermName',
 				'facet.sort': 'index',						
 				'q.option': 'AND',
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
+				'q' : self.options.data.hashParams.q
+				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
 	    	
 	    	
 	    	$.ajax({	
@@ -77,7 +65,7 @@
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
 	    		'success': function(json) {
-	    			console.log(json);
+	    			//console.log(json);
 	    			// update this if facet is loaded by redirected page, which does not use autocomplete
 	    			//$('div#maFacet span.facetCount').attr({title: 'total number of unique MA terms'}).text(json.response.numFound);
 	    				    			
@@ -92,6 +80,9 @@
 	        		
 	        			var count = aTopLevelCount[i+1];	        				
 	        			var coreField = 'ma|'+ facetField + '|' + aTopLevelCount[i] + '|' + count;	
+	        			var isGrayout = count == 0 ? 'grayout' : '';
+	        			liContainer.removeClass('grayout').addClass(isGrayout);
+	        			
 	        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField});
 	        			var flabel = $('<span></span>').attr({'class':'flabel'}).text(aTopLevelCount[i]);
 						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
@@ -100,7 +91,10 @@
 	    	    	}    	
 	    	    		    			
 	    			// update all subfacet counts of this facet 
-	        		$('div.flist li#ma > ul').append(maUlContainer);	        		        		
+	        		$('div.flist li#ma > ul').append(maUlContainer);
+	        		
+	        		// change cursor for grayout filter
+	    			$.fn.cursorUpdate('ma', 'not-allowed');
 	        		
 	        		$.fn.initFacetToggles('ma');
 	        		
@@ -108,19 +102,13 @@
 	        			
 	        			// // highlight the item in facet	    			
 	        			$(this).siblings('span.flabel').addClass('highlight');
+	        			MPI2.searchAndFacetConfig.update.filterAdded = true;
 	    				$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 	    			});   
 	        		
-	        		/*--------------------------------------------------------------------------------------------------------------------------*/
-	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
-	    	    	/*--------------------------------------------------------------------------------------------------------------------------*/	
-	    	    	
-	        		var oConf = self.options.data.hashParams;
-	    	    	oConf.core = self.options.data.core;
-	    	    	console.log(oConf);
-	    	    	
-	    	    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);
-	    			
+//		    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
+//		    			$.fn.process_kwSearch(self);
+//		    		}	
 	    		}		
 	    	});		    	
 	    	

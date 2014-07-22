@@ -16,15 +16,12 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.Proxy;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,9 +38,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.hibernate.HibernateException;
@@ -60,38 +55,27 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.generic.util.SolrIndex;
-import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
-import uk.ac.ebi.phenotype.pojo.Datasource;
-import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummaryDAOReadOnly;
 import uk.ac.ebi.phenotype.pojo.Procedure;
+import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.Synonym;
 import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.service.ObservationService;
-import uk.ac.ebi.phenotype.stats.ChartData;
-import uk.ac.ebi.phenotype.stats.ExperimentDTO;
-import uk.ac.ebi.phenotype.stats.ObservationDTO;
-import uk.ac.ebi.phenotype.stats.categorical.CategoricalChartAndTableProvider;
-import uk.ac.ebi.phenotype.stats.categorical.CategoricalResultAndCharts;
-import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
-import uk.ac.ebi.phenotype.stats.timeseries.TimeSeriesChartAndTableProvider;
-import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalChartAndTableProvider;
+import uk.ac.ebi.phenotype.util.ParameterComparator;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
+import uk.ac.ebi.phenotype.util.ProcedureComparator;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
-import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow.PhenotypeRowType;
-import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 @Controller
 public class PhenotypesController {
@@ -125,7 +109,7 @@ public class PhenotypesController {
 	
 	@Autowired
 	MpService mpService;
-	
+		
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 	
@@ -252,15 +236,18 @@ public class PhenotypesController {
 		processPhenotypes(phenotype_id, "", model);
 
 		model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
-		
-		TreeSet<Procedure> procedures = new TreeSet<Procedure>(pipelineDao.getProceduresByOntologyTerm(oTerm));
-		model.addAttribute("phenotype", oTerm);
+		List<Procedure> procedures = new ArrayList<Procedure>(pipelineDao.getProceduresByOntologyTerm(oTerm));
+		Collections.sort(procedures, new ProcedureComparator());
 		model.addAttribute("procedures", procedures);
-		model.addAttribute("genePercentage", getPercentages(phenotype_id));
+		model.addAttribute("phenotype", oTerm);
 		
+		long time = System.currentTimeMillis();
+		model.addAttribute("genePercentage", getPercentages(phenotype_id));
+		log.info("\tTime loading percentages: " + (System.currentTimeMillis() - time) + "ms");
+	
+		time = System.currentTimeMillis();
 		model.addAttribute("parametersAssociated", getParameters(phenotype_id));
-		//TODO move all getDataOverviewCharts to the OverviewChartsController
-//		model.addAttribute("overviewPhenCharts", getDataOverviewCharts(phenotype_id, model));
+		log.info("\tTime loading parametersAssociated: " + (System.currentTimeMillis() - time) + "ms");
 		
 		return "phenotypes";
 	}
@@ -293,6 +280,8 @@ public class PhenotypesController {
 			phenotypeList = new ArrayList<PhenotypeCallSummary>();
 		}
 
+		long time = System.currentTimeMillis();
+		
 		// This is a map because we need to support lookups
 		Map<PhenotypeRow,PhenotypeRow> phenotypes = new HashMap<PhenotypeRow,PhenotypeRow>(); 
 		
@@ -313,23 +302,24 @@ public class PhenotypesController {
 				pr.setSexes(new ArrayList<String>(sexes));
 			}
 			
-			if(pr.getParameter() != null && pr.getProcedure()!= null) {		
-				//if(pr.getGene().getSymbol().equals("Dll1")){
+			if(pr.getParameter() != null && pr.getProcedure()!= null) {
 				phenotypes.put(pr, pr);
-				//}
 			}
 		}
 		
 		List <PhenotypeRow> list=new ArrayList<PhenotypeRow>(phenotypes.keySet());
 		Collections.sort(list);
+		
 		//Map names=new 
 		for(PhenotypeRow pr: list){
 			if(pr.getGene().getSymbol().equals("Dll1"))System.out.println("phenotype row="+pr);
 		}
 		model.addAttribute("phenotypes", new ArrayList<PhenotypeRow>(phenotypes.keySet()));	
-//		System.out.println("\n\n" + solrIndex
-//				.getMpData(phenotype_id)
-//				.getJSONObject("response") );
+
+		log.info("\tTime loading association table objects: " + (System.currentTimeMillis() - time) + "ms");
+		
+		time = System.currentTimeMillis();
+		
 		JSONObject mpData = solrIndex
 				.getMpData(phenotype_id)
 				.getJSONObject("response")
@@ -338,9 +328,11 @@ public class PhenotypesController {
 		if (mpData.containsKey("ontology_subset")){
 			model.addAttribute("isImpcTerm", mpData.getJSONArray("ontology_subset").contains("IMPC_Terms"));
 		}
+		
 		else {
 			model.addAttribute("isImpcTerm", false);
 		}
+		log.info("\tTime loading phenotype informaition: " + (System.currentTimeMillis() - time) + "ms");
 		
 	}	
 	
@@ -441,8 +433,10 @@ public class PhenotypesController {
 		
 		List<String> parameters = new ArrayList<>(getParameterStableIdsByPhenotypeAndChildren(phenotype_id));
 		// males & females	
-		nominator = gpService.getGenesBy(phenotype_id, null).size();
- 		total = os.getTestedGenes(null, parameters);
+		nominator = gpService.getGenesBy(phenotype_id, null).size(); 		
+
+// 		total = os.getTestedGenes(null, parameters).size();
+		total = os.getTestedGenesByParameterSex(parameters, null).size();
  		pgs.setTotalPercentage(100*(float)nominator/(float)total);
 		pgs.setTotalGenesAssociated(nominator);
 		pgs.setTotalGenesTested(total);
@@ -459,7 +453,8 @@ public class PhenotypesController {
 				genesFemalePhenotype.add((String)g.getGroupValue());
 			}
 			nominator = genesFemalePhenotype.size();
-			total = os.getTestedGenes("female", parameters);
+//			total = os.getTestedGenes("female", parameters).size();
+			total = os.getTestedGenesByParameterSex(parameters, SexType.female).size();
 			pgs.setFemalePercentage(100*(float)nominator/(float)total);
 			pgs.setFemaleGenesAssociated(nominator);
 			pgs.setFemaleGenesTested(total);
@@ -469,7 +464,8 @@ public class PhenotypesController {
 				genesMalePhenotype.add(g.getGroupValue()) ;
 			}
 			nominator = genesMalePhenotype.size();
-			total = os.getTestedGenes("male", parameters);
+//			total = os.getTestedGenes("male", parameters).size();
+			total = os.getTestedGenesByParameterSex(parameters, SexType.male).size();
 			pgs.setMalePercentage(100*(float)nominator/(float)total);
 			pgs.setMaleGenesAssociated(nominator);
 			pgs.setMaleGenesTested(total);
@@ -485,25 +481,30 @@ public class PhenotypesController {
 		pgs.setFemaleOnlyNumber(genesFemalePhenotype.size());
 		pgs.setMaleOnlyNumber(genesMalePhenotype.size());
 		pgs.fillPieChartCode();
+		
+//		System.out.println(">Parameters \n " + parameters);
+		
 		return pgs;
 	}
 	
-	public Map<String, String> getParameters(String mpId) throws SolrServerException {
-		Map<String, String> res = new HashMap<String, String>();
-		HashSet<String> paramIds = getParameterStableIdsByPhenotypeAndChildren(mpId);
-		for (String param : paramIds){
-			if (gpService.getGenesAssocByParamAndMp(param, mpId).size() > 0){
-				Parameter p =  pipelineDao.getParameterByStableId(param);
-				res.put(param,p.getName());
-			}
-		}
-		return res;
+	/**
+	 * 
+	 * @param mpId
+	 * @return List of parameters that led to an association to the given phenotype term or any of it's children
+	 * @throws SolrServerException
+	 */
+	public List<Parameter> getParameters(String mpId) throws SolrServerException {
+		List<Parameter> parameters = gpService.getParametersForPhenotype(mpId);		
+		
+		Collections.sort(parameters, new ParameterComparator());
+		
+		return parameters;
 	}
 	
 	/**
 	 * 
 	 * @param mpTermId
-	 * @return List of all parameters associated to the mp term or any of it's children (based on the slim only)
+	 * @return List of all parameters that may lead to associations to the MP term or any of it's children (based on the slim only)
 	 */
 	public HashSet<String> getParameterStableIdsByPhenotypeAndChildren(String mpTermId) {
 		HashSet<String> res = new HashSet<>();

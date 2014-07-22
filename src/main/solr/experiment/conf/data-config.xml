@@ -131,7 +131,7 @@
 				ls.date_of_birth as birthdate, ls.colony_id, ls.sex as sex, ls.colony_id, ls.zygosity, 
 				bms.biological_model_id as bmid,
 				strain.acc as strain_acc, strain.name as strain_name, 
-				CASE WHEN bma.allele_acc LIKE 'IMPC%' THEN NULL ELSE bma.allele_acc END as allele_accession, a.symbol as allele_symbol, 
+				CASE WHEN bma.allele_acc LIKE 'IMPC%' THEN CONCAT('NULL-', UPPER(SUBSTR(MD5(a.symbol),1,10))) ELSE bma.allele_acc END as allele_accession, a.symbol as allele_symbol, 
 				gf.acc as acc, gf.symbol as symbol 
 				FROM biological_sample bs
 				INNER JOIN organisation org ON bs.organisation_id=org.id

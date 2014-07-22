@@ -40,33 +40,23 @@
 	    
 		_initFacet: function(){
 	    	var self = this;
-	    	 	
-	    	/*var queryParams = $.extend({}, { 
-				'rows': 0,
-				'facet': 'on',								
-				'facet.mincount': 1,
-				'facet.limit': -1,							
-				'facet.sort': 'count',					
-	    		'q': self.options.data.hashParams.q},
-	    		MPI2.searchAndFacetConfig.commonSolrParams,
-	    		MPI2.searchAndFacetConfig.facetParams.geneFacet.filterParams
-	    	);    	   	
-	    	*/
 	    
+	    	//console.log('current fq: '+MPI2.searchAndFacetConfig.currentFq);
 	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
 	    			: self.options.data.hashParams.fq;
 	    	
 	    	var oParams = {};		
-	        oParams = $.fn.getSolrRelevanceParams('gene', self.options.data.hashParams.q, oParams);
-	    	
+	        oParams = $.fn.getSolrRelevanceParams('gene', self.options.data.hashParams.q, oParams); // has q 
+	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
 				'rows': 0, // override default
 				'facet': 'on',								
-				'facet.mincount': 1,
+				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
-				'facet.sort': 'count',						
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);	
+				'facet.sort': 'count',	
+				'q' : self.options.data.hashParams.q	
+				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);	
 	    	
 	    	
 	    	// facet on latest_phenotype_status 
@@ -87,6 +77,7 @@
 				  + '&facet.field=latest_phenotyping_centre';
 	    	
 	    	//console.log('GENE: '+ queryParamStr);
+	    	
 	    	$.ajax({ 				 					
 	    		'url': solrUrl + '/gene/select',	    		
 	    		'data': queryParamStr, 
@@ -148,13 +139,15 @@
 					var phenotypingStatusFq = MPI2.searchAndFacetConfig.phenotypingStatuses[aPhenos[i]].fq;
 					var phenotypingStatusVal = MPI2.searchAndFacetConfig.phenotypingStatuses[aPhenos[i]].val; 
 					var count = pheno_count[aPhenos[i]];
-									
+					var isGrayout = count == 0 ? 'grayout' : '';
+					
 					if ( count !== undefined ){
 						
 						var liContainer = $("<li></li>").attr({'class':'fcat phenotyping'});
 						
 						var coreField = 'gene|'+ phenotypingStatusFq + '|';						
 						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + phenotypingStatusVal + '|' + count + '|phenotyping'});
+						liContainer.removeClass('grayout').addClass(isGrayout);
 						var flabel = $('<span></span>').attr({'class':'flabel'}).text(aPhenos[i]);
 						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 						
@@ -184,12 +177,14 @@
 				for ( var i=0; i<MPI2.searchAndFacetConfig.geneStatuses.length; i++ ){
 					var status = MPI2.searchAndFacetConfig.geneStatuses[i];
 					var count = status_count[MPI2.searchAndFacetConfig.geneStatuses[i]];					
+					var isGrayout = count == 0 ? 'grayout' : '';
 					
 					if ( count !== undefined ){
 						var liContainer = $("<li></li>").attr({'class':'fcat production'});
 						
 						var coreField = 'gene|status|';
 						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + status + '|' + count + '|production'});
+						liContainer.removeClass('grayout').addClass(isGrayout);
 						
 						liContainer.append(chkbox);
 						liContainer.append($('<span class="flabel">' +status + '</span>'));
@@ -219,10 +214,13 @@
 		    		for ( var i=0; i<center_facets.length; i+=2 ){ 
 						var center = center_facets[i];
 						var count = center_facets[i+1];
+						
 						if ( center != '' ){ // skip solr field which value is an empty string
 							var liContainer = $("<li></li>").attr({'class':'fcat '+ centers[c].facet});
 							var coreField = 'gene|'+centers[c].facet+'|';
 							var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + center + '|' + count + '|'+centers[c].facet});
+							var isGrayout = count == 0 ? 'grayout' : '';
+							liContainer.removeClass('grayout').addClass(isGrayout);	
 							
 							liContainer.append(chkbox);
 							liContainer.append($('<span class="flabel">' + center + '</span>'));
@@ -249,8 +247,11 @@
 					var type = mkr_facets[i];
 					
 					var count = mkr_facets[i+1];	
-					var coreField = 'gene|marker_type|';						
-					var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + type + '|' + count + '|marker_type'});					
+					var coreField = 'gene|marker_type|';	
+					var isGrayout = count == 0 ? 'grayout' : '';
+					liContainer.removeClass('grayout').addClass(isGrayout);
+					
+					var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + type + '|' + count + '|marker_type'});
 					var flabel = $('<span></span>').attr({'class':'flabel'}).text(type);
 					var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 					
@@ -270,31 +271,33 @@
 	    		}	    		
 	    		subTypeSect.append(subTypeUlContainer);
 	    		$('div.flist li#gene > ul').append(subTypeSect);
-	    			    			    		
+	    		$.fn.initFacetToggles('gene');
+	    		
 	    		var selectorBase = "div.flist li#gene";
+	    		
+	    		// subfacet opening/closing behavior
 	    		// collapse all subfacet first, then open the first one that has matches 
 				$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');	    		
 	    		$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
-	    			    		
-	    		$.fn.initFacetToggles('gene');
 	    		
-	    		$('li#gene li.fcat input').click(function(){	    			
+	    		// change cursor for grayout filter
+    			$.fn.cursorUpdate('gene', 'not-allowed');
+    			
+	    		$('li#gene li.fcat input').click(function(){
+	    			
 	    			// // highlight the item in facet	    			
 	    			$(this).siblings('span.flabel').addClass('highlight');
+	    			
+	    			MPI2.searchAndFacetConfig.update.filterAdded = true;
 					$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
-				});	    		
+				});	 
+	    		
+//	    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
+//	    			alert('gene kw search');
+//	    			$.fn.process_kwSearch(self);
+//	    		}	
+	    		
     		}
-	    	
-	    	/*--------------------------------------------------------------------------------------------------------------------------*/
-	    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
-	    	/*--------------------------------------------------------------------------------------------------------------------------*/	
-	    	//console.log('****page load for gene facet');
-	    	
-	    	var oConf = self.options.data.hashParams;
-	    	oConf.core = self.options.data.core;
-	    	
-	    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);
-	    	
 	    },	       
 	  
 	    destroy: function () {    	   

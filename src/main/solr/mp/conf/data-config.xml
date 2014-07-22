@@ -21,24 +21,12 @@
 			<field column="node_id" name="mp_node_id" />		
 
 			<!-- images annotated to this MP -->
-		  	<entity dataSource="images_core" name="imgCore" stream="true" url="q=mpTermId:&quot;${mp_term_infos.term_id}&quot;&amp;wt=normal&amp;rows=999999"
-				processor="XPathEntityProcessor" forEach="/response/result/doc/"							
-				readTimeout="10000" connectionTimeout="10000"  >
-			
-				<field column="largeThumbnailFilePath" xpath="/response/result/doc/str[@name='largeThumbnailFilePath']"/>
-				<field column="smallThumbnailFilePath" xpath="/response/result/doc/str[@name='smallThumbnailFilePath']"/>
-				<field column="expName" xpath="/response/result/doc/arr[@name='expName']/str"/>
-				<field column="expName_exp" xpath="/response/result/doc/arr[@name='expName_exp']/str" />
-                <field column="subtype" xpath="/response/result/doc/arr[@name='subtype']/str" />
-				<field column="symbol_gene" xpath="/response/result/doc/arr[@name='symbol_gene']/str" />
-				<field column="inferredHigherLevelMaTermId" xpath="/response/result/doc/arr[@name='inferredHigherLevelMaTermId']/str" />
-				<field column="inferredHigherLevelMaTermName" xpath="/response/result/doc/arr[@name='inferredHigherLevelMaTermName']/str" />	
-				<field column="annotationTermName" xpath="/response/result/doc/arr[@name='annotationTermName']/str" />
-				<field column="annotationTermId" xpath="/response/result/doc/arr[@name='annotationTermId']/str" />			
-				<field column="mpTermId" xpath="/response/result/doc/arr[@name='mpTermId']/str" />
-				<field column="mpTermName" xpath="/response/result/doc/arr[@name='mpTermName']/str" />
-				<field column="annotatedHigherLevelMpTermName" xpath="/response/result/doc/arr[@name='annotatedHigherLevelMpTermName']/str" />
-			</entity>
+            <!-- for association with an image annotated to this MP term, simply use the higher level mp term of this MP 
+                	to link to the img_top_level_mp_term field of the images core
+                	as an image can be annotated to multiple mp terms which has nothing to do with this MP term
+		  			so a copy field in schema does the trick 
+		  	-->
+		  	
 		
 			<!-- subset of this MP term: parsed from obo file -->
 			<entity dataSource="ontodb" name="mp_term_subsets"
@@ -52,7 +40,7 @@
 			<!-- synonym of this MP term -->
 			<entity dataSource="ontodb" name="mp_synonyms"
 				processor="CachedSqlEntityProcessor" 
-				query="select distinct syn_name from mp_synonyms"
+				query="select term_id, syn_name from mp_synonyms"
 				where="term_id=mp_term_infos.term_id">
 				
 				<field column="syn_name" name="mp_term_synonym" />

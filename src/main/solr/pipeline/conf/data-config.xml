@@ -78,9 +78,15 @@
 					</entity>
 
 					<!-- images annotated to this procedure -->
-					<!--<entity dataSource="images_core" name="imgCore" stream="true" url="q=expName:&quot;${phenotype_procedure.mapped_procedure_name}&quot;&amp;wt=normal&amp;rows=999999" onError="continue"
-						processor="XPathEntityProcessor" forEach="/response/result/doc/"
-						readTimeout="10000" connectionTimeout="10000" >
+					<!-- parameter_stable_id M-G-P_006_001_005 is taking forever to complete
+					<entity dataSource="images_core" name="imgCore" 
+						stream="true" 
+						url="q=expName:&quot;${phenotype_procedure.mapped_procedure_name}&quot;&amp;wt=normal&amp;rows=99999999" 
+						onError="continue"
+						processor="XPathEntityProcessor" 
+						forEach="/response/result/doc/"
+						readTimeout="10000" 
+						connectionTimeout="10000" >
 						
 						<field column="expName" xpath="/response/result/doc/arr[@name='expName']/str"/>
 						<field column="subtype" xpath="/response/result/doc/arr[@name='subtype']/str" />

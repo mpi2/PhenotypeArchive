@@ -79,23 +79,6 @@ $(document).ready(function(){
 		              "bFilter":false
 	});
 	
-	// the number of columns should be kept in sync in the JSP
-	var oDataTable = $.fn.initDataTable($('table#strainPvalues'), {
-		"aoColumns": [	              
-		              { "sType": "string" },
-		              { "sType": "string" },		              
-		              { "sType": "string" },
-		              { "sType": "string" },
-		              { "sType": "string" }, // Statistical Method		              
-		              { "sType": "pvalues" }, // or numeric
-		              { "sType": "string" },
-		              { "sType": "string", "bSortable" : false }
-
-		              ],
-		              "bDestroy": true,
-		              "bFilter":false
-	});
-	
 	//$('[rel=tooltip]').tooltip();
 	//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
 	
@@ -113,34 +96,56 @@ $(document).ready(function(){
 	mgiGeneId = mgiGeneId.split("#")[0];
 	var windowLocation = window.location;
 
-	initFileExporter({
-		mgiGeneId: mgiGeneId,
-		externalDbId: 3,
-		fileName: 'phenotype_associations_for_'+mgiGeneId.replace(/:/g,'_'),
-		solrCoreName: 'genotype-phenotype',
-		dumpMode: 'all',
-		baseUrl: windowLocation,
-		page:"gene",
-		gridFields: 'marker_symbol,allele_symbol,zygosity,sex,procedure_name,resource_name,parameter_stable_id,phenotyping_center,marker_accession_id, parameter_name,parameter_name,mp_term_name',
-		params: "qf=auto_suggest&defType=edismax&wt=json&rows=100000&q=*:*&fq=marker_accession_id:\"" + mgiGeneId +"\""
-	});
-
-	function initFileExporter(conf){
-		$('button.fileIcon').click(function(){
-			var fileType = $(this).text();
-			var url = baseUrl + '/export';	 
-			var sInputs = '';
-			for ( var k in conf ){
-				if (k == "params")
-					sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + selectedFilters + "'>";	 
-				else 
-					sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>"; 
-			}
-			sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
-			var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");		
-			_doDataExport(url, form);
-		}); 
-	}  
+	initFileExporter();                                                     // Initialize the exportUrl. the fileType parameter will be empty.
+        
+	function initFileExporter(){
+            var conf = {
+               mgiGeneId: mgiGeneId,
+               externalDbId: 3,
+               fileName: 'phenotype_associations_for_'+mgiGeneId.replace(/:/g,'_'),
+               solrCoreName: 'genotype-phenotype',
+               dumpMode: 'all',
+               baseUrl: windowLocation,
+               page:"gene",
+               params: "" // need this to eventually add selected filters
+            };
+            
+            var exportObj = buildExportUrl(conf);                                   // Build the export url, page url, and form strings.
+            $('div#exportIconsDiv').attr("data-exporturl", exportObj.exportUrl);    // Initialize the url.
+// WARNING NOTE: FILTER CHANGES DO NOT UPDATE data-exporturl; THUS, THE data-exporturl VALUE WILL BE OUT-OF-SYNC SHOULD
+// THE USER CHANGE FILTERS. THIS WILL LIKELY RESULT IN A HARD-TO-FIND BUG.
+// RECOMMENDATION: ANY FILTER CHANGES SHOULD TRIGGER AN UPDATE OF THE data-exporturl.
+            
+            $('button.fileIcon').click(function() {
+                var exportObj = buildExportUrl(conf, $(this).text());                       // Build the export url, page url, and form strings.
+                $('div#exportIconsDiv').attr("data-exporturl", exportObj.exportUrl);        // Update the url in case the filters changed.
+                _doDataExport(exportObj.url, exportObj.form);
+            }); 
+	}
+        
+        function buildExportUrl(conf, fileType) {
+            if (fileType === undefined)
+                fileType = '';
+            var url = baseUrl + '/export';	 
+            var sInputs = '';
+            for ( var k in conf ){
+                if (k === "params"){
+                        sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + selectedFilters + "'>";
+                    }
+                else {
+                       sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";
+                }
+            }
+            sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
+            var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");
+            var exportUrl = url + '?' + $(form).serialize();
+            
+            var retVal = new Object();
+            retVal.url = url;
+            retVal.form = form;
+            retVal.exportUrl = exportUrl;
+            return retVal;
+        }
 
 	function _doDataExport(url, form){
 		$.ajax({
@@ -149,7 +154,7 @@ $(document).ready(function(){
 			cache: false,
 			data: $(form).serialize(),
 			success:function(data){    				
-				$(form).appendTo('body').submit().remove();
+				$(form).appendTo('body').submit();
 			},
 			error:function(){
 				//alert("Oops, there is error during data export..");
@@ -256,20 +261,16 @@ $(document).ready(function(){
 	function refreshGenesPhenoFrag(dropdownsList) {
 		var rootUrl=window.location.href;
 		var newUrl=rootUrl.replace("genes", "genesPhenoFrag");
-		var output ='?';
 		selectedFilters = "";
 		for (var it = 0; it < dropdownsList.length; it++){
-//			console.log(dropdownsList[it].array);
 			if(dropdownsList[it].array.length == 1){//if only one entry for this parameter then don't use brackets and or
-				output += '&fq=' + dropdownsList[it].name + ':"' + dropdownsList[it].array+'"';
-				selectedFilters += '+AND+' + dropdownsList[it].name + ':"' + dropdownsList[it].array+'"';
+				selectedFilters += '&fq=' + dropdownsList[it].name + ':"' + dropdownsList[it].array+'"';
 			} 
 			if(dropdownsList[it].array.length > 1)	{
-				output += '&fq='+dropdownsList[it].name+':(\"' + dropdownsList[it].array.join("\"OR\"") + '\")';
-				selectedFilters += '+AND+'+dropdownsList[it].name+':(\"' + dropdownsList[it].array.join("\"OR\"") + '\")'; 
+				selectedFilters += '&fq='+dropdownsList[it].name+':(\"' + dropdownsList[it].array.join("\"OR\"") + '\")';
 			}			    			 
 		}
-		newUrl+=output;
+		newUrl+= "?" + selectedFilters;
 		refreshPhenoTable(newUrl);
 		return false;
 	}

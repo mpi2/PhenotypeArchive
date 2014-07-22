@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-	xmlns:tx="http://www.springframework.org/schema/tx" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:task="http://www.springframework.org/schema/task"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:jee="http://www.springframework.org/schema/jee"
 	xsi:schemaLocation="
@@ -10,11 +9,22 @@
 		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd
 		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
 		">
 
+	<bean id="executorService" class="java.util.concurrent.Executors"
+		factory-method="newFixedThreadPool">
+		<constructor-arg value="20" />
+	</bean>
+
+	<task:annotation-driven mode="proxy" executor="executorService" />
+	<task:executor id="threadPoolTaskExecutor" />
+
+
 	<!-- Define the global parameters used when deploying without maven -->
-	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	<bean id="propertyPlaceholderConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
 			<list>
 				<value>classpath:appConfig.properties</value>
@@ -28,79 +38,87 @@
 	<context:annotation-config />
 
 	<!-- Drives transactions using Hibernate APIs when requested -->
-	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
 
 	<!-- Translates Hibernate exceptions to Spring Data Access Exceptions -->
-	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+	<bean
+		class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
 
-	<!--  Get the datasources from the JNDI container -->
-	<jee:jndi-lookup id="komp2DataSource" jndi-name="java:comp/env/jdbc/komp2DataSource" expected-type="javax.sql.DataSource" />
+	<!-- Get the datasources from the JNDI container -->
+	<jee:jndi-lookup id="komp2DataSource"
+		jndi-name="java:comp/env/jdbc/komp2DataSource" expected-type="javax.sql.DataSource" />
 
-        <!-- phenodigm external solr server via HTTP -->    
-        <bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer"> 
-            <constructor-arg index="0" value="${phenodigmSolrUrl}"/>
-        </bean>
-        
-        <!--this is the phenodigm DAO implementation we are looking for...-->
-        <bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl"/>
-    
+	<!-- phenodigm external solr server via HTTP -->
+	<bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
+		<constructor-arg index="0" value="${phenodigmSolrUrl}" />
+	</bean>
+
+	<!--this is the phenodigm DAO implementation we are looking for... -->
+	<bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl" />
+
 	<!-- Weaves in transactional advice around @Transactional methods -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
 	<bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
-		<constructor-arg  value="${internalSolrUrl}/experiment" />
+		<constructor-arg value="${internalSolrUrl}/experiment" />
+	</bean>
+
+	<bean id="mapService" class="uk.ac.ebi.phenotype.service.ParameterMapService">
+		<constructor-arg value="${internalSolrUrl}/experiment" />
 	</bean>
 	
+	<bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap" init-method="fillMaps" />
+
 	<bean id="unidimensionalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl">
- 		<constructor-arg ref="sessionFactory" />
- 	</bean>
+		<constructor-arg ref="sessionFactory" />
+	</bean>
 
 	<bean id="statisticalResultDAO" class="uk.ac.ebi.phenotype.dao.StatisticalResultDAOImpl">
- 		<constructor-arg ref="sessionFactory" />
- 	</bean>
+		<constructor-arg ref="sessionFactory" />
+	</bean>
 
 	<bean id="releaseDAO" class="uk.ac.ebi.phenotype.dao.AnalyticsDAOImpl">
- 		<constructor-arg ref="sessionFactory" />
- 	</bean>
- 	
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+
 	<bean id="experimentService" class="uk.ac.ebi.phenotype.service.ExperimentService">
 	</bean>
-	
+
 	<bean id="genotypePhenotypeService" class="uk.ac.ebi.phenotype.service.GenotypePhenotypeService">
-		<constructor-arg  value="${internalSolrUrl}/genotype-phenotype" />
+		<constructor-arg value="${internalSolrUrl}/genotype-phenotype" />
 	</bean>
-	
+
 	<bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
-		<constructor-arg  value="${internalSolrUrl}/statistical-result" />
+		<constructor-arg value="${internalSolrUrl}/statistical-result" />
 	</bean>
-	
-	
+
+
 	<bean id="geneService" class="uk.ac.ebi.phenotype.service.GeneService">
-		<constructor-arg  value="${internalSolrUrl}/gene" />
+		<constructor-arg value="${internalSolrUrl}/gene" />
 	</bean>
-		
+
 	<bean id="mpService" class="uk.ac.ebi.phenotype.service.MpService">
-		<constructor-arg  value="${internalSolrUrl}/mp" />
+		<constructor-arg value="${internalSolrUrl}/mp" />
 	</bean>
-	
+
 	<bean id="biologicalModelDAO" class="uk.ac.ebi.phenotype.dao.BiologicalModelDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
-        
-        <!-- <bean id="secondaryProjectDAO" class="uk.ac.ebi.phenotype.dao.SecondaryProjectDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean> -->
+
+	<!-- <bean id="secondaryProjectDAO" class="uk.ac.ebi.phenotype.dao.SecondaryProjectDAOImpl"> 
+		<constructor-arg ref="sessionFactory" /> </bean> -->
 
 	<bean id="phenotypeCallSummaryDAO" class="uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
-	
+
 	<bean id="phenSummary" class="uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAOImpl">
 	</bean>
-	
-	 <bean id="phenotypeCallSummaryDAOSolr" class="uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolrImpl">
+
+	<bean id="phenotypeCallSummaryDAOSolr" class="uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolrImpl">
 	</bean>
 
 	<bean id="phenotypePipelineDAO" class="uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl">
@@ -141,22 +159,20 @@
 
 	<bean id="organisationDAO" class="uk.ac.ebi.phenotype.dao.OrganisationDAOImpl">
 		<constructor-arg ref="sessionFactory" />
-	</bean>	
-	
+	</bean>
+
 	<bean id="idg" class="uk.ac.ebi.phenotype.dao.SecondaryProjectIdgImpl">
 		<constructor-arg ref="sessionFactory" />
-		<!-- <constructor-arg ref="geneService" />
-		<constructor-arg ref="genomicFeatureDAO" />
-		<constructor-arg ref="genotypePhenotypeService"/>
-		<constructor-arg ref="phenotypePipelineDAO"/> -->
-		
-	</bean>	
+		<!-- <constructor-arg ref="geneService" /> <constructor-arg ref="genomicFeatureDAO" 
+			/> <constructor-arg ref="genotypePhenotypeService"/> <constructor-arg ref="phenotypePipelineDAO"/> -->
+
+	</bean>
 
 	<!-- Spring annotated objects -->
 	<bean id="sessionFactory"
 		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
 		<property name="dataSource" ref="komp2DataSource" />
-		<property name="packagesToScan" value="uk.ac.ebi.phenotype"/>
+		<property name="packagesToScan" value="uk.ac.ebi.phenotype" />
 		<property name="hibernateProperties">
 			<props>
 				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
@@ -167,26 +183,23 @@
 		</property>
 	</bean>
 
-	<bean id="imagingSourceManager" class="uk.ac.ebi.phenotype.imaging.springrest.images.dao.HibernateImagesDao">
+	<bean id="imagingSourceManager"
+		class="uk.ac.ebi.phenotype.imaging.springrest.images.dao.HibernateImagesDao">
 		<constructor-arg ref="sessionFactory" />
 		<constructor-arg ref="imagesSolrDao" />
 	</bean>
-	
-	<!-- 
-		If deploying without maven, the solrUrl variable is replaced
-		by Spring's PropertyPlaceholder configuration.
-		
-		If deploying with maven, the maven filter replaces the solrUrl
-		variable with the value specified in the pom.xml file.
-		
+
+	<!-- If deploying without maven, the solrUrl variable is replaced by Spring's 
+		PropertyPlaceholder configuration. If deploying with maven, the maven filter 
+		replaces the solrUrl variable with the value specified in the pom.xml file. 
 		If deploying using a profile (e.g. mvn tomcat:deploy -Pexternal_beta) the 
-		solrUrl variable is replaced with the appropriate value from
-		the profile in the pom.xml file.  
-	  -->
-	<bean id="imagesSolrDao" class="uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrJ">
+		solrUrl variable is replaced with the appropriate value from the profile 
+		in the pom.xml file. -->
+	<bean id="imagesSolrDao"
+		class="uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrJ">
 		<constructor-arg name="solrBaseUrl" value="${solrUrl}/images" />
 	</bean>
-	
+
 	<bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">
 		<property name="targetMapClass">
 			<value>java.util.HashMap</value>
@@ -204,4 +217,6 @@
 			</map>
 		</property>
 	</bean>
+
+
 </beans>

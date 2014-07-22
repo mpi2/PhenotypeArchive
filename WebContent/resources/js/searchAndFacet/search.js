@@ -19,14 +19,16 @@
  */
 
 (function($){	
+	var jsonBase = MPI2.searchAndFacetConfig.facetParams;
 	
 	function _updateFacetCount(facet, facetResponse, facetMode){		
 		//var num = facetMode ? '' : facetResponse.response.numFound;
 		num = facetResponse.response.numFound;		
 		$('div.flist li#' + facet + ' span.fcount').html(num);		
+		
+		var freezeMode = num == 0 ? true : false;
+		$.fn.freezeFacet($('li#' + facet + '.fmcat'), freezeMode);	
 	}
-	
-	var jsonBase = MPI2.searchAndFacetConfig.facetParams;
 	
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
 		//console.log(oUrlHashParams);	
@@ -41,29 +43,42 @@
 		if ( typeof q == 'undefined' ){
 			// check search kw						
 			if ( window.location.search != '' ){				
-				q = window.location.search.replace(/&.+/, '').replace('?q=','');				
+				q = $.fn.fetchQueryStr();				
 				q = q.replace(/\+/g, ' ');				
-				$('input#s').val(decodeURI(q));				
+				//$('input#s').val(decodeURI(q));	
+				
 			}
 			else {
 				q = '*:*';
 			}
 		}
 						
-		q = decodeURI(q);	
+		q = decodeURI(q);
+		if ( q != '*:*' ){
+			$('input#s').val(q);
+		}
 		
+		// set this depending on query
+		q = $.fn.setSolrComplexPhraseQuery(q); 
+
 		var facetMode = oUrlHashParams.facetName;
 				
 		var oFacets = {};
 		oFacets.count = {};	
-	
-		if ( typeof oUrlHashParams.fq != 'undefined' && typeof oUrlHashParams.coreName == 'undefined' ){
-			jsonBase.geneFacet.filterParams = {'fq': oUrlHashParams.fq};
+		
+		if ( typeof oUrlHashParams.fq != 'undefined' ){
+			oUrlHashParams.oriFq = oUrlHashParams.fq;
+			oUrlHashParams.fq = oUrlHashParams.fq.replace(/img_/g, '');
+			
+			if (  typeof oUrlHashParams.coreName == 'undefined' ){
+				jsonBase.geneFacet.filterParams = {'fq': oUrlHashParams.fq};
+			}
 		}
 		
 		jsonBase.geneFacet.srchParams.q = q;
 		//console.log($.extend({}, jsonBase.geneFacet.srchParams, jsonBase.geneFacet.filterParams)); 
-	 	// facet types are done sequencially; starting from gene		
+	 	
+		// facet types are done sequencially; starting from gene		
 	    $.ajax({            	    
 	    		url: solrUrl + '/gene/select',	    		
 	       	   // data: $.extend({}, jsonBase.geneFacet.srchParams, oUrlHashParams.fq ? jsonBase.geneFacet.filterParams = {'fq': oUrlHashParams.fq} : jsonBase.geneFacet.filterParams),
@@ -93,7 +108,6 @@
 		}
 		
 		var oParams = {};		
-        oParams = $.fn.getSolrRelevanceParams('mp', q, oParams);				
 		//console.log($.extend({}, jsonBase.mpFacet.srchParams, jsonBase.mpFacet.filterParams, oParams));		
 		
 		$.ajax({
@@ -141,8 +155,10 @@
 	}
 	
 	function _doTissueAutoSuggest(geneResponse, mpResponse, diseaseResponse, q, oFacets, facetMode, oUrlHashParams){
+		
 		jsonBase.maFacet.srchParams.q = q;	
 		jsonBase.maFacet.srchParams.sort = 'ma_term asc';
+		
 		if ( typeof oUrlHashParams.fq != 'undefined' && typeof oUrlHashParams.coreName == 'undefined' ){
 			jsonBase.maFacet.filterParams = {'fq': oUrlHashParams.fq};
 		}
@@ -159,6 +175,7 @@
     	    	oFacets.count.ma = maResponse.response.numFound;    	    	
     	    	_updateFacetCount('ma', maResponse, facetMode);	     	    	
     	    	_doPipelineAutoSuggest(geneResponse, mpResponse, diseaseResponse, maResponse, q, oFacets, facetMode, oUrlHashParams);
+ 
     	    },
 			error: function (jqXHR, textStatus, errorThrown) {			       	        
 				$('div#facetSrchMsg').html('Error fetching data ...');
@@ -208,6 +225,7 @@
     	    timeout: 5000,
     	    success: function (imagesResponse) {  
     	    	//console.log(imagesResponse);
+    	    	
     	    	$('div.flist li#images span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.images = imagesResponse.response.numFound;    	    	
     	    	_updateFacetCount('images', imagesResponse, facetMode);	 
@@ -217,47 +235,45 @@
     	    	 * ie, fetch facet full result for that facet and display only facet count for the rest of the facets 
     	    	 * Other facet results will be fetched on demand */
     	    	
-    	    	var hashParams = $.fn.parseHashString(window.location.hash.substring(1));    	    	
-    	    	    	    	
     	    	var coreName, facetName;
-    	    	
-    	    	if ( hashParams.coreName ){
-    	    		coreName = hashParams.coreName;
+    	    	if ( oUrlHashParams.coreName ){
+    	    		coreName = oUrlHashParams.coreName;
     	    	}
-    	    	else if (hashParams.facetName ){
-    	    		facetName = hashParams.facetName;    	    		
+    	    	else if (oUrlHashParams.facetName ){
+    	    		facetName = oUrlHashParams.facetName;    	    		
     	    	}
     	    	else if ( facetMode ){    	    		
     	    		facetName = facetMode;    	    		
     	    	}
     	    	else {
     	    		coreName = _setSearchMode(oFacets.count);
-    	    	}    	    	   	    	
+    	    	}   
     	    	
     	    	$('div#facetSrchMsg').html('&nbsp;');
     	    	
-    	    	if ( ! coreName && ! facetName ){
-    	    		// nothing found    	    		   	    	
-    	    		$('div#mpi2-search').html('INFO: Search keyword "' + decodeURI(q) + '" has returned no entry in the database');    	    	    	    		
+    	    	if ( ! _setSearchMode(oFacets.count) ){
+    	    		// nothing found    
+    	    		$.fn.showNotFoundMsg();
     	    	}
     	    	else {    	    	    		
     	        	// remove all previous facet results before loading new facet results
     	    		var thisCore = coreName ? coreName : facetName; 
-    	        	$('li.fmcat > ul').html(''); 
+    	        	
+    	    		$('li.fmcat > ul').html(''); 
     	        	
     	        	//var widgetName = coreName+'Facet'; 
     	        	var widgetName = thisCore+'Facet';    
-    	        	hashParams.fq = hashParams.fq ? hashParams.fq : jsonBase[widgetName].fq;    	        	    	        	
-    	        	hashParams.widgetName = widgetName;
-    	        	hashParams.q = q;
-    	        	hashParams.noFq = oUrlHashParams.noFq;
     	        	
+    	        	oUrlHashParams.fq = oUrlHashParams.fq ? oUrlHashParams.fq : jsonBase[widgetName].fq; 
+    	        	oUrlHashParams.oriFq = oUrlHashParams.oriFq ? oUrlHashParams.oriFq : jsonBase[widgetName].fq; 
+    	        	oUrlHashParams.widgetName = widgetName;
+    	        	oUrlHashParams.q = q;
+
     	        	window.jQuery('li#' + thisCore)[widgetName]({
     					data: {	   							 
-    							core: coreName,    							
-    							//qf: jsonBase[widgetName].qf,
+    							core: thisCore,    							
     							facetCount: oFacets.count[thisCore],
-    							hashParams: hashParams
+    							hashParams: oUrlHashParams
     							},
     			        geneGridElem: 'div#mpi2-search'			                                      
     				});
@@ -266,7 +282,6 @@
     	        	var aCores = MPI2.searchAndFacetConfig.megaCores;
     	        	
     	        	//delete active core, no need to invoke again  
-    	        	
     	        	var index;// = aCores.indexOf(coreName);
     	        	for ( var i=0; i< aCores.length; i++){
     	        		if (aCores[i] == thisCore ){
@@ -277,9 +292,9 @@
     	        	
     	        	for ( var i=0; i< aCores.length; i++){
     	        		var core = aCores[i];
-    	        		if ( oFacets.count[core] != 0 ){    	        	
+    	        		//if ( oFacets.count[core] != 0 ){    	        	
     	        			_prepareCores(core, q, oFacets, oUrlHashParams.fq, facetMode);
-    	        		}
+    	        		//}
     	        	} 
     	        	// restore the spliced core when done
     	        	aCores.push(thisCore);
@@ -292,7 +307,6 @@
 	}
 		
 	function _prepareCores(core, q, oFacets, fq, facetMode){		
-		
 		var widgetName = core + 'Facet';		
 		
 		window.jQuery('li#' + core).click(function(){
@@ -313,8 +327,8 @@
 				
 	        	hashParams.widgetName = widgetName;
 	        	hashParams.q = q;
-	        	
-				//if ( $this.find('.facetCatList').html() == '' && $this.find('span.facetCount').text() != '0' ){
+
+	        	//if ( $this.find('.facetCatList').html() == '' && $this.find('span.facetCount').text() != '0' ){
 				if ( $this.find('ul').html() == '' && $this.find('span.fcount').text() != '0' ){	
 					$this[widgetName]({  
 						data: {							 

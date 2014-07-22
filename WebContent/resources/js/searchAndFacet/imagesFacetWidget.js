@@ -38,20 +38,6 @@
 	    _initFacet: function(){	   
 	    		    
   	    	var self = this;  	    	
-  	    		    	
-  	    	/*var queryParams = $.extend({}, {							
-  				'rows': 0,
-  				'facet': 'on',								
-  				'facet.mincount': 1,
-  				'facet.limit': -1,				
-  				'facet.sort': 'index',
-  				'fl': 'annotationTermId,annotationTermName,expName,symbol',
-  				//'fq': "annotationTermId:M* OR symbol_gene:*",  // images that have annotations only
-  				'q.option': 'AND',				
-  				'q': self.options.data.hashParams.q 				
-  				}, MPI2.searchAndFacetConfig.commonSolrParams);  	    	  	    	
-  	    	
-  	    	*/
   	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
 	    			: self.options.data.hashParams.fq;
 	    	
@@ -63,11 +49,12 @@
 				'rows': 0, // override default
 				'type': 'disease',
 				'facet': 'on',								
-				'facet.mincount': 1,
+				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
 				'facet.sort': 'index',	
-				'fl': 'annotationTermId,annotationTermName,expName,symbol',
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
+				'q' : self.options.data.hashParams.q,
+				'fl': 'annotationTermId,annotationTermName,expName,symbol'
+				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
   	    	
   	    	var paramStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
   	    		//+ "&facet.field=expName"
@@ -88,7 +75,6 @@
   	    		'jsonp': 'json.wrf',	    		
   	    		'success': function(json) {
   	    			
-  	    			
   	    			var foundMatch = {'Phenotype':0, 'Anatomy':0, 'Procedure':0, 'Gene':0};  	    			
   	    			var aFacetFields = json.facet_counts.facet_fields; // eg. expName, symbol..  	
   	    			
@@ -101,11 +87,11 @@
   	    								annotatedHigherLevelMpTermName: 'Phenotype',
   	    					            subtype: 'Gene'
   	    					            */
-  	    					            top_level_mp_term: 'Phenotype',
-  	    								procedure_name : 'Procedure',	    					            
-  	    								selected_top_level_ma_term: 'Anatomy',
-  	    					            marker_type: 'Gene'
-  	    								};	    			    			    			
+  	    					top_level_mp_term: 'Phenotype',
+  	    					procedure_name : 'Procedure',	    					            
+  	    					selected_top_level_ma_term: 'Anatomy',
+  	    					marker_type: 'Gene'
+  	    			};	    			    			    			
   	    			    			
   	    			   
   	    			for ( var n=0; n<aSubFacetNames.length; n++){
@@ -122,14 +108,17 @@
   	    					var liContainer = $("<li></li>").attr({'class':'fcat ' + facetName});
   	    					
   	    					var fieldName  = aFacetFields[facetName][i];  	    					
-  	    					var facetCount = aFacetFields[facetName][i+1];   	    					
+  	    					var count = aFacetFields[facetName][i+1];   	    					
   	    					var label      = displayLabel[facetName];
   	    					foundMatch[label]++;
   	    					
-  		    	    		var coreField = 'images|'+ facetName + '|' + fieldName + '|' + facetCount + '|' + label;	
+  	    					var isGrayout = count == 0 ? 'grayout' : '';
+  	    					liContainer.removeClass('grayout').addClass(isGrayout);
+  	    					
+  		    	    		var coreField = 'images|'+ 'img_' + facetName + '|' + fieldName + '|' + count + '|' + label;	
   		        			var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField}); 	
   		        			var flabel = $('<span></span>').attr({'class':'flabel'}).text(fieldName.replace(' phenotype', ''));
-  							var fcount = $('<span></span>').attr({'class':'fcount'}).text(facetCount);
+  							var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
   							thisUlContainer.append(liContainer.append(chkbox, flabel, fcount));  							
   	    				}
   	    				
@@ -142,25 +131,25 @@
   					$(selectorBase + ' li.fcatsection').removeClass('open').addClass('grayout');	    		
   					$.fn.addFacetOpenCollapseLogic(foundMatch, selectorBase);
   					
+  	    			// change cursor for grayout filter
+	    			$.fn.cursorUpdate('images', 'not-allowed');
+  	    			
   	    			$.fn.initFacetToggles('images');
   	    			
-	  	      		$('li#images li.fcat input').click(function(){	    			
-	  	      			// // highlight the item in facet	    			
+	  	      		$('li#images li.fcat input').click(function(){	 
+		  	      		
+		  	      		// highlight the item in facet	    			
 	  	      			$(this).siblings('span.flabel').addClass('highlight');
+	  	      			MPI2.searchAndFacetConfig.update.filterAdded = true;
 	  	  				$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 	  	  			});
-	  	      		
-	  	      		/*--------------------------------------------------------------------------------------------------------------------------*/
-	  		    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
-	  		    	/*--------------------------------------------------------------------------------------------------------------------------*/	
-	  	      		//console.log('****page load for iamges facet');
-		  	      	var oConf = self.options.data.hashParams;
-			    	oConf.core = self.options.data.core;
-			    	//console.log(oConf);
-			    	
-			    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);
-			    	
-  	    	    	// when last facet is done
+
+
+//		    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
+//		    			$.fn.process_kwSearch(self);
+//		    		}	
+		    		
+	  	      		// when last facet is done
   	    	    	$('div#facetBrowser').html(MPI2.searchAndFacetConfig.endOfSearch);  	    			
   	    		}		
 	  	    });	    	
