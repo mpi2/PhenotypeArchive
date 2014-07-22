@@ -228,6 +228,13 @@
                             <p>A table displaying more information about the data used to determine the pvalue and effect size is displayed below the graph.</p> 
                             
 
+							<h3>Staistics to Phenotype</h3>
+							
+							<p>If the mutant genotype effect is a significant change from the control genotype, then the IMPC pipeline will
+							attempt to associate a <a href="http://www.informatics.jax.org/searches/MP_form.shtml">Mammalian Phenotype (MP) term</a> to the data.</p>
+							
+							<p>The particular MP terms defined for a parameter are maintained in IMPReSS.  Frequently, the term indicates and <strong>increase</strong> 
+							or <strong>decrease</strong> of the parameter measured, for instance, increased circulating glucose
 
                         </div><%-- end of content div--%>
                     </div>
