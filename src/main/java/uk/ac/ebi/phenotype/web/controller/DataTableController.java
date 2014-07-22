@@ -602,7 +602,7 @@ public class DataTableController {
 	
 	public String parseJsonforDiseaseDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, int start){
 		
-		String baseUrl = request.getAttribute("baseUrl") + "/phenodigm/disease/";
+		String baseUrl = request.getAttribute("baseUrl") + "/disease/";
 		
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");

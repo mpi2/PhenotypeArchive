@@ -174,7 +174,6 @@
 	<field name="disease_term" type="text_general" indexed="true" stored="true" multiValued="true" />
 	<field name="disease_alts" type="text_general" indexed="true" stored="true" multiValued="true"/>
    	<field name="disease_classes" type="string" indexed="true" stored="true" multiValued="true"/>
-   	<field name="disease__human_phenotypes" type="text_general" indexed="true" stored="true" multiValued="true"/>	 
 	<field name="human_curated" type="boolean" indexed="true" stored="true" multiValued="true" />
 	<field name="mouse_curated" type="boolean" indexed="true" stored="true" multiValued="true" />
 	<field name="mgi_predicted" type="boolean" indexed="true" stored="true" multiValued="true" />

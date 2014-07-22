@@ -31,15 +31,12 @@ import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.stereotype.Service;
 
-import uk.ac.ebi.phenotype.service.ObservationService.ExperimentField;
-import uk.ac.ebi.phenotype.web.pojo.BasicBean;
+import uk.ac.ebi.phenotype.service.dto.GeneDTO;
 
 @Service
 public class GeneService {
@@ -535,4 +532,17 @@ public class GeneService {
 		 
 	}
 
+	public GeneDTO getGeneById(String mgiId) throws SolrServerException {
+		SolrQuery solrQuery = new SolrQuery()
+			.setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" + mgiId + "\"")
+			.setRows(1)
+			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.TOP_LEVEL_MP_ID, GeneDTO.MARKER_SYMBOL);
+
+		QueryResponse rsp = solr.query(solrQuery);
+		if (rsp.getResults().getNumFound() > 0) {
+			return rsp.getBeans(GeneDTO.class).get(0);
+		}
+		return null;
+
+	}
 }

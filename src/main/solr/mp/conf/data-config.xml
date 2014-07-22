@@ -191,7 +191,7 @@
 				    <field column="impc_predicted" xpath="/response/result/doc/bool[@name='impc_predicted']" /> 
 				    <field column="mgi_predicted_in_locus" xpath="/response/result/doc/bool[@name='mgi_predicted_in_locus']" /> 
 				    <field column="impc_predicted_in_locus" xpath="/response/result/doc/bool[@name='impc_predicted_in_locus']" /> 			
-					<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />  					
+					<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='disease_human_phenotypes']/str" />  					
 
 					<!-- other gene related fields -->						
 					<field column="marker_symbol" xpath="/response/result/doc/str[@name='marker_symbol']" />                                                        

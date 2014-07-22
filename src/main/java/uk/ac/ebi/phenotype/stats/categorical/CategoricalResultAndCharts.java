@@ -6,7 +6,7 @@ import java.util.List;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
-import uk.ac.ebi.phenotype.stats.ExperimentDTO;
+import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 
 /**
  * Class to hold all data, charts and tables pertaining to a Categorical Result Stats set so for male and female data combined
