@@ -421,22 +421,7 @@
                                 </div>
                             </c:if>
 
-                            <div class="section" id="disease">
-                                <h2 class="title" id="potential-disease-models">Potential Disease Models 
-                                    <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
-                                    <span class="documentation">
-                                        <a href='${baseUrl}/documentation/disease-help.html#details' class="mpPanel">
-                                            <i class="fa fa-question-circle pull-right"></i>
-                                        </a>
-                                    </span>
-                                </h2>
-                                <div class="inner">
-                                    <c:choose>
-                                        <c:when test="${empty diseaseAssociations}">
-                                            No diseases are known or predicted to be associated with ${gene.symbol}.
-                                        </c:when>
-                                        <c:otherwise>
-                                            <script type="text/javascript">
+                                <script type="text/javascript">
                                                 function getDiseaseAssociations(clicked) {
 
                                                     var targetRowId = $(clicked).attr("targetRowId");
@@ -491,6 +476,22 @@
                                                     });
                                                 });
                                             </script>
+                                            
+                            <div class="section" id="disease">
+                                <h2 class="title" id="potential-disease-models">Potential Disease Models 
+                                    <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
+                                    <span class="documentation">
+                                        <a href='${baseUrl}/documentation/disease-help.html#details' class="mpPanel">
+                                            <i class="fa fa-question-circle pull-right"></i>
+                                        </a>
+                                    </span>
+                                </h2>
+                                <div class="inner">
+                                    <c:choose>
+                                        <c:when test="${empty diseaseAssociations}">
+                                            No diseases are known or predicted to be associated with ${gene.symbol}.
+                                        </c:when>
+                                        <c:otherwise>
                                             <!--The following diseases are associated with ${gene.symbol} by phenotypic similarity-->
                                             <table id="diseaseTable" class="table tableSorter">
                                                 <thead>
