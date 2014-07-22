@@ -90,7 +90,7 @@
 			<field column="impc_predicted" xpath="/response/result/doc/arr[@name='impc_predicted']/bool" /> 
 			<field column="mgi_predicted_in_locus" xpath="/response/result/doc/arr[@name='mgi_predicted_in_locus']/bool" /> 
 			<field column="impc_predicted_in_locus" xpath="/response/result/doc/arr[@name='impc_predicted_in_locus']/bool" /> 			
-			<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='phenotypes']/str" />	
+			<field column="disease_human_phenotypes" xpath="/response/result/doc/arr[@name='disease_human_phenotypes']/str" />	
 
 			<!-- MP terms associated with this MGI gene -->
 			<entity dataSource="mp_core" name="mpCore" 
