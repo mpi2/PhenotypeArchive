@@ -86,7 +86,7 @@ public class SolrIndex2 {
             "latest_phenotype_started", "latest_phenotype_complete",
             "latest_phenotype_status", "latest_es_cell_status", "latest_mouse_status", "latest_project_status_legacy",
             "es_cell_status", "mouse_status", "phenotype_status", "production_centre", "phenotyping_centre", "allele_name",
-            "allele_type", "type", "genbank_file", "allele_image", "design_id", "ikmc_project_id"
+            "allele_type", "type", "genbank_file", "allele_image", "design_id", "ikmc_project_id"       //, "links"
         };
 
         List<Map<String, String>> genes = new ArrayList<>();
@@ -100,6 +100,18 @@ public class SolrIndex2 {
                 if (jsonObject2.has(s)) {
                     String o = jsonObject2.getString(s);
                     map.put(s, o);
+                }
+            }
+            
+            if(jsonObject2.containsKey("links")) {
+                JSONArray links = jsonObject2.getJSONArray("links");
+                for(Object l : links) {
+                    //JSONObject link = (JSONObject) l;
+                    String link = (String) l;
+                    if(link.contains("ensembl")) {
+                        map.put("ensembl_url", link);
+                        break;
+                    }
                 }
             }
 
@@ -970,14 +982,18 @@ public class SolrIndex2 {
                 log.info("#### getGeneProductInfo: status_mice: " + mapper.get("status_mice"));
                 log.info("#### getGeneProductInfo: status_es_cells: " + mapper.get("status_es_cells"));
 
-                HashMap<String, String> map3 = new HashMap<>();
-                map3.put("browser", "Ensembl");
                 //map3.put("url", "http://www.ensembl.org/Mus_musculus/Location/View?r=9:54544794-54560…c.uk/das/ikmc_products=normal,contig=normal,ruler=normal,scalebar=normal");
-                map3.put("url", "#");
-                List<HashMap<String, String>> list3 = new ArrayList<>();
-                list3.add(map3);
-
-                summary.put("browsers", list3);    // TODO: FIX-ME!
+                //map3.put("url", "#");
+                
+                if(item.containsKey("ensembl_url")) {
+                    HashMap<String, String> map3 = new HashMap<>();
+                    map3.put("browser", "Ensembl");
+                    map3.put("url", item.get("ensembl_url"));
+                    List<HashMap<String, String>> list3 = new ArrayList<>();
+                    list3.add(map3);
+                    summary.put("browsers", list3);
+                }
+                
                 summaries.add(summary);
             }
         }

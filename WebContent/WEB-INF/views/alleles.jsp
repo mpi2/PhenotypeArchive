@@ -241,7 +241,7 @@ INFO : uk.ac.ebi.generic.util.SolrIndex2 - #### getGeneProductInfo: status_es_ce
                 
             <c:if test="${not empty summary['browsers']}">
                 <c:forEach var="browser" items="${summary['browsers']}" varStatus="browsersx">
-                    <a class="btn disabled" href="${browser['url']}"> <i class="fa fa-info"></i> ${browser['browser']} </a> <br/>
+                    <a class="btn" href="${browser['url']}"> <i class="fa fa-info"></i> ${browser['browser']} </a> <br/>
                 </c:forEach>	
             </c:if>	
                     </td>
@@ -405,9 +405,23 @@ INFO : uk.ac.ebi.generic.util.SolrIndex2 - #### getGeneProductInfo: status_es_ce
                     </div>
                 </td>
                 <td>
+                    
+                    <c:if test="${not empty mouse['orders']}">                   
+                    
                     <c:forEach var="order" items="${mouse['orders']}" varStatus="ordersx">
                         <a class="btn" href="${order['url']}"> <i class="fa fa-shopping-cart"></i> ${order['name']}</a>
-                    </c:forEach>	
+                    </c:forEach>
+                        
+                    </c:if>
+                        
+                    <c:if test="${empty mouse['orders'] and not empty mouse['contacts']}">                   
+                    
+                    <c:forEach var="contact" items="${mouse['contacts']}" varStatus="contactsx">
+                        <a class="btn" href="${contact['url']}"> <i class="fa fa-shopping-cart"></i> ${contact['name']} </a>
+                    </c:forEach>
+                        
+                    </c:if>
+                        
                 </td>
                 
                 
