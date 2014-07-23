@@ -4,29 +4,13 @@
 
 <t:genericpage>
 
+    <jsp:attribute name="header">
+
+    <link rel="stylesheet" type="text/css" href="${baseUrl}/css/lrpcr_genotyping_primers.css"/>
+
+</jsp:attribute>
+
 <jsp:body>      
-
-<style type="text/css">
-    table.lrpcr {
-        width:50%; 
-        margin-left:0%; 
-        margin-right:50%;
-
-        border-width: 1px;
-        border-spacing: 2px;
-        border-style: outset;
-        border-color: gray;
-        border-collapse: separate;
-        background-color: white;
-    }
-    table.lrpcr td {
-        margin-bottom:0;
-        border-width: 1px;
-        border-style: inset;
-        border-color: gray;
-        vertical-align: middle;
-    }
-</style>
 
     <h1 class="title" id="top">${lrpcr_title}</h1>
     

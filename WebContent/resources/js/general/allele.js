@@ -68,4 +68,30 @@ jQuery(document).ready(	function() {
             });
         });
 
+    function toggleTable(id) {
+        $("#" + id + "_toggle").on({'click':function(event){
+        event.preventDefault();
+        $("#" + id + " .rest").toggle("fast");
+        
+        if($("#" + id + "_toggle").hasClass("toggle_closed")) {
+            $("#" + id + "_toggle").removeClass("toggle_closed");
+            $("#" + id + "_toggle").addClass("toggle_open");
+            var type = $( "#" + id + "_toggle" ).data( "type" );
+            var count = $( "#" + id + "_toggle" ).data( "count" );
+            $("#" + id + "_toggle").text("Hide " + type);
+        }
+        else {
+            $("#" + id + "_toggle").removeClass("toggle_open");
+            $("#" + id + "_toggle").addClass("toggle_closed");
+            var type = $( "#" + id + "_toggle" ).data( "type" );
+            var count = $( "#" + id + "_toggle" ).data( "count" );
+            $("#" + id + "_toggle").text("Show all " + count + " " + type);
+        }
+        }});
+    }
+
+    toggleTable("mouse_table");
+    toggleTable("es_cell_table");
+    toggleTable("targeting_vector_table");
+
 });

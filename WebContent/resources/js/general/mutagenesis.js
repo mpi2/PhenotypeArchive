@@ -18,54 +18,70 @@
  */
 jQuery(document).ready(	function() {
 
-//code for setting ENU links on Gene Page	
-	
-	$.ajax({
-		url: '../genesAllele/' + gene_id,    
-		timeout: 2000,
-		success: function (response) {
-			$('#allele').html(response);
-			
-		}
-		,error: function(x, t, m) {
-	      //  if(t==="timeout") { 
-	        //log error to gene page so we know this is down not just 0.
-			var errorMsg='<td>ENU Link:</td><td class="gene-data" id="allele_links"><font color="red"><font color="red">Error trying to retrieve allele product infomation</font></td>';
-	    	$('#allele').html(errorMsg);
-	    }
-	});
+    function toggleTable(id) {
+        $("#" + id + "_toggle").on({'click':function(event){
+        event.preventDefault();
+        $("#" + id + " .rest").toggle();
         
-        $('.qcData').each(function(){
-            var type = $(this).data("type");
-            var name = $(this).data("name");
-            var alleleType = $(this).data("alleletype");
-      
-            var url = '../../qc_data/' + alleleType + '/' + type + '/' + name;
-        	$.ajax({
-		    url: url,    
-		    timeout: 2000,
-                    context: this,
-		    success: function (response) {
-			$(this).html(response);
+        if($("#" + id + "_toggle").hasClass("toggle_closed")) {
+            $("#" + id + "_toggle").removeClass("toggle_closed");
+            $("#" + id + "_toggle").addClass("toggle_open");
+            var type = $( "#" + id + "_toggle" ).data( "type" );
+            var count = $( "#" + id + "_toggle" ).data( "count" );
+            $("#" + id + "_toggle").text("Hide " + type);
+        }
+        else {
+            $("#" + id + "_toggle").removeClass("toggle_open");
+            $("#" + id + "_toggle").addClass("toggle_closed");
+            var type = $( "#" + id + "_toggle" ).data( "type" );
+            var count = $( "#" + id + "_toggle" ).data( "count" );
+            $("#" + id + "_toggle").text("Show all " + count + " " + type);
 
-		    }
-		    ,error: function(x, t, m) {
-			var errorMsg='<td>QC Data Link:</td><td class="gene-data" id="allele_links"><font color="red"><font color="red">Error trying to retrieve QC Data infomation</font></td>';
-	    	        $(this).html(errorMsg);
-	            }
-	        });
-        });
-
-        $(".hasTooltip").each(function(){
-            $(this).qtip({
-                content: {text: $(this).next('div')},
-                position: {
-			my: 'top middle',
-			at: 'bottom middle'
-			},
-                style: { classes: 'ui-tooltip-wideimage'
-                     }
+            $(".hide_target").each(function( index ) {
+                $( this ).hide();
+                $( this ).removeClass("toggle_open");
+                $( this ).addClass("toggle_closed");
             });
+            
+            $("[id*=toggle_closed_detail_]").each(function( index ) {
+                 $( this ).text("view");
+                 $( this ).removeClass("toggle_open");
+                 $( this ).addClass("toggle_closed_detail");
+            });         
+            
+            $('html, body').animate({ scrollTop: 0 }, 0);
+          }
+        
+        }});
+    }
+
+    function toggleTableDetails() {
+        $(".toggle_closed_detail").each(function( index ) {
+            var anchor = $( this );
+            
+               $( this ).on({'click':function(event){
+             
+               var count = $( this ).data( "count" );             
+             
+               $( "#hide_target_" + count ).toggle();     
+
+                if(anchor.hasClass("toggle_closed_detail")) {
+                    anchor.removeClass("toggle_closed_detail");
+                    anchor.addClass("toggle_open");
+                    $( this ).text("hide");
+                }
+                else {
+                    anchor.removeClass("toggle_open");
+                    anchor.addClass("toggle_closed_detail");
+                    $( this ).text("view");
+                }
+            
+               event.preventDefault();
+            }});
         });
+    }
+    
+    toggleTable("mutagenesis_table");
+    toggleTableDetails();
 
 });

@@ -33,7 +33,10 @@
                                             <div style="padding:3px;"><a href="${alleleProduct['alleleGenbankFile']}"><i class="fa fa-file-text fa-lg"></i></a><span>&nbsp;&nbsp;&nbsp;genbank file</span></div>
                                         </td>
                                         <td><a title="project page" href="http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/${alleleProduct['ikmcProjectId']}"><i class="fa fa-clipboard fa-lg"></i></a>
-                                        <a title="allele page" href="/phenotype-archive/alleles/${alleleProduct['mgi_accession_id']}"><i class="fa fa-clipboard fa-lg"></i></a></td>
+                                        
+<!--                                            <a title="allele page" href="/phenotype-archive/alleles/${alleleProduct['mgi_accession_id']}"><i class="fa fa-clipboard fa-lg"></i></a>-->
+                                        
+                                        </td>
                                         <td>${alleleProduct["orderHtml"]}</td>
                                 </c:otherwise>
                         </c:choose>

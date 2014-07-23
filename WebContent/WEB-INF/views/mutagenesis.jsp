@@ -4,138 +4,15 @@
 
 <t:genericpage>
 
+<jsp:attribute name="header">
+
+    <script type="text/javascript" src="${baseUrl}/js/general/mutagenesis.js"></script>
+    <link rel="stylesheet" type="text/css" href="${baseUrl}/css/mutagenesis.css"/>
+
+</jsp:attribute>
+
 <jsp:body>
 
-    <script>
-    
-    function toggleTable(id) {
-        $("#" + id + "_toggle").on({'click':function(event){
-        event.preventDefault();
-        $("#" + id + " .rest").toggle();
-        
-        if($("#" + id + "_toggle").hasClass("toggle_closed")) {
-            $("#" + id + "_toggle").removeClass("toggle_closed");
-            $("#" + id + "_toggle").addClass("toggle_open");
-            var type = $( "#" + id + "_toggle" ).data( "type" );
-            var count = $( "#" + id + "_toggle" ).data( "count" );
-            $("#" + id + "_toggle").text("Hide " + type);
-        }
-        else {
-            $("#" + id + "_toggle").removeClass("toggle_open");
-            $("#" + id + "_toggle").addClass("toggle_closed");
-            var type = $( "#" + id + "_toggle" ).data( "type" );
-            var count = $( "#" + id + "_toggle" ).data( "count" );
-            $("#" + id + "_toggle").text("Show all " + count + " " + type);
-
-            $(".hide_target").each(function( index ) {
-                $( this ).hide();
-                $( this ).removeClass("toggle_open");
-                $( this ).addClass("toggle_closed");
-              //  $( this ).text("view");
-            });
-            
-            $("[id*=toggle_closed_detail_]").each(function( index ) {
-                 $( this ).text("view");
-                 $( this ).removeClass("toggle_open");
-                 $( this ).addClass("toggle_closed_detail");
-            });         
-            
-            $('html, body').animate({ scrollTop: 0 }, 0);
-          }
-        
-        }});
-    }
-
-    function toggleTableDetails() {
-        $(".toggle_closed_detail").each(function( index ) {
-            var anchor = $( this );
-            
-         //   alert("add index " + index);            
-            
-          //  console.log( index + ": " + $( this ).text() + " - " + $( this ));
-            $( this ).on({'click':function(event){
-             //  $( "#hide_target_" + index ).attr('colspan',4);
-             
-               var count = $( this ).data( "count" );             
-             
-               //$( "#hide_target_" + index ).toggle();     
-               $( "#hide_target_" + count ).toggle();     
-
-                if(anchor.hasClass("toggle_closed_detail")) {
-                    anchor.removeClass("toggle_closed_detail");
-                    anchor.addClass("toggle_open");
-                    $( this ).text("hide");
-                }
-                else {
-                    anchor.removeClass("toggle_open");
-                    anchor.addClass("toggle_closed_detail");
-                    $( this ).text("view");
-                }
-
-            //   alert("#hide_target_" + index);
-            
-               event.preventDefault();
-            }});
-        });
-    }
-    
-    $(function(){
-        toggleTable("mutagenesis_table");
-        toggleTableDetails();
-    });
-
-</script>
-
-<style>
-             .toggle_open, .toggle_closed, .toggle_closed_detail {
-                padding-left: 16px;
-                padding-top: 2px;
-                padding-bottom: 2px;
-             }
-             .toggle_open {
-                background:url(http://www.mousephenotype.org/martsearch_ikmc_project/images/silk/bullet_arrow_up.png) no-repeat 0 center;
-             }
-             .toggle_closed, .toggle_closed_detail {
-                background:url(http://www.mousephenotype.org/martsearch_ikmc_project/images/silk/bullet_arrow_right.png) no-repeat 0 center;
-             }
-         </style>
-         
-<style>
-    /* Project Page Mutagenesis Prediction Tool */
-
-.exon_deleted {
-	background-color: #a61e01;
-	color: #fff;
-}
-
-.exon_frameshifted {
-	background-color: #eb790b;
-}
-
-.exon_upstream {
-	background-color: #0978a1;
-	color: #fff;
-}
-
-.exon_downstream {
-	background-color: #0978a1;
-	color: #fff;
-}
-    </style>
-
-    <style>
-    .warning {
-  	border-color: #b2a67b;
-	padding: 5px 5px 5px 25px;
-	margin-bottom: 10px;
-	background: #fbe8ad url(http://www.mousephenotype.org/martsearch_ikmc_project/images/silk/exclamation.png) no-repeat 5px 5px;
-  	font-style: italic;
-  	color: #333;
-}    
-        .border, .border th, .border td, td.border {
-                border: 1px solid #999 !important;
-        }
-    </style>
         
 <h1 class="title" id="top">${mutagenesis_title}</h1>
 
