@@ -1,0 +1,16 @@
+.btn              { text-decoration: none !important; color: #fff !important; background-color: #0978a1 !important; }
+.disabled         { text-decoration: none !important; color: #aaa !important; background-color: #9CC9D9 !important; cursor:default !important; }
+
+.toggle_open, .toggle_closed {
+   padding-left: 16px;
+   padding-top: 2px;
+   padding-bottom: 2px;
+}
+.toggle_open {
+   background:url(http://www.mousephenotype.org/martsearch_ikmc_project/images/silk/bullet_arrow_up.png) no-repeat 0 center;
+/*   background:url('../img/bullet_arrow_up.png') no-repeat 0 center;*/
+}
+.toggle_closed {
+   background:url(http://www.mousephenotype.org/martsearch_ikmc_project/images/silk/bullet_arrow_right.png) no-repeat 0 center;
+/*   background:url('../img/bullet_arrow_right.png') no-repeat 0 center;*/
+}
