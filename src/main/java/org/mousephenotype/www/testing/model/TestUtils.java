@@ -23,6 +23,8 @@
 package org.mousephenotype.www.testing.model;
 
 import static com.thoughtworks.selenium.SeleneseTestBase.fail;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -61,6 +63,28 @@ public class TestUtils {
     
     @Resource(name="testIterationsHash")
     Map<String, String> testIterationsHash;
+    
+    /**
+     * Counts and returns the number of sex icons in <code>table</code>
+     * @param table the data store
+     * @param sexColumnIndex the zero-relative sex column index in the data store
+     * @return the number of sex icons in <code>table</code>: for each row,
+     * if the sex = "male" or "female", add 1. If the sex = "both", add 2.
+     */
+    public static int getSexIconCount(GridMap table, int sexColumnIndex) {
+        int retVal = 0;
+        
+        for (String[] sA : table.getBody()) {
+            if (sA[sexColumnIndex].equalsIgnoreCase("female"))
+                retVal++;
+            else if (sA[sexColumnIndex].equalsIgnoreCase("male"))
+                retVal++;
+            else if (sA[sexColumnIndex].equalsIgnoreCase("both"))
+                retVal += 2;
+        }
+        
+        return retVal;
+    }
     
     /**
      * Return target count prioritized as follows:
@@ -128,6 +152,24 @@ public class TestUtils {
         return false;
     }
     
+    /**
+     * Decodes <code>url</code>, into UTF-8, making it suitable to use as a link.
+     * Invalid url strings are ignored and the original string is returned.
+     * @param url the url to decode
+     * @return the decoded url
+     */
+    public static String urlDecode(String url) {
+        String retVal = url;
+        try {
+            String decodedValue = URLDecoder.decode(url, "UTF-8");
+            retVal = decodedValue;
+        } catch (Exception e) {
+            System.out.println("Decoding of value '" + (url == null ? "<null>" : url) + "' failed: " + e.getLocalizedMessage());
+        }
+        
+        return retVal;
+    }
+    
     public static WebElement find(List<WebElement> list, String searchToken) {
         if ((list == null) || (list.isEmpty()))
             return null;
@@ -180,6 +222,43 @@ public class TestUtils {
     }
     
     /**
+     * The baseUrl for testing typically looks like:
+     *     "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive".
+     * Typical urls (e.g. graph urls) look like:
+     *     "http://ves-ebi-d0:8080/data/charts?accession=MGI:xxx...."
+     * Typical tokenMatch for graph pages looks like "/charts?". For download
+     * links it looks like "/export?".
+     * 
+     * @param baseUrl the base url
+     * @param url the graph (or other page) url
+     * @param tokenMatch the token matching the start of the good part of the url.
+     * @return a useable url that starts with the baseUrl followed by
+     * everything including and after the '/charts?' part of the url.
+     */
+    public static String patchUrl(String baseUrl, String url, String tokenMatch) {
+        int idx = url.indexOf(tokenMatch);
+        return baseUrl + url.substring(idx);
+    }
+    
+    /**
+     * This handles a specific download test condition when the baseUrl is ves-ebi-d0.
+     * Download tests on DEV may use either:
+     * <ul><li>dev.mousephenotype.org or</li>
+     * <li>ves-ebi-d0:8080</li>
+     * 
+     * This method looks at the incoming url and, if it is ves-ebi-d0:8080,
+     * replaces it with dev.mousephenotype.org.
+     * 
+     * This permits the download test comparison to be accurate and to succeed
+     * only when appropriate.
+     * @param url target url
+     * @return modified url if target url was ebi-ves-d0.
+     */
+    public static String patchVesEbiD0(String url) {
+        return url.replace("ves-ebi-d0:8080", "dev.mousephenotype.org");
+    }
+    
+    /**
      * Given a test name, test start time, error list, exception list, success list,
      * and total number of expected records to be processed, writes the given
      * information to stdout.
@@ -224,11 +303,22 @@ public class TestUtils {
     }
     
     /**
-     * Sleeps the thread for <code>thread_wait_in_ms</code> milliseconds.
-     * 
-     * @param thread_wait_in_ms length of time, in milliseconds, to sleep.
+     * Removes the protocol and double slashes from the url string
+     * @param url url string which may or may not contain a protocol
+     * @return the url, without the protocol or the double slashes
      */
-    public static void sleep(long thread_wait_in_ms) {
-            try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+    public static String removeProtocol(String url) {
+        return (url.replace("https://", "").replace("http://", ""));
+    }
+    
+    /**
+     * Sleeps the thread for <code>thread_wait_in_ms</code> milliseconds.
+     * If <code>threadWaitInMs</code> is null or 0, no sleep is executed.
+     * 
+     * @param threadWaitInMs length of time, in milliseconds, to sleep.
+     */
+    public static void sleep(Integer threadWaitInMs) {
+        if ((threadWaitInMs != null) && (threadWaitInMs > 0))
+            try { Thread.sleep(threadWaitInMs); } catch (Exception e) { }
     }
 }

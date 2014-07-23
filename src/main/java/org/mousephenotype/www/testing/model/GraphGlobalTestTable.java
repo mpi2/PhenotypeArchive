@@ -32,7 +32,7 @@ import org.openqa.selenium.WebElement;
  * This class encapsulates the code and data necessary to represent the important
  * components of a phenotype graph table.
  */
-public class GraphTable {
+public class GraphGlobalTestTable {
     private String globalTestValue = "";
     private final List<String> pvalues = new ArrayList();
     private final List<String> effects = new ArrayList();
@@ -40,13 +40,13 @@ public class GraphTable {
     private final String graphUrl;
     
     /**
-     * Creates a new <code>GraphTable</code> instance initialized with the given
+     * Creates a new <code>GraphGlobalTestTable</code> instance initialized with the given
      * headings
      * @param table a <code>WebElement</code> describing a well-formatted html
      * @param graphUrl the url of this graph
      * table with thead and tbody definitions.
      */
-    public GraphTable(WebElement table, String graphUrl) {
+    public GraphGlobalTestTable(WebElement table, String graphUrl) {
         List<WebElement> bodyRowsList = table.findElements(By.cssSelector("tbody tr"));
         if ( ! bodyRowsList.isEmpty()) {
             numBodyRows = bodyRowsList.size();
@@ -142,7 +142,7 @@ public class GraphTable {
      * @return true if the effects and pvalues of this table and <code>otherTable
      * </code> are the same in count and value; false otherwise
      */
-    public boolean isEqual(GraphTable otherTable) {
+    public boolean isEqual(GraphGlobalTestTable otherTable) {
         if (effects.size() != otherTable.effects.size())
             return false;
         if (pvalues.size() != otherTable.pvalues.size())

@@ -26,7 +26,7 @@ package org.mousephenotype.www.testing.model;
  */
 public interface WebPage {
     public PageStatus compare(String[][] downloadData, String downloadTarget);
-    public String[][] getPhenotypeTableData(int maxRows);
+    public String[][] getPhenotypeTableData(Integer maxRows);
     public int getResultsCount();
     public PageStatus testDownload(String baseUrl);
     

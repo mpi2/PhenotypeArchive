@@ -41,6 +41,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.GenePhenotypePage;
 import org.mousephenotype.www.testing.model.GraphParsingStatus;
+import org.mousephenotype.www.testing.model.PhenoPage;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -200,7 +201,7 @@ public class GraphTest {
                 driver.get(target);
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
                 
-                GenePhenotypePage page = new GenePhenotypePage(driver, timeout_in_seconds, phenotypePipelineDAO);
+                GenePhenotypePage page = new GenePhenotypePage(driver, wait, geneId, phenotypePipelineDAO);
                 GraphParsingStatus status = page.parse();
                 
                 graphsWithGenePagesCount++;
@@ -262,8 +263,8 @@ public class GraphTest {
     public void testGraphsByPhenotype() throws SolrServerException {
         final String testName = "testGraphsByPhenotype";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        List<String> phenotypeIds = new ArrayList(mpService.getAllPhenotypes());
-        boolean isGraphRequired = true;                                         // There must be at least 1 graph.
+        List<String> phenoIds = new ArrayList(mpService.getAllPhenotypes());
+//////        boolean isGraphRequired = true;                                         // There must be at least 1 graph.
         
         String target = "";
         List<String> errorList = new ArrayList();
@@ -272,13 +273,13 @@ public class GraphTest {
         String message;
         Date start = new Date();
 
-        int targetCount = testUtils.getTargetCount(testName, phenotypeIds, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
+        int targetCount = testUtils.getTargetCount(testName, phenoIds, 10);
+        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenoIds.size() + " records.");
         
-        // Loop through the genes, testing each one with an IMPC graph for valid page load.
+        // Loop through the phenotypes, testing each one with an IMPC graph for valid page load.
         WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
         int i = 0;
-        for (String phenotypeId : phenotypeIds) {
+        for (String phenoId : phenoIds) {
 
 //if (i == 0) phenotypeId = "MP:0010119";      // undimensional
 //if (i == 1) phenotypeId = "MP:0002092";      // categorical
@@ -286,15 +287,21 @@ public class GraphTest {
                 break;
             i++;
             
-            target = baseUrl + "/phenotypes/" + phenotypeId;
+            target = baseUrl + "/phenotypes/" + phenoId;
 
             try {
                 // 
                 // Get the phenotype page.
                 driver.get(target);
+                PhenoPage page = new PhenoPage(driver, wait, target, phenoId);
+                
+                System.out.println("gene[" + i + "] URL: " + target);
+                page.
+                
+                
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("table#phenotypes")));
                 
-                GenePhenotypePage page = new GenePhenotypePage(driver, timeout_in_seconds, phenotypePipelineDAO);
+                GenePhenotypePage page = new GenePhenotypePage(driver, wait, phenoId, phenotypePipelineDAO);
                 GraphParsingStatus status = page.parse();
                 
                 System.out.println("gene[" + i + "] URL: " + target);
@@ -306,12 +313,12 @@ public class GraphTest {
                     for (String s : status.getFailMessages()) {
                         System.out.println("\t" + s);
                     }
-                    errorList.add("FAIL: MGI_ACCESSION_ID " + phenotypeId + ". URL: " + target);
+                    errorList.add("FAIL: MGI_ACCESSION_ID " + phenoId + ". URL: " + target);
                 } else {
-                    successList.add("SUCCESS: MGI_ACCESSION_ID " + phenotypeId + ". URL: " + target);
+                    successList.add("SUCCESS: MGI_ACCESSION_ID " + phenoId + ". URL: " + target);
                 }
             } catch (NoSuchElementException | TimeoutException te) {
-                message = "Expected page for MGI_ACCESSION_ID " + phenotypeId + "(" + target + ") but found none.";
+                message = "Expected page for MGI_ACCESSION_ID " + phenoId + "(" + target + ") but found none.";
                 errorList.add(message);
                 TestUtils.sleep(thread_wait_in_ms);
                 continue;
@@ -332,7 +339,7 @@ public class GraphTest {
             TestUtils.sleep(thread_wait_in_ms);
         }
         
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, phenotypeIds.size());
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, phenoIds.size());
     }
     
     /**

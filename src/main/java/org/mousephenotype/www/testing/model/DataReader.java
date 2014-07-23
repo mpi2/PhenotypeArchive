@@ -1,8 +1,8 @@
-/*
+/**
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
- /**
+/**
  * Copyright © 2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
@@ -21,33 +21,114 @@
 package org.mousephenotype.www.testing.model;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 
 /**
  *
  * @author mrelac
  * 
- * This interface defines a contract for implementing a data reader that can
- * read URL-originated streams. Since plain-text streams such as comma- and tab-
- * separated formats can be very different from Excel streams in their command-set,
- * this interface aims to describe a consistent, easy-to-use, and easy-to-maintain
- * and enhance approach.
- * 
- * New stream types can be easily implemented by simply implementing these
- * methods.
- * 
+ * This abstract class implements code common to derived classes, leaving 
+ * stream-specific  customizations to the derived classes.
  */
-public interface DataReader {
-    public void open() throws IOException;
-    public void close() throws IOException;
-    public List<String> getLine() throws IOException;
-    public DataType getType();
-    public String[][] getData(int maxRows);
-    public int lineCount();
+public abstract class DataReader {
+    
+    protected final URL url;
+    
+    public DataReader(URL url) {
+        this.url = url;
+    }
+    
+    public abstract void open() throws IOException;
+    public abstract void close() throws IOException;
+    public abstract List<String> getLine() throws IOException;
+    public abstract DataType getType();
+    
+    /**
+     * @return  All rows of data from the stream created by 
+     * invoking the url provided with the constructor. Supported stream formats
+     * are defined in the public enum <code>DataReader.DataType</code>.
+     */
+    public String[][] getData() {
+        return getData(null);
+    }
+    
+    /**
+     * @param maxRows the maximum number of download stream rows to return, including
+     * any headings. To specify all rows, set <code>maxRows</code> to null.
+     * @return <code>maxRows</code> rows of data (including headings) from the stream created by 
+     * invoking the url provided with the constructor. Supported stream formats
+     * are defined in the public enum <code>DataReader.DataType</code>.
+     */
+    public String[][] getData(Integer maxRows) {
+        
+        if (maxRows == null)
+            maxRows = lineCount();
+        
+        String[][] data = new String[maxRows][];
+        DataReader dataReader = null;
+        try {
+            dataReader = DataReaderFactory.create(url);
+ //System.out.println("After create()");
+            dataReader.open();
+ //System.out.println("After open()");
+            List<String> line;
+            for (int rowIndex = 0; rowIndex < maxRows; rowIndex++) {
+                line = dataReader.getLine();
+                if (line == null)
+                    break;
+                
+                data[rowIndex] = new String[line.size()];
+                for (int colIndex = 0; colIndex < line.size(); colIndex++) {
+                    data[rowIndex][colIndex] = line.get(colIndex);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("EXCEPTION: " + e.getLocalizedMessage());
+        } finally {
+            try {
+                if (dataReader != null)
+                    dataReader.close();
+            } catch (IOException e) {
+                System.out.println("EXCEPTION: " + e.getLocalizedMessage());
+            }
+        }
+        
+        return data;
+    }
+    
+    /**
+     * @return the number of lines in this <code>DataReader</code> stream,
+     * including headings.
+     */
+    public int lineCount() {
+        int lineCount = 0;
+        DataReader dataReader = null;
+        try {
+            dataReader = DataReaderFactory.create(url);
+            dataReader.open();
+            
+            while ((dataReader.getLine()) != null) {
+                lineCount++;
+            }
+        } catch (IOException e) {
+            System.out.println("EXCEPTION: " + e.getLocalizedMessage());
+        } finally {
+            try {
+                if (dataReader != null)
+                    dataReader.close();
+            } catch (IOException e) {
+                System.out.println("EXCEPTION: " + e.getLocalizedMessage());
+            }
+        }
+        
+        return lineCount;
+    }
     
     public enum DataType {
         TSV,
         XLS
     }
     
+
 }

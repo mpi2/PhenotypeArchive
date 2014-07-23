@@ -24,23 +24,17 @@ package org.mousephenotype.www.testing.model;
  *
  * @author mrelac
  * 
- * The download streams for gene, pheno, and graph pages are similar in a
- * general way but differ in column name, placement, and count. This interface
- * defines the contract for column indexes common to all download streams.
- * Instantiated subclasses provide the implementations and may add additional
- * column index getters.
+ * This class extends <code>GridMap</code> by adding column definitions for
+ * the download phenotype page.
  */
-public interface DownloadStructure {
-//    public int getColIndexPhenotype();
-    public int getColIndexAlleleSymbol();
-    public int getColIndexZygosity();
-    public int getColIndexSex();
-//    public int getColIndexProcedureName();
-//    public int getColIndexParameterName();
-    public int getColIndexPhenotypingCenter();
-//    public int getColIndexSource();
-//    public int getColIndexPvalue();
-//    public int getColIndexGraph();
-    public int getColumnCount();
-//    public int getColIndex(int tableIndex);
+public class DownloadGeneMap {
+    public final static int COL_INDEX_PHENOTYPE           = 0;
+    public final static int COL_INDEX_ALLELE              = 1;
+    public final static int COL_INDEX_ZYGOSITY            = 2;
+    public final static int COL_INDEX_SEX                 = 3;
+    public final static int COL_INDEX_PROCEDURE_PARAMETER = 4;
+    public final static int COL_INDEX_PHENOTYPING_CENTER  = 5;
+    public final static int COL_INDEX_SOURCE              = 6;
+    public final static int COL_INDEX_P_VALUE             = 7;
+    public final static int COL_INDEX_GRAPH               = 8;
 }

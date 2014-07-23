@@ -50,7 +50,8 @@ import uk.ac.ebi.phenotype.util.Utils;
 public class GenePhenotypePage {
     private List<GenePhenotypeRow> data;
     private final WebDriver driver;
-    private final long timeoutInSeconds;
+    private final WebDriverWait wait;
+    private final String id;
     private final PhenotypePipelineDAO phenotypePipelineDAO;
     private final String url;
     
@@ -60,10 +61,18 @@ public class GenePhenotypePage {
     private final String NO_PHENO_ASSOCIATIONS = "There are currently no phenotype associations for the gene";
     private final String RESULT_TEXT_DISCARD = "Total number of results: ";
     
-    public GenePhenotypePage(WebDriver driver, long timeoutInSeconds, PhenotypePipelineDAO phenotypePipelineDAO) {
+    /**
+     * Creates a <code>GenePhenotypePage</code> instance with the given parameters
+     * @param driver <code>WebDriver</code> instance
+     * @param wait <code>WebDriverWait</code> instance
+     * @param id gene or phenotype id
+     * @param phenotypePipelineDAO <code>PhenotypePipelineDAO</code> instance
+     */
+    public GenePhenotypePage(WebDriver driver, WebDriverWait wait, String id, PhenotypePipelineDAO phenotypePipelineDAO) {
         this.data = new ArrayList();
         this.driver = driver;
-        this.timeoutInSeconds = timeoutInSeconds;
+        this.wait = wait;
+        this.id = id;
         this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.hasPhenotypeAssociations = false;
         this.resultCount = 0;
@@ -74,64 +83,62 @@ public class GenePhenotypePage {
         return url;
     }
 
-    /**
-     * Parses the gene page (which must currently be showing).
-     * @return a new <code>GraphParsingStatus</code> status instance containing
-     * failure counts and messages.
-     */
-    public GraphParsingStatus parse() {
-        return parse(new GraphParsingStatus());
-    }
-    
-    /**
-     * Uses the <code>WebDriver</code> driver, provided via the constructor to
-     * parse the gene page (which must currently be showing).
-     * @param status caller-supplied status instance to be used
-     * @return the passed-in <code>GraphParsingStatus</code> status, updated with
-     * any failure counts and messages.
-     */
-    public GraphParsingStatus parse(GraphParsingStatus status) {
-        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
-        try {
-            
-            // Look for the 'No Phenotypes' message. If found, 'hasPhenotypeAssociations' is false; otherwise, it is true.
-            hasPhenotypeAssociations =  ! wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner div.alert"))).getText().contains(NO_PHENO_ASSOCIATIONS);
-        } catch (Exception e) {
-            hasPhenotypeAssociations = true;
-        }
-        
-        if (hasPhenotypeAssociations) {
-            // Populate resultCount from the 'Total number of results' tag on the page.
-            try {
-                String sResultCount = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("p.resultCount"))).getText().replace(RESULT_TEXT_DISCARD, "");
-                Integer niResultCount = Utils.tryParseInt(sResultCount);
-                if (niResultCount == null) {
-                    status.addFail("Failed to convert result count '" + sResultCount + "' to integer.");
-                }
-                this.resultCount = niResultCount;
-            } catch (Exception e) {
-                status.addFail("Expected to find result count but didn't.");
-            }
-            
-            try {
-                WebElement phenotypesTable = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("table#phenotypes")));
-                
-                // Grab the headings.
-                List<WebElement> headings = phenotypesTable.findElements(By.cssSelector("thead tr th"));
-                    
-                // Loop through all of the tr objects for this page, gathering the data.
-                data = new ArrayList();
-                for (WebElement phenotypesRow : phenotypesTable.findElements(By.cssSelector("tbody tr"))) {
-                    List<WebElement> dataRow = phenotypesRow.findElements(By.cssSelector("td"));
-                    data.add(new GenePhenotypeRow(headings, dataRow));
-                }
-            } catch (NoGraphException nge) {
-                status.addFail("Error while trying to find and parse the phenotypes HTML table:\n" + nge.getLocalizedMessage());
-            }
-        }
-        
-        return status;
-    }
+//    /**
+//     * Parses the gene page (which must currently be showing).
+//     * @return a new <code>GraphParsingStatus</code> status instance containing
+//     * failure counts and messages.
+//     */
+//    public GraphParsingStatus parse() {
+//        return parse(new GraphParsingStatus());
+//    }
+//    
+//    /**
+//     * Uses the <code>WebDriver</code> driver, provided via the constructor to
+//     * parse the gene page (which must currently be showing).
+//     * @param status caller-supplied status instance to be used
+//     * @return the passed-in <code>GraphParsingStatus</code> status, updated with
+//     * any failure counts and messages.
+//     */
+//    public GraphParsingStatus parse(GraphParsingStatus status) {
+//        try {
+//            // Look for the 'No Phenotypes' message. If found, 'hasPhenotypeAssociations' is false; otherwise, it is true.
+//            hasPhenotypeAssociations =  ! wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner div.alert"))).getText().contains(NO_PHENO_ASSOCIATIONS);
+//        } catch (Exception e) {
+//            hasPhenotypeAssociations = true;
+//        }
+//        
+//        if (hasPhenotypeAssociations) {
+//            // Populate resultCount from the 'Total number of results' tag on the page.
+//            try {
+//                String sResultCount = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("p.resultCount"))).getText().replace(RESULT_TEXT_DISCARD, "");
+//                Integer niResultCount = Utils.tryParseInt(sResultCount);
+//                if (niResultCount == null) {
+//                    status.addFail("Failed to convert result count '" + sResultCount + "' to integer.");
+//                }
+//                this.resultCount = niResultCount;
+//            } catch (Exception e) {
+//                status.addFail("Expected to find result count but didn't.");
+//            }
+//            
+//            try {
+//                WebElement phenotypesTable = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("table#phenotypes")));
+//                
+//                // Grab the headings.
+//                List<WebElement> headings = phenotypesTable.findElements(By.cssSelector("thead tr th"));
+//                    
+//                // Loop through all of the tr objects for this page, gathering the data.
+//                data = new ArrayList();
+//                for (WebElement phenotypesRow : phenotypesTable.findElements(By.cssSelector("tbody tr"))) {
+//                    List<WebElement> dataRow = phenotypesRow.findElements(By.cssSelector("td"));
+//                    data.add(new GenePhenotypeRow(headings, dataRow));
+//                }
+//            } catch (NoGraphException nge) {
+//                status.addFail("Error while trying to find and parse the phenotypes HTML table:\n" + nge.getLocalizedMessage());
+//            }
+//        }
+//        
+//        return status;
+//    }
 
     /**
      * Validates this <code>GenePhenotypePage</code> instance
@@ -156,7 +163,6 @@ public class GenePhenotypePage {
     public final GraphParsingStatus validate(GraphParsingStatus status, boolean isGraphRequired) {
         // Verify that every data row has a valid graph link, then validate each link. Count the Sex icons along the way for later check.
         int sexIconCount = 0;
-        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         int i = 0;
         for (GenePhenotypeRow row : data) {
             // Count the Sex icons.
@@ -168,9 +174,11 @@ public class GenePhenotypePage {
             // Validate the graph link.
             status = row.validate(status);
             try {
-                driver.get(row.getGraphHref());
-                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("h2#section-associations"))).getText().contains("Allele");
-                GraphPage graphPage = new GraphPage(driver, timeoutInSeconds, phenotypePipelineDAO);
+                String target = row.getGraphHref();
+                target = TestUtils.patchUrl(, url, "/charts?")
+                driver.get(target);
+//                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("h2#section-associations"))).getText().contains("Allele");
+                GraphPage graphPage = new GraphPage(driver, wait, target, id, phenotypePipelineDAO);
                 graphPage.parse(status);
                 graphPage.validate(status);
                 i++;
@@ -188,7 +196,6 @@ public class GenePhenotypePage {
         if ((isGraphRequired) && (i <= 0)) {
             String message = "ERROR: expected phenotype association but none found for URL " + this.getUrl();
             status.addFail(message);
-            TestUtils.sleep(timeoutInSeconds);
         }
         
         return status;

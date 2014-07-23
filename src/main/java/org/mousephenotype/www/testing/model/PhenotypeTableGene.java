@@ -33,131 +33,147 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  *
  * @author mrelac
  * 
- * This class extends PhenotypeTable, which has code common to the gene page and
- * the phenotypes page, by providing getters for the column indexes.
+ * This class encapsulates the code and data necessary for access to the gene
+ * page's "phenotypes" HTML table.
  */
-public class PhenotypeTableGene extends PhenotypeTable {
+public class PhenotypeTableGene {
+    protected WebDriver driver;
+    protected WebDriverWait wait;
+    protected String target;
+    private GridMap data;
+
+    public static final int COL_INDEX_PHENOTYPES_PHENOTYPE           =  0;
+    public static final int COL_INDEX_PHENOTYPES_ALLELE              =  1;
+    public static final int COL_INDEX_PHENOTYPES_ZYGOSITY            =  2;
+    public static final int COL_INDEX_PHENOTYPES_SEX                 =  3;
+    public static final int COL_INDEX_PHENOTYPES_PROCEDURE_PARAMETER =  4;
+    public static final int COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER  =  5;
+    public static final int COL_INDEX_PHENOTYPES_SOURCE              =  6;
+    public static final int COL_INDEX_PHENOTYPES_P_VALUE             =  7;
+    public static final int COL_INDEX_PHENOTYPES_GRAPH               =  8;
+    
+    public static final String COL_PHENOTYPES_PHENOTYPE           = "Phenotype";
+    public static final String COL_PHENOTYPES_ALLELE              = "Allele";
+    public static final String COL_PHENOTYPES_ZYGOSITY            = "Zygosity";
+    public static final String COL_PHENOTYPES_SEX                 = "Sex";
+    public static final String COL_PHENOTYPES_PROCEDURE_PARAMETER = "Procedure | Parameter";
+    public static final String COL_PHENOTYPES_PHENOTYPING_CENTER  = "Phenotyping Center";
+    public static final String COL_PHENOTYPES_SOURCE              = "Source";
+    public static final String COL_PHENOTYPES_P_VALUE             = "P Value";
+    public static final String COL_PHENOTYPES_GRAPH               = "Graph";
+    
+    public PhenotypeTableGene(WebDriver driver, WebDriverWait wait, String target) {
+        this.driver = driver;
+        this.wait = wait;
+        this.target = target;
+        this.data = null;
+    }
     
     /**
-     * @return The 0-relative phenotype column index in the gene page's phenotypes html table.
+     * @return a <code>GridMap</code> containing the data and column access
+     * variables that were loaded by the last call to <code>load()</code>.
      */
-    @Override
-    public int getColIndexPhenotype(){ return 0; }
-    
-    /**
-     * @return The 0-relative allele column index in the gene page's phenotypes html table.
-     */
-    public int getColIndexAllele(){ return 1; }
-    
-    /**
-     * @return The 0-relative zygosity column index in the gene page's phenotypes html table.
-     */
-    @Override
-    public int getColIndexZygosity(){ return 2; }
-    
-    /**
-     * @return The 0-relative sex column index in the gene page's phenotypes html table.
-     */
-    @Override
-    public int getColIndexSex(){ return 3; }
-    
-    /**
-     * @return The 0-relative procedure | parameter column index in the gene page's phenotypes html table.
-     */
-    @Override
-    public int getColIndexProcedureParameter(){ return 4; }
-    
-    /**
-     * @return The 0-relative phenotyping center column index in the gene page's phenotypes html table.
-     */
-    @Override
-    public int getColIndexPhenotypingCenter(){ return 5; }
-    
-    /**
-     * @return The 0-relative source column index in the gene page's phenotypes html table.
-     */
-    @Override
-    public int getColIndexSource(){ return 6; }
-    
-    /**
-     * @return The 0-relative p value column index in the gene page's phenotypes html table.
-     */
-    @Override
-    public int getColIndexPvalue(){ return 7; }
-    
-    /**
-     * @return The 0-relative graph link column index in the gene page's phenotypes html table.
-     */
-    @Override
-    public int getColIndexGraph(){ return 8; }
-    
-    /**
-     * @return The number of columns in the gene page's phenotypes html table.
-     */
-    @Override
-    public int getTableColumnCount() { return 9; }
+    public GridMap getData() {
+        return data;
+    }
 
     /**
-     * Pulls <code>maxRows</code> rows of data from the gene page's 'phenotypes'
-     * HTML table, returning the data in a 2-dimensional array.
-     * <b>NOTE: It is expected that the page containing the phenotype table is
-     * currently loaded. If it is not, a timeout will be thrown.</b>
-     * 
-     * @param driver valid <code>WebDriver</code>instance pointing to the target
-     * page to be loaded.
-     * @param wait valid <code>WebDriverWait</code> instance
-     * @param target target url that points to the desired gene page
-     * @param maxRows the maximum number of phenotype table rows to return, including
-     * any headings.
-     * @return a 2-dimensional array containing <code>maxRows</code> rows of data
-     * from the gene page's 'phenotypes' HTML table
+     * Pulls all rows of data and column access variables from the gene page's
+     * 'phenotypes' HTML table.
+     *
+     * @return <code>numRows</code> rows of data and column access variables
+     * from the gene page's 'phenotypes' HTML table.
      */
-    @Override
-    public String[][] getData(WebDriver driver, WebDriverWait wait, String target, int maxRows) {
-        String[][] data = new String[maxRows][9];
+    public GridMap load() {
+        return load(null);
+    }
+
+    /**
+     * Pulls <code>numRows</code> rows of data and column access variables from
+     * the gene page's 'phenotypes' HTML table.
+     *
+     * @param numRows the number of phenotype table rows to return, including
+     * the heading row. To specify all rows, set <code>numRows</code> to null.
+     * @return <code>numRows</code> rows of data and column access variables
+     * from the gene page's 'phenotypes' HTML table.
+     */
+    public GridMap load(Integer numRows) {
+        if (numRows == null)
+            numRows = computeTableRowCount();
+        
+        String[][] dataArray;
+        String value;
         
         // Wait for page.
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='exportIconsDiv'][@data-exporturl]")));
-        List<WebElement> rowElements;
-        for (int rowIndex = 0; rowIndex < maxRows; rowIndex++) {
-            if (rowIndex == 0) {
-                rowElements = driver.findElements(By.xpath("//table[@id='phenotypes']/thead/tr/*"));
-            } else {
-                rowElements = driver.findElements(By.xpath("//table[@id='phenotypes']/tbody/tr/*"));
-            }
-            
-            for (int colIndex = 0; colIndex < getTableColumnCount(); colIndex++) {
-                if (colIndex >= rowElements.size()) {
-                    throw new RuntimeException("EXCEPTION: Expected " + getTableColumnCount() + " columns but found " + colIndex + 1
-                                               + ". URL: " + target);
-                }
-                
-                WebElement tdElement = rowElements.get(colIndex);
-                
-                if (rowIndex == 0) {
-                    data[rowIndex][colIndex] = tdElement.getText();
-                } else {
-                    // If this is not the heading row, determine the correct strings for sex and graph link.
-                    if (colIndex == getColIndexSex()) {
-                        // Translate the male/female symbol into a string.
-                        data[rowIndex][colIndex] = tdElement.findElement(By.xpath("img[@alt='Male' or @alt='Female']")).getAttribute("alt").toLowerCase();
-                    } else if (colIndex == getColIndexGraph()) {
-                        // Extract the graph url from the <a> anchor and decode it.
-                        String graphUrl = "";
-                        String href = tdElement.findElement(By.xpath("a")).getAttribute("href");
-                        try { graphUrl = java.net.URLDecoder.decode(href, "UTF-8"); } catch (UnsupportedEncodingException e) { }
-                        data[rowIndex][colIndex] = graphUrl;
+        WebElement phenotypesTable = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("table#phenotypes")));
+
+        // Grab the headings.
+        List<WebElement> headings = phenotypesTable.findElements(By.cssSelector("thead tr th"));
+        numRows = Math.min(computeTableRowCount(), numRows);                    // Take the lesser of: actual row count in HTML table (including heading), or requested numRows.
+        int numCols = headings.size();
+
+        dataArray = new String[numRows][numCols];                               // Allocate space for the data.
+        int colIndex = 0;
+        for (WebElement heading : headings) {                                   // Copy the heading values.
+            dataArray[0][colIndex] = heading.getText();
+            colIndex++;
+        }
+        
+        // Loop through all of the tr objects for this page, gathering the data.
+        int rowIndex = 1;
+
+        for (WebElement row : phenotypesTable.findElements(By.xpath("//table[@id='phenotypes']/tbody/tr"))) {
+            List<WebElement> cells = row.findElements(By.cssSelector("td"));
+            colIndex = 0;
+            for (WebElement cell : cells) {
+                if (colIndex == COL_INDEX_PHENOTYPES_ALLELE) {
+                    String sup = cell.findElement(By.cssSelector("sup")).getText();
+                    value = cell.findElement(By.cssSelector("a")).getText();
+                    AlleleParser ap = new AlleleParser(value, sup);
+                    value = ap.toString();
+                } else if (colIndex == COL_INDEX_PHENOTYPES_PHENOTYPE) {
+                    value = cell.findElement(By.cssSelector("a")).getText();    // Get the phenotype text.
+                } else if (colIndex == COL_INDEX_PHENOTYPES_SEX) {              // Translate the male/female symbol into a string: 'male', 'female', or 'both'.
+                    List<WebElement> sex = cell.findElements(By.xpath("img[@alt='Male' or @alt='Female']"));
+                    if (sex.size() == 2) {
+                        value = "both";
                     } else {
-                        String value = "";
-                        try { value = URLDecoder.decode(tdElement.getText(), "UTF-8"); } catch (UnsupportedEncodingException e) { }
-                        data[rowIndex][colIndex] = value;
+                        value = sex.get(0).getAttribute("alt").toLowerCase();
                     }
+                } else if (colIndex == COL_INDEX_PHENOTYPES_GRAPH) {                    // Extract the graph url from the <a> anchor and decode it.
+                    value = cell.findElement(By.cssSelector("a")).getAttribute("href");
+                    value = TestUtils.urlDecode(value);
+                } else {
+                    value = cell.getText();
                 }
+                
+                dataArray[rowIndex][colIndex] = value;
+                colIndex++;
+            }
+
+            rowIndex++;
+//System.out.println();
+            if (rowIndex >= numRows) {                                          // Return when we have the number of requested rows.
+                data = new GridMap(dataArray, target);
+                return data;
             }
         }
+        
+        data = new GridMap(dataArray, target);
         
         return data;
     }
     
+    /**
+     * 
+     * @return the number of rows in the "phenotypes" table. Always include 1 extra for the heading.
+     */
+    private int computeTableRowCount() {
+        // Wait for page.
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='exportIconsDiv'][@data-exporturl]")));
+        
+        List<WebElement> elements = driver.findElements(By.xpath("//table[@id='phenotypes']/tbody/tr"));
+        return elements.size() + 1;
+    }
     
 }
