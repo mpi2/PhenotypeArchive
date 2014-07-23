@@ -43,7 +43,7 @@ import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
-import uk.ac.ebi.phenotype.service.GenotypePhenotypeService.GenotypePhenotypeField;
+import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
@@ -366,7 +366,7 @@ public class StatisticalResultService {
         }
 
         SolrQuery q = new SolrQuery()
-                .setQuery(GenotypePhenotypeField.MARKER_ACCESSION_ID + ":\"" + accession + "\"").setSort(GenotypePhenotypeField.P_VALUE, SolrQuery.ORDER.asc)
+                .setQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + accession + "\"").setSort(GenotypePhenotypeDTO.P_VALUE, SolrQuery.ORDER.asc)
                 .setRows(10000);
         QueryResponse response = null;
 
