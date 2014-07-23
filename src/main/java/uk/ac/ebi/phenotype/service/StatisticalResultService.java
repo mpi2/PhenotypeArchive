@@ -44,7 +44,7 @@ import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService.GenotypePhenotypeField;
-import uk.ac.ebi.phenotype.service.ObservationService.ExperimentField;
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
@@ -215,15 +215,15 @@ public class StatisticalResultService {
         }
 
         if(sex != null) {
-            query.addFilterQuery(ExperimentField.SEX + ":" + sex);
+            query.addFilterQuery(ObservationDTO.SEX + ":" + sex);
         }
 
         if(metadataGroup==null) {
             // don't add a metadata group filter
         } else if (metadataGroup.isEmpty()) {
-            query.addFilterQuery(ExperimentField.METADATA_GROUP + ":\"\"");
+            query.addFilterQuery(ObservationDTO.METADATA_GROUP + ":\"\"");
         } else {
-            query.addFilterQuery(ExperimentField.METADATA_GROUP + ":" + metadataGroup);
+            query.addFilterQuery(ObservationDTO.METADATA_GROUP + ":" + metadataGroup);
         }
 
         response = solr.query(query);
