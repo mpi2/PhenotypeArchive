@@ -6,7 +6,7 @@ import org.apache.solr.client.solrj.beans.Field;
 
 public class GenotypePhenotypeDTO {
 
-	public static final String DOC_ID = "doc_id";
+	public static final String ID = "doc_id";
 	public static final String MP_TERM_ID = "mp_term_id";
 	public static final String MP_TERM_NAME = "mp_term_name";
 	public static final String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";
@@ -46,8 +46,8 @@ public class GenotypePhenotypeDTO {
 	public static final String EFFECT_SIZE = "effect_size";
 	public static final String EXTERNAL_ID = "external_id";
 
-	@Field(DOC_ID)
-	Integer doc_id;
+	@Field(ID)
+	Integer id;
 
 	@Field(MP_TERM_ID)
 	String mpTermId;
@@ -164,15 +164,15 @@ public class GenotypePhenotypeDTO {
 	String externalId;
 
 	
-	public Integer getDoc_id() {
+	public Integer getId() {
 	
-		return doc_id;
+		return id;
 	}
 
 	
-	public void setDoc_id(Integer doc_id) {
+	public void setId(Integer id) {
 	
-		this.doc_id = doc_id;
+		this.id = id;
 	}
 
 	
@@ -641,7 +641,7 @@ public class GenotypePhenotypeDTO {
 		result = prime * result + ((alleleName == null) ? 0 : alleleName.hashCode());
 		result = prime * result + ((alleleSymbol == null) ? 0 : alleleSymbol.hashCode());
 		result = prime * result + ((colonyId == null) ? 0 : colonyId.hashCode());
-		result = prime * result + ((doc_id == null) ? 0 : doc_id.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((effect_size == null) ? 0 : effect_size.hashCode());
 		result = prime * result + ((externalId == null) ? 0 : externalId.hashCode());
 		result = prime * result + ((intermediateMpTermDefinition == null) ? 0 : intermediateMpTermDefinition.hashCode());
@@ -699,9 +699,9 @@ public class GenotypePhenotypeDTO {
 		if (colonyId == null) {
 			if (other.colonyId != null) { return false; }
 		} else if (!colonyId.equals(other.colonyId)) { return false; }
-		if (doc_id == null) {
-			if (other.doc_id != null) { return false; }
-		} else if (!doc_id.equals(other.doc_id)) { return false; }
+		if (id == null) {
+			if (other.id != null) { return false; }
+		} else if (!id.equals(other.id)) { return false; }
 		if (effect_size == null) {
 			if (other.effect_size != null) { return false; }
 		} else if (!effect_size.equals(other.effect_size)) { return false; }
@@ -811,7 +811,7 @@ public class GenotypePhenotypeDTO {
 	@Override
 	public String toString() {
 
-		return "GenotypePhenotypeDTO [doc_id=" + doc_id + ", mpTermId=" + mpTermId + ", mpTermName=" + mpTermName + ", topLevelMpTermId=" + topLevelMpTermId + ", topLevelMpTermName=" + topLevelMpTermName + ", topLevelMpTermDefinition=" + topLevelMpTermDefinition + ", topLevelMpTermSynonym=" + topLevelMpTermSynonym + ", intermediateMpTermId=" + intermediateMpTermId + ", intermediateMpTermName=" + intermediateMpTermName + ", intermediateMpTermDefinition=" + intermediateMpTermDefinition + ", intermediateMpTermSynonym=" + intermediateMpTermSynonym + ", markerSymbol=" + markerSymbol + ", markerAccessionId=" + markerAccessionId + ", colonyId=" + colonyId + ", alleleName=" + alleleName + ", alleleSymbol=" + alleleSymbol + ", alleleAccessionId=" + alleleAccessionId + ", strainName=" + strainName + ", strainAccessionId=" + strainAccessionId + ", phenotypingCenter=" + phenotypingCenter + ", projectExternalId=" + projectExternalId + ", projectName=" + projectName + ", projectFullname=" + projectFullname + ", resourceName=" + resourceName + ", resourceFullname=" + resourceFullname + ", sex=" + sex + ", zygosity=" + zygosity + ", pipelineName=" + pipelineName + ", pipelineStableId=" + pipelineStableId + ", pipelineStableKey=" + pipelineStableKey + ", procedureName=" + procedureName + ", procedureStableId=" + procedureStableId + ", procedureStableKey=" + procedureStableKey + ", parameterName=" + parameterName + ", parameterStableId=" + parameterStableId + ", parameterStableKey=" + parameterStableKey + ", p_value=" + p_value + ", effect_size=" + effect_size + ", externalId=" + externalId + "]";
+		return "GenotypePhenotypeDTO [id=" + id + ", mpTermId=" + mpTermId + ", mpTermName=" + mpTermName + ", topLevelMpTermId=" + topLevelMpTermId + ", topLevelMpTermName=" + topLevelMpTermName + ", topLevelMpTermDefinition=" + topLevelMpTermDefinition + ", topLevelMpTermSynonym=" + topLevelMpTermSynonym + ", intermediateMpTermId=" + intermediateMpTermId + ", intermediateMpTermName=" + intermediateMpTermName + ", intermediateMpTermDefinition=" + intermediateMpTermDefinition + ", intermediateMpTermSynonym=" + intermediateMpTermSynonym + ", markerSymbol=" + markerSymbol + ", markerAccessionId=" + markerAccessionId + ", colonyId=" + colonyId + ", alleleName=" + alleleName + ", alleleSymbol=" + alleleSymbol + ", alleleAccessionId=" + alleleAccessionId + ", strainName=" + strainName + ", strainAccessionId=" + strainAccessionId + ", phenotypingCenter=" + phenotypingCenter + ", projectExternalId=" + projectExternalId + ", projectName=" + projectName + ", projectFullname=" + projectFullname + ", resourceName=" + resourceName + ", resourceFullname=" + resourceFullname + ", sex=" + sex + ", zygosity=" + zygosity + ", pipelineName=" + pipelineName + ", pipelineStableId=" + pipelineStableId + ", pipelineStableKey=" + pipelineStableKey + ", procedureName=" + procedureName + ", procedureStableId=" + procedureStableId + ", procedureStableKey=" + procedureStableKey + ", parameterName=" + parameterName + ", parameterStableId=" + parameterStableId + ", parameterStableKey=" + parameterStableKey + ", p_value=" + p_value + ", effect_size=" + effect_size + ", externalId=" + externalId + "]";
 	}
 
 	
