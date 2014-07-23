@@ -86,7 +86,7 @@ public class SolrIndex2 {
             "latest_phenotype_started", "latest_phenotype_complete",
             "latest_phenotype_status", "latest_es_cell_status", "latest_mouse_status", "latest_project_status_legacy",
             "es_cell_status", "mouse_status", "phenotype_status", "production_centre", "phenotyping_centre", "allele_name",
-            "allele_type", "type", "genbank_file", "allele_image", "design_id", "ikmc_project_id"       //, "links"
+            "allele_type", "type", "genbank_file", "allele_image", "design_id", "ikmc_project_id"
         };
 
         List<Map<String, String>> genes = new ArrayList<>();
@@ -106,7 +106,6 @@ public class SolrIndex2 {
             if(jsonObject2.containsKey("links")) {
                 JSONArray links = jsonObject2.getJSONArray("links");
                 for(Object l : links) {
-                    //JSONObject link = (JSONObject) l;
                     String link = (String) l;
                     if(link.contains("ensembl")) {
                         map.put("ensembl_url", link);
@@ -178,12 +177,18 @@ public class SolrIndex2 {
             return null;
         }
 
+        if (!jsonObject2.has("production_completed") || (jsonObject2.has("production_completed") && jsonObject2.get("production_completed").toString().equals("false"))) {
+            return null;
+        }
+
+        log.info("#### getGeneProductInfoOrderInfo: jsonObject2: " + jsonObject2);
+
         JSONArray array_order_names = jsonObject2.getJSONArray("order_names");
         JSONArray array_order_links = jsonObject2.getJSONArray("order_links");
         for (int k = 0; k < array_order_names.size(); k++) {
             String name = array_order_names.getString(k);
             if (name.equals("NULL")) {
-                name = "Order";
+                name = "ORDER";
             }
             map3.put("name", name);
             map3.put("url", array_order_links.getString(k));
@@ -191,6 +196,28 @@ public class SolrIndex2 {
         }
         return orders;
     }
+
+//    private List<Map<String, Object>> getGeneProductInfoContactInfo(JSONObject jsonObject2) throws IOException, URISyntaxException {
+//        List<Map<String, Object>> contacts = new ArrayList<>();
+//        HashMap<String, Object> map = new HashMap<>();
+//
+//        if (!jsonObject2.has("contact_names") || !jsonObject2.has("contact_links")) {
+//            return null;
+//        }
+//
+//        JSONArray array_contact_names = jsonObject2.getJSONArray("contact_names");
+//        JSONArray array_contact_links = jsonObject2.getJSONArray("contact_links");
+//        for (int k = 0; k < array_contact_names.size(); k++) {
+//            String name = array_contact_names.getString(k);
+//            if (name.equals("NULL")) {
+//                name = "Contact";
+//            }
+//            map.put("name", name);
+//            map.put("url", array_contact_links.getString(k));
+//            contacts.add(map);
+//        }
+//        return contacts;
+//    }
 
     private Map<String, Object> getGeneProductInfoMice(JSONObject jsonObject2) throws IOException, URISyntaxException {
         String type = jsonObject2.getString("type");
@@ -873,6 +900,20 @@ public class SolrIndex2 {
         return Arrays.asList(DELETE_VALUES).contains(type) ? "true" : "false";
     }
 
+    private String getTitle(String marker_symbol, String allele_name) {       
+        if(marker_symbol == null || allele_name == null) {
+            return "";
+        }
+        
+        if(marker_symbol.length() < 1 || allele_name.length() < 1) {
+            return "";
+        }
+        
+        String title = marker_symbol + "<sup>" + allele_name + "</sup>";
+        
+        return title;
+    }
+    
     public Map<String, Object> getGeneProductInfo(String accession, String allele_name, boolean debug) throws IOException, URISyntaxException, Exception {
 
         String url = getGeneProductCoreUrl(accession, allele_name);
@@ -893,7 +934,6 @@ public class SolrIndex2 {
         List<Map<String, Object>> es_cells = new ArrayList<>();
         List<Map<String, Object>> targeting_vectors = new ArrayList<>();
 
-        // int targeting_vector_counter = 0;
         String title = "Unknown";
 
         for (Object doc : docs) {
@@ -902,20 +942,19 @@ public class SolrIndex2 {
 
             if (type.equals("mouse")) {
                 Map<String, Object> mouse = getGeneProductInfoMice(jsonObject2);
-                title = mouse.get("marker_symbol") + "<sup>" + mouse.get("allele_name") + "</sup>";
+                title = getTitle((String)mouse.get("marker_symbol"), (String)mouse.get("allele_name"));
                 mice.add(mouse);
             }
 
             if (type.equals("es_cell")) {
                 Map<String, Object> es_cell = getGeneProductInfoEsCells(jsonObject2);
-                title = es_cell.get("marker_symbol") + "<sup>" + es_cell.get("allele_name") + "</sup>";
+                title = getTitle((String)es_cell.get("marker_symbol"), (String)es_cell.get("allele_name"));
                 es_cells.add(es_cell);
             }
 
             if (type.equals("targeting_vector")) {
-                //           targeting_vector_counter += 1;
                 Map<String, Object> targeting_vector = getGeneProductInfoTargetingVectors(jsonObject2);
-                title = targeting_vector.get("marker_symbol") + "<sup>" + targeting_vector.get("allele_name") + "</sup>";
+                title = getTitle((String)targeting_vector.get("marker_symbol"), (String)targeting_vector.get("allele_name"));
                 targeting_vectors.add(targeting_vector);
             }
         }
@@ -939,10 +978,14 @@ public class SolrIndex2 {
                 summary.put("buttons", "true"); // flag to indicate if we have data - TODO: fix!
                 summary.put("marker_symbol", item.get("marker_symbol"));
                 summary.put("symbol", item.get("marker_symbol") + "<sup>" + item.get("allele_name") + "</sup>");
+
+                title = getTitle(item.get("marker_symbol"), item.get("allele_name"));
+                
                 summary.put("allele_name", item.get("allele_name"));
 
                 String genbank_file = item.get("genbank_file"); // TODO: fix this in the index
                 genbank_file = genbank_file.replace("escell-clone_genbank_file", "escell-clone-genbank-file");
+                genbank_file = genbank_file.replace("escell-clone_cre-genbank_file", "escell-clone-cre-genbank-file");
                 summary.put("genbank", genbank_file);
 
                 summary.put("map_image", item.get("allele_image") + "?simple=true");
@@ -997,6 +1040,15 @@ public class SolrIndex2 {
                 summaries.add(summary);
             }
         }
+
+        mapper.put("title", title);
+        
+        String stripped = title.replaceAll("\\<sup\\>", "");
+        stripped = stripped.replaceAll("\\<\\/sup\\>", "");
+
+        mapper.put("title_alt", stripped);
+
+        log.info("#### getGeneProductInfo: title_alt: " + stripped);
 
         if (summaries.isEmpty()) {
             log.info("#### getGeneProductInfo: cannot get any summary for '" + accession + "' - '" + allele_name + "'");
