@@ -4,6 +4,8 @@
 
 <t:genericpage>
 
+<jsp:attribute name="title">Mutagenesis Prediction</jsp:attribute>
+
 <jsp:attribute name="header">
 
     <script type="text/javascript" src="${baseUrl}/js/general/mutagenesis.js"></script>

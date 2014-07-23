@@ -4,6 +4,8 @@
 
 <t:genericpage>
 
+    <jsp:attribute name="title">LRPCR Genotyping Primers</jsp:attribute>
+
     <jsp:attribute name="header">
 
     <link rel="stylesheet" type="text/css" href="${baseUrl}/css/lrpcr_genotyping_primers.css"/>
