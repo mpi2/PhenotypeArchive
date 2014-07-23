@@ -23,7 +23,6 @@ import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +49,8 @@ public class AllelesController {
 
     @Autowired
     SolrIndex2 solrIndex2;
+    
+    // TODO: remove me!
 
     private HashMap<String, String> makeItem(String marker_symbol, String allele_name, String mgi_accession_id) {
         HashMap<String, String> map = new HashMap<>();
@@ -108,6 +109,8 @@ public class AllelesController {
         return "qcData";
     }
 
+    // TODO: remove me!
+
     @RequestMapping("/alleles")
     public String alleles0(
             Model model,
@@ -155,28 +158,6 @@ public class AllelesController {
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
 
         log.info("#### alleles1...");
-
-//        if (acc.length() == 1) {
-//            HashMap<String, String> params1 = new HashMap<>();
-//
-//            params1.put("allele_type", acc);
-//            params1.put("type", "mouse");
-//
-//            List<Map<String, Object>> list1 = solrIndex2.getProductGeneDetails(params1);
-//            List<Map<String, String>> list = new ArrayList<>();
-//
-//            if (list1 != null && !list1.isEmpty()) {
-//                list1 = list1.subList(0, 50);
-//
-//                for (Map<String, Object> item : list1) {
-//                    list.add(makeItem((String) item.get("marker_symbol"), (String) item.get("allele_name"), (String) item.get("mgi_accession_id")));
-//                }
-//
-//                model.addAttribute("list", list);
-//            }
-//
-//            return "alleles_list";
-//        }
 
         List<Map<String, Object>> list1 = solrIndex2.getProductGeneDetails(acc);
         List<Map<String, String>> list = new ArrayList<>();
@@ -234,6 +215,7 @@ public class AllelesController {
     }
 
     // TODO: fix dodgy routine returning html!
+    
     private String getMutagenesisBlurb(Map<String, Integer> stats, HashMap<String, Object> summary) {
 
         if (stats == null) {
@@ -274,6 +256,8 @@ public class AllelesController {
 
         return s;
     }
+    
+    // TODO: move to separate class?
 
     private JSONArray getMutagenesisDetails(
             String acc,
@@ -287,7 +271,7 @@ public class AllelesController {
         String url = "http://www.sanger.ac.uk/htgt/htgt2/tools/mutagenesis_prediction/project/" + projectId + "/detail";
 
         HttpProxy proxy = new HttpProxy();
-        String content = "";
+        String content;
 
         try {
             content = proxy.getContent(new URL(url));
@@ -352,34 +336,10 @@ public class AllelesController {
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
 
-//        if (allele_name.equals("mutagenesis_url")) {
-//            model.addAttribute("message", "Mutagenesis not yet implemented!");
-//
-//            JSONArray mutagenesis = getMutagenesisDetails(acc, allele_name, null);
-//            Map<String, Integer> stats = getMutagenesisStats(mutagenesis);
-//            String blurb = getMutagenesisBlurb(stats, null);
-//
-//            model.addAttribute("mutagenesis", mutagenesis);
-//            model.addAttribute("mutagenesis_stats", stats);
-//            model.addAttribute("mutagenesis_blurb", blurb);
-//
-//            log.info("#### mutagenesis: " + mutagenesis);
-//
-//            return "mutagenesis";
-//        }
-
-//        if (allele_name.equals("lrpcr_genotyping_primers")) {
-//            log.info("#### alleles2: lrpcr_genotyping_primers");
-//
-//            JSONObject object = getPcrDetails(false, null);
-//
-//            model.addAttribute("lrpcr", object);
-//
-//            return "alleles_list";
-//        }
-
         return allelesCommon(acc, allele_name, model, request, attributes, false);
     }
+
+    // TODO: remove me!
 
     @RequestMapping("/alleles/{acc}/{allele_name}/{debug}")
     public String alleles3(
@@ -446,6 +406,8 @@ public class AllelesController {
         return "mutagenesis";
     }
 
+    // TODO: remove me!
+    
     private void addMutagenesisExample(List<Map<String, String>> list, String key, String value) {
         Map<String, String> item = new HashMap<>();
         String url = "http://www.sanger.ac.uk/htgt/htgt2/tools/mutagenesis_prediction/project/" + value + "/detail";
@@ -458,6 +420,8 @@ public class AllelesController {
         list.add(item);
     }
 
+    // TODO: remove me!
+    
     @RequestMapping("/mutagenesis")
     public String mutagenesis(
             Model model,
@@ -493,7 +457,7 @@ public class AllelesController {
         }
 
         HttpProxy proxy = new HttpProxy();
-        String content = "";
+        String content;
 
         try {
             content = proxy.getContent(new URL(url));
@@ -515,37 +479,6 @@ public class AllelesController {
 
         return jsonObject;
     }
-
-//    @xRequestMapping("/lrpcr_genotyping_primers")
-//    public String lrpcr_genotyping_primers(
-//            Model model,
-//            HttpServletRequest request,
-//            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
-//
-//        log.info("#### lrpcr_genotyping_primers");
-//
-//        JSONObject object = getPcrDetails(false, null);
-//
-//        model.addAttribute("lrpcr", object);
-//
-//        return "lrpcr_genotyping_primers";
-//    }
-
-//    @xRequestMapping("/lrpcr_genotyping_primers/{projectId}")
-//    public String lrpcr_genotyping_primers_project(
-//            @PathVariable String projectId,
-//            Model model,
-//            HttpServletRequest request,
-//            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
-//
-//        log.info("#### lrpcr_genotyping_primers_project");
-//
-//        JSONObject object = getPcrDetails(false, projectId);
-//
-//        model.addAttribute("lrpcr", object);
-//
-//        return "lrpcr_genotyping_primers";
-//    }
 
     @RequestMapping("/lrpcr/{acc}/{allele_name}")
     public String lrpcr_acc_allele(
@@ -572,7 +505,7 @@ public class AllelesController {
         
         boolean isMirko = solrIndex2.isMirko(acc, allele_name);
         
-        String id = null;
+        String id;
         
         if(isMirko) {
             id = solrIndex2.getDesign(acc, allele_name);
@@ -581,8 +514,6 @@ public class AllelesController {
             id = solrIndex2.getProject(acc, allele_name);
         }
         
-        //String projectId = solrIndex2.getProject(acc, allele_name);
-
         JSONObject object = getPcrDetails(isMirko, id);
         model.addAttribute("lrpcr", object);
 
@@ -637,15 +568,5 @@ public class AllelesController {
         log.info("#### mutagenesis: " + mutagenesis);
 
         return "mutagenesis";
-    }
-    
-//    private String getProjectId(String acc, String alleleName) throws IOException, URISyntaxException {
-//        String projectId = solrIndex2.getProject(acc, alleleName);
-//
-////        if (projectId == null) {
-////            return null;
-////        }
-//        
-//        return projectId;
-//    }
+    }    
 }
