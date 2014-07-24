@@ -921,6 +921,8 @@
 	    		var qField = aVals[1];
 	    		var qVal   = aVals[2];
 	    		
+	    		qField = qField.replace(/img_/g,'');
+	    		
 	    		if (facet == 'gene' && qField.match(/^imits_/)){
 	    			
 	    			aFilters.push('(latest_phenotype_status:"' + qVal + '")');

@@ -17,7 +17,7 @@ import org.eclipse.jetty.util.log.Log;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.service.ExperimentService;
-import uk.ac.ebi.phenotype.service.ObservationService;
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
 public class GraphUtils {
  
@@ -31,11 +31,11 @@ private static final Logger log = Logger.getLogger(GraphUtils.class);
 		
 			Set<String>urls=new LinkedHashSet<String>(); //each url should be unique and so we use a set
 			Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameterStableId, pipelineStableIds, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession);
-            List <String>centersList=keyList.get(ObservationService.ExperimentField.PHENOTYPING_CENTER);
-            List <String>strains=keyList.get(ObservationService.ExperimentField.STRAIN);
-            List<String> metaDataGroupStrings=keyList.get(ObservationService.ExperimentField.METADATA_GROUP); 
-            List<String> alleleAccessionStrings=keyList.get(ObservationService.ExperimentField.ALLELE_ACCESSION); 
-            List<String> pipelineStableIdStrings=keyList.get(ObservationService.ExperimentField.PIPELINE_STABLE_ID); 
+            List <String>centersList=keyList.get(ObservationDTO.PHENOTYPING_CENTER);
+            List <String>strains=keyList.get(ObservationDTO.STRAIN_ACCESSION_ID);
+            List<String> metaDataGroupStrings=keyList.get(ObservationDTO.METADATA_GROUP); 
+            List<String> alleleAccessionStrings=keyList.get(ObservationDTO.ALLELE_ACCESSION_ID); 
+            List<String> pipelineStableIdStrings=keyList.get(ObservationDTO.PIPELINE_STABLE_ID); 
             //System.out.println("metaDataGroupStrings"+metaDataGroupStrings);
 //            if(metaDataGroupStrings==null){
 //                metaDataGroupStrings=new ArrayList<String>();
@@ -47,7 +47,7 @@ private static final Logger log = Logger.getLogger(GraphUtils.class);
                 
                 String phenoCenterString="";
 //    	       for(String phenoCString: phenotypingCentersList) {
-//    	    	  phenoCenterString+= seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+phenoCString;
+//    	    	  phenoCenterString+= seperator+ObservationService.PHENOTYPING_CENTER+"="+phenoCString;
 //    	       }
 //    	       if(phenotypingCentersList.size()>0) {
 //    	    	   //if phenotype centers specified in url then just set the centerlist to this and the phenoCenterString should be set correctly above???
@@ -78,17 +78,17 @@ private static final Logger log = Logger.getLogger(GraphUtils.class);
 						}
 		            	for(String strain:strains) {
 		                    for(String alleleAcc: alleleAccessionStrings){//one allele accession for each graph url created as part of unique key- pielineStableId as well?????
-		                        String alleleAccessionString="&"+ObservationService.ExperimentField.ALLELE_ACCESSION+"="+alleleAcc;
+		                        String alleleAccessionString="&"+ObservationDTO.ALLELE_ACCESSION_ID+"="+alleleAcc;
 		            		if(metaDataGroupStrings!=null){
 		                            for(String metaGroup: metaDataGroupStrings) {
 		            			
-		            			urls.add(accessionAndParam+alleleAccessionString+"&zygosity="+zyg+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+""+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+ObservationService.ExperimentField.PIPELINE_STABLE_ID+":"+pipeStableId+seperator+ObservationService.ExperimentField.METADATA_GROUP+"="+metaGroup);
+		            			urls.add(accessionAndParam+alleleAccessionString+"&zygosity="+zyg+genderString+seperator+ObservationDTO.PHENOTYPING_CENTER+"="+center+""+seperator+ObservationDTO.STRAIN_ACCESSION_ID+"="+strain+seperator+ObservationDTO.PIPELINE_STABLE_ID+":"+pipeStableId+seperator+ObservationDTO.METADATA_GROUP+"="+metaGroup);
 		            			
 		            		}
 		                        }
 		                        else{
 		                            //if metadataGroup is null then don't add it to the request
-		                            urls.add(accessionAndParam+alleleAccessionString+"&zygosity="+zyg+genderString+seperator+ObservationService.ExperimentField.PHENOTYPING_CENTER+"="+center+seperator+ObservationService.ExperimentField.STRAIN+"="+strain+seperator+ObservationService.ExperimentField.PIPELINE_STABLE_ID+":"+pipeStableId);
+		                            urls.add(accessionAndParam+alleleAccessionString+"&zygosity="+zyg+genderString+seperator+ObservationDTO.PHENOTYPING_CENTER+"="+center+seperator+ObservationDTO.STRAIN_ACCESSION_ID+"="+strain+seperator+ObservationDTO.PIPELINE_STABLE_ID+":"+pipeStableId);
 		            			
 		                        }
 		                    }

@@ -142,8 +142,8 @@
 	    		var oSubFacets2 = {'curated': {'label':'With Curated Gene Associations', 
 	    									   'subfacets':{'human_curated':'From human data (OMIM, Orphanet)', 'mouse_curated':'From mouse data (MGI)'}},
 	    						   'predicted':{'label':'With Predicted Gene Associations by Phenotype', 
-	    							   			'subfacets': {'impc_predicted':'From MGP data','impc_predicted_in_locus':'From MGP data in linkage locus',
-	    							   				          'mgi_predicted':'From MGI data','mgi_predicted_in_locus':'From MGI data in linkage locus'}}};
+	    							   			'subfacets': {'impc_predicted':'From IMPC data','impc_predicted_in_locus':'From IMPC data in linkage locus',
+	    							   				          'mgi_predicted':'From MGI data','mgi_predicted_in_locus':'From IMPC data in linkage locus'}}};
 	    			    		
 	    		for ( var assoc in oSubFacets2 ){	    			
 	    			var label = oSubFacets2[assoc].label;
