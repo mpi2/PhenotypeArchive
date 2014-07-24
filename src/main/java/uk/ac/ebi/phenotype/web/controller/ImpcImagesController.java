@@ -30,34 +30,9 @@ public class ImpcImagesController {
 			@RequestParam(required = false, defaultValue = "", value = "anatomy_id") String maId,
 			HttpServletRequest request, Model model) throws SolrServerException {
 
-//		String hostName="localhost";
-//		int port=8081;
-//		client client = new client(hostName, port);
-//		try {
-//			ServiceFactoryPrx entryUnencrypted = client.createSession("root", "omero");
-//			//client unsecureClient = client.createClient(false);
-//			//ServiceFactoryPrx entryUnencrypted = unsecureClient.getSession();
-//
-//			//Retrieve the user id.
-//			long userId = entryUnencrypted.getAdminService().getEventContext().userId;
-//
-//			long groupId = entryUnencrypted.getAdminService().getEventContext().groupId;
-//			System.out.println("user id="+userId);
-//			client.closeSession();
-//			//if unsecure client exists.
-//			//if (unsecureClient != null) unsecureClient.closeSession();
-//		} catch (CannotCreateSessionException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (PermissionDeniedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (ServerError e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		// if you want to have the data transfer encrypted then you can
-//		// use the entry variable otherwise use the following
+		
+		//for a test lets just get some image ids and display them here
+		
 		
 		
 		
