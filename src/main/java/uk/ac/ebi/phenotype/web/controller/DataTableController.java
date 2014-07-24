@@ -52,6 +52,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
+import uk.ac.ebi.generic.util.Tools;
 
 @Controller
 public class DataTableController {
@@ -99,21 +100,23 @@ public class DataTableController {
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(solrParams);		
 				
 		String solrCoreName = jParams.containsKey("solrCoreName") ? jParams.getString("solrCoreName") : jParams.getString("facetName");	
-				
-		List<String> filters = jParams.containsKey("filters") ? jParams.getJSONArray("filters") : null;		
-		System.out.println("FILTERS: " + filters);
+	
+		// use this for pattern matching later, instead of the modified complexphrase q string	
+		String queryOri = jParams.getString("qOri");
+
 		String query = "";
 		String fqOri = "";
 		String mode = jParams.getString("mode");
 		String solrParamStr = jParams.getString("params");
 		System.out.println("paramstr: " + solrParamStr);
+		
 		// Get the query string
 		String[] pairs = solrParamStr.split("&");		
 		for (String pair : pairs) {
 			try {
 				String[] parts = pair.split("=");				
 				if (parts[0].equals("q")) {
-					query = parts[1];				
+					query = parts[1];	
 				}
 				if (parts[0].equals("fq")) {
 					fqOri = "&fq=" + parts[1];				
@@ -131,7 +134,7 @@ public class DataTableController {
 		JSONObject json = solrIndex.getDataTableJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
 		//System.out.println("JSON: "+ json);
 		
-		String content = fetchDataTableJson(request, json, mode, query, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, filters);
+		String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName);
 		
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 	}
@@ -152,31 +155,31 @@ public class DataTableController {
 		return responseHeaders;
 	}
 
-	public String fetchDataTableJson(HttpServletRequest request, JSONObject json, String mode, String query, String fqOri, int start, int length, String solrParams, boolean showImgView, String solrCoreName, List<String> filters) throws IOException, URISyntaxException {
+	public String fetchDataTableJson(HttpServletRequest request, JSONObject json, String mode, String query, String fqOri, int start, int length, String solrParams, boolean showImgView, String solrCoreName) throws IOException, URISyntaxException {
 
 		String jsonStr = null;
 		if (mode.equals("geneGrid")) {
-			jsonStr = parseJsonforGeneDataTable(request, json, query, solrCoreName, filters);
+			jsonStr = parseJsonforGeneDataTable(json, request, query, solrCoreName);
 		} 
 		else if (mode.equals("pipelineGrid")) {
-			jsonStr = parseJsonforProtocolDataTable(json, request, solrCoreName, filters, start);
+			jsonStr = parseJsonforProtocolDataTable(json, request, solrCoreName, start);
 		} 
 		else if (mode.equals("imagesGrid")) {
-			jsonStr = parseJsonforImageDataTable(json, start, length, solrParams, showImgView, request, query, fqOri, solrCoreName, filters);
+			jsonStr = parseJsonforImageDataTable(json, start, length, solrParams, showImgView, request, query, fqOri, solrCoreName);
 		} 
 		else if (mode.equals("mpGrid")) {
-			jsonStr = parseJsonforMpDataTable(json, request, solrCoreName, filters, start);
+			jsonStr = parseJsonforMpDataTable(json, request, query, solrCoreName, start);
 		}
 		else if (mode.equals("maGrid")) {
-			jsonStr = parseJsonforMaDataTable(json, request, solrCoreName, filters, start);
+			jsonStr = parseJsonforMaDataTable(json, request, query, solrCoreName, start);
 		}
 		else if (mode.equals("diseaseGrid")) {
-			jsonStr = parseJsonforDiseaseDataTable(json, request, solrCoreName, filters, start);
+			jsonStr = parseJsonforDiseaseDataTable(json, request, solrCoreName, start);
 		}
 		return jsonStr;
 	}
 
-	public String parseJsonforGeneDataTable(HttpServletRequest request, JSONObject json, String qryStr, String solrCoreName, List<String> filters){	
+	public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName){	
 				
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config, request);
 		
@@ -200,15 +203,15 @@ public class DataTableController {
 			String geneInfo = concateGeneInfo(doc, json, qryStr, request);
 			rowData.add(geneInfo);
 
-			// ES cell/mice production status	
-			boolean toExport = false;
-			String prodStatus = solrIndex.deriveLatestProductionStatusForEsCellAndMice(doc, request, toExport);			
-			rowData.add(prodStatus);
 			
 			// phenotyping status			
-			//String phenoStatus = solrIndex.deriveLatestPhenotypingStatus(doc).equals("") ? "" : "<a class='status done'><span>phenotype data available</span></a>";
 			String mgiId = doc.getString("mgi_accession_id");			
 			String geneLink = request.getAttribute("baseUrl") + "/genes/" + mgiId;	
+						
+			// ES cell/mice production status	
+			boolean toExport = false;
+			String prodStatus = solrIndex.deriveLatestProductionStatusForEsCellAndMice(doc, request, toExport, geneLink);			
+			rowData.add(prodStatus);
 			
 			String phenoStatus = null;
 			if ( solrIndex.deriveLatestPhenotypingStatus(doc).equals("NA") ){
@@ -218,7 +221,7 @@ public class DataTableController {
 				phenoStatus = "<a class='status qc' href='" + geneLink + "'><span>legacy data available</span></a>";
 			}
 			else {
-				phenoStatus = "<a class='status done' href='" + geneLink + "'><span>phenotype data available</span></a>";
+				phenoStatus = "<a class='status done' href='" + geneLink + "#section-associations'><span>phenotype data available</span></a>";
 			}
 			
 			rowData.add(phenoStatus);
@@ -261,7 +264,7 @@ public class DataTableController {
 		return j.toString();	
 	}
 			
-	public String parseJsonforProtocolDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters, int start){
+	public String parseJsonforProtocolDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, int start){
 		
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
@@ -296,7 +299,7 @@ public class DataTableController {
 		return j.toString();	
 	}
 	
-	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters, int start){
+	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName, int start){
 				
 		String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";		
 		
@@ -326,7 +329,8 @@ public class DataTableController {
 					count++;
 					//prefixSyns.add("synonym: "+ sn);
 					sn = count == 1 ? sn : "&nbsp;&nbsp;&nbsp;" + sn;
-					prefixSyns.add(sn);
+					//prefixSyns.add(sn);
+					prefixSyns.add(Tools.highlightMatchedStrIfFound(qryStr, sn, "span", "subMatch"));
 				}
 				
 				String mpCol = "<div class='mpCol'><div class='title'>" 
@@ -344,7 +348,8 @@ public class DataTableController {
 			// some MP do not have definition
 			String mpDef = "No definition data available";
 			try {
-				mpDef = doc.getString("mp_definition");
+				//mpDef = doc.getString("mp_definition");
+				mpDef =Tools.highlightMatchedStrIfFound(qryStr, doc.getString("mp_definition"), "span", "subMatch");
 			} 
 			catch (Exception e) {			 			
 			    //e.printStackTrace();
@@ -356,7 +361,7 @@ public class DataTableController {
 		
 		return j.toString();	
 	}
-	public String parseJsonforMaDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters, int start){
+	public String parseJsonforMaDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName, int start){
         
         String baseUrl = request.getAttribute("baseUrl") + "/anatomy/";
         
@@ -386,7 +391,8 @@ public class DataTableController {
     					count++;
     					//prefixSyns.add("synonym: "+ sn);
     					sn = count == 1 ? sn : "&nbsp;&nbsp;&nbsp;" + sn;
-    					prefixSyns.add(sn);
+    					//prefixSyns.add(sn);
+    					prefixSyns.add(Tools.highlightMatchedStrIfFound(qryStr, sn, "span", "subMatch"));
     				}
     				
     				String maCol = "<div class='maCol'><div class='title'>" 
@@ -418,7 +424,7 @@ public class DataTableController {
 	}
 	
 	
-	public String parseJsonforImageDataTable(JSONObject json, int start, int length, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName, List<String> filters) throws IOException, URISyntaxException{
+	public String parseJsonforImageDataTable(JSONObject json, int start, int length, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName) throws IOException, URISyntaxException{
 		
 		String mediaBaseUrl = config.get("mediaBaseUrl");
 
@@ -594,9 +600,9 @@ public class DataTableController {
 		}
 	}
 	
-	public String parseJsonforDiseaseDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, List<String> filters, int start){
+	public String parseJsonforDiseaseDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, int start){
 		
-		String baseUrl = request.getAttribute("baseUrl") + "/phenodigm/disease/";
+		String baseUrl = request.getAttribute("baseUrl") + "/disease/";
 		
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
@@ -711,37 +717,36 @@ public class DataTableController {
 		//String markerSymbolLink = "<a href='" + geneUrl + "' target='_blank'>" + markerSymbol + "</a>";
 		String markerSymbolLink = "<a href='" + geneUrl + "'>" + markerSymbol + "</a>";
 				
-		String[] fields = {"marker_synonym","marker_name", "human_gene_symbol"};			
+		String[] fields = {"marker_name", "human_gene_symbol","marker_synonym"};			
 		for( int i=0; i<fields.length; i++){		
 			try {				
 				//"highlighting":{"MGI:97489":{"marker_symbol":["<em>Pax</em>5"],"synonym":["<em>Pax</em>-5"]},
 				
+				//System.out.println(qryStr);
 				String field = fields[i];				
 				List<String> info = new ArrayList<String>();
 				
 				if ( field.equals("marker_name") ){
-					info.add(doc.getString(field));
+					//info.add(doc.getString(field));
+					info.add(Tools.highlightMatchedStrIfFound(qryStr, doc.getString(field), "span", "subMatch"));
 				}
 				else if ( field.equals("human_gene_symbol") ){					
 					JSONArray data = doc.getJSONArray(field);					
 					for( Object h : data ){							
-						info.add(h.toString());
+						//info.add(h.toString());
+						info.add(Tools.highlightMatchedStrIfFound(qryStr, h.toString(), "span", "subMatch"));
 					}							
 				}
 				else if ( doc.getJSONArray(field).size() > 0) {					
 					JSONArray data = doc.getJSONArray(field);
 					
-					//use SOLR highlighted string if available
-					info = checkMatched(mgiId, field, info, json);
-					if ( info.size() == 0 ){					
-						for( Object d : data ){							
-							info.add(d.toString());
-						}
-					}					
+					for( Object d : data ){
+						info.add(Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch"));
+					}
+					
 				}
 				
 				field = field == "human_gene_symbol" ? "human ortholog" : field.replace("marker_", " ");
-				//geneInfo.add("<span class='gNameSyn'>" + field + "</span>: " + StringUtils.join(info, ", "));
 				geneInfo.add("<span class='label'>" + field + "</span>: " + StringUtils.join(info, ", "));
 			} 
 			catch (Exception e) {		   		
@@ -757,23 +762,6 @@ public class DataTableController {
 			+ "</div>";
 			
 	}
-
-	private List<String> checkMatched(String mgiId, String field, List<String> info, JSONObject json){
-		
-		if ( field.equals("marker_synonym") ){
-			field = "synonym";
-		}
-		//"highlighting":{"MGI:97489":{"marker_symbol":["<em>Pax</em>5"],"synonym":["<em>Pax</em>-5"]},
-		JSONObject hl = json.getJSONObject("highlighting");		
-		try {
-			JSONArray matches = hl.getJSONObject(mgiId).getJSONArray(field);
-			for( Object m : matches ){
-				info.add(m.toString());
-			}
-		}
-		catch(Exception e) {		   		
-		    //e.printStackTrace();			
-		}		
-		return info;
-	}
+	
+	
 }

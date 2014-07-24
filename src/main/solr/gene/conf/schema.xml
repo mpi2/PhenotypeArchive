@@ -133,7 +133,8 @@
 	<field name="latest_project_status" type="string" indexed="true" stored="true" multiValued="false"/>	
 	<field name="latest_production_centre" type="string" indexed="true" stored="true" multiValued="true"/>	
 	<field name="latest_phenotyping_centre" type="string" indexed="true" stored="true" multiValued="true"/>
-
+ 	<field name="disease_human_phenotypes" type="string" indexed="true" stored="true" multiValued="true"/>	 
+	
 	<!--  gene has QC: ie, a record in experiment core -->	
 	<field name="hasQc" type="int" indexed="true" stored="true" multiValued="false"/>	
 
@@ -173,7 +174,6 @@
 	<field name="disease_term" type="text_general" indexed="true" stored="true" multiValued="true" />
 	<field name="disease_alts" type="text_general" indexed="true" stored="true" multiValued="true"/>
    	<field name="disease_classes" type="string" indexed="true" stored="true" multiValued="true"/>
-   	<field name="disease__human_phenotypes" type="text_general" indexed="true" stored="true" multiValued="true"/>	 
 	<field name="human_curated" type="boolean" indexed="true" stored="true" multiValued="true" />
 	<field name="mouse_curated" type="boolean" indexed="true" stored="true" multiValued="true" />
 	<field name="mgi_predicted" type="boolean" indexed="true" stored="true" multiValued="true" />

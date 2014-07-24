@@ -27,12 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-
 import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -59,7 +56,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.dao.DatasourceDAO;
@@ -76,8 +72,12 @@ import uk.ac.ebi.phenotype.pojo.Xref;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
-import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
-import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow.PhenotypeRowType;
+import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
+import uk.ac.ebi.phenotype.web.pojo.GenePageTableRow;
+import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
+import uk.ac.sanger.phenodigm2.model.Gene;
+import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
+import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
 
 
 @Controller
@@ -238,12 +238,15 @@ public class GenesController {
 			model.addAttribute("imageErrors","Something is wrong Images are not being returned when normally they would");
 		}
 		
-		processPhenotypes(acc, model, "");
+		processPhenotypes(acc, model, "", request);
 
 		model.addAttribute("gene", gene);
 		model.addAttribute("request", request);
 		model.addAttribute("acc", acc);
 
+                //add in the disease predictions from phenodigm
+                processDisease(acc, model);
+                
 		// ES Cell and IKMC Allele check (Gautier)
 		
 		String solrCoreName = "allele";
@@ -286,7 +289,7 @@ public class GenesController {
 			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
 		//just pass on any query string after the ? to the solr requesting object for now
 		String queryString=request.getQueryString();
-		processPhenotypes(acc, model, queryString);
+		processPhenotypes(acc, model, queryString, request);
 
 		return "PhenoFrag";
 	}
@@ -299,7 +302,7 @@ public class GenesController {
 		return sortPhenFacets;
 	}
 	
-	private void processPhenotypes(String acc, Model model, String queryString) throws IOException, URISyntaxException {
+	private void processPhenotypes(String acc, Model model, String queryString, HttpServletRequest request) throws IOException, URISyntaxException {
 		//facet field example for project name and higher level mp term with gene as query : http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=marker_accession_id:MGI:98373&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet.field=project_name&facet.field=top_level_mp_term_name&facet=true		//top_level_mp_term_name
 		if(queryString==null){
 			queryString="";
@@ -326,16 +329,11 @@ public class GenesController {
 		
 		
 		// This is a map because we need to support lookups
-		Map<PhenotypeRow,PhenotypeRow> phenotypes = new HashMap<PhenotypeRow,PhenotypeRow>(); 
+		Map<DataTableRow,DataTableRow> phenotypes = new HashMap<DataTableRow,DataTableRow>(); 
 		
 		for (PhenotypeCallSummary pcs : phenotypeList) {
-
-			// Use a tree set to maintain an alphabetical order (Female, Male)
-			List<String> sex = new ArrayList<String>();
-			sex.add(pcs.getSex().toString());
-
-			PhenotypeRow pr = new PhenotypeRow( pcs, config.get("baseUrl"));
-			
+			DataTableRow pr = new GenePageTableRow( pcs, request.getAttribute("baseUrl").toString());
+                        
 			// Collapse rows on sex
 			if(phenotypes.containsKey(pr)) {
 				pr = phenotypes.get(pr);
@@ -347,8 +345,8 @@ public class GenesController {
 			
 			phenotypes.put(pr, pr);
 		}
-		ArrayList<PhenotypeRow> l = new ArrayList<PhenotypeRow>(phenotypes.keySet());
-		Collections.sort(l); // sort in alpha order by MP term name
+		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.keySet());
+		Collections.sort(l);
 		model.addAttribute("phenotypes", l);
 
 	}
@@ -604,5 +602,49 @@ public class GenesController {
         model.addAttribute("alleleProducts", constructs);
 	    return "genesAllele";  
         }   
+
+    @Autowired
+    private PhenoDigmWebDao phenoDigmDao;
+    private final double rawScoreCutoff = 1.97;
+    
+    /**
+     * Adds disease-related info to the model from Phenodigm.
+     * @param acc
+     * @param model 
+     */
+    private void processDisease(String acc, Model model) {
+        String mgiId = acc;
+        log.info("Adding disease info to gene page {}", mgiId);
+        model.addAttribute("mgiId", mgiId);
+        GeneIdentifier geneIdentifier = new GeneIdentifier(mgiId, mgiId);
+        
+        Gene gene = phenoDigmDao.getGene(geneIdentifier);
+        log.info("Found Gene: " + gene);
+        if (gene != null) {
+            model.addAttribute("geneIdentifier", gene.getOrthologGeneId());
+            model.addAttribute("humanOrtholog", gene.getHumanGeneId());
+            log.info("Found gene: {} {}", gene.getOrthologGeneId().getCompoundIdentifier(), gene.getOrthologGeneId().getGeneSymbol());
+        } else {
+            model.addAttribute("geneIdentifier", geneIdentifier);
+            log.info("No human ortholog found for gene: {}", geneIdentifier);                
+        }
+        
+        log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
+        List<DiseaseAssociationSummary> diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
+        log.info("{} - recieved {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
+
+//        List<DiseaseAssociationSummary> knownDiseaseAssociationSummaries = new ArrayList<>();
+//        //add the known association summaries to a dedicated list for the top panel
+//        for (DiseaseAssociationSummary diseaseAssociationSummary : diseaseAssociationSummarys) {
+//            AssociationSummary associationSummary = diseaseAssociationSummary.getAssociationSummary();
+//            if (associationSummary.isAssociatedInHuman()) {
+//               knownDiseaseAssociationSummaries.add(diseaseAssociationSummary);
+//            }
+//        }
+//        model.addAttribute("knownDiseaseAssociationSummaries", knownDiseaseAssociationSummaries);                   
+        model.addAttribute("diseaseAssociations", diseaseAssociationSummarys);
+        
+        log.info("Added {} disease associations for gene {} to model", diseaseAssociationSummarys.size(), mgiId);
+    }
     
 }

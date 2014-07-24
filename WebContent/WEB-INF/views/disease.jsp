@@ -161,7 +161,7 @@
                             <c:forEach var="association" items="${knownGeneAssociationSummaries}" varStatus="loop">
                                 <c:set var="mouseGeneIdentifier" value="${association.modelGeneIdentifier}"></c:set>
                                 <!--Mouse Gene Symbol-->
-                                <a href="../gene/${mouseGeneIdentifier.databaseCode}:${mouseGeneIdentifier.databaseAcc}">${mouseGeneIdentifier.geneSymbol}</a>
+                                <a href="${baseUrl}/genes/${mouseGeneIdentifier.databaseCode}:${mouseGeneIdentifier.databaseAcc}">${mouseGeneIdentifier.geneSymbol}</a>
                                 <c:if test="${!loop.last}">, </c:if>
                             </c:forEach>
                         </c:otherwise>
@@ -204,7 +204,7 @@
                                     <tr id="${mouseGeneIdentifier.compoundIdentifier}" targetRowId="P${humanGeneIdentifier.databaseAcc}_${mouseGeneIdentifier.databaseAcc}_${disease.diseaseIdentifier.databaseAcc}" requestpagetype= "disease" geneid="${mouseGeneIdentifier.compoundIdentifier}" diseaseid="${disease.diseaseIdentifier.compoundIdentifier}">
                                         <td>
                                             <!--Mouse Gene Symbol-->
-                                            <a href="../gene/${mouseGeneIdentifier.databaseCode}:${mouseGeneIdentifier.databaseAcc}">${mouseGeneIdentifier.geneSymbol}</a> 
+                                            <a href="${baseUrl}/genes/${mouseGeneIdentifier.databaseCode}:${mouseGeneIdentifier.databaseAcc}">${mouseGeneIdentifier.geneSymbol}</a> 
                                         </td>
 
                                         <!--Associated in Human - Yes or empty-->   

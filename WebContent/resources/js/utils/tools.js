@@ -23,98 +23,111 @@
 (function($){		
 	
 	$.fn.parseUrl_constructFilters_loadDataTable = function(oConf){
-		
+	
+		var oConf1 = oConf;
 		MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount = 0;
+		var q = oConf.q;
 		
-		// if url contains solr fq (non-default ones) filters, parse them and tick checkbox of checkbox filters to create summary facet filters
-		if ( oConf.oriFq.match(/(.*)/) && !oConf.noFq && typeof oConf.coreName == 'undefined' ){
-			
+		if ( oConf.oriFq.match(/(.*)/) && !oConf.noFq ) {//}&& typeof oConf.coreName == 'undefined' ){
+		
 			// only deals with facet=xxx, not core=xxx
-			//if ( typeof oConf.core == 'undefined' ){
-				var aFqs  = oConf.oriFq.split(' AND ');
-				var q     = oConf.q;
+			var aFqs  = oConf.oriFq.split(' AND ');
+			
+			for ( var i=0; i<aFqs.length; i++ ){
+				var kv = aFqs[i].replace(/\(|\)|"/g,'');
+				var aVals = kv.split(':');
 				
-				for ( var i=0; i<aFqs.length; i++ ){
-					var kv = aFqs[i].replace(/\(|\)|"/g,'');
-					var aVals = kv.split(':');
+				var qVal = aVals[1];
+				var qField = aVals[0];
+				var facet = MPI2.searchAndFacetConfig.qfield2facet[qField];
+				//console.log(qField + ' -- '+ qVal);
+				if ( typeof MPI2.searchAndFacetConfig.qfield2facet[qField] ){
+					//var kv = aFqs[i].replace(':','|').replace(/\(|\)|"/g,'');
 					
-					var qVal = aVals[1];
-					var qField = aVals[0];
-					var facet = MPI2.searchAndFacetConfig.qfield2facet[qField];
-					//console.log(qField + ' -- '+ qVal);
-					if ( typeof MPI2.searchAndFacetConfig.qfield2facet[qField] ){
-						//var kv = aFqs[i].replace(':','|').replace(/\(|\)|"/g,'');
-						
-						if (qField == 'latest_phenotype_status'){
-							kv = MPI2.searchAndFacetConfig.phenotypingVal2Field[qVal] + '|' + qVal;
-						}
-						else if (qField == 'procedure_stable_id'){
-							kv = qVal;
-						}
-						else {
-							kv = qField + '|' + qVal;
-						}
-						
-						var oInput = $('div.flist li.fcat').find('input[rel*="'+ kv +'"]');
-						
-						//if (oInput.length != 0 && !oInput.is(':checked') ){	
-						if (oInput.length != 0 ){
-							
-							oInput.click(); // tick checkbox   
-							
-							MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount++;
-							$.fn.composeSummaryFilters(oInput, q);
-							
-							// open the facet if not
-							if ( !$('div.flist > ul li#'+ facet).hasClass('open') ){
-								$('div.flist > ul li#'+ facet).click();
-							}
-			    		}	
-					
-			    		else {
-			    			// create matching checkbox facet filter in unopened facets
-			    			if (qField == 'procedure_stable_id'){
-			    				// fetch procedure_name by procedure_stable_id (*)
-			    				$.ajax({ 	
-					    			'url': solrUrl + '/pipeline/select',		
-					        		'data': 'rows=1&wt=json&fl=procedure_name,pipeline_name&q=procedure_stable_id:' + qVal,
-					        		'dataType': 'jsonp',
-					        		'jsonp': 'json.wrf',
-					        		'success': function(json) {
-					        			
-					        			var procedure_name =json.response.docs[0].procedure_name;
-					        			var className = json.response.docs[0].pipeline_name.replace(/ /g, '_');
-					        			var relStr = facet + '|' + qField + '|' +  procedure_name + '___'+ qVal;
-					        		
-					        			if ( relStr.indexOf('undefined') == -1 ){
-					        				//console.log('hidden: '+ relStr);
-					        		
-						        			oInput = $('<input></input>').attr({'class':className,'type':'checkbox','rel':relStr}).prop('checked', true);
-							    			
-							    			MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount++;
-							    			$.fn.composeSummaryFilters(oInput, q);
-					        			}	
-					        		}		
-			    				});
-			    			}
-			    			else {
-				    			var relStr = facet + '|' + kv;
-				    			if ( relStr.indexOf('undefined') == -1 ){
-				    				//console.log('hidden: '+ relStr);
-				    				oInput = $('<input></input>').attr({'type':'checkbox','rel':relStr}).prop('checked', true);
-				    			
-					    			MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount++;
-					    			$.fn.composeSummaryFilters(oInput, q);
-				    			}
-			    			}
-			    		}
+					if (qField == 'latest_phenotype_status'){
+						kv = MPI2.searchAndFacetConfig.phenotypingVal2Field[qVal] + '|' + qVal;
 					}
+					else if (qField == 'procedure_stable_id'){
+						kv = qVal;
+					}
+					else {
+						kv = qField + '|' + qVal;
+					}
+					
+					var oInput = $('div.flist li.fcat').find('input[rel*="'+ kv +'"]');
+					
+					//if (oInput.length != 0 && !oInput.is(':checked') ){	
+					if (oInput.length != 0 ){
+						
+						oInput.click(); // tick checkbox   
+						
+						MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount++;
+						$.fn.composeSummaryFilters(oInput, q);
+						
+						// open the facet if not
+						if ( !$('div.flist > ul li#'+ facet).hasClass('open') ){
+							$('div.flist > ul li#'+ facet).click();
+						}
+		    		}	
+				
+		    		else {
+		    			// create matching checkbox facet filter in unopened facets
+		    			if (qField == 'procedure_stable_id'){
+		    				// fetch procedure_name by procedure_stable_id (*)
+		    				$.ajax({ 	
+				    			'url': solrUrl + '/pipeline/select',		
+				        		'data': 'rows=1&wt=json&fl=procedure_name,pipeline_name&q=procedure_stable_id:' + qVal,
+				        		'dataType': 'jsonp',
+				        		'jsonp': 'json.wrf',
+				        		'success': function(json) {
+				        			
+				        			var procedure_name =json.response.docs[0].procedure_name;
+				        			var className = json.response.docs[0].pipeline_name.replace(/ /g, '_');
+				        			var relStr = facet + '|' + qField + '|' +  procedure_name + '___'+ qVal;
+				        		
+				        			if ( relStr.indexOf('undefined') == -1 ){
+				        				//console.log('hidden: '+ relStr);
+				        		
+					        			oInput = $('<input></input>').attr({'class':className,'type':'checkbox','rel':relStr}).prop('checked', true);
+						    			
+						    			MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount++;
+						    			$.fn.composeSummaryFilters(oInput, q);
+				        			}	
+				        		}		
+		    				});
+		    			}
+		    			else {
+			    			var relStr = facet + '|' + kv;
+			    			if ( relStr.indexOf('undefined') == -1 ){
+			    				//console.log('hidden: '+ relStr);
+			    				oInput = $('<input></input>').attr({'type':'checkbox','rel':relStr}).prop('checked', true);
+			    			
+				    			MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount++;
+				    			$.fn.composeSummaryFilters(oInput, q);
+			    			}
+		    			}
+		    		}
 				}
-			//}
+			}
 		}
+		
+		if ( MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount == 0){
+			// reset all facet counts when no facet filter is present
+			//console.log('reset all facet counts');
+			var cores = MPI2.searchAndFacetConfig.megaCores;
+			for ( var i=0; i<cores.length; i++ ){
+				var facet = cores[i];
+				var solrFqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].fq;
+				var oConf = {'facet':facet, 'fqStr':solrFqStr, 'q':q};
+				var facetCountsUpdater = new FacetCountsUpdater(oConf);
+				facetCountsUpdater.updateFacetCounts();
+			}	
+		}
+		
+		
 		MPI2.searchAndFacetConfig.update.filterChange = false;
-		MPI2.searchAndFacetConfig.update.dataTableLoading = true;
-		$.fn.loadDataTable(oConf);
+	
+		$.fn.loadDataTable(oConf1);
 	};
 	
 	$.fn.process_kwSearch = function(widget){
@@ -247,7 +260,8 @@
 						oHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;
 					} 
 					
-					window.location.hash = 'fq=' + oHashParams.fq + '&core=' + facet;
+					//window.location.hash = 'fq=' + oHashParams.fq + '&core=' + facet;
+					window.location.hash = 'fq=' + oHashParams.fq + '&facet=' + facet;
 				}
 				else {
 					if ( window.location.search != '' ){
@@ -278,8 +292,8 @@
 					}
 					
 					// when we have filters to deal with, there is &facet=xxx in the url
-					var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';					
-								
+					//var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';	
+					var mode = '&facet=';
 					//alert(mode);
 					
 					if ( typeof oHashParams.q == 'undefined' ){
@@ -306,18 +320,18 @@
 	
 	function _facetRefresh(json, selectorBase){			  			
 							    			
-		// refresh mp facet sum count				
+		// refresh main facet sum count				
 		var fcount = json.response.numFound;
 		$(selectorBase + ' > span.fcount').text(fcount);    			
-		
-		
+	
 		var freezeMode = fcount == 0 ? true : false;
 		$.fn.freezeFacet($(selectorBase), freezeMode);
 		
 		// set all subfacet counts to zero first and then update only those matching facets
 		$(selectorBase).find('li.fcat span.fcount').each(function(){
 			$(this).text('0');
-		});					
+		});
+		
 	};
 		
 	$.fn.freezeFacet = function(obj, freezeMode){
@@ -382,11 +396,38 @@
 				
 	}
 	
+	$.fn.setSolrComplexPhraseQuery = function(q){
+		
+		if ( typeof q == 'undefined' ){
+			q = '*:*';
+		}
+		q = decodeURI(q);
+		
+		// catches user typing ' instead of " for phrase search
+		if ( /^'.+'$/.test(q) ){
+			q = q.replace(/^'|'$/g,'"');
+		}
+		
+		if ( ( /\s/.test(q) && /\*/.test(q) ) || /^".+"$/.test(q)  ){
+			//console.log('phrase search')
+			
+			// need to remove leading wildcard as solr4.8 does NOT support this
+			q = q.replace(/^\*/,''); 
+			
+			// try a slop of 10 for now to look for matching string 10 words apart
+			// w/0 slop the query result maybe strange
+			q='{!complexphrase}auto_suggest:' + q + '~10'; 
+			
+			return q;
+		}
+		return q;
+	};
+	
 	function FacetCountsUpdater(oConf){	
 		
-		var facet       = oConf.facet;
-		var fqStr       = oConf.fqStr;
-		var q           = oConf.q;
+		var facet = oConf.facet;
+		var fqStr = oConf.fqStr;
+		var q = oConf.q;
 		var thisSolrUrl = solrUrl + '/' + facet + '/select'; 
 		MPI2.searchAndFacetConfig.currentFq = fqStr;
 		
@@ -449,7 +490,7 @@
 		    						var subFacetName = oFacets[fld][i];
 		    						var facetCount = oFacets[fld][i+1];
 		    						var isGrayout = facetCount == 0 ? 'grayout' : '';
-		    								    						
+		    								    
 		    						if ( subFacetName != ''){ // skip solr field which value is an empty string
 		    							var className = oFields[fld]['class'];
 		    							
@@ -463,33 +504,13 @@
 		    								});
 		    							}	
 		    							else {
-		    								/*
-		    								if (subFacetName == '1'){						
-		    									$(selectorBase + ' li.' + className + ' span.flabel').each(function(){
-		    										if ( $(this).text() == 'Complete' && fld == 'imits_phenotype_complete' ){
-		    											$(this).siblings('span.fcount').text(oFacets[fld][i+1]);
-		    										}
-		    										else if ( $(this).text() == 'Started' && fld == 'imits_phenotype_started' ){
-		    											$(this).siblings('span.fcount').text(oFacets[fld][i+1]);
-		    										}
-		    									});
-		    								}
-		    								else if (subFacetName == 'Phenotype Attempt Registered'){
-		    									$(selectorBase + ' li.' + className + ' span.flabel').each(function(){
-		    										if ( $(this).text() == 'Attempt Registered' ){
-		    											$(this).siblings('span.fcount').text(oFacets[fld][i+1]);
-		    										}
-		    									});
-		    								}*/
-		    								
 	    			    	    			if (subFacetName == 'Phenotype Attempt Registered' ||
 	    			    	    				subFacetName == 'Phenotyping Started' ||
 	    			    	    				subFacetName == 'Phenotyping Complete' ){
 	    			    	    				
 	    			    	    				$(selectorBase + ' li.fcat.' + className + ' span.flabel').each(function(){
-	    			    	    					
+
 	    			    	    					if (subFacetName == MPI2.searchAndFacetConfig.phenotypingStatuses[$(this).text()].val){
-	    			    	    						
 	    			    	    						$(this).parent().removeClass('grayout').addClass(isGrayout);
 	    			    	    						$(this).siblings('span.fcount').text(facetCount);
 	    			    	    					}
@@ -510,18 +531,24 @@
 			    
 			    case 'mp':
 			    {
-			    	var facetField = 'top_level_mp_term';
-					var oParams = {};
-					oParams.fq = fqStr;	
-					oParams = $.fn.fetchFecetFieldsObj([facetField], oParams);
-					oParams = $.extend({}, MPI2.searchAndFacetConfig.facetParams.mpFacet.srchParams,oParams);		
-					oParams = $.fn.getSolrRelevanceParams('mp', q, oParams);
-							        
-					//console.log('MP: '+ $.fn.stringifyJsonAsUrlParams(oParams));
+//			    	var facetField = 'top_level_mp_term';
+//					var oParams = {};
+//					oParams.fq = fqStr;	
+//					oParams = $.fn.fetchFecetFieldsObj([facetField], oParams);
+//					oParams = $.extend({}, MPI2.searchAndFacetConfig.facetParams.mpFacet.srchParams,oParams);		
+//					oParams.q = q;
+				
+					var facetField = 'top_level_mp_term';
+					var fecetFieldsStr = $.fn.fetchFecetFieldsStr([facetField]);
+					var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';
+			        paramStr += '&fq=' + fqStr + fecetFieldsStr;		
+					
+					//console.log('MP: '+ paramStr);
+
 					$.ajax({ 	
 						'url': thisSolrUrl,    		
-			    		//'data': paramStr,
-						'data': oParams,
+			    		'data': paramStr,
+						//'data': oParams,
 			    		'dataType': 'jsonp',
 			    		'jsonp': 'json.wrf',
 			    		'success': function(json) {
@@ -563,7 +590,7 @@
 					var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';
 			        paramStr += '&fq=' + fqStr + fecetFieldsStr;
 			        
-					//console.log('DISEASE: '+ paramStr + fecetFieldsStr);
+					//console.log('DISEASE: '+ paramStr);
 			        
 					$.ajax({ 	
 						'url': thisSolrUrl,
@@ -646,11 +673,12 @@
 			    case 'ma':
 			    {
 					var facetField = 'selected_top_level_ma_term';
-					var fecetFieldsStr = $.fn.fetchFecetFieldsStr([facetField])
+					var fecetFieldsStr = $.fn.fetchFecetFieldsStr([facetField]);
 					var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';
 			        paramStr += '&fq=' + fqStr + fecetFieldsStr;		
 							
 					//console.log('MA: '+ paramStr);
+					
 					$.ajax({ 	
 						'url': thisSolrUrl,
 			    		'data': paramStr,
@@ -664,18 +692,6 @@
 			    			var oFacets = json.facet_counts.facet_fields;    			
 			    			var selectorBase = "div.flist li#ma";
 							_facetRefresh(json, selectorBase); 
-							
-			    			/*for (var i=0; i<oFacets[facetField].length; i=i+2){    			
-		        				var facetName = oFacets[facetField][i];    				   				   				
-		        				var facetCount = oFacets[facetField][i+1];
-		        				
-			    				$(selectorBase + ' li.fcat input').each(function(){
-			    					var aTxt = $(this).attr('rel').split('|');    					
-			    					if ( aTxt[2] == facetName ){    					
-			    						$(this).siblings('span.fcount').text(facetCount);
-			    					}
-			    				});    						
-			    			}  */
 			    			
 							// restore original cursor behavior
 							$.fn.cursorUpdate(facet, 'pointer');
@@ -708,6 +724,7 @@
 			        paramStr += '&fq=' + fqStr + fecetFieldsStr;		
 					
 					//console.log('PIPELINE: '+ paramStr);
+					
 					$.ajax({ 	
 						'url': thisSolrUrl,
 						'data': paramStr,
@@ -783,6 +800,7 @@
 			        paramStr += '&fq=' + fqStr + fecetFieldsStr;
 			       
 					//console.log('IMAGES: '+ paramStr);
+					
 					$.ajax({ 	
 						'url': thisSolrUrl,
 			    		'data': paramStr,
@@ -850,15 +868,27 @@
 		};
 	}
 	
+	$.fn.showNotFoundMsg = function(){
+		var q = decodeURI($.fn.fetchQueryStr());
+	
+		var filter = '';		
+		if ( $('ul#facetFilter li.ftag').size() > 0 ){
+			filter += " AND the selected filter(s)";
+		}
+		$('div#mpi2-search').html('INFO: Search keyword "' + q + '"' + filter + ' returned no entry in the database');    	    	    	    		
+			
+	};
+	
 	$.fn.composeSummaryFilters = function(oChkbox, q){	
 		
 		if ( MPI2.searchAndFacetConfig.update.resetSummaryFacet ){
+			//console.log("reset facet summary: true");
 			MPI2.searchAndFacetConfig.update.filterAdded = false;
-			//MPI2.searchAndFacetConfig.update.filterObj = [];
+			MPI2.searchAndFacetConfig.update.filterObj = [];
 		}
 		if (MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount > 0 ||
 				MPI2.searchAndFacetConfig.update.filterAdded ){
-		
+			//console.log("rebuild count: "+ MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount)
 			var smfilter = new SummaryFilter(oChkbox, q);
 			MPI2.searchAndFacetConfig.update.filterObj.push(smfilter);
 			
@@ -891,6 +921,8 @@
 	    		var qField = aVals[1];
 	    		var qVal   = aVals[2];
 	    		
+	    		qField = qField.replace(/img_/g,'');
+	    		
 	    		if (facet == 'gene' && qField.match(/^imits_/)){
 	    			
 	    			aFilters.push('(latest_phenotype_status:"' + qVal + '")');
@@ -910,13 +942,16 @@
 		
 		this.updateFacetCounts = function(solrFqStr){
 			// for all mega cores
+			
+			//console.log('about to update facet counts for ' + q);
 			var cores = MPI2.searchAndFacetConfig.megaCores;
-		
+			
 			for ( var i=0; i<cores.length; i++ ){
+				//console.log('working on '+cores[i]);
 				var oConf = {'facet':cores[i], 'fqStr':solrFqStr, 'q':q};
 				var facetCountsUpdater = new FacetCountsUpdater(oConf);
 				facetCountsUpdater.updateFacetCounts();
-			}		
+			}
 		};
 		
 		this.updateUrl = function(solrFqStr){
@@ -1049,8 +1084,8 @@
 		
 		// remove summary filter from input checkbox (facet filter)
 		filter.click(function(){
-			
-			if (!MPI2.searchAndFacetConfig.update.resetSummaryFacet ){
+
+			if (! MPI2.searchAndFacetConfig.update.resetSummaryFacet ){
 				
 				// remove checkbox filter highlight	
 				var kv = oChkbox.attr('rel');
@@ -1071,16 +1106,18 @@
 					
 					// if there is no summary filter at all, refresh url	
 					
-					var url;
 					var defaultFqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].fq;
 					
 					if ( window.location.search != '' ){
 						// has search keyword
+						
+						MPI2.searchAndFacetConfig.update.filterChange = true;
+						
 						$('div.ffilter').hide();
 						
-						url = 'fq='+ defaultFqStr + '&core='+facet;
+						var params = 'fq='+ defaultFqStr + '&facet='+facet;
 						//window.history.pushState({},"", url);// change browser url; not working with IE	
-						window.location.hash = url; // also works with IE	
+						window.location.hash = params; // also works with IE	
 						
 						oFilter.updateFacetCounts(defaultFqStr);
 					}
@@ -1103,6 +1140,10 @@
 			}
 		});
 	}		
+	
+	$.fn.fetchQueryStr = function(){
+		return window.location.search.replace('?q=','');
+	};
 	
 	function _composeFilterStr(facet, field, value){	
 		
@@ -1349,7 +1390,7 @@
     }
     
     $.fn.parseHashString = function(sHash){
-    	
+
     	var hashParams = {};
     	var aKV = decodeURI(sHash).split("&");    	  
     	var m;
@@ -1368,7 +1409,7 @@
     			hashParams.gridSubTitle = m[1];
     		}
     		else if ( aKV[i].indexOf('q=') == 0 ){    			
-    			m = aKV[i].match(/q=(.+)/);    			
+    			m = aKV[i].match(/q=(.+)/);   
     			if ( m === null ){
     				m = [];
     				m[1] = '*';    		
@@ -1379,7 +1420,7 @@
     				hashParams.fq = aKV[i].replace('fq=','');    				
     		}
     	}
-    	
+    
     	return hashParams;
     }
     
@@ -1411,40 +1452,6 @@
 		});  
     }  
     
-    /*function _setFacetToOpen2(objList, oHashParams){
-    	var facet = oHashParams.widgetName;
-    	if ( (facet == 'imagesFacet' || facet == 'geneFacet' || facet == 'diseaseFacet' || facet == 'pipelineFacet') && objList.length != 0){
-	    	// first change arrow image to collapse and make all gene/images/disease/pipeline subfacets hidden
-			//$('table#' + facet + 'Tbl').find('tr.subFacet').addClass('trHidden');
-			//$('table#' + facet + 'Tbl').find('tr.facetSubCat td').removeClass('unCollapse');		
-    	}
-    	
-    	var fcatsection;
-    	if ( objList.length == 0 ) {
-    		if ( facet == 'geneFacet' ){
-    			// open gene phenotyping status subfacet by default  
-    			fcatsection = 'phenotyping';
-    		}
-    		else if (facet == 'diseaseFacet' ){
-    			// open disease source subfacet by default  
-    			fcatsection = 'disease_source';
-    		} 
-    		else if (facet == 'pipelineFacet' ){    		
-    			// open pipeline IMPC subfacet by default  
-    			fcatsection = 'IMPC_Pipeline';
-    		} 
-    		else if (facet == 'imagesFacet' ){    		
-    			// open pipeline IMPC subfacet by default  
-    			//fcatsection = 'annotatedHigherLevelMpTermName';
-    			fcatsection = 'mp';
-    		}
-    		//_arrowSwitch(fcatsection); 
-    		
-    		
-    	}    	
-    	
-    }  
-    */
     $.fn.concatFilters = function(operator){
 		var aFilters = [];
 		$('ul#facetFilter span.hidden').each(function(){
@@ -1519,7 +1526,7 @@
     }   
     
     $.fn.getSolrRelevanceParams = function(facet, q, oParams){
-    	
+
     	var wildCardStr = /^\*\w*$|^\w*\*$|^\*\w*\*$/;
     	if ( facet == 'gene' ){
     		if ( q.match(/^MGI:\d*$/i) ){
@@ -1552,7 +1559,7 @@
 				oParams.pf='mp_term^1000 mp_term_synonym^500 mp_definition^100';					
 			}	
     	}
-    	else if ( facet == 'disease' ){
+    	if ( facet == 'disease' ){
     		if ( q.match(wildCardStr) && q != '*:*'){	
 				oParams.bq='disease_term:'             +q.replace(/\*/g,'')+'^1000'
 						  +' disease_alts:'             +q.replace(/\*/g,'')+'^700'
@@ -1563,6 +1570,7 @@
     			oParams.pf='disease_term^1000 disease_alts^700 disease_human_phenotypes^500 disease_source^200'; 
     		}
     	}
+    	
     	if ( facet == 'ma' ){    		
 			if ( q.match(/^MA:\d*$/i) ){
 				oParams.q = q.toUpperCase();
@@ -1600,18 +1608,11 @@
 			}	
     	}
     	
-    	// applied to all facets
-    	//if ( q.match(/^(\w+?\*\s+?){1,}(\w+?\*)?$/) ){
-    	if ( q.indexOf(' ') != -1 && q.indexOf('*') != -1 ){	
-		 	// a slop of 15 should be enough to account for the usual word length of mp term: let's try this for now
-		 	// NOTE: w/0 slop, the ranking is weird in many cases 			 
-			oParams.q='{!complexphrase}auto_suggest:"' + q + '"~15'; 
-    	}
     	return oParams;
     }
     
     $.fn.loadDataTable = function(oHashParams){
-    	    
+    	  
     	var facetDivId = oHashParams.widgetName;
     	
     	//console.log(oHashParams.q, oHashParams.fq, facetDivId);    	
@@ -1619,6 +1620,8 @@
     	
     	var oVal = MPI2.searchAndFacetConfig.facetParams[facetDivId];
     	//var oInfos = {};
+    	
+    	var coreName = oVal.solrCoreName;
     	
 		//oInfos.mode = oVal.gridName;	
     	oHashParams.mode = oVal.gridName;
@@ -1636,9 +1639,11 @@
 		oParams.fq = encodeURI(oHashParams.fq);				
 		oParams.rows = 10;
 		
+		/*
 		oParams.hl = 'true';
     	oParams['hl.snippets']=100; // otherwise only one in each field is return, and 100 should be enough to catch all for synonyms field, etc    	    	
     	oParams['hl.fl'] = '*';    	
+		*/
 		
 		// bq, qf, pf for solr result relevance 
 
@@ -1646,12 +1651,12 @@
     		oParams.qf = MPI2.searchAndFacetConfig.facetParams[facetDivId].qf;
     	}
     	
-		if ( facetDivId == 'mpFacet' ){
-			oParams = $.fn.getSolrRelevanceParams('mp', oHashParams.q, oParams);
-		}					
-				
+    	oHashParams.qOri = oHashParams.q
+    	oParams = $.fn.getSolrRelevanceParams(coreName, oHashParams.q, oParams);
+    	oParams.q = $.fn.setSolrComplexPhraseQuery(oHashParams.q);
+    	
 		if ( facetDivId == 'imagesFacet' ) {
-			//oInfos.showImgView = true;	
+			//oInfos.showImgView = true;	// don't want to show imgView as default
 			oHashParams.showImgView = false;			
 		}
 		
@@ -1659,8 +1664,8 @@
 		oHashParams.params = $.fn.stringifyJsonAsUrlParams(oParams);		
 		
     	if ( typeof oHashParams.facetName == 'undefined' ){		
-    		//oInfos.solrCoreName = oVal.solrCoreName;
-    		oHashParams.solrCoreName = oVal.solrCoreName;
+    		//oInfos.solrCoreName = coreName;
+    		oHashParams.solrCoreName = coreName;
     		
     	}
     	else {
@@ -1668,12 +1673,10 @@
     		oHashParams.facetName = oHashParams.facetName; 
     	}   	   	 	
 		
-		$.fn.updateBreadCrumb(oVal.solrCoreName);		
-		$.fn.openFacet(oVal.solrCoreName);	
-		
-		// boost genes that are phenotype complete on top for display
-		if ( (typeof oHashParams.core != 'undefined' && oHashParams.core == 'gene') ||
-			 (typeof oHashParams.coreName != 'undefined' && oHashParams.coreName == 'geneFacet') ){
+		$.fn.updateBreadCrumb(coreName);		
+		$.fn.openFacet(coreName);	
+
+		if ( oHashParams.widgetName == 'geneFacet' ){
 			oHashParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
 		}
 
@@ -1767,7 +1770,6 @@
     			displayDataTypeResultCount(oInfos, this.fnSettings().fnRecordsTotal());
     			    
     			var configs = MPI2.searchAndFacetConfig.update;
-    			configs.dataTableLoading = false;
     			configs.dataTableLoaded = true;
     			
    				configs.filterObj = [];
@@ -1778,10 +1780,7 @@
    				configs.filterAdded = false;
    				configs.filterChange = false;
    				configs.dataTableLoaded = false;
-   				configs.dataTableLoading = false;
    				configs.kwOnly = false;
-    			
-    			
     			
     			// IE fix, as this style in CSS is not working for IE8 
     			if ( $('table#geneGrid').size() == 1 ){

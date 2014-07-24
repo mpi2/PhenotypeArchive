@@ -7,6 +7,9 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.poi.poifs.filesystem.OfficeXmlFileException;
 
+import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+
 public class ChartUtils {
 	
 	
