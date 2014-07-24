@@ -1,0 +1,20 @@
+table.lrpcr {
+    width:50%; 
+    margin-left:0%; 
+    margin-right:50%;
+
+    border-width: 1px;
+    border-spacing: 2px;
+    border-style: outset;
+    border-color: gray;
+    border-collapse: separate;
+    background-color: white;
+}
+
+table.lrpcr td {
+    margin-bottom:0;
+    border-width: 1px;
+    border-style: inset;
+    border-color: gray;
+    vertical-align: middle;
+}
