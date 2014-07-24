@@ -47,7 +47,12 @@
 
     <jsp:body>
     
-   Hello IMPC Images here!
+   Hello IMPC Images here!!!!!
+   <!-- change this to the systems one and start up omero client? -->
+   <!-- <img id="752" src="http://10.3.2.161:4080/webgateway/render_thumbnail/752/200" alt="image" title="30910.bmp" style="width: 200px;"> -->
+   <img id="752" src="http://172.22.68.222:4080/webgateway/render_thumbnail/1278/200" alt="image" title="30910.bmp" style="width: 200px;">
+   <!-- <img id="752" src="http://172.22.68.222:4080/webclient/render_thumbnail/size/200/752/" alt="image" title="30910.bmp" style="width: 65px;"> -->
+   
     </jsp:body>	
 
 </t:genericpage>
