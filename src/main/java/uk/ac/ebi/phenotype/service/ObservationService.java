@@ -303,6 +303,60 @@ public class ObservationService extends BasicService {
     }
 
     /**
+     * Return a list of a all data candidates for deletion prior to statistical
+     * analysis
+     * 
+     * @return list of maps of results
+     * @throws SolrServerException
+     */
+    public List<Map<String, String>> getDistinctStatisticalCandidates(List<String> phenotypingCenter, List<String> pipelineStableId, List<String> procedureStub, List<String> parameterStableId, List<String> alleleAccessionId)
+    throws SolrServerException {
+
+		String pivotFields = ObservationDTO.PHENOTYPING_CENTER_ID + "," + ObservationDTO.PIPELINE_ID + "," + ObservationDTO.PARAMETER_ID + "," + ObservationDTO.STRAIN_ACCESSION_ID + "," + ObservationDTO.ZYGOSITY + "," + ObservationDTO.METADATA_GROUP + "," + ObservationDTO.ALLELE_ACCESSION_ID + "," + ObservationDTO.GENE_ACCESSION_ID;
+
+        SolrQuery query = new SolrQuery()
+        	.setQuery("*:*")
+        	.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+        	.setRows(0)
+        	.setFacet(true).setFacetMinCount(1).setFacetLimit(-1)
+        	.addFacetPivotField(pivotFields);
+
+    	if(phenotypingCenter != null) {
+    		List<String> toJoin = new ArrayList<>();
+    		for(String c : phenotypingCenter) { toJoin.add(ObservationDTO.PHENOTYPING_CENTER + ":" + c); }
+    		query.addFilterQuery("(" + StringUtils.join(toJoin, " OR ") + ")");
+    	}
+
+    	if(pipelineStableId != null) {
+    		List<String> toJoin = new ArrayList<>();
+    		for(String c : pipelineStableId) { toJoin.add(ObservationDTO.PIPELINE_STABLE_ID + ":" + c); }
+    		query.addFilterQuery("(" + StringUtils.join(toJoin, " OR ") + ")");
+    	}
+
+    	if(procedureStub != null) {
+    		List<String> toJoin = new ArrayList<>();
+    		for(String c : procedureStub) { toJoin.add(ObservationDTO.PROCEDURE_STABLE_ID + ":" + c + "*"); }
+    		query.addFilterQuery("(" + StringUtils.join(toJoin, " OR ") + ")");
+    	}
+
+    	if(parameterStableId != null) {
+    		List<String> toJoin = new ArrayList<>();
+    		for(String c : parameterStableId) { toJoin.add(ObservationDTO.PARAMETER_STABLE_ID + ":" + c); }
+    		query.addFilterQuery("(" + StringUtils.join(toJoin, " OR ") + ")");
+    	}
+
+    	if(alleleAccessionId != null) {
+    		List<String> toJoin = new ArrayList<>();
+    		for(String c : alleleAccessionId) { toJoin.add(ObservationDTO.ALLELE_ACCESSION_ID + ":\"" + c + "\""); }
+    		query.addFilterQuery("(" + StringUtils.join(toJoin, " OR ") + ")");
+    	}
+
+        QueryResponse response = solr.query(query);
+
+        return getFacetPivotResults(response, false);
+    }
+
+    /**
      * Return a list of a all unidimensional data candidates for statistical
      * analysis for a specific procedure
      * 
