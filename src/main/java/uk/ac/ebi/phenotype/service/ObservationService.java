@@ -90,6 +90,7 @@ public class ObservationService extends BasicService {
 
     public ObservationService(String solrUrl) {
         solr = new HttpSolrServer(solrUrl);
+        System.out.println(solrUrl);
     }
 
     
@@ -1583,7 +1584,7 @@ public class ObservationService extends BasicService {
 	        return new SolrQuery()
 	                .setQuery(
 	                        "observation_type:image_record")	                                
-	                .addFilterQuery(ObservationDTO.DOWNLOAD_FILE_PATH + ":" + "*mousephenotype.org*")
+	                .addFilterQuery("("+ObservationDTO.DOWNLOAD_FILE_PATH + ":" + "*mousephenotype.org* AND !download_file_path:*.pdf)")
 	                .setRows(10000);
 	    }
 
