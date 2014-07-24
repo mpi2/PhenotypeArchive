@@ -80,47 +80,47 @@
     <field name="mgi_accession_id" type="string" indexed="true" stored="true" multiValued="false" />   		   	
     <field name="marker_symbol" type="string" indexed="true" stored="true" multiValued="false" />
     <field name="marker_name" type="string" indexed="true" stored="true" multiValued="false" />
-    <field name="marker_synonym" type="string" indexed="true" stored="true" multiValued="true" />
+    <field name="marker_synonym" type="string" indexed="true" stored="true" multiValued="false" />
  
  
     <!-- mp fields -->
 	<field name="mp_id" type="string" indexed="true" stored="true" multiValued="false" />
 	<field name="mp_term" type="string" indexed="true" stored="true" multiValued="false" />	
-	<field name="mp_term_definition" type="string" indexed="true" stored="true" multiValued="true" />
-	<field name="mp_term_synonym" type="string" indexed="true" stored="true" multiValued="true" />
+	<field name="mp_term_definition" type="string" indexed="true" stored="true" multiValued="false" />
+	<field name="mp_term_synonym" type="string" indexed="true" stored="true" multiValued="false" />
 
-	<field name="child_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="child_mp_term" type="text" indexed="true" stored="true" required="false" multiValued="true" />	
-	<field name="child_mp_definition" type="text" indexed="true" stored="true" required="false" multiValued="true" />	
-	<field name="child_mp_term_synonym" type="text" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="child_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="child_mp_term" type="text" indexed="true" stored="true" required="false" multiValued="false" />	
+	<field name="child_mp_definition" type="text" indexed="true" stored="true" required="false" multiValued="false" />	
+	<field name="child_mp_term_synonym" type="text" indexed="true" stored="true" required="false" multiValued="false" />
 
-	<field name="intermediate_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="intermediate_mp_term" type="text" indexed="true" stored="true" required="false" multiValued="true" />	
-	<field name="intermediate_mp_definition" type="text" indexed="true" stored="true" required="false" multiValued="true" />	
-	<field name="intermediate_mp_term_synonym" type="text" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="intermediate_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="intermediate_mp_term" type="text" indexed="true" stored="true" required="false" multiValued="false" />	
+	<field name="intermediate_mp_definition" type="text" indexed="true" stored="true" required="false" multiValued="false" />	
+	<field name="intermediate_mp_term_synonym" type="text" indexed="true" stored="true" required="false" multiValued="false" />
 	
-	<field name="top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="top_level_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="top_level_mp_definition" type="text" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="top_level_mp_term_synonym" type="text" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="disease_human_phenotypes" type="string" indexed="true" stored="true" multiValued="true"/>	 
+	<field name="top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="top_level_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="top_level_mp_definition" type="text" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="top_level_mp_term_synonym" type="text" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="disease_human_phenotypes" type="string" indexed="true" stored="true" multiValued="false"/>	 
 	
 	<!--  ma fields -->
 	<field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="false" />	   
-    <field name="ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />   
+    <field name="ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="false" />   
    
-    <field name="child_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="child_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />							
-    <field name="child_ma_idTerm" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="child_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="child_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="false" />							
+    <field name="child_ma_idTerm" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
-	<field name="selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" /> 
+	<field name="selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
   
 	<!--disease fields -->	
 	<field name="disease_id" type="string" indexed="true" stored="true" multiValued="false" />
 	<field name="disease_term" type="string" indexed="true" stored="true" multiValued="false" />
-	<field name="disease_alts" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="disease_alts" type="string" indexed="true" stored="true" multiValued="false"/>
    
 
 	<!-- for copyfield -->
