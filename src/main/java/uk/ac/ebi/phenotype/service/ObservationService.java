@@ -313,7 +313,15 @@ public class ObservationService extends BasicService {
     public List<Map<String, String>> getDistinctStatisticalCandidates(List<String> phenotypingCenter, List<String> pipelineStableId, List<String> procedureStub, List<String> parameterStableId, List<String> alleleAccessionId)
     throws SolrServerException {
 
-		String pivotFields = ObservationDTO.PHENOTYPING_CENTER_ID + "," + ObservationDTO.PIPELINE_ID + "," + ObservationDTO.PARAMETER_ID + "," + ObservationDTO.STRAIN_ACCESSION_ID + "," + ObservationDTO.ZYGOSITY + "," + ObservationDTO.METADATA_GROUP + "," + ObservationDTO.ALLELE_ACCESSION_ID + "," + ObservationDTO.GENE_ACCESSION_ID;
+		String pivotFields = ObservationDTO.PHENOTYPING_CENTER_ID 
+			+ "," + ObservationDTO.PIPELINE_ID 
+			+ "," + ObservationDTO.PROCEDURE_ID 
+			+ "," + ObservationDTO.PARAMETER_ID 
+			+ "," + ObservationDTO.METADATA_GROUP 
+			+ "," + ObservationDTO.STRAIN_ACCESSION_ID 
+			+ "," + ObservationDTO.ALLELE_ACCESSION_ID 
+			+ "," + ObservationDTO.ZYGOSITY 
+			;
 
         SolrQuery query = new SolrQuery()
         	.setQuery("*:*")
@@ -352,6 +360,7 @@ public class ObservationService extends BasicService {
     		query.addFilterQuery("(" + StringUtils.join(toJoin, " OR ") + ")");
     	}
 
+    	System.out.println(query);
         QueryResponse response = solr.query(query);
 
         return getFacetPivotResults(response, false);
