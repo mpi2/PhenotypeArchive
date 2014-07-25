@@ -40,33 +40,23 @@
 	    
 		_initFacet: function(){
 	    	var self = this;
-	    	 	
-	    	/*var queryParams = $.extend({}, { 
-				'rows': 0,
-				'facet': 'on',								
-				'facet.mincount': 1,
-				'facet.limit': -1,							
-				'facet.sort': 'count',					
-	    		'q': self.options.data.hashParams.q},
-	    		MPI2.searchAndFacetConfig.commonSolrParams,
-	    		MPI2.searchAndFacetConfig.facetParams.geneFacet.filterParams
-	    	);    	   	
-	    	*/
 	    
+	    	//console.log('current fq: '+MPI2.searchAndFacetConfig.currentFq);
 	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
 	    			: self.options.data.hashParams.fq;
 	    	
 	    	var oParams = {};		
-	        oParams = $.fn.getSolrRelevanceParams('gene', self.options.data.hashParams.q, oParams);
-	    	
+	        oParams = $.fn.getSolrRelevanceParams('gene', self.options.data.hashParams.q, oParams); // has q 
+	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
 				'rows': 0, // override default
 				'facet': 'on',								
 				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
-				'facet.sort': 'count',						
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);	
+				'facet.sort': 'count',	
+				'q' : self.options.data.hashParams.q	
+				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);	
 	    	
 	    	
 	    	// facet on latest_phenotype_status 
@@ -87,6 +77,7 @@
 				  + '&facet.field=latest_phenotyping_centre';
 	    	
 	    	//console.log('GENE: '+ queryParamStr);
+	    	
 	    	$.ajax({ 				 					
 	    		'url': solrUrl + '/gene/select',	    		
 	    		'data': queryParamStr, 
@@ -280,7 +271,8 @@
 	    		}	    		
 	    		subTypeSect.append(subTypeUlContainer);
 	    		$('div.flist li#gene > ul').append(subTypeSect);
-	    			    			    		
+	    		$.fn.initFacetToggles('gene');
+	    		
 	    		var selectorBase = "div.flist li#gene";
 	    		
 	    		// subfacet opening/closing behavior
@@ -290,28 +282,22 @@
 	    		
 	    		// change cursor for grayout filter
     			$.fn.cursorUpdate('gene', 'not-allowed');
-    							
-	    		
-	    		$.fn.initFacetToggles('gene');
-	    		
+    			
 	    		$('li#gene li.fcat input').click(function(){
 	    			
 	    			// // highlight the item in facet	    			
 	    			$(this).siblings('span.flabel').addClass('highlight');
+	    			
+	    			MPI2.searchAndFacetConfig.update.filterAdded = true;
 					$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
-				});	    		
+				});	 
+	    		
+//	    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
+//	    			alert('gene kw search');
+//	    			$.fn.process_kwSearch(self);
+//	    		}	
+	    		
     		}
-	    	
-	    	/*--------------------------------------------------------------------------------------------------------------------------*/
-	    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
-	    	/*--------------------------------------------------------------------------------------------------------------------------*/	
-	    	//console.log('****page load for gene facet');
-	    	
-	    	var oConf = self.options.data.hashParams;
-	    	oConf.core = self.options.data.core;
-	    	
-	    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);
-	    	
 	    },	       
 	  
 	    destroy: function () {    	   

@@ -13,7 +13,6 @@
 			var sexes = ["male" , "female"];
 			var checkedCenters = [];
 			var checkedSexes = [];
-			var checkedSources = [];
 			
 			var html = '<div class="filters"> 	<div class="filter"> 	<div class="ftype">Center</div> 	<div class="foptions">	<ul>' ;
 			

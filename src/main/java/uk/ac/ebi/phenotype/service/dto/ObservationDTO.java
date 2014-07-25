@@ -1,4 +1,4 @@
-package uk.ac.ebi.phenotype.stats;
+package uk.ac.ebi.phenotype.service.dto;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -11,133 +11,183 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 
 public class ObservationDTO {
 
-    @Field("id")
+    public final static String ID = "id";
+    public final static String DATASOURCE_ID = "datasource_id";
+    public final static String DATASOURCE_NAME = "datasource_name";
+    public final static String PROJECT_ID = "project_id";
+    public final static String PROJECT_NAME = "project_name";
+    public final static String PHENOTYPING_CENTER = "phenotyping_center";
+    public final static String PHENOTYPING_CENTER_ID = "phenotyping_center_id";
+    public final static String GENE_ACCESSION_ID = "gene_accession_id";
+    public final static String GENE_SYMBOL = "gene_symbol";
+    public final static String ALLELE_ACCESSION_ID = "allele_accession_id";
+    public final static String ALLELE_SYMBOL = "allele_symbol";
+    public final static String ZYGOSITY = "zygosity";
+    public final static String SEX = "sex";
+    public final static String BIOLOGICAL_MODEL_ID = "biological_model_id";
+    public final static String BIOLOGICAL_SAMPLE_ID = "biological_sample_id";
+    public final static String BIOLOGICAL_SAMPLE_GROUP = "biological_sample_group";
+    public final static String STRAIN_ACCESSION_ID = "strain_accession_id";
+    public final static String STRAIN_NAME = "strain_name";
+    public final static String PIPELINE_NAME = "pipeline_name";
+    public final static String PIPELINE_ID = "pipeline_id";
+    public final static String PIPELINE_STABLE_ID = "pipeline_stable_id";
+    public final static String PROCEDURE_ID = "procedure_id";
+    public final static String PROCEDURE_NAME = "procedure_name";
+    public final static String PROCEDURE_STABLE_ID = "procedure_stable_id";
+    public final static String PARAMETER_ID = "parameter_id";
+    public final static String PARAMETER_NAME = "parameter_name";
+    public final static String PARAMETER_STABLE_ID = "parameter_stable_id";
+    public final static String EXPERIMENT_ID = "experiment_id";
+    public final static String EXPERIMENT_SOURCE_ID = "experiment_source_id";
+    public final static String OBSERVATION_TYPE = "observation_type";
+    public final static String COLONY_ID = "colony_id";
+    public final static String DATE_OF_BIRTH = "date_of_birth";
+    public final static String DATE_OF_EXPERIMENT = "date_of_experiment";
+    public final static String POPULATION_ID = "population_id";
+    public final static String EXTERNAL_SAMPLE_ID = "external_sample_id";
+    public final static String DATA_POINT = "data_point";
+    public final static String ORDER_INDEX = "order_index";
+    public final static String DIMENSION = "dimension";
+    public final static String TIME_POINT = "time_point";
+    public final static String DISCRETE_POINT = "discrete_point";
+    public final static String CATEGORY = "category";
+    public final static String VALUE = "value";
+    public final static String METADATA = "metadata";
+    public final static String METADATA_GROUP = "metadata_group";
+	public static final String DOWNLOAD_FILE_PATH = "download_file_path";
+
+	@Field(ID)
     private Integer id;
 
-    @Field("datasource_id")
+    @Field(DATASOURCE_ID)
     private Integer dataSourceId;
 
-    @Field("datasource_name")
+    @Field(DATASOURCE_NAME)
     private String dataSourceName;
 
-    @Field("project_id")
+    @Field(PROJECT_ID)
     private Integer projectId;
 
-    @Field("project_name")
+    @Field(PROJECT_NAME)
     private String projectName;
 
-    @Field("pipeline_name")
+    @Field(PIPELINE_NAME)
     private String pipelineName;
 
-    @Field("pipeline_stable_id")
+    @Field(PIPELINE_STABLE_ID)
     private String pipelineStableId;
 
-    @Field("procedure_stable_id")
+    @Field(PROCEDURE_STABLE_ID)
     private String procedureStableId;
 
-    @Field("parameter_stable_id")
+    @Field(PARAMETER_STABLE_ID)
     private String parameterStableId;
 
-    @Field("pipeline_id")
+    @Field(PIPELINE_ID)
     private Integer pipelineId;
 
-    @Field("procedure_id")
+    @Field(PROCEDURE_ID)
     private Integer procedureId;
 
-    @Field("parameter_id")
+    @Field(PARAMETER_ID)
     private Integer parameterId;
 
-    @Field("strain_accession_id")
+    @Field(STRAIN_ACCESSION_ID)
     private String strainAccessionId;
 
-    @Field("strain_name")
+    @Field(STRAIN_NAME)
     private String strainName;
 
-    @Field("experiment_source_id")
+    @Field(EXPERIMENT_SOURCE_ID)
     private String experimentSourceId;
 
-    @Field("gene_symbol")
+    @Field(GENE_SYMBOL)
     private String geneSymbol;
 
-    @Field("gene_accession_id")
+    @Field(GENE_ACCESSION_ID)
     private String geneAccession;
 
-    @Field("experiment_id")
+    @Field(EXPERIMENT_ID)
     private Integer experimentId;
 
-    @Field("phenotyping_center_id")
+    @Field(PHENOTYPING_CENTER_ID)
     private Integer phenotypingCenterId;
 
-    @Field("phenotyping_center")
+    @Field(PHENOTYPING_CENTER)
     private String phenotypingCenter;
 
-    @Field("observation_type")
+    @Field(OBSERVATION_TYPE)
     private String observationType;
 
-    @Field("colony_id")
+    @Field(COLONY_ID)
     private String colonyId;
 
-    @Field("date_of_experiment")
+    @Field(DATE_OF_EXPERIMENT)
     private Date dateOfExperiment;
 
-    @Field("date_of_birth")
+    @Field(DATE_OF_BIRTH)
     private Date dateOfBirth;
 
-    @Field("biological_sample_id")
+    @Field(BIOLOGICAL_SAMPLE_ID)
     private Integer biologicalSampleId;
 
-    @Field("biological_model_id")
+    @Field(BIOLOGICAL_MODEL_ID)
     private Integer biologicalModelId;
 
-    @Field("zygosity")
+    @Field(ZYGOSITY)
     private String zygosity;
 
-    @Field("sex")
+    @Field(SEX)
     private String sex;
 
-    @Field("biological_sample_group")
+    @Field(BIOLOGICAL_SAMPLE_GROUP)
     private String group;
 
-    @Field("category")
+    @Field(CATEGORY)
     private String category;
 
-    @Field("data_point")
+    @Field(DATA_POINT)
     private Float dataPoint;
 
-    @Field("order_index")
+    @Field(ORDER_INDEX)
     private Integer orderIndex;
 
-    @Field("dimension")
+    @Field(DIMENSION)
     private String dimension;
 
-    @Field("time_point")
+    @Field(TIME_POINT)
     private String timePoint;
 
-    @Field("discrete_point")
+    @Field(DISCRETE_POINT)
     private Float discretePoint;
 
-    @Field("external_sample_id")
+    @Field(EXTERNAL_SAMPLE_ID)
     private String externalSampleId;
 
-    @Field("parameter_name")
+    @Field(PARAMETER_NAME)
     private String parameterName;
 
-    @Field("procedure_name")
+    @Field(PROCEDURE_NAME)
     private String procedureName;
 
-    @Field("metadata_group")
+    @Field(METADATA_GROUP)
     private String metadataGroup;
 
-    @Field("metadata")
+    @Field(METADATA)
     private List<String> metadata;
 
-    @Field("allele_accession_id")
+    @Field(ALLELE_ACCESSION_ID)
     private String alleleAccession;
     
-    @Field("allele_symbol")
+    @Field(ALLELE_SYMBOL)
     private String alleleSymbol;
 
-    /**
+    @Field(DOWNLOAD_FILE_PATH)
+    private String downloadFilePath;
+    
+
+	/**
      * helper methods
      * 
      * @throws SQLException
@@ -877,4 +927,14 @@ public class ObservationDTO {
     public void setProjectName(String projectName) {
         this.projectName = projectName;
     }
+    
+    public String getDownloadFilePath() {
+    	
+		return downloadFilePath;
+	}
+
+	public void setDownloadFilePath(String downloadFilePath) {
+	
+		this.downloadFilePath = downloadFilePath;
+	}
 }

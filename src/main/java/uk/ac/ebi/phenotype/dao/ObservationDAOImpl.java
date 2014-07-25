@@ -42,6 +42,7 @@ import uk.ac.ebi.phenotype.pojo.BiologicalSample;
 import uk.ac.ebi.phenotype.pojo.CategoricalObservation;
 import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.Experiment;
+import uk.ac.ebi.phenotype.pojo.ImageRecordObservation;
 import uk.ac.ebi.phenotype.pojo.MetaDataObservation;
 import uk.ac.ebi.phenotype.pojo.Observation;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
@@ -343,6 +344,14 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 	public List<Observation> getAllObservationsByParameter(Parameter parameter) {
 		return getCurrentSession().createQuery("select distinct o from Observation as o where o.parameterId=?")
 			.setInteger(1, parameter.getId())
+			.list();
+	}
+	
+	@Transactional(readOnly = true)
+	@SuppressWarnings("unchecked")
+	public List<ImageRecordObservation> getAllImageObservations() {
+		return getCurrentSession().createQuery("select distinct o from ImageRecordObservation as o where o.type=:ot and o.downloadFilePath like '%mousephenotype.org%'")
+				.setParameter("ot", ObservationType.image_record)
 			.list();
 	}
 

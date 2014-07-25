@@ -228,7 +228,7 @@ public class SolrIndex {
 	 *            represents a gene with imits status fields
 	 * @return the latest status at the gene level for both ES cells and alleles
 	 */
-	public String deriveLatestProductionStatusForEsCellAndMice(JSONObject doc, HttpServletRequest request, boolean toExport){		
+	public String deriveLatestProductionStatusForEsCellAndMice(JSONObject doc, HttpServletRequest request, boolean toExport, String geneLink){		
 		
 		String esCellStatus = fetchEsCellStatus(doc, request, toExport);		
 		String miceStatus = "";		
@@ -260,7 +260,7 @@ public class SolrIndex {
 				}
 				
 				if ( sh.containsKey("Mice Produced") ){
-					miceStatus = "<a class='status done' oldtitle='Mice Produced' title=''>"
+					miceStatus = "<a class='status done' oldtitle='Mice Produced' title='' href='" + geneLink + "#order'>"
 							   +  "<span>Mice</span>"
 							   +  "</a>";
 						
@@ -388,7 +388,6 @@ public class SolrIndex {
 	 * @return the latest status at the gene level for ES cells as a string
 	 */
 	public String fetchEsCellStatus(JSONObject doc, HttpServletRequest request, boolean toExport){
-		
 		String mgiId = doc.getString("mgi_accession_id");
 		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;
 				
@@ -400,19 +399,19 @@ public class SolrIndex {
 			if ( doc.containsKey(field)  ){
 				// blue es cell status				
 				esCellStatus = doc.getString(field);
-				if ( esCellStatus.equals("ES Cell Targeting Confirmed") ){
+				if ( esCellStatus.equals("ES Cells Produced") ){
 						esCellStatus = "<a class='status done' href='" + geneUrl + "' oldtitle='ES Cells produced' title=''>"
-									 + " <span>ES cells</span>"
+									 + " <span>ES Cells</span>"
 									 + "</a>";
 						
-						exportEsCellStatus += "Es cells produced";
+						exportEsCellStatus += "ES cells produced";
 				}
-				else if ( esCellStatus.equals("ES Cell Production in Progress") ){
+				else if ( esCellStatus.equals("Assigned for ES Cell Production") ){
 						esCellStatus = "<span class='status inprogress' oldtitle='ES cells production in progress' title=''>"
 						   	 		 +  "	<span>ES Cells</span>"
 						   	 		 +  "</span>";
 						
-						exportEsCellStatus += "Es cells production in progress";
+						exportEsCellStatus += "ES cells production in progress";
 				}
 				else {
 					esCellStatus = "";
@@ -439,7 +438,7 @@ public class SolrIndex {
 	 *         Registered) as appropriate for this gene
 	 */
 	public String deriveLatestPhenotypingStatus(JSONObject doc){
-			
+
 		final String field = "latest_phenotype_status";
 		try {	
 			// Phenotyping complete			
@@ -858,7 +857,11 @@ public class SolrIndex {
                         String orderHtml = "";
                         String vectorProjectIds = "";
                         String vectorProjectHtml = "";
+                        String mgi_accession_id = "";
                                 
+			if (docs.getJSONObject(i).has("mgi_accession_id")) {
+                                mgi_accession_id = docs.getJSONObject(i).getString("mgi_accession_id");
+			}
 			if (docs.getJSONObject(i).has("marker_symbol")) {
                                 markerSymbol = docs.getJSONObject(i).getString("marker_symbol");
 			}
@@ -916,9 +919,9 @@ public class SolrIndex {
                                 for (int k = 0; k < vectorProjectsArray.size() ; k++){
                                         vectorProjectHtml += "<a href=http://www.mousephenotype.org/martsearch_ikmc_project/martsearch/ikmc_project/" + vectorProjectsArray.getString(k) + ">" + vectorProjectsArray.getString(k) + "</a> ";
                                 }
-			} 
+			}                         
                         
-                        
+                        construct.put("mgi_accession_id", mgi_accession_id);
                         construct.put("markerSymbol", markerSymbol);
                         construct.put("product", product);
                         construct.put("alleleType", alleleType);

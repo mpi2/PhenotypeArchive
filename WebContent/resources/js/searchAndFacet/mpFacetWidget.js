@@ -56,7 +56,8 @@
 				//'facet.field': 'annotatedHigherLevelMpTermName',
 				'facet.sort': 'index',						
 				'q.option': 'AND',
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
+				'q' : self.options.data.hashParams.q
+				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
 	    
 	    	$.ajax({	
 	    		'url': solrUrl + '/mp/select',
@@ -104,18 +105,14 @@
 	        			
 	        			// // highlight the item in facet	    			
 	        			$(this).siblings('span.flabel').addClass('highlight');
+	        			MPI2.searchAndFacetConfig.update.filterAdded = true;
 	    				$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
-	    			});    		
-	        		 
-	        		/*--------------------------------------------------------------------------------------------------------------------------*/
-	    	    	/* ------ when search page loads, the URL params are parsed to load dataTable and reconstruct filters, if applicable ------ */
-	    	    	/*--------------------------------------------------------------------------------------------------------------------------*/	
-	        		//console.log('****page load for mp facet');
-	        		var oConf = self.options.data.hashParams;
-	    	    	oConf.core = self.options.data.core;
-	    	    	
-	    	    	$.fn.parseUrl_constructFilters_loadDataTable(oConf);		   			
-	    		}		
+	    			});  
+	        		
+//		    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
+//		    			$.fn.process_kwSearch(self);
+//		    		}	
+	    		}
 	    	});		    	
 	    },	   
 	    

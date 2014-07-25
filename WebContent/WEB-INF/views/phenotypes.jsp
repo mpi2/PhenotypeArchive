@@ -47,6 +47,7 @@
                 		<li><a href="#data-summary">Phenotype Association Stats</a></li>
                 </c:if>
                 <li><a href="#gene-variants">Gene Variants</a></li><!-- message comes up in this section so dont' check here -->
+                <li><a href="#phenotypeHeatmapSection">Heatmap</a></li>
             </ul>
             
             <div class="clear"></div>
@@ -164,7 +165,7 @@
 									<p> Select a parameter <i class="fa fa-bar-chart-o" ></i>&nbsp; &nbsp;
 										<select onchange="ajaxToBe('${phenotype.id.accession}', this.options[this.selectedIndex].value);">
 											<c:forEach var="assocParam" items="${parametersAssociated}" varStatus="loop">
-												<option value="${assocParam}">${assocParam.getName()} (${assocParam.getStableId()})</option>
+												<option value="${assocParam.getStableId()}">${assocParam.getName()} (${assocParam.getStableId()})</option>
 											</c:forEach>
 										</select>
 									</p>
