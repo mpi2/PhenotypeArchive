@@ -103,8 +103,10 @@ public class SolrIndex {
 			gridSolrParams = "qf=auto_suggest&defType=edismax&wt=json&q=*:*";
 		}
 
+		//return getResults(composeSolrUrl(core, mode, query, gridSolrParams,
+		//		start, length, showImgView));
 		return getResults(composeSolrUrl(core, mode, query, gridSolrParams,
-				start, length, showImgView));
+		start, length, showImgView));
 
 	}
 

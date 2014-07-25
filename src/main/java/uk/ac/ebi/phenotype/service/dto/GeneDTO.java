@@ -1385,7 +1385,19 @@ public class GeneDTO {
 		return true;
 	}
 
-
+	public String getESCellProductionStatus(){
+		return "escellstatus";
+	}
+	
+	public String getMouseProductionStatus(){
+		return "mouseprodstatus";
+	}
+	
+	public String getSummaryPhenotypeStatus(){
+		return "phenotypestatus";
+	}
+	
+	
 	@Override
 	public String toString() {
 

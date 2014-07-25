@@ -53,6 +53,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.Tools;
+import uk.ac.ebi.phenotype.service.GeneService;
+import uk.ac.ebi.phenotype.service.dto.GeneDTO;
 
 @Controller
 public class DataTableController {
@@ -61,6 +63,9 @@ public class DataTableController {
 
 	@Autowired
 	private SolrIndex solrIndex;
+	
+	@Autowired
+	private GeneService geneService;
 	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
@@ -131,10 +136,10 @@ public class DataTableController {
 			showImgView = jParams.getBoolean("showImgView");
 		}
 		//System.out.println("query: "+ query);
-		JSONObject json = solrIndex.getDataTableJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
+		List<GeneDTO> geneList = geneService.getDataTableJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
 		//System.out.println("JSON: "+ json);
 		
-		String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName);
+		String content = fetchDataTableJson(request, geneList, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName);
 		
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 	}
@@ -158,10 +163,7 @@ public class DataTableController {
 	public String fetchDataTableJson(HttpServletRequest request, JSONObject json, String mode, String query, String fqOri, int start, int length, String solrParams, boolean showImgView, String solrCoreName) throws IOException, URISyntaxException {
 
 		String jsonStr = null;
-		if (mode.equals("geneGrid")) {
-			jsonStr = parseJsonforGeneDataTable(json, request, query, solrCoreName);
-		} 
-		else if (mode.equals("pipelineGrid")) {
+		if (mode.equals("pipelineGrid")) {
 			jsonStr = parseJsonforProtocolDataTable(json, request, solrCoreName, start);
 		} 
 		else if (mode.equals("imagesGrid")) {
@@ -178,13 +180,22 @@ public class DataTableController {
 		}
 		return jsonStr;
 	}
+	
+	public String fetchDataTableJson(HttpServletRequest request, List<GeneDTO> geneList, String mode, String query, String fqOri, int start, int length, String solrParams, boolean showImgView, String solrCoreName) throws IOException, URISyntaxException {
 
-	public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName){	
+		String jsonStr = null;
+		if (mode.equals("geneGrid")) {
+			jsonStr = parseJsonforGeneDataTable(geneList, request, query, solrCoreName);
+		} 
+		return jsonStr;
+	}
+
+	public String parseJsonforGeneDataTable(List<GeneDTO> json, HttpServletRequest request, String qryStr, String solrCoreName){	
 				
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config, request);
 		
-		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-		int totalDocs = json.getJSONObject("response").getInt("numFound");
+		//replace this!!!!!!!
+		int totalDocs = 100;//json.getJSONObject("response").getInt("numFound");
 				
 		log.debug("TOTAL GENEs: " + totalDocs);
 		
@@ -194,30 +205,36 @@ public class DataTableController {
 		j.put("iTotalRecords", totalDocs);
 		j.put("iTotalDisplayRecords", totalDocs);
 
-		for (int i = 0; i < docs.size(); i++) {
+		for (int i = 0; i < json.size(); i++) {
 
 			List<String> rowData = new ArrayList<String>();
 
-			JSONObject doc = docs.getJSONObject(i);
+			GeneDTO doc = json.get(i);
 				
-			String geneInfo = concateGeneInfo(doc, json, qryStr, request);
+			String geneInfo = concateGeneInfo(doc, qryStr, request);
 			rowData.add(geneInfo);
 
 			
 			// phenotyping status			
-			String mgiId = doc.getString("mgi_accession_id");			
+			String mgiId = doc.getMgiAccessionId();			
 			String geneLink = request.getAttribute("baseUrl") + "/genes/" + mgiId;	
 						
 			// ES cell/mice production status	
-			boolean toExport = false;
-			String prodStatus = solrIndex.deriveLatestProductionStatusForEsCellAndMice(doc, request, toExport, geneLink);			
-			rowData.add(prodStatus);
+			boolean toExport =false;//ind datatable controller always false in exportController is set to true
+			//String esCellProdStatus=doc.getESCellProductionStatus();
+			String esCellProdStatus=geneService.fetchEsCellStatus(doc, request, toExport);
+			//String mouseProdStatus=doc.getMouseProductionStatus();
+			String mouseProdStatus = geneService.deriveLatestProductionStatusForEsCellAndMice(doc, request, toExport, geneLink);			
+			
+			String usefulString=esCellProdStatus+mouseProdStatus;
+			
+			rowData.add(usefulString);
 			
 			String phenoStatus = null;
-			if ( solrIndex.deriveLatestPhenotypingStatus(doc).equals("NA") ){
+			if ( geneService.deriveLatestPhenotypingStatus(doc).equals("NA") ){
 				phenoStatus = "";
 			}
-			else if ( solrIndex.deriveLatestPhenotypingStatus(doc).equals("QC") ){
+			else if ( geneService.deriveLatestPhenotypingStatus(doc).equals("QC") ){
 				phenoStatus = "<a class='status qc' href='" + geneLink + "'><span>legacy data available</span></a>";
 			}
 			else {
@@ -228,10 +245,10 @@ public class DataTableController {
 			
 			// register of interest
 			if (registerInterest.loggedIn()) {
-				if (registerInterest.alreadyInterested(doc.getString("mgi_accession_id"))) {
+				if (registerInterest.alreadyInterested(doc.getMgiAccessionId())) {
 					String uinterest = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
 							+ "<i class='fa fa-sign-out'></i>"
-							+ "<a id='"+doc.getString("mgi_accession_id")+"' class='regInterest primary interest' href=''>&nbsp;Unregister interest</a>"
+							+ "<a id='"+doc.getMgiAccessionId()+"' class='regInterest primary interest' href=''>&nbsp;Unregister interest</a>"
 							+ "</div>";
 					
 					rowData.add(uinterest);					
@@ -240,7 +257,7 @@ public class DataTableController {
 				else {
 					String rinterest = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
 							+ "<i class='fa fa-sign-in'></i>"
-							+ "<a id='"+doc.getString("mgi_accession_id")+"' class='regInterest primary interest' href=''>&nbsp;Register interest</a>"
+							+ "<a id='"+doc.getMgiAccessionId()+"' class='regInterest primary interest' href=''>&nbsp;Register interest</a>"
 							+ "</div>";
 					
 					rowData.add(rinterest);					
@@ -706,18 +723,18 @@ public class DataTableController {
 		return StringUtils.join(imgPath, "");
 	}
 
-	private String concateGeneInfo(JSONObject doc, JSONObject json, String qryStr, HttpServletRequest request){
+	private String concateGeneInfo(GeneDTO doc, String qryStr, HttpServletRequest request){
 		
 		List<String> geneInfo = new ArrayList<String>();	
 		
-		String markerSymbol = "<span class='gSymbol'>" + doc.getString("marker_symbol") + "</span>";		
-		String mgiId = doc.getString("mgi_accession_id");
+		String markerSymbol = "<span class='gSymbol'>" + doc.getMarkerSymbol() + "</span>";		
+		String mgiId = doc.getMgiAccessionId();
 		//System.out.println(request.getAttribute("baseUrl"));
 		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;		
 		//String markerSymbolLink = "<a href='" + geneUrl + "' target='_blank'>" + markerSymbol + "</a>";
 		String markerSymbolLink = "<a href='" + geneUrl + "'>" + markerSymbol + "</a>";
 				
-		String[] fields = {"marker_name", "human_gene_symbol","marker_synonym"};			
+		String[] fields = {GeneDTO.MARKER_NAME, GeneDTO.HUMAN_GENE_SYMBOL,GeneDTO.MARKER_SYNONYM};			
 		for( int i=0; i<fields.length; i++){		
 			try {				
 				//"highlighting":{"MGI:97489":{"marker_symbol":["<em>Pax</em>5"],"synonym":["<em>Pax</em>-5"]},
@@ -726,22 +743,22 @@ public class DataTableController {
 				String field = fields[i];				
 				List<String> info = new ArrayList<String>();
 				
-				if ( field.equals("marker_name") ){
+				if ( field.equals(GeneDTO.MARKER_NAME) ){
 					//info.add(doc.getString(field));
-					info.add(Tools.highlightMatchedStrIfFound(qryStr, doc.getString(field), "span", "subMatch"));
+					info.add(Tools.highlightMatchedStrIfFound(qryStr, doc.getMarkerName(), "span", "subMatch"));
 				}
-				else if ( field.equals("human_gene_symbol") ){					
-					JSONArray data = doc.getJSONArray(field);					
-					for( Object h : data ){							
+				else if ( field.equals(GeneDTO.HUMAN_GENE_SYMBOL) ){					
+					List<String> data = doc.getHumanGeneSymbol();					
+					for( String h : data ){							
 						//info.add(h.toString());
-						info.add(Tools.highlightMatchedStrIfFound(qryStr, h.toString(), "span", "subMatch"));
+						info.add(Tools.highlightMatchedStrIfFound(qryStr, h, "span", "subMatch"));
 					}							
 				}
-				else if ( doc.getJSONArray(field).size() > 0) {					
-					JSONArray data = doc.getJSONArray(field);
+				else if ( doc.getMarkerSynonym().size() > 0) {					
+					List<String> data = doc.getMarkerSynonym();
 					
-					for( Object d : data ){
-						info.add(Tools.highlightMatchedStrIfFound(qryStr, d.toString(), "span", "subMatch"));
+					for( String d : data ){
+						info.add(Tools.highlightMatchedStrIfFound(qryStr, d, "span", "subMatch"));
 					}
 					
 				}
