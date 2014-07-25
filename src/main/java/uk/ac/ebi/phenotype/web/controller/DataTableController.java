@@ -38,6 +38,7 @@ import net.sf.json.JSONSerializer;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -136,10 +137,20 @@ public class DataTableController {
 			showImgView = jParams.getBoolean("showImgView");
 		}
 		//System.out.println("query: "+ query);
-		List<GeneDTO> geneList = geneService.getDataTableJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
+		String content ="";
+		if(solrCoreName.equals("gene")){
+			QueryResponse rsp = geneService.getSearchGeneDataTableJson(solrParamStr, iDisplayStart, iDisplayLength);
+			long numberFound=rsp.getResults().getNumFound();
+			List<GeneDTO> geneList=rsp.getBeans(GeneDTO.class);
+			content = fetchDataTableJson(numberFound, request, geneList, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName);
+		}else{
+			JSONObject json = solrIndex.getDataTableJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
+			content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName);
+		}
+		
 		//System.out.println("JSON: "+ json);
 		
-		String content = fetchDataTableJson(request, geneList, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName);
+
 		
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 	}
@@ -181,29 +192,29 @@ public class DataTableController {
 		return jsonStr;
 	}
 	
-	public String fetchDataTableJson(HttpServletRequest request, List<GeneDTO> geneList, String mode, String query, String fqOri, int start, int length, String solrParams, boolean showImgView, String solrCoreName) throws IOException, URISyntaxException {
+	public String fetchDataTableJson(long numberFound, HttpServletRequest request, List<GeneDTO> geneList, String mode, String query, String fqOri, int start, int length, String solrParams, boolean showImgView, String solrCoreName) throws IOException, URISyntaxException {
 
 		String jsonStr = null;
 		if (mode.equals("geneGrid")) {
-			jsonStr = parseJsonforGeneDataTable(geneList, request, query, solrCoreName);
+			jsonStr = parseJsonforGeneDataTable(numberFound, geneList, request, query, solrCoreName);
 		} 
 		return jsonStr;
 	}
 
-	public String parseJsonforGeneDataTable(List<GeneDTO> json, HttpServletRequest request, String qryStr, String solrCoreName){	
+	public String parseJsonforGeneDataTable(long numberFound, List<GeneDTO> json, HttpServletRequest request, String qryStr, String solrCoreName){	
 				
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config, request);
 		
 		//replace this!!!!!!!
-		int totalDocs = 100;//json.getJSONObject("response").getInt("numFound");
+		//int totalDocs = 100;//json.getJSONObject("response").getInt("numFound");
 				
-		log.debug("TOTAL GENEs: " + totalDocs);
+		log.debug("TOTAL GENEs: " + numberFound);
 		
         JSONObject j = new JSONObject();
 		j.put("aaData", new Object[0]);
 		
-		j.put("iTotalRecords", totalDocs);
-		j.put("iTotalDisplayRecords", totalDocs);
+		j.put("iTotalRecords", numberFound);
+		j.put("iTotalDisplayRecords", numberFound);
 
 		for (int i = 0; i < json.size(); i++) {
 
@@ -222,10 +233,11 @@ public class DataTableController {
 			// ES cell/mice production status	
 			boolean toExport =false;//ind datatable controller always false in exportController is set to true
 			//String esCellProdStatus=doc.getESCellProductionStatus();
-			String esCellProdStatus=geneService.fetchEsCellStatus(doc, request, toExport);
+			String esCellProdStatus=geneService.fetchHtmlEsCellStatusForSearchDataTable(doc, request, toExport);
+			System.out.println("esCellProdStatus="+esCellProdStatus);
 			//String mouseProdStatus=doc.getMouseProductionStatus();
 			String mouseProdStatus = geneService.deriveLatestProductionStatusForEsCellAndMice(doc, request, toExport, geneLink);			
-			
+			System.out.println("mouseProdStatus="+mouseProdStatus);
 			String usefulString=esCellProdStatus+mouseProdStatus;
 			
 			rowData.add(usefulString);

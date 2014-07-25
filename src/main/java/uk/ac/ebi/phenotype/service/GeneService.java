@@ -569,37 +569,27 @@ public class GeneService {
 	/**
 	 * Gets the json string representation for the query.
 	 * 
-	 * @param query
-	 *            the query for which documents
-	 * @param core
-	 *            the solr core to query
 	 * @param gridSolrParams
 	 *            the default solr parameters to append to the query
-	 * @param mode
-	 *            the configuration mode to operate in
 	 * @param start
 	 *            where to start the offset
 	 * @param length
 	 *            how many documents to return
-	 * @param showImgView
-	 *            is this query showing the annotation view of the images
-	 *            (true/false)
+	 * 
 	 * @return
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public List<GeneDTO> getDataTableJson(String query, String core,
-			String gridSolrParams, String mode, int start, int length,
-			boolean showImgView) throws IOException, URISyntaxException {
+	public QueryResponse getSearchGeneDataTableJson(String gridSolrParams, int start, int length)
+	throws IOException, URISyntaxException {
 
 		if (gridSolrParams.equals("")) {
 			gridSolrParams = "qf=auto_suggest&defType=edismax&wt=json&q=*:*";
 		}
-		//return getResults(composeSolrUrl(core, mode, query, gridSolrParams,
-		//		start, length, showImgView));
+		// return getResults(composeSolrUrl(core, mode, query, gridSolrParams,
+		// start, length, showImgView));
 		try {
-			return getGeneDTOsForSolrUrl(composeSolrUrl(core, mode, query, gridSolrParams,
-			start, length, showImgView));
+			return getGeneResponseForSearchDataTableSolrUrl(composeSolrUrlForSearchGeneDataTable(gridSolrParams, start, length));
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -607,6 +597,7 @@ public class GeneService {
 		return null;
 
 	}
+
 
 	/**
 	 * Prepare a url for querying the solr indexes based on the passed in
@@ -628,34 +619,50 @@ public class GeneService {
 	 *            which image mode to operate in
 	 * @return the constructed url including all parameters
 	 */
-	private String composeSolrUrl(String core, String mode, String query,
-			String gridSolrParams, Integer iDisplayStart,
-			Integer iDisplayLength, boolean showImgView) {
-		
-		
-		//String url = "/" + core + "/select?";
-			String url="";			
-		//System.out.println(("BASEURL: " + url));
-				
-			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
-					+ iDisplayLength;
-			System.out.println("GENE PARAMS: " + url);
-		
-//			System.out.println("GRID DUMP PARAMS - " + core + ": " + url);
-		
-		// OTHER solrCoreNames to be added here
-		
+	private String composeSolrUrlForSearchGeneDataTable(String gridSolrParams, Integer iDisplayStart, Integer iDisplayLength) {
+
+		String url = "";
+		url += gridSolrParams + "&start=" + iDisplayStart + "&rows=" + iDisplayLength;
+		System.out.println("GENE PARAMS: " + url);
 		return url;
 	}
 
-	public List<GeneDTO> getGeneDTOsForSolrUrl(String solrUrl) throws SolrServerException {
 
-		SolrQuery solrQuery = new SolrQuery().setQuery(solrUrl).setRows(10);
-System.out.println("getGeneDTOsForSolrUrl solrUrl="+solrUrl);
-		QueryResponse rsp = solr.query(solrQuery);
-		return rsp.getBeans(GeneDTO.class); 
+	/**
+	 * 
+	 * @param solrUrl
+	 * @return
+	 * @throws SolrServerException
+	 */
+	public QueryResponse getGeneResponseForSearchDataTableSolrUrl(String solrUrl)
+	throws SolrServerException {
+
+		SolrQuery solrQuery = new SolrQuery();
+		String[] paramsKeyValues = solrUrl.split("&");
+		for (String paramKV : paramsKeyValues) {
+			System.out.println("paramKV=" + paramKV);
+			String[] keyValue = paramKV.split("=");
+			if (keyValue.length > 1) {
+				String key = keyValue[0];
+				String value = keyValue[1];
+				System.out.println("param=" + key + " value=" + value);
+				solrQuery.setParam(key, value);
+			}
+
+		}
+		// solrQuery.setQuery(solrUrl).setRows(10);
+		return getQueryResponseForSolrQuery(solrQuery);
 	}
-	
+
+
+	private QueryResponse getQueryResponseForSolrQuery(SolrQuery solrQuery)
+	throws SolrServerException {
+
+		QueryResponse rsp = solr.query(solrQuery);
+		return rsp;
+	}
+
+
 	/**
 	 * Get the latest production status of ES cells for a document.
 	 * 
@@ -663,48 +670,69 @@ System.out.println("getGeneDTOsForSolrUrl solrUrl="+solrUrl);
 	 *            represents a gene with imits status fields
 	 * @return the latest status at the gene level for ES cells as a string
 	 */
-	public String fetchEsCellStatus(GeneDTO doc, HttpServletRequest request, boolean toExport){
+	public String fetchHtmlEsCellStatusForSearchDataTable(GeneDTO doc, HttpServletRequest request, boolean toExport) {
+		this.fetchEsCellStatus(doc);
 		String mgiId = doc.getMgiAccessionId();
 		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;
-				
-		String esCellStatus = "";	
-		String exportEsCellStatus = "";	
-		try {	
+
+		String esCellStatus = "";
+		String exportEsCellStatus = "";
+		try {
 			// ES cell production status
-			if (doc.getLatestEsCellStatus()!=null &&  doc.getLatestEsCellStatus()!=""  ){
-				// blue es cell status				
+			if (doc.getLatestEsCellStatus() != null && doc.getLatestEsCellStatus() != "") {
+				// blue es cell status
 				esCellStatus = doc.getLatestEsCellStatus();
-				if ( esCellStatus.equals("ES Cells Produced") ){
-						esCellStatus = "<a class='status done' href='" + geneUrl + "' oldtitle='ES Cells produced' title=''>"
-									 + " <span>ES Cells</span>"
-									 + "</a>";
-						
-						exportEsCellStatus += "ES cells produced";
-				}
-				else if ( esCellStatus.equals("Assigned for ES Cell Production") ){
-						esCellStatus = "<span class='status inprogress' oldtitle='ES cells production in progress' title=''>"
-						   	 		 +  "	<span>ES Cells</span>"
-						   	 		 +  "</span>";
-						
-						exportEsCellStatus += "ES cells production in progress";
-				}
-				else {
+				if (esCellStatus.equals("ES Cells Produced")) {
+					esCellStatus = "<a class='status done' href='" + geneUrl + "' oldtitle='ES Cells produced' title=''>" + " <span>ES Cells</span>" + "</a>";
+
+					exportEsCellStatus += "ES cells produced";
+				} else if (esCellStatus.equals("Assigned for ES Cell Production")) {
+					esCellStatus = "<span class='status inprogress' oldtitle='ES cells production in progress' title=''>" + "	<span>ES Cells</span>" + "</span>";
+
+					exportEsCellStatus += "ES cells production in progress";
+				} else {
 					esCellStatus = "";
 					exportEsCellStatus = "No ES cell produced";
 				}
-			}	
-		}	
-		catch (Exception e) {
+			}
+		} catch (Exception e) {
 			log.error("Error getting ES cell Status");
 			log.error(e.getLocalizedMessage());
 		}
-			
-		if ( toExport ){
-			return exportEsCellStatus;
-		}
-		return esCellStatus; 
+
+		if (toExport) { return exportEsCellStatus; }
+		return esCellStatus;
 	}
-	
+
+	public String fetchEsCellStatus(GeneDTO doc) {
+//		String rawESCellStatus = "";
+//		String labelForESCellStatus = "";
+		String label="";
+		try {
+			// ES cell production status
+//			if (doc.getLatestEsCellStatus() != null && doc.getLatestEsCellStatus() != "") {
+				// blue es cell status
+				ESCellStatus cellStatusEnum =doc.getLatestESCellGeneStatus();
+				
+				label=cellStatusEnum.getLabel();
+//				if (rawESCellStatus.equals(ESCellStatus.ES_CELLS_PRODUCED.getLabel())) {
+//					labelForESCellStatus += "ES cells produced";
+//				} else if (rawESCellStatus.equals("Assigned for ES Cell Production")) {
+//					labelForESCellStatus += "ES cells production in progress";
+//				} else {
+//					labelForESCellStatus = "No ES cell produced";
+//				}
+//			}
+		} catch (Exception e) {
+			log.error("Error getting ES cell Status");
+			log.error(e.getLocalizedMessage());
+		}
+//System.out.println(label);
+//System.out.println(labelForESCellStatus);
+		//return labelForESCellStatus;
+		return label;
+	}
+
 	/**
 	 * Get the simplified production status of ES cells/mice for a document.
 	 * 
@@ -712,68 +740,62 @@ System.out.println("getGeneDTOsForSolrUrl solrUrl="+solrUrl);
 	 *            represents a gene with imits status fields
 	 * @return the latest status at the gene level for both ES cells and alleles
 	 */
-	public String deriveLatestProductionStatusForEsCellAndMice(GeneDTO doc, HttpServletRequest request, boolean toExport, String geneLink){		
-		
+	public String deriveLatestProductionStatusForEsCellAndMice(GeneDTO doc, HttpServletRequest request, boolean toExport, String geneLink) {
+
 		String exportMiceStatus = "";
-				
+
 		Map<String, String> sh = new HashMap<String, String>();
-				String miceStatus="";
-		try {		
-						
-			// mice production status			
-			// Mice: blue tm1/tm1a/tm1e... mice (depending on how many allele docs) 
-			if ( doc.getMouseStatus()!=null && !doc.getMouseStatus().equals("") ){
-				
-				List<String> alleleNames = doc.getAlleleName();				
+		String miceStatus = "";
+		try {
+
+			// mice production status
+			// Mice: blue tm1/tm1a/tm1e... mice (depending on how many allele
+			// docs)
+			if (doc.getMouseStatus() != null && !doc.getMouseStatus().equals("")) {
+
+				List<String> alleleNames = doc.getAlleleName();
 				List<String> mouseStatus = doc.getMouseStatus();
-				
-				for ( int i=0; i< mouseStatus.size(); i++ ) {		
-					String mouseStatusStr = mouseStatus.get(i).toString();					
+
+				for (int i = 0; i < mouseStatus.size(); i++) {
+					String mouseStatusStr = mouseStatus.get(i).toString();
 					sh.put(mouseStatusStr, "yes");
-				}		
-								
-				// if no mice status found but there is already allele produced, mark it as "mice produced planned"				
-				for ( int j=0; j< alleleNames.size(); j++ ) {
+				}
+
+				// if no mice status found but there is already allele produced,
+				// mark it as "mice produced planned"
+				for (int j = 0; j < alleleNames.size(); j++) {
 					String alleleName = alleleNames.get(j).toString();
-					//System.out.println("allele: " + alleleName);
-					if ( !alleleName.equals("") && !alleleName.equals("None") && !alleleName.contains("tm1e") && mouseStatus.get(j).toString().equals("") ){	
-						sh.put("mice production planned", "yes");						
-					}				
+					// System.out.println("allele: " + alleleName);
+					if (!alleleName.equals("") && !alleleName.equals("None") && !alleleName.contains("tm1e") && mouseStatus.get(j).toString().equals("")) {
+						sh.put("mice production planned", "yes");
+					}
 				}
-				
-				if ( sh.containsKey("Mice Produced") ){
-					miceStatus = "<a class='status done' oldtitle='Mice Produced' title='' href='" + geneLink + "#order'>"
-							   +  "<span>Mice</span>"
-							   +  "</a>";
-						
-					exportMiceStatus="mice produced";
+
+				if (sh.containsKey("Mice Produced")) {
+					miceStatus = "<a class='status done' oldtitle='Mice Produced' title='' href='" + geneLink + "#order'>" + "<span>Mice</span>" + "</a>";
+
+					exportMiceStatus = "mice produced";
+				} else if (sh.containsKey("Assigned for Mouse Production and Phenotyping")) {
+					miceStatus = "<a class='status inprogress' oldtitle='Mice production in progress' title=''>" + "<span>Mice</span>" + "</a>";
+					exportMiceStatus = "mice production in progress";
+				} else if (sh.containsKey("mice production planned")) {
+					miceStatus = "<a class='status none' oldtitle='Mice production planned' title=''>" + "<span>Mice</span>" + "</a>";
+					exportMiceStatus = "mice production in progress";
 				}
-				else if ( sh.containsKey("Assigned for Mouse Production and Phenotyping") ){
-					miceStatus = "<a class='status inprogress' oldtitle='Mice production in progress' title=''>"
-							   +  "<span>Mice</span>"
-							   +  "</a>";
-					exportMiceStatus="mice production in progress";
-				}
-				else if ( sh.containsKey("mice production planned") ){
-					miceStatus = "<a class='status none' oldtitle='Mice production planned' title=''>"
-							   +  "<span>Mice</span>"
-							   +  "</a>";
-					exportMiceStatus="mice production in progress";
-				}				
 			}
-			
-		} 
-		catch (Exception e) {
+
+		} catch (Exception e) {
 			log.error("Error getting Mice status");
 			log.error(e.getLocalizedMessage());
 		}
-		if(toExport){
+		if (toExport) {
 			return exportMiceStatus;
-		}else{
+		} else {
 			return miceStatus;
 		}
 	}
-	
+
+
 	/**
 	 * Get the latest phenotyping status for a document.
 	 * 
@@ -782,28 +804,24 @@ System.out.println("getGeneDTOsForSolrUrl solrUrl="+solrUrl);
 	 * @return the latest status (Complete or Started or Phenotype Attempt
 	 *         Registered) as appropriate for this gene
 	 */
-	public String deriveLatestPhenotypingStatus(GeneDTO doc){
+	public String deriveLatestPhenotypingStatus(GeneDTO doc) {
 
 		final String field = "latest_phenotype_status";
-		try {	
-			// Phenotyping complete			
-			if ( doc.getLatestPhenotypeStatus()!=null && !doc.getLatestPhenotypeStatus().equals("") ) {
+		try {
+			// Phenotyping complete
+			if (doc.getLatestPhenotypeStatus() != null && !doc.getLatestPhenotypeStatus().equals("")) {
 				String val = doc.getLatestPhenotypeStatus();
-				if ( val.equals("Phenotyping Started") || val.equals("Phenotyping Complete") ) {
-					return "Available";					
-				}
-			}		
-	
-			// for legacy data: indexed through experiment core (so not want Sanger Gene or Allele cores)
-			if (doc.getHasQc()!=null) {				
-				return "QC";			
+				if (val.equals("Phenotyping Started") || val.equals("Phenotyping Complete")) { return "Available"; }
 			}
-		}		
-		catch (Exception e) {
+
+			// for legacy data: indexed through experiment core (so not want
+			// Sanger Gene or Allele cores)
+			if (doc.getHasQc() != null) { return "QC"; }
+		} catch (Exception e) {
 			log.error("Error getting phenotyping status");
 			log.error(e.getLocalizedMessage());
 		}
-			
+
 		return "NA";
 	}
 }

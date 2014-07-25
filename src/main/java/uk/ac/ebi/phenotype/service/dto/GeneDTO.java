@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.apache.solr.client.solrj.beans.Field;
 
+import uk.ac.ebi.phenotype.service.ESCellStatus;
+
 public class GeneDTO {
 
 	public static final String DATA_TYPE = "dataType";
@@ -1397,6 +1399,10 @@ public class GeneDTO {
 		return "phenotypestatus";
 	}
 	
+	public ESCellStatus getLatestESCellGeneStatus(){
+		ESCellStatus cellStatusEnum=ESCellStatus.getByLabel(getLatestEsCellStatus());
+		return cellStatusEnum;
+	}
 	
 	@Override
 	public String toString() {

@@ -38,6 +38,14 @@
         </property>
     </bean>
     
+   <!-- phenodigm external solr server via HTTP -->
+	<bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
+		<constructor-arg index="0" value="${phenodigmSolrUrl}" />
+	</bean>
+
+	<!--this is the phenodigm DAO implementation we are looking for... -->
+	<bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl" />
+
 
     <bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
         <constructor-arg  value="${solrUrl}/experiment" />
