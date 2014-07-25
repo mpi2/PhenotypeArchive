@@ -228,13 +228,21 @@
                             <p>A table displaying more information about the data used to determine the pvalue and effect size is displayed below the graph.</p> 
                             
 
-							<h3>Staistics to Phenotype</h3>
+							<h3>Statistics to Phenotype</h3>
 							
-							<p>If the mutant genotype effect is a significant change from the control genotype, then the IMPC pipeline will
+							<p>If the mutant genotype effect represents a significant change from the control group, then the IMPC pipeline will
 							attempt to associate a <a href="http://www.informatics.jax.org/searches/MP_form.shtml">Mammalian Phenotype (MP) term</a> to the data.</p>
 							
-							<p>The particular MP terms defined for a parameter are maintained in IMPReSS.  Frequently, the term indicates and <strong>increase</strong> 
-							or <strong>decrease</strong> of the parameter measured, for instance, increased circulating glucose
+							<p>The particular MP term(s) defined for a parameter are maintained in <a href="https://www.mousephenotype.org/impress">IMPReSS</a>.  
+							Frequently, the term indicates an <strong>increase</strong> or <strong>decrease</strong> of the parameter measured.</p>
+							
+							<p>When a statistical result is determined as significant, the following diagram is used for associating MP term:</p>
+							<img src="img/stats_mpterms.png" />
+							
+							<h4>Significance</h4>
+							
+							<p>When a mutant genotype effect is less than 1.0E-4 (i.e. 0.0001) it is considered significant.</p>
+							
 
                         </div><%-- end of content div--%>
                     </div>
