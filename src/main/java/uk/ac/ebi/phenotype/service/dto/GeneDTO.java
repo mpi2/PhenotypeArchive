@@ -1387,17 +1387,17 @@ public class GeneDTO {
 		return true;
 	}
 
-	public String getESCellProductionStatus(){
-		return "escellstatus";
-	}
-	
-	public String getMouseProductionStatus(){
-		return "mouseprodstatus";
-	}
-	
-	public String getSummaryPhenotypeStatus(){
-		return "phenotypestatus";
-	}
+//	public String getESCellProductionStatus(){
+//		return "escellstatus";
+//	}
+//	
+//	public String getMouseProductionStatus(){
+//		return "mouseprodstatus";
+//	}
+//	
+//	public String getSummaryPhenotypeStatus(){
+//		return "phenotypestatus";
+//	}
 	
 	public ESCellStatus getLatestESCellGeneStatus(){
 		ESCellStatus cellStatusEnum=ESCellStatus.getByLabel(getLatestEsCellStatus());
