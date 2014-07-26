@@ -30,17 +30,17 @@ package org.mousephenotype.www.testing.model;
  * Instantiated subclasses provide the implementations and may add additional
  * column index getters.
  */
-public interface DownloadStructure {
-//    public int getColIndexPhenotype();
+public interface DownloadGraphMap {
+    // These are the column indexes in the TSV/XLS streams for the common elements
+    // that are validated in download code common to all graphs.
     public int getColIndexAlleleSymbol();
-    public int getColIndexZygosity();
-    public int getColIndexSex();
-//    public int getColIndexProcedureName();
-//    public int getColIndexParameterName();
+    public int getColIndexBackground();
+    public int getColIndexGeneSymbol();
+    public int getColIndexMetadataGroup();
+    public int getColIndexParameterName();
+    public int getColIndexParameterStableId();
+    public int getColIndexPipelineName();
     public int getColIndexPhenotypingCenter();
-//    public int getColIndexSource();
-//    public int getColIndexPvalue();
-//    public int getColIndexGraph();
+    
     public int getColumnCount();
-//    public int getColIndex(int tableIndex);
 }

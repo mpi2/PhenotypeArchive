@@ -38,78 +38,168 @@ import uk.ac.ebi.phenotype.pojo.Parameter;
  *
  * @author mrelac
  * 
- * This class encapsulates the code and data necessary to represent the important
- * components of a graph page.
+ * This abstract class encapsulates the code and data necessary to represent the important,
+ * common components of a graph page, such as: allele, background, phenotyping center,
+ * pipeline name, metadata group, procedure name and parameter name, and
+ * parameterStableId.
+ * 
+ * Currently there are no collections or links shared by all
+ * graphs; for those, consult subclasses such as
+ * GraphPageCategorical and GraphPageUnidimensional.
  */
 public class GraphPage {
     protected final WebDriver driver;
     protected final WebDriverWait wait;
     protected final String target;
     protected final String id;
-    protected PageStatus status;
-    
-    private GraphGlobalTestTable graphTable;
     protected final PhenotypePipelineDAO phenotypePipelineDAO;
+    protected final String baseUrl;
     
     // Page variables common to all graphs
-    private String alleleSymbol;
-    private String background;
-    private String geneSymbol;
-    private String metadataGroup;
-    private String parameterName;
-    private String parameterStableId;
-    private String phenotypingCenter;
-    private String pipelineName;
-    private String title;
-    
-    // Page variables exclusive to unidimensional graphs
-    private String graphByDateUrl;
-    private String[][] globalTestTable;
-    private String[][] continuousTable;
-    
-    // Page variables exclusive to categorical graphs
-    private String[][] catTable;
+    protected String title;
+    protected String alleleSymbol;
+    protected String background;
+    protected String geneSymbol;
+    protected String metadataGroup;
+    protected String parameterName;
+    protected String parameterStableId;
+    protected String phenotypingCenter;
+    protected String pipelineName;
     
     // Database parameter variables
-    private ObservationType graphType;
-    private Parameter parameterObject;
+    protected ObservationType graphType;
+    protected Parameter parameterObject;
     
-    private final String GRAPH_BY_DATE = "Graph by date";
-
     /**
+     * Creates a new <code>GraphPage</code> instance
      * 
      * @param driver <code>WebDriver</code> instance
      * @param wait <code>WebDriverWait</code> instance
-     * @param target gene or phenotype page target
-     * @param id gene or phenotype id
+     * @param target graph page target to load
+     * @param id id of the associated gene or phenotype
      * @param phenotypePipelineDAO <code>PhenotypePipelineDAO</code> instance
+     * @param baseUrl A fully-qualified hostname and path, such as
+     *   http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      */
-    public GraphPage(WebDriver driver, WebDriverWait wait, String target, String id, PhenotypePipelineDAO phenotypePipelineDAO) {
+    public GraphPage(WebDriver driver, WebDriverWait wait, String target, String id, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl) {
         this.driver = driver;
         this.wait = wait;
+////////////target = "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:2150037&zygosity=homozygote&allele_accession=MGI:4842891&parameter_stable_id=ESLIM_006_001_027&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI";
+////////////target = "https://dev.mousephenotype.org/data/charts?accession=MGI:2444584&zygosity=homozygote&allele_accession=MGI:4362924&parameter_stable_id=ESLIM_015_001_018&pipeline_stable_id=ESLIM_002&phenotyping_center=HMGU";
         this.target = target;
         this.id = id;
         this.phenotypePipelineDAO = phenotypePipelineDAO;
-        status = new PageStatus();
-        
-        load();
+        this.baseUrl = baseUrl;
+        loadScalar();
     }
 
-    
+    /**
+     * 
+     * @return a new instance of <code>GraphPageCategorical</code> created from the
+     * scalars on this <code>GraphPage</code>.
+     * @throws Exception if this page is not of <code>ObservationType</code>
+     * <i>categorical</i>
+     */
+    public GraphPageCategorical createGraphPageCategorical() throws Exception {
+        return new GraphPageCategorical(driver, wait, target, id, phenotypePipelineDAO, baseUrl, this);
+    }
     
     /**
-     * Validates the basic components of the page. Does not validate page
+     * 
+     * @return a new instance of <code>GraphPageUnidimensional</code> created from the
+     * scalars on this <code>GraphPage</code>.
+     * @throws Exception if this page is not of <code>ObservationType</code>
+     * <i>unidimensional</i>
+     */
+    public GraphPageUnidimensional createGraphPageUnidimensional() throws Exception {
+        return new GraphPageUnidimensional(driver, wait, target, id, phenotypePipelineDAO, baseUrl, this);
+    }
+    
+    /**
+     * Validates the basic, scalar components of the page. Does not validate page
      * collections.
      * 
-     * @param baseUrl A fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      * @return status
      */
-    public PageStatus validatePage(String baseUrl) {
+    public PageStatus validateScalar() {
         PageStatus status = new PageStatus();
+        // Verify title contains 'Allele'.
+        if ( ! title.contains("Allele")) {
+            status.addError("ERROR: expected title to contain 'Allele'. Title is '" + title + "'. URL: " + target);
+        }
+        
+        // Verify parameter name on graph matches that in the Parameter instance.
+        // NOTE: Time Series graphs have the string 'MEAN ' prepended to the parameter name!!! Test accordingly.
+        String expectedParameterName = parameterObject.getName().trim();
+        if (graphType == ObservationType.time_series)
+            expectedParameterName = "MEAN " + expectedParameterName;
+        if (expectedParameterName.compareTo(parameterName) != 0) {
+            status.addError("ERROR: parameter name mismatch. parameter on graph: '" + parameterName + "'. from parameterDAO: " + parameterObject.getName() + ": " + target);
+        }
         
         return status;
     }
     
+    
+    // PROTECTED METHODS
+    
+    /**
+     * This protected method validates the scalar parts of the download - those
+     * parts that appear in the graph heading, such as <i>allele, gene,
+     * background, phenotyping center</i> etc., that are common to calling
+     * subtypes.
+     * 
+     * @param data the download stream data
+     * @param graphMap the graph column index map defining the column offsets in
+     * <code>data</code>
+     * @return validation status
+     */
+    protected PageStatus validateScalarDownload(String[][] data, DownloadGraphMap graphMap) {
+        PageStatus status = new PageStatus();
+        
+        // Test graph page parameters against first [non-heading] download stream row.
+        if (data.length < 2) {
+            status.addError(("ERROR: Expected at least one row of data."));
+        } else {
+            String cellValue = data[1][graphMap.getColIndexAlleleSymbol()];
+            if (getAlleleSymbol().compareTo(cellValue) != 0) {
+                status.addError("ERROR: mismatch: page alleleSymbol: '" + getAlleleSymbol() + "'. Download alleleSymbol: '" + cellValue + "'");
+            }
+            cellValue = data[1][graphMap.getColIndexBackground()];
+            if (getBackground().compareTo(cellValue) != 0) {
+                status.addError("ERROR: mismatch: page background: '" + getBackground() + "'. Download background: '" + cellValue + "'");
+            }
+            cellValue = data[1][graphMap.getColIndexGeneSymbol()];
+            if (getGeneSymbol().compareTo(cellValue) != 0) {
+                status.addError("ERROR: mismatch: page geneSymbol: '" + getGeneSymbol() + "'. Download geneSymbol: '" + cellValue + "'");
+            }
+            cellValue = data[1][graphMap.getColIndexMetadataGroup()];
+            if (getMetadataGroup().compareTo(cellValue) != 0) {
+                status.addError("ERROR: mismatch: page metadataGroup: '" + getMetadataGroup() + "'. Download metadataGroup: '" + cellValue + "'");
+            }
+            cellValue = data[1][graphMap.getColIndexParameterName()];
+            if (getParameterName().compareTo(cellValue) != 0) {
+                status.addError("ERROR: mismatch: page parameterName: '" + getParameterName() + "'. Download parameterName: '" + cellValue + "'");
+            }
+            cellValue = data[1][graphMap.getColIndexParameterStableId()];
+            if (getParameterStableId().compareTo(cellValue) != 0) {
+                status.addError("ERROR: mismatch: page parameterStableId: '" + getParameterStableId() + "'. Download parameterStableId: '" + cellValue + "'");
+            }
+            cellValue = data[1][graphMap.getColIndexPhenotypingCenter()];
+            if (getPhenotypingCenter().compareTo(cellValue) != 0) {
+                status.addError("ERROR: mismatch: page phenotypingCenter: '" + getPhenotypingCenter() + "'. Download phenotypingCenter: '" + cellValue + "'");
+            }
+            cellValue = data[1][graphMap.getColIndexPipelineName()];
+            if (getPipelineName().compareTo(cellValue) != 0) {
+                status.addError("ERROR: mismatch: page pipelineName: '" + getPipelineName() + "'. Download pipelineName: '" + cellValue + "'");
+            }
+        }
+        
+        return status;
+    }
+    
+    
+    // GETTERS AND SETTERS
     
     
     public WebDriver getDriver() {
@@ -127,15 +217,7 @@ public class GraphPage {
     public String getId() {
         return id;
     }
-
-    public PageStatus getStatus() {
-        return status;
-    }
-
-    public GraphGlobalTestTable getGraphTable() {
-        return graphTable;
-    }
-
+    
     public PhenotypePipelineDAO getPhenotypePipelineDAO() {
         return phenotypePipelineDAO;
     }
@@ -172,26 +254,6 @@ public class GraphPage {
         return pipelineName;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public String getGraphByDateUrl() {
-        return graphByDateUrl;
-    }
-
-    public String[][] getGlobalTestTable() {
-        return globalTestTable;
-    }
-
-    public String[][] getContinuousTable() {
-        return continuousTable;
-    }
-
-    public String[][] getCatTable() {
-        return catTable;
-    }
-
     public ObservationType getGraphType() {
         return graphType;
     }
@@ -200,434 +262,82 @@ public class GraphPage {
         return parameterObject;
     }
 
-    public String getGRAPH_BY_DATE() {
-        return GRAPH_BY_DATE;
+    public String getTitle() {
+        return title;
     }
 
-////////    /**
-////////     * Uses the <code>WebDriver</code> driver, provided via the constructor to
-////////     * parse the graph page (which must currently be showing).
-////////     * @return a new <code>GraphParsingStatus</code> status instance containing
-////////     * failure counts and messages.
-////////     */
-////////    public GraphParsingStatus parse() {
-////////        return parse(new GraphParsingStatus());
-////////    }
-    
-////////    /**
-////////     * Uses the <code>WebDriver</code> driver, provided via the constructor to
-////////     * parse the graph page (which must currently be showing).
-////////     * @param status caller-supplied status instance to be used
-////////     * @return the passed-in <code>GraphParsingStatus</code> status, updated with
-////////     * any failure counts and messages.
-////////     */
-////////    public GraphParsingStatus parse(GraphParsingStatus status) {
-//////////        // Save title.
-//////////        try {
-//////////            title = driver.findElement(By.cssSelector("h2#section-associations")).getText();
-//////////        } catch (Exception e) {
-//////////            status.addFail("ERROR: parse() unable to get 'Allele' title.");
-//////////        }
-//////////        
-//////////        // Save parameter and parameterStableId.
-//////////        List<WebElement> textElementList = driver.findElements(By.cssSelector("div[id*='chart'] text.highcharts-title"));
-//////////        if (textElementList.size() > 0)
-//////////            parameterName = textElementList.get(0).getText().trim();
-//////////        textElementList = driver.findElements(By.cssSelector("div[id*='chart'] text.highcharts-subtitle"));
-//////////        if (textElementList.size() > 0)
-//////////            parameterStableId = textElementList.get(0).getText().trim();
-//////////        
-//////////        // Save other link(s) of interest.
-//////////        List<WebElement> otherLinksList = driver.findElements(By.cssSelector("div.section a").linkText(GRAPH_BY_DATE));
-//////////        if ( ! otherLinksList.isEmpty())
-//////////            graphByDateUrl = otherLinksList.get(0).getAttribute("href");
-////////        
-////////        // Use the parameterStableId to get the Parameter object.
-////////        parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
-////////        
-////////        // Set the graph type from the parameterDAO.
-////////        graphType = Utilities.checkType(parameterObject, parameterObject.getDatatype());
-////////        
-////////        graphType = Utilities.checkType(parameterObject, parameterObject.getDatatype());
-////////        
-////////        
-////////        
-////////        // Determine if there is a summary table, and if so, add its data.
-////////        // Summary tables are identified by the table class 'globalTest'.
-////////        WebElement summaryTable = null;
-////////        // Unidimensional (and Scatter view).
-////////        List<WebElement> uniTableList = driver.findElements(By.cssSelector("table.globalTest"));
-////////        if ( ! uniTableList.isEmpty()) {
-////////            summaryTable = uniTableList.get(0);
-////////        }
-////////        if (summaryTable != null) {
-////////            graphTable = new GraphGlobalTestTable(summaryTable, driver.getCurrentUrl());
-////////        }
-////////        
-////////        return status;
-////////    }
-    
-    /**
-     * Validates this <code>GraphPage</code> instance
-     * @return a new <code>GraphParsingStatus</code> status instance containing
-     * success and failure counts and messages.
-     */
-    public final GraphParsingStatus validate() {
-        return validate(new GraphParsingStatus());
-    }
-    
-    /**
-     * Validates this <code>GraphPage</code> instance, using the caller-provided
-     * status instance
-     * @param status caller-supplied status instance to be used
-     * @return the passed-in <code>GraphParsingStatus</code> status, updated with
-     * any success and failure counts and messages.
-     */
-    public final GraphParsingStatus validate(GraphParsingStatus status) {
-        // Verify title contains 'Allele'.
-        if ( ! title.contains("Allele")) {
-            status.addFail("ERROR: expected title to contain 'Allele'. Title is '" + title + "'. URL: " + target);
-        }
-        
-        // Verify parameter name on graph matches that in the Parameter instance.
-        // NOTE: Time Series graphs have the string 'MEAN ' prepended to the parameter name!!! Test accordingly.
-        String expectedParameterName = parameterObject.getName().trim();
-        if (graphType == ObservationType.time_series)
-            expectedParameterName = "MEAN " + expectedParameterName;
-        if (expectedParameterName.compareTo(parameterName) != 0) {
-            status.addFail("ERROR: parameter name mismatch. parameter on graph: '" + parameterName + "'. from parameterDAO: " + parameterObject.getName() + ": " + target);
-        }
-        
-        // If there is a summary table (i.e. data is not null/empty), validate it.
-        if (graphTable != null) {
-            graphTable.validate(status);
-        }
-
-        // If this is a Time Series graph or a Unidimensional graph, there must be a 'Graph by date' link.
-        // Invoke it, parse it, and compare the two title, parameter, and parameterStableId values. You can't
-        // check the Box Plot link because there is no href - just an id named 'goBack'.
-        if ((graphType == ObservationType.time_series) || (graphType == ObservationType.unidimensional)) {
-            if (graphByDateUrl == null) {
-                status.addFail("ERROR: Expected '" + GRAPH_BY_DATE + "' link but none found. URL: " + target);
-            }
-            GraphPage graphByDatePage = null;
-            driver.get(graphByDateUrl);
-            try {
-                graphByDatePage = new GraphPage(driver, wait, graphByDateUrl, id, phenotypePipelineDAO);
-                graphByDatePage.parse(status);
-                if (title.compareTo(graphByDatePage.getTitle()) != 0) {
-                    status.addFail("ERROR: Expected title '" + title + "' but found '" + graphByDatePage.getTitle() + "'.");
-                }
-                // NOTE: Time Series graphs have the string 'MEAN ' prepended to the parameter name!!! Test accordingly.
-                // USE 'contains' because of prepended 'MEAN ' for time series graphs.
-                if ( ! parameterName.contains(graphByDatePage.getParameterName())) {
-                    status.addFail("ERROR: Expected parameter '" + parameterName + "' but found '" + graphByDatePage.getParameterName() + "'.");
-                }
-                if (parameterStableId.compareTo(graphByDatePage.getParameterStableId()) != 0) {
-                    status.addFail("ERROR: Expected parameterStableId '" + parameterStableId + "' but found '" + graphByDatePage.getParameterStableId() + "'.");
-                }
-            } catch (Exception e) {
-                status.addFail("ERROR: This graph's '" + GRAPH_BY_DATE + "' is bad. This URL: " + target);
-            }
-
-            if (graphType == ObservationType.unidimensional) {
-                // If the original graph (represented by the 'this' object') is a Unidimensional graph,
-                // it must have a summary table. Compare the two data objects; they should be exactly equal.
-                if (graphByDatePage == null) {
-                    status.addFail("ERROR: Expected a summary page but found none. " + target);
-                } else {
-                    if ( ! graphTable.isEqual(graphByDatePage.graphTable)) {
-                        status.addFail("ERROR: this graph and its '" + GRAPH_BY_DATE + "' graph are not equal.\nThis URL: " + target + "\n'" + GRAPH_BY_DATE + "' URL: " + graphByDatePage.target);
-                    }
-                }
-            }
-        }
-        
-        return status;
-    }
-    
-//    protected void validateStaticDownloadData(String[][] data, DownloadStructureUnidimensional dsGraph) {
-//        // Test graph page parameters against first [non-heading] download stream row.
-//        if (data.length < 2) {
-//            status.addError(("ERROR: Expected at least one row of data."));
-//        } else {
-//            String cellValue = data[1][dsGraph.getColIndexAllele()];
-//            if (alleleSymbol.compareTo(cellValue) != 0) {
-//                status.addError("ERROR: mismatch: page alleleSymbol: '" + alleleSymbol + "'. Download alleleSymbol: '" + cellValue + "'");
-//            }
-//            cellValue = data[1][dsGraph.getColIndexBackground()];
-//            if (background.compareTo(cellValue) != 0) {
-//                status.addError("ERROR: mismatch: page background: '" + background + "'. Download background: '" + cellValue + "'");
-//            }
-//            cellValue = data[1][dsGraph.getColIndexGeneSymbol()];
-//            if (geneSymbol.compareTo(cellValue) != 0) {
-//                status.addError("ERROR: mismatch: page geneSymbol: '" + geneSymbol + "'. Download geneSymbol: '" + cellValue + "'");
-//            }
-//            cellValue = data[1][dsGraph.getColIndexMetadataGroup()];
-//            if (metadataGroup.compareTo(cellValue) != 0) {
-//                status.addError("ERROR: mismatch: page metadata: '" + metadataGroup + "'. Download metadata: '" + cellValue + "'");
-//            }
-//            cellValue = data[1][dsGraph.getColIndexParameterName()];
-//            if (parameterName.compareTo(cellValue) != 0) {
-//                status.addError("ERROR: mismatch: page parameterName: '" + parameterName + "'. Download parameterName: '" + cellValue + "'");
-//            }
-//            cellValue = data[1][dsGraph.getColIndexParameterStableId()];
-//            if (parameterStableId.compareTo(cellValue) != 0) {
-//                status.addError("ERROR: mismatch: page parameterStableId: '" + parameterStableId + "'. Download parameterStableId: '" + cellValue + "'");
-//            }
-//            cellValue = data[1][dsGraph.getColIndexPhenotypingCenter()];
-//            if (phenotypingCenter.compareTo(cellValue) != 0) {
-//                status.addError("ERROR: mismatch: page phenotypingCenter: '" + phenotypingCenter + "'. Download phenotypingCenter: '" + cellValue + "'");
-//            }
-//            cellValue = data[1][dsGraph.getColIndexPipelineName()];
-//            if (pipelineName.compareTo(cellValue) != 0) {
-//                status.addError("ERROR: mismatch: page pipelineName: '" + pipelineName + "'. Download pipelineName: '" + cellValue + "'");
-//            }
-//        }
-//    }
-    
-//    public void validateDynamicDownloadCategorical() {
-//        List<WebElement> weList;
-//        
-//        // Validate that the graph type has the expected components.
-//        if (getGraphType() != ObservationType.categorical) {
-//            status.addError("ERROR: Expected categorical graph. URL: " + target);
-//        }
-//                
-//        weList = driver.findElements(By.xpath("table[@id='catTable']"));
-//        if (weList.isEmpty()) {
-//            status.addError("ERROR: categorical table has no catTable.");
-//        }
-//    }
-    
-//    public void validateDynamicDownloadUnidimensional() {
-//        List<WebElement> weList = null;
-//        // Validate that the graph type has the expected components.
-//        switch (getGraphType()) {
-//            case categorical:
-//                weList = driver.findElements(By.xpath("table[@id='catTable']"));
-//                if (weList.isEmpty()) {
-//                    status.addError("ERROR: categorical table has no catTable.");
-//                }
-//                break;
-//                
-//            case unidimensional:
-//                if (graphByDateUrl == null) {
-//                    status.addError("ERROR: unidimensional graph has no 'Graph by date' link.");
-//                }
-//                weList = driver.findElements(By.xpath("//table[@class='globalTest']"));
-//                if (weList.isEmpty()) {
-//                    status.addError("ERROR: unidimensional graph has no 'globalTest' table.");
-//                }
-//                weList = driver.findElements(By.xpath("//table[@id='continuousTable']"));
-//                if (weList.isEmpty()) {
-//                    status.addError("ERROR: unidimensional graph has no 'continuousTable' table.");
-//                }
-//                
-//            default:
-//                break;
-//        }
-//    }
-    
-    
-//    protected void validateGraphTable(String[][] data) {
-//        System.out.println("BAD!");
-//    }
-    
-////    /**
-////     * Test the download links. This test is noticeably different from the gene
-////     * and pheno page download link tests in that those pages have phenotype
-////     * tables that closely match the download stream. The graph page and download
-////     * stream are much different. For the graph page we must test:
-////     * <ul><li>that the TSV and XLS links create a download stream</li>
-////     * <li>that the graph page parameters, such as <code>pipeline name</code>,
-////     * <code>pipelineStableId</code>, <code>parameterName</code>, etc. match</li>
-////     * <li>that the HTML graph summary table counts match the sum of the
-////     * requisite values in the download stream</li></ul>
-////     * 
-////     * @param baseUrl the base url from which the download target TSV and XLS
-////     * are built
-////     * @return status
-////     */
-////    protected PageStatus validateDownloadProtected(String baseUrl) {
-////        try {
-////            // Test the TSV.
-////            // Typically baseUrl is a fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve.
-////            // getDownloadTargetUrlBase() typically returns a path of the form '/mi/impc/dev/phenotype-archive/export?xxxxxxx...'.
-////            // To create the correct url for the stream, replace everything in downloadTargetUrlBase before '/export?' with the baseUrl.
-////            String downloadTargetUrlBase = driver.findElement(By.xpath("//div[@id='exportIconsDivGlobal']")).getAttribute("data-exporturl");
-////            
-////            String downloadTargetTsv = TestUtils.patchUrl(baseUrl, downloadTargetUrlBase + "tsv", "/export?");
-////            
-//////            
-//////            int pos = downloadTargetUrlBase.indexOf("/export?");
-//////            downloadTargetUrlBase = downloadTargetUrlBase.substring(pos);
-//////            String downloadTargetTsv = baseUrl + downloadTargetUrlBase + "tsv";
-////            
-////            // Get the download stream and statistics.
-////            URL url = new URL(downloadTargetTsv);
-////            DataReaderTsv dataReaderTsv = new DataReaderTsv(url);
-////            String[][] data = dataReaderTsv.getData();                          // Get all of the data
-////            validateStaticDownloadData(data);                                   // ... and validate it
-////            
-////            // Test the graph summary table.
-////            validateGraphTable(data);
-////            
-////            
-////            // Test the XLS.
-////            String downloadTargetXls = TestUtils.patchUrl(baseUrl, downloadTargetUrlBase + "xls", "/export?");
-////            
-////            // Get the download stream and statistics.
-////            url = new URL(downloadTargetXls);
-////            DataReaderXls dataReaderXls = new DataReaderXls(url);
-////            data = dataReaderXls.getData();                                     // Get all of the data
-////            validateStaticDownloadData(data);                                   // ... and validate it
-////            
-////            // Test the graph summary table.
-////            validateGraphTable(data);
-////        } catch (NoSuchElementException | TimeoutException te) {
-////            String message = "Expected page for ID " + id + "(" + target + ") but found none.";
-////            status.addError(message);
-////        }  catch (Exception e) {
-////            String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-////            status.addError(message);
-////        }
-////        
-////        return status;
-////    }
-    
-    
-//////    /**
-//////     * Test the download links. This test is noticeably different from the gene
-//////     * and pheno page download link tests in that those pages have phenotype
-//////     * tables that closely match the download stream. The graph page and download
-//////     * stream are much different. For the graph page we must test:
-//////     * <ul><li>that the TSV and XLS links create a download stream</li>
-//////     * <li>that the graph page parameters, such as <code>pipeline name</code>,
-//////     * <code>pipelineStableId</code>, <code>parameterName</code>, etc. match</li>
-//////     * <li>that the HTML graph summary table counts match the sum of the
-//////     * requisite values in the download stream</li></ul>
-//////     * 
-//////     * @param baseUrl the base url from which the download target TSV and XLS
-//////     * are built
-//////     * @return status
-//////     */
-//////    public PageStatus testDownload(String baseUrl) {
-//////        PageStatus status = new PageStatus();
-//////            
-//////        try {
-//////            // Test the TSV.
-//////            // Typically baseUrl is a fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve.
-//////            // getDownloadTargetUrlBase() typically returns a path of the form '/mi/impc/dev/phenotype-archive/export?xxxxxxx...'.
-//////            // To create the correct url for the stream, replace everything in downloadTargetUrlBase before '/export?' with the baseUrl.
-//////            String downloadTargetUrlBase = driver.findElement(By.xpath("//div[@id='exportIconsDivGlobal']")).getAttribute("data-exporturl");
-//////            int pos = downloadTargetUrlBase.indexOf("/export?");
-//////            downloadTargetUrlBase = downloadTargetUrlBase.substring(pos);
-//////            String downloadTargetTsv = baseUrl + downloadTargetUrlBase + "tsv";
-//////            String downloadTargetXls = baseUrl + downloadTargetUrlBase + "xls";
-//////            
-//////            // Get the download stream and statistics.
-//////            URL url = new URL(downloadTargetTsv);
-//////            DataReaderTsv dataReaderTsv = new DataReaderTsv(url);
-//////            
-//////            
-//////            String[][] data = dataReaderTsv.getData();                          // Get all of the data
-//////            status = validateStaticDownloadData(data);                          // ... and validate it
-//////        } catch (NoSuchElementException | TimeoutException te) {
-//////            String message = "Expected page for ID " + id + "(" + target + ") but found none.";
-//////            status.addError(message);
-//////        }  catch (Exception e) {
-//////            String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-//////            status.addError(message);
-//////        }
-//////        
-//////        return status;
-//////    }
-    
-    
-    // PROTECTED METHODS
-    
-    
     
     // PRIVATE METHODS
+
     
     /**
-     * Load the page.
-     * @return <code>PageStatus</code> telling whether or not the load was 
-     * successful.
+     * Load the page and its scalar variables (not collections).
      */
-    private void load() {
-        String message;
-        
-        // Wait for page to load.
+    protected final void loadScalar() {
         try {
+            // Wait for page to loadScalar.
             driver.get(target);
-            WebElement baseElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='exportIconsDivGlobal']/p/button[1]")));
-
+            
             // Initialize page component variables read from page.
-            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='chart'][@graphurl]/h2[@id='section-associations']")));
-            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='chart'][@graphurl]/h2[@id='section-associations']")));
-            AlleleParser alleleParser = new AlleleParser()
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@data-exporturl]")));
+            
+            WebElement titleElement = null;
+            // Sometimes the chart isn't loaded when the 'wait()' ends, so try a few times.
+            for (int i = 0; i < 10; i++) {
+                try {
+                    titleElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h2[@id='section-associations']")));
+                    break;
+                } catch (Exception e) {
+                    System.out.println("Waiting " + (i + 1 * 10) + " milliseconds.");
+                    TestUtils.sleep(10);
+                }
+                if (titleElement != null)
+                    break;
+            }
+            
+            if (titleElement == null) {
+                throw new RuntimeException("GraphPage.loadScalar(): Wait to get chart timed out!");
+            }
+            this.title = titleElement.getText().trim();
+            String rawAllele = title.replace("Allele - ", "");
+            String sup = titleElement.findElement(By.xpath("//sup")).getText();
+            AlleleParser alleleParser = new AlleleParser(rawAllele, sup);
             Line1Parser line1Parser = new Line1Parser();
             Line2Parser line2Parser = new Line2Parser();
             SvgDivParser svgDigParser = new SvgDivParser();
             
-            this.alleleSymbol = alleleParser.allele;
+            this.alleleSymbol = alleleParser.toString();
             this.background = line1Parser.background;
             this.geneSymbol = alleleParser.gene;
-            List<WebElement> weList = baseElement.findElements(By.xpath("//div[@class='section half']/a"));
-            if ( ! weList.isEmpty())
-                this.graphByDateUrl = weList.get(0).getAttribute(("href"));
             this.metadataGroup = line2Parser.metadataGroup;
             this.parameterName = svgDigParser.parameterName;
             this.parameterStableId = svgDigParser.parameterStableId;
             this.phenotypingCenter = line1Parser.phenotypingCenter;
             this.pipelineName = line1Parser.pipelineName;
-            this.title = alleleParser.title;
+            this.parameterObject = svgDigParser.parameterObject;
             
-            
-  System.out.println("alleleSymbol:      '" + this.alleleSymbol + "'");
-  System.out.println("background:        '" + this.background + "'");
-  System.out.println("geneSymbol:        '" + this.geneSymbol + "'");
-  System.out.println("graphByDateUrl:    '" + this.graphByDateUrl + "'");
-  System.out.println("metadataGroup:     '" + this.metadataGroup + "'");
-  System.out.println("parameterName:     '" + this.parameterName + "'");
-  System.out.println("parameterStableId: '" + this.parameterStableId + "'");
-  System.out.println("phenotypingCenter: '" + this.phenotypingCenter + "'");
-  System.out.println("pipelineName:      '" + this.pipelineName + "'");
-  System.out.println("title:             '" + this.title + "'");
-            
-            // Initialize database component. Use the parameterStableId to get the Parameter object.
-            parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
-
             // Set the graph type from the parameterDAO.
             graphType = Utilities.checkType(parameterObject, parameterObject.getDatatype());
+            
+//  System.out.println("title:             '" + this.title + "'");
+//  System.out.println("alleleSymbol:      '" + this.alleleSymbol + "'");
+//  System.out.println("background:        '" + this.background + "'");
+//  System.out.println("geneSymbol:        '" + this.geneSymbol + "'");
+//  System.out.println("metadataGroup:     '" + this.metadataGroup + "'");
+//  System.out.println("parameterName:     '" + this.parameterName + "'");
+//  System.out.println("parameterStableId: '" + this.parameterStableId + "'");
+//  System.out.println("phenotypingCenter: '" + this.phenotypingCenter + "'");
+//  System.out.println("pipelineName:      '" + this.pipelineName + "'");
+//  System.out.println("graphType:         '" + this.graphType + "'");
+            
         } catch (NoSuchElementException | TimeoutException te ) {
-            message = "Expected page for ID " + id + "(" + target + ") but found none. URL: " + target;
-            status.addError(message);
+            System.out.println("Expected page for ID " + id + "(" + target + ") but found none. URL: " + target);
+            throw te;
         } catch (Exception e) {
-            message = "EXCEPTION processing page: " + e.getLocalizedMessage() + "\nURL: " + target;
-            status.addError(message);
+            System.out.println("EXCEPTION processing page: " + e.getLocalizedMessage() + "\nURL: " + target);
+            throw e;
         }
     }
-    
-//    private class AlleleParser {
-//        String gene;
-//        String allele;
-//        String title;
-//
-//        public AlleleParser() {
-//            try {
-//                WebElement alleleElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='chart'][@graphurl]/h2[@id='section-associations']")));
-//                title = alleleElement.getText().trim();
-//                String alleleSup = alleleElement.findElement(By.xpath("//sup")).getText().trim();
-//                gene = title.replace("Allele - ", "").replace(alleleSup, "");
-//                allele = gene + "<" + alleleSup + ">";
-//            } catch (Exception e) {
-//                System.out.println("AlleleParser threw exception: " + e.getLocalizedMessage());
-//            }
-//        }
-//    }
     
     private class Line1Parser {
         private String background;
@@ -646,6 +356,7 @@ public class GraphPage {
                 this.pipelineName = part2[1].replace("Pipeline - ", "").replace("&nbsp;", "").trim();
             } catch (Exception e) {
                 System.out.println("Line1Parser threw exception: " + e.getLocalizedMessage());
+                throw e;
             }
         }
     }
@@ -654,36 +365,53 @@ public class GraphPage {
         private String metadataGroup;
         
         public Line2Parser() {
+            final String match = "Metadata Group -";
             try {
-                String line2;
+                String[] line2A;
                 WebElement alleleElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='chart'][@graphurl]")));
-                line2 = alleleElement.getText();
-
-                int idx = line2.indexOf("Metadata Group - ") + "MetadataGroup - ".length();
-                line2 = line2.substring(idx).trim();
-                idx = line2.indexOf("\n");
-                this.metadataGroup = line2.substring(0, idx);
+                line2A = alleleElement.getText().split("\n");
+                for (String line2 : line2A) {
+                    if (line2.startsWith(match)) {
+                        this.metadataGroup = line2.replace(match, "").trim();
+                    }
+                }
             } catch (Exception e) {
                 System.out.println("Line2Parser threw exception: " + e.getLocalizedMessage());
+                throw e;
             }
         }
     }
     
     private class SvgDivParser {
-        private final String parameterName;
-        private final String parameterStableId;
+        private String parameterName;
+        private Parameter parameterObject;
+        private String parameterStableId;
         
         public SvgDivParser() {
             WebElement svgElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='highcharts-0']/*[local-name() = 'svg']")));
-           
+
             // svg elements are not easily accessible by selinium using xpath or css. The incantation "*[local-name() = 'svg'"
-            // successfully fetches the element. Trying to select further children using css or xpath does not work, but what
-            // DOES work is to cast the returned WebElement to a RemoteWebElement, then fetch the 'text' tags. 'parameterName'
-            // is the 2nd entry. 'parameterStableId' is the 3rd.
+            // successfully fetches the element. Trying to select further children using css or xpath does not work. What DOES
+            // work is to cast the returned WebElement to a RemoteWebElement, then fetch the 'text' tags. They are just an
+            // array of strings, and the component offsets are not always the same; e.g. most of the time 'parameterName' is
+            // entry[2], but when metadataGroup is missing, it is entry[1]!! To get a reliable parameterStableId we might have
+            // to try the call to get the parameterObject multiple times, with different offsets
+            // 
+            // Most of the time 'parameterName'is element[2] and 'parameterStableId' is element[3].
+            // Sometimes,       'parameterName is element[1] and 'parameterStableId' is element[2].
             RemoteWebElement rwe = (RemoteWebElement)svgElement;
             List<WebElement> aList = rwe.findElementsByTagName("text");
-            this.parameterName = aList.get(2).getText();
-            this.parameterStableId = aList.get(3).getText();
+            
+            parameterName = aList.get(2).getText();                             // Try as offset 2 first.
+            parameterStableId = aList.get(3).getText();                         // Try as offset 3 first.
+            parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
+            if (parameterObject == null) {
+                parameterName = aList.get(1).getText();                         // Try as offset 1.
+                parameterStableId = aList.get(2).getText();                     // Try as offset 2.
+                parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
+            }
+
+            // For debugging:
 //            System.out.println("svg:\n");
 //            for (WebElement we : aList) {
 //                System.out.println(we.getTagName() + ": " + we.getText());

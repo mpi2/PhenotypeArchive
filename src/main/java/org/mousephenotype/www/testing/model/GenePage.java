@@ -31,6 +31,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.util.Utils;
 
 /**
@@ -45,7 +47,13 @@ public class GenePage {
     private final WebDriverWait wait;
     private final String target;
     private final String geneId;
+    private final PhenotypePipelineDAO phenotypePipelineDAO;
+    private final String baseUrl;
     private final PhenotypeTableGene ptGene;
+    
+    private boolean hasImages;
+    private boolean hasGraphs;
+    private int resultsCount;
     
     /**
      * Creates a new <code>GenePage</code> instance
@@ -53,16 +61,66 @@ public class GenePage {
      * @param wait A valid <code>WebDriverWait</code> instance
      * @param target This page's target url
      * @param geneId This page's gene id
+     * @param phenotypePipelineDAO a <code>PhenotypePipelineDAO</code> instance
+     * @param baseUrl A fully-qualified hostname and path, such as
+     *   http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      */
-    public GenePage(WebDriver driver, WebDriverWait wait, String target, String geneId) {
+    public GenePage(WebDriver driver, WebDriverWait wait, String target, String geneId, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl) {
         this.driver = driver;
         this.wait = wait;
         this.target = target;
         this.geneId = geneId;
+        this.phenotypePipelineDAO = phenotypePipelineDAO;
+        this.baseUrl = baseUrl;
         this.ptGene = new PhenotypeTableGene(driver, wait, target);
         
-        driver.get(target);
-        waitForPage();
+        load();
+    }
+    
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public String getGeneId() {
+        return geneId;
+    }
+    
+    /**
+     * 
+     * @return a <code>List&lt;String&gt;</code> of this page's graph urls. The
+     * list will be empty if this page doesn't have any graph urls.
+     */
+    public List<String> getGraphUrls() {
+        List<String> urls = new ArrayList();
+        
+        if (hasGraphs) {
+            ptGene.load();
+            GridMap map = ptGene.getData();
+            for (int i = 0; i < map.getBody().length; i++) {
+                urls.add(map.getCell(i, PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH));
+            }
+        }
+        
+        return urls;
+    }
+    
+    /**
+     * @return the number at the end of the gene page string 'Total number of results: xxxx'
+     */
+    public int getResultsCount() {
+        return resultsCount;
+    }
+
+    public String getTarget() {
+        return target;
+    }
+    
+    public boolean hasGraphs() {
+        return hasGraphs;
+    }
+    
+    public boolean hasImages() {
+        return hasImages;
     }
     
     /**
@@ -110,61 +168,113 @@ public class GenePage {
     }
     
     /**
-     * Internal validation comparing a loaded <code>pageMap</code> store with a
-     * loaded <code>downloadData</code> store
-     * @param pageMap A loaded phenotypes table store
-     * @param downloadData a loaded download store
-     * @return status
+     * Validates all the graph links on the [already loaded] gene page. Any
+     * errors are returned in a new <code>PageStatus</code> instance.
+     * 
+     * @return page status instance
      */
-    private PageStatus validateDownload(GridMap pageMap, GridMap downloadData) {
-        PageStatus status = new PageStatus();
+    public PageStatus validateGraphLinks() {
+        PageStatus geneStatus = new PageStatus();
+        PageStatus graphStatus = new PageStatus();
+        GridMap pageMap = ptGene.load();                                        // Load all of the phenotypes table pageMap data.
         
-        // Check that the phenotypes table page line count equals the download stream line count.
-        // Since the phenotypes table contains a single row for both sexes but the download file
-        // contains a row for every sex, use the phenotypes table's sex count rather than the row count.
-        int sexIconCount = TestUtils.getSexIconCount(pageMap, PhenotypeTableGene.COL_INDEX_PHENOTYPES_SEX);
-        int bufferedSexIconCount = (int)Math.round(Math.floor(sexIconCount * 1.5));
+        int sexIconCount = 0;
+        String cell;
+        for (String[] row : pageMap.getBody()) {
+            cell = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_SEX];
+            if ((cell.equals("male")) || (cell.equals("female")))
+                sexIconCount++;
+            else if (cell.equals("both"))
+                sexIconCount += 2;
+            
+            //   Verify p value.
+            cell = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_P_VALUE];
+            if (cell == null) {
+                geneStatus.addError("Missing or invalid P Value. URL: " + target);
+            }
+            
+            // Validate that the graph link is not missing.
+            cell = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH];
+            if ((cell == null) || (cell.trim().isEmpty())) {
+                geneStatus.addError("Missing graph link. URL: " + target);
+            }
+        }
         
-        // If the phenotypes sex count is not equal to the download row count, then:
-        //     If the download line count is > the sex icon count but <= sex icon count + 50%, issue a warning
-        //     else throw an error.
-        int downloadDataLineCount = downloadData.getBody().length;
-        
-        if (sexIconCount != downloadDataLineCount) {
-            if (downloadDataLineCount > sexIconCount) {
-                if (downloadDataLineCount <= bufferedSexIconCount) {
-                    status.addWarning("WARNING: download data line count (" + downloadDataLineCount + ") is GREATER THAN the page sex icon count (" + sexIconCount + ") but LESS THAN OR EQUAL TO the buffered sex icon count ( " + bufferedSexIconCount + ")");
-                } else {
-                    status.addError("ERROR: download data line count (" + downloadDataLineCount + ") is GREATER THAN the buffered sex icon count ( " + bufferedSexIconCount + ")");
+        // Verify resultsCount on page against the phenotype table's count of Sex icons.
+System.out.println("Validating resultsCount = " + resultsCount);
+        if (sexIconCount != resultsCount) {
+            geneStatus.addError("Result counts don't match. Result count = " + resultsCount + " but Sex icon count = " + sexIconCount);
+        }
+            
+        // Validate the graphs.
+        System.out.println("Validating " + pageMap.getBody().length + " graphs.");
+        int i = 0;
+        for (String[] row : pageMap.getBody()) {
+            String graphUrl = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH];
+            driver.get(graphUrl);
+            GraphPage graphPage = new GraphPage(driver, wait,target, geneId, phenotypePipelineDAO, baseUrl);
+            graphStatus = graphPage.validateScalar();
+            if ( ! graphStatus.hasErrors()) {
+                ObservationType graphType = graphPage.getGraphType();
+                switch (graphType) {
+                    case categorical:
+System.out.println("[" + i + "]: Validating categorical graph.");
+                        GraphPageCategorical graphPageCategorical =
+                                new GraphPageCategorical(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl, graphPage);
+                        graphStatus = graphPageCategorical.validateDownload();
+                        break;
+                        
+                    case unidimensional:
+System.out.println("[" + i + "]: Validating unidimensional graph.");
+                        GraphPageUnidimensional graphPageUnidimensional =
+                                new GraphPageUnidimensional(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl, graphPage);
+                        graphStatus = graphPageUnidimensional.validateDownload();
+                        break;
+                        
+                    default:
+                        throw new RuntimeException("PhenoPage: Unsupported graph type '" + graphType + "'");
                 }
-            } else {
-                    status.addError("ERROR: download data line count (" + downloadDataLineCount + ") is LESS THAN the buffered sex icon count ( " + bufferedSexIconCount + ")");
             }
+            
+            i++;
         }
         
-        int errorCount = 0;
-
-        // If the sex is "both", compare the first pheno row to the first ("female") download row
-        // and the second ("male") download row.
-        String downloadCell = downloadData.getCell(0, DownloadPhenoMap.COL_INDEX_SEX).trim();
-        String pageCell = pageMap.getCell(0, PhenotypeTablePheno.COL_INDEX_PHENOTYPES_SEX).trim();
-        if (pageCell.equals("both")) {
-            if (downloadCell.equals("female")) {
-                errorCount += compareRowData(pageMap, downloadData, 1, 1);      // download data is ordered 'female', then 'male'. Always check in the order "female", then "male".
-                errorCount += compareRowData(pageMap, downloadData, 1, 2);
-            } else {
-                errorCount += compareRowData(pageMap, downloadData, 1, 2);      // download data is ordered 'male', then 'female'. Always check in the order "female", then "male".
-                errorCount += compareRowData(pageMap, downloadData, 1, 1);
-            }
-        } else {
-            errorCount += compareRowData(pageMap, downloadData, 1, 1);
+        geneStatus.add(graphStatus);
+        
+        return geneStatus;
+    }
+    
+    
+    // PRIVATE METHODS
+    
+    
+    /**
+     * Waits for the pheno page to load.
+     */
+    private void load() {
+        driver.get(target);
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+        
+        // Get results count. [NOTE: pages with no matches don't have totals]
+        Integer i;
+        try {
+            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']")));
+            String s = element.getText().replace("Total number of results: ", "");
+            i = Utils.tryParseInt(s);
+        } catch (Exception e) {
+            i = null;
         }
         
-        if (errorCount > 0) {
-            status.addError("Mismatch.");
+        // Determine if this page has images.
+        try {
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h2[@id='section-images']")));
+            hasImages = true;
+        } catch (Exception e) {
+            hasImages = false;
         }
         
-        return status;
+        resultsCount = (i == null ? 0 : i);
+        hasGraphs = (resultsCount > 0);
     }
     
     /**
@@ -286,7 +396,7 @@ public class GenePage {
         return new GridMap(data, target);
     }
     
-    public String getDownloadUrlBase() {
+    private String getDownloadUrlBase() {
         return driver.findElement(By.xpath("//div[@id='exportIconsDiv']")).getAttribute("data-exporturl");
     }
     
@@ -324,92 +434,63 @@ public class GenePage {
         
         return new GridMap(data, target);
     }
-    
-    
-    
-    
-    
-//    /**
-//     * 
-//     * @return A list of this gene page's graph links.
-//     */
-//    public List<String> getGraphLinks() {
-//        ArrayList<String> resultsList = new ArrayList();
-//        
-//        PhenotypeTableGene ptGene = new PhenotypeTableGene(driver, wait, pageTarget);
-//        String[][] data = ptGene.getData();
-//        
-//        for (String[] sA : data) {
-//            resultsList.add(sA[ptGene.getColIndexGraph()]);
-//        }
-//        
-//        return resultsList;
-//    }
-    
-//    /**
-//     * Get the gene page's html phenotype table data
-//     * @param numRows the number of rows of data to fetch. To specify all rows,
-//     * set <code>numRows</code> to null.
-//     * @return the html phenotype table data, in a 2-d array of <code>String</code>
-//     */
-//    @Override
-//    public String[][] getPhenotypeTableData(Integer numRows) {
-//        PhenotypeTableGene ptGene = new PhenotypeTableGene(driver, wait, pageTarget);
-//        return ptGene.getData(numRows);
-//    }
-    
+
     /**
-     * @return the number at the end of the gene page string 'Total number of results: xxxx'
+     * Internal validation comparing a loaded <code>pageMap</code> store with a
+     * loaded <code>downloadData</code> store
+     * @param pageMap A loaded phenotypes table store
+     * @param downloadData a loaded download store
+     * @return status
      */
-    public int getResultsCount() {
-        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']")));
-        String s = element.getText().replace("Total number of results: ", "");
-        Integer i = Utils.tryParseInt(s);
+    private PageStatus validateDownload(GridMap pageMap, GridMap downloadData) {
+        PageStatus status = new PageStatus();
         
-        return (i == null ? 0 : i);
-    }
-    
-    /**
-     * Waits for the pheno page to load.
-     */
-    public final void waitForPage() {
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='exportIconsDiv'][@data-exporturl]")));
-    }
-    
-    
-    // PRIVATE METHODS
-    
-    
-//    /**
-//     * Load the page.
-//     * @return <code>PageStatus</code> telling whether or not the load was 
-//     * successful.
-//     */
-//    private PageStatus load() {
-//        String message;
-//        PageStatus status = new PageStatus();
-//        
-//        // Wait for page to load.
-//        try {
-//            driver.get(pageTarget);
-//            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
-//        } catch (NoSuchElementException | TimeoutException te ) {
-//            message = "Expected page for MGI_ACCESSION_ID " + id + "(" + pageTarget + ") but found none.";
-//            status.addError(message);
-//        } catch (Exception e) {
-//            message = "EXCEPTION processing target URL " + pageTarget + ": " + e.getLocalizedMessage();
-//            status.addError(message);
-//        }
-//        
-//        return status;
-//    }
+        // Check that the phenotypes table page line count equals the download stream line count.
+        // Since the phenotypes table contains a single row for both sexes but the download file
+        // contains a row for every sex, use the phenotypes table's sex count rather than the row count.
+        int sexIconCount = TestUtils.getSexIconCount(pageMap, PhenotypeTableGene.COL_INDEX_PHENOTYPES_SEX);
+        int bufferedSexIconCount = (int)Math.round(Math.floor(sexIconCount * 1.5));
+        
+        // If the phenotypes sex count is not equal to the download row count, then:
+        //     If the download line count is > the sex icon count but <= sex icon count + 50%, issue a warning
+        //     else throw an error.
+        int downloadDataLineCount = downloadData.getBody().length;
+        
+        if (sexIconCount != downloadDataLineCount) {
+            if (downloadDataLineCount > sexIconCount) {
+                if (downloadDataLineCount <= bufferedSexIconCount) {
+                    status.addWarning("WARNING: download data line count (" + downloadDataLineCount + ") is GREATER THAN the page sex icon count (" + sexIconCount + ") but LESS THAN OR EQUAL TO the buffered sex icon count ( " + bufferedSexIconCount + ")");
+                } else {
+                    status.addError("ERROR: download data line count (" + downloadDataLineCount + ") is GREATER THAN the buffered sex icon count ( " + bufferedSexIconCount + ")");
+                }
+            } else {
+                    status.addError("ERROR: download data line count (" + downloadDataLineCount + ") is LESS THAN the buffered sex icon count ( " + bufferedSexIconCount + ")");
+            }
+        }
+        
+        int errorCount = 0;
 
-    public String getTarget() {
-        return target;
-    }
-
-    public String getGeneId() {
-        return geneId;
+        // If the sex is "both", compare the first pheno row to the first ("female") download row
+        // and the second ("male") download row.
+        String downloadCell = downloadData.getCell(0, DownloadGeneMap.COL_INDEX_SEX).trim();
+        String pageCell = pageMap.getCell(0, PhenotypeTableGene.COL_INDEX_PHENOTYPES_SEX).trim();
+        if (pageCell.equals("both")) {
+            if (downloadCell.equals("female")) {
+                errorCount += compareRowData(pageMap, downloadData, 1, 1);      // download data is ordered 'female', then 'male'. Always check in the order "female", then "male".
+                errorCount += compareRowData(pageMap, downloadData, 1, 2);
+            } else {
+                errorCount += compareRowData(pageMap, downloadData, 1, 2);      // download data is ordered 'male', then 'female'. Always check in the order "female", then "male".
+                errorCount += compareRowData(pageMap, downloadData, 1, 1);
+            }
+        } else {
+            errorCount += compareRowData(pageMap, downloadData, 1, 1);
+        }
+        
+        if (errorCount > 0) {
+            status.addError("Mismatch.");
+        }
+        
+        return status;
     }
     
 }

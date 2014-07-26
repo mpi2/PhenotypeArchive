@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-
-
 package org.mousephenotype.www.testing.model;
 
 /**
@@ -31,15 +29,19 @@ public class AlleleParser {
     String alleleSub;
 
     /**
-     * Given a string that looks like an alleleSub (e.g. Sirt2&lt;tm1a(EUCOMM)Wtsi&gt;),
- parses the string into the gene part (Sirt2) and the alleleSub part without
- the gene part and without the &lt; &gt; entities.
-     * (tm1a(EUCOMM)Wtsi)
-     * 
-     * @param geneAllele The alleleSub string to parse
+     * Given an allele string with '&lt;' and '&gt;' delimiters, e.g.
+     * <b>Sirt2&lt;tm1a(EUCOMM)Wtsi&gt;</b>, this method parses the string into:
+     * <ul>
+     * <li>the gene part without the '&lt;' and '&gt;' delimiters, e.g.
+     * <b>Sirt2</b>, and</li>
+     * <li>the allele superscript part without the '&lt;' and '&gt;' delimiters,
+     * e.g. <b>tm1a(EUCOMM)Wtsi</b>
+     * </ul>
+     * @param cookedAllele The allele string, with '&lt;' and '&gt;' delimiters,
+     * to parse
      */
-    public AlleleParser(String geneAllele) {
-        String[] sA = geneAllele.split("<");
+    public AlleleParser(String cookedAllele) {
+        String[] sA = cookedAllele.split("<");
         if ((sA == null) || (sA.length < 2)) {
             gene = "";
             alleleSub = "";
@@ -48,26 +50,33 @@ public class AlleleParser {
             alleleSub = sA[1].replace(">", "");
         }
     }
-    
+
     /**
-     * Given a string that looks like an alleleSub, but without the "&lt;" and 
-     * "&gt;" HTML entities, and a &lt;sup&gt; string (without the &lt; &gt;
-     * characters - e.g. "Sirt2tm1a(EUCOMM)Wtsi", with sup "tm1a(EUCOMM)Wtsi"),
- parses the string into the gene part (Sirt2) and the alleleSub part without
- the gene part and without the &lt; &gt; entities.
-     * (tm1a(EUCOMM)Wtsi)
-     * @param geneAllele
-     * @param sup 
+     * Given a string that looks like a raw allele including gene but without
+     * the "&lt;" and "&gt;" delimiters, e.g. <b>Sirt2tm1a(EUCOMM)Wtsi</b>, and
+     * a string containing the allele superscript part, e.g.
+     * <b>tm1a(EUCOMM)Wtsi</b>, this method parses the pair of strings into:
+     * <ul>
+     * <li>the gene part without the '&lt;' and '&gt;' delimiters, e.g.
+     * <b>Sirt2</b>, and</li>
+     * <li>the allele superscript part without the '&lt;' and '&gt;' delimiters,
+     * e.g. <b>tm1a(EUCOMM)Wtsi</b> (which is the same as <code>sup</code>)
+     * </ul>
+     *
+     * @param rawAllele The allele string, without '&lt;' and '&gt;'
+     * delimiters, but with the sup following the gene, to parse
+     * @param sup The allele superscript string, without '&lt;' and '&gt;'
+     * delimiters, to parse
      */
-    public AlleleParser(String geneAllele, String sup) {
-        gene = geneAllele.replace(sup, "");
+    public AlleleParser(String rawAllele, String sup) {
+        gene = rawAllele.replace(sup, "");
         alleleSub = sup;
     }
 
     /**
      * 
-     * @return the gene part, (e.g. given the string "Sirt2&lt;tm1a(EUCOMM)Wtsi&gt;",
-     * returns "Sirt2")
+     * @return the gene part, e.g. given the string <b>Sirt2&lt;tm1a(EUCOMM)Wtsi&gt;</b>,
+     * returns <b>Sirt2</b>
      */
     public String getGene() {
         return gene;
@@ -76,8 +85,8 @@ public class AlleleParser {
     /**
      * 
      * @return the alleleSub part, without the prepended gene and without the
- "&lt;" and "&gt;" HTML entities (e.g. given the string "Sirt2&lt;tm1a(EUCOMM)Wtsi&gt;",
-     * returns "tm1a(EUCOMM)Wtsi")
+ "&lt;" and "&gt;" delimiters, e.g. given the string <b>Sirt2&lt;tm1a(EUCOMM)Wtsi&gt;</b>,
+     * returns <b>tm1a(EUCOMM)Wtsi</b>)
      */
     public String getAlleleSub() {
         return alleleSub;
@@ -85,7 +94,8 @@ public class AlleleParser {
     
     /**
      * 
-     * @return the 
+     * @return the formatted, cooked allele string, e.g. 
+     * <b>Sirt2&lt;tm1a(EUCOMM)Wtsi&gt;</b>
      */
     @Override
     public String toString() {

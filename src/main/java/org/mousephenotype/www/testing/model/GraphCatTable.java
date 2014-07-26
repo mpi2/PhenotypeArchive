@@ -31,9 +31,9 @@ import org.openqa.selenium.WebElement;
  * @author mrelac
  * 
  * This class encapsulates the code and data necessary to represent the important
- * components of a graph page 'globalTest' HTML table.
+ * components of a graph page 'catTable' HTML table.
  */
-public class GraphGlobalTestTable {
+public class GraphCatTable {
     private String globalTestValue = "";
     private final List<String> pvalues = new ArrayList();
     private final List<String> effects = new ArrayList();
@@ -46,7 +46,7 @@ public class GraphGlobalTestTable {
      * @param driver A <code>WebDriver</code> instance pointing to the graph page
      * with the globalTest table with thead and tbody definitions.
      */
-    public GraphGlobalTestTable(WebDriver driver) {
+    public GraphCatTable(WebDriver driver) {
         WebElement table = driver.findElement(By.xpath("//table[@class='globalTest]'"));
         List<WebElement> bodyRowsList = table.findElements(By.cssSelector("tbody tr"));
         if ( ! bodyRowsList.isEmpty()) {
@@ -145,7 +145,7 @@ public class GraphGlobalTestTable {
      * @return true if the effects and pvalues of this table and <code>otherTable
      * </code> are the same in count and value; false otherwise
      */
-    public boolean isEqual(GraphGlobalTestTable otherTable) {
+    public boolean isEqual(GraphCatTable otherTable) {
         if (effects.size() != otherTable.effects.size())
             return false;
         if (pvalues.size() != otherTable.pvalues.size())

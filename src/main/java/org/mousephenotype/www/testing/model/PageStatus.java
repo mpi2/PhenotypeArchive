@@ -48,6 +48,11 @@ public class PageStatus {
     public List<String> getWarningMessages() {
         return warningMessages;
     }
+    
+    public void add(PageStatus pageStatus) {
+        errorMessages.addAll(pageStatus.errorMessages);
+        warningMessages.addAll(pageStatus.warningMessages);
+    }
 
     public void addError(String errorMessage) {
         this.errorMessages.add(errorMessage);

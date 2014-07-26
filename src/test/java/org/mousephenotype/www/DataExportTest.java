@@ -22,7 +22,6 @@ package org.mousephenotype.www;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -36,19 +35,22 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.GenePage;
 import org.mousephenotype.www.testing.model.GraphPageUnidimensional;
+import org.mousephenotype.www.testing.model.GridMap;
 import org.mousephenotype.www.testing.model.PageStatus;
 import org.mousephenotype.www.testing.model.PhenoPage;
+import org.mousephenotype.www.testing.model.PhenotypeTablePheno;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
+import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.util.Utils;
@@ -146,15 +148,15 @@ public class DataExportTest {
      * @return a list of <code>count</code> <code>GraphLinkDetail</code> objects
      * sourced from <code>phenoIds</code> containing graphs of type <code>graphType</code>.
      */
-    private List<PhenoPage.GraphLinkDetail> getGraphs(List<String> phenoIds, WebDriverWait wait, ObservationType graphType, int count) {
-        List<PhenoPage.GraphLinkDetail> graphDetails = new ArrayList();
+    private List<GraphLinkDetail> getGraphs(List<String> phenoIds, WebDriverWait wait, ObservationType graphType, int count) {
+        List<GraphLinkDetail> graphDetails = new ArrayList();
         
         for (String phenoId : phenoIds) {
             String target = baseUrl + "/phenotypes/" + phenoId;
-            PhenoPage phenoPage = new PhenoPage(driver, wait, target, phenoId); // Load the page. NOTE: Limit the number of graphs from each page to insure a good mix.
+            PhenoPage phenoPage = new PhenoPage(driver, wait, target, phenoId, phenotypePipelineDAO, baseUrl); // Load the page. NOTE: Limit the number of graphs from each page to insure a good mix.
             int graphLimit = 10;
-            List<PhenoPage.GraphLinkDetail> graphs = phenoPage.getGraphLinksAndDetails(baseUrl, phenotypePipelineDAO, graphLimit);
-            for (PhenoPage.GraphLinkDetail graph : graphs) {
+            List<GraphLinkDetail> graphs = getGraphLinksAndDetails(baseUrl, phenotypePipelineDAO, graphLimit);
+            for (GraphLinkDetail graph : graphs) {
                 if (graph.getGraphType() == graphType) {
                     if (graphDetails.size() < count) {
                         graphDetails.add(graph);
@@ -166,6 +168,70 @@ public class DataExportTest {
         }
         
         return graphDetails;
+    }
+    /**
+     * @param baseUrl the graph's base url
+     * @param numRows the number of rows to load
+     * @return A list of this gene page's graph links and details.
+     */
+    public List<GraphLinkDetail> getGraphLinksAndDetails(String baseUrl, Integer numRows) {
+        ArrayList<GraphLinkDetail> graphLinkDetails = new ArrayList();
+        
+//        System.out.println("\nURL: " + target);
+//////        PhenotypeTablePheno ptPheno = new PhenotypeTablePheno(driver, wait, target);
+//////        GridMap phenoMap = ptPheno.load(numRows);
+        
+//        for (String[] sA : phenoMap.getBody()) {
+//            GraphLinkDetail detail = new GraphLinkDetail(phenoId, baseUrl, sA[PhenotypeTablePheno.COL_INDEX_PHENOTYPES_GRAPH], phenoPipelineDAO);
+//            graphLinkDetails.add(detail);
+//        }
+        
+        return graphLinkDetails;
+    }
+    
+    public class GraphLinkDetail {
+        private ObservationType graphType;
+        private String phenoId;
+        private String parameterStableId;
+        private String url;
+        
+        /**
+         * Creates a new <code>GraphLinkDetail</code> instance
+         * @param phenoId the phenoid
+         * @param baseUrl the base url, prepended to the chart URL
+         * @param url the chart url
+         * @param pipelineDAO a valid <code>PipelineDAO</code> instance
+         */
+        public GraphLinkDetail(String phenoId, String baseUrl, String url) {
+            this.phenoId = phenoId;
+            this.url = TestUtils.patchUrl(baseUrl, url, "/charts?");
+            String[] sA = url.split("&");
+            for (String s : sA) {
+                if (s.startsWith("parameter_stable_id")) {
+                    String[] token = s.split("=");
+                    parameterStableId = token[1];
+                    Parameter parameter = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
+                    graphType = Utilities.checkType(parameter);
+                    break;
+                }
+            }
+        }
+
+        public String getPhenoId() {
+            return phenoId;
+        }
+
+        public String getParameterStableId() {
+            return parameterStableId;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public ObservationType getGraphType() {
+            return graphType;
+        }
     }
     
     
@@ -339,11 +405,11 @@ public class DataExportTest {
 
         System.out.println(dateFormat.format(start) + ": " + testName + " Expecting to process " + targetCount + " unidimensional graphs.");
         
-        List<PhenoPage.GraphLinkDetail> graphs = getGraphs(phenoIds, wait, ObservationType.unidimensional, targetCount);
+        List<GraphLinkDetail> graphs = getGraphs(phenoIds, wait, ObservationType.unidimensional, targetCount);
 
         // Loop through the graphs, testing each one.
         int errorCount = 0;
-        for (PhenoPage.GraphLinkDetail graph : graphs) {
+        for (GraphLinkDetail graph : graphs) {
             
             System.out.println("\nGRAPH URL: " + graph.getUrl());
             
@@ -390,13 +456,13 @@ public class DataExportTest {
 //        int targetCount = testUtils.getTargetCount(testName, phenoIds, 10);
 //        System.out.println(dateFormat.format(start) + ": " + testName + " Expecting to process " + targetCount + " categorical graphs.");
 //        
-//        List<PhenoPage.GraphLinkDetail> graphs = getGraphs(phenoIds, wait, ObservationType.categorical, targetCount);
+//        List<GraphLinkDetail> graphs = getGraphs(phenoIds, wait, ObservationType.categorical, targetCount);
 //        
 //        // Loop through the graphs, testing each one.
 //        int i = 0;
 //        
 //        int errorCount = 0;
-//        for (PhenoPage.GraphLinkDetail graph : graphs) {
+//        for (GraphLinkDetail graph : graphs) {
 //            GraphPageCategorical graphPageCategorical = new GraphPageCategorical(driver, wait, graph.getUrl(), graph.getPhenoId(), phenotypePipelineDAO);
 //            status = graphPageCategorical.validateDownload(baseUrl);
 //            
