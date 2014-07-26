@@ -23,9 +23,38 @@
 			</entity>
 
             <!-- MA term name synonym -->
-			<entity dataSource="ontodb" name="ma_synonyms" query="select syn_name from ma_synonyms where term_id = '${ma_term_infos.term_id}'" >				
+            <entity dataSource="ontodb" name="ma_term_infos2Syn" 
+				onError="continue"  
+				processor="CachedSqlEntityProcessor"
+				query="select term_id, syn_name from ma_synonyms"
+				where="term_id=ma_term_infos.term_id">
+										
 				<field column="syn_name" name="ma_term_synonym" />
-            </entity>
+					
+			</entity>	
+
+			 <!-- child MA term(s) of this MA term -->
+			<entity dataSource="ontodb" name="ma_child" 
+				query="elect ti.term_id as parent_ma_id, ti2.term_id as child_ma_id, ti2.name as child_ma_term, concat(ti2.term_id, '__', ti2.name) as termId_termName from manfos ti inner join ma_node2term nt on ti.term_id=nt.term_id inner join ma_parent_children pc on nt.node_id=pc.parent_node_id inner join ma_node2term nt2 on pc.child_node_id=nt2.node_id inner join ma_term_infos ti2 on nt2.term_id=ti2.term_id"
+				onError="continue"
+				processor="CachedSqlEntityProcessor" 
+				where="parent_ma_id=ma_term_infos.term_id">
+			
+				<field column="child_ma_id" name="child_ma_id" />
+				<field column="child_ma_term" name="child_ma_term" /> 
+				<field column="termId_termName" name="child_ma_idTerm" />   
+				
+				<!--  separate this query from the above to avoid duplicates rows of the above three fields as a term can have multiple syn -->
+				<entity dataSource="ontodb" name="childMa2Syn" 
+					processor="CachedSqlEntityProcessor" 
+					onError="continue"  
+					query="select term_id, syn_name from ma_synonyms"
+					where="term_id=ma_child.child_ma_id">
+						
+					<field column="syn_name" name="child_ma_term_synonym" />						
+					
+				</entity>
+			</entity>	
 
             <!-- MA to MP mapping based on MP to MA bridg file prepared by Terry with MP slim -->
             <!-- the group decided not to do this on 20140523: MA has no quality component in EQ model -->
@@ -34,7 +63,7 @@
             	query="select node_id from ma_node2term where term_id='${ma_term_infos.term_id}'">
 
                 <!-- child MA term(s) of this MA term -->
-                <entity dataSource="ontodb" name="ma_parent_children" onError="continue"
+              <!--   <entity dataSource="ontodb" name="ma_parent_children" onError="continue"
                 	query="select child_node_id from ma_parent_children where parent_node_id=${ma_node2term.node_id}">                    
                     <entity dataSource="ontodb" name="ma_node2term2"
                     	query="select term_id from ma_node2term where node_id=${ma_parent_children.child_node_id}">                                                     
@@ -46,15 +75,39 @@
                      	</entity>
                   	</entity>
             	</entity>
-
+				-->
+				
                 <!-- higher level backtrace of this MA term -->           
-                <entity dataSource="ontodb" name="ma_node_2_selected_top_level_mapping" 
+                <!-- <entity dataSource="ontodb" name="ma_node_2_selected_top_level_mapping" 
                     query="select top_level_term_id from ma_node_2_selected_top_level_mapping where node_id = ${ma_node2term.node_id}" >
                     <field column="top_level_term_id" name="selected_top_level_ma_id" />
                     <entity dataSource="ontodb" name="ma_term_infos2" query="select name from ma_term_infos where term_id = '${ma_node_2_selected_top_level_mapping.top_level_term_id}' " >
                         <field column="name" name="selected_top_level_ma_term" />
                     </entity>
                 </entity>
+                -->
+                
+                <!-- higher level backtrace of this MA term -->   
+                <entity dataSource="ontodb" name="ma_node_2_selected_top_level_mapping" 
+					processor="CachedSqlEntityProcessor" 
+					onError="continue"
+					query="select distinct m.node_id, ti.term_id, ti.name from ma_node2term nt, ma_node_2_selected_top_level_mapping m, ma_term_infos ti where nt.node_id=m.node_id and m.top_level_term_id=ti.term_id"
+					where="node_id=ma_node2term.node_id">
+				
+					<field column="term_id" name="selected_top_level_ma_id" />
+					<field column="name" name="selected_top_level_ma_term" /> 
+													
+					<!--  separate this query from the above to avoid duplicates rows of the above three fields as a term can have multiple syn -->
+					<entity dataSource="ontodb" name="topMa2Syn" 
+						processor="CachedSqlEntityProcessor" 
+						onError="continue"  
+						query="select term_id, syn_name from ma_synonyms"
+						where="term_id=ma_node_2_selected_top_level_mapping.term_id">
+							
+						<field column="syn_name" name="selected_top_level_ma_term_synonym" />						
+					</entity>
+				</entity>	
+                
       		</entity>          
 			
 			<!-- images annotated to this MA -->
@@ -99,7 +152,7 @@
 						
 			</entity>
 
-             <!-- top level term and/or top level term from part_of relationship of a given anatomy term id -->
+            <!-- top level term and/or top level term from part_of relationship of a given anatomy term id -->
 			<entity  dataSource="ontodb" name="ma_node2term" onError="continue" 
                 query="select node_id from ma_node2term where term_id='${ma_term_infos.term_id}'" >				
 				<entity  dataSource="ontodb" name="ma_node_top_level" onError="continue" 
