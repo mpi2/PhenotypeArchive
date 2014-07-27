@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<schema name="gene core" version="1.1">
+<schema name="autosuggest core" version="1.1">
   <types>
    <fieldtype name="string"  class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
    <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
@@ -159,11 +159,11 @@
    
     <copyField source="child_ma_id" dest="auto_suggest" />
     <copyField source="child_ma_term" dest="auto_suggest" />							
-    <copyField source="child_ma_idTerm" dest="auto_suggest" />
-	<copyField source="disease_human_phenotypes" dest="auto_suggest" />
+	<copyField source="child_ma_term_synonym" dest="auto_suggest" />
 	
 	<copyField source="selected_top_level_ma_id" dest="auto_suggest" />
     <copyField source="selected_top_level_ma_term" dest="auto_suggest" /> 
+    <copyField source="selected_top_level_ma_term_synonym" dest="auto_suggest" /> 
   
 	<copyField source="disease_id" dest="auto_suggest"/>
 	<copyField source="disease_term" dest="auto_suggest"/>
