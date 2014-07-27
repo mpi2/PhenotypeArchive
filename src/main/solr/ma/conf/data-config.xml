@@ -5,6 +5,7 @@
 	<dataSource name="allele_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/allele/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>
     <dataSource name="images_core" type="HttpDataSource" baseUrl="http://ves-ebi-d0.ebi.ac.uk:8090/build_indexes/images/select?" encoding="UTF-8"  connectionTimeout="10000" readTimeout="10000"/>          
 
+
 	<document name="komp2_indexing">	
 		<!-- test with MA:0001459 -->
 		<!-- IMPC pipeline -->							
@@ -35,7 +36,7 @@
 
 			 <!-- child MA term(s) of this MA term -->
 			<entity dataSource="ontodb" name="ma_child" 
-				query="elect ti.term_id as parent_ma_id, ti2.term_id as child_ma_id, ti2.name as child_ma_term, concat(ti2.term_id, '__', ti2.name) as termId_termName from manfos ti inner join ma_node2term nt on ti.term_id=nt.term_id inner join ma_parent_children pc on nt.node_id=pc.parent_node_id inner join ma_node2term nt2 on pc.child_node_id=nt2.node_id inner join ma_term_infos ti2 on nt2.term_id=ti2.term_id"
+				query="select ti.term_id as parent_ma_id, ti2.term_id as child_ma_id, ti2.name as child_ma_term, concat(ti2.term_id, '__', ti2.name) as termId_termName from ma_term_infos ti inner join ma_node2term nt on ti.term_id=nt.term_id inner join ma_parent_children pc on nt.node_id=pc.parent_node_id inner join ma_node2term nt2 on pc.child_node_id=nt2.node_id inner join ma_term_infos ti2 on nt2.term_id=ti2.term_id"
 				onError="continue"
 				processor="CachedSqlEntityProcessor" 
 				where="parent_ma_id=ma_term_infos.term_id">
@@ -124,7 +125,8 @@
 				<field column="expName_exp" xpath="/response/result/doc/arr[@name='expName_exp']/str" />
 				<field column="symbol_gene" xpath="/response/result/doc/arr[@name='symbol_gene']/str" />
 				
-				<!-- genes annotated to this MA through images -->       
+				<!-- genes annotated to this MA through images -->    
+				<field column="mgi_accession_id" xpath="/response/result/doc/arr[@name='mgi_accession_id']/str" />  
 				<field column="marker_symbol" xpath="/response/result/doc/arr[@name='marker_symbol']/str" />  
                 <field column="marker_name" xpath="/response/result/doc/arr[@name='marker_name']/str" />
                 <field column="marker_synonym" xpath="/response/result/doc/arr[@name='marker_synonym']/str" />
