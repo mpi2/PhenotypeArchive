@@ -61,7 +61,7 @@
 										<c:forEach var="image" items="${images}" varStatus="status">
 											<li>
 											 <!-- <img id="752" src="http://172.22.68.222:4080/webgateway/render_thumbnail/1278/200" alt="image" title="30910.bmp" style="width: 200px;"> -->
-													<img id="752" src="http://172.22.68.222:4080/webgateway/render_thumbnail/1278/200" alt="image" title="${image.omeroId}" style="width: 200px;">
+													<img id="752" src="http://172.22.68.222:4080/webgateway/render_thumbnail/${image.omeroId}/200" alt="image" title="${image.omeroId}" style="width: 200px;">
 													<%-- <t:imgdisplay img="${image}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay> --%>
 											</li>
 										</c:forEach>
@@ -77,17 +77,17 @@
 				<li class="disabled"><a>Prev</a></li>
 				</c:if>
 				<c:if test="${start ne 0}">
-				<li><a href='${baseUrl}/imagesb?start=${start-length}&length=${length}&${q}'>Prev</a></li>
+				<li><a href='${baseUrl}/impcImages?start=${start-length}&length=${length}&${q}'>Prev</a></li>
 				</c:if>
 
 				<c:forEach begin="0" end="${imageCount}" step="${length}" var="i">
 				<li <c:if test="${start eq i}">class="active"</c:if>>
-				<a href='${baseUrl}/imagesb?start=<c:if test="${i ne 0}">${i-1}</c:if><c:if test="${i eq 0}">${i}</c:if>&length=${length}&${q}'><fmt:formatNumber value="${(i+length)/length}" maxFractionDigits="0" /></a>
+				<a href='${baseUrl}/impcImages?start=<c:if test="${i ne 0}">${i-1}</c:if><c:if test="${i eq 0}">${i}</c:if>&length=${length}&${q}'><fmt:formatNumber value="${(i+length)/length}" maxFractionDigits="0" /></a>
 				</li>
 				</c:forEach>
 
 				<c:if test="${start+length lt imageCount}">
-				<li><a id="next" href='${baseUrl}/imagesb?start=${start+length}&length=${length}&${q}'>Next</a></li>
+				<li><a id="next" href='${baseUrl}/impcImages?start=${start+length}&length=${length}&${q}'>Next</a></li>
 				</c:if>
 				<c:if test="${start+length gt imageCount}">
 				<li class="disabled"><a>Next</a></li>

@@ -5,8 +5,10 @@ import java.util.List;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.response.QueryResponse;
 
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
+import uk.ac.ebi.phenotype.service.dto.ImageDTOWrapper;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
 public class ImageService {
@@ -32,7 +34,7 @@ public class ImageService {
 	 * @return
 	 * @throws SolrServerException
 	 */
-	public List<ImageDTO> getImageDTOsForSolrQuery(String query) throws SolrServerException{
+	public ImageDTOWrapper getImageDTOsForSolrQuery(String query) throws SolrServerException{
 		SolrQuery solrQuery = new SolrQuery();
 		String[] paramsKeyValues = query.split("&");
 		for (String paramKV : paramsKeyValues) {
@@ -46,14 +48,18 @@ public class ImageService {
 			}
 
 		}
-		return solr.query(solrQuery).getBeans(ImageDTO.class);
+		QueryResponse response = solr.query(solrQuery);
+		ImageDTOWrapper wrapper=new ImageDTOWrapper();
+		wrapper.setImageDTOs(response.getBeans(ImageDTO.class));
+		wrapper.setNumberFound(response.getResults().getNumFound());
+		return wrapper;
 	}
 
 
 	public static SolrQuery allImageRecordSolrQuery()
 	throws SolrServerException {
 
-		return new SolrQuery().setQuery("observation_type:image_record").addFilterQuery("(" + ObservationDTO.DOWNLOAD_FILE_PATH + ":" + "*mousephenotype.org* AND !download_file_path:*.pdf)").setRows(10);
+		return new SolrQuery().setQuery("observation_type:image_record").addFilterQuery("(" + ObservationDTO.DOWNLOAD_FILE_PATH + ":" + "*mousephenotype.org* AND !download_file_path:*.pdf)").setRows(1000000000);
 	}
 	
 }
