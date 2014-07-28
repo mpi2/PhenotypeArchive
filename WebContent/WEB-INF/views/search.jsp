@@ -177,7 +177,7 @@
        		$('input#s').keyup(function (e) {		
        		    if (e.keyCode == 13) { // user hits enter
        		    	//alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
-       		    	var input = $('input#s').val().trim();
+       		    	var input = $('input#s').val().trim().replace(/^'|'$/g, '"');
        		    
        		    	MPI2.searchAndFacetConfig.update.kwSearch = true;
        		    	
@@ -254,20 +254,16 @@
 			       							facet = docs[i][key].toString();
 			       						}
 			       						else {	
-			       							var term = docs[i][key].toString().toLowerCase();	
+			       							var term = docs[i][key].toString();	
 			       							var termHl = term;
 			       							
 			       							// highlight multiple matches (partial matches) while users typing in search keyword(s)
-			       							
-			       							/* --- deals with wildcard in query --- */
-			       							
-			       							// this won't work
-			       							//var termStr = $.ui.autocomplete.escapeRegex($('input#s').val().trim(' ').split(' ').join('|'));
-			       							
-			       							// this works: let jquery autocomplet UI handles the wildcard
-			       							var termStr = $('input#s').val().trim(' ').split(' ').join('|').replace(/\*|"|'/g, ''); 
-			       							
-			       							/* --- endl of deals with wildcard in query --- */
+			       							// let jquery autocomplet UI handles the wildcard
+			       							//var termStr = $('input#s').val().trim(' ').split(' ').join('|').replace(/\*|"|'/g, ''); 
+			       							var termStr = $('input#s').val().trim(' ').split(' ').join('|')
+			       							.replace(/\*|"|'/g, '')
+			       							.replace(/\(/g,'\\(')
+			       							.replace(/\)/g,'\\)');
 			       							
 			       							var re = new RegExp("(" + termStr + ")", "gi") ;
 			       							var termHl = termHl.replace(re,"<b class='sugTerm'>$1</b>");
@@ -297,7 +293,7 @@
 	       				var facet = $(ui.item.label).attr('class');
 	       				
 	       				// handed over to hash change to fetch for results	 				
-	       				document.location.href = baseUrl + '/search?q=' + this.value + '#facet=' + facet; 	
+	       				document.location.href = baseUrl + '/search?q="' + this.value + '"#facet=' + facet; 	
 	       				
 	       				// prevents escaped html tag displayed in input box
 	       				event.preventDefault(); return false; 
@@ -349,6 +345,7 @@
    				//var url = $.param.fragment();	 // not working with jQuery 10.0.1
    				var url = $(location).attr('hash');		
    				
+   				//console.log('wiget open: ' + MPI2.searchAndFacetConfig.update.widgetOpen );
    				//console.log('hash change URL: '+ '/search' + url);
    				var oHashParams = _process_hash();
    				
@@ -386,17 +383,18 @@
     				}
     			}
    				
-    			else if ( MPI2.searchAndFacetConfig.update.widgetOpen ){
+   				else if ( MPI2.searchAndFacetConfig.update.widgetOpen ){
    					//console.log('1. widget facet open');
+   					
    					MPI2.searchAndFacetConfig.update.widgetOpen = false; // reset
    					
-    				// search by keyword (user's input) has no fq in url when hash change is detected
+   					// search by keyword (user's input) has no fq in url when hash change is detected
     				if ( oHashParams.fq ){			
     					
     					if ( oHashParams.coreName ){	    						
     						oHashParams.coreName += 'Facet'; 					
     					}
-    					else {						
+    					/* else {						
     						// parse summary facet filters 
     						var facet = oHashParams.facetName;
     						var aFilters = [];
@@ -407,14 +405,26 @@
     						//console.log(oHashParams);		
     						//oHashParams.filters = aFilters;
 
-    						oHashParams.facetName = facet;	    						
-    					}
+    						//oHashParams.facetName = facet;	    						
+    					} */
     					
     					$.fn.loadDataTable(oHashParams);
     				}
    				} 
-				else if ( !MPI2.searchAndFacetConfig.update.pageReload ){
-    				//console.log('back button event');
+   				else if ( MPI2.searchAndFacetConfig.update.pageReload ){
+					//console.log('reload with widget open false');
+					// eg. default search page loading 
+					if ( /search\/?$/.test(window.location.href) ){
+	    				// when the url become ..../search
+						document.location.href = baseUrl + '/search';
+	    			}
+					else {
+						rebuildFilters(oHashParams); 
+					}
+				} 
+			
+   				else if ( !MPI2.searchAndFacetConfig.update.pageReload ){
+    				//console.log('back button OR widget open event');
     				if ( /search\/?$/.test(window.location.href) ){
         				// when the url become ..../search
     					document.location.href = baseUrl + '/search';
@@ -423,11 +433,12 @@
     					rebuildFilters(oHashParams); 
     				}
 				}
-				
    			});		
+   			
     		if ( ! MPI2.searchAndFacetConfig.update.hashChange ){
     			//console.log('page reload: no hash change detected')
 
+    			
     			var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
     			//console.log(oHashParams);
     			
@@ -489,11 +500,13 @@
 			    			MPI2.searchAndFacetConfig.facetParams[oHashParams.widgetName].fq :
 			    				oHashParams.fq;
 			    			
-			    	oHashParams.oriFq = oHashParams.fq; 
+			    	if ( typeof oHashParams.oriFq == 'undefined' ){
+			    		oHashParams.oriFq = oHashParams.fq; 
+			    	}
 			    	
-					//console.log(oHashParams);
-				
-					$.fn.parseUrl_constructFilters_loadDataTable(oHashParams);
+			    	oHashParams.fq = oHashParams.fq.replace(/img_/g,''); // so that this matches the copyField of images
+
+			    	$.fn.parseUrl_constructFilters_loadDataTable(oHashParams);
 				}	
     		}
     		
@@ -519,6 +532,7 @@
 	   				// when doing the query, strip it out
 	   				
 					if ( typeof oHashParams.fq != 'undefined' ){
+						oHashParams.oriFq = oHashParams.fq;
 						oHashParams.fq = oHashParams.fq.replace(/img_/g,'');
 					}
 	   				
