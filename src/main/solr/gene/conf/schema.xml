@@ -150,22 +150,51 @@
 	
 	<!-- annotated and inferred mp term -->
 	<field name="p_value" type="float" indexed="true" stored="true" required="false" multiValued="true" />
+	
 	<field name="mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="mp_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="mp_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="mp_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
 	<field name="top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="top_level_mp_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="top_level_mp_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<field name="intermediate_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="intermediate_mp_term" type="text" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="intermediate_mp_term_synonym" type="text" indexed="true" stored="true" required="false" multiValued="true" />
+	
+	<field name="child_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="child_mp_term" type="text" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="child_mp_term_synonym" type="text" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<!-- ontology subset of mp terms -->
 	<field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
-
-	<!-- annotated and inferred ma term -->	
+	
+	<!--  MA  --> 
 	<field name="inferred_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="inferred_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	
 	<field name="inferred_selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="inferred_selected_top_level_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="inferred_selected_top_level_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+
+	<field name="inferred_child_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_child_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_child_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<!-- these MA fields are used as copyfields for the inferred_ equivalents -->
+	<field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	
+	<field name="selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="selected_top_level_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+
+	<field name="child_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="child_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="child_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<!--disease fields -->	
 	<field name="type" type="string" indexed="true" stored="true"/>	
@@ -200,8 +229,12 @@
 	<!-- for copyfield -->
 	<field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
 	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
-
-	<field name="selected_top_level_ma_term" type="string" indexed="true" stored="true" multiValued="true"/>
+	
+	<!-- bucket list qf -->
+  	<field name="geneQf" type="string" indexed="true" stored="false" multiValued="true"/>
+  	<field name="mpQf" type="string" indexed="true" stored="false" multiValued="true"/>
+  	<field name="diseaseQf" type="string" indexed="true" stored="false" multiValued="true"/>
+  	<field name="maQf" type="string" indexed="true" stored="false" multiValued="true"/>
 	
  </fields>
 
@@ -224,11 +257,54 @@
 	<copyField source="latest_phenotyping_centre" dest="auto_suggest"/>
 	<copyField source="allele_name" dest="auto_suggest"/> 
 	
-	<copyField source="inferred_selected_top_level_ma_term" dest="selected_top_level_ma_term" />
-	
 	<copyField source="annotatedHigherLevelMaTermName" dest="selected_top_level_ma_term" />
 	<copyField source="annotatedHigherLevelMpTermName" dest="top_level_mp_term" />
 	
+	<copyField source="inferred_ma_id" dest="ma_id" />
+	<copyField source="inferred_ma_term" dest="ma_term" />
+	<copyField source="inferred_ma_term_synonym" dest="ma_term_synonym" />
+	
+	<copyField source="inferred_selected_top_level_ma_id" dest="selected_top_level_ma_id"/>
+	<copyField source="inferred_selected_top_level_ma_term" dest="selected_top_level_ma_term" />	
+	<copyField source="inferred_selected_top_level_ma_term_synonym" dest="selected_top_level_ma_term_synonym" />
+	
+	<copyField source="inferred_child_ma_id" dest="child_ma_id" />
+	<copyField source="inferred_child_ma_term" dest="child_ma_term" />
+	<copyField source="inferred_child_ma_term_synonym" dest="child_ma_term_synonym" />
+	
+	
+	<!--  qf bucket list -->
+	<copyField source="mgi_accession_id" dest="geneQf" /> 
+	<copyField source="marker_symbol" dest="geneQf" /> 
+	<copyField source="marker_name" dest="geneQf" /> 
+	<copyField source="marker_synonym" dest="geneQf" /> 
+	
+	<copyField source="mp_id" dest="mpQf" /> 
+	<copyField source="mp_term" dest="mpQf" /> 
+	<copyField source="mp_term_synonym" dest="mpQf" /> 
+	<copyField source="top_level_mp_id" dest="mpQf" /> 
+	<copyField source="top_level_mp_term" dest="mpQf" /> 
+	<copyField source="top_level_mp_term_synonym" dest="mpQf" /> 
+	<copyField source="intermediate_mp_id" dest="mpQf" /> 
+	<copyField source="intermediate_mp_term" dest="mpQf" /> 
+	<copyField source="intermediate_mp_term_synonym" dest="mpQf" /> 
+	<copyField source="child_mp_id" dest="mpQf" /> 
+	<copyField source="child_mp_term" dest="mpQf" /> 
+	<copyField source="child_mp_term_synonym" dest="mpQf" /> 
+	
+	<copyField source="ma_id" dest="maQf" /> 
+	<copyField source="ma_term" dest="maQf" /> 
+	<copyField source="ma_term_synonym" dest="maQf" /> 
+	<copyField source="selected_top_level_ma_id" dest="maQf" /> 
+	<copyField source="selected_top_level_ma_term" dest="maQf" /> 
+	<copyField source="selected_top_level_ma_term_synonym" dest="maQf" /> 
+	<copyField source="child_ma_id" dest="maQf" /> 
+	<copyField source="child_ma_term" dest="maQf" /> 
+	<copyField source="child_ma_term_synonym" dest="maQf" /> 
+	
+	<copyField source="disease_id" dest="diseaseQf" /> 
+	<copyField source="disease_term" dest="diseaseQf" /> 
+	<copyField source="disease_alts" dest="diseaseQf" /> 
 	
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
 
