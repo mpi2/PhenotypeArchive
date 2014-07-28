@@ -158,19 +158,49 @@
 	<field name="ididid" type="string" indexed="true" stored="true" required="true" /> 
 
 	<!-- MP stuff -->
-	<field name="mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="mp_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="mp_definition" type="string" indexed="false" stored="true" required="false" multiValued="true" />
-	<field name="mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="top_level_mp_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="top_level_mp_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="inferred_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="inferred_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="inferred_selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="inferred_selected_top_level_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />	
 	
+	<field name="mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<field name="top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<field name="intermediate_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="intermediate_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="intermediate_mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	
+	<field name="child_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="child_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="child_mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	
+	<!--  MA stuff -->
+	<field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<field name="selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="selected_top_level_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+
+	<field name="child_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="child_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="child_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	
+	<field name="inferred_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+	<field name="inferred_selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="inferred_selected_top_level_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+
+	<field name="inferred_child_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_child_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="inferred_child_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
 	<!-- gene core stuff -->
 	<field name="p_value" type="float" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="marker_symbol" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
@@ -233,18 +263,19 @@
 
    <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
    <field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
-	<field name="selected_top_level_ma_term" type="string" indexed="true" stored="false" multiValued="true" />	
+	
+	<!-- bucket list qf -->
+  	<field name="geneQf" type="string" indexed="true" stored="false" multiValued="true"/>
+  	<field name="mpQf" type="string" indexed="true" stored="false" multiValued="true"/>
+  	<field name="diseaseQf" type="string" indexed="true" stored="false" multiValued="true"/>
+  	<field name="maQf" type="string" indexed="true" stored="false" multiValued="true"/>
+  	
 	
    <!-- catchall text field that indexes tokens both normally and in reverse for efficient
         leading wildcard queries. -->
 
    <field name="text_rev" type="text_general_rev" indexed="true" stored="false" multiValued="true"/>   
-
-	<field name="img_marker_type" type="string" indexed="true" stored="false" multiValued="true"/>
-	<field name="img_procedure_name" type="string" indexed="true" stored="false" multiValued="true"/>
-	<field name="img_top_level_mp_term" type="string" indexed="true" stored="false" multiValued="true"/>
-	<field name="img_selected_top_level_ma_term" type="string" indexed="true" stored="false" multiValued="true"/>
-
+	
  </fields>
     <uniqueKey>parameter_stable_id</uniqueKey>
 
@@ -267,17 +298,57 @@
    	<copyField source="procedure_name"  dest="auto_suggest" />
 	<copyField source="pipeline_stable_id" dest="auto_suggest" />
    	<copyField source="pipeline_name"  dest="auto_suggest" />
+   	
 	<copyField source="top_level_mp_term"  dest="annotatedHigherLevelMpTermName" />
-	<copyField source="inferred_selected_top_level_ma_term"  dest="annotated_or_inferred_higherLevelMaTermName" />
-	<copyField source="inferred_selected_top_level_ma_term"  dest="selected_top_level_ma_term" />
 
 	<copyField source="annotatedHigherLevelMaTermName"  dest="selected_top_level_ma_term" />
 	<copyField source="annotatedHigherLevelMpTermName"  dest="top_level_mp_term" />
+		
+	<copyField source="inferred_ma_id" dest="ma_id" />
+	<copyField source="inferred_ma_term" dest="ma_term" />
+	<copyField source="inferred_ma_term_synonym" dest="ma_term_synonym" />
+		
+	<copyField source="inferred_selected_top_level_ma_id" dest="selected_top_level_ma_id" />
+	<copyField source="inferred_selected_top_level_ma_term" dest="selected_top_level_ma_term" />
+	<copyField source="inferred_selected_top_level_ma_term_synonym" dest="selected_top_level_ma_term_synonym" />
+	<copyField source="inferred_selected_top_level_ma_term" dest="annotated_or_inferred_higherLevelMaTermName" />
+
+	<copyField source="inferred_child_ma_id" dest="child_ma_id" />
+	<copyField source="inferred_child_ma_term" dest="child_ma_term" />
+	<copyField source="inferred_child_ma_term_synonym" dest="child_ma_term_synonym" />
 	
-	<copyField source="subtype" dest="img_marker_type" /> 	
-	<copyField source="expName" dest="img_procedure_name" /> 
-	<copyField source="annotatedHigherLevelMaTermName"  dest="img_selected_top_level_ma_term" />
-	<copyField source="annotatedHigherLevelMpTermName"  dest="img_top_level_mp_term" />
+	<!--  qf bucket list -->
+	<copyField source="mgi_accession_id" dest="geneQf" /> 
+	<copyField source="marker_symbol" dest="geneQf" /> 
+	<copyField source="marker_name" dest="geneQf" /> 
+	<copyField source="marker_synonym" dest="geneQf" /> 
+	
+	<copyField source="mp_id" dest="mpQf" /> 
+	<copyField source="mp_term" dest="mpQf" /> 
+	<copyField source="mp_term_synonym" dest="mpQf" /> 
+	<copyField source="top_level_mp_id" dest="mpQf" /> 
+	<copyField source="top_level_mp_term" dest="mpQf" /> 
+	<copyField source="top_level_mp_term_synonym" dest="mpQf" /> 
+	<copyField source="intermediate_mp_id" dest="mpQf" /> 
+	<copyField source="intermediate_mp_term" dest="mpQf" /> 
+	<copyField source="intermediate_mp_term_synonym" dest="mpQf" /> 
+	<copyField source="child_mp_id" dest="mpQf" /> 
+	<copyField source="child_mp_term" dest="mpQf" /> 
+	<copyField source="child_mp_term_synonym" dest="mpQf" /> 
+	
+	<copyField source="ma_id" dest="maQf" /> 
+	<copyField source="ma_term" dest="maQf" /> 
+	<copyField source="ma_term_synonym" dest="maQf" /> 
+	<copyField source="selected_top_level_ma_id" dest="maQf" /> 
+	<copyField source="selected_top_level_ma_term" dest="maQf" /> 
+	<copyField source="selected_top_level_ma_term_synonym" dest="maQf" /> 
+	<copyField source="child_ma_id" dest="maQf" /> 
+	<copyField source="child_ma_term" dest="maQf" /> 
+	<copyField source="child_ma_term_synonym" dest="maQf" /> 
+	
+	<copyField source="disease_id" dest="diseaseQf" /> 
+	<copyField source="disease_term" dest="diseaseQf" /> 
+	<copyField source="disease_alts" dest="diseaseQf" /> 
 	
 </schema>
 
