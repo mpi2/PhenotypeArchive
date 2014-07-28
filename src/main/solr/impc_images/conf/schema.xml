@@ -123,17 +123,7 @@
 
   
     <fields>
-       	<field name="_version_" type="long" indexed="true" stored="true"/>
-        <field name="id"      type="string"   indexed="true"  stored="true"  multiValued="false" required="true"/>
-        <field name="observation_type"      type="string"   indexed="true"  stored="true"  multiValued="false" required="true"/>
-         <field name="pipeline_name"           type="string" indexed="true" stored="true" multiValued="false" /> 
-        <field name="pipeline_stable_id"      type="string" indexed="true" stored="true" multiValued="false" /> 
-        <field name="parameter_stable_id"     type="string" indexed="true" stored="true" multiValued="false" /> 
-        <field name="procedure_stable_id"     type="string" indexed="true" stored="true" multiValued="false" /> 
-        <field name="allele_accession_id"   type="string"   indexed="true"  stored="true"  multiValued="false" />
-        <field name="allele_symbol"  type="string"   indexed="true"  stored="true"  multiValued="false" />
-        <field name="download_file_path"  type="string"   indexed="true"  stored="true"  multiValued="false" />
-        <field name="full_resolution_file_path"  type="string"   indexed="true"  stored="true"  multiValued="false" />
+       
         
        <!-- 
  <field name="mouseId"    type="string"   indexed="true"  stored="true"  multiValued="false" /> 
@@ -214,58 +204,80 @@
     
     
         <!-- from experiment schema as many fields are now the same with new image data -->
-        <!-- 
-<field name="phenotyping_center_id"   type="int"    indexed="true" stored="true" multiValued="false" />
-        <field name="phenotyping_center"      type="string" indexed="true" stored="true" multiValued="false" />
-
-        <field name="gene_accession"          type="string" indexed="true" stored="true" multiValued="false" /> 
-        <field name="gene_symbol"             type="string" indexed="true" stored="true" multiValued="false" /> 
-        <field name="zygosity"                type="string" indexed="true" stored="true" multiValued="false" /> 
-        <field name="sex"                     type="string" indexed="true" stored="true" multiValued="false" /> 
-        <field name="biological_model_id"     type="int"    indexed="true" stored="true" multiValued="false" /> 
-        <field name="biological_sample_id"    type="int"    indexed="true" stored="true" multiValued="false" />
-        <field name="biological_sample_group" type="string" indexed="true" stored="true" multiValued="false" />
-        <field name="strain"                  type="string" indexed="true" stored="true" multiValued="false" />
-        <field name="colony_id"               type="string" indexed="true" stored="true" multiValued="false" />
-        <field name="date_of_birth"           type="tdate"  indexed="true" stored="true" multiValued="false" />
-        <field name="external_sample_id"      type="string" indexed="true" stored="true" multiValued="false" />
-
-        <field name="pipeline_id"             type="int"    indexed="true" stored="true" multiValued="false" /> 
-       
-        <field name="procedure_id"            type="int"    indexed="true" stored="true" multiValued="false" /> 
-        <!~~ <field name="procedure_name"          type="string" indexed="true" stored="true" multiValued="false" /> ~~>
-        <field name="parameter_id"            type="int"    indexed="true" stored="true" multiValued="false" /> 
-        <field name="parameter_name"          type="string" indexed="true" stored="true" multiValued="false" /> 
         
+<field name="_version_"               type="long"   indexed="true" stored="true"/> 
+		<field name="id"                      type="int"    indexed="true" stored="true" multiValued="false" required="true"/>
+		<field name="phenotyping_center_id"   type="int"    indexed="true" stored="true" multiValued="false" />
+		<field name="phenotyping_center"      type="string" indexed="true" stored="true" multiValued="false" />
 
-        <field name="experiment_id"           type="int"    indexed="true" stored="true" multiValued="false" /> 
-        <field name="experiment_source_id"    type="string" indexed="true" stored="true" multiValued="false" /> 
-        <field name="date_of_experiment"      type="tdate"  indexed="true" stored="true" multiValued="false" />
- -->
+		<field name="gene_accession_id"       type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="gene_symbol"             type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="allele_accession_id"     type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="allele_symbol"           type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="zygosity"                type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="sex"                     type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="biological_model_id"     type="int"    indexed="true" stored="true" multiValued="false" /> 
+		<field name="biological_sample_id"    type="int"    indexed="true" stored="true" multiValued="false" />
+		<field name="biological_sample_group" type="string" indexed="true" stored="true" multiValued="false" />
+		<field name="strain_accession_id"     type="string" indexed="true" stored="true" multiValued="false" />
+		<field name="strain_name"             type="string" indexed="true" stored="true" multiValued="false" />
+		<field name="colony_id"               type="string" indexed="true" stored="true" multiValued="false" />
+		<field name="date_of_birth"           type="tdate"  indexed="true" stored="true" multiValued="false" />
+		<field name="external_sample_id"      type="string" indexed="true" stored="true" multiValued="false" />
 
-        <!-- end of experiment data fields -->
-            
-    <!-- gene core stuff -->
-  										
-	<field name="text"   type="string"   indexed="true"  stored="true"  multiValued="true" />
-	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
-	<field name="text_search" type="text_general" indexed="true" stored="false" multiValued="true"/> 
-	<!--  for images -->
-	<field name="img_marker_type" type="string" indexed="true" stored="false" multiValued="true"/>
-	<field name="img_procedure_name" type="string" indexed="true" stored="false" multiValued="true"/>
-	<field name="img_top_level_mp_term" type="string" indexed="true" stored="false" multiValued="true"/>
-	<field name="img_selected_top_level_ma_term" type="string" indexed="true" stored="false" multiValued="true"/> 
+		<field name="datasource_id"           type="int"    indexed="true" stored="true" multiValued="false" /> 
+		<field name="datasource_name"         type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="project_id"              type="int"    indexed="true" stored="true" multiValued="false" /> 
+		<field name="project_name"            type="string" indexed="true" stored="true" multiValued="false" />
+		<field name="pipeline_id"             type="int"    indexed="true" stored="true" multiValued="false" /> 
+		<field name="pipeline_name"           type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="pipeline_stable_id"      type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="procedure_id"            type="int"    indexed="true" stored="true" multiValued="false" /> 
+		<field name="procedure_name"          type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="procedure_stable_id"     type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="parameter_id"            type="int"    indexed="true" stored="true" multiValued="false" /> 
+		<field name="parameter_name"          type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="parameter_stable_id"     type="string" indexed="true" stored="true" multiValued="false" /> 
+
+		<field name="experiment_id"           type="int"    indexed="true" stored="true" multiValued="false" /> 
+		<field name="observation_type"        type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="experiment_source_id"    type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="date_of_experiment"      type="tdate"  indexed="true" stored="true" multiValued="false" />
 	
+		<!-- unidimensional/multidimensional/time series -->
+		<field name="data_point"      type="float" indexed="true" stored="true" multiValued="false" />
+
+		<!-- multidimensional -->
+		<field name="order_index"     type="int"    indexed="true" stored="true" multiValued="false" /> 
+		<field name="dimension"       type="string" indexed="true" stored="true" multiValued="false" /> 
+	   	
+		<!-- time series -->
+		<field name="time_point"      type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="discrete_point"  type="float"  indexed="true" stored="true" multiValued="false" /> 
 	
-	<field name="datasource_id"           type="int"    indexed="true" stored="true" multiValued="false" /> 
-	<field name="datasource_name"         type="string" indexed="true" stored="true" multiValued="false" />  
-   	
+		<!-- categorical -->
+		<field name="category"        type="string" indexed="true" stored="true" multiValued="false" /> 
+		<field name="raw_category"    type="string" indexed="true" stored="true" multiValued="false" /> 
+
+		<!-- metadata -->
+		<field name="metadata"        type="string" indexed="true" stored="true" multiValued="true" /> 
+		<field name="metadata_group"  type="string" indexed="true" stored="true" multiValued="false" /> 
+		
+		<!-- images -->
+		<field name="download_file_path" type="string" indexed="true" stored="true" multiValued="false" />
+		<field name="file_type"       type="string" indexed="true" stored="true" multiValued="false" />
+		<!-- images from external to Experiment/observations core-->
+		 <field name="full_resolution_file_path"  type="string"   indexed="true"  stored="true"  multiValued="false" />
+		 <field name="omero_id"     type="int"    indexed="true" stored="true" multiValued="false" /> 
+
+        <!-- end of experiment data fields -->	
+	
  </fields>
 
     <uniqueKey>id</uniqueKey>
 
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
- <defaultSearchField>text</defaultSearchField>
+ <!-- <defaultSearchField>text</defaultSearchField> -->
 
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
  <solrQueryParser defaultOperator="OR"/>
