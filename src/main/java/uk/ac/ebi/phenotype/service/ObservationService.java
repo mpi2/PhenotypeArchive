@@ -63,6 +63,7 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.stats.StackedBarsData;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalDataObject;
@@ -1587,6 +1588,16 @@ public class ObservationService extends BasicService {
         return solr.query(query).getBeans(ObservationDTO.class);
 
     }
+	
+	public List<ImageDTO> getAllImageDTOs()
+	throws SolrServerException {
+
+		SolrQuery query = getIMageRecordSolrQueryByParameter();
+
+		return solr.query(query).getBeans(ImageDTO.class);
+
+	}
+	
 	 public SolrQuery getIMageRecordSolrQueryByParameter()
 	            throws SolrServerException {
 
