@@ -1,42 +1,48 @@
 package uk.ac.ebi.phenotype.web.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 //import omero.*;
 //import omero.api.ServiceFactoryPrx;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import uk.ac.ebi.phenotype.service.ImageService;
+import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 
 //import Glacier2.CannotCreateSessionException;
 //import Glacier2.PermissionDeniedException;
 
 @Controller
 public class ImpcImagesController {
-	@RequestMapping("/impcImages*")
-	public String allImages(
-			@RequestParam(required = false, defaultValue = "0", value = "start") int start,
-			@RequestParam(required = false, defaultValue = "25", value = "length") int length,
-			@RequestParam(required = false, defaultValue = "*:*", value = "q") String qIn,
-			@RequestParam(required = false, defaultValue = "", value = "phenotype_id") String mpId,
-			@RequestParam(required = false, defaultValue = "", value = "gene_id") String geneId,
-			@RequestParam(required = false, defaultValue = "", value = "fq") String[] filterField,
-			@RequestParam(required = false, defaultValue = "", value = "facet.field") String facetField,
-			@RequestParam(required = false, defaultValue = "", value = "qf") String qf,
-			@RequestParam(required = false, defaultValue = "", value = "defType") String defType,
-			@RequestParam(required = false, defaultValue = "", value = "anatomy_id") String maId,
-			HttpServletRequest request, Model model) throws SolrServerException {
 
+	@Autowired
+	ImageService imageService;
+
+
+	@RequestMapping("/impcImages*")
+	public String allImages(HttpServletRequest request, Model model)
+	throws SolrServerException {
 		
-		//for a test lets just get some image ids and display them here
+		//http://localhost:8080/phenotype-archive/impcImages?q=observation_type:image_record&rows=100
+		String solrQueryString=request.getQueryString();
+		System.out.println("impcImages query="+solrQueryString);
+		System.out.println("calling impcImages web page");
 		
 		
-		
-		
-System.out.println("calling impcImages web page");
+		List<ImageDTO> imageDTOs = imageService.getImageDTOsForSolrQuery(solrQueryString);
+		model.addAttribute("images", imageDTOs);
+		model.addAttribute("imageCount", imageDTOs.size());//need to change this to the potential number we could get
+		for (ImageDTO imageDTO : imageDTOs) {
+			System.out.println(imageDTO.getOmeroId());
+		}
 		return "impcImages";
 	}
 }

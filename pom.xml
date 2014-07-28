@@ -45,7 +45,7 @@
 			<internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</internalSolrUrl> -->
 
 		<solrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</solrUrl>
-		<internalSolrUrl>http://wwwdev.ebi.ac.uk/mi/impc/dev/solr</internalSolrUrl>
+		<internalSolrUrl>http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr</internalSolrUrl>
 
 		<drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
 

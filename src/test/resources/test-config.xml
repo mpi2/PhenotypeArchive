@@ -62,6 +62,10 @@
 
     <bean id="experimentService" class="uk.ac.ebi.phenotype.service.ExperimentService">
     </bean>
+    
+    <bean id="imageService" class="uk.ac.ebi.phenotype.service.ImageService">
+		<constructor-arg value="${internalSolrUrl}/impc_images" />
+	</bean>
 
     <bean id="unidimensionalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl">
         <constructor-arg ref="sessionFactory" />
