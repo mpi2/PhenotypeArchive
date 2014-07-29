@@ -124,20 +124,22 @@
     <field name="_version_" type="long" indexed="true" stored="true"/> 
     <field name="dataType" type="string" indexed="true" stored="true" required="true" multiValued="false" />   
     <field name="ma_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-    <field name="ma_term" type="string" indexed="true" stored="true" required="true" multiValued="false" />	   
-    <field name="ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />   
+    <field name="ma_term" type="text_general" indexed="true" stored="true" required="true" multiValued="false" />	   
+    <field name="ma_term_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />   
     <field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
    
     <field name="child_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="child_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />							
+    <field name="child_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+    <field name="child_ma_term_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />			
     <field name="child_ma_idTerm" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
-
   	<field name="top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />   
+    <field name="top_level_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />   
 
 	<field name="selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-    <field name="selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" /> 
+    <field name="selected_top_level_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
+ 	<field name="selected_top_level_ma_term_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" /> 
+ 
   	<field name="go_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<!-- gene core stuff -->
@@ -233,22 +235,33 @@
 	<field name="parameter_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="parameter_stable_key" type="string" indexed="false" stored="true" required="false" multiValued="true" />
 
+	<field name="mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
 	<field name="top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="top_level_mp_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="top_level_mp_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="top_level_mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
-
+	<field name="intermediate_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="intermediate_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="intermediate_mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	
+	<field name="child_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="child_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="child_mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
    <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
    <field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
    
-   <field name="img_marker_type" type="string" indexed="true" stored="false" multiValued="true"/>
-	<field name="img_procedure_name" type="string" indexed="true" stored="false" multiValued="true"/>
-	<field name="img_top_level_mp_term" type="string" indexed="true" stored="false" multiValued="true"/>
-	<field name="img_selected_top_level_ma_term" type="string" indexed="true" stored="false" multiValued="true"/>
-	
+   
+   	<!-- bucket list qf -->
+  	<field name="geneQf" type="string" indexed="true" stored="false" multiValued="true"/>
+  	<field name="mpQf" type="string" indexed="true" stored="false" multiValued="true"/>
+  	<field name="diseaseQf" type="string" indexed="true" stored="false" multiValued="true"/>
+  	<field name="maQf" type="string" indexed="true" stored="false" multiValued="true"/>
    
    
  </fields>
@@ -270,19 +283,48 @@
 	<copyField source="*" dest="text"/>
   	<copyField source="ma_id" dest="auto_suggest" />
     <copyField source="ma_term" dest="auto_suggest" />	    
-    <copyField source="ma_term_synonym" dest="auto_suggest" />    
+    <copyField source="ma_term_synonym" dest="auto_suggest" /> 
+    
+    <copyField source="child_ma_id" dest="auto_suggest" />   
     <copyField source="child_ma_term" dest="auto_suggest" /> 
-    <copyField source="child_ma_id" dest="auto_suggest" />
-   
-    <copyField source="selected_top_level_ma_term" dest="auto_suggest" />
+    <copyField source="child_ma_term" dest="auto_suggest" /> 
+    
     <copyField source="selected_top_level_ma_id" dest="auto_suggest" />
-
+    <copyField source="selected_top_level_ma_term" dest="auto_suggest" />
+    <copyField source="selected_top_level_ma_term_synonym" dest="auto_suggest" />
 	
 	<copyField source="selected_top_level_ma_term" dest="annotated_or_inferred_higherLevelMaTermName" />	
 
-	<copyField source="marker_type" dest="img_marker_type" /> 	
-	<copyField source="procedure_name" dest="img_procedure_name" /> 
-	<copyField source="top_level_mp_term" dest="img_selected_top_level_ma_term" /> 	
-
-
+	<!--  qf bucket list -->
+	<copyField source="mgi_accession_id" dest="geneQf" /> 
+	<copyField source="marker_symbol" dest="geneQf" /> 
+	<copyField source="marker_name" dest="geneQf" /> 
+	<copyField source="marker_synonym" dest="geneQf" /> 
+	
+	<copyField source="mp_id" dest="mpQf" /> 
+	<copyField source="mp_term" dest="mpQf" /> 
+	<copyField source="mp_term_synonym" dest="mpQf" /> 
+	<copyField source="top_level_mp_id" dest="mpQf" /> 
+	<copyField source="top_level_mp_term" dest="mpQf" /> 
+	<copyField source="top_level_mp_term_synonym" dest="mpQf" /> 
+	<copyField source="intermediate_mp_id" dest="mpQf" /> 
+	<copyField source="intermediate_mp_term" dest="mpQf" /> 
+	<copyField source="intermediate_mp_term_synonym" dest="mpQf" /> 
+	<copyField source="child_mp_id" dest="mpQf" /> 
+	<copyField source="child_mp_term" dest="mpQf" /> 
+	<copyField source="child_mp_term_synonym" dest="mpQf" /> 
+	
+	<copyField source="ma_id" dest="maQf" /> 
+	<copyField source="ma_term" dest="maQf" /> 
+	<copyField source="ma_term_synonym" dest="maQf" /> 
+	<copyField source="selected_top_level_ma_id" dest="maQf" /> 
+	<copyField source="selected_top_level_ma_term" dest="maQf" /> 
+	<copyField source="selected_top_level_ma_term_synonym" dest="maQf" /> 
+	<copyField source="child_ma_id" dest="maQf" /> 
+	<copyField source="child_ma_term" dest="maQf" /> 
+	<copyField source="child_ma_term_synonym" dest="maQf" /> 
+	
+	<copyField source="disease_id" dest="diseaseQf" /> 
+	<copyField source="disease_term" dest="diseaseQf" /> 
+	<copyField source="disease_alts" dest="diseaseQf" /> 
 </schema>

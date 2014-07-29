@@ -7,253 +7,354 @@ import org.apache.solr.client.solrj.beans.Field;
 
 public class StatisticalResultDTO {
 
-    @Field("doc_id")
+
+
+    public final static String DOCUMENT_ID = "doc_id";
+    public final static String DB_ID = "db_id";
+    public final static String DATA_TYPE = "data_type";
+
+    public final static String MP_TERM_ID = "mp_term_id"; 
+    public final static String MP_TERM_NAME = "mp_term_name"; 
+    public final static String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";
+    public final static String TOP_LEVEL_MP_TERM_NAME = "top_level_mp_term_name";
+    public final static String INTERMEDIATE_MP_TERM_ID = "intermediate_mp_term_id";
+    public final static String INTERMEDIATE_MP_TERM_NAME = "intermediate_mp_term_name";
+
+    public final static String RESOURCE_NAME = "resource_name"; 
+    public final static String RESOURCE_FULLNAME = "resource_fullname";
+    public final static String RESOURCE_ID = "resource_id"; 
+    public final static String PROJECT_NAME = "project_name";
+    public final static String PHENOTYPING_CENTER = "phenotyping_center"; 
+
+    public final static String PIPELINE_STABLE_ID = "pipeline_stable_id"; 
+    public final static String PIPELINE_STABLE_KEY = "pipeline_stable_key"; 
+    public final static String PIPELINE_NAME = "pipeline_name"; 
+    public final static String PIPELINE_ID = "pipeline_id"; 
+
+    public final static String PROCEDURE_STABLE_ID = "procedure_stable_id";
+    public final static String PROCEDURE_STABLE_KEY = "procedure_stable_key"; 
+    public final static String PROCEDURE_NAME = "procedure_name"; 
+    public final static String PROCEDURE_ID = "procedure_id"; 
+
+    public final static String PARAMETER_STABLE_ID = "parameter_stable_id";
+    public final static String PARAMETER_STABLE_KEY = "parameter_stable_key";
+    public final static String PARAMETER_NAME = "parameter_name";
+    public final static String PARAMETER_ID = "parameter_id";
+
+    public final static String COLONY_ID = "colony_id"; 
+    public final static String MARKER_SYMBOL = "marker_symbol";
+    public final static String MARKER_ACCESSION_ID = "marker_accession_id";
+    public final static String ALLELE_SYMBOL = "allele_symbol";
+    public final static String ALLELE_NAME = "allele_name";
+    public final static String ALLELE_ACCESSION_ID = "allele_accession_id";
+    public final static String STRAIN_NAME = "strain_name"; 
+    public final static String STRAIN_ACCESSION_ID = "strain_accession_id"; 
+    public final static String SEX = "sex"; 
+    public final static String ZYGOSITY = "zygosity"; 
+
+    public final static String CONTROL_SELECTION_METHOD = "control_selection_method";
+    public final static String DEPENDENT_VARIABLE = "dependent_variable";
+    public final static String METADATA_GROUP = "metadata_group";
+
+    public final static String CONTROL_BIOLOGICAL_MODEL_ID = "control_biological_model_id";
+    public final static String MUTANT_BIOLOGICAL_MODEL_ID = "mutant_biological_model_id";
+    public final static String MALE_CONTROL_COUNT = "male_control_count";
+    public final static String MALE_MUTANT_COUNT = "male_mutant_count";
+    public final static String FEMALE_CONTROL_COUNT = "female_control_count";
+    public final static String FEMALE_MUTANT_COUNT = "female_mutant_count";
+
+    public final static String STATISTICAL_METHOD = "statistical_method";
+    public final static String STATUS = "status";
+    public final static String ADDITIONAL_INFORMATION = "additional_information";
+    public final static String RAW_OUTPUT = "raw_output";
+    public final static String P_VALUE = "p_value";
+    public final static String EFFECT_SIZE = "effect_size";
+
+    public final static String CATEGORIES = "categories";
+    public final static String CATEGORICAL_P_VALUE = "categorical_p_value";
+    public final static String CATEGORICAL_EFFECT_SIZE = "categorical_effect_size";
+    
+    public final static String BATCH_SIGNIFICANT = "batch_significant";
+    public final static String VARIANCE_SIGNIFICANT = "variance_significant";
+    public final static String NULL_TEST_P_VALUE = "null_test_p_value";
+    public final static String GENOTYPE_EFFECT_P_VALUE = "genotype_effect_p_value";
+    public final static String GENOTYPE_EFFECT_STDERR_ESTIMATE = "genotype_effect_stderr_estimate";
+    public final static String GENOTYPE_EFFECT_PARAMETER_ESTIMATE = "genotype_effect_parameter_estimate";
+
+    public final static String SEX_EFFECT_P_VALUE = "sex_effect_p_value";
+    public final static String SEX_EFFECT_STDERR_ESTIMATE = "sex_effect_stderr_estimate";
+    public final static String SEX_EFFECT_PARAMETER_ESTIMATE = "sex_effect_parameter_estimate";
+    public final static String WEIGHT_EFFECT_P_VALUE = "weight_effect_p_value";
+    public final static String WEIGHT_EFFECT_STDERR_ESTIMATE = "weight_effect_stderr_estimate";
+    public final static String WEIGHT_EFFECT_PARAMETER_ESTIMATE = "weight_effect_parameter_estimate";
+
+    public final static String GROUP_1_GENOTYPE = "group_1_genotype";
+    public final static String GROUP_1_RESIDUALS_NORMALITY_TEST = "group_1_residuals_normality_test";
+    public final static String GROUP_2_GENOTYPE = "group_2_genotype";
+    public final static String GROUP_2_RESIDUALS_NORMALITY_TEST = "group_2_residuals_normality_test";
+    public final static String BLUPS_TEST = "blups_test";
+    public final static String ROTATED_RESIDUALS_TEST = "rotated_residuals_test";
+
+    public final static String INTERCEPT_ESTIMATE = "intercept_estimate";
+    public final static String INTERCEPT_ESTIMATE_STDERR_ESTIMATE = "intercept_estimate_stderr_estimate";
+    public final static String INTERACTION_SIGNIFICANT = "interaction_significant";
+    public final static String INTERACTION_EFFECT_P_VALUE = "interaction_effect_p_value";
+    public final static String FEMALE_KO_EFFECT_P_VALUE = "female_ko_effect_p_value";
+    public final static String FEMALE_KO_EFFECT_STDERR_ESTIMATE = "female_ko_effect_stderr_estimate";
+    public final static String FEMALE_KO_PARAMETER_ESTIMATE = "female_ko_parameter_estimate";
+    public final static String MALE_KO_EFFECT_P_VALUE = "male_ko_effect_p_value";
+    public final static String MALE_KO_EFFECT_STDERR_ESTIMATE = "male_ko_effect_stderr_estimate";
+    public final static String MALE_KO_PARAMETER_ESTIMATE = "male_ko_parameter_estimate";
+    public final static String CLASSIFICATION_TAG = "classification_tag";
+
+
+    @Field(DOCUMENT_ID)
     private String docId;
 
-    @Field("db_id")
+    @Field(DB_ID)
     private Integer dbId;
 
-    @Field("data_type")
+    @Field(DATA_TYPE)
     private String dataType;
 
-    @Field("mp_term_id")
+    @Field(MP_TERM_ID)
     private String mpTermId;
 
-    @Field("mp_term_name")
+    @Field(MP_TERM_NAME)
     private String mpTermName;
 
-    @Field("top_level_mp_term_id")
+    @Field(TOP_LEVEL_MP_TERM_ID)
     private String topLevelMpTermId;
 
-    @Field("top_level_mp_term_name")
+    @Field(TOP_LEVEL_MP_TERM_NAME)
     private String topLevelMpTermName;
 
-    @Field("intermediate_mp_term_id")
+    @Field(INTERMEDIATE_MP_TERM_ID)
     private String intermediateMpTermId;
 
-    @Field("intermediate_mp_term_name")
+    @Field(INTERMEDIATE_MP_TERM_NAME)
     private String intermediateMpTermName;
 
-    @Field("resource_name")
+    @Field(RESOURCE_NAME)
     private String resourceName;
 
-    @Field("resource_fullname")
+    @Field(RESOURCE_FULLNAME)
     private String resourceFullname;
 
-    @Field("resource_id")
+    @Field(RESOURCE_ID)
     private Integer resourceId;
 
-    @Field("project_name")
+    @Field(PROJECT_NAME)
     private String projectName;
 
-    @Field("phenotyping_center")
+    @Field(PHENOTYPING_CENTER)
     private String phenotypingCenter;
 
-    @Field("pipeline_stable_id")
+    @Field(PIPELINE_STABLE_ID)
     private String pipelineStableId;
 
-    @Field("pipeline_stable_key")
+    @Field(PIPELINE_STABLE_KEY)
     private String pipelineStableKey;
 
-    @Field("pipeline_name")
+    @Field(PIPELINE_NAME)
     private String pipelineName;
 
-    @Field("pipeline_id")
+    @Field(PIPELINE_ID)
     private Integer pipelineId;
 
-    @Field("procedure_stable_id")
+    @Field(PROCEDURE_STABLE_ID)
     private String procedureStableId;
 
-    @Field("procedure_stable_key")
+    @Field(PROCEDURE_STABLE_KEY)
     private String procedureStableKey;
 
-    @Field("procedure_name")
+    @Field(PROCEDURE_NAME)
     private String procedureName;
 
-    @Field("procedure_id")
+    @Field(PROCEDURE_ID)
     private Integer procedureId;
 
-    @Field("parameter_stable_id")
+    @Field(PARAMETER_STABLE_ID)
     private String parameterStableId;
 
-    @Field("parameter_stable_key")
+    @Field(PARAMETER_STABLE_KEY)
     private String parameterStableKey;
 
-    @Field("parameter_name")
+    @Field(PARAMETER_NAME)
     private String parameterName;
 
-    @Field("parameter_id")
+    @Field(PARAMETER_ID)
     private Integer parameterId;
 
-    @Field("colony_id")
+    @Field(COLONY_ID)
     private String colonyId;
 
-    @Field("marker_symbol")
+    @Field(MARKER_SYMBOL)
     private String markerSymbol;
 
-    @Field("marker_accession_id")
+    @Field(MARKER_ACCESSION_ID)
     private String markerAccessionId;
 
-    @Field("allele_symbol")
+    @Field(ALLELE_SYMBOL)
     private String alleleSymbol;
 
-    @Field("allele_name")
+    @Field(ALLELE_NAME)
     private String alleleName;
 
-    @Field("allele_accession_id")
+    @Field(ALLELE_ACCESSION_ID)
     private String alleleAccessionId;
 
-    @Field("strain_name")
+    @Field(STRAIN_NAME)
     private String strainName;
 
-    @Field("strain_accession_id")
+    @Field(STRAIN_ACCESSION_ID)
     private String strainAccessionId;
 
-    @Field("sex")
+    @Field(SEX)
     private String sex;
 
-    @Field("zygosity")
+    @Field(ZYGOSITY)
     private String zygosity;
 
-    @Field("control_selection_method")
+    @Field(CONTROL_SELECTION_METHOD)
     private String controlSelectionMethod;
 
-    @Field("dependent_variable")
+    @Field(DEPENDENT_VARIABLE)
     private String dependentVariable;
 
-    @Field("metadata_group")
+    @Field(METADATA_GROUP)
     private String metadataGroup;
 
-    @Field("control_biological_model_id")
+    @Field(CONTROL_BIOLOGICAL_MODEL_ID)
     private Integer controlBiologicalModelId;
 
-    @Field("mutant_biological_model_id")
+    @Field(MUTANT_BIOLOGICAL_MODEL_ID)
     private Integer mutantBiologicalModelId;
 
-    @Field("male_control_count")
+    @Field(MALE_CONTROL_COUNT)
     private Integer maleControlCount;
 
-    @Field("male_mutant_count")
+    @Field(MALE_MUTANT_COUNT)
     private Integer maleMutantCount;
 
-    @Field("female_control_count")
+    @Field(FEMALE_CONTROL_COUNT)
     private Integer femaleControlCount;
 
-    @Field("female_mutant_count")
+    @Field(FEMALE_MUTANT_COUNT)
     private Integer femaleMutantCount;
 
-    @Field("statistical_method")
+    @Field(STATISTICAL_METHOD)
     private String statisticalMethod;
 
-    @Field("status")
+    @Field(STATUS)
     private String status;
 
-    @Field("additional_information")
+    @Field(ADDITIONAL_INFORMATION)
     private String additionalInformation;
 
-    @Field("raw_output")
+    @Field(RAW_OUTPUT)
     private String rawOutput;
 
-    @Field("p_value")
+    @Field(P_VALUE)
     private Float pValue;
 
-    @Field("effect_size")
+    @Field(EFFECT_SIZE)
     private Float effectSize;
 
-    @Field("categories")
+    @Field(CATEGORIES)
     private List<String> categories;
 
-    @Field("categorical_p_value")
+    @Field(CATEGORICAL_P_VALUE)
     private Float categoricalPValue;
 
-    @Field("categorical_effect_size")
+    @Field(CATEGORICAL_EFFECT_SIZE)
     private Float categoricalEffectSize;
 
-    @Field("batch_significant")
+    @Field(BATCH_SIGNIFICANT)
     private Boolean batchSignificant;
 
-    @Field("variance_significant")
+    @Field(VARIANCE_SIGNIFICANT)
     private Boolean varianceSignificant;
 
-    @Field("null_test_p_value")
+    @Field(NULL_TEST_P_VALUE)
     private Float nullTestPValue;
 
-    @Field("genotype_effect_p_value")
+    @Field(GENOTYPE_EFFECT_P_VALUE)
     private Float genotypeEffectPValue;
 
-    @Field("genotype_effect_stderr_estimate")
+    @Field(GENOTYPE_EFFECT_STDERR_ESTIMATE)
     private Float genotypeEffectStderrEstimate;
 
-    @Field("genotype_effect_parameter_estimate")
+    @Field(GENOTYPE_EFFECT_PARAMETER_ESTIMATE)
     private Float genotypeEffectParameterEstimate;
 
-    @Field("sex_effect_p_value")
+    @Field(SEX_EFFECT_P_VALUE)
     private Float sexEffectPValue;
 
-    @Field("sex_effect_stderr_estimate")
+    @Field(SEX_EFFECT_STDERR_ESTIMATE)
     private Float sexEffectStderrEstimate;
 
-    @Field("sex_effect_parameter_estimate")
+    @Field(SEX_EFFECT_PARAMETER_ESTIMATE)
     private Float sexEffectParameterEstimate;
 
-    @Field("weight_effect_p_value")
+    @Field(WEIGHT_EFFECT_P_VALUE)
     private Float weightEffectPValue;
 
-    @Field("weight_effect_stderr_estimate")
+    @Field(WEIGHT_EFFECT_STDERR_ESTIMATE)
     private Float weightEffectStderrEstimate;
 
-    @Field("weight_effect_parameter_estimate")
+    @Field(WEIGHT_EFFECT_PARAMETER_ESTIMATE)
     private Float weightEffectParameterEstimate;
 
-    @Field("group_1_genotype")
+    @Field(GROUP_1_GENOTYPE)
     private String group1Genotype;
 
-    @Field("group_1_residuals_normality_test")
+    @Field(GROUP_1_RESIDUALS_NORMALITY_TEST)
     private Float group1ResidualsNormalityTest;
 
-    @Field("group_2_genotype")
+    @Field(GROUP_2_GENOTYPE)
     private String group2Genotype;
 
-    @Field("group_2_residuals_normality_test")
+    @Field(GROUP_2_RESIDUALS_NORMALITY_TEST)
     private Float group2ResidualsNormalityTest;
 
-    @Field("blups_test")
+    @Field(BLUPS_TEST)
     private Float blupsTest;
 
-    @Field("rotated_residuals_test")
+    @Field(ROTATED_RESIDUALS_TEST)
     private Float rotatedResidualsTest;
 
-    @Field("intercept_estimate")
+    @Field(INTERCEPT_ESTIMATE)
     private Float interceptEstimate;
 
-    @Field("intercept_estimate_stderr_estimate")
+    @Field(INTERCEPT_ESTIMATE_STDERR_ESTIMATE)
     private Float interceptEstimateStderrEstimate;
 
-    @Field("interaction_significant")
+    @Field(INTERACTION_SIGNIFICANT)
     private Boolean interactionSignificant;
 
-    @Field("interaction_effect_p_value")
+    @Field(INTERACTION_EFFECT_P_VALUE)
     private Float interactionEffectPValue;
 
-    @Field("female_ko_effect_p_value")
+    @Field(FEMALE_KO_EFFECT_P_VALUE)
     private Float femaleKoEffectPValue;
 
-    @Field("female_ko_effect_stderr_estimate")
+    @Field(FEMALE_KO_EFFECT_STDERR_ESTIMATE)
     private Float femaleKoEffectStderrEstimate;
 
-    @Field("female_ko_parameter_estimate")
+    @Field(FEMALE_KO_PARAMETER_ESTIMATE)
     private Float femaleKoParameterEstimate;
 
-    @Field("male_ko_effect_p_value")
+    @Field(MALE_KO_EFFECT_P_VALUE)
     private Float maleKoEffectPValue;
 
-    @Field("male_ko_effect_stderr_estimate")
+    @Field(MALE_KO_EFFECT_STDERR_ESTIMATE)
     private Float maleKoEffectStderrEstimate;
 
-    @Field("male_ko_parameter_estimate")
+    @Field(MALE_KO_PARAMETER_ESTIMATE)
     private Float maleKoParameterEstimate;
 
-    @Field("classification_tag")
+    @Field(CLASSIFICATION_TAG)
     private String classificationTag;
 
     

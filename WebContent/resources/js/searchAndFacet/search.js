@@ -23,15 +23,29 @@
 	
 	function _updateFacetCount(facet, facetResponse, facetMode){		
 		//var num = facetMode ? '' : facetResponse.response.numFound;
-		num = facetResponse.response.numFound;		
+		num = facetResponse.response.numFound;	
+		//console.log('num found: '+ num)
 		$('div.flist li#' + facet + ' span.fcount').html(num);		
 		
 		var freezeMode = num == 0 ? true : false;
 		$.fn.freezeFacet($('li#' + facet + '.fmcat'), freezeMode);	
 	}
 	
+	function _getParams(facet, oUrlHashParams){
+		facet += 'Facet';
+		var params = $.extend({}, jsonBase[facet].srchParams, jsonBase[facet].filterParams);
+		//console.log($.extend({}, jsonBase.mpFacet.srchParams, jsonBase.mpFacet.filterParams, oParams));
+		
+		if ( typeof oUrlHashParams.qf != 'undefined' ){
+			params.qf = oUrlHashParams.qf; 
+		}
+		//console.log($.fn.stringifyJsonAsUrlParams(params));
+		return params;
+	}
+	
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
 		//console.log(oUrlHashParams);	
+		//console.log('search.js - 35');
 		var q = oUrlHashParams.q;
 		
 		// for match text highlighting
@@ -52,15 +66,16 @@
 				q = '*:*';
 			}
 		}
-						
-		q = decodeURI(q);
-		if ( q != '*:*' ){
-			$('input#s').val(q);
-		}
+			
 		
-		// set this depending on query
-		q = $.fn.setSolrComplexPhraseQuery(q); 
-
+		q = decodeURI(q);
+//		if ( q != '*:*' ){
+//			$('input#s').val(q);
+//		}
+		
+		$('input#s').val(q); 
+		q = $.fn.process_q(q);
+		
 		var facetMode = oUrlHashParams.facetName;
 				
 		var oFacets = {};
@@ -76,17 +91,16 @@
 		}
 		
 		jsonBase.geneFacet.srchParams.q = q;
-		//console.log($.extend({}, jsonBase.geneFacet.srchParams, jsonBase.geneFacet.filterParams)); 
-	 	
+		
 		// facet types are done sequencially; starting from gene		
 	    $.ajax({            	    
 	    		url: solrUrl + '/gene/select',	    		
-	       	   // data: $.extend({}, jsonBase.geneFacet.srchParams, oUrlHashParams.fq ? jsonBase.geneFacet.filterParams = {'fq': oUrlHashParams.fq} : jsonBase.geneFacet.filterParams),
-	    		data: $.extend({}, jsonBase.geneFacet.srchParams, jsonBase.geneFacet.filterParams),
+	    		data: _getParams('gene', oUrlHashParams),
 	       	    dataType: 'jsonp',
 	       	    jsonp: 'json.wrf',
 	       	    timeout: 5000,
-	       	    success: function (geneResponse) {	  
+	       	    success: function (geneResponse) {
+	       	    	//console.log('gene');
 	       	    	//console.log(geneResponse);
 	       	    	$('div.flist li#gene span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
 	       	    	oFacets.count.gene = geneResponse.response.numFound;	
@@ -107,16 +121,14 @@
 			jsonBase.mpFacet.filterParams = {'fq': oUrlHashParams.fq};
 		}
 		
-		var oParams = {};		
-		//console.log($.extend({}, jsonBase.mpFacet.srchParams, jsonBase.mpFacet.filterParams, oParams));		
-		
 		$.ajax({
     	    url: solrUrl + '/mp/select',
-    	    data: $.extend({}, jsonBase.mpFacet.srchParams, jsonBase.mpFacet.filterParams, oParams),
+    	    data: _getParams('mp', oUrlHashParams),
     	    dataType: 'jsonp',
     	    jsonp: 'json.wrf',
     	    timeout: 5000,
     	    success: function (mpResponse) { 
+    	    	//console.log('mp');
     	    	//console.log(mpResponse);
     	    	$('div.flist li#mp span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
        	    	oFacets.count.mp = mpResponse.response.numFound;       	    	
@@ -134,14 +146,15 @@
 		if ( typeof oUrlHashParams.fq != 'undefined' && typeof oUrlHashParams.coreName == 'undefined' ){
 			jsonBase.diseaseFacet.filterParams = {'fq': oUrlHashParams.fq};
 		}	
-		//console.log($.fn.stringifyJsonAsUrlParams(jsonBase.diseaseFacet.srchParams));
+		
 		$.ajax({    	  
     	    url: solrUrl + '/disease/select',	
-    	    data: $.extend({}, jsonBase.diseaseFacet.srchParams, jsonBase.diseaseFacet.filterParams),
+    	    data: _getParams('disease', oUrlHashParams),
     	    dataType: 'jsonp',
     	    jsonp: 'json.wrf',
     	    timeout: 10000,
     	    success: function (diseaseResponse) { 
+    	    	//console.log('disease');
     	    	//console.log(diseaseResponse);
     	    	$('div.flist li#disease span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.disease = diseaseResponse.response.numFound;    	    	
@@ -165,11 +178,12 @@
 		
 		$.ajax({
     	    url: solrUrl + '/ma/select',    	    
-    	    data: $.extend({}, jsonBase.maFacet.srchParams, jsonBase.maFacet.filterParams),
+    	    data: _getParams('ma', oUrlHashParams),
     	    dataType: 'jsonp',
     	    jsonp: 'json.wrf',
     	    timeout: 10000,
-    	    success: function (maResponse) {    	    	   	    	    		    	   	    	
+    	    success: function (maResponse) { 
+    	    	//console.log('ma');
     	    	//console.log(maResponse);
     	    	$('div.flist li#ma span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.ma = maResponse.response.numFound;    	    	
@@ -189,14 +203,15 @@
 		if ( typeof oUrlHashParams.fq != 'undefined' && typeof oUrlHashParams.coreName == 'undefined' ){
 			jsonBase.pipelineFacet.filterParams = {'fq': oUrlHashParams.fq};
 		}
-		//console.log($.extend({}, jsonBase.pipelineFacet.srchParams, jsonBase.pipelineFacet.filterParams));
+		
 		$.ajax({
     	    url: solrUrl + '/pipeline/select',    	   
-    	    data: $.extend({}, jsonBase.pipelineFacet.srchParams, jsonBase.pipelineFacet.filterParams),
+    	    data: _getParams('pipeline', oUrlHashParams),
     	    dataType: 'jsonp',
     	    jsonp: 'json.wrf',
     	    timeout: 5000,
     	    success: function (pipelineResponse) {  
+    	    	//console.log('pipeline');
     	    	//console.log(pipelineResponse);
     	    	$('div.flist li#pipeline span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
     	    	oFacets.count.pipeline = pipelineResponse.response.numFound;    	    	
@@ -215,18 +230,19 @@
 		if ( typeof oUrlHashParams.fq != 'undefined' && typeof oUrlHashParams.coreName == 'undefined' ){
 			jsonBase.imagesFacet.filterParams = {'fq': oUrlHashParams.fq};
 		}
-		//console.log($.fn.stringifyJsonAsUrlParams($.extend({}, jsonBase.imagesFacet.srchParams, jsonBase.imagesFacet.filterParams)));
 		
 		$.ajax({
     	    url: solrUrl + '/images/select',   
-    	    data: $.extend({}, jsonBase.imagesFacet.srchParams, jsonBase.imagesFacet.filterParams),
+    	    data: _getParams('images', oUrlHashParams),
     	    dataType: 'jsonp',
     	    jsonp: 'json.wrf',
     	    timeout: 5000,
     	    success: function (imagesResponse) {  
+    	    	//console.log('images');
     	    	//console.log(imagesResponse);
     	    	
     	    	$('div.flist li#images span.fcount').html(MPI2.searchAndFacetConfig.searchSpin);
+    	    	
     	    	oFacets.count.images = imagesResponse.response.numFound;    	    	
     	    	_updateFacetCount('images', imagesResponse, facetMode);	 
     	    
@@ -269,6 +285,7 @@
     	        	oUrlHashParams.widgetName = widgetName;
     	        	oUrlHashParams.q = q;
 
+    	        	//console.log('started widget call')
     	        	window.jQuery('li#' + thisCore)[widgetName]({
     					data: {	   							 
     							core: thisCore,    							

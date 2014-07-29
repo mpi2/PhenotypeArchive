@@ -72,7 +72,8 @@ import uk.ac.ebi.phenotype.pojo.Xref;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
-import uk.ac.ebi.phenotype.web.pojo.PhenotypeRow;
+import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
+import uk.ac.ebi.phenotype.web.pojo.GenePageTableRow;
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.model.Gene;
 import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
@@ -237,7 +238,7 @@ public class GenesController {
 			model.addAttribute("imageErrors","Something is wrong Images are not being returned when normally they would");
 		}
 		
-		processPhenotypes(acc, model, "");
+		processPhenotypes(acc, model, "", request);
 
 		model.addAttribute("gene", gene);
 		model.addAttribute("request", request);
@@ -288,7 +289,7 @@ public class GenesController {
 			RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
 		//just pass on any query string after the ? to the solr requesting object for now
 		String queryString=request.getQueryString();
-		processPhenotypes(acc, model, queryString);
+		processPhenotypes(acc, model, queryString, request);
 
 		return "PhenoFrag";
 	}
@@ -301,7 +302,7 @@ public class GenesController {
 		return sortPhenFacets;
 	}
 	
-	private void processPhenotypes(String acc, Model model, String queryString) throws IOException, URISyntaxException {
+	private void processPhenotypes(String acc, Model model, String queryString, HttpServletRequest request) throws IOException, URISyntaxException {
 		//facet field example for project name and higher level mp term with gene as query : http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=marker_accession_id:MGI:98373&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet.field=project_name&facet.field=top_level_mp_term_name&facet=true		//top_level_mp_term_name
 		if(queryString==null){
 			queryString="";
@@ -328,16 +329,11 @@ public class GenesController {
 		
 		
 		// This is a map because we need to support lookups
-		Map<PhenotypeRow,PhenotypeRow> phenotypes = new HashMap<PhenotypeRow,PhenotypeRow>(); 
+		Map<DataTableRow,DataTableRow> phenotypes = new HashMap<DataTableRow,DataTableRow>(); 
 		
 		for (PhenotypeCallSummary pcs : phenotypeList) {
-
-			// Use a tree set to maintain an alphabetical order (Female, Male)
-			List<String> sex = new ArrayList<String>();
-			sex.add(pcs.getSex().toString());
-
-			PhenotypeRow pr = new PhenotypeRow( pcs, config.get("baseUrl"));
-			
+			DataTableRow pr = new GenePageTableRow( pcs, request.getAttribute("baseUrl").toString());
+                        
 			// Collapse rows on sex
 			if(phenotypes.containsKey(pr)) {
 				pr = phenotypes.get(pr);
@@ -349,8 +345,8 @@ public class GenesController {
 			
 			phenotypes.put(pr, pr);
 		}
-		ArrayList<PhenotypeRow> l = new ArrayList<PhenotypeRow>(phenotypes.keySet());
-		Collections.sort(l); // sort in alpha order by MP term name
+		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.keySet());
+		Collections.sort(l);
 		model.addAttribute("phenotypes", l);
 
 	}
