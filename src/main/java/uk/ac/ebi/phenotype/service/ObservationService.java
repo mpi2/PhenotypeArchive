@@ -1334,7 +1334,7 @@ public class ObservationService extends BasicService {
 		
 		// Solr call
 		SolrQuery q = new SolrQuery().setQuery(ExperimentField.SEX + ":" + sex.name()).setRows(1);
-		q.setFilterQueries(ExperimentField.STRAIN + ":\"MGI:2159965\" OR " + ExperimentField.STRAIN + ":\"MGI:2164831\"");
+		q.setFilterQueries(ExperimentField.STRAIN + ":\"MGI:2159965\" OR " + ExperimentField.STRAIN + ":\"MGI:2164831\" OR " + ExperimentField.STRAIN + ":\"MGI:2683688\" OR " + ExperimentField.STRAIN +":\"MGI:3056279\"");
 		q.set("facet.field", ExperimentField.PARAMETER_STABLE_ID);
 		q.set("facet", true);
 		q.set("facet.limit", -1); // we want all facets
