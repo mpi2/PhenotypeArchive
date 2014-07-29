@@ -285,6 +285,7 @@
     	        	oUrlHashParams.widgetName = widgetName;
     	        	oUrlHashParams.q = q;
 
+    	        	//console.log('started widget call')
     	        	window.jQuery('li#' + thisCore)[widgetName]({
     					data: {	   							 
     							core: thisCore,    							

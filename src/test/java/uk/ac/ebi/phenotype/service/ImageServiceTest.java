@@ -10,6 +10,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
+import uk.ac.ebi.phenotype.service.dto.ImageDTOWrapper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })
@@ -21,15 +22,15 @@ public class ImageServiceTest {
 
 	@Test
 	public void testGgetImageDTOsForSolrQuery(){
-		List<ImageDTO> imageDTOs;
+		ImageDTOWrapper imageDTOs;
 		try {
 			//query is just the part after the core impcImages root
 			String query="q=observation_type:image_record";
 			imageDTOs = imageService.getImageDTOsForSolrQuery(query);
 		
-		for(ImageDTO imageDTO:imageDTOs){
-			System.out.println(imageDTO.getOmeroId());
-		}
+//		for(ImageDTO imageDTO:imageDTOs){
+//			System.out.println(imageDTO.getOmeroId());
+//		}
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
