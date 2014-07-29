@@ -1424,5 +1424,19 @@ public class ObservationService extends BasicService {
 		return solr.query(query).getBeans(ObservationDTO.class);
 
 	}
+	
+	public List<ImageDTO> getAllImageDTOs()
+	throws SolrServerException {
+
+		SolrQuery query = allImageRecordSolrQuery();
+		return solr.query(query).getBeans(ImageDTO.class);
+
+	}
+	
+	public static SolrQuery allImageRecordSolrQuery()
+	throws SolrServerException {
+
+		return new SolrQuery().setQuery("observation_type:image_record").addFilterQuery("(" + ObservationDTO.DOWNLOAD_FILE_PATH + ":" + "*mousephenotype.org* AND !download_file_path:*.pdf)").setRows(1000000000);
+	}
 
 }
