@@ -258,7 +258,7 @@
 				*/
 				
 				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-							
+				
 				if ( /search\/?$/.exec(location.href) ){
 					// no search params		
 					
@@ -269,7 +269,6 @@
 						oHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;
 					} 
 					
-					//window.location.hash = 'fq=' + oHashParams.fq + '&core=' + facet;
 					window.location.hash = 'fq=' + oHashParams.fq + '&facet=' + facet;
 				}
 				else {
@@ -305,6 +304,8 @@
 					var mode = '&facet=';
 					//alert(mode);
 					
+					oHashParams.fq = MPI2.searchAndFacetConfig.currentFq;
+					
 					if ( typeof oHashParams.q == 'undefined' ){
 						// no search kw
 						//console.log('set hash: no q')
@@ -316,6 +317,7 @@
 					}
 					else {	
 						//console.log('set hash: has q')
+						
 						if ( ! window.location.search.match(/q=/) ){	
 							window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  facet;
 						}
@@ -449,8 +451,7 @@
 		var fqStr = oConf.fqStr.replace(/img_/g,''); // so that this matches the copyField of images
 		var q = oConf.q;
 		var thisSolrUrl = solrUrl + '/' + facet + '/select'; 
-		
-		//MPI2.searchAndFacetConfig.currentFq = fqStr;
+		MPI2.searchAndFacetConfig.currentFq = fqStr;
 		
 		this.updateFacetCounts = function(){
 			switch(facet) {
@@ -1061,10 +1062,6 @@
 				filterTxt = MPI2.searchAndFacetConfig.facetFilterLabel[qField]; 		
 			}
 			
-			if ( facet == 'images' ){
-				
-			}
-			
 			var a = $('<a></a>').attr({'rel':oChkbox.attr('rel')}).text(filterTxt.replace(/ phenotype$/, ''));		
 			
 			if ( $('ul#facetFilter li.ftag a[rel="' + oChkbox.attr('rel') + '"]').size() == 0 
@@ -1126,12 +1123,13 @@
 					$('ul#facetFilter li.'+ facet + ' span.fcap').hide();
 				}
 				
+				
 				// any other summary filters left?
 				if ( $('ul#facetFilter li.ftag').size() == 0 ){
 					
 					// if there is no summary filter at all, refresh url	
-					
 					var defaultFqStr = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].fq;
+					MPI2.searchAndFacetConfig.currentFq = defaultFqStr;
 					
 					if ( window.location.search != '' ){
 						// has search keyword
@@ -1141,6 +1139,7 @@
 						$('div.ffilter').hide();
 						
 						var params = 'fq='+ defaultFqStr + '&facet='+facet;
+						
 						//window.history.pushState({},"", url);// change browser url; not working with IE	
 						window.location.hash = params; // also works with IE	
 						
