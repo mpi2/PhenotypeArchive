@@ -207,9 +207,7 @@
 					$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 				});  
 
-//	    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
-//	    			$.fn.process_kwSearch(self);
-//	    		}	
+	    		MPI2.searchAndFacetConfig.update.widgetOpen = false;
     		}
 	    },	       
 	  
