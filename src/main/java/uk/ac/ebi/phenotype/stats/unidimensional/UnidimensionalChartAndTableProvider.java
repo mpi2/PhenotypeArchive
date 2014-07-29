@@ -372,13 +372,13 @@ public class UnidimensionalChartAndTableProvider {
 			df = new DecimalFormat("#.##");
 		}
 		else if (upperBounds.get(upperBounds.size() - 1) - upperBounds.get(0) > 0.01){
-			df = new DecimalFormat("#.###");			
-		}
-		else if (upperBounds.get(upperBounds.size() - 1) - upperBounds.get(0) > 0.001){
 			df = new DecimalFormat("#.####");			
 		}
+		else if (upperBounds.get(upperBounds.size() - 1) - upperBounds.get(0) > 0.001){
+			df = new DecimalFormat("#.#####");			
+		}
 		else{
-			df = new DecimalFormat("#.#######");			
+			df = new DecimalFormat("#.########ß");			
 		}
 		for (int i = 0; i < upperBounds.size(); i++) {
 			String c = controlGenes.get(i);
