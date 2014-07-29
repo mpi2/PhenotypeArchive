@@ -344,19 +344,19 @@
    			$(window).bind("hashchange", function() {
    					
 				MPI2.searchAndFacetConfig.update.hashChange = true;
-   				//var url = $.param.fragment();	 // not working with jQuery 10.0.1
-   				var url = $(location).attr('hash');		
+   				//var hashStr = $.param.fragment();	 // not working with jQuery 10.0.1
+   				var hashStr = $(location).attr('hash');	
+   				//MPI2.searchAndFacetConfig.currentFq = hashStr.match(/fq=.+\&/)[0].replace(/fq=|\&/g,'');
    				
-   				//console.log('wiget open: ' + MPI2.searchAndFacetConfig.update.widgetOpen );
-   				//console.log('hash change URL: '+ '/search' + url);
+   				//console.log('hash change URL: '+ '/search' + hashStr);
+   				
    				var oHashParams = _process_hash();
    				
    				//console.log(oHashParams)
    				
    				/* deals with 3 events here:
-   				 	1. widget facet open
+   				 	1. added/removed filter 
    					2. back button
-   					3. added/removed filter   				
    					*/
    				if ( MPI2.searchAndFacetConfig.update.filterChange ){
     				//console.log('added or removed a filter');
@@ -433,9 +433,9 @@
         			}
     				else {
     					//console.log(oHashParams);
-    					if ( oHashParams.q == '*:*' ){
+    					//if ( oHashParams.q == '*:*' ){
     						rebuildFilters(oHashParams); 
-    					}
+    					//}
     				}
 				}
    			});		
