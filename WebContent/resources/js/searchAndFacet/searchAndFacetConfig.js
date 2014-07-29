@@ -46,7 +46,6 @@ config.update.rebuildSummaryFilterCount = 0;
 config.update.resetSummaryFacet = false;
 config.update.filterAdded = false;
 config.update.filterChange = false;
-config.update.dataTableLoaded  = false;
 
 config.searchSpin = "<img src='img/loading_small.gif' />";
 config.spinner = "<img src='img/loading_small.gif' /> Processing search ...";

@@ -63,12 +63,14 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
+import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.stats.StackedBarsData;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalDataObject;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
 import uk.ac.ebi.phenotype.util.ParameterToGeneMap;
+import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 
 @Service
 public class ObservationService extends BasicService {
@@ -1195,8 +1197,9 @@ public class ObservationService extends BasicService {
 
 		// Solr call
 		SolrQuery q = new SolrQuery().setQuery(ObservationDTO.SEX + ":" + sex.name()).setRows(1);
-		q.setFilterQueries(ObservationDTO.STRAIN_ACCESSION_ID + ":\"MGI:2159965\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"MGI:2164831\"");
+		q.setFilterQueries( ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
 		q.set("facet.field", ObservationDTO.PARAMETER_STABLE_ID);
+
 		q.set("facet", true);
 		q.set("facet.limit", -1); // we want all facets
 		QueryResponse response = solr.query(q);
@@ -1261,7 +1264,8 @@ public class ObservationService extends BasicService {
 			}
 			query += ")";
 
-			SolrQuery q = new SolrQuery().setQuery(query).addField(ObservationDTO.GENE_ACCESSION_ID).setFilterQueries(ObservationDTO.STRAIN_ACCESSION_ID + ":\"MGI:2159965\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"MGI:2164831\"").setRows(-1);
+			SolrQuery q = new SolrQuery().setQuery(query).addField(ObservationDTO.GENE_ACCESSION_ID)
+					.setFilterQueries(ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"").setRows(-1);
 			q.set("group.field", ObservationDTO.GENE_ACCESSION_ID);
 			q.set("group", true);
 			if (sex != null) {

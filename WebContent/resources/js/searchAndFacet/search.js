@@ -39,7 +39,7 @@
 		if ( typeof oUrlHashParams.qf != 'undefined' ){
 			params.qf = oUrlHashParams.qf; 
 		}
-		//console.log($.fn.stringifyJsonAsUrlParams(params));
+		//console.log(facet + ' --- ' + $.fn.stringifyJsonAsUrlParams(params));
 		return params;
 	}
 	
@@ -285,6 +285,7 @@
     	        	oUrlHashParams.widgetName = widgetName;
     	        	oUrlHashParams.q = q;
 
+    	        	//console.log('started widget call')
     	        	window.jQuery('li#' + thisCore)[widgetName]({
     					data: {	   							 
     							core: thisCore,    							
