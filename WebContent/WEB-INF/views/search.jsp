@@ -136,6 +136,7 @@
        	$(document).ready(function(){
        		'use strict';	
        		//console.log('reload');
+       		
        		// back button will not see this js
        		MPI2.searchAndFacetConfig.update.pageReload = true;
        		
@@ -158,6 +159,7 @@
        				|| location.href.indexOf('/search#q=*') != -1 
        				|| location.href.indexOf('/search#fq=') != -1 ){   	
        			
+       			//console.log('loading from url');
        			// load page based on url hash parameters	
        			$('input#s').val(decodeURI($.fn.fetchQueryStr()));
        			
@@ -292,7 +294,7 @@
 	       				
 	       				var facet = $(ui.item.label).attr('class');
 	       				
-	       				// handed over to hash change to fetch for results	 				
+	       				// handed over to hash change to fetch for results	
 	       				document.location.href = baseUrl + '/search?q="' + this.value + '"#facet=' + facet; 	
 	       				
 	       				// prevents escaped html tag displayed in input box
@@ -340,8 +342,8 @@
    			// hash tag query
    			// catch back/forward buttons and hash change: loada dataTable based on url params
    			$(window).bind("hashchange", function() {
-   				
-   				MPI2.searchAndFacetConfig.update.hashChange = true;
+   					
+				MPI2.searchAndFacetConfig.update.hashChange = true;
    				//var url = $.param.fragment();	 // not working with jQuery 10.0.1
    				var url = $(location).attr('hash');		
    				
@@ -430,7 +432,10 @@
     					document.location.href = baseUrl + '/search';
         			}
     				else {
-    					rebuildFilters(oHashParams); 
+    					//console.log(oHashParams);
+    					if ( oHashParams.q == '*:*' ){
+    						rebuildFilters(oHashParams); 
+    					}
     				}
 				}
    			});		

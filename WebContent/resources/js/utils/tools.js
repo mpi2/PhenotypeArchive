@@ -239,7 +239,7 @@
 			
 			if ( caller.find('span.fcount').text() != 0 ){ // initial state (lives until widget is refreshed)
 				//console.log(facet + ' widget open - ' + MPI2.searchAndFacetConfig.update.widgetOpen );
-				MPI2.searchAndFacetConfig.update.dataTableLoaded = false; //reset
+				//MPI2.searchAndFacetConfig.update.dataTableLoaded = false; //reset
 				MPI2.searchAndFacetConfig.update.widgetOpen = true; // reset
 				
 				//console.log(facet + ' widget open - ' + MPI2.searchAndFacetConfig.update.widgetOpen );
@@ -333,12 +333,7 @@
 		// refresh main facet sum count				
 		var fcount = json.response.numFound;
 		$(selectorBase + ' > span.fcount').text(fcount);    			
-	
-//		if ( selectorBase.indexOf('images') != -1 && MPI2.searchAndFacetConfig.update.dataTableLoaded ){
-//			//console.log('current facet sum count: '+ fcount + ' for ' + selectorBase);
-//			$('span#resultCount a').text(fcount + ' images');
-//			MPI2.searchAndFacetConfig.update.dataTableLoaded = false;
-//		}
+
 		var freezeMode = fcount == 0 ? true : false;
 		$.fn.freezeFacet($(selectorBase), freezeMode);
 		
@@ -1867,7 +1862,6 @@
     			initDataTableDumpControl(oInfos);
     			
     			var configs = MPI2.searchAndFacetConfig.update;
-    			configs.dataTableLoaded = true;
     			
     			// reason of this second call is for image annotView to get the correct image count
     			// when page is reloaded or back button is clicked as facet filters are reconstructed from 
@@ -1883,7 +1877,7 @@
    				configs.resetSummaryFacet = false;
    				configs.filterAdded = false;
    				configs.filterChange = false;
-   				configs.dataTableLoaded = false;
+   				
     			
     		},
     		"sAjaxSource": oInfos.dataTablePath,    		
