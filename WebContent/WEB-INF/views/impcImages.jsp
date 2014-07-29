@@ -61,10 +61,10 @@
 										<c:forEach var="image" items="${images}" varStatus="status">
 											<li>
 											 <!-- <img id="752" src="http://172.22.68.222:4080/webgateway/render_thumbnail/1278/200" alt="image" title="30910.bmp" style="width: 200px;"> -->
-													<a href="http://172.22.68.222:4080/webgateway/render_image/${image.omeroId}">
+													<%-- <a href="http://172.22.68.222:4080/webgateway/render_image/${image.omeroId}">
 													<img id="${image.omeroId}" src="http://172.22.68.222:4080/webgateway/render_thumbnail/${image.omeroId}/96" alt="image" title="${image.omeroId}" style="width: 96px;">
-													</a>
-													<%-- <t:imgdisplay img="${image}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay> --%>
+													</a> --%>
+													<t:impcimgdisplay img="${image}" mediaBaseUrl="http://172.22.68.222:4080/webgateway"></t:impcimgdisplay>
 											</li>
 										</c:forEach>
 								</ul>
