@@ -67,14 +67,14 @@
 	</bean>
 	
 	<bean id="imageService" class="uk.ac.ebi.phenotype.service.ImageService">
-		<constructor-arg value="${internalSolrUrl}/impc_images" />
+		<constructor-arg value="http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images" />
 	</bean>
 
 	<bean id="mapService" class="uk.ac.ebi.phenotype.service.ParameterMapService">
 		<constructor-arg value="${internalSolrUrl}/experiment" />
 	</bean>
 	
-	<bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap" init-method="fillMaps" />
+	<bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap" />
 
 	<bean id="unidimensionalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl">
 		<constructor-arg ref="sessionFactory" />
@@ -216,6 +216,7 @@
 				<entry key="solrUrl" value="${solrUrl}" />
 				<entry key="internalSolrUrl" value="${internalSolrUrl}" />
 				<entry key="mediaBaseUrl" value="${mediaBaseUrl}" />
+				<entry key="impcMediaBaseUrl" value="${impcMediaBaseUrl}" />
 				<entry key="googleAnalytics" value="${googleAnalytics}" />
 				<entry key="liveSite" value="${liveSite}" />
 			</map>

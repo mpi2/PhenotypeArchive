@@ -71,6 +71,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 
         request.setAttribute("drupalBaseUrl", config.get("drupalBaseUrl"));
         request.setAttribute("mediaBaseUrl", config.get("mediaBaseUrl"));
+        request.setAttribute("impcMediaBaseUrl", config.get("impcMediaBaseUrl"));
         request.setAttribute("solrUrl", config.get("solrUrl"));
         request.setAttribute("internalSolrUrl", config.get("internalSolrUrl"));
         request.setAttribute("googleAnalytics", config.get("googleAnalytics"));
