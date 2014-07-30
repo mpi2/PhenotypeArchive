@@ -412,7 +412,8 @@ public class PhenomeChartProvider {
 			
 			StringBuilder pointFormat = new StringBuilder();
 			
-			pointFormat.append("<tr><td style=\"color:{series.color};padding:0\">procedure: {series.name}</td></tr>");
+			pointFormat.append("<tr><td style=\"color:{series.color};padding:0\">parameter: {point.name}</td></tr>");
+			pointFormat.append("<tr><td style=\"padding:0\">procedure: {series.name}</td></tr>");
 			pointFormat.append("<tr><td style=\"padding:0\">sex: {point.controlSex}</td></tr>");
 			pointFormat.append("<tr><td style=\"padding:0\">zygosity: {point.zygosity}</td></tr>");
 			pointFormat.append("<tr><td style=\"padding:0\">mutants: {point.femaleMutants}f:{point.maleMutants}m</td></tr>");
