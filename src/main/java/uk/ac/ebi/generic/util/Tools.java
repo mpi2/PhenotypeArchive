@@ -71,9 +71,11 @@ public class Tools {
 		}
 		else if ( qry.startsWith("%22") && qry.endsWith("%22") ) {
 			kw = qry.replaceAll("%22|\\*", "").replaceAll("%20"," ");
+			//kw = qry.replaceAll("%22|\\*|\\(|\\)", "").replaceAll("%20"," ");
 		}
 		else {
 			kw = StringUtils.join(qry.split("%20"), "|").replaceAll("\\*","");
+			//kw = StringUtils.join(qry.split("%20"), "|").replaceAll("\\*|\\(|\\)","");
 		}
 		//System.out.println("-------" + qry + " vs " + kw);
 		// (?im) at the beginning of the regex turns on CASE_INSENSITIVE and MULTILINE modes.

@@ -65,6 +65,10 @@
 	<bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
 		<constructor-arg value="${internalSolrUrl}/experiment" />
 	</bean>
+	
+	<bean id="imageService" class="uk.ac.ebi.phenotype.service.ImageService">
+		<constructor-arg value="${internalSolrUrl}/impc_images" />
+	</bean>
 
 	<bean id="mapService" class="uk.ac.ebi.phenotype.service.ParameterMapService">
 		<constructor-arg value="${internalSolrUrl}/experiment" />

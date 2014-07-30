@@ -20,7 +20,6 @@
 
 package uk.ac.ebi.phenotype.web.pojo;
 
-import java.util.List;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 
 /**
@@ -60,13 +59,11 @@ public class GenePageTableRow extends DataTableRow {
             return -1;
         }
         
-        
-int i = 0;
-for (String s: sexes) {
-    System.out.println("GenePageTableRow: graphUrl: " + graphUrl + ". P-VALUE: " + getPrValueAsString() + ". SEXES COUNT: " + sexes.size() + ". SEXES[" + i++ + "]: " + s);
-}
-        
-        
+        // Debugging:
+//int i = 0;
+//for (String s: sexes) {
+//    System.out.println("GenePageTableRow: graphUrl: " + graphUrl + ". P-VALUE: " + getPrValueAsString() + ". SEXES COUNT: " + sexes.size() + ". SEXES[" + i++ + "]: " + s);
+//}
         
         // Gene Page sorting
         int pvalueOp = this.pValue.compareTo(o.pValue);

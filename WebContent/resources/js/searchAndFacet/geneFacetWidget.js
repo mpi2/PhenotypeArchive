@@ -76,7 +76,7 @@
 				  + '&facet.field=latest_production_centre'
 				  + '&facet.field=latest_phenotyping_centre';
 	    	
-	    	//console.log('GENE: '+ queryParamStr);
+	    	//console.log('GENE WIDGET: '+ queryParamStr);
 	    	
 	    	$.ajax({ 				 					
 	    		'url': solrUrl + '/gene/select',	    		
@@ -283,6 +283,9 @@
 	    		// change cursor for grayout filter
     			$.fn.cursorUpdate('gene', 'not-allowed');
     			
+    			// as the facet is open by default, we need to reset the value for widgetOpen
+    			MPI2.searchAndFacetConfig.update.widgetOpen = false;
+    			
 	    		$('li#gene li.fcat input').click(function(){
 	    			
 	    			// // highlight the item in facet	    			
@@ -291,12 +294,6 @@
 	    			MPI2.searchAndFacetConfig.update.filterAdded = true;
 					$.fn.composeSummaryFilters($(this), self.options.data.hashParams.q);
 				});	 
-	    		
-//	    		if ( MPI2.searchAndFacetConfig.update.kwSearch ){
-//	    			alert('gene kw search');
-//	    			$.fn.process_kwSearch(self);
-//	    		}	
-	    		
     		}
 	    },	       
 	  

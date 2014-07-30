@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<schema name="gene core" version="1.1">
+<schema name="autosuggest core" version="1.1">
   <types>
    <fieldtype name="string"  class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
    <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
@@ -82,28 +82,22 @@
     <field name="marker_name" type="string" indexed="true" stored="true" multiValued="false" />
     <field name="marker_synonym" type="string" indexed="true" stored="true" multiValued="false" />
  
- 
     <!-- mp fields -->
 	<field name="mp_id" type="string" indexed="true" stored="true" multiValued="false" />
 	<field name="mp_term" type="string" indexed="true" stored="true" multiValued="false" />	
-	<field name="mp_term_definition" type="string" indexed="true" stored="true" multiValued="false" />
 	<field name="mp_term_synonym" type="string" indexed="true" stored="true" multiValued="false" />
 
 	<field name="child_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 	<field name="child_mp_term" type="text" indexed="true" stored="true" required="false" multiValued="false" />	
-	<field name="child_mp_definition" type="text" indexed="true" stored="true" required="false" multiValued="false" />	
 	<field name="child_mp_term_synonym" type="text" indexed="true" stored="true" required="false" multiValued="false" />
 
 	<field name="intermediate_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 	<field name="intermediate_mp_term" type="text" indexed="true" stored="true" required="false" multiValued="false" />	
-	<field name="intermediate_mp_definition" type="text" indexed="true" stored="true" required="false" multiValued="false" />	
 	<field name="intermediate_mp_term_synonym" type="text" indexed="true" stored="true" required="false" multiValued="false" />
 	
 	<field name="top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 	<field name="top_level_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="false" />
-	<field name="top_level_mp_definition" type="text" indexed="true" stored="true" required="false" multiValued="false" />
 	<field name="top_level_mp_term_synonym" type="text" indexed="true" stored="true" required="false" multiValued="false" />
-	<field name="disease_human_phenotypes" type="string" indexed="true" stored="true" multiValued="false"/>	 
 	
 	<!--  ma fields -->
 	<field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
@@ -112,10 +106,11 @@
    
     <field name="child_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="child_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="false" />							
-    <field name="child_ma_idTerm" type="string" indexed="true" stored="true" required="false" multiValued="false" />
-
+	<field name="child_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="false" />   
+	
 	<field name="selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
+   	<field name="selected_top_level_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
   
 	<!--disease fields -->	
 	<field name="disease_id" type="string" indexed="true" stored="true" multiValued="false" />
@@ -164,11 +159,11 @@
    
     <copyField source="child_ma_id" dest="auto_suggest" />
     <copyField source="child_ma_term" dest="auto_suggest" />							
-    <copyField source="child_ma_idTerm" dest="auto_suggest" />
-	<copyField source="disease_human_phenotypes" dest="auto_suggest" />
+	<copyField source="child_ma_term_synonym" dest="auto_suggest" />
 	
 	<copyField source="selected_top_level_ma_id" dest="auto_suggest" />
     <copyField source="selected_top_level_ma_term" dest="auto_suggest" /> 
+    <copyField source="selected_top_level_ma_term_synonym" dest="auto_suggest" /> 
   
 	<copyField source="disease_id" dest="auto_suggest"/>
 	<copyField source="disease_term" dest="auto_suggest"/>

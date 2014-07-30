@@ -33,18 +33,19 @@ var config = MPI2.searchAndFacetConfig;
 
 config.currentFq    = false;
 config.matchedFacet = false;
+config.lastImgSumCount = 0;
 
 config.update = {};
 config.update.filterObj = [];
+
 config.update.widgetOpen   = false;
+
 config.update.pageReload   = false;
 config.update.hashChange 	= false;
 config.update.rebuildSummaryFilterCount = 0;
 config.update.resetSummaryFacet = false;
 config.update.filterAdded = false;
 config.update.filterChange = false;
-config.update.dataTableLoaded  = false;
-config.update.kwSearch = false;
 
 config.searchSpin = "<img src='img/loading_small.gif' />";
 config.spinner = "<img src='img/loading_small.gif' /> Processing search ...";
@@ -173,6 +174,16 @@ var commonSolrParams = {
 		'wt': 'json',
 		'rows': 0
 };
+
+config.coreQf = {
+	gene     : "mgi_accession_id marker_symbol marker_name marker_synonym",
+	mp       : "mp_id mp_term mp_term_synonym top_level_mp_id top_level_mp_term top_level_mp_term_synonym intermediate_mp_id intermediate_mp_term intermediate_mp_term_synonym child_mp_id child_mp_term child_mp_term_synonym",
+	disease  : "disease_id disease_term disease_alts",
+	ma 	     : "ma_id ma_term child_ma_term selected_top_level_ma_term",
+	pipeline : "auto_suggest",
+	images   : "auto_suggest"
+}
+
 config.commonSolrParams = commonSolrParams;
 
 config.facetParams = {	
