@@ -503,7 +503,7 @@ public class GenesController {
 	        }
 	        
 	        
-			registerButtonAnchor = "/user/register?destination="+dest;
+			registerButtonAnchor = "/user/login?destination="+dest;
 
 		}
 
