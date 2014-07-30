@@ -4,80 +4,85 @@
 <c:if test="${unidimensionalChartDataSet!=null}">
 
 	<c:if test="${fn:length(unidimensionalChartDataSet.statsObjects)>1}">
-		<c:set var="data"
-			value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
-		<c:if
-			test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
-			<table class="globalTest">
+		<c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
+
+
+		<%-- Display result of a mixed model calculation --%>
+
+		<c:if test="${data.result.statisticalMethod!=null and  data.result.statisticalMethod!='Wilcoxon rank sum test with continuity correction'}">
+		<c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
+			<table id="globalTest">
 				<thead>
-					<c:choose>
-						<c:when
-							test="${data.result.significanceClassification.text == 'Both genders equally' || data.result.significanceClassification.text == 'No significant change'  || data.result.significanceClassification.text == 'Can not differentiate genders' }">
-							<tr>
-								<th>Global Test</th>
-								<th>Significance/Classification</th>
-								<th>Effect</th>
-								<th>Standard Error</th>
-								<th>P Value</th>
-							</tr>
-						</c:when>
-						<c:when
-							test="${data.result.significanceClassification.text == 'Female only' || data.result.significanceClassification.text == 'Male only'  || data.result.significanceClassification.text == 'Different size females greater' || data.result.significanceClassification.text == 'Different size males greater' || data.result.significanceClassification.text == 'Female and male different directions'}">
-							<tr>
-								<th>Global Test</th>
-								<th>Significance/Classification</th>
-								<th>Sex</th>
-								<th>Effect</th>
-								<th>Standard Error</th>
-								<th>P Value</th>
-							</tr>
-						</c:when>
-					</c:choose>
+					<tr>
+						<th width="25%"><strong>P Value</strong></th>
+						<th><strong>Classification</strong></th>
+					</tr>
 				</thead>
 				<tbody>
-					<c:choose>
-						<c:when
-							test="${data.result.significanceClassification.text == 'Both genders equally' || data.result.significanceClassification.text == 'No significant change'  || data.result.significanceClassification.text == 'Can not differentiate genders' }">
-							<tr>
-								<td class="globalTestValue"><t:formatScientific>${data.result.nullTestSignificance}</t:formatScientific></td>
-								<td>${data.result.significanceClassification.text}</td>
-								<td class="effect"><t:formatScientific>${data.result.genotypeParameterEstimate}</t:formatScientific></td>
-								<td>
-									<c:if test="${data.result.genotypeStandardErrorEstimate!=null}">
-										&#177;
-									</c:if>
-								<t:formatScientific>${data.result.genotypeStandardErrorEstimate}</t:formatScientific></td>
-								<td class="pvalue"><t:formatScientific>${data.result.genotypeEffectPValue }</t:formatScientific></td>
-							</tr>
-						</c:when>
-						<c:when
-							test="${data.result.significanceClassification.text == 'Female only' || data.result.significanceClassification.text == 'Male only'  || data.result.significanceClassification.text == 'Different size females greater' || data.result.significanceClassification.text == 'Different size males greater' || data.result.significanceClassification.text == 'Female and male different directions'}">
-							<tr>
-								<td rowspan="2" class="globalTestValue"><t:formatScientific>${data.result.nullTestSignificance}</t:formatScientific></td>
-								<td rowspan="2">${data.result.significanceClassification.text}</td>
-								<td>Female</td>
-								<td class="effect"><t:formatScientific>${data.result.genderFemaleKoEstimate}</t:formatScientific></td>
-								<c:if
-									test="${data.result.genderFemaleKoStandardErrorEstimate!=null}">
-									<td>&#177;<t:formatScientific>${data.result.genderFemaleKoStandardErrorEstimate }</t:formatScientific></td>
-								</c:if>
-								<c:if test="${data.result.genderFemaleKoPValue!=null}">
-									<td class="pvalue"><t:formatScientific>${data.result.genderFemaleKoPValue }</t:formatScientific></td>
-								</c:if>
-							</tr>
-							<tr>
-								<td>Male</td>
-								<td class="effect"><t:formatScientific>${data.result.genderMaleKoEstimate}</t:formatScientific></td>
-								<c:if
-									test="${data.result.genderMaleKoStandardErrorEstimate!=null}">
-									<td>&#177;<t:formatScientific>${data.result.genderMaleKoStandardErrorEstimate }</t:formatScientific></td>
-								</c:if>
-								<c:if test="${data.result.genderMaleKoPValue!=null}">
-									<td class="pvalue"><t:formatScientific>${data.result.genderMaleKoPValue }</t:formatScientific></td>
-								</c:if>
-							</tr>
-						</c:when>
-					</c:choose>
+					<tr class="toggle_table_covariate_details">
+						<td class="globalTestValue"><strong> <t:formatScientific>${data.result.nullTestSignificance}</t:formatScientific></strong></td>
+						<td><strong> ${data.result.significanceClassification.text}</strong><!-- <br/><small>Click for more information <i class="fa" id="toggle_indicator"></i></small> -->
+							<table id="table_covariate_details">
+								<c:choose>
+									<c:when
+										test="${data.result.significanceClassification.text == 'Both genders equally' || data.result.significanceClassification.text == 'No significant change'  || data.result.significanceClassification.text == 'Can not differentiate genders' }">
+										<thead>
+											<tr>
+												<th>Genotype effect P Value</th>
+												<th>Effect size</th>
+												<th>Standard Error</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td class="pvalue"><t:formatScientific>${data.result.genotypeEffectPValue }</t:formatScientific></td>
+												<td class="effect"><t:formatScientific>${data.result.genotypeParameterEstimate}</t:formatScientific></td>
+												<td>
+													<c:if test="${data.result.genotypeStandardErrorEstimate!=null}">
+														&#177;
+													</c:if>
+												<t:formatScientific>${data.result.genotypeStandardErrorEstimate}</t:formatScientific></td>
+											</tr>
+									</c:when>
+									<c:when
+										test="${data.result.significanceClassification.text == 'Female only' || data.result.significanceClassification.text == 'Male only'  || data.result.significanceClassification.text == 'Different effect size, females greater' || data.result.significanceClassification.text == 'Different effect size, males greater' || data.result.significanceClassification.text == 'Female and male different directions'}">
+										<thead>
+											<tr>
+												<th>Sex</th>
+												<th>Sex*Genotype P Value</th>
+												<th>Effect size</th>
+												<th>Standard Error</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>Female</td>
+												<c:if test="${data.result.genderFemaleKoPValue!=null}">
+													<td class="pvalue"><t:formatScientific>${data.result.genderFemaleKoPValue }</t:formatScientific></td>
+												</c:if>
+												<td class="effect"><t:formatScientific>${data.result.genderFemaleKoEstimate}</t:formatScientific></td>
+												<c:if
+													test="${data.result.genderFemaleKoStandardErrorEstimate!=null}">
+													<td>&#177;<t:formatScientific>${data.result.genderFemaleKoStandardErrorEstimate }</t:formatScientific></td>
+												</c:if>
+											</tr>
+											<tr>
+												<td>Male</td>
+												<c:if test="${data.result.genderMaleKoPValue!=null}">
+													<td class="pvalue"><t:formatScientific>${data.result.genderMaleKoPValue }</t:formatScientific></td>
+												</c:if>
+												<td class="effect"><t:formatScientific>${data.result.genderMaleKoEstimate}</t:formatScientific></td>
+												<c:if
+													test="${data.result.genderMaleKoStandardErrorEstimate!=null}">
+													<td>&#177;<t:formatScientific>${data.result.genderMaleKoStandardErrorEstimate }</t:formatScientific></td>
+												</c:if>
+											</tr>
+										</c:when>
+									</c:choose>
+								</tbody>
+							</table>
+						</td>
+					</tr>
 				</tbody>
 			</table>
 		</c:if>
@@ -136,7 +141,7 @@
 		<c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
 
 			<p>
-				<a><i class="fa" id="toggle_table_button${experimentNumber}">More Statistics</i></a>
+				<a><i class="fa" id="toggle_table_button${experimentNumber}"> More Statistics</i></a>
 			</p>
 
 			<div id="toggle_table${experimentNumber}">
@@ -279,18 +284,119 @@
 			</div>
 		</c:if>
 	</c:if>
+	</c:if>
+
+
+
+
+		<%-- Display result of a wilcoxon calculation --%>
+
+		<c:if test="${data.result.statisticalMethod!=null and data.result.statisticalMethod=='Wilcoxon rank sum test with continuity correction'}">
+			<table id="globalTest">
+				<thead>
+					<tr>
+						<th>Sex</th>
+						<th>P Value</th>
+						<th>Effect size</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="toggle_table_covariate_details">
+						<td>Female</td>
+						<c:if test="${data.result.genderFemaleKoPValue!=null}">
+							<td class="pvalue"><t:formatScientific>${data.result.genderFemaleKoPValue }</t:formatScientific></td>
+						</c:if>
+						<td class="effect"><t:formatScientific>${data.result.genderFemaleKoEstimate}</t:formatScientific></td>
+					</tr>
+					<tr>
+						<td>Male</td>
+						<c:if test="${data.result.genderMaleKoPValue!=null}">
+							<td class="pvalue"><t:formatScientific>${data.result.genderMaleKoPValue }</t:formatScientific></td>
+						</c:if>
+						<td class="effect"><t:formatScientific>${data.result.genderMaleKoEstimate}</t:formatScientific></td>
+					</tr>
+				</tbody>
+			</table>
+	<table id="continuousTable">
+		<thead>
+			<tr>
+				<th>Control/Hom/Het</th>
+				<th>Mean</th>
+				<th>SD</th>
+				<th>Count</th>
+			</tr>
+		</thead>
+		<tbody>
+
+
+			<c:forEach var="statsObject"
+				items="${unidimensionalChartDataSet.statsObjects}">
+				<tr>
+					<td><c:choose>
+							<c:when test="${statsObject.sexType eq 'female'}">
+                                Female
+                            </c:when>
+							<c:when test="${statsObject.sexType eq 'male'}">
+                                Male
+                            </c:when>
+						</c:choose> <c:choose>
+							<c:when test="${statsObject.line =='Control' }">
+                                Control
+                            </c:when>
+							<c:when test="${statsObject.line !='Control' }">
+                                ${statsObject.zygosity}
+                            </c:when>
+						</c:choose></td>
+					<td>${statsObject.mean}</td>
+					<td>${statsObject.sd}</td>
+					<c:if test="${statsObject.sexType eq 'female'}">
+						<td>${statsObject.sampleSize}</td>
+					</c:if>
+					<c:if test="${statsObject.sexType eq 'male'}">
+						<td>${statsObject.sampleSize}</td>
+					</c:if>
+
+				</tr>
+			</c:forEach>
+		</tbody>
+	</table>
+
+	<c:if test="${fn:length(unidimensionalChartDataSet.statsObjects)>1}">
+
+		<c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
+
+
+		<div>
+
+			<c:if test="${data.result.colonyId!=null}"><!-- Colony Id: ${data.result.colonyId } --></c:if>
+			<table>
+				<tr>
+					<th>Model Fitting Estimates</th>
+					<th>Value</th>
+				</tr>
+				<tr>
+					<td>Statistical method</td>
+					<td>${data.result.statisticalMethod}</td>
+				</tr>
+
+			</table>
+
+		</div>
+	</c:if>
+	</c:if>
+
+
+
 
 	<script>
 		$(document).ready(
 				function() {
 
-					console.log('document ready');
 					$("#toggle_table${experimentNumber}").hide();//hide on load
 					//toggle the arrow on the link to point right as should be closed on in it
 					$("#toggle_table_button${experimentNumber}").toggleClass('fa-caret-right');
 					$("#toggle_table_button${experimentNumber}").click(
 							function() {
-								console.log("click fired");
 								$("#toggle_table${experimentNumber}").toggle('slow');
 								$("#toggle_table_button${experimentNumber}")
 										.toggleClass('fa-caret-right')

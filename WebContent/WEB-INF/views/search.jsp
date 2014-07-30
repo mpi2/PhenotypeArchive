@@ -295,7 +295,8 @@
 	       				var facet = $(ui.item.label).attr('class');
 	       				
 	       				// handed over to hash change to fetch for results	
-	       				document.location.href = baseUrl + '/search?q="' + this.value + '"#facet=' + facet; 	
+	       				var fq = '*:*';
+	       				document.location.href = baseUrl + '/search?q="' + this.value + '"#fq=' + fq + '&facet=' + facet; 	
 	       				
 	       				// prevents escaped html tag displayed in input box
 	       				event.preventDefault(); return false; 
