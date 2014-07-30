@@ -599,7 +599,7 @@ public class GenotypePhenotypeService extends BasicService {
 		PhenotypeFacetResult facetResult = new PhenotypeFacetResult();
 		List<PhenotypeCallSummary> list = new ArrayList<PhenotypeCallSummary>();
 
-		JSONObject results = null;
+		JSONObject results = new JSONObject();
 		results = JSONRestUtil.getResults(url);
 
 		JSONArray docs = results.getJSONObject("response").getJSONArray("docs");

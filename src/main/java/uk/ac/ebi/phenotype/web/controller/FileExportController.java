@@ -241,25 +241,24 @@ public class FileExportController {
         // Default to exporting 10 rows
         Integer length = 10;
 
-        ArrayList<Integer> phenotypingCenterIds = new ArrayList();
-        try {
-            for (int i = 0; i < phenotypingCenter.length; i ++) {
-                phenotypingCenterIds.add(organisationDao.getOrganisationByName(phenotypingCenter[i].replaceAll("%20", " ")).getId());
-            }
-        } catch (NullPointerException e) {
-            log.error("Cannot find organisation ID for org with name " + phenotypingCenter);
-        }
-
         panelName = panelName == null ? "" : panelName;
 
         if ( ! solrCoreName.isEmpty()) {
             if (dumpMode.equals("all")) {
                 rowStart = 0;
                 //length = parseMaxRow(solrParams); // this is the facetCount
-                length = 100000;
+                length = 10000000;
             }
 
             if (solrCoreName.equalsIgnoreCase("experiment")) {
+            	ArrayList<Integer> phenotypingCenterIds = new ArrayList();
+                try {
+                    for (int i = 0; i < phenotypingCenter.length; i ++) {
+                        phenotypingCenterIds.add(organisationDao.getOrganisationByName(phenotypingCenter[i].replaceAll("%20", " ")).getId());
+                    }
+                } catch (NullPointerException e) {
+                    log.error("Cannot find organisation ID for org with name " + phenotypingCenter);
+                }
                 List<String> zygList = null;
                 if (zygosities != null) {
                     zygList = Arrays.asList(zygosities);
@@ -692,12 +691,9 @@ public class FileExportController {
                 log.error("ERROR GETTING PHENOTYPE LIST");
                 e.printStackTrace();
                 phenotypeList = new ArrayList();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (URISyntaxException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-
             ArrayList<GenePageTableRow> phenotypes = new ArrayList();
             for (PhenotypeCallSummary pcs : phenotypeList) {
                 GenePageTableRow pr = new GenePageTableRow(pcs, targetGraphUrl);
