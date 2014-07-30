@@ -499,7 +499,7 @@ public class GenesController {
 	        }
 
 	        if(dest==null) {
-	        	dest = ((String)request.getContextPath().replace(request.getContextPath(), ((String)request.getAttribute("baseUrl")).substring(1)));
+	        	dest = ((String)request.getAttribute("baseUrl")).substring(1) + request.getRequestURI().substring(request.getContextPath().length());
 	        }
 	        
 	        
