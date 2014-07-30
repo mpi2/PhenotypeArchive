@@ -14,10 +14,10 @@ allele = allele.replaceAll("##", "</sup>");
 <%= allele %> --%>
 <%--<jsp:doBody var="theBody"/>--%>
 <%@ attribute name="img" required="true" type="uk.ac.ebi.phenotype.service.dto.ImageDTO"%>
-<%@ attribute name="mediaBaseUrl" required="true" %>
+<%@ attribute name="impcMediaBaseUrl" required="true" %>
 
         
-        <a href="${mediaBaseUrl}/render_image/${img.omeroId}" class="fancybox" fullRes="${mediaBaseUrl}/${img.omeroId}"><img src="${mediaBaseUrl}/render_thumbnail/${img.omeroId}/200"></a>
+        <a href="${impcMediaBaseUrl}/render_image/${img.omeroId}" class="fancybox" fullRes="${impcMediaBaseUrl}/${img.omeroId}"><img src="${impcMediaBaseUrl}/render_thumbnail/${img.omeroId}/200"></a>
                                                 <div class="caption">
                                                 <c:if test="${not empty img.alleleSymbol}"><t:formatAllele>${img.alleleSymbol}</t:formatAllele><br/></c:if>
                                                 		<%-- <c:forEach var="maTerm" items="${img.annotationTermName}" varStatus="status">${maTerm}, </c:forEach> --%>
