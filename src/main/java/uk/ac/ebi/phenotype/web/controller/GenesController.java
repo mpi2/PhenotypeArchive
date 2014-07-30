@@ -497,8 +497,13 @@ public class GenesController {
 	        if(request.getQueryString()!=null) {
 	        	dest += URLEncoder.encode("?"+request.getQueryString(), "UTF-8");        	
 	        }
+
+	        if(dest==null) {
+	        	dest = request.getRequestURI().substring(1);
+	        }
 	        
-			registerButtonAnchor = "/user/register"+dest;
+	        
+			registerButtonAnchor = "/user/register?destination="+dest;
 
 		}
 
