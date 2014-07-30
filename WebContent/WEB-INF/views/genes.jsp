@@ -223,23 +223,17 @@
 
                                                 <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getBothPhenotypes()}">
                                                     <c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
-                                                        <a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
-                                                            <div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-                                                        </a>
-                                                    </c:if>
+                                                    	<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
+																										</c:if>
                                                 </c:forEach>
                                                 <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getFemalePhenotypes()}">
                                                     <c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
-                                                        <a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
-                                                            <div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-                                                        </a>
+                                                    	<div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
                                                     </c:if>
                                                 </c:forEach>
                                                 <c:forEach var="summaryObj" items="${phenotypeSummaryObjects.getMalePhenotypes()}">
                                                     <c:if test="${summaryObj.getGroup() != 'mammalian phenotype' }">
-                                                        <a class="filterTrigger" id="phenIconsBox_${summaryObj.getGroup()}">
-                                                            <div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
-                                                        </a>
+                                                        <div class="sprite sprite_${summaryObj.getGroup().replaceAll(' |/', '_')}" data-hasqtip="27" title="${summaryObj.getGroup()}"></div>
                                                     </c:if>
                                                 </c:forEach>
                                             </div>
