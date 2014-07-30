@@ -201,7 +201,7 @@ public class DataTableController {
 		return jsonStr;
 	}
 
-	public String parseJsonforGeneDataTable(long numberFound, List<GeneDTO> json, HttpServletRequest request, String qryStr, String solrCoreName){	
+	public String parseJsonforGeneDataTable(long numberFound, List<GeneDTO> geneDTOs, HttpServletRequest request, String qryStr, String solrCoreName){	
 				
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config, request);
 		
@@ -216,11 +216,11 @@ public class DataTableController {
 		j.put("iTotalRecords", numberFound);
 		j.put("iTotalDisplayRecords", numberFound);
 
-		for (int i = 0; i < json.size(); i++) {
+		for (int i = 0; i < geneDTOs.size(); i++) {
 
 			List<String> rowData = new ArrayList<String>();
 
-			GeneDTO doc = json.get(i);
+			GeneDTO doc = geneDTOs.get(i);
 				
 			String geneInfo = concateGeneInfo(doc, qryStr, request);
 			rowData.add(geneInfo);
