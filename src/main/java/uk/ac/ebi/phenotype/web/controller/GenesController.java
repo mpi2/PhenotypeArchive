@@ -499,7 +499,7 @@ public class GenesController {
 	        }
 
 	        if(dest==null) {
-	        	dest = request.getRequestURI().substring(1);
+	        	dest = ((String)request.getAttribute("baseUrl")).substring(1);
 	        }
 	        
 	        
