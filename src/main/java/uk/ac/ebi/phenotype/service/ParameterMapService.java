@@ -3,6 +3,7 @@ package uk.ac.ebi.phenotype.service;
 import java.util.ArrayList;
 import java.util.concurrent.Future;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -13,6 +14,7 @@ import org.springframework.scheduling.annotation.AsyncResult;
 
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 
 public class ParameterMapService {
 
@@ -55,7 +57,7 @@ public class ParameterMapService {
 		}
 
 		query.setFilterQueries(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId);
-		query.setFilterQueries(ObservationDTO.STRAIN_ACCESSION_ID + ":\"MGI:2159965\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"MGI:2164831\"");
+		query.setFilterQueries(ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
 		query.set("facet.field", ObservationDTO.GENE_ACCESSION_ID);
 		query.set("facet", true);
 		query.set("facet.limit", -1); // we want all facets

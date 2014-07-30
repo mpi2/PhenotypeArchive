@@ -69,6 +69,7 @@ import uk.ac.ebi.phenotype.stats.StackedBarsData;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalDataObject;
 import uk.ac.ebi.phenotype.stats.categorical.CategoricalSet;
 import uk.ac.ebi.phenotype.util.ParameterToGeneMap;
+import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 
 @Service
 public class ObservationService extends BasicService {
@@ -305,15 +306,7 @@ public class ObservationService extends BasicService {
 	public List<Map<String, String>> getDistinctStatisticalCandidates(List<String> phenotypingCenter, List<String> pipelineStableId, List<String> procedureStub, List<String> parameterStableId, List<String> alleleAccessionId)
 	throws SolrServerException {
 
-		String pivotFields = ObservationDTO.PHENOTYPING_CENTER_ID 
-			+ "," + ObservationDTO.PIPELINE_ID 
-			+ "," + ObservationDTO.PROCEDURE_ID 
-			+ "," + ObservationDTO.PARAMETER_ID 
-			+ "," + ObservationDTO.METADATA_GROUP 
-			+ "," + ObservationDTO.STRAIN_ACCESSION_ID 
-			+ "," + ObservationDTO.ALLELE_ACCESSION_ID 
-			+ "," + ObservationDTO.ZYGOSITY 
-			;
+		String pivotFields = ObservationDTO.PHENOTYPING_CENTER_ID + "," + ObservationDTO.PIPELINE_ID + "," + ObservationDTO.PARAMETER_ID + "," + ObservationDTO.STRAIN_ACCESSION_ID + "," + ObservationDTO.ZYGOSITY + "," + ObservationDTO.METADATA_GROUP + "," + ObservationDTO.ALLELE_ACCESSION_ID + "," + ObservationDTO.GENE_ACCESSION_ID;
 
 		SolrQuery query = new SolrQuery().setQuery("*:*").addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental").setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).addFacetPivotField(pivotFields);
 
@@ -359,10 +352,8 @@ public class ObservationService extends BasicService {
 
 		QueryResponse response = solr.query(query);
 
-
 		return getFacetPivotResults(response, false);
 	}
-
 
 	/**
 	 * Return a list of a all unidimensional data candidates for statistical
@@ -1203,8 +1194,9 @@ public class ObservationService extends BasicService {
 
 		// Solr call
 		SolrQuery q = new SolrQuery().setQuery(ObservationDTO.SEX + ":" + sex.name()).setRows(1);
-		q.setFilterQueries(ObservationDTO.STRAIN_ACCESSION_ID + ":\"MGI:2159965\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"MGI:2164831\"");
+		q.setFilterQueries( ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
 		q.set("facet.field", ObservationDTO.PARAMETER_STABLE_ID);
+
 		q.set("facet", true);
 		q.set("facet.limit", -1); // we want all facets
 		QueryResponse response = solr.query(q);

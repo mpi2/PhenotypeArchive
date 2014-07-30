@@ -37,7 +37,6 @@ import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -309,7 +308,7 @@ public class FileExportController {
                 String sheetName = fileName;
                 ExcelWorkBook Wb = null;
 
-				// Remove the title row (row 0) from the list and assign it to
+		// Remove the title row (row 0) from the list and assign it to
                 // the string array for the spreadsheet
                 String[] titles = dataRows.remove(0).split("\t");
                 Wb = new ExcelWorkBook(titles, composeXlsTableData(dataRows), sheetName);
@@ -450,9 +449,6 @@ public class FileExportController {
     }
 
     private List<String> composeImageDataTableRows(JSONObject json, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request) {
-
-        String serverName = request.getServerName();
-
         String mediaBaseUrl = config.get("mediaBaseUrl");
 
         List<String> rowData = new ArrayList();
@@ -501,8 +497,8 @@ public class FileExportController {
 
             for (int i = start; i < end; i = i + 2) {
                 List<String> data = new ArrayList();
-				// array element is an alternate of facetField and facetCount	
-
+				// array element is an alternate of facetField and facetCount
+                
                 String[] names = sumFacets.get(i).toString().split("_");
                 if (names.length == 2) {  // only want facet value of xxx_yyy
                     String annotName = names[0];
@@ -516,8 +512,8 @@ public class FileExportController {
                     data.add(imgCount);
 
                     String facetField = hm.get("field");
-
-                    String imgSubSetLink = serverName + request.getAttribute("baseUrl") + "/images?" + solrParams + "q=*:*&fq=" + facetField + ":\"" + names[0] + "\"";
+                    
+                    String imgSubSetLink = (String)request.getAttribute("mappedHostname") + request.getAttribute("baseUrl") + "/images?" + solrParams + "q=*:*&fq=" + facetField + ":\"" + names[0] + "\"";
                     data.add(imgSubSetLink);
                     rowData.add(StringUtils.join(data, "\t"));
                 }
@@ -682,10 +678,10 @@ public class FileExportController {
     }
 
     private List<String> composeDataRowGeneOrPhenPage(String id, String pageName, String filters, HttpServletRequest request) {
-
         List<String> res = new ArrayList<>();
         List<PhenotypeCallSummary> phenotypeList = new ArrayList();
         PhenotypeFacetResult phenoResult;
+        String targetGraphUrl = (String)request.getAttribute("mappedHostname") + request.getAttribute("baseUrl");
 
         if (pageName.equalsIgnoreCase("gene")) {
 
@@ -703,9 +699,8 @@ public class FileExportController {
             }
 
             ArrayList<GenePageTableRow> phenotypes = new ArrayList();
-
             for (PhenotypeCallSummary pcs : phenotypeList) {
-                GenePageTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString());
+                GenePageTableRow pr = new GenePageTableRow(pcs, targetGraphUrl);
                 phenotypes.add(pr);
             }
             Collections.sort(phenotypes);                                       // sort in same order as gene page.
@@ -734,7 +729,7 @@ public class FileExportController {
             ArrayList<PhenotypePageTableRow> phenotypes = new ArrayList();
             res.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure | Parameter\tPhenotyping Center\tSource\tP Value\tGraph");
             for (PhenotypeCallSummary pcs : phenotypeList) {
-                PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, (String)request.getAttribute("baseUrl"));
+                PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, targetGraphUrl);
 
                 if (pr.getParameter() != null && pr.getProcedure() != null) {
                     phenotypes.add(pr);

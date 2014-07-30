@@ -41,10 +41,15 @@
 							
 							<h4><a name="mainFaceting" href='#'>Main data type browsing</a></h4>
                             <div>Clicking on a main facet (eg, Genes, Phenotypes, Diseases) without ticking its subfacet filter(s) will display all records of that data type.
-                            The screenshot below shows the total number of genes in the portal.
-                            </div><br>
+                            The screenshot below shows the total number of genes in the portal.<p>
                             <img src='img/main_data_type.png' /><p>
-
+                            
+                            <h6>Facet control and behaviors</h6>
+                            <div>You are in control of whether a main facet/subfacet is open or closed.<p>
+                            When a filter is checked (ie, ticking on the checkbox of a subfacet), the facet counts will change dynamically. The counts of non-matching facet filters will become zero and grayout and when you hover over them, a no-enter sign will appear indicating that that filter is now unclickable until it matches other filter combinations.  
+                            </div>
+                            </div><br>
+                            
 							<h4><a name="subFaceting" href='#'>Cross data type browsing</a></h4>
                             <div>By checking a checkbox (or subfacet filter, eg. when 'Genes' main facet is expanded and 'Started' subfacet is ticked), the data of each main facet and its subfacets will be filtered and the counts of all 6 main data types
                             will be updated accordingly.<p><p>This is a powerful tool to find data in the portal.<p>
@@ -69,8 +74,7 @@
     						<p>
                                   
                             <h4><a name="autosuggest_srch" href='#'>Auto-suggest Support for Keyword Search</a></h4>			
-                            <div>Type at least 3 letters will invoke a drop-down list of terms related to your search keyword. The most relevant terms will be placed on top of the list. You can select the term in the list by either UP/DOWN keys on the keyboard or mouse-over and hit ENTER. 
-                                
+                            <div>Type at least 3 letters will invoke a drop-down list of terms (prefixed by its data type) related to your search keyword. The most relevant terms will be placed on top of the list. You can select the term in the list by either UP/DOWN keys on the keyboard or mouse-over and hit ENTER. 
                             </div><br>			
                             <img src='img/autosuggest_search.png' /><p>      
                                                     
