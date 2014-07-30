@@ -99,6 +99,7 @@ $(document).ready(function(){
 	initFileExporter();                                                     // Initialize the exportUrl. the fileType parameter will be empty.
         
 	function initFileExporter(){
+		
             var conf = {
                mgiGeneId: mgiGeneId,
                externalDbId: 3,
@@ -148,18 +149,7 @@ $(document).ready(function(){
         }
 
 	function _doDataExport(url, form){
-		$.ajax({
-			type: 'GET',
-			url: url,
-			cache: false,
-			data: $(form).serialize(),
-			success:function(data){    				
-				$(form).appendTo('body').submit();
-			},
-			error:function(){
-				//alert("Oops, there is error during data export..");
-			}
-		});
+		$(form).appendTo('body').submit();
 	}
 
 	function refreshPhenoTable(newUrl){

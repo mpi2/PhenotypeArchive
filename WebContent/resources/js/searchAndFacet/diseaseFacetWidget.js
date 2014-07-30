@@ -38,12 +38,14 @@
 		_initFacet: function(){			
 	    	var self = this;
 	    	
+	    	$.fn.setCurrentFq();
 	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
 	    			: self.options.data.hashParams.fq;
 	    	
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('disease', self.options.data.hashParams.q, oParams);
 	    	
+	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
 				'rows': 0, // override default
@@ -64,6 +66,7 @@
 	    	                  + '&facet.field=human_curated'
 	    	                  + '&facet.field=mouse_curated'
 	    	                  + '&facet.field=disease_source';	    	
+	    	console.log(queryParamStr);
 	    	
 	    	$.ajax({ 				 					
 	    		'url': solrUrl + '/disease/select',	    		
@@ -71,8 +74,8 @@
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
 	    		'success': function(json) {	 
-	    			//console.log(MPI2.searchAndFacetConfig.currentFq);
-	    			//console.log(json);
+	    			console.log(MPI2.searchAndFacetConfig.currentFq);
+	    			console.log(json);
 	    			self._displayDiseaseSubfacet(json);	    				
 	    		}		
 	    	});	    	

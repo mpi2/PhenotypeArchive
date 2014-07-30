@@ -445,6 +445,16 @@
 		return q;
 	};
 	
+	$.fn.setCurrentFq = function(){
+		if ($(location).attr('hash') != ''){
+			var hashStr = $(location).attr('hash');	
+			MPI2.searchAndFacetConfig.currentFq = hashStr.match(/fq=.+\&/)[0].replace(/fq=|\&/g,'');
+		}
+		else {
+			MPI2.searchAndFacetConfig.currentFq = false;
+		}
+	};
+	
 	function FacetCountsUpdater(oConf){	
 		
 		var facet = oConf.facet;

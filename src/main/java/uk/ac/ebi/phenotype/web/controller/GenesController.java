@@ -16,7 +16,9 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -227,7 +229,7 @@ public class GenesController {
 			
 		//code for assessing if the person is logged in and if so have they registered interest in this gene or not?
 		registerInterest = new RegisterInterestDrupalSolr( config, request);
-		this.registerInterestState(acc, model);
+		this.registerInterestState(acc, model, request);
 
 		try {
 			getExperimentalImages(acc, model);
@@ -472,8 +474,9 @@ public class GenesController {
 	 * 
 	 * @param acc
 	 * @param model
+	 * @throws UnsupportedEncodingException 
 	 */
-	private void registerInterestState(String acc, Model model) {
+	private void registerInterestState(String acc, Model model, HttpServletRequest request) throws UnsupportedEncodingException {
 		String registerInterestButtonString = "";
 		String registerButtonAnchor = "";
 		String id = acc;
@@ -488,7 +491,19 @@ public class GenesController {
 			}
 		} else {
 			registerInterestButtonString = "Login to register interest";
-			registerButtonAnchor = "/user/register";
+	        // Use the drupal destination parameter to redirect back to this page
+	        // after logging in
+	        String dest = (String)request.getAttribute("javax.servlet.forward.request_uri");
+	        if(request.getQueryString()!=null) {
+	        	dest += URLEncoder.encode("?"+request.getQueryString(), "UTF-8");        	
+	        }
+
+	        if(dest==null) {
+	        	dest = ((String)request.getAttribute("baseUrl")).substring(1) + request.getRequestURI().substring(request.getContextPath().length());
+	        }
+	        
+	        
+			registerButtonAnchor = "/user/login?destination="+dest;
 
 		}
 
