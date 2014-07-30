@@ -30,8 +30,8 @@ import="java.util.Properties,uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,net.sf
 
         String usermenu = menus[0]
         	.replace("current=menudisplaycombinedrendered", "destination="+dest)
-			.replace(request.getContextPath(), baseUrl.substring(1))
-			.replace("user/register", "user/register?destination="+dest);
+			.replace("user/register", "user/register?destination="+dest)
+			.replace(request.getContextPath(), baseUrl.substring(1));
 
         jspContext.setAttribute("usermenu", usermenu);
         jspContext.setAttribute("menu", menus[1]);
