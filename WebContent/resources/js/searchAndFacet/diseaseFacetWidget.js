@@ -66,7 +66,7 @@
 	    	                  + '&facet.field=human_curated'
 	    	                  + '&facet.field=mouse_curated'
 	    	                  + '&facet.field=disease_source';	    	
-	    	console.log(queryParamStr);
+	    	//console.log(queryParamStr);
 	    	
 	    	$.ajax({ 				 					
 	    		'url': solrUrl + '/disease/select',	    		
@@ -74,8 +74,8 @@
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
 	    		'success': function(json) {	 
-	    			console.log(MPI2.searchAndFacetConfig.currentFq);
-	    			console.log(json);
+	    			//console.log(MPI2.searchAndFacetConfig.currentFq);
+	    			//console.log(json);
 	    			self._displayDiseaseSubfacet(json);	    				
 	    		}		
 	    	});	    	
