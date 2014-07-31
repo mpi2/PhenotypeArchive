@@ -189,7 +189,7 @@ public class SiteMapController {
      * @param request <code>HttpServletRequest</code> instance
      * @throws SolrServerException 
      */
-    @RequestMapping(value = "/sitemap_files.xml", method = RequestMethod.GET)
+    @RequestMapping(value = "/sitemap_files", method = RequestMethod.GET)
     @ResponseBody
     public XmlSitemapIndex createSitemapFiles(
             HttpServletRequest request
@@ -224,7 +224,6 @@ public class SiteMapController {
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             
             jaxbMarshaller.marshal(xmlObject, file);
-            jaxbMarshaller.marshal(xmlObject, System.out);
         } catch (JAXBException e) {
             e.printStackTrace();
         }
