@@ -46,6 +46,11 @@ public class UnidimensionalChartAndTableProvider {
 
 	private String axisFontSize = "15";
 	
+
+	@Resource(name="globalConfiguration")
+	private Map<String, String> config;
+	
+	
 	@Autowired
 	ImpressService impressService;
 
@@ -208,7 +213,7 @@ public class UnidimensionalChartAndTableProvider {
 		Float min = 1000000000f;
 		Float max = 0f;
 		
-		String procedureURL = impressService.getProcedureUrl(experiment.getProcedureStableId());
+		String procedureURL = impressService.getObjectsByProcedureStableId(experiment.getProcedureStableId()).get(0).getProcedureUrl(config.get("drupalBaseUrl"));
 
 		// loop over the chartSeries data and create boxplots for each
 		for (ChartsSeriesElement chartsSeriesElement : chartsSeriesElementsList) {

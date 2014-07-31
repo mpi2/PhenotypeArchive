@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
+
 import org.apache.bcel.generic.IF_ACMPEQ;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -63,7 +65,9 @@ import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.ExperimentService;
+import uk.ac.ebi.phenotype.service.ImpressService;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
+import uk.ac.ebi.phenotype.service.dto.ImpressDTO;
 import uk.ac.ebi.phenotype.stats.ChartData;
 import uk.ac.ebi.phenotype.stats.ChartType;
 import uk.ac.ebi.phenotype.stats.PipelineProcedureData;
@@ -113,6 +117,13 @@ public class ChartsController {
 
     @Autowired
     private ExperimentService experimentService;
+
+    @Autowired
+    private ImpressService impressService;
+    
+    
+	@Resource(name="globalConfiguration")
+	private Map<String, String> config;
 
     /**
      * Runs when the request missing an accession ID. This redirects to the
@@ -255,12 +266,12 @@ public class ChartsController {
         List<String> zyList = getParamsAsList(zygosity);
 
         Integer pipelineId = null;
-        Pipeline pipeline = null;
+        ImpressDTO pipeline = null;
 
         if (pipelineStableId != null && !pipelineStableId.equals("")) {
             log.debug("pipe stable id=" + pipelineStableId);
-            pipeline = pipelineDAO.getPhenotypePipelineByStableId(pipelineStableId);
-            pipelineId = pipeline.getId();
+            pipeline = impressService.getObjectsByPipelineStableId(pipelineStableId).get(0);
+            pipelineId = pipeline.getPipelineId();
         }
 
         ExperimentDTO experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
@@ -270,7 +281,7 @@ public class ChartsController {
             if (pipeline == null) {
                 // if we don't already have the pipeline for this experiment
                 // from the url params lets get it via the experiment returned
-                pipeline = pipelineDAO.getPhenotypePipelineByStableId(experiment.getPipelineStableId());
+                pipeline =impressService.getObjectsByPipelineStableId(experiment.getPipelineStableId()).get(0);
             }
 
             String title = parameter.getName();
@@ -345,6 +356,7 @@ public class ChartsController {
                 statsError = true;
             }
 
+            pipeline.setDrupalBaseUrl(config.get("drupalBaseUrl"));
             model.addAttribute("pipeline", pipeline);
             model.addAttribute("allelicCompositionString", allelicCompositionString);
             model.addAttribute("symbol", symbol);

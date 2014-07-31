@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -49,6 +51,11 @@ public class CategoricalChartAndTableProvider {
 	@Autowired
 	ImpressService impressService;
 
+
+	@Resource(name="globalConfiguration")
+	private Map<String, String> config;
+	
+	
 
 	/**
 	 * return a list of categorical result and chart objects - one for each
@@ -445,7 +452,7 @@ public class CategoricalChartAndTableProvider {
 		// String chartId = bm.getId() + sex.name()+organisation.replace(" ",
 		// "_")+"_"+metadataGroup;
 
-		String procedureURL = impressService.getProcedureUrl(experiment.getProcedureStableId());
+		String procedureURL = impressService.getObjectsByProcedureStableId(experiment.getProcedureStableId()).get(0).getProcedureUrl(config.get("drupalBaseUrl"));
 		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaBox);
 		JSONArray colorArray = new JSONArray(colors);
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";

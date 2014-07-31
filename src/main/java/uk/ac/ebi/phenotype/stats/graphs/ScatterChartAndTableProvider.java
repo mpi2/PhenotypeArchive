@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -37,13 +39,16 @@ public class ScatterChartAndTableProvider {
 	
 	private static final Logger logger = Logger
 			.getLogger(ScatterChartAndTableProvider.class);
+
+	@Resource(name="globalConfiguration")
+	private Map<String, String> config;
 	
 	@Autowired 
 	ImpressService impressService;
 	
 	public String createScatter(ExperimentDTO experiment, String experimentNumber, Parameter parameter, JSONArray series) {
 		
-		String procedureURL = impressService.getProcedureUrl(experiment.getProcedureStableId());
+		String procedureURL = impressService.getObjectsByProcedureStableId(experiment.getProcedureStableId()).get(0).getProcedureUrl(config.get("drupalBaseUrl"));
 		
 		String chartString="	$(function () { "
 			  +"  chart71maleWTSI = new Highcharts.Chart({ "
