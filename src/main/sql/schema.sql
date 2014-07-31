@@ -1047,8 +1047,8 @@ CREATE TABLE phenotype_call_summary (
     mp_acc                    VARCHAR(20) NOT NULL,
     mp_db_id                  INT(10) NOT NULL,
     
-    p_value                   FLOAT NULL DEFAULT 1,
-    effect_size               FLOAT NULL DEFAULT 0,
+    p_value                   DOUBLE NULL DEFAULT 1,
+    effect_size               DOUBLE NULL DEFAULT 0,
 
     PRIMARY KEY (id),
     KEY parameter_call_idx (parameter_id),
