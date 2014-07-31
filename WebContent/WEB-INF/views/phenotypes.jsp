@@ -163,7 +163,7 @@
 								<div id="chartsHalf" class="half">
 								<c:if test="${parametersAssociated.size() > 1}">
 									<p> Select a parameter <i class="fa fa-bar-chart-o" ></i>&nbsp; &nbsp;
-										<select onchange="ajaxToBe('${phenotype.id.accession}', this.options[this.selectedIndex].value);">
+										<select class="overviewSelect" onchange="ajaxToBe('${phenotype.id.accession}', this.options[this.selectedIndex].value);">
 											<c:forEach var="assocParam" items="${parametersAssociated}" varStatus="loop">
 												<option value="${assocParam.getStableId()}">${assocParam.getName()} (${assocParam.getStableId()})</option>
 											</c:forEach>

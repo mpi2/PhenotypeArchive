@@ -280,7 +280,7 @@ public class CategoricalChartAndTableProvider {
 				+ "title: { text: '" + WordUtils.capitalize(title) + "' }, "
 				+ "subtitle: { text:'" + subtitle + "'}, credits: { enabled: false }, "
 				+ "xAxis: { categories: " + xAxisCategoriesArray	+ "}, "
-				+ "yAxis: { min: 0, title: { text: 'Percent Occurrance' } ,  "
+				+ "yAxis: { min: 0, title: { text: 'Percent Occurrence' } ,  "
 					+ "labels: {       formatter: function() { return this.value +'%';   }  }  },  "
 				+ "plotOptions: { column: { stacking: 'percent' } }, "
 				+ "series: " + seriesArray + " });  });";
@@ -388,7 +388,7 @@ public class CategoricalChartAndTableProvider {
 				+  parameter.getStableId()
 				+ "', x: -20 }, xAxis: { categories: "
 				+ xAxisCategoriesArray
-				+ "}, yAxis: { min: 0, title: { text: 'Percent Occurrance' } ,  labels: {       formatter: function() { return this.value +'%';   }  }},  plotOptions: { column: { stacking: 'percent' } }, series: "
+				+ "}, yAxis: { min: 0, title: { text: 'Percent Occurrence' } ,  labels: {       formatter: function() { return this.value +'%';   }  }},  plotOptions: { column: { stacking: 'percent' } }, series: "
 				+ seriesArray + " });   });});";
 		// logger.debug(javascript);
 		// categoricalBarCharts.add(javascript);

@@ -40,6 +40,7 @@
 	   
 	    	var self = this;
 	    	
+	    	$.fn.setCurrentFq();
 	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
 	    			: self.options.data.hashParams.fq;
 	    	
