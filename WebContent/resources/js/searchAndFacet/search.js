@@ -24,7 +24,6 @@
 	function _updateFacetCount(facet, facetResponse, facetMode){		
 		//var num = facetMode ? '' : facetResponse.response.numFound;
 		num = facetResponse.response.numFound;	
-		//console.log('num found: '+ num)
 		$('div.flist li#' + facet + ' span.fcount').html(num);		
 		
 		var freezeMode = num == 0 ? true : false;
@@ -34,18 +33,17 @@
 	function _getParams(facet, oUrlHashParams){
 		facet += 'Facet';
 		var params = $.extend({}, jsonBase[facet].srchParams, jsonBase[facet].filterParams);
-		//console.log($.extend({}, jsonBase.mpFacet.srchParams, jsonBase.mpFacet.filterParams, oParams));
 		
 		if ( typeof oUrlHashParams.qf != 'undefined' ){
 			params.qf = oUrlHashParams.qf; 
 		}
 		//console.log(facet + ' --- ' + $.fn.stringifyJsonAsUrlParams(params));
+		
 		return params;
 	}
 	
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
 		//console.log(oUrlHashParams);	
-		//console.log('search.js - 35');
 		var q = oUrlHashParams.q;
 		
 		// for match text highlighting

@@ -442,14 +442,14 @@
    			
     		if ( ! MPI2.searchAndFacetConfig.update.hashChange ){
     			//console.log('page reload: no hash change detected')
-
     			
     			var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
     			//console.log(oHashParams);
     			
     			if ( window.location.search != '' ){
     				// qrey value of q
-    				oHashParams.q = $.fn.process_q(decodeURI($.fn.fetchQueryStr()));
+    				//oHashParams.q = decodeURI($.fn.fetchQueryStr());
+    				oHashParams.q = $.fn.fetchQueryStr();
     			}
     			
     			//if ( $.isEmptyObject(oHashParams || typeof oHashParams.coreName != 'undefined' ) ){

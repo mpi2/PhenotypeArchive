@@ -430,7 +430,8 @@
 			q = q.replace(/^'|'$/g,'"');
 		}
 		
-		if ( ( /\s/.test(q) && /\*/.test(q) ) || /^".+"$/.test(q)  ){
+		// no complexphrase query for double quotes search
+		if ( ( /\s/.test(q) && /\*/.test(q) ) && ! /^".+"$/.test(q)  ){
 			//console.log('phrase search')
 			
 			// need to remove leading wildcard as solr4.8 does NOT support this
@@ -468,7 +469,8 @@
 		
 		var facet = oConf.facet;
 		var fqStr = oConf.fqStr.replace(/img_/g,''); // so that this matches the copyField of images
-		var q = oConf.q;
+		var q = $.fn.process_q(oConf.q);
+		
 		var thisSolrUrl = solrUrl + '/' + facet + '/select'; 
 		MPI2.searchAndFacetConfig.currentFq = fqStr;
 		
@@ -505,7 +507,6 @@
 		        		'jsonp': 'json.wrf',
 		        		'success': function(json) {
 		        			//console.log(json);
-		        			
 		    				var oFacets = json.facet_counts.facet_fields;
 		    			
 		    				var selectorBase = "div.flist li#gene";
@@ -1716,10 +1717,7 @@
     	oHashParams.qOri = oHashParams.q
     	oParams = $.fn.getSolrRelevanceParams(coreName, oHashParams.q, oParams);
     	
-    	
-    	if ( ! /^".+"$/.test(decodeURI(oHashParams.q)) ){
-    		oParams.q = $.fn.setSolrComplexPhraseQuery(oHashParams.q); 
-    	}
+    	oParams.q = $.fn.process_q(oParams.q);
     	
 		if ( facetDivId == 'imagesFacet' ) {
 			//oInfos.showImgView = true;	// don't want to show imgView as default
@@ -1934,7 +1932,7 @@
     function setImageFacetSumCount(oInfos){
     	var q = oInfos.q;
     	var fqStr = oInfos.fq; 
-    	var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';
+    	var paramStr = 'q=' + $.fn.process_q(q) + '&wt=json&defType=edismax&qf=auto_suggest';
         paramStr += '&fq=' + fqStr;
         var thisSolrUrl = solrUrl + '/images/select'; 
 		
