@@ -108,6 +108,10 @@
 		<constructor-arg value="${internalSolrUrl}/mp" />
 	</bean>
 
+	<bean id="diseaseService" class="uk.ac.ebi.phenotype.service.DiseaseService">
+		<constructor-arg value="${internalSolrUrl}/disease" />
+	</bean>
+
 	<bean id="biologicalModelDAO" class="uk.ac.ebi.phenotype.dao.BiologicalModelDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
