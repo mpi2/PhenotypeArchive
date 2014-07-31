@@ -446,13 +446,22 @@
 	};
 	
 	$.fn.setCurrentFq = function(){
-		if ($(location).attr('hash') != ''){
-			var hashStr = $(location).attr('hash');	
+		
+		var hashStr = $(location).attr('hash');	
+		if ( hashStr != '' && hashStr.indexOf('fq=') != -1 ){
 			MPI2.searchAndFacetConfig.currentFq = hashStr.match(/fq=.+\&/)[0].replace(/fq=|\&/g,'');
 		}
 		else {
 			MPI2.searchAndFacetConfig.currentFq = false;
 		}
+	};
+	
+	$.fn.getCurrentFacet = function(){
+		if ($(location).attr('hash') != ''){
+			var hashStr = $(location).attr('hash');	
+			return hashStr.match(/facet=.+\&?/)[0].replace(/facet=|\&/g,'');
+		}
+		return 'gene';
 	};
 	
 	function FacetCountsUpdater(oConf){	
@@ -780,10 +789,18 @@
 							var plFacets = json.facet_counts['facet_fields']['pipeline_name'];	    			
 			    			var prFacets = json.facet_counts['facet_fields']['pipe_proc_sid'];
 			    			
+			    			
+			    			// some procedures have multiple versions, so we need to add up their counts
+			    			var seenProcedureCount = {};
+			    			
 			    			// update pipeline parameter counts for rocedures
 			    			for ( var p=0; p<plFacets.length; p+=2){
 			        			var currPipe = plFacets[p];	
 			        			var pipeClass = currPipe.replace(/ /g, '_');        			
+			        			
+			        			if ( typeof seenProcedureCount[currPipe] == 'undefined' ){
+			        				seenProcedureCount[currPipe] = {};
+			        			}
 			        			
 				        		for ( var f=0; f<prFacets.length; f+=2 ){ 		        			        			
 				        			var aVals = prFacets[f].split('___');
@@ -794,10 +811,17 @@
 				        			var isGrayout = paramCount == 0 ? 'grayout' : '';		
 				        			
 				        			if (pipeName == currPipe ){	
+				        				if ( typeof seenProcedureCount[pipeName][procedure_name] == 'undefined' ){
+				        					seenProcedureCount[pipeName][procedure_name] = {};
+				        					seenProcedureCount[pipeName][procedure_name].count = 0;
+					        			}
+				        				
+				        				seenProcedureCount[pipeName][procedure_name].count += paramCount;
+				        				
 				    					$(selectorBase + ' li.' + pipeClass).each(function(){	
 					    					if ( $(this).find('span.flabel').text() == procedure_name ){  
 					    						$(this).removeClass('grayout').addClass(isGrayout);
-					    						$(this).find('span.fcount').text(paramCount);
+					    						$(this).find('span.fcount').text(seenProcedureCount[pipeName][procedure_name].count);
 					    					}
 					    				}); 
 				        			}
@@ -1414,9 +1438,6 @@
     };
         
     $.fn.process_q = function(q){
-    	
-    	//var pattern = /\(|\)/g;
-    	//q = decodeURI(q).replace(pattern, '\\'+$1);
     	q = decodeURI(q).replace(/\(/, '\\(').replace(/\)/, '\\)');
     	
 		if ( ! /^".+"$/.test(q) ){
@@ -1449,7 +1470,14 @@
 	    		var val = aList[1];
 	    		hashParams[key] = val;
 	    		if ( key == 'fq' ){
-	    			hashParams.oriFq = val; 
+	    			
+	    			// catches fq renders to false due to no value - due to hitting ENTER too fast
+	    			if ( val == 'false' ){	 
+	    				window.location.hash = 'fq=*:*&facet=' + $.fn.getCurrentFacet();
+	    			} 
+	    			else {
+	    				hashParams.oriFq = val; 
+	    			}
 	    		}
 	    	}
     	}
@@ -1669,7 +1697,8 @@
 			oHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
 		}
 		oParams.q = oHashParams.q;
-		oParams.fq = encodeURI(oHashParams.fq);		
+		//oParams.fq = encodeURI(oHashParams.fq);		
+		oParams.fq = oHashParams.fq;
 		oParams.rows = 10;
 		
 		/*
@@ -1717,6 +1746,8 @@
 			oHashParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
 		}
 
+		oHashParams.params = encodeURI(oHashParams.params);
+		
 		//console.log(oHashParams);
 		$.fn.invokeDataTable(oHashParams);
 		
@@ -2000,7 +2031,7 @@
     					fileName: solrCoreName + '_table_dump'	
     	    		});
     	    		
-    	    	});//.corner('6px'); 
+    	    	});
     		}        		
     	});
     }
@@ -2030,7 +2061,7 @@
 			
 			url1 = solrUrl + '/' + conf['solrCoreName'] + "/select?";
 			paramStr += "&wt=json";			
-			    		
+				
 			$.ajax({            	    
     			url: url1,
         	    data: paramStr,
@@ -2042,11 +2073,11 @@
 					if ( json.response.numFound > 3000 ){							
 						//console.log(json.response.numFound);
 						if ( confirm("Download big dataset would take a while, would you like to proceed?") ){
-							_doDataExport(url, form);
+							$(form).appendTo('body').submit().remove();	
 						}
 					}
 					else {
-						_doDataExport(url, form);
+						$(form).appendTo('body').submit().remove();	
 					}
         	    },
         	    error: function (jqXHR, textStatus, errorThrown) {        	             	        
@@ -2055,32 +2086,13 @@
 			});			
 		}
 		else {
-			_doDataExport(url, form);
+			// NOTE that IE8 prevents from download if over https.
+			// see http://support.microsoft.com/kb/2549423
+			$(form).appendTo('body').submit().remove();	
 		}
 
 		$('div#toolBox').hide();
 		
-    }
-
-    // NOTE that IE8 prevents from download if over https.
-    // see http://support.microsoft.com/kb/2549423
-    function _doDataExport(url, form){
-    	$.ajax({
-			type: 'GET',
-			url: url,
-			cache: false,
-			data: $(form).serialize(),
-			beforeSend:function(){				
-				$('div#exportSpinner').html(MPI2.searchAndFacetConfig.spinnerExport);						
-			},
-			success:function(data){    				
-				$(form).appendTo('body').submit().remove();				
-				$('div#exportSpinner').html('');				
-			},
-			error:function(){
-				//alert("Oops, there is error during data export..");
-			}
-		});    	
     }
     
     function fetchSaveTableGui(){

@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
@@ -23,6 +24,7 @@ import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.service.ImpressService;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.stats.ChartData;
@@ -36,14 +38,18 @@ public class ScatterChartAndTableProvider {
 	private static final Logger logger = Logger
 			.getLogger(ScatterChartAndTableProvider.class);
 	
+	@Autowired 
+	ImpressService impressService;
 	
-	public String createScatter(String experimentNumber, Parameter parameter, JSONArray series) {
+	public String createScatter(ExperimentDTO experiment, String experimentNumber, Parameter parameter, JSONArray series) {
+		
+		String procedureURL = impressService.getProcedureUrl(experiment.getProcedureStableId());
 		
 		String chartString="	$(function () { "
 			  +"  chart71maleWTSI = new Highcharts.Chart({ "
 			    +"     chart: {"
 			    +"renderTo: 'chart"
-				+ experimentNumber+"',"
+				+ experimentNumber + "',"
 			    +"         type: 'scatter',"
 			    +"         zoomType: 'xy'"
 			    
@@ -51,9 +57,7 @@ public class ScatterChartAndTableProvider {
 			      +"   title: {"
 			      +"       text: ' "+parameter.getName()
 			      +"'    },"
-			    +"     subtitle: {"
-			     +"        text: ' "+parameter.getStableId()+" ' "
-			     +"    },"
+			    +"     subtitle: { useHTML: true,  text: '<a href=\"" + procedureURL + "\">" + experiment.getProcedureName() + "</a>' },"
 			    +"     xAxis: {"
 			    +"         type: 'datetime',"
 			     +"        title: {"
@@ -268,7 +272,7 @@ public class ScatterChartAndTableProvider {
 		}// end of gender
 
 			ScatterChartAndData scatterChartAndData=new ScatterChartAndData();
-			String chartString=createScatter(experimentNumber, parameter, series);
+			String chartString = createScatter(experiment, experimentNumber, parameter, series);
 			scatterChartAndData.setChart(chartString);
 				
 			List<UnidimensionalStatsObject> unidimensionalStatsObjects=null;

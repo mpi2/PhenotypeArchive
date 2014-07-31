@@ -46,8 +46,13 @@
                 <c:if test="${genePercentage.getDisplay()}">
                 		<li><a href="#data-summary">Phenotype Association Stats</a></li>
                 </c:if>
+                <c:if test="${isImpcSlimTerm}">
                 <li><a href="#gene-variants">Gene Variants</a></li><!-- message comes up in this section so dont' check here -->
                 <li><a href="#phenotypeHeatmapSection">Heatmap</a></li>
+                </c:if>
+                <c:if test="${not empty images && fn:length(images) !=0}">
+                <li><a href="#imagesSection">Images</a></li>
+                </c:if>
             </ul>
             
             <div class="clear"></div>
@@ -55,7 +60,8 @@
         </div>
         
     </div>
-      
+      	
+      	 <c:if test="${isImpcSlimTerm}">
 		<script type="text/javascript" src="${drupalBaseUrl}/mp-heatmap/heatmap/js/heatmap.js"></script>  
 		
 		<script>
@@ -90,6 +96,7 @@
 						}
 					});
 		</script>
+		</c:if>
 		
 	</jsp:attribute>
 	<jsp:body>
@@ -138,10 +145,13 @@
 							</div>
 						</c:if>
 						<p class="with-label"><span class="label">MGI MP browser</span><a href="http://www.informatics.jax.org/searches/Phat.cgi?id=${phenotype.id.accession}">${phenotype.id.accession}</a></p>
+						<c:if test="${!isImpcSlimTerm}">
+							<p>This MP term has not been considered for annotation in <a href="https://www.mousephenotype.org/impress">IMPReSS</a>. However, you can search and retrieve all MP terms currently associated to the Knock-out mutant lines from the <a href="${baseURL}/search">IMPC Search</a> page. You can also look at all the MP terms used to annotate the IMPReSS SOPs from the <a href="https://www.mousephenotype.org/impress/ontologysearch">IMPReSS ontology search</a> page.</p>
+						</c:if>
 					</div><!--  closing off inner here - but does this look correct in all situations- because of complicated looping rules above? jW -->
 					</div>
 				
-				
+				 
 				<c:if test="${genePercentage.getDisplay()}">
 					<div class="section">
 						<h2 class="title" id="data-summary">Phenotype associations stats <span class="documentation" ><a href='' id='phenotypeStatsPanel' class="fa fa-question-circle pull-right"></a></span> </h2>
@@ -163,7 +173,7 @@
 								<div id="chartsHalf" class="half">
 								<c:if test="${parametersAssociated.size() > 1}">
 									<p> Select a parameter <i class="fa fa-bar-chart-o" ></i>&nbsp; &nbsp;
-										<select onchange="ajaxToBe('${phenotype.id.accession}', this.options[this.selectedIndex].value);">
+										<select class="overviewSelect" onchange="ajaxToBe('${phenotype.id.accession}', this.options[this.selectedIndex].value);">
 											<c:forEach var="assocParam" items="${parametersAssociated}" varStatus="loop">
 												<option value="${assocParam.getStableId()}">${assocParam.getName()} (${assocParam.getStableId()})</option>
 											</c:forEach>
@@ -187,7 +197,7 @@
 				</div>
 			</c:if>
 						
-			
+			<c:if test="${isImpcSlimTerm}">
 				<div class="section">
 				
 			    <h2 class="title" id="gene-variants">Gene variants with ${phenotype.name} 	
@@ -238,12 +248,12 @@
 							<div id="phenodcc-heatmap-3"> </div>
 						<!-- /div-->							
 	        </div>
-				</div>
-				
+				</div><!-- end of section -->
+			</c:if>	
 				
 	<!-- example for images on phenotypes page: http://localhost:8080/phenotype-archive/phenotypes/MP:0000572 -->
 			<c:if test="${not empty images && fn:length(images) !=0}">
-				<div class="section">
+				<div class="section" id="imagesSection" >
 						<h2 class="title" id="section">Images <i class="fa fa-question-circle pull-right"></i></h2>
 						<div class="inner">			
 											<%-- <a href="${baseUrl}/images?phenotype_id=${phenotype_id}">[show all  ${numberFound} images]</a> --%>

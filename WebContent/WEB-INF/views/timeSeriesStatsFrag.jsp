@@ -8,7 +8,7 @@
 		<div id="timechart${experimentNumber}"> </div>
 		
                 <p><a href="${acc}?${pageContext.request.queryString}&scatter=1">Graph by date</a></p>
-        <p><a><i class="fa" id="toggle_table_button${experimentNumber}">More Statistics</i></a></p>
+        <p><a><i class="fa" id="toggle_table_button${experimentNumber}"/>More Statistics</a></p>
 	<div id="toggle_timetable${experimentNumber}">
                 <table id="timeTable">
                     <tr>

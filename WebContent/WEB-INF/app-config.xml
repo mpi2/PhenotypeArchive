@@ -66,15 +66,19 @@
 		<constructor-arg value="${internalSolrUrl}/experiment" />
 	</bean>
 	
+	<bean id="impressService" class="uk.ac.ebi.phenotype.service.ImpressService">
+		<constructor-arg value="${internalSolrUrl}/pipeline" />
+	</bean>
+	
 	<bean id="imageService" class="uk.ac.ebi.phenotype.service.ImageService">
-		<constructor-arg value="${internalSolrUrl}/impc_images" />
+		<constructor-arg value="http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images" />
 	</bean>
 
 	<bean id="mapService" class="uk.ac.ebi.phenotype.service.ParameterMapService">
 		<constructor-arg value="${internalSolrUrl}/experiment" />
 	</bean>
 	
-	<bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap" init-method="fillMaps" />
+	<bean id="parameterToGeneMap" class="uk.ac.ebi.phenotype.util.ParameterToGeneMap" />
 
 	<bean id="unidimensionalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl">
 		<constructor-arg ref="sessionFactory" />
@@ -106,6 +110,10 @@
 
 	<bean id="mpService" class="uk.ac.ebi.phenotype.service.MpService">
 		<constructor-arg value="${internalSolrUrl}/mp" />
+	</bean>
+
+	<bean id="diseaseService" class="uk.ac.ebi.phenotype.service.DiseaseService">
+		<constructor-arg value="${internalSolrUrl}/disease" />
 	</bean>
 
 	<bean id="biologicalModelDAO" class="uk.ac.ebi.phenotype.dao.BiologicalModelDAOImpl">
@@ -216,6 +224,7 @@
 				<entry key="solrUrl" value="${solrUrl}" />
 				<entry key="internalSolrUrl" value="${internalSolrUrl}" />
 				<entry key="mediaBaseUrl" value="${mediaBaseUrl}" />
+				<entry key="impcMediaBaseUrl" value="${impcMediaBaseUrl}" />
 				<entry key="googleAnalytics" value="${googleAnalytics}" />
 				<entry key="liveSite" value="${liveSite}" />
 			</map>

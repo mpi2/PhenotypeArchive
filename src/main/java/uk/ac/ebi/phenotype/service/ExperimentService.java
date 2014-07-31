@@ -207,6 +207,10 @@ public class ExperimentService {
             } else if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.hemizygote)) {
                 experiment.getHemizygoteMutants().add(observation);
             }
+
+            experiment.setProcedureStableId(observation.getProcedureStableId());
+            experiment.setProcedureName(observation.getProcedureName());
+            
             experimentsMap.put(experimentKey, experiment);
 
         }
