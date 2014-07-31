@@ -213,20 +213,23 @@ public class SiteMapController {
      * root directory
      * @param filename The name of the xml file to create
      * @param xmlObject The xml object details to store in the xml file
+     * 
+     * PHYSICAL FILE GENERATION IS NOT NEEDED. LEAVE THE METHOD IN CASE WE NEED PHYSICAL FILE GENERATION IN THE FUTURE
+     * BUT REMOVE THE PART THAT CREATES THE FILE.
      */
     private void createSitemapFile(String filename, Object xmlObject) {
-        File file = new File(filename);
-        
-        try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(xmlObject.getClass());
-            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-            
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            
-            jaxbMarshaller.marshal(xmlObject, file);
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        }
+//        File file = new File(filename);
+//        
+//        try {
+//            JAXBContext jaxbContext = JAXBContext.newInstance(xmlObject.getClass());
+//            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+//            
+//            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+//            
+//            jaxbMarshaller.marshal(xmlObject, file);
+//        } catch (JAXBException e) {
+//            e.printStackTrace();
+//        }
     }
     
 }
