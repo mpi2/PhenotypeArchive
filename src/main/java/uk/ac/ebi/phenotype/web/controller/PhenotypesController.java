@@ -139,12 +139,14 @@ public class PhenotypesController {
             HttpServletRequest request,
             RedirectAttributes attributes) throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
 
+    	// Check whether the MP term exists
         OntologyTerm oTerm = ontoTermDao.getOntologyTermByAccessionAndDatabaseId(phenotype_id, 5);
 
         if (oTerm == null) {
             throw new OntologyTermNotFoundException("", phenotype_id);
         }
 
+        // Yes, it's a valid MP term
 //		OntologyTerm oTerm=new OntologyTerm();
 //		DatasourceEntityId dId=new DatasourceEntityId();
 //		dId.setAccession(phenotype_id);
@@ -157,18 +159,22 @@ public class PhenotypesController {
 
         try {
 
-            JSONObject mpData = solrIndex
+        	JSONArray docs = solrIndex
                     .getMpData(phenotype_id)
                     .getJSONObject("response")
-                    .getJSONArray("docs")
-                    .getJSONObject(0);
+                    .getJSONArray("docs");
+        	
+        	int nbDocs = docs.size();
+        	
+        	if ( nbDocs == 0 ) {
+        		// do something
+        		model.addAttribute("isImpcSlimTerm", false);
+        	} else {
+        	
+        	model.addAttribute("isImpcSlimTerm", true);
+        	
+            JSONObject mpData = docs.getJSONObject(0);
             JSONArray terms;
-
-            if (mpData.containsKey("ontology_subset")) {
-                model.addAttribute("isImpcTerm", mpData.getJSONArray("ontology_subset").contains("IMPC_Terms"));
-            } else {
-                model.addAttribute("isImpcTerm", false);
-            }
 
             if (mpData.containsKey("mp_term")) {
                 String term = mpData.getString("mp_term");
@@ -216,6 +222,8 @@ public class PhenotypesController {
                 }
             }
 
+        } 
+        	
         } catch (Exception e) {
             e.printStackTrace();
             anatomyTerms = new HashSet();
@@ -226,7 +234,12 @@ public class PhenotypesController {
         model.addAttribute("go", goTerms);
         model.addAttribute("siblings", mpSiblings);
         model.addAttribute("synonyms", synonymTerms);
+        
+        
+        
         // Query the images for this phenotype
+        
+        
         QueryResponse response = imagesSolrDao.getDocsForMpTerm(phenotype_id, 0, numberOfImagesToDisplay);
         model.addAttribute("numberFound", response.getResults().getNumFound());
         model.addAttribute("images", response.getResults());
@@ -261,6 +274,15 @@ public class PhenotypesController {
         return sortPhenFacets;
     }
 
+    /**
+     * 
+     * @param phenotype_id
+     * @param filter
+     * @param model
+     * @param request
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     private void processPhenotypes(String phenotype_id, String filter, Model model, HttpServletRequest request) throws IOException, URISyntaxException {
 		// This block collapses phenotype rows
         // phenotype term, allele, zygosity, and sex
@@ -319,15 +341,25 @@ public class PhenotypesController {
 
         time = System.currentTimeMillis();
 
-        JSONObject mpData = solrIndex
+        // Check the number of document first
+        JSONArray docs = solrIndex
                 .getMpData(phenotype_id)
                 .getJSONObject("response")
-                .getJSONArray("docs")
-                .getJSONObject(0);
+                .getJSONArray("docs");
+        
+        int nb = docs.size();
+        
+        if (nb == 0) {
+        	model.addAttribute("isImpcTerm", false);
+        } else {
+        	
+        JSONObject mpData = docs.getJSONObject(0);
+        
         if (mpData.containsKey("ontology_subset")) {
             model.addAttribute("isImpcTerm", mpData.getJSONArray("ontology_subset").contains("IMPC_Terms"));
         } else {
             model.addAttribute("isImpcTerm", false);
+        }
         }
         log.info("\tTime loading phenotype informaition: " + (System.currentTimeMillis() - time) + "ms");
 
