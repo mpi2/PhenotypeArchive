@@ -48,6 +48,7 @@
                             <div>You are in control of whether a main facet/subfacet is open or closed.<p>
                             When a filter is checked (ie, ticking on the checkbox of a subfacet), the facet counts will change dynamically. The counts of non-matching facet filters will become zero and grayout and when you hover over them, a no-enter sign will appear indicating that that filter is now unclickable until it matches other filter combinations.  
                             </div>
+                            <img src='img/facet_behavior.png' /><p>
                             </div><br>
                             
 							<h4><a name="subFaceting" href='#'>Cross data type browsing</a></h4>
