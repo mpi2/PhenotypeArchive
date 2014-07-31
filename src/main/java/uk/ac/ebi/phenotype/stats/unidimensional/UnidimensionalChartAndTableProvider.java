@@ -11,11 +11,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 import org.hibernate.cfg.annotations.Nullability;
 import org.json.JSONArray;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
@@ -24,6 +27,7 @@ import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.service.ImpressService;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.stats.ChartData;
@@ -41,7 +45,14 @@ public class UnidimensionalChartAndTableProvider {
 	private static final Logger logger = Logger.getLogger(UnidimensionalChartAndTableProvider.class);
 
 	private String axisFontSize = "15";
+	
 
+	@Resource(name="globalConfiguration")
+	private Map<String, String> config;
+	
+	
+	@Autowired
+	ImpressService impressService;
 
 	/**
 	 * return one unidimensional data set per experiment - one experiment should
@@ -201,6 +212,8 @@ public class UnidimensionalChartAndTableProvider {
 		int column = 0;
 		Float min = 1000000000f;
 		Float max = 0f;
+		
+		String procedureURL = config.get("drupalBaseUrl") + "/impress/impress/displaySOP/" + impressService.getProcedureStableKey(experiment.getProcedureStableId());
 
 		// loop over the chartSeries data and create boxplots for each
 		for (ChartsSeriesElement chartsSeriesElement : chartsSeriesElementsList) {
@@ -328,7 +341,17 @@ public class UnidimensionalChartAndTableProvider {
 		}// end of scatter loop
 		List<String> colors = ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaBox);
 		JSONArray colorArray = new JSONArray(colors);
-		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + colorArray + ", chart: { type: 'boxplot', renderTo: 'chart" + experimentNumber + "'},  tooltip: { formatter: function () { if(typeof this.point.high === 'undefined'){ return '<b>Observation</b><br/>' + this.point.y; } else { return '<b>Genotype: ' + this.key + '</b><br/>LQ - 1.5 * IQR: ' + this.point.low + '<br/>Lower Quartile: ' + this.point.options.q1 + '<br/>Median: ' + this.point.options.median + '<br/>Upper Quartile: ' + this.point.options.q3 + '<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '</b>'; } } }    , title: { text: '" + parameter.getName() + "' } , credits: { enabled: false },  subtitle: { text: '" + parameter.getStableId() + "', x: -20 }, legend: { enabled: false }, xAxis: { categories:  " + categories + " }, \n" + " plotOptions: {" + "series:" + "{ groupPadding: 0.45, pointPadding: -1.5 }" + "}," + "yAxis: { " + "max: " + max + ",  min: " + min + "," + "labels: { },title: { text: '" + yAxisTitle + "' } }, " + "\n series: [" + seriesData + "] }); });";
+		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + colorArray 
+			+ ", chart: { type: 'boxplot', renderTo: 'chart" + experimentNumber + "'},  "
+			+ " tooltip: { formatter: function () { if(typeof this.point.high === 'undefined'){ return '<b>Observation</b><br/>' + this.point.y; } else { return '<b>Genotype: ' + this.key + '</b><br/>LQ - 1.5 * IQR: ' + this.point.low + '<br/>Lower Quartile: ' + this.point.options.q1 + '<br/>Median: ' + this.point.options.median + '<br/>Upper Quartile: ' + this.point.options.q3 + '<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '</b>'; } } }    ,"
+			+ " title: { text: '" + parameter.getName() + "' } , "
+			+ " credits: { enabled: false },  "
+			+ " subtitle: { useHTML: true,  text: '<a href=\"" + procedureURL + "\">" + experiment.getProcedureName() + "</a>', x: -20 }, "
+			+ " legend: { enabled: false }, "
+			+ " xAxis: { categories:  " + categories + " }, \n" 
+			+ " plotOptions: {" + "series:" + "{ groupPadding: 0.45, pointPadding: -1.5 }" + "}," 
+			+ " yAxis: { " + "max: " + max + ",  min: " + min + "," + "labels: { },title: { text: '" + yAxisTitle + "' } }, " 
+			+ "\n series: [" + seriesData + "] }); });";
 
 		return chartString;
 	}
