@@ -89,6 +89,7 @@
 				jsonBase.geneFacet.filterParams = {'fq': oUrlHashParams.fq};
 			}
 		}
+		//console.log(typeof oUrlHashParams.fq)
 		
 		jsonBase.geneFacet.srchParams.q = q;
 		
