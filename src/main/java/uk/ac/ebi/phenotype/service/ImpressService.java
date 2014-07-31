@@ -1,5 +1,9 @@
 package uk.ac.ebi.phenotype.service;
 
+import java.util.Map;
+
+import javax.annotation.Resource;
+
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -17,7 +21,9 @@ import uk.ac.ebi.phenotype.service.dto.ImpressDTO;
 
 public class ImpressService {
 
-	
+
+	@Resource(name="globalConfiguration")
+	private Map<String, String> config;
 
 	private final HttpSolrServer solr;
 
@@ -45,5 +51,9 @@ public class ImpressService {
 		}
 		
 		return null;
+	}
+	
+	public String getProcedureUrl(String procedureStabeId){
+		return config.get("drupalBaseUrl") + "/impress/impress/displaySOP/" + getProcedureStableKey(procedureStabeId);
 	}
 }
