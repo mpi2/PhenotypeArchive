@@ -22,6 +22,7 @@
    <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
    <fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
    <fieldType name="tfloat" class="solr.TrieFloatField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
+   <fieldType name="tdouble" class="solr.TrieDoubleField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
 
     <!-- A general text field that has reasonable, generic
          cross-language defaults: it tokenizes with StandardTokenizer,
@@ -142,8 +143,8 @@
     <field name="parameter_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="parameter_stable_key" type="string" indexed="false" stored="true" required="false" multiValued="false" />
     
-    <field name="p_value" type="tfloat" indexed="true" stored="true" required="false" multiValued="false" />
-    <field name="effect_size" type="tfloat" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="p_value" type="tdouble" indexed="true" stored="true" required="false" multiValued="false" />
+    <field name="effect_size" type="tdouble" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="external_id" type="string" indexed="false" stored="true" required="false" multiValued="false" />
 
 

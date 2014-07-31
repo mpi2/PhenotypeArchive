@@ -53,6 +53,7 @@
 		<fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
 		<fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
 		<fieldType name="float" class="solr.TrieFloatField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
+		<fieldType name="double" class="solr.TrieDoubleField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
 		<fieldType name="tdate" class="solr.TrieDateField" omitNorms="true" precisionStep="6" positionIncrementGap="0"/>
         <fieldType name="boolean" class="solr.BoolField" omitNorms="true"/>
 	</types>
@@ -127,38 +128,38 @@
 
         <!-- Categorical statistics  -->
         <field name="categories"                  type="string" indexed="true" stored="true" multiValued="true" />
-        <field name="categorical_p_value"         type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="categorical_effect_size"     type="float" indexed="true" stored="true" multiValued="false" />
+        <field name="categorical_p_value"         type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="categorical_effect_size"     type="double" indexed="true" stored="true" multiValued="false" />
 
         <!-- Continuous statistics -->
         <field name="batch_significant"           type="boolean" indexed="true" stored="true" multiValued="false" />
         <field name="variance_significant"        type="boolean" indexed="true" stored="true" multiValued="false" />
-        <field name="null_test_p_value"           type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="genotype_effect_p_value"     type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="genotype_effect_stderr_estimate" type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="genotype_effect_parameter_estimate" type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="sex_effect_p_value"          type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="sex_effect_stderr_estimate"  type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="sex_effect_parameter_estimate" type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="weight_effect_p_value"       type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="weight_effect_stderr_estimate" type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="weight_effect_parameter_estimate" type="float" indexed="true" stored="true" multiValued="false" />
+        <field name="null_test_p_value"           type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="genotype_effect_p_value"     type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="genotype_effect_stderr_estimate" type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="genotype_effect_parameter_estimate" type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="sex_effect_p_value"          type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="sex_effect_stderr_estimate"  type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="sex_effect_parameter_estimate" type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="weight_effect_p_value"       type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="weight_effect_stderr_estimate" type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="weight_effect_parameter_estimate" type="double" indexed="true" stored="true" multiValued="false" />
         <field name="group_1_genotype"            type="string" indexed="true" stored="true" multiValued="false" />
-        <field name="group_1_residuals_normality_test" type="float" indexed="true" stored="true" multiValued="false" />
+        <field name="group_1_residuals_normality_test" type="double" indexed="true" stored="true" multiValued="false" />
         <field name="group_2_genotype"            type="string" indexed="true" stored="true" multiValued="false" />
-        <field name="group_2_residuals_normality_test" type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="blups_test"                  type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="rotated_residuals_test"      type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="intercept_estimate"          type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="intercept_estimate_stderr_estimate" type="float" indexed="true" stored="true" multiValued="false" />
+        <field name="group_2_residuals_normality_test" type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="blups_test"                  type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="rotated_residuals_test"      type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="intercept_estimate"          type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="intercept_estimate_stderr_estimate" type="double" indexed="true" stored="true" multiValued="false" />
         <field name="interaction_significant"     type="boolean" indexed="true" stored="true" multiValued="false" />
-        <field name="interaction_effect_p_value"  type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="female_ko_effect_p_value"    type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="female_ko_effect_stderr_estimate" type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="female_ko_parameter_estimate" type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="male_ko_effect_p_value"      type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="male_ko_effect_stderr_estimate" type="float" indexed="true" stored="true" multiValued="false" />
-        <field name="male_ko_parameter_estimate"  type="float" indexed="true" stored="true" multiValued="false" />
+        <field name="interaction_effect_p_value"  type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="female_ko_effect_p_value"    type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="female_ko_effect_stderr_estimate" type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="female_ko_parameter_estimate" type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="male_ko_effect_p_value"      type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="male_ko_effect_stderr_estimate" type="double" indexed="true" stored="true" multiValued="false" />
+        <field name="male_ko_parameter_estimate"  type="double" indexed="true" stored="true" multiValued="false" />
         <field name="classification_tag"          type="string" indexed="true" stored="true" multiValued="false" />
 
 		<!-- for copyfield -->

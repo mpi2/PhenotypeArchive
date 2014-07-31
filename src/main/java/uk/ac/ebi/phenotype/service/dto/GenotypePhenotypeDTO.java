@@ -155,10 +155,10 @@ public class GenotypePhenotypeDTO {
 	String parameterStableKey;
 
 	@Field(P_VALUE)
-	Float p_value;
+	Double p_value;
 
 	@Field(EFFECT_SIZE)
-	Float effect_size;
+	Double effect_size;
 
 	@Field(EXTERNAL_ID)
 	String externalId;
@@ -596,25 +596,25 @@ public class GenotypePhenotypeDTO {
 	}
 
 	
-	public Float getP_value() {
+	public Double getP_value() {
 	
 		return p_value;
 	}
 
 	
-	public void setP_value(Float p_value) {
+	public void setP_value(Double p_value) {
 	
 		this.p_value = p_value;
 	}
 
 	
-	public Float getEffect_size() {
+	public Double getEffect_size() {
 	
 		return effect_size;
 	}
 
 	
-	public void setEffect_size(Float effect_size) {
+	public void setEffect_size(Double effect_size) {
 	
 		this.effect_size = effect_size;
 	}
