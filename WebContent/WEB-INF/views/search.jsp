@@ -140,7 +140,6 @@
        		// back button will not see this js
        		MPI2.searchAndFacetConfig.update.pageReload = true;
        		
-       		//console.log('reload');
        		$('span.facetCount').text(''); // default when page loads
        		$('input#s').val('');  // clears input when pages loads
        			
@@ -165,7 +164,10 @@
        			
        			oHashParams = $.fn.parseHashString(window.location.hash.substring(1));	
        			if (typeof oHashParams.fq == 'undefined'){
+       				//oHashParams.fq = '*:*';
+       				
        				oHashParams.noFq = true;
+       				
        			}
        			//console.log(oHashParams);
        			$.fn.fetchSolrFacetCount(oHashParams);	
@@ -512,6 +514,7 @@
 			    	
 			    	oHashParams.fq = oHashParams.fq.replace(/img_/g,''); // so that this matches the copyField of images
 
+			    	//console.log(oHashParams);
 			    	$.fn.parseUrl_constructFilters_loadDataTable(oHashParams);
 				}	
     		}
@@ -557,36 +560,36 @@
 						+ '</p>'
 						+ '<h5>Gene query examples</h5>'
 						+ '<p>'
-						+ '<a href="${baseUrl}/search?q=akt2">Akt2</a>'
+						+ '<a href="${baseUrl}/search?q=akt2#fq=*:*&facet=gene">Akt2</a>'
 						+ '- looking for a specific gene, Akt2'
 						+ '<br>'
-						+ '<a href="${baseUrl}/search?q=*rik">*rik</a>'
+						+ '<a href="${baseUrl}/search?q=*rik#fq=*:*&facet=gene">*rik</a>'
 						+ '- looking for all Riken genes'
 						+ '<br>'
-						+ '<a href="${baseUrl}/search?q=hox*">hox*</a>'
+						+ '<a href="${baseUrl}/search?q=hox*#fq=*:*&facet=gene">hox*</a>'
 						+ '- looking for all hox genes'
 						+ '</p>'
 						+ '<h5>Phenotype query examples</h5>'
 						+ '<p>'					
-						+ '<a href="${baseUrl}/search?q=abnormal skin morphology">abnormal skin morphology</a>'
+						+ '<a href="${baseUrl}/search?q=abnormal skin morphology#fq=*:*&facet=mp">abnormal skin morphology</a>'
 						+ '- looking for a specific phenotype'
 						+ '<br>'
-						+ '<a href="${baseUrl}/search?q=ear">ear</a>'
+						+ '<a href="${baseUrl}/search?q=ear#fq=*:*&facet=mp">ear</a>'
 						+ '- find all ear related phenotypes'
 						+ '</p>'
 						+ '<h5>Procedure query Example</h5>'
 						+ '<p>'
-						+ '<a href="${baseUrl}/search?q=grip strength">grip strength</a>'
+						+ '<a href="${baseUrl}/search?q=grip strength#fq=*:*&facet=pipeline">grip strength</a>'
 						+ '- looking for a specific procedure'
 						+ '</p>'
 						+ '<h5>Phrase query Example</h5>'
 						+ '<p>'
-						+ '<a href="${baseUrl}/search?q=zinc finger protein">zinc finger protein</a>'
+						+ '<a href="${baseUrl}/search?q=zinc finger protein#fq=*:*&facet=gene">zinc finger protein</a>'
 						+ '- looking for genes whose product is zinc finger protein'
 						+ '</p>'
 						+ '<h5>Phrase wildcard query Example</h5>'
 						+ '<p>'
-						+ '<a href="${baseUrl}/search?q=abnormal phy*">abnormal phy*</a>'
+						+ '<a href="${baseUrl}/search?q=abnormal phy*#fq=*:*&facet=mp">abnormal phy*</a>'
 						+ '- can look for phenotypes that contain abnormal phenotype or abnormal physiology.<br>'
 						+ 'Supported queries are a mixture of word with *, eg. abn* immune phy*.<br>NOTE that leading wildcard, eg. *abnormal is not supported.'
 						+ '</p>';
