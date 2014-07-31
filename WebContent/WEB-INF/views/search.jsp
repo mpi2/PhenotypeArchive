@@ -164,12 +164,9 @@
        			
        			oHashParams = $.fn.parseHashString(window.location.hash.substring(1));	
        			if (typeof oHashParams.fq == 'undefined'){
-       				//oHashParams.fq = '*:*';
-       				
        				oHashParams.noFq = true;
-       				
        			}
-       			//console.log(oHashParams);
+       			
        			$.fn.fetchSolrFacetCount(oHashParams);	
        		}
        		else {
@@ -291,7 +288,7 @@
 	       			minLength: 3,
 	       			select: function( event, ui ) {
 	       				// select by mouse / KB
-	       				//console.log(this.value + ' vs ' + ui.item.label);
+	       				////console.log(this.value + ' vs ' + ui.item.label);
 	       				//var oriText = $(ui.item.label).text();
 	       				
 	       				var facet = $(ui.item.label).attr('class');

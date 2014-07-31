@@ -455,6 +455,14 @@
 		}
 	};
 	
+	$.fn.getCurrentFacet = function(){
+		if ($(location).attr('hash') != ''){
+			var hashStr = $(location).attr('hash');	
+			return hashStr.match(/facet=.+\&?/)[0].replace(/facet=|\&/g,'');
+		}
+		return 'gene';
+	};
+	
 	function FacetCountsUpdater(oConf){	
 		
 		var facet = oConf.facet;
@@ -1449,7 +1457,14 @@
 	    		var val = aList[1];
 	    		hashParams[key] = val;
 	    		if ( key == 'fq' ){
-	    			hashParams.oriFq = val; 
+	    			
+	    			// catches fq renders to false due to no value - due to hitting ENTER too fast
+	    			if ( val == 'false' ){	 
+	    				window.location.hash = 'fq=*:*&facet=' + $.fn.getCurrentFacet();
+	    			} 
+	    			else {
+	    				hashParams.oriFq = val; 
+	    			}
 	    		}
 	    	}
     	}
