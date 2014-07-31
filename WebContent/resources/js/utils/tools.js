@@ -2000,7 +2000,7 @@
     					fileName: solrCoreName + '_table_dump'	
     	    		});
     	    		
-    	    	});//.corner('6px'); 
+    	    	});
     		}        		
     	});
     }
@@ -2030,7 +2030,7 @@
 			
 			url1 = solrUrl + '/' + conf['solrCoreName'] + "/select?";
 			paramStr += "&wt=json";			
-			    		
+				
 			$.ajax({            	    
     			url: url1,
         	    data: paramStr,
@@ -2042,11 +2042,11 @@
 					if ( json.response.numFound > 3000 ){							
 						//console.log(json.response.numFound);
 						if ( confirm("Download big dataset would take a while, would you like to proceed?") ){
-							_doDataExport(url, form);
+							$(form).appendTo('body').submit().remove();	
 						}
 					}
 					else {
-						_doDataExport(url, form);
+						$(form).appendTo('body').submit().remove();	
 					}
         	    },
         	    error: function (jqXHR, textStatus, errorThrown) {        	             	        
@@ -2055,32 +2055,13 @@
 			});			
 		}
 		else {
-			_doDataExport(url, form);
+			// NOTE that IE8 prevents from download if over https.
+			// see http://support.microsoft.com/kb/2549423
+			$(form).appendTo('body').submit().remove();	
 		}
 
 		$('div#toolBox').hide();
 		
-    }
-
-    // NOTE that IE8 prevents from download if over https.
-    // see http://support.microsoft.com/kb/2549423
-    function _doDataExport(url, form){
-    	$.ajax({
-			type: 'GET',
-			url: url,
-			cache: false,
-			data: $(form).serialize(),
-			beforeSend:function(){				
-				$('div#exportSpinner').html(MPI2.searchAndFacetConfig.spinnerExport);						
-			},
-			success:function(data){    				
-				$(form).appendTo('body').submit().remove();				
-				$('div#exportSpinner').html('');				
-			},
-			error:function(){
-				//alert("Oops, there is error during data export..");
-			}
-		});    	
     }
     
     function fetchSaveTableGui(){

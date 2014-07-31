@@ -50,6 +50,7 @@
         <drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
 
         <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
+        <impcMediaBaseUrl>http://172.22.68.222:4080/webgateway</impcMediaBaseUrl>
         <googleAnalytics></googleAnalytics>
         <liveSite>false</liveSite>
         <ebi.distrib.repository>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/groups/public</ebi.distrib.repository>
@@ -1081,6 +1082,7 @@
                 <internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
                 <drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
                 <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
+                <impcMediaBaseUrl>http://172.22.68.222:4080/webgateway </impcMediaBaseUrl>
                 <liveSite>false</liveSite>
             </properties>
 
@@ -1116,6 +1118,7 @@
                 <internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
                 <drupalBaseUrl>https://dev.mousephenotype.org</drupalBaseUrl>
                 <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
+                <impcMediaBaseUrl>http://172.22.68.222:4080/webgateway </impcMediaBaseUrl>
                 <seleniumUrl>http://mi-selenium-mac.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
                 <liveSite>false</liveSite>
             </properties>
@@ -1155,6 +1158,7 @@
                 <internalSolrUrl>http://localhost:8090/mi/impc/beta/solr</internalSolrUrl>
                 <drupalBaseUrl>https://beta.mousephenotype.org</drupalBaseUrl>
                 <mediaBaseUrl>https://beta.mousephenotype.org/data/media</mediaBaseUrl>
+                <impcMediaBaseUrl>http://172.22.68.222:4080/webgateway </impcMediaBaseUrl>
                 <seleniumUrl>http://mi-selenium-mac.windows.ebi.ac.uk:4444/wd/hub</seleniumUrl>
                 <liveSite>false</liveSite>
             </properties>
@@ -1204,6 +1208,7 @@
                 <internalSolrUrl>http://localhost:8090/mi/impc/dev/solr</internalSolrUrl>
                 <drupalBaseUrl>https://test.mousephenotype.org</drupalBaseUrl>
                 <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
+                <impcMediaBaseUrl>http://172.22.68.222:4080/webgateway </impcMediaBaseUrl>
                 <liveSite>false</liveSite>
             </properties>
 
@@ -1237,6 +1242,7 @@
                 <internalSolrUrl>https://wwwdev.ebi.ac.uk/mi/impc/dev/solr</internalSolrUrl>
                 <drupalBaseUrl>http://localhost:8084</drupalBaseUrl>
                 <mediaBaseUrl>https://dev.mousephenotype.org/data/media</mediaBaseUrl>
+                <impcMediaBaseUrl>http://172.22.68.222:4080/webgateway </impcMediaBaseUrl>
                 <liveSite>false</liveSite>
             </properties>
 
@@ -1269,6 +1275,7 @@
                 <solrUrl>https://www.ebi.ac.uk/mi/impc/beta/solr</solrUrl>
                 <internalSolrUrl>http://localhost:8090/mi/impc/beta/solr</internalSolrUrl>
                 <mediaBaseUrl>https://beta.mousephenotype.org/data/media</mediaBaseUrl>
+                <impcMediaBaseUrl>http://172.22.68.222:4080/webgateway </impcMediaBaseUrl>
                 <googleAnalytics>UA-33310077-1</googleAnalytics>
                 <liveSite>false</liveSite>
             </properties>
@@ -1327,6 +1334,7 @@
                 <internalSolrUrl>http://localhost:8090/mi/impc/solr</internalSolrUrl>
                 <phenodigm.solrserver>http://solr-slave-sanger.sanger.ac.uk/solr451/phenodigm</phenodigm.solrserver>
                 <mediaBaseUrl>https://www.mousephenotype.org/data/media</mediaBaseUrl>
+                <impcMediaBaseUrl>http://172.22.68.222:4080/webgateway </impcMediaBaseUrl>
                 <googleAnalytics>UA-23433997-1</googleAnalytics>
                 <liveSite>true</liveSite>
             </properties>

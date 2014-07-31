@@ -64,7 +64,7 @@
 													<%-- <a href="http://172.22.68.222:4080/webgateway/render_image/${image.omeroId}">
 													<img id="${image.omeroId}" src="http://172.22.68.222:4080/webgateway/render_thumbnail/${image.omeroId}/96" alt="image" title="${image.omeroId}" style="width: 96px;">
 													</a> --%>
-													<t:impcimgdisplay img="${image}" mediaBaseUrl="http://172.22.68.222:4080/webgateway"></t:impcimgdisplay>
+													<t:impcimgdisplay img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay>
 											</li>
 										</c:forEach>
 								</ul>
