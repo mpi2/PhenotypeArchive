@@ -69,13 +69,8 @@
 			
 		
 		q = decodeURI(q);
-//		if ( q != '*:*' ){
-//			$('input#s').val(q);
-//		}
-		
 		$('input#s').val(q); 
-		q = $.fn.process_q(q);
-		
+
 		var facetMode = oUrlHashParams.facetName;
 				
 		var oFacets = {};
@@ -90,8 +85,10 @@
 			}
 		}
 		//console.log(typeof oUrlHashParams.fq)
+		q = $.fn.process_q(q);
 		
 		jsonBase.geneFacet.srchParams.q = q;
+		
 		
 		// facet types are done sequencially; starting from gene		
 	    $.ajax({            	    

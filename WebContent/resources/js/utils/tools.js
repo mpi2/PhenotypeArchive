@@ -446,8 +446,9 @@
 	};
 	
 	$.fn.setCurrentFq = function(){
-		if ($(location).attr('hash') != ''){
-			var hashStr = $(location).attr('hash');	
+		
+		var hashStr = $(location).attr('hash');	
+		if ( hashStr != '' && hashStr.indexOf('fq=') != -1 ){
 			MPI2.searchAndFacetConfig.currentFq = hashStr.match(/fq=.+\&/)[0].replace(/fq=|\&/g,'');
 		}
 		else {
@@ -788,10 +789,18 @@
 							var plFacets = json.facet_counts['facet_fields']['pipeline_name'];	    			
 			    			var prFacets = json.facet_counts['facet_fields']['pipe_proc_sid'];
 			    			
+			    			
+			    			// some procedures have multiple versions, so we need to add up their counts
+			    			var seenProcedureCount = {};
+			    			
 			    			// update pipeline parameter counts for rocedures
 			    			for ( var p=0; p<plFacets.length; p+=2){
 			        			var currPipe = plFacets[p];	
 			        			var pipeClass = currPipe.replace(/ /g, '_');        			
+			        			
+			        			if ( typeof seenProcedureCount[currPipe] == 'undefined' ){
+			        				seenProcedureCount[currPipe] = {};
+			        			}
 			        			
 				        		for ( var f=0; f<prFacets.length; f+=2 ){ 		        			        			
 				        			var aVals = prFacets[f].split('___');
@@ -802,10 +811,17 @@
 				        			var isGrayout = paramCount == 0 ? 'grayout' : '';		
 				        			
 				        			if (pipeName == currPipe ){	
+				        				if ( typeof seenProcedureCount[pipeName][procedure_name] == 'undefined' ){
+				        					seenProcedureCount[pipeName][procedure_name] = {};
+				        					seenProcedureCount[pipeName][procedure_name].count = 0;
+					        			}
+				        				
+				        				seenProcedureCount[pipeName][procedure_name].count += paramCount;
+				        				
 				    					$(selectorBase + ' li.' + pipeClass).each(function(){	
 					    					if ( $(this).find('span.flabel').text() == procedure_name ){  
 					    						$(this).removeClass('grayout').addClass(isGrayout);
-					    						$(this).find('span.fcount').text(paramCount);
+					    						$(this).find('span.fcount').text(seenProcedureCount[pipeName][procedure_name].count);
 					    					}
 					    				}); 
 				        			}
@@ -1422,9 +1438,6 @@
     };
         
     $.fn.process_q = function(q){
-    	
-    	//var pattern = /\(|\)/g;
-    	//q = decodeURI(q).replace(pattern, '\\'+$1);
     	q = decodeURI(q).replace(/\(/, '\\(').replace(/\)/, '\\)');
     	
 		if ( ! /^".+"$/.test(q) ){
@@ -1684,7 +1697,8 @@
 			oHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
 		}
 		oParams.q = oHashParams.q;
-		oParams.fq = encodeURI(oHashParams.fq);		
+		//oParams.fq = encodeURI(oHashParams.fq);		
+		oParams.fq = oHashParams.fq;
 		oParams.rows = 10;
 		
 		/*
@@ -1732,6 +1746,8 @@
 			oHashParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
 		}
 
+		oHashParams.params = encodeURI(oHashParams.params);
+		
 		//console.log(oHashParams);
 		$.fn.invokeDataTable(oHashParams);
 		

@@ -449,7 +449,7 @@
     			
     			if ( window.location.search != '' ){
     				// qrey value of q
-    				oHashParams.q = $.fn.fetchQueryStr();
+    				oHashParams.q = $.fn.process_q(decodeURI($.fn.fetchQueryStr()));
     			}
     			
     			//if ( $.isEmptyObject(oHashParams || typeof oHashParams.coreName != 'undefined' ) ){
@@ -547,6 +547,7 @@
 	   				oHashParams.q = window.location.search != '' ? $.fn.fetchQueryStr() : '*:*';
 					
     			}	
+    			oHashParams.q = decodeURI(oHashParams.q);
     			return oHashParams;
    			}
    							
