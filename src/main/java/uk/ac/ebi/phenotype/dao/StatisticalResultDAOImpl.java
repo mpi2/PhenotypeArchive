@@ -219,9 +219,10 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 			query = 
 					"SELECT param.stable_id AS parameter_stable_id,"
 					+ "CASE "
-                    + "WHEN female_mutants > 0 AND male_mutants > 0 THEN LEAST(c.gender_female_ko_pvalue, c.gender_male_ko_pvalue) "
-                    + "WHEN female_mutants = 0 THEN c.gender_male_ko_pvalue "
-                    + "WHEN male_mutants = 0 THEN c.gender_female_ko_pvalue "                    
+                    + "WHEN female_mutants > 0 AND male_mutants > 0 AND c.gender_female_ko_pvalue IS NOT NULL AND c.gender_male_ko_pvalue IS NOT NULL THEN LEAST(c.gender_female_ko_pvalue, c.gender_male_ko_pvalue) "
+                    + "WHEN female_mutants = 0 AND c.gender_male_ko_pvalue IS NOT NULL THEN c.gender_male_ko_pvalue "
+                    + "WHEN male_mutants = 0 AND c.gender_female_ko_pvalue IS NOT NULL THEN c.gender_female_ko_pvalue "
+                    + "ELSE 1 "
                     + "END AS p_value, "
 					+ "0 AS effect_size, "
 					+ "c.status AS status, c.statistical_method AS statistical_method, "
