@@ -35,15 +35,14 @@ import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalStatsObject;
 @Service
 public class ScatterChartAndTableProvider {
 	
-	private static final Logger logger = Logger
-			.getLogger(ScatterChartAndTableProvider.class);
+	private static final Logger logger = Logger.getLogger(ScatterChartAndTableProvider.class);
 	
 	@Autowired 
 	ImpressService impressService;
 	
 	public String createScatter(ExperimentDTO experiment, String experimentNumber, Parameter parameter, JSONArray series) {
 		
-		String procedureURL = impressService.getProcedureUrl(experiment.getProcedureStableId());
+		String procedureDescription = impressService.getAnchorForProcedure(experiment.getProcedureName(), experiment.getProcedureStableId());
 		
 		String chartString="	$(function () { "
 			  +"  chart71maleWTSI = new Highcharts.Chart({ "
@@ -57,7 +56,7 @@ public class ScatterChartAndTableProvider {
 			      +"   title: {"
 			      +"       text: ' "+parameter.getName()
 			      +"'    },"
-			    +"     subtitle: { useHTML: true,  text: '<a href=\"" + procedureURL + "\">" + experiment.getProcedureName() + "</a>' },"
+			    +"     subtitle: { useHTML: true,  text: '" + procedureDescription + "' },"
 			    +"     xAxis: {"
 			    +"         type: 'datetime',"
 			     +"        title: {"
