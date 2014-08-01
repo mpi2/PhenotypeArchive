@@ -256,19 +256,19 @@ public class StatisticalResultDTO {
     private String rawOutput;
 
     @Field(P_VALUE)
-    private Float pValue;
+    private Double pValue;
 
     @Field(EFFECT_SIZE)
-    private Float effectSize;
+    private Double effectSize;
 
     @Field(CATEGORIES)
     private List<String> categories;
 
     @Field(CATEGORICAL_P_VALUE)
-    private Float categoricalPValue;
+    private Double categoricalPValue;
 
     @Field(CATEGORICAL_EFFECT_SIZE)
-    private Float categoricalEffectSize;
+    private Double categoricalEffectSize;
 
     @Field(BATCH_SIGNIFICANT)
     private Boolean batchSignificant;
@@ -277,82 +277,82 @@ public class StatisticalResultDTO {
     private Boolean varianceSignificant;
 
     @Field(NULL_TEST_P_VALUE)
-    private Float nullTestPValue;
+    private Double nullTestPValue;
 
     @Field(GENOTYPE_EFFECT_P_VALUE)
-    private Float genotypeEffectPValue;
+    private Double genotypeEffectPValue;
 
     @Field(GENOTYPE_EFFECT_STDERR_ESTIMATE)
-    private Float genotypeEffectStderrEstimate;
+    private Double genotypeEffectStderrEstimate;
 
     @Field(GENOTYPE_EFFECT_PARAMETER_ESTIMATE)
-    private Float genotypeEffectParameterEstimate;
+    private Double genotypeEffectParameterEstimate;
 
     @Field(SEX_EFFECT_P_VALUE)
-    private Float sexEffectPValue;
+    private Double sexEffectPValue;
 
     @Field(SEX_EFFECT_STDERR_ESTIMATE)
-    private Float sexEffectStderrEstimate;
+    private Double sexEffectStderrEstimate;
 
     @Field(SEX_EFFECT_PARAMETER_ESTIMATE)
-    private Float sexEffectParameterEstimate;
+    private Double sexEffectParameterEstimate;
 
     @Field(WEIGHT_EFFECT_P_VALUE)
-    private Float weightEffectPValue;
+    private Double weightEffectPValue;
 
     @Field(WEIGHT_EFFECT_STDERR_ESTIMATE)
-    private Float weightEffectStderrEstimate;
+    private Double weightEffectStderrEstimate;
 
     @Field(WEIGHT_EFFECT_PARAMETER_ESTIMATE)
-    private Float weightEffectParameterEstimate;
+    private Double weightEffectParameterEstimate;
 
     @Field(GROUP_1_GENOTYPE)
     private String group1Genotype;
 
     @Field(GROUP_1_RESIDUALS_NORMALITY_TEST)
-    private Float group1ResidualsNormalityTest;
+    private Double group1ResidualsNormalityTest;
 
     @Field(GROUP_2_GENOTYPE)
     private String group2Genotype;
 
     @Field(GROUP_2_RESIDUALS_NORMALITY_TEST)
-    private Float group2ResidualsNormalityTest;
+    private Double group2ResidualsNormalityTest;
 
     @Field(BLUPS_TEST)
-    private Float blupsTest;
+    private Double blupsTest;
 
     @Field(ROTATED_RESIDUALS_TEST)
-    private Float rotatedResidualsTest;
+    private Double rotatedResidualsTest;
 
     @Field(INTERCEPT_ESTIMATE)
-    private Float interceptEstimate;
+    private Double interceptEstimate;
 
     @Field(INTERCEPT_ESTIMATE_STDERR_ESTIMATE)
-    private Float interceptEstimateStderrEstimate;
+    private Double interceptEstimateStderrEstimate;
 
     @Field(INTERACTION_SIGNIFICANT)
     private Boolean interactionSignificant;
 
     @Field(INTERACTION_EFFECT_P_VALUE)
-    private Float interactionEffectPValue;
+    private Double interactionEffectPValue;
 
     @Field(FEMALE_KO_EFFECT_P_VALUE)
-    private Float femaleKoEffectPValue;
+    private Double femaleKoEffectPValue;
 
     @Field(FEMALE_KO_EFFECT_STDERR_ESTIMATE)
-    private Float femaleKoEffectStderrEstimate;
+    private Double femaleKoEffectStderrEstimate;
 
     @Field(FEMALE_KO_PARAMETER_ESTIMATE)
-    private Float femaleKoParameterEstimate;
+    private Double femaleKoParameterEstimate;
 
     @Field(MALE_KO_EFFECT_P_VALUE)
-    private Float maleKoEffectPValue;
+    private Double maleKoEffectPValue;
 
     @Field(MALE_KO_EFFECT_STDERR_ESTIMATE)
-    private Float maleKoEffectStderrEstimate;
+    private Double maleKoEffectStderrEstimate;
 
     @Field(MALE_KO_PARAMETER_ESTIMATE)
-    private Float maleKoParameterEstimate;
+    private Double maleKoParameterEstimate;
 
     @Field(CLASSIFICATION_TAG)
     private String classificationTag;
@@ -848,22 +848,22 @@ public class StatisticalResultDTO {
     }
 
     
-    public Float getpValue() {
+    public Double getpValue() {
         return pValue;
     }
 
     
-    public void setpValue(Float pValue) {
+    public void setpValue(Double pValue) {
         this.pValue = pValue;
     }
 
     
-    public Float getEffectSize() {
+    public Double getEffectSize() {
         return effectSize;
     }
 
     
-    public void setEffectSize(Float effectSize) {
+    public void setEffectSize(Double effectSize) {
         this.effectSize = effectSize;
     }
 
@@ -878,22 +878,22 @@ public class StatisticalResultDTO {
     }
 
     
-    public Float getCategoricalPValue() {
+    public Double getCategoricalPValue() {
         return categoricalPValue;
     }
 
     
-    public void setCategoricalPValue(Float categoricalPValue) {
+    public void setCategoricalPValue(Double categoricalPValue) {
         this.categoricalPValue = categoricalPValue;
     }
 
     
-    public Float getCategoricalEffectSize() {
+    public Double getCategoricalEffectSize() {
         return categoricalEffectSize;
     }
 
     
-    public void setCategoricalEffectSize(Float categoricalEffectSize) {
+    public void setCategoricalEffectSize(Double categoricalEffectSize) {
         this.categoricalEffectSize = categoricalEffectSize;
     }
 
@@ -918,102 +918,102 @@ public class StatisticalResultDTO {
     }
 
     
-    public Float getNullTestPValue() {
+    public Double getNullTestPValue() {
         return nullTestPValue;
     }
 
     
-    public void setNullTestPValue(Float nullTestPValue) {
+    public void setNullTestPValue(Double nullTestPValue) {
         this.nullTestPValue = nullTestPValue;
     }
 
     
-    public Float getGenotypeEffectPValue() {
+    public Double getGenotypeEffectPValue() {
         return genotypeEffectPValue;
     }
 
     
-    public void setGenotypeEffectPValue(Float genotypeEffectPValue) {
+    public void setGenotypeEffectPValue(Double genotypeEffectPValue) {
         this.genotypeEffectPValue = genotypeEffectPValue;
     }
 
     
-    public Float getGenotypeEffectStderrEstimate() {
+    public Double getGenotypeEffectStderrEstimate() {
         return genotypeEffectStderrEstimate;
     }
 
     
-    public void setGenotypeEffectStderrEstimate(Float genotypeEffectStderrEstimate) {
+    public void setGenotypeEffectStderrEstimate(Double genotypeEffectStderrEstimate) {
         this.genotypeEffectStderrEstimate = genotypeEffectStderrEstimate;
     }
 
     
-    public Float getGenotypeEffectParameterEstimate() {
+    public Double getGenotypeEffectParameterEstimate() {
         return genotypeEffectParameterEstimate;
     }
 
     
-    public void setGenotypeEffectParameterEstimate(Float genotypeEffectParameterEstimate) {
+    public void setGenotypeEffectParameterEstimate(Double genotypeEffectParameterEstimate) {
         this.genotypeEffectParameterEstimate = genotypeEffectParameterEstimate;
     }
 
     
-    public Float getSexEffectPValue() {
+    public Double getSexEffectPValue() {
         return sexEffectPValue;
     }
 
     
-    public void setSexEffectPValue(Float sexEffectPValue) {
+    public void setSexEffectPValue(Double sexEffectPValue) {
         this.sexEffectPValue = sexEffectPValue;
     }
 
     
-    public Float getSexEffectStderrEstimate() {
+    public Double getSexEffectStderrEstimate() {
         return sexEffectStderrEstimate;
     }
 
     
-    public void setSexEffectStderrEstimate(Float sexEffectStderrEstimate) {
+    public void setSexEffectStderrEstimate(Double sexEffectStderrEstimate) {
         this.sexEffectStderrEstimate = sexEffectStderrEstimate;
     }
 
     
-    public Float getSexEffectParameterEstimate() {
+    public Double getSexEffectParameterEstimate() {
         return sexEffectParameterEstimate;
     }
 
     
-    public void setSexEffectParameterEstimate(Float sexEffectParameterEstimate) {
+    public void setSexEffectParameterEstimate(Double sexEffectParameterEstimate) {
         this.sexEffectParameterEstimate = sexEffectParameterEstimate;
     }
 
     
-    public Float getWeightEffectPValue() {
+    public Double getWeightEffectPValue() {
         return weightEffectPValue;
     }
 
     
-    public void setWeightEffectPValue(Float weightEffectPValue) {
+    public void setWeightEffectPValue(Double weightEffectPValue) {
         this.weightEffectPValue = weightEffectPValue;
     }
 
     
-    public Float getWeightEffectStderrEstimate() {
+    public Double getWeightEffectStderrEstimate() {
         return weightEffectStderrEstimate;
     }
 
     
-    public void setWeightEffectStderrEstimate(Float weightEffectStderrEstimate) {
+    public void setWeightEffectStderrEstimate(Double weightEffectStderrEstimate) {
         this.weightEffectStderrEstimate = weightEffectStderrEstimate;
     }
 
     
-    public Float getWeightEffectParameterEstimate() {
+    public Double getWeightEffectParameterEstimate() {
         return weightEffectParameterEstimate;
     }
 
     
-    public void setWeightEffectParameterEstimate(Float weightEffectParameterEstimate) {
+    public void setWeightEffectParameterEstimate(Double weightEffectParameterEstimate) {
         this.weightEffectParameterEstimate = weightEffectParameterEstimate;
     }
 
@@ -1028,12 +1028,12 @@ public class StatisticalResultDTO {
     }
 
     
-    public Float getGroup1ResidualsNormalityTest() {
+    public Double getGroup1ResidualsNormalityTest() {
         return group1ResidualsNormalityTest;
     }
 
     
-    public void setGroup1ResidualsNormalityTest(Float group1ResidualsNormalityTest) {
+    public void setGroup1ResidualsNormalityTest(Double group1ResidualsNormalityTest) {
         this.group1ResidualsNormalityTest = group1ResidualsNormalityTest;
     }
 
@@ -1048,52 +1048,52 @@ public class StatisticalResultDTO {
     }
 
     
-    public Float getGroup2ResidualsNormalityTest() {
+    public Double getGroup2ResidualsNormalityTest() {
         return group2ResidualsNormalityTest;
     }
 
     
-    public void setGroup2ResidualsNormalityTest(Float group2ResidualsNormalityTest) {
+    public void setGroup2ResidualsNormalityTest(Double group2ResidualsNormalityTest) {
         this.group2ResidualsNormalityTest = group2ResidualsNormalityTest;
     }
 
     
-    public Float getBlupsTest() {
+    public Double getBlupsTest() {
         return blupsTest;
     }
 
     
-    public void setBlupsTest(Float blupsTest) {
+    public void setBlupsTest(Double blupsTest) {
         this.blupsTest = blupsTest;
     }
 
     
-    public Float getRotatedResidualsTest() {
+    public Double getRotatedResidualsTest() {
         return rotatedResidualsTest;
     }
 
     
-    public void setRotatedResidualsTest(Float rotatedResidualsTest) {
+    public void setRotatedResidualsTest(Double rotatedResidualsTest) {
         this.rotatedResidualsTest = rotatedResidualsTest;
     }
 
     
-    public Float getInterceptEstimate() {
+    public Double getInterceptEstimate() {
         return interceptEstimate;
     }
 
     
-    public void setInterceptEstimate(Float interceptEstimate) {
+    public void setInterceptEstimate(Double interceptEstimate) {
         this.interceptEstimate = interceptEstimate;
     }
 
     
-    public Float getInterceptEstimateStderrEstimate() {
+    public Double getInterceptEstimateStderrEstimate() {
         return interceptEstimateStderrEstimate;
     }
 
     
-    public void setInterceptEstimateStderrEstimate(Float interceptEstimateStderrEstimate) {
+    public void setInterceptEstimateStderrEstimate(Double interceptEstimateStderrEstimate) {
         this.interceptEstimateStderrEstimate = interceptEstimateStderrEstimate;
     }
 
@@ -1108,72 +1108,72 @@ public class StatisticalResultDTO {
     }
 
     
-    public Float getInteractionEffectPValue() {
+    public Double getInteractionEffectPValue() {
         return interactionEffectPValue;
     }
 
     
-    public void setInteractionEffectPValue(Float interactionEffectPValue) {
+    public void setInteractionEffectPValue(Double interactionEffectPValue) {
         this.interactionEffectPValue = interactionEffectPValue;
     }
 
     
-    public Float getFemaleKoEffectPValue() {
+    public Double getFemaleKoEffectPValue() {
         return femaleKoEffectPValue;
     }
 
     
-    public void setFemaleKoEffectPValue(Float femaleKoEffectPValue) {
+    public void setFemaleKoEffectPValue(Double femaleKoEffectPValue) {
         this.femaleKoEffectPValue = femaleKoEffectPValue;
     }
 
     
-    public Float getFemaleKoEffectStderrEstimate() {
+    public Double getFemaleKoEffectStderrEstimate() {
         return femaleKoEffectStderrEstimate;
     }
 
     
-    public void setFemaleKoEffectStderrEstimate(Float femaleKoEffectStderrEstimate) {
+    public void setFemaleKoEffectStderrEstimate(Double femaleKoEffectStderrEstimate) {
         this.femaleKoEffectStderrEstimate = femaleKoEffectStderrEstimate;
     }
 
     
-    public Float getFemaleKoParameterEstimate() {
+    public Double getFemaleKoParameterEstimate() {
         return femaleKoParameterEstimate;
     }
 
     
-    public void setFemaleKoParameterEstimate(Float femaleKoParameterEstimate) {
+    public void setFemaleKoParameterEstimate(Double femaleKoParameterEstimate) {
         this.femaleKoParameterEstimate = femaleKoParameterEstimate;
     }
 
     
-    public Float getMaleKoEffectPValue() {
+    public Double getMaleKoEffectPValue() {
         return maleKoEffectPValue;
     }
 
     
-    public void setMaleKoEffectPValue(Float maleKoEffectPValue) {
+    public void setMaleKoEffectPValue(Double maleKoEffectPValue) {
         this.maleKoEffectPValue = maleKoEffectPValue;
     }
 
     
-    public Float getMaleKoEffectStderrEstimate() {
+    public Double getMaleKoEffectStderrEstimate() {
         return maleKoEffectStderrEstimate;
     }
 
     
-    public void setMaleKoEffectStderrEstimate(Float maleKoEffectStderrEstimate) {
+    public void setMaleKoEffectStderrEstimate(Double maleKoEffectStderrEstimate) {
         this.maleKoEffectStderrEstimate = maleKoEffectStderrEstimate;
     }
 
     
-    public Float getMaleKoParameterEstimate() {
+    public Double getMaleKoParameterEstimate() {
         return maleKoParameterEstimate;
     }
 
     
-    public void setMaleKoParameterEstimate(Float maleKoParameterEstimate) {
+    public void setMaleKoParameterEstimate(Double maleKoParameterEstimate) {
         this.maleKoParameterEstimate = maleKoParameterEstimate;
     }
 

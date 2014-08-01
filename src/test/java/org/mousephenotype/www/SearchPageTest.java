@@ -240,7 +240,7 @@ public class SearchPageTest {
     
     
     @Test
-    //@Ignore
+    @Ignore
     public void autosuggestTest() throws Exception {
     	// test that there is a dropdown when at least 3 letters with match are entered into the input box
     	 testCount++;
@@ -271,7 +271,7 @@ public class SearchPageTest {
     }
     
     @Test
-    //@Ignore
+    @Ignore
     public void testTickingFacetFilters() throws Exception {
         testCount++;
         System.out.println();
@@ -361,7 +361,7 @@ public class SearchPageTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testQueryingRandomGeneSymbols() throws Exception {
         testCount++;
         String testName = "testQueryingRandomGeneSymbols";
@@ -436,7 +436,7 @@ public class SearchPageTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testRandomMgiIds() throws Exception {
         testCount++;
         System.out.println();
@@ -502,31 +502,31 @@ public class SearchPageTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testPhrase() throws Exception {
         specialStrQueryTest("testPhrase", "grip strength");
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testPhraseInQuotes() throws Exception {
         specialStrQueryTest("testPhraseInQuotes", "\"zinc finger protein\"");
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testLeadingWildcard() throws Exception {
         specialStrQueryTest("testLeadingWildcard", "*rik");
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testTrailingWildcard() throws Exception {
         specialStrQueryTest("testTrailingWildcard", "hox*");
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testPagination() throws Exception {
         testCount++;
         System.out.println();
@@ -593,7 +593,7 @@ public class SearchPageTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testFacetCounts() throws Exception {
         testCount++;
         System.out.println();
@@ -668,7 +668,7 @@ public class SearchPageTest {
      * @throws Exception 
      */
     @Test
-    //@Ignore
+    @Ignore
     public void testJiraMPII_806() throws Exception {
         Date start = new Date();
         WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
@@ -701,4 +701,92 @@ public class SearchPageTest {
         TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
     }
 
+    @Test
+    public void testSpecialCharacters() throws Exception {
+        Date start = new Date();
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        successList.clear();
+        errorList.clear();
+        testCount++;
+        System.out.println();
+        String testName = "testSpecialCharacters";
+        System.out.println("----- " + testName + " -----");
+
+         String queryStr = baseUrl + "/search";
+         driver.get(queryStr);
+         driver.navigate().refresh();
+         String characters = "&";
+         driver.findElement(By.cssSelector("input#s")).sendKeys(characters);
+         
+         checkSpecialPhrase(wait, "!");
+         checkSpecialPhrase(wait, "@");
+         checkSpecialPhrase(wait, "€");
+         checkSpecialPhrase(wait, "£");
+         checkSpecialPhrase(wait, "#");
+         checkSpecialPhrase(wait, "$");
+         checkSpecialPhrase(wait, "%");
+         checkSpecialPhrase(wait, "^");
+         checkSpecialPhrase(wait, "&");
+         checkSpecialPhrase(wait, "*");
+         checkSpecialPhrase(wait, "(");
+         checkSpecialPhrase(wait, ")");
+         checkSpecialPhrase(wait, "-");
+         checkSpecialPhrase(wait, "_");
+         checkSpecialPhrase(wait, "=");
+         checkSpecialPhrase(wait, "+");
+         checkSpecialPhrase(wait, "[");
+         checkSpecialPhrase(wait, "{");
+         checkSpecialPhrase(wait, "]");
+         checkSpecialPhrase(wait, "}");
+         checkSpecialPhrase(wait, ";");
+         checkSpecialPhrase(wait, ":");
+         checkSpecialPhrase(wait, "'");
+         checkSpecialPhrase(wait, "\"");
+         checkSpecialPhrase(wait, "\\");
+         checkSpecialPhrase(wait, "|");
+         checkSpecialPhrase(wait, ",");
+         checkSpecialPhrase(wait, "<");
+         checkSpecialPhrase(wait, ".");
+         checkSpecialPhrase(wait, ">");
+         checkSpecialPhrase(wait, "/");
+         checkSpecialPhrase(wait, "?");
+         checkSpecialPhrase(wait, "é");
+         checkSpecialPhrase(wait, "å");
+         checkSpecialPhrase(wait, "ç");
+         checkSpecialPhrase(wait, "ß");
+         checkSpecialPhrase(wait, "č");
+         checkSpecialPhrase(wait, "ü");
+         checkSpecialPhrase(wait, "ö");
+         
+        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
+    }
+    
+    private void checkSpecialPhrase(WebDriverWait wait, String phrase) {
+        String queryStr = baseUrl + "/search";
+        driver.get(queryStr);
+        driver.navigate().refresh();
+        String characters = "&";
+        driver.findElement(By.cssSelector("input#s")).sendKeys(characters);
+         
+        System.out.println("Checking search for special phrase '" + phrase + "'");
+        String xpathSelector = "//ul[@id=\"ui-id-1\"]/li/a";
+        List<WebElement> elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(xpathSelector)));
+        if (elements.isEmpty()) {
+            errorList.add("Expected at least one result for search term '" + phrase + "' but found none.");
+        } else {
+            // Check for presence of 'phrase'.
+            boolean found = false;
+            for (WebElement element : elements) {
+                if (element.getText().contains(phrase)) {
+                    found = true;
+                }
+            }
+            
+            if ( ! found) {
+                errorList.add("Expected at result to contain '" + phrase + "' but it didn't.");
+            }
+        }
+        
+        TestUtils.sleep(1000);
+    }
 } 

@@ -430,7 +430,8 @@
 			q = q.replace(/^'|'$/g,'"');
 		}
 		
-		if ( ( /\s/.test(q) && /\*/.test(q) ) || /^".+"$/.test(q)  ){
+		// no complexphrase query for double quotes search
+		if ( ( /\s/.test(q) && /\*/.test(q) ) && ! /^".+"$/.test(q)  ){
 			//console.log('phrase search')
 			
 			// need to remove leading wildcard as solr4.8 does NOT support this
@@ -446,8 +447,9 @@
 	};
 	
 	$.fn.setCurrentFq = function(){
-		if ($(location).attr('hash') != ''){
-			var hashStr = $(location).attr('hash');	
+		
+		var hashStr = $(location).attr('hash');	
+		if ( hashStr != '' && hashStr.indexOf('fq=') != -1 ){
 			MPI2.searchAndFacetConfig.currentFq = hashStr.match(/fq=.+\&/)[0].replace(/fq=|\&/g,'');
 		}
 		else {
@@ -467,7 +469,8 @@
 		
 		var facet = oConf.facet;
 		var fqStr = oConf.fqStr.replace(/img_/g,''); // so that this matches the copyField of images
-		var q = oConf.q;
+		var q = $.fn.process_q(oConf.q);
+		
 		var thisSolrUrl = solrUrl + '/' + facet + '/select'; 
 		MPI2.searchAndFacetConfig.currentFq = fqStr;
 		
@@ -504,7 +507,6 @@
 		        		'jsonp': 'json.wrf',
 		        		'success': function(json) {
 		        			//console.log(json);
-		        			
 		    				var oFacets = json.facet_counts.facet_fields;
 		    			
 		    				var selectorBase = "div.flist li#gene";
@@ -788,10 +790,18 @@
 							var plFacets = json.facet_counts['facet_fields']['pipeline_name'];	    			
 			    			var prFacets = json.facet_counts['facet_fields']['pipe_proc_sid'];
 			    			
+			    			
+			    			// some procedures have multiple versions, so we need to add up their counts
+			    			var seenProcedureCount = {};
+			    			
 			    			// update pipeline parameter counts for rocedures
 			    			for ( var p=0; p<plFacets.length; p+=2){
 			        			var currPipe = plFacets[p];	
 			        			var pipeClass = currPipe.replace(/ /g, '_');        			
+			        			
+			        			if ( typeof seenProcedureCount[currPipe] == 'undefined' ){
+			        				seenProcedureCount[currPipe] = {};
+			        			}
 			        			
 				        		for ( var f=0; f<prFacets.length; f+=2 ){ 		        			        			
 				        			var aVals = prFacets[f].split('___');
@@ -802,10 +812,17 @@
 				        			var isGrayout = paramCount == 0 ? 'grayout' : '';		
 				        			
 				        			if (pipeName == currPipe ){	
+				        				if ( typeof seenProcedureCount[pipeName][procedure_name] == 'undefined' ){
+				        					seenProcedureCount[pipeName][procedure_name] = {};
+				        					seenProcedureCount[pipeName][procedure_name].count = 0;
+					        			}
+				        				
+				        				seenProcedureCount[pipeName][procedure_name].count += paramCount;
+				        				
 				    					$(selectorBase + ' li.' + pipeClass).each(function(){	
 					    					if ( $(this).find('span.flabel').text() == procedure_name ){  
 					    						$(this).removeClass('grayout').addClass(isGrayout);
-					    						$(this).find('span.fcount').text(paramCount);
+					    						$(this).find('span.fcount').text(seenProcedureCount[pipeName][procedure_name].count);
 					    					}
 					    				}); 
 				        			}
@@ -1422,9 +1439,6 @@
     };
         
     $.fn.process_q = function(q){
-    	
-    	//var pattern = /\(|\)/g;
-    	//q = decodeURI(q).replace(pattern, '\\'+$1);
     	q = decodeURI(q).replace(/\(/, '\\(').replace(/\)/, '\\)');
     	
 		if ( ! /^".+"$/.test(q) ){
@@ -1684,7 +1698,8 @@
 			oHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
 		}
 		oParams.q = oHashParams.q;
-		oParams.fq = encodeURI(oHashParams.fq);		
+		//oParams.fq = encodeURI(oHashParams.fq);		
+		oParams.fq = oHashParams.fq;
 		oParams.rows = 10;
 		
 		/*
@@ -1702,10 +1717,7 @@
     	oHashParams.qOri = oHashParams.q
     	oParams = $.fn.getSolrRelevanceParams(coreName, oHashParams.q, oParams);
     	
-    	
-    	if ( ! /^".+"$/.test(decodeURI(oHashParams.q)) ){
-    		oParams.q = $.fn.setSolrComplexPhraseQuery(oHashParams.q); 
-    	}
+    	oParams.q = $.fn.process_q(oParams.q);
     	
 		if ( facetDivId == 'imagesFacet' ) {
 			//oInfos.showImgView = true;	// don't want to show imgView as default
@@ -1732,6 +1744,8 @@
 			oHashParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
 		}
 
+		oHashParams.params = encodeURI(oHashParams.params);
+		
 		//console.log(oHashParams);
 		$.fn.invokeDataTable(oHashParams);
 		
@@ -1918,7 +1932,7 @@
     function setImageFacetSumCount(oInfos){
     	var q = oInfos.q;
     	var fqStr = oInfos.fq; 
-    	var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';
+    	var paramStr = 'q=' + $.fn.process_q(q) + '&wt=json&defType=edismax&qf=auto_suggest';
         paramStr += '&fq=' + fqStr;
         var thisSolrUrl = solrUrl + '/images/select'; 
 		

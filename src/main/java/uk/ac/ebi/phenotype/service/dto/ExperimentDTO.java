@@ -21,6 +21,8 @@ public class ExperimentDTO {
     private String metadataGroup;
     private List<String> metadata;
     private String parameterStableId;
+    private String procedureStableId;
+    private String procedureName;
     private String pipelineStableId;
     private ObservationType observationType;
     private String organisation;
@@ -220,8 +222,25 @@ public class ExperimentDTO {
     public String getParameterStableId() {
         return parameterStableId;
     }
+    
+	/**
+	 * @return the procedureName
+	 */
+	public String getProcedureName() {
+	
+		return procedureName;
+	}
+	
+	/**
+	 * @param procedureName the procedureName to set
+	 */
+	public void setProcedureName(String procedureName) {
+	
+		this.procedureName = procedureName;
+	}
 
-    /**
+
+	/**
      * @param parameterStableId the parameterStableId to set
      */
     public void setParameterStableId(String parameterStableId) {
@@ -414,8 +433,25 @@ public class ExperimentDTO {
     public void setAlleleAccession(String alleleAccession) {
         this.alleleAccession=alleleAccession;
     }
+    
+	/**
+	 * @return the procedureStableId
+	 */
+	public String getProcedureStableId() {
+	
+		return procedureStableId;
+	}
+	
+	/**
+	 * @param procedureStableId the procedureStableId to set
+	 */
+	public void setProcedureStableId(String procedureStableId) {
+	
+		this.procedureStableId = procedureStableId;
+	}
 
-    @Override
+
+	@Override
     public int hashCode() {
         int hash = 7;
         hash = 23 * hash + Objects.hashCode(this.experimentId);

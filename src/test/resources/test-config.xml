@@ -90,6 +90,10 @@
     <bean id="mpService" class="uk.ac.ebi.phenotype.service.MpService">
         <constructor-arg  value="${solrUrl}/mp" />
     </bean>
+
+    <bean id="diseaseService" class="uk.ac.ebi.phenotype.service.DiseaseService">
+            <constructor-arg value="${internalSolrUrl}/disease" />
+    </bean>
                 
     <context:component-scan base-package="uk.ac.ebi" />
     <context:component-scan base-package="org.mousephenotype.www" />

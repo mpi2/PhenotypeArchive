@@ -66,6 +66,10 @@
 		<constructor-arg value="${internalSolrUrl}/experiment" />
 	</bean>
 	
+	<bean id="impressService" class="uk.ac.ebi.phenotype.service.ImpressService">
+		<constructor-arg value="${internalSolrUrl}/pipeline" />
+	</bean>
+	
 	<bean id="imageService" class="uk.ac.ebi.phenotype.service.ImageService">
 		<constructor-arg value="http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images" />
 	</bean>
