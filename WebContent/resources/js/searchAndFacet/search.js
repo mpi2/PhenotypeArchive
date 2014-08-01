@@ -24,7 +24,6 @@
 	function _updateFacetCount(facet, facetResponse, facetMode){		
 		//var num = facetMode ? '' : facetResponse.response.numFound;
 		num = facetResponse.response.numFound;	
-		//console.log('num found: '+ num)
 		$('div.flist li#' + facet + ' span.fcount').html(num);		
 		
 		var freezeMode = num == 0 ? true : false;
@@ -34,18 +33,17 @@
 	function _getParams(facet, oUrlHashParams){
 		facet += 'Facet';
 		var params = $.extend({}, jsonBase[facet].srchParams, jsonBase[facet].filterParams);
-		//console.log($.extend({}, jsonBase.mpFacet.srchParams, jsonBase.mpFacet.filterParams, oParams));
 		
 		if ( typeof oUrlHashParams.qf != 'undefined' ){
 			params.qf = oUrlHashParams.qf; 
 		}
 		//console.log(facet + ' --- ' + $.fn.stringifyJsonAsUrlParams(params));
+		
 		return params;
 	}
 	
 	$.fn.fetchSolrFacetCount = function(oUrlHashParams){		
 		//console.log(oUrlHashParams);	
-		//console.log('search.js - 35');
 		var q = oUrlHashParams.q;
 		
 		// for match text highlighting
@@ -69,13 +67,8 @@
 			
 		
 		q = decodeURI(q);
-//		if ( q != '*:*' ){
-//			$('input#s').val(q);
-//		}
-		
 		$('input#s').val(q); 
-		q = $.fn.process_q(q);
-		
+
 		var facetMode = oUrlHashParams.facetName;
 				
 		var oFacets = {};
@@ -90,8 +83,10 @@
 			}
 		}
 		//console.log(typeof oUrlHashParams.fq)
+		q = $.fn.process_q(q);
 		
 		jsonBase.geneFacet.srchParams.q = q;
+		
 		
 		// facet types are done sequencially; starting from gene		
 	    $.ajax({            	    

@@ -67,7 +67,7 @@
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
 	    		'success': function(json) { 
-	    			    			
+	    			//console.log(json);			
 	    			// update this if facet is loaded by redirected page, which does not use autocomplete
 	    			//$('div#pipelineFacet .facetCount').attr({title: 'total number of unique parameter terms'}).text(json.response.numFound);
 	        			    			
@@ -106,7 +106,7 @@
 		        			if (pipeName == currPipe ){	
 		        				//var pClass = 'procedure'+f + ' ' + proSid;
 		        				var liContainer = $("<li></li>").attr({'class':'fcat ' + pipeClass});
-		        				//console.log(pipeName + ' --- ' + procedure_name + ' --- '+ paramCount);		        			      		
+		        				//console.log(pipeName + ' --- ' + procedure_name + ' --- '+ count);		        			      		
 			        			
 			        			var coreField = 'pipeline|procedure_stable_id|' + procedure_name + '___' + proSid + '|' + count + '|' + pipeClass;
 			        			
@@ -122,7 +122,7 @@
 									procedureChkboxLblCnt[pipeName][procedure_name].pipeClass = pipeClass;
 									
 								}
-								procedureChkboxLblCnt[pipeName][procedure_name].fcount += count;								
+								procedureChkboxLblCnt[pipeName][procedure_name].fcount += count;
 		        			}	
 		        		}	        		   	
 		        		
@@ -142,7 +142,7 @@
 		        				
 		        				var fcount = $('<span></span>').attr({'class':'fcount'}).text(
 		        					procedureChkboxLblCnt[pipeline][procedure_name].fcount);
-		        						        				
+
 		        				if ( pipeline != 'IMPC Pipeline' ){		        					
 			        				liContainer.append(chkbox, flabel, fcount);			        				
 			        			}
