@@ -45,7 +45,8 @@
 	    	var facetField = 'selected_top_level_ma_term';
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('ma', self.options.data.hashParams.q, oParams);
-	    	
+	        oParams.q = $.fn.encodeQ(oParams.q); 
+	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
 				'rows': 0, // override default
@@ -55,8 +56,8 @@
 				'facet.field': facetField,
 				//'facet.field': 'annotatedHigherLevelMpTermName',
 				'facet.sort': 'index',						
-				'q.option': 'AND',
-				'q' : self.options.data.hashParams.q
+				'q.option': 'AND'
+				//'q' : self.options.data.hashParams.q
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
 	    	
 	    	

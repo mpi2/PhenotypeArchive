@@ -162,12 +162,12 @@
        			// load page based on url hash parameters	
        			$('input#s').val(decodeURI($.fn.fetchQueryStr()));
        			
-       			oHashParams = $.fn.parseHashString(window.location.hash.substring(1));	
-       			if (typeof oHashParams.fq == 'undefined'){
-       				oHashParams.noFq = true;
+       			oUrlParams = $.fn.parseHashString(window.location.hash.substring(1));	
+       			if (typeof oUrlParams.fq == 'undefined'){
+       				oUrlParams.noFq = true;
        			}
-       			
-       			$.fn.fetchSolrFacetCount(oHashParams);	
+
+       			$.fn.fetchSolrFacetCount(oUrlParams);	
        		}
        		else {
        			// do not understand the url, redirect to error page
@@ -177,9 +177,16 @@
        		// search via ENTER
        		$('input#s').keyup(function (e) {		
        		    if (e.keyCode == 13) { // user hits enter
+
        		    	//alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
-       		    	var input = $('input#s').val().trim().replace(/^'|'$/g, '"');
-       		    
+       		    	var input = $('input#s').val().trim();//.replace(/^'|'$/g, '"');
+       		    	input = /^\*\**?\*??$/.test(input) ? '' : input;  // lazy matching
+       		    	
+       		    	var re = new RegExp("^'(.*)'$");
+       		    	input = input.replace(re, "\"$1\""); // only use double quotes for phrase query
+       		    	
+       		    	input = encodeURIComponent(input);
+       		    	
        		    	MPI2.searchAndFacetConfig.update.kwSearch = true;
        		    	
        		    	if (input == ''){
@@ -190,7 +197,8 @@
        		    			document.location.href = baseUrl + '/search';
        		    		}
        		    		else {
-       		    			window.location.search = "q=*:*";
+       		    			var q = encodeURI('*:*');	
+       		    			window.location.search = 'q=' + q;
        		    		}
        		    	}
        		    	else if (! MPI2.searchAndFacetConfig.matchedFacet){
@@ -204,6 +212,7 @@
        		    		if ( $('ul#facetFilter li.ftag').size() == 0 ){
        		    			baseUrl + '/search?q=' + input;
        		    		}
+       		    		
        		    		// handed over to hash change code
        		    	}
        		    	else {	
@@ -294,8 +303,11 @@
 	       				var facet = $(ui.item.label).attr('class');
 	       				
 	       				// handed over to hash change to fetch for results	
-	       				var fq = '*:*';
-	       				document.location.href = baseUrl + '/search?q="' + this.value + '"#fq=' + fq + '&facet=' + facet; 	
+	       			
+	       				var q = encodeURIComponent(this.value);
+	       				var fq = $.fn.getCurrentFq();
+	       				
+	       				document.location.href = baseUrl + '/search?q="' + q + '"#fq=' + fq + '&facet=' + facet; 	
 	       				
 	       				// prevents escaped html tag displayed in input box
 	       				event.preventDefault(); return false; 
@@ -334,9 +346,9 @@
    			
    			// non hash tag keyword query
    			<c:if test="${not empty q}">				
-   				/*oHashParams = {};
-   				oHashParams.q = "${q}";    				
-   				$.fn.fetchSolrFacetCount(oHashParams);*/				
+   				/*oUrlParams = {};
+   				oUrlParams.q = "${q}";    				
+   				$.fn.fetchSolrFacetCount(oUrlParams);*/				
    			</c:if>;
    					
    			// hash tag query
@@ -350,9 +362,9 @@
    				
    				//console.log('hash change URL: '+ '/search' + hashStr);
    				
-   				var oHashParams = _process_hash();
+   				var oUrlParams = _process_hash();
    				
-   				//console.log(oHashParams)
+   				//console.log(oUrlParams)
    				
    				/* deals with 3 events here:
    				 	1. added/removed filter 
@@ -365,7 +377,7 @@
     				// MA,MP facet stays open when adding/removing filters
     				$('li#mp.fmcat, li#ma.fmcat').each(function(){
     				
-    					if (oHashParams.facetName == $(this).attr('id')) {
+    					if (oUrlParams.facetName == $(this).attr('id')) {
     						$(this).addClass('open');
     						MPI2.searchAndFacetConfig.update.filterChange = false;
     					}
@@ -381,7 +393,7 @@
     					$.fn.showNotFoundMsg();    					
    					}
     				else {
-    					$.fn.loadDataTable(oHashParams);
+    					$.fn.loadDataTable(oUrlParams);
     				}
     			}
    				
@@ -391,26 +403,26 @@
    					MPI2.searchAndFacetConfig.update.widgetOpen = false; // reset
    					
    					// search by keyword (user's input) has no fq in url when hash change is detected
-    				if ( oHashParams.fq ){			
+    				if ( oUrlParams.fq ){			
     					
-    					if ( oHashParams.coreName ){	    						
-    						oHashParams.coreName += 'Facet'; 					
+    					if ( oUrlParams.coreName ){	    						
+    						oUrlParams.coreName += 'Facet'; 					
     					}
     					/* else {						
     						// parse summary facet filters 
-    						var facet = oHashParams.facetName;
+    						var facet = oUrlParams.facetName;
     						var aFilters = [];
     						$('ul#facetFilter li.ftag a').each(function(){							
     							aFilters.push($(this).text());
     						});														
     						
-    						//console.log(oHashParams);		
-    						//oHashParams.filters = aFilters;
+    						//console.log(oUrlParams);		
+    						//oUrlParams.filters = aFilters;
 
-    						//oHashParams.facetName = facet;	    						
+    						//oUrlParams.facetName = facet;	    						
     					} */
     					
-    					$.fn.loadDataTable(oHashParams);
+    					$.fn.loadDataTable(oUrlParams);
     				}
    				} 
    				else if ( MPI2.searchAndFacetConfig.update.pageReload ){
@@ -421,7 +433,7 @@
 						document.location.href = baseUrl + '/search';
 	    			}
 					else {
-						rebuildFilters(oHashParams); 
+						rebuildFilters(oUrlParams); 
 					}
 				} 
 			
@@ -432,10 +444,7 @@
     					document.location.href = baseUrl + '/search';
         			}
     				else {
-    					//console.log(oHashParams);
-    					//if ( oHashParams.q == '*:*' ){
-    						rebuildFilters(oHashParams); 
-    					//}
+    					rebuildFilters(oUrlParams); 
     				}
 				}
    			});		
@@ -443,24 +452,22 @@
     		if ( ! MPI2.searchAndFacetConfig.update.hashChange ){
     			//console.log('page reload: no hash change detected')
     			
-    			var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-    			//console.log(oHashParams);
+    			var oUrlParams = $.fn.parseHashString(window.location.hash.substring(1));
+    			//console.log(oUrlParams);
     			
     			if ( window.location.search != '' ){
     				// qrey value of q
-    				//oHashParams.q = decodeURI($.fn.fetchQueryStr());
-    				oHashParams.q = $.fn.fetchQueryStr();
+    				oUrlParams.q = $.fn.fetchQueryStr();
     			}
     			
-    			//if ( $.isEmptyObject(oHashParams || typeof oHashParams.coreName != 'undefined' ) ){
-    			if ( $.isEmptyObject(oHashParams) ){
-    				//console.log('case core');	
-    				// search page default load: /search or /search?
-    				$.fn.fetchSolrFacetCount(oHashParams);		
+    			//if ( $.isEmptyObject(oUrlParams || typeof oUrlParams.coreName != 'undefined' ) ){
+    			if ( $.isEmptyObject(oUrlParams) ){
+    				//console.log('search page default load: /search or /search?');
+    				$.fn.fetchSolrFacetCount(oUrlParams);		
     			}
     			else {
     				//console.log('rebuild here')
-    				rebuildFilters(oHashParams);    			
+    				rebuildFilters(oUrlParams);    			
     			}
     		}
     		
@@ -479,56 +486,55 @@
 				});	 
     		}
     		
-    		function rebuildFilters(oHashParams){
+    		function rebuildFilters(oUrlParams){
     		
     			MPI2.searchAndFacetConfig.update.resetSummaryFacet = true; 
 				MPI2.searchAndFacetConfig.update.filterAdded = false;
 
 				removeAllFilters();
 				
-				oHashParams.q = typeof oHashParams.q == 'undefined' ? '*:*' : oHashParams.q;
-		    	oHashParams.noFq = typeof oHashParams.fq == 'undefined' ? true : false;
-		    	//console.log(oHashParams);
-		    	if ( typeof oHashParams.coreName != 'undefined' ){
-		    		oHashParams.widgetName = oHashParams.coreName + 'Facet';
+				oUrlParams.q = typeof oUrlParams.q == 'undefined' ? '*:*' : oUrlParams.q;
+		    	oUrlParams.noFq = typeof oUrlParams.fq == 'undefined' ? true : false;
+		    	//console.log(oUrlParams);
+		    	if ( typeof oUrlParams.coreName != 'undefined' ){
+		    		oUrlParams.widgetName = oUrlParams.coreName + 'Facet';
 		    	}
-		    	else if ( typeof oHashParams.facetName != 'undefined' ){
-		    		oHashParams.widgetName = oHashParams.facetName + 'Facet';
+		    	else if ( typeof oUrlParams.facetName != 'undefined' ){
+		    		oUrlParams.widgetName = oUrlParams.facetName + 'Facet';
 		    	}
 		    	
-		    	if ( typeof oHashParams.widgetName == 'undefined'){
-		    		//$.fn.fetchSolrFacetCount(oHashParams);
+		    	if ( typeof oUrlParams.widgetName == 'undefined'){
+		    		//$.fn.fetchSolrFacetCount(oUrlParams);
 		    		// do nothing
 				}
 				else {
-			    	oHashParams.fq = typeof oHashParams.fq == 'undefined' ? 
-			    			MPI2.searchAndFacetConfig.facetParams[oHashParams.widgetName].fq :
-			    				oHashParams.fq;
+			    	oUrlParams.fq = typeof oUrlParams.fq == 'undefined' ? 
+			    			MPI2.searchAndFacetConfig.facetParams[oUrlParams.widgetName].fq :
+			    				oUrlParams.fq;
 			    			
-			    	if ( typeof oHashParams.oriFq == 'undefined' ){
-			    		oHashParams.oriFq = oHashParams.fq; 
+			    	if ( typeof oUrlParams.oriFq == 'undefined' ){
+			    		oUrlParams.oriFq = oUrlParams.fq; 
 			    	}
 			    	
-			    	oHashParams.fq = oHashParams.fq.replace(/img_/g,''); // so that this matches the copyField of images
+			    	oUrlParams.fq = oUrlParams.fq.replace(/img_/g,''); // so that this matches the copyField of images
 
-			    	//console.log(oHashParams);
-			    	$.fn.parseUrl_constructFilters_loadDataTable(oHashParams);
+			    	$.fn.parseUrl_constructFilters_loadDataTable(oUrlParams);
 				}	
     		}
     		
     		function _process_hash(){
-    			var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
-    			//console.log(oHashParams);
+    			var oUrlParams = $.fn.parseHashString(window.location.hash.substring(1));
+    			//console.log(oUrlParams);
     			
     			if ( window.location.search != '' && window.location.hash == '' ){
     				// has q only, no hash string
     				//console.log('has q')
     			}
-    			else if ( typeof oHashParams.coreName != 'undefined' ){
+    			else if ( typeof oUrlParams.coreName != 'undefined' ){
     				//console.log('case core');	
     			
-    				oHashParams.q = '*:*';
-    				oHashParams.widgetName = oHashParams.coreName + 'Facet';
+    				oUrlParams.q = '*:*';
+    				oUrlParams.widgetName = oUrlParams.coreName + 'Facet';
     			}
     			else {
 	
@@ -537,18 +543,17 @@
 	   				// - ie, we can tell if a filter is for MP or images, eg
 	   				// when doing the query, strip it out
 	   				
-					if ( typeof oHashParams.fq != 'undefined' ){
-						oHashParams.oriFq = oHashParams.fq;
-						oHashParams.fq = oHashParams.fq.replace(/img_/g,'');
+					if ( typeof oUrlParams.fq != 'undefined' ){
+						oUrlParams.oriFq = oUrlParams.fq;
+						oUrlParams.fq = oUrlParams.fq.replace(/img_/g,'');
 					}
 	   				
-	   				oHashParams.widgetName = oHashParams.coreName? oHashParams.coreName : oHashParams.facetName;	                
-					oHashParams.widgetName += 'Facet';
-	   				oHashParams.q = window.location.search != '' ? $.fn.fetchQueryStr() : '*:*';
-					
+	   				oUrlParams.widgetName = oUrlParams.coreName? oUrlParams.coreName : oUrlParams.facetName;	                
+					oUrlParams.widgetName += 'Facet';
+	   				oUrlParams.q = window.location.search != '' ? $.fn.fetchQueryStr() : '*:*';
     			}	
-    			oHashParams.q = decodeURI(oHashParams.q);
-    			return oHashParams;
+    			oUrlParams.q = decodeURI(oUrlParams.q);
+    			return oUrlParams;
    			}
    							
     		var exampleSearch = 

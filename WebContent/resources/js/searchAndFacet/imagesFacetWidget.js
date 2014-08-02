@@ -45,7 +45,8 @@
 	    	
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('images', self.options.data.hashParams.q, oParams);
-	    	
+	        oParams.q = $.fn.encodeQ(oParams.q); 
+	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
 				'rows': 0, // override default
@@ -54,8 +55,8 @@
 				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
 				'facet.sort': 'index',	
-				'q' : self.options.data.hashParams.q,
 				'fl': 'annotationTermId,annotationTermName,expName,symbol'
+				//'q' : self.options.data.hashParams.q
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
   	    	
   	    	var paramStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
@@ -69,7 +70,9 @@
   	    		+ "&facet.field=top_level_mp_term"
   	    		+ "&facet.field=selected_top_level_ma_term"
   	    		+ "&facet.field=marker_type"
-  	    		    	
+  	    		
+  	    		console.log('IMAGES WIDGET: ' + paramStr);	
+  	    		
   	    	$.ajax({	
   	    		'url': solrUrl + '/images/select',  	    		
   	    		'data': paramStr,  				

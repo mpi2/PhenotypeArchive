@@ -257,32 +257,32 @@
 				});	
 				*/
 				
-				var oHashParams = $.fn.parseHashString(window.location.hash.substring(1));
+				var oUrlParams = $.fn.parseHashString(window.location.hash.substring(1));
 				
 				if ( /search\/?$/.exec(location.href) ){
 					// no search params		
 					
-					oHashParams = thisWidget.options.data.hashParams;						
-					oHashParams.core = facet;
+					oUrlParams = thisWidget.options.data.hashParams;						
+					oUrlParams.core = facet;
 					
 					if ( typeof MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams != 'undefined' ){
-						oHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;
+						oUrlParams.fq = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;
 					} 
 					
-					window.location.hash = 'fq=' + oHashParams.fq + '&facet=' + facet;
+					window.location.hash = 'fq=' + oUrlParams.fq + '&facet=' + facet;
 				}
 				else {
 					if ( window.location.search != '' ){
 						// deals with user query		
-						oHashParams.q = decodeURI(window.location.search.replace('?q=', ''));
+						oUrlParams.q = decodeURI(window.location.search.replace('?q=', ''));
 						
 						// check if there is any filter checked, if not, we need to use default fq for the facet selected
 						if ( $('ul#facetFilter li.ftag').size() == 0 ){
-							oHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;						
+							oUrlParams.fq = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;						
 						}		
 						
-						oHashParams.fq = typeof oHashParams.fq == 'undefined' ? MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq : oHashParams.fq;					
-						oHashParams.facetName = facet;
+						oUrlParams.fq = typeof oUrlParams.fq == 'undefined' ? MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq : oUrlParams.fq;					
+						oUrlParams.facetName = facet;
 					}
 					
 					// tick checkbox facet filter if there is matching summary facet filter (created from url on page load)
@@ -300,29 +300,29 @@
 					}
 					
 					// when we have filters to deal with, there is &facet=xxx in the url
-					//var mode = typeof oHashParams.facetName != 'undefined' ? '&facet=' : '&core=';	
+					//var mode = typeof oUrlParams.facetName != 'undefined' ? '&facet=' : '&core=';	
 					var mode = '&facet=';
 					//alert(mode);
 					
-					oHashParams.fq = MPI2.searchAndFacetConfig.currentFq;
+					oUrlParams.fq = MPI2.searchAndFacetConfig.currentFq;
 					
-					if ( typeof oHashParams.q == 'undefined' ){
+					if ( typeof oUrlParams.q == 'undefined' ){
 						// no search kw
 						//console.log('set hash: no q')
 						if ( $('li.ftag').size() == 0 ){
-							var oHashParams = thisWidget.options.data.hashParams;
+							var oUrlParams = thisWidget.options.data.hashParams;
 						}	
 						
-						window.location.hash = 'fq=' + oHashParams.fq + mode +  facet;											
+						window.location.hash = 'fq=' + oUrlParams.fq + mode +  facet;											
 					}
 					else {	
 						//console.log('set hash: has q')
 						
 						if ( ! window.location.search.match(/q=/) ){	
-							window.location.hash = 'q=' + oHashParams.q + '&fq=' + oHashParams.fq + mode +  facet;
+							window.location.hash = 'q=' + oUrlParams.q + '&fq=' + oUrlParams.fq + mode +  facet;
 						}
 						else {		
-							window.location.hash = 'fq=' + oHashParams.fq + mode +  facet;
+							window.location.hash = 'fq=' + oUrlParams.fq + mode +  facet;
 						}
 					}	
 				}
@@ -409,67 +409,16 @@
 		$('div.flist li#' + core + sClass + ' input').prop('disabled', state).css('cursor', mode);
 				
 	};
-	
-	$.fn.setSolrQfStr = function(facet){
-		return MPI2.searchAndFacetConfig.coreQf[facet]; 
-	};
-	
-	$.fn.setSolrComplexPhraseQuery = function(q){
-		q = decodeURI(q);
-		
-		if ( typeof q == 'undefined' ){
-			q = '*:*';
-		}
-		else {
-			q = q.replace(/\//g, '\\/');
-		}
-		
-		
-		// catches user typing ' instead of " for phrase search
-		if ( /^'.+'$/.test(q) ){
-			q = q.replace(/^'|'$/g,'"');
-		}
-		
-		// no complexphrase query for double quotes search
-		if ( ( /\s/.test(q) && /\*/.test(q) ) && ! /^".+"$/.test(q)  ){
-			//console.log('phrase search')
-			
-			// need to remove leading wildcard as solr4.8 does NOT support this
-			q = q.replace(/^\*/,''); 
-			
-			// try a slop of 10 for now to look for matching string 10 words apart
-			// w/0 slop the query result maybe strange
-			q='{!complexphrase}auto_suggest:' + q + '~10'; 
-			
-			return q;
-		}
-		return q;
-	};
-	
-	$.fn.setCurrentFq = function(){
-		
-		var hashStr = $(location).attr('hash');	
-		if ( hashStr != '' && hashStr.indexOf('fq=') != -1 ){
-			MPI2.searchAndFacetConfig.currentFq = hashStr.match(/fq=.+\&/)[0].replace(/fq=|\&/g,'');
-		}
-		else {
-			MPI2.searchAndFacetConfig.currentFq = false;
-		}
-	};
-	
-	$.fn.getCurrentFacet = function(){
-		if ($(location).attr('hash') != ''){
-			var hashStr = $(location).attr('hash');	
-			return hashStr.match(/facet=.+\&?/)[0].replace(/facet=|\&/g,'');
-		}
-		return 'gene';
-	};
+
 	
 	function FacetCountsUpdater(oConf){	
 		
 		var facet = oConf.facet;
 		var fqStr = oConf.fqStr.replace(/img_/g,''); // so that this matches the copyField of images
+		
+		// send to solr through ajax not via browser url so encoding won't work for special char
 		var q = $.fn.process_q(oConf.q);
+		q = $.fn.encodeQ(q); 
 		
 		var thisSolrUrl = solrUrl + '/' + facet + '/select'; 
 		MPI2.searchAndFacetConfig.currentFq = fqStr;
@@ -573,13 +522,6 @@
 			    
 			    case 'mp':
 			    {
-//			    	var facetField = 'top_level_mp_term';
-//					var oParams = {};
-//					oParams.fq = fqStr;	
-//					oParams = $.fn.fetchFecetFieldsObj([facetField], oParams);
-//					oParams = $.extend({}, MPI2.searchAndFacetConfig.facetParams.mpFacet.srchParams,oParams);		
-//					oParams.q = q;
-				
 					var facetField = 'top_level_mp_term';
 					var fecetFieldsStr = $.fn.fetchFecetFieldsStr([facetField]);
 					var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest'; 
@@ -890,7 +832,6 @@
 			  	    						'selected_top_level_ma_term': 'Anatomy',
 			  	    						'marker_type': 'Gene'}; 
 			    			
-			    			
 			    			for ( var facetStr in oSubFacets ){    				
 				    			for (var j=0; j<oFacets[facetStr].length; j=j+2){	    				
 				    				
@@ -908,8 +849,6 @@
 				    						$(this).removeClass('grayout').addClass(isGrayout);
 				    					}
 				    				});
-				    				
-				    				    				
 				    			}	    			
 			    			}
 			    			
@@ -927,12 +866,13 @@
 	
 	$.fn.showNotFoundMsg = function(){
 		var q = decodeURI($.fn.fetchQueryStr());
-	
+		q = $.fn.convertNonDecodable(q);
+		
 		var filter = '';		
 		if ( $('ul#facetFilter li.ftag').size() > 0 ){
 			filter += " AND the selected filter(s)";
 		}
-		$('div#mpi2-search').html('INFO: Search keyword ' + q + filter + ' returned no entry in the database');    	    	    	    		
+		$('div#mpi2-search').html('INFO: Search keyword: ' + q + filter + ' returned no entry in the database');    	    	    	    		
 			
 	};
 	
@@ -1003,7 +943,6 @@
 			for ( var i=0; i<cores.length; i++ ){
 				//console.log('working on '+cores[i]);
 				var core = cores[i];
-				
 				var oConf = {'facet':core, 'fqStr':solrFqStr, 'q':q};
 				var facetCountsUpdater = new FacetCountsUpdater(oConf);
 				facetCountsUpdater.updateFacetCounts();
@@ -1201,7 +1140,8 @@
 	}		
 	
 	$.fn.fetchQueryStr = function(){
-		return window.location.search.replace('?q=','');
+		// make sure # is encoded by encodeURIComponent()
+		return window.location.search.replace("?q=", "");
 	};
 	
 	function _composeFilterStr(facet, field, value){	
@@ -1437,27 +1377,111 @@
     	}
     	return aStr.join("&");
     };
-        
-    $.fn.process_q = function(q){
-    	q = decodeURI(q).replace(/\(/, '\\(').replace(/\)/, '\\)');
-    	
-		if ( ! /^".+"$/.test(q) ){
-			q = $.fn.setSolrComplexPhraseQuery(q); 
+	
+	$.fn.setSolrQfStr = function(facet){
+		return MPI2.searchAndFacetConfig.coreQf[facet]; 
+	};
+	
+	$.fn.getCurrentFq = function(){
+		
+		var hashStr = $(location).attr('hash');	
+		if ( hashStr != '' && hashStr.indexOf('fq=') != -1 ){
+			return hashStr.match(/fq=.+\&/)[0].replace(/fq=|\&/g,'');
 		}
-		//console.log('**** q = ' + q);
+		return '*:*';
+	};
+	
+	$.fn.setCurrentFq = function(){
+		
+		var hashStr = $(location).attr('hash');	
+		if ( hashStr != '' && hashStr.indexOf('fq=') != -1 ){
+			MPI2.searchAndFacetConfig.currentFq = hashStr.match(/fq=.+\&/)[0].replace(/fq=|\&/g,'');
+		}
+		else {
+			MPI2.searchAndFacetConfig.currentFq = false;
+		}
+	};
+	
+	$.fn.getCurrentFacet = function(){
+		if ($(location).attr('hash') != ''){
+			var hashStr = $(location).attr('hash');	
+			return hashStr.match(/facet=.+\&?/)[0].replace(/facet=|\&/g,'');
+		}
+		return 'gene';
+	};
+	
+    $.fn.encodeQ = function(q){
+    	
+		if ( q.indexOf('!complexphrase') == -1 && (q.indexOf(' ') != -1 || q.length == 1) ){
+			// encoded string will not contain space
+			q = encodeURIComponent(q);
+		}
 		return q;
     };
     
-    $.fn.parseUrlString = function(sUrl){
-    	
-    	var params = {};
-    	//var parts = decodeURI(sUrl).replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-    	var parts = decodeURI(sUrl).replace(/[?|#&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {	
-    	       params[key] = value; //.replace(/"/g,'');
-    	});
-    	return params;
+    $.fn.convertNonDecodable = function(q){
+		var coding = {
+			'%23' : '#',
+			'%2B' : '+',
+			'%26' : '&',
+			'%3F' : '?',
+			'%3A' : ':',
+			'%2C' : ',',
+			'%2F' : '/',
+			'%3B' : ';'
+			//'%25' : '%'	
+		} 
+		for ( c in coding ){
+			var re = new RegExp(c,"g");
+			q = q.replace(re, coding[c]);
+		}
+		return q;
+	};
+    
+    $.fn.process_q = function(q){
+    	//console.log('PREprocessed q: '+q)
+    	//Escaping Special Characters for SOLR
+    	//Lucene supports escaping special characters that are part of the query syntax. 
+    	//These cannot be encoded so need to be escaped
+    	//The current list special characters are
+
+    	//var re = /([-|||!(){}[]^~])/g;
+    	var re = /([-!(){}^~])/g;
+		var q = q.replace(re,"\\" + "$1");
+    			
+		// apply SOLR complexphrase search for * in quotes, eg. "blo* cel*"
+		if ( /^[%22"].*[%22"]$/.test(q) && /\*/.test(q) ){	
+			console.log('here')
+			q = _setSolrComplexPhraseQuery(q); 
+		}
+    	//console.log('processed q: '+q)
+		return q;
     };
     
+    function _setSolrComplexPhraseQuery(q){
+    	
+		if ( typeof q == 'undefined' ){
+			q = '*:*';
+		}
+		else {
+			q = q.replace(/\//g, '\\/');
+		}
+		console.log(q)
+		// catches user typing ' instead of " for phrase search
+		if ( /^%27.+%27$/.test(q) ){
+			q = q.replace(/^%27|%27$/g,'%22');
+		}
+			
+		// need to remove leading wildcard as solr4.8 does NOT support this for complexphrase search
+		q = q.replace(/^\*/,''); 
+			
+		// try a slop of 10 for now to look for matching string 10 words apart
+		// w/0 slop the query result maybe strange
+		q ='{!complexphrase}auto_suggest:' + q + '~10'; 
+			
+		return q;
+	}
+	
     $.fn.parseHashString = function(sHash){
 
     	var hashParams = {};
@@ -1499,7 +1523,6 @@
     	return table;
     };    
    
-   
     function _fetchProcedureNameById(sid){
     	$.ajax({ 	
 			'url': solrUrl + '/pipeline/select',
@@ -1520,13 +1543,13 @@
     		aFilters.push('(' + $(this).text() + ')');
     	});
     	return aFilters.join(' ' + operator + ' ');		
-	}
+	};
   
     
-    function _prepare_resultMsg_and_dTableSkeleton(oHashParams){
+    function _prepare_resultMsg_and_dTableSkeleton(oUrlParams){
     	
-    	var q = oHashParams.q;
-    	var facetDivId = oHashParams.widgetName;
+    	var q = oUrlParams.q;
+    	var facetDivId = oUrlParams.widgetName;
     	
     	var filterStr = $.fn.concatFilters('AND');    	
     	    	
@@ -1585,10 +1608,10 @@
     	});    	 	
     	
     	return fqStr;    	
-    }   
+    };   
     
     $.fn.getSolrRelevanceParams = function(facet, q, oParams){
-
+    	oParams.q = q;
     	var wildCardStr = /^\*\w*$|^\w*\*$|^\*\w*\*$/;
     	if ( facet == 'gene' ){
     		if ( q.match(/^MGI:\d*$/i) ){
@@ -1671,14 +1694,14 @@
     	}
     	
     	return oParams;
-    }
+    };
     
-    $.fn.loadDataTable = function(oHashParams){
+    $.fn.loadDataTable = function(oUrlParams){
     	  
-    	var facetDivId = oHashParams.widgetName;
+    	var facetDivId = oUrlParams.widgetName;
     	
-    	//console.log(oHashParams.q, oHashParams.fq, facetDivId);    	
-    	_prepare_resultMsg_and_dTableSkeleton(oHashParams);
+    	//console.log(oUrlParams.q, oUrlParams.fq, facetDivId);    	
+    	_prepare_resultMsg_and_dTableSkeleton(oUrlParams);
     	
     	var oVal = MPI2.searchAndFacetConfig.facetParams[facetDivId];
     	//var oInfos = {};
@@ -1686,20 +1709,19 @@
     	var coreName = oVal.solrCoreName;
     	
 		//oInfos.mode = oVal.gridName;	
-    	oHashParams.mode = oVal.gridName;
+    	oUrlParams.mode = oVal.gridName;
 		
 		//oInfos.dataTablePath = MPI2.searchAndFacetConfig.dataTablePath;
-    	oHashParams.dataTablePath = MPI2.searchAndFacetConfig.dataTablePath;
+    	oUrlParams.dataTablePath = MPI2.searchAndFacetConfig.dataTablePath;
 		
 		var oParams = MPI2.searchAndFacetConfig.facetParams[facetDivId].srchParams;
 		
-		if ( typeof oHashParams.fq == 'undefined' ){
+		if ( typeof oUrlParams.fq == 'undefined' ){
 			// get default
-			oHashParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
+			oUrlParams.fq = MPI2.searchAndFacetConfig.facetParams[facetDivId].fq;
 		}
-		oParams.q = oHashParams.q;
-		//oParams.fq = encodeURI(oHashParams.fq);		
-		oParams.fq = oHashParams.fq;
+		
+		oParams.fq = oUrlParams.fq;
 		oParams.rows = 10;
 		
 		/*
@@ -1714,42 +1736,41 @@
     		oParams.qf = MPI2.searchAndFacetConfig.facetParams[facetDivId].qf;
     	}
     	
-    	oHashParams.qOri = oHashParams.q
-    	oParams = $.fn.getSolrRelevanceParams(coreName, oHashParams.q, oParams);
+    	oUrlParams.qOri = oUrlParams.q // before appending solr complexphrase query syntax
+    	oParams = $.fn.getSolrRelevanceParams(coreName, oUrlParams.q, oParams);
+  
+    	oParams.q = oUrlParams.q;
+    	oParams.q = $.fn.process_q(oParams.q); 
+    	oParams.q = $.fn.encodeQ(oParams.q); // encode if not
     	
-    	oParams.q = $.fn.process_q(oParams.q);
+    	oUrlParams.params = $.fn.stringifyJsonAsUrlParams(oParams);	
     	
 		if ( facetDivId == 'imagesFacet' ) {
 			//oInfos.showImgView = true;	// don't want to show imgView as default
-			oHashParams.showImgView = false;			
+			oUrlParams.showImgView = false;			
 		}
 		
-		//oInfos.params = $.fn.stringifyJsonAsUrlParams(oParams);// + facetQryStr;
-		oHashParams.params = $.fn.stringifyJsonAsUrlParams(oParams);		
-		
-    	if ( typeof oHashParams.facetName == 'undefined' ){		
+    	if ( typeof oUrlParams.facetName == 'undefined' ){		
     		//oInfos.solrCoreName = coreName;
-    		oHashParams.solrCoreName = coreName;
+    		oUrlParams.solrCoreName = coreName;
     		
     	}
     	else {
-    		//oInfos.facetName = oHashParams.facetName; 
-    		oHashParams.facetName = oHashParams.facetName; 
+    		//oInfos.facetName = oUrlParams.facetName; 
+    		oUrlParams.facetName = oUrlParams.facetName; 
     	}   	   	 	
 		
 		$.fn.updateBreadCrumb(coreName);		
 		$.fn.openFacet(coreName);	
 
-		if ( oHashParams.widgetName == 'geneFacet' ){
-			oHashParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
+		if ( oUrlParams.widgetName == 'geneFacet' ){
+			oUrlParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
 		}
-
-		oHashParams.params = encodeURI(oHashParams.params);
 		
-		//console.log(oHashParams);
-		$.fn.invokeDataTable(oHashParams);
+		$.fn.invokeDataTable(oUrlParams);
 		
-    }   
+    };
+    
     function _load_imgViewSwitcher(oDTable){		 	   		
     	// toggles two types of views for images: annotation view, image view	 	   		
    		var viewLabel, imgViewSwitcherDisplay, viewMode;
@@ -1776,14 +1797,16 @@
 		oConf.viewLabel = 'Image View: lists annotations to an image';
 		oConf.viewMode = 'imageView';
 		oConf.showImgView = true;		 
-    }
+    };
+    
     $.fn.setDefaultImgSwitcherConf = function(){
     	var oConf = MPI2.searchAndFacetConfig.facetParams.imagesFacet;
     	oConf.imgViewSwitcherDisplay = 'Show Image View';
 		oConf.viewLabel = 'Annotation View: groups images by annotation';
 		oConf.viewMode = 'annotView';
 		oConf.showImgView = false;		 
-    }
+    };
+    
     $.fn.invokeDataTable = function(oInfos){   	   	
     	
     	var oDtable = $('table#' + oInfos.mode).dataTable({
@@ -1915,7 +1938,6 @@
    				configs.resetSummaryFacet = false;
    				configs.filterAdded = false;
    				configs.filterChange = false;
-   				
     			
     		},
     		"sAjaxSource": oInfos.dataTablePath,    		
@@ -1924,10 +1946,10 @@
     			    {"name": "solrParams",    				
     				 "value": JSON.stringify(oInfos, null, 2)    			     	
     				}	    
-    			)		
+    			);		
     		}    		
     	});  	    
-    }  	 
+    };  	 
     
     function setImageFacetSumCount(oInfos){
     	var q = oInfos.q;
@@ -2539,6 +2561,8 @@ $.extend( true, $.fn.DataTable.TableTools.DEFAULTS.oTags, {
 		"liner": "a"
 	}
 } );
+
+$.fn.dataTableExt.sErrMode = 'throw'; // override default alert
 
 $.extend( $.fn.dataTableExt.oStdClasses, {
     "sWrapper": "dataTables_wrapper form-inline"
