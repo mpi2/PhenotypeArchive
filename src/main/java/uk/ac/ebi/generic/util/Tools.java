@@ -15,8 +15,10 @@
  */
 package uk.ac.ebi.generic.util;
 
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -63,21 +65,56 @@ public class Tools {
             return String.format("%02d:%02d:%02d:%02d", days, hours, minutes, seconds);
 	}
 	
+	public static String convertNonDecodables(String encoded) {
+		final HashMap<String, String> codings = new HashMap<String, String>();
+		codings.put("%23","#");
+		codings.put("%2B","+");
+		codings.put("%26","&");
+		codings.put("%3F","?");
+		codings.put("%3A",":");
+		codings.put("%2C",",");
+		codings.put("%2F","/");
+		codings.put("%3B",";");
+		
+		return codings.get(encoded);
+	}
+	
 	public static String highlightMatchedStrIfFound(String qry, String target, String selector, String cssClass) {
 		// the works for multiple words in the qry; it will match multiple places in the target string
-		String kw;
+
+		URLDecoder decoder = new URLDecoder();
+		String kw = decoder.decode(qry);
+		
 		if ( qry.equals("*:*") ) {
 			return target;	
 		}
-		else if ( qry.startsWith("%22") && qry.endsWith("%22") ) {
-			kw = qry.replaceAll("%22|\\*", "").replaceAll("%20"," ");
-			//kw = qry.replaceAll("%22|\\*|\\(|\\)", "").replaceAll("%20"," ");
+		else if ( kw.startsWith("\"") && kw.endsWith("\"") ) {
+			// exact phrase search - with double quotes
+			kw = kw.replaceAll("\"", "")
+					.replaceAll("\\+", "\\\\+")
+					.replaceAll("\\(", "\\\\(")
+					.replaceAll("\\)", "\\\\)");
 		}
 		else {
-			kw = StringUtils.join(qry.split("%20"), "|").replaceAll("\\*","");
-			//kw = StringUtils.join(qry.split("%20"), "|").replaceAll("\\*|\\(|\\)","");
+			// non phrase search - split string into words and search using OR
+			
+			// do we want only match by boundary
+//			kw = StringUtils.join(qry.split("%20"), "\\B?|\\b?")
+//					.replaceAll("%2B","\\\\+")
+//					.replaceAll("\\(", "\\\\(")
+//					.replaceAll("\\)", "\\\\)");
+//			kw = "\\b?" + kw + "\\B?";  // want \bstring1\B?|\bstring2\B?
+//			
+			kw = StringUtils.join(qry.split("%20"), "|")
+					.replaceAll("%2B","\\\\+")
+					.replaceAll("\\(", "\\\\(")
+					.replaceAll("\\)", "\\\\)");
 		}
+		
 		//System.out.println("-------" + qry + " vs " + kw);
+		//System.out.println(target);
+		//System.out.println(target.equals(kw));
+		
 		// (?im) at the beginning of the regex turns on CASE_INSENSITIVE and MULTILINE modes.
 		// $0 in the replacement string is a placeholder whatever the regex matched in this iteration. 
 		return target.replaceAll("(?im)"+kw, "<" + selector + " class='" + cssClass + "'>$0" + "</" + selector + ">");
