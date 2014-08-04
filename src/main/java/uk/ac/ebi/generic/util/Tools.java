@@ -65,25 +65,16 @@ public class Tools {
             return String.format("%02d:%02d:%02d:%02d", days, hours, minutes, seconds);
 	}
 	
-	public static String convertNonDecodables(String encoded) {
-		final HashMap<String, String> codings = new HashMap<String, String>();
-		codings.put("%23","#");
-		codings.put("%2B","+");
-		codings.put("%26","&");
-		codings.put("%3F","?");
-		codings.put("%3A",":");
-		codings.put("%2C",",");
-		codings.put("%2F","/");
-		codings.put("%3B",";");
-		
-		return codings.get(encoded);
-	}
-	
 	public static String highlightMatchedStrIfFound(String qry, String target, String selector, String cssClass) {
 		// the works for multiple words in the qry; it will match multiple places in the target string
 
-		URLDecoder decoder = new URLDecoder();
-		String kw = decoder.decode(qry);
+		String kw = "";
+		try {
+			kw = URLDecoder.decode(qry, "UTF-8");
+		}	
+		catch( Exception e){
+			System.out.println("Failed to decode " + qry);
+		}
 		
 		if ( qry.equals("*:*") ) {
 			return target;	
