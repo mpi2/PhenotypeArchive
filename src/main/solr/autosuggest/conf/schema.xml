@@ -63,7 +63,8 @@
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25" side="front"/>    
        <!-- side="back" is deprecated, use solr.ReverseStringFilterFactory--> 
        <!-- <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25" side="back"/> -->
-        <filter class="solr.ReverseStringFilterFactory"/>
+        <filter class="solr.ReverseStringFilterFactory" side="afterward" />
+        
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false" />
         </analyzer>
         <analyzer type="query"> 
