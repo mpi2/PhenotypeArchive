@@ -1466,7 +1466,7 @@
 		else {
 			q = q.replace(/\//g, '\\/');
 		}
-		console.log(q)
+		//console.log(q)
 		// catches user typing ' instead of " for phrase search
 		if ( /^%27.+%27$/.test(q) ){
 			q = q.replace(/^%27|%27$/g,'%22');
@@ -1741,7 +1741,7 @@
   
     	oParams.q = oUrlParams.q;
     	oParams.q = $.fn.process_q(oParams.q); 
-    	oParams.q = $.fn.encodeQ(oParams.q); // encode if not
+    	oParams.q = $.fn.encodeQ(oParams.q); // encode if not as we are creating solr query as string here (do not encode for obj)
     	
     	oUrlParams.params = $.fn.stringifyJsonAsUrlParams(oParams);	
     	
@@ -1767,6 +1767,7 @@
 			oUrlParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
 		}
 		
+		//console.log(oUrlParams);
 		$.fn.invokeDataTable(oUrlParams);
 		
     };

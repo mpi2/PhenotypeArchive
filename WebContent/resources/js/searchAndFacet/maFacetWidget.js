@@ -60,10 +60,11 @@
 				//'q' : self.options.data.hashParams.q
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
 	    	
+	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams);	 
 	    	
 	    	$.ajax({	
 	    		'url': solrUrl + '/ma/select',
-	    		'data': queryParams,						
+	    		'data': queryParamStr,						
 	    		'dataType': 'jsonp',
 	    		'jsonp': 'json.wrf',
 	    		'success': function(json) {

@@ -42,6 +42,7 @@
 			params.qf = oUrlParams.qf; 
 		}
 		
+		//console.log(facet + ' --- ' + $.fn.stringifyJsonAsUrlParams(params));
 		return params;
 	}
 	
@@ -64,10 +65,11 @@
 		// q to search SOLR
 		q = $.fn.process_q(q); 
 		q = $.fn.convertNonDecodable(q);
-		//console.log(q);
+		
+		oUrlParams.q  = q;
 		oUrlParams.q = decodeURI(q); // send to solr through ajax, encoding not working for special char
+	
 		/* ---- end of q for SOLR --- */
-		//console.log(oUrlParams.q)
 		
 		/* ---- fq for SOLR --- */
 		if ( typeof oUrlParams.fq != 'undefined' ){
@@ -270,7 +272,7 @@
     	        	oUrlParams.fq = oUrlParams.fq ? oUrlParams.fq : jsonBase[widgetName].fq; 
     	        	oUrlParams.oriFq = oUrlParams.oriFq ? oUrlParams.oriFq : jsonBase[widgetName].fq; 
     	        	oUrlParams.widgetName = widgetName;
-    	        	oUrlParams.q = oUrlParams.q;
+    	        	
 
     	        	//console.log('started widget call')
     	        	window.jQuery('li#' + thisCore)[widgetName]({

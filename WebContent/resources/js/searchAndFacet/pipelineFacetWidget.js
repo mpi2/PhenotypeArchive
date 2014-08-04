@@ -46,7 +46,7 @@
 
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('pipeline', self.options.data.hashParams.q, oParams);
-	        oParams.q = $.fn.encodeQ(oParams.q); 
+	        oParams.q = $.fn.encodeQ(oParams.q); // solr params passed in as str not obj, so we need to encode
 	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
@@ -58,11 +58,12 @@
 				//'q': $.fn.encodeQ(self.options.data.hashParams.q)
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
 	    	
-	    	//console.log(queryParams);	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams)	    				
 	    				+ '&facet.field=pipeline_name'
 	    				+ '&facet.field=pipe_proc_sid';
 	    	
+	    	//console.log('PIPELINE WIDGET STR: '+ queryParamStr);	   
+
 	    	$.ajax({ 
 	    		'url': solrUrl + '/pipeline/select',
 	    		'data': queryParamStr,

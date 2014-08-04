@@ -69,7 +69,7 @@
   	    		+ "&facet.field=procedure_name"
   	    		+ "&facet.field=top_level_mp_term"
   	    		+ "&facet.field=selected_top_level_ma_term"
-  	    		+ "&facet.field=marker_type"
+  	    		+ "&facet.field=marker_type";
   	    		
   	    		//console.log('IMAGES WIDGET: ' + paramStr);	
   	    		

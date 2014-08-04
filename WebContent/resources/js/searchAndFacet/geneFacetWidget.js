@@ -47,7 +47,7 @@
 	    	
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('gene', self.options.data.hashParams.q, oParams); // has q 
-	        oParams.q = $.fn.encodeQ(oParams.q); 
+	        oParams.q = $.fn.encodeQ(oParams.q); // solr params passed in as str not obj, so we need to encode
 	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
