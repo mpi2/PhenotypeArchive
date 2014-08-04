@@ -38,7 +38,7 @@ public class ImpressService {
 	}
 
 
-	public String getProcedureStableKey(String procedureStableId) {
+	public Integer getProcedureStableKey(String procedureStableId) {
 
 		try {
 			SolrQuery query = new SolrQuery()
@@ -47,7 +47,7 @@ public class ImpressService {
 
 			QueryResponse response = solr.query(query);
 
-			return response.getBeans(ImpressDTO.class).get(0).getProcedureStableId();
+			return response.getBeans(ImpressDTO.class).get(0).getProcedureStableKey();
 
 		} catch (SolrServerException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
@@ -97,7 +97,7 @@ public class ImpressService {
 	public String getAnchorForProcedure(String procedureName, String procedureStableId) {
 
 		String anchor = procedureName;
-		String procKey = getProcedureStableKey(procedureStableId);
+		String procKey = getProcedureStableKey(procedureStableId).toString();
 		if (procKey != null) {
 			anchor = String.format("<a href=\"%s\">%s</a>", getProcedureUrlByKey(procKey), procedureName);
 		}
