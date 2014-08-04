@@ -56,6 +56,25 @@ public class ImpressService {
 		return null;
 	}
 
+	
+	public Integer getPipelineStableKey(String pipelineStableId) {
+
+		try {
+			SolrQuery query = new SolrQuery()
+				.setQuery(ImpressDTO.PIPELINE_STABLE_ID + ":\"" + pipelineStableId + "\"")
+				.setFields(ImpressDTO.PIPELINE_STABLE_KEY);
+
+			QueryResponse response = solr.query(query);
+
+			return response.getBeans(ImpressDTO.class).get(0).getPipelineStableKey();
+
+		} catch (SolrServerException | IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
 
 	public String getProcedureUrlByKey(String procedureStableKey) {
 
@@ -86,4 +105,12 @@ public class ImpressService {
 		return anchor;
 	}
 
+	
+	public String getPipelineUrlByStableId(String stableId){
+		Integer pipelineKey = getPipelineStableKey(stableId);
+		if (pipelineKey != null){
+			return config.get("drupalBaseUrl") + "/impress/impress/displaySOP/" + pipelineKey;
+		}
+		else return "#";
+	}
 }
