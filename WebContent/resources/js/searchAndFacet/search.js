@@ -240,7 +240,6 @@
     	    	 * ie, fetch facet full result for that facet and display only facet count for the rest of the facets 
     	    	 * Other facet results will be fetched on demand */
     	    	
-    	    	
     	    	$('div#facetSrchMsg').html('&nbsp;');
 
     	    	if ( ! _setSearchMode(oFacets.count) ){
@@ -249,24 +248,31 @@
     	    	}
     	    	else {    	    	    		
     	        	// remove all previous facet results before loading new facet results
-    	    		//var thisCore = coreName ? coreName : facetName; 
-    	    		var thisCore = _setSearchMode(oFacets.count);
+
+    	    		var defaultCore; 
+    	    		var firstCoreWithResult = _setSearchMode(oFacets.count); 
+    	    		
+    	    		
+    	    		if ( typeof facetMode == 'undefined' || oFacets.count[facetMode] == 0 ){
+    	    			defaultCore =firstCoreWithResult;
+        	    	}
+    	    		else {
+    	    			defaultCore = facetMode;
+    	    		}
     	    		
     	    		$('li.fmcat > ul').html(''); 
     	        	
-    	        	//var widgetName = coreName+'Facet'; 
-    	        	var widgetName = thisCore+'Facet';    
+    	        	var widgetName = defaultCore+'Facet';    
     	        	
     	        	oUrlParams.fq = oUrlParams.fq ? oUrlParams.fq : jsonBase[widgetName].fq; 
     	        	oUrlParams.oriFq = oUrlParams.oriFq ? oUrlParams.oriFq : jsonBase[widgetName].fq; 
     	        	oUrlParams.widgetName = widgetName;
-    	        	
 
     	        	//console.log('started widget call')
-    	        	window.jQuery('li#' + thisCore)[widgetName]({
+    	        	window.jQuery('li#' + defaultCore)[widgetName]({
     					data: {	   							 
-    							core: thisCore,    							
-    							facetCount: oFacets.count[thisCore],
+    							core: defaultCore,    							
+    							facetCount: oFacets.count[defaultCore],
     							hashParams: oUrlParams
     							},
     			        geneGridElem: 'div#mpi2-search'			                                      
@@ -278,7 +284,7 @@
     	        	//delete active core, no need to invoke again  
     	        	var index;// = aCores.indexOf(coreName);
     	        	for ( var i=0; i< aCores.length; i++){
-    	        		if (aCores[i] == thisCore ){
+    	        		if (aCores[i] == defaultCore ){
     	        			index = i;
     	        		}
     	        	}
@@ -289,7 +295,7 @@
     	        		_prepareCores(core, oUrlParams.q, oFacets, oUrlParams.fq, facetMode);
     	        	} 
     	        	// restore the spliced core when done
-    	        	aCores.push(thisCore);
+    	        	aCores.push(defaultCore);
     	    	}   	    	
     	    },
 			error: function (jqXHR, textStatus, errorThrown) {			        	        
