@@ -23,7 +23,7 @@ public class ImpressService {
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
 
-	private final HttpSolrServer solr;
+	private final HttpSolrServer solr; 
 
 
 	public ImpressService() {
