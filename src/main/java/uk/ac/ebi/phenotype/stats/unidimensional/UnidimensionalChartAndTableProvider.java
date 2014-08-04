@@ -46,11 +46,6 @@ public class UnidimensionalChartAndTableProvider {
 
 	private String axisFontSize = "15";
 	
-
-	@Resource(name="globalConfiguration")
-	private Map<String, String> config;
-	
-	
 	@Autowired
 	ImpressService impressService;
 
@@ -213,7 +208,7 @@ public class UnidimensionalChartAndTableProvider {
 		Float min = 1000000000f;
 		Float max = 0f;
 		
-		String procedureURL = impressService.getObjectsByProcedureStableId(experiment.getProcedureStableId()).get(0).getProcedureUrl(config.get("drupalBaseUrl"));
+		String procedureDescription = impressService.getAnchorForProcedure(experiment.getProcedureName(), experiment.getProcedureStableId());
 
 		// loop over the chartSeries data and create boxplots for each
 		for (ChartsSeriesElement chartsSeriesElement : chartsSeriesElementsList) {
@@ -346,7 +341,7 @@ public class UnidimensionalChartAndTableProvider {
 			+ " tooltip: { formatter: function () { if(typeof this.point.high === 'undefined'){ return '<b>Observation</b><br/>' + this.point.y; } else { return '<b>Genotype: ' + this.key + '</b><br/>LQ - 1.5 * IQR: ' + this.point.low + '<br/>Lower Quartile: ' + this.point.options.q1 + '<br/>Median: ' + this.point.options.median + '<br/>Upper Quartile: ' + this.point.options.q3 + '<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '</b>'; } } }    ,"
 			+ " title: { text: '" + parameter.getName() + "' } , "
 			+ " credits: { enabled: false },  "
-			+ " subtitle: { useHTML: true,  text: '<a href=\"" + procedureURL + "\">" + experiment.getProcedureName() + "</a>', x: -20 }, "
+			+ " subtitle: { useHTML: true,  text: '"+procedureDescription+"', x: -20 }, "
 			+ " legend: { enabled: false }, "
 			+ " xAxis: { categories:  " + categories + " }, \n" 
 			+ " plotOptions: {" + "series:" + "{ groupPadding: 0.45, pointPadding: -1.5 }" + "}," 

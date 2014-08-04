@@ -19,9 +19,7 @@
 		
 	</h2>
 	
-                    <p>Background	- ${geneticBackgroundString}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    	Phenotyping Center - ${phenotypingCenter}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    	<c:if test="${pipeline.name!=null}">Pipeline - <a href="${pipeline.getPipelineUrl()}" >${pipeline.getPipelineName()}</a></c:if></p> 
+                    <p>Background	- ${geneticBackgroundString}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Phenotyping Center - ${phenotypingCenter}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<c:if test="${pipeline.name!=null}">Pipeline - ${pipeline.name }</c:if></p> 
 					
 <c:choose>
 			<c:when test="${param['scatter']==true}">

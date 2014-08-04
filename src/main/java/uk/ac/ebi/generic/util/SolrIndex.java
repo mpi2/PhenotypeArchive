@@ -400,7 +400,7 @@ public class SolrIndex {
 				// blue es cell status				
 				esCellStatus = doc.getString(field);
 				if ( esCellStatus.equals("ES Cells Produced") ){
-						esCellStatus = "<a class='status done' href='" + geneUrl + "' oldtitle='ES Cells produced' title=''>"
+						esCellStatus = "<a class='status done' href='" + geneUrl + "#order" + "' oldtitle='ES Cells produced' title=''>"
 									 + " <span>ES Cells</span>"
 									 + "</a>";
 						

@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
-
 import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -37,18 +35,14 @@ import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalStatsObject;
 @Service
 public class ScatterChartAndTableProvider {
 	
-	private static final Logger logger = Logger
-			.getLogger(ScatterChartAndTableProvider.class);
-
-	@Resource(name="globalConfiguration")
-	private Map<String, String> config;
+	private static final Logger logger = Logger.getLogger(ScatterChartAndTableProvider.class);
 	
 	@Autowired 
 	ImpressService impressService;
 	
 	public String createScatter(ExperimentDTO experiment, String experimentNumber, Parameter parameter, JSONArray series) {
 		
-		String procedureURL = impressService.getObjectsByProcedureStableId(experiment.getProcedureStableId()).get(0).getProcedureUrl(config.get("drupalBaseUrl"));
+		String procedureDescription = impressService.getAnchorForProcedure(experiment.getProcedureName(), experiment.getProcedureStableId());
 		
 		String chartString="	$(function () { "
 			  +"  chart71maleWTSI = new Highcharts.Chart({ "
@@ -62,7 +56,7 @@ public class ScatterChartAndTableProvider {
 			      +"   title: {"
 			      +"       text: ' "+parameter.getName()
 			      +"'    },"
-			    +"     subtitle: { useHTML: true,  text: '<a href=\"" + procedureURL + "\">" + experiment.getProcedureName() + "</a>' },"
+			    +"     subtitle: { useHTML: true,  text: '" + procedureDescription + "' },"
 			    +"     xAxis: {"
 			    +"         type: 'datetime',"
 			     +"        title: {"

@@ -1,7 +1,5 @@
 package uk.ac.ebi.phenotype.service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -10,7 +8,6 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
 
 import uk.ac.ebi.phenotype.service.dto.ImpressDTO;
 
@@ -23,12 +20,15 @@ import uk.ac.ebi.phenotype.service.dto.ImpressDTO;
 
 public class ImpressService {
 
+	@Resource(name = "globalConfiguration")
+	private Map<String, String> config;
+
 	private final HttpSolrServer solr;
 
 
 	public ImpressService() {
 
-		this("http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment"); // default
+		this("http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/pipeline"); // default
 	}
 
 
@@ -38,15 +38,18 @@ public class ImpressService {
 	}
 
 
-	public List<ImpressDTO> getObjectsByProcedureStableId(String prcedureStableId) {
+	public String getProcedureStableKey(String procedureStableId) {
 
 		try {
-			SolrQuery query = new SolrQuery();
-			query.setQuery(ImpressDTO.PROCEDURE_STABLE_ID + ":\"" + prcedureStableId + "\"");
+			SolrQuery query = new SolrQuery()
+				.setQuery(ImpressDTO.PROCEDURE_STABLE_ID + ":\"" + procedureStableId + "\"")
+				.setFields(ImpressDTO.PROCEDURE_STABLE_KEY);
 
-			return solr.query(query).getBeans(ImpressDTO.class);
+			QueryResponse response = solr.query(query);
 
-		} catch (SolrServerException e) {
+			return response.getBeans(ImpressDTO.class).get(0).getProcedureStableId();
+
+		} catch (SolrServerException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
 		}
 
@@ -54,22 +57,33 @@ public class ImpressService {
 	}
 
 
-	/**
-	 * 
-	 * @param pipelineStableId
-	 * @return first 10 objects
-	 */
-	public List<ImpressDTO> getObjectsByPipelineStableId(String pipelineStableId) {
+	public String getProcedureUrlByKey(String procedureStableKey) {
 
-		try {
-			SolrQuery query = new SolrQuery();
-			query.setQuery(ImpressDTO.PIPELINE_STABLE_ID + ":\"" + pipelineStableId + "\"");
-			return solr.query(query).getBeans(ImpressDTO.class);
-		} catch (SolrServerException e) {
-			e.printStackTrace();
+		return config.get("drupalBaseUrl") + "/impress/impress/displaySOP/" + procedureStableKey;
+	}
+
+
+	/**
+	 * Return a string that either contains the name of the procedure if the
+	 * procedure key cannot be found, or a string that has an HTML anchor tag
+	 * ready to be used in a chart.
+	 * 
+	 * @param procedureName
+	 *            the name of the procedure
+	 * @param procedureStableId
+	 *            the IMPReSS stable ID of the procedure
+	 * @return a string that either has the name of the procedure or and HTML
+	 *         anchor tag to be used by the chart
+	 */
+	public String getAnchorForProcedure(String procedureName, String procedureStableId) {
+
+		String anchor = procedureName;
+		String procKey = getProcedureStableKey(procedureStableId);
+		if (procKey != null) {
+			anchor = String.format("<a href=\"%s\">%s</a>", getProcedureUrlByKey(procKey), procedureName);
 		}
 
-		return null;
+		return anchor;
 	}
 
 }

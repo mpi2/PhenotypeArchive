@@ -34,8 +34,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import javax.annotation.Resource;
-
 import net.sf.json.JSONArray;
 
 import org.apache.commons.lang.StringUtils;
@@ -85,7 +83,6 @@ public class ObservationService extends BasicService {
 
 	@Autowired
 	ParameterToGeneMap ptgm;
-
 
 	private static final Logger LOG = LoggerFactory.getLogger(ObservationService.class);
 	private final HttpSolrServer solr;

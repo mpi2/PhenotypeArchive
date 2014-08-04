@@ -43,18 +43,20 @@
 	    	$.fn.setCurrentFq();
 	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
 	    			: self.options.data.hashParams.fq;
-	    	
+
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('pipeline', self.options.data.hashParams.q, oParams);
-	    	
+	        oParams.q = $.fn.encodeQ(oParams.q); 
+	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
 				'rows': 0, // override default
 				'facet': 'on',								
 				//'facet.mincount': 1,  // want to also include zero ones
 				'facet.limit': -1,
-				'facet.sort': 'index',						
-				'q': self.options.data.hashParams.q}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
+				'facet.sort': 'index'					
+				//'q': $.fn.encodeQ(self.options.data.hashParams.q)
+				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
 	    	
 	    	//console.log(queryParams);	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams)	    				
