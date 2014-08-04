@@ -39,7 +39,6 @@ config.update = {};
 config.update.filterObj = [];
 
 config.update.widgetOpen   = false;
-
 config.update.pageReload   = false;
 config.update.hashChange 	= false;
 config.update.rebuildSummaryFilterCount = 0;
@@ -298,7 +297,8 @@ config.facetParams = {
 		 ontology: 'disease',
 		 breadCrumbLabel: 'Diseases',		 
 		 //filterParams: {'fq': "ontology_subset:IMPC_Terms AND selected_top_level_ma_term:*", 'fl': 'ma_id,ma_term,child_ma_id,child_ma_term,child_ma_idTerm,selected_top_level_ma_term,selected_top_level_ma_id'},
-		 filterParams: {'fq': 'type:disease'},		 
+		 //filterParams: {'fq': 'type:disease'},
+		 filterParams: {'fq': '*:*'},
 		 srchParams: $.extend({},
 					commonSolrParams
 					)		
@@ -311,7 +311,8 @@ config.facetParams = {
 		 tableCols: 2, 
 		 tableHeader: '<thead><th>Name</th><th>Example Images</th></thead>', 
 		 //fq: 'annotationTermId:M* OR expName:* OR symbol:*',	
-		 fq: 'top_level_mp_term:* OR selected_top_level_ma_term:* OR procedure_name:* OR marker_symbol:*',
+		 //fq: 'top_level_mp_term:* OR selected_top_level_ma_term:* OR procedure_name:* OR marker_symbol:*',
+		 fq: '*:*',
 		 qf: 'auto_suggest', 
 		 defType: 'edismax',
 		 wt: 'json',
@@ -329,7 +330,9 @@ config.facetParams = {
 		 forceReloadImageDataTable: false,		 
 		 breadCrumbLabel: 'Images',
 		 filterParams: {//'fl' : 'annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath',
-			 	  'fq' : "(top_level_mp_term:* OR selected_top_level_ma_term:* OR procedure_name:* OR marker_symbol:*)"},	
+			 	  //'fq' : "(top_level_mp_term:* OR selected_top_level_ma_term:* OR procedure_name:* OR marker_symbol:*)"
+			 'fq' : '*:*'
+		 },	
 	 	 srchParams: $.extend({},
 				commonSolrParams				
 				)

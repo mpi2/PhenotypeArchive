@@ -305,7 +305,7 @@
 	       				// handed over to hash change to fetch for results	
 	       			
 	       				var q = encodeURIComponent(this.value);
-	       				var fq = $.fn.getCurrentFq();
+	       				var fq = $.fn.getCurrentFq(facet);
 	       				
 	       				document.location.href = baseUrl + '/search?q="' + q + '"#fq=' + fq + '&facet=' + facet; 	
 	       				

@@ -238,8 +238,6 @@
 		caller.click(function(){
 			
 			if ( caller.find('span.fcount').text() != 0 ){ // initial state (lives until widget is refreshed)
-				//console.log(facet + ' widget open - ' + MPI2.searchAndFacetConfig.update.widgetOpen );
-				//MPI2.searchAndFacetConfig.update.dataTableLoaded = false; //reset
 				MPI2.searchAndFacetConfig.update.widgetOpen = true; // reset
 				
 				//console.log(facet + ' widget open - ' + MPI2.searchAndFacetConfig.update.widgetOpen );
@@ -260,15 +258,12 @@
 				var oUrlParams = $.fn.parseHashString(window.location.hash.substring(1));
 				
 				if ( /search\/?$/.exec(location.href) ){
-					// no search params		
+					// no url params at all		
 					
 					oUrlParams = thisWidget.options.data.hashParams;						
 					oUrlParams.core = facet;
-					
-					if ( typeof MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams != 'undefined' ){
-						oUrlParams.fq = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;
-					} 
-					
+					oUrlParams.fq = MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].filterParams.fq;
+					//alert(facet + ' -- '+ oUrlParams.fq)
 					window.location.hash = 'fq=' + oUrlParams.fq + '&facet=' + facet;
 				}
 				else {
@@ -304,7 +299,9 @@
 					var mode = '&facet=';
 					//alert(mode);
 					
-					oUrlParams.fq = MPI2.searchAndFacetConfig.currentFq;
+					//oUrlParams.fq = MPI2.searchAndFacetConfig.currentFq;
+					oUrlParams.fq = $.fn.getCurrentFq(facet);
+					
 					
 					if ( typeof oUrlParams.q == 'undefined' ){
 						// no search kw
@@ -1382,11 +1379,15 @@
 		return MPI2.searchAndFacetConfig.coreQf[facet]; 
 	};
 	
-	$.fn.getCurrentFq = function(){
-		
+	$.fn.getCurrentFq = function(facet){
 		var hashStr = $(location).attr('hash');	
 		if ( hashStr != '' && hashStr.indexOf('fq=') != -1 ){
-			return hashStr.match(/fq=.+\&/)[0].replace(/fq=|\&/g,'');
+			var fqStr = hashStr.match(/fq=.+\&/)[0].replace(/fq=|\&/g,'');
+			if ( /.*:\*/.test(fqStr) ){  // default
+				// not all mega cores are the same, eg. pipeline and ma is different
+				return MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].fq;
+			}
+			return fqStr;
 		}
 		return '*:*';
 	};
