@@ -186,7 +186,7 @@
        		    	input = input.replace(re, "\"$1\""); // only use double quotes for phrase query
        		    	
        		    	input = encodeURIComponent(input);
-       		    	
+       		    
        		    	MPI2.searchAndFacetConfig.update.kwSearch = true;
        		    	
        		    	if (input == ''){
@@ -316,7 +316,7 @@
 	       			open: function(event, ui) {
 	       				//fix jQuery UIs autocomplete width
 	       				$(this).autocomplete("widget").css({
-	       			    	"width": ($(this).width() + "px")
+	       			    	"width": $(this).width() + "px"
 	       			    });
 	       			   				
 	       				$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );	       				
@@ -517,7 +517,7 @@
 			    	}
 			    	
 			    	oUrlParams.fq = oUrlParams.fq.replace(/img_/g,''); // so that this matches the copyField of images
-
+					
 			    	$.fn.parseUrl_constructFilters_loadDataTable(oUrlParams);
 				}	
     		}

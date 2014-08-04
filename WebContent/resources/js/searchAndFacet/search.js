@@ -240,19 +240,6 @@
     	    	 * ie, fetch facet full result for that facet and display only facet count for the rest of the facets 
     	    	 * Other facet results will be fetched on demand */
     	    	
-    	    	var coreName, facetName;
-    	    	if ( oUrlParams.coreName ){
-    	    		coreName = oUrlParams.coreName;
-    	    	}
-    	    	else if (oUrlParams.facetName ){
-    	    		facetName = oUrlParams.facetName;    	    		
-    	    	}
-    	    	else if ( facetMode ){    	    		
-    	    		facetName = facetMode;    	    		
-    	    	}
-    	    	else {
-    	    		coreName = _setSearchMode(oFacets.count);
-    	    	}   
     	    	
     	    	$('div#facetSrchMsg').html('&nbsp;');
 
@@ -262,8 +249,9 @@
     	    	}
     	    	else {    	    	    		
     	        	// remove all previous facet results before loading new facet results
-    	    		var thisCore = coreName ? coreName : facetName; 
-    	        	
+    	    		//var thisCore = coreName ? coreName : facetName; 
+    	    		var thisCore = _setSearchMode(oFacets.count);
+    	    		
     	    		$('li.fmcat > ul').html(''); 
     	        	
     	        	//var widgetName = coreName+'Facet'; 
