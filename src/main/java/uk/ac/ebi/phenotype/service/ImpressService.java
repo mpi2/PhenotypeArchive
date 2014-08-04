@@ -23,7 +23,7 @@ public class ImpressService {
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
 
-	private final HttpSolrServer solr;
+	private final HttpSolrServer solr; 
 
 
 	public ImpressService() {
@@ -38,7 +38,7 @@ public class ImpressService {
 	}
 
 
-	public String getProcedureStableKey(String procedureStableId) {
+	public Integer getProcedureStableKey(String procedureStableId) {
 
 		try {
 			SolrQuery query = new SolrQuery()
@@ -47,7 +47,26 @@ public class ImpressService {
 
 			QueryResponse response = solr.query(query);
 
-			return response.getBeans(ImpressDTO.class).get(0).getProcedureStableId();
+			return response.getBeans(ImpressDTO.class).get(0).getProcedureStableKey();
+
+		} catch (SolrServerException | IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	
+	public Integer getPipelineStableKey(String pipelineStableId) {
+
+		try {
+			SolrQuery query = new SolrQuery()
+				.setQuery(ImpressDTO.PIPELINE_STABLE_ID + ":\"" + pipelineStableId + "\"")
+				.setFields(ImpressDTO.PIPELINE_STABLE_KEY);
+
+			QueryResponse response = solr.query(query);
+
+			return response.getBeans(ImpressDTO.class).get(0).getPipelineStableKey();
 
 		} catch (SolrServerException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
@@ -78,7 +97,7 @@ public class ImpressService {
 	public String getAnchorForProcedure(String procedureName, String procedureStableId) {
 
 		String anchor = procedureName;
-		String procKey = getProcedureStableKey(procedureStableId);
+		String procKey = getProcedureStableKey(procedureStableId).toString();
 		if (procKey != null) {
 			anchor = String.format("<a href=\"%s\">%s</a>", getProcedureUrlByKey(procKey), procedureName);
 		}
@@ -86,4 +105,12 @@ public class ImpressService {
 		return anchor;
 	}
 
+	
+	public String getPipelineUrlByStableId(String stableId){
+		Integer pipelineKey = getPipelineStableKey(stableId);
+		if (pipelineKey != null){
+			return config.get("drupalBaseUrl") + "/impress/impress/displaySOP/" + pipelineKey;
+		}
+		else return "#";
+	}
 }
