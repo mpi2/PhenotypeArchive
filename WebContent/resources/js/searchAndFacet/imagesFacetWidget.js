@@ -71,7 +71,7 @@
   	    		+ "&facet.field=selected_top_level_ma_term"
   	    		+ "&facet.field=marker_type"
   	    		
-  	    		console.log('IMAGES WIDGET: ' + paramStr);	
+  	    		//console.log('IMAGES WIDGET: ' + paramStr);	
   	    		
   	    	$.ajax({	
   	    		'url': solrUrl + '/images/select',  	    		
