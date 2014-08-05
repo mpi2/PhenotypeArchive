@@ -178,6 +178,8 @@
        		$('input#s').keyup(function (e) {		
        		    if (e.keyCode == 13) { // user hits enter
 
+       		    	//$('ul#ul-id-1').remove();
+       		    
        		    	//alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
        		    	var input = $('input#s').val().trim();//.replace(/^'|'$/g, '"');
        		    	input = /^\*\**?\*??$/.test(input) ? '' : input;  // lazy matching
@@ -324,12 +326,21 @@
 	       			close: function() {
 	       				$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
 	       			}
-	       		}).data("ui-autocomplete")._renderItem = function( ul, item) { // prevents HTML tags being escaped
+	       		}).keyup(function (e) {
+	       			
+	       			// close dropdown list when hit enter
+	       			// this fixed problem of hit enter quickly before dropdown list appears 
+	       			// and then hit enter while wait a bit after dropdown list appears in a second seach -
+	       			// this causes dropdown list putshed up or down but not disappear
+     		        if(e.which === 13) {
+     		            $(".ui-menu-item").hide();
+     		        }})      		
+	       		.data("ui-autocomplete")._renderItem = function( ul, item) { // prevents HTML tags being escaped
        				return $( "<li></li>" ) 
      				  .data( "item.autocomplete", item )
      				  .append( $( "<a></a>" ).html( item.label ) )
      				  .appendTo( ul );
-     			};
+     			}
        		});
        		
        	 	
