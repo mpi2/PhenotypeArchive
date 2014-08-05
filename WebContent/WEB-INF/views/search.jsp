@@ -167,6 +167,7 @@
        				oUrlParams.noFq = true;
        			}
 
+       			//console.log(oUrlParams);
        			$.fn.fetchSolrFacetCount(oUrlParams);	
        		}
        		else {
@@ -334,7 +335,7 @@
 	       			// this causes dropdown list putshed up or down but not disappear
      		        if(e.which === 13) {
      		            $(".ui-menu-item").hide();
-     		        }})      		
+     		    }})      		
 	       		.data("ui-autocomplete")._renderItem = function( ul, item) { // prevents HTML tags being escaped
        				return $( "<li></li>" ) 
      				  .data( "item.autocomplete", item )
