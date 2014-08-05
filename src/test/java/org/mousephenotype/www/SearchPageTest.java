@@ -19,6 +19,8 @@
  */
 package org.mousephenotype.www;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,6 +32,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
@@ -43,12 +46,14 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.www.testing.model.PageStatus;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -705,88 +710,260 @@ public class SearchPageTest {
     public void testSpecialCharacters() throws Exception {
         Date start = new Date();
         WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        PageStatus status = new PageStatus();
+        
         successList.clear();
         errorList.clear();
         testCount++;
         System.out.println();
         String testName = "testSpecialCharacters";
         System.out.println("----- " + testName + " -----");
-
-         String queryStr = baseUrl + "/search";
-         driver.get(queryStr);
-         driver.navigate().refresh();
-         String characters = "&";
-         driver.findElement(By.cssSelector("input#s")).sendKeys(characters);
          
-         checkSpecialPhrase(wait, "!");
-         checkSpecialPhrase(wait, "@");
-         checkSpecialPhrase(wait, "€");
-         checkSpecialPhrase(wait, "£");
-         checkSpecialPhrase(wait, "#");
-         checkSpecialPhrase(wait, "$");
-         checkSpecialPhrase(wait, "%");
-         checkSpecialPhrase(wait, "^");
-         checkSpecialPhrase(wait, "&");
-         checkSpecialPhrase(wait, "*");
-         checkSpecialPhrase(wait, "(");
-         checkSpecialPhrase(wait, ")");
-         checkSpecialPhrase(wait, "-");
-         checkSpecialPhrase(wait, "_");
-         checkSpecialPhrase(wait, "=");
-         checkSpecialPhrase(wait, "+");
-         checkSpecialPhrase(wait, "[");
-         checkSpecialPhrase(wait, "{");
-         checkSpecialPhrase(wait, "]");
-         checkSpecialPhrase(wait, "}");
-         checkSpecialPhrase(wait, ";");
-         checkSpecialPhrase(wait, ":");
-         checkSpecialPhrase(wait, "'");
-         checkSpecialPhrase(wait, "\"");
-         checkSpecialPhrase(wait, "\\");
-         checkSpecialPhrase(wait, "|");
-         checkSpecialPhrase(wait, ",");
-         checkSpecialPhrase(wait, "<");
-         checkSpecialPhrase(wait, ".");
-         checkSpecialPhrase(wait, ">");
-         checkSpecialPhrase(wait, "/");
-         checkSpecialPhrase(wait, "?");
-         checkSpecialPhrase(wait, "é");
-         checkSpecialPhrase(wait, "å");
-         checkSpecialPhrase(wait, "ç");
-         checkSpecialPhrase(wait, "ß");
-         checkSpecialPhrase(wait, "č");
-         checkSpecialPhrase(wait, "ü");
-         checkSpecialPhrase(wait, "ö");
+         checkSpecialPhraseWildcard(wait, status, "leprot", 3, 3, 3, 3);
+         checkSpecialPhraseWildcard(wait, status, "!", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, "@", 0, 35,  0, 35);
+         checkSpecialPhraseWildcard(wait, status, "€", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, "£", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, "#", 0, 4, 0, 4);
+         checkSpecialPhraseWildcard(wait, status, "$", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, "%", 0, 6, 0, 6);
+         checkSpecialPhraseWildcard(wait, status, "^", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, "&", 4, 4, 4, 4);
+         checkSpecialPhraseWildcard(wait, status, "*", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, "(", 2271, 2504, 2271, 2504);
+         checkSpecialPhraseWildcard(wait, status, ")", 2504, 2490,0, 2490 );
+         checkSpecialPhraseWildcard(wait, status, "-", 157, 12354, 158, 12343);
+         checkSpecialPhraseWildcard(wait, status, "_", 0, 500, 0, 500);
+         checkSpecialPhraseWildcard(wait, status, "=", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, "+", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, "[", 9, 20, 9, 20);
+         checkSpecialPhraseWildcard(wait, status, "]", 0, 20, 0, 20);
+         checkSpecialPhraseWildcard(wait, status, "{", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, "}", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, ";", 0, 4148, 0, 4148);
+         checkSpecialPhraseWildcard(wait, status, ":", 0, 56912, 0, 56912);
+         checkSpecialPhraseWildcard(wait, status, "'", 6, 81,  6, 81);
+         checkSpecialPhraseWildcard(wait, status, "\"", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, "\\", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, "|", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, ",", 0, 9881, 0, 9881);
+         checkSpecialPhraseWildcard(wait, status, "<", 0, 18, 0, 18);
+         checkSpecialPhraseWildcard(wait, status, ".", 0, 1847, 0, 1847);
+         checkSpecialPhraseWildcard(wait, status, ">", 0, 18, 0, 18);
+         checkSpecialPhraseWildcard(wait, status, "/", 1, 809, 1, 809);
+         checkSpecialPhraseWildcard(wait, status, "?", 1, 1, 1, 1);
+         checkSpecialPhraseWildcard(wait, status, "`", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, "~", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, "é", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, "å", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, "ç", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, "ß", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, "č", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, "ü", 0, 0, 0, 0);
+         checkSpecialPhraseWildcard(wait, status, "ö", 0, 0, 0, 0);
+         
+         if (status.hasErrors()) {
+             errorList.add(status.toStringErrorMessages());
+         }
          
         TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
     }
     
-    private void checkSpecialPhrase(WebDriverWait wait, String phrase) {
+    // 'None', 'Pre', 'Post', and 'Both' refer to the count/position of the wildcard '*' character(s).
+    public void checkSpecialPhraseWildcard(WebDriverWait wait, PageStatus status, String phrase,
+                   int expectedResultCountNone, int expectedResultCountPre, int expectedResultCountPost, int expectedResultCountBoth) {
+        checkSpecialPhrase(wait, status, phrase, phrase, expectedResultCountNone);
+        checkSpecialPhrase(wait, status, phrase, "*" + phrase, expectedResultCountPre);
+        checkSpecialPhrase(wait, status, phrase, phrase + "*", expectedResultCountPost);
+        checkSpecialPhrase(wait, status, phrase, "*" + phrase + "*", expectedResultCountBoth);
+    }
+    
+    // rawPhrase is the phrase without any preceeding or trailing '*' wildcard characters. cookedPhrase is with '*' wildcard(s).
+    private void checkSpecialPhrase(WebDriverWait wait, PageStatus status, String rawPhrase, String cookedPhrase, int numExpectedResults) {
         String queryStr = baseUrl + "/search";
-        driver.get(queryStr);
-        driver.navigate().refresh();
-        String characters = "&";
-        driver.findElement(By.cssSelector("input#s")).sendKeys(characters);
-         
-        System.out.println("Checking search for special phrase '" + phrase + "'");
-        String xpathSelector = "//ul[@id=\"ui-id-1\"]/li/a";
-        List<WebElement> elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(xpathSelector)));
-        if (elements.isEmpty()) {
-            errorList.add("Expected at least one result for search term '" + phrase + "' but found none.");
-        } else {
-            // Check for presence of 'phrase'.
-            boolean found = false;
-            for (WebElement element : elements) {
-                if (element.getText().contains(phrase)) {
-                    found = true;
-                }
+        
+        try {
+            driver.get(queryStr);
+        } catch (Exception e) {
+            errorList.add("EXCEPTION: " + e.getLocalizedMessage() + "\nqueryString: '" + queryStr + "'");
+            return;
+        }
+        
+        WebElement weInput = driver.findElement(By.cssSelector("input#s"));
+        weInput.clear();
+        weInput.sendKeys(cookedPhrase + "\n");
+        System.out.println("\n\nChecking search for special phrase '" + cookedPhrase + "'");
+        String xpathSelector = "//table[@id='geneGrid']/tbody/tr";
+        List<WebElement> elements = new ArrayList();
+        
+        int numberOfGenesFound = 0;
+        try {
+            elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(xpathSelector)));
+            numberOfGenesFound = getNumberOfGenesFound(wait);
+        } catch (Exception e) { }
+        
+        // We're only checking up to the first 10 results.
+        if (Math.max(elements.size(), 10) < numExpectedResults) {
+            errorList.add("Expected at least " + numExpectedResults + " result(s) for search term '" + cookedPhrase + "' but found " + elements.size() + ".");
+        } else if (numExpectedResults > 0) {
+            if (elements.size() != numberOfGenesFound) {
+                errorList.add("ERROR: The number of matching elements (" + elements.size() + ") doesn't match the 'Found xxx genes' string (" + numberOfGenesFound + ").");
             }
             
-            if ( ! found) {
-                errorList.add("Expected at result to contain '" + phrase + "' but it didn't.");
+            // Check the first 10 results for presence of phrase.
+            for (int i = 0; i < Math.min(elements.size(), 10); i++) {
+                WebElement aTr = elements.get(i);
+                if ( ! containsPhrase(aTr, rawPhrase)) {
+                errorList.add("Expected result to contain '" + rawPhrase + "' but it didn't. Result: '" + aTr.getText() + "'");
+                }
             }
         }
         
-        TestUtils.sleep(1000);
+        HashMap<String, Integer> coreCounts = querySolr(cookedPhrase, status);
+        System.out.println("gene count:       " + coreCounts.get("gene"));
+        System.out.println("phenotype count:  " + coreCounts.get("phenotype"));
+        System.out.println("disease count:    " + coreCounts.get("disease"));
+        System.out.println("anatomy count:    " + coreCounts.get("anatomy"));
+        System.out.println("procedures count: " + coreCounts.get("procedures"));
+        System.out.println("images count:     " + coreCounts.get("images"));
+        
+        TestUtils.sleep(100);
     }
-} 
+    
+    private boolean containsPhrase(WebElement elements, String phrase) {
+        boolean found = false;
+        
+        // In order to see the contents of the span, we need to hover over the gene first.
+        Actions builder = new Actions(driver);
+        WebElement geneElement = driver.findElement(By.xpath("//table[@id='geneGrid']/tbody/tr/td[1]/div[@class='geneCol']/div[@class='subinfo']"));  
+        Actions hoverOverGene = builder.moveToElement(geneElement);
+        hoverOverGene.perform();
+        List<WebElement> spanElements = driver.findElements(By.xpath("//table[@id='geneGrid']/tbody/tr/td[1]/div[@class='geneCol']/div[@class='subinfo']/span[@class='subMatch']"));
+        
+        for (WebElement spanElement : spanElements) {
+            String spanText = spanElement.getText().toLowerCase();
+            if (spanText.contains(phrase.toLowerCase())) {
+                found = true;
+                break;
+            }
+         }
+        
+        return found;
+    }
+    
+    private int getNumberOfGenesFound(WebDriverWait wait) {
+        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='resultMsg']/span[@id='resultCount']/a")));
+        String sValue = element.getText();
+        int spaceIndex = sValue.indexOf(" ");
+        sValue = sValue.substring(0, spaceIndex);
+        Integer niValue = Utils.tryParseInt(sValue);
+        return (niValue == null ? 0 : niValue);
+    }
+            
+    private final int GENE_INDEX = 0;
+    private final int PHENOTYPE_INDEX = 1;
+    private final int DISEASE_INDEX = 2;
+    private final int ANATOMY_INDEX = 3;
+    private final int PROCEDURES_INDEX = 4;
+    private final int IMAGES_INDEX = 5;
+        
+    private HashMap<String, Integer> querySolr(String cookedPhrase, PageStatus status) {
+        HashMap<String, Integer> coreCountHash = new HashMap();
+        final String[] cores = { "gene", "phenotype", "disease", "anatomy", "procedures", "images" };
+        final int[] counts = { 0, 0, 0, 0, 0, 0 };
+
+        String initialWildcard = "";
+        String trailingWildcard = "";
+
+        // In preparation for escaping characters, *don't* escape leading and/or trailing wildcard characters.
+        String rawPhrase = cookedPhrase;
+        if (cookedPhrase.length() > 1) {
+            if (cookedPhrase.startsWith("*")) {
+                initialWildcard = "*";
+                rawPhrase = cookedPhrase.substring(1);
+            }
+            if (rawPhrase.endsWith("*")) {
+                trailingWildcard = "*";
+                rawPhrase = rawPhrase.substring(0, rawPhrase.length() - 1);
+            }
+        }
+        
+        // Before URLEncoding, escape any phrase characters that solr requires be escaped: + - && || ! ( ) { } [ ] ^ " ~ * ? : \
+        String escapedRawPhrase = rawPhrase.replace("\\", "\\\\");              // Escape the '\\' separately to avoid double-escaping.
+        
+        escapedRawPhrase = escapedRawPhrase
+                .replace("+", "\\+")
+                .replace("-", "\\-")
+                .replace("&&", "\\&\\&")
+                .replace("||", "\\|\\|")
+                .replace("!", "\\!")
+                .replace("(", "\\(")
+                .replace(")", "\\)")
+                .replace("{", "\\{")
+                .replace("}", "\\}")
+                .replace("[", "\\[")
+                .replace("]", "\\]")
+                .replace("^", "\\^")
+                .replace("\"", "\\\\")
+                .replace("~", "\\~")
+                .replace("*", "\\*")
+                .replace("?", "\\?")
+                .replace(":", "\\:");
+            
+        String escapedEncodedRawPhrase = escapedRawPhrase;
+        try { escapedEncodedRawPhrase = URLEncoder.encode(escapedEncodedRawPhrase, "UTF-8"); } catch (Exception e) { }
+        
+        String escapedEncodedCookedPhrase = initialWildcard + escapedEncodedRawPhrase + trailingWildcard;
+System.out.println("escapedEncodedCookedPhrase = '" + escapedEncodedCookedPhrase + "'");
+        String newQueryString = "/autosuggest/select?q=auto_suggest:" + escapedEncodedCookedPhrase + "&wt=json&rows=1000000";
+        JSONObject jsonData;
+        JSONArray docs;
+        try {
+            
+            jsonData = JSONRestUtil.getResults(solrUrl + newQueryString);
+            docs = JSONRestUtil.getDocArray(jsonData);
+        } catch (Exception e) {
+            status.addError("ERROR: JSON results are null for phrase '" + cookedPhrase + "', which probably means the character wasn't properly escaped. Local error message:\n" + e.getLocalizedMessage());
+            return coreCountHash;
+        }
+        
+        for (int i = 0; i < docs.size(); i++) {
+            String docType = docs.getJSONObject(i).getString("docType");
+            switch (docType) {
+                case "gene":
+                    counts[GENE_INDEX]++;
+                    break;
+
+                case "phenotype":
+                    counts[PHENOTYPE_INDEX]++;
+                    break;
+
+                case "disease":
+                    counts[DISEASE_INDEX]++;
+                    break;
+
+                case "anatomy":
+                    counts[ANATOMY_INDEX]++;
+                    break;
+
+                case "procedures":
+                    counts[PROCEDURES_INDEX]++;
+                    break;
+
+                case "images":
+                    counts[IMAGES_INDEX]++;
+                    break;
+
+            }
+        }
+        
+        for (int i = 0; i < cores.length; i++) {
+            coreCountHash.put(cores[i], counts[i]);
+        }
+        
+System.out.println("URL: " + solrUrl + newQueryString);
+        return coreCountHash;
+    }
+    
+    
+}

@@ -49,6 +49,10 @@
     <bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
         <constructor-arg  value="${solrUrl}/experiment" />
     </bean>
+	
+    <bean id="impressService" class="uk.ac.ebi.phenotype.service.ImpressService">
+            <constructor-arg value="${internalSolrUrl}/pipeline" />
+    </bean>
 
     <bean id="mapService" class="uk.ac.ebi.phenotype.service.ParameterMapService">
             <constructor-arg value="${internalSolrUrl}/experiment" />
