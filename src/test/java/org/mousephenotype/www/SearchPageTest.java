@@ -19,7 +19,6 @@
  */
 package org.mousephenotype.www;
 
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -32,7 +31,6 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
@@ -47,6 +45,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.PageStatus;
+import org.mousephenotype.www.testing.model.SearchPage;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -61,6 +60,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.rest.controller.PhenotypePipelineController;
 import uk.ac.ebi.phenotype.util.Utils;
 /**
  *
@@ -100,6 +101,9 @@ public class SearchPageTest {
     
     @Autowired
     protected String solrUrl;
+    
+    @Autowired
+    private PhenotypePipelineDAO phenotypePipelineDAO;
     
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     
@@ -225,7 +229,6 @@ public class SearchPageTest {
 
         driver.get(baseUrl + "/search?q=" + qry);
 
-        //new WebDriverWait(driver, 25).until(ExpectedConditions.visibilityOfElementLocated(By.id("geneGrid_info")));
         new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.id("geneGrid_info")));
         String foundMsg = driver.findElement(By.cssSelector("span#resultCount a")).getText();
         if ( foundMsg.isEmpty() ){
@@ -718,68 +721,73 @@ public class SearchPageTest {
         System.out.println();
         String testName = "testSpecialCharacters";
         System.out.println("----- " + testName + " -----");
-         
-         checkSpecialPhraseWildcard(wait, status, "leprot", 3, 3, 3, 3);
-         checkSpecialPhraseWildcard(wait, status, "!", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, "@", 0, 35,  0, 35);
-         checkSpecialPhraseWildcard(wait, status, "€", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, "£", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, "#", 0, 4, 0, 4);
-         checkSpecialPhraseWildcard(wait, status, "$", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, "%", 0, 6, 0, 6);
-         checkSpecialPhraseWildcard(wait, status, "^", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, "&", 4, 4, 4, 4);
-         checkSpecialPhraseWildcard(wait, status, "*", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, "(", 2271, 2504, 2271, 2504);
-         checkSpecialPhraseWildcard(wait, status, ")", 2504, 2490,0, 2490 );
-         checkSpecialPhraseWildcard(wait, status, "-", 157, 12354, 158, 12343);
-         checkSpecialPhraseWildcard(wait, status, "_", 0, 500, 0, 500);
-         checkSpecialPhraseWildcard(wait, status, "=", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, "+", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, "[", 9, 20, 9, 20);
-         checkSpecialPhraseWildcard(wait, status, "]", 0, 20, 0, 20);
-         checkSpecialPhraseWildcard(wait, status, "{", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, "}", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, ";", 0, 4148, 0, 4148);
-         checkSpecialPhraseWildcard(wait, status, ":", 0, 56912, 0, 56912);
-         checkSpecialPhraseWildcard(wait, status, "'", 6, 81,  6, 81);
-         checkSpecialPhraseWildcard(wait, status, "\"", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, "\\", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, "|", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, ",", 0, 9881, 0, 9881);
-         checkSpecialPhraseWildcard(wait, status, "<", 0, 18, 0, 18);
-         checkSpecialPhraseWildcard(wait, status, ".", 0, 1847, 0, 1847);
-         checkSpecialPhraseWildcard(wait, status, ">", 0, 18, 0, 18);
-         checkSpecialPhraseWildcard(wait, status, "/", 1, 809, 1, 809);
-         checkSpecialPhraseWildcard(wait, status, "?", 1, 1, 1, 1);
-         checkSpecialPhraseWildcard(wait, status, "`", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, "~", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, "é", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, "å", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, "ç", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, "ß", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, "č", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, "ü", 0, 0, 0, 0);
-         checkSpecialPhraseWildcard(wait, status, "ö", 0, 0, 0, 0);
-         
-         if (status.hasErrors()) {
-             errorList.add(status.toStringErrorMessages());
-         }
-         
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
+        
+        try {
+            checkSpecialPhraseWildcard(wait, status, "leprot");
+            checkSpecialPhraseWildcard(wait, status, "!");
+            checkSpecialPhraseWildcard(wait, status, "@");
+            checkSpecialPhraseWildcard(wait, status, "€");
+            checkSpecialPhraseWildcard(wait, status, "£");
+            checkSpecialPhraseWildcard(wait, status, "#");
+            checkSpecialPhraseWildcard(wait, status, "$");
+            checkSpecialPhraseWildcard(wait, status, "%");
+            checkSpecialPhraseWildcard(wait, status, "^");
+            checkSpecialPhraseWildcard(wait, status, "&");
+            checkSpecialPhraseWildcard(wait, status, "*");
+            checkSpecialPhraseWildcard(wait, status, "(");
+            checkSpecialPhraseWildcard(wait, status, ")");
+            checkSpecialPhraseWildcard(wait, status, "-");
+            checkSpecialPhraseWildcard(wait, status, "_");
+            checkSpecialPhraseWildcard(wait, status, "=");
+            checkSpecialPhraseWildcard(wait, status, "+");
+            checkSpecialPhraseWildcard(wait, status, "[");
+            checkSpecialPhraseWildcard(wait, status, "]");
+            checkSpecialPhraseWildcard(wait, status, "{");
+            checkSpecialPhraseWildcard(wait, status, "}");
+            checkSpecialPhraseWildcard(wait, status, ";");
+            checkSpecialPhraseWildcard(wait, status, ":");
+            checkSpecialPhraseWildcard(wait, status, "'");
+            checkSpecialPhraseWildcard(wait, status, "\"");
+            checkSpecialPhraseWildcard(wait, status, "\\");
+            checkSpecialPhraseWildcard(wait, status, "|");
+            checkSpecialPhraseWildcard(wait, status, ",");
+            checkSpecialPhraseWildcard(wait, status, "<");
+            checkSpecialPhraseWildcard(wait, status, ".");
+            checkSpecialPhraseWildcard(wait, status, ">");
+            checkSpecialPhraseWildcard(wait, status, "/");
+            checkSpecialPhraseWildcard(wait, status, "?");
+            checkSpecialPhraseWildcard(wait, status, "`");
+            checkSpecialPhraseWildcard(wait, status, "~");
+            checkSpecialPhraseWildcard(wait, status, "é");
+            checkSpecialPhraseWildcard(wait, status, "å");
+            checkSpecialPhraseWildcard(wait, status, "ç");
+            checkSpecialPhraseWildcard(wait, status, "ß");
+            checkSpecialPhraseWildcard(wait, status, "č");
+            checkSpecialPhraseWildcard(wait, status, "ü");
+            checkSpecialPhraseWildcard(wait, status, "ö");
+        } catch (Exception e) {
+            System.out.println("EXCEPTION: SearchPageTest.testSpecialCharacters(): Message: " + e.getLocalizedMessage());
+        } finally {
+            if (status.hasErrors()) {
+                errorList.add(status.toStringErrorMessages());
+            }
+
+            TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
+        }
     }
     
     // 'None', 'Pre', 'Post', and 'Both' refer to the count/position of the wildcard '*' character(s).
-    public void checkSpecialPhraseWildcard(WebDriverWait wait, PageStatus status, String phrase,
-                   int expectedResultCountNone, int expectedResultCountPre, int expectedResultCountPost, int expectedResultCountBoth) {
-        checkSpecialPhrase(wait, status, phrase, phrase, expectedResultCountNone);
-        checkSpecialPhrase(wait, status, phrase, "*" + phrase, expectedResultCountPre);
-        checkSpecialPhrase(wait, status, phrase, phrase + "*", expectedResultCountPost);
-        checkSpecialPhrase(wait, status, phrase, "*" + phrase + "*", expectedResultCountBoth);
+    public void checkSpecialPhraseWildcard(WebDriverWait wait, PageStatus status, String phrase) {
+        checkSpecialPhrase(wait, status, phrase, phrase);
+        if ( ! phrase.equals("*")) {                                            // Special case: for "*", test only "*".
+            checkSpecialPhrase(wait, status, phrase, "*" + phrase);
+            checkSpecialPhrase(wait, status, phrase, phrase + "*");
+            checkSpecialPhrase(wait, status, phrase, "*" + phrase + "*");
+        }
     }
     
     // rawPhrase is the phrase without any preceeding or trailing '*' wildcard characters. cookedPhrase is with '*' wildcard(s).
-    private void checkSpecialPhrase(WebDriverWait wait, PageStatus status, String rawPhrase, String cookedPhrase, int numExpectedResults) {
+    private void checkSpecialPhrase(WebDriverWait wait, PageStatus status, String rawPhrase, String cookedPhrase) {
         String queryStr = baseUrl + "/search";
         
         try {
@@ -794,72 +802,96 @@ public class SearchPageTest {
         weInput.sendKeys(cookedPhrase + "\n");
         System.out.println("\n\nChecking search for special phrase '" + cookedPhrase + "'");
         String xpathSelector = "//table[@id='geneGrid']/tbody/tr";
-        List<WebElement> elements = new ArrayList();
+        List<WebElement> elements;
         
-        int numberOfGenesFound = 0;
         try {
             elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(xpathSelector)));
-            numberOfGenesFound = getNumberOfGenesFound(wait);
-        } catch (Exception e) { }
+        } catch (Exception e) {
+            errorList.add("Exception waiting for sendKeys table results. Skipping ...  Error message: " + e.getLocalizedMessage());
+            return;
+        }
         
-        // We're only checking up to the first 10 results.
-        if (Math.max(elements.size(), 10) < numExpectedResults) {
-            errorList.add("Expected at least " + numExpectedResults + " result(s) for search term '" + cookedPhrase + "' but found " + elements.size() + ".");
-        } else if (numExpectedResults > 0) {
-            if (elements.size() != numberOfGenesFound) {
-                errorList.add("ERROR: The number of matching elements (" + elements.size() + ") doesn't match the 'Found xxx genes' string (" + numberOfGenesFound + ").");
-            }
-            
-            // Check the first 10 results for presence of phrase.
+        // Issue the solr query and get the match result count per core.
+        HashMap<String, Integer> coreCounts = querySolr(cookedPhrase, status);
+        
+        // Scrape the 'match result count per core' from the page and compare it against the solr results.
+        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, phenotypePipelineDAO);
+        
+        int totalCount = 0;
+        if (searchPage.getAnatomyFacetCount()!= coreCounts.get(SearchPage.ANATOMY_CORE)) {
+            errorList.add("Expected " + coreCounts.get(SearchPage.ANATOMY_CORE) + " Anatomy core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getAnatomyFacetCount() + ".");
+            totalCount += coreCounts.get(SearchPage.ANATOMY_CORE);
+        }
+        if (searchPage.getDiseasesFacetCount() != coreCounts.get(SearchPage.DISEASE_CORE)) {
+            errorList.add("Expected " + coreCounts.get(SearchPage.DISEASE_CORE) + " Disease core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getDiseasesFacetCount() + ".");
+            totalCount += coreCounts.get(SearchPage.DISEASE_CORE);
+        }
+        if (searchPage.getGenesFacetCount() != coreCounts.get(SearchPage.GENE_CORE)) {
+            errorList.add("Expected " + coreCounts.get(SearchPage.GENE_CORE) + " Gene core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getGenesFacetCount() + ".");
+            totalCount += coreCounts.get(SearchPage.GENE_CORE);
+        }
+        if (searchPage.getImagesFacetCount() != coreCounts.get(SearchPage.IMAGES_CORE)) {
+            errorList.add("Expected " + coreCounts.get(SearchPage.IMAGES_CORE) + " images core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getImagesFacetCount() + ".");
+            totalCount += coreCounts.get(SearchPage.IMAGES_CORE);
+        }
+        if (searchPage.getPhenotypesFacetCount() != coreCounts.get(SearchPage.PHENOTYPE_CORE)) {
+            errorList.add("Expected " + coreCounts.get(SearchPage.PHENOTYPE_CORE) + " Phenotype core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getPhenotypesFacetCount() + ".");
+            totalCount += coreCounts.get(SearchPage.PHENOTYPE_CORE);
+        }
+        if (searchPage.getProceduresFacetCount() != coreCounts.get(SearchPage.PROCEDURES_CORE)) {
+            errorList.add("Expected " + coreCounts.get(SearchPage.PROCEDURES_CORE) + " Procedures core result(s) for search term '" + cookedPhrase + "' but found " + searchPage.getProceduresFacetCount() + ".");
+            totalCount += coreCounts.get(SearchPage.PROCEDURES_CORE);
+        }
+        
+        // If there are expected results, check the first 10 for presence of phrase.
+        if (totalCount > 0) {
             for (int i = 0; i < Math.min(elements.size(), 10); i++) {
                 WebElement aTr = elements.get(i);
-                if ( ! containsPhrase(aTr, rawPhrase)) {
-                errorList.add("Expected result to contain '" + rawPhrase + "' but it didn't. Result: '" + aTr.getText() + "'");
+                if ( ! containsPhrase(rawPhrase)) {
+                    errorList.add("Expected result to contain '" + rawPhrase + "' but it didn't. Result: '" + aTr.getText() + "'");
                 }
             }
         }
-        
-        HashMap<String, Integer> coreCounts = querySolr(cookedPhrase, status);
-        System.out.println("gene count:       " + coreCounts.get("gene"));
-        System.out.println("phenotype count:  " + coreCounts.get("phenotype"));
-        System.out.println("disease count:    " + coreCounts.get("disease"));
-        System.out.println("anatomy count:    " + coreCounts.get("anatomy"));
-        System.out.println("procedures count: " + coreCounts.get("procedures"));
-        System.out.println("images count:     " + coreCounts.get("images"));
+
+        System.out.println("gene count:       " + coreCounts.get(SearchPage.GENE_CORE));
+        System.out.println("phenotype count:  " + coreCounts.get(SearchPage.PHENOTYPE_CORE));
+        System.out.println("disease count:    " + coreCounts.get(SearchPage.DISEASE_CORE));
+        System.out.println("anatomy count:    " + coreCounts.get(SearchPage.ANATOMY_CORE));
+        System.out.println("procedures count: " + coreCounts.get(SearchPage.PROCEDURES_CORE));
+        System.out.println("images count:     " + coreCounts.get(SearchPage.IMAGES_CORE));
         
         TestUtils.sleep(100);
     }
     
-    private boolean containsPhrase(WebElement elements, String phrase) {
+    
+    private boolean containsPhrase(String rawPhrase) {
         boolean found = false;
         
         // In order to see the contents of the span, we need to hover over the gene first.
         Actions builder = new Actions(driver);
-        WebElement geneElement = driver.findElement(By.xpath("//table[@id='geneGrid']/tbody/tr/td[1]/div[@class='geneCol']/div[@class='subinfo']"));  
-        Actions hoverOverGene = builder.moveToElement(geneElement);
-        hoverOverGene.perform();
-        List<WebElement> spanElements = driver.findElements(By.xpath("//table[@id='geneGrid']/tbody/tr/td[1]/div[@class='geneCol']/div[@class='subinfo']/span[@class='subMatch']"));
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
         
-        for (WebElement spanElement : spanElements) {
-            String spanText = spanElement.getText().toLowerCase();
-            if (spanText.contains(phrase.toLowerCase())) {
-                found = true;
-                break;
-            }
-         }
+        try {
+            WebElement geneElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//table[@id='geneGrid']/tbody/tr/td[1]/div[@class='geneCol']/div[@class='subinfo']")));
+
+            Actions hoverOverGene = builder.moveToElement(geneElement);
+            hoverOverGene.perform();
+            List<WebElement> spanElements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//table[@id='geneGrid']/tbody/tr/td[1]/div[@class='geneCol']/div[@class='subinfo']/span[@class='subMatch']")));
+
+            for (WebElement spanElement : spanElements) {
+                String spanText = spanElement.getText().toLowerCase();
+                if (spanText.contains(rawPhrase.toLowerCase())) {
+                    found = true;
+                    break;
+                }
+             }
+        } catch (Exception e) {
+            System.out.println("EXCEPTION: SearchPageTest.containsPhrase() while waiting to hover. Error message: " + e.getLocalizedMessage());
+        }
         
         return found;
     }
-    
-    private int getNumberOfGenesFound(WebDriverWait wait) {
-        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='resultMsg']/span[@id='resultCount']/a")));
-        String sValue = element.getText();
-        int spaceIndex = sValue.indexOf(" ");
-        sValue = sValue.substring(0, spaceIndex);
-        Integer niValue = Utils.tryParseInt(sValue);
-        return (niValue == null ? 0 : niValue);
-    }
-            
+  
     private final int GENE_INDEX = 0;
     private final int PHENOTYPE_INDEX = 1;
     private final int DISEASE_INDEX = 2;
@@ -869,7 +901,7 @@ public class SearchPageTest {
         
     private HashMap<String, Integer> querySolr(String cookedPhrase, PageStatus status) {
         HashMap<String, Integer> coreCountHash = new HashMap();
-        final String[] cores = { "gene", "phenotype", "disease", "anatomy", "procedures", "images" };
+        final String[] coreNames = { SearchPage.GENE_CORE, SearchPage.PHENOTYPE_CORE, SearchPage.DISEASE_CORE, SearchPage.ANATOMY_CORE, SearchPage.PROCEDURES_CORE, SearchPage.IMAGES_CORE };
         final int[] counts = { 0, 0, 0, 0, 0, 0 };
 
         String initialWildcard = "";
@@ -930,35 +962,35 @@ System.out.println("escapedEncodedCookedPhrase = '" + escapedEncodedCookedPhrase
         for (int i = 0; i < docs.size(); i++) {
             String docType = docs.getJSONObject(i).getString("docType");
             switch (docType) {
-                case "gene":
+                case SearchPage.GENE_CORE:
                     counts[GENE_INDEX]++;
                     break;
 
-                case "phenotype":
+                case SearchPage.PHENOTYPE_CORE:
                     counts[PHENOTYPE_INDEX]++;
                     break;
 
-                case "disease":
+                case SearchPage.DISEASE_CORE:
                     counts[DISEASE_INDEX]++;
                     break;
 
-                case "anatomy":
+                case SearchPage.ANATOMY_CORE:
                     counts[ANATOMY_INDEX]++;
                     break;
 
-                case "procedures":
+                case SearchPage.PROCEDURES_CORE:
                     counts[PROCEDURES_INDEX]++;
                     break;
 
-                case "images":
+                case SearchPage.IMAGES_CORE:
                     counts[IMAGES_INDEX]++;
                     break;
 
             }
         }
         
-        for (int i = 0; i < cores.length; i++) {
-            coreCountHash.put(cores[i], counts[i]);
+        for (int i = 0; i < coreNames.length; i++) {
+            coreCountHash.put(coreNames[i], counts[i]);
         }
         
 System.out.println("URL: " + solrUrl + newQueryString);
