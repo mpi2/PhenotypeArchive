@@ -26,16 +26,13 @@ import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
 import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.ParameterOption;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
-import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.ImpressService;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.stats.ChartData;
-import uk.ac.ebi.phenotype.stats.TableObject;
 import uk.ac.ebi.phenotype.stats.graphs.ChartColors;
 
 @Service
@@ -71,15 +68,9 @@ public class CategoricalChartAndTableProvider {
 	String numberString, BiologicalModel expBiologicalModel)
 	throws SQLException, IOException, URISyntaxException {
 
-		List<String> categories = this.getCategories(parameter);// loop through
-																// all the
-																// parameters no
-																// just ones
-																// with >0
-																// result so use
-																// parameter
-																// rather than
-																// experiment
+		List<String> categories = this.getCategories(parameter);
+		// loop through all the parameters no just ones with >0
+		// result so use parameter rather than experiment
 		logger.debug("running categorical data");
 		// https://www.mousephenotype.org/data/charts?accession=MGI:98373?parameterId=M-G-P_014_001_009&zygosity=homozygote&phenotypingCenter=WTSI
 
@@ -89,14 +80,8 @@ public class CategoricalChartAndTableProvider {
 		.getResults();
 		// should get one for each sex here if there is a result for each
 		// experimental sex
-		CategoricalChartDataObject chartData = new CategoricalChartDataObject();// make
-																				// a
-																				// chart
-																				// object
-																				// one
-																				// for
-																				// both
-																				// sexes
+		CategoricalChartDataObject chartData = new CategoricalChartDataObject();
+		// make a chart object one for both sexes
 		for (SexType sexType : experiment.getSexes()) {
 
 			categoricalResultAndCharts.setStatsResults(statsResults);
@@ -200,22 +185,8 @@ public class CategoricalChartAndTableProvider {
 				}
 				chartData.add(zTypeSet);
 			}
-			categoricalResultAndCharts.setOrganisation(experiment.getOrganisation());// add
-																						// it
-																						// here
-																						// before
-																						// check
-																						// so
-																						// we
-																						// can
-																						// see
-																						// the
-																						// organisation
-																						// even
-																						// if
-																						// no
-																						// graph
-																						// data
+			categoricalResultAndCharts.setOrganisation(experiment.getOrganisation());
+			// add it here before check so we can see the organisation even if no graph data
 
 		}// end of gender
 
@@ -227,29 +198,17 @@ public class CategoricalChartAndTableProvider {
 	}
 
 
-	public List<ChartData> doCategoricalDataOverview(CategoricalSet controlSet,
-	CategoricalSet mutantSet,
-	Model model,
-	Parameter parameter)
+	public List<ChartData> doCategoricalDataOverview(CategoricalSet controlSet, CategoricalSet mutantSet, Model model, Parameter parameter,
+		String procedureName)
 	throws SQLException {
 
 		// do the charts
 		ChartData chartData = new ChartData();
 		List<ChartData> categoricalResultAndCharts = new ArrayList<ChartData>();
-		if (mutantSet.getCount() > 0 && controlSet.getCount() > 0) {// if size
-																	// is
-																	// greater
-																	// than one
-																	// i.e. we
-																	// have more
-																	// than the
-																	// control
-																	// data then
-																	// draw
-																	// charts
-																	// and
-																	// tables
-			String chartNew = this.createCategoricalHighChartUsingObjectsOverview(controlSet, mutantSet, model, parameter, chartData);
+		if (mutantSet.getCount() > 0 && controlSet.getCount() > 0) {
+			// if size is greater than one i.e. we have more than the control data then
+			// draw charts and tables
+			String chartNew = this.createCategoricalHighChartUsingObjectsOverview(controlSet, mutantSet, model, parameter, procedureName, chartData);
 			chartData.setChart(chartNew);
 			categoricalResultAndCharts.add(chartData);
 		}
@@ -260,7 +219,7 @@ public class CategoricalChartAndTableProvider {
 	private String createCategoricalHighChartUsingObjectsOverview(CategoricalSet controlSet,
 	CategoricalSet mutantSet,
 	Model model,
-	Parameter parameter,
+	Parameter parameter, String procedureName,
 	ChartData chartData)
 	throws SQLException {
 
@@ -268,17 +227,11 @@ public class CategoricalChartAndTableProvider {
 		JSONArray seriesArray = new JSONArray();
 		JSONArray xAxisCategoriesArray = new JSONArray();
 		String title = parameter.getName();
-		String subtitle = parameter.getStableId();
+		String subtitle = procedureName ; // parameter.getStableId();
 
 		// get a list of unique categories
-		HashMap<String, List<Long>> categories = new LinkedHashMap<String, List<Long>>();// keep
-																							// the
-																							// order
-																							// so
-																							// we
-																							// have
-																							// normal
-																							// first!
+		HashMap<String, List<Long>> categories = new LinkedHashMap<String, List<Long>>();
+		// keep the order so we have normal first!
 		for (CategoricalDataObject catObject : controlSet.getCatObjects()) {
 			String category = catObject.getCategory();
 			categories.put(category, new ArrayList<Long>());

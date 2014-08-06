@@ -24,6 +24,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl;
 import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
@@ -51,8 +52,7 @@ public class OverviewChartsController {
 	
 	@Autowired
 	GenotypePhenotypeService gpService;
-	
-	
+
 	public OverviewChartsController(){
 
 	}
@@ -88,6 +88,9 @@ public class OverviewChartsController {
 		List<String> genes = null;
 		String[] centerToFilter = center;
 		
+		// Working under the assumption that different versions of a procedure will keep the same name. 
+		String procedureName = p.getProcedures().iterator().next().getName();
+		
 		if (p != null){
 						
 			genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
@@ -103,7 +106,7 @@ public class OverviewChartsController {
 				controlSet.setName("Control");
 				CategoricalSet mutantSet = os.getCategories(p, (ArrayList<String>) genes, "experimental", OVERVIEW_STRAINS, centerToFilter, sex);
 				mutantSet.setName("Mutant");
-				chartRes = cctp.doCategoricalDataOverview(controlSet, mutantSet, model, p).get(0);
+				chartRes = cctp.doCategoricalDataOverview(controlSet, mutantSet, model, p, procedureName).get(0);
 			}
 			
 			else if ( Utilities.checkType(p).equals(ObservationType.time_series) ){
@@ -117,7 +120,7 @@ public class OverviewChartsController {
 			
 			else if ( Utilities.checkType(p).equals(ObservationType.unidimensional) ){
 				StackedBarsData data = os.getUnidimensionalData(p, genes, OVERVIEW_STRAINS, "experimental", centerToFilter, sex);
-				chartRes = uctp.getStackedHistogram(data, p);
+				chartRes = uctp.getStackedHistogram(data, p, procedureName);
 			}
 			
 			if (chartRes != null && center == null && sex == null){ // we don't do a filtering
