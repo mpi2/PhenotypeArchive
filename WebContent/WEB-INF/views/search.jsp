@@ -167,6 +167,7 @@
        				oUrlParams.noFq = true;
        			}
 
+       			//console.log(oUrlParams);
        			$.fn.fetchSolrFacetCount(oUrlParams);	
        		}
        		else {
@@ -334,7 +335,7 @@
 	       			// this causes dropdown list putshed up or down but not disappear
      		        if(e.which === 13) {
      		            $(".ui-menu-item").hide();
-     		        }})      		
+     		    }})      		
 	       		.data("ui-autocomplete")._renderItem = function( ul, item) { // prevents HTML tags being escaped
        				return $( "<li></li>" ) 
      				  .data( "item.autocomplete", item )
@@ -585,15 +586,15 @@
 						+ '</p>'
 						+ '<h5>Phenotype query examples</h5>'
 						+ '<p>'					
-						+ '<a href="${baseUrl}/search?q=abnormal skin morphology#fq=*:*&facet=mp">abnormal skin morphology</a>'
+						+ '<a href="${baseUrl}/search?q=abnormal skin morphology#fq=top_level_mp_term:*&facet=mp">abnormal skin morphology</a>'
 						+ '- looking for a specific phenotype'
 						+ '<br>'
-						+ '<a href="${baseUrl}/search?q=ear#fq=*:*&facet=mp">ear</a>'
+						+ '<a href="${baseUrl}/search?q=ear#fq=top_level_mp_term:*&facet=mp">ear</a>'
 						+ '- find all ear related phenotypes'
 						+ '</p>'
 						+ '<h5>Procedure query Example</h5>'
 						+ '<p>'
-						+ '<a href="${baseUrl}/search?q=grip strength#fq=*:*&facet=pipeline">grip strength</a>'
+						+ '<a href="${baseUrl}/search?q=grip strength#fq=pipeline_stable_id:*&facet=pipeline">grip strength</a>'
 						+ '- looking for a specific procedure'
 						+ '</p>'
 						+ '<h5>Phrase query Example</h5>'
@@ -603,7 +604,7 @@
 						+ '</p>'
 						+ '<h5>Phrase wildcard query Example</h5>'
 						+ '<p>'
-						+ '<a href="${baseUrl}/search?q=abnormal phy*#fq=*:*&facet=mp">abnormal phy*</a>'
+						+ '<a href="${baseUrl}/search?q=abnormal phy*#fq=top_level_mp_term:*&facet=mp">abnormal phy*</a>'
 						+ '- can look for phenotypes that contain abnormal phenotype or abnormal physiology.<br>'
 						+ 'Supported queries are a mixture of word with *, eg. abn* immune phy*.<br>NOTE that leading wildcard, eg. *abnormal is not supported.'
 						+ '</p>';

@@ -23,7 +23,7 @@
 (function($){		
 	
 	$.fn.parseUrl_constructFilters_loadDataTable = function(oConf){
-	//console.log(oConf);
+		//console.log(oConf);
 		var oConf1 = oConf;
 		MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount = 0;
 		var q = oConf.q;
@@ -129,7 +129,6 @@
 		
 		
 		MPI2.searchAndFacetConfig.update.filterChange = false;
-		//console.log(oConf1);
 		$.fn.loadDataTable(oConf1);
 		
 	};
@@ -1567,10 +1566,11 @@
 		searchKw += q == '*:*' ? '""' : '"' + q + '"';	
 		
 		var dataCount = "Found <span id='resultCount'><span id='annotCount'></span><a></a></span>";    	
-    	//var resultMsg = $("<div id='resultMsg'></div>").append(imgViewSwitcher, dataCount, ' for ' + filterStr + decodeURI(searchKw));    	
-    	var resultMsg = $("<div id='resultMsg'></div>").append(imgViewSwitcher, dataCount);  	
+		var resultMsg = $("<div id='resultMsg'></div>").append(imgViewSwitcher, dataCount);  
+		
     	$('div#mpi2-search').html('');
-    	$('div#mpi2-search').append(resultMsg, dTable);    	
+    	$('div#mpi2-search').append(resultMsg, dTable);   
+		
     }
     
     function convert_proc_id_2_name(userFqStr){
@@ -1821,126 +1821,127 @@
     		"fnDrawCallback": function( oSettings ) {  // when dataTable is loaded
     			
     			//console.log(oDtable.fnGetData().length); // rows on current page
-    			// bring in some control logic for image view switcher when dataTable is loaded
-    			if ( oInfos.widgetName == 'imagesFacet' ){    				
-    				$('span#imgViewSwitcher').click(function(){	
-    		   			
-    		   			var oConf = MPI2.searchAndFacetConfig.facetParams.imagesFacet;  
-    		   			
-    		   			/*if ( oConf.imgViewSwitcherDisplay == 'Show Annotation View'){
-    		   			
-    		   				oConf.imgViewSwitcherDisplay = 'Show Image View'; 
-    		   				oConf.viewLabel = 'Annotation View: groups images by annotation';    		   				
-    		   				oConf.viewMode = 'annotView';    		   				
-    		   				oConf.showImgView = false;
-    		   				oInfos.showImgView = false; 
-    		   			}
-    		   			else {
-    		   				$.fn.setDefaultImgSwitcherConf(); 
-    		   				oInfos.showImgView = true;   		   				
-    		   			}*/
-    		   			
-    		   			if ( oConf.imgViewSwitcherDisplay == 'Show Image View'){
-        		   			
-    		   				oConf.imgViewSwitcherDisplay = 'Show Annotation View'; 
-    		   				oConf.viewLabel = 'Image View: lists annotations to an image';    		   				
-    		   				oConf.viewMode = 'imgView';    		   				
-    		   				oConf.showImgView = true;
-    		   				oInfos.showImgView = true; 
-    		   			}
-    		   			else {
-    		   				$.fn.setDefaultImgSwitcherConf(); 
-    		   				oInfos.showImgView = false;   		   				
-    		   			}
-    		   			
-    		   			_prepare_resultMsg_and_dTableSkeleton(oInfos);
-    		   			
-    		   			$.fn.invokeDataTable(oInfos);   
-    		   			
-    		   		});   
-    			}  
-    			    			
-    			displayDataTypeResultCount(oInfos, this.fnSettings().fnRecordsTotal());
-   				
-    			// IE fix, as this style in CSS is not working for IE8 
-    			if ( $('table#geneGrid').size() == 1 ){
-    				$('table#geneGrid th:nth-child(1)').width('45%');
-    			}		
-    			    			
-    			$('a.interest').click(function(){
-    				
-    				var mgiId = $(this).attr('id');
-    				var label = $(this).text();
-    				var regBtn = $(this);  
-    				
-    				$.ajax({
-    					url: '/toggleflagfromjs/' + mgiId,                       
-    					success: function (response) {
-    						//console.log('success');
-    						
-    						if(response === 'null') {
-    							window.alert('Null error trying to register interest');
-    						} 
-    						else {    							
-    							// 3 labels (before login is 'Interest')    							
-    							//compare using the actual raw character for &nbsp;
-    							if( label == String.fromCharCode(160)+'Register interest' ) {    								
-    								regBtn.text(String.fromCharCode(160) + 'Unregister interest');    								    								
-    								regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out')
-    									.parent().attr('oldtitle', 'Unregister interest')
-    									.qtip({       			
-    				    					style: { classes: 'qtipimpc flat' },
-    				    					position: { my: 'top center', at: 'bottom center' },    					
-    				    					content: { text: $(this).attr('oldtitle')}
-    				    					});	// refresh tooltip    								
-    							} 
-    							else if (label == String.fromCharCode(160)+'Unregister interest'){    							
-    								regBtn.text(String.fromCharCode(160) + 'Register interest');    								
-    								regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in')
-    									.parent().attr('oldtitle', 'Register interest')
-    									.qtip({       			
-    										style: { classes: 'qtipimpc flat' },
-    										position: { my: 'top center', at: 'bottom center' },    					
-    										content: { text: $(this).attr('oldtitle')}
-				    						}); // refresh tooltip
-    							}    							                           
-    						}                         
-                        },
-                        error: function () {
-                        	window.alert('AJAX error trying to register interest');                     
-                        }
-                    });
-    				return false;    		    	  
-    			});
-    			
-    			// applied when result page first loads
-    			$('div.registerforinterest, td .status').each(function(){
-    				$(this).qtip({       			
-    					style: { classes: 'qtipimpc flat' },
-    					position: { my: 'top center', at: 'bottom center' },    					
-    					content: { text: $(this).attr('oldtitle')}
-    				});	
-    			});    			   			
-    			
-    			initDataTableDumpControl(oInfos);
-    			
-    			var configs = MPI2.searchAndFacetConfig.update;
-    			
-    			// reason of this second call is for image annotView to get the correct image count
-    			// when page is reloaded or back button is clicked as facet filters are reconstructed from 
-    			// url and cannot rely on ajax to get the latest count  
-    			if (oInfos.facetName == 'images' ){
-    				setImageFacetSumCount(oInfos);
+    			if (oDtable.fnGetData().length > 0){
+	    			// bring in some control logic for image view switcher when dataTable is loaded
+	    			if ( oInfos.widgetName == 'imagesFacet' ){    				
+	    				$('span#imgViewSwitcher').click(function(){	
+	    		   			
+	    		   			var oConf = MPI2.searchAndFacetConfig.facetParams.imagesFacet;  
+	    		   			
+	    		   			/*if ( oConf.imgViewSwitcherDisplay == 'Show Annotation View'){
+	    		   			
+	    		   				oConf.imgViewSwitcherDisplay = 'Show Image View'; 
+	    		   				oConf.viewLabel = 'Annotation View: groups images by annotation';    		   				
+	    		   				oConf.viewMode = 'annotView';    		   				
+	    		   				oConf.showImgView = false;
+	    		   				oInfos.showImgView = false; 
+	    		   			}
+	    		   			else {
+	    		   				$.fn.setDefaultImgSwitcherConf(); 
+	    		   				oInfos.showImgView = true;   		   				
+	    		   			}*/
+	    		   			
+	    		   			if ( oConf.imgViewSwitcherDisplay == 'Show Image View'){
+	        		   			
+	    		   				oConf.imgViewSwitcherDisplay = 'Show Annotation View'; 
+	    		   				oConf.viewLabel = 'Image View: lists annotations to an image';    		   				
+	    		   				oConf.viewMode = 'imgView';    		   				
+	    		   				oConf.showImgView = true;
+	    		   				oInfos.showImgView = true; 
+	    		   			}
+	    		   			else {
+	    		   				$.fn.setDefaultImgSwitcherConf(); 
+	    		   				oInfos.showImgView = false;   		   				
+	    		   			}
+	    		   			
+	    		   			_prepare_resultMsg_and_dTableSkeleton(oInfos);
+	    		   			
+	    		   			$.fn.invokeDataTable(oInfos);   
+	    		   			
+	    		   		});   
+	    			}  
+	    			    			
+	    			displayDataTypeResultCount(oInfos, this.fnSettings().fnRecordsTotal());
+	   				
+	    			// IE fix, as this style in CSS is not working for IE8 
+	    			if ( $('table#geneGrid').size() == 1 ){
+	    				$('table#geneGrid th:nth-child(1)').width('45%');
+	    			}		
+	    			    			
+	    			$('a.interest').click(function(){
+	    				
+	    				var mgiId = $(this).attr('id');
+	    				var label = $(this).text();
+	    				var regBtn = $(this);  
+	    				
+	    				$.ajax({
+	    					url: '/toggleflagfromjs/' + mgiId,                       
+	    					success: function (response) {
+	    						//console.log('success');
+	    						
+	    						if(response === 'null') {
+	    							window.alert('Null error trying to register interest');
+	    						} 
+	    						else {    							
+	    							// 3 labels (before login is 'Interest')    							
+	    							//compare using the actual raw character for &nbsp;
+	    							if( label == String.fromCharCode(160)+'Register interest' ) {    								
+	    								regBtn.text(String.fromCharCode(160) + 'Unregister interest');    								    								
+	    								regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out')
+	    									.parent().attr('oldtitle', 'Unregister interest')
+	    									.qtip({       			
+	    				    					style: { classes: 'qtipimpc flat' },
+	    				    					position: { my: 'top center', at: 'bottom center' },    					
+	    				    					content: { text: $(this).attr('oldtitle')}
+	    				    					});	// refresh tooltip    								
+	    							} 
+	    							else if (label == String.fromCharCode(160)+'Unregister interest'){    							
+	    								regBtn.text(String.fromCharCode(160) + 'Register interest');    								
+	    								regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in')
+	    									.parent().attr('oldtitle', 'Register interest')
+	    									.qtip({       			
+	    										style: { classes: 'qtipimpc flat' },
+	    										position: { my: 'top center', at: 'bottom center' },    					
+	    										content: { text: $(this).attr('oldtitle')}
+					    						}); // refresh tooltip
+	    							}    							                           
+	    						}                         
+	                        },
+	                        error: function () {
+	                        	window.alert('AJAX error trying to register interest');                     
+	                        }
+	                    });
+	    				return false;    		    	  
+	    			});
+	    			
+	    			// applied when result page first loads
+	    			$('div.registerforinterest, td .status').each(function(){
+	    				$(this).qtip({       			
+	    					style: { classes: 'qtipimpc flat' },
+	    					position: { my: 'top center', at: 'bottom center' },    					
+	    					content: { text: $(this).attr('oldtitle')}
+	    				});	
+	    			});    			   			
+	    			
+	    			initDataTableDumpControl(oInfos);
+	    			
+	    			var configs = MPI2.searchAndFacetConfig.update;
+	    			
+	    			// reason of this second call is for image annotView to get the correct image count
+	    			// when page is reloaded or back button is clicked as facet filters are reconstructed from 
+	    			// url and cannot rely on ajax to get the latest count  
+	    			if (oInfos.facetName == 'images' ){
+	    				setImageFacetSumCount(oInfos);
+	    			}
+	    			
+	   				configs.filterObj = [];
+	   				configs.widgetOpen = false;
+	   				configs.pageReload = false;
+	   				configs.rebuildSummaryFilterCount = 0;
+	   				configs.resetSummaryFacet = false;
+	   				configs.filterAdded = false;
+	   				configs.filterChange = false;
     			}
-    			
-   				configs.filterObj = [];
-   				configs.widgetOpen = false;
-   				configs.pageReload = false;
-   				configs.rebuildSummaryFilterCount = 0;
-   				configs.resetSummaryFacet = false;
-   				configs.filterAdded = false;
-   				configs.filterChange = false;
-    			
     		},
     		"sAjaxSource": oInfos.dataTablePath,    		
     		"fnServerParams": function ( aoData ) {    			
