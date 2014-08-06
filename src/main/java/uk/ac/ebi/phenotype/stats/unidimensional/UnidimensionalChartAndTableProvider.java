@@ -339,7 +339,7 @@ public class UnidimensionalChartAndTableProvider {
 		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + colorArray 
 			+ ", chart: { type: 'boxplot', renderTo: 'chart" + experimentNumber + "'},  "
 			+ " tooltip: { formatter: function () { if(typeof this.point.high === 'undefined'){ return '<b>Observation</b><br/>' + this.point.y; } else { return '<b>Genotype: ' + this.key + '</b><br/>LQ - 1.5 * IQR: ' + this.point.low + '<br/>Lower Quartile: ' + this.point.options.q1 + '<br/>Median: ' + this.point.options.median + '<br/>Upper Quartile: ' + this.point.options.q3 + '<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '</b>'; } } }    ,"
-			+ " title: { text: '" + parameter.getName() + "' } , "
+			+ " title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + parameter.getName() + "</span>', useHTML:true } , "
 			+ " credits: { enabled: false },  "
 			+ " subtitle: { useHTML: true,  text: '"+procedureDescription+"', x: -20 }, "
 			+ " legend: { enabled: false }, "
@@ -368,12 +368,12 @@ public class UnidimensionalChartAndTableProvider {
 	}
 
 
-	public ChartData getStackedHistogram(StackedBarsData map, Parameter parameter) {
+	public ChartData getStackedHistogram(StackedBarsData map, Parameter parameter, String procedureName) {
 
 		// http://jsfiddle.net/gh/get/jquery/1.9.1/highslide-software/highcharts.com/tree/master/samples/highcharts/demo/column-stacked/
 		if (map == null) { return new ChartData(); }
 		String title = parameter.getName();
-		String subtitle = parameter.getStableId();
+		String subtitle = procedureName;// parameter.getStableId();
 		String xLabel = parameter.getUnit();
 		ArrayList<Double> control = map.getControlMutatns();
 		ArrayList<Double> mutant = map.getPhenMutants();
@@ -422,11 +422,23 @@ public class UnidimensionalChartAndTableProvider {
 		// http://www.highcharts.com/demo/line-ajax
 		// http://jsfiddle.net/gh/get/jquery/1.7.2/highslide-software/highcharts.com/tree/master/samples/highcharts/plotoptions/series-point-events-click-column/
 		// http://jsfiddle.net/gh/get/jquery/1.7.2/highslide-software/highcharts.com/tree/master/samples/highcharts/xaxis/labels-formatter-linked/
-		ArrayList<String> controlUrls = new ArrayList<>();
 
 		String chartId = parameter.getStableId();
 		String yTitle = "Number of lines";
-		String javascript = "$(document).ready(function() {" + "chart = new Highcharts.Chart({ colors:['rgba(239, 123, 11,0.7)','rgba(9, 120, 161,0.7)'], chart: {  type: 'column' , renderTo: 'single-chart-div'}," + " title: { text: '" + title + "' }," + " subtitle: { text: '" + subtitle + "'}," + " credits: { enabled: false }," + " xAxis: { categories: " + labels + ", " + "labels: {formatter:function(){ return this.value.split('###')[0]; }, rotation: -45} , title: { text: '" + xLabel + "'} }," + " yAxis: { min: " + min + ",  title: {  text: '" + yTitle + "'  }, stackLabels: { enabled: false}  }," + " tooltip: { " + "formatter: function() { " + "if ('Mutant strains with no calls for this phenotype' === this.series.name )" + "return ''+  this.series.name +': '+ this.y + ' out of '+ this.point.stackTotal + '<br/>Genes: ' +  this.x.split('###')[1];  " + "else return ''+  this.series.name +': '+ this.y + ' out of '+ this.point.stackTotal + '<br/>Genes: ' +  this.x.split('###')[2];}  }, " + " plotOptions: { column: {  stacking: 'normal',  dataLabels: { enabled: false} }, " + "series: { cursor: 'pointer', point: { events: { click: function() { " + "var url = document.URL.split('/phenotypes/')[0];" + "if ('Mutant strains with no calls for this phenotype' === this.series.name) {" + "url += '/charts?' + this.category.split('###')[3];" + "} else {" + "url += '/charts?' + this.category.split('###')[4];" + "} " + "url += '&parameter_stable_id=" + parameter.getStableId() + "';" + "window.open(url); " + "console.log(url);" + "} } } }" + "} ," + " series: [{ name: 'Mutant strains with this phenotype called',  data: " + mutant + "  }, {name: 'Mutant strains with no calls for this phenotype', data: " + control + "}]" + " });  }); ";
+		String javascript = "$(document).ready(function() {" + "chart = new Highcharts.Chart({ "
+		+ "	colors:['rgba(239, 123, 11,0.7)','rgba(9, 120, 161,0.7)'],"
+		+ " chart: {  type: 'column' , renderTo: 'single-chart-div'}," + 
+		" title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + title + "</span>', useHTML:true  }," + 
+		" subtitle: { text: '" + subtitle + "'}," + 
+		" credits: { enabled: false }," + 
+		" xAxis: { categories: " + labels + ", " + 
+			"labels: {formatter:function(){ return this.value.split('###')[0]; }, rotation: -45} , "
+			+ "title: { text: '" + xLabel + "'} }," + 
+		" yAxis: { min: " + min + ",  "
+			+ "	title: {  text: '" + yTitle + "'  }, "
+			+ "stackLabels: { enabled: false}  }," + " "
+			+ "tooltip: { " + "formatter: function() { " + "if ('Mutant strains with no calls for this phenotype' === this.series.name )" + "return ''+  this.series.name +': '+ this.y + ' out of '+ this.point.stackTotal + '<br/>Genes: ' +  this.x.split('###')[1];  " + "else return ''+  this.series.name +': '+ this.y + ' out of '+ this.point.stackTotal + '<br/>Genes: ' +  this.x.split('###')[2];}  }, " + " "
+		+ "plotOptions: { column: {  stacking: 'normal',  dataLabels: { enabled: false} }, " + "series: { cursor: 'pointer', point: { events: { click: function() { " + "var url = document.URL.split('/phenotypes/')[0];" + "if ('Mutant strains with no calls for this phenotype' === this.series.name) {" + "url += '/charts?' + this.category.split('###')[3];" + "} else {" + "url += '/charts?' + this.category.split('###')[4];" + "} " + "url += '&parameter_stable_id=" + parameter.getStableId() + "';" + "window.open(url); " + "console.log(url);" + "} } } }" + "} ," + " series: [{ name: 'Mutant strains with this phenotype called',  data: " + mutant + "  }, {name: 'Mutant strains with no calls for this phenotype', data: " + control + "}]" + " });  }); ";
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setId(chartId);

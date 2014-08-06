@@ -295,7 +295,6 @@ $(document).ready(function(){
 
 });
 
-
  /* new sorting functions */
 //http://datatables.net/forums/discussion/5894/datatable-sorting-scientific-notation
 jQuery.fn.dataTableExt.oSort['allnumeric-asc']  = function(a,b) {
