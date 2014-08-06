@@ -339,7 +339,7 @@ public class UnidimensionalChartAndTableProvider {
 		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + colorArray 
 			+ ", chart: { type: 'boxplot', renderTo: 'chart" + experimentNumber + "'},  "
 			+ " tooltip: { formatter: function () { if(typeof this.point.high === 'undefined'){ return '<b>Observation</b><br/>' + this.point.y; } else { return '<b>Genotype: ' + this.key + '</b><br/>LQ - 1.5 * IQR: ' + this.point.low + '<br/>Lower Quartile: ' + this.point.options.q1 + '<br/>Median: ' + this.point.options.median + '<br/>Upper Quartile: ' + this.point.options.q3 + '<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '</b>'; } } }    ,"
-			+ " title: { text: '" + parameter.getName() + "' } , "
+			+ " title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + parameter.getName() + "</span>', useHTML:true } , "
 			+ " credits: { enabled: false },  "
 			+ " subtitle: { useHTML: true,  text: '"+procedureDescription+"', x: -20 }, "
 			+ " legend: { enabled: false }, "
@@ -428,7 +428,7 @@ public class UnidimensionalChartAndTableProvider {
 		String javascript = "$(document).ready(function() {" + "chart = new Highcharts.Chart({ "
 		+ "	colors:['rgba(239, 123, 11,0.7)','rgba(9, 120, 161,0.7)'],"
 		+ " chart: {  type: 'column' , renderTo: 'single-chart-div'}," + 
-		" title: { text: '" + title + "' }," + 
+		" title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + title + "</span>', useHTML:true  }," + 
 		" subtitle: { text: '" + subtitle + "'}," + 
 		" credits: { enabled: false }," + 
 		" xAxis: { categories: " + labels + ", " + 

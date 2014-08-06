@@ -289,7 +289,7 @@ public class CategoricalChartAndTableProvider {
 		+ "colors:" + colorArray + ", "
 		+ "tooltip: {  pointFormat: '{series.name}: <b>{point.y}</b>'},"
 		+ "chart: { renderTo: '" + chartId + "', type: 'column' }, "
-		+ "title: { text: '" + WordUtils.capitalize(title) + "' }, "
+		+ "title: { text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + WordUtils.capitalize(title) + "</span>', useHTML:true }, "
 		+ "subtitle: { text:'" + subtitle + "'}, credits: { enabled: false }, "
 		+ "xAxis: { categories: " + xAxisCategoriesArray + "}, "
 		+ "yAxis: { min: 0, title: { text: 'Percent Occurrence' } ,  "
@@ -407,16 +407,17 @@ public class CategoricalChartAndTableProvider {
 		+ chartId
 		+ "; $(document).ready(function() { chart_"
 		+ chartId
-		+ " = new Highcharts.Chart({ tooltip : "
-		+ toolTipFunction
+		+ " = new Highcharts.Chart({ "
+		+ "tooltip : "+ toolTipFunction
 		+ ", colors:" + colorArray
-		+ ", chart: { renderTo: 'chart"
-		+ chartId
-		+ "', type: 'column' }, title: { text: '"
-		+ title + "' }, credits: { enabled: false }, subtitle: {  useHTML: true,  text: '" + procedureDescription + "', x: -20 }, xAxis: { categories: "
-		+ xAxisCategoriesArray
-		+ "}, yAxis: { min: 0, title: { text: 'Percent Occurrence' } ,  labels: {       formatter: function() { return this.value +'%';   }  }},  plotOptions: { column: { stacking: 'percent' } }, series: "
-		+ seriesArray + " });   });});";
+		+ ", chart: { renderTo: 'chart"	+ chartId + "', type: 'column' }, "
+		+ "title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + WordUtils.capitalize(title) + "</span>', useHTML:true  }, "
+		+ "credits: { enabled: false }, "
+		+ "subtitle: {  useHTML: true,  text: '" + procedureDescription + "', x: -20 }, "
+		+ "xAxis: { categories: "+ xAxisCategoriesArray+ "}, "
+		+ "yAxis: { min: 0, title: { text: 'Percent Occurrence' } ,  labels: {       formatter: function() { return this.value +'%';   }  }},  "
+		+ "plotOptions: { column: { stacking: 'percent' } }, "
+		+ "series: "+ seriesArray + " });   });});";
 		// logger.debug(javascript);
 		// categoricalBarCharts.add(javascript);
 		chartData.setChart(javascript);

@@ -9,7 +9,6 @@ import uk.ac.ebi.phenotype.pojo.SexType;
 
 public class CategoricalChartDataObject {
 	List<CategoricalSet> categoricalSets;
-	private SexType sexType;
 	private String chart="";
 	private String chartIdentifier="";
 	private BiologicalModel biologicalModel=new BiologicalModel();//one bm per chart???
