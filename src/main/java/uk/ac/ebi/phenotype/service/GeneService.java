@@ -613,7 +613,7 @@ public class GeneService {
 	 *            represents a gene with imits status fields
 	 * @return the latest status at the gene level for ES cells and all statuses at the allele level for mice as a comma separated string
 	 */
-	public String deriveProductionStatusForEsCellAndMice(JSONObject doc, HttpServletRequest request, boolean toExport){		
+	public String getProductionStatusForEsCellAndMice(JSONObject doc, HttpServletRequest request, boolean toExport){		
 		
 		String esCellStatus = getEsCellStatus(doc, request, toExport);		
 		String miceStatus = "";		
