@@ -460,8 +460,32 @@ public class GenotypePhenotypeService extends BasicService {
 		List<? extends StatisticalResult> statisticalResult = this.createStatsResultFromSolr(solrUrl, observationType);
 		return statisticalResult;
 	}
+	
+	/**
+	 * Returns a PhenotypeFacetResult object given a list of genes
+	 * @param genomicFeatures list of marker accession
+	 * @return
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	public PhenotypeFacetResult getPhenotypeFacetResultByGenomicFeatures(List<String> genomicFeatures)
+	throws IOException, URISyntaxException {
 
-
+		String solrUrl = solr.getBaseURL();// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
+		System.out.println("SOLR URL = " + solrUrl);
+		// build OR query from a list of genes (assuming they have MGI ids
+		StringBuilder geneClause = new StringBuilder(genomicFeatures.size()*15);
+		boolean start = true;
+		for (String genomicFeatureAcc: genomicFeatures) {
+			geneClause.append((start)?genomicFeatureAcc:" OR "+genomicFeatureAcc);
+			start = false;
+		}
+		
+		solrUrl += "/select/?q=" + GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + geneClause.toString() + "\"" + "&facet=true" + "&facet.field=" + GenotypePhenotypeDTO.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeDTO.PROCEDURE_NAME + "&facet.field=" + GenotypePhenotypeDTO.MARKER_SYMBOL + "&facet.field=" + GenotypePhenotypeDTO.MP_TERM_NAME + "&sort=p_value%20asc" + "&rows=10000000&version=2.2&start=0&indent=on&wt=json";
+		System.out.println("SOLR URL = " + solrUrl);
+		return this.createPhenotypeResultFromSolrResponse(solrUrl);
+	}
+	
 	/**
 	 * Returns a PhenotypeFacetResult object given a phenotyping center and a
 	 * pipeline stable id

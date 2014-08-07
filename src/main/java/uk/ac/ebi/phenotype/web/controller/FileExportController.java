@@ -65,6 +65,7 @@ import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.pojo.Strain;
 import uk.ac.ebi.phenotype.service.ExperimentService;
+import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
@@ -83,6 +84,9 @@ public class FileExportController {
     @Autowired
     private SolrIndex solrIndex;
 
+	@Autowired
+	private GeneService geneService;
+    
     @Autowired
     private PhenotypePipelineDAO ppDAO;
 
@@ -251,7 +255,7 @@ public class FileExportController {
             }
 
             if (solrCoreName.equalsIgnoreCase("experiment")) {
-            	ArrayList<Integer> phenotypingCenterIds = new ArrayList();
+            	ArrayList<Integer> phenotypingCenterIds = new ArrayList<Integer>();
                 try {
                     for (int i = 0; i < phenotypingCenter.length; i ++) {
                         phenotypingCenterIds.add(organisationDao.getOrganisationByName(phenotypingCenter[i].replaceAll("%20", " ")).getId());
@@ -641,7 +645,7 @@ public class FileExportController {
 
             // ES/Mice production status			
             boolean toExport = true;
-            String prodStatus = solrIndex.deriveProductionStatusForEsCellAndMice(doc, request, toExport);
+            String prodStatus = geneService.getProductionStatusForEsCellAndMice(doc, request, toExport);
             data.add(prodStatus);
 
             // phenotyping status
