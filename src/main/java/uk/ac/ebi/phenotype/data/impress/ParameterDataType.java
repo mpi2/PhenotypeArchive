@@ -33,5 +33,7 @@ public class ParameterDataType {
 		MAPPING.put("M-G-P_022_001_001_001", "FLOAT");
 		MAPPING.put("M-G-P_022_001_001", "FLOAT");
 		
+		MAPPING.put("ESLIM_006_001_035", "FLOAT");
+		
 	}
 }
