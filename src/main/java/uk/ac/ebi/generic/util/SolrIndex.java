@@ -223,38 +223,7 @@ public class SolrIndex {
 	}
 
 
-	/**
-	 * Get the latest phenotyping status for a document.
-	 * 
-	 * @param doc
-	 *            represents a gene with imits status fields
-	 * @return the latest status (Complete or Started or Phenotype Attempt
-	 *         Registered) as appropriate for this gene
-	 */
-	public String deriveLatestPhenotypingStatus(JSONObject doc){
 
-		final String field = "latest_phenotype_status";
-		try {	
-			// Phenotyping complete			
-			if ( doc.containsKey(field) && !doc.getString(field).equals("") ) {
-				String val = doc.getString(field);
-				if ( val.equals("Phenotyping Started") || val.equals("Phenotyping Complete") ) {
-					return "Available";					
-				}
-			}		
-	
-			// for legacy data: indexed through experiment core (so not want Sanger Gene or Allele cores)
-			if (doc.containsKey("hasQc")) {				
-				return "QC";			
-			}
-		}		
-		catch (Exception e) {
-			log.error("Error getting phenotyping status");
-			log.error(e.getLocalizedMessage());
-		}
-			
-		return "NA";
-	}
 	/*public String deriveLatestPhenotypingStatus(JSONObject doc) {
 
 		// order of status: latest to oldest (IMPORTANT for deriving correct
@@ -422,7 +391,7 @@ public class SolrIndex {
 		return geneStatus;
 	}
 
-	public List<Map<String, String>> getGenesWithPhenotypeStartedFromAll()
+/*	public List<Map<String, String>> getGenesWithPhenotypeStartedFromAll()
 			throws IOException, URISyntaxException {
 		List<Map<String, String>> geneStatuses = new ArrayList<Map<String, String>>();
 		String url = config.get("internalSolrUrl")
@@ -459,7 +428,7 @@ public class SolrIndex {
 			}
 		}
 		return geneStatuses;
-	}
+	}*/
 
 	/**
 	 * Get the results of a query from the provided url.

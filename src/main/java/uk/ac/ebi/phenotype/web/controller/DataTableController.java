@@ -218,18 +218,8 @@ public class DataTableController {
 			String prodStatus = geneService.getLatestProductionStatusForEsCellAndMice(doc, request, toExport, geneLink);			
 			rowData.add(prodStatus);
 			
-			String phenoStatus = null;
-			if ( solrIndex.deriveLatestPhenotypingStatus(doc).equals("NA") ){
-				phenoStatus = "";
-			}
-			else if ( solrIndex.deriveLatestPhenotypingStatus(doc).equals("QC") ){
-				phenoStatus = "<a class='status qc' href='" + geneLink + "'><span>legacy data available</span></a>";
-			}
-			else {
-				phenoStatus = "<a class='status done' href='" + geneLink + "#section-associations'><span>phenotype data available</span></a>";
-			}
-			
-			rowData.add(phenoStatus);
+			String phenotypeStatusHTMLRepresentation = geneService.getPhenotypingStatus(doc, request, toExport);
+			rowData.add(phenotypeStatusHTMLRepresentation);
 			
 			// register of interest
 			if (registerInterest.loggedIn()) {

@@ -75,38 +75,6 @@ public class GeneService {
 	}
 
 	/**
-	 * Get the phenotyping status of a gene based on a SOLR document
-	 * @param doc 
-	 * @return
-	 */
-	private String getPhenotypingStatus(SolrDocument doc) {
-
-		String field = "latest_phenotype_status";
-		try {
-			// Phenotyping complete
-			if (doc.containsKey(field)
-					&& !doc.getFirstValue(field).toString().equals("")) {
-				String val = doc.getFirstValue(field).toString();
-				if (val.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED)
-						|| val.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE)) {
-					return "available";
-				}
-			}
-
-			// for legacy data: indexed through experiment core (so not want
-			// Sanger Gene or Allele cores)
-			if (doc.containsKey("hasQc")) {
-				return "QCed data available";
-			}
-		} catch (Exception e) {
-			log.error("Error getting phenotyping status");
-			log.error(e.getLocalizedMessage());
-		}
-
-		return "";
-	}
-
-	/**
 	 * Return all genes in the gene core matching latestPhenotypeStatus and
 	 * latestProductionCentre.
 	 * 
@@ -241,6 +209,66 @@ public class GeneService {
 
 	}
 
+	/**
+	 * Get the latest phenotyping status for a document.
+	 * 
+	 * @param doc
+	 *            represents a gene with imits status fields
+	 * @return the latest status (Complete or Started or Phenotype Attempt
+	 *         Registered) as appropriate for this gene
+	 */
+	public String getPhenotypingStatus(JSONObject doc, HttpServletRequest request, boolean toExport) {
+		
+		String mgiId = doc.getString("mgi_accession_id");
+		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;
+
+		final String statusField = GeneDTO.LATEST_PHENOTYPE_STATUS ;
+		String phenotypeStatusHTMLRepresentation = "";
+		String webStatus = "";
+		
+		try {	
+		
+			log.debug("getPhenotypingStatus :" + doc.getString(statusField));
+			log.debug("hasQC :" + doc.containsKey(GeneDTO.HAS_QC));
+			
+			System.out.println("getPhenotypingStatus :" + doc.getString(statusField));
+			System.out.println("hasQC :" + doc.containsKey(GeneDTO.HAS_QC));
+			
+			/*
+			 * 1. Check we have preQC/postQC IMPC data (started or completed) 		
+			 */
+			if ( doc.containsKey(statusField) && !doc.getString(statusField).isEmpty() ) {
+				String val = doc.getString(statusField);
+				
+				if ( val.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED) || 
+					 val.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE) ) {
+					webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_DATA_AVAILABLE;
+					phenotypeStatusHTMLRepresentation = "<a class='status done' href='" + geneUrl + "#section-associations'><span>"+webStatus+"</span></a>";
+				}
+			}
+	
+			/*
+			 * 2. If there is no preQC/postQC IMPC data we may still have legacy
+			 *    data in the back-end.
+			 *    This has been indexed with the hasQC field from the experimental
+			 *    core. 
+			 */
+			
+			else if (doc.containsKey(GeneDTO.HAS_QC)) {				
+				webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_LEGACY_DATA_AVAILABLE;
+				// <a class='status done' title='Scroll down for phenotype associations.'><span>phenotype data available</span></a>
+				phenotypeStatusHTMLRepresentation = "<a class='status qc' href='" + geneUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
+				System.out.println(phenotypeStatusHTMLRepresentation);
+			}	
+			
+		}		
+		catch (Exception e) {
+			log.error("Error getting phenotyping status");
+			log.error(e.getLocalizedMessage());
+		}
+			
+		return phenotypeStatusHTMLRepresentation;
+	}
 	
 	/**
 	 * Get the latest production status of ES cells for a document.
@@ -259,7 +287,7 @@ public class GeneService {
 		String esCellStatus = "";	
 		String exportEsCellStatus = "";	
 		try {	
-			final String field = "latest_es_cell_status"; 
+			final String field = GeneDTO.LATEST_ES_CELL_STATUS; //"latest_es_cell_status"; 
 			// ES cell production status
 			
 			if ( doc.containsKey(field)  ){
@@ -381,17 +409,16 @@ public class GeneService {
 	private Map<String, String> getStatusFromDoc(SolrDocument doc, HttpServletRequest request) {
 		
 		String miceStatus = "";
-		String esCellStatus = "";
-		String phenStatus = "";
+		String esCellStatusHTMLRepresentation = "";
+		String phenotypingStatusHTMLRepresentation = "";
 		Boolean order = false;
 		JSONObject jsondoc = JSONObject.fromObject(org.noggit.JSONUtil.toJSON(doc));
 
 		try {
-
-			/* ******** phenotype status ******** */
-			phenStatus = getPhenotypingStatus(doc).equals("") ? ""
-					: "<a class='status done' title='Scroll down for phenotype associations.'><span>"+StatusConstants.WEB_MOUSE_PHENOTYPING_DATA_AVAILABLE+"</span></a>";
-
+					
+			log.debug("getStatusFromDoc - " + jsondoc);
+			System.out.println("getStatusFromDoc - " + jsondoc);
+			
 			/* ******** mice production status ******** */
 			String patternStr = "(tm.*)\\(.+\\).+"; // allele name pattern
 			Pattern pattern = Pattern.compile(patternStr);
@@ -420,7 +447,7 @@ public class GeneService {
 									+ "	<span>Mice<br>" + alleleType
 									+ "</span>" + "</span>";
 						}
-						order = true;
+						
 					} else if (mouseStatusStr
 							.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_IN_PROGRESS)) {
 						String alleleName = alleleNames.get(i).toString();
@@ -437,47 +464,84 @@ public class GeneService {
 
 			}
 			
-			esCellStatus = getEsCellStatus(jsondoc, request, false);
+			/*
+			 * Get the HTML representation of the ES Cell status
+			 */
+			esCellStatusHTMLRepresentation = getEsCellStatus(jsondoc, request, false);
 			
 			/*
-			 * LIVE
+			 * Get the HTML representation of the phenotyping status
 			 */
-			//No ES Cell Production",32485,
-	        //"ES Cell Targeting Confirmed",15131,
-	        //"ES Cell Production in Progress",1565,
+			phenotypingStatusHTMLRepresentation = getPhenotypingStatus(jsondoc, request, false);
 			
-	        /*
-	         * DEV
-	         */
-			//Not Assigned for ES Cell Production",31825,
-	        //"ES Cells Produced",15153,
-	        //"Assigned for ES Cell Production
-
-			/* ******** ES cell production status ******** */
-			String field = "latest_es_cell_status";
+			/*
+			 * Order flag is separated from HTML generation code
+			 */
+			order = checkOrderProducts(doc);
 			
-			if (doc.containsKey(field)) {
-				// blue es cell status
-				String text = doc.getFirstValue(field).toString();
-				if (text.equals(StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE)) {
-					esCellStatus = "<a class='status done' href='' title='"+StatusConstants.WEB_ES_CELL_STATUS_PRODUCTION_DONE+"' >"
-							+ " <span>ES cells</span>" + "</a>";
-					order = true;
-				} else if (text.equals(StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_IN_PROGRESS)) {
-					esCellStatus = "<span class='status inprogress' title='"+StatusConstants.WEB_ES_CELL_STATUS_PRODUCTION_IN_PROGRESS+"' >"
-							+ "	<span>ES Cell</span>" + "</span>";
-				}
-
-			}
-
 		} catch (Exception e) {
 			log.error("Error getting ES cell/Mice status");
 			log.error(e.getLocalizedMessage());
 		}
+		
 		HashMap<String, String> res = new HashMap<>();
-		res.put("icons", esCellStatus + miceStatus + phenStatus);
+		res.put("icons", esCellStatusHTMLRepresentation + miceStatus + phenotypingStatusHTMLRepresentation);
 		res.put("orderPossible", order.toString());
 		return res;
+	}
+	
+	public boolean checkOrderProducts(SolrDocument doc) {
+		
+		return checkOrderMice(doc) || checkOrderESCells(doc);
+	}
+	
+	public boolean checkOrderESCells(SolrDocument doc) {
+
+		String status = null;
+		boolean order = false;
+
+		try {	
+			final String field = GeneDTO.LATEST_ES_CELL_STATUS;
+			if ( doc.containsKey(field) ) {		
+
+				status = doc.getFirstValue(field).toString();
+
+				if ( status.equals(StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE) ){
+					order = true;
+				}
+			}
+		}
+		catch (Exception e) {
+			log.error("Error getting ES cell/Mice status");
+			log.error(e.getLocalizedMessage());
+		}
+
+		return order;
+	}
+
+	public boolean checkOrderMice(SolrDocument doc) {
+		
+		boolean order = false;
+		if (doc.containsKey(GeneDTO.MOUSE_STATUS)) {
+
+			ArrayList<String> alleleNames = (ArrayList<String>) doc
+					.getFieldValue(GeneDTO.ALLELE_NAME);
+			ArrayList<String> mouseStatus = (ArrayList<String>) doc
+					.getFieldValue(GeneDTO.MOUSE_STATUS);
+
+			for (int i = 0; i < mouseStatus.size(); i++) {
+				String mouseStatusStr = mouseStatus.get(i).toString();
+	
+				if (mouseStatusStr.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_DONE)) {
+					
+					order = true;
+					break;
+				}
+			}
+		}
+		
+		return order;
+
 	}
 	
 //	private Map<String, String> getStatusFromDoc(SolrDocument doc) {
