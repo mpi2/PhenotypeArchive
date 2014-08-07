@@ -45,7 +45,7 @@
 	    	
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('images', self.options.data.hashParams.q, oParams);
-	        oParams.q = $.fn.encodeQ(oParams.q); 
+	        //oParams.q = $.fn.encodeQ(oParams.q); 
 	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
@@ -59,6 +59,8 @@
 				//'q' : self.options.data.hashParams.q
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
   	    	
+	    	queryParams.q = encodeURIComponent(queryParams.q);
+	    	
   	    	var paramStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
   	    		//+ "&facet.field=expName"
   	    		//+ "&facet.field=annotatedHigherLevelMpTermName"

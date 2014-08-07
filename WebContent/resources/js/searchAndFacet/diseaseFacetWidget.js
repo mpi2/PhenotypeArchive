@@ -44,7 +44,7 @@
 	    	
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('disease', self.options.data.hashParams.q, oParams);
-	        oParams.q = $.fn.encodeQ(oParams.q); 
+	        //oParams.q = $.fn.encodeQ(oParams.q); 
 	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
@@ -57,6 +57,8 @@
 				//'q' : self.options.data.hashParams.q
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
 	    	
+	    	queryParams.q = encodeURIComponent(queryParams.q);
+	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
 	    					  + '&facet.field=disease_classes'
 	    	                  + '&facet.field=impc_predicted'
@@ -66,7 +68,7 @@
 	    	                  + '&facet.field=human_curated'
 	    	                  + '&facet.field=mouse_curated'
 	    	                  + '&facet.field=disease_source';	    	
-	    	//console.log(queryParamStr);
+	    	console.log('DISEASE WIDGET: ' + queryParamStr);
 	    	
 	    	$.ajax({ 				 					
 	    		'url': solrUrl + '/disease/select',	    		
