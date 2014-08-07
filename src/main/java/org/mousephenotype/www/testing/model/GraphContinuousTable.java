@@ -33,8 +33,9 @@ import org.openqa.selenium.WebElement;
  * components of a graph page 'continuousTable' HTML table.
  */
 public class GraphContinuousTable {
-    private final String graphUrl;
-    private final String[][] data;
+    public final String graphUrl;
+    private String[][] data;
+    private boolean hasContinuousTable;
     
     /**
      * Creates a new <code>ContinuousGraphTable</code> instance initialized with
@@ -43,10 +44,19 @@ public class GraphContinuousTable {
      * with the continuousTable with thead and tbody definitions.
      */
     public GraphContinuousTable(WebDriver driver) {
-        WebElement table = driver.findElement(By.xpath("//table[@id='continuousTable]'"));
-        List<WebElement> bodyRowsList = table.findElements(By.xpath("//tbody/tr"));
+        graphUrl = driver.getCurrentUrl();
+        data = new String[0][0];
+        hasContinuousTable = false;
         
-        graphUrl = driver.getCurrentUrl();                                      // Get graphUrl.
+        WebElement table;
+        try {
+            table = driver.findElement(By.xpath("//table[@id='continuousTable']"));
+        } catch (Exception e) {
+            return;
+        }
+        hasContinuousTable = true;
+        
+        List<WebElement> bodyRowsList = table.findElements(By.xpath("//tbody/tr"));
         
         WebElement headerRow = table.findElement(By.xpath("//thead/tr"));       // Get the header row.
         List<WebElement> colsList = headerRow.findElements(By.xpath("//td"));
@@ -63,10 +73,6 @@ public class GraphContinuousTable {
             
             rowIndex++;
         }
-    }
-
-    public String getGraphUrl() {
-        return graphUrl;
     }
 
     public String[][] getData() {
@@ -103,4 +109,12 @@ public class GraphContinuousTable {
     public int getColIndexSd() { return 2; }
     public int getColIndexCount() { return 3; }
  
+    
+    // SETTERS AND GETTERS
+    
+    
+    public boolean hasContinuousTable() {
+        return hasContinuousTable;
+    }
+    
 }

@@ -109,11 +109,8 @@ public class GraphPageCategorical extends GraphPage {
     public PageStatus validateDownload() {
         PageStatus status = new PageStatus();
         
-        List<WebElement> weList;
-        
         // Validate that the [required] <code>catTable</code> HTML table exists.
-        weList = driver.findElements(By.xpath("table[@id='catTable']"));
-        if (weList.isEmpty()) {
+        if ( ! getCatTable().hasCatTable()) {
             status.addError("ERROR: categorical graph has no catTable. URL: " + target);
         }
         

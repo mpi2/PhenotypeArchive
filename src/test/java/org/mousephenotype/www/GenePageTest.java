@@ -29,8 +29,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.www.testing.model.PageStatus;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -672,6 +674,9 @@ public class GenePageTest {
         List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
         List<String> exceptionList = new ArrayList();
+        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        
+        PageStatus status = new PageStatus();
         String message;
         Date start = new Date();
         
@@ -684,14 +689,13 @@ public class GenePageTest {
         // Wait for page to load.
         try {
             driver.get(target);
-            (new WebDriverWait(driver, timeout_in_seconds))
-                    .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
         } catch (NoSuchElementException | TimeoutException te) {
             message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
-            errorList.add(message);
+            status.addError(message);
         } catch (Exception e) {
             message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-            exceptionList.add(message);
+            status.addError(message);
         }
         
         // Title
@@ -700,19 +704,27 @@ public class GenePageTest {
         // Section titles (e.g. 'Gene: Akt2', 'Phenotype associations for Akt2', 'Pre-QC phenotype heatmap', etc.)
         List<WebElement> sections = driver.findElements(By.className("title"));
         // ... count
-        if (sections.size() != 6) {
+        String[] sectionTitlesArray = {"Gene: Akt2",
+                                       "Phenotype associations for Akt2",
+                                       "Pre-QC phenotype heatmap",
+                                       "Phenotype Associated Images",
+                                       "Expression",
+                                       "Potential Disease Models",
+                                       "Order Mouse and ES Cells",};
+        int i = 0;
+        if (sections.size() != sectionTitlesArray.length) {
             System.out.println("section titles size=" + sections.size());
-            message = "Expected 6 section titles but found " + sections.size() + ".";
-            errorList.add(message);
+            for (WebElement section : sections) {
+                System.out.println("section[" + i++ + "]: " + section.getText());
+            }
+            status.addError("Expected 6 section titles but found " + sections.size() + ".");
         }
         // ... Section titles
-        String[] sectionTitlesArray = {"Gene: Akt2", "Phenotype associations for Akt2", "Phenotype Associated Images", "Expression", "Order Mouse and ES Cells", "Pre-QC phenotype heatmap"};
         List<String> sectionTitles = new ArrayList(Arrays.asList(sectionTitlesArray));
         for (WebElement webElement : sections) {
             String text = webElement.getText();
             if ( ! sectionTitles.contains(text)) {
-                message = "Expected section named '" + text + "' but wasn't found.";
-                errorList.add(message);
+                status.addError("Expected section named '" + text + "' but wasn't found.");
             }
         }
         
@@ -720,8 +732,7 @@ public class GenePageTest {
         List<WebElement> buttons = driver.findElements(By.className("btn"));
         // ... count
         if (buttons.size() != 3) {
-            message = "Expected 3 buttons but found " + buttons.size();
-            errorList.add(message);
+            status.addError("Expected 3 buttons but found " + buttons.size());
         }
         // ... Button text
         String[] buttonTitlesArray = { "Login to register interest", "Order", "KOMP" };
@@ -729,31 +740,29 @@ public class GenePageTest {
         for (WebElement webElement : buttons) {
             String buttonText = webElement.getText();
             if ( ! buttonTitles.contains(buttonText)) {
-                message = "Expected button with title '" + buttonText + "' but none was found.";
-                errorList.add(message);
+                status.addError("Expected button with title '" + buttonText + "' but none was found.");
             }
         }
         
         // Phenotype association icons
-        WebElement abnormalities = driver.findElement(By.className("abnormalities"));
-        List<WebElement> anchors = abnormalities.findElements(By.className("filterTrigger"));
+        List<WebElement> enabledIcons = driver.findElements(By.xpath("//div[@class='inner']/div[@class='abnormalities']/div[starts-with(@class, 'sprite')]"));
+        
         // ... count
-        if (anchors.size() != 5) {
-            message = "Expected 5 'abnormalities' icons but found " + anchors.size();
-            errorList.add(message);
+        if (enabledIcons.size() != 5) {
+            status.addError("Expected 5 'abnormalities' icons but found " + enabledIcons.size());
         }
-        // ids
-        String[] iconIdsArray = { "phenIconsBox_skeleton phenotype"
-                                , "phenIconsBox_behavior/neurological phenotype or nervous system phenotype"
-                                , "phenIconsBox_homeostasis/metabolism phenotype or adipose tissue phenotype"
-                                , "phenIconsBox_immune system phenotype or hematopoietic system phenotype"
-                                , "phenIconsBox_growth/size/body phenotype" };
-        List<String> iconIds = new ArrayList(Arrays.asList(iconIdsArray));
-        for (WebElement webElement : anchors) {
-            String id = webElement.getAttribute("id");
-            if ( ! iconIds.contains(id)) {
-                message = "Expected abnormalities icon with id '" + id + "' but none was found.";
-                errorList.add(message);
+        // oldtitles
+        String[] oldTitlesArray = { 
+                                    "growth/size/body phenotype"
+                                  , "homeostasis/metabolism phenotype or adipose tissue phenotype"
+                                  , "behavior/neurological phenotype or nervous system phenotype"
+                                  , "skeleton phenotype"
+                                  , "immune system phenotype or hematopoietic system phenotype" };
+        List<String> oldTitles = new ArrayList(Arrays.asList(oldTitlesArray));
+        for (WebElement enabledIcon : enabledIcons) {
+            String oldTitle = enabledIcon.getAttribute("oldtitle");
+            if ( ! oldTitles.contains(oldTitle)) {
+                status.addError("Expected abnormalities icon with id '" + oldTitle + "' but none was found.");
             }
         }
         
@@ -761,8 +770,7 @@ public class GenePageTest {
         Select selectTopLevel = new Select(driver.findElement(By.id("top_level_mp_term_name")));
         // ... count
         if (selectTopLevel.getOptions().size() != 5) {
-            message = "Expected 5 \"Top level MP: All\" options but found " + selectTopLevel.getOptions().size() + ".";
-            errorList.add(message);
+            status.addError("Expected 5 \"Top level MP: All\" options but found " + selectTopLevel.getOptions().size() + ".");
         }
         // ... values
         String[] topLevelValuesArray = { "behavior/neurological phenotype"
@@ -772,18 +780,15 @@ public class GenePageTest {
                                        , "skeleton phenotype"  };
         List<String> topLevelValues = new ArrayList(Arrays.asList(topLevelValuesArray));
         for (WebElement option : selectTopLevel.getOptions()) {
-            if ( ! topLevelValues.contains(option.getAttribute("value"))) {
-                message = "Expected Top level MP: All option \"" + option.getAttribute("value") + "\" but none was found.";
-                errorList.add(message);
-            }
+            if ( ! topLevelValues.contains(option.getAttribute("value")))
+                status.addError("Expected Top level MP: All option \"" + option.getAttribute("value") + "\" but none was found.");
         }
 
         // Phenotype Associated Images and Expression sections
         List<WebElement> imagesAndExpression = driver.findElements(By.className("accordion-heading"));
         // ... count
         if (imagesAndExpression.size() != 11) {
-            message = "Expected 2 \"Phenotype Associated Images\" values and 9 \"Expression\" values (11 total) but found " + imagesAndExpression.size();
-            errorList.add(message);
+            status.addError("Expected 2 \"Phenotype Associated Images\" values and 9 \"Expression\" values (11 total) but found " + imagesAndExpression.size());
         }
         // ... values
         String[] phenotypeAssociatedImagesArray = {
@@ -808,15 +813,15 @@ public class GenePageTest {
         WebElement orderAlleleDiv = driver.findElement(By.id("allele"));//this div is in the ebi jsp which should be populated but without the ajax call success will be empty.
         assertTrue(orderAlleleDiv.getText().length() > 100);//check there is some content in the panel div
         
-        if (errorList.isEmpty()) {
-            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
-            successList.add(message);
+        if (status.hasErrors()) {
+            System.out.println(status.toStringErrorMessages());
+            errorList.add("Akt2 test failures.");
         } else {
-            
+            successList.add("SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target);
         }
+        
         TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, 1);
     }
     
-
 }
     

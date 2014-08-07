@@ -304,20 +304,20 @@ public class GraphPage {
             AlleleParser alleleParser = new AlleleParser(rawAllele, sup);
             Line1Parser line1Parser = new Line1Parser();
             Line2Parser line2Parser = new Line2Parser();
-            SvgDivParser svgDigParser = new SvgDivParser();
+            ParameterParser parameterParser = new ParameterParser();
             
             this.alleleSymbol = alleleParser.toString();
             this.background = line1Parser.background;
             this.geneSymbol = alleleParser.gene;
             this.metadataGroup = line2Parser.metadataGroup;
-            this.parameterName = svgDigParser.parameterName;
-            this.parameterStableId = svgDigParser.parameterStableId;
+            this.parameterName = parameterParser.parameterName;
+            this.parameterStableId = parameterParser.parameterStableId;
             this.phenotypingCenter = line1Parser.phenotypingCenter;
             this.pipelineName = line1Parser.pipelineName;
-            this.parameterObject = svgDigParser.parameterObject;
+            this.parameterObject = parameterParser.parameterObject;
             
             // Set the graph type from the parameterDAO.
-            graphType = Utilities.checkType(parameterObject, parameterObject.getDatatype());
+            graphType = Utilities.checkType(parameterObject);
             
 //  System.out.println("title:             '" + this.title + "'");
 //  System.out.println("alleleSymbol:      '" + this.alleleSymbol + "'");
@@ -340,9 +340,9 @@ public class GraphPage {
     }
     
     private class Line1Parser {
-        private String background;
-        private String phenotypingCenter;
-        private String pipelineName;
+        public final String background;
+        public final String phenotypingCenter;
+        public final String pipelineName;
         
         public Line1Parser() {
             try {
@@ -382,6 +382,19 @@ public class GraphPage {
         }
     }
     
+    private class ParameterParser {
+        public final String parameterName;
+        public final Parameter parameterObject;
+        public final String parameterStableId;
+        
+        public ParameterParser() {
+            WebElement parameterElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//span[@data-parameterstableid]")));
+            parameterName = parameterElement.getText();
+            parameterStableId = parameterElement.getAttribute("data-parameterstableid");
+            parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
+        }
+    }
+    
     private class SvgDivParser {
         private String parameterName;
         private Parameter parameterObject;
@@ -402,14 +415,17 @@ public class GraphPage {
             RemoteWebElement rwe = (RemoteWebElement)svgElement;
             List<WebElement> aList = rwe.findElementsByTagName("text");
             
-            parameterName = aList.get(2).getText();                             // Try as offset 2 first.
-            parameterStableId = aList.get(3).getText();                         // Try as offset 3 first.
-            parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
-            if (parameterObject == null) {
-                parameterName = aList.get(1).getText();                         // Try as offset 1.
-                parameterStableId = aList.get(2).getText();                     // Try as offset 2.
-                parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
-            }
+            // 07-Aug-2014 (mrelac) Graphs have been refactored so that the parameterStableId and parameter name no longer come from the svg;
+            //                      They come from a span following the svg. I'm leaving this svg code here, commented out, in case we need to
+            //                      parse the svg later on and need a reminder of 'How-To'.
+//            parameterName = aList.get(2).getText();                             // Try as offset 2 first.
+//            parameterStableId = aList.get(3).getText();                         // Try as offset 3 first.
+//            parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
+//            if (parameterObject == null) {
+//                parameterName = aList.get(1).getText();                         // Try as offset 1.
+//                parameterStableId = aList.get(2).getText();                     // Try as offset 2.
+//                parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
+//            }
 
             // For debugging:
 //            System.out.println("svg:\n");

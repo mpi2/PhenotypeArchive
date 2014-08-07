@@ -232,7 +232,6 @@ public class PhenoPage {
                         GraphPageUnidimensional graphPageUnidimensional =
                                 new GraphPageUnidimensional(driver, wait, graphUrl, phenoId, phenotypePipelineDAO, baseUrl, graphPage);
                         graphStatus.add(graphPageUnidimensional.validateDownload());
- System.out.println("TESTING GRAPH-BY-DATE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                         graphStatus.add(graphPageUnidimensional.validateGraphByDate());
                         break;
                         

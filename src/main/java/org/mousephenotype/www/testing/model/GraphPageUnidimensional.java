@@ -113,8 +113,7 @@ public class GraphPageUnidimensional extends GraphPage {
         List<WebElement> weList;
         
         // Validate that the [required] <code>continuousTable</code> HTML table exists.
-        weList = driver.findElements(By.xpath("table[@id='catTable']"));
-        if (weList.isEmpty()) {
+        if ( ! getContinuousTable().hasContinuousTable()) {
             status.addError("ERROR: unidimensional graph has no continuousTable.");
         }
         
@@ -159,6 +158,8 @@ public class GraphPageUnidimensional extends GraphPage {
     }
 
     public PageStatus validateGraphByDate() {
+        GraphContinuousTable originalContinuousTable = getContinuousTable();    // Save the original (non graph-by-date page) continuous table.
+        GraphGlobalTestTable originalGlobalTestTable = getGlobalTestTable();    // Save the original (non graph-by-date page) global test table.
         PageStatus status = new PageStatus();
         final String GRAPH_BY_DATE = "Graph by date";
         GraphPageUnidimensional graphByDatePage = null;
@@ -184,23 +185,23 @@ public class GraphPageUnidimensional extends GraphPage {
 
         // Unidimensional graphs must have a globalTest table. Compare the two
         // data objects; they should be exactly equal.
-        if (globalTestTable == null) {
+        if (originalGlobalTestTable == null) {
             status.addError("ERROR: Expected a globalTest HTML table but found none. " + target);
         } else if (graphByDatePage == null)  {
             status.addError("ERROR: Couldn't load graphByDatePage");
         } else {
-            if ( ! globalTestTable.isEqual(graphByDatePage.globalTestTable)) {
+            if ( ! originalGlobalTestTable.isEqual(graphByDatePage.getGlobalTestTable())) {
                 status.addError("ERROR: this graph's globalTest table and its '" + GRAPH_BY_DATE + "' graph are not equal.\nThis URL: " + target + "\n'" + GRAPH_BY_DATE + "' URL: " + graphByDatePage.target);
             }
         }
 
         // Unidimensional graphs must have a continuousTable table. Compare the
         // two data objects; they should be exactly equal.
-        if (continuousTable == null) {
+        if (originalContinuousTable == null) {
             status.addError("ERROR: Expected a continuousTable HTML table but found none. " + target);
         } else if (graphByDatePage == null) {
             status.addError("ERROR: Couldn't load graphByDatePage");
-            if ( ! continuousTable.isEqual(graphByDatePage.continuousTable)) {
+            if ( ! originalContinuousTable.isEqual(graphByDatePage.getContinuousTable())) {
                 status.addError("ERROR: this graph's continuousTable and its '" + GRAPH_BY_DATE + "' graph are not equal.\nThis URL: " + target + "\n'" + GRAPH_BY_DATE + "' URL: " + graphByDatePage.target);
             }
         }

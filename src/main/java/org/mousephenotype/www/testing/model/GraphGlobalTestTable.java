@@ -38,7 +38,8 @@ public class GraphGlobalTestTable {
     private final List<String> pvalues = new ArrayList();
     private final List<String> effects = new ArrayList();
     private int numBodyRows;
-    private final String graphUrl;
+    public final String graphUrl;
+    private boolean hasGlobalTestTable;
     
     /**
      * Creates a new <code>GraphGlobalTestTable</code> instance initialized with
@@ -47,13 +48,21 @@ public class GraphGlobalTestTable {
      * with the globalTest table with thead and tbody definitions.
      */
     public GraphGlobalTestTable(WebDriver driver) {
-        WebElement table = driver.findElement(By.xpath("//table[@class='globalTest]'"));
+        graphUrl = driver.getCurrentUrl();
+        hasGlobalTestTable = false;
+        
+        WebElement table;
+        try {
+            table = driver.findElement(By.xpath("//table[@class='globalTest']"));
+        } catch (Exception e) {
+            return;
+        } 
+        hasGlobalTestTable = true;
+        
         List<WebElement> bodyRowsList = table.findElements(By.cssSelector("tbody tr"));
         if ( ! bodyRowsList.isEmpty()) {
             numBodyRows = bodyRowsList.size();
         }
-        
-        graphUrl = driver.getCurrentUrl();                                      // Get graphUrl.
         
         List<WebElement> globalTestValueList = table.findElements(By.cssSelector("tbody tr td.globalTestValue"));
         if ( ! globalTestValueList.isEmpty()) {
@@ -161,5 +170,13 @@ public class GraphGlobalTestTable {
         
         return true;
     }
+    
+    // GETTERS AND SETTERS
+    
+    
+    public boolean hasGlobalTestTable() {
+        return hasGlobalTestTable;
+    }
+    
 
 }
