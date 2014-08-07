@@ -38,6 +38,7 @@ import net.sf.json.JSONSerializer;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.solr.common.SolrDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -53,6 +54,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.Tools;
+import uk.ac.ebi.phenotype.service.GeneService;
 
 @Controller
 public class DataTableController {
@@ -61,6 +63,9 @@ public class DataTableController {
 
 	@Autowired
 	private SolrIndex solrIndex;
+	
+	@Autowired
+	private GeneService geneService;
 	
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
@@ -210,7 +215,7 @@ public class DataTableController {
 						
 			// ES cell/mice production status	
 			boolean toExport = false;
-			String prodStatus = solrIndex.deriveLatestProductionStatusForEsCellAndMice(doc, request, toExport, geneLink);			
+			String prodStatus = geneService.getLatestProductionStatusForEsCellAndMice(doc, request, toExport, geneLink);			
 			rowData.add(prodStatus);
 			
 			String phenoStatus = null;

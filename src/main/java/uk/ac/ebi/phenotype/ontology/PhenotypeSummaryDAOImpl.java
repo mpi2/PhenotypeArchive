@@ -73,7 +73,7 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 	}
 	
 	@Override
-	public PhenotypeSummaryBySex getSummaryObjects(String gene) throws Exception{
+	public PhenotypeSummaryBySex getSummaryObjects(String gene) throws Exception {
 		PhenotypeSummaryBySex res = new PhenotypeSummaryBySex();
 		HashMap<String, String> summary = gpService.getTopLevelMPTerms(gene);	
 		System.out.println("Here are the top level terms : " + summary.keySet());
