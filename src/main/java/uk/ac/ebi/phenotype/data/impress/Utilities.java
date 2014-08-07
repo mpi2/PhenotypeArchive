@@ -1,119 +1,145 @@
 /**
  * Copyright © 2011-2014 EMBL - European Bioinformatics Institute
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License.  
- * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package uk.ac.ebi.phenotype.data.impress;
 
 import org.apache.log4j.Logger;
 
-import uk.ac.ebi.phenotype.data.impress.ParameterDataType;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 
 /**
- * 
+ *
  * Utilities provide a set of utility methods for IMPRESS client
+ *
  * @author Gautier Koscielny
  * @see Parameter
  */
-
 public class Utilities {
 
-	protected static Logger logger = Logger.getLogger(Utilities.class);
-	
-	public static ObservationType checkType(Parameter p) {
-		return checkType(p, null);
-	}
-	
-	public static ObservationType checkType(Parameter p, String value) {
-		ObservationType observationType = null;
+    protected static Logger logger = Logger.getLogger(Utilities.class);
 
-		Float valueToInsert = 0.0f;
+    /**
+     * Returns the observation type based on the parameter, when the parameter
+     * has a valid dataType.
+     *
+     * @param parameter a valid <code>Parameter</code> instance
+     * @return The observation type based on the parameter, when the parameter
+     * has a valid data type (<code>parameter.getDatatype()</code>).
+     *
+     * <b>NOTE: if the parameter does not have a valid data type, this function
+     * may return incorrect results. When the parameter datatype is unknown,
+     * call <code>checktype(Parameter p, String value)</code> with a sample data
+     * value to get the correct observation type.</b>
+     */
+    public static ObservationType checkType(Parameter parameter) {
+        return checkType(parameter, null);
+    }
 
-		String datatype = p.getDatatype();
-		if (ParameterDataType.MAPPING.containsKey(p.getStableId())) {
-			datatype = ParameterDataType.MAPPING.get(p.getStableId());
-		}
+    /**
+     * Returns the observation type based on the parameter and a sample
+     * parameter value.
+     *
+     * @param parameter a valid <code>Parameter</code> instance
+     * @param value a string representing parameter sample data (e.g. a floating
+     * point number or anything else).
+     * @return The observation type based on the parameter and a sample
+     * parameter value. If <code>value</code> is a floating point number and
+     * <code>parameter</code> does not have a valid data type,
+     * <code>value</code> is used to disambiguate the graph type: the
+     * observation type will be either <i>time_series</i> or
+     * <i>unidimensional</i>; otherwise, it will be interpreted as
+     * <i>categorical</i>.
+     */
+    public static ObservationType checkType(Parameter parameter, String value) {
+        ObservationType observationType = null;
 
-		if (p.isMetaDataFlag()) {
+        Float valueToInsert = 0.0f;
 
-			observationType = ObservationType.metadata;
+        String datatype = parameter.getDatatype();
+        if (ParameterDataType.MAPPING.containsKey(parameter.getStableId())) {
+            datatype = ParameterDataType.MAPPING.get(parameter.getStableId());
+        }
 
-		} else {
-						
-			if (p.isOptionsFlag()) {
+        if (parameter.isMetaDataFlag()) {
 
-				observationType = ObservationType.categorical;
+            observationType = ObservationType.metadata;
 
-			} else {
+        } else {
 
-				if (datatype.equals("TEXT")) {
+            if (parameter.isOptionsFlag()) {
 
-					observationType = ObservationType.text;
+                observationType = ObservationType.categorical;
 
-				} else if (datatype.equals("BOOL")) {
+            } else {
 
-					observationType = ObservationType.categorical;
+                if (datatype.equals("TEXT")) {
 
-				} else if (datatype.equals("FLOAT") || datatype.equals("INT")) {
+                    observationType = ObservationType.text;
 
-					if (p.isIncrementFlag()) {
+                } else if (datatype.equals("BOOL")) {
 
-						observationType = ObservationType.time_series;
+                    observationType = ObservationType.categorical;
 
-					} else {
+                } else if (datatype.equals("FLOAT") || datatype.equals("INT")) {
 
-						observationType = ObservationType.unidimensional;
+                    if (parameter.isIncrementFlag()) {
 
-					}
+                        observationType = ObservationType.time_series;
 
-					try {
-						if (value != null)
-							valueToInsert = Float.valueOf(value);
-					} catch (NumberFormatException ex) {
-						logger.info("Invalid float value: " + value);
-						//TODO need to throw an exception!
-					}
+                    } else {
 
-				} else if (datatype.equals("IMAGE") || (datatype.equals("") && p.getName().contains("images"))) {
+                        observationType = ObservationType.unidimensional;
 
-					observationType = ObservationType.image_record;
+                    }
 
-				} else if (datatype.equals("") && !p.isOptionsFlag() && !p.getName().contains("images")) {
+                    try {
+                        if (value != null) {
+                            valueToInsert = Float.valueOf(value);
+                        }
+                    } catch (NumberFormatException ex) {
+                        logger.info("Invalid float value: " + value);
+                        //TODO need to throw an exception!
+                    }
 
+                } else if (datatype.equals("IMAGE") || (datatype.equals("") && parameter.getName().contains("images"))) {
 
+                    observationType = ObservationType.image_record;
 
-					// is that a number or a category?
-					try {
-						// check whether it's null
-						if (value != null && !value.equals("null")) {
+                } else if (datatype.equals("") &&  ! parameter.isOptionsFlag() &&  ! parameter.getName().contains("images")) {
 
-							valueToInsert = Float.valueOf(value);
-						}
-						if (p.isIncrementFlag()) {
-							observationType = ObservationType.time_series;
-						} else {
-							observationType = ObservationType.unidimensional;
-						}
+                    // is that a number or a category?
+                    try {
+                        // check whether it's null
+                        if (value != null &&  ! value.equals("null")) {
 
-					} catch (NumberFormatException ex) {
-						observationType = ObservationType.categorical;
-					}
-				}
-			}
-		}
+                            valueToInsert = Float.valueOf(value);
+                        }
+                        if (parameter.isIncrementFlag()) {
+                            observationType = ObservationType.time_series;
+                        } else {
+                            observationType = ObservationType.unidimensional;
+                        }
 
-		return observationType;
-	}
+                    } catch (NumberFormatException ex) {
+                        observationType = ObservationType.categorical;
+                    }
+                }
+            }
+        }
+
+        return observationType;
+    }
 }
