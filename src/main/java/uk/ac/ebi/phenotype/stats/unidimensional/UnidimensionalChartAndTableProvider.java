@@ -477,7 +477,7 @@ public class UnidimensionalChartAndTableProvider {
 			UnidimensionalStatsObject wtStatsObject = new UnidimensionalStatsObject();
 			Set<ObservationDTO> controls = experiment.getControls(sexType);
 
-			wtStatsObject = genrateStats(experiment, wtStatsObject, controls, null, sexType);
+			wtStatsObject = generateStats(experiment, wtStatsObject, controls, null, sexType);
 			statsObjects.add(wtStatsObject);
 
 			// set up the mutant stats data
@@ -486,7 +486,7 @@ public class UnidimensionalChartAndTableProvider {
 				UnidimensionalStatsObject tempStatsObject = new UnidimensionalStatsObject();
 
 				Set<ObservationDTO> mutants = experiment.getMutants(sexType, zType);
-				tempStatsObject = genrateStats(experiment, tempStatsObject, mutants, zType, sexType);
+				tempStatsObject = generateStats(experiment, tempStatsObject, mutants, zType, sexType);
 
 				for (StatisticalResult result : results) {
 					UnidimensionalResult unidimensionalResult = (UnidimensionalResult) result;
@@ -547,7 +547,7 @@ public class UnidimensionalChartAndTableProvider {
 	}
 
 
-	private static UnidimensionalStatsObject genrateStats(ExperimentDTO experiment, UnidimensionalStatsObject tempStatsObject, Set<ObservationDTO> mutants, ZygosityType zygosity, SexType sexType) {
+	private static UnidimensionalStatsObject generateStats(ExperimentDTO experiment, UnidimensionalStatsObject tempStatsObject, Set<ObservationDTO> mutants, ZygosityType zygosity, SexType sexType) {
 
 		tempStatsObject.setSampleSize(mutants.size());
 		// do the stats to get mean and SD

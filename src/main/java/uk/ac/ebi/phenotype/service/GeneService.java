@@ -36,6 +36,7 @@ import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -81,7 +82,7 @@ public class GeneService {
 	 */
 	private String getPhenotypingStatus(SolrDocument doc) {
 
-		String field = "latest_phenotype_status";
+		String field = GeneField.LATEST_PHENOTYPE_STATUS;
 		try {
 			// Phenotyping complete
 			if (doc.containsKey(field)
@@ -805,6 +806,43 @@ public class GeneService {
 			return rsp.getBeans(GeneDTO.class).get(0);
 		}
 		return null;
-
+	}
+	
+	/**
+	 * 
+	 * @param geneIds
+	 * @return Number of genes (from the provided list) in each status of interest.
+	 */
+	public HashMap<String, Long> getStatusCount(ArrayList<String> geneIds){
+		
+		HashMap<String, Long> res = new HashMap<>();
+		
+		// build query for these genes
+		String geneQuery = GeneDTO.MGI_ACCESSION_ID + ":\"" + StringUtils.join(geneIds, "\" OR " + GeneDTO.MGI_ACCESSION_ID + ":\"");
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" + geneQuery + "\"")
+			.setRows(1)
+			.setFacet(true);
+		QueryResponse solrResponse;
+		try {
+			// add facet for latest_project_status 
+			solrResponse = solr.query(solrQuery.addFacetField(GeneDTO.LATEST_ES_CELL_STATUS));
+			// put all values in the hash
+			for (Count c : solrResponse.getFacetField(GeneDTO.LATEST_ES_CELL_STATUS).getValues()){
+				res.put(c.getName(), c.getCount());
+			}
+			
+			// add facet latest_es_cell_status
+			solrQuery.removeFacetField(GeneDTO.LATEST_ES_CELL_STATUS);
+			solrResponse = solr.query(solrQuery.addFacetField(GeneDTO.LATEST_PROJECT_STATUS));
+			// put all values in the hash
+			for (Count c : solrResponse.getFacetField(GeneDTO.LATEST_PROJECT_STATUS).getValues()){
+				res.put(c.getName(), c.getCount());
+			}
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+		
+		return res;
 	}
 }
