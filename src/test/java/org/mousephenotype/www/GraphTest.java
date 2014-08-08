@@ -40,7 +40,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.www.testing.model.PageStatus;
-import org.mousephenotype.www.testing.model.PhenoPage;
+import org.mousephenotype.www.testing.model.PhenotypePage;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
@@ -293,7 +293,7 @@ phenotypeIds.add("MP:0004695");
             try {
                 // 
                 // Get the phenotype page.
-                PhenoPage phenoPage = new PhenoPage(driver, wait, target, phenotypeId,phenotypePipelineDAO, baseUrl);
+                PhenotypePage phenoPage = new PhenotypePage(driver, wait, target, phenotypeId,phenotypePipelineDAO, baseUrl);
                 // pages without graphs pass validation if they have images but are not useful candidates for the graph tests.
                 if ( ! phenoPage.hasGraphs()) {
                     if ( ! phenoPage.hasImages()) {

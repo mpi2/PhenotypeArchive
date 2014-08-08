@@ -37,7 +37,7 @@ import org.mousephenotype.www.testing.model.GenePage;
 import org.mousephenotype.www.testing.model.GraphPageUnidimensional;
 import org.mousephenotype.www.testing.model.GridMap;
 import org.mousephenotype.www.testing.model.PageStatus;
-import org.mousephenotype.www.testing.model.PhenoPage;
+import org.mousephenotype.www.testing.model.PhenotypePage;
 import org.mousephenotype.www.testing.model.PhenotypeTablePheno;
 import org.mousephenotype.www.testing.model.TestUtils;
 import org.openqa.selenium.By;
@@ -153,7 +153,7 @@ public class DataExportTest {
         
         for (String phenoId : phenoIds) {
             String target = baseUrl + "/phenotypes/" + phenoId;
-            PhenoPage phenoPage = new PhenoPage(driver, wait, target, phenoId, phenotypePipelineDAO, baseUrl); // Load the page. NOTE: Limit the number of graphs from each page to insure a good mix.
+            PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenoId, phenotypePipelineDAO, baseUrl); // Load the page. NOTE: Limit the number of graphs from each page to insure a good mix.
             int graphLimit = 10;
             List<GraphLinkDetail> graphs = getGraphLinksAndDetails(baseUrl, phenotypePipelineDAO, graphLimit);
             for (GraphLinkDetail graph : graphs) {
@@ -331,7 +331,7 @@ public class DataExportTest {
             target = baseUrl + "/phenotypes/" + phenoId;
             System.out.println("pheno[" + i + "] URL: " + target);
             
-            PhenoPage phenoPage = new PhenoPage(driver, wait, target, phenoId); // Load the page.
+            PhenotypePage phenoPage = new PhenotypePage(driver, wait, target, phenoId); // Load the page.
             
             String message = "";
             

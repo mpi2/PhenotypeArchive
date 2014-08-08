@@ -43,7 +43,7 @@ import uk.ac.ebi.phenotype.util.Utils;
  * This class encapsulates the code and data necessary to represent a Phenotype
  * Archive phenotype page for Selenium testing.
  */
-public class PhenoPage {
+public class PhenotypePage {
     private final WebDriver driver;
     private final WebDriverWait wait;
     private final String target;
@@ -66,7 +66,7 @@ public class PhenoPage {
      * @param baseUrl A fully-qualified hostname and path, such as
      *   http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      */
-    public PhenoPage(WebDriver driver, WebDriverWait wait, String target, String phenoId, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl) {
+    public PhenotypePage(WebDriver driver, WebDriverWait wait, String target, String phenoId, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl) {
         this.driver = driver;
         this.wait = wait;
         this.target = target;
