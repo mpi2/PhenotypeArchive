@@ -232,8 +232,6 @@ public class GeneService {
 			log.debug("getPhenotypingStatus :" + doc.getString(statusField));
 			log.debug("hasQC :" + doc.containsKey(GeneDTO.HAS_QC));
 			
-			System.out.println("getPhenotypingStatus :" + doc.getString(statusField));
-			System.out.println("hasQC :" + doc.containsKey(GeneDTO.HAS_QC));
 			
 			/*
 			 * 1. Check we have preQC/postQC IMPC data (started or completed) 		
@@ -418,7 +416,6 @@ public class GeneService {
 		try {
 					
 			log.debug("getStatusFromDoc - " + jsondoc);
-			System.out.println("getStatusFromDoc - " + jsondoc);
 			
 			/* ******** mice production status ******** */
 			String patternStr = "(tm.*)\\(.+\\).+"; // allele name pattern

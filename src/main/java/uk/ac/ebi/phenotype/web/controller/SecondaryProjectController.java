@@ -18,7 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,8 +37,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.phenotype.dao.SecondaryProjectDAO;
+import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.service.GeneService;
+import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
+import uk.ac.ebi.phenotype.stats.ColorCodingPalette;
 import uk.ac.ebi.phenotype.stats.Constants;
+import uk.ac.ebi.phenotype.stats.graphs.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalChartAndTableProvider;
 
 
@@ -54,10 +58,16 @@ public class SecondaryProjectController {
 	GeneService gs;
 	
 	@Autowired 
+	GenotypePhenotypeService genotypePhenotypeService;
+	
+	@Autowired 
 	UnidimensionalChartAndTableProvider chartProvider;
 	
 	@Autowired 
 	SecondaryProjectDAO sp;
+	
+
+	private PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();	
 	
 	@RequestMapping(value = "/secondaryproject/{id}", method = RequestMethod.GET)
 	public String loadSeondaryProjectPage(@PathVariable String id, Model model,
@@ -66,24 +76,36 @@ public class SecondaryProjectController {
 		System.out.println("calling secondary project id="+id);
 		
 		Set<String> accessions;
+		
 		try {
 			accessions = sp.getAccessionsBySecondaryProjectId(id);
 			model.addAttribute("statusChart", chartProvider.getStatusColumnChart(gs.getStatusCount(accessions)));
+			
+			List<PhenotypeCallSummary> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
+			
+			System.out.println("LIST LENGTH " + results.size());
+			
+			ColorCodingPalette colorCoding = new ColorCodingPalette();
+	
+			colorCoding.generatePhenotypeCallSummaryColors(
+					results,
+					ColorCodingPalette.NB_COLOR_MAX, 
+					1, 
+					Constants.SIGNIFICANT_P_VALUE);
+			
+	
+			// generate a chart
+			String chart = phenomeChartProvider.generatePhenomeChart(
+					results,
+					null,
+					Constants.SIGNIFICANT_P_VALUE);
+			
+	//		model.addAttribute("phenotypeCalls", results);
+	//		model.addAttribute("palette", colorCoding.getPalette());
+			model.addAttribute("chart", chart);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
-/*
-		// generate a chart
-		String chart = phenomeChartProvider.generatePhenomeChart(
-				results.getPhenotypeCallSummaries(),
-				phenotypingCenter,
-				Constants.SIGNIFICANT_P_VALUE);
-		
-		model.addAttribute("phenotypeCalls", results.getPhenotypeCallSummaries());
-		model.addAttribute("palette", colorCoding.getPalette());
-		model.addAttribute("chart", chart);
-		*/
 		return "idg";
 	}
 

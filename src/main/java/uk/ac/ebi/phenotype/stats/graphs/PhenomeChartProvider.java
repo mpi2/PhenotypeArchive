@@ -155,7 +155,7 @@ public class PhenomeChartProvider {
 		String chartString="	$(function () { \n"
 				+"  phenomeChart = new Highcharts.Chart({ \n"
 				+"     chart: {\n"
-				+"renderTo: 'chart" + phenotypingCenter +"',\n"
+				+"renderTo: 'phenomeChart',\n"
 				+"         type: 'scatter',\n"
 				+"         zoomType: 'xy',\n"
 				+"         height: 800\n"
@@ -350,7 +350,7 @@ public class PhenomeChartProvider {
 					dataPoint.put("alleleAccession", call.getAllele().getId().getAccession());
 					dataPoint.put("parameter_stable_id", call.getParameter().getStableId());
 					dataPoint.put("pipeline_stable_id", call.getPipeline().getStableId());
-					dataPoint.put("phenotyping_center", phenotypingCenter);
+					dataPoint.put("phenotyping_center", call.getPhenotypingCenter());
 					dataPoint.put("x", index);
 					dataPoint.put("y", call.getLogValue() + addJitter(call.getEffectSize()));
 					dataPoint.put("pValue", call.getpValue());

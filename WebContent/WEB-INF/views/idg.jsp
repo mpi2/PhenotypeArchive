@@ -37,69 +37,80 @@
 
 
 	<jsp:body>
-    
- <div class="region region-content">
-	<div class="block block-system">
-		<div class="content">
-			<div class="node node-gene">
-			<h1 class="title" id="top">Project Page: IDG</h1>
+    <!-- Assign this as a variable for other components -->
+		<script type="text/javascript">
+			var base_url = '${baseUrl}';
+		</script>
 		
-				 <div class="section" id="progressStatusChart">
-						<h2 class="title"	id="section-associations"> Phenotype associations for ${gene.symbol} </h2>		
-            <div class="inner">
-            	<div id="statusChart">
-            		<script type="text/javascript">
-										${statusChart.getChart()}
-								</script>
-							</div>        	
-            </div>
-        </div> <!-- section -->
-                            
-        
-        <div class="section" id="phenotypePValueDistribution">
-						<h2 class="title"	id="section-associations"> Phenotype P value distribution for IDG genes </h2>		
-            <div class="inner">
-							
-
-            </div>
-        </div> <!-- section -->                    
-        
-		
-				<div class="section">
-					<div class=inner>
-							<div class="floatright">
-								<img src="${baseUrl}/img/idgLogo.png" height="85" width="130">
-							</div>
-							<p>
-							<b>Illuminating the Druggable Genome (IDG)</b> is an NIH Common Fund project focused on collecting, integrating and making available biological data on approx 300 genes that have been identified as potenital therapeutic targets. KOMP2 - funded IMPC Centers are creating where possible knockout mouse strains for this consortium.
-							</p>
-							 
-							
-							
-					</div>
-				</div>
+ 	<div class="region region-content">
+		<div class="block block-system">
+			<div class="content">
+				<div class="node node-gene">
 				
-				<div class="section">
-				<h2 class="title">Gene to MP Term Heat Map</h2>
-					<div class=inner>
-					<div id="legend">
-						<table>
-							<tr>
-								<td>Key:</td>
-											<td>Phenotype Detected:</td>
-											<td style="background-color: rgb(191, 75, 50)"></td>
-											<td>No Phenotype Detected:</td>
-											<td style="background-color: rgb(119, 119, 119)"></td>
-											<td>No Data Available:</td>
-											<td style="background-color: rgb(0, 0, 0)"></td>
-							</tr>
-						</table>
-					</div>
-							<div id="geneHeatmap" style="overflow: hidden; overflow-x: auto;">
+						<h1 class="title" id="top">Project Page: IDG</h1>
+				
+						<div class="section">
+							<div class=inner>
+									<div class="floatright">
+										<img src="${baseUrl}/img/idgLogo.png" height="85" width="130">
+									</div>
+									<p>
+									<b>Illuminating the Druggable Genome (IDG)</b> is an NIH Common Fund project focused on collecting, integrating and making available biological data on approx 300 genes that have been identified as potenital therapeutic targets. KOMP2 - funded IMPC Centers are creating where possible knockout mouse strains for this consortium.
+									</p>	
 							</div>
+						</div>	<!-- section -->
+				
+				
+						 <div class="section" id="progressStatusChart">
+								<h2 class="title"	id="section-associations"> Latest status for IDG gene set </h2>		
+		            <div class="inner">
+		            	<div id="statusChart">
+		            		<script type="text/javascript">
+												${statusChart.getChart()}
+										</script>
+									</div>        	
+		            </div>
+		        </div> <!-- section -->
+		                            
+		        
+		        <div class="section" id="phenotypePValueDistribution">
+								<h2 class="title"	id="section-associations"> Phenotype P value distribution for IDG genes </h2>		
+		            <div class="inner">
+										<!-- Associations table -->
+										<c:if test="${chart != null}">
+											<!-- phenome chart here -->
+							  				<div id="phenomeChart">
+							  				<a class="various" id="iframe" data-fancybox-type="iframe"></a></div>
+											<script type="text/javascript">
+												${chart}
+											</script>	
+										</c:if>	
+		
+		            </div>
+		        </div> <!-- section -->                    
+		        
+						
+						<div class="section">
+						<h2 class="title">Gene to MP Term Heat Map</h2>
+							<div class=inner>
+							<div id="legend">
+								<table>
+									<tr>
+										<td>Key:</td>
+													<td>Phenotype Detected:</td>
+													<td style="background-color: rgb(191, 75, 50)"></td>
+													<td>No Phenotype Detected:</td>
+													<td style="background-color: rgb(119, 119, 119)"></td>
+													<td>No Data Available:</td>
+													<td style="background-color: rgb(0, 0, 0)"></td>
+									</tr>
+								</table>
+							</div>
+									<div id="geneHeatmap" style="overflow: hidden; overflow-x: auto;">
+									</div>
+							</div>
+						</div>
 					</div>
-				</div>
-			</div>
 
 		</div>
 	</div>

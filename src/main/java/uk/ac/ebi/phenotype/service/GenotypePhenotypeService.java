@@ -468,7 +468,7 @@ public class GenotypePhenotypeService extends BasicService {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public PhenotypeFacetResult getPhenotypeFacetResultByGenomicFeatures(List<String> genomicFeatures)
+	public PhenotypeFacetResult getPhenotypeFacetResultByGenomicFeatures(Set<String> genomicFeatures)
 	throws IOException, URISyntaxException {
 
 		String solrUrl = solr.getBaseURL();// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
@@ -477,12 +477,12 @@ public class GenotypePhenotypeService extends BasicService {
 		StringBuilder geneClause = new StringBuilder(genomicFeatures.size()*15);
 		boolean start = true;
 		for (String genomicFeatureAcc: genomicFeatures) {
-			geneClause.append((start)?genomicFeatureAcc:" OR "+genomicFeatureAcc);
+			geneClause.append((start)?genomicFeatureAcc:"\" OR \""+genomicFeatureAcc);
 			start = false;
 		}
 		
-		solrUrl += "/select/?q=" + GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + geneClause.toString() + "\"" + "&facet=true" + "&facet.field=" + GenotypePhenotypeDTO.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeDTO.PROCEDURE_NAME + "&facet.field=" + GenotypePhenotypeDTO.MARKER_SYMBOL + "&facet.field=" + GenotypePhenotypeDTO.MP_TERM_NAME + "&sort=p_value%20asc" + "&rows=10000000&version=2.2&start=0&indent=on&wt=json";
-		System.out.println("SOLR URL = " + solrUrl);
+		solrUrl += "/select/?q=" + GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":(\"" + geneClause.toString() + "\")" + "&facet=true" + "&facet.field=" + GenotypePhenotypeDTO.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeDTO.PROCEDURE_NAME + "&facet.field=" + GenotypePhenotypeDTO.MARKER_SYMBOL + "&facet.field=" + GenotypePhenotypeDTO.MP_TERM_NAME + "&sort=p_value%20asc" + "&rows=10000000&version=2.2&start=0&indent=on&wt=json";
+		System.out.println("\n\n\n SOLR URL = " + solrUrl);
 		return this.createPhenotypeResultFromSolrResponse(solrUrl);
 	}
 	
