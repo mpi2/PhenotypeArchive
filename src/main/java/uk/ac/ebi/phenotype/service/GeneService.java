@@ -813,20 +813,23 @@ public class GeneService {
 	 * @param geneIds
 	 * @return Number of genes (from the provided list) in each status of interest.
 	 */
-	public HashMap<String, Long> getStatusCount(ArrayList<String> geneIds){
+	public HashMap<String, Long> getStatusCount(Set<String> geneIds){
 		
 		HashMap<String, Long> res = new HashMap<>();
 		
 		// build query for these genes
-		String geneQuery = GeneDTO.MGI_ACCESSION_ID + ":\"" + StringUtils.join(geneIds, "\" OR " + GeneDTO.MGI_ACCESSION_ID + ":\"");
+		String geneQuery = GeneField.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")";
+		System.out.println("geneQuery: " + geneQuery);
 		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" + geneQuery + "\"")
+		solrQuery.setQuery(geneQuery)
 			.setRows(1)
 			.setFacet(true);
 		QueryResponse solrResponse;
 		try {
 			// add facet for latest_project_status 
-			solrResponse = solr.query(solrQuery.addFacetField(GeneDTO.LATEST_ES_CELL_STATUS));
+			solrQuery.addFacetField(GeneDTO.LATEST_ES_CELL_STATUS);
+			System.out.println("---- " + solr.getBaseURL() + "/select?" + solrQuery);
+			solrResponse = solr.query(solrQuery);
 			// put all values in the hash
 			for (Count c : solrResponse.getFacetField(GeneDTO.LATEST_ES_CELL_STATUS).getValues()){
 				res.put(c.getName(), c.getCount());

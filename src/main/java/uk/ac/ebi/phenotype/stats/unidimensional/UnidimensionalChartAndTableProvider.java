@@ -21,6 +21,7 @@ import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import uk.ac.ebi.phenotype.data.imits.StatusConstants;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.SexType;
@@ -367,7 +368,40 @@ public class UnidimensionalChartAndTableProvider {
 		return chartAndTable;
 	}
 
-
+	public ChartData getStatusColumnChart(HashMap<String , Long> values){
+		
+		String data = "[";
+		// custom order & selection from Terry
+		data += "['" + StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE + "', " +  values.get(StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE) + "], ";
+		data += "['" + StatusConstants.IMITS_MOUSE_STATUS_MICRO_INJECTION_IN_PROGRESS + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_MICRO_INJECTION_IN_PROGRESS) + "], ";
+		data += "['" + StatusConstants.IMITS_MOUSE_STATUS_CHIMERA_OBTAINED + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_CHIMERA_OBTAINED) + "], ";
+		data += "['" + StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED) + "], ";
+		data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_ATTEMPT_REGISTERED + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_ATTEMPT_REGISTERED) + "], ";
+		data += "['" + StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_STARTED + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_STARTED) + "], ";
+		data += "['" + StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_COMPLETE + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_COMPLETE) + "], ";
+		data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED) + "], ";
+		data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE) + "], ";
+		data += "]";
+		
+		String javascript = "$(function () { $('#statusChart').highcharts({" +
+        	" chart: {type: 'column' }," + 
+        	" title: {text: 'Status Count'}," +
+        	" subtitle: { text: 'Source' }, " + 	
+        	" credits: { enabled: false },  " +
+        	" xAxis: { type: 'category', labels: { rotation: -45,style: {fontSize: '13px', fontFamily: 'Verdana, sans-serif'} } }," +
+        	" yAxis: { min: 0, title: { text: 'Number of genes' } }," + 
+        	" legend: { enabled: false }," +
+        	" tooltip: { pointFormat: '<b>{point.y:.1f}</b>' }," +
+        	" series: [{ name: 'Population',  data: " + data + "," +
+            " dataLabels: { enabled: true, rotation: -90, color: '#FFFFFF', align: 'right', x: 4, y: 10, style: { fontSize: '13px', fontFamily: 'Verdana, sans-serif' } } }]" +
+			" }); });";
+		ChartData chartAndTable = new ChartData();
+		chartAndTable.setChart(javascript);
+		chartAndTable.setId("statusChart");
+		// System.out.println("... histogram with id " + chartId);
+		return chartAndTable;
+	}
+	
 	public ChartData getStackedHistogram(StackedBarsData map, Parameter parameter, String procedureName) {
 
 		// http://jsfiddle.net/gh/get/jquery/1.9.1/highslide-software/highcharts.com/tree/master/samples/highcharts/demo/column-stacked/

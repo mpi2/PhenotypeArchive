@@ -17,7 +17,10 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +36,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import uk.ac.ebi.phenotype.dao.SecondaryProjectDAO;
 import uk.ac.ebi.phenotype.service.GeneService;
+import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalChartAndTableProvider;
 
 
 @Controller
@@ -41,12 +46,17 @@ public class SecondaryProjectController {
 
 	private final Logger log = LoggerFactory.getLogger(SecondaryProjectController.class);
 
-	
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
 	
 	@Autowired 
 	GeneService gs;
+	
+	@Autowired 
+	UnidimensionalChartAndTableProvider chartProvider;
+	
+	@Autowired 
+	SecondaryProjectDAO sp;
 	
 	@RequestMapping(value = "/secondaryproject/{id}", method = RequestMethod.GET)
 	public String loadSeondaryProjectPage(@PathVariable String id, Model model,
@@ -54,11 +64,16 @@ public class SecondaryProjectController {
 			throws SolrServerException, IOException, URISyntaxException {
 		System.out.println("calling secondary project id="+id);
 		
-	
-		
+		Set<String> accessions;
+		try {
+			accessions = sp.getAccessionsBySecondaryProjectId(id);
+			model.addAttribute("statusChart", chartProvider.getStatusColumnChart(gs.getStatusCount(accessions)));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return "idg";
 	}
 
 	
-
+	
 }
