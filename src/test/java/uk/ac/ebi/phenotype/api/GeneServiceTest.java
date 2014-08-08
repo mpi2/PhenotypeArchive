@@ -22,23 +22,6 @@ public class GeneServiceTest extends AbstractTransactionalJUnit4SpringContextTes
 	GeneService geneService;
 
 
-	@Test
-	public void testGetProductionStatusForGeneList() {
-
-		Set<String> geneIds = new TreeSet<>();
-		// mgi_accession_id
-		geneIds.add("MGI:104874");
-		geneIds.add("MGI:2683087");
-		try {
-			Map<String, String> productionStatuses = geneService.getProductionStatusForGeneSet(geneIds);
-			for (String key : productionStatuses.keySet()) {
-				System.out.println("key=" + key + "  value=" + productionStatuses.get(key));
-			}
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 
 	@Test
 	public void testGetGeneById() throws SolrServerException {

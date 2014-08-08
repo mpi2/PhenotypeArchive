@@ -73,7 +73,7 @@ public class SecondaryProjectController {
 			e.printStackTrace();
 		}
 		
-
+/*
 		// generate a chart
 		String chart = phenomeChartProvider.generatePhenomeChart(
 				results.getPhenotypeCallSummaries(),
@@ -83,7 +83,7 @@ public class SecondaryProjectController {
 		model.addAttribute("phenotypeCalls", results.getPhenotypeCallSummaries());
 		model.addAttribute("palette", colorCoding.getPalette());
 		model.addAttribute("chart", chart);
-		
+		*/
 		return "idg";
 	}
 
