@@ -56,22 +56,23 @@
 		}
 		
 		//console.log('encoded q: ' + q)
+		
 		// q to display in input box
 		var qDisplay = q == '*:*'  ? '' : decodeURIComponent(q);
 		qDisplay = qDisplay.replace(/\\/g, '');  // unescape for display
-		//var qDisplay = q == '*:*'  ? '' : decodeURI(q);
-		//qDisplay = $.fn.convertNonDecodable(qDisplay);
 		$('input#s').val(qDisplay); 	
 
 		// q to search SOLR
 		q = $.fn.process_q(q); 
-		//q = $.fn.convertNonDecodable(q);
-		
 		oUrlParams.q  = q;
-		//oUrlParams.q = decodeURI(q); // send to solr through ajax, encoding not working for special char
+
+		// q will be send to solr in a json object, ie, it will be encoded later so decode here
+		// NOTE: need to skip back slash (\) avoid \\
 		oUrlParams.q = decodeURIComponent(oUrlParams.q);
+		//oUrlParams.q = oUrlParams.q.replace(/\\\\/g, "\\");
+		
 		/* ---- end of q for SOLR --- */
-		//console.log(oUrlParams.q);
+		//console.log('decoded: '+ oUrlParams.q);
 		
 		/* ---- fq for SOLR --- */
 		if ( typeof oUrlParams.fq != 'undefined' ){
@@ -269,8 +270,7 @@
     	        	oUrlParams.fq = oUrlParams.fq ? oUrlParams.fq : jsonBase[widgetName].fq; 
     	        	oUrlParams.oriFq = oUrlParams.oriFq ? oUrlParams.oriFq : jsonBase[widgetName].fq; 
     	        	oUrlParams.widgetName = widgetName;
-
-    	        	//console.log('started widget call')
+    	        	
     	        	window.jQuery('li#' + defaultCore)[widgetName]({
     					data: {	   							 
     							core: defaultCore,    							

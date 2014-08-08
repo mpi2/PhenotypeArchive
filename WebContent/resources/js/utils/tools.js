@@ -860,7 +860,7 @@
 	
 	$.fn.showNotFoundMsg = function(){
 		var q = decodeURI($.fn.fetchQueryStr());
-		q = $.fn.convertNonDecodable(q);
+		q = decodeURIComponent(q);
 		
 		var filter = '';		
 		if ( $('ul#facetFilter li.ftag').size() > 0 ){
@@ -1407,38 +1407,6 @@
 		}
 		return 'gene';
 	};
-	
-    $.fn.encodeQ = function(q){
-    	
-		if ( q.indexOf('!complexphrase') == -1 && (q.indexOf(' ') != -1 || q.length == 1) ){
-			// encoded string will not contain space
-			q = encodeURIComponent(q);
-		}
-		return q;
-    };
-    $.fn.encodeForSolr = function(q) {
-    	
-    };
-    
-    $.fn.convertNonDecodable = function(q){
-		var coding = {
-			'%23' : '#',
-			'%2B' : '+',
-			'%26' : '&',
-			'%3F' : '?',
-			'%3A' : ':',
-			'%2C' : ',',
-			'%2F' : '/',
-			'%3B' : ';',
-			'%40' : '@'
-			//'%25' : '%'	
-		} 
-		for ( c in coding ){
-			var re = new RegExp(c,"g");
-			q = q.replace(re, coding[c]);
-		}
-		return q;
-	};
     
     $.fn.process_q = function(q){
     	//console.log('PREprocessed q: '+q)
@@ -1618,8 +1586,11 @@
     };   
     
     $.fn.getSolrRelevanceParams = function(facet, q, oParams){
+    	//console.log('relevance q: '+q);
+    	
     	oParams.q = q;
-    	var wildCardStr = /^\*\w*$|^\w*\*$|^\*\w*\*$/;
+    	//var wildCardStr = /^\*\w*$|^\w*\*$|^\*\w*\*$|^\*\\.+/;
+    	var wildCardStr = /^\*\w*$|^\w*\*$|^\*\w*\*$|^\*\W+/;
     	if ( facet == 'gene' ){
     		if ( q.match(/^MGI:\d*$/i) ){
     			oParams.q = q.toUpperCase();
@@ -1629,13 +1600,13 @@
 				oParams.bq='marker_symbol:'     +q.replace(/\*/g,'')+'^1000'
 						  +' human_gene_symbol:' +q.replace(/\*/g,'')+'^800'
 						  +' marker_synonym:'    +q.replace(/\*/g,'')+'^700'
-						  + 'marker_name:'       +q.replace(/\*/g,'')+'^500';
+						  +' marker_name:'       +q.replace(/\*/g,'')+'^500';
 			}	
     		else {
     			oParams.pf='marker_symbol^1000 human_gene_symbol^800 marker_synonym^700 marker_name^500'; 
     		}
     	}
-    	if ( facet == 'mp' ){    		
+    	else if ( facet == 'mp' ){    		
 			if ( q.match(/^MP:\d*$/i) ){
 				oParams.q = q.toUpperCase();
 				oParams.qf = 'mp_id';				
@@ -1651,7 +1622,7 @@
 				oParams.pf='mp_term^1000 mp_term_synonym^500 mp_definition^100';					
 			}	
     	}
-    	if ( facet == 'disease' ){
+    	else if ( facet == 'disease' ){
     		if ( q.match(wildCardStr) && q != '*:*'){	
 				oParams.bq='disease_term:'             +q.replace(/\*/g,'')+'^1000'
 						  +' disease_alts:'             +q.replace(/\*/g,'')+'^700'
@@ -1662,8 +1633,7 @@
     			oParams.pf='disease_term^1000 disease_alts^700 disease_human_phenotypes^500 disease_source^200'; 
     		}
     	}
-    	
-    	if ( facet == 'ma' ){    		
+    	else if ( facet == 'ma' ){    		
 			if ( q.match(/^MA:\d*$/i) ){
 				oParams.q = q.toUpperCase();
 				oParams.qf = 'ma_id';				
@@ -1678,7 +1648,7 @@
 				oParams.pf='ma_term^1000 ma_term_synonym^500';					
 			}	
     	}
-    	if ( facet == 'pipeline' ){    		
+    	else if ( facet == 'pipeline' ){    		
 			if ( q.match(wildCardStr) && q != '*:*'){	
 				oParams.bq='parameter_name: '+q.replace(/\*/g,'')+'^1000'
 					      +' procedure_name: '+q.replace(/\*/g,'')+'^500';				
@@ -1688,7 +1658,7 @@
 				oParams.pf='parameter_name^1000 procedure_name^500';					
 			}	
     	}
-    	if ( facet == 'images' ){    		
+    	else if ( facet == 'images' ){    		
 			if ( q.match(wildCardStr) && q != '*:*'){	
 				oParams.bq='annotationTermName: '+q.replace(/\*/g,'')+'^500'
 					      +' expName: '+q.replace(/\*/g,'')+'^500';
@@ -1698,6 +1668,10 @@
 				// does not seem to take effect if complexphrase is in use
 				oParams.pf='annotationTermName^500 expName^500 symbol^500';					
 			}	
+    	}
+    	
+    	if ( typeof oParams.bq != 'undefined' ){ 
+    		oParams.bq = oParams.bq.replace(/~/g, '\\~');
     	}
     	
     	return oParams;
@@ -1731,6 +1705,9 @@
 		oParams.fq = oUrlParams.fq;
 		oParams.rows = 10;
 		
+		//qs(query slop) parameter can be used to add slop to any explicit phrase queries
+		//oParams.qs = 100;
+		
 		/*
 		oParams.hl = 'true';
     	oParams['hl.snippets']=100; // otherwise only one in each field is return, and 100 should be enough to catch all for synonyms field, etc    	    	
@@ -1747,16 +1724,18 @@
     	oParams = $.fn.getSolrRelevanceParams(coreName, oUrlParams.q, oParams);
   
     	oParams.q = oUrlParams.q;
-    	//console.log('q check1: '+ oParams.q);
-    	
     	oParams.q = $.fn.process_q(oParams.q); 
     	
-    	//console.log('q check2: '+ oParams.q);
-    	
-    	//oParams.q = $.fn.encodeQ(oParams.q); // encode q for solr query as it is string here (do not encode for obj)
-    	
+//    	if ( /~/.test(oParams.q) ){
+//    		oParams.q = oParams.q.replace('~','\~');
+//    		console.log('q now 2 : '+ oParams.q)
+//    	}
     	
     	oUrlParams.params = $.fn.stringifyJsonAsUrlParams(oParams);	
+    	
+    	if ( oUrlParams.widgetName == 'geneFacet' ){
+			oUrlParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
+		}
     	
 		if ( facetDivId == 'imagesFacet' ) {
 			//oInfos.showImgView = true;	// don't want to show imgView as default
@@ -1776,10 +1755,6 @@
 		$.fn.updateBreadCrumb(coreName);		
 		$.fn.openFacet(coreName);	
 
-		if ( oUrlParams.widgetName == 'geneFacet' ){
-			oUrlParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
-		}
-		
 		//console.log(oUrlParams);
 		$.fn.invokeDataTable(oUrlParams);
 		

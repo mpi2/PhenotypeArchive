@@ -44,7 +44,6 @@
 	    	
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('disease', self.options.data.hashParams.q, oParams);
-	        //oParams.q = $.fn.encodeQ(oParams.q); 
 	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
@@ -68,7 +67,8 @@
 	    	                  + '&facet.field=human_curated'
 	    	                  + '&facet.field=mouse_curated'
 	    	                  + '&facet.field=disease_source';	    	
-	    	console.log('DISEASE WIDGET: ' + queryParamStr);
+	    	
+	    	//console.log('DISEASE WIDGET: ' + queryParamStr);
 	    	
 	    	$.ajax({ 				 					
 	    		'url': solrUrl + '/disease/select',	    		

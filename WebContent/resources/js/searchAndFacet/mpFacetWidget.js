@@ -46,7 +46,6 @@
 	    	var facetField = 'top_level_mp_term';
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('mp', self.options.data.hashParams.q, oParams);
-	        //oParams.q = $.fn.encodeQ(oParams.q); // solr params passed in as str not obj, so we need to encode
 	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,

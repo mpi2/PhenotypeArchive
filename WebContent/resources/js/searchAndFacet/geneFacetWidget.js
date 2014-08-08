@@ -47,8 +47,6 @@
 	    	
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('gene', self.options.data.hashParams.q, oParams); // has q 
-	        //oParams.q = $.fn.encodeQ(oParams.q); // solr params passed in as str not obj, so we need to encode
-	       
 	        
 	        // json will decode special chars
 	    	var queryParams = $.extend({}, {				
@@ -62,6 +60,7 @@
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);	
 	    	
 	    	queryParams.q = encodeURIComponent(queryParams.q);
+
 	    	// facet on latest_phenotype_status 
 	    	/*
 	    	<int name="Phenotype Attempt Registered">1362</int>

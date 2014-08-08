@@ -45,7 +45,6 @@
 	    	
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('images', self.options.data.hashParams.q, oParams);
-	        //oParams.q = $.fn.encodeQ(oParams.q); 
 	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
