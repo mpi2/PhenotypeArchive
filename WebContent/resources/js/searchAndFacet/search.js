@@ -36,12 +36,11 @@
 		facet += 'Facet';
 	
 		var params = $.extend({}, jsonBase[facet].srchParams, jsonBase[facet].filterParams);
-		params.q = oUrlParams.q;
 		
 		if ( typeof oUrlParams.qf != 'undefined' ){
 			params.qf = oUrlParams.qf; 
 		}
-		
+		params.q = oUrlParams.q; // encoded
 		//console.log(facet + ' --- ' + $.fn.stringifyJsonAsUrlParams(params));
 		return params;
 	}
@@ -56,20 +55,23 @@
 			q = window.location.search != '' ? $.fn.fetchQueryStr() : '*:*';
 		}
 		
-		//console.log(q)
+		//console.log('encoded q: ' + q)
 		// q to display in input box
-		var qDisplay = q == '*:*'  ? '' : decodeURI(q);
-		qDisplay = $.fn.convertNonDecodable(qDisplay);
+		var qDisplay = q == '*:*'  ? '' : decodeURIComponent(q);
+		qDisplay = qDisplay.replace(/\\/g, '');  // unescape for display
+		//var qDisplay = q == '*:*'  ? '' : decodeURI(q);
+		//qDisplay = $.fn.convertNonDecodable(qDisplay);
 		$('input#s').val(qDisplay); 	
 
 		// q to search SOLR
 		q = $.fn.process_q(q); 
-		q = $.fn.convertNonDecodable(q);
+		//q = $.fn.convertNonDecodable(q);
 		
 		oUrlParams.q  = q;
-		oUrlParams.q = decodeURI(q); // send to solr through ajax, encoding not working for special char
-	
+		//oUrlParams.q = decodeURI(q); // send to solr through ajax, encoding not working for special char
+		oUrlParams.q = decodeURIComponent(oUrlParams.q);
 		/* ---- end of q for SOLR --- */
+		//console.log(oUrlParams.q);
 		
 		/* ---- fq for SOLR --- */
 		if ( typeof oUrlParams.fq != 'undefined' ){

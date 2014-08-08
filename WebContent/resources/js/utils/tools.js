@@ -406,15 +406,30 @@
 				
 	};
 
+	function _composeFacetUpdateParamStr(q, facet, fqStr, aFacetFields){
+		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(aFacetFields);
+        var paramStr = 'q=' + q 
+        	+ '&wt=json&defType=edismax&qf=auto_suggest'  
+        	+ '&fq=' + fqStr + fecetFieldsStr;
+        return paramStr;
+	}
 	
 	function FacetCountsUpdater(oConf){	
 		
 		var facet = oConf.facet;
-		var fqStr = oConf.fqStr.replace(/img_/g,''); // so that this matches the copyField of images
+		//var fqStr = oConf.fqStr.replace(/img_/g,''); // so that this matches the copyField of images
+		var fqStr = $.fn.getCurrentFq(facet).replace(/img_/g,'');
 		
 		// send to solr through ajax not via browser url so encoding won't work for special char
 		var q = $.fn.process_q(oConf.q);
-		q = $.fn.encodeQ(q); 
+		
+		//console.log('update facet q check: '+q)
+		if ( ! /%[0-9A-Za-z]{1,}/g.test(q)  ){
+			//console.log(' match'); 
+			// if not yet encoded, encode it 
+			q = encodeURIComponent(q);
+		}
+		//console.log('update facet q check: '+q)
 		
 		var thisSolrUrl = solrUrl + '/' + facet + '/select'; 
 		MPI2.searchAndFacetConfig.currentFq = fqStr;
@@ -434,16 +449,13 @@
 		    		               'marker_type':{'class':'marker_type', 'label':''}
 		    		               };
 		    		
-		    		var aFields = [];
+		    		var aFacetFields = [];
 		    		for (var f in oFields ){
-		    			aFields.push(f);
+		    			aFacetFields.push(f);
 		    		}		
-		    		var fecetFieldsStr = $.fn.fetchFecetFieldsStr(aFields);
 		    		
-		            var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';        
-		            paramStr += '&fq=' + fqStr + ' AND ' + MPI2.searchAndFacetConfig.facetParams.geneFacet.fq + fecetFieldsStr;
-		                    
-		            //console.log('GENE: '+ paramStr);
+		            var paramStr = _composeFacetUpdateParamStr(q, facet, fqStr, aFacetFields);
+		            //console.log('GENE facet update: '+ paramStr);
 		            
 		            $.ajax({ 	
 		    			'url': thisSolrUrl,		
@@ -465,9 +477,9 @@
 							
 		    				var foundMatch = {'phenotyping':0, 'production':0, 'latest_production_centre':0, 'latest_phenotyping_centre':0, 'marker_type':0};
 		    				
-		    				for (var n=0; n<aFields.length; n++){					
-		    					if ( oFacets[aFields[n]].length != 0 ){						
-		    						foundMatch[oFields[aFields[n]]['class']]++;
+		    				for (var n=0; n<aFacetFields.length; n++){					
+		    					if ( oFacets[aFacetFields[n]].length != 0 ){						
+		    						foundMatch[oFields[aFacetFields[n]]['class']]++;
 		    					}					
 		    				}
 		    			
@@ -519,10 +531,7 @@
 			    case 'mp':
 			    {
 					var facetField = 'top_level_mp_term';
-					var fecetFieldsStr = $.fn.fetchFecetFieldsStr([facetField]);
-					var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest'; 
-			        paramStr += '&fq=' + fqStr + fecetFieldsStr;		
-					
+					var paramStr = _composeFacetUpdateParamStr(q, facet, fqStr, [facetField]);
 					//console.log('MP: '+ paramStr);
 
 					$.ajax({ 	
@@ -565,16 +574,13 @@
 			    case 'disease':
 			    {
 			    		
-					var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['disease_classes','disease_source','human_curated','mouse_curated','impc_predicted','impc_predicted_in_locus','mgi_predicted','mgi_predicted_in_locus']);
-							
-					var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';  
-			        paramStr += '&fq=' + fqStr + fecetFieldsStr;
-			        
+					var aFacetFields = ['disease_classes','disease_source','human_curated','mouse_curated','impc_predicted','impc_predicted_in_locus','mgi_predicted','mgi_predicted_in_locus'];	
+			        var paramStr = _composeFacetUpdateParamStr(q, facet, fqStr, aFacetFields);
 					//console.log('DISEASE: '+ paramStr);
 			        
 					$.ajax({ 	
 						'url': thisSolrUrl,
-			    		'data': paramStr + fecetFieldsStr,
+			    		'data': paramStr,
 			    		'dataType': 'jsonp',
 			    		'jsonp': 'json.wrf',
 			    		'success': function(json) {
@@ -653,10 +659,7 @@
 			    case 'ma':
 			    {
 					var facetField = 'selected_top_level_ma_term';
-					var fecetFieldsStr = $.fn.fetchFecetFieldsStr([facetField]);
-					var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest';  
-			        paramStr += '&fq=' + fqStr + fecetFieldsStr;		
-							
+			        var paramStr = _composeFacetUpdateParamStr(q, facet, fqStr, [facetField]);	
 					//console.log('MA: '+ paramStr);
 					
 					$.ajax({ 	
@@ -698,11 +701,8 @@
 			    
 			    case 'pipeline':
 			    {
-					
-					var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['pipeline_name', 'pipe_proc_sid']);
-					var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest'; 
-			        paramStr += '&fq=' + fqStr + fecetFieldsStr;		
-					
+			    	var aFacetFields = ['pipeline_name', 'pipe_proc_sid'];
+			    	var paramStr = _composeFacetUpdateParamStr(q, facet, fqStr, aFacetFields);	
 					//console.log('PIPELINE: '+ paramStr);
 					
 					$.ajax({ 	
@@ -789,11 +789,9 @@
 			    
 			    case 'images':
 			    {
-					//var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['annotatedHigherLevelMpTermName', 'annotated_or_inferred_higherLevelMaTermName', 'expName', 'subtype']);		
-					var fecetFieldsStr = $.fn.fetchFecetFieldsStr(['procedure_name','top_level_mp_term','selected_top_level_ma_term','marker_type']);
-					var paramStr = 'q=' + q + '&wt=json&defType=edismax&qf=auto_suggest'; 
-			        paramStr += '&fq=' + fqStr + fecetFieldsStr;
-			       
+			    	var aFacetFields = ['procedure_name','top_level_mp_term','selected_top_level_ma_term','marker_type'];
+					//var aFacetFields = ['annotatedHigherLevelMpTermName', 'annotated_or_inferred_higherLevelMaTermName', 'expName', 'subtype']);		
+			    	var paramStr = _composeFacetUpdateParamStr(q, facet, fqStr, aFacetFields);	
 					//console.log('IMAGES: '+ paramStr);
 					
 					$.ajax({ 	
@@ -939,7 +937,7 @@
 			for ( var i=0; i<cores.length; i++ ){
 				//console.log('working on '+cores[i]);
 				var core = cores[i];
-				var oConf = {'facet':core, 'fqStr':solrFqStr, 'q':q};
+				var oConf = {'facet':core, 'fqStr':solrFqStr, 'q': q};
 				var facetCountsUpdater = new FacetCountsUpdater(oConf);
 				facetCountsUpdater.updateFacetCounts();
 			}
@@ -1418,6 +1416,9 @@
 		}
 		return q;
     };
+    $.fn.encodeForSolr = function(q) {
+    	
+    };
     
     $.fn.convertNonDecodable = function(q){
 		var coding = {
@@ -1428,7 +1429,8 @@
 			'%3A' : ':',
 			'%2C' : ',',
 			'%2F' : '/',
-			'%3B' : ';'
+			'%3B' : ';',
+			'%40' : '@'
 			//'%25' : '%'	
 		} 
 		for ( c in coding ){
@@ -1448,13 +1450,17 @@
     	//var re = /([-|||!(){}[]^~])/g;
     	var re = /([-!(){}^~])/g;
 		var q = q.replace(re,"\\" + "$1");
-    			
-		// apply SOLR complexphrase search for * in quotes, eg. "blo* cel*"
-		if ( /^[%22"].*[%22"]$/.test(q) && /\*/.test(q) ){	
-			console.log('here')
+		
+		if ( /^%22\*+.+%22$/.test(q) ){
+			return q;
+		}
+				// apply SOLR complexphrase search for * in quotes, eg. "blo* cel*"
+		//if ( /^[%22"].*[%22"]$/.test(q) && /\*/.test(q) ){	
+		else if ( /^%22.*%22$/.test(q) && /\w+?\**\w*\*+/.test(q) ){
 			q = _setSolrComplexPhraseQuery(q); 
 		}
-    	//console.log('processed q: '+q)
+    
+		//console.log('processed q: '+q)
 		return q;
     };
     
@@ -1737,12 +1743,18 @@
     		oParams.qf = MPI2.searchAndFacetConfig.facetParams[facetDivId].qf;
     	}
     	
-    	oUrlParams.qOri = oUrlParams.q // before appending solr complexphrase query syntax
+    	oUrlParams.qOri = oUrlParams.q; // before appending solr complexphrase query syntax
     	oParams = $.fn.getSolrRelevanceParams(coreName, oUrlParams.q, oParams);
   
     	oParams.q = oUrlParams.q;
+    	//console.log('q check1: '+ oParams.q);
+    	
     	oParams.q = $.fn.process_q(oParams.q); 
-    	oParams.q = $.fn.encodeQ(oParams.q); // encode if not as we are creating solr query as string here (do not encode for obj)
+    	
+    	//console.log('q check2: '+ oParams.q);
+    	
+    	//oParams.q = $.fn.encodeQ(oParams.q); // encode q for solr query as it is string here (do not encode for obj)
+    	
     	
     	oUrlParams.params = $.fn.stringifyJsonAsUrlParams(oParams);	
     	

@@ -44,7 +44,7 @@
 			<div class="node node-gene">
 			<h1 class="title" id="top">Project Page: IDG</h1>
 		
-				 <div class="section">
+				 <div class="section" id="progressStatusChart">
 						<h2 class="title"	id="section-associations"> Phenotype associations for ${gene.symbol} </h2>		
             <div class="inner">
             	<div id="statusChart">
@@ -55,6 +55,15 @@
             </div>
         </div> <!-- section -->
                             
+        
+        <div class="section" id="phenotypePValueDistribution">
+						<h2 class="title"	id="section-associations"> Phenotype P value distribution for IDG genes </h2>		
+            <div class="inner">
+							
+
+            </div>
+        </div> <!-- section -->                    
+        
 		
 				<div class="section">
 					<div class=inner>

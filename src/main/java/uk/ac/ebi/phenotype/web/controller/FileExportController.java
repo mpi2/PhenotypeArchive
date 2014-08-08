@@ -649,7 +649,7 @@ public class FileExportController {
             data.add(prodStatus);
 
             // phenotyping status
-            data.add(solrIndex.deriveLatestPhenotypingStatus(doc));
+            data.add(geneService.getPhenotypingStatus(doc, request, toExport));
 
             // put together as tab delimited
             rowData.add(StringUtils.join(data, "\t"));

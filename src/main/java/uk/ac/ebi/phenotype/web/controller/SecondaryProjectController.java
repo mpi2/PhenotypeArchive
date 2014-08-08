@@ -38,6 +38,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.phenotype.dao.SecondaryProjectDAO;
 import uk.ac.ebi.phenotype.service.GeneService;
+import uk.ac.ebi.phenotype.stats.Constants;
 import uk.ac.ebi.phenotype.stats.unidimensional.UnidimensionalChartAndTableProvider;
 
 
@@ -71,6 +72,18 @@ public class SecondaryProjectController {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		
+
+		// generate a chart
+		String chart = phenomeChartProvider.generatePhenomeChart(
+				results.getPhenotypeCallSummaries(),
+				phenotypingCenter,
+				Constants.SIGNIFICANT_P_VALUE);
+		
+		model.addAttribute("phenotypeCalls", results.getPhenotypeCallSummaries());
+		model.addAttribute("palette", colorCoding.getPalette());
+		model.addAttribute("chart", chart);
+		
 		return "idg";
 	}
 

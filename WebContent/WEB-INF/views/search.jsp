@@ -182,14 +182,26 @@
        		    	//$('ul#ul-id-1').remove();
        		    
        		    	//alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
-       		    	var input = $('input#s').val().trim();//.replace(/^'|'$/g, '"');
+       		    	var input = $('input#s').val().trim();
        		    	input = /^\*\**?\*??$/.test(input) ? '' : input;  // lazy matching
        		    	
        		    	var re = new RegExp("^'(.*)'$");
        		    	input = input.replace(re, "\"$1\""); // only use double quotes for phrase query
        		    	
        		    	input = encodeURIComponent(input);
-       		    
+       		    	//alert(input)
+       		    	//var re2 = /([-!(){}^~])/g;
+       				//input = input.replace(re2,"\\" + "$1");
+       				input = input.replace("%5B", "\\[");
+       				input = input.replace("%5D", "\\]");
+       				input = input.replace("%7B", "\\{");
+       				input = input.replace("%7D", "\\}");
+       				input = input.replace("%7C", "\\|");
+       				input = input.replace("%5C", "\\\\");
+       				input = input.replace("%3C", "\\<");
+       				input = input.replace("%3E", "\\>");
+       				input = input.replace(".", "\\.");
+       				
        		    	MPI2.searchAndFacetConfig.update.kwSearch = true;
        		    	
        		    	if (input == ''){
@@ -388,10 +400,8 @@
     				
     				// MA,MP facet stays open when adding/removing filters
     				$('li#mp.fmcat, li#ma.fmcat').each(function(){
-    				
     					if (oUrlParams.facetName == $(this).attr('id')) {
     						$(this).addClass('open');
-    						MPI2.searchAndFacetConfig.update.filterChange = false;
     					}
     				});
     				
@@ -479,6 +489,7 @@
     			}
     			else {
     				//console.log('rebuild here')
+    				//console.log(oUrlParams.q);
     				rebuildFilters(oUrlParams);    			
     			}
     		}
@@ -564,7 +575,7 @@
 					oUrlParams.widgetName += 'Facet';
 	   				oUrlParams.q = window.location.search != '' ? $.fn.fetchQueryStr() : '*:*';
     			}	
-    			oUrlParams.q = decodeURI(oUrlParams.q);
+    			//oUrlParams.q = decodeURI(oUrlParams.q);
     			return oUrlParams;
    			}
    							

@@ -45,7 +45,7 @@
 	    	var facetField = 'selected_top_level_ma_term';
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('ma', self.options.data.hashParams.q, oParams);
-	        oParams.q = $.fn.encodeQ(oParams.q); 
+	        //oParams.q = $.fn.encodeQ(oParams.q); 
 	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,
@@ -59,6 +59,8 @@
 				'q.option': 'AND'
 				//'q' : self.options.data.hashParams.q
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
+	    	
+	    	queryParams.q = encodeURIComponent(queryParams.q);
 	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams);	 
 	    	
