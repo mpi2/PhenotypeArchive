@@ -189,10 +189,8 @@
        		    	input = input.replace(re, "\"$1\""); // only use double quotes for phrase query
        		    	
        		    	input = encodeURIComponent(input);
-       		    	//alert(input)
-       		    	//var re2 = /([-!(){}^~])/g;
-       				//input = input.replace(re2,"\\" + "$1");
-       				input = input.replace("%5B", "\\[");
+
+       		    	input = input.replace("%5B", "\\[");
        				input = input.replace("%5D", "\\]");
        				input = input.replace("%7B", "\\{");
        				input = input.replace("%7D", "\\}");
@@ -200,7 +198,11 @@
        				input = input.replace("%5C", "\\\\");
        				input = input.replace("%3C", "\\<");
        				input = input.replace("%3E", "\\>");
-       				input = input.replace(".", "\\.");
+       				input = input.replace("."  , "\\.");
+       				input = input.replace("%2F", "\\/");
+       				input = input.replace("%60", "\\`");
+       				//input = input.replace("~"  , "\\~"); // let solr handles it
+       				
        				
        		    	MPI2.searchAndFacetConfig.update.kwSearch = true;
        		    	

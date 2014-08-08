@@ -45,7 +45,6 @@
 	    	var facetField = 'selected_top_level_ma_term';
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('ma', self.options.data.hashParams.q, oParams);
-	        //oParams.q = $.fn.encodeQ(oParams.q); 
 	        
 	    	var queryParams = $.extend({}, {				
 				'fq': fq,

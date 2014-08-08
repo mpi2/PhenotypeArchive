@@ -46,9 +46,8 @@
 
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('pipeline', self.options.data.hashParams.q, oParams);
-	        //oParams.q = $.fn.encodeQ(oParams.q); // solr params passed in as str not obj, so we need to encode
-	        console.log('pipeline widget q: '+ oParams.q);
-	    	var queryParams = $.extend({}, {				
+
+	        var queryParams = $.extend({}, {				
 				'fq': fq,
 				'rows': 0, // override default
 				'facet': 'on',								
