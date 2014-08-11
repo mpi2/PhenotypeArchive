@@ -575,11 +575,10 @@ CREATE TABLE observation (
 
     id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     db_id                      INT(10) UNSIGNED NOT NULL,
-	biological_sample_id       INT(10) UNSIGNED NOT NULL,
+	biological_sample_id       INT(10) UNSIGNED NULL,
 	parameter_id               INT(10) UNSIGNED NOT NULL,
 	parameter_stable_id        varchar(30) NOT NULL,
-	population_id              INT(10) UNSIGNED NOT NULL,
-	observation_type           enum('categorical', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text'),
+	observation_type           enum('categorical', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text', 'colony'),
 	missing                    TINYINT(1) DEFAULT 0,
 	parameter_status           VARCHAR(50) DEFAULT NULL,
 	parameter_status_message   VARCHAR(450) DEFAULT NULL,
@@ -594,43 +593,21 @@ CREATE TABLE observation (
 
 
 /**
- * observation_population
- * An observation is a experimental parameter measurement (data point, image 
- * record, etc.) 
- * of a phenotype of a given control/experimental biological sample.
- * id: primary surrogate key for this table
- * population_id: grouping index for collection observations together
- * observation_id: the observation belonging to this population
+ * colony_observation
+ * Observations about a colony that do not pertain to a specific sample
  */
-CREATE TABLE observation_population (
+CREATE TABLE colony_observation (
 
     id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-	observation_id             INT(10) UNSIGNED NOT NULL,
-	population_id              INT(10) UNSIGNED NOT NULL,
+	biological_model_id        INT(10) UNSIGNED NOT NULL,
+    colony_id                  VARCHAR(100) NOT NULL,
 
 	PRIMARY KEY(id),
-	KEY population_observation_idx(population_id, observation_id)
+	KEY biological_model_idx(biological_model_id),
+	KEY colony_idx(colony_id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
-CREATE TABLE population (
-
-    id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    parameter_id               INT(10) UNSIGNED NOT NULL,
-    organisation_id            INT(10) UNSIGNED NOT NULL,
-    acc                        VARCHAR(20) NOT NULL,
-    db_id                      INT(10) NOT NULL,
-    zygosity                   ENUM('homozygote', 'heterozygote', 'hemizygote'),
-    sex                        ENUM('female', 'hermaphrodite', 'male'),
-    control_batches            INT(10) UNSIGNED NOT NULL DEFAULT 0,
-    experimental_batches       INT(10) UNSIGNED NOT NULL DEFAULT 0,
-    concurrent_controls        TINYINT(1) DEFAULT 0,
-
-    PRIMARY KEY(id),
-    KEY parameter_idx(parameter_id),
-    KEY genomic_feature_idx (acc, db_id)
-
-) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
 /**
