@@ -45,6 +45,7 @@ config.update.rebuildSummaryFilterCount = 0;
 config.update.resetSummaryFacet = false;
 config.update.filterAdded = false;
 config.update.filterChange = false;
+config.update.notFound = false;
 
 config.searchSpin = "<img src='img/loading_small.gif' />";
 config.spinner = "<img src='img/loading_small.gif' /> Processing search ...";
@@ -96,6 +97,15 @@ config.phenotypingStatusFq2Label = {
 		'imits_phenotype_started'  : 'Started',
 		'imits_phenotype_status'   : 'Attempt Registered'
 };
+
+config.summaryFilterVal2FqStr = {
+		'Phenotyping Complete'         : 'latest_phenotype_status:"Phenotyping Complete"', 
+	    'Phenotyping Started'          : 'latest_phenotype_status:"Phenotyping Started"', 
+	    'Phenotype Attempt Registered' : 'latest_phenotype_status:"Phenotype Attempt Registered"'
+	    	
+	    	
+};
+
 /*
 
 config.expName2ProcSidMapping = {
@@ -138,7 +148,7 @@ config.qfield2facet = {
 	'img_marker_type'                : 'images',
 	'img_top_level_mp_term'          : 'images',
 	'img_selected_top_level_ma_term' : 'images',
-	'img_procedure_stable_id'        : 'images'
+	'img_procedure_name'             : 'images'
 }
 config.facetFilterLabel = {
 	'phenotyping_center'         : 'phenotyping_center',
