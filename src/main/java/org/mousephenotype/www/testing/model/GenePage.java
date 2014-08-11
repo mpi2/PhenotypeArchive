@@ -361,10 +361,6 @@ public class GenePage {
         // but the download graph link uses https. Ignore the protocol (but not the hostname).
         pageCell = TestUtils.removeProtocol(pageMap.getCell(1, PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH).trim());
         
-        // When using the testing url 'ves-ebi-d0:8080, translate it to the correct
-        // url used for dev in the download stream: dev.mousephenotype.org.
-        pageCell = TestUtils.patchVesEbiD0(pageCell);
-        
         downloadCell = TestUtils.removeProtocol(downloadData.getCell(1, DownloadGeneMap.COL_INDEX_GRAPH).trim());
         if ( ! pageCell.equals(downloadCell))
             colErrors.add("ERROR: graph link mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");

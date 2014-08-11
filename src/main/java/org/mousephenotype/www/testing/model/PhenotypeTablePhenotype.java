@@ -36,7 +36,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  * This class encapsulates the code and data necessary for access to the phenotype
  * page's "phenotypes" HTML table.
  */
-public class PhenotypeTablePheno {
+public class PhenotypeTablePhenotype {
     private final WebDriver driver;
     private final WebDriverWait wait;
     private final String target;
@@ -69,7 +69,7 @@ public class PhenotypeTablePheno {
      * @param wait<code>WebDriverWait</code> instance
      * @param target the calling page's target url
      */
-    public PhenotypeTablePheno(WebDriver driver, WebDriverWait wait, String target) {
+    public PhenotypeTablePhenotype(WebDriver driver, WebDriverWait wait, String target) {
         this.driver = driver;
         this.wait = wait;
         this.target = target;

@@ -241,24 +241,6 @@ public class TestUtils {
     }
     
     /**
-     * This handles a specific download test condition when the baseUrl is ves-ebi-d0.
-     * Download tests on DEV may use either:
-     * <ul><li>dev.mousephenotype.org or</li>
-     * <li>ves-ebi-d0:8080</li>
-     * 
-     * This method looks at the incoming url and, if it is ves-ebi-d0:8080,
-     * replaces it with dev.mousephenotype.org.
-     * 
-     * This permits the download test comparison to be accurate and to succeed
-     * only when appropriate.
-     * @param url target url
-     * @return modified url if target url was ebi-ves-d0.
-     */
-    public static String patchVesEbiD0(String url) {
-        return url.replace("ves-ebi-d0:8080", "dev.mousephenotype.org");
-    }
-    
-    /**
      * Given a test name, test start time, error list, exception list, success list,
      * and total number of expected records to be processed, writes the given
      * information to stdout.
