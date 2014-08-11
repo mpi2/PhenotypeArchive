@@ -131,16 +131,6 @@
 		
 	};
 	
-	$.fn.process_kwSearch = function(widget){
-		
-		MPI2.searchAndFacetConfig.update.kwSearch = false;
-	
-		var oConf = widget.options.data.hashParams;
-		oConf.coreName = widget.options.data.core;
-	
-		$.fn.loadDataTable(oConf);
-	};
-	
 	$.fn.initFacetToggles = function(facet){			
 		//console.log('init toggle facet');
 		// toggle Main Categories
