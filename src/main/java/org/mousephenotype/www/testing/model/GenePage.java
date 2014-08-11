@@ -22,6 +22,7 @@ package org.mousephenotype.www.testing.model;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.openqa.selenium.By;
@@ -32,7 +33,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.util.Utils;
 
 /**
@@ -53,6 +53,7 @@ public class GenePage {
     
     private boolean hasImages;
     private boolean hasGraphs;
+    private boolean hasPhenotypesTable;
     private int resultsCount;
     
     /**
@@ -77,10 +78,18 @@ public class GenePage {
         load();
     }
     
+    /**
+     * 
+     * @return the base url
+     */
     public String getBaseUrl() {
         return baseUrl;
     }
 
+    /**
+     * 
+     * @return the gene ID
+     */
     public String getGeneId() {
         return geneId;
     }
@@ -111,137 +120,140 @@ public class GenePage {
         return resultsCount;
     }
 
+    /**
+     * 
+     * @return The target URL
+     */
     public String getTarget() {
         return target;
     }
     
+    /**
+     * 
+     * @return true if this page has graphs; false otherwise.
+     */
     public boolean hasGraphs() {
         return hasGraphs;
     }
     
+    /**
+     * 
+     * @return true if this page has images; false otherwise.
+     */
     public boolean hasImages() {
         return hasImages;
     }
     
     /**
-     * Compares the first non-heading row of data from this class's 'phenotypes'
-     * HTML table to the first non-heading row of <code>downloadData</code>. Any
-     * errors are returned in the <code>PageStatus</code> instance.
      * 
-     * NOTE: All flavours of the download stream need some special modifications
-     * for comparison testing:
-     * <ul>
-     * <li>When comparing the graph url, start with the first occurrence of
-     * "/charts'. When testing on localhost, baseUrl is the localhost url, but
-     * the download stream has a dev url (for historical, complicated reasons).</li></ul>
-     * 
-     * @param baseUrl A fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
-     * @return page status instance
+     * @return true if this page has a <b><i>phenotypes</i></b> HTML table;
+     * false otherwise.
      */
-    public PageStatus validateDownload(String  baseUrl) {
-        PageStatus status = new PageStatus();
-        GridMap pageMap = ptGene.load();                                        // Load all of the phenotypes table pageMap data.
-        
-        // Test the TSV.
-        GridMap downloadData = getDownloadTsv(baseUrl, status);
-        if (status.hasErrors()) {
-            return status;
-        }
-        
-        status = validateDownload(pageMap, downloadData);
-        if (status.hasErrors()) {
-            return status;
-        }
-        
-        // Test the XLS.
-        downloadData = getDownloadXls(baseUrl, status);
-        if (status.hasErrors()) {
-            return status;
-        }
-        
-        status = validateDownload(pageMap, downloadData);
-        if (status.hasErrors()) {
-            return status;
-        }
-        
-        return status;
+    public boolean hasPhenotypesTable() {
+        return hasPhenotypesTable;
     }
     
     /**
-     * Validates all the graph links on the [already loaded] gene page. Any
-     * errors are returned in a new <code>PageStatus</code> instance.
-     * 
-     * @return page status instance
+     * Validates that:
+     * <ul>
+     *     <li>There is a <b><i>Phenotype Association</i></b> section.</li>
+     *     <li>Gene page title starts with <b><i>Gene:</i></b></li>
+     *     <li>If there is a <b><i>phenotypes</i></b> HTML table, validates that:
+     *         <ul>
+     *             <li>Each row has a p-value</li>
+     *             <li>Each row has a valid graph link (the graph pages themselves
+     *                 are not checked here as they take too long)</li>
+     *             <li>The sex icon count matches <i>Total number of results</i> count</li>
+     *             <li><b><i>TSV</i></b> and <b><i>XLS</i></b> downloads are valid</li>
+     *         </ul>
+     *     </li>
+     *     <li>A <b><i>phenotypes</i></b> HTML table is present if <code>
+     *         phenotypesTableRequired</code> is <code>true</code></li>
+     *     <li>There are 3 buttons:</li>
+     *     <ul>
+     *         <li><b><i>Login to register interest</i></b></li>
+     *         <li><b><i>Order</i></b></li>
+     *         <li><b><i>KOMP</i></b></li>
+     *     </ul>
+     * </ul>
+     * @param phenotypesTableRequired If set to true, there must be a phenotype
+     * HTML table or an error is logged. If false, no error is logged if there
+     * is no phenotype HTML table.
+     * @return validation status
      */
-    public PageStatus validateGraphLinks() {
-        PageStatus geneStatus = new PageStatus();
-        PageStatus graphStatus = new PageStatus();
-        GridMap pageMap = ptGene.load();                                        // Load all of the phenotypes table pageMap data.
+    public PageStatus validate(boolean phenotypesTableRequired) {
+        PageStatus status = new PageStatus();
         
-        int sexIconCount = 0;
-        String cell;
-        for (String[] row : pageMap.getBody()) {
-            cell = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_SEX];
-            if ((cell.equals("male")) || (cell.equals("female")))
-                sexIconCount++;
-            else if (cell.equals("both"))
-                sexIconCount += 2;
-            
-            //   Verify p value.
-            cell = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_P_VALUE];
-            if (cell == null) {
-                geneStatus.addError("Missing or invalid P Value. URL: " + target);
-            }
-            
-            // Validate that the graph link is not missing.
-            cell = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH];
-            if ((cell == null) || (cell.trim().isEmpty())) {
-                geneStatus.addError("Missing graph link. URL: " + target);
-            }
+        // Validate title starts with 'Gene:'
+        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h1[@id='top']")));
+        if ( ! element.getText().startsWith("Gene:")) {
+            status.addError("Expected gene page title to start with 'Gene:'.");
         }
         
-        // Verify resultsCount on page against the phenotype table's count of Sex icons.
-System.out.println("Validating resultsCount = " + resultsCount);
-        if (sexIconCount != resultsCount) {
-            geneStatus.addError("Result counts don't match. Result count = " + resultsCount + " but Sex icon count = " + sexIconCount);
+        // Validate there is a 'Phenotype Association' section.
+        try {
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h2[@id='section-associations']")));
+        } catch (Exception e) {
+            status.addError("Expected 'Phenotype Association' section.");
         }
-            
-        // Validate the graphs.
-        System.out.println("Validating " + pageMap.getBody().length + " graphs.");
-        int i = 0;
-        for (String[] row : pageMap.getBody()) {
-            String graphUrl = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH];
-            driver.get(graphUrl);
-            GraphPage graphPage = new GraphPage(driver, wait,target, geneId, phenotypePipelineDAO, baseUrl);
-            graphStatus = graphPage.validateScalar();
-            if ( ! graphStatus.hasErrors()) {
-                ObservationType graphType = graphPage.getGraphType();
-                switch (graphType) {
-                    case categorical:
-System.out.println("[" + i + "]: Validating categorical graph.");
-                        GraphPageCategorical graphPageCategorical =
-                                new GraphPageCategorical(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl, graphPage);
-                        graphStatus = graphPageCategorical.validateDownload();
-                        break;
-                        
-                    case unidimensional:
-System.out.println("[" + i + "]: Validating unidimensional graph.");
-                        GraphPageUnidimensional graphPageUnidimensional =
-                                new GraphPageUnidimensional(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl, graphPage);
-                        graphStatus = graphPageUnidimensional.validateDownload();
-                        break;
-                        
-                    default:
-                        throw new RuntimeException("PhenoPage: Unsupported graph type '" + graphType + "'");
+        
+        // If there is a 'phenotypes' HTML table, validate it.
+        if (hasPhenotypesTable) {
+            // Validate that there is a 'pheontypes' HTML table by loading it.
+            GridMap pageMap = ptGene.load();                                        // Load all of the phenotypes table pageMap data.
+
+            int sexIconCount = 0;
+            String cell;
+            for (String[] row : pageMap.getBody()) {
+                cell = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_SEX];
+                if ((cell.equals("male")) || (cell.equals("female")))
+                    sexIconCount++;
+                else if (cell.equals("both"))
+                    sexIconCount += 2;
+
+                //   Verify p value.
+                cell = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_P_VALUE];
+                if (cell == null) {
+                    status.addError("Missing or invalid P Value. URL: " + target);
+                }
+
+                // Validate that the graph link is not missing.
+                cell = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH];
+                if ((cell == null) || (cell.trim().isEmpty())) {
+                    status.addError("Missing graph link. URL: " + target);
                 }
             }
-            
-            i++;
+
+            // Verify resultsCount on page against the phenotype table's count of Sex icons.
+            if (sexIconCount != resultsCount) {
+                status.addError("Result counts don't match. Result count = " + resultsCount + " but Sex icon count = " + sexIconCount);
+            }
+
+            // Validate the download links.
+            status = validateDownload();
+        } else {
+            if (phenotypesTableRequired) {
+                status.addError("Expected phenotypes HTML table but found none.");
+            }
         }
         
-        geneStatus.add(graphStatus);
+        // Buttons
+        List<WebElement> buttons = driver.findElements(By.className("btn"));
+        // ... count
+        if (buttons.size() != 3) {
+            status.addError("Expected 3 buttons but found " + buttons.size());
+        }
+        // ... Button text
+        String[] buttonTitlesArray = { "Login to register interest", "Order", "KOMP" };
+        List<String> buttonTitles = new ArrayList(Arrays.asList(buttonTitlesArray));
+        for (WebElement webElement : buttons) {
+            String buttonText = webElement.getText();
+            if ( ! buttonTitles.contains(buttonText)) {
+                status.addError("Expected button with title '" + buttonText + "' but none was found.");
+            }
+        }
         
-        return geneStatus;
+        return status;
     }
     
     
@@ -249,7 +261,7 @@ System.out.println("[" + i + "]: Validating unidimensional graph.");
     
     
     /**
-     * Waits for the pheno page to load.
+     * Waits for the phenotype page to load.
      */
     private void load() {
         driver.get(target);
@@ -271,6 +283,14 @@ System.out.println("[" + i + "]: Validating unidimensional graph.");
             hasImages = true;
         } catch (Exception e) {
             hasImages = false;
+        }
+        
+        // Determine if this page has phenotype associations.
+        try {
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//table[@id='phenotypes']")));
+            hasPhenotypesTable = true;
+        } catch (Exception e) {
+            hasPhenotypesTable = false;
         }
         
         resultsCount = (i == null ? 0 : i);
@@ -396,6 +416,10 @@ System.out.println("[" + i + "]: Validating unidimensional graph.");
         return new GridMap(data, target);
     }
     
+    /**
+     * Return the download url base
+     * @return the download url base embedded in div.
+     */
     private String getDownloadUrlBase() {
         return driver.findElement(By.xpath("//div[@id='exportIconsDiv']")).getAttribute("data-exporturl");
     }
@@ -433,6 +457,50 @@ System.out.println("[" + i + "]: Validating unidimensional graph.");
         }
         
         return new GridMap(data, target);
+    }
+    
+    /**
+     * Compares the first non-heading row of data from this class's 'phenotypes'
+     * HTML table to the first non-heading row of <code>downloadData</code>. Any
+     * errors are returned in the <code>PageStatus</code> instance.
+     * 
+     * NOTE: All flavours of the download stream need some special modifications
+     * for comparison testing:
+     * <ul>
+     * <li>When comparing the graph url, start with the first occurrence of
+     * "/charts'. When testing on localhost, baseUrl is the localhost url, but
+     * the download stream has a dev url (for historical, complicated reasons).</li></ul>
+     * 
+     * @param baseUrl A fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
+     * @return page status instance
+     */
+    private PageStatus validateDownload() {
+        PageStatus status = new PageStatus();
+        GridMap pageMap = ptGene.load();                                        // Load all of the phenotypes table pageMap data.
+        
+        // Test the TSV.
+        GridMap downloadData = getDownloadTsv(baseUrl, status);
+        if (status.hasErrors()) {
+            return status;
+        }
+        
+        status = validateDownload(pageMap, downloadData);
+        if (status.hasErrors()) {
+            return status;
+        }
+        
+        // Test the XLS.
+        downloadData = getDownloadXls(baseUrl, status);
+        if (status.hasErrors()) {
+            return status;
+        }
+        
+        status = validateDownload(pageMap, downloadData);
+        if (status.hasErrors()) {
+            return status;
+        }
+        
+        return status;
     }
 
     /**
