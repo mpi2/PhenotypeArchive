@@ -40,9 +40,10 @@
   	    	var self = this;  
   	    	
   	    	$.fn.setCurrentFq();
-  	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
-	    			: self.options.data.hashParams.fq;
-	    	
+//  	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
+//	    			: self.options.data.hashParams.fq;
+  	    	var fq = $.fn.processCurrentFqFromUrl(self.options.data.core);
+  	    	
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('images', self.options.data.hashParams.q, oParams);
 	        
@@ -58,8 +59,6 @@
 				//'q' : self.options.data.hashParams.q
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
   	    	
-	    	queryParams.q = encodeURIComponent(queryParams.q);
-	    	
   	    	var paramStr = $.fn.stringifyJsonAsUrlParams(queryParams) 
   	    		//+ "&facet.field=expName"
   	    		//+ "&facet.field=annotatedHigherLevelMpTermName"

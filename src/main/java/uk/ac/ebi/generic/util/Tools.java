@@ -124,6 +124,8 @@ public class Tools {
 			System.out.println("Failed to decode " + qry);
 		}
 		
+		//kw = kw.replace("\\", "");
+		
 		if ( qry.equals("*:*") ) {
 			return target;	
 		}
@@ -155,8 +157,10 @@ public class Tools {
 		kw = kw.replace("*","")
 				.replace("+", "\\+");
 				
+				//.replace("(", "\\(")
+				//.replace(")", "\\)");
 				//.replace("{", "\\{")
-				//.replace("}", "\\}")
+				//.replace("}", "\\}");
 		
 		//working pattern: vang\-like|2|\\(van|gogh,|Drosophila\\)
 		

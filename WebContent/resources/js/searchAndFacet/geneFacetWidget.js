@@ -42,10 +42,13 @@
 	    	var self = this;
 	    
 	    	$.fn.setCurrentFq();
-	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
-	    			: self.options.data.hashParams.fq;
+//	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
+//	    			: self.options.data.hashParams.fq;
 	    	
-	    	var oParams = {};		
+	    	var fq = $.fn.processCurrentFqFromUrl(self.options.data.core);
+	    	
+	    	var oParams = {};	
+	    	
 	        oParams = $.fn.getSolrRelevanceParams('gene', self.options.data.hashParams.q, oParams); // has q 
 	        
 	        // json will decode special chars
@@ -58,8 +61,6 @@
 				'facet.sort': 'count'	
 				//'q' : $.fn.encodeQ(self.options.data.hashParams.q)
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);	
-	    	
-	    	queryParams.q = encodeURIComponent(queryParams.q);
 
 	    	// facet on latest_phenotype_status 
 	    	/*

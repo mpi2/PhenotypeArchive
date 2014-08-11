@@ -58,8 +58,6 @@
 					}
 					
 					var oInput = $('div.flist li.fcat').find('input[rel*="'+ fieldFacet + '|' + kv +'"]');
-					
-					//if (oInput.length != 0 && !oInput.is(':checked') ){	
 					if (oInput.length != 0 ){
 						
 						oInput.click(); // tick checkbox   
@@ -326,6 +324,56 @@
 		});		
 	};
 	
+	$.fn.removeAllFilters = function(){
+		
+		 $('ul#facetFilter li.ftag').each(function(){
+			$(this).parent().remove();
+		});	 
+		$('ul#facetFilter li span.fcap').hide();
+		
+		$('div.ffilter').hide();
+		// uncheck all filter checkbox
+		$('div.flist li.fcat input:checked:enabled').each(function(){
+			$(this).prop('checked', false).siblings('span.flabel').removeClass('highlight');
+		});	 
+	};
+
+	$.fn.rebuildFilters = function(oUrlParams){
+		
+		MPI2.searchAndFacetConfig.update.resetSummaryFacet = true; 
+		MPI2.searchAndFacetConfig.update.filterAdded = false;
+
+		$.fn.removeAllFilters();
+		
+		oUrlParams.q = typeof oUrlParams.q == 'undefined' ? '*:*' : oUrlParams.q;
+    	oUrlParams.noFq = typeof oUrlParams.fq == 'undefined' ? true : false;
+    	//console.log(oUrlParams);
+    	if ( typeof oUrlParams.coreName != 'undefined' ){
+    		oUrlParams.widgetName = oUrlParams.coreName + 'Facet';
+    	}
+    	else if ( typeof oUrlParams.facetName != 'undefined' ){
+    		oUrlParams.widgetName = oUrlParams.facetName + 'Facet';
+    	}
+    	
+    	if ( typeof oUrlParams.widgetName == 'undefined'){
+    		//$.fn.fetchSolrFacetCount(oUrlParams);
+    		// do nothing
+		}
+		else {
+	    	oUrlParams.fq = typeof oUrlParams.fq == 'undefined' ? 
+	    			MPI2.searchAndFacetConfig.facetParams[oUrlParams.widgetName].fq :
+	    				oUrlParams.fq;
+	    			
+	    	if ( typeof oUrlParams.oriFq == 'undefined' ){
+	    		oUrlParams.oriFq = oUrlParams.fq; 
+	    	}
+	    	
+	    	oUrlParams.fq = oUrlParams.fq.replace(/img_/g,''); // so that this matches the copyField of images
+			
+	    	$.fn.parseUrl_constructFilters_loadDataTable(oUrlParams);
+		}	
+	};
+	
 	function _facetRefresh(json, selectorBase){			  			
 							    			
 		// refresh main facet sum count				
@@ -417,7 +465,6 @@
 	function FacetCountsUpdater(oConf){	
 		
 		var facet = oConf.facet;
-		//var fqStr = oConf.fqStr.replace(/img_/g,''); // so that this matches the copyField of images
 		var fqStr = $.fn.getCurrentFq(facet).replace(/img_/g,'');
 		
 		// send to solr through ajax not via browser url so encoding won't work for special char
@@ -858,9 +905,57 @@
 		};
 	}
 	
+	$.fn.dquote = function(str){
+		return '"' + str + '"';
+	};	  
+	
+	$.fn.resetUrlFqStr = function(fqStr){
+		var oUrlParams = $.fn.parseHashString(window.location.hash.substring(1));
+		
+		window.location.search = 'q=' + $.fn.fetchQueryStr();
+		var facet = oUrlParams.facetName;
+		
+		if ( typeof fqStr == 'undefined' ){
+			// replace fq with facet default
+			var fq =  MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].fq;
+			window.location.hash = 'fq=' + fq + '&facet=' + facet;
+		}
+		else {
+			// remove current filter in summary facet filters
+			var oldFqs = oUrlParams.fq.split(' AND ');
+			
+			MPI2.searchAndFacetConfig.update.filterChange = true;
+			MPI2.searchAndFacetConfig.update.notFound = true;
+			
+			if ( oldFqs.length == 1 ){
+				
+				MPI2.searchAndFacetConfig.update.lastFilterNotFound = true;
+				$.fn.removeAllFilters(); 
+				var fq =  MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].fq;
+				window.location.hash = 'fq=' + fq + '&facet=' + facet;
+			}
+			else {
+				var newFqs = [];
+				for ( var i=0; i<oldFqs.length; i++){
+					var str = oldFqs[i].replace(/\(|\)/g,'');
+					if ( str != fqStr ){
+						newFqs.push( '(' + str + ')' );
+					}
+				}
+				// compose new fqstr
+				var newFqStr = newFqs.join(' AND ');
+				window.location.hash = 'fq=' + newFqStr + '&facet=' + facet;
+			}
+		}
+	};
+	
 	$.fn.showNotFoundMsg = function(){
-		var q = decodeURI($.fn.fetchQueryStr());
-		q = decodeURIComponent(q);
+		
+		MPI2.searchAndFacetConfig.update.noFound = true;
+		
+		//var q = decodeURI($.fn.fetchQueryStr());
+		var q = decodeURIComponent($.fn.fetchQueryStr());
+		q = q.replace(/\\/g, ''); 
 		
 		var filter = '';		
 		if ( $('ul#facetFilter li.ftag').size() > 0 ){
@@ -871,7 +966,7 @@
 	};
 	
 	$.fn.composeSummaryFilters = function(oChkbox, q){	
-		
+		//alert(MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount);
 		if ( MPI2.searchAndFacetConfig.update.resetSummaryFacet ){
 			//console.log("reset facet summary: true");
 			MPI2.searchAndFacetConfig.update.filterAdded = false;
@@ -909,7 +1004,7 @@
 			$('ul#facetFilter li.ftag a').each(function(){
 	    		var aVals = $(this).attr('rel').split('|');
 	    		var facet  = aVals[0];
-	    		var qField = aVals[1];
+	    		var qField = aVals[1]; // do not replace 'img_' this shows on url
 	    		var qVal   = aVals[2];
 	    		
 	    		if (facet == 'gene' && qField.match(/^imits_/)){
@@ -938,6 +1033,7 @@
 				//console.log('working on '+cores[i]);
 				var core = cores[i];
 				var oConf = {'facet':core, 'fqStr':solrFqStr, 'q': q};
+				
 				var facetCountsUpdater = new FacetCountsUpdater(oConf);
 				facetCountsUpdater.updateFacetCounts();
 			}
@@ -1376,6 +1472,10 @@
 		return MPI2.searchAndFacetConfig.coreQf[facet]; 
 	};
 	
+	$.fn.processCurrentFqFromUrl = function(facet){
+		return $.fn.getCurrentFq(facet).replace(/img_/g,'');
+	};
+	
 	$.fn.getCurrentFq = function(facet){
 		var hashStr = $(location).attr('hash');	
 		if ( hashStr != '' && hashStr.indexOf('fq=') != -1 ){
@@ -1384,7 +1484,7 @@
 				// not all mega cores are the same, eg. pipeline and ma is different
 				return MPI2.searchAndFacetConfig.facetParams[facet+'Facet'].fq;
 			}
-			return fqStr;
+			return fqStr; // do not replace img_ if there is one, as this will replace the url fq
 		}
 		return '*:*';
 	};
@@ -1407,8 +1507,21 @@
 		}
 		return 'gene';
 	};
-    
-    $.fn.process_q = function(q){
+	
+	$.fn.process_q = function(q){
+		//console.log('PREprocessed q: '+q)
+		q = q.replace(/\\%20/g, ' ');
+		
+		// eg. \%22bl*%20ce*%22
+		//if ( /^\\%22.*%22$/.test(q) && /\w+?\**\w*\*+/.test(q) ){
+		if ( /^\\%22.*%22$/.test(q) && /%20/.test(q) ){
+			q = q.replace(/^\\%22|%22$/g, '');
+			q = _setSolrComplexPhraseQuery(q); 
+		}
+		return q;
+	};
+	
+    $.fn.process_q2 = function(q){
     	//console.log('PREprocessed q: '+q)
     	//Escaping Special Characters for SOLR
     	//Lucene supports escaping special characters that are part of the query syntax. 
@@ -1416,8 +1529,8 @@
     	//The current list special characters are
 
     	//var re = /([-|||!(){}[]^~])/g;
-    	var re = /([-!(){}^~])/g;
-		var q = q.replace(re,"\\" + "$1");
+    	//var re = /([-!(){}^~])/g;
+		//var q = q.replace(re,"\\" + "$1");
 		
 		if ( /^%22\*+.+%22$/.test(q) ){
 			return q;
@@ -1447,11 +1560,11 @@
 		}
 			
 		// need to remove leading wildcard as solr4.8 does NOT support this for complexphrase search
-		q = q.replace(/^\*/,''); 
+		q = q.replace(/^[\*\?]/,''); 
 			
 		// try a slop of 10 for now to look for matching string 10 words apart
 		// w/0 slop the query result maybe strange
-		q ='{!complexphrase}auto_suggest:' + q + '~10'; 
+		q ='{!complexphrase}auto_suggest:"' + q + '"~10'; 
 			
 		return q;
 	}
@@ -1591,6 +1704,18 @@
     	oParams.q = q;
     	//var wildCardStr = /^\*\w*$|^\w*\*$|^\*\w*\*$|^\*\\.+/;
     	var wildCardStr = /^\*\w*$|^\w*\*$|^\*\w*\*$|^\*\W+/;
+    	
+//    	var matched = q.match(wildCardStr);
+//    	if ( matched != null ){
+//	    	var specialChar = q.match(wildCardStr)[0].replace(/\*/g, '');
+//	    	if ( specialChar == '%' || q == '%' ){
+//	    		q = encodeURIComponent(q);
+//	    		oParams.q = q;
+//	    	}
+//    	}
+    	
+    	
+    	
     	if ( facet == 'gene' ){
     		if ( q.match(/^MGI:\d*$/i) ){
     			oParams.q = q.toUpperCase();
@@ -1671,7 +1796,7 @@
     	}
     	
     	if ( typeof oParams.bq != 'undefined' ){ 
-    		oParams.bq = oParams.bq.replace(/~/g, '\\~');
+    		//oParams.bq = oParams.bq.replace(/~/g, '\\~');
     	}
     	
     	return oParams;
@@ -1725,11 +1850,6 @@
   
     	oParams.q = oUrlParams.q;
     	oParams.q = $.fn.process_q(oParams.q); 
-    	
-//    	if ( /~/.test(oParams.q) ){
-//    		oParams.q = oParams.q.replace('~','\~');
-//    		console.log('q now 2 : '+ oParams.q)
-//    	}
     	
     	oUrlParams.params = $.fn.stringifyJsonAsUrlParams(oParams);	
     	

@@ -40,14 +40,15 @@
 	    	var self = this;
 	    	
 	    	$.fn.setCurrentFq();
-	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
-	    			: self.options.data.hashParams.fq;
+//	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
+//	    			: self.options.data.hashParams.fq;
+	    	var fq = $.fn.processCurrentFqFromUrl(self.options.data.core);
 	    	
 	    	var facetField = 'top_level_mp_term';
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('mp', self.options.data.hashParams.q, oParams);
-	        
-	    	var queryParams = $.extend({}, {				
+
+	        var queryParams = $.extend({}, {				
 				'fq': fq,
 				'rows': 0, // override default
 				'facet': 'on',								
@@ -60,8 +61,6 @@
 				//'q' : $.fn.encodeQ(self.options.data.hashParams.q)
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
 	    	
-	    	queryParams.q = encodeURIComponent(queryParams.q);
-
 	    	//console.log('MP WIDGET: '+ $.fn.stringifyJsonAsUrlParams(queryParams));
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams);
 	    	
