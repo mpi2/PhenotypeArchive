@@ -39,8 +39,9 @@
 	    	var self = this;    	
 	    	
 	    	$.fn.setCurrentFq();
-	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
-	    			: self.options.data.hashParams.fq;
+//	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
+//	    			: self.options.data.hashParams.fq;
+	    	var fq = $.fn.processCurrentFqFromUrl(self.options.data.core);
 	    	
 	    	var facetField = 'selected_top_level_ma_term';
 	    	var oParams = {};		
@@ -58,8 +59,6 @@
 				'q.option': 'AND'
 				//'q' : self.options.data.hashParams.q
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);		
-	    	
-	    	queryParams.q = encodeURIComponent(queryParams.q);
 	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams);	 
 	    	

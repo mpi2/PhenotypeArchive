@@ -42,7 +42,7 @@
 		}
 		params.q = oUrlParams.q; // encoded
 		//console.log(facet + ' --- ' + $.fn.stringifyJsonAsUrlParams(params));
-		return params;
+		return $.fn.stringifyJsonAsUrlParams(params); // pass in as string, ie, encoded
 	}
 	
 	$.fn.fetchSolrFacetCount = function(oUrlParams){		
@@ -55,8 +55,6 @@
 			q = window.location.search != '' ? $.fn.fetchQueryStr() : '*:*';
 		}
 		
-		//console.log('encoded q: ' + q)
-		
 		// q to display in input box
 		var qDisplay = q == '*:*'  ? '' : decodeURIComponent(q);
 		qDisplay = qDisplay.replace(/\\/g, '');  // unescape for display
@@ -66,13 +64,9 @@
 		q = $.fn.process_q(q); 
 		oUrlParams.q  = q;
 
-		// q will be send to solr in a json object, ie, it will be encoded later so decode here
-		// NOTE: need to skip back slash (\) avoid \\
-		oUrlParams.q = decodeURIComponent(oUrlParams.q);
-		//oUrlParams.q = oUrlParams.q.replace(/\\\\/g, "\\");
-		
+		//console.log('encoded q: ' + oUrlParams.q)
 		/* ---- end of q for SOLR --- */
-		//console.log('decoded: '+ oUrlParams.q);
+		
 		
 		/* ---- fq for SOLR --- */
 		if ( typeof oUrlParams.fq != 'undefined' ){
@@ -246,8 +240,21 @@
     	    	$('div#facetSrchMsg').html('&nbsp;');
 
     	    	if ( ! _setSearchMode(oFacets.count) ){
-    	    		// nothing found    
+    	    		// nothing found   
     	    		$.fn.showNotFoundMsg();
+    	    		
+    	    		$('ul#facetFilter li.ftag a').each(function(){
+    					$(this).click(function(){
+    						var field = $(this).attr('rel').split('|')[1];
+    						var val   = $(this).attr('rel').split('|')[2];
+    						var solrField = MPI2.searchAndFacetConfig.summaryFilterVal2FqStr[field]; // label conversion
+    						
+    						var fqStr = typeof solrField == 'undefined' ? field + ':' + $.fn.dquote(val) : solrField + $.fn.dquote(val); 
+    						$(this).remove();
+    						$.fn.resetUrlFqStr(fqStr); 
+    					})
+    				});	
+    	    		
     	    	}
     	    	else {    	    	    		
     	        	// remove all previous facet results before loading new facet results

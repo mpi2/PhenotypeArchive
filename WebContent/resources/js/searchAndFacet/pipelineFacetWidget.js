@@ -41,9 +41,11 @@
 	    	var self = this;
 	    	
 	    	$.fn.setCurrentFq();
-	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
-	    			: self.options.data.hashParams.fq;
+//	    	var fq = MPI2.searchAndFacetConfig.currentFq ? MPI2.searchAndFacetConfig.currentFq
+//	    			: self.options.data.hashParams.fq;
 
+	    	var fq = $.fn.processCurrentFqFromUrl(self.options.data.core);
+	    	
 	    	var oParams = {};		
 	        oParams = $.fn.getSolrRelevanceParams('pipeline', self.options.data.hashParams.q, oParams);
 
@@ -57,13 +59,11 @@
 				//'q': $.fn.encodeQ(self.options.data.hashParams.q)
 				}, MPI2.searchAndFacetConfig.commonSolrParams, oParams);			
 	    	
-	    	queryParams.q = encodeURIComponent(queryParams.q);
-	    	
 	    	var queryParamStr = $.fn.stringifyJsonAsUrlParams(queryParams)	    				
 	    				+ '&facet.field=pipeline_name'
 	    				+ '&facet.field=pipe_proc_sid';
 	    	
-	    	console.log('PIPELINE WIDGET STR: '+ queryParamStr);	   
+	    	//console.log('PIPELINE WIDGET STR: '+ queryParamStr);	   
 
 	    	$.ajax({ 
 	    		'url': solrUrl + '/pipeline/select',

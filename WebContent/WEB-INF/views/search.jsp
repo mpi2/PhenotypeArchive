@@ -138,6 +138,7 @@
        		//console.log('reload');
        		
        		// back button will not see this js
+       		MPI2.searchAndFacetConfig.update.widgetOpen = false;
        		MPI2.searchAndFacetConfig.update.pageReload = true;
        		
        		$('span.facetCount').text(''); // default when page loads
@@ -183,6 +184,7 @@
        		    
        		    	//alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
        		    	var input = $('input#s').val().trim();
+       		    	
        		    	input = /^\*\**?\*??$/.test(input) ? '' : input;  // lazy matching
        		    	
        		    	var re = new RegExp("^'(.*)'$");
@@ -199,9 +201,12 @@
        				input = input.replace("%3C", "\\<");
        				input = input.replace("%3E", "\\>");
        				input = input.replace("."  , "\\.");
+       				input = input.replace("("  , "\\(");
+       				input = input.replace(")"  , "\\)");
        				input = input.replace("%2F", "\\/");
        				input = input.replace("%60", "\\`");
-       				//input = input.replace("~"  , "\\~"); // let solr handles it
+       				input = input.replace("~"  , "\\~"); 
+       				input = input.replace("%"  , "\\%");
        				
        				
        		    	MPI2.searchAndFacetConfig.update.kwSearch = true;
@@ -239,13 +244,23 @@
        		    	}
        		    }
        		});
-
+       		
        		$('span#rmFilters').click(function(){
+       			
        			if ( window.location.search != '' ){
-       				// need to include search keyword in query when all filters are removed 
-       				$('ul#facetFilter li.ftag a').each(function(){
-    					$(this).click();
-    				});	 
+       				if ( MPI2.searchAndFacetConfig.update.noFound ){
+       					// no result, remove filter
+       					//$.fn.removeAllFilters();
+       					
+       					$.fn.resetUrlFqStr();
+       				}
+       				else {
+	       				// need to include search keyword in query when all filters are removed 
+	       				var foundCount = 0;
+	       				$('ul#facetFilter li.ftag a').each(function(){
+	    					$(this).click();
+	    				});	
+       				}
        			}
        			else {
        				document.location.href = baseUrl + '/search';
@@ -253,15 +268,17 @@
        		});
        		
        		$('a#searchExample').mouseover(function(){
+       			// override default behavior from default.js - Nicolas	
        			return false;
        		})
        		
+       		var solrBq = "&bq=marker_symbol:*^100 top_level_mp_term:*^90 disease_term:*^80 selected_top_level_ma_term:*^70";
        		// autosuggest 
        		$(function() {
 	       		$( "input#s" ).autocomplete({
 	       			source: function( request, response ) {
 		       			$.ajax({
-			       			url: "${solrUrl}/autosuggest/select?wt=json&qf=auto_suggest&defType=edismax",				       			
+			       			url: "${solrUrl}/autosuggest/select?wt=json&qf=auto_suggest&defType=edismax" + solrBq,				       			
 			       			dataType: "jsonp",
 			       			'jsonp': 'json.wrf',
 			       			data: {
@@ -413,8 +430,23 @@
     				});
     				
     				// after adding/removing a filter, check if we got any result
+    				//console.log('check sumcoung: '+ sumCount);
     				if ( sumCount == 0 ){
-    					$.fn.showNotFoundMsg();    					
+    					
+    					if ( MPI2.searchAndFacetConfig.update.notFound ){
+    						
+    						// deals with facet filters having zero results	
+    						MPI2.searchAndFacetConfig.update.notFound = false;    						
+    						$.fn.fetchSolrFacetCount(oUrlParams);
+    						
+    						if ( MPI2.searchAndFacetConfig.update.lastFilterNotFound ){
+        						MPI2.searchAndFacetConfig.update.lastFilterNotFound = false;
+        						$.fn.loadDataTable(oUrlParams);
+    						}
+    					}
+    					else {
+    						$.fn.showNotFoundMsg();  
+    					}
    					}
     				else {
     					$.fn.loadDataTable(oUrlParams);
@@ -457,7 +489,8 @@
 						document.location.href = baseUrl + '/search';
 	    			}
 					else {
-						rebuildFilters(oUrlParams); 
+						//rebuildFilters(oUrlParams); 
+						$.fn.rebuildFilters(oUrlParams);
 					}
 				} 
 			
@@ -468,14 +501,15 @@
     					document.location.href = baseUrl + '/search';
         			}
     				else {
-    					rebuildFilters(oUrlParams); 
+    					//rebuildFilters(oUrlParams); 
+    					$.fn.rebuildFilters(oUrlParams);
     				}
 				}
    			});		
    			
     		if ( ! MPI2.searchAndFacetConfig.update.hashChange ){
     			//console.log('page reload: no hash change detected')
-    			
+
     			var oUrlParams = $.fn.parseHashString(window.location.hash.substring(1));
     			//console.log(oUrlParams);
     			
@@ -491,60 +525,9 @@
     			}
     			else {
     				//console.log('rebuild here')
-    				//console.log(oUrlParams.q);
-    				rebuildFilters(oUrlParams);    			
+    				$.fn.rebuildFilters(oUrlParams);
+    				   			
     			}
-    		}
-    		
-    		function removeAllFilters(){
-    		
-    			 $('ul#facetFilter li.ftag').each(function(){
-					$(this).parent().remove();
-					
-				});	 
-				$('ul#facetFilter li span.fcap').hide();
-				
-				$('div.ffilter').hide();
-				// uncheck all filter checkbox
-				$('div.flist li.fcat input:checked:enabled').each(function(){
-					$(this).prop('checked', false).siblings('span.flabel').removeClass('highlight');
-				});	 
-    		}
-    		
-    		function rebuildFilters(oUrlParams){
-    		
-    			MPI2.searchAndFacetConfig.update.resetSummaryFacet = true; 
-				MPI2.searchAndFacetConfig.update.filterAdded = false;
-
-				removeAllFilters();
-				
-				oUrlParams.q = typeof oUrlParams.q == 'undefined' ? '*:*' : oUrlParams.q;
-		    	oUrlParams.noFq = typeof oUrlParams.fq == 'undefined' ? true : false;
-		    	//console.log(oUrlParams);
-		    	if ( typeof oUrlParams.coreName != 'undefined' ){
-		    		oUrlParams.widgetName = oUrlParams.coreName + 'Facet';
-		    	}
-		    	else if ( typeof oUrlParams.facetName != 'undefined' ){
-		    		oUrlParams.widgetName = oUrlParams.facetName + 'Facet';
-		    	}
-		    	
-		    	if ( typeof oUrlParams.widgetName == 'undefined'){
-		    		//$.fn.fetchSolrFacetCount(oUrlParams);
-		    		// do nothing
-				}
-				else {
-			    	oUrlParams.fq = typeof oUrlParams.fq == 'undefined' ? 
-			    			MPI2.searchAndFacetConfig.facetParams[oUrlParams.widgetName].fq :
-			    				oUrlParams.fq;
-			    			
-			    	if ( typeof oUrlParams.oriFq == 'undefined' ){
-			    		oUrlParams.oriFq = oUrlParams.fq; 
-			    	}
-			    	
-			    	oUrlParams.fq = oUrlParams.fq.replace(/img_/g,''); // so that this matches the copyField of images
-					
-			    	$.fn.parseUrl_constructFilters_loadDataTable(oUrlParams);
-				}	
     		}
     		
     		function _process_hash(){
