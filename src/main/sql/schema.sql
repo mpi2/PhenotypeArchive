@@ -531,6 +531,8 @@ CREATE TABLE experiment (
 	pipeline_stable_id         VARCHAR(30) NOT NULL,
     procedure_id               INT(10) UNSIGNED NOT NULL,
 	procedure_stable_id        VARCHAR(30) NOT NULL,
+	biological_model_id        INT(10) UNSIGNED NULL,
+    colony_id                  VARCHAR(100) NULL,
     metadata_combined          TEXT,
     metadata_group             VARCHAR(50) DEFAULT '',
 	procedure_status           VARCHAR(50) DEFAULT NULL,
