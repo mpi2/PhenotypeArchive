@@ -208,9 +208,10 @@
        				input = input.replace("~"  , "\\~"); 
        				input = input.replace("%"  , "\\%");
        				
+       				// no need to escape space - looks cleaner to the users 
+       				// and it is not essential to escape space
+       				input = input.replace(/\\?%20/g, ' '); 
        				
-       		    	MPI2.searchAndFacetConfig.update.kwSearch = true;
-       		    	
        		    	if (input == ''){
        		    		
        		    		// if there is no existing facet filter, reload with q

@@ -65,52 +65,7 @@ public class Tools {
             
             return String.format("%02d:%02d:%02d:%02d", days, hours, minutes, seconds);
 	}
-	public static String highlightMatchedStrIfFound2(String qry, String target, String selector, String cssClass) {
-		// the works for multiple words in the qry; it will match multiple places in the target string
-
-		String kw = "";
-		try {
-			kw = URLDecoder.decode(qry, "UTF-8");
-		}	
-		catch( Exception e){
-			System.out.println("Failed to decode " + qry);
-		}
-		
-		if ( qry.equals("*:*") ) {
-			return target;	
-		}
-		else if ( kw.startsWith("\"") && kw.endsWith("\"") ) {
-			// exact phrase search - with double quotes
-			kw = kw.replaceAll("\"", "")
-					.replaceAll("\\+", "\\\\+")
-					.replaceAll("\\(", "\\\\(")
-					.replaceAll("\\)", "\\\\)");
-		}
-		else {
-			// non phrase search - split string into words and search using OR
-			
-			// do we want only match by boundary
-//			kw = StringUtils.join(qry.split("%20"), "\\B?|\\b?")
-//					.replaceAll("%2B","\\\\+")
-//					.replaceAll("\\(", "\\\\(")
-//					.replaceAll("\\)", "\\\\)");
-//			kw = "\\b?" + kw + "\\B?";  // want \bstring1\B?|\bstring2\B?
-//			
-			kw = StringUtils.join(qry.split("%20"), "|")
-					.replaceAll("%2B","\\\\+")
-					.replaceAll("\\(", "\\(")
-					.replaceAll("\\)", "\\)");
-		}
-		
-		System.out.println("-------" + qry + " vs " + kw);
-		System.out.println(target);
-		System.out.println(target.equals(kw));
-		
-		// (?im) at the beginning of the regex turns on CASE_INSENSITIVE and MULTILINE modes.
-		// $0 in the replacement string is a placeholder whatever the regex matched in this iteration. 
-		return target.replaceAll("(?im)"+kw, "<" + selector + " class='" + cssClass + "'>$0" + "</" + selector + ">");
-	}
-
+	
 	public static String highlightMatchedStrIfFound(String qry, String target, String selector, String cssClass) {
 		// the works for multiple words in the qry; it will match multiple places in the target string
 		
@@ -118,7 +73,7 @@ public class Tools {
 		
 		try {
 			kw = URLDecoder.decode(qry, "UTF-8");
-			System.out.println("kw decoded: "+ kw);
+			//System.out.println("kw decoded: "+ kw);
 		}	
 		catch( Exception e){
 			System.out.println("Failed to decode " + qry);
@@ -150,7 +105,7 @@ public class Tools {
 					patBuff.append(s);
 				}
 			}
-			System.out.println("pattern: " + patBuff.toString());
+			//System.out.println("pattern: " + patBuff.toString());
 			kw = patBuff.toString();
 		}
 		
@@ -164,15 +119,14 @@ public class Tools {
 		
 		//working pattern: vang\-like|2|\\(van|gogh,|Drosophila\\)
 		
-		System.out.println("encoded: " + qry + " vs pattern: " + kw);
-		System.out.println("target: " + target);
-		System.out.println(target.equals(kw));
+		//System.out.println("encoded: " + qry + " vs pattern: " + kw);
+		//System.out.println("target: " + target);
+		//System.out.println(target.equals(kw));
 		
 		// (?im) at the beginning of the regex turns on CASE_INSENSITIVE and MULTILINE modes.
 		// $0 in the replacement string is a placeholder whatever the regex matched in this iteration. 
 
 		String result = target.replaceAll("(?im)"+kw, "<" + selector + " class='" + cssClass + "'>$0" + "</" + selector + ">");
-		System.out.println("Found: " + result);
 		return result;
 	}
 }
