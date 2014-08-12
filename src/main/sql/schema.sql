@@ -531,6 +531,8 @@ CREATE TABLE experiment (
 	pipeline_stable_id         VARCHAR(30) NOT NULL,
     procedure_id               INT(10) UNSIGNED NOT NULL,
 	procedure_stable_id        VARCHAR(30) NOT NULL,
+	biological_model_id        INT(10) UNSIGNED NULL,
+    colony_id                  VARCHAR(100) NULL,
     metadata_combined          TEXT,
     metadata_group             VARCHAR(50) DEFAULT '',
 	procedure_status           VARCHAR(50) DEFAULT NULL,
@@ -578,7 +580,8 @@ CREATE TABLE observation (
 	biological_sample_id       INT(10) UNSIGNED NULL,
 	parameter_id               INT(10) UNSIGNED NOT NULL,
 	parameter_stable_id        varchar(30) NOT NULL,
-	observation_type           enum('categorical', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text', 'colony'),
+	population_id              INT(10) UNSIGNED NOT NULL,
+	observation_type           enum('categorical', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text'),
 	missing                    TINYINT(1) DEFAULT 0,
 	parameter_status           VARCHAR(50) DEFAULT NULL,
 	parameter_status_message   VARCHAR(450) DEFAULT NULL,
@@ -590,24 +593,6 @@ CREATE TABLE observation (
 	KEY population_idx(population_id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
-
-
-/**
- * colony_observation
- * Observations about a colony that do not pertain to a specific sample
- */
-CREATE TABLE colony_observation (
-
-    id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-	biological_model_id        INT(10) UNSIGNED NOT NULL,
-    colony_id                  VARCHAR(100) NOT NULL,
-
-	PRIMARY KEY(id),
-	KEY biological_model_idx(biological_model_id),
-	KEY colony_idx(colony_id)
-
-) COLLATE=utf8_general_ci ENGINE=MyISAM;
-
 
 
 /**
