@@ -368,11 +368,11 @@ public class UnidimensionalChartAndTableProvider {
 		return chartAndTable;
 	}
 
-	public ChartData getStatusColumnChart(HashMap<String , Long> values){
+	public ChartData getStatusColumnChart(HashMap<String , Long> values, String title, String divId){
 		
 		String data = "[";
 		// custom order & selection from Terry
-		data += "['" + StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE + "', " +  values.get(StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE) + "], ";
+/*		data += "['" + StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE + "', " +  values.get(StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE) + "], ";
 		data += "['" + StatusConstants.IMITS_MOUSE_STATUS_MICRO_INJECTION_IN_PROGRESS + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_MICRO_INJECTION_IN_PROGRESS) + "], ";
 		data += "['" + StatusConstants.IMITS_MOUSE_STATUS_CHIMERA_OBTAINED + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_CHIMERA_OBTAINED) + "], ";
 		data += "['" + StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED) + "], ";
@@ -381,19 +381,42 @@ public class UnidimensionalChartAndTableProvider {
 		data += "['" + StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_COMPLETE + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_COMPLETE) + "], ";
 		data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED) + "], ";
 		data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE) + "], ";
+*/		
+		
+		if (divId.equalsIgnoreCase("phenotypeStatusChart")){
+			// custom statuses to show + custom order
+			data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_ATTEMPT_REGISTERED + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_ATTEMPT_REGISTERED) + "], ";
+			data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED) + "], ";
+			data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE) + "], ";	
+		}
+		else if (divId.equalsIgnoreCase("genotypeStatusChart")){
+			// custom statuses to show + custom order
+			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_MICRO_INJECTION_IN_PROGRESS + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_MICRO_INJECTION_IN_PROGRESS) + "], ";
+			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_CHIMERA_OBTAINED + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_CHIMERA_OBTAINED) + "], ";
+			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_GENOTYPE_CONFIRMED) + "], ";
+			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_STARTED + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_STARTED) + "], ";
+			data += "['" + StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_COMPLETE + "', " +  values.get(StatusConstants.IMITS_MOUSE_STATUS_CRE_EXCISION_COMPLETE) + "], ";
+		}
+		else {
+			for (String key: values.keySet()){
+				//if (!key.equals("")){
+					data += "['" + key + "', " + values.get(key) + "], ";
+				//}
+			}
+		}
 		data += "]";
 		
-		String javascript = "$(function () { $('#statusChart').highcharts({" +
+		String javascript = "$(function () { $('#" + divId + "').highcharts({" +
         	" chart: {type: 'column' }," + 
-        	" title: {text: 'Status Count'}," +
-        	" subtitle: { text: 'Source' }, " + 	
+        	" title: {text: '" + title + "'}," +
+   //     	" subtitle: { text: 'Source' }, " + 	
         	" credits: { enabled: false },  " +
-        	" xAxis: { type: 'category', labels: { rotation: -45,style: {fontSize: '13px', fontFamily: 'Verdana, sans-serif'} } }," +
+        	" xAxis: { type: 'category', labels: { rotation: -90, style: {fontSize: '13px', fontFamily: 'Verdana, sans-serif'} } }," +
         	" yAxis: { min: 0, title: { text: 'Number of genes' } }," + 
         	" legend: { enabled: false }," +
         	" tooltip: { pointFormat: '<b>{point.y:.1f}</b>' }," +
         	" series: [{ name: 'Population',  data: " + data + "," +
-            " dataLabels: { enabled: true, rotation: -90, color: '#FFFFFF', align: 'right', x: 4, y: 10, style: { fontSize: '13px', fontFamily: 'Verdana, sans-serif' } } }]" +
+            " dataLabels: { enabled: true, style: { fontSize: '13px', fontFamily: 'Verdana, sans-serif' } } }]" +
 			" }); });";
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);

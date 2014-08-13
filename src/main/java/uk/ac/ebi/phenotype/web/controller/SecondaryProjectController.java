@@ -38,7 +38,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.phenotype.dao.SecondaryProjectDAO;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.service.GeneService;
+import uk.ac.ebi.phenotype.service.AlleleService;
 import uk.ac.ebi.phenotype.service.GenotypePhenotypeService;
 import uk.ac.ebi.phenotype.stats.ColorCodingPalette;
 import uk.ac.ebi.phenotype.stats.Constants;
@@ -55,7 +55,7 @@ public class SecondaryProjectController {
 	private Map<String, String> config;
 	
 	@Autowired 
-	GeneService gs;
+	AlleleService as;
 	
 	@Autowired 
 	GenotypePhenotypeService genotypePhenotypeService;
@@ -79,7 +79,10 @@ public class SecondaryProjectController {
 		
 		try {
 			accessions = sp.getAccessionsBySecondaryProjectId(id);
-			model.addAttribute("statusChart", chartProvider.getStatusColumnChart(gs.getStatusCount(accessions)));
+			model.addAttribute("genotypeStatusChart", 
+				chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleService.AlleleField.GENE_LATEST_MOUSE_STATUS), "Genotype Status Chart", "genotypeStatusChart" ));
+			model.addAttribute("phenotypeStatusChart", 
+				chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleService.AlleleField.LATEST_PHENOTYPE_STATUS), "Phenotype Status Chart", "phenotypeStatusChart"));
 			
 			List<PhenotypeCallSummary> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
 			
