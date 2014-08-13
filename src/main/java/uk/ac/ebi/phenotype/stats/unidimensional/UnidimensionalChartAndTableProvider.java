@@ -414,7 +414,7 @@ public class UnidimensionalChartAndTableProvider {
         	" xAxis: { type: 'category', labels: { rotation: -90, style: {fontSize: '13px', fontFamily: 'Verdana, sans-serif'} } }," +
         	" yAxis: { min: 0, title: { text: 'Number of genes' } }," + 
         	" legend: { enabled: false }," +
-        	" tooltip: { pointFormat: '<b>{point.y:.1f}</b>' }," +
+        	" tooltip: { pointFormat: '<b>{point.y}</b>' }," +
         	" series: [{ name: 'Population',  data: " + data + "," +
             " dataLabels: { enabled: true, style: { fontSize: '13px', fontFamily: 'Verdana, sans-serif' } } }]" +
 			" }); });";
