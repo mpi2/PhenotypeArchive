@@ -129,7 +129,6 @@ public class SearchPage {
     
     
     
-    private GraphTable graphTable;
     
     private ObservationType observationType;
     private String title;
@@ -240,23 +239,23 @@ public class SearchPage {
 ////        return status;
 ////    }
     
-    /**
-     * Validates this <code>GraphPage</code> instance
-     * @return a new <code>GraphParsingStatus</code> status instance containing
-     * success and failure counts and messages.
-     */
-    public final GraphParsingStatus validate() {
-        return validate(new GraphParsingStatus());
-    }
+//    /**
+//     * Validates this <code>GraphPage</code> instance
+//     * @return a new <code>GraphParsingStatus</code> status instance containing
+//     * success and failure counts and messages.
+//     */
+//    public final GraphParsingStatus validate() {
+//        return validate(new GraphParsingStatus());
+//    }
     
-    /**
-     * Validates this <code>GraphPage</code> instance, using the caller-provided
-     * status instance
-     * @param status caller-supplied status instance to be used
-     * @return the passed-in <code>GraphParsingStatus</code> status, updated with
-     * any success and failure counts and messages.
-     */
-    public final GraphParsingStatus validate(GraphParsingStatus status) {
+//////    /**
+//////     * Validates this <code>GraphPage</code> instance, using the caller-provided
+//////     * status instance
+//////     * @param status caller-supplied status instance to be used
+//////     * @return the passed-in <code>GraphParsingStatus</code> status, updated with
+//////     * any success and failure counts and messages.
+//////     */
+//////    public final GraphParsingStatus validate(GraphParsingStatus status) {
 //////        // Verify title contains 'Allele'.
 //////        if ( ! title.contains("Allele")) {
 //////            status.addFail("ERROR: expected title to contain 'Allele'. Title is '" + title + "'. " + getUrl());
@@ -317,8 +316,8 @@ public class SearchPage {
 //////                }
 //////            }
 //////        }
-        
-        return status;
-    }
+//////        
+//////        return status;
+//////    }
     
 }
