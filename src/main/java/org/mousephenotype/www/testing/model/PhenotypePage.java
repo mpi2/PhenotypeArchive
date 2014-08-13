@@ -22,9 +22,7 @@ package org.mousephenotype.www.testing.model;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
@@ -40,58 +38,46 @@ import uk.ac.ebi.phenotype.util.Utils;
  * @author mrelac
  
  * This class encapsulates the code and data necessary to represent a Phenotype
- * Archive gene page for Selenium testing.
+ * Archive phenotype page for Selenium testing.
  */
-public class GenePage {
+public class PhenotypePage {
     private final WebDriver driver;
     private final WebDriverWait wait;
     private final String target;
-    private final String geneId;
+    private final String phenotypeId;
     private final PhenotypePipelineDAO phenotypePipelineDAO;
     private final String baseUrl;
-    private final PhenotypeTableGene ptGene;
+    private final PhenotypeTablePhenotype ptPhenotype;
     
-    private boolean hasImages;
     private boolean hasGraphs;
+    private boolean hasImages;
     private boolean hasPhenotypesTable;
     private int resultsCount;
-    
+        
     /**
      * Creates a new <code>GenePage</code> instance
      * @param driver A valid <code>WebDriver</code> instance
      * @param wait A valid <code>WebDriverWait</code> instance
      * @param target This page's target url
-     * @param geneId This page's gene id
+     * @param phenotypeId This page's phenotype id
      * @param phenotypePipelineDAO a <code>PhenotypePipelineDAO</code> instance
      * @param baseUrl A fully-qualified hostname and path, such as
      *   http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      */
-    public GenePage(WebDriver driver, WebDriverWait wait, String target, String geneId, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl) {
+    public PhenotypePage(WebDriver driver, WebDriverWait wait, String target, String phenotypeId, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl) {
         this.driver = driver;
         this.wait = wait;
         this.target = target;
-        this.geneId = geneId;
+        this.phenotypeId = phenotypeId;
         this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.baseUrl = baseUrl;
-        this.ptGene = new PhenotypeTableGene(driver, wait, target);
+        this.ptPhenotype = new PhenotypeTablePhenotype(driver, wait, target);
         
         load();
     }
-    
-    /**
-     * 
-     * @return the base url
-     */
+
     public String getBaseUrl() {
         return baseUrl;
-    }
-
-    /**
-     * 
-     * @return the gene ID
-     */
-    public String getGeneId() {
-        return geneId;
     }
     
     /**
@@ -103,10 +89,10 @@ public class GenePage {
         List<String> urls = new ArrayList();
         
         if (hasGraphs) {
-            ptGene.load();
-            GridMap map = ptGene.getData();
+            ptPhenotype.load();
+            GridMap map = ptPhenotype.getData();
             for (int i = 0; i < map.getBody().length; i++) {
-                urls.add(map.getCell(i, PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH));
+                urls.add(map.getCell(i, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_GRAPH));
             }
         }
         
@@ -114,7 +100,14 @@ public class GenePage {
     }
     
     /**
-     * @return the number at the end of the gene page string 'Total number of results: xxxx'
+     * @return the phenotype id 
+     */
+    public String getPhenotypeId() {
+        return phenotypeId;
+    }
+    
+    /**
+     * @return the number at the end of the string "Total number of results: xxxx" found just before the "phenotypes" HTML table.
      */
     public int getResultsCount() {
         return resultsCount;
@@ -122,24 +115,16 @@ public class GenePage {
 
     /**
      * 
-     * @return The target URL
+     * @return this page's url
      */
     public String getTarget() {
         return target;
     }
     
-    /**
-     * 
-     * @return true if this page has graphs; false otherwise.
-     */
     public boolean hasGraphs() {
         return hasGraphs;
     }
     
-    /**
-     * 
-     * @return true if this page has images; false otherwise.
-     */
     public boolean hasImages() {
         return hasImages;
     }
@@ -156,8 +141,9 @@ public class GenePage {
     /**
      * Validates that:
      * <ul>
-     *     <li>There is a <b><i>Phenotype Association</i></b> section.</li>
-     *     <li>Gene page title starts with <b><i>Gene:</i></b></li>
+     *     <li>MGI MP browser has a link, and title starts with <b><i>Phenotype</i></b></li>
+     *     <li>There is either a <b><i>Phenotype Association</i></b> section
+     *         or an <b><i>Images</i></b> or both.</li>
      *     <li>If there is a <b><i>phenotypes</i></b> HTML table, validates that:
      *         <ul>
      *             <li>Each row has a p-value</li>
@@ -167,58 +153,49 @@ public class GenePage {
      *             <li><b><i>TSV</i></b> and <b><i>XLS</i></b> downloads are valid</li>
      *         </ul>
      *     </li>
-     *     <li>A <b><i>phenotypes</i></b> HTML table is present if <code>
-     *         phenotypesTableRequired</code> is <code>true</code></li>
-     *     <li>There are 3 buttons:</li>
-     *     <ul>
-     *         <li><b><i>Login to register interest</i></b></li>
-     *         <li><b><i>Order</i></b></li>
-     *         <li><b><i>KOMP</i></b></li>
-     *     </ul>
      * </ul>
-     * @param phenotypesTableRequired If set to true, there must be a phenotype
-     * HTML table or an error is logged. If false, no error is logged if there
-     * is no phenotype HTML table.
      * @return validation status
      */
-    public PageStatus validate(boolean phenotypesTableRequired) {
+    public PageStatus validate() {
         PageStatus status = new PageStatus();
         
-        // Validate title starts with 'Gene:'
+        // Validate title starts with 'Phenotype:'
         WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h1[@id='top']")));
-        if ( ! element.getText().startsWith("Gene:")) {
-            status.addError("Expected gene page title to start with 'Gene:'.");
+        if ( ! element.getText().startsWith("Phenotype:")) {
+            status.addError("Expected phenotype page title to start with 'Phenotype:'.");
         }
         
-        // Validate there is a 'Phenotype Association' section.
+        // Validate there is a 'Phenotype Association' section or at least one image.
         try {
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h2[@id='section-associations']")));
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h2[@id='gene-variants']")));
         } catch (Exception e) {
-            status.addError("Expected 'Phenotype Association' section.");
+            if ( ! hasImages()) {
+                status.addError("Expected either 'Phenotype Association' section or 'Images' section or both.");
+            }
         }
         
         // If there is a 'phenotypes' HTML table, validate it.
         if (hasPhenotypesTable) {
             // Validate that there is a 'pheontypes' HTML table by loading it.
-            GridMap pageMap = ptGene.load();                                        // Load all of the phenotypes table pageMap data.
+            GridMap pageMap = ptPhenotype.load();                               // Load all of the phenotypes table pageMap data.
 
             int sexIconCount = 0;
             String cell;
             for (String[] row : pageMap.getBody()) {
-                cell = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_SEX];
+                cell = row[PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SEX];
                 if ((cell.equals("male")) || (cell.equals("female")))
                     sexIconCount++;
                 else if (cell.equals("both"))
                     sexIconCount += 2;
 
                 //   Verify p value.
-                cell = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_P_VALUE];
+                cell = row[PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_P_VALUE];
                 if (cell == null) {
                     status.addError("Missing or invalid P Value. URL: " + target);
                 }
 
                 // Validate that the graph link is not missing.
-                cell = row[PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH];
+                cell = row[PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_GRAPH];
                 if ((cell == null) || (cell.trim().isEmpty())) {
                     status.addError("Missing graph link. URL: " + target);
                 }
@@ -231,26 +208,6 @@ public class GenePage {
 
             // Validate the download links.
             status = validateDownload();
-        } else {
-            if (phenotypesTableRequired) {
-                status.addError("Expected phenotypes HTML table but found none.");
-            }
-        }
-        
-        // Buttons
-        List<WebElement> buttons = driver.findElements(By.className("btn"));
-        // ... count
-        if (buttons.size() != 3) {
-            status.addError("Expected 3 buttons but found " + buttons.size());
-        }
-        // ... Button text
-        String[] buttonTitlesArray = { "Login to register interest", "Order", "KOMP" };
-        List<String> buttonTitles = new ArrayList(Arrays.asList(buttonTitlesArray));
-        for (WebElement webElement : buttons) {
-            String buttonText = webElement.getText();
-            if ( ! buttonTitles.contains(buttonText)) {
-                status.addError("Expected button with title '" + buttonText + "' but none was found.");
-            }
         }
         
         return status;
@@ -261,11 +218,11 @@ public class GenePage {
     
     
     /**
-     * Waits for the phenotype page to load.
+     * Waits for the pheno page to load.
      */
     private void load() {
         driver.get(target);
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h2[@id='gene-variants']")));
         
         // Get results count. [NOTE: pages with no matches don't have totals]
         Integer i;
@@ -279,8 +236,8 @@ public class GenePage {
         
         // Determine if this page has images.
         try {
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h2[@id='section-images']")));
-            hasImages = true;
+            WebElement we = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='inner']/div[@class='accordion-group']/div[@class='accordion-heading']")));
+            hasImages = (we.getText().trim().equals("Phenotype Associated Images"));
         } catch (Exception e) {
             hasImages = false;
         }
@@ -307,7 +264,6 @@ public class GenePage {
      * @return 
      */
     private int compareRowData(GridMap pageMap, GridMap downloadData, int pageMapIndex, int downloadIndex) {
-        
         // Validate the page's phenotypes HTML table values against the first row of the download values.
         // If sex = "both", validate against the second download row as well.
         int errorCount = 0;
@@ -315,56 +271,62 @@ public class GenePage {
         String downloadCell;
         String pageCell;
 
-        pageCell = pageMap.getCell(1, PhenotypeTableGene.COL_INDEX_PHENOTYPES_PHENOTYPE);
-        downloadCell = downloadData.getCell(1, DownloadGeneMap.COL_INDEX_PHENOTYPE).trim();
+        pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_GENE_ALLELE).trim();
+        AlleleParser ap = new AlleleParser(pageCell);
+        
+        downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_GENE).trim();
+        if ( ! ap.gene.equals(downloadCell))
+            colErrors.add("ERROR: gene mismatch. Page: '" + ap.gene + "'. Download: '" + downloadCell + "'");
+        
+        downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_ALLELE).trim();
+        if ( ! ap.toString().equals(downloadCell))
+            colErrors.add("ERROR: allele mismatch. Page: '" + ap.alleleSub + "'. Download: '" + downloadCell + "'");
+
+        pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_ZYGOSITY);
+        downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_ZYGOSITY).trim();
+        if ( ! pageCell.equals(downloadCell))
+            colErrors.add("ERROR: zygosity mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
+        
+        // Special case: if the page sex is "both", use "female" to compare against the download, as "female" is sorted first in the download.
+        pageCell = pageMap.getCell(1, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SEX);
+        pageCell = (pageCell.compareTo("both") == 0 ? "female" : pageCell);
+        downloadCell = downloadData.getCell(1, DownloadPhenotypeMap.COL_INDEX_SEX).trim();
+        if ( ! pageCell.equals(downloadCell))
+            colErrors.add("ERROR: sex mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
+        
+        pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_PHENOTYPE);
+        downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_PHENOTYPE).trim();
         if ( ! pageCell.equals(downloadCell))
             colErrors.add("ERROR: phenotype mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
 
-        pageCell = StringEscapeUtils.unescapeHtml4(pageMap.getCell(1, PhenotypeTableGene.COL_INDEX_PHENOTYPES_ALLELE));
-        downloadCell = downloadData.getCell(1, DownloadGeneMap.COL_INDEX_ALLELE).trim();
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: allele mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-
-        pageCell = pageMap.getCell(1, PhenotypeTableGene.COL_INDEX_PHENOTYPES_ZYGOSITY);
-        downloadCell = downloadData.getCell(1, DownloadGeneMap.COL_INDEX_ZYGOSITY).trim();
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: zygosity mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-
-        // Special case: if the page sex is "both", use "female" to compare against the download, as "female" is sorted first in the download.
-        pageCell = pageMap.getCell(1, PhenotypeTableGene.COL_INDEX_PHENOTYPES_SEX);
-        pageCell = (pageCell.compareTo("both") == 0 ? "female" : pageCell);
-        downloadCell = downloadData.getCell(1, DownloadGeneMap.COL_INDEX_SEX).trim();
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: sex mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-
-        pageCell = pageMap.getCell(1, PhenotypeTableGene.COL_INDEX_PHENOTYPES_PROCEDURE_PARAMETER);
-        downloadCell = downloadData.getCell(1, DownloadGeneMap.COL_INDEX_PROCEDURE_PARAMETER).trim();
+        pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_PROCEDURE_PARAMETER);
+        downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_PROCEDURE_PARAMETER).trim();
         if ( ! pageCell.equals(downloadCell))
             colErrors.add("ERROR: procedure | parameter mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
 
-        pageCell = pageMap.getCell(1, PhenotypeTableGene.COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER);
-        downloadCell = downloadData.getCell(1, DownloadGeneMap.COL_INDEX_PHENOTYPING_CENTER).trim();
+        pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER);
+        downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_PHENOTYPING_CENTER).trim();
         if ( ! pageCell.equals(downloadCell))
             colErrors.add("ERROR: phenotyping center mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
 
-        pageCell = pageMap.getCell(1, PhenotypeTableGene.COL_INDEX_PHENOTYPES_SOURCE);
-        downloadCell = downloadData.getCell(1, DownloadGeneMap.COL_INDEX_SOURCE).trim();
+        pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SOURCE);
+        downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_SOURCE).trim();
         if ( ! pageCell.equals(downloadCell))
             colErrors.add("ERROR: source mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
 
-        pageCell = pageMap.getCell(1, PhenotypeTableGene.COL_INDEX_PHENOTYPES_P_VALUE);
-        downloadCell = downloadData.getCell(1, DownloadGeneMap.COL_INDEX_P_VALUE).trim();
+        pageCell = pageMap.getCell(pageMapIndex, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_P_VALUE);
+        downloadCell = downloadData.getCell(downloadIndex, DownloadPhenotypeMap.COL_INDEX_P_VALUE).trim();
         if ( ! pageCell.equals(downloadCell))
             colErrors.add("ERROR: p value mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
 
         // When testing using http, the download link compare fails because the page url uses http
         // but the download graph link uses https. Ignore the protocol (but not the hostname).
-        pageCell = TestUtils.removeProtocol(pageMap.getCell(1, PhenotypeTableGene.COL_INDEX_PHENOTYPES_GRAPH).trim());
+        pageCell = TestUtils.removeProtocol(pageMap.getCell(1, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_GRAPH).trim());
         
-        downloadCell = TestUtils.removeProtocol(downloadData.getCell(1, DownloadGeneMap.COL_INDEX_GRAPH).trim());
+        downloadCell = TestUtils.removeProtocol(downloadData.getCell(1, DownloadPhenotypeMap.COL_INDEX_GRAPH).trim());
         if ( ! pageCell.equals(downloadCell))
             colErrors.add("ERROR: graph link mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-
+        
         if ( ! colErrors.isEmpty()) {
             System.out.println(colErrors.size() + " errors:");
             for (String colError : colErrors) {
@@ -379,12 +341,10 @@ public class GenePage {
     
     /**
      * Get the full TSV data store
-     * @param baseUrl A fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
-     * @param downloadUrlBase The page's download target url, such as /mi/impc/dev/phenotype-archive/export?xxxxxxx...'
      * @param status Indicates the success or failure of the operation
      * @return the full TSV data store
      */
-    private GridMap getDownloadTsv(String baseUrl, PageStatus status) {
+    private GridMap getDownloadTsv(PageStatus status) {
         String[][] data = new String[0][0];
         String downloadUrlBase = getDownloadUrlBase();
         
@@ -402,7 +362,7 @@ public class GenePage {
             
             data = dataReaderTsv.getData();
         } catch (NoSuchElementException | TimeoutException te) {
-            String message = "Expected page for ID " + geneId + "(" + target + ") but found none.";
+            String message = "Expected page for ID " + phenotypeId + "(" + target + ") but found none.";
             status.addError(message);
         }  catch (Exception e) {
             String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
@@ -423,11 +383,11 @@ public class GenePage {
     /**
      * Get the full XLS data store
      * @param baseUrl A fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
-     * @param targetUrlBase The page's download target url, such as /mi/impc/dev/phenotype-archive/export?xxxxxxx...'
+     * @param downloadUrlBase The page's download target url, such as /mi/impc/dev/phenotype-archive/export?xxxxxxx...'
      * @param status Indicates the success or failure of the operation
      * @return the full XLS data store
      */
-    private GridMap getDownloadXls(String baseUrl, PageStatus status) {
+    private GridMap getDownloadXls(PageStatus status) {
         String[][] data = new String[0][0];
         String downloadUrlBase = getDownloadUrlBase();
         
@@ -445,7 +405,7 @@ public class GenePage {
             
             data = dataReaderXls.getData();
         } catch (NoSuchElementException | TimeoutException te) {
-            String message = "Expected page for ID " + geneId + "(" + target + ") but found none.";
+            String message = "Expected page for ID " + phenotypeId + "(" + target + ") but found none.";
             status.addError(message);
         }  catch (Exception e) {
             String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
@@ -460,22 +420,14 @@ public class GenePage {
      * HTML table to the first non-heading row of <code>downloadData</code>. Any
      * errors are returned in the <code>PageStatus</code> instance.
      * 
-     * NOTE: All flavours of the download stream need some special modifications
-     * for comparison testing:
-     * <ul>
-     * <li>When comparing the graph url, start with the first occurrence of
-     * "/charts'. When testing on localhost, baseUrl is the localhost url, but
-     * the download stream has a dev url (for historical, complicated reasons).</li></ul>
-     * 
-     * @param baseUrl A fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      * @return page status instance
      */
     private PageStatus validateDownload() {
         PageStatus status = new PageStatus();
-        GridMap pageMap = ptGene.load();                                        // Load all of the phenotypes table pageMap data.
+        GridMap pageMap = ptPhenotype.load();                                   // Load all of the phenotypes table pageMap data.
         
         // Test the TSV.
-        GridMap downloadData = getDownloadTsv(baseUrl, status);
+        GridMap downloadData = getDownloadTsv(status);
         if (status.hasErrors()) {
             return status;
         }
@@ -486,7 +438,7 @@ public class GenePage {
         }
         
         // Test the XLS.
-        downloadData = getDownloadXls(baseUrl, status);
+        downloadData = getDownloadXls(status);
         if (status.hasErrors()) {
             return status;
         }
@@ -498,7 +450,7 @@ public class GenePage {
         
         return status;
     }
-
+    
     /**
      * Internal validation comparing a loaded <code>pageMap</code> store with a
      * loaded <code>downloadData</code> store
@@ -512,7 +464,7 @@ public class GenePage {
         // Check that the phenotypes table page line count equals the download stream line count.
         // Since the phenotypes table contains a single row for both sexes but the download file
         // contains a row for every sex, use the phenotypes table's sex count rather than the row count.
-        int sexIconCount = TestUtils.getSexIconCount(pageMap, PhenotypeTableGene.COL_INDEX_PHENOTYPES_SEX);
+        int sexIconCount = TestUtils.getSexIconCount(pageMap, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SEX);
         int bufferedSexIconCount = (int)Math.round(Math.floor(sexIconCount * 1.5));
         
         // If the phenotypes sex count is not equal to the download row count, then:
@@ -536,8 +488,8 @@ public class GenePage {
 
         // If the sex is "both", compare the first pheno row to the first ("female") download row
         // and the second ("male") download row.
-        String downloadCell = downloadData.getCell(0, DownloadGeneMap.COL_INDEX_SEX).trim();
-        String pageCell = pageMap.getCell(0, PhenotypeTableGene.COL_INDEX_PHENOTYPES_SEX).trim();
+        String downloadCell = downloadData.getCell(0, DownloadPhenotypeMap.COL_INDEX_SEX).trim();
+        String pageCell = pageMap.getCell(0, PhenotypeTablePhenotype.COL_INDEX_PHENOTYPES_SEX).trim();
         if (pageCell.equals("both")) {
             if (downloadCell.equals("female")) {
                 errorCount += compareRowData(pageMap, downloadData, 1, 1);      // download data is ordered 'female', then 'male'. Always check in the order "female", then "male".

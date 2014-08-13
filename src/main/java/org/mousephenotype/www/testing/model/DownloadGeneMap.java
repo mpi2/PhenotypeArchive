@@ -1,8 +1,8 @@
-/*
+/**
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
- /**
+/**
  * Copyright © 2014 EMBL - European Bioinformatics Institute
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
@@ -23,12 +23,18 @@ package org.mousephenotype.www.testing.model;
 /**
  *
  * @author mrelac
+ * 
+ * This class extends <code>GridMap</code> by adding column definitions for
+ * the download phenotype page.
  */
-public interface WebPage {
-    public PageStatus compare(String[][] downloadData, String downloadTarget);
-    public String[][] getPhenotypeTableData(Integer maxRows);
-    public int getResultsCount();
-    public PageStatus testDownload(String baseUrl);
-    
-    
+public class DownloadGeneMap {
+    public final static int COL_INDEX_PHENOTYPE           = 0;
+    public final static int COL_INDEX_ALLELE              = 1;
+    public final static int COL_INDEX_ZYGOSITY            = 2;
+    public final static int COL_INDEX_SEX                 = 3;
+    public final static int COL_INDEX_PROCEDURE_PARAMETER = 4;
+    public final static int COL_INDEX_PHENOTYPING_CENTER  = 5;
+    public final static int COL_INDEX_SOURCE              = 6;
+    public final static int COL_INDEX_P_VALUE             = 7;
+    public final static int COL_INDEX_GRAPH               = 8;
 }

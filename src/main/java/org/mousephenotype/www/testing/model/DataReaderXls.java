@@ -39,7 +39,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
  * 
  * This <code>DataReader</code> implementation handles Microsoft Excel streams.
  */
-public class DataReaderXls extends DataReaderImpl {
+public class DataReaderXls extends DataReader {
     
     private Iterator<Row> rowIterator = null;
     Workbook workbook;

@@ -33,36 +33,43 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  *
  * @author mrelac
  * 
- * This class encapsulates the code and data necessary for access to the gene
+ * This class encapsulates the code and data necessary for access to the phenotype
  * page's "phenotypes" HTML table.
  */
-public class PhenotypeTableGene {
-    protected WebDriver driver;
-    protected WebDriverWait wait;
-    protected String target;
+public class PhenotypeTablePhenotype {
+    private final WebDriver driver;
+    private final WebDriverWait wait;
+    private final String target;
     private GridMap data;
 
-    public static final int COL_INDEX_PHENOTYPES_PHENOTYPE           =  0;
-    public static final int COL_INDEX_PHENOTYPES_ALLELE              =  1;
-    public static final int COL_INDEX_PHENOTYPES_ZYGOSITY            =  2;
-    public static final int COL_INDEX_PHENOTYPES_SEX                 =  3;
+    public static final int COL_INDEX_PHENOTYPES_GENE_ALLELE         =  0;
+    public static final int COL_INDEX_PHENOTYPES_ZYGOSITY            =  1;
+    public static final int COL_INDEX_PHENOTYPES_SEX                 =  2;
+    public static final int COL_INDEX_PHENOTYPES_PHENOTYPE           =  3;
     public static final int COL_INDEX_PHENOTYPES_PROCEDURE_PARAMETER =  4;
     public static final int COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER  =  5;
     public static final int COL_INDEX_PHENOTYPES_SOURCE              =  6;
     public static final int COL_INDEX_PHENOTYPES_P_VALUE             =  7;
     public static final int COL_INDEX_PHENOTYPES_GRAPH               =  8;
     
-    public static final String COL_PHENOTYPES_PHENOTYPE           = "Phenotype";
-    public static final String COL_PHENOTYPES_ALLELE              = "Allele";
+    public static final String COL_PHENOTYPES_GENE_ALLELE         = "Gene / Allele";
     public static final String COL_PHENOTYPES_ZYGOSITY            = "Zygosity";
     public static final String COL_PHENOTYPES_SEX                 = "Sex";
+    public static final String COL_PHENOTYPES_PHENOTYPE           = "Phenotype";
     public static final String COL_PHENOTYPES_PROCEDURE_PARAMETER = "Procedure | Parameter";
     public static final String COL_PHENOTYPES_PHENOTYPING_CENTER  = "Phenotyping Center";
     public static final String COL_PHENOTYPES_SOURCE              = "Source";
     public static final String COL_PHENOTYPES_P_VALUE             = "P Value";
     public static final String COL_PHENOTYPES_GRAPH               = "Graph";
     
-    public PhenotypeTableGene(WebDriver driver, WebDriverWait wait, String target) {
+    /**
+     * Creates a new, empty <code>PhenotypeTablePheno</code> instance. Call <code>
+     * load(<b>numRows</b>)</code> to load <code>numRows</code> rows of data.
+     * @param driver <code>WebDriver</code> instance
+     * @param wait<code>WebDriverWait</code> instance
+     * @param target the calling page's target url
+     */
+    public PhenotypeTablePhenotype(WebDriver driver, WebDriverWait wait, String target) {
         this.driver = driver;
         this.wait = wait;
         this.target = target;
@@ -78,11 +85,10 @@ public class PhenotypeTableGene {
     }
 
     /**
-     * Pulls all rows of data and column access variables from the gene page's
-     * 'phenotypes' HTML table.
+     * Load phenotype table data
      *
-     * @return <code>numRows</code> rows of data and column access variables
-     * from the gene page's 'phenotypes' HTML table.
+     * @return all rows of data and column access variables from
+     * the pheno page's 'phenotypes' HTML table.
      */
     public GridMap load() {
         return load(null);
@@ -90,12 +96,12 @@ public class PhenotypeTableGene {
 
     /**
      * Pulls <code>numRows</code> rows of data and column access variables from
-     * the gene page's 'phenotypes' HTML table.
+     * the pheno page's 'phenotypes' HTML table.
      *
      * @param numRows the number of phenotype table rows to return, including
      * the heading row. To specify all rows, set <code>numRows</code> to null.
      * @return <code>numRows</code> rows of data and column access variables
-     * from the gene page's 'phenotypes' HTML table.
+     * from the pheno page's 'phenotypes' HTML table.
      */
     public GridMap load(Integer numRows) {
         if (numRows == null)
@@ -109,7 +115,7 @@ public class PhenotypeTableGene {
 
         // Grab the headings.
         List<WebElement> headings = phenotypesTable.findElements(By.cssSelector("thead tr th"));
-        numRows = Math.min(computeTableRowCount(), numRows);                    // Take the lesser of: actual row count in HTML table (including heading), or requested numRows.
+        numRows = Math.min(computeTableRowCount(), numRows);                        // Take the lesser of: actual row count in HTML table (including heading), or requested numRows.
         int numCols = headings.size();
 
         dataArray = new String[numRows][numCols];                               // Allocate space for the data.
@@ -118,22 +124,21 @@ public class PhenotypeTableGene {
             dataArray[0][colIndex] = heading.getText();
             colIndex++;
         }
-        
+
         // Loop through all of the tr objects for this page, gathering the data.
         int rowIndex = 1;
-
         for (WebElement row : phenotypesTable.findElements(By.xpath("//table[@id='phenotypes']/tbody/tr"))) {
             List<WebElement> cells = row.findElements(By.cssSelector("td"));
             colIndex = 0;
             for (WebElement cell : cells) {
-                if (colIndex == COL_INDEX_PHENOTYPES_ALLELE) {
+                if (colIndex == COL_INDEX_PHENOTYPES_GENE_ALLELE) {
                     String sup = cell.findElement(By.cssSelector("sup")).getText();
                     value = cell.findElement(By.cssSelector("a")).getText();
                     AlleleParser ap = new AlleleParser(value, sup);
                     value = ap.toString();
                 } else if (colIndex == COL_INDEX_PHENOTYPES_PHENOTYPE) {
                     value = cell.findElement(By.cssSelector("a")).getText();    // Get the phenotype text.
-                } else if (colIndex == COL_INDEX_PHENOTYPES_SEX) {              // Translate the male/female symbol into a string: 'male', 'female', or 'both'.
+                } else if (colIndex == COL_INDEX_PHENOTYPES_SEX) {                      // Translate the male/female symbol into a string: 'male', 'female', or 'both'.
                     List<WebElement> sex = cell.findElements(By.xpath("img[@alt='Male' or @alt='Female']"));
                     if (sex.size() == 2) {
                         value = "both";
@@ -158,11 +163,15 @@ public class PhenotypeTableGene {
                 return data;
             }
         }
-        
+
         data = new GridMap(dataArray, target);
         
         return data;
     }
+    
+    
+    // PRIVATE METHODS
+    
     
     /**
      * 

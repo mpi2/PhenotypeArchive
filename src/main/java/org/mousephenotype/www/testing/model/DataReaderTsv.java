@@ -27,7 +27,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.mousephenotype.www.testing.model.DataReader.DataType;
 
 /**
  *
@@ -35,7 +34,7 @@ import org.mousephenotype.www.testing.model.DataReader.DataType;
  * 
  * This <code>DataReader</code> implementation handles tab-separated streams.
  */
-public class DataReaderTsv extends DataReaderImpl {
+public class DataReaderTsv extends DataReader {
     private BufferedReader bufferedReader = null;
     
     /**
